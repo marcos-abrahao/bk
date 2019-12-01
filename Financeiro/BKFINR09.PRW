@@ -1,0 +1,365 @@
+#INCLUDE "RWMAKE.CH"
+#INCLUDE "TOPCONN.CH"
+#INCLUDE "PROTHEUS.CH"
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ FINR09  º                                    Data ³11/05/10º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Listagem de Despesas de Viagem/LF                          º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ BK Consultoria                                             º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+         
+/*/
+
+
+User Function BKFINR09()
+
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Declaracao de Variaveis                                             ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+Private cTitulo      := "Listagem de Despesas de Viagem/LF"
+Private aTitulos     := {}
+Private lEnd         := .F.
+Private lAbortPrint  := .F.
+Private cProg        := "FINR09"
+Private cPerg        := "FINR09"
+Private cNProg
+
+Private cString := "SZ2"
+
+Private nOpcA
+Private aTipoBk  := {},cTipoBK
+Private aTipoPes := {},cTipoPes
+Private aTipoRel := {"DV - Despesas de Viagem","LF - Liquidos da Folha","CX - Caixa"}
+Private cTipoRel := aTipoRel[1] 
+
+// Parametros - Pergunte
+Private dEmisI,dEmisF,dVencI,dVencF,nValI,nValF,cCC,cForn
+
+ProcRegua(10)
+Processa( {|| LoadTpBk()})
+
+ProcRegua(10)
+Processa( {|| LoadTpPes()})
+
+cTipoBk   := aTipoBk[LEN(aTipoBK)]
+cTipoPes  := aTipoPes[LEN(aTipoPes)]
+
+nTamTpBK  := TamSx3("Z2_TIPO")[1]
+nTamTpPes := TamSx3("Z2_TIPOPES")[1]
+
+ValidPerg(cPerg)
+If !Pergunte(cPerg,.T.)
+	Return
+Endif
+
+DEFINE MSDIALOG oDlg FROM  96,9 TO 310,592 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
+
+//@ 18, 6 TO 66, 287 LABEL "" OF oDlg  PIXEL
+
+@ 10,10 SAY 'Relatorio:'   SIZE 50,10 OF oDlg PIXEL
+@ 10,65 COMBOBOX cTipoRel  ITEMS aTipoRel SIZE 100,50 OF oDlg PIXEL
+
+@ 25,10 SAY 'Tipo BK:'     SIZE 50,10 OF oDlg PIXEL
+@ 25,65 COMBOBOX cTipoBk   ITEMS aTipoBK SIZE 100,50 OF oDlg PIXEL
+
+@ 40,10 SAY "Tipo Pessoa"  SIZE 50,10 OF oDlg PIXEL
+@ 40,65 COMBOBOX cTipoPes  ITEMS aTipoPes SIZE 100,50 OF oDlg PIXEL
+
+//@ 48, 15 SAY "xxx" SIZE 270, 8 OF oDlg PIXEL
+DEFINE SBUTTON oBtnParam FROM 80, 183 TYPE 5 ACTION pergunte(cPerg,.T.) ENABLE OF oDlg
+oBtnParam:nWidth := 80
+DEFINE SBUTTON FROM 80, 223 TYPE 1 ACTION (oDlg:End(),nOpcA:=1) ENABLE OF oDlg
+DEFINE SBUTTON FROM 80, 253 TYPE 2 ACTION oDlg:End() ENABLE OF oDlg
+ACTIVATE MSDIALOG oDlg CENTER
+
+If nOpcA == 1
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Faz Processamento.                                           ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	ProcR09()
+Endif
+Return NIL
+
+
+Static Function ProcR09()
+
+dEmisI := mv_par01
+dEmisF := mv_par02
+dVencI := mv_par03
+dVencF := mv_par04
+nValI  := mv_par05
+nValF  := mv_par06
+cCC    := mv_par07
+cForn  := mv_par08
+
+aCabs   := {}
+aCampos := {}
+aTitulos:= {}
+
+cNProg := cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))   
+AADD(aTitulos,cNProg)
+
+ProcRegua(5)
+Processa( {|| ProcSZ2() })
+
+
+AADD(aCampos,"QSZ2->Z2_TIPO")
+AADD(aCabs  ,"Tipo")
+
+AADD(aCampos,"QSZ2->Z2_TIPOPES")
+AADD(aCabs  ,"Tipo Pessoa")
+
+AADD(aCampos,"QSZ2->Z2_PRONT")
+AADD(aCabs  ,"Prontuario")
+
+AADD(aCampos,"QSZ2->Z2_NOME")
+AADD(aCabs  ,"Nome")
+
+AADD(aCampos,"IIF(SUBSTR(QSZ2->Z2_CC,1,1)<>'E',QSZ2->Z2_CC,'000000001')")
+AADD(aCabs  ,"Centro de Custos")
+
+AADD(aCampos,"IIF(!EMPTY(QSZ2->CTT_DESC01),QSZ2->CTT_DESC01,'BK CONSULTORIA')")
+AADD(aCabs  ,"Descriçao do C.C.")
+                       
+AADD(aCampos,"QSZ2->Z2_VALOR")
+AADD(aCabs  ,"Valor")
+
+AADD(aCampos,"QSZ2->Z2_DATAEMI")
+AADD(aCabs  ,"Emissao")
+
+AADD(aCampos,"QSZ2->Z2_DATAPGT")
+AADD(aCabs  ,"Vencimento")
+
+AADD(aCampos,"QSZ2->E2_BAIXA")
+AADD(aCabs  ,"Baixa")
+
+AADD(aCampos,"QSZ2->Z2_OBS")
+AADD(aCabs  ,"Observações")
+
+AADD(aCampos,"QSZ2->Z2_USUARIO")
+AADD(aCabs  ,"Usuário")
+
+AADD(aCampos,"QSZ2->Z2_E2FORN")
+AADD(aCabs  ,"Cod. do Fornecedor")
+
+AADD(aCampos,"QSZ2->Z2_E2LOJA")
+AADD(aCabs  ,"Loja do Fornecedor")
+
+AADD(aCampos,"QSZ2->A2_NOME")
+AADD(aCabs  ,"Nome do Fornecedor")
+
+AADD(aCampos,"QSZ2->Z2_E2PRF")
+AADD(aCabs  ,"Prefixo")
+
+AADD(aCampos,"QSZ2->Z2_E2NUM")
+AADD(aCabs  ,"Numero do Titulo")
+
+AADD(aCampos,"QSZ2->Z2_E2PARC")
+AADD(aCabs  ,"Parcela do Titulo")
+
+AADD(aCampos,"QSZ2->E2_VENCTO")
+AADD(aCabs  ,"Vencimento Titulo")
+
+AADD(aCampos,"QSZ2->Z2_PRODUTO")
+AADD(aCabs  ,"Conta Contábil")
+
+AADD(aCampos,"QSZ2->Z2_OBSTITU")
+AADD(aCabs  ,"OBS")
+
+
+IF !QSZ2->(EOF())
+	ProcRegua(QSZ2->(LASTREC()))
+	Processa( {|| U_GeraCSV("QSZ2",cProg,aTitulos,aCampos,aCabs)})
+ELSE
+    MsgStop("Sem dados para imprimir, verifique os parâmetros do relatório")
+	Dbselectarea("QSZ2")
+	dbCloseArea()
+ENDIF	
+	
+Return
+
+
+Static Function ProcSZ2()
+Local cQuery
+
+
+IncProc()
+cQuery := "SELECT Z2_PRONT,Z2_NOME,Z2_CC,CTT_DESC01,Z2_VALOR,Z2_TIPO,Z2_TIPOPES,Z2_OBS,Z2_USUARIO,Z2_E2FORN,Z2_E2LOJA,Z2_DATAEMI,Z2_DATAPGT, "
+cQuery += "Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_PRODUTO,Z2_OBSTITU, "
+
+//cQuery += "E2_BAIXA,E2_VENCTO, "  
+//Z2_CTRID = E2_XXCTRID
+cQuery += "(SELECT TOP 1 E2_BAIXA  FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"  
+cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
+cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_BAIXA,"
+cQuery += "(SELECT TOP 1 E2_VENCTO FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"
+cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
+cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_VENCTO,"
+//
+cQuery += "A2_NOME "
+cQuery += "FROM "+RETSQLNAME("SZ2")+" SZ2 "
+
+//cQuery += "LEFT JOIN "+RETSQLNAME("SE2")+" SE2 ON Z2_CTRID = E2_XXCTRID AND SE2.D_E_L_E_T_ = ' ' "
+cQuery += "LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON Z2_E2FORN = A2_COD AND Z2_E2LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "
+cQuery += "LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON Z2_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "
+
+cQuery += "WHERE SZ2.D_E_L_E_T_ = ' '  AND SZ2.Z2_STATUS = 'S' AND SZ2.Z2_CODEMP='"+SM0->M0_CODIGO+"'"
+
+aTitulos[1] := aTitulos[1] + " - "+cTipoRel
+
+cTipoRel := PAD(cTipoRel,TamSx3("Z2_E2PRF")[1])
+cQuery  += "AND Z2_E2PRF = '"+cTipoRel+"' "
+
+IF ALLTRIM(cTipoBK) <> "TODOS" 
+   cTipoBK := PAD(cTipoBK,nTamTpBk)
+   cQuery  += "AND Z2_TIPO = '"+cTipoBk+"' "
+   AADD(aTitulos,"Tipo BK: "+cTipoBK)
+ENDIF
+
+IF ALLTRIM(cTipoPes) <> "TODOS" 
+   cTipoPes := PAD(cTipoPes,nTamTpPes)
+   cQuery  += "AND Z2_TIPOPES = '"+cTipoPes+"' "
+   AADD(aTitulos,"Tipo Pessoa: "+cTipoPes)
+ENDIF
+
+IF !EMPTY(dEmisI)
+   cQuery  += "AND Z2_DATAEMI >= '"+DTOS(dEmisI)+"' "
+   AADD(aTitulos,"Emissao de "+DTOC(dEmisI))
+ENDIF
+IF !EMPTY(dEmisF)
+   cQuery  += "AND Z2_DATAEMI <= '"+DTOS(dEmisF)+"' "
+   AADD(aTitulos,"Emissao até "+DTOC(dEmisF))
+ENDIF
+IF !EMPTY(dVencI)
+   cQuery  += "AND Z2_DATAPGT >= '"+DTOS(dVencI)+"' "
+   AADD(aTitulos,"Vencimento de "+DTOC(dVencI))
+ENDIF
+IF !EMPTY(dVencF)
+   cQuery  += "AND Z2_DATAPGT <= '"+DTOS(dVencF)+"' "
+   AADD(aTitulos,"Vencimento até "+DTOC(dVencF))
+ENDIF
+
+IF !EMPTY(nValI)
+   cQuery  += "AND Z2_VALOR >= '"+ALLTRIM(STR(nValI))+"' "
+   AADD(aTitulos,"Valor de "+ALLTRIM(STR(nValI,17,2)) )
+ENDIF
+IF !EMPTY(nValF)
+   cQuery  += "AND Z2_VALOR <= '"+ALLTRIM(STR(nValF))+"' "
+   AADD(aTitulos,"Valor até "+ALLTRIM(STR(nValF,17,2)) )
+ENDIF
+
+IF !EMPTY(cCC)
+   cQuery  += "AND Z2_CC = '"+cCC+"' "
+   AADD(aTitulos,"Centro de Custos "+cCC)
+ENDIF
+
+IF !EMPTY(cForn)
+   cQuery  += "AND Z2_E2FORN = '"+cForn+"' "
+   AADD(aTitulos,"Fornecedor "+cForn)
+ENDIF
+
+cQuery += "ORDER BY Z2_DATAEMI,Z2_E2NUM "
+//cQuery += "ORDER BY Z2_DATAEMI,E2_NUM "
+
+//memowrite("c:\query.sql",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QSZ2"
+
+TCSETFIELD("QSZ2","Z2_DATAEMI","D",8,0)
+TCSETFIELD("QSZ2","Z2_DATAPGT","D",8,0)
+TCSETFIELD("QSZ2","E2_VENCTO","D",8,0)
+TCSETFIELD("QSZ2","E2_BAIXA","D",8,0)
+
+Dbselectarea("QSZ2")
+QSZ2->(Dbgotop())
+
+Return nil
+
+
+
+Static Function LoadTpBk()
+Local cQry
+IncProc()
+// Opções tipo BK
+//cQry := "SELECT Z2_TIPO FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE SZ2.D_E_L_E_T_ = ' ' GROUP BY Z2_TIPO ORDER BY Z2_TIPO"
+cQry := "SELECT Z2_TIPO FROM "+RETSQLNAME("SZ2")+" SZ2 GROUP BY Z2_TIPO ORDER BY Z2_TIPO"
+TCQUERY cQry NEW ALIAS "QSZ2"
+
+Dbselectarea("QSZ2")
+QSZ2->(Dbgotop())
+DO WHILE !EOF()
+   IncProc()
+   AADD(aTipobK,QSZ2->Z2_TIPO)
+   dbSkip()
+ENDDO
+AADD(aTipobK,"TODOS")
+dbCloseArea()
+Return Nil
+
+
+Static Function LoadTpPes()
+Local cQry
+IncProc()
+// Opções tipo BK
+//cQry := "SELECT Z2_TIPOPES FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE SZ2.D_E_L_E_T_ = ' ' GROUP BY Z2_TIPOPES ORDER BY Z2_TIPOPES"
+cQry := "SELECT Z2_TIPOPES FROM "+RETSQLNAME("SZ2")+" SZ2 GROUP BY Z2_TIPOPES ORDER BY Z2_TIPOPES"
+TCQUERY cQry NEW ALIAS "QSZ2"
+
+Dbselectarea("QSZ2")
+QSZ2->(Dbgotop())
+DO WHILE !EOF()
+   IncProc()
+   AADD(aTipoPes,QSZ2->Z2_TIPOPES)
+   dbSkip()
+ENDDO
+AADD(aTipoPes,"TODOS")
+dbCloseArea()
+Return Nil
+
+
+
+Static Function ValidPerg
+
+Local aArea      := GetArea()
+Local aRegistros := {}
+Local i,j
+
+cPerg := "FINR09"
+dbSelectArea("SX1")
+dbSetOrder(1)
+cPerg := PADR(cPerg,10)
+
+AADD(aRegistros,{cPerg,"01","Emissao de :"        ,"" ,"" ,"mv_ch1","D",08,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"02","Emissao até:"        ,"" ,"" ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Vencimento de :"     ,"" ,"" ,"mv_ch3","D",08,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"04","Vencimento até:"     ,"" ,"" ,"mv_ch4","D",08,0,0,"G","","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"05","Valor de:"           ,"" ,"" ,"mv_ch5","N",17,2,2,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"06","Valor até:"          ,"" ,"" ,"mv_ch6","N",17,2,2,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"07","Centro de Custo:"    ,"" ,"" ,"mv_ch7","C",09,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","CTT"})
+aAdd(aRegistros,{cPerg,"08","Fornecedor: "        ,"" ,"" ,"mv_ch8","C",06,0,0,"G","","mv_par08","","","","","","","","","","","","","","","","","","","","","","","","","SA2"})
+
+                                     
+For i:=1 to Len(aRegistros)
+	If !dbSeek(cPerg+aRegistros[i,2])
+		RecLock("SX1",.T.)
+		For j:=1 to FCount()
+			If j <= Len(aRegistros[i])
+				FieldPut(j,aRegistros[i,j])
+			Endif
+		Next
+		MsUnlock()
+	Endif
+Next
+
+RestArea(aArea)
+
+Return(NIL)

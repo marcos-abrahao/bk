@@ -1,0 +1,201 @@
+#INCLUDE "rwmake.ch"
+#INCLUDE "topconn.ch"
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ BKGCTR10 º Autor ³ Marcos B. Abrahão         Data ³26/04/12º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Histórico de Multas e Bonificações                         º±±
+±±ºAlteracao ³ Alterado conceito de glosa para multa,Bonificações -18/11/14±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ BK                                                         º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+
+User Function BKGCTR10()
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Declaracao de Variaveis                                             ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
+Local cDesc2         := "de acordo com os parametros informados pelo usuario."
+Local cDesc3         := ""
+Local cPict          := ""
+Local titulo         := ""
+Local nLin           := 80
+Local lPula          := .F.
+Local Cabec1         := ""
+Local Cabec2         := ""
+Local imprime        := .T.
+Local aOrd           := {}
+Local aTitulos,aCampos,aCabs,aPlans
+
+Private lEnd         := .F.
+Private lAbortPrint  := .F.
+Private CbTxt        := "G"
+Private limite       := 220
+Private tamanho      := " "
+Private nomeprog     := "BKGCTR10" // Coloque aqui o nome do programa para impressao no cabecalho
+Private nTipo        := 18
+Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
+Private nLastKey     := 0
+Private cPerg        := "BKGCTR10"
+Private cbtxt        := Space(10)
+Private cbcont       := 00
+Private CONTFL       := 01
+Private m_pag        := 01
+Private wnrel        := "BKGCTR10" // Coloque aqui o nome do arquivo usado para impressao em disco
+Private cString      := "CN9"
+
+Private cMesComp     := "01"
+Private cAnoComp     := "2010"
+Private nPlan        := 1
+Private cMes 
+
+dbSelectArea(cString)
+dbSetOrder(1)
+
+ValidPerg(cPerg)
+If !Pergunte(cPerg,.T.)
+	Return
+Endif
+
+cContrat := mv_par01
+cRevisa  := ""
+cDescr   := ""
+
+BKCNR10(cContrat)
+
+titulo   := "Histórico de Multa e Bonificações: "+TRIM(cContrat)+"-"+cRevisa+" - "+cDescr 
+
+If .f. //nPlan = 2
+
+Else
+	ProcRegua(1)
+	Processa( {|| ProcQuery() })
+
+	aCabs   := {}
+	aCampos := {}
+	aTitulos:= {}
+	aPlans  := {}
+  
+	nomeprog := "BKGCTR10/"+TRIM(SUBSTR(cUsuario,7,15))
+	AADD(aTitulos,nomeprog+" - "+titulo)
+
+	AADD(aCampos,"QTMP->CND_COMPET")
+	AADD(aCabs  ,"Competencia")
+
+	AADD(aCampos,"IIF(QTMP->CNR_TIPO = '2','Bonificação','Multa')")
+	AADD(aCabs  ,"Competencia")
+
+	AADD(aCampos,"QTMP->CNR_DESCRI")
+	AADD(aCabs  ,"Descrição")
+
+	AADD(aCampos,"IIF(QTMP->CNR_TIPO = '2',-CNR_VALOR,CNR_VALOR)")
+	AADD(aCabs  ,"Valor")
+
+	//ProcRegua(QTMP->(LASTREC()))
+	//Processa( {|| U_GeraCSV("QTMP","BKGCT10",aTitulos,aCampos,aCabs)})
+
+	AADD(aPlans,{"QTMP","BKGCT10","",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+	MsAguarde({|| U_GeraXml(aPlans,Titulo,"BKGCT10",.F.)},"Aguarde","Gerando planilha...",.F.)
+	   
+EndIf	
+Return
+
+
+Static Function ProcQuery
+Local cQuery,dDt
+
+IncProc("Consultando o banco de dados...")
+
+cQuery := " SELECT CND_DTFIM,CND_COMPET,CNR_TIPO,CNR_DESCRI,CNR_VALOR "
+cQuery += " FROM "+RETSQLNAME("CNR")+" CNR"
+cQuery += "	          INNER JOIN "+RETSQLNAME("CND")+" CND ON CND_NUMMED = CNR_NUMMED "
+cQuery += "	                AND CND_CONTRA = '"+cContrat+"' AND CND_REVISA = '"+cRevisa+"' "
+cQuery += "	                AND CND_FILIAL = '"+xFilial("CND")+"' AND CND.D_E_L_E_T_ = ' ' "
+cQuery += "	          WHERE CNR_FILIAL = '"+xFilial("CNR")+"' AND CNR.D_E_L_E_T_ = ' ' "
+
+//cQuery += "	                     SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '201203' 
+
+cQuery += " ORDER BY CND_DTFIM,CND_COMPET "  
+
+TCQUERY cQuery NEW ALIAS "QTMP"
+TCSETFIELD("QTMP","CND_DTFIM","D",8,0)
+
+//u_QryToCsv("QTMP","BKGCTR10A",{cQuery},.F.)
+
+Return
+
+
+
+Static Function  ValidPerg
+
+Local aArea      := GetArea()
+Local aRegistros := {}
+cPerg := "BKGCTR10"
+dbSelectArea("SX1")
+dbSetOrder(1)
+cPerg := PADR(cPerg,10)
+
+aAdd(aRegistros,{cPerg,"01","Contrato: "        ,"" ,"" ,"mv_ch1","C",15,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CN9"})
+
+For i:=1 to Len(aRegistros)
+	If !dbSeek(cPerg+aRegistros[i,2])
+		RecLock("SX1",.T.)
+		For j:=1 to FCount()
+			If j <= Len(aRegistros[i])
+				FieldPut(j,aRegistros[i,j])
+			Endif
+		Next
+		MsUnlock()
+	//Else	
+	//	RecLock("SX1",.F.)
+	//	For j:=1 to FCount()
+	//		If j <= Len(aRegistros[i])
+	//			FieldPut(j,aRegistros[i,j])
+	//		Endif
+	//	Next
+	//	MsUnlock()
+	Endif
+Next
+
+RestArea(aArea)
+
+Return(NIL)
+
+STATIC FUNCTION BKCNR10(cContrat)
+LOCAL cQuery
+
+cQuery := " SELECT MAX(CN9_REVISA) XX_REVISA FROM "+RETSQLNAME("CN9")+" CN9 WHERE CN9_NUMERO = '"+cContrat+"' "
+cQuery += "             AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_ = ' ' "
+TCQUERY cQuery NEW ALIAS "QTMP1"
+dbSelectArea("QTMP1")
+dbGoTop()
+DO WHILE !EOF()
+    cRevisa := QTMP1->XX_REVISA
+	dbSelectArea("QTMP1")
+	dbSkip()
+ENDDO
+
+QTMP1->(Dbclosearea())
+
+cQuery := " SELECT CN9_XXDESC FROM "+RETSQLNAME("CN9")+" CN9 WHERE CN9_NUMERO = '"+cContrat+"' AND CN9_REVISA = '"+cRevisa+"' "
+cQuery += "             AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_ = ' ' "
+TCQUERY cQuery NEW ALIAS "QTMP1"
+dbSelectArea("QTMP1")
+dbGoTop()
+DO WHILE !EOF()
+    cDescr := QTMP1->CN9_XXDESC
+	dbSelectArea("QTMP1")
+	dbSkip()
+ENDDO
+
+QTMP1->(Dbclosearea())
+
+Return

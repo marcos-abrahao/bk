@@ -1,0 +1,57 @@
+#include "rwmake.ch"
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³MT140LOK  ºAutor  ³Adilson do Prado    º Data ³  04/06/13   º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Este ponto de entrada tem o objetivo de validar as         º±±
+±±ºinformações preenchidas no aCols de cada item do pré-documento de      º±±
+±±ºentrada, para usuário do grupo Almoxarifado                            º±±
+±±º                                                                       º±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+
+ 
+User Function xMT140LOK
+Local lRet	 := ParamIXB[1]
+Local aTotais:= ParamIXB[2]
+Local aDesp  := ParamIXB[3]
+Local nPosPc := aScan(aHeader,{|x| AllTrim(x[2])=="D1_PEDIDO"})
+Local aUser:={},aGrupo:={}
+Local cAlmox := ""
+Local lAlmox := .F.
+
+aUser  := PswRet(1)
+cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021") 
+lAlmox := .F.
+aGRUPO := {}
+//AADD(aGRUPO,aUser[1,10])
+//FOR i:=1 TO LEN(aGRUPO[1])
+//	lAlmox := (aGRUPO[1,i] $ cAlmox)
+//NEXT
+//Ajuste nova rotina a antiga não funciona na nova lib MDI
+aGRUPO := UsrRetGrp(aUser[1][2])
+IF LEN(aGRUPO) > 0
+	FOR i:=1 TO LEN(aGRUPO)
+		lAlmox := (ALLTRIM(aGRUPO[i]) $ lAlmox )
+	NEXT
+ENDIF	
+
+IF lAlmox
+	For _IX:=1 TO LEN(aCols)
+		IF Empty(aCols[_IX,nPosPC]) 
+			Aviso("Atenção","Informe o No. do Pedido de Compras",{"Ok"}, 2 )
+			lRet := .F.
+		ENDIF
+	Next
+ENDIF 
+
+Return lRet
+
+
+
+
+
