@@ -250,7 +250,7 @@ Local nTPCNAB 	:= 0
 Local lOk      	:= .F.
 Local cQuery
 Local nI
-
+//teste git
 PRIVATE aBordero := {} 
 
 AADD(aTPCNAB,{"LPMA/COM/LPM","PGTOSAL"})
