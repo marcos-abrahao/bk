@@ -1087,6 +1087,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 				Bcn033DB += '2002'       	//226 229 //ADIANTAMENTO
 			ELSEIF "PGTO_OUTROS" $ cGRUPO  .OR. "VAL_REFE" $ cGRUPO 
 				Bcn033DB += '2002'       	//226 229 // VALE REF OU ALIMENTACAO
+			ELSE
+				Bcn033DB += '2007'			// PENSAO: VERIFICAR NO BANCO SANTANDER, NÃO TEM NO MANUAL
 			ENDIF
 
 			Bcn033DB += SPACE(1)        //230 230
@@ -1607,6 +1609,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 				Bcn237D += "01363"  //ADIANTAMENTO
 			ELSEIF "PGTO_OUTROS" $ cGRUPO
 				Bcn237D += "01363" // VALE REF OU ALIMENTACAO
+			ELSEIF "PENSAO" $ cGrupo
+				Bcn237D += "01604" 
 			ENDIF
 
 			Bcn237D += " "
@@ -1814,6 +1818,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 				Bcn341D += "HP06"        	//178 181 PAGTO ADIANT SALARIAL
 			ELSEIF "PGTO_OUTROS" $ cGRUPO
 				Bcn341D += "HP06"        	//178 181 PAGTO VALE TRANSPORTE
+			ELSEIF "PENSAO" $ cGRUPO
+				Bcn341D += "HP10"        	//178 181 PAGTO PENSIONISTA
 			ENDIF
 
 			Bcn341D += SPACE(16)		//182 196

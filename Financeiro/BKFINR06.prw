@@ -264,6 +264,7 @@ Local cxTipoPg   := ""
 Local cxNumPa    := ""
 Local cFormaPgto := ""
 Local nIniBox    := 0
+Local cLinObs    := ""
 
 nMaxLin := Iif(lLands,2300,3100)
 nMaxObs := Iif(lLands,120,090)
@@ -691,9 +692,18 @@ Begin Sequence
 	      cLin  := PAD(Capital(BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
           oPrn:Say(nLin,nPos,cLin,oFont07)
           nPos  += 335
+		  cLinObs := ""
 
-          IF lLands
-		      cLinObs := ALLTRIM(QSZ2->Z2_OBSTITU)
+		  IF lLands
+			  IF TRIM(QSZ2->Z2_TIPO) == "PEN"
+				cLinObs += ALLTRIM(IIF(!EMPTY(QSZ2->Z2_NOMMAE),QSZ2->Z2_NOMMAE,QSZ2->Z2_NOMDEP))
+			  ENDIF
+			  IF !EMPTY(cLinObs) .and. !EMPTY(QSZ2->Z2_OBSTITU)
+				cLinObs += " - "
+			  ENDIF
+
+			  cLinObs += ALLTRIM(QSZ2->Z2_OBSTITU)
+			  
 		      IF QSZ2->Z2_DATAPGT <= QSZ2->Z2_DATAEMI
 		      		cLinObs += " - Aprovado Integração após Horário"
 		      ENDIF
@@ -931,7 +941,7 @@ Local cLoja    := SE2->E2_LOJA
 
 cQuery := "SELECT ""
 cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
-cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU "
+cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU,Z2_NOMDEP,Z2_NOMMAE "
 cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2"
 cQuery += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
 cQuery += " AND Z2_E2PRF  = '"+cPrefixo+"' "
