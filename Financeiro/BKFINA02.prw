@@ -755,9 +755,9 @@ STATIC FUNCTION ExcDuplic()
 Local cQuery  := ""
 Local aEmail1 := {}
 Local aEmail2 := {}
-Local cAssunto:= "Titulo(s) já lançado devolvido ao RH "
+Local cAssunto:= "Titulo(s) já lançado(s) devolvido ao RH "
 
-// Verificar se há titulos ja lancado
+// Verificar se há titulos ja lancados
 cQuery  := "SELECT SZ2X.Z2_CODEMP,SZ2X.Z2_TIPO,SZ2X.Z2_PRONT,SZ2X.Z2_TIPCOL,SZ2X.Z2_DATAPGT,SZ2X.R_E_C_N_O_ AS nREGSZ2,"
 cQuery  += " (SELECT TOP 1 Z2_PRONT"
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2Y WHERE SZ2Y.D_E_L_E_T_='' "
@@ -770,7 +770,7 @@ cQuery  += " AND SZ2Y.Z2_STATUS <> 'D' "
 cQuery  += " AND SZ2Y.Z2_TIPOPES=SZ2X.Z2_TIPOPES "
 cQuery  += " AND SZ2Y.R_E_C_N_O_ <> SZ2X.R_E_C_N_O_) AS EXISTE  "
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2X WHERE SZ2X.D_E_L_E_T_ = '' "
-cQuery  += " AND SZ2X.Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND SZ2X.Z2_STATUS = ' ' AND Z2_TIPO<>'LFG'" 
+cQuery  += " AND SZ2X.Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND SZ2X.Z2_STATUS = ' ' AND Z2_TIPO<>'LFG' AND Z2_TIPO<>'PEN'" 
 
 TCQUERY cQuery NEW ALIAS "QSZ2"
 

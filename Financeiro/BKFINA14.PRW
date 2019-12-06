@@ -1918,7 +1918,7 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 		DbSelectArea("SZ2")
 		DbSetOrder(3)
 		dbSeek(xFilial("SZ2")+SM0->M0_CODIGO+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
-		IF ALLTRIM(SZ2->Z2_TIPOPES) $ "CLT/RPA"
+		IF ALLTRIM(SZ2->Z2_TIPOPES) $ "CLT/RPA/PJ"
 			IF nFurnas == 1
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[1]
 					IF cBanco=='104'
