@@ -3215,14 +3215,24 @@ FOR _nI := 1 TO nPeriodo
 	        AADD(aRentab,{"00","CLIENTE: ","S",TMPX2->A1_NOME})              
 	        AADD(aRentab,{"01","CONTRATO: ","S",TMPX2->CTT_DESC01})              
 	        AADD(aRentab,{"02","Gestor BK: ","S",""})              
-	        AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})              
+			//AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
+			AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
+			          
 	        AADD(aRentab,{"03-1","","S",0}) 
-	        AADD(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})            
-	        AADD(aRentab,{"05","(-) ISS","S",TMPX2->D2_VALISS})            
+			//AADD(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})  
+			AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((TMPX2->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(TMPX2->D2_TOTAL*nMImpContr)/100)})            
+			          
+			//AADD(aRentab,{"05","(-) ISS","S",TMPX2->D2_VALISS}) 
+        	AADD(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,TMPX2->D2_VALISS/(nIndTC/100),TMPX2->D2_VALISS)})            
+			           
 	        AADD(aRentab,{"05-1","","S",0}) 
-	        AADD(aRentab,{"06","Total dos Impostos + ISS","S",((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS})            
-	        AADD(aRentab,{"06-1","","S",0}) 
-	        AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)}) 
+	        //AADD(aRentab,{"06","Total dos Impostos + ISS","S",((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS})            
+        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)/(nIndTC/100),((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)})            
+
+			AADD(aRentab,{"06-1","","S",0}) 
+			//AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS))/(nIndTC/100),TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS))}) 
+			
 	        AADD(aRentab,{"07-1","","S",0}) 
 	        AADD(aRentab,{"08","CUSTO","S",0}) 
 	        AADD(aRentab,{"09","PROVENTOS","S",0}) 
