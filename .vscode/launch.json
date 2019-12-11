@@ -17,7 +17,12 @@
 			"args": [],
 			"label": "SIGAFIN",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "sigacom",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "SIGAFIN"
+	"lastProgramExecuted": "sigacom"
 }

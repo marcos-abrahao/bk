@@ -23,6 +23,7 @@ Local nPosPc := aScan(aHeader,{|x| AllTrim(x[2])=="D1_PEDIDO"})
 Local aUser:={},aGrupo:={}
 Local cAlmox := ""
 Local lAlmox := .F.
+Local iX     := 0
 
 aUser  := PswRet(1)
 cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021") 
@@ -35,16 +36,17 @@ aGRUPO := {}
 //Ajuste nova rotina a antiga não funciona na nova lib MDI
 aGRUPO := UsrRetGrp(aUser[1][2])
 IF LEN(aGRUPO) > 0
-	FOR i:=1 TO LEN(aGRUPO)
-		lAlmox := (ALLTRIM(aGRUPO[i]) $ lAlmox )
+	FOR iX:=1 TO LEN(aGRUPO)
+		lAlmox := (ALLTRIM(aGRUPO[iX]) $ lAlmox )
 	NEXT
 ENDIF	
 
 IF lAlmox
-	For _IX:=1 TO LEN(aCols)
-		IF Empty(aCols[_IX,nPosPC]) 
-			Aviso("Atenção","Informe o No. do Pedido de Compras",{"Ok"}, 2 )
+	For iX:=1 TO LEN(aCols)
+		IF Empty(aCols[iX,nPosPC]) 
+			Aviso("Atenção","Informe o No. do Pedido de Compras ("+alltrim(STR(iX,0))+")",{"Ok"}, 2 )
 			lRet := .F.
+			EXIT
 		ENDIF
 	Next
 ENDIF 

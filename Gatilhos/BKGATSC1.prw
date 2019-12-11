@@ -20,6 +20,13 @@ Local aArea1 := GetArea()
 Local nRet   := 0
 Local nPosLCVal := aScan(aHeader, {|x| AllTrim(x[2]) == "C1_XXLCVAL"})
 Local nPosProd  := aScan(aHeader, {|x| AllTrim(x[2]) == "C1_PRODUTO"})
+Local nPosDesc	 := aScan(aHeader, {|x| AllTrim(x[2]) == 'C1_DESCRI'})
+
+
+If Empty( aCols[n][nPosDesc] )
+   aCols[n][nPosDesc] := Posicione("SB1",1,xFilial("SB1")+aCols[n][nPosProd],"B1_DESC")
+EndIf
+
 
 nRet := aCols[n,nPosLCVal]
 

@@ -14,8 +14,13 @@ User Function MT110LOK()
 	// Busca posição do campos
 	Local _nPosLcV	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXLCVAL'})
 	Local _nPosPrd	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_PRODUTO'})
+	Local _nPosDesc	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DESCRI'})
 	Local dDataInc
 	
+	If Empty( aCols[n][_nPosDesc] )
+		aCols[n][_nPosDesc] := Posicione("SB1",1,xFilial("SB1")+aCols[n][_nPosPrd],"B1_DESC")
+	EndIf
+
 	// Validação a ser executada
 	If Empty( aCols[n][_nPosLcV] ) // Valor licitado não informado
 		If "UNI" $ aCols[n][_nPosPrd] .OR. "EPI" $ aCols[n][_nPosPrd]
