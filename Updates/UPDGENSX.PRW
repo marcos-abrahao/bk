@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"08/11/2019"
+#DEFINE FIN_LAST_UPDATED 		"16/12/2019"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,9 +179,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			//AtuGenP12( @cTexto )
 
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-			AtuGenDic( @cTexto )
+			//AtuGenDic( @cTexto )
 
-			//AtuGenPar( @cTexto )
+			AtuGenPar( @cTexto )
 			//AtuGenE1( @cTexto )
 			//AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
@@ -465,6 +465,7 @@ If dbSeek(xFilial()+"MV_VALCPF")
 EndIf
 */
 
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_CNNOPED - Não gerar pedido zerado na medição..." )
 If dbSeek(xFilial()+"MV_CNNOPED")
 	RecLock( "SX6", .F. )
@@ -476,7 +477,20 @@ If dbSeek(xFilial()+"MV_CNNOPED")
 	dbCommit()
 	MsUnLock()
 EndIf
+*/
 
+// 16/12/19 - Inclusão Nelson Oliveira
+oProcess:IncRegua2( "Atualizando parametro MV_XXUSERS..." )
+If dbSeek(xFilial()+"MV_XXUSERS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "000006/000011/000016/000076/000093/000177/000171/000056/000175/000103/000165/"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
 
 //cTexto += CRLF + "Final da Atualizacao" + CRLF 
 
