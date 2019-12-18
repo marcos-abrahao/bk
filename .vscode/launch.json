@@ -22,7 +22,12 @@
 			"args": [],
 			"label": "sigacom",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "sigagct",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigacom"
+	"lastProgramExecuted": "sigagct"
 }
