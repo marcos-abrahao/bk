@@ -43,14 +43,15 @@ Local dData		:= dDatabase
 
 Private cPerg   := "BKFINA14"
 Private cDirTmp := ""
-Private cSEE := ""
+Private cSEE    := ""
 Private oSay 
-Private nTotal := 0
+Private nTotal  := 0
 Private aTit1Ger:= {}
 Private nFurnas := 0 
 Private nTED	:= 0
 Private cBCOTED := "/399/756/"
-PRIVATE aFurnas  := {} 
+PRIVATE aFurnas := {}
+PRIVATE nTedItau:= 2
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
@@ -65,9 +66,21 @@ cSEE	:= ALLTRIM(mv_par02) //aBancos[mv_par02]
 cDirTmp	:= ALLTRIM(mv_par03)+"\BORDERO" 
 nFurnas := mv_par04
 nTED 	:= mv_par05
+nTEDItau:= mv_par06
 
 cBanco := SUBSTR(cSEE,1,3)
- 
+
+If nTEDItau == 1 
+	IF cBanco <> "341" 
+		MSGSTOP("TED Itau diponível apenas para CEF (104)!!","Atenção") 
+		Return Nil               
+	ELSE
+		IF !MsgBox("Confirma a geração de pagamentos da CEF no Banco Itau?",cPerg,"YESNO")
+			Return Nil               
+		ENDIF
+	ENDIF
+	Return Nil               
+ENDIF
 
 IF dData < dDatabase
 	MSGSTOP("Data deve ser maior ou igual que a database!!","Atenção")                
@@ -105,6 +118,7 @@ ELSE
 			MSGSTOP("Conta selecionada incorreta!!","Atenção")                
 			Return Nil
 		ENDIF
+	ELSEIF cBanco == "104"
 	ENDIF
 ENDIF
 
@@ -167,7 +181,12 @@ If ( lOk )
 //			cQuery  += " AND bk_senior.bk_senior.r034fun.nomfun like Z2_NOME+'%' COLLATE SQL_Latin1_General_CP1_CI_AS "
 			cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
 			cQuery  += " AND Z2_E2PRF='"+aCtrId[nI,4]+"' AND Z2_E2NUM='"+aCtrId[nI,5]+"' AND Z2_E2PARC='"+aCtrId[nI,6]+"' AND Z2_TIPOPES NOT IN ('CLA','AC') AND Z2_E2TIPO='"+aCtrId[nI,7]+"'"
-			cQuery  += " AND Z2_BANCO='"+aCtrId[nI,3]+"' AND Z2_STATUS='S' AND SZ2.D_E_L_E_T_ <> '*' AND Z2_VALOR > 0"
+			If nTEDItau == 1
+				cQuery  += " AND Z2_BANCO = '104' "
+			ELSE
+				cQuery  += " AND Z2_BANCO = '"+aCtrId[nI,3]+"' "
+			ENDIF
+			cQuery  += " AND Z2_STATUS='S' AND SZ2.D_E_L_E_T_ <> '*' AND Z2_VALOR > 0"
 			
 			TCQUERY cQuery NEW ALIAS "QSZ2"
 			
@@ -252,6 +271,10 @@ Local nTPCNAB 	:= 0
 Local lOk      	:= .F.
 Local cQuery
 Local nI
+Local aTipoPes  := {"CLT","PJ"}
+Local nTipoPes  := 0
+Local cTipoPes  := ""
+
 PRIVATE aBordero := {} 
 
 AADD(aTPCNAB,{"LPMA/COM/LPM","PGTOSAL"})
@@ -297,7 +320,7 @@ oAll:bChange := {|| MudaCell(lAll) , oListId2:Refresh()}
 
 oSay := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelLeft2,,,,,,.T.,,,200,20)
 
-@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NomeDep","NomeMae","Tipo" SIZE 320,180 OF oPanelLeft2 PIXEL 
+@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NomeDep","NomeMae","Tipo Pes" SIZE 320,180 OF oPanelLeft2 PIXEL 
 
 oListID2:SetArray(aBordero)
 oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
@@ -331,25 +354,28 @@ ACTIVATE MSDIALOG oDlg2 CENTERED ON INIT EnchoiceBar(oDlg2,{|| lOk:=.T., oDlg2:E
 If ( lOk )
 	lOk  := .F.
 	_nTPCNAB := 0
-	nBordero := 0 
-	FOR _nTPCNAB := 1 TO LEN(aTPCNAB) 
-		aTit := {}
-		lTit := .F.
-		FOR nI := 1 TO LEN(aBordero)
-			IF aBordero[nI,1] .AND. ALLTRIM(aBordero[nI,7]) $ aTPCNAB[_nTPCNAB,1] 
-				AADD(aTit,{aBordero[nI,2],aBordero[nI,3],aBordero[nI,4],aBordero[nI,5],aBordero[nI,6],aBordero[nI,7],aBordero[nI,8],aBordero[nI,9],aBordero[nI,10],aBordero[nI,11],aBordero[nI,12],aBordero[nI,13],aBordero[nI,14],aBordero[nI,15],aBordero[nI,16],aBordero[nI,17],aBordero[nI,18],aBordero[nI,19],aBordero[nI,20],aBordero[nI,21],,aBordero[nI,22]})
-				lTit := .T.
-				nBordero++
-			ENDIF
-		NEXT nI 
-		IF lTit
-			Processa ( {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[_nTPCNAB,2])})
-		ENDIF
-		IF nBordero == LEN(aBordero)
-			_nTPCNAB := LEN(aTPCNAB) 
-		ENDIF
+	nBordero := 0
 
-	NEXT _nTPCNAB
+	FOR nTipoPes := 1 TO LEN(aTipoPes)
+		cTipoPes := aTipoPes[nTipoPes]
+		FOR _nTPCNAB := 1 TO LEN(aTPCNAB) 
+			aTit := {}
+			lTit := .F.
+			FOR nI := 1 TO LEN(aBordero)
+				IF aBordero[nI,1] .AND. ALLTRIM(aBordero[nI,7]) $ aTPCNAB[_nTPCNAB,1] .AND. TRIM(aBordero[nI,22]) == cTipoPes
+					AADD(aTit,{aBordero[nI,2],aBordero[nI,3],aBordero[nI,4],aBordero[nI,5],aBordero[nI,6],aBordero[nI,7],aBordero[nI,8],aBordero[nI,9],aBordero[nI,10],aBordero[nI,11],aBordero[nI,12],aBordero[nI,13],aBordero[nI,14],aBordero[nI,15],aBordero[nI,16],aBordero[nI,17],aBordero[nI,18],aBordero[nI,19],aBordero[nI,20],aBordero[nI,21],,aBordero[nI,22]})
+					lTit := .T.
+					nBordero++
+				ENDIF
+			NEXT nI 
+			IF lTit
+				Processa ( {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[_nTPCNAB,2],cTipoPes)})
+			ENDIF
+			IF nBordero == LEN(aBordero)
+				_nTPCNAB := LEN(aTPCNAB) 
+			ENDIF
+		NEXT _nTPCNAB
+	NEXT nTipoPes
 EndIf
 
 Return lOk
@@ -422,7 +448,7 @@ Return lOk
 
 
 
-Static Function GravaBordero(aTitGer,aCtrid,dData,cBanco,cGrupo)
+Static Function GravaBordero(aTitGer,aCtrid,dData,cBanco,cGrupo,cTipoPes)
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _nI,_nJ
 Local cArqTmp 	:= ""
@@ -1164,7 +1190,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 	ENDIF
 
 
-	If cBanco == "104"
+	If cBanco == "104" .AND. nTEDItau == 2
 		//Layout CAIXA - 240 - HEADER DE ARQUIVO "0"		
 		Bcn104H := ""
 		Bcn104H += "104"    //001 003
@@ -1672,7 +1698,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		fClose(nHandle2)
 	ENDIF
 	
-	If cBanco == "341"
+	If cBanco == "341" .OR. nTEDItau == 1
 					
 		Bcn341H := ""
 		Bcn341H += "341"    //001 003
@@ -1682,8 +1708,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341H += "080"			 //015 017
 		Bcn341H += "2"               //018 018
 		Bcn341H += STRZERO(VAL(cCGC),14) //019 032
-		Bcn341H += SPACE(13)  //033 045
-		Bcn341H += SPACE(7)   //046 052
+		Bcn341H += SPACE(20)  //033 052
 		Bcn341H += "0"        //053 053
 		Bcn341H += STRZERO(VAL(cAgencia),4)      //054 057 Agencia
 		Bcn341H += SPACE(1)   //058 058
@@ -1735,8 +1760,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341HD += "0001"       //004 007
 		Bcn341HD += "1"          //008 008
 		Bcn341HD += "C"          //009 009
-		Bcn341HD += "30"         //010 011
-		Bcn341HD += "01"      	 //012 013
+		Bcn341HD += IIf(cTipoPes == "CLT","030","20")         //010 011
+		Bcn341HD += IIf(nTEDItau == 1,"41","01")     	 //012 013
 		Bcn341HD += "040"        //014 016
 		Bcn341HD += SPACE(1)     //017 017
 		Bcn341HD += "2"          //018 018
@@ -1880,6 +1905,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341TD += SPACE(9) //009 017
 		Bcn341TD += STRZERO(nSeq,6)  //018 023
 		Bcn341TD += STRZERO(INT(qValTot*100),18) //024 041
+
 		Bcn341TD += STRZERO(0,18)     //042 059
 		Bcn341TD += SPACE(181)        //060 240
 		Bcn341TD += cCrLf 
@@ -1951,7 +1977,7 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 			IF nFurnas == 1
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[1]
 					IF cBanco=='104'
-				   		IF SUBSTR(SZ2->Z2_CONTA,1,2)=="37"
+				   		IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098"
 							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
 						ENDIF	
 					ELSE
@@ -1961,7 +1987,7 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 			ELSEIF nFurnas == 2
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[2]
 					IF cBanco=='104'
-				   		IF SUBSTR(SZ2->Z2_CONTA,1,2)=="37"
+				   		IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098"
 							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
 						ENDIF	
 					ELSE
@@ -1970,13 +1996,13 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 				ENDIF
 			ELSE
 				IF ALLTRIM(SZ2->Z2_CC) <> aFURNAS[1] .and. ALLTRIM(SZ2->Z2_CC) <> aFURNAS[2]
-					IF cBanco=='104'
-						IF SUBSTR(SZ2->Z2_CONTA,1,2)=="37"
-							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
-						ENDIF	
-					ELSE
+					//IF cBanco=='104'
+					//	IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098"
+					//		AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
+					//	ENDIF	
+					//ELSE
 						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES})
-					ENDIF
+					//ENDIF
 				ENDIF
 	    	ENDIF
 	    ENDIF
@@ -2028,6 +2054,7 @@ AADD(aRegistros,{cPerg,"02","Banco:","Banco:" ,"Banco:" ,"mv_ch2","C",26,0,0,"G"
 AADD(aRegistros,{cPerg,"03","Pasta (Diretório):","Pasta (Diretório):" ,"Pasta (Diretório):" ,"mv_ch3","C",40,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","",""})
 AADD(aRegistros,{cPerg,"04","Furnas:","Furnas:","Furnas" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Lote Emergencial","Lote Emergencial","Lote Emergencial","","","Lote BK","Lote BK","Lote BK","","","Não","Não","Não","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"05","TED Salario:","TED Salario:","TED Salario" ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"06","TED CEF no ITAU:","TED CEF no ITAU:","TED CEF no ITAU:" ,"mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

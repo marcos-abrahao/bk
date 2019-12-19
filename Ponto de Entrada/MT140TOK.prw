@@ -15,17 +15,20 @@ User Function MT140TOK()
 Local aNfs := {}
 Local lRet	:= .T.
 
-	aNfs := BKMT140QRY()
-	
-	// Declaração de variaveis
-	If LEN(aNfs) > 0
-		MsgInfo("Existem Nfs com o mesmo valor para este fornecedor")
-		lRet := BK140OK(aNFs)
-		If lRet
-			If !MsgYesNo("MT140OK","Existem lançamentos para este fornecedor com o mesmo valor, confirma esta Pré-nota assim mesmo?")
-				lRet := .F.
+	IF !FWIsInCallStack("U_BKFINJ18")
+
+		aNfs := BKMT140QRY()
+		
+		// Declaração de variaveis
+		If LEN(aNfs) > 0
+			MsgInfo("Existem Nfs com o mesmo valor para este fornecedor")
+			lRet := BK140OK(aNFs)
+			If lRet
+				If !MsgYesNo("MT140OK","Existem lançamentos para este fornecedor com o mesmo valor, confirma esta Pré-nota assim mesmo?")
+					lRet := .F.
+				EndIf
 			EndIf
-		EndIf
+		ENDIF
 	ENDIF
 
 Return lRet

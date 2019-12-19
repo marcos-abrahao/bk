@@ -24,7 +24,7 @@ AADD(aRotina,{"Copia valores SC","U_CPVALSC()",0,9})
 Return aRotina
 
 
-// Rotina paara copiar valores da SC na Cotação (usado quando a compra foi feita sem pedido)
+// Rotina para copiar valores da SC na Cotação (usado quando a compra foi feita sem pedido)
 // 13/07/2019 - Alterado para pegar o campo C1_XXVLALM 
 
 User Function CPVALSC() 
