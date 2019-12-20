@@ -121,8 +121,7 @@ Local aSA2  := {}
 
 Private lMsHelpAuto := .f.
 Private lMsErroAuto := .f.
-
-
+Private cCampo,xCampo
 
 cQry1 := "SELECT * FROM "+Alltrim(cA2ARQ)+" XSA2"		
 cQry1 += " WHERE XSA2.D_E_L_E_T_ = '' AND A2_COD='"+cA2COD+"' AND A2_LOJA='"+cA2LOJA+"'"
@@ -157,7 +156,18 @@ Do while !eof() .and. SX3->X3_ARQUIVO == "SA2"
 			AADD(aSA2,{Alltrim(SX3->X3_CAMPO),CTOD(""), Nil})
 		ELSE
 			cCampo := "XSA2->"+Alltrim(SX3->X3_CAMPO)
-			AADD(aSA2,{Alltrim(SX3->X3_CAMPO),IIF(SX3->X3_TIPO=="D",CTOD(&cCampo),IIF(!EMPTY(&cCampo),&cCampo,IIF(!EMPTY(SX3->X3_RELACAO),&(SX3->X3_RELACAO),&cCampo))), Nil})
+			xCampo := NIL
+			xCampo := &cCampo
+			IF SX3->X3_TIPO=="C"  // Evitar erro de campos com tamanhos maiores em campos menores
+				xCampo := TRIM(xCampo)
+			ELSEIF SX3->X3_TIPO=="D" 
+				xCampo := STOD(xCampo)
+			ENDIF
+			IF EMPTY(xCampo) .AND. !EMPTY(SX3->X3_RELACAO)
+				xCampo := &(SX3->X3_RELACAO)
+			ENDIF
+			AADD(aSA2,{Alltrim(SX3->X3_CAMPO),xCampo, Nil})
+			//AADD(aSA2,{Alltrim(SX3->X3_CAMPO),IIF(SX3->X3_TIPO=="D",CTOD(xCampo),IIF(!EMPTY(xCampo),xCampo,IIF(!EMPTY(SX3->X3_RELACAO),&(SX3->X3_RELACAO),xCampo))), Nil})
 		ENDIF
 	ENDIF
 	SX3->(dbSkip())
@@ -181,12 +191,10 @@ End Transaction
 Return nil
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-
-cPerg := "BKCOMA07"
 
 dbSelectArea("SX1")
 dbSetOrder(1)
