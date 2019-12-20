@@ -26,19 +26,16 @@ Local lAll
 Local oAll
 Local aButtons := {}
 
-Local aCtrId,xCtrId
+Local aCtrId   := {}
 Local lOk      := .F.
-Local aAreaIni := GetArea()
-Local cQuery
-Local nI,nProxTit
-Local cPrf
-Local cTitulo:= "Seleção de Título - Borderô "+ALLTRIM(SM0->M0_NOME)
-Local nStatusX
-Local cNome
+Local aAreaIni  := GetArea()
+Local cQuery    := ""
+Local nI        := 0
+Local cTitulo   := "Seleção de Título - Borderô "+ALLTRIM(SM0->M0_NOME)
 Local aErros	:= {}
 Local cBanco    := ""
 Local cBancos	:= "001/033/104/151/237/341"
-Local aBancos	:= {"237","001","341","033","151","104"}
+//Local aBancos	:= {"237","001","341","033","151","104"}
 Local dData		:= dDatabase
 
 Private cPerg   := "BKFINA14"
@@ -52,6 +49,7 @@ Private nTED	:= 0
 Private cBCOTED := "/399/756/"
 PRIVATE aFurnas := {}
 PRIVATE nTedItau:= 2
+PRIVATE cTedBco := "104"
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
@@ -61,25 +59,24 @@ If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
 
-dData  	:= mv_par01
-cSEE	:= ALLTRIM(mv_par02) //aBancos[mv_par02]
-cDirTmp	:= ALLTRIM(mv_par03)+"\BORDERO" 
-nFurnas := mv_par04
-nTED 	:= mv_par05
-nTEDItau:= mv_par06
+dData  	 := mv_par01
+cSEE	 := ALLTRIM(mv_par02) //aBancos[mv_par02]
+cDirTmp	 := ALLTRIM(mv_par03)+"\BORDERO" 
+nFurnas  := mv_par04
+nTED 	 := mv_par05
+nTEDItau := mv_par06
 
-cBanco := SUBSTR(cSEE,1,3)
+cBanco   := SUBSTR(cSEE,1,3)
 
 If nTEDItau == 1 
 	IF cBanco <> "341" 
 		MSGSTOP("TED Itau diponível apenas para CEF (104)!!","Atenção") 
 		Return Nil               
 	ELSE
-		IF !MsgBox("Confirma a geração de pagamentos da CEF no Banco Itau?",cPerg,"YESNO")
+		IF !MsgYesNo("Confirma a geração de pagamentos da CEF no Banco Itau?",cPerg)
 			Return Nil               
 		ENDIF
 	ENDIF
-	Return Nil               
 ENDIF
 
 IF dData < dDatabase
@@ -118,7 +115,6 @@ ELSE
 			MSGSTOP("Conta selecionada incorreta!!","Atenção")                
 			Return Nil
 		ENDIF
-	ELSEIF cBanco == "104"
 	ENDIF
 ENDIF
 
@@ -182,7 +178,7 @@ If ( lOk )
 			cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
 			cQuery  += " AND Z2_E2PRF='"+aCtrId[nI,4]+"' AND Z2_E2NUM='"+aCtrId[nI,5]+"' AND Z2_E2PARC='"+aCtrId[nI,6]+"' AND Z2_TIPOPES NOT IN ('CLA','AC') AND Z2_E2TIPO='"+aCtrId[nI,7]+"'"
 			If nTEDItau == 1
-				cQuery  += " AND Z2_BANCO = '104' "
+				cQuery  += " AND Z2_BANCO = '"+cTedBco+"' "
 			ELSE
 				cQuery  += " AND Z2_BANCO = '"+aCtrId[nI,3]+"' "
 			ENDIF
@@ -262,14 +258,10 @@ Local oNo
 Local oDlg2
 Local oListId2
 Local oPanelLeft2
-Local lAll2
-Local oAll2
 Local aButtons 	:= {}
-Local aCtrId2  	:= {}
 Local aTPCNAB 	:= {}
 Local nTPCNAB 	:= 0
 Local lOk      	:= .F.
-Local cQuery
 Local nI
 Local aTipoPes  := {"CLT","PJ"}
 Local nTipoPes  := 0
@@ -353,28 +345,28 @@ ACTIVATE MSDIALOG oDlg2 CENTERED ON INIT EnchoiceBar(oDlg2,{|| lOk:=.T., oDlg2:E
 
 If ( lOk )
 	lOk  := .F.
-	_nTPCNAB := 0
+	nTPCNAB  := 0
 	nBordero := 0
 
 	FOR nTipoPes := 1 TO LEN(aTipoPes)
 		cTipoPes := aTipoPes[nTipoPes]
-		FOR _nTPCNAB := 1 TO LEN(aTPCNAB) 
+		FOR nTPCNAB := 1 TO LEN(aTPCNAB) 
 			aTit := {}
 			lTit := .F.
 			FOR nI := 1 TO LEN(aBordero)
-				IF aBordero[nI,1] .AND. ALLTRIM(aBordero[nI,7]) $ aTPCNAB[_nTPCNAB,1] .AND. TRIM(aBordero[nI,22]) == cTipoPes
+				IF aBordero[nI,1] .AND. ALLTRIM(aBordero[nI,7]) $ aTPCNAB[nTPCNAB,1] .AND. TRIM(aBordero[nI,22]) == cTipoPes
 					AADD(aTit,{aBordero[nI,2],aBordero[nI,3],aBordero[nI,4],aBordero[nI,5],aBordero[nI,6],aBordero[nI,7],aBordero[nI,8],aBordero[nI,9],aBordero[nI,10],aBordero[nI,11],aBordero[nI,12],aBordero[nI,13],aBordero[nI,14],aBordero[nI,15],aBordero[nI,16],aBordero[nI,17],aBordero[nI,18],aBordero[nI,19],aBordero[nI,20],aBordero[nI,21],,aBordero[nI,22]})
 					lTit := .T.
 					nBordero++
 				ENDIF
 			NEXT nI 
 			IF lTit
-				Processa ( {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[_nTPCNAB,2],cTipoPes)})
+				Processa ( {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[nTPCNAB,2],cTipoPes)})
 			ENDIF
 			IF nBordero == LEN(aBordero)
-				_nTPCNAB := LEN(aTPCNAB) 
+				nTPCNAB := LEN(aTPCNAB) 
 			ENDIF
-		NEXT _nTPCNAB
+		NEXT nTPCNAB
 	NEXT nTipoPes
 EndIf
 
@@ -450,7 +442,7 @@ Return lOk
 
 Static Function GravaBordero(aTitGer,aCtrid,dData,cBanco,cGrupo,cTipoPes)
 Local cCrLf   	:= Chr(13) + Chr(10)
-Local _nI,_nJ
+Local cQuery    := ""
 Local cArqTmp 	:= ""
 Local BncoTxtT	:= ""
 Local cAgencia  := ""
@@ -466,7 +458,7 @@ DbSelectArea("SM0")
 
 //BKDAHER BHG USAR LOTE BK
 IF SM0->M0_CODIGO $ "06/08/09/10/11/14"
-	cQuery  := "SELECT  EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
+	cQuery  := "SELECT EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
 	cQuery  += " FROM SEE010 "
 	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
 	cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
@@ -502,7 +494,7 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	cCGC      := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14","03022122000177",SM0->M0_CGC)
     cNomeCom  := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14","BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
     //***************** 
-    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14",MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira - Considerando CNPJ BK / Consorcio Nova Balsa !!"),"")
+    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14",MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira - Considerando CNPJ BK / Consorcio Nova Balsa !!",cPerg),"")
 ELSE
 	MSGSTOP("Parâmetro do Banco não cadastrado!!",'Atenção')
 	Return nil
@@ -1760,7 +1752,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341HD += "0001"       //004 007
 		Bcn341HD += "1"          //008 008
 		Bcn341HD += "C"          //009 009
-		Bcn341HD += IIf(cTipoPes == "CLT","030","20")         //010 011
+		Bcn341HD += IIf(cTipoPes == "CLT" .AND. nTEDItau == 2,"30","20")      //010 011
 		Bcn341HD += IIf(nTEDItau == 1,"41","01")     	 //012 013
 		Bcn341HD += "040"        //014 016
 		Bcn341HD += SPACE(1)     //017 017
@@ -1828,7 +1820,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn341D += "A"             //014 014
 			Bcn341D += "000"           //015 017
 			Bcn341D += "000"           //018 020
-			Bcn341D += "341"           //021 023 
+			Bcn341D += IIF(nTedItau==1,cTedBco,"341")   //021 023 
 			Bcn341D += "0"             //024 024
 			Bcn341D += STRZERO(VAL(aTitGer[nI,8]),4)  //025 028 AGENCIA
 			Bcn341D += SPACE(1)                       //029 029
@@ -1958,6 +1950,11 @@ Return nil
 
 Static Function GeraQueryTit(dData,cBanco)
 LOCAL aCtrId := {}
+Local cBcoBor := cBanco
+
+If nTEDItau  == 1
+	cBcoBor := cTedBco
+ENDIF
 
 DbSelectArea("SE2")
 DbSetOrder(3)
@@ -1967,7 +1964,7 @@ dbSeek(xFilial("SE2")+DTOS(dData),.T.)
 Do While !eof() .AND. SE2->E2_VENCREAL == dData 
 	IncProc("Localizando titulos para Borderôs "+ALLTRIM(SM0->M0_NOME)+"...") 
     IF !EMPTY(SE2->E2_XXCTRID) .AND. SE2->E2_VENCREAL == dData  .AND. SE2->E2_VALOR == SE2->E2_SALDO .AND. ALLTRIM(SE2->E2_XXTIPBK) <> 'MFG' .AND.;
-		  IIF(cBanco=='001' .AND. (nFurnas == 1 .OR. nFurnas == 2) .AND. nTED == 1, ALLTRIM(SE2->E2_PORTADO) $ cBCOTED , SE2->E2_PORTADO == cBanco) 
+		  IIF(cBcoBor=='001' .AND. (nFurnas == 1 .OR. nFurnas == 2) .AND. nTED == 1, ALLTRIM(SE2->E2_PORTADO) $ cBCOTED, SE2->E2_PORTADO == cBcoBor) 
 		  // Filtro abaixo removido em 09/12/2019, desta forma, serão incluídos os pagamentos a PJ.
 		  //.AND. ( ALLTRIM(SE2->E2_TIPO) <> 'PA' .OR. ( ALLTRIM(SE2->E2_TIPO) == 'PA' .AND. (ALLTRIM(SE2->E2_XXTIPBK) == 'CXA' .OR. ALLTRIM(SE2->E2_XXTIPBK) == 'SOL' .OR. ALLTRIM(SE2->E2_XXTIPBK) == 'HOS')))
 		DbSelectArea("SZ2")
@@ -2039,11 +2036,10 @@ Return( cImpLin )
 
 
 
-Static Function  ValidPerg
+Static Function ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-LOCAL cPerg := "BKFINA14"
 
 dbSelectArea("SX1")
 dbSetOrder(1)
@@ -2076,7 +2072,6 @@ Return(NIL)
 
 
 Static Function RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)
-Local aCab := {},aItens := {}
 Local _nI := 0
 LOCAL cNumBor := "",cNumBor2 := ""
 

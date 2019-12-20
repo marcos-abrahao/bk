@@ -21,7 +21,8 @@ User Function BKBXBNCO()
 
 Local nSnd:= 15,nTLin 	:= 15
 Local cTipoArq   		:= "Todos os Arquivos (*.*) | *.* | "
-Local oDlg01,aButtons 	:= {},nOpcA := 0
+Local oDlg01
+Local nOpcA             := 0
 Local lOk				:= .F.
 Local aDbf 				:= {}
 PRIVATE aBNC 				:= {}
@@ -221,7 +222,6 @@ Local oAll
 Local aButtons := {}
 Local lOk      := .F.
 Local cPicV    := ""
-Local cBcoArq  := ""
 
 Local cDtVenc,cCPFFav,cNome,cBcFav,cAgFav,cDvAgFav,cCCFav,cDvCCFav,nValFav,cOcorr,cDesOcorr,nCont,cStatus
 
@@ -492,12 +492,9 @@ User Function RBKBXBNCO()
 Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2        := "de acordo com os parametros informados pelo usuario."
 Local cDesc3        := ""
-Local cPict         := ""
 Local nLin          := 80
-Local lPula         := .F.
 Local Cabec1        := ""
 Local Cabec2        := ""
-Local imprime       := .T.
 Local aOrd          := {}
 Local titulo        := ""
 
@@ -558,19 +555,14 @@ RETURN
 /*/
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
-Local nOrdem
-Local nTotLot := 0
+Local nTotLot   := 0
 Local nRegistro := 0
 
 nEsp    := 2
 cPicQ 	:= "@E 99999999"
 cPicV 	:= "@E 999,999,999.99"
-
 Cabec1  := "Agencia: "+cAgenc+" Conta: "+cConta+" Lote: "+cLOTE+"  Data: "+DTOC(dData)+" Hora: "+cHora 
-
-
 Cabec2  := "Pront.  Nome                            CPF              Agencia    Conta Corrente    Dt.PGTO            Valor  Status"
-
 
 IF LEN(Cabec1) > 132
  //  Tamanho := "G"
