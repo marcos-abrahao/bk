@@ -301,7 +301,7 @@ NEXT
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 
-DEFINE MSDIALOG oDlg2 TITLE "Confirme os Borderôs a gerar Consolidado" FROM 000,000 TO 450,650 PIXEL 
+DEFINE MSDIALOG oDlg2 TITLE "Confirme os Borderôs a gerar (consolidados)" FROM 000,000 TO 450,650 PIXEL 
 
 @ 000,000 MSPANEL oPanelLeft2 OF oDlg2 SIZE 330,225
 oPanelLeft2:Align := CONTROL_ALIGN_LEFT 
@@ -374,28 +374,25 @@ Return lOk
 
 
 Static Function MudaCell(lAll)
+Local nAviso := 1
+
+nTotal := 0
 
 IF lAll
-	IF AVISO("Atenção","Alguns destes PGTOs ja estão inclusos no Lote CNAB. Deseja gerar novamente ??",{"Sim","Não"}) == 1
-		nTotal := 0
-		FOR nI := 1 TO LEN(aBordero)
-			aBordero[nI,1] := lAll
-			nTotal += aBordero[nI,5]
-		next
-		oSay:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
-	ELSE
-		nTotal := 0
-		FOR nI := 1 TO LEN(aBordero)
-			IF aBordero[nI,1]
-				nTotal += aBordero[nI,5]
-			ENDIF
-		next
-		oSay:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
-	ENDIF
-ELSE
-	nTotal := 0
+	nAviso := AVISO("Marcar todos - Atenção:","Alguns destes PGTOs ja estão inclusos no Lote CNAB. Deseja gerar novamente ??",{"Sim","Não"})
 	FOR nI := 1 TO LEN(aBordero)
-		IF EMPTY(ALLTRIM(aBordero[nI,17]))
+		IF nAviso == 1
+			aBordero[nI,1] := lAll
+		ENDIF
+		IF aBordero[nI,1]
+			nTotal += aBordero[nI,5]
+		ENDIF
+	NEXT
+	oSay:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
+ELSE
+	nAviso := AVISO("Desmarcar todos - Atenção:","Para alguns destes PGTOs NÃO foram gerados lotes ainda.",{"Só os já gerados","Desmarcar todos"})
+	FOR nI := 1 TO LEN(aBordero)
+		IF EMPTY(ALLTRIM(aBordero[nI,17])) .AND. nAviso == 1
 			aBordero[nI,1] := .T.
 			nTotal += aBordero[nI,5]
 		ELSE

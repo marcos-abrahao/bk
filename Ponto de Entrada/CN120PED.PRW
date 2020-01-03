@@ -18,10 +18,13 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 
+User Function CN121PED()
+Return U_CN120PED()
+
+
 User Function CN120PED()
 Local ExpA1 := PARAMIXB[1]
 Local ExpA2 := PARAMIXB[2]
-Local ExpC3 := PARAMIXB[3] 
 Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""

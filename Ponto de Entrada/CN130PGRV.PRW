@@ -16,24 +16,31 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-
 User Function CN130PGRV()
+Local ExpN1 := PARAMIXB[1] 
+U_xCN130PGRV(ExpN1) 
+Return NIL
 
-Local ExpN1 := PARAMIXB[1]  
+User Function xCN130PGRV(ExpN1)
+
 Local aAreaIni  := GetArea()
 Local cAliasCNR := GetNextAlias()
 Local aCNR      := {}
-Local oDlg,oListID,oPanelLeft,oOk,oNo,oAll,oSay1,oSay2 
-Local aButtons  := {}
+Local oDlg,oListID,oPanelLeft,oOk,oNo,oAll
+//Local oSay1
+Local oSay2 
+//Local aButtons  := {}
 Local lOk       := .T.
 Local cQuery  	:= ""
-Local cTitulo2	:= "Opções de Multa e Bonificação da Medição"
+Local cTitulo2	:= ""
 Local nBonif	:= 0 
 Local nMulta	:= 0
 Local cOutros	:= PAD("",254) 
 
+cTitulo2 := "Opções de Multa e Bonificação da Medição ("+STRZERO(ExpN1,2)+")"
+
 //3-Incluir;4-Alterar
-IF ExpN1  == 3 .OR. ExpN1 == 4 
+IF ExpN1 == 3 .OR. ExpN1 == 4 
 
 	cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
 	cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR "
@@ -186,8 +193,7 @@ RETURN lOk
 
 
 STATIC Function GeraCRN(aCNR,cOutros,nBonif,nMulta)
-Local aCNR2      := {}
-Local aButtons  := {}
+Local aCNR2     := {}
 Local lOk       := .T.
 Local cTitulo2	:= "Valida Opções de Multa e Bonificação da Medição"
 Local oSay1		
