@@ -53,6 +53,7 @@ PRIVATE cTedBco := "104"
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
+dbSelectArea("SZU")
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -655,7 +656,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn001HD += "0001"       //004 007
 			Bcn001HD += "1"          //008 008
 			Bcn001HD += "C"          //009 009
-			Bcn001HD += "30"         //010 011
+			Bcn001HD += IIf(cTipoPes == "CLT","30","20")         //010 011
 			Bcn001HD += "41"      	 //012 013
 			Bcn001HD += "031"        //014 016
 			Bcn001HD += SPACE(1)     //017 017
@@ -682,7 +683,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 				qValTot += aTitGer[nI,4]
 				qTot++
 				nSeq++
-				BncoTxtT := cNomeCom+'<BR>RELAÇÃO BANCÁRIA BANCO CAIXA ECONOMICA FEDERAL '+IIF(nFurnas==1," - FURNAS","")+IIF(nFurnas==2," - FURNAS LOTE BK","")+' <b> Lote: '+STRZERO(nLote,8)+'</b><BR> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=1><i>Emitida em : '+aTitGer[nI,15]+' - pelo usuário : '+aTitGer[nI,13]+'</i><br><br>&nbsp;'
+				BncoTxtT := cNomeCom+'<BR>RELAÇÃO BANCÁRIA BANCO DO BRASIL '+IIF(nFurnas==1," - FURNAS","")+IIF(nFurnas==2," - FURNAS LOTE BK","")+' <b> Lote: '+STRZERO(nLote,8)+'</b><BR> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=1><i>Emitida em : '+aTitGer[nI,15]+' - pelo usuário : '+aTitGer[nI,13]+'</i><br><br>&nbsp;'
 	
 	            //Descrição do Registro DETALHE - “A”
 			    Bcn001D := ""
@@ -710,7 +711,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 				Bcn001D += STRZERO(0,23)		//155 177
 				Bcn001D += "06" 			//178 179
 				Bcn001D += SPACE(18)		//180 197
-				Bcn001D += "STE PGTO SALARIO T  " //198 217
+				Bcn001D += IIf(cTipoPes == "CLT","STE PGTO SALARIO T  ","PGTO FORNECEDORES   ") //198 217
 				Bcn001D += "06"              //218 219 
 				Bcn001D += SPACE(10)        //220 229
 				Bcn001D += "0"              //230 230
@@ -819,7 +820,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 	 		    Bcn001D += STRZERO(VAL(aTitGer[nI,2]),15)
 	 		    Bcn001D += "01"
 	 		    Bcn001D += SPACE(2)
-			    Bcn001D += "30"
+			    Bcn001D += IIf(cTipoPes == "CLT","30","20") 
 			    Bcn001D += "001"
 			    Bcn001D += STRZERO(VAL(aTitGer[nI,8]),4)+aTitGer[nI,9]
 			    Bcn001D += STRZERO(VAL(ALLTRIM(aTitGer[nI,10])),10)
@@ -993,7 +994,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn033HD += "0001"       //004 007
 		Bcn033HD += "1"          //008 008
 		Bcn033HD += "C"          //009 009
-		Bcn033HD += "30"         //010 011
+		Bcn033HD += IIf(cTipoPes == "CLT","30","20")         //010 011
 		Bcn033HD += "01"      	 //012 013
 		Bcn033HD += "031"        //014 016
 		Bcn033HD += SPACE(1)     //017 017
@@ -1231,7 +1232,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn104HD += "0001"       //004 007
 		Bcn104HD += "1"          //008 008
 		Bcn104HD += "C"          //009 009
-		Bcn104HD += "30"         //010 011
+		Bcn104HD += IIf(cTipoPes == "CLT","30","20")         //010 011
 		Bcn104HD += "01"      	 //012 013
 		Bcn104HD += "041"        //014 016
 		Bcn104HD += SPACE(1)     //017 017

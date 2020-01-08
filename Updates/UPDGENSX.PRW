@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"16/12/2019"
+#DEFINE FIN_LAST_UPDATED 		"07/01/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -181,9 +181,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			AtuGenPar( @cTexto )
+			//AtuGenPar( @cTexto )
 			//AtuGenE1( @cTexto )
-			//AtuGenX3( @cTexto )
+			AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
 
 
@@ -576,6 +576,17 @@ dbSelectArea( "SX3" )
 //APPEND FROM \x3e1comp.dtc
 //X31UPDTABLE("SE1")
 
+// 07/01/20 - Numeração Bordero BK
+dbSelectArea( "SIX" )
+APPEND FROM \xiszu.dtc
+
+dbSelectArea( "SX2" )
+APPEND FROM \x2szu.dtc
+
+dbSelectArea( "SX3" )
+APPEND FROM \x3szu.dtc
+
+X31UPDTABLE("SZU")
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF + Replicate( "-", 128 ) + CRLF + CRLF
 
