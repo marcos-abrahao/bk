@@ -23,31 +23,39 @@ ponto de entrada, já que o sistema não teria como rastrear a origem destas infor
 @history Vogas Júnior, 13/09/2018, (DSERFIS1-7017) implementando quebras no relatório.
 /*/
 //-------------------------------------------------------------------
-Function FISR101(dPer, cReg, cCKRLiv,  dDtIni, dDtFim )
+User Function xFISR101()
+
+//dPer, cReg, cCKRLiv,  dDtIni, dDtFim )
 
 local oReport
 Local lContinua		:= .T.
 
-Default dDtIni 		:= CtoD('')
-Default dDtFim		:= CtoD('')
+Local dPer          := CtoD('01/11/2019')
+Local cReg          := "4"
+Local cCKRLiv       := "*"
+Local dDtIni 		:= CtoD('01/11/2019')
+Local dDtFim		:= CtoD('30/11/2019')
 
-IF isincallstack("FISA001")
+//IF isincallstack("FISA001")
 	
-	IF AliasINdic('F0T')
-		AjustaSX1()
-		If Pergunte('FSR101', .T.)					
+//	IF AliasINdic('F0T')
+//		AjustaSX1()
+		If Pergunte('FSR101', .T.)
+			dPer   := MV_PAR10
+			dDtIni := MV_PAR10
+			dDtFim := MV_PAR11
 		
 			If lContinua
 				oReport := reportDef('FSR101', dDtIni, dDtFim, dPer, cReg, cCKRLiv, .T.)
 				oReport:printDialog()
 			EndIF
 		EndIF
-	Else
-		Alert('Tabela F0T não existe, favor verificar atualizações de dicionários de dados')
-	EndIF
-Else
-	Alert('Esta rotina deverá ser processada através da Apuração da EFD Contribuições (FISA001)')
-EndIF
+//	Else
+//		Alert('Tabela F0T não existe, favor verificar atualizações de dicionários de dados')
+//	EndIF
+//Else
+//	Alert('Esta rotina deverá ser processada através da Apuração da EFD Contribuições (FISA001)')
+//EndIF
 
 return
         
@@ -92,11 +100,11 @@ Local dDataDe	:= IIf( ! Empty( dDtIni ), dDtIni, cTod("01/"+cMes+"/"+cAno))
 Local dDataAte	:= IIf( ! Empty( dDtFim ), dDtFim,  LastDay(dDataDe))
 Local lCPRBNF		:= GetNewPar('MV_CPRBNF',.F.) .AND. SFT->(FieldPos('FT_VALCPB')) > 0
 Local lProcRH 	:= GetNewPar("MV_SPCBPRH",.F.)
-Local cAliasRet	:= GetNextAlias()
+Local cAliasRet		:= GetNextAlias()
 Local cAliasF100	:= GetNextAlias()
 Local cAliasF1X0	:= GetNextAlias()
-Local cAliasSFT	:= GetNextAlias()
-Local cAliasF0T	:= GetNextAlias() 
+Local cAliasSFT		:= GetNextAlias()
+Local cAliasF0T		:= GetNextAlias() 
 Local cAliasF0TT	:= GetNextAlias()
 Local cAliasDIFP	:= GetNextAlias()
 Local cAliasDIFA	:= GetNextAlias()
@@ -104,7 +112,7 @@ Local cAlsCPRBFA	:= GetNextAlias()
 Local cAlsCPRBCX	:= GetNextAlias()
 Local cAliasF0TI	:= GetNextAlias()
 Local cAliasF3J		:= GetNextAlias()
-Local cAliasCF4	:= GetNextAlias()
+Local cAliasCF4		:= GetNextAlias()
 Local cAliasCFA		:= GetNextAlias()
 Local cAliasF0TA	:= GetNextAlias() //diferimento crédito anterior
 Local cAliasF3O		:= GetNextAlias()
@@ -334,7 +342,7 @@ Default CREGIME		:= alltrim(str(CKR->CKR_REGIME))
 Default CLIVRO		:= IIf( CKR->(Fieldpos("CKR_LIVRO")) > 0, CKR->CKR_LIVRO, "")	
 Default lSelFil		:= .F.
 
-oReport := TReport():New('EFDCON',cTitle,cPerg,{|oReport|ReportPrint(oReport, dDtIni, dDtFim, DDATAINI, CREGIME, CLIVRO, lSelFil)},cHelp)
+oReport := TReport():New('EFDCON-BK',cTitle,cPerg,{|oReport|ReportPrint(oReport, dDtIni, dDtFim, DDATAINI, CREGIME, CLIVRO, lSelFil)},cHelp)
 oReport:SetLandscape()
 
 //Primeira seção
@@ -447,6 +455,18 @@ TRCell():New(oSection4,"CMP16"		,  "", "Alq.COF","@E 999.9999",8)
 TRCell():New(oSection4,"CMP17"		,  "", "Vl.COF","@E 99,999,999,999.99",14)
 TRCell():New(oSection4,"CMP18"		,  "", "Dt.Cancelamento","@R 99/99/9999" ,8)
 TRCell():New(oSection4,"CMP20"		,  "", "Observação","@!" ,31)
+TRCell():New(oSection4,"CMP21"		,  "", "TES","@!" ,3)
+TRCell():New(oSection4,"CMP22"		,  "", "Produto","@!" ,15)
+TRCell():New(oSection4,"CMP23"		,  "", "Descrição","@!" ,60)
+TRCell():New(oSection4,"CMP24"		,  "", "Emissão","@R 99/99/9999" ,10)
+TRCell():New(oSection4,"CMP25"		,  "", "Código","@!" ,6)
+TRCell():New(oSection4,"CMP26"		,  "", "Loja","@!" ,2)
+TRCell():New(oSection4,"CMP27"		,  "", "Cliente/Fornecedor","@!" ,60)
+TRCell():New(oSection4,"CMP28"		,  "", "CNPJ/CPF","@!" ,14)
+TRCell():New(oSection4,"CMP29"		,  "", "C.Custo","@!" ,9)
+TRCell():New(oSection4,"CMP30"		,  "", "Descr. Centro de Custo","@!" ,40)
+
+
 
 oBreak := SetQuebra(oSection4, 'CMP1', '4')
 TRFunction():New(oSection4:Cell("CMP9"),NIL,"SUM",oBreak,'Valor Contábil',,,.F.,.F.		,,,{|| Empty(oSection4:Cell("CMP18"):getvalue()) })
@@ -1008,6 +1028,10 @@ Local cSlctSFT		:= ''
 Local cFiltro		:= ''
 Local cOrdem		:= ''
 Local lExibeCanc	:= .T.
+Local cCGC			:= ""
+Local cNomeCF		:= ""
+Local cCC 			:= ""
+Local cDescCC 		:= ""
 
 If Valtype(MV_PAR12) =='C'
 	If ! Empty(MV_PAR12)
@@ -1037,6 +1061,8 @@ cSlctSFT   			:=	oApurEFD:GetCmpSFT(,.F.,.F.)
 cFiltro 			:= oApurEFD:GetWhrSFT(cTipoMov,.T.,.T.)
 cFiltro				:= '%'+ cFiltro + '%'		
 cOrdem				:= '%'+ cOrdem + '%'
+
+cSlctSFT			:= SUBSTR(cSlctSFT,1,LEN(cSlctSFT)-1)+",SFT.FT_TES,SFT.FT_PRODUTO,SFT.FT_EMISSAO,SFT.FT_CLIEFOR,SFT.FT_LOJA%"
 
 BeginSql Alias cAliasSFT    	
     COLUMN FT_ENTRADA AS DATE
@@ -1087,6 +1113,58 @@ while (cAliasSFT)->(!EOF())
 		oSecao4:Cell("CMP18")		:SetValue( Iif( lExibeCanc ,(cAliasSFT)->FT_DTCANC , ctod('  /  /    ') ) )     
 		oSecao4:Cell("CMP19")		:SetValue(Iif(cTipoMov == NFENTRADA ,'Entrada','Saída'))
 		oSecao4:Cell("CMP20")		:SetValue(Iif(lExibeCanc , (cAliasSFT)->FT_OBSERV , '' )  )
+		oSecao4:Cell("CMP21")		:SetValue((cAliasSFT)->FT_TES)
+		oSecao4:Cell("CMP22")		:SetValue((cAliasSFT)->FT_PRODUTO)
+		oSecao4:Cell("CMP23")		:SetValue(Posicione("SB1",1,xFilial("SB1")+(cAliasSFT)->FT_PRODUTO,"B1_DESC"))
+		oSecao4:Cell("CMP24")		:SetValue((cAliasSFT)->FT_EMISSAO)
+		oSecao4:Cell("CMP25")		:SetValue((cAliasSFT)->FT_CLIEFOR)
+		oSecao4:Cell("CMP26")		:SetValue((cAliasSFT)->FT_LOJA)
+
+		cNomeCF 	:= ""
+		cCGC 		:= ""
+		cCC 		:= ""
+		cDescCC		:= ""
+
+		If cTipoMov == NFENTRADA
+			If SA2->(dbSeek(xFilial("SA2")+(cAliasSFT)->FT_CLIEFOR+(cAliasSFT)->FT_LOJA,.F.))
+				cNomeCF := SA2->A2_NOME
+				If Len(AllTrim(SA2->A2_CGC)) > 11											//Se for CNPJ
+					cCGC := Transform(SA2->A2_CGC,"@R 99.999.999/9999-99")
+				Else 																	//Se for CPF
+					cCGC := Transform(SA2->A2_CGC,"@R 999.999.999-99")
+				EndIf
+			EndIf
+		Else
+			If SA1->(dbSeek(xFilial("SA1")+(cAliasSFT)->FT_CLIEFOR+(cAliasSFT)->FT_LOJA,.F.))
+				cNomeCF := SA1->A1_NOME
+				If Len(AllTrim(SA1->A1_CGC)) > 11											//Se for CNPJ
+					cCGC := Transform(SA1->A1_CGC,"@R 99.999.999/9999-99")
+				Else 																	//Se for CPF
+					cCGC := Transform(SA1->A1_CGC,"@R 999.999.999-99")
+				EndIf
+			EndIf
+		EndIf
+
+		oSecao4:Cell("CMP27")		:SetValue(cNomeCF)
+		oSecao4:Cell("CMP28")		:SetValue(cCGC)
+
+		If cTipoMov == NFENTRADA
+			// 1- D1_FILIAL+D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA+D1_COD+D1_ITEM
+			SD1->(dbSetOrder(1))
+			SD1->(dbSeek(xFilial("SD1")+(cAliasSFT)->(FT_NFISCAL+FT_SERIE+FT_CLIEFOR+FT_LOJA+FT_PRODUTO+FT_ITEM),.F.))
+			cCC := SD1->D1_CC
+		Else
+			// 3- D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM
+			SD2->(dbSetOrder(3))			
+			SD2->(dbSeek(xFilial("SD2")+(cAliasSFT)->(FT_NFISCAL+FT_SERIE+FT_CLIEFOR+FT_LOJA+FT_PRODUTO+FT_ITEM),.F.))
+			cCC := SD2->D2_CCUSTO
+		EndIf
+		If !Empty(cCC)
+			cDescCC := Posicione("CTT",1,xFilial("CTT")+cCC,"CTT_DESC01")
+		EndIf
+		oSecao4:Cell("CMP29")		:SetValue(cCC)
+		oSecao4:Cell("CMP30")		:SetValue(cDescCC)
+
 		oSecao4:PrintLine()	
 		
 	EndIF	
