@@ -32,7 +32,12 @@
 			"args": [],
 			"label": "u_updgensx",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "sigafis",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigacom"
+	"lastProgramExecuted": "sigafis"
 }

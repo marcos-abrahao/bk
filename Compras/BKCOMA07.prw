@@ -2,18 +2,13 @@
 #include "RwMake.ch"
 #include "TopConn.ch"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKCOMA07   ºAutor  ³ Adilson do Prado  º Data ³ 24/10/2014  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³Copiar Dados de Fornecedor entre empresas tabela SA2        º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKCOMA07()
+Copiar Dados de Fornecedor entre empresas tabela SA2 
+
+@author Adilson do Prado
+@since 24/10/2014
+@version P12
+@return .T.
 /*/
 
 User Function BKCOMA07()
@@ -25,7 +20,7 @@ Local cA2ARQ   	:= ""
 Local cA2COD   	:= ""
 Local cA2LOJA  	:= ""
 Local cA2NOME  	:= ""
-
+Local cArqSX2   := ""
 
 Private cPerg := "BKCOMA07"
 Private titulo:= "Copiar Fornecedor entre empresas"
@@ -53,26 +48,27 @@ ENDIF
 SM0->(DbGoTop())
 While SM0->(!EoF()) .AND. cA2COD == ""  
 
- 	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
+ 	If SM0->M0_CODIGO $ "07/99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
 		Loop
 	EndIf
 
-	cArquivo1 := "SX2"+SM0->M0_CODIGO+"0"    //+GetDBExtension()
-	If Select("SX2DBF") > 0
-		SX2DBF->(DbCloseArea())
-	EndIf
+	// Removido de acordo com o CodeAnalysis em 09/01/20
+	//cArquivo1 := "SX2"+SM0->M0_CODIGO+"0"    //+GetDBExtension()
+	//If Select("SX2DBF") > 0
+	//	SX2DBF->(DbCloseArea())
+	//EndIf
 		
-	dbUseArea(.T.,NIL,cArquivo1,"SX2DBF",.T.,.F.)
-	//IndRegua("SX2DBF",cArquivo1+"A", "X2_CHAVE",,, 	"Criando Indice..." )
-	dbSelectArea("SX2DBF")
+	//dbUseArea(.T.,NIL,cArquivo1,"SX2DBF",.T.,.F.)
+	//dbSelectArea("SX2DBF")
 
-    dbSetIndex(cArquivo1)
-    dbGoTop()
+    //dbSetIndex(cArquivo1)
+    //dbGoTop()
     
-	SX2DBF->(DbSeek("SA2"))
+	//SX2DBF->(DbSeek("SA2"))
+	cArqSx2 := SM0->M0_CODIGO+"0"
 
-	cQry1 := "SELECT A2_COD,A2_LOJA,A2_NOME FROM "+Alltrim(SX2DBF->X2_ARQUIVO)+" XSA2"		
+	cQry1 := "SELECT A2_COD,A2_LOJA,A2_NOME FROM "+cArqSx2+" XSA2"		
 	cQry1 += " WHERE XSA2.D_E_L_E_T_ = ''  AND XSA2.A2_CGC = '"+cCNPJ+"' "
 		
 	If Select("XSA2") > 0
@@ -90,7 +86,7 @@ While SM0->(!EoF()) .AND. cA2COD == ""
 		cA2NOME := XSA2->A2_NOME 
 	EndIf
 
-	SX2DBF->(DbCloseArea())
+	//SX2DBF->(DbCloseArea())
 	//FErase(cArquivo1+"A"+OrdBagExt())
 
 	XSA2->(DbCloseArea())
