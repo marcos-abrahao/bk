@@ -2,34 +2,32 @@
 #INCLUDE "topconn.ch"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKCOMA03º      Adilson do Prado              Data ³10/04/12º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada	  º±±
-±±ºDescricao ³ Assistência Médica										  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK Consultoria                                             º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+/*/{Protheus.doc} BKCOMA03()
+Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
 
+@author Adilson do Prado
+@since 10/04/2012
+@version P12
+@return .T.
+/*/
 
 User Function BKCOMA03()
 
-Local nSnd:= 15,nTLin := 15
+Local nSnd       := 15
+Local nTLin      := 15
 Local cTipoArq   := "Todos os Arquivos (*.*) | *.* | "
-Local oDlg01,aButtons := {},nOpcA := 0
-Local lOk:= .F.
-Local aSX5  := {}
+Local oDlg01     as Object
+Local nOpcA      := 0
+Local lOk        := .F.
+Local aSX5       := {}
+Local aTbSx5     := {}
+Local nX5        := 0
+
 Private cTitulo  := "Inclusão VT,VR,VA e AM em Pré-Documento de Entrada"
 Private cProg    := "BKCOMA03"
 Private cPerg    := "BKCOMA03"
-Private cDoc:=SPACE(9),cSerie:=SPACE(3),cForn:= SPACE(6),cLoja:=SPACE(2),cEspec:=SPACE(5),cUF:=SPACE(2)
-Private cProduto :=SPACE(15),cHIST := SPACE(200)
+Private cDoc     := SPACE(9),cSerie:=SPACE(3),cForn:= SPACE(6),cLoja:=SPACE(2),cEspec:=SPACE(5),cUF:=SPACE(2)
+Private cProduto := SPACE(15),cHIST := SPACE(200)
 Private nValor   := 0
 Private nTotPlan := 0
 Private aTipoNF  := {}
@@ -39,21 +37,24 @@ Private cArq     := GetMV("MV_XXAQBNB")
 Private cDir     := GetMV("MV_XXAQBNB")
 Private dEmissao := dDatabase
 Private cCompl   := "2-Não"
-Private aCompl:= {"1-Sim","2-Não"}
+Private aCompl   := {"1-Sim","2-Não"}
 
+aTbSx5 := FWGetSX5("Z3")
 
-aSX5 := {}
-dbSelectArea("SX5")
-dbSetOrder(1)
-dbSeek(xFilial("SX5")+"Z301",.F.)
-DO WHILE !EOF() .AND. SX5->X5_TABELA == "Z3"
+//dbSelectArea("SX5")
+//dbSetOrder(1)
+//dbSeek(xFilial("SX5")+"Z301",.F.)
+//DO WHILE !EOF() .AND. SX5->X5_TABELA == "Z3"
+FOR nX5 := 1 To Len(aTbSx5)
 	aItemX5 :={}
-	aItemX5 := StrTokArr(SX5->X5_DESCRI,";")
+	//aItemX5 := StrTokArr(SX5->X5_DESCRI,";")
+	aItemX5 := StrTokArr(aTbSx5[nX5,4],";")
     IF LEN(aItemX5) == 4
  		AADD(aSX5,{aItemX5[1],aItemX5[2],aItemX5[3],aItemX5[4]})
  	ENDIF
 	SX5->(DBSKIP())
-ENDDO
+NEXT
+//ENDDO
 
 FOR nX := 2 TO LEN(aSX5)
     AADD(aTipoNF,ALLTRIM(aSX5[nX,1])+" - "+ALLTRIM(aSX5[nX,2]))
@@ -135,16 +136,23 @@ RETURN lOk
 
 
 Static Function MontaItemNF()
-Local nSnd  := 15,nTLin := 15
-Local oDlg01,aButtons := {}
-LOCAL cLines:='',cBuffer:=''
-LOCAL nLines,nX,nHandle
-LOCAL lID := .F.,lOk := .F.
-LOCAL cCODFUN:= '',cQuery:=''
-LOCAL nQUANT := 0
-LOCAL nVALITNF := 0,nTotal:=0,nValRat :=0
-LOCAL aX5 := {}
-LOCAL aItemLinha := {},aItemCC:={}, aItemNF:={}
+Local nSnd       := 15
+Local nTLin      := 15
+Local oDlg01     as Object
+Local aButtons   := {}
+Local cBuffer    :=''
+Local nX         := 0
+Local lID        := .F.
+Local lOk        := .F.
+Local cCODFUN    := ''
+Local cQuery     := ''
+Local nQUANT     := 0
+Local nVALITNF   := 0 
+Local nTotal     := 0
+Local nValRat    := 0
+Local aX5        := {}
+Local aItemLinha := {}
+Local aItemCC    := {}
 
 aX5 := {}
 dbSelectArea("SX5")

@@ -17,10 +17,18 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
+User Function CN121VCPO()
+
+Local oStruCND := PARAMIXB[1]
+Local oStruCXN := PARAMIXB[2]
+Local oStruCNE := PARAMIXB[3]
+
+X:=0
+
+Return
+
 User Function CN120CPO()
-
 Local aCpo  := {"CNA_XXMOT","CNA_XXMUN"}
-
 Return aCpo
 
 
