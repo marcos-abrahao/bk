@@ -51,4 +51,3 @@ nRet := aCols[n,nPosLCVal]
 //ENDIF
 
 Return nRet
-

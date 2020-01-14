@@ -14,6 +14,7 @@ Private cxNumPa  := SF1->F1_XNUMPA
 Private cxBanco  := SF1->F1_XBANCO
 Private cxAgencia:= SF1->F1_XAGENC
 Private cxConta  := SF1->F1_XNUMCON
+Private cChvNfe  := SF1->F1_CHVNFE
 Private nTipoPg  := 0
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
@@ -38,6 +39,7 @@ SF1->F1_XNUMPA  := cxNumPa
 SF1->F1_XBANCO  := cxBanco
 SF1->F1_XAGENC  := cxAgencia
 SF1->F1_XNUMCON := cxConta
+SF1->F1_CHVNFE  := cChvNfe
 MSUNLOCK("SF1")
 
 If nTipoPg == 1 .AND. SF1->F1_FORNECE <> "000084"
@@ -58,7 +60,7 @@ Local oSay1
 Local bClickP
 Static oDlg3
 Private nRadMenu1 := 1
-Private oGetBco,oGetAge,oGetCon,oGetPA
+Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv
 
 aadd(aOpcoes,"DEPOSITO")   //01
 aadd(aOpcoes,"CARTAO")     //02
@@ -72,7 +74,7 @@ If nRadMenu1 = 0
 	nRadMenu1 := 1
 EndIf
 
-DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento" STYLE DS_MODALFRAME FROM 000, 000  TO 275, 410 COLORS 0, 16777215 PIXEL
+DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento" STYLE DS_MODALFRAME FROM 000, 000 TO 310, 430 COLORS 0, 16777215 PIXEL
 
 oDlg3:lEscClose := .F.
 
@@ -83,16 +85,19 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 @ 010,010 SAY oSay1 PROMPT "Selecione a forma de pagamento :" SIZE 091, 007 OF oDlg3 COLORS 0, 16777215 PIXEL
 
 @ 087,010 SAY "Banco" 	 OF oDlg3 PIXEL
-@ 085,030 MSGET oGetBco VAR cxBanco   OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1) Valid IIf(nRadMenu1==1,!Empty(cxBanco),.T.)
-@ 087,060 SAY "Agência"  OF oDlg3 PIXEL
-@ 085,085 MSGET oGetAge VAR cxAgencia OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1) Valid IIf(nRadMenu1==1,!Empty(cxAgencia),.T.)
-@ 087,120 SAY "Conta"  	 OF oDlg3 PIXEL
-@ 085,140 MSGET oGetCon VAR cxConta   OF oDlg3 PICTURE "@!" SIZE 60,10 PIXEL WHEN (nRadMenu1==1) Valid IIf(nRadMenu1==1,!Empty(cxConta),.T.)
+@ 085,040 MSGET oGetBco VAR cxBanco   OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1) Valid IIf(nRadMenu1==1,!Empty(cxBanco),.T.)
+@ 087,065 SAY "Agência"  OF oDlg3 PIXEL
+@ 085,090 MSGET oGetAge VAR cxAgencia OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1) Valid IIf(nRadMenu1==1,!Empty(cxAgencia),.T.)
+@ 087,125 SAY "Conta"  	 OF oDlg3 PIXEL
+@ 085,145 MSGET oGetCon VAR cxConta   OF oDlg3 PICTURE "@!" SIZE 60,10 PIXEL WHEN (nRadMenu1==1) Valid IIf(nRadMenu1==1,!Empty(cxConta),.T.)
 
 @ 102,010 SAY "P.A."     OF oDlg3 PIXEL
-@ 100,030 MSGET oGetPA VAR cxNumPa	  OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==4) Valid IIf(nRadMenu1==4,!Empty(cxNumPa),.T.)
+@ 100,040 MSGET oGetPA VAR cxNumPa	  OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==4) Valid IIf(nRadMenu1==4,!Empty(cxNumPa),.T.)
 
-@ 115,085 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
+@ 122,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 120,040 MSGET oGetChv VAR cChvNfe  OF oDlg3 PICTURE "@!" SIZE 140,10 PIXEL 
+
+@ 140,090 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
 //@ 170,150 BUTTON "Cancelar" SIZE 050, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
 
 ACTIVATE MSDIALOG oDlg3 CENTERED

@@ -19,9 +19,19 @@
 
 User Function MA103OPC
 Local aRot := {} 
+Local aGrp := UsrRetGrp()
+
+If LEN(aGrp) > 0
+	If aGrp[1] == "000000" 
+		AADD( aRot, {OemToAnsi("Informar Chave NFE"), "U_BKCOMA08", 0, 1 } )
+	EndIf
+EndIf
+
 AADD( aRot, {OemToAnsi("Pesquisa BK"), "U_BKCOMC01", 0, 1 } )
+AADD( aRot, {OemToAnsi("Pesquisa NF"), "U_BKCOMC02", 0, 1 } )
 AADD( aRot, {OemToAnsi("Aval. Fornecedor"), "U_VEWAVALFOR", 0, 4 } )
 AADD( aRot, {OemToAnsi("Reavaliar Fornecedor"), "U_RAvalForn", 0, 4 } )
+
 Return( aRot )
               
              
@@ -29,7 +39,7 @@ Return( aRot )
 
 USER function VEWAVALFOR() 
 
-Local oGroup1,oGroup2,oGroup2,oGroup4,oGroup5
+Local oGroup1,oGroup2,oGroup3,oGroup4,oGroup5
 Local oSay,oFont1,oFont2,oFont3
 
 Local nTotal  := 0

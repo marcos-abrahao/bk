@@ -66,7 +66,7 @@ While SM0->(!EoF()) .AND. cA2COD == ""
     //dbGoTop()
     
 	//SX2DBF->(DbSeek("SA2"))
-	cArqSx2 := SM0->M0_CODIGO+"0"
+	cArqSx2 := "SA2"+SM0->M0_CODIGO+"0"
 
 	cQry1 := "SELECT A2_COD,A2_LOJA,A2_NOME FROM "+cArqSx2+" XSA2"		
 	cQry1 += " WHERE XSA2.D_E_L_E_T_ = ''  AND XSA2.A2_CGC = '"+cCNPJ+"' "
@@ -80,7 +80,7 @@ While SM0->(!EoF()) .AND. cA2COD == ""
 
 	If ALLTRIM(XSA2->A2_COD) <> "" .AND. cA2COD == ""
 		cEmpOR  := SM0->M0_CODIGO
-		cA2ARQ 	:= Alltrim(SX2DBF->X2_ARQUIVO)
+		cA2ARQ 	:= cArqSx2  //Alltrim(SX2DBF->X2_ARQUIVO)
 		cA2COD 	:= XSA2->A2_COD
 		cA2LOJA := XSA2->A2_LOJA
 		cA2NOME := XSA2->A2_NOME 
@@ -114,6 +114,9 @@ Return nil
 STATIC FUNCTION CopySA2(cA2ARQ,cA2COD,cA2LOJA)
 Local cQry1 := ""
 Local aSA2  := {}
+Local aSx3  := {}
+Local nI    := 0
+Local cCpo  := ""
 
 Private lMsHelpAuto := .f.
 Private lMsErroAuto := .f.
@@ -129,6 +132,44 @@ EndIf
 TcQuery cQry1 New Alias "XSA2"
 dbSelectArea("XSA2")
 
+aSx3 := FWSX3Util():GetAllFields( "SA2" , .F. /*lVirtual */)
+For nI := 1 To Len(aSx3)
+	cCpo := AllTrim(aSx3[nI])
+	IF GetSx3Cache(cCpo,"X3_CONTEXT") <> "V" .AND. X3USO(GetSx3Cache(cCpo,"X3_USADO"))
+		IF cCpo == "A2_FILIAL"
+			AADD(aSA2,{cCpo,xFILIAL("SA2"), Nil})
+		ELSEIF cCpo $ "A2_COD"
+			AADD(aSA2,{cCpo,U_BKCOMF11(), Nil})
+		ELSEIF cCpo $ "A2_LOJA"
+			AADD(aSA2,{cCpo,cA2LOJA, Nil})
+		ELSEIF cCpo $ "A2_REPR_AG/A2_CBO/A2_CIVIL/A2_GRPDEP/A2_FRETISS/A2_INSCMU/A2_CONTPRE/A2_CPFIRP/A2_RETISI/A2_ISICM/A2_UFFIC/A2_TPREG/A2_SUBCON/A2_CPFRUR"
+		ELSEIF cCpo == "A2_CODPIS"
+			AADD(aSA2,{cCpo,"01058", Nil})
+		ELSEIF cCpo == "A2_MINIRF"
+			AADD(aSA2,{cCpo,"2", Nil})
+		ELSEIF cCpo $ "A2_MCOMPRA/A2_NROCOM/A2_SALDUP/A2_SALDUPM"
+			AADD(aSA2,{cCpo,0, Nil})
+		ELSEIF cCpo $ "A2_PRICOM/A2_ULTCOM"
+			AADD(aSA2,{cCpo,CTOD(""), Nil})
+		ELSE
+			cCampo := "XSA2->"+cCpo
+			xCampo := NIL
+			xCampo := &cCampo
+			IF TamSX3(cCpo)[3] == "C"  // Evitar erro de campos com tamanhos maiores em campos menores
+				xCampo := TRIM(xCampo)
+			ELSEIF TamSX3(cCpo)[3] == "D" 
+				xCampo := STOD(xCampo)
+			ENDIF
+			IF EMPTY(xCampo) .AND. !EMPTY(GetSx3Cache(cCpo,"X3_RELACAO"))  
+				xCampo := &(GetSx3Cache(cCpo,"X3_RELACAO"))
+			ENDIF
+			AADD(aSA2,{cCpo,xCampo, Nil})
+			//AADD(aSA2,{cCpo,IIF(SX3->X3_TIPO=="D",CTOD(xCampo),IIF(!EMPTY(xCampo),xCampo,IIF(!EMPTY(SX3->X3_RELACAO),&(SX3->X3_RELACAO),xCampo))), Nil})
+		ENDIF
+	ENDIF
+NEXT
+
+/*
 dbSelectArea("SX3")
 dbSetOrder(1)
 dbSeek("SA2",.T.)
@@ -168,6 +209,7 @@ Do while !eof() .and. SX3->X3_ARQUIVO == "SA2"
 	ENDIF
 	SX3->(dbSkip())
 Enddo
+*/
 
 XSA2->(DbCloseArea())
 
@@ -182,7 +224,6 @@ Begin Transaction
 		MSGINFO("Fornecedor copiado com sucesso!! código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME)
 	Endif
 End Transaction
-
 
 Return nil
 

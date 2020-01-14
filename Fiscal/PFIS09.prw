@@ -27,6 +27,8 @@ LOCAL cPerg        := "PFIS09"
 PRIVATE dDataInicio := dDataBase
 PRIVATE dDataFinal  := dDataBase
 PRIVATE cCFOP		:= ""
+PRIVATE cForn       := ""
+PRIVATE cProd       := ""
 PRIVATE cCODTES    	:= ""
 PRIVATE nTPMOV    	:= 1
 PRIVATE cArqS		:= "\tmp\PFIS09"
@@ -45,6 +47,9 @@ dDataFinal  := mv_par02
 cCFOP		:= mv_par03
 cCODTES    	:= mv_par04
 nTPMOV    	:= mv_par05
+cProd 		:= mv_par06
+cForn   	:= mv_par07
+
 
 IF EMPTY(dDataFinal) .OR.  EMPTY(dDataInicio)
 	MSGSTOP("Informe a data início e final")                
@@ -76,6 +81,7 @@ Aadd( aDbf, { 'XX_LOJA','C',02,00 } )
 Aadd( aDbf, { 'XX_ENTRADA','D',08,00 } )
 Aadd( aDbf, { 'XX_EMISSAO','D',08,00 } )
 Aadd( aDbf, { 'XX_CFOP','C',05,00 } )
+Aadd( aDbf, { 'XX_CFOPIT','C',05,00 } )
 Aadd( aDbf, { 'XX_TES','C',03,00 } )
 Aadd( aDbf, { 'XX_ITEM','C',04,00 } )
 Aadd( aDbf, { 'XX_PRODUTO','C',15,00 } )
@@ -157,6 +163,10 @@ AAdd(aFixeFX,{"DTEMISSAO","XX_EMISSAO",'D', 08,00,'@D'})
 Aadd( aCampos,"TRB->XX_CFOP")
 AADD(aCabs  ,"CFOP")
 AAdd(aFixeFX,{"CFOP","XX_CFOP",'C', 05,00,'@!'})
+
+Aadd( aCampos,"TRB->XX_CFOPIT")
+AADD(aCabs  ,"CFOPIT")
+AAdd(aFixeFX,{"CFOP","XX_CFOPIT",'C', 05,00,'@!'})
 
 Aadd( aCampos,"TRB->XX_TES")
 AADD(aCabs  ,"TES")
@@ -322,7 +332,8 @@ dDataFinal  := mv_par02
 cCFOP		:= mv_par03
 cCODTES    	:= mv_par04
 nTPMOV    	:= mv_par05
-
+cProd 		:= mv_par06
+cForn   	:= mv_par07
   
 Processa( {|| ProcPFIS09() })
 
@@ -420,11 +431,11 @@ LimpaBrw("TRB")
 cQuery:= "SELECT FT_FILIAL,FT_NFISCAL,FT_SERIE,FT_CLIEFOR,FT_LOJA,FT_ENTRADA,FT_EMISSAO,FT_CFOP,"
 
 IF nTPMOV=1
-	cQuery += "D1_TES AS FT_TES,D1_ICMSRET AS FT_ICMSRET,D1_VALIPI AS FT_VALIPI,"
+	cQuery += "D1_TES AS FT_TES,D1_ICMSRET AS FT_ICMSRET,D1_VALIPI AS FT_VALIPI,D1_CF AS CFOPIT"
 	cQuery += "D1_ALQIMP5 AS FT_ALIQCOF,D1_BASIMP5 AS FT_BASECOF,D1_VALIMP5 AS FT_VALCOF,"
 	cQuery += "D1_ALQIMP6 AS FT_ALIQPIS,D1_BASIMP6 AS FT_BASEPIS,D1_VALIMP6 AS FT_VALPIS, '' AS A1_XACUMUL,"
 ELSE
-	cQuery += "D2_TES AS FT_TES,D2_ICMSRET AS FT_ICMSRET,D2_VALIPI AS FT_VALIPI,"
+	cQuery += "D2_TES AS FT_TES,D2_ICMSRET AS FT_ICMSRET,D2_VALIPI AS FT_VALIPI,D2_CF AS CFOPIT"
 	cQuery += "D2_ALQIMP5 AS FT_ALIQCOF,D2_BASIMP5 AS FT_BASECOF,D2_VALIMP5 AS FT_VALCOF,"
 	cQuery += "D2_ALQIMP6 AS FT_ALIQPIS,D2_BASIMP6 AS FT_BASEPIS,D2_VALIMP6 AS FT_VALPIS,A1_XACUMUL,"
 ENDIF
@@ -454,6 +465,22 @@ IF !EMPTY(cCODTES)
 		cQuery+= " AND D1_TES ='"+ALLTRIM(cCODTES)+"'"
 	ELSE
 		cQuery+= " AND D2_TES ='"+ALLTRIM(cCODTES)+"'"
+	ENDIF
+ENDIF
+
+IF !EMPTY(cProd)
+	IF nTPMOV=1
+		cQuery+= " AND D1_COD ='"+ALLTRIM(cProd)+"'"
+	ELSE
+		cQuery+= " AND D2_COD ='"+ALLTRIM(cProd)+"'"
+	ENDIF
+ENDIF
+
+IF !EMPTY(cForn)
+	IF nTPMOV=1
+		cQuery+= " AND D1_FORNECE ='"+ALLTRIM(cForn)+"'"
+	ELSE
+		cQuery+= " AND D2_CLIENTE ='"+ALLTRIM(cForn)+"'"
 	ENDIF
 ENDIF
 
@@ -487,6 +514,7 @@ Do While (ALIAS_TMP)->(!eof())
 	TRB->XX_ENTRADA	:=	(ALIAS_TMP)->FT_ENTRADA
 	TRB->XX_EMISSAO	:=	(ALIAS_TMP)->FT_EMISSAO
 	TRB->XX_CFOP	:=	(ALIAS_TMP)->FT_CFOP
+	TRB->XX_CFOPIT	:=	(ALIAS_TMP)->CFOPIT
 	TRB->XX_TES		:=	(ALIAS_TMP)->FT_TES
 	TRB->XX_ITEM	:=	(ALIAS_TMP)->FT_ITEM
 	TRB->XX_PRODUTO	:=	(ALIAS_TMP)->FT_PRODUTO
@@ -764,9 +792,9 @@ ELSE
 ENDIF
 
 
-IF !MsgBox("Esta rotina corrigirá os campos SITTIB,CSTPI,CSTCOFINS,ALIQPIS,ALIQCOF,BASEPIS,BASECOF,VALPIS,VALCOF nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Atenção","YESNO")
-	Return nil
-ENDIF
+//IF !MsgBox("Esta rotina corrigirá os campos SITTIB,CSTPI,CSTCOFINS,ALIQPIS,ALIQCOF,BASEPIS,BASECOF,VALPIS,VALCOF nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Atenção","YESNO")
+//	Return nil
+//ENDIF
 
 Processa( {|| GCSVPFIS09("TRB","PFIS09",aTitulos,aCampos,aCabs,1)})
 
@@ -790,6 +818,12 @@ Do While ("TRB")->(!eof())
 				SFT->FT_ALIQCOF := TRB->XX_ALICOFC
 				SFT->FT_BASECOF := TRB->XX_BASCOFC
 				SFT->FT_VALCOF  := TRB->XX_VALCOFC
+			ENDIF
+			IF SFT->FT_TES <> TRB->XX_TES
+				SFT->FT_TES := TRB->XX_TES
+			ENDIF
+			IF SFT->FT_CFOP <> TRB->XX_CFOPIT
+				SFT->FT_CFOP := TRB->XX_CFOPIT
 			ENDIF
 			SFT->(Msunlock())
 			IF nTPMOV  == 1 .AND. (nOPC_ = 1 .OR. nOPC_ == 3)
@@ -817,7 +851,7 @@ Do While ("TRB")->(!eof())
 				ENDIF
 			ENDIF
     	ENDIF
-    	IF  nTPMOV  == 1 .AND. (nOPC_ = 1 .OR. nOPC_ == 3)
+    	IF nTPMOV  == 1 .AND. (nOPC_ = 1 .OR. nOPC_ == 3)
 			dbSelectArea("SD1")
 			("SD1")->(dbSetOrder(1))
 			IF DBSEEK(("TRB")->XX_FILIAL+("TRB")->XX_NFISCAL+("TRB")->XX_SERIE+("TRB")->XX_CLIEFOR+("TRB")->XX_LOJA+("TRB")->XX_PRODUTO+("TRB")->XX_ITEM,.T.)
@@ -831,6 +865,8 @@ Do While ("TRB")->(!eof())
 				SD1->(Msunlock()) 
 	    	ENDIF
     	ENDIF
+
+
     	IF  nTPMOV == 2 .AND. (nOPC_ = 1 .OR. nOPC_ == 3)
 			dbSelectArea("SD2")
 			("SD2")->(dbSetOrder(3))
@@ -851,7 +887,7 @@ Do While ("TRB")->(!eof())
 	("TRB")->(dbSkip())
 ENDDO
 
-Processa( {|| ProcPFIS09() })
+//Processa( {|| ProcPFIS09() })
 
 Return nil
 
@@ -1020,6 +1056,8 @@ ELSE
 	AADD(aRegistros,{cPerg,"03","CFOP ?","CFOP ?"  ,"CFOP ?"  ,"mv_ch3","C",05,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 	AADD(aRegistros,{cPerg,"04","TES ?"    ,"TES ?" ,"TES ?" ,"mv_ch4","C",03,0,0,"G","","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 	AADD(aRegistros,{cPerg,"05","Tipo Movimento ?","Tipo Movimento ?" ,"Tipo Movimento ?" ,"mv_ch5","N",01,0,2,"C","","mv_par05","Entrada","Entrada","Entrada","","","Saida","Saida","Saida","","","","","","","","","","","","","","","","","","S","",""})
+	AADD(aRegistros,{cPerg,"06","Produto:","Produto:","Produto:","mv_ch6","C",15,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
+	AADD(aRegistros,{cPerg,"07","Fornecedor:","Fornecedor:" ,"Fornecedor:" ,"mv_ch7","C",06,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
 ENDIF
 
 For i:=1 to Len(aRegistros)

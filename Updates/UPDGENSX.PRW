@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"07/01/2020"
+#DEFINE FIN_LAST_UPDATED 		"14/01/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -43,8 +43,6 @@ Local   cDesc2    := "" //"Alterar o parâmetro MV_MIGGCT para .T."
 Local   cDesc3    := "" //"Acertar compartilhamento da tabela FIL (c/c fornecedores) com a tabela SA2 (1,2,2)"
 Local   cDesc4    := "" //"Acertar nome dos campos CN9_CLIENT e CN9_LOJACL."
 Local   cDesc5    := "" //"Acertar o dicionario do campo A1_NATUREZ (usado em todos os módulos)"
-Local   cDesc6    := "" //""
-Local   cDesc7    := ""
 Local   lOk       := .F.
 
 Private oMainWnd  := NIL
@@ -181,9 +179,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			//AtuGenPar( @cTexto )
+			AtuGenPar( @cTexto )
 			//AtuGenE1( @cTexto )
-			AtuGenX3( @cTexto )
+			//AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
 
 
@@ -480,19 +478,36 @@ EndIf
 */
 
 // 16/12/19 - Inclusão Nelson Oliveira
-oProcess:IncRegua2( "Atualizando parametro MV_XXUSERS..." )
-If dbSeek(xFilial()+"MV_XXUSERS")
+//oProcess:IncRegua2( "Atualizando parametro MV_XXUSERS..." )
+//If dbSeek(xFilial()+"MV_XXUSERS")
+//	RecLock( "SX6", .F. )
+
+//	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+//	SX6->X6_CONTEUD := "000006/000011/000016/000076/000093/000177/000171/000056/000175/000103/000165/"
+//	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+//	dbCommit()
+//	MsUnLock()
+//EndIf
+
+// 14/01/20 - Alterar parametro MV_CTBAPLA
+
+oProcess:IncRegua2( "Atualizando parametro MV_CTBAPLA..." )
+If dbSeek(xFilial()+"MV_CTBAPLA")
 	RecLock( "SX6", .F. )
 
 	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	SX6->X6_CONTEUD := "000006/000011/000016/000076/000093/000177/000171/000056/000175/000103/000165/"
+	SX6->X6_CONTEUD := "4"
 	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
 
 	dbCommit()
 	MsUnLock()
 EndIf
 
-//cTexto += CRLF + "Final da Atualizacao" + CRLF 
+
+
+
+cTexto += CRLF + "Final da Atualizacao" + CRLF 
 
 Return
 
@@ -577,16 +592,20 @@ dbSelectArea( "SX3" )
 //X31UPDTABLE("SE1")
 
 // 07/01/20 - Numeração Bordero BK
-dbSelectArea( "SIX" )
-APPEND FROM \xiszu.dtc
+//dbSelectArea( "SIX" )
+//APPEND FROM \xiszu.dtc
 
-dbSelectArea( "SX2" )
-APPEND FROM \x2szu.dtc
+//dbSelectArea( "SX2" )
+//APPEND FROM \x2szu.dtc
 
+//dbSelectArea( "SX3" )
+//APPEND FROM \x3szu.dtc
+
+// Incluir competência da Medição no browse do SC5
 dbSelectArea( "SX3" )
-APPEND FROM \x3szu.dtc
+APPEND FROM \x3sc5.dtc
 
-X31UPDTABLE("SZU")
+X31UPDTABLE("SC5")
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF + Replicate( "-", 128 ) + CRLF + CRLF
 

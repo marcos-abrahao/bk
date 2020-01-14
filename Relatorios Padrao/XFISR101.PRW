@@ -438,7 +438,7 @@ oSection4:SetHeaderSection(.T.)
 TRCell():New(oSection4,"CMP1"		,  "","Filial","",FWGETTAMFILIAL)
 TRCell():New(oSection4,"CMP19"		,  "","Tipo Mov","@!",10)
 TRCell():New(oSection4,"CMP2"		,  "","Nota Fiscal","@!",9)
-TRCell():New(oSection4,"CMP3"		,  "","Emissão","@R 99/99/9999" ,10)
+TRCell():New(oSection4,"CMP3"		,  "","Entrada","@R 99/99/9999" ,10)
 TRCell():New(oSection4,"CMP4"		,  "","Item")//*
 TRCell():New(oSection4,"CMP5"		,  "","Modelo")//*
 TRCell():New(oSection4,"CMP6"		,  "","Série","@!",3)//*
