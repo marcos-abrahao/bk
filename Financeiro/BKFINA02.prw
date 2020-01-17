@@ -181,13 +181,13 @@ If ( lOk )
         If aCtrId[nI,1]
 			cQuery  := "SELECT Z2_CTRID,Z2_TIPO,Z2_BANCO,Z2_CODFOR,Z2_LOJFOR,Z2_TIPOPES,Z2_DATAPGT,SUM(Z2_VALOR) AS XX_TOTAL,COUNT(*) AS XX_COUNT, "
 			cQuery  += " MAX(Z2_DATAEMI) AS XX_DATAEMI, MAX(Z2_NOME) AS XX_NOME,MAX(Z2_CPF) AS XX_CPF" //, MAX(Z2_ANEXO) AS XX_CPF "
-			cQuery  += ", (CASE WHEN Z2_BANCO = '104' AND SUBSTRING(Z2_CONTA,1,2)='37' THEN '37' ELSE '00' END) AS Z2_TIPCONT"
+			cQuery  += ", (CASE WHEN Z2_BANCO = '104' AND (SUBSTRING(Z2_CONTA,1,2)='37' OR SUBSTRING(Z2_CONTA,1,3)='098') THEN '37' ELSE '00' END) AS Z2_TIPCONT"
 			cQuery  += ", (CASE WHEN Z2_CC= '"+aFURNAS[1]+"' THEN Z2_CC ELSE (CASE WHEN Z2_CC= '"+aFURNAS[2]+"' THEN Z2_CC ELSE '' END) END) AS Z2_CC"
 			cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = 'X' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
 			cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'  AND Z2_VALOR > 0"
 			//cQuery  += "AND Z2_TIPO NOT IN ('SOL ','PCT ','RMB ','NDB ') "  // PARA TESTES
 			cQuery  += " GROUP BY Z2_FILIAL,Z2_CTRID,Z2_TIPO,Z2_BANCO,Z2_CODFOR,Z2_LOJFOR,Z2_TIPOPES,Z2_DATAPGT "
-			cQuery  += ", (CASE WHEN Z2_BANCO = '104' AND SUBSTRING(Z2_CONTA,1,2)='37' THEN '37' ELSE '00' END)"
+			cQuery  += ", (CASE WHEN Z2_BANCO = '104' AND (SUBSTRING(Z2_CONTA,1,2)='37' OR SUBSTRING(Z2_CONTA,1,3)='098') THEN '37' ELSE '00' END)"
 			cQuery  += ", (CASE WHEN Z2_CC= '"+aFURNAS[1]+"' THEN Z2_CC ELSE (CASE WHEN Z2_CC= '"+aFURNAS[2]+"' THEN Z2_CC ELSE '' END) END)"
 			cQuery  += "  ORDER BY Z2_FILIAL,Z2_CTRID,Z2_TIPO,Z2_BANCO,Z2_CODFOR,Z2_LOJFOR,Z2_TIPOPES,Z2_DATAPGT "
 			
@@ -512,7 +512,7 @@ For nI := 1 TO LEN(aTitGer)
 		    
 		IF SZ2->Z2_DATAPGT == dPgto .AND. SZ2->Z2_CODFOR = cCodFor .AND. SZ2->Z2_LOJFOR = cLojFor .AND. SZ2->Z2_TIPOPES = cTipoPes
 			IF cCTT == aFURNAS[1] .AND. ALLTRIM(SZ2->Z2_CC) == aFURNAS[1]  
-		   		IF cTPCONT == "37" .AND. SUBSTR(SZ2->Z2_CONTA,1,2)=='37'
+		   		IF cTPCONT == "37" .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
 		   			IF SZ2->Z2_STATUS == "X"
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -525,7 +525,7 @@ For nI := 1 TO LEN(aTitGer)
 		    			SZ2->Z2_E2Loja := cLoja
 			    		SZ2->(MsUnlock())
 			    	ENDIF
-		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. SUBSTR(SZ2->Z2_CONTA,1,2)<>'37'
+		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
             		IF SZ2->Z2_STATUS == "X" 
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -553,7 +553,7 @@ For nI := 1 TO LEN(aTitGer)
 			    	ENDIF
 				ENDIF    
 			ELSEIF cCTT == aFURNAS[2] .AND. ALLTRIM(SZ2->Z2_CC) == aFURNAS[2]  
-		   		IF cTPCONT == "37" .AND. SUBSTR(SZ2->Z2_CONTA,1,2)=='37'
+		   		IF cTPCONT == "37" .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
 		   			IF SZ2->Z2_STATUS == "X"
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -566,7 +566,7 @@ For nI := 1 TO LEN(aTitGer)
 		    			SZ2->Z2_E2Loja := cLoja
 			    		SZ2->(MsUnlock())
 			    	ENDIF
-		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. SUBSTR(SZ2->Z2_CONTA,1,2)<>'37'
+		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
             		IF SZ2->Z2_STATUS == "X" 
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -594,7 +594,7 @@ For nI := 1 TO LEN(aTitGer)
 			    	ENDIF
 				ENDIF    
 			ELSEIF ALLTRIM(SZ2->Z2_CC) <> aFURNAS[1] .AND. ALLTRIM(SZ2->Z2_CC) <> aFURNAS[2]
-		   		IF cTPCONT == "37" .AND. SUBSTR(SZ2->Z2_CONTA,1,2)=='37'
+		   		IF cTPCONT == "37" .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
 		   			IF SZ2->Z2_STATUS == "X"
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -607,7 +607,7 @@ For nI := 1 TO LEN(aTitGer)
 		    			SZ2->Z2_E2Loja := cLoja
 			    		SZ2->(MsUnlock())
 			    	ENDIF
-		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. SUBSTR(SZ2->Z2_CONTA,1,2)<>'37'
+		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
             		IF SZ2->Z2_STATUS == "X" 
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
