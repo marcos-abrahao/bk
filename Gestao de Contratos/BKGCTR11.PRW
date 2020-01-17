@@ -173,6 +173,10 @@ cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS
 
 aContrCons	:= {}
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
+
+// Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
+aRatCtrPrd  := U_DefCtrPrd()
+
 cExm_Prod	:= GetMv("MV_XXCEXMP") //"41201015"
 cMFG_Prod	:= GetMv("MV_XXCMFGP") //"31201053"
 cDCH_Prod	:= GetMv("MV_XXCDCH")  //"34202003"
@@ -1518,7 +1522,7 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
 
 		cQuery2 += " UNION"
-		cQuery2 += " select D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"
+		cQuery2 += " SELECT D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = ' ' "
 		cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
 		cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
@@ -1594,12 +1598,13 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 			ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP
+			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 				cOUTROS := 'N'
 				nNumRat := 0
 				nValRat := 0
 				//Determina quantos Meses utilizar no calculo
-				IF nRATEIA == 1
+				IF nRATEIA == 1 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 					nNumRat := 1 + DateDiffMonth( CTOD("01/"+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4)) , dDataVenc )
                 ELSE
                 	nNumRat := 1
@@ -1779,12 +1784,13 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 				ENDIF
 	
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP ;
+						.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 					cOUTROS := 'N'
 					nNumRat := 0
 					nValRat := 0
 					//Determina quantos Meses utilizar no calculo  
-	   				IF nRATEIA == 1
+	   				IF nRATEIA == 1 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 						nNumRat := 1 + DateDiffMonth( CTOD("01/"+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4)) , dDataVenc )
                     ELSE
                     	nNumRat := 1
@@ -1997,12 +2003,13 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 					ENDIF
 		
-					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP
+					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+							 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 						cOUTROS := 'N'
 						nNumRat := 0
 						nValRat := 0
 						//Determina quantos Meses utilizar no calculo  
-		   				IF nRATEIA == 1
+		   				IF nRATEIA == 1 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 							nNumRat := 1 + DateDiffMonth( CTOD("01/"+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4)) , dDataVenc )
 	                    ELSE
 	                    	nNumRat := 1
@@ -3672,6 +3679,10 @@ cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS
 
 aContrCons	:= {}
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
+
+// Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
+aRatCtrPrd  := U_DefCtrPrd()
+
 cExm_Prod	:= GetMv("MV_XXCEXMP") //"41201015"
 cMFG_Prod	:= GetMv("MV_XXCMFGP") //"31201053"
 cDCH_Prod	:= GetMv("MV_XXCDCH") //"34202003"
@@ -4387,3 +4398,30 @@ If !lJob
 	RestArea(aArea3)
 EndIf
 Return Nil
+
+
+// Rateio Contrato x Produtos - Marcos 15/01/2020
+User Function RatCtrPrd(cCtr,cPrd,aRatCtrPrd)
+Local nCtr := 0
+Local nPrd := 0
+Local lRet := .F.
+
+nCtr := ascan(aRatCtrPrd,{|x| x[1] == cCtr })
+If nCtr > 0
+	nPrd := ascan(aRatCtrPrd[nCtr,2],{|x| x == cPrd })
+	If nPrd > 0
+		lRet := .T.
+	EndIf
+EndIf
+
+Return lRet
+
+
+User Function DefCtrPrd()
+Local aRet
+// Rateio  Contrato  x  Produtos                       15/01/20 - Marcos
+aRet := {{"345000529",{"320200301","000000000000102"}}}
+//		 {"302000508",{"320200301"}}}
+Return aRet
+
+

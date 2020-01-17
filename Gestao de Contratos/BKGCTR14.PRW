@@ -253,6 +253,10 @@ cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //"|0008|0009|0010|"  *********               
 cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
 aContrCons	:= {}
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
+
+// Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
+aRatCtrPrd  := U_DefCtrPrd()
+
 cExm_Prod	:= GetMv("MV_XXCEXMP") //"41201015"
 cMFG_Prod	:= GetMv("MV_XXCMFGP") //"31201053"
 cDCH_Prod	:= GetMv("MV_XXCDCH") //"34202003"
@@ -2054,7 +2058,8 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 			ENDIF
 			
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP   
+			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 
             	//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
 				cVALGG := 0
@@ -2084,7 +2089,7 @@ FOR _nI := 1 TO nPeriodo
 				nNumRat := 0
 				nValRat := 0
 				//Determina quantos Meses utilizar no calculo
-				IF nRATEIA == 1
+				IF nRATEIA == 1 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 					nNumRat := 1 + DateDiffMonth( CTOD("01/"+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4)) , dDataVenc )
                 ELSE
                 	nNumRat := 1
@@ -2429,7 +2434,8 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 				ENDIF
 	
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP 
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
             		//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
 					cVALGG := 0
 					IF nDespGeral == 1 .AND. (nCompras == 0 .OR. nCompras == 1)
@@ -2459,7 +2465,7 @@ FOR _nI := 1 TO nPeriodo
 					nNumRat := 0
 					nValRat := 0
 					//Determina quantos Meses utilizar no calculo
-	   				IF nRATEIA == 1
+	   				IF nRATEIA == 1	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 						nNumRat := 1 + DateDiffMonth( CTOD("01/"+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4)) , dDataVenc )
                     ELSE
                     	nNumRat := 1
@@ -2856,7 +2862,8 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 					ENDIF
 		
-					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP 
+					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+					 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 	            		//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
 						cVALGG := 0
 						IF nDespGeral == 1 .AND. (nCompras == 0 .OR. nCompras == 1)
@@ -2886,7 +2893,7 @@ FOR _nI := 1 TO nPeriodo
 						nNumRat := 0
 						nValRat := 0
 						//Determina quantos Meses utilizar no calculo
-		   				IF nRATEIA == 1
+		   				IF nRATEIA == 1 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 							nNumRat := 1 + DateDiffMonth( CTOD("01/"+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4)) , dDataVenc )
 	                    ELSE
 	                    	nNumRat := 1
