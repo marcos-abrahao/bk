@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"14/01/2020"
+#DEFINE FIN_LAST_UPDATED 		"20/01/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -505,6 +505,18 @@ If dbSeek(xFilial()+"MV_CTBAPLA")
 EndIf
 
 
+// Permitir digitar dados da DIRF no Ducumento de Entrada
+oProcess:IncRegua2( "Atualizando parametro MV_VISDIRF..." )
+If dbSeek(xFilial()+"MV_VISDIRF")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "1"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
 
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 

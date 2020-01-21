@@ -1,17 +1,17 @@
 #Include "TOTVS.ch"
 #Include "FWMVCDEF.ch"
 
-User Function CNTA130()
+User Function CNTA121()
 	Local aParam := PARAMIXB
 	Local xRet := .T.
 	Local oObj := ""
 	Local cIdPonto := ""
 	Local cIdModel := ""
 	Local lIsGrid := .F.
-	//Local nLinha := 0
-	//Local nQtdLinhas := 0
-	//Local cMsg := ""
-	//Local nOp
+	Local nLinha := 0
+	Local nQtdLinhas := 0
+	Local cMsg := ""
+	Local nOp
 
 	If (aParam <> NIL)
 		oObj     := aParam[1]
@@ -29,16 +29,20 @@ User Function CNTA130()
 				Alert('inclusão')
 			ENDIF
 
-			xRet := MsgYesNo(cMsg + "Continua?")
+			//xRet := MsgYesNo(cMsg + "Continua?")
 			*/
+			
+			MsgInfo(cMsg,cIdPonto)			
+			U_xCN130PGRV(nOpc)
 		ElseIf (cIdPonto == "MODELVLDACTIVE")
-			/*
+			
 			cMsg := "Chamada na ativação do modelo de dados."
 
-			xRet := MsgYesNo(cMsg + "Continua?")
-			*/
+			//xRet := MsgYesNo(cMsg + "Continua?")
+			MsgInfo(cMsg,cIdPonto)			
+			
 		ElseIf (cIdPonto == "FORMPOS")
-			/*
+			
 			cMsg := "Chamada na validação total do formulário." + CRLF
 			cMsg += "ID " + cIdModel + CRLF
 
@@ -49,8 +53,9 @@ User Function CNTA130()
 				cMsg += "É um FORMFIELD" + CRLF
 			EndIf
 
-			xRet := MsgYesNo(cMsg + "Continua?")
-			*/
+			//xRet := MsgYesNo(cMsg + "Continua?")
+			MsgInfo(cMsg,cIdPonto)			
+			
 		ElseIf (cIdPonto =="FORMLINEPRE")
 			/*
 			If aParam[5] =="DELETE"
@@ -73,22 +78,22 @@ User Function CNTA130()
 			xRet := MsgYesNo(cMsg + " Continua?")
 			*/
 		ElseIf (cIdPonto =="MODELCOMMITTTS")
-			//MsgInfo("Chamada após a gravação total do modelo e dentro da transação.")
+			MsgInfo("Chamada após a gravação total do modelo e dentro da transação.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCOMMITNTTS")
-			//MsgInfo("Chamada após a gravação total do modelo e fora da transação.")
+			MsgInfo("Chamada após a gravação total do modelo e fora da transação.",cIdPonto)
 		ElseIf (cIdPonto =="FORMCOMMITTTSPRE")
-			//MsgInfo("Chamada após a gravação da tabela do formulário.")
+			MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
 		ElseIf (cIdPonto =="FORMCOMMITTTSPOS")
-			U_xCN130PGRV(nOpc)
-			//MsgInfo("Chamada após a gravação da tabela do formulário.")
+			MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCANCEL")
-			/*
-			cMsg := "Deseja realmente sair?"
+			
+			cMsg := cIdPonto+" - Deseja realmente sair?"
 
 			xRet := MsgYesNo(cMsg)
-			*/
+			
 		ElseIf (cIdPonto =="BUTTONBAR")
-			//xRet := {{"Botão", "BOTÃO", {|| MsgInfo("Buttonbar")}}}
+			MsgInfo("Chamada para inclusão de botão.")
+			xRet := {{"Botão", "BOTÃO", {|| MsgInfo("Buttonbar","BUTTONBAR")}}}
 		EndIf
 	EndIf
 Return (xRet)
