@@ -167,7 +167,7 @@ lAll := .F.
 @ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
 oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[3]) >= dDatabase,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
 
-@ 015, 005 LISTBOX oListID FIELDS HEADER "","Lote (CTRID)","Pgto","Total R$","Ref." SIZE 310,170 OF oPanelLeft PIXEL 
+@ 015, 005 LISTBOX oListID FIELDS HEADER "","Lote (CTRID)","Pgto","Total R$","Ref." SIZE 310,155 OF oPanelLeft PIXEL 
 oListID:SetArray(aCtrId)
 oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),aCtrId[oListId:nAt][2],aCtrId[oListId:nAt][3],aCtrId[oListId:nAt][4],aCtrId[oListId:nAt][5]}}
 oListID:bLDblClick := {|| aCtrId[oListId:nAt][1] := ValidaMrk(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][3]), oListID:DrawSelect()}
@@ -525,7 +525,7 @@ For nI := 1 TO LEN(aTitGer)
 		    			SZ2->Z2_E2Loja := cLoja
 			    		SZ2->(MsUnlock())
 			    	ENDIF
-		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
+		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. SUBSTR(SZ2->Z2_CONTA,1,2) <> '37' .AND. SUBSTR(SZ2->Z2_CONTA,1,3) <> '098'
             		IF SZ2->Z2_STATUS == "X" 
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -566,7 +566,7 @@ For nI := 1 TO LEN(aTitGer)
 		    			SZ2->Z2_E2Loja := cLoja
 			    		SZ2->(MsUnlock())
 			    	ENDIF
-		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
+		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. SUBSTR(SZ2->Z2_CONTA,1,2) <> '37' .AND. SUBSTR(SZ2->Z2_CONTA,1,3) <> '098'
             		IF SZ2->Z2_STATUS == "X" 
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"
@@ -607,7 +607,8 @@ For nI := 1 TO LEN(aTitGer)
 		    			SZ2->Z2_E2Loja := cLoja
 			    		SZ2->(MsUnlock())
 			    	ENDIF
-		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. (SUBSTR(SZ2->Z2_CONTA,1,2)=='37' .OR. SUBSTR(SZ2->Z2_CONTA,1,3)=='098')
+		   		ELSEIF SZ2->Z2_BANCO =='104' .AND. SUBSTR(SZ2->Z2_CONTA,1,2) <> '37' .AND. SUBSTR(SZ2->Z2_CONTA,1,3) <> '098'
+
             		IF SZ2->Z2_STATUS == "X" 
 		    			RecLock("SZ2",.F.)
 		    			SZ2->Z2_STATUS := "S"

@@ -85,7 +85,6 @@ If lProcessa
 	fWrite(nHdlArqIR, "BK - Ajuste de titulos para processamento da DIRF" + Chr(13) + Chr(10))
 	fWrite(nHdlArqIR, "Processamento iniciado em: " + DtoC(Date()) + " - " + Time() + Chr(13) + Chr(10))
 	fWrite(nHdlArqIR, Chr(13) + Chr(10))
-	fWrite(nHdlArqIR, Chr(13) + Chr(10))
 
 	//--Monta Query para selecao dos titulos:
 	cQuery := "SELECT SE2.R_E_C_N_O_ SE2Recno, A2_TIPO"
@@ -95,14 +94,17 @@ If lProcessa
 	If MV_PAR01 == 1 //--Data de emissao
 		cQuery += " SE2.E2_EMISSAO BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
 	ElseIf MV_PAR01 == 2 //--Vencimento
-		cQuery += " AND SE2.E2_VENCTO BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
+		cQuery += " SE2.E2_VENCTO BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
 	ElseIf MV_PAR01 == 3 //--Vencimento real
-		cQuery += " AND SE2.E2_VENCREA BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
+		cQuery += " SE2.E2_VENCREA BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
 	ElseIf MV_PAR01 == 4 //--Data de Baixa
-		cQuery += " AND SE2.E2_BAIXA BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
+		cQuery += " SE2.E2_BAIXA BETWEEN '" + DtoS(MV_PAR02) + "' AND '" + DtoS(MV_PAR03) + "' AND "
 	EndIf
-	cQuery += "SE2.E2_PARCIF <> '  '
+	cQuery += "SE2.E2_PARCIR  <> '  ' AND "
 	cQuery += "SE2.D_E_L_E_T_ = ''"
+
+	fWrite(nHdlArqIR, cQuery + Chr(13) + Chr(10))
+	fWrite(nHdlArqIR, Chr(13) + Chr(10))
 
 	//--Processa a Query
 	cQuery    := ChangeQuery(cQuery)
