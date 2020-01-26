@@ -269,12 +269,11 @@ Local oNo
 Local oDlg
 Local oListId
 Local oPanelLeft
-Local lAll
-Local oAll
+//Local lAll
+//Local oAll
 Local aButtons := {}
 
 Local lOk      := .F.
-Local cQuery
 Local nI,nTotal := 0
 
 FOR nI := 1 TO LEN(aTitGer)
@@ -324,13 +323,13 @@ Return lOk
 Static Function GravaSe2(aTitGer)
 Local cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,cNaturez,nValor,dVencto,dPgto,dtEmi,cNome,cTPCONT,cCTT
 Local cKey1,cKey2
-Local nI,lOk := .T.
+Local nI      := 0
+//Local lOk     := .T.
 Local cNatBK  := "0000000013"
 Local cFornBK := "000084"
 Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
-Local lFind   := .F.
 
 If SM0->M0_CODIGO <> "01"
    cFornAC := "000084"

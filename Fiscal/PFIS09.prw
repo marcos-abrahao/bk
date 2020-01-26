@@ -294,7 +294,7 @@ AAdd(aFixeFX,{"STATUS","XX_STATUS",'C', 01,00,'@!'})
 Processa( {|| ProcPFIS09() })
 
 //Processa ( {|| MBrwPFIS09()})
-If MsgYesNo("Corrige?")
+If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
 	U_CORPFIS09()
 Else
 	Processa ( {|| U_CSVPFIS09()})
@@ -339,7 +339,7 @@ Processa( {|| ProcPFIS09() })
 
 Return Nil
 
-
+/*
 Static Function MBrwPFIS09()
 Local 	cAlias 		:= "TRB"
 Local 	aCores 		:= {}
@@ -358,6 +358,7 @@ AADD(aRotina,{"Legenda"		,"U_LegendaPFIS09",0,9})
 AADD(aCores,{"XX_STATUS <> 'E'" ,"BR_VERDE" })
 AADD(aCores,{"XX_STATUS == 'E'" ,"BR_VERMELHO" })
 
+*/
 /*
 -- CORES DISPONIVEIS PARA LEGENDA --
 BR_AMARELO
@@ -371,7 +372,7 @@ BR_VERMELHO
 BR_PINK
 BR_PRETO
 */
-
+/*
 dbSelectArea(cAlias)
 dbSetOrder(1)
 //+------------------------------------------------------------
@@ -390,7 +391,7 @@ mBrowse(6,1,22,75,cAlias,aFixeFX,,,,,aCores)
 //EndFilBrw(cAlias,aIndexSz)
 
 Return Nil
-
+*/
 
 
 
@@ -437,7 +438,7 @@ IF nTPMOV=1
 ELSE
 	cQuery += "D2_TES AS FT_TES,D2_ICMSRET AS FT_ICMSRET,D2_VALIPI AS FT_VALIPI,D2_CF AS CFOPIT,"
 	cQuery += "D2_ALQIMP5 AS FT_ALIQCOF,D2_BASIMP5 AS FT_BASECOF,D2_VALIMP5 AS FT_VALCOF,"
-	cQuery += "D2_ALQIMP6 AS FT_ALIQPIS,D2_BASIMP6 AS FT_BASEPIS,D2_VALIMP6 AS FT_VALPIS,A1_XACUMUL,"
+	cQuery += "D2_ALQIMP6 AS FT_ALIQPIS,D2_BASIMP6 AS FT_BASEPIS,D2_VALIMP6 AS FT_VALPIS,'' AS A1_XACUMUL,"
 ENDIF
 	
 cQuery+= "FT_ITEM,FT_PRODUTO,FT_CLASFIS,FT_CSTCOF,FT_CSTPIS,FT_VALCONT,"
@@ -1022,13 +1023,13 @@ If nHandle > 0
       
    fClose(nHandle)
    IF nOP == 1   
-		MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel")
+		MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel","PFIS09")
 		ShellExecute("open", cArqTmp,"","",1)
    ELSE
 		U_SENDMAIL("PFIS09","Backup PIS COFINS","adilson@rkainformatica.com.br;camilaromano@jodola.com.br","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),cArqTmp,.F.)
    ENDIF
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp)
+   MsgAlert("Falha na criação do arquivo "+cArqTmp,"PFIS09")
 Endif
    
 Return

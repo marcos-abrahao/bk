@@ -37,7 +37,17 @@
 			"args": [],
 			"label": "sigafis",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "u_tstyexcel",
+			"description": ""
+		},
+		{
+			"args": [],
+			"label": "u",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigafis"
+	"lastProgramExecuted": "u"
 }

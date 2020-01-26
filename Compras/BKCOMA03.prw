@@ -52,7 +52,7 @@ FOR nX5 := 1 To Len(aTbSx5)
     IF LEN(aItemX5) == 4
  		AADD(aSX5,{aItemX5[1],aItemX5[2],aItemX5[3],aItemX5[4]})
  	ENDIF
-	SX5->(DBSKIP())
+	//SX5->(DBSKIP())
 NEXT
 //ENDDO
 
@@ -151,18 +151,23 @@ Local nVALITNF   := 0
 Local nTotal     := 0
 Local nValRat    := 0
 Local aX5        := {}
+Local aTbSx5     := {}
+Local nX5        := 0
 Local aItemLinha := {}
 Local aItemCC    := {}
 
 aX5 := {}
-dbSelectArea("SX5")
-dbSetOrder(1)
-dbSeek(xFilial("SX5")+"Z4"+SUBSTR(cTipoNF,1,2),.T.)
-DO WHILE !EOF() .AND. SUBSTR(SX5->X5_CHAVE,1,2) == SUBSTR(cTipoNF,1,2)
+aTbSx5 := FWGetSX5("Z4",SUBSTR(cTipoNF,1,2))
+//dbSelectArea("SX5")
+//dbSetOrder(1)
+//dbSeek(xFilial("SX5")+"Z4"+SUBSTR(cTipoNF,1,2),.T.)
+//DO WHILE !EOF() .AND. SUBSTR(SX5->X5_CHAVE,1,2) == SUBSTR(cTipoNF,1,2)
+FOR nX5 := 1 To Len(aTbSx5)
 	IncProc('Carregando Itens da NF')
-	AADD(aX5,StrTokArr(SX5->X5_DESCRI,";"))
-	SX5->(DBSKIP())
-ENDDO
+	//AADD(aX5,StrTokArr(SX5->X5_DESCRI,";"))
+	AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
+	//SX5->(DBSKIP())
+NEXT
 
 nTotal := 0
 

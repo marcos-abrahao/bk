@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"20/01/2020"
+#DEFINE FIN_LAST_UPDATED 		"23/01/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -491,7 +491,7 @@ EndIf
 //EndIf
 
 // 14/01/20 - Alterar parametro MV_CTBAPLA
-
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_CTBAPLA..." )
 If dbSeek(xFilial()+"MV_CTBAPLA")
 	RecLock( "SX6", .F. )
@@ -517,6 +517,35 @@ If dbSeek(xFilial()+"MV_VISDIRF")
 	dbCommit()
 	MsUnLock()
 EndIf
+*/
+
+
+oProcess:IncRegua2( "Atualizando parametro MV_XXGFIN..." )
+If dbSeek(xFilial()+"MV_XXGFIN")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "000011/000194/000016/000103/ "
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+oProcess:IncRegua2( "Atualizando parametro MV_XXUSERS..." )
+If dbSeek(xFilial()+"MV_XXUSERS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "000006/000011/000016/000076/000093/000194/000171/000056/000175/000103/000165/"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
 
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 

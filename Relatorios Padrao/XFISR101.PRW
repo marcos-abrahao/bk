@@ -465,6 +465,7 @@ TRCell():New(oSection4,"CMP27"		,  "", "Cliente/Fornecedor","@!" ,60)
 TRCell():New(oSection4,"CMP28"		,  "", "CNPJ/CPF","@!" ,14)
 TRCell():New(oSection4,"CMP29"		,  "", "C.Custo","@!" ,9)
 TRCell():New(oSection4,"CMP30"		,  "", "Descr. Centro de Custo","@!" ,40)
+TRCell():New(oSection4,"CMP31"		,  "", "Usuário","@!" ,15)
 
 
 
@@ -1032,6 +1033,7 @@ Local cCGC			:= ""
 Local cNomeCF		:= ""
 Local cCC 			:= ""
 Local cDescCC 		:= ""
+Local cUsuario      := ""
 
 If Valtype(MV_PAR12) =='C'
 	If ! Empty(MV_PAR12)
@@ -1148,22 +1150,35 @@ while (cAliasSFT)->(!EOF())
 		oSecao4:Cell("CMP27")		:SetValue(cNomeCF)
 		oSecao4:Cell("CMP28")		:SetValue(cCGC)
 
+		cUsuario := ""
 		If cTipoMov == NFENTRADA
 			// 1- D1_FILIAL+D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA+D1_COD+D1_ITEM
 			SD1->(dbSetOrder(1))
 			SD1->(dbSeek(xFilial("SD1")+(cAliasSFT)->(FT_NFISCAL+FT_SERIE+FT_CLIEFOR+FT_LOJA+FT_PRODUTO+FT_ITEM),.F.))
 			cCC := SD1->D1_CC
+
+			SF1->(dbSetOrder(1))
+			IF SF1->(dbSeek(xFilial("SF1")+SD1->(D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA),.F.))
+				cUsuario := SF1->(FWLeUserlg("F1_USERLGI",1))
+			ENDIF
 		Else
 			// 3- D2_FILIAL+D2_DOC+D2_SERIE+D2_CLIENTE+D2_LOJA+D2_COD+D2_ITEM
 			SD2->(dbSetOrder(3))			
 			SD2->(dbSeek(xFilial("SD2")+(cAliasSFT)->(FT_NFISCAL+FT_SERIE+FT_CLIEFOR+FT_LOJA+FT_PRODUTO+FT_ITEM),.F.))
 			cCC := SD2->D2_CCUSTO
+
+			SF2->(dbSetOrder(2))
+			If SF2->(dbSeek(xFilial("SF2")+(cAliasSFT)->(FT_CLIEFOR+FT_LOJA+FT_NFISCAL+FT_SERIE)))
+				cUsuario := SF2->(FWLeUserlg("F2_USERLGI",1))
+			Endif                    
+
 		EndIf
 		If !Empty(cCC)
 			cDescCC := Posicione("CTT",1,xFilial("CTT")+cCC,"CTT_DESC01")
 		EndIf
 		oSecao4:Cell("CMP29")		:SetValue(cCC)
 		oSecao4:Cell("CMP30")		:SetValue(cDescCC)
+		oSecao4:Cell("CMP31")		:SetValue(cUsuario)
 
 		oSecao4:PrintLine()	
 		
