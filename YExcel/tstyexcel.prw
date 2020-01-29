@@ -59,7 +59,7 @@ user function tstyexcel()
 	oExcel:AddTamCol(5,6,18.00)
 
 	//Cadastra imagem
-	nIDImg		:= oExcel:ADDImg("\Img\Star_Wars_Logo.png")	//Imagem no Protheus_data
+	nIDImg		:= oExcel:ADDImg("LGMID01.PNG")	//Imagem no Protheus_data
 
 			  //nID,nLinha,nColuna,nX,nY,cUnidade,nRot
 	oExcel:Img(nIDImg,7,7,200,121,/*"px"*/,)	//Usa imagem cadastrada

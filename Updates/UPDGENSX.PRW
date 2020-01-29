@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"23/01/2020"
+#DEFINE FIN_LAST_UPDATED 		"27/01/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -519,7 +519,7 @@ If dbSeek(xFilial()+"MV_VISDIRF")
 EndIf
 */
 
-
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_XXGFIN..." )
 If dbSeek(xFilial()+"MV_XXGFIN")
 	RecLock( "SX6", .F. )
@@ -544,9 +544,19 @@ If dbSeek(xFilial()+"MV_XXUSERS")
 	dbCommit()
 	MsUnLock()
 EndIf
+*/
 
+oProcess:IncRegua2( "Atualizando parametro MV_FRTBASE..." )
+If dbSeek(xFilial()+"MV_FRTBASE")
+	RecLock( "SX6", .F. )
 
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
 
+	dbCommit()
+	MsUnLock()
+EndIf
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 
 

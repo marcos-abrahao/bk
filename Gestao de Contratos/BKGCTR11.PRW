@@ -4419,9 +4419,11 @@ Return lRet
 
 User Function DefCtrPrd()
 Local aRet
+
+// Rateio especifico por produtos ex. alugueis ançados em um unico doc de entrada
 // Rateio  Contrato  x  Produtos                       15/01/20 - Marcos
-aRet := {{"345000529",{"320200301","000000000000102"}}}
-//		 {"302000508",{"320200301"}}}
+aRet := {{"345000529",{"320200301","000000000000102"}},;
+		 {"302000508",{"000000000000102"}}}
 Return aRet
 
 

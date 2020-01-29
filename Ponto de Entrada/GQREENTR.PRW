@@ -52,7 +52,10 @@ cAlmox  := SuperGetMV("MV_XXGRALX",.F.,"000021")
 
 // Marcos 08/08/19 - Abrir tela de avaliação para quando os aprovadores estiverem na lista abaixo
 // Michele Morais 138, Fabio 93, Anderson 5, João Brasileiro (antonio.filho) 171 e Vanderleia 56
-cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
+//cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
+
+// Alteração solicitada por William Santos em 21/01/20
+cAvalia := "000093"   // Apenas o Fabio Quirino
 
 // Falta criar campo A2_XXAVALC, criar check box "Fornecedor análise crítica"  e gravar no SA2 (ler e sugerir na avaliação)
   
@@ -223,10 +226,10 @@ Return( NIL )
 User Function RAvalForn()
 // Reavaliação da NF
 
-cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
+//cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
+cAvalia := "000000/000138/000093" // Adm/Michele/Fabio Quirino
  
-//If __cUserId $ cAvalia .OR. __cUserId == "000000"
-If __cUserId $ "000000/000138" // Adm/Michele
+If __cUserId $ cAvalia 
 	AvalForn(.T.)
 Else
 	MsgStop("Função não permitida para seu usuário!!","GQREENTR - Atenção")
