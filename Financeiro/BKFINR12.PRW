@@ -17,23 +17,13 @@
 /*/
 
 User Function BKFINR12()
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ""
-Local cPict          := ""
 Local titulo         := ""
-Local nLin           := 80
-Local lPula          := .F.
-Local Cabec1         := ""
-Local Cabec2         := ""
-Local imprime        := .T.
-Local aOrd           := {}
 Local aTitulos,aCampos,aCabs
-Local oDlg01,aButtons := {},nOpcA := 0,lOk := .F.,oPanelLeft
+Local oDlg01		AS Object
+Local aButtons 		:= {}
+Local lOk 			:= .F.
+Local oPanelLeft 	AS Object
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
@@ -45,7 +35,6 @@ Private nTipo        := 18
 Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
 Private nLastKey     := 0
 Private cPerg        := "BKFINR12"
-Private cbtxt        := Space(10)
 Private cbcont       := 00
 Private CONTFL       := 01
 Private m_pag        := 01
@@ -103,7 +92,7 @@ EndIf
 
 IF nEmissao = 1
 	cPerg	:= "2BKFINR12"
-	ValidPerg2(cPerg)
+	ValidPerg2()
 	If !Pergunte(cPerg,.T.)
 		Return
 	Endif
@@ -119,7 +108,7 @@ IF nEmissao = 1
 
 ELSEIF nEmissao = 2
 	cPerg	:= "3BKFINR12"
-	ValidPerg3(cPerg)
+	ValidPerg3()
 	If !Pergunte(cPerg,.T.)
 		Return
 	Endif
@@ -128,7 +117,7 @@ ELSEIF nEmissao = 2
 	titulo   := "Contas a Receber : Vencimento de "+DTOC(dDataI)+" até "+DTOC(dDataF)
 ELSEIF nEmissao = 3
 	cPerg	:= "4BKFINR12"
-	ValidPerg4(cPerg)
+	ValidPerg4()
 	If !Pergunte(cPerg,.T.)
 		Return
 	Endif
@@ -145,7 +134,7 @@ ELSEIF nEmissao = 3
 
 ELSEIF nEmissao = 4
 	cPerg	:= "5BKFINR12"
-	ValidPerg5(cPerg)
+	ValidPerg5()
 	If !Pergunte(cPerg,.T.)
 		Return
 	Endif
@@ -155,7 +144,7 @@ ELSEIF nEmissao = 4
 
 ELSEIF nEmissao = 5
 	cPerg	:= "6BKFINR12"
-	ValidPerg6(cPerg)
+	ValidPerg6()
 	If !Pergunte(cPerg,.T.)
 		Return
 	Endif
@@ -197,8 +186,8 @@ AADD(aCabs  ,"Centro de Custos")
 AADD(aCampos,"QTMP->CND_COMPET")
 AADD(aCabs  ,"Competencia")
 
-AADD(aCampos,"QTMP->F2_DOC")
-AADD(aCabs  ,"Nota Fiscal") 
+AADD(aCampos,"QTMP->E1_NUM")
+AADD(aCabs  ,"NF/Título") 
 
 AADD(aCampos,"QTMP->E1_PARCELA")
 AADD(aCabs  ,"Parcela") 
@@ -257,14 +246,17 @@ Return
 
 
 Static Function ProcQuery
-Local cQuery,dDt
+Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-cQuery := "SELECT DISTINCT A1_NOME,E1_VENCREA,E1_VENCORI,E1_VALOR,E1_SALDO,CND_COMPET"
+cQuery := "SELECT DISTINCT A1_NOME,E1_VENCREA,E1_VENCORI,E1_VALOR,E1_SALDO"
+
+cQuery += ",CASE WHEN E1_TIPO <> 'NDC' THEN CND_COMPET ELSE SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4) END AS CND_COMPET" 
+
 //cQuery += ",F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS"
 //cQuery += ",F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS"
-cQuery += ",F2_DOC,E1_PARCELA,E1_EMISSAO,E1_VALOR,E1_IRRF,E1_INSS,E1_PIS,E1_COFINS,E1_CSLL,E1_ISS"
+cQuery += ",E1_NUM,E1_PARCELA,E1_EMISSAO,E1_VALOR,E1_IRRF,E1_INSS,E1_PIS,E1_COFINS,E1_CSLL,E1_ISS"
 cQuery += ",F2_RECISS,F2_XXVCVIN,F2_XXVFUMD"
 cQuery += ",CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1"
 cQuery += "     ELSE C5_MDCONTR END AS CONTRATO,"
@@ -274,7 +266,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON SF2.D_E_L_E_T_='' AND SE1.E1
 cQuery += " AND SE1.E1_PREFIXO=SF2.F2_PREFIXO AND SE1.E1_CLIENTE=SF2.F2_CLIENTE AND SE1.E1_LOJA=SF2.F2_LOJA"
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SE1.E1_PEDIDO AND SC5.D_E_L_E_T_='' "
 cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON SC5.C5_NUM=CND.CND_PEDIDO AND CND.D_E_L_E_T_=''"
-cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON SA1.D_E_L_E_T_='' AND SA1.A1_COD=SF2.F2_CLIENTE AND SA1.A1_LOJA=SF2.F2_LOJA"
+cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON SA1.D_E_L_E_T_='' AND SA1.A1_COD=SE1.E1_CLIENTE AND SA1.A1_LOJA=SE1.E1_LOJA"
 cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_TIPO IN('NF','NDC') AND SE1.E1_SALDO > 0 " //AND SE1.E1_VALOR=SF2.F2_VALFAT " 
 //cQuery += " AND SUBSTRING(C5_MDCONTR,1,3) <> '105' "  //AND SUBSTRING(C5_ESPECI1,1,3) <> '105' "  // Eliminar Furnas
 
@@ -307,6 +299,10 @@ ENDIF
 	cQuery += "ORDER BY E1_VENCREA"
 //ENDIF
 
+If "TST" $ GetEnvServer()
+	Memowrite("c:\temp\bkfinr12.sql",cQuery)
+EndIf
+
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","E1_EMISSAO","D",8,0)
 TCSETFIELD("QTMP","E1_VENCREA","D",8,0)
@@ -315,7 +311,7 @@ TCSETFIELD("QTMP","E1_VENCORI","D",8,0)
 Return
 
 
-
+/*
 Static Function  ValidPerg1
 
 Local aArea      := GetArea()
@@ -343,7 +339,7 @@ Next
 RestArea(aArea)
 
 Return(NIL)
-
+*/
 
 Static Function  ValidPerg2
 
@@ -375,7 +371,7 @@ RestArea(aArea)
 Return(NIL)
 
 
-Static Function  ValidPerg3
+Static Function  ValidPerg3()
 
 Local aArea      := GetArea()
 Local aRegistros := {}
@@ -406,7 +402,7 @@ RestArea(aArea)
 Return(NIL) 
 
 
-Static Function  ValidPerg4
+Static Function  ValidPerg4()
 
 Local aArea      := GetArea()
 Local aRegistros := {}

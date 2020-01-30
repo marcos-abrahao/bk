@@ -39,6 +39,7 @@ Private aLF         := {}
 Private nTop		:= 3
 Private nTopV		:= nTop + 1
 Private cCVal  		:= "I"
+Private cCSal  		:= "J"
 
 Private cVa  := ""
 Private cVR  := "" // VR
@@ -51,6 +52,18 @@ Private cPen := "" // PEN
 Private cExm := "" // EXM
 Private cDV  := "" // SOL/HOS
 Private cForn:= ""
+
+Private cSVa  := ""
+Private cSVR  := "" // VR
+Private cSVT  := "" // VT
+Private cSRes := "" // MFG / LRC
+Private cSFe  := "" // LFE
+Private cSCLT := "" // LPM / LAD
+Private cS13  := "" // LD1 / LD2
+Private cSPen := "" // PEN
+Private cSExm := "" // EXM
+Private cSDV  := "" // SOL/HOS
+Private cSForn:= ""
 
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase	, "" , "", ""	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Data Final:" 	, dDataBase	, "" , "", ""	, "" , 70  , .F. })  
@@ -72,6 +85,7 @@ aAdd(aFields,{"XX_XXTIPBK","E2_XXTIPBK"})
 aAdd(aFields,{"XX_PARCELA","E2_PARCELA"})
 aAdd(aFields,{"XX_VENCREA","E2_VENCREA"})
 aAdd(aFields,{"XX_VALOR"  ,"E2_VALOR"})
+aAdd(aFields,{"XX_SALDO"  ,"E2_SALDO"})
 
 //aAdd(aFields,{"XX_SALDO","","(cAliasTrb)->(XX_SALDO)","Saldo Consolidado",cPict,"N",18,2})
 
@@ -149,7 +163,7 @@ Static Function ProcBKR25
 Local cQuery := ""
 Local nF     := 0
 Local nValor := 0
-
+Local nSaldo := 0
 
 Private xCampo
 
@@ -157,7 +171,7 @@ cQuery := "SELECT "
 For nF := 1 To Len(aFields)
 	cQuery += aFields[nF,2]+","
 Next
-cQuery += "R_E_C_N_O_"
+cQuery += "R_E_C_N_O_ AS E2_RECNO"
 
 cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" 
 
@@ -172,7 +186,7 @@ If !Empty(dDataF)
 EndIf          
 cQuery += " ORDER BY E2_NUM"
 
-MemoWrite("BKFINR25.SQL",cQuery)
+//MemoWrite("BKFINR25.SQL",cQuery)
 	
 cAliasQry := "TMPR25" //GetNextAlias()
 
@@ -201,34 +215,53 @@ DO WHILE (cAliasQry)->(!EOF())
 		Else
 			xCampo := &(aFields[nF,3])
 		EndIf
+		If aFields[nF,2] = "E2_SALDO"
+			SE2->(dbGoTo((cAliasQry)->E2_RECNO))
+			nSaldo := SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZ,"P",SE2->E2_FORNECE,1,,dDataI-1,SE2->E2_LOJA,,0/*nTxMoeda*/)
+			xCampo := nSaldo
+		EndIf
+
+
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
 	Next
+
 
 	cTipoBk := TRIM((cAliasQry)->E2_XXTIPBK)
 	nValor  := (cAliasQry)->E2_VALOR
 
 	IF cTipoBk = "VA"
 		cVa += iif(!Empty(cVa),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSVa += iif(!Empty(cSVa),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk = "VR"
 		cVr += iif(!Empty(cVr),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSVr += iif(!Empty(cSVr),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk = "VT"
 		cVT += iif(!Empty(cVT),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSVT += iif(!Empty(cSVT),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk $ "MFG/LRC"
 		cRes += iif(!Empty(cRes),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSRes += iif(!Empty(cSRes),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk = "LFE"
 		cFe += iif(!Empty(cFe),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSFe += iif(!Empty(cSFe),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk $ "LPM/LAD"
 		cCLT += iif(!Empty(cCLT),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSCLT += iif(!Empty(cSCLT),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk $ "LD1/LD2"
 		c13 += iif(!Empty(c13),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cS13 += iif(!Empty(cS13),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk = "PEN"
 		cPen += iif(!Empty(cPen),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSPen += iif(!Empty(cSPen),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk = "EXM"
 		cExm += iif(!Empty(cExm),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSExm += iif(!Empty(cSExm),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSEIF cTipoBk $ "SOL/HOS"
 		cDV += iif(!Empty(cDV),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSDV += iif(!Empty(cSDV),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ELSE
 		cForn += iif(!Empty(cForn),"+","")+cCVal+Alltrim(STR(nCont+nTop))
+		cSForn += iif(!Empty(cSForn),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ENDIF
 
 
@@ -349,7 +382,7 @@ oExcel:mergeCells(1,1,2,1)						//Mescla as células
 oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
 
 oExcel:Cell(1,2,"Pagamentos Diários - "+DTOC(dDataI),,nTitStyle)
-oExcel:mergeCells(1,2,2,12)						//Mescla as células 
+oExcel:mergeCells(1,2,2,13)						//Mescla as células 
 
 nLin := nTop
 For nJ := 1 To Len(aCabs)
@@ -365,10 +398,11 @@ oExcel:AddTamCol(6,6,06.90)
 oExcel:AddTamCol(7,7,06.60)
 oExcel:AddTamCol(8,8,11.00)
 oExcel:AddTamCol(9,9,13.50)
-
-oExcel:AddTamCol(11,11,50.00)
-oExcel:AddTamCol(12,12,13.50)
-
+oExcel:AddTamCol(10,10,13.50)
+oExcel:AddTamCol(11,11,10.00)
+oExcel:AddTamCol(12,12,50.00)
+oExcel:AddTamCol(13,13,13.50)
+oExcel:AddTamCol(14,14,13.50)
 (cAliasTrb)->(dbgotop())
 
 Do While (cAliasTrb)->(!eof()) 
@@ -393,11 +427,13 @@ Do While (cAliasTrb)->(!eof())
 	(cAliasTrb)->(dbskip())
 EndDo
 
-oExcel:AddNome("VALORES",4,9,49,9)	
-oExcel:AddNome("TIPOBK",4,6,49,6)
+oExcel:AddNome("TIPOBK" ,nTopV, 6,nLin,6)
+oExcel:AddNome("VALORES",nTopV, 9,nLin,9)	
+oExcel:AddNome("SALDOS" ,nTopV,10,nLin,10)	
 
 nLin++
 oExcel:Cell(nLin,9,0,"SUM(VALORES)",nV2Style)
+oExcel:Cell(nLin,10,0,"SUM(SALDOS)",nV2Style)
 //oExcel:Cell(nLin,9,0,"SUM("+cCVal+ALLTRIM(STR(nTopV))+":"+cCVal+ALLTRIM(STR(nLin-1))+")",nV2Style)
 
 
@@ -414,43 +450,43 @@ return
 
 
 Static Function Plan2(oExcel,nLin)
-Local nPosT := 11
-Local nPosV := 12
+Local nPosT := 12
+Local nPosV := 13
+Local nPosS := 14
 Local cPosV := CHR(64+nPosV)
 
 DO CASE
 	CASE nLin == nTopV 
-	
-
-		oExcel:Cell(nLin,nPosT,"PESSOAL"+str(nTopV)+"-"+str(nCont+nTop),,nPosStyle)
+		oExcel:Cell(nLin,nPosT,"PESSOAL",,nPosStyle)
 		oExcel:Cell(nLin,nPosV,"TOTAIS",,nPosStyle)
-	CASE nLin == nTopV + 1
-		//oExcel:AddNome("VALORES",4,9,49,9)	
-		//oExcel:AddNome("TIPOBK",4,6,49,6)
+		oExcel:Cell(nLin,nPosS,"SALDOS",,nPosStyle)
 
-		//oExcel:AddNome("VALORES",nTopV,9,nCont+nTop,9)	
-		//oExcel:AddNome("TIPOBK",nTopV,6,nCont+nTop,6)
+	CASE nLin == nTopV + 1
 
 		oExcel:Cell(nLin,nPosT,"Folha CLT",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,cClt,nV2Style)  
+		oExcel:Cell(nLin,nPosS,0,cSClt,nV2Style)  
 
 	CASE nLin == nTopV + 2
 		oExcel:Cell(nLin,nPosT,"Férias")
 		oExcel:Cell(nLin,nPosV,0,cFe,nV2Style)  
-		//oExcel:Cell(nLin,nPosV,nFe)
+		oExcel:Cell(nLin,nPosS,0,cSFe,nV2Style)  
 
 	CASE nLin == nTopV + 3
 		oExcel:Cell(nLin,nPosT,"13º Salário",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,c13,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cS13,nV2Style)
 
 	CASE nLin == nTopV + 4
 		oExcel:Cell(nLin,nPosT,"Rescisões + MFG")
 		//oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,VALORES)+SUMIF(TIPOBK,&quot;=MGF&quot;,VALORES)",nV2Style)
 		oExcel:Cell(nLin,nPosV,0,cRes,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSRes,nV2Style)
 
 	CASE nLin == nTopV + 5
 		oExcel:Cell(nLin,nPosT,"Pensão alimetícia",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,cPen,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSPen,nV2Style)
 
 	CASE nLin == nTopV + 6
 		oExcel:Cell(nLin,nPosT,"BENFÍCIOS",,nPosStyle)
@@ -468,16 +504,19 @@ DO CASE
 	CASE nLin == nTopV + 10
 		oExcel:Cell(nLin,nPosT,"Vale refeição",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,cVR,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSVR,nV2Style)
 
 	CASE nLin == nTopV + 11
 		oExcel:Cell(nLin,nPosT,"Vale alimentação")
 		//oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=VA&quot;,VALORES)",nV2Style)
 		oExcel:Cell(nLin,nPosV,0,cVA,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSVA,nV2Style)
 
 
 	CASE nLin == nTopV + 12
 		oExcel:Cell(nLin,nPosT,"Vale transporte",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,cVT,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSVT,nV2Style)
 
 	CASE nLin == nTopV + 13
 		oExcel:Cell(nLin,nPosT,"Cursos e Treinamento")
@@ -491,6 +530,7 @@ DO CASE
 	CASE nLin == nTopV + 16
 		oExcel:Cell(nLin,nPosT,"DV (SOL + HOS)",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,cDV,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSDV,nV2Style)
 
 	CASE nLin == nTopV + 17
 		oExcel:Cell(nLin,nPosT,"ENCARGOS",,nPosStyle)
@@ -510,6 +550,7 @@ DO CASE
 	CASE nLin == nTopV + 22
 		oExcel:Cell(nLin,nPosT,"Exames Médicos",,nLisStyle)
 		oExcel:Cell(nLin,nPosV,0,cExm,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSExm,nV2Style)
 
 	CASE nLin == nTopV + 23
 		oExcel:Cell(nLin,nPosT,"Trabalhistas")
@@ -531,6 +572,8 @@ DO CASE
 
 	CASE nLin == nTopV + 29
 		oExcel:Cell(nLin,nPosT,"Fornecedores")
+		oExcel:Cell(nLin,nPosV,0,cForn,nV2Style)
+		oExcel:Cell(nLin,nPosS,0,cSForn,nV2Style)
 
 	CASE nLin == nTopV + 30
 		oExcel:Cell(nLin,nPosT,"Consultoria  Jurídica / Contábil e Financeira",,nLisStyle)
@@ -599,10 +642,12 @@ DO CASE
 	//	oExcel:Cell(nLin,nPosT,"")
 
 	CASE nLin == nTopV + 52
-		//oExcel:AddNome("TOTAIS",nTopV+1,nPosV,nLin,nPosV)	
+		oExcel:AddNome("TOTAIS" ,nTopV+1,nPosV,nLin-1,nPosV)	
+		oExcel:AddNome("TSALDOS",nTopV+1,nPosS,nLin-1,nPosS)	
 		oExcel:Cell(nLin,nPosT,"Total",,nTotStyle)
-		//oExcel:Cell(nLin,nPosV,0,"SUM(TOTAIS)",nV2Style)
-		oExcel:Cell(nLin,nPosV,0,"SUM("+cPosV+ALLTRIM(STR(nTopV+1))+":"+cPosV+ALLTRIM(STR(nLin-1))+")",nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUM(TOTAIS)",nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,"SUM("+cPosV+ALLTRIM(STR(nTopV+1))+":"+cPosV+ALLTRIM(STR(nLin-1))+")",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUM(TSALDOS)",nV2Style)
 ENDCASE
 
 Return NIL
