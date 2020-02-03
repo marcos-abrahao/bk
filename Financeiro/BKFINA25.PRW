@@ -23,17 +23,13 @@ Local oNo
 Local oDlg
 Local oListId
 Local oPanelLeft
-Local lAll
-Local oAll
 Local aButtons := {}
 
-Local aCtrId,aTitGer,xCtrId
+Local aCtrId
 Local lOk      := .F.
 Local aAreaIni := GetArea()
 Local cQuery
-Local nI,cPrf,cTitulo,nProxTit
 Local lTitOk   := .T.
-Local lAltOk1,lAltOk2
 Local cMsgEx   := SPACE(50)
 
 PRIVATE cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,nValTit
@@ -93,8 +89,9 @@ RETURN NIL
 
 
 USER FUNCTION RBKFINA25()
-LOCAL aCabec := {}, aLinha := {}, aItens := {}
-LOCAL nX := 0, nItem := 0
+LOCAL aCabec := {}
+LOCAL aItens := {}
+
 PRIVATE lMsHelpAuto := .T.
 PRIVATE lMsErroAuto := .F.
 Private cNFiscal := ""
@@ -124,7 +121,6 @@ FOR IX_:=1 TO LEN(aCtrId)
 
            
 		aItem  := {	{"D1_COD"    , _cProd, NIL },;
-					{"D1_UM"     , "PC", NIL },;
 					{"D1_QUANT"  , 1, NIL },;
 					{"D1_VUNIT"  , _nValor, NIL },;
 					{"D1_TOTAL"  , _nValor, NIL },;
@@ -134,6 +130,9 @@ FOR IX_:=1 TO LEN(aCtrId)
 					{"D1_DTDIGIT", _dDtEmis , NIL },;
 					{"D1_LOCAL"  , "01", NIL } } 
 
+//					{"D1_UM"     , "PC", NIL },;
+
+  		AADD(aItens,aItem)
 
 		Begin Transaction
 			IncProc('Incluido DNF')
@@ -142,12 +141,12 @@ FOR IX_:=1 TO LEN(aCtrId)
  			MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc)   
 			IF lMsErroAuto
 		
-		   		MsgStop("Problemas Inclusão da DNF "+cDoc+"    "+cSerie+", informe o setor de T.I. ", "Atenção")
+		   		MsgStop("Problemas Inclusão da "+cSerie+"-"+cNFiscal+", informe o setor de T.I. ", "Atenção")
 	    		MostraErro()
 				DisarmTransaction()
 				Return
 			Else
-				Msginfo("DNF incluido com sucesso! "+cDoc+"    "+cSerie)
+				Msginfo("DNF incluido com sucesso! "+cSerie+"-"+cNFiscal)
 			EndIf
 		End Transaction
     ENDIF
@@ -157,11 +156,10 @@ RETURN NIL
 
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-LOCAL cPerg := "BKFINA25"
 
 dbSelectArea("SX1")
 dbSetOrder(1)
@@ -185,3 +183,128 @@ Next
 RestArea(aArea)
 
 Return(NIL)
+
+
+
+
+USER FUNCTION RBKFINXX()
+LOCAL aCabec := {}, aItens := {}
+LOCAL aTITULO := {}
+//Local cLogSF1 := ""
+LOCAL _cHist := "VALOR REFERENTE ALUGUEL POR 36 MESES PARA CONTRATO DERSA - LOCALIZADO A RUA BANDEIRANTES NUMERO 59 CASA 2 CENTRO DE CANANEIA.  DEPOSITAR CONFORME ABAIXO:    ALEXANDRE NEPOMUCENO ALMEIDA  CPF n° 117.957.328-57  BANCO ITAÚ AG. 9231 CONTA 12623-7 "
+PRIVATE lMsHelpAuto := .F.
+PRIVATE lMsErroAuto := .F.
+Private cNFiscal := ""
+Private cSerie   := "DNF
+
+
+AADD(aTITULO,{'000796','10/02/2020',2500})
+AADD(aTITULO,{'000796','10/03/2020',2500})
+AADD(aTITULO,{'000796','10/04/2020',2500})
+
+/*AADD(aTITULO,{'000796','10/05/2020',2500})
+AADD(aTITULO,{'000796','10/06/2020',2500})
+AADD(aTITULO,{'000796','10/07/2020',2500})
+AADD(aTITULO,{'000796','10/08/2020',2500})
+AADD(aTITULO,{'000796','10/09/2020',2500})
+AADD(aTITULO,{'000796','10/10/2020',2500})
+AADD(aTITULO,{'000796','10/11/2020',2500})
+AADD(aTITULO,{'000796','10/12/2020',2500})
+AADD(aTITULO,{'000796','10/01/2021',2500})
+AADD(aTITULO,{'000796','10/02/2021',2500})
+AADD(aTITULO,{'000796','10/03/2021',2500})
+AADD(aTITULO,{'000796','10/04/2021',2500})
+AADD(aTITULO,{'000796','10/05/2021',2500})
+AADD(aTITULO,{'000796','10/06/2021',2500})
+AADD(aTITULO,{'000796','10/07/2021',2500})
+AADD(aTITULO,{'000796','10/08/2021',2500})
+AADD(aTITULO,{'000796','10/09/2021',2500})
+AADD(aTITULO,{'000796','10/10/2021',2500})
+AADD(aTITULO,{'000796','10/11/2021',2500})
+AADD(aTITULO,{'000796','10/12/2021',2500})
+AADD(aTITULO,{'000796','10/01/2022',2500})
+AADD(aTITULO,{'000796','10/02/2022',2500})
+AADD(aTITULO,{'000796','10/03/2022',2500})
+AADD(aTITULO,{'000796','10/04/2022',2500})
+AADD(aTITULO,{'000796','10/05/2022',2500})
+AADD(aTITULO,{'000796','10/06/2022',2500})
+AADD(aTITULO,{'000796','10/07/2022',2500})
+AADD(aTITULO,{'000796','10/08/2022',2500})
+AADD(aTITULO,{'000796','10/09/2022',2500})
+AADD(aTITULO,{'000796','10/10/2022',2500})
+AADD(aTITULO,{'000796','10/11/2022',2500})
+AADD(aTITULO,{'000796','10/12/2022',2500})
+*/
+
+
+FOR IX_:=1 TO LEN(aTITULO)
+   
+	dbSelectArea("SX6")
+
+	cNFiscal := ""
+	U_NumSf1() 
+
+	dDataBase := CTOD(aTITULO[IX_,2]) - DAY(CTOD(aTITULO[IX_,2]))
+	aCabec := { {"F1_FILIAL"    , xFILIAL("SF1") , NIL},;
+			    {"F1_TIPO"      , "N" , NIL},;
+				{"F1_FORMUL"    , "N" , NIL },;
+				{"F1_DOC"       , cNFiscal, NIL },;
+				{"F1_SERIE"     , cSerie, NIL },;
+				{"F1_EMISSAO"   , CTOD('30/11/2019') , NIL },;
+				{"F1_DTDIGIT"   , dDataBase, NIL },;
+				{"F1_FORNECE"   , aTITULO[IX_,1], NIL },;
+				{"F1_LOJA"      , "01", NIL },;
+				{"F1_EST"       , "SP", NIL },;
+				{"F1_ESPECIE"   , "", NIL },;
+				{"F1_XXUSER"    , "000012", NIL },;
+				{"F1_XXUSERS"   , "000012", NIL },;
+				{"F1_COND"		,"002", Nil},;
+				{"E2_NATUREZ"	,"0000000052", Nil},;
+				{"E2_VENCTO"	,CTOD(aTITULO[IX_,2]), Nil}} 
+
+           
+	aItem  := {	{"D1_FILIAL" , xFILIAL("SD1") , NIL},;
+				{"D1_COD"    , "000000000000102", NIL },;
+				{"D1_QUANT"  , 1, NIL },;
+				{"D1_VUNIT"  , aTITULO[IX_,3], NIL },;
+				{"D1_TOTAL"  , aTITULO[IX_,3], NIL },;
+				{"D1_XXHIST" , _cHist, NIL },; 
+				{"D1_CC"     , "302000508", NIL },; 
+				{"D1_LOCAL"  , "01", NIL } } 
+
+/*
+				{"D1_UM"     , "UN", NIL },;
+				{"D1_FORNECE", aTITULO[IX_,1], NIL },;
+				{"D1_LOJA"   , "01", NIL },;
+				{"D1_DOC"       , cNFiscal, NIL },;
+				{"D1_SERIE"     , cSerie, NIL },;
+				{"D1_EMISSAO", CTOD('10/12/2019') , NIL },; 
+				{"D1_DTDIGIT", CTOD('10/12/2019') , NIL },;
+*/
+
+
+//				{"D1_TES"    ,"106"},;
+//				{"D1_CF"     ,"1933"},;
+//				{"D1_CONTA"  ,"34202001"},;
+//				{"D1_TOTAL"  , aTITULO[IX_,3], NIL },;
+
+
+    AADD(aItens,aItem)           
+
+	Begin Transaction
+		IncProc('Incluido DNF')
+	
+		nOpc := 3
+		MSExecAuto({|x, y, z| MATA103(x, y, z)}, aCabec, aItens, nOpc) 
+		IF lMsErroAuto
+		   	MsgStop("Problemas Inclusão da "+cSerie+"-"+cNFiscal+", informe o setor de T.I. ", "Atenção")
+	    	MostraErro()
+			DisarmTransaction()
+			Return
+		Else
+			Msginfo("DNF incluido com sucesso! "+cSerie+"-"+cNFiscal)
+		EndIf
+	End Transaction
+NEXT
+
+RETURN NIL

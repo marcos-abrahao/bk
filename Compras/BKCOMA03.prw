@@ -20,8 +20,8 @@ Local oDlg01     as Object
 Local nOpcA      := 0
 Local lOk        := .F.
 Local aSX5       := {}
-Local aTbSx5     := {}
-Local nX5        := 0
+//Local aTbSx5     := {}
+//Local nX5        := 0
 
 Private cTitulo  := "Inclusão VT,VR,VA e AM em Pré-Documento de Entrada"
 Private cProg    := "BKCOMA03"
@@ -39,22 +39,22 @@ Private dEmissao := dDatabase
 Private cCompl   := "2-Não"
 Private aCompl   := {"1-Sim","2-Não"}
 
-aTbSx5 := FWGetSX5("Z3")
+//aTbSx5 := FWGetSX5("Z3")
 
-//dbSelectArea("SX5")
-//dbSetOrder(1)
-//dbSeek(xFilial("SX5")+"Z301",.F.)
-//DO WHILE !EOF() .AND. SX5->X5_TABELA == "Z3"
-FOR nX5 := 1 To Len(aTbSx5)
+dbSelectArea("SX5")
+dbSetOrder(1)
+dbSeek(xFilial("SX5")+"Z301",.F.)
+DO WHILE !EOF() .AND. SX5->X5_TABELA == "Z3"
+//FOR nX5 := 1 To Len(aTbSx5)
 	aItemX5 :={}
-	//aItemX5 := StrTokArr(SX5->X5_DESCRI,";")
-	aItemX5 := StrTokArr(aTbSx5[nX5,4],";")
+	aItemX5 := StrTokArr(SX5->X5_DESCRI,";")
+	//aItemX5 := StrTokArr(aTbSx5[nX5,4],";")
     IF LEN(aItemX5) == 4
  		AADD(aSX5,{aItemX5[1],aItemX5[2],aItemX5[3],aItemX5[4]})
  	ENDIF
-	//SX5->(DBSKIP())
-NEXT
-//ENDDO
+	SX5->(DBSKIP())
+//NEXT
+ENDDO
 
 FOR nX := 2 TO LEN(aSX5)
     AADD(aTipoNF,ALLTRIM(aSX5[nX,1])+" - "+ALLTRIM(aSX5[nX,2]))
@@ -151,24 +151,25 @@ Local nVALITNF   := 0
 Local nTotal     := 0
 Local nValRat    := 0
 Local aX5        := {}
-Local aTbSx5     := {}
-Local nX5        := 0
+//Local aTbSx5     := {}
+//Local nX5        := 0
 Local aItemLinha := {}
 Local aItemCC    := {}
 
 aX5 := {}
-aTbSx5 := FWGetSX5("Z4",SUBSTR(cTipoNF,1,2))
-//dbSelectArea("SX5")
-//dbSetOrder(1)
-//dbSeek(xFilial("SX5")+"Z4"+SUBSTR(cTipoNF,1,2),.T.)
-//DO WHILE !EOF() .AND. SUBSTR(SX5->X5_CHAVE,1,2) == SUBSTR(cTipoNF,1,2)
-FOR nX5 := 1 To Len(aTbSx5)
-	IncProc('Carregando Itens da NF')
-	//AADD(aX5,StrTokArr(SX5->X5_DESCRI,";"))
-	AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
-	//SX5->(DBSKIP())
-NEXT
+//aTbSx5 := FWGetSX5("Z4",SUBSTR(cTipoNF,1,2))
 
+dbSelectArea("SX5")
+dbSetOrder(1)
+dbSeek(xFilial("SX5")+"Z4"+SUBSTR(cTipoNF,1,2),.T.)
+DO WHILE !EOF() .AND. SUBSTR(SX5->X5_CHAVE,1,2) == SUBSTR(cTipoNF,1,2)
+//FOR nX5 := 1 To Len(aTbSx5)
+	IncProc('Carregando Itens da NF')
+	AADD(aX5,StrTokArr(SX5->X5_DESCRI,";"))
+	//AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
+	SX5->(DBSKIP())
+//NEXT
+ENDDO
 nTotal := 0
 
 FT_FUSE(cArq)  //abrir
@@ -211,8 +212,7 @@ While !FT_FEOF()
 			ENDIF
     	ENDIF
     ENDIF
-
- FT_FSKIP()   //proximo registro no arquivo txt
+	FT_FSKIP()   //proximo registro no arquivo txt
 Enddo
  
 FT_FUSE()  //fecha o arquivo txt
@@ -615,9 +615,8 @@ RETURN NIL
 
 
 Static Function MontaPlaAS()
-Local nSnd  := 15,nTLin := 15
-Local oDlgAS,aButtons := {},nOpcA := 0
-Local lOk:= .F.
+//Local nSnd  := 15
+Local oDlgAS,nOpcA := 0
 Local aPlanos:= {}
 Local cPlano:= ""
 
@@ -673,15 +672,10 @@ RETURN lOk
 Static Function MontaItemAS(cPlano)
 Local nSnd  := 15,nTLin := 15
 Local oDlg01,aButtons := {}
-LOCAL cLines:='',cBuffer:=''
-LOCAL nLines,nX,nHandle
-LOCAL lID := .F.,lOk := .F.
-LOCAL cCODFUN:= '',cQuery1:='',cQuery2:=''
-LOCAL nQUANT := 0
-LOCAL nVALITNF := 0,nTotal:=0,nValRat :=0
-LOCAL aX5 := {}
-LOCAL aItemLinha := {},aItemCC:={}, aItemAS:={}
-LOCAL cCusto :=""
+LOCAL lOk := .F.
+LOCAL cQuery1:=''
+//LOCAL aX5 := {}
+LOCAL aItemAS:={}
 
 cQuery1  := "SELECT * from bk_senior.dbo.BK_vw_MicrosigaBSTitular " 
 cQuery1  += "WHERE CodOem='"+ALLTRIM(STR(VAL(SUBSTR(cPlano,1,6)),6))+"' "
@@ -824,16 +818,15 @@ RETURN ok
 
 STATIC FUNCTION ItemCusto(cQTPACC)
 LOCAL cQuery2 := ""
-LOCAL cCusto  := {}
 
-	cQuery2 := "SELECT CTT_CUSTO,CTT_DESC01 FROM "+RETSQLNAME("CTT")+" WHERE "+IIF(LEN(cQTPACC)>6,"CTT_CUSTO","substring(CTT_CUSTO,4,6)")+" = '"+cQTPACC+"' AND D_E_L_E_T_ <> '*' "
+cQuery2 := "SELECT CTT_CUSTO,CTT_DESC01 FROM "+RETSQLNAME("CTT")+" WHERE "+IIF(LEN(cQTPACC)>6,"CTT_CUSTO","substring(CTT_CUSTO,4,6)")+" = '"+cQTPACC+"' AND D_E_L_E_T_ <> '*' "
 	
-	TCQUERY cQuery2 NEW ALIAS "QYCTT"
-	DbSelectArea("QYCTT")
+TCQUERY cQuery2 NEW ALIAS "QYCTT"
+DbSelectArea("QYCTT")
 	
-	AADD(aCusto,{QYCTT->CTT_CUSTO,QYCTT->CTT_DESC01})
+AADD(aCusto,{QYCTT->CTT_CUSTO,QYCTT->CTT_DESC01})
 	
-	QYCTT->(dbCloseArea())
+QYCTT->(dbCloseArea())
 
 RETURN  aCusto
 
@@ -890,9 +883,8 @@ Local nSnd  := 15,nTLin := 15
 Local oDlg01,aButtons := {}
 LOCAL nX
 LOCAL lOk := .F.
-LOCAL cCODFUN:= '',cQuery:=''
 LOCAL nTotal:=0
-LOCAL aItemCC:={}, aItemNF:={}
+LOCAL aItemCC:={}
 
 
 Procregua(LEN(aItemAS))

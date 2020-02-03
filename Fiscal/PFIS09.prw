@@ -562,6 +562,10 @@ Do While (ALIAS_TMP)->(!eof())
 	nVALCOFC:= 0
 
 	IF  (ALIAS_TMP)->FT_TIPOMOV == 'E'
+
+
+		// Verificar se está considerando o parametro MV_FRTBASE - Frete e desp na base
+
 		IF(ALIAS_TMP)->F4_CSTPIS $ "04/05/06/07/08/09/49"
 			nALIPISC:= 0
 			nBASPISC:= 0

@@ -349,7 +349,7 @@ Local nI 	:= 0
 Local nJ	:= 0
 Local nLin  := 1
 
-oExcel:new(cArqXlsx+"-x"+DTOS(dDataI))
+oExcel:new(cArqXlsx+"-"+DTOS(dDataI))
 
 oExcel:ADDPlan(cArqXlsx,"0000FF")		//Adiciona nova planilha
 
@@ -374,7 +374,7 @@ nTotStyle		:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/
 nPosBordas		:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,/*fillId*/,nPosBorda2/*borderId*/,/*xfId*/,)
 
 
-nIDImg			:= oExcel:ADDImg("LGMID01.PNG")	//Imagem no Protheus_data
+nIDImg			:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
 
 oExcel:mergeCells(1,1,2,1)						//Mescla as células 
 
@@ -453,7 +453,7 @@ Static Function Plan2(oExcel,nLin)
 Local nPosT := 12
 Local nPosV := 13
 Local nPosS := 14
-Local cPosV := CHR(64+nPosV)
+//Local cPosV := CHR(64+nPosV)
 
 DO CASE
 	CASE nLin == nTopV 

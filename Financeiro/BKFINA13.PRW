@@ -657,6 +657,8 @@ Static Function  ValidPerg
 
 Local aArea      := GetArea()
 Local aRegistros := {}
+Local i,j
+
 cPerg := "BKFINA13"
 dbSelectArea("SX1")
 dbSetOrder(1)
@@ -667,8 +669,6 @@ AADD(aRegistros,{cPerg,"02","Data até:","Data até:" ,"Data até:" ,"mv_ch2","D",0
 AADD(aRegistros,{cPerg,"03","Período:" ,"Período:"  ,"Período:"  ,"mv_ch3","N",01,0,2,"C","","mv_par03","Diário","Diário","Diário","","","Mensal","Mensal","Mensal","","","Anual","Anual","Anual","","","","","","","","","","","",""})
 AADD(aRegistros,{cPerg,"04","Tipo:"    ,"Tipo:"     ,"Tipo:"     ,"mv_ch4","N",01,0,2,"C","","mv_par04","Sintético","Sintético","Sintético","","","Analítico","Analítico","Analítico","","","","","","","","","","","","","","","","",""})
 //AADD(aRegistros,{cPerg,"05","Centavos:","Centavos:" ,"Centavos:" ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","","",""})
-
-
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

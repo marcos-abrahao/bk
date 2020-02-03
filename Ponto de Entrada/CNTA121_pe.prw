@@ -32,14 +32,14 @@ User Function CNTA121()
 			//xRet := MsgYesNo(cMsg + "Continua?")
 			*/
 			
-			MsgInfo(cMsg,cIdPonto)			
+			//MsgInfo(cMsg,cIdPonto)			
 			U_xCN130PGRV(nOpc)
 		ElseIf (cIdPonto == "MODELVLDACTIVE")
 			
 			cMsg := "Chamada na ativação do modelo de dados."
 
 			//xRet := MsgYesNo(cMsg + "Continua?")
-			MsgInfo(cMsg,cIdPonto)			
+			//MsgInfo(cMsg,cIdPonto)			
 			
 		ElseIf (cIdPonto == "FORMPOS")
 			
@@ -54,7 +54,7 @@ User Function CNTA121()
 			EndIf
 
 			//xRet := MsgYesNo(cMsg + "Continua?")
-			MsgInfo(cMsg,cIdPonto)			
+			//MsgInfo(cMsg,cIdPonto)			
 			
 		ElseIf (cIdPonto =="FORMLINEPRE")
 			/*
@@ -78,13 +78,13 @@ User Function CNTA121()
 			xRet := MsgYesNo(cMsg + " Continua?")
 			*/
 		ElseIf (cIdPonto =="MODELCOMMITTTS")
-			MsgInfo("Chamada após a gravação total do modelo e dentro da transação.",cIdPonto)
+			//MsgInfo("Chamada após a gravação total do modelo e dentro da transação.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCOMMITNTTS")
-			MsgInfo("Chamada após a gravação total do modelo e fora da transação.",cIdPonto)
+			//MsgInfo("Chamada após a gravação total do modelo e fora da transação.",cIdPonto)
 		ElseIf (cIdPonto =="FORMCOMMITTTSPRE")
-			MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
+			//MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
 		ElseIf (cIdPonto =="FORMCOMMITTTSPOS")
-			MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
+			//MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCANCEL")
 			
 			cMsg := cIdPonto+" - Deseja realmente sair?"
@@ -92,7 +92,7 @@ User Function CNTA121()
 			xRet := MsgYesNo(cMsg)
 			
 		ElseIf (cIdPonto =="BUTTONBAR")
-			MsgInfo("Chamada para inclusão de botão.")
+			//MsgInfo("Chamada para inclusão de botão.")
 			xRet := {{"Botão", "BOTÃO", {|| MsgInfo("Buttonbar","BUTTONBAR")}}}
 		EndIf
 	EndIf

@@ -47,7 +47,12 @@
 			"args": [],
 			"label": "u",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "SIGAMDI",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "u_tstyexcel"
+	"lastProgramExecuted": "sigagct"
 }
