@@ -51,6 +51,7 @@ Local nI,cPrf,cTitulo,nProxTit
 Local nStatusX
 Local cNome
 Local cTitulo2 := "Seleção de Lotes - Liquidos "+ALLTRIM(SM0->M0_NOME)
+Local MV_XXUSRPJ := "000011/000012/000000"
 
 PRIVATE aFurnas  := {} 
 
@@ -106,6 +107,10 @@ ExcDuplic()
 cQuery  := "SELECT Z2_CTRID,MAX(Z2_DATAPGT) AS XX_DATAPGT,SUM(Z2_VALOR) AS XX_TOTAL, MAX(Z2_NOME) AS XX_NOME " 
 cQuery  += "FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = ' ' AND SZ2.D_E_L_E_T_ <> '*' AND Z2_VALOR > 0 "
 //cQuery  += "AND Z2_TIPO NOT IN ('SOL ','PCT ','RMB ','NDB ') "  // PARA TESTES
+// 04/02/20 - Não integrar PJ/AC caso o usuário não seja o Laudecir ou Xavier
+IF !(__cUserId $ MV_XXUSRPJ)  // Laudecir, Xavier e Admin
+	cQuery  += "AND Z2_TIPOPES NOT IN ('PJ','AC') "
+ENDIF
 cQuery  += "GROUP BY Z2_FILIAL,Z2_CTRID "
 cQuery  += "ORDER BY Z2_FILIAL,Z2_CTRID "
 
@@ -184,8 +189,12 @@ If ( lOk )
 			cQuery  += ", (CASE WHEN Z2_BANCO = '104' AND (SUBSTRING(Z2_CONTA,1,2)='37' OR SUBSTRING(Z2_CONTA,1,3)='098') THEN '37' ELSE '00' END) AS Z2_TIPCONT"
 			cQuery  += ", (CASE WHEN Z2_CC= '"+aFURNAS[1]+"' THEN Z2_CC ELSE (CASE WHEN Z2_CC= '"+aFURNAS[2]+"' THEN Z2_CC ELSE '' END) END) AS Z2_CC"
 			cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = 'X' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
-			cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'  AND Z2_VALOR > 0"
+			cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'  AND Z2_VALOR > 0 "
 			//cQuery  += "AND Z2_TIPO NOT IN ('SOL ','PCT ','RMB ','NDB ') "  // PARA TESTES
+			// 04/02/20 - Não integrar PJ/AC caso o usuário não seja o Laudecir ou Xavier
+			IF !(__cUserId $ MV_XXUSRPJ)  // Laudecir, Xavier e Admin
+				cQuery  += "AND Z2_TIPOPES NOT IN ('PJ','AC') "
+			ENDIF
 			cQuery  += " GROUP BY Z2_FILIAL,Z2_CTRID,Z2_TIPO,Z2_BANCO,Z2_CODFOR,Z2_LOJFOR,Z2_TIPOPES,Z2_DATAPGT "
 			cQuery  += ", (CASE WHEN Z2_BANCO = '104' AND (SUBSTRING(Z2_CONTA,1,2)='37' OR SUBSTRING(Z2_CONTA,1,3)='098') THEN '37' ELSE '00' END)"
 			cQuery  += ", (CASE WHEN Z2_CC= '"+aFURNAS[1]+"' THEN Z2_CC ELSE (CASE WHEN Z2_CC= '"+aFURNAS[2]+"' THEN Z2_CC ELSE '' END) END)"

@@ -17,7 +17,7 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function CN121VCPO()
+User Function C121VCPO()
 
 Local oStruCND := PARAMIXB[1]
 Local oStruCXN := PARAMIXB[2]
@@ -29,6 +29,9 @@ Return
 
 User Function CN120CPO()
 Local aCpo  := {"CNA_XXMOT","CNA_XXMUN"}
+IF FWIsInCallStack("CNTA121")
+    FWFLDPUT("CND_XXMUN",CNA->CNA_XXMUN)
+ENDIF
 Return aCpo
 
 
@@ -40,7 +43,7 @@ Return aCpo
 
 
 User Function CN120SXB()
-
-Return "CN9"
+// Pesquisa padrão de contratos na medição
+Return "CN9001"
 
 

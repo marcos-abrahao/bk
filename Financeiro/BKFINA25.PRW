@@ -132,6 +132,7 @@ FOR IX_:=1 TO LEN(aCtrId)
 
 //					{"D1_UM"     , "PC", NIL },;
 
+		aItens := {}
   		AADD(aItens,aItem)
 
 		Begin Transaction
@@ -197,10 +198,13 @@ PRIVATE lMsErroAuto := .F.
 Private cNFiscal := ""
 Private cSerie   := "DNF
 
+AADD(aTITULO,{'000796','10/01/2020',2500})
 
+/*
 AADD(aTITULO,{'000796','10/02/2020',2500})
 AADD(aTITULO,{'000796','10/03/2020',2500})
 AADD(aTITULO,{'000796','10/04/2020',2500})
+*/
 
 /*AADD(aTITULO,{'000796','10/05/2020',2500})
 AADD(aTITULO,{'000796','10/06/2020',2500})
@@ -250,7 +254,7 @@ FOR IX_:=1 TO LEN(aTITULO)
 				{"F1_FORMUL"    , "N" , NIL },;
 				{"F1_DOC"       , cNFiscal, NIL },;
 				{"F1_SERIE"     , cSerie, NIL },;
-				{"F1_EMISSAO"   , CTOD('30/11/2019') , NIL },;
+				{"F1_EMISSAO"   , CTOD('30/11/2019'), NIL },;
 				{"F1_DTDIGIT"   , dDataBase, NIL },;
 				{"F1_FORNECE"   , aTITULO[IX_,1], NIL },;
 				{"F1_LOJA"      , "01", NIL },;
@@ -288,7 +292,7 @@ FOR IX_:=1 TO LEN(aTITULO)
 //				{"D1_CONTA"  ,"34202001"},;
 //				{"D1_TOTAL"  , aTITULO[IX_,3], NIL },;
 
-
+	aItens := {}
     AADD(aItens,aItem)           
 
 	Begin Transaction

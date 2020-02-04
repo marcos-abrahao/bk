@@ -30,7 +30,6 @@ Local _XI       := 0
 Local cCrLf     := Chr(13) + Chr(10)
 Local cSql      := "" 
 Local cAliasSZ2 := GetNextAlias()
-Local cSql      := ""
 Local dVencPGTO := CTOD("")
 Local nMesComp  := 0
 Local nAnoComp  := 0
@@ -48,8 +47,7 @@ IF CN9->CN9_CONDPG == '065'
 	M->CND_DATA1 := dVencPGTO
 ENDIF
  
-
-aSitFunc:= U_BKGCTF01(SM0->M0_CODIGO,SUBSTR(M->CND_CONTRA,7,3),M->CND_CONTRA) 
+MsAguarde({|| aSitFunc:= U_BKGCTF01(SM0->M0_CODIGO,SUBSTR(M->CND_CONTRA,7,3),M->CND_CONTRA)},"Aguarde","Calculando número de funcionários...",.F.)
 
 //cSitFunc:= "Cod. Situação                       Total"+cCrLf
 
