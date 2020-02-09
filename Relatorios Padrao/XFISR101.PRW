@@ -329,8 +329,8 @@ local oSection13
 local oSection14
 local oSection15
 Local oSection16
-Local aFields   := { }
-Local nI	:= 0
+//Local aFields   := { }
+//Local nI	:= 0
 Local oBreak
 Local lF0tCNPJ	:= F0T->(FieldPos("F0T_CNPJ")) > 0
 
@@ -466,7 +466,7 @@ TRCell():New(oSection4,"CMP28"		,  "", "CNPJ/CPF","@!" ,14)
 TRCell():New(oSection4,"CMP29"		,  "", "C.Custo","@!" ,9)
 TRCell():New(oSection4,"CMP30"		,  "", "Descr. Centro de Custo","@!" ,40)
 TRCell():New(oSection4,"CMP31"		,  "", "Usuário","@!" ,15)
-
+TRCell():New(oSection4,"CMP32"		,  "", "Emissão","@R 99/99/9999" ,10)
 
 
 oBreak := SetQuebra(oSection4, 'CMP1', '4')
@@ -1179,6 +1179,7 @@ while (cAliasSFT)->(!EOF())
 		oSecao4:Cell("CMP29")		:SetValue(cCC)
 		oSecao4:Cell("CMP30")		:SetValue(cDescCC)
 		oSecao4:Cell("CMP31")		:SetValue(cUsuario)
+		oSecao4:Cell("CMP32")		:SetValue((cAliasSFT)->FT_EMISSAO)
 
 		oSecao4:PrintLine()	
 		
