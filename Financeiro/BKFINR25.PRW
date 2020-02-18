@@ -227,6 +227,10 @@ DO WHILE (cAliasQry)->(!EOF())
 
 
 	cTipoBk := TRIM((cAliasQry)->E2_XXTIPBK)
+	If Empty(cTipoBk)
+		cTipoBk := "FOR"
+		(cAliasTrb)->XX_XXTIPBK := cTipoBk
+	EndIf
 	nValor  := (cAliasQry)->E2_VALOR
 
 	IF cTipoBk = "VA"
@@ -399,7 +403,7 @@ oExcel:AddTamCol(7,7,06.60)
 oExcel:AddTamCol(8,8,11.00)
 oExcel:AddTamCol(9,9,13.50)
 oExcel:AddTamCol(10,10,13.50)
-oExcel:AddTamCol(11,11,10.00)
+oExcel:AddTamCol(11,11,06.00)
 oExcel:AddTamCol(12,12,50.00)
 oExcel:AddTamCol(13,13,13.50)
 oExcel:AddTamCol(14,14,13.50)
@@ -467,9 +471,9 @@ DO CASE
 		oExcel:Cell(nLin,nPosT,"Folha CLT",,nLisStyle)
 		//oExcel:Cell(nLin,nPosV,0,cClt,nV2Style)  
 		//oExcel:Cell(nLin,nPosS,0,cSClt,nV2Style)  
-		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAD&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAD&quot;,SALDOS)",nV2Style)
-		oExcel:Cell(nLin,nPosL,"LPM/LAD")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAD&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAS&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LFG&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAD&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAS&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LFG&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"LPM/LAD/LAS/LFG")
 
 	CASE nLin == nTopV + 2
 		oExcel:Cell(nLin,nPosT,"Férias")
@@ -665,6 +669,9 @@ DO CASE
 
 	CASE nLin == nTopV + 49
 		oExcel:Cell(nLin,nPosT,"Fundo Fixo")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=CXA&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=CXA&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"CXA")
 
 	CASE nLin == nTopV + 50
 		oExcel:Cell(nLin,nPosT,"Diretoria",,nLisStyle)
