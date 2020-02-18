@@ -443,7 +443,6 @@ If nLin < 60
 	Next
 EndIf
 
-
 oExcel:Gravar("C:\TEMP\",.T.,.T.)
 return
 
@@ -453,6 +452,7 @@ Static Function Plan2(oExcel,nLin)
 Local nPosT := 12
 Local nPosV := 13
 Local nPosS := 14
+Local nPosL := 15
 //Local cPosV := CHR(64+nPosV)
 
 DO CASE
@@ -460,40 +460,54 @@ DO CASE
 		oExcel:Cell(nLin,nPosT,"PESSOAL",,nPosStyle)
 		oExcel:Cell(nLin,nPosV,"TOTAIS",,nPosStyle)
 		oExcel:Cell(nLin,nPosS,"SALDOS",,nPosStyle)
+		oExcel:Cell(nLin,nPosL,"SIGLAS",,nPosStyle)
 
 	CASE nLin == nTopV + 1
 
 		oExcel:Cell(nLin,nPosT,"Folha CLT",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,cClt,nV2Style)  
-		oExcel:Cell(nLin,nPosS,0,cSClt,nV2Style)  
+		//oExcel:Cell(nLin,nPosV,0,cClt,nV2Style)  
+		//oExcel:Cell(nLin,nPosS,0,cSClt,nV2Style)  
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAD&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAD&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"LPM/LAD")
 
 	CASE nLin == nTopV + 2
 		oExcel:Cell(nLin,nPosT,"Férias")
-		oExcel:Cell(nLin,nPosV,0,cFe,nV2Style)  
-		oExcel:Cell(nLin,nPosS,0,cSFe,nV2Style)  
+		//oExcel:Cell(nLin,nPosV,0,cFe,nV2Style)  
+		//oExcel:Cell(nLin,nPosS,0,cSFe,nV2Style)  
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LFE&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LFE&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"LFE")
 
 	CASE nLin == nTopV + 3
 		oExcel:Cell(nLin,nPosT,"13º Salário",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,c13,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cS13,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,c13,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cS13,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LD1&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LD2&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LD1&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LD2&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"LD1/LD2")
 
 	CASE nLin == nTopV + 4
 		oExcel:Cell(nLin,nPosT,"Rescisões + MFG")
-		//oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,VALORES)+SUMIF(TIPOBK,&quot;=MGF&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosV,0,cRes,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSRes,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cRes,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSRes,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,VALORES)+SUMIF(TIPOBK,&quot;=MGF&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=MGF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"MFG/LRC")
 
 	CASE nLin == nTopV + 5
 		oExcel:Cell(nLin,nPosT,"Pensão alimetícia",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,cPen,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSPen,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cPen,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSPen,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=PEN&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=PEN&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"PEN")
 
 	CASE nLin == nTopV + 6
 		oExcel:Cell(nLin,nPosT,"BENFÍCIOS",,nPosStyle)
 
 	CASE nLin == nTopV + 7
 		oExcel:Cell(nLin,nPosT,"Seguro saúde")
-		//oExcel:Cell(nLin,nPosV,nPen)
 
 	CASE nLin == nTopV + 8
 		oExcel:Cell(nLin,nPosT,"Seguro odontológico",,nLisStyle)
@@ -503,20 +517,28 @@ DO CASE
 
 	CASE nLin == nTopV + 10
 		oExcel:Cell(nLin,nPosT,"Vale refeição",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,cVR,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSVR,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cVR,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSVR,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=VR&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=VR&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"VR")
 
 	CASE nLin == nTopV + 11
 		oExcel:Cell(nLin,nPosT,"Vale alimentação")
-		//oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=VA&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosV,0,cVA,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSVA,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cVA,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSVA,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=VA&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=VA&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"VA")
 
 
 	CASE nLin == nTopV + 12
 		oExcel:Cell(nLin,nPosT,"Vale transporte",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,cVT,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSVT,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cVT,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSVT,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=VT&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=VT&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"VT")
 
 	CASE nLin == nTopV + 13
 		oExcel:Cell(nLin,nPosT,"Cursos e Treinamento")
@@ -529,8 +551,11 @@ DO CASE
 
 	CASE nLin == nTopV + 16
 		oExcel:Cell(nLin,nPosT,"DV (SOL + HOS)",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,cDV,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSDV,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cDV,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSDV,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SOL&quot;,VALORES)+SUMIF(TIPOBK,&quot;=HOS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SOL&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=HOS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"SOL/HOS")
 
 	CASE nLin == nTopV + 17
 		oExcel:Cell(nLin,nPosT,"ENCARGOS",,nPosStyle)
@@ -549,8 +574,11 @@ DO CASE
 
 	CASE nLin == nTopV + 22
 		oExcel:Cell(nLin,nPosT,"Exames Médicos",,nLisStyle)
-		oExcel:Cell(nLin,nPosV,0,cExm,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSExm,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cExm,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSExm,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=EXM&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=EXM&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"EXM")
 
 	CASE nLin == nTopV + 23
 		oExcel:Cell(nLin,nPosT,"Trabalhistas")
@@ -572,8 +600,11 @@ DO CASE
 
 	CASE nLin == nTopV + 29
 		oExcel:Cell(nLin,nPosT,"Fornecedores")
-		oExcel:Cell(nLin,nPosV,0,cForn,nV2Style)
-		oExcel:Cell(nLin,nPosS,0,cSForn,nV2Style)
+		//oExcel:Cell(nLin,nPosV,0,cForn,nV2Style)
+		//oExcel:Cell(nLin,nPosS,0,cSForn,nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=FOR&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=FOR&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"FOR")
 
 	CASE nLin == nTopV + 30
 		oExcel:Cell(nLin,nPosT,"Consultoria  Jurídica / Contábil e Financeira",,nLisStyle)

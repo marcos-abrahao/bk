@@ -376,9 +376,9 @@ dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Vencimento de ?"  ,"Vencimento de ?" ,"Vencimento de ?" ,"mv_ch1","D",08,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"02","Vencimento até ?"  ,"Vencimento até ?" ,"Vencimento até ?" ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Gerar Planilha? "     ,"Planilha"   ,"Planilha"  ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"01","Vencimento de ?"  ,"Vencimento de ?"  ,"Vencimento de ?"  ,"mv_ch1","D",08,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"02","Vencimento até ?" ,"Vencimento até ?" ,"Vencimento até ?" ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Gerar Planilha? " ,"Planilha"         ,"Planilha"         ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

@@ -107,7 +107,26 @@ dbSelectArea(cAliasSZ2)
 //ELSE
 //	M->CND_XXDV := (cAliasSZ2)->CND_XXDV
 //ENDIF
-            
+
+//If M->CND_VLTOT > M->CND_VLPREV
+//	M->CND_DESCME := M->CND_VLTOT > M->CND_VLPREV
+//EndIf 
+
+If (INCLUI .Or. ALTERA)
+    If Len(aCols) == 1
+        //If ABS(aCols[1,9] - CND_VLPREV) <= 10
+        If aCols[1,9] - CND_VLPREV <> 0
+            If MSGYESNO("Deseja ajustar a diferença entre a planilha e o cronograma?","CN130INC")
+                aCols[1,9] := CND_VLPREV
+                aCols[1,8] := Round(aCols[1][9] / aCols[1][6],8)
+                //aCols[1,8] := CND_VLPREV
+                CND_VLTOT  := CND_VLPREV
+            EndIf
+        EndIf
+    EndIf
+EndIf
+
+
 (cAliasSZ2)->(DbCloseArea())
 
 RestArea(aAreas)

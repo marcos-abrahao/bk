@@ -38,7 +38,7 @@ cFilDoc == Filial do Documento
 //Local cFilDoc   := PARAMIXB[4]
 Local nCotacao  := ""
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;diego.oliveira@bkconsultoria.com.br;fabio.quirino@bkconsultoria.com.br;"
+Local cEmail	:= "microsiga@bkconsultoria.com.br;fabio.quirino@bkconsultoria.com.br;"
 Local cEmailCC  := "" 
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
@@ -121,7 +121,6 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 
 	Return Nil
 ENDIF
- 
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
@@ -135,7 +134,6 @@ IF !EMPTY(aUser)
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
 u_xxLog("MT094END.TXT","2-"+cEmail,.F.,"TESTE")        
-
 
 cTPLIBER := ""
 cOBS := ""
@@ -174,7 +172,6 @@ Do While QSCR->(!eof())
 QSCR->(dbskip())
 ENDDO
 QSCR->(DbCloseArea())    
-
 
 
 IF nOpcao == 4 //Era 2
