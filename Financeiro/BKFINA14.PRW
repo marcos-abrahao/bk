@@ -53,8 +53,6 @@ PRIVATE cTedBco := "104"
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
-dbSelectArea("SZU")
-
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil

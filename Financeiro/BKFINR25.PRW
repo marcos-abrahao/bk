@@ -13,7 +13,13 @@ BK - Planilha diária de Pagamentos
 
 User Function BKFINR25()
 
-Local nF  := 0
+Local nF    := 0
+Local cCampo:= ""
+Local cTipo := ""
+Local nTam  := 0
+Local nDec  := 0
+Local cPict := ""
+Local cTitC := ""
 
 Private cTitulo     := "Planilha diária de Pagamentos"
 Private cPerg       := "BKFINR25"
@@ -23,8 +29,10 @@ Private aRet		:=	{}
 
 Private dDataI  	:= CTOD("")
 Private dDataF  	:= CTOD("")
+Private cCadGrp     := "Nao"
 
 Private aFields     := {}
+//Private aOthers		:= {}
 Private aCabs       := {}
 Private aCampos     := {}
 Private aTitulos    := {}
@@ -64,67 +72,107 @@ Private cSPen := "" // PEN
 Private cSExm := "" // EXM
 Private cSDV  := "" // SOL/HOS
 Private cSForn:= ""
+Private aProds:= {}
 
-aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase	, "" , "", ""	, "" , 70  , .F. })
-aAdd( aParam, { 1, "Data Final:" 	, dDataBase	, "" , "", ""	, "" , 70  , .F. })  
+aAdd( aParam, { 1, "Data Inicial:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Data Final:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })  
+aAdd( aParam ,{ 2, "Cadastrar Grupos", "Nao"		, {"Nao", "Sim"}, 40,'.T.'  ,.T.})
 
 If !BkFR25()
    Return
 EndIf
 
+If Substr(cCadGrp,1,1) == "S"
+	U_BKFINA26()
+EndIf
 
 AADD(aTitulos,cPerg+"/"+TRIM(cUserName)+" - "+cTitulo)
-
 
 aAdd(aFields,{"XX_FORNECE","E2_FORNECE"})
 aAdd(aFields,{"XX_LOJA"   ,"E2_LOJA"})
 aAdd(aFields,{"XX_NOMFOR" ,"E2_NOMFOR"})
 aAdd(aFields,{"XX_PREFIXO","E2_PREFIXO"})
 aAdd(aFields,{"XX_NUM"    ,"E2_NUM"})
-aAdd(aFields,{"XX_XXTIPBK","E2_XXTIPBK"})
 aAdd(aFields,{"XX_PARCELA","E2_PARCELA"})
+aAdd(aFields,{"XX_XXTIPBK","E2_XXTIPBK","","Tipo","@!","C",6,0})
+aAdd(aFields,{"XX_PRODUTO","D1_COD","(cAliasTrb)->XX_PRODUTO","Produto","@!","C",50,0})
 aAdd(aFields,{"XX_VENCREA","E2_VENCREA"})
 aAdd(aFields,{"XX_VALOR"  ,"E2_VALOR"})
 aAdd(aFields,{"XX_SALDO"  ,"E2_SALDO"})
 
 //aAdd(aFields,{"XX_SALDO","","(cAliasTrb)->(XX_SALDO)","Saldo Consolidado",cPict,"N",18,2})
-
+//aOthers := {"E2_NATUREZ","E2_TIPO"}
 
 aDbf    := {}
 
 For nF := 1 To Len(aFields)
 
 	aAdd(aCampos,"(cAliasTrb)->"+aFields[nF,1])
+	cCampo := aFields[nF,1]
+	cTipo  := ""
+	nTam   := 0
+	nDec   := 0
+	cPict  := ""
+	cTitC  := ""
 
-	If !Empty(aFields[nF,2])
-		aAdd( aDbf, { aFields[nF,1],GetSX3Cache(aFields[nF,2],"X3_TIPO"), GetSX3Cache(aFields[nF,2],"X3_TAMANHO"),GetSX3Cache(aFields[nF,2],"X3_DECIMAL") } )
-		aAdd(aCabs  ,RetTitle(aFields[nF,2]))
-		aAdd(aHeader,{	RetTitle(aFields[nF,2]),;
-						aFields[nF,1],;
-						GetSX3Cache(aFields[nF,2],"X3_PICTURE"),;
-						GetSX3Cache(aFields[nF,2],"X3_TAMANHO"),;
-						GetSX3Cache(aFields[nF,2],"X3_DECIMAL"),;
-						"",;
-						"",;
-						GetSX3Cache(aFields[nF,2],"X3_TIPO"),;
-						cAliasTrb,;
-						"R"})
-	Else
-		aAdd( aDbf, { aFields[nF,1],aFields[nF,6], aFields[nF,7],aFields[nF,8] } )
-		aAdd(aCabs  ,aFields[nF,4])
-		aAdd(aHeader,{	aFields[nF,4],;
-						aFields[nF,1],;
-						aFields[nF,5],;
-						aFields[nF,7],;
-						aFields[nF,8],;
-						"",;
-						"",;
-						aFields[nF,6],;
-						cAliasTrb,;
-						"R"})
-	
-	EndIf	
+	If Len(aFields[NF]) > 3
+		If !Empty(aFields[nF,4])
+			cTitC := aFields[nF,4]
+		EndIf
+	EndIf
 
+	If Len(aFields[NF]) > 4
+		If !Empty(aFields[nF,5])
+			cPict := aFields[nF,5]
+		EndIf
+	EndIf
+
+	If Len(aFields[NF]) > 5
+		If !Empty(aFields[nF,6])
+			cTipo := aFields[nF,6]
+		EndIf
+	EndIf
+
+	If Len(aFields[NF]) > 6
+		If !Empty(aFields[nF,7])
+			nTam := aFields[nF,7]
+		EndIf
+	EndIf
+
+	If Len(aFields[NF]) > 7
+		If !Empty(aFields[nF,8])
+			nDec := aFields[nF,8]
+		EndIf
+	EndIf
+
+	If Empty(cTitC)
+		cTitC := RetTitle(aFields[nF,2])
+	EndIf
+	If Empty(cPict)
+		cPict := GetSX3Cache(aFields[nF,2],"X3_PICTURE")
+	EndIf
+	If Empty(cTipo)
+		cTipo := GetSX3Cache(aFields[nF,2],"X3_TIPO")
+	EndIf
+	If nTam = 0
+		nTam  := GetSX3Cache(aFields[nF,2],"X3_TAMANHO")
+	EndIf
+	If nDec = 0
+		nDec  := GetSX3Cache(aFields[nF,2],"X3_DECIMAL")			
+	EndIf
+		
+	aAdd( aDbf, {cCampo , cTipo, nTam, nDec } )
+	aAdd(aCabs  ,cTitC)
+	aAdd(aHeader,{	cTitC,;
+					cCampo,;
+					cPict,;
+					nTam,;
+					nDec,;
+					"",;
+					"",;
+					cTipo,;
+					cAliasTrb,;
+					"R"})
 Next
 
 cArqTmp := CriaTrab( aDbf, .t. )
@@ -152,25 +200,34 @@ Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
 If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINR23",.T.         ,.T.))
 	lRet     := .T.
+
 	dDataI   := mv_par01
 	dDataF   := mv_par02
+	cCadGrp  := mv_par03
+
 	cTitulo  := "Planilha Diária de Pagamentos - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 Endif
 Return lRet
 
 
 Static Function ProcBKR25
-Local cQuery := ""
-Local nF     := 0
-Local nValor := 0
-Local nSaldo := 0
+Local cQuery  := ""
+Local nF      := 0
+Local nValor  := 0
+Local nSaldo  := 0
+Local cTipoBk := ""
 
 Private xCampo
 
 cQuery := "SELECT "
 For nF := 1 To Len(aFields)
-	cQuery += aFields[nF,2]+","
+	If LEN(aFields[nF]) < 3 .OR. Empty(aFields[nF,3])
+		cQuery += aFields[nF,2]+","
+	EndIf
 Next
+//For nF := 1 To Len(aOthers)
+//	cQuery += aOthers[nF]+","
+//Next
 cQuery += "R_E_C_N_O_ AS E2_RECNO"
 
 cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" 
@@ -199,7 +256,10 @@ TCSETFIELD(cAliasQry,"E2_VALOR"  ,"N",18,2)
 ProcRegua((cAliasQry)->(RecCount()))
 	
 nCont := 0
-	
+dbSelectArea("SD1")  // * Itens da N.F. de Compra
+dbSetOrder(1)
+
+
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
@@ -207,32 +267,63 @@ DO WHILE (cAliasQry)->(!EOF())
 	IncProc("Consultando banco de dados...")
 	dbSelectArea(cAliasTrb)
 	Reclock(cAliasTrb,.T.)
-		
+	SE2->(dbGoTo((cAliasQry)->E2_RECNO))
+
 	For nF := 1 To Len(aFields)
-		If !Empty(aFields[nF,2])
+		If Len(aFields[nF]) > 2 .AND. !Empty(aFields[nF,3])
+			xCampo := &(aFields[nF,3])
+		Else
 			xCampo := &(cAliasQry+"->"+aFields[nF,2])
 			&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
-		Else
-			xCampo := &(aFields[nF,3])
 		EndIf
+
 		If aFields[nF,2] = "E2_SALDO"
-			SE2->(dbGoTo((cAliasQry)->E2_RECNO))
 			nSaldo := SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZ,"P",SE2->E2_FORNECE,1,,dDataI-1,SE2->E2_LOJA,,0/*nTxMoeda*/)
 			xCampo := nSaldo
 		EndIf
-
 
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
 	Next
 
 
 	cTipoBk := TRIM((cAliasQry)->E2_XXTIPBK)
+
 	If Empty(cTipoBk)
-		cTipoBk := "FOR"
+		If TRIM(SE2->E2_NATUREZ) == "IRF"
+			cTipoBk := "IIRRF"
+		ElseIf TRIM(SE2->E2_NATUREZ) == "INSS"
+			cTipoBk := "INSS"
+		ElseIf TRIM(SE2->E2_NATUREZ) == "ISS"
+			cTipoBk := "ISS"
+		ElseIf TRIM(SE2->E2_NATUREZ) $ "PIS/COFINS/CSLL"
+			cTipoBk := "PCC"
+		EndIf
 		(cAliasTrb)->XX_XXTIPBK := cTipoBk
 	EndIf
+
+	If Empty(cTipoBk)
+
+		SE2->(dbGoTo((cAliasQry)->E2_RECNO))
+
+	    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+    	IF dbSeek(xFilial("SD1")+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+			// Pega o primeiro produto
+			cTipoBk := Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_XXGRPF")
+			(cAliasTrb)->XX_PRODUTO := TRIM(SD1->D1_COD)+"-"+TRIM(Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_DESC"))
+		ENDIF
+
+
+		If Empty(cTipoBk)
+			cTipoBk := "FORN"
+		EndIf
+		
+		(cAliasTrb)->XX_XXTIPBK := cTipoBk
+
+	EndIf
+
 	nValor  := (cAliasQry)->E2_VALOR
 
+	/*
 	IF cTipoBk = "VA"
 		cVa += iif(!Empty(cVa),"+","")+cCVal+Alltrim(STR(nCont+nTop))
 		cSVa += iif(!Empty(cSVa),"+","")+cCSal+Alltrim(STR(nCont+nTop))
@@ -267,7 +358,7 @@ DO WHILE (cAliasQry)->(!EOF())
 		cForn += iif(!Empty(cForn),"+","")+cCVal+Alltrim(STR(nCont+nTop))
 		cSForn += iif(!Empty(cSForn),"+","")+cCSal+Alltrim(STR(nCont+nTop))
 	ENDIF
-
+	*/
 
 	(cAliasTrb)->(MsUnLock())
 		
@@ -366,7 +457,7 @@ nPosBorda2		:= oExcel:Borda("ALL")
 nFmtNum2		:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 
 					//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nTotFont 		:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
+nTotFont 		:= oExcel:AddFont(11,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nPosStyle		:= oExcel:AddStyles(/*numFmtId*/,nPosFont/*fontId*/,nPosCor/*fillId*/,/*borderId*/,/*xfId*/,{oAlinhamento})
 nLisStyle		:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,nLisCor/*fillId*/,/*borderId*/,/*xfId*/,)
@@ -386,7 +477,7 @@ oExcel:mergeCells(1,1,2,1)						//Mescla as células
 oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
 
 oExcel:Cell(1,2,"Pagamentos Diários - "+DTOC(dDataI),,nTitStyle)
-oExcel:mergeCells(1,2,2,13)						//Mescla as células 
+oExcel:mergeCells(1,2,2,14)						//Mescla as células 
 
 nLin := nTop
 For nJ := 1 To Len(aCabs)
@@ -400,13 +491,14 @@ oExcel:AddTamCol(4,4,08.40)
 oExcel:AddTamCol(5,5,10.30)
 oExcel:AddTamCol(6,6,06.90)
 oExcel:AddTamCol(7,7,06.60)
-oExcel:AddTamCol(8,8,11.00)
-oExcel:AddTamCol(9,9,13.50)
+oExcel:AddTamCol(8,8,50.00)
+oExcel:AddTamCol(9,9,11.00)
 oExcel:AddTamCol(10,10,13.50)
-oExcel:AddTamCol(11,11,06.00)
-oExcel:AddTamCol(12,12,50.00)
-oExcel:AddTamCol(13,13,13.50)
+oExcel:AddTamCol(11,11,13.50)
+oExcel:AddTamCol(12,12,05.00)
+oExcel:AddTamCol(13,13,50.00)
 oExcel:AddTamCol(14,14,13.50)
+oExcel:AddTamCol(15,15,13.50)
 (cAliasTrb)->(dbgotop())
 
 Do While (cAliasTrb)->(!eof()) 
@@ -431,13 +523,19 @@ Do While (cAliasTrb)->(!eof())
 	(cAliasTrb)->(dbskip())
 EndDo
 
-oExcel:AddNome("TIPOBK" ,nTopV, 6,nLin,6)
-oExcel:AddNome("VALORES",nTopV, 9,nLin,9)	
-oExcel:AddNome("SALDOS" ,nTopV,10,nLin,10)	
+nLin+= 5
+oExcel:AddNome("TIPOBK" ,nTopV, 7,nLin,7)
+oExcel:AddNome("VALORES",nTopV,10,nLin,10)	
+oExcel:AddNome("SALDOS" ,nTopV,11,nLin,11)	
 
 nLin++
-oExcel:Cell(nLin,9,0,"SUM(VALORES)",nV2Style)
-oExcel:Cell(nLin,10,0,"SUM(SALDOS)",nV2Style)
+
+oExcel:Cell(nLin,1,"Total",,nTotStyle)
+oExcel:mergeCells(nLin,1,nLin,9)						//Mescla as células 
+
+
+oExcel:Cell(nLin,10,0,"SUM(VALORES)",nT2Style)
+oExcel:Cell(nLin,11,0,"SUM(SALDOS)",nT2Style)
 //oExcel:Cell(nLin,9,0,"SUM("+cCVal+ALLTRIM(STR(nTopV))+":"+cCVal+ALLTRIM(STR(nLin-1))+")",nV2Style)
 
 
@@ -453,10 +551,10 @@ return
 
 
 Static Function Plan2(oExcel,nLin)
-Local nPosT := 12
-Local nPosV := 13
-Local nPosS := 14
-Local nPosL := 15
+Local nPosT := 13
+Local nPosV := 14
+Local nPosS := 15
+Local nPosL := 16
 //Local cPosV := CHR(64+nPosV)
 
 DO CASE
@@ -471,8 +569,8 @@ DO CASE
 		oExcel:Cell(nLin,nPosT,"Folha CLT",,nLisStyle)
 		//oExcel:Cell(nLin,nPosV,0,cClt,nV2Style)  
 		//oExcel:Cell(nLin,nPosS,0,cSClt,nV2Style)  
-		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAD&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAS&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LFG&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAD&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAS&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LFG&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAD&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LAS&quot;,VALORES)+SUMIF(TIPOBK,&quot;=LFG&quot;,VALORES)+SUMIF(TIPOBK,&quot;=COM&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LPM&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAD&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LAS&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=LFG&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=COM&quot;,SALDOS)",nV2Style)
 		oExcel:Cell(nLin,nPosL,"LPM/LAD/LAS/LFG")
 
 	CASE nLin == nTopV + 2
@@ -495,8 +593,8 @@ DO CASE
 		oExcel:Cell(nLin,nPosT,"Rescisões + MFG")
 		//oExcel:Cell(nLin,nPosV,0,cRes,nV2Style)
 		//oExcel:Cell(nLin,nPosS,0,cSRes,nV2Style)
-		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,VALORES)+SUMIF(TIPOBK,&quot;=MGF&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=MGF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,VALORES)+SUMIF(TIPOBK,&quot;=MFG&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=LRC&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=MFG&quot;,SALDOS)",nV2Style)
 		oExcel:Cell(nLin,nPosL,"MFG/LRC")
 
 	CASE nLin == nTopV + 5
@@ -512,12 +610,21 @@ DO CASE
 
 	CASE nLin == nTopV + 7
 		oExcel:Cell(nLin,nPosT,"Seguro saúde")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"SS")
 
 	CASE nLin == nTopV + 8
 		oExcel:Cell(nLin,nPosT,"Seguro odontológico",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SO&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SO&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"SO")
 
 	CASE nLin == nTopV + 9
 		oExcel:Cell(nLin,nPosT,"Seguro de vida")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SV&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SV&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"SV")
 
 	CASE nLin == nTopV + 10
 		oExcel:Cell(nLin,nPosT,"Vale refeição",,nLisStyle)
@@ -546,6 +653,9 @@ DO CASE
 
 	CASE nLin == nTopV + 13
 		oExcel:Cell(nLin,nPosT,"Cursos e Treinamento")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=CT&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=CT&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"CT")
 
 	CASE nLin == nTopV + 14
 		oExcel:Cell(nLin,nPosT,"",,nLisStyle)
@@ -557,24 +667,36 @@ DO CASE
 		oExcel:Cell(nLin,nPosT,"DV (SOL + HOS)",,nLisStyle)
 		//oExcel:Cell(nLin,nPosV,0,cDV,nV2Style)
 		//oExcel:Cell(nLin,nPosS,0,cSDV,nV2Style)
-		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SOL&quot;,VALORES)+SUMIF(TIPOBK,&quot;=HOS&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SOL&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=HOS&quot;,SALDOS)",nV2Style)
-		oExcel:Cell(nLin,nPosL,"SOL/HOS")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SOL&quot;,VALORES)+SUMIF(TIPOBK,&quot;=HOS&quot;,VALORES)+SUMIF(TIPOBK,&quot;=REE&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SOL&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=HOS&quot;,SALDOS)+SUMIF(TIPOBK,&quot;=REE&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"SOL/HOS/REE")
 
 	CASE nLin == nTopV + 17
 		oExcel:Cell(nLin,nPosT,"ENCARGOS",,nPosStyle)
 
 	CASE nLin == nTopV + 18
 		oExcel:Cell(nLin,nPosT,"INSS",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=INSS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=INSS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"INSS")
 
 	CASE nLin == nTopV + 19
-		oExcel:Cell(nLin,nPosT,"FGTS")
+		oExcel:Cell(nLin,nPosT,"FGTS",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=FGTS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=FGTS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"FGTS")
 
 	CASE nLin == nTopV + 20
 		oExcel:Cell(nLin,nPosT,"IRRF",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=EIRRF&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=EIRRF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"EIRRF")
 
 	CASE nLin == nTopV + 21
 		oExcel:Cell(nLin,nPosT,"Sindicatos e Assoc. Classe (CECM Furnas)")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=SIN&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=SIN&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"SIN")
 
 	CASE nLin == nTopV + 22
 		oExcel:Cell(nLin,nPosT,"Exames Médicos",,nLisStyle)
@@ -586,6 +708,9 @@ DO CASE
 
 	CASE nLin == nTopV + 23
 		oExcel:Cell(nLin,nPosT,"Trabalhistas")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=TRB&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=TRB&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"TRB")
 
 	CASE nLin == nTopV + 24
 		oExcel:Cell(nLin,nPosT,"",,nLisStyle)
@@ -595,35 +720,56 @@ DO CASE
 
 	CASE nLin == nTopV + 26
 		oExcel:Cell(nLin,nPosT,"Aluguel",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=ALU&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=ALU&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"ALU")
 
 	CASE nLin == nTopV + 27
 		oExcel:Cell(nLin,nPosT,"Condomínio")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=COND&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=COND&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"COND")
 
 	CASE nLin == nTopV + 28
 		oExcel:Cell(nLin,nPosT,"IPTU",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=IPTU&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=IPTU&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"IPTU")
 
 	CASE nLin == nTopV + 29
 		oExcel:Cell(nLin,nPosT,"Fornecedores")
 		//oExcel:Cell(nLin,nPosV,0,cForn,nV2Style)
 		//oExcel:Cell(nLin,nPosS,0,cSForn,nV2Style)
-		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=FOR&quot;,VALORES)",nV2Style)
-		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=FOR&quot;,SALDOS)",nV2Style)
-		oExcel:Cell(nLin,nPosL,"FOR")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=FORN&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=FORN&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"FORN")
 
 	CASE nLin == nTopV + 30
 		oExcel:Cell(nLin,nPosT,"Consultoria  Jurídica / Contábil e Financeira",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=JCF&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=JCF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"JCF")
 
 	CASE nLin == nTopV + 31
 		oExcel:Cell(nLin,nPosT,"Tarifas Bancárias")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=TAR&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=TAR&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"TAR")
 
 	CASE nLin == nTopV + 32
 		oExcel:Cell(nLin,nPosT,"Outras Despesas - Estrutura",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=EST&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=EST&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"EST")
 
 	CASE nLin == nTopV + 33
 		oExcel:Cell(nLin,nPosT," ")
 
 	CASE nLin == nTopV + 34
 		oExcel:Cell(nLin,nPosT,"AMORTIZAÇÃO /JUROS EMPRÉSTIMOS/FINANCIAMENTOS",,nPosStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=AJF&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=AJF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"AJF")
 
 	CASE nLin == nTopV + 35
 		oExcel:Cell(nLin,nPosT," ")
@@ -633,18 +779,33 @@ DO CASE
 
 	CASE nLin == nTopV + 37
 		oExcel:Cell(nLin,nPosT,"PIS")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=PIS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=PIS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"PIS")
 
 	CASE nLin == nTopV + 38
 		oExcel:Cell(nLin,nPosT,"COFINS",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=COFINS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=COFINS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"COFINS")
 
 	CASE nLin == nTopV + 39 
 		oExcel:Cell(nLin,nPosT,"Imposto de renda")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=IIRRF&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=IIRRF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"IIRRF")
 
 	CASE nLin == nTopV + 40
 		oExcel:Cell(nLin,nPosT,"ISS",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=ISS&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=ISS&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"ISS")
 
 	CASE nLin == nTopV + 41
 		oExcel:Cell(nLin,nPosT,"4,65% ( CSSLL - COFINS - PIS )+TFF")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=PCC&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=PCC&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"PCC")
 
 	CASE nLin == nTopV + 42
 		oExcel:Cell(nLin,nPosT,"",,nLisStyle)
@@ -654,18 +815,33 @@ DO CASE
 
 	CASE nLin == nTopV + 44
 		oExcel:Cell(nLin,nPosT,"Representantes",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=REPR&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=REPR&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"REPR")
 
 	CASE nLin == nTopV + 45
 		oExcel:Cell(nLin,nPosT,"Aportes Consórcios")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=APO&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=APO&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"APO")
 
 	CASE nLin == nTopV + 46
 		oExcel:Cell(nLin,nPosT,"HF",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=HF&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=HF&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"HF")
 
 	CASE nLin == nTopV + 47
 		oExcel:Cell(nLin,nPosT,"BK Telecom")
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=BKTEL&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=BKTEL&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"BKTEL")
 
 	CASE nLin == nTopV + 48
 		oExcel:Cell(nLin,nPosT,"ESA",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=ESA&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=ESA&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"ESA")
 
 	CASE nLin == nTopV + 49
 		oExcel:Cell(nLin,nPosT,"Fundo Fixo")
@@ -675,6 +851,9 @@ DO CASE
 
 	CASE nLin == nTopV + 50
 		oExcel:Cell(nLin,nPosT,"Diretoria",,nLisStyle)
+		oExcel:Cell(nLin,nPosV,0,"SUMIF(TIPOBK,&quot;=DIR&quot;,VALORES)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUMIF(TIPOBK,&quot;=DIR&quot;,SALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosL,"DIR")
 
 	//CASE nLin == nTopV + 51
 	//	oExcel:Cell(nLin,nPosT,"")
@@ -683,9 +862,9 @@ DO CASE
 		oExcel:AddNome("TOTAIS" ,nTopV+1,nPosV,nLin-1,nPosV)	
 		oExcel:AddNome("TSALDOS",nTopV+1,nPosS,nLin-1,nPosS)	
 		oExcel:Cell(nLin,nPosT,"Total",,nTotStyle)
-		oExcel:Cell(nLin,nPosV,0,"SUM(TOTAIS)",nV2Style)
+		oExcel:Cell(nLin,nPosV,0,"SUM(TOTAIS)",nT2Style)
 		//oExcel:Cell(nLin,nPosV,0,"SUM("+cPosV+ALLTRIM(STR(nTopV+1))+":"+cPosV+ALLTRIM(STR(nLin-1))+")",nV2Style)
-		oExcel:Cell(nLin,nPosS,0,"SUM(TSALDOS)",nV2Style)
+		oExcel:Cell(nLin,nPosS,0,"SUM(TSALDOS)",nT2Style)
 ENDCASE
 
 Return NIL

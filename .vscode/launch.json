@@ -52,6 +52,13 @@
 			"args": [],
 			"label": "SIGAMDI",
 			"description": ""
+		},
+		{
+			"args": [
+				"()"
+			],
+			"label": "U_UPDGENSX",
+			"description": "()"
 		}
 	],
 	"lastProgramExecuted": "SIGAFIN"

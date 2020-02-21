@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"13/02/2020"
+#DEFINE FIN_LAST_UPDATED 		"20/02/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,8 +179,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			AtuGenPar( @cTexto )
-			//AtuGenE1( @cTexto )
+			//AtuGenPar( @cTexto )
+			
+			AtuGenE1( @cTexto )
 			//AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
 
@@ -695,10 +696,14 @@ dbSelectArea( "SX3" )
 //APPEND FROM \x3szu.dtc
 
 // Incluir competência da Medição no browse do SC5
-dbSelectArea( "SX3" )
-APPEND FROM \x3sc5.dtc
+//dbSelectArea( "SX3" )
+//APPEND FROM \x3sc5.dtc
 
-X31UPDTABLE("SC5")
+// Incluir competência da Medição no browse do SC5
+dbSelectArea( "SX3" )
+APPEND FROM \x3sB1.dtc
+
+X31UPDTABLE("SB1")
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF + Replicate( "-", 128 ) + CRLF + CRLF
 
@@ -714,10 +719,11 @@ cTexto  += "Inicio da Atualizacao" + CRLF
 
 // Acerto do dicionario X3_USADO para o campo A1_NATUREZ
 
-oProcess:IncRegua2( "Acerto do dicionario X3_USADO para o campo E1_VENCORI.." )
+oProcess:IncRegua2( "Acertos no dicionario.." )
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 
+/*
 If SX3->( dbSeek( "E1_VENCORI" ) )
 
 	RecLock( "SX3", .F. )
@@ -728,6 +734,68 @@ If SX3->( dbSeek( "E1_VENCORI" ) )
 	MsUnLock()
 
 EndIf
+*/
+
+/*
+If SX3->( dbSeek( "B1_XXGRPF" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_PICTURE := "@!"
+	SX3->X3_VALID   := "Vazio() .OR. ExistCpo('SZU')"
+	SX3->X3_F3      := "SZU"
+	SX3->X3_FOLDER  := "1"
+	dbCommit()
+	MsUnLock()
+EndIf
+*/
+
+/*
+If SX3->( dbSeek( "ZU_PLAN" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_PICTURE := "@!"
+	dbCommit()
+	MsUnLock()
+EndIf
+*/
+
+If SX3->( dbSeek( "A1_CODPAIS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"01058"'
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "A1_PAIS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"105"'
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "A2_CODPAIS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"01058"'
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "A2_PAIS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"105"'
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "A1_RECIRRF" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_OBRIGAT := '€'
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+
+dbSelectArea( "SXB" )
+APPEND FROM \sxbszu.dtc
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF + Replicate( "-", 128 ) + CRLF + CRLF
 
