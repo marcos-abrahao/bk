@@ -644,7 +644,7 @@ aReturn := {"Excluir Produtos             ",;
             "Gerar rel no servidor        ",;
             "Inclui solic. de compras     ",;
             "Mbrowse - visulalisa ourtas f",;
-            "Mbroese - Edita reg outras fi",;
+            "Mbrowse - Edita reg outras fi",;
             "MBroses permite uso de filtro",;
             "F3 - Permite o uso de filtro ",;
             "MBroese permite conf colunas ",;
