@@ -170,7 +170,7 @@ If ( lOk )
 	    //Relugarização momentânia numero de CPF para IPT - Definitivo a partir de 01/10/12 - JA ESTA OK  
 		IF aCtrId[nI,1]
 			cQuery  := " SELECT Z2_CTRID,Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_E2TIPO,Z2_PRONT,Z2_NOME,Z2_VALOR,Z2_DATAPGT,Z2_TIPO,Z2_NOMDEP,Z2_NOMMAE,"
-			cQuery  += " Z2_TIPOPES,Z2_BANCO,Z2_AGENCIA,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_CPF,Z2_USUARIO,Z2_HORALIB,Z2_BORDERO,SZ2.R_E_C_N_O_ as REC "
+			cQuery  += " Z2_TIPOPES,Z2_BANCO,Z2_AGENCIA,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_CPF,Z2_USUARIO,Z2_HORALIB,Z2_BORDERO,SZ2.R_E_C_N_O_ AS REC "
 			cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
 //			cQuery  += "LEFT JOIN bk_senior.bk_senior.r034fun ON SZ2.Z2_CODEMP = bk_senior.bk_senior.r034fun.numemp AND SZ2.Z2_PRONT=bk_senior.bk_senior.r034fun.numcad "
 //			cQuery  += " AND bk_senior.bk_senior.r034fun.nomfun like Z2_NOME+'%' COLLATE SQL_Latin1_General_CP1_CI_AS "

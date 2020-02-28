@@ -33,7 +33,7 @@ User Function CNTA121()
 			*/
 			
 			//MsgInfo(cMsg,cIdPonto)			
-			U_xCN130PGRV(nOpc)
+			//U_xCN130PGRV(nOpc)
 		ElseIf (cIdPonto == "MODELVLDACTIVE")
 			
 			cMsg := "Chamada na ativação do modelo de dados."
@@ -87,13 +87,13 @@ User Function CNTA121()
 			//MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCANCEL")
 			
-			cMsg := cIdPonto+" - Deseja realmente sair?"
+			//cMsg := cIdPonto+" - Deseja realmente sair?"
 
-			xRet := MsgYesNo(cMsg)
+			//xRet := MsgYesNo(cMsg)
 			
 		ElseIf (cIdPonto =="BUTTONBAR")
 			//MsgInfo("Chamada para inclusão de botão.")
-			xRet := {{"Botão", "BOTÃO", {|| MsgInfo("Buttonbar","BUTTONBAR")}}}
+			//xRet := {{"Botão", "BOTÃO", {|| MsgInfo("Buttonbar","BUTTONBAR")}}}
 		EndIf
 	EndIf
 Return (xRet)

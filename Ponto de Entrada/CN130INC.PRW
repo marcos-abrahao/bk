@@ -33,6 +33,7 @@ Local cAliasSZ2 := GetNextAlias()
 Local dVencPGTO := CTOD("")
 Local nMesComp  := 0
 Local nAnoComp  := 0
+Local nDif		:= 0
 
 M->CND_XXMUN  := POSICIONE("CNA",1,xFilial("CNA")+M->CND_CONTRA+M->CND_REVISA+M->CND_NUMERO,"CNA_XXMUN")            
 M->CND_XXDESC := POSICIONE("CTT",1,xFilial("CTT")+M->CND_CONTRA,"CTT_DESC01")            
@@ -114,10 +115,11 @@ dbSelectArea(cAliasSZ2)
 
 If (INCLUI .Or. ALTERA)
     If Len(aCols) == 1
+		nDif := ABS(aCols[1,9] - CND_VLPREV)
         //If ABS(aCols[1,9] - CND_VLPREV) <= 10
-		IF __cUserId $ "000000/000012/000023"
-			If aCols[1,9] - CND_VLPREV <> 0
-				If MSGYESNO("Deseja ajustar a diferença entre a planilha e o cronograma?","CN130INC")
+		If nDif > 0
+			IF __cUserId $ "000000/000012/000023" .OR. nDif <= 10
+				If MSGYESNO("Deseja ajustar a diferença entre a planilha e o cronograma? (R$ "+ALLTRIM(STR(nDif))+")","CN130INC")
 					aCols[1,9] := CND_VLPREV
 					aCols[1,8] := Round(aCols[1][9] / aCols[1][6],8)
 					//aCols[1,8] := CND_VLPREV

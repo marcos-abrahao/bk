@@ -132,6 +132,7 @@ aAdd(aPlan2,{.F.,"Aportes Consórcios","APO"})
 aAdd(aPlan2,{.F.,"BK TER","BKTER"})
 aAdd(aPlan2,{.F.,"Fundo Fixo","CXA"})
 aAdd(aPlan2,{.F.,"Diretoria","DIR"})
+aAdd(aPlan2,{.F.,"DERSA Arrecadação","DERSA"})
 aAdd(aPlan2,{.F.,"",""})
 aAdd(aPlan2,{.F.,"Total",""})
 
