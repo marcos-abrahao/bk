@@ -2282,7 +2282,7 @@ FOR _nI := 1 TO nPeriodo
 
 					
 				ENDIF
-				IF "|"+aRentab[_nJ,1]+"|" $ "|03|04|05|06|07|30-02|"  // 28/02/20
+				IF "|"+aRentab[_nJ,1]+"|" $ "|03|04|05|06|07|30-2|" // 28/02/20
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += aRentab[_nJ,4]
 				ENDIF
@@ -2370,7 +2370,6 @@ For Yi_ := 1 TO LEN(aContratos)
 				Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += nDescE5
-				n2Resultado += nDescE5
 				(ALIAS_TMP)->(Msunlock())
 			ENDIF
 			

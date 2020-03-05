@@ -770,7 +770,7 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"16","ASSMEDICA","S",0}) 
         AADD(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
         AADD(aRentab,{"18","Sindicato (Odonto)","S",0}) 
-        AADD(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
+        //AADD(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
         AADD(aRentab,{"20","CECREMEF/ADV","S",0}) 
         AADD(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
         AADD(aRentab,{"22-1","","S",0})
@@ -1027,7 +1027,7 @@ FOR _nI := 1 TO nPeriodo
         	IF nSZCSTBK <> 0
       			dbSelectArea(ALIAS_TMP)
 				IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'W'+cBK_Prod,.F.)
-					// 19/02/19 - Marcos - incluir registro se naão existir
+					// 19/02/19 - Marcos - incluir registro se não existir
 					Reclock(ALIAS_TMP,.T.)
 					(ALIAS_TMP)->XX_CODGCT := IIF( nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
 					(ALIAS_TMP)->XX_CODIGO := "W"+cBK_Prod
@@ -1489,7 +1489,7 @@ FOR _nI := 1 TO nPeriodo
  		ENDIF
 
 		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve"
-		     	
+		//MemoWrite("c:\temp\BKGCTR14-FOL.SQL",cQuery2)     	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		nProventos := 0
 		nCusto     := 0
@@ -1653,20 +1653,22 @@ FOR _nI := 1 TO nPeriodo
 
 			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cSINO_Verb
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'19',.F.)
+		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'18',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent *-1)
 					(ALIAS_TMP)->(Msunlock())
 		    		nCusto += (TMPX2->valevent *-1)  
 				ENDIF
-		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'18',.F.)
-		     		Reclock(ALIAS_TMP,.F.)
-					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-					&cCampo2 += (TMPX2->valevent *-1)
-					(ALIAS_TMP)->(Msunlock())
-				ENDIF
+				// 28/02/20
+		   		//dbSelectArea(ALIAS_TMP)
+		   		//IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'18',.F.)
+		     	//	Reclock(ALIAS_TMP,.F.)
+				//	cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+				//	&cCampo2 += (TMPX2->valevent)   //  *-1  28/02/20
+				//	(ALIAS_TMP)->(Msunlock())
+				//	nCusto += TMPX2->valevent
+				//ENDIF
 			ENDIF
 			
 			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cCCRE_Verb
@@ -1807,19 +1809,19 @@ FOR _nI := 1 TO nPeriodo
 
 		IncProc("Consultando Folha Pagamento - Autonomos...")
 		//*********Folha Pagamento - Autonomos IPT
-		cQuery2 := "SELECT     SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
-		cQuery2 += " FROM         webLancamentoIPT.dbo.LancamentoIPT "
-		cQuery2 += " WHERE     (AC = 0) AND (adiantamento = 0) AND (integrado = 1) " 
+		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
+		cQuery2 += " FROM  webLancamentoIPT.dbo.LancamentoIPT"
+		cQuery2 += " WHERE (AC = 0) AND (adiantamento = 0) AND (integrado = 1)" 
 		cQuery2 += " AND competencia ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
 
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IF nScan > 0 
-			cQuery2 += " and codEmpresa='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"
+			cQuery2 += " AND codEmpresa='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"
 			cQuery2 += " AND centroCusto IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" 
 		ELSE
-			cQuery2 += " and codEmpresa='"+SM0->M0_CODIGO+"'"
+			cQuery2 += " AND codEmpresa='"+SM0->M0_CODIGO+"'"
 			cQuery2 += " AND centroCusto='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
 		ENDIF
 
@@ -3273,7 +3275,7 @@ FOR _nI := 1 TO nPeriodo
 	        AADD(aRentab,{"16","ASSMEDICA","S",0}) 
 	        AADD(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
 	        AADD(aRentab,{"18","Sindicato (Odonto)","S",0}) 
-	        AADD(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
+	        //AADD(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
         	AADD(aRentab,{"20","CECREMEF/ADV","S",0}) 
         	AADD(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
 	        AADD(aRentab,{"22-1","","S",0}) 
@@ -3295,7 +3297,7 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 					(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4]+IIF("|"+aRentab[_nJ,1]+"|"="|01|"," - Medição Avulsa",""),aRentab[_nJ,2])
 				ENDIF
-				IF "|"+aRentab[_nJ,1]+"|" $ "|03|04|05|06|07|30-02|"  // 28/02/20
+				IF "|"+aRentab[_nJ,1]+"|" $ "|03|04|05|06|07|30-2|"
 					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 					&cCampo2 += aRentab[_nJ,4]
 				ENDIF
@@ -3365,26 +3367,9 @@ For Yi_ := 1 TO LEN(aContratos)
 			(ALIAS_TMP)->(Msunlock())
 		ENDIF
 
-		//SOMA DESCONTOS DO SE5 NOS GASTOS GERAIS 28/02/20
-	    nDescE5 := 0
-		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30-2',.F.)
-   			Reclock(ALIAS_TMP,.F.)
-			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-			nDescE5  := &cCampo2
-
-			//IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
-			//	Reclock(ALIAS_TMP,.F.)
-			//	cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-			//	&cCampo2 += nDescE5
-				n2Resultado += nDescE5
-			//	(ALIAS_TMP)->(Msunlock())
-			//ENDIF
-			
-		ENDIF
-
 	    // Calculo do Resultado
 	    nResultado := 0
+		
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'07',.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
@@ -3397,12 +3382,28 @@ For Yi_ := 1 TO LEN(aContratos)
 			nResultado -= &cCampo2
 			n2Resultado -= &cCampo2
 		ENDIF
+
+		//SOMA DESCONTOS DO SE5 NOS GASTOS GERAIS 28/02/20
+	    nDescE5 := 0
+		dbSelectArea(ALIAS_TMP)
+		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30-2',.F.)
+   			Reclock(ALIAS_TMP,.F.)
+			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+			nDescE5  := &cCampo2
+
+			nResultado -= nDescE5
+			n2Resultado -= nDescE5
+
+		ENDIF
+
+
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 			nResultado -= &cCampo2
 			n2Resultado -= &cCampo2
 		ENDIF
+
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZZY',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -3780,9 +3781,10 @@ Do While (ALIAS_TMP)->(!eof())
 			nBficP		:= 0
 		endif
   		nBficP		+= (ALIAS_TMP)->&cCampoX
-	ENDIF 
-	
-	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|12A|12|14|16|18|20|"   
+	ENDIF
+
+	// 28/02/20 incluido |111"
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|111|12A|12|14|16|18|19|20|"   
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|"
 			nBficR		:= 0
 		endif
@@ -3858,8 +3860,9 @@ Do While (ALIAS_TMP)->(!eof())
 
 	ENDIF
 
-	IF nDespGeral == 1 .AND. nCompras == 0 
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|12|14|16|18|20|"  .OR. SUBSTR((ALIAS_TMP)->XX_CODIGO,1,4) == "18-1"
+	IF nDespGeral == 1 .AND. nCompras == 0
+		// 28/02/20 incluido |111"
+		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|111|12|14|16|18|19|20|"  .OR. SUBSTR((ALIAS_TMP)->XX_CODIGO,1,4) == "18-1"
 	 		AADD(aBenef,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
 		ENDIF
 	ENDIF

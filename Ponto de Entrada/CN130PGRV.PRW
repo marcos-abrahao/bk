@@ -155,7 +155,7 @@ IF ExpN1 == 3 .OR. ExpN1 == 4
 ENDIF
 
 IF ExpN1 == 12 .OR. ExpN1 == 3
-	IF CND->CND_XXDV == "S" 	  
+	IF CND->CND_XXDV == "S" .OR. CND->CND_XXVLND > 0	  
     	//Chama a Rotina de Nota de Debito
     	U_FIN040INC(CND->(RECNO())) 
     ENDIF

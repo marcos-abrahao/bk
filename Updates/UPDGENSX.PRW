@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"20/02/2020"
+#DEFINE FIN_LAST_UPDATED 		"05/03/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,9 +179,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			//AtuGenPar( @cTexto )
+			AtuGenPar( @cTexto )
 			
-			AtuGenE1( @cTexto )
+			//AtuGenE1( @cTexto )
 			//AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
 
@@ -561,6 +561,7 @@ If dbSeek(xFilial()+"MV_FRTBASE")
 EndIf
 */
 
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_CNPEDVE (medição direto no pedido de venda)..." )
 If dbSeek(xFilial()+"MV_CNPEDVE")
 	RecLock( "SX6", .F. )
@@ -597,9 +598,32 @@ If dbSeek(xFilial()+"MV_DATAFIN")
 	dbCommit()
 	MsUnLock()
 EndIf
+*/
 
+//MV_VENCIRF 03/03/20
+/*
+If dbSeek(xFilial()+"MV_VENCIRF")
+	RecLock( "SX6", .F. )
 
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "E"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
 
+	dbCommit()
+	MsUnLock()
+EndIf
+*/
+
+If dbSeek(xFilial()+"MV_XXSINOP")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	//SX6->X6_CONTEUD := "E"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 
 
