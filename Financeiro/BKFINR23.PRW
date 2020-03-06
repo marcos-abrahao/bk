@@ -1,5 +1,4 @@
 #INCLUDE 'PROTHEUS.CH'
-#INCLUDE "topconn.ch"
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINR23
@@ -19,13 +18,12 @@ User Function BKFINR23()
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Local nB      := 0
-Local cArqTrb := ""
 Local cNCampo := ""
 
 Private aParam		:=	{}
 Private aRet		:=	{}
 
-Private cTitulo     := "Saldos Bancários Consolidados - BK"
+Private cTitulo     := "xSaldos Bancários Consolidados - BK"
 Private cPerg       := "BKFINR23"
 
 Private aFields := {}
@@ -173,18 +171,17 @@ If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,     
 	lRet     := .T.
 	dDataI   := mv_par01
 	dDataF   := mv_par02
-	cTitulo  := "Saldos bancários consolidados - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
+	cTitulo  := "xSaldos bancários consolidados - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 Endif
 Return lRet
 
 
 
 Static Function MBrwBKF23()
-Local 	aCores 		:= {}
-Local   oSize
-Local   aPosObj 
+Local oSize
+Local aPosObj 
 
-Private aRotina		:= {}
+Private aRotina	:= {}
 Private lRefresh:= .T.
 Private aButton := {}
 Private oGetDb1
@@ -192,8 +189,9 @@ Private oDlg1
  
 
 // Dimensionamento da tela
-oSize := FWDefSize():New(.T., , nOr(WS_VISIBLE,WS_POPUP) )
+oSize := FWDefSize():New(.T.,.F., nOr(WS_VISIBLE,WS_POPUP) )
 oSize:AddObject("TELA1", 100, 100, .T., .T.)
+oSize:lProp := .T.
 oSize:aMargins:= {3,3,3,3}
 oSize:Process()
 
@@ -212,9 +210,12 @@ dbGoTop()
 	
 DEFINE DIALOG oDlg1;
  TITLE cTitulo ;
- FROM oSize:aWindSize[1],oSize:aWindSize[2] TO oSize:aWindSize[3],oSize:aWindSize[4] PIXEL STYLE nOr(WS_VISIBLE,WS_POPUP)
+ FROM oSize:aWindSize[1],oSize:aWindSize[2] TO oSize:aWindSize[3],oSize:aWindSize[4] of oMainWnd PIXEL STYLE nOr(WS_VISIBLE,WS_POPUP)
 
-oGetDb1 := MsGetDb():New(aPosObj[1],aPosObj[2],aPosObj[3],aPosObj[4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()",cAliasTrb)
+//MsGetDB():         New(< nTop>   ,< nLeft>  ,< nBottom>, < nRight>, < nOpc>, [ cLinhaOk]    , [ cTudoOk]     , [ cIniCpos], [ lDelete], [ aAlter], [ nFreeze], [ lEmpty], [ uPar1]     , < cTRB>  , [ cFieldOk], [ uPar2], [ lAppend], [ oWnd], [ lDisparos], [ uPar3], [ cDelOk], [ cSuperDel] ) --> oObj
+oGetDb1 := MsGetDb():New(aPosObj[1],aPosObj[2],aPosObj[3],aPosObj[4], 2      , "AllwaysTrue()", "AllwaysTrue()",            ,           ,          ,          ,           ,"AllwaysTrue()",cAliasTrb,            ,         ,           ,oDlg1)
+
+
 nBrLin  :=1
 oGetDb1:ForceRefresh()
 
@@ -278,7 +279,7 @@ Return (.T.)
 
 // Gera Excel
 User FUNCTION CBKFR23()
-Local aQuebra := {}
+
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
@@ -286,8 +287,88 @@ MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando plan
 
 Return 
 
+Static Function ProcBKFR23
+
+Local nB		:= 0
+Local nS		:= 0
+Local dSaldo	:= dDataI
+Local cBco		:= ""
+Local cAge		:= ""
+Local cCta		:= ""
+Local nMoeda	:= 1
+Local nMoedaBco	:= 1
+Local nDecs		:= 2
+Local nSaldo	:= 0
 
 
+Private xCampo
+
+LimpaBrw(cAliasTrb)
+
+For nB := 1 To Len(aBancos)
+
+	cBco 	:= aBancos[nB,1]
+	cAge 	:= aBancos[nB,2]
+	cCta 	:= aBancos[nB,3]
+	dSaldo	:= dDataI
+
+	ProcRegua(dDataF - dDataI + 1)
+
+	Do While dSaldo <= dDataF
+
+		IncProc("Consultando banco de dados...")
+
+		dbSelectArea("SE8")
+		dbSetOrder(1)
+		If ! dbSeek(xFilial("SE8")+cBco+cAge+cCta+DtoS( dSaldo ),.T.)
+			dbSkip( -1 )
+		EndIf
+
+		If cBco	== SE8->E8_BANCO	.AND. ;
+			cAge == SE8->E8_AGENCIA	.AND. ;
+			cCta == SE8->E8_CONTA	.AND. ;
+			SE8->E8_DTSALAT	<= dSaldo
+
+			nMoedaBco := Iif(cPaisLoc=="BRA",1,Max(nMoeda /*SA6->A6_MOEDA*/,1))
+			nSaldo    := xMoeda(SE8->E8_SALATUA,nMoedaBco,nMoeda,SE8->E8_DTSALAT,nDecs+1)
+
+			dbSelectArea(cAliasTrb)
+			If dbSeek(dSaldo,.F.)
+				Reclock(cAliasTrb,.F.)
+			Else
+				Reclock(cAliasTrb,.T.)
+				cNCampo := "XX_DATA"
+				&(cAliasTrb+"->"+cNCampo) := dSaldo
+			EndIf
+
+			cNCampo := "XX_SLD"+STRZERO(nB,3)
+			&(cAliasTrb+"->"+cNCampo) := nSaldo
+
+			nSaldo := 0
+			For nS := 1 TO Len(aBancos)
+				cNCampo := "XX_SLD"+STRZERO(nS,3)
+				nSaldo += &(cAliasTrb+"->"+cNCampo)
+			Next
+			cNCampo := "XX_SALDO"
+			&(cAliasTrb+"->"+cNCampo) := nSaldo
+			
+			(cAliasTrb)->(MsUnLock())
+
+		EndIf
+
+		dSaldo++
+	EndDo
+
+Next
+
+dbSelectArea(cAliasTrb)
+//dbSetOrder(1)
+dbGoTop()
+
+Return
+
+
+/* Antiga
 Static Function ProcBKFR23
 Local cQuery := ""
 Local nReg   := 0
@@ -317,13 +398,12 @@ For nB := 1 To Len(aBancos)
 
 	MemoWrite("BKFINR23"+STRZERO(nB,3)+".SQL",cQuery)
 	
-	cAliasQry := "TMPR23" //GetNextAlias()
+	cAliasQry := GetNextAlias()
 
-	//DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
-	TCQUERY cQuery NEW ALIAS "TMPR23" 
-	TCSETFIELD(cAliasQry,"E8_DTSALAT","D",8,0)
-	TCSETFIELD(cAliasQry,"E8_SALATUA","N",18,2)
-	
+	DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
+	TCSetField(cAliasQry, "E8_DTSALAT","D", 8,0)
+	TCSetField(cAliasQry, "E8_SALATUA","N",18,0)
+
 	ProcRegua((cAliasQry)->(RecCount()))
 	
 	nReg := 0
@@ -341,17 +421,6 @@ For nB := 1 To Len(aBancos)
 		    cNCampo := "XX_DATA"
 			&(cAliasTrb+"->"+cNCampo) := (cAliasQry)->E8_DTSALAT
 		EndIf
-		/*
-		For nF := 1 To Len(aFields)
-			If !Empty(aFields[nF,2])
-				xCampo := &(cAliasQry+"->"+aFields[nF,2])
-				&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
-			Else
-				xCampo := &(aFields[nF,3])
-			EndIf
-			&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
-		Next
-		*/
 		
 	    cNCampo := "XX_SLD"+STRZERO(nB,3)
 		&(cAliasTrb+"->"+cNCampo) := (cAliasQry)->E8_SALATUA
@@ -368,20 +437,11 @@ For nB := 1 To Len(aBancos)
 
 Next
 
-/*
-	IF nReg < 1
-		Reclock(cAliasTrb,.T.)
-		(cAliasTrb)->XX_NUM 	:= "Null"
-	 	(cAliasTrb)->(Msunlock())
-	ENDIF
-*/
-
 dbSelectArea(cAliasTrb)
-//dbSetOrder(1)
 dbGoTop()
 
 Return
-
+*/
 
 
 // Selecionar contas bancárias
@@ -457,6 +517,7 @@ While SA6->A6_FILIAL == xFilial( "SA6" ) .And. SA6->(!Eof())
 
 		dbSelectArea(cAliasTmp1)
 		RecLock( cAliasTmp1, .T. )
+		(cAliasTmp1)->A6_OK      := cMarca	
 		(cAliasTmp1)->A6_COD     := SA6->A6_COD	
 		(cAliasTmp1)->A6_AGENCIA := SA6->A6_AGENCIA 	
 		(cAliasTmp1)->A6_NUMCON  := SA6->A6_NUMCON 	
@@ -474,7 +535,7 @@ EndDo
 If lRet
 	(cAliasTmp1)->( dbGotop() )
 	DEFINE MSDIALOG oDlg TITLE "Selecione os Bancos que deverão ser consolidados" From 009,000 To 030,063 OF oMainWnd
-	oMark := MsSelect():New(cAliasTmp1,"A6_OK","",aCamposB2,@lInverte,@cMarca,{20,2,140,248})
+	oMark := MsSelect():New(cAliasTmp1,"A6_OK","",aCamposB2,@lInverte,@cMarca,{30,2,150,248})
 	ACTIVATE MSDIALOG oDlg ON INIT EnchoiceBar(oDlg,{|| nOpca := 1,oDlg:End()},{|| nOpca := 2}) CENTERED
 	
     lRet := .F.

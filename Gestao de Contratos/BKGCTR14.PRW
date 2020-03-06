@@ -3281,7 +3281,7 @@ FOR _nI := 1 TO nPeriodo
 	        AADD(aRentab,{"22-1","","S",0}) 
 	        AADD(aRentab,{"30","GASTOS GERAIS","S",0}) 
 	        AADD(aRentab,{"30-1","","S",0}) 
-	        AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMPX2->E5DESC/(nIndTC/100),QTMPX2->E5DESC)}) 
+	        AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,TMPX2->E5DESC/(nIndTC/100),TMPX2->E5DESC)}) 
 	        AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
 	        AADD(aRentab,{"YYYYYYYYZ","","S",0}) 
         	AADD(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
