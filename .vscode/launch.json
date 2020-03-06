@@ -7,7 +7,7 @@
 			"name": "Totvs Language Debug",
 			"program": "${command:AskForProgramName}",
 			"cwb": "${workspaceFolder}",
-			"smartclientBin": "C:\\Totvs12\\smartclient\\smartclient.exe",
+			"smartclientBin": "D:\\BK\\bin\\smartclient\\smartclient.exe",
 			"isMultiSession": true,
 			"enableTableSync": true
 		}

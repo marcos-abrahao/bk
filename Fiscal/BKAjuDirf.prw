@@ -40,9 +40,10 @@ If LockByName(cLockBy)
 
 	If nOpcA == 1
 
-		// Descomente para ajustar o IRRF ***************************
-		//Processa( {|lEnd| BKAjuSE2()} )
+		// Ajustar o IRRF ***************************
+		Processa( {|lEnd| BKAjuSE2()} )
 
+		// Ajustar o PIS/COFINS**********************
 		Processa( {|lEnd| BKAjuPCC()} )
 
 		//--Exibe log de processamento:
