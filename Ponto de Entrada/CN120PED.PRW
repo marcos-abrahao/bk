@@ -58,4 +58,5 @@ AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
 //If Type("CNA->CNA_XXRETC")<>"U"
 	AADD(ExpA1,{"C5_XXRETC" ,CNA->CNA_XXRETC, Nil})   
 //EndIf
+AADD(ExpA1,{"C5_XXCOMPM" ,CND->CND_COMPET, Nil})  
 Return {ExpA1,ExpA2}                           
