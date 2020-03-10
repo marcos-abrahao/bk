@@ -617,9 +617,9 @@ EndIf
 If dbSeek(xFilial()+"MV_XXSINOP")
 	RecLock( "SX6", .F. )
 
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + TRIM(SX6->X6_CONTEUD) + CRLF
 	//SX6->X6_CONTEUD := "E"
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + TRIM(SX6->X6_CONTEUD) + CRLF
 
 	dbCommit()
 	MsUnLock()

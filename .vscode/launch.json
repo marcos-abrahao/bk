@@ -74,7 +74,12 @@
 			"args": [],
 			"label": "upddistr",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "up",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "upddistr"
 }
