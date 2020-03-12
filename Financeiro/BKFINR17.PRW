@@ -28,7 +28,6 @@ Local aCabs		:= {}
 Local aPlans	:= {}
 Local oDlg01
 Local aButtons	:= {}
-Local nOpcA		:= 0
 Local lOk		:= .F.
 Local oPanelLeft
 Local aStruct	:= {}
@@ -548,11 +547,11 @@ Return
 
 
 
-Static Function  ValidPerg1
+Static Function  ValidPerg1(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "1BKFINR17"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -577,13 +576,12 @@ RestArea(aArea)
 Return(NIL)
 
 
-Static Function  ValidPerg2
+Static Function  ValidPerg2(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
 Local i,j
 
-cPerg := "2BKFINR17"
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -608,11 +606,11 @@ RestArea(aArea)
 Return(NIL)
 
 
-Static Function  ValidPerg3
+Static Function  ValidPerg3(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "3BKFINR17"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -639,11 +637,11 @@ RestArea(aArea)
 Return(NIL) 
 
 
-Static Function  ValidPerg4
+Static Function  ValidPerg4(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "4BKFINR17"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -670,11 +668,11 @@ RestArea(aArea)
 Return(NIL) 
 
 
-Static Function  ValidPerg5
+Static Function  ValidPerg5(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "5BKFINR17"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -700,11 +698,11 @@ Return(NIL)
 
 
 
-Static Function  ValidPerg6
+Static Function  ValidPerg6(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "6BKFINR17"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -730,11 +728,11 @@ Return(NIL)
 
 
 
-Static Function  ValidPerg7
+Static Function  ValidPerg7(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "7BKFINR17"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

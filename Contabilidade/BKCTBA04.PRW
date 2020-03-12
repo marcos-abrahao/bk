@@ -55,10 +55,8 @@ RETURN NIL
 Static FUNCTION ProcBKCT04()
 Local aLINHA     := {}
 Local cBuffer    := ""
-Local cErro      := ""
 Local cArq2		 := ""
 Local cCrLf   	 := Chr(13) + Chr(10) 
-Local nCONTLIN	 := 0
 Local lOk 		 := .T.
 
 cArq2 := "C:\LP001\BKCT04.TXT"

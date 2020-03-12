@@ -380,7 +380,6 @@ RETURN lRET
 
 
 Static Function InclTab()
-Local nScan:= 0
 
 IF !VALIDTAB()
 	RETURN NIL

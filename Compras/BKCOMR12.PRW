@@ -18,7 +18,6 @@ User Function BKCOMR12()
 //юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
 
 Local nF      := 0
-Local cArqTrb := ""
 
 Private aParam		:=	{}
 Private aRet		:=	{}
@@ -180,7 +179,6 @@ Return lRet
 
 
 Static Function MBrwBKCR12()
-Local 	aCores 		:= {}
 Local   oSize
 Local   aPosObj 
 
@@ -278,7 +276,6 @@ Return (.T.)
 
 // Gera Excel
 User FUNCTION CBKCR12()
-Local aQuebra := {}
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })

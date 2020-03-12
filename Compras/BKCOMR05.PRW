@@ -22,25 +22,12 @@ User Function BKCOR05()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-Local cDesc3        := ""
-Local nLin          := 80
-Local lPula         := .F.
-Local Cabec1        := ""
-Local Cabec2        := ""
-Local imprime       := .T.
-Local aOrd          := {}
-Local _nI           := 0
 Local aDbf 		    := {},cArqTmp
-Local aDbf2         := {},cArqTmp2
-Local cMes          := ""
 Local titulo        := "Avaliação dos Fornecedores"
 
 Private cTitulo     := "Avaliação dos Fornecedores"
 Private lEnd        := .F.
 Private lAbortPrint := .F.
-Private CbTxt        := ""
 Private limite      := 220
 Private tamanho     := "G"
 Private nomeprog    := "BKCOR05" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -56,7 +43,6 @@ Private wnrel       := "BKCOR05" // Coloque aqui o nome do arquivo usado para im
 Private cString     := "SD1"
 
 PRIVATE dDataInicio := dDatabase
-PRIVATE dDataI		:= dDatabase
 PRIVATE dDataFinal  := dDatabase
 PRIVATE cSituac     := "05"
 PRIVATE	cPict       := "@E 99,999,999,999.99"
@@ -70,8 +56,8 @@ PRIVATE cSGrupoPI  	:= ""
 PRIVATE cSGrupoPF  	:= ""
 PRIVATE cProdI  	:= ""
 PRIVATE cProdF  	:= ""
-PRIVATE dDataI  	:= ""
-PRIVATE dDataF  	:= ""
+PRIVATE dDataI		:= dDatabase
+PRIVATE dDataF  	:= dDatabase
 PRIVATE cFornI  	:= ""
 PRIVATE cLojaI  	:= ""
 PRIVATE cFornF  	:= ""
@@ -160,7 +146,6 @@ Return
 
 Static Function MBrwBKCOR05()
 Local 	cAlias 		:= "TRB"
-Local 	aCores 		:= {}
 
 Private cCadastro	:= "Relatório de Avaliação dos Fornecedores"
 Private aRotina		:= {}
@@ -213,7 +198,6 @@ Return (.T.)
 
 // Gera Excel
 User FUNCTION CBKCOR05()
-Local aQuebra := {}
 Local aPlans  := {}
 
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
@@ -297,12 +281,9 @@ User Function RBKCOR05()
 Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2        := "de acordo com os parametros informados pelo usuario."
 Local cDesc3        := ""
-Local cPict         := ""
 Local nLin          := 80
-Local lPula         := .F.
 Local Cabec1        := ""
 Local Cabec2        := ""
-Local imprime       := .T.
 Local aOrd          := {}
 Local titulo        := ""
 
@@ -352,7 +333,6 @@ RETURN
 /*/
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
-Local nOrdem
 
 nEsp    := 2
 cPicQ 	:= "@E 9999999999"
@@ -446,11 +426,11 @@ Return
 
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKCOR05"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

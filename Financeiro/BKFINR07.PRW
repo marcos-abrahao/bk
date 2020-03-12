@@ -25,18 +25,14 @@ User Function FINR07(fFrota)
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := ""
-Local cPict          := ""
 Local titulo         := "Despesas mensais por Doc. de Entrada"
 Local nLin           := 80
 Local Cabec1         := ""
 Local Cabec2         := ""
-Local imprime        := .T.
 Local aOrd           := {}
 Local aCabs          := {}
 Local aCampos        := {}
 Local aTitulos       := {}
-Local aPlans         := {}
-
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
@@ -476,7 +472,7 @@ Return(NIL)
 STATIC Function GeraCSVBKFINR07(_cAlias,cArqS,aTitulos,aCampos,aCabs)
 Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
-Local _ni,_nj
+Local _ni
 Local cPicN   := "@E 99999999.99999"
 Local cDirTmp := "C:\TMP"
 Local cArqTmp := cDirTmp+"\"+TRIM(cArqS)+".CSV"

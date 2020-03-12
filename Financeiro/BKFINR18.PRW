@@ -22,9 +22,9 @@ User Function BKFINR18()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1        := "Este programa tem como objetivo imprimir relação   "
-Local cDesc2        := "de notas fiscais canceladas.                       "
-Local cDesc3        := "BKFINR18 v23/07/15a"
+//Local cDesc1        := "Este programa tem como objetivo imprimir relação   "
+//Local cDesc2        := "de notas fiscais canceladas.                       "
+//Local cDesc3        := "BKFINR18 v23/07/15a"
 
 Private cTitulo     := "Notas fiscais canceladas:"
 Private cPerg       := "BKFINR18"
@@ -152,11 +152,6 @@ Return
 Static Function ProcBKFINR18
 Local cQuery := ""
 Local nReg   := 0
-Local cPref  := ""
-Local cTpTit := Substr(MVNOTAFIS,1,3)
-Local nQtdPc := 0
-Local nTotPc := 0
-Local cCampo := ""
 Local cArqTmp:= ""
 Local dCanc  := .F.
 

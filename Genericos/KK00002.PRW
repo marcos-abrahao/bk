@@ -30,8 +30,6 @@ Local _aAux 	:= {}
 Local _nContador:= 0
 Local _nConta2	:= 0
 Local _lContinua:= .T.
-Local cTipoVend	:= ""
-Local lTabCli	:= .F.
 
 Private _aCodigos := {}
 Private _cOrigem := _cOrig

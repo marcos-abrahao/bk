@@ -20,9 +20,6 @@
 
 User Function BKESTA01(aSaldos)
 Local aArea     := GetArea()
-Local cAliasTmp := GetNextAlias()
-Local cArq      := ""
-Local aStrut    := {}
 
 PRIVATE dDataMov := dDATABASE
 PRIVATE cCC      := aSaldos[1,09]
@@ -295,9 +292,7 @@ Return
 Static Function fProcessa1(aSaldos)
 
 Local nX, nY
-Local cD3Doc
 Local aUsuarios := ALLUSERS()
-Local nOpc      := 0
 Local aCabec := {}
 Local aItens := {}
 Local lItem  := .F.
@@ -397,10 +392,6 @@ Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(Supe
 Local _cXXENDEN := ""
 Local _cXXEN 	:= ""
 Local _nXXEN 	:= 0
-Local aSaldos 	:= {}
-Local nSaldo 	:= 0
-Local cQuery2 	:= ""
-  
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")

@@ -55,7 +55,6 @@ Return Nil
 
  
 Static Function RunCtb01()
-Local _lOk := .T.
 Local aCab := {},aItens := {},aRecno:={}
 Local aAreaIni := GetArea()
 Local cQuery

@@ -1,0 +1,60 @@
+----------------------------------------------------------------------
+Empresa : 01/BK                                      
+
+Parametro MV_XXSINOP conteudo: 
+|510|607|665|679|724|732|739|825|900|    
+|510|607|665|679|724|732|739|825|900|                                                                      
+|510|607|665|679|724|732|739|825|900|
+
+Empresa : 02/BK TER                                  
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                        
+Empresa : 06/BKDAHER SUZANO                          
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                         
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                          
+Empresa : 10/BKDAHER TABOAO                          
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+Parametro MV_XXSINOP conteudo alterado |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 11/BKDAHER LIMEIRA                         
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+Parametro MV_XXSINOP conteudo alterado |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 12/BK CORRETORA                            
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+Parametro MV_XXSINOP conteudo alterado |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 14/CONSORCIO BALSA NOVA                    
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+Parametro MV_XXSINOP conteudo alterado |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 97/CMOG PARTICIPACOES EIRELI               
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+Parametro MV_XXSINOP conteudo alterado |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 98/TERO BRASIL PARTICIPACOES SOCIEDADE     
+
+Parametro MV_XXSINOP conteudo: |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+Parametro MV_XXSINOP conteudo alterado |510|607|665|679|724|732|739|825|900|                                                                                                                                                                                                                     
+
+Final da Atualizacao
+----------------------------------------------------------------------
+ Data / Hora Final.: 05/03/20 / 11:19:10
+----------------------------------------------------------------------

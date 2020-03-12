@@ -23,8 +23,6 @@ User Function MapaUsu()
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := ""
-Local cPict          := ""
-Local imprime        := .T.
 Local aOrd           := {}
 Private titulo       := "Relatorio de Acessos dos Usuarios"
 Private nLin         := 80
@@ -82,15 +80,14 @@ Return
 /*/
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 
-Local nOrdem
 Local aIdiomas := {"Portugues","Ingles","Espanhol"}
 Local aTipoImp := {"","Em Disco","Via Spool","Direto na Porta","E-Mail"}
 Local aFormImp := {"","Retrado","Paisagem"}
 Local aAmbImp  := {"","Servidor","Cliente"}
 Local aColAcess:= {000,040,080}
-Local aColMenus:= {000,044,088}
+//Local aColMenus:= {000,044,088}
 Local aAllUsers:= AllUsers()
-Local aAllGroup:= AllGroups()
+//Local aAllGroup:= AllGroups()
 Local aUser    := {}
 Local i        := 0
 Local k        := 0

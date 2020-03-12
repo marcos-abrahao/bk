@@ -70,7 +70,6 @@ Return Nil
 
 Static Function FA22EdtCx(cAliasTmp)
 
-Local cDirSrv    := ""
 Local aArea      := GetArea()
 Local nTamBtn    := 50
 
@@ -234,8 +233,9 @@ Return Nil
 Static Function fValid(cCampo)
 
 Local lRet := .T.
-Local nY
+
 /*
+Local nY
 If cCampo == "TODOS"
 	// Valida todas as linhas
 	For nY := 1 to Len(oMGet22:aCols)
@@ -276,7 +276,6 @@ Return (lRet)
  
 
 Static Function fValCampo(cCampo,nY,lDigitado)
-Local cAlias
 Local cHist := ""
 Local cConta
 Local cTipoMov
@@ -395,9 +394,7 @@ Return
 Static Function ProcBaixa()
 
 Local nX, nY
-Local cD3Doc
 Local aUsuarios := ALLUSERS()
-Local nOpc      := 0
 Local aBaixa    := {}
 
 Private lMsErroAuto := .F.
@@ -465,25 +462,13 @@ Local aAreaAtu			:= GetArea()
 Local oDlg01,aButtons 	:= {},lOk := .F.
 Local nSnd    			:= 0,nTLin := 15
 Local nSin    			:= 5
-
-Local aRet				:= {}
 Local cCrLf   			:= Chr(13) + Chr(10)
 Local cTexto            := cTexto1 
-Local cChar             := ""
 Local cRet              := ""
 Local cLinha            := ""
-Local aPalavras         := "" 
-Local nPosCC            := 0
-Local nPosVal           := 0
-Local cConta            := ""
-Local cTipoMov          := ""
-Local cDesc             := ""
-Local cCC               := ""
 Local cData             := ""
 Local cVal              := ""
-Local nVal              := 0
-Local cHist             := ""
-Local nI,nTamTex,nJ,nK,nL 
+Local nI,nTamTex,nJ,nK 
 Local nTitulo 			:= 0
 Local aTitulo 			:= {}
 Local _cQuery 			:= ""

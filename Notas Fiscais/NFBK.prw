@@ -2399,8 +2399,3 @@ aAdd(aHelpSpa,"")
 PutSX1Help(cKey,aHelpPor,aHelpEng,aHelpSpa)
 
 Return
-
-
-
-
-

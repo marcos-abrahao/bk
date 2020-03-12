@@ -21,22 +21,12 @@ User Function BKFINA13()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ""
 Local titulo         := ""
-Local nLin           := 80
-Local lPula          := .F.
-Local Cabec1         := ""
-Local Cabec2         := ""
-Local imprime        := .T.
-Local aOrd           := {}
 Local _nI
 Local aDbf := {},cArqTmp
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
-Private CbTxt        := "G"
 Private limite       := 220
 Private tamanho      := " "
 Private nomeprog     := "BKFINA13" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -55,7 +45,6 @@ Private dDataFinal   := dDatabase
 Private cPeriodo     := "1"
 PRIVATE	cPict          := "@E 99,999,999,999.99"
 Private nPeriodo     := 1
-Private nTipo        := 1
 Private nCentavos    := 1
 Private aDtPeriodo   := {}
 Private nPlan        := 1
@@ -221,7 +210,7 @@ Return Nil
 
 
 Static Function ProcQuery
-Local cQuery,dDt
+Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
@@ -487,7 +476,7 @@ Return
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 
-Local nOrdem,lCabec
+Local lCabec
 
 Dbselectarea("QTMP")
 Dbgotop()
@@ -653,13 +642,12 @@ Return
 
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
 Local i,j
 
-cPerg := "BKFINA13"
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

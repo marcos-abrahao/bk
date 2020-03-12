@@ -15,27 +15,16 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-User Function BKANXA01(cOrigem,cAliasKey,cKey)
+User Function BKANXA01(cOrigem,cAliasKey)
 
-Local cMask
 Local aBmps
 Local aSourceImg
 Local oOk
 Local oNo
 Local oDlg
-Local oBmp
 Local oListImg
 Local nI
-Local cSearch := Space(50)
-Local oSearch
-Local oBSearch
-Local oStretch
-Local nStretch
 Local oPanelLeft
-Local oScroll
-Local aType
-Local oType
-Local cType
 Local lAll
 Local oAll
 Local lOk        := .F.

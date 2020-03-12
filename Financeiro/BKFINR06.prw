@@ -18,8 +18,6 @@ User Function BKFINR06()
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-LOCAL oDlg := NIL
-LOCAL cString	:= "SE2"
 LOCAL aArea     := GetArea()
 
 PRIVATE nParImpr:= 1
@@ -928,7 +926,7 @@ Return
 
 
 Static Function ProcQuery
-Local cQuery,dDt
+Local cQuery
 Local cPrefixo := SE2->E2_PREFIXO
 Local cNum     := SE2->E2_NUM
 Local cParcela := SE2->E2_PARCELA

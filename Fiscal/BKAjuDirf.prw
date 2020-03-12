@@ -234,7 +234,6 @@ Local cNum      := ""
 Local cParcela  := ""
 Local cTipo     := ""
 Local nHdlArqIR := 0
-Local cTes      := ""
 
 //-- Trata LOG de execucao do Ajuste:
 If !File("BKRegIR.TXT")

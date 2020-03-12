@@ -37,17 +37,15 @@ Local oNo
 Local oDlg
 Local oListId
 Local oPanelLeft
-Local lAll
-Local oAll
 Local aButtons := {}
 
-Local aCtrId,aTitGer,xCtrId
+Local aCtrId,aTitGer
 Local lOk      := .F.
 Local aAreaIni := GetArea()
 Local cQuery
-Local nI,cPrf,cTitulo,nProxTit
+Local nI
 Local lTitOk   := .T.
-Local lAltOk1,lAltOk2
+Local lAltOk1
 Local cMsgEx   := SPACE(50)
 
 PRIVATE cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,nValTit
@@ -198,7 +196,6 @@ Local nValor
 Local cBorde := "",cChave:=""
 Local aEmail := {}
 Local lCLT   := .T.
-Local cReg,nX,aAutoErro
 Local aSaveAreaSE5 := GetArea("SE5")
 Local aRet :={}
 nValor := 0

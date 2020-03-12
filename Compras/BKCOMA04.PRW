@@ -25,7 +25,7 @@ Local oPanelLeft
 Local aButtons := {}
 
 Local lOk      := .F.
-Local nI,nTotal := 0
+Local nTotal := 0
 Local cNUser:= ""
 Local cUser := ""
 Local cNumPC:= ""

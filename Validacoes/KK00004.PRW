@@ -22,8 +22,6 @@
 
 User Function KK00004()
 
-Local _cProduto := &(ReadVar())
-Local _nAux1 	:= 0
 Local cQuery    := ""
 Local _xRetorno := ""
 Local _aAreas 	:= {}

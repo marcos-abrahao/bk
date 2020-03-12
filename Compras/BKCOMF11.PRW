@@ -22,7 +22,6 @@ User Function BKCOMF11()
 Local cQuery := ""
 Local nCod	 := 0
 Local cCod	 := ""
-Local cPerg  := "BKCOMF11" 
 Local aArea  := GetArea()
 
 

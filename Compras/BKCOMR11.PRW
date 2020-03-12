@@ -18,15 +18,12 @@ User Function BKCOMR11()
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Local nF      := 0
-Local cArqTrb := ""
 
 Private aParam		:=	{}
 Private aRet		:=	{}
-
 Private cTitulo     := "Economia de compras"
 Private cPerg       := "BKCOMR11"
-
-Private aFields := {}
+Private aFields     := {}
 Private	cPict       := "@E 99,999,999,999.99"
 Private nPlan       := 1
 Private aHeader	    := {}
@@ -184,7 +181,6 @@ Return lRet
 
 
 Static Function MBrwBKCOMR11()
-Local 	aCores 		:= {}
 Local   oSize
 Local   aPosObj 
 
@@ -279,7 +275,6 @@ Return (.T.)
 
 // Gera Excel
 User FUNCTION CBKCOMR11()
-Local aQuebra := {}
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })

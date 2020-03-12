@@ -25,21 +25,17 @@ User Function BKCOMR03()
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := "Protocolo NE - Proqualit"
-Local cPict          := ""
 Local titulo         := "Protocolo NE"
 Local nLin           := 80
-Local lPula          := .F.
 //                                 10        20        30        40        50        60        70        80        90        100       110       120       130       140       150                 170
 //                     Fil.  Serie Documento Fornece/Loja Razao Social                                        Emissao   Digitacao   Valor Doc.  Prf/Titulo/Parc Tipo Vencimento   Vlr Titulo
 //                        XX    XXX   XXXXXX    XXXXXX-XX   XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5  XX/XX/XX  XX/XX/XX 99.999.999,99  XXXXXXXXX/XXX/X  XXX XX/XX/XX  99.999.999,99     NFE  XXXXXXX
 Local Cabec1         := "Fil.  Serie  Documento Forn/Loja   Razao Social                                        Emissao   Digitacao   Valor Doc.  Prf/Titulo/Parc Tipo Vencimento   Vlr Titulo     " //Esp. CFOP"
 //Local Cabec1         := "Fil.  Serie  Documento Forn/Loja   Razao Social                                        Emissao   Digitacao   Valor Doc.  Prf/Titulo/Parc Tipo Vencimento   Vlr Titulo   Vlr Icms      Base Ipi    Vlr Ipi Esp. CFOP"
 Local Cabec2         := ""
-Local imprime        := .T.
 Local aOrd := {}
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
-Private CbTxt        := ""
 Private limite       := 220
 Private tamanho      := "G"
 Private nomeprog     := "BKCOMR03" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -441,11 +437,11 @@ QSF1->(Dbclosearea())
 
 Return
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKCOMR03"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

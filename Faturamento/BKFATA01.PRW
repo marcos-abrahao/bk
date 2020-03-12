@@ -57,19 +57,15 @@ Local cUser    := __cUserId
 Local aCamposF2:= {}
 Local aStruct1 := {}
 Local cArqTmp1 := ""
-Local nRegs    := 100
 Local nI       := 0
-
 Local oDlg01
 Local oPanelTop 
 Local oMark
 Local lInverte := .F.
-Local nOpcA
 
 Private cTitulo     := ""
 Private cAliasTmp1  := GetNextAlias()
 Private cAliasTmp2  := GetNextAlias()
-Private oMark
 Private cMarca      := GetMark()
 Private cPerg       := "BKFATA01"
 
@@ -288,6 +284,7 @@ RestArea( aAreaAtu )
 Return lOk
 
 
+/*
 Static Function MarcaCpo(lTodos) 
 If lTodos
 	MsgStop("Todos")
@@ -295,7 +292,7 @@ Else
 	MsgStop("Atual")
 EndIf
 Return
-
+*/
 
 Static Function AltCpo(cAliasTmp,nCpo,xCpo)
 Local nRecNo := 0

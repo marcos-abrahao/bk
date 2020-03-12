@@ -22,10 +22,6 @@ User Function BKCOMR10()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2        := "Financeiro de NFs de entrada por data de digitação."
-Local cDesc3        := "BKCOMR10 v26/02/15a"
-
 Private cTitulo     := "Relatório financeiro de NFs de Entrada"
 Private cPerg       := "BKCOMR10"
 
@@ -96,7 +92,6 @@ Static Function ProcBKCOMR10
 Local cQuery := ""
 Local nReg   := 0
 Local cPref  := ""
-Local cTpTit := Substr(MVNOTAFIS,1,3)
 Local nQtdPc := 0
 Local nTotPc := 0
 Local cCampo := ""

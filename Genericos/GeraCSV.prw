@@ -34,7 +34,6 @@ Local cPicN   := "@E 9999999999.999999"
 Local cDirTmp := "C:\TMP"
 Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
 Local lSoma,aSoma,nCab
-Local cLetra
 
 Private xQuebra,xCampo
 

@@ -28,8 +28,9 @@ Local   oDlg,;
         oReport,;
         bOk        := {|| oDlg:End()},;
         bCancel    := {|| oDlg:End()},;
-        aTb_Campos := {},;
-        aButtons   := {{"",;
+        aTb_Campos := {}
+
+Local   aButtons   := {{"",;
                         {|| Processa({|| oReport := ReportDef(),oReport:PrintDialog()},'Imprimindo Dados...')},;
                          "Imprimir",;
                          "Imprimir"}}
@@ -531,7 +532,6 @@ Local nRegUser  := WKUSERS->(RecNo())
 Local nRegMod   := WKMODULOS->(RecNo())
 Local nRegAcess := WKACESSO->(RecNo())
 Local cMark     := If(Empty((cAlias)->WKMARCA),cMarca,"")
-Local cChave    := ""
 //
 If lTodos
    If cAlias == "WKUSERS"

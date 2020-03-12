@@ -419,7 +419,6 @@ Return
 
 
 Static Function Carregar(nRecCND,cContra,cCompe)
-Local aDescricao := {}
 Local cSql := ""                 
 Local cAliasSZ2 := GetNextAlias()
 Local nMesComp  := 0

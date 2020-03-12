@@ -26,7 +26,7 @@ Local cCod	 := ""
 Local nCod	 := 0
 Local cPerg  := "BKCOMF09" 
 
-If !MsgYesNo("Gerar Proximo numero?")
+If !MsgYesNo("Gerar Proximo numero?",cPerg)
 	cCod := ""
 	Return cCod 
 EndIf
@@ -42,7 +42,7 @@ cSubPdt  	:= ALLTRIM(mv_par01)
  
 
 IF EMPTY(cSubPdt)
-	MSGINFO("O Grupo de Produto dever ser selecionado!!")
+	MSGINFO("O Grupo de Produto dever ser selecionado!!","BKCOMF09")
 	cCod := ""
 	Return cCod 
 EndIf
@@ -72,11 +72,11 @@ cCod := cSubPdt+STRZERO(nCod,IIF(nCod>999,4,3))
 Return cCod
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKCOMF09"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

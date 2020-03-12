@@ -22,25 +22,13 @@ User Function BKCOMR04()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-Local cDesc3        := "Movimento de compras - BKCOMR4 v25/06/19"
-Local nLin          := 80
-Local lPula         := .F.
-Local Cabec1        := ""
-Local Cabec2        := ""
-Local imprime       := .T.
-Local aOrd          := {}
-Local _nI           := 0
 Local aDbf 		    := {}
 lOCAL cArqTmp       := ""
-Local cMes          := ""
 Local titulo        := "Movimento Compras"
 
 Private cTitulo     := "Movimento Compras"
 Private lEnd        := .F.
 Private lAbortPrint := .F.
-Private CbTxt        := ""
 Private limite      := 220
 Private tamanho     := "G"
 Private nomeprog    := "BKCOMR04" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -56,7 +44,6 @@ Private wnrel       := "BKCOMR04" // Coloque aqui o nome do arquivo usado para i
 Private cString     := "SD1"
 
 PRIVATE dDataInicio := dDatabase
-PRIVATE dDataI		:= dDatabase
 PRIVATE dDataFinal  := dDatabase
 PRIVATE cSituac     := "05"
 PRIVATE	cPict       := "@E 99,999,999,999.99"
@@ -70,8 +57,8 @@ PRIVATE cSGrupoPI  	:= ""
 PRIVATE cSGrupoPF  	:= ""
 PRIVATE cProdI  	:= ""
 PRIVATE cProdF  	:= ""
-PRIVATE dDataI  	:= ""
-PRIVATE dDataF  	:= ""
+PRIVATE dDataI		:= dDatabase
+PRIVATE dDataF  	:= dDatabase
 PRIVATE cFornI  	:= ""
 PRIVATE cLojaI  	:= ""
 PRIVATE cFornF  	:= ""
@@ -103,8 +90,6 @@ cLojaF  	:= mv_par12
 cContraI  	:= mv_par13
 cContraF  	:= mv_par14
 cConta  	:= mv_par15
-
-
 
 titulo   := "Movimento Compras - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 cTitulo  := titulo
@@ -226,7 +211,6 @@ Return
 
 Static Function MBrwBKCOMR04()
 Local 	cAlias 		:= "TRB"
-Local 	aCores 		:= {}
 
 Private cCadastro	:= "Movimento Compras - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 Private aRotina		:= {}
@@ -334,7 +318,6 @@ Return (.T.)
 
 // Gera Excel
 User FUNCTION CBKCOMR04()
-Local aQuebra := {}
 Local aPlans  := {}
 
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
@@ -430,12 +413,9 @@ User Function RBKCOMR04()
 Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2        := "de acordo com os parametros informados pelo usuario."
 Local cDesc3        := ""
-Local cPict         := ""
 Local nLin          := 80
-Local lPula         := .F.
 Local Cabec1        := ""
 Local Cabec2        := ""
-Local imprime       := .T.
 Local aOrd          := {}
 Local titulo        := ""
 
@@ -485,7 +465,6 @@ RETURN
 /*/
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
-Local nOrdem
 
 nEsp    := 2
 cPicQ 	:= "@E 99999999.99"
@@ -615,11 +594,11 @@ Return
 
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKCOMR04"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

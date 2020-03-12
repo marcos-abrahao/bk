@@ -109,7 +109,6 @@ Return
 
 Static Function ProcQuery
 Local cQuery := ""
-Local cAnd   := ""
 
 IncProc("Consultando o banco de dados...")
 

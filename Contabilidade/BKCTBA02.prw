@@ -108,13 +108,13 @@ Return
 
  
 Static Function RunCtb02()
-Local _lOk := .T.
+
 Local _lLP := .T.
 Local aCab := {},aItens := {},aRecno:={},	aCHAVEZ2:= {}
-Local aAreaIni := GetArea()
+//Local aAreaIni := GetArea()
 Local cQuery
 Local nStatus := 0
-Local nI := 0,dUDia,nMes,nAno
+Local nI := 0,dUDia
 Local cCHAVEZ2 := ""
 
 

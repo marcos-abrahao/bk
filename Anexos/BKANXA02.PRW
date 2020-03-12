@@ -20,11 +20,8 @@ Local aArqList
 Local oOk
 Local oNo
 Local oDlg
-Local oBmp
 Local oListFile
-Local nI
 Local oPanelLeft
-Local oScroll
 //Local lAll
 //Local oAll
 Local lOk := .F.

@@ -517,7 +517,6 @@ RETURN lRET
 
 
 Static Function InclTab()
-Local nScan   := 0
 Local aTitulo := {}
 
 IF !VALIDTAB()

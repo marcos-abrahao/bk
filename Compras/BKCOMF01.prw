@@ -19,8 +19,6 @@ User Function BKCOMF01(cCodProd)
 Local cDescProd  := ""
 Local cCodSubPro := ""
 Local cDesSubPro := ""
-Local cDescProd  := ""
-
 
 cDescProd := ALLTRIM(Posicione("SB1",1,xFilial("SB1")+cCodProd,"B1_DESC"))
 cCodSubPro := Posicione("SB1",1,xFilial("SB1")+cCodProd,"B1_XXSGRP")

@@ -18,14 +18,9 @@
 
 User Function VALIDMND()
 Local nSnd:= 15,nTLin := 15
-Local cTipoArq   := "Todos os Arquivos (*.TXT) | *.TXT | "
-Local cDIA 	   := "" 
-Local cArqTmp  := ""
-Local wnrel    := ""
+Local cTipoArq := "Todos os Arquivos (*.TXT) | *.TXT | "
 Local CPROG	   := "VALIDMND"
-Local cPerg	   := "VALIDMND"
 Local ctitulo  := "Analisa MND"
-Local cQuery   := ""
 Local oDlg01,nOpcA := 0
 Local lOk:= .F.
 

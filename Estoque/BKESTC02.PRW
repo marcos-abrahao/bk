@@ -17,7 +17,6 @@
 
 User Function BKESTC02()
 Local cAliasTopConst := ""
-Local cQuery := ""
 
 Private cArqTemp2    := ""
 Private cArqTempConst := {}  

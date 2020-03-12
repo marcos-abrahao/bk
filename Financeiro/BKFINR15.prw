@@ -298,7 +298,6 @@ Local nValI1     := 0
 Local nValI2     := 0				
 Local nValVL     := 0				
 Local cAplCotas  := GetMv("MV_APLCAL4")
-Local lResgate   := .T.
 			
 dbSelectArea("SEH")
 dbGoTop()

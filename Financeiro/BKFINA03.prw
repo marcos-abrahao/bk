@@ -38,7 +38,8 @@ Local aCtrId,aTitGer
 Local lOk      := .F.,cE2Ok := "B",lOkEx := .T.
 Local aAreaIni := GetArea()
 Local cQuery
-Local nI,cPrf,nProxTit,cKey
+Local nI
+Local cKey
 Local cMsgEx
 Local cDataF
 Local cE2CtrId
@@ -161,12 +162,9 @@ Local oNo
 Local oDlg
 Local oListId
 Local oPanelLeft
-Local lAll
-Local oAll
 Local aButtons := {}
 
 Local lOk      := .F.
-Local cQuery
 Local nI,nTotal := 0
 
 FOR nI := 1 TO LEN(aTitGer)

@@ -7,7 +7,6 @@
 
 User Function SelArq(cArq)
 
-Local lAchou		:= .F.
 Local cTipo			:= "Arquivo de retorno|*.ret|Arquivo TXT|*.txt"
 Local cNewPathArq	:= ""
 Default cArq := ""

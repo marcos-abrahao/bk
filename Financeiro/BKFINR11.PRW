@@ -61,10 +61,10 @@ V2 Movimentação Bancária na Cobrança Descontada
 
 
 User Function BKFINR11()
-LOCAL wnrel
-LOCAL cDesc1	:= "Este programa tem como objetivo imprimir o fluxo  "
-LOCAL cDesc2	:= "de Caixa Orçado "
-LOCAL cDesc3	:= ""
+
+//LOCAL cDesc1	:= "Este programa tem como objetivo imprimir o fluxo  "
+//LOCAL cDesc2	:= "de Caixa Orçado "
+//LOCAL cDesc3	:= ""
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Define Variaveis ³
@@ -318,10 +318,6 @@ Busca os saldos bancarios
 */
 Static Function KFin02Sld()
 
-LOCAL cArqTmp1	:= ""           	// Arquivo temporario das movimentacoes
-LOCAL nI 		:= 1				// Variavel para FOR NEXT
-LOCAL lPrimeiro := .T.				// Verifica se pode ou nao imprimir os saldos
-LOCAL lOk		:= .T.				// Imprime ou nao o resumo financeiro
 LOCAL cBanco
 LOCAL cAgencia
 LOCAL cConta
@@ -976,25 +972,14 @@ Return
 
 STATIC FUNCTION KFin02Mov( nSaldoAnt )
 
-LOCAL dDataAnt
-LOCAL nDisponivel := nSaldoAnt
 LOCAL nDias		  := 0
-
 LOCAL nPagar      := 0
 LOCAL nReceber    := 0
-
-LOCAL nI          := 0
-LOCAL cOrder
-LOCAL cQueryAdd   := ""
-
 LOCAL cCtaFin     := SPACE(12)
-LOCAL cDesc       := ""
 LOCAL cTHist	  := ""
 LOCAL dDataBs 	  := dDataBase
-
 LOCAL cProduto    := ""
 LOCAL lFiltPrd    := .F.
-
 LOCAL cDigitado   := ""
 LOCAL cLiberado   := ""
 LOCAL aLib        := {}

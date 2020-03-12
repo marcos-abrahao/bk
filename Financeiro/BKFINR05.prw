@@ -25,13 +25,10 @@ User Function BKFINR05()
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := ALLTRIM(SM0->M0_NOME)
-Local cPict          := ""
 Local titulo         := "Liquidos "+ALLTRIM(SM0->M0_NOME)+" por vencimento"
 Local nLin           := 80
-Local lPula          := .F.
 Local Cabec1         := ""
 Local Cabec2         := ""
-Local imprime        := .T.
 Local aOrd           := {}
 Local aTitulos,aCampos,aCabs,aPlans
 
@@ -45,7 +42,6 @@ Private nTipo        := 18
 Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
 Private nLastKey     := 0
 Private cPerg        := "BKFINR05"
-Private cbtxt        := Space(10)
 Private cbcont       := 00
 Private CONTFL       := 01
 Private m_pag        := 01
@@ -199,7 +195,7 @@ Return
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 
-Local nOrdem,lCabec
+Local lCabec
 
 Dbselectarea("QSE2")
 Dbgotop()

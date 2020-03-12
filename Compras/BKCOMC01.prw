@@ -20,22 +20,15 @@
 //              
 
 User Function BKCOMC01()
-Local oOk
-Local oNo
-Local oDlg
-Local oListId
-Local oPanelLeft
-Local lAll
-Local oAll
-Local aButtons := {}
 
-Local aSd1,aTitGer,xCtrId
+Local oDlg
+Local oPanelLeft
+Local aButtons := {}
 Local lOk      := .F.
 Local aAreaIni := GetArea()
 Local cQuery
-Local nI,cPrf,cTitulo,nProxTit
 Local cPerg := "MT103PBK"
-Local cProd,cHist,cCtC,nValIt,cForn,nPos := 0
+Local cProd,cHist,cCtC,nValIt,cForn
 Local cFiltU := ""
 Local cMDiretoria :="", cMFinanceiro:= ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))

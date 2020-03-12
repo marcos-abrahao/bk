@@ -23,25 +23,13 @@ User Function BKCOMR09()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-Local cDesc3        := ""
-Local nLin          := 80
-Local lPula         := .F.
-Local Cabec1        := ""
-Local Cabec2        := ""
-Local imprime       := .T.
-Local aOrd          := {}
 Local _nI           := 0
 Local aDbf 		    := {},cArqTmp
-Local aDbf2         := {},cArqTmp2
-Local cMes          := ""
 Local titulo        := "Relatório Gerencial de Compras"
 
 Private cTitulo     := "Relatório Gerencial de Compras"
 Private lEnd        := .F.
 Private lAbortPrint := .F.
-Private CbTxt        := ""
 Private limite      := 220
 Private tamanho     := "G"
 Private nomeprog    := "BKCOMR9" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -49,7 +37,7 @@ Private nTipo       := 18
 Private aReturn     := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
 Private nLastKey    := 0
 Private cPerg       := "BKCOMR9"
-Private cbtxt        := Space(10)
+Private cbtxt       := Space(10)
 Private cbcont      := 00
 Private CONTFL      := 01
 Private m_pag       := 01
@@ -73,7 +61,7 @@ PRIVATE dLimMedia   := DATE()
 PRIVATE nNumCols    := 3
 PRIVATE nAnteriores := 1
 
-ValidPerg(cPerg)
+ValidPerg()
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
@@ -266,7 +254,6 @@ Return
 
 Static Function MBrwBKCOMR9()
 Local 	cAlias 		:= "TRB"
-Local 	aCores 		:= {}
 
 Private cCadastro	:= "Relatório Gerencial de Compras"
 Private aRotina		:= {}
@@ -306,7 +293,7 @@ Return Nil
 
 User FUNCTION PBKCOMR9()
 
-ValidPerg(cPerg)
+ValidPerg()
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
@@ -350,7 +337,6 @@ Return (.T.)
 
 // Gera Excel
 User FUNCTION CBKCOMR9()
-Local aQuebra := {}
 Local aPlans  := {}
 
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
@@ -541,12 +527,9 @@ User Function RBKCOMR9()
 Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2        := "de acordo com os parametros informados pelo usuario."
 Local cDesc3        := ""
-Local cPict         := ""
 Local nLin          := 80
-Local lPula         := .F.
 Local Cabec1        := ""
 Local Cabec2        := ""
-Local imprime       := .T.
 Local aOrd          := {}
 Local titulo        := ""
 
@@ -596,7 +579,6 @@ RETURN
 /*/
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
-Local nOrdem
 
 nEsp    := 2
 cPicQ 	:= "@E 99999999.99"

@@ -543,8 +543,6 @@ Return
 //읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 Static Function MailNFE()
 
-local nEmails
-
 Local _cServer   := SuperGetMv("MV_RELSERV")
 Local _cMail     := SuperGetMv("MV_NFEMAIL")
 Local _cUser     := SuperGetMv("MV_NFEUSER")

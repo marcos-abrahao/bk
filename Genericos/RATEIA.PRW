@@ -21,7 +21,6 @@ Local aRat:= {}
 Local nTot:= 0
 Local nRes:= 0
 Local nTot1 := 0
-Local nDif := 0
 Local IX_ := 0
 
 FOR IX_ := 1 TO LEN(aRTot)

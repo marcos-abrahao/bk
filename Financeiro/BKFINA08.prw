@@ -111,16 +111,12 @@ Static Function F08Taxas
 Local oOk
 Local oNo
 Local oDlg
-Local oListId
 Local oPanelLeft
-Local lAll
-Local oAll
 Local aButtons := {}
 
 Local lOk      := .F.
 Local aAreaIni := GetArea()
-Local cQuery
-Local nI,nLin
+Local nLin
 Local cMesAnt,cAnoAnt
 
 Local oSay1,oPis
@@ -130,7 +126,6 @@ Local oSay4,oTxAdm
 Local oSay5,oIRPJ
 Local oSay6,oAdIRPJ
 Local oSay7,oCSLL
-Local cFilZ8
 
 Private nPis   := 0
 Private nCof   := 0
@@ -245,8 +240,6 @@ Return
 
 Static Function RunPrc1()
 
-Local nMes    := 0
-Local nAno    := 0
 Local cMes    := ""
 Local cqContr := ""
 Local cqEspec := ""
