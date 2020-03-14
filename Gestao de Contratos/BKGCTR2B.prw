@@ -18,14 +18,11 @@ Local cTitulo   := "Gestão do Recebimento - empresas: 01,02 e 14"
 Local aTitulos  := {}
 Local aCampos   := {}
 Local aCabs     := {}
-Local _nI       := 0
-Local _nY       := 0
 Local aDbf      := {}
 Local cArqTmp   := ""
 //Local aJaPrv    := {}
 Local nMes      := 0
 Local nAno      := 0
-Local cMes      := ""
                   
 Private cProg   := "BKGCTR2B"
 Private nMesI   := 1
@@ -229,7 +226,6 @@ Local cQuery,cQuery2
 Local cMes   := ""
 Local dDtP   := DATE()
 Local dDtR   := DATE()
-Local nDiasA := 0
 Local nDiasA := 0
 Local nDiasB := 0
 Local nDiasT := 0

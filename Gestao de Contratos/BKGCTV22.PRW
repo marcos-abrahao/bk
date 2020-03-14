@@ -18,7 +18,7 @@
                        
 User Function BKGCTV22()
 
-Local cContrato := TRIM(CN9->CN9_NUMERO)
+//Local cContrato := TRIM(CN9->CN9_NUMERO)
 Local cAlias    := "SZP"
 Local aCores    := {}
 

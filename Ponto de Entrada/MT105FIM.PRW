@@ -31,7 +31,6 @@ Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local cSolici   := ""
 Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}

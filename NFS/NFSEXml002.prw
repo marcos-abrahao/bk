@@ -34,8 +34,6 @@ User Function NfseM002(cCodMun,cTipo,dDtEmiss,cSerie,cNota,cClieFor,cLoja,cMotCa
 Local nX        := 0
 Local nZ		 := 0
 
-Local oWSNfe   
-
 Local cString    := ""
 Local cAliasSE1  := "SE1"
 Local cAliasSD1  := "SD1"
@@ -104,7 +102,6 @@ Local aISS      := {}
 Local aCST      := {}
 Local aRetido   := {}
 Local aTransp   := {}
-Local aImp      := {}
 Local aVeiculo  := {}
 Local aReboque  := {}
 Local aEspVol   := {}
@@ -1735,7 +1732,6 @@ Local aCSLLXml   := {0,0,{}}
 Local aIrrfXml   := {0,0,{}}
 Local aInssXml   := {0,0,{}} 
 Local aIssRet    := {0,"",0,{}}
-Local cIncCult   := ""   
 Local nBaseIss   := 0
 Local nOutRet    := 0  
 Local nValLiq    := 0

@@ -18,7 +18,7 @@
 User Function  MT110TOK()
 Local nDATPRF  := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DATPRF'})
 Local nEndEnt  := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXENDEN'})
-Local nCC      := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
+//Local nCC      := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
 Local lValido  := .T. 
 LOcal aCols1
 //Private cEndEnt := Space(TamSX3("C1_XXENDEN")[1])

@@ -494,11 +494,9 @@ Local aStatus := {"1-Atrasado",;                        // Status 1
                   "7-Aguardando decisão diretoria",;    //        7
                   "8-Contrato encerrado",;              //        8
                   "9-Em analise gestão"}                //        9
-Local nMB   := 0                                        
-Local nAB   := 0
+
 Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
-Local cContRev
 
 IF CN9->CN9_SITUAC = "10"
 	MsgStop("Posicione na revisão atual do contrato", "Atenção")
@@ -657,12 +655,9 @@ Local aStatus := {"1-Manifestado o Interesse",;
                   "4-Recebido confirmação do Cliente",;
                   "5-Contrato Prorrogado"}
 
-Local nMB   := 0                                        
-Local nAB   := 0
 Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
 Local cContRev
-Local dVig
 
 IF CN9->CN9_SITUAC = "10"
 	MsgStop("Posicione na revisão atual do contrato", "Atenção")
@@ -825,15 +820,10 @@ Return Nil
 User Function BKGCTA11()
 Local _sAlias	:= Alias()
 Local oDlg01,aButtons := {},lOk := .F.
-Local aCN9 := {}
 Local nSnd  := 0,nTLin := 12
-Local nSin  := 0
-Local nMB   := 0                                        
-Local nAB   := 0
 Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
 Local cContRev:="",cContSZG:=""
-Local dVig
 Local nTotFat1:=nTotCLT1:=nEncSoc1:=nAJCuto1:=nEncAC1:=0
 Local nMaterial1:=nEquip1:=nBenef1:=nUnif1:=nTributos1:=nDespDiv1:=nRentab1:=0
 Local cNewSeq := ""
@@ -957,7 +947,7 @@ oPanelLeft:Align := CONTROL_ALIGN_ALLCLIENT
 nSnd := 5
 
 @ nSnd,002 Say "Competência Projeção Financ.:" Size 080,008 Pixel Of oPanelLeft
-@ nSnd,075 MsGet dDVigPrFin Picture "@E"            Size 040,008 Pixel Of oPanelLeft ON CHANGE(BUSCACNF(cContRev,))
+@ nSnd,075 MsGet dDVigPrFin Picture "@E"            Size 040,008 Pixel Of oPanelLeft ON CHANGE(BUSCACNF(cContRev))
 
 @ nSnd,165 Say "Até Vigência do Contrato:" Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet dDVIG Picture "@E"            Size 040,008 Pixel Of oPanelLeft WHEN .F.
@@ -1351,7 +1341,6 @@ User Function BKGCTA13()
 Local _sAlias	:= Alias()
 Local oDlg01,aButtons := {},lOk := .F.
 Local nSnd  := 0,nTLin := 15
-Local nSin  := 0
 Local aStatus :={"S-Sim",;
 				 "N-Não",;
 				 " "}

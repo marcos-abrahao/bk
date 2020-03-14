@@ -239,7 +239,7 @@ Return Nil
 
 STATIC function AvalForn(lReavalia) 
 
-Local oGroup1,oGroup2,oGroup2,oGroup4,oGroup5
+Local oGroup1,oGroup2,oGroup3,oGroup4  //,oGroup5
 Local oSay,oFont1,oFont2,oFont3
 
 Local nTotal := 0

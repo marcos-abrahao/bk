@@ -21,22 +21,11 @@ User Function BKGCTR08()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ""
-Local cPict          := ""
 Local titulo         := ""
-Local nLin           := 80
-Local lPula          := .F.
-Local Cabec1         := ""
-Local Cabec2         := ""
-Local imprime        := .T.
-Local aOrd           := {}
 Local aTitulos,aCampos,aCabs
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
-Private CbTxt        := "G"
 Private limite       := 220
 Private tamanho      := " "
 Private nomeprog     := "BKGCTR08" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -215,7 +204,7 @@ Return
 
 
 Static Function ProcQuery
-Local cQuery,dDt
+Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
@@ -375,11 +364,11 @@ Return
 
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKGCTR08"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -646,11 +635,11 @@ If nHandle > 0
       
    fClose(nHandle)
       
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel")
+   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel","BKGCTR08")
    ShellExecute("open", cArqTmp,"","",1)
 
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp)
+   MsgAlert("Falha na criação do arquivo "+cArqTmp,"BKGCTR08")
 Endif
    
 (_cAlias)->(dbCloseArea())

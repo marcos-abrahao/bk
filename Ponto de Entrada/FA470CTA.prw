@@ -24,7 +24,7 @@
 User Function FA470CTA()
     Local aArea    := GetArea()
     Local aRetorno := ParamIXB
-    Local cBco := aRetorno[1]
+    //Local cBco := aRetorno[1]
     Local cAge := aRetorno[2]
     Local cCnt := aRetorno[3]
      

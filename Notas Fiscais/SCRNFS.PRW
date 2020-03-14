@@ -7,8 +7,6 @@
 
 User Function SCRNFS(mv_par01,mv_par02,mv_par03,mv_par04,mv_par05,mv_par06,cPerg)
 
-Local nPos	:= 0 
-
 SetPrvt ("WNREL,CNREL,CTITULO,CDESC1,CDESC2,CDESC3,ARETURN")
 SetPrvt ("CIMPNORM,CIMPCOMP,CIMP20CPP,CIMPESP,CIMPON,CIMPOFF,CIMPRESET,NK,NLASTKEY,LCONTINUA,NPOSREG,CKEY")
 SetPrvt ("AITENS,ASERV,CNAT,CCFOP,ANATOPER,ACFO,_CENDENT,CEND,ANUMPED,CNUMPED,ACODCLAS")
@@ -148,7 +146,7 @@ While lImpresso
 	EndDo
 	
 	If Len (aNotas) == 0
-		MsgInfo ("Nao ha Notas Fiscais a imprimir para os parametros informados.")
+		MsgInfo ("Nao ha Notas Fiscais a imprimir para os parametros informados.","SCRNFS")
 		Return
 	EndIf
 	
@@ -359,7 +357,7 @@ While lImpresso
 			//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 			dbSelectArea ("SB1")
 			if ! dbSeek (xFilial ("SB1") + SD2 -> D2_COD)
-				msginfo ("O produto " + SD2 -> D2_COD + ", informado na NF " + SD2 -> D2_SERIE + "/" + SD2 -> D2_DOC + ", nao existe no cadastro de Produtos!")
+				msginfo ("O produto " + SD2 -> D2_COD + ", informado na NF " + SD2 -> D2_SERIE + "/" + SD2 -> D2_DOC + ", nao existe no cadastro de Produtos!","SCRNFS")
 				dbSelectArea ("SD2")
 				dbSkip ()
 				loop
@@ -1050,8 +1048,6 @@ Return
 Static Function SCCabRod()
 Local _cEndEmp:= _cCidEmp:=_cTelEmp:=Space(75)
 Local _cCepEmp:=_cHomePg:=_cEmail:=Space(75)
-Local iAux1	:= 0
-Local nDup	:= 0
 
 nLin := 0
 

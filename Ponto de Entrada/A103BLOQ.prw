@@ -18,6 +18,7 @@ Local aAreaSAK  := GetArea("SAK")
 Local aAreaSAL  := GetArea("SAL")
 Local cFilSal   := xFilial("SAL")
 Local nValBlq   := 999999999.99
+Local cUserId   := RetCodUsr()  // Dicionario no banco
 
 lRet := PARAMIXB[1]
 
@@ -50,7 +51,7 @@ If !lRet
 			dbSetOrder(1)
 			For nI := 1 TO LEN(aAprov)
 				If dbSeek(cFilSal+aAprov[nI],.F.)
-					If RetCodUsr() <> SAK->AK_USER .AND. aAprov[nI] $ '000013/000014' //enviar e-mail apenas para Sr. Marcio e Xavier
+					If cUserId <> SAK->AK_USER .AND. aAprov[nI] $ '000013/000014' //enviar e-mail apenas para Sr. Marcio e Xavier
 					    AADD(aAKUser,SAK->AK_USER)
 					EndIf
 					If SAK->AK_LIMMIN > 0 .AND. SAK->AK_LIMMIN < nValBlq 
@@ -99,7 +100,7 @@ Local nValBlq   := 999999999.99
 Local nValApr   := 0
 Local lAprovador:= .F.
 Local cMvNfAprov:= SuperGetMV("MV_NFAPROV",.F.,"000002")
-
+Local cUserId   := RetCodUsr()
 
 dbSelectArea("SAL")
 dbSeek(cFilSal+cMvNfAprov,.T.)
@@ -112,7 +113,7 @@ dbSelectArea("SAK")
 dbSetOrder(1)
 For nI := 1 TO LEN(aAprov)
 	If dbSeek(cFilSal+aAprov[nI],.F.)
-		If RetCodUsr() == SAK->AK_USER
+		If cUserId == SAK->AK_USER
 			nValApr := SAK->AK_LIMMAX
 			lAprovador:= .T.
 		ElseIF aAprov[nI] $ '000013/000014'  //enviar e-mail apenas para Sr. Marcio e Xavier

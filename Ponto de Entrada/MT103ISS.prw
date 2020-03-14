@@ -17,7 +17,7 @@ Local nDiaUtil  := 0
 Local nTamData	:= 0
 Local dVencRIss := CTOD("")
 Local lVcAntIss := (SuperGetMV("MV_ANTVISS",.T.,"2") == "1")  //Antecipa ou nao o vencimento do ISS em caso de vencimento em dia nao util
-Local nTamData := 0
+//Local nTamData := 0
 
 //CALCULA DATA DE VENCIMENTO TITULO ISS
 Do Case

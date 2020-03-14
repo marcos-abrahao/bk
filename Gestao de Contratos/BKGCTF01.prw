@@ -18,7 +18,6 @@
 
 User Function BKGCTF01(cNumemp,cFilRubi,cContrato)
 Local cQuery   	:= ""
-Local nTotFunc 	:= 0
 Local aContrCons:= {}
 Local aConsorcio:= {}
 Local nScan		:= 0

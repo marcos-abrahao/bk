@@ -211,8 +211,6 @@ Return lRet
 
 
 Static FUNCTION ProcAvi(cRel)
-LOCAL j
-Local nTime
 
 ConOut("BKGCT06: processando avisos automaticos. (Dialogo) ")   
 IF VALTYPE(cRel) == "N"
@@ -477,7 +475,7 @@ Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
 Local cPicN     := "@E 99999999.99999"
-Local cDirTmp,_cArqS,_cArqSv,_cArqX
+Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
 
 Local cQuery
@@ -822,21 +820,16 @@ Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
 Local cPicN     := "@E 99999999.99999"
-Local cDirTmp,_cArqS,_cArqSv,_cArqX
+Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
-
 Local cQuery
-Local lEnv
 Local _cAlias := "QCN9"
-
 Local cMsg    := ""
 Local cTxt    := ""
 Local lCorNao := .T.
-
 Local nPrxMes1,nPrxMes2,nPrxMes3,nPrxMes4
 Local nPrxAno1,nPrxAno2,nPrxAno3,nPrxAno4
 
-Local nDias   := 0
 Local nDiasVig:= 0
 Local lEmail  := .F.
 
@@ -1154,7 +1147,7 @@ Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
 Local cPicN     := "@E 99999999.99999"
-Local cDirTmp,_cArqS,_cArqSv,_cArqX
+Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
 
 Local cQuery
@@ -1164,9 +1157,6 @@ Local _cAlias := "QCN9"
 Local cMsg    := ""
 Local cTxt    := ""
 Local lCorNao := .T.
-
-Local nPrxMes1,nPrxMes2,nPrxMes3,nPrxMes4
-Local nPrxAno1,nPrxAno2,nPrxAno3,nPrxAno4
 
 Local cResp   := ""
 Local lFirst  := .T.
@@ -1765,7 +1755,7 @@ Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
 Local cPicN     := "@E 99999999.99999"
-Local cDirTmp,_cArqS,_cArqSv,_cArqX
+Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
 
 Local cQuery,cQuery1
@@ -2250,20 +2240,16 @@ Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
 Local cPicN     := "@E 99999999.99999"
-Local cDirTmp,_cArqS,_cArqSv,_cArqX
+Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
 
 Local cQuery
-Local lEnvV2
 Local _cAlias := "QCN9"
-
 Local cMsg    := ""
 Local cTxt    := ""
 Local lCorNao := .T.
-
 Local cResp   := ""
 Local lFirst  := .T.
-
 Local nDiaUniD  := 0, nDiaEpiD := 0, nDiaMatD := 0,nDiaEqpD := 0
 Local lEnvUNI   := .F., lEnvEPI  := .F., lEnvMAT  := .F., lEnvEQP  := .F.
 Local _cXXUNIH  := '', _cXXEPIH := '', _cXXMATH := '', _cXXEQPH := ''
@@ -3183,12 +3169,10 @@ Local cEmail	:= "microsiga@bkconsultoria.com.br;gestao@bkconsultoria.com.br"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
-
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local nDiasVig  := 0
 Local cAviso    := ""
-Local cStatus   := ""
 
 If !lJobV2
 	IncProc()
@@ -3283,9 +3267,7 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nDiasVig  := 0
-Local cAviso    := ""
-Local cStatus   := ""
+
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local nRegSM0 := SM0->(Recno()) 
 
@@ -3392,9 +3374,6 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nDiasVig  := 0
-Local cAviso    := ""
-Local cStatus   := ""
 Local nRegSM0 := SM0->(Recno()) 
 
 
@@ -3503,13 +3482,9 @@ Local cAssunto	:= "Aviso de solicitação de compras em aberto"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
-Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nDiasVig  := 0
-Local cAviso    := ""
-Local cStatus   := ""
 Local nRegSM0 := SM0->(Recno()) 
 Local cPath     := "\tmp\"
 Local cCrLf   := Chr(13) + Chr(10)
@@ -3686,10 +3661,6 @@ Local cMsg    	:= ""
 Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
-Local aUser     := {}
-Local nDiasVig  := 0
-Local cAviso    := ""
-Local cStatus   := ""
 Local nRegSM0 := SM0->(Recno()) 
 
 

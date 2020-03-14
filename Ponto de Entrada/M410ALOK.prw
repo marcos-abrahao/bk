@@ -34,7 +34,7 @@ Principal / Sistemas / Pontos de Entrada / Vendas e Fiscal / SIGAFAT / MATA410 *
 
 User Function M410ALOK()
 Local _lRet := .T.
-Local cMes     
+
 If !Empty(SC5->C5_NOTA) .and. ALTERA
 	MsgBox("Nota Fiscal já gerada pedido não pode ser Alterado!","TI - BK","ALERT")
 	_lRet := .F.

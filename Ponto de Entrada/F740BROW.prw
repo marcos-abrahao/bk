@@ -16,7 +16,6 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 User Function F740BROW() 
-Local aRotY
            
 AADD( aRotina, {OemToAnsi("Baixa Portal Transparência "+ALLTRIM(SM0->M0_NOME)),   "U_BKFINA16", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Baixa Portal Petrobras "+ALLTRIM(SM0->M0_NOME)),   "U_BKFINA23", 0, 4 } )

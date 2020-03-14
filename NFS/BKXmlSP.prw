@@ -20,12 +20,9 @@
 User Function BKXMLSP()
 
 Local cPerg 		:= "BKXMLSP"
-Local lSF2			:= .F.
 Local cXML			:= ""
-Local cLog			:= ""
 Local lErro			:= .F.
-Local cNatur		:= ""
-Local lErro 		:= .F.
+
 Private cNotaDe 	:= ""
 Private cNotaAte 	:= ""
 Private cSerie		:= ""

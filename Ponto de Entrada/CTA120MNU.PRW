@@ -16,7 +16,7 @@
 User function CTA120MNU()
 
 //Apontar para medicao de servico 
-Local cRtMed := aRotina[3,2]
+//Local cRtMed := aRotina[3,2]
 
 aRotina[3,2] := "CN120Serv"
 aRotina[3,6] := .F.

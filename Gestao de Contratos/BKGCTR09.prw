@@ -21,16 +21,7 @@ User Function BKGCTR09()
 //³ Declaracao de Variaveis                                             ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ""
 Local titulo         := "Projeção Financeira dos Contratos"
-Local nLin           := 80
-Local lPula          := .F.
-Local Cabec1         := ""
-Local Cabec2         := ""
-Local imprime        := .T.
-Local aOrd           := {}
 Local _nI
 Local aDbf := {},cArqTmp
 Local aDbf2 := {},cArqTmp2
@@ -39,7 +30,6 @@ Local cMes := ""
 Private aMeses	:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
-Private CbTxt        := "G"
 Private limite       := 220
 Private tamanho      := " "
 Private nomeprog     := "BKGCTR09" // Coloque aqui o nome do programa para impressao no cabecalho

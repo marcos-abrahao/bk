@@ -141,7 +141,6 @@ Return
 
 
 Static Function ProcQuery
-Local cQuery,dDt
 Local aContrCons:= {}
 Local aConsorcio:= {}
 Local nScan		:= 0
@@ -368,11 +367,11 @@ Return dDVIG
  
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKGCTR13"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

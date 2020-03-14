@@ -14,7 +14,7 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 User Function F100BROW() 
-Local aRotY
+//Local aRotY
 
 IF __cUserId $ "000000/000012" // Administrador / Xavier
 	AADD( aRotina, {OemToAnsi("Alt. dados contábeis"), "U_BKFIN100", 0, 4 } )
@@ -32,7 +32,6 @@ Local aArea := Getarea()
 Local oOk
 Local oNo
 Local oDlg
-Local oPanelLeft
 Local aButtons := {}
 Local lOk      := .F.
 Local cTitulo2 := "BKFINA100 - Alteração dados Contábeis - "+SE5->E5_PREFIXO+SE5->E5_NUMERO+" v18/08/16a"

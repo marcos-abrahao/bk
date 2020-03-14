@@ -29,7 +29,6 @@ Local sAlias
 Local aAreaAtu	  
 Local aParametros := {}
 Local aProd       := {}
-Local aRet        := {}
 Local cRetorno    := ""
 Local cUsuario    := __cUserId
 Local cSuper	  := "" 
@@ -101,7 +100,7 @@ Local _cSuper 	 := _aParametros[5]
 
 Local cErro      := ""
 Local cRetorno   := _aProd[2,2]
-Local aUser		 := {}
+//Local aUser		 := {}
 
 //RpcSetType(3)
 

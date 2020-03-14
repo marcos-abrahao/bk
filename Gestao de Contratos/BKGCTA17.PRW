@@ -18,19 +18,7 @@
 */
 
 User Function BKGCTA17(cContrat,cTipo)
-Local aAreaX    := getArea()
-Local nX        := 0
-Local nUsado    := 0
-Local lMemoria  := .T.
-Local nSuperior := 005 //081
-Local nEsquerda := 000
-Local nInferior := 180 //250
-Local nDireita  := 397
-Local axHeader  := {}
-Local axCols    := {} 
-Local cAlias    := "SZL"
 Local lOk       := .F.
-Local _SQL      := ""
 Local cTITULO2  := IIF(cTipo=="01","Benefícios","Gastos Gerais")+" - Cadastro Itens da Projeção Financeira do Contrato"
  
 PRIVATE aSZL  := {}
@@ -343,7 +331,6 @@ Return .T.
 
 User Function SelcSZL(cTipo)
 
-Local aAreaIni := GetArea()
 Local cQuery   := ""
 Local cTitulo2 := "Seleção de Codigos Projeção Financeira"
 Local nScan    := 0

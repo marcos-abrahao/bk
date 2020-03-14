@@ -21,10 +21,13 @@
 */
 
 User Function M460MARK()
+Local lRet        	:= .T. 
+/*
+Trecho desabilitado em 10/03/20 - Marcos - a pedido do Joao Pedro de Araujo Cordeiro (joao.cordeiro)
 
 Local aArea      	:= GetArea()
 Local aParam 		:= PARAMIXB
-Local lRet        	:= .T. 
+
 //Local cPedido     	:= SC9->C9_PEDIDO 
 Local nQnt			:= 0
 Local cMV_XXNFAVU	:= "" //SuperGetMV("MV_XXNFAVU",.F.,"153000304/255000304/256000304")
@@ -32,8 +35,6 @@ Local cMV_XXSERI2	:= "" //SuperGetMV("MV_XXSERI2",.F.,""291000469000002\29100046
 Local cMV_XXAMBOS   := "/281003510/291000469/338000539/345000529/281044510/"
 Local cQuery := ""
 
-/*
-Trecho desabilitado em 10/03/20 - Marcos - a pedido do Joao Pedro de Araujo Cordeiro (joao.cordeiro)
 
 cMV_XXNFAVU	:= "\153000304\255000304\256000304\281004455\281006455\281010455\281011455\281012455\281013455" 
 cMV_XXNFAVU	+= "\281014455\281015455\281017455\281018455\281019455\281026455\281027455\281030455\281031455\281032455"
@@ -90,10 +91,10 @@ IF SM0->M0_CODIGO == "01"      // SOMENTE BK
 
 	QSC9->(dbCloseArea()) 
 ENDIF
+RestArea(aArea)
 */
 
 
-RestArea(aArea)
 Return(lRet)   
 
 

@@ -20,7 +20,7 @@
 */
 
 User Function F300VAR()
-Local aDadosTit := aClone(ParamIxb[1])
+//Local aDadosTit := aClone(ParamIxb[1])
 //If cFilAnt == aDadosTit[1
 //Alert("Título: " + aDadosTit[6] + " Dt. Baixa: " + DtoC(aDadosTit[5]))
 //EndIf

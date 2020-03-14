@@ -33,6 +33,7 @@ Local cFiltU := ""
 Local cMDiretoria :="", cMFinanceiro:= ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
+Local oTempTable
 
 Private aSize   := MsAdvSize(,.F.,400)
 Private aObjects:= { { 450, 450, .T., .T. } }
@@ -173,11 +174,16 @@ EndIf
 */
 
 
-Private cArqTrb := CriaTrab(NIL,.F.)
+//Private cArqTrb := CriaTrab(NIL,.F.)
 		
-	
-dbcreate(cArqTrb,aStruc)
-dbUseArea(.T.,,cArqTrb,"QSD11",.F.,.F.)
+oTempTable := FWTemporaryTable():New( "QSD11" )	
+oTemptable:SetFields( aStruc )
+oTempTable:AddIndex("indice1", {"D1_XXHIST"} )
+oTempTable:Create()
+
+//dbcreate(cArqTrb,aStruc)
+//dbUseArea(.T.,,cArqTrb,"QSD11",.F.,.F.)
+
 DbSelectArea("QSD1")
 dbGoTop()
 Do While !eof()
@@ -234,8 +240,10 @@ Else
 	RestArea(aAreaIni)
 Endif
 QSD1->(DbCloseArea())
-QSD11->(DbCloseArea())
-fErase(cArqTrb+GetDBExtension())
+oTempTable:Delete() 
+
+//QSD11->(DbCloseArea())
+//fErase(cArqTrb+GetDBExtension())
 
 Return
 

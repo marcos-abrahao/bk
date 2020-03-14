@@ -29,8 +29,7 @@ User Function USRCONSG(nPosCpo)
 Local oDlg, oPswBrw, oPswCbx, oPswGet, oBtn1, oBtn2
 Local cPswGet := Space(6), cPswOrd, aPswOrd := {"Código","Nome"}
 Local aHeaders, aColsizes, bLine,  cCaption, nAt := 1
-Local cCodigo, lExport := .F., nPos := 0
-Local aWndPos := {}
+Local cCodigo, lExport := .F.
 Local nTop
 Local nLeft
 Local nBottom
@@ -42,9 +41,6 @@ Local oBtnPanel1
 Local oBtnPanel2
 Local lBrwPos := .T.
 Local cVarRet := ReadVar()
-Local nI := 0
-Local aUser := {}
-Local cUser := ""
 Local oProcess
 Static aData := {}
 Static aPswBrw := {}

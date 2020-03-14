@@ -32,7 +32,6 @@ Local aCabs		:= {}
 Local aEmail	:= {}
 Local aPedAlmx	:= {}
 Local aMotivo	:= {}
-Local aPedido	:= {}
 Local cNUser	:= ""
 Local cUser 	:= ""
 Local cForPagto := ""
@@ -42,7 +41,7 @@ Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local nTotPed 	:= 0
 Local cXXJUST 	:= ""
 Local aSC1USER  := {}
-Local cCrLf   	:= Chr(13) + Chr(10)
+//Local cCrLf   	:= Chr(13) + Chr(10)
 
 IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 

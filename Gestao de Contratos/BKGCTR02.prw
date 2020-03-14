@@ -22,12 +22,10 @@ Local aCampos2  := {}
 Local aCabs2    := {}
 
 Local _nI       := 0
-Local _nY       := 0
 Local aDbf1     := {}
 Local aDbf2     := {}
 Local cArqTmp1  := ""
 Local cArqTmp2  := ""
-Local aJaPrv    := {}
 Local nMes      := 0
 Local nAno      := 0
 Local cMes      := ""
@@ -299,7 +297,7 @@ Return
 
 
 Static Function ProcQuery(_cEmp)
-Local cQuery,cQuery2,dDt
+Local cQuery,cQuery2
 
 Private cCampo
 Private _cEmpresa := _cEmp
@@ -760,7 +758,6 @@ Static Function GeraChart1(aTMensal,cArq,aTitulos)
 
 Local aHtml   := {}
 Local _nY     := 0
-Local aPlanH  := {}
 Local aCabecH := {}
 Local cHtml   := ""
 Local _nZ     := 0
@@ -828,7 +825,6 @@ Local cArqHtml  := cDirHtml+"\"+cArq+".html"
 Local aArea     := GetArea()
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cTxt      := ""
 Local _nI       := 0
 
 IF !EMPTY(cDirHtml)
@@ -868,7 +864,7 @@ Local _ni,_nj
 Local cPicN   := "@E 9999999999.999999"
 
 Local cArq       := ""
-Local cDir       := GetSrvProfString("Startpath","")
+//Local cDir       := GetSrvProfString("Startpath","")
 Local cDirTmp    := "C:\TMP"  //GetTempPath()
 
 If !Empty(_cDirHttp)

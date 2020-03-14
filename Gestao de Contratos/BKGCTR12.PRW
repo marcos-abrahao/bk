@@ -86,7 +86,7 @@ Return
 
 
 Static Function ProcQuery
-Local cQuery,dDt
+Local cQuery
 
 IncProc("Consultando o banco de dados...")
 

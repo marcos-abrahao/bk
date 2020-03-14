@@ -14,11 +14,9 @@
 
 User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _lZebra )
 
-Local oExcel     := NIL
+Local oExcel     AS OBJECT
 Local cArq       := ""
-Local cDir       := GetSrvProfString("Startpath","")
-Local cWorkSheet := ""
-Local cTable     := ""
+//Local cDir       := GetSrvProfString("Startpath","")
 Local cDirTmp    := "C:\TMP"  //GetTempPath()
 Local aArea      := GetArea()
 
@@ -30,15 +28,12 @@ Local aSoma      := {}
 Local aSomas     := {}
 Local aTotal     := {}
 Local aBrancos   := {}
-Local aBrancos1  := {}
 Local nI         := 0 
 Local nPosTot    := 0
 Local nPosTit    := 0
 Local lTitTot    := .T. 
 Local nPosCpo    := 0
 Local _cAlias    := ""
-
-Local oExcel
 
 Default _cTitulo := ""
 Default _lZebra  := .T.
@@ -409,11 +404,9 @@ Return nil
 
 User Function ArrToXml( _aPlans,_cTitulo,_cProg, _lZebra, _cDirHttp )
 
-Local oExcel     := NIL
+Local oExcel     AS OBJECT
 Local cArq       := ""
-Local cDir       := GetSrvProfString("Startpath","")
-Local cWorkSheet := ""
-Local cTable     := ""
+//Local cDir       := GetSrvProfString("Startpath","")
 Local cDirTmp    := "C:\TMP"  //GetTempPath()
 Local aArea      := GetArea()
 
@@ -424,8 +417,6 @@ Local aLinha     := {}
 Local aSoma      := {}
 Local aSomas     := {}
 Local aTotal     := {}
-Local aBrancos   := {}
-Local aBrancos1  := {}
 Local nI         := 0
 Local nJ         := 0
 Local nRow       := 0 
@@ -434,7 +425,6 @@ Local nPosTit    := 0
 Local lTitTot    := .T. 
 Local nPosCpo    := 0
 Local aDados     := {}
-Local oExcel
 
 Default _cTitulo := ""
 Default _lZebra  := .T.

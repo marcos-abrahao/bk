@@ -20,7 +20,7 @@ USER FUNCTION MT110TEL
 Local oNewDialog := PARAMIXB[1]
 Local aPosGet    := PARAMIXB[2]
 Local nOpcx      := PARAMIXB[3]
-Local nReg       := PARAMIXB[4]
+//Local nReg       := PARAMIXB[4]
 Local aMTCM		 := {}
 Local nPQEST	 := 0
 Local nLin       := 0

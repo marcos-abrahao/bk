@@ -181,8 +181,7 @@ Return cRet
 //FAZ O LANCAMENTO BANCARIO do Bloqueio e Desbloqueio Judicial
 USER Function LBANCO(nRecno)
 
-Local nX, nY
-Local cD3Doc
+Local nX
 Local aUsuarios := ALLUSERS()
 Local nOpc      := 0
 Local aFina100  := {}
@@ -254,8 +253,7 @@ Return .T.
 //EXCLUI O LANCAMENTO BANCARIO do Bloqueio e Desbloqueio Judicial
 USER Function EXLBANCO(nRecno)
 
-Local nX, nY
-Local cD3Doc
+Local nX
 Local aUsuarios := ALLUSERS()
 Local nOpc      := 5
 Local aFina100  := {}

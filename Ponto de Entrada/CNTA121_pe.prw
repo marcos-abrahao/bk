@@ -11,7 +11,7 @@ User Function CNTA121()
 	Local nLinha := 0
 	Local nQtdLinhas := 0
 	Local cMsg := ""
-	Local nOp
+	//Local nOp
 
 	If (aParam <> NIL)
 		oObj     := aParam[1]

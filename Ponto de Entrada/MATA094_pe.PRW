@@ -8,10 +8,10 @@ User Function MATA094 ()
 	Local cIdPonto := ""
 	Local cIdModel := ""
 	Local lIsGrid := .F.
-	Local nLinha := 0
-	Local nQtdLinhas := 0
-	Local cMsg := ""
-	Local nOp
+	//Local nLinha := 0
+	//Local nQtdLinhas := 0
+	//Local cMsg := ""
+	//Local nOp
 
 	If (aParam <> NIL)
 		oObj := aParam[1]

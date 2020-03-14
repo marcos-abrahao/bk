@@ -24,23 +24,18 @@ User Function BKGCTR07()
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := ""
-Local cPict          := ""
 Local titulo         := ""
 Local nLin           := 80
-Local lPula          := .F.
 Local Cabec1         := ""
 Local Cabec2         := ""
-Local imprime        := .T.
 Local aOrd           := {}
 Local aTitulos,aCampos,aCabs
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
-Private CbTxt        := "G"
 Private limite       := 220
 Private tamanho      := " "
 Private nomeprog     := "BKGCTR07" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo        := 18
 Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
 Private nLastKey     := 0
 Private cPerg        := "BKGCTR07"
@@ -600,11 +595,11 @@ QTMP->(Dbclosearea())
 Return
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKGCTR07"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

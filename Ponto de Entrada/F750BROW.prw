@@ -95,14 +95,11 @@ User Function BKFINA18()
 Local sAlias	  
 Local aAreaAtu	  
 Local aParametros := {}
-Local aCabec      := {}
-Local aItens      := {}
 Local cForn       := ""
 Local cLoja       := "01"
 Local cProd       := ""
 Local cCCus       := ""
 Local cHist       := ""
-Local aRet        := {}
 Local cRetorno    := ""
 Local dData       := dDataBase
 Local cUsuario    := __cUserId
@@ -240,7 +237,6 @@ Local aCabec     := {}
 Local aItem      := {}
 Local aItens     := {}
 Local cRetorno   := ""
-Local aUser		 := {}
 
 Private cErro      := ""
 Private cNFiscal := ""

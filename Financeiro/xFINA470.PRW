@@ -25,7 +25,7 @@ USER Function XFina470(nPosArotina)
 //³ Verifica as perguntas selecionadas ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-Local lPanelFin := IsPanelFin()
+//Local lPanelFin := IsPanelFin()
 Local lExec		:= .T.
 
 ValidPerg("XAFI470")
@@ -232,15 +232,13 @@ Local cPosValor	:= ""
 Local cPosOcor	:= ""
 Local cPosDescr	:= ""
 Local cPosDif	:= ""
-Local cColorAnt	:= ""
-Local cData		:= ""
 Local cDebCred	:= ""
 Local cRecTRB	:= ""
 Local cArqConf	:= ""
 Local cArqEnt	:= ""
 Local cIndex	:= " "					
-Local cMotSist	:= Space(3)				// motivo da ocorrencia no sistema
-Local cMotBan	:= Space(3)				// motivo da ocorrencia no banco
+//Local cMotSist	:= Space(3)				// motivo da ocorrencia no sistema
+//Local cMotBan	:= Space(3)				// motivo da ocorrencia no banco
 Local cBanco	:= Space(TamSX3("E5_BANCO")[1])
 Local cAgencia	:= Space(TamSX3("E5_AGENCIA")[1]) 
 Local cConta	:= Space(TamSX3("E5_CONTA")[1])
@@ -265,14 +263,7 @@ Local nLenDif	:= 0
 Local nLenBco	:= 0
 Local nLenAge	:= 0
 Local nLenCta	:= 0
-Local nTamConta := TamSX3("E5_CONTA")[1]  			// Tamanho do campo de C.Corrente no sistema
-Local nSavRecno	:= Recno()
-Local nPos		:= 0
-Local nSeq		:= 0						// controle sequencial de lancto do Banco
-Local nValBco	:= 0
 Local nOpca		:= 0
-Local nCont		:= 0
-Local li		:= 0
 Local nHdlBco	:= 0
 Local nLenVSI	:= 0
 Local nLenDSI	:= 0
@@ -308,12 +299,10 @@ Local lF470DAT 	:= ExistBlock("F470DAT")
 Local lF470AtuDt:= ExistBlock("F470ATUDT")
 Local lF470Qry	:= ExistBlock("F470QRY" )   
 Local lGestao	:= FWSizeFilial() > 2	// Indica se usa Gestao Corporativa
-Local aTabela 	:= {}
 Local aCores 	:= {}
 Local aConta	:= {}
 Local aCtas470  := {}
 Local aAreaAtu	:= {}
-Local aButtons	:= {}          
 Local aButtonTxt:= {}
 Local oOk		:= LoadBitmap( GetResources(), "BR_VERDE" )
 Local oNo		:= LoadBitmap( GetResources(), "DISABLE" )
@@ -322,7 +311,7 @@ Local oJaRec	:= LoadBitmap( GetResources(), "BR_CINZA" )
 Local oTitulo 
 Local oBtn
 Local oDlg
-Local dDtaCred	:= CRIAVAR("E5_DTDISPO")
+//Local dDtaCred	:= CRIAVAR("E5_DTDISPO")
 Local dDtIniA	:= CRIAVAR("E5_DTDISPO")	
 Local dDtFinA	:= CRIAVAR("E5_DTDISPO")
 Local lFA470Qry	:= ExistBlock( "FA470QRY" )
@@ -1544,8 +1533,8 @@ Return lRet
 */
 USER Function xFA470Leg()
 Local oDlg2
-Local nOpca2 	:= 0
 Local lRet		:= .T.
+
 DEFINE MSDIALOG oDlg2 FROM  69,70 TO 165,331 TITLE  STR0026 PIXEL  //"Legenda - Reconcilia‡„o Autom tica"
 @ 05 , 5 BITMAP NAME "BR_VERDE" 		SIZE 8,8 of Odlg2 PIXEL
 @ 15 , 5 BITMAP NAME "BR_AMARELO" 	SIZE 8,8 of Odlg2 PIXEL

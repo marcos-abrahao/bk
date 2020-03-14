@@ -14,12 +14,10 @@ BK - Impressão da Nota de Débito - HTML
 
 User Function BKFINR24() 
 Local aArea     := GetArea()
-Local cPath     := "\tmp\"
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
 Local cDirTmp   := "C:\TMP"
 Local cArqHtml  := cDirTmp+"\"+"NDC"+ALLTRIM(SE1->E1_NUM)+".HTML"
-Local cTxt      := ""
 Local aHtml     := {}
 Local _nI       := 0
 
@@ -60,7 +58,6 @@ Return
 Static Function NdcHtml()
 Local aHtml     := {}
 Local nPag      := 1
-Local lUPag     := .F.
 Local cLogo     := ""
 Local nI        := 0
 Local cCrLf		:= Chr(13) + Chr(10)
@@ -102,7 +99,6 @@ Local cTotal    := ""
 // Itens
 Local nTamTex   := 0
 Local cTexto    := SE1->E1_XXNDDES
-Local nLinha    := 0
 Local aLin1     := {}
 Local aItens    := {}
 Local lColRdv   := .F.

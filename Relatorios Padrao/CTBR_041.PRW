@@ -214,7 +214,6 @@ Local lPrintZero	:= Iif(mv_par18==1,.T.,.F.)
 Local lRecDesp0		:= Iif(mv_par24==1,.T.,.F.)
 Local cRecDesp		:= mv_par25
 Local dDtZeraRD		:= mv_par26
-Local n
 Local lJaPulou		:= .F.
 Local lPula			:= Iif(mv_par17==1,.T.,.F.) 
 

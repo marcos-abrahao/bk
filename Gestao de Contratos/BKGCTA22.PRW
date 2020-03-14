@@ -22,7 +22,6 @@ Local   oDlg,;
         bOk        := {|| oDlg:End()},;
         bCancel    := {|| oDlg:End()},;
         aTb_Campos := {},;
-        nWndMiddle := 0,;
         aCoresZP   := {},;
         aCoresZQ   := {}
 Local 	aButtons   := {{"",;
@@ -274,9 +273,9 @@ Objetivos   : Marca/Desmarca Campos
 Static Function MarcaCpo(lTodos, cAlias)
 *------------------------------*
 Local nRegSZP   := WKSZP->(RecNo())
-Local nRegSZQ   := WKSZQ->(RecNo())
-Local cMark     := If(Empty((cAlias)->WKMARCA),cMarca,"")
-Local cChave    := ""
+//Local nRegSZQ   := WKSZQ->(RecNo())
+//Local cMark     := If(Empty((cAlias)->WKMARCA),cMarca,"")
+//Local cChave    := ""
 Local lOk       := .F.
 //
 If lTodos
@@ -589,7 +588,6 @@ Return Nil
 
 USER FUNCTION AltSZP()
 Local cRet
-Local cQuery 
 Local nRec 
 Local aCpoZp := {"ZP_DATA","ZP_OCORR","ZP_DETOCOR","ZP_QUEM","ZP_FINALIZ","ZP_DATAPRV","ZP_USER","ZP_EFICIEN"}
 
@@ -701,7 +699,6 @@ RETURN lRet
 
 USER FUNCTION AltSZQ()
 Local cRet
-Local cQuery 
 Local nRec 
 Local aCpoZq := {"ZQ_DATA","ZQ_OQUE","ZQ_PORQUE","ZQ_QUEM","ZQ_QUANDO","ZQ_ONDE","ZQ_QUANTO","ZQ_FINALIZ","ZQ_RESULT","ZQ_USER"}
 
@@ -770,7 +767,6 @@ Return Nil
 
 USER FUNCTION ExcSZP()
 Local cRet
-Local cQuery 
 Local nRec 
 
 PUBLIC cZPContrat := cContrato //CN9->CN9_NUMERO
@@ -805,7 +801,6 @@ Return Nil
 
 USER FUNCTION ExcSZQ()
 Local cRet
-Local cQuery 
 Local nRec 
 
 PUBLIC cZQContrat := cContrato //CN9->CN9_NUMERO
@@ -934,7 +929,6 @@ Return xCampo
 //Aviso Plano de Ação - Ocorrência Incluida"
 USER Function MAILSZP(nOpc)
 
-Local cQuery            
 Local cAssunto	:= "Ocorrência Incluida"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
@@ -1009,7 +1003,6 @@ Return Nil
 //Aviso Plano de Ação - Ocorrência Finalizada"
 USER Function MAILFIMSZP()
 
-Local cQuery            
 Local cAssunto	:= "Aviso Plano de Ação - Ocorrência Finalizada"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""

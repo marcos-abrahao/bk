@@ -380,7 +380,7 @@ Local oReport
 Local oSection1
 Local cPictTit
 Local nTamVal, nTamCli, nTamQueb
-Local cPerg := Padr("FIN150",Len(SX1->X1_GRUPO))
+//Local cPerg := Padr("FIN150",Len(SX1->X1_GRUPO))
 Local aOrdem := {STR0008,;	//"Por Numero"
 				 STR0009,;	//"Por Natureza"
 				 STR0010,;	//"Por Vencimento"
@@ -508,7 +508,7 @@ Local oBreak
 Local oBreak2
 
 Local aDados[17]
-Local cString :="SE2"
+//Local cString :="SE2"
 Local nRegEmp := SM0->(RecNo())
 Local nRegSM0 := SM0->(Recno())
 Local nAtuSM0 := SM0->(Recno())
@@ -531,7 +531,7 @@ Local cChaveSe2
 Local nIndexSE2
 Local cFilDe,cFilAte
 Local nTotsRec := SE2->(RecCount())
-Local aTamFor := TAMSX3("E2_FORNECE")
+//Local aTamFor := TAMSX3("E2_FORNECE")
 Local nDecs := Msdecimais(mv_par15)
 Local lFr150Flt := EXISTBLOCK("FR150FLT")
 Local cFr150Flt := iif(lFr150Flt,ExecBlock("FR150FLT",.F.,.F.),"")
@@ -1571,10 +1571,9 @@ LOCAL cDesc3 :=""
 LOCAL cString:="SE2"
 LOCAL nRegEmp := SM0->(RecNo())
 Local dOldDtBase := dDataBase
-Local dOldData := dDataBase
+//Local dOldData := dDataBase
 Local wnrel
 Local nTamPar01,nTamPar02,nTamPar03,nTamPar04,nTamPar05,nTamPar06,nTamPar09,nTamPar10,nTamPar11,nTamPar12,nTamPar23,nTamPar24,nTamPar25,nTamPar26,nTamPar30,nTamPar31
-Local i
 
 PRIVATE cPerg    := Padr("FIN150",Len(SX1->X1_GRUPO))
 PRIVATE aReturn := { OemToAnsi(STR0003), 1,OemToAnsi(STR0004), 1, 2, 1, "",1 }  //"Zebrado"###"Administracao"
@@ -2528,6 +2527,7 @@ If aReturn[5] = 1
 	ourspool(wnrel)
 Endif
 MS_FLUSH()
+Return NIL
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹

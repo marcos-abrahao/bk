@@ -36,19 +36,15 @@ STATIC Function BKGCTR1X()
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := ""
-Local cPict          := ""
 Local titulo         := ""
 Local nLin           := 80
-Local lPula          := .F.
 Local Cabec1         := ""
 Local Cabec2         := ""
-Local imprime        := .T.
 Local aOrd           := {}
 Local aTitulos,aCampos,aCabs,aPlans := {}
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
-Private CbTxt        := "G"
 Private limite       := 220
 Private tamanho      := " "
 Private nomeprog     := "BKGCTR01" // Coloque aqui o nome do programa para impressao no cabecalho
@@ -235,7 +231,7 @@ Return
 
 
 Static Function ProcQuery
-Local cQuery,dDt
+Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
@@ -382,7 +378,7 @@ Return
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 
-Local nOrdem,lCabec
+Local lCabec
 
 Dbselectarea("QTMP")
 Dbgotop()
@@ -546,11 +542,11 @@ QTMP->(Dbclosearea())
 Return
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKGCTR01"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

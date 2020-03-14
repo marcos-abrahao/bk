@@ -79,7 +79,12 @@
 			"args": [],
 			"label": "up",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "SIGGCG",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "upddistr"
+	"lastProgramExecuted": "sigagct"
 }

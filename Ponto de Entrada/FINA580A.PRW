@@ -18,10 +18,11 @@
 /*/
 User Function FINA580A() 
 Local lLiber := .T.
-Local aContrato := {}
-Local cQuery:=""
-Local cMsg := ""
-Local cCrLf   := Chr(13) + Chr(10)
+
+//Local aContrato := {}
+//Local cQuery:=""
+//Local cMsg := ""
+//Local cCrLf   := Chr(13) + Chr(10)
 
 
 Return lLiber

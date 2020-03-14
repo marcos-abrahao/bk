@@ -100,7 +100,6 @@ Caso esteja preenchido como .F. o sistema permite somente uma configuração para 
 
 User Function CnabBco()
 // Retorna o banco do favorecido - 12/12/14 (sisp000)
-Local _cReturn
 Local cBanco
 
 IF SUBSTR(SE2->E2_CODBAR,1,1) <> "C" //.OR. EMPTY(SE2->E2_XXCPF)
