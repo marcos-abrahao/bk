@@ -13,7 +13,7 @@ User Function xxFormula()
 	
 	//-> Declaração de variáveis.
 	Local bError 
-	Local cGet1Frm := PadR("Ex.: X31UPDTABLE('ZC5') ", 50)
+	Local cGet1Frm := PadR("U_BKTESTE()", 50)
 	Local oDlg1Frm := Nil
 	Local oSay1Frm := Nil
 	Local oGet1Frm := Nil

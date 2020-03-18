@@ -43,8 +43,6 @@ Local   cDesc2    := "Este processo deve ser executado em modo EXCLUSIVO, ou sej
 Local   cDesc3    := "  usuários  ou  jobs utilizando  o sistema.  É extremamente recomendavél  que  se  faça um"
 Local   cDesc4    := "  BACKUP  dos DICIONÁRIOS  e da  BASE DE DADOS antes desta atualização.                   "
 Local   cDesc5    := "** Atualização " + FIN_LAST_UPDATED
-Local   cDesc6    := ""
-Local   cDesc7    := ""
 Local   lOk       := .F.
 
 Private oMainWnd  := NIL
