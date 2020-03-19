@@ -286,7 +286,7 @@ DO WHILE (cAliasQry)->(!EOF())
 			xCampo := &(cAliasQry+"->"+aFields[nF,2])
 		EndIf
 
-		If aFields[nF,3] = "XX_SALDO"
+		If aFields[nF,1] = "XX_SALDO"
 			SE2->(dbGoTo((cAliasQry)->E2RECNO))
 			nSaldo := 0
 			IF TRANSFORM(SE2->E2_SALDO,"@e 999,999,999.99") == TRANSFORM(SE2->E2_VALOR,"@e 999,999,999.99")
@@ -295,7 +295,7 @@ DO WHILE (cAliasQry)->(!EOF())
 				nSaldo := SE2->E2_SALDO
    			ENDIF 
 			xCampo := nSaldo
-		ElseIf aFields[nF,3] = "XX_USER"
+		ElseIf aFields[nF,1] = "XX_USER"
             /*
 
 			SE2->(dbGoTo((cAliasQry)->E2RECNO))
@@ -354,7 +354,7 @@ DO WHILE (cAliasQry)->(!EOF())
             ENDIF
 			xCampo := cDigUser
             */
-		ElseIf aFields[nF,3] = "XX_LIBERDO"
+		ElseIf aFields[nF,1] = "XX_LIBERDO"
             /*
 			SE2->(dbGoTo((cAliasQry)->E2RECNO))
             dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
@@ -413,7 +413,7 @@ DO WHILE (cAliasQry)->(!EOF())
 
 			xCampo := cLibUser
             */
-		ElseIf aFields[nF,3] = "XX_FORMPGT"
+		ElseIf aFields[nF,1] = "XX_FORMPGT"
 			SE2->(dbGoTo((cAliasQry)->E2RECNO))
             dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
             dbSetOrder(1)
@@ -448,7 +448,7 @@ DO WHILE (cAliasQry)->(!EOF())
                 EndIf
             ENDIF
 			xCampo := cFormaPgto
-		ElseIf aFields[nF,3] = "XX_HISTNF"
+		ElseIf aFields[nF,1] = "XX_HISTNF"
 			SE2->(dbGoTo((cAliasQry)->E2RECNO))
             cHist := ""
             dbSelectArea("SD1")                   // * Itens da N.F. de Compra
