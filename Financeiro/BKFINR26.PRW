@@ -6,13 +6,10 @@
 BK - Planilha de Pedidos e Faturamento
 @Return
 @author Marcos Bispo Abrahão
-@since 15/0132020
+@since 15/03/2020
 @version P12
 /*/
 //-------------------------------------------------------------------
-User Function BKTESTE()
-U_BKFINR26()
-Return Nil
 
 User Function BKFINR26()
 
@@ -92,18 +89,22 @@ aAdd(aFields,{"XX_NOMGES" ,"CN9_XXNRBK"})
 aAdd(aFields,{"XX_PEDIDO" ,"C5_NUM","","Pedido"})
 aAdd(aFields,{"XX_VALPED" ,"","XX_VALPED","Vl.Pedido",cPict,"N",18,2})
 aAdd(aFields,{"XX_EMISSAO","C5_EMISSAO","","Emissao Ped."})
+aAdd(aFields,{"XX_LIBEROK","C5_LIBEROK","","Ped. liberado"})
+aAdd(aFields,{"XX_LIBERAD","C5_USERLGA","","Liberado por"})
+
+
 aAdd(aFields,{"XX_COMPET" ,"C5_XXCOMPM"})
 aAdd(aFields,{"XX_MEDICAO","C5_MDNUMED"})
 aAdd(aFields,{"XX_PLANI"  ,"C5_MDPLANI"})
 aAdd(aFields,{"XX_NF"     ,"F2_DOC","","NF"})
+aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Emissor"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
 aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Emissao NF"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
-aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO"})
-aAdd(aFields,{"XX_IMPOST" ,"","XX_IMPOST","Imp.Retidos",cPict,"N",18,2})
-//aAdd(aFields,{"XX_SALLIQ" ,"","XX_SALLIQ","Saldo Liq",cPict,"N",18,2})
+aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO","","Saldo a Receber"})
+//aAdd(aFields,{"XX_IMPOST" ,"","XX_IMPOST","Imp.Retidos",cPict,"N",18,2})
 
 aDbf := {}
 
@@ -159,7 +160,7 @@ For nF := 1 To Len(aFields)
 	If nTam = 0
 		nTam  := GetSX3Cache(aFields[nF,2],"X3_TAMANHO")
 	EndIf
-	If nDec = 0
+	If nDec = 0 .and. GetSX3Cache(aFields[nF,2],"X3_DECIMAL") <> Nil
 		nDec  := GetSX3Cache(aFields[nF,2],"X3_DECIMAL")			
 	EndIf
 		
@@ -247,19 +248,18 @@ SELECT C5_CLIENTE,C5_LOJACLI,A1_NOME,CN9_XXNRBK,C5_MDCONTR,C5_NUM,C5_EMISSAO,C5_
  ORDER BY C5_NUM
 */
 
-cQuery := "SELECT "
+cQuery := "SELECT DISTINCT "
 For nF := 1 To Len(aFields)
 	If LEN(aFields[nF]) < 3 .OR. Empty(aFields[nF,3])
 		cQuery += aFields[nF,2]+","
 	EndIf
 Next
 
-cQuery += "SC5.R_E_C_N_O_ AS C5_RECNO, SE1.R_E_C_N_O_ AS E1_RECNO," + CRLF
+cQuery += "SC5.R_E_C_N_O_ AS C5RECNO,SF2.R_E_C_N_O_ AS F2RECNO, SE1.R_E_C_N_O_ AS E1RECNO," + CRLF
 cQuery += " CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END AS XX_CONTRAT," + CRLF
 cQuery += " (SELECT SUM(C6_VALOR) FROM "+RETSQLNAME("SC6")+" SC6 WHERE SC6.C6_NUM = SC5.C5_NUM AND SC6.D_E_L_E_T_ = ' ' AND SC6.C6_FILIAL = '" + xFilial("SC6") + "') AS XX_VALPED," + CRLF
 cQuery += " (SF2.F2_VALFAT - SF2.F2_VALIRRF - SF2.F2_VALINSS - SF2.F2_VALPIS - SF2.F2_VALCOFI - SF2.F2_VALCSLL - (CASE SF2.F2_RECISS WHEN '1' THEN SF2.F2_VALISS ELSE 0 END)) AS XX_VALLIQ," + CRLF
-cQuery += " (SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_VRETISS + SE1.E1_VRETIRF) AS XX_IMPOST,"+ CRLF
-cQuery += " 0 AS XX_SALLIQ" + CRLF
+cQuery += " (SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_VRETISS + SE1.E1_VRETIRF) AS XX_IMPOST"+ CRLF
 cQuery += " FROM "+RETSQLNAME("SC5")+" SC5" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+" SF2 ON C5_NOTA = F2_DOC AND SF2.D_E_L_E_T_ = '' AND SF2.F2_FILIAL = '" + xFilial("SF2") + "' " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SE1")+" SE1 ON SF2.F2_DOC = SE1.E1_NUM AND SF2.F2_SERIE = SE1.E1_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF ' AND  SE1.D_E_L_E_T_ = ' ' AND SE1.E1_FILIAL = '" + xFilial("SE1") + "' " + CRLF
@@ -313,18 +313,26 @@ DO WHILE (cAliasQry)->(!EOF())
 
 	For nF := 1 To Len(aFields)
 		If Len(aFields[nF]) > 2 .AND. !Empty(aFields[nF,3])
-			xCampo := &(cAliasQry+"->"+aFields[nF,3])
+            If (cAliasQry)->(FieldPos(aFields[nF,3])) > 0
+			    xCampo := &(cAliasQry+"->"+aFields[nF,3])
+            EndIf
 		Else
 			xCampo := &(cAliasQry+"->"+aFields[nF,2])
 		EndIf
 
 		If aFields[nF,2] = "E1_SALDO"
-			SE1->(dbGoTo((cAliasQry)->E1_RECNO))
+			SE1->(dbGoTo((cAliasQry)->E1RECNO))
 			nSaldo := SaldoTit(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_NATUREZA,"R",SE1->E1_CLIENTE,1,,dDataBase,SE1->E1_LOJA,,0/*nTxMoeda*/)
 			If nSaldo > 0 
 				nSaldo -= (cAliasQry)->XX_IMPOST
 			EndIf
 			xCampo := nSaldo
+		ElseIf aFields[nF,2] = "F2_USERLGI" .AND. !EMPTY((cAliasQry)->F2RECNO)
+			SF2->(dbGoTo((cAliasQry)->F2RECNO))
+			xCampo := SF2->(FWLeUserlg("F2_USERLGI",1))
+		ElseIf aFields[nF,2] = "C5_USERLGA" //.AND. (cAliasQry)->C5_LIBEROK = 'S'
+			SC5->(dbGoTo((cAliasQry)->C5RECNO))
+			xCampo := SF2->(FWLeUserlg("C5_USERLGA",1))
 		EndIf
 
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
@@ -463,7 +471,3 @@ If File(cFile)
 EndIf
 oExcel:Gravar("C:\TEMP\",.T.,.T.)
 return
-
-
-
-
