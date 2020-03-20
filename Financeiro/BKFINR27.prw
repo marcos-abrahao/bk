@@ -28,7 +28,7 @@ Local cPict 	:= PesqPict("SE2","E2_VALOR")
 Local cTitC 	:= ""
 Local nTamCol   := 0
 Local lTotal    := .F.
-
+Local nTamPrd   := TamSX3("B1_COD")[01]
 Private cTTipos 	:= ""
 
 Private cTitulo     := "Titulos a Pagar"
@@ -39,6 +39,7 @@ Private aRet		:=	{}
 
 Private dDataI  	:= CTOD("")
 Private dDataF  	:= CTOD("")
+Private cProd       := PAD("29104004",nTamPrd)
 
 
 Private aFields     := {}
@@ -57,9 +58,9 @@ Private aLF         := {}
 Private nTop		:= 3
 Private nTopV		:= nTop + 1
 
-aAdd( aParam, { 1, "Data Inicial:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })
-aAdd( aParam, { 1, "Data Final:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })  
-
+aAdd( aParam, { 1, "Data Inicial:" 	 , dDataBase	, ""   , "", ""	   , "" , 70 , .F. })
+aAdd( aParam, { 1, "Data Final:" 	 , dDataBase	, ""   , "", ""	   , "" , 70 , .F. })  
+aAdd( aParam, { 1, "Produto"         , cProd        , ""   , "", "SB1" , "" , 70 , .F. })
 If !BkFR27()
    Return
 EndIf
@@ -90,6 +91,8 @@ aAdd(aFields,{"XX_XXCTRID" ,"E2_XXCTRID"})
 //aAdd(aFields,{"XX_USER"    ,"","XX_USER","Usuário","@!","C",40,0})
 //aAdd(aFields,{"XX_LIBERDO" ,"","XX_LIBERDO","Liberado por","@!","C",40,0})
 aAdd(aFields,{"XX_FORMPGT" ,"","XX_FORMPGT","Forma pgto","@!","C",40,0})
+aAdd(aFields,{"XX_PRODUTO" ,"","XX_PRODUTO","Produto","@!","C",nTamPrd,0})
+aAdd(aFields,{"XX_VALPROD" ,"","XX_VALPROD","Vl.Produto",cPict,"N",18,2})
 aAdd(aFields,{"XX_HISTNF"  ,"","XX_HISTNF","Histórico","@!","C",250,0})
 
 aDbf := {}
@@ -181,6 +184,7 @@ dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
 //oTempTable:AddIndex("01", {"DESCR"} )
 //oTempTable:Create()
+nCont:= 0
 
 Processa( {|| ProcBKR27() })
 
@@ -189,7 +193,11 @@ Processa( {|| ProcBKR27() })
 //MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
 
 //MsAguarde({|| BKFINE25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
-MsAguarde({|| BKFINX27(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
+If nCont > 0
+    MsAguarde({|| BKFINX27(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
+else
+    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
+EndIf
 
 
 //oTempTable:Delete()
@@ -206,6 +214,7 @@ If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,     
 	lRet     := .T.
 	dDataI   := mv_par01
 	dDataF   := mv_par02
+    cProd    := mv_par03
 	cTitulo  := "Títulos a Pagar - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 Endif
 Return lRet
@@ -224,6 +233,9 @@ Local cFormaPgto := ""
 //Local aLib       := {}
 Local cHist      := ""
 Local cFilD1     := ""
+Local cD1Prod    := ""
+Local nD1Prod    := 0
+
 
 Private xCampo
 
@@ -264,211 +276,235 @@ TCSETFIELD(cAliasQry,"E2_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
 ProcRegua((cAliasQry)->(RecCount()))
 	
-nCont := 0
-
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 
 cFilD1 := xFilial("SD1")
 
 DO WHILE (cAliasQry)->(!EOF())
-    nCont++
 	IncProc("Consultando banco de dados...")
 	dbSelectArea(cAliasTrb)
-	Reclock(cAliasTrb,.T.)
 
-	For nF := 1 To Len(aFields)
-		If Len(aFields[nF]) > 2 .AND. !Empty(aFields[nF,3])
-            If (cAliasQry)->(FieldPos(aFields[nF,3])) > 0
-			    xCampo := &(cAliasQry+"->"+aFields[nF,3])
+    cD1Prod := ""
+    nD1Prod := 0
+	SE2->(dbGoTo((cAliasQry)->E2RECNO))
+    cHist := ""
+    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+    IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+        DO WHILE !EOF() .AND. cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA == ;
+            SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA
+            IF !ALLTRIM(SD1->D1_XXHIST) $ cHist                   
+                cHist += ALLTRIM(SD1->D1_XXHIST)+" "  //IIF(ALLTRIM(SD1->D1_XXHIST) $ cHist,"",cHist+" ") 
+            ENDIF
+            If ALLTRIM(SD1->D1_COD) == ALLTRIM(cProd) .OR. EMPTY(cProd)
+                If Empty(cProd)
+                    If Empty(cD1Prod)
+                        cD1Prod := SD1->D1_COD
+                    Else
+                        cD1Prod := "DIVERSOS PRODS"
+                    EndIf
+                Else
+                    cD1Prod := SD1->D1_COD
+                EndIf
+               nD1Prod += SD1->D1_TOTAL
             EndIf
-		Else
-			xCampo := &(cAliasQry+"->"+aFields[nF,2])
-		EndIf
+            SD1->(dbSkip())
+        ENDDO
+    ENDIF
+	
+    If ALLTRIM(cProd) == ALLTRIM(cD1Prod) .OR. Empty(cProd)
 
-		If aFields[nF,1] = "XX_SALDO"
-			SE2->(dbGoTo((cAliasQry)->E2RECNO))
-			nSaldo := 0
-			IF TRANSFORM(SE2->E2_SALDO,"@e 999,999,999.99") == TRANSFORM(SE2->E2_VALOR,"@e 999,999,999.99")
-				nSaldo := SE2->E2_VALOR + (SE2->E2_ACRESC - SE2->E2_DECRESC)
-			ELSE
-				nSaldo := SE2->E2_SALDO
-   			ENDIF 
-			xCampo := nSaldo
-		ElseIf aFields[nF,1] = "XX_USER"
-            /*
+        nCont++
 
-			SE2->(dbGoTo((cAliasQry)->E2RECNO))
-            dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
-            dbSetOrder(1)
-            cFilF1     := xFilial("SF1")
-            cUser      := ""
-            cDigUser   := ""
-            cFormaPgto := ""
-            
-            IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
-                cUser := SF1->F1_XXUSER
-                PswOrder(1) 
-                PswSeek(cUser) 
-                aUser  := PswRet(1)
-                IF !EMPTY(aUser)
-                    cDigUser := aUser[1,2]
-                ENDIF
-                cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
-                cxTipoPg := SF1->F1_XTIPOPG
-                cxNumPa  := SF1->F1_XNUMPA
-                If !Empty(cxTipoPg)
-                    cFormaPgto := TRIM(cxTipoPg)
-                    If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-                        If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
-                            cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
-                        Else
-                            cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
-                        EndIf
-                        cFormaPgto += ": "+cDadosBanc
-                    ElseIf TRIM(cxTipoPg) == "P.A."
-                        cFormaPgto += " "+cxNumPa
-                    EndIf
+        dbSelectArea(cAliasTrb)
+
+        Reclock(cAliasTrb,.T.)
+
+        For nF := 1 To Len(aFields)
+            If Len(aFields[nF]) > 2 .AND. !Empty(aFields[nF,3])
+                If (cAliasQry)->(FieldPos(aFields[nF,3])) > 0
+                    xCampo := &(cAliasQry+"->"+aFields[nF,3])
                 EndIf
-            ENDIF
-            IF EMPTY(cDigUser) .AND. !EMPTY(SE2->E2_USERLGI)
-                //cDigUser := USRFULLNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
-                cDigUser := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
-            ENDIF   
-            cLibUser := SE2->E2_USUALIB
-            IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
-                aLib := {}
-                aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
-                cDigUser := aLib[1]
-                cLibUser := aLib[2]
-            ELSE
-                aLib := {}
-                dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-                IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
-                    aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
-                    IF LEN(aLib) > 0
-    	                cDigUser := aLib[1]
-	   	                cLibUser := aLib[2]
+            Else
+                xCampo := &(cAliasQry+"->"+aFields[nF,2])
+            EndIf
+
+            If aFields[nF,1] = "XX_SALDO"
+                SE2->(dbGoTo((cAliasQry)->E2RECNO))
+                nSaldo := 0
+                IF TRANSFORM(SE2->E2_SALDO,"@e 999,999,999.99") == TRANSFORM(SE2->E2_VALOR,"@e 999,999,999.99")
+                    nSaldo := SE2->E2_VALOR + (SE2->E2_ACRESC - SE2->E2_DECRESC)
+                ELSE
+                    nSaldo := SE2->E2_SALDO
+                ENDIF 
+                xCampo := nSaldo
+            ElseIf aFields[nF,1] = "XX_USER"
+                /*
+
+                SE2->(dbGoTo((cAliasQry)->E2RECNO))
+                dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
+                dbSetOrder(1)
+                cFilF1     := xFilial("SF1")
+                cUser      := ""
+                cDigUser   := ""
+                cFormaPgto := ""
+                
+                IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                    cUser := SF1->F1_XXUSER
+                    PswOrder(1) 
+                    PswSeek(cUser) 
+                    aUser  := PswRet(1)
+                    IF !EMPTY(aUser)
+                        cDigUser := aUser[1,2]
+                    ENDIF
+                    cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
+                    cxTipoPg := SF1->F1_XTIPOPG
+                    cxNumPa  := SF1->F1_XNUMPA
+                    If !Empty(cxTipoPg)
+                        cFormaPgto := TRIM(cxTipoPg)
+                        If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
+                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                                cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
+                            Else
+                                cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
+                            EndIf
+                            cFormaPgto += ": "+cDadosBanc
+                        ElseIf TRIM(cxTipoPg) == "P.A."
+                            cFormaPgto += " "+cxNumPa
+                        EndIf
+                    EndIf
+                ENDIF
+                IF EMPTY(cDigUser) .AND. !EMPTY(SE2->E2_USERLGI)
+                    //cDigUser := USRFULLNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+                    cDigUser := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+                ENDIF   
+                cLibUser := SE2->E2_USUALIB
+                IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
+                    aLib := {}
+                    aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
+                    cDigUser := aLib[1]
+                    cLibUser := aLib[2]
+                ELSE
+                    aLib := {}
+                    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+                    IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+                        aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
+                        IF LEN(aLib) > 0
+                            cDigUser := aLib[1]
+                            cLibUser := aLib[2]
+                        ENDIF
                     ENDIF
                 ENDIF
-            ENDIF
-			xCampo := cDigUser
-            */
-		ElseIf aFields[nF,1] = "XX_LIBERDO"
-            /*
-			SE2->(dbGoTo((cAliasQry)->E2RECNO))
-            dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
-            dbSetOrder(1)
-            cFilF1     := xFilial("SF1")
-            cUser      := ""
-            cDigUser   := ""
-            cFormaPgto := ""
-            
-            IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
-                cUser := SF1->F1_XXUSER
-                PswOrder(1) 
-                PswSeek(cUser) 
-                aUser  := PswRet(1)
-                IF !EMPTY(aUser)
-                    cDigUser := aUser[1,2]
-                ENDIF
-                cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
-                cxTipoPg := SF1->F1_XTIPOPG
-                cxNumPa  := SF1->F1_XNUMPA
-                If !Empty(cxTipoPg)
-                    cFormaPgto := TRIM(cxTipoPg)
-                    If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-                        If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
-                            cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
-                        Else
-                            cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
+                xCampo := cDigUser
+                */
+            ElseIf aFields[nF,1] = "XX_LIBERDO"
+                /*
+                SE2->(dbGoTo((cAliasQry)->E2RECNO))
+                dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
+                dbSetOrder(1)
+                cFilF1     := xFilial("SF1")
+                cUser      := ""
+                cDigUser   := ""
+                cFormaPgto := ""
+                
+                IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                    cUser := SF1->F1_XXUSER
+                    PswOrder(1) 
+                    PswSeek(cUser) 
+                    aUser  := PswRet(1)
+                    IF !EMPTY(aUser)
+                        cDigUser := aUser[1,2]
+                    ENDIF
+                    cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
+                    cxTipoPg := SF1->F1_XTIPOPG
+                    cxNumPa  := SF1->F1_XNUMPA
+                    If !Empty(cxTipoPg)
+                        cFormaPgto := TRIM(cxTipoPg)
+                        If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
+                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                                cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
+                            Else
+                                cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
+                            EndIf
+                            cFormaPgto += ": "+cDadosBanc
+                        ElseIf TRIM(cxTipoPg) == "P.A."
+                            cFormaPgto += " "+cxNumPa
                         EndIf
-                        cFormaPgto += ": "+cDadosBanc
-                    ElseIf TRIM(cxTipoPg) == "P.A."
-                        cFormaPgto += " "+cxNumPa
                     EndIf
-                EndIf
-            ENDIF
-            IF EMPTY(cDigUser) .AND. !EMPTY(SE2->E2_USERLGI)
-                //cDigUser := USRFULLNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
-                cDigUser := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
-            ENDIF   
-            cLibUser := SE2->E2_USUALIB
-            IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
-                aLib := {}
-                aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
-                cDigUser := aLib[1]
-                cLibUser := aLib[2]
-            ELSE
-                aLib := {}
-                dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-                IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
-                    aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
-                    IF LEN(aLib) > 0
-    	                cDigUser := aLib[1]
-	   	                cLibUser := aLib[2]
+                ENDIF
+                IF EMPTY(cDigUser) .AND. !EMPTY(SE2->E2_USERLGI)
+                    //cDigUser := USRFULLNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+                    cDigUser := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+                ENDIF   
+                cLibUser := SE2->E2_USUALIB
+                IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
+                    aLib := {}
+                    aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
+                    cDigUser := aLib[1]
+                    cLibUser := aLib[2]
+                ELSE
+                    aLib := {}
+                    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+                    IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+                        aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
+                        IF LEN(aLib) > 0
+                            cDigUser := aLib[1]
+                            cLibUser := aLib[2]
+                        ENDIF
                     ENDIF
                 ENDIF
-            ENDIF
 
-			xCampo := cLibUser
-            */
-		ElseIf aFields[nF,1] = "XX_FORMPGT"
-			SE2->(dbGoTo((cAliasQry)->E2RECNO))
-            dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
-            dbSetOrder(1)
-            cFilF1     := xFilial("SF1")
-            cUser      := ""
-            cDigUser   := ""
-            cFormaPgto := ""
-            cLibUser := SE2->E2_USUALIB
-            IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
-                cUser := SF1->F1_XXUSER
-                PswOrder(1) 
-                PswSeek(cUser) 
-                aUser  := PswRet(1)
-                IF !EMPTY(aUser)
-                    cDigUser := aUser[1,2]
-                ENDIF
-                cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
-                cxTipoPg := SF1->F1_XTIPOPG
-                cxNumPa  := SF1->F1_XNUMPA
-                If !Empty(cxTipoPg)
-                    cFormaPgto := TRIM(cxTipoPg)
-                    If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-                        If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
-                            cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
-                        Else
-                            cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
-                        EndIf
-                        cFormaPgto += ": "+cDadosBanc
-                    ElseIf TRIM(cxTipoPg) == "P.A."
-                        cFormaPgto += " "+cxNumPa
-                    EndIf
-                EndIf
-            ENDIF
-			xCampo := cFormaPgto
-		ElseIf aFields[nF,1] = "XX_HISTNF"
-			SE2->(dbGoTo((cAliasQry)->E2RECNO))
-            cHist := ""
-            dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-            IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
-                DO WHILE !EOF() .AND. cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA == ;
-                          SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA
-                    IF !ALLTRIM(SD1->D1_XXHIST) $ cHist                   
-			            cHist += ALLTRIM(SD1->D1_XXHIST)+" "  //IIF(ALLTRIM(SD1->D1_XXHIST) $ cHist,"",cHist+" ") 
+                xCampo := cLibUser
+                */
+            ElseIf aFields[nF,1] = "XX_FORMPGT"
+                SE2->(dbGoTo((cAliasQry)->E2RECNO))
+                dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
+                dbSetOrder(1)
+                cFilF1     := xFilial("SF1")
+                cUser      := ""
+                cDigUser   := ""
+                cFormaPgto := ""
+                cLibUser := SE2->E2_USUALIB
+                IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                    cUser := SF1->F1_XXUSER
+                    PswOrder(1) 
+                    PswSeek(cUser) 
+                    aUser  := PswRet(1)
+                    IF !EMPTY(aUser)
+                        cDigUser := aUser[1,2]
                     ENDIF
-                    SD1->(dbSkip())
-                ENDDO
-            ENDIF
-			xCampo := cHist
-		EndIf
-        //ConOut(aFields[nF,1],xCampo)
-		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
-	Next
+                    cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
+                    cxTipoPg := SF1->F1_XTIPOPG
+                    cxNumPa  := SF1->F1_XNUMPA
+                    If !Empty(cxTipoPg)
+                        cFormaPgto := TRIM(cxTipoPg)
+                        If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
+                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                                cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
+                            Else
+                                cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
+                            EndIf
+                            cFormaPgto += ": "+cDadosBanc
+                        ElseIf TRIM(cxTipoPg) == "P.A."
+                            cFormaPgto += " "+cxNumPa
+                        EndIf
+                    EndIf
+                ENDIF
+                xCampo := cFormaPgto
+            ElseIf aFields[nF,1] = "XX_HISTNF"
+                xCampo := cHist
+            ElseIf aFields[nF,1] = "XX_PRODUTO"
+                xCampo := cD1Prod
+            ElseIf aFields[nF,1] = "XX_VALPROD"
+                xCampo := nD1Prod
+            EndIf
+            //ConOut(aFields[nF,1],xCampo)
+            &(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
+        Next
 
-	(cAliasTrb)->(MsUnLock())
-		
+        (cAliasTrb)->(MsUnLock())
+    EndIf
+
 	dbSelectArea(cAliasQry)
 	(cAliasQry)->(dbSkip())
 ENDDO
