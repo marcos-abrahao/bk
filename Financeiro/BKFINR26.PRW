@@ -187,36 +187,31 @@ Next
 //----------------------------
 //Criação da tabela temporária
 //----------------------------
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
-//oTempTable := FWTemporaryTable():New( cAliasTrb )
-//oTemptable:SetFields( aDbf )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+
+oTempTable := FWTemporaryTable():New( cAliasTrb )
+oTemptable:SetFields( aDbf )
 
 //oTempTable:AddIndex("01", {"DESCR"} )
-//oTempTable:Create()
+oTempTable:Create()
 
 Processa( {|| ProcBKR26() })
 
-//AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-
-//MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
-
-//MsAguarde({|| BKFINE25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
 MsAguarde({|| BKFINX26(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
 
-
-//oTempTable:Delete()
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTempTable:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 Return
 
 
 Static Function BkFR26
 Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
-If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINR26",.T.         ,.T.))
+If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
 	lRet     := .T.
 	dDataI   := mv_par01
 	dDataF   := mv_par02
@@ -264,18 +259,8 @@ cQuery += " FROM "+RETSQLNAME("SC5")+" SC5" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+" SF2 ON C5_NOTA = F2_DOC AND SF2.D_E_L_E_T_ = '' AND SF2.F2_FILIAL = '" + xFilial("SF2") + "' " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SE1")+" SE1 ON SF2.F2_DOC = SE1.E1_NUM AND SF2.F2_SERIE = SE1.E1_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF ' AND  SE1.D_E_L_E_T_ = ' ' AND SE1.E1_FILIAL = '" + xFilial("SE1") + "' " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON SA1.A1_COD = SC5.C5_CLIENTE AND SA1.A1_LOJA = SC5.C5_LOJACLI AND SA1.D_E_L_E_T_ = ' ' AND SA1.A1_FILIAL = '" + xFilial("SA1") + "' " + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+" CN9 ON CN9_NUMERO = C5_MDCONTR AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_FILIAL = '" + xFilial("CN9") + "' " + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+" CN9 ON CN9_NUMERO = C5_MDCONTR AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09' AND CN9.CN9_FILIAL = '" + xFilial("CN9") + "' " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND ON C5_MDNUMED = CND_NUMMED AND CND_REVISA = CN9_REVISA AND CND.D_E_L_E_T_ = '' AND CND.CND_FILIAL = '" + xFilial("CND") + "' " + CRLF
-
-
-/*
-LEFT JOIN SF2010 SF2 ON C5_SERIE = SF2.F2_SERIE AND C5_NOTA = F2_DOC AND SF2.D_E_L_E_T_ = '' AND SF2.F2_FILIAL = '01' 
- LEFT JOIN SE1010 SE1 ON SF2.F2_DOC = SE1.E1_NUM AND SF2.F2_SERIE = SE1.E1_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF ' AND  SE1.D_E_L_E_T_ = ' ' AND SE1.E1_FILIAL = '01' 
- LEFT JOIN SA1010 SA1 ON SA1.A1_COD = SC5.C5_CLIENTE AND SA1.A1_LOJA = SC5.C5_LOJACLI AND SA1.D_E_L_E_T_ = ' ' AND SA1.A1_FILIAL = '  ' 
- LEFT JOIN CN9010 CN9 ON CN9_NUMERO=C5_MDCONTR  AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_FILIAL = '01' AND CN9.CN9_SITUAC <> '10'
- LEFT JOIN CND010 CND ON C5_MDNUMED = CND_NUMMED AND CND_REVISA = CN9_REVISA AND CND.D_E_L_E_T_ = '' AND CND.CND_FILIAL = '01' 
-*/
-
 cQuery += " WHERE SC5.D_E_L_E_T_ = ' ' " + CRLF
 cQuery += " AND SC5.C5_FILIAL = '" + xFilial("SC5") + "' " + CRLF
 If !Empty(dDataI)

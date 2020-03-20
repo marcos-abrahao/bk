@@ -21,6 +21,8 @@ Local nTam  	:= 0
 Local nDec  	:= 0
 Local cPict 	:= ""
 Local cTitC 	:= ""
+Local nTamCol   := 0
+Local lTotal    := .F.
 
 Private cTTipos 	:= ""
 
@@ -42,7 +44,8 @@ Private aCampos     := {}
 Private aTitulos    := {}
 Private aPlans      := {}
 Private aDbf        := {}
-Private aHeader     := {}
+Private aTamCol		:= {}
+Private aTotal		:= {}
 Private cAliasQry   := ""
 Private cAliasTrb   := GetNextAlias()
 Private nCont       := 0
@@ -61,10 +64,10 @@ Private nColVenc 	:= 0
 Private nColValor	:= 0
 Private nColVSaldo	:= 0
 
-Private nPosT := 14
-Private nPosV := 15
-Private nPosS := 16
-Private nPosL := 17
+Private nPosT := 16
+Private nPosV := 17
+Private nPosS := 18
+Private nPosL := 19
 
 aAdd( aParam, { 1, "Data Inicial:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Data Final:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })  
@@ -151,6 +154,8 @@ aAdd(aFields,{"XX_PARCELA","E2_PARCELA"})
 aAdd(aFields,{"XX_XXTIPBK","E2_XXTIPBK","","Tipo","@!","C",6,0})
 nColTipo := Len(aFields)
 aAdd(aFields,{"XX_PRODUTO","D1_COD","(cAliasTrb)->XX_PRODUTO"})
+aAdd(aFields,{"XX_PORTADO","E2_PORTADO"})
+aAdd(aFields,{"XX_FORMPGT" ,"","(cAliasTrb)->XX_FORMPGT","Forma pgto","@!","C",40,0})
 //aAdd(aFields,{"XX_PRODUTO","D1_COD","(cAliasTrb)->XX_PRODUTO","Produto","@!","C",50,0})
 aAdd(aFields,{"XX_DESC"   ,"B1_DESC","(cAliasTrb)->XX_DESC"})
 aAdd(aFields,{"XX_VENCREA","E2_VENCREA"})
@@ -217,41 +222,52 @@ For nF := 1 To Len(aFields)
 	If nTam = 0
 		nTam  := GetSX3Cache(aFields[nF,2],"X3_TAMANHO")
 	EndIf
-	If nDec = 0
+	If nDec = 0 .and. GetSX3Cache(aFields[nF,2],"X3_DECIMAL") <> Nil
 		nDec  := GetSX3Cache(aFields[nF,2],"X3_DECIMAL")			
 	EndIf
 		
 	aAdd( aDbf, {cCampo , cTipo, nTam, nDec } )
-	aAdd(aCabs  ,cTitC)
-	aAdd(aHeader,{	cTitC,;
-					cCampo,;
-					cPict,;
-					nTam,;
-					nDec,;
-					"",;
-					"",;
-					cTipo,;
-					cAliasTrb,;
-					"R"})
+	aAdd( aCabs, cTitC)
+
+	nTamCol := 0
+	lTotal  := .F.
+	If cTipo == "N"
+		nTamCol := 17
+		lTotal  := .T.
+	ElseIf cTipo == "D"
+		nTamCol := 15
+	Else
+		If nTam > 8
+			nTamCol := nTam + 1
+		EndIf
+	EndIf
+	aAdd( aTamCol, nTamCol)
+	aAdd( aTotal,lTotal)
 Next
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
-//IndRegua(cAliasTrb,cArqTmp,"XX_NUM",,,"Indexando Arquivo de Trabalho") 
+oTempTable := FWTemporaryTable():New( cAliasTrb )
+oTemptable:SetFields( aDbf )
+
+//oTempTable:AddIndex("01", {"DESCR"} )
+oTempTable:Create()
+
+nCont:= 0
 
 Processa( {|| ProcBKR25() })
 
-//AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+If nCont > 0
+	MsAguarde({|| BKFINX25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
+Else
+    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
+EndIf
 
-//MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
-
-//MsAguarde({|| BKFINE25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
-MsAguarde({|| BKFINX25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
-
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTempTable:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 If Substr(cAltPrd,1,1) == "S"
 	AltGrpFin()
@@ -262,7 +278,7 @@ Return
 Static Function BkFR25
 Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
-If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINR25",.T.         ,.T.))
+If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
 	lRet     := .T.
 
 	dDataI   := mv_par01
@@ -275,11 +291,16 @@ Return lRet
 
 
 Static Function ProcBKR25
-Local cQuery  := ""
-Local nF      := 0
-Local nValor  := 0
-Local nSaldo  := 0
-Local cTipoBk := ""
+Local cQuery 	:= ""
+Local nF 		:= 0
+Local nValor 	:= 0
+Local nSaldo 	:= 0
+Local cTipoBk	:= ""
+Local cFilF1	:= ""
+Local cxTipoPg 	:= ""
+Local cxNumPa 	:= ""
+Local cFormaPgto := ""
+Local cDadosBanc := ""
 
 Private xCampo
 
@@ -292,20 +313,22 @@ Next
 //For nF := 1 To Len(aOthers)
 //	cQuery += aOthers[nF]+","
 //Next
-cQuery += "R_E_C_N_O_ AS E2_RECNO"
-cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" 
-cQuery += " WHERE SE2.D_E_L_E_T_ = ' ' "
-cQuery += " AND SE2.E2_FILIAL = '" + xFilial("SE2") + "' "
-cQuery += " AND SE2.E2_TIPO NOT IN "+FormatIn(MVABATIM,";")
+cQuery += "R_E_C_N_O_ AS E2RECNO"+ CRLF
+cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" + CRLF
+cQuery += " WHERE SE2.D_E_L_E_T_ = ' ' "+ CRLF
+cQuery += " AND SE2.E2_FILIAL = '" + xFilial("SE2") + "' "+ CRLF
+cQuery += " AND SE2.E2_TIPO NOT IN "+FormatIn(MVABATIM,";")+ CRLF
 If !Empty(dDataI)
-	cQuery += " AND SE2.E2_VENCREA >= '"+DTOS(dDataI)+"'"
+	cQuery += " AND SE2.E2_VENCREA >= '"+DTOS(dDataI)+"'"+ CRLF
 EndIf
 If !Empty(dDataF)
-	cQuery += " AND SE2.E2_VENCREA <= '"+DTOS(dDataF)+"'"
+	cQuery += " AND SE2.E2_VENCREA <= '"+DTOS(dDataF)+"'"+ CRLF
 EndIf          
-cQuery += " ORDER BY E2_NUM"
+cQuery += " ORDER BY E2_NUM"+ CRLF
 
-//MemoWrite("BKFINR25.SQL",cQuery)
+IF __cUserId == "000000"
+	MemoWrite("C:\TEMP\BKFINR25.SQL",cQuery)
+EndIf
 	
 cAliasQry := "TMPR25" //GetNextAlias()
 
@@ -320,7 +343,8 @@ ProcRegua((cAliasQry)->(RecCount()))
 nCont := 0
 dbSelectArea("SD1")  // * Itens da N.F. de Compra
 dbSetOrder(1)
-aPrd := {}
+aPrd   := {}
+cFilF1 := xFilial("SF1")
 
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
@@ -329,7 +353,7 @@ DO WHILE (cAliasQry)->(!EOF())
 	IncProc("Consultando banco de dados...")
 	dbSelectArea(cAliasTrb)
 	Reclock(cAliasTrb,.T.)
-	SE2->(dbGoTo((cAliasQry)->E2_RECNO))
+	SE2->(dbGoTo((cAliasQry)->E2RECNO))
 
 	For nF := 1 To Len(aFields)
 		If Len(aFields[nF]) > 2 .AND. !Empty(aFields[nF,3])
@@ -342,11 +366,31 @@ DO WHILE (cAliasQry)->(!EOF())
 		If aFields[nF,2] = "E2_SALDO"
 			nSaldo := SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZ,"P",SE2->E2_FORNECE,1,,dDataI-1,SE2->E2_LOJA,,0/*nTxMoeda*/)
 			xCampo := nSaldo
+        ElseIf aFields[nF,1] = "XX_FORMPGT"
+            SE2->(dbGoTo((cAliasQry)->E2RECNO))
+            dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
+            dbSetOrder(1)
+            If dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                cxTipoPg := SF1->F1_XTIPOPG
+                cxNumPa  := SF1->F1_XNUMPA
+                If !Empty(cxTipoPg)
+                    cFormaPgto := TRIM(cxTipoPg)
+                    If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
+                        If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                            cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
+                        Else
+                            cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
+                        EndIf
+                        cFormaPgto += ": "+cDadosBanc
+                    ElseIf TRIM(cxTipoPg) == "P.A."
+                        cFormaPgto += " "+cxNumPa
+                    EndIf
+                EndIf
+            EndIf
+            xCampo := cFormaPgto
 		EndIf
-
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
 	Next
-
 
 	cTipoBk := TRIM((cAliasQry)->E2_XXTIPBK)
 
@@ -365,7 +409,7 @@ DO WHILE (cAliasQry)->(!EOF())
 
 	If Empty(cTipoBk)
 
-		SE2->(dbGoTo((cAliasQry)->E2_RECNO))
+		SE2->(dbGoTo((cAliasQry)->E2RECNO))
 
 	    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
     	IF dbSeek(xFilial("SD1")+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
@@ -452,9 +496,9 @@ oExcel:mergeCells(1,1,2,1)						//Mescla as células
 oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
 
 oExcel:Cell(1,2,"Pagamentos Diários - "+DTOC(dDataI),,nTitStyle)
-oExcel:Cell(1,14,"Totalizadores",,nTitStyle)
-oExcel:mergeCells(1,2,2,12)		//Mescla as células 
-oExcel:mergeCells(1,14,2,17)
+oExcel:Cell(1,16,"Totalizadores",,nTitStyle)
+oExcel:mergeCells(1,2,2,14)		//Mescla as células 
+oExcel:mergeCells(1,16,2,19)
 
 nLin := nTop
 For nJ := 1 To Len(aCabs)
@@ -463,9 +507,9 @@ NEXT
 
 // Cabeçalhos dos totalizadores
 oExcel:Cell(nLin,nPosT,"PESSOAL",,nPosStyle)
-oExcel:Cell(nLin,nPosV,"TOTAIS",,nPosStyle)
-oExcel:Cell(nLin,nPosS,"SALDOS",,nPosStyle)
-oExcel:Cell(nLin,nPosL,"SIGLAS",,nPosStyle)
+oExcel:Cell(nLin,nPosV,"TOTAIS" ,,nPosStyle)
+oExcel:Cell(nLin,nPosS,"SALDOS" ,,nPosStyle)
+oExcel:Cell(nLin,nPosL,"SIGLAS" ,,nPosStyle)
 
 oExcel:AddTamCol(1,1,10.45)
 oExcel:AddTamCol(2,2,03.90)
@@ -475,15 +519,17 @@ oExcel:AddTamCol(5,5,10.30)
 oExcel:AddTamCol(6,6,06.90)
 oExcel:AddTamCol(7,7,06.60)
 oExcel:AddTamCol(8,8,16.00)
-oExcel:AddTamCol(9,9,30.00)
-oExcel:AddTamCol(10,10,11.00)
-oExcel:AddTamCol(11,11,13.50)
-oExcel:AddTamCol(12,12,13.50)
-oExcel:AddTamCol(13,13,05.00)
-oExcel:AddTamCol(14,14,50.00)
-oExcel:AddTamCol(15,15,13.50)
-oExcel:AddTamCol(16,16,13.50)
-oExcel:AddTamCol(17,17,22)
+oExcel:AddTamCol(9,9,10.00)
+oExcel:AddTamCol(10,10,35.00)
+oExcel:AddTamCol(11,11,30.00)
+oExcel:AddTamCol(12,12,11.00)
+oExcel:AddTamCol(13,13,13.50)
+oExcel:AddTamCol(14,14,13.50)
+oExcel:AddTamCol(15,15,05.00)
+oExcel:AddTamCol(16,17,50.00)
+oExcel:AddTamCol(17,17,13.50)
+oExcel:AddTamCol(18,18,13.50)
+oExcel:AddTamCol(19,19,22)
 
 (cAliasTrb)->(dbgotop())
 
@@ -526,21 +572,23 @@ For nI := 1 To Len(aAports)
 	oExcel:Cell(nLin,nColTipo,IIF(!Empty(aAports[nI]),"APO",""),,nApoStyle)
 	oExcel:Cell(nLin,8 ,"",,nApoStyle)
 	oExcel:Cell(nLin,9 ,"",,nApoStyle)
+	oExcel:Cell(nLin,10,"",,nApoStyle)
+	oExcel:Cell(nLin,11 ,"",,nApoStyle)
 	oExcel:Cell(nLin,nColVenc,dDataI,,nDApoStyle)
 	oExcel:Cell(nLin,nColValor,0,,nVApoStyle)
 	oExcel:Cell(nLin,nColVSaldo,0,,nVApoStyle)
 	LPlan2(oExcel,nLin)
 Next
 
-oExcel:AddNome("TIPOBK" ,nTopV, 7,nLin,7)
-oExcel:AddNome("VALORES",nTopV,11,nLin,11)	
-oExcel:AddNome("SALDOS" ,nTopV,12,nLin,12)	
+oExcel:AddNome("TIPOBK" ,nTopV, nColTipo  ,nLin, nColTipo)
+oExcel:AddNome("VALORES",nTopV, nColValor ,nLin, nColValor)	
+oExcel:AddNome("SALDOS" ,nTopV, nColVSaldo,nLin, nColVSaldo)	
 
 nLin++
 oExcel:Cell(nLin,1,"Total",,nTotStyle)
-oExcel:mergeCells(nLin,1,nLin,10)
-oExcel:Cell(nLin,11,0,"SUM(VALORES)",nT2Style)
-oExcel:Cell(nLin,12,0,"SUM(SALDOS)",nT2Style)
+oExcel:mergeCells(nLin,1,nLin,12)
+oExcel:Cell(nLin,nColValor,0,"SUM(VALORES)",nT2Style)
+oExcel:Cell(nLin,nColVSaldo,0,"SUM(SALDOS)",nT2Style)
 //oExcel:Cell(nLin,9,0,"SUM("+cCVal+ALLTRIM(STR(nTopV))+":"+cCVal+ALLTRIM(STR(nLin-1))+")",nV2Style)
 LPlan2(oExcel,nLin)
 

@@ -68,7 +68,7 @@ EndIf
 
 aAdd(aTitulos,cPerg+"/"+TRIM(cUserName)+" - "+cTitulo)
 
-aAdd(aFields,{"XX_TITULO"  ,"","XX_TITULO","Titulo","@!","C",12,0})
+aAdd(aFields,{"XX_TITULO"  ,"","XX_TITULO","Titulo","@!","C",13,0})
 aAdd(aFields,{"XX_FORNECE" ,"","XX_FORNECE","Fornecedor","@!","C",60,0})
 aAdd(aFields,{"XX_TIPO"    ,"E2_TIPO"})
 aAdd(aFields,{"XX_VENC"    ,"E2_VENCREA"})
@@ -176,23 +176,18 @@ Next
 //----------------------------
 //Criação da tabela temporária
 //----------------------------
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
-//oTempTable := FWTemporaryTable():New( cAliasTrb )
-//oTemptable:SetFields( aDbf )
+oTempTable := FWTemporaryTable():New( cAliasTrb )
+oTemptable:SetFields( aDbf )
 
 //oTempTable:AddIndex("01", {"DESCR"} )
-//oTempTable:Create()
+oTempTable:Create()
 nCont:= 0
 
 Processa( {|| ProcBKR27() })
 
-//AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-
-//MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
-
-//MsAguarde({|| BKFINE25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
 If nCont > 0
     MsAguarde({|| BKFINX27(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
 else
@@ -200,17 +195,17 @@ else
 EndIf
 
 
-//oTempTable:Delete()
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTempTable:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 Return
 
 
 Static Function BkFR27
 Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
-If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINR27",.T.         ,.T.))
+If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINR27",.T.         ,.T.))
 	lRet     := .T.
 	dDataI   := mv_par01
 	dDataF   := mv_par02
