@@ -264,11 +264,11 @@ dbSetOrder(1)
 cQuery := " SELECT ZP_NUMERO,ZP_CONTRAT,ZP_SEQ,ZP_OCORR,ZP_DATAPRV,ZP_FINALIZ,ZP_EFICIEN, "
 cQuery += " (SELECT TOP 1 CN9_XXNGC FROM "+RETSQLNAME("CN9")+" CN9 "
 cQuery += "      WHERE CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''" 
-cQuery += "            AND CN9_NUMERO = ZP_CONTRAT AND CN9_SITUAC <> '10') AS CN9_XXNGC, "
+cQuery += "            AND CN9_NUMERO = ZP_CONTRAT AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09') AS CN9_XXNGC, "
 
 cQuery += " (SELECT TOP 1 CN9_NOMCLI FROM "+RETSQLNAME("CN9")+" CN9 "
 cQuery += "      WHERE CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''" 
-cQuery += "            AND CN9_NUMERO = ZP_CONTRAT AND CN9_SITUAC <> '10') AS CN9_NOMCLI "
+cQuery += "            AND CN9_NUMERO = ZP_CONTRAT AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09') AS CN9_NOMCLI "
 
 cQuery += " FROM "+RETSQLNAME("SZP")+" SZP"
 cQuery += " WHERE ZP_FILIAL = '"+xFilial("SZP")+"' AND  SZP.D_E_L_E_T_ = ''" 

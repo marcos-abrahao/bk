@@ -695,26 +695,26 @@ FOR _nI := 1 TO nPeriodo
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 2
    			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 3
    			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'"
    			ENDIF
 		ELSE
    	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"
 			//cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'"  
- 			cQuery += " AND CN9.CN9_SITUAC <> '10'"
+ 			cQuery += " AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'"
 		ENDIF
     ELSE
 		cContrCons := ""
@@ -907,26 +907,26 @@ FOR _nI := 1 TO nPeriodo
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 2
    			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 3
    			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSE
    	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"
 //			cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'"
-			cQuery += " AND CN9.CN9_SITUAC <> '10'"
+			cQuery += " AND CN9.CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
 		ENDIF
     ELSE
 		cContrCons := ""
@@ -3765,25 +3765,25 @@ IF !EMPTY(cContrato)
    		IF cTipoContra == 'A'
 			cQuery += " AND CN9_SITUAC = '05'"
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    		ENDIF
 	ELSEIF nConsol == 2
    		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
    		IF cTipoContra == 'A'
 			cQuery += " AND CN9_SITUAC = '05'"
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    		ENDIF
 	ELSEIF nConsol == 3
    		cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
    		IF cTipoContra == 'A'
 			cQuery += " AND CN9_SITUAC = '05'"
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    		ENDIF
 	ELSE
    		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'" 
-		cQuery += " AND CN9_SITUAC <> '10'"
+		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
 	ENDIF
 	
 	cQuery += "	) AS REGISTRO"
@@ -4232,7 +4232,7 @@ IF nConsolida == 1
 	    		cQuery += " FROM "+RETSQLNAME("CNF")+ " CNF"
 				cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"
 				cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
 				cQuery += " AND CNF.CNF_CONTRA='"+ALLTRIM(cCONTRA)+"'AND "
 				cQuery += " CNF.CNF_FILIAL = '"+xFilial("CNF")+"' "
 				cQuery += " AND CNF.CNF_COMPET='"+SUBSTR(DTOS(CTOD(cPERIODO)),5,2)+"/"+SUBSTR(DTOS(CTOD(cPERIODO)),1,4)+"'"
@@ -4319,7 +4319,7 @@ ELSE
     		cQuery += " FROM "+RETSQLNAME("CNF")+ " CNF"
 			cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"
 			cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
 			cQuery += " AND CNF.CNF_CONTRA='"+ALLTRIM(cCONTRA)+"'AND "
 			cQuery += " CNF.CNF_FILIAL = '"+xFilial("CNF")+"' "
 			cQuery += " AND CNF.CNF_COMPET='"+SUBSTR(DTOS(CTOD(cPERIODO)),5,2)+"/"+SUBSTR(DTOS(CTOD(cPERIODO)),1,4)+"'"

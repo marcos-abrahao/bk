@@ -324,29 +324,29 @@ IF !EMPTY(cContrato)
    		IF cTipoContra == 'A'
 			cQuery += " AND CN9_SITUAC = '05'"
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    		ENDIF
 	ELSEIF nConsol == 2
    		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
    		IF cTipoContra == 'A'
 			cQuery += " AND CN9_SITUAC = '05'"
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    		ENDIF
 	ELSEIF nConsol == 3
    		cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
    		IF cTipoContra == 'A'
 			cQuery += " AND CN9_SITUAC = '05'"
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    		ENDIF
 	ELSE
    		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'" 
-		cQuery += " AND CN9_SITUAC <> '10'"
+		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
 	ENDIF
    		
 	cQuery += " GROUP BY CN9_SITUAC"
-//	cQuery += " ROUP BY CN9_REVISA,CN9_SITUAC ORDER BY CN9_REVISA DESC"
+//	cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC ORDER BY CN9_REVISA DESC"
 
 ELSE
 	cContrCons := ""
@@ -647,21 +647,21 @@ FOR _nI := 1 TO nPeriodo
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 2
    			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 3
    			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSE
    	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"
@@ -835,21 +835,21 @@ FOR _nI := 1 TO nPeriodo
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 2
    			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSEIF nConsol == 3
    			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
    			IF cTipoContra == 'A'
 				cQuery += " AND CN9_SITUAC = '05'"
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
    			ENDIF
 		ELSE
    	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"

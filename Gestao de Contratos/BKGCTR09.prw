@@ -88,7 +88,7 @@ NEXT
 
 cQuery := " SELECT TOP 1 CNF_DTVENC"
 cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC NOT IN ('01','02','08','10')"
+cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC NOT IN ('01','02','08','09','10')"
 cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_='' ORDER BY CNF_DTVENC DESC"
 
 TCQUERY cQuery NEW ALIAS "QTMP1"
@@ -349,7 +349,7 @@ FOR _nI := 1 TO nPeriodo
     cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA AND  CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"
 	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
 	cQuery += " AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"
-	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' AND CN9.CN9_SITUAC NOT IN ('01','02','08','10')"
+	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' AND CN9.CN9_SITUAC NOT IN ('01','02','08','09','10')"
     IF !EMPTY(cContrCli)
     	IF nAgrupar == 1
     		cQuery += " AND CN9_CLIENT ='"+ALLTRIM(cContrCli)+"'"

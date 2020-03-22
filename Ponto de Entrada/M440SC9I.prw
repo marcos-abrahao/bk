@@ -32,17 +32,6 @@ ENDIF
 
 Return Nil
 
-
-User Function MTA410T()
-
-IF !EMPTY(SC5->C5_MDCONTR)
-// Gravar o nome do contrato na liberação dos pedidos de venda
-   RecLock("SC5",.F.)
-   SC5->C5_XXDESC  := Posicione("CTT",1,xFilial("CTT")+SC5->C5_MDCONTR,"CTT_DESC01")
-   MsUnlock()
-ENDIF
-
-Return Nil
 */
 
 

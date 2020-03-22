@@ -90,7 +90,7 @@ ELSE
 	CN9->(DBSETORDER(1))
 	IF CN9->(DBSEEK(xFILIAL("CN9")+cContra,.T.))
 		Do While CN9->(!eof())  .AND. ALLTRIM(CN9->CN9_NUMERO) == ALLTRIM(cContra) 
-			IF CN9->CN9_SITUAC <> '10'
+			IF CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
 			 	cRev 	 := CN9->CN9_REVISA
 				cCliente := CN9->CN9_CLIENT
 				cLoja 	 := CN9->CN9_LOJACL

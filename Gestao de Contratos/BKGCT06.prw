@@ -2754,7 +2754,7 @@ cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' 
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON A1_COD = CN9_CLIENT AND A1_LOJA = CN9_LOJACL"
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
 
-cQuery += " WHERE CN9.D_E_L_E_T_ = ' ' AND CN9_SITUAC <> '10'"
+cQuery += " WHERE CN9.D_E_L_E_T_ = ' ' AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
 
 //cQuery += " AND CN9_NUMERO='230000355'" 
 

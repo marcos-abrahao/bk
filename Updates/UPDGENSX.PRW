@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"05/03/2020"
+#DEFINE FIN_LAST_UPDATED 		"21/03/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,10 +179,10 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			AtuGenPar( @cTexto )
+			//AtuGenPar( @cTexto )
 			
 			//AtuGenE1( @cTexto )
-			//AtuGenX3( @cTexto )
+			AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
 
 
@@ -724,8 +724,12 @@ dbSelectArea( "SX3" )
 //APPEND FROM \x3sc5.dtc
 
 // Incluir competência da Medição no browse do SC5
+//dbSelectArea( "SX3" )
+//APPEND FROM \x3sB1.dtc
+
+// Incluir campo do usuario que liberou o pedido de venda
 dbSelectArea( "SX3" )
-APPEND FROM \x3sB1.dtc
+APPEND FROM \x3sc5.dtc
 
 X31UPDTABLE("SB1")
 
