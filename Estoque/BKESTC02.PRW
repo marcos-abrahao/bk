@@ -16,10 +16,7 @@
 */
 
 User Function BKESTC02()
-Local cAliasTopConst := ""
 
-Private cArqTemp2    := ""
-Private cArqTempConst := {}  
 Private _cSelect 
 Private _aCampos := {}
 Private _aStru := {}
@@ -29,6 +26,7 @@ Private cCodMat := space(15)
 Private oCombo  := ""
 Private cCombo  := Space(15)
 Private aCombo  := {}
+Private oTempTable AS oBject
 
 _cAlias := Alias()
 _nOrder := IndexOrd()
@@ -63,35 +61,15 @@ AADD(_aStru,{"PICMS"  ,"N", 5,2})			// Percentual ICMS
 AADD(_aStru,{"LOCALIZ","C",20,0})			// Localizacao
 AADD(_aStru,{"NCM"    ,"C",10,0})			// NCM
 
-cArqTemp2:=CriaTrab(_aStru,.T.)
-cArqTempConst:=CriaTrab(NIL,.F.)
-cAliasTopConst := cArqTempConst
-
 If Select("ARQTEMP")>0
 	DbSelectArea("ARQTEMP")
 	DbCLoseArea()
 End If
-DbUseArea(.T.,,cArqTemp2,"ARQTEMP")
+//DbUseArea(.T.,,cArqTemp2,"ARQTEMP")
 
-//DbClearIndex()
-
-//_cIndex :=Substr(CriaTrab(NIL,.F.),1,7)+"1"   
-//_cIndex2:=Substr(CriaTrab(NIL,.F.),1,7)+"2"   
-//_cIndex3:=Substr(CriaTrab(NIL,.F.),1,7)+"3"    
-
-//_cChave :="CODIGO+ARMAZEM"
-//_cChave2:="DESCRICAO+CODIGO+ARMAZEM"
-//_cChave3:="GRUPO+CODIGO+ARMAZEM"
-
-//Indregua("ARQTEMP",_cIndex,_cchave,,,"Selecionando Registros...")
-//Indregua("ARQTEMP",_cIndex2,_cchave2,,,"Selecionando Registros...")
-//Indregua("ARQTEMP",_cIndex3,_cchave3,,,"Selecionando Registros...")
-
-//dBSETINDEX(_cIndex+ordbagext())
-//dBSETINDEX(_cIndex2+ordbagext())
-//dBSETINDEX(_cIndex3+ordbagext())
-
-//dbSetorder(1)
+oTempTable := FWTemporaryTable():New( "ARQTEMP" ) 
+oTemptable:SetFields( _aStru )
+oTempTable:Create()
 
 DbSelectArea("ARQTEMP")
 Dbgotop()
@@ -131,13 +109,7 @@ SButton():New( 260, 460,  2, {|| Close(oDlg2) },oDlg2,.T.,"Fecha a Consulta")
 
 ACTIVATE DIALOG oDlg2 CENTERED 
 
-DbSelectArea("ARQTEMP")
-DBCLOSEAREA()
-FERASE(cArqTempConst+getDbExtension())
-FERASE(cArqTemp2+getDbExtension())
-//FERASE(_cIndex+getDbExtension())
-//FERASE(_cIndex2+getDbExtension())
-//FERASE(_cIndex3+getDbExtension())
+oTempTable:Delete()
 
 DbSelectArea(_cAlias)
 DbSetOrder(_nOrder)
@@ -229,11 +201,8 @@ Local  aItem    := {}
 Return nil
 
 
-
-
 //-------------------------------------------------------
 Static Function UltVendas()
-Local _NomeUser := alltrim(UsrRetName(__cUserId))
 Local aArea     := GetArea()
 Local cAliasQry := GetNextAlias()
 Local cQuery, aTmp, oDlg, oLbx
@@ -242,16 +211,6 @@ Local cCondVend := ""
 
 	DBSelectArea("SA3")
 	DBSetOrder(7)
-
-	If dbSeek(xFilial("SA3")+__cUserId)
-		If _NomeUser <> 'Administrador' .AND. _NomeUser <> 'Eduardo' .and. _NomeUser <> 'Neia' .and. _NomeUser <> 'Eliane' .and. _NomeUser <> 'Rosa' .and. _NomeUser <> 'Ellen'  
-			cCondVend := " and C5_VEND1 = '" + SA3->A3_COD + "' "
-		Endif
-	ELSE
-		If _NomeUser <> 'Administrador' .AND. _NomeUser <> 'Eduardo' .and. _NomeUser <> 'Neia' .and. _NomeUser <> 'Eliane' .and. _NomeUser <> 'Rosa' .and. _NomeUser <> 'Ellen'
-			cCondVend := " and C5_VEND1 != 'PAT' "
-		Endif
-	Endif
 
 	cQuery := "select top 10 SD2.R_E_C_N_O_ D2RECNO, D2_CCUSTO, B1_DESC, A1_NOME from "+RetSqlName("SD2") + " SD2 (nolock) "  
 	cQuery += " join "+RetSqlName("SC5")+" SC5 (nolock) on C5_FILIAL='"+xFilial("SC5")+"' and C5_NUM=D2_PEDIDO and SC5.D_E_L_E_T_ = '' "
@@ -318,106 +277,94 @@ Local cCondVend := ""
 Return nil
 
 
-
-
-
 //-------------------------------------------------------
 Static Function FiltraCod(cCodMat,oCombo,lLike)
+Local cAliasQry := GetNextAlias()
 
-	If Select("ARQTEMP") > 0
-		DbSelectArea("ARQTEMP")
-		DbCLoseArea()
-		FERASE(cArqTemp2+getDbExtension())
-	EndIf
-	
-	cArqTemp2 := CriaTrab(_aStru,.T.)
-	DbUseArea(.T.,,cArqTemp2,"ARQTEMP")
+oTempTable:Delete()
+oTempTable := FWTemporaryTable():New( "ARQTEMP" ) 
+oTemptable:SetFields( _aStru )
+oTempTable:Create()
                       
-	cQuery := "SELECT  SB1.B1_GRUPO AS GRUPO,SB2.B2_COD AS CODIGO, SB2.B2_LOCAL AS ARMAZEM, SB1.B1_DESC AS DESCRICAO, SB1.B1_PRV1 AS PRECO "
-	cQuery += 				", SB2.B2_QATU AS ATUAL, SB2.B2_QEMP AS EMPENHADO, SB2.B2_QPEDVEN AS PEDIDOVENDA, SB2.B2_RESERVA AS RESERVAS "
-	cQuery += 				", SB2.B2_SALPEDI AS SALPEDIDOS "
-	cQuery += 				", B2_CM1, B2_CM2, B1_IPI, B1_PICM, B1_POSIPI "
-	cQuery += "FROM "+RetSqlName("SB2")+ " SB2, "+RetSqlName("SB1")+ " SB1 "
-	cQuery += "WHERE  SB1.B1_FILIAL = '" + xfilial("SB1") + "' AND  SB2.B2_FILIAL = '" + xfilial("SB2") + "' AND "
-	cQuery += "SB1.B1_COD = SB2.B2_COD AND "
+cQuery := "SELECT  SB1.B1_GRUPO AS GRUPO,SB2.B2_COD AS CODIGO, SB2.B2_LOCAL AS ARMAZEM, SB1.B1_DESC AS DESCRICAO, SB1.B1_PRV1 AS PRECO "
+cQuery += 				", SB2.B2_QATU AS ATUAL, SB2.B2_QEMP AS EMPENHADO, SB2.B2_QPEDVEN AS PEDIDOVENDA, SB2.B2_RESERVA AS RESERVAS "
+cQuery += 				", SB2.B2_SALPEDI AS SALPEDIDOS "
+cQuery += 				", B2_CM1, B2_CM2, B1_IPI, B1_PICM, B1_POSIPI "
+cQuery += "FROM "+RetSqlName("SB2")+ " SB2, "+RetSqlName("SB1")+ " SB1 "
+cQuery += "WHERE  SB1.B1_FILIAL = '" + xfilial("SB1") + "' AND  SB2.B2_FILIAL = '" + xfilial("SB2") + "' AND "
+cQuery += "SB1.B1_COD = SB2.B2_COD AND "
 
-	If oCombo == "Por Codigo"
-		If lLike
-			cQuery += "SB2.B2_COD LIKE '%"+ALLTRIM(cCodMat)+"%' AND "
-		Else
-			cQuery += "SB2.B2_COD = '"+ALLTRIM(cCodMat)+"' AND "
-		EndIf
-	ElseIf oCombo == "Por Descrição"                          
-		cQuery += "SB1.B1_DESC LIKE '%"+ALLTRIM(cCodMat)+"%' AND "
-	Else  //por grupo
-		If lLike
-			cQuery += "SB1.B1_GRUPO LIKE '%"+ALLTRIM(cCodMat)+"%' AND "
-		Else
-			cQuery += "SB1.B1_GRUPO = '"+ALLTRIM(cCodMat)+"' AND "
-		EndIf
+If oCombo == "Por Codigo"
+	If lLike
+		cQuery += "SB2.B2_COD LIKE '%"+ALLTRIM(cCodMat)+"%' AND "
+	Else
+		cQuery += "SB2.B2_COD = '"+ALLTRIM(cCodMat)+"' AND "
 	EndIf
+ElseIf oCombo == "Por Descrição"                          
+	cQuery += "SB1.B1_DESC LIKE '%"+ALLTRIM(cCodMat)+"%' AND "
+Else  //por grupo
+	If lLike
+		cQuery += "SB1.B1_GRUPO LIKE '%"+ALLTRIM(cCodMat)+"%' AND "
+	Else
+		cQuery += "SB1.B1_GRUPO = '"+ALLTRIM(cCodMat)+"' AND "
+	EndIf
+EndIf
+cQuery += "SB1.D_E_L_E_T_ <> '*' AND "
+cQuery += "SB2.D_E_L_E_T_ <> '*'  "
+	
+If oCombo == "Por Codigo"
+	cQuery += "ORDER BY SB2.B2_COD,SB2.B2_LOCAL "
+ElseIf oCombo == "Por Descrição"                          
+	cQuery += "ORDER BY SB1.B1_DESC,SB2.B2_COD,SB2.B2_LOCAL"
+Else  //por grupo
+	cQuery += "ORDER BY SB1.B1_GRUPO,SB2.B2_COD,SB2.B2_LOCAL"
+EndIf
+	
+cQuery := ChangeQuery(cQuery)
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasQry,.T.,.F.)
 
-	cQuery += "SB1.D_E_L_E_T_ <> '*' AND "
-	cQuery += "SB2.D_E_L_E_T_ <> '*'  "
-	
-	If oCombo == "Por Codigo"
-		cQuery += "ORDER BY SB2.B2_COD,SB2.B2_LOCAL "
-	ElseIf oCombo == "Por Descrição"                          
-		cQuery += "ORDER BY SB1.B1_DESC,SB2.B2_COD,SB2.B2_LOCAL"
-	Else  //por grupo
-		cQuery += "ORDER BY SB1.B1_GRUPO,SB2.B2_COD,SB2.B2_LOCAL"
-	EndIf
-	
-	If Select(cArqTempConst)>0
-		DbSelectArea(cArqTempConst)
-		DbCLoseArea()
-	EndIf
-	
-	cQuery := ChangeQuery(cQuery)
-	dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cArqTempConst,.T.,.F.)
-
-	While !eof()
-	   cGrupo 		:= GRUPO
-	   cCodigo 		:= CODIGO
-	   cArmazem		:= ARMAZEM
-	   cDescricao	:= DESCRICAO
-	   nAtual		:= ATUAL
-	   nEmpenhado	:= EMPENHADO
-	   nPedVenda	:= PEDIDOVENDA
-	   nReservas	:= RESERVAS
-	   nPedidos		:= SALPEDIDOS
+While !eof()
+	cGrupo 		:= GRUPO
+	cCodigo 	:= CODIGO
+	cArmazem	:= ARMAZEM
+	cDescricao	:= DESCRICAO
+	nAtual		:= ATUAL
+	nEmpenhado	:= EMPENHADO
+	nPedVenda	:= PEDIDOVENDA
+	nReservas	:= RESERVAS
+	nPedidos	:= SALPEDIDOS
    
-	   nDisponivel	:= nAtual-(nEmpenhado+nReservas+nPedVenda)
+	nDisponivel	:= nAtual-(nEmpenhado+nReservas+nPedVenda)
    
-	   DbSelectArea("ARQTEMP")
-	   Reclock("ARQTEMP",.T.)
-
-	   ARQTEMP->GRUPO 		:= cGrupo
-	   ARQTEMP->CODIGO 		:= cCodigo
-	   ARQTEMP->ARMAZEM 	:= cArmazem
-	   ARQTEMP->DESCRICAO 	:= cDescricao
-	   ARQTEMP->ATUAL 		:= nAtual
-	   ARQTEMP->EMPENHADO 	:= nEmpenhado
-	   ARQTEMP->PEDVENDA 	:= nPedVenda
-	   ARQTEMP->RESERVAS 	:= nReservas
-	   ARQTEMP->PEDIDOS 	:= nPedidos
-	   ARQTEMP->DISPONIVEL  := nDisponivel
-
-		ARQTEMP->CM1		:= (cArqTempConst)->B2_CM1
-		ARQTEMP->CM2		:= (cArqTempConst)->B2_CM2
-		ARQTEMP->PIPI		:= (cArqTempConst)->B1_IPI
-		ARQTEMP->PICMS		:= (cArqTempConst)->B1_PICM
-		ARQTEMP->NCM		:= (cArqTempConst)->B1_POSIPI
-
-	   MsUnlock()
-	   DbSelectArea(cArqTempConst)
-	   DbSkip()
-	Enddo
-
 	DbSelectArea("ARQTEMP")
-	Dbgotop()
-	oBrowse:oBrowse:Refresh()
+	Reclock("ARQTEMP",.T.)
+
+	ARQTEMP->GRUPO 		:= cGrupo
+	ARQTEMP->CODIGO 	:= cCodigo
+	ARQTEMP->ARMAZEM 	:= cArmazem
+	ARQTEMP->DESCRICAO 	:= cDescricao
+	ARQTEMP->ATUAL 		:= nAtual
+	ARQTEMP->EMPENHADO 	:= nEmpenhado
+	ARQTEMP->PEDVENDA 	:= nPedVenda
+	ARQTEMP->RESERVAS 	:= nReservas
+	ARQTEMP->PEDIDOS 	:= nPedidos
+	ARQTEMP->DISPONIVEL := nDisponivel
+
+	ARQTEMP->CM1		:= (cAliasQry)->B2_CM1
+	ARQTEMP->CM2		:= (cAliasQry)->B2_CM2
+	ARQTEMP->PIPI		:= (cAliasQry)->B1_IPI
+	ARQTEMP->PICMS		:= (cAliasQry)->B1_PICM
+	ARQTEMP->NCM		:= (cAliasQry)->B1_POSIPI
+	MsUnlock()
+	DbSelectArea(cAliasQry)
+	DbSkip()
+Enddo
+
+DbSelectArea("ARQTEMP")
+Dbgotop()
+oBrowse:oBrowse:Refresh()
    
-   Dbgotop()
+Dbgotop()
+
 Return
  

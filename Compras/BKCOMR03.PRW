@@ -110,6 +110,17 @@ Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 Local nCount
 Local cStaf,lStaf,cSuper,aUser,cMDiretoria,cFiltro := ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
+Local cUniao   := ""
+Local cINSS    := ""
+Local cMunic   := ""
+Local cTxUniao := "TX "  // PadR(MVTAXA,Len(SE2->E2_TIPO))
+Local cTxINSS  := "INS"  // PadR(MVINSS,Len(SE2->E2_TIPO))
+Local cTxMunic := "ISS"  //PadR(MVISS,Len(SE2->E2_TIPO))
+
+dbSelectArea("SE2")
+cUniao   := PadR(GetMv('MV_UNIAO') ,Len(SE2->E2_FORNECE)) + PadR('00',Len(SE2->E2_LOJA))
+cINSS    := PadR(GetMv('MV_FORINSS'),Len(SE2->E2_FORNECE))+ PadR('00',Len(SE2->E2_LOJA))
+cMunic   := PadR(GetMv('MV_MUNIC'),Len(SE2->E2_FORNECE))  + PadR('00',Len(SE2->E2_LOJA))
 
 // Filtro do usuario
 IF __cUserId <> "000000" // Administrador
@@ -300,13 +311,6 @@ While !QSF1->(EOF())
 	cParcPis := SE2->E2_PARCPIS
 	cParcCsll:= SE2->E2_PARCSLL
       
-	cUniao := PadR(GetMv('MV_UNIAO') ,Len(SE2->E2_FORNECE)) + PadR('00',Len(SE2->E2_LOJA))
-	cINSS  := PadR(GetMv('MV_FORINSS'),Len(SE2->E2_FORNECE))+ PadR('00',Len(SE2->E2_LOJA))
-	cMunic := PadR(GetMv('MV_MUNIC'),Len(SE2->E2_FORNECE))  + PadR('00',Len(SE2->E2_LOJA))
-	                                                                                      
-	cTxUniao := "TX "  // PadR(MVTAXA,Len(SE2->E2_TIPO))
-	cTxINSS  := "INS"  // PadR(MVINSS,Len(SE2->E2_TIPO))
-	cTxMunic := "ISS"  //PadR(MVISS,Len(SE2->E2_TIPO))
 
     aAreaSE2 := SE2->(GetArea())
 	

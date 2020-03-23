@@ -56,7 +56,7 @@ Local cNomUser := ""
 Local cUser    := __cUserId
 Local aCamposF2:= {}
 Local aStruct1 := {}
-Local cArqTmp1 := ""
+
 Local nI       := 0
 Local oDlg01
 Local oPanelTop 
@@ -125,10 +125,16 @@ AADD(aStruct1, {"F2_XXOBSFA","C" ,GetSx3Cache("F2_XXOBSFA", "X3_TAMANHO"),0})
 
 AADD(aStruct1, {"F2_XXRECNO","N" ,12,0})
 
-cArqTmp1 := CriaTrab(aStruct1)
-dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-IndRegua (cAliasTmp1,cArqTmp1,"F2_DOC",,,OemToAnsi("Selecionando Registros...") )  //
-dbSetOrder(1)
+//cArqTmp1 := CriaTrab(aStruct1)
+//dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
+//IndRegua (cAliasTmp1,cArqTmp1,"F2_DOC",,,OemToAnsi("Selecionando Registros...") )  //
+//dbSetOrder(1)
+
+oTempTable := FWTemporaryTable():New( cAliasTmp1 ) 
+oTemptable:SetFields( aStruct1 )
+oTempTable:AddIndex("indice1", {"F2_DOC"} )
+oTempTable:Create()
+
 
 dbSelectArea("SF2")
 dbSetOrder(1)// F2_FILIAL, F2_DOC, F2_SERIE, F2_CLIENTE, F2_LOJA, F2_FORMUL, R_E_C_N_O_, D_E_L_E_T_
@@ -165,11 +171,8 @@ EndIf
 MsAguarde({|| nI := ProcQuery(cQuery)},"Aguarde","Selecionando documentos...",.F.)
 
 If nI == 0
-	(cAliasTmp1)->( dbCloseArea() )
+	oTempTable:Delete() 
 	(cAliasTmp2)->( dbCloseArea() )
-
-	fErase( cArqTmp1 + OrdBagExt() )
-	fErase( cArqTmp1 + GetDBExtension() )
 
 	RestArea( aAreaAtu )
 	MsgStop("Documentos não encontrados para este usuário")
@@ -237,7 +240,7 @@ nSnd += nTLin
    //oPanelRight:align:= CONTROL_ALIGN_RIGHT
 
 
-oMark := MsSelect():New(cAliasTmp1,"F2_OK","",aCamposF2,@lInverte,@cMarca,{0,0,0,0},,,oDlg01)
+oMark := MsSelect():New(cAliasTmp1,"F2_OK","",aCamposF2,@lInverte,@cMarca,{0,2,0,0},,,oDlg01)
 
 
 //oMark:bAval := {|| MarcaCpo(.F.)}
@@ -273,11 +276,8 @@ If ( lOk )
 	ENDDO 
 EndIf
 
-(cAliasTmp1)->( dbCloseArea() )
+oTempTable:Delete() 
 (cAliasTmp2)->( dbCloseArea() )
-
-fErase( cArqTmp1 + OrdBagExt() )
-fErase( cArqTmp1 + GetDBExtension() )
 
 RestArea( aAreaAtu )
 
@@ -408,13 +408,36 @@ Return nI
 
 
 Static Function AjustaSX1(cPerg)
+Local aArea      := GetArea()
+Local aRegistros := {}
 
-PutSx1(cPerg,"01","Série:"		        ,"","","mv_ch1" ,"C",03,0,0,"G","",""			,"","","MV_PAR01","","","","","","","","","","","","","","","","",)
-PutSx1(cPerg,"02","Nota Fiscal inicial:","","","mv_ch2" ,"C",09,0,0,"G","","SF2"		,"","","MV_PAR02","","","","","","","","","","","","","","","","",)
-PutSx1(cPerg,"03","Nota Fiscal final:"	,"","","mv_ch3" ,"C",09,0,0,"G","","SF2"		,"","","MV_PAR03","","","","","","","","","","","","","","","","",)
-PutSx1(cPerg,"04","Emissão de:"         ,"","","mv_ch4" ,"D",08,0,0,"G","",""   		,"","","MV_PAR04","","","","","","","","","","","","","","","","",)
-PutSx1(cPerg,"05","Emissão até:"      	,"","","mv_ch5" ,"D",08,0,0,"G","",""   		,"","","MV_PAR05","","","","","","","","","","","","","","","","",)
-	
+dbSelectArea("SX1")
+dbSetOrder(1)
+cPerg := PADR(cPerg,10)
+
+AADD(aRegistros,{cPerg,"01","Série:"		      ,"","","mv_ch1" ,"C",03,0,0,"G","","MV_PAR01","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"S","",""})
+AADD(aRegistros,{cPerg,"02","Nota Fiscal inicial:","","","mv_ch2" ,"C",09,0,0,"G","","MV_PAR02","","","","","","","","","","","","","","","","","","","","","","","","","SF2","S","",""})
+AADD(aRegistros,{cPerg,"03","Nota Fiscal final:"  ,"","","mv_ch3" ,"C",09,0,0,"G","","MV_PAR03","","","","","","","","","","","","","","","","","","","","","","","","","SF2","S","",""})
+AADD(aRegistros,{cPerg,"04","Emissão de:"         ,"","","mv_ch4" ,"D",08,0,0,"G","","MV_PAR04","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"S","",""})
+AADD(aRegistros,{cPerg,"05","Emissão até:"        ,"","","mv_ch5" ,"D",08,0,0,"G","","MV_PAR05","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"S","",""})
+
+//AADD(aRegistros,{cPerg,"01","Data Digitação de :"  ,"Data Digitação de :" ,"Data Digitação de :" ,"mv_ch1","D",08,0,0,"G","NaoVazio()","mv_par01","","","        ","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+//          PutSx1(cPerg,"01","Série:"		       ,""                    ,""                    ,"mv_ch1","C",03,0,0,"G",""          ,""		 ,"","","MV_PAR01","","","","","","","","","","","","","","","","",)
+
+For i:=1 to Len(aRegistros)
+	If !dbSeek(cPerg+aRegistros[i,2])
+		RecLock("SX1",.T.)
+		For j:=1 to FCount()
+			If j <= Len(aRegistros[i])
+				FieldPut(j,aRegistros[i,j])
+			Endif
+		Next
+		MsUnlock()
+	Endif
+Next
+
+RestArea(aArea)
+
 Return (Nil)
 
 

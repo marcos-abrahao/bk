@@ -41,65 +41,62 @@ DbGoTop()
 
 ValidPerg(cPerg)
 	
-Do While .T.
-	If !Pergunte(cPerg,.T.)
-		Return
-	EndIf
+If !Pergunte(cPerg,.T.)
+	Return
+EndIf
 
-	cMesComp := STRZERO(VAL(mv_par01),2)
-	cAnoComp := STRZERO(VAL(mv_par02),4)
-	cCtaCred := mv_par03
+cMesComp := STRZERO(VAL(mv_par01),2)
+cAnoComp := STRZERO(VAL(mv_par02),4)
+cCtaCred := mv_par03
 
-	If VAL(cMesComp) < 1 .OR. VAL(cMesComp) > 12
-		MsgStop("Mes incorreto")
-		Loop
-	EndIf
+If VAL(cMesComp) < 1 .OR. VAL(cMesComp) > 12
+	MsgStop("Mes incorreto")
+	Return
+EndIf
 	
-	If VAL(cAnoComp) < 2010 .OR. VAL(cAnoComp) > 2020
-		MsgStop("Ano incorreto")
-		Loop
-	EndIf
+If VAL(cAnoComp) < 2010 .OR. VAL(cAnoComp) > 2020
+	MsgStop("Ano incorreto")
+	Return
+EndIf
 
-	If EMPTY(cCtaCred)
-		MsgStop("Conta contábila a crédito deve ser informada")
-		Loop
-	EndIf
+If EMPTY(cCtaCred)
+	MsgStop("Conta contábila a crédito deve ser informada")
+	Return
+EndIf
 	    
-	cPerComp := cAnoComp+CMesComp
-	If cPerComp >= cMesBase
-		MsgStop("Periodo selecionado deve ser anterior ao atual")
-		Loop
-	EndIf
+cPerComp := cAnoComp+CMesComp
+If cPerComp >= cMesBase
+	MsgStop("Periodo selecionado deve ser anterior ao atual")
+	Return
+EndIf
 	
-	// Verificar se há Lançamentos a gerar
-	cQuery  := "SELECT COUNT(*) AS Z2CONTAB " 
-	cQuery  += "FROM "+RETSQLNAME("SZ2")+" SZ2 "
-	cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
-	cQuery  += " AND SUBSTRING(Z2_DATAEMI,1,6) = '"+cPerComp+"' "
-	cQuery  += " AND Z2_VALOR > 0 "  // Existira valores zerados apenas como informativo que o pgto foi gerado pela folha
-	cQuery  += " AND Z2_CONTAB = ' ' "
-	cQuery  += " AND Z2_PRODUTO > ' ' "
-	cQuery  += " AND Z2_STATUS = 'S' "
-	cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'"
+// Verificar se há Lançamentos a gerar
+cQuery  := "SELECT COUNT(*) AS Z2CONTAB " 
+cQuery  += "FROM "+RETSQLNAME("SZ2")+" SZ2 "
+cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
+cQuery  += " AND SUBSTRING(Z2_DATAEMI,1,6) = '"+cPerComp+"' "
+cQuery  += " AND Z2_VALOR > 0 "  // Existira valores zerados apenas como informativo que o pgto foi gerado pela folha
+cQuery  += " AND Z2_CONTAB = ' ' "
+cQuery  += " AND Z2_PRODUTO > ' ' "
+cQuery  += " AND Z2_STATUS = 'S' "
+cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'"
 	
+TCQUERY cQuery NEW ALIAS "QSZ2"
 
-	TCQUERY cQuery NEW ALIAS "QSZ2"
+DbSelectArea("QSZ2")
+DbGoTop()
+nStatus := QSZ2->Z2CONTAB
+QSZ2->(DbCloseArea())
 	
-	DbSelectArea("QSZ2")
-	DbGoTop()
-	nStatus := QSZ2->Z2CONTAB
-	QSZ2->(DbCloseArea())
-	
-	IF nStatus > 0
-	   IF MsgYesNo("Confirma a geração de "+STRZERO(nStatus,6)+" lançamentos ?")
-	      Processa( {|| RunCtb02() } )
-	      Return
-	   ENDIF
-	ELSE
-	   MsgStop("Não há lançamentos para gerar","Atenção")    
-	ENDIF
-	
-EndDo
+IF nStatus > 0
+   IF MsgYesNo("Confirma a geração de "+STRZERO(nStatus,6)+" lançamentos ?")
+      Processa( {|| RunCtb02() } )
+      Return
+   ENDIF
+ELSE
+   MsgStop("Não há lançamentos para gerar","Atenção")    
+ENDIF
+
 RestArea(aArea1)
 
 Return

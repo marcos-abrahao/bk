@@ -91,7 +91,7 @@ Return
 Static Function ProcBKCOMR10
 Local cQuery := ""
 Local nReg   := 0
-Local cPref  := ""
+//Local cPref  := ""
 Local nQtdPc := 0
 Local nTotPc := 0
 Local cCampo := ""
@@ -180,8 +180,8 @@ Do While QSF1->(!EOF())
 	dbSelectArea("SE2") 
 
 	// Prefixo do SF1	
-	cPref := &("Q"+GetMV("MV_2DUPREF"))
-	cPref += Space(Len(SE2->E2_PREFIXO) - Len(cPref))
+	//cPref := &("Q"+GetMV("MV_2DUPREF"))
+	//cPref += Space(Len(SE2->E2_PREFIXO) - Len(cPref))
 
 	nQtdPc := 0
 	dbSeek(xFilial("SE2")+QSF1->F1_FORNECE+QSF1->F1_LOJA+QSF1->F1_SERIE+QSF1->F1_DOC)

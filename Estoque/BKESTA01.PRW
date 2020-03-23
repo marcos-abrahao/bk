@@ -351,7 +351,6 @@ BEGIN TRANSACTION
 		If lMsErroAuto
 			MostraErro()
 			DisarmTransaction()
-			Return .F.
 		ELSE
 			FOR nY := 1 TO LEN(aItens)
 				cQuery := "UPDATE "+RetSqlName("SC1")+" SET C1_QUJE=(C1_QUJE+"+STR(aItens[nY][2][2],TamSX3("C1_QUANT")[1],TamSX3("C1_QUANT")[2])+"),"
