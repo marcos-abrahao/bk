@@ -18,6 +18,7 @@ If SC5->C5_LIBEROK == "S"
 
    RecLock("SC5",.F.)
    SC5->C5_XXULIB := cUserName
+   SC5->C5_XXDLIB := Date()
 // Gravar o nome do contrato na liberação dos pedidos de venda
 // SC5->C5_XXDESC  := Posicione("CTT",1,xFilial("CTT")+SC5->C5_MDCONTR,"CTT_DESC01")
    MsUnlock()

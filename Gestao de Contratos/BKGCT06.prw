@@ -92,11 +92,6 @@ V8BKGct06()
 cFWEmp := SUBSTR(FWCodEmp(),1,2)
  
 ConOut("BKGCT06 Empresa:"+FWCodEmp()+".")
-If cFWEmp $ "01/02/14" 
-	ConOut("GRFBKGCT11: Processando Grafico Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
-	U_GRFBKGCT11(.T.)
-	ConOut("GRFBKGCT11: Finalizado processamento Grafico Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
-ENDIF
 
 If cFWEmp $ "01" 
 	ConOut("V9BKGct06: Aviso de pedido de compras aguardando aprovação - "+DTOC(DATE())+" "+TIME())   
@@ -118,6 +113,11 @@ If cFWEmp == "01"
 	//V12BKGct06()
 EndIf
 
+If cFWEmp $ "01/02/14" 
+	ConOut("GRFBKGCT11: Processando Grafico Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
+	U_GRFBKGCT11(.T.)
+	ConOut("GRFBKGCT11: Finalizado processamento Grafico Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
+ENDIF
 
 If cFWEmp $ "01/02/14" 
 	ConOut("BKGCTR23: Processando Dados do Dashboard  Funcionários e Glosas - "+DTOC(DATE())+" "+TIME())   

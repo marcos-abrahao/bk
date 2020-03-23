@@ -92,6 +92,7 @@ aAdd(aFields,{"XX_VALPED" ,"","XX_VALPED","Vl.Pedido",cPict,"N",18,2})
 aAdd(aFields,{"XX_EMISSAO","C5_EMISSAO","","Emissao Ped."})
 aAdd(aFields,{"XX_LIBEROK","C5_LIBEROK","","Ped. liberado"})
 aAdd(aFields,{"XX_LIBERAD","C5_XXULIB"})
+aAdd(aFields,{"XX_DATALIB","C5_XXDLIB"})
 aAdd(aFields,{"XX_COMPET" ,"C5_XXCOMPM"})
 aAdd(aFields,{"XX_MEDICAO","C5_MDNUMED"})
 aAdd(aFields,{"XX_PLANI"  ,"C5_MDPLANI"})
@@ -283,8 +284,11 @@ TCSETFIELD(cAliasQry,"C5_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"F2_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_BAIXA","D", 8,0)
+TCSETFIELD(cAliasQry,"C5_XXDLIB","D", 8,0)
 ProcRegua((cAliasQry)->(RecCount()))
-	
+
+
+
 nCont := 0
 
 dbSelectArea(cAliasQry)

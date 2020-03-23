@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"21/03/2020"
+#DEFINE FIN_LAST_UPDATED 		"22/03/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -731,7 +731,7 @@ dbSelectArea( "SX3" )
 dbSelectArea( "SX3" )
 APPEND FROM \x3sc5.dtc
 
-X31UPDTABLE("SB1")
+X31UPDTABLE("SC5")
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF + Replicate( "-", 128 ) + CRLF + CRLF
 
