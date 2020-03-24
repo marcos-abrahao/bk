@@ -2,57 +2,17 @@
 #include "rwmake.ch"
 #INCLUDE "topconn.ch"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFINR10  º Autor ³ Adilson do Prado         Data ³07/02/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Fluxo de Caixa - Realizado                                 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso        BK Consultoria                                              º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKFINR10
+BK - Fluxo de Caixa - Realizado
+@Return
+@author Adilson do Prado
+@since 07/02/14
+@version P12
+/*/
+//-------------------------------------------------------------------
 
-/*
--------------------------------- Release 3 ----------------------------------
-*/
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Fun‡…o	 ³ BKFINR10	³ Autor ³ Alessandro B. Freire  ³ Data ³ 04/04/97 ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Impress„o do Fluxo de caixa realizado. 					  ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Sintaxe	 ³ BKFINR10()												  ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³ Uso		 ³ Generico 												  ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³         ATUALIZACOES SOFRIDAS DESDE A CONSTRU€AO INICIAL.             ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Programador ³ Data   ³ BOPS ³  Motivo da Alteracao                     ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³ Eduardo    ³21/01/98³xxxxxx³ Desconsiderar mov. de ch p/ tit. no se5  ³±±
-±±³ Mauricio   ³20/03/98³xxxxxx³ Desmembrar transferencia entrada e sa¡da ³±±
-±±³ Mauricio   ³31/07/98³xxxxxx³ Trocar Resumo[9] por aResumo[9]		  ³±±
-±±³ Mauricio   ³07/08/98³xxxxxx³ Verificar A6_FLUXCAI           		  ³±±
-±±³ Wagner     ³20/08/98³xxxxxx³ Verificar A6_FLUXCAI na leitura do SE5   ³±±
-±±³ Andreia    ³13/10/98³xxxxxx³ alteracao no lay-out p/ativar set century³±±
-±±³ Mauricio   ³06/11/98³xxxxxx³ Revisao geral do relatorio     		  ³±±
-±±³ Andreia    ³09/12/98³xxxxxx³ Verificacao se existe baixa estornada    ³±±
-±±³            ³        ³      ³ ( TemBxCanc()).       		     		  ³±±
-±±³            ³        ³      ³ Verificacao se o motivo da baixa movimen-³±±
-±±³            ³        ³      ³ ta banco ( MovBcoBx())         		  ³±±
-±±³ Julio      ³04/03/99³19723A³ Desconsiderar mov. de ch p/ tit. no se5  ³±±
-±±³ Julio      ³30.03.99³META  ³ Verif. de Parametros de Tamanho  do Rel. ³±±
-±±ÀÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
 
 User Function BKFINR10()
 LOCAL wnrel
@@ -61,9 +21,6 @@ LOCAL cDesc1	:= "Este programa tem como objetivo imprimir o fluxo  "
 LOCAL cDesc2	:= "de Caixa dos movimentos financeiro ja realizados. "
 LOCAL cDesc3	:= ""
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Define Variaveis ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 PRIVATE cASSM_Prod	:= GetMv("MV_XXASSMP") //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
 PRIVATE cSINO_Prod	:= GetMv("MV_XXSINOP") //"|510|607|665|679|724|732|739|825|900|"
 PRIVATE cTitulo	    := OemToAnsi("Fluxo de Caixa Realizado ")
@@ -161,6 +118,7 @@ AADD(aDESCRH,{"CXA","Caixa - Prest. Contas"})
 AADD(aDESCRH,{"HOS","HOSPEDAGEM"})
 AADD(aDESCRH,{"DCH","Diaria de campo"})
 AADD(aDESCRH,{"EXM","EXAME MÉDICO ADMISSÃO"})
+AADD(aDESCRH,{"PEN","PENSÃO"})
 
 AADD(aSitFin,"Total Clientes")
 AADD(aSitFin,"A – RH")
@@ -261,7 +219,7 @@ If nAplic == 1
 	AADD(aCampos1,cAliasTmp1+"->EH_VALOR")
 	AADD(aCabs1  ,"Saldo das aplicações")
 
-	
+
 	AADD(aTitulos6,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Aplicações"))
 	
 	AADD(aStruct6,{"EH_NUMERO","C",GetSx3Cache("EH_NUMERO", "X3_TAMANHO"),0})

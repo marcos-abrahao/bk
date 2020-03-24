@@ -2,21 +2,16 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "RWMAKE.CH"
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKFINA04
+BK - Liquidos - Folha BK - Alteração de titulos (antes da baixa)
+@Return
+@author Marcos Bispo Abrahão
+@since 29/09/2009
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKFIN04   ºAutor  ³ Marcos B. Abrahão  º Data ³ 29/09/2009  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Liquidos - Folha BK - Alteração de titulos (antes da baixa)º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+//-------------------------------------------------------------------
 
-
-/*/ 
 
 /*
 User Function BKFINA04A()
@@ -192,13 +187,13 @@ Return
 
 Static Function ConfAltTit(aTitGer,aCtrId)
 Local nI,cMens
-Local nValor
+Local nValor := 0
 Local cBorde := "",cChave:=""
 Local aEmail := {}
 Local lCLT   := .T.
 Local aSaveAreaSE5 := GetArea("SE5")
 Local aRet :={}
-nValor := 0
+Local lSucess := .T.
 
 For nI := 1 TO LEN(aTitGer)
     nValor += aTitGer[nI,7]
@@ -216,7 +211,7 @@ ELSE
 ENDIF
 
 
-IF MsgBox(cMens, "Titulo: "+cNum, "YESNO")
+If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 
 //  IF TRIM(cTipo) = "PA" 
 //		dbSelectArea("SE5")
@@ -225,9 +220,10 @@ IF MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 //		
 //		
 //		Endif
-//	ENDIF	
-cBorde := ""
-cChave := ""
+//	ENDIF
+
+	cBorde := ""
+	cChave := ""
 
 	If nValor > 0
 	    cChave := cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja
@@ -246,14 +242,12 @@ cChave := ""
 			lMsErroAuto := .F.   
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
-		
 		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
     			MostraErro()
 				DisarmTransaction()
-		   		Return
+		   		lSucess := .F.
 			EndIf
         End Transaction
-
 		
 	Else
 		cBorde := ""
@@ -268,19 +262,20 @@ cChave := ""
 	             {"E2_TIPO"     ,cTipo,Nil},;        
 	             {"E2_FORNECE"  ,cFornece,Nil},; 
 	             {"E2_LOJA"     ,cLoja,Nil}}
+
 		Begin Transaction
 			lMsErroAuto := .F.   
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
+			IF lMsErroAuto
+				MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
+				MostraErro()
+				DisarmTransaction()
+				lSucess := .F.
+			EndIf
         End Transaction
-		IF lMsErroAuto
-			MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
-			MostraErro()
-			DisarmTransaction()
-	   		Return
-		EndIf
 
 	Endif
-			
+
 	dbSelectArea("SZ2")   
 	FOR nI := 1 TO LEN(aCtrId)
 		IF !aCtrId[nI,1]
@@ -288,23 +283,25 @@ cChave := ""
 		   	RecLock("SZ2",.F.)
 	    	SZ2->Z2_STATUS := "D"
 	    	SZ2->Z2_OBS    := aCtrId[nI,8]
-	    	IF SUBSTR(SZ2->Z2_TIPOPES,1,3) <> "CLT"
+	    	If SUBSTR(SZ2->Z2_TIPOPES,1,3) <> "CLT"
 	    		lCLT := .F.
-	    	ENDIF
+	    	EndIf
 	    	AADD(aEmail,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,SZ2->Z2_OBS,cPrefixo+cNum,SZ2->Z2_CTRID})
 		    MsUnlock()
-		ENDIF
+		EndIf
 	Next
 	dbSelectArea("SE2")   
 Endif
 
-If LEN(aEmail) > 0 .AND.  __cUserId <> "000000"
+If LEN(aEmail) > 0 .AND.  __cUserId <> "000000" .AND. lSucess
 	U_Fina04E(aEmail,lCLT)
 EndIf
 
 RestArea(aSaveAreaSE5)
 
-AADD(aRet,{cBorde,cChave})
+If lSucess
+	AADD(aRet,{cBorde,cChave})
+EndIf
 
 Return aRet
 

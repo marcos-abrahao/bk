@@ -1,24 +1,20 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKFINA22
+BK - Baixas de contas a pagar com retorno do banco em lote 
+@Return
+@author Adilson do Prado
+@since 15/05/2018
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKFINA22  ºAutor  ³ Adilson do Prado   º Data ³ 15/05/2018  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Baixa contas a pagar com retorno do banco em lote          º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/ 
+//-------------------------------------------------------------------
 
 User Function BKFINA22()
 Local aArea     := GetArea()
 Local cAliasTmp := GetNextAlias()
-Local cArq      := ""
+Local oTempTable
 Local aStrut    := {}
 Local cTx       := ""
 Private aFacil  := {}
@@ -43,25 +39,23 @@ aAdd( aStrut, { "XX_VENCREA","D", TamSX3("E2_VENCREA")[1] , 0} )
 aAdd( aStrut, { "XX_VALOR",  "N", TamSX3("E2_VALOR")[1], TamSX3("E2_VALOR")[2]} )
 aAdd( aStrut, { "XX_PORTADO", "C", TamSX3("E2_PORTADO")[1] , 0} )
 
- 
-//Excluindo dados da tabela temporária, se tiver aberta, fecha a tabela
-If Select(cAliasTmp)>0
-    (cAliasTmp)->(DbCloseArea())
-EndIf
- 
-
 //Criando tabela temporária
-cArq:= CriaTrab( aStrut, .T. )             
-dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
-dbSelectArea(cAliasTmp)
+//cArq:= CriaTrab( aStrut, .T. )             
+//dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
+//dbSelectArea(cAliasTmp)
+ 
+oTempTable := FWTemporaryTable():New( cAliasTmp ) 
+oTemptable:SetFields( aStrut )
+oTempTable:Create()
 
 cTx := FA22Dlg01(cTx,cAliasTmp)
     
 FA22EdtCx(cAliasTmp)
 
-(cAliasTmp)->(DbCloseArea())
-FErase(cArq+GetDBExtension())
-FErase(cArq+OrdBagExt())
+oTempTable:Delete() 
+//(cAliasTmp)->(DbCloseArea())
+//FErase(cArq+GetDBExtension())
+//FErase(cArq+OrdBagExt())
 
 RestArea(aArea)
 
@@ -396,6 +390,7 @@ Static Function ProcBaixa()
 Local nX, nY
 Local aUsuarios := ALLUSERS()
 Local aBaixa    := {}
+Local lSucess	:= .T.
 
 Private lMsErroAuto := .F.
 
@@ -437,7 +432,7 @@ BEGIN TRANSACTION
 			If lMsErroAuto
 				MostraErro()
 				DisarmTransaction()
-				Return .F.
+				lSucess := .F.
 			EndIf
 		EndIf
 	Next
@@ -445,9 +440,13 @@ BEGIN TRANSACTION
 END TRANSACTION
 
 Aviso("Sucesso","Baixa contas a Pagar.",{"OK"})
+If lSucess
+	Aviso("Sucesso!","Baixas de contas a Pagar realizadas com sucesso.",{"OK"})
+Else
+	Aviso("Erro!","Algumas baixas de contas a Pagar não foram realizadas",{"OK"})
+EndIf
 
-Return .T.
-
+Return lSucess
 
 
 //Tela para colagem de dados do excel 
@@ -473,9 +472,9 @@ Local nTitulo 			:= 0
 Local aTitulo 			:= {}
 Local _cQuery 			:= ""
 
-Define MsDialog oDlg01 Title "Importação de dados - excel -> Retorno a pagar bancário" From 000,000 To 240+(nSin*nTLin),600 Of oDlg01 Pixel
+Define MsDialog oDlg01 Title "Importação de dados - excel -> Retorno a pagar bancário" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
-nSnd := 15
+nSnd := 35
 @ nSnd,010 Say 'Cole as colunas do excel: data (dd/mm/aaaa),Valor do Pagamento'  Size 240,010 Pixel Of oDlg01
 nSnd += nTLin
 oMemo:= tMultiget():New(nSnd,10,{|u|if(Pcount()>0,cTexto :=u,cTexto )},oDlg01,280,100,,,,,,.T.)

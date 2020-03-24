@@ -2,20 +2,15 @@
 #INCLUDE "topconn.ch"
 #INCLUDE "PROTHEUS.CH"
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKFINA25
+BK - Baixa retorno Banco Lancamentos LF 
+@Return
+@author Adilson do Prado
+@since 22/08/14
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ BKBXBNCOบ      Adilson do Prado              Data ณ22/08/14บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescricao ณ Baixa retorno Banco Lancamentos LF						  บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK Consultoria                                             บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-/*/
-
+//-------------------------------------------------------------------
 
 User Function BKFINA25()
 Local oOk
@@ -91,12 +86,12 @@ RETURN NIL
 USER FUNCTION RBKFINA25()
 LOCAL aCabec := {}
 LOCAL aItens := {}
+Local lSucess:= .T.
 
 PRIVATE lMsHelpAuto := .T.
 PRIVATE lMsErroAuto := .F.
 Private cNFiscal := ""
 Private cSerie   := "DNF
-
 
 FOR IX_:=1 TO LEN(aCtrId)
 	IF aCtrId[IX_,1] 
@@ -141,11 +136,10 @@ FOR IX_:=1 TO LEN(aCtrId)
 			nOpc := 3
  			MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc)   
 			IF lMsErroAuto
-		
 		   		MsgStop("Problemas Inclusใo da "+cSerie+"-"+cNFiscal+", informe o setor de T.I. ", "Aten็ใo")
 	    		MostraErro()
 				DisarmTransaction()
-				Return
+				lSucess := .f.
 			Else
 				Msginfo("DNF incluido com sucesso! "+cSerie+"-"+cNFiscal)
 			EndIf
@@ -153,7 +147,7 @@ FOR IX_:=1 TO LEN(aCtrId)
     ENDIF
 NEXT
 
-RETURN NIL
+RETURN lSucess
 
 
 

@@ -1,24 +1,20 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKFINR19
+BK - Digitação de mov bancario em lote
+@Return
+@author Marcos Bispo Abrahão
+@since 23/08/2016
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKFINA19  ºAutor  ³ Marcos B. Abrahão  º Data ³ 23/08/2016  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Digitação de mov bancario em lote                          º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/ 
+//-------------------------------------------------------------------
 
 User Function BKFINA19()
 Local aArea     := GetArea()
 Local cAliasTmp := GetNextAlias()
-Local cArq      := ""
+Local oTempTable
 Local aStrut    := {}
 Local cTx       := ""
 Private aFacil  := {}
@@ -49,18 +45,24 @@ EndIf
  
 
 //Criando tabela temporária
-cArq:= CriaTrab( aStrut, .T. )             
-dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
-dbSelectArea(cAliasTmp)
+//cArq:= CriaTrab( aStrut, .T. )             
+//dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
+//dbSelectArea(cAliasTmp)
+
+oTempTable := FWTemporaryTable():New( cAliasTmp ) 
+oTemptable:SetFields( aStrut )
+oTempTable:Create()
 
 cTx := FA19Dlg01(cTx,cAliasTmp)
 //cTx := FA19Dlg01(cTx,NIL)
     
 FA19EdtCx(cAliasTmp)
 
-(cAliasTmp)->(DbCloseArea())
-FErase(cArq+GetDBExtension())
-FErase(cArq+OrdBagExt())
+//(cAliasTmp)->(DbCloseArea())
+//FErase(cArq+GetDBExtension())
+//FErase(cArq+OrdBagExt())
+
+oTempTable:Delete() 
 
 RestArea(aArea)
 
@@ -409,6 +411,7 @@ Local nX, nY
 Local aUsuarios := ALLUSERS()
 Local nOpc      := 0
 Local aFina100  := {}
+Local lSucess	:= .T.
 
 Private lMsErroAuto := .F.
 
@@ -461,17 +464,20 @@ BEGIN TRANSACTION
 			If lMsErroAuto
 				MostraErro()
 				DisarmTransaction()
-				Return .F.
-		
+				lSucess := .F.
 			EndIf
 		EndIf
 	Next
 
 END TRANSACTION
 
-Aviso("Sucesso","Movimentos bancários realizadas com sucesso.",{"OK"})
+If lSucess
+	Aviso("Sucesso","Movimentos bancários realizadas com sucesso.",{"OK"})
+Else
+	Aviso("Erro!","Alguns movimentos bancários não foram realizadas",{"OK"})
+EndIf
 
-Return .T.
+Return lSucess
 
 
 
@@ -504,9 +510,9 @@ Local cVal              := ""
 Local cHist             := ""
 Local nI,nTamTex,nJ,nK,nL
 
-Define MsDialog oDlg01 Title "Importação de dados - excel -> mov. bancário" From 000,000 To 240+(nSin*nTLin),600 Of oDlg01 Pixel
+Define MsDialog oDlg01 Title "Importação de dados: Excel --> Mov. Bancário" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
-nSnd := 15
+nSnd := 35
 @ nSnd,010 Say 'Cole as colunas do excel: data (dd/mm/aaaa),historico,ccusto,vl. entrada, vl saida'  Size 240,010 Pixel Of oDlg01
 nSnd += nTLin
 oMemo:= tMultiget():New(nSnd,10,{|u|if(Pcount()>0,cTexto :=u,cTexto )},oDlg01,280,100,,,,,,.T.)
