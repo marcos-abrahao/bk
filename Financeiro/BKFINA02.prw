@@ -339,6 +339,7 @@ Local cFornBK := "000084"
 Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
+Local lErroT  := .F.
 
 If SM0->M0_CODIGO <> "01"
    cFornAC := "000084"
@@ -493,6 +494,8 @@ For nI := 1 TO LEN(aTitGer)
              {"ED_REDCOF"   ,0  , Nil},;
              {"ED_REDPIS"   ,0  , Nil}}
    
+	lErroT := .F.
+
 	Begin Transaction
 
     	cErro       := ""
@@ -505,11 +508,15 @@ For nI := 1 TO LEN(aTitGer)
 			MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I. "+cKey1, "Atenção")
 		    MostraErro()
 			DisarmTransaction()
-			Return
+			lErroT := .T.
 		ENDIF	
 
     END Transaction
 
+	If lErroT
+		Return
+		//Exit
+	EndIf
 
 	dbSelectArea("SZ2")   
 	dbSetorder(2)   // Z2_FILIAL+ Z2_CODEMP+Z2_CTRID+Z2_TIPO+Z2_BANCO+Z2_DATAPGT     

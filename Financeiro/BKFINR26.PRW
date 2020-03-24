@@ -81,27 +81,27 @@ Saldo a Receber
 aAdd(aTitulos,cPerg+"/"+TRIM(cUserName)+" - "+cTitulo)
 
 //C5_CLIENTE,C5_LOJACLI,C5_MDCONTR,C5_EMISSAO,C5_XXCOMPM,C5_MDNUMED,C5_MDPLANI,C5_NOTA,F2_DOC,F2_EMISSAO,E1_VALOR,E1_VENCREA,E1_BAIXA,E1_SALDO
+aAdd(aFields,{"XX_NOMCLI" ,"A1_NOME"})
 aAdd(aFields,{"XX_CLIENTE","C5_CLIENTE"})
 aAdd(aFields,{"XX_LOJA"   ,"C5_LOJACLI"})
-aAdd(aFields,{"XX_NOMCLI" ,"A1_NOME"})
-aAdd(aFields,{"XX_NOMGES" ,"CN9_XXNRBK"})
 aAdd(aFields,{"XX_CONTRAT","","XX_CONTRAT","Contrato","@!","C",9,0})
 aAdd(aFields,{"XX_DESC01" ,"CTT_DESC01","","Descrição do Contrato"})
-aAdd(aFields,{"XX_PEDIDO" ,"C5_NUM","","Pedido"})
-aAdd(aFields,{"XX_VLPREV" ,"CND_VLPREV"})
-aAdd(aFields,{"XX_VALPED" ,"","XX_VALPED","Vl.Pedido",cPict,"N",18,2})
-aAdd(aFields,{"XX_EMISSAO","C5_EMISSAO","","Emissao Ped."})
-aAdd(aFields,{"XX_LIBEROK","C5_LIBEROK","","Ped. liberado"})
-aAdd(aFields,{"XX_LIBERAD","C5_XXULIB"})
-aAdd(aFields,{"XX_DATALIB","C5_XXDLIB"})
+aAdd(aFields,{"XX_NOMGES" ,"CN9_XXNRBK"})
 aAdd(aFields,{"XX_COMPET" ,"C5_XXCOMPM"})
 aAdd(aFields,{"XX_MEDICAO","C5_MDNUMED"})
 aAdd(aFields,{"XX_PLANI"  ,"C5_MDPLANI"})
-aAdd(aFields,{"XX_NF"     ,"F2_DOC","","NF"})
-aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Emissor"})
+aAdd(aFields,{"XX_PEDIDO" ,"C5_NUM","","Pedido"})
+aAdd(aFields,{"XX_EMISSAO","C5_EMISSAO","","Emissao Ped."})
+aAdd(aFields,{"XX_VLPREV" ,"CND_VLPREV"})
+aAdd(aFields,{"XX_VALPED" ,"","XX_VALPED","Vl.Pedido",cPict,"N",18,2})
+aAdd(aFields,{"XX_LIBEROK","C5_LIBEROK","","Ped. liberado"})
+aAdd(aFields,{"XX_LIBERAD","C5_XXULIB"})
+aAdd(aFields,{"XX_DATALIB","C5_XXDLIB","","Data Lib. Pedido"})
+aAdd(aFields,{"XX_NF"     ,"F2_DOC","","Nota Fiscal número"})
+aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Data Emissao NF"})
+aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
-aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Emissao NF"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
 aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO","","Saldo a Receber"})
@@ -347,6 +347,7 @@ Return
 
 Static Function BKFINX26(cAliasTrb,cArqXlsx,cTitulo,aCampos,aCabs)
 Local oExcel := YExcel():new()
+Local oAlCenter
 Local nI 	 := 0
 Local nJ	 := 0
 Local nLin   := 1
@@ -357,35 +358,34 @@ oExcel:new(cFile)
 
 oExcel:ADDPlan(cArqXlsx,"0000FF")		//Adiciona nova planilha
 
-oAlinhamento	:= oExcel:Alinhamento("center","center")
-nPosFont		:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2")
-nTitFont		:= oExcel:AddFont(20,"00000000","Calibri","2")
-nPosCor			:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho alterado
-nLisCor         := oExcel:CorPreenc("D9D9D9")
-nBordas 		:= oExcel:Borda("ALL")
-nFmtNum2		:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+oAlCenter	:= oExcel:Alinhamento("center","center")
+nPosFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2")
+nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2")
+nPosCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho alterado
+nLisCor		:= oExcel:CorPreenc("D9D9D9")
+nBordas 	:= oExcel:Borda("ALL")
+nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 
-					//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nTotFont 		:= oExcel:AddFont(11,56,"Calibri","2",,.T.,.F.,.F.,.F.)
-nApoFont 		:= oExcel:AddFont(11,"FF0000","Calibri","2",,.T.,.F.,.F.,.F.)
+				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
+nTotFont 	:= oExcel:AddFont(11,56,"Calibri","2",,.T.,.F.,.F.,.F.)
+nApoFont 	:= oExcel:AddFont(11,"FF0000","Calibri","2",,.T.,.F.,.F.,.F.)
 
-nPosStyle		:= oExcel:AddStyles(/*numFmtId*/,nPosFont/*fontId*/,nPosCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlinhamento})
-nLisStyle		:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nPosStyle	:= oExcel:AddStyles(/*numFmtId*/,nPosFont/*fontId*/,nPosCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nLisStyle	:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nV2Style		:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nD2Style		:= oExcel:AddStyles(14/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nG2Style 		:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nT2Style		:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nTitStyle		:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oAlinhamento})
-nApoStyle		:= oExcel:AddStyles(/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nVApoStyle		:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nDApoStyle		:= oExcel:AddStyles(14/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oAlCenter})
+nApoStyle	:= oExcel:AddStyles(/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nVApoStyle	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nDApoStyle	:= oExcel:AddStyles(14/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nTotStyle		:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-
-nIDImg			:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
 
 oExcel:mergeCells(1,1,2,1)						//Mescla as células 
 

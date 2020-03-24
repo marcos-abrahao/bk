@@ -46,52 +46,47 @@ Private lProc := .T.
 
 ValidPerg(cPerg)
 
-Do While .T.
-	If !Pergunte(cPerg,.T.)
-		Return
-	Endif
+If !Pergunte(cPerg,.T.)
+	Return
+Endif
 	
-	cMesComp := STRZERO(VAL(mv_par01),2)
-	cAnoComp := STRZERO(VAL(mv_par02),4)
-	nPlan    := mv_par03
+cMesComp := STRZERO(VAL(mv_par01),2)
+cAnoComp := STRZERO(VAL(mv_par02),4)
+nPlan    := mv_par03
 	
-	If VAL(cMesComp) < 1 .OR. VAL(cMesComp) > 12
-		MsgStop("Mes incorreto")
-		Loop
-	EndIf
+If VAL(cMesComp) < 1 .OR. VAL(cMesComp) > 12
+	MsgStop("Mes incorreto")
+	Return
+EndIf
 	
-	If VAL(cAnoComp) < 2009 .OR. VAL(cAnoComp) > 2020
-		MsgStop("Ano incorreto")
-		Loop
-	EndIf
+If VAL(cAnoComp) < 2009 .OR. VAL(cAnoComp) > 2020
+	MsgStop("Ano incorreto")
+	Return
+EndIf
 
-	// Verificar se há processos de integração em andamento
-	cQuery  := "SELECT COUNT(*) AS Z8COUNT " 
-	cQuery  += "FROM "+RETSQLNAME("SZ8")+" SZ8 "
-	cQuery  += "WHERE Z8_ANOMES = '"+cAnoComp+cMesComp+"' "
-	cQuery  += "AND Z8_STATUS = 'S' "
-	cQuery  += "AND SZ8.D_E_L_E_T_ <> '*' "
+// Verificar se há processos de integração em andamento
+cQuery  := "SELECT COUNT(*) AS Z8COUNT " 
+cQuery  += "FROM "+RETSQLNAME("SZ8")+" SZ8 "
+cQuery  += "WHERE Z8_ANOMES = '"+cAnoComp+cMesComp+"' "
+cQuery  += "AND Z8_STATUS = 'S' "
+cQuery  += "AND SZ8.D_E_L_E_T_ <> '*' "
 	
-	TCQUERY cQuery NEW ALIAS "QSZ8"
-	//TCSETFIELD("QSZ2","XX_DATAPGT","D",8,0)
+TCQUERY cQuery NEW ALIAS "QSZ8"
+//TCSETFIELD("QSZ2","XX_DATAPGT","D",8,0)
 	
-	DbSelectArea("QSZ8")
-	DbGoTop()
-	nCount := QSZ8->Z8COUNT
-	QSZ8->(dbCloseArea())
+DbSelectArea("QSZ8")
+DbGoTop()
+nCount := QSZ8->Z8COUNT
+QSZ8->(dbCloseArea())
 	
-	IF nCount > 0
-		IF MsgYesNo("Competência já foi processada, deseja reprocessar?")
-			lProc := .T.
-		Else
-			lProc := .F.
-		EndIf   
-	EndIf
+IF nCount > 0
+	IF MsgYesNo("Competência já foi processada, deseja reprocessar?")
+		lProc := .T.
+	Else
+		lProc := .F.
+	EndIf   
+EndIf
 	
-	Exit
-			 
-EndDo	
-
 If lProc
 	F08Taxas()
 EndIf
@@ -297,7 +292,6 @@ TCQUERY cQuery NEW ALIAS "QTMP"
 //TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
 
 */
-
 
 cQuery := " SELECT CNF_CONTRA,CNF_REVISA,CNF_COMPET,"
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"
