@@ -218,7 +218,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 		SC7->(DbSkip())
 	ENDDO
 	
- 	cEmail := "microsiga@bkconsultoria.com.br;diego.oliveira@bkconsultoria.com.br;"
+ 	cEmail := "microsiga@bkconsultoria.com.br;"
 	
 	DbSelectArea("SCR")
 	SCR->(DbSetOrder(1))

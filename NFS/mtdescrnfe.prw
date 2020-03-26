@@ -668,33 +668,6 @@ MsUnlock("SF2")
 Return
 
 
-//BUSCA CODIGO IBGE UF+MUNICIPIO INSTRUCAO NORMATIVA PAULISTANA 
-USER FUNCTION  BCODIBGE()
-LOCAL cCOD    := ""
-LOCAL cUF     := ""
-LOCAL cCDMUN  := ""
-
-cNF     := PARAMIXB[1]
-cSerie  := PARAMIXB[2] 
-cCliente:= PARAMIXB[3]
-cLoja   := PARAMIXB[4]
-
-dbSelectArea ("SD2")   
-SD2->(dbSetOrder(3))               //filial,doc,serie,cliente,loja,cod
-SD2->(dbSeek(xFilial("SD2")+cNF+cSerie+cCliente+cLoja,.T.))
-
-
-dbSelectArea("SC5")
-SC5->(dbSeek(xFilial("SC5") + SD2->D2_PEDIDO,.T.))
-
-IF !EMPTY(SC5->C5_MUNPRES)
-	cCOD := U_UfIBGE(SC5->C5_ESTPRES)+SC5->C5_MUNPRES
-ELSE
-	cCOD := U_UfIBGE(SA1->A1_EST)+SA1->A1_COD_MUN
-ENDIF
-
-RETURN cCOD 
-
 
 
 //BUSCAR CONTA VINCULADA

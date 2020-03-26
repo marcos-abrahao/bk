@@ -169,7 +169,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 			SC7->(DbSkip())
 		ENDDO
 		
-	 	cEmail := "microsiga@bkconsultoria.com.br;diego.oliveira@bkconsultoria.com.br;"
+	 	cEmail := "microsiga@bkconsultoria.com.br;"
 		DbSelectArea("SCR")
 		SCR->(DbSetOrder(1))
 		DbSeek(xFilial("SCR")+'PC'+cNumPC,.T.)

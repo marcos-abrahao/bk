@@ -930,7 +930,7 @@ Return xCampo
 USER Function MAILSZP(nOpc)
 
 Local cAssunto	:= "Ocorrência Incluida"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail	:= "microsiga@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
@@ -944,7 +944,7 @@ Else
 	cAssunto	:= "Ocorrência Alterada"
 EndIf
 
-cEmail	+= "controladoria@bkconsultoria.com.br;antonio.filho@bkconsultoria.com.br;"
+cEmail	+= "controladoria@bkconsultoria.com.br;"
 // Mandar para: Quem, Gestor, Gerente e Controladoria
 
 
@@ -1015,7 +1015,7 @@ Local aArea     := GetArea()
 Local cNomeQuem := ""
 
 // Mandar para: Quem, Gestor, Gerente e Controladoria
-cEmail	+= "controladoria@bkconsultoria.com.br;antonio.filho@bkconsultoria.com.br;"
+cEmail	+= "controladoria@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
 
 /*
 cEmail	+= "diego@bkconsultoria.com.br;"

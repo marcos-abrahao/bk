@@ -15,11 +15,6 @@ BK - Fluxo de Caixa - Realizado
 
 
 User Function BKFINR10()
-LOCAL wnrel
-LOCAL cString	:= "SE5"
-LOCAL cDesc1	:= "Este programa tem como objetivo imprimir o fluxo  "
-LOCAL cDesc2	:= "de Caixa dos movimentos financeiro ja realizados. "
-LOCAL cDesc3	:= ""
 
 PRIVATE cASSM_Prod	:= GetMv("MV_XXASSMP") //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
 PRIVATE cSINO_Prod	:= GetMv("MV_XXSINOP") //"|510|607|665|679|724|732|739|825|900|"
@@ -47,6 +42,7 @@ PRIVATE aPlans      := {}
 PRIVATE cFiltro     := ""
 
 PRIVATE cAliasTmp1  := "TMP1"
+PRIVATE oTempTable1
 PRIVATE aCabs1      := {}
 PRIVATE aCampos1    := {}
 PRIVATE aTitulos1   := {}
@@ -54,6 +50,7 @@ PRIVATE aStruct1    := {}
 PRIVATE aImpr1      := {}
 
 PRIVATE cAliasTmp2  := "TMP2"
+PRIVATE oTempTable2
 PRIVATE aCabs2      := {}
 PRIVATE aCampos2    := {}
 PRIVATE aTitulos2   := {}
@@ -61,6 +58,7 @@ PRIVATE aStruct2    := {}
 PRIVATE aImpr2      := {}
 
 PRIVATE cAliasTmp3  := "TMP3"
+PRIVATE oTempTable3
 PRIVATE aCabs3      := {}
 PRIVATE aCampos3    := {}
 PRIVATE aTitulos3   := {}
@@ -68,6 +66,7 @@ PRIVATE aStruct3    := {}
 PRIVATE aImpr3      := {}
 
 PRIVATE cAliasTmp4  := "TMP4"
+PRIVATE oTempTable4
 PRIVATE aCabs4      := {}
 PRIVATE aCampos4    := {}
 PRIVATE aTitulos4   := {}
@@ -75,6 +74,7 @@ PRIVATE aStruct4    := {}
 PRIVATE aImpr4      := {}
                          
 PRIVATE cAliasTmp5  := "TMP5"
+PRIVATE oTempTable5
 PRIVATE aCabs5      := {}
 PRIVATE aCampos5    := {}
 PRIVATE aTitulos5   := {}
@@ -82,6 +82,7 @@ PRIVATE aStruct5    := {}
 PRIVATE aImpr5      := {}
 
 PRIVATE cAliasTmp6  := "TMP6"
+PRIVATE oTempTable6
 PRIVATE aCabs6      := {}
 PRIVATE aCampos6    := {}
 PRIVATE aTitulos6   := {}
@@ -284,15 +285,23 @@ EndIf
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Cria o arquivo temporario de bancos           ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-cArqTmp1	:= CriaTrab(aStruct1)
 
-IF SELECT(cAliasTmp1) > 0
-   dbSelectArea(cAliasTmp1)
-   dbCloseArea()
-ENDIF
+oTempTable1 := FWTemporaryTable():New( cAliasTmp1 ) 
+oTemptable1:SetFields( aStruct1 )
+oTempTable1:AddIndex("indice1", {"A6_COD","A6_AGENCIA","A6_NUMCON"} )
+oTempTable1:Create()
 
-dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-IndRegua (cAliasTmp1,cArqTmp1,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi("Selecionando Registros...") )  //
+///cArqTmp1	:= CriaTrab(aStruct1)
+
+///IF SELECT(cAliasTmp1) > 0
+///   dbSelectArea(cAliasTmp1)
+///   dbCloseArea()
+///ENDIF
+
+//dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
+//IndRegua (cAliasTmp1,cArqTmp1,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi("Selecionando Registros...") ) 
+
+dbSelectArea(cAliasTmp1)
 dbSetOrder(1)
 
 IF nSaldos == 1 .OR. nBancos == 1
@@ -301,15 +310,22 @@ IF nSaldos == 1 .OR. nBancos == 1
 		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 		//³ Cria o arquivo temporario de aplicações       ³
 		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-		cArqTmp6	:= CriaTrab(aStruct6)
+
+		oTempTable6 := FWTemporaryTable():New( cAliasTmp6 ) 
+		oTemptable6:SetFields( aStruct6 )
+		oTempTable6:AddIndex("indice6", {"EH_BANCO","EH_AGENCIA","EH_CONTA"} )
+		oTempTable6:Create()
+
+
+		///cArqTmp6	:= CriaTrab(aStruct6)
 		
-		IF SELECT(cAliasTmp6) > 0
-		   dbSelectArea(cAliasTmp6)
-		   dbCloseArea()
-		ENDIF
+		///IF SELECT(cAliasTmp6) > 0
+		///   dbSelectArea(cAliasTmp6)
+		///   dbCloseArea()
+		///ENDIF
 		
-		dbUseArea(.T.,,cArqTmp6,cAliasTmp6,if(.F. .OR. .F.,!.F., NIL),.F.)
-		IndRegua(cAliasTmp6,cArqTmp6,"EH_BANCO+EH_AGENCIA+EH_CONTA",,,"Indexando Aplicações")
+		///dbUseArea(.T.,,cArqTmp6,cAliasTmp6,if(.F. .OR. .F.,!.F., NIL),.F.)
+		///IndRegua(cAliasTmp6,cArqTmp6,"EH_BANCO+EH_AGENCIA+EH_CONTA",,,"Indexando Aplicações")
 	
 	EndIf
 	
@@ -335,9 +351,10 @@ If nSaldos == 1
 	//EndIf
 EndIf
 
-dbSelectArea(cAliasTmp1)
-dbCloseArea()
-Ferase(cArqTmp1 + GetDBExtension())
+oTempTable1:Delete() 
+///dbSelectArea(cAliasTmp1)
+///dbCloseArea()
+///Ferase(cArqTmp1 + GetDBExtension())
 
 Return( .T. )
 
@@ -366,7 +383,6 @@ Local nValI1     := 0
 Local nValI2     := 0				
 Local nValVL     := 0				
 Local cAplCotas  := GetMv("MV_APLCAL4")
-Local lResgate   := .T.
 
 PRIVATE nDecs	:= 2 		  // MsDecimais
 PRIVATE dDtProc	:= dDataF 	  // Data do saldo final		
@@ -656,10 +672,17 @@ AADD(aStruct2,{"PAGOS","N",20,2})
 AADD(aCampos2,cAliasTmp2+"->PAGOS")
 AADD(aCabs2  ,"Pagos")
 
-cArqTmp2 := CriaTrab(aStruct2)
-dbUseArea(.T.,,cArqTmp2,cAliasTmp2,if(.F. .OR. .F.,!.F., NIL),.F.)
 
-IndRegua (cAliasTmp2,cArqTmp2,"CTFIN",,,OemToAnsi("Selecionando Registros...") )  //
+oTempTable2 := FWTemporaryTable():New( cAliasTmp2 ) 
+oTemptable2:SetFields( aStruct2 )
+oTempTable2:AddIndex("indice2", {"CTFIN"} )
+oTempTable2:Create()
+
+///cArqTmp2 := CriaTrab(aStruct2)
+///dbUseArea(.T.,,cArqTmp2,cAliasTmp2,if(.F. .OR. .F.,!.F., NIL),.F.)
+
+///IndRegua (cAliasTmp2,cArqTmp2,"CTFIN",,,OemToAnsi("Selecionando Registros...") )  //
+dbSelectArea(cAliasTmp2)
 dbSetOrder(1)
 
 
@@ -688,10 +711,18 @@ AADD(aStruct4,{"PAGOS","N",20,2})
 AADD(aCampos4,cAliasTmp4+"->PAGOS")
 AADD(aCabs4  ,"Pagos")
 
-cArqTmp4 := CriaTrab(aStruct4)
-dbUseArea(.T.,,cArqTmp4,cAliasTmp4,if(.F. .OR. .F.,!.F., NIL),.F.)
+oTempTable4 := FWTemporaryTable():New( cAliasTmp4 ) 
+oTemptable4:SetFields( aStruct4 )
+oTempTable4:AddIndex("indice4", {"CC"} )
+oTempTable4:Create()
 
-IndRegua (cAliasTmp4,cArqTmp4,"CC",,,OemToAnsi("Selecionando Registros...") )  //
+
+///cArqTmp4 := CriaTrab(aStruct4)
+///dbUseArea(.T.,,cArqTmp4,cAliasTmp4,if(.F. .OR. .F.,!.F., NIL),.F.)
+
+///IndRegua (cAliasTmp4,cArqTmp4,"CC",,,OemToAnsi("Selecionando Registros...") ) 
+
+dbSelectArea(cAliasTmp4)
 dbSetOrder(1)
 
 
@@ -716,10 +747,16 @@ AADD(aStruct5,{"PAGOS","N",20,2})
 AADD(aCampos5,cAliasTmp5+"->PAGOS")
 AADD(aCabs5  ,"Pagos")
 
-cArqTmp5 := CriaTrab(aStruct5)
-dbUseArea(.T.,,cArqTmp5,cAliasTmp5,if(.F. .OR. .F.,!.F., NIL),.F.)
+oTempTable5 := FWTemporaryTable():New( cAliasTmp5 ) 
+oTemptable5:SetFields( aStruct5 )
+oTempTable5:AddIndex("indice5", {"DESCFIN"} )
+oTempTable5:Create()
 
-IndRegua (cAliasTmp5,cArqTmp5,"DESCFIN",,,OemToAnsi("Selecionando Registros...") )  //
+///cArqTmp5 := CriaTrab(aStruct5)
+///dbUseArea(.T.,,cArqTmp5,cAliasTmp5,if(.F. .OR. .F.,!.F., NIL),.F.)
+
+///IndRegua (cAliasTmp5,cArqTmp5,"DESCFIN",,,OemToAnsi("Selecionando Registros...") )  //
+dbSelectArea(cAliasTmp5)
 dbSetOrder(1)
 
 
@@ -851,9 +888,16 @@ IF nUsuario == 1
 
 ENDIF
 
-cArqTmp3 := CriaTrab(aStruct3)
-dbUseArea(.T.,,cArqTmp3,cAliasTmp3,if(.F. .OR. .F.,!.F., NIL),.F.)
-IndRegua (cAliasTmp3,cArqTmp3,"XXCC",,,OemToAnsi("Selecionando Registros...") )  //
+oTempTable3 := FWTemporaryTable():New( cAliasTmp3 ) 
+oTemptable3:SetFields( aStruct3 )
+oTempTable3:AddIndex("indice3", {"XXCC"} )
+oTempTable3:Create()
+
+///cArqTmp3 := CriaTrab(aStruct3)
+///dbUseArea(.T.,,cArqTmp3,cAliasTmp3,if(.F. .OR. .F.,!.F., NIL),.F.)
+///IndRegua (cAliasTmp3,cArqTmp3,"XXCC",,,OemToAnsi("Selecionando Registros...") )  //
+
+dbSelectArea(cAliasTmp3)
 dbSetOrder(1)
 
 
@@ -902,26 +946,33 @@ Else
 	MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
 EndIf
 
-(cAliasTmp2)->(dbCloseArea())
-fErase( cArqTmp2 + OrdBagExt() )
-fErase( cArqTmp2 + GetDBExtension() )
+oTempTable2:Delete() 
+///(cAliasTmp2)->(dbCloseArea())
+///fErase( cArqTmp2 + OrdBagExt() )
+///fErase( cArqTmp2 + GetDBExtension() )
 
-//(cArqTmp3)->(dbCloseArea())
-fErase( cArqTmp3 + OrdBagExt() )
-fErase( cArqTmp3 + GetDBExtension() )
+If SELECT(cAliasTmp3) > 0
+	oTempTable3:Delete() 
+	//(cArqTmp3)->(dbCloseArea())
+	///fErase( cArqTmp3 + OrdBagExt() )
+	///fErase( cArqTmp3 + GetDBExtension() )
+EndIf
 
-(cAliasTmp4)->(dbCloseArea())
-fErase( cArqTmp4 + OrdBagExt() )
-fErase( cArqTmp4 + GetDBExtension() )
+oTempTable4:Delete() 
+///(cAliasTmp4)->(dbCloseArea())
+///fErase( cArqTmp4 + OrdBagExt() )
+///fErase( cArqTmp4 + GetDBExtension() )
 
-(cAliasTmp5)->(dbCloseArea())
-fErase( cArqTmp5 + OrdBagExt() )
-fErase( cArqTmp5 + GetDBExtension() )
+oTempTable5:Delete() 
+///(cAliasTmp5)->(dbCloseArea())
+///fErase( cArqTmp5 + OrdBagExt() )
+///fErase( cArqTmp5 + GetDBExtension() )
 
 If SELECT(cAliasTmp6) > 0
-	(cAliasTmp6)->(dbCloseArea())
-	fErase( cArqTmp6 + OrdBagExt() )
-	fErase( cArqTmp6 + GetDBExtension() )
+	oTempTable6:Delete() 
+	///(cAliasTmp6)->(dbCloseArea())
+	///fErase( cArqTmp6 + OrdBagExt() )
+	///fErase( cArqTmp6 + GetDBExtension() )
 EndIf
 
 dbSelectArea("SE5")
@@ -955,7 +1006,6 @@ Return
 STATIC FUNCTION KFin01Mov( nSaldoAnt )
 
 LOCAL dDataAnt
-LOCAL nDisponivel:= nSaldoAnt
 LOCAL nPagos     := 0
 LOCAL nRecebidos := 0
 
@@ -965,10 +1015,8 @@ LOCAL nReceber   := 0
 LOCAL aStru 	 := SE5->(dbStruct())
 LOCAL nI         := 0
 LOCAL cOrder
-LOCAL cQueryAdd  := ""
 
 LOCAL cCtaFin    := SPACE(12)
-LOCAL cDesc      := ""
 LOCAL cDescrCt   := ""
 LOCAL cTHist 	 := ""
 
@@ -2105,7 +2153,6 @@ Return aCC
 Static Function RetINSS(cRef,nValor)
 Local aCC := {}
 Local aCC2 := {}
-Local aCC3 := {}
 Local cSql:= ""
 Local nTotINSS := 0
 Local aContrCons	:= {}

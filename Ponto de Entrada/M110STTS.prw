@@ -19,7 +19,7 @@
 User Function M110STTS()
 Local cNumSol	:= Paramixb[1]
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;antonio.filho@bkconsultoria.com.br;"
+Local cEmail	:= "microsiga@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
 Local cEmailCC  := "" //microsiga@bkconsultoria.com.br;"
 Local cMsg 		:= "" 
 Local cAnexo	:= ""

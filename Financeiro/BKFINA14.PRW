@@ -2,19 +2,16 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TBICONN.CH"         
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKFINA14
+BK - Borderô - Folha
+@Return
+@author Adilson do Prado
+@since 13/03/2012
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKFINA14   ºAutor  ³ Adilson do Prado   º Data ³ 13/03/2012 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Borderô - Folha BK                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+//-------------------------------------------------------------------
+
 User Function BKFINA14()
 
 Local oOk
@@ -37,6 +34,7 @@ Local cBanco    := ""
 Local cBancos	:= "001/033/104/151/237/341"
 //Local aBancos	:= {"237","001","341","033","151","104"}
 Local dData		:= dDatabase
+Local cTpPes	:= "" // Solicitado pelo Anderson em 25/03/20
 
 Private cPerg   := "BKFINA14"
 Private cDirTmp := ""
@@ -170,7 +168,7 @@ If ( lOk )
 	    //Relugarização momentânia numero de CPF para IPT - Definitivo a partir de 01/10/12 - JA ESTA OK  
 		IF aCtrId[nI,1]
 			cQuery  := " SELECT Z2_CTRID,Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_E2TIPO,Z2_PRONT,Z2_NOME,Z2_VALOR,Z2_DATAPGT,Z2_TIPO,Z2_NOMDEP,Z2_NOMMAE,"
-			cQuery  += " Z2_TIPOPES,Z2_BANCO,Z2_AGENCIA,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_CPF,Z2_USUARIO,Z2_HORALIB,Z2_BORDERO,SZ2.R_E_C_N_O_ AS REC "
+			cQuery  += " Z2_CODEMP,Z2_TIPOPES,Z2_BANCO,Z2_AGENCIA,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_CPF,Z2_USUARIO,Z2_HORALIB,Z2_BORDERO,SZ2.R_E_C_N_O_ AS REC "
 			cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
 //			cQuery  += "LEFT JOIN bk_senior.bk_senior.r034fun ON SZ2.Z2_CODEMP = bk_senior.bk_senior.r034fun.numemp AND SZ2.Z2_PRONT=bk_senior.bk_senior.r034fun.numcad "
 //			cQuery  += " AND bk_senior.bk_senior.r034fun.nomfun like Z2_NOME+'%' COLLATE SQL_Latin1_General_CP1_CI_AS "
@@ -193,8 +191,13 @@ If ( lOk )
 			Do While !eof()
 				IncProc("Carregando titulos para Borderôs "+ALLTRIM(SM0->M0_NOME)+"...")
  				IF QSZ2->Z2_DATAPGT == dData .AND. QSZ2->Z2_BANCO $ cBancos
- 				    //                            1                           2               3            4               5              6              7              8                  9              10              11              12             13               14             15               16                17           18          19            20            21              22
- 					AADD(aTit1Ger,{IIF(EMPTY(QSZ2->Z2_BORDERO),.T.,.F.),QSZ2->Z2_CTRID,QSZ2->Z2_PRONT,QSZ2->Z2_NOME,QSZ2->Z2_VALOR,QSZ2->Z2_DATAPGT,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_AGENCIA,QSZ2->Z2_DIGAGEN,QSZ2->Z2_CONTA,QSZ2->Z2_DIGCONT,QSZ2->Z2_CPF,QSZ2->Z2_USUARIO,QSZ2->Z2_E2TIPO,QSZ2->Z2_HORALIB,QSZ2->Z2_BORDERO,aCtrId[nI,9],QSZ2->REC,QSZ2->Z2_NOMDEP,QSZ2->Z2_NOMMAE,QSZ2->Z2_TIPOPES})
+					If QSZ2->Z2_CODEMP = "01" .AND. QSZ2->Z2_PRONT = "000296"
+						cTpPes := "CLT"
+					Else
+						cTpPes := QSZ2->Z2_TIPOPES
+					EndIf
+ 					AADD(aTit1Ger,{IIF(EMPTY(QSZ2->Z2_BORDERO),.T.,.F.),QSZ2->Z2_CTRID,QSZ2->Z2_PRONT,QSZ2->Z2_NOME,QSZ2->Z2_VALOR,QSZ2->Z2_DATAPGT,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_AGENCIA,QSZ2->Z2_DIGAGEN,QSZ2->Z2_CONTA,QSZ2->Z2_DIGCONT,QSZ2->Z2_CPF,QSZ2->Z2_USUARIO,QSZ2->Z2_E2TIPO,QSZ2->Z2_HORALIB,QSZ2->Z2_BORDERO,aCtrId[nI,9],QSZ2->REC,QSZ2->Z2_NOMDEP,QSZ2->Z2_NOMMAE,cTpPes})
+ 				    //                            1                           2               3            4               5              6              7              8                  9              10              11              12             13               14             15               16                17           18          19            20            21         22
 				ELSEIF QSZ2->Z2_DATAPGT <> dData 
 					nErros := 0
 					nErros := aScan(aErros,{|x| x[1]==1 .AND. x[2]==QSZ2->Z2_CTRID .AND. x[3]=QSZ2->Z2_PRONT })
@@ -1945,8 +1948,9 @@ Return nil
 
 
 Static Function GeraQueryTit(dData,cBanco)
-LOCAL aCtrId := {}
-Local cBcoBor := cBanco
+LOCAL aCtrId 	:= {}
+Local cBcoBor 	:= cBanco
+Local cTpPes	:= ""
 
 If nTEDItau  == 1
 	cBcoBor := cTedBco
@@ -1967,34 +1971,41 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 		DbSetOrder(3)
 		dbSeek(xFilial("SZ2")+SM0->M0_CODIGO+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
 		IF ALLTRIM(SZ2->Z2_TIPOPES) $ "CLT/RPA/PJ"
+
+			If SZ2->Z2_CODEMP = "01" .AND. SZ2->Z2_PRONT = "000296"
+				cTpPes := "CLT"
+			Else
+				cTpPes := SZ2->Z2_TIPOPES
+			EndIf
+
 			IF nFurnas == 1
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[1]
 					IF cBanco=='104'
 				   		IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098" .OR. SUBSTR(SZ2->Z2_CONTA,1,2) == "98"
-							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
+							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes}) 
 						ENDIF	
 					ELSE
-						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES})
+						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes})
 					ENDIF
 				ENDIF
 			ELSEIF nFurnas == 2
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[2]
 					IF cBanco=='104'
 				   		IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098" .OR. SUBSTR(SZ2->Z2_CONTA,1,2) == "98"
-							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
+							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes}) 
 						ENDIF	
 					ELSE
-						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES})
+						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes})
 					ENDIF
 				ENDIF
 			ELSE
 				IF ALLTRIM(SZ2->Z2_CC) <> aFURNAS[1] .and. ALLTRIM(SZ2->Z2_CC) <> aFURNAS[2]
 					//IF cBanco=='104'
 					//	IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098"
-					//		AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES}) 
+					//		AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes}) 
 					//	ENDIF	
 					//ELSE
-						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,SZ2->Z2_TIPOPES})
+						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes})
 					//ENDIF
 				ENDIF
 	    	ENDIF
