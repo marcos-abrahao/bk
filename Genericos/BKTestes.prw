@@ -69,7 +69,7 @@ Return lEnd
 
 User Function TmpTable()
 Local aFields := {}
-Local oTempTable
+Local oTmpTb
 Local nI
 Local cAlias := "MEUALIAS"
 Local cQuery
@@ -77,7 +77,7 @@ Local cQuery
 //-------------------
 //Criação do objeto
 //-------------------
-oTempTable := FWTemporaryTable():New( cAlias )
+oTmpTb := FWTemporaryTable():New( cAlias )
 
 //--------------------------
 //Monta os campos da tabela
@@ -86,13 +86,13 @@ aadd(aFields,{"DESCR","C",30,0})
 aadd(aFields,{"CONTR","N",3,1})
 aadd(aFields,{"ALIAS","C",3,0})
 
-oTemptable:SetFields( aFields )
-oTempTable:AddIndex("indice1", {"DESCR"} )
-oTempTable:AddIndex("indice2", {"CONTR", "ALIAS"} )
+oTmpTb:SetFields( aFields )
+oTmpTb:AddIndex("indice1", {"DESCR"} )
+oTmpTb:AddIndex("indice2", {"CONTR", "ALIAS"} )
 //------------------
 //Criação da tabela
 //------------------
-oTempTable:Create()
+oTmpTb:Create()
 
 
 Conout("Executando a cópia dos registros da tabela: " + RetSqlName("CT0") )
@@ -100,15 +100,15 @@ Conout("Executando a cópia dos registros da tabela: " + RetSqlName("CT0") )
 //--------------------------------------------------------------------------
 //Caso o INSERT INTO SELECT preencha todos os campos, este será um método facilitador
 //Caso contrário deverá ser chamado o InsertIntoSelect():
- // oTempTable:InsertIntoSelect( {"DESCR", "CONTR" } , RetSqlName("CT0") , { "CT0_DESC", "CT0_CONTR" } )
+ // oTmpTb:InsertIntoSelect( {"DESCR", "CONTR" } , RetSqlName("CT0") , { "CT0_DESC", "CT0_CONTR" } )
 //--------------------------------------------------------------------------
-oTempTable:InsertSelect( RetSqlName("CT0") , { "CT0_DESC", "CT0_CONTR", "CT0_ALIAS" } )
+oTmpTb:InsertSelect( RetSqlName("CT0") , { "CT0_DESC", "CT0_CONTR", "CT0_ALIAS" } )
 
 
 //------------------------------------
 //Executa query para leitura da tabela
 //------------------------------------
-cQuery := "select * from "+ oTempTable:GetRealName()
+cQuery := "select * from "+ oTmpTb:GetRealName()
 MPSysOpenQuery( cQuery, 'QRYTMP' )
 
 DbSelectArea('QRYTMP')
@@ -124,7 +124,7 @@ Enddo
 //---------------------------------
 //Exclui a tabela 
 //---------------------------------
-oTempTable:Delete() 
+oTmpTb:Delete() 
 
 return
 
