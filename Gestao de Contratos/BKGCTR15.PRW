@@ -1,22 +1,22 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
- 
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKGCTR15()
+BK - Informações de Contratos para Licitação
+
+@author Adilson do Prado
+@since 02/12/14
+@version P12
+@return Nil
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR15 º Autor ³ Adilson do Prado          Data ³02/12/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Informações de Contratos para Licitação                    º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+//-------------------------------------------------------------------
+
 
 User Function BKGCTR15()
 Local aTitulos,aCampos,aCabs
+Local aDbf 		    := {} 
+Local oTmpTb1
 
 Private nomeprog    := ""
 Private cTitulo     := "Relatorio de Informações dos Contratos para Licitações - Competência: "+STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4) 
@@ -24,8 +24,6 @@ Private wnrel       := "BKGCTR15"
 Private cCompet     := STRZERO(YEAR(dDataBase),4)+STRZERO(Month(dDataBase),2) 
 Private cPerg    	:= "BKGCTR15"
 
-
-aDbf    := {}
 Aadd( aDbf, { 'XX_CONTRAT', 'C', 10,00 } )
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )
 Aadd( aDbf, { 'XX_ENDER','C', 200,00 } )
@@ -42,8 +40,12 @@ Aadd( aDbf, { 'XX_PEXEC','N', 4,0 } )
 Aadd( aDbf, { 'XX_PAEXEC','N', 4,0 } )
 Aadd( aDbf, { 'XX_SALDOAT','N', 14,2 } )
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+
+oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:Create()
 
 
 ProcRegua(1)
@@ -104,10 +106,12 @@ AADD(aCabs  ,"Situação Atual")
 
   
 ProcRegua(TRB->(LASTREC()))
-Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs,,,,.T.)})
+Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs,,,,.F.)})
    
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb1:Delete()
+
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 Return
 
@@ -194,6 +198,8 @@ Return
 
 User Function xBKGCTR15()
 Local aTitulos,aCampos,aCabs
+Local aDbf 		    := {} 
+Local oTmpTb1
 
 Private nomeprog    := ""
 Private cTitulo     := "Relatorio de Informações dos Contratos para Licitações - Competência: "+STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4) 
@@ -213,7 +219,6 @@ AADD(aSITUAC,"08 - Finalizado")
 AADD(aSITUAC,"09 - Resisão")
 AADD(aSITUAC,"10 - Revisado")
 
-aDbf    := {}
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )
 Aadd( aDbf, { 'XX_ENDER','C', 200,00 } )
 Aadd( aDbf, { 'XX_TELS','C', 30,00 } )
@@ -229,9 +234,12 @@ Aadd( aDbf, { 'XX_CODOBJ','M', 10,0 } )
 Aadd( aDbf, { 'XX_MUNIC','C', 60,0 } )
 Aadd( aDbf, { 'XX_SITUAC','C', 40,0 } )
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
 
+oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:Create()
 
 ProcRegua(1)
 Processa( {|| xProcQuery() })
@@ -288,10 +296,11 @@ AADD(aCabs  ,"Situação atual do Contrato")
 
   
 ProcRegua(TRB->(LASTREC()))
-Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs,,,,.T.)})
+Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs,,,,.F.)})
    
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
+oTmpTb1:Delete()
 
 Return
 

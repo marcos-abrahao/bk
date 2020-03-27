@@ -35,7 +35,7 @@ MsAguarde({|| U_GeraXlsx(cTitRel,aParams,aPlans,cArqXlsx,"C:\TMP\",lClose)},"Agu
 Return Nil
 
 
-User Function GeraXlsx( _cTitulo,_aParams,_aPlans,_cArqXlsx,_cDirXlsx,_lClose)
+User Function GeraEx( _cTitulo,_aParams,_aPlans,_cArqXlsx,_cDirXlsx,_lClose)
 
 Local oExcel 	:= YExcel():new()
 Local nI 		:= 0
