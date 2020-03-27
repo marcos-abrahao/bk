@@ -1,23 +1,18 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKCOMC01  ºAutor  ³ Marcos B. Abrahão  º Data ³ 29/09/2009  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Consulta Documento de Entrada e Pre-Nota                   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
 
-//
-// Chamada efetuada atraves do ponto de entrada MA103OPC
-//              
+/*/{Protheus.doc} BKCOMC01()
+BK - Rentabilidade dos Contratos
+
+** Chamada efetuada atraves do ponto de entrada MA103OPC
+
+@author Marcos B. Abrahão
+@since 29/09/2009
+@version P12
+@return Nil
+/*/
+            
 
 User Function BKCOMC01()
 
@@ -33,7 +28,7 @@ Local cFiltU := ""
 Local cMDiretoria :="", cMFinanceiro:= ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
-Local oTempTable
+Local oTmpTb
 
 Private aSize   := MsAdvSize(,.F.,400)
 Private aObjects:= { { 450, 450, .T., .T. } }
@@ -176,10 +171,10 @@ EndIf
 
 //Private cArqTrb := CriaTrab(NIL,.F.)
 		
-oTempTable := FWTemporaryTable():New( "QSD11" )	
-oTemptable:SetFields( aStruc )
-oTempTable:AddIndex("indice1", {"D1_XXHIST"} )
-oTempTable:Create()
+oTmpTb := FWTemporaryTable():New( "QSD11" )	
+oTmpTb:SetFields( aStruc )
+oTmpTb:AddIndex("indice1", {"D1_XXHIST"} )
+oTmpTb:Create()
 
 //dbcreate(cArqTrb,aStruc)
 //dbUseArea(.T.,,cArqTrb,"QSD11",.F.,.F.)
@@ -240,7 +235,7 @@ Else
 	RestArea(aAreaIni)
 Endif
 QSD1->(DbCloseArea())
-oTempTable:Delete() 
+oTmpTb:Delete() 
 
 //QSD11->(DbCloseArea())
 //fErase(cArqTrb+GetDBExtension())

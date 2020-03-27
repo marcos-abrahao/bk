@@ -2,40 +2,25 @@
 #INCLUDE "topconn.ch"                     
 #INCLUDE "PROTHEUS.CH"  
                             
-                                
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKGCTR14()
+BK - Rentabilidade dos Contrato - Projeção X Realizado
+
+@author Adilson do Prado
+@since 16/05/14
+@version P12
+@return Nil
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR14 º Autor ³ Adilson do Prado          Data ³16/05/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Rentabilidade dos Contrato - Projeção X Realizado - BK     º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+//-------------------------------------------------------------------
 
 User Function BKGCTR14(lSintet)
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-//Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-//Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-//Local cDesc3        := ""
 Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado"
-//Local nLin          := 80
-//Local lPula         := .F.
-//Local Cabec1        := ""
-//Local Cabec2        := ""
-//Local imprime       := .T.
-//Local aOrd          := {}
 Local _nI           := 0
-Local aDbf 		    := {},cArqTmp
-Local aDbf2         := {},cArqTmp2
+Local aDbf 		    := {} //cArqTmp
+Local oTmpTb1
+Local aDbf2         := {} //,cArqTmp2
+Local oTmpTb2
 Local cMes          := ""
 Local cXXSEMAF		:= "N"
 Local cPerg         := "BKGCTR14"
@@ -47,20 +32,7 @@ Default lSintet  	:= .F.
 
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
-Private lEnd        := .F.
-Private lAbortPrint := .F.
-//Private CbTxt       := "G"
-Private limite      := 220
-Private tamanho     := " "
 Private nomeprog    := "BKGCTR14" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo       := 18
-Private aReturn     := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey    := 0
-//Private cbtxt       := Space(10)
-Private cbcont      := 00
-Private CONTFL      := 01
-Private m_pag       := 01
-Private wnrel       := "BKGCTR14" // Coloque aqui o nome do arquivo usado para impressao em disco
 Private lSintetico  := lSintet
 
 PRIVATE dDataInicio := dDatabase
@@ -405,10 +377,14 @@ Aadd( aDbf, { 'XX_PROJ'  ,'C', 200,00 } )
 Aadd( aDbf, { 'XX_REAL'  ,'C', 200,00 } )
 Aadd( aDbf, { 'XX_DIF'   ,'C', 200,00 } )
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
+oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
+oTmpTb1:Create()
 
 aCabs   := {}
 aCampos := {}
@@ -453,16 +429,18 @@ FOR _nI := 1 TO nPeriodo
 	Aadd( aDbf2, { 'XX_VL2P'+cMes,'N', 18,02 } )
 NEXT
 
-cArqTmp2 := CriaTrab( aDbf2, .T. )
-dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///cArqTmp2 := CriaTrab( aDbf2, .T. )
+///dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
+///dbSetIndex(cArqTmp2+ordBagExt())
 
-		
-IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
-dbSetIndex(cArqTmp2+ordBagExt())
+oTmpTb2 := FWTemporaryTable():New( ALIAS_TMP ) 
+oTmpTb2:SetFields( aDbf2 )
+oTmpTb2:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
+oTmpTb2:Create()
 
 aCabs2   := {}
 aCampos2 := {}
-
 
 AADD(aCampos2,ALIAS_TMP+"->XX_CODGCT")
 AADD(aCabs2  ,"Contrato")
@@ -490,27 +468,24 @@ FOR _nI := 1 TO nPeriodo
 	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
 
-IF nCompet == 0
-	MSGSTOP("Competencia não encotrada!!")
-	RETURN NIL
-ENDIF
+If nCompet <> 0
+	ProcRegua(1)
+	Processa( {|| ProcR14() })
+	Processa( {|| MBrwR14() })
+Else
+	MsgStop("Competencia não encotrada!!")
+EndIf
 
+///(ALIAS_TMP)->(Dbclosearea())
+///FErase(cArqTmp2+GetDBExtension())
+///FErase(cArqTmp2+OrdBagExt())
+oTmpTb2:Delete()
 
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
+oTmpTb1:Delete()
 
-ProcRegua(1)
-
-Processa( {|| ProcR14() })
-
-Processa( {|| MBrwR14() })
-
-(ALIAS_TMP)->(Dbclosearea())
-FErase(cArqTmp2+GetDBExtension())
-FErase(cArqTmp2+OrdBagExt())
-
-TRB->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
- 
 Return
 
 
@@ -595,7 +570,7 @@ Local cAlias := "TRB"
 dbSelectArea(cAlias)
 
 ProcRegua(1)
-Processa( {|| GeraCR14(cAlias,TRIM(wnrel),aTitulos,aCampos,aCabs)})
+Processa( {|| GeraCR14(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs)})
 
 Return Nil
 

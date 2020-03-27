@@ -179,11 +179,11 @@ Next
 ///cArqTmp := CriaTrab( aDbf, .t. )
 ///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
-oTempTable := FWTemporaryTable():New( cAliasTrb )
-oTemptable:SetFields( aDbf )
+oTmpTb := FWTemporaryTable():New( cAliasTrb )
+oTmpTb:SetFields( aDbf )
 
-//oTempTable:AddIndex("01", {"DESCR"} )
-oTempTable:Create()
+//oTmpTb:AddIndex("01", {"DESCR"} )
+oTmpTb:Create()
 nCont:= 0
 
 Processa( {|| ProcBKR27() })
@@ -195,7 +195,7 @@ else
 EndIf
 
 
-oTempTable:Delete()
+oTmpTb:Delete()
 ///(cAliasTrb)->(Dbclosearea())
 ///FErase(cArqTmp+GetDBExtension())
 ///FErase(cArqTmp+OrdBagExt())

@@ -2,18 +2,15 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "RWMAKE.CH" 
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³BKESTC02   ºAutor  ³ Microsiga         º Data ³  28/06/06   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Cria tela de consulta ao sb2                               º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AP7 -                                                      º±± 
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKESTC02
+BK - Cria tela de consulta ao sb2
+@Return
+@author Marcos Bispo Abrahão
+@since 28/06/16
+@version P12
+/*/
+//-------------------------------------------------------------------
 
 User Function BKESTC02()
 
@@ -26,7 +23,7 @@ Private cCodMat := space(15)
 Private oCombo  := ""
 Private cCombo  := Space(15)
 Private aCombo  := {}
-Private oTempTable AS oBject
+Private oTmpTb AS oBject
 
 _cAlias := Alias()
 _nOrder := IndexOrd()
@@ -67,9 +64,9 @@ If Select("ARQTEMP")>0
 End If
 //DbUseArea(.T.,,cArqTemp2,"ARQTEMP")
 
-oTempTable := FWTemporaryTable():New( "ARQTEMP" ) 
-oTemptable:SetFields( _aStru )
-oTempTable:Create()
+oTmpTb := FWTemporaryTable():New( "ARQTEMP" ) 
+oTmpTb:SetFields( _aStru )
+oTmpTb:Create()
 
 DbSelectArea("ARQTEMP")
 Dbgotop()
@@ -109,7 +106,7 @@ SButton():New( 260, 460,  2, {|| Close(oDlg2) },oDlg2,.T.,"Fecha a Consulta")
 
 ACTIVATE DIALOG oDlg2 CENTERED 
 
-oTempTable:Delete()
+oTmpTb:Delete()
 
 DbSelectArea(_cAlias)
 DbSetOrder(_nOrder)
@@ -281,10 +278,10 @@ Return nil
 Static Function FiltraCod(cCodMat,oCombo,lLike)
 Local cAliasQry := GetNextAlias()
 
-oTempTable:Delete()
-oTempTable := FWTemporaryTable():New( "ARQTEMP" ) 
-oTemptable:SetFields( _aStru )
-oTempTable:Create()
+oTmpTb:Delete()
+oTmpTb := FWTemporaryTable():New( "ARQTEMP" ) 
+oTmpTb:SetFields( _aStru )
+oTmpTb:Create()
                       
 cQuery := "SELECT  SB1.B1_GRUPO AS GRUPO,SB2.B2_COD AS CODIGO, SB2.B2_LOCAL AS ARMAZEM, SB1.B1_DESC AS DESCRICAO, SB1.B1_PRV1 AS PRECO "
 cQuery += 				", SB2.B2_QATU AS ATUAL, SB2.B2_QEMP AS EMPENHADO, SB2.B2_QPEDVEN AS PEDIDOVENDA, SB2.B2_RESERVA AS RESERVAS "

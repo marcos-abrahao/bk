@@ -1,39 +1,26 @@
 #INCLUDE "protheus.ch"
 #INCLUDE "topconn.ch"
                                      
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKGCTR11()
+BK - Rentabilidade dos Contratos
+
+@author Adilson do Prado
+@since 11/01/13
+@version P12
+@return Nil
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR11 º Autor ³ Adilson do Prado               ³11/01/13º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Rentabilidade dos Contrato - BK                            º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+//-------------------------------------------------------------------
+
 
 User Function BKGCTR11(lJob)
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-//Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-//Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-//Local cDesc3        := ""
-//Local nLin          := 80
-//Local lPula         := .F.
-//Local Cabec1        := ""
-//Local Cabec2        := ""
-//Local imprime       := .T.
-//Local aOrd          := {}
 Local _nI           := 0
-Local aDbf 		    := {},cArqTmp
-Local aDbf2         := {},cArqTmp2
-Local aDbf3         := {},cArqTmp3
+Local aDbf 		    := {} //cArqTmp
+Local oTmpTb1
+Local aDbf2         := {} //,cArqTmp2
+Local oTmpTb2
+Local aDbf3         := {} //,cArqTmp3
+Local oTmpTb3
 Local cMes          := ""
 Local cXXSEMAF		:= "N"
 
@@ -42,21 +29,8 @@ Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho"
 Private aContratos 	:= {}
 PRIVATE lConsorcio  := .F.
 PRIVATE lFurnas		:= .F.
-Private lEnd        := .F.
-Private lAbortPrint := .F.
-//Private CbTxt       := "G"
-Private limite      := 220
-Private tamanho     := " "
 Private nomeprog    := "BKGCTR11" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo       := 18
-Private aReturn     := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey    := 0
 Private cPerg       := "BKGCTR11"
-//Private cbtxt       := Space(10)
-Private cbcont      := 00
-Private CONTFL      := 01
-Private m_pag       := 01
-Private wnrel       := "BKGCTR11" // Coloque aqui o nome do arquivo usado para impressao em disco
 
 PRIVATE dDataInicio := dDatabase
 PRIVATE dDataI		:= dDatabase
@@ -324,10 +298,14 @@ Aadd( aDbf, { 'XX_INDIC','C', 25,0 } )
 //Aadd( aDbf, { 'XX_STATUS','C', 2,00 } )
 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .T.,NIL,cArqTmp,'TRB',.F.,.F. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .T.,NIL,cArqTmp,'TRB',.F.,.F. )
+///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
+oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
+oTmpTb1:Create()
 
 aCabs   := {}
 aCampos := {}
@@ -381,12 +359,15 @@ FOR _nI := 1 TO nPeriodo
 	Aadd( aDbf2, { 'XX_VAL'+cMes,'N', 18,02 } )
 NEXT
 
-cArqTmp2 := CriaTrab( aDbf2, .T. )
-dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///cArqTmp2 := CriaTrab( aDbf2, .T. )
+///dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
+///dbSetIndex(cArqTmp2+ordBagExt())
 
-		
-IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
-dbSetIndex(cArqTmp2+ordBagExt())
+oTmpTb2 := FWTemporaryTable():New( ALIAS_TMP ) 
+oTmpTb2:SetFields( aDbf2 )
+oTmpTb2:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
+oTmpTb2:Create()
 
 aCabs2   := {}
 aCampos2 := {}
@@ -448,21 +429,26 @@ IF !lJob
 	NEXT
 
 	
-	cArqTmp3 := CriaTrab( aDbf3, .T. )
-	dbUseArea( .T.,NIL,cArqTmp3,ALIAS_FOL,.F.,.F. )
-				
-	IndRegua(ALIAS_FOL,cArqTmp3,"YY_CODGCT+YY_TIPO+YY_CODIGO",,,"Indexando Arquivo de Trabalho") 
-	dbSetIndex(cArqTmp3+ordBagExt())
-	
+	///cArqTmp3 := CriaTrab( aDbf3, .T. )
+	///dbUseArea( .T.,NIL,cArqTmp3,ALIAS_FOL,.F.,.F. )
+	///IndRegua(ALIAS_FOL,cArqTmp3,"YY_CODGCT+YY_TIPO+YY_CODIGO",,,"Indexando Arquivo de Trabalho") 
+	///dbSetIndex(cArqTmp3+ordBagExt())
+
+	oTmpTb3 := FWTemporaryTable():New( ALIAS_FOL ) 
+	oTmpTb3:SetFields( aDbf3 )
+	oTmpTb3:AddIndex("indice3", {"YY_CODGCT","YY_TIPO","YY_CODIGO"} )
+	oTmpTb3:Create()
+
 	//	
 
 	ProcRegua(1)
 	Processa( {|| ProcBKGCTR11(lJob) })
 	Processa( {|| MBrwBKGCTR11() })
 
-	(ALIAS_FOL)->(Dbclosearea())
-	FErase(cArqTmp3+GetDBExtension())
-	FErase(cArqTmp3+OrdBagExt())
+	///(ALIAS_FOL)->(Dbclosearea())
+	///FErase(cArqTmp3+GetDBExtension())
+	///FErase(cArqTmp3+OrdBagExt())
+	oTmpTb3:Delete()
 
 ELSE
 
@@ -470,13 +456,16 @@ ELSE
 
 ENDIF
 
-(ALIAS_TMP)->(Dbclosearea())
-FErase(cArqTmp2+GetDBExtension())
-FErase(cArqTmp2+OrdBagExt())
 
-TRB->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+///(ALIAS_TMP)->(Dbclosearea())
+///FErase(cArqTmp2+GetDBExtension())
+///FErase(cArqTmp2+OrdBagExt())
+oTmpTb2:Delete()
+
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
+oTmpTb1:Delete()
  
 Return
 
@@ -648,7 +637,7 @@ Local cAlias := "TRB"
 dbSelectArea(cAlias)
 
 ProcRegua(1)
-Processa( {|| GeraCBKGCTR11(cAlias,TRIM(wnrel),aTitulos,aCampos,aCabs)})
+Processa( {|| GeraCBKGCTR11(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs)})
 
 Return Nil
 
@@ -3460,22 +3449,11 @@ Return(NIL)
 //********************VERSAO CONSOLIDA E RATEIA OU NAO AS DESPESAS ********************//
 User Function BK2GCTR11(lJob,aAglContr)
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-//Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-//Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-//Local cDesc3        := ""
-//Local nLin          := 80
-//Local lPula         := .F.
-//Local Cabec1        := ""
-//Local Cabec2        := ""
-//Local imprime       := .T.
-//Local aOrd          := {}
 Local _nI           := 0
-Local aDbf 		    := {},cArqTmp
-Local aDbf2         := {},cArqTmp2
+Local aDbf 		    := {} //,cArqTmp
+Local oTmpTb1
+Local aDbf2         := {} //,cArqTmp2
+Local oTmpTb2
 Local cMes          := ""
 Local cXXSEMAF		:= "N" 
 Local aRetCons		:= {}
@@ -3486,21 +3464,8 @@ Private titulo      := "Rentabilidade dos Contratos"
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
 PRIVATE lConsorcio  := .F.
-Private lEnd        := .F.
-Private lAbortPrint := .F.
-//Private CbTxt       := "G"
-Private limite      := 220
-Private tamanho     := " "
 Private nomeprog    := "BK2GCTR11" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo       := 18
-Private aReturn     := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey    := 0
 Private cPerg       := "BK2GCTR11"
-//Private cbtxt       := Space(10)
-Private cbcont      := 00
-Private CONTFL      := 01
-Private m_pag       := 01
-Private wnrel       := "BK2GCTR11" // Coloque aqui o nome do arquivo usado para impressao em disco
 
 PRIVATE dDataInicio := dDatabase
 PRIVATE dDataI		:= dDatabase
@@ -3870,11 +3835,15 @@ Aadd( aDbf, { 'XX_INDIC','C', 25,0 } )
 
 //Aadd( aDbf, { 'XX_STATUS','C', 2,00 } )
 
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
+oTmpTb1:Create()
 
-IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
 aCabs   := {}
 aCampos := {}
@@ -3928,12 +3897,15 @@ FOR _nI := 1 TO nPeriodo
 	Aadd( aDbf2, { 'XX_VAL'+cMes,'N', 18,02 } )
 NEXT
 
-cArqTmp2 := CriaTrab( aDbf2, .T. )
-dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///cArqTmp2 := CriaTrab( aDbf2, .T. )
+///dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
+///dbSetIndex(cArqTmp2+ordBagExt())
 
-		
-IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
-dbSetIndex(cArqTmp2+ordBagExt())
+oTmpTb2 := FWTemporaryTable():New( ALIAS_TMP ) 
+oTmpTb2:SetFields( aDbf2 )
+oTmpTb2:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
+oTmpTb2:Create()
 
 aCabs2   := {}
 aCampos2 := {}
@@ -3995,28 +3967,35 @@ IF !lJob
 	NEXT
 
 	
-	cArqTmp3 := CriaTrab( aDbf3, .T. )
-	dbUseArea( .T.,NIL,cArqTmp3,ALIAS_FOL,.F.,.F. )
-				
-	IndRegua(ALIAS_FOL,cArqTmp3,"YY_CODGCT+YY_TIPO+YY_CODIGO",,,"Indexando Arquivo de Trabalho") 
-	dbSetIndex(cArqTmp3+ordBagExt())
-	
+	///cArqTmp3 := CriaTrab( aDbf3, .T. )
+	///dbUseArea( .T.,NIL,cArqTmp3,ALIAS_FOL,.F.,.F. )
+	///IndRegua(ALIAS_FOL,cArqTmp3,"YY_CODGCT+YY_TIPO+YY_CODIGO",,,"Indexando Arquivo de Trabalho") 
+	///dbSetIndex(cArqTmp3+ordBagExt())
+
+	oTmpTb3 := FWTemporaryTable():New( ALIAS_FOL ) 
+	oTmpTb3:SetFields( aDbf3 )
+	oTmpTb3:AddIndex("indice3", {"YY_CODGCT","YY_TIPO","YY_CODIGO"} )
+	oTmpTb3:Create()
+
 	//	
 
 	ProcRegua(1)
 	Processa( {|| ProcBKGCTR11(lJob) })
 	Processa( {|| MBrwBKGCTR11() }) 
 
-	(ALIAS_FOL)->(Dbclosearea())
-	FErase(cArqTmp3+GetDBExtension())
-	FErase(cArqTmp3+OrdBagExt())
+	///(ALIAS_FOL)->(Dbclosearea())
+	///FErase(cArqTmp3+GetDBExtension())
+	///FErase(cArqTmp3+OrdBagExt())
+	oTmpTb3:Delete()
 	
 ELSE
 	ProcBKGCTR11(lJob)
 ENDIF
 
-(ALIAS_TMP)->(Dbclosearea())
-TRB->(Dbclosearea())
+///(ALIAS_TMP)->(Dbclosearea())
+oTmpTb2:Delete()
+///TRB->(Dbclosearea())
+oTmpTb1:Delete()
  
 Return 
 

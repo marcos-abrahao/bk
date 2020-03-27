@@ -14,7 +14,7 @@ BK - Digitação de mov bancario em lote
 User Function BKFINA19()
 Local aArea     := GetArea()
 Local cAliasTmp := GetNextAlias()
-Local oTempTable
+Local oTmpTb
 Local aStrut    := {}
 Local cTx       := ""
 Private aFacil  := {}
@@ -49,9 +49,9 @@ EndIf
 //dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
 //dbSelectArea(cAliasTmp)
 
-oTempTable := FWTemporaryTable():New( cAliasTmp ) 
-oTemptable:SetFields( aStrut )
-oTempTable:Create()
+oTmpTb := FWTemporaryTable():New( cAliasTmp ) 
+oTmpTb:SetFields( aStrut )
+oTmpTb:Create()
 
 cTx := FA19Dlg01(cTx,cAliasTmp)
 //cTx := FA19Dlg01(cTx,NIL)
@@ -62,7 +62,7 @@ FA19EdtCx(cAliasTmp)
 //FErase(cArq+GetDBExtension())
 //FErase(cArq+OrdBagExt())
 
-oTempTable:Delete() 
+oTmpTb:Delete() 
 
 RestArea(aArea)
 

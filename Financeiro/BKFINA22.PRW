@@ -14,7 +14,7 @@ BK - Baixas de contas a pagar com retorno do banco em lote
 User Function BKFINA22()
 Local aArea     := GetArea()
 Local cAliasTmp := GetNextAlias()
-Local oTempTable
+Local oTmpTb
 Local aStrut    := {}
 Local cTx       := ""
 Private aFacil  := {}
@@ -44,15 +44,15 @@ aAdd( aStrut, { "XX_PORTADO", "C", TamSX3("E2_PORTADO")[1] , 0} )
 //dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
 //dbSelectArea(cAliasTmp)
  
-oTempTable := FWTemporaryTable():New( cAliasTmp ) 
-oTemptable:SetFields( aStrut )
-oTempTable:Create()
+oTmpTb := FWTemporaryTable():New( cAliasTmp ) 
+oTmpTb:SetFields( aStrut )
+oTmpTb:Create()
 
 cTx := FA22Dlg01(cTx,cAliasTmp)
     
 FA22EdtCx(cAliasTmp)
 
-oTempTable:Delete() 
+oTmpTb:Delete() 
 //(cAliasTmp)->(DbCloseArea())
 //FErase(cArq+GetDBExtension())
 //FErase(cArq+OrdBagExt())

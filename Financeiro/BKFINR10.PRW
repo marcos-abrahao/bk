@@ -42,7 +42,7 @@ PRIVATE aPlans      := {}
 PRIVATE cFiltro     := ""
 
 PRIVATE cAliasTmp1  := "TMP1"
-PRIVATE oTempTable1
+PRIVATE oTmpTb1
 PRIVATE aCabs1      := {}
 PRIVATE aCampos1    := {}
 PRIVATE aTitulos1   := {}
@@ -50,7 +50,7 @@ PRIVATE aStruct1    := {}
 PRIVATE aImpr1      := {}
 
 PRIVATE cAliasTmp2  := "TMP2"
-PRIVATE oTempTable2
+PRIVATE oTmpTb2
 PRIVATE aCabs2      := {}
 PRIVATE aCampos2    := {}
 PRIVATE aTitulos2   := {}
@@ -58,7 +58,7 @@ PRIVATE aStruct2    := {}
 PRIVATE aImpr2      := {}
 
 PRIVATE cAliasTmp3  := "TMP3"
-PRIVATE oTempTable3
+PRIVATE oTmpTb3
 PRIVATE aCabs3      := {}
 PRIVATE aCampos3    := {}
 PRIVATE aTitulos3   := {}
@@ -66,7 +66,7 @@ PRIVATE aStruct3    := {}
 PRIVATE aImpr3      := {}
 
 PRIVATE cAliasTmp4  := "TMP4"
-PRIVATE oTempTable4
+PRIVATE oTmpTb4
 PRIVATE aCabs4      := {}
 PRIVATE aCampos4    := {}
 PRIVATE aTitulos4   := {}
@@ -74,7 +74,7 @@ PRIVATE aStruct4    := {}
 PRIVATE aImpr4      := {}
                          
 PRIVATE cAliasTmp5  := "TMP5"
-PRIVATE oTempTable5
+PRIVATE oTmpTb5
 PRIVATE aCabs5      := {}
 PRIVATE aCampos5    := {}
 PRIVATE aTitulos5   := {}
@@ -82,7 +82,7 @@ PRIVATE aStruct5    := {}
 PRIVATE aImpr5      := {}
 
 PRIVATE cAliasTmp6  := "TMP6"
-PRIVATE oTempTable6
+PRIVATE oTmpTb6
 PRIVATE aCabs6      := {}
 PRIVATE aCampos6    := {}
 PRIVATE aTitulos6   := {}
@@ -286,10 +286,10 @@ EndIf
 //³ Cria o arquivo temporario de bancos           ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-oTempTable1 := FWTemporaryTable():New( cAliasTmp1 ) 
-oTemptable1:SetFields( aStruct1 )
-oTempTable1:AddIndex("indice1", {"A6_COD","A6_AGENCIA","A6_NUMCON"} )
-oTempTable1:Create()
+oTmpTb1 := FWTemporaryTable():New( cAliasTmp1 ) 
+oTmpTb1:SetFields( aStruct1 )
+oTmpTb1:AddIndex("indice1", {"A6_COD","A6_AGENCIA","A6_NUMCON"} )
+oTmpTb1:Create()
 
 ///cArqTmp1	:= CriaTrab(aStruct1)
 
@@ -311,10 +311,10 @@ IF nSaldos == 1 .OR. nBancos == 1
 		//³ Cria o arquivo temporario de aplicações       ³
 		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-		oTempTable6 := FWTemporaryTable():New( cAliasTmp6 ) 
-		oTemptable6:SetFields( aStruct6 )
-		oTempTable6:AddIndex("indice6", {"EH_BANCO","EH_AGENCIA","EH_CONTA"} )
-		oTempTable6:Create()
+		oTmpTb6 := FWTemporaryTable():New( cAliasTmp6 ) 
+		oTmpTb6:SetFields( aStruct6 )
+		oTmpTb6:AddIndex("indice6", {"EH_BANCO","EH_AGENCIA","EH_CONTA"} )
+		oTmpTb6:Create()
 
 
 		///cArqTmp6	:= CriaTrab(aStruct6)
@@ -351,7 +351,7 @@ If nSaldos == 1
 	//EndIf
 EndIf
 
-oTempTable1:Delete() 
+oTmpTb1:Delete() 
 ///dbSelectArea(cAliasTmp1)
 ///dbCloseArea()
 ///Ferase(cArqTmp1 + GetDBExtension())
@@ -673,10 +673,10 @@ AADD(aCampos2,cAliasTmp2+"->PAGOS")
 AADD(aCabs2  ,"Pagos")
 
 
-oTempTable2 := FWTemporaryTable():New( cAliasTmp2 ) 
-oTemptable2:SetFields( aStruct2 )
-oTempTable2:AddIndex("indice2", {"CTFIN"} )
-oTempTable2:Create()
+oTmpTb2 := FWTemporaryTable():New( cAliasTmp2 ) 
+oTmpTb2:SetFields( aStruct2 )
+oTmpTb2:AddIndex("indice2", {"CTFIN"} )
+oTmpTb2:Create()
 
 ///cArqTmp2 := CriaTrab(aStruct2)
 ///dbUseArea(.T.,,cArqTmp2,cAliasTmp2,if(.F. .OR. .F.,!.F., NIL),.F.)
@@ -711,10 +711,10 @@ AADD(aStruct4,{"PAGOS","N",20,2})
 AADD(aCampos4,cAliasTmp4+"->PAGOS")
 AADD(aCabs4  ,"Pagos")
 
-oTempTable4 := FWTemporaryTable():New( cAliasTmp4 ) 
-oTemptable4:SetFields( aStruct4 )
-oTempTable4:AddIndex("indice4", {"CC"} )
-oTempTable4:Create()
+oTmpTb4 := FWTemporaryTable():New( cAliasTmp4 ) 
+oTmpTb4:SetFields( aStruct4 )
+oTmpTb4:AddIndex("indice4", {"CC"} )
+oTmpTb4:Create()
 
 
 ///cArqTmp4 := CriaTrab(aStruct4)
@@ -747,10 +747,10 @@ AADD(aStruct5,{"PAGOS","N",20,2})
 AADD(aCampos5,cAliasTmp5+"->PAGOS")
 AADD(aCabs5  ,"Pagos")
 
-oTempTable5 := FWTemporaryTable():New( cAliasTmp5 ) 
-oTemptable5:SetFields( aStruct5 )
-oTempTable5:AddIndex("indice5", {"DESCFIN"} )
-oTempTable5:Create()
+oTmpTb5 := FWTemporaryTable():New( cAliasTmp5 ) 
+oTmpTb5:SetFields( aStruct5 )
+oTmpTb5:AddIndex("indice5", {"DESCFIN"} )
+oTmpTb5:Create()
 
 ///cArqTmp5 := CriaTrab(aStruct5)
 ///dbUseArea(.T.,,cArqTmp5,cAliasTmp5,if(.F. .OR. .F.,!.F., NIL),.F.)
@@ -888,10 +888,10 @@ IF nUsuario == 1
 
 ENDIF
 
-oTempTable3 := FWTemporaryTable():New( cAliasTmp3 ) 
-oTemptable3:SetFields( aStruct3 )
-oTempTable3:AddIndex("indice3", {"XXCC"} )
-oTempTable3:Create()
+oTmpTb3 := FWTemporaryTable():New( cAliasTmp3 ) 
+oTmpTb3:SetFields( aStruct3 )
+oTmpTb3:AddIndex("indice3", {"XXCC"} )
+oTmpTb3:Create()
 
 ///cArqTmp3 := CriaTrab(aStruct3)
 ///dbUseArea(.T.,,cArqTmp3,cAliasTmp3,if(.F. .OR. .F.,!.F., NIL),.F.)
@@ -946,30 +946,30 @@ Else
 	MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
 EndIf
 
-oTempTable2:Delete() 
+oTmpTb2:Delete() 
 ///(cAliasTmp2)->(dbCloseArea())
 ///fErase( cArqTmp2 + OrdBagExt() )
 ///fErase( cArqTmp2 + GetDBExtension() )
 
 If SELECT(cAliasTmp3) > 0
-	oTempTable3:Delete() 
+	oTmpTb3:Delete() 
 	//(cArqTmp3)->(dbCloseArea())
 	///fErase( cArqTmp3 + OrdBagExt() )
 	///fErase( cArqTmp3 + GetDBExtension() )
 EndIf
 
-oTempTable4:Delete() 
+oTmpTb4:Delete() 
 ///(cAliasTmp4)->(dbCloseArea())
 ///fErase( cArqTmp4 + OrdBagExt() )
 ///fErase( cArqTmp4 + GetDBExtension() )
 
-oTempTable5:Delete() 
+oTmpTb5:Delete() 
 ///(cAliasTmp5)->(dbCloseArea())
 ///fErase( cArqTmp5 + OrdBagExt() )
 ///fErase( cArqTmp5 + GetDBExtension() )
 
 If SELECT(cAliasTmp6) > 0
-	oTempTable6:Delete() 
+	oTmpTb6:Delete() 
 	///(cAliasTmp6)->(dbCloseArea())
 	///fErase( cArqTmp6 + OrdBagExt() )
 	///fErase( cArqTmp6 + GetDBExtension() )

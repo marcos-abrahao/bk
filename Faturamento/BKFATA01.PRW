@@ -1,23 +1,17 @@
-//#INCLUDE "RWMAKE.CH"
-//#INCLUDE "PROTHEUS.CH"
-
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE 'TOTVS.CH'
 #INCLUDE "TOPCONN.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFATA01ºAutor  ³Adilson do Prado     º Data ³  11/06/15   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Funcao gravar Informações do Faturamento na NF de saida    º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKESTC02
+BK - Funcao gravar Informações do Faturamento na NF de saida
+@Return
+@author Adilson do Prado
+@since 11/06/15
+@version P12
+/*/
+//-------------------------------------------------------------------
+
 User Function BKFATA1A()
 Private cString   := "SF2"
 Private cCadastro := "Documentos de saida"
@@ -130,10 +124,10 @@ AADD(aStruct1, {"F2_XXRECNO","N" ,12,0})
 //IndRegua (cAliasTmp1,cArqTmp1,"F2_DOC",,,OemToAnsi("Selecionando Registros...") )  //
 //dbSetOrder(1)
 
-oTempTable := FWTemporaryTable():New( cAliasTmp1 ) 
-oTemptable:SetFields( aStruct1 )
-oTempTable:AddIndex("indice1", {"F2_DOC"} )
-oTempTable:Create()
+oTmpTb := FWTemporaryTable():New( cAliasTmp1 ) 
+oTmpTb:SetFields( aStruct1 )
+oTmpTb:AddIndex("indice1", {"F2_DOC"} )
+oTmpTb:Create()
 
 
 dbSelectArea("SF2")
@@ -171,7 +165,7 @@ EndIf
 MsAguarde({|| nI := ProcQuery(cQuery)},"Aguarde","Selecionando documentos...",.F.)
 
 If nI == 0
-	oTempTable:Delete() 
+	oTmpTb:Delete() 
 	(cAliasTmp2)->( dbCloseArea() )
 
 	RestArea( aAreaAtu )
@@ -276,7 +270,7 @@ If ( lOk )
 	ENDDO 
 EndIf
 
-oTempTable:Delete() 
+oTmpTb:Delete() 
 (cAliasTmp2)->( dbCloseArea() )
 
 RestArea( aAreaAtu )
