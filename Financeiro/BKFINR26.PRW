@@ -4,6 +4,7 @@
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINR26
 BK - Planilha de Pedidos e Faturamento
+v29/03/20
 @Return
 @author Marcos Bispo Abrahão
 @since 15/03/2020
@@ -441,12 +442,15 @@ EndDo
 //oExcel:AddNome("VALORES",nTopV,11,nLin,11)	
 //oExcel:AddNome("SALDOS" ,nTopV,12,nLin,12)	
 
+oExcel:AutoFilter(nTopV-1,1,nLin,Len(aCabs))	//Auto filtro
+oExcel:AddPane(nTopV-1,1)	//Congela paineis
+
 nLin++
 oExcel:Cell(nLin,1,"Total",,nTotStyle)
 For nI := 1 To Len(aTotal)
 	If aTotal[nI]
 		oExcel:AddNome("COLUNA"+STRZERO(nI,3) ,nTopV, nI, nLin-1, nI)
-		oExcel:Cell(nLin,nI,0,"SUM("+"COLUNA"+STRZERO(nI,3)+")",nT2Style)
+		oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,COLUNA"+STRZERO(nI,3)+")",nT2Style)
 	EndIf
 Next
 //oExcel:mergeCells(nLin,1,nLin,10)

@@ -210,7 +210,7 @@ oExcel:Cell(nLin,1,"Total",,nTotStyle)
 For nI := 1 To Len(aTotal)
 	If aTotal[nI]
 		oExcel:AddNome("COLUNA"+STRZERO(nI,3) ,nTop, nI, nLin-1, nI)
-		oExcel:Cell(nLin,nI,0,"SUM("+"COLUNA"+STRZERO(nI,3)+")",nT2Style)
+		oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"COLUNA"+STRZERO(nI,3)+")",nT2Style)
 	EndIf
 Next
 

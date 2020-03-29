@@ -351,7 +351,9 @@ If nSaldos == 1
 	//EndIf
 EndIf
 
-oTmpTb1:Delete() 
+If Select(cAliasTmp1) > 0
+	oTmpTb1:Delete() 
+EndIf
 ///dbSelectArea(cAliasTmp1)
 ///dbCloseArea()
 ///Ferase(cArqTmp1 + GetDBExtension())

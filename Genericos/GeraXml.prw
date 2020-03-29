@@ -1,4 +1,4 @@
-// Marcos - v17/01/19
+// Marcos - v29/03/20
 #INCLUDE "PROTHEUS.CH"
 
 // Exemplo
@@ -44,6 +44,12 @@ Private xQuebra
 IF lClose == NIL
    lClose := .T.
 ENDIF
+
+If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+   Processa( {|| U_GeraXlsx(_aPlans,_cTitulo,_cProg, lClose, _lZebra)})
+   Return Nil
+EndIf
+
 
 MakeDir(cDirTmp)
 
