@@ -1,42 +1,23 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKGCTR20()
+BK - Mapa de INSS retido Financeiro  
+
+@author Marcos B. Abrahão / Adilson Prado
+@since 18/05/17
+@version P12
+@return Nil
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFINR20 Autor Marcos Abrahão/Adilson Prado Data ³18/05/17 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Mapa de INSS retido Financeiro                             º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+//-------------------------------------------------------------------
 
 User Function BKFINR20() 
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Local titulo         := ""
 Local aTitulos,aCampos,aCabs
 
-Private lEnd         := .F.
-Private lAbortPrint  := .F.
-Private limite       := 220
-Private tamanho      := " "
-Private nomeprog     := "BKFINR20" // Coloque aqui o nome do programa para impressao no cabecalho
-Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey     := 0
 Private cPerg        := "BKFINR20"
-Private cbtxt        := Space(10)
-Private cbcont       := 00
-Private CONTFL       := 01
-Private m_pag        := 01
-Private wnrel        := "BKFINR20" // Coloque aqui o nome do arquivo usado para impressao em disco
 Private cString      := "CN9"
 
 Private dEMISI  	:= CTOD("")
@@ -104,8 +85,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
   
-nomeprog := "BKFINR20/"+TRIM(SUBSTR(cUsuario,7,15))
-AADD(aTitulos,nomeprog+" - "+titulo)
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"QTMP->XX_CLIENTE")
 AADD(aCabs  ,"Cliente")
@@ -203,10 +183,8 @@ AADD(aCabs  ,"FUMDIP OSASCO")
 AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_XXVCVIN - QTMP->F2_XXVFUMD - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
 AADD(aCabs  ,"Valor liquido")
 
-
-
 ProcRegua(QTMP->(LASTREC()))
-Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
+Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
    
 Return
 

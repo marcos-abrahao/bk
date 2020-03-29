@@ -2,24 +2,17 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFINR17 º Autor ³ Adilson do Prado          Data ³09/02/15º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Contas Recebidas                                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKFINR17()
+BK - Contas Recebidas
+
+@author Adilson do Prado
+@since 09/02/15
+@version P12
+@return Nil
 /*/
 
+
 User Function BKFINR17()
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Local cTitulo	:= ""
 Local aTitulos	:= {}
@@ -31,11 +24,11 @@ Local aButtons	:= {}
 Local lOk		:= .F.
 Local oPanelLeft
 Local aStruct	:= {}
-Local cTbl		:= ""
 Local nValRec	:= 0
 Local nValLiq	:= 0
 Local lFirst	:= .T.
 Local cObsX     := ""
+Local oTmpTb
 
 Private cPerg        := "BKFINR17"
 Private nEmissao 	 := 1
@@ -52,7 +45,7 @@ Private cTipoEmis    := ""
 
 cTipoEmis := aTipoEmis[1] 
 
-Define MsDialog oDlg01 Title "BKFINR17 - Relação de Contas recebidas - v14/05/15a" From 000,000 To 150,330 Of oDlg01 Pixel
+Define MsDialog oDlg01 Title "BKFINR17 - Relação de Contas recebidas - v29/03/20b" From 000,000 To 150,330 Of oDlg01 Pixel
 	
 @ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 380,600 
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
@@ -157,7 +150,6 @@ ELSEIF nEmissao = 6
 
 ENDIF
 
-
 ProcRegua(1)
 Processa( {|| ProcQuery() })
 
@@ -169,15 +161,16 @@ aadd(aStruct,{"XX_VALDCAC","N",18,2})
 aadd(aStruct,{"E1_XXOBX","C",15,0})
 aadd(aStruct,{"E5_TIPODOC","C",2,0})
 
-//cTbl    := FWOpenTemp("QTMP",aStruct)
-cTbl := CriaTrab(aStruct)
+///cTbl := CriaTrab(aStruct)
+///IF SELECT("QTMP") > 0
+///   dbSelectArea("QTMP")
+///   dbCloseArea()
+///ENDIF
+///dbUseArea(.T.,,cTbl,"QTMP",if(.F. .OR. .F.,!.F., NIL),.F.)
 
-IF SELECT("QTMP") > 0
-   dbSelectArea("QTMP")
-   dbCloseArea()
-ENDIF
-
-dbUseArea(.T.,,cTbl,"QTMP",if(.F. .OR. .F.,!.F., NIL),.F.)
+oTmpTb := FWTemporaryTable():New( "QTMP" )
+oTmpTb:SetFields( aStruct )
+oTmpTb:Create()
 
 dbSelectArea("QTMP1")
 dbGotop()
@@ -481,13 +474,13 @@ AADD(aCabs  ,"Saldo a Receber")
 //ProcRegua(QTMP->(LASTREC()))
 //Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
 
-AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
 
-Ferase(cTbl + GetDBExtension())
+oTmpTb:Delete()
 
-//FWCloseTemp(cTbl)
-   
+//Ferase(cTbl + GetDBExtension())
+  
 Return
 
 

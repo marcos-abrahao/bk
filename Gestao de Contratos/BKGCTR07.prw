@@ -2,7 +2,7 @@
 #INCLUDE "topconn.ch"
 
 //-------------------------------------------------------------------
-/*/{Protheus.doc} BKGCTR15()
+/*/{Protheus.doc} BKGCTR07()
 BK - Mapa de INSS retido
 
 @author Marcos B. Abrahão
@@ -11,7 +11,6 @@ BK - Mapa de INSS retido
 @return Nil
 /*/
 //-------------------------------------------------------------------
-
 
 User Function BKGCTR07()
 

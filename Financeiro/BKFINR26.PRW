@@ -23,6 +23,7 @@ Local cPict 	:= PesqPict("SF2","F2_VALBRUT")
 Local cTitC 	:= ""
 Local nTamCol   := 0
 Local lTotal    := .F.
+Local oTmpTb
 
 Private cTTipos 	:= ""
 
@@ -51,7 +52,6 @@ Private aTotais     := {}
 Private aLF         := {}
 Private nTop		:= 3
 Private nTopV		:= nTop + 1
-
 aAdd( aParam, { 1, "Data Inicial:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Data Final:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })  
 
@@ -194,8 +194,6 @@ Next
 
 oTmpTb := FWTemporaryTable():New( cAliasTrb )
 oTmpTb:SetFields( aDbf )
-
-//oTmpTb:AddIndex("01", {"DESCR"} )
 oTmpTb:Create()
 
 Processa( {|| ProcBKR26() })

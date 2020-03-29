@@ -2,18 +2,13 @@
 #INCLUDE "rwmake.ch"
 #include "TopConn.ch"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³XCADSZO     º Autor ³ Adilson do Prado   º Data ³  29/05/17 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ AXCADASTRO Tabela SZO Dados de Bloqueio judicial Financeiroº±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} XCADSZO()
+BK - AXCADASTRO Tabela SZO Dados de Bloqueio judicial Financeiro 
+
+@author Adilson do Prado
+@since 29/05/17
+@version P12
+@return Nil
 /*/
 
 User Function XCADSZO
@@ -185,6 +180,7 @@ Local nX
 Local aUsuarios := ALLUSERS()
 Local nOpc      := 0
 Local aFina100  := {}
+Local lSucess	:= .T.
 
 Private lMsErroAuto := .F.
 
@@ -196,10 +192,8 @@ EndIf
 
 BEGIN TRANSACTION
 	
- 
  	dbSelectArea("SZO")
 	dbGoTo(nRecno)
-
 
 	aFina100 := {{"E5_DATA"    ,SZO->ZO_DATA     ,Nil},;
 	             {"E5_MOEDA"   ,"01"             ,Nil},;
@@ -209,30 +203,30 @@ BEGIN TRANSACTION
 	             {"E5_AGENCIA" ,SZO->ZO_AGENC    ,Nil},;
 	             {"E5_CONTA"   ,SZO->ZO_CONTA    ,Nil}}
 	    
-				lMsErroAuto := .F.
-				If SZO->ZO_TIPO == "B"
-					nOpc := 3  
-                	AADD(aFina100,{"E5_DOCUMEN" ,ALLTRIM(STR(nRecno))+"-BLOQUEIO JUDICIAL"  ,Nil})
-                	AADD(aFina100,{"E5_BENEF"   ,SZO->ZO_RECLAM  ,Nil})
-                	AADD(aFina100,{"E5_HISTOR"  ,"DEP. JUDICIAL ACAO TRABALHISTA -BLOQUEIO",Nil})
-					AADD(aFina100,{"E5_DEBITO"  ,SZO->ZO_CONTAB ,Nil})
-					AADD(aFina100,{"E5_CCD"     ,'000000001'    ,Nil})
-				Else
-					nOpc := 4
-                	AADD(aFina100,{"E5_DOCUMEN" ,ALLTRIM(STR(nRecno))+"-DESBLOQUEIO JUDICIAL"  ,Nil})
-                	AADD(aFina100,{"E5_BENEF"   ,SM0->M0_NOME  ,Nil})
-                	AADD(aFina100,{"E5_HISTOR"  ,"DEP. JUDICIAL ACAO TRABALHISTA -DESBLOQU",Nil})
-					AADD(aFina100,{"E5_CREDITO" ,SZO->ZO_CONTAB ,Nil})
-					AADD(aFina100,{"E5_CCC"     ,'000000001'    ,Nil})
-				Endif
+	lMsErroAuto := .F.
+	If SZO->ZO_TIPO == "B"
+		nOpc := 3  
+      	AADD(aFina100,{"E5_DOCUMEN" ,ALLTRIM(STR(nRecno))+"-BLOQUEIO JUDICIAL"  ,Nil})
+       	AADD(aFina100,{"E5_BENEF"   ,SZO->ZO_RECLAM  ,Nil})
+       	AADD(aFina100,{"E5_HISTOR"  ,"DEP. JUDICIAL ACAO TRABALHISTA -BLOQUEIO",Nil})
+		AADD(aFina100,{"E5_DEBITO"  ,SZO->ZO_CONTAB ,Nil})
+		AADD(aFina100,{"E5_CCD"     ,'000000001'    ,Nil})
+	Else
+		nOpc := 4
+       	AADD(aFina100,{"E5_DOCUMEN" ,ALLTRIM(STR(nRecno))+"-DESBLOQUEIO JUDICIAL"  ,Nil})
+       	AADD(aFina100,{"E5_BENEF"   ,SM0->M0_NOME  ,Nil})
+       	AADD(aFina100,{"E5_HISTOR"  ,"DEP. JUDICIAL ACAO TRABALHISTA -DESBLOQU",Nil})
+		AADD(aFina100,{"E5_CREDITO" ,SZO->ZO_CONTAB ,Nil})
+		AADD(aFina100,{"E5_CCC"     ,'000000001'    ,Nil})
+	Endif
 			
-	        	MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
+	MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
 			
-				If lMsErroAuto
-					MostraErro()
-					DisarmTransaction()
-					Return .F.
-				EndIf
+	If lMsErroAuto
+		MostraErro()
+		DisarmTransaction()
+		lSucess := .F.
+	EndIf
 	
 END TRANSACTION
 
@@ -243,10 +237,13 @@ RecLock("SZO",.F.)
 SZO->ZO_LBANCO := STR(SE5->(Recno()))
 SZO->(MsUnlock())      
 
+If lSucess
+	Aviso("Sucesso","Movimentos bancários realizadas com sucesso.",{"OK"})
+Else
+	Aviso("Erro","Movimentos bancários não foram realizadas.",{"OK"})
+EndIf	
 
-Aviso("Sucesso","Movimentos bancários realizadas com sucesso.",{"OK"})
-
-Return .T.
+Return lSucess
 
 
 
@@ -257,6 +254,7 @@ Local nX
 Local aUsuarios := ALLUSERS()
 Local nOpc      := 5
 Local aFina100  := {}
+Local lSucess   := .T.
 
 Private lMsErroAuto := .F.
 
@@ -268,10 +266,8 @@ EndIf
 
 BEGIN TRANSACTION
 	
- 
- 	dbSelectArea("SE5")
+  	dbSelectArea("SE5")
 	dbGoTo(nRecno)
-
 
 	aFina100 := {{"E5_DATA"    ,SE5->E5_DATA    ,Nil},;
 	             {"E5_MOEDA"   ,SE5->E5_MOEDA   ,Nil},;
@@ -287,19 +283,23 @@ BEGIN TRANSACTION
 				 {"E5_IDMOVI"  ,SE5->E5_IDMOVI  ,Nil},;
 				 {"INDEX"      ,10              ,Nil}} 
 
-				lMsErroAuto := .F.
+	lMsErroAuto := .F.
 			
-	        	MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
+	MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
 			
-				If lMsErroAuto
-					MostraErro()
-					DisarmTransaction()
-					Return .F.
-				EndIf
+	If lMsErroAuto
+		MostraErro()
+		DisarmTransaction()
+		lSucess := .F.
+	EndIf
 	
 END TRANSACTION
 
-Aviso("Sucesso","Movimentos bancários excluido com sucesso.",{"OK"})
+If lSucess
+	Aviso("Sucesso","Movimentos bancários excluidos com sucesso.",{"OK"})
+else
+	Aviso("Erro","Movimentos bancários não foram excluidos.",{"OK"})	
+EndIf
 
-Return .T.
+Return lSucess
 
