@@ -45,6 +45,11 @@ IF lClose == NIL
    lClose := .T.
 ENDIF
 
+If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+   Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)})
+   Return Nil
+EndIf
+
 MakeDir(cDirTmp)
 fErase(cArqTmp)
 
@@ -221,3 +226,4 @@ WHILE lOk
 ENDDO
 
 Return cLETRA
+

@@ -18,7 +18,6 @@ User Function BKGCTR07()
 Local titulo         := ""
 Local aTitulos,aCampos,aCabs
 
-Private nomeprog     := "BKGCTR07" // Coloque aqui o nome do programa para impressao no cabecalho
 Private cPerg        := "BKGCTR07"
 Private cString      := "CN9"
 
@@ -70,8 +69,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
    
-nomeprog := "BKGCTR07/"+TRIM(SUBSTR(cUsuario,7,15))
-AADD(aTitulos,nomeprog+" - "+titulo)
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"QTMP->XX_CLIENTE")
 AADD(aCabs  ,"Cliente")
@@ -195,7 +193,7 @@ ENDIF
 
 ProcRegua(QTMP->(LASTREC()))
 Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
-   
+
 Return
 
 
