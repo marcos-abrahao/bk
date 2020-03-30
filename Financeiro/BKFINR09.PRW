@@ -2,28 +2,17 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ FINR09  º                                    Data ³11/05/10º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Listagem de Despesas de Viagem/LF                          º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK Consultoria                                             º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-         
+/*/{Protheus.doc} BKFINR09
+BK - Listagem de Despesas de Viagem/LF 
+
+@Return
+@author Marcos Bispo Abrahão
+@since 11/05/10
+@version P12 - 30/03/20
 /*/
 
 
 User Function BKFINR09()
-
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Private cTitulo      := "Listagem de Despesas de Viagem/LF"
 Private aTitulos     := {}
@@ -31,15 +20,14 @@ Private lEnd         := .F.
 Private lAbortPrint  := .F.
 Private cProg        := "FINR09"
 Private cPerg        := "FINR09"
-Private cNProg
-
-Private cString := "SZ2"
-
+Private cString      := "SZ2"
 Private nOpcA
-Private aTipoBk  := {},cTipoBK
-Private aTipoPes := {},cTipoPes
-Private aTipoRel := {"DV - Despesas de Viagem","LF - Liquidos da Folha","CX - Caixa"}
-Private cTipoRel := aTipoRel[1] 
+Private aTipoBk      := {}
+Private cTipoBK      := ""
+Private aTipoPes     := {}
+Private cTipoPes     := ""
+Private aTipoRel     := {"DV - Despesas de Viagem","LF - Liquidos da Folha","CX - Caixa"}
+Private cTipoRel     := aTipoRel[1] 
 
 // Parametros - Pergunte
 Private dEmisI,dEmisF,dVencI,dVencF,nValI,nValF,cCC,cForn
@@ -74,7 +62,6 @@ DEFINE MSDIALOG oDlg FROM  96,9 TO 310,592 TITLE OemToAnsi(cProg+" - "+cTitulo) 
 @ 40,10 SAY "Tipo Pessoa"  SIZE 50,10 OF oDlg PIXEL
 @ 40,65 COMBOBOX cTipoPes  ITEMS aTipoPes SIZE 100,50 OF oDlg PIXEL
 
-//@ 48, 15 SAY "xxx" SIZE 270, 8 OF oDlg PIXEL
 DEFINE SBUTTON oBtnParam FROM 80, 183 TYPE 5 ACTION pergunte(cPerg,.T.) ENABLE OF oDlg
 oBtnParam:nWidth := 80
 DEFINE SBUTTON FROM 80, 223 TYPE 1 ACTION (oDlg:End(),nOpcA:=1) ENABLE OF oDlg
@@ -82,15 +69,13 @@ DEFINE SBUTTON FROM 80, 253 TYPE 2 ACTION oDlg:End() ENABLE OF oDlg
 ACTIVATE MSDIALOG oDlg CENTER
 
 If nOpcA == 1
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Faz Processamento.                                           ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	ProcR09()
 Endif
 Return NIL
 
 
 Static Function ProcR09()
+Local aPlans := {}
 
 dEmisI := mv_par01
 dEmisF := mv_par02
@@ -105,12 +90,8 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
-cNProg := cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))   
-AADD(aTitulos,cNProg)
-
 ProcRegua(5)
 Processa( {|| ProcSZ2() })
-
 
 AADD(aCampos,"QSZ2->Z2_TIPO")
 AADD(aCabs  ,"Tipo")
@@ -135,6 +116,9 @@ AADD(aCabs  ,"Valor")
 
 AADD(aCampos,"QSZ2->Z2_DATAEMI")
 AADD(aCabs  ,"Emissao")
+
+AADD(aCampos,"QSZ2->E2_EMIS1")
+AADD(aCabs  ,"Contabil.")
 
 AADD(aCampos,"QSZ2->Z2_DATAPGT")
 AADD(aCabs  ,"Vencimento")
@@ -178,9 +162,14 @@ AADD(aCabs  ,"OBS")
 
 IF !QSZ2->(EOF())
 	ProcRegua(QSZ2->(LASTREC()))
-	Processa( {|| U_GeraCSV("QSZ2",cProg,aTitulos,aCampos,aCabs)})
+
+	//Processa( {|| U_GeraCSV("QSZ2",cProg,aTitulos,aCampos,aCabs)})
+
+   AADD(aPlans,{"QSZ2",TRIM(cPerg),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+   MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+
 ELSE
-    MsgStop("Sem dados para imprimir, verifique os parâmetros do relatório")
+   MsgStop("Sem dados para imprimir, verifique os parâmetros do relatório")
 	Dbselectarea("QSZ2")
 	dbCloseArea()
 ENDIF	
@@ -204,6 +193,9 @@ cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA
 cQuery += "(SELECT TOP 1 E2_VENCTO FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"
 cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
 cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_VENCTO,"
+cQuery += "(SELECT TOP 1 E2_EMIS1  FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"
+cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
+cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_EMIS1,"
 //
 cQuery += "A2_NOME "
 cQuery += "FROM "+RETSQLNAME("SZ2")+" SZ2 "
@@ -214,7 +206,7 @@ cQuery += "LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON Z2_CC = CTT_CUSTO AND CTT.D_E_
 
 cQuery += "WHERE SZ2.D_E_L_E_T_ = ' '  AND SZ2.Z2_STATUS = 'S' AND SZ2.Z2_CODEMP='"+SM0->M0_CODIGO+"'"
 
-aTitulos[1] := aTitulos[1] + " - "+cTipoRel
+AADD(aTitulos,cTipoRel)
 
 cTipoRel := PAD(cTipoRel,TamSx3("Z2_E2PRF")[1])
 cQuery  += "AND Z2_E2PRF = '"+cTipoRel+"' "
@@ -278,6 +270,7 @@ TCSETFIELD("QSZ2","Z2_DATAEMI","D",8,0)
 TCSETFIELD("QSZ2","Z2_DATAPGT","D",8,0)
 TCSETFIELD("QSZ2","E2_VENCTO","D",8,0)
 TCSETFIELD("QSZ2","E2_BAIXA","D",8,0)
+TCSETFIELD("QSZ2","E2_EMIS1","D",8,0)
 
 Dbselectarea("QSZ2")
 QSZ2->(Dbgotop())

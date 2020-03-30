@@ -37,7 +37,7 @@ Local _cAlias := ""
 Local _aCabs  := {}
 Local _cPlan   := ""
 Local _cFiltra := ""
-Local _cTitulos:= ""
+Local _xTitulos:= ""
 Local _aCampos := {}
 Local _aImpr   := {}
 Local _aAlign  := {}
@@ -46,25 +46,19 @@ Local _aTotal  := {}
 Local _cQuebra := ""
 Local _lClose  := .F.
 
-Local nPosFont
+Local nCabFont
 Local nTitFont
-Local nPosCor
-Local nLisCor
+Local nCabCor
 Local nBordas
 Local nFmtNum2
 Local nTotFont
-Local nApoFont
-Local nPosStyle	
-Local nLisStyle	
+Local nCabStyle	
 Local nV2Style
 Local nD2Style
 Local nG2Style 	
 Local nT2Style
 Local nTitStyle	
 Local nTit2Style	
-Local nApoStyle	
-Local nVApoStyle
-Local nDApoStyle
 Local nTotStyle	
 Local nIDImg
 
@@ -82,43 +76,36 @@ oExcel:new(cFile)
 
 oAlCenter	:= oExcel:Alinhamento("center","center")
 oVtCenter	:= oExcel:Alinhamento(,"center")
-nPosFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2")
-nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2")
-nTit2Font	:= oExcel:AddFont(14,"00000000","Calibri","2")
-nPosCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho alterado
-nLisCor		:= oExcel:CorPreenc("D9D9D9")
-nBordas 	:= oExcel:Borda("ALL")
-nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 
 				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nTotFont 	:= oExcel:AddFont(11,56,"Calibri","2",,.T.,.F.,.F.,.F.)
-nApoFont 	:= oExcel:AddFont(11,"FF0000","Calibri","2",,.T.,.F.,.F.,.F.)
+nCabFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2",,.T.)
+nLinFont	:= oExcel:AddFont(10,"00000000","Calibri","2")
+nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2",,.T.)
+nTit2Font	:= oExcel:AddFont(10,"00000000","Calibri","2")
 
-nPosStyle	:= oExcel:AddStyles(/*numFmtId*/,nPosFont/*fontId*/,nPosCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
-nLisStyle	:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
 
-nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
-nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nBordas 	:= oExcel:Borda("ALL")
+nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
+
+nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-
 nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
-nApoStyle	:= oExcel:AddStyles(/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nVApoStyle	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nDApoStyle	:= oExcel:AddStyles(14/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
 nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
-
 
 FOR nPl := 1 TO LEN(_aPlans)
 
 	_cAlias  := _aPlans[nPl,01]
 	_cPlan   := _aPlans[nPl,02]
 	_cFiltra := _aPlans[nPl,03]
-	_cTitulos:= _aPlans[nPl,04] 
+	_xTitulos:= _aPlans[nPl,04] 
 	_aCampos := _aPlans[nPl,05]
 	_aCabs   := _aPlans[nPl,06]
 	_aImpr   := _aPlans[nPl,07]
@@ -139,7 +126,13 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Titulo
 	aTitulos := {}
-	aAdd(aTitulos,_cTitulos)
+	If ValType(_xTitulos) == "C"
+		aAdd(aTitulos,_xTitulos)
+	Else
+		For nJ := 1 To LEN(_xTitulos)
+			aAdd(aTitulos,_xTitulos[nJ])
+		Next
+	EndIf
 	aAdd(aTitulos,_cProg+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 
 	nLin := 1
@@ -165,7 +158,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		 	ENDIF 
 		ENDIF
 
-		oExcel:Cell(nLin,nJ,_aCabs[nJ],,nPosStyle)
+		oExcel:Cell(nLin,nJ,_aCabs[nJ],,nCabStyle)
 
 	NEXT
 

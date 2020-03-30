@@ -23,7 +23,7 @@ Local cNCampo := ""
 Private aParam		:=	{}
 Private aRet		:=	{}
 
-Private cTitulo     := "xSaldos Bancários Consolidados - BK"
+Private cTitulo     := "Saldos Bancários Consolidados - BK"
 Private cPerg       := "BKFINR23"
 
 Private aFields := {}
