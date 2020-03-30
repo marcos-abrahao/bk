@@ -1,6 +1,5 @@
 #INCLUDE 'PROTHEUS.CH'
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKCOMR11
 Relatório de Economia por CC e Período
 
@@ -9,16 +8,11 @@ Relatório de Economia por CC e Período
 @since 04/04/2019
 @version P11/P12
 /*/
-//-------------------------------------------------------------------
 
 User Function BKCOMR11()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
 Local nF      := 0
-
+Local oTmpTb
 Private aParam		:=	{}
 Private aRet		:=	{}
 Private cTitulo     := "Economia de compras"
@@ -70,7 +64,6 @@ cLoad	 	 	Caracter	 	 	Nome arquivo para gravar respostas
 lCanSave	 	Lógico	 	 		Indica se pode salvar o arquivo com respostas	 	 	 	 	 	 	 	 	 	 
 lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 */
-
 
 If !BkComR11Par()
    Return
@@ -147,18 +140,22 @@ For nF := 1 To Len(aFields)
 
 Next
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
-//IndRegua(cAliasTrb,cArqTmp,"XX_NUM+XX_ITEM",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( cAliasTrb )
+oTmpTb:SetFields( aDbf )
+//oTmpTb:AddIndex("indice1", {"XX_NUM","XX_ITEM"} )
+oTmpTb:Create()
 
 Processa( {|| ProcBKCOMR11() })
 
 MBrwBKCOMR11()
 
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 Return
 

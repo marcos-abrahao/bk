@@ -117,8 +117,7 @@ Else
 	aCampos := {}
 	aTitulos:= {}
 
-	nomeprog := wnRel+"/"+TRIM(SUBSTR(cUsuario,7,15))   
-	AADD(aTitulos,nomeprog+" - "+titulo)
+	AADD(aTitulos,titulo)
 
 	AADD(aCampos,"QSD1->D1_COD")
 	AADD(aCabs  ,"Produto")

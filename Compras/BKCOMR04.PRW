@@ -1,29 +1,20 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
  
-                                       
+/*/{Protheus.doc} BKCOMR04
+BK - Planilha de Pedidos e Faturamento
+
+@Return
+@author Adilson do Prado
+@since 12/03/13
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKCOMR04 º Autor ³ Adilson do Prado          Data ³12/03/13º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Relatório Movimento Compras - BK                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+
 
 User Function BKCOMR04()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
 Local aDbf 		    := {}
-lOCAL cArqTmp       := ""
+Local oTmpTb
 Local titulo        := "Movimento Compras"
 
 Private cTitulo     := "Movimento Compras"
@@ -72,8 +63,6 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
- 
-
 
 cGrupoPI  	:= mv_par01
 cGrupoPF  	:= mv_par02
@@ -114,10 +103,14 @@ Aadd( aDbf, { 'XX_FANTASI',	'C', 20,00 } )
 Aadd( aDbf, { 'XX_NFORNEC',	'C', 80,00 } ) 
 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"DTOS(XX_DATAC)+XX_FORNEC+XX_LOJA+XX_PRODT",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua("TRB",cArqTmp,"DTOS(XX_DATAC)+XX_FORNEC+XX_LOJA+XX_PRODT",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_DATAC","XX_FORNEC","XX_LOJA","XX_PRODT"} )
+oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
@@ -135,7 +128,6 @@ aadd(aHeader,{"Num. NF","XX_DOC" ,"@!",9,00,"","","C","TRB","R"})
 AADD(aCampos,"TRB->XX_SERIE")
 AADD(aCabs  ,"Serie")
 aadd(aHeader,{"Serie","XX_SERIE" ,"@!",3,00,"","","C","TRB","R"})
-
 
 AADD(aCampos,"TRB->XX_GRPPROD")
 AADD(aCabs  ,"Grupo de Produtos")
@@ -177,7 +169,6 @@ AADD(aCampos,"TRB->XX_CC")
 AADD(aCabs  ,"Contrato")
 AADD(aHeader,{"Contrato","XX_CC" ,"@!",09,00,"","","C","TRB","R"})
 
-
 AADD(aCampos,"TRB->XX_DESCC")
 AADD(aCabs  ,"Descrição Contrato")
 AADD(aHeader,{"Descrição Contrato","XX_DESCC" ,"@!",40,00,"","","C","TRB","R"})
@@ -202,9 +193,10 @@ AADD(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 Processa( {|| ProcBKCOMR04() })
 Processa( {|| MBrwBKCOMR04() })
 
-TRB->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
 
 Return
 

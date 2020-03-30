@@ -28,6 +28,7 @@ Local nTop    := 1
 Local cFile   := _cProg+"-"+DTOS(Date())
 Local nRet    := 0
 Local cDirTmp := "C:\TMP"
+Local nCont	  := 0
 
 Local aArea   := GetArea()
 Local nPl     := 0
@@ -44,7 +45,6 @@ Local _aFormat := {}
 Local _aTotal  := {}
 Local _cQuebra := ""
 Local _lClose  := .F.
-
 
 Local nPosFont
 Local nTitFont
@@ -108,7 +108,7 @@ nApoStyle	:= oExcel:AddStyles(/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas
 nVApoStyle	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nDApoStyle	:= oExcel:AddStyles(14/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
 nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
 
@@ -128,10 +128,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_cQuebra := _aPlans[nPl,11]
 	_lClose  := _aPlans[nPl,12]
 
-	nPosTit  := 0
-	nPosTot  := 0 
-	nPosCpo  := 0
-
+	nCont	 := 0
 	nLin     := 1
 	nTop     := 1
 
@@ -249,6 +246,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		IncProc("Gerando planilha "+_cPlan+"...")   
 
 		nLin++
+		nCont++
 
 		For nI :=1 to LEN(_aCampos)
 
@@ -276,7 +274,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 	oExcel:AddPane(nTop-1,1)	//Congela paineis
 
 	nLin++
-	oExcel:Cell(nLin,1,"Total",,nTotStyle)
+	// Linha de Total
+	oExcel:Cell(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")",,nTotStyle)
 	For nI := 1 To Len(aTotal)
 		If aTotal[nI]
 			oExcel:AddNome("COL"+STRZERO(nI,3)+"P"+STRZERO(nPl,1) ,nTop, nI, nLin-1, nI)
@@ -284,9 +283,9 @@ FOR nPl := 1 TO LEN(_aPlans)
 		EndIf
 	Next
 
-	IF _lClose   
+	If _lClose   
 	   (_cAlias)->(dbCloseArea())
-	ENDIF
+	EndIf
 
 Next
 

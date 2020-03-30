@@ -551,8 +551,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
-nomeprog := cPerg+"/"+TRIM(SUBSTR(cUsuario,7,15))   
-AADD(aTitulos,nomeprog+" - Resumo do Faturamento: "+cMesComp+"/"+cAnoComp)
+AADD(aTitulos,"Resumo do Faturamento: "+cMesComp+"/"+cAnoComp)
 
 AADD(aCampos,"QSZ8->Z8_CONTRAT")
 AADD(aCabs  ,"Contrato")
@@ -641,8 +640,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
-nomeprog := cPerg+"/"+TRIM(SUBSTR(cUsuario,7,15))   
-AADD(aTitulos,nomeprog+" - Resumo de Despesas: "+cMesComp+"/"+cAnoComp)
+AADD(aTitulos,"Resumo de Despesas: "+cMesComp+"/"+cAnoComp)
 
 AADD(aCampos,"QSZ9->Z9_CONTRAT")
 AADD(aCabs  ,"Contrato")

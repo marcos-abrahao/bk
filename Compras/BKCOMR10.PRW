@@ -1,34 +1,25 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
- 
-                                       
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKCOMR10 º Autor ³ Marcos Bispo Abrahão      Data ³26/02/15º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Relatório Financeiro de NF de entrada                      º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+
+/*/{Protheus.doc} BKCOMR10
+BK - Relatório Financeiro de NF de entrada
+
+@Return
+@author Marcos Bispo Abrahão
+@since 26/02/15
+@version P12
 /*/
 
 User Function BKCOMR10()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-Private cTitulo     := "Relatório financeiro de NFs de Entrada"
+Private cTitulo     := "Relatório Financeiro de NFs de Entrada"
 Private cPerg       := "BKCOMR10"
 
 PRIVATE dDataI  	:= DATE()
 PRIVATE dDataF  	:= DATE()
 
 PRIVATE aDbf        := {}
+
 PRIVATE aPlans      := {}
 PRIVATE aCampos     := {}
 PRIVATE aCabs       := {}
@@ -91,11 +82,11 @@ Return
 Static Function ProcBKCOMR10
 Local cQuery := ""
 Local nReg   := 0
-//Local cPref  := ""
 Local nQtdPc := 0
 Local nTotPc := 0
 Local cCampo := ""
-Local cArqTmp:= ""
+Local oTmpTb
+
 Local cAlmox := GrpAlmox()
 
 cQuery := "SELECT"
@@ -155,9 +146,14 @@ For nQtdPc := 1 To nTotPc
 Next
 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-IndRegua("TRB",cArqTmp,"DTOS(XX_DTDIGIT)+XX_FORNEC+XX_LOJA",,,"Indexando Arquivo de Trabalho") 
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"DTOS(XX_DTDIGIT)+XX_FORNEC+XX_LOJA",,,"Indexando Arquivo de Trabalho") 
+
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_DTDIGIT","XX_FORNEC","XX_LOJA"} )
+oTmpTb:Create()
 
 
 dbSelectArea("QSF1")
@@ -206,15 +202,15 @@ Do While QSF1->(!EOF())
 
 ENDDO
 
-AADD(aPlans,{"TRB",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+AADD(aPlans,{"TRB",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,/*aTotal */, /*cQuebra*/, lClose:= .F. })
 MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
 
-//TRB->(dbCloseArea())
-    
+
 QSF1->(dbCloseArea())
 
-Ferase(cArqTmp + GetDBExtension())
-FErase(cArqTmp + OrdBagExt())
+oTmpTb:Delete()
+///Ferase(cArqTmp + GetDBExtension())
+///FErase(cArqTmp + OrdBagExt())
 
 Return
 

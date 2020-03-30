@@ -1,7 +1,6 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "PROTHEUS.CH"
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINR26
 BK - Planilha de Pedidos e Faturamento
 v29/03/20
@@ -10,7 +9,6 @@ v29/03/20
 @since 15/03/2020
 @version P12
 /*/
-//-------------------------------------------------------------------
 
 User Function BKFINR26()
 

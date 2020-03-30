@@ -2,8 +2,6 @@
 #include "rwmake.ch"
 #INCLUDE "topconn.ch"
 
-
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINR10
 BK - Fluxo de Caixa - Realizado
 @Return
@@ -11,8 +9,6 @@ BK - Fluxo de Caixa - Realizado
 @since 07/02/14
 @version P12
 /*/
-//-------------------------------------------------------------------
-
 
 User Function BKFINR10()
 

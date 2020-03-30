@@ -1,28 +1,20 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
  
-                                       
+/*/{Protheus.doc} BKCOMR05
+BK - Relatório Avaliação dos Fornecedores
+
+@Return
+@author Adilson do Prado
+@since 25/04/14
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKCOR05  º Autor ³ Adilson do Prado          Data ³25/04/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Relatório Avaliação dos Fornecedores - BK                  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+
 
 User Function BKCOR05()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-Local aDbf 		    := {},cArqTmp
+Local aDbf 		    := {}
+Local oTmpTb
 Local titulo        := "Avaliação dos Fornecedores"
 
 Private cTitulo     := "Avaliação dos Fornecedores"
@@ -49,7 +41,7 @@ PRIVATE	cPict       := "@E 99,999,999,999.99"
 PRIVATE nPeriodo    := 1
 PRIVATE nPlan       := 1
 Private aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aCabs2
+PRIVATE aTitulos,aCampos,aCabs,aCampos2,aTotal
 PRIVATE cGrupoPI  	:= ""
 PRIVATE cGrupoPF  	:= ""
 PRIVATE cSGrupoPI  	:= ""
@@ -86,60 +78,66 @@ Aadd( aDbf, { 'XX_QNTNF',	'N', 10,00 } )
 Aadd( aDbf, { 'XX_MDAVAL',	'N', 10,00 } ) 
 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+//cArqTmp := CriaTrab( aDbf, .t. )
+//dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+//IndRegua("TRB",cArqTmp,"XX_FORNEC+XX_LOJA",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua("TRB",cArqTmp,"XX_FORNEC+XX_LOJA",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_FORNEC","XX_LOJA"} )
+oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aTotal  := {}
 
-nomeprog := "BKCOR05/"+TRIM(SUBSTR(cUsuario,7,15))
+aAdd(aTitulos,titulo)
 
-AADD(aTitulos,nomeprog+" - "+titulo)
+aAdd(aCampos,"TRB->XX_FORNEC")
+aAdd(aCabs  ,"Cod. Fornecedor")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Cod. Fornecedor","XX_FORNEC" ,"@!",06,00,"","","C","TRB","R"})
 
+aAdd(aCampos,"TRB->XX_LOJA")
+aAdd(aCabs  ,"Loja Fornecedor")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Loja Fornecedor","XX_LOJA" ,"@!",02,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_FORNEC")
-AADD(aCabs  ,"Cod. Fornecedor")
-aadd(aHeader,{"Cod. Fornecedor","XX_FORNEC" ,"@!",06,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_FANTASI")
+aAdd(aCabs  ,"Nome Fantasia")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Nome Fantasia","XX_FANTASI" ,"@!",20,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_LOJA")
-AADD(aCabs  ,"Loja Fornecedor")
-aadd(aHeader,{"Loja Fornecedor","XX_LOJA" ,"@!",02,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_NFORNEC")
+aAdd(aCabs  ,"Razão Social")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 
+aAdd(aCampos,"TRB->XX_AVALC")
+aAdd(aCabs  ,"Avaliação Crítica")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Avaliação Críica","XX_AVALC" ,"@!",03,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_FANTASI")
-AADD(aCabs  ,"Nome Fantasia")
-aadd(aHeader,{"Nome Fantasia","XX_FANTASI" ,"@!",20,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_QNTNF")
+aAdd(aCabs  ,"Qtde NF's entregues")
+aAdd(aTotal,.T.)
+aAdd(aHeader,{"Qtde NF's entregues","XX_QNTNF" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
-
-AADD(aCampos,"TRB->XX_NFORNEC")
-AADD(aCabs  ,"Razão Social")
-AADD(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
-
-
-AADD(aCampos,"TRB->XX_AVALC")
-AADD(aCabs  ,"Avaliação Crítica")
-AADD(aHeader,{"Avaliação Críica","XX_AVALC" ,"@!",03,00,"","","C","TRB","R"})
-
-
-AADD(aCampos,"TRB->XX_QNTNF")
-AADD(aCabs  ,"Qtde NF's entregues")
-AADD(aHeader,{"Qtde NF's entregues","XX_QNTNF" ,"@E 9999999999",10,00,"","","N","TRB","R"})
-
-AADD(aCampos,"TRB->XX_MDAVAL")
-AADD(aCabs  ,"Média da Avaliação (IQF)")
-AADD(aHeader,{"Média da Avaliação (IQF)","XX_MDAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+aAdd(aCampos,"TRB->XX_MDAVAL")
+aAdd(aCabs  ,"Média da Avaliação (IQF)")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Média da Avaliação (IQF)","XX_MDAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
 Processa( {|| ProcBKCOR05() })
 
 Processa( {|| MBrwBKCOR05() })
 
-TRB->(Dbclosearea())
+oTmpTb:Delete()
 
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())                 
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())                 
  
 Return
 
@@ -202,7 +200,7 @@ Local aPlans  := {}
 
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
 
-AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+aAdd(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
 MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
 
 Return 

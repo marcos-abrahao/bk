@@ -127,8 +127,7 @@ IF Pergunte(cPerg,.T.)
 				aCampos := {}
 				aTitulos:= {}
    
-				nomeprog := "BKFINR06/"+TRIM(SUBSTR(cUsuario,7,15))
-				AADD(aTitulos,nomeprog+" - "+titulo)
+				AADD(aTitulos,titulo)
 
 			    cParcela := IIF(!EMPTY(SE2->E2_PARCELA),"-"+SE2->E2_PARCELA,"")
 			    // Tratamento para visualização de Acrescimo ou Decrescimo na impressão do Titulo

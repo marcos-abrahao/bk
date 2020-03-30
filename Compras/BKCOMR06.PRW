@@ -1,30 +1,20 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
- 
-                                       
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKCOMR6  º Autor ³ Adilson do Prado          Data ³18/07/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Relatório Pedidos de Compra - BK                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+
+/*/{Protheus.doc} BKCOMR06
+BK - Relatório Pedidos de Compra
+
+@Return
+@author Adilson do Prado
+@since 18/07/14
+@version P12
 /*/
 
 User Function BKCOMR6()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-
 Local _nI           := 0
-Local aDbf 		    := {},cArqTmp
+Local aDbf 		    := {}
+Local oTmpTb
 Local titulo        := "Pedidos de Compras"
 
 Private cTitulo     := "Pedidos de Compras"
@@ -48,7 +38,7 @@ PRIVATE	cPict       := "@E 99,999,999,999.99"
 PRIVATE nPeriodo    := 1
 PRIVATE nPlan       := 1
 Private aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aCabs2,aPlans := {}
+PRIVATE aTitulos,aCampos,aCabs,aTotal,aPlans := {}
 PRIVATE cPEDI  	:= ""
 PRIVATE cPEDF  	:= ""
 PRIVATE dDataI  	:= ""
@@ -64,7 +54,6 @@ If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
  
-
 cPEDI  		:= mv_par01
 cPEDF 	 	:= mv_par02
 dDataI  	:= mv_par03
@@ -73,7 +62,6 @@ cFornI  	:= mv_par05
 cFornF  	:= mv_par06
 cContraI  	:= mv_par07
 cContraF  	:= mv_par08
-
 
 titulo   := "Pedidos de Compras - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 cTitulo  := titulo
@@ -101,110 +89,130 @@ FOR _nI := 1 TO 10
 	Aadd( aDbf, { 'XX_TOTAL'+STRZERO(_nI,2),'N', 16,02 } )
 NEXT
 
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"XX_PED",,,"Indexando Arquivo de Trabalho") 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-
-IndRegua("TRB",cArqTmp,"XX_PED",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_PED"} )
+oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aTotal  := {}
 
 nomeprog := "BKCOMR6/"+TRIM(SUBSTR(cUsuario,7,15))
 
-AADD(aTitulos,nomeprog+" - "+titulo)
+aAdd(aTitulos,nomeprog+" - "+titulo)
  
 
-AADD(aCampos,"TRB->XX_NFORNEC")
-AADD(aCabs  ,"Razão Social")
-AAdd(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_NFORNEC")
+aAdd(aCabs  ,"Razão Social")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_CGC")
-AADD(aCabs  ,"CNPJ")
-AAdd(aHeader,{"CNPJ","XX_CGC" ,"@!",18,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_CGC")
+aAdd(aCabs  ,"CNPJ")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"CNPJ","XX_CGC" ,"@!",18,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_PED")
-AADD(aCabs  ,"Pedido")
-AAdd(aHeader,{"Pedido","XX_PED" ,"@!",6,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_PED")
+aAdd(aCabs  ,"Pedido")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Pedido","XX_PED" ,"@!",6,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_EMISSAO")
-AADD(aCabs  ,"Emissão")
-AAdd(aHeader,{"Emissão","XX_EMISSAO" ,"",8,00,"","","D","TRB","R"})
+aAdd(aCampos,"TRB->XX_EMISSAO")
+aAdd(aCabs  ,"Emissão")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Emissão","XX_EMISSAO" ,"",8,00,"","","D","TRB","R"})
 
-AADD(aCampos,"TRB->XX_PRODT")
-AADD(aCabs  ,"Produtos")
-AAdd(aHeader,{"Produtos","XX_PRODT" ,"@!",15,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_PRODT")
+aAdd(aCabs  ,"Produtos")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Produtos","XX_PRODT" ,"@!",15,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_DESCP")
-AADD(aCabs  ,"Desc. Produtos")
-AAdd(aHeader,{"Desc. Produtos","XX_DESCP" ,"@!",60,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_DESCP")
+aAdd(aCabs  ,"Desc. Produtos")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Desc. Produtos","XX_DESCP" ,"@!",60,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_UM")
-AADD(aCabs  ,"UM")
-AAdd(aHeader,{"UM","XX_UM" ,"@!",03,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_UM")
+aAdd(aCabs  ,"UM")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"UM","XX_UM" ,"@!",03,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_QTDE")
-AADD(aCabs  ,"Qtde")
-AAdd(aHeader,{"Qtde","XX_QTDE" ,"@E 99999999.99",11,02,"","","N","TRB","R"})
+aAdd(aCampos,"TRB->XX_QTDE")
+aAdd(aCabs  ,"Qtde")
+aAdd(aTotal,.T.)
+aAdd(aHeader,{"Qtde","XX_QTDE" ,"@E 99999999.99",11,02,"","","N","TRB","R"})
 
-AADD(aCampos,"TRB->XX_VUNIT")
-AADD(aCabs  ,"Valor Unitário")
-AAdd(aHeader,{"Valor Unitário","XX_VUNIT" ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})
+aAdd(aCampos,"TRB->XX_VUNIT")
+aAdd(aCabs  ,"Valor Unitário")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Valor Unitário","XX_VUNIT" ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})
 
-AADD(aCampos,"TRB->XX_TOTAL")
-AADD(aCabs  ,"Valor Total")
-AAdd(aHeader,{"Valor Total","XX_TOTAL" ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})
+aAdd(aCampos,"TRB->XX_TOTAL")
+aAdd(aCabs  ,"Valor Total")
+aAdd(aTotal,.T.)
+aAdd(aHeader,{"Valor Total","XX_TOTAL" ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})
 
-AADD(aCampos,"TRB->XX_CC")
-AADD(aCabs  ,"Contrato")
-AAdd(aHeader,{"Contrato","XX_CC" ,"@!",09,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_CC")
+aAdd(aCabs  ,"Contrato")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Contrato","XX_CC" ,"@!",09,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_DESCC")
-AADD(aCabs  ,"Descrição Contrato")
-AAdd(aHeader,{"Descrição Contrato","XX_DESCC" ,"@!",40,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_DESCC")
+aAdd(aCabs  ,"Descrição Contrato")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Descrição Contrato","XX_DESCC" ,"@!",40,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_LIB")
-AADD(aCabs  ,"Liberado")
-AAdd(aHeader,{"Liberado","XX_LIB" ,"@!",5,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_LIB")
+aAdd(aCabs  ,"Liberado")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Liberado","XX_LIB" ,"@!",5,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_ENTR")
-AADD(aCabs  ,"Entregue")
-AAdd(aHeader,{"Entregue","XX_ENTR" ,"@!",15,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_ENTR")
+aAdd(aCabs  ,"Entregue")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Entregue","XX_ENTR" ,"@!",15,00,"","","C","TRB","R"})
 
-AADD(aCampos,"TRB->XX_QENTR")
-AADD(aCabs  ,"Qtde Entregue")
-AAdd(aHeader,{"Qtde Entregue","XX_QENTR" ,"@E 99999999.99",11,02,"","","N","TRB","R"})
+aAdd(aCampos,"TRB->XX_QENTR")
+aAdd(aCabs  ,"Qtde Entregue")
+aAdd(aTotal,.T.)
+aAdd(aHeader,{"Qtde Entregue","XX_QENTR" ,"@E 99999999.99",11,02,"","","N","TRB","R"})
 
-AADD(aCampos,"TRB->XX_XXURGEN")
-AADD(aCabs  ,"Urgente")
-AAdd(aHeader,{"Urgente","XX_XXURGEN" ,"@!",03,00,"","","C","TRB","R"})
+aAdd(aCampos,"TRB->XX_XXURGEN")
+aAdd(aCabs  ,"Urgente")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Urgente","XX_XXURGEN" ,"@!",03,00,"","","C","TRB","R"})
 
 FOR _nI := 1 TO 10
-	AADD(aCampos,"TRB->XX_FOR"+STRZERO(_nI,2))
-	AADD(aCabs  ,"Cotação Empresa "+STRZERO(_nI,2))
-	AAdd(aHeader,{"Cotação Empresa "+STRZERO(_nI,2),"XX_FOR"+STRZERO(_nI,2) ,"@!",10,0,"","","C","TRB","R"})  
+	aAdd(aCampos,"TRB->XX_FOR"+STRZERO(_nI,2))
+	aAdd(aCabs  ,"Cotação Empresa "+STRZERO(_nI,2))
+	aAdd(aTotal,.F.)
+	aAdd(aHeader,{"Cotação Empresa "+STRZERO(_nI,2),"XX_FOR"+STRZERO(_nI,2) ,"@!",10,0,"","","C","TRB","R"})  
 
-	AADD(aCampos,"TRB->XX_UNIT"+STRZERO(_nI,2))
-	AADD(aCabs  ,"Valor Unit. "+STRZERO(_nI,2))
-	AAdd(aHeader,{"Valor Unit. "+STRZERO(_nI,2),"XX_UNIT"+STRZERO(_nI,2) ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})
+	aAdd(aCampos,"TRB->XX_UNIT"+STRZERO(_nI,2))
+	aAdd(aCabs  ,"Valor Unit. "+STRZERO(_nI,2))
+	aAdd(aTotal,.F.)
+	aAdd(aHeader,{"Valor Unit. "+STRZERO(_nI,2),"XX_UNIT"+STRZERO(_nI,2) ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})
 
-	AADD(aCampos,"TRB->XX_TOTAL"+STRZERO(_nI,2))
-	AADD(aCabs  ,"Valor Total "+STRZERO(_nI,2))
-	AAdd(aHeader,{"Valor Total "+STRZERO(_nI,2),"XX_TOTAL"+STRZERO(_nI,2) ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})	
+	aAdd(aCampos,"TRB->XX_TOTAL"+STRZERO(_nI,2))
+	aAdd(aCabs  ,"Valor Total "+STRZERO(_nI,2))
+	aAdd(aTotal,.T.)
+	aAdd(aHeader,{"Valor Total "+STRZERO(_nI,2),"XX_TOTAL"+STRZERO(_nI,2) ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})	
 NEXT
-
-
 
 Processa( {|| ProcBKCOMR6() })
 
 Processa( {|| MBrwBKCOMR6() })
 
-
-TRB->(Dbclosearea())
-
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
  
 Return
 
@@ -292,7 +300,7 @@ Local aPlans  := {}
 
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
 
-AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
 MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
 
 Return 
