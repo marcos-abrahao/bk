@@ -357,7 +357,7 @@ Else
 	cQuery += " ORDER BY D1_CC,B1_XXSGRP,ZI_DESC"
 EndIf
 
-MemoWrite("BKComR12.SQL",cQuery)
+u_LogMemo("BKCOMR12.SQL",cQuery)
  
 DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 

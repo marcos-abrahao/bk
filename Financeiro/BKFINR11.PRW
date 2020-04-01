@@ -302,7 +302,7 @@ EndDo
 */
 
 ProcRegua(SA6->(LASTREC()))
-Processa( {|| KFin02Sld(cAliasTmp1)})
+Processa( {|| KFin02Sld()})
 
 //ProcRegua((cAliasTmp1)->(LASTREC()))
 //Processa( {|| U_GeraCSV(cAliasTmp1,cNomePrg+"-Saldos",aTitulos1,aCampos1,aCabs1)})

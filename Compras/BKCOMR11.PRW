@@ -330,8 +330,8 @@ If !Empty(cGrpPrd)
 EndIf
 cQuery += " ORDER BY C8_NUM,C8_ITEM"
 
-MemoWrite("BKCOMR11.SQL",cQuery)
- 
+u_LogMemo("BKCOMR11.SQL",cQuery)
+
 DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 TCSetField(cAliasQry, "C8_EMISSAO","D",8,0)
 

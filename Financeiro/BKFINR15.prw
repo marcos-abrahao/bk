@@ -103,7 +103,7 @@ dbSetOrder(1)
 AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+" em "+DTOC(dDtSld))
 
 ProcRegua(SM0->(LASTREC()))
-Processa( {|| BKFin15Emp(cAliasTmp1)})
+Processa( {|| BKFin15Emp()})
 
 cFiltro := "" //cAliasTmp1+"->TIPO >= '1'"                                 
 

@@ -13,10 +13,6 @@ Saldos bancАrios consolidados
 
 User Function BKFINR23()
 
-//зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
-//Ё Declaracao de Variaveis                                             Ё
-//юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
-
 Local nB      := 0
 Local cNCampo := ""
 
@@ -396,8 +392,8 @@ For nB := 1 To Len(aBancos)
 	EndIf          
 	cQuery += " ORDER BY E8_DTSALAT"
 
-	MemoWrite("BKFINR23"+STRZERO(nB,3)+".SQL",cQuery)
-	
+	u_LogMemo("BKFINR23"+STRZERO(nB,3)+".SQL",cQuery)
+
 	cAliasQry := GetNextAlias()
 
 	DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)

@@ -79,8 +79,7 @@ oLbx:lHScroll   := .F. // NoScroll
 @ 112, 10 CheckBox oChkMar Var  lChk Prompt "Todos"   Message  Size 40, 007 Pixel Of oDlg;
 on Click MarcaTodos( lChk, @aVetor, oLbx )
 
-@ 123, 10 Button oButInv Prompt "&Inverter"  Size 32, 12 Pixel Action ( InvSelecao( @aVetor, oLbx, @lChk, oChkMar ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
-Message "Inverter Seleção" Of oDlg
+@ 123, 10 Button oButInv Prompt "&Inverter"  Size 32, 12 Pixel Action ( InvSelecao( @aVetor, oLbx ), VerTodos( aVetor, @lChk, oChkMar ) ) Message "Inverter Seleção" Of oDlg
 
 // Marca/Desmarca por mascara
 @ 113, 51 Say  oSay Prompt "Empresa" Size  40, 08 Of oDlg Pixel

@@ -192,7 +192,7 @@ ELSE
    cQuery += "ORDER BY F1_FILIAL,F1_EMISSAO,F1_SERIE,F1_DOC,F1_FORNECE,F1_LOJA "
 ENDIF
 
-//Memowrite("c:\bkcomr03.sql",cQuery)
+u_LogMemo("BKCOMR03.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QSF1"
 

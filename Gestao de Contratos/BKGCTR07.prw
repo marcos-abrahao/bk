@@ -338,10 +338,7 @@ TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
 TCSETFIELD("QTMP","XX_VENCORI","D",8,0)
 TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
 
-IF __cUserId == "000000"
-	MemoWrite("C:\TEMP\BKGCTR07.SQL",cQuery)
-EndIf
-
+u_LogMemo("BKGCTR07.SQL",cQuery)
 
 //U_SendMail(PROCNAME(),PROCNAME(1),"marcos@rkainformatica.com.br","",cQuery,"",.F.)
 

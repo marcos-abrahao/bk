@@ -275,9 +275,7 @@ If !Empty(dDataF)
 EndIf          
 cQuery += " ORDER BY C5_NUM"
 
-IF __cUserId == "000000"
-	MemoWrite("C:\TEMP\BKFINR26.SQL",cQuery)
-EndIf
+u_LogMemo("BKFINR26.SQL",cQuery)
 
 cAliasQry := "TMPR26" //GetNextAlias()
 

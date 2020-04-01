@@ -663,7 +663,8 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN,CNF_COMPET ORDER BY CNF_CONTRA"
  
- 	//Memowrite("c:\temp\bkgctr14-1.sql",cQuery)
+	u_LogMemo("BKGCTR14-1.SQL",cQuery)
+
 
 	TCQUERY cQuery NEW ALIAS "QTMP" 
 
@@ -1464,7 +1465,9 @@ FOR _nI := 1 TO nPeriodo
  		ENDIF
 
 		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve"
-		//MemoWrite("c:\temp\BKGCTR14-FOL.SQL",cQuery2)     	
+
+		u_LogMemo("BKGCTR14-FOL.SQL",cQuery2)
+	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		nProventos := 0
 		nCusto     := 0

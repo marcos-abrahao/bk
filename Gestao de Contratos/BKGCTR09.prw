@@ -221,7 +221,6 @@ Return
 
 Static Function MBrwBKGCTR09()
 Local 	cAlias 		:= "TRB"
-Local 	aCores 		:= {}
 
 Private cCadastro	:= "Relatório Projeção Financeira dos Contratos"
 Private aRotina		:= {}
@@ -331,7 +330,7 @@ Return Nil
    
 
 Static Function ProcQuery(nOpc)
-Local cQuery,dDt
+Local cQuery
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
@@ -852,21 +851,21 @@ If nHandle > 0
       
    fClose(nHandle)
       
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel")
+   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel",cPerg)
    ShellExecute("open", cArqTmp,"","",1)
 
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp)
+   MsgAlert("Falha na criação do arquivo "+cArqTmp,cPerg)
 Endif
    
 Return
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
-cPerg := "BKGCTR09"
+
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

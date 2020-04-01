@@ -268,7 +268,7 @@ For _nI := 1 To LEN(aMeses)
 	//cQuery += " GROUP BY CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV"
 	cQuery += " ORDER BY CNF_CONTRA"
 
-    MemoWrite("BKGCTR2B-CONTRATO"+_cEmpresa+".SQL",cQuery)
+	u_LogMemo("BKGCTR2B-CONTRATO"+_cEmpresa+".SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP"
 	
@@ -393,7 +393,7 @@ For _nI := 1 To LEN(aMeses)
     //cQuery2 += " GROUP BY SC5.C5_ESPECI1,SA1.A1_COD,SA1.A1_LOJA,SA1.A1_NOME,CTT.CTT_DESC01" 
       	
 	TCQUERY cQuery2 NEW ALIAS "TMPX2"
-    MemoWrite("BKGCTR2B-AVULSO"+_cEmpresa+".SQL",cQuery2)
+	u_LogMemo("BKGCTR2B-AVULSO"+_cEmpresa+".SQL",cQuery2)
 	
 	dbSelectArea("TMPX2")
 	TMPX2->(dbGoTop())

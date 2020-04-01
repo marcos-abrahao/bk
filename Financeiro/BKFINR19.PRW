@@ -222,9 +222,7 @@ EndIf
 
 cQuery += " ORDER BY CONTRATO,F2_DOC"  
 
-
-
-Memowrite("BKFINR19.SQL", cQuery)
+u_LogMemo("BKFINR19.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)

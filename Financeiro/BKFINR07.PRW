@@ -245,7 +245,7 @@ ENDIF
 
 cQuery += "ORDER BY D1_COD,D1_DTDIGIT,D1_DOC "
 
-Memowrite("BKFINR07.SQL", cQuery)
+u_LogMemo("BKFINR07.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QSD1"
 
@@ -433,13 +433,12 @@ MS_FLUSH()
 Return
 
 
-Static Function ValidPerg
+Static Function ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
 Local i,j
 
-cPerg := "FINR07"
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
@@ -583,11 +582,11 @@ If nHandle > 0
       
    fClose(nHandle)
       
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel")
+   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel",cPerg)
    ShellExecute("open", cArqTmp,"","",1)
 
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp)
+   MsgAlert("Falha na criação do arquivo "+cArqTmp,cPerg)
 Endif
    
 Return

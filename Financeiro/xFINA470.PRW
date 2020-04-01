@@ -1104,7 +1104,7 @@ If !lSaida
 	
 		If lPanelFin //Chamado pelo Painel Financeiro			
 			aButtonTxt := {}
-			aButtonTxt := aAdd({STR0036,STR0036, {|| FA470EFET(oTitulo)}}) //"Efetiva Lancto." 
+			aAdd(aButtonTxt,{STR0036,STR0036, {|| FA470EFET(oTitulo)}}) //"Efetiva Lancto." 
 									
 			ACTIVATE MSDIALOG oDlg ON INIT FaMyBar(oDlg,{||nOpca := 1,oDlg:End()},{||nOpca := 0,oDlg:End()},,aButtonTxt)
 			
@@ -2140,12 +2140,11 @@ Return NIL
 
 
 
-Static Function  ValidPerg
+Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}  
 
-cPerg := "XAFI470"
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)

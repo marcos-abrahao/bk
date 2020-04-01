@@ -745,6 +745,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN ORDER BY CNF_CONTRA"
  
 	//Memowrite("c:\temp\bkgctr11-1.sql",cQuery)
+	
 
 	TCQUERY cQuery NEW ALIAS "QTMP"
 

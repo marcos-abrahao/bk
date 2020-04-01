@@ -690,7 +690,7 @@ FOR _nI := 1 TO LEN(aMeses)
     cQuery2 += " WHERE SE1.D_E_L_E_T_ = ' ' AND SE1.E1_TIPO='NDC' AND SE1.E1_XXCOMPE ='"+SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)+"'" + CRLF
     cQuery2 += " ORDER BY E1_NUM" 
 
-	MemoWrite("BKGCTR02-NDC.SQL",cQuery2)
+	u_LogMemo("BKGCTR02-NDC.SQL",cQuery2)
 	      	
 	TCQUERY cQuery2 NEW ALIAS "TMPX2"
 	

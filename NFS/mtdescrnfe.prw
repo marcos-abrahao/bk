@@ -14,7 +14,6 @@ Local nPPis    := 0
 Local nPCofins := 0
 Local nPCsll   := 0
 Local nPIss    := 0
-Local nFumdip  := 0
 Local cNF,cSerie,cCliente,cLoja
 Local cKeyD2
 Local cProduto  := ""
@@ -29,7 +28,6 @@ Local cCompet   := ""
 Local cConta    := ""
 Local cMun      := ""
 
-Local cTitulo   := ""
 Local cVencto   := ""
 Local cParcela  := ""
 Local nI
@@ -634,7 +632,6 @@ Return aRet
 /*/
 
 STATIC Function ContVinc()
-Local aUser,cNome
 Local cCONTA := SF2->F2_XXCVINC
 Local nVALOR := SF2->F2_XXVCVIN
 Local oTELA01

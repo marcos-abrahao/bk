@@ -304,9 +304,7 @@ ENDIF
 	cQuery += "ORDER BY E1_VENCREA"
 //ENDIF
 
-If "TST" $ GetEnvServer()
-	Memowrite("c:\temp\bkfinr12.sql",cQuery)
-EndIf
+u_LogMemo("BKFINR12.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","E1_EMISSAO","D",8,0)
