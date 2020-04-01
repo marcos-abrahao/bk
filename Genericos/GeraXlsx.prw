@@ -182,10 +182,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 		nTamCol := 0
 		lTotal  := .F.
 		If cTipo == "N"
-			nTamCol := 17
+			nTamCol := 16
 			lTotal  := .T.
 		ElseIf cTipo == "D"
-			nTamCol := 15
+			nTamCol := 14
 		Else
 			If Len(xCampo) > 8
 				nTamCol := Len(xCampo) + 1

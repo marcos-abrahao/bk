@@ -1,5 +1,3 @@
-#INCLUDE "RWMAKE.CH"
-#INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
 /*/{Protheus.doc} BKFINR09
@@ -182,89 +180,89 @@ Local cQuery
 
 
 IncProc()
-cQuery := "SELECT Z2_PRONT,Z2_NOME,Z2_CC,CTT_DESC01,Z2_VALOR,Z2_TIPO,Z2_TIPOPES,Z2_OBS,Z2_USUARIO,Z2_E2FORN,Z2_E2LOJA,Z2_DATAEMI,Z2_DATAPGT, "
-cQuery += "Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_PRODUTO,Z2_OBSTITU, "
+cQuery := "SELECT Z2_PRONT,Z2_NOME,Z2_CC,CTT_DESC01,Z2_VALOR,Z2_TIPO,Z2_TIPOPES,Z2_OBS,Z2_USUARIO,Z2_E2FORN,Z2_E2LOJA,Z2_DATAEMI,Z2_DATAPGT, "+CRLF
+cQuery += "Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_PRODUTO,Z2_OBSTITU, "+CRLF
 
 //cQuery += "E2_BAIXA,E2_VENCTO, "  
 //Z2_CTRID = E2_XXCTRID
-cQuery += "(SELECT TOP 1 E2_BAIXA  FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"  
-cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
-cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_BAIXA,"
-cQuery += "(SELECT TOP 1 E2_VENCTO FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"
-cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
-cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_VENCTO,"
-cQuery += "(SELECT TOP 1 E2_EMIS1  FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"
-cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"
-cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_EMIS1,"
+cQuery += "(SELECT TOP 1 E2_BAIXA  FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"  +CRLF
+cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"+CRLF
+cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_BAIXA,"+CRLF
+cQuery += "(SELECT TOP 1 E2_VENCTO FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"+CRLF
+cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"+CRLF
+cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_VENCTO,"+CRLF
+cQuery += "(SELECT TOP 1 E2_EMIS1  FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_ = ''"+CRLF
+cQuery += " AND Z2_E2NUM=E2_NUM AND Z2_E2PRF=E2_PREFIXO AND Z2_E2PARC=E2_PARCELA AND Z2_STATUS='S'"+CRLF
+cQuery += " AND Z2_E2TIPO=E2_TIPO AND Z2_E2FORN=E2_FORNECE AND Z2_E2LOJA=E2_LOJA ) AS E2_EMIS1,"+CRLF
 //
-cQuery += "A2_NOME "
-cQuery += "FROM "+RETSQLNAME("SZ2")+" SZ2 "
+cQuery += "A2_NOME "+CRLF
+cQuery += "FROM "+RETSQLNAME("SZ2")+" SZ2 "+CRLF
 
-//cQuery += "LEFT JOIN "+RETSQLNAME("SE2")+" SE2 ON Z2_CTRID = E2_XXCTRID AND SE2.D_E_L_E_T_ = ' ' "
-cQuery += "LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON Z2_E2FORN = A2_COD AND Z2_E2LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "
-cQuery += "LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON Z2_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "
+//cQuery += "LEFT JOIN "+RETSQLNAME("SE2")+" SE2 ON Z2_CTRID = E2_XXCTRID AND SE2.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON Z2_E2FORN = A2_COD AND Z2_E2LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON Z2_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "+CRLF
 
-cQuery += "WHERE SZ2.D_E_L_E_T_ = ' '  AND SZ2.Z2_STATUS = 'S' AND SZ2.Z2_CODEMP='"+SM0->M0_CODIGO+"'"
+cQuery += "WHERE SZ2.D_E_L_E_T_ = ' '  AND SZ2.Z2_STATUS = 'S' AND SZ2.Z2_CODEMP='"+SM0->M0_CODIGO+"'"+CRLF
 
 AADD(aTitulos,cTipoRel)
 
 cTipoRel := PAD(cTipoRel,TamSx3("Z2_E2PRF")[1])
-cQuery  += "AND Z2_E2PRF = '"+cTipoRel+"' "
+cQuery  += "AND Z2_E2PRF = '"+cTipoRel+"' "+CRLF
 
 IF ALLTRIM(cTipoBK) <> "TODOS" 
    cTipoBK := PAD(cTipoBK,nTamTpBk)
-   cQuery  += "AND Z2_TIPO = '"+cTipoBk+"' "
+   cQuery  += "AND Z2_TIPO = '"+cTipoBk+"' "+CRLF
    AADD(aTitulos,"Tipo BK: "+cTipoBK)
 ENDIF
 
 IF ALLTRIM(cTipoPes) <> "TODOS" 
    cTipoPes := PAD(cTipoPes,nTamTpPes)
-   cQuery  += "AND Z2_TIPOPES = '"+cTipoPes+"' "
+   cQuery  += "AND Z2_TIPOPES = '"+cTipoPes+"' "+CRLF
    AADD(aTitulos,"Tipo Pessoa: "+cTipoPes)
 ENDIF
 
 IF !EMPTY(dEmisI)
-   cQuery  += "AND Z2_DATAEMI >= '"+DTOS(dEmisI)+"' "
+   cQuery  += "AND Z2_DATAEMI >= '"+DTOS(dEmisI)+"' "+CRLF
    AADD(aTitulos,"Emissao de "+DTOC(dEmisI))
 ENDIF
 IF !EMPTY(dEmisF)
-   cQuery  += "AND Z2_DATAEMI <= '"+DTOS(dEmisF)+"' "
+   cQuery  += "AND Z2_DATAEMI <= '"+DTOS(dEmisF)+"' "+CRLF
    AADD(aTitulos,"Emissao até "+DTOC(dEmisF))
 ENDIF
 IF !EMPTY(dVencI)
-   cQuery  += "AND Z2_DATAPGT >= '"+DTOS(dVencI)+"' "
+   cQuery  += "AND Z2_DATAPGT >= '"+DTOS(dVencI)+"' "+CRLF
    AADD(aTitulos,"Vencimento de "+DTOC(dVencI))
 ENDIF
 IF !EMPTY(dVencF)
-   cQuery  += "AND Z2_DATAPGT <= '"+DTOS(dVencF)+"' "
+   cQuery  += "AND Z2_DATAPGT <= '"+DTOS(dVencF)+"' "+CRLF
    AADD(aTitulos,"Vencimento até "+DTOC(dVencF))
 ENDIF
 
 IF !EMPTY(nValI)
-   cQuery  += "AND Z2_VALOR >= '"+ALLTRIM(STR(nValI))+"' "
+   cQuery  += "AND Z2_VALOR >= '"+ALLTRIM(STR(nValI))+"' "+CRLF
    AADD(aTitulos,"Valor de "+ALLTRIM(STR(nValI,17,2)) )
 ENDIF
 IF !EMPTY(nValF)
-   cQuery  += "AND Z2_VALOR <= '"+ALLTRIM(STR(nValF))+"' "
+   cQuery  += "AND Z2_VALOR <= '"+ALLTRIM(STR(nValF))+"' "+CRLF
    AADD(aTitulos,"Valor até "+ALLTRIM(STR(nValF,17,2)) )
 ENDIF
 
 IF !EMPTY(cCC)
-   cQuery  += "AND Z2_CC = '"+cCC+"' "
+   cQuery  += "AND Z2_CC = '"+cCC+"' "+CRLF
    AADD(aTitulos,"Centro de Custos "+cCC)
 ENDIF
 
 IF !EMPTY(cForn)
-   cQuery  += "AND Z2_E2FORN = '"+cForn+"' "
+   cQuery  += "AND Z2_E2FORN = '"+cForn+"' "+CRLF
    AADD(aTitulos,"Fornecedor "+cForn)
 ENDIF
 
-cQuery += "ORDER BY Z2_DATAEMI,Z2_E2NUM "
-//cQuery += "ORDER BY Z2_DATAEMI,E2_NUM "
+cQuery += "ORDER BY Z2_DATAEMI,Z2_E2NUM "+CRLF
 
-//memowrite("c:\query.sql",cQuery)
+u_LogMemo("BKFINR09.SQL",cQuery)
 
-TCQUERY cQuery NEW ALIAS "QSZ2"
+cQuery := ChangeQuery(cQuery)
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QSZ2",.T.,.T.)
 
 TCSETFIELD("QSZ2","Z2_DATAEMI","D",8,0)
 TCSETFIELD("QSZ2","Z2_DATAPGT","D",8,0)
@@ -285,7 +283,7 @@ IncProc()
 // Opções tipo BK
 //cQry := "SELECT Z2_TIPO FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE SZ2.D_E_L_E_T_ = ' ' GROUP BY Z2_TIPO ORDER BY Z2_TIPO"
 cQry := "SELECT Z2_TIPO FROM "+RETSQLNAME("SZ2")+" SZ2 GROUP BY Z2_TIPO ORDER BY Z2_TIPO"
-TCQUERY cQry NEW ALIAS "QSZ2"
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQry),"QSZ2",.T.,.T.)
 
 Dbselectarea("QSZ2")
 QSZ2->(Dbgotop())
@@ -305,7 +303,7 @@ IncProc()
 // Opções tipo BK
 //cQry := "SELECT Z2_TIPOPES FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE SZ2.D_E_L_E_T_ = ' ' GROUP BY Z2_TIPOPES ORDER BY Z2_TIPOPES"
 cQry := "SELECT Z2_TIPOPES FROM "+RETSQLNAME("SZ2")+" SZ2 GROUP BY Z2_TIPOPES ORDER BY Z2_TIPOPES"
-TCQUERY cQry NEW ALIAS "QSZ2"
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQry),"QSZ2",.T.,.T.)
 
 Dbselectarea("QSZ2")
 QSZ2->(Dbgotop())

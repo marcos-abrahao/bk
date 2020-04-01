@@ -14,6 +14,23 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
+
+// Rotina de Log utilizada basicamente para gravar Queryes
+
+User Function LogMemo(cProg,cTexto)
+Local cDir:= "C:\TMP"
+
+IF __cUserId == "000000"
+	If !("\" $ cProg)
+		MakeDir(cDir)
+		MemoWrite(cDir+"\"+cProg,cTexto)
+	Else
+		MemoWrite(cProg,cTexto)
+	EndIf
+EndIf
+Return Nil
+//-----------------------------------------------------------------------------
+
 User Function xxLog(cArqLog,cMens,lMens,cEnv)  //U_xxLog("jjErro.log","[Rotina][Funcao]"+"Erro...")
 Local nPosFim,nHandle,cBuffer
 
@@ -61,4 +78,5 @@ nPosFim:=fSeek(nHandle,0,2)  //Posiciona no Fim do Arquivo
 fClose(nHandle)
 
 Return(.t.)
-//-----------------------------------------------------------------------------
+
+
