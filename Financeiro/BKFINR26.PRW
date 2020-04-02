@@ -291,6 +291,9 @@ ProcRegua((cAliasQry)->(RecCount()))
 
 nCont := 0
 
+dbSelectArea("CN9")
+dbSetOrder(1)
+
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
@@ -321,6 +324,16 @@ DO WHILE (cAliasQry)->(!EOF())
 		ElseIf aFields[nF,2] = "C5_USERLGA" //.AND. (cAliasQry)->C5_LIBEROK = 'S'
 			SC5->(dbGoTo((cAliasQry)->C5RECNO))
 			xCampo := SF2->(FWLeUserlg("C5_USERLGA",1))
+
+		ElseIf aFields[nF,2] = "CN9_XXNRBK"
+			If Empty(xCampo)
+				If CN9->(dbSeek(xFilial("CN9")+(cAliasQry)->XX_CONTRAT))
+					Do While CN9->CN9_NUMERO == (cAliasQry)->XX_CONTRAT
+						xCampo := CN9->CN9_XXNRBK
+						CN9->(dbSkip())
+					EndDo
+				EndIf
+			EndIf
 		EndIf
 
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo

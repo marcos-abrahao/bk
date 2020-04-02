@@ -1,5 +1,3 @@
-//#INCLUDE "rwmake.ch"
-//#INCLUDE "topconn.ch"
 #INCLUDE "PROTHEUS.CH"
  
 /*/{Protheus.doc} BKCOMR09

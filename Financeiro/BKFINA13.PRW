@@ -1,29 +1,21 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ BKFINA13 บ Autor ณ Adilson do Prado          Data ณ03/02/12บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescricao ณ Fluxo de Caixa - BK                                        บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+/*/{Protheus.doc} BKFINA13
+BK - Fluxo de Caixa
+
+@Return
+@author Adilson do Prado
+@since 03/02/12
+@version P12
 /*/
 
 User Function BKFINA13()
 
-//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-//ณ Declaracao de Variaveis                                             ณ
-//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-
 Local titulo         := ""
 Local _nI
-Local aDbf := {},cArqTmp
+Local aDbf           := {}
+Local oTmpTb
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
@@ -32,18 +24,12 @@ Private tamanho      := " "
 Private nomeprog     := "BKFINA13" // Coloque aqui o nome do programa para impressao no cabecalho
 Private nTipo        := 18
 Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey     := 0
 Private cPerg        := "BKFINA13"
-Private cbtxt        := Space(10)
-Private cbcont       := 00
-Private CONTFL       := 01
-Private m_pag        := 01
-Private wnrel        := "BKFINA13" // Coloque aqui o nome do arquivo usado para impressao em disco
 
-Private dDataInicio   := dDatabase
+Private dDataInicio  := dDatabase
 Private dDataFinal   := dDatabase
 Private cPeriodo     := "1"
-PRIVATE	cPict          := "@E 99,999,999,999.99"
+Private	cPict        := "@E 99,999,999,999.99"
 Private nPeriodo     := 1
 Private nCentavos    := 1
 Private aDtPeriodo   := {}
@@ -81,29 +67,28 @@ ELSEIF cPeriodo="3"
    nPeriodo += DateDiffYear( dDataInicio , dDataFinal )
 ENDIF
 
-titulo   := "Fluxo de Caixa: Periodo "+IIF(nPeriodo=1,"Diแrio",IIF(nPeriodo=2,"Mensal","Anual"))+" at้ "+DTOC(dDataFinal)
+titulo   := "Fluxo de Caixa: Perํodo "+IIF(nPeriodo=1,"Diแrio",IIF(nPeriodo=2,"Mensal","Anual"))+" at้ "+DTOC(dDataFinal)
 
 aDbf    := {}
 
 Aadd( aDbf, { 'XX_CODZE' ,'C', 20,00 } )
-Aadd( aDbf, { 'XX_HISTOR' ,'C', 80,00 } )
+Aadd( aDbf, { 'XX_HISTOR','C', 80,00 } )
+Aadd( aDbf, { 'XX_CHAVE' ,'C',100,00 } )
+
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,2)
 	Aadd( aDbf, { 'XX_VALOR'+STRZERO(_nI,2),'C', 20,00 } )
 NEXT
 
 
-cArqTmp := CriaTrab( aDbf, .t. )  
-
-// Variavel de ambiente __LOCALDRIVER
-
-dbUseArea( .T.,NIL,cArqTmp,'TRB',.F.,.F. )
-		
-IndRegua("TRB",cArqTmp,"ALLTRIM(XX_CODZE)+ALLTRIM(XX_HISTOR)",,,"Indexando Arquivo de Trabalho")
-//		dbClearIndex()
-//		dbSetIndex(cArqTmp + OrdBagExt())
-dbSetOrder(1)		
-
+///cArqTmp := CriaTrab( aDbf, .t. )  
+///dbUseArea( .T.,NIL,cArqTmp,'TRB',.F.,.F. )
+///IndRegua("TRB",cArqTmp,"ALLTRIM(XX_CODZE)+ALLTRIM(XX_HISTOR)",,,"Indexando Arquivo de Trabalho")
+///dbSetOrder(1)		
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_CHAVE"} )
+oTmpTb:Create()
 
 ProcRegua(1)
 //Processa( {|| ProcQuery() })
@@ -159,6 +144,7 @@ IF cPeriodo="1"
 	Reclock("TRB",.T.)
 	TRB->XX_CODZE  := ""
 	TRB->XX_HISTOR := ""
+	TRB->XX_CHAVE  := ""
 	FOR _nI := 1 TO nPeriodo
     	IF Dow(aDtPeriodo[_nI,1]) <> 7 .AND. Dow(aDtPeriodo[_nI,1])<>1
     		cCampo  := "TRB->XX_VALOR"+STRZERO(_nI,2)
@@ -172,16 +158,16 @@ ENDIF
 Processa( {|| ProcQuery() })
 
 
-//Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs)})
+//Processa( {|| U_GeraCSV("TRB",cPerg,aTitulos,aCampos,aCabs)})
 //ProcRegua(TRB->(LASTREC()))
 
 
 Processa ( {|| U_MBrwSA1()})
 
-TRB->(Dbclosearea())
-
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
  
 Return
 
@@ -268,6 +254,7 @@ IncProc("Consultando o banco de dados...")
 						Reclock("TRB",.T.)
 						TRB->XX_CODZE  := aRealizado[_nj,1]
 						TRB->XX_HISTOR := aRealizado[_nj,2]
+						TRB->XX_CHAVE  := ALLTRIM(TRB->XX_CODZE)+ALLTRIM(TRB->XX_HISTOR)
     					cCampo  := "TRB->XX_VALOR"+STRZERO(_nI,2)
    						&cCampo := TRANSFORM(aRealizado[_nj,3],cPict)
     					TRB->(Msunlock())
@@ -323,6 +310,7 @@ IncProc("Consultando o banco de dados...")
              		   			Reclock("TRB",.T.)
 								TRB->XX_CODZE  := "11-Contratos"
 								TRB->XX_HISTOR := ALLTRIM(QTMP->CN9_NOMCLI)
+								TRB->XX_CHAVE  := ALLTRIM(TRB->XX_CODZE)+ALLTRIM(TRB->XX_HISTOR)
  				       			cCampo  := "TRB->XX_VALOR"+STRZERO(_nI,2)
 	   				   			&cCampo := TRANSFORM(QTMP->VALPREV,cPict)
 					   			TRB->(Msunlock())
@@ -368,6 +356,7 @@ IncProc("Consultando o banco de dados...")
              		   			Reclock("TRB",.T.)
 								TRB->XX_CODZE  := "21-Pessoal"
 								TRB->XX_HISTOR := ""
+								TRB->XX_CHAVE  := ALLTRIM(TRB->XX_CODZE)+ALLTRIM(TRB->XX_HISTOR)
  				       			cCampo  := "TRB->XX_VALOR"+STRZERO(_nI,2)
 	   				   			&cCampo := TRANSFORM(QTMP->VALDESP,cPict)
 					   			TRB->(Msunlock())
@@ -382,6 +371,7 @@ IncProc("Consultando o banco de dados...")
              		   			Reclock("TRB",.T.)
 								TRB->XX_CODZE  := "211-Folha"
 								TRB->XX_HISTOR := ALLTRIM(QTMP->A2_NOME)
+								TRB->XX_CHAVE  := ALLTRIM(TRB->XX_CODZE)+ALLTRIM(TRB->XX_HISTOR)
  				       			cCampo  := "TRB->XX_VALOR"+STRZERO(_nI,2)
 	   				   			&cCampo := TRANSFORM(QTMP->VALDESP,cPict)
 					   			TRB->(Msunlock())
@@ -396,6 +386,7 @@ IncProc("Consultando o banco de dados...")
              		   			Reclock("TRB",.T.)
 								TRB->XX_CODZE  := "22-Outras Despesas"
 								TRB->XX_HISTOR := ""
+								TRB->XX_CHAVE  := ALLTRIM(TRB->XX_CODZE)+ALLTRIM(TRB->XX_HISTOR)
  				       			cCampo  := "TRB->XX_VALOR"+STRZERO(_nI,2)
 	   				   			&cCampo := TRANSFORM(QTMP->VALDESP,cPict)
 					   			TRB->(Msunlock())
@@ -421,6 +412,7 @@ DO WHILE !SZE->(EOF())
 		Reclock("TRB",.T.)
 		TRB->XX_CODZE  := SZE->ZE_CODIGO
 		TRB->XX_HISTOR := ALLTRIM(SZE->ZE_DESCR)
+		TRB->XX_CHAVE  := ALLTRIM(TRB->XX_CODZE)+ALLTRIM(TRB->XX_HISTOR)
 		IF cPeriodo="1"
 			FOR _nI := 1 TO nPeriodo
    				IF Dow(aDtPeriodo[_nI,1]) <> 7 .AND. Dow(aDtPeriodo[_nI,1]) <>1
@@ -459,20 +451,6 @@ ENDDO
 Return
 
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบFuno    ณRUNREPORT บ Autor ณ AP6 IDE            บ Data ณ  08/04/08   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescrio ณ Funcao auxiliar chamada pela RPTSTATUS. A funcao RPTSTATUS บฑฑ
-ฑฑบ          ณ monta a janela com a regua de processamento.               บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ Programa principal                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-/*/
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 
@@ -630,7 +608,7 @@ SET DEVICE TO SCREEN
 If aReturn[5]==1
    dbCommitAll()
    SET PRINTER TO
-   OurSpool(wnrel)
+   OurSpool(cPerg)
 Endif
 
 MS_FLUSH()

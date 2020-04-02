@@ -2,20 +2,14 @@
 #INCLUDE "topconn.ch"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKBXBNCOº      Adilson do Prado              Data ³22/08/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Baixa retorno Banco Lancamentos LF						  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK Consultoria                                             º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+/*/{Protheus.doc} BKBXBNCO
+BK - Baixa retorno Banco Lancamentos LF
 
+@Return
+@author Adilson do Prado
+@since 22/08/14
+@version P11/P12
+/*/
 
 User Function BKBXBNCO()
 
@@ -25,7 +19,9 @@ Local oDlg01
 Local nOpcA             := 0
 Local lOk				:= .F.
 Local aDbf 				:= {}
-PRIVATE aBNC 				:= {}
+Local oTmpTb
+
+Private aBNC 			:= {}
 Private cTitulo			:= "Retorno PGTO Banco"
 Private cProg  			:= "BKBXBNCO"
 Private cPerg  			:= "BKBXBNCO" 
@@ -36,17 +32,17 @@ Private cString     	:= "SEE"
 Private tamanho     	:= "M"
 Private m_pag       	:= 01
 Private aReturn     	:= { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aCabs2
-PRIVATE cLOTE  := ""
-PRIVATE cAgenc := ""
-PRIVATE cConta := ""
-PRIVATE dData  := CTOD("")
-PRIVATE cHora  := "" 
-PRIVATE aCtrId := {}
-PRIVATE aSIM   := {}
-PRIVATE cSim   := "Não"
-PRIVATE aFurnas:= {} 
-PRIVATE cArqTmp
+Private aTitulos,aCampos,aCabs,aCampos2,aCabs2
+Private cLOTE  := ""
+Private cAgenc := ""
+Private cConta := ""
+Private dData  := CTOD("")
+Private cHora  := "" 
+Private aCtrId := {}
+Private aSIM   := {}
+Private cSim   := "Não"
+Private aFurnas:= {} 
+Private cArqTmp
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
@@ -71,17 +67,20 @@ Aadd( aDbf, { 'XX_STATUS','C', 10,00 } )
 Aadd( aDbf, { 'XX_CRIT ','C', 200,00 } )
 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"XX_NOME",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua("TRB",cArqTmp,"XX_NOME",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( 'TRB' )
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_NOME"} )
+oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
 nomeprog := "BKBXBNCO/"+TRIM(SUBSTR(cUsuario,7,15))
-
 
 AADD(aCampos,"TRB->XX_MAT")
 AADD(aCabs  ,"Matricula")
@@ -437,9 +436,11 @@ DO WHILE TRB->(!EOF())
 	TRB->(Dbskip())
 ENDDO
 
-TRB->(Dbclosearea())		
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+
+///TRB->(Dbclosearea())		
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 IF LEN(aCtrId) == 0
 	MSGSTOP("Não há dados "+IIF(SUBSTR(cSim,1,1) == "S"," de FURNAS","")+IIF(SUBSTR(cSim,1,1) == "L"," de FURNAS LOTE BK","")+" no arquivo. Verifique!")
