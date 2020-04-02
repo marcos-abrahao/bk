@@ -1,39 +1,35 @@
 #include "rwmake.ch"
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ CN120PED ºAutor  ³ Adilson do Prado   º Data ³  09/04/15   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de Entrada para carregar campos Estado e Cod. Munic. º±±
-±±º          ³ IBGE e RECISS no pedido de VENDA                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AP                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºData      ³Analista/Alterações                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±º          ³                                                            º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+
+/*/{Protheus.doc} CN120PED
+BK - Ponto de Entrada para carregar campos Estado e Cod. Munic. IBGE e RECISS no pedido de VENDA
+
+@Return
+@author Adilson do Prado
+@since 09/04/15
+@version P11/P12
+/*/
 
 User Function CN121PED()
 Return U_CN120PED()
 
 
 User Function CN120PED()
-Local ExpA1 := PARAMIXB[1]
-Local ExpA2 := PARAMIXB[2]
+
+Local ExpA1 	:= PARAMIXB[1]
+Local ExpA2 	:= PARAMIXB[2]
 Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""
 Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE INSS
 Local cCliente  := CN9->CN9_CLIENT
+Local aArea		:= GetArea()
+Local aAreaCNA	
 
 cPlanilha  := ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDPLANI"}),2]
 
 dbSelectArea("CNA")
+aAreaCNA := CNA->(getArea())
+
 dbSetOrder(1)
 CNA->(dbSeek(xFilial("CNA")+cContrato+cRevisa+cPlanilha)) 
 
@@ -59,4 +55,8 @@ AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
 	AADD(ExpA1,{"C5_XXRETC" ,CNA->CNA_XXRETC, Nil})   
 //EndIf
 AADD(ExpA1,{"C5_XXCOMPM" ,CND->CND_COMPET, Nil})  
+
+CNA->(RestArea(aAreaCNA))
+RestArea(aArea)
+
 Return {ExpA1,ExpA2}                           

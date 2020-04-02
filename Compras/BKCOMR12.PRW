@@ -1,23 +1,18 @@
 #INCLUDE 'PROTHEUS.CH'
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKCOMR12
-Relatório de Economia por CC e Período
+BK - Compras - Prev. X Realizado
 
 @Return
 @author Marcos Bispo Abrahão
 @since 14/05/2019
 @version P11/P12
 /*/
-//-------------------------------------------------------------------
 
 User Function BKCOMR12()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
 Local nF      := 0
+Local oTmpTb
 
 Private aParam		:=	{}
 Private aRet		:=	{}
@@ -145,18 +140,21 @@ For nF := 1 To Len(aFields)
 
 Next
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
 
-//IndRegua(cAliasTrb,cArqTmp,"XX_NUM+XX_ITEM",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( cAliasTrb )
+oTmpTb:SetFields( aDbf )
+oTmpTb:Create()
 
 Processa( {|| ProcBKCR12() })
 
 MBrwBKCR12()
 
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 Return
 
@@ -243,7 +241,6 @@ AADD(aLegenda,{"BR_BRANCO"," - Revisado" })
 BrwLegenda(cCadastro, "Legenda", aLegenda)
 
 Return Nil
-
 
 
 
