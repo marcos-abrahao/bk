@@ -1,34 +1,18 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
  
-                                       
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFINR18 º Autor ³ Marcos Bispo Abrahão      Data ³16/07/15º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Relatório de Notas Fiscais Canceladas                      º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK - Financeiro                                            º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKFINR12
+BK - Relatório de Notas Fiscais Canceladas
+@Return
+@author Marcos Bispo Abrahão
+@since 16/07/15
+@version P12
 /*/
 
 User Function BKFINR18()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-//Local cDesc1        := "Este programa tem como objetivo imprimir relação   "
-//Local cDesc2        := "de notas fiscais canceladas.                       "
-//Local cDesc3        := "BKFINR18 v23/07/15a"
-
 Private cTitulo     := "Notas fiscais canceladas:"
 Private cPerg       := "BKFINR18"
-
 Private cCCusto     := ""
 Private dDataI      := DATE()
 Private dDataF      := DATE()
@@ -57,7 +41,6 @@ dCancF   := mv_par05
 dVencI   := mv_par06
 dVencF   := mv_par07
 cAutoriz := mv_par08
-
 
 If !EMPTY(cCCusto)
    cTitulo += "  centro de custos "+TRIM(cCCusto)+"-"+TRIM(Posicione("CTT",1, xFilial("CTT")+cCCusto,"CTT_DESC01"))
@@ -152,7 +135,7 @@ Return
 Static Function ProcBKFINR18
 Local cQuery := ""
 Local nReg   := 0
-Local cArqTmp:= ""
+Local oTmpTb
 Local dCanc  := .F.
 
 cQuery := "SELECT"
@@ -219,9 +202,14 @@ For nQtdPc := 1 To nTotPc
 Next
 */
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-IndRegua("TRB",cArqTmp,"XX_DOC",,,"Indexando Arquivo de Trabalho") 
+//cArqTmp := CriaTrab( aDbf, .t. )
+//dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+//IndRegua("TRB",cArqTmp,"XX_DOC",,,"Indexando Arquivo de Trabalho") 
+
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_DOC"} )
+oTmpTb:Create()
 
 dbSelectArea("QSF2")
 QSF2->(dbGoTop())
@@ -340,8 +328,9 @@ dbSetOrder(1)
 
 QSF2->(dbCloseArea())
 
-Ferase(cArqTmp + GetDBExtension())
-FErase(cArqTmp + OrdBagExt())
+oTmpTb:Delete()
+//Ferase(cArqTmp + GetDBExtension())
+//FErase(cArqTmp + OrdBagExt())
 
 Return
 

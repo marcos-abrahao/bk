@@ -185,10 +185,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 			nTamCol := 16
 			lTotal  := .T.
 		ElseIf cTipo == "D"
-			nTamCol := 14
+			nTamCol := 13
 		Else
 			If Len(xCampo) > 8
-				nTamCol := Len(xCampo) + 1
+				nTamCol := Len(xCampo) // +1
 			EndIf
 		EndIf
 
@@ -269,10 +269,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 	nLin++
 	// Linha de Total
 	oExcel:Cell(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")",,nTotStyle)
-	For nI := 1 To Len(aTotal)
+	For nI := 2 To Len(aTotal)
 		If aTotal[nI]
-			oExcel:AddNome("COL"+STRZERO(nI,3)+"P"+STRZERO(nPl,1) ,nTop, nI, nLin-1, nI)
-			oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"COL"+STRZERO(nI,3)+"P"+STRZERO(nPl,1)+")",nT2Style)
+			oExcel:AddNome("P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0)),nTop, nI, nLin-1, nI)
+			oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0))+")",nT2Style)
 		EndIf
 	Next
 

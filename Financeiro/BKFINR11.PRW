@@ -43,21 +43,13 @@ VL Movimenta็ใo Bancแria ou Baixas que movimentem banco
 V2 Movimenta็ใo Bancแria na Cobran็a Descontada
 */
 
-
+/*/{Protheus.doc} BKFINR11
+BK - Fluxo de Caixa - Or็ado 
+@Return
+@author Adilson do Prado 
+@since 08/02/14
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ BKFINR11  บ Autor ณ Adilson do Prado         Data ณ08/02/14บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescricao ณ Fluxo de Caixa - Or็ado                                    บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-/*/
-
 
 
 User Function BKFINR11()
@@ -66,9 +58,6 @@ User Function BKFINR11()
 //LOCAL cDesc2	:= "de Caixa Or็ado "
 //LOCAL cDesc3	:= ""
 
-//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-//ณ Define Variaveis ณ
-//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
 PRIVATE cTitulo	    := OemToAnsi("Proje็ใo de Caixa")
 PRIVATE cPerg		:= "BKFINR11"
 PRIVATE nLastKey	:= 0
@@ -331,7 +320,7 @@ LOCAL nTrPagBco := 0
 
 dbSelectArea("SE5")
 dbSetOrder(nOrdSE5)
-cIndex  := GetNextAlias()   //CriaTrab(nil,.f.)
+cIndex  := GetNextAlias()
 IF nTpData == 1
 	cChave  := "E5_FILIAL+DTOS(E5_DATA)+E5_BANCO+E5_AGENCIA+E5_CONTA"
 ELSE

@@ -1,6 +1,5 @@
 #INCLUDE 'PROTHEUS.CH'
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINR23
 Saldos bancários consolidados
 
@@ -9,7 +8,6 @@ Saldos bancários consolidados
 @since 25/06/2019
 @version P11/P12
 /*/
-//-------------------------------------------------------------------
 
 User Function BKFINR23()
 
@@ -19,7 +17,7 @@ Local cNCampo := ""
 Private aParam		:=	{}
 Private aRet		:=	{}
 
-Private cTitulo     := "Saldos Bancários Consolidados - BK"
+Private cTitulo     := "Saldos Bancários Consolidados"
 Private cPerg       := "BKFINR23"
 
 Private aFields := {}
@@ -45,7 +43,7 @@ Private aCabs1      := {}
 Private aCampos1    := {}
 Private aTitulos1   := {}
 Private aImpr1      := {}
-Private cArqTmp1    := ""
+Private oTmpTb
 Private aBancos     := {}
 
 
@@ -143,18 +141,23 @@ For nF := 1 To Len(aFields)
 
 Next
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+//cArqTmp := CriaTrab( aDbf, .t. )
+//dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+//IndRegua(cAliasTrb,cArqTmp,"XX_DATA",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua(cAliasTrb,cArqTmp,"XX_DATA",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New(cAliasTrb)
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_DATA"} )
+oTmpTb:Create()
 
 Processa( {|| ProcBKFR23() })
 
 MBrwBKF23()
 
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 Return
 
@@ -167,7 +170,7 @@ If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,     
 	lRet     := .T.
 	dDataI   := mv_par01
 	dDataF   := mv_par02
-	cTitulo  := "xSaldos bancários consolidados - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
+	cTitulo  := "Saldos bancários consolidados - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 Endif
 Return lRet
 
@@ -458,6 +461,7 @@ Local aCamposB2 := {{"A6_OK"      ,,"  ",""},;
 					{"A6_XXTIPBK" ,,"Tipo","@X"}    }
 					
 Local aTipBk := {"Corrente","Vinculada","Garantida","Outras"}					
+Local oTmpTb1
 
 // Estrutura da tabela de bancos temporária
 aStruct1    := {}
@@ -465,7 +469,6 @@ cAliasTmp1  := "TMP1"
 aCabs1      := {}
 aCampos1    := {}
 aTitulos1   := {}
-cArqTmp1    := ""
 aBancos     := {}
 
 AADD(aStruct1,{"A6_OK","C",2,0})
@@ -493,16 +496,21 @@ AADD(aCampos1,cAliasTmp1+"->A6_XXTIPBK")
 AADD(aCabs1  ,"Tipo")
 
 
-cArqTmp1 := CriaTrab(aStruct1)
+///cArqTmp1 := CriaTrab(aStruct1)
+///IF SELECT(cAliasTmp1) > 0
+///   dbSelectArea(cAliasTmp1)
+///   dbCloseArea()
+///ENDIF
+///dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
+///IndRegua (cAliasTmp1,cArqTmp1,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi("Selecionando Registros...") )  //
 
-IF SELECT(cAliasTmp1) > 0
-   dbSelectArea(cAliasTmp1)
-   dbCloseArea()
-ENDIF
+oTmpTb1 := FWTemporaryTable():New(cAliasTmp1)
+oTmpTb1:SetFields( aStruct1 )
+oTmpTb1:AddIndex("indice1", {"A6_COD","A6_AGENCIA","A6_NUMCON"} )
+oTmpTb1:Create()
 
-dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-IndRegua (cAliasTmp1,cArqTmp1,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi("Selecionando Registros...") )  //
 dbSetOrder(1)
+
 
 dbSelectArea( "SA6" )
 dbSetOrder( 1 )
@@ -546,5 +554,7 @@ If lRet
 		dbSkip()
 	EndDo
 EndIf
-		
+
+oTmpTb1:Delete()
+
 Return lRet

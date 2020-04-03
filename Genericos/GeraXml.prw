@@ -282,7 +282,15 @@ NEXT
 		
 oExcel:Activate()
 		
-cArq := CriaTrab( NIL, .F. ) + ".xml"
+//cArq := CriaTrab( NIL, .F. ) + ".xml"
+cArq := _cProg +"-"+DTOS(Date()) + ".xml"
+If File(cArq)
+	nRet:= FERASE(cArq)
+	If nRet < 0
+		MsgStop("Não será possivel gerar a planilha "+cArq+", feche o arquivo",_cProg)
+	EndIf
+EndIf
+
 LjMsgRun( "Gerando o arquivo, aguarde...", _cTitulo, {|| oExcel:GetXMLFile( cArq ) } )
 
 If __CopyFile( cArq, cDirTmp + "\" + _cProg + "-" + cArq)

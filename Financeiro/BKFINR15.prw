@@ -2,6 +2,13 @@
 #include "RwMake.ch"
 #include "TopConn.ch"
 
+/*/{Protheus.doc} BKFINR15
+BK - Saldos Bco Empresas
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 
+@version P12
+/*/
 
 User Function BKFINR15()
 
@@ -15,8 +22,8 @@ PRIVATE aTitulos1   := {}
 PRIVATE aStruct1    := {}
 PRIVATE aPlans      := {}
 PRIVATE lTReport	:= .F.
-PRIVATE cArqTmp1    := ""
-PRIVATE cTitulo	    := OemToAnsi("Saldos bancários consolidados")
+PRIVATE oTmpTb
+PRIVATE cTitulo	    := OemToAnsi("Saldos bancários - todas Empresas")
 PRIVATE cFiltro     := ""
 PRIVATE dDtSld      := DATE()
 PRIVATE aTipoBK     := {"1-Corrente","2-Vinculada","3-Garantida","4-Outra"}         
@@ -94,11 +101,15 @@ AADD(aImpr1  ,.T.)
 AADD(aImpr1  ,.T.)
 
 
-cArqTmp1 := CriaTrab(aStruct1)
+///cArqTmp1 := CriaTrab(aStruct1)
+///dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
+///IndRegua (cAliasTmp1,cArqTmp1,"TIPO+EMPRESA+BANCO+AGENCIA+CONTA",,,OemToAnsi("Selecionando Registros...") )  //
+///dbSetOrder(1)
 
-dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-IndRegua (cAliasTmp1,cArqTmp1,"TIPO+EMPRESA+BANCO+AGENCIA+CONTA",,,OemToAnsi("Selecionando Registros...") )  //
-dbSetOrder(1)
+oTmpTb := FWTemporaryTable():New(cAliasTmp1)
+oTmpTb:SetFields( aStruct1 )
+oTmpTb:AddIndex("indice1", {"TIPO","EMPRESA","BANCO","AGENCIA","CONTA"} )
+oTmpTb:Create()
 
 AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+" em "+DTOC(dDtSld))
 
@@ -107,17 +118,17 @@ Processa( {|| BKFin15Emp()})
 
 cFiltro := "" //cAliasTmp1+"->TIPO >= '1'"                                 
 
-AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo,aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, cAliasTmp1+"->TIPO", lClose:= .T. })
+AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo,aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, cAliasTmp1+"->TIPO", lClose:= .F. })
    
 MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
 
-Ferase(cArqTmp1 + GetDBExtension())
+oTmpTb:Delete()
+//Ferase(cArqTmp1 + GetDBExtension())
 
 Return (Nil)
 
 
 Static Function BKFin15Emp()
-Local cArquivo1 := ""
 Local cQry1     := ""
 Local aSM0Area	:= SM0->(GetArea())
 
@@ -135,19 +146,19 @@ While SM0->(!EoF())
 		Loop
 	EndIf
 
-	cArquivo1 := "SX2"+SM0->M0_CODIGO+"0"+GetDBExtension()
-	If Select("SX2DBF") > 0
-		SX2DBF->(DbCloseArea())
-	EndIf
+	///cArquivo1 := "SX2"+SM0->M0_CODIGO+"0"+GetDBExtension()
+	//If Select("SX2DBF") > 0
+	///	SX2DBF->(DbCloseArea())
+	///EndIf
 		
-	dbUseArea(.T.,NIL,cArquivo1,"SX2DBF",.T.,.F.)
-	IndRegua("SX2DBF","SX2DBF_A", "X2_CHAVE",,, 	"Criando Indice..." )
+	///dbUseArea(.T.,NIL,cArquivo1,"SX2DBF",.T.,.F.)
+	///IndRegua("SX2DBF","SX2DBF_A", "X2_CHAVE",,, 	"Criando Indice..." )
 
-	dbSelectArea("SX2DBF")
-	SX2DBF->(DbSeek("SA6"))
+	///dbSelectArea("SX2DBF")
+	///SX2DBF->(DbSeek("SA6"))
 
-	cQry1 := "SELECT * FROM "+Alltrim(SX2DBF->X2_ARQUIVO)+" XSA6"  //SA6"+SM0->M0_CODIGO+"0 SA6"		
-	cQry1 += " WHERE XSA6.D_E_L_E_T_ <> '*' AND XSA6.A6_BLOCKED <> '1' "
+	cQry1 := "SELECT * FROM SA6"+SM0->M0_CODIGO+"0 XSA6"  //SA6"+SM0->M0_CODIGO+"0 SA6"		
+	cQry1 += " WHERE XSA6.D_E_L_E_T_ = ' ' AND XSA6.A6_BLOCKED <> '1' "
 	cQry1 += " ORDER BY A6_COD,A6_AGENCIA,A6_NUMCON"
 	//cQry1 += " AND SA6.A6_FLUXCAI = 'S' ORDER BY A6_COD"
 		
@@ -159,10 +170,11 @@ While SM0->(!EoF())
 
 	KFin15Sld()				   
 				
-	If Select("SX2DBF") > 0
-		SX2DBF->(DbCloseArea())
-		FErase("SX2DBF_A"+OrdBagExt())
-	EndIf
+	//If Select("SX2DBF") > 0
+	//	SX2DBF->(DbCloseArea())
+	//	FErase("SX2DBF_A"+OrdBagExt())
+	//EndIf
+
 	If Select("XSA6") > 0
 		XSA6->(DbCloseArea())
 	EndIf
@@ -214,10 +226,10 @@ While ! Eof()
 	//³ Procura pelo saldo anterior dos bancos no SE8 ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-	dbSelectArea("SX2DBF")
-	SX2DBF->(DbSeek("SE8"))
+	//dbSelectArea("SX2DBF")
+	//SX2DBF->(DbSeek("SE8"))
 
-	cQry2 := "SELECT TOP 1 * FROM "+Alltrim(SX2DBF->X2_ARQUIVO)+" SE8" //RetSqlName("SE8")+" SE8"
+	cQry2 := "SELECT TOP 1 * FROM SE8"+SM0->M0_CODIGO+"0 SE8" //RetSqlName("SE8")+" SE8"
 	cQry2 += " WHERE SE8.D_E_L_E_T_ <> '*'"
 	cQry2 += " AND SE8.E8_BANCO = '"+XSA6->A6_COD+"'"
 	cQry2 += " AND SE8.E8_AGENCIA = '"+XSA6->A6_AGENCIA+"'"

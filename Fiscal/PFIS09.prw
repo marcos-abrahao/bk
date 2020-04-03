@@ -1,29 +1,21 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
                                         
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±                
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ PFIS09   º Autor ³ Adilson do Prado          Data ³29/01/13º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Correçao Calculo Pis Cofins conforme TES-Mr / Proeletronic º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³  Mr / Proeletronic                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+/*/{Protheus.doc} PFIS09
+Mr/Proeletronic/BK - Correçao Calculo Pis Cofins conforme TES
 
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 29/01/13
+@version P12
+/*/
 User Function PFIS09()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ 
-Local titulo         := "Retificação calculo PIS COFINS conforme TES"
-Local aDbf := {},cArqTmp
-LOCAL cPerg        := "PFIS09"
+Local aDbf := {}
+Local oTmpTb
 
+PRIVATE cTitulo     := "Retificação calculo PIS COFINS conforme TES"
+PRIVATE cPerg       := "PFIS09"
 PRIVATE dDataInicio := dDataBase
 PRIVATE dDataFinal  := dDataBase
 PRIVATE cCFOP		:= ""
@@ -69,7 +61,7 @@ IF dDataInicio > dDataFinal
 
 ENDIF
 
-titulo   := titulo+" - Período:"+DTOC(dDataInicio)+" até "+DTOC(dDataFinal)
+cTitulo   := cTitulo+" - Período:"+DTOC(dDataInicio)+" até "+DTOC(dDataFinal)
 
 aDbf    := {}
 Aadd( aDbf, { 'XX_LINHA', 'N', 10,00 } )
@@ -115,10 +107,15 @@ Aadd( aDbf, { 'XX_ERROS','C',250,00 } )
 Aadd( aDbf, { 'XX_STATUS','C',1,00 } )
 Aadd( aDbf, { 'XX_CODBCC','C',02,00 } )
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
-IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_LINHA"} )
+oTmpTb:Create()
+
 
 nomeprog := "PFIS09/"+TRIM(SUBSTR(cUsuario,7,15))
 
@@ -127,7 +124,7 @@ aCampos := {}
 aTitulos:= {}
 aFixeFX := {}
 
-AADD(aTitulos,nomeprog+" - "+titulo)
+AADD(aTitulos,cTitulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
@@ -303,8 +300,8 @@ Else
 	Processa ( {|| U_CSVPFIS09()})
 EndIf
 
-
-TRB->(Dbclosearea())
+oTmpTb:Delete()
+///TRB->(Dbclosearea())
  
 Return
 
@@ -416,11 +413,18 @@ Return (.T.)
 
 User FUNCTION CSVPFIS09()
 Local cAlias := "TRB"
+Local aPlans := {}
 
 dbSelectArea(cAlias)
 
-ProcRegua(10)
-Processa( {|| GCSVPFIS09(cAlias,"PFIS09",aTitulos,aCampos,aCabs,1)})
+///ProcRegua(10)
+///Processa( {|| GCSVPFIS09(cAlias,"PFIS09",aTitulos,aCampos,aCabs,1)})
+
+//Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
+
+AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,/*aTotal */, /*cQuebra*/, lClose:= .F. })
+MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+
 
 Return Nil
 
@@ -1091,8 +1095,3 @@ Next
 RestArea(aArea)
 
 Return(NIL)
-
-
-
-
-

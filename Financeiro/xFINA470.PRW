@@ -2,7 +2,6 @@
 #include "fileio.ch"
 #Include "Protheus.ch"                     
 
-
 STATIC __lDefTop	:= NIL	
 
 /*/
@@ -316,10 +315,7 @@ Local dDtIniA	:= CRIAVAR("E5_DTDISPO")
 Local dDtFinA	:= CRIAVAR("E5_DTDISPO")
 Local lFA470Qry	:= ExistBlock( "FA470QRY" )
 
-Private cArqRec1 := ""
-Private cArqRec2 := ""
-Private cArqRec3 := ""
-Private cArqRec4 := ""
+Private oTmpTb
 Private lMarca	 := 1
 Private dDtIni	 := CTOD("01/01/2099","ddmmyy")
 Private dDtFin	 := CTOD("01/01/1980","ddmmyy")
@@ -805,7 +801,7 @@ If !lSaida
 				//� Filtra o SE5 por Banco/Ag./Cta                               �
 				//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 				dbSelectArea("NEWSE5")
-				cIndex	:= CriaTrab(nil,.f.)
+				cIndex := GetNextAlias() // CriaTrab(nil,.f.)
 				IndRegua("NEWSE5",cIndex,cChave,,U_XFa470ChecF(), STR0009)  //"Selecionando Registros..."
 				DbSelectArea("NEWSE5")
 				dbSetIndex(cIndex+OrdBagExt())
@@ -1208,21 +1204,25 @@ If !lSaida
 	Endif
 Endif
 
-dbSelectArea("TRB")
-Set Filter To
-dbCloseArea()
-Ferase(cArqRec1+ GetDBExtension())
-Ferase(cArqRec1+OrdBagExt())
-Ferase(cArqRec2+OrdBagExt())
-Ferase(cArqRec3+OrdBagExt())
-Ferase(cArqRec4+OrdBagExt())
+oTmpTb:Delete()
+
+///dbSelectArea("TRB")
+///Set Filter To
+///dbCloseArea()
+///Ferase(cArqRec1+ GetDBExtension())
+///Ferase(cArqRec1+OrdBagExt())
+///Ferase(cArqRec2+OrdBagExt())
+///Ferase(cArqRec3+OrdBagExt())
+///Ferase(cArqRec4+OrdBagExt())
+
 IF SELECT("NEWSE5") != 0
    dbSelectArea( "NEWSE5" )
    dbCloseArea()
    If !Empty(cIndex)
 	   FErase (cIndex+OrdBagExt())
    Endif
-ENDIF	
+ENDIF
+
 dbSelectArea("SE5")
 dbSetOrder(1)
 
@@ -1319,27 +1319,38 @@ aadd(aDbStru,{"RECSE5    ","N",09,0})
 aadd(aDbStru,{"OK        ","N",01,0})
 aadd(aDbStru,{"RECONSE5  ","C",01,0})
 
-cArqRec1 := CriaTrab(aDbStru, .T. )
-cArqRec2 := Left(CriaTrab(Nil, .F. ),7)+"A"
-cArqRec3 := Left(CriaTrab(Nil, .F. ),7)+"B"
-cArqRec4 := Left(CriaTrab(Nil, .F. ),7)+"C"
-dbUseArea(.T.,,cArqRec1,"TRB",.F.,.F.)
-IndRegua("TRB",cArqRec1,"SEQMOV+DATAMOV",,,STR0007)  //"Selecionando Registros..."
-IndRegua("TRB",cArqRec2,"AGEMOV+CTAMOV+NUMMOV+DATAMOV+VALORMOV+DEBCRED",,,STR0007)  //"Selecionando Registros..."
-IndRegua("TRB",cArqRec3,"AGEMOV+CTAMOV+DATAMOV+VALORMOV+DEBCRED",,,STR0007)  //"Selecionando Registros..."
+///cArqRec1 := CriaTrab(aDbStru, .T. )
+///cArqRec2 := Left(CriaTrab(Nil, .F. ),7)+"A"
+///cArqRec3 := Left(CriaTrab(Nil, .F. ),7)+"B"
+///cArqRec4 := Left(CriaTrab(Nil, .F. ),7)+"C"
+///dbUseArea(.T.,,cArqRec1,"TRB",.F.,.F.)
+///IndRegua("TRB",cArqRec1,"SEQMOV+DATAMOV",,,STR0007)  //"Selecionando Registros..."
+///IndRegua("TRB",cArqRec2,"AGEMOV+CTAMOV+NUMMOV+DATAMOV+VALORMOV+DEBCRED",,,STR0007)  //"Selecionando Registros..."
+///IndRegua("TRB",cArqRec3,"AGEMOV+CTAMOV+DATAMOV+VALORMOV+DEBCRED",,,STR0007)  //"Selecionando Registros..."
+
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aDbStru )
+oTmpTb:AddIndex("indice1", {"SEQMOV","DATAMOV"} )
+oTmpTb:AddIndex("indice2", {"AGEMOV","CTAMOV","NUMMOV","DATAMOV","VALORMOV","DEBCRED"} )
+oTmpTb:AddIndex("indice3", {"AGEMOV","CTAMOV","DATAMOV","VALORMOV","DEBCRED"} )
 If mv_par04 # 0 .Or. mv_par05 # 0
-	IndRegua("TRB",cArqRec4,"AGEMOV+CTAMOV+NUMMOV+VALORMOV+DEBCRED",,,STR0007)  //"Selecionando Registros..."
-	DbClearIndex()
-	DbSetIndex(cArqRec1 + OrdBagExt())
-	DbSetIndex(cArqRec2 + OrdBagExt())
-	DbSetIndex(cArqRec3 + OrdBagExt())
-	DbSetIndex(cArqRec4 + OrdBagExt())
-Else
-	DbClearIndex()
-	DbSetIndex(cArqRec1 + OrdBagExt())
-	DbSetIndex(cArqRec2 + OrdBagExt())
-	DbSetIndex(cArqRec3 + OrdBagExt())
-Endif
+	oTmpTb:AddIndex("indice4", {"AGEMOV","CTAMOV","NUMMOV","VALORMOV","DEBCRED"} )
+EndIf
+oTmpTb:Create()
+
+///If mv_par04 # 0 .Or. mv_par05 # 0
+///	IndRegua("TRB",cArqRec4,"AGEMOV+CTAMOV+NUMMOV+VALORMOV+DEBCRED",,,STR0007)  //"Selecionando Registros..."
+///	DbClearIndex()
+///	DbSetIndex(cArqRec1 + OrdBagExt())
+///	DbSetIndex(cArqRec2 + OrdBagExt())
+///	DbSetIndex(cArqRec3 + OrdBagExt())
+///	DbSetIndex(cArqRec4 + OrdBagExt())
+///Else
+///	DbClearIndex()
+///	DbSetIndex(cArqRec1 + OrdBagExt())
+///	DbSetIndex(cArqRec2 + OrdBagExt())
+///	DbSetIndex(cArqRec3 + OrdBagExt())
+///Endif
 
 Return
 

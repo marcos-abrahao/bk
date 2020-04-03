@@ -348,7 +348,13 @@ User Function FINR150()
 
 Local oReport
 Local lRelease3  
-//AjustaSX1()
+
+// Para não dar Warning de função não chamada
+If .F.
+	CriaSx1()
+	AjustaSx1()
+EndIf
+
 lRelease3 := MsgYesNo("Deseja impressão em modo texto?","Posição dos Titulos a Pagar")
 
 If FindFunction("TRepInUse") .And. TRepInUse() .and. !IsBlind() .AND. !lRelease3
@@ -528,7 +534,7 @@ Local nMestit0:= nMesTit1 := nMesTit2 := nMesTit3 := nMesTit4 := nMesTTit := nMe
 Local dDtContab
 Local cIndexSe2
 Local cChaveSe2
-Local nIndexSE2
+//Local nIndexSE2
 Local cFilDe,cFilAte
 Local nTotsRec := SE2->(RecCount())
 //Local aTamFor := TAMSX3("E2_FORNECE")
@@ -785,17 +791,17 @@ While SM0->(!Eof()) .and. SM0->M0_CODIGO == cEmpAnt .and. IIf( lFWCodFil, FWGETC
 	Else
 		cChaveSe2 := "E2_FILIAL+E2_NOMFOR+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO"
 		#IFDEF TOP
-			if TcSrvType() == "AS/400"
-				cIndexSe2 := CriaTrab(nil,.f.)
-				IndRegua("SE2",cIndexSe2,cChaveSe2,,Fr150IndR(),OemToAnsi(STR0021))  // //"Selecionando Registros..."
-				nIndexSE2 := RetIndex("SE2")
-				dbSetOrder(nIndexSe2+1)
-				dbSeek(xFilial("SE2"))
-			else
+			///if TcSrvType() == "AS/400"
+			///	cIndexSe2 := CriaTrab(nil,.f.)
+			///	IndRegua("SE2",cIndexSe2,cChaveSe2,,Fr150IndR(),OemToAnsi(STR0021))  // //"Selecionando Registros..."
+			///	nIndexSE2 := RetIndex("SE2")
+			///	dbSetOrder(nIndexSe2+1)
+			///	dbSeek(xFilial("SE2"))
+			///else
 				cOrder := SqlOrder(cChaveSe2)
-			endif
+			///endif
 		#ELSE
-			cIndexSe2 := CriaTrab(nil,.f.)
+			cIndexSe2 := GetNextAlias() //CriaTrab(nil,.f.)
 			IndRegua("SE2",cIndexSe2,cChaveSe2,,Fr150IndR(),OemToAnsi(STR0021))  // //"Selecionando Registros..."
 			nIndexSE2 := RetIndex("SE2")
 			dbSetIndex(cIndexSe2+OrdBagExt())
@@ -1757,7 +1763,7 @@ LOCAL nMestit0:= nMesTit1 := nMesTit2 := nMesTit3 := nMesTit4 := nMesTTit := nMe
 LOCAL dDtContab
 LOCAL	cIndexSe2
 LOCAL	cChaveSe2
-LOCAL	nIndexSE2
+//LOCAL	nIndexSE2
 LOCAL cFilDe,cFilAte
 Local nTotsRec := SE2->(RecCount())
 Local cTamFor, cTamTit := ""
@@ -1959,17 +1965,17 @@ While !Eof() .and. M0_CODIGO == cEmpAnt .and. IIf( lFWCodFil, FWGETCODFILIAL, SM
 	Else
 		cChaveSe2 := "E2_FILIAL+E2_NOMFOR+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO"
 		#IFDEF TOP
-			if TcSrvType() == "AS/400"
-				cIndexSe2 := CriaTrab(nil,.f.)
-				IndRegua("SE2",cIndexSe2,cChaveSe2,,Fr150IndR(),OemToAnsi(STR0021))  // //"Selecionando Registros..."
-				nIndexSE2 := RetIndex("SE2")
-				dbSetOrder(nIndexSe2+1)
-				dbSeek(xFilial("SE2"))
-			else
+			///if TcSrvType() == "AS/400"
+			///	cIndexSe2 := CriaTrab(nil,.f.)
+			///	IndRegua("SE2",cIndexSe2,cChaveSe2,,Fr150IndR(),OemToAnsi(STR0021))  // //"Selecionando Registros..."
+			///	nIndexSE2 := RetIndex("SE2")
+			///	dbSetOrder(nIndexSe2+1)
+			///	dbSeek(xFilial("SE2"))
+			///else
 				cOrder := SqlOrder(cChaveSe2)
-			endif
+			///endif
 		#ELSE
-			cIndexSe2 := CriaTrab(nil,.f.)
+			cIndexSe2 := GetNextAlias() //CriaTrab(nil,.f.)
 			IndRegua("SE2",cIndexSe2,cChaveSe2,,Fr150IndR(),OemToAnsi(STR0021))  // //"Selecionando Registros..."
 			nIndexSE2 := RetIndex("SE2")
 			dbSetIndex(cIndexSe2+OrdBagExt())
