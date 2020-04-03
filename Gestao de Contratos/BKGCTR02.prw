@@ -2,7 +2,6 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR02
 Faturamento x Previsão de Faturamento
 
@@ -11,7 +10,7 @@ Faturamento x Previsão de Faturamento
 @since 09/06/10
 @version P11/P12
 /*/
-//-------------------------------------------------------------------
+
 User Function BKGCTR02()
 
 Local cTitulo   := "Previsto x Faturado - empresas: 01,02 e 14"
@@ -24,8 +23,9 @@ Local aCabs2    := {}
 Local _nI       := 0
 Local aDbf1     := {}
 Local aDbf2     := {}
-Local cArqTmp1  := ""
-Local cArqTmp2  := ""
+Local oTmpTb1
+Local oTmpTb2
+
 Local nMes      := 0
 Local nAno      := 0
 Local cMes      := ""
@@ -164,30 +164,37 @@ NEXT
 Aadd( aDbf1, { 'XX_TOTPRV','N', 17,02 } )
 Aadd( aDbf1, { 'XX_TOTFAT','N', 17,02 } )
 
-cArqTmp1 := CriaTrab( aDbf1, .t. )
-dbUseArea( .t.,NIL,cArqTmp1,'TMPC',.f.,.f. )
-		
-IndRegua("TMPC",cArqTmp1,"XX_EMPRESA+XX_CONTRA",,,"Indexando Arquivo de Trabalho")
-//IndRegua("TMPC",cArqTmp1,"-XX_TOTFAT",,,"Indexando Arquivo de Trabalho")
-//		dbClearIndex()
-//		dbSetIndex(cArqTmp1 + OrdBagExt())
-dbSetOrder(1)		
+///cArqTmp1 := CriaTrab( aDbf1, .t. )
+///dbUseArea( .t.,NIL,cArqTmp1,'TMPC',.f.,.f. )
+///IndRegua("TMPC",cArqTmp1,"XX_EMPRESA+XX_CONTRA",,,"Indexando Arquivo de Trabalho")
 
+oTmpTb1 := FWTemporaryTable():New("TMPC")
+oTmpTb1:SetFields( aDbf1 )
+oTmpTb1:AddIndex("indice1", {"XX_EMPRESA","XX_CONTRA"} )
+oTmpTb1:Create()
+dbSetOrder(1)		
 
 aDbf2    := {}
 Aadd( aDbf2, { 'XX_CLIENTE','C', TamSx3("A1_COD")[1],00 } )
 Aadd( aDbf2, { 'XX_NOMCLI' ,'C', TamSx3("A1_NOME")[1],00 } )
 Aadd( aDbf2, { 'XX_TOTPRV' ,'N', 17,02 } )
+Aadd( aDbf2, { 'XX_TOTPRVN','N', 17,02 } )
 Aadd( aDbf2, { 'XX_TOTFAT' ,'N', 17,02 } )
 Aadd( aDbf2, { 'XX_PERDIF' ,'N', 17,02 } )
-cArqTmp2 := CriaTrab( aDbf2, .t. )
 
-dbUseArea( .t.,NIL,cArqTmp2,'TMPD',.f.,.f. )
-IndRegua("TMPD",cArqTmp2+"1","XX_CLIENTE",,,"Indexando Arquivo de Trabalho")
-IndRegua("TMPD",cArqTmp2+"2","-XX_TOTPRV",,,"Indexando Arquivo de Trabalho")
-dbClearIndex()
-dbSetIndex(cArqTmp2+"1" + OrdBagExt())
-dbSetIndex(cArqTmp2+"2" + OrdBagExt())
+///cArqTmp2 := CriaTrab( aDbf2, .t. )
+///dbUseArea( .t.,NIL,cArqTmp2,'TMPD',.f.,.f. )
+///IndRegua("TMPD",cArqTmp2+"1","XX_CLIENTE",,,"Indexando Arquivo de Trabalho")
+///IndRegua("TMPD",cArqTmp2+"2","-XX_TOTPRV",,,"Indexando Arquivo de Trabalho")
+///dbClearIndex()
+///dbSetIndex(cArqTmp2+"1" + OrdBagExt())
+///dbSetIndex(cArqTmp2+"2" + OrdBagExt())
+
+oTmpTb2 := FWTemporaryTable():New("TMPD")
+oTmpTb2:SetFields( aDbf2 )
+oTmpTb2:AddIndex("indice2", {"XX_CLIENTE"} )
+oTmpTb2:AddIndex("indice3", {"XX_TOTPRVN"} )
+oTmpTb2:Create()
 dbSetOrder(1)		
 
 
@@ -281,18 +288,20 @@ Else
 	ViewGraph(cGraph)	
 EndIf
 
-dbSelectArea("TMPC")
-dbCloseArea()
-FErase(cArqTmp1+GetDBExtension())
-FErase(cArqTmp1+OrdBagExt())
+///dbSelectArea("TMPC")
+///dbCloseArea()
+///FErase(cArqTmp1+GetDBExtension())
+///FErase(cArqTmp1+OrdBagExt())
 
-dbSelectArea("TMPD")
-dbCloseArea()
-FErase(cArqTmp2+GetDBExtension())
-FErase(cArqTmp2+"1"+OrdBagExt())
-FErase(cArqTmp2+"2"+OrdBagExt())
+///dbSelectArea("TMPD")
+///dbCloseArea()
+///FErase(cArqTmp2+GetDBExtension())
+///FErase(cArqTmp2+"1"+OrdBagExt())
+///FErase(cArqTmp2+"2"+OrdBagExt())
 
-   
+oTmpTb1:Delete()
+oTmpTb2:Delete()
+
 Return
 
 
@@ -582,8 +591,9 @@ FOR _nI := 1 TO LEN(aMeses)
        Else
 	        Reclock("TMPD",.F.)
        EndIf
-	   TMPD->XX_TOTPRV += nPrev	
-	   TMPD->XX_TOTFAT += QTMP->D2_TOTAL	
+	   TMPD->XX_TOTPRV  += nPrev	
+	   TMPD->XX_TOTPRVN -= nPrev	
+	   TMPD->XX_TOTFAT  += QTMP->D2_TOTAL	
 	   If TMPD->XX_TOTPRV > 0
 	   		TMPD->XX_PERDIF := 100 - (TMPD->XX_TOTFAT * 100 / TMPD->XX_TOTPRV)
 	   EndIf

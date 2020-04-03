@@ -36,16 +36,19 @@ Usuários contidos em um parâmetro
 User Function zParUsr(cParam, cCarSep, lUsrFil)
     Local aArea       := GetArea()
     Local nTamBtn     := 50
-    Local lEditM      := .F.       
+    Local lEditM      := .F.
+
     Default cCarSep   := ";"
     Default lUsrFil   := .F.
+
     Private lUsrFilM  := lUsrFil
     Private nTamFim   := 0
     Private cParamPvt := ""
     Private aUsers    := {}
     //MsSelect
     Private oMAux
-    Private cArqs
+    Private oTmpTb1
+    Private oTmpTb2
     Private cMarca    := "OK"
     Private aStrut    := {}
     Private aHeadRegs := {}
@@ -112,6 +115,15 @@ User Function zParUsr(cParam, cCarSep, lUsrFil)
     ACTIVATE MSDIALOG oDlgMark CENTERED
      
     RestArea(aArea)
+
+    If oTmpTb1 <> Nil
+        oTmpTb1:Delete()
+    EndIf
+    
+    If oTmpTb2 <> Nil
+        oTmpTb2:Delete()
+    EndIf
+
 Return
  
 /*---------------------------------------------------------------------*
@@ -145,16 +157,24 @@ Static Function fCriaMsSel()
  
     //Excluindo dados da tabela temporária, se tiver aberta, fecha a tabela
     If Select(cAliasTmp)>0
-        (cAliasTmp)->(DbCloseArea())
+        If oTmpTb1 <> Nil
+            oTmpTb1:Delete()
+        Else
+            (cAliasTmp)->(DbCloseArea())
+        EndIf
     EndIf
 
-	FErase(cAliasTmp+GetDBExtension())
-	FErase(cAliasTmp+OrdBagExt())
+	///FErase(cAliasTmp+GetDBExtension())
+	///FErase(cAliasTmp+OrdBagExt())
 	     
     //Criando tabela temporária
-    cArqs:= CriaTrab( aStrut, .T. )             
-    dbUseArea( .T.,NIL, cArqs, cAliasTmp, .T., .F. )
-     
+    ///cArqs:= CriaTrab( aStrut, .T. )             
+    ///dbUseArea( .T.,NIL, cArqs, cAliasTmp, .T., .F. )
+
+    oTmpTb1 := FWTemporaryTable():New(cAliasTmp)
+    oTmpTb1:SetFields( aStrut )
+    oTmpTb1:Create()
+
     RestArea(aAreaX3)
 Return
  
@@ -173,14 +193,21 @@ Static Function fPopula()
      
     //Excluindo dados da tabela temporária, se tiver aberta, fecha a tabela
     If Select(cAliasTmp)>0
-        (cAliasTmp)->(DbCloseArea())
+        If oTmpTb2 <> Nil
+            oTmpTb2:Delete()
+        Else
+            (cAliasTmp)->(DbCloseArea())
+        EndIf
     EndIf
-    FErase(cAliasTmp+GetDBExtension())
-	FErase(cAliasTmp+OrdBagExt()) 
+    ///FErase(cAliasTmp+GetDBExtension())
+	///FErase(cAliasTmp+OrdBagExt()) 
 	
     //Criando tabela temporária
-    cArqs:= CriaTrab( aStrut, .T. )             
-    dbUseArea( .T.,NIL, cArqs, cAliasTmp, .T., .F. )
+    ///cArqs:= CriaTrab( aStrut, .T. )             
+    ///dbUseArea( .T.,NIL, cArqs, cAliasTmp, .T., .F. )
+    oTmpTb2 := FWTemporaryTable():New(cAliasTmp)
+    oTmpTb2:SetFields( aStrut )
+    oTmpTb2:Create()
      
     //Percorrendo as filiais listadas
     For nAtu := 1 To Len(aUsers)

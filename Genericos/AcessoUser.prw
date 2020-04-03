@@ -34,6 +34,9 @@ Local   aButtons   := {{"",;
                         {|| Processa({|| oReport := ReportDef(),oReport:PrintDialog()},'Imprimindo Dados...')},;
                          "Imprimir",;
                          "Imprimir"}}
+
+Private oTmpTb1,oTmpTb2,oTmpTb3
+
 Private aUsers     := {},;
         aModulos   := {},;
         aGrups     := {},;
@@ -114,9 +117,14 @@ Define MsDialog oDlg Title "Acesso de Usuários" From oMainWnd:nTop+125,oMainWnd:
 
 Activate MsDialog oDlg On Init ( EnchoiceBar(oDlg,bOk,bCancel,,aButtons), ,, )//
 //
-WKUSERS->(dbCloseArea())
-WKMODULOS->(dbCloseArea())
-WKACESSO->(dbCloseArea())
+///WKUSERS->(dbCloseArea())
+///WKMODULOS->(dbCloseArea())
+///WKACESSO->(dbCloseArea())
+
+oTmpTb1:Delete()
+oTmpTb2:Delete()
+oTmpTb3:Delete()
+
 //
 Return
 
@@ -193,7 +201,6 @@ Data/Hora   : 11/06/2012
 Static Function CriaWork()
 *--------------------------*
 Local aSemSx3 := {}
-Local cFile   := ""
 //
 //Cria work da coluna Usuários
 aAdd(aSemSx3,{"WKMARCA","C",02,0})
@@ -201,24 +208,34 @@ aAdd(aSemSx3,{"CODUSER","C",06,0})
 aAdd(aSemSx3,{"USER"   ,"C",30,0})
 aAdd(aSemSx3,{"DEPART" ,"C",40,0})
 //
-cFile := E_CriaTrab(,aSemSX3,"WKUSERS")
-IndRegua("WKUSERS",cFile+OrdBagExt(),"CODUSER")
-Set Index To (cFile+OrdBagExt())
+///cFile := E_CriaTrab(,aSemSX3,"WKUSERS")
+///IndRegua("WKUSERS",cFile+OrdBagExt(),"CODUSER")
+///Set Index To (cFile+OrdBagExt())
+
+oTmpTb1 := FWTemporaryTable():New( "WKUSERS")
+oTmpTb1:SetFields( aSemSX3 )
+oTmpTb1:AddIndex("indice1", {"CODUSER"} )
+oTmpTb1:Create()
 
 //Cria work da coluna Módulos
 aSemSx3 := {}
-cFile   := ""
 aAdd(aSemSx3,{"WKMARCA"  ,"C",02,0})
 aAdd(aSemSx3,{"CODUSER"  ,"C",06,0})
 aAdd(aSemSx3,{"CODMODULO","C",02,0})
 aAdd(aSemSx3,{"MODULO"   ,"C",30,0})
-cFile := E_CriaTrab(,aSemSX3,"WKMODULOS")
-IndRegua("WKMODULOS",cFile+OrdBagExt(),"CODUSER+CODMODULO")
-Set Index To (cFile+OrdBagExt())
+
+///cFile := E_CriaTrab(,aSemSX3,"WKMODULOS")
+///IndRegua("WKMODULOS",cFile+OrdBagExt(),"CODUSER+CODMODULO")
+///Set Index To (cFile+OrdBagExt())
+
+oTmpTb2 := FWTemporaryTable():New( "WKMODULOS")
+oTmpTb2:SetFields( aSemSX3 )
+oTmpTb2:AddIndex("indice2", {"CODUSER","CODMODULO"} )
+oTmpTb2:Create()
+
 
 //Cria work da coluna Acessos
 aSemSx3 := {}
-cFile   := ""
 aAdd(aSemSx3,{"WKMARCA"  ,"C",02,0})
 aAdd(aSemSx3,{"CODUSMOD" ,"C",08,0})
 aAdd(aSemSx3,{"USER"     ,"C",30,0})
@@ -231,10 +248,16 @@ aAdd(aSemSx3,{"FUNCAO"   ,"C",25,0})
 aAdd(aSemSx3,{"XNU"      ,"C",40,0})
 aAdd(aSemSx3,{"ACESSO"   ,"C",10,0})
 aAdd(aSemSx3,{"TIPO"     ,"C",01,0})
-cFile := E_CriaTrab(,aSemSX3,"WKACESSO")
-IndRegua("WKACESSO",cFile+OrdBagExt(),"CODUSMOD")
-Set Index To (cFile+OrdBagExt())
-//
+
+///cFile := E_CriaTrab(,aSemSX3,"WKACESSO")
+///IndRegua("WKACESSO",cFile+OrdBagExt(),"CODUSMOD")
+///Set Index To (cFile+OrdBagExt())
+
+oTmpTb3 := FWTemporaryTable():New( "WKACESSO")
+oTmpTb3:SetFields( aSemSX3 )
+oTmpTb3:AddIndex("indice3", {"CODUSMOD"} )
+oTmpTb3:Create()
+
 Return
 
 /*

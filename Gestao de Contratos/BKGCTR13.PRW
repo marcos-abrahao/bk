@@ -1,23 +1,18 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
- 
-                                       
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR13 º Autor ³ Adilson do Prado          Data ³09/05/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Relatório Repactuação Gestão - BK                          º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+
+/*/{Protheus.doc} BKGCTR13
+BK - Relatório Repactuação Gestão
+
+@Return
+@author Adilson do Prado
+@since 09/05/14
+@version P12
 /*/
 
 User Function BKGCTR13()
 Local aTitulos,aCampos,aCabs,aPlans := {}
+Local oTmpTb
 
 Private cPerg       := "BKGCTR13"
 Private nomeprog    := ""
@@ -61,9 +56,11 @@ AADD( aDbf, { 'XX_FATU','N', 14,02 } )
 AADD( aDbf, { 'XX_XXDREP','D', 08,00 } )
 AADD( aDbf, { 'XX_XXOREP','C', 100,00 } )
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'QTMP',.f.,.f. )
-
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'QTMP',.f.,.f. )
+oTmpTb := FWTemporaryTable():New("QTMP")
+oTmpTb:SetFields( aDbf )
+oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
@@ -130,12 +127,13 @@ If nFormato == 1
 	ProcRegua(QTMP->(LASTREC()))
 	Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
 Else	
-	AADD(aPlans,{"QTMP",wnrel,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+	AADD(aPlans,{"QTMP",wnrel,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 	MsAguarde({|| U_GeraXml(aPlans,cTitulo,wnrel,.F.)},"Aguarde","Gerando planilha...",.F.)
 EndIf
 
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
 Return
 

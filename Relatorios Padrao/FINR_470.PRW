@@ -1033,7 +1033,7 @@ EndIf
 #IFNDEF TOP	
 	dbSelectArea("SE5")
 	dbSetOrder(1)
-	cIndex	:= CriaTrab(nil,.f.)
+	cIndex	:= GetNextAlias() //CriaTrab(nil,.f.)
 	dbSelectArea("SE5")
 	IndRegua("SE5",cIndex,cChave,,Nil,OemToAnsi(STR0012))  //"Selecionando Registros..."
 	nIndex	:= RetIndex("SE5")
@@ -1045,7 +1045,7 @@ EndIf
 	If TcSrvType() == "AS/400"
 		dbSelectArea("SE5")
 		dbSetOrder(1)
-		cIndex	:= CriaTrab(nil,.f.)
+		cIndex	:= GetNextAlias() //CriaTrab(nil,.f.)
 		dbSelectArea("SE5")
 		IndRegua("SE5",cIndex,cChave,,Nil,OemToAnsi(STR0012))  //"Selecionando Registros..."
 		nIndex	:= RetIndex("SE5")

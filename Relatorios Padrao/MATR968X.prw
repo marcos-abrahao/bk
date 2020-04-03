@@ -368,7 +368,7 @@ nTamNfelet := TamSX3("F3_NFELETR")[1]+5 // Para impressão do SAY(), é necessário
 	Else
 
 #ENDIF
-		cArqInd := CriaTrab(NIL,.F.)
+		cArqInd := GetNextAlias() //CriaTrab(NIL,.F.)
 		cChave  := "DTOS(F3_ENTRADA)+F3_SERIE+F3_NFISCAL+F3_TIPO+F3_CLIEFOR+F3_LOJA+F3_CNAE"
 		cFiltro := "F3_FILIAL == '" + xFilial("SF3") + "' .And. "
 		cFiltro += "F3_CFO >= '5" + SPACE(LEN(F3_CFO)-1) + "' .And. "

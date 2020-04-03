@@ -139,6 +139,8 @@ If nOpcA == 1
 	Processa( {|| PROCBXBNC()})	
 Endif
 
+oTmpTb:Delete()
+
 RETURN lOk 
 
 
@@ -383,9 +385,7 @@ While !FT_FEOF()
 		ELSE
 			cQuery  += " AND Z2_CC NOT IN('"+aFURNAS[1]+"','"+aFURNAS[2]+"')"
 		ENDIF
-
-
-        
+       
         // aviso("atenção",cQuery,{"ok"}) 
         
 		TCQUERY cQuery NEW ALIAS "QSZ2"
@@ -436,7 +436,6 @@ DO WHILE TRB->(!EOF())
 	TRB->(Dbskip())
 ENDDO
 
-oTmpTb:Delete()
 
 ///TRB->(Dbclosearea())		
 ///FErase(cArqTmp+GetDBExtension())
@@ -483,7 +482,6 @@ If ( lOk )
 	lOk:=.F.
 	Processa( {|| U_RBKBXBNCO()})
 ENDIF	
-
 
 
 RETURN

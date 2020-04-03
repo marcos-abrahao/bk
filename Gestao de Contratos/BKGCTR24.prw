@@ -1,31 +1,20 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
                                         
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR24 º Autor ³ Marcos Bispo Abrahão      Data ³30/08/18º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Consulta Planos de Ação                                    º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKGCTR24
+BK - Consulta Planos de Ação
+@Return
+@author Marcos Bispo Abrahão
+@since 30/08/18
+@version P12
 /*/
 
 User Function BKGCTR24()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
 PRIVATE cTitulo   := "Consulta Planos de Ação"
 PRIVATE cTitulo1  := ""
 PRIVATE aStruct   := {}
-PRIVATE cArqTmp
-PRIVATE cArqTmp1
+PRIVATE oTmpTb
 
 PRIVATE cPerg     := "BKGCTR24"
 PRIVATE dIni      := dDataBase
@@ -109,8 +98,13 @@ AADD(aCabs  ,"Ocorrencia")
 AADD(aHeader,{"Ocorrência","XX_OCORR" ,"@!",TamSX3("ZP_OCORR")[1],00,"","","C",cAliasTrb,"R"})
 aAdd(aTbCpos,{"XX_OCORR",,"Ocorrência" ,""} )
 
-cArqTmp := CriaTrab( aStruct, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+///cArqTmp := CriaTrab( aStruct, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
+
+oTmpTb := FWTemporaryTable():New(cAliasTrb)
+oTmpTb:SetFields( aStruct )
+oTmpTb:Create()
+
 
 AADD(aTitulos,cPerg+"/"+TRIM(SUBSTR(cUsuario,7,15)+" - "+cTitulo))
 
@@ -118,9 +112,10 @@ If U_PrcBKR24()
 	Processa ( {|| MBrwBKR24()})
 EndIf
 	
-(cAliasTrb)->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())                     
+oTmpTb:Delete()
+///(cAliasTrb)->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())                     
  
 Return
 

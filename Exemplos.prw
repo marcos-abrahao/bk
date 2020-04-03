@@ -11,7 +11,7 @@ Local oTmpTb
 Local aDbf := {}
 Local nStart := Time()
 
-oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb := FWTemporaryTable():New("TRB")
 oTmpTb:SetFields( aDbf )
 oTmpTb:AddIndex("indice1", {"XX_CHAVE"} )
 oTmpTb:Create()

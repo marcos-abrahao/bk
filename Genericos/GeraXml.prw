@@ -630,7 +630,7 @@ Next
 oExcel:Activate()
 
 If Empty(_cDirHttp)		
-	cArq := CriaTrab( NIL, .F. ) + ".xml"
+	cArq := GetNextAlias() + ".xml"
 	LjMsgRun( "Gerando o arquivo, aguarde...", _cTitulo, {|| oExcel:GetXMLFile( cArq ) } )
 	
 	If __CopyFile( cArq, cDirTmp + "\" + _cProg + "-" + cArq)

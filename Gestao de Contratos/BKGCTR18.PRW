@@ -1,27 +1,25 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
  
+/*/{Protheus.doc} BKGCTR18
+BK - Informações de Contratos Vigentes e encerrados por ano - Licitação Mod. 2
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 22/09/16
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR18 º Autor ³ Adilson/Marcos            Data ³22/09/16º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Informações de Contratos Vigentes e encerrados por ano     º±±
-±±           ³ Licitação Mod. 2                                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+
 User Function BKGCTR18()
 
-Local cArqTmp		:= ""
 Local aCampos       := {}
 Local aCabs         := {}
 Local aPlans        := {}
 Local aDbf			:= {}
+
+Local oTmpTb1
+Local oTmpTb2
+Local oTmpTb3
+Local oTmpTb4
 
 Private cPerg       := "BKGCTR18"
 Private cTitulo     := "Informações de Contratos Vigentes e encerrados "
@@ -61,8 +59,11 @@ Aadd( aDbf, { 'XX_VALTOT' ,'N',14,2 })
 Aadd( aDbf, { 'XX_TMPCONT','N',10,0 }) 
 Aadd( aDbf, { 'XX_VALFAT' ,'N',14,2 })
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,cAliasTmp,.f.,.f. )
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,cAliasTmp,.f.,.f. )
+oTmpTb1 := FWTemporaryTable():New(cAliasTmp)
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:Create()
 
 // Campos para exportar
 AADD(aCampos,cAliasTmp+"->XX_CONTRAT")
@@ -97,8 +98,11 @@ AADD(aCabs  ,"Valor Faturado "+cANOTAB+" (I)")
 
 cANOTAB1 := STRZERO(VAL(cANOTAB)-1,4)
 
-cArqTmp1 := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp1,cAliasTmp1,.f.,.f. )
+//cArqTmp1 := CriaTrab( aDbf, .t. )
+//dbUseArea( .t.,NIL,cArqTmp1,cAliasTmp1,.f.,.f. )
+oTmpTb2 := FWTemporaryTable():New(cAliasTmp1)
+oTmpTb2:SetFields( aDbf )
+oTmpTb2:Create()
 
 aCabs1    := {}
 aCampos1  := {}
@@ -139,8 +143,12 @@ AADD(aCabs1  ,"Valor Faturado "+cANOTAB1+" (I)")
 
 cANOTAB2 := cANOTAB
 
-cArqTmp2 := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp2,cAliasTmp2,.f.,.f. )
+//cArqTmp2 := CriaTrab( aDbf, .t. )
+//dbUseArea( .t.,NIL,cArqTmp2,cAliasTmp2,.f.,.f. )
+oTmpTb3 := FWTemporaryTable():New(cAliasTmp2)
+oTmpTb3:SetFields( aDbf )
+oTmpTb3:Create()
+
 
 aCampos2  := {}
 cTitulo2  := "Tabela 3 - Contratos encerrados em "+cANOTAB2
@@ -157,8 +165,11 @@ AADD(aCampos2,cAliasTmp2+"->XX_VALTOT")
 AADD(aCampos2,cAliasTmp2+"->XX_TMPCONT")
 AADD(aCampos2,cAliasTmp2+"->XX_VALFAT")
 
-cArqTmp3 := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp3,cAliasTmp3,.f.,.f. )
+//cArqTmp3 := CriaTrab( aDbf, .t. )
+//dbUseArea( .t.,NIL,cArqTmp3,cAliasTmp3,.f.,.f. )
+oTmpTb4 := FWTemporaryTable():New(cAliasTmp3)
+oTmpTb4:SetFields( aDbf )
+oTmpTb4:Create()
 
 aCampos3  := {}
 cTitulo3  := "Tabela 4 - Contratos encerrados em "+cANOTAB3
@@ -179,24 +190,28 @@ AADD(aCampos3,cAliasTmp3+"->XX_VALFAT")
 ProcRegua(1)
 Processa( {|| ProcQuery() })
 
-AADD(aPlans,{cAliasTmp ,"Tabela 1","",cTitulo  ,aCampos ,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-AADD(aPlans,{cAliasTmp1,"Tabela 2","",cTitulo1 ,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-AADD(aPlans,{cAliasTmp2,"Tabela 3","",cTitulo2 ,aCampos2,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-AADD(aPlans,{cAliasTmp3,"Tabela 4","",cTitulo3 ,aCampos3,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+AADD(aPlans,{cAliasTmp ,"Tabela 1","",cTitulo  ,aCampos ,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+AADD(aPlans,{cAliasTmp1,"Tabela 2","",cTitulo1 ,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+AADD(aPlans,{cAliasTmp2,"Tabela 3","",cTitulo2 ,aCampos2,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+AADD(aPlans,{cAliasTmp3,"Tabela 4","",cTitulo3 ,aCampos3,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
 
+oTmpTb1:Delete()
+oTmpTb2:Delete()
+oTmpTb3:Delete()
+oTmpTb4:Delete()
 
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
 
-FErase(cArqTmp1+GetDBExtension())
-FErase(cArqTmp1+OrdBagExt())
+///FErase(cArqTmp1+GetDBExtension())
+///FErase(cArqTmp1+OrdBagExt())
 
-FErase(cArqTmp2+GetDBExtension())
-FErase(cArqTmp2+OrdBagExt())
+///FErase(cArqTmp2+GetDBExtension())
+///FErase(cArqTmp2+OrdBagExt())
 
-FErase(cArqTmp3+GetDBExtension())
-FErase(cArqTmp3+OrdBagExt())
+///FErase(cArqTmp3+GetDBExtension())
+///FErase(cArqTmp3+OrdBagExt())
 
 Return
 

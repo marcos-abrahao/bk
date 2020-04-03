@@ -1,30 +1,24 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
-                                        
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ BKGCTR09 บ Autor ณ Adilson do Prado          Data ณ16/02/12บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescricao ณ Proje็ใo Financeira dos Contratos - BK                     บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+
+
+/*/{Protheus.doc} BKGCTR09
+BK - Proje็ใo Financeira dos Contratos
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahใo
+@since 16/02/12
+@version P12
 /*/
 
 User Function BKGCTR09()
 
-//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-//ณ Declaracao de Variaveis                                             ณ
-//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-
-Local titulo         := "Proje็ใo Financeira dos Contratos"
+Local titulo	:= "Proje็ใo Financeira dos Contratos"
 Local _nI
-Local aDbf := {},cArqTmp
-Local aDbf2 := {},cArqTmp2
+Local aDbf 		:= {}
+Local aDbf2 	:= {}
+Local oTmpTb1
+Local oTmpTb2
+
 Local cMes := ""
 
 Private aMeses	:= {"Janeiro","Fevereiro","Mar็o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
@@ -79,7 +73,6 @@ ENDIF
 IF dDataFinal < dDataInicio
 	MSGSTOP("Data deve ser maior ou igual que a database")                
 	Return Nil
-
 ENDIF
 
 FOR IX:= 1 TO LEN(aContrCons)
@@ -116,11 +109,14 @@ NEXT
 
 Aadd( aDbf, { 'XX_STATUS','C', 2,00 } )
 
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
+///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-
-IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
+oTmpTb1 := FWTemporaryTable():New("TRB")
+oTmpTb1:SetFields( aDbf )
+oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
+oTmpTb1:Create()
 
 aCabs   := {}
 aCampos := {}
@@ -129,7 +125,6 @@ aTitulos:= {}
 nomeprog := "BKGCTR09/"+TRIM(SUBSTR(cUsuario,7,15))
 
 AADD(aTitulos,nomeprog+" - "+titulo)
-
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
@@ -167,13 +162,16 @@ FOR _nI := 1 TO nPeriodo
 	Aadd( aDbf2, { 'XX_VAL'+cMes,'N', 18,02 } )
 NEXT
 
+///cArqTmp2 := CriaTrab( aDbf2, .T. )
+///dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+///IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
+///dbSetIndex(cArqTmp2+ordBagExt())
 
-cArqTmp2 := CriaTrab( aDbf2, .T. )
-dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
+oTmpTb2 := FWTemporaryTable():New(ALIAS_TMP)
+oTmpTb2:SetFields( aDbf2 )
+oTmpTb2:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
+oTmpTb2:Create()
 
-		
-IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
-dbSetIndex(cArqTmp2+ordBagExt())
 
 aCabs2   := {}
 aCampos2 := {}
@@ -208,13 +206,16 @@ Processa( {|| ProcQuery(1) })
 
 Processa ( {|| MBrwBKGCTR09()})
 
-(ALIAS_TMP)->(Dbclosearea())
-FErase(cArqTmp2+GetDBExtension())
-FErase(cArqTmp2+OrdBagExt())                     
+oTmpTb1:Delete()
+oTmpTb2:Delete()
 
-TRB->(Dbclosearea())
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())                     
+///(ALIAS_TMP)->(Dbclosearea())
+///FErase(cArqTmp2+GetDBExtension())
+///FErase(cArqTmp2+OrdBagExt())                     
+
+///TRB->(Dbclosearea())
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())                     
  
 Return
 

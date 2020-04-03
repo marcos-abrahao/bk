@@ -3,8 +3,8 @@
 #INCLUDE "TOPCONN.CH"
 
 //-------------------------------------------------------------------
-/*/{Protheus.doc} BKGCTR02
-Faturamento x Previsão de Faturamento
+/*/{Protheus.doc} BKGCTR2B
+BK - Gestão do Recebimento
 
 @Return
 @author Marcos Bispo Abrahão
@@ -19,8 +19,7 @@ Local aTitulos  := {}
 Local aCampos   := {}
 Local aCabs     := {}
 Local aDbf      := {}
-Local cArqTmp   := ""
-//Local aJaPrv    := {}
+Local oTmpTb
 Local nMes      := 0
 Local nAno      := 0
                   
@@ -88,7 +87,6 @@ If VALTYPE(aRet[1]) == "N"
 Else
 	cTpRel := (Substr(aRet[1],1,1))
 EndIf
-
 
 nMesI    := aRet[2]
 nAnoI    := aRet[3]
@@ -186,12 +184,15 @@ Aadd( aDbf, { 'XX_CUSFIN' ,'N', 17,02 } )
 AADD(aCampos,"TMPC->XX_CUSFIN")
 AADD(aCabs  ,"Custo Financeiro")
 
-cArqTmp := CriaTrab( aDbf, .t. )
-dbUseArea( .t.,NIL,cArqTmp,'TMPC',.f.,.f. )
-		
-IndRegua("TMPC",cArqTmp,"XX_CONTRA",,,"Indexando Arquivo de Trabalho")
-dbSetOrder(1)		
+///cArqTmp := CriaTrab( aDbf, .t. )
+///dbUseArea( .t.,NIL,cArqTmp,'TMPC',.f.,.f. )
+///IndRegua("TMPC",cArqTmp,"XX_CONTRA",,,"Indexando Arquivo de Trabalho")
+///dbSetOrder(1)		
 
+oTmpTb := FWTemporaryTable():New("TMPC")
+oTmpTb:SetFields( aDbf )
+oTmpTb:AddIndex("indice1", {"XX_CONTRA"} )
+oTmpTb:Create()
 
 ProcRegua(1)
 Processa( {|| ProcQuery("01") })
@@ -199,7 +200,6 @@ Processa( {|| ProcQuery("02") })
 Processa( {|| ProcQuery("14") })
    
 AADD(aTitulos,cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo1)
-
 	            
 If cTpRel == "C"
 	// CSV
@@ -212,10 +212,12 @@ ElseIf cTpRel == "X"
 	MsAguarde({|| U_GeraXml(aPlans,cTitulo1,cProg,.F.)},"Aguarde","Gerando planilha...",.F.)
 EndIf
 
-dbSelectArea("TMPC")
-dbCloseArea()
-FErase(cArqTmp+GetDBExtension())
-FErase(cArqTmp+OrdBagExt())
+oTmpTb:Delete()
+
+///dbSelectArea("TMPC")
+///dbCloseArea()
+///FErase(cArqTmp+GetDBExtension())
+///FErase(cArqTmp+OrdBagExt())
    
 Return
 
@@ -447,9 +449,7 @@ For _nI := 1 To LEN(aMeses)
 	EndDo
 	TMPX2->(dbCloseArea())
 Next
-
 Return
-
 
 
 // Substituir a função padrao RESTSQLNAME

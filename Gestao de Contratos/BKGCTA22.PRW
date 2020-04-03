@@ -33,6 +33,9 @@ Local	oFont      := TFont():New('Courier new',,-14,.T.,.T.)
 
 Default lVisual    := .F.
 
+Private oTmpTb1,oTmpTb2
+
+
 Private cContrato  := CN9->CN9_NUMERO
 Private cRevisa    := CN9->CN9_REVISA
 Private cTitulo    := "Ocorrências do contrato "+TRIM(cContrato)+": "+CN9->CN9_NOMCLI
@@ -137,8 +140,11 @@ Return
 *--------------------------*
 Static Function CloseWork()
 *--------------------------*
-WKSZP->(dbCloseArea())
-WKSZQ->(dbCloseArea())
+oTmpTb1:Delete()
+oTmpTb2:Delete()
+
+///WKSZP->(dbCloseArea())
+///WKSZQ->(dbCloseArea())
 Return Nil
 
 
@@ -150,7 +156,7 @@ Objetivos   : Cria Works para criação dos msselects
 Static Function CriaWork()
 *--------------------------*
 Local aSemSx3 := {}
-Local cFile   := ""
+
 //
 //Cria work das Ocorrencias
 aAdd(aSemSx3,{"WKMARCA","C",02                     ,0})
@@ -162,13 +168,17 @@ aAdd(aSemSx3,{"OCORR"  ,"C",TamSX3("ZP_OCORR")[1]  ,0})
 aAdd(aSemSx3,{"FINALIZ","C",TamSX3("ZP_FINALIZ")[1],0})
 aAdd(aSemSx3,{"EFICIEN","C",TamSX3("ZP_EFICIEN")[1],0})
 //
-cFile := E_CriaTrab(,aSemSX3,"WKSZP")
-IndRegua("WKSZP",cFile+OrdBagExt(),"SEQ")
-Set Index To (cFile+OrdBagExt())
+///cFile := E_CriaTrab(,aSemSX3,"WKSZP")
+///IndRegua("WKSZP",cFile+OrdBagExt(),"SEQ")
+///Set Index To (cFile+OrdBagExt())
+
+oTmpTb1 := FWTemporaryTable():New( "WKSZP")
+oTmpTb1:SetFields( aSemSX3 )
+oTmpTb1:AddIndex("indice1", {"SEQ"} )
+oTmpTb1:Create()
 
 //Cria work dos Planos de Ação
 aSemSx3 := {}
-cFile   := ""
 aAdd(aSemSx3,{"WKMARCA","C",02                     ,0})
 aAdd(aSemSx3,{"CONTRAT","C",TamSX3("ZQ_CONTRAT")[1],0})
 aAdd(aSemSx3,{"SEQ"    ,"C",TamSX3("ZQ_SEQ")[1]    ,0})
@@ -176,9 +186,15 @@ aAdd(aSemSx3,{"ITEM"   ,"C",TamSX3("ZQ_ITEM")[1]   ,0})
 aAdd(aSemSx3,{"DATAZQ" ,"D",8                      ,0})
 aAdd(aSemSx3,{"OQUE"   ,"C",TamSX3("ZQ_OQUE")[1]   ,0})
 aAdd(aSemSx3,{"FINALIZ","C",TamSX3("ZQ_FINALIZ")[1],0})
-cFile := E_CriaTrab(,aSemSX3,"WKSZQ")
-IndRegua("WKSZQ",cFile+OrdBagExt(),"SEQ+ITEM")
-Set Index To (cFile+OrdBagExt())
+
+///cFile := E_CriaTrab(,aSemSX3,"WKSZQ")
+///IndRegua("WKSZQ",cFile+OrdBagExt(),"SEQ+ITEM")
+///Set Index To (cFile+OrdBagExt())
+
+oTmpTb2 := FWTemporaryTable():New( "WKSZQ")
+oTmpTb2:SetFields( aSemSX3 )
+oTmpTb2:AddIndex("indice2", {"SEQ","ITEM"} )
+oTmpTb2:Create()
 
 Return
 
