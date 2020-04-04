@@ -1098,7 +1098,7 @@ For nInc := 1 To Len( aSM0 )
 			cChave  := "E2_FILIAL+E2_NOMFOR+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO"
 			#IFDEF TOP
 				If TCSrvType() == "AS/400"
-					cIndex	:= CriaTrab(nil,.f.)
+					cIndex	:= GetNextAlias() 
 					dbSelectArea("SE2")
 					IndRegua("SE2",cIndex,cChave,,FR350FIL(),OemToAnsi(STR0014))  //"Selecionando Registros..."
 					nIndex	:= RetIndex("SE2")
@@ -1107,7 +1107,7 @@ For nInc := 1 To Len( aSM0 )
 					cOrder := SqlOrder(cChave)
 				EndIf
 			#ELSE
-				cIndex	:= CriaTrab(nil,.f.)
+				cIndex	:= GetNextAlias()
 				dbSelectArea("SE2")
 				IndRegua("SE2",cIndex,cChave,,FR350FIL(),OemToAnsi(STR0014))  //"Selecionando Registros..."
 				nIndex	:= RetIndex("SE2")

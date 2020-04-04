@@ -25,8 +25,9 @@
 /*/
 USER Function Ctbr010(lTReport)
 
-PRIVATE titulo		:= ""
+Private titulo		:= ""
 Private nomeprog	:= "CTBR010"
+Private oTmpTb
 
 Default lTReport := .F.
 
@@ -100,18 +101,14 @@ Return
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 Static Function ReportDef()
-Local aArea	   		:= GetArea()   
 Local cReport		:= "CTBR010"
 Local cTitulo		:= STR0008				   			// "Listagem do Plano de Contas"
 Local cDesc			:= STR0001//+STR002+STR003			// "Este programa ir  imprimir o Plano de Contas."
 Local cPerg	   		:= "CTR010"			  
 Local aOrdem 		:= {"Codigo","Descricao"}	// Cod,Descricao"       
 Local cSeparador	:= "" 
-Local cMascara		:= ""                                              
-Local aCtbMoeda		:={}
 Local aTamConta		:= TAMSX3("CT1_CONTA")
 Local aTamDesc01	:= TAMSX3("CT1_DESC01")
-Local cMoeda		:= mv_par06
 
 *ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 *³Add por Icaro Queiroz | Claudio - em 24 de Agosto de 2010 ³
@@ -224,7 +221,6 @@ Return(oReport)
 */
 Static Function ReportPrint( oReport )
 Local nIndexC 		:= 0
-Local cTipoAnt      := ""
 Local cFilter		:= ""
 Local oSection1 	:= oReport:Section(1)
 Local oSection11 
@@ -475,12 +471,10 @@ Local cSeparador 	:= "", nImprime := 1
 Local lPula			:= Iif(mv_par10==1,.T.,.F.) 
 Local lJaPulou		:= .F.
 Local nLenMasc		:= TAMSX3("CT1_CONTA")[1]
-Local nMasc			:= 1
 Local nMaxCol		:= 220
-Local cContaAnt		:= '' // verificação da conta anterior, usado para o saldo da linha
-Local cClasseAnt	:= '' // verificação da conta anterior, usado para o saldo da linha
 Local lImprime 		:= .T. 
 Local cAlias		:= "CT1"
+Local aDbf			:= {}
 
 If Tamanho == "M"
 	nMaxCol := 132
@@ -507,7 +501,7 @@ dbSelectArea( "CT1" )
 
 IF nOrdem == 2
 	cChave 	:= "CT1_FILIAL + CT1_DESC" + mv_par06
-	cIndex	:= CriaTrab(nil,.f.)
+	cIndex	:= GetNextAlias() 
 
 	IndRegua("CT1",cIndex,cChave,, "CT1_CONTA >= '" + mv_par01 + "' .And. " +;
 									"CT1_CONTA <= '" + mv_par02 + "'",OemToAnsi(STR0011)) //"Selecionando Registros..."
@@ -534,21 +528,29 @@ If nOrdem == 1
 
 	If SuperGetMv("MV_CTASUP") = "S"
 
-		cIndex := CriaTrab({ 	{ "CONTA", "C", Len(CT1->CT1_CONTA), 0 },;
-								{ "SUPERIOR", "C", Len(CT1->CT1_CONTA), 0 },;
-								{ "ORDEMPRN", "N", 6, 0 }, { "RECNO", "N", 6, 0 } },.T.)
+		aDbf:= {{ "CONTA",    "C", Len(CT1->CT1_CONTA), 0 },;
+				{ "SUPERIOR", "C", Len(CT1->CT1_CONTA), 0 },;
+				{ "ORDEMPRN", "N", 6, 0 },;
+				{ "RECNO",    "N", 6, 0 } }
 
-		dbUseArea( .T.,, cIndex, "cArqTmpI", .F., .F. )
+		oTmpTb := FWTemporaryTable():New("cArqTmpI")
+		oTmpTb:SetFields( aDbf )
+		oTmpTb:AddIndex("indiceA", {"CONTA"} )
+		oTmpTb:AddIndex("indiceB", {"ORDEMPRN"} )
+		oTmpTb:AddIndex("indiceC", {"SUPERIOR"} )
+		oTmpTb:Create()
 
-		IndRegua("cArqTmpI",Left(cIndex, 7) + "A","CONTA",,,OemToAnsi(STR0011)) //"Selecionando Registros..."
-		IndRegua("cArqTmpI",Left(cIndex, 7) + "B","ORDEMPRN",,,OemToAnsi(STR0011)) //"Selecionando Registros..."
-		IndRegua("cArqTmpI",Left(cIndex, 7) + "C","SUPERIOR",,,OemToAnsi(STR0011)) //"Selecionando Registros..."
+		///dbUseArea( .T.,, cIndex, "cArqTmpI", .F., .F. )
 
-		DbClearIndex()
+		///IndRegua("cArqTmpI",Left(cIndex, 7) + "A","CONTA",,,OemToAnsi(STR0011)) //"Selecionando Registros..."
+		///IndRegua("cArqTmpI",Left(cIndex, 7) + "B","ORDEMPRN",,,OemToAnsi(STR0011)) //"Selecionando Registros..."
+		///IndRegua("cArqTmpI",Left(cIndex, 7) + "C","SUPERIOR",,,OemToAnsi(STR0011)) //"Selecionando Registros..."
 
-		dbSetIndex(Left(cIndex,7)+"A"+OrdBagExt())
-		dbSetIndex(Left(cIndex,7)+"B"+OrdBagExt())
-		dbSetIndex(Left(cIndex,7)+"C"+OrdBagExt())
+		///DbClearIndex()
+
+		///dbSetIndex(Left(cIndex,7)+"A"+OrdBagExt())
+		///dbSetIndex(Left(cIndex,7)+"B"+OrdBagExt())
+		///dbSetIndex(Left(cIndex,7)+"C"+OrdBagExt())
 
 		DbSetOrder(0)
         
@@ -764,7 +766,11 @@ If aReturn[5] = 1 .And. ! lExterno
 Endif
 
 If Select("cArqTmpI") > 0
-	("cArqTmpI")->(DbCloseArea())
+	If !Empty(oTmpTb)
+		oTmpTb:Delete()
+	Else
+		("cArqTmpI")->(DbCloseArea())
+	EndIf
 Endif
 
 If lExterno .and. Select("cArqTmp") > 0

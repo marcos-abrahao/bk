@@ -41,11 +41,22 @@ Local nPosTot    := 0
 Local nPosTit    := 0
 Local lTitTot    := .T. 
 Local nPosCpo    := 0
+
 Local _cAlias    := ""
+Local _cPlan     := ""
+Local _cFiltra   := ""
+Local _cTitulos  := "" 
+Local _aCampos   := {}
+Local _aCabs     := {}
+Local _aImpr     := {}
+Local _aAlign    := {}
+Local _aFormat   := {}
+Local _aTotal    := {}
+Local _cQuebra   := ""
 
 Default _cTitulo := ""
 Default _lZebra  := .T.
-Private cFiltra  := ""
+
 Private xCampo
 Private xQuebra
 
@@ -86,7 +97,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	_cAlias  := _aPlans[nPl,01]
 	_cPlan   := _aPlans[nPl,02]
-	cFiltra  := _aPlans[nPl,03]
+	_cFiltra := _aPlans[nPl,03]
 	_cTitulos:= _aPlans[nPl,04] 
 	_aCampos := _aPlans[nPl,05]
 	_aCabs   := _aPlans[nPl,06]
@@ -104,8 +115,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	oExcel:AddTable (_cPlan,_cTitulos)
 	
-	If !empty(cFiltra)
-		(_cAlias)->(dbsetfilter({|| &cFiltra} , cFiltra))
+	If !empty(_cFiltra)
+		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
 	
 	(_cAlias)->(dbgotop())
@@ -261,18 +272,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 NEXT
 
-//aBrancos := ARRAY(LEN(_aCampos))
-//AFill(aBrancos,"") 
-//oExcel:AddRow(_cPlan,_cTitulos,aBrancos)
-
-//aBrancos1 := ARRAY(LEN(_aCampos))
-//AFill(aBrancos1,"") 
-//aBrancos1[1]:= "Emitido em: "+DTOC(DATE())+" "+SUBSTR(TIME(),1,5)+" por "+Capital(cUserName)+" - "+SM0->M0_NOME
-//oExcel:AddRow(_cPlan,_cTitulos,aBrancos1)
-		
 oExcel:Activate()
 		
-//cArq := CriaTrab( NIL, .F. ) + ".xml"
 cArq := _cProg +"-"+DTOS(Date()) + ".xml"
 If File(cArq)
 	nRet:= FERASE(cArq)
@@ -395,6 +396,7 @@ MsAguarde({|| U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planil
 
 Return nil
 
+
 // Marcos - v17/01/19
 // Exemplo:
 
@@ -404,7 +406,6 @@ Return nil
 
 //	AADD(aPlans,{aDados,cPerg,cTitExcel,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })   
 //	MsAguarde({|| U_ArrToXml(aPlans,cTitExcel,cPerg,.T.)},"Aguarde","Gerando planilha...",.F.)
-
 
 User Function ArrToXml( _aPlans,_cTitulo,_cProg, _lZebra, _cDirHttp )
 
@@ -441,7 +442,6 @@ Local _aTotal    := {}
 Default _cTitulo := ""
 Default _lZebra  := .T.
 Default _cDirHttp:= ""
-Private cFiltra  := ""
 Private xCampo
 Private xQuebra
 

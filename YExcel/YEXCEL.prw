@@ -278,7 +278,7 @@ METHOD New(cNomeFile) CLASS YExcel
 	If ValType(cAr7Zip)=="U"
 		cAr7Zip := GetPvProfString("GENERAL", "LOCAL7ZIP" , "C:\Program Files\7-Zip\7z.exe" , GetAdv97() )
 	Endif
-	PARAMTYPE 0	VAR cNomeFile  AS CHARACTER 		OPTIONAL DEFAULT lower(CriaTrab(,.F.))
+	PARAMTYPE 0	VAR cNomeFile  AS CHARACTER 		OPTIONAL DEFAULT lower(GetNextAlias())
 	::cClassName	:= "YEXCEL"
 	::cName			:= "YEXCEL"
 	::oString		:= tHashMap():new()
@@ -286,7 +286,7 @@ METHOD New(cNomeFile) CLASS YExcel
 	::nQtdString	:= 0
 	::nNumFmtId		:= 167
 	::aPlanilhas	:= {}
-	::cTmpFile		:= lower(CriaTrab(,.F.))
+	::cTmpFile		:= lower(GetNextAlias())
 	::cNomeFile		:= lower(cNomeFile)
 	::nFileTmpRow	:= 0
 	::lRowDef		:= .F.
@@ -1994,7 +1994,7 @@ METHOD AddTabela(cNome,nLinha,nColuna,nQtdPlan) CLASS YExcel
 	Local oTable
 	Local cID
 	Default nQtdPlan	:= Len(::aPlanilhas)
-	PARAMTYPE 0	VAR cNome  AS CHARACTER 		OPTIONAL DEFAULT lower(CriaTrab(,.F.))
+	PARAMTYPE 0	VAR cNome  AS CHARACTER 		OPTIONAL DEFAULT lower(GetNextAlias())
 	PARAMTYPE 1	VAR nLinha  AS NUMERIC 			OPTIONAL DEFAULT ::adimension[2][1]
 	PARAMTYPE 2	VAR nColuna  AS NUMERIC
 	::nIdRelat++

@@ -1033,7 +1033,7 @@ EndIf
 #IFNDEF TOP	
 	dbSelectArea("SE5")
 	dbSetOrder(1)
-	cIndex	:= GetNextAlias() //CriaTrab(nil,.f.)
+	cIndex	:= GetNextAlias()
 	dbSelectArea("SE5")
 	IndRegua("SE5",cIndex,cChave,,Nil,OemToAnsi(STR0012))  //"Selecionando Registros..."
 	nIndex	:= RetIndex("SE5")
@@ -1045,7 +1045,7 @@ EndIf
 	If TcSrvType() == "AS/400"
 		dbSelectArea("SE5")
 		dbSetOrder(1)
-		cIndex	:= GetNextAlias() //CriaTrab(nil,.f.)
+		cIndex	:= GetNextAlias()
 		dbSelectArea("SE5")
 		IndRegua("SE5",cIndex,cChave,,Nil,OemToAnsi(STR0012))  //"Selecionando Registros..."
 		nIndex	:= RetIndex("SE5")
@@ -1166,9 +1166,10 @@ EndIf
 #ENDIF
 
 // Monta arquivo de trabalho (apenas quando usa SPB)
+/*
 If lSpbInUse
 	dbSelectArea("SE5")
-	cNomeArq:= CriaTrab("",.F.)
+	cNomeArq:= GetNextAlias()
 	cIndex  := cNomeArq	
 	AAdd( aStru, {"E5_BLOQ"	,"C", 01, 0} )
 	dbCreate( cNomeArq, aStru )
@@ -1178,6 +1179,7 @@ If lSpbInUse
 	dbSetIndex( cNomeArq +OrdBagExt())
 	Fr470SPB(cChave, aStru)
 Endif
+*/
 
 //Filtro do usuario
 cFilterUser:=aReturn[7]

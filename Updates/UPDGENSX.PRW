@@ -234,7 +234,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 			cTexto += " Data / Hora Final.: " + DtoC( Date() ) + " / " + Time()  + CRLF
 			cTexto += Replicate( "-", 70 ) + CRLF
 			
-			cFileLog := MemoWrite( CriaTrab( , .F. ) + ".log", cTexto )
+			cFileLog := MemoWrite( GetNextAlias() + ".log", cTexto )
 
 			Define Font oFont Name "Mono AS" Size 5, 12
 
