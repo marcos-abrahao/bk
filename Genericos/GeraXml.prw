@@ -1,5 +1,12 @@
-// Marcos - v29/03/20
 #INCLUDE "PROTHEUS.CH"
+
+/*/{Protheus.doc} GeraXml
+Generico - Gera planilha excel no formato .XML com opção de gerar também no formato .XLSX
+@Return
+@author Marcos Bispo Abrahão
+@since 29/03/20
+@version P12
+/*/
 
 // Exemplo
 //	    AADD(aCabsX,Capital(cNomeC))
@@ -28,7 +35,8 @@ Local aSoma      := {}
 Local aSomas     := {}
 Local aTotal     := {}
 Local aBrancos   := {}
-Local nI         := 0 
+Local nI         := 0
+Local nPl        := 0 
 Local nPosTot    := 0
 Local nPosTit    := 0
 Local lTitTot    := .T. 
@@ -54,24 +62,6 @@ EndIf
 MakeDir(cDirTmp)
 
 oExcel := FWMsExcel():New()
-//oExcel := FWMsExcelEx():New()
-
-// 16-04-2015 - Criado novos métodos para alterar o estilo de uma célula: 
-// oExcel:SetCelFont(), oExcel:SetCelSizeFont(), oExcel:SetCelItalic(), oExcel:SetCelBold(), oExcel:SetCelUnderLine(), oExcel:SetCelFrColor() e oExcel:SetCelBgColor() 
-// Alterada o método addrow() para que possa ser selecionado a célula que deseja ser alterado o estilo.
-//oExcel:SetCelBold(.T.)
-//oExcel:SetCelFont('Line Draw')
-//oExcel:SetCelItalic(.F.)
-//oExcel:SetCelUnderLine(.F.)
-//oExcel:SetCelSizeFont(12)
-//oExcel:SetCelFrColor("#FFFFFF")
-//oExcel:SetCelBgColor("#D7BCFB")
-//oExcel:AddRow("Teste - 1","Titulo de teste 1",{41,42,43,44},{1,3})  // altera os atributos da celula 1 e da 3 desta linha
-
-
-//oExcel:SetFrGeneralColor("#000000")
-//oExcel:SetBgGeneralColor("#FFFFFF")  
-
 
 // Define cores em tons de cinza
 
@@ -92,20 +82,20 @@ oExcel:SetBgColorHeader("#D3D3D3")
 oExcel:SetTitleFrColor("#000000")
 oExcel:SetTitleBgColor("#FFFFFF")
 
-FOR nJ := 1 TO LEN(_aPlans)
+FOR nPl := 1 TO LEN(_aPlans)
 
-	_cAlias  := _aPlans[nJ,01]
-	_cPlan   := _aPlans[nJ,02]
-	cFiltra  := _aPlans[nJ,03]
-	_cTitulos:= _aPlans[nJ,04] 
-	_aCampos := _aPlans[nJ,05]
-	_aCabs   := _aPlans[nJ,06]
-	_aImpr   := _aPlans[nJ,07]
-	_aAlign  := _aPlans[nJ,08]
-	_aFormat := _aPlans[nJ,09]
-	_aTotal  := _aPlans[nJ,10]
-	_cQuebra := _aPlans[nJ,11]
-	_lClose  := _aPlans[nJ,12]
+	_cAlias  := _aPlans[nPl,01]
+	_cPlan   := _aPlans[nPl,02]
+	cFiltra  := _aPlans[nPl,03]
+	_cTitulos:= _aPlans[nPl,04] 
+	_aCampos := _aPlans[nPl,05]
+	_aCabs   := _aPlans[nPl,06]
+	_aImpr   := _aPlans[nPl,07]
+	_aAlign  := _aPlans[nPl,08]
+	_aFormat := _aPlans[nPl,09]
+	_aTotal  := _aPlans[nPl,10]
+	_cQuebra := _aPlans[nPl,11]
+	_lClose  := _aPlans[nPl,12]
 	nPosTit  := 0
 	nPosTot  := 0 
 	nPosCpo  := 0
@@ -432,13 +422,21 @@ Local aSoma      := {}
 Local aSomas     := {}
 Local aTotal     := {}
 Local nI         := 0
-Local nJ         := 0
+Local nPl        := 0
 Local nRow       := 0 
 Local nPosTot    := 0
 Local nPosTit    := 0
 Local lTitTot    := .T. 
 Local nPosCpo    := 0
-Local aDados     := {}
+
+Local _aDados    := {}
+Local _cPlan     := ""
+Local _cTitulos  := "" 
+Local _aCabs     := {}
+Local _aImpr     := {}
+Local _aAlign    := {}
+Local _aFormat   := {}
+Local _aTotal    := {}
 
 Default _cTitulo := ""
 Default _lZebra  := .T.
@@ -454,27 +452,8 @@ EndIf
 MakeDir(cDirTmp)
 
 oExcel := FWMsExcel():New()
-//oExcel := FWMsExcelEx():New()
-
-// 16-04-2015 - Criado novos métodos para alterar o estilo de uma célula: 
-// oExcel:SetCelFont(), oExcel:SetCelSizeFont(), oExcel:SetCelItalic(), oExcel:SetCelBold(), oExcel:SetCelUnderLine(), oExcel:SetCelFrColor() e oExcel:SetCelBgColor() 
-// Alterada o método addrow() para que possa ser selecionado a célula que deseja ser alterado o estilo.
-//oExcel:SetCelBold(.T.)
-//oExcel:SetCelFont('Line Draw')
-//oExcel:SetCelItalic(.F.)
-//oExcel:SetCelUnderLine(.F.)
-//oExcel:SetCelSizeFont(12)
-//oExcel:SetCelFrColor("#FFFFFF")
-//oExcel:SetCelBgColor("#D7BCFB")
-//oExcel:AddRow("Teste - 1","Titulo de teste 1",{41,42,43,44},{1,3})  // altera os atributos da celula 1 e da 3 desta linha
-
-
-//oExcel:SetFrGeneralColor("#000000")
-//oExcel:SetBgGeneralColor("#FFFFFF")  
-
 
 // Define cores em tons de cinza
-
 oExcel:SetLineFrColor("#000000")
 oExcel:SetLineBgColor("#FFFFFF")
 	
@@ -492,22 +471,22 @@ oExcel:SetBgColorHeader("#D3D3D3")
 oExcel:SetTitleFrColor("#000000")
 oExcel:SetTitleBgColor("#FFFFFF")
 
-FOR nJ := 1 TO LEN(_aPlans)
+FOR nPl := 1 TO LEN(_aPlans)
 
-	aDados   := _aPlans[nJ,01]
-	_cPlan   := _aPlans[nJ,02]
-	_cTitulos:= _aPlans[nJ,03] 
-	_aCabs   := _aPlans[nJ,04]
-	_aImpr   := _aPlans[nJ,05]
-	_aAlign  := _aPlans[nJ,06]
-	_aFormat := _aPlans[nJ,07]
-	_aTotal  := _aPlans[nJ,08]
+	_aDados  := _aPlans[nPl,01]
+	_cPlan   := _aPlans[nPl,02]
+	_cTitulos:= _aPlans[nPl,03] 
+	_aCabs   := _aPlans[nPl,04]
+	_aImpr   := _aPlans[nPl,05]
+	_aAlign  := _aPlans[nPl,06]
+	_aFormat := _aPlans[nPl,07]
+	_aTotal  := _aPlans[nPl,08]
 	
 	oExcel:AddworkSheet(_cPlan)
 
 	oExcel:AddTable (_cPlan,_cTitulos)
 
-	ProcRegua(Len(aDados)) 
+	ProcRegua(Len(_aDados)) 
 	
 	aSoma   := {}
 	aSomas  := {}
@@ -523,8 +502,8 @@ FOR nJ := 1 TO LEN(_aPlans)
 		ENDIF
         
         nPosCpo++
-        If len(aDados) > 0
-		    xCampo := aDados[1,1]
+        If len(_aDados) > 0
+		    xCampo := _aDados[1,nI]
 		Else
 			xCampo := ""
 		EndIf
@@ -591,13 +570,13 @@ FOR nJ := 1 TO LEN(_aPlans)
        aTotal[nPosTit] := "Total:" 
     EndIf
 	
-	For nRow := 1 To Len(aDados)
+	For nRow := 1 To Len(_aDados)
 	
 		aLinha := {}
 		
-	 	For nI :=1 to LEN(aDados[nRow])
+	 	For nI :=1 to LEN(_aDados[nRow])
 	
-	         xCampo := aDados[nRow,nI]
+	         xCampo := _aDados[nRow,nI]
 
              If VALTYPE(xCampo) == "D" // Trata campos data
 	    		xCampo := DTOC(xCampo)

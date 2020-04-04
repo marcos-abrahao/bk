@@ -61,19 +61,18 @@ Return(cRetorno)
 
 //BUSCA CODIGO IBGE UF+MUNICIPIO INSTRUCAO NORMATIVA PAULISTANA 
 USER FUNCTION  BCODIBGE()
-LOCAL cCOD    		:= ""
-Local aAreaIni 		:= GetArea()
-Local aSaveAreaSD2	:= GetArea("SD2")
-Local aSaveAreaSC5	:= GetArea("SC5")
-Local cNF     		:= PARAMIXB[1]
-Local cSerie  		:= PARAMIXB[2] 
-Local cCliente		:= PARAMIXB[3]
-Local cLoja   		:= PARAMIXB[4]
+LOCAL cCOD    	:= ""
+Local aAreaIni 	:= GetArea()
+Local aAreaSD2	:= GetArea("SD2")
+Local aAreaSC5	:= GetArea("SC5")
+Local cNF     	:= PARAMIXB[1]
+Local cSerie  	:= PARAMIXB[2] 
+Local cCliente	:= PARAMIXB[3]
+Local cLoja   	:= PARAMIXB[4]
 
 dbSelectArea ("SD2")   
 SD2->(dbSetOrder(3))               //filial,doc,serie,cliente,loja,cod
 SD2->(dbSeek(xFilial("SD2")+cNF+cSerie+cCliente+cLoja,.T.))
-
 
 dbSelectArea("SC5")
 SC5->(dbSeek(xFilial("SC5") + SD2->D2_PEDIDO,.T.))
@@ -84,8 +83,8 @@ ELSE
 	cCOD := U_UfIBGE(SA1->A1_EST)+SA1->A1_COD_MUN
 ENDIF
 
-RestArea(aSaveAreaSC5)
-RestArea(aSaveAreaSD2)
+SC5->(RestArea(aAreaSC5))
+SD2->(RestArea(aAreaSD2))
 
 RestArea(aAreaIni)
 

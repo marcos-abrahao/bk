@@ -56,16 +56,15 @@ cSerie  := PARAMIXB[2]
 cCliente:= PARAMIXB[3]
 cLoja   := PARAMIXB[4]
 
-aSaveAreaAtu   := GetArea()
-aSaveAreaSF2   := GetArea("SF2")     
+aAreaAtu   := GetArea()
+aAreaSF2   := GetArea("SF2")     
 
 SF2->(Dbsetorder(2))
 IF !SF2->(DbSeek(xFilial("SF2")+cCliente+cLoja+cNF+cSerie,.F.))
-   RestArea(aSaveAreaSF2)
-   RestArea(aSaveAreaAtu)
+   RestArea(aAreaSF2)
+   RestArea(aAreaAtu)
    Return cDescr
 ENDIF
-
 
 
 IF !EMPTY(SF2->F2_XXCORPO)
@@ -77,23 +76,23 @@ IF !EMPTY(SF2->F2_XXCORPO)
 	SF2->F2_XXCORPO := cDescr
 	SF2->(MsUnlock())
 	
-   RestArea(aSaveAreaSF2)
-   RestArea(aSaveAreaAtu)
+   RestArea(aAreaSF2)
+   RestArea(aAreaAtu)
    Return cDescr
 ENDIF
  
-aSaveAreaAtu   := GetArea()
-aSaveAreaSE1   := GetArea("SE1")
-aSaveAreaSA1   := GetArea("SA1")
-aSaveAreaSE1   := GetArea("SE1")
-aSaveAreaSF2   := GetArea("SF2")     
-aSaveAreaSD2   := GetArea("SD2")     
-aSaveAreaSED   := GetArea("SED")     
-aSaveAreaSC5   := GetArea("SC5")     
-aSaveAreaCN9   := GetArea("CN9")     
-aSaveAreaSYP   := GetArea("SYP")     
-aSaveAreaCTT   := GetArea("CTT")     
-aSaveAreaCTT   := GetArea("CND")     
+aAreaAtu   := GetArea()
+aAreaSE1   := GetArea("SE1")
+aAreaSA1   := GetArea("SA1")
+aAreaSE1   := GetArea("SE1")
+aAreaSF2   := GetArea("SF2")     
+aAreaSD2   := GetArea("SD2")     
+aAreaSED   := GetArea("SED")     
+aAreaSC5   := GetArea("SC5")     
+aAreaCN9   := GetArea("CN9")     
+aAreaSYP   := GetArea("SYP")     
+aAreaCTT   := GetArea("CTT")     
+aAreaCTT   := GetArea("CND")     
    
 
 dbSelectArea ("SD2")             //itens de venda da NF
@@ -486,19 +485,18 @@ RecLock("SF2",.F.)
 SF2->F2_XXCORPO := cDescr
 SF2->(MsUnlock())
 
-	
-RestArea(aSaveAreaSA1)
-RestArea(aSaveAreaSE1)
-RestArea(aSaveAreaSF2)
-RestArea(aSaveAreaSD2)
-RestArea(aSaveAreaSED)
-RestArea(aSaveAreaSC5)
-RestArea(aSaveAreaCN9)
-RestArea(aSaveAreaSYP)
-RestArea(aSaveAreaCTT)
-RestArea(aSaveAreaCND)
+RestArea(aAreaSA1)
+RestArea(aAreaSE1)
+RestArea(aAreaSF2)
+RestArea(aAreaSD2)
+RestArea(aAreaSED)
+RestArea(aAreaSC5)
+RestArea(aAreaCN9)
+RestArea(aAreaSYP)
+RestArea(aAreaCTT)
+RestArea(aAreaCND)
 
-RestArea(aSaveAreaAtu)
+RestArea(aAreaAtu)
 
 return cDescr
                        
@@ -595,9 +593,9 @@ Return TRIM(cTxt)
 
 Static Function QryProc(cAlias,nCampos,cCampos,cWhere)
 LOCAL cQuery,aRet := {},nX
-LOCAL aSaveAreaTmp
+LOCAL aAreaTmp
 
-aSaveAreaTmp   := GetArea()
+aAreaTmp   := GetArea()
 
 cQuery := "SELECT "+cCampos+" "
 cQuery += "FROM "+RETSQLNAME(cAlias)+" "+cAlias+" "
@@ -612,7 +610,7 @@ IF !EOF()
 ENDIF 
 dbCloseArea()
 
-RestArea(aSaveAreaTmp)
+RestArea(aAreaTmp)
 
 Return aRet 
 

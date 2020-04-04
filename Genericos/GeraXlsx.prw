@@ -1,12 +1,21 @@
-// Marcos - v17/01/19
 #INCLUDE "PROTHEUS.CH"
+
+
+/*/{Protheus.doc} GeraXlsx
+Generico - Gera planilha excel 
+@Return
+@author Marcos Bispo Abrahão
+@since 04/04/2020
+@version P12
+/*/
+
 
 // Exemplo
 //	    AADD(aCabsX,Capital(cNomeC))
 //	    AADD(aCamposX,_cAlias+"->"+FIELDNAME(nI))
 //	    AADD(aImpr,.T.)
-//	    AADD(aAlign,NIL)
-//	    AADD(aFormat,NIL)
+//	    **AADD(aAlign,NIL)
+//	    **AADD(aFormat,NIL)
 //	    AADD(aTotal,NIL)
 
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
@@ -391,4 +400,287 @@ AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aT
 MsAguarde({|| U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
 
 Return nil
+
+// Marcos - v04/04/20
+// Exemplo:
+
+//  ... aAdd(aCabec,"Total")
+//	... aAdd(aItens,ZZ7->ZZ7_DTASSC)
+//	... Aadd(aDados, aItens )
+
+//	AADD(aPlans,{aDados,cPerg,cTitExcel,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })   
+//	MsAguarde({|| U_ArrToXml(aPlans,cTitExcel,cPerg,.T.)},"Aguarde","Gerando planilha...",.F.)
+
+User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _lZebra, _cDirHttp )
+
+Local oExcel := YExcel():new()
+Local oAlCenter
+Local aTamCol := {}
+Local aTotal  := {}
+Local nTamCol := 0
+Local cTipo   := ""
+Local lTotal  := .F.
+Local nI 	  := 0
+Local nJ	  := 0
+Local nRow	  := 0
+Local nLin    := 1
+Local nTop    := 1
+Local cFile   := _cProg+"-"+DTOS(Date())
+Local nRet    := 0
+Local cDirTmp := "C:\TMP"
+Local nCont	  := 0
+
+Local aArea   := GetArea()
+Local nPl     := 0
+
+Local _aDados    := {}
+Local _cPlan     := ""
+Local _xTitulos  := "" 
+Local _aCabs     := {}
+Local _aImpr     := {}
+Local _aAlign    := {}
+Local _aFormat   := {}
+Local _aTotal    := {}
+
+Local nCabFont
+Local nTitFont
+Local nCabCor
+Local nBordas
+Local nFmtNum2
+Local nTotFont
+Local nCabStyle	
+Local nV2Style
+Local nD2Style
+Local nG2Style 	
+Local nT2Style
+Local nTitStyle	
+Local nTit2Style	
+Local nTotStyle	
+Local nIDImg
+
+Default _cTitulo := ""
+Default _lZebra  := .T.
+Default _cDirHttp:= ""
+Private cFiltra  := ""
+Private xCampo
+Private xQuebra
+
+If !Empty(_cDirHttp)
+	cDirTmp := _cDirHttp
+EndIf
+
+MakeDir(cDirTmp)
+
+oExcel:new(cFile)
+
+oAlCenter	:= oExcel:Alinhamento("center","center")
+oVtCenter	:= oExcel:Alinhamento(,"center")
+
+				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
+nCabFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2",,.T.)
+nLinFont	:= oExcel:AddFont(10,"00000000","Calibri","2")
+nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2",,.T.)
+nTit2Font	:= oExcel:AddFont(10,"00000000","Calibri","2")
+
+nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
+
+nBordas 	:= oExcel:Borda("ALL")
+nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
+
+nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
+nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
+nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+
+nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+
+FOR nPl := 1 TO LEN(_aPlans)
+
+	_aDados  := _aPlans[nPl,01]
+	_cPlan   := _aPlans[nPl,02]
+	_xTitulos:= _aPlans[nPl,03] 
+	_aCabs   := _aPlans[nPl,04]
+	_aImpr   := _aPlans[nPl,05]
+	_aAlign  := _aPlans[nPl,06]
+	_aFormat := _aPlans[nPl,07]
+	_aTotal  := _aPlans[nPl,08]
+
+	nCont	 := 0
+	nLin     := 1
+	nTop     := 1
+
+	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
+
+	oExcel:nTamLinha := 34
+	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
+
+	// Titulo
+	aTitulos := {}
+	If ValType(_xTitulos) == "C"
+		aAdd(aTitulos,_xTitulos)
+	Else
+		For nJ := 1 To LEN(_xTitulos)
+			aAdd(aTitulos,_xTitulos[nJ])
+		Next
+	EndIf
+	aAdd(aTitulos,_cProg+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
+
+	nLin := 1
+	For nJ := 1 To Len(aTitulos)
+		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
+		If nJ == 1
+			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
+			oExcel:nTamLinha := nil
+		Else
+			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
+		EndIf
+		nLin++
+	Next
+
+	nTop := nLin + 1
+
+	// Cabeçalho
+	For nJ := 1 To Len(_aCabs)
+
+	    IF !EMPTY(_aImpr)  // Coluna a ignorar
+			IF !_aImpr[nJ]
+		    	Loop
+		 	ENDIF 
+		ENDIF
+
+		oExcel:Cell(nLin,nJ,_aCabs[nJ],,nCabStyle)
+
+	NEXT
+
+	// Tamanho das colunas e colunas de Total
+	aTamCol := {}
+	aTotal  := {}
+
+	For nI :=1 to LEN(_aCabs)
+
+	    IF !EMPTY(_aImpr)  // Coluna a ignorar
+			IF !_aImpr[nI]
+		    	Loop
+		 	ENDIF 
+		ENDIF
+
+        If len(_aDados) > 0
+		    xCampo := _aDados[1,nI]
+		Else
+			xCampo := ""
+		EndIf
+
+		cTipo := ValType(xCampo)
+
+		nTamCol := 0
+		lTotal  := .F.
+		If cTipo == "N"
+			nTamCol := 15
+			lTotal  := .T.
+		ElseIf cTipo == "D"
+			nTamCol := 13
+		Else
+			If Len(xCampo) > 8
+				nTamCol := Len(xCampo) + 1
+			EndIf
+		EndIf
+
+	    IF !EMPTY(_aTotal)
+			IF _aTotal[nI] <> NIL 
+				IF lTotal
+			    	lTotal  := _aTotal[nI]
+			 	ENDIF
+		 	ENDIF 
+		ENDIF
+
+/*
+	    IF !EMPTY(_aAlign)
+			IF _aAlign[nI] <> NIL
+		    	nAlign  := _aAlign[nI]
+		 	ENDIF 
+		ENDIF
+		    
+	    IF !EMPTY(_aFormat)
+			IF _aFormat[nI] <> NIL
+		    	nFormat  := _aFormat[nI]
+		    	IF nFormat = 4
+		    		nFormat := 1
+		    	ENDIF
+		 	ENDIF 
+		ENDIF
+*/
+
+		aAdd( aTamCol, nTamCol)
+		aAdd( aTotal,lTotal)
+
+	Next
+
+	For nJ := 1 To Len(aTamCol)
+		If aTamCol[nJ] > 0
+			oExcel:AddTamCol(nJ,nJ,aTamCol[nJ])
+		EndIf
+	NEXT
+
+	For nRow := 1 To Len(_aDados)
+
+		IncProc("Gerando planilha "+_cPlan+"...")   
+
+		nLin++
+		nCont++
+
+		For nI :=1 to LEN(_aCabs)
+
+			IF !EMPTY(_aImpr)  // Coluna a ignorar
+				IF !_aImpr[nI]
+					Loop
+				ENDIF 
+			ENDIF
+
+			xCampo := _aDados[nRow,nI]
+
+			If ValType(xCampo) == "N"
+				oExcel:Cell(nLin,nI,xCampo,,nV2Style)
+			ElseIf ValType(xCampo) == "D"
+				oExcel:Cell(nLin,nI,xCampo,,nD2Style)
+			Else
+				oExcel:Cell(nLin,nI,xCampo,,nG2Style)
+			EndIf
+		Next
+
+	Next
+
+	If LEN(_aDados) > 0
+		oExcel:AutoFilter(nTop-1,1,nLin,Len(_aCabs))	//Auto filtro
+		oExcel:AddPane(nTop-1,1)	//Congela paineis
+
+		nLin++
+		// Linha de Total
+		oExcel:Cell(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")",,nTotStyle)
+		For nI := 2 To Len(aTotal)
+			If aTotal[nI]
+				oExcel:AddNome("P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0)),nTop, nI, nLin-1, nI)
+				oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0))+")",nT2Style)
+			EndIf
+		Next
+	EndIf
+Next
+
+cFile := cDirTmp+"\"+cFile+".xlsx"
+If File(cFile)
+	nRet:= FERASE(cFile)
+	If nRet < 0
+		MsgStop("Não será possivel gerar a planilha "+cFile+", feche o arquivo",_cProg)
+	EndIf
+EndIf
+
+oExcel:Gravar(cDirTmp+"\",.T.,.T.)
+
+RestArea(aArea)
+
+Return
 

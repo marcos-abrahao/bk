@@ -244,7 +244,7 @@ If Pergunte("NFSIGW",.T.)
 	
 	#ELSE
 		MsSeek(xFilial("SF3")+MV_PAR03+MV_PAR01,.T.)
-	    cIndex    		:= CriaTrab(NIL,.F.)
+	    cIndex    		:= GetNextAlias()  //CriaTrab(NIL,.F.)
 	    cChave			:= IndexKey(6)
 	    cCondicao 		:= 'F3_FILIAL == "' + xFilial("SF3") + '" .And. '
 	   	cCondicao 		+= 'SF3->F3_SERIE =="'+ MV_PAR03+'" .And. '

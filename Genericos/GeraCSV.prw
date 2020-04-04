@@ -1,6 +1,15 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
+/*/{Protheus.doc} GeraCsv
+Generico - Gera planilha excel no formato .CSV
+@Return
+@author Marcos Bispo Abrahão
+@since 04/04/2020
+@version P12
+/*/
+
+
 // Funcão para gerar arquivo excell (texto, com campos separados por virgula)
 //	Exemplo de campos:
 //	ProcRegua(1)

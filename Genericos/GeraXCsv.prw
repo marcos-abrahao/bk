@@ -1,6 +1,14 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
+/*/{Protheus.doc} GeraXCsv
+Generico - Gera planilha excel no formato .XLSX (chamada pela GeraCSV)
+@Return
+@author Marcos Bispo Abrahão
+@since 04/04/2020
+@version P12
+/*/
+
 // Funcão para gerar arquivo excell (texto, com campos separados por virgula)
 //	Exemplo de campos:
 //	ProcRegua(1)
@@ -246,5 +254,3 @@ ProcRegua(LASTREC())
 Processa( {|| U_GeraXCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)})
 
 Return nil
-
-

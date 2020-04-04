@@ -2,20 +2,14 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "APWIZARD.CH"       
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT150ROTºAutor  ³Adilson do Prado     º Data ³  14/02/2017 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de entrada utilizado para inserir novas opcoes no    º±±
-±±º            array aBotões na Atualiza Cotação.                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+/*/{Protheus.doc} MT150ROT
+BK - Ponto de entrada utilizado para inserir novas opcoes no array aBotões na Atualiza Cotação.
+@Return
+@author Adilson do Prado
+@since 14/02/2017
+@version P11/P12
+/*/
+
 User Function MT150ROT() 
 
 AADD(aRotina,{"Espelho Cotação","U_ESPELCOT()",0,9})
@@ -46,7 +40,7 @@ Private aAux     := {}
 Private oDlgPvt
 Private oMGet19
 Private oGrpDad
-
+Private oTmpTb
 //Tamanho da Janela
 Private aTamanho := MsAdvSize()
 Private nJanLarg := aTamanho[5]
@@ -77,9 +71,12 @@ If Select(cAliasTmp)>0
 EndIf
  
 //Criando tabela temporária
-cArq:= CriaTrab( aStrut, .T. )             
-dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
-dbSelectArea(cAliasTmp)
+///cArq:= CriaTrab( aStrut, .T. )             
+///dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
+///dbSelectArea(cAliasTmp)
+oTmpTb := FWTemporaryTable():New(cAliasTmp)
+oTmpTb:SetFields( aStrut )
+oTmpTb:Create()
 
 SC1->(DbSetOrder(1))
 SC8->(DbSetOrder(1))
@@ -162,7 +159,6 @@ DEFINE MSDIALOG oDlgPvt TITLE "Cotação: "+TRIM(cNumCot)+" - Cópia de valores da 
 		@ (nJanAltu/2)-19  , (nJanLarg/2)-((nTamBtn*2)+09) BUTTON oBtnLimp PROMPT "Copiar"     SIZE nTamBtn, 013 OF oDlgPvt ACTION(oDlgPvt:End(),lOk:= .T.)  PIXEL
 	EndIf
 
-
 ACTIVATE MSDIALOG oDlgPvt CENTERED
 
 If lOk
@@ -185,9 +181,11 @@ If lOk
 	MsgInfo("Valores copiados com sucesso!","") 
 EndIf
 
-(cAliasTmp)->(DbCloseArea())
-FErase(cArq+GetDBExtension())
-FErase(cArq+OrdBagExt())
+///(cAliasTmp)->(DbCloseArea())
+///FErase(cArq+GetDBExtension())
+///FErase(cArq+OrdBagExt())
+
+oTmpTb:Delete()
 
 RestArea(aArea)
 
@@ -296,8 +294,6 @@ Local nPObs     := 1
 Local nPEndEnt  := 2
 Local nPUrgente := 3
 
-Local nPFornece := 1
-Local nPLoja    := 2
 Local nPNome    := 3
 Local nPCGC     := 4
 Local nPContato := 5
@@ -472,7 +468,6 @@ AADD(aHtml,'  </tr>')
 
 AADD(aHtml,'  <tr>')
 
-//aqui3
 For nX := nColI TO nColF
     AADD(aHtml,'<td class="tg-yw4l" colspan="2">'+TRIM(aForn[nX,nPTel])+'</td>')
 Next
@@ -731,7 +726,7 @@ Static Function GeraMatriz(aCotacao,aItens,aForn)
 // Carregar Dados 
 
 Local aArea     := GetArea()
-Local cFilial   := xFilial("SC8")
+Local cFilSx8   := ""
 Local aItem     := {}
 Local aFornN    := {}
 Local cNumCot   := SC8->C8_NUM
@@ -742,28 +737,26 @@ Local nPObs     := 1
 Local nPEndEnt  := 2
 Local nPUrgente := 3
 
-Local nPFornece := 1
-Local nPLoja    := 2
-Local nPNome    := 3
-Local nPCGC     := 4
+//Local nPNome    := 3
+//Local nPCGC     := 4
 Local nPContato := 5
-Local nPTel		:= 6
-Local nPCond    := 7
+//Local nPTel		:= 6
+//Local nPCond    := 7
 Local nPSubTot  := 8
 Local nPDesconto:= 9
 Local nPFrete   := 10
 Local nPOutros  := 11
 Local nPTotal   := 12
 Local nPPrazo   := 13
-Local nPEmail   := 14
+//Local nPEmail   := 14
 
-Local nPItem    := 1
-Local nPProd    := 2
-Local nPDProd   := 3
-Local nPUM      := 4
-Local nPSC      := 5
+//Local nPItem    := 1
+//Local nPProd    := 2
+//Local nPDProd   := 3
+//Local nPUM      := 4
+//Local nPSC      := 5
 Local nPQuant   := 6
-Local nPVlLic   := 7
+//Local nPVlLic   := 7
 Local nPMedia   := 8
 Local nPEcon    := 9
 Local nPMenor   := 10 
@@ -775,15 +768,20 @@ Local nMenor    := 0
 Local nQtdMed   := 0
 Local nDesconto := 0
 
+Local aAreaSC8  := SC8->(GetArea())
+Local aAreaSA2  := SA2->(GetArea())
+Local aAreaSC1  := SC1->(GetArea())
+Local aAreaSC7  := SC7->(GetArea())
 
 SC8->(DbSetOrder(1))
 SA2->(DbSetOrder(1))
 SC1->(DbSetOrder(1))
 SC7->(DbSetOrder(1))
 
+cFilSx8   := xFilial("SC8")
 DbSelectArea("SC8")
 SC8->(DbSeek(xFilial("SC8")+cNumCot,.T.))
-Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilial .AND. SC8->C8_NUM == cNumCot
+Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNumCot
 
 	nPosForn := aScan(aForn, {|x| x[1]==SC8->C8_FORNECE .AND. x[2]==SC8->C8_LOJA}) 
 	If nPosForn == 0
@@ -829,7 +827,7 @@ Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilial .AND. SC8->C8_NUM == cNum
 ENDDO
 
 SC8->(DbSeek(xFilial("SC8")+cNumCot,.T.))
-Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilial .AND. SC8->C8_NUM == cNumCot
+Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNumCot
 
 	nPosForn := aScan(aForn, {|x| x[1]==SC8->C8_FORNECE .AND. x[2]==SC8->C8_LOJA}) 
 	nPosIt   := aScan(aItens, {|x| x[2]==SC8->C8_PRODUTO})
@@ -910,6 +908,10 @@ For nPosIt := 1 TO LEN(aItens)
 	
 Next
 
+SC8->(RestArea(aAreaSC8))
+SA2->(RestArea(aAreaSA2))
+SC1->(RestArea(aAreaSC1))
+SC7->(RestArea(aAreaSC7))
 
 RestArea(aArea)
 Return Nil
