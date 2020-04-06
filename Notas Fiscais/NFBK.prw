@@ -169,26 +169,23 @@ Static Function DanfeProc(oDanfe,lEnd,cIdEnt)
 
 Local aArea      := GetArea()
 Local aNotas     := {}
-Local aXML       := {}
-Local aAutoriza  := {}
-Local cNaoAut    := ""
+//Local aXML       := {}
+//Local aAutoriza  := {}
+//Local cNaoAut    := ""
 
 Local cAliasSF3  := "SF3"
 Local cWhere     := ""
-Local cAviso     := ""
-Local cErro      := ""
-Local cAutoriza  := ""
-Local cChaveSFT  := ""
-Local cAliasSFT  := "SFT" 
-Local cCondicao	 := ""
+//Local cAviso     := ""
+//Local cErro      := ""
+//Local cAutoriza  := ""
+//Local cChaveSFT  := ""
+//Local cAliasSFT  := "SFT" 
+//Local cCondicao	 := ""
 Local cIndex	 := ""
-Local cChave	 := ""
-
+//Local cChave	 := ""
 Local lQuery     := .F.
-
 Local nX         := 0
-
-Local oNfe 
+//Local oNfe 
 Local nLenNotas
 
 If Pergunte("NFSIGW",.T.)
@@ -365,34 +362,23 @@ Return(.T.)
 Static Function ImpDet(oDanfe,aNota)
 
 Local lServer := Getprofstring(GETPRINTERSESSION(),"LOCAL","SERVER",.T.) == "SERVER"
-
-If lServer// .And. GetBuild() 
-	PRIVATE oFont10N   := TFontex1():New(oDanfe,"Times New Roman",09,09,.T.,.T.,.F.)// 1
-	PRIVATE oFont07N   := TFontex1():New(oDanfe,"Times New Roman",06,06,.T.,.T.,.F.)// 2
-	PRIVATE oFont07    := TFontex1():New(oDanfe,"Times New Roman",06,06,.F.,.T.,.F.)// 3
-	PRIVATE oFont08    := TFontex1():New(oDanfe,"Times New Roman",07,07,.F.,.T.,.F.)// 4
-	PRIVATE oFont08N   := TFontex1():New(oDanfe,"Times New Roman",07,07,.T.,.T.,.F.)// 5
-	PRIVATE oFont09N   := TFontex1():New(oDanfe,"Times New Roman",08,08,.T.,.T.,.F.)// 6
-	PRIVATE oFont09    := TFontex1():New(oDanfe,"Times New Roman",08,08,.F.,.T.,.F.)// 7
-	PRIVATE oFont10    := TFontex1():New(oDanfe,"Times New Roman",09,09,.F.,.T.,.F.)// 8
-	PRIVATE oFont11    := TFontex1():New(oDanfe,"Times New Roman",10,10,.F.,.T.,.F.)// 9
-	PRIVATE oFont12    := TFontex1():New(oDanfe,"Times New Roman",11,07,.F.,.T.,.F.)// 10
-	PRIVATE oFont11N   := TFontex1():New(oDanfe,"Times New Roman",10,06,.T.,.T.,.F.)// 11
-	PRIVATE oFont18N   := TFontex1():New(oDanfe,"Times New Roman",17,17,.T.,.T.,.F.)// 12
-Else
-	PRIVATE oFont10N   := TFontex1():New(oDanfe,"Times New Roman",10,10,.T.,.T.,.F.)// 1
-	PRIVATE oFont07N   := TFontex1():New(oDanfe,"Times New Roman",07,07,.T.,.T.,.F.)// 2
-	PRIVATE oFont07    := TFontex1():New(oDanfe,"Times New Roman",07,07,.F.,.T.,.F.)// 3
-	PRIVATE oFont08    := TFontex1():New(oDanfe,"Times New Roman",08,08,.F.,.T.,.F.)// 4
-	PRIVATE oFont08N   := TFontex1():New(oDanfe,"Times New Roman",08,08,.T.,.T.,.F.)// 5
-	PRIVATE oFont09N   := TFontex1():New(oDanfe,"Times New Roman",09,09,.T.,.T.,.F.)// 6
-	PRIVATE oFont09    := TFontex1():New(oDanfe,"Times New Roman",09,09,.F.,.T.,.F.)// 7
-	PRIVATE oFont10    := TFontex1():New(oDanfe,"Times New Roman",10,10,.F.,.T.,.F.)// 8
-	PRIVATE oFont11    := TFontex1():New(oDanfe,"Times New Roman",11,11,.F.,.T.,.F.)// 9
-	PRIVATE oFont12    := TFontex1():New(oDanfe,"Times New Roman",12,08,.F.,.T.,.F.)// 10
-	PRIVATE oFont11N   := TFontex1():New(oDanfe,"Times New Roman",11,07,.T.,.T.,.F.)// 11
-	PRIVATE oFont18N   := TFontex1():New(oDanfe,"Times New Roman",18,18,.T.,.T.,.F.)// 12
+Local nS := 0
+If !lServer
+	nS := 1
 EndIf
+
+PRIVATE oFont10N   := TFontex1():New(oDanfe,"Times New Roman",09+nS,09+nS,.T.,.T.,.F.)// 1
+PRIVATE oFont07N   := TFontex1():New(oDanfe,"Times New Roman",06+nS,06+nS,.T.,.T.,.F.)// 2
+PRIVATE oFont07    := TFontex1():New(oDanfe,"Times New Roman",06+nS,06+nS,.F.,.T.,.F.)// 3
+PRIVATE oFont08    := TFontex1():New(oDanfe,"Times New Roman",07+nS,07+nS,.F.,.T.,.F.)// 4
+PRIVATE oFont08N   := TFontex1():New(oDanfe,"Times New Roman",07+nS,07+nS,.T.,.T.,.F.)// 5
+PRIVATE oFont09N   := TFontex1():New(oDanfe,"Times New Roman",08+nS,08+nS,.T.,.T.,.F.)// 6
+PRIVATE oFont09    := TFontex1():New(oDanfe,"Times New Roman",08+nS,08+nS,.F.,.T.,.F.)// 7
+PRIVATE oFont10    := TFontex1():New(oDanfe,"Times New Roman",09+nS,09+nS,.F.,.T.,.F.)// 8
+PRIVATE oFont11    := TFontex1():New(oDanfe,"Times New Roman",10+nS,10+nS,.F.,.T.,.F.)// 9
+PRIVATE oFont12    := TFontex1():New(oDanfe,"Times New Roman",11+nS,07+nS,.F.,.T.,.F.)// 10
+PRIVATE oFont11N   := TFontex1():New(oDanfe,"Times New Roman",10+nS,06+nS,.T.,.T.,.F.)// 11
+PRIVATE oFont18N   := TFontex1():New(oDanfe,"Times New Roman",17+nS,17+nS,.T.,.T.,.F.)// 12
 
 IF aNota[2] = "S"
 
@@ -1058,10 +1044,10 @@ Local nPosVOld      := 0
 Local nPosH         := 0
 Local nPosHOld      := 0
 Local nAuxH         := 0
-Local nAuxV         := 0
+//Local nAuxV         := 0
 Local nX            := 0
 Local nY            := 0
-Local nTamanho      := 0
+//Local nTamanho      := 0
 Local nFolha        := 1
 Local nFolhas       := 0
 Local nItem         := 0
@@ -1075,15 +1061,15 @@ Local nFaturas      := 0
 Local nVTotal       := 0
 Local nQtd          := 0
 Local nVUnit        := 0
-Local nVolume	    := 0
+//Local nVolume	    := 0
 Local cAux          := ""
 Local cSitTrib      := ""
 Local aMensagem     := {}
 Local lPreview      := .F.
 Local nLenFatura        
-Local nLenVol  
+//Local nLenVol  
 Local nLenDet 
-Local nLenSit     
+//Local nLenSit     
 Local nLenItens     := 0
 Local nLenMensagens := 0
 Local nLen          := 0
@@ -1600,15 +1586,15 @@ Local nPosH      := 0
 Local nPosHOld   := 0
 Local nAuxV      := 0
 Local nAuxH      := 0
-Local cChaveCont := ""
-Local cDataEmi   := ""
-Local cDigito    := ""
-Local cTPEmis    := ""
-Local cValIcm    := ""
-Local cICMSp     := ""
-Local cICMSs     := "" 
-Local cUF		 := ""
-Local cCNPJCPF	 := ""
+//Local cChaveCont := ""
+//Local cDataEmi   := ""
+//Local cDigito    := ""
+//Local cTPEmis    := ""
+//Local cValIcm    := ""
+//Local cICMSp     := ""
+//Local cICMSs     := "" 
+//Local cUF		 := ""
+//Local cCNPJCPF	 := ""
 
 //Private oDPEC    :=oNfeDPEC
 

@@ -1141,7 +1141,7 @@ Local cMoeda	:= IIf( mv_par12 < 10 , Str(mv_par12,1) , Str(mv_par12,2) )
 Local nLinPC	:= 0
 Local nTpImp	  := IIF(ValType(oReport:nDevice)!=Nil,oReport:nDevice,0) // Tipo de Impressao
 Local nPageWidth  := IIF(nTpImp==1.Or.nTpImp==6,2314,2290)
-Local cCident	:= IIF(len(SM0->M0_CIDENT)>20,Substr(SM0->M0_CIDENT,1,15),SM0->M0_CIDENT)
+//Local cCident	:= IIF(len(SM0->M0_CIDENT)>20,Substr(SM0->M0_CIDENT,1,15),SM0->M0_CIDENT)
 Local cCGC		:= ""
 PRIVATE cBitmap := ""
 Public nRet:= 0
@@ -2175,7 +2175,7 @@ Static Function FinalPed(nDescProd)
 
 Local nk		:= 1,nG
 Local nX		:= 0
-Local nQuebra	:= 0
+//Local nQuebra	:= 0
 Local nTotDesc	:= nDescProd
 Local lNewAlc	:= .F.
 Local lLiber 	:= .F.
@@ -2597,7 +2597,7 @@ Return .T.
 Static Function FinalAE(nDescProd)
 Local nk := 1
 Local nX := 0
-Local nTotDesc:= nDescProd
+//Local nTotDesc:= nDescProd
 Local nTotNF	:= MaFisRet(,'NF_TOTAL')
 Local nTxMoeda := IIF(SC7->C7_TXMOEDA > 0,SC7->C7_TXMOEDA,Nil)
 Local cComprador:=""
@@ -3175,7 +3175,7 @@ Static Function ChkPergUs(cUserId,cGrupo,cSeq)
 
 Local aArea  := GetArea()
 Local cRet   := Nil
-Local cParam := "MV_PAR"+cSeq
+//Local cParam := "MV_PAR"+cSeq
 
 dbSelectArea("SXK")
 dbSetOrder(2)
@@ -3330,12 +3330,12 @@ Local aArea := Getarea()
 Local oOk
 Local oNo
 Local oDlg
-Local oPanelLeft
+//Local oPanelLeft
 Local aButtons := {}
 Local lOk      := .F.
-Local lHist    := .F.
+//Local lHist    := .F.
 
-Local lAltVal  := .F.
+//Local lAltVal  := .F.
 Local cTitulo2 := "BKALTENT - Dados complementares - Pedido de Compras: "+SC7->C7_NUM
 	
 oOk := LoadBitmap( GetResources(), "LBTIK" )

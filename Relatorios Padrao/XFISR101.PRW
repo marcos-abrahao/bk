@@ -309,7 +309,7 @@ local cTitle  		:= "Relatório de Conferência da EFD Contribuições"
 local cHelp   		:= "Listagem das movimentações consideradas no processamento da EFD Contribuições"
 Local cCSt			:= '01/02/03/04/05/06/50/51/52/53/54/55/56/60/61/62/63/64/65/66/  '
 Local cCStBase		:= '01/02/04/05/06/50/51/52/53/54/55/56/60/61/62/63/64/65/66/  '
-Local cCStCred		:= '50/51/52/53/54/55/56/60/61/62/63/64/65/66' 
+//Local cCStCred		:= '50/51/52/53/54/55/56/60/61/62/63/64/65/66' 
 Local cCStDeb		:= '01/02/03/04/05/06/  '
 Local cCStDebBas	:= '01/02/04/05/06/  '
 local oReport
@@ -1930,16 +1930,15 @@ EndCase
 
 Return oRetorno
 
+/*
 Static Function AjustaSX1()
-
 Local aPergunte := {} 
-
 Aadd(aPergunte,{'FSR101','12', 'Subdividir NFs por?', 'Subdividir NFs por?', 'Subdividir NFs por?', 'MV_CHC', 'C', 99, 0, 0, 'R', '', 'SK', '', '', 'MV_PAR12', '', '', '', 'X5_CHAVE', '', '', '', '', '', '', '', '', '', '', '', '','','','','','.FSR10112.'})
 If FindFunction('EngSX1117') 
 	EngSX1117(aPergunte[1,1],aPergunte[1,2],aPergunte[1,3],aPergunte[1,4],aPergunte[1,5],aPergunte[1,6],aPergunte[1,7],aPergunte[1,8],aPergunte[1,9],aPergunte[1,10],aPergunte[1,11],aPergunte[1,12],aPergunte[1,13],aPergunte[1,14],aPergunte[1,15],aPergunte[1,16],aPergunte[1,17],aPergunte[1,18],aPergunte[1,19],aPergunte[1,20],aPergunte[1,21],aPergunte[1,22],aPergunte[1,23],aPergunte[1,24],aPergunte[1,25],aPergunte[1,26],aPergunte[1,27],aPergunte[1,28],aPergunte[1,29],aPergunte[1,30],aPergunte[1,31],aPergunte[1,32],aPergunte[1,33],aPergunte[1,34],aPergunte[1,35],aPergunte[1,36])
 EndIf
-
 Return
+*/
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} PrintF3O

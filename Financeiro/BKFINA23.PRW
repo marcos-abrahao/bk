@@ -16,7 +16,6 @@ Copiado do BKFINA16.PRW
 
 User Function BKFINA23()
 
-Local cPerg   := "BKFINA23"
 Local lOk     := .F.
 Local cTitulo := "Selecionar Títulos e Gerar Baixa - Retenção Contratual - "+ALLTRIM(SM0->M0_NOME)
 Local nLin1   := 10

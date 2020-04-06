@@ -64,7 +64,7 @@ Static Function ReportDef()
 Local oReport 
 Local oBanco
 Local oMovBanc           
-Local nTamChave := TamSX3("E5_PREFIXO")[1]+TamSX3("E5_NUMERO")[1]+TamSX3("E5_PARCELA")[1] + 3
+//Local nTamChave := TamSX3("E5_PREFIXO")[1]+TamSX3("E5_NUMERO")[1]+TamSX3("E5_PARCELA")[1] + 3
 
 AjustaSX1()
 Pergunte("FIN470",.F.)
@@ -195,14 +195,14 @@ Local nMoeda	:= GetMv("MV_CENT"+(IIF(mv_par06 > 1 , STR(mv_par06,1),"")))
 LOCAL lSpbInUse	:= SpbInUse()        
 Local nSaldoAtu	:= 0    
 Local cTabela14	:= ""   
-Local nCol		:= 0      
+//Local nCol		:= 0      
 Local aRecon 	:= {}     
-Local nTotEnt	:= 0 
-Local nTotSaida	:= 0    
+//Local nTotEnt	:= 0 
+//Local nTotSaida	:= 0    
 Local nLimCred	:= 0     
-Local nRecebNCon:= 0
-Local nRecebConc:= 0   
-Local cPictVlr	:=	tm(SE5->E5_VALOR,15,nMoeda)
+//Local nRecebNCon:= 0
+//Local nRecebConc:= 0   
+//Local cPictVlr	:=	tm(SE5->E5_VALOR,15,nMoeda)
 Local nX
 Local aTotais := {}
 Local nLinReport 	:= 8
@@ -213,7 +213,7 @@ Local cCampos 		:= ""
 Local nTaxa 		:= 0  
 Local lMultSld    := (FindFunction( "FXMultSld" ) .AND. FXMultSld())   
 Local lMsmMoeda   := .F.     
-Local lCxLoja := GetNewPar("MV_CXLJFIN",.F.)
+//Local lCxLoja := GetNewPar("MV_CXLJFIN",.F.)
 
 #IFNDEF TOP
 	Local cCondicao := ""
@@ -916,7 +916,7 @@ Local nLin	:= mv_par08
 Local lCxLoja := GetNewPar("MV_CXLJFIN",.F.)
 Local cAlias := "SE5"           
 Local nTaxa:=0  
-Local lTaxa:=.F. 
+//Local lTaxa:=.F. 
 Local lLayout := aReturn[4] == 1 .And. cPaisLoc == "BRA" //Retrato   
 Local lMsmMoeda	:= .F.
 Local cHistor	:= ""
@@ -924,7 +924,7 @@ Local aHistor	:= {}
 lOCAL nTamHist	:= 50		//Quantidade maxima de caracteres para a coluna do historico. Quando o conteudo desse campos exceder este limite, devera ser impresso em varias linhas
 Local cCposQry	:= ""
 Local cFilQry	:= ""
-Local cFilSE5	:= xFilial("SE5")
+//Local cFilSE5	:= xFilial("SE5")
 Local lFxMultSld := FindFunction( "FXMultSld" )
 Local aArea	     
 Local cChSef := "" 
@@ -1990,6 +1990,7 @@ Return lRet
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
 /*/
+/*
 Static Function Fr470SPB(cChave, aStruct)
 
 Local cCondTrb := iiF(lAllFil, ".T.",'E5_FILIAL == xFilial("SE5")')
@@ -2022,7 +2023,7 @@ Enddo
 dbselectArea("TRB")
 dbGotop()
 Return
-             
+*/             
 
 /*
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹

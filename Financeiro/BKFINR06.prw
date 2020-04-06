@@ -99,7 +99,7 @@ IF Pergunte(cPerg,.T.)
 			   oPrn:SetPortrait()
 			ENDIF
 			oPrn:Setup()
-			RptStatus({|lEnd| ImprE2(@oPrn,@lEnd,"")},"Imprimindo Título a pagar...")
+			RptStatus({|lEnd| ImprE2()},"Imprimindo Título a pagar...")
 			oPrn:End()
 			oPrn:Preview()//Visualiza antes de imprimir
 
@@ -111,7 +111,7 @@ IF Pergunte(cPerg,.T.)
 			   oPrn:SetPortrait()
 			ENDIF
 			oPrn:Setup()
-			RptStatus({|lEnd| ImprE2V(@oPrn,@lEnd,"")},"Imprimindo Títulos a pagar...")
+			RptStatus({|lEnd| ImprE2V()},"Imprimindo Títulos a pagar...")
 			oPrn:End()
 			oPrn:Preview()   //Visualiza antes de imprimir
 		ENDIF

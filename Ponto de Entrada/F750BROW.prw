@@ -347,6 +347,8 @@ Return cRetorno
 | Uso | Curso ADVPL |
 +-----------------------------------------------------------------------
 /*/
+
+/*
 STATIC FUNCTION XCONVERRLOG(aAutoErro)
 LOCAL cRet := ""
 LOCAL nX := 1
@@ -354,3 +356,4 @@ FOR nX := 1 to Len(aAutoErro)
 	cRet += aAutoErro[nX]+CHR(13)+CHR(10)
 NEXT nX
 RETURN cRet
+*/

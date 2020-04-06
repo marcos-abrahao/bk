@@ -1518,7 +1518,7 @@ If !Empty(aNota)
 	cString += NFSEConstr(cCodmun,aConstr)
 	cString += NFSEFat2(cCodMun,aDupl)	
 	cString += NFSEItem2(cCodMun,aProd,aICMS,aICMSST,aIPI,aPIS,aPISST,aCOFINS,aCOFINSST,aISSQN,aCST,aMed,aArma,aveicProd,aDI,aAdi,aExp,aPisAlqZ,aCofAlqZ,aDest, aNota,aTotal,aRetido,aRetServ,aDeducao,cMunPrest,cDescMunP,cNatOper,cF4Agreg,lNFeDesc,cDescrNFSe,cDiscrNFSe,@nDescon,cCargaTrb)
-	cString += NFSETransp2(cCodMun)
+	cString += NFSETransp2(/*cCodMun*/)
 	cString += '</RPS>' 
 
 EndIf	

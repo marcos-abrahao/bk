@@ -128,7 +128,7 @@ cQuery += " ORDER BY CN9_NUMERO"
 
 Return 
 
-
+/*
 Static Function VigContrat(cContrato,dDVIG)
 Local cContRev := ""
 
@@ -145,4 +145,5 @@ Do While !EOF() .AND. cContRev == CNF_FILIAL+CNF_CONTRA+CNF_REVISA
 EndDo
 
 Return dDVIG
+*/
 

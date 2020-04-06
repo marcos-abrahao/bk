@@ -20,6 +20,7 @@ Local cProduto  := ""
 Local cContrato := ""
 Local cPlanilha := ""
 Local cMedicao  := ""
+Local nReg		:= 0
 
 Local cDescrCTT := ""
 Local cObjeto   := ""
@@ -44,6 +45,26 @@ Local cXXDSISS  := ALLTRIM(GetMv("MV_XXDSISS"))  // DESCRIÇÃO DA LEI PARA CLIENT
 Local cXXCVLIQ  := ALLTRIM(GetMv("MV_XXCVLIQ")) // CLIENTE SAIR VALOR LIQUIDO NA NF
 Local cXXMEDIC  := ALLTRIM(SuperGetMV("MV_XXMEDIC",.F.,"000302")) // CLIENTE SAIR A PALAVRA MEDIÇÃO AO INVES DE PARCELA
 Local cXXCOMPE  := ALLTRIM(SuperGetMV("MV_XXCOMPE",.F.,"000058/000163/000193/000194/000195/000196/000197/000198/000199/000211/000215/000239/000241/000242/000245/000305/000316/000317/000318/000319/000320/000321/")) // CLIENTE NAO SAIR COMPETENCIA
+Local cXXDNFS	:= ""
+Local nQTDIMP   := 0
+Local nTOTIMP   := 0
+Local lImp 		:= .F.
+Local nScan		:= 0
+Local aBCVINC 	:= {}
+Local cAgVinc 	:= ""
+Local cCCVinc 	:= ""
+
+Local aAreaAtu
+Local aAreaSE1
+Local aAreaSA1
+Local aAreaSF2
+Local aAreaSD2
+Local aAreaSED
+Local aAreaSC5
+Local aAreaCN9
+Local aAreaSYP
+Local aAreaCTT
+Local aAreaCND
 
 AADD(aBancos,{"001","Banco do Brasil"})
 AADD(aBancos,{"033","Santander"})
@@ -66,7 +87,6 @@ IF !SF2->(DbSeek(xFilial("SF2")+cCliente+cLoja+cNF+cSerie,.F.))
    Return cDescr
 ENDIF
 
-
 IF !EMPTY(SF2->F2_XXCORPO)
 	cDescr := TRIM(SF2->F2_XXCORPO)
 	cDescr += "|"
@@ -81,20 +101,16 @@ IF !EMPTY(SF2->F2_XXCORPO)
    Return cDescr
 ENDIF
  
-aAreaAtu   := GetArea()
 aAreaSE1   := GetArea("SE1")
 aAreaSA1   := GetArea("SA1")
-aAreaSE1   := GetArea("SE1")
-aAreaSF2   := GetArea("SF2")     
 aAreaSD2   := GetArea("SD2")     
 aAreaSED   := GetArea("SED")     
 aAreaSC5   := GetArea("SC5")     
 aAreaCN9   := GetArea("CN9")     
 aAreaSYP   := GetArea("SYP")     
 aAreaCTT   := GetArea("CTT")     
-aAreaCTT   := GetArea("CND")     
+aAreaCND   := GetArea("CND")     
    
-
 dbSelectArea ("SD2")             //itens de venda da NF
 dbSetOrder (3)                 //filial,doc,serie,cliente,loja,cod
 

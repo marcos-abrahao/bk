@@ -31,6 +31,12 @@ EndIf
 Return Nil
 //-----------------------------------------------------------------------------
 
+
+
+
+
+//-----------------------------------------------------------------------------
+
 User Function xxLog(cArqLog,cMens,lMens,cEnv)  //U_xxLog("jjErro.log","[Rotina][Funcao]"+"Erro...")
 Local nPosFim,nHandle,cBuffer
 

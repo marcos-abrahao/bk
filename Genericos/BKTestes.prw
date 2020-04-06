@@ -34,7 +34,7 @@ MsgBox("Registros processados: "+STR(nProc,6),cRot,"INFO")
 Close(oDlg1)
 Return 
 
-
+/*
 Static Function FuncUser1()
 Local lEnd := .F.
 MsAguarde({|lEnd| FuncUser(@lEnd) },"Processando...",cRot,.T.)
@@ -61,7 +61,7 @@ Static Function FuncUser(lEnd)
 
 Return lEnd
 // fim do exemplo
-
+*/
 
 
 

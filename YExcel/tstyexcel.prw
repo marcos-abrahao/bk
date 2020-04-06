@@ -193,6 +193,10 @@ user function tstyexcel()
 	oTabela:Finish()	//Fecha a edição da tabela
 
 	oExcel:Gravar(GetTempPath(),.T.,.T.)
+
+If .F.  // Para remover warning de compilação
+	TesteYExcel()
+EndIf
 return
 
 User Function tst2Excel()

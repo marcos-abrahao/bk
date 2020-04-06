@@ -398,9 +398,9 @@ Else
 EndIf
                         
 // Atualiza fornecedor critico
-
-//UpdSa2(@CA100FOR,@CLOJA,cAvalC)
-
+If .F.
+	UpdSa2(@CA100FOR,@CLOJA,cAvalC)
+EndIf
 
 cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXAVALI = '"+cAvali+"'"
 cQuery  += " WHERE F1_FILIAL='"+xFilial('SF1')+"' AND D_E_L_E_T_='' AND F1_DOC='"+@CNFISCAL +"' AND F1_SERIE='"+ @CSERIE +"'"

@@ -265,6 +265,10 @@ Else
 	lRet := fValCampo(cCampo,oMGet22:nAt,.T.)
 EndIf 
 */
+If .F. // Remover Warning de Compilação
+	fValCampo(cCampo,0,.F.)
+EndIf
+
 Return (lRet)
 
  

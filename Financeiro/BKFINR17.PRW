@@ -539,7 +539,7 @@ TCSETFIELD("QTMP1","F2_VALFAT" ,"N",18,2)
 Return
 
 
-
+/*
 Static Function  ValidPerg1(cPerg)
 
 Local aArea      := GetArea()
@@ -567,7 +567,7 @@ Next
 RestArea(aArea)
 
 Return(NIL)
-
+*/
 
 Static Function  ValidPerg2(cPerg)
 

@@ -74,7 +74,7 @@ Static Function ReportDef()
 Local oReport 
 Local oFornecedores
 Local oTitsForn
-Local oCell   
+//Local oCell
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³Criacao do componente de impressao                                      ³
@@ -285,14 +285,14 @@ Local nDecs, nMoeda
 Local aValor 		:= {}        
 Local nTotAbat              
 Local bPosTit		:= { || }		// Posiciona a impressao dos titulos do fornecedor
-Local bWhile		:= { || }		// Condicao para impressao dos titulos do fornecedor
+//Local bWhile		:= { || }		// Condicao para impressao dos titulos do fornecedor
 #IFNDEF TOP
 Local cCondicao  := ""   
 Local cCondicao2 := ""
 #ENDIF                       
-Local cFiltSED		:=	oFornecedores:GetAdvplExp('SED')
-Local cFiltSE2		:=	oFornecedores:GetAdvplExp('SE2')
-Local cFiltSA2		:=	oFornecedores:GetAdvplExp('SA2')
+//Local cFiltSED		:=	oFornecedores:GetAdvplExp('SED')
+//Local cFiltSE2		:=	oFornecedores:GetAdvplExp('SE2')
+//Local cFiltSA2		:=	oFornecedores:GetAdvplExp('SA2')
 Local lInitForn	:=	.T.
 Local	lPrintForn	:=	.T.
 Local cFilDe,cFilAte, cFilDeSA2,cFilAteSA2        
@@ -1014,7 +1014,7 @@ Local cFilterUser := aReturn[7]
 Local ndecs		:=Msdecimais(mv_par10)
 Local cAliasSA2 := "SA2"
 Local lImpPAPag	:= IiF(MV_PAR16=2, .T. ,.F.)  //Imprime PA Gerada pela Ordem de Pago.
-Local nConv		:= mv_par17    
+//Local nConv		:= mv_par17    
 Local cCpoEmis 	:= If(mv_par18 == 1,"E2_EMISSAO","E2_EMIS1")    
 Local nTotFil1:=0
 Local nTotFil2:=0
@@ -1473,6 +1473,8 @@ Endif
 
 MS_FLUSH()
 
+Return
+
 /*/
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -1584,6 +1586,7 @@ Return cString
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
+/*
 Static Function AndaTRB(xMyAlias)
 #IFDEF TOP
 Local cAlias:= Alias()
@@ -1600,6 +1603,7 @@ Local cAlias:= Alias()
 #ENDIF
 
 Return
+*/
 
 
 /*/
