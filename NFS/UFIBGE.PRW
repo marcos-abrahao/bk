@@ -59,12 +59,12 @@ Return(cRetorno)
 
 
 
-//BUSCA CODIGO IBGE UF+MUNICIPIO INSTRUCAO NORMATIVA PAULISTANA 
-USER FUNCTION  BCODIBGE()
+//BUSCA CODIGO IBGE UF+MUNICIPIO INSTRUCAO NORMATIVA PAULISTANA NO PEDIDO DE VENDAS
+USER FUNCTION BCODIBGE()
 LOCAL cCOD    	:= ""
 Local aAreaIni 	:= GetArea()
-Local aAreaSD2	:= GetArea("SD2")
-Local aAreaSC5	:= GetArea("SC5")
+Local aAreaSD2	:= SD2->(GetArea("SD2"))
+Local aAreaSC5	:= SC5->(GetArea("SC5"))
 Local cNF     	:= PARAMIXB[1]
 Local cSerie  	:= PARAMIXB[2] 
 Local cCliente	:= PARAMIXB[3]

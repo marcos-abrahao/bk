@@ -66,6 +66,10 @@ Local aAreaSYP
 Local aAreaCTT
 Local aAreaCND
 
+If !EMPTY(SF3->F3_DTCANC)
+	Return "NF CANCELADA"
+EndIf
+
 AADD(aBancos,{"001","Banco do Brasil"})
 AADD(aBancos,{"033","Santander"})
 AADD(aBancos,{"104","Caixa Economica Federal"})
@@ -78,11 +82,11 @@ cCliente:= PARAMIXB[3]
 cLoja   := PARAMIXB[4]
 
 aAreaAtu   := GetArea()
-aAreaSF2   := GetArea("SF2")     
+aAreaSF2   := SF2->(GetArea("SF2"))
 
 SF2->(Dbsetorder(2))
 IF !SF2->(DbSeek(xFilial("SF2")+cCliente+cLoja+cNF+cSerie,.F.))
-   RestArea(aAreaSF2)
+   SF2->(RestArea(aAreaSF2))
    RestArea(aAreaAtu)
    Return cDescr
 ENDIF
@@ -96,7 +100,7 @@ IF !EMPTY(SF2->F2_XXCORPO)
 	SF2->F2_XXCORPO := cDescr
 	SF2->(MsUnlock())
 	
-   RestArea(aAreaSF2)
+   SF2->(RestArea(aAreaSF2))
    RestArea(aAreaAtu)
    Return cDescr
 ENDIF
@@ -501,16 +505,16 @@ RecLock("SF2",.F.)
 SF2->F2_XXCORPO := cDescr
 SF2->(MsUnlock())
 
-RestArea(aAreaSA1)
-RestArea(aAreaSE1)
-RestArea(aAreaSF2)
-RestArea(aAreaSD2)
-RestArea(aAreaSED)
-RestArea(aAreaSC5)
-RestArea(aAreaCN9)
-RestArea(aAreaSYP)
-RestArea(aAreaCTT)
-RestArea(aAreaCND)
+SA1->(RestArea(aAreaSA1))
+SE1->(RestArea(aAreaSE1))
+SF2->(RestArea(aAreaSF2))
+SD2->(RestArea(aAreaSD2))
+SED->(RestArea(aAreaSED))
+SC5->(RestArea(aAreaSC5))
+CN9->(RestArea(aAreaCN9))
+SYP->(RestArea(aAreaSYP))
+CTT->(RestArea(aAreaCTT))
+CND->(RestArea(aAreaCND))
 
 RestArea(aAreaAtu)
 
