@@ -2,24 +2,17 @@
 #include "TopConn.ch"
 #include "RwMake.ch" 
 
+/*/{Protheus.doc} BKCTBA04
+BK - Importar planilha excel em CSV e converter para txt padrao lancamento da Contabilidade
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบFuncao ณBKCTBA04 บAutorณ Adilson Prado RKA INFORMATICAบDataณ12/02/2019 บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.  ณImportar planilha excel em CSV e converter para txt padrao      ฑฑ
-ฑฑบ		   lancamento da Contabilidade                                     ฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso    ณBK                                                             บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahใo
+@since 12/02/2019
+@version P12
 /*/
 
 User Function BKCTBA04()
-Local cProg := "BKCTBA04"
+
 Local cTipoArq := "Arquivos no formato CSV (*.CSV) | *.CSV | "
 Local cTitulo  := "Importar planilha excel em CSV para gerar o arquivo TXT de Lan็amento Padrใo da Contabilidade"
 Local oDlg01
@@ -27,8 +20,8 @@ Local oButSel
 Local nOpcA := 0
 Local nSnd:= 15,nTLin := 15
 
-PRIVATE cArq  := ""
-
+Private cArq  := ""
+Private cProg := "BKCTBA04"
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -73,7 +66,7 @@ While !FT_FEOF()
 
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha
-	u_xxLog("BKCTBA04.LOG","1-"+cBuffer,.T.,"TST")
+	u_xxLog("C:\TMP\BKCTBA04.LOG","1-"+cBuffer,.T.,"TST")
 	If ( !Empty(cBuffer) )
 		aLINHA := {}
 		aLINHA := U_StringToArray(cBuffer,";") //Retorna Array sem colunas com valores em branco
@@ -86,7 +79,7 @@ While !FT_FEOF()
 			cLinha := ""
 			IF VAL(aLINHA[1]) == 1
 				cLinha := STRZERO(VAL(aLINHA[1]),3)+PAD(ALLTRIM(aLINHA[2]),1)+PAD(ALLTRIM(aLINHA[3]),20)+PAD(ALLTRIM(aLINHA[4]),20)+aLINHA[5]+PAD(ACENTO(ALLTRIM(aLINHA[6])),100)+PAD(aLINHA[7],8)+SPACE(342)+cCrLf
-				u_xxLog("BKCTBA04.LOG","2-"+cLinha,.T.,"TST")
+				u_xxLog("C:\TMP\BKCTBA04.LOG","2-"+cLinha,.T.,"TST")
 				fWrite(nHandle,cLinha)
 			ENDIF
  		ENDIF
@@ -96,7 +89,7 @@ Enddo
 FT_FUSE()  //fecha o arquivo txt
 fClose(nHandle)
 
-MsgInfo("Importe o arquivo "+cArq2+" atrav้s da rotina Contabiliza็ใo Txt")
+MsgInfo("Importe o arquivo "+cArq2+" atrav้s da rotina Contabiliza็ใo Txt",cProg)
 
 //CHAMA ROTINA CONTABILIZA TXT
 //CTBA500() - Retirada a chamada direta na versใo 12 pois ocorre erro - 08/11/19 - Marcos

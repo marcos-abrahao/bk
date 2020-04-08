@@ -23,12 +23,13 @@ Local aDbf2         := {} //,cArqTmp2
 Local oTmpTb2
 Local cMes          := ""
 Local cXXSEMAF		:= "N"
-Local cPerg         := "BKGCTR14"
 Local aRetCons		:= {}
 Local cLogCons   	:= ""
 Local cCrLf   		:= Chr(13) + Chr(10) 
 
 Default lSintet  	:= .F.
+
+Private cPerg       := "BKGCTR14"
 
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
