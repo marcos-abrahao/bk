@@ -27,68 +27,69 @@ Local cXXSEMAF		:= "N"
 Private titulo      := "Rentabilidade dos Contratos"
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
-PRIVATE lConsorcio  := .F.
-PRIVATE lFurnas		:= .F.
+Private lConsorcio  := .F.
+Private lFurnas		:= .F.
 Private nomeprog    := "BKGCTR11" // Coloque aqui o nome do programa para impressao no cabecalho
 Private cPerg       := "BKGCTR11"
 
-PRIVATE dDataInicio := dDatabase
-PRIVATE dDataI		:= dDatabase
-PRIVATE dDataFinal  := dDatabase
-PRIVATE cSituac     := "05"
-PRIVATE	cPict       := "@E 99,999,999,999.99"
-PRIVATE nPeriodo    := 1
-PRIVATE nPlan       := 1
-PRIVATE cContrato   := ""
-PRIVATE aPeriodo    := {}
+Private dDataInicio := dDatabase
+Private dDataI		:= dDatabase
+Private dDataFinal  := dDatabase
+Private cSituac     := "05"
+Private	cPict       := "@E 99,999,999,999.99"
+Private nPeriodo    := 1
+Private nPlan       := 1
+Private cContrato   := ""
+Private aPeriodo    := {}
 
-PRIVATE cCtrCons    := ""
-PRIVATE cCodEve     := ""
-PRIVATE cPCodEve    := ""
+Private cCtrCons    := ""
+Private cCodEve     := ""
+Private cPCodEve    := ""
 
-PRIVATE nMImpContr  := 0
-PRIVATE nTaxaAdm    := 0
-PRIVATE nEncargos   := 0
-PRIVATE nEncarIPT   := 0
-PRIVATE nINCIDENCI  := 0
-PRIVATE cProventos  := ""
-PRIVATE cDescontos  := ""
-PRIVATE cVT_Prov 	:= ""
-PRIVATE cVT_Verb 	:= ""
-PRIVATE cVT_Prod   	:= ""
-PRIVATE cVRVA_Verb  := ""
-PRIVATE cVRVA_Prod  := ""
-PRIVATE cASSM_Verb	:= ""
-PRIVATE cASSM_Prod	:= ""
-PRIVATE cSINO_Verb	:= ""
-PRIVATE cSINO_Prod	:= ""
-PRIVATE cCCRE_Verb	:= ""
-PRIVATE cCCRE_Prod	:= ""
-PRIVATE cCDPR_Prod	:= ""
-PRIVATE cCDPR_GRUP  := ""
-PRIVATE cNINC_Verb	:= ""
-PRIVATE aConsorcio	:= {}
-PRIVATE cExm_Prod	:= ""
-PRIVATE cMFG_Prod	:= ""
-PRIVATE cDCH_Prod	:= ""
-PRIVATE aFixeFX     := {}
+Private nMImpContr  := 0
+Private nTaxaAdm    := 0
+Private nEncargos   := 0
+Private nEncarIPT   := 0
+Private nINCIDENCI  := 0
+Private cProventos  := ""
+Private cDescontos  := ""
+Private cVT_Prov 	:= ""
+Private cVT_Verb 	:= ""
+Private cVT_Prod   	:= ""
+Private cVRVA_Verb  := ""
+Private cVRVA_Prod  := ""
+Private cASSM_Verb	:= ""
+Private cASSM_Prod	:= ""
+Private cSINO_Verb	:= ""
+Private cSINO_Prod	:= ""
+Private cCCRE_Verb	:= ""
+Private cCCRE_Prod	:= ""
+Private cCDPR_Prod	:= ""
+Private cCDPR_GRUP  := ""
+Private cNINC_Verb	:= ""
+Private aConsorcio	:= {}
+Private cExm_Prod	:= ""
+Private cMFG_Prod	:= ""
+Private cDCH_Prod	:= ""
+Private aFixeFX     := {}
 Private aHeader	    := {}
-PRIVATE nConsolida	:= 2
-PRIVATE nIndConsor	:= 1
-PRIVATE nRateia     := 1
-PRIVATE nConsol     := 0
-PRIVATE cConsolida 	:= ""
-PRIVATE aConsolida 	:= {}
-PRIVATE aContConsol := {}
-PRIVATE cTipoContra := ""
-PRIVATE aXXMIMPC	:= {}
-PRIVATE aMImpContr  := {}
-PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
-PRIVATE ALIAS_FOL   := "TMPF"+ALLTRIM(SM0->M0_CODIGO)
-PRIVATE cXXPLR 		:= ""
-PRIVATE aFurnas     := {} 
+Private nConsolida	:= 2
+Private nIndConsor	:= 1
+Private nRateia     := 1
+Private nConsol     := 0
+Private cConsolida 	:= ""
+Private aConsolida 	:= {}
+Private aContConsol := {}
+Private cTipoContra := ""
+Private aXXMIMPC	:= {}
+Private aMImpContr  := {}
+Private ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
+Private ALIAS_FOL   := "TMPF"+ALLTRIM(SM0->M0_CODIGO)
+Private cXXPLR 		:= ""
+Private aFurnas     := {} 
 
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aCabs2
+Private aTitulos,aCampos,aCabs,aFormat
+Private aCampos2,aCabs2
 Private aCampos3,aCabs3
 
 Default lJob		:= .F.
@@ -310,6 +311,7 @@ oTmpTb1:Create()
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aFormat := {}
 
 nomeprog := "BKGCTR11/"+TRIM(SUBSTR(cUsuario,7,15))
 
@@ -318,34 +320,40 @@ AADD(aTitulos,nomeprog+" - "+titulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_CODGCT")
 AADD(aCabs  ,"Contrato")
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_DESC")
 AADD(aCabs  ,"Descrição")
-AAdd(aFixeFX,{"Descrição","XX_DESC",'C', 50,00,'@!'})
+AADD(aFixeFX,{"Descrição","XX_DESC",'C', 50,00,'@!'})
 AADD(aHeader,{"Descrição","XX_DESC" ,"@!",50,00,"","","C","TRB","R"})
+AADD(aFormat,"")
 
 dDataInicio := dDataI
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
 	AADD(aCampos,"TRB->XX_VAL"+cMes)
 	AADD(aCabs,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-	AAdd(aFixeFX,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,'C', 10,00,'@!'})
+	AADD(aFixeFX,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,'C', 10,00,'@!'})
     AADD(aHeader,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,"@!",10,00,"","","C","TRB","R"})
+	AADD(aFormat,"N")
  	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
 
 AADD(aCampos,"TRB->XX_TOTAL")
 AADD(aCabs  ,"TOTAL")
 AAdd(aFixeFX,{"TOTAL","XX_TOTAL",'C', 10,00,'@!'})
-aadd(aHeader,{"TOTAL","XX_TOTAL","@!",10,00,"","","C","TRB","R"})
+AADD(aHeader,{"TOTAL","XX_TOTAL","@!",10,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 AADD(aCampos,"TRB->XX_INDIC")
 AADD(aCabs  ,"INDICE")
 AAdd(aFixeFX,{"INDICE","XX_INDIC",'C', 10,00,'@!'})
-aadd(aHeader,{"INDICE","XX_INDIC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aHeader,{"INDICE","XX_INDIC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 //AADD(aCampos,"TRB->XX_STATUS")
 
@@ -637,7 +645,7 @@ Local cAlias := "TRB"
 dbSelectArea(cAlias)
 
 ProcRegua(1)
-Processa( {|| GeraCBKGCTR11(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs)})
+Processa( {|| GeraXGCT11(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,/*aImpr*/,/*aAlign*/,aFormat)})
 
 Return Nil
 
@@ -3232,21 +3240,30 @@ Return
 
 
 
-STATIC Function GeraCBKGCTR11(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra)
+Static Function GeraXGCT11(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFormat)
+
 Local nHandle
-Local cCrLf   := Chr(13) + Chr(10)
+Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni,_nj
-Local cPicN   := "@E 99999999.99999"
-Local cDirTmp := "C:\TMP"
-Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
+Local cPicN   	:= "@E 99999999.99999"
+Local cDirTmp 	:= "C:\TMP"
+Local cArqTmp 	:= cDirTmp+"\"+cArqS+".CSV"
 Local lSoma,aSoma,nCab
-Local cLetra
+Local cLetra	:= ""
+Local cTpQuebra	:= ""
+Local cQuebra	:= ""
+Local aQuebra	:= {}
+
+Local aPlans 	:= {}
 
 Private xQuebra,xCampo
 
-IF cTpQuebra == NIL
-   cTpQuebra := " "
-ENDIF
+
+If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+   Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose:= .F., .T.)})
+   Return Nil
+EndIf
 
 MakeDir(cDirTmp)
 fErase(cArqTmp)

@@ -2,7 +2,7 @@
 #INCLUDE "topconn.ch"
  
 /*/{Protheus.doc} BKCOMR04
-BK - Planilha de Pedidos e Faturamento
+BK - Movimento Compras
 
 @Return
 @author Adilson do Prado

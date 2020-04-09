@@ -66,9 +66,9 @@ Local aAreaSYP
 Local aAreaCTT
 Local aAreaCND
 
-If !EMPTY(SF3->F3_DTCANC)
-	Return "NF CANCELADA"
-EndIf
+//If !EMPTY(SF3->F3_DTCANC)
+	//Return "NF CANCELADA"
+//EndIf
 
 AADD(aBancos,{"001","Banco do Brasil"})
 AADD(aBancos,{"033","Santander"})

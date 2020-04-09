@@ -19,7 +19,7 @@ Generico - Gera planilha excel
 //	    AADD(aTotal,NIL)
 
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
-//MsAguarde({|| U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
+//MsAguarde({|| GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
 
 User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _lZebra )
 
@@ -71,13 +71,12 @@ Local nTit2Style
 Local nTotStyle	
 Local nIDImg
 
-Private xCampo
+Private xCampo,yCampo
 Private xQuebra
 
-
-IF lClose == NIL
+If lClose == NIL
    lClose := .T.
-ENDIF
+EndIf
 
 MakeDir(cDirTmp)
 
@@ -96,11 +95,13 @@ nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
 
 nBordas 	:= oExcel:Borda("ALL")
 nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nP2Style	:= oExcel:AddStyles(10/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
@@ -123,6 +124,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_aTotal  := _aPlans[nPl,10]
 	_cQuebra := _aPlans[nPl,11]
 	_lClose  := _aPlans[nPl,12]
+
+	If Empty(_aFormat)
+		_aFormat := Array(Len(_aCabs))
+	EndIf
 
 	nCont	 := 0
 	nLin     := 1
@@ -197,7 +202,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 			nTamCol := 13
 		Else
 			If Len(xCampo) > 8
-				nTamCol := Len(xCampo) + 1
+				If Len(xCampo) < 150
+					nTamCol := Len(xCampo) + 1
+				Else
+					nTamCol := 150
+				EndIf
 			EndIf
 		EndIf
 
@@ -259,10 +268,28 @@ FOR nPl := 1 TO LEN(_aPlans)
 			ENDIF
 
 			xCampo := &(_aCampos[nI])
+			cTipo := ValType(xCampo)
 
-			If ValType(xCampo) == "N"
+			If _aFormat[nI] == "N" .AND. cTipo == "C" .AND. !Empty(xCampo)
+				yCampo := ALLTRIM(xCampo)
+				If "%" $ xCampo
+					cTipo := "P"
+				Else
+					cTipo := _aFormat[nI]
+				EndIf
+
+				If "," $ xCampo
+	        		yCampo := STRTRAN(yCampo,".","")
+	        		yCampo := STRTRAN(yCampo,",",".")
+				EndIf
+				xCampo := VAL(yCampo)
+			EndIf
+
+			If cTipo == "N"
 				oExcel:Cell(nLin,nI,xCampo,,nV2Style)
-			ElseIf ValType(xCampo) == "D"
+			ElseIf cTipo == "P"
+				oExcel:Cell(nLin,nI,xCampo,,nP2Style)
+			ElseIf cTipo == "D"
 				oExcel:Cell(nLin,nI,xCampo,,nD2Style)
 			Else
 				oExcel:Cell(nLin,nI,xCampo,,nG2Style)
@@ -295,7 +322,7 @@ cFile := cDirTmp+"\"+cFile+".xlsx"
 If File(cFile)
 	nRet:= FERASE(cFile)
 	If nRet < 0
-		MsgStop("Não será possivel gerar a planilha "+cFile+", feche o arquivo",_cProg)
+		MsgAlert("Não será possivel gerar a planilha "+cFile+", feche o arquivo",_cProg)
 	EndIf
 EndIf
 

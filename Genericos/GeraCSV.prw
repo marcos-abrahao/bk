@@ -41,8 +41,9 @@ Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
 Local cPicN   := "@E 9999999999.999999"
 Local cDirTmp := "C:\TMP"
-Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
+Local cArqTmp := cDirTmp+"\"+cArqS+"-"+DTOS(Date())+".CSV"
 Local lSoma,aSoma,nCab
+Local aPlans  := {}
 
 Private xQuebra,xCampo
 
@@ -55,7 +56,8 @@ IF lClose == NIL
 ENDIF
 
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-   Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)})
+   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+   Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose, .T.)})
    Return Nil
 EndIf
 

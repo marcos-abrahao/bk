@@ -80,7 +80,8 @@ PRIVATE cExm_Prod	:= ""
 PRIVATE cMFG_Prod	:= "" 
 PRIVATE cDCH_Prod	:= ""
 PRIVATE aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aCabs2
+PRIVATE aTitulos,aCampos,aCabs,aFormats
+PRIVATE aCampos2,aCabs2
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE cXXPLR 		:= ""
 PRIVATE nConsolida	:= 0
@@ -390,6 +391,7 @@ oTmpTb1:Create()
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aFormat := {}
 
 nomeprog := "BKGCTR14/"+TRIM(SUBSTR(cUsuario,7,15))
 
@@ -398,25 +400,31 @@ AADD(aTitulos,nomeprog+" - "+titulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_CODGCT")
 AADD(aCabs  ,"Contrato")
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_DESC")
 AADD(aCabs  ,"Descrição")
-aadd(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_PROJ")
 AADD(aCabs  ,"Previsão Financeira")
-aadd(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
+AADD(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 AADD(aCampos,"TRB->XX_REAL")
 AADD(aCabs  ,"Realizado")
-aadd(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
+AADD(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 AADD(aCampos,"TRB->XX_DIF")
 AADD(aCabs  ,"% Diferença")
-aadd(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 
 aDbf2    := {}
@@ -571,7 +579,7 @@ Local cAlias := "TRB"
 dbSelectArea(cAlias)
 
 ProcRegua(1)
-Processa( {|| GeraCR14(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs)})
+Processa( {|| GeraCR14(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,,,aFormat)})
 
 Return Nil
 
@@ -3571,7 +3579,7 @@ Do While (ALIAS_TMP)->(!eof())
 				dbSelectArea("TRB")
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Contrato:"
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
@@ -3581,7 +3589,7 @@ Do While (ALIAS_TMP)->(!eof())
 				
 		 		++nLINHA
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
 				TRB->XX_PROJ 	:= aContConsol[_IX,4]
@@ -3593,7 +3601,7 @@ Do While (ALIAS_TMP)->(!eof())
         		nVContrat := aScan(aVContrat, {|x| x[1]==aContConsol[_IX,1] })
 		 		++nLINHA
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Vigência:"
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
@@ -3605,7 +3613,7 @@ Do While (ALIAS_TMP)->(!eof())
 			NEXT
 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Competência Analisada:"
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
@@ -3616,7 +3624,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 	++nLINHA
 	
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= "Previsão Financeira"
@@ -4768,7 +4776,7 @@ Return NIL
 
 
 
-STATIC Function GeraCR14(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra)
+STATIC Function GeraCR14(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFormat)
 Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
@@ -4776,13 +4784,22 @@ Local cPicN   := "@E 99999999.99999"
 Local cDirTmp := "C:\TMP"
 Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
 Local lSoma,aSoma,nCab
-Local cLetra
+Local cLetra	:= ""
+Local cTpQuebra	:= ""
+Local cQuebra	:= ""
+Local aQuebra	:= {}
+
+Local aPlans  := {}
 
 Private xQuebra,xCampo
 
-IF cTpQuebra == NIL
-   cTpQuebra := " "
-ENDIF
+
+If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+   //Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
+   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+   Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose:= .F., .T.)})
+   Return Nil
+EndIf
 
 MakeDir(cDirTmp)
 fErase(cArqTmp)
