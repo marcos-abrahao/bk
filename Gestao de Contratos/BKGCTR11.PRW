@@ -3530,7 +3530,8 @@ PRIVATE aContConsol := {}
 PRIVATE cTipoContra := ""
 PRIVATE aXXMIMPC	:= {}
 PRIVATE aMImpContr  := {}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aCabs2
+PRIVATE aTitulos,aCampos,aCabs,aFormat
+PRIVATE aCampos2,aCabs2
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE ALIAS_FOL   := "TMPF"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE cXXPLR 		:= ""
@@ -3866,6 +3867,7 @@ oTmpTb1:Create()
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aFormat := {}
 
 nomeprog := "BK2GCTR11/"+TRIM(SUBSTR(cUsuario,7,15))
 
@@ -3874,34 +3876,40 @@ AADD(aTitulos,nomeprog+" - "+titulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_CODGCT")
 AADD(aCabs  ,"Contrato")
+AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_DESC")
 AADD(aCabs  ,"Descrição")
-AAdd(aFixeFX,{"Descrição","XX_DESC",'C', 50,00,'@!'})
+AADD(aFixeFX,{"Descrição","XX_DESC",'C', 50,00,'@!'})
 AADD(aHeader,{"Descrição","XX_DESC" ,"@!",50,00,"","","C","TRB","R"})
+AADD(aFormat,"")
 
 dDataInicio := dDataI
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
 	AADD(aCampos,"TRB->XX_VAL"+cMes)
 	AADD(aCabs,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-	AAdd(aFixeFX,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,'C', 10,00,'@!'})
+	AADD(aFixeFX,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,'C', 10,00,'@!'})
     AADD(aHeader,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,"@!",10,00,"","","C","TRB","R"})
  	dDataInicio := MonthSum(dDataInicio,1)
+	AADD(aFormat,"N")
 NEXT
 
 AADD(aCampos,"TRB->XX_TOTAL")
 AADD(aCabs  ,"TOTAL")
-AAdd(aFixeFX,{"TOTAL","XX_TOTAL",'C', 10,00,'@!'})
-aadd(aHeader,{"TOTAL","XX_TOTAL" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFixeFX,{"TOTAL","XX_TOTAL",'C', 10,00,'@!'})
+AADD(aHeader,{"TOTAL","XX_TOTAL" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 AADD(aCampos,"TRB->XX_INDIC")
 AADD(aCabs  ,"INDICE")
-AAdd(aFixeFX,{"INDICE","XX_INDIC",'C', 10,00,'@!'})
-aadd(aHeader,{"INDICE","XX_INDIC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFixeFX,{"INDICE","XX_INDIC",'C', 10,00,'@!'})
+AADD(aHeader,{"INDICE","XX_INDIC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aFormat,"N")
 
 //AADD(aCampos,"TRB->XX_STATUS")
 

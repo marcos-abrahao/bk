@@ -99,9 +99,11 @@ nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo
 nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+
 nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 nP2Style	:= oExcel:AddStyles(10/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+
+nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
@@ -272,17 +274,18 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 			If _aFormat[nI] == "N" .AND. cTipo == "C" .AND. !Empty(xCampo)
 				yCampo := ALLTRIM(xCampo)
-				If "%" $ xCampo
-					cTipo := "P"
-				Else
-					cTipo := _aFormat[nI]
-				EndIf
 
 				If "," $ xCampo
 	        		yCampo := STRTRAN(yCampo,".","")
 	        		yCampo := STRTRAN(yCampo,",",".")
 				EndIf
-				xCampo := VAL(yCampo)
+				If "%" $ xCampo
+					cTipo := "P"
+					xCampo := VAL(yCampo) / 100
+				Else
+					cTipo := _aFormat[nI]
+					xCampo := VAL(yCampo)
+				EndIf
 			EndIf
 
 			If cTipo == "N"
