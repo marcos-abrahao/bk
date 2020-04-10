@@ -62,19 +62,20 @@ If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
 EndIf
 
 MakeDir(cDirTmp)
-fErase(cArqTmp)
 
-//If fErase(cArqTmp) == -1
-//   MsgStop('O arquivo '+cArqTmp+' esta em uso ( FError'+str(ferror(),4)+ ')')
-//   Return
-//EndIf
+If File(cArqTmp)
+	nRet:= FERASE(cArqTmp)
+	If nRet < 0
+		MsgAlert("Não será possivel gerar a planilha, feche o arquivo "+cArqTmp,cArqS)
+	EndIf
+EndIf
 
 lSoma := .F.
 aSoma := {}
 nCab  := 0
 
 nHandle := MsfCreate(cArqTmp,0)
-   
+
 If nHandle > 0
       
    FOR _ni := 1 TO LEN(aTitulos)
@@ -186,9 +187,8 @@ If nHandle > 0
       
    fClose(nHandle)
       
-   IF MsgYesNo("Deseja abrir o arquivo "+cArqTmp+" pelo aplicativo associado?")
-      ShellExecute("open", cArqTmp,"","",1)
-   ENDIF	
+	MsgRun(cArqs,"Aguarde a abertura da planilha...",{|| ShellExecute("open", cArqTmp,"","",1) })
+
 Else
    MsgAlert("Falha na criação do arquivo "+cArqTmp)
 Endif

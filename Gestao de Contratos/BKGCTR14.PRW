@@ -33,7 +33,6 @@ Private cPerg       := "BKGCTR14"
 
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
-Private nomeprog    := "BKGCTR14" // Coloque aqui o nome do programa para impressao no cabecalho
 Private lSintetico  := lSintet
 
 PRIVATE dDataInicio := dDatabase
@@ -80,7 +79,7 @@ PRIVATE cExm_Prod	:= ""
 PRIVATE cMFG_Prod	:= "" 
 PRIVATE cDCH_Prod	:= ""
 PRIVATE aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aFormats
+PRIVATE aTitulos,aCampos,aCabs,aFormat,aFormula
 PRIVATE aCampos2,aCabs2
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE cXXPLR 		:= ""
@@ -392,11 +391,9 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 aFormat := {}
+aFormula:= {}
 
-nomeprog := "BKGCTR14/"+TRIM(SUBSTR(cUsuario,7,15))
-
-AADD(aTitulos,nomeprog+" - "+titulo)
-
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
@@ -719,7 +716,7 @@ FOR _nI := 1 TO nPeriodo
         aRentab  := {}
         AADD(aRentab,{"00","CLIENTE: ","S",QTMP->A1_NOME})              
         AADD(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})              
-        AADD(aRentab,{"02","Gestor BK: ","S",QTMP->CN9_XXNRBK})              
+        AADD(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
         AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})              
         AADD(aRentab,{"03-1","","S",0}) 
         AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
@@ -3554,7 +3551,7 @@ Do While (ALIAS_TMP)->(!eof())
 				dbSelectArea("TRB")
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= ""
 				TRB->XX_PROJ 	:= "Num. Siga: "+aContConsol[_IX,1] 
@@ -3567,7 +3564,7 @@ Do While (ALIAS_TMP)->(!eof())
 				dbSelectArea("TRB")
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Cliente:"
 				TRB->XX_PROJ 	:= aContConsol[_IX,2]
@@ -3641,7 +3638,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= "Num. Siga: "+(ALIAS_TMP)->XX_CODGCT 
@@ -3654,7 +3651,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Cliente:"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
@@ -3668,7 +3665,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Contrato:"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
@@ -3681,7 +3678,7 @@ Do While (ALIAS_TMP)->(!eof())
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|02|"
 	
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
@@ -3693,7 +3690,7 @@ Do While (ALIAS_TMP)->(!eof())
        		nVContrat := aScan(aVContrat, {|x| x[1]==(ALIAS_TMP)->XX_CODGCT })
 	 		++nLINHA
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  :=(ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Vigência:"
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
@@ -3703,7 +3700,7 @@ Do While (ALIAS_TMP)->(!eof())
 
 		 	++nLINHA
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Competência Analisada:"
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
@@ -3713,7 +3710,7 @@ Do While (ALIAS_TMP)->(!eof())
 
 		 	++nLINHA
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= "Previsão Financeira"
@@ -3730,7 +3727,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//FATURAMENTO
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
 		TRB->XX_PROJ 	:= transform((ALIAS_TMP)->&cCampoX,cPict)
@@ -3782,7 +3779,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//BENEFICIOS 
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "BENEFICIOS"
 		TRB->XX_PROJ 	:= transform(nBficP,cPict)
@@ -3799,7 +3796,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//PULA LINHA
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= ""
@@ -3809,7 +3806,7 @@ Do While (ALIAS_TMP)->(!eof())
 
 			dbSelectArea("TRB")
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "DETALHE DOS BENEFICIOS"
 			TRB->XX_PROJ 	:= ""
@@ -3822,7 +3819,7 @@ Do While (ALIAS_TMP)->(!eof())
 					dbSelectArea("TRB")
 					//GASTOS GERAIS
  					Reclock("TRB",.T.)
-					TRB->XX_LINHA  := nLINHA
+					TRB->XX_LINHA   := nLINHA
  					TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 					TRB->XX_DESC	:= aBenef[_XI,2]
 					TRB->XX_PROJ 	:= aBenef[_XI,3]
@@ -3834,7 +3831,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//PULA LINHA
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= ""
@@ -3904,7 +3901,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//INSUMOS
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "INSUMOS"
 		TRB->XX_PROJ 	:= transform(InsumosP,cPict)
@@ -3916,7 +3913,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//TAXA DE ADMINISTRAÇÃO
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "TAXA DE ADMINISTRAÇÃO DO MÊS"
 		TRB->XX_PROJ 	:= transform(nValTADP,cPict)
@@ -3928,7 +3925,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//TAXA DE ADMINISTRAÇÃO
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "TAXA DE ADMINISTRAÇÃO ATÉ O MÊS"
 		TRB->XX_PROJ 	:= ""
@@ -3941,7 +3938,7 @@ Do While (ALIAS_TMP)->(!eof())
         	//CUSTO BK
 			dbSelectArea("TRB")
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= cCustoBk
 			TRB->XX_PROJ 	:= transform(nCustoBKP,cPict)
@@ -4021,7 +4018,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//RESULTADO
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO DO MÊS - GLOBAL"
 		TRB->XX_PROJ 	:= ""
@@ -4033,7 +4030,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//RESULTADO
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO ATÉ O MÊS - GLOBAL"
 		TRB->XX_PROJ 	:= ""
@@ -4046,7 +4043,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//RESULTADO
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO"
 		TRB->XX_PROJ 	:= ""
@@ -4092,9 +4089,9 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//PULA LINHA
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Qtd. Funcionarios"
+			TRB->XX_DESC	:= "Qtd. Funcionarios: "
 			TRB->XX_PROJ 	:= cDFun1
 			TRB->XX_REAL 	:= "Descr.: "+STRTRAN(cDFun,"|","")
 			TRB->XX_DIF 	:= ""
@@ -4111,7 +4108,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//PULA LINHA
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Justificativa Funcionarios"
 			TRB->XX_PROJ 	:= cJFun
@@ -4126,7 +4123,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//PULA LINHA
  			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= ""
@@ -4150,7 +4147,7 @@ Do While (ALIAS_TMP)->(!eof())
 					dbSelectArea("TRB")
 					//GASTOS GERAIS
  					Reclock("TRB",.T.)
-					TRB->XX_LINHA  := nLINHA
+					TRB->XX_LINHA   := nLINHA
  					TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 					TRB->XX_DESC	:= aGeral[_XI,2]
 					TRB->XX_PROJ 	:= aGeral[_XI,3]
@@ -4164,7 +4161,7 @@ Do While (ALIAS_TMP)->(!eof())
 		dbSelectArea("TRB")
 		//PULA LINHA
  		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
+		TRB->XX_LINHA   := nLINHA
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= ""
 		TRB->XX_PROJ 	:= ""
@@ -4345,7 +4342,7 @@ Do While (ALIAS_TMP)->(!eof())
 				dbSelectArea("TRB")
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Contrato:"
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
@@ -4355,7 +4352,7 @@ Do While (ALIAS_TMP)->(!eof())
 				
 		 		++nLINHA
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
 				TRB->XX_PROJ 	:= aContConsol[_IX,4]
@@ -4367,7 +4364,7 @@ Do While (ALIAS_TMP)->(!eof())
         		nVContrat := aScan(aVContrat, {|x| x[1]==aContConsol[_IX,1] })
 		 		++nLINHA
 	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
+				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Vigência:"
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
@@ -4389,7 +4386,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 	++nLINHA
 	
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= ""
@@ -4406,7 +4403,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= "Num. Siga: "+(ALIAS_TMP)->XX_CODGCT 
@@ -4419,7 +4416,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Cliente:"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
@@ -4433,7 +4430,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Contrato:"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
@@ -4446,7 +4443,7 @@ Do While (ALIAS_TMP)->(!eof())
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|02|"
 	
 	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
+			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
@@ -4711,7 +4708,7 @@ Do While (ALIAS_TMP)->(!eof())
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA  := nLINHA
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Qtd. Funcionarios"
+			TRB->XX_DESC	:= "Qtd. Funcionarios: "
 			TRB->XX_PROJ 	:= cDFun1
 			TRB->XX_REAL 	:= "Descr.: "+STRTRAN(cDFun,"|","")
 			TRB->XX_DIF 	:= ""
@@ -4919,8 +4916,7 @@ If nHandle > 0
       
    fClose(nHandle)
       
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel")
-   ShellExecute("open", cArqTmp,"","",1)
+	MsgRun(cArqs,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
 
 Else
    MsgAlert("Falha na criação do arquivo "+cArqTmp)

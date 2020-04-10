@@ -29,7 +29,6 @@ Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho"
 Private aContratos 	:= {}
 Private lConsorcio  := .F.
 Private lFurnas		:= .F.
-Private nomeprog    := "BKGCTR11" // Coloque aqui o nome do programa para impressao no cabecalho
 Private cPerg       := "BKGCTR11"
 
 Private dDataInicio := dDatabase
@@ -313,10 +312,7 @@ aCampos := {}
 aTitulos:= {}
 aFormat := {}
 
-nomeprog := "BKGCTR11/"+TRIM(SUBSTR(cUsuario,7,15))
-
-AADD(aTitulos,nomeprog+" - "+titulo)
-
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")
@@ -3382,9 +3378,8 @@ If nHandle > 0
    ENDIF	
       
    fClose(nHandle)
-      
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel")
-   ShellExecute("open", cArqTmp,"","",1)
+
+	MsgRun(cArqs,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
 
 Else
    MsgAlert("Falha na criação do arquivo "+cArqTmp)
@@ -3482,7 +3477,6 @@ Private titulo      := "Rentabilidade dos Contratos"
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
 PRIVATE lConsorcio  := .F.
-Private nomeprog    := "BK2GCTR11" // Coloque aqui o nome do programa para impressao no cabecalho
 Private cPerg       := "BK2GCTR11"
 
 PRIVATE dDataInicio := dDatabase
@@ -3869,10 +3863,7 @@ aCampos := {}
 aTitulos:= {}
 aFormat := {}
 
-nomeprog := "BK2GCTR11/"+TRIM(SUBSTR(cUsuario,7,15))
-
-AADD(aTitulos,nomeprog+" - "+titulo)
-
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"TRB->XX_LINHA")
 AADD(aCabs  ,"Linha")

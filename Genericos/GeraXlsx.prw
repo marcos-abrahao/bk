@@ -272,7 +272,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			xCampo := &(_aCampos[nI])
 			cTipo := ValType(xCampo)
 
-			If _aFormat[nI] == "N" .AND. cTipo == "C" .AND. !Empty(xCampo)
+			If _aFormat[nI] == "N" .AND. cTipo == "C" .AND. !Empty(xCampo) .AND. !IsAlpha(xCampo)
 				yCampo := ALLTRIM(xCampo)
 
 				If "," $ xCampo
@@ -704,7 +704,7 @@ cFile := cDirTmp+"\"+cFile+".xlsx"
 If File(cFile)
 	nRet:= FERASE(cFile)
 	If nRet < 0
-		MsgStop("Não será possivel gerar a planilha "+cFile+", feche o arquivo",_cProg)
+		MsgAlert("Não será possivel gerar a planilha, feche o arquivo "+cFile,_cProg)
 	EndIf
 EndIf
 
