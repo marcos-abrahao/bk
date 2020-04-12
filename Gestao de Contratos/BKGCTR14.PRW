@@ -390,37 +390,44 @@ oTmpTb1:Create()
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aImpr	:= {}
 aFormat := {}
 aFormula:= {}
 
 AADD(aTitulos,titulo)
 
-AADD(aCampos,"TRB->XX_LINHA")
-AADD(aCabs  ,"Linha")
-AADD(aFormat,"")
+//AADD(aCampos,"TRB->XX_LINHA")
+//AADD(aCabs  ,"Linha")
+//AADD(aImpr,.T.)
+//AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_CODGCT")
 AADD(aCabs  ,"Contrato")
+AADD(aImpr,.T.)
 AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_DESC")
 AADD(aCabs  ,"Descrição")
 AADD(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aImpr,.T.)
 AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_PROJ")
 AADD(aCabs  ,"Previsão Financeira")
 AADD(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
+AADD(aImpr,.T.)
 AADD(aFormat,"N")
 
 AADD(aCampos,"TRB->XX_REAL")
 AADD(aCabs  ,"Realizado")
 AADD(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
+AADD(aImpr,.T.)
 AADD(aFormat,"N")
 
 AADD(aCampos,"TRB->XX_DIF")
 AADD(aCabs  ,"% Diferença")
 AADD(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
+AADD(aImpr,.T.)
 AADD(aFormat,"N")
 
 
@@ -576,7 +583,7 @@ Local cAlias := "TRB"
 dbSelectArea(cAlias)
 
 ProcRegua(1)
-Processa( {|| GeraCR14(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,,,aFormat)})
+Processa( {|| GeraCR14(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)})
 
 Return Nil
 
@@ -671,7 +678,9 @@ FOR _nI := 1 TO nPeriodo
  
 	u_LogMemo("BKGCTR14-1.SQL",cQuery)
 
-
+	If Select("QTMP") > 0
+		QTMP->(dbCloseArea())
+	EndIf
 	TCQUERY cQuery NEW ALIAS "QTMP" 
 
 	dbSelectArea("QTMP")
@@ -3452,6 +3461,7 @@ DbSelectArea(ALIAS_TMP)
 (ALIAS_TMP)->(dbSetOrder(1))
 (ALIAS_TMP)->(dbgotop())
 cCodigo  := (ALIAS_TMP)->XX_CODGCT
+
 nBficP 	 := 0
 nBficR 	 := 0
 nCustoBkP := 0
@@ -3558,7 +3568,8 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				TRB->(Msunlock())
-	
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+
 		 		++nLINHA
 	    	
 				dbSelectArea("TRB")
@@ -3570,6 +3581,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,2]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 				
 		 		++nLINHA
@@ -3582,6 +3594,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock()) 
 				
 		 		++nLINHA
@@ -3592,6 +3605,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,4]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 				nVContrat := 0
@@ -3604,8 +3618,8 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
-
 
 			NEXT
 
@@ -3615,7 +3629,8 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_DESC	:= "Competência Analisada:"
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
+			TRB->XX_DI= ""
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -3627,6 +3642,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -3696,6 +3715,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -3706,6 +3726,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -3716,6 +3737,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -3731,7 +3756,11 @@ Do While (ALIAS_TMP)->(!eof())
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
 		TRB->XX_PROJ 	:= transform((ALIAS_TMP)->&cCampoX,cPict)
+		AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
+
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
+
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
 		nValTADP	:=  0
       	nValTADP 	:= ((ALIAS_TMP)->&cCampoX * nTaxaAdm)/100		
@@ -4063,7 +4092,7 @@ Do While (ALIAS_TMP)->(!eof())
 			IF ALLTRIM(CND->CND_COMPET) == STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
 				cDescFun1 += IIF(cDescFun1 # CND->CND_XXDFUN,CND->CND_XXDFUN,"")
 				cJustFun1 += IIF(cJustFun1 # CND->CND_XXJFUN,CND->CND_XXJFUN,"")
-				cDFun1    := "Qtd. Postos: "+STR(CND->CND_XXPOST,5)+"      Qtd. Funcionarios: "+STR(CND->CND_XXFUNC,5)+"      Qtd. Func. Atual: "+STR(CND->CND_XXNFUN,5)
+				cDFun1    := "Qtd. Postos: "+cValToChar(CND->CND_XXPOST)+" Qtd. Funcionarios: "+cValToChar(CND->CND_XXFUNC)+" Qtd. Func. Atual: "+cValToChar(CND->CND_XXNFUN)
 			ENDIF 
 			CND->(dbSkip())
 		ENDDO
@@ -4336,6 +4365,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,2]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 				
 		 		++nLINHA
@@ -4348,6 +4378,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock()) 
 				
 		 		++nLINHA
@@ -4370,6 +4401,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
+				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 			NEXT
@@ -4381,6 +4413,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -4392,6 +4425,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= ""
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4461,6 +4498,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -4471,6 +4509,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -4482,6 +4521,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= ""
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4680,7 +4723,7 @@ Do While (ALIAS_TMP)->(!eof())
 			IF ALLTRIM(CND->CND_COMPET) == STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
 				cDescFun1 += IIF(cDescFun1 # CND->CND_XXDFUN,CND->CND_XXDFUN,"")
 				cJustFun1 += IIF(cJustFun1 # CND->CND_XXJFUN,CND->CND_XXJFUN,"")
-				cDFun1    := "Qtd. Postos: "+STR(CND->CND_XXPOST,5)+"      Qtd. Funcionarios: "+STR(CND->CND_XXFUNC,5)+"      Qtd. Func. Atual: "+STR(CND->CND_XXNFUN,5)
+				cDFun1    := "Qtd. Postos: "+cValToChar(CND->CND_XXPOST)+" Qtd. Funcionarios: "+cValToChar(CND->CND_XXFUNC)+" Qtd. Func. Atual: "+cValToChar(CND->CND_XXNFUN)
 			ENDIF 
 			CND->(dbSkip())
 		ENDDO
@@ -4773,7 +4816,7 @@ Return NIL
 
 
 
-STATIC Function GeraCR14(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFormat)
+STATIC Function GeraCR14(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
 Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
@@ -4793,7 +4836,7 @@ Private xQuebra,xCampo
 
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
    //Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
-   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
    Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose:= .F., .T.)})
    Return Nil
 EndIf
@@ -4810,10 +4853,11 @@ nHandle := MsfCreate(cArqTmp,0)
 If nHandle > 0
       
    FOR _ni := 1 TO LEN(aTitulos)
-      fWrite(nHandle, aTitulos[_ni])
-      fWrite(nHandle, cCrLf ) // Pula linha
+      fWrite(nHandle, aTitulos[_ni] + cCrLf)
       nCab++
    NEXT
+   fWrite(nHandle, cArqS+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName + cCrLf)
+   nCab++
 
    FOR _ni := 1 TO LEN(aCabs)
    		IF aCabs[_ni] <> "Linha" //.and. aCabs[_ni] <> "Contrato"

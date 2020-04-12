@@ -314,9 +314,9 @@ aFormat := {}
 
 AADD(aTitulos,titulo)
 
-AADD(aCampos,"TRB->XX_LINHA")
-AADD(aCabs  ,"Linha")
-AADD(aFormat,"")
+//AADD(aCampos,"TRB->XX_LINHA")
+//AADD(aCabs  ,"Linha")
+//AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_CODGCT")
 AADD(aCabs  ,"Contrato")
@@ -3865,9 +3865,9 @@ aFormat := {}
 
 AADD(aTitulos,titulo)
 
-AADD(aCampos,"TRB->XX_LINHA")
-AADD(aCabs  ,"Linha")
-AADD(aFormat,"")
+//AADD(aCampos,"TRB->XX_LINHA")
+//AADD(aCabs  ,"Linha")
+//AADD(aFormat,"")
 
 AADD(aCampos,"TRB->XX_CODGCT")
 AADD(aCabs  ,"Contrato")

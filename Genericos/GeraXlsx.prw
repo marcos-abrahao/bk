@@ -14,24 +14,30 @@ Generico - Gera planilha excel
 //	    AADD(aCabsX,Capital(cNomeC))
 //	    AADD(aCamposX,_cAlias+"->"+FIELDNAME(nI))
 //	    AADD(aImpr,.T.)
-//	    **AADD(aAlign,NIL)
-//	    **AADD(aFormat,NIL)
+//	    AADD(aFormula,NIL)
+//	    AADD(aFormat,NIL)
 //	    AADD(aTotal,NIL)
 
-//AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
+//AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
 //MsAguarde({|| GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
 
 User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _lZebra )
 
 Local oExcel := YExcel():new()
 Local oAlCenter
+Local aTitulos:= {}
 Local aTamCol := {}
 Local aTotal  := {}
 Local nTamCol := 0
+Local aStruct := {}
+Local aRef    := {}
+
 Local cTipo   := ""
 Local lTotal  := .F.
+Local lFormula:= .F.
 Local nI 	  := 0
 Local nJ	  := 0
+Local nF	  := 0
 Local nLin    := 1
 Local nTop    := 1
 Local cFile   := _cProg+"-"+DTOS(Date())
@@ -42,34 +48,49 @@ Local nCont	  := 0
 Local aArea   := GetArea()
 Local nPl     := 0
 
-Local _cAlias := ""
-Local _aCabs  := {}
+Local _cAlias  := ""
+Local _aCabs   := {}
 Local _cPlan   := ""
 Local _cFiltra := ""
 Local _xTitulos:= ""
 Local _aCampos := {}
 Local _aImpr   := {}
-Local _aAlign  := {}
+Local _aFormula:= {}
 Local _aFormat := {}
 Local _aTotal  := {}
 Local _cQuebra := ""
 Local _lClose  := .F.
 
 Local nCabFont
+Local nLinFont
 Local nTitFont
+Local nTit2Font
+Local nSCabFont
 Local nCabCor
+Local nSCabCor
 Local nBordas
+Local nFmtNum0
 Local nFmtNum2
+Local nFmtNum5
+Local nFmtPer5
 Local nTotFont
 Local nCabStyle	
+Local nSCabStyle	
+Local nV0Style
 Local nV2Style
+Local nV5Style
+Local nP5Style
 Local nD2Style
 Local nG2Style 	
+Local nT0Style
 Local nT2Style
+Local nT5Style
 Local nTitStyle	
 Local nTit2Style	
 Local nTotStyle	
 Local nIDImg
+
+Local nStyle
 
 Private xCampo,yCampo
 Private xQuebra
@@ -90,22 +111,33 @@ nCabFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2",,.T.)
 nLinFont	:= oExcel:AddFont(10,"00000000","Calibri","2")
 nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2",,.T.)
 nTit2Font	:= oExcel:AddFont(10,"00000000","Calibri","2")
+nSCabFont	:= oExcel:AddFont(10,"00000000","Calibri","2",,.T.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
+nSCabCor	:= oExcel:CorPreenc("D9D9D9")	//Cor de Fundo de sub cabeçalho
 
 nBordas 	:= oExcel:Borda("ALL")
+
+nFmtNum0	:= oExcel:AddFmtNum(0/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+
+nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 
+nV0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nP2Style	:= oExcel:AddStyles(10/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nV5Style	:= oExcel:AddStyles(nFmtNum5/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nP5Style	:= oExcel:AddStyles(nFmtPer5/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 
 nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nT0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nT5Style	:= oExcel:AddStyles(nFmtNum5/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
@@ -121,7 +153,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_aCampos := _aPlans[nPl,05]
 	_aCabs   := _aPlans[nPl,06]
 	_aImpr   := _aPlans[nPl,07]
-	_aAlign  := _aPlans[nPl,08]
+	_aFormula:= _aPlans[nPl,08]
 	_aFormat := _aPlans[nPl,09]
 	_aTotal  := _aPlans[nPl,10]
 	_cQuebra := _aPlans[nPl,11]
@@ -131,6 +163,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		_aFormat := Array(Len(_aCabs))
 	EndIf
 
+	aRef     := {}
 	nCont	 := 0
 	nLin     := 1
 	nTop     := 1
@@ -183,6 +216,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	aTotal  := {}
 
 	(_cAlias)->(dbgotop())
+	aStruct := (_cAlias)->(dbStruct())
 
 	For nI :=1 to LEN(_aCampos)
 
@@ -192,24 +226,54 @@ FOR nPl := 1 TO LEN(_aPlans)
 		 	ENDIF 
 		ENDIF
 
-		xCampo := &(_aCampos[nI])
-		cTipo := ValType(xCampo)
-
 		nTamCol := 0
 		lTotal  := .F.
-		If cTipo == "N"
-			nTamCol := 15
-			lTotal  := .T.
-		ElseIf cTipo == "D"
-			nTamCol := 13
-		Else
-			If Len(xCampo) > 8
-				If Len(xCampo) < 150
-					nTamCol := Len(xCampo) + 1
+		cTipo   := ""
+
+		nF := aScan(aStruct,{|x| x[1] = SUBSTR(_aCampos[nI],aT(">",_aCampos[nI])+1) })
+		If nF > 0
+			cTipo   := aStruct[nF,2]
+			//nTamCol := aStruct[nF,3]+aStruct[nF,4]+1
+			nTamCol := aStruct[nF,3]+1
+			If cTipo == "N"
+				lTotal := .T.
+				If aStruct[nF,4] == 0
+					cTipo := "N0"
+				ElseIf aStruct[nF,4] > 2 .AND. aStruct[nF,4] < 6
+					cTipo := "N5"
+					nTamCol += 5
 				Else
-					nTamCol := 150
+					nTamCol := 15
+				EndIf
+			Elseif cTipo == "D"
+				nTamCol := 12
+			ElseiF nTamCol > 150
+				nTamCol := 150
+			EndIf
+		EndIf
+
+		If Empty(cTipo)
+			xCampo := &(_aCampos[nI])
+			cTipo  := ValType(xCampo)
+
+			If cTipo == "N"
+				nTamCol := 15
+				lTotal  := .T.
+			ElseIf cTipo == "D"
+				nTamCol := 12
+			Else
+				If Len(xCampo) > 8
+					If Len(xCampo) < 150
+						nTamCol := Len(xCampo) + 1
+					Else
+						nTamCol := 150
+					EndIf
 				EndIf
 			EndIf
+		EndIf
+
+		If Empty(_aFormat[nI])
+			_aFormat[nI] := cTipo
 		EndIf
 
 	    IF !EMPTY(_aTotal)
@@ -220,22 +284,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 		 	ENDIF 
 		ENDIF
 
-/*
-	    IF !EMPTY(_aAlign)
-			IF _aAlign[nI] <> NIL
-		    	nAlign  := _aAlign[nI]
-		 	ENDIF 
-		ENDIF
-		    
-	    IF !EMPTY(_aFormat)
-			IF _aFormat[nI] <> NIL
-		    	nFormat  := _aFormat[nI]
-		    	IF nFormat = 4
-		    		nFormat := 1
-		    	ENDIF
-		 	ENDIF 
-		ENDIF
-*/
+		If nI == 1 .AND. nTamCol < 8
+			// Não reduzir a coluna do Logo
+			nTamCol := 8
+		EndIf
 
 		aAdd( aTamCol, nTamCol)
 		aAdd( aTotal,lTotal)
@@ -269,34 +321,85 @@ FOR nPl := 1 TO LEN(_aPlans)
 				ENDIF 
 			ENDIF
 
-			xCampo := &(_aCampos[nI])
-			cTipo := ValType(xCampo)
+			xCampo	:= &(_aCampos[nI])
 
-			If _aFormat[nI] == "N" .AND. cTipo == "C" .AND. !Empty(xCampo) .AND. !IsAlpha(xCampo)
+			//Tipo	:= ValType(xCampo)
+			//If !Empty(_aFormat[nI])
+				cTipo := _aFormat[nI]
+			//EndIf
+
+			nF		:= 0
+			lFormula:= .F.
+
+			If !Empty(_aFormula)
+				nF := aScan(_aFormula,{|x| x[1]=nCont .AND. x[2]= _aCampos[nI]})
+			EndIf
+
+			If nF > 0
+				// Formula
+				If !Empty(_aFormula[nf,3])
+					lFormula:= .T.
+					xCampo  := _aFormula[nf,3]
+				EndIf
+
+				// "TIPO"
+				If !Empty(_aFormula[nf,4])
+					cTipo := _aFormula[nf,4]
+				EndIf
+
+				// NOME
+				If !Empty(_aFormula[nf,5])
+					oExcel:AddNome(_aFormula[nf,5],nLin, nI, nLin, nI)
+				EndIf
+
+				// REFERENCIA
+				If !Empty(_aFormula[nf,6])
+					aAdd(aRef,{_aFormula[nf,6],oExcel:Ref(nLin, nI)})
+					// Criar Array para Guardar a referencia concatenada
+					//oExcel:AddNome(_aFormula[nf,5],nLin, nI, nLin, nI)
+				EndIf
+
+			EndIf
+
+			If !Empty(xCampo) .AND. Substr(cTipo,1,1) $ "NP" .AND. ValType(xCampo) == "C" .AND. !IsAlpha(xCampo)
 				yCampo := ALLTRIM(xCampo)
 
 				If "," $ xCampo
-	        		yCampo := STRTRAN(yCampo,".","")
-	        		yCampo := STRTRAN(yCampo,",",".")
+					yCampo := STRTRAN(yCampo,".","")
+					yCampo := STRTRAN(yCampo,",",".")
 				EndIf
+				
 				If "%" $ xCampo
 					cTipo := "P"
-					xCampo := VAL(yCampo) / 100
-				Else
-					cTipo := _aFormat[nI]
-					xCampo := VAL(yCampo)
 				EndIf
+				//	xCampo := VAL(yCampo) / 100
+				//Else
+					xCampo := VAL(yCampo)
+				//EndIf
+				
 			EndIf
 
+			nStyle := nG2Style
 			If cTipo == "N"
-				oExcel:Cell(nLin,nI,xCampo,,nV2Style)
+				nStyle := nV2Style
+			ElseIf cTipo == "N0"
+				nStyle := nV0Style
+			ElseIf cTipo == "N5"
+				nStyle := nV5Style
 			ElseIf cTipo == "P"
-				oExcel:Cell(nLin,nI,xCampo,,nP2Style)
+				nStyle := nP5Style
 			ElseIf cTipo == "D"
-				oExcel:Cell(nLin,nI,xCampo,,nD2Style)
-			Else
-				oExcel:Cell(nLin,nI,xCampo,,nG2Style)
+				nStyle := nD2Style
+			ElseIf cTipo == "S"
+				nStyle := nSCabStyle
 			EndIf
+
+			If lFormula
+				oExcel:Cell(nLin,nI,0,xCampo,nStyle)
+			Else
+				oExcel:Cell(nLin,nI,xCampo,,nStyle)
+			EndIf
+
 		Next
 
 		(_cAlias)->(dbskip())
@@ -308,12 +411,20 @@ FOR nPl := 1 TO LEN(_aPlans)
 	nLin++
 	// Linha de Total
 	oExcel:Cell(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")",,nTotStyle)
-	For nI := 2 To Len(aTotal)
-		If aTotal[nI]
-			oExcel:AddNome("P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0)),nTop, nI, nLin-1, nI)
-			oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0))+")",nT2Style)
-		EndIf
-	Next
+	If nCont > 0
+		For nI := 2 To Len(aTotal)
+			If aTotal[nI]
+				oExcel:AddNome("P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0)),nTop, nI, nLin-1, nI)
+				nStyle := nT2Style
+				If _aFormat[nI] == "N0"
+					nStyle := nT0Style
+				ElseIf _aFormat[nI] == "N5"
+					nStyle := nT5Style
+				EndIf
+				oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0))+")",nStyle)
+			EndIf
+		Next
+	EndIf
 
 	If _lClose   
 	   (_cAlias)->(dbCloseArea())

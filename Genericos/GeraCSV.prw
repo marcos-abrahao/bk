@@ -56,7 +56,7 @@ IF lClose == NIL
 ENDIF
 
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
    Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose, .T.)})
    Return Nil
 EndIf

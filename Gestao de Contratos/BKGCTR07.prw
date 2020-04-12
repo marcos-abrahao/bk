@@ -192,7 +192,6 @@ ENDIF
 
 ProcRegua(QTMP->(LASTREC()))
 Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
-
 Return
 
 
