@@ -183,26 +183,20 @@ For nF := 1 To Len(aFields)
 	aAdd( aTotal,lTotal)
 Next
 
-
 //----------------------------
 //Criação da tabela temporária
 //----------------------------
-
-///cArqTmp := CriaTrab( aDbf, .t. )
-///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
-
 oTmpTb := FWTemporaryTable():New( cAliasTrb )
 oTmpTb:SetFields( aDbf )
 oTmpTb:Create()
 
 Processa( {|| ProcBKR26() })
 
-MsAguarde({|| BKFINX26(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
+AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
+Processa( {|| U_GeraXlsx(aPlans,"",cPerg, .F., .T.)})
 
 oTmpTb:Delete()
-///(cAliasTrb)->(Dbclosearea())
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())
+
 Return
 
 
@@ -351,127 +345,3 @@ dbSelectArea(cAliasTrb)
 dbGoTop()
 
 Return
-
-
-Static Function BKFINX26(cAliasTrb,cArqXlsx,cTitulo,aCampos,aCabs)
-Local oExcel := YExcel():new()
-Local oAlCenter
-Local nI 	 := 0
-Local nJ	 := 0
-Local nLin   := 1
-Local cFile  := cArqXlsx+"-"+DTOS(dDataI)
-Local nRet   := 0
-
-oExcel:new(cFile)
-
-oExcel:ADDPlan(cArqXlsx,"0000FF")		//Adiciona nova planilha
-
-oAlCenter	:= oExcel:Alinhamento("center","center")
-nPosFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2")
-nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2")
-nPosCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho alterado
-nLisCor		:= oExcel:CorPreenc("D9D9D9")
-nBordas 	:= oExcel:Borda("ALL")
-nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
-
-				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nTotFont 	:= oExcel:AddFont(11,56,"Calibri","2",,.T.,.F.,.F.,.F.)
-nApoFont 	:= oExcel:AddFont(11,"FF0000","Calibri","2",,.T.,.F.,.F.,.F.)
-
-nPosStyle	:= oExcel:AddStyles(/*numFmtId*/,nPosFont/*fontId*/,nPosCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
-nLisStyle	:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-
-nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
-nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-
-nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oAlCenter})
-nApoStyle	:= oExcel:AddStyles(/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nVApoStyle	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-nDApoStyle	:= oExcel:AddStyles(14/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-
-nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
-
-nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
-
-oExcel:mergeCells(1,1,2,1)						//Mescla as células 
-
-			  //nID,nLinha,nColuna,nX,nY,cUnidade,nRot
-oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
-
-oExcel:Cell(1,2,cTitulo,,nTitStyle)
-oExcel:mergeCells(1,2,2,Len(aCabs))		//Mescla as células 
-
-nLin := nTop
-For nJ := 1 To Len(aCabs)
-	oExcel:Cell(nLin,nJ,aCabs[nJ],,nPosStyle)
-NEXT
-
-For nJ := 1 To Len(aTamCol)
-	If aTamCol[nJ] > 0
-		oExcel:AddTamCol(nJ,nJ,aTamCol[nJ])
-	EndIf
-NEXT
-
-
-(cAliasTrb)->(dbgotop())
-
-Do While (cAliasTrb)->(!eof()) 
-
-	nLin++
-
-	For nI :=1 to LEN(aCampos)
-
-		xCampo := &(aCampos[nI])
-
-		If ValType(xCampo) == "N"
-			oExcel:Cell(nLin,nI,xCampo,,nV2Style)
-		ElseIf ValType(xCampo) == "D"
-			oExcel:Cell(nLin,nI,xCampo,,nD2Style)
-		Else
-			//If "XXTIPBK" $ aCampos[nI] .AND. !( (TRIM(xCampo)+"/") $ cTTipos)
-			//	oExcel:Cell(nLin,nI,xCampo,,nApoStyle)
-			//Else
-			oExcel:Cell(nLin,nI,xCampo,,nG2Style)
-			//EndIf
-		EndIf
-
-	Next
-
-	(cAliasTrb)->(dbskip())
-EndDo
-
-//For nI := 1 To Len(aTotal)
-//	If aTotal[nI]
-//		oExcel:AddNome("COL"+STRZERO(nI,3) ,nTopV, nI,nLin,nI)
-//	EndIf
-//Next
-//oExcel:AddNome("TIPOBK" ,nTopV, 7,nLin,7)
-//oExcel:AddNome("VALORES",nTopV,11,nLin,11)	
-//oExcel:AddNome("SALDOS" ,nTopV,12,nLin,12)	
-
-oExcel:AutoFilter(nTopV-1,1,nLin,Len(aCabs))	//Auto filtro
-oExcel:AddPane(nTopV-1,1)	//Congela paineis
-
-nLin++
-oExcel:Cell(nLin,1,"Total",,nTotStyle)
-For nI := 1 To Len(aTotal)
-	If aTotal[nI]
-		oExcel:AddNome("COLUNA"+STRZERO(nI,3) ,nTopV, nI, nLin-1, nI)
-		oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,COLUNA"+STRZERO(nI,3)+")",nT2Style)
-	EndIf
-Next
-//oExcel:mergeCells(nLin,1,nLin,10)
-//oExcel:Cell(nLin,11,0,"SUM(VALORES)",nT2Style)
-//oExcel:Cell(nLin,12,0,"SUM(SALDOS)",nT2Style)
-
-cFile := "C:\TEMP\"+cFile+".xlsx"
-If File(cFile)
-	nRet:= FERASE(cFile)
-	If nRet < 0
-		MsgStop("Não será possivel gerar a planilha "+cFile+", feche o arquivo","BKFINR26")
-	EndIf
-EndIf
-oExcel:Gravar("C:\TEMP\",.T.,.T.)
-return
