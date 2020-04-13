@@ -282,7 +282,7 @@ User FUNCTION CBKFR23()
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)},"Aguarde","Gerando planilha...",.F.)
 
 Return 
 

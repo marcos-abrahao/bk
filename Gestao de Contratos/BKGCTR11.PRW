@@ -146,7 +146,7 @@ cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********               
 cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
 
 aContrCons	:= {}
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
+aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
@@ -254,6 +254,7 @@ ELSE
 	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
 	    cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
 	    cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"
+	    cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')"
 	    IF SM0->M0_CODIGO <> "14"  
 	    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
 	    ENDIF  
@@ -738,6 +739,7 @@ FOR _nI := 1 TO nPeriodo
 	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
 	    	cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
 	    	cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')" 
+	    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" 
 	    	IF SM0->M0_CODIGO <> "14"  
 	    		cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
 	    	ENDIF  
@@ -953,6 +955,7 @@ FOR _nI := 1 TO nPeriodo
 	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
 	    	cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
 	    	cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"  
+	    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" 
 	    	IF SM0->M0_CODIGO <> "14"  
 	    		cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
 			ENDIF  
@@ -3257,7 +3260,7 @@ Private xQuebra,xCampo
 
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
    AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose:= .F., .T.)})
+   U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
    Return Nil
 EndIf
 
@@ -3690,8 +3693,7 @@ cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********               
 cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
 
 aContrCons	:= {}
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
-
+aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
 
@@ -3800,6 +3802,7 @@ ELSE
     	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
 	    cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
 	    cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"  
+    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" 
 	    IF SM0->M0_CODIGO <> "14"  
 	    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
 	    ENDIF  
@@ -4146,12 +4149,12 @@ IF SM0->M0_CODIGO == "01"      // BK
   	U_BK2GCTR11(.T.,aAglutGCT[5])
 	AADD(aAglutGCT,{'N','193000288;194000289;195000290;196000291;','A'})
   	U_BK2GCTR11(.T.,aAglutGCT[6])
-	AADD(aAglutGCT,{'N','197000292;198000293;199000294;','A'})
+	AADD(aAglutGCT,{'N','197000292;198000293;199000294;197001292;198001293;199001294;','A'})
  	U_BK2GCTR11(.T.,aAglutGCT[7])
 	AADD(aAglutGCT,{'N','211000316','A'})
  	U_BK2GCTR11(.T.,aAglutGCT[8])
 	AADD(aAglutGCT,{'N','215000318','A'})
- 	U_BK2GCTR11(.T.,aAglutGCT[09])
+ 	U_BK2GCTR11(.T.,aAglutGCT[9])
 	AADD(aAglutGCT,{'S','018000425','A'})
   	U_BK2GCTR11(.T.,aAglutGCT[10])
 	AADD(aAglutGCT,{'P','258000429','A'})

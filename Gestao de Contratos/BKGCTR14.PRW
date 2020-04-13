@@ -227,8 +227,7 @@ cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|3420205
 cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //"|0008|0009|0010|"  *********                               cod grupo de produto rateio no contrato
 cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
 aContrCons	:= {}
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
-
+aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
 
@@ -3762,6 +3761,7 @@ Do While (ALIAS_TMP)->(!eof())
 		AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
 
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
+
 		nValTADP	:=  0
       	nValTADP 	:= ((ALIAS_TMP)->&cCampoX * nTaxaAdm)/100		
 		nValTADR	:=  0
@@ -4837,7 +4837,7 @@ Private xQuebra,xCampo
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
    //Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
    AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   Processa( {|| U_GeraXlsx(aPlans,"",cArqS, lClose:= .F., .T.)})
+   U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
    Return Nil
 EndIf
 

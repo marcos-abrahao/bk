@@ -19,12 +19,24 @@ Generico - Gera planilha excel
 //	    AADD(aTotal,NIL)
 
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
-//MsAguarde({|| GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
+//U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
-User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _lZebra )
+
+User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam )
+Local oProcess
+oProcess := MsNewProcess():New({|| ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+oProcess:Activate()
+Return Nil
+
+Static Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel := YExcel():new()
+Local oObjPerg
 Local oAlCenter
+
+Local aPergunte
+Local aLocPar := {}
+
 Local aTitulos:= {}
 Local aTamCol := {}
 Local aTotal  := {}
@@ -65,6 +77,7 @@ Local nCabFont
 Local nLinFont
 Local nTitFont
 Local nTit2Font
+Local nTit3Font
 Local nSCabFont
 Local nCabCor
 Local nSCabCor
@@ -87,6 +100,7 @@ Local nT2Style
 Local nT5Style
 Local nTitStyle	
 Local nTit2Style	
+Local nTit3Style	
 Local nTotStyle	
 Local nIDImg
 
@@ -111,6 +125,7 @@ nCabFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2",,.T.)
 nLinFont	:= oExcel:AddFont(10,"00000000","Calibri","2")
 nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2",,.T.)
 nTit2Font	:= oExcel:AddFont(10,"00000000","Calibri","2")
+nTit3Font	:= oExcel:AddFont(12,"00000000","Calibri","2",,.T.)
 nSCabFont	:= oExcel:AddFont(10,"00000000","Calibri","2",,.T.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
@@ -140,11 +155,16 @@ nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,
 nT5Style	:= oExcel:AddStyles(nFmtNum5/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
+nTit3Style	:= oExcel:AddStyles(/*numFmtId*/,nTit3Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
 nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
 
+oProcess:SetRegua1(LEN(_aPlans))
+
 FOR nPl := 1 TO LEN(_aPlans)
+
+	oProcess:IncRegua1("Aguarde...")
 
 	_cAlias  := _aPlans[nPl,01]
 	_cPlan   := _aPlans[nPl,02]
@@ -306,9 +326,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
 
+	oProcess:SetRegua2(LastRec())
+
 	Do While (_cAlias)->(!eof()) 
 
-		IncProc("Gerando planilha "+_cPlan+"...")   
+        oProcess:IncRegua2("Gerando planilha "+_cPlan+"...")
 
 		nLin++
 		nCont++
@@ -432,6 +454,49 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 Next
 
+
+// Planilha de Parâmetros
+If ValType(_aParam) == "A"
+	For nI := 1 TO LEN(_aParam)
+		xCampo := "MV_PAR"+STRZERO(nI,2)
+		aAdd(aLocPar,{_aParam[nI,2],cValToChar(&xCampo)})
+	Next
+Else
+	oObjPerg := FWSX1Util():New()
+	oObjPerg:AddGroup(_cProg)
+	oObjPerg:SearchGroup()
+	aPergunte := oObjPerg:GetGroup(_cProg)
+	If !Empty(aPergunte[2])
+		For nI := 1 TO Len(aPergunte[2])
+			xCampo := "MV_PAR"+STRZERO(nI,2)
+			aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
+		Next
+	EndIf
+EndIf
+
+If Len(aLocPar) > 0
+	nLin := 1
+	oExcel:ADDPlan("Parâmetros","D9D9D9")		//Adiciona nova planilha
+	oExcel:AddTamCol(1,2,50)
+
+	For nJ := 1 To Len(aTitulos)
+		oExcel:mergeCells(nLin,1,nLin,2)
+		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
+		nLin++
+	Next
+
+	oExcel:Cell(nLin,1,"Parâmetros - "+_cProg,,nSCabStyle)
+	oExcel:Cell(nLin,2,"Conteúdo",,nSCabStyle)
+
+
+	For nI := 1 TO LEN(aLocPar)
+		nLin++
+		oExcel:Cell(nLin,1,aLocPar[nI,1],,nG2Style)
+		oExcel:Cell(nLin,2,aLocPar[nI,2],,nG2Style)
+	Next
+EndIf
+
+// Grava a Planilha
 cFile := cDirTmp+"\"+cFile+".xlsx"
 If File(cFile)
 	nRet:= FERASE(cFile)
@@ -444,7 +509,7 @@ oExcel:Gravar(cDirTmp+"\",.T.,.T.)
 
 RestArea(aArea)
 
-Return
+Return Nil
 
 
 User Function QryToXlsx(_cAlias,_cPlan,_cTitulo,_aDefs,_cQuebra,_lClose)
@@ -538,7 +603,7 @@ FOR nI := 1 TO FCOUNT()
 NEXT
 
 AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
-MsAguarde({|| U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
 Return nil
 

@@ -171,7 +171,7 @@ If (Parambox(aParam     ,"BKCOMR11 - "+cTitulo,@aRet,       ,            ,.T.   
 	dDataI  := mv_par03
 	dDataF  := mv_par04
 	
-	cTitulo := "BKCOMR11 - Economia de Compras - Centro de Custos: "+TRIM(cCusto)+" - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
+	cTitulo := "Economia de Compras - Centro de Custos: "+TRIM(cCusto)+" - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 Endif
 Return lRet
 
@@ -275,7 +275,7 @@ User FUNCTION CBKCOMR11()
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXlsx(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)
 
 Return 
 

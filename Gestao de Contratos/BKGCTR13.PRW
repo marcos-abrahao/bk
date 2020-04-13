@@ -143,8 +143,7 @@ Local aContrCons:= {}
 Local aConsorcio:= {}
 Local nScan		:= 0
 
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
-
+aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 FOR IX:= 1 TO LEN(aContrCons)
     AADD(aConsorcio,StrTokArr(aContrCons[IX],";"))
 NEXT

@@ -193,7 +193,7 @@ oTmpTb:Create()
 Processa( {|| ProcBKR26() })
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
-Processa( {|| U_GeraXlsx(aPlans,"",cPerg, .F., .T.)})
+U_GeraXlsx(aPlans,"",cPerg, .F.,aParam)
 
 oTmpTb:Delete()
 

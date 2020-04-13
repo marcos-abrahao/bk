@@ -19,7 +19,7 @@ Generico - Gera planilha excel no formato .XML com opção de gerar também no form
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
 //MsAguarde({|| U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
 
-User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _lZebra )
+User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel     AS OBJECT
 Local cArq       := ""
@@ -55,7 +55,7 @@ Local _aTotal    := {}
 Local _cQuebra   := ""
 
 Default _cTitulo := ""
-Default _lZebra  := .T.
+//Default _lZebra  := .T.
 
 Private xCampo
 Private xQuebra
@@ -65,7 +65,7 @@ IF lClose == NIL
 ENDIF
 
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-   Processa( {|| U_GeraXlsx(_aPlans,_cTitulo,_cProg, lClose, _lZebra)})
+   U_GeraXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam)
    Return Nil
 EndIf
 
@@ -80,11 +80,11 @@ oExcel:SetLineFrColor("#000000")
 oExcel:SetLineBgColor("#FFFFFF")
 	
 oExcel:Set2LineFrColor("#000000")
-If _lZebra
+//If _lZebra
 	oExcel:Set2LineBgColor("#F5F5F5")
-Else
-	oExcel:Set2LineBgColor("#FFFFFF")
-EndIf
+//Else
+//	oExcel:Set2LineBgColor("#FFFFFF")
+//EndIf
 
 oExcel:SetHeaderBold(.T.)
 oExcel:SetFrColorHeader("#000000")

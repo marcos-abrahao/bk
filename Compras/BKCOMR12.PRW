@@ -276,7 +276,7 @@ User FUNCTION CBKCR12()
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXlsx(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)
 
 Return 
 

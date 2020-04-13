@@ -13,7 +13,7 @@ Faturamento x Previsão de Faturamento
 
 User Function BKGCTR02()
 
-Local cTitulo   := "Previsto x Faturado - empresas: 01,02 e 14"
+Local cTitulo   := "Previsto x Faturado - Empresas: 01,02 e 14"
 Local aTitulos  := {}
 Local aCampos1  := {}
 Local aCabs1    := {}
@@ -43,13 +43,13 @@ Private nMeses  := 0
 Private aMeses  := {}
 Private l2010   := .F.
 
-Private cTpRel  := "X"
+Private cTpRel  := "XLSX"
 Private aPlans  := {}
 
-Private nOpcao  := 1
+//Private nOpcao  := 1
 Private aParam	:= {}
 Private aRet	:= {}
-Private aTpRel  := {"XML", "CSV", "Gráfico"}
+Private aTpRel  := {"XLSX", "CSV", "Gráfico"}
 
 /*
 Param Box Tipo 1
@@ -64,8 +64,8 @@ Param Box Tipo 1
   [9] : Flag .T./.F. Parâmetro Obrigatório ?
 */
 
-aAdd(aParam, {2,"Gerar:",nOpcao,aTpRel, 50,'.T.',.T.})
-aAdd(aRet, aTpRel[nOpcao])
+aAdd(aParam, {2,"Gerar:",cTpRel,aTpRel, 50,'.T.',.T.})
+aAdd(aRet, cTpRel)
  
 aAdd(aParam, {1,"Mes inicial",nMesI,"99"  ,"mv_par02 > 0 .AND. mv_par02 <= 12"  ,"","",20,.F.})
 aAdd(aRet, nMesI)
@@ -102,11 +102,11 @@ If !(Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,    
 	Return Nil
 EndIf  
 
-If VALTYPE(aRet[1]) == "N"
-	cTpRel := Substr(aTpRel[aRet[1]],1,1)
-Else
+//If VALTYPE(aRet[1]) == "N"
+//	cTpRel := Substr(aTpRel[aRet[1]],1,1)
+//Else
 	cTpRel := (Substr(aRet[1],1,1))
-EndIf
+//EndIf
 
 
 nMesI  := aRet[2]
@@ -280,7 +280,7 @@ ElseIf cTpRel == "X"
 	AADD(aPlans,{"TMPC",cProg+"-A1","",cTitulo1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. }) 
 	TMPD->(dbSetOrder(2))
 	AADD(aPlans,{"TMPD",cProg+"-A2","","Totais por Cliente",aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	MsAguarde({|| U_GeraXml(aPlans,cTitulo1,cProg,.F.)},"Aguarde","Gerando planilha...",.F.)
+   	U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
 Else
  	// Gráfico
 	ProcRegua(TMPC->(LASTREC()))

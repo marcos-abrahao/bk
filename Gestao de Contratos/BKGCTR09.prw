@@ -54,7 +54,7 @@ PRIVATE aConsorcio	:= {}
 PRIVATE aContrCons	:= {}  
 PRIVATE nIndConsor	:= 1
 
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3")),"/") //"163000240"
+aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
