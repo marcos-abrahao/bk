@@ -3628,7 +3628,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_DESC	:= "Competência Analisada:"
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
-			TRB->XX_DI= ""
+			TRB->XX_DIF		:= ""
 			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	

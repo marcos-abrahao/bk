@@ -28,6 +28,7 @@ oProcess := MsNewProcess():New({|| ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lC
 oProcess:Activate()
 Return Nil
 
+
 Static Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel := YExcel():new()
@@ -109,6 +110,10 @@ Local nStyle
 Private xCampo,yCampo
 Private xQuebra
 
+oProcess:SetRegua1(LEN(_aPlans)+2)
+
+oProcess:IncRegua1("Preparando configurações...")
+
 If lClose == NIL
    lClose := .T.
 EndIf
@@ -160,11 +165,7 @@ nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas
 
 nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
 
-oProcess:SetRegua1(LEN(_aPlans))
-
 FOR nPl := 1 TO LEN(_aPlans)
-
-	oProcess:IncRegua1("Aguarde...")
 
 	_cAlias  := _aPlans[nPl,01]
 	_cPlan   := _aPlans[nPl,02]
@@ -178,6 +179,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_aTotal  := _aPlans[nPl,10]
 	_cQuebra := _aPlans[nPl,11]
 	_lClose  := _aPlans[nPl,12]
+
+	oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
 
 	If Empty(_aFormat)
 		_aFormat := Array(Len(_aCabs))
@@ -202,7 +205,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			aAdd(aTitulos,_xTitulos[nJ])
 		Next
 	EndIf
-	aAdd(aTitulos,_cProg+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
+	aAdd(aTitulos,_cProg+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
@@ -330,7 +333,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	Do While (_cAlias)->(!eof()) 
 
-        oProcess:IncRegua2("Gerando planilha "+_cPlan+"...")
+        oProcess:IncRegua2("Processando linhas...")
 
 		nLin++
 		nCont++
@@ -454,6 +457,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 Next
 
+oProcess:IncRegua1("Listando parâmetros...")
 
 // Planilha de Parâmetros
 If ValType(_aParam) == "A"
@@ -477,6 +481,7 @@ EndIf
 If Len(aLocPar) > 0
 	nLin := 1
 	oExcel:ADDPlan("Parâmetros","D9D9D9")		//Adiciona nova planilha
+	oExcel:SetDefRow(.T.,{1,4})
 	oExcel:AddTamCol(1,2,50)
 
 	For nJ := 1 To Len(aTitulos)
