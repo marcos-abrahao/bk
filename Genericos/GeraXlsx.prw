@@ -126,12 +126,12 @@ oAlCenter	:= oExcel:Alinhamento("center","center")
 oVtCenter	:= oExcel:Alinhamento(,"center")
 
 				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nCabFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2",,.T.)
-nLinFont	:= oExcel:AddFont(10,"00000000","Calibri","2")
-nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2",,.T.)
-nTit2Font	:= oExcel:AddFont(10,"00000000","Calibri","2")
-nTit3Font	:= oExcel:AddFont(12,"00000000","Calibri","2",,.T.)
-nSCabFont	:= oExcel:AddFont(10,"00000000","Calibri","2",,.T.)
+nCabFont	:= oExcel:AddFont(9,"FFFFFFFF","Calibri","2",,.T.)
+nLinFont	:= oExcel:AddFont(9,"00000000","Calibri","2")
+nTitFont	:= oExcel:AddFont(18,"00000000","Calibri","2",,.T.)
+nTit2Font	:= oExcel:AddFont(9,"00000000","Calibri","2")
+nTit3Font	:= oExcel:AddFont(11,"00000000","Calibri","2",,.T.)
+nSCabFont	:= oExcel:AddFont(9,"00000000","Calibri","2",,.T.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
 nSCabCor	:= oExcel:CorPreenc("D9D9D9")	//Cor de Fundo de sub cabeçalho
