@@ -119,7 +119,7 @@ aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
 
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
-aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC" ,"Desconto"})
+aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC" ,"Imp. Cli não reteve - Desconto"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
 If cOpcBco == "1"
@@ -339,7 +339,9 @@ cQuery += " (SELECT SUM(C6_VALOR) FROM "+RETSQLNAME("SC6")+" SC6 WHERE SC6.C6_NU
 cQuery += " (SF2.F2_VALFAT - SF2.F2_VALIRRF - SF2.F2_VALINSS - SF2.F2_VALPIS - SF2.F2_VALCOFI - SF2.F2_VALCSLL - (CASE SF2.F2_RECISS WHEN '1' THEN SF2.F2_VALISS ELSE 0 END)) AS XX_VALLIQ," + CRLF
 cQuery += " (SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + (CASE SF2.F2_RECISS WHEN '1' THEN SE1.E1_ISS ELSE 0 END)) AS XX_IMPOST,"+ CRLF
 cQuery += " (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC "+ CRLF
+cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, "+ CRLF
+cQuery += " (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA "+ CRLF
 cQuery += " FROM "+RETSQLNAME("SC5")+" SC5" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+" SF2 ON C5_NOTA = F2_DOC AND SF2.D_E_L_E_T_ = '' AND SF2.F2_FILIAL = '" + xFilial("SF2") + "' " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SE1")+" SE1 ON SF2.F2_DOC = SE1.E1_NUM AND SF2.F2_SERIE = SE1.E1_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF ' AND  SE1.D_E_L_E_T_ = ' ' AND SE1.E1_FILIAL = '" + xFilial("SE1") + "' " + CRLF
@@ -474,13 +476,17 @@ DO WHILE (cAliasQry)->(!EOF())
 			xCampo := cAgencia
 		ElseIf aFields[nF,2] = "E5_CONTA"
 			xCampo := cConta
+		ElseIf aFields[nF,2] = "E5_VLDESCO"
+			xCampo := (cAliasQry)->XX_E5MULTA - (cAliasQry)->XX_E5DESC
 		EndIf
 
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
 	Next
 
+
 	If cOpcBco == "1"
 		nTotBx := 0
+		aSort(aBcoRec,,,{|x,y| x[4]<y[4]})
 		For nF := 1 To Len(aBcoRec)
 			If nF <= nMaxBco
 				If aBcoRec[nF,1] == "CX1"
@@ -630,9 +636,9 @@ If dbSeek(xFilial("SE5")+SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E
 	
 			If SE5->E5_TIPODOC $ "VLüBAüV2üCP#ES#DB#LJ" //+"CMüC2|VM" + "DCüD2" + "MTüM2" + "JRüJ2"
 				If SE5->E5_TIPODOC == "ES"
-					nValRec	 := -SE5->(E5_VALOR+E5_VLJUROS+E5_VLMULTA+E5_VLCORRE-E5_VLDESCO)
+					nValRec	 := -SE5->E5_VALOR // + SE5->E5_VLDESCO //-E5_VLJUROS-E5_VLMULTA-E5_VLCORRE+E5_VLDESCO)
 				Else
-					nValRec	 := SE5->(E5_VALOR-E5_VLJUROS-E5_VLMULTA-E5_VLCORRE+E5_VLDESCO)
+					nValRec	 := SE5->E5_VALOR //- SE5->E5_VLDESCO //-E5_VLJUROS-E5_VLMULTA-E5_VLCORRE+E5_VLDESCO)
 				EndIf
 				cBanco	 := SE5->E5_BANCO
 				cAgencia := SE5->E5_AGENCIA

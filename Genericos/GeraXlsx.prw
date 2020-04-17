@@ -498,7 +498,6 @@ If Len(aLocPar) > 0
 	oExcel:Cell(nLin,1,"Parâmetros - "+_cProg,,nSCabStyle)
 	oExcel:Cell(nLin,2,"Conteúdo",,nSCabStyle)
 
-
 	For nI := 1 TO LEN(aLocPar)
 		nLin++
 		oExcel:Cell(nLin,1,aLocPar[nI,1],,nG2Style)
@@ -627,18 +626,34 @@ Return nil
 //	AADD(aPlans,{aDados,cPerg,cTitExcel,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })   
 //	MsAguarde({|| U_ArrToXml(aPlans,cTitExcel,cPerg,.T.)},"Aguarde","Gerando planilha...",.F.)
 
-User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _lZebra, _cDirHttp )
+
+User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam )
+Local oProcess
+oProcess := MsNewProcess():New({|| PrcArrXlsx(oProcess,_aPlans,_cTitulo,_cProg, _aParam)}, "Processando...", "Aguarde...", .T.)
+oProcess:Activate()
+Return Nil
+
+Static Function PrcArrXlsx( oProcess,_aPlans,_cTitulo,_cProg, _aParam )
 
 Local oExcel := YExcel():new()
-Local oAlCenter
+Local oObjPerg
+
+Local aPergunte
+Local aLocPar := {}
+
+Local aTitulos:= {}
 Local aTamCol := {}
 Local aTotal  := {}
 Local nTamCol := 0
+//Local aStruct := {}
+Local aRef    := {}
+
 Local cTipo   := ""
 Local lTotal  := .F.
+//Local lFormula:= .F.
 Local nI 	  := 0
 Local nJ	  := 0
-Local nRow	  := 0
+//Local nF	  := 0
 Local nLin    := 1
 Local nTop    := 1
 Local cFile   := _cProg+"-"+DTOS(Date())
@@ -649,71 +664,115 @@ Local nCont	  := 0
 Local aArea   := GetArea()
 Local nPl     := 0
 
-Local _aDados    := {}
-Local _cPlan     := ""
-Local _xTitulos  := "" 
-Local _aCabs     := {}
-Local _aImpr     := {}
-Local _aAlign    := {}
-Local _aFormat   := {}
-Local _aTotal    := {}
+// -->Dif GeraXlsx
+Local _aDados  := {}
+Local _cPlan   := ""
+Local _xTitulos:= ""
+Local _aCabs   := {}
+Local _aImpr   := {}
+Local _aFormula:= {}
+Local _aFormat := {}
+Local _aTotal  := {}
+// <-- Dif GeraXlsx
+
+Local oAlCenter
+Local oVtCenter
+Local oQtCenter
 
 Local nCabFont
+Local nLinFont
 Local nTitFont
+Local nTit2Font
+Local nTit3Font
+Local nSCabFont
 Local nCabCor
+Local nSCabCor
 Local nBordas
+Local nFmtNum0
 Local nFmtNum2
+Local nFmtNum5
+Local nFmtPer5
 Local nTotFont
 Local nCabStyle	
+Local nSCabStyle	
+Local nV0Style
 Local nV2Style
+Local nV5Style
+Local nP5Style
 Local nD2Style
 Local nG2Style 	
+Local nT0Style
 Local nT2Style
+Local nT5Style
 Local nTitStyle	
 Local nTit2Style	
+Local nTit3Style	
 Local nTotStyle	
 Local nIDImg
 
-Default _cTitulo := ""
-Default _lZebra  := .T.
-Default _cDirHttp:= ""
-Private cFiltra  := ""
-Private xCampo
+//Local nStyle
+
+Private xCampo,yCampo
 Private xQuebra
 
-If !Empty(_cDirHttp)
-	cDirTmp := _cDirHttp
-EndIf
+oProcess:SetRegua1(LEN(_aPlans)+2)
+
+oProcess:IncRegua1("Preparando configurações...")
+
+//If lClose == NIL
+//   lClose := .T.
+//EndIf
 
 MakeDir(cDirTmp)
 
 oExcel:new(cFile)
 
+				//cHorizontal,cVertical,lReduzCaber,lQuebraTexto,ntextRotation
 oAlCenter	:= oExcel:Alinhamento("center","center")
 oVtCenter	:= oExcel:Alinhamento(,"center")
+oQtCenter	:= oExcel:Alinhamento("center","center",.F.,.T.)
 
 				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nCabFont	:= oExcel:AddFont(10,"FFFFFFFF","Calibri","2",,.T.)
-nLinFont	:= oExcel:AddFont(10,"00000000","Calibri","2")
-nTitFont	:= oExcel:AddFont(20,"00000000","Calibri","2",,.T.)
-nTit2Font	:= oExcel:AddFont(10,"00000000","Calibri","2")
+nCabFont	:= oExcel:AddFont(9,"FFFFFFFF","Calibri","2",,.T.)
+nLinFont	:= oExcel:AddFont(9,"00000000","Calibri","2")
+nTitFont	:= oExcel:AddFont(18,"00000000","Calibri","2",,.T.)
+nTit2Font	:= oExcel:AddFont(9,"00000000","Calibri","2")
+nTit3Font	:= oExcel:AddFont(11,"00000000","Calibri","2",,.T.)
+nSCabFont	:= oExcel:AddFont(9,"00000000","Calibri","2",,.T.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
+nSCabCor	:= oExcel:CorPreenc("D9D9D9")	//Cor de Fundo de sub cabeçalho
 
 nBordas 	:= oExcel:Borda("ALL")
+
+nFmtNum0	:= oExcel:AddFmtNum(0/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
+
+nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
-nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oQtCenter})
+nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+
+nV0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nV5Style	:= oExcel:AddStyles(nFmtNum5/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nP5Style	:= oExcel:AddStyles(nFmtPer5/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+
 nD2Style	:= oExcel:AddStyles(14/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 nG2Style 	:= oExcel:AddStyles(/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nT0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nT2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
+nT5Style	:= oExcel:AddStyles(nFmtNum5/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nTitStyle	:= oExcel:AddStyles(/*numFmtId*/,nTitFont/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
+nTit3Style	:= oExcel:AddStyles(/*numFmtId*/,nTit3Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
 nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+
+// --> Dif GeraXlsx
 
 FOR nPl := 1 TO LEN(_aPlans)
 
@@ -722,10 +781,17 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_xTitulos:= _aPlans[nPl,03] 
 	_aCabs   := _aPlans[nPl,04]
 	_aImpr   := _aPlans[nPl,05]
-	_aAlign  := _aPlans[nPl,06]
+	_aFormula:= _aPlans[nPl,06]
 	_aFormat := _aPlans[nPl,07]
 	_aTotal  := _aPlans[nPl,08]
 
+	oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
+
+	If Empty(_aFormat)
+		_aFormat := Array(Len(_aCabs))
+	EndIf
+
+	aRef     := {}
 	nCont	 := 0
 	nLin     := 1
 	nTop     := 1
@@ -744,7 +810,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			aAdd(aTitulos,_xTitulos[nJ])
 		Next
 	EndIf
-	aAdd(aTitulos,_cProg+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
+	aAdd(aTitulos,_cProg+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
@@ -799,7 +865,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			nTamCol := 15
 			lTotal  := .T.
 		ElseIf cTipo == "D"
-			nTamCol := 13
+			nTamCol := 10
 		Else
 			If Len(xCampo) > 8
 				nTamCol := Len(xCampo) + 1
@@ -814,22 +880,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 		 	ENDIF 
 		ENDIF
 
-/*
-	    IF !EMPTY(_aAlign)
-			IF _aAlign[nI] <> NIL
-		    	nAlign  := _aAlign[nI]
-		 	ENDIF 
-		ENDIF
-		    
-	    IF !EMPTY(_aFormat)
-			IF _aFormat[nI] <> NIL
-		    	nFormat  := _aFormat[nI]
-		    	IF nFormat = 4
-		    		nFormat := 1
-		    	ENDIF
-		 	ENDIF 
-		ENDIF
-*/
+		If  nTamCol < 8
+			// Não reduzir a coluna do Logo //nI == 1 .AND.
+			nTamCol := 8
+		EndIf
 
 		aAdd( aTamCol, nTamCol)
 		aAdd( aTotal,lTotal)
@@ -842,9 +896,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 		EndIf
 	NEXT
 
+	oProcess:SetRegua2(Len(_aDados))
+
 	For nRow := 1 To Len(_aDados)
 
-		IncProc("Gerando planilha "+_cPlan+"...")   
+        oProcess:IncRegua2("Processando linhas...")
 
 		nLin++
 		nCont++
@@ -886,6 +942,50 @@ FOR nPl := 1 TO LEN(_aPlans)
 	EndIf
 Next
 
+oProcess:IncRegua1("Listando parâmetros...")
+
+// Planilha de Parâmetros
+If ValType(_aParam) == "A"
+	For nI := 1 TO LEN(_aParam)
+		xCampo := "MV_PAR"+STRZERO(nI,2)
+		aAdd(aLocPar,{_aParam[nI,2],cValToChar(&xCampo)})
+	Next
+Else
+	oObjPerg := FWSX1Util():New()
+	oObjPerg:AddGroup(_cProg)
+	oObjPerg:SearchGroup()
+	aPergunte := oObjPerg:GetGroup(_cProg)
+	If !Empty(aPergunte[2])
+		For nI := 1 TO Len(aPergunte[2])
+			xCampo := "MV_PAR"+STRZERO(nI,2)
+			aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
+		Next
+	EndIf
+EndIf
+
+If Len(aLocPar) > 0
+	nLin := 1
+	oExcel:ADDPlan("Parâmetros","D9D9D9")		//Adiciona nova planilha
+	oExcel:SetDefRow(.T.,{1,4})
+	oExcel:AddTamCol(1,2,50)
+
+	For nJ := 1 To Len(aTitulos)
+		oExcel:mergeCells(nLin,1,nLin,2)
+		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
+		nLin++
+	Next
+
+	oExcel:Cell(nLin,1,"Parâmetros - "+_cProg,,nSCabStyle)
+	oExcel:Cell(nLin,2,"Conteúdo",,nSCabStyle)
+
+	For nI := 1 TO LEN(aLocPar)
+		nLin++
+		oExcel:Cell(nLin,1,aLocPar[nI,1],,nG2Style)
+		oExcel:Cell(nLin,2,aLocPar[nI,2],,nG2Style)
+	Next
+EndIf
+
+// Grava a Planilha
 cFile := cDirTmp+"\"+cFile+".xlsx"
 If File(cFile)
 	nRet:= FERASE(cFile)
