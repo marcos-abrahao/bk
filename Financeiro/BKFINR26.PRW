@@ -43,6 +43,8 @@ Private dDataF  	:= CTOD("")
 Private cTipoEm		:= "Pedido"
 Private cSaldo      := "Não"
 
+Private cOpcBco		:= "1"	// 1 - Imprime 3 bancos em 9 colunas (Banco,Nome e valor) - 2 Imprime um valor de banco por coluna, até 30 bancos
+
 Private aFields     := {}
 Private aCabs       := {}
 Private aCampos     := {}
@@ -59,7 +61,8 @@ Private aLF         := {}
 Private nTop		:= 3
 Private nTopV		:= nTop + 1
 Private nIniBc		:= 0
-Private nMaxBco		:= 30
+Private nMaxBco		:= iIf(cOpcBco=="1",3,30)
+Private cNBanco		:= ""
 
 aAreaSE5 := se5->(GetArea("SE5"))
 
@@ -114,20 +117,42 @@ aAdd(aFields,{"XX_NF"     ,"F2_DOC","","Nota Fiscal número"})
 aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Data Emissao NF"})
 aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
+
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
+aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC" ,"Desconto"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
-aAdd(aFields,{"XX_BANCO"  ,"E5_BANCO","XX_BANCO","Banco"})
-aAdd(aFields,{"XX_AGENCIA","E5_AGENCIA","XX_AGENCIA","Agencia"})
-aAdd(aFields,{"XX_CONTA"  ,"E5_CONTA","XX_CONTA","Conta"})
-aAdd(aFields,{"XX_NBANCO" ,"A6_NOME","XX_NBANCO","Banco"})
-aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO","","Saldo a Receber"})
-aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC","Desconto"})
+If cOpcBco == "1"
+	aAdd(aFields,{"XX_TOTBX" ,"","XX_TOTBX","Total Bcos",cPict,"N",18,2})
+EndIf
 
-nIniBc := Len(aFields)
-For nF := 1 TO nMaxBco
-	aAdd(aFields,{"XX_BCO"+STRZERO(nF,2) ,"E5_VALOR","XX_BCO"+STRZERO(nF,2),"Vl Bco "+cValToChar(nF)})
-Next
+aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO",  ""          ,"Saldo a Receber"})
+
+If cOpcBco == "1"
+	nIniBc := Len(aFields)
+	For nF := 1 TO nMaxBco
+		If nf == 1
+			aAdd(aFields,{"XX_BCO"+STRZERO(nF,2) ,"","XX_BCO"+STRZERO(nF,2),"Banco "+cValToChar(nF),"@!","C",18,0})
+			aAdd(aFields,{"XX_NBC"+STRZERO(nF,2) ,"A6_NOME", "XX_NBC"+STRZERO(nF,2),"Nome Banco "+cValToChar(nF)})
+		EndIf
+		If nF == 3
+			cNBanco := "CX1"		
+		ElseIf nF == 2
+			cNBanco := "999"
+		Else
+			cNBanco := cValToChar(nF)
+		EndIf
+		
+		aAdd(aFields,{"XX_VLB"+STRZERO(nF,2) ,"E5_VALOR","XX_BCO"+STRZERO(nF,2),"Vl. Banco "+cNBanco})
+	Next
+EndIf
+
+If cOpcBco == "2"
+	nIniBc := Len(aFields)
+	For nF := 1 TO nMaxBco
+		aAdd(aFields,{"XX_BCO"+STRZERO(nF,2) ,"E5_VALOR","XX_BCO"+STRZERO(nF,2),"Vl Bco "+cValToChar(nF)})
+	Next
+EndIf
 //aAdd(aFields,{"XX_ABATIM" ,"","XX_ABATIM","Abatimento",cPict,"N",18,2})
 //aAdd(aFields,{"XX_IMPOST" ,"","XX_IMPOST","Imp.Retidos",cPict,"N",18,2})
 
@@ -275,6 +300,9 @@ Local cAgencia:= ""
 Local cConta  := ""
 Local aBcoRec := {}
 Local aBcos   := {}
+Local cNomeBco:= ""
+Local nTotBx  := 0
+
 Private xCampo
 
 /*
@@ -451,25 +479,60 @@ DO WHILE (cAliasQry)->(!EOF())
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
 	Next
 
-	If !Empty(cBanco)
-		(cAliasTrb)->XX_NBANCO := Posicione("SA6",1,xFilial("SA6")+cBanco+cAgencia+cConta,"A6_NOME")
+	If cOpcBco == "1"
+		nTotBx := 0
+		For nF := 1 To Len(aBcoRec)
+			If nF <= nMaxBco
+				If aBcoRec[nF,1] == "CX1"
+					nB := 3
+				ElseIf aBcoRec[nF,1] == "999"
+					nB := 2
+				Else
+					nB := 1
+					cNomeBco:= ALLTRIM(Posicione("SA6",1,xFilial("SA6")+aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3],"A6_NOME"))
+					&(cAliasTrb+"->XX_BCO"+STRZERO(nB,2)) := Trim(aBcoRec[nF,1])+"/"+Trim(aBcoRec[nF,2])+"/"+Trim(aBcoRec[nF,3])
+					&(cAliasTrb+"->XX_NBC"+STRZERO(nB,2)) := cNomeBco
+				EndIf
+				&(cAliasTrb+"->XX_VLB"+STRZERO(nB,2)) := aBcoRec[nF,4]
+			EndIf
+			nTotBx += aBcoRec[nF,4]
+		Next
+		&(cAliasTrb+"->XX_TOTBX") := nTotBx
+
+		/*
+		nTotBx := 0
+		For nF := 1 To Len(aBcoRec)
+			If nF <= nMaxBco
+				cNomeBco:= ALLTRIM(Posicione("SA6",1,xFilial("SA6")+aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3],"A6_NOME"))
+				&(cAliasTrb+"->XX_BCO"+STRZERO(nF,2)) := Trim(aBcoRec[nF,1])+"/"+Trim(aBcoRec[nF,2])+"/"+Trim(aBcoRec[nF,3])
+				&(cAliasTrb+"->XX_NBC"+STRZERO(nF,2)) := cNomeBco
+				&(cAliasTrb+"->XX_VLB"+STRZERO(nF,2)) := aBcoRec[nF,4]
+			EndIf
+			nTotBx += aBcoRec[nF,4]
+		Next
+		&(cAliasTrb+"->XX_TOTBX") := nTotBx
+		*/
+	Else
+
+		For nF := 1 To Len(aBcoRec)
+			nB := aScan(aBcos,{ |x| x == aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3]})
+			If nB == 0
+				If Len(aBcos) < nMaxBco
+					aAdd(aBcos,aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3])
+				EndIf
+				nB := Len(aBcos)
+				If nB < 30
+					cNomeBco:= ALLTRIM(Posicione("SA6",1,xFilial("SA6")+aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3],"A6_NOME"))
+					aCabs[nB+nIniBc] := Trim(aBcoRec[nF,1])+"/"+Trim(aBcoRec[nF,2])+"/"+Trim(aBcoRec[nF,3])+" "+cNomeBco
+				Else
+					aCabs[nB+nIniBc] := "Outros"
+				EndIf
+			EndIf 
+			&(cAliasTrb+"->"+aFields[nB+nIniBc,1]) := aBcoRec[nF,4]
+		Next
+
 	EndIf
 
-	For nF := 1 To Len(aBcoRec)
-		nB := aScan(aBcos,{ |x| x == aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3]})
-		If nB == 0
-			If Len(aBcos) < nMaxBco
-				aAdd(aBcos,aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3])
-			EndIf
-			nB := Len(aBcos)
-			If nB < 30
-				aCabs[nB+nIniBc] := Trim(aBcoRec[nF,1])+"/"+Trim(aBcoRec[nF,2])+"/"+Trim(aBcoRec[nF,3])
-			Else
-				aCabs[nB+nIniBc] := "Outros"
-			EndIf
-		EndIf 
-		&(cAliasTrb+"->"+aFields[nB+nIniBc,1]) := aBcoRec[nF,4]
-	Next
 
 	(cAliasTrb)->(MsUnLock())
 		

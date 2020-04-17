@@ -33,7 +33,6 @@ Static Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel := YExcel():new()
 Local oObjPerg
-Local oAlCenter
 
 Local aPergunte
 Local aLocPar := {}
@@ -73,6 +72,10 @@ Local _aFormat := {}
 Local _aTotal  := {}
 Local _cQuebra := ""
 Local _lClose  := .F.
+
+Local oAlCenter
+Local oVtCenter
+Local oQtCenter
 
 Local nCabFont
 Local nLinFont
@@ -122,8 +125,10 @@ MakeDir(cDirTmp)
 
 oExcel:new(cFile)
 
+				//cHorizontal,cVertical,lReduzCaber,lQuebraTexto,ntextRotation
 oAlCenter	:= oExcel:Alinhamento("center","center")
 oVtCenter	:= oExcel:Alinhamento(,"center")
+oQtCenter	:= oExcel:Alinhamento("center","center",.F.,.T.)
 
 				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
 nCabFont	:= oExcel:AddFont(9,"FFFFFFFF","Calibri","2",,.T.)
@@ -145,7 +150,7 @@ nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo
 nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
-nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oQtCenter})
 nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 
 nV0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
@@ -269,7 +274,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 					nTamCol := 15
 				EndIf
 			Elseif cTipo == "D"
-				nTamCol := 12
+				nTamCol := 10
 			ElseiF nTamCol > 150
 				nTamCol := 150
 			EndIf
@@ -283,7 +288,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 				nTamCol := 15
 				lTotal  := .T.
 			ElseIf cTipo == "D"
-				nTamCol := 12
+				nTamCol := 10
 			Else
 				If Len(xCampo) > 8
 					If Len(xCampo) < 150
@@ -307,8 +312,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 		 	ENDIF 
 		ENDIF
 
-		If nI == 1 .AND. nTamCol < 8
-			// Não reduzir a coluna do Logo
+		If  nTamCol < 8
+			// Não reduzir a coluna do Logo //nI == 1 .AND.
 			nTamCol := 8
 		EndIf
 
