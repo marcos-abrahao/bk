@@ -137,6 +137,7 @@ nTitFont	:= oExcel:AddFont(18,"00000000","Calibri","2",,.T.)
 nTit2Font	:= oExcel:AddFont(9,"00000000","Calibri","2")
 nTit3Font	:= oExcel:AddFont(11,"00000000","Calibri","2",,.T.)
 nSCabFont	:= oExcel:AddFont(9,"00000000","Calibri","2",,.T.)
+nTotFont 	:= oExcel:AddFont(9,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
 nSCabCor	:= oExcel:CorPreenc("D9D9D9")	//Cor de Fundo de sub cabeçalho
@@ -148,7 +149,6 @@ nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo
 nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 
 nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
-nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oQtCenter})
 nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
@@ -743,6 +743,7 @@ nTitFont	:= oExcel:AddFont(18,"00000000","Calibri","2",,.T.)
 nTit2Font	:= oExcel:AddFont(9,"00000000","Calibri","2")
 nTit3Font	:= oExcel:AddFont(11,"00000000","Calibri","2",,.T.)
 nSCabFont	:= oExcel:AddFont(9,"00000000","Calibri","2",,.T.)
+nTotFont 	:= oExcel:AddFont(9,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
 nSCabCor	:= oExcel:CorPreenc("D9D9D9")	//Cor de Fundo de sub cabeçalho
@@ -754,7 +755,6 @@ nFmtNum2	:= oExcel:AddFmtNum(2/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo
 nFmtNum5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
 
 nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSufixo*/,"("/*cNegINI*/,")"/*cNegFim*/,/*cValorZero*/,/*cCor*/,"Red"/*cCorNeg*/,/*nNumFmtId*/)
-nTotFont 	:= oExcel:AddFont(10,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oQtCenter})
 nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
