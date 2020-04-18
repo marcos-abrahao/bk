@@ -164,7 +164,7 @@ IF !QSZ2->(EOF())
 	//Processa( {|| U_GeraCSV("QSZ2",cProg,aTitulos,aCampos,aCabs)})
 
    AADD(aPlans,{"QSZ2",TRIM(cPerg),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+   U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
 
 ELSE
    MsgStop("Sem dados para imprimir, verifique os parâmetros do relatório")

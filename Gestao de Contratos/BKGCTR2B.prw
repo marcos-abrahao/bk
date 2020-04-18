@@ -209,7 +209,7 @@ ElseIf cTpRel == "X"
 	// XML
 	aPlans := {}
 	AADD(aPlans,{"TMPC",cProg,"",cTitulo1,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	MsAguarde({|| U_GeraXml(aPlans,cTitulo1,cProg,.F.,aParam)},"Aguarde","Gerando planilha...",.F.)
+	U_GeraXml(aPlans,cTitulo1,cProg,.F.,aParam)
 EndIf
 
 oTmpTb:Delete()

@@ -475,7 +475,7 @@ AADD(aCabs  ,"Saldo a Receber")
 //Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,cPerg,.F.)
 
 oTmpTb:Delete()
 

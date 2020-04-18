@@ -358,7 +358,7 @@ u_LogMemo("BKCOMR12.SQL",cQuery)
  
 DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 
-ProcRegua((cAliasQry)->(RecCount()))
+ProcRegua((cAliasQry)->(LastRec()))
 
 nReg := 0
 

@@ -79,7 +79,7 @@ ProcRegua(1)
 Processa( {|| ProcQuery() })
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,cPerg,.F.)
 
 Return
 

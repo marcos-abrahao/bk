@@ -13,8 +13,8 @@ User Function BKFINR05()
 
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ALLTRIM(SM0->M0_NOME)
-Local titulo         := "Liquidos "+ALLTRIM(SM0->M0_NOME)+" por vencimento"
+Local cDesc3         := ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2])
+Local titulo         := "Liquidos "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2])+" por vencimento"
 Local nLin           := 80
 Local Cabec1         := ""
 Local Cabec2         := ""
@@ -127,11 +127,8 @@ Else
 	AADD(aCampos,"QSE2->Z2_VALOR")
 	AADD(aCabs  ,"Valor")
    
-	//ProcRegua(QSE2->(LASTREC()))
-	//Processa( {|| U_GeraCSV("QSE2",wnrel,aTitulos,aCampos,aCabs)})
-
 	AADD(aPlans,{"QSE2",wnrel,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	MsAguarde({|| U_GeraXml(aPlans,Titulo,wnrel,.F.)},"Aguarde","Gerando planilha...",.F.)
+	U_GeraXlsx(aPlans,Titulo,wnrel,.F.)
    
 EndIf	
 Return
@@ -189,7 +186,7 @@ Local lCabec
 Dbselectarea("QSE2")
 Dbgotop()
 
-SetRegua(RecCount())
+SetRegua(LastRec())
 
 nEsp    := 2
 cPicVlr := "@E 9,999,999.99"
@@ -212,7 +209,7 @@ ENDIF
 
 Dbselectarea("QSE2")
 Dbgotop()
-SetRegua(RecCount())        
+SetRegua(LastRec())        
 
 cBanco := QSE2->Z2_BANCO
 nPos1  := nPos2 := nPos3 := nCont := 0

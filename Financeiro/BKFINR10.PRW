@@ -343,7 +343,7 @@ If nSaldos == 1
 	//Else	
 	//	aPlans := {}
 	//	AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo+OemToAnsi(" - Saldos bancários"),aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	//	MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
+	//	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
 	//EndIf
 EndIf
 
@@ -1106,7 +1106,7 @@ ENDIF
 //³ Grava as movimenta‡äes do E5 no tempor rio.   ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 //While ! SE5->( eof()) .And. SE5->E5_DATA <= dDataF .And. xFilial("SE5") == SE5->E5_FILIAL
-ProcRegua(RecCount()) // Numero de registros a processar
+ProcRegua(LastRec()) // Numero de registros a processar
 While Eval(bCondWhile)
 
 

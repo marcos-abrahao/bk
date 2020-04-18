@@ -116,7 +116,7 @@ If lProcessa
 	cAliasQry := GetNextAlias()
 	DbUseArea(.T.,"TOPCONN",TCGENQRY(,,cQuery),cAliasQry,.F.,.T.)
 
-	ProcRegua( (cAliasQry)->(RecCount()) )
+	ProcRegua( (cAliasQry)->(LastRec()) )
 
 	// LOG DE PROCESSAMENTO
 	fWrite(nHdlArqIR, "Titulos Ajustados:" + Chr(13) + Chr(10)) 
@@ -280,7 +280,7 @@ If lProcessa
 	cAliasQry := GetNextAlias()
 	DbUseArea(.T.,"TOPCONN",TCGENQRY(,,cQuery),cAliasQry,.F.,.T.)
 
-	ProcRegua( (cAliasQry)->(RecCount()) )
+	ProcRegua( (cAliasQry)->(LastRec()) )
 
 	// LOG DE PROCESSAMENTO
 	fWrite(nHdlArqIR, "Titulos Ajustados:" + Chr(13) + Chr(10)) 

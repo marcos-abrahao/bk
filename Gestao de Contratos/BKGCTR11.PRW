@@ -4401,7 +4401,7 @@ User FUNCTION GCT11FOL()
 Local aPlans  := {}
 
 AADD(aPlans,{ALIAS_FOL,TRIM(cPerg),"","Detalhes FP: "+titulo,aCampos3,aCabs3,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,"Detalhes FP: "+titulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,"Detalhes FP: "+titulo,TRIM(cPerg),.F.)
 
 Return 
 

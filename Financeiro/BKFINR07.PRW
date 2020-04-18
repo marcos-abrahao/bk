@@ -174,7 +174,7 @@ Else
 	QSD1->(Dbclosearea())
 
 	//AADD(aPlans,{"QSD1",cPerg,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	//MsAguarde({|| U_GeraXml(aPlans,Titulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
+	//U_GeraXml(aPlans,Titulo,cPerg,.F.)
 
 
 Endif	
@@ -280,7 +280,7 @@ Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 
 Local nEsp,cPicVlr,pTotal,tTotal,cPrdAnt,nPos1
 
-SetRegua(RecCount())
+SetRegua(LastRec())
 
 nEsp    := 2
 cPicVlr := "@E 9,999,999.99"
@@ -313,7 +313,7 @@ nomeprog := "FINR07/"+TRIM(SUBSTR(cUsuario,7,15))
    
 Dbselectarea("QSD1")
 Dbgotop()
-SetRegua(RecCount())
+SetRegua(LastRec())
 
 cPrdAnt := QSD1->D1_COD
 

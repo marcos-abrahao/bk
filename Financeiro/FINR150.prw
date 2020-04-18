@@ -536,7 +536,7 @@ Local cIndexSe2
 Local cChaveSe2
 //Local nIndexSE2
 Local cFilDe,cFilAte
-Local nTotsRec := SE2->(RecCount())
+Local nTotsRec := SE2->(LastRec())
 //Local aTamFor := TAMSX3("E2_FORNECE")
 Local nDecs := Msdecimais(mv_par15)
 Local lFr150Flt := EXISTBLOCK("FR150FLT")
@@ -621,7 +621,7 @@ EndIf
 //³ Imprimir TOTAL por filial somente quando ³
 //³ houver mais do que uma filial.	         ³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-If mv_par22 == 1 .And. SM0->(Reccount()) > 1
+If mv_par22 == 1 .And. SM0->(LastRec()) > 1
 	oBreak2 := TRBreak():New(oSection1,{|| SE2->E2_FILIAL },{|| STR0032+" "+cNomFil })	//"T O T A L   F I L I A L ----> " 
 	If mv_par20 == 1	//1- Analitico  2-Sintetico
 		TRFunction():New(oSection1:Cell("VAL_ORIG"),"","SUM",oBreak2,,,,.F.,.F.)
@@ -1278,7 +1278,7 @@ While SM0->(!Eof()) .and. SM0->M0_CODIGO == cEmpAnt .and. IIf( lFWCodFil, FWGETC
 	Endif
 		
 	If mv_par20 == 2	//1- Analitico  2-Sintetico	
-		if mv_par22 == 1 .and. SM0->(Reccount()) > 1
+		if mv_par22 == 1 .and. SM0->(LastRec()) > 1
 			oReport:SkipLine()
 			IFil150R(nFil0,nFil1,nFil2,nFil3,nFil4,nFilTit,nFilj,oReport,oSection1)
 			oReport:SkipLine()			
@@ -1765,7 +1765,7 @@ LOCAL	cIndexSe2
 LOCAL	cChaveSe2
 //LOCAL	nIndexSE2
 LOCAL cFilDe,cFilAte
-Local nTotsRec := SE2->(RecCount())
+Local nTotsRec := SE2->(LastRec())
 Local cTamFor, cTamTit := ""
 Local aTamFor := TAMSX3("E2_FORNECE")
 Local nDecs := Msdecimais(mv_par15)
@@ -2468,7 +2468,7 @@ While !Eof() .and. M0_CODIGO == cEmpAnt .and. IIf( lFWCodFil, FWGETCODFILIAL, SM
 	//³ Imprimir TOTAL por filial somente quan-³
 	//³ do houver mais do que 1 filial.        ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	if mv_par22 == 1 .and. SM0->(Reccount()) > 1
+	if mv_par22 == 1 .and. SM0->(LastRec()) > 1
 		ImpFil150(nFil0,nFil1,nFil2,nFil3,nFil4,nFilTit,nFilj,nDecs)
 	Endif
 	Store 0 To nFil0,nFil1,nFil2,nFil3,nFil4,nFilTit,nFilJ

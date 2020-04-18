@@ -282,7 +282,7 @@ User FUNCTION CBKFR23()
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)
 
 Return 
 
@@ -403,7 +403,7 @@ For nB := 1 To Len(aBancos)
 	TCSetField(cAliasQry, "E8_DTSALAT","D", 8,0)
 	TCSetField(cAliasQry, "E8_SALATUA","N",18,0)
 
-	ProcRegua((cAliasQry)->(RecCount()))
+	ProcRegua((cAliasQry)->(LastRec()))
 	
 	nReg := 0
 	

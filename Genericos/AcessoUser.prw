@@ -741,7 +741,7 @@ Static Function ReportPrint(oReport)
 *----------------------------------*
 //Inicio da impressão da seção.
 oReport:Section("LOG"):Init()
-oReport:SetMeter(WKACESSO->(RecCount()))
+oReport:SetMeter(WKACESSO->(LastRec()))
 
 WKACESSO->(dbGoTop())
 oReport:SkipLine(2)

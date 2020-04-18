@@ -333,7 +333,7 @@ aSM0	:= AdmAbreSM0()
 nDecs 	:= Msdecimais(mv_par10)  
 nMoeda 	:= mv_par10
 
-oReport:SetMeter(RecCount())            
+oReport:SetMeter(LastRec())            
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Atribui valores as variaveis ref a filiais                ³
@@ -1118,7 +1118,7 @@ For nInc := 1 To Len( aSM0 )
 			cCond2 := "SE2->E2_FORNECE+SE2->E2_LOJA"
 			SE2->( dbGoTop() )
 		EndIf
-		SetRegua(RecCount())
+		SetRegua(LastRec())
 	
 		#IFDEF TOP
 			If TcSrvType() != "AS/400"
@@ -1413,7 +1413,7 @@ For nInc := 1 To Len( aSM0 )
 		//³ Imprimir TOTAL por filial somente quan-³
 		//³ do houver mais do que 1 filial.        ³
 		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-		if mv_par19 == 1 .and. SM0->(Reccount()) > 1 .And. lImpMFil
+		if mv_par19 == 1 .and. SM0->(LastRec()) > 1 .And. lImpMFil
 			ImpFil350(nTotFil1,nTotFil2,nTotFil3,nTotFil4,nTotFil5,nTotFil6,nTotFil7,nTotFil8,nTotFil9,nTotFil10,nDecs)	
 		Endif
 		Store 0 To nTotFil1,nTotFil2,nTotFil3,nTotFil4,nTotFil5,nTotFil6,nTotFil7,nTotFil8,nTotFil9

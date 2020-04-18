@@ -240,7 +240,7 @@ Static Function PreencheWk()
 dbSelectArea("SZP")
 dbSetOrder(1)
 dbGoTop()
-ProcRegua(RECCOUNT())
+ProcRegua(LastRec())
 dbSeek(xFilial("SZP")+cContrato,.T.)
 Do While !EOF() .AND. SZP->ZP_FILIAL == xFilial("SZP") .AND. SZP->ZP_CONTRAT == cContrato
 	dbSelectArea("WKSZP")
@@ -398,7 +398,7 @@ Static Function ReportPrint(oReport)
 *----------------------------------*
 //Inicio da impressão da seção.
 oReport:Section("LOG"):Init()
-oReport:SetMeter(WKACESSO->(RecCount()))
+oReport:SetMeter(WKACESSO->(LastRec()))
 
 WKACESSO->(dbGoTop())
 oReport:SkipLine(2)

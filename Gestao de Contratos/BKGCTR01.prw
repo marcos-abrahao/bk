@@ -131,7 +131,7 @@ Else
 	aTitulos:= {}
    
 	nomeprog := "BKGCTR01/"+TRIM(SUBSTR(cUsuario,7,15))
-	AADD(aTitulos,nomeprog+" - "+titulo)
+	AADD(aTitulos,titulo)
 
 	AADD(aCampos,"QTMP->CNF_CONTRA")
 	AADD(aCabs  ,"Contrato")
@@ -223,7 +223,7 @@ Else
 		Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
 	Else	
 		AADD(aPlans,{"QTMP",wnrel,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-		MsAguarde({|| U_GeraXml(aPlans,Titulo,wnrel,.F.)},"Aguarde","Gerando planilha...",.F.)
+		U_GeraXml(aPlans,Titulo,wnrel,.F.)
 	EndIf
 	   
 EndIf	
@@ -383,7 +383,7 @@ Local lCabec
 Dbselectarea("QTMP")
 Dbgotop()
 
-SetRegua(RecCount())
+SetRegua(LastRec())
 
 nEsp    := 2
 cPicVlr := "@E 9,999,999.99"
@@ -405,7 +405,7 @@ ENDIF
 
 Dbselectarea("QTMP")
 Dbgotop()
-SetRegua(RecCount())        
+SetRegua(LastRec())        
 
 cBanco := QTMP->Z2_BANCO
 nPos1  := nPos2 := nPos3 := nCont := 0

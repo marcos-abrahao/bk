@@ -876,7 +876,7 @@ BeginSql Alias cAliasQry
 
 oReport:SetTitle("Retenção na Fonte")
 oSecao1:EndQuery()
-oReport:SetMeter((cAliasQry)->(RecCount()))
+oReport:SetMeter((cAliasQry)->(LastRec()))
 oSecao1:SetHeaderSection(.T.)
 oSecao1:SetTitle("Retenção na Fonte")
 oSecao1:Print()
@@ -933,7 +933,7 @@ BeginSql Alias cAliasF1X0
 
 oReport:SetTitle("Crédito de Ativo Fixo")
 oSecao3:EndQuery()
-oReport:SetMeter((cAliasF1X0)->(RecCount()))
+oReport:SetMeter((cAliasF1X0)->(LastRec()))
 oSecao3:SetHeaderSection(.T.)
 oSecao3:SetTitle("Crédito Ativo Fixo")
 oSecao3:Print()	
@@ -993,7 +993,7 @@ BeginSql Alias cAliasF100
 
 oReport:SetTitle("Títulos/Demais Documentos")
 oSecao2:EndQuery()
-oReport:SetMeter((cAliasF100)->(RecCount()))
+oReport:SetMeter((cAliasF100)->(LastRec()))
 oSecao2:SetHeaderSection(.T.)
 oSecao2:SetTitle("Títulos/Demais Documentos")
 oSecao2:Print()
@@ -1342,7 +1342,7 @@ BeginSql Alias cAliasF0T
 
 oReport:SetTitle("Nota Fiscal - Regime Caixa")
 oSecao5:EndQuery()
-oReport:SetMeter((cAliasF0T)->(RecCount()))
+oReport:SetMeter((cAliasF0T)->(LastRec()))
 oSecao5:SetHeaderSection(.T.)
 oSecao5:SetTitle("Nota Fiscal - Regime Caixa")
 oSecao5:Print()
@@ -1382,7 +1382,7 @@ BeginSql Alias cAliasF0T
 
 oReport:SetTitle("Título Financeiro - Regime Caixa")
 oSecao6:EndQuery()
-oReport:SetMeter((cAliasF0T)->(RecCount()))
+oReport:SetMeter((cAliasF0T)->(LastRec()))
 oSecao6:SetHeaderSection(.T.)
 oSecao6:SetTitle("Título Financeiro - Regime Caixa")
 oSecao6:Print()
@@ -1559,7 +1559,7 @@ BeginSql Alias cAliasF0T
 
 oReport:SetTitle("Diferimento da Contribuição do Período Atual")
 oSecao8:EndQuery()
-oReport:SetMeter((cAliasF0T)->(RecCount()))
+oReport:SetMeter((cAliasF0T)->(LastRec()))
 oSecao8:SetHeaderSection(.T.)
 oSecao8:SetTitle("Diferimento da Contribuição do Período Atual")
 oSecao8:Print()
@@ -1610,7 +1610,7 @@ BeginSql Alias cAliasF0T
 
 oReport:SetTitle("Diferimento da Contribuição de Período Anterior")
 oSecao9:EndQuery()
-oReport:SetMeter((cAliasF0T)->(RecCount()))
+oReport:SetMeter((cAliasF0T)->(LastRec()))
 oSecao9:SetHeaderSection(.T.)
 oSecao9:SetTitle("Diferimento da Contribuição de Período Anterior")
 oSecao9:Print()
@@ -1649,7 +1649,7 @@ BeginSql Alias cAliasF0T
 
 oReport:SetTitle("Títulos Instituição Financeira")
 oSecao11:EndQuery()
-oReport:SetMeter((cAliasF0T)->(RecCount()))
+oReport:SetMeter((cAliasF0T)->(LastRec()))
 oSecao11:SetHeaderSection(.T.)
 oSecao11:SetTitle("Títulos Instituição Financeira")
 oSecao11:Print()
@@ -1687,7 +1687,7 @@ BeginSql Alias cAliasF3J
 
 oReport:SetTitle("Detalhamento dos valores acumulados conforme regras do código de receita")
 oSecao14:EndQuery()
-oReport:SetMeter((cAliasF3J)->(RecCount()))
+oReport:SetMeter((cAliasF3J)->(LastRec()))
 oSecao14:SetHeaderSection(.T.)
 oSecao14:SetTitle("Detalhamento dos valores acumulados conforme regras do código de receita")
 oSecao14:Print()
@@ -1810,7 +1810,7 @@ BeginSql Alias cAliasCFA
 
 oReport:SetTitle("Créditos Diferidos no Período")
 oSecao12:EndQuery()
-oReport:SetMeter((cAliasCFA)->(RecCount()))
+oReport:SetMeter((cAliasCFA)->(LastRec()))
 oSecao12:SetHeaderSection(.T.)
 oSecao12:SetTitle("Créditos Diferidos no Período")
 oSecao12:Print()
@@ -1856,7 +1856,7 @@ BeginSql Alias cAliasF0TA
 
 oReport:SetTitle("Créditos a Descontar Vinculados a Contribuição Diferida de Período Anterior")
 oSecao13:EndQuery()
-oReport:SetMeter((cAliasF0TA)->(RecCount()))
+oReport:SetMeter((cAliasF0TA)->(LastRec()))
 oSecao13:SetHeaderSection(.T.)
 oSecao13:SetTitle("Créditos a Descontar Vinculados a Contribuição Diferida de Período Anterior")
 oSecao13:Print()

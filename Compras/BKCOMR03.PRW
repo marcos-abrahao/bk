@@ -203,7 +203,7 @@ Dbselectarea("QSF1")
 QSF1->(Dbgotop())
 cAliasSF1 := "QSF1"
 
-SetRegua(RecCount())
+SetRegua(LastRec())
 
 nTvalor  := 0
 nTvalor1 := 0

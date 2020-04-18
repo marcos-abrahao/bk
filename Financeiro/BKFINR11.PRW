@@ -350,7 +350,7 @@ Enddo
 dbSelectArea( "SA6" )
 dbSetOrder( 1 )
 dbSeek( xFilial("SA6") )
-ProcRegua(RecCount()) // Numero de registros a processar
+ProcRegua(LastRec()) // Numero de registros a processar
 While SA6->A6_FILIAL == xFilial( "SA6" ) .And. ! Eof()
 
     IncProc()
@@ -435,7 +435,7 @@ While SA6->A6_FILIAL == xFilial( "SA6" ) .And. ! Eof()
 	ELSE
 		bCondWhile := { || !Eof() .And. E5_FILIAL == xFilial('SE5') .And. E5_DTDISPO == dDataI .and. E5_BANCO+E5_AGENCIA+E5_CONTA == cBanco+cAgencia+cConta }
 	ENDIF	
-	ProcRegua(RecCount()) // Numero de registros a processar
+	ProcRegua(LastRec()) // Numero de registros a processar
 	While Eval(bCondWhile)
 		
 		IncProc()
@@ -903,7 +903,7 @@ Processa( {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sintetico_Fin"+STR(nTpData,1),aTit
 	If nSaldos == 1                                              
 		AADD(aPlans,{cAliasTmp1,cNomePrg+"-Saldos Bancários","",OemToAnsi("Projeção de Caixa - Saldos bancários"),aCampos1,aCabs1, /* aImpr1 */ , /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 	EndIf
-	MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
+	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
 //EndIf
 
 If nSaldos == 1  
@@ -1001,7 +1001,7 @@ For j := 1 To nDias
 	MVX_par11 := 1	// Retroativo? 
  	MVX_par17 := 1	// Compoe Saldo por?		(Data da Baixa/  Data de Credito/Data Digitacao)  
  	
-	ProcRegua(RecCount()) // Numero de registros a processar
+	ProcRegua(LastRec()) // Numero de registros a processar
 	While !Eof() .And. E2_VENCREA == dDataVenc
 		IncProc()
 
@@ -1468,7 +1468,7 @@ For j := 1 To nDias
 	dbSelectArea("SE1")
 	dbSetOrder(7)
 	dbseek(xFilial("SE1")+DTOS(dDataVenc),.T.)
-	ProcRegua(RecCount()) // Numero de registros a processar
+	ProcRegua(LastRec()) // Numero de registros a processar
 	While !Eof() .And. SE1->E1_VENCREA == dDataVenc
 		IncProc()
 //		IF mv_par03 == 1 .and. SE1->E1_FILIAL != cFilial

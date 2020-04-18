@@ -686,7 +686,7 @@ TCQUERY cQuery1 NEW ALIAS "QTPA"
 
 nOrdem  := 0
 DbSelectArea("QTPA")
-ProcRegua(QTPA->(RecCount()))
+ProcRegua(QTPA->(LastRec()))
 QTPA->(DbGotop())
 DO WHILE !EOF()
 	IncProc('Incluido Itens Plano - BS Rubi')
@@ -845,7 +845,7 @@ TCQUERY cQuery1 NEW ALIAS "QTPA"
 
 nTotal  := 0
 DbSelectArea("QTPA")
-ProcRegua(QTPA->(RecCount()))
+ProcRegua(QTPA->(LastRec()))
 QTPA->(DbGotop())
 DO WHILE !EOF()
 	IncProc('Incluido Itens Plano - BS Rubi')

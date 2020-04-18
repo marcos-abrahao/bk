@@ -226,7 +226,7 @@ Titulo		:= 	OemToAnsi(STR0009) + DTOC(mv_par01) + OemToAnsi(STR0010) +;
 
 dbSelectAre("CT2")
 dbSetOrder(1)
-SetRegua(Reccount())
+SetRegua(LastRec())
 dbSeek(xFilial()+Dtos(mv_par01),.T.)
 
 //旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커

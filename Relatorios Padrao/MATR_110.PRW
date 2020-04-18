@@ -1434,7 +1434,7 @@ EndIf
 
 dbSelectArea("SC7")
 dbSetOrder(nOrder)
-SetRegua(RecCount())
+SetRegua(LastRec())
 dbSeek(xFilial("SC7")+cCondBus,.T.)
 
 //зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
@@ -1731,7 +1731,7 @@ Elseif mv_par14 == 3
 	cFiltro := "SC7->C7_QUANT > SC7->C7_QUJE"
 EndIf
 
-SetRegua(Reccount())
+SetRegua(LastRec())
 //зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
 //Ё Faz manualmente porque nao chama a funcao Cabec()                 Ё
 //юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды

@@ -518,7 +518,7 @@ Else
 	dbSeek( xFilial("CT1") + mv_par01 , .T. )
 End
 
-SetRegua(RecCount())   						// Total de elementos da regua
+SetRegua(LastRec())   						// Total de elementos da regua
 
 If nOrdem == 1
 	dbSelectArea("CT1")

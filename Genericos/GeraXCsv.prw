@@ -185,7 +185,7 @@ For nJ := 1 To Len(aTamCol)
 NEXT
 
 (cAliasTrb)->(dbgotop())
-ProcRegua((cAliasTrb)->(RecCount())) 
+ProcRegua((cAliasTrb)->(LastRec())) 
 
 Do While (cAliasTrb)->(!eof()) 
 

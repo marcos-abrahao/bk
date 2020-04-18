@@ -336,7 +336,7 @@ dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), 'TMPR25', .F., .T.)
 TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VALOR"  ,"N",18,2)
 	
-ProcRegua((cAliasQry)->(RecCount()))
+ProcRegua((cAliasQry)->(LastRec()))
 	
 nCont := 0
 dbSelectArea("SD1")  // * Itens da N.F. de Compra

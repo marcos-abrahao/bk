@@ -92,7 +92,7 @@ If nHandle > 0
    fWrite(nHandle, cCrLf ) // Pula linha
 
    (_cAlias)->(dbgotop())
-   ProcRegua((_cAlias)->(RecCount())) 
+   ProcRegua((_cAlias)->(LastRec())) 
    Do While (_cAlias)->(!eof())
 
       IF !lSoma

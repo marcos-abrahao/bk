@@ -128,7 +128,7 @@ If nFormato == 1
 	Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
 Else	
 	AADD(aPlans,{"QTMP",wnrel,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	MsAguarde({|| U_GeraXml(aPlans,cTitulo,wnrel,.F.)},"Aguarde","Gerando planilha...",.F.)
+	U_GeraXml(aPlans,cTitulo,wnrel,.F.)
 EndIf
 
 oTmpTb:Delete()
@@ -208,7 +208,7 @@ cXX_XXOREP	:= ""
 
 dbSelectArea("QCN9")
 QCN9->(dbGoTop())  
-ProcRegua(QCN9->(RecCount())) 
+ProcRegua(QCN9->(LastRec())) 
 DO WHILE QCN9->(!EOF())
 
 	IncProc("Consultando o banco de dados...")

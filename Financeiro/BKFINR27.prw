@@ -262,7 +262,7 @@ cAliasQry := "TMPR27" //GetNextAlias()
 dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 TCSETFIELD(cAliasQry,"E2_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
-ProcRegua((cAliasQry)->(RecCount()))
+ProcRegua((cAliasQry)->(LastRec()))
 	
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())

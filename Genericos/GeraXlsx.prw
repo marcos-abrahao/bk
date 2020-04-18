@@ -24,12 +24,12 @@ Generico - Gera planilha excel
 
 User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam )
 Local oProcess
-oProcess := MsNewProcess():New({|| ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+oProcess := MsNewProcess():New({|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
 oProcess:Activate()
 Return Nil
 
 
-Static Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
+User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel := YExcel():new()
 Local oObjPerg
@@ -329,12 +329,12 @@ FOR nPl := 1 TO LEN(_aPlans)
 	NEXT
 
 	(_cAlias)->(dbgotop())
-	ProcRegua((_cAlias)->(RecCount())) 
+
 	If !empty(_cFiltra)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
 
-	oProcess:SetRegua2(LastRec())
+	oProcess:SetRegua2((_cAlias)->(LastRec()))
 
 	Do While (_cAlias)->(!eof()) 
 
@@ -494,6 +494,10 @@ If Len(aLocPar) > 0
 		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
 		nLin++
 	Next
+	oExcel:Cell(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]),,nTit3Style)
+	nLin++
+	oExcel:Cell(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]),,nTit3Style)
+	nLin++
 
 	oExcel:Cell(nLin,1,"Parâmetros - "+_cProg,,nSCabStyle)
 	oExcel:Cell(nLin,2,"Conteúdo",,nSCabStyle)
@@ -974,6 +978,10 @@ If Len(aLocPar) > 0
 		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
 		nLin++
 	Next
+	oExcel:Cell(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]),,nTit3Style)
+	nLin++
+	oExcel:Cell(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]),,nTit3Style)
+	nLin++
 
 	oExcel:Cell(nLin,1,"Parâmetros - "+_cProg,,nSCabStyle)
 	oExcel:Cell(nLin,2,"Conteúdo",,nSCabStyle)

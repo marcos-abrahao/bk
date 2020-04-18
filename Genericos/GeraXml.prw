@@ -17,9 +17,20 @@ Generico - Gera planilha excel no formato .XML com opção de gerar também no form
 //	    AADD(aTotal,NIL)
 
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
-//MsAguarde({|| U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
+//U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)
 
 User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _aParam )
+Local oProcess
+If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+	oProcess := MsNewProcess():New({|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+Else
+	oProcess := MsNewProcess():New({|| U_ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)	
+EndIf
+oProcess:Activate()
+Return Nil
+
+
+User Function ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel     AS OBJECT
 Local cArq       := ""
@@ -60,15 +71,12 @@ Default _cTitulo := ""
 Private xCampo
 Private xQuebra
 
+oProcess:SetRegua1(LEN(_aPlans)+2)
+oProcess:IncRegua1("Preparando configurações...")
+
 IF lClose == NIL
    lClose := .T.
 ENDIF
-
-If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-   U_GeraXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam)
-   Return Nil
-EndIf
-
 
 MakeDir(cDirTmp)
 
@@ -110,7 +118,9 @@ FOR nPl := 1 TO LEN(_aPlans)
 	nPosTit  := 0
 	nPosTot  := 0 
 	nPosCpo  := 0
-	
+
+	oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
+
 	oExcel:AddworkSheet(_cPlan)
 
 	oExcel:AddTable (_cPlan,_cTitulos)
@@ -120,7 +130,6 @@ FOR nPl := 1 TO LEN(_aPlans)
 	Endif
 	
 	(_cAlias)->(dbgotop())
-	ProcRegua((_cAlias)->(RecCount())) 
 	
 	aSoma   := {}
 	aSomas  := {}
@@ -205,9 +214,12 @@ FOR nPl := 1 TO LEN(_aPlans)
 		xQuebra := &(_cQuebra)
 	ENDIF
 	
+	oProcess:SetRegua2((_cAlias)->(LastRec()))
 	
 	Do While (_cAlias)->(!eof()) 
 	
+        oProcess:IncRegua2("Processando linhas...")
+
 		aLinha := {}
 	 	For nI :=1 to LEN(_aCampos)
 	
@@ -282,18 +294,20 @@ If File(cArq)
 	EndIf
 EndIf
 
-LjMsgRun( "Gerando o arquivo, aguarde...", _cTitulo, {|| oExcel:GetXMLFile( cArq ) } )
+oProcess:IncRegua1("Gerando o arquivo"+cArq+"...")
+oExcel:GetXMLFile( cArq )
 
 If __CopyFile( cArq, cDirTmp + "\" + _cProg + "-" + cArq)
-   IF MsgYesNo("Deseja abrir o arquivo "+cDirTmp + "\" + _cProg + "-" + cArq+" ?")
+	oProcess:IncRegua1("Abrindo o arquivo"+cArq+"...")
+   //IF MsgYesNo("Deseja abrir o arquivo "+cDirTmp + "\" + _cProg + "-" + cArq+" ?")
       ShellExecute("open", cDirTmp + "\" + _cProg + "-" + cArq,"","",1)
 	  //oExcelApp := MsExcel():New()
 	  //oExcelApp:WorkBooks:Open( cDirTmp + "\" + _cProg + "-" + cArq)
 	  //oExcelApp:SetVisible(.T.)
-   ENDIF	
+   //ENDIF	
    Ferase(cArq)
 Else
-	MsgInfo( "O Arquivo não foi copiado para a pasta temporária local." )
+	MsgInfo( "Não foi possível copiar o arquivo para a pasta temporária local." )
 Endif
 
 RestArea(aArea)
@@ -392,7 +406,7 @@ FOR nI := 1 TO FCOUNT()
 NEXT
 
 AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
-MsAguarde({|| U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)
 
 Return nil
 

@@ -92,7 +92,7 @@ Else
 	//Processa( {|| U_GeraCSV("QTMP","BKGCT10",aTitulos,aCampos,aCabs)})
 
 	AADD(aPlans,{"QTMP","BKGCT10","",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	MsAguarde({|| U_GeraXml(aPlans,Titulo,"BKGCT10",.F.)},"Aguarde","Gerando planilha...",.F.)
+	U_GeraXml(aPlans,Titulo,"BKGCT10",.F.)
 	   
 EndIf	
 Return

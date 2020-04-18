@@ -1385,9 +1385,9 @@ If nReconc == 2   // Se n„o reconciliado
 	DEFINE MSDIALOG oDlg1 FROM  69,70 TO 160,331 TITLE STR0006 PIXEL   //"Reconciliacao bancaria Automatica"
 
 	@ 0, 2 TO 22, 165 OF oDlg1 PIXEL
-	@ 7, 98 MSGET nSequen Picture "9999" VALID (nSequen <= TRB->(RecCount())) .and. (nSequen > 0) SIZE 20, 10 OF oDlg1 PIXEL
+	@ 7, 98 MSGET nSequen Picture "9999" VALID (nSequen <= TRB->(LastRec())) .and. (nSequen > 0) SIZE 20, 10 OF oDlg1 PIXEL
 	@ 8, 08 SAY  STR0020  SIZE 90, 7 OF oDlg1 PIXEL  //"Sequˆncia a Reconciliar"
-	DEFINE SBUTTON FROM 29, 71 TYPE 1 ENABLE ACTION (nOpca1:=1,If((nSequen <= TRB->(RecCount())) .and. (nSequen > 0),oDLg1:End(),nOpca1:=0)) OF oDlg1
+	DEFINE SBUTTON FROM 29, 71 TYPE 1 ENABLE ACTION (nOpca1:=1,If((nSequen <= TRB->(LastRec())) .and. (nSequen > 0),oDLg1:End(),nOpca1:=0)) OF oDlg1
 	DEFINE SBUTTON FROM 29, 99 TYPE 2 ENABLE ACTION (oDlg1:End()) OF oDlg1
 
 	ACTIVATE MSDIALOG oDlg1 CENTERED

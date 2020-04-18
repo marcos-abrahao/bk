@@ -349,10 +349,8 @@ Return (.T.)
 User FUNCTION CBKCOMR9()
 Local aPlans  := {}
 
-//Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
-
 AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,aTotal /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
 
 Return 
 
@@ -617,7 +615,7 @@ nomeprog := "BKCOMR9/"+TRIM(SUBSTR(cUsuario,7,15))
    
 Dbselectarea("TRB")
 Dbgotop()
-SetRegua(RecCount())
+SetRegua(LastRec())
 
 DO While !TRB->(EOF())
 

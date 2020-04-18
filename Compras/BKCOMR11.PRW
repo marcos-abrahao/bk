@@ -335,7 +335,7 @@ u_LogMemo("BKCOMR11.SQL",cQuery)
 DbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 TCSetField(cAliasQry, "C8_EMISSAO","D",8,0)
 
-ProcRegua((cAliasQry)->(RecCount()))
+ProcRegua((cAliasQry)->(LastRec()))
 
 nReg := 0
 

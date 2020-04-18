@@ -1056,7 +1056,7 @@ EndIf
 #ENDIF
 
 #IFNDEF TOP
-	SetRegua(RecCount())
+	SetRegua(LastRec())
 	If  lAllFil
 		cCondWhile := "!Eof() .And. E5_DTDISPO <= mv_par05"
 	Else

@@ -290,7 +290,7 @@ AADD(aCampos,"Capital(QTMP->(FWLeUserlg('QTMP_USERLGI',1)))")
 AADD(aCabs  ,"Faturista")
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,cPerg,.F.)
 
 Return
 

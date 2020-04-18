@@ -120,7 +120,7 @@ cFiltro := "" //cAliasTmp1+"->TIPO >= '1'"
 
 AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo,aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, cAliasTmp1+"->TIPO", lClose:= .F. })
    
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
 
 oTmpTb:Delete()
 //Ferase(cArqTmp1 + GetDBExtension())

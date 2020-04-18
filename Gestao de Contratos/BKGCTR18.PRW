@@ -194,7 +194,7 @@ AADD(aPlans,{cAliasTmp ,"Tabela 1","",cTitulo  ,aCampos ,aCabs ,/*aImpr1*/, /* a
 AADD(aPlans,{cAliasTmp1,"Tabela 2","",cTitulo1 ,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 AADD(aPlans,{cAliasTmp2,"Tabela 3","",cTitulo2 ,aCampos2,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 AADD(aPlans,{cAliasTmp3,"Tabela 4","",cTitulo3 ,aCampos3,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-MsAguarde({|| U_GeraXml(aPlans,cTitulo,cPerg,.F.)},"Aguarde","Gerando planilha...",.F.)
+U_GeraXml(aPlans,cTitulo,cPerg,.F.)
 
 oTmpTb1:Delete()
 oTmpTb2:Delete()

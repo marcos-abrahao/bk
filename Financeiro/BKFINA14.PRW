@@ -187,7 +187,7 @@ If ( lOk )
 
 			DbSelectArea("QSZ2")
 			DbGoTop()
-			ProcRegua(RecCount())
+			ProcRegua(LastRec())
 			Do While !eof()
 				IncProc("Carregando titulos para Borderôs "+ALLTRIM(SM0->M0_NOME)+"...")
  				IF QSZ2->Z2_DATAPGT == dData .AND. QSZ2->Z2_BANCO $ cBancos
@@ -1959,7 +1959,7 @@ ENDIF
 DbSelectArea("SE2")
 DbSetOrder(3)
 DbGoTop()
-ProcRegua(RecCount())
+ProcRegua(LastRec())
 dbSeek(xFilial("SE2")+DTOS(dData),.T.)
 Do While !eof() .AND. SE2->E2_VENCREAL == dData 
 	IncProc("Localizando titulos para Borderôs "+ALLTRIM(SM0->M0_NOME)+"...") 
