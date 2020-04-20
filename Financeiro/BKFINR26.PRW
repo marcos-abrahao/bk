@@ -61,7 +61,7 @@ Private aLF         := {}
 Private nTop		:= 3
 Private nTopV		:= nTop + 1
 Private nIniBc		:= 0
-Private nMaxBco		:= iIf(cOpcBco=="1",3,30)
+Private nMaxBco		:= iIf(cOpcBco=="1",4,30)
 Private cNBanco		:= ""
 
 aAreaSE5 := se5->(GetArea("SE5"))
@@ -119,7 +119,7 @@ aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
 
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
-aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC" ,"Imp. Cli não reteve - Desconto"})
+aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC" ,"Desconto - Imp. Cli não reteve"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
 If cOpcBco == "1"
@@ -131,13 +131,13 @@ aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO",  ""          ,"Saldo a Receber"})
 If cOpcBco == "1"
 	nIniBc := Len(aFields)
 	For nF := 1 TO nMaxBco
-		If nf == 1
+		If nf <= (nMaxBco - 2)
 			aAdd(aFields,{"XX_BCO"+STRZERO(nF,2) ,"","XX_BCO"+STRZERO(nF,2),"Banco "+cValToChar(nF),"@!","C",18,0})
 			aAdd(aFields,{"XX_NBC"+STRZERO(nF,2) ,"A6_NOME", "XX_NBC"+STRZERO(nF,2),"Nome Banco "+cValToChar(nF)})
 		EndIf
-		If nF == 3
+		If nF == (nMaxBco)
 			cNBanco := "CX1"		
-		ElseIf nF == 2
+		ElseIf nF == (nMaxBco - 1)
 			cNBanco := "999"
 		Else
 			cNBanco := cValToChar(nF)
@@ -393,8 +393,6 @@ dbSelectArea(cAliasQry)
 DO WHILE (cAliasQry)->(!EOF())
     nCont++
 	IncProc("Processando consulta...")
-	dbSelectArea(cAliasTrb)
-	Reclock(cAliasTrb,.T.)
 
 	cBanco   := ""
 	cAgencia := ""
@@ -420,6 +418,8 @@ DO WHILE (cAliasQry)->(!EOF())
 		Loop
 	EndIf
 
+	dbSelectArea(cAliasTrb)
+	Reclock(cAliasTrb,.T.)
 	For nF := 1 To Len(aFields)
 		If Len(aFields[nF]) > 2 .AND. !Empty(aFields[nF,3])
             If (cAliasQry)->(FieldPos(aFields[nF,3])) > 0
@@ -477,7 +477,7 @@ DO WHILE (cAliasQry)->(!EOF())
 		ElseIf aFields[nF,2] = "E5_CONTA"
 			xCampo := cConta
 		ElseIf aFields[nF,2] = "E5_VLDESCO"
-			xCampo := (cAliasQry)->XX_E5MULTA - (cAliasQry)->XX_E5DESC
+			xCampo := (cAliasQry)->XX_E5DESC - (cAliasQry)->XX_E5MULTA
 		EndIf
 
 		&(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
@@ -486,20 +486,29 @@ DO WHILE (cAliasQry)->(!EOF())
 
 	If cOpcBco == "1"
 		nTotBx := 0
-		aSort(aBcoRec,,,{|x,y| x[4]<y[4]})
+		aBcos  := {}
+		aSort(aBcoRec,,,{|x,y| x[4]>y[4]})
 		For nF := 1 To Len(aBcoRec)
 			If nF <= nMaxBco
 				If aBcoRec[nF,1] == "CX1"
-					nB := 3
+					nB := nMaxBco
+					&(cAliasTrb+"->XX_VLB"+STRZERO(nB,2)) += aBcoRec[nF,4]
 				ElseIf aBcoRec[nF,1] == "999"
-					nB := 2
+					nB := (nMaxBco - 1)
+					&(cAliasTrb+"->XX_VLB"+STRZERO(nB,2)) += aBcoRec[nF,4]
 				Else
-					nB := 1
-					cNomeBco:= ALLTRIM(Posicione("SA6",1,xFilial("SA6")+aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3],"A6_NOME"))
-					&(cAliasTrb+"->XX_BCO"+STRZERO(nB,2)) := Trim(aBcoRec[nF,1])+"/"+Trim(aBcoRec[nF,2])+"/"+Trim(aBcoRec[nF,3])
-					&(cAliasTrb+"->XX_NBC"+STRZERO(nB,2)) := cNomeBco
+					nB := aScan(aBcos,{ |x| x == aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3]})
+					If nB == 0
+						aAdd(aBcos,aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3])
+						nB := Len(aBcos)
+					EndIf
+					If nB <= (nMaxBco - 2)
+						cNomeBco:= ALLTRIM(Posicione("SA6",1,xFilial("SA6")+aBcoRec[nF,1]+aBcoRec[nF,2]+aBcoRec[nF,3],"A6_NOME"))
+						&(cAliasTrb+"->XX_BCO"+STRZERO(nB,2)) := Trim(aBcoRec[nF,1])+"/"+Trim(aBcoRec[nF,2])+"/"+Trim(aBcoRec[nF,3])
+						&(cAliasTrb+"->XX_NBC"+STRZERO(nB,2)) := cNomeBco
+						&(cAliasTrb+"->XX_VLB"+STRZERO(nB,2)) += aBcoRec[nF,4]
+					EndIf
 				EndIf
-				&(cAliasTrb+"->XX_VLB"+STRZERO(nB,2)) := aBcoRec[nF,4]
 			EndIf
 			nTotBx += aBcoRec[nF,4]
 		Next
