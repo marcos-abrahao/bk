@@ -295,7 +295,8 @@ Processa( {|| ProcPFIS09() })
 
 //Processa ( {|| MBrwPFIS09()})
 If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
-	U_CORPFIS09()
+	cArqTmp := U_CORPFIS09()
+	U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),cArqTmp,.F.)
 Else
 	Processa ( {|| U_CSVPFIS09()})
 EndIf
@@ -414,6 +415,7 @@ Return (.T.)
 User FUNCTION CSVPFIS09()
 Local cAlias := "TRB"
 Local aPlans := {}
+Local cFile := ""
 
 dbSelectArea(cAlias)
 
@@ -423,10 +425,9 @@ dbSelectArea(cAlias)
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
 
 AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,/*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
+cFile := U_GeraXlsx(aPlans,cTitulo,TRIM(cPerg))
 
-
-Return Nil
+Return cFile
 
    
 
@@ -681,10 +682,14 @@ Do While (ALIAS_TMP)->(!eof())
 		cERRO += "Aliq. PIS,"
 	ENDIF
 	IF Transform((ALIAS_TMP)->FT_BASEPIS,"@E 99,999,999,999.99") <> Transform(nBASPISC,"@E 99,999,999,999.99")
-		cERRO += "Base PIS,"
+		IF ABS(((ALIAS_TMP)->FT_BASEPIS - nBASPISC)) > 0.2
+			cERRO += "Base PIS,"
+		ENDIF
 	ENDIF
 	IF Transform((ALIAS_TMP)->FT_VALPIS,"@E 99,999,999,999.99") <> Transform(nVALPISC,"@E 99,999,999,999.99")
-		cERRO += "Valor PIS,"
+		IF ABS(((ALIAS_TMP)->FT_VALPIS - nVALPISC)) > 0.2
+			cERRO += "Valor PIS,"
+		ENDIF
 	ENDIF
 
 	TRB->XX_ALICOFC := nALICOFC
@@ -695,10 +700,14 @@ Do While (ALIAS_TMP)->(!eof())
 		cERRO += "Aliq. COF,"
 	ENDIF
 	IF Transform((ALIAS_TMP)->FT_BASECOF,"@E 99,999,999,999.99") <> Transform(nBASCOFC,"@E 99,999,999,999.99")
-		cERRO += "Base COF,"
+		IF ABS(((ALIAS_TMP)->FT_BASECOF - nBASCOFC)) > 0.2
+			cERRO += "Base COF,"
+		ENDIF
 	ENDIF
 	IF Transform((ALIAS_TMP)->FT_VALCOF,"@E 99,999,999,999.99") <> Transform(nVALCOFC,"@E 99,999,999,999.99")
-		cERRO += "Valor COF,"
+		IF ABS(((ALIAS_TMP)->FT_VALCOF - nVALCOFC)) > 0.2
+			cERRO += "Valor COF,"
+		ENDIF
 	ENDIF
 
 	TRB->XX_ERROS  := SUBSTR(cERRO,1,LEN(cERRO)-1)
@@ -777,6 +786,7 @@ RETURN NIL
 
 USER Function CORPFIS09()
 LOCAL nOPC_ := 0
+LOCAL cFile := ""
 
 IF __CUSERID <> '000000'
 	MSGSTOP("Usuário  Não  Autorizado")
@@ -813,7 +823,8 @@ ENDIF
 //	Return nil
 //ENDIF
 
-Processa( {|| GCSVPFIS09("TRB","PFIS09",aTitulos,aCampos,aCabs,1)})
+//Processa( {|| GCSVPFIS09("TRB","PFIS09",aTitulos,aCampos,aCabs,1)})
+cFile := U_CSVPFIS09()
 
 DbSelectArea("TRB")
 ("TRB")->(dbgotop())
@@ -909,7 +920,7 @@ ENDDO
 
 //Processa( {|| ProcPFIS09() })
 
-Return nil
+Return cFile
 
 
 STATIC Function GCSVPFIS09(_cAlias,cArqS,aTitulos,aCampos,aCabs,nOP,cTpQuebra,cQuebra,aQuebra)

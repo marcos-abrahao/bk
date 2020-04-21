@@ -24,9 +24,10 @@ Generico - Gera planilha excel
 
 User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam )
 Local oProcess
-oProcess := MsNewProcess():New({|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+Local cFile := ""
+oProcess := MsNewProcess():New({|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
 oProcess:Activate()
-Return Nil
+Return cFile
 
 
 User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
@@ -522,7 +523,7 @@ oExcel:Gravar(cDirTmp+"\",.T.,.T.)
 
 RestArea(aArea)
 
-Return Nil
+Return cFile
 
 
 User Function QryToXlsx(_cAlias,_cPlan,_cTitulo,_aDefs,_cQuebra,_lClose)
