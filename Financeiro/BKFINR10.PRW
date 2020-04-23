@@ -941,7 +941,7 @@ Else
 		EndIf
 	EndIf
 
-	MsAguarde({|| U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)},"Aguarde","Gerando planilha...",.F.)
+	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
 EndIf
 
 oTmpTb2:Delete() 

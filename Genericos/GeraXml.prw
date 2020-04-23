@@ -22,11 +22,17 @@ Generico - Gera planilha excel no formato .XML com opção de gerar também no form
 User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _aParam )
 Local oProcess
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-	oProcess := MsNewProcess():New({|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+	//oProcess := MsNewProcess():New({|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+
+	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam) })
+
 Else
-	oProcess := MsNewProcess():New({|| U_ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)	
+	//oProcess := MsNewProcess():New({|| U_ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)	
+
+	MsgRun("Criando Arquivo XML "+_cProg,"Aguarde...",{|| U_ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam) })
+
 EndIf
-oProcess:Activate()
+//oProcess:Activate()
 Return Nil
 
 
@@ -71,8 +77,8 @@ Default _cTitulo := ""
 Private xCampo
 Private xQuebra
 
-oProcess:SetRegua1(LEN(_aPlans)+2)
-oProcess:IncRegua1("Preparando configurações...")
+//oProcess:SetRegua1(LEN(_aPlans)+2)
+//oProcess:IncRegua1("Preparando configurações...")
 
 IF lClose == NIL
    lClose := .T.
@@ -119,7 +125,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	nPosTot  := 0 
 	nPosCpo  := 0
 
-	oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
+	//oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
 
 	oExcel:AddworkSheet(_cPlan)
 
@@ -214,11 +220,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 		xQuebra := &(_cQuebra)
 	ENDIF
 	
-	oProcess:SetRegua2((_cAlias)->(LastRec()))
+	//oProcess:SetRegua2((_cAlias)->(LastRec()))
 	
 	Do While (_cAlias)->(!eof()) 
 	
-        oProcess:IncRegua2("Processando linhas...")
+        //oProcess:IncRegua2("Processando linhas...")
 
 		aLinha := {}
 	 	For nI :=1 to LEN(_aCampos)
@@ -294,11 +300,11 @@ If File(cArq)
 	EndIf
 EndIf
 
-oProcess:IncRegua1("Gerando o arquivo"+cArq+"...")
+//oProcess:IncRegua1("Gerando o arquivo"+cArq+"...")
 oExcel:GetXMLFile( cArq )
 
 If __CopyFile( cArq, cDirTmp + "\" + _cProg + "-" + cArq)
-	oProcess:IncRegua1("Abrindo o arquivo"+cArq+"...")
+	//oProcess:IncRegua1("Abrindo o arquivo"+cArq+"...")
    //IF MsgYesNo("Deseja abrir o arquivo "+cDirTmp + "\" + _cProg + "-" + cArq+" ?")
       ShellExecute("open", cDirTmp + "\" + _cProg + "-" + cArq,"","",1)
 	  //oExcelApp := MsExcel():New()

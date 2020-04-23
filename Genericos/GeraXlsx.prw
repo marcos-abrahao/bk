@@ -25,8 +25,11 @@ Generico - Gera planilha excel
 User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam )
 Local oProcess
 Local cFile := ""
-oProcess := MsNewProcess():New({|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
-oProcess:Activate()
+//oProcess := MsNewProcess():New({|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
+//oProcess:Activate()
+
+MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam) })
+
 Return cFile
 
 
@@ -114,9 +117,9 @@ Local nStyle
 Private xCampo,yCampo
 Private xQuebra
 
-oProcess:SetRegua1(LEN(_aPlans)+2)
+//oProcess:SetRegua1(LEN(_aPlans)+2)
 
-oProcess:IncRegua1("Preparando configurações...")
+//oProcess:IncRegua1("Preparando configurações...")
 
 If lClose == NIL
    lClose := .T.
@@ -186,7 +189,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_cQuebra := _aPlans[nPl,11]
 	_lClose  := _aPlans[nPl,12]
 
-	oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
+	//oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
 
 	If Empty(_aFormat)
 		_aFormat := Array(Len(_aCabs))
@@ -335,11 +338,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
 
-	oProcess:SetRegua2((_cAlias)->(LastRec()))
+	//oProcess:SetRegua2((_cAlias)->(LastRec()))
 
 	Do While (_cAlias)->(!eof()) 
 
-        oProcess:IncRegua2("Processando linhas...")
+        //oProcess:IncRegua2("Processando linhas...")
 
 		nLin++
 		nCont++
@@ -463,7 +466,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 Next
 
-oProcess:IncRegua1("Listando parâmetros...")
+//oProcess:IncRegua1("Listando parâmetros...")
 
 // Planilha de Parâmetros
 If ValType(_aParam) == "A"
@@ -634,11 +637,15 @@ Return nil
 
 User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam )
 Local oProcess
-oProcess := MsNewProcess():New({|| PrcArrXlsx(oProcess,_aPlans,_cTitulo,_cProg, _aParam)}, "Processando...", "Aguarde...", .T.)
-oProcess:Activate()
+//oProcess := MsNewProcess():New({|| U_PrcArrXlsx(oProcess,_aPlans,_cTitulo,_cProg, _aParam)}, "Processando...", "Aguarde...", .T.)
+//oProcess:Activate()
+
+MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(oProcess,_aPlans,_cTitulo,_cProg, _aParam) })
+
+
 Return Nil
 
-Static Function PrcArrXlsx( oProcess,_aPlans,_cTitulo,_cProg, _aParam )
+User Function PrcArrXlsx( oProcess,_aPlans,_cTitulo,_cProg, _aParam )
 
 Local oExcel := YExcel():new()
 Local oObjPerg
@@ -720,9 +727,9 @@ Local nIDImg
 Private xCampo,yCampo
 Private xQuebra
 
-oProcess:SetRegua1(LEN(_aPlans)+2)
+//oProcess:SetRegua1(LEN(_aPlans)+2)
 
-oProcess:IncRegua1("Preparando configurações...")
+//oProcess:IncRegua1("Preparando configurações...")
 
 //If lClose == NIL
 //   lClose := .T.
@@ -790,7 +797,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_aFormat := _aPlans[nPl,07]
 	_aTotal  := _aPlans[nPl,08]
 
-	oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
+	//oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
 
 	If Empty(_aFormat)
 		_aFormat := Array(Len(_aCabs))
@@ -901,11 +908,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 		EndIf
 	NEXT
 
-	oProcess:SetRegua2(Len(_aDados))
+	//oProcess:SetRegua2(Len(_aDados))
 
 	For nRow := 1 To Len(_aDados)
 
-        oProcess:IncRegua2("Processando linhas...")
+        //oProcess:IncRegua2("Processando linhas...")
 
 		nLin++
 		nCont++
@@ -947,7 +954,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	EndIf
 Next
 
-oProcess:IncRegua1("Listando parâmetros...")
+//oProcess:IncRegua1("Listando parâmetros...")
 
 // Planilha de Parâmetros
 If ValType(_aParam) == "A"
