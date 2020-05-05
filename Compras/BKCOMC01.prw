@@ -3,7 +3,7 @@
 
 
 /*/{Protheus.doc} BKCOMC01()
-BK - Rentabilidade dos Contratos
+BK - Pesquisa itens de Documentos de entrada
 
 ** Chamada efetuada atraves do ponto de entrada MA103OPC
 
@@ -29,6 +29,8 @@ Local cMDiretoria :="", cMFinanceiro:= ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local oTmpTb
+
+cGerGestao := ALLTRIM(U_BKGetMv("MV_XXGGCT"))
 
 Private aSize   := MsAdvSize(,.F.,400)
 Private aObjects:= { { 450, 450, .T., .T. } }

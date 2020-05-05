@@ -16,13 +16,16 @@ User Function MT110LOK()
 	Local _nPosPrd	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_PRODUTO'})
 	Local _nPosDesc	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DESCRI'})
 	Local dDataInc
-	
+	Local cAlmox	:= "000093/000160/000126"   //SuperGetMV("MV_XXGRALX",.F.,"000021")	
+
 	If Empty( aCols[n][_nPosDesc] )
 		aCols[n][_nPosDesc] := Posicione("SB1",1,xFilial("SB1")+aCols[n][_nPosPrd],"B1_DESC")
 	EndIf
 
 	// Validação a ser executada
-	If Empty( aCols[n][_nPosLcV] ) // Valor licitado não informado
+	If __cUserId $ cAlmox
+		aCols[n][_nPosLcV] := 0
+	ElseIf Empty( aCols[n][_nPosLcV] ) // Valor licitado não informado
 		If "UNI" $ aCols[n][_nPosPrd] .OR. "EPI" $ aCols[n][_nPosPrd]
 			CN9->(dbSetOrder(1))
 			If CN9->(dbSeek(xFilial("CN9")+cCC,.F.))  // Existe contrato para este centro de custo
@@ -47,5 +50,4 @@ User Function MT110LOK()
 		//	_lRet := .F. // Quando false o sistema não permitirá que o usuário prossiga para a proxima linha
 		//EndIf
 	EndIf
-
 Return _lRet

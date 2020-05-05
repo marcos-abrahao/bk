@@ -1,8 +1,399 @@
 
 
 
-21/04/20 =============================================== 
+ALTER INDEX ALL ON SB1010 REORGANIZE
 
+ALTER INDEX ALL ON SB1010 REBUILD WITH (ONLINE = ON) 
+
+
+01/05/20 =============================================== 
+
+-- Cronogramas com diferença de dízimas
+select CNF_SALDO,CNF_SALDO - ROUND(CNF_SALDO,2),R_E_C_N_O_ from CNF010 WHERE (CNF_SALDO - ROUND(CNF_SALDO,2)) <> 0 AND D_E_L_E_T_ = '' ORDER BY R_E_C_N_O_
+
+-- Cronogramas com saldos inferiores a 10
+select R_E_C_N_O_,* from CNF010 WHERE CNF_SALDO <= 10 AND CNF_SALDO <> 0  AND D_E_L_E_T_ = '' ORDER BY CNF_CONTRA
+
+
+28/04/20 =============================================== 
+
+
+----------------------------------------------------------------------
+Empresa : 01/BK                                      
+
+Parametro MV_CTBAPLA conteudo: 2                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 02/BK TER                                  
+
+Parametro MV_CTBAPLA conteudo: 2                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 06/BKDAHER SUZANO                          
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 07/JUST                                    
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 08/BHG CAMPINAS                            
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 09/BHG OSASCO                              
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 10/BKDAHER TABOAO                          
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 11/BKDAHER LIMEIRA                         
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 12/BK CORRETORA                            
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 14/CONSORCIO BALSA NOVA                    
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 97/CMOG PARTICIPACOES EIRELI               
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 98/TERO BRASIL PARTICIPACOES SOCIEDADE     
+
+Parametro MV_CTBAPLA conteudo: 4                                                                                                                                                                                                                                                         
+Parametro MV_CTBAPLA conteudo alterado 2                                                                                                                                                                                                                                                         
+
+Final da Atualizacao
+----------------------------------------------------------------------
+ Data / Hora Final.: 28/04/20 / 11:10:45
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 02/BK TER                                  
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 06/BKDAHER SUZANO                          
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 07/JUST                                    
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 08/BHG CAMPINAS                            
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 09/BHG OSASCO                              
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 10/BKDAHER TABOAO                          
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 11/BKDAHER LIMEIRA                         
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 12/BK CORRETORA                            
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 14/CONSORCIO BALSA NOVA                    
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 97/CMOG PARTICIPACOES EIRELI               
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Empresa : 98/TERO BRASIL PARTICIPACOES SOCIEDADE     
+
+Inicio da Atualizacao
+B1_CODISS-sErro B1_IRRF-sErro B1_INSS-sErro B1_PIS-sErro B1_COFINS-sErro B1_CSLL-sErro F4_CF-sErro F4_ISS-sErro F4_CODBCC-sErro F4_CSTPIS-sErro B1_XXDESCP-N B1_ESPECIF-N B1_MAT_PRI-N B1_TAB_IPI-N B1_TRIBMUN-N B1_RPRODEP-N B1_CLASSE-nErro B1_PRODREC-N B1_RICM65-nErro B1_TNATREC-N B1_CNATREC-N B1_SELOEN-nErro F4_ICM-nErro F4_IPI-nErro F4_CREDICM-N F4_CREDIPI-N 
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+ Data / Hora Final.: 27/04/20 / 13:44:48
+----------------------------------------------------------------------
+
+
+27/04/20 =============================================== 
+
+declare @tes as CHAR(3)
+declare @emp as CHAR(3)
+declare @tab as CHAR(3)
+declare @query as varchar(200)
+
+SET @tes = '001'
+SET @emp = '980'
+set @tab = 'SD1'
+
+CREATE TABLE #Empresas( codigo CHAR(3))
+
+INSERT INTO #Empresas Values ('010')
+INSERT INTO #Empresas Values ('020')
+INSERT INTO #Empresas Values ('060')
+INSERT INTO #Empresas Values ('070')
+INSERT INTO #Empresas Values ('080')
+INSERT INTO #Empresas Values ('090')
+INSERT INTO #Empresas Values ('100')
+INSERT INTO #Empresas Values ('110')
+INSERT INTO #Empresas Values ('120')
+INSERT INTO #Empresas Values ('140')
+INSERT INTO #Empresas Values ('970')
+INSERT INTO #Empresas Values ('980')
+
+--SELECT * FROM #Empresas
+
+--set @query = 'SELECT * FROM '+ @tab +' WHERE D1_TES = '''+@tes+''''
+--select @query
+
+SELECT 'SELECT * FROM '+@Tab+codigo + ' WHERE D1_TES = '''+@tes+'''' FROM #Empresas
+
+DROP TABLE #Empresas
+
+--EXEC(@query)
+
+
+
+dataP12Tst
+
+UPDATE SE1010 SET E1_VENCTO = E1_EMISSAO, E1_VENCREA = E1_EMISSAO, E1_MOVIMEN = E1_EMISSAO, E1_VENCORI = E1_EMISSAO  WHERE SUBSTRING(E1_EMISSAO,1,6) >= '201901' AND SE1010.D_E_L_E_T_ = ''
+
+UPDATE SE1010 SET E1_BAIXA = E1_EMISSAO WHERE SUBSTRING(E1_EMISSAO,1,6) >= '201901' AND SE1010.D_E_L_E_T_ = '' AND E1_BAIXA <> ''
+
+USE [master]
+RESTORE DATABASE [dataP12Tst] FROM  DISK = N'\\vmpandora\Backup Protheus 12\2020-04-23-dataP10.bak' WITH  FILE = 1,  MOVE N'DATA' TO N'D:\Arquivos\Dados\dataP12Tst.mdf',  MOVE N'DATA_log' TO N'D:\Arquivos\Logs\dataP12Tst.ldf',  NOUNLOAD,  REPLACE,  STATS = 5
+
+GO
+
+
+22/04/20 =============================================== 
+
+
+DELETE FROM SFT010 WHERE Substring(FT_ENTRADA,1,6) = '202003' 
+DELETE FROM SF3010 WHERE Substring(F3_ENTRADA,1,6) = '202003' 
+
+
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000000060' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '001266' AND D1_LOJA = '01' AND D1_COD = 'INS550'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000000061' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '001266' AND D1_LOJA = '01' AND D1_COD = 'INS550'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000174243' AND D1_SERIE = '1' AND D1_ITEM = '0003' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS093'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000174243' AND D1_SERIE = '1' AND D1_ITEM = '0008' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS117'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003326995' AND D1_SERIE = '1' AND D1_ITEM = '0037' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS2494'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000176190' AND D1_SERIE = '1' AND D1_ITEM = '0006' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS2449'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000176190' AND D1_SERIE = '1' AND D1_ITEM = '0009' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS263'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000176807' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS093'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005228' AND D1_SERIE = '1' AND D1_ITEM = '0008' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS2464'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005229' AND D1_SERIE = '1' AND D1_ITEM = '0006' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS190'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005229' AND D1_SERIE = '1' AND D1_ITEM = '0009' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS244'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0006' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS084'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0024' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS244'
+
+
+
+
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000088' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004340' AND D1_LOJA = '01' AND D1_COD = '000000000000222'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000089' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004340' AND D1_LOJA = '01' AND D1_COD = '000000000000222'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000090' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004340' AND D1_LOJA = '01' AND D1_COD = '000000000000222'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000091' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004340' AND D1_LOJA = '01' AND D1_COD = '000000000000222'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000092' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004340' AND D1_LOJA = '01' AND D1_COD = '000000000000222'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000002582' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '000703' AND D1_LOJA = '01' AND D1_COD = '120300105'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000002960' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '000703' AND D1_LOJA = '01' AND D1_COD = '120300105'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000250' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002073' AND D1_LOJA = '01' AND D1_COD = '120300108'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000002970' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '000703' AND D1_LOJA = '01' AND D1_COD = '120300105'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000032020' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002298' AND D1_LOJA = '01' AND D1_COD = '320200301'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000263' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '003130' AND D1_LOJA = '01' AND D1_COD = '320200301'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005221' AND D1_SERIE = '1' AND D1_ITEM = '0010' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS2630'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0030' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS3145'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000003004' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004312' AND D1_LOJA = '01' AND D1_COD = '000000000000332'
+
+
+
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000048283' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004352' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000174243' AND D1_SERIE = '1' AND D1_ITEM = '0016' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS322'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000174243' AND D1_SERIE = '1' AND D1_ITEM = '0018' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS704'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000007' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004167' AND D1_LOJA = '01' AND D1_COD = '000000000000354'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000002428' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004164' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000014945' AND D1_SERIE = 'E' AND D1_ITEM = '0001' AND D1_FORNECE = '003056' AND D1_LOJA = '01' AND D1_COD = '000000000000196'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000124116' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004260' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0002' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0003' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0004' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0005' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0006' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0007' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0008' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0009' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0010' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0011' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0012' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0013' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0014' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0015' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0016' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0017' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0018' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0019' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0020' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0021' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0022' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0023' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0024' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0025' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0026' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0027' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0028' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0030' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0031' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0032' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0033' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0034' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0035' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0036' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0037' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0038' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0039' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0040' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0041' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0042' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0043' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0044' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0045' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0046' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0047' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0048' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0049' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0050' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0051' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0052' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0053' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0054' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0055' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0056' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0057' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0058' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0059' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0060' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0061' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0062' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0063' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0064' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '001781195' AND D1_SERIE = '' AND D1_ITEM = '0065' AND D1_FORNECE = '000024' AND D1_LOJA = '01' AND D1_COD = '320200405'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000016' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002438' AND D1_LOJA = '01' AND D1_COD = '000000000000357'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000004404' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '003577' AND D1_LOJA = '01' AND D1_COD = '000000000000205'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000202032' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002465' AND D1_LOJA = '01' AND D1_COD = '120300108'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000125' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004105' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000803' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '004128' AND D1_LOJA = '01' AND D1_COD = '000000000000333'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000004983' AND D1_SERIE = '1' AND D1_ITEM = '0010' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS355'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000013212' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '001691' AND D1_LOJA = '01' AND D1_COD = '120300108'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000183' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '002484' AND D1_LOJA = '01' AND D1_COD = '000000000000150'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000004364' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004364' AND D1_LOJA = '01' AND D1_COD = '000000000000367'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000007828' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '004247' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000051325' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002376' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000125081' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004260' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000176190' AND D1_SERIE = '1' AND D1_ITEM = '0012' AND D1_FORNECE = '004103' AND D1_LOJA = '01' AND D1_COD = 'INS384'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000014301' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002333' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000113378' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '003751' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000001995' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '003577' AND D1_LOJA = '01' AND D1_COD = '000000000000205'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000003283' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '003559' AND D1_LOJA = '01' AND D1_COD = '120300105'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000625' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002272' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000014343' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '002333' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '006681978' AND D1_SERIE = '1' AND D1_ITEM = '0001' AND D1_FORNECE = '000453' AND D1_LOJA = '01' AND D1_COD = 'INS3325'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005221' AND D1_SERIE = '1' AND D1_ITEM = '0004' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS182'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005221' AND D1_SERIE = '1' AND D1_ITEM = '0012' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS355'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005229' AND D1_SERIE = '1' AND D1_ITEM = '0004' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS182'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '000005229' AND D1_SERIE = '1' AND D1_ITEM = '0012' AND D1_FORNECE = '003988' AND D1_LOJA = '01' AND D1_COD = 'INS353'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0002' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS942'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0027' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS290'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0031' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS3222'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0032' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS703'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0034' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS766'
+UPDATE SD1010 SET D1_TES = '104' FROM SD1010 WHERE D1_DOC = '003364256' AND D1_SERIE = '1' AND D1_ITEM = '0035' AND D1_FORNECE = '000385' AND D1_LOJA = '01' AND D1_COD = 'INS983'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000191' AND D1_SERIE = '' AND D1_ITEM = '0001' AND D1_FORNECE = '004375' AND D1_LOJA = '01' AND D1_COD = 'INS882'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000209' AND D1_SERIE = 'E' AND D1_ITEM = '0001' AND D1_FORNECE = '001582' AND D1_LOJA = '01' AND D1_COD = '000000000000223'
+UPDATE SD1010 SET D1_TES = '107' FROM SD1010 WHERE D1_DOC = '000000210' AND D1_SERIE = 'E' AND D1_ITEM = '0001' AND D1_FORNECE = '001582' AND D1_LOJA = '01' AND D1_COD = '000000000000223'
 
 
 
