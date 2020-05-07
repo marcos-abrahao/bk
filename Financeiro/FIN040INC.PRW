@@ -222,24 +222,24 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
     Private nTotal      := nValor
     Private nTotalOri   := nValor
 
-    DEFINE MSDIALOG oDlg TITLE "Descrição da Nota de Débito - Contrato "+cContra FROM 000, 000  TO 500, 700  PIXEL
+    DEFINE MSDIALOG oDlg TITLE "Descrição da Nota de Débito - Contrato "+cContra FROM 000, 000  TO 520, 700  PIXEL
     
     	@00,00 MSPANEL oPanel01 SIZE 500, 700 OF oDlg
 
         //chamar a função que cria a estrutura do aHeader
         CriaCabec()
 
-		@ 012, 010 Say  oSay Prompt "Vencimento:" Size  40, 10 Of oPanel01 Pixel
-		@ 010, 040 MSGet  oVenc Var  dVenci Size  50,10 Of oPanel01 Pixel Picture "@E"  
+		@ 032, 010 Say  oSay Prompt "Vencimento:" Size  40, 10 Of oPanel01 Pixel
+		@ 030, 040 MSGet  oVenc Var  dVenci Size  50,10 Of oPanel01 Pixel Picture "@E"  
 
-		@ 027, 010 Say  oSay Prompt "Referencia:" Size  40, 10 Of oPanel01 Pixel
-		@ 025, 040 MSGet  oRefer Var  cRefer Size  300,10 Of oPanel01 Pixel Picture "@!"  
+		@ 047, 010 Say  oSay Prompt "Referencia:" Size  40, 10 Of oPanel01 Pixel
+		@ 045, 040 MSGet  oRefer Var  cRefer Size  300,10 Of oPanel01 Pixel Picture "@!"  
 		
 
         //Monta o browser com inclusão, remoção e atualização
- 		@ 045, 010 Say  oSay Prompt "Descrição Detalhada:" Size  400, 10 Of oPanel01 Pixel
+ 		@ 065, 010 Say  oSay Prompt "Descrição Detalhada:" Size  400, 10 Of oPanel01 Pixel
 
-        oLista := MsNewGetDados():New(055, 010, 145, 340, GD_INSERT+GD_DELETE+GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,1, 999, "U_SOMANDC()", "", "Eval(bfDeleta)", oPanel01, aCabecalho, aColsEx)
+        oLista := MsNewGetDados():New(075, 010, 165, 340, GD_INSERT+GD_DELETE+GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,1, 999, "U_SOMANDC()", "", "Eval(bfDeleta)", oPanel01, aCabecalho, aColsEx)
 
         //oBrw1  := MsNewGetDados():New( 32 , 10, nBrwAlt, nBrwLarg,nOpc                  ,’Eval(bLinOk)’,’AllwaysTrue()’,”,{“PRODUTO”,”QUANT”,”ALMOX”,”ENDEREC”,”NUMSERI”},0,99,’AllwaysTrue()’,,’Eval(bfDeleta)’,oDlgSep,aHead1,aCols1)
 
@@ -250,17 +250,17 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
         //Ao abrir a janela o cursor está posicionado no meu objeto
         //oLista:oBrowse:SetFocus()
 
-		@ 150, 010 Say  oSay Prompt "Descrição Única:" Size  400, 10 Of oPanel01 Pixel
-		@ 160, 010 Get oDesc Var  cDescUni Memo Size  330, 040 Of oPanel01 Pixel
+		@ 170, 010 Say  oSay Prompt "Descrição Única:" Size  400, 10 Of oPanel01 Pixel
+		@ 180, 010 Get oDesc Var  cDescUni Memo Size  330, 040 Of oPanel01 Pixel
 
-		@ 205, 150 Say  oSay Prompt "Sub Total:" Size  100, 10 Of oPanel01 Pixel
-		@ 205, 250 MSGet oSTotal Var nSTotal Size 080, 10 Of oPanel01 Pixel WHEN .F. Picture cPict  
+		@ 225, 150 Say  oSay Prompt "Sub Total:" Size  100, 10 Of oPanel01 Pixel
+		@ 225, 250 MSGet oSTotal Var nSTotal Size 080, 10 Of oPanel01 Pixel WHEN .F. Picture cPict  
 
-		@ 220, 010 Say  oSay Prompt "Taxa:" Size  100, 10 Of oPanel01 Pixel
-		@ 220, 040 MSGet oTaxa Var  nTaxa Size  50, 10 Of oPanel01 Pixel Picture "@E 9,999.99"  Valid (U_SOMANDC()) ;
+		@ 240, 010 Say  oSay Prompt "Taxa:" Size  100, 10 Of oPanel01 Pixel
+		@ 240, 040 MSGet oTaxa Var  nTaxa Size  50, 10 Of oPanel01 Pixel Picture "@E 9,999.99"  Valid (U_SOMANDC()) ;
 		
-		@ 220, 150 Say  oSay Prompt "Total da Nota Débito:" Size  100, 10 Of oPanel01 Pixel
-		@ 220, 250 MSGet oTotal Var  nTotal Size  080, 10 Of oPanel01 Pixel  WHEN .F. Picture cPict 
+		@ 240, 150 Say  oSay Prompt "Total da Nota Débito:" Size  100, 10 Of oPanel01 Pixel
+		@ 240, 250 MSGet oTotal Var  nTotal Size  080, 10 Of oPanel01 Pixel  WHEN .F. Picture cPict 
 
         //Carregar os itens que irão compor o conteudo do grid
         Carregar(nRecCND,cContra,cCompe)
