@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"05/05/2020"
+#DEFINE FIN_LAST_UPDATED 		"11/05/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -941,7 +941,9 @@ oProcess:IncRegua2( "Acertando o compartilhamento das tabelas..." )
 dbSelectArea( "SX2" )
 dbSetOrder( 1 )
 
-aAdd(aSx2,"SF4") // - TES
+aAdd(aSx2,"SF4") // - Tipos de Entradas e Saídas
+aAdd(aSx2,"SF5") // - Tipos de Movimentação   
+aAdd(aSx2,"SF7") // - Grupo de Tributação    
 
 // Produtos e tabelas filhas
 aAdd(aSx2,"SB1") // - Produtos
@@ -951,30 +953,28 @@ aAdd(aSx2,"SBM") // - Grupos
 aAdd(aSx2,"D3E") // - Dados complementares produto  
 aAdd(aSx2,"SZI") // - Sub Grupos
 //aAdd(aSx2,"SBZ") // - Indicadores (exclusiva)
-
 // F3 - Produtos
 aAdd(aSx2,"AC4") // - Parceiros                     
 aAdd(aSx2,"ALT") // - Tipos de Despesas             
-//aAdd(aSx2,"AT1") // - 
-//aAdd(aSx2,"AT2") // - 
-//aAdd(aSx2,"AT3") // - 
 aAdd(aSx2,"CCZ") // - Natureza da Receita           
 aAdd(aSx2,"CDZ") // - Codigo de Lancamento CAT83    
-//aAdd(aSx2,"CT1") // - 
-//aAdd(aSx2,"CTH") // - 
-//aAdd(aSx2,"CTR") // - 
 aAdd(aSx2,"DB0") // - Modelos de Carga              
 aAdd(aSx2,"EE5") // - Embalagens                    
 aAdd(aSx2,"EEI") // - Tabela de Normas              
 aAdd(aSx2,"EI6") // - Tabela de IPI de Pauta        
 aAdd(aSx2,"F08") // - Cód. Enquadramento Legal IPI  
 aAdd(aSx2,"NNR") // - Locais de Estoque             
-//aAdd(aSx2,"PGA") // - 
 aAdd(aSx2,"QAD") // - Departamentos/Setor           
 aAdd(aSx2,"SAH") // - Unidades de Medida            
-*** aAdd(aSx2,"SAJ") // - Grupos de Compras             
-//aAdd(aSx2,"SBP") // - Base de Código Estruturado    
-//aAdd(aSx2,"SG2") // - Roteiro de Operações          
+
+aAdd(aSx2,"SAJ") // - Grupos de Compras             
+aAdd(aSx2,"SAK") // - Aprovadores                 
+aAdd(aSx2,"SAL") // - Grupos de Aprovação               
+aAdd(aSx2,"SBP") // - Base de Código Estruturado    
+aAdd(aSx2,"SG1") // - Estruturas dos Produtos 
+aAdd(aSx2,"SG2") // - Roteiro de Operações          
+aAdd(aSx2,"SG5") // - Revisões Estrutura
+aAdd(aSx2,"SGG") // - Pré-Estrutura   
 aAdd(aSx2,"SJ1") // - Naladi SH                     
 aAdd(aSx2,"SJ2") // - Naladi NCCA                   
 aAdd(aSx2,"SJC") // - Aladi                         
@@ -1153,7 +1153,7 @@ aAdd(aSx2,"FR9") // - REGRAS DE DOCUMENTO POR EVENTO
 aAdd(aSx2,"FRD") // - CHECKLIST DE DOC.FINANCEIRO   
 aAdd(aSx2,"FRH") // - Header Descontos Condicionais 
 aAdd(aSx2,"FRI") // - Itens Desconto Condicional.   
-aAdd(aSx2,"FRJ") // -   Header NF-e Educacional     
+aAdd(aSx2,"FRJ") // - Header NF-e Educacional     
 aAdd(aSx2,"FRK") // - Itens NF-e Educacional        
 aAdd(aSx2,"FRL") // - Filtros NF-e Educacional      
 aAdd(aSx2,"FRO") // - Analistas Financeiros         
@@ -1233,8 +1233,9 @@ aAdd(aSx2,"SE0") // - Cotações Diarias por Contrato
 aAdd(aSx2,"SE1") // - Contas a Receber              
 aAdd(aSx2,"SE2") // - Contas a Pagar                
 aAdd(aSx2,"SE3") // - Comissões de Vendas           
+aAdd(aSx2,"SE4") // - Cond. Pgto
 aAdd(aSx2,"SE5") // - Movimentação Bancaria         
-aAdd(aSx2,"SE6") // - Solicitação de Transferência  
+//aAdd(aSx2,"SE6") // - Solicitação de Transferência  
 aAdd(aSx2,"SE7") // - Orçamentos                    
 aAdd(aSx2,"SE8") // - Saldos Bancários              
 aAdd(aSx2,"SE9") // - Contratos Bancários           
@@ -1273,14 +1274,20 @@ aAdd(aSx2,"NP3") // - Culturas
 aAdd(aSx2,"NP4") // - 
 aAdd(aSx2,"NP7") // - Peneiras
 
-
-
 // Contabilidade Gerencial
 // Cadastros: CT1, CT5, CT8, CT9, CTA, CTB, CTD, CTE, CTG CQD, CTH, CTJ, CTL, CTN, CTO, CTP, CTR, CTS, CTT, CV5, CV9, CVA, CVB, CVC, CVD,CVE,CVF
 // Movimentos e Saldos: CT2, CT3, CT4, ,CT7, CTI, CTU, CTV, CTW, CTX, CTY, CT6, CTC, CTF, CTK, CTZ, CV1, CV2, CV3, CV4, CV6, CV7, CV8 e CVO.
 // P12: CQ0, CQ1, CQ2, CQ3, CQ4, CQ5, CQ6, CQ07 CQ8, CQ9, CQA e CSQ
 
-aAdd(aSx2,"CDT") // - Itens Contábeis
+aAdd(aSx2,"C1O") // - Plano de Contas Contábeis   
+aAdd(aSx2,"C1P") // - Centros de Custo
+aAdd(aSx2,"CH5") // - Plano de Contas Referencial  
+
+//aAdd(aSx2,"C3Q") // - Informações Complementares    
+//aAdd(aSx2,"C3R") // - Plano de Contas Referencial  
+//aAdd(aSx2,"C6D") // - Plano de Contas Referencial  
+//aAdd(aSx2,"C6O") // - Plano de Contas Referencial  
+
 
 aAdd(aSx2,"CT0") // - Conf. De Entidades Contábeis
 aAdd(aSx2,"CT1") // - Plano de Contas
@@ -1385,6 +1392,22 @@ aAdd(aSx2,"CQF") // - Tipos de Saldos Apr Contrato
 aAdd(aSx2,"CQG") // - Períodos Apuração do Contrato
 aAdd(aSx2,"CQH") // - Apontamentos do Período
 aAdd(aSx2,"CQI") // - Movimentos das apurações
+aAdd(aSx2,"CQJ") // - Cabeçalho do Evento           
+aAdd(aSx2,"CQK") // - Itens do Evento               
+aAdd(aSx2,"CQL") // - IDENT.DOS TIPOS DE PROGRAMAS  
+aAdd(aSx2,"CQM") // - Registro W100-Inf.Grupo Multin
+aAdd(aSx2,"CQN") // - Registro W200- Declaracao Pais
+aAdd(aSx2,"CQO") // - Registro W250-Entid.Integrante
+aAdd(aSx2,"CQP") // - Registro W300-Observações Adic
+aAdd(aSx2,"CQQ") // - PERIODO ESC CONSOL BL K       
+aAdd(aSx2,"CQR") // - Rel Empr Consolidadas Bl K    
+aAdd(aSx2,"CQS") // - REL EVENTOS SOCIETARIOS BL K  
+aAdd(aSx2,"CQT") // - EMPR PARTIC EV SOC BL K       
+aAdd(aSx2,"CQU") // - SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQV") // - SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQX") // - SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQY") // - SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQZ") // - EMP CONTRAPARTES VL ELIM BL K 
 
 aAdd(aSx2,"CS0") // - Revisão                       
 aAdd(aSx2,"CS1") // - Dados complementares da revis.
@@ -1427,8 +1450,8 @@ cQuery := ""
 For nI := 1 To Len( aSX2 )
 
 	If SX2->( dbSeek( aSX2[nI] ) )
-
-		//RecLock( "SX2", .F. )
+		
+		lOpen := .F.
 		cTable := aSX2[nI]+SM0->M0_CODIGO+"0
 		cTexto += "Tabela " + cTable + " modo anterior " + SX2->X2_MODO + CRLF
 
@@ -1438,15 +1461,18 @@ For nI := 1 To Len( aSX2 )
 	   			DBUseArea(.T., 'TOPCONN', cTable, (cTable), .F., .F.)
 				//Se conseguir abrir em modo exclusivo, limpa os deletados
 				dbSelectArea(cTable)
+				cTexto += "Pack " + cTable + CRLF
 				MsgRun("Limpando registros - " + cTable, "", {|| __dbPack(), DbCommitAll() })
 				dbCloseArea()
 				dbSelectArea("SX2")
+				lOpen := .T.
 			EndIf
 
 		EndIf
 
-		If SX2->X2_MODO <> "C" 
-			//SX2->X2_MODO := "C"
+		If SX2->X2_MODO <> "C" //.OR. .T.
+			RecLock( "SX2", .F. )
+			SX2->X2_MODO := "C"
 			cTexto += "Tabela " + cTable + " modo alterado " + SX2->X2_MODO + CRLF
 
 			If SUBSTR(aSx2[nI],1,1) == "S"
@@ -1455,7 +1481,7 @@ For nI := 1 To Len( aSX2 )
 				cNFil := aSX2[nI]
 			EndIf
 
-			If TCCanOpen(cTable)
+			If TCCanOpen(cTable) .OR. lOpen
 				cQuery += "UPDATE "+aSX2[nI]+SM0->M0_CODIGO+"0 SET "+cNFil+"_FILIAL = '' " + CRLF
 			EndIf
 			//dbCommit()
@@ -1465,7 +1491,7 @@ For nI := 1 To Len( aSX2 )
 	EndIf
 
 Next nI
-Memowrite("C:\TMP\QRYFIL"+SM0->M0_CODIGO+".QRY",cQuery)
+Memowrite("C:\TMP\QRYFIL"+SM0->M0_CODIGO+".SQL",cQuery)
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF + Replicate( "-", 128 ) + CRLF + CRLF
 

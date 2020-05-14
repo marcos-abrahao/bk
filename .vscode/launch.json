@@ -104,7 +104,22 @@
 			"args": [],
 			"label": "U_",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "sigacfg",
+			"description": ""
+		},
+		{
+			"args": [],
+			"label": "UPDGENSX",
+			"description": ""
+		},
+		{
+			"args": [],
+			"label": "SIGAADV",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "U_UPDGENSX"
+	"lastProgramExecuted": "SIGAGCT"
 }

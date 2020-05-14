@@ -16,5 +16,10 @@
 */
 
 User Function MA440VLD()
+Local aAreaIni  := GetArea()
+Local cAliasCNR := GetNextAlias()
+Local lRet := .T.
 
-Return U_VerGlosa(.F.)
+    lRet := U_VerGlosa(.F.)
+RestArea(aAreaIni)
+Return lRet
