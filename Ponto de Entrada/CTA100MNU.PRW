@@ -3,20 +3,14 @@
 #INCLUDE "APWIZARD.CH"       
 #INCLUDE "TOPCONN.CH"       
 
+/*/{Protheus.doc} CTA100MNU
+BK - Ponto de Entrada para criar opções na tela de Contratos
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 30/07/10
+@version P12
+/*/
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ CTA100MNUºAutor  ³Marcos B. Abrahao   º Data ³  30/07/10   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de Entrada para criar opções na tela de Contratos    º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
 User Function CTA100MNU() 
 Local aUser
 Local cMDiretoria,cMRepac,cMRepac2
@@ -56,8 +50,8 @@ IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMDiretoria .OR. ASCAN(aUs
 
 	IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMRepac //ASCAN(aUser[1,10],cMRepac) > 0       
 	   AADD(aRotY,{OemToAnsi("Alt Sit Vigente"), "U_BKGCTA03", 0, 2 })
+	   AADD(aRotY,{OemToAnsi("Alt Modo Filial"), "U_BKGCTA21", 0, 2 })
 	ENDIF
-
  
    AADD(aRotY,{OemToAnsi("Dados Repac."), "U_BKGCTA04", 0, 2 })
    AADD(aRotY,{OemToAnsi("Hist. Repac."), "U_BKGCTA05", 0, 2 })
@@ -417,7 +411,7 @@ If ( lOk )
 EndIf
 dbSelectArea(_sAlias)
 
-RestArea( aAreaCNF )
+CNF->(RestArea( aAreaCNF ))
 RestArea( aAreaAtu )
 
 Return lOk
@@ -579,7 +573,7 @@ If ( lOk )
 EndIf
 dbSelectArea(_sAlias)
 
-RestArea( aAreaCNF )
+CNF->(RestArea( aAreaCNF ))
 RestArea( aAreaAtu )
 
 Return lOk
@@ -753,7 +747,7 @@ If ( lOk )
 EndIf
 dbSelectArea(_sAlias)
 
-RestArea( aAreaCNF )
+CNF->(RestArea( aAreaCNF ))
 RestArea( aAreaAtu )
 
 Return lOk
@@ -1132,7 +1126,7 @@ If ( lOk )
 EndIf
 dbSelectArea(_sAlias)
 
-RestArea( aAreaCNF )
+CNF->(RestArea( aAreaCNF ))
 RestArea( aAreaAtu )
 
 Return lOk
@@ -1536,8 +1530,8 @@ If ( lOk )
 EndIf
 dbSelectArea(_sAlias)
 
+SZH->(RestArea( aAreaSZH ))
 RestArea( aAreaAtu )
-RestArea( aAreaSZH )
 
 Return lOk
 
@@ -2034,3 +2028,53 @@ EndIf
 //+------------------------------------------------
 EndFilBrw(cAlias,aIndexSz)
 Return Nil    
+
+
+/*/{Protheus.doc} BKGCTA21
+BK - Alteração de modo de acesso do contrato posicionado (Usuários, Grupos e Filiais)
+@Return
+@author Marcos Bispo Abrahão
+@since 14/05/20
+@version P12
+/*/
+
+User Function BKGCTA21()
+
+Local aGrupos 	:= {"000000","000003","000004","000008"} // Adm, User Gestão, Master Gestão, M Repac
+Local nI 		:= 0
+Local aAreaAtu	:= GetArea()
+Local aAreaCNN	:= CNN->( GetArea() )
+Local lGrupos	:= .F.
+
+If CN9->CN9_VLDCTR <> "1"
+	If MsgYesNo("Deseja alterar o modo de acesso por filial desse contrato?")
+		dbSelectArea("CN9")
+		RecLock("CN9",.F.)
+	  	CN9->CN9_VLDCTR := "1"
+	  	MsUnlock()
+		lGrupos := .T.
+	EndIf
+Else
+	lGrupos := MsgYesNo("Deseja liberar os grupos de gestão para esse contrato?")
+Endif
+
+If lGrupos
+	dbSelectArea("CNN")
+	dbSetOrder(2)
+	For nI := 1 To Len(aGrupos)
+		If !dbSeek(xFilial("CNN")+aGrupos[nI]+CN9->CN9_NUMERO+"001",.F.) //Fil+GRPCOD+CONTRA+TRACOD
+			RecLock("CNN",.T.)
+			CNN->CNN_FILIAL := xFilial("CNN")
+			CNN->CNN_GRPCOD := aGrupos[nI]
+			CNN->CNN_CONTRA := CN9->CN9_NUMERO
+			CNN->CNN_TRACOD := "001"
+			MsUnlock()
+		EndIf
+	Next
+EndIf
+
+CNN->(RestArea( aAreaCNN ))
+RestArea( aAreaAtu )
+
+Return Nil
+

@@ -1,25 +1,20 @@
 #INCLUDE "PROTHEUS.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ MA440VLD บAutor  ณMarcos B Abrahใo    บ Data ณ  15/09/15   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Ponto de Entrada para visualizar glosas e bonifica็๕es no  บฑฑ
-ฑฑบ          ณ pedido de venda                                            บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
+/*/{Protheus.doc} MA440VLD
+BK - Ponto de Entrada para visualizar glosas e bonifica็๕es no pedido de venda
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahใo
+@since 15/09/15 
+@version P12
+/*/
 
 User Function MA440VLD()
 Local aAreaIni  := GetArea()
-Local cAliasCNR := GetNextAlias()
+//Local cAliasCNR := GetNextAlias()
 Local lRet := .T.
 
-    lRet := U_VerGlosa(.F.)
+lRet := U_VerGlosa(.F.)
+
 RestArea(aAreaIni)
+
 Return lRet

@@ -52,12 +52,9 @@ cMsg += FimHtml(cPrw)
 Return cMsg
 
 
-
-
 Static Function CabHtml(cTitulo)
 Local cHtm := ""
 Local cLogo:= ""
-
 
 //cLogo := "http://www.bkconsultoria.com.br/image/logobk.jpg"
 
@@ -81,8 +78,8 @@ ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BKDAHER LIMEIRA</span></b>'
 ElseIf FWCodEmp() == "12"  // BKDAHER SEGUROS
 	cLogo := '<img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0>'
-ElseIf FWCodEmp() == "14"  // Consorcio Nova Balsa
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSORCIO NOVA BALSA</span></b>'
+ElseIf FWCodEmp() == "14"  // CONSORCIO BALSA NOVA
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSORCIO BALSA NOVA</span></b>'
 Endif	
 
 cHtm += '<html>' 
