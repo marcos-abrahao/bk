@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} FIN040EXC
-BK - Criar Nota de Débito Cliente
+BK - Excluir Nota de Débito Cliente
 @Return
 @author Marcos Bispo Abrahao
 @since 15/10/2019

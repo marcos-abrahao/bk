@@ -8,7 +8,7 @@ BK - Criar Nota de Débito Cliente
 @Return
 @author Adilson do Prado
 @since 17/09/2019
-@version P11
+@version P12
 /*/
 //-------------------------------------------------------------------
 

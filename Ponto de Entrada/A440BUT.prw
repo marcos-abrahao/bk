@@ -2,21 +2,13 @@
 #INCLUDE "TOPCONN.CH"
 
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ A440BUT ºAutor  ³Marcos B Abrahão    º Data ³  15/09/15    º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de Entrada para incluir botão na enchoice da lib do  º±±
-±±º          ³ pedido de venda                                            º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
-
+/*/{Protheus.doc} A440BUT
+BK - Ponto de Entrada para incluir botão na enchoice da liberação do pedido de venda
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 15/09/15
+@version P12
+/*/
 
 User Function A440BUT()
 Local aBotao := {}
@@ -41,7 +33,7 @@ Local cDETG		:= ""
 Local cJUST		:= ""
 
 cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
-cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+SC5->C5_MDNUMED+"' "
+cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+SC5->C5_MDNUMED+"' AND CNR_FILIAL = '"+SC5->C5_FILIAL+"' "
 
 TCQUERY cQuery NEW ALIAS (cAliasCNR)
 
