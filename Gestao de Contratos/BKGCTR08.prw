@@ -1,18 +1,13 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ BKGCTR08 บ Autor ณ Marcos B. Abrahใo         Data ณ19/01/12บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescricao ณ Mapa de Medi็oes c/ historico                              บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+/*/{Protheus.doc} BKGCTR08
+BK - Mapa de Medi็oes c/ historico
+
+@Return
+@author Marcos Bispo Abrahใo
+@since 19/01/12 rev 19/05/20
+@version P11/P12
 /*/
 
 User Function BKGCTR08()
@@ -208,106 +203,75 @@ Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-/*
 
-SELECT CNF_CONTRA,CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO,
-         CTT_DESC01,
-         CNA_NUMERO,CNA_XXMUN,
-         CND_NUMMED,
-         C6_NUM,
-         (SELECT SUM(CNR_VALOR) FROM CNR010 CNR WHERE CND_NUMMED = CNR_NUMMED AND  CNR_FILIAL = '01' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF,
-         (SELECT SUM(CNR_VALOR) FROM CNR010 CNR WHERE CND_NUMMED = CNR_NUMMED AND  CNR_FILIAL = '01' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,
-         F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS
-  FROM CNF010 CNF 
-         INNER JOIN CN9010 CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC = '05' AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ' '
-         LEFT  JOIN CTT010 CTT ON CTT_CUSTO  = CNF_CONTRA AND CTT_FILIAL = '01' AND  CTT.D_E_L_E_T_ = ' '
-         LEFT  JOIN CNA010 CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND  CNA_FILIAL = '01' AND CNA.D_E_L_E_T_ = ' ' 
-         LEFT  JOIN CND010 CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNA_REVISA AND  CND_FILIAL = '01' AND  CND.D_E_L_E_T_ = ' '
-         LEFT  JOIN SC6010 SC6 ON CND_PEDIDO = C6_NUM     AND C6_FILIAL  = '01'  AND  SC6.D_E_L_E_T_ = ' ' 
-         LEFT  JOIN SF2010 SF2 ON C6_SERIE   = F2_SERIE   AND C6_NOTA    = F2_DOC  AND  F2_FILIAL = '01'  AND  SF2.D_E_L_E_T_ = ' '
-  WHERE CNF_COMPET = '05/2010' AND  CNF_FILIAL = '01' AND  CNF.D_E_L_E_T_ = ' ' 
-  UNION ALL  
-  SELECT 'XXXXXXXXX',' ',' ',0,0,         A1_NOME,         ' ',' ',         ' ',         ' ',         0,0,         
-         F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS  
-  FROM SF2010 SF2 
-         LEFT JOIN SA1010 SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA  AND  A1_FILIAL = '  ' AND  SA1.D_E_L_E_T_ = ' ' 
-         WHERE ((SELECT TOP 1 C5_MDCONTR FROM SC6010 SC6 INNER JOIN SC5010 SC5 ON C6_FILIAL = '01' AND C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ')  = ' ' OR
-                (SELECT TOP 1 C5_MDCONTR FROM SC6010 SC6 INNER JOIN SC5010 SC5 ON C6_FILIAL = '01' AND C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ')  IS NULL ) AND
-                SUBSTRING(F2_EMISSAO,1,6) = 201006 AND F2_FILIAL = '01' AND SF2.D_E_L_E_T_ = ' ' 
-  
-  ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC
+cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
+cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
+cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
+cQuery += "    CTT_DESC01, "+ CRLF
+cQuery += "    CNA_NUMERO, "+ CRLF
+cQuery += "    CND_NUMERO, "+ CRLF
+//cQuery += "    CNA_XXMUN, "+ CRLF
+cQuery += "    CND_NUMMED, "+ CRLF
+//cQuery += "    C6_NUM, "+ CRLF
+cQuery += "    CNF_PARCEL, "+ CRLF
 
-CASE WHEN C5_XXPROMO = 'S' THEN (D2_QUANT*2) ELSE D2_QUANT END AS XX_QTDPLAN
-*/
+cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
+cQuery += "         AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF,"+ CRLF
 
-cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_REVISA,CNF_COMPET,"
-cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"
-cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "
-cQuery += "    CTT_DESC01, "
-cQuery += "    CNA_NUMERO, "
-cQuery += "    CND_NUMERO, "
-//cQuery += "    CNA_XXMUN, "
-cQuery += "    CND_NUMMED, "
-//cQuery += "    C6_NUM, "
-cQuery += "    CNF_PARCEL, "
-
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"
-cQuery += "         AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF,"
-
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"
-cQuery += "         AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,"
+cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
+cQuery += "         AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,"+ CRLF
 
 // Somar Bonifica็๕es Anteriores
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR "
-cQuery += "         INNER JOIN "+RETSQLNAME("CND")+ " CNDB ON CNDB.CND_NUMMED = CNR_NUMMED AND"
-cQuery += "                      SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '"+cAnoComp+cMesComp+"'" 
-cQuery += "                      AND CNDB.CND_CONTRA = CNF_CONTRA AND CNDB.CND_REVISA = CNF_REVISA "
-//cQuery += "                      AND CNDB.CND_PARCEL = CNF_PARCEL "
-cQuery += "                      AND CNDB.CND_FILIAL = '"+xFilial("CND")+"' AND  CNDB.D_E_L_E_T_ = ' '"
-cQuery += "         WHERE CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONANT,"
+cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR "+ CRLF
+cQuery += "         INNER JOIN "+RETSQLNAME("CND")+ " CNDB ON CNDB.CND_NUMMED = CNR_NUMMED AND"+ CRLF
+cQuery += "                      SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '"+cAnoComp+cMesComp+"'" + CRLF
+cQuery += "                      AND CNDB.CND_CONTRA = CNF_CONTRA AND CNDB.CND_REVISA = CNF_REVISA "+ CRLF
+//cQuery += "                      AND CNDB.CND_PARCEL = CNF_PARCEL "+ CRLF
+cQuery += "                      AND CNDB.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += "         WHERE CNR_FILIAL = CNDB.CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONANT,"+ CRLF
 
 // Somar Multas Anteriores
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR "
-cQuery += "         INNER JOIN "+RETSQLNAME("CND") + " CNDB ON CNDB.CND_NUMMED = CNR_NUMMED AND" 
-cQuery += "                      SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '"+cAnoComp+cMesComp+"'" 
-cQuery += "                      AND CNDB.CND_CONTRA = CNF_CONTRA AND CNDB.CND_REVISA = CNF_REVISA "
+cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR "+ CRLF
+cQuery += "         INNER JOIN "+RETSQLNAME("CND") + " CNDB ON CNDB.CND_NUMMED = CNR_NUMMED AND" + CRLF
+cQuery += "                      SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '"+cAnoComp+cMesComp+"'" + CRLF
+cQuery += "                      AND CNDB.CND_CONTRA = CNF_CONTRA AND CNDB.CND_REVISA = CNF_REVISA "+ CRLF
 //cQuery += "                      AND CNDB.CND_PARCEL = CNF_PARCEL "
-cQuery += "                      AND CNDB.CND_FILIAL = '"+xFilial("CND")+"' AND  CNDB.D_E_L_E_T_ = ' '"
-cQuery += "         WHERE CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULANT,"
+cQuery += "                      AND CNDB.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += "         WHERE CNR_FILIAL = CNDB.CND_FILIAL AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULANT,"+ CRLF
 
 
-cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " 
+cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 
-cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"
-cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "
+cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
+cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
 
-cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
+cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9.CN9_SITUAC NOT IN ('01','02','08','09','10') "
-cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"
-cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNA_NUMERO = CND_NUMERO AND CND_PARCEL = CNF_PARCEL AND CND_REVISA = CNA_REVISA"
-cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-cQuery += "      AND  C6_FILIAL = '"+xFilial("SC6")+"'  AND  SC6.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"
-cQuery += "      AND  F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' '"
+cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9.CN9_SITUAC NOT IN ('01','02','08','09','10') "+ CRLF
+cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+ CRLF
+cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"+ CRLF
+cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNA_NUMERO = CND_NUMERO AND CND_PARCEL = CNF_PARCEL AND CND_REVISA = CNA_REVISA"+ CRLF
+cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+ CRLF
+cQuery += "      AND  C6_FILIAL = CND.CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+ CRLF
+cQuery += "      AND  F2_FILIAL = CND.CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+ CRLF
 
-cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"
+cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"+ CRLF
 // para teste cQuery += " WHERE SUBSTRING(F2_EMISSAO,1,6) = "+cMes
 
-cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"
+cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+ CRLF
 
-cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C6_FILIAL = '"+xFilial("SC6")+ "' AND C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
-cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C6_FILIAL = '"+xFilial("SC6")+ "' AND C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
+cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "+ CRLF
+cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "+ CRLF
 
 
-cQuery += " UNION ALL "
-cQuery += " SELECT "
-cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"
+cQuery += " UNION ALL "+ CRLF
+cQuery += " SELECT "+ CRLF
+cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF
 cQuery += "        ' ',' ',0,0, "  // CNF_CONTRA,CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, "  // CTT_DESC01
 cQuery += "        ' ', "  // CNA_NUMERO
@@ -316,34 +280,33 @@ cQuery += "        ' ', "  // CND_NUMERO
 cQuery += "        ' ', "      // CND_NUMMED
 //cQuery += "        ' ', "      // C6_NUM
 cQuery += "        ' ', "      // CNF_PARCEL
-cQuery += "        0,0,0,0, "      // XX_BONIF,XX_MULTA
-cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " 
-cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"
-cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "
+cQuery += "        0,0,0,0, "+ CRLF      // XX_BONIF,XX_MULTA
+cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
+cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
+cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
 
-cQuery += " FROM "+RETSQLNAME("SF2")+" SF2"
+cQuery += " FROM "+RETSQLNAME("SF2")+" SF2"+ CRLF
 //cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = "+cqContr
 //cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
-cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA"
-cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
-cQuery += " WHERE ("+cqContr+" = ' ' OR "
-cQuery +=           cqContr+" IS NULL ) "
-cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = "+cMes 
-cQuery += "      AND F2_FILIAL = '"+xFilial("SF2")+"' AND SF2.D_E_L_E_T_ = ' '"
+cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA"+ CRLF
+cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " WHERE ("+cqContr+" = ' ' OR "+ CRLF
+cQuery +=           cqContr+" IS NULL ) "+ CRLF
+cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"'" + CRLF
+cQuery += "      AND SF2.D_E_L_E_T_ = ' '"+ CRLF
 
 //cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = C6_CONTRA"
 //cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
 
 //cQuery += " ORDER BY F2_DOC"  
 
-cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC"  
+cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC" + CRLF
+
+u_LogMemo("BKGCTR08.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
 TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
-
-//u_QryToCsv("QTMP","BKGCTR08A",{cQuery},.F.)
-
 
 Return
 
@@ -361,9 +324,6 @@ Return
 ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
 ฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
 /*/
-
-
-
 Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
@@ -400,7 +360,7 @@ RestArea(aArea)
 
 Return(NIL)
 
-
+/*
 USER FUNCTION BKCNR08(cNumMed,cTipo)
 LOCAL cQuery,cMotivo := ""
 
@@ -417,13 +377,9 @@ ENDDO
 
 QTMP1->(Dbclosearea())
 Return cMotivo
+*/
 
-
-//cQuery += "        (SELECT SUM(CNR_VALOR) FROM CNR010 CNR WHERE CND_NUMMED = CNR_NUMMED
-//cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,
-//cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC"  
-
-                        
+                       
 
 User Function GeraCSV2(_cAlias,cArqS,aTitulos,aCampos,aCabs,cQuery2,_cAlias2,aCampos2,aCabs2)
 
@@ -548,8 +504,7 @@ If nHandle > 0
       cQuery2 += " AND CND_PARCEL = '"+QTMP->CNF_PARCEL+"' "
       cQuery2 += " AND CND_REVISA = '"+QTMP->CNF_REVISA+"' " 
       cQuery2 += " AND CND_NUMMED = '"+QTMP->CND_NUMMED+"' " 
-      cQuery2 += " AND CND_FILIAL = '"+xFilial("CND")+"' " 
-      
+      //cQuery2 += " AND CND_FILIAL = '"+xFilial("CND")+"' " 
 
       TCQUERY cQuery2 NEW ALIAS "QTMP2"
       TCSETFIELD("QTMP2","CND_XXDTAC","D",8,0)

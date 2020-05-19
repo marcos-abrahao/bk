@@ -374,13 +374,13 @@ cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 
 cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC" + CRLF
 
+u_LogMemo("BKGCTR07.SQL",cQuery)
+
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
 TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
 TCSETFIELD("QTMP","XX_VENCORI","D",8,0)
 TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
-
-u_LogMemo("BKGCTR07.SQL",cQuery)
 
 //U_SendMail(PROCNAME(),PROCNAME(1),"marcos@rkainformatica.com.br","",cQuery,"",.F.)
 

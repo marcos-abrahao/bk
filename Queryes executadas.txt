@@ -1,7 +1,889 @@
 
 
 
+
+19/05/20 =============================================== 
+
+Feriados
+// Acertar empresa 01
+DELETE SX5020 WHERE X5_TABELA = '63'
+DELETE SX5040 WHERE X5_TABELA = '63'
+DELETE SX5060 WHERE X5_TABELA = '63'
+DELETE SX5070 WHERE X5_TABELA = '63'
+DELETE SX5080 WHERE X5_TABELA = '63'
+DELETE SX5090 WHERE X5_TABELA = '63'
+DELETE SX5100 WHERE X5_TABELA = '63'
+DELETE SX5110 WHERE X5_TABELA = '63'
+DELETE SX5120 WHERE X5_TABELA = '63'
+DELETE SX5140 WHERE X5_TABELA = '63'
+DELETE SX5970 WHERE X5_TABELA = '63'
+DELETE SX5980 WHERE X5_TABELA = '63'
+// Apendar tabela 63 do SX5010 pelo APSDU
+
+
+select * from SZ2010 WHERE Z2_DATAPGT > '20200519' AND Z2_DATAPGT <= '20200521' AND Z2_STATUS = 'S'
+order by Z2_E2NUM
+UPDATE SZ2010 SET Z2_DATAPGT = '20200519' WHERE Z2_DATAPGT > '20200519' AND Z2_DATAPGT <= '20200521' AND Z2_STATUS = 'S'
+
+select * from SZ2010 WHERE SUBSTRING(Z2_E2NUM,1,6) =  '321426'
+
+
 11/05/20 =============================================== 
+
+Base Teste
+----------------------------------------------------------------------
+Empresa : 01/BK                                      
+
+Inicio da Atualizacao
+Tabela SF4010 modo anterior E
+Tabela SF4010 modo alterado C
+Tabela SF5010 modo anterior E
+Tabela SF5010 modo alterado C
+Tabela SF7010 modo anterior E
+Tabela SF7010 modo alterado C
+Tabela SB1010 modo anterior E
+Tabela SB1010 modo alterado C
+Tabela SB5010 modo anterior E
+Tabela SB5010 modo alterado C
+Tabela SBE010 modo anterior E
+Tabela SBE010 modo alterado C
+Tabela SBM010 modo anterior E
+Tabela SBM010 modo alterado C
+Tabela D3E010 modo anterior E
+Tabela D3E010 modo alterado C
+Tabela SZI010 modo anterior E
+Tabela SZI010 modo alterado C
+Tabela AC4010 modo anterior C
+Tabela ALT010 modo anterior E
+Tabela ALT010 modo alterado C
+Tabela CCZ010 modo anterior C
+Tabela CDZ010 modo anterior C
+Tabela DB0010 modo anterior E
+Tabela DB0010 modo alterado C
+Tabela EE5010 modo anterior C
+Tabela EEI010 modo anterior C
+Tabela EI6010 modo anterior C
+Tabela F08010 modo anterior C
+Tabela NNR010 modo anterior C
+Tabela QAD010 modo anterior E
+Tabela QAD010 modo alterado C
+Tabela SAH010 modo anterior C
+Tabela SAJ010 modo anterior E
+Tabela SAJ010 modo alterado C
+Tabela SAK010 modo anterior E
+Tabela SAK010 modo alterado C
+Tabela SAL010 modo anterior E
+Tabela SAL010 modo alterado C
+Tabela SBP010 modo anterior E
+Tabela SBP010 modo alterado C
+Tabela SG1010 modo anterior E
+Tabela SG1010 modo alterado C
+Tabela SG2010 modo anterior E
+Tabela SG2010 modo alterado C
+Tabela SG5010 modo anterior E
+Tabela SG5010 modo alterado C
+Tabela SGG010 modo anterior E
+Tabela SGG010 modo alterado C
+Tabela SJ1010 modo anterior C
+Tabela SJ2010 modo anterior C
+Tabela SJC010 modo anterior C
+Tabela SYC010 modo anterior C
+Tabela SYD010 modo anterior C
+Tabela SZU010 modo anterior C
+Tabela FI0010 modo anterior E
+Tabela FI0010 modo alterado C
+Tabela FI1010 modo anterior E
+Tabela FI1010 modo alterado C
+Tabela FI2010 modo anterior E
+Tabela FI2010 modo alterado C
+Tabela FI4010 modo anterior E
+Tabela FI4010 modo alterado C
+Tabela FI5010 modo anterior E
+Tabela FI5010 modo alterado C
+Tabela FI6010 modo anterior E
+Tabela FI6010 modo alterado C
+Tabela FI7010 modo anterior E
+Tabela FI7010 modo alterado C
+Tabela FI8010 modo anterior E
+Tabela FI8010 modo alterado C
+Tabela FI9010 modo anterior E
+Tabela FI9010 modo alterado C
+Tabela FIA010 modo anterior E
+Tabela FIA010 modo alterado C
+Tabela FIB010 modo anterior E
+Tabela FIB010 modo alterado C
+Tabela FIC010 modo anterior E
+Tabela FIC010 modo alterado C
+Tabela FID010 modo anterior E
+Tabela FID010 modo alterado C
+Tabela FIE010 modo anterior E
+Tabela FIE010 modo alterado C
+Tabela FIF010 modo anterior C
+Tabela FIG010 modo anterior E
+Tabela FIG010 modo alterado C
+Tabela FIH010 modo anterior E
+Tabela FIH010 modo alterado C
+Tabela FII010 modo anterior E
+Tabela FII010 modo alterado C
+Tabela FIJ010 modo anterior E
+Tabela FIJ010 modo alterado C
+Tabela FIK010 modo anterior E
+Tabela FIK010 modo alterado C
+Tabela FIL010 modo anterior C
+Tabela FIM010 modo anterior E
+Tabela FIM010 modo alterado C
+Tabela FIN010 modo anterior E
+Tabela FIN010 modo alterado C
+Tabela FIO010 modo anterior E
+Tabela FIO010 modo alterado C
+Tabela FIP010 modo anterior E
+Tabela FIP010 modo alterado C
+Tabela FIQ010 modo anterior E
+Tabela FIQ010 modo alterado C
+Tabela FIR010 modo anterior E
+Tabela FIR010 modo alterado C
+Tabela FIS010 modo anterior E
+Tabela FIS010 modo alterado C
+Tabela FIT010 modo anterior E
+Tabela FIT010 modo alterado C
+Tabela FIU010 modo anterior E
+Tabela FIU010 modo alterado C
+Tabela FIV010 modo anterior E
+Tabela FIV010 modo alterado C
+Tabela FIW010 modo anterior E
+Tabela FIW010 modo alterado C
+Tabela FIX010 modo anterior E
+Tabela FIX010 modo alterado C
+Tabela FIY010 modo anterior E
+Tabela FIY010 modo alterado C
+Tabela FJ0010 modo anterior E
+Tabela FJ0010 modo alterado C
+Tabela FJ1010 modo anterior C
+Tabela FJ2010 modo anterior C
+Tabela FJ3010 modo anterior C
+Tabela FJ4010 modo anterior E
+Tabela FJ4010 modo alterado C
+Tabela FJ5010 modo anterior E
+Tabela FJ5010 modo alterado C
+Tabela FJ6010 modo anterior E
+Tabela FJ6010 modo alterado C
+Tabela FJ7010 modo anterior E
+Tabela FJ7010 modo alterado C
+Tabela FJ8010 modo anterior E
+Tabela FJ8010 modo alterado C
+Tabela FJ9010 modo anterior E
+Tabela FJ9010 modo alterado C
+Tabela FJA010 modo anterior E
+Tabela FJA010 modo alterado C
+Tabela FJH010 modo anterior E
+Tabela FJH010 modo alterado C
+Tabela FJI010 modo anterior E
+Tabela FJI010 modo alterado C
+Tabela FJJ010 modo anterior E
+Tabela FJJ010 modo alterado C
+Tabela FJM010 modo anterior E
+Tabela FJM010 modo alterado C
+Tabela FJP010 modo anterior E
+Tabela FJP010 modo alterado C
+Tabela FJQ010 modo anterior E
+Tabela FJQ010 modo alterado C
+Tabela FJR010 modo anterior E
+Tabela FJR010 modo alterado C
+Tabela FJS010 modo anterior E
+Tabela FJS010 modo alterado C
+Tabela FJU010 modo anterior E
+Tabela FJU010 modo alterado C
+Tabela FJV010 modo anterior E
+Tabela FJV010 modo alterado C
+Tabela FJW010 modo anterior E
+Tabela FJW010 modo alterado C
+Tabela FJX010 modo anterior C
+Tabela FJY010 modo anterior C
+Tabela FJZ010 modo anterior C
+Tabela FK0010 modo anterior E
+Tabela FK0010 modo alterado C
+Tabela FK1010 modo anterior E
+Tabela FK1010 modo alterado C
+Tabela FK2010 modo anterior E
+Tabela FK2010 modo alterado C
+Tabela FK3010 modo anterior E
+Tabela FK3010 modo alterado C
+Tabela FK4010 modo anterior E
+Tabela FK4010 modo alterado C
+Tabela FK5010 modo anterior E
+Tabela FK5010 modo alterado C
+Tabela FK6010 modo anterior E
+Tabela FK6010 modo alterado C
+Tabela FK7010 modo anterior E
+Tabela FK7010 modo alterado C
+Tabela FK8010 modo anterior E
+Tabela FK8010 modo alterado C
+Tabela FK9010 modo anterior E
+Tabela FK9010 modo alterado C
+Tabela FKA010 modo anterior E
+Tabela FKA010 modo alterado C
+Tabela FKB010 modo anterior C
+Tabela FKC010 modo anterior E
+Tabela FKC010 modo alterado C
+Tabela FKD010 modo anterior E
+Tabela FKD010 modo alterado C
+Tabela FKE010 modo anterior E
+Tabela FKE010 modo alterado C
+Tabela FKF010 modo anterior E
+Tabela FKF010 modo alterado C
+Tabela FKG010 modo anterior E
+Tabela FKG010 modo alterado C
+Tabela FKH010 modo anterior E
+Tabela FKH010 modo alterado C
+Tabela FKI010 modo anterior C
+Tabela FKJ010 modo anterior C
+Tabela FKK010 modo anterior E
+Tabela FKK010 modo alterado C
+Tabela FKL010 modo anterior E
+Tabela FKL010 modo alterado C
+Tabela FKM010 modo anterior E
+Tabela FKM010 modo alterado C
+Tabela FKN010 modo anterior E
+Tabela FKN010 modo alterado C
+Tabela FKO010 modo anterior E
+Tabela FKO010 modo alterado C
+Tabela FKP010 modo anterior E
+Tabela FKP010 modo alterado C
+Tabela FKQ010 modo anterior E
+Tabela FKQ010 modo alterado C
+Tabela FKS010 modo anterior E
+Tabela FKS010 modo alterado C
+Tabela FKT010 modo anterior E
+Tabela FKT010 modo alterado C
+Tabela FKU010 modo anterior E
+Tabela FKU010 modo alterado C
+Tabela FKV010 modo anterior E
+Tabela FKV010 modo alterado C
+Tabela FL0010 modo anterior E
+Tabela FL0010 modo alterado C
+Tabela FL1010 modo anterior E
+Tabela FL1010 modo alterado C
+Tabela FL2010 modo anterior C
+Tabela FL3010 modo anterior E
+Tabela FL3010 modo alterado C
+Tabela FL4010 modo anterior C
+Tabela FL5010 modo anterior E
+Tabela FL5010 modo alterado C
+Tabela FL6010 modo anterior E
+Tabela FL6010 modo alterado C
+Tabela FL7010 modo anterior E
+Tabela FL7010 modo alterado C
+Tabela FL8010 modo anterior E
+Tabela FL8010 modo alterado C
+Tabela FL9010 modo anterior E
+Tabela FL9010 modo alterado C
+Tabela FLA010 modo anterior E
+Tabela FLA010 modo alterado C
+Tabela FLB010 modo anterior E
+Tabela FLB010 modo alterado C
+Tabela FLC010 modo anterior E
+Tabela FLC010 modo alterado C
+Tabela FLD010 modo anterior E
+Tabela FLD010 modo alterado C
+Tabela FLE010 modo anterior E
+Tabela FLE010 modo alterado C
+Tabela FLF010 modo anterior E
+Tabela FLF010 modo alterado C
+Tabela FLG010 modo anterior C
+Tabela FLH010 modo anterior E
+Tabela FLH010 modo alterado C
+Tabela FLI010 modo anterior C
+Tabela FLJ010 modo anterior E
+Tabela FLJ010 modo alterado C
+Tabela FLK010 modo anterior C
+Tabela FLL010 modo anterior C
+Tabela FLM010 modo anterior E
+Tabela FLM010 modo alterado C
+Tabela FLN010 modo anterior E
+Tabela FLN010 modo alterado C
+Tabela FLO010 modo anterior E
+Tabela FLO010 modo alterado C
+Tabela FLP010 modo anterior C
+Tabela FLQ010 modo anterior E
+Tabela FLQ010 modo alterado C
+Tabela FLR010 modo anterior E
+Tabela FLR010 modo alterado C
+Tabela FLS010 modo anterior C
+Tabela FLT010 modo anterior C
+Tabela FLU010 modo anterior E
+Tabela FLU010 modo alterado C
+Tabela FLV010 modo anterior E
+Tabela FLV010 modo alterado C
+Tabela FLW010 modo anterior E
+Tabela FLW010 modo alterado C
+Tabela FLX010 modo anterior E
+Tabela FLX010 modo alterado C
+Tabela FLY010 modo anterior E
+Tabela FLY010 modo alterado C
+Tabela FLZ010 modo anterior E
+Tabela FLZ010 modo alterado C
+Tabela FO0010 modo anterior E
+Tabela FO0010 modo alterado C
+Tabela FO1010 modo anterior E
+Tabela FO1010 modo alterado C
+Tabela FO2010 modo anterior E
+Tabela FO2010 modo alterado C
+Tabela FO4010 modo anterior E
+Tabela FO4010 modo alterado C
+Tabela FO6010 modo anterior E
+Tabela FO6010 modo alterado C
+Tabela FO7010 modo anterior E
+Tabela FO7010 modo alterado C
+Tabela FO8010 modo anterior E
+Tabela FO8010 modo alterado C
+Tabela FO9010 modo anterior E
+Tabela FO9010 modo alterado C
+Tabela FOA010 modo anterior E
+Tabela FOA010 modo alterado C
+Tabela FOB010 modo anterior E
+Tabela FOB010 modo alterado C
+Tabela FOC010 modo anterior E
+Tabela FOC010 modo alterado C
+Tabela FOD010 modo anterior C
+Tabela FOE010 modo anterior C
+Tabela FOF010 modo anterior E
+Tabela FOF010 modo alterado C
+Tabela FOI010 modo anterior E
+Tabela FOI010 modo alterado C
+Tabela FOJ010 modo anterior C
+Tabela FOK010 modo anterior C
+Tabela FOL010 modo anterior E
+Tabela FOL010 modo alterado C
+Tabela FOM010 modo anterior E
+Tabela FOM010 modo alterado C
+Tabela FON010 modo anterior E
+Tabela FON010 modo alterado C
+Tabela FOO010 modo anterior E
+Tabela FOO010 modo alterado C
+Tabela FOP010 modo anterior C
+Tabela FOQ010 modo anterior E
+Tabela FOQ010 modo alterado C
+Tabela FOS010 modo anterior E
+Tabela FOS010 modo alterado C
+Tabela FOT010 modo anterior E
+Tabela FOT010 modo alterado C
+Tabela FOU010 modo anterior E
+Tabela FOU010 modo alterado C
+Tabela FOV010 modo anterior E
+Tabela FOV010 modo alterado C
+Tabela FOZ010 modo anterior C
+Tabela FR0010 modo anterior E
+Tabela FR0010 modo alterado C
+Tabela FR1010 modo anterior E
+Tabela FR1010 modo alterado C
+Tabela FR2010 modo anterior E
+Tabela FR2010 modo alterado C
+Tabela FR3010 modo anterior E
+Tabela FR3010 modo alterado C
+Tabela FR4010 modo anterior E
+Tabela FR4010 modo alterado C
+Tabela FR5010 modo anterior E
+Tabela FR5010 modo alterado C
+Tabela FR6010 modo anterior E
+Tabela FR6010 modo alterado C
+Tabela FR7010 modo anterior E
+Tabela FR7010 modo alterado C
+Tabela FR9010 modo anterior E
+Tabela FR9010 modo alterado C
+Tabela FRD010 modo anterior E
+Tabela FRD010 modo alterado C
+Tabela FRH010 modo anterior E
+Tabela FRH010 modo alterado C
+Tabela FRI010 modo anterior E
+Tabela FRI010 modo alterado C
+Tabela FRJ010 modo anterior E
+Tabela FRJ010 modo alterado C
+Tabela FRK010 modo anterior E
+Tabela FRK010 modo alterado C
+Tabela FRL010 modo anterior E
+Tabela FRL010 modo alterado C
+Tabela FRO010 modo anterior C
+Tabela FRP010 modo anterior E
+Tabela FRP010 modo alterado C
+Tabela FRQ010 modo anterior C
+Tabela FRR010 modo anterior E
+Tabela FRR010 modo alterado C
+Tabela FRS010 modo anterior C
+Tabela FRT010 modo anterior E
+Tabela FRT010 modo alterado C
+Tabela FRU010 modo anterior E
+Tabela FRU010 modo alterado C
+Tabela FRV010 modo anterior C
+Tabela FV0010 modo anterior E
+Tabela FV0010 modo alterado C
+Tabela FV1010 modo anterior E
+Tabela FV1010 modo alterado C
+Tabela FV2010 modo anterior E
+Tabela FV2010 modo alterado C
+Tabela FV3010 modo anterior C
+Tabela FV4010 modo anterior C
+Tabela FV5010 modo anterior E
+Tabela FV5010 modo alterado C
+Tabela FV6010 modo anterior E
+Tabela FV6010 modo alterado C
+Tabela FV7010 modo anterior E
+Tabela FV7010 modo alterado C
+Tabela FV8010 modo anterior E
+Tabela FV8010 modo alterado C
+Tabela FV9010 modo anterior E
+Tabela FV9010 modo alterado C
+Tabela FVA010 modo anterior E
+Tabela FVA010 modo alterado C
+Tabela FVB010 modo anterior E
+Tabela FVB010 modo alterado C
+Tabela FVD010 modo anterior E
+Tabela FVD010 modo alterado C
+Tabela FVE010 modo anterior E
+Tabela FVE010 modo alterado C
+Tabela FVF010 modo anterior E
+Tabela FVF010 modo alterado C
+Tabela FVH010 modo anterior C
+Tabela FVI010 modo anterior E
+Tabela FVI010 modo alterado C
+Tabela FVJ010 modo anterior C
+Tabela FVK010 modo anterior C
+Tabela FVL010 modo anterior E
+Tabela FVL010 modo alterado C
+Tabela FVM010 modo anterior E
+Tabela FVM010 modo alterado C
+Tabela FVN010 modo anterior E
+Tabela FVN010 modo alterado C
+Tabela FVO010 modo anterior E
+Tabela FVO010 modo alterado C
+Tabela FVP010 modo anterior E
+Tabela FVP010 modo alterado C
+Tabela FVQ010 modo anterior E
+Tabela FVQ010 modo alterado C
+Tabela FVR010 modo anterior C
+Tabela FVW010 modo anterior C
+Tabela FVX010 modo anterior E
+Tabela FVX010 modo alterado C
+Tabela FVY010 modo anterior E
+Tabela FVY010 modo alterado C
+Tabela FVZ010 modo anterior C
+Tabela FW0010 modo anterior E
+Tabela FW0010 modo alterado C
+Tabela FW1010 modo anterior C
+Tabela FW2010 modo anterior C
+Tabela FW3010 modo anterior E
+Tabela FW3010 modo alterado C
+Tabela FW4010 modo anterior E
+Tabela FW4010 modo alterado C
+Tabela FW5010 modo anterior E
+Tabela FW5010 modo alterado C
+Tabela FW6010 modo anterior E
+Tabela FW6010 modo alterado C
+Tabela FW7010 modo anterior E
+Tabela FW7010 modo alterado C
+Tabela FW8010 modo anterior E
+Tabela FW8010 modo alterado C
+Tabela FW9010 modo anterior E
+Tabela FW9010 modo alterado C
+Tabela FWA010 modo anterior E
+Tabela FWA010 modo alterado C
+Tabela FWB010 modo anterior E
+Tabela FWB010 modo alterado C
+Tabela FWC010 modo anterior E
+Tabela FWC010 modo alterado C
+Tabela FWD010 modo anterior E
+Tabela FWD010 modo alterado C
+Tabela FWM010 modo anterior E
+Tabela FWM010 modo alterado C
+Tabela FWN010 modo anterior E
+Tabela FWN010 modo alterado C
+Tabela FWP010 modo anterior E
+Tabela FWP010 modo alterado C
+Tabela FWQ010 modo anterior E
+Tabela FWQ010 modo alterado C
+Tabela FWS010 modo anterior E
+Tabela FWS010 modo alterado C
+Tabela FWT010 modo anterior E
+Tabela FWT010 modo alterado C
+Tabela FWZ010 modo anterior C
+Tabela FX0010 modo anterior E
+Tabela FX0010 modo alterado C
+Tabela FX1010 modo anterior E
+Tabela FX1010 modo alterado C
+Tabela FX2010 modo anterior E
+Tabela FX2010 modo alterado C
+Tabela NVR010 modo anterior E
+Tabela NVR010 modo alterado C
+Tabela NVS010 modo anterior E
+Tabela NVS010 modo alterado C
+Tabela NVT010 modo anterior E
+Tabela NVT010 modo alterado C
+Tabela NVU010 modo anterior E
+Tabela NVU010 modo alterado C
+Tabela SA6010 modo anterior C
+Tabela SAQ010 modo anterior E
+Tabela SAQ010 modo alterado C
+Tabela SAR010 modo anterior E
+Tabela SAR010 modo alterado C
+Tabela SE0010 modo anterior C
+Tabela SE1010 modo anterior E
+Tabela SE1010 modo alterado C
+Tabela SE2010 modo anterior E
+Tabela SE2010 modo alterado C
+Tabela SE3010 modo anterior E
+Tabela SE3010 modo alterado C
+Tabela SE4010 modo anterior E
+Tabela SE4010 modo alterado C
+Tabela SE5010 modo anterior E
+Tabela SE5010 modo alterado C
+Tabela SE7010 modo anterior E
+Tabela SE7010 modo alterado C
+Tabela SE8010 modo anterior E
+Tabela SE8010 modo alterado C
+Tabela SE9010 modo anterior E
+Tabela SE9010 modo alterado C
+Tabela SEA010 modo anterior E
+Tabela SEA010 modo alterado C
+Tabela SEB010 modo anterior E
+Tabela SEB010 modo alterado C
+Tabela SED010 modo anterior E
+Tabela SED010 modo alterado C
+Tabela SEE010 modo anterior E
+Tabela SEE010 modo alterado C
+Tabela SEF010 modo anterior E
+Tabela SEF010 modo alterado C
+Tabela SEG010 modo anterior E
+Tabela SEG010 modo alterado C
+Tabela SEH010 modo anterior E
+Tabela SEH010 modo alterado C
+Tabela SEI010 modo anterior E
+Tabela SEI010 modo alterado C
+Tabela SEJ010 modo anterior E
+Tabela SEJ010 modo alterado C
+Tabela SEL010 modo anterior E
+Tabela SEL010 modo alterado C
+Tabela SEM010 modo anterior E
+Tabela SEM010 modo alterado C
+Tabela SEN010 modo anterior E
+Tabela SEN010 modo alterado C
+Tabela SEO010 modo anterior E
+Tabela SEO010 modo alterado C
+Tabela SEP010 modo anterior E
+Tabela SEP010 modo alterado C
+Tabela SEQ010 modo anterior E
+Tabela SEQ010 modo alterado C
+Tabela SER010 modo anterior E
+Tabela SER010 modo alterado C
+Tabela SES010 modo anterior C
+Tabela SET010 modo anterior C
+Tabela SEU010 modo anterior E
+Tabela SEU010 modo alterado C
+Tabela SEV010 modo anterior E
+Tabela SEV010 modo alterado C
+Tabela SEW010 modo anterior E
+Tabela SEW010 modo alterado C
+Tabela SEX010 modo anterior E
+Tabela SEX010 modo alterado C
+Tabela SEY010 modo anterior E
+Tabela SEY010 modo alterado C
+Tabela SEZ010 modo anterior E
+Tabela SEZ010 modo alterado C
+Tabela SFE010 modo anterior E
+Tabela SFE010 modo alterado C
+Tabela SFQ010 modo anterior E
+Tabela SFQ010 modo alterado C
+Tabela SIE010 modo anterior C
+Tabela SM2010 modo anterior C
+Tabela NP3010 modo anterior E
+Tabela NP3010 modo alterado C
+Tabela NP4010 modo anterior E
+Tabela NP4010 modo alterado C
+Tabela NP7010 modo anterior E
+Tabela NP7010 modo alterado C
+Tabela C1O010 modo anterior E
+Tabela C1O010 modo alterado C
+Tabela C1P010 modo anterior E
+Tabela C1P010 modo alterado C
+Tabela CH5010 modo anterior E
+Tabela CH5010 modo alterado C
+Tabela CT0010 modo anterior C
+Tabela CT1010 modo anterior C
+Tabela CT2010 modo anterior E
+Tabela CT2010 modo alterado C
+Tabela CT3010 modo anterior E
+Tabela CT3010 modo alterado C
+Tabela CT4010 modo anterior E
+Tabela CT4010 modo alterado C
+Tabela CT5010 modo anterior E
+Tabela CT5010 modo alterado C
+Tabela CT6010 modo anterior E
+Tabela CT6010 modo alterado C
+Tabela CT7010 modo anterior E
+Tabela CT7010 modo alterado C
+Tabela CT8010 modo anterior E
+Tabela CT8010 modo alterado C
+Tabela CT9010 modo anterior E
+Tabela CT9010 modo alterado C
+Tabela CTA010 modo anterior E
+Tabela CTA010 modo alterado C
+Tabela CTB010 modo anterior E
+Tabela CTB010 modo alterado C
+Tabela CTC010 modo anterior E
+Tabela CTC010 modo alterado C
+Tabela CTD010 modo anterior E
+Tabela CTD010 modo alterado C
+Tabela CTE010 modo anterior E
+Tabela CTE010 modo alterado C
+Tabela CTF010 modo anterior E
+Tabela CTF010 modo alterado C
+Tabela CTG010 modo anterior E
+Tabela CTG010 modo alterado C
+Tabela CTH010 modo anterior E
+Tabela CTH010 modo alterado C
+Tabela CTI010 modo anterior E
+Tabela CTI010 modo alterado C
+Tabela CTJ010 modo anterior E
+Tabela CTJ010 modo alterado C
+Tabela CTK010 modo anterior E
+Tabela CTK010 modo alterado C
+Tabela CTL010 modo anterior E
+Tabela CTL010 modo alterado C
+Tabela CTM010 modo anterior E
+Tabela CTM010 modo alterado C
+Tabela CTN010 modo anterior E
+Tabela CTN010 modo alterado C
+Tabela CTO010 modo anterior E
+Tabela CTO010 modo alterado C
+Tabela CTP010 modo anterior E
+Tabela CTP010 modo alterado C
+Tabela CTQ010 modo anterior E
+Tabela CTQ010 modo alterado C
+Tabela CTR010 modo anterior E
+Tabela CTR010 modo alterado C
+Tabela CTS010 modo anterior E
+Tabela CTS010 modo alterado C
+Tabela CTT010 modo anterior E
+Tabela CTT010 modo alterado C
+Tabela CTU010 modo anterior E
+Tabela CTU010 modo alterado C
+Tabela CTV010 modo anterior E
+Tabela CTV010 modo alterado C
+Tabela CTW010 modo anterior E
+Tabela CTW010 modo alterado C
+Tabela CTX010 modo anterior E
+Tabela CTX010 modo alterado C
+Tabela CTY010 modo anterior E
+Tabela CTY010 modo alterado C
+Tabela CTZ010 modo anterior E
+Tabela CTZ010 modo alterado C
+Tabela CV0010 modo anterior C
+Tabela CV1010 modo anterior E
+Tabela CV1010 modo alterado C
+Tabela CV2010 modo anterior E
+Tabela CV2010 modo alterado C
+Tabela CV3010 modo anterior E
+Tabela CV3010 modo alterado C
+Tabela CV4010 modo anterior E
+Tabela CV4010 modo alterado C
+Tabela CV5010 modo anterior C
+Tabela CV6010 modo anterior E
+Tabela CV6010 modo alterado C
+Tabela CV7010 modo anterior E
+Tabela CV7010 modo alterado C
+Tabela CV8010 modo anterior E
+Tabela CV8010 modo alterado C
+Tabela CV9010 modo anterior E
+Tabela CV9010 modo alterado C
+Tabela CVA010 modo anterior E
+Tabela CVA010 modo alterado C
+Tabela CVB010 modo anterior C
+Tabela CVC010 modo anterior E
+Tabela CVC010 modo alterado C
+Tabela CVD010 modo anterior C
+Tabela CVE010 modo anterior E
+Tabela CVE010 modo alterado C
+Tabela CVF010 modo anterior E
+Tabela CVF010 modo alterado C
+Tabela CVG010 modo anterior C
+Tabela CVH010 modo anterior E
+Tabela CVH010 modo alterado C
+Tabela CVI010 modo anterior C
+Tabela CVJ010 modo anterior C
+Tabela CVK010 modo anterior E
+Tabela CVK010 modo alterado C
+Tabela CVL010 modo anterior E
+Tabela CVL010 modo alterado C
+Tabela CVM010 modo anterior E
+Tabela CVM010 modo alterado C
+Tabela CVN010 modo anterior C
+Tabela CVO010 modo anterior E
+Tabela CVO010 modo alterado C
+Tabela CVQ010 modo anterior C
+Tabela CVR010 modo anterior C
+Tabela CVS010 modo anterior C
+Tabela CVT010 modo anterior C
+Tabela CVX010 modo anterior E
+Tabela CVX010 modo alterado C
+Tabela CVY010 modo anterior E
+Tabela CVY010 modo alterado C
+Tabela CVZ010 modo anterior E
+Tabela CVZ010 modo alterado C
+Tabela CW0010 modo anterior C
+Tabela CW1010 modo anterior E
+Tabela CW1010 modo alterado C
+Tabela CW2010 modo anterior E
+Tabela CW2010 modo alterado C
+Tabela CW3010 modo anterior E
+Tabela CW3010 modo alterado C
+Tabela CW8010 modo anterior E
+Tabela CW8010 modo alterado C
+Tabela CWG010 modo anterior E
+Tabela CWG010 modo alterado C
+Tabela CWH010 modo anterior E
+Tabela CWH010 modo alterado C
+Tabela CWI010 modo anterior E
+Tabela CWI010 modo alterado C
+Tabela CWJ010 modo anterior E
+Tabela CWJ010 modo alterado C
+Tabela CWK010 modo anterior E
+Tabela CWK010 modo alterado C
+Tabela CWL010 modo anterior E
+Tabela CWL010 modo alterado C
+Tabela CWM010 modo anterior E
+Tabela CWM010 modo alterado C
+Tabela CWN010 modo anterior E
+Tabela CWN010 modo alterado C
+Tabela CQ0010 modo anterior E
+Tabela CQ0010 modo alterado C
+Tabela CQ1010 modo anterior E
+Tabela CQ1010 modo alterado C
+Tabela CQ2010 modo anterior E
+Tabela CQ2010 modo alterado C
+Tabela CQ3010 modo anterior E
+Tabela CQ3010 modo alterado C
+Tabela CQ4010 modo anterior E
+Tabela CQ4010 modo alterado C
+Tabela CQ5010 modo anterior E
+Tabela CQ5010 modo alterado C
+Tabela CQ6010 modo anterior E
+Tabela CQ6010 modo alterado C
+Tabela CQ7010 modo anterior E
+Tabela CQ7010 modo alterado C
+Tabela CQ8010 modo anterior E
+Tabela CQ8010 modo alterado C
+Tabela CQ9010 modo anterior E
+Tabela CQ9010 modo alterado C
+Tabela CQA010 modo anterior C
+Tabela CQB010 modo anterior E
+Tabela CQB010 modo alterado C
+Tabela CQC010 modo anterior E
+Tabela CQC010 modo alterado C
+Tabela CQD010 modo anterior E
+Tabela CQD010 modo alterado C
+Tabela CQE010 modo anterior E
+Tabela CQE010 modo alterado C
+Tabela CQF010 modo anterior E
+Tabela CQF010 modo alterado C
+Tabela CQG010 modo anterior E
+Tabela CQG010 modo alterado C
+Tabela CQH010 modo anterior E
+Tabela CQH010 modo alterado C
+Tabela CQI010 modo anterior E
+Tabela CQI010 modo alterado C
+Tabela CQJ010 modo anterior C
+Tabela CQK010 modo anterior C
+Tabela CQL010 modo anterior C
+Tabela CQM010 modo anterior C
+Tabela CQN010 modo anterior C
+Tabela CQO010 modo anterior C
+Tabela CQP010 modo anterior C
+Tabela CQQ010 modo anterior C
+Tabela CQR010 modo anterior C
+Tabela CQS010 modo anterior C
+Tabela CQT010 modo anterior C
+Tabela CQU010 modo anterior C
+Tabela CQV010 modo anterior C
+Tabela CQX010 modo anterior C
+Tabela CQY010 modo anterior C
+Tabela CQZ010 modo anterior C
+Tabela CS0010 modo anterior C
+Pack CS0010
+Tabela CS1010 modo anterior C
+Pack CS1010
+Tabela CS2010 modo anterior C
+Pack CS2010
+Tabela CS3010 modo anterior C
+Pack CS3010
+Tabela CS4010 modo anterior C
+Pack CS4010
+Tabela CS5010 modo anterior C
+Pack CS5010
+Tabela CS6010 modo anterior C
+Pack CS6010
+Tabela CS7010 modo anterior C
+Pack CS7010
+Tabela CS8010 modo anterior C
+Pack CS8010
+Tabela CS9010 modo anterior C
+Pack CS9010
+Tabela CSA010 modo anterior C
+Pack CSA010
+Tabela CSB010 modo anterior C
+Pack CSB010
+Tabela CSC010 modo anterior C
+Pack CSC010
+Tabela CSD010 modo anterior C
+Pack CSD010
+Tabela CSE010 modo anterior C
+Pack CSE010
+Tabela CSF010 modo anterior C
+Pack CSF010
+Tabela CSG010 modo anterior C
+Pack CSG010
+Tabela CSH010 modo anterior C
+Pack CSH010
+Tabela CSI010 modo anterior C
+Pack CSI010
+Tabela CSJ010 modo anterior C
+Pack CSJ010
+Tabela CSK010 modo anterior C
+Pack CSK010
+Tabela CSL010 modo anterior C
+Pack CSL010
+Tabela CSM010 modo anterior C
+Pack CSM010
+Tabela CSN010 modo anterior C
+Pack CSN010
+Tabela CSO010 modo anterior C
+Pack CSO010
+Tabela CSP010 modo anterior C
+Pack CSP010
+Tabela CSQ010 modo anterior E
+Pack CSQ010
+Tabela CSQ010 modo alterado C
+Tabela CSR010 modo anterior C
+Pack CSR010
+Tabela CST010 modo anterior C
+Pack CST010
+Tabela CSU010 modo anterior C
+Tabela CSV010 modo anterior C
+Pack CSV010
+Tabela CSW010 modo anterior C
+Pack CSW010
+Tabela CSX010 modo anterior C
+Pack CSX010
+Tabela CSY010 modo anterior C
+Pack CSY010
+Tabela CSZ010 modo anterior C
+Pack CSZ010
+
+Final da Atualizacao
+--------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+ Data / Hora Final.: 11/05/20 / 13:15:36
+----------------------------------------------------------------------
+
+
 
 SELECT X2BK.X2_CHAVE,X2BK.X2_MODO,X2ISAC.X2_CHAVE,X2ISAC.X2_MODO FROM SX2BK AS X2BK LEFT JOIN SX2ISAC AS X2ISAC ON X2BK.X2_CHAVE = X2ISAC.X2_CHAVE AND X2BK.X2_MODO <> X2ISAC.X2_MODO
 
@@ -49,7 +931,7 @@ ALTER INDEX ALL ON SB1010 REBUILD WITH (ONLINE = ON)
 
 01/05/20 =============================================== 
 
--- Cronogramas com diferenÁa de dÌzimas
+-- Cronogramas com diferen√ßa de d√≠zimas
 select CNF_SALDO,CNF_SALDO - ROUND(CNF_SALDO,2),R_E_C_N_O_ from CNF010 WHERE (CNF_SALDO - ROUND(CNF_SALDO,2)) <> 0 AND D_E_L_E_T_ = '' ORDER BY R_E_C_N_O_
 
 -- Cronogramas com saldos inferiores a 10
@@ -619,10 +1501,10 @@ select SUM(CNB_VLTOT) AS TOTAL,SUM(CNB_QUANT*CNB_VLUNIT) AS VALUNIT, SUM(CNB_SLD
 
 
 
-31/03/20 ================================================ OtimizaÁ„o
+31/03/20 ================================================ Otimiza√ß√£o
 /*
-Detalhes de Õndice Ausentes de SQLQuery1.sql - VMPANDORA\SQLPANDORA.dataP12 (sa (109))
-O Processador de Consultas estima que a implementaÁ„o do Ìndice a seguir pode melhorar o custo da consulta em 81.6276%.
+Detalhes de √çndice Ausentes de SQLQuery1.sql - VMPANDORA\SQLPANDORA.dataP12 (sa (109))
+O Processador de Consultas estima que a implementa√ß√£o do √≠ndice a seguir pode melhorar o custo da consulta em 81.6276%.
 */
 
 USE [dataP12]
@@ -1028,14 +1910,14 @@ ALTER DATABASE dataP10 SET RECOVERY FULL
 /*
 CMN - Ret. Contrib Prev - Serv Prest
 CRO - Detalhamento de NFS
-T9Y - Tipos de ServiÁos NF
+T9Y - Tipos de Servi√ßos NF
 T9Z - Inf. Processos Relacionados
 V0A - Inf. Processos Relacionados Ad
 C20 - Capa do Documento Fiscal  
 C30 - Itens do Documento Fiscal  
 C35 - Trib Itens Documento Fiscal  
 LEM - Cadastro de Recibo/Fatura  
-T5M - Tipo de ServiÁo  
+T5M - Tipo de Servi√ßo  
 C1H - Participantes
 */
 
@@ -3625,7 +4507,7 @@ UPDATE SD1010 SET D1_TES = '107',D1_CF = '1933'
 WHERE D1_FORNECE = '001570' AND D1_COD = '11301007' AND SD1010.D_E_L_E_T_<>'*' AND Substring(D1_DTDIGIT,1,6) > '201910'
 
 03/01/2020
-ConfiguraÁ„o EFD Balsa Nova
+Configura√ß√£o EFD Balsa Nova
 
 use dataP10
 UPDATE SD1140 SET D1_CF = '2'+SUBSTRING(F4_CF,2,3) FROM SD1140
@@ -3648,7 +4530,7 @@ DELETE FROM SF3140 --WHERE Substring(F3_ENTRADA,1,6) = '201910'
 MV_CFAREC = 5933,6933
 
 03/01/2020
-Revis„o de Contrato
+Revis√£o de Contrato
 select CN9_VLATU,CN9_SALDO,CN9_REVISA from CN9010 WHERE D_E_L_E_T_='' AND CN9_NUMERO='281000473' AND CN9_REVISA='   '
 select SUM(CNF_VLPREV) AS VALPREVCRON,SUM(CNF_SALDO) AS SALDOCRON--,CNF_NUMERO
  from CNF010 CNF1
@@ -3701,7 +4583,7 @@ UPDATE SE8010 SET E8_CONTA = '00300001670' WHERE E8_CONTA = '5411'
 
 NF 000062949 alterado o D1_DTDIGIT de 18/12/19 para 18/10/19 de 200,40
 
-Query com todos itens de entrada para conferÍncia de Pis/Cofin - EFD
+Query com todos itens de entrada para confer√™ncia de Pis/Cofin - EFD
 SELECT D1_TES,D1_DOC,D1_ITEM,D1_COD,B1_DESC,D1_VUNIT,D1_TOTAL,D1_BASIMP5,D1_VALIMP5,D1_VALIMP6,SD1010.R_E_C_N_O_ FROM SD1010
 INNER JOIN SB1010 ON B1_COD = D1_COD AND SB1010.D_E_L_E_T_ <> '*'
 WHERE SUBSTRING(D1_DTDIGIT,1,6) = '201910' AND SD1010.D_E_L_E_T_ <> '*'
@@ -3876,7 +4758,7 @@ UPDATE SD1010 SET D1_TES='106' WHERE R_E_C_N_O_ = 157222
 
 13/12/19
 
-MP - FIS - EFD CONTRIBUI«’ES - Como gerar o registro F600, 1300 e 1700 do Sped ContribuiÁıes
+MP - FIS - EFD CONTRIBUI√á√ïES - Como gerar o registro F600, 1300 e 1700 do Sped Contribui√ß√µes
 https://centraldeatendimento.totvs.com/hc/pt-br/articles/360016177611-MP-FIS-EFD-CONTRIBUI%C3%87%C3%95ES-Como-gerar-o-registro-F600-1300-e-1700-do-Sped-Contribui%C3%A7%C3%B5es
 
 
@@ -3931,7 +4813,7 @@ UPDATE SA1010 SET A1_RECIRRF = '2' WHERE A1_COD = '000045'
 
 06/12/2019
 
-Acerto titulos de IRRF n„o gerados:
+Acerto titulos de IRRF n√£o gerados:
 
 Criar uma tabela a parte com a estrutura do E1: (trocar NOT NULL por NULL) COPIAR O IDENTIFY DO R_E_C_N_O_)
 
@@ -5576,7 +6458,7 @@ SELECT *,X5_DESCRI FROM SEJ010,SX5010 WHERE EJ_OCORSIS = X5_CHAVE AND X5_TABELA 
 UPDATE SEJ010 SET EJ_DESCR = SUBSTRING(X5_DESCRI,1,20) FROM SEJ010,SX5010 WHERE EJ_OCORSIS = X5_CHAVE AND X5_TABELA = 'EJ'
 
 
-Updates produtos sem conta cont·bil: 02/10/18
+Updates produtos sem conta cont√°bil: 02/10/18
 use dataP10
 SELECT B1_COD,B1_DESC,B1_CONTA,B1_GRUPO,B1_XXSGRP FROM SB1010 WHERE B1_CONTA = ''
 SELECT B1_COD,B1_DESC,B1_CONTA,B1_GRUPO,B1_XXSGRP FROM SB1060 WHERE B1_CONTA = '' AND SUBSTRING(B1_COD,1,3) = 'UNI'
@@ -5610,7 +6492,7 @@ SELECT * FROM SC8010 WHERE C8_NUMSC = '003254' AND C8_ITEMSC = '0003'
 
 
 
-AlteraÁıes 05/04/18 - Centros de Custo
+Altera√ß√µes 05/04/18 - Centros de Custo
 
 select D1_CC,D1_PEDIDO,D1_ITEMPC,D1_COD,D1_EMISSAO,D1_TOTAL,R_E_C_N_O_,D_E_L_E_T_ from SD1010 where D1_DOC = '000161005'
 AND D1_SERIE = '1'
@@ -5795,7 +6677,7 @@ SELECT * FROM SC8010 WHERE C8_NUMSC = '003304'
  
  UPDATE SZ2010 SET Z2_CC='142000460' WHERE R_E_C_N_O_ = 1021054
 
-Alterar conta banc·ria 05/04/18
+Alterar conta banc√°ria 05/04/18
 
 use dataP10
 SELECT A6_COD,A6_AGENCIA,A6_NUMCON FROM SA6010 WHERE A6_NUMCON = '237'

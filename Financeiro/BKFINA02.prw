@@ -1,18 +1,8 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKFINA02  ºAutor  ³ Marcos B. Abrahão  º Data ³ 29/09/2009  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Liquidos - Folha BK - Geração de titulos                   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKFINA02
+BK - Liquidos - Folha BK - Geração de titulos
 
 Integrado com o aplicativo : http://intranet.bkinformatica.com/WebIntegraRubi/
 
@@ -29,6 +19,11 @@ Tratamento do campo campo Z2_STATUS pelos sistemas:
         Quando Z2_TIPOPES = CLA, utilizar fornecedor 000071
         Quando Z2_TIPOPES = CLT, utilizar fornecedor 000084
  ****       Quando Z2_TIPOPES = AUT, utilizar Autonomo 000084
+
+@Return
+@author Marcos Bispo Abrahão
+@since 29/09/2009 rev 18/05/20
+@version P12
 
 /*/
 
@@ -422,18 +417,23 @@ For nI := 1 TO LEN(aTitGer)
     //ENDIF
 
     IF TRIM(cPrefixo) = "DV"
+		cNaturez  := "0000000018"
        IF TRIM(cTipBk) == "SOL"
-	      cTipo := PAD("PA",LEN(SE2->E2_TIPO))
+	      //cTipo := PAD("PA",LEN(SE2->E2_TIPO)) //Solicitado pelo Xavier em 18/05/20
+	      cTipo := PAD("DP",LEN(SE2->E2_TIPO))
        ELSEIF TRIM(cTipBk) == "HOS"
-	      cTipo := PAD("PA",LEN(SE2->E2_TIPO))
+	      //cTipo := PAD("PA",LEN(SE2->E2_TIPO))
+	      cTipo := PAD("DP",LEN(SE2->E2_TIPO))
 	   ELSEIF TRIM(cTipBk) == "NDB"   
 	      cTipo := PAD("NDF",LEN(SE2->E2_TIPO))
 	   ELSE   
 	      cTipo := PAD("DP",LEN(SE2->E2_TIPO))
        ENDIF
     ELSEIF TRIM(cPrefixo) = "CX"
+		cNaturez  := "0000000018"
        IF TRIM(cTipBk) == "CXA"
-	      cTipo := PAD("PA",LEN(SE2->E2_TIPO))
+	      //cTipo := PAD("PA",LEN(SE2->E2_TIPO))
+	      cTipo := PAD("DP",LEN(SE2->E2_TIPO))
 	   ENDIF
     ELSE
 	    IF cTipoPes $ "PJ "   //"PJ /AC /CLA"
@@ -478,10 +478,10 @@ For nI := 1 TO LEN(aTitGer)
              {"E2_LOJA"     ,cLoja,Nil},;      
              {"E2_NATUREZ"  ,cNaturez,Nil},;
              {"E2_PORTADO"  ,cPortado,Nil},;
-             {"AUTBANCO"     ,cPortadoPA,NIL},;
-	         {"AUTAGENCIA"   ,""      ,NIL},; 
-	         {"AUTCONTA"     ,""      ,NIL},;
-             {"AUTCHEQUE"    ,""      ,NIL},;
+             {"AUTBANCO"    ,cPortadoPA,NIL},;
+	         {"AUTAGENCIA"  ,""      ,NIL},; 
+	         {"AUTCONTA"    ,""      ,NIL},;
+             {"AUTCHEQUE"   ,""      ,NIL},;
              {"E2_XXTIPBK"  ,cTipBk,Nil},;
              {"E2_XXCTRID"  ,cCtrId,Nil},;
              {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal",IIF(cPrefixo="CX","Caixa","Despesas de Viagem")),NIL},;

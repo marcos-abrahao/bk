@@ -6,7 +6,7 @@
 BK - Ponto de Entrada para incluir botão na enchoice da liberação do pedido de venda
 @Return
 @author Adilson do Prado / Marcos Bispo Abrahão
-@since 15/09/15
+@since 15/09/15 rev 17/05/20
 @version P12
 /*/
 

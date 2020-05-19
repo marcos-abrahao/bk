@@ -1,19 +1,18 @@
 #INCLUDE "PROTHEUS.CH"
-#INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKGCTR02
-Faturamento x Previsão de Faturamento
+BK - Faturamento x Previsão de Faturamento
 
 @Return
 @author Marcos Bispo Abrahão
-@since 09/06/10
+@since 09/06/10 rev 18/05/20
 @version P11/P12
 /*/
 
 User Function BKGCTR02()
 
-Local cTitulo   := "Previsto x Faturado - Empresas: 01,02 e 14"
+Local cTitulo   := "Previsto x Faturado - Empresas: 01, 02 e 14"
 Local aTitulos  := {}
 Local aCampos1  := {}
 Local aCabs1    := {}
@@ -470,34 +469,36 @@ FOR _nI := 1 TO LEN(aMeses)
 	//	LOOP
 	//EndIf
 
-	cQuery := " SELECT CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV,SUM(D2_TOTAL) AS D2_TOTAL,CN9_DTULST "
+	cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV,SUM(D2_TOTAL) AS D2_TOTAL,CN9_DTULST "+ CRLF
 //	cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"
 
-	cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF"
-    cQuery += " INNER JOIN "+xRETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09' "
-	cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO   AND CNF_CONTRA = CNA_CONTRA AND CNA_REVISA = CNF_REVISA"
-	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-	cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
+	cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF"+ CRLF
+    cQuery += " INNER JOIN "+xRETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09' "+ CRLF
+	cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+ CRLF
+	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO   AND CNF_CONTRA = CNA_CONTRA AND CNA_REVISA = CNF_REVISA"+ CRLF
+	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"+ CRLF
+	cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
 	//cQuery += " LEFT JOIN "+xRETSQLNAME("SC5")+ " SC5 ON CND_PEDIDO = C5_NUM"
 	//cQuery += "      AND  C5_FILIAL = '"+xFilial("SC5")+"'  AND  SC5.D_E_L_E_T_ = ' '"
 	//cQuery += " LEFT JOIN "+xRETSQLNAME("SF2")+ " SF2 ON C5_SERIE = F2_SERIE AND C5_NOTA = F2_DOC"
 	//cQuery += "      AND  F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-	cQuery += "      AND  C6_FILIAL = '"+xFilial("SC6")+"'  AND  SC6.D_E_L_E_T_ = ' '"
-	cQuery += "	LEFT JOIN "+xRETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "
-	cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"'  AND  SD2.D_E_L_E_T_ = ' ' "
-	cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"
-	cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"
+	cQuery += " LEFT JOIN "+xRETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+ CRLF
+	cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += "	LEFT JOIN "+xRETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "+ CRLF
+	cQuery += "      AND  D2_FILIAL = CND_FILIAL AND SD2.D_E_L_E_T_ = ' ' "+ CRLF
+	cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"+ CRLF
+	cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND CNF.D_E_L_E_T_ = ' '"+ CRLF
     IF _cEmpresa <> "14"  
-    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
+    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+ CRLF
     ENDIF  
 	//cQuery += " ORDER BY CNF_CONTRA "  
-	cQuery += " GROUP BY CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV,CN9_DTULST"
-	cQuery += " ORDER BY CNF_CONTRA"
+	cQuery += " GROUP BY CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV,CN9_DTULST"+ CRLF
+	cQuery += " ORDER BY CNF_CONTRA"+ CRLF
+
+	u_LogMemo("BKGCTR02-1.SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP"
 	
@@ -628,19 +629,21 @@ FOR _nI := 1 TO LEN(aMeses)
 
     
 	//*********Inclusão para medição avulsa
-	cQuery2 := "SELECT C5_ESPECI1,A1_COD,A1_LOJA,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS MEDAVULSO  FROM "+xRETSQLNAME("SC5")+" SC5" 
-	cQuery2 += " INNER JOIN "+xRETSQLNAME("SC6")+" SC6 ON SC5.C5_NUM = SC6.C6_NUM" 
-    cQuery2 += " INNER JOIN "+xRETSQLNAME("SD2")+" SD2 ON SC6.C6_SERIE = SD2.D2_SERIE AND SC6.C6_NOTA = SD2.D2_DOC"
-    cQuery2 += " AND  SD2.D2_FILIAL ='"+xFilial("SD2")+"'  AND  SD2.D_E_L_E_T_ = ' '" 
-    cQuery2 += " INNER JOIN "+xRETSQLNAME("SA1")+" SA1 ON SD2.D2_CLIENTE = SA1.A1_COD" 
-    cQuery2 += " AND SD2.D2_LOJA = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
-    cQuery2 += " INNER  JOIN "+xRETSQLNAME("CTT")+" CTT ON SC5.C5_ESPECI1 = CTT.CTT_CUSTO AND CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '" 
-    cQuery2 += " WHERE SC5.D_E_L_E_T_ = ' ' AND SC5.C5_MDCONTR='' AND SC5.C5_XXCOMPT ='"+SUBSTR(cCompet,1,2)+SUBSTR(cCompet,4,4)+"'"
-   	cQuery2 += " AND C5_ESPECI1 <> '000000001'"
-    cQuery2 += " GROUP BY SC5.C5_ESPECI1,SA1.A1_COD,SA1.A1_LOJA,SA1.A1_NOME,CTT.CTT_DESC01" 
+	cQuery2 := "SELECT C5_ESPECI1,A1_COD,A1_LOJA,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS MEDAVULSO FROM "+xRETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery2 += " INNER JOIN "+xRETSQLNAME("SC6")+" SC6 ON SC5.C5_NUM = SC6.C6_NUM" + CRLF
+    cQuery2 += " INNER JOIN "+xRETSQLNAME("SD2")+" SD2 ON SC6.C6_SERIE = SD2.D2_SERIE AND SC6.C6_NOTA = SD2.D2_DOC"+ CRLF
+    cQuery2 += "   AND SD2.D_E_L_E_T_ = ' '" + CRLF
+    cQuery2 += " INNER JOIN "+xRETSQLNAME("SA1")+" SA1 ON SD2.D2_CLIENTE = SA1.A1_COD" + CRLF
+    cQuery2 += "   AND SD2.D2_LOJA = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"+ CRLF
+    cQuery2 += " INNER JOIN "+xRETSQLNAME("CTT")+" CTT ON SC5.C5_ESPECI1 = CTT.CTT_CUSTO AND CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '" + CRLF
+    cQuery2 += " WHERE SC5.D_E_L_E_T_ = ' ' AND SC5.C5_MDCONTR='' AND SC5.C5_XXCOMPT ='"+SUBSTR(cCompet,1,2)+SUBSTR(cCompet,4,4)+"'"+ CRLF
+   	cQuery2 += "   AND C5_ESPECI1 <> '000000001'"+ CRLF
+    cQuery2 += " GROUP BY SC5.C5_ESPECI1,SA1.A1_COD,SA1.A1_LOJA,SA1.A1_NOME,CTT.CTT_DESC01" + CRLF
       	
+	u_LogMemo("BKGCTR02-2.SQL",cQuery)
+
 	TCQUERY cQuery2 NEW ALIAS "TMPX2"
-	
+
 	dbSelectArea("TMPX2")
 	TMPX2->(dbGoTop())
 	DO While !TMPX2->(EOF())
@@ -977,6 +980,3 @@ oSay := TSay():New(01,01,{||cTextHtml},oDlg,,oFont,,,,.T.,,,400,300,,,,,,lHtml)
 ACTIVATE MSDIALOG oDlg CENTERED
 
 Return Nil
-
-
- 
