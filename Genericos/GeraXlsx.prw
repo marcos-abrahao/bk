@@ -22,7 +22,6 @@ Generico - Gera planilha excel
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
 //U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
-
 User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph )
 Local oProcess
 Local cFile := ""
@@ -59,6 +58,7 @@ Local nLin    := 1
 Local nTop    := 1
 Local cFile   := _cProg+"-"+DTOS(Date())
 Local cFileN  := ""
+Local cFileTmp:= ""
 Local nRet    := 0
 Local cDirTmp := "C:\TMP"
 Local nCont	  := 0
@@ -493,7 +493,7 @@ EndIf
 
 If Len(aLocPar) > 0
 	nLin := 1
-	oExcel:ADDPlan("Parâmetros","D9D9D9")		//Adiciona nova planilha
+	oExcel:ADDPlan("Parâmetros","0000FF")		//Adiciona nova planilha
 	oExcel:SetDefRow(.T.,{1,4})
 	oExcel:AddTamCol(1,2,50)
 
@@ -521,7 +521,7 @@ EndIf
 If Len(_aGraph) > 0
 	lOpen := .F.
 	nLin  := 3
-	oExcel:ADDPlan("Resumo","D9D9D9")		//Adiciona nova planilha
+	oExcel:ADDPlan("Gráfico","0000FF")		//Adiciona nova planilha
 	For nI := 1 To Len(_aGraph)
 		For nJ := 1 To Len(_aGraph[nI])
 			oExcel:Cell(nLin,nJ,_aGraph[nI,nJ],,IiF(nI==1,nCabStyle,nG2Style))
@@ -546,7 +546,20 @@ EndIf
 oExcel:Gravar(cDirTmp+"\",lOpen,.T.)
 
 If Len(_aGraph) > 0
+
+	cFileTmp := "c:\tmp\macrograf.xlsm"
+	nRet:= FERASE(cFileTmp)
+	If File(cFileTmp)
+		MsgAlert("Não foi possível excluir o arquivo "+cFileTmp+", feche o arquivo",_cProg)
+	EndIf
 	CpyS2T( "\Macros\macrograf.xlsm",cDirTmp)
+
+	cFileTmp := cDirTmp+"\"+cFileN+".xlsm
+	nRet:= FERASE(cFileTmp)
+	If File(cFileTmp)
+		MsgAlert("Não foi possível excluir o arquivo "+cFileTmp+", feche o arquivo",_cProg)
+	EndIf
+
 	fRename("c:\tmp\macrograf.xlsm",cDirTmp+"\"+cFileN+".xlsm")
 	ShellExecute("open",cDirTmp+"\"+cFileN+".xlsm","",cDirTmp+"\", 1 )
 EndIf

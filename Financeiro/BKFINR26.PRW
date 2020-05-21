@@ -115,7 +115,7 @@ aAdd(aFields,{"XX_LIBERAD","C5_XXULIB"})
 aAdd(aFields,{"XX_DATALIB","C5_XXDLIB","","Data Lib. Pedido"})
 aAdd(aFields,{"XX_NF"     ,"F2_DOC","","Nota Fiscal número"})
 aAdd(aFields,{"XX_NDC"    ,"E1_NUM","XX_NDC","Nota Debito número"})
-aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Data Emissao NF"})
+aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Data Emissao NF/ND"})
 aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
 

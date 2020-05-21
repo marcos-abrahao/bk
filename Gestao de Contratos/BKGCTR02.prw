@@ -22,6 +22,7 @@ Local aGraph	:= {}
 Local aCabGraph := {}
 Local _nI       := 0
 Local _nJ       := 0
+Local _nY 		:= 0
 Local aDbf1     := {}
 Local aDbf2     := {}
 Local oTmpTb1
@@ -122,11 +123,11 @@ nMes   := nMesI
 nAno   := nAnoI
 
 aMeses   := {}
-aTMensal := {}
-If cTpRel == "X"
+
+//If cTpRel == "X"
 	aCabGraph := {"Codigo","Mes","Contratado","Faturado","Contratado/Faturado","%"}
 	aAdd(aTmensal,aCabGraph)
-EndIf
+//EndIf
 
 nMeses := 0
 cMes   := cMesI
@@ -277,6 +278,14 @@ AADD(aCabs2  ,"Total Fat.")
 AADD(aCampos2,"TMPD->XX_PERDIF")
 AADD(aCabs2  ,"%")
 	            
+
+// Calcular diferença e % para os gráficos
+For _nY := 2 To Len(aTMensal)
+	aTMensal[_nY,5] := aTMensal[_nY,3] - aTMensal[_nY,4]     // Mostrar no gráfico apenas a diferença
+	aTMensal[_nY,6] := ROUND((aTMensal[_nY,3] * 100 / aTMensal[_nY,4]) - 100,1)
+Next
+
+
 If cTpRel == "C"
 	// CSV
 	ProcRegua(TMPC->(LASTREC()))
@@ -288,20 +297,23 @@ ElseIf cTpRel == "X"
 	TMPD->(dbSetOrder(2))
 	AADD(aPlans,{"TMPD",cProg+"-A2","","Totais por Cliente",aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 
-	aGraph:= Array(Len(aCabGraph),Len(aTMensal))
+	If __cUserId == "000000"
+		aGraph:= Array(Len(aCabGraph),Len(aTMensal))
 
-	For _nI := 1 To LEN(aTMensal)
-		For _nJ := 1 TO Len(aCabGraph)
-			aGraph[_nJ,_nI] := aTMensal[_nI,_nJ]
-		Next	
-	Next
+		For _nI := 1 To LEN(aTMensal)
+			For _nJ := 5 TO Len(aCabGraph)
+				aGraph[_nJ,_nI] := aTMensal[_nI,_nJ]
+			Next	
+		Next
 
-   	U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
+		U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
+	else
+		U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
+	EndIf
 Else
  	// Gráfico
 	ProcRegua(TMPC->(LASTREC()))
 	Processa( {|| cGraph := GeraChart1(aTMensal,cProg,aTitulos)})
-	//ViewGraph(cGraph)	
 EndIf
 
 ///dbSelectArea("TMPC")
@@ -804,9 +816,9 @@ aAdd(aHtml,"        // Some raw data (not necessarily accurate)")
 aAdd(aHtml,"        var data = google.visualization.arrayToDataTable([")
 aAdd(aHtml,"          ['Mes', 'Contratado', 'Faturado', 'Contratado/Faturado',{type: 'string', role: 'annotation'}],") 
 
-For _nY := 1 To Len(aTMensal)
-	aTMensal[_nY,5] := aTMensal[_nY,3] - aTMensal[_nY,4]     // Mostrar no gráfico apenas a diferença
-	aTMensal[_nY,6] := ROUND((aTMensal[_nY,3] * 100 / aTMensal[_nY,4]) - 100,1)
+For _nY := 2 To Len(aTMensal)
+	//aTMensal[_nY,5] := aTMensal[_nY,3] - aTMensal[_nY,4]     // Mostrar no gráfico apenas a diferença
+	//aTMensal[_nY,6] := ROUND((aTMensal[_nY,3] * 100 / aTMensal[_nY,4]) - 100,1)
 	aAdd(aHtml,"          ['"+aTMensal[_nY,2]+"',"+ALLTRIM(STR(aTMensal[_nY,3],17,2))+","+ALLTRIM(STR(aTMensal[_nY,4],17,2))+","+ALLTRIM(STR(aTMensal[_nY,5],17,2))+",'"+ALLTRIM(STR(aTMensal[_nY,6],4,1))+"%'],")
 Next
 //aAdd(aHtml,"          ['2004/05',  165,      938,         614.6],")
@@ -957,44 +969,3 @@ Else
 Endif
    
 Return
-
-
-Static Function ViewGraph(cGraph)
-Local oDlg
-Local oFont
-Local cTextHtml
-Local lHtml
-Local oSay
-
-DEFINE MSDIALOG oDlg TITLE "Gráfico" FROM 180,180 TO 650,800 PIXEL
-   
-// Cria fonte para ser usada no TSay
-oFont := TFont():New('Courier new',,-18,.T.)
-   
-// Monta o Texto no formato HTML
-/*
-cTextHtml := '<hr size="1">'+;
-               '<H1>POKEAGENDA</H1>'+;
-               '<h5>Pokémon selecionado</h5><br/>'+;
-               '<table border="1" cellpadding="1" cellspacing="0">'+;
-               '<tr>'+;
-               '<td width="100" bgcolor="#FFFF87">Pokedex</td>'+;
-               '<td width="200" bgcolor="#FFFF87">Nome</td>'+;
-               '<td width="100" bgcolor="#FFFF87">Tipo</td>'+;
-               '</tr>'+;
-               '<tr>'+;
-               '<td>'+ cValTochar(self:nPokedex) +'</td>'+;
-               '<td>'+ self:cNome +'</td>'+;
-               '<td>'+ self:cTipo+'</td>'+;
-               '</tr>'+;
-               '</table>'
-*/
-
-// Cria o TSay permitindo texto no formato HMTL
-cTextHtml := cGraph
-lHtml := .T.
-oSay := TSay():New(01,01,{||cTextHtml},oDlg,,oFont,,,,.T.,,,400,300,,,,,,lHtml)
-
-ACTIVATE MSDIALOG oDlg CENTERED
-
-Return Nil
