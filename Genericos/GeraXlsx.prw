@@ -1,4 +1,5 @@
 #INCLUDE "PROTHEUS.CH"
+#INCLUDE "FILEIO.CH"
 
 
 /*/{Protheus.doc} GeraXlsx
@@ -22,18 +23,18 @@ Generico - Gera planilha excel
 //U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
 
-User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam )
+User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph )
 Local oProcess
 Local cFile := ""
 //oProcess := MsNewProcess():New({|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
 //oProcess:Activate()
 
-MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam) })
+MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph) })
 
 Return cFile
 
 
-User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
+User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph )
 
 Local oExcel := YExcel():new()
 Local oObjPerg
@@ -57,6 +58,7 @@ Local nF	  := 0
 Local nLin    := 1
 Local nTop    := 1
 Local cFile   := _cProg+"-"+DTOS(Date())
+Local cFileN  := ""
 Local nRet    := 0
 Local cDirTmp := "C:\TMP"
 Local nCont	  := 0
@@ -76,7 +78,7 @@ Local _aFormat := {}
 Local _aTotal  := {}
 Local _cQuebra := ""
 Local _lClose  := .F.
-
+Local lOpen	   := .T.
 Local oAlCenter
 Local oVtCenter
 Local oQtCenter
@@ -113,6 +115,8 @@ Local nTotStyle
 Local nIDImg
 
 Local nStyle
+
+Default _aGraph := {}
 
 Private xCampo,yCampo
 Private xQuebra
@@ -513,8 +517,25 @@ If Len(aLocPar) > 0
 	Next
 EndIf
 
+
+If Len(_aGraph) > 0
+	lOpen := .F.
+	nLin  := 3
+	oExcel:ADDPlan("Resumo","D9D9D9")		//Adiciona nova planilha
+	For nI := 1 To Len(_aGraph)
+		For nJ := 1 To Len(_aGraph[nI])
+			oExcel:Cell(nLin,nJ,_aGraph[nI,nJ],,IiF(nI==1,nCabStyle,nG2Style))
+		Next
+		nLin++
+	Next
+	oExcel:AddNome("dadosGrafico",3, 1, nLin-1, Len(_aGraph[1]))
+	oExcel:AddNome("posGrafico",3, Len(_aGraph[1])+2, 3, Len(_aGraph[1])+2)
+EndIf
+
+
 // Grava a Planilha
-cFile := cDirTmp+"\"+cFile+".xlsx"
+cFileN := cFile
+cFile  := cDirTmp+"\"+cFile+".xlsx"
 If File(cFile)
 	nRet:= FERASE(cFile)
 	If nRet < 0
@@ -522,11 +543,72 @@ If File(cFile)
 	EndIf
 EndIf
 
-oExcel:Gravar(cDirTmp+"\",.T.,.T.)
+oExcel:Gravar(cDirTmp+"\",lOpen,.T.)
+
+If Len(_aGraph) > 0
+	CpyS2T( "\Macros\macrograf.xlsm",cDirTmp)
+	fRename("c:\tmp\macrograf.xlsm",cDirTmp+"\"+cFileN+".xlsm")
+	ShellExecute("open",cDirTmp+"\"+cFileN+".xlsm","",cDirTmp+"\", 1 )
+EndIf
 
 RestArea(aArea)
 
 Return cFile
+
+
+
+/* macrograf.xlsm
+
+Private Sub Workbook_Open()
+Call Macro1
+End Sub
+
+Sub Macro1()
+Dim sFileName As String
+Dim wkb As Workbook
+Dim wst As Worksheet
+Dim rng As Range
+Dim cht As ChartObject
+
+ sFileName = Application.ThisWorkbook.Name
+
+ sFileName = "c:\tmp\" + Replace(sFileName, "xlsm", "xlsx")
+ 
+ MsgBox "Criando o gráfico! " + sFileName
+ 
+ 
+ Set wkb = Workbooks.Open(sFileName)
+ 
+ Set wst = wkb.Worksheets("Resumo")
+ 
+ wst.Select
+  
+ Set rng = wst.Range("dadosGrafico")
+ 
+ wst.Range("posGrafico").Select
+ 
+ Set cht = wst.ChartObjects.Add( _
+    Left:=ActiveCell.Left, _
+    Width:=450, _
+    Top:=ActiveCell.Top, _
+    Height:=250)
+ 
+ cht.Chart.SetSourceData Source:=rng
+
+ cht.Chart.ChartType = xlBarStacked
+ 
+ cht.Chart.HasTitle = True
+
+ cht.Chart.ChartTitle.Text = "My Graph"
+ 
+ ActiveWorkbook.Close SaveChanges:=True
+ 
+ Set wkb = Workbooks.Open(sFileName)
+ 
+End Sub
+
+*/
+
 
 
 User Function QryToXlsx(_cAlias,_cPlan,_cTitulo,_aDefs,_cQuebra,_lClose)
@@ -1015,4 +1097,3 @@ oExcel:Gravar(cDirTmp+"\",.T.,.T.)
 RestArea(aArea)
 
 Return
-

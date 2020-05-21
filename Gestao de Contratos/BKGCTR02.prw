@@ -6,8 +6,8 @@ BK - Faturamento x Previsão de Faturamento
 
 @Return
 @author Marcos Bispo Abrahão
-@since 09/06/10 rev 18/05/20
-@version P11/P12
+@since 09/06/10 rev 20/05/20
+@version P12
 /*/
 
 User Function BKGCTR02()
@@ -18,8 +18,10 @@ Local aCampos1  := {}
 Local aCabs1    := {}
 Local aCampos2  := {}
 Local aCabs2    := {}
-
+Local aGraph	:= {}
+Local aCabGraph := {}
 Local _nI       := 0
+Local _nJ       := 0
 Local aDbf1     := {}
 Local aDbf2     := {}
 Local oTmpTb1
@@ -44,6 +46,7 @@ Private l2010   := .F.
 
 Private cTpRel  := "XLSX"
 Private aPlans  := {}
+Private aTMensal:= {}
 
 //Private nOpcao  := 1
 Private aParam	:= {}
@@ -120,6 +123,11 @@ nAno   := nAnoI
 
 aMeses   := {}
 aTMensal := {}
+If cTpRel == "X"
+	aCabGraph := {"Codigo","Mes","Contratado","Faturado","Contratado/Faturado","%"}
+	aAdd(aTmensal,aCabGraph)
+EndIf
+
 nMeses := 0
 cMes   := cMesI
 Do while cMes <= cMesF
@@ -279,12 +287,21 @@ ElseIf cTpRel == "X"
 	AADD(aPlans,{"TMPC",cProg+"-A1","",cTitulo1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. }) 
 	TMPD->(dbSetOrder(2))
 	AADD(aPlans,{"TMPD",cProg+"-A2","","Totais por Cliente",aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   	U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
+
+	aGraph:= Array(Len(aCabGraph),Len(aTMensal))
+
+	For _nI := 1 To LEN(aTMensal)
+		For _nJ := 1 TO Len(aCabGraph)
+			aGraph[_nJ,_nI] := aTMensal[_nI,_nJ]
+		Next	
+	Next
+
+   	U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
 Else
  	// Gráfico
 	ProcRegua(TMPC->(LASTREC()))
 	Processa( {|| cGraph := GeraChart1(aTMensal,cProg,aTitulos)})
-	ViewGraph(cGraph)	
+	//ViewGraph(cGraph)	
 EndIf
 
 ///dbSelectArea("TMPC")
@@ -833,7 +850,7 @@ Return cHtml
 
 // Abre o Gráfico no navegador Web
 Static Function OpenHtml(cArq,aHtml) 
-Local cDirHtml  := "http"
+Local cDirHtml  := "c:\tmp"  //"http"
 Local cArqHtml  := cDirHtml+"\"+cArq+".html"
 Local aArea     := GetArea()
 Local nHandle   := 0
@@ -856,7 +873,8 @@ If nHandle > 0
       
 	fClose(nHandle)
 
-	ShellExecute("open", "http:\\vmsiga:81\"+cArq+".html", "", "", 1)
+	//ShellExecute("open", "http:\\vmsiga12:81\"+cArq+".html", "", "", 1)
+	ShellExecute("open", cArqHtml, "", "", 1)
 
 EndIf
 
