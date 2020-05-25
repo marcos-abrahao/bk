@@ -19,9 +19,9 @@ Local aCabs1    := {}
 Local aCampos2  := {}
 Local aCabs2    := {}
 Local aGraph	:= {}
+Local aDGraph   := {}
 Local aCabGraph := {}
 Local _nI       := 0
-Local _nJ       := 0
 Local _nY 		:= 0
 Local aDbf1     := {}
 Local aDbf2     := {}
@@ -52,7 +52,7 @@ Private aTMensal:= {}
 //Private nOpcao  := 1
 Private aParam	:= {}
 Private aRet	:= {}
-Private aTpRel  := {"XLSX", "CSV", "Gráfico"}
+Private aTpRel  := {"XLSX", "CSV", "Google Charts"}
 
 /*
 Param Box Tipo 1
@@ -285,33 +285,27 @@ For _nY := 2 To Len(aTMensal)
 	aTMensal[_nY,6] := ROUND((aTMensal[_nY,3] * 100 / aTMensal[_nY,4]) - 100,1)
 Next
 
-
 If cTpRel == "C"
 	// CSV
 	ProcRegua(TMPC->(LASTREC()))
 	Processa( {|| U_GeraCSV("TMPC",cProg,aTitulos,aCampos1,aCabs1,,,,.F.)})
 ElseIf cTpRel == "X"
-	// XML
+	// XLSX
 	aPlans := {}
 	AADD(aPlans,{"TMPC",cProg+"-A1","",cTitulo1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. }) 
 	TMPD->(dbSetOrder(2))
 	AADD(aPlans,{"TMPD",cProg+"-A2","","Totais por Cliente",aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 
-	If __cUserId == "000000"
-		aGraph:= Array(Len(aCabGraph),Len(aTMensal))
+	aDGraph := {}
+	// Remover a primeira coluna
+	For _nI := 1 TO Len(aTMensal)
+		aAdd(aDGraph,{aTMensal[_nI,2],aTMensal[_nI,3],aTMensal[_nI,4],aTMensal[_nI,5],aTMensal[_nI,6]})
+	Next
+	aGraph:= {cProg,cTitulo,aDGraph}
 
-		For _nI := 1 To LEN(aTMensal)
-			For _nJ := 5 TO Len(aCabGraph)
-				aGraph[_nJ,_nI] := aTMensal[_nI,_nJ]
-			Next	
-		Next
-
-		U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
-	else
-		U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
-	EndIf
+	U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
 Else
- 	// Gráfico
+ 	// Gráfico Google Charts
 	ProcRegua(TMPC->(LASTREC()))
 	Processa( {|| cGraph := GeraChart1(aTMensal,cProg,aTitulos)})
 EndIf
@@ -969,3 +963,74 @@ Else
 Endif
    
 Return
+
+// BKGCTR02.XLSM
+/*
+Private Sub Workbook_Open()
+Call Macro1
+End Sub
+
+Sub Macro1()
+Dim sFileName As String
+Dim wkb As Workbook
+Dim wst As Worksheet
+Dim rng As Range
+Dim cht As ChartObject
+Dim sTit As String
+
+
+ sFileName = Application.ThisWorkbook.Name
+
+ sFileName = "c:\tmp\" + Replace(sFileName, "xlsm", "xlsx")
+ 
+ MsgBox "Criando o gráfico! " + sFileName
+ 
+ Set wkb = Workbooks.Open(sFileName)
+ 
+ Set wst = wkb.Worksheets("Resumo")
+ 
+ wst.Select
+  
+ Set rng = wst.Range("dadosGrafico")
+ 
+ wst.Range("posGrafico").Select
+
+ 'wst.Shapes.AddChart2(322, xlColumnClustered).Select
+ 
+ Set cht = wst.ChartObjects.Add( _
+    Left:=ActiveCell.Left, _
+    Width:=450, _
+    Top:=ActiveCell.Top, _
+    Height:=250)
+ 
+ cht.Chart.SetSourceData Source:=rng
+
+ cht.Chart.ChartType = xlColumnClustered
+ cht.Chart.FullSeriesCollection(1).ChartType = xlColumnClustered
+ cht.Chart.FullSeriesCollection(2).ChartType = xlColumnClustered
+ cht.Chart.FullSeriesCollection(3).ChartType = xlLine
+ cht.Chart.FullSeriesCollection(4).ChartType = xlLine
+ cht.Chart.PlotBy = xlColumns
+ cht.Chart.PlotArea.Select
+ cht.Chart.FullSeriesCollection(1).ChartType = xlLine
+ cht.Chart.FullSeriesCollection(2).ChartType = xlLine
+ cht.Chart.FullSeriesCollection(3).ChartType = xlColumnStacked
+ cht.Chart.FullSeriesCollection(4).ChartType = xlColumnStacked
+ cht.Chart.FullSeriesCollection(4).Select
+ cht.Chart.FullSeriesCollection(4).ApplyDataLabels
+ 
+ sTit = wst.Range("titGrafico").Value
+ 
+ cht.Chart.HasTitle = True
+ cht.Chart.ChartTitle.Text = sTit
+ 
+  
+ ActiveWorkbook.Close savechanges:=True
+ 
+ Set wkb = Workbooks.Open(sFileName)
+ 
+ ThisWorkbook.Close savechanges:=False
+ 
+End Sub
+
+*/

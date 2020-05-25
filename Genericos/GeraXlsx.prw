@@ -48,6 +48,9 @@ Local nTamCol := 0
 Local aStruct := {}
 Local aRef    := {}
 
+Local aResumo := {}
+Local cMacro  := ""
+
 Local cTipo   := ""
 Local lTotal  := .F.
 Local lFormula:= .F.
@@ -115,6 +118,8 @@ Local nTotStyle
 Local nIDImg
 
 Local nStyle
+Local lGraf     := .F.
+Local cMensGraf := ""
 
 Default _aGraph := {}
 
@@ -517,19 +522,33 @@ If Len(aLocPar) > 0
 	Next
 EndIf
 
-
 If Len(_aGraph) > 0
-	lOpen := .F.
+	oExcel:ADDPlan("Resumo","0000FF")		//Adiciona nova planilha
+
+	nLin  := 2
+	oExcel:Cell(nLin,1,_aGraph[2],,nTit3Style)
+	oExcel:AddNome("titGrafico",nLin, 1, nLin, 1)
+
+	aResumo := _aGraph[3]
 	nLin  := 3
-	oExcel:ADDPlan("Gráfico","0000FF")		//Adiciona nova planilha
-	For nI := 1 To Len(_aGraph)
-		For nJ := 1 To Len(_aGraph[nI])
-			oExcel:Cell(nLin,nJ,_aGraph[nI,nJ],,IiF(nI==1,nCabStyle,nG2Style))
+	For nI := 1 To Len(aResumo)
+		For nJ := 1 To Len(aResumo[nI])
+			oExcel:Cell(nLin,nJ,aResumo[nI,nJ],,IiF(nI==1,nCabStyle,nG2Style))
 		Next
 		nLin++
 	Next
-	oExcel:AddNome("dadosGrafico",3, 1, nLin-1, Len(_aGraph[1]))
-	oExcel:AddNome("posGrafico",3, Len(_aGraph[1])+2, 3, Len(_aGraph[1])+2)
+	oExcel:AddNome("dadosGrafico",3, 1, nLin-1, Len(aResumo[1]))
+	oExcel:AddNome("posGrafico",3, Len(aResumo[1])+2, 3, Len(aResumo[1])+2)
+
+	cMensGraf := "Incluir Gráfico na planilha ?"+CRLF+CRLF
+	cMensGraf := "Obs: As macros devem estar habilitadas no Excel (2013 em diante):"+CRLF+CRLF
+	cMensGraf += "1-Clique no botão do Microsoft Office e em Opções do Excel;"+CRLF
+	cMensGraf += "2-Clique em Central de Confiabilidade, em Configurações da Central de Confiabilidade e em Configurações de Macro;"+CRLF
+	cMensGraf += "3-Clique em Habilitar todas as macros."+CRLF
+	If MsgYesNo(cMensGraf,_cProg)
+		lGraf := .T.
+		lOpen := .F.
+	EndIf
 EndIf
 
 
@@ -545,14 +564,15 @@ EndIf
 
 oExcel:Gravar(cDirTmp+"\",lOpen,.T.)
 
-If Len(_aGraph) > 0
+If lGraf
 
-	cFileTmp := "c:\tmp\macrograf.xlsm"
+	cMacro := _aGraph[1]
+	cFileTmp := cDirTmp+"\"+cMacro+".xlsm"
 	nRet:= FERASE(cFileTmp)
 	If File(cFileTmp)
 		MsgAlert("Não foi possível excluir o arquivo "+cFileTmp+", feche o arquivo",_cProg)
 	EndIf
-	CpyS2T( "\Macros\macrograf.xlsm",cDirTmp)
+	CpyS2T( "\macros\"+cMacro+".xlsm",cDirTmp)
 
 	cFileTmp := cDirTmp+"\"+cFileN+".xlsm
 	nRet:= FERASE(cFileTmp)
@@ -560,7 +580,7 @@ If Len(_aGraph) > 0
 		MsgAlert("Não foi possível excluir o arquivo "+cFileTmp+", feche o arquivo",_cProg)
 	EndIf
 
-	fRename("c:\tmp\macrograf.xlsm",cDirTmp+"\"+cFileN+".xlsm")
+	fRename(cDirTmp+"\"+cMacro+".xlsm",cDirTmp+"\"+cFileN+".xlsm")
 	ShellExecute("open",cDirTmp+"\"+cFileN+".xlsm","",cDirTmp+"\", 1 )
 EndIf
 
