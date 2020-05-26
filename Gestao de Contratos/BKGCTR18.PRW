@@ -1,11 +1,11 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
  
 /*/{Protheus.doc} BKGCTR18
 BK - Informações de Contratos Vigentes e encerrados por ano - Licitação Mod. 2
 @Return
 @author Adilson do Prado / Marcos Bispo Abrahão
-@since 22/09/16
+@since 22/09/16 Rev 26/05/20
 @version P12
 /*/
 
@@ -194,7 +194,7 @@ AADD(aPlans,{cAliasTmp ,"Tabela 1","",cTitulo  ,aCampos ,aCabs ,/*aImpr1*/, /* a
 AADD(aPlans,{cAliasTmp1,"Tabela 2","",cTitulo1 ,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 AADD(aPlans,{cAliasTmp2,"Tabela 3","",cTitulo2 ,aCampos2,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 AADD(aPlans,{cAliasTmp3,"Tabela 4","",cTitulo3 ,aCampos3,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,cPerg,.F.)
+U_GeraXlsx(aPlans,cTitulo,cPerg,.F.)
 
 oTmpTb1:Delete()
 oTmpTb2:Delete()
@@ -230,7 +230,7 @@ DtCorte := LastDate(DtCorte)
 	ProcRegua(CN9->(LASTREC()))
 	DO WHILE CN9->(!EOF())
 	
-		IncProc("Consultando...")
+		IncProc("Consultando banco de dados...")
 
 		IF CN9->CN9_SITUAC == '10'
 			CN9->(dbSkip())
@@ -324,9 +324,9 @@ DtCorte := LastDate(DtCorte)
 		cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
 		cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
 		cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON CND_PEDIDO = C5_NUM"
-		cQuery += "      AND  C5_FILIAL = '"+xFilial("SC5")+"'  AND  SC5.D_E_L_E_T_ = ' '"
+		cQuery += "      AND  C5_FILIAL = CND_FILIAL AND SC5.D_E_L_E_T_ = ' '"
 		cQuery += "	LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C5_NOTA = F2_DOC AND C5_SERIE=F2_SERIE AND C5_CLIENTE=F2_CLIENTE AND C5_LOJACLI=F2_LOJA"  
-		cQuery += "      AND  F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' ' "
+		cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' ' "
 		cQuery += " WHERE CNF.D_E_L_E_T_=''  AND CN9_SITUAC <> '10'"
 		cQuery += "	 AND CNF_CONTRA ='"+ALLTRIM(CN9->CN9_NUMERO)+"'"
 //		cQuery += " GROUP BY SUBSTRING(CNF.CNF_COMPET,4,4)"
@@ -362,11 +362,9 @@ DtCorte := LastDate(DtCorte)
 		cQuery2 := "SELECT SUM(F2_VALBRUT) AS F2_VALBRUT, SUBSTRING(F2_EMISSAO,1,4) AS F2_EMISSAO"
 		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" 
 	    cQuery2 += " INNER JOIN "+RETSQLNAME("SF2")+" SF2 ON C5_NOTA = F2_DOC AND C5_SERIE=F2_SERIE AND C5_CLIENTE=F2_CLIENTE AND C5_LOJACLI=F2_LOJA"
-		cQuery2 += " AND  SF2.F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' '"
+		cQuery2 += "  AND SF2.F2_FILIAL = SC5.C5_FILIAL AND SF2.D_E_L_E_T_ = ' '"
 	    cQuery2 += " WHERE SC5.D_E_L_E_T_ = ' ' AND SC5.C5_MDCONTR='' 
-
-    	cQuery2 += " AND C5_ESPECI1 ='"+ALLTRIM(CN9->CN9_NUMERO)+"'"
-
+    	cQuery2 += "  AND C5_ESPECI1 ='"+ALLTRIM(CN9->CN9_NUMERO)+"'"
 		cQuery2 += " GROUP BY SUBSTRING(F2_EMISSAO,1,4)"
 	    
 		TCQUERY cQuery2 NEW ALIAS "QSC5"

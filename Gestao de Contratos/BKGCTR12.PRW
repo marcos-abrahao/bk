@@ -1,27 +1,20 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
- 
-                                       
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR12 º Autor ³ Adilson do Prado          Data ³14/11/13º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ OBJETOS dos Contrato - BK                     º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
+
+/*/{Protheus.doc} BKGCTR12
+BK - Objetos dos Contratos
+@Return
+@author Adilson do Prado 
+@since 14/11/13 Rev 26/05/20
+@version P12
 /*/
 
 User Function BKGCTR12()
-Local aTitulos,aCampos,aCabs
+Local aTitulos,aCampos,aCabs,aPlans
 
 Private nomeprog     := ""
-Private cTitulo      := "Objeto dos Contratos"
-Private wnrel        := "BKGCTR12"
+Private cTitulo      := "Objetos dos Contratos"
+Private cPerg        := "BKGCTR12"
 Private cCompet      := STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4)
 
 ProcRegua(1)
@@ -30,6 +23,7 @@ Processa( {|| ProcQuery() })
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
+aPlans  := {}
 nomeprog := ""
    
 nomeprog := "BKGCTR12/"+TRIM(SUBSTR(cUsuario,7,15))
@@ -47,7 +41,7 @@ AADD(aCabs  ,"Descrição")
 AADD(aCampos,"QCN9->CN9_DTINIC")
 AADD(aCabs  ,"Dt. Inicio")
 
-AADD(aCampos,"IIF(!EMPTY(VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)),VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG),QCN9->CN9_XXDVIG)")
+AADD(aCampos,"IIF(!EMPTY(u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)),u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG),QCN9->CN9_XXDVIG)")
 AADD(aCabs  ,"Vigencia")
 
 AADD(aCampos,"QCN9->CN9_XXNRBK")
@@ -75,12 +69,14 @@ AADD(aCampos,"QCN9->CND_XXNFUN")
 AADD(aCabs  ,"Qtd. Func. Atual Competência: "+ cCompet)
 
 AADD(aCampos,"STRTRAN(ALLTRIM(QCN9->CND_XXJFUN),';',',')")
-AADD(aCabs  ,"Just.Num.Funcion")
+AADD(aCabs  ,"Just. Num. Funcionários")
 
-  
-ProcRegua(QCN9->(LASTREC()))
-Processa( {|| U_GeraCSV("QCN9",wnrel,aTitulos,aCampos,aCabs)})
-   
+//ProcRegua(QCN9->(LASTREC()))
+//Processa( {|| U_GeraCSV("QCN9",cPerg,aTitulos,aCampos,aCabs)})
+
+AADD(aPlans,{"QCN9",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+ 
 
 Return
 
@@ -90,17 +86,18 @@ Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-cQuery := "SELECT DISTINCT CN9_NOMCLI,CN9_NUMERO,CN9_REVISA,CN9_XXDESC,CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK,"
-cQuery += "CN9_XXNGC,CN9_XXEGC,CN9_XXTELS,CN9_CODOBJ,"
-cQuery += " CONVERT(VARCHAR(8000),CONVERT(Binary(8000),CND_XXJFUN)) CND_XXJFUN, "
-cQuery += "	CND_XXDTAC,CND_XXPOST,CND_XXFUNC,CND_XXNFUN "
-cQuery += " FROM "+RETSQLNAME("CN9")+ " CN9 "
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND ON "
-cQuery += " CND_CONTRA = CN9_NUMERO"
-cQuery += " AND CND_REVISA = CN9_REVISA AND CND_COMPET = '"+cCompet+"' "
-cQuery += " AND CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
-cQuery += " WHERE CN9.D_E_L_E_T_='' AND CN9_SITUAC = '05' 
+cQuery := "SELECT DISTINCT CN9_NOMCLI,CN9_NUMERO,CN9_REVISA,CN9_XXDESC,CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK," + CRLF
+cQuery += "CN9_XXNGC,CN9_XXEGC,CN9_XXTELS,CN9_CODOBJ," + CRLF
+cQuery += " CONVERT(VARCHAR(8000),CONVERT(Binary(8000),CND_XXJFUN)) CND_XXJFUN, " + CRLF
+cQuery += "	CND_XXDTAC,CND_XXPOST,CND_XXFUNC,CND_XXNFUN " + CRLF
+cQuery += " FROM "+RETSQLNAME("CN9")+ " CN9 " + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND ON " + CRLF
+cQuery += " CND_CONTRA = CN9_NUMERO" + CRLF
+cQuery += " AND CND_REVISA = CN9_REVISA AND CND_COMPET = '"+cCompet+"' " + CRLF
+cQuery += " AND CND.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " WHERE CN9.D_E_L_E_T_='' AND CN9_SITUAC = '05'" + CRLF
 
+u_LogMemo("BKGCTR07.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QCN9"
 TCSETFIELD("QCN9","CN9_DTINIC","D",8,0)
@@ -128,8 +125,7 @@ cQuery += " ORDER BY CN9_NUMERO"
 
 Return 
 
-/*
-Static Function VigContrat(cContrato,dDVIG)
+User Function VigContrat(cContrato,dDVIG)
 Local cContRev := ""
 
 // Buscar o ultimo vencto dos Cronogramas
@@ -143,7 +139,5 @@ Do While !EOF() .AND. cContRev == CNF_FILIAL+CNF_CONTRA+CNF_REVISA
 	ENDIF
 	CNF->(dbSkip())
 EndDo
-
 Return dDVIG
-*/
 

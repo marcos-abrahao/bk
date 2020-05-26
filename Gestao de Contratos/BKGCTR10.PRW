@@ -1,19 +1,14 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKGCTR10 º Autor ³ Marcos B. Abrahão         Data ³26/04/12º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Histórico de Multas e Bonificações                         º±±
-±±ºAlteracao ³ Alterado conceito de glosa para multa,Bonificações -18/11/14±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKGCTR10
+BK - Histórico de Multa e Bonificações
+18/11/14 - Alterado conceito de glosa para multa,Bonificações
+
+@Return
+@author Marcos Bispo Abrahão
+@since 26/04/12 Rev 26/05/20
+@version P12
 /*/
 
 User Function BKGCTR10()
@@ -91,8 +86,8 @@ Else
 	//ProcRegua(QTMP->(LASTREC()))
 	//Processa( {|| U_GeraCSV("QTMP","BKGCT10",aTitulos,aCampos,aCabs)})
 
-	AADD(aPlans,{"QTMP","BKGCT10","",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	U_GeraXml(aPlans,Titulo,"BKGCT10",.F.)
+	AADD(aPlans,{"QTMP",cPerg,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+	U_GeraXlsx(aPlans,Titulo,cPerg,.F.)
 	   
 EndIf	
 Return
@@ -103,21 +98,21 @@ Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-cQuery := " SELECT CND_DTFIM,CND_COMPET,CNR_TIPO,CNR_DESCRI,CNR_VALOR "
-cQuery += " FROM "+RETSQLNAME("CNR")+" CNR"
-cQuery += "	          INNER JOIN "+RETSQLNAME("CND")+" CND ON CND_NUMMED = CNR_NUMMED "
-cQuery += "	                AND CND_CONTRA = '"+cContrat+"' AND CND_REVISA = '"+cRevisa+"' "
-cQuery += "	                AND CND_FILIAL = '"+xFilial("CND")+"' AND CND.D_E_L_E_T_ = ' ' "
-cQuery += "	          WHERE CNR_FILIAL = '"+xFilial("CNR")+"' AND CNR.D_E_L_E_T_ = ' ' "
+cQuery := " SELECT CND_DTFIM,CND_COMPET,CNR_TIPO,CNR_DESCRI,CNR_VALOR "+ CRLF
+cQuery += " FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "	          INNER JOIN "+RETSQLNAME("CND")+" CND ON CND_NUMMED = CNR_NUMMED "+ CRLF
+cQuery += "	                AND CND_CONTRA = '"+cContrat+"' AND CND_REVISA = '"+cRevisa+"' "+ CRLF
+cQuery += "	                AND CND.D_E_L_E_T_ = ' ' "+ CRLF
+cQuery += "	          WHERE CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' "+ CRLF
 
 //cQuery += "	                     SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '201203' 
 
 cQuery += " ORDER BY CND_DTFIM,CND_COMPET "  
 
+u_LogMemo("BKGCTR10A.SQL",cQuery)
+
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","CND_DTFIM","D",8,0)
-
-//u_QryToCsv("QTMP","BKGCTR10A",{cQuery},.F.)
 
 Return
 

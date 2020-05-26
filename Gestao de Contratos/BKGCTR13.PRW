@@ -1,12 +1,12 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKGCTR13
 BK - Relatório Repactuação Gestão
 
 @Return
 @author Adilson do Prado
-@since 09/05/14
+@since 09/05/14 Rev 26/05/20
 @version P12
 /*/
 
@@ -17,7 +17,6 @@ Local oTmpTb
 Private cPerg       := "BKGCTR13"
 Private nomeprog    := ""
 Private cTitulo     := "Relatório Repactuação Gestão"
-Private wnrel       := "BKGCTR13"
 Private cVT_Prod   	:= GetMv("MV_XXVTPRD") //"|31201046|"
 Private cVRVA_Prod  := GetMv("MV_XXVRVAP") //"|31201045|31201047|"
 Private cContrato  	:= ""
@@ -118,22 +117,18 @@ AADD(aCabs  ,"Data Repactuação")
 AADD(aCampos,"QTMP->XX_XXOREP")
 AADD(aCabs  ,"Observação Repactuação") 
 
-
 ProcRegua(1)
 Processa( {|| ProcQuery() })
-
  
 If nFormato == 1
 	ProcRegua(QTMP->(LASTREC()))
-	Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
+	Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
 Else	
-	AADD(aPlans,{"QTMP",wnrel,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	U_GeraXml(aPlans,cTitulo,wnrel,.F.)
+	AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+	U_GeraXlsx(aPlans,cTitulo,cPerg,.F.)
 EndIf
 
 oTmpTb:Delete()
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())
 
 Return
 
@@ -151,37 +146,39 @@ NEXT
 cCompet := ""
 cCompet := SUBSTR(DTOS(dDataBase),5,2)+"/"+SUBSTR(DTOS(dDataBase),1,4)
 
-cQuery := "SELECT CN9_NUMERO,CN9_REVISA,CN9_XXDESC,CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK,"
-cQuery += " CN9_XXFUNC,CN9_XXDREP,CN9_XXOREP,SUM(F2_VALFAT) AS F2_VALFAT" 
-cQuery += " FROM  "+RETSQLNAME("CN9")+" CN9"
-cQuery += " LEFT JOIN "+RETSQLNAME("CNF")+" CNF ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CNF_COMPET = '"+cCompet+"'" 
-cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_CONTRA = CNF_CONTRA AND CNA_REVISA = CNF_REVISA"
-cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNA_NUMERO = CND_NUMERO AND CND_PARCEL = CNF_PARCEL AND CND_REVISA = CNA_REVISA"
-cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-cQuery += "      AND  C6_FILIAL = '"+xFilial("SC6")+"'  AND  SC6.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"
-cQuery += "      AND  F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' '"
+cQuery := "SELECT CN9_NUMERO,CN9_REVISA,CN9_XXDESC,CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK,"+CRLF
+cQuery += " CN9_XXFUNC,CN9_XXDREP,CN9_XXOREP,SUM(F2_VALFAT) AS F2_VALFAT" +CRLF
+cQuery += " FROM  "+RETSQLNAME("CN9")+" CN9"+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNF")+" CNF ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CNF_COMPET = '"+cCompet+"'" +CRLF
+cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
+cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_CONTRA = CNF_CONTRA AND CNA_REVISA = CNF_REVISA"+CRLF
+cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNA_NUMERO = CND_NUMERO AND CND_PARCEL = CNF_PARCEL AND CND_REVISA = CNA_REVISA"+CRLF
+cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+CRLF
+cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+CRLF
+cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+CRLF
 
-cQuery += " WHERE CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' ' AND CN9_SITUAC='05'"
+cQuery += " WHERE CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' ' AND CN9_SITUAC='05'"+CRLF
 
 IF !EMPTY(cContrato)
-	cQuery += " AND CN9_NUMERO='"+cContrato+"'"
+	cQuery += " AND CN9_NUMERO='"+cContrato+"'"+CRLF
 ENDIF
 
 IF !EMPTY(cGestorBK)
-	cQuery += " AND CN9_XXNRBK LIKE '%"+cGestorBK+"%'"
+	cQuery += " AND CN9_XXNRBK LIKE '%"+cGestorBK+"%'"+CRLF
 ENDIF
 
 IF !EMPTY(dDTRepac)
-	cQuery += " AND CN9_XXDREP='"+DTOS(dDTRepac)+"'"
+	cQuery += " AND CN9_XXDREP='"+DTOS(dDTRepac)+"'"+CRLF
 ENDIF
 
-cQuery += " GROUP BY CN9_NUMERO,CN9_REVISA,CN9_XXDESC,CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK, CN9_XXFUNC,CN9_XXDREP,CN9_XXOREP"
+cQuery += " GROUP BY CN9_NUMERO,CN9_REVISA,CN9_XXDESC,CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK, CN9_XXFUNC,CN9_XXDREP,CN9_XXOREP"+CRLF
+
+u_LogMemo("BKGCTR13.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QCN9"
 TCSETFIELD("QCN9","CN9_DTINIC","D",8,0)
@@ -376,7 +373,7 @@ cPerg := PADR(cPerg,10)
 AADD(aRegistros,{cPerg,"01","Contrato:"       ,"Contrato:"        ,"Contrato:"        ,"mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","","Branco para Todos Contratos Ativos"})
 AADD(aRegistros,{cPerg,"02","Gestor BK"       ,"Gestor BK"        ,"Gestor BK"        ,"mv_ch2","C",50,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","","Branco para Todos"})
 AADD(aRegistros,{cPerg,"03","Data Repactuação","Data Repactuação" ,"Data Repactuação" ,"mv_ch3","D",08,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","","Branco para Todos"})
-AADD(aRegistros,{cPerg,"04","Gerar Planilha"  ,"Gerar Planilha"   ,"Gerar Planilha"   ,"mv_ch4","N",01,0,2,"C","","mv_par04","CSV","CSV","CSV","","","XML","XML","XML","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"04","Gerar Planilha"  ,"Gerar Planilha"   ,"Gerar Planilha"   ,"mv_ch4","N",01,0,2,"C","","mv_par04","CSV","CSV","CSV","","","XLSX","XLSX","XLSX","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

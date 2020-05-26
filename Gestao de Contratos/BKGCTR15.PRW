@@ -1,26 +1,21 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR15()
 BK - Informações de Contratos para Licitação
 
 @author Adilson do Prado
-@since 02/12/14
+@since 02/12/14 Rev 26/05/20
 @version P12
 @return Nil
 /*/
-//-------------------------------------------------------------------
-
 
 User Function BKGCTR15()
-Local aTitulos,aCampos,aCabs
+Local aTitulos,aCampos,aCabs,aPlans
 Local aDbf 		    := {} 
 Local oTmpTb1
 
-Private nomeprog    := ""
-Private cTitulo     := "Relatorio de Informações dos Contratos para Licitações - Competência: "+STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4) 
-Private wnrel       := "BKGCTR15"
+Private cTitulo     := "Relatório de Informações dos Contratos para Licitações - Competência: "+STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4) 
 Private cCompet     := STRZERO(YEAR(dDataBase),4)+STRZERO(Month(dDataBase),2) 
 Private cPerg    	:= "BKGCTR15"
 
@@ -47,17 +42,16 @@ oTmpTb1 := FWTemporaryTable():New( "TRB" )
 oTmpTb1:SetFields( aDbf )
 oTmpTb1:Create()
 
-
 ProcRegua(1)
 Processa( {|| ProcQuery() })
 
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
-nomeprog := ""
+aPlans  := {}
    
-nomeprog := "BKGCTR15/"+TRIM(SUBSTR(cUsuario,7,15))
-AADD(aTitulos,nomeprog+" - "+cTitulo)
+//nomeprog := "BKGCTR15/"+TRIM(SUBSTR(cUsuario,7,15))
+//AADD(aTitulos,nomeprog+" - "+cTitulo)
 
 AADD(aCampos,"TRB->XX_CONTRAT")
 AADD(aCabs  ,"Nº SIGA")
@@ -104,20 +98,18 @@ AADD(aCabs  ,"% a Executar")
 AADD(aCampos,"TRB->XX_SALDOAT")
 AADD(aCabs  ,"Situação Atual")
 
-  
-ProcRegua(TRB->(LASTREC()))
-Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs,,,,.F.)})
-   
-oTmpTb1:Delete()
+//ProcRegua(TRB->(LASTREC()))
+//Processa( {|| U_GeraCSV("TRB",cPerg,aTitulos,aCampos,aCabs,,,,.F.)})
 
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())
+AADD(aPlans,{"TRB",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+
+oTmpTb1:Delete()
 
 Return
 
 
 Static Function ProcQuery
-
 
 dbSelectArea("CN9")
 CN9->(DBSETORDER(1))
@@ -197,13 +189,11 @@ Return
 
 
 User Function xBKGCTR15()
-Local aTitulos,aCampos,aCabs
+Local aTitulos,aCampos,aCabs,aPlans
 Local aDbf 		    := {} 
 Local oTmpTb1
 
-Private nomeprog    := ""
 Private cTitulo     := "Relatorio de Informações dos Contratos para Licitações - Competência: "+STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4) 
-Private wnrel       := "BKGCTR15"
 Private cCompet     := STRZERO(YEAR(dDataBase),4)+STRZERO(Month(dDataBase),2) 
 Private cPerg    	:= "BKGCTR15"
 Private aSITUAC 	:= {}
@@ -247,10 +237,10 @@ Processa( {|| xProcQuery() })
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
-nomeprog := ""
+aPlans  := {}
    
-nomeprog := "BKGCTR15/"+TRIM(SUBSTR(cUsuario,7,15))
-AADD(aTitulos,nomeprog+" - "+cTitulo)
+//nomeprog := "BKGCTR15/"+TRIM(SUBSTR(cUsuario,7,15))
+//AADD(aTitulos,nomeprog+" - "+cTitulo)
 
 AADD(aCampos,"TRB->XX_NOMCLI")
 AADD(aCabs  ,"Cliente / Contratante")
@@ -293,13 +283,13 @@ AADD(aCabs  ,"Município do Cliente")
 
 AADD(aCampos,"TRB->XX_SITUAC")
 AADD(aCabs  ,"Situação atual do Contrato")
-
   
-ProcRegua(TRB->(LASTREC()))
-Processa( {|| U_GeraCSV("TRB",wnrel,aTitulos,aCampos,aCabs,,,,.F.)})
-   
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())
+//ProcRegua(TRB->(LASTREC()))
+//Processa( {|| U_GeraCSV("TRB",cPerg,aTitulos,aCampos,aCabs,,,,.F.)})
+
+AADD(aPlans,{"TRB",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+
 oTmpTb1:Delete()
 
 Return
@@ -364,11 +354,11 @@ DO WHILE CN9->(!EOF())
 		cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
 		cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET"
 		cQuery += " AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-		cQuery += " AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
+		cQuery += " AND  CND.D_E_L_E_T_ = ' '"
 		cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON CND_PEDIDO = C5_NUM"
-		cQuery += "      AND  C5_FILIAL = '"+xFilial("SC5")+"'  AND  SC5.D_E_L_E_T_ = ' '"
+		cQuery += "      AND  C5_FILIAL = CND_FILIAL AND SC5.D_E_L_E_T_ = ' '"
 		cQuery += "	LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C5_NOTA = F2_DOC AND C5_SERIE=F2_SERIE AND C5_CLIENTE=F2_CLIENTE AND C5_LOJACLI=F2_LOJA"  
-		cQuery += "      AND  F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' ' "
+		cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' ' "
 		cQuery += " WHERE CNF.D_E_L_E_T_=''  AND CN9_SITUAC = '"+ALLTRIM(CN9->CN9_SITUAC)+"'"
 		cQuery += "	 AND CNF_CONTRA ='"+ALLTRIM(CN9->CN9_NUMERO)+"' AND CNF_REVISA='"+ALLTRIM(CN9->CN9_REVISA)+"'"
 		
@@ -389,8 +379,8 @@ DO WHILE CN9->(!EOF())
 		cQuery2 := " SELECT F2_VALBRUT,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS" 
 		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" 
 	    cQuery2 += " INNER JOIN "+RETSQLNAME("SF2")+" SF2 ON C5_NOTA = F2_DOC AND C5_SERIE=F2_SERIE 
-	    cQuery2 += " AND C5_CLIENTE=F2_CLIENTE AND C5_LOJACLI=F2_LOJA"
-		cQuery2 += " AND  SF2.F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' '"
+	    cQuery2 += "  AND C5_CLIENTE=F2_CLIENTE AND C5_LOJACLI=F2_LOJA"
+		cQuery2 += "  AND SF2.D_E_L_E_T_ = ' '"
 	    cQuery2 += " WHERE SC5.D_E_L_E_T_ = ' ' AND SC5.C5_MDCONTR='' 
 	   	cQuery2 += " AND C5_ESPECI1 ='"+ALLTRIM(CN9->CN9_NUMERO)+"'"
 		    

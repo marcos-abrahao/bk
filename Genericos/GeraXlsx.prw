@@ -223,7 +223,6 @@ FOR nPl := 1 TO LEN(_aPlans)
 			aAdd(aTitulos,_xTitulos[nJ])
 		Next
 	EndIf
-	aAdd(aTitulos,_cProg+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
@@ -475,9 +474,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 Next
 
-//oProcess:IncRegua1("Listando parâmetros...")
 
-// Planilha de Parâmetros
+// --> Planilha de Parâmetros
 If ValType(_aParam) == "A"
 	For nI := 1 TO LEN(_aParam)
 		xCampo := "MV_PAR"+STRZERO(nI,2)
@@ -496,22 +494,29 @@ Else
 	EndIf
 EndIf
 
+nLin := 1
+oExcel:ADDPlan("Parâmetros","0000FF")		//Adiciona nova planilha
+oExcel:SetDefRow(.T.,{1,4})
+oExcel:AddTamCol(1,2,50)
+
+For nJ := 1 To Len(aTitulos)
+	oExcel:mergeCells(nLin,1,nLin,2)
+	oExcel:Cell(nLin,1,_cProg+" - "+aTitulos[nJ],,nTit3Style)
+	nLin++
+Next
+
+	//aAdd(aTitulos,_cProg+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
+
+oExcel:Cell(nLin,1,"Emitido por: "+Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName(),,nTit3Style)
+nLin++
+oExcel:Cell(nLin,1,"Data Base: "+DTOC(dDataBase),,nTit3Style)
+nLin++
+oExcel:Cell(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]),,nTit3Style)
+nLin++
+oExcel:Cell(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]),,nTit3Style)
+nLin++
+
 If Len(aLocPar) > 0
-	nLin := 1
-	oExcel:ADDPlan("Parâmetros","0000FF")		//Adiciona nova planilha
-	oExcel:SetDefRow(.T.,{1,4})
-	oExcel:AddTamCol(1,2,50)
-
-	For nJ := 1 To Len(aTitulos)
-		oExcel:mergeCells(nLin,1,nLin,2)
-		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
-		nLin++
-	Next
-	oExcel:Cell(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]),,nTit3Style)
-	nLin++
-	oExcel:Cell(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]),,nTit3Style)
-	nLin++
-
 	oExcel:Cell(nLin,1,"Parâmetros - "+_cProg,,nSCabStyle)
 	oExcel:Cell(nLin,2,"Conteúdo",,nSCabStyle)
 
@@ -521,6 +526,7 @@ If Len(aLocPar) > 0
 		oExcel:Cell(nLin,2,aLocPar[nI,2],,nG2Style)
 	Next
 EndIf
+// <-- Parâmetros
 
 If Len(_aGraph) > 0
 	oExcel:ADDPlan("Resumo","0000FF")		//Adiciona nova planilha

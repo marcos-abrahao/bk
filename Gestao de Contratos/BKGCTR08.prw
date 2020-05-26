@@ -32,7 +32,6 @@ Private cbtxt        := Space(10)
 Private cbcont       := 00
 Private CONTFL       := 01
 Private m_pag        := 01
-Private wnrel        := "BKGCTR08" // Coloque aqui o nome do arquivo usado para impressao em disco
 Private cString      := "CN9"
 
 Private cMesComp     := "01"
@@ -191,8 +190,7 @@ Else
 
 	ProcRegua(QTMP->(LASTREC()))
 	
-	
-	Processa( {|| U_GeraCSV2("QTMP",wnrel,aTitulos,aCampos,aCabs,cQuery2,"QTMP2",aCampos2,aCabs2)})
+	Processa( {|| U_GeraCSV2("QTMP",cPerg,aTitulos,aCampos,aCabs,cQuery2,"QTMP2",aCampos2,aCabs2)})
    
 EndIf	
 Return
@@ -504,15 +502,10 @@ If nHandle > 0
       cQuery2 += " AND CND_PARCEL = '"+QTMP->CNF_PARCEL+"' "
       cQuery2 += " AND CND_REVISA = '"+QTMP->CNF_REVISA+"' " 
       cQuery2 += " AND CND_NUMMED = '"+QTMP->CND_NUMMED+"' " 
-      //cQuery2 += " AND CND_FILIAL = '"+xFilial("CND")+"' " 
-
+      
       TCQUERY cQuery2 NEW ALIAS "QTMP2"
       TCSETFIELD("QTMP2","CND_XXDTAC","D",8,0)
       
-      //cQuery2 += " AND CND_NUMMED = '"+QTMP->CND_NUMMED+"' "
-      //cQuery2 += " AND CND_REVISA = '"+QTMP->CNF_REVISA+"' "
-      //cQuery2 += " AND CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
-
       dbSelectArea(_cAlias2)
       dbGoTop()
       lC1 := .T.

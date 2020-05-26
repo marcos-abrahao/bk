@@ -1,19 +1,13 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
- 
-                                       
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ BKGCTR16 บ Autor ณ Marcos Bispo Abrahใo      Data ณ28/04/15บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDescricao ณ Rela็ใo de contratos vigentes com planilhas financeiras    บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
+
+/*/{Protheus.doc} BKGCTR16()
+BK - Rela็ใo de Contratos Vigentes no mes
+
+@author Marcos Bispo Abrahใo
+@since 28/04/15 Rev 26/05/20
+@version P12
+@return Nil
 /*/
 
 User Function BKGCTR16()
@@ -23,7 +17,7 @@ Local aCabs         := {}
 Local aPlans        := {}
 
 Private cPerg       := "BKGCTR16"
-Private cTitulo     := "Rela็ใo de Contratos Vigentes no mes "
+Private cTitulo     := "Rela็ใo de Contratos Vigentes no m๊s "
 Private cMes        := "04"
 Private cAno        := "2015"
 Private cCompet     := "04/2015"
@@ -36,12 +30,7 @@ Endif
 cMes     := mv_par01
 cAno  	 := mv_par02
 cCompet  := mv_par01+"/"+mv_par02
-
-aCabs    := {}
-aCampos  := {}
-nomeprog := ""
-cTitulo  += cCompet+'&#13; (Emitido em '+DTOC(dDataBase)+" "+SUBSTR(Time(),1,5)+" por "+TRIM(SUBSTR(cUsuario,7,15))+")"
-
+cTitulo  += cCompet
 
 // Campos para exportar
 
@@ -79,7 +68,7 @@ ProcRegua(1)
 Processa( {|| ProcQuery() })
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXml(aPlans,cTitulo,cPerg,.F.)
+U_GeraXlsx(aPlans,cTitulo,cPerg,.F.)
 
 Return
 
@@ -87,49 +76,32 @@ Return
 Static Function ProcQuery
 Local cQuery := ""
 
-cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CN9_XXNGC,CN9_XXEGC,CN9_XXTELS,"
-cQuery += "  (SELECT TOP 1 MAX(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) FROM "+RETSQLNAME("CNF")+" CNFX WHERE CNF.CNF_CONTRA = CNFX.CNF_CONTRA AND CNF.CNF_REVISA = CNFX.CNF_REVISA AND CNFX.D_E_L_E_T_ = ' ') AS MAXCOMPET "
+cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CN9_XXNGC,CN9_XXEGC,CN9_XXTELS,"+ CRLF
+cQuery += "  (SELECT TOP 1 MAX(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) FROM "+RETSQLNAME("CNF")+" CNFX WHERE CNF.CNF_CONTRA = CNFX.CNF_CONTRA AND CNF.CNF_REVISA = CNFX.CNF_REVISA AND CNFX.D_E_L_E_T_ = ' ') AS MAXCOMPET "+ CRLF
 
-cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA AND  CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"
-cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-cQuery += " AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"
-cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"
-cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
+cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
+cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA AND  CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+ CRLF
+cQuery += " AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"+ CRLF
+cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"+ CRLF
+cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD" 
-cQuery += " AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
+cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD" + CRLF
+cQuery += " AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"+ CRLF
 
-cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+cCompet+"' AND CN9.CN9_SITUAC ='05'"
+cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+cCompet+"' AND CN9.CN9_SITUAC ='05'"+ CRLF
 //cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNF_COMPET,MAXCOMPET"
-cQuery += " ORDER BY CNF_CONTRA"
+cQuery += " ORDER BY CNF_CONTRA"+ CRLF
 
+u_LogMemo("BKGCTR16.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP" 
 
 //TCSETFIELD("QCN9","CN9_DTINIC","D",8,0)
 
 Return
-
-/*/
-SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC
-FROM CNF010 CNF
-INNER JOIN CN9010 CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA AND  CN9.D_E_L_E_T_ = ''
-LEFT JOIN CTT010 CTT ON CTT_CUSTO = CNF_CONTRA
-AND    CTT.D_E_L_E_T_ = ''
-LEFT JOIN CNA010 CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA
-     AND  CNA.D_E_L_E_T_ = ' '
-LEFT JOIN CND010 CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA
-     AND  CND.D_E_L_E_T_ = ' '
-INNER JOIN SA1010 SA1 ON CN9.CN9_CLIENT = SA1.A1_COD 
-AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.D_E_L_E_T_ = ' '
-WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='04/2015' AND CN9.CN9_SITUAC ='05'
-GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC ORDER BY CNF_CONTRA
-/*/
-
-
 
 
 Static Function  ValidPerg(cPerg)

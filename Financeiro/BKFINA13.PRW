@@ -6,7 +6,7 @@ BK - Fluxo de Caixa
 
 @Return
 @author Adilson do Prado
-@since 03/02/12
+@since 03/02/12 Rev 25/05/20
 @version P12
 /*/
 
@@ -21,7 +21,6 @@ Private lEnd         := .F.
 Private lAbortPrint  := .F.
 Private limite       := 220
 Private tamanho      := " "
-Private nomeprog     := "BKFINA13" // Coloque aqui o nome do programa para impressao no cabecalho
 Private nTipo        := 18
 Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
 Private cPerg        := "BKFINA13"
@@ -97,9 +96,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
    
-nomeprog := "BKFINA13/"+TRIM(SUBSTR(cUsuario,7,15))
-
-AADD(aTitulos,nomeprog+" - "+titulo)
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"TRB->XX_CODZE")
 AADD(aCabs  ,"Codigo")
@@ -207,15 +204,14 @@ IncProc("Consultando o banco de dados...")
 		FOR _nI := 1 TO nPeriodo
    			IF Dow(aDtPeriodo[_nI,1]) <> 7 .AND. Dow(aDtPeriodo[_nI,1]) <>1
 				cQuery := " SELECT DISTINCT E1_NUM,E1_PREFIXO,E1_TIPO,CNF_CONTRA,CN9_NOMCLI,E1_BAIXA,E1_VALLIQ AS VALLIQ FROM SE1010 SE1"
-				cQuery += " LEFT JOIN SF2010 SF2 ON E1_NUM = F2_DOC AND E1_PREFIXO=F2_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF' AND F2_FILIAL = '01'  AND  SF2.D_E_L_E_T_ = ' '" 
-				cQuery += " LEFT JOIN SC6010 SC6 ON C6_NOTA=F2_DOC AND C6_SERIE=F2_SERIE AND  C6_FILIAL = '01'  AND  SC6.D_E_L_E_T_ = ' '" 
-				cQuery += " LEFT JOIN CND010 CND ON CND_PEDIDO = C6_NUM AND  CND_FILIAL = '01'  AND  CND.D_E_L_E_T_ = ' '"
-				cQuery += " LEFT JOIN CNF010 CNF ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_REVISA = CNF_REVISA AND CND_PARCEL = CNF_PARCEL  AND  CND_FILIAL = '01' AND  CND.D_E_L_E_T_ = ' '"
-				cQuery += " LEFT JOIN CNA010 CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CND_REVISA AND  CNA_FILIAL = '01' AND  CNA.D_E_L_E_T_ = ' '"
+				cQuery += " LEFT JOIN SF2010 SF2 ON E1_NUM = F2_DOC AND E1_PREFIXO=F2_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF' AND  SF2.D_E_L_E_T_ = ' '" 
+				cQuery += " LEFT JOIN SC6010 SC6 ON C6_NOTA = F2_DOC AND C6_SERIE=F2_SERIE AND C6_FILIAL = F2_FILIAL AND  SC6.D_E_L_E_T_ = ' '" 
+				cQuery += " LEFT JOIN CND010 CND ON CND_PEDIDO = C6_NUM AND CND_FILIAL = F2_FILIAL AND CND.D_E_L_E_T_ = ' '"
+				cQuery += " LEFT JOIN CNF010 CNF ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_REVISA = CNF_REVISA AND CND_PARCEL = CNF_PARCEL AND  CND.D_E_L_E_T_ = ' '"
+				cQuery += " LEFT JOIN CNA010 CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CND_REVISA AND CNA_FILIAL = '01' AND  CNA.D_E_L_E_T_ = ' '"
 				cQuery += " LEFT JOIN CN9010 CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ' '"
-				cQuery += " LEFT JOIN CTT010 CTT ON CTT_CUSTO = CNF_CONTRA      AND  CTT_FILIAL = '01' AND  CTT.D_E_L_E_T_ = ' '"
+				cQuery += " LEFT JOIN CTT010 CTT ON CTT_CUSTO  = CNF_CONTRA AND  CTT.D_E_L_E_T_ = ' '"
 				cQuery += " WHERE E1_FILIAL = '01' AND  SE1.D_E_L_E_T_ = ' ' AND E1_BAIXA='"+DTOS(aDtPeriodo[_nI,1])+"' AND E1_TIPO IN ('NF','NDC') GROUP BY E1_NUM,E1_PREFIXO,E1_TIPO,CNF_CONTRA,CN9_NOMCLI,E1_BAIXA,E1_VALLIQ"
-
 		
 				TCQUERY cQuery NEW ALIAS "QTMP" 
 	   			dbSelectArea("QTMP")
@@ -281,14 +277,14 @@ IncProc("Consultando o banco de dados...")
 				cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"
 				cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
 				cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-				cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
+				cQuery += "      AND  CND.D_E_L_E_T_ = ' '"
 				cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-				cQuery += "      AND  C6_FILIAL = '"+xFilial("SC6")+"'  AND  SC6.D_E_L_E_T_ = ' '"
+				cQuery += "      AND  C6_FILIAL = CND_FILIAL AND  SC6.D_E_L_E_T_ = ' '"
 				cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"
-				cQuery += "      AND  F2_FILIAL = '"+xFilial("SF2")+"'  AND  SF2.D_E_L_E_T_ = ' '"
+				cQuery += "      AND  F2_FILIAL = CND_FILIAL  AND  SF2.D_E_L_E_T_ = ' '"
 				cQuery += " LEFT JOIN "+RETSQLNAME("SE1")+ " SE1 ON E1_NUM = F2_DOC AND E1_PREFIXO=F2_PREFIXO AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF'"
 				cQuery += "      AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' '"
-				cQuery += " WHERE CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' ' AND CNF_DTVENC='"+DTOS(aDtPeriodo[_nI,1])+"'"   
+				cQuery += " WHERE CNF_FILIAL = '"+xFilial("CNF")+"' AND CNF.D_E_L_E_T_ = ' ' AND CNF_DTVENC='"+DTOS(aDtPeriodo[_nI,1])+"'"
 				cQuery += " GROUP BY CNF_CONTRA,CN9_NOMCLI,F2_VALFAT,CNF_DTVENC "  
 
 		

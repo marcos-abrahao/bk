@@ -3,7 +3,7 @@
 #INCLUDE "TOPCONN.CH"
 
 //-------------------------------------------------------------------
-/*/{Protheus.doc} BKESTC02
+/*/{Protheus.doc} BKFATA1A
 BK - Funcao gravar Informações do Faturamento na NF de saida
 @Return
 @author Adilson do Prado
@@ -14,7 +14,7 @@ BK - Funcao gravar Informações do Faturamento na NF de saida
 
 User Function BKFATA1A()
 Private cString   := "SF2"
-Private cCadastro := "Documentos de saida"
+Private cCadastro := "Documentos de saída"
 Private aRotina
 
 dbSelectArea("SF2")

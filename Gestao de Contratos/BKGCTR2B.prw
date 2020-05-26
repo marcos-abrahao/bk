@@ -8,7 +8,7 @@ BK - Gestão do Recebimento
 
 @Return
 @author Marcos Bispo Abrahão
-@since 09/06/10
+@since 09/06/10 Rev 25/05/20
 @version P11/P12
 /*/
 //-------------------------------------------------------------------
@@ -35,7 +35,7 @@ Private aPlans  := {}
 Private nOpcao  := 1
 Private aParam	:= {}
 Private aRet	:= {}
-Private aTpRel  := {"XML", "CSV"}
+Private aTpRel  := {"XLSX", "CSV"}
 Private nCEndiv := 0.0
 /*
 Param Box Tipo 1
@@ -206,10 +206,10 @@ If cTpRel == "C"
 	ProcRegua(TMPC->(LASTREC()))
 	Processa( {|| U_GeraCSV("TMPC",cProg,aTitulos,aCampos,aCabs,,,,.F.)})
 ElseIf cTpRel == "X"
-	// XML
+	// XLSX
 	aPlans := {}
 	AADD(aPlans,{"TMPC",cProg,"",cTitulo1,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	U_GeraXml(aPlans,cTitulo1,cProg,.F.,aParam)
+	U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
 EndIf
 
 oTmpTb:Delete()
@@ -244,31 +244,31 @@ For _nI := 1 To LEN(aMeses)
 	cMes   := aMeses[_nI]
 	cCompet:= SUBSTR(cMes,5,2)+"/"+SUBSTR(cMes,1,4)
 
-	cQuery := " SELECT CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV,"
-	cQuery +=         "D2_DOC,D2_SERIE,D2_TOTAL,CNF_PRUMED,D2_EMISSAO,E1_NUM,E1_PREFIXO,E1_VALOR,E1_VENCORI,E1_BAIXA "
+	cQuery := " SELECT CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV,"+CRLF
+	cQuery +=         "D2_DOC,D2_SERIE,D2_TOTAL,CNF_PRUMED,D2_EMISSAO,E1_NUM,E1_PREFIXO,E1_VALOR,E1_VENCORI,E1_BAIXA "+CRLF
 	//cQuery +=         "SUM(D2_TOTAL) AS D2_TOTAL,MAX(CNF_PRUMED) AS CNF_PRUMED,MAX(D2_EMISSAO) AS D2_EMISSAO "
-	cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF"
-    cQuery += " INNER JOIN "+xRETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09' "
-	cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO   AND CNF_CONTRA = CNA_CONTRA AND CNA_REVISA = CNF_REVISA"
-	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-	cQuery += "      AND  CND_FILIAL = '"+xFilial("CND")+"' AND  CND.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+xRETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-	cQuery += "      AND  C6_FILIAL = '"+xFilial("SC6")+"'  AND  SC6.D_E_L_E_T_ = ' '"
-	cQuery += "	LEFT JOIN "+xRETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "
-	cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"'  AND  SD2.D_E_L_E_T_ = ' ' "
-	cQuery += "	LEFT JOIN "+xRETSQLNAME("SE1")+ " SE1 ON SD2.D2_DOC = SE1.E1_NUM AND SD2.D2_SERIE = SE1.E1_PREFIXO AND E1_CLIENTE=D2_CLIENTE AND E1_LOJA=D2_LOJA AND E1_TIPO='"+MVNOTAFIS+"' "
-	cQuery += "      AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ' "
-	cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"
-	cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"
+	cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF"+CRLF
+    cQuery += " INNER JOIN "+xRETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09' "+CRLF
+	cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
+	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO   AND CNF_CONTRA = CNA_CONTRA AND CNA_REVISA = CNF_REVISA"+CRLF
+	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"+CRLF
+	cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += " LEFT JOIN "+xRETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+CRLF
+	cQuery += "      AND  C6_FILIAL = CND_FILIAL AND  SC6.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += "	LEFT JOIN "+xRETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "+CRLF
+	cQuery += "      AND  D2_FILIAL = CND_FILIAL AND  SD2.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += "	LEFT JOIN "+xRETSQLNAME("SE1")+ " SE1 ON SD2.D2_DOC = SE1.E1_NUM AND SD2.D2_SERIE = SE1.E1_PREFIXO AND E1_CLIENTE=D2_CLIENTE AND E1_LOJA=D2_LOJA AND E1_TIPO='"+MVNOTAFIS+"' "+CRLF
+	cQuery += "      AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"+CRLF
+	cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+CRLF
     If _cEmpresa <> "14"  
-    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
+    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
     EndIf  
 	//cQuery += " GROUP BY CNF_CONTRA,CNF_NUMERO,CNF_PARCEL,CN9_REVISA,CN9_SITUAC,CN9_CLIENT,CN9_LOJACL,CN9_NOMCLI,CN9_XXDESC,CNF_COMPET,CNF_VLPREV"
-	cQuery += " ORDER BY CNF_CONTRA"
+	cQuery += " ORDER BY CNF_CONTRA"+CRLF
 
 	u_LogMemo("BKGCTR2B-CONTRATO"+_cEmpresa+".SQL",cQuery)
 
