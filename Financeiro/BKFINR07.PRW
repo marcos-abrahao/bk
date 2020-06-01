@@ -1,31 +1,20 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOPCONN.CH"
 
+/*/{Protheus.doc} BKFINR07
+BK - RELATORIO DE DESPESAS POR ITEM DO DOCUMENTO DE ENTRADA 
+@Return
+@author Marcos Bispo Abrahão
+@since 11/05/10 Rev 01/06/20
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ FINR07  º                                    Data ³11/05/10º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ RELATORIO DE DESPESAS POR ITEM DO DOCUMENTO DE ENTRADA     º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK Consultoria                                             º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-         
-/*/
+
 User Function FINR07(fFrota)
-
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
 Local cDesc2         := "de acordo com os parametros informados pelo usuario."
 Local cDesc3         := ""
-Local titulo         := "Despesas mensais por Doc. de Entrada"
+Local cTitulo        := "Despesas mensais por Doc. de Entrada"
 Local nLin           := 80
 Local Cabec1         := ""
 Local Cabec2         := ""
@@ -33,6 +22,7 @@ Local aOrd           := {}
 Local aCabs          := {}
 Local aCampos        := {}
 Local aTitulos       := {}
+Local aPlans         := {}
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
@@ -75,7 +65,7 @@ If nPlan = 2
 	//³ Monta a interface padrao com o usuario...                           ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	
-	wnrel := SetPrint(cString,NomeProg,cPerg,@titulo,cDesc1,cDesc2,cDesc3,.T.,aOrd,.T.,Tamanho,,.T.)
+	wnrel := SetPrint(cString,NomeProg,cPerg,@cTitulo,cDesc1,cDesc2,cDesc3,.T.,aOrd,.T.,Tamanho,,.T.)
 	
 	If nLastKey == 27
 		Return
@@ -94,7 +84,7 @@ If nPlan = 2
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	
 	Processa( {|| ProcGer1(@Titulo) })
-	RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
+	RptStatus({|| RunReport(Cabec1,Cabec2,cTitulo,nLin) },cTitulo)
 	QSD1->(Dbclosearea())
 	
 Else
@@ -111,13 +101,13 @@ Else
 		//EndDo
 
 
-	Processa( {|| ProcGer1(@Titulo) })
+	Processa( {|| ProcGer1(@cTitulo) })
 
 	aCabs   := {}
 	aCampos := {}
 	aTitulos:= {}
 
-	AADD(aTitulos,titulo)
+	AADD(aTitulos,ctitulo)
 
 	AADD(aCampos,"QSD1->D1_COD")
 	AADD(aCabs  ,"Produto")
@@ -168,22 +158,16 @@ Else
 
 	AADD(aCampos,"QSD1->D1_XXHIST")
 	AADD(aCabs  ,"Historico")
-
-	ProcRegua(QSD1->(LASTREC()))
-	Processa( {|| GeraCSVBKFINR07("QSD1",cPerg,aTitulos,aCampos,aCabs)})
-	QSD1->(Dbclosearea())
-
-	//AADD(aPlans,{"QSD1",cPerg,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	//U_GeraXml(aPlans,Titulo,cPerg,.F.)
-
+	
+	AADD(aPlans,{"QSD1",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+	U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
 
 Endif	
-
 	
 Return
 
 
-Static Function procger1(Titulo)
+Static Function procger1(cTitulo)
 Local cQuery
 
 If SELECT("QSD1") > 0 
@@ -191,59 +175,55 @@ If SELECT("QSD1") > 0
    	dbCloseArea()
 EndIf
 
-Titulo := "Despesas mensais por Doc. de Entrada: "
+cTitulo := "Despesas mensais por Doc. de Entrada: "
 
-cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"
-cQuery += "D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN "
-//IF fGFrota
-	cQuery += ",CONVERT(VARCHAR(8000),CONVERT(Binary(8000),D1_XXHIST)) D1_XXHIST "
-//ENDIF
+cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"+CRLF
+cQuery += "D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN "+CRLF
+cQuery += ",CONVERT(VARCHAR(8000),CONVERT(Binary(8000),D1_XXHIST)) D1_XXHIST "+CRLF
 cQuery += "FROM "+RETSQLNAME("SD1")+" SD1 "
-cQuery += "INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "
-cQuery += "INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ' ' "                                          
-cQuery += "INNER JOIN "+RETSQLNAME("CTT")+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "
-cQuery += "LEFT  JOIN "+RETSQLNAME("SC7")+" SC7 ON D1_FILIAL = C7_FILIAL AND D1_PEDIDO = C7_NUM AND D1_ITEMPC = C7_ITEM AND SC7.D_E_L_E_T_ = ' ' "
-
-cQuery += "WHERE SD1.D_E_L_E_T_ = ' '  "
+cQuery += "INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "INNER JOIN "+RETSQLNAME("CTT")+" CTT ON CTT_FILIAL = '"+xFilial("CTT")+"' AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "LEFT  JOIN "+RETSQLNAME("SC7")+" SC7 ON D1_FILIAL = C7_FILIAL AND D1_PEDIDO = C7_NUM AND D1_ITEMPC = C7_ITEM AND SC7.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
 
 IF !EMPTY(dDtIni)
 	IF fGFrota
-		cQuery += "AND (D1_EMISSAO >= '"+DTOS(dDtIni)+"' OR D1_DTDIGIT >= '"+DTOS(dDtIni)+"') "
-   		titulo += " de "+DTOC(dDtIni)
+		cQuery += "AND (D1_EMISSAO >= '"+DTOS(dDtIni)+"' OR D1_DTDIGIT >= '"+DTOS(dDtIni)+"') "+CRLF
+   		ctitulo += " de "+DTOC(dDtIni)
   	ELSE
-		cQuery += "AND D1_DTDIGIT >= '"+DTOS(dDtIni)+"' "
-   		titulo += " de "+DTOC(dDtIni)
+		cQuery += "AND D1_DTDIGIT >= '"+DTOS(dDtIni)+"' "+CRLF
+   		ctitulo += " de "+DTOC(dDtIni)
   	ENDIF
 ENDIF
 IF !EMPTY(dDtFim)
 	IF fGFrota
-   		cQuery += "AND (D1_EMISSAO <= '"+DTOS(dDtFim)+"' OR D1_DTDIGIT <= '"+DTOS(dDtFim)+"') " 
-   		titulo += " ate "+DTOC(dDtFim)
+   		cQuery += "AND (D1_EMISSAO <= '"+DTOS(dDtFim)+"' OR D1_DTDIGIT <= '"+DTOS(dDtFim)+"') " +CRLF
+   		ctitulo += " ate "+DTOC(dDtFim)
 	ELSE
-   		cQuery += "AND D1_DTDIGIT <= '"+DTOS(dDtFim)+"' "
-   		titulo += " ate "+DTOC(dDtFim)
+   		cQuery += "AND D1_DTDIGIT <= '"+DTOS(dDtFim)+"' "+CRLF
+   		ctitulo += " ate "+DTOC(dDtFim)
 	ENDIF
 ENDIF
-
 
 IF fGFrota
-	cQuery += " AND SD1.D1_COD IN ('320200505','320200507','320200527','320200607','41205021') "
+	cQuery += " AND SD1.D1_COD IN ('320200505','320200507','320200527','320200607','41205021') "+CRLF
 ELSEIF !EMPTY(cProduto) .AND. ExistCpo("SB1",cProduto) 
-	cQuery += " AND SD1.D1_COD = '"+ALLTRIM(cProduto)+"' "
-	titulo += " - Produto: "+ALLTRIM(cProduto)
+	cQuery += " AND SD1.D1_COD = '"+ALLTRIM(cProduto)+"' "+CRLF
+	ctitulo += " - Produto: "+ALLTRIM(cProduto)
 ENDIF
 IF !EMPTY(cCustoDe)
-	cQuery += " AND SD1.D1_CC >= '"+ALLTRIM(cCustoDe)+"' "
-	titulo += " - Contrato de: "+ALLTRIM(cCustoDe)+IIF(!EMPTY(cCustoAte)," até "+ALLTRIM(cCustoAte),"")
+	cQuery += " AND SD1.D1_CC >= '"+ALLTRIM(cCustoDe)+"' "+CRLF
+	ctitulo += " - Contrato de: "+ALLTRIM(cCustoDe)+IIF(!EMPTY(cCustoAte)," até "+ALLTRIM(cCustoAte),"")
 ENDIF
 IF !EMPTY(cCustoAte)
-	cQuery += " AND SD1.D1_CC <= '"+ALLTRIM(cCustoAte)+"' "
+	cQuery += " AND SD1.D1_CC <= '"+ALLTRIM(cCustoAte)+"' "+CRLF
 	IF EMPTY(cCustoDe)
-		titulo += " - Contrato até: "+ALLTRIM(cCustoAte)
+		ctitulo += " - Contrato até: "+ALLTRIM(cCustoAte)
 	ENDIF
 ENDIF
 
-cQuery += "ORDER BY D1_COD,D1_DTDIGIT,D1_DOC "
+cQuery += "ORDER BY D1_COD,D1_DTDIGIT,D1_DOC "+CRLF
 
 u_LogMemo("BKFINR07.SQL",cQuery)
 
@@ -467,129 +447,6 @@ RestArea(aArea)
 Return(NIL)
 
 
-STATIC Function GeraCSVBKFINR07(_cAlias,cArqS,aTitulos,aCampos,aCabs)
-Local nHandle
-Local cCrLf   := Chr(13) + Chr(10)
-Local _ni
-Local cPicN   := "@E 99999999.99999"
-Local cDirTmp := "C:\TMP"
-Local cArqTmp := cDirTmp+"\"+TRIM(cArqS)+".CSV"
-Local lSoma,aSoma,nCab
-Local cLetra
-
-Private xCampo
-
-MakeDir(cDirTmp)
-fErase(cArqTmp)
-
-lSoma := .F.
-aSoma := {}
-nCab  := 0
-
-nHandle := MsfCreate(cArqTmp,0)
-   
-If nHandle > 0
-      
-   FOR _ni := 1 TO LEN(aTitulos)
-      fWrite(nHandle, aTitulos[_ni])
-      fWrite(nHandle, cCrLf ) // Pula linha
-      nCab++
-   NEXT
-
-   FOR _ni := 1 TO LEN(aCabs)
-   		fWrite(nHandle, aCabs[_ni] + IIF(_ni < LEN(aCabs),";",""))
-   NEXT
-   nCab++
-
-   fWrite(nHandle, cCrLf ) // Pula linha
-
-   (_cAlias)->(dbgotop())
-   Do While (_cAlias)->(!eof())
-
-      IF !lSoma
-         For _ni :=1 to LEN(aCampos)
-           	xCampo := &(aCampos[_ni])
-           	If VALTYPE(xCampo) == "N" // Trata campos numericos
-               	cLetra := CHR(_ni+64)
-               	IF cLetra > "Z"
-               		cLetra := "A"+CHR(_ni+64-26)
-               	ENDIF
-               	AADD(aSoma,'=Soma('+cLetra+ALLTRIM(STR(nCab))+':')
-           	Else
-               	AADD(aSoma,"")
-           	Endif
-         Next
-         lSoma := .T.
-      ENDIF
-   
-      IncProc("Gerando arquivo "+cArqS)   
-
-      For _ni :=1 to LEN(aCampos)
-        xCampo := &(aCampos[_ni])
-                                                    
-        _uValor := ""
-            
-        If VALTYPE(xCampo) == "D" // Trata campos data
-           	_uValor := dtoc(xCampo)
-        Elseif VALTYPE(xCampo) == "N" // Trata campos numericos
-           	_uValor := transform(xCampo,cPicN)
-	         Elseif VALTYPE(xCampo) == "C" .OR. VALTYPE(xCampo) == "M"// Trata campos caracter
-	             //_uValor := xCampo+CHR(160)
-	            //_uValor := '="'+ALLTRIM(xCampo)+'"'
-                //_uValor := '="'+STRTRAN(ALLTRIM(xCampo),";",",")+'"'
-
-                
-                //_uValor := '="'
-                xCampo := ALLTRIM(xCampo)
-                for nxx := 1 to len(xCampo)
-                	xxChar := SUBSTR(xCampo,nxx,1)
-                	IF ASC(xxChar) >= 32 .AND. SUBSTR(xCampo,nxx,1) <> ";"
-                       _uValor += SUBSTR(xCampo,nxx,1) 
-                    ENDIF
-                next
-                //_uValor += '"'
-                
-
-         		IF LEN(ALLTRIM(_uValor)) > 250
-            		_uValor := OEMTOANSI(ALLTRIM(_uValor))
-            	ELSE
-            		_uValor := '="'+OEMTOANSI(ALLTRIM(_uValor))+'"'
-            	ENDIF
-                
-	         Endif
-           
-      	fWrite(nHandle, _uValor + IIF(_ni < LEN(aCampos),";",""))
-      Next _ni
-      nCab++   
-      
-      fWrite(nHandle, cCrLf )
-
-      (_cAlias)->(dbskip())
-         
-   Enddo
-   IF lSoma
-	   FOR _ni := 1 TO LEN(aSoma)
-           cLetra := CHR(_ni+64)
-           IF cLetra > "Z"
-              cLetra := "A"+CHR(_ni+64-26)
-           ENDIF
-	       IF !EMPTY(aSoma[_ni])
-              aSoma[_ni] += cLetra+ALLTRIM(STR(nCab))+')'
-	       ENDIF
-	       fWrite(nHandle, aSoma[_ni] + IIF(_ni < LEN(aSoma),";",""))
-	   NEXT
-   ENDIF	
-      
-   fClose(nHandle)
-      
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel",cPerg)
-   ShellExecute("open", cArqTmp,"","",1)
-
-Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp,cPerg)
-Endif
-   
-Return
 
 
 User Function FINR072()

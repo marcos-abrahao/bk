@@ -11,11 +11,6 @@ BK - Titulos a Pagar com Histórico
 /*/
 //-------------------------------------------------------------------
 
-User Function BKTESTE()
-U_BKFINR27()
-Return Nil
-
-
 User Function BKFINR27()
 
 Local nF    	:= 0
