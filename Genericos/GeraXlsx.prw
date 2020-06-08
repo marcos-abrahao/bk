@@ -1107,6 +1107,10 @@ If Len(aLocPar) > 0
 		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
 		nLin++
 	Next
+	oExcel:Cell(nLin,1,"Emitido por: "+Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName(),,nTit3Style)
+	nLin++
+	oExcel:Cell(nLin,1,"Data Base: "+DTOC(dDataBase),,nTit3Style)
+	nLin++
 	oExcel:Cell(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]),,nTit3Style)
 	nLin++
 	oExcel:Cell(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]),,nTit3Style)

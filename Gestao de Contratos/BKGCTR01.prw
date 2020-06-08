@@ -136,7 +136,7 @@ Else
 	AADD(aCampos,"QTMP->CTT_DESC01")
 	AADD(aCabs  ,"Centro de Custos")
 
-	AADD(aCampos,"QTMP->CN9_XXNRBK")
+	AADD(aCampos,"U_BUSCACN9(QTMP->CNF_CONTRA,'CN9_XXNRBK')")
 	AADD(aCabs  ,"Gestor "+ALLTRIM(SM0->M0_NOME))
 
 	AADD(aCampos,"QTMP->CNA_NUMERO")
@@ -508,7 +508,7 @@ cPerg := PADR(cPerg,10)
 
 AADD(aRegistros,{cPerg,"01","Mes de Competencia"  ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"02","Ano de Competencia"  ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Gerar Planilha? "    ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","CSV","CSV","CSV","","","XML","XML","XML","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"03","Gerar Planilha? "    ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","CSV","CSV","CSV","","","XLSX","XLSX","XLSX","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
