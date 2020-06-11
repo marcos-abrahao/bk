@@ -119,7 +119,17 @@
 			"args": [],
 			"label": "SIGAADV",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "u_ytstDB",
+			"description": ""
+		},
+		{
+			"args": [],
+			"label": "u_tst2Excel",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigafin"
+	"lastProgramExecuted": "u_tst2Excel"
 }

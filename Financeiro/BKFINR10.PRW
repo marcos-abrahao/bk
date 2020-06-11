@@ -941,7 +941,7 @@ Else
 		EndIf
 	EndIf
 
-	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
+	U_GeraXml(aPlans,cTitulo,cPerg,.F.)
 EndIf
 
 oTmpTb2:Delete() 

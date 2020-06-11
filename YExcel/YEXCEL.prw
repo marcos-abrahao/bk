@@ -1998,7 +1998,7 @@ METHOD AddTabela(cNome,nLinha,nColuna,nQtdPlan) CLASS YExcel
 	Local oTable
 	Local cID
 	Default nQtdPlan	:= Len(::aPlanilhas)
-	PARAMTYPE 0	VAR cNome  AS CHARACTER 		OPTIONAL DEFAULT lower(CriaTrab(,.F.))
+	PARAMTYPE 0	VAR cNome  AS CHARACTER 		OPTIONAL DEFAULT lower(GetNextAlias())
 	PARAMTYPE 1	VAR nLinha  AS NUMERIC 			OPTIONAL DEFAULT ::adimension[2][1]
 	PARAMTYPE 2	VAR nColuna  AS NUMERIC
 	::nIdRelat++
