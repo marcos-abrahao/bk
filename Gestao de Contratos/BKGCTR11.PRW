@@ -143,7 +143,7 @@ cCCRE_Prod	:= GetMv("MV_XXCCREP") //INUTILIZADO //"|34202016|"
 cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|34202057|34202086|"    cod produtos rateio no contrato
 cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********                               cod grupo de produto rateio no contrato
 
-cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
+cNINC_Verb	:= "|875|910|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
 
 aContrCons	:= {}
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
@@ -3690,7 +3690,7 @@ cCCRE_Verb	:= GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
 cCCRE_Prod	:= GetMv("MV_XXCCREP") //"|34202016|"
 cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|34202057|34202086|"    cod produtos rateio no contrato
 cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********                               cod grupo de produto rateio no contrato
-cNINC_Verb	:= "|875|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
+cNINC_Verb	:= "|875|910|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
 
 aContrCons	:= {}
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
