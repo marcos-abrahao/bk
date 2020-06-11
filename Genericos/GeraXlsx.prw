@@ -368,6 +368,9 @@ FOR nPl := 1 TO LEN(_aPlans)
 			//Tipo	:= ValType(xCampo)
 			//If !Empty(_aFormat[nI])
 				cTipo := _aFormat[nI]
+			//If cTipo $ "CM"
+			//	xCampo := StrTran( xCampo, '&', "E" )
+			//EndIf
 			//EndIf
 
 			nF		:= 0
