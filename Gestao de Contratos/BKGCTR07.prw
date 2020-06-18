@@ -107,6 +107,18 @@ AADD(aCabs  ,"Municipio")
 AADD(aCampos,"QTMP->CNF_COMPET")
 AADD(aCabs  ,"Competencia")
 
+AADD(aCampos,"QTMP->XX_PROD")
+AADD(aCabs  ,"Produto")
+
+AADD(aCampos,"QTMP->B1_DESC")
+AADD(aCabs  ,"Desc.Produto")
+
+AADD(aCampos,"QTMP->B1_CODISS")
+AADD(aCabs  ,"Cod Iss")
+
+AADD(aCampos,"QTMP->B1_ALIQISS")
+AADD(aCabs  ,"% Iss")
+
 AADD(aCampos,"QTMP->CND_NUMMED")
 AADD(aCabs  ,"Medição")
 
@@ -206,7 +218,7 @@ Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-cQuery := " SELECT DISTINCT F2_FILIAL,CN9_CLIENT AS XX_CLIENTE,CN9_LOJACL AS XX_LOJA,CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
+cQuery := " SELECT DISTINCT F2_FILIAL,CN9_CLIENT AS XX_CLIENTE,CN9_LOJACL AS XX_LOJA,C6_PRODUTO AS XX_PROD,B1_DESC,B1_CODISS,B1_ALIQISS,CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
 cQuery += "    CTT_DESC01, "+ CRLF
@@ -251,6 +263,8 @@ cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND 
 cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+ CRLF
 cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON C6_PRODUTO = B1_COD"+ CRLF
+cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+ CRLF
 cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+ CRLF
 //cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"
@@ -267,7 +281,7 @@ cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "
 cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
 
 cQuery += " UNION ALL "+ CRLF
-cQuery += " SELECT DISTINCT F2_FILIAL,F2_CLIENTE AS XX_CLIENTE,F2_LOJA AS XX_LOJA,"+ CRLF
+cQuery += " SELECT DISTINCT F2_FILIAL,F2_CLIENTE AS XX_CLIENTE,F2_LOJA AS XX_LOJA,D2_COD AS XX_PROD,B1_DESC,B1_CODISS,B1_ALIQISS,"+ CRLF
 cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF
 cQuery += "        ' ',' ',0,0, "  // CNF_CONTRA,CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, "  // CTT_DESC01
@@ -292,6 +306,11 @@ cQuery += " FROM "+RETSQLNAME("SF2")+" SF2" + CRLF
 //cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA" + CRLF
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE = F2_SERIE AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA" + CRLF
+cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"' AND  SD2.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
+cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
+
 cQuery += " WHERE ("+cqContr+" = ' ' OR " + CRLF
 cQuery +=           cqContr+" IS NULL ) " + CRLF
 IF nTipo == 1
