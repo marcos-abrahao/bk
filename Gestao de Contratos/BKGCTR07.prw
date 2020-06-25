@@ -6,7 +6,7 @@
 BK - Mapa de INSS retido
 
 @author Marcos B. Abrahão
-@since 05/05/11 rev 18/05/20
+@since 05/05/11 rev 17/06/20
 @version P12
 @return Nil
 /*/
@@ -164,7 +164,7 @@ AADD(aCabs  ,"Desconto na NF")
 AADD(aCampos,"QTMP->XX_E5MULTA")
 AADD(aCabs  ,"Cliente não Reteve")
 
-IF FWCodEmp() == "12"  
+IF FWCodEmp() == "12"  .OR. FWCodEmp() == "02"
 	AADD(aCampos,"VAL(STR(((QTMP->F2_VALFAT*0.32)*0.15),14,02))")
 	AADD(aCabs  ,"IRPJ Apuração")
 	
@@ -238,18 +238,18 @@ cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CN
 cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 
 cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO, "+ CRLF
+cQuery += "        AND SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO, "+ CRLF
 
 cQuery += "    (SELECT TOP 1 E1_VENCORI FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCORI, "+ CRLF
+cQuery += "        AND SE1.D_E_L_E_T_ = ' ') AS XX_VENCORI, "+ CRLF
 
 cQuery += "    (SELECT TOP 1 E1_BAIXA FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_BAIXA, "+ CRLF
+cQuery += "        AND SE1.D_E_L_E_T_ = ' ') AS XX_BAIXA, "+ CRLF
 
 cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, "+ CRLF
+cQuery += "      AND SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, "+ CRLF
 cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA "+ CRLF
+cQuery += "      AND SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA "+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
 
@@ -287,19 +287,19 @@ cQuery += "        ' ',' ',0,0, "  // CNF_CONTRA,CNF_REVISA,CNF_COMPET,CNF_VLPRE
 cQuery += "        A1_NOME, "  // CTT_DESC01
 cQuery += "        ' ',' ', "  // CNA_NUMERO,CNA_XXMUN
 cQuery += "        ' ', "      // CND_NUMMED
-cQuery += "        ' ', "      // C6_NUM
+cQuery += "        D2_PEDIDO AS C6_NUM, "   // C6_NUM
 cQuery += "        0,0, "  + CRLF   // XX_BONIF,XX_MULTA
 cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
-cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO, " + CRLF
+cQuery += "            AND SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO, " + CRLF
 cQuery += "        (SELECT TOP 1 E1_VENCORI FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
-cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCORI, " + CRLF
+cQuery += "            AND SE1.D_E_L_E_T_ = ' ') AS XX_VENCORI, " + CRLF
 cQuery += "        (SELECT TOP 1 E1_BAIXA FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
-cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_BAIXA, " + CRLF
+cQuery += "            AND SE1.D_E_L_E_T_ = ' ') AS XX_BAIXA, " + CRLF
 cQuery += "        (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "  + CRLF
-cQuery += "            AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, " + CRLF
+cQuery += "            AND SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, " + CRLF
 cQuery += "        (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "            AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA "+ CRLF
+cQuery += "            AND SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA "+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("SF2")+" SF2" + CRLF
 //cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = "+cqContr

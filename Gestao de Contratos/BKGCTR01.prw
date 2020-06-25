@@ -154,11 +154,14 @@ Else
 	AADD(aCampos,"QTMP->C6_NUM")
 	AADD(aCabs  ,"Pedido")
    
-	AADD(aCampos,"QTMP->F2_DOC")
-	AADD(aCabs  ,"Nota Fiscal")
+	AADD(aCampos,"QTMP->C5_EMISSAO")
+	AADD(aCabs  ,"Emissao Ped.")
 
 	AADD(aCampos,"QTMP->F2_EMISSAO")
-	AADD(aCabs  ,"Emissao")
+	AADD(aCabs  ,"Emissao NF")
+
+	AADD(aCampos,"QTMP->F2_DOC")
+	AADD(aCabs  ,"Nota Fiscal")
    
 	AADD(aCampos,"QTMP->XX_VENCTO")
 	AADD(aCabs  ,"Vencimento")
@@ -240,6 +243,7 @@ cQuery += "    CTT_DESC01, "+ CRLF
 cQuery += "    CNA_NUMERO,CNA_XXMUN, "+ CRLF
 cQuery += "    CND_NUMMED, "+ CRLF
 cQuery += "    C6_NUM, "+ CRLF
+cQuery += "    C6_DATCPL AS C5_EMISSAO, "+ CRLF
 
 // 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
 cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
@@ -251,7 +255,7 @@ cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CN
 cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 
 cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
+cQuery += "        AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
 
@@ -281,20 +285,25 @@ cQuery += " UNION ALL "+ CRLF
 cQuery += " SELECT DISTINCT "+ CRLF
 cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF
 cQuery += "        ' ',' ',' ',0,0, "  // CNF_CONTRA,CNF_REVISA,CNF_COMPET,CN9_XXNRBK,CNF_VLPREV,CNF_SALDO
-cQuery += "        A1_NOME, "  // CTT_DESC01
-cQuery += "        ' ',' ', "  // CNA_NUMERO,CNA_XXMUN
-cQuery += "        ' ', "      // CND_NUMMED
-cQuery += "        ' ', "      // C6_NUM
+cQuery += "        A1_NOME, " + CRLF // CTT_DESC01
+cQuery += "        ' ',' ', " + CRLF // CNA_NUMERO,CNA_XXMUN
+cQuery += "        ' ', " + CRLF     // CND_NUMMED
+cQuery += "        D2_PEDIDO AS C6_NUM, "      // C6_NUM
+cQuery += "        C5_EMISSAO, "+ CRLF
 cQuery += "        0,0, " + CRLF     // XX_BONIF,XX_MULTA
 cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
+cQuery += "            AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("SF2")+" SF2"+ CRLF
 //cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = "+cqContr
 //cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA"+ CRLF
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE = F2_SERIE AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA" + CRLF
+cQuery += "      AND  D2_FILIAL = F2_FILIAL AND SD2.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
+cQuery += "      AND  C5_FILIAL = D2_FILIAL AND  SD2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " WHERE ("+cqContr+" = ' ' OR "+ CRLF
 cQuery +=           cqContr+" IS NULL ) "+ CRLF
 cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"'" + CRLF
@@ -312,6 +321,7 @@ u_LogMemo("BKGCTR01.SQL",cQuery)
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
 TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
+TCSETFIELD("QTMP","C5_EMISSAO","D",8,0)
 u_LogMemo("BKGCTR01.SQL",cQuery)
 
 Return

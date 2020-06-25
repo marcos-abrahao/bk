@@ -234,7 +234,7 @@ FT_FGOTOP() //vai para o topo
 Procregua(FT_FLASTREC())  //quantos registros para ler
  
 While !FT_FEOF()
- 
+
 	IncProc('Carregando Arquivo')
  
 	//Capturar dados

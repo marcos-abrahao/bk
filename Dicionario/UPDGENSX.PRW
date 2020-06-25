@@ -5,7 +5,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"01/06/2020"
+#DEFINE FIN_LAST_UPDATED 		"25/06/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -935,353 +935,449 @@ Local cQuery := ""
 Local cNFil  := ""
 Local cTable := ""
 
-cTexto  += "Inicio da Atualizacao" + CRLF 
+/*
+Bom dia a todos,
+
+Conforme solicitado pelo Dep. Fiscal e Contabilidade, iremos cadastrar no sistema as seguintes filiais para a Empresa BK:
+
+03.022.122/0005-09 – Brasília - DF
+03.022.122/0006-81 – Rio de janeiro - RJ
+03.022.122/0007-62 – Salvador - BA
+03.022.122/0008-43 – Betim - MG
+03.022.122/0009-24 – Ipojuca - PE
+03.022.122/0010-68 - SAO FRANCISCO DE ITABAPOANA -  RJ
+03.022.122/0011-49 - SAO JOAO DA BARRA - RJ
+03.022.122/0012-20 - CABO FRIO - RJ
+03.022.122/0013-00 - CAMPOS DOS GOYTACAZES - RJ
+03.022.122/0014-91 - CASIMIRO DE ABREU - RJ
+03.022.122/0015-72 - ARMACAO DOS BUZIOS - RJ
+03.022.122/0016-53 - ARRAIAL DO CABO - RJ
+03.022.122/0017-34 - RIO DAS OSTRAS - RJ
+
+A definição de uso de filiais é definida no momento da implantação do sistema, que foi realizada em 2009, portanto o analista da Totvs que implantou o sistema nesta época, seguiu o seguinte conceito:
+Módulo Faturamento: Exclusivo
+Módulo de Compras: Exclusivo
+Módulo de Fiscal: Exclusivo
+Módulo Financeiro: Exclusivo
+Modulo Contábil: Exclusivo
+Módulo de Gestão de Contratos: Exclusivo
+
+Para adequarmos o sistema a incorporação de novas filiais, iremos alterar para a seguinte configuração:
+
+Módulo Faturamento: Exclusivo
+Módulo de Compras: Exclusivo (utilizará somente a Matriz)
+Módulo de Fiscal: Exclusivo
+Módulo Financeiro: ** Exclusivo
+Modulo Contábil: Compartilhado
+Módulo de Gestão de Contratos: Exclusivo (utilizará somente a matriz, com opção em contratos específicos de se efetuar medições em outras filiais).
+
+OBS: 
+Modo exclusivo: O usuário seleciona a filial que vai trabalhar na entrada do sistema e todas as operações serão válidas apenas pela filial selecionada 
+Modo compartilhado: Todas as operações serão consolidadas  
+
+Foi feito o levantamento das tabelas que terão seu modo de acesso alterado de Exclusivo para Compartilhado e um programa para efetuar as alterações e gerar as queries para adequar o banco de dados.
+
+Provavelmente, na segunda-feira, estarei disponibilizando o ambiente de testes, com a base de dados atualizada. Deixarei algumas medições faturadas em algumas filiais.
+
+Os testes deverão incorporar todas as operações realizadas no dia a dia de cada departamento, inclusive relatórios.
+
+O prazo de término para homologação será definido pela Sra. Andrea da Contabilidade, que necessita desta implantação com urgência.
+
+Informo que esta alteração no sistema é muito delicada, portanto não negligenciem nos testes para não termos problemas futuros.
+
+
+As tabelas do sistema que a princípio terão seu mode de compartilhamento alteradas são as seguintes
+
+*/
+
+
+cTexto  += "Inicio da Atualizacao - filiais BK" + CRLF 
 
 oProcess:IncRegua2( "Acertando o compartilhamento das tabelas..." )
 dbSelectArea( "SX2" )
 dbSetOrder( 1 )
 
-aAdd(aSx2,"SF4") // - Tipos de Entradas e Saídas
-aAdd(aSx2,"SF5") // - Tipos de Movimentação   
-aAdd(aSx2,"SF7") // - Grupo de Tributação    
+aAdd(aSx2,"SF4") // - *-Tipos de Entradas e Saídas
+aAdd(aSx2,"SF5") // - *-Tipos de Movimentação   
+aAdd(aSx2,"SF7") // - -Grupo de Tributação    
 
 // Produtos e tabelas filhas
-aAdd(aSx2,"SB1") // - Produtos
-aAdd(aSx2,"SB5") // - Complemento Produtos
-aAdd(aSx2,"SBE") // - Localização Física
-aAdd(aSx2,"SBM") // - Grupos
-aAdd(aSx2,"D3E") // - Dados complementares produto  
-aAdd(aSx2,"SZI") // - Sub Grupos
+aAdd(aSx2,"SB1") // - *Produtos
+aAdd(aSx2,"SB4") // - *Referência de Produto 
+aAdd(aSx2,"SB5") // - -Complemento Produtos
+//aAdd(aSx2,"SBE") // *Localização Física
+aAdd(aSx2,"SBM") // - *Grupos
+aAdd(aSx2,"SBV") // - *Tabela Itens Grade
+aAdd(aSx2,"D3E") // - -Dados complementares produto  
+aAdd(aSx2,"SZI") // - *Sub Grupos
 //aAdd(aSx2,"SBZ") // - Indicadores (exclusiva)
 // F3 - Produtos
-aAdd(aSx2,"AC4") // - Parceiros                     
-aAdd(aSx2,"ALT") // - Tipos de Despesas             
-aAdd(aSx2,"CCZ") // - Natureza da Receita           
-aAdd(aSx2,"CDZ") // - Codigo de Lancamento CAT83    
-aAdd(aSx2,"DB0") // - Modelos de Carga              
-aAdd(aSx2,"EE5") // - Embalagens                    
-aAdd(aSx2,"EEI") // - Tabela de Normas              
-aAdd(aSx2,"EI6") // - Tabela de IPI de Pauta        
-aAdd(aSx2,"F08") // - Cód. Enquadramento Legal IPI  
-aAdd(aSx2,"NNR") // - Locais de Estoque             
-aAdd(aSx2,"QAD") // - Departamentos/Setor           
-aAdd(aSx2,"SAH") // - Unidades de Medida            
+aAdd(aSx2,"AC4") // - *Parceiros                     
+//aAdd(aSx2,"ALT") // - *Tipos de Despesas             
+aAdd(aSx2,"CCZ") // - *Natureza da Receita           
+aAdd(aSx2,"CDZ") // - *Codigo de Lancamento CAT83    
+aAdd(aSx2,"DB0") // - -Modelos de Carga              
+aAdd(aSx2,"EE5") // - *Embalagens                    
+aAdd(aSx2,"EEI") // - *Tabela de Normas              
+aAdd(aSx2,"EI6") // - *Tabela de IPI de Pauta        
+aAdd(aSx2,"F08") // - *Cód. Enquadramento Legal IPI  
+aAdd(aSx2,"NNR") // - *Locais de Estoque             
+aAdd(aSx2,"QAD") // - *Departamentos/Setor           
+aAdd(aSx2,"SAH") // - *Unidades de Medida            
 
-aAdd(aSx2,"SAJ") // - Grupos de Compras             
-aAdd(aSx2,"SAK") // - Aprovadores                 
-aAdd(aSx2,"SAL") // - Grupos de Aprovação               
-aAdd(aSx2,"SBP") // - Base de Código Estruturado    
-aAdd(aSx2,"SG1") // - Estruturas dos Produtos 
-aAdd(aSx2,"SG2") // - Roteiro de Operações          
-aAdd(aSx2,"SG5") // - Revisões Estrutura
-aAdd(aSx2,"SGG") // - Pré-Estrutura   
-aAdd(aSx2,"SJ1") // - Naladi SH                     
-aAdd(aSx2,"SJ2") // - Naladi NCCA                   
-aAdd(aSx2,"SJC") // - Aladi                         
-aAdd(aSx2,"SYC") // - Família de Produtos           
-aAdd(aSx2,"SYD") // - Nomenclatura Comum do Mercosul
-aAdd(aSx2,"SZU") // - Grupo Financeiro Produto BK   
+aAdd(aSx2,"SAJ") // - -Grupos de Compras             
+aAdd(aSx2,"SAK") // - *Aprovadores                 
+aAdd(aSx2,"SAL") // - -Grupos de Aprovação               
+//aAdd(aSx2,"SBP") // - *Base de Código Estruturado    
+//aAdd(aSx2,"SG1") // - *Estruturas dos Produtos 
+//aAdd(aSx2,"SG2") // - *Roteiro de Operações          
+//aAdd(aSx2,"SG5") // - *Revisões Estrutura
+//aAdd(aSx2,"SGG") // - *Pré-Estrutura   
+aAdd(aSx2,"SJ1") // - *Naladi SH                     
+aAdd(aSx2,"SJ2") // - *Naladi NCCA                   
+aAdd(aSx2,"SJC") // - *Aladi                         
+aAdd(aSx2,"SYC") // - *Família de Produtos           
+aAdd(aSx2,"SYD") // - *Nomenclatura Comum do Mercosul
+aAdd(aSx2,"SZU") // - *Grupo Financeiro Produto BK   
 //aAdd(aSx2,"VE5") // - Grupos de Desconto            
 //aAdd(aSx2,"WD2") // - Status do Workflow                   
 //aAdd(aSx2,"WD3") // - Rastreabilidade do Workflow   
 
 
 // Financeiro
-aAdd(aSx2,"FI0") // - abec Log Processamento CNAB  
-aAdd(aSx2,"FI1") // - Detalhe do Log Processamento  
-aAdd(aSx2,"FI2") // - Ocorrências CNAB              
-aAdd(aSx2,"FI4") // - Ocorrências Gestor Financeiro 
-aAdd(aSx2,"FI5") // - Cenários Gestor Financeiro    
-aAdd(aSx2,"FI6") // - Itens Cenários Gestor Financei
-aAdd(aSx2,"FI7") // - Rastreamento CR               
-aAdd(aSx2,"FI8") // - Rastreamento CP               
-aAdd(aSx2,"FI9") // - Controle de DARF              
-aAdd(aSx2,"FIA") // - Provisao para cobrança duvidos
-aAdd(aSx2,"FIB") // - Header Caixa Tesouraria       
-aAdd(aSx2,"FIC") // - Itens do Lote do Cxa Tesourari
-aAdd(aSx2,"FID") // - Cadastro Operadores Caixa     
-aAdd(aSx2,"FIE") // - Relacionamento Pedidos x Adian
-aAdd(aSx2,"FIF") // - ARQUIVO CONCILIACAO SITEF     
-aAdd(aSx2,"FIG") // - Conciliacao DDA               
-aAdd(aSx2,"FIH") // - Contr. Oper. Contas a Receber 
-aAdd(aSx2,"FII") // - Contr.Oper.Contas a pagar     
-aAdd(aSx2,"FIJ") // - Saldos Caixinhas              
-aAdd(aSx2,"FIK") // - Titulo x Valor Liberado Pgto  
-aAdd(aSx2,"FIL") // - C/C Fornecedores              
-aAdd(aSx2,"FIM") // - ALIQUOTA DE ISS               
-aAdd(aSx2,"FIN") // - AVP Titulos CR                
-aAdd(aSx2,"FIO") // - Proc AVP CR                   
-aAdd(aSx2,"FIP") // - Mov AVP CR                    
-aAdd(aSx2,"FIQ") // - AVP Titulos CP                
-aAdd(aSx2,"FIR") // - Proc AVP CP                   
-aAdd(aSx2,"FIS") // - Mov AVP CP                    
-aAdd(aSx2,"FIT") // - Indices Financeiros           
-aAdd(aSx2,"FIU") // - Variação Indices Fin          
-aAdd(aSx2,"FIV") // - MOVIMENTOS DIARIOS P/NATUREZA 
-aAdd(aSx2,"FIW") // - SALDO MENSAL POR NATUREZA     
-aAdd(aSx2,"FIX") // - CABEC DE PERSISTENCIA FLUXO CX
-aAdd(aSx2,"FIY") // - PERSISTENCIA DO FLUXO DE CAIXA
-aAdd(aSx2,"FJ0") // - Lançamentos TOP               
-aAdd(aSx2,"FJ1") // - Visão Gerencial               
-aAdd(aSx2,"FJ2") // - Estrutura da Visão            
-aAdd(aSx2,"FJ3") // - Visoes Gerenciais             
-aAdd(aSx2,"FJ4") // - Rateios Jurídicos             
-aAdd(aSx2,"FJ5") // - Captacao de Recurso Terceiro  
-aAdd(aSx2,"FJ6") // - Parcela da Captação           
-aAdd(aSx2,"FJ7") // - Custo Transação Captação      
-aAdd(aSx2,"FJ8") // - Pagamento Parcela Captação    
-aAdd(aSx2,"FJ9") // - Recurso Captado               
-aAdd(aSx2,"FJA") // - Solicitação de fundo para PA  
-aAdd(aSx2,"FJH") // - Movimento da Captação         
-aAdd(aSx2,"FJI") // - Tipos de Captação             
-aAdd(aSx2,"FJJ") // - Taxa TIR da Captação          
-aAdd(aSx2,"FJM") // - Rateio da Pre-ordens de pago  
-aAdd(aSx2,"FJP") // - Processamento MCMV            
-aAdd(aSx2,"FJQ") // - CADASTRO CODIGO RET X VENCIMEN
-aAdd(aSx2,"FJR") // - Cabeçalho Ordem de Pago       
-aAdd(aSx2,"FJS") // - Modo de Pagamento             
-aAdd(aSx2,"FJU") // - Grava titulos excluidos       
-aAdd(aSx2,"FJV") // - Movimento Analitico P/Natureza
-aAdd(aSx2,"FJW") // - Cabeçalho de Previas de INSS  
-aAdd(aSx2,"FJX") // - Processamento PDD             
-aAdd(aSx2,"FJY") // - Clientes Cadastrados em PDD   
-aAdd(aSx2,"FJZ") // - Títulos Provisionados         
-aAdd(aSx2,"FK0") // - Tit. Gerados Impostos         
-aAdd(aSx2,"FK1") // - Baixas a Receber              
-aAdd(aSx2,"FK2") // - Baixas a Pagar                
-aAdd(aSx2,"FK3") // - Impostos Calculados           
-aAdd(aSx2,"FK4") // - Impostos Retidos              
-aAdd(aSx2,"FK5") // - Movimentos Bancários          
-aAdd(aSx2,"FK6") // - Valores Acessórios            
-aAdd(aSx2,"FK7") // - Tabela Auxiliar               
-aAdd(aSx2,"FK8") // - Dados contábeis               
-aAdd(aSx2,"FK9") // - Auxiliar de integração        
-aAdd(aSx2,"FKA") // - Rastreio de Movimentos        
-aAdd(aSx2,"FKB") // - Tipos de Movimentos           
-aAdd(aSx2,"FKC") // - Tipo de Valores Acessórios    
-aAdd(aSx2,"FKD") // - Títulos x Valores acessórios  
-aAdd(aSx2,"FKE") // - Complemento do Imposto        
-aAdd(aSx2,"FKF") // - COMPLEMENTO DO TITULO         
-aAdd(aSx2,"FKG") // - COMPLEMENTO IMPOSTO X TITULOS 
-aAdd(aSx2,"FKH") // - TABELA DE REVISAO EXCLUSAO TAF
-aAdd(aSx2,"FKI") // - DEDUCAO IR MENSAL POR DEP.    
-aAdd(aSx2,"FKJ") // - CADASTRO DE CPF IR PROGRESSIVO
-aAdd(aSx2,"FKK") // - Regras Financeiras Retenção   
-aAdd(aSx2,"FKL") // - Motor - Regras de Titulos     
-aAdd(aSx2,"FKM") // - Cabeçalho de tipos de retenção
-aAdd(aSx2,"FKN") // - MOTOR - Regra de Cálculo      
-aAdd(aSx2,"FKO") // - MOTOR - Regras de Retenção    
-aAdd(aSx2,"FKP") // - MOTOR - Regras de Vencimento  
-aAdd(aSx2,"FKQ") // - Tributos Fiscais Calculados   
-aAdd(aSx2,"FKS") // - Cabeçalho Tabelas Financeiras 
-aAdd(aSx2,"FKT") // - Cabeçalho Regra Cumulatividade
-aAdd(aSx2,"FKU") // - Cabeçalho Regra Val.Acessorios
-aAdd(aSx2,"FKV") // - Cabeçalho Regra Deduções      
-aAdd(aSx2,"FL0") // - Log de Integração             
-aAdd(aSx2,"FL1") // - Pedidos Reserve com Erro      
-aAdd(aSx2,"FL2") // - BKO Agência x BKO Protheus    
-aAdd(aSx2,"FL3") // - Niveis de Cargo               
-aAdd(aSx2,"FL4") // - Campos Obrigatório SRA/RD0    
-aAdd(aSx2,"FL5") // - Solicitacoes de Viagem        
-aAdd(aSx2,"FL6") // - Reservas                      
-aAdd(aSx2,"FL7") // - Passagens Aereas              
-aAdd(aSx2,"FL8") // - Rodoviario                    
-aAdd(aSx2,"FL9") // - Hospedagem                    
-aAdd(aSx2,"FLA") // - Seguro Viagem                 
-aAdd(aSx2,"FLB") // - Locacao                       
-aAdd(aSx2,"FLC") // - Passageiros                   
-aAdd(aSx2,"FLD") // - Adiantamento de Viagem        
-aAdd(aSx2,"FLE") // - Item da prestação de contas   
-aAdd(aSx2,"FLF") // - Prestação de Contas           
-aAdd(aSx2,"FLG") // - Tipos de Despesa              
-aAdd(aSx2,"FLH") // - Rateio por Centro de Custo    
-aAdd(aSx2,"FLI") // - Grupos de Acesso              
-aAdd(aSx2,"FLJ") // - Aprovadores da Reserva        
-aAdd(aSx2,"FLK") // - Gupo de Despesa               
-aAdd(aSx2,"FLL") // - ParticipantesxGrupo de Acesso 
-aAdd(aSx2,"FLM") // - Liberação do Adiantamento     
-aAdd(aSx2,"FLN") // - Aprovação Prestação de Contas 
-aAdd(aSx2,"FLO") // - Histórico Reserve Pendente    
-aAdd(aSx2,"FLP") // - Aprovador por Centro de Custo 
-aAdd(aSx2,"FLQ") // - Confirmação Valores Viagem    
-aAdd(aSx2,"FLR") // - Itens Confirmação de Valores  
-aAdd(aSx2,"FLS") // - Vigência de Tipos de Despesa  
-aAdd(aSx2,"FLT") // - Vigência do Grupo de Despesa  
-aAdd(aSx2,"FLU") // - Passageiro por Pedido         
-aAdd(aSx2,"FLV") // - Pedido vs. Conferência        
-aAdd(aSx2,"FLW") // - Comparação do Fluxo de Caixa  
-aAdd(aSx2,"FLX") // - Itens de Previas de INSS      
-aAdd(aSx2,"FLY") // - RPS x NFe                     
-aAdd(aSx2,"FLZ") // - CABEC.COMP. FLUXO CAIXA       
-aAdd(aSx2,"FO0") // - Cabeçalho de Simulaçao        
-aAdd(aSx2,"FO1") // - Títulos Negociados            
-aAdd(aSx2,"FO2") // - Títulos Gerados               
-aAdd(aSx2,"FO4") // - Extrato x Pedidos             
-aAdd(aSx2,"FO6") // - Pedido Reserve x PCO          
-aAdd(aSx2,"FO7") // - Títulos da Prestação de Contas
-aAdd(aSx2,"FO8") // - Fatura de Hotel               
-aAdd(aSx2,"FO9") // - Fatura Hotel x Notas          
-aAdd(aSx2,"FOA") // - Fatura Hotel x Titulo         
-aAdd(aSx2,"FOB") // - Fatura Hotel x Comissao       
-aAdd(aSx2,"FOC") // - Fatura Hotel x NFe            
-aAdd(aSx2,"FOD") // - CADASTROS SOCIOS SCP          
-aAdd(aSx2,"FOE") // - LUCROS/DIVIDENDOS DO SOCIO SCP
-aAdd(aSx2,"FOF") // - Processo de Compesação        
-aAdd(aSx2,"FOI") // - Tipo de retenção x Natureza   
-aAdd(aSx2,"FOJ") // - Tipo de Retenção X Clientes   
-aAdd(aSx2,"FOK") // - Tipo Retenção X Fornecedores  
-aAdd(aSx2,"FOL") // - Tipo de Retenção X Produtos   
-aAdd(aSx2,"FOM") // - Cabeçalho Repasse IRPJ        
-aAdd(aSx2,"FON") // - Itens do Repasse IRPJ         
-aAdd(aSx2,"FOO") // - Tipos de Impostos             
-aAdd(aSx2,"FOP") // - CADASTRO CONFIGURAÇÃO CNAB    
-aAdd(aSx2,"FOQ") // - CADASTRO DE ARQUIVOS CNAB     
-aAdd(aSx2,"FOS") // - Tabela de Valores tp Retenção 
-aAdd(aSx2,"FOT") // - Cumulatividade por tipo de ret
-aAdd(aSx2,"FOU") // - Val Acessórios tipo retencão  
-aAdd(aSx2,"FOV") // - FOV – Deduções tipo retenção  
-aAdd(aSx2,"FOZ") // - Cabeçalho Cad. Config. CNAB   
-aAdd(aSx2,"FR0") // - Dados Auxiliares FIN          
-aAdd(aSx2,"FR1") // - Detalhes financeiros e imposto
-aAdd(aSx2,"FR2") // - Det. financeiros e impostos CP
-aAdd(aSx2,"FR3") // - Relacionamento Pedidos x Compe
-aAdd(aSx2,"FR4") // - Apuracao IRPJ/CSLL Lucro Real 
-aAdd(aSx2,"FR5") // - Componente Apuracao IRPJ/CSLL 
-aAdd(aSx2,"FR6") // - Titulos da Apuração           
-aAdd(aSx2,"FR7") // - Filiais da Apuração           
-aAdd(aSx2,"FR9") // - REGRAS DE DOCUMENTO POR EVENTO
-aAdd(aSx2,"FRD") // - CHECKLIST DE DOC.FINANCEIRO   
-aAdd(aSx2,"FRH") // - Header Descontos Condicionais 
-aAdd(aSx2,"FRI") // - Itens Desconto Condicional.   
-aAdd(aSx2,"FRJ") // - Header NF-e Educacional     
-aAdd(aSx2,"FRK") // - Itens NF-e Educacional        
-aAdd(aSx2,"FRL") // - Filtros NF-e Educacional      
-aAdd(aSx2,"FRO") // - Analistas Financeiros         
-aAdd(aSx2,"FRP") // - Gestores Financeiros          
-aAdd(aSx2,"FRQ") // - Grupo de Analistas Financeiros
-aAdd(aSx2,"FRR") // - Grupo de Gestores Financeiros 
-aAdd(aSx2,"FRS") // - Amarra Aprovador X Superiores 
-aAdd(aSx2,"FRT") // - Saldos de Fundo Fixo          
-aAdd(aSx2,"FRU") // - Componentes do Financiamento  
-aAdd(aSx2,"FRV") // - Situação de Cobrança          
-aAdd(aSx2,"FV0") // - Cabeçalho do Documento Hábil  
-aAdd(aSx2,"FV1") // - Documentos de Origem          
-aAdd(aSx2,"FV2") // - Principal com Orçamento       
-aAdd(aSx2,"FV3") // - Detalhe Log de Importação Tef 
-aAdd(aSx2,"FV4") // - Campos Variáveis da Situação  
-aAdd(aSx2,"FV5") // - Situação X NE X DH            
-aAdd(aSx2,"FV6") // - Dados Pagamento Favorecidos   
-aAdd(aSx2,"FV7") // - Pré-Doc                       
-aAdd(aSx2,"FV8") // - Principal sem Orçamento       
-aAdd(aSx2,"FV9") // - Itens principais sem orçamento
-aAdd(aSx2,"FVA") // - Outros Lançamentos            
-aAdd(aSx2,"FVB") // - Encargos                      
-aAdd(aSx2,"FVD") // - Dedução                       
-aAdd(aSx2,"FVE") // - Recolhedores                  
-aAdd(aSx2,"FVF") // - Acréscimos                    
-aAdd(aSx2,"FVG") // - Imóveis X Pessoas             
-aAdd(aSx2,"FVH") // - Tipo de Documento X Seção     
-aAdd(aSx2,"FVI") // - Relacionamentos               
-aAdd(aSx2,"FVJ") // - Situação do Documento Hábil   
-aAdd(aSx2,"FVK") // - Tp. Doc. X Seção X Situação   
-aAdd(aSx2,"FVL") // - Despesas a Anular             
-aAdd(aSx2,"FVM") // - Itens a Anular                
-aAdd(aSx2,"FVN") // - Campos Variáveis DH           
-aAdd(aSx2,"FVO") // - Unidade Gestora Responsável   
-aAdd(aSx2,"FVP") // - Situação X Títulos Impostos   
-aAdd(aSx2,"FVQ") // - Ordens Bancárias do Doc. Hábil
-aAdd(aSx2,"FVR") // - Logs importação TEF           
-aAdd(aSx2,"FVU") // - Pessoas                       
-aAdd(aSx2,"FVV") // - Imóveis                       
-aAdd(aSx2,"FVW") // - Logs Importação Sitef.        
-aAdd(aSx2,"FVX") // - Cadastro de Justificativas    
-aAdd(aSx2,"FVY") // - Cadastro Motivos da Operadora 
-aAdd(aSx2,"FVZ") // - Filiais a Considerar          
-aAdd(aSx2,"FW0") // - Configuração de Aprovadores   
-aAdd(aSx2,"FW1") // - Processos para Bloqueio CR    
-aAdd(aSx2,"FW2") // - Sit. Cobrança x Proc. Bloquear
-aAdd(aSx2,"FW3") // - Cabeçalho Solicitação Viagem  
-aAdd(aSx2,"FW4") // - Itens da Solicitação de Viagem
-aAdd(aSx2,"FW5") // - Participantes                 
-aAdd(aSx2,"FW6") // - Centro de Custo               
-aAdd(aSx2,"FW7") // - Outros                        
-aAdd(aSx2,"FW8") // - Cabeçalho de Lotes Serasa     
-aAdd(aSx2,"FW9") // - Detalhes do Lote Serasa       
-aAdd(aSx2,"FWA") // - Situação de Titulo Serasa     
-aAdd(aSx2,"FWB") // - Movimentos do Titulo no Serasa
-aAdd(aSx2,"FWC") // - Despesas x Localização        
-aAdd(aSx2,"FWD") // - Itens Despesas x Localização  
-aAdd(aSx2,"FWM") // - Aglutinação de INSS           
-aAdd(aSx2,"FWN") // - Itens Conciliados             
-aAdd(aSx2,"FWP") // - Cartas de Cobrança            
-aAdd(aSx2,"FWQ") // - Dados dos Títulos             
-aAdd(aSx2,"FWS") // - Dados dos Títulos             
-aAdd(aSx2,"FWT") // - Cartas Enviadas               
-aAdd(aSx2,"FWZ") // - Rateio Títulos PDD            
-aAdd(aSx2,"FX0") // - Cab. Programação Financeira   
-aAdd(aSx2,"FX1") // - Itens Programação Financeira  
-aAdd(aSx2,"FX2") // - Prog. Financeira x Doc. Hábil 
-aAdd(aSx2,"FXV") // - Cafir X Imóvel                
-aAdd(aSx2,"NVR") // - Dados Juridicos(Cabecalho)    
-aAdd(aSx2,"NVS") // - Dados Juridicos (Detalhe)     
-aAdd(aSx2,"NVT") // - Rateios Juridicos (Cabecalhos)
-aAdd(aSx2,"NVU") // - Rateio Juridico Pre-Configurad
-aAdd(aSx2,"SA6") // - Bancos                        
-aAdd(aSx2,"SAQ") // - Cobradores                    
-aAdd(aSx2,"SAR") // - Cliente x Cobrador            
-aAdd(aSx2,"SE0") // - Cotações Diarias por Contrato 
-aAdd(aSx2,"SE1") // - Contas a Receber              
-aAdd(aSx2,"SE2") // - Contas a Pagar                
-aAdd(aSx2,"SE3") // - Comissões de Vendas           
-aAdd(aSx2,"SE4") // - Cond. Pgto
-aAdd(aSx2,"SE5") // - Movimentação Bancaria         
-//aAdd(aSx2,"SE6") // - Solicitação de Transferência  
-aAdd(aSx2,"SE7") // - Orçamentos                    
-aAdd(aSx2,"SE8") // - Saldos Bancários              
-aAdd(aSx2,"SE9") // - Contratos Bancários           
-aAdd(aSx2,"SEA") // - Títulos Enviados ao Banco     
-aAdd(aSx2,"SEB") // - Ocorrências da Transm Bancária
-aAdd(aSx2,"SED") // - Naturezas                     
-aAdd(aSx2,"SEE") // - Comunicação Remota            
-aAdd(aSx2,"SEF") // - Cheques                       
-aAdd(aSx2,"SEG") // - Controle de Aplicações        
-aAdd(aSx2,"SEH") // - Controle Aplicação/Emprestimo 
-aAdd(aSx2,"SEI") // - Movimento Aplicação/Emprestimo
-aAdd(aSx2,"SEJ") // - Ocorrências Extrato           
-aAdd(aSx2,"SEL") // - Recibos de Cobranças          
-aAdd(aSx2,"SEM") // - Contrato CDCI                 
-aAdd(aSx2,"SEN") // - Planos de Venda               
-aAdd(aSx2,"SEO") // - IOC                           
-aAdd(aSx2,"SEP") // - Índices Praticados            
-aAdd(aSx2,"SEQ") // - Cabeçalho do Bordero          
-aAdd(aSx2,"SER") // - Itens do Bordero              
-aAdd(aSx2,"SES") // - Tabela de Tipos de Titulos    
-aAdd(aSx2,"SET") // - Caixinhas                     
-aAdd(aSx2,"SEU") // - Movimentos do Caixinha        
-aAdd(aSx2,"SEV") // - Múltiplas Naturezas por Título
-aAdd(aSx2,"SEW") // - Rateio para Orçamentos        
-aAdd(aSx2,"SEX") // - Comissões de Cobradores       
-aAdd(aSx2,"SEY") // - Recibo x Cobradores           
-aAdd(aSx2,"SEZ") // - Distrib de Naturezas em CC    
-aAdd(aSx2,"SFE") // - Retenções de Impostos         
-aAdd(aSx2,"SFQ") // - Amarração de Parcelas         
+
+//Quando a  tabela SE2 - contas a pagar estiver compartilhada.
+//Para utilização deste modo é necessário o compartilhamento das tabelas abaixo da seguinte forma:
+
+//SB1 (Produto) - Completamente compartilhado ou exclusivo
+//SA2 (Fornecedores) - Totalmente compartilhado
+//SF1 (Cabeçalho de Doc entrada.) - Completamente exclusivo
+//SD1 (Itens de doc de  entrada.) - Completamente exclusivo
+//SF2 (Cabeçalho de Doc Saída)- Completamente exclusivo
+//SD2 (Itens de Doc Saída) - Completamente exclusivo
+//SE4 (Condições de Pagamento) - Totalmente compartilhado
+//SEK (ordens de pagamento) - Totalmente compartilhado
+//SFE (Imposto Retido na Fonte) - Totalmente compartilhado
+//SFH (Lucro Bruto) - Totalmente compartilhado
+//SFF (ganancias / Fundo Cooperativo) - Completamente compartilhado ou exclusivo
+  
+
+//aAdd(aSx2,"FI0") // - *Cabec Log Processamento CNAB  
+//aAdd(aSx2,"FI1") // - *Detalhe do Log Processamento  
+aAdd(aSx2,"FI2") // - *Ocorrências CNAB              
+//aAdd(aSx2,"FI4") // - *Ocorrências Gestor Financeiro 
+//aAdd(aSx2,"FI5") // - *Cenários Gestor Financeiro    
+//aAdd(aSx2,"FI6") // - *Itens Cenários Gestor Financei
+aAdd(aSx2,"FI7") // - *Rastreamento CR               
+aAdd(aSx2,"FI8") // - *Rastreamento CP               
+aAdd(aSx2,"FI9") // - *Controle de DARF              
+//aAdd(aSx2,"FIA") // - *Provisao para cobrança duvidos
+//aAdd(aSx2,"FIB") // - *Header Caixa Tesouraria       
+//aAdd(aSx2,"FIC") // - *Itens do Lote do Cxa Tesourari
+//aAdd(aSx2,"FID") // - *Cadastro Operadores Caixa     
+//aAdd(aSx2,"FIE") // - *Relacionamento Pedidos x Adian
+aAdd(aSx2,"FIF") // - *ARQUIVO CONCILIACAO SITEF     
+aAdd(aSx2,"FIG") // - *Conciliacao DDA               
+aAdd(aSx2,"FIH") // - *Contr. Oper. Contas a Receber 
+aAdd(aSx2,"FII") // - *Contr.Oper.Contas a pagar     
+aAdd(aSx2,"FIJ") // - *Saldos Caixinhas              
+aAdd(aSx2,"FIK") // - -Titulo x Valor Liberado Pgto  
+aAdd(aSx2,"FIL") // - *C/C Fornecedores              
+aAdd(aSx2,"FIM") // - *ALIQUOTA DE ISS               
+aAdd(aSx2,"FIN") // - *AVP Titulos CR                
+aAdd(aSx2,"FIO") // - *Proc AVP CR                   
+aAdd(aSx2,"FIP") // - *Mov AVP CR                    
+aAdd(aSx2,"FIQ") // - *AVP Titulos CP                
+aAdd(aSx2,"FIR") // - *Proc AVP CP                   
+aAdd(aSx2,"FIS") // - *Mov AVP CP                    
+aAdd(aSx2,"FIT") // - *Indices Financeiros           
+aAdd(aSx2,"FIU") // - *Variação Indices Fin          
+aAdd(aSx2,"FIV") // - *MOVIMENTOS DIARIOS P/NATUREZA 
+aAdd(aSx2,"FIW") // - *SALDO MENSAL POR NATUREZA     
+aAdd(aSx2,"FIX") // - *CABEC DE PERSISTENCIA FLUXO CX
+aAdd(aSx2,"FIY") // - *PERSISTENCIA DO FLUXO DE CAIXA
+aAdd(aSx2,"FJ0") // - -Lançamentos TOP               
+aAdd(aSx2,"FJ1") // - *Visão Gerencial               
+aAdd(aSx2,"FJ2") // - *Estrutura da Visão            
+aAdd(aSx2,"FJ3") // - *Visoes Gerenciais             
+
+//aAdd(aSx2,"FJ4") // - *Rateios Jurídicos             
+//aAdd(aSx2,"FJ5") // - *Captacao de Recurso Terceiro  
+//aAdd(aSx2,"FJ6") // - *Parcela da Captação           
+//aAdd(aSx2,"FJ7") // - *Custo Transação Captação      
+//aAdd(aSx2,"FJ8") // - *Pagamento Parcela Captação    
+//aAdd(aSx2,"FJ9") // - *Recurso Captado               
+//aAdd(aSx2,"FJA") // - *Solicitação de fundo para PA  
+//aAdd(aSx2,"FJH") // - *Movimento da Captação         
+//aAdd(aSx2,"FJI") // - *Tipos de Captação             
+//aAdd(aSx2,"FJJ") // - *Taxa TIR da Captação          
+//aAdd(aSx2,"FJM") // - *Rateio da Pre-ordens de pago  
+//aAdd(aSx2,"FJP") // - *Processamento MCMV            
+//aAdd(aSx2,"FJQ") // - *CADASTRO CODIGO RET X VENCIMEN
+//aAdd(aSx2,"FJR") // - *Cabeçalho Ordem de Pago       
+//aAdd(aSx2,"FJS") // - *Modo de Pagamento             
+//aAdd(aSx2,"FJU") // - *Grava titulos excluidos       
+
+aAdd(aSx2,"FJV") // - *Movimento Analitico P/Natureza
+//aAdd(aSx2,"FJW") // - *Cabeçalho de Previas de INSS  
+aAdd(aSx2,"FJX") // - *Processamento PDD             
+aAdd(aSx2,"FJY") // - *Clientes Cadastrados em PDD   
+aAdd(aSx2,"FJZ") // - *Títulos Provisionados         
+
+aAdd(aSx2,"FK0") // - -Tit. Gerados Impostos         
+aAdd(aSx2,"FK1") // - -Baixas a Receber              
+aAdd(aSx2,"FK2") // - -Baixas a Pagar                
+aAdd(aSx2,"FK3") // - -Impostos Calculados           
+aAdd(aSx2,"FK4") // - -Impostos Retidos              
+aAdd(aSx2,"FK5") // - -Movimentos Bancários          
+aAdd(aSx2,"FK6") // - -Valores Acessórios            
+aAdd(aSx2,"FK7") // - -Tabela Auxiliar               
+aAdd(aSx2,"FK8") // - -Dados contábeis               
+aAdd(aSx2,"FK9") // - -Auxiliar de integração        
+aAdd(aSx2,"FKA") // - -Rastreio de Movimentos        
+aAdd(aSx2,"FKB") // - -Tipos de Movimentos           
+aAdd(aSx2,"FKC") // - -Tipo de Valores Acessórios    
+aAdd(aSx2,"FKD") // - -Títulos x Valores acessórios  
+aAdd(aSx2,"FKE") // - -Complemento do Imposto        
+aAdd(aSx2,"FKF") // - -COMPLEMENTO DO TITULO         
+aAdd(aSx2,"FKG") // - -COMPLEMENTO IMPOSTO X TITULOS 
+aAdd(aSx2,"FKH") // - -TABELA DE REVISAO EXCLUSAO TAF
+aAdd(aSx2,"FKI") // - -DEDUCAO IR MENSAL POR DEP.    
+aAdd(aSx2,"FKJ") // - -CADASTRO DE CPF IR PROGRESSIVO
+aAdd(aSx2,"FKK") // - -Regras Financeiras Retenção   
+aAdd(aSx2,"FKL") // - -Motor - Regras de Titulos     
+aAdd(aSx2,"FKM") // - -Cabeçalho de tipos de retenção
+aAdd(aSx2,"FKN") // - -MOTOR - Regra de Cálculo      
+aAdd(aSx2,"FKO") // - -MOTOR - Regras de Retenção    
+aAdd(aSx2,"FKP") // - -MOTOR - Regras de Vencimento  
+aAdd(aSx2,"FKQ") // - -Tributos Fiscais Calculados   
+aAdd(aSx2,"FKS") // - -Cabeçalho Tabelas Financeiras 
+aAdd(aSx2,"FKT") // - -Cabeçalho Regra Cumulatividade
+aAdd(aSx2,"FKU") // - -Cabeçalho Regra Val.Acessorios
+aAdd(aSx2,"FKV") // - -Cabeçalho Regra Deduções 
+
+aAdd(aSx2,"FL0") // - -Log de Integração             
+aAdd(aSx2,"FL1") // - -Pedidos Reserve com Erro      
+aAdd(aSx2,"FL2") // - -BKO Agência x BKO Protheus    
+aAdd(aSx2,"FL3") // - -Niveis de Cargo               
+aAdd(aSx2,"FL4") // - -Campos Obrigatório SRA/RD0    
+aAdd(aSx2,"FL5") // - -Solicitacoes de Viagem        
+aAdd(aSx2,"FL6") // - -Reservas                      
+aAdd(aSx2,"FL7") // - -Passagens Aereas              
+aAdd(aSx2,"FL8") // - -Rodoviario                    
+aAdd(aSx2,"FL9") // - -Hospedagem                    
+aAdd(aSx2,"FLA") // - -Seguro Viagem                 
+aAdd(aSx2,"FLB") // - -Locacao                       
+aAdd(aSx2,"FLC") // - -Passageiros                   
+aAdd(aSx2,"FLD") // - -Adiantamento de Viagem        
+aAdd(aSx2,"FLE") // - -Item da prestação de contas   
+aAdd(aSx2,"FLF") // - -Prestação de Contas           
+aAdd(aSx2,"FLG") // - -Tipos de Despesa              
+aAdd(aSx2,"FLH") // - -Rateio por Centro de Custo    
+aAdd(aSx2,"FLI") // - -Grupos de Acesso              
+aAdd(aSx2,"FLJ") // - -Aprovadores da Reserva        
+aAdd(aSx2,"FLK") // - -Gupo de Despesa               
+aAdd(aSx2,"FLL") // - -ParticipantesxGrupo de Acesso 
+aAdd(aSx2,"FLM") // - -Liberação do Adiantamento     
+aAdd(aSx2,"FLN") // - -Aprovação Prestação de Contas 
+aAdd(aSx2,"FLO") // - -Histórico Reserve Pendente    
+aAdd(aSx2,"FLP") // - -Aprovador por Centro de Custo 
+aAdd(aSx2,"FLQ") // - -Confirmação Valores Viagem    
+aAdd(aSx2,"FLR") // - -Itens Confirmação de Valores  
+aAdd(aSx2,"FLS") // - -Vigência de Tipos de Despesa  
+aAdd(aSx2,"FLT") // - -Vigência do Grupo de Despesa  
+aAdd(aSx2,"FLU") // - -Passageiro por Pedido         
+aAdd(aSx2,"FLV") // - -Pedido vs. Conferência        
+aAdd(aSx2,"FLW") // - -Comparação do Fluxo de Caixa  
+aAdd(aSx2,"FLX") // - -Itens de Previas de INSS      
+//aAdd(aSx2,"FLY") // - *RPS x NFe                     
+aAdd(aSx2,"FLZ") // - -CABEC.COMP. FLUXO CAIXA       
+
+aAdd(aSx2,"FO0") // - -Cabeçalho de Simulaçao        
+aAdd(aSx2,"FO1") // - -Títulos Negociados            
+aAdd(aSx2,"FO2") // - -Títulos Gerados               
+aAdd(aSx2,"FO4") // - -Extrato x Pedidos             
+aAdd(aSx2,"FO6") // - -Pedido Reserve x PCO          
+aAdd(aSx2,"FO7") // - -Títulos da Prestação de Contas
+aAdd(aSx2,"FO8") // - -Fatura de Hotel               
+aAdd(aSx2,"FO9") // - -Fatura Hotel x Notas          
+aAdd(aSx2,"FOA") // - -Fatura Hotel x Titulo         
+aAdd(aSx2,"FOB") // - -Fatura Hotel x Comissao       
+aAdd(aSx2,"FOC") // - -Fatura Hotel x NFe            
+aAdd(aSx2,"FOD") // - -CADASTROS SOCIOS SCP          
+aAdd(aSx2,"FOE") // - -LUCROS/DIVIDENDOS DO SOCIO SCP
+aAdd(aSx2,"FOF") // - -Processo de Compesação        
+aAdd(aSx2,"FOI") // - -Tipo de retenção x Natureza   
+aAdd(aSx2,"FOJ") // - -Tipo de Retenção X Clientes   
+aAdd(aSx2,"FOK") // - -Tipo Retenção X Fornecedores  
+aAdd(aSx2,"FOL") // - -Tipo de Retenção X Produtos   
+aAdd(aSx2,"FOM") // - -Cabeçalho Repasse IRPJ        
+aAdd(aSx2,"FON") // - -Itens do Repasse IRPJ         
+aAdd(aSx2,"FOO") // - -Tipos de Impostos             
+aAdd(aSx2,"FOP") // - -CADASTRO CONFIGURAÇÃO CNAB    
+aAdd(aSx2,"FOQ") // - -CADASTRO DE ARQUIVOS CNAB     
+aAdd(aSx2,"FOS") // - -Tabela de Valores tp Retenção 
+aAdd(aSx2,"FOT") // - -Cumulatividade por tipo de ret
+aAdd(aSx2,"FOU") // - -Val Acessórios tipo retencão  
+aAdd(aSx2,"FOV") // - -FOV – Deduções tipo retenção  
+aAdd(aSx2,"FOZ") // - -Cabeçalho Cad. Config. CNAB   
+
+aAdd(aSx2,"FR0") // - -Dados Auxiliares FIN          
+aAdd(aSx2,"FR1") // - -Detalhes financeiros e imposto
+aAdd(aSx2,"FR2") // - -Det. financeiros e impostos CP
+aAdd(aSx2,"FR3") // - -Relacionamento Pedidos x Compe
+aAdd(aSx2,"FR4") // - -Apuracao IRPJ/CSLL Lucro Real 
+aAdd(aSx2,"FR5") // - -Componente Apuracao IRPJ/CSLL 
+aAdd(aSx2,"FR6") // - -Titulos da Apuração           
+aAdd(aSx2,"FR7") // - -Filiais da Apuração           
+aAdd(aSx2,"FR9") // - -REGRAS DE DOCUMENTO POR EVENTO
+aAdd(aSx2,"FRD") // - -CHECKLIST DE DOC.FINANCEIRO   
+aAdd(aSx2,"FRH") // - -Header Descontos Condicionais 
+aAdd(aSx2,"FRI") // - -Itens Desconto Condicional.   
+aAdd(aSx2,"FRJ") // - -Header NF-e Educacional     
+aAdd(aSx2,"FRK") // - -Itens NF-e Educacional        
+aAdd(aSx2,"FRL") // - -Filtros NF-e Educacional      
+aAdd(aSx2,"FRO") // - -Analistas Financeiros         
+aAdd(aSx2,"FRP") // - -Gestores Financeiros          
+aAdd(aSx2,"FRQ") // - -Grupo de Analistas Financeiros
+aAdd(aSx2,"FRR") // - -Grupo de Gestores Financeiros 
+aAdd(aSx2,"FRS") // - -Amarra Aprovador X Superiores 
+aAdd(aSx2,"FRT") // - -Saldos de Fundo Fixo          
+aAdd(aSx2,"FRU") // - -Componentes do Financiamento  
+aAdd(aSx2,"FRV") // - -Situação de Cobrança          
+
+aAdd(aSx2,"FV0") // - -Cabeçalho do Documento Hábil  
+aAdd(aSx2,"FV1") // - -Documentos de Origem          
+aAdd(aSx2,"FV2") // - -Principal com Orçamento       
+aAdd(aSx2,"FV3") // - -Detalhe Log de Importação Tef 
+aAdd(aSx2,"FV4") // - -Campos Variáveis da Situação  
+aAdd(aSx2,"FV5") // - -Situação X NE X DH            
+aAdd(aSx2,"FV6") // - -Dados Pagamento Favorecidos   
+aAdd(aSx2,"FV7") // - -Pré-Doc                       
+aAdd(aSx2,"FV8") // - -Principal sem Orçamento       
+aAdd(aSx2,"FV9") // - -Itens principais sem orçamento
+aAdd(aSx2,"FVA") // - -Outros Lançamentos            
+aAdd(aSx2,"FVB") // - -Encargos                      
+aAdd(aSx2,"FVD") // - -Dedução                       
+aAdd(aSx2,"FVE") // - -Recolhedores                  
+aAdd(aSx2,"FVF") // - -Acréscimos                    
+aAdd(aSx2,"FVG") // - -Imóveis X Pessoas             
+aAdd(aSx2,"FVH") // - -Tipo de Documento X Seção     
+aAdd(aSx2,"FVI") // - -Relacionamentos               
+aAdd(aSx2,"FVJ") // - -Situação do Documento Hábil   
+aAdd(aSx2,"FVK") // - -Tp. Doc. X Seção X Situação   
+aAdd(aSx2,"FVL") // - -Despesas a Anular             
+aAdd(aSx2,"FVM") // - -Itens a Anular                
+aAdd(aSx2,"FVN") // - -Campos Variáveis DH           
+aAdd(aSx2,"FVO") // - -Unidade Gestora Responsável   
+aAdd(aSx2,"FVP") // - -Situação X Títulos Impostos   
+aAdd(aSx2,"FVQ") // - -Ordens Bancárias do Doc. Hábil
+aAdd(aSx2,"FVR") // - -Logs importação TEF           
+aAdd(aSx2,"FVU") // - -Pessoas                       
+aAdd(aSx2,"FVV") // - -Imóveis                       
+aAdd(aSx2,"FVW") // - -Logs Importação Sitef.        
+aAdd(aSx2,"FVX") // - -Cadastro de Justificativas    
+aAdd(aSx2,"FVY") // - -Cadastro Motivos da Operadora 
+aAdd(aSx2,"FVZ") // - -Filiais a Considerar          
+
+aAdd(aSx2,"FW0") // - -Configuração de Aprovadores   
+aAdd(aSx2,"FW1") // - -Processos para Bloqueio CR    
+aAdd(aSx2,"FW2") // - -Sit. Cobrança x Proc. Bloquear
+aAdd(aSx2,"FW3") // - -Cabeçalho Solicitação Viagem  
+aAdd(aSx2,"FW4") // - -Itens da Solicitação de Viagem
+aAdd(aSx2,"FW5") // - -Participantes                 
+aAdd(aSx2,"FW6") // - -Centro de Custo               
+aAdd(aSx2,"FW7") // - -Outros                        
+aAdd(aSx2,"FW8") // - -Cabeçalho de Lotes Serasa     
+aAdd(aSx2,"FW9") // - -Detalhes do Lote Serasa       
+aAdd(aSx2,"FWA") // - -Situação de Titulo Serasa     
+aAdd(aSx2,"FWB") // - -Movimentos do Titulo no Serasa
+aAdd(aSx2,"FWC") // - -Despesas x Localização        
+aAdd(aSx2,"FWD") // - -Itens Despesas x Localização  
+aAdd(aSx2,"FWM") // - -Aglutinação de INSS           
+aAdd(aSx2,"FWN") // - -Itens Conciliados             
+aAdd(aSx2,"FWP") // - -Cartas de Cobrança            
+aAdd(aSx2,"FWQ") // - -Dados dos Títulos             
+aAdd(aSx2,"FWS") // - -Dados dos Títulos             
+aAdd(aSx2,"FWT") // - -Cartas Enviadas               
+aAdd(aSx2,"FWZ") // - -Rateio Títulos PDD            
+
+aAdd(aSx2,"FX0") // - -Cab. Programação Financeira   
+aAdd(aSx2,"FX1") // - -Itens Programação Financeira  
+aAdd(aSx2,"FX2") // - -Prog. Financeira x Doc. Hábil 
+aAdd(aSx2,"FXV") // - -Cafir X Imóvel                
+
+aAdd(aSx2,"NV3") // - *Historico de Movimentação     
+aAdd(aSx2,"NV9") // - *SINCRONIZAÇÃO JURÍDICA    
+aAdd(aSx2,"NVR") // - -Dados Juridicos(Cabecalho)    
+aAdd(aSx2,"NVS") // - -Dados Juridicos (Detalhe)     
+aAdd(aSx2,"NVT") // - -Rateios Juridicos (Cabecalhos)
+aAdd(aSx2,"NVU") // - -Rateio Juridico Pre-Configurad
+
+aAdd(aSx2,"SA6") // - *Bancos                        
+aAdd(aSx2,"SAQ") // - -Cobradores                    
+aAdd(aSx2,"SAR") // - -Cliente x Cobrador 
+
+aAdd(aSx2,"SE0") // - *Cotações Diarias por Contrato 
+aAdd(aSx2,"SE1") // - *Contas a Receber              
+aAdd(aSx2,"SE2") // - *Contas a Pagar                
+aAdd(aSx2,"SE3") // - *Comissões de Vendas 
+aAdd(aSx2,"SE4") // - *-Cond. Pgto
+aAdd(aSx2,"SE5") // - *Movimentação Bancaria         
+aAdd(aSx2,"SE6") // - *Solicitação de Transferência  
+aAdd(aSx2,"SE7") // - *Orçamentos                    
+aAdd(aSx2,"SE8") // - *Saldos Bancários              
+aAdd(aSx2,"SE9") // - *Contratos Bancários           
+aAdd(aSx2,"SEA") // - *Títulos Enviados ao Banco     
+aAdd(aSx2,"SEB") // - *Ocorrências da Transm Bancária
+aAdd(aSx2,"SED") // - *Naturezas                     
+aAdd(aSx2,"SEE") // - *Comunicação Remota            
+aAdd(aSx2,"SEF") // - *Cheques                       
+aAdd(aSx2,"SEG") // - *Controle de Aplicações        
+aAdd(aSx2,"SEH") // - *Controle Aplicação/Emprestimo 
+aAdd(aSx2,"SEI") // - *Movimento Aplicação/Emprestimo
+aAdd(aSx2,"SEJ") // - *Ocorrências Extrato           
+aAdd(aSx2,"SEL") // - *Recibos de Cobranças          
+aAdd(aSx2,"SEK") // - *Ordens de pagamento        
+aAdd(aSx2,"SEM") // - -Contrato CDCI                 
+aAdd(aSx2,"SEN") // - -Planos de Venda               
+aAdd(aSx2,"SEO") // - -IOC                           
+aAdd(aSx2,"SEP") // - -Índices Praticados            
+aAdd(aSx2,"SEQ") // - -Cabeçalho do Bordero          
+aAdd(aSx2,"SER") // - -Itens do Bordero              
+aAdd(aSx2,"SES") // - *Tabela de Tipos de Titulos    
+aAdd(aSx2,"SET") // - *Caixinhas                     
+aAdd(aSx2,"SEU") // - *Movimentos do Caixinha        
+aAdd(aSx2,"SEV") // - *Múltiplas Naturezas por Título
+aAdd(aSx2,"SEW") // - -Rateio para Orçamentos        
+aAdd(aSx2,"SEX") // - -Comissões de Cobradores       
+aAdd(aSx2,"SEY") // - -Recibo x Cobradores           
+aAdd(aSx2,"SEZ") // - -Distrib de Naturezas em CC    
+
+aAdd(aSx2,"SFE") // - *Retenções de Impostos         
+aAdd(aSx2,"SFF") // - *Ganancias / Fundo Cooperativo         
+aAdd(aSx2,"SFH") // - *Lucro Bruto         
+aAdd(aSx2,"SFQ") // - -Amarração de Parcelas         
 aAdd(aSx2,"SIE") // - Indice de Ajuste por Inflação 
 aAdd(aSx2,"SM2") // - Moedas do Sistema             
-
-
-// Outros Módulos
-aAdd(aSx2,"NP3") // - Culturas
-aAdd(aSx2,"NP4") // - 
-aAdd(aSx2,"NP7") // - Peneiras
 
 // Contabilidade Gerencial
 // Cadastros: CT1, CT5, CT8, CT9, CTA, CTB, CTD, CTE, CTG CQD, CTH, CTJ, CTL, CTN, CTO, CTP, CTR, CTS, CTT, CV5, CV9, CVA, CVB, CVC, CVD,CVE,CVF
 // Movimentos e Saldos: CT2, CT3, CT4, ,CT7, CTI, CTU, CTV, CTW, CTX, CTY, CT6, CTC, CTF, CTK, CTZ, CV1, CV2, CV3, CV4, CV6, CV7, CV8 e CVO.
 // P12: CQ0, CQ1, CQ2, CQ3, CQ4, CQ5, CQ6, CQ07 CQ8, CQ9, CQA e CSQ
 
-aAdd(aSx2,"C1O") // - Plano de Contas Contábeis   
-aAdd(aSx2,"C1P") // - Centros de Custo
-aAdd(aSx2,"CH5") // - Plano de Contas Referencial  
+aAdd(aSx2,"C1H") // - *Cadastro de Participantes     
+aAdd(aSx2,"C1I") // - *Alteracao Participante  
+aAdd(aSx2,"C1J") // - *Unidade de Medida 
+aAdd(aSx2,"C1K") // - -Fatores de Conversão da UM   
+aAdd(aSx2,"C1L") // - *Identificação do Item  
+aAdd(aSx2,"C1M") // - *Controle Alteração Item   
+aAdd(aSx2,"C1O") // - *Plano de Contas Contábeis   
+aAdd(aSx2,"C1P") // - *Centros de Custo
+
+
+aAdd(aSx2,"CH5") // - *Plano de Contas Referencial  
+aAdd(aSx2,"CHH") // - *Subcontas Correlatas      
 
 //aAdd(aSx2,"C3Q") // - Informações Complementares    
 //aAdd(aSx2,"C3R") // - Plano de Contas Referencial  
@@ -1289,126 +1385,127 @@ aAdd(aSx2,"CH5") // - Plano de Contas Referencial
 //aAdd(aSx2,"C6O") // - Plano de Contas Referencial  
 
 
-aAdd(aSx2,"CT0") // - Conf. De Entidades Contábeis
-aAdd(aSx2,"CT1") // - Plano de Contas
-aAdd(aSx2,"CT2") // - Lançamentos Contábeis
-aAdd(aSx2,"CT3") // - Saldos Centro de Custo
-aAdd(aSx2,"CT4") // - Saldos Item Contábil
-aAdd(aSx2,"CT5") // - Lançamento Padrão
-aAdd(aSx2,"CT6") // - Totais de Lotes
-aAdd(aSx2,"CT7") // - Saldos Planos de Contas
-aAdd(aSx2,"CT8") // - Historico Padrão
-aAdd(aSx2,"CT9") // - Rateio On-Line
-aAdd(aSx2,"CTA") // - Regras de Amarração
-aAdd(aSx2,"CTB") // - Roteiro Consolidação
-aAdd(aSx2,"CTC") // - Saldos do Documento
-aAdd(aSx2,"CTD") // - Item Contábil
-aAdd(aSx2,"CTE") // - Amarração Moeda x Calendário
-aAdd(aSx2,"CTF") // - Numeração de Documento
-aAdd(aSx2,"CTG") // - Calendário Contábil
-aAdd(aSx2,"CTH") // - Classes de Valores
-aAdd(aSx2,"CTI") // - Saldos da Classe de Valores
-aAdd(aSx2,"CTJ") // - Critérios de Rateio
-aAdd(aSx2,"CTK") // - Arquivo de Contra-Prova
-aAdd(aSx2,"CTL") // - Relacionamentos Contábeis
-aAdd(aSx2,"CTM") // - Segmentos Entidades Contábeis
-aAdd(aSx2,"CTN") // - Configuração Livros Contábeis
-aAdd(aSx2,"CTO") // - Moedas Contábeis
-aAdd(aSx2,"CTP") // - Câmbio
-aAdd(aSx2,"CTQ") // - Rateios Off-Line
-aAdd(aSx2,"CTR") // - Grupos Contábeis
-aAdd(aSx2,"CTS") // - Visões Gerenciais
-aAdd(aSx2,"CTT") // - Centro de Custo
-aAdd(aSx2,"CTU") // - Saldos Totais por Entidade
-aAdd(aSx2,"CTV") // - Saldos Item x Centro de Custo
-aAdd(aSx2,"CTW") // - Saldos Cl Valor x Centro Custo
-aAdd(aSx2,"CTX") // - Saldos Cl Valor x Item
-aAdd(aSx2,"CTY") // - Saldos CCusto x Item x ClValor
-aAdd(aSx2,"CTZ") // - Lançam Luc/Perd C/ Cta Ponte
+aAdd(aSx2,"CT0") // - *Conf. De Entidades Contábeis
+aAdd(aSx2,"CT1") // - *Plano de Contas
+aAdd(aSx2,"CT2") // - *Lançamentos Contábeis
+aAdd(aSx2,"CT3") // - *Saldos Centro de Custo
+aAdd(aSx2,"CT4") // - *Saldos Item Contábil
+aAdd(aSx2,"CT5") // - *Lançamento Padrão
+aAdd(aSx2,"CT6") // - *Totais de Lotes
+aAdd(aSx2,"CT7") // - *Saldos Planos de Contas
+aAdd(aSx2,"CT8") // - *Historico Padrão
+aAdd(aSx2,"CT9") // - *Rateio On-Line
+aAdd(aSx2,"CTA") // - *Regras de Amarração
+aAdd(aSx2,"CTB") // - *Roteiro Consolidação
+aAdd(aSx2,"CTC") // - *Saldos do Documento
+aAdd(aSx2,"CTD") // - *Item Contábil
+aAdd(aSx2,"CTE") // - *Amarração Moeda x Calendário
+aAdd(aSx2,"CTF") // - *Numeração de Documento
+aAdd(aSx2,"CTG") // - *Calendário Contábil
+aAdd(aSx2,"CTH") // - *Classes de Valores
+aAdd(aSx2,"CTI") // - *Saldos da Classe de Valores
+aAdd(aSx2,"CTJ") // - *Critérios de Rateio
+aAdd(aSx2,"CTK") // - *Arquivo de Contra-Prova
+aAdd(aSx2,"CTL") // - *Relacionamentos Contábeis
+aAdd(aSx2,"CTM") // - *Segmentos Entidades Contábeis
+aAdd(aSx2,"CTN") // - *Configuração Livros Contábeis
+aAdd(aSx2,"CTO") // - *Moedas Contábeis
+aAdd(aSx2,"CTP") // - *Câmbio
+aAdd(aSx2,"CTQ") // - *Rateios Off-Line
+aAdd(aSx2,"CTR") // - *Grupos Contábeis
+aAdd(aSx2,"CTS") // - *Visões Gerenciais
+aAdd(aSx2,"CTT") // - *Centro de Custo
+aAdd(aSx2,"CTU") // - *Saldos Totais por Entidade
+aAdd(aSx2,"CTV") // - *Saldos Item x Centro de Custo
+aAdd(aSx2,"CTW") // - *Saldos Cl Valor x Centro Custo
+aAdd(aSx2,"CTX") // - *Saldos Cl Valor x Item
+aAdd(aSx2,"CTY") // - *Saldos CCusto x Item x ClValor
+aAdd(aSx2,"CTZ") // - *Lançam Luc/Perd C/ Cta Ponte
 
-aAdd(aSx2,"CV0") // - Cadastro de Entidades
-aAdd(aSx2,"CV1") // - Itens do Orçamento
-aAdd(aSx2,"CV2") // - Cabeçalho Orçamentos
-aAdd(aSx2,"CV3") // - Rastreamento Lançamento
-aAdd(aSx2,"CV4") // - Rateio Contabilizado
-aAdd(aSx2,"CV5") // - Configuraçao Intercompany
-aAdd(aSx2,"CV6") // - Backup Lançamentos Contábeis
-aAdd(aSx2,"CV7") // - Flag de Atualizaçao de Saldos
-aAdd(aSx2,"CV8") // - Log de Processamento
-aAdd(aSx2,"CV9") // - Historico de Rateios Offline
-aAdd(aSx2,"CVA") // - Pontos de Lançamento Padrão
-aAdd(aSx2,"CVB") // - Dados do Contabilista
-aAdd(aSx2,"CVC") // - Participantes
-aAdd(aSx2,"CVD") // - Plano de Contas Referênciais
-aAdd(aSx2,"CVE") // - Visão Gerencial
-aAdd(aSx2,"CVF") // - Estrutura da Visão
-aAdd(aSx2,"CVG") // - Operações
-aAdd(aSx2,"CVH") // - Natureza Contabil
-aAdd(aSx2,"CVI") // - Operações Vs. Seq. Lançamentos
-aAdd(aSx2,"CVJ") // - Processos
-aAdd(aSx2,"CVK") // - Carga Lançamento Padrão
-aAdd(aSx2,"CVL") // - Controle de Diário
-aAdd(aSx2,"CVM") // - Sequencial de Diário
-aAdd(aSx2,"CVN") // - Planos de Contas de Referencia
-aAdd(aSx2,"CVO") // - Fila de Saldos 2
-aAdd(aSx2,"CVQ") // - Quadros Contab. Configuraveis
-aAdd(aSx2,"CVR") // - Cadastro Auditores
-aAdd(aSx2,"CVS") // - Cadastro SCP
-aAdd(aSx2,"CVT") // - Subcontas Correlatas
-aAdd(aSx2,"CVX") // - Saldos Diários
-aAdd(aSx2,"CVY") // - Saldos Mensais Acumulados
-aAdd(aSx2,"CVZ") // - Saldo de Fechamento
+aAdd(aSx2,"CV0") // - *Cadastro de Entidades
+aAdd(aSx2,"CV1") // - *Itens do Orçamento
+aAdd(aSx2,"CV2") // - *Cabeçalho Orçamentos
+aAdd(aSx2,"CV3") // - *Rastreamento Lançamento
+aAdd(aSx2,"CV4") // - *Rateio Contabilizado
+aAdd(aSx2,"CV5") // - *Configuraçao Intercompany
+aAdd(aSx2,"CV6") // - *Backup Lançamentos Contábeis
+aAdd(aSx2,"CV7") // - *Flag de Atualizaçao de Saldos
+aAdd(aSx2,"CV8") // - *Log de Processamento
+aAdd(aSx2,"CV9") // - *Historico de Rateios Offline
+aAdd(aSx2,"CVA") // - *Pontos de Lançamento Padrão
+aAdd(aSx2,"CVB") // - *Dados do Contabilista
+aAdd(aSx2,"CVC") // - *Participantes
+aAdd(aSx2,"CVD") // - *Plano de Contas Referênciais
+aAdd(aSx2,"CVE") // - *Visão Gerencial
+aAdd(aSx2,"CVF") // - *Estrutura da Visão
+aAdd(aSx2,"CVG") // - *Operações
+aAdd(aSx2,"CVH") // - -Natureza Contabil
+aAdd(aSx2,"CVI") // - *Operações Vs. Seq. Lançamentos
+aAdd(aSx2,"CVJ") // - *Processos
+aAdd(aSx2,"CVK") // - -Carga Lançamento Padrão
+aAdd(aSx2,"CVL") // - -Controle de Diário
+aAdd(aSx2,"CVM") // - -Sequencial de Diário
+aAdd(aSx2,"CVN") // - *Planos de Contas de Referencia
+aAdd(aSx2,"CVO") // - -Fila de Saldos 2
+aAdd(aSx2,"CVQ") // - *Quadros Contab. Configuraveis
+aAdd(aSx2,"CVR") // - *Cadastro Auditores
+aAdd(aSx2,"CVS") // - *Cadastro SCP
+aAdd(aSx2,"CVT") // - *Subcontas Correlatas
+aAdd(aSx2,"CVX") // - -Saldos Diários
+aAdd(aSx2,"CVY") // - -Saldos Mensais Acumulados
+aAdd(aSx2,"CVZ") // - -Saldo de Fechamento
 
-aAdd(aSx2,"CW0") // - Dados Auxiliares CTB
-aAdd(aSx2,"CW1") // - CADASTRO DE GRUPOS DE RATEIO
-aAdd(aSx2,"CW2") // - AMARRACAO DE GRUPOS DE RATEIO
-aAdd(aSx2,"CW3") // - INDICES ESTATISTICOS
-aAdd(aSx2,"CW8") // - HISTORICO DE ALTERAÃ?ES
-aAdd(aSx2,"CWG") // - Moeda x Calendário
-aAdd(aSx2,"CWH") // - TABELAS PARA MNEMÔNICOS
-aAdd(aSx2,"CWI") // - CAMPOS PARA UTILIZAR MNÊMONICO
-aAdd(aSx2,"CWJ") // - MNEMÔNICOS
-aAdd(aSx2,"CWK") // - FÓRMULAS
-aAdd(aSx2,"CWL") // - ITENS DA FORMULAÇÃO
-aAdd(aSx2,"CWM") // - FÓRMULAS USADAS POR LANÇAMENTO
-aAdd(aSx2,"CWN") // - Funções
+aAdd(aSx2,"CW0") // - *Dados Auxiliares CTB
+aAdd(aSx2,"CW1") // - -CADASTRO DE GRUPOS DE RATEIO
+aAdd(aSx2,"CW2") // - -AMARRACAO DE GRUPOS DE RATEIO
+aAdd(aSx2,"CW3") // - -INDICES ESTATISTICOS
+aAdd(aSx2,"CW8") // - -HISTORICO DE ALTERAÃ?ES
+aAdd(aSx2,"CWG") // - -Moeda x Calendário
+aAdd(aSx2,"CWH") // - -TABELAS PARA MNEMÔNICOS
+aAdd(aSx2,"CWI") // - -CAMPOS PARA UTILIZAR MNÊMONICO
+aAdd(aSx2,"CWJ") // - -MNEMÔNICOS
+aAdd(aSx2,"CWK") // - -FÓRMULAS
+aAdd(aSx2,"CWL") // - -ITENS DA FORMULAÇÃO
+aAdd(aSx2,"CWM") // - -FÓRMULAS USADAS POR LANÇAMENTO
+aAdd(aSx2,"CWN") // - -Funções
 
-aAdd(aSx2,"CQ0") // – Saldo Conta no mês, 
-aAdd(aSx2,"CQ1") // – Saldo Conta no Dia, 
-aAdd(aSx2,"CQ2") // - Saldo C.Custo no Mês, 
-aAdd(aSx2,"CQ3") // – Saldo C.Custo no Dia, 
-aAdd(aSx2,"CQ4") // – Saldo Item no Mês, 
-aAdd(aSx2,"CQ5") // – Saldo Item no Mês, 
-aAdd(aSx2,"CQ6") // – Saldo Classe de Valor no Mês,
-aAdd(aSx2,"CQ7") // – Saldo Classe de Valor no Dia
-aAdd(aSx2,"CQ8") // - Saldo Entidades no Mes
-aAdd(aSx2,"CQ9") // - Saldo Entidades no Dia
-aAdd(aSx2,"CQA") // - Fila de Saldos
-aAdd(aSx2,"CQB") // - Variação Cambial
-aAdd(aSx2,"CQC") // - Processamento Variação Cambial
-aAdd(aSx2,"CQD") // - Bloqueio de Calendário Contábil
-aAdd(aSx2,"CQE") // - Config. Apuração Cont. de Proj
-aAdd(aSx2,"CQF") // - Tipos de Saldos Apr Contrato
-aAdd(aSx2,"CQG") // - Períodos Apuração do Contrato
-aAdd(aSx2,"CQH") // - Apontamentos do Período
-aAdd(aSx2,"CQI") // - Movimentos das apurações
-aAdd(aSx2,"CQJ") // - Cabeçalho do Evento           
-aAdd(aSx2,"CQK") // - Itens do Evento               
-aAdd(aSx2,"CQL") // - IDENT.DOS TIPOS DE PROGRAMAS  
-aAdd(aSx2,"CQM") // - Registro W100-Inf.Grupo Multin
-aAdd(aSx2,"CQN") // - Registro W200- Declaracao Pais
-aAdd(aSx2,"CQO") // - Registro W250-Entid.Integrante
-aAdd(aSx2,"CQP") // - Registro W300-Observações Adic
-aAdd(aSx2,"CQQ") // - PERIODO ESC CONSOL BL K       
-aAdd(aSx2,"CQR") // - Rel Empr Consolidadas Bl K    
-aAdd(aSx2,"CQS") // - REL EVENTOS SOCIETARIOS BL K  
-aAdd(aSx2,"CQT") // - EMPR PARTIC EV SOC BL K       
-aAdd(aSx2,"CQU") // - SALDO CONTAS CONSOL BL K      
-aAdd(aSx2,"CQV") // - SALDO CONTAS CONSOL BL K      
-aAdd(aSx2,"CQX") // - SALDO CONTAS CONSOL BL K      
-aAdd(aSx2,"CQY") // - SALDO CONTAS CONSOL BL K      
-aAdd(aSx2,"CQZ") // - EMP CONTRAPARTES VL ELIM BL K 
+aAdd(aSx2,"CQ0") // – *Saldo Conta no mês, 
+aAdd(aSx2,"CQ1") // – *Saldo Conta no Dia, 
+aAdd(aSx2,"CQ2") // - *Saldo C.Custo no Mês, 
+aAdd(aSx2,"CQ3") // – *Saldo C.Custo no Dia, 
+aAdd(aSx2,"CQ4") // – *Saldo Item no Mês, 
+aAdd(aSx2,"CQ5") // – *Saldo Item no Mês, 
+aAdd(aSx2,"CQ6") // – *Saldo Classe de Valor no Mês,
+aAdd(aSx2,"CQ7") // – *Saldo Classe de Valor no Dia
+aAdd(aSx2,"CQ8") // - *Saldo Entidades no Mes
+aAdd(aSx2,"CQ9") // - *Saldo Entidades no Dia
+aAdd(aSx2,"CQA") // - *Fila de Saldos
+aAdd(aSx2,"CQB") // - -Variação Cambial
+aAdd(aSx2,"CQC") // - -Processamento Variação Cambial
+aAdd(aSx2,"CQD") // - *Bloqueio de Calendário Contábil
+aAdd(aSx2,"CQE") // - -Config. Apuração Cont. de Proj
+aAdd(aSx2,"CQF") // - -Tipos de Saldos Apr Contrato
+aAdd(aSx2,"CQG") // - -Períodos Apuração do Contrato
+aAdd(aSx2,"CQH") // - -Apontamentos do Período
+aAdd(aSx2,"CQI") // - -Movimentos das apurações
+aAdd(aSx2,"CQJ") // - *Cabeçalho do Evento           
+aAdd(aSx2,"CQK") // - *Itens do Evento               
+aAdd(aSx2,"CQL") // - *IDENT.DOS TIPOS DE PROGRAMAS  
+aAdd(aSx2,"CQM") // - *Registro W100-Inf.Grupo Multin
+aAdd(aSx2,"CQN") // - *Registro W200- Declaracao Pais
+aAdd(aSx2,"CQO") // - *Registro W250-Entid.Integrante
+aAdd(aSx2,"CQP") // - *Registro W300-Observações Adic
+aAdd(aSx2,"CQQ") // - *PERIODO ESC CONSOL BL K       
+aAdd(aSx2,"CQR") // - *Rel Empr Consolidadas Bl K    
+aAdd(aSx2,"CQS") // - *REL EVENTOS SOCIETARIOS BL K  
+aAdd(aSx2,"CQT") // - *EMPR PARTIC EV SOC BL K       
+aAdd(aSx2,"CQU") // - *SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQV") // - *SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQX") // - *SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQY") // - *SALDO CONTAS CONSOL BL K      
+aAdd(aSx2,"CQZ") // - *EMP CONTRAPARTES VL ELIM BL K 
 
+/* Grupo CS já está compartilhado
 aAdd(aSx2,"CS0") // - Revisão                       
 aAdd(aSx2,"CS1") // - Dados complementares da revis.
 aAdd(aSx2,"CS2") // - Empresa                       
@@ -1444,7 +1541,7 @@ aAdd(aSx2,"CSW") // - Itens Layouts de Diarios
 aAdd(aSx2,"CSX") // - Importacao de Diarios         
 aAdd(aSx2,"CSY") // - Importacao de Diarios Quebras 
 aAdd(aSx2,"CSZ") // - Dados ECF                     
-
+*/
 
 cQuery := ""
 For nI := 1 To Len( aSX2 )
