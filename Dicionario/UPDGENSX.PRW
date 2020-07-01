@@ -940,19 +940,19 @@ Bom dia a todos,
 
 Conforme solicitado pelo Dep. Fiscal e Contabilidade, iremos cadastrar no sistema as seguintes filiais para a Empresa BK:
 
-03.022.122/0005-09 – Brasília - DF
-03.022.122/0006-81 – Rio de janeiro - RJ
-03.022.122/0007-62 – Salvador - BA
-03.022.122/0008-43 – Betim - MG
-03.022.122/0009-24 – Ipojuca - PE
-03.022.122/0010-68 - SAO FRANCISCO DE ITABAPOANA -  RJ
-03.022.122/0011-49 - SAO JOAO DA BARRA - RJ
-03.022.122/0012-20 - CABO FRIO - RJ
-03.022.122/0013-00 - CAMPOS DOS GOYTACAZES - RJ
-03.022.122/0014-91 - CASIMIRO DE ABREU - RJ
-03.022.122/0015-72 - ARMACAO DOS BUZIOS - RJ
-03.022.122/0016-53 - ARRAIAL DO CABO - RJ
-03.022.122/0017-34 - RIO DAS OSTRAS - RJ
+03.022.122/0005-09 – BK BRASILIA - DF
+03.022.122/0006-81 – BK RIO DE JANEIRO - RJ
+03.022.122/0007-62 – BK SALVADOR - BA
+03.022.122/0008-43 – BK BETIM - MG
+03.022.122/0009-24 – BK IPOJUCA - PE
+03.022.122/0010-68 - BK SAO FRANCISCO DE ITABAPOANA -  RJ
+03.022.122/0011-49 - BK SAO JOAO DA BARRA - RJ
+03.022.122/0012-20 - BK CABO FRIO - RJ
+03.022.122/0013-00 - BK CAMPOS DOS GOYTACAZES - RJ
+03.022.122/0014-91 - BK CASIMIRO DE ABREU - RJ
+03.022.122/0015-72 - BK ARMACAO DOS BUZIOS - RJ
+03.022.122/0016-53 - BK ARRAIAL DO CABO - RJ
+03.022.122/0017-34 - BK RIO DAS OSTRAS - RJ
 
 A definição de uso de filiais é definida no momento da implantação do sistema, que foi realizada em 2009, portanto o analista da Totvs que implantou o sistema nesta época, seguiu o seguinte conceito:
 Módulo Faturamento: Exclusivo

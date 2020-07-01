@@ -276,12 +276,12 @@ STATIC FUNCTION VldSOMA(nMulta,nBonif,aCNR2)
 Local lOk	:=.T.
 LOCAL lJut 	:= .T.
 
-IF nMulta2 <> nMulta
+IF ABS(ABS(nMulta2) - ABS(nMulta)) > 0.01
 	MSGSTOP("Multa atual diferente da informada. Favor verificar!!")
 	lOk:=.F.
 ENDIF
 
-IF nBonif2 <> nBonif
+IF ABS(ABS(nBonif2) - ABS(nBonif)) > 0.01
 	MSGSTOP("Bonificação atual diferente da informada. Favor verificar!!")
 	lOk:=.F.
 ENDIF

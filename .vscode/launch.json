@@ -129,7 +129,12 @@
 			"args": [],
 			"label": "u_tst2Excel",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "SIGACTB",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "SIGAADV"
+	"lastProgramExecuted": "SIGACTB"
 }

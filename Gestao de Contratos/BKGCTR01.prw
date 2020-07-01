@@ -283,10 +283,10 @@ cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "
 
 cQuery += " UNION ALL "+ CRLF
 cQuery += " SELECT DISTINCT "+ CRLF
-cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF
-cQuery += "        ' ',' ',' ',0,0, "  // CNF_CONTRA,CNF_REVISA,CNF_COMPET,CN9_XXNRBK,CNF_VLPREV,CNF_SALDO
+cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF   // CNF_CONTRA
+cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,' ',0,0, "  // CNF_REVISA,CNF_COMPET,CN9_XXNRBK,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, " + CRLF // CTT_DESC01
-cQuery += "        ' ',' ', " + CRLF // CNA_NUMERO,CNA_XXMUN
+cQuery += "        ' ',C5_DESCMUN AS CNA_XXMUN, " + CRLF // CNA_NUMERO,CNA_XXMUN
 cQuery += "        ' ', " + CRLF     // CND_NUMMED
 cQuery += "        D2_PEDIDO AS C6_NUM, "      // C6_NUM
 cQuery += "        C5_EMISSAO, "+ CRLF
