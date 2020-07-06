@@ -210,6 +210,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	nTop     := 1
 
 	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
+	oExcel:SetDefRow(.T.,{1,Len(_aCabs)})
 
 	oExcel:nTamLinha := 34
 	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)

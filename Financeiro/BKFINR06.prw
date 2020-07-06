@@ -168,7 +168,7 @@ IF Pergunte(cPerg,.T.)
 				AADD(aCampos,"QSZ2->Z2_TIPOPES")
 				AADD(aCabs  ,"Tipo Pessoa")
 
-				AADD(aCampos,"Capital(BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO))")
+				AADD(aCampos,"Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO))")
 				AADD(aCabs  ,"Usuario")
 
 				AADD(aCampos,"QSZ2->Z2_VALOR")
@@ -686,7 +686,7 @@ Begin Sequence
           //oPrn:Say(nLin,nPos,cLin,oFont07)
           //nPos += 190
 
-	      cLin  := PAD(Capital(BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
+	      cLin  := PAD(Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
           oPrn:Say(nLin,nPos,cLin,oFont07)
           nPos  += 335
 		  cLinObs := ""
@@ -1082,7 +1082,7 @@ ENDIF
 Return cVig
 
 
-STATIC FUNCTION BUSERRUBI(cTIPO,cPRONT,dDTPGTO,cUSER)
+USER FUNCTION BUSERRUBI(cTIPO,cPRONT,dDTPGTO,cUSER)
 LOCAL cSQL   := ""
 LOCAL cDIGTA := ""
 

@@ -278,12 +278,13 @@ cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"+ CRLF
 cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+ CRLF
 
 
-cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
-cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
+//cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
+//cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
 
 cQuery += " UNION ALL "+ CRLF
 cQuery += " SELECT DISTINCT "+ CRLF
-cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF   // CNF_CONTRA
+//cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF   // CNF_CONTRA
+cQuery += "        CASE WHEN C5_ESPECI1 = ' ' THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END,"+ CRLF   // CNF_CONTRA
 cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,' ',0,0, "  // CNF_REVISA,CNF_COMPET,CN9_XXNRBK,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, " + CRLF // CTT_DESC01
 cQuery += "        ' ',C5_DESCMUN AS CNA_XXMUN, " + CRLF // CNA_NUMERO,CNA_XXMUN
@@ -304,8 +305,10 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE
 cQuery += "      AND  D2_FILIAL = F2_FILIAL AND SD2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
 cQuery += "      AND  C5_FILIAL = D2_FILIAL AND  SD2.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " WHERE ("+cqContr+" = ' ' OR "+ CRLF
-cQuery +=           cqContr+" IS NULL ) "+ CRLF
+//cQuery += " WHERE ("+cqContr+" = ' ' OR "+ CRLF
+//cQuery +=           cqContr+" IS NULL ) "+ CRLF
+cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF
+cQuery +=           "C5_MDCONTR IS NULL ) "+ CRLF
 cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"'" + CRLF
 cQuery += "      AND SF2.D_E_L_E_T_ = ' '"+ CRLF
 
