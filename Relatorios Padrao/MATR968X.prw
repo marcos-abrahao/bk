@@ -981,7 +981,7 @@ Else
 		If !(Empty(cServPonto))
 			cServ := cServPonto
 		Endif
-		aPrintServ	:= Mtr968Mont(cServ,13,999)
+		aPrintServ	:= Mtr968Mont(cServ,22,1950)  // era 13,999
 		If lRioJaneiro
 			cObsRio := ""
 			nDescIncond := 0
@@ -1019,7 +1019,7 @@ Else
 		RestArea(aAreaRPS)
 		cObserv 	:= cObserv + cObsPonto
 		cObserv 	:= cObserv + cObsRio
-		aPrintObs	:= Mtr968Mont(cObserv,11,675)		
+		aPrintObs	:= Mtr968Mont(cObserv,22,1950)	// era 11,675	
 		//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 		//쿣erifica o cLiente/fornecedor do documento�
 		//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
@@ -1279,7 +1279,7 @@ Else
 			nLinS   := 0
 			
 			For nY := 1 to Len(aPrintServ)
-				If nY > 15
+				If nY > 22 // era 15
 					Exit
 				Endif
 				oPrint:Say(nLinha,250,Alltrim(aPrintServ[nY]),oFont10)
@@ -1539,11 +1539,13 @@ Local nX		:= 1
 Local nY		:= 1
 Local nPosi		:= 1
 
+Local nMaxTLin  := 100
+
 cString := SubStr(cString,1,nTotStr)
 
-For nY := 1 to Min(MlCount(cString,86),nLinhas)
+For nY := 1 to Min(MlCount(cString,nMaxTLin),nLinhas)
 
-	cMemo := MemoLine(cString,86,nY)
+	cMemo := MemoLine(cString,nMaxTLin,nY)
 
 	// Monta a string a ser impressa ate a quebra
 	Do While .T.
@@ -1573,8 +1575,8 @@ For nY := 1 to Len(aAux)
 			Endif
 			cMemo += Alltrim(aAux[nY][01]) + Space(01)
 		Enddo
-		For nX := 1 to Min(MlCount(cMemo,86),nLinhas)
-			cAux := MemoLine(cMemo,86,nX)
+		For nX := 1 to Min(MlCount(cMemo,nMaxTLin),nLinhas)
+			cAux := MemoLine(cMemo,nMaxTLin,nX)
 			Aadd(aPrint,cAux)
 		Next
 	Endif

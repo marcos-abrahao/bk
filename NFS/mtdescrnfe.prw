@@ -66,6 +66,12 @@ Local aAreaSYP
 Local aAreaCTT
 Local aAreaCND
 
+Local nMaxTLin := 80
+
+IF FWSM0Util():GetSM0Data( , , { "M0_CIDENT" } )[1][2] = "BARUERI" // Barueri - SP
+	nMaxTLin := 100
+ENDIF
+
 //If !EMPTY(SF3->F3_DTCANC)
 	//Return "NF CANCELADA"
 //EndIf
@@ -185,14 +191,14 @@ IF !EMPTY(cContrato)
 	ENDIF
 	
 	cObjeto1 := ""
-	FOR nI:= 1 to MLCOUNT(cObjeto,80)
-		cObjeto1 += TRIM(MEMOLINE(cObjeto,80,nI))+"|"
+	FOR nI:= 1 to MLCOUNT(cObjeto,nMaxTLin)
+		cObjeto1 += TRIM(MEMOLINE(cObjeto,nMaxTLin,nI))+"|"
 	NEXT
 	IF !EMPTY(cObjeto)
 		cObjeto1 += "|"
 	ENDIF	
-	FOR nI:= 1 to MLCOUNT(cObsMed,80)
-		cObjeto1 += TRIM(MEMOLINE(cObsMed,80,nI))+"|"
+	FOR nI:= 1 to MLCOUNT(cObsMed,nMaxTLin)
+		cObjeto1 += TRIM(MEMOLINE(cObsMed,nMaxTLin,nI))+"|"
 	NEXT
     
 	cCompet := ""
@@ -248,8 +254,8 @@ ELSE
 	IF !EMPTY(SC5->C5_XXDNFS)
 		cXXDNFS := ""
 		cXXDNFS := TRIM(SC5->C5_XXDNFS)
-		FOR nI:= 1 to MLCOUNT(cXXDNFS,80)
-			cObjeto1 += TRIM(MEMOLINE(cXXDNFS,80,nI))+"|"
+		FOR nI:= 1 to MLCOUNT(cXXDNFS,nMaxTLin)
+			cObjeto1 += TRIM(MEMOLINE(cXXDNFS,nMaxTLin,nI))+"|"
 		NEXT
    		cObjeto1 += cMenNota+"|"
     	nPIss:= SB1->B1_ALIQISS
@@ -274,8 +280,8 @@ ENDIF
   
 cVencto := ""
 SE1->(Dbsetorder(1))
-SE1->(DbSeek(SF2->F2_FILIAL+SF2->F2_PREFIXO+SF2->F2_DOC,.T.))
-DO WHILE !SE1->(EOF()) .AND. SE1->E1_FILIAL == SF2->F2_FILIAL .AND. SE1->E1_PREFIXO == SF2->F2_PREFIXO .AND. SE1->E1_NUM == SF2->F2_DOC
+SE1->(DbSeek(xFilial("SE1")+SF2->F2_PREFIXO+SF2->F2_DOC,.T.))
+DO WHILE !SE1->(EOF()) .AND. SE1->E1_FILIAL == xFilial("SE1") .AND. SE1->E1_PREFIXO == SF2->F2_PREFIXO .AND. SE1->E1_NUM == SF2->F2_DOC
    IF SE1->E1_TIPO == "NF "
       IF EMPTY(cNaturez)
       	cNaturez := SE1->E1_NATUREZ
@@ -436,8 +442,8 @@ IF !EMPTY(SF2->F2_XXCVINC) .OR. SF2->F2_XXVCVIN > 0
  
     // 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
   	//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
-	cDescr += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+"|"
-	cDescr += "valor R$"+TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99")+"|"
+	cDescr += "|Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+IIF(nMaxTLin>80," ","|")
+	cDescr += "valor R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+"|"
 ELSE
 	IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
 		ContVinc()
@@ -451,13 +457,16 @@ ELSE
    		cAgVinc := aBCVINC[3]
 	    // 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
    		//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
-		cDescr += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+"|"
+		cDescr += "|Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+IIF(nMaxTLin>80," ","|")
 		cDescr += "valor R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+"|"
 	ENDIF
 ENDIF
 
 //INFORMACAO RETENÇÃO CONTRATUAL
 IF !EMPTY(SF2->F2_XXVRETC)
+	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
+		cDescr += "|"
+	ENDIF
 	cDescr += "Retenção Contratual ("+ALLTRIM(TRANSFORM(SF2->F2_XXRETC,"@E 99.99"))+"%): R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVRETC,"@E 999,999,999.99"))+"|"
 ENDIF
 
@@ -479,23 +488,26 @@ IF nINSSME > 0
 ENDIF
 
 IF cCliente $ cXXCVLIQ .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXCVLIQ  // CLIENTE SAIR VALOR LIQUIDO NA NF
-	IF SUBSTR(cDescr,LEN(cDescr),1) == "|"
-   		cDescr += "VALOR LÍQUIDO A PAGAR: R$"+TRANSFORM(SF2->F2_VALBRUT - nTOTIMP,"@E 999,999,999.99")+"|" 
- 	ELSE
-   		cDescr += "|VALOR LÍQUIDO A PAGAR: R$"+TRANSFORM(SF2->F2_VALBRUT - nTOTIMP,"@E 999,999,999.99")+"|" 
- 	ENDIF
+	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
+		cDescr += "|"
+	ENDIF
+	cDescr += "VALOR LÍQUIDO A PAGAR: R$"+TRANSFORM(SF2->F2_VALBRUT - nTOTIMP,"@E 999,999,999.99")+"|" 
 ENDIF
 
 IF ALLTRIM(GetMv("MV_CODREG")) == "1"
 	cDescr += "Empresa Optante pelo Simples Nacional|" 
 ELSE
-	cDescr += "|" 
+	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
+		cDescr += "|"
+	ENDIF
 ENDIF
 
 IF !EMPTY(ALLTRIM(GetMv("MV_XXDNFSE")))
 	cDescr += ALLTRIM(GetMv("MV_XXDNFSE"))+"|" 
 ELSE
-	cDescr += "|" 
+	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
+		cDescr += "|"
+	ENDIF
 ENDIF 
 
 cDescr += "|"
@@ -522,13 +534,22 @@ return cDescr
                        
 
 Static Function AltCorpo(cCorpo,cNF)
-LOCAL aLin := ARRAY(22),cLin,xLin
+LOCAL aLin ,cLin,xLin
 LOCAL nI,nJ
 Local cTexto
 LOCAL oDlgE
+Local nMaxTLin := 80
+Local nMaxLin  := 22
 
+IF FWSM0Util():GetSM0Data( , , { "M0_CIDENT" } )[1][2] = "BARUERI" //  Barueri - SP
+	nMaxTLin := 100
+	//nMaxLin  := 19
+ENDIF
+
+aLin   := ARRAY(nMaxLin)
 cTexto := cCorpo
-AFILL(aLin,SPACE(80))
+
+AFILL(aLin,SPACE(nMaxTLin))
 
 cLin := ""
 xLin := ""
@@ -536,9 +557,9 @@ nJ   := 1
 FOR nI := 1 TO LEN(cTexto)
     xLin := SUBSTR(cTexto,nI,1)
     IF xLin = "|"
-    	aLin[nJ] := PAD(cLin,80)
+    	aLin[nJ] := PAD(cLin,nMaxTLin)
     	nJ++
-    	IF nJ > 22
+    	IF nJ > nMaxLin
     	   Exit                                          
     	ENDIF
     	cLin := ""
@@ -548,35 +569,57 @@ FOR nI := 1 TO LEN(cTexto)
 NEXT 
 
 
-Define MsDialog oDlgE Title OemToAnsi ("Edição do Corpo da NFS "+cNF) From 100, 010  To 580,580 Of oDlgE Pixel Style DS_MODALFRAME
+Define MsDialog oDlgE Title OemToAnsi ("Edição do Corpo da NFS "+cNF) From 100, 010  To 610,650 Of oDlgE Pixel Style DS_MODALFRAME
 
-@ 010, 002  Say OemToAnsi ("Lin1")  Pixel Of oDlgE
-@ 010, 015 MSGET aLin[01] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 020, 002  Say OemToAnsi ("Lin2")  Pixel Of oDlgE
-@ 020, 015 MSGET aLin[02] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 030, 015 MSGET aLin[03] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 040, 015 MSGET aLin[04] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 050, 015 MSGET aLin[05] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 060, 015 MSGET aLin[06] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 070, 015 MSGET aLin[07] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 080, 015 MSGET aLin[08] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 090, 015 MSGET aLin[09] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 100, 015 MSGET aLin[10] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 110, 015 MSGET aLin[11] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 120, 015 MSGET aLin[12] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 130, 015 MSGET aLin[13] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 140, 015 MSGET aLin[14] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 150, 015 MSGET aLin[15] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 160, 015 MSGET aLin[16] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 170, 015 MSGET aLin[17] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 180, 015 MSGET aLin[18] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 190, 015 MSGET aLin[19] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 	
-@ 200, 015 MSGET aLin[20] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 210, 015 MSGET aLin[21] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
-@ 220, 015 MSGET aLin[22] Valid .T. SIZE 210, 010 OF oDlgE PIXEL PICTURE "@!" 
 
-@ 010, 235 BMPBUTTON TYPE 01 ACTION (cTexto:= MontaTxt(aLin),Close(oDlgE))
-//@ 025, 235 BMPBUTTON TYPE 02 ACTION MontaTxt()
+@ 012, 005  Say OemToAnsi ("01")  Pixel Of oDlgE
+@ 010, 015 MSGET aLin[01] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 022, 005  Say OemToAnsi ("02")  Pixel Of oDlgE
+@ 020, 015 MSGET aLin[02] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 032, 005  Say OemToAnsi ("03")  Pixel Of oDlgE
+@ 030, 015 MSGET aLin[03] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 042, 005  Say OemToAnsi ("04")  Pixel Of oDlgE
+@ 040, 015 MSGET aLin[04] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 052, 005  Say OemToAnsi ("05")  Pixel Of oDlgE
+@ 050, 015 MSGET aLin[05] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 062, 005  Say OemToAnsi ("06")  Pixel Of oDlgE
+@ 060, 015 MSGET aLin[06] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 072, 005  Say OemToAnsi ("07")  Pixel Of oDlgE
+@ 070, 015 MSGET aLin[07] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 082, 005  Say OemToAnsi ("08")  Pixel Of oDlgE
+@ 080, 015 MSGET aLin[08] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 092, 005  Say OemToAnsi ("09")  Pixel Of oDlgE
+@ 090, 015 MSGET aLin[09] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 102, 005  Say OemToAnsi ("10")  Pixel Of oDlgE
+@ 100, 015 MSGET aLin[10] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 112, 005  Say OemToAnsi ("11")  Pixel Of oDlgE
+@ 110, 015 MSGET aLin[11] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 122, 005  Say OemToAnsi ("12")  Pixel Of oDlgE
+@ 120, 015 MSGET aLin[12] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 132, 005  Say OemToAnsi ("13")  Pixel Of oDlgE
+@ 130, 015 MSGET aLin[13] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 142, 005  Say OemToAnsi ("14")  Pixel Of oDlgE
+@ 140, 015 MSGET aLin[14] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 152, 005  Say OemToAnsi ("15")  Pixel Of oDlgE
+@ 150, 015 MSGET aLin[15] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 162, 005  Say OemToAnsi ("16")  Pixel Of oDlgE
+@ 160, 015 MSGET aLin[16] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 172, 005  Say OemToAnsi ("17")  Pixel Of oDlgE
+@ 170, 015 MSGET aLin[17] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 182, 005  Say OemToAnsi ("18")  Pixel Of oDlgE
+@ 180, 015 MSGET aLin[18] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 192, 005  Say OemToAnsi ("19")  Pixel Of oDlgE
+@ 190, 015 MSGET aLin[19] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 	
+//If nMaxLin > 19
+	@ 202, 005  Say OemToAnsi ("20")  Pixel Of oDlgE
+	@ 200, 015 MSGET aLin[20] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+	@ 212, 005  Say OemToAnsi ("21")  Pixel Of oDlgE
+	@ 210, 015 MSGET aLin[21] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+	@ 222, 005  Say OemToAnsi ("22")  Pixel Of oDlgE
+	@ 220, 015 MSGET aLin[22] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+//EndIf
+
+@ 235, 150 BMPBUTTON TYPE 01 ACTION (cTexto:= MontaTxt(aLin),Close(oDlgE))
 
 Activate Dialog oDlgE Center
 
@@ -593,7 +636,7 @@ FOR nI := 1 TO LEN(aLin)
 NEXT
 
 
-// Removendo linhadmin	as em branco do final
+// Removendo linha em branco do final
 DO WHILE .T.
    	IF LEN(cTxt) > 1
 	    IF SUBSTR(cTxt,LEN(cTxt),1) = "|"

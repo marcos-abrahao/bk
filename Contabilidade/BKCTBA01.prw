@@ -1,7 +1,13 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/// ROTINA AUTOMATICA - INCLUSAO DE LANCAMENTO CONTABIL CTB
+/*/{Protheus.doc} BKCTBA01
+BK - Integração Contabilização - Folha Rubi
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 2010 Rev 06/07/20
+@version P12
+/*/
 
 User Function BKCTBA01()
 Private cString   := "SZ5"
@@ -60,7 +66,8 @@ Local aAreaIni := GetArea()
 Local cQuery
 Local nStatus := 0
 Local nI := 0,dUDia,nMes,nAno
-
+Local cDoc := ""
+Local cEvento := ""
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -79,7 +86,7 @@ cQuery  += "FROM "+RETSQLNAME("SZ5")+" SZ5 "
 cQuery  += "WHERE Z5_STATUS = ' ' AND SZ5.D_E_L_E_T_ <> '*' "
 cQuery  += "AND Z5_VALOR > 0 "
 //cQuery  += "GROUP BY Z5_FILIAL,Z5_ANOMES "
-cQuery  += "ORDER BY Z5_FILIAL,Z5_ANOMES "
+cQuery  += "ORDER BY Z5_FILIAL,Z5_ANOMES,Z5_EVENTO "
 
 TCQUERY cQuery NEW ALIAS "QSZ5"
 //TCSETFIELD("QSZ5","XX_DATAPGT","D",8,0)
@@ -106,24 +113,29 @@ Do While !eof()
 
     dUDia:= STOD(STRZERO(nAno,4)+STRZERO(nMes,2)+"01")
     dUDia:= dUDia - 1
-       
-	aCab := { {'DDATALANC', dUDia,    NIL},;
+	If VAL(QSZ5->Z5_ANOMES) > 0
+		cDoc := 'E'+ALLTRIM(SUBSTR(QSZ5->Z5_EVENTO,1,5))
+	Else
+		cDoc := '000001'	
+	EndIf
+
+	aCab := { {'DDATALANC', dUDia,     NIL},;
 	          {'CLOTE',     QSZ5->Z5_ANOMES,  NIL},;
 	          {'CSUBLOTE',  '001',     NIL},;
 	          {'CPADRAO',   '',        NIL},;
 	          {'NTOTINF',   0,         NIL},;
-	          {'NTOTINFLOT',0,         NIL} }
-//	          {'CDOC',      QSZ5->Z5_ANOMES+'00' ,NIL},;
-
+	          {'NTOTINFLOT',0,         NIL},;
+	          {'CDOC',      cDoc      ,NIL} }
 
 //NOPC,DDATALANC,CLOTE,CSUBLOTE,CDOC,LAGLUT,CSEQUENC,LCUSTO,LITEM,LCLVL,NTOTINF,CPROG,CPRELCTO,DREPROC,CEMPORI,CFILORI,@AFLAGCTB,@ACTKXCT2,@ATPSALDO,CMODOCLR,ASEQDIARIO,LMLTSLD,CSEQCORR		
 
 	nLinha  := 1
     cFil    := QSZ5->Z5_FILIAL
     cAnoMes := QSZ5->Z5_ANOMES
+	cEvento := QSZ5->Z5_EVENTO
     aItens  := {}
     aRecno  := {}
-	Do While !eof() .AND. cFil == QSZ5->Z5_FILIAL .AND. cAnoMes == QSZ5->Z5_ANOMES
+	Do While !eof() .AND. cFil == QSZ5->Z5_FILIAL .AND. cAnoMes == QSZ5->Z5_ANOMES .AND. cEvento == QSZ5->Z5_EVENTO
 	
 		IncProc("Importando lançamentos...")
 		//aAdd(aItens,{  {'CT2_FILIAL'  ,QSZ5->Z5_FILIAL,     NIL},;
@@ -145,7 +157,7 @@ Do While !eof()
 		               {'CT2_CCD'    ,cCCD,                NIL},;
 		               {'CT2_CCC'    ,cCCC,                NIL},;
 		               {'CT2_VALOR'  , QSZ5->Z5_VALOR,     NIL},;
-		               {'CT2_ORIGEM' ,'BKCTBA01-'+QSZ5->Z5_EVENTO+'-'+SUBSTR(cUsuario,7,14), NIL},;
+		               {'CT2_ORIGEM' ,'BKCTBA01-'+QSZ5->Z5_EVENTO+'-'+SUBSTR(cUsuario,7,14)+'-'+QSZ5->Z5_ANOMES, NIL},;
 		               {'CT2_HP'     ,'',                  NIL},;
 		               {'CT2_HIST'   ,'FOLHA PGTO '+SUBSTR(QSZ5->Z5_ANOMES,5,2)+'/'+SUBSTR(QSZ5->Z5_ANOMES,1,4)+' - '+TRIM(QSZ5->Z5_EVDESCR), NIL} } )
 
