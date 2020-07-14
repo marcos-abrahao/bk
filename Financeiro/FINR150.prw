@@ -558,6 +558,7 @@ Local dDtVenc
 Local aFiliais	:= {}
 Local lTemCont := .F.
 Local cNomFilAnt := ""
+Local cXMoeda   := ""
 
 #IFDEF TOP
 	Local nI := 0
@@ -679,9 +680,11 @@ oReport:NoUserFilter()
 
 oSection1:Init()
 
+cXMoeda := GetMv("MV_MOEDA"+cMoeda)
+
 While SM0->(!Eof()) .and. SM0->M0_CODIGO == cEmpAnt .and. IIf( lFWCodFil, FWGETCODFILIAL, SM0->M0_CODFIL ) <= cFilAte
 
-	cTitulo := oReport:title() + " " + STR0035 + GetMv("MV_MOEDA"+cMoeda)  //"Posicao dos Titulos a Pagar" + " em "
+	cTitulo := oReport:title() + " " + STR0035 + cXMoeda  //"Posicao dos Titulos a Pagar" + " em "
 
 	dbSelectArea("SE2")
 	cFilAnt := IIf( lFWCodFil, FWGETCODFILIAL, SM0->M0_CODFIL )
@@ -2771,7 +2774,7 @@ dbSetOrder(1)
 If MsSeek( padr( "FIN150" , Len( x1_grupo ) , ' ' )+ "33")
 	//Acerto o parametro com a database
 	RecLock("SX1",.F.)
-	Replace x1_cnt01		With "'"+DTOC(dDataBase)+"'"
+	Replace x1_cnt01 With "'"+DTOC(dDataBase)+"'"
 	MsUnlock()	
 Endif
 

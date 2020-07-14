@@ -396,7 +396,7 @@ FOR _nI := 1 TO LEN(aMeses)
        ENDIF
 
 	   dbSelectArea("TMPC")
-	   If !TMPC->(dbSeek(_cEmpresa+QTMP->CNF_CONTRA,.F.))
+	   If !TMPC->(MsSeek(_cEmpresa+QTMP->CNF_CONTRA,.F.))
 
 		  cQuery := " SELECT CNF_CONTRA,MAX(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) AS XX_FIM,"
 		  cQuery += "                   MIN(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) AS XX_INI "
@@ -460,7 +460,7 @@ FOR _nI := 1 TO LEN(aMeses)
 		
 		// Gravar total por cliente
 	   dbSelectArea("TMPD")
-	   If !dbSeek(QTMP->CN9_CLIENT,.F.)
+	   If !MsSeek(QTMP->CN9_CLIENT,.F.)
 			Reclock("TMPD",.T.)
 			TMPD->XX_CLIENTE := QTMP->CN9_CLIENT
 			TMPD->XX_NOMCLI  := QTMP->CN9_NOMCLI
@@ -523,7 +523,7 @@ FOR _nI := 1 TO LEN(aMeses)
 	TMPX2->(dbGoTop())
 	DO While !TMPX2->(EOF())
 		dbSelectArea("TMPC")
-		If !TMPC->(dbSeek(_cEmpresa+TMPX2->C5_ESPECI1,.F.))
+		If !TMPC->(MsSeek(_cEmpresa+TMPX2->C5_ESPECI1,.F.))
 			Reclock("TMPC",.T.)
 		    TMPC->XX_EMPRESA := _cEmpresa
 			TMPC->XX_CONTRA  := TMPX2->C5_ESPECI1
@@ -551,7 +551,7 @@ FOR _nI := 1 TO LEN(aMeses)
 
 		// Gravar total por cliente
 		dbSelectArea("TMPD")
-		If !dbSeek(TMPX2->A1_COD,.F.)
+		If !MsSeek(TMPX2->A1_COD,.F.)
 			Reclock("TMPD",.T.)
 			TMPD->XX_CLIENTE := TMPX2->A1_COD
 			TMPD->XX_NOMCLI  := TMPX2->A1_NOME
@@ -586,7 +586,7 @@ FOR _nI := 1 TO LEN(aMeses)
 	TMPX2->(dbGoTop())
 	DO While !TMPX2->(EOF())
 		dbSelectArea("TMPC")
-		If !TMPC->(dbSeek(_cEmpresa+TMPX2->E1_XXCUSTO,.F.))
+		If !TMPC->(MsSeek(_cEmpresa+TMPX2->E1_XXCUSTO,.F.))
 			Reclock("TMPC",.T.)
 		    TMPC->XX_EMPRESA := _cEmpresa
 			TMPC->XX_CONTRA  := TMPX2->E1_XXCUSTO
@@ -612,7 +612,7 @@ FOR _nI := 1 TO LEN(aMeses)
 
 		// Gravar total por cliente
 		dbSelectArea("TMPD")
-		If !dbSeek(TMPX2->A1_COD,.F.)
+		If !MsSeek(TMPX2->A1_COD,.F.)
 			Reclock("TMPD",.T.)
 			TMPD->XX_CLIENTE := TMPX2->A1_COD
 			TMPD->XX_NOMCLI  := TMPX2->A1_NOME

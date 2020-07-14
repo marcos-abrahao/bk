@@ -284,10 +284,10 @@ cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' 
 cQuery += " UNION ALL "+ CRLF
 cQuery += " SELECT DISTINCT "+ CRLF
 //cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF   // CNF_CONTRA
-cQuery += "        CASE WHEN C5_ESPECI1 = ' ' THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END,"+ CRLF   // CNF_CONTRA
+cQuery += "        CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END AS CNF_CONTRA,"+ CRLF   // CNF_CONTRA
 cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,' ',0,0, "  // CNF_REVISA,CNF_COMPET,CN9_XXNRBK,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, " + CRLF // CTT_DESC01
-cQuery += "        ' ',C5_DESCMUN AS CNA_XXMUN, " + CRLF // CNA_NUMERO,CNA_XXMUN
+cQuery += "        ' ',CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF // CNA_NUMERO,CNA_XXMUN
 cQuery += "        ' ', " + CRLF     // CND_NUMMED
 cQuery += "        D2_PEDIDO AS C6_NUM, "      // C6_NUM
 cQuery += "        C5_EMISSAO, "+ CRLF

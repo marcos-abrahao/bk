@@ -273,7 +273,7 @@ DO WHILE (cAliasQry)->(!EOF())
 	SE2->(dbGoTo((cAliasQry)->E2RECNO))
     cHist := ""
     dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-    IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+    IF MsSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
         DO WHILE !EOF() .AND. cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA == ;
             SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA
             IF !ALLTRIM(SD1->D1_XXHIST) $ cHist                   
@@ -332,7 +332,7 @@ DO WHILE (cAliasQry)->(!EOF())
                 cDigUser   := ""
                 cFormaPgto := ""
                 
-                IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                IF MsSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
                     cUser := SF1->F1_XXUSER
                     PswOrder(1) 
                     PswSeek(cUser) 
@@ -370,7 +370,7 @@ DO WHILE (cAliasQry)->(!EOF())
                 ELSE
                     aLib := {}
                     dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-                    IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+                    IF MsSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
                         aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
                         IF LEN(aLib) > 0
                             cDigUser := aLib[1]
@@ -390,7 +390,7 @@ DO WHILE (cAliasQry)->(!EOF())
                 cDigUser   := ""
                 cFormaPgto := ""
                 
-                IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                IF MsSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
                     cUser := SF1->F1_XXUSER
                     PswOrder(1) 
                     PswSeek(cUser) 
@@ -428,7 +428,7 @@ DO WHILE (cAliasQry)->(!EOF())
                 ELSE
                     aLib := {}
                     dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-                    IF dbSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+                    IF MsSeek(cFilD1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
                         aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
                         IF LEN(aLib) > 0
                             cDigUser := aLib[1]
@@ -448,7 +448,7 @@ DO WHILE (cAliasQry)->(!EOF())
                 cDigUser   := ""
                 cFormaPgto := ""
                 cLibUser := SE2->E2_USUALIB
-                IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+                IF MsSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
                     cUser := SF1->F1_XXUSER
                     PswOrder(1) 
                     PswSeek(cUser) 

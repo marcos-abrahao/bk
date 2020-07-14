@@ -179,7 +179,7 @@ DO WHILE (cAliasQry)->(!EOF())
 
 	dbSelectArea("SE2")
 	dbSetOrder(6)
-	dbSeek(xFilial("SE2")+(cAliasQry)->(D1_FORNECE+D1_LOJA+D1_SERIE+D1_DOC))
+	MsSeek(xFilial("SE2")+(cAliasQry)->(D1_FORNECE+D1_LOJA+D1_SERIE+D1_DOC))
 	While !Eof() .And. SE2->(E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM) == ;
 		xFilial("SE2")+(cAliasQry)->(D1_FORNECE+D1_LOJA+D1_SERIE+D1_DOC)
 		If ALLTRIM(E2_ORIGEM)=="MATA100" .AND. SE2->E2_VENCREA >= dDataB
@@ -306,7 +306,7 @@ DO WHILE (cAliasQry)->(!EOF())
 
 	dbSelectArea("SE2")
 	dbSetOrder(6)
-	dbSeek(xFilial("SE2")+(cAliasQry)->(D1_FORNECE+D1_LOJA+D1_SERIE+D1_DOC))
+	MsSeek(xFilial("SE2")+(cAliasQry)->(D1_FORNECE+D1_LOJA+D1_SERIE+D1_DOC))
 	While !Eof() .And. SE2->(E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM) == ;
 		xFilial("SE2")+(cAliasQry)->(D1_FORNECE+D1_LOJA+D1_SERIE+D1_DOC)
 		If ALLTRIM(E2_ORIGEM)=="MATA100"

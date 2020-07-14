@@ -1,4 +1,4 @@
-#INCLUDE "protheus.ch"
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "topconn.ch"
                                      
 //-------------------------------------------------------------------
@@ -850,7 +850,7 @@ FOR _nI := 1 TO nPeriodo
 
 		FOR _nJ := 1 TO LEN(aRentab)
 			dbSelectArea(ALIAS_TMP)
-			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+aRentab[_nJ,1],.F.)
+			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+aRentab[_nJ,1],.F.)
 				Reclock(ALIAS_TMP,.F.)
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,2]+aRentab[_nJ,4],aRentab[_nJ,2])
 			ELSE
@@ -1000,7 +1000,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF ALLTRIM(TMPX2->Z2_TIPO) == 'VT'
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
+		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1008,7 +1008,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
    				// GRAVA VALOR NO CUSTO
    				dbSelectArea(ALIAS_TMP)
-   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1018,7 +1018,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF  ALLTRIM(TMPX2->Z2_TIPO)  $ 'VR/VA'
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
+		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1026,7 +1026,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
    				// GRAVA VALOR NO CUSTO
    				dbSelectArea(ALIAS_TMP)
-   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1037,7 +1037,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF  ALLTRIM(TMPX2->Z2_TIPO)  == 'EXM'
 				dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cExm_Prod,.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cExm_Prod,.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -1056,7 +1056,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->(Msunlock())
 
 	   			dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1066,7 +1066,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF  ALLTRIM(TMPX2->Z2_TIPO)  == 'MFG'
 				dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cMFG_Prod,.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cMFG_Prod,.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -1086,7 +1086,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->(Msunlock())
 
 	   			dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1096,7 +1096,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF  ALLTRIM(TMPX2->Z2_TIPO)  == 'DCH'
 				dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cDCH_Prod,.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cDCH_Prod,.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -1114,7 +1114,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->(Msunlock())
 
 	   			dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->Z2_VALOR
@@ -1155,7 +1155,7 @@ FOR _nI := 1 TO nPeriodo
 		DO While !TMPX2->(EOF())
 
 			dbSelectArea(ALIAS_TMP)
-   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cBK_Prod,.F.)
+   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cBK_Prod,.F.)
 				Reclock(ALIAS_TMP,.F.)
 			ELSE
 				Reclock(ALIAS_TMP,.T.)
@@ -1172,7 +1172,7 @@ FOR _nI := 1 TO nPeriodo
 			(ALIAS_TMP)->(Msunlock())
 
    			dbSelectArea(ALIAS_TMP)
-   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
      			Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += TMPX2->Z2_VALOR
@@ -1266,7 +1266,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve $ cVT_Prov
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'12',.F.)
+		   		IF MsSeek(cCtrCons+'12',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->valevent
@@ -1277,7 +1277,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve  $ cVT_Verb
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'13',.F.)
+		   		IF MsSeek(cCtrCons+'13',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent *-1)
@@ -1288,7 +1288,7 @@ FOR _nI := 1 TO nPeriodo
 			
 			IF cPCodEve $ cVRVA_Verb
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'15',.F.)
+		   		IF MsSeek(cCtrCons+'15',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent *-1)
@@ -1299,7 +1299,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve $ cASSM_Prod
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'16',.F.)
+		   		IF MsSeek(cCtrCons+'16',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->valevent
@@ -1310,7 +1310,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve $ cASSM_Verb
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'17',.F.)
+		   		IF MsSeek(cCtrCons+'17',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent *-1)
@@ -1321,7 +1321,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve $ cSINO_Prod
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'18',.F.)
+		   		IF MsSeek(cCtrCons+'18',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += IIF(TMPX2->VALASSOD<>0,TMPX2->VALASSOD * TMPX2->nCont,TMPX2->VALEVENT )
@@ -1332,7 +1332,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve $ cSINO_Verb
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'19',.F.)
+		   		IF MsSeek(cCtrCons+'19',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent *-1)
@@ -1343,7 +1343,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF cPCodEve $ cCCRE_Verb
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'21',.F.)
+		   		IF MsSeek(cCtrCons+'21',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent *-1)
@@ -1355,7 +1355,7 @@ FOR _nI := 1 TO nPeriodo
 			IF cPCodEve $ cNINC_Verb
 				UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"03-Sem Encargos/Incidencias",TMPX2->valevent,_nI)
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(cCtrCons+'111',.F.)
+		   		IF MsSeek(cCtrCons+'111',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->valevent)
@@ -1370,7 +1370,7 @@ FOR _nI := 1 TO nPeriodo
 		ENDDO
 
    		dbSelectArea(ALIAS_TMP)
-   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'09',.F.)
+   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'09',.F.)
      		Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += nProventos
@@ -1388,7 +1388,7 @@ FOR _nI := 1 TO nPeriodo
 		NEXT _IXFUR
 
    		dbSelectArea(ALIAS_TMP)
-   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'10',.F.)
+   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'10',.F.)
      		Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += (nProventos*nEncargos)/100
@@ -1397,7 +1397,7 @@ FOR _nI := 1 TO nPeriodo
 		ENDIF
 
    		dbSelectArea(ALIAS_TMP)
-   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'11',.F.)
+   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'11',.F.)
      		Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += (nProventos*nINCIDENCI)/100
@@ -1406,7 +1406,7 @@ FOR _nI := 1 TO nPeriodo
 		ENDIF
 
    		dbSelectArea(ALIAS_TMP)
-   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'110',.F.)
+   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'110',.F.)
      		Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += nXXPLR
@@ -1416,7 +1416,7 @@ FOR _nI := 1 TO nPeriodo
 		
 		// GRAVA VALOR NO CUSTO
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += nCusto
@@ -1452,7 +1452,7 @@ FOR _nI := 1 TO nPeriodo
 			
 			// GRAVA VALOR NO CUSTO
 			dbSelectArea(ALIAS_TMP)
-			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 				Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += TMPX2->ValorRPA+((TMPX2->ValorRPA*nEncarIPT)/100)-TMPX2->Refeicao
@@ -1460,7 +1460,7 @@ FOR _nI := 1 TO nPeriodo
 			ENDIF
 
 	   		dbSelectArea(ALIAS_TMP)
-	   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'09',.F.)
+	   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'09',.F.)
 	     		Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += TMPX2->ValorRPA
@@ -1468,7 +1468,7 @@ FOR _nI := 1 TO nPeriodo
 			ENDIF
 	
 	   		dbSelectArea(ALIAS_TMP)
-	   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'10',.F.)
+	   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'10',.F.)
 	     		Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += (TMPX2->ValorRPA*nEncarIPT)/100
@@ -1476,7 +1476,7 @@ FOR _nI := 1 TO nPeriodo
 			ENDIF
 	
 	   		dbSelectArea(ALIAS_TMP)
-	   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'15',.F.)
+	   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'15',.F.)
 	     		Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += (TMPX2->Refeicao *-1)
@@ -1551,7 +1551,7 @@ FOR _nI := 1 TO nPeriodo
 			cOUTROS := 'S'
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'12',.F.)
+		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'12',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1560,7 +1560,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
    				// GRAVA VALOR NO CUSTO
    				dbSelectArea(ALIAS_TMP)
-   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
+   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1571,7 +1571,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'14',.F.)
+		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'14',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1580,7 +1580,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
    				// GRAVA VALOR NO CUSTO
    				dbSelectArea(ALIAS_TMP)
-   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
+   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1590,7 +1590,7 @@ FOR _nI := 1 TO nPeriodo
 
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
 		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'20',.F.)
+		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'20',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1599,7 +1599,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
    				// GRAVA VALOR NO CUSTO
    				dbSelectArea(ALIAS_TMP)
-   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
+   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1634,7 +1634,7 @@ FOR _nI := 1 TO nPeriodo
  
 			    FOR XI_ := _nI TO nParcela
 	   				dbSelectArea(ALIAS_TMP)
-	   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
+	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
 						Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 						&cCampo2 += nValRat
@@ -1651,7 +1651,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 
 					dbSelectArea(ALIAS_TMP)
-	   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
+	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
 						Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 						&cCampo2 += nValRat
@@ -1669,7 +1669,7 @@ FOR _nI := 1 TO nPeriodo
             ENDIF
 			IF cOUTROS == 'S'
 				dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -1686,7 +1686,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->(Msunlock())
 
 	   			dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
@@ -1737,7 +1737,7 @@ FOR _nI := 1 TO nPeriodo
 				cOUTROS := 'S'
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 			   		dbSelectArea(ALIAS_TMP)
-			   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
+			   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
 			     		Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 +=  IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1746,7 +1746,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 	   				// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
-	   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 	     				Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1757,7 +1757,7 @@ FOR _nI := 1 TO nPeriodo
 	
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
 			   		dbSelectArea(ALIAS_TMP)
-			   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
+			   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
 			     		Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1766,7 +1766,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 	   				// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
-	   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 	     				Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1776,7 +1776,7 @@ FOR _nI := 1 TO nPeriodo
 
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
 			   		dbSelectArea(ALIAS_TMP)
-			   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
+			   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
 			     		Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1785,7 +1785,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 	   				// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
-	   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 	     				Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1820,7 +1820,7 @@ FOR _nI := 1 TO nPeriodo
 	
 				    FOR XI_ := _nI TO nParcela
 		   				dbSelectArea(ALIAS_TMP)
-		   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 							Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 							&cCampo2 +=  IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
@@ -1837,7 +1837,7 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 	
 						dbSelectArea(ALIAS_TMP)
-		   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
+		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
 							Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
@@ -1855,7 +1855,7 @@ FOR _nI := 1 TO nPeriodo
 	            ENDIF
 				IF cOUTROS == 'S'
 					dbSelectArea(ALIAS_TMP)
-		   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
+		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
 						Reclock(ALIAS_TMP,.F.)
 					ELSE
 						Reclock(ALIAS_TMP,.T.)
@@ -1872,7 +1872,7 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->(Msunlock())
 	
 		   			dbSelectArea(ALIAS_TMP)
-		   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 		     			Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL /VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL )
@@ -1899,7 +1899,7 @@ FOR _nI := 1 TO nPeriodo
 			dbGoTop()
 			DO While !TMPX2->(EOF()) 
 				dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->CT1_DESC01),.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->CT1_DESC01),.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -1916,7 +1916,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->(Msunlock())
 
 	   			dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += (TMPX2->E5_VALOR /VAL(aConsorcio[nScan,5])) * IIF(TMPX2->E5_RECPAG=='R',-1,1)
@@ -1956,7 +1956,7 @@ FOR _nI := 1 TO nPeriodo
 					cOUTROS := 'S'
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 				   		dbSelectArea(ALIAS_TMP)
-				   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
+				   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
 				     		Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 +=  IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1965,7 +1965,7 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 		   				// GRAVA VALOR NO CUSTO
 		   				dbSelectArea(ALIAS_TMP)
-		   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 		     				Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1976,7 +1976,7 @@ FOR _nI := 1 TO nPeriodo
 		
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
 				   		dbSelectArea(ALIAS_TMP)
-				   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
+				   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
 				     		Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1985,7 +1985,7 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 		   				// GRAVA VALOR NO CUSTO
 		   				dbSelectArea(ALIAS_TMP)
-		   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 		     				Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1995,7 +1995,7 @@ FOR _nI := 1 TO nPeriodo
 	
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
 				   		dbSelectArea(ALIAS_TMP)
-				   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
+				   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
 				     		Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -2004,7 +2004,7 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 		   				// GRAVA VALOR NO CUSTO
 		   				dbSelectArea(ALIAS_TMP)
-		   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
+		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 		     				Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -2039,7 +2039,7 @@ FOR _nI := 1 TO nPeriodo
 		
 					    FOR XI_ := _nI TO nParcela
 			   				dbSelectArea(ALIAS_TMP)
-			   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+			   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 								Reclock(ALIAS_TMP,.F.)
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 								&cCampo2 +=  IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
@@ -2056,7 +2056,7 @@ FOR _nI := 1 TO nPeriodo
 							ENDIF
 		
 							dbSelectArea(ALIAS_TMP)
-			   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
+			   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
 								Reclock(ALIAS_TMP,.F.)
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 								&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
@@ -2074,7 +2074,7 @@ FOR _nI := 1 TO nPeriodo
 		            ENDIF
 					IF cOUTROS == 'S'
 						dbSelectArea(ALIAS_TMP)
-			   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
+			   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
 							Reclock(ALIAS_TMP,.F.)
 						ELSE
 							Reclock(ALIAS_TMP,.T.)
@@ -2091,7 +2091,7 @@ FOR _nI := 1 TO nPeriodo
 						(ALIAS_TMP)->(Msunlock())
 		
 			   			dbSelectArea(ALIAS_TMP)
-			   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+			   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 			     			Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL /VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL )
@@ -2119,7 +2119,7 @@ FOR _nI := 1 TO nPeriodo
 				dbGoTop()
 				DO While !TMPX2->(EOF()) 
 					dbSelectArea(ALIAS_TMP)
-		   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->CT1_DESC01),.F.)
+		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->CT1_DESC01),.F.)
 						Reclock(ALIAS_TMP,.F.)
 					ELSE
 						Reclock(ALIAS_TMP,.T.)
@@ -2132,7 +2132,7 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->(Msunlock())
 	
 		   			dbSelectArea(ALIAS_TMP)
-		   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 		     			Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += (TMPX2->E5_VALOR /VAL(aConsorcio[nScan,5])) * IIF(TMPX2->E5_RECPAG=='R',-1,1)
@@ -2160,7 +2160,7 @@ FOR _nI := 1 TO nPeriodo
 			dbGoTop()
 			DO While !TMPX2->(EOF()) 
 				dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->CT1_DESC01),.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->CT1_DESC01),.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -2173,7 +2173,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->(Msunlock())
 
 	   			dbSelectArea(ALIAS_TMP)
-	   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
+	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->E5_VALOR  * IIF(TMPX2->E5_RECPAG=='R',-1,1)
@@ -2264,7 +2264,7 @@ FOR _nI := 1 TO nPeriodo
 			
 			FOR _nJ := 1 TO LEN(aRentab)
 				dbSelectArea(ALIAS_TMP)
-				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->C5_ESPECI1))+aRentab[_nJ,1],.F.)
+				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->C5_ESPECI1))+aRentab[_nJ,1],.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
 					Reclock(ALIAS_TMP,.T.)
@@ -2320,7 +2320,7 @@ For Yi_ := 1 TO LEN(aContratos)
         nValTaxaAdm := 0
         nFaturaOF := 0
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'03',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'03',.F.)
 			cCampo2   := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
         	nValTaxaAdm := (&cCampo2*nTaxaAdm)/100 
 			nFaturaOF := &cCampo2
@@ -2328,7 +2328,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		
 		//GRAVA TAXA ADM
 		dbSelectArea(ALIAS_TMP)
-	   	IF dbSeek(ALLTRIM(aContratos[Yi_])+"YYYYYYYYY",.F.)
+	   	IF MsSeek(ALLTRIM(aContratos[Yi_])+"YYYYYYYYY",.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += nValTaxaAdm
@@ -2346,7 +2346,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		//SOMA TAXA ADM NOS GASTOS GERAIS
 	    n2Resultado := 0
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
    			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 += nValTaxaAdm
@@ -2358,12 +2358,12 @@ For Yi_ := 1 TO LEN(aContratos)
 		//SOMA DESCONTOS DO SE5 NOS GASTOS GERAIS 28/02/20
 	    nDescE5 := 0
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30-2',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'30-2',.F.)
    			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			nDescE5  := &cCampo2
 
-			IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
+			IF MsSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
 				Reclock(ALIAS_TMP,.F.)
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += nDescE5
@@ -2375,20 +2375,20 @@ For Yi_ := 1 TO LEN(aContratos)
 	    // Calculo do Resultado
 	    nResultado := 0
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'07',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'07',.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			nResultado += &cCampo2
 			n2Resultado += &cCampo2
 		ENDIF
 		
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'08',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'08',.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			nResultado -= &cCampo2
 			n2Resultado -= &cCampo2
 		ENDIF
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			nResultado -= &cCampo2
 			n2Resultado -= &cCampo2
@@ -2396,7 +2396,7 @@ For Yi_ := 1 TO LEN(aContratos)
 
         //CALCULA RESULTADO PARCIAL
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZYYY',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZYYY',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 := nResultado
@@ -2404,7 +2404,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		ENDIF
         //CALCULA % RES. PARCIAL
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZYY',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZYY',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 := (nResultado/nFaturaOF)*100
@@ -2412,7 +2412,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		ENDIF
         //CALCULA RESULTADO GLOBAL
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZZY',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZZY',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 := n2Resultado
@@ -2420,7 +2420,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		ENDIF
         //CALCULA % RES. GLOBAL
 		dbSelectArea(ALIAS_TMP)
-		IF dbSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZZZ',.F.)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZZZ',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 			&cCampo2 := (n2Resultado/nFaturaOF)*100
@@ -3445,7 +3445,7 @@ AADD(aRegistros,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"m
 AADD(aRegistros,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H6."})
 
 For i:=1 to Len(aRegistros)
-	If !dbSeek(cPerg+aRegistros[i,2])
+	If !MsSeek(cPerg+aRegistros[i,2])
 		RecLock("SX1",.T.)
 		For j:=1 to FCount()
 			If j <= Len(aRegistros[i])
@@ -3606,7 +3606,7 @@ IF nConsolida == 1
 
 			dbSelectArea("CN9")
 			dbSetOrder(1)
-			IF !dbSeek(xFilial("CN9") + cConsolida)
+			IF !MsSeek(xFilial("CN9") + cConsolida)
 				IF !lJob
 					MSGSTOP("Contrato n° "+cConsolida+" inválido. Verifique!!")
 				ELSE
@@ -3625,7 +3625,7 @@ IF nConsolida == 1
 
 			dbSelectArea("CN9")
 			dbSetOrder(1)
-			IF !dbSeek(xFilial("CN9") + cConsolida)
+			IF !MsSeek(xFilial("CN9") + cConsolida)
 				IF !lJob
 					MSGSTOP("Contrato n° "+cConsolida+" inválido. Verifique!!")
 				ELSE
@@ -3644,7 +3644,7 @@ IF nConsolida == 1
 			FOR _IX := 1 TO LEN(aConsolida)
 				dbSelectArea("CN9")
 				dbSetOrder(1)
-				IF dbSeek(xFilial("CN9") + ALLTRIM(aConsolida[_IX]))
+				IF MsSeek(xFilial("CN9") + ALLTRIM(aConsolida[_IX]))
 					cConsolida += "'"+ALLTRIM(aConsolida[_IX])+"',"
 				ELSE
 				   cLogCons += "Contrato n° "+ALLTRIM(aConsolida[_IX])
@@ -4105,7 +4105,7 @@ AADD(aRegistros,{cPerg,"08","Consorcio Aplicar Indice Total?","Consorcio Aplicar
 AADD(aRegistros,{cPerg,"09","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
-	If !dbSeek(cPerg+aRegistros[i,2])
+	If !MsSeek(cPerg+aRegistros[i,2])
 		RecLock("SX1",.T.)
 		For j:=1 to FCount()
 			If j <= Len(aRegistros[i])
@@ -4216,7 +4216,7 @@ IF nConsolida == 1
 
 	    dbselectArea("SZG")
 		cContRev := xFilial("SZG")+ALLTRIM(cCONTRA)
-		SZG->(dbSeek(cContRev,.T.))
+		SZG->(MsSeek(cContRev,.T.))
 		Do While !EOF() .AND. ALLTRIM(cContRev) == ALLTRIM(SZG->ZG_FILIAL+SZG->ZG_CONTRAT) //+SZG->ZG_REVISAO
 			IF SUBSTR(DTOS(SZG->ZG_DATA),1,6) <= SUBSTR(DTOS(CTOD(cPERIODO)),1,6)
 	      		nDespesa	:= SZG->ZG_CLT+SZG->ZG_VLENCSO+SZG->ZG_AJCUSTO+SZG->ZG_VLENAC+SZG->ZG_BENEFIC+SZG->ZG_UNIFORM+SZG->ZG_DESPDIV+SZG->ZG_MATERIA+SZG->ZG_EQUIPAM+SZG->ZG_VLTRIBU             
@@ -4303,7 +4303,7 @@ ELSE
 	nInsumos := 0 
     dbselectArea("SZG")
 	cContRev := xFilial("SZG")+ALLTRIM(cCONTRA)
-	SZG->(dbSeek(cContRev,.T.))
+	SZG->(MsSeek(cContRev,.T.))
 	Do While !EOF() .AND. ALLTRIM(cContRev) == ALLTRIM(SZG->ZG_FILIAL+SZG->ZG_CONTRAT) //+SZG->ZG_REVISAO
 		IF SUBSTR(DTOS(SZG->ZG_DATA),1,6) <= SUBSTR(DTOS(CTOD(cPERIODO)),1,6)
       		nDespesa	:= SZG->ZG_CLT+SZG->ZG_VLENCSO+SZG->ZG_AJCUSTO+SZG->ZG_VLENAC+SZG->ZG_BENEFIC+SZG->ZG_UNIFORM+SZG->ZG_DESPDIV+SZG->ZG_MATERIA+SZG->ZG_EQUIPAM+SZG->ZG_VLTRIBU             
@@ -4380,7 +4380,7 @@ cCampo := "CN9->"+ALLTRIM(cCampo)
 
 DBSELECTAREA("CN9")
 CN9->(DBSETORDER(1))
-CN9->(DBSEEK(xFILIAL("CN9")+cNumContr))
+CN9->(MsSEEK(xFILIAL("CN9")+cNumContr))
 DO WHILE CN9->(!EOF())  .AND. !lFIM
 	IF ALLTRIM(CN9->CN9_NUMERO) == ALLTRIM(cNumContr)
 		cCmpDesc := &cCampo
@@ -4414,7 +4414,7 @@ Private cCampo3
 If !lJob
 	aArea3 := GetArea()
 	dbSelectArea(ALIAS_FOL)
-	If !dbSeek(cContrato+PAD(cTipo,25)+cEvento,.F.)
+	If !MsSeek(cContrato+PAD(cTipo,25)+cEvento,.F.)
   		Reclock(ALIAS_FOL,.T.)
 		(ALIAS_FOL)->YY_CODGCT := cContrato
 		(ALIAS_FOL)->YY_CODIGO := cEvento

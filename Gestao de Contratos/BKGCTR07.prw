@@ -277,16 +277,17 @@ ELSE
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
 ENDIF
 
-cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
-cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
+//cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
+//cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
 
 cQuery += " UNION ALL "+ CRLF
 
 cQuery += " SELECT DISTINCT F2_FILIAL,F2_CLIENTE AS XX_CLIENTE,F2_LOJA AS XX_LOJA,   D2_COD AS XX_PROD,    B1_DESC,B1_CODISS,B1_ALIQISS,"+ CRLF
-cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF  // CNF_CONTRA,
+//cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF  // CNF_CONTRA,
+cQuery += "        CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END AS CNF_CONTRA,"
 cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,0,0, " + CRLF  // CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, "  + CRLF // CTT_DESC01
-cQuery += "        ' ',C5_DESCMUN AS CNA_XXMUN, " + CRLF  // CNA_NUMERO,CNA_XXMUN
+cQuery += "        ' ', CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF  // CNA_NUMERO,CNA_XXMUN
 cQuery += "        ' ', "  + CRLF     // CND_NUMMED
 cQuery += "        D2_PEDIDO AS C6_NUM, " + CRLF   // C6_NUM
 cQuery += "        0,0, "  + CRLF   // XX_BONIF,XX_MULTA
@@ -313,9 +314,12 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
 cQuery += "      AND  C5_FILIAL = D2_FILIAL AND  SD2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
 cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
+//cQuery += " LEFT JOIN "+RETSQLNAME("CC2")+ " CC2 ON SF2.F2_ESTPRES = CC2_EST AND SF2.F2_MUNPRES = CC2_CODMUN AND CC2.D_E_L_E_T_ = '' "+ CRLF
 
-cQuery += " WHERE ("+cqContr+" = ' ' OR " + CRLF
-cQuery +=           cqContr+" IS NULL ) " + CRLF
+//cQuery += " WHERE ("+cqContr+" = ' ' OR " + CRLF
+//cQuery +=           cqContr+" IS NULL ) " + CRLF
+cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF
+cQuery +=         "C5_MDCONTR IS NULL ) "+ CRLF
 IF nTipo == 1
 	cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' " 
 ELSE
@@ -368,7 +372,7 @@ AADD(aRegistros,{cPerg,"03","Gerar Planilha? "  ,"" ,"" ,"mv_ch3","N",01,0,2,"C"
 AADD(aRegistros,{cPerg,"04","Tipo? "  ,"" ,"" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Mensal","Mensal","Mensal","","","Anual","Anual","Anual","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
-	If !dbSeek(cPerg+aRegistros[i,2])
+	If !MsSeek(cPerg+aRegistros[i,2])
 		RecLock("SX1",.T.)
 		For j:=1 to FCount()
 			If j <= Len(aRegistros[i])
