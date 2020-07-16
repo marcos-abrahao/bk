@@ -1,11 +1,12 @@
 #include "Protheus.ch"       
+//#include "RwMAKE.ch"       
 
 //#include "FIN.ch"   
 //#INCLUDE "SET.CH"
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"25/06/2020"
+#DEFINE FIN_LAST_UPDATED 		"15/07/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -182,9 +183,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			
 			//AtuGenXX( @cTexto )
 
-			AtuGenFil( @cTexto )
+			////AtuGenFil( @cTexto )
 
-			//AtuGenX3( @cTexto )
+			AtuGenX3( @cTexto )
 			//AtuGenP12( @cTexto )
 
 
@@ -734,6 +735,16 @@ dbSelectArea( "SX3" )
 //APPEND FROM \x3sc5.dtc
 
 //X31UPDTABLE("SC5")
+
+
+// Filtro Bancos/ Origem Ped 15/07/2020
+//dbSelectArea( "SX3" )
+//APPEND FROM \sx3jul20.dtc
+
+//X31UPDTABLE("SC5")
+//X31UPDTABLE("SC9")
+//X31UPDTABLE("SA6")
+
 
 Return
 

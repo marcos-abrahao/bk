@@ -28,10 +28,6 @@
 #define oleWdFormatPDF "17"
 
 
-User Function BKTESTE()
-U_FATORC1()
-Return Nil
-
 User Function FATORC1()
 
 	Local nOpc := 0

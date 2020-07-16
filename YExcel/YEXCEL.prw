@@ -393,6 +393,7 @@ METHOD Img(nID,nLinha,nColuna,nX,nY,cUnidade,nRot,nQtdPlan) CLASS YExcel
 	Local nPos
 	Local cCellType
 	Local cID
+	Local cIdDraw
 	Default nQtdPlan	:= Len(::aPlanilhas)
 	PARAMTYPE 0	VAR nID			AS NUMERIC
 	PARAMTYPE 1	VAR nLinha		AS NUMERIC
@@ -401,11 +402,9 @@ METHOD Img(nID,nLinha,nColuna,nX,nY,cUnidade,nRot,nQtdPlan) CLASS YExcel
 	PARAMTYPE 4	VAR nX			AS NUMERIC
 	PARAMTYPE 5	VAR cUnidade	AS CHARACTER	OPTIONAL DEFAULT "px"
 	PARAMTYPE 6	VAR nRot		AS NUMERIC		OPTIONAL DEFAULT 0
-
 	If aScan(::aImagens,{|x| x[1]==nID })==0
 		UserException("YExcel - Imagem não cadastrada, usar metodo ADDImg. ID("+cValToChar(nID)+")")
 	EndIf
-
 	cUnidade	:= lower(cUnidade)
 	//Converte para  EMUs (English Metric Units)
 	If cUnidade=="px"
@@ -419,14 +418,11 @@ METHOD Img(nID,nLinha,nColuna,nX,nY,cUnidade,nRot,nQtdPlan) CLASS YExcel
 	//absolute	- Não mover ou redimensionar com linhas / colunas subjacentes
 	//oneCell	- Mova-se com células, mas não redimensione
 	//twoCell	- Mover e redimensionar com células âncoras
-
 	If Empty(::adrawing)
 		::nIdRelat++
 		nPos	:= ::nIdRelat
 		cID		:= ::add_rels("\xl\worksheets\_rels\sheet"+cValToChar(nQtdPlan)+".xml.rels","http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing","../drawings/drawing"+cValToChar(nPos)+".xml")
-
 		::aPlanilhas[nQtdPlan][3]	:= ::new_draw(,"\xl\drawings\drawing"+cValToChar(nPos)+".xml")
-
 		::odrawing:SetAtributo("r:id",cID)
 		::odrawing:xDados	:= nPos
 		AADD(::adrawing,nPos)		//Cria o arquivo \xl\drawings\drawing1
@@ -437,20 +433,17 @@ METHOD Img(nID,nLinha,nColuna,nX,nY,cUnidade,nRot,nQtdPlan) CLASS YExcel
 		::ocontent_types:XPathAddAtt( "/xmlns:Types/xmlns:Override[last()]", "ContentType", "application/vnd.openxmlformats-officedocument.drawing+xml" )
 	EndIf
 	nPos	:= ::aPlanilhas[nQtdPlan][3]
+	cIdDraw	:= ::add_rels("\xl\drawings\_rels\drawing"+cValToChar(::odrawing:xDados)+".xml.rels","http://schemas.openxmlformats.org/officeDocument/2006/relationships/image","../media/"+::aImagens[nID][2])
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr", cCellType, "" )
 	::aDraw[nPos][1]:XPathAddAtt( "/xdr:wsDr/xdr:"+cCellType+"[last()]", "editAs"	, "oneCell" )
-
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr/xdr:"+cCellType+"[last()]", "from", "" )
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:from", "col", cValToChar(nColuna-1) )
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:from", "colOff", cValToChar(0) )
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:from", "row", cValToChar(nLinha-1) )
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:from", "rowOff", cValToChar(0) )
-
-
 	::aDraw[nPos][1]:XPathAddNode( "/xdr:wsDr/xdr:"+cCellType+"[last()]", "ext", "" )
 	::aDraw[nPos][1]:XPathAddAtt( "/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:ext", "cx"	, cValToChar(Round(nX,0)) )
 	::aDraw[nPos][1]:XPathAddAtt( "/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:ext", "cy"	, cValToChar(Round(nY,0)) )
-
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]", "pic", "" )
 	//nvPicPr
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic", "nvPicPr", "" )
@@ -458,23 +451,20 @@ METHOD Img(nID,nLinha,nColuna,nX,nY,cUnidade,nRot,nQtdPlan) CLASS YExcel
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:nvPicPr", "cNvPr", "" )
 	::aDraw[nPos][1]:XPathAddAtt(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:nvPicPr/xdr:cNvPr","id", cValToChar(Len(::aImgdraw)+1) )
 	::aDraw[nPos][1]:XPathAddAtt(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:nvPicPr/xdr:cNvPr","name", "Imagem "+cValToChar(nID) )
-
 	//cNvPicPr
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:nvPicPr", "cNvPicPr", "" )
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:nvPicPr/xdr:cNvPicPr", "a:picLocks", "" )
 	ajustNS(::aDraw[nPos][1],"<xdr:a:","<a:")
 	::aDraw[nPos][1]:XPathAddAtt(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:nvPicPr/xdr:cNvPicPr/a:picLocks", "noChangeAspect", "1" )
-
 	//blipFill
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic", "blipFill", "" )
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:blipFill", "a:blip", "" )
 	ajustNS(::aDraw[nPos][1],"<xdr:a:","<a:")
 	::aDraw[nPos][1]:XPathAddNs(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:blipFill/a:blip", "r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships" )
-	::aDraw[nPos][1]:XPathAddAtt(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:blipFill/a:blip", "r:embed", ::odrawing:GetAtributo("r:id") )
+	::aDraw[nPos][1]:XPathAddAtt(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:blipFill/a:blip", "r:embed", cIdDraw )
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:blipFill", "a:stretch", "" )
 	ajustNS(::aDraw[nPos][1],"<xdr:a:","<a:")
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:blipFill/a:stretch", "fillRect", "" )
-
 	//spPr
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic", "spPr", "" )
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:spPr", "a:xfrm", "" )
@@ -484,16 +474,11 @@ METHOD Img(nID,nLinha,nColuna,nX,nY,cUnidade,nRot,nQtdPlan) CLASS YExcel
 	ajustNS(::aDraw[nPos][1],"<xdr:a:","<a:")
 	::aDraw[nPos][1]:XPathAddAtt(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:spPr/a:prstGeom", "prst", "rect" )
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]/xdr:pic/xdr:spPr/a:prstGeom", "avLst", "" )
-
-
 	::aDraw[nPos][1]:XPathAddNode(	"/xdr:wsDr/xdr:"+cCellType+"[last()]", "clientData", "" )
 	::aDraw[nPos][3]++
-
 	AADD(::aImgdraw,Len(::aImgdraw)+1)
-
-	::add_rels("\xl\drawings\_rels\drawing"+cValToChar(::odrawing:xDados)+".xml.rels","http://schemas.openxmlformats.org/officeDocument/2006/relationships/image","../media/"+::aImagens[nID][2])
-
 Return
+
 
 /*/{Protheus.doc} OpenRead
 Abrir planilha e armazena conteudo para leitura
@@ -3634,6 +3619,7 @@ Method xls_table() class YExcel
 	cRet	+= ::atable[::nCont]:GetTag()
 Return cRet
 
+
 /*/{Protheus.doc} xls_sharedStrings
 Cria arquivo /xl/sharedStrings.xml
 @author Saulo Gomes Martins
@@ -3646,6 +3632,7 @@ Method xls_sharedStrings(nFile) class YExcel
 	Local nCont
 	Local aString
 	Local cRet	:= ""
+	Local cTexto
 	::oString:list(@aString)
 	aSort(aString,,,{|x,y| x[2]<y[2] })
 	cRet	+= '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -3654,7 +3641,20 @@ Method xls_sharedStrings(nFile) class YExcel
 	cRet	:= ""
 	For nCont:=1 to Len(aString)
 		cRet	+= '<si>'
-		cRet	+= '<t><![CDATA['+EncodeUTF8(aString[nCont][1])+']]></t>'
+		cTexto	:= EncodeUTF8(aString[nCont][1])
+		If Valtype(cTexto)!="C"
+			cTexto	:= aString[nCont][1]
+			cTexto	:= Replace(cTexto,chr(129),"")
+			cTexto	:= Replace(cTexto,chr(141),"")
+			cTexto	:= Replace(cTexto,chr(143),"")
+			cTexto	:= Replace(cTexto,chr(144),"")
+			cTexto	:= Replace(cTexto,chr(157),"")
+			cTexto	:= EncodeUTF8(cTexto)
+			If Valtype(cTexto)!="C"
+				cTexto	:= ""
+			EndIf
+		EndIf
+		cRet	+= '<t><![CDATA['+cTexto+']]></t>'
 		cRet	+= '</si>'
 		FWRITE(nFile,cRet)
 		cRet	:= ""
