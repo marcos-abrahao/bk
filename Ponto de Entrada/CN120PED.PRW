@@ -47,8 +47,16 @@ If SM0->M0_CODIGO == "01"      // BK
 	ENDIF
 ENDIF                     
 
-AADD(ExpA1,{"C5_ESTPRES" ,CNA->CNA_XXUF, Nil}) 
-AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
+IF CND->CND_LOJACL <> CNA->CNA_LOJACL
+	AADD(ExpA1,{"C5_ESTPRES" ,SA1->A1_EST, Nil}) 
+	AADD(ExpA1,{"C5_MUNPRES" ,SA1->A1_COD_MUN, Nil})
+	//A=Avulsa;C=Contrato;2=Serie2
+	AADD(ExpA1,{"C5_XXTPNF" ,"2", Nil})
+ELSE
+	AADD(ExpA1,{"C5_ESTPRES" ,CNA->CNA_XXUF, Nil}) 
+	AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
+	AADD(ExpA1,{"C5_XXTPNF" ,"C", Nil})
+ENDIF
 
 // Retenção Contratual
 //If Type("CNA->CNA_XXRETC")<>"U"

@@ -263,7 +263,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND 
 cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+ CRLF
 cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON C6_PRODUTO = B1_COD"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND C6_PRODUTO = B1_COD"+ CRLF
 cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+ CRLF
 cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+ CRLF
@@ -312,7 +312,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE
 cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"' AND  SD2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
 cQuery += "      AND  C5_FILIAL = D2_FILIAL AND  SD2.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D2_COD = B1_COD"+ CRLF
 cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
 //cQuery += " LEFT JOIN "+RETSQLNAME("CC2")+ " CC2 ON SF2.F2_ESTPRES = CC2_EST AND SF2.F2_MUNPRES = CC2_CODMUN AND CC2.D_E_L_E_T_ = '' "+ CRLF
 

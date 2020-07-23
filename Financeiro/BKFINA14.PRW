@@ -1240,8 +1240,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn104HD += "2"          //018 018
 		Bcn104HD += STRZERO(VAL(cCGC),14) //019 032
 		Bcn104HD += SUBSTRING(SEE->EE_CODEMP,1,6) //"188161" //"180327"  //033 038
-		Bcn104HD += SUBSTRING(SEE->EE_CODEMP,7,2) //"06"  //039 040
-		Bcn104HD += "0003" //"0002" //"0001" //"0002"  //041 044
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"01",SUBSTRING(SEE->EE_CODEMP,7,2)) //"06"  //039 040
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"0001","0003") //"0002" //"0001" //"0002"  //041 044
 		Bcn104HD += IIF(alltrim(cConta)=="0300000043","02","01") //"01" //"VA"  //045 046
 		Bcn104HD += SPACE(6)   //047 052
 		Bcn104HD += STRZERO(VAL(cAgencia),5)    //053 057

@@ -6,7 +6,7 @@
 BK - Rentabilidade dos Contratos
 
 @author Adilson do Prado
-@since 11/01/13 Rev 26/05/20
+@since 11/01/13 Rev 20/07/20
 @version P12
 @return Nil
 /*/
@@ -40,6 +40,14 @@ Private nPeriodo    := 1
 Private nPlan       := 1
 Private cContrato   := ""
 Private aPeriodo    := {}
+Private aAnoMes     := {}
+Private aAcrDcr 	:= {}
+Private cLastE2     := ""
+Private lPRat		:= .T.
+
+
+Private nTamCodGct	:= 9
+Private nTamCodigo	:= 16
 
 Private cCtrCons    := ""
 Private cCodEve     := ""
@@ -213,55 +221,59 @@ ENDIF
 
 
 IF !EMPTY(cContrato)
-	cQuery := " SELECT TOP 1 MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC,CN9_REVISA"
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"
-	cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"
-   	cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"
-	cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC"
-	cQuery += " ORDER BY CN9_REVISA DESC"
+	cQuery := " SELECT TOP 1 MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC,CN9_REVISA"+CRLF
+	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+	cQuery += "    AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+	cQuery += "  WHERE CNF.D_E_L_E_T_=''"+CRLF
+   	cQuery += "    AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
+	cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC"+CRLF
+	cQuery += " ORDER BY CN9_REVISA DESC"+CRLF
 ELSE
 	cContrCons := ""
  	For IX:= 1 TO LEN(aConsorcio)
  		cContrCons += "'"+ALLTRIM(aConsorcio[IX,1])+"',"
  	NEXT
-	cQuery := " SELECT MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"
-	cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"
-	cQuery += " AND CN9_SITUAC = '05'"
+	cQuery := " SELECT MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
+	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+	cQuery += "    AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+	cQuery += "    AND CN9_SITUAC = '05'"+CRLF
 	IF !lConsorcio
 		IF !EMPTY(cContrCons)
-			cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") " 
+			cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF
 		ENDIF
 	ENDIF
 	IF !lJob
 		IF !lFurnas
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"
+			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
 		ENDIF
 	ELSE
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' " //IPT 
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' "+CRLF //IPT 
   	    //cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '049' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' " //FURNAS
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
-	    cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
-	    cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"
-	    cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')"
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "+CRLF
+	    cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"+CRLF
+	    cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"+CRLF
+	    cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')"+CRLF
 	    IF SM0->M0_CODIGO <> "14"  
-	    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
+	    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
 	    ENDIF  
 	ENDIF
 	
-	cQuery += " GROUP BY CN9_SITUAC"
+	cQuery += " GROUP BY CN9_SITUAC"+CRLF
 ENDIF	
+
+u_LogMemo("BKGCTR11.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP1"
 TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
@@ -356,9 +368,12 @@ AADD(aFormat,"N")
 
 aDbf2    := {}
 
-Aadd( aDbf2, { 'XX_CODGCT','C', 9,00 } )
-Aadd( aDbf2, { 'XX_CODIGO','C', 16,00 } )
-Aadd( aDbf2, { 'XX_DESC','C', 50,00 } )
+nTamCodGct := 9
+nTamCodigo := 16
+
+Aadd( aDbf2, { 'XX_CODGCT','C', nTamCodGct,00 } )
+Aadd( aDbf2, { 'XX_CODIGO','C', nTamCodigo,00 } )
+Aadd( aDbf2, { 'XX_DESC'  ,'C',         50,00 } )
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
 	Aadd( aDbf2, { 'XX_VAL'+cMes,'N', 18,02 } )
@@ -394,7 +409,8 @@ FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
 	AADD(aCampos2,ALIAS_TMP+"->XX_VAL"+cMes)
 	AADD(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-  	AAdd(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
+  	AADD(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
+	AADD(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))  
 	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
 
@@ -650,6 +666,7 @@ Return Nil
  
 Static Function ProcBKGCTR11(lJob)
 Local cQuery := ""
+Local nAuxVl :=0
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
@@ -660,55 +677,55 @@ FOR _nI := 1 TO nPeriodo
 	IncProc("Consultando faturamento dos contratos...")
    
 	//*********Faturamento do Contrato
-	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-    cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"
-    cQuery += " AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"
-	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-	cQuery += " AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"
-	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"
-	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL"
-	cQuery += " AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-	cQuery += "      AND  CND.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-	cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"
-	cQuery += "	LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "
-	cQuery += "      AND  D2_FILIAL = CND_FILIAL AND SD2.D_E_L_E_T_ = ' ' "
+	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"+CRLF
+	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+    cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
+    cQuery += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
+	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"+CRLF
+	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL"+CRLF
+	cQuery += "      AND  CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"+CRLF
+	cQuery += "      AND  CND.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+CRLF
+	cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ''"+CRLF
+	cQuery += "	LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM "+CRLF
+	cQuery += "      AND  D2_FILIAL = CND_FILIAL AND SD2.D_E_L_E_T_ = '' "+CRLF
 // 27/02/20   
-	cQuery += "LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " //--AND E5_PARCELA = '  '
-	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ' "
+	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
+	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"' AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " 
-    cQuery += " AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
+	cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " +CRLF
+    cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
-	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
+	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
     IF !EMPTY(cContrato)
 		IF nConsol == 1
-   			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"
+   			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
    			IF cTipoContra == 'A'
-				cQuery += " AND CN9_SITUAC = '05'"
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    			ENDIF
 		ELSEIF nConsol == 2
-   			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
+   			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
    			IF cTipoContra == 'A'
-				cQuery += " AND CN9_SITUAC = '05'"
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    			ENDIF
 		ELSEIF nConsol == 3
-   			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
+   			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"+CRLF
    			IF cTipoContra == 'A'
-				cQuery += " AND CN9_SITUAC = '05'"
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'"+CRLF
    			ENDIF
 		ELSE
-   	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"
+   	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
 			//cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'"  
- 			cQuery += " AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'"
+ 			cQuery += " AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'"+CRLF
 		ENDIF
     ELSE
 		cContrCons := ""
@@ -717,40 +734,40 @@ FOR _nI := 1 TO nPeriodo
  		NEXT
 		IF !lConsorcio
 			IF !EMPTY(cContrCons)
-   				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") " //TRATAMENTO ESPECIAL CONTRATO BKDAHER
+   				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF //TRATAMENTO ESPECIAL CONTRATO BKDAHER
 			ENDIF
 		ENDIF
 		IF !lJob
 			IF !lFurnas
-				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
 			ENDIF
 		ELSE
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' " //IPT 
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' "+CRLF//IPT 
 	    	//cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '049' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' " //FURNAS
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
-	    	cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
-	    	cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')" 
-	    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" 
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "+CRLF 
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "+CRLF  
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "+CRLF  
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "+CRLF  
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "+CRLF
+	    	cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"+CRLF 
+	    	cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"+CRLF
+	    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')"+CRLF
 	    	IF SM0->M0_CODIGO <> "14"  
-	    		cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
+	    		cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
 	    	ENDIF  
 		ENDIF
 
-		cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'" 
+		cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'" +CRLF
     ENDIF	
 
-	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN ORDER BY CNF_CONTRA"
+	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN ORDER BY CNF_CONTRA"+CRLF
  
-	//Memowrite("c:\temp\bkgctr11-1.sql",cQuery)
+	u_LogMemo("BKGCTR11-CNF-1-"+STRZERO(_nI,3)+".SQL",cQuery)
 	
 
 	TCQUERY cQuery NEW ALIAS "QTMP"
@@ -870,59 +887,64 @@ FOR _nI := 1 TO nPeriodo
 	   	dbSelectArea("QTMP")
 	   	QTMP->(dbSkip())
 	ENDDO
+
+	/*
+
+	Retirdo em 21/07/20
+
     QTMP->(dbCloseArea())
     
 
 	//*********Contrato
-	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-    cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"
-    cQuery += " AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"
-	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"
-	cQuery += " AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"
-	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"
-	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL"
-	cQuery += " AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"
-	cQuery += "      AND  CND.D_E_L_E_T_ = ' '"
-	cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"
-	cQuery += "      AND  C6_FILIAL = CND_FILIAL AND  SC6.D_E_L_E_T_ = ' '"
-	cQuery += "	LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "
-	cQuery += "      AND  D2_FILIAL = CND_FILIAL AND  SD2.D_E_L_E_T_ = ' ' "
+	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"+CRLF
+	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+    cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
+    cQuery += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
+	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"+CRLF
+	cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL"+CRLF
+	cQuery += "      AND  CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"+CRLF
+	cQuery += "      AND  CND.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+CRLF
+	cQuery += "      AND  C6_FILIAL = CND_FILIAL AND  SC6.D_E_L_E_T_ = ''"+CRLF
+	cQuery += "	LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON SC6.C6_NUM = SD2.D2_PEDIDO AND C6_ITEM = D2_ITEM  "+CRLF
+	cQuery += "      AND  D2_FILIAL = CND_FILIAL AND  SD2.D_E_L_E_T_ = '' "+CRLF
 	// 27/02/20   
-	cQuery += "LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " //--AND E5_PARCELA = '  '
-	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ' "
+	cQuery += "LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
+	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " 
-    cQuery += " AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
+    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
+    cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
-	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
+	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
     IF !EMPTY(cContrato)
 		IF nConsol == 1
-   			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"
+   			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
    			IF cTipoContra == 'A'
-				cQuery += " AND CN9_SITUAC = '05'"
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    			ENDIF
 		ELSEIF nConsol == 2
-   			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
+   			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
    			IF cTipoContra == 'A'
-				cQuery += " AND CN9_SITUAC = '05'"
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    			ENDIF
 		ELSEIF nConsol == 3
-   			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
+   			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"+CRLF
    			IF cTipoContra == 'A'
-				cQuery += " AND CN9_SITUAC = '05'"
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
    			ELSE
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    			ENDIF
 		ELSE
-   	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"
+   	 		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
 //			cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'"
-			cQuery += " AND CN9.CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+			cQuery += " AND CN9.CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
 		ENDIF
     ELSE
 		cContrCons := ""
@@ -931,43 +953,46 @@ FOR _nI := 1 TO nPeriodo
  		NEXT
 		IF !lConsorcio
 			IF !EMPTY(cContrCons)
-   				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") " //TRATAMENTO ESPECIAL CONTRATO BKDAHER
+   				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF //TRATAMENTO ESPECIAL CONTRATO BKDAHER
 			ENDIF
 		ENDIF
 		IF !lJob
 			IF !lFurnas
-				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
 			ENDIF
 		ELSE
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' " //IPT 
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' "+CRLF //IPT 
 	    	//cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '049' " //fundacao florestal
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' " //IPT 
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' " //FURNAS
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "+CRLF //IPT 
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
 	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' " //IPT 
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' " //FURNAS
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "  
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "
-	   		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "
-	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
-	    	cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
-	    	cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"  
-	    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" 
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "+CRLF  
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "+CRLF
+	   		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "+CRLF
+	    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "+CRLF
+	    	cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  +CRLF
+	    	cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"  +CRLF
+	    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" +CRLF
 	    	IF SM0->M0_CODIGO <> "14"  
-	    		cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
+	    		cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
 			ENDIF  
 
 		ENDIF
 
-		cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'" 
+		cQuery += "AND CN9.CN9_SITUAC ='"+cSituac+"'" +CRLF
     ENDIF	
 
-	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC ORDER BY CNF_CONTRA"
- 
+	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC ORDER BY CNF_CONTRA"+CRLF
+
+ 	u_LogMemo("BKGCTR11-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
+
 	TCQUERY cQuery NEW ALIAS "QTMP"
+	*/
 
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
@@ -975,22 +1000,24 @@ FOR _nI := 1 TO nPeriodo
     
 
 		//Calcula LF Avulso SZ2 - CLT
-		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"
-		cQuery1 += " WHERE  D_E_L_E_T_=''  AND Z2_TIPO IN ('EXM','VT','VR','VA','DCH')"  //REMOVIDO MULTA FGTS POR ENTENDER QUE ESTA EM INCIDENCIAS - TIPO = MFG
-		cQuery1 += " AND Z2_TIPOPES='CLT' AND Z2_STATUS='S'"
+		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"+CRLF
+		cQuery1 += " WHERE  D_E_L_E_T_='' AND Z2_TIPO IN ('EXM','VT','VR','VA','DCH')"+CRLF  //REMOVIDO MULTA FGTS POR ENTENDER QUE ESTA EM INCIDENCIAS - TIPO = MFG
+		cQuery1 += " AND Z2_TIPOPES='CLT' AND Z2_STATUS='S'"+CRLF
 
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IF nScan > 0 
-			cQuery1 += " AND Z2_CODEMP='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'" 
-			cQuery1 += " AND Z2_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" 
+			cQuery1 += " AND Z2_CODEMP='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"+CRLF 
+			cQuery1 += " AND Z2_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
 		ELSE
-			cQuery1 += " AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"
-			cQuery1 += " AND Z2_CC='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
+			cQuery1 += " AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"+CRLF
+			cQuery1 += " AND Z2_CC='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 		ENDIF
 		
-		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
+		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+
+		u_LogMemo("BKGCTR11-SZ2-"+STRZERO(_nI,3)+".SQL",cQuery1)
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
@@ -1197,29 +1224,29 @@ FOR _nI := 1 TO nPeriodo
 
 		IncProc("Consultando Folha Pagamento...")
 		//*********Folha Pagamento
-		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"
-		cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " 
+		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
+		cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
 
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IF nScan > 0 
-			cQuery2 += " where [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr ='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' AND CodTab=1 AND "
+			cQuery2 += " where [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr ='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' AND CodTab=1 AND "+CRLF
 		ELSE
-			cQuery2 += " where [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr ='"+SM0->M0_CODIGO+"' AND CodTab=1 AND "
+			cQuery2 += " where [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr ='"+SM0->M0_CODIGO+"' AND CodTab=1 AND "+CRLF
 		ENDIF
-		cQuery2 += " [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve=bk_senior.bk_senior.R046VER.CodEve AND "
-		cQuery2 += " SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "
-		cQuery2 += "  ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) as VALASSOD "
-		cQuery2 += " FROM bk_senior.bk_senior.R046VER "
-		cQuery2 += " INNER JOIN bk_senior.bk_senior.R044cal ON bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp" 
-		cQuery2 += " AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"
-		cQuery2 += " INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp"
-		cQuery2 += " AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad" 
- 		cQuery2 += " AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol"
- 		cQuery2 += " AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal"
- 		cQuery2 += " INNER JOIN bk_senior.bk_senior.R008EVC ON bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab" 
- 		cQuery2 += " AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve" 
+		cQuery2 += " [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve=bk_senior.bk_senior.R046VER.CodEve AND "+CRLF
+		cQuery2 += " SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
+		cQuery2 += "  ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) as VALASSOD "+CRLF
+		cQuery2 += " FROM bk_senior.bk_senior.R046VER "+CRLF
+		cQuery2 += " INNER JOIN bk_senior.bk_senior.R044cal ON bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp" +CRLF
+		cQuery2 += " AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"+CRLF
+		cQuery2 += " INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp"+CRLF
+		cQuery2 += " AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad" +CRLF
+ 		cQuery2 += " AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol"+CRLF
+ 		cQuery2 += " AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal"+CRLF
+ 		cQuery2 += " INNER JOIN bk_senior.bk_senior.R008EVC ON bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab" +CRLF
+ 		cQuery2 += " AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve" +CRLF
 
  			//TRATAMENTO ESPECIAL CONTRATO BKDAHER
 
@@ -1228,17 +1255,19 @@ FOR _nI := 1 TO nPeriodo
 
 
 		IF nScan > 0 
-			cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' and Tipcal In(11) And Sitcal = 'T' "
- 			cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"
-			cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
+			cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
+ 			cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
+			cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 		ELSE
-			cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SM0->M0_CODIGO+"' and Tipcal In(11) And Sitcal = 'T' "
-	 		cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"
- 			cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
+			cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SM0->M0_CODIGO+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
+	 		cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
+ 			cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
  		ENDIF
 
-		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"
+		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
 		     	
+		u_LogMemo("BKGCTR11-FOL-"+STRZERO(_nI,3)+".SQL",cQuery2)
+
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		
 		nProventos := 0
@@ -1428,19 +1457,19 @@ FOR _nI := 1 TO nPeriodo
 
 		IncProc("Consultando Folha Pagamento - Autonomos...")
 		//*********Folha Pagamento - Autonomos IPT
-		cQuery2 := "SELECT     SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
-		cQuery2 += " FROM         webLancamentoIPT.dbo.LancamentoIPT "
-		cQuery2 += " WHERE     (AC = 0) AND (adiantamento = 0) AND (integrado = 1) " 
-		cQuery2 += " AND competencia ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
+		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
+		cQuery2 += " FROM  webLancamentoIPT.dbo.LancamentoIPT "
+		cQuery2 += " WHERE (AC = 0) AND (adiantamento = 0) AND (integrado = 1) " 
+		cQuery2 += "   AND competencia ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
 
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IF nScan > 0 
-			cQuery2 += " and codEmpresa='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"
+			cQuery2 += " AND codEmpresa='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"
 			cQuery2 += " AND centroCusto IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
 		ELSE
-			cQuery2 += " and codEmpresa='"+SM0->M0_CODIGO+"'"
+			cQuery2 += " AND codEmpresa='"+SM0->M0_CODIGO+"'"
 			cQuery2 += " AND centroCusto='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
 		ENDIF
 
@@ -1511,53 +1540,85 @@ FOR _nI := 1 TO nPeriodo
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
-		IncProc("Consultando gastos gerais...")
+		IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
+
+
 		//*********GASTOS GERAIS
-		cQuery2 := "SELECT DISTINCT D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"
-		cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" 
-//		cQuery2 += " INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' '" 
-		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ' ' "                                        
-//		cQuery2 += " INNER JOIN "+RETSQLNAME("CTT")+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' '"
-		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = ' ' "
-		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
+		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
+		cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" +CRLF
+		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
+		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
-			cQuery2 += " AND D1_FORNECE<>'002918'"
+			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 		ENDIF 
 		IF SM0->M0_CODIGO == "14"  // Despesas médicas 
-			cQuery2 += " AND D1_FORNECE<>'000604'"
+			cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 		ENDIF 
-//		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004','12201006','12201005','12201010'))")  
-		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004') OR SUBSTRING(D1_CONTA,1,5) = '12201')") 
-		cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
+		//// Para teste de alugueis: 
+		cQuery2 += " AND (D1_COD = '000000000000102' OR D1_COD = '320200301')  "+CRLF  // AND D1_FORNECE = '004190'
 
-		cQuery2 += " UNION ALL"
-		cQuery2 += " SELECT D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"
-		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = ' ' "
-		cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
-		cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
+//		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004','12201006','12201005','12201010'))")  +CRLF
+		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004') OR SUBSTRING(D1_CONTA,1,5) = '12201')") +CRLF
+		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
+
+		cQuery2 += " UNION ALL"+CRLF
+		cQuery2 += " SELECT D3_FILIAL,MAX(' '),MAX(' '),MAX(' '),MAX(' '),D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"+CRLF
+		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
+		cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+		cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 //		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004','12201006','12201005','12201010'))") 
-		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) = '12201')") 
-		cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"
+		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) = '12201')") +CRLF
+		cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"+CRLF
 
-		cQuery2 += " ORDER BY B1_DESC"
+		//cQuery2 += " ORDER BY B1_DESC"+CRLF
 
-		//u_xxLog("BKGCTR11-D1-1.SQL",cQuery2,.F.,"TESTE")
+		u_LogMemo("BKGCTR11-D1-1-"+STRZERO(_nI,3)+".SQL",cQuery2)
 		        
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		cOUTROS := 'S'
+
 		dbSelectArea("TMPX2")
 		dbGoTop()
+
+		cLastE2 := "-"
+		aAcrDcr := {}
+
 		DO While !TMPX2->(EOF())
-			cOUTROS := 'S'
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+
+			//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
+			If !Empty(TMPX2->D1_DOC)
+				If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
+					cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
+					aAcrDcr := u_fAcrDcr()
+				EndIf
+			Else
+				aAcrDcr := {}
+			EndIf
+			//<--- Fim: Buscar Acrescimos e Decrescimos Financeiros da NFE
+
+			dbSelectArea("TMPX2")
+
+			cOutros := 'S'
+			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"")
+
+				/*
 		   		dbSelectArea(ALIAS_TMP)
 		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'12',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
-					cOUTROS := 'N'
+					cOutros := 'N'
 				ENDIF
+				*/
+
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"")
+
+				/*
    				// GRAVA VALOR NO CUSTO
    				dbSelectArea(ALIAS_TMP)
    				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
@@ -1566,19 +1627,30 @@ FOR _nI := 1 TO nPeriodo
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
 				ENDIF
-				
+				*/
+
 			ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
+			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
+
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'14',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"")
+
+				/*
 		   		dbSelectArea(ALIAS_TMP)
 		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'14',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
-					cOUTROS := 'N'
+					cOutros := 'N'
 				ENDIF
+				*/
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"")
+
    				// GRAVA VALOR NO CUSTO
+				/*
    				dbSelectArea(ALIAS_TMP)
    				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
@@ -1586,18 +1658,27 @@ FOR _nI := 1 TO nPeriodo
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
 				ENDIF
+				*/
 			ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
+			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'20',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"")
+				/*
 		   		dbSelectArea(ALIAS_TMP)
 		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'20',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
-					cOUTROS := 'N'
+					cOutros := 'N'
 				ENDIF
+				*/
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"")
    				// GRAVA VALOR NO CUSTO
+				/*
    				dbSelectArea(ALIAS_TMP)
    				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'08',.F.)
      				Reclock(ALIAS_TMP,.F.)
@@ -1605,11 +1686,12 @@ FOR _nI := 1 TO nPeriodo
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
 				ENDIF
+				*/
 			ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
 				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
-				cOUTROS := 'N'
+				cOutros := 'N'
 				nNumRat := 0
 				nValRat := 0
 				//Determina quantos Meses utilizar no calculo
@@ -1618,7 +1700,6 @@ FOR _nI := 1 TO nPeriodo
                 ELSE
                 	nNumRat := 1
                 ENDIF
-
  
 				IF nNumRat > 1
 					nValRat := TMPX2->D1_TOTAL / nNumRat 
@@ -1631,14 +1712,18 @@ FOR _nI := 1 TO nPeriodo
 			    IF nParcela > nPeriodo
 			    	nParcela := nPeriodo
 			    ENDIF 
- 
+				lPRat := .T.
+
 			    FOR XI_ := _nI TO nParcela
 	   				dbSelectArea(ALIAS_TMP)
+					
+					/*
 	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
 						Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
 						&cCampo2 += nValRat
 						(ALIAS_TMP)->(Msunlock())
+
 					ELSE
 						Reclock(ALIAS_TMP,.T.)
 						(ALIAS_TMP)->XX_CODGCT := IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))
@@ -1649,7 +1734,21 @@ FOR _nI := 1 TO nPeriodo
 						&cCampo2 += nValRat
 						(ALIAS_TMP)->(Msunlock())
 					ENDIF
+					*/
 
+					/* retirado em 20/07/20
+	   				IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
+						Reclock(ALIAS_TMP,.T.)
+						(ALIAS_TMP)->XX_CODGCT := IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))
+						(ALIAS_TMP)->XX_CODIGO := '30'
+						(ALIAS_TMP)->XX_DESC   := "GASTOS GERAIS"
+						(ALIAS_TMP)->(Msunlock())
+					EndIf
+					*/
+					
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'30',XI_,nValRat,aAcrDcr,cOutros,cOutros,lPRat,"")
+
+					/*
 					dbSelectArea(ALIAS_TMP)
 	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
 						Reclock(ALIAS_TMP,.F.)
@@ -1665,10 +1764,25 @@ FOR _nI := 1 TO nPeriodo
 						&cCampo2 += nValRat
 						(ALIAS_TMP)->(Msunlock())
 					ENDIF
+					*/
+
+					cCodCC := IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC))))
+	   				///IF !dbSeek(IIF(nConsol>0,"999999999",PAD(TMPX2->D1_CC,nTamCodGct))+PAD("W"+cCodCC,nTamCodigo),.F.)
+					///	Reclock(ALIAS_TMP,.T.)
+					///	(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(TMPX2->D1_CC))
+					///	(ALIAS_TMP)->XX_CODIGO := "W"+cCodCC
+					///	(ALIAS_TMP)->XX_DESC   := cCodCC
+					///	(ALIAS_TMP)->(Msunlock())
+					///ENDIF
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,"W"+cCodCC,XI_,nValRat,aAcrDcr,cOutros,cOutros,lPRat,cCodCC)
+
+					lPRat   := .F.
 				NEXT
             ENDIF
-			IF cOUTROS == 'S'
+			IF cOutros == 'S'
 				dbSelectArea(ALIAS_TMP)
+				/*
 	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
 					Reclock(ALIAS_TMP,.F.)
 				ELSE
@@ -1684,14 +1798,34 @@ FOR _nI := 1 TO nPeriodo
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += TMPX2->D1_TOTAL
 				(ALIAS_TMP)->(Msunlock())
+				*/
 
-	   			dbSelectArea(ALIAS_TMP)
+				///IF !dbSeek(IIF(nConsol>0,"999999999",PAD(TMPX2->D1_CC,nTamCodGct))+"W"+PAD(TMPX2->D1_COD,nTamCodigo),.F.)
+				///	Reclock(ALIAS_TMP,.T.)
+				///	(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(TMPX2->D1_CC))
+				///	(ALIAS_TMP)->XX_CODIGO := "W"+ALLTRIM(TMPX2->D1_COD)
+				///	(ALIAS_TMP)->XX_DESC   := ALLTRIM(TMPX2->B1_DESC)
+				///	// Debug
+				///	If EMPTY((ALIAS_TMP)->XX_DESC)
+				///		(ALIAS_TMP)->XX_DESC := "5 - Produto "+ALLTRIM(TMPX2->D1_COD)
+				///	EndIf
+				///ENDIF
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,"W"+TMPX2->D1_COD,_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC)
+
+	   			/*
+				   dbSelectArea(ALIAS_TMP)
 	   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'30',.F.)
 	     			Reclock(ALIAS_TMP,.F.)
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += TMPX2->D1_TOTAL
 					(ALIAS_TMP)->(Msunlock())
 				ENDIF
+				*/
+
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'30',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"")
+
+
 			ENDIF
 			
 			dbSelectArea("TMPX2")
@@ -1705,45 +1839,76 @@ FOR _nI := 1 TO nPeriodo
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IF nScan > 0 
-			cQuery2 := "SELECT DISTINCT D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"
-			cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1" 
-			cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,2])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' '" 
-			cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,2])+" SB1 ON D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ' ' "                                        
-			cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,2])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' '"
-			cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = ' ' "
+
+			cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
+			cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1"+CRLF
+			//cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,2])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''"+CRLF
+			cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,2])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF                                       
+			//cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,2])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"+CRLF
+			cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 			//cQuery2 += " AND D1_CC = '000000001'"
 			IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
-				cQuery2 += " AND D1_FORNECE<>'002918'"
+				cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 			ENDIF 
 			IF SM0->M0_CODIGO == "14"   // Despesas médicas
-				cQuery2 += " AND D1_FORNECE<>'000604'"
+				cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 			ENDIF 
 			IF ALLTRIM(aConsorcio[nScan,2]) == "140"
-				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" 
+				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" +CRLF
             ELSE
-				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
+				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 			ENDIF
-			cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "  
-			cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
-			cQuery2 += " ORDER BY B1_DESC"
+			cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' " +CRLF 
+			//cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
+			cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
+			//cQuery2 += " ORDER BY B1_DESC"+CRLF
 
-			//u_xxLog("BKGCTR11-D1-2.SQL",cQuery2,.F.,"TESTE")        
+			u_LogMemo("BKGCTR11-D1-2-"+STRZERO(_nI,3)+".SQL",cQuery2)
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			cOUTROS := 'S'
+			cOutros := 'S'
 			dbSelectArea("TMPX2")
 			dbGoTop()
+
+			cLastE2 := "-"
+			aAcrDcr := {}
+
 			DO While !TMPX2->(EOF()) 
-				cOUTROS := 'S'
+
+				//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
+				If !Empty(TMPX2->D1_DOC)
+					If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
+						cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
+						aAcrDcr := u_fAcrDcr()
+					EndIf
+				Else
+					aAcrDcr := {}
+				EndIf
+				//<--- Fim: Buscar Acrescimos e Decrescimos Financeiros da NFE
+				
+				dbSelectArea("TMPX2")
+
+				cOutros := 'S'
+				nAuxVl  := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"")
+
+					/*
 			   		dbSelectArea(ALIAS_TMP)
 			   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
 			     		Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 +=  IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 						(ALIAS_TMP)->(Msunlock())
-						cOUTROS := 'N'
+						cOutros := 'N'
 					ENDIF
+					*/
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+
+					/*
 	   				// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
 	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
@@ -1752,10 +1917,15 @@ FOR _nI := 1 TO nPeriodo
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 						(ALIAS_TMP)->(Msunlock())
 					ENDIF
-					
+					*/
+
 				ENDIF
 	
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"")
+
+					/*
 			   		dbSelectArea(ALIAS_TMP)
 			   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
 			     		Reclock(ALIAS_TMP,.F.)
@@ -1764,6 +1934,10 @@ FOR _nI := 1 TO nPeriodo
 						(ALIAS_TMP)->(Msunlock())
 						cOUTROS := 'N'
 					ENDIF
+					*/
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+					/*
 	   				// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
 	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
@@ -1772,9 +1946,15 @@ FOR _nI := 1 TO nPeriodo
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 						(ALIAS_TMP)->(Msunlock())
 					ENDIF
+					*/
 				ENDIF
 
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"")
+
+					/*
 			   		dbSelectArea(ALIAS_TMP)
 			   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
 			     		Reclock(ALIAS_TMP,.F.)
@@ -1783,7 +1963,11 @@ FOR _nI := 1 TO nPeriodo
 						(ALIAS_TMP)->(Msunlock())
 						cOUTROS := 'N'
 					ENDIF
-	   				// GRAVA VALOR NO CUSTO
+					*/
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+	   				/*
+					// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
 	   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
 	     				Reclock(ALIAS_TMP,.F.)
@@ -1791,9 +1975,10 @@ FOR _nI := 1 TO nPeriodo
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 						(ALIAS_TMP)->(Msunlock())
 					ENDIF
+					*/
 				ENDIF
 	
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP ;
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP ;
 						.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 					cOUTROS := 'N'
 					nNumRat := 0
@@ -1817,9 +2002,14 @@ FOR _nI := 1 TO nPeriodo
 				    IF nParcela > nPeriodo
 				    	nParcela := nPeriodo
 				    ENDIF 
-	
+					lPRat := .T.
+
 				    FOR XI_ := _nI TO nParcela
+
 		   				dbSelectArea(ALIAS_TMP)
+						nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
+
+						/*
 		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 							Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
@@ -1835,7 +2025,11 @@ FOR _nI := 1 TO nPeriodo
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
-	
+						*/
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,"")
+
+						/*
 						dbSelectArea(ALIAS_TMP)
 		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
 							Reclock(ALIAS_TMP,.F.)
@@ -1851,10 +2045,29 @@ FOR _nI := 1 TO nPeriodo
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
+						*/
+
+						cCodCC := IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC))))
+						///IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cCodCC,.F.)
+						///	Reclock(ALIAS_TMP,.T.)
+						///	(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
+						///	(ALIAS_TMP)->XX_CODIGO := "W"+cCodCC
+						///	(ALIAS_TMP)->XX_DESC   := cCodCC
+						///	(ALIAS_TMP)->(Msunlock())
+						///ENDIF
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+cCodCC,XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,cCodCC)
+
+						lPRat   := .F.
 					NEXT
 	            ENDIF
-				IF cOUTROS == 'S'
+
+				IF cOutros == 'S'
 					dbSelectArea(ALIAS_TMP)
+
+					nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+
+					/*
 		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
 						Reclock(ALIAS_TMP,.F.)
 					ELSE
@@ -1870,30 +2083,50 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL /VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL )
 					(ALIAS_TMP)->(Msunlock())
-	
-		   			dbSelectArea(ALIAS_TMP)
+					*/
+
+					///IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
+					///	Reclock(ALIAS_TMP,.T.)
+					///	(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
+					///	(ALIAS_TMP)->XX_CODIGO := "W"+ALLTRIM(TMPX2->D1_COD)
+					///	(ALIAS_TMP)->XX_DESC   := ALLTRIM(TMPX2->B1_DESC)
+					///	// Debug
+					///	If EMPTY((ALIAS_TMP)->XX_DESC)
+					///		(ALIAS_TMP)->XX_DESC := "6 - Produto "+ALLTRIM(TMPX2->D1_COD)
+					///	EndIf
+					///ENDIF
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+TMPX2->D1_COD,_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC)
+
+
+		   			/*
+					dbSelectArea(ALIAS_TMP)
 		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 		     			Reclock(ALIAS_TMP,.F.)
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL /VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL )
 						(ALIAS_TMP)->(Msunlock())
 					ENDIF
+					*/
+
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+
 				ENDIF
 				
 				dbSelectArea("TMPX2")
 				dbSkip()
 			ENDDO
 			TMPX2->(dbCloseArea())
-	  	
 			
-			cQuery2 := "select E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"
-			cQuery2 += " from SE5"+ALLTRIM(aConsorcio[nScan,2])+" SE5" 
-			cQuery2 += " LEFT JOIN CT1"+ALLTRIM(aConsorcio[nScan,2])+" CT1 ON (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"
-			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"
-			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
+			cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
+			cQuery2 += " FROM SE5"+ALLTRIM(aConsorcio[nScan,2])+" SE5" +CRLF
+			cQuery2 += " LEFT JOIN CT1"+ALLTRIM(aConsorcio[nScan,2])+" CT1 ON CT1_FILIAL = '"+xFilial("CT1")+"' AND (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"+CRLF
+			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
+			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-			//u_xxLog("BKGCTR11-E5-1.SQL",cQuery2,.F.,"TESTE")        
-	        
+			u_LogMemo("BKGCTR11-E5-1-"+STRZERO(_nI,3)+".SQL",cQuery2)
+
+
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
 			dbSelectArea("TMPX2")
 			dbGoTop()
@@ -1926,14 +2159,13 @@ FOR _nI := 1 TO nPeriodo
 				dbSkip()
 			ENDDO
 			TMPX2->(dbCloseArea())
+
 			 //Consorcio balsa nova
 	  		IF LEN(aConsorcio[nScan]) > 7
-			   	cQuery2 := "SELECT DISTINCT D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"
+			   	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"
 				cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,8])+" SD1" 
-				cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,8])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' '" 
-				cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ' ' "                                        
-				cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,8])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' '"
-				cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = ' ' "
+				cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "                                        
+				cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "
 				IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 					cQuery2 += " AND D1_FORNECE<>'002918'"
 				ENDIF 
@@ -1942,10 +2174,12 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF 
 				cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
 				cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "  
-				cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
-				cQuery2 += " ORDER BY B1_DESC"
+				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
+				//cQuery2 += " ORDER BY B1_DESC"
 				
 				//u_xxLog("BKGCTR11-D1-3.SQL",cQuery2,.F.,"TESTE")        
+				cLastE2 := "-"
+				aAcrDcr := {}
 
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
@@ -1953,10 +2187,32 @@ FOR _nI := 1 TO nPeriodo
 				dbSelectArea("TMPX2")
 				dbGoTop()
 				DO While !TMPX2->(EOF()) 
+
+
+					//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
+					If !Empty(TMPX2->D1_DOC)
+						If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
+							cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
+							aAcrDcr := u_fAcrDcr()
+						EndIf
+					Else
+						aAcrDcr := {}
+					EndIf
+					//<--- Fim: Buscar Acrescimos e Decrescimos Financeiros da NFE
+					dbSelectArea("TMPX2")
+
 					cOUTROS := 'S'
+
+					nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"")
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+				   		/*
 				   		dbSelectArea(ALIAS_TMP)
-				   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
+						IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
 				     		Reclock(ALIAS_TMP,.F.)
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 							&cCampo2 +=  IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
@@ -1971,10 +2227,17 @@ FOR _nI := 1 TO nPeriodo
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
-						
+						*/
+
 					ENDIF
 		
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"")
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+
+						/*
 				   		dbSelectArea(ALIAS_TMP)
 				   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
 				     		Reclock(ALIAS_TMP,.F.)
@@ -1991,9 +2254,16 @@ FOR _nI := 1 TO nPeriodo
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
+						*/
 					ENDIF
 	
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"")
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
+
+						/*
 				   		dbSelectArea(ALIAS_TMP)
 				   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
 				     		Reclock(ALIAS_TMP,.F.)
@@ -2010,9 +2280,10 @@ FOR _nI := 1 TO nPeriodo
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
+						*/
 					ENDIF
 		
-					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
+					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
 							 .OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 						cOUTROS := 'N'
 						nNumRat := 0
@@ -2036,9 +2307,14 @@ FOR _nI := 1 TO nPeriodo
 					    IF nParcela > nPeriodo
 					    	nParcela := nPeriodo
 					    ENDIF 
+						lPRat := .T.
 		
 					    FOR XI_ := _nI TO nParcela
 			   				dbSelectArea(ALIAS_TMP)
+							
+							nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
+
+							/*   
 			   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 								Reclock(ALIAS_TMP,.F.)
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(XI_,3)
@@ -2054,7 +2330,11 @@ FOR _nI := 1 TO nPeriodo
 								&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
 								(ALIAS_TMP)->(Msunlock())
 							ENDIF
-		
+							*/
+
+							cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,"")
+
+							/*
 							dbSelectArea(ALIAS_TMP)
 			   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC)))),.F.)
 								Reclock(ALIAS_TMP,.F.)
@@ -2070,9 +2350,27 @@ FOR _nI := 1 TO nPeriodo
 								&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
 								(ALIAS_TMP)->(Msunlock())
 							ENDIF
+							*/
+							cCodCC := IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0008','UNIFORME',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0009','MATERIAL DE SEGURANCA',IIF(ALLTRIM(TMPX2->B1_GRUPO) == '0010','INSUMOS',ALLTRIM(TMPX2->B1_DESC))))
+							///IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cCodCC,.F.)
+							///	Reclock(ALIAS_TMP,.T.)
+							///	(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
+							///	(ALIAS_TMP)->XX_CODIGO := "W"+cCodCC
+							///	(ALIAS_TMP)->XX_DESC   := cCodCC
+							///	(ALIAS_TMP)->(Msunlock())
+							///ENDIF
+
+							cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+cCodCC,XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,cCodCC)
+
+							lPRat   := .F.
 						NEXT
 		            ENDIF
+
 					IF cOUTROS == 'S'
+
+						nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+
+						/*
 						dbSelectArea(ALIAS_TMP)
 			   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
 							Reclock(ALIAS_TMP,.F.)
@@ -2089,7 +2387,23 @@ FOR _nI := 1 TO nPeriodo
 						cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL /VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL )
 						(ALIAS_TMP)->(Msunlock())
+						*/
 		
+						///IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
+						///	Reclock(ALIAS_TMP,.T.)
+						///	(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
+						///	(ALIAS_TMP)->XX_CODIGO := "W"+ALLTRIM(TMPX2->D1_COD)
+						///	(ALIAS_TMP)->XX_DESC   := ALLTRIM(TMPX2->B1_DESC)
+						///	// Debug
+						///	If EMPTY((ALIAS_TMP)->XX_DESC)
+						///		(ALIAS_TMP)->XX_DESC := "8 - Produto "+ALLTRIM(TMPX2->D1_COD)
+						///	EndIf
+						///ENDIF
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+TMPX2->D1_COD,_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC)
+
+
+						/*
 			   			dbSelectArea(ALIAS_TMP)
 			   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
 			     			Reclock(ALIAS_TMP,.F.)
@@ -2097,6 +2411,9 @@ FOR _nI := 1 TO nPeriodo
 							&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL /VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL )
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
+						*/
+
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"")
 					ENDIF
 					
 					dbSelectArea("TMPX2")
@@ -2104,15 +2421,15 @@ FOR _nI := 1 TO nPeriodo
 				ENDDO
 				TMPX2->(dbCloseArea())
 		  	
-				
-				cQuery2 := "select E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"
-				cQuery2 += " from SE5"+ALLTRIM(aConsorcio[nScan,8])+" SE5" 
-				cQuery2 += " LEFT JOIN CT1"+ALLTRIM(aConsorcio[nScan,8])+" CT1 ON (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"
-				cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"
-				cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
-		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 
-				//u_xxLog("BKGCTR11-E5-2.SQL",cQuery2,.F.,"TESTE")        
+				cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
+				cQuery2 += " FROM SE5"+ALLTRIM(aConsorcio[nScan,8])+" SE5" +CRLF
+				cQuery2 += " LEFT JOIN CT1"+ALLTRIM(aConsorcio[nScan,8])+" CT1 ON CT1_FILIAL = '"+xFilial("CT1")+"' AND (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"+CRLF
+				cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
+				cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"+CRLF
+
+				u_LogMemo("BKGCTR11-E5-2-"+STRZERO(_nI,3)+".SQL",cQuery2)
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
 				dbSelectArea("TMPX2")
@@ -2145,14 +2462,15 @@ FOR _nI := 1 TO nPeriodo
 		  		
 	  		ENDIF
 	  	ELSE
-			cQuery2 := "select E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"
-			cQuery2 += " from "+RETSQLNAME("SE5")+" SE5" 
-			cQuery2 += " LEFT JOIN "+RETSQLNAME("CT1")+" CT1 ON (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"
-			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"
-			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
-	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
+
+			cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
+			cQuery2 += " FROM "+RETSQLNAME("SE5")+" SE5"  +CRLF
+			cQuery2 += " LEFT JOIN "+RETSQLNAME("CT1")+" CT1 ON CT1_FILIAL = '"+xFilial("CT1")+"' AND (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"+CRLF
+			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
+			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"+CRLF
 	        
-			//u_xxLog("BKGCTR11-E5-3.SQL",cQuery2,.F.,"TESTE")        
+			u_LogMemo("BKGCTR11-E5-3-"+STRZERO(_nI,3)+".SQL",cQuery2)
 
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
 			
@@ -2185,32 +2503,36 @@ FOR _nI := 1 TO nPeriodo
 			TMPX2->(dbCloseArea())
 	  	ENDIF
 
-		IncProc("Consultando faturamento de medições avulsa...")
+		IncProc("Consultando faturamento das medições avulsas...")
 		//********* FATURAMENTO - Inclusão para medição avulso
-		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"
-		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" 
-		cQuery2 += " INNER JOIN "+RETSQLNAME("SC6")+" SC6 ON SC5.C5_NUM = SC6.C6_NUM" 
+		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"+CRLF
+		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" +CRLF
+		cQuery2 += " INNER JOIN "+RETSQLNAME("SC6")+" SC6 ON SC5.C5_NUM = SC6.C6_NUM" +CRLF
+		cQuery2 += "       AND  SC6.C6_FILIAL = SC5.C5_FILIAL AND SC6.D_E_L_E_T_ = ''"+CRLF
 		
-	    cQuery2 += " INNER JOIN "+RETSQLNAME("SD2")+" SD2 ON C6_NUM = D2_PEDIDO AND C6_ITEM = D2_ITEM"
-		cQuery2 += " AND  SD2.D2_FILIAL = '"+xFilial("SD2")+"'  AND  SD2.D_E_L_E_T_ = ' '"
+	    cQuery2 += " INNER JOIN "+RETSQLNAME("SD2")+" SD2 ON C6_NUM = D2_PEDIDO AND C6_ITEM = D2_ITEM"+CRLF
+		cQuery2 += "       AND  SD2.D2_FILIAL = '"+xFilial("SD2")+"' AND SD2.D_E_L_E_T_ = ''"+CRLF
 
 		// 27/02/20   
-		cQuery2 += "LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " //--AND E5_PARCELA = '  '
-		cQuery2 += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ' "
+		cQuery2 += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " +CRLF//--AND E5_PARCELA = '  '
+		cQuery2 += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-	    cQuery2 += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON SC5.C5_CLIENTE = SA1.A1_COD" 
-	    cQuery2 += " AND SC5.C5_LOJACLI = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
+	    cQuery2 += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON SC5.C5_CLIENTE = SA1.A1_COD AND SC5.C5_LOJACLI = SA1.A1_LOJA " +CRLF
+	    cQuery2 += "      AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 	    
-	    cQuery2 += " INNER  JOIN "+RETSQLNAME("CTT")+" CTT ON SC5.C5_ESPECI1 = CTT.CTT_CUSTO AND CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '" 
-	    cQuery2 += " WHERE SC5.D_E_L_E_T_ = ' ' AND SC5.C5_MDCONTR='' AND SC5.C5_XXCOMPT ='"+SUBSTR(aPeriodo[_nI,1],1,2)+SUBSTR(aPeriodo[_nI,1],4,4)+"'"
-	   	cQuery2 += " AND C5_ESPECI1 <> '000000001'"
+	    cQuery2 += " INNER JOIN "+RETSQLNAME("CTT")+" CTT ON SC5.C5_ESPECI1 = CTT.CTT_CUSTO AND CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''" +CRLF
+	    cQuery2 += " WHERE SC5.D_E_L_E_T_ = '' AND SC5.C5_MDCONTR='' AND SC5.C5_XXCOMPT ='"+SUBSTR(aPeriodo[_nI,1],1,2)+SUBSTR(aPeriodo[_nI,1],4,4)+"'"+CRLF
+
+	   	//cQuery2 += " AND C5_ESPECI1 <> '000000001'"+CRLF
 	    //IF !EMPTY(cContrato)
 	    //	cQuery2 += " AND C5_ESPECI1 ='"+ALLTRIM(cContrato)+"'"
 	    //ENDIF	
-    	cQuery2 += " AND C5_ESPECI1 ='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
+    	cQuery2 += " AND C5_ESPECI1 ='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 	    	
-	    cQuery2 += " GROUP BY SC5.C5_ESPECI1,SA1.A1_NOME,CTT.CTT_DESC01" 
+	    cQuery2 += " GROUP BY SC5.C5_ESPECI1,SA1.A1_NOME,CTT.CTT_DESC01" +CRLF
 	      	
+		u_LogMemo("BKGCTR11-SC5-1-"+STRZERO(_nI,3)+".SQL",cQuery2)
+
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		
 		dbSelectArea("TMPX2")
@@ -4227,14 +4549,14 @@ IF nConsolida == 1
 				dDtProj     := SZG->ZG_DATA
 				cSeqProj	:= SZG->ZG_SEQ
 	  					
-	  			cQuery := " SELECT SUM(CNF_VLPREV) AS CNF_FATURA,COUNT(CNF_VLPREV) AS _NCONT"
-	    		cQuery += " FROM "+RETSQLNAME("CNF")+ " CNF"
-				cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"
-				cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"
-				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
-				cQuery += " AND CNF.CNF_CONTRA='"+ALLTRIM(cCONTRA)+"'AND "
-				cQuery += " CNF.CNF_FILIAL = '"+xFilial("CNF")+"' "
-				cQuery += " AND CNF.CNF_COMPET='"+SUBSTR(DTOS(CTOD(cPERIODO)),5,2)+"/"+SUBSTR(DTOS(CTOD(cPERIODO)),1,4)+"'"
+	  			cQuery := " SELECT SUM(CNF_VLPREV) AS CNF_FATURA,COUNT(CNF_VLPREV) AS _NCONT"+CRLF
+	    		cQuery += " FROM "+RETSQLNAME("CNF")+ " CNF"+CRLF
+				cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+				cQuery += " AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"+CRLF
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+				cQuery += " AND CNF.CNF_CONTRA='"+ALLTRIM(cCONTRA)+"'AND "+CRLF
+				cQuery += " CNF.CNF_FILIAL = '"+xFilial("CNF")+"' "+CRLF
+				cQuery += " AND CNF.CNF_COMPET='"+SUBSTR(DTOS(CTOD(cPERIODO)),5,2)+"/"+SUBSTR(DTOS(CTOD(cPERIODO)),1,4)+"'"+CRLF
 		      
 				TCQUERY cQuery NEW ALIAS "TMPX2"
 	
@@ -4460,4 +4782,101 @@ aRet := {{"345000529",{"320200301","000000000000102"}}}
 //		 {"302000508",{"000000000000102"}}}
 Return aRet
 
+
+
+
+// Buscar Titulos do contas a pagar por itens dos Documentos de Entrada
+// 20/07//2020
+User Function fAcrDcr()
+Local aAcrDcr := {}
+Local cQuery3 := ""
+Local nTotE2  := 0
+Local nACrDcr := 0
+Local _nY	  := 0
+
+cQuery3 := " SELECT E2_VENCTO,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC"+CRLF
+cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
+cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
+cQuery3 += "   AND E2_PREFIXO = '"+TMPX2->D1_SERIE+"'" +CRLF
+cQuery3 += "   AND E2_NUM = '"+TMPX2->D1_DOC+"'" +CRLF
+cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
+cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
+
+u_LogMemo("BKGCTR11-E2-1"+STRZERO(_nI,3)+".SQL",cQuery3)
+
+TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
+dbSelectArea("QTMPXE2")
+dbGoTop()
+
+nTotE2  := 0
+Do While !QTMPXE2->(EOF())
+	nACrDcr := 0
+	If QTMPXE2->E2_DECRESC > 0
+		nACrDcr -= QTMPXE2->E2_DECRESC
+	Else
+		nACrDcr -= QTMPXE2->E2_DESCONT
+	EndIf
+	If QTMPXE2->E2_ACRESC > 0
+		nACrDcr += QTMPXE2->E2_ACRESC
+	Else
+		nACrDcr += QTMPXE2->E2_MULTA + QTMPXE2->E2_JUROS
+	EndIf
+	// Guardar no Array o valor proporcional do decrescimo ou acrescimo no mes de referencia
+	If ABS(nACrDcr) > 0
+		aAdd(aAcrDcr,{SUBSTR(QTMPXE2->E2_VENCTO,1,6),nACrDcr,0})
+	EndIf
+	nTotE2 += QTMPXE2->E2_VALOR
+	dbSkip()
+Enddo
+For _nY := 1 To Len(aAcrDcr)
+	//                        Val desc/Acr  / Tot Geral * Valor do Item   			
+	aAcrDcr[_nY,3] := Round((aAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
+NExt
+QTMPXE2->(Dbclosearea())
+
+Return aAcrDcr
+
+
+// Gravar o custo dos Documentos de Entrada por Categoria/Produto
+// 19/07/2020
+Static Function GravaCCD1(cAliasTmp,nConsol,cCusto,cPrd,_nI,nValor,aAcrDcr,cOutros,cOutros1,lPRat,cDesc)
+Local nY := 0
+Local nYMes := 0
+Local cRet := cOutros
+Private cCampo2
+
+cCusto := PAD(IIF(nConsol>0,"999999999",cCusto),nTamCodGct)
+cPrd   := PAD(cPrd,nTamCodigo)
+
+dbSelectArea(cAliasTmp)
+If !dbSeek(cCusto+cPrd,.F.)
+	Reclock(ALIAS_TMP,.T.)
+	(ALIAS_TMP)->XX_CODGCT := cCusto
+	(ALIAS_TMP)->XX_CODIGO := cPrd
+
+	If EMPTY(cDesc)
+		(ALIAS_TMP)->XX_DESC := cPrd
+	Else
+		(ALIAS_TMP)->XX_DESC := ALLTRIM(cDesc)
+	EndIf
+Else
+	Reclock(cAliasTmp,.F.)
+EndIf
+
+cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(_nI,3)
+&cCampo2 += nValor
+If lPRat // Só fazer no primeiro item do rateio
+	// Gravar Acrescimos e Decrescimos Financeiros
+	For nY := 1 To Len(aAcrDcr)
+		nYMes := ASCAN(aAnoMes,{|x| x == aAcrDcr[nY,1]})
+		If nYmes > 0
+			cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(nYMes,3)
+			&cCampo2 += aAcrDcr[nY,3]
+		EndIf
+	Next
+EndIf
+(cAliasTmp)->(Msunlock())
+cRet := cOutros1
+
+Return cRet
 
