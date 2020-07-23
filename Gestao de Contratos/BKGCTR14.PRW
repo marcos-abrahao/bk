@@ -1933,7 +1933,7 @@ FOR _nI := 1 TO nPeriodo
 		ENDIF 
 		
 		//// Para teste de alugueis: 
-		cQuery2 += " AND (D1_COD = '000000000000102' OR D1_COD = '320200301')  "+CRLF // AND D1_FORNECE = '004190'
+		//cQuery2 += " AND (D1_COD = '000000000000102' OR D1_COD = '320200301')  "+CRLF // AND D1_FORNECE = '004190'
 
 		IF nCompras == 1
 			cQuery2 += " AND D1_PEDIDO <> ''"
