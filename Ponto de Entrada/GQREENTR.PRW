@@ -54,8 +54,8 @@ cAlmox  := SuperGetMV("MV_XXGRALX",.F.,"000021")
 // Michele Morais 138, Fabio 93, Anderson 5, João Brasileiro (antonio.filho) 171 e Vanderleia 56
 //cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
 
-// Alteração solicitada por William Santos em 21/01/20
-cAvalia := "000093"   // Apenas o Fabio Quirino
+// Alteração solicitada por William Santos em 21/01/20 - Anderson 25/07/20
+cAvalia := "000093/000005"   // Apenas o Fabio Quirino e o Anderson
 
 // Falta criar campo A2_XXAVALC, criar check box "Fornecedor análise crítica"  e gravar no SA2 (ler e sugerir na avaliação)
   
@@ -227,7 +227,7 @@ User Function RAvalForn()
 // Reavaliação da NF
 
 //cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
-cAvalia := "000000/000138/000093" // Adm/Michele/Fabio Quirino
+cAvalia := "000000/000138/000093/000005" // Adm/Michele/Fabio Quirino/Anderson
  
 If __cUserId $ cAvalia 
 	AvalForn(.T.)

@@ -1,5 +1,13 @@
 
 
+USE [dataP10]
+GO
+CREATE NONCLUSTERED INDEX [BKSD101]
+ON [dbo].[SD1010] ([D1_CC],[D_E_L_E_T_])
+INCLUDE ([D1_FILIAL],[D1_COD],[D1_TOTAL],[D1_CONTA],[D1_FORNECE],[D1_LOJA],[D1_DOC],[D1_DTDIGIT],[D1_SERIE],[D1_VALDESC],[D1_VALFRE],[D1_SEGURO],[D1_DESPESA])
+GO
+
+
 22/07/20 =============================================== 
 
 --Jadair

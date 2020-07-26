@@ -3812,6 +3812,12 @@ PRIVATE	cPict       := "@E 99,999,999,999.99"
 PRIVATE nPeriodo    := 1
 PRIVATE nPlan       := 1
 PRIVATE cContrato   := ""
+Private aPeriodo    := {}
+Private aAnoMes     := {}
+Private aAcrDcr 	:= {}
+Private cLastE2     := ""
+Private lPRat		:= .T.
+
 PRIVATE nMImpContr  := 0
 PRIVATE nTaxaAdm    := 0
 PRIVATE nEncargos   := 0
@@ -4270,6 +4276,7 @@ FOR _nI := 1 TO nPeriodo
 	AADD(aCampos2,ALIAS_TMP+"->XX_VAL"+cMes)
 	AADD(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
   	AAdd(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
+	AADD(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))	  
 	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
 
@@ -4281,19 +4288,19 @@ IF !lJob
 	aCabs3   := {}
 	aCampos3 := {}
 	
-	Aadd( aDbf3, { 'YY_CODGCT','C', 9,00 } )
+	Aadd( aDbf3, {'YY_CODGCT','C', 9,00 } )
 	AADD(aCampos3,ALIAS_FOL+"->YY_CODGCT")
 	AADD(aCabs3  ,"Contrato")
 
-	Aadd( aDbf3, { 'YY_CODIGO','C', 16,00 } )
+	Aadd( aDbf3, {'YY_CODIGO','C', 16,00 } )
 	AADD(aCampos3,ALIAS_FOL+"->YY_CODIGO")
 	AADD(aCabs3  ,"Cod.Evento")
 	
-	Aadd( aDbf3, { 'YY_DESC','C', 50,00 } )
+	Aadd( aDbf3, {'YY_DESC','C', 50,00 } )
 	AADD(aCampos3,ALIAS_FOL+"->YY_DESC")
 	AADD(aCabs3  ,"Descrição")
 
-	Aadd( aDbf3, { 'YY_TIPO','C', 25,00 } )
+	Aadd( aDbf3, {'YY_TIPO','C', 25,00 } )
 	AADD(aCampos3,ALIAS_FOL+"->YY_TIPO")
 	AADD(aCabs3  ,"Tipo")
 
@@ -4840,9 +4847,11 @@ Return aAcrDcr
 // Gravar o custo dos Documentos de Entrada por Categoria/Produto
 // 19/07/2020
 Static Function GravaCCD1(cAliasTmp,nConsol,cCusto,cPrd,_nI,nValor,aAcrDcr,cOutros,cOutros1,lPRat,cDesc)
-Local nY := 0
-Local nYMes := 0
-Local cRet := cOutros
+
+Local nY 			:= 0
+Local nYMes 		:= 0
+Local cRet 			:= cOutros
+
 Private cCampo2
 
 cCusto := PAD(IIF(nConsol>0,"999999999",cCusto),nTamCodGct)
@@ -4879,4 +4888,3 @@ EndIf
 cRet := cOutros1
 
 Return cRet
-
