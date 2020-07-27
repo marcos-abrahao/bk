@@ -981,7 +981,7 @@ Else
 		If !(Empty(cServPonto))
 			cServ := cServPonto
 		Endif
-		aPrintServ	:= Mtr968Mont(cServ,22,1950)  // era 13,999
+		aPrintServ	:= Mtr968Mont(cServ,22,1300)  // era 13,999
 		If lRioJaneiro
 			cObsRio := ""
 			nDescIncond := 0
@@ -1019,7 +1019,7 @@ Else
 		RestArea(aAreaRPS)
 		cObserv 	:= cObserv + cObsPonto
 		cObserv 	:= cObserv + cObsRio
-		aPrintObs	:= Mtr968Mont(cObserv,22,1950)	// era 11,675	
+		aPrintObs	:= Mtr968Mont(cObserv,13,1300)	// era 11,675	
 		//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 		//쿣erifica o cLiente/fornecedor do documento�
 		//읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸

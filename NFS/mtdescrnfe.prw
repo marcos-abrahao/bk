@@ -5,7 +5,9 @@
 // Montagem do corpo da NF de serviços
 
 User Function MtDescrNFE()
+
 Local cDescr   := ""
+Local cDescr1  := ""
 Local cImpost  := ""
 Local cNaturez := ""
 Local nPIrrf   := 0
@@ -22,9 +24,9 @@ Local cPlanilha := ""
 Local cMedicao  := ""
 Local nReg		:= 0
 
-Local cDescrCTT := ""
 Local cObjeto   := ""
-Local cObjeto1  := ""
+Local cObsMed   := ""
+Local cRevisa   := ""
 Local cCompet   := ""
 Local cConta    := ""
 Local cMun      := ""
@@ -32,7 +34,7 @@ Local cMun      := ""
 Local cVencto   := ""
 Local cParcela  := ""
 Local nI
-Local aTmp,cRevisa,cObsMed
+Local aTmp
 Local cImpDtV   := "S"
 Local cMenNota  := ""
 Local aBancos   := {}
@@ -45,7 +47,6 @@ Local cXXDSISS  := ALLTRIM(GetMv("MV_XXDSISS"))  // DESCRIÇÃO DA LEI PARA CLIENT
 Local cXXCVLIQ  := ALLTRIM(GetMv("MV_XXCVLIQ")) // CLIENTE SAIR VALOR LIQUIDO NA NF
 Local cXXMEDIC  := ALLTRIM(SuperGetMV("MV_XXMEDIC",.F.,"000302")) // CLIENTE SAIR A PALAVRA MEDIÇÃO AO INVES DE PARCELA
 Local cXXCOMPE  := ALLTRIM(SuperGetMV("MV_XXCOMPE",.F.,"000058/000163/000193/000194/000195/000196/000197/000198/000199/000211/000215/000239/000241/000242/000245/000305/000316/000317/000318/000319/000320/000321/")) // CLIENTE NAO SAIR COMPETENCIA
-Local cXXDNFS	:= ""
 Local nQTDIMP   := 0
 Local nTOTIMP   := 0
 Local lImp 		:= .F.
@@ -66,7 +67,7 @@ Local aAreaSYP
 Local aAreaCTT
 Local aAreaCND
 
-Local nMaxTLin := 80
+Local nMaxTLin := 95
 
 IF FWSM0Util():GetSM0Data( , , { "M0_CIDENT" } )[1][2] = "BARUERI" // Barueri - SP
 	nMaxTLin := 100
@@ -97,12 +98,14 @@ IF !SF2->(DbSeek(xFilial("SF2")+cCliente+cLoja+cNF+cSerie,.F.))
    Return cDescr
 ENDIF
 
+// Aqui
 IF !EMPTY(SF2->F2_XXCORPO)
+//If .F.
 	cDescr := TRIM(SF2->F2_XXCORPO)
-	cDescr += "|"
 	cDescr := AltCorpo(cDescr,cNF)
 
 	RecLock("SF2",.F.)
+	// Aqui
 	SF2->F2_XXCORPO := cDescr
 	SF2->(MsUnlock())
 	
@@ -144,6 +147,8 @@ DO WHILE !EOF() .and. SD2->D2_FILIAL + SD2->D2_DOC + SD2->D2_SERIE == cKeyD2
 	dbSkip()
 ENDDO
 
+cDescr := ""
+
 IF !EMPTY(cContrato)
 
     // QryProc(cAlias,nCampos,cCampos,cWhere)
@@ -156,20 +161,19 @@ IF !EMPTY(cContrato)
 	   nReg := aTmp[1]
 	   dbSelectArea("CND")
        dbGoTo(nReg)
-	   cObsMed := CND->CND_OBS
+	   cObsMed := TRIM(CND->CND_OBS)
 	   cRevisa := CND->CND_REVISA
 	ENDIF
     
 
 	// Descrição do contrato = descrição do centro de custo
-	cDescrCTT := ""
 	dbSelectArea("CTT")
 	dbSetOrder(1)
 	IF dbSeek(xFilial("CTT") + cContrato)
 		IF !EMPTY(CTT->CTT_XXDESC)
-			cDescrCTT := TRIM(CTT->CTT_XXDESC)+"|"
+			cDescr := TRIM(CTT->CTT_XXDESC)+"|"
 		ELSE
-			cDescrCTT := TRIM(CTT->CTT_DESC01)+"|"
+			cDescr := TRIM(CTT->CTT_DESC01)+"|"
 		ENDIF	
 	ENDIF
 
@@ -190,17 +194,44 @@ IF !EMPTY(cContrato)
 		ENDDO 
 	ENDIF
 	
-	cObjeto1 := ""
 	FOR nI:= 1 to MLCOUNT(cObjeto,nMaxTLin)
-		cObjeto1 += TRIM(MEMOLINE(cObjeto,nMaxTLin,nI))+"|"
+		cDescr += TRIM(MEMOLINE(cObjeto,nMaxTLin,nI))+"|"
 	NEXT
-	IF !EMPTY(cObjeto)
-		cObjeto1 += "|"
-	ENDIF	
-	FOR nI:= 1 to MLCOUNT(cObsMed,nMaxTLin)
-		cObjeto1 += TRIM(MEMOLINE(cObsMed,nMaxTLin,nI))+"|"
-	NEXT
-    
+
+	//IF !EMPTY(cObjeto)
+	//	cObjeto1 += "|"
+	//ENDIF	
+	//FOR nI:= 1 to MLCOUNT(cObsMed,nMaxTLin)
+	//	cLin := 
+	//	cObjeto1 += TRIM(MEMOLINE(cObsMed,nMaxTLin,nI))+"|"
+	//NEXT
+
+	//cLastLin := ""
+	//FOR nI:= 1 to MLCOUNT(cObsMed,nMaxTLin)
+	//	cNewLin := STRTRAN(TRIM(MEMOLINE(cObsMed,nMaxTLin,nI)),CHR(13)+CHR(10),"")
+	//	nTamLast := LEN(cLastLin)
+	//	If nTamLast > 0
+	//		nTamLast += 3
+	//	EndIf
+	//	If !Empty(cNewLin)
+	//		If (LEN(cNewLin) + nTamLast) > nMaxTlin 
+	//			cObjeto1 += IIF(!EMPTY(cLastLin),cLastLin+"|","")
+	//			cLastLin := cNewLin
+	//		ElseIf (LEN(cNewLin) + nTamLast) = nMaxTlin
+	//			cObjeto1 += IIF(!EMPTY(cLastLin),cLastLin+"|","")
+	//			cObjeto1 += IIF(!EMPTY(cNewLin),cNewLin+"|","")
+	//			cLastLin := ""
+	//		Else
+	//			cLastLin += IIF(!EMPTY(cLastLin)," - ","")+cNewLin
+	//		EndIf
+	//	EndIf
+	//NEXT
+	//If !Empty(cLastLin)
+	//	cObjeto1 += cLastLin+"|"
+	//EndIf
+
+	cDescr1 += cObsMed+CRLF
+
 	cCompet := ""
 	cParcela:= ""
 	dbSelectArea("CND")
@@ -224,7 +255,7 @@ IF !EMPTY(cContrato)
 	dbSetOrder(1)
 	IF dbSeek(xFilial("SA1")+cCliente+cLoja)
 	   IF !EMPTY(SA1->A1_XXCTABC)
-	      cConta := TRIM(SA1->A1_XXCTABC)+"|"
+	      cConta := TRIM(SA1->A1_XXCTABC)
 	   ENDIF   
 	   // cMun := "Municipio: "+TRIM(Posicione("CC2",1,xFilial("CC2")+SA1->A1_EST+SA1->A1_COD_MUN,"CC2_MUN"))+" - "+SA1->A1_EST
 	ENDIF
@@ -252,18 +283,20 @@ IF !EMPTY(cContrato)
 ELSE
 	// NF que não é serviço de contrato
 	IF !EMPTY(SC5->C5_XXDNFS)
-		cXXDNFS := ""
-		cXXDNFS := TRIM(SC5->C5_XXDNFS)
-		FOR nI:= 1 to MLCOUNT(cXXDNFS,nMaxTLin)
-			cObjeto1 += TRIM(MEMOLINE(cXXDNFS,nMaxTLin,nI))+"|"
-		NEXT
-   		cObjeto1 += cMenNota+"|"
+		//cXXDNFS := ""
+		//cXXDNFS := TRIM(SC5->C5_XXDNFS)
+		//FOR nI:= 1 to MLCOUNT(cXXDNFS,nMaxTLin)
+		//	cDescr1 += TRIM(MEMOLINE(cXXDNFS,nMaxTLin,nI))+"|"
+		//NEXT
+
+		cDescr1 += TRIM(SC5->C5_XXDNFS)+CRLF
+   		cDescr1 += cMenNota+CRLF
     	nPIss:= SB1->B1_ALIQISS
     ELSE
     	IF !EMPTY(cProduto)
     		SB1->(dbSeek(xFilial("SB1")+cProduto))
-    		cObjeto1 := TRIM(SB1->B1_DESC)+"|"
-    		cObjeto1 += cMenNota+"|"
+    		cDescr1 := TRIM(SB1->B1_DESC)+CRLF
+    		cDescr1 += cMenNota+CRLF
    	    	nPIss:= SB1->B1_ALIQISS
     	ENDIF
     ENDIF
@@ -273,7 +306,7 @@ ELSE
 	dbSetOrder(1)
 	IF dbSeek(xFilial("SA1")+cCliente+cLoja)
 	   IF !EMPTY(SA1->A1_XXCTABC)
-	      cConta := TRIM(SA1->A1_XXCTABC)+"|"
+	      cConta := TRIM(SA1->A1_XXCTABC)
 	   ENDIF   
 	ENDIF
 ENDIF 
@@ -295,16 +328,18 @@ IF cImpDtV <> "S"
 	cVencto := "Vencimento: conforme contrato"
 ENDIF	
 
-cDescr += cDescrCTT+cObjeto1
-cDescr += cVencto+IIF(!EMPTY(cVencto) .AND. !EMPTY(cCompet)," - ","")+cCompet+"|"
+
+cDescr1 += cVencto+IIF(!EMPTY(cVencto) .AND. !EMPTY(cCompet)," - ","")+cCompet+CRLF
 
 IF !EMPTY(cMun)
-	cDescr += cMun+"|"
+	cDescr1 += cMun+CRLF
 ENDIF	
 
 IF !EMPTY(cConta)
-	cDescr += cConta //+"|"
+	cDescr1 += cConta+CRLF
 ENDIF	
+
+cDescr += TextoNF(cDescr1,nMaxTLin)
 
 IF !EMPTY(cNaturez)
    SED->(Dbsetorder(1))
@@ -326,7 +361,7 @@ IF SF2->F2_VALIRRF > 0
       nPIrrf := GETMV("MV_ALIQIRF")
    ENDIF
    ++nQTDIMP
-   cImpost += PAD("IRRF.....",8)+STR(nPIrrf,5,2)+"%"+TRANSFORM(SF2->F2_VALIRRF,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "IRRF: "+ALLTRIM(STR(nPIrrf,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALIRRF,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -335,7 +370,7 @@ ENDIF
 IF SF2->F2_VALPIS > 0
    nTOTIMP += SF2->F2_VALPIS
    ++nQTDIMP
-   cImpost += PAD("PIS......",8)+STR(nPPis,5,2)+"%"+TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "PIS: "+ALLTRIM(STR(nPPis,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -344,7 +379,7 @@ ENDIF
 IF SF2->F2_VALCOFI > 0
    nTOTIMP += SF2->F2_VALCOFI
    ++nQTDIMP
-   cImpost += PAD("COFINS...",8)+STR(nPCofins,5,2)+"%"+TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "COFINS: "+ALLTRIM(STR(nPCofins,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99"))+CRLF  //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -353,7 +388,7 @@ ENDIF
 IF SF2->F2_VALCSLL > 0
    nTOTIMP += SF2->F2_VALCSLL
    ++nQTDIMP
-   cImpost += PAD("CSLL.....",8)+STR(nPCsll,5,2)+"%"+TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "CSLL: "+ALLTRIM(STR(nPCsll,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -363,7 +398,7 @@ IF !cCliente $ cXXNOISS .AND. !STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS
 	IF SF2->F2_VALISS > 0  .AND. SF2->F2_RECISS = "1"
    		nTOTIMP += SF2->F2_VALISS
   	 	++nQTDIMP
-  	 	cImpost += PAD("ISS......",8)+STR(nPIss,5,2)+"%"+TRANSFORM(SF2->F2_VALISS,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+  	 	cImpost += "ISS: "+ALLTRIM(STR(nPIss,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALISS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
   	 	lImp := !lImp
   	 	IF nQTDIMP==3
    			nQTDIMP := 0
@@ -375,11 +410,11 @@ IF SF2->F2_VALINSS > 0
    nTOTIMP += SF2->F2_VALINSS
    ++nQTDIMP
    IF cCliente = "000044"  // CPOS
-      cImpost += IIF(lImp,"|","")+"Retencao para a previdencia social: "
+      cImpost += "Retencao para a previdencia social: "
    ELSE
-      cImpost += PAD("INSS.....",8)
+      cImpost += "INSS: "
    ENDIF
-   cImpost += STR(nPInss,5,2)+"%"+TRANSFORM(SF2->F2_VALINSS,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += ALLTRIM(STR(nPInss,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALINSS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -397,7 +432,7 @@ IF SA1->A1_XXFUMDI == "S" .OR. SF2->F2_XXVFUMD > 0
 	ENDIF
 	nTOTIMP += SF2->F2_XXVFUMD
 	++nQTDIMP
-	cImpost += PAD("FUMDIP......",8)+STR(SF2->F2_XXAFUMD,5,2)+"%"+TRANSFORM(SF2->F2_XXVFUMD,"@E 999,999.99")+IIF(nQTDIMP==3,"|",SPACE(4))
+	cImpost += "FUMDIP: "+ALLTRIM(STR(SF2->F2_XXAFUMD,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVFUMD,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))
  	lImp := !lImp
  	IF nQTDIMP==3
 		nQTDIMP := 0
@@ -411,8 +446,8 @@ ENDIF
 
 
 IF !EMPTY(cImpost)
-   cImpost := "- - - Impostos a serem retidos - - -|"+cImpost
-   cDescr  += cImpost
+   cImpost := "Impostos a serem retidos: "+cImpost
+   cDescr  += TextoNF(cImpost,nMaxTLin)
 ENDIF
 
 IF cCliente $ cXXNOISS .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS //ADICIONA DESCRIÇÃO DA LEI PARA CLIENTE NÃO SAIR RETENÇÃO DE INSS
@@ -425,7 +460,7 @@ IF cCliente $ cXXNOISS .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS //AD
 	ENDIF 
 ENDIF
 
-//cDescr += "|" 
+cDescr1 := "" 
 
 //INFORMACAO CONTA VINCULADA 
 IF !EMPTY(SF2->F2_XXCVINC) .OR. SF2->F2_XXVCVIN > 0 
@@ -442,8 +477,8 @@ IF !EMPTY(SF2->F2_XXCVINC) .OR. SF2->F2_XXVCVIN > 0
  
     // 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
   	//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
-	cDescr += "|Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+IIF(nMaxTLin>80," ","|")
-	cDescr += "valor R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+"|"
+	cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //  IIF(nMaxTLin>80," ","|")
+	cDescr1 += "R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
 ELSE
 	IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
 		ContVinc()
@@ -457,10 +492,12 @@ ELSE
    		cAgVinc := aBCVINC[3]
 	    // 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
    		//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
-		cDescr += "|Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+IIF(nMaxTLin>80," ","|")
-		cDescr += "valor R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+"|"
+		cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //IIF(nMaxTLin>80," ","|")
+		cDescr1 += "R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
 	ENDIF
 ENDIF
+
+cDescr  += TextoNF(cDescr1,nMaxTLin)
 
 //INFORMACAO RETENÇÃO CONTRATUAL
 IF !EMPTY(SF2->F2_XXVRETC)
@@ -470,10 +507,9 @@ IF !EMPTY(SF2->F2_XXVRETC)
 	cDescr += "Retenção Contratual ("+ALLTRIM(TRANSFORM(SF2->F2_XXRETC,"@E 99.99"))+"%): R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVRETC,"@E 999,999,999.99"))+"|"
 ENDIF
 
-
-cDescr += "|" 
-
 IF nINSSME > 0
+
+	cDescr1  := ""
 	nREDINSS := 0
 	nBINSS 	 := 0
 	nVALINSS := 0
@@ -482,38 +518,32 @@ IF nINSSME > 0
 	nBINSS 	 := SF2->F2_VALBRUT - nREDINSS
 	nVALINSS := nBINSS * (nPInss/100)
 	
-	cDescr += "VALOR DA NOTA FISCAL R$"+TRANSFORM(SF2->F2_VALBRUT,"@E 999,999,999.99")+"|"
-	cDescr += "(-) "+STR(nINSSME,2)+"% REDUÇÃO DO INSS POR FORNECIMENTO DE MATERIAIS R$"+TRANSFORM(nREDINSS,"@E 999,999,999.99")+"|"
-	cDescr += "BASE DE CALCULO DE INSS R$"+TRANSFORM(nBINSS,"@E 999,999,999.99")+" x "+STR(nPInss,5,2)+"% A SER RETIDO R$"+TRANSFORM(nVALINSS,"@E 999,999,999.99")+"|"
+	cDescr1 += "VALOR DA NOTA FISCAL R$"+TRANSFORM(SF2->F2_VALBRUT,"@E 999,999,999.99")+CRLF
+	cDescr1 += "(-) "+STR(nINSSME,2)+"% REDUÇÃO DO INSS POR FORNECIMENTO DE MATERIAIS R$"+TRANSFORM(nREDINSS,"@E 999,999,999.99")+CRLF
+	cDescr1 += "BASE DE CALCULO DE INSS R$"+TRANSFORM(nBINSS,"@E 999,999,999.99")+" x "+STR(nPInss,5,2)+"% A SER RETIDO R$"+TRANSFORM(nVALINSS,"@E 999,999,999.99")+CRLF
+
+	cDescr  += TextoNF(cDescr1,nMaxTLin)
+
 ENDIF
 
+cDescr1 := ""
 IF cCliente $ cXXCVLIQ .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXCVLIQ  // CLIENTE SAIR VALOR LIQUIDO NA NF
-	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
-		cDescr += "|"
-	ENDIF
-	cDescr += "VALOR LÍQUIDO A PAGAR: R$"+TRANSFORM(SF2->F2_VALBRUT - nTOTIMP,"@E 999,999,999.99")+"|" 
+	cDescr1 += "VALOR LÍQUIDO A PAGAR: R$"+TRANSFORM(SF2->F2_VALBRUT - nTOTIMP,"@E 999,999,999.99")+CRLF
 ENDIF
 
 IF ALLTRIM(GetMv("MV_CODREG")) == "1"
-	cDescr += "Empresa Optante pelo Simples Nacional|" 
-ELSE
-	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
-		cDescr += "|"
-	ENDIF
+	cDescr1 += "Empresa Optante pelo Simples Nacional"+CRLF 
 ENDIF
 
 IF !EMPTY(ALLTRIM(GetMv("MV_XXDNFSE")))
-	cDescr += ALLTRIM(GetMv("MV_XXDNFSE"))+"|" 
-ELSE
-	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
-		cDescr += "|"
-	ENDIF
+	cDescr1 += ALLTRIM(GetMv("MV_XXDNFSE"))+CRLF
 ENDIF 
+cDescr  += TextoNF(cDescr1,nMaxTLin)
 
-cDescr += "|"
 cDescr := AltCorpo(cDescr,cNF)
 
 RecLock("SF2",.F.)
+// Aqui 
 SF2->F2_XXCORPO := cDescr
 SF2->(MsUnlock())
 
@@ -538,16 +568,17 @@ LOCAL aLin ,cLin,xLin
 LOCAL nI,nJ
 Local cTexto
 LOCAL oDlgE
-Local nMaxTLin := 80
+Local nMaxTLin := 95
 Local nMaxLin  := 22
+Local nMaxGet  := 22
 
 IF FWSM0Util():GetSM0Data( , , { "M0_CIDENT" } )[1][2] = "BARUERI" //  Barueri - SP
 	nMaxTLin := 100
-	//nMaxLin  := 19
+	nMaxGet  := 13
 ENDIF
 
 aLin   := ARRAY(nMaxLin)
-cTexto := cCorpo
+cTexto := cCorpo+"|"
 
 AFILL(aLin,SPACE(nMaxTLin))
 
@@ -569,61 +600,75 @@ FOR nI := 1 TO LEN(cTexto)
 NEXT 
 
 
-Define MsDialog oDlgE Title OemToAnsi ("Edição do Corpo da NFS "+cNF) From 100, 010  To 610,650 Of oDlgE Pixel Style DS_MODALFRAME
+Define MsDialog oDlgE Title OemToAnsi ("Descrição do Serviço da NFS "+cNF) From 100, 010  To 610,690 Of oDlgE Pixel Style DS_MODALFRAME
 
 
 @ 012, 005  Say OemToAnsi ("01")  Pixel Of oDlgE
-@ 010, 015 MSGET aLin[01] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 010, 015 MSGET aLin[01] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 022, 005  Say OemToAnsi ("02")  Pixel Of oDlgE
-@ 020, 015 MSGET aLin[02] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 020, 015 MSGET aLin[02] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 032, 005  Say OemToAnsi ("03")  Pixel Of oDlgE
-@ 030, 015 MSGET aLin[03] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 030, 015 MSGET aLin[03] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 042, 005  Say OemToAnsi ("04")  Pixel Of oDlgE
-@ 040, 015 MSGET aLin[04] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 040, 015 MSGET aLin[04] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 052, 005  Say OemToAnsi ("05")  Pixel Of oDlgE
-@ 050, 015 MSGET aLin[05] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 050, 015 MSGET aLin[05] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 062, 005  Say OemToAnsi ("06")  Pixel Of oDlgE
-@ 060, 015 MSGET aLin[06] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 060, 015 MSGET aLin[06] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 072, 005  Say OemToAnsi ("07")  Pixel Of oDlgE
-@ 070, 015 MSGET aLin[07] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 070, 015 MSGET aLin[07] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 082, 005  Say OemToAnsi ("08")  Pixel Of oDlgE
-@ 080, 015 MSGET aLin[08] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 080, 015 MSGET aLin[08] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 092, 005  Say OemToAnsi ("09")  Pixel Of oDlgE
-@ 090, 015 MSGET aLin[09] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 090, 015 MSGET aLin[09] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 102, 005  Say OemToAnsi ("10")  Pixel Of oDlgE
-@ 100, 015 MSGET aLin[10] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 100, 015 MSGET aLin[10] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 112, 005  Say OemToAnsi ("11")  Pixel Of oDlgE
-@ 110, 015 MSGET aLin[11] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 110, 015 MSGET aLin[11] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 122, 005  Say OemToAnsi ("12")  Pixel Of oDlgE
-@ 120, 015 MSGET aLin[12] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 120, 015 MSGET aLin[12] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 132, 005  Say OemToAnsi ("13")  Pixel Of oDlgE
-@ 130, 015 MSGET aLin[13] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 130, 015 MSGET aLin[13] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 142, 005  Say OemToAnsi ("14")  Pixel Of oDlgE
-@ 140, 015 MSGET aLin[14] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 140, 015 MSGET aLin[14] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 152, 005  Say OemToAnsi ("15")  Pixel Of oDlgE
-@ 150, 015 MSGET aLin[15] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 150, 015 MSGET aLin[15] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 162, 005  Say OemToAnsi ("16")  Pixel Of oDlgE
-@ 160, 015 MSGET aLin[16] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 160, 015 MSGET aLin[16] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 172, 005  Say OemToAnsi ("17")  Pixel Of oDlgE
-@ 170, 015 MSGET aLin[17] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 170, 015 MSGET aLin[17] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 182, 005  Say OemToAnsi ("18")  Pixel Of oDlgE
-@ 180, 015 MSGET aLin[18] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 180, 015 MSGET aLin[18] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 @ 192, 005  Say OemToAnsi ("19")  Pixel Of oDlgE
-@ 190, 015 MSGET aLin[19] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 	
-//If nMaxLin > 19
-	@ 202, 005  Say OemToAnsi ("20")  Pixel Of oDlgE
-	@ 200, 015 MSGET aLin[20] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
-	@ 212, 005  Say OemToAnsi ("21")  Pixel Of oDlgE
-	@ 210, 015 MSGET aLin[21] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
-	@ 222, 005  Say OemToAnsi ("22")  Pixel Of oDlgE
-	@ 220, 015 MSGET aLin[22] Valid .T. SIZE 300, 010 OF oDlgE PIXEL PICTURE "@!" 
-//EndIf
+@ 190, 015 MSGET aLin[19] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 	
+@ 202, 005  Say OemToAnsi ("20")  Pixel Of oDlgE
+@ 200, 015 MSGET aLin[20] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 212, 005  Say OemToAnsi ("21")  Pixel Of oDlgE
+@ 210, 015 MSGET aLin[21] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
+@ 222, 005  Say OemToAnsi ("22")  Pixel Of oDlgE
+@ 220, 015 MSGET aLin[22] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 
 
-@ 235, 150 BMPBUTTON TYPE 01 ACTION (cTexto:= MontaTxt(aLin),Close(oDlgE))
+@ 240, 150 BMPBUTTON TYPE 01 ACTION (cTexto:= MontaTxt(aLin),Close(oDlgE))
 
-Activate Dialog oDlgE Center
+
+ACTIVATE MSDIALOG oDlgE CENTERED Valid(VldGets(aLin,nMaxGet)) 
+//Activate Dialog oDlgE Center
 
 Return cTexto
+
+
+Static Function VldGets(aLin,nMaxGets)
+Local lTxtOk	:= .T.
+Local nX 		:= 0
+
+For nX := 1 TO LEN(aLin)
+	If nX > nMaxGets .and. !Empty(aLin[nX])
+		lTxtOk := .F.
+		MSGSTOP("Maximo de linhas permitidas "+ALLTRIM(STR(nMaxGets))+", corrija o texto!!","MTDESCRNFE")
+		Exit
+	EndIf
+Next
+Return lTxtOk
 
 
 Static Function MontaTxt(aLin)
@@ -774,3 +819,79 @@ EndIf
 QSA6->(DbCloseArea())
 
 RETURN aBcVC
+
+
+
+//Ajusta o Texto para o tamanho máximo de caracteres por linha
+// 26/07/20 - Marcos
+Static Function TextoNF(cTexto,nMaxTLin)
+
+Local cLastLin	:= ""
+Local cNewLin	:= ""
+Local cRetTexto	:= ""
+Local nTamLast	:= 0
+Local nI 		:= 0
+
+FOR nI:= 1 to MLCOUNT(cTexto,nMaxTLin)
+	cNewLin := STRTRAN(TRIM(MEMOLINE(cTexto,nMaxTLin,nI)),CHR(13)+CHR(10),"")
+	nTamLast := LEN(cLastLin)
+	If nTamLast > 0
+		nTamLast += 3
+	EndIf
+	If !Empty(cNewLin)
+		If (LEN(cNewLin) + nTamLast) > nMaxTlin 
+			cRetTexto += IIF(!EMPTY(cLastLin),cLastLin+"|","")
+			cLastLin := cNewLin
+		ElseIf (LEN(cNewLin) + nTamLast) = nMaxTlin
+			cRetTexto += IIF(!EMPTY(cLastLin),cLastLin+"|","")
+			cRetTexto += IIF(!EMPTY(cNewLin),cNewLin+"|","")
+			cLastLin := ""
+		Else
+			cLastLin += IIF(!EMPTY(cLastLin)," - ","")+cNewLin
+		EndIf
+	EndIf
+NEXT
+If !Empty(cLastLin)
+	cRetTexto += cLastLin+"|"
+EndIf
+Return cRetTexto
+
+
+
+// Função para incrementar a remessa da Prefeitura de Barueri
+User Function ProxRem(cArqIni)
+Local cIni		:= cArqIni+".CFP"
+Local cLinha	:= ""
+Local cArqBkp	:= ""
+Local aLinhas	:= {}
+Local nHandle	:= 0
+Local lProx		:= .F.
+Local i 		:= 0
+
+If File (cIni)
+	FT_FUse(cIni)
+	FT_FGoTop()
+	While ( !FT_FEof() )
+		cLinha := FT_FReadLn()
+		If ("{OBJ002;011}" $ cLinha) .and. !lProx
+			cLinha := "{OBJ002;011}"+STRZERO(VAL(SUBSTR(cLinha,13,11))+1,11)
+			lProx  := .T.
+		EndIf
+		aAdd(aLinhas,cLinha+CRLF)
+		FT_FSkip()
+	Enddo
+	FT_FUse()
+
+	cArqBkp := StrTran(cIni,".CFP",".#BK")
+	Ferase(cArqBkp)
+	FRename(cIni,cArqBkp)
+	nHandle := MSFCREATE(cIni)
+
+	For i:=1 to Len(aLinhas)
+		FWrite(nHandle,aLinhas[i],Len(aLinhas[i]))
+	Next
+	FClose(nHandle)
+EndIf
+
+Return .T.
+

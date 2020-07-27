@@ -3818,6 +3818,10 @@ Private aAcrDcr 	:= {}
 Private cLastE2     := ""
 Private lPRat		:= .T.
 
+Private nTamCodGct	:= 9
+Private nTamCodigo	:= 16
+
+
 PRIVATE nMImpContr  := 0
 PRIVATE nTaxaAdm    := 0
 PRIVATE nEncargos   := 0
