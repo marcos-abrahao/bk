@@ -888,9 +888,6 @@ FOR _nI := 1 TO nPeriodo
 	   	QTMP->(dbSkip())
 	ENDDO
 
-	/*
-
-	Retirdo em 21/07/20
 
     QTMP->(dbCloseArea())
     
@@ -992,7 +989,7 @@ FOR _nI := 1 TO nPeriodo
  	u_LogMemo("BKGCTR11-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP"
-	*/
+
 
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
