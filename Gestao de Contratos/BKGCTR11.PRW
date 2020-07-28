@@ -4802,7 +4802,7 @@ Local nTotE2  := 0
 Local nACrDcr := 0
 Local _nY	  := 0
 
-cQuery3 := " SELECT E2_VENCTO,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC"+CRLF
+cQuery3 := " SELECT E2_VENCTO,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS"+CRLF
 cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
 cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
 cQuery3 += "   AND E2_PREFIXO = '"+TMPX2->D1_SERIE+"'" +CRLF
@@ -4833,9 +4833,15 @@ Do While !QTMPXE2->(EOF())
 	If ABS(nACrDcr) > 0
 		aAdd(aAcrDcr,{SUBSTR(QTMPXE2->E2_VENCTO,1,6),nACrDcr,0})
 	EndIf
-	nTotE2 += QTMPXE2->E2_VALOR
+	nTotE2 += QTMPXE2->(E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS)
 	dbSkip()
 Enddo
+
+// Teste
+//If TMPX2->D1_TOTAL > nTotE2
+//	ixi := 0
+//EndIf
+
 For _nY := 1 To Len(aAcrDcr)
 	//                        Val desc/Acr  / Tot Geral * Valor do Item   			
 	aAcrDcr[_nY,3] := Round((aAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)

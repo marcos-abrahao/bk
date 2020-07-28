@@ -70,7 +70,7 @@ PRIVATE nSaldos     := 1
 PRIVATE nTpData     := 1
 PRIVATE nCaixinha   := 1
 PRIVATE cFiltPrd    := ""
-
+PRIVATE nUsuario 	:= 0
 PRIVATE cAliasTmp1  := "TMP1"
 PRIVATE aCabs1      := {}
 PRIVATE aCampos1    := {}
@@ -158,7 +158,8 @@ nSaldos  := MV_PAR03	// Sintética/Analítica
 nTpData  := MV_PAR04	// Data do Movimento/Data Extrato
 nCaixinha:= MV_PAR05	// Inclui Movimento Caixinha
 cFiltPrd := MV_PAR06    // Filtrar produto
-               
+nUsuario := MV_PAR07    // QUEM DIGITOU
+
 cTitulo  := OemToAnsi(cTitulo+" de "+DTOC(MV_PAR01)+" até "+DTOC(MV_PAR02))+" - "+IIF(nTpData==1,"Data do Movimento","Data do Extrato")+"  - Data Base: "+DTOC(dDataBase) 
 If !EMPTY(cFiltPrd)
 	cTitulo += " - Produto: "+TRIM(cFiltPrd)  
@@ -843,17 +844,17 @@ AADD(aStruct3,{"PAGAR","N",20,2})
 AADD(aCampos3,cAliasTmp3+"->PAGAR")
 AADD(aCabs3  ,"Pagar")
 
+IF nUsuario == 1
+	// Digitado
+	AADD(aStruct3,{"DIGITADO","C",100,0})
+	AADD(aCampos3,cAliasTmp3+"->DIGITADO")
+	AADD(aCabs3  ,"Digitado por")
 
-// Digitado
-AADD(aStruct3,{"DIGITADO","C",100,0})
-AADD(aCampos3,cAliasTmp3+"->DIGITADO")
-AADD(aCabs3  ,"Digitado por")
-
-// Liberado
-AADD(aStruct3,{"LIBERADO","C",100,0})
-AADD(aCampos3,cAliasTmp3+"->LIBERADO")
-AADD(aCabs3  ,"Liberado por")
-
+	// Liberado
+	AADD(aStruct3,{"LIBERADO","C",100,0})
+	AADD(aCampos3,cAliasTmp3+"->LIBERADO")
+	AADD(aCabs3  ,"Liberado por")
+ENDIF
 
 ///cArqTmp3 := CriaTrab(aStruct3)
 ///dbUseArea(.T.,,cArqTmp3,cAliasTmp3,if(.F. .OR. .F.,!.F., NIL),.F.)
@@ -1154,9 +1155,11 @@ For j := 1 To nDias
 	    	SD1->(dbSetOrder(1))
    			IF SD1->(dbSeek(xFilial("SD1")+cChave,.T.))
 				aLIB:= {}
-				aLIB:= U_BLibera(cChave,SD1->D1_PEDIDO) // Localiza liberação Alcada
-				cDigitado := aLIB[1]
-				cLiberado := aLIB[2]
+				IF nUsuario == 1
+					aLIB:= U_BLibera(cChave,SD1->D1_PEDIDO) // Localiza liberação Alcada
+					cDigitado := aLIB[1]
+					cLiberado := aLIB[2]
+				ENDIF
 
    				dbSelectArea("SF1")
    				SF1->(dbSetOrder(1))
@@ -1285,10 +1288,11 @@ For j := 1 To nDias
 			Do While QSZ2->(!eof())   
 			
 				aLIB:= {}
-				aLIB:= U_BLibera("LFRH",QSZ2->Z2_E2NUM) // Localiza liberação Alcada
-		   			
-				cDigitado := aLIB[1]
-				cLiberado := aLIB[2]
+				IF nUsuario == 1
+					aLIB:= U_BLibera("LFRH",QSZ2->Z2_E2NUM) // Localiza liberação Alcada
+					cDigitado := aLIB[1]
+					cLiberado := aLIB[2]
+				ENDIF
 			
 				cHist := "PGTO RH "
 				nDESCRH:= 0
@@ -1384,8 +1388,10 @@ For j := 1 To nDias
 				(cAliasTmp3)->XX_VALOR   := IIF(nVALBRUT>0,nVALBRUT,aTIT[IX,2]) //SE2->E2_VALOR
 				(cAliasTmp3)->RECEBER    := 0
 				(cAliasTmp3)->PAGAR      := aTot[IX,2]
-				(cAliasTmp3)->DIGITADO   := Capital(cDigitado)
-				(cAliasTmp3)->LIBERADO   := Capital(cLiberado)
+				IF nUsuario == 1
+					(cAliasTmp3)->DIGITADO   := Capital(cDigitado)
+					(cAliasTmp3)->LIBERADO   := Capital(cLiberado)
+				ENDIF
 				msUnlock()
 
 			NEXT
@@ -1453,8 +1459,10 @@ For j := 1 To nDias
 			(cAliasTmp3)->XX_VALOR   := SE2->E2_VALOR
 			(cAliasTmp3)->RECEBER    := 0
 			(cAliasTmp3)->PAGAR      := nPagar
-			(cAliasTmp3)->DIGITADO   := Capital(cDigitado)
-			(cAliasTmp3)->LIBERADO   := Capital(cLiberado)
+			IF nUsuario == 1
+				(cAliasTmp3)->DIGITADO   := Capital(cDigitado)
+				(cAliasTmp3)->LIBERADO   := Capital(cLiberado)
+			ENDIF
 			msUnlock()
 
 		ENDIF
@@ -1780,6 +1788,7 @@ AADD(aRegistros,{cPerg,"03","Gera Saldos :","Gera Saldos :","Gera Saldos :" ,"mv
 AADD(aRegistros,{cPerg,"04","Usar data   :","Usar data   :","Usar data   :" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Movimento","Movimento","Movimento","","","Extrato","Extrato","Extrato","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"05","Incluir CBX/CX1/DRS:","Incluir CBX/CX1/DRS:","Incluir CBX/CX1/DRS:" ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"06","Filtrar produto","Produto"    ,"Produto"       ,"mv_ch6","C",15,0,0,"G",'Vazio() .or. ExistCpo("SB1")',"mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
+AADD(aRegistros,{cPerg,"07","Usuário Dig/Liberou:","Usuário Dig/Liberou","Usuário Dig/Liberou" ,"mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
