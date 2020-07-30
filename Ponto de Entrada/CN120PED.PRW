@@ -51,12 +51,16 @@ IF CND->CND_LOJACL <> CNA->CNA_LOJACL
 	AADD(ExpA1,{"C5_ESTPRES" ,SA1->A1_EST, Nil}) 
 	AADD(ExpA1,{"C5_MUNPRES" ,SA1->A1_COD_MUN, Nil})
 	//A=Avulsa;C=Contrato;2=Serie2
-	AADD(ExpA1,{"C5_XXTPNF" ,"2", Nil})
 ELSE
 	AADD(ExpA1,{"C5_ESTPRES" ,CNA->CNA_XXUF, Nil}) 
 	AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
-	AADD(ExpA1,{"C5_XXTPNF" ,"C", Nil})
 ENDIF
+
+If Empty(CND->CND_XXTPNF)
+	AADD(ExpA1,{"C5_XXTPNF" ,"N", Nil})    // N=Normal;A=Avulsa
+Else
+	AADD(ExpA1,{"C5_XXTPNF" ,CND->CND_XXTPNF, Nil})    // N=Normal;A=Avulsa
+EndIf
 
 // Retenção Contratual
 //If Type("CNA->CNA_XXRETC")<>"U"

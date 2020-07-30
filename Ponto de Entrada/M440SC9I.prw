@@ -11,17 +11,9 @@ User Function M440SC9I()
 
 RecLock("SC9",.F.)
 IF EMPTY(SC5->C5_XXTPNF)
-   IF !EMPTY(SC5->C5_MDCONTR)
-      SC9->C9_XXORPED := "C" // A=Avulsa;C=Contrato;2=Serie2
-
-      //Gravar o numero do contrato na liberação dos pedidos de venda
-      //SC9->C9_XXCONTR := SC5->C5_MDCONTR
-      //SC9->C9_XXDESC  := Posicione("CTT",1,xFilial("CTT")+SC5->C5_MDCONTR,"CTT_DESC01")
-   ELSE
-      SC9->C9_XXORPED := "A" // A=Avulsa;C=Contrato;2=Serie2
-   ENDIF
+   SC9->C9_XXORPED := "N" // N=Normal;A=Avulsa
 ELSE
-   SC9->C9_XXORPED := SC5->C5_XXTPNF // A=Avulsa;C=Contrato;2=Serie2
+   SC9->C9_XXORPED := SC5->C5_XXTPNF // N=Normal;A=Avulsa
 ENDIF
 
 SC9->(MsUnlock())

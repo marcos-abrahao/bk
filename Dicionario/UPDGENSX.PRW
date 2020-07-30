@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"15/07/2020"
+#DEFINE FIN_LAST_UPDATED 		"29/07/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -744,6 +744,37 @@ dbSelectArea( "SX3" )
 //X31UPDTABLE("SC5")
 //X31UPDTABLE("SC9")
 //X31UPDTABLE("SA6")
+
+
+// Nota Avulsa/Normal - 29/07/20
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "C5_XXTPNF" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := "N"
+	SX3->X3_CBOX    := "N=Normal;A=Avulsa"
+	SX3->X3_VALID   := 'Pertence("NA")'
+	dbCommit()
+	MsUnLock()
+
+EndIf
+
+If SX3->( dbSeek( "C9_XXORPED" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := "N"
+	SX3->X3_CBOX    := "N=Normal;A=Avulsa"
+
+	dbCommit()
+	MsUnLock()
+
+EndIf
+
+If SM0->M0_CODIGO <> "02"
+	APPEND FROM \sx3cnd.dtc
+EndIf
+X31UPDTABLE("CND")
 
 
 Return

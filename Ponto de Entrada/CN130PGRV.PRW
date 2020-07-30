@@ -21,15 +21,23 @@ Local aAreaIni  := GetArea()
 Local cAliasCNR := GetNextAlias()
 Local aCNR      := {}
 Local oDlg,oListID,oPanelLeft,oOk,oNo,oAll
-//Local oSay1
 Local oSay2 
-//Local aButtons  := {}
 Local lOk       := .T.
 Local cQuery  	:= ""
 Local cTitulo2	:= ""
 Local nBonif	:= 0 
 Local nMulta	:= 0
 Local cOutros	:= PAD("",254) 
+Local cSuper    := ""
+Local cTpNF		:= CND->CND_XXTPNF
+
+If !cTpNf $ "NA"
+	cTpNf := "N"
+EndIf
+
+// para teste da tela
+//cTpNf := ValTpNf(cTpNf)
+
 
 cTitulo2 := "Opções de Multa e Bonificação da Medição ("+STRZERO(ExpN1,2)+")"
 
@@ -147,6 +155,24 @@ IF ExpN1 == 3 .OR. ExpN1 == 4
 
 	ENDIF
 ENDIF
+
+
+// Escolher tipo NF -> Normal ou Avulsa - 29/07/20
+If ExpN1 == 3 .OR. ExpN1 == 4 
+	PswOrder(1) 
+	PswSeek(__CUSERID) 
+	aUser  := PswRet(1)
+	If !EMPTY(aUser[1,11])
+	   cSuper := SUBSTR(aUser[1,11],1,6)
+	EndIf
+	If cSuper == "000175" .OR. __CUSERID == "000000" // Equipe do José Mário
+		cTpNF := ValTpNf(cTpNf)
+		RecLock("CND",.F.)
+		CND->CND_XXTPNF := cTpNf
+		MsUnlock("CND")
+	EndIf
+EndIf
+
 
 IF ExpN1 == 12 .OR. ExpN1 == 3
 	IF CND->CND_XXDV == "S" .OR. CND->CND_XXVLND > 0	  
@@ -323,3 +349,27 @@ RecLock("CND",.F.)
 MsUnlock("CND")
 
 RETURN NIL
+
+
+
+
+
+// Mostra na Tela campos Tipo da NF
+Static Function ValTpNf(cTpNf)
+Local oDlg as Object
+Local aTpNF := {}
+
+aTpNf := U_StringToArray(GetSx3Cache("CND_XXTPNF", "X3_CBOX"),";") 
+
+Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 295,400 Of oDlg Pixel Style DS_MODALFRAME
+
+@ 015,015 SAY "Tipo NF: " Pixel Of oDlg 
+
+@ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NA")
+
+@ 030,085 Button "&Ok" Size 036,013 Pixel Action (oDlg:End())
+
+ACTIVATE MSDIALOG oDlg CENTERED Valid(cTpNF $ "NA") 
+
+Return cTpNF
+
