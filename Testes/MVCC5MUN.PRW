@@ -16,9 +16,6 @@ User Function MVCC5MUN()
 	//EndIf
 Return
 
-User Function BKTESTE()
-U_MVCC5MUN()
-Return Nil
 
 Static Function ModelDef()
 Local oModel

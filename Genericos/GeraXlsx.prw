@@ -382,10 +382,12 @@ FOR nPl := 1 TO LEN(_aPlans)
 			EndIf
 
 			If nF > 0
-				// Formula
-				If !Empty(_aFormula[nf,3])
-					lFormula:= .T.
+				// Formula ou Conteúdo fixo
+				If Len(_aFormula[nf,3]) > 0
 					xCampo  := _aFormula[nf,3]
+					If "(" $ _aFormula[nf,3]
+						lFormula:= .T.
+					EndIf
 				EndIf
 
 				// "TIPO"
@@ -436,7 +438,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 				nStyle := nP5Style
 			ElseIf cTipo == "D"
 				nStyle := nD2Style
-			ElseIf cTipo == "S"
+			ElseIf cTipo == "S"    // Estilo Subtotal
 				nStyle := nSCabStyle
 			EndIf
 

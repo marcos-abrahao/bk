@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"29/07/2020"
+#DEFINE FIN_LAST_UPDATED 		"30/07/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,14 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			//AtuGenPar( @cTexto )
+			AtuGenPar( @cTexto )  // 30/07/20
 			
 			//AtuGenXX( @cTexto )
 
 			////AtuGenFil( @cTexto )
 
-			AtuGenX3( @cTexto )
+			//AtuGenX3( @cTexto )   //29/07/20
+
 			//AtuGenP12( @cTexto )
 
 
@@ -632,7 +633,7 @@ EndIf
 
 
 // 28/01/20 - Alterar parametro MV_CTBAPLA PARA 2
-
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_CTBAPLA..." )
 If dbSeek(xFilial()+"MV_CTBAPLA")
 	RecLock( "SX6", .F. )
@@ -644,6 +645,161 @@ If dbSeek(xFilial()+"MV_CTBAPLA")
 	dbCommit()
 	MsUnLock()
 EndIf
+*/
+
+// 30/07/20
+/*
+oProcess:IncRegua2( "Atualizando parametro MV_DATAFIS..." )
+If dbSeek(xFilial()+"MV_DATAFIS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "20200630"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+*/
+
+// 31/07/20 -------> Email
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELFROM..." )
+If dbSeek(xFilial()+"MV_RELFROM")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "microsiga@bkconsultoria.com.br"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELACNT..." )
+If dbSeek(xFilial()+"MV_RELACNT")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "microsiga@bkconsultoria.com.br"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELAUSR..." )
+If dbSeek(xFilial()+"MV_RELAUSR")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "microsiga@bkconsultoria.com.br"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELPSW..." )
+If dbSeek(xFilial()+"MV_RELPSW")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "Prosig@99"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELAPSW..." )
+If dbSeek(xFilial()+"MV_RELAPSW")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "Prosig@99"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELSERV..." )
+If dbSeek(xFilial()+"MV_RELSERV")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "smtp.gmail.com"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_PORSMTP..." )
+If dbSeek(xFilial()+"MV_PORSMTP")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "587"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELTLS..." )
+If dbSeek(xFilial()+"MV_RELTLS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".F."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELSSL..." )
+If dbSeek(xFilial()+"MV_RELSSL")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELAUTH..." )
+If dbSeek(xFilial()+"MV_RELAUTH")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RELTIME..." )
+If dbSeek(xFilial()+"MV_RELTIME")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "120"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// ------------> Fim e-mail
 
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 

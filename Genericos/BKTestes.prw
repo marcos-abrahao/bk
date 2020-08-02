@@ -7,8 +7,14 @@ Programa     : Autor: Marcos B. Abrahao - Data: 29/01/2011
 Objetivo     : Acertos diversos 
 /*/
 
+
+User Function BKTESTE()
+U_bkfinr29()
+Return Nil
+
+
 User Function BKTestes()
-Private cRot  := PAD("U_TmpTable",20)
+Private cRot  := PAD("U_BKTESTE",20)
 
 @ 200,01 TO 285,450 DIALOG oDlg1 TITLE "Teste de User Functions"
 @ 15,015 SAY "Funcão: "
