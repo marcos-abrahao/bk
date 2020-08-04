@@ -1190,7 +1190,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn104H += SPACE(9)          //009 017
 		Bcn104H += "2"               //018 018
 		Bcn104H += STRZERO(VAL(cCGC),14) //019 032
-		Bcn104H += SUBSTRING(SEE->EE_CODEMP,1,6) //"188161"  //"180327" //010001"  //033 038
+		Bcn104H += SUBSTR(SEE->EE_CODEMP,1,6) //"188161"  //"180327" //010001"  //033 038
 		Bcn104H += IIF(alltrim(cConta)=="0300000043","02","01") //"VA"  //039 040  ?????????????????????????????????????
 		Bcn104H += "P"   //041 041
 		Bcn104H += Space(1) //042 042
@@ -1226,7 +1226,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 						
 		//Grava Bordero - HEADER DE ARQUIVO "0"
 		fWrite(nHandle2,Bcn104H)
-	    
+	    nI := 1
+
 	    //- HEADER DE ARQUIVO "1" 
 		Bcn104HD := ""
 		Bcn104HD += "104"        //001 003
@@ -1239,13 +1240,13 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn104HD += SPACE(1)     //017 017
 		Bcn104HD += "2"          //018 018
 		Bcn104HD += STRZERO(VAL(cCGC),14) //019 032
-		Bcn104HD += SUBSTRING(SEE->EE_CODEMP,1,6) //"188161" //"180327"  //033 038
-		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"01",SUBSTRING(SEE->EE_CODEMP,7,2)) //"06"  //039 040
+		Bcn104HD += SUBSTR(SEE->EE_CODEMP,1,6) //"188161" //"180327"  //033 038
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"01",SUBSTR(SEE->EE_CODEMP,7,2)) //"06"  //039 040
 		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"0001","0003") //"0002" //"0001" //"0002"  //041 044
 		Bcn104HD += IIF(alltrim(cConta)=="0300000043","02","01") //"01" //"VA"  //045 046
 		Bcn104HD += SPACE(6)   //047 052
 		Bcn104HD += STRZERO(VAL(cAgencia),5)    //053 057
-		Bcn104HD += STRZERO(VAL(cDVAgenc),1)   //058 058
+		Bcn104HD += STRZERO(VAL(cDVAgenc),1)    //058 058
 		Bcn104HD += STRZERO(VAL(cConta),12)  //059 070
 		Bcn104HD += STRZERO(VAL(cDVConta),1) //071 071 DV CONTA
 		Bcn104HD += SPACE(1)	  //072 072
@@ -1257,8 +1258,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_CIDCOB)),20)  //193 212
 		Bcn104HD += PAD(SM0->M0_CEPCOB,8)                    //213 220
 		Bcn104HD += PAD(SM0->M0_ESTCOB,2)                    //221 222
-		Bcn104HD +=  SPACE(8)                                //223 230
-		Bcn104HD +=  SPACE(10)                               //231 240
+		Bcn104HD += SPACE(8)                                 //223 230
+		Bcn104HD += SPACE(10)                                //231 240
 		Bcn104HD += cCrLf
 						
 		//Grava Bordero - Descrição do Registro DETALHE - “A”

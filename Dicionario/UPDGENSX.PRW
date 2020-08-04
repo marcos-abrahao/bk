@@ -756,7 +756,7 @@ If dbSeek(xFilial()+"MV_RELTLS")
 	RecLock( "SX6", .F. )
 
 	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	SX6->X6_CONTEUD := ".F."
+	SX6->X6_CONTEUD := ".T."
 	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
 
 	dbCommit()

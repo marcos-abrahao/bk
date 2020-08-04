@@ -11,7 +11,7 @@ v29/03/20
 /*/
 Static __oTBxCanc
 Static __oTipoBa
-Static __oHash
+//Static __oHash
 Static __aTtImp
 
 
@@ -252,7 +252,7 @@ EndIf
 
 __oTBxCanc	:= FWPreparedStatement():New( '' )
 __oTipoBa	:= FWPreparedStatement():New( '' )
-__oHash		:= tHashMap():New() //Cria o Objeto do Hash Map
+//__oHash		:= tHashMap():New() //Cria o Objeto do Hash Map
 
 Processa( {|| ProcBKR26() })
 
@@ -415,7 +415,7 @@ DO WHILE (cAliasQry)->(!EOF())
 	If (cAliasQry)->E1RECNO > 0
 		SE1->(dbGoTo((cAliasQry)->E1RECNO))
 		SF2->(dbGoTo((cAliasQry)->F2RECNO))
-		nSaldo := SaldoSe1(dDataBase)
+		nSaldo := U_SaldoSe1(dDataBase)
 
 		// Posiciona nos Bancos
 		SE1->(dbGoTo((cAliasQry)->E1RECNO))
@@ -684,9 +684,9 @@ If dbSeek(xFilial("SE5")+SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E
 Endif
 Return aBcoRec
 
-
-
-Static Function SaldoSe1(dDtBase)
+// salto Contas a Receber
+// BKFINR26/BKFINR29
+User Function SaldoSe1(dDtBase)
 Local dDataReaj 	
 Local dOldData		:= dDataBase
 
@@ -941,7 +941,7 @@ Endif
 
 nSaldo:=Round(NoRound(nSaldo,3),2)
 
-__oHash:Clean()
+//__oHash:Clean()
 
 Return nSaldo
 
@@ -1041,6 +1041,9 @@ Local cQuery
 Local cAreaAtu // := Alias()//- salvo o alias aberto 
 Local lTemCli := .F.
 Local lFlag
+
+Static __oHash	:= tHashMap():New() //Cria o Objeto do Hash Map
+
 Default cTipoIn := ""
 
 lTemCli := __oHash:Get( SE1->(E1_CLIENTE+E1_LOJA) , lFlag )
