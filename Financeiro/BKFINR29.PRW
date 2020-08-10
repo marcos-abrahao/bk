@@ -75,10 +75,31 @@ __oTipoBa	:= FWPreparedStatement():New( '' )
 
 aAdd(aTitulos,cTitulo)
 
-aPlan2 := U_BKR25PL2()
+aDbf := {}
+Aadd( aDbf, { "XX_XXTIPBK","C",  6,0 } )
+Aadd( aDbf, { "XX_CLIENTE","C",  6,0 } )
+Aadd( aDbf, { "XX_LOJA"   ,"C",  2,0 } )
+Aadd( aDbf, { "XX_SALDO"  ,"N", 18,2 } ) 
+Aadd( aDbf, { "XX_VENCREA","C",  8,0 } )
+Aadd( aDbf, { "XX_LINHA"  ,"N",  3,0 } )
+
+cAliasTrb  := GetNextAlias()
+oTmpTb := FWTemporaryTable():New( cAliasTrb )
+oTmpTb:SetFields( aDbf )
+
+oTmpTb:AddIndex("01", {"XX_VENCREA","XX_XXTIPBK"} )
+oTmpTb:AddIndex("02", {"XX_VENCREA","XX_CLIENTE","XX_LOJA"} )
+oTmpTb:Create()
+
+nCont:= 0
+
+
+// Contas a Receber
+aAdd(aPlanTmp,{.T.,"CLIENTES",""})
+Processa( {|| PrcE1BK29() },"Contas a Receber")
 
 // Contas a Pagar
-//aAdd(aPlan,{.F.,"Folha CLT","LPM/LAD/LAS/LFG/COM"})
+aPlan2 := U_BKR25PL2()
 For nI := 1 To Len(aPlan2)-1   //(- 1 para tirar o "Total")
 
     cTipoTmp := ""
@@ -94,39 +115,8 @@ For nI := 1 To Len(aPlan2)-1   //(- 1 para tirar o "Total")
 
     aAdd(aPlanTmp,{aPlan2[nI,1],aPlan2[nI,2],cTipoTmp})
 Next
-
-//Contas a Receber
-// Linha em Branco
-//aAdd(aPlanTmp,{.F.,"",""})
-
-// Linha Clientes
-aAdd(aPlanTmp,{.T.,"CLIENTES",""})
-
-
-aDbf := {}
-Aadd( aDbf, { "XX_XXTIPBK","C",  6,0 } )
-Aadd( aDbf, { "XX_CLIENTE","C",  6,0 } )
-Aadd( aDbf, { "XX_LOJA"   ,"C",  2,0 } )
-Aadd( aDbf, { "XX_SALDO"  ,"N", 18,2 } ) 
-Aadd( aDbf, { "XX_VENCREA","C",  8,0 } )
-Aadd( aDbf, { "XX_DIA"    ,"N",  3,0 } )
-Aadd( aDbf, { "XX_LINHA"  ,"N",  3,0 } )
-
-cAliasTrb  := GetNextAlias()
-oTmpTb := FWTemporaryTable():New( cAliasTrb )
-oTmpTb:SetFields( aDbf )
-
-oTmpTb:AddIndex("01", {"XX_VENCREA","XX_XXTIPBK"} )
-oTmpTb:AddIndex("02", {"XX_VENCREA","XX_CLIENTE","XX_LOJA"} )
-oTmpTb:Create()
-
-nCont:= 0
-
-// Contas a Pagar
 Processa( {|| PrcE2BK29() },"Contas a Pagar")
 
-// Contas a Receber
-Processa( {|| PrcE1BK29() },"Contas a Receber")
 
 If nCont > 0
 
@@ -142,6 +132,10 @@ If nCont > 0
     Aadd( aCabs   ,"Categorias")
 
     Aadd( aDbf2, { "XX_TIPOS"  ,"C", 50,0 } ) 
+
+
+    aSort(aDias,,,{|x,y| x < y })
+
     For nI := 1 TO Len(aDias)
         Aadd( aDbf2, { "XX_"+STRZERO(nI,3) ,"N", 18,2 } ) 
         Aadd( aCampos ,cAliasTrb2+"->XX_"+STRZERO(nI,3))
@@ -250,60 +244,61 @@ Do While (cAliasQry)->(!EOF())
 
 	//nSaldo  := -SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZ,"P",SE2->E2_FORNECE,1,,dDataI-1,SE2->E2_LOJA,,0/*nTxMoeda*/)
 	nSaldo  := -SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZ,"P",SE2->E2_FORNECE,1,,dDataBase-1,SE2->E2_LOJA,,0/*nTxMoeda*/)
-	cTipoBk := SE2->E2_XXTIPBK
+    If nSaldo <> 0
+        cTipoBk := SE2->E2_XXTIPBK
 
-	If Empty(cTipoBk)
-		If TRIM(SE2->E2_NATUREZ) == "IRF"
-			cTipoBk := "IIRRF"
-		ElseIf TRIM(SE2->E2_NATUREZ) == "INSS"
-			cTipoBk := "INSS"
-		ElseIf TRIM(SE2->E2_NATUREZ) == "ISS"
-			cTipoBk := "ISS"
-		ElseIf TRIM(SE2->E2_NATUREZ) $ "PIS/COFINS/CSLL"
-			cTipoBk := "PCC"
-		EndIf
-	EndIf
+        If Empty(cTipoBk)
+            If TRIM(SE2->E2_NATUREZ) == "IRF"
+                cTipoBk := "IIRRF"
+            ElseIf TRIM(SE2->E2_NATUREZ) == "INSS"
+                cTipoBk := "INSS"
+            ElseIf TRIM(SE2->E2_NATUREZ) == "ISS"
+                cTipoBk := "ISS"
+            ElseIf TRIM(SE2->E2_NATUREZ) $ "PIS/COFINS/CSLL"
+                cTipoBk := "PCC"
+            EndIf
+        EndIf
 
-	If Empty(cTipoBk)
+        If Empty(cTipoBk)
 
-		SE2->(dbGoTo((cAliasQry)->E2RECNO))
+            SE2->(dbGoTo((cAliasQry)->E2RECNO))
 
-	    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-    	IF dbSeek(xFilial("SD1")+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
-			// Pega o primeiro produto
-			cTipoBk := Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_XXGRPF")
-		ENDIF
+            dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+            IF dbSeek(xFilial("SD1")+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+                // Pega o primeiro produto
+                cTipoBk := Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_XXGRPF")
+            ENDIF
 
-		If Empty(cTipoBk)
-			cTipoBk := "FORN"
-		EndIf
+            If Empty(cTipoBk)
+                cTipoBk := "FORN"
+            EndIf
 
-	EndIf
-    cVencRea := DTOS(SE2->E2_VENCREA)
-
-	dbSelectArea(cAliasTrb)
-    If !dbSeek(cVencRea+cTipoBk)
-	    Reclock(cAliasTrb,.T.)
-        (cAliasTrb)->XX_XXTIPBK := cTipoBk
-        (cAliasTrb)->XX_VENCREA := cVencRea
-
+        EndIf
+        cVencRea := DTOS(SE2->E2_VENCREA)
         // Coluna do dia
         If aScan(aDias,cVencRea) = 0
             aAdd(aDias,cVencRea)
         EndIf
-        (cAliasTrb)->XX_DIA  := aScan(aDias,cVencRea)
 
-        // Linha do Tipo
-        (cAliasTrb)->XX_LINHA := aScan(aPlanTmp,{ |x| PAD(cTipoBk,6)+"/" $ x[3]})
+        dbSelectArea(cAliasTrb)
+        If !dbSeek(cVencRea+cTipoBk)
+            Reclock(cAliasTrb,.T.)
+            (cAliasTrb)->XX_XXTIPBK := cTipoBk
+            (cAliasTrb)->XX_VENCREA := cVencRea
 
-    Else
-	    Reclock(cAliasTrb,.F.)
+
+            // Linha do Tipo
+            (cAliasTrb)->XX_LINHA := aScan(aPlanTmp,{ |x| PAD(cTipoBk,6)+"/" $ x[3]})
+
+        Else
+            Reclock(cAliasTrb,.F.)
+        EndIf
+        (cAliasTrb)->XX_SALDO   += nSaldo
+
+
+        (cAliasTrb)->(MsUnLock())
+        
     EndIf
-    (cAliasTrb)->XX_SALDO   += nSaldo
-
-
-	(cAliasTrb)->(MsUnLock())
-
 
 	dbSelectArea(cAliasQry)
 	(cAliasQry)->(dbSkip())
@@ -356,34 +351,37 @@ Do While (cAliasQry)->(!EOF())
 
 	nSaldo := U_SaldoSe1(dDataBase-1)
 
-    cVencRea := DTOS(SE1->E1_VENCREA)
+    If nSaldo > 0
+        SE1->(dbGoTo((cAliasQry)->E1RECNO))
 
-	dbSelectArea(cAliasTrb)
-    If !dbSeek(cVencRea+SE1->E1_CLIENTE+SE1->E1_LOJA)
-	    Reclock(cAliasTrb,.T.)
-        (cAliasTrb)->XX_CLIENTE := SE1->E1_CLIENTE
-        (cAliasTrb)->XX_LOJA    := SE1->E1_LOJA
-        (cAliasTrb)->XX_VENCREA := cVencRea
+        cVencRea := DTOS(SE1->E1_VENCREA)
 
         // Coluna do dia
         If aScan(aDias,cVencRea) = 0
             aAdd(aDias,cVencRea)
         EndIf
-        (cAliasTrb)->XX_DIA  := aScan(aDias,cVencRea)
 
-        // Linha do Tipo
-        nLinCli := aScan(aPlanTmp,{ |x| SE1->E1_CLIENTE+SE1->E1_LOJA == x[3]})
-        If nLinCli == 0
-            aAdd(aPlanTmp,{.F.,SE1->E1_CLIENTE+SE1->E1_LOJA+"-"+SE1->E1_NOMCLI,SE1->E1_CLIENTE+SE1->E1_LOJA})
-            nLinCli := Len(aPlanTmp)
+        dbSelectArea(cAliasTrb)
+        If !dbSeek(cVencRea+SE1->E1_CLIENTE+SE1->E1_LOJA)
+            Reclock(cAliasTrb,.T.)
+            (cAliasTrb)->XX_CLIENTE := SE1->E1_CLIENTE
+            (cAliasTrb)->XX_LOJA    := SE1->E1_LOJA
+            (cAliasTrb)->XX_VENCREA := cVencRea
+
+
+            // Linha do Tipo
+            nLinCli := aScan(aPlanTmp,{ |x| SE1->E1_CLIENTE+SE1->E1_LOJA == x[3]})
+            If nLinCli == 0
+                aAdd(aPlanTmp,{.F.,SE1->E1_CLIENTE+SE1->E1_LOJA+"-"+SE1->E1_NOMCLI,SE1->E1_CLIENTE+SE1->E1_LOJA})
+                nLinCli := Len(aPlanTmp)
+            EndIf
+            (cAliasTrb)->XX_LINHA := nLinCli
+
+        Else
+            Reclock(cAliasTrb,.F.)
         EndIf
-        (cAliasTrb)->XX_LINHA := nLinCli
-
-    Else
-	    Reclock(cAliasTrb,.F.)
+        (cAliasTrb)->XX_SALDO += nSaldo
     EndIf
-    (cAliasTrb)->XX_SALDO += nSaldo
-
 
 	(cAliasTrb)->(MsUnLock())
 
@@ -421,23 +419,22 @@ For nK := 1 To Len(aPlanTmp)
 Next
 
 
-
-
 dbSelectArea(cAliasTrb)
 dbGoTop()
 Do While !Eof()
 
     If (cAliasTrb)->XX_LINHA > 0
 
-        If (cAliasTrb)->XX_DIA > 0 
-            dbSelectArea(cAliasTrb2)
-            dbGoto((cAliasTrb)->XX_LINHA)
-            Reclock(cAliasTrb2,.F.)
+        dbSelectArea(cAliasTrb2)
+        dbGoto((cAliasTrb)->XX_LINHA)
+        Reclock(cAliasTrb2,.F.)
 
-            &(cAliasTrb2+"->XX_"+STRZERO((cAliasTrb)->XX_DIA,3)) += (cAliasTrb)->XX_SALDO
-
-            (cAliasTrb2)->(MsUnLock())
+        nL := aScan(aDias,(cAliasTrb)->XX_VENCREA)
+        If nL > 0
+            &(cAliasTrb2+"->XX_"+STRZERO(nL,3)) += (cAliasTrb)->XX_SALDO
         EndIf
+        (cAliasTrb2)->(MsUnLock())
+
     EndIf
     dbSelectArea(cAliasTrb)
     dbSkip()

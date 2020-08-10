@@ -905,7 +905,7 @@ If ! SE1->E1_TIPO $ MVABATIM	+"/"+MVFUABT
 			//colocar-se a database para o futuro de forma que a Somaabat()
 			//considere os titulos de abatimento
 			If xmv_par38 == 1
-				dOldData := dDataBase
+				//dOldData := dDataBase
 				dDataBase := CTOD("31/12/40")
 			Endif
 
@@ -942,6 +942,7 @@ Endif
 nSaldo:=Round(NoRound(nSaldo,3),2)
 
 //__oHash:Clean()
+dDataBase := dOldData
 
 Return nSaldo
 
