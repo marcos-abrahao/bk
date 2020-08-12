@@ -21,7 +21,7 @@ Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""
 Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE INSS
-Local cCliente  := CN9->CN9_CLIENT
+Local cCliente  := CND->CND_CLIENT
 Local aArea		:= GetArea()
 Local aAreaCNA	
 
@@ -47,7 +47,7 @@ If SM0->M0_CODIGO == "01"      // BK
 	ENDIF
 ENDIF                     
 
-IF CND->CND_LOJACL <> CNA->CNA_LOJACL
+IF (CND->CND_CLIENT <> CNA->CNA_CLIENT) .OR. (CND->CND_LOJACL <> CNA->CNA_LOJACL)
 	AADD(ExpA1,{"C5_ESTPRES" ,SA1->A1_EST, Nil}) 
 	AADD(ExpA1,{"C5_MUNPRES" ,SA1->A1_COD_MUN, Nil})
 	//A=Avulsa;C=Contrato;2=Serie2

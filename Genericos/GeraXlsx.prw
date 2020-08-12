@@ -22,18 +22,18 @@ Generico - Gera planilha excel
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
 //U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
-User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph )
+User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen )
 Local oProcess
 Local cFile := ""
 //oProcess := MsNewProcess():New({|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
 //oProcess:Activate()
 
-MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph) })
+MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen) })
 
 Return cFile
 
 
-User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph )
+User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen )
 
 Local oExcel := YExcel():new()
 Local oObjPerg
@@ -81,7 +81,6 @@ Local _aFormat := {}
 Local _aTotal  := {}
 Local _cQuebra := ""
 Local _lClose  := .F.
-Local lOpen	   := .T.
 Local oAlCenter
 Local oVtCenter
 Local oQtCenter
@@ -122,6 +121,7 @@ Local lGraf     := .F.
 Local cMensGraf := ""
 
 Default _aGraph := {}
+Default lOpen   := .T.
 
 Private xCampo,yCampo
 Private xQuebra

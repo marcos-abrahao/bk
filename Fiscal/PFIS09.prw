@@ -296,7 +296,7 @@ Processa( {|| ProcPFIS09() })
 //Processa ( {|| MBrwPFIS09()})
 If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
 	cArqTmp := U_CORPFIS09()
-	U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),cArqTmp,.F.)
+	U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp,cArqTmp,.F.)
 Else
 	Processa ( {|| U_CSVPFIS09()})
 EndIf
@@ -790,14 +790,14 @@ LOCAL cFile := ""
 
 IF __CUSERID <> '000000'
 	MSGSTOP("Usuário  Não  Autorizado")
-	Return Nil
+	Return ""
 Endif
 
 
 cPerg := "PFIS09X"
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
-	Return Nil
+	Return ""
 Endif
 
 nOPC_ := mv_par01

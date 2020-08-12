@@ -59,7 +59,8 @@ Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local cMCompras := ALLTRIM(GetMv("MV_XXUMCOM"))
 
 // Emails colocados manualmente para atender a demanda com urgência / Alterar para grupo posteriormente 25/11/2019 - Marcos - a pedido do Fabio Querino
-Local cEmLibPed := "ricardo.monaco@bkconsultoria.com.br;caio.silva@bkconsultoria.com.br;aprendiz.almoxarifado@bkconsultoria.com.br;joao.vitor@bkconsultoria.com.br;"
+// 10/08/20 Removido aprendiz.almoxarifado e ricardo.monaco
+Local cEmLibPed := "caio.silva@bkconsultoria.com.br;joao.vitor@bkconsultoria.com.br;"
 
 Local nTotPed   := 0
 Local cEmUser   := ""

@@ -1472,7 +1472,7 @@ If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 	u_xxLog("BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
 	u_xxLog("BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cMsg,1,100),.T.,"")
 	
-	Return .T.
+	//Return .T.
 EndIf
 // Fim testes
 
