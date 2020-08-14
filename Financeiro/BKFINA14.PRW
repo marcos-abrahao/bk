@@ -456,7 +456,7 @@ Local cDirTmp2  := ALLTRIM(cDirTmp)
 DbSelectArea("SM0")
 
 //BKDAHER BHG USAR LOTE BK
-IF SM0->M0_CODIGO $ "06/08/09/10/11/14"
+IF SM0->M0_CODIGO $ "06/08/09/10/11/14/15"
 	cQuery  := "SELECT EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
 	cQuery  += " FROM SEE010 "
 	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
@@ -481,7 +481,7 @@ DbSelectArea("SEE")
 DbSetOrder(1)
 IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	RecLock("SEE",.F.)                             
-	Replace SEE->EE_LOTECP With IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14",STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
+	Replace SEE->EE_LOTECP With IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15",STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
 	SEE->( MsUnlock() )
 	nLote := VAL(SEE->EE_LOTECP)
  
@@ -490,10 +490,10 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	cConta    := STRTRAN(SEE->EE_CONTA,"-","")
 	cDVConta  := SEE->EE_DVCTA
 	//BKDAHER USAR CNPJ BK
-	cCGC      := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14","03022122000177",SM0->M0_CGC)
-    cNomeCom  := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14","BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
+	cCGC      := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15","03022122000177",SM0->M0_CGC)
+    cNomeCom  := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15","BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
     //***************** 
-    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14",MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira - Considerando CNPJ BK / Consorcio Nova Balsa !!",cPerg),"")
+    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15",MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira / BHG INT 3 - Considerando CNPJ BK / Consorcio Nova Balsa !!",cPerg),"")
 ELSE
 	MSGSTOP("Parâmetro do Banco não cadastrado!!",'Atenção')
 	Return nil

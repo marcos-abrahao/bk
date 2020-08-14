@@ -163,6 +163,10 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := "003148"
 			cProd := "11301027"
 			cCCus := "302000508"
+		ElseIf SM0->M0_CODIGO == "15"  // BHG Interior 3
+			cForn := "004491"
+			cProd := "11301031"
+			cCCus := "305000554"
 		Endif	
 	
 		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)

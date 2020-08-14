@@ -1,5 +1,6 @@
 #INCLUDE "PROTHEUS.CH"  
 #INCLUDE "topconn.ch"                     
+#include "tbiconn.ch"
                             
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR14()
@@ -12,7 +13,7 @@ BK - Rentabilidade dos Contrato - Projeção X Realizado
 /*/
 //-------------------------------------------------------------------
 
-User Function BKGCTR14(lSintet)
+User Function BKGCTR14(aParam)
 
 Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado"
 Local _nI           := 0
@@ -26,9 +27,26 @@ Local aRetCons		:= {}
 Local cLogCons   	:= ""
 Local cCrLf   		:= Chr(13) + Chr(10) 
 
-Default lSintet  	:= .F.
+// Exemplo a param do schedule: {.F.,.T.,'01','01','000000','004138000002'}
+Default aParam 		:= {.F.,.F.}
 
+Private lSintet  	:= .F.
+Private lJob 		:= .F.
+
+Private cEmpPar 	:= "01"
+Private cFilPar		:= "01"
 Private cPerg       := "BKGCTR14"
+
+If Len(aParam) == 2
+	lSintet  	:= aParam[1]
+	lJob 		:= aParam[2]
+Else
+	lSintet  	:= aParam[1]
+	lJob 		:= aParam[2]
+	cEmpPar 	:= aParam[3]
+	cFilPar 	:= aParam[4]
+	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9"},"GCT")
+EndIf
 
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
@@ -113,10 +131,21 @@ aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/1050
 
 mv_par03 := YEAR(dDataBase)
 
-ValidPerg(cPerg)
-If !Pergunte(cPerg,.T.)
-	Return Nil
-Endif
+If !lJob
+	ValidPerg(cPerg)
+	If !Pergunte(cPerg,.T.)
+		Return Nil
+	Endif
+Else
+	MV_PAR01 := cContrato  	:= ""   // teste "005000114"
+	MV_PAR02 := nMesC 		:= MONTH(dDataBase - DAY(dDatabase))
+	MV_PAR03 := nAnoC  		:= YEAR(dDataBase - DAY(dDatabase))
+	MV_PAR04 := 3
+	MV_PAR05 := nConsolida	:= 2
+	MV_PAR06 := nIndConsor	:= 1
+	MV_PAR07 := nRATEIA     := 2
+	MV_PAR08 := nDespGeral  := 1
+EndIf
 
 aXXMIMPC	:= {}
 aXXMIMPC	:= StrTokArr(GetMv("MV_XXMIMPC"),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
@@ -152,7 +181,6 @@ IF nConsolida == 1
 
     //ZERA VARIAVEL DE CONTRATO
 	cContrato  	:= "XXXXXXXXX"
- 
 
 	IF LEN(aRetCons) > 0
 	
@@ -205,13 +233,21 @@ IF nConsolida == 1
 				cConsolida := SUBSTR(cConsolida,1,LEN(cConsolida)-1)
 			ENDIF
 			IF !EMPTY(cLogCons)
-			     IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
-					RETURN NIL
-			     ENDIF
+				IF lJob
+					u_xxLog("BKGCTR14.LOG","- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons,.T.,"")
+				ELSE
+					IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
+						RETURN NIL
+					ENDIF
+				ENDIF
 			ENDIF		
 		ENDIF
     ELSE
-    	MSGSTOP("Informações para Consolidar invalida. Verifique!!")
+		IF lJob
+			u_xxLog("BKGCTR14.LOG","Informações para Consolidar invalida. Verifique!!",.T.,"")
+		ELSE
+	    	MSGSTOP("Informações para Consolidar invalida. Verifique!!")
+		ENDIF
 		Return Nil
     ENDIF
 
@@ -246,20 +282,26 @@ cXXSEMAF	:= GetMv("MV_XXSEMAF")
 cXXPLR	    := SuperGetMV("MV_XXPLR",.F.,"|430|") //|430|
 
 IF EMPTY(cContrato)
-	IF AVISO("Atenção","Incluir Contrato Consorcios??",{"Não","Sim"}) == 2
-	   lConsorcio := .T.
-	ELSE
-	   lConsorcio := .F.
-	ENDIF
-	IF AVISO("Atenção","Incluir Contrato Furnas - Filial 381/391 ?",{"Não","Sim"}) == 2
+	IF lJob
+		lConsorcio := .T.
 		lFurnas := .T.
-	ELSE
-		lFurnas := .F.
-	ENDIF
-	IF AVISO("Atenção","Incluir Contrato Petro - Filial 455 ?",{"Não","Sim"}) == 2
 		lPetro := .T.
 	ELSE
-		lPetro := .F.
+		IF AVISO("Atenção","Incluir Contrato Consorcios ?",{"Não","Sim"}) == 2
+		lConsorcio := .T.
+		ELSE
+		lConsorcio := .F.
+		ENDIF
+		IF AVISO("Atenção","Incluir Contrato Furnas - Filial 381/391 ?",{"Não","Sim"}) == 2
+			lFurnas := .T.
+		ELSE
+			lFurnas := .F.
+		ENDIF
+		IF AVISO("Atenção","Incluir Contrato Petro - Filial 455 ?",{"Não","Sim"}) == 2
+			lPetro := .T.
+		ELSE
+			lPetro := .F.
+		ENDIF
 	ENDIF
 ENDIF
 
@@ -286,10 +328,18 @@ NEXT
 
  		
 IF ALLTRIM(cXXSEMAF) == 'N'
-	ProcRegua(100)
-	Processa( {|| AtualizaCC() }) 
+	If !lJob
+		ProcRegua(100)
+		Processa( {|| AtualizaCC(lJob) }) 
+	Else
+		AtualizaCC(lJob)
+	EndIf
 ELSE
-	Msginfo("Atualizando tabela Folha de Pagamento!!")
+	If !lJob
+		Msginfo("Atualizando tabela Folha de Pagamento!!")
+	Else
+		u_xxLog("BKGCTR14.LOG","Atualizando tabela Folha de Pagamento!! - processo abortado.",.T.,"")
+	EndIf
     Return Nil
 ENDIF
 
@@ -491,19 +541,26 @@ FOR _nI := 1 TO nPeriodo
   	AAdd(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
 	AADD(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))  
   	IF Month(dDataInicio) == nMesC .AND. YEAR(dDataInicio)== nAnoC
-  		nCompet		:= _nI
+  		nCompet	:= _nI
   	ENDIF
 	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
-
-If nCompet <> 0
-	ProcRegua(1)
-	Processa( {|| ProcR14() })
-	Processa( {|| MBrwR14() })
+If !lJob
+	If nCompet <> 0
+		ProcRegua(1)
+		Processa( {|| ProcR14(lJob) })
+		Processa( {|| MBrwR14() })
+	Else
+		MsgStop("Competencia não encontrada!!")
+	EndIf
 Else
-	MsgStop("Competencia não encotrada!!")
+	If nCompet <> 0
+		ProcR14(lJob)
+		U_CR14(lJob)
+	Else
+		u_xxLog("BKGCTR14.LOG","Competencia não encontrada : "+STR(nCompet),.T.,"")
+	EndIf
 EndIf
-
 ///(ALIAS_TMP)->(Dbclosearea())
 ///FErase(cArqTmp2+GetDBExtension())
 ///FErase(cArqTmp2+OrdBagExt())
@@ -513,6 +570,10 @@ oTmpTb2:Delete()
 ///FErase(cArqTmp+GetDBExtension())
 ///FErase(cArqTmp+OrdBagExt())
 oTmpTb1:Delete()
+
+If lJob
+	Reset Environment
+EndIf
 
 Return
 
@@ -548,18 +609,18 @@ From aSize[7],0 to aSize[6],aSize[5] of oMainWnd PIXEL
 	
 _oGetDbSint := MsGetDb():New(aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","TRB")
 	
-aadd(aButton , { "BMPTABLE" , { || U_CR14(), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
-aadd(aButton , { "BMPTABLE" , { || U_PR14(), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Parametros" } )
+aadd(aButton , { "BMPTABLE" , { || U_CR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
+aadd(aButton , { "BMPTABLE" , { || U_PR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Parametros" } )
 
-	
 ACTIVATE MSDIALOG _oDlgSint ON INIT EnchoiceBar(_oDlgSint,{|| _oDlgSint:End()}, {||_oDlgSint:End()},, aButton)
 
 Return Nil
 
 
 
-User FUNCTION PR14()
+User FUNCTION PR14(lJob)
 LOCAL cPerg     := "BKGCTR14"
+DEFAULT lJob	:= .F.
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -572,7 +633,7 @@ nAnoC  		:= mv_par03
 
 ProcRegua(1)
 
-Processa( {|| ProcR14() })
+Processa( {|| ProcR14(.F.) })
 
 Return Nil
    
@@ -592,19 +653,23 @@ Return (.T.)
 
 
 
-User FUNCTION CR14()
+User FUNCTION CR14(lJob)
 Local cAlias := "TRB"
 
 dbSelectArea(cAlias)
 
-ProcRegua(1)
-Processa( {|| GeraCR14(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)})
+If !lJob
+	ProcRegua(1)
+	Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)})
+Else
+	GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
+EndIf
 
 Return Nil
 
   
  
-Static Function ProcR14()
+Static Function ProcR14(lJob)
 Local cQuery
 Local cProcSZG := ""
 Local nIndTC   := 0 
@@ -613,14 +678,19 @@ Local nPrev    := 0
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
+If !lJob
+	ProcRegua(nPeriodo)
+EndIf
 
-ProcRegua(nPeriodo)
 FOR _nI := 1 TO nPeriodo
 
 	//nDespesa := 0
 	//nDespCon := 0
-
-	IncProc("Consultando faturamento dos contratos...")
+	If !lJob
+		IncProc("Consultando faturamento dos contratos...")
+	Else
+		u_xxLog("BKGCTR14.LOG","Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
+	EndIf
    
 	//*********Faturamento do Contrato
 	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN,CNF_COMPET,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"+CRLF
@@ -1463,8 +1533,11 @@ FOR _nI := 1 TO nPeriodo
 			ENDIF
 		NEXT _IXFUR
 
-
-		IncProc("Consultando Folha Pagamento...")
+		If !lJob
+			IncProc("Consultando Folha Pagamento...")
+		Else
+			u_xxLog("BKGCTR14.LOG","Consultando Folha Pagamento..."+STR(_nI),.T.,"")
+		EndIf
 		//*********Folha Pagamento
 		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
 		cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
@@ -1515,20 +1588,20 @@ FOR _nI := 1 TO nPeriodo
 		dbGoTop()
 		DO While !TMPX2->(EOF())
 
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cProventos
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cProventos
 		    	nProventos += TMPX2->valevent
 			ENDIF
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cDescontos
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cDescontos
 		    	nProventos -= TMPX2->valevent 
 			ENDIF
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cXXPLR
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cXXPLR
 		    	nXXPLR += TMPX2->valevent 
 			ENDIF
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cNINC_Verb
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cNINC_Verb
 		    	nXXSEMINC += TMPX2->valevent 
 			ENDIF
 
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cVT_Prov
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cVT_Prov
 		   		dbSelectArea(ALIAS_TMP)
 		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
 		     		Reclock(ALIAS_TMP,.F.)
@@ -1822,8 +1895,11 @@ FOR _nI := 1 TO nPeriodo
 
 		TMPX2->(dbCloseArea())
 
-
-		IncProc("Consultando Folha Pagamento - Autonomos...")
+		If !lJob
+			IncProc("Consultando Folha Pagamento - Autonomos...")
+		Else
+			u_xxLog("BKGCTR14.LOG","Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
+		EndIf
 		//*********Folha Pagamento - Autonomos IPT
 		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
 		cQuery2 += " FROM  webLancamentoIPT.dbo.LancamentoIPT"
@@ -1911,8 +1987,11 @@ FOR _nI := 1 TO nPeriodo
 
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
-
-		IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
+		If !lJob
+			IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
+		Else
+			u_xxLog("BKGCTR14.LOG","Consultando gastos gerais..."+STR(_nI),.T.,"")
+		EndIf
 		
 		//*********GASTOS GERAIS
 		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
@@ -3377,8 +3456,12 @@ FOR _nI := 1 TO nPeriodo
 			TMPX2->(dbCloseArea())
 	  	ENDIF
 
-
-		IncProc("Consultando faturamento de medições avulsas...")
+		If !lJob
+			IncProc("Consultando faturamento de medições avulsas...")
+		Else
+			u_xxLog("BKGCTR14.LOG","Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
+		EndIf
+		
 		//********* FATURAMENTO - Inclusão para medição avulso
 		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"
 		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" 
@@ -3496,11 +3579,17 @@ nRGATMES 	:= 0
 nRESULT 	:= 0
 nRPREVISTO 	:= 0
 nVPREVSITO  := 0 
+If !lJob
+	ProcRegua(Len(aContratos))
+EndIf
 
-ProcRegua(Len(aContratos))
 For Yi_ := 1 TO LEN(aContratos)
 	FOR _nI := 1 TO nPeriodo
-		IncProc("Calculando resultados...")
+		If !lJob
+			IncProc("Calculando resultados...")
+		Else
+			u_xxLog("BKGCTR14.LOG","Calculando resultados..."+STR(_nI),.T.,"")
+		EndIf
 		
 		//CALCULA TAXA ADM
         nValTaxaAdm := 0
@@ -4992,31 +5081,39 @@ Return NIL
 
 
 
-
-
-STATIC Function GeraCR14(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
+STATIC Function GeraCR14(lJob,_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
 Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
 Local cPicN   := "@E 99999999.99999"
 Local cDirTmp := "C:\TMP"
-Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
+Local cArqTmp := ""
 Local lSoma,aSoma,nCab
 Local cLetra	:= ""
 Local cTpQuebra	:= ""
 Local cQuebra	:= ""
 Local aQuebra	:= {}
-
+Local cArqXls   := ""
 Local aPlans  := {}
+
+If lJob
+	cDirTmp := "\TMP"
+EndIf
+cArqTmp := cDirTmp+"\"+cArqS+".CSV"
 
 Private xQuebra,xCampo
 
-
-If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-   //Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
-   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
-   Return Nil
+If !lJob
+	If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+		//Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
+		AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+		cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
+		Return Nil
+	EndIf
+Else
+	u_xxLog("BKGCTR14.LOG","Gerando planilha xlsx",.T.,"")
+	AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+	cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 EndIf
 
 MakeDir(cDirTmp)
@@ -5066,7 +5163,11 @@ If nHandle > 0
          lSoma := .T.
       ENDIF
    
-      IncProc("Gerando arquivo "+cArqS)   
+      If !lJob
+         IncProc("Gerando arquivo "+cArqS)   
+	  Else
+	     u_xxLog("BKGCTR14.LOG","Gerando arquivo "+cArqS,.T.,"")
+      EndIf 
 
       For _ni :=1 to LEN(aCampos)
          IF SUBSTR(aCampos[_ni],6,8) <> "XX_LINHA" //.AND. SUBSTR(aCampos[_ni],6,9) <> "XX_CODGCT"
@@ -5137,18 +5238,23 @@ If nHandle > 0
    ENDIF	
       
    fClose(nHandle)
-      
-	MsgRun(cArqs,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
+   If !lJob   
+		MsgRun(cArqs,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
+   EndIf
 
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp)
+	If !lJob
+   		MsgAlert("Falha na criação do arquivo "+cArqTmp)
+	Else
+		u_xxLog("BKGCTR14.LOG","Falha na criação do arquivo "+cArqTmp,.T.,"")
+	EndIf
 Endif
    
 Return
 
 
 //Atualiza tabela de custro 
-Static Function  AtualizaCC()
+Static Function AtualizaCC(lJob)
 Local _IX := 0
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
@@ -5159,12 +5265,20 @@ GetMv("MV_XXSEMAF")
 RecLock("SX6",.F.)
 SX6->X6_CONTEUD := "S"
 msUnlock()
- 
-IncProc("Atualizando Tabela Centro de Custo...")
+
+If !lJob 
+	IncProc("Atualizando Tabela Centro de Custo...")
+Else
+    u_xxLog("BKGCTR14.LOG","Atualizando Tabela Centro de Custo...",.T.,"")
+EndIf
 
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
 
-IncProc("Atualizando Tabela Centro de Custo Consorcios...")
+If !lJob 
+	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
+Else
+    u_xxLog("BKGCTR14.LOG","Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
+EndIf
 
 FOR _IX:= 1 TO LEN(aConsorcio)
 
@@ -5180,8 +5294,8 @@ GetMv("MV_XXSEMAF")
 RecLock("SX6",.F.)
 SX6->X6_CONTEUD := "N"
 msUnlock()
-
 Return
+
 
 //Monta Tela Para informações de Consolidação
 STATIC Function MtaDlg01()
@@ -5293,7 +5407,7 @@ Return(NIL)
 
 
 User Function BKGCTR_14()
-	U_BKGCTR14(.T.)
+	U_BKGCTR14({.T.,.F.})
 Return
 
 

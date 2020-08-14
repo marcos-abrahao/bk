@@ -212,7 +212,7 @@ DO WHILE QCN9->(!EOF())
 
 	cXX_XXDESC	:= QCN9->CN9_XXDESC
 	dXX_DTINIC	:= QCN9->CN9_DTINIC
-	dXX_XXDVIG	:= IIF(!EMPTY(VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)),VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG),QCN9->CN9_XXDVIG)
+	dXX_XXDVIG	:= u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)
 	cXX_XXNRBK	:= QCN9->CN9_XXNRBK
 	nXX_XXFUNC	:= QCN9->CN9_XXFUNC
 	nXX_FATU 	:= QCN9->F2_VALFAT
@@ -342,24 +342,8 @@ QCN9->(dbCloseArea())
 Return
 
 
-Static Function VigContrat(cContrato,dDVIG)
-Local cContRev := ""
 
-// Buscar o ultimo vencto dos Cronogramas
-dbSelectArea("CNF")
-dbSetOrder(3)
-cContRev := xFilial("CNF")+cContrato
-dbSeek(cContRev,.T.)
-Do While !EOF() .AND. cContRev == CNF_FILIAL+CNF_CONTRA+CNF_REVISA
-	IF dDVIG < CNF->CNF_DTVENC
-		dDVIG := CNF->CNF_DTVENC
-	ENDIF
-	CNF->(dbSkip())
-EndDo
-
-Return dDVIG
  
-
 
 Static Function  ValidPerg(cPerg)
 

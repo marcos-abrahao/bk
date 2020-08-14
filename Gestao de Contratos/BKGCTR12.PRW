@@ -41,7 +41,7 @@ AADD(aCabs  ,"Descrição")
 AADD(aCampos,"QCN9->CN9_DTINIC")
 AADD(aCabs  ,"Dt. Inicio")
 
-AADD(aCampos,"IIF(!EMPTY(u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)),u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG),QCN9->CN9_XXDVIG)")
+AADD(aCampos,"u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)")
 AADD(aCabs  ,"Vigencia")
 
 AADD(aCampos,"QCN9->CN9_XXNRBK")
@@ -97,7 +97,7 @@ cQuery += " AND CND_REVISA = CN9_REVISA AND CND_COMPET = '"+cCompet+"' " + CRLF
 cQuery += " AND CND.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " WHERE CN9.D_E_L_E_T_='' AND CN9_SITUAC = '05'" + CRLF
 
-u_LogMemo("BKGCTR07.SQL",cQuery)
+u_LogMemo("BKGCTR12.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QCN9"
 TCSETFIELD("QCN9","CN9_DTINIC","D",8,0)
@@ -125,8 +125,10 @@ cQuery += " ORDER BY CN9_NUMERO"
 
 Return 
 
+// BKGCTR12/BKGCTR13/BKGCTR25
 User Function VigContrat(cContrato,dDVIG)
 Local cContRev := ""
+Local dXDVig   := dDVIG
 
 // Buscar o ultimo vencto dos Cronogramas
 dbSelectArea("CNF")
@@ -139,5 +141,7 @@ Do While !EOF() .AND. cContRev == CNF_FILIAL+CNF_CONTRA+CNF_REVISA
 	ENDIF
 	CNF->(dbSkip())
 EndDo
+If Empty(dDVIG)
+	dDVIG := dXDVig
+EndIf
 Return dDVIG
-

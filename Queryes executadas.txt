@@ -1,3 +1,51 @@
+XX/08/20=============================================== 
+XX/08/20=============================================== 
+XX/08/20=============================================== 
+XX/08/20=============================================== 
+XX/08/20=============================================== 
+XX/08/20=============================================== 
+XX/08/20=============================================== 
+
+
+14/08/20=============================================== 
+Alterado o Parâmetro MV_ESPECIE da Seguradora para: UNI=NF;1=RPS;2=RPS;
+Reprocessado todo o livro da Seguradora
+
+DELETE FROM SFT120
+DELETE FROM SF3120
+
+
+SELECT B1_MEPLES,* FROM SB1120 WHERE SUBSTRING(B1_COD,1,5) = '00000'
+
+Nas aquisições: 
+
+Se o serviço for configurado como “EP” (B1_MEPLES = 1 ou Branco), ou seja, ISS devido no estabelecimento do prestador, o ISS será considerado devido no município do fornecedor do documento (A2_COD_MUN).
+Se o serviço for configurado como “LES” (B1_MEPLES = 2), ou seja, ISS devido no local de execução do serviço, primeiramente serão avaliados os campos F1_ESTPRES e F1_INCISS, que podem ser informados no momento da digitação do documento de entrada. Se estes campos estiverem preenchidos, o ISS será considerado devido no município ali definido.
+Caso contrário, o ISS será considerado devido no município do SIGAMAT (M0_CODMUN).
+
+Nas prestações: 
+Se o serviço for configurado como “EP” (B1_MEPLES = 1 ou Branco), ou seja, ISS devido no estabelecimento do prestador, o ISS será considerado devido no município do SIGAMAT (M0_CODMUN).
+Se o serviço for configurado como “LES” (B1_MEPLES = 2), ou seja, ISS devido no local de execução do serviço, primeiramente serão avaliados os campos F2_ESTPRES e F2_MUNPRES, preenchidos através dos campos C5_ESTPRES e C5_MUNPRES no pedido de venda. Se estes campos estiverem prenchidos o ISS será considerado devido no município ali definido.
+
+Caso contrário o ISS será considerado devido no município do cliente de faturamento (A1_COD_MUN).
+No sistema, “EP” significa Estabelecimento do Prestador, “LES” significa Local de Execução do Serviço.
+Esta configuração é feita no cadastro de produto, por meio do campo Exec. Serviço(B1_MEPLES), a opção “1” indica EP e opção “2” indica LES, e caso este campo esteja vazio, será adotada “EP” como padrão.
+
+Informações adicionais:
+
+https://tdn.totvs.com/pages/viewpage.action?pageId=500292737
+
+
+SELECT B1_MEPLES,B1_CODISS,* FROM SB1120 WHERE SUBSTRING(B1_COD,1,5) = '00000'
+UPDATE SB1120 SET B1_MEPLES = '1' FROM SB1120 WHERE SUBSTRING(B1_COD,1,5) = '00000'
+
+SELECT F2_ESTPRES,F2_MUNPRES FROM SF2120
+
+UPDATE SF2120 SET F2_ESTPRES = 'SP', F2_MUNPRES = '50308' FROM SF2120 
+
+SELECT F2_MUNPRES FROM SF2010
+
+SELECT * FROM SFT120 WHERE FT_TIPOMOV = 'S'
 
 07/08/20=============================================== 
 

@@ -22,18 +22,20 @@ Generico - Gera planilha excel
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
 //U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
-User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen )
-Local oProcess
+User Function GeraXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob )
 Local cFile := ""
-//oProcess := MsNewProcess():New({|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
-//oProcess:Activate()
 
-MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen) })
+Default lJob := .F.
 
+If !lJob
+	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
+Else
+	cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob)
+EndIf
 Return cFile
 
 
-User Function ProcXlsx( oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen )
+User Function ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob)
 
 Local oExcel := YExcel():new()
 Local oObjPerg
@@ -122,13 +124,16 @@ Local cMensGraf := ""
 
 Default _aGraph := {}
 Default lOpen   := .T.
+Default lJob	:= .F.
 
 Private xCampo,yCampo
 Private xQuebra
 
-//oProcess:SetRegua1(LEN(_aPlans)+2)
 
-//oProcess:IncRegua1("Preparando configurações...")
+If lJob
+	cDirTmp := "\tmp\"
+EndIf
+
 
 If lClose == NIL
    lClose := .T.
@@ -198,8 +203,6 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_cQuebra := _aPlans[nPl,11]
 	_lClose  := _aPlans[nPl,12]
 
-	//oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
-
 	If Empty(_aFormat)
 		_aFormat := Array(Len(_aCabs))
 	EndIf
@@ -212,7 +215,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
 	oExcel:SetDefRow(.T.,{1,Len(_aCabs)})
 
-	oExcel:nTamLinha := 34
+	oExcel:nTamLinha := 40
 	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
 
 	// Titulo
@@ -230,7 +233,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
-			oExcel:nTamLinha := nil
+			oExcel:nTamLinha := 40
 		Else
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
@@ -347,11 +350,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
 
-	//oProcess:SetRegua2((_cAlias)->(LastRec()))
-
 	Do While (_cAlias)->(!eof()) 
-
-        //oProcess:IncRegua2("Processando linhas...")
 
 		nLin++
 		nCont++
@@ -667,6 +666,7 @@ Local aImpr    := {}
 Local aAlign   := {}
 Local aFormat  := {}
 Local aTotal   := {}
+Local cArqXls  := ""
 
 Default _cPlan   := _cAlias
 Default _cTitulo := _cAlias
@@ -747,9 +747,9 @@ FOR nI := 1 TO FCOUNT()
 NEXT
 
 AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
-U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
+cArqXls := U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
-Return nil
+Return cArqXls
 
 // Marcos - v04/04/20
 // Exemplo:
@@ -762,17 +762,18 @@ Return nil
 //	MsAguarde({|| U_ArrToXml(aPlans,cTitExcel,cPerg,.T.)},"Aguarde","Gerando planilha...",.F.)
 
 
-User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam )
-Local oProcess
-//oProcess := MsNewProcess():New({|| U_PrcArrXlsx(oProcess,_aPlans,_cTitulo,_cProg, _aParam)}, "Processando...", "Aguarde...", .T.)
-//oProcess:Activate()
+User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
+Default lJob := .F.
 
-MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(oProcess,_aPlans,_cTitulo,_cProg, _aParam) })
-
+If !lJob
+	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) })
+Else
+	U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob)
+EndIf
 
 Return Nil
 
-User Function PrcArrXlsx( oProcess,_aPlans,_cTitulo,_cProg, _aParam )
+User Function PrcArrXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
 
 Local oExcel := YExcel():new()
 Local oObjPerg
@@ -850,13 +851,13 @@ Local nTotStyle
 Local nIDImg
 
 //Local nStyle
-
+Default lJob	:= .F.
 Private xCampo,yCampo
 Private xQuebra
 
-//oProcess:SetRegua1(LEN(_aPlans)+2)
-
-//oProcess:IncRegua1("Preparando configurações...")
+If lJob
+	cDirTmp := "\tmp\"
+EndIf
 
 //If lClose == NIL
 //   lClose := .T.
@@ -924,8 +925,6 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_aFormat := _aPlans[nPl,07]
 	_aTotal  := _aPlans[nPl,08]
 
-	//oProcess:IncRegua1("Gerando planilha "+_cPlan+"...")
-
 	If Empty(_aFormat)
 		_aFormat := Array(Len(_aCabs))
 	EndIf
@@ -937,7 +936,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
 
-	oExcel:nTamLinha := 34
+	oExcel:nTamLinha := 40
 	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
 
 	// Titulo
@@ -956,7 +955,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
-			oExcel:nTamLinha := nil
+			oExcel:nTamLinha := 40
 		Else
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
@@ -1035,11 +1034,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		EndIf
 	NEXT
 
-	//oProcess:SetRegua2(Len(_aDados))
-
 	For nRow := 1 To Len(_aDados)
-
-        //oProcess:IncRegua2("Processando linhas...")
 
 		nLin++
 		nCont++
@@ -1080,8 +1075,6 @@ FOR nPl := 1 TO LEN(_aPlans)
 		Next
 	EndIf
 Next
-
-//oProcess:IncRegua1("Listando parâmetros...")
 
 // Planilha de Parâmetros
 If ValType(_aParam) == "A"
@@ -1145,4 +1138,5 @@ oExcel:Gravar(cDirTmp+"\",.T.,.T.)
 
 RestArea(aArea)
 
-Return
+Return cFile
+
