@@ -4,7 +4,64 @@ XX/08/20===============================================
 XX/08/20=============================================== 
 XX/08/20=============================================== 
 XX/08/20=============================================== 
-XX/08/20=============================================== 
+17/08/20=============================================== 
+17/08/20=============================================== 
+
+SELECT C9_NFISCAL,C9_CODISS,C9_DATALIB,C9_PRODUTO,B1_COD,B1_CODISS FROM SC9010 SC9
+LEFT JOIN SB1010 SB1 ON B1_COD = C9_PRODUTO AND SB1.D_E_L_E_T_ = ''
+WHERE C9_NFISCAL = ' ' AND SC9.D_E_L_E_T_ ='' 
+
+UPDATE SC9010 SET C9_CODISS = B1_CODISS FROM SC9010 SC9
+LEFT JOIN SB1010 SB1 ON B1_COD = C9_PRODUTO AND SB1.D_E_L_E_T_ = ''
+WHERE C9_NFISCAL = ' ' AND SC9.D_E_L_E_T_ ='' 
+
+
+SELECT C6_NUM,C6_QTDENT,C6_CODISS,C6_ENTREG,C6_PRODUTO,B1_COD,B1_CODISS FROM SC6010 SC6
+LEFT JOIN SB1010 SB1 ON B1_COD = C6_PRODUTO AND SB1.D_E_L_E_T_ = ''
+WHERE C6_NOTA = ' ' AND SC6.D_E_L_E_T_ ='' 
+ORDER BY C6_NUM
+
+UPDATE SC6010 SET C6_CODISS = B1_CODISS FROM SC6010 SC6
+LEFT JOIN SB1010 SB1 ON B1_COD = C6_PRODUTO AND SB1.D_E_L_E_T_ = ''
+WHERE C6_NOTA = ' ' AND SC6.D_E_L_E_T_ ='' 
+
+
+17/08/20=============================================== 
+
+MP - FIS - ISS, Configuração para Redução de Base por EDSON SOARES FLORENCIO
+Dúvida
+Qual a configuração para a correta redução da Base de ISS ?
+
+Ambiente
+Microsiga Protheus– Livros Fiscais– A partir da versão 11.80
+
+Solução
+Configurar o parâmetro abaixo:
+
+MV_DBRDIF = .F.
+Indica se o valor do ICMS/ISS a ser deduzido, quando o campo F4_AGREG = D ou R , deverá ser sobre o
+valor da base reduzida ou valor de redução da base.
+
+Preencher os campos abaixo no Cadastro de Produtos:
+Aliq. ISS (B1_ALIQISS) = preencher com a alíquota do imposto.
+Cod. Serv. ISS (B1_CODISS) = preencher com o código de Serviço.
+
+Preencher os campos no Cadastro do Fornecedor
+Recolhe ISS (A2_RECISS) = N - Não
+
+Preencher os campos abaixo no Cadastro do TES
+Calculo ISS (F4_ISS) = S - Sim
+L. Fiscal ISS (F4_LFISS) = T - Tributado
+Agrega Valor (F4_AGREG) = D - Ded IC V.Ct
+%Red. do ISS (F4_BASEISS) = Define o percentual da base de ISS para o caso de existir base reduzida.
+
+Configurar Natureza para reter ISS 
+Calcula ISS (ED_CALCISS) = Sim
+
+Informações Adicionais:
+https://tdn.totvs.com/pages/releaseview.action?pageId=6076798
+https://tdn.totvs.com/pages/releaseview.action?pageId=235571086
+
 
 
 14/08/20=============================================== 

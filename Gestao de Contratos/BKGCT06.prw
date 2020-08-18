@@ -1467,10 +1467,10 @@ If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 	Else
 		//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
 	Endif
-	u_xxLog("BKSENDMAIL.LOG",cPrw+"- Assunto: "+cAssunto,.T.,"")
-	u_xxLog("BKSENDMAIL.LOG",cPrw+"- Para: "+cPara,.T.,"")
-	u_xxLog("BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
-	u_xxLog("BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cMsg,1,100),.T.,"")
+	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Assunto: "+cAssunto,.T.,"")
+	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Para: "+cPara,.T.,"")
+	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
+	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cMsg,1,100),.T.,"")
 	
 	//Return .T.
 EndIf
@@ -1499,7 +1499,7 @@ If !lResulConn
 			GET MAIL ERROR cError
 			If _lJob
 				ConOut(cPrw+":"+TIME()+": Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
-				u_xxLog("BKSENDMAIL.LOG",cPrw+"- Erro: "+cError,.T.,"")
+				u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Erro: "+cError,.T.,"")
 			EndIf	
 		EndIf
 		

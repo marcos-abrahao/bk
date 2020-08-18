@@ -97,33 +97,33 @@ IF __cUserId <> "000000" // Administrador
 	// Log dos Filtros
 	/*
    	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120') AND F1_STATUS = ' ')" 
-	u_xxLog("MT103FILB.LOG","1-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","1-"+cFiltro,.T.,"TST")
 		
    	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' ) AND F1_STATUS = ' ')"
-	u_xxLog("MT103FILB.LOG","2-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","2-"+cFiltro,.T.,"TST")
 
    	cFiltro := "(F1_XXUSER = '"+__cUserId+"' AND F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120')"
-	u_xxLog("MT103FILB.LOG","3-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","3-"+cFiltro,.T.,"TST")
 	
 	cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(!empty(cAlmox)," OR F1_XXUSER IN ("+cAlmox+")","")+")"
-	u_xxLog("MT103FILB.LOG","4-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","4-"+cFiltro,.T.,"TST")
 
 
 	cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ')"
-	u_xxLog("MT103FILB.LOG","5-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","5-"+cFiltro,.T.,"TST")
 	
 	
     cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120'","")+" OR "
   	cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+") AND F1_STATUS = ' ')"
-	u_xxLog("MT103FILB.LOG","6-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","6-"+cFiltro,.T.,"TST")
 
 
     cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120'","")+" OR "
     cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+")"          	 
-	u_xxLog("MT103FILB.LOG","7-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","7-"+cFiltro,.T.,"TST")
 
     cFiltro := "(F1_STATUS = ' ')"
-	u_xxLog("MT103FILB.LOG","8-"+cFiltro,.T.,"TST")
+	u_xxLog("\TMP\MT103FILB.LOG","8-"+cFiltro,.T.,"TST")
 	*/
 	
 	

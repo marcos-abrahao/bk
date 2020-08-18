@@ -2174,7 +2174,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
 				//cQuery2 += " ORDER BY B1_DESC"
 				
-				//u_xxLog("BKGCTR11-D1-3.SQL",cQuery2,.F.,"TESTE")        
+				//u_xxLog("\TMP\BKGCTR11-D1-3.SQL",cQuery2,.F.,"TESTE")        
 				cLastE2 := "-"
 				aAcrDcr := {}
 

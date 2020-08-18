@@ -105,7 +105,7 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	ENDIF
 	
 	cEmail += cEmUSER
-	u_xxLog("MT094END.TXT","1-"+cEmail,.F.,"TESTE")        
+	u_xxLog("\TMP\MT094END.TXT","1-"+cEmail,.F.,"TESTE")        
 	IF nOpcao = 5  //3
 		cAssunto:= "Bloqueada"
 	ELSE
@@ -134,7 +134,7 @@ IF !EMPTY(aUser)
 	cNUser := aUser[1,2]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
-u_xxLog("MT094END.TXT","2-"+cEmail,.F.,"TESTE")        
+u_xxLog("\TMP\MT094END.TXT","2-"+cEmail,.F.,"TESTE")        
 
 cTPLIBER := ""
 cOBS := ""
@@ -191,7 +191,7 @@ IF nOpcao == 4 //Era 2
         
         cEmail += cEmLibPed
          
-       	u_xxLog("MT094END.TXT","3-"+cEmail,.T.,"")        
+       	u_xxLog("\TMP\MT094END.TXT","3-"+cEmail,.T.,"")        
         
 		cAssunto:= "Pedido de Compra nº.:"+alltrim(nPedido)+"   Liberado    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
 		IF __cUserId $ cGerGestao+"/"+cGerCompras+"/"+cMCompras
@@ -208,7 +208,7 @@ IF nOpcao == 4 //Era 2
 		    	cEmail += aSCR[IT_,4]+';'
 			ENDIF
 		NEXT
-		u_xxLog("MT094END.TXT","4-"+cEmail,.T.,"")        
+		u_xxLog("\TMP\MT094END.TXT","4-"+cEmail,.T.,"")        
 
 		cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(nPedido)+"       "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
      	AADD(aEmail,{"Aquardando Liberação - Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
@@ -228,7 +228,7 @@ ELSEIF nOpcao == 5 // era3
     		cEmail += aSCR[IT_,4]+';'
 		NEXT
     ENDIF
-	u_xxLog("MT094END.TXT","5-"+cEmail,.T.,"")        
+	u_xxLog("\TMP\MT094END.TXT","5-"+cEmail,.T.,"")        
 
 	cAssunto:= "Pedido de Compra  nº.:"+alltrim(nPedido)+"   Bloqueado    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
     AADD(aEmail,{"Bloqueado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
@@ -250,7 +250,7 @@ Do While SY1->(!eof())
 	SY1->(dbskip())
 Enddo
 
-u_xxLog("MT094END.TXT","6-"+cEmail,.T.,"")        
+u_xxLog("\TMP\MT094END.TXT","6-"+cEmail,.T.,"")        
 
 
 DbSelectArea("SC7")
@@ -338,7 +338,7 @@ FOR _IX := 1 TO LEN(aSC1USER)
 	ENDIF
 NEXT
 
-u_xxLog("MT094END.TXT","7-"+cEmail,.T.,"")        
+u_xxLog("\TMP\MT094END.TXT","7-"+cEmail,.T.,"")        
 
 aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
 

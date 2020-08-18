@@ -232,8 +232,9 @@ FOR nPl := 1 TO LEN(_aPlans)
 	For nJ := 1 To Len(aTitulos)
 		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
-			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
 			oExcel:nTamLinha := 40
+			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
+			oExcel:nTamLinha := NIL
 		Else
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
@@ -533,7 +534,7 @@ If Len(aLocPar) > 0
 EndIf
 // <-- Parâmetros
 
-If Len(_aGraph) > 0
+If Len(_aGraph) > 0 .AND. !lJob
 	oExcel:ADDPlan("Resumo","0000FF")		//Adiciona nova planilha
 
 	nLin  := 2
@@ -575,7 +576,7 @@ EndIf
 
 oExcel:Gravar(cDirTmp+"\",lOpen,.T.)
 
-If lGraf
+If lGraf .AND. !lJob
 
 	cMacro := _aGraph[1]
 	cFileTmp := cDirTmp+"\"+cMacro+".xlsm"
@@ -954,8 +955,9 @@ FOR nPl := 1 TO LEN(_aPlans)
 	For nJ := 1 To Len(aTitulos)
 		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
-			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
 			oExcel:nTamLinha := 40
+			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
+			oExcel:nTamLinha := NIL
 		Else
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf

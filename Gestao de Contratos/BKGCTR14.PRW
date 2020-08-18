@@ -36,6 +36,7 @@ Private lJob 		:= .F.
 Private cEmpPar 	:= "01"
 Private cFilPar		:= "01"
 Private cPerg       := "BKGCTR14"
+Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
 
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
@@ -234,7 +235,7 @@ IF nConsolida == 1
 			ENDIF
 			IF !EMPTY(cLogCons)
 				IF lJob
-					u_xxLog("BKGCTR14.LOG","- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons,.T.,"")
+					u_xxLog("\TMP\BKGCTR14.LOG","- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons,.T.,"")
 				ELSE
 					IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
 						RETURN NIL
@@ -244,7 +245,7 @@ IF nConsolida == 1
 		ENDIF
     ELSE
 		IF lJob
-			u_xxLog("BKGCTR14.LOG","Informações para Consolidar invalida. Verifique!!",.T.,"")
+			u_xxLog("\TMP\BKGCTR14.LOG","Informações para Consolidar invalida. Verifique!!",.T.,"")
 		ELSE
 	    	MSGSTOP("Informações para Consolidar invalida. Verifique!!")
 		ENDIF
@@ -337,12 +338,11 @@ IF ALLTRIM(cXXSEMAF) == 'N'
 ELSE
 	If !lJob
 		Msginfo("Atualizando tabela Folha de Pagamento!!")
+	    Return Nil
 	Else
-		u_xxLog("BKGCTR14.LOG","Atualizando tabela Folha de Pagamento!! - processo abortado.",.T.,"")
+		u_xxLog("\TMP\BKGCTR14.LOG","Atualizando tabela Folha de Pagamento!! - processo abortado.",.T.,"")
 	EndIf
-    Return Nil
 ENDIF
-
 
 IF !EMPTY(cContrato)
 	cQuery := " SELECT TOP 1 MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
@@ -558,7 +558,7 @@ Else
 		ProcR14(lJob)
 		U_CR14(lJob)
 	Else
-		u_xxLog("BKGCTR14.LOG","Competencia não encontrada : "+STR(nCompet),.T.,"")
+		u_xxLog("\TMP\BKGCTR14.LOG","Competencia não encontrada : "+STR(nCompet),.T.,"")
 	EndIf
 EndIf
 ///(ALIAS_TMP)->(Dbclosearea())
@@ -689,7 +689,7 @@ FOR _nI := 1 TO nPeriodo
 	If !lJob
 		IncProc("Consultando faturamento dos contratos...")
 	Else
-		u_xxLog("BKGCTR14.LOG","Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
+		u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
 	EndIf
    
 	//*********Faturamento do Contrato
@@ -1135,7 +1135,7 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VL2P"+STRZERO(_nI,3)
 					&cCampo2 += nSZG03 - nDespesa
 
-					u_xxLog("BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
+					u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
 
 				ELSE
 					nSZG03C := 1
@@ -1156,13 +1156,13 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 					&cCampo2 := (nVlp2*100)/nSZG03C
 					
-					u_xxLog("BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
-					u_xxLog("BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nVlp2 "+STR(nVlp2)+" - nSZG03C "+STR(nSZG03C)+" - Previsto "+STR(&cCampo2),.T.,"TESTE")
+					u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
+					u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nVlp2 "+STR(nVlp2)+" - nSZG03C "+STR(nSZG03C)+" - Previsto "+STR(&cCampo2),.T.,"TESTE")
 				ENDIF
 
 				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 				//&cCampo2 += ((nSZG03-nDespesa)*100)/nSZG03
-				//u_xxLog("BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - nDespCon "+STR(nDespCon),.F.,"TESTE")
+				//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - nDespCon "+STR(nDespCon),.F.,"TESTE")
 				
 				(ALIAS_TMP)->(Msunlock())
 				
@@ -1536,7 +1536,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando Folha Pagamento...")
 		Else
-			u_xxLog("BKGCTR14.LOG","Consultando Folha Pagamento..."+STR(_nI),.T.,"")
+			u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento..."+STR(_nI),.T.,"")
 		EndIf
 		//*********Folha Pagamento
 		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
@@ -1898,7 +1898,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando Folha Pagamento - Autonomos...")
 		Else
-			u_xxLog("BKGCTR14.LOG","Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
+			u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
 		EndIf
 		//*********Folha Pagamento - Autonomos IPT
 		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
@@ -1990,7 +1990,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
 		Else
-			u_xxLog("BKGCTR14.LOG","Consultando gastos gerais..."+STR(_nI),.T.,"")
+			u_xxLog("\TMP\BKGCTR14.LOG","Consultando gastos gerais..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//*********GASTOS GERAIS
@@ -2959,7 +2959,7 @@ FOR _nI := 1 TO nPeriodo
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-				//u_xxLog("BKGCTR14-D1-2.SQL",cQuery2,.F.,"TESTE")        
+				//u_xxLog("\TMP\BKGCTR14-D1-2.SQL",cQuery2,.F.,"TESTE")        
 
 				cOutros := 'S'
 				dbSelectArea("TMPX2")
@@ -3459,7 +3459,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando faturamento de medições avulsas...")
 		Else
-			u_xxLog("BKGCTR14.LOG","Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
+			u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//********* FATURAMENTO - Inclusão para medição avulso
@@ -3588,7 +3588,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		If !lJob
 			IncProc("Calculando resultados...")
 		Else
-			u_xxLog("BKGCTR14.LOG","Calculando resultados..."+STR(_nI),.T.,"")
+			u_xxLog("\TMP\BKGCTR14.LOG","Calculando resultados..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//CALCULA TAXA ADM
@@ -5083,18 +5083,22 @@ Return NIL
 
 STATIC Function GeraCR14(lJob,_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
 Local nHandle
-Local cCrLf   := Chr(13) + Chr(10)
+Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni,_nj
-Local cPicN   := "@E 99999999.99999"
-Local cDirTmp := "C:\TMP"
-Local cArqTmp := ""
+Local cPicN  	:= "@E 99999999.99999"
+Local cDirTmp	:= "C:\TMP"
+Local cArqTmp	:= ""
 Local lSoma,aSoma,nCab
 Local cLetra	:= ""
 Local cTpQuebra	:= ""
 Local cQuebra	:= ""
 Local aQuebra	:= {}
 Local cArqXls   := ""
-Local aPlans  := {}
+Local aPlans 	:= {}
+
+Local cMsg		:= ""
+Local cEmailTO	:= "bruno.bueno@bkconsultoria.com.br"
+Local cEmailCC	:= "microsiga@bkconsultoria.com.br"
 
 If lJob
 	cDirTmp := "\TMP"
@@ -5111,9 +5115,13 @@ If !lJob
 		Return Nil
 	EndIf
 Else
-	u_xxLog("BKGCTR14.LOG","Gerando planilha xlsx",.T.,"")
+	u_xxLog("\TMP\BKGCTR14.LOG","Gerando planilha xlsx",.T.,"")
 	AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 	cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
+
+	cMsg :=aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
+	U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
+
 EndIf
 
 MakeDir(cDirTmp)
@@ -5166,7 +5174,7 @@ If nHandle > 0
       If !lJob
          IncProc("Gerando arquivo "+cArqS)   
 	  Else
-	     u_xxLog("BKGCTR14.LOG","Gerando arquivo "+cArqS,.T.,"")
+	     u_xxLog("\TMP\BKGCTR14.LOG","Gerando arquivo "+cArqS,.T.,"")
       EndIf 
 
       For _ni :=1 to LEN(aCampos)
@@ -5246,7 +5254,7 @@ Else
 	If !lJob
    		MsgAlert("Falha na criação do arquivo "+cArqTmp)
 	Else
-		u_xxLog("BKGCTR14.LOG","Falha na criação do arquivo "+cArqTmp,.T.,"")
+		u_xxLog("\TMP\BKGCTR14.LOG","Falha na criação do arquivo "+cArqTmp,.T.,"")
 	EndIf
 Endif
    
@@ -5269,7 +5277,7 @@ msUnlock()
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo...")
 Else
-    u_xxLog("BKGCTR14.LOG","Atualizando Tabela Centro de Custo...",.T.,"")
+    u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo...",.T.,"")
 EndIf
 
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
@@ -5277,7 +5285,7 @@ TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
 Else
-    u_xxLog("BKGCTR14.LOG","Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
+    u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
 EndIf
 
 FOR _IX:= 1 TO LEN(aConsorcio)
