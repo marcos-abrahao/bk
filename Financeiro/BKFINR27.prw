@@ -182,7 +182,7 @@ Processa( {|| ProcBKR27() })
 
 If nCont > 0
     AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
-    U_GeraXlsx(aPlans,"",cPerg, .F., aParam)
+    U_GeraXlsx(aPlans,cTitulo,cPerg, .F., aParam)
 else
     MsgStop("Não foram encontrados registros para esta seleção", cPerg)
 EndIf

@@ -9,7 +9,7 @@ Objetivo     : Acertos diversos
 
 
 User Function BKTESTE()
-U_bkfinr29()
+U_bkcomr13()
 Return Nil
 
 

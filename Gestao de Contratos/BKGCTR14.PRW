@@ -146,6 +146,9 @@ Else
 	MV_PAR06 := nIndConsor	:= 1
 	MV_PAR07 := nRATEIA     := 2
 	MV_PAR08 := nDespGeral  := 1
+
+	u_xxLog("\TMP\BKGCTR14.LOG",titulo+": "+cStart,.T.,"")
+
 EndIf
 
 aXXMIMPC	:= {}
@@ -340,9 +343,10 @@ ELSE
 		Msginfo("Atualizando tabela Folha de Pagamento!!")
 	    Return Nil
 	Else
-		u_xxLog("\TMP\BKGCTR14.LOG","Atualizando tabela Folha de Pagamento!! - processo abortado.",.T.,"")
+		u_xxLog("\TMP\BKGCTR14.LOG","Atenção: tabela Folha de Pagamento não foi atualizada.",.T.,"")
 	EndIf
 ENDIF
+
 
 IF !EMPTY(cContrato)
 	cQuery := " SELECT TOP 1 MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
@@ -404,7 +408,7 @@ ELSE
 	cQuery += " GROUP BY CN9_SITUAC"+CRLF
 ENDIF	
 
-u_LogMemo("BKGCTR14.SQL",cQuery)
+//u_LogMemo("BKGCTR14.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP1"
 TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
@@ -418,8 +422,12 @@ cSituac 	:= QTMP1->CN9_SITUAC
 QTMP1->(Dbclosearea())
 
 IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal)) 
-	MSGSTOP("Contrato não encontrado!!")
-	RETURN NIL
+	If !lJob
+		MSGSTOP("Contrato não encontrado!!")
+	Else
+		u_xxLog("\TMP\BKGCTR14.LOG","Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),.T.,"")
+	EndIf
+	Return Nil
 ENDIF
 
 //Determina quantos Meses utilizar no calculo
@@ -430,6 +438,7 @@ IF lSintetico
 ENDIF
 
 titulo   := titulo+" - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
+u_xxLog("\TMP\BKGCTR14.LOG",titulo,.T.,"")
 
 aDbf := {}
 Aadd( aDbf, { 'XX_LINHA' ,'N', 10,00 } )
@@ -689,7 +698,8 @@ FOR _nI := 1 TO nPeriodo
 	If !lJob
 		IncProc("Consultando faturamento dos contratos...")
 	Else
-		u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
+		//u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
+		u_xxLog("\TMP\BKGCTR14.LOG","BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
 	EndIf
    
 	//*********Faturamento do Contrato
@@ -764,7 +774,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN,CNF_COMPET"+CRLF
 	cQuery += " ORDER BY CNF_CONTRA"+CRLF
  
-	u_LogMemo("BKGCTR14-1.SQL",cQuery)
+	//u_LogMemo("BKGCTR14-1.SQL",cQuery)
 
 	If Select("QTMP") > 0
 		QTMP->(dbCloseArea())
@@ -956,7 +966,7 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK,CNF_COMPET ORDER BY CNF_CONTRA"+CRLF
  
-	u_LogMemo("BKGCTR14-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
+	//u_LogMemo("BKGCTR14-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP" 
 
@@ -1135,7 +1145,7 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VL2P"+STRZERO(_nI,3)
 					&cCampo2 += nSZG03 - nDespesa
 
-					u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
+					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
 
 				ELSE
 					nSZG03C := 1
@@ -1156,8 +1166,8 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 					&cCampo2 := (nVlp2*100)/nSZG03C
 					
-					u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
-					u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nVlp2 "+STR(nVlp2)+" - nSZG03C "+STR(nSZG03C)+" - Previsto "+STR(&cCampo2),.T.,"TESTE")
+					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
+					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nVlp2 "+STR(nVlp2)+" - nSZG03C "+STR(nSZG03C)+" - Previsto "+STR(&cCampo2),.T.,"TESTE")
 				ENDIF
 
 				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
@@ -1214,7 +1224,7 @@ FOR _nI := 1 TO nPeriodo
 		
 		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-		u_LogMemo("BKGCTR14-SZ2-"+STRZERO(_nI,3)+".SQL",cQuery1)
+		//u_LogMemo("BKGCTR14-SZ2-"+STRZERO(_nI,3)+".SQL",cQuery1)
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
@@ -1536,7 +1546,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando Folha Pagamento...")
 		Else
-			u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento..."+STR(_nI),.T.,"")
+			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento..."+STR(_nI),.T.,"")
 		EndIf
 		//*********Folha Pagamento
 		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
@@ -1577,7 +1587,7 @@ FOR _nI := 1 TO nPeriodo
 
 		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve"+CRLF
 
-		u_LogMemo("BKGCTR14-FOL-"+STRZERO(_nI,3)+".SQL",cQuery2)
+		//u_LogMemo("BKGCTR14-FOL-"+STRZERO(_nI,3)+".SQL",cQuery2)
 	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		nProventos := 0
@@ -1898,7 +1908,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando Folha Pagamento - Autonomos...")
 		Else
-			u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
+			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
 		EndIf
 		//*********Folha Pagamento - Autonomos IPT
 		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
@@ -1990,7 +2000,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
 		Else
-			u_xxLog("\TMP\BKGCTR14.LOG","Consultando gastos gerais..."+STR(_nI),.T.,"")
+			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando gastos gerais..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//*********GASTOS GERAIS
@@ -2029,7 +2039,7 @@ FOR _nI := 1 TO nPeriodo
         
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-		u_LogMemo("BKGCTR14-D1-1-"+STRZERO(_nI,3)+".SQL",cQuery2)        
+		//u_LogMemo("BKGCTR14-D1-1-"+STRZERO(_nI,3)+".SQL",cQuery2)        
 				
 		cOutros := 'S'
 		dbSelectArea("TMPX2")
@@ -3459,7 +3469,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando faturamento de medições avulsas...")
 		Else
-			u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
+			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//********* FATURAMENTO - Inclusão para medição avulso
@@ -3588,7 +3598,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		If !lJob
 			IncProc("Calculando resultados...")
 		Else
-			u_xxLog("\TMP\BKGCTR14.LOG","Calculando resultados..."+STR(_nI),.T.,"")
+			//u_xxLog("\TMP\BKGCTR14.LOG","Calculando resultados..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//CALCULA TAXA ADM
@@ -5122,6 +5132,8 @@ Else
 	cMsg :=aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
 
+	u_xxLog("\TMP\BKGCTR14.LOG",cMsg,.T.,"")
+
 EndIf
 
 MakeDir(cDirTmp)
@@ -5174,7 +5186,7 @@ If nHandle > 0
       If !lJob
          IncProc("Gerando arquivo "+cArqS)   
 	  Else
-	     u_xxLog("\TMP\BKGCTR14.LOG","Gerando arquivo "+cArqS,.T.,"")
+	     //u_xxLog("\TMP\BKGCTR14.LOG","Gerando arquivo "+cArqS,.T.,"")
       EndIf 
 
       For _ni :=1 to LEN(aCampos)
@@ -5277,7 +5289,7 @@ msUnlock()
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo...")
 Else
-    u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo...",.T.,"")
+    //u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo...",.T.,"")
 EndIf
 
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
@@ -5285,7 +5297,7 @@ TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
 Else
-    u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
+    //u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
 EndIf
 
 FOR _IX:= 1 TO LEN(aConsorcio)

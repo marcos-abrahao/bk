@@ -43,12 +43,14 @@ Local nPosFim,nHandle,cBuffer
 DEFAULT lMens:= .t.  //Inicializa cMens com Data e Hora
 DEFAULT cEnv := ""
        
-If !EMPTY(cEnv) .AND. !(UPPER(TRIM(cEnv)) $ GetEnvServer())
-	Return(.F.)
-EndIf
 
 If lMens  //Inicializa cMens com Data e Hora
 	cMens:=DtoC(Date())+" "+Time()+" "+__cUserId+" => "+cMens
+EndIf
+ConOut(cMens)
+
+If !EMPTY(cEnv) .AND. !(UPPER(TRIM(cEnv)) $ GetEnvServer())
+	Return(.F.)
 EndIf
 
 If !File(cArqLog)

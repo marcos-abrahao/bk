@@ -227,15 +227,16 @@ FOR nPl := 1 TO LEN(_aPlans)
 			aAdd(aTitulos,_xTitulos[nJ])
 		Next
 	EndIf
+	aAdd(aTitulos,_cProg+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
 		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
-			oExcel:nTamLinha := 40
+			oExcel:nTamLinha := 45
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
-			oExcel:nTamLinha := NIL
 		Else
+			oExcel:nTamLinha := NIL
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
 		nLin++
@@ -505,11 +506,12 @@ oExcel:ADDPlan("Parâmetros","0000FF")		//Adiciona nova planilha
 oExcel:SetDefRow(.T.,{1,4})
 oExcel:AddTamCol(1,2,50)
 
-For nJ := 1 To Len(aTitulos)
+//For nJ := 1 To Len(aTitulos)
 	oExcel:mergeCells(nLin,1,nLin,2)
-	oExcel:Cell(nLin,1,_cProg+" - "+aTitulos[nJ],,nTit3Style)
+	//oExcel:Cell(nLin,1,_cProg+" - "+aTitulos[nJ],,nTit3Style)
+	oExcel:Cell(nLin,1,_cProg+" - "+_cTitulo,,nTit3Style)
 	nLin++
-Next
+//Next
 
 	//aAdd(aTitulos,_cProg+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 
@@ -937,7 +939,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
 
-	oExcel:nTamLinha := 40
+	oExcel:nTamLinha := 45
 	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
 
 	// Titulo
@@ -955,10 +957,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 	For nJ := 1 To Len(aTitulos)
 		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
-			oExcel:nTamLinha := 40
+			oExcel:nTamLinha := 45
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
-			oExcel:nTamLinha := NIL
 		Else
+			oExcel:nTamLinha := NIL
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
 		nLin++
@@ -1103,11 +1105,12 @@ If Len(aLocPar) > 0
 	oExcel:SetDefRow(.T.,{1,4})
 	oExcel:AddTamCol(1,2,50)
 
-	For nJ := 1 To Len(aTitulos)
+	//For nJ := 1 To Len(aTitulos)
 		oExcel:mergeCells(nLin,1,nLin,2)
-		oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
+		//oExcel:Cell(nLin,1,aTitulos[nJ],,nTit3Style)
+		oExcel:Cell(nLin,1,_cProg+" - "+_cTitulo,,nTit3Style)
 		nLin++
-	Next
+	//Next
 	oExcel:Cell(nLin,1,"Emitido por: "+Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName(),,nTit3Style)
 	nLin++
 	oExcel:Cell(nLin,1,"Data Base: "+DTOC(dDataBase),,nTit3Style)

@@ -20,16 +20,16 @@ Generico - Gera planilha excel no formato .XML com opção de gerar também no form
 //U_GeraXml(aPlansX,_cTitulo,_cAlias,.F.)
 
 User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _aParam )
-Local oProcess
+//Local oProcess
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
 	//oProcess := MsNewProcess():New({|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)
 
-	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam) })
+	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam) })
 
 Else
 	//oProcess := MsNewProcess():New({|| U_ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam)}, "Processando...", "Aguarde...", .T.)	
 
-	MsgRun("Criando Arquivo XML "+_cProg,"Aguarde...",{|| U_ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam) })
+	MsgRun("Criando Arquivo XML "+_cProg,"Aguarde...",{|| U_ProcXml(_aPlans,_cTitulo,_cProg, lClose, _aParam) })
 
 EndIf
 //oProcess:Activate()

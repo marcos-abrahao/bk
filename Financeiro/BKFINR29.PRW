@@ -155,7 +155,7 @@ EndIf
 If nCont > 0
 
     AADD(aPlans,{cAliasTrb2,TRIM(cPerg),"",aTitulos,aCampos,aCabs,/*aImpr*/,aFormula,/*aFormat*/, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-    U_GeraXlsx(aPlans,"",cPerg, lClose:= .F.,aParam)
+    U_GeraXlsx(aPlans,cTitulo,cPerg, lClose:= .F.,aParam)
     
 Else
     MsgStop("Não foram encontrados registros para esta seleção", cPerg)
