@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"30/07/2020"
+#DEFINE FIN_LAST_UPDATED 		"20/08/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			AtuGenPar( @cTexto )  // 30/07/20
+			//AtuGenPar( @cTexto )  // 30/07/20
 			
 			//AtuGenXX( @cTexto )
 
 			////AtuGenFil( @cTexto )
 
-			//AtuGenX3( @cTexto )   //29/07/20
+			AtuGenX3( @cTexto )   //20/08/20
 
 			//AtuGenP12( @cTexto )
 
@@ -903,6 +903,7 @@ dbSelectArea( "SX3" )
 
 
 // Nota Avulsa/Normal - 29/07/20
+/*
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 If SX3->( dbSeek( "C5_XXTPNF" ) )
@@ -930,6 +931,15 @@ EndIf
 If SM0->M0_CODIGO <> "02"
 	APPEND FROM \sx3cnd.dtc
 EndIf
+X31UPDTABLE("CND")
+*/
+
+// 20/08/20 - RM - R. Medição
+dbSelectArea( "SX3" )
+APPEND FROM \sx3rm.dtc
+
+X31UPDTABLE("SC5")
+X31UPDTABLE("SC9")
 X31UPDTABLE("CND")
 
 

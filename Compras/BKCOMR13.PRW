@@ -49,7 +49,17 @@ AADD(aCabs1  ,"S.Grupo")
 AADD(aCampos1,"QSA2->ZI_DESC")
 AADD(aCabs1  ,"Desc.Sub.Grupo")
 
-//AADD(aCampos,"Capital(QTMP->(FWLeUserlg('QTMP_USERLGI',1)))")
+AADD(aCampos2,"Capital(QSA2->(FWLeUserlg('XX_USERLGI',1)))")
+AADD(aCabs2  ,"Cadastrado por")
+
+AADD(aCampos2,"QSA2->(FWLeUserlg('XX_USERLGI',2))")
+AADD(aCabs2  ,"Data Cad.")
+
+AADD(aCampos2,"Capital(QSA2->(FWLeUserlg('XX_USERLGA',1)))")
+AADD(aCabs2  ,"Alterado por")
+
+AADD(aCampos2,"QSA2->(FWLeUserlg('XX_USERLGA',2))")
+AADD(aCabs2  ,"Data Alt.")
 
 
 ProcRegua(1000)
@@ -105,7 +115,7 @@ Local cQuery
 
 IncProc("Consultando fornecedores...")
 
-cQuery := "SELECT DISTINCT A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
+cQuery := "SELECT DISTINCT A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_USERLGI AS XX_USERLGI,A2_USERLGA AS XX_USERLGA,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
 //cQuery := "SELECT TOP 100 A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
 cQuery += " FROM "+RETSQLNAME("SA2")+ " SA2 " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SA5")+ " SA5 ON A2_COD = A5_FORNECE AND A2_LOJA = A5_LOJA "+ CRLF

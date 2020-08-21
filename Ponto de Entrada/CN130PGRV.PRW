@@ -30,13 +30,14 @@ Local nMulta	:= 0
 Local cOutros	:= PAD("",254) 
 Local cSuper    := ""
 Local cTpNF		:= CND->CND_XXTPNF
+Local cRM		:= CND->CND_XXRM
 
 If !cTpNf $ "NA"
 	cTpNf := "N"
 EndIf
 
 // para teste da tela
-//cTpNf := ValTpNf(cTpNf)
+//ValTpNf(@cTpNf,@cRM)
 
 
 cTitulo2 := "Opções de Multa e Bonificação da Medição ("+STRZERO(ExpN1,2)+")"
@@ -166,9 +167,10 @@ If ExpN1 == 3 .OR. ExpN1 == 4
 	   cSuper := SUBSTR(aUser[1,11],1,6)
 	EndIf
 	If cSuper == "000175" .OR. __CUSERID == "000000" // Equipe do José Mário
-		cTpNF := ValTpNf(cTpNf)
+		ValTpNf(@cTpNf,@cRM)
 		RecLock("CND",.F.)
 		CND->CND_XXTPNF := cTpNf
+		CND->CND_XXRM   := cRM
 		MsUnlock("CND")
 	EndIf
 EndIf
@@ -355,21 +357,23 @@ RETURN NIL
 
 
 // Mostra na Tela campos Tipo da NF
-Static Function ValTpNf(cTpNf)
+Static Function ValTpNf(cTpNf,cRM)
 Local oDlg as Object
 Local aTpNF := {}
 
 aTpNf := U_StringToArray(GetSx3Cache("CND_XXTPNF", "X3_CBOX"),";") 
 
-Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 295,400 Of oDlg Pixel Style DS_MODALFRAME
+Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 310,400 Of oDlg Pixel Style DS_MODALFRAME
 
 @ 015,015 SAY "Tipo NF: " Pixel Of oDlg 
-
 @ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NA")
 
-@ 030,085 Button "&Ok" Size 036,013 Pixel Action (oDlg:End())
+@ 030,015 SAY "RM: " Pixel Of oDlg 
+@ 030,046 GET cRM SIZE 100,010 Pixel Of oDlg 
+
+@ 045,085 Button "&Ok" Size 036,013 Pixel Action (oDlg:End())
 
 ACTIVATE MSDIALOG oDlg CENTERED Valid(cTpNF $ "NA") 
 
-Return cTpNF
+Return {cTpNF,cRM}
 

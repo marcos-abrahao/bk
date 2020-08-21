@@ -215,8 +215,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
 	oExcel:SetDefRow(.T.,{1,Len(_aCabs)})
 
-	oExcel:nTamLinha := 40
-	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
+	//oExcel:nTamLinha := 50.1
+	oExcel:Img(nIDImg,1,1,50,50,/*"px"*/,)
 
 	// Titulo
 	aTitulos := {}
@@ -231,12 +231,15 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
-		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
+		//If nJ == 1
+		//	oExcel:nTamLinha := 50.1
+		//Else
+		//	oExcel:nTamLinha := NIL
+		//EndIf
+		//oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
-			oExcel:nTamLinha := 45
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
 		Else
-			oExcel:nTamLinha := NIL
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
 		nLin++
@@ -939,8 +942,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	oExcel:ADDPlan(_cPlan,"0000FF")		//Adiciona nova planilha
 
-	oExcel:nTamLinha := 45
-	oExcel:Img(nIDImg,1,1,40,40,/*"px"*/,)
+	//oExcel:nTamLinha := 50.1
+	oExcel:Img(nIDImg,1,1,50,50,/*"px"*/,)
 
 	// Titulo
 	aTitulos := {}
@@ -955,12 +958,15 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
-		oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
+		//If nJ == 1
+		//	oExcel:nTamLinha := 50.1
+		//Else
+		//	oExcel:nTamLinha := NIL
+		//EndIf
+		//oExcel:mergeCells(nLin,2,nLin,Len(_aCabs))
 		If nJ == 1
-			oExcel:nTamLinha := 45
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTitStyle)
 		Else
-			oExcel:nTamLinha := NIL
 			oExcel:Cell(nLin,2,aTitulos[nJ],,nTit2Style)
 		EndIf
 		nLin++

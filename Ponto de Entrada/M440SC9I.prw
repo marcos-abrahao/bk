@@ -15,6 +15,7 @@ IF EMPTY(SC5->C5_XXTPNF)
 ELSE
    SC9->C9_XXORPED := SC5->C5_XXTPNF // N=Normal;A=Avulsa
 ENDIF
+SC9->C9_XXRM := SC5->C5_XXRM
 
 SC9->(MsUnlock())
 
