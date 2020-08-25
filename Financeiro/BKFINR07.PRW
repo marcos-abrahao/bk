@@ -5,8 +5,8 @@
 BK - RELATORIO DE DESPESAS POR ITEM DO DOCUMENTO DE ENTRADA 
 @Return
 @author Marcos Bispo Abrahão
-@since 11/05/10 Rev 01/06/20
-@version P12
+@since 11/05/10 Rev 28/08/20
+@version P12.1.25
 /*/
 
 User Function FINR07(fFrota)
@@ -41,7 +41,7 @@ Private wnrel        := "FINR07" // Coloque aqui o nome do arquivo usado para im
 Private fGFrota      := fFrota
 Private cString      := "SD1"
 
-Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte
+Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers
 
 Private nPlan
 
@@ -57,6 +57,7 @@ nPlan    := MV_PAR03
 cProduto := MV_PAR04
 cCustoDe := MV_PAR05
 cCustoAte:= MV_PAR06
+nUsers   := MV_PAR07
 fGFrota  := fFrota
 
 
@@ -115,6 +116,12 @@ Else
 	AADD(aCampos,"QSD1->B1_DESC")
 	AADD(aCabs  ,"Descricao do Produto")
 
+	AADD(aCampos,"QSD1->ZI_COD")
+	AADD(aCabs  ,"Sub Grupo")
+
+	AADD(aCampos,"QSD1->ZI_DESC")
+	AADD(aCabs  ,"Descricao Sub Grupo")
+
 	AADD(aCampos,"QSD1->D1_CC")
 	AADD(aCabs  ,"Centro de Custos")
 
@@ -128,7 +135,7 @@ Else
 	AADD(aCabs  ,"Cod. do Fornecedor")
 
 	AADD(aCampos,"QSD1->D1_LOJA")
-	AADD(aCabs  ,"Loja do Fornecedor")
+	AADD(aCabs  ,"Loja")
 
 	AADD(aCampos,"QSD1->A2_NOME")
 	AADD(aCabs  ,"Nome do Fornecedor")
@@ -142,7 +149,15 @@ Else
     ENDIF
 
 	AADD(aCampos,"QSD1->D1_DTDIGIT")
-	AADD(aCabs  ,"Data")
+	AADD(aCabs  ,"Data Entrada")
+
+	If nUsers == 1
+		AADD(aCampos,"U_BUSER(QSD1->F1_XXUSER)")
+		AADD(aCabs  ,"Responsável")
+
+		AADD(aCampos,"U_BUSER(QSD1->F1_XXUSERS)")
+		AADD(aCabs  ,"Classificador")
+	EndIf
 
 	AADD(aCampos,"QSD1->D1_QUANT")
 	AADD(aCabs  ,"Qtd.")
@@ -178,13 +193,19 @@ EndIf
 cTitulo := "Despesas mensais por Doc. de Entrada: "
 
 cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"+CRLF
-cQuery += "D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN "+CRLF
-cQuery += ",CONVERT(VARCHAR(8000),CONVERT(Binary(8000),D1_XXHIST)) D1_XXHIST "+CRLF
+cQuery += " D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN, "+CRLF
+cQuery += " ZI_COD,ZI_DESC, "+CRLF
+If nUsers == 1
+	cQuery += " F1_XXUSER,F1_XXUSERS, "+CRLF
+EndIf
+cQuery += " CONVERT(VARCHAR(6000),CONVERT(Binary(6000),D1_XXHIST)) D1_XXHIST "+CRLF
 cQuery += "FROM "+RETSQLNAME("SD1")+" SD1 "
-cQuery += "INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
-cQuery += "INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
-cQuery += "INNER JOIN "+RETSQLNAME("CTT")+" CTT ON CTT_FILIAL = '"+xFilial("CTT")+"' AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "+CRLF
-cQuery += "LEFT  JOIN "+RETSQLNAME("SC7")+" SC7 ON D1_FILIAL = C7_FILIAL AND D1_PEDIDO = C7_NUM AND D1_ITEMPC = C7_ITEM AND SC7.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON CTT_FILIAL = '"+xFilial("CTT")+"' AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SC7")+" SC7 ON D1_FILIAL = C7_FILIAL AND D1_PEDIDO = C7_NUM AND D1_ITEMPC = C7_ITEM AND SC7.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SZI")+" SZI ON ZI_FILIAL = '"+xFilial("SZI")+"' AND ZI_COD = B1_XXSGRP AND SZI.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SF1")+" SF1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
 
 IF !EMPTY(dDtIni)
@@ -429,6 +450,7 @@ AADD(aRegistros,{cPerg,"03","Gerar Planilha? " ,"Planilha"     ,"Planilha"     ,
 AADD(aRegistros,{cPerg,"04","Pesquisar produto","Produto"      ,"Produto"      ,"mv_ch4","C",15,0,0,"G",'Vazio() .or. ExistCpo("SB1")',"mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
 AADD(aRegistros,{cPerg,"05","Contrato de?"     ,"Contrato de?" ,"Contrato de?" ,"mv_ch5","C",09,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"06","Contrato até?"    ,"Contrato até?","Contrato até?","mv_ch6","C",09,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
+AADD(aRegistros,{cPerg,"07","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
@@ -445,8 +467,6 @@ Next
 RestArea(aArea)
 
 Return(NIL)
-
-
 
 
 User Function FINR072()

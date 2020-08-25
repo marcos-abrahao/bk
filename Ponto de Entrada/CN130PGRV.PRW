@@ -363,7 +363,7 @@ Local aTpNF := {}
 
 aTpNf := U_StringToArray(GetSx3Cache("CND_XXTPNF", "X3_CBOX"),";") 
 
-Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 310,400 Of oDlg Pixel Style DS_MODALFRAME
+Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 320,400 Of oDlg Pixel Style DS_MODALFRAME
 
 @ 015,015 SAY "Tipo NF: " Pixel Of oDlg 
 @ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NA")

@@ -149,9 +149,9 @@ Local oDlg, oChkBox1, oChkBox2, oChkBox3, oChkBox4, oChkBox5, oChkBox6, oChkBox7
       oModDe, oModAte, oUserDe, oUserAte, oRotDe, oRotAte
 
 oMainWnd:ReadClientCoords()
-Define MsDialog oDlg Title "Acesso de Usuários" From oMainWnd:nTop+60,oMainWnd:nLeft+5 To oMainWnd:nBottom-10,oMainWnd:nRight-10 Of oMainWnd Pixel
-    *
-    oPanel = TPanel():New(nLin,nCol-5,"Colunas a serem impressas",oDlg,,.F.,,,,200,45,.F.,.T.)
+Define MsDialog oDlg Title "Acesso de Usuários" From oMainWnd:nTop+20,oMainWnd:nLeft+5 To oMainWnd:nBottom-20,oMainWnd:nRight-20 Of oMainWnd Pixel
+
+    oPanel = TPanel():New(nLin,nCol-5,"Colunas a serem impressas",oDlg,,.F.,,,,220,45,.F.,.T.)
     nLin += 15
     @ nLin,nCol     CheckBox oChkBox1 Var lChk1 Prompt "Usuário"    On Click ( aColPrint[1] := !aColPrint[1] ) Size 130,9 Of oDlg Pixel 
     @ nLin,nCol+40  CheckBox oChkBox2 Var lChk2 Prompt "Módulo"     On Click ( aColPrint[2] := !aColPrint[2] ) Size 130,9 Of oDlg Pixel 
@@ -164,13 +164,12 @@ Define MsDialog oDlg Title "Acesso de Usuários" From oMainWnd:nTop+60,oMainWnd:n
     @ nLin,nCol+80  CheckBox oChkBox7 Var lChk7 Prompt "Função"     On Click ( aColPrint[7] := !aColPrint[7] ) Size 130,9 Of oDlg Pixel 
     @ nLin,nCol+120 CheckBox oChkBox8 Var lChk8 Prompt "Menu(.xnu)" On Click ( aColPrint[8] := !aColPrint[8] ) Size 130,9 Of oDlg Pixel     
     @ nLin,nCol+160 CheckBox oChkBox11 Var lChk11 Prompt "Grupos" On Click ( lGRUPO := !lGRUPO ) Size 130,9 Of oDlg Pixel     
-    *
+
     nLin += 30
-    *
     @ nLin,nCol     CheckBox oChkBox9 Var lChk9 Prompt "Marcado/Desmarcado?" On Click ( lMarca := !lMarca ) Size 130,9 Of oDlg Pixel 
     nLin += 15
     @ nLin,nCol     CheckBox oChkBox10 Var lChk10 Prompt "Retrato/Paisagem" On Click ( lRetrato := !lRetrato ) Size 130,9 Of oDlg Pixel     
-	*
+
 	nLin += 30
     @ nLin,nCol    Say  'Módulo De: '                                                         Of oDlg Pixel                                  	
     @ nLin,nCol+45 MsGet oModDe  Var cModDe  VALID (Vazio() .OR. cModDe >="01")   Size 60,09  Of oDlg Pixel  
@@ -260,6 +259,7 @@ aAdd(aSemSx3,{"XFUNCAO"   ,"C",25,0})
 aAdd(aSemSx3,{"XXNU"      ,"C",40,0})
 aAdd(aSemSx3,{"XACESSO"   ,"C",10,0})
 aAdd(aSemSx3,{"XTIPO"     ,"C",01,0})
+aAdd(aSemSx3,{"XGRUPO"    ,"C",06,0})
 
 //cFile := E_CriaTrab(,aSemSX3,"WKACESSO")
 //IndRegua("WKACESSO",cFile+OrdBagExt(),"XCODUSMOD")
@@ -342,7 +342,7 @@ For i := 2 To nTamUser
          If SubStr(aUsers[i][3][j],3,1) != "X" .AND. cModDe <= SubStr(aUsers[i][3][j],1,2) .AND. cModAte >= SubStr(aUsers[i][3][j],1,2)
             lAppMod := .F.
             //preenche work de acesso passando o nome do xnu
-            preencMenu(SubStr(aUsers[i][3][j],4,Len(aUsers[i][3][j])-3),"U",SubStr(aUsers[i][3][j],1,2))
+            preencMenu(SubStr(aUsers[i][3][j],4,Len(aUsers[i][3][j])-3),"U",SubStr(aUsers[i][3][j],1,2),"")
             If lAppMod
                //preenche work de módulos
                WKMODULOS->(dbAppend())
@@ -367,11 +367,11 @@ For i := 2 To nTamUser
 
    			//Loop nós módulos Grupos
    			For j:=1 To nTamMod
-         		//Verifica se o usuário tem acesso a esse módulo e o módulo está no ragen do filtro
+         		//Verifica se o usuário tem acesso a esse módulo e o módulo está no range do filtro
          		If SubStr(aGrups[j],3,1) != "X" .AND. cModDe <= SubStr(aGrups[j],1,2) .AND. cModAte >= SubStr(aGrups[j],1,2)
             		lAppMod := .F.
             		//preenche work de acesso passando o nome do xnu
-            		preencMenu(SubStr(aGrups[j],4,Len(aGrups[j])-3),"G",SubStr(aGrups[j],1,2))
+            		preencMenu(SubStr(aGrups[j],4,Len(aGrups[j])-3),"G",SubStr(aGrups[j],1,2),aGrpUser[_IX])
             		If lAppMod
             			//preenche work de módulos
             			WKMODULOS->(dbAppend())
@@ -425,7 +425,7 @@ Autor       : Kanaãm L. R. Rodrigues
 Data/Hora   : 11/06/2012
 */
 *--------------------------*
-Static Function preencMenu(cFile,cTPMNU,cModulo)
+Static Function preencMenu(cFile,cTPMNU,cModulo,cGrupo)
 *--------------------------*
 Local nHandle  := -1
 Local lMenu    := .F.
@@ -438,6 +438,8 @@ Local cRotina  := ""
 Local cAcesso  := ""
 Local cFuncao  := ""
 Local cVisual  := "xx"+Space(3)+"xxxxx/xx"+Space(4)+"xxxx/xx"+Space(5)+"xxx/xx"+Space(6)+"xx/xx"+Space(7)+"x/xx"+Space(8)
+
+Default cGrupo := ""
 
 //abre o arquivo xnu
 nHandle := Ft_FUse(cFile)
@@ -535,6 +537,7 @@ If nHandle != -1
             WKACESSO->XROTINA    := cRotina
             WKACESSO->XACESSO    := cAcesso
             WKACESSO->XTIPO      := cTPMNU
+            WKACESSO->XGRUPO     := cGrupo
             WKACESSO->XFUNCAO    := cFuncao
             WKACESSO->XXNU       := cFile
 
@@ -754,6 +757,7 @@ EndIf
 If aColPrint[8]
    TRCell():New(oSecao,"XXNU"    ,"WKACESSO","XNU"             ,""            ,40,,,"LEFT")
    TRCell():New(oSecao,"XTIPO"   ,"WKACESSO","Tipo"            ,""            ,05,,,"LEFT")
+   TRCell():New(oSecao,"XGRUPO"  ,"WKACESSO","Grupo"           ,""            ,06,,,"LEFT")
 EndIf
 //
 
