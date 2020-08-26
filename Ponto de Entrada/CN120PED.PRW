@@ -57,9 +57,9 @@ ELSE
 ENDIF
 
 If Empty(CND->CND_XXTPNF)
-	AADD(ExpA1,{"C5_XXTPNF" ,"N", Nil})    // N=Normal;A=Avulsa
+	AADD(ExpA1,{"C5_XXTPNF" ,"N", Nil})    // N=Normal;B=Balcão
 Else
-	AADD(ExpA1,{"C5_XXTPNF" ,CND->CND_XXTPNF, Nil})    // N=Normal;A=Avulsa
+	AADD(ExpA1,{"C5_XXTPNF" ,CND->CND_XXTPNF, Nil})    // N=Normal;B=Balcão
 EndIf
 
 // Retenção Contratual

@@ -3,7 +3,24 @@ XX/08/20===============================================
 XX/08/20=============================================== 
 XX/08/20=============================================== 
 XX/08/20=============================================== 
-XX/08/20=============================================== 
+26/08/20=============================================== 
+
+UPDATE SC9010 SET C9_XXORPED = 'B' FROM SC9010 WHERE C9_XXORPED = 'A'
+UPDATE SC5010 SET C5_XXTPNF  = 'B' FROM SC5010 WHERE C5_XXTPNF = 'A'
+UPDATE CND010 SET CND_XXTPNF  = 'B' FROM CND010 WHERE CND_XXTPNF = 'A'
+
+UPDATE SC9020 SET C9_XXORPED = 'B' FROM SC9020 WHERE C9_XXORPED = 'A'
+UPDATE SC5020 SET C5_XXTPNF  = 'B' FROM SC5020 WHERE C5_XXTPNF = 'A'
+UPDATE CND020 SET CND_XXTPNF  = 'B' FROM CND020 WHERE CND_XXTPNF = 'A'
+
+UPDATE SC9120 SET C9_XXORPED = 'B' FROM SC9120 WHERE C9_XXORPED = 'A'
+UPDATE SC5120 SET C5_XXTPNF  = 'B' FROM SC5120 WHERE C5_XXTPNF = 'A'
+UPDATE CND120 SET CND_XXTPNF  = 'B' FROM CND120 WHERE CND_XXTPNF = 'A'
+
+UPDATE SC9140 SET C9_XXORPED = 'B' FROM SC9140 WHERE C9_XXORPED = 'A'
+UPDATE SC5140 SET C5_XXTPNF  = 'B' FROM SC5140 WHERE C5_XXTPNF = 'A'
+UPDATE CND140 SET CND_XXTPNF  = 'B' FROM CND140 WHERE CND_XXTPNF = 'A'
+
 20/08/20=============================================== 
 
 Criação de campos:

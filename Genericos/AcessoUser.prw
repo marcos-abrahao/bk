@@ -145,7 +145,7 @@ Local nLin    := 40
 Local nCol    := 20
 Local lChk1   := lChk2 := lChk3 := lChk4 := lChk5 := lChk6 := lChk7 := lChk8 := lChk9 := lChk10 := lChk11 := lChk12 :=.T.
 
-Local oDlg, oChkBox1, oChkBox2, oChkBox3, oChkBox4, oChkBox5, oChkBox6, oChkBox7, oChkBox8, oPanel,;
+Local oDlg, oChkBox1, oChkBox2, oChkBox3, oChkBox4, oChkBox5, oChkBox6, oChkBox7, oChkBox8, oChkBox12, oPanel,;
       oModDe, oModAte, oUserDe, oUserAte, oRotDe, oRotAte
 
 oMainWnd:ReadClientCoords()
@@ -157,7 +157,7 @@ Define MsDialog oDlg Title "Acesso de Usuários" From oMainWnd:nTop+20,oMainWnd:n
     @ nLin,nCol+40  CheckBox oChkBox2 Var lChk2 Prompt "Módulo"     On Click ( aColPrint[2] := !aColPrint[2] ) Size 130,9 Of oDlg Pixel 
     @ nLin,nCol+80  CheckBox oChkBox3 Var lChk3 Prompt "Menu"       On Click ( aColPrint[3] := !aColPrint[3] ) Size 130,9 Of oDlg Pixel     
     @ nLin,nCol+120 CheckBox oChkBox4 Var lChk4 Prompt "Sub-Menu"   On Click ( aColPrint[4] := !aColPrint[4] ) Size 130,9 Of oDlg Pixel 
-    @ nLin,nCol+160 CheckBox oChkBox4 Var lChk4 Prompt "Bloqueados" On Click ( lBloqueados  := !lBloqueados  ) Size 130,9 Of oDlg Pixel 
+    @ nLin,nCol+160 CheckBox oChkBox12 Var lChk12 Prompt "Bloqueados" On Click ( lBloqueados  := !lBloqueados  ) Size 130,9 Of oDlg Pixel 
     nLin += 15
     @ nLin,nCol     CheckBox oChkBox5 Var lChk5 Prompt "Rotina"     On Click ( aColPrint[5] := !aColPrint[5] ) Size 130,9 Of oDlg Pixel 
     @ nLin,nCol+40  CheckBox oChkBox6 Var lChk6 Prompt "Acesso"     On Click ( aColPrint[6] := !aColPrint[6] ) Size 130,9 Of oDlg Pixel 

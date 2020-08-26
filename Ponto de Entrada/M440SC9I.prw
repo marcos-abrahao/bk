@@ -11,9 +11,9 @@ User Function M440SC9I()
 
 RecLock("SC9",.F.)
 IF EMPTY(SC5->C5_XXTPNF)
-   SC9->C9_XXORPED := "N" // N=Normal;A=Avulsa
+   SC9->C9_XXORPED := "N" // N=Normal;B=Balcão
 ELSE
-   SC9->C9_XXORPED := SC5->C5_XXTPNF // N=Normal;A=Avulsa
+   SC9->C9_XXORPED := SC5->C5_XXTPNF // N=Normal;B=Balcão
 ENDIF
 SC9->C9_XXRM := SC5->C5_XXRM
 

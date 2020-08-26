@@ -93,6 +93,7 @@ Local nTitFont
 Local nTit2Font
 Local nTit3Font
 Local nSCabFont
+Local nS1CabFont
 Local nCabCor
 Local nSCabCor
 Local nBordas
@@ -103,6 +104,7 @@ Local nFmtPer5
 Local nTotFont
 Local nCabStyle	
 Local nSCabStyle	
+Local nS1CabStyle	
 Local nV0Style
 Local nV2Style
 Local nV5Style
@@ -149,12 +151,13 @@ oVtCenter	:= oExcel:Alinhamento(,"center")
 oQtCenter	:= oExcel:Alinhamento("center","center",.F.,.T.)
 
 				//nTamanho,cCorRGB,cNome,cfamily,cScheme,lNegrito,lItalico,lSublinhado,lTachado
-nCabFont	:= oExcel:AddFont(9,"FFFFFFFF","Calibri","2",,.T.)
 nLinFont	:= oExcel:AddFont(9,"00000000","Calibri","2")
 nTitFont	:= oExcel:AddFont(18,"00000000","Calibri","2",,.T.)
 nTit2Font	:= oExcel:AddFont(9,"00000000","Calibri","2")
 nTit3Font	:= oExcel:AddFont(11,"00000000","Calibri","2",,.T.)
+nCabFont	:= oExcel:AddFont(9,"FFFFFFFF","Calibri","2",,.T.)
 nSCabFont	:= oExcel:AddFont(9,"00000000","Calibri","2",,.T.)
+nS1CabFont	:= oExcel:AddFont(9,"9E0000","Calibri","2",,.T.)
 nTotFont 	:= oExcel:AddFont(9,56,"Calibri","2",,.T.,.F.,.F.,.F.)
 
 nCabCor		:= oExcel:CorPreenc("9E0000")	//Cor de Fundo Vermelho BK
@@ -170,6 +173,7 @@ nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSuf
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oQtCenter})
 nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nS1CabStyle	:= oExcel:AddStyles(/*numFmtId*/,nS1CabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 
 nV0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
@@ -442,8 +446,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 				nStyle := nP5Style
 			ElseIf cTipo == "D"
 				nStyle := nD2Style
-			ElseIf cTipo == "S"    // Estilo Subtotal
+			ElseIf cTipo == "S"   // Estilo Subtotal
 				nStyle := nSCabStyle
+			ElseIf cTipo == "S1"  // Estilo Subtotal 1
+				nStyle := nS1CabStyle
 			EndIf
 
 			If lFormula
@@ -841,6 +847,7 @@ Local nFmtPer5
 Local nTotFont
 Local nCabStyle	
 Local nSCabStyle	
+Local nS1CabStyle	
 Local nV0Style
 Local nV2Style
 Local nV5Style
@@ -900,6 +907,7 @@ nFmtPer5	:= oExcel:AddFmtNum(5/*nDecimal*/,.T./*lMilhar*/,/*cPrefixo*/,"%"/*cSuf
 
 nCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oQtCenter})
 nSCabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nSCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
+nS1CabStyle	:= oExcel:AddStyles(/*numFmtId*/,nSCabFont/*fontId*/,nCabCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,{oAlCenter})
 
 nV0Style	:= oExcel:AddStyles(nFmtNum0/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 nV2Style	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nLinFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)

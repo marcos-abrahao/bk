@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"20/08/2020"
+#DEFINE FIN_LAST_UPDATED 		"26/08/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -935,12 +935,50 @@ X31UPDTABLE("CND")
 */
 
 // 20/08/20 - RM - R. Medição
+/*
 dbSelectArea( "SX3" )
 APPEND FROM \sx3rm.dtc
 
 X31UPDTABLE("SC5")
 X31UPDTABLE("SC9")
 X31UPDTABLE("CND")
+*/
+
+// Nota Balcão/Normal - 26/08/20
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "C5_XXTPNF" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"N"'
+	SX3->X3_CBOX    := "N=Normal;B=Balcao"
+	SX3->X3_VALID   := 'Pertence("NB")'
+	dbCommit()
+	MsUnLock()
+
+EndIf
+
+If SX3->( dbSeek( "C9_XXORPED" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"N"'
+	SX3->X3_CBOX    := "N=Normal;B=Balcao"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "CND_XXTPNF" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := '"N"'
+	SX3->X3_CBOX    := "N=Normal;B=Balcao"
+	SX3->X3_VALID   := 'Pertence("NB")'
+	dbCommit()
+	MsUnLock()
+
+EndIf
 
 
 Return
