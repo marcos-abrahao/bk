@@ -36,7 +36,7 @@ EndIf
 Return Nil
 
 
-User Function ProcXml(oProcess,_aPlans,_cTitulo,_cProg, lClose, _aParam )
+User Function ProcXml(_aPlans,_cTitulo,_cProg, lClose, _aParam )
 
 Local oExcel     AS OBJECT
 Local cArq       := ""
