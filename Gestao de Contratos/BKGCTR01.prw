@@ -255,7 +255,7 @@ cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CN
 cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 
 cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
+cQuery += "        AND  SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO "+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
 
@@ -294,7 +294,7 @@ cQuery += "        C5_EMISSAO, "+ CRLF
 cQuery += "        0,0, " + CRLF     // XX_BONIF,XX_MULTA
 cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "            AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
+cQuery += "            AND  SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO "+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("SF2")+" SF2"+ CRLF
 //cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = "+cqContr
@@ -304,7 +304,7 @@ cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '
 cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE = F2_SERIE AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA" + CRLF
 cQuery += "      AND  D2_FILIAL = F2_FILIAL AND SD2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
-cQuery += "      AND  C5_FILIAL = D2_FILIAL AND  SD2.D_E_L_E_T_ = ' '" + CRLF
+cQuery += "      AND  C5_FILIAL = D2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
 //cQuery += " WHERE ("+cqContr+" = ' ' OR "+ CRLF
 //cQuery +=           cqContr+" IS NULL ) "+ CRLF
 cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF

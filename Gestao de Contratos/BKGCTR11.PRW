@@ -4460,7 +4460,6 @@ nSnd += nTLin
 nSnd += nTLin
 
 
-
 ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
 
 If ( lOk ) 
