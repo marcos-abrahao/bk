@@ -1037,7 +1037,7 @@ dDataAnt 	:= MV_PAR01 - 1
 IF nTpData == 1	
 	cOrder := SqlOrder(IndexKey())
 	cQuery := "SELECT *, R_E_C_N_O_ AS E5_XXRECNO,
-	cQuery += "(SELECT TOP 1 'CANC' FROM "+RetSqlName("SE5")+" SE52 WHERE SE52.D_E_L_E_T_ = '' "
+	cQuery += "(SELECT TOP 1 'CANC' FROM "+RetSqlName("SE5")+" SE52 WHERE SE52.D_E_L_E_T_ = '' AND E5_FILIAL = '" + xFilial("SE5") + "'"
 	cQuery += " AND SE52.E5_BANCO=SE5.E5_BANCO "
 	cQuery += " AND SE52.E5_AGENCIA=SE5.E5_AGENCIA "
 	cQuery += " AND SE52.E5_CONTA=SE5.E5_CONTA "
@@ -1058,7 +1058,7 @@ IF nTpData == 1
 ELSE
 	cOrder := StrTran(SqlOrder(IndexKey()), "E5_DATA", "E5_DTDISPO")
 	cQuery := "SELECT *, R_E_C_N_O_ AS E5_XXRECNO, "
-	cQuery += "(SELECT TOP 1 'CANC' FROM "+RetSqlName("SE5")+" SE52 WHERE SE52.D_E_L_E_T_ = '' "
+	cQuery += "(SELECT TOP 1 'CANC' FROM "+RetSqlName("SE5")+" SE52 WHERE SE52.D_E_L_E_T_ = '' AND E5_FILIAL = '" + xFilial("SE5") + "'"
 	cQuery += " AND SE52.E5_BANCO=SE5.E5_BANCO "
 	cQuery += " AND SE52.E5_AGENCIA=SE5.E5_AGENCIA "
 	cQuery += " AND SE52.E5_CONTA=SE5.E5_CONTA "
@@ -1108,7 +1108,6 @@ ENDIF
 //While ! SE5->( eof()) .And. SE5->E5_DATA <= dDataF .And. xFilial("SE5") == SE5->E5_FILIAL
 ProcRegua(LastRec()) // Numero de registros a processar
 While Eval(bCondWhile)
-
 
     IncProc()
 
@@ -1459,13 +1458,14 @@ While Eval(bCondWhile)
 	//ENDIF
     		
 		   		cQuery := ""
-				cQuery += " SELECT * FROM "+RETSQLNAME("SEF")+" SEF WHERE SEF.D_E_L_E_T_=''"
-				cQuery += " AND SEF.EF_BANCO='"+SE5->E5_BANCO+"'"
-				cQuery += " AND EF_AGENCIA='"+SE5->E5_AGENCIA+"'"
-				cQuery += " AND EF_CONTA='"+SE5->E5_CONTA+"'"
-				cQuery += " AND EF_NUM='"+SE5->E5_NUMCHEQ+"'"
-//				cQuery += " AND EF_DATA='"+DTOS(SE5->E5_DATA)+"'" 
-				cQuery += "	AND EF_FORNECE<>''"
+				cQuery += " SELECT * FROM "+RETSQLNAME("SEF")+" SEF "
+				cQuery += " WHERE SEF.D_E_L_E_T_='' AND EF_FILIAL = '"+xFilial("SEF")+"' "
+				cQuery += "  AND SEF.EF_BANCO='"+SE5->E5_BANCO+"'"
+				cQuery += "  AND EF_AGENCIA='"+SE5->E5_AGENCIA+"'"
+				cQuery += "  AND EF_CONTA='"+SE5->E5_CONTA+"'"
+				cQuery += "  AND EF_NUM='"+SE5->E5_NUMCHEQ+"'"
+//				cQuery += "  AND EF_DATA='"+DTOS(SE5->E5_DATA)+"'" 
+				cQuery += "	 AND EF_FORNECE<>''"
 			
 				TCQUERY cQuery NEW ALIAS "QTMPEF" 
 			
@@ -1584,7 +1584,7 @@ While Eval(bCondWhile)
 								nTot:= 0
 								nTot:= aScan(aTot,{|x| x[1]=='193000288' })
 			                	IF nTot > 0
-			       					MSGINFO(aTot[nTot,1]+"     \"+STR(aTot[nTot,2],14,2))
+			       					//MSGINFO(aTot[nTot,1]+"     \"+STR(aTot[nTot,2],14,2))
 			                	ENDIF
 	
 	
@@ -1694,10 +1694,11 @@ While Eval(bCondWhile)
 					cQuery := ""
 					cQuery += "SELECT Z2_E2NUM,Z2_E2PRF,Z2_CC,SUM(Z2_VALOR) AS Z2_VALOR"
 					cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
-					cQuery += " WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_E2NUM='"+aSE5P[_IY,4]+"'"
-					cQuery += " AND Z2_E2PRF='"+aSE5P[_IY,3]+"' AND Z2_E2PARC='"+aSE5P[_IY,5]+"' AND Z2_STATUS='S'"
-					cQuery += " AND Z2_E2TIPO='"+aSE5P[_IY,6]+"'AND Z2_E2FORN='"+aSE5P[_IY,1]+"' AND Z2_E2LOJA='"+aSE5P[_IY,2]+"'" 
-					cQuery += " GROUP BY  Z2_E2NUM,Z2_E2PRF,Z2_CC "				
+					cQuery += " WHERE SZ2.D_E_L_E_T_='' AND Z2_FILIAL = '" + xFilial("SZ2") + "'"
+					cQuery += "  AND Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_E2NUM='"+aSE5P[_IY,4]+"'"
+					cQuery += "  AND Z2_E2PRF='"+aSE5P[_IY,3]+"' AND Z2_E2PARC='"+aSE5P[_IY,5]+"' AND Z2_STATUS='S'"
+					cQuery += "  AND Z2_E2TIPO='"+aSE5P[_IY,6]+"'AND Z2_E2FORN='"+aSE5P[_IY,1]+"' AND Z2_E2LOJA='"+aSE5P[_IY,2]+"'" 
+					cQuery += " GROUP BY Z2_E2NUM,Z2_E2PRF,Z2_CC "				
 	
 	 				TCQUERY cQuery NEW ALIAS "QSZ2"
 	
@@ -2008,7 +2009,7 @@ NEXT
 
 cSql := "SELECT Z5_CC AS CCsiga,SUM(Z5_VALOR) AS VALOR "
 cSql += " FROM "+RetSqlName("SZ5")+" SZ5 "
-cSql += " WHERE SZ5.D_E_L_E_T_='' AND Z5_ANOMES='"+SUBSTR(cRef,1,6)+"' AND Z5_EVENTO IN ('INS-E','INS-T') "
+cSql += " WHERE SZ5.D_E_L_E_T_='' AND Z5_FILIAL = '" + xFilial("SZ5") + "' AND Z5_ANOMES='"+SUBSTR(cRef,1,6)+"' AND Z5_EVENTO IN ('INS-E','INS-T') "
 cSql += " GROUP BY Z5_CC "
 
 TCQUERY cSql NEW ALIAS "QINSS" 
@@ -2041,7 +2042,7 @@ ENDDO
 QINSS->(Dbclosearea())
 
 IF nINSS == 0
-	MSGSTOP("Para Rateio do INSS favor rodar a rotina de calculo na Integração Rubi x Microsiga!!")
+	//MSGSTOP("Para Rateio do INSS favor rodar a rotina de calculo na Integração Rubi x Microsiga!!")
 	aCC2 := {}
 	Return aCC2 
 ENDIF
@@ -2123,12 +2124,14 @@ DO WHILE QINSS->(!EOF())
 ENDDO
 QINSS->(Dbclosearea()) 
  
-cSql := "Select D2_CCUSTO,C5_ESPECI1,SUM(D2_VALINS) AS VALOR "
+cSql := "SELECT D2_CCUSTO,C5_ESPECI1,SUM(D2_VALINS) AS VALOR "
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
-cSql += " INNER JOIN " + RetSqlName("SF2")+" SF2 ON SF2.D_E_L_E_T_='' AND SD2.D2_DOC=SF2.F2_DOC AND SD2.D2_SERIE=SF2.F2_SERIE "
-cSql += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SD2.D2_PEDIDO AND SC5.D_E_L_E_T_='' "
-cSql += " AND SD2.D2_CLIENTE=SF2.F2_CLIENT AND SD2.D2_LOJA=SF2.F2_LOJA "  
-cSql += " where SD2.D_E_L_E_T_='' AND D2_VALINS > 0 and F2_EMISSAO >='"+SUBSTR(cRef,1,6)+"01' AND F2_EMISSAO <='"+SUBSTR(cRef,1,6)+"31' "
+//cSql += " INNER JOIN " + RetSqlName("SF2")+" SF2 ON SF2.D_E_L_E_T_='' AND F2_FILIAL = D2_FILIAL "
+//cSql += "     AND SD2.D2_DOC = SF2.F2_DOC AND SD2.D2_SERIE=SF2.F2_SERIE "
+//cSql += "     AND SD2.D2_CLIENTE=SF2.F2_CLIENT AND SD2.D2_LOJA=SF2.F2_LOJA "  
+cSql += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_FILIAL = SD2.D2_FILIAL AND SC5.C5_NUM=SD2.D2_PEDIDO AND SC5.D_E_L_E_T_='' "
+cSql += " WHERE SD2.D_E_L_E_T_='' AND D2_FILIAL = '"+xFilial("SD2")+"' "
+cSql += "    AND D2_VALINS > 0 AND SUBSTRING(D2_EMISSAO,1,6) ='"+SUBSTR(cRef,1,6)+"' "
 cSql += " GROUP BY D2_CCUSTO,C5_ESPECI1 "
 
 TCQUERY cSql NEW ALIAS "QINSS" 
@@ -2355,14 +2358,15 @@ Local nTotCOFINS := 0
 Local nCredCOF   := 0
 Local cTXCOFINS  := STR(GetMv("MV_TXCOFINS"))
 
-cSql := "Select D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXCOFINS)+"/100)),2)-SUM(D2_VALCOF) AS VALCOF"
+cSql := "SELECT D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXCOFINS)+"/100)),2)-SUM(D2_VALCOF) AS VALCOF"
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
-cSql += " INNER JOIN " + RetSqlName("SF2")+" SF2 ON SF2.D_E_L_E_T_='' AND SD2.D2_DOC=SF2.F2_DOC AND SD2.D2_SERIE=SF2.F2_SERIE "
-cSql += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SD2.D2_PEDIDO AND SC5.D_E_L_E_T_='' "
-cSql += " AND SD2.D2_CLIENTE=SF2.F2_CLIENT AND SD2.D2_LOJA=SF2.F2_LOJA "  
-cSql += " where SD2.D_E_L_E_T_='' AND F2_EMISSAO >='"+SUBSTR(cRef,1,6)+"01' AND F2_EMISSAO <='"+SUBSTR(cRef,1,6)+"31' "
+//cSql += " INNER JOIN " + RetSqlName("SF2")+" SF2 ON SF2.D_E_L_E_T_='' AND SF2.F2_FILIAL = SD2.D2_FILIAL AND SD2.D2_DOC=SF2.F2_DOC AND SD2.D2_SERIE=SF2.F2_SERIE "
+//cSql += "    AND SD2.D2_CLIENTE=SF2.F2_CLIENT AND SD2.D2_LOJA=SF2.F2_LOJA "  
+cSql += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_FILIAL = SD2.D2_FILIAL AND SC5.C5_NUM=SD2.D2_PEDIDO AND SC5.D_E_L_E_T_='' "
+cSql += " WHERE SD2.D_E_L_E_T_='' AND SD2.D2_FILIAL = '"+xFilial("SD2")+"' "
+cSql += "     AND SUBSTRING(SD2.D2_EMISSAO,1,6) = '"+SUBSTR(cRef,1,6)+"' "
 cSql += " GROUP BY D2_CCUSTO,C5_ESPECI1 "
-   
+
 TCQUERY cSql NEW ALIAS "QCOFINS" 
 
 dbSelectArea("QCOFINS")
@@ -2385,8 +2389,10 @@ QCOFINS->(Dbclosearea())
 
 
 cSql := "SELECT SUM(D1_VALIMP5) AS D1_VALIMP5 FROM "+RetSqlName("SD1")+" SD1 " 
-cSql += " WHERE SD1.D_E_L_E_T_='' AND D1_TES = '104' "
-cSql += " AND D1_DTDIGIT >='"+SUBSTR(cRef,1,6)+"01' AND D1_DTDIGIT <='"+SUBSTR(cRef,1,6)+"31' " 
+cSql += " WHERE SD1.D_E_L_E_T_='' AND SD1.D1_FILIAL = '"+xFilial("SD1")+"' "
+cSql += "  AND SUBSTRING(D1_DTDIGIT,1,6) ='"+SUBSTR(cRef,1,6)+"' AND D1_TES = '104' "    
+//cSql += " WHERE SD1.D_E_L_E_T_='' AND D1_TES = '104' "
+//cSql += " AND D1_DTDIGIT >='"+SUBSTR(cRef,1,6)+"01' AND D1_DTDIGIT <='"+SUBSTR(cRef,1,6)+"31' " 
    
 TCQUERY cSql NEW ALIAS "QCOFINS" 
 
@@ -2447,12 +2453,13 @@ Local nTotPIS := 0
 Local nCredPIS   := 0
 Local cTXPIS  := STR(GetMv("MV_TXPIS"))
 
-cSql := "Select D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXPIS)+"/100)),2)-SUM(D2_VALPIS) AS VALPIS"
+cSql := "SELECT D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXPIS)+"/100)),2)-SUM(D2_VALPIS) AS VALPIS"
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
-cSql += " INNER JOIN " + RetSqlName("SF2")+" SF2 ON SF2.D_E_L_E_T_='' AND SD2.D2_DOC=SF2.F2_DOC AND SD2.D2_SERIE=SF2.F2_SERIE "
-cSql += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SD2.D2_PEDIDO AND SC5.D_E_L_E_T_='' "
-cSql += " AND SD2.D2_CLIENTE=SF2.F2_CLIENT AND SD2.D2_LOJA=SF2.F2_LOJA "  
-cSql += " where SD2.D_E_L_E_T_='' AND F2_EMISSAO >='"+SUBSTR(cRef,1,6)+"01' AND F2_EMISSAO <='"+SUBSTR(cRef,1,6)+"31' "
+//cSql += " INNER JOIN " + RetSqlName("SF2")+" SF2 ON SF2.D_E_L_E_T_='' AND F2_FILIAL = D2_FILIAL "
+//cSql += "     AND SD2.D2_DOC=SF2.F2_DOC AND SD2.D2_SERIE=SF2.F2_SERIE "
+cSql += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_FILIAL = D2_FILIAL AND SC5.C5_NUM=SD2.D2_PEDIDO AND SC5.D_E_L_E_T_='' "
+cSql += " WHERE SD2.D_E_L_E_T_='' AND SD2.D2_FILIAL = '"+xFilial("SD2")+"' "
+cSql += "     AND SUBSTRING(SD2.D2_EMISSAO,1,6) = '"+SUBSTR(cRef,1,6)+"' "
 cSql += " GROUP BY D2_CCUSTO,C5_ESPECI1 "
    
 TCQUERY cSql NEW ALIAS "QPIS" 
@@ -2476,8 +2483,8 @@ ENDDO
 QPIS->(Dbclosearea()) 
 
 cSql := "SELECT SUM(D1_VALIMP6) AS D1_VALIMP6 FROM "+RetSqlName("SD1")+" SD1 " 
-cSql += " WHERE SD1.D_E_L_E_T_='' AND D1_TES = '104' "
-cSql += " AND D1_DTDIGIT >='"+SUBSTR(cRef,1,6)+"01' AND D1_DTDIGIT <='"+SUBSTR(cRef,1,6)+"31' " 
+cSql += " WHERE SD1.D_E_L_E_T_='' AND SD1.D1_FILIAL = '"+xFilial("SD1")+"' "
+cSql += "  AND SUBSTRING(D1_DTDIGIT,1,6) ='"+SUBSTR(cRef,1,6)+"' AND D1_TES = '104' " 
    
 TCQUERY cSql NEW ALIAS "QPIS" 
 
@@ -2562,7 +2569,8 @@ IF ALLTRIM(cCHAVESD1) == "LFRH"
   
   	cSQL+= "  AND VALOR=Z2_VALOR "
   	cSQL+= "  LEFT JOIN  [BKIntegraRubi].[dbo].[FINANCE_USUARIOS] AS USUARIO ON TBPGTO.IDUSER=USUARIO.ID"
-  	cSQL+= "  WHERE SZ2.D_E_L_E_T_='' AND Z2_E2NUM='"+cPedido+"' AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"
+	cSQL+= " WHERE SZ2.D_E_L_E_T_='' AND Z2_FILIAL = '" + xFilial("SZ2") + "'"
+  	cSQL+= "  AND Z2_E2NUM='"+cPedido+"' AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"
 
 	TCQUERY cSQL NEW ALIAS "QSZ2_2" 
 

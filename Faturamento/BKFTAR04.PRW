@@ -96,10 +96,15 @@ aAdd(aFields,{"D2_COD"	    ,"D2_COD"})
 aAdd(aFields,{"B1_DESC" 	,"B1_DESC"})
 aAdd(aFields,{"B1_CODISS"	,"B1_CODISS"})
 aAdd(aFields,{"B1_ALIQISS"	,"B1_ALIQISS"})
-aAdd(aFields,{"A1_MUN"      ,"A1_MUN"})
+//aAdd(aFields,{"A1_MUN"      ,"A1_MUN"})
 
 aAdd(aFields,{"C5_XXCOMPM"	,"C5_XXCOMPM"})
 aAdd(aFields,{"D2_PEDIDO"	,"D2_PEDIDO"})
+
+aAdd(aFields,{"C5_MDNUMED"	,"C5_MDNUMED"})
+aAdd(aFields,{"C5_MDPLANI"	,"C5_MDPLANI"})
+aAdd(aFields,{"CNA_XXMUN"	,"CNA_XXMUN"})
+aAdd(aFields,{"CNA_XXMOT"	,"CNA_XXMOT"})
 
 aAdd(aFields,{"F2_DOC"		,"F2_DOC"})
 aAdd(aFields,{"F2_EMISSAO"	,"F2_EMISSAO"})
@@ -201,7 +206,7 @@ Private xCampo
 cQuery := " SELECT DISTINCT F2_FILIAL,F2_CLIENTE,F2_LOJA,A1_NOME,D2_COD,B1_DESC,B1_CODISS,B1_ALIQISS,"+ CRLF
 cQuery += "        CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN C5_MDCONTR ELSE C5_ESPECI1 END AS C5_MDCONTR,"+ CRLF
 cQuery += "        CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS A1_MUN, " + CRLF  // CNA_NUMERO,CNA_XXMUN
-cQuery += "        C5_XXCOMPM,D2_PEDIDO, " + CRLF   // C6_NUM
+cQuery += "        D2_PEDIDO,C5_XXCOMPM,C5_MDNUMED,C5_MDPLANI,CNA_XXMUN,CNA_XXMOT, " + CRLF   // C6_NUM
 cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
 cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
 cQuery += "            AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"' ) AS E1_VENCTO, " + CRLF
@@ -223,6 +228,8 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE
 cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"' AND SD2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
 cQuery += "      AND  C5_FILIAL = D2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CONTRA = C5_MDCONTR AND CNA_NUMERO = C5_MDPLANI " + CRLF
+cQuery += "      AND  CNA_FILIAL = F2_FILIAL AND CNA.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D2_COD = B1_COD"+ CRLF
 cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " WHERE SF2.D_E_L_E_T_ = ' ' " + CRLF

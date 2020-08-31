@@ -32,7 +32,7 @@ Local cSuper    := ""
 Local cTpNF		:= CND->CND_XXTPNF
 Local cRM		:= CND->CND_XXRM
 
-If !cTpNf $ "NA"
+If !cTpNf $ "NB"
 	cTpNf := "N"
 EndIf
 
@@ -363,17 +363,17 @@ Local aTpNF := {}
 
 aTpNf := U_StringToArray(GetSx3Cache("CND_XXTPNF", "X3_CBOX"),";") 
 
-Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 320,400 Of oDlg Pixel Style DS_MODALFRAME
+Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 325,400 Of oDlg Pixel Style DS_MODALFRAME
 
 @ 015,015 SAY "Tipo NF: " Pixel Of oDlg 
-@ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NA")
+@ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NB")
 
 @ 030,015 SAY "RM: " Pixel Of oDlg 
 @ 030,046 GET cRM SIZE 100,010 Pixel Of oDlg 
 
 @ 045,085 Button "&Ok" Size 036,013 Pixel Action (oDlg:End())
 
-ACTIVATE MSDIALOG oDlg CENTERED Valid(cTpNF $ "NA") 
+ACTIVATE MSDIALOG oDlg CENTERED Valid(cTpNF $ "NB") 
 
 Return {cTpNF,cRM}
 
