@@ -191,7 +191,8 @@ IF !EMPTY(cContrato)
 		DO WHILE !EOF() .AND. (xFilial("SYP") + CN9->CN9_CODOBJ) = (SYP->YP_FILIAL + SYP->YP_CHAVE)
 		    cObjeto += STRTRAN(TRIM(SYP->YP_TEXTO),"\13\10","")   //+"|"
 			dbSkip()
-		ENDDO 
+		ENDDO
+		cObjeto := STRTRAN(TRIM(cObjeto),"|"," ")
 	ENDIF
 	
 	FOR nI:= 1 to MLCOUNT(cObjeto,nMaxTLin)
@@ -660,6 +661,7 @@ Return cTexto
 Static Function VldGets(aLin,nMaxGets)
 Local lTxtOk	:= .T.
 Local nX 		:= 0
+Local yTexto    := ""
 
 For nX := 1 TO LEN(aLin)
 	If nX > nMaxGets .and. !Empty(aLin[nX])
@@ -668,6 +670,15 @@ For nX := 1 TO LEN(aLin)
 		Exit
 	EndIf
 Next
+
+If lTxtOk
+	yTexto := MontaTxt(aLin)
+	If Len(yTexto) > 1000
+		lTxtOk := .F.
+		MSGSTOP("Maximo de 1000 caracteres permitidos foi excedido: "+ALLTRIM(STR(LEN(yTexto)))+", corrija o texto!!","MTDESCRNFE")
+	EndIf
+EndIf
+
 Return lTxtOk
 
 
@@ -677,7 +688,7 @@ Local cTxt := ""
 
 
 FOR nI := 1 TO LEN(aLin)
-   	cTxt += TRIM(aLin[nI])+"|" 
+   	cTxt += ALLTRIM(aLin[nI])+"|" 
 NEXT
 
 

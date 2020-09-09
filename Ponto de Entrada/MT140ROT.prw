@@ -19,7 +19,7 @@
 */
 
 User Function MT140ROT()
-AADD( aRotina, {OemToAnsi("Conhecimento "+ALLTRIM(SM0->M0_NOME)), "U_MT140DOCBK", 0, 4 } )
+//AADD( aRotina, {OemToAnsi("Conhecimento "+ALLTRIM(SM0->M0_NOME)), "U_MT140DOCBK", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Benefícios  "+ALLTRIM(SM0->M0_NOME)), "U_BKCOMA03", 0, 4 } )
 Return Nil
 
@@ -30,5 +30,5 @@ Private cCadastro := "Teste msDocument"
 Dbselectarea("SF1")
 Dbsetorder(1)
 _nReg:=Recno()
-msdocument("SF1",_nReg,6)
+MsDocument("SF1",_nReg,6)
 Return

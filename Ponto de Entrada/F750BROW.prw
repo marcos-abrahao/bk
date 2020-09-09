@@ -30,8 +30,9 @@ aRotY := { {OemToAnsi("Integração Liq. "+ALLTRIM(SM0->M0_NOME)), "U_BKFINA02",  
 AADD( aRotina, {OemToAnsi("Liquidos "+ALLTRIM(SM0->M0_NOME)), aRotY, 0, 4 } )
 
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
-AADD( aRotina, {OemToAnsi("Anexar Arq. "+ALLTRIM(SM0->M0_NOME)),   "U_BKANXA01('1','SE2')", 0, 4 } )
-AADD( aRotina, {OemToAnsi("Abrir Anexos "+ALLTRIM(SM0->M0_NOME)),  "U_BKANXA02('1','SE2')", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"),  "U_BKF750A", 0, 4 } )
+//AADD( aRotina, {OemToAnsi("Anexar Arq. "+ALLTRIM(SM0->M0_NOME)),   "U_BKANXA01('1','SE2')", 0, 4 } )
+//AADD( aRotina, {OemToAnsi("Abrir Anexos "+ALLTRIM(SM0->M0_NOME)),  "U_BKANXA02('1','SE2')", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Alterar Emissão"),  "U_BKFINA10", 0, 4 } )
 IF SM0->M0_CODIGO <> "01"
 	AADD( aRotina, {OemToAnsi("Incluir DNF na BK"),"U_BKFINA18", 0, 4 } )
@@ -42,6 +43,22 @@ AADD( aRotina, {OemToAnsi("Baixa BK - RET BANCO"),  "U_BKFINA22", 0, 4 } )
 
 Return Nil
 
+
+
+// Vizualizar Anexos-Pré Nota
+// 04/09/2020
+User Function BKF750A()
+Local aArea	:= GetArea()
+Local nRecF1:= 0
+dbSelectArea("SF1")
+dbSetOrder(1)
+If dbSeek(xFilial("SF1")+SE2->E2_NUM+SE2->E2_PREFIXO,.F.)
+	nRecF1 := RecNo()
+	MsDocument("SF1",nRecF1,6)
+EndIf
+
+RestArea( aArea )
+Return Nil
 
 
 // Alteração de data de emissao de titulo

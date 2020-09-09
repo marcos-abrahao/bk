@@ -1994,10 +1994,10 @@ Return aCC
 
 //BUSCA RATEIRO CC INSS
 Static Function RetINSS(cRef,nValor)
-Local aCC := {}
-Local aCC2 := {}
-Local cSql:= ""
-Local nTotINSS := 0
+Local aCC 			:= {}
+Local aCC2 			:= {}
+Local cSql			:= ""
+Local nTotINSS 		:= 0
 Local aContrCons	:= {}
 Local aConsorcio    := {}
 
@@ -2221,9 +2221,9 @@ Return aCC
 
 //BUSCA RATEIRO CC IRRF CLT
 Static Function RetIRRF(cRef,nValor)
-Local aCC := {}
-Local cSql:= ""
-Local nTotIRRF := 0
+Local aCC 		:= {}
+Local cSql		:= ""
+Local nTotIRRF 	:= 0
 
 
 cSql := "Select BKIntegraRubi.dbo.CUSTOSIGA.ccSiga AS CONTRATO,sum(bk_senior.bk_senior.R046VER.ValEve) AS VALOR  "
@@ -2352,11 +2352,12 @@ Return aCC
 
 //BUSCA RATEIRO CC COFINS
 Static Function RetCOFINS(cRef,nValor)
-Local aCC := {}
-Local cSql:= ""
-Local nTotCOFINS := 0
-Local nCredCOF   := 0
-Local cTXCOFINS  := STR(GetMv("MV_TXCOFINS"))
+Local aCC 		:= {}
+Local aCC2 		:= {}
+Local cSql		:= ""
+Local nTotCOFINS:= 0
+Local nCredCOF	:= 0
+Local cTXCOFINS	:= STR(GetMv("MV_TXCOFINS"))
 
 cSql := "SELECT D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXCOFINS)+"/100)),2)-SUM(D2_VALCOF) AS VALCOF"
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
@@ -2409,7 +2410,7 @@ IF nCredCOF > 0
 	aCC2 := U_Rateia(aCC,nCredCOF)
 ENDIF
 
-FOR _X1:=1 TO LEN(aCC)
+FOR _X1:=1 TO LEN(aCC2)
 	aCC[_X1,2] -= aCC2[_X1,2]
 	nTotCOFINS -= aCC2[_X1,2]
 NEXT
@@ -2447,11 +2448,12 @@ Return aCC
 
 //BUSCA RATEIO CC PIS
 Static Function RetPIS(cRef,nValor)
-Local aCC := {}
-Local cSql:= ""
-Local nTotPIS := 0
-Local nCredPIS   := 0
-Local cTXPIS  := STR(GetMv("MV_TXPIS"))
+Local aCC 		:= {}
+Local aCC2 		:= {}
+Local cSql		:= ""
+Local nTotPIS 	:= 0
+Local nCredPIS	:= 0
+Local cTXPIS	:= STR(GetMv("MV_TXPIS"))
 
 cSql := "SELECT D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXPIS)+"/100)),2)-SUM(D2_VALPIS) AS VALPIS"
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
@@ -2501,7 +2503,7 @@ IF nCredPIS <> 0
 	aCC2 := U_Rateia(aCC,nCredPIS)
 ENDIF
 
-FOR _X1:=1 TO LEN(aCC)
+FOR _X1:=1 TO LEN(aCC2)
 	aCC[_X1,2] -= aCC2[_X1,2]
 	nTotPIS -= aCC2[_X1,2]
 NEXT
@@ -2546,12 +2548,7 @@ LOCAL aAreaIni := GetArea()
 
 //		AADD(aRest,cDIGTA)
 //		AADD(aRest,cAPROV)
-
-
 //Return aRest
-
-
-
 //STATIC FUNCTION BLIB2()
 
 IF ALLTRIM(cCHAVESD1) == "LFRH"
