@@ -26,6 +26,7 @@ Local cXXSEMAF		:= "N"
 Local aRetCons		:= {}
 Local cLogCons   	:= ""
 Local cCrLf   		:= Chr(13) + Chr(10) 
+Local dAgJob		:= dDataBase
 
 // Exemplo a param do schedule: {.F.,.T.,'01','01','000000','004138000002'}
 Default aParam 		:= {.F.,.F.}
@@ -37,16 +38,31 @@ Private cEmpPar 	:= "01"
 Private cFilPar		:= "01"
 Private cPerg       := "BKGCTR14"
 Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
+Private cArqLog		:= ""
+
 
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
 	lJob 		:= aParam[2]
+	cArqLog		:= "\TMP\BKGCTR14-"+cEmpAnt+".LOG"
 Else
+
 	lSintet  	:= aParam[1]
 	lJob 		:= aParam[2]
 	cEmpPar 	:= aParam[3]
 	cFilPar 	:= aParam[4]
+
 	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9"},"GCT")
+
+	cArqLog		:= "\TMP\BKGCTR14-"+cEmpPar+".LOG"
+
+	// Data de Agendamento do Job
+	dAgJob		:= U_BKGetMv("BKGCTR1410")
+	If !(dAgJob == DATE())
+		u_xxLog(cArqLog,titulo+": não agendado - "+cStart,.T.,"")
+		Reset Environment
+		Return Nil
+	EndIf
 EndIf
 
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
@@ -80,6 +96,7 @@ PRIVATE nEncarIPT   := 0
 PRIVATE nINCIDENCI  := 0
 PRIVATE nRateia     := 1
 PRIVATE nDespGeral  := 0
+PRIVATE nAgendar    := 2
 PRIVATE nCompras  	:= 0
 
 PRIVATE nCompet		:= 0
@@ -137,17 +154,33 @@ If !lJob
 	If !Pergunte(cPerg,.T.)
 		Return Nil
 	Endif
+	nAgendar := MV_PAR09
+	If nAgendar == 1
+		U_BKPutMv("BKGCTR1401",MV_PAR01,"C",10,0,"Contrato?")
+		U_BKPutMv("BKGCTR1402",MV_PAR02,"N", 2,0,"Mês Competência?")
+		U_BKPutMv("BKGCTR1403",MV_PAR03,"N", 4,0,"Ano Competência?")
+		U_BKPutMv("BKGCTR1404",MV_PAR04,"N", 6,3,"%Taxa de Administração?")
+		U_BKPutMv("BKGCTR1405",MV_PAR05,"N", 1,0,"Consolidar Contratos?")
+		U_BKPutMv("BKGCTR1406",MV_PAR06,"N", 1,0,"Consórcio Aplicar Índice Total?")
+		U_BKPutMv("BKGCTR1407",MV_PAR07,"N", 1,0,"Rateia Despesas no Cronograma?")
+		U_BKPutMv("BKGCTR1408",MV_PAR08,"N", 1,0,"Detalhar ?")
+		U_BKPutMv("BKGCTR1409",MV_PAR09,"N", 1,0,"Agendar ?")
+		U_BKPutMv("BKGCTR1410",MV_PAR10,"D", 8,0,"Agendar para:")
+		U_BKPutMv("BKGCTR1411",MV_PAR11,"C",70,0,"E-Mail?")
+		MsgInfo("Agendamento efetuado!")
+		Return Nil
+	EndIf
 Else
-	MV_PAR01 := cContrato  	:= ""   // teste "005000114"
-	MV_PAR02 := nMesC 		:= MONTH(dDataBase - DAY(dDatabase))
-	MV_PAR03 := nAnoC  		:= YEAR(dDataBase - DAY(dDatabase))
-	MV_PAR04 := 3
-	MV_PAR05 := nConsolida	:= 2
-	MV_PAR06 := nIndConsor	:= 1
-	MV_PAR07 := nRATEIA     := 2
-	MV_PAR08 := nDespGeral  := 1
+	MV_PAR01 := cContrato  	:= U_BKGetMv("BKGCTR1401") // teste "005000114"
+	MV_PAR02 := nMesC 		:= U_BKGetMv("BKGCTR1402") // MONTH(dDataBase - DAY(dDatabase))
+	MV_PAR03 := nAnoC  		:= U_BKGetMv("BKGCTR1403") // YEAR(dDataBase - DAY(dDatabase))
+	MV_PAR04 := U_BKGetMv("BKGCTR1404")                // 3
+	MV_PAR05 := nConsolida	:= U_BKGetMv("BKGCTR1405") // 2
+	MV_PAR06 := nIndConsor	:= U_BKGetMv("BKGCTR1406") // 1
+	MV_PAR07 := nRATEIA     := U_BKGetMv("BKGCTR1407") // 2
+	MV_PAR08 := nDespGeral  := U_BKGetMv("BKGCTR1408") // 1
 
-	u_xxLog("\TMP\BKGCTR14.LOG",titulo+": "+cStart,.T.,"")
+	u_xxLog(cArqLog,titulo+": "+cStart,.T.,"")
 
 EndIf
 
@@ -238,7 +271,7 @@ IF nConsolida == 1
 			ENDIF
 			IF !EMPTY(cLogCons)
 				IF lJob
-					u_xxLog("\TMP\BKGCTR14.LOG","- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons,.T.,"")
+					u_xxLog(cArqLog,"- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons,.T.,"")
 				ELSE
 					IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
 						RETURN NIL
@@ -248,7 +281,7 @@ IF nConsolida == 1
 		ENDIF
     ELSE
 		IF lJob
-			u_xxLog("\TMP\BKGCTR14.LOG","Informações para Consolidar invalida. Verifique!!",.T.,"")
+			u_xxLog(cArqLog,"Informações para Consolidar invalida. Verifique!!",.T.,"")
 		ELSE
 	    	MSGSTOP("Informações para Consolidar invalida. Verifique!!")
 		ENDIF
@@ -343,7 +376,7 @@ ELSE
 		Msginfo("Atualizando tabela Folha de Pagamento!!")
 	    Return Nil
 	Else
-		u_xxLog("\TMP\BKGCTR14.LOG","Atenção: tabela Folha de Pagamento não foi atualizada.",.T.,"")
+		u_xxLog(cArqLog,"Atenção: tabela Folha de Pagamento não foi atualizada.",.T.,"")
 	EndIf
 ENDIF
 
@@ -434,7 +467,7 @@ IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
 	If !lJob
 		MSGSTOP("Contrato não encontrado!!")
 	Else
-		u_xxLog("\TMP\BKGCTR14.LOG","Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),.T.,"")
+		u_xxLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),.T.,"")
 	EndIf
 	Return Nil
 ENDIF
@@ -447,7 +480,7 @@ IF lSintetico
 ENDIF
 
 titulo   := titulo+" - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
-u_xxLog("\TMP\BKGCTR14.LOG",titulo,.T.,"")
+u_xxLog(cArqLog,titulo,.T.,"")
 
 aDbf := {}
 Aadd( aDbf, { 'XX_LINHA' ,'N', 10,00 } )
@@ -576,7 +609,7 @@ Else
 		ProcR14(lJob)
 		U_CR14(lJob)
 	Else
-		u_xxLog("\TMP\BKGCTR14.LOG","Competencia não encontrada : "+STR(nCompet),.T.,"")
+		u_xxLog(cArqLog,"Competencia não encontrada : "+STR(nCompet),.T.,"")
 	EndIf
 EndIf
 ///(ALIAS_TMP)->(Dbclosearea())
@@ -709,8 +742,8 @@ FOR _nI := 1 TO nPeriodo
 	If !lJob
 		IncProc("Consultando faturamento dos contratos...")
 	Else
-		//u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
-		u_xxLog("\TMP\BKGCTR14.LOG","BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
+		//u_xxLog(cArqLog,"Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
+		u_xxLog(cArqLog,"BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
 	EndIf
    
 	//*********Faturamento do Contrato
@@ -1613,7 +1646,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando Folha Pagamento...")
 		Else
-			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando Folha Pagamento..."+STR(_nI),.T.,"")
 		EndIf
 		//*********Folha Pagamento
 		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
@@ -1975,7 +2008,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando Folha Pagamento - Autonomos...")
 		Else
-			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
 		EndIf
 		//*********Folha Pagamento - Autonomos IPT
 		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
@@ -2067,7 +2100,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
 		Else
-			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando gastos gerais..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando gastos gerais..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//*********GASTOS GERAIS
@@ -3538,7 +3571,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando faturamento de medições avulsas...")
 		Else
-			//u_xxLog("\TMP\BKGCTR14.LOG","Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//********* FATURAMENTO - Inclusão para medição avulso
@@ -3667,7 +3700,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		If !lJob
 			IncProc("Calculando resultados...")
 		Else
-			//u_xxLog("\TMP\BKGCTR14.LOG","Calculando resultados..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Calculando resultados..."+STR(_nI),.T.,"")
 		EndIf
 		
 		//CALCULA TAXA ADM
@@ -5176,32 +5209,42 @@ Local cArqXls   := ""
 Local aPlans 	:= {}
 
 Local cMsg		:= ""
-Local cEmailTO	:= "bruno.bueno@bkconsultoria.com.br"
+Local cEmailTO	:= ""
 Local cEmailCC	:= "microsiga@bkconsultoria.com.br"
+Local cArqE		:= cArqS+"-"+cEmpAnt
+
+cEmailTO := LOWER(U_BKGetMv("BKGCTR1411"))
+If !Empty(cEmailTO)
+	If ! "bruno.bueno" $ cEmailTO
+		cEmailTO += ";bruno.bueno@bkconsultoria.com.br"
+	EndIf
+Else
+	cEmailTO := "bruno.bueno@bkconsultoria.com.br"
+EndIf
 
 If lJob
 	cDirTmp := "\TMP"
 EndIf
-cArqTmp := cDirTmp+"\"+cArqS+".CSV"
+cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 
 Private xQuebra,xCampo
 
 If !lJob
 	If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-		//Processa( {|| U_GeraXCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
-		AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-		cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
+		//Processa( {|| U_GeraXCSV(_cAlias,cArqE,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
+		AADD(aPlans,{_cAlias,TRIM(cArqE),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+		cArqXls := U_GeraXlsx(aPlans,"",cArqE, lClose:= .F.,)
 		Return Nil
 	EndIf
 Else
-	u_xxLog("\TMP\BKGCTR14.LOG","Gerando planilha xlsx",.T.,"")
-	AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-	cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
+	u_xxLog(cArqLog,"Gerando planilha xlsx",.T.,"")
+	AADD(aPlans,{_cAlias,TRIM(cArqE),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+	cArqXls := U_GeraXlsx(aPlans,"",cArqE, lClose:= .F.,,,.F.,lJob)
 
 	cMsg :=aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
 
-	u_xxLog("\TMP\BKGCTR14.LOG",cMsg,.T.,"")
+	u_xxLog(cArqLog,cMsg,.T.,"")
 
 EndIf
 
@@ -5220,7 +5263,7 @@ If nHandle > 0
       fWrite(nHandle, aTitulos[_ni] + cCrLf)
       nCab++
    NEXT
-   fWrite(nHandle, cArqS+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName + cCrLf)
+   fWrite(nHandle, cArqE+" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName + cCrLf)
    nCab++
 
    FOR _ni := 1 TO LEN(aCabs)
@@ -5253,9 +5296,9 @@ If nHandle > 0
       ENDIF
    
       If !lJob
-         IncProc("Gerando arquivo "+cArqS)   
+         IncProc("Gerando arquivo "+cArqE)   
 	  Else
-	     //u_xxLog("\TMP\BKGCTR14.LOG","Gerando arquivo "+cArqS,.T.,"")
+	     //u_xxLog(cArqLog,"Gerando arquivo "+cArqE,.T.,"")
       EndIf 
 
       For _ni :=1 to LEN(aCampos)
@@ -5328,14 +5371,14 @@ If nHandle > 0
       
    fClose(nHandle)
    If !lJob   
-		MsgRun(cArqs,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
+		MsgRun(cArqE,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
    EndIf
 
 Else
 	If !lJob
    		MsgAlert("Falha na criação do arquivo "+cArqTmp)
 	Else
-		u_xxLog("\TMP\BKGCTR14.LOG","Falha na criação do arquivo "+cArqTmp,.T.,"")
+		u_xxLog(cArqLog,"Falha na criação do arquivo "+cArqTmp,.T.,"")
 	EndIf
 Endif
    
@@ -5358,7 +5401,7 @@ msUnlock()
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo...")
 Else
-    //u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo...",.T.,"")
+    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo...",.T.,"")
 EndIf
 
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
@@ -5366,7 +5409,7 @@ TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
 Else
-    //u_xxLog("\TMP\BKGCTR14.LOG","Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
+    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
 EndIf
 
 FOR _IX:= 1 TO LEN(aConsorcio)
@@ -5458,7 +5501,7 @@ RestArea( aAreaAtu )
 Return aRet
 
 
-Static Function  ValidPerg(cPerg)
+Static Function ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
@@ -5474,9 +5517,12 @@ AADD(aRegistros,{cPerg,"02","Mês Competência?","Mês Competência?","Mês Competênc
 AADD(aRegistros,{cPerg,"03","Ano Competência?","Ano Competência?","Ano Competência?","mv_ch3","N",04,0,0,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"04","%Taxa de Administração?","%Taxa de Administração?" ,"%Taxa de Administração?" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"05","Consolidar Contratos?","Consolidar Contratos?","Consolidar Contratos?","mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"06","Consorcio Aplicar Indice Total?","Consorcio Aplicar Indice Total","Consorcio Aplicar Indice Total","mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"06","Consórcio Aplicar Índice Total?","Consórcio Aplicar Índice Total","Consórcio Aplicar Índice Total","mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 AADD(aRegistros,{cPerg,"07","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","mv_ch7","N",01,0,1,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 AADD(aRegistros,{cPerg,"08","Detalhar ?","Detalhar ?","Detalhar ?","mv_ch8","N",01,0,2,"C","","mv_par08","Benefíc.Desp.Gerais","Benefíc.Desp.Gerais","Benefíc.Desp.Gerais","","","Desp.Gerais","Desp.Gerais","Desp.Gerais","","","Nao Detalhar","Nao Detalhar","Nao Detalhar","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"09","Agendar ?","Agendar ?","Agendar ?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"10","Agendar para:" ,"Agendar para:" ,"Agendar para:" ,"mv_cha","D",8,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"11","E-Mail?","E-Mail?","E-Mail?","mv_chb","C",70,0,0,"G","","mv_par11","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

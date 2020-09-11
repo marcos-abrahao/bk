@@ -51,9 +51,14 @@ If dbSeek(_cFil+_cEmp+_cPar,.F.)
             xRet := CTOD(ALLTRIM(SZX->ZX_CONTE01))
         Else
             xRet := STOD(ALLTRIM(SZX->ZX_CONTE01))
+            If Empty(xRet)
+                xRet := CTOD("")
+            EndIf
         EndIf
     ElseIf SZX->ZX_TIPO == "N"
         xRet := VAL(ALLTRIM(SZX->ZX_CONTE01))
+    ElseIf SZX->ZX_TIPO == "L"
+        xRet := IIF("T" $ UPPER(SZX->ZX_CONTE01),.T.,.F.)
     EndIf
 Else 
     xRet := _cPadrao
@@ -62,3 +67,57 @@ EndIf
 RestArea(aArea)
 
 Return xRet
+
+
+
+User Function BKPutMv(_cPar,_xConteudo,_cTipo,_nTam,_nDec,_cDescr,_cFil,_cEmp)
+
+Local aArea         := GetArea()
+Local xConte01      := ""
+
+Default _cTipo      := "C"
+Default _cDescr     := ""
+Default _cFil       := "  "
+Default _cEmp       := "  "
+
+dbSelectArea("SZX")
+
+If dbSeek(_cFil+_cEmp+_cPar,.F.)
+   RecLock("SZX",.F.)
+   _cTipo := SZX->ZX_TIPO
+   _nTam  := SZX->ZX_TAMANHO
+   _nDec  := SZX->ZX_DECIMAL
+Else
+   RecLock("SZX",.T.)
+   SZX->ZX_FILIAL  := _cFil
+   SZX->ZX_EMPRESA := _cEmp
+   SZX->ZX_VAR     := _cPar
+   SZX->ZX_TIPO    := _cTipo
+   SZX->ZX_TAMANHO := _nTam
+   SZX->ZX_DECIMAL := _nDec
+   SZX->ZX_DESCR   := _cDescr
+EndIf
+
+If _cTipo == "N"
+    If _nTam > 0
+        xConte01 := STR(_xConteudo,_nTam,_nDec)
+    Else
+        xConte01 := STR(_xConteudo)
+    EndIf
+ElseIf _cTipo == "D"
+    xConte01 := DTOS(_xConteudo)
+ElseIf _cTipo == "L"
+    xConte01 := IIF(_xConteudo,".T.",".F.")
+Else
+    xConte01 := _xConteudo
+EndIf
+
+SZX->ZX_CONTE01 := xConte01
+MsUnLock()  
+
+RestArea(aArea)
+
+Return Nil
+
+
+
