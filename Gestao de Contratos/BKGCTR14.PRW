@@ -26,7 +26,7 @@ Local cXXSEMAF		:= "N"
 Local aRetCons		:= {}
 Local cLogCons   	:= ""
 Local cCrLf   		:= Chr(13) + Chr(10) 
-Local dAgJob		:= dDataBase
+Local dAgJob		:= DATE()
 
 // Exemplo a param do schedule: {.F.,.T.,'01','01','000000','004138000002'}
 Default aParam 		:= {.F.,.F.}
@@ -5232,14 +5232,14 @@ Private xQuebra,xCampo
 If !lJob
 	If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
 		//Processa( {|| U_GeraXCSV(_cAlias,cArqE,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
-		AADD(aPlans,{_cAlias,TRIM(cArqE),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-		cArqXls := U_GeraXlsx(aPlans,"",cArqE, lClose:= .F.,)
+		AADD(aPlans,{_cAlias,cPerg,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+		cArqXls := U_GeraXlsx(aPlans,"",cPerg, lClose:= .F.,)
 		Return Nil
 	EndIf
 Else
 	u_xxLog(cArqLog,"Gerando planilha xlsx",.T.,"")
-	AADD(aPlans,{_cAlias,TRIM(cArqE),"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-	cArqXls := U_GeraXlsx(aPlans,"",cArqE, lClose:= .F.,,,.F.,lJob)
+	AADD(aPlans,{_cAlias,cPerg,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+	cArqXls := U_GeraXlsx(aPlans,"",cPerg, lClose:= .F.,,,.F.,lJob)
 
 	cMsg :=aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
