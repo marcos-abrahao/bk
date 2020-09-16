@@ -63,11 +63,17 @@ DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL
 @ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 520,525
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
 
-@ 010, 010 SAY "Nr.Doc."  SIZE 49, 7 OF oPanelLeft PIXEL 
-@ 020, 010 MSGET cFatura Picture "@!"  When .T. SIZE 50, 11 OF oPanelLeft PIXEL F3 "SE1_2" VALID (BuscaSE1(),NaoVazio(cFatura))  //BuscaSE1()
+@ 010, 010 SAY "Serie" SIZE 21, 7 OF oPanelLeft PIXEL
+@ 020, 010 MSGET cPrefix Picture "@!" When .F. SIZE 10, 11 OF oPanelLeft PIXEL 
 
-@ 010, 070 SAY "Serie" SIZE 21, 7 OF oPanelLeft PIXEL
-@ 020, 070 MSGET cPrefix Picture "@!" When .F. SIZE 10, 11 OF oPanelLeft PIXEL 
+@ 010, 040 SAY "Nr.Doc."  SIZE 49, 7 OF oPanelLeft PIXEL 
+@ 020, 040 MSGET cFatura Picture "@!"  When .T. SIZE 50, 11 OF oPanelLeft PIXEL F3 "SE1_2" VALID (BuscaSE1(),NaoVazio(cFatura))  //BuscaSE1()
+
+//@ 010, 010 SAY "Nr.Doc."  SIZE 49, 7 OF oPanelLeft PIXEL 
+//@ 020, 010 MSGET cFatura Picture "@!"  When .T. SIZE 50, 11 OF oPanelLeft PIXEL F3 "SE1_2" VALID (BuscaSE1(),NaoVazio(cFatura))  //BuscaSE1()
+
+//@ 010, 070 SAY "Serie" SIZE 21, 7 OF oPanelLeft PIXEL
+//@ 020, 070 MSGET cPrefix Picture "@!" When .F. SIZE 10, 11 OF oPanelLeft PIXEL 
 
 @ 010, 100 SAY "Parcela" SIZE 21, 7 OF oPanelLeft PIXEL
 @ 020, 100 MSGET cParc Picture "@!" When .F. SIZE 10, 11 OF oPanelLeft PIXEL 
@@ -233,6 +239,12 @@ cKey    := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
 		
 DbSelectArea ("SE1")
 DbSetOrder (1)
+
+IF !DbSeek (cKey,.F.) .AND. cPrefix == "1  "
+	cPrefix := "001"
+	cKey    := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
+ENDIF
+
 IF DbSeek (cKey,.F.)
    	IF SE1->E1_VALOR == SE1->E1_SALDO
 		cCli	:= SE1->E1_CLIENTE
@@ -244,7 +256,7 @@ IF DbSeek (cKey,.F.)
 		dbSetOrder (1)
 		IF dbSeek (xFilial("SF2")+SE1->E1_NUM+SE1->E1_PREFIXO+SE1->E1_CLIENTE+SE1->E1_LOJA, .F.)
 			nVlrCVinc 	:= SF2->F2_XXVCVIN
-			nVlrImp 	:= SF2->F2_VALIRRF + SF2->F2_VALINSS + SF2->F2_VALPIS + SF2->F2_VALCOFI + SF2->F2_VALCSLL + IIF(SF2->F2_RECISS = '1',SF2->F2_VALISS,0) + SF2->F2_XXVFUMD
+			nVlrImp 	:= SF2->F2_VALIRRF + SF2->F2_VALINSS + SF2->F2_VALPIS + SF2->F2_VALCOFI + SF2->F2_VALCSLL + IIF(SF2->F2_RECISS = '1',SF2->F2_VALISS,0) + SF2->F2_VLCPM + SF2->F2_XXVFUMD
 			nVlrLi 		:= SF2->F2_VALFAT - nVlrImp
 			cVBanco 	:= SUBSTR(SF2->F2_XXCVINC,1,3)
 	   		cVAgencia	:= SUBSTR(SF2->F2_XXCVINC,4,5)
@@ -268,6 +280,8 @@ ELSE
 ENDIF
 
 Return lRet 
+
+
 
 STATIC FUNCTION SOMATAB()
 	nReceb  := 0

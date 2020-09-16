@@ -25,7 +25,7 @@ oTmpTb:Delete()
 
 // Para gravar query quando admin
 cQuery := "SELECT 1 "+ CRLF
-u_LogMemo("BKGCTR07.SQL",cQuery)
+u_LogMemo("BKGCTR0X.SQL",cQuery)
 
 /// Alterar U_GeraCSV para U_GeraXlsx
 

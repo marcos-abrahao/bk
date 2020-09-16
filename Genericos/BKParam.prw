@@ -100,9 +100,9 @@ EndIf
 
 If _cTipo == "N"
     If _nTam > 0
-        xConte01 := STR(_xConteudo,_nTam,_nDec)
+        xConte01 := ALLTRIM(STR(_xConteudo,_nTam,_nDec))
     Else
-        xConte01 := STR(_xConteudo)
+        xConte01 := ALLTRIM(STR(_xConteudo))
     EndIf
 ElseIf _cTipo == "D"
     xConte01 := DTOS(_xConteudo)

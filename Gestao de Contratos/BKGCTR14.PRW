@@ -40,7 +40,6 @@ Private cPerg       := "BKGCTR14"
 Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
 Private cArqLog		:= ""
 
-
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
 	lJob 		:= aParam[2]
@@ -52,7 +51,7 @@ Else
 	cEmpPar 	:= aParam[3]
 	cFilPar 	:= aParam[4]
 
-	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9"},"GCT")
+	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9","SZX"},"GCT")
 
 	cArqLog		:= "\TMP\BKGCTR14-"+cEmpPar+".LOG"
 
