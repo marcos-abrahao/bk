@@ -2,19 +2,15 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³MT094END ºAutor  ³Adilson do Prado          Data ³  18/02/13 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºPonto de Entrada para envio Pedido de Compras para Liberação Alçada    º±±
-±±ºRetorno ao 02 Nivel e ao grupo de compras						      º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+
+/*/{Protheus.doc} MT094END
+Ponto de Entrada para envio Pedido de Compras para Liberação Alçada
+Retorno ao 02 Nivel e ao grupo de compras
+@Return
+@author Adilson do Prado
+@since 18/02/13 - rev 23/09/20
+@version P12
+/*/
 
 User Function MT094END(nPedido,cTipoDoc,nOpcao) 
 /*
@@ -268,6 +264,11 @@ ENDIF
 
 nTotPed := 0
 Do While SC7->(!eof()) .AND. SC7->C7_NUM == cNumPC
+	If Empty(SC7->C7_XXNCC) .AND. !EMPTY(SC7->C7_CC)
+		RecLock("SC7",.F.)
+		SC7->C7_XXNCC := Posicione("CTT",1,xFilial("CTT")+SC7->C7_CC,"CTT_DESC01")
+		SC7->(MsUnLock())
+	EndIf
 	nTotPed += SC7->C7_TOTAL
 	SC7->(DbSkip())
 ENDDO

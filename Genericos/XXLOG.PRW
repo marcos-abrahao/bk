@@ -56,7 +56,7 @@ EndIf
 If !File(cArqLog)
 	nHandle:=fCreate(cArqLog,0)
 	If nHandle==-1
-		Alert("LOG ERROR: "+nHandle+" ==> Nao foi possivel criar "+cArqLog)
+		Alert("LOG ERROR: "+STR(nHandle)+" ==> Nao foi possivel criar "+cArqLog)
 		Return(.f.)
 	EndIf
 	fClose(nHandle)

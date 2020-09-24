@@ -36,12 +36,16 @@ User Function M410ALOK()
 Local _lRet := .T.
 
 If !Empty(SC5->C5_NOTA) .and. ALTERA
-	MsgBox("Nota Fiscal já gerada pedido não pode ser Alterado!","TI - BK","ALERT")
+	MsgBox("Nota Fiscal já gerada, pedido não pode ser Alterado!","M410ALOK","ALERT")
 	_lRet := .F.
 Else
 	If !Empty(SC5->C5_MDCONTR) .and. ALTERA
-		MsgBox("Pedido de Origem na Gestão de Contratos nao pode ser Alterado no Faturamento!","TI - BK","ALERT")
-		_lRet := .F.
+		MsgBox("Pedido de Origem na Gestão de Contratos nao pode ser Alterado no Faturamento!","M410ALOK","ALERT")
+		If __cUserId <> "000000"
+			_lRet := .F.
+		Else
+			MsgBox("Pedido de Origem na Gestão de Contratos - Alteração permitida para o Adm!","M410ALOK","ALERT")
+		Endif
 	Endif
 Endif
 

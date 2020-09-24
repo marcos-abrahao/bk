@@ -46,9 +46,8 @@ If nTipoPg == 1 .AND. SF1->F1_FORNECE <> "000084"
 	PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 EndIf
 
-If Inclui
-
-EndIf
+//If Inclui
+//EndIf
 	
 Return .T.
 
@@ -58,6 +57,7 @@ Local aOpcoes   := {}
 Local oRadMenu1
 Local oSay1
 Local bClickP
+Local lAnexo := .F.
 Static oDlg3
 Private nRadMenu1 := 1
 Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv
@@ -97,8 +97,11 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 @ 122,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
 @ 120,040 MSGET oGetChv VAR cChvNfe  OF oDlg3 PICTURE "@!" SIZE 140,10 PIXEL 
 
-@ 140,090 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
-//@ 170,150 BUTTON "Cancelar" SIZE 050, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
+@ 140,040 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
+//@ 140,150 BUTTON "Cancelar" SIZE 050, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
+
+@ 140,110 BUTTON "Anexos" SIZE 050, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),6),lAnexo:= .T.)
+
 
 ACTIVATE MSDIALOG oDlg3 CENTERED
 If nRadMenu1 > 0

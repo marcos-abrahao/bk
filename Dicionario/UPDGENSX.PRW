@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"26/08/2020"
+#DEFINE FIN_LAST_UPDATED 		"23/09/2020"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			////AtuGenFil( @cTexto )
 
-			AtuGenX3( @cTexto )   //20/08/20
+			AtuGenX3( @cTexto )   //23/09/20
 
 			//AtuGenP12( @cTexto )
 
@@ -945,7 +945,7 @@ X31UPDTABLE("CND")
 */
 
 // Nota Balcão/Normal - 26/08/20
-
+/*
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 If SX3->( dbSeek( "C5_XXTPNF" ) )
@@ -978,6 +978,48 @@ If SX3->( dbSeek( "CND_XXTPNF" ) )
 	dbCommit()
 	MsUnLock()
 
+EndIf
+*/
+
+// Campo descr. CC -> SC7  23/09/20
+/*
+dbSelectArea( "SX7" )
+APPEND FROM \sx7c7.dtc
+
+dbSelectArea( "SX3" )
+APPEND FROM \sx3c7.dtc
+
+X31UPDTABLE("SC7")
+*/
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "C7_CC" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_TRIGGER := 'S'
+	dbCommit()
+	MsUnLock()
+
+EndIf
+
+If SX3->( dbSeek( "C7_XXNCC" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_CONTEXT := 'R'
+	SX3->X3_RELACAO := ''
+	SX3->X3_INIBRW  := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+
+X31UPDTABLE("SC7")
+
+dbSelectArea( "SX7" )
+If SX7->( dbSeek( "C7_CC" ) )
+	RecLock( "SX7", .F. )
+	SX7->X7_CHAVE := 'xFilial("CTT")+M->C7_CC'
+	dbCommit()
+	MsUnLock()
 EndIf
 
 
@@ -2395,3 +2437,8 @@ IF Select("__TRB__") > 0
 Endif
 
 Return
+
+
+
+
+

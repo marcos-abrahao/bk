@@ -2,21 +2,13 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
+/*/{Protheus.doc} MT120FIM
+Ponto de Entrada para envio Pedido de Compras para Liberação Alçada apos a alteração ou inclusao
+@Return
+@author Adilson do Prado
+@since 05/11/15 - rev 23/09/20
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT120FIM    ºAutor  ³Adilso do Prado     º Data ³  05/11/15º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºPonto de Entrada para envio Pedido de Compras para Liberação Alçada    º±±
-±±ºapos a alteração ou inclusao.                                          º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
-
 User Function MT120FIM()
 Local nOpcao := PARAMIXB[1]   // Opção Escolhida pelo usuario 
 Local cNumPC := PARAMIXB[2]   // Numero do Pedido de Compras
@@ -80,6 +72,13 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	SC7->(DbSetOrder(1))
 	SC7->(DbSeek(xFilial("SC7")+cNumPC,.T.))
     DO WHILE SC7->(!EOF()) .AND. SC7->C7_NUM==cNumPC
+	
+		If Empty(SC7->C7_XXNCC) .AND. !EMPTY(SC7->C7_CC)
+			RecLock("SC7",.F.)
+			SC7->C7_XXNCC := Posicione("CTT",1,xFilial("CTT")+SC7->C7_CC,"CTT_DESC01")
+			SC7->(MsUnLock())
+		EndIf
+
     	IF SC7->C7_CONAPRO=="B"
  			lAprov := .F.
     	ENDIF
