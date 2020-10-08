@@ -65,7 +65,7 @@ AADD(aCabs  ,"Competência")
 AADD(aCampos,"Capital(QSC5->(FWLeUserlg('XX_USERLGI',1)))")
 AADD(aCabs  ,"Usuário")
 
-AADD(aCampos,"IIF(QSC5->C5_XXTPNF == 'B','Balcão','Normal')")
+AADD(aCampos,"IIF(QSC5->C5_XXTPNF == 'B','Balcão',IIF(QSC5->C5_XXTPNF == 'F','Filial','Normal'))")
 AADD(aCabs  ,"Tipo NF")
 
 // Alterar estilo do não liberado

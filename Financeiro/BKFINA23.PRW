@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINA23
-BK - Rotina para selecionar titulos e gerar baixas - Retenção Contratual
+BK - Rotina para selecionar titulos e gerar baixas - Portal Petrobras
 Copiado do BKFINA16.PRW
 
 @Return
@@ -17,7 +17,7 @@ Copiado do BKFINA16.PRW
 User Function BKFINA23()
 
 Local lOk     := .F.
-Local cTitulo := "Selecionar Títulos e Gerar Baixa - Retenção Contratual - "+ALLTRIM(SM0->M0_NOME)
+Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Petrobras - "+ALLTRIM(SM0->M0_NOME)
 Local nLin1   := 10
 Local nLin2   := 10
 
@@ -883,7 +883,7 @@ For nI:=1 TO LEN(aTitGer)
 	DbSetOrder (1)
 	IF DbSeek (cKey,.F.)
    		IF SE1->E1_SALDO > 1
-   		   cLOG += 	"PREFIXO:"+aTitGer[nI,2]+"    NUM:"+aTitGer[nI,1]+"    PARCELA:"+aTitGer[nI,3]+"    TIPO:"+aTitGer[nI,4]+"    CLIENTE:"+aTitGer[nI,5]+"    LOJA:"+aTitGer[nI,6]+cCrLf
+   		   cLOG += 	"PREFIXO:"+aTitGer[nI,2]+" - NUM:"+aTitGer[nI,1]+" - PARCELA:"+aTitGer[nI,3]+" - TIPO:"+aTitGer[nI,4]+cCrLf+"CLIENTE:"+aTitGer[nI,5]+" - LOJA:"+aTitGer[nI,6]+cCrLf
 			lOK := .F.
    		ENDIF
     ENDIF
@@ -894,7 +894,7 @@ IF lOK
 	Msginfo("Titulos Baixado com sucesso!!")
 ELSE
 	IF !EMPTY(cLOG)
-		cLOG := "Titulo(s) com baixa parcial. Verifique!!"+cCrLf+cCrLf+cCrLf+cLOG
+		cLOG := "Titulo(s) com baixa parcial. Verifique!!"+cCrLf+cLOG
 		Aviso("Atencao",cLOG, {"Ok"})
 	ENDIF
 ENDIF

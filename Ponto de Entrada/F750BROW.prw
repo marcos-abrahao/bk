@@ -52,7 +52,7 @@ Local aArea	:= GetArea()
 Local nRecF1:= 0
 dbSelectArea("SF1")
 dbSetOrder(1)
-If dbSeek(xFilial("SF1")+SE2->E2_NUM+SE2->E2_PREFIXO,.F.)
+If dbSeek(xFilial("SF1")+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+SE2->E2_TIPO,.F.)
 	nRecF1 := RecNo()
 	MsDocument("SF1",nRecF1,6)
 EndIf

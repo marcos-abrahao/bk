@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"23/09/2020"
+#DEFINE FIN_LAST_UPDATED 		"10/06/2020 CNA_XXTPNF"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto )
 
-			//AtuGenPar( @cTexto )  // 30/07/20
+			AtuGenPar( @cTexto )  // 06/10/20
 			
 			//AtuGenXX( @cTexto )
 
 			////AtuGenFil( @cTexto )
 
-			AtuGenX3( @cTexto )   //23/09/20
+			//AtuGenX3( @cTexto )   //05/10/20
 
 			//AtuGenP12( @cTexto )
 
@@ -351,18 +351,9 @@ If dbSeek(xFilial()+"MV_XXUSERS")
 EndIf
 */
 
-/*
-oProcess:IncRegua2( "Atualizando parametro MV_XXGRPMD - Grupo Master Diretoria..." )
-If dbSeek(xFilial()+"MV_XXGRPMD")
-	RecLock( "SX6", .F. )
-    // 04/04/19
-	//cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	//SX6->X6_CONTEUD := "000007/000010/000171/000027/000008"
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
 
-	dbCommit()
-	MsUnLock()
-EndIf
+
+/*
 
 oProcess:IncRegua2( "Atualizando parametro MV_XXGGCT - Gerente de Gestao de Contratos..." )
 If dbSeek(xFilial()+"MV_XXGGCT")
@@ -663,7 +654,7 @@ EndIf
 */
 
 // 31/07/20 -------> Email
-
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_RELFROM..." )
 If dbSeek(xFilial()+"MV_RELFROM")
 	RecLock( "SX6", .F. )
@@ -798,9 +789,20 @@ If dbSeek(xFilial()+"MV_RELTIME")
 	dbCommit()
 	MsUnLock()
 EndIf
-
+*/
 // ------------> Fim e-mail
 
+oProcess:IncRegua2( "Atualizando parametro MV_XXGRPMD - Grupo Master Diretoria..." )
+If dbSeek(xFilial()+"MV_XXGRPMD")
+	RecLock( "SX6", .F. )
+    // 06/10/20
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "000007/000010/000056/000027/000008/000029"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 
 
@@ -990,7 +992,6 @@ dbSelectArea( "SX3" )
 APPEND FROM \sx3c7.dtc
 
 X31UPDTABLE("SC7")
-*/
 
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
@@ -1021,7 +1022,79 @@ If SX7->( dbSeek( "C7_CC" ) )
 	dbCommit()
 	MsUnLock()
 EndIf
+/*/
 
+// Sugerir dataBase para a Data de Ação - Medição - 28/09/20
+/*/
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "CND_XXDTAC" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := "dDataBase"
+	//SX3->X3_CBOX    := "N=Normal;A=Avulsa"
+	//SX3->X3_VALID   := 'Pertence("NA")'
+	dbCommit()
+	MsUnLock()
+
+EndIf
+/*/
+
+// Liberar todos os módulos para ver a aliq de iss e cod iss - 28/09/20
+/*
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "B1_ALIQISS" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_USADO  := "€€€€€€€€€€€€€€ "
+	SX3->X3_BROWSE := "S"
+	dbCommit()
+	MsUnLock()
+
+EndIf
+
+If SX3->( dbSeek( "B1_CODISS" ) )
+
+	RecLock( "SX3", .F. )
+	SX3->X3_USADO  := "€€€€€€€€€€€€€€ "
+	SX3->X3_BROWSE := "S"
+	dbCommit()
+	MsUnLock()
+
+EndIf
+*/
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+
+If SX3->( dbSeek( "C5_XXTPNF" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_CBOX    := "N=Normal;B=Balcao;F=Filial"
+	SX3->X3_VALID   := 'Pertence("NBF")'
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "CND_XXTPNF" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_VALID   := 'Pertence("NBF")'
+	SX3->X3_CBOX    := "N=Normal;B=Balcao;F=Filial"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+If SX3->( dbSeek( "C9_XXORPED" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_CBOX  := "N=Normal;B=Balcao;F=Filial"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+dbSelectArea( "SX3" )
+APPEND FROM \sx3cna.dtc
+X31UPDTABLE("CNA")
 
 Return
 

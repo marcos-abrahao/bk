@@ -158,7 +158,7 @@ IF ExpN1 == 3 .OR. ExpN1 == 4
 ENDIF
 
 
-// Escolher tipo NF -> Normal ou Avulsa - 29/07/20
+// Escolher tipo NF -> Normal, Balcão ou Filial - 29/07/20
 If ExpN1 == 3 .OR. ExpN1 == 4 
 	PswOrder(1) 
 	PswSeek(__CUSERID) 
@@ -366,14 +366,14 @@ aTpNf := U_StringToArray(GetSx3Cache("CND_XXTPNF", "X3_CBOX"),";")
 Define MsDialog oDlg Title OemToAnsi("Tipo da Emissão da NF") From 200, 001  To 325,400 Of oDlg Pixel Style DS_MODALFRAME
 
 @ 015,015 SAY "Tipo NF: " Pixel Of oDlg 
-@ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NB")
+@ 015,046 COMBOBOX cTpNF ITEMS aTpNf SIZE 100,010 Pixel Of oDlg VALID (cTpNF $ "NFB")
 
 @ 030,015 SAY "RM: " Pixel Of oDlg 
 @ 030,046 GET cRM SIZE 100,010 Pixel Of oDlg 
 
 @ 045,085 Button "&Ok" Size 036,013 Pixel Action (oDlg:End())
 
-ACTIVATE MSDIALOG oDlg CENTERED Valid(cTpNF $ "NB") 
+ACTIVATE MSDIALOG oDlg CENTERED Valid(cTpNF $ "NFB") 
 
 Return {cTpNF,cRM}
 
