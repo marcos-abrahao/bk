@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"10/06/2020 CNA_XXTPNF"
+#DEFINE FIN_LAST_UPDATED 		"11/10/2020 C9_XXORPED"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -177,15 +177,15 @@ If ( lOpen := MyOpenSm0(.T.) )
 			//AtuGenP12( @cTexto )
 
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-			//AtuGenDic( @cTexto )
+			//AtuGenDic( @cTexto ) 
 
-			AtuGenPar( @cTexto )  // 06/10/20
+			//AtuGenPar( @cTexto )  // 06/10/20
 			
 			//AtuGenXX( @cTexto )
 
 			////AtuGenFil( @cTexto )
 
-			//AtuGenX3( @cTexto )   //05/10/20
+			AtuGenX3( @cTexto )    // 11/10/20
 
 			//AtuGenP12( @cTexto )
 
@@ -1092,8 +1092,16 @@ If SX3->( dbSeek( "C9_XXORPED" ) )
 	MsUnLock()
 EndIf
 
+
+If SX3->( dbSeek( "C9_XXNOME" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO  := 'IF(!INCLUI,Posicione("SA1",1,xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI,"A1_NOME"),"")'
+	dbCommit()
+	MsUnLock()
+EndIf
+
 dbSelectArea( "SX3" )
-APPEND FROM \sx3cna.dtc
+APPEND FROM \sx3cnanat.dtc
 X31UPDTABLE("CNA")
 
 Return

@@ -895,8 +895,11 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"00","CLIENTE: ","S",QTMP->A1_NOME})              
         AADD(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})              
         AADD(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
-        AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})              
-        AADD(aRentab,{"03-1","","S",0}) 
+        AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
+		nNDC := 0 
+		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI)
+        AADD(aRentab,{"03-1","NDC","S",nNDC}) 
+        AADD(aRentab,{"03-2","","S",0}) 
         AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
 		IF lISSFURNAS
         	AADD(aRentab,{"05","(-) ISS","S",nISSFURNAS})
@@ -911,9 +914,9 @@ FOR _nI := 1 TO nPeriodo
         ENDIF
         AADD(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))+nNDC}) 
         ELSE
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS))}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS))+nNDC}) 
 		ENDIF
         AADD(aRentab,{"07-1","","S",0})
         AADD(aRentab,{"08","CUSTO","S",0})
@@ -3609,8 +3612,9 @@ FOR _nI := 1 TO nPeriodo
 	        AADD(aRentab,{"02","Gestor BK: ","S",""})              
 			//AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
 			AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
+	        AADD(aRentab,{"03-1","NDC","S",0}) 
 			          
-	        AADD(aRentab,{"03-1","","S",0}) 
+	        AADD(aRentab,{"03-2","","S",0}) 
 			//AADD(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})  
 			AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((TMPX2->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(TMPX2->D2_TOTAL*nMImpContr)/100)})            
 			          
@@ -3888,7 +3892,7 @@ Do While (ALIAS_TMP)->(!eof())
 	nTDOMES 	:= 0
 
 	FOR _nI := 1 TO nPeriodo
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-1|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"	
+		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"	
 		   //	cCampo		:= "TRB->XX_REAL"+STRZERO(_nI,3)
 			//&cCampo		:= ""
 		ELSE
@@ -4636,6 +4640,7 @@ InsumosP := 0
 nValTADP := 0
 InsumosR := 0
 nValTADR := 0
+nValNDC  := 0
 
 cCustoBk := ""
 
@@ -4668,16 +4673,14 @@ Do While (ALIAS_TMP)->(!eof())
 		nTotCUSTO  := 0
  		cCodigo    := (ALIAS_TMP)->XX_CODGCT
  		nTXATMESR  := 0
+		nValNDC    := 0 
  	ENDIF
  	
 	nTotal := 0
 	nTotalMES := 0
 	nTDOMES := 0
 	FOR _nI := 1 TO nPeriodo
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-1|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"	
-		   //	cCampo		:= "TRB->XX_REAL"+STRZERO(_nI,3)
-			//&cCampo		:= ""
-		ELSE
+		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
 			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 	        nTotal		 += &cCampo2
 	        IF _nI == nCompet
@@ -4699,9 +4702,20 @@ Do While (ALIAS_TMP)->(!eof())
       			nTXATMESR 	+= (&cCampo2 * nTaxaAdm)/100
 		    ENDIF
 		ENDIF
+		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
+			IF _nI <= nCompet
+			    cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+      			nTXATMESR 	+= (&cCampo2 * nTaxaAdm)/100
+		    ENDIF
+		ENDIF
 	NEXT
  
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
+        nTotFat := nTotal
+        nTotFatMES := nTotalMES
+        nTFATDOMES := nTDOMES
+	ENDIF	
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
         nTotFat := nTotal
         nTotFatMES := nTotalMES
         nTFATDOMES := nTDOMES

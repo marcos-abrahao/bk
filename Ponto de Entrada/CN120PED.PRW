@@ -24,6 +24,8 @@ Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE 
 Local cCliente  := CND->CND_CLIENT
 Local aArea		:= GetArea()
 Local aAreaCNA	
+Local cNaturez  := ""
+Local cTpNf		:= "N"
 
 cPlanilha  := ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDPLANI"}),2]
 
@@ -50,19 +52,30 @@ ENDIF
 IF (CND->CND_CLIENT <> CNA->CNA_CLIENT) .OR. (CND->CND_LOJACL <> CNA->CNA_LOJACL)
 	AADD(ExpA1,{"C5_ESTPRES" ,SA1->A1_EST, Nil}) 
 	AADD(ExpA1,{"C5_MUNPRES" ,SA1->A1_COD_MUN, Nil})
-	//A=Avulsa;C=Contrato;2=Serie2
 ELSE
 	AADD(ExpA1,{"C5_ESTPRES" ,CNA->CNA_XXUF, Nil}) 
 	AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
 ENDIF
 
+
 If Empty(CND->CND_XXTPNF)
-	AADD(ExpA1,{"C5_XXTPNF" ,"N", Nil})    // N=Normal;B=Balcão
+	If !Empty(CNA->CNA_XXTPNF)
+		cTpNF := CNA->CNA_XXTPNF
+	EndIf
 Else
-	AADD(ExpA1,{"C5_XXTPNF" ,CND->CND_XXTPNF, Nil})    // N=Normal;B=Balcão
+	cTpNf := CND->CND_XXTPNF
 EndIf
+AADD(ExpA1,{"C5_XXTPNF" ,cTpNF, Nil})    // N=Normal;B=Balcão;F=Filial
 
 // Retenção Contratual
+If !EMPTY(CNA->CNA_XXNAT)
+	AADD(ExpA1,{"C5_NATUREZ" ,CNA->CNA_XXNAT, Nil}) 
+Else
+	cNaturez := Posicione("SA1",1,xFilial("SA1")+CND->CND_CLIENT+CND->CND_LOJACL,"A1_NATUREZ")
+	AADD(ExpA1,{"C5_NATUREZ",cNaturez, Nil}) 
+EndIf
+
+
 AADD(ExpA1,{"C5_XXRETC" ,CNA->CNA_XXRETC, Nil})   
 
 AADD(ExpA1,{"C5_XXCOMPM",CND->CND_COMPET, Nil})  
