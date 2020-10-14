@@ -152,7 +152,7 @@ cDescr := ""
 IF !EMPTY(cContrato)
 
     // QryProc(cAlias,nCampos,cCampos,cWhere)
-    aTmp := QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"'")
+    aTmp := U_QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"'")
 
 	dbSelectArea("CN9")
     cRevisa := SPACE(LEN(CN9->CN9_REVISA))
@@ -710,7 +710,7 @@ Return TRIM(cTxt)
 
 
 
-Static Function QryProc(cAlias,nCampos,cCampos,cWhere)
+User Function QryProc(cAlias,nCampos,cCampos,cWhere)
 LOCAL cQuery,aRet := {},nX
 LOCAL aAreaTmp
 

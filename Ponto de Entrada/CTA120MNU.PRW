@@ -1,17 +1,15 @@
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ CTA120MNU บAutor  ณ Adilson do Prado  บ Data ณ  02/12/14   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Localizado na rotina de Medi็ใo do Contrato, este ponto    บฑฑ
-ฑฑบ 		   de entrada tem por finalidade adicionar bot๕es ao menu     บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/  
+/*/{Protheus.doc} CTA120MNU
+BK - Localizado na rotina de Medi็ใo do Contrato, este ponto de entrada tem por finalidade adicionar bot๕es ao menu
+
+@Return
+@author Adilson do Prado
+@since 02/12/14
+@version P11/P12
+/*/
+
+User function CNT121BT()
+AADD(aRotina,{OemToAnsi("Consulta Pedido"), "U_BKFATR5C", 0, 2 })
+Return
 
 User function CTA120MNU()
 
@@ -21,8 +19,6 @@ User function CTA120MNU()
 aRotina[3,2] := "CN120Serv"
 aRotina[3,6] := .F.
 
-//AADD(aRotina,{OemToAnsi("Medi็ใo Z"),  cRtMed, 0, 2 })
-
-//Aviso("CTA120MNU","Adiciona botoes de menu",{"OK"})
+AADD(aRotina,{OemToAnsi("Consulta Pedido"), "U_BKFATR5C", 0, 2 })
 
 Return
