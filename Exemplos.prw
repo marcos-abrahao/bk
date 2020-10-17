@@ -40,3 +40,27 @@ U_GeraXlsx(aPlans,Titulo,cPerg,.T.)
 FwLogMsg("INFO", /*cTransactionId*/, "REST", FunName(), "", "01", "JSON successfully parsed to Object", 0, (nStart - Seconds()), {}) // nStart é declarada no inicio da função
 
 Return NIL
+
+
+// Para ver se  a rotina foi chamada via schedule:
+
+User Function xpto(aParam) 
+Local lAuto := IsBlind()
+
+//Se for por Schedule, abre o ambiente 
+If lAuto 
+    RpcSetType(3) 
+	RpcSetEnv(aParam[1], aParam[2]) 
+EndIf
+
+//... seu código
+
+If lAuto 
+	RpcClearEnv() 
+	aParam := ASize(aParam, 0) 
+	aParam := Nil 
+EndIf
+
+Return 
+
+

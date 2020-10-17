@@ -1,27 +1,17 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "RWMAKE.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³M460MARK  ºAutor  ³Adilson do Prado    º Data ³  10/01/17   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto ponto de entrada para selecionar notas com a serie   º±±
-±±º          ³ na geracao Documento de Saida 							  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºData      ³Analista/Alterações                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±º          ³                                                            º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
 
-User Function M460MARK()
-Local lRet        	:= .T. 
+/*/{Protheus.doc} M460MARK
+BK - Ponto ponto de entrada para selecionar notas com a serie na geracao Documento de Saida 
+@Return
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 10/01/17
+@version P12
+/*/
+
+//User Function M460MARK()
+//Local lRet  := .T. 
 /*
 Trecho desabilitado em 10/03/20 - Marcos - a pedido do Joao Pedro de Araujo Cordeiro (joao.cordeiro)
 
@@ -93,8 +83,41 @@ IF SM0->M0_CODIGO == "01"      // SOMENTE BK
 ENDIF
 RestArea(aArea)
 */
+//Return(lRet)   
 
 
-Return(lRet)   
 
+// Exemplo TDN
+/*
+#include 'protheus.ch'
+#include 'parmtype.ch'
+ 
+User Function M460MARK()
+Local cMark := PARAMIXB[1] // MARCA UTILIZADA
+Local lInvert := PARAMIXB[2] // SELECIONOU "MARCA TODOS"
+Local aArea := GetArea("SC9")
+ 
+SC9->(DbGoTop())
+ 
+While (SC9->(!EOF()))
+   If (lInvert) // "CHECK ALL" OPTION SELECTED
+      If SC9->(IsMark("C9_OK"))
+         MsgInfo("Unmarked: " + SC9->C9_PEDIDO, "Entry Point M460MARK")
+      Else
+         MsgInfo("Marked: " + SC9->C9_PEDIDO, "Entry Point M460MARK")
+      EndIf
+   Else // "CHECK ALL" OPTION NOT SELECTED
+      If SC9->(IsMark("C9_OK"))
+         MsgInfo("Marked: " + SC9->C9_PEDIDO, "Entry Point M460MARK")
+      Else
+         MsgInfo("Unmarked: " + SC9->C9_PEDIDO, "Entry Point M460MARK")
+      EndIf
+   EndIf
+ 
+   SC9->(DbSkip())
+EndDo
+ 
+RestArea(aArea)
 
+Return
+*/

@@ -9,7 +9,7 @@ BK - Impressão de pedido de venda
 @version P12
 /*/
 
-// Chamada no Doc de Saída
+// Chamada no Doc de Saída - Consulta posicionado
 User Function BKFATR5B()  
 Local aArea     := GetArea()
 Local aAreaSC5  := GetArea("SC5")
@@ -26,7 +26,41 @@ Return Nil
 
 
 
-// Chamada no Doc de Saída
+User Function BKFATR5M()  
+Local aArea     := GetArea()
+Local aPeds		:= {}
+Local cQuery	:= ""
+
+cQuery := "SELECT DISTINCT C9_PEDIDO"
+cQuery += " FROM "+RETSQLNAME("SC9")+" SC9"
+cQuery += " WHERE SC9.D_E_L_E_T_ ='' AND C9_FILIAL = '"+xFilial("SC9")+"' "
+If oMark:lInvert
+	cQuery += " AND C9_OK <> '"+oMark:cMark+"' "
+Else
+	cQuery += " AND C9_OK = '"+oMark:cMark+"' "
+EndIf
+
+TCQUERY cQuery NEW ALIAS "QSC9"
+	
+QSC9->(dbGoTop())
+While !QSC9->(Eof())
+	aAdd(aPeds,QSC9->C9_PEDIDO)
+	QSC9->(dbSkip())
+EndDo
+QSC9->(dbCloseArea()) 
+
+If Len(aPeds) > 0
+    u_BKFATR05(aPeds)
+EndIf
+
+RestArea(aArea)
+
+Return Nil
+
+
+
+
+// Chamada na Medição
 User Function BKFATR5C()  
 Local aArea     := GetArea()
 Local aAreaSC5  := GetArea("SC5")
@@ -46,14 +80,24 @@ Return Nil
 
 
 // Chamada no cad de pedidos
-User Function BKFATR05() 
+User Function BKFATR05(aPeds) 
 Local aArea     := GetArea()
+Local aAreaSC5  := GetArea("SC5")
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
 Local cDirTmp   := "C:\TMP"
-Local cArqHtml  := cDirTmp+"\"+"PED"+ALLTRIM(SC5->C5_NUM)+".HTML"
+Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
+Local _nJ       := 0
+Local cPed		:= ""
+
+
+If ValType(aPeds) <> "A"
+	cArqHtml  := cDirTmp+"\"+"PED"+ALLTRIM(SC5->C5_NUM)+".HTML"
+Else
+	cArqHtml  := cDirTmp+"\"+"PED"+DTOS(dDataBase)+".HTML"
+EndIf
 
 IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
@@ -62,13 +106,26 @@ ENDIF
 fErase(cArqHtml)
 nHandle := MsfCreate(cArqHtml,0)
 If nHandle > 0
-	aHtml := PedHtml()   
-	FOR _nI := 1 TO LEN(aHtml)
-		fWrite(nHandle, aHtml[_nI] + cCrLf )
-	NEXT
+	If ValType(aPeds) == "A"
+		For _nJ := 1 TO LEN(aPeds)
+			cPed := aPeds[_nJ]
+			If SC5->(dbSeek(xFilial("SC5")+cPed))
+				aHtml := PedHtml()
+				For _nI := 1 TO LEN(aHtml)
+					fWrite(nHandle, aHtml[_nI] + cCrLf )
+				Next
+			EndIf
+		Next
+	Else
+		aHtml := PedHtml()
+		For _nI := 1 TO LEN(aHtml)
+			fWrite(nHandle, aHtml[_nI] + cCrLf )
+		Next
+	EndIf
 	fClose(nHandle)
 	ShellExecute("open", cArqHtml, "", "", 1)
 EndIf
+SC5->(RestArea(aAreaSC5))
 RestArea(aArea)
 Return
 

@@ -2,7 +2,7 @@
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} MA461MNU
-BK - Chamada da Impressão de pedido de venda
+BK - Chamada da Consulta de pedido de venda
 @Return
 @author Marcos Bispo Abrahão
 @since 14/10/2020
@@ -12,6 +12,7 @@ BK - Chamada da Impressão de pedido de venda
 User Function MA461ROT() 
 Local aRot := {}
 aadd(aRot,{'Consulta Pedido','U_BKFATR5B' , 0 , 2,0,NIL})   
+aadd(aRot,{'Consulta Ped Marcados','U_BKFATR5M' , 0 , 2,0,NIL})   
 
 /*/ONDE:Parametros do array a Rotina:
 1. Nome a aparecer no cabecalho
