@@ -156,7 +156,12 @@
 			],
 			"label": "u_yTstDB",
 			"description": "()"
+		},
+		{
+			"args": [],
+			"label": "u_updatafis",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "SIGAFAT"
+	"lastProgramExecuted": "u_updatafis"
 }

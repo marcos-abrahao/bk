@@ -15,25 +15,30 @@ User Function MT140TOK()
 Local aNfs := {}
 Local lRet	:= .T.
 
-	IF !FWIsInCallStack("U_BKFINJ18")
+If !FWIsInCallStack("U_BKFINJ18")
 
+	If Inclui .OR. Altera
+		If dDEmissao <> dDataBase
+			MsgStop("A data de emissão deve ser a mesma do sistema","MT140OK")
+			lRet := .F.
+		EndIf
+	EndIf
+
+	If lRet
 		aNfs := BKMT140QRY()
-		
+			
 		// Declaração de variaveis
 		If LEN(aNfs) > 0
-			MsgInfo("Existem Nfs com o mesmo valor para este fornecedor")
+			MsgInfo("Existem Nfs com o mesmo valor para este fornecedor","MT140OK")
 			lRet := BK140OK(aNFs)
 			If lRet
 				If !MsgYesNo("MT140OK","Existem lançamentos para este fornecedor com o mesmo valor, confirma esta Pré-nota assim mesmo?")
 					lRet := .F.
 				EndIf
 			EndIf
-		ENDIF
-
-		
-
-
-	ENDIF
+		EndIf
+	EndIf
+EndIf
 
 Return lRet
 

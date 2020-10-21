@@ -21,40 +21,54 @@ If lMT100TOK
 		lClas := l103Class
 	EndIf
 
-	If lClas .AND. !EMPTY(SF1->F1_APROV)
-
-		cQuery2 := "SELECT SUM(D1_TOTAL) AS D1TOTAL "
-		cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" 
-		cQuery2 += " WHERE SD1.D1_FILIAL='"+xFilial('SD1')+"' AND SD1.D_E_L_E_T_=''"
-		cQuery2 += "       AND SD1.D1_DOC='"+SF1->F1_DOC+"' AND SD1.D1_SERIE='"+SF1->F1_SERIE+"'"
-		cQuery2 += "       AND SD1.D1_FORNECE='"+SF1->F1_FORNECE+"' AND SD1.D1_LOJA='"+SF1->F1_LOJA+"'"
-			        
-		TCQUERY cQuery2 NEW ALIAS (cAliasD1)
-		TCSETFIELD(cAliasD1,"D1TOTAL","N",18,2)
-		
-		dbSelectArea(cAliasD1)
-		dbGoTop()
-		nValTot := (cAliasD1)->D1TOTAL 
-		
-		(cAliasD1)->(DbCloseArea())
-	
-		For nI:=1 to len(aCols)
-	 		If aCols[n,Len(aHeader)+1] == .F.   // Se .T. a "linha" esta deletada 
-	 	    	nTelTot += aCols[nI,nPosTotal]
-	 	 	EndIf
-		Next	
-	
-		If nTelTot > nValTot
-			lRet := !U_BlqDoc(nTelTot,.T.)	
-			If !lRet 
-				Alert("Este Doc já foi liberado no valor de "+ALLTRIM(STR(nValTot,2))+", exclua este documento.")
-				lMT100TOK := .T.
-			EndIf 
-
+	If Inclui
+		If dDEmissao <> dDataBase
+			MsgStop("A data de emissão deve ser a mesma do sistema","MT100OK")
+			lRet := .F.
 		EndIf
-		
+	ElseIf Altera .OR. lClas
+		If dDEmissao <> SF1->F1_EMISSAO
+			MsgStop("A data de emissão não pode ser alterada","MT100OK")
+			lRet := .F.
+		EndIf
 	EndIf
+
+	If lRet
+
+		If lClas .AND. !EMPTY(SF1->F1_APROV)
+
+			cQuery2 := "SELECT SUM(D1_TOTAL) AS D1TOTAL "
+			cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" 
+			cQuery2 += " WHERE SD1.D1_FILIAL='"+xFilial('SD1')+"' AND SD1.D_E_L_E_T_=''"
+			cQuery2 += "       AND SD1.D1_DOC='"+SF1->F1_DOC+"' AND SD1.D1_SERIE='"+SF1->F1_SERIE+"'"
+			cQuery2 += "       AND SD1.D1_FORNECE='"+SF1->F1_FORNECE+"' AND SD1.D1_LOJA='"+SF1->F1_LOJA+"'"
+						
+			TCQUERY cQuery2 NEW ALIAS (cAliasD1)
+			TCSETFIELD(cAliasD1,"D1TOTAL","N",18,2)
+			
+			dbSelectArea(cAliasD1)
+			dbGoTop()
+			nValTot := (cAliasD1)->D1TOTAL 
+			
+			(cAliasD1)->(DbCloseArea())
 		
+			For nI:=1 to len(aCols)
+				If aCols[n,Len(aHeader)+1] == .F.   // Se .T. a "linha" esta deletada 
+					nTelTot += aCols[nI,nPosTotal]
+				EndIf
+			Next	
+		
+			If nTelTot > nValTot
+				lRet := !U_BlqDoc(nTelTot,.T.)	
+				If !lRet 
+					Alert("Este Doc já foi liberado no valor de "+ALLTRIM(STR(nValTot,2))+", exclua este documento.")
+					lMT100TOK := .T.
+				EndIf 
+
+			EndIf
+			
+		EndIf
+	EndIf
 EndIf	
 
 Return lRet

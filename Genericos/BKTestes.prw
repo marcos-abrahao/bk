@@ -49,8 +49,8 @@ Return
 Static Function FuncUser(lEnd)
 
    dbSelectArea("SX5")
-   dbSetOrder(1)
-   dbGoTop()
+   /dbSetOrder(1)
+   /dbGoTop()
    
    While !EOF()
       If lEnd
