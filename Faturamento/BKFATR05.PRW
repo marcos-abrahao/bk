@@ -320,7 +320,9 @@ nValCpm := MaFisRet(,"NF_VALCPM")     // Valor do ISS CEPOM
 //a03 := MaFisRet(,"NF_VTOTPED")	 // Total do Pedido
 //a07 := MaFisRet(,"NF_CODMUN")     // Codigo do Municipio utilizado na operacao
 cRecIss := MaFisRet(,"NF_RECISS")     // Recolhe ISS
-
+If !Empty(SC5->C5_RECISS)
+	cRecIss := SC5->C5_RECISS
+EndIf
 //a13 := MaFisRet(,"NF_ALIQIR")     // Aliquota de IRF do Cliente
 //a14 := MaFisRet(,"NF_BASECOF")	 // Base de calculo do COFINS
 nValCof := MaFisRet(,"NF_VALCOF")	    // Valor do COFINS

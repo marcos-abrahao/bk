@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"11/10/2020 C9_XXORPED"
+#DEFINE FIN_LAST_UPDATED 		"23/10/2020 SF1"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			////AtuGenFil( @cTexto )
 
-			AtuGenX3( @cTexto )    // 11/10/20
+			AtuGenX3( @cTexto )    // 23/10/20
 
 			//AtuGenP12( @cTexto )
 
@@ -823,7 +823,9 @@ Return
 
 
 Static Function AtuGenX3( cTexto )
-
+Local aNBrowse:= {}
+Local aSBrowse:= {}
+Local nBrw := 0
 
 cTexto  += "Inicio da Atualizacao X31UPDTABLE" + CRLF 
 
@@ -1065,6 +1067,7 @@ If SX3->( dbSeek( "B1_CODISS" ) )
 EndIf
 */
 
+/*
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 
@@ -1103,6 +1106,58 @@ EndIf
 dbSelectArea( "SX3" )
 APPEND FROM \sx3cnanat.dtc
 X31UPDTABLE("CNA")
+*/
+
+aNBrowse:= {}
+aSBrowse:= {}
+
+aAdd(aNBrowse,"F1_XXANEXO")
+aAdd(aNBrowse,"F1_DOCFOL")
+aAdd(aNBrowse,"F1_VERBAFO")
+aAdd(aNBrowse,"F1_TPNFEXP")
+aAdd(aNBrowse,"F1_TPFRETE")
+aAdd(aNBrowse,"F1_RECOPI")
+aAdd(aNBrowse,"F1_TPCTE")
+aAdd(aNBrowse,"F1_NUMAIDF")
+aAdd(aNBrowse,"F1_ANOAIDF")
+aAdd(aNBrowse,"F1_MODAL")
+aAdd(aNBrowse,"F1_DOCISEN")
+aAdd(aNBrowse,"F1_VERBAIS")
+aAdd(aNBrowse,"F1_DEVMERC")
+aAdd(aNBrowse,"F1_ESTDES")
+aAdd(aNBrowse,"F1_BASFECP")
+aAdd(aNBrowse,"F1_BFCPANT")
+aAdd(aNBrowse,"F1_BSFCCMP")
+aAdd(aNBrowse,"F1_BSFCPST")
+aAdd(aNBrowse,"F1_VFCPANT")
+aAdd(aNBrowse,"F1_SERMDF")
+aAdd(aNBrowse,"F1_NUMMDF")
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+
+For nBrw := 1 TO Len(aNBrowse)
+	If SX3->( dbSeek( aNBrowse[nBrw] ) )
+		RecLock( "SX3", .F. )
+		SX3->X3_BROWSE  := "N"
+		dbCommit()
+		MsUnLock()
+	EndIf
+Next
+
+aAdd(aSBrowse,"F1_CHVNFE")
+For nBrw := 1 TO Len(aSBrowse)
+	If SX3->( dbSeek( aSBrowse[nBrw] ) )
+		RecLock( "SX3", .F. )
+		SX3->X3_BROWSE  := "S"
+		dbCommit()
+		MsUnLock()
+	EndIf
+Next
+
+dbSelectArea( "SX3" )
+APPEND FROM \sx3sf1.dtc
+X31UPDTABLE("SF1")
 
 Return
 

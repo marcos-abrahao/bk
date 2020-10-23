@@ -14,6 +14,7 @@ Local nPosTotal := aScan(aHeader,{|x| AllTrim(x[2])=="D1_TOTAL"})
 Local lRet      := .T.
 Local lClas     := .F.
 Local nI        := 0
+Local dDataFis  := SuperGetMv("MV_DATAFIS",.F.)
 
 If lMT100TOK
 	lMT100TOK := .F. 
@@ -21,6 +22,15 @@ If lMT100TOK
 		lClas := l103Class
 	EndIf
 
+	// 22/10/20 - Solicitado pelo Jadair
+	If Inclui .OR. Altera .OR. lClas
+		If dDEmissao <= dDataFis .AND. !(ALLTRIM(F1_ESPECIE) $ "SPED/CTE")
+			MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT100OK")
+			lRet := .F.
+		EndIf
+	EndIf
+
+	/*
 	If Inclui
 		If dDEmissao <> dDataBase
 			MsgStop("A data de emissão deve ser a mesma do sistema","MT100OK")
@@ -32,6 +42,7 @@ If lMT100TOK
 			lRet := .F.
 		EndIf
 	EndIf
+	*/
 
 	If lRet
 

@@ -14,15 +14,27 @@
 User Function MT140TOK()
 Local aNfs := {}
 Local lRet	:= .T.
+Local dDataFis  := SuperGetMv("MV_DATAFIS",.F.)
+
 
 If !FWIsInCallStack("U_BKFINJ18")
 
+
+	If Inclui .OR. Altera
+		If dDEmissao <= dDataFis .AND. !(ALLTRIM(F1_ESPECIE) $ "SPED/CTE")
+			MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT140OK")
+			lRet := .F.
+		EndIf
+	EndIf
+
+	/*
 	If Inclui .OR. Altera
 		If dDEmissao <> dDataBase
 			MsgStop("A data de emissão deve ser a mesma do sistema","MT140OK")
 			lRet := .F.
 		EndIf
 	EndIf
+	*/
 
 	If lRet
 		aNfs := BKMT140QRY()
