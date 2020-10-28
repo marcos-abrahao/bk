@@ -20,10 +20,13 @@ Local dDataFis  := SuperGetMv("MV_DATAFIS",.F.)
 If !FWIsInCallStack("U_BKFINJ18")
 
 
-	If Inclui .OR. Altera
-		If dDEmissao <= dDataFis .AND. !(ALLTRIM(F1_ESPECIE) $ "SPED/CTE")
-			MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT140OK")
-			lRet := .F.
+	// 22/10/20 - Solicitado pelo Jadair
+	If Inclui .OR. Altera .OR. lClas
+		If dDEmissao <= dDataFis 
+			If !((ALLTRIM(cEspecie)+"/") $ "SPED/CTE/CTEOS/NF3E/NFCE/") .OR. EMPTY(cEspecie)
+				MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT140OK "+cEspecie)
+				lRet := .F.
+			EndIf
 		EndIf
 	EndIf
 

@@ -24,9 +24,11 @@ If lMT100TOK
 
 	// 22/10/20 - Solicitado pelo Jadair
 	If Inclui .OR. Altera .OR. lClas
-		If dDEmissao <= dDataFis .AND. !(ALLTRIM(F1_ESPECIE) $ "SPED/CTE")
-			MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT100OK")
-			lRet := .F.
+		If dDEmissao <= dDataFis 
+			If !((ALLTRIM(cEspecie)+"/") $ "SPED/CTE/CTEOS/NF3E/NFCE/") .OR. EMPTY(cEspecie)
+				MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT100OK "+cEspecie)
+				lRet := .F.
+			EndIf
 		EndIf
 	EndIf
 

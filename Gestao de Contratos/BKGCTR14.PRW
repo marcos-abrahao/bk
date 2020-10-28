@@ -958,7 +958,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])
 			ENDIF
-			IF "|"+aRentab[_nJ,1]+"|" $ "|03|04|05|06|07|30-2|"  // 28/02/20
+			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|06|07|30-2|"  // 28/02/20
 				cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 				&cCampo2 += aRentab[_nJ,4]
 			ENDIF
@@ -2570,7 +2570,9 @@ FOR _nI := 1 TO nPeriodo
 			ENDIF 
 			IF ALLTRIM(aConsorcio[nScan,2]) == "140"
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" 
-			ELSE
+			ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
+				cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
+            ELSE
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" 
 			ENDIF
 			cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "
@@ -3892,10 +3894,7 @@ Do While (ALIAS_TMP)->(!eof())
 	nTDOMES 	:= 0
 
 	FOR _nI := 1 TO nPeriodo
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"	
-		   //	cCampo		:= "TRB->XX_REAL"+STRZERO(_nI,3)
-			//&cCampo		:= ""
-		ELSE
+		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
 			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 	        nTotal		 += &cCampo2
 	        IF _nI == nCompet
@@ -4702,20 +4701,9 @@ Do While (ALIAS_TMP)->(!eof())
       			nTXATMESR 	+= (&cCampo2 * nTaxaAdm)/100
 		    ENDIF
 		ENDIF
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
-			IF _nI <= nCompet
-			    cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-      			nTXATMESR 	+= (&cCampo2 * nTaxaAdm)/100
-		    ENDIF
-		ENDIF
 	NEXT
  
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
-        nTotFat := nTotal
-        nTotFatMES := nTotalMES
-        nTFATDOMES := nTDOMES
-	ENDIF	
-	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
         nTotFat := nTotal
         nTotFatMES := nTotalMES
         nTFATDOMES := nTDOMES
