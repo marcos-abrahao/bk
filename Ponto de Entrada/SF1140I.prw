@@ -74,7 +74,7 @@ If nRadMenu1 = 0
 	nRadMenu1 := 1
 EndIf
 
-DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento" STYLE DS_MODALFRAME FROM 000, 000 TO 310, 430 COLORS 0, 16777215 PIXEL
+DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000, 000 TO 310, 430 COLORS 0, 16777215 PIXEL
 
 oDlg3:lEscClose := .F.
 
@@ -103,7 +103,7 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 @ 140,110 BUTTON "Anexos" SIZE 050, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),6),lAnexo:= .T.)
 
 
-ACTIVATE MSDIALOG oDlg3 CENTERED
+ACTIVATE MSDIALOG oDlg3 CENTERED VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL))  //cNFiscal+cSerie+cA100For+cLoja+cTipo
 If nRadMenu1 > 0
 	cxTipoPg := aOpcoes[nRadMenu1]
 	If nRadMenu1 <> 4
@@ -126,24 +126,24 @@ If nRadio <> 1 .AND. nRadio <> 4
 Else
 	If nRadio == 1
 		If Empty(cxBanco)
-			MsgStop("Informe o banco para depósito")
+			MsgStop("Informe o banco para depósito","SF1140I - Validação de banco")
 			oGetBco:Enable()
 			oGetBco:Setfocus()
 			lRet := .F.
 		ElseIf Empty(cxAgencia)
-			MsgStop("Informe a agência para depósito")
+			MsgStop("Informe a agência para depósito","SF1140I - Validação de agencia")
 			oGetAge:Enable()
 			oGetAge:Setfocus()
 			lRet := .F. 
 		ElseIf Empty(cxConta)
-			MsgStop("Informe a conta bancária para depósito")
+			MsgStop("Informe a conta bancária para depósito","SF1140I - Validação de conta")
 			oGetCon:Enable()
 			oGetCon:Setfocus()
 			lRet := .F. 
 		EndIf
 	ElseIf nRadio == 4
 		If Empty(cxNumPa)
-			MsgStop("Informe o número do Pagamento Antecipado (P.A.)")
+			MsgStop("Informe o número do Pagamento Antecipado (P.A.)","SF1140I - Validação de numero da PA")
 			oGetPA:Enable()
 			oGetPA:Setfocus()
 			lRet := .F.
@@ -212,3 +212,33 @@ EndIf
 
 RestArea(aArea)
 Return
+
+
+
+// Verifica a existência de anexos no SF1
+	// Bloquear se não tiver anexos
+	// Chave do SF1: F1_FILIAL+F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL
+	// Chave do AC9: xFilial( "AC9" ) + cEntidade + xFilial( cEntidade ) + cCodEnt
+	//                                +     SF1   + xFilial( "SF1"" )    + F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL -> 000049423DNFUNIAO 00 (OBS: sem filial)
+Static Function BKVerDoc(_cAlias,_cFilial,_cChave)
+Local aArea := GetArea()
+Local aAreaAC9:= AC9->(GetArea())
+Local lRet := .F.
+
+dbSelectArea("AC9")
+dbSetOrder(2)
+If dbSeek(xFilial("AC9")+_cAlias+_cFilial+_cChave,.T.)
+	If _cAlias+_cFilial+TRIM(_cChave) == TRIM(AC9->(AC9_ENTIDA+AC9_FILENT+AC9_CODENT))
+		lRet := .T.
+	EndIf
+EndIf
+
+If !lRet
+	MsgStop("Não é permitido incluir pré-notas sem anexar arquivos!","SF1140I - Validação de Anexos")
+EndIf
+
+AC9->(RestArea(aAreaAC9))
+RestArea(aArea)
+
+Return lRet
+

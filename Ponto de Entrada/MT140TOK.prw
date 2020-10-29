@@ -1,10 +1,12 @@
 /*/{Protheus.doc} MT140TOK
-// Validação para evitar NF em duplicaidade.
+Validação para evitar NF em duplicaidade.
+Variaveis: cNFiscal,cSerie,cA100For,cLoja+,Tipo
 @author Marcos Bispo Abrahão
 @since 11/12/2019
 @version 1.0
 @return .F. / .T.
 @type function
+
 /*/
 
 #INCLUDE "rwmake.ch"
@@ -19,15 +21,15 @@ Local dDataFis  := SuperGetMv("MV_DATAFIS",.F.)
 
 If !FWIsInCallStack("U_BKFINJ18")
 
-
 	// 22/10/20 - Solicitado pelo Jadair
-	If Inclui .OR. Altera .OR. lClas
+	If Inclui .OR. Altera //.OR. lClas
 		If dDEmissao <= dDataFis 
 			If !((ALLTRIM(cEspecie)+"/") $ "SPED/CTE/CTEOS/NF3E/NFCE/") .OR. EMPTY(cEspecie)
 				MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT140OK "+cEspecie)
 				lRet := .F.
 			EndIf
 		EndIf
+
 	EndIf
 
 	/*
@@ -117,7 +119,9 @@ Local aArea  := GetArea()
 		If QSD1->D1TOTAL = nTotal
 			SF1->(dbSetOrder(1))
 			SF1->(dbSeek(xFilial("SF1")+QSD1->(D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA),.F.))
-			AADD(aRet,{QSD1->D1_SERIE,QSD1->D1_DOC,DTOC(STOD(QSD1->D1_DTDIGIT)),TRANSFORM(QSD1->D1TOTAL,"@E 999,999,999.99"),SF1->(FWLeUserlg("F1_USERLGI",1))})
+			If cNFiscal+cSerie+cA100For+cLoja <> QSD1->(D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA)
+				AADD(aRet,{QSD1->D1_SERIE,QSD1->D1_DOC,DTOC(STOD(QSD1->D1_DTDIGIT)),TRANSFORM(QSD1->D1TOTAL,"@E 999,999,999.99"),SF1->(FWLeUserlg("F1_USERLGI",1))})
+			EndIf
 		EndIf
 		QSD1->(DbSkip())
 	Enddo
@@ -126,4 +130,3 @@ Local aArea  := GetArea()
 	RestArea(aArea)
 
 Return aRet
-

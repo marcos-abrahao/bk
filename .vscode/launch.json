@@ -161,6 +161,13 @@
 			"args": [],
 			"label": "u_updatafis",
 			"description": ""
+		},
+		{
+			"args": [
+				" ()"
+			],
+			"label": "U_UPDGENSX",
+			"description": " ()"
 		}
 	],
 	"lastProgramExecuted": "sigacom"

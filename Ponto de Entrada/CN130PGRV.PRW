@@ -32,7 +32,7 @@ Local cSuper    := ""
 Local cTpNF		:= CND->CND_XXTPNF
 Local cRM		:= CND->CND_XXRM
 
-If !cTpNf $ "NB"
+If !cTpNf $ "NBF"
 	cTpNf := "N"
 EndIf
 
@@ -175,6 +175,12 @@ If ExpN1 == 3 .OR. ExpN1 == 4
 	EndIf
 EndIf
 
+// Gravar tipo da NF na Planilha
+If CNA->CNA_XXTPNF <> cTpNF
+	RecLock("CNA",.F.)
+	CNA->CNA_XXTPNF := cTpNf
+	MsUnlock("CNA")
+EndIf
 
 IF ExpN1 == 12 .OR. ExpN1 == 3
 	IF CND->CND_XXDV == "S" .OR. CND->CND_XXVLND > 0	  

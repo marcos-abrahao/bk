@@ -2934,7 +2934,7 @@ Do While (ALIAS_TMP)->(!eof())
 	nTotal = 0
 	n2Total= 0
 	FOR _nI := 1 TO nPeriodo
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"	
+		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|02|03-2|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"	
 			cCampo		:= "TRB->XX_VAL"+STRZERO(_nI,3)
 			&cCampo		:= ""
 		ELSEIF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|ZZZZZZZYY|ZZZZZZZZZ|"	
@@ -2951,12 +2951,12 @@ Do While (ALIAS_TMP)->(!eof())
 			ENDIF
 		ENDIF
 	NEXT
-	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|02|03-2|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|"
 		TRB->XX_TOTAL := ""
 		TRB->XX_INDIC := ""
 	ELSE		
 		TRB->XX_TOTAL 	:= transform(nTotal,cPict)
-		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|03-1|"
+		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
 	        nTotFat := nTotal
 		ENDIF	
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|06|07|08|30|YYYYYYYYY|ZZZZZZYYY|"

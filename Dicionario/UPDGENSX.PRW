@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"23/10/2020 SF1"
+#DEFINE FIN_LAST_UPDATED 		"28/10/2020 SB1"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			////AtuGenFil( @cTexto )
 
-			AtuGenX3( @cTexto )    // 23/10/20
+			AtuGenX3( @cTexto )    // 28/10/20
 
 			//AtuGenP12( @cTexto )
 
@@ -1111,6 +1111,7 @@ X31UPDTABLE("CNA")
 aNBrowse:= {}
 aSBrowse:= {}
 
+/*
 aAdd(aNBrowse,"F1_XXANEXO")
 aAdd(aNBrowse,"F1_DOCFOL")
 aAdd(aNBrowse,"F1_VERBAFO")
@@ -1132,6 +1133,8 @@ aAdd(aNBrowse,"F1_BSFCPST")
 aAdd(aNBrowse,"F1_VFCPANT")
 aAdd(aNBrowse,"F1_SERMDF")
 aAdd(aNBrowse,"F1_NUMMDF")
+*/
+aAdd(aNBrowse,"B1_POSIPI")
 
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
@@ -1145,7 +1148,13 @@ For nBrw := 1 TO Len(aNBrowse)
 	EndIf
 Next
 
-aAdd(aSBrowse,"F1_CHVNFE")
+
+//aAdd(aSBrowse,"F1_CHVNFE")
+aAdd(aSBrowse,"B1_TS")
+aAdd(aSBrowse,"B1_TE")
+aAdd(aSBrowse,"B1_ALIQISS")
+aAdd(aSBrowse,"B1_CODISS")
+
 For nBrw := 1 TO Len(aSBrowse)
 	If SX3->( dbSeek( aSBrowse[nBrw] ) )
 		RecLock( "SX3", .F. )
@@ -1155,9 +1164,11 @@ For nBrw := 1 TO Len(aSBrowse)
 	EndIf
 Next
 
+/*
 dbSelectArea( "SX3" )
 APPEND FROM \sx3sf1.dtc
 X31UPDTABLE("SF1")
+*/
 
 Return
 

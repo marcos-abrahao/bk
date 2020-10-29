@@ -958,7 +958,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])
 			ENDIF
-			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|06|07|30-2|"  // 28/02/20
+			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|06|07|30-2|"  // 28/10/20
 				cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 				&cCampo2 += aRentab[_nJ,4]
 			ENDIF
@@ -3667,7 +3667,7 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 					(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4]+IIF("|"+aRentab[_nJ,1]+"|"="|01|"," - Medição Avulsa",""),aRentab[_nJ,2])
 				ENDIF
-				IF "|"+aRentab[_nJ,1]+"|" $ "|03|04|05|06|07|30-2|"
+				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|06|07|30-2|"
 					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 					&cCampo2 += aRentab[_nJ,4]
 				ENDIF
@@ -3715,8 +3715,16 @@ For Yi_ := 1 TO LEN(aContratos)
 			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
         	nValTaxaAdm := (&cCampo2*nTaxaAdm)/100 
 		ENDIF
-		
-		//GRAVA TAXA ADM
+
+      	//VALOR DA NDC
+		nNDC := 0
+		dbSelectArea(ALIAS_TMP)
+		IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
+			cCampo2   := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
+			nNDC := &cCampo2
+		ENDIF
+
+		//GRAVA TAXA ADM + NDC no resultado
 		dbSelectArea(ALIAS_TMP)
 	   	IF dbSeek(ALLTRIM(aContratos[Yi_])+"YYYYYYYYY",.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -4909,7 +4917,7 @@ Do While (ALIAS_TMP)->(!eof())
 		
 		ENDIF
     ENDIF
-
+	//calculca a taxa de administração 
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
 		nFatura := 0
 		nFatura := (ALIAS_TMP)->&cCampoY 
