@@ -18,9 +18,6 @@ Private cChvNfe  := SF1->F1_CHVNFE
 Private nTipoPg  := 0
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
-If !l140Auto
-	SelFPgto()
-EndIf
 
 IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__CUSERID) > 0  // Não Gravar Administrador
 	PswOrder(1) 
@@ -32,6 +29,10 @@ IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__CUSERID) > 0  // Não Gravar Administrador
 	SF1->F1_XXUSERS := cSuper
 	MSUNLOCK("SF1")
 ENDIF
+
+If !l140Auto
+	SelFPgto()
+EndIf
 
 RecLock("SF1",.F.)
 SF1->F1_XTIPOPG := cxTipoPg
@@ -100,7 +101,7 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 @ 140,040 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
 //@ 140,150 BUTTON "Cancelar" SIZE 050, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
 
-@ 140,110 BUTTON "Anexos" SIZE 050, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),6),lAnexo:= .T.)
+@ 140,110 BUTTON "Anexos" SIZE 050, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
 
 
 ACTIVATE MSDIALOG oDlg3 CENTERED VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL))  //cNFiscal+cSerie+cA100For+cLoja+cTipo
