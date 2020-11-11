@@ -3720,11 +3720,11 @@ For Yi_ := 1 TO LEN(aContratos)
 		nNDC := 0
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
-			cCampo2   := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
+			cCampo2   := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 			nNDC := &cCampo2
 		ENDIF
 
-		//GRAVA TAXA ADM + NDC no resultado
+		//GRAVA TAXA ADM
 		dbSelectArea(ALIAS_TMP)
 	   	IF dbSeek(ALLTRIM(aContratos[Yi_])+"YYYYYYYYY",.F.)
 			Reclock(ALIAS_TMP,.F.)

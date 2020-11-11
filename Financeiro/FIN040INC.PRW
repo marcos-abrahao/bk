@@ -85,6 +85,9 @@ ELSE
 	Endif
 
 	cContra	 := MV_PAR01
+	dVenci   := MV_PAR02
+	nValor   := MV_PAR03
+	dEmissao := dDataBase
 	
 	DBSELECTAREA("CN9")
 	CN9->(DBSETORDER(1))
@@ -102,9 +105,11 @@ ELSE
 		Return
 	Endif
 
-	dEmissao := dDataBase
-	dVenci   := MV_PAR02
-	nValor   := MV_PAR03
+	If !SelCli(cContra,cRev,@cCliente,@cLoja)
+		Return
+	EndIf
+	//cCliente := U_CNCF3(cContra,cRev,@cCliente,@cLoja)
+
 	cCompe   := SUBSTR(DTOS(dEmissao),1,6)
 	
 ENDIF
@@ -562,10 +567,9 @@ Return lOK
 
 Static Function  ValidPerg(cPerg)
 
-Local aArea      := GetArea()
-Local aRegistros := {}
-
-Default cPerg := "F040INC"
+Local aArea		:= GetArea()
+Local aRegistros:= {}
+Default cPerg	:= "F040INC"
 
 dbSelectArea("SX1")
 dbSetOrder(1)
@@ -590,3 +594,107 @@ Next
 RestArea(aArea)
 
 Return(NIL)
+
+
+
+Static Function SelCli(cContra,cRev,cCliente,cLoja)
+
+Local cQuery 	:= ""
+Local j			:= 0
+Local aAreaIni	:= GetArea()
+Local lOk		:= .F.
+Local aButtons	:= {}
+
+Private aSize   := MsAdvSize(,.F.,400)
+Private aObjects:= { { 450, 450, .T., .T. } }
+Private aInfo   := { aSize[ 1 ], aSize[ 2 ], aSize[ 3 ], aSize[ 4 ], 5, 5 }
+Private aPosObj := MsObjSize( aInfo, aObjects, .T. )
+private aRotina := {{"","",0,1},{"","",0,2},{"","",0,2},{"","",0,2},{"","",0,2}}
+Private aHeader	:= {}
+
+
+cQuery  := "SELECT CNC_CLIENT,CNC_LOJACL,A1_NOME,A1_MUN,A1_CGC "+CRLF
+cQuery  += "FROM "+RETSQLNAME("CNC")+" CNC "+CRLF
+cQuery  += "LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON "+CRLF
+cQuery  += " CNC_CLIENT = A1_COD AND CNC_LOJACL = A1_LOJA AND A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = '' "+CRLF
+cQuery  += "WHERE CNC.D_E_L_E_T_ = '' AND CNC_FILIAL = '"+xFilial("CNC")+"' "+CRLF
+cQuery  += " AND CNC_NUMERO = '"+ALLTRIM(cContra)+"' AND CNC_REVISA = '"+ALLTRIM(cRev)+"' "+CRLF
+cQuery  += "ORDER BY CNC_CLIENT,CNC_LOJACL "
+
+u_LogMemo("FIN040INC.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QCNC"
+
+DbSelectArea("QCNC")
+dbGoTop()
+If Lastrec() == 1
+	cCliente := QCNC->CNC_CLIENT
+	cLoja	 := QCNC->CNC_LOJACL
+	QCNC->(DbCloseArea())
+	RestArea(aAreaIni)
+	Return lOk:= .T.
+EndIf
+
+aStruc := dbStruct()
+		
+oTmpTb := FWTemporaryTable():New( "QCNC1" )	
+oTmpTb:SetFields( aStruc )
+oTmpTb:Create()
+
+DbSelectArea("QCNC")
+dbGoTop()
+Do While !eof()
+	DbSelectArea("QCNC1")
+    RecLock("QCNC1",.T.)
+	For j:=1 to QCNC->(FCount())
+		FieldPut(j,QCNC->(FieldGet(j)))
+	Next
+     
+	DbSelectArea("QCNC")
+	dbSkip()
+EndDo
+QCNC->(DbCloseArea())
+
+aadd(aHeader, DefAHeader("QCNC1","CNC_CLIENT"))
+aadd(aHeader, DefAHeader("QCNC1","CNC_LOJACL"))
+aadd(aHeader, DefAHeader("QCNC1","A1_NOME"))
+aadd(aHeader, DefAHeader("QCNC1","A1_MUN"))
+aadd(aHeader, DefAHeader("QCNC1","A1_CGC"))
+
+DEFINE MSDIALOG oDlg TITLE "Selecione o Cliente" From aSize[7],0 to aSize[6],aSize[5] of oMainWnd PIXEL
+
+@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE aSize[6],aSize[5]
+oPanelLeft:Align := CONTROL_ALIGN_LEFT
+
+_oGetDbSint := MsGetDb():New(aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","QCNC1")
+_oGetDbSint:oBrowse:BlDblClick := {|| lOk:=.T., oDlg:End()}        
+
+ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T.,oDlg:End()}, {||oDlg:End()},, aButtons)
+
+If ( lOk ) //.AND. nPos > 0
+	cCliente := QCNC1->CNC_CLIENT
+	cLoja	 := QCNC1->CNC_LOJACL
+Endif
+
+oTmpTb:Delete() 
+
+RestArea(aAreaIni)
+
+Return lOk
+
+
+
+Static Function DefAHeader(_cAlias,_cCampo)
+
+Return {Alltrim(RetTitle(_cCampo)),;
+        _cCampo,;
+        GetSx3Cache( _cCampo , "X3_PICTURE" ),;
+        GetSx3Cache( _cCampo , "X3_TAMANHO" ),;
+        GetSx3Cache( _cCampo , "X3_DECIMAL" ),;
+        GetSx3Cache( _cCampo , "X3_VALID" ),;
+        "",;
+        GetSx3Cache( _cCampo , "X3_TIPO" ),;
+        GetSx3Cache( _cCampo , "X3_PICTVAR" ),;
+        _cAlias,;
+        "R"}
+
