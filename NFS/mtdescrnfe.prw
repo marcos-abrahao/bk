@@ -177,7 +177,7 @@ IF !EMPTY(cContrato)
 		ENDIF	
 	ENDIF
 
-	
+	// Objeto
 	cObjeto := ""
 	nINSSME := 0
 	dbSelectArea("CN9")

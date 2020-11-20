@@ -8,7 +8,7 @@ Ponto de Entrada para envio Pedido de Compras para Liberação Alçada
 Retorno ao 02 Nivel e ao grupo de compras
 @Return
 @author Adilson do Prado
-@since 18/02/13 - rev 23/09/20
+@since 18/02/13 - rev 14/11/20
 @version P12
 /*/
 
@@ -52,7 +52,7 @@ Local dLiberado := dDataBase
 Local cQuery  	:= ""
 Local cGerGestao  := ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
-Local cMCompras := ALLTRIM(GetMv("MV_XXUMCOM"))
+Local cMCompras   := ALLTRIM(GetMv("MV_XXUMCOM"))
 
 // Emails colocados manualmente para atender a demanda com urgência / Alterar para grupo posteriormente 25/11/2019 - Marcos - a pedido do Fabio Querino
 // 10/08/20 Removido aprendiz.almoxarifado e ricardo.monaco
@@ -84,24 +84,30 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	PswSeek(SF1->F1_XXUSER) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmUSER += ALLTRIM(aUser[1,14])+';'
+		If !ALLTRIM(aUser[1,14]) $ cEMail
+			cEmUSER += ALLTRIM(aUser[1,14])+';'
+		EndIf
 	ENDIF                                                                                                
 
 	PswSeek(SF1->F1_XXUSERS) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmUSER += ALLTRIM(aUser[1,14])+';'
+		If !ALLTRIM(aUser[1,14]) $ cEMail
+			cEmUSER += ALLTRIM(aUser[1,14])+';'
+		EndIf
 	ENDIF
 	
 	// 23/07/15 - Incluir no email o usuário que liberou
 	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmUSER += ALLTRIM(aUser[1,14])+';'
+		If !ALLTRIM(aUser[1,14]) $ cEMail
+			cEmUSER += ALLTRIM(aUser[1,14])+';'
+		EndIf
 	ENDIF
 	
 	cEmail += cEmUSER
-	u_xxLog("\TMP\MT094END.TXT","1-"+cEmail,.F.,"TESTE")        
+	u_xxLog("\TMP\MT094END.TXT","1-"+cEmail,.T.,"")        
 	IF nOpcao = 5  //3
 		cAssunto:= "Bloqueada"
 	ELSE
@@ -114,6 +120,7 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END")
+	cEmail  := STRTRAN(cEmail,';;',';')
 	U_SendMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
 
 	Return Nil
@@ -128,9 +135,11 @@ PswSeek(__cUserId)
 aUser  := PswRet(1)
 IF !EMPTY(aUser)
 	cNUser := aUser[1,2]
-	cEmail += ALLTRIM(aUser[1,14])+';'
+	If !ALLTRIM(aUser[1,14]) $ cEmail
+		cEmail += ALLTRIM(aUser[1,14])+';'
+	EndIf
 ENDIF
-u_xxLog("\TMP\MT094END.TXT","2-"+cEmail,.F.,"TESTE")        
+u_xxLog("\TMP\MT094END.TXT","2-"+cEmail,.F.,"")
 
 cTPLIBER := ""
 cOBS := ""
@@ -176,20 +185,22 @@ IF nOpcao == 4 //Era 2
 	
 		//ATUALIZA DATA PREVISTA DE ENTREGA
 		U_ALTDPRVC7(nPedido) 
-	
+
+        cEmail += cEmLibPed
+
 		IF __cUserId $ cGerGestao+"/"+cGerCompras
 
 		ELSE
 			FOR IT_ := 1 TO LEN(aSCR)
-	    		cEmail += aSCR[IT_,4]+';'
+				If !aSCR[IT_,4] $ cEmail .AND. !Empty(aSCR[IT_,4])
+		    		cEmail += aSCR[IT_,4]+';'
+				EndIf
 			NEXT
         ENDIF
-        
-        cEmail += cEmLibPed
          
        	u_xxLog("\TMP\MT094END.TXT","3-"+cEmail,.T.,"")        
         
-		cAssunto:= "Pedido de Compra nº.:"+alltrim(nPedido)+"   Liberado    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+		cAssunto:= "Pedido de Compra nº.:"+alltrim(nPedido)+"   Liberado   "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
 		IF __cUserId $ cGerGestao+"/"+cGerCompras+"/"+cMCompras
 			AADD(aEmail,{"Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
 		ELSE
@@ -201,7 +212,9 @@ IF nOpcao == 4 //Era 2
   		FOR IT_ := 1 TO LEN(aSCR)
 			IF aSCR[IT_,1] $ cGerGestao+"/"+cGerCompras
 		    ELSE
-		    	cEmail += aSCR[IT_,4]+';'
+				If !aSCR[IT_,4] $ cEmail .AND. !Empty(aSCR[IT_,4])
+		    		cEmail += aSCR[IT_,4]+';'
+				EndIf
 			ENDIF
 		NEXT
 		u_xxLog("\TMP\MT094END.TXT","4-"+cEmail,.T.,"")        
@@ -216,12 +229,16 @@ ELSEIF nOpcao == 5 // era3
 	IF __cUserId $ cGerGestao+"/"+cGerCompras
 		IF cTPLIBER == "U"
 			FOR IT_ := 1 TO LEN(aSCR)
-    			cEmail += aSCR[IT_,4]+';'
+				If !aSCR[IT_,4] $ cEmail .AND. !Empty(aSCR[IT_,4])
+    				cEmail += aSCR[IT_,4]+';'
+				EndIf
 			NEXT
 		ENDIF
 	ELSE
 		FOR IT_ := 1 TO LEN(aSCR)
-    		cEmail += aSCR[IT_,4]+';'
+			If !aSCR[IT_,4] $ cEmail .AND. !Empty(aSCR[IT_,4])
+    			cEmail += aSCR[IT_,4]+';'
+			EndIf
 		NEXT
     ENDIF
 	u_xxLog("\TMP\MT094END.TXT","5-"+cEmail,.T.,"")        
@@ -241,7 +258,9 @@ Do While SY1->(!eof())
 	PswSeek(SY1->Y1_USER) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmail += ALLTRIM(aUser[1,14])+';'
+		If !ALLTRIM(aUser[1,14]) $ cEmail
+			cEmail += ALLTRIM(aUser[1,14])+';'
+		EndIf
 	ENDIF
 	SY1->(dbskip())
 Enddo
@@ -347,8 +366,9 @@ cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END")
 
 cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 
-U_SendMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+cEmail  := STRTRAN(cEmail,';;',';')
 
+U_SendMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
 
 Return nil
 
@@ -359,7 +379,7 @@ LOCAL cQuery  := ""
 Local nDIAPRF := 0
 Local dDATPRF := CTOD("")
 
-cQuery  :="select C7_NUM,C7_ITEM,C8_EMISSAO,C8_DATPRF from "+RETSQLNAME("SC7")+" SC7"
+cQuery  :="SELECT C7_NUM,C7_ITEM,C8_EMISSAO,C8_DATPRF FROM "+RETSQLNAME("SC7")+" SC7"
 cQuery  += " INNER JOIN "+RETSQLNAME("SC8")+" SC8 ON SC8.D_E_L_E_T_=''"
 cQuery  += " AND C7_NUM=C8_NUMPED AND C7_ITEM=C8_ITEMPED"
 cQuery  += " WHERE SC7.D_E_L_E_T_='' AND C7_NUM='"+ALLTRIM(cNUMPED)+"'"

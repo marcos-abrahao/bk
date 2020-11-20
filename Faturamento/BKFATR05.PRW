@@ -205,6 +205,7 @@ Local cSerie    := SC5->C5_SERIE
 Local cCliente  := SC5->C5_CLIENTE
 Local cLoja     := SC5->C5_LOJACLI
 Local cLiber    := SC5->C5_XXULIB
+Local cNatureza := SC5->C5_NATUREZ
 Local dEmisNF   := CTOD("")
 Local cFaturis  := ""
 
@@ -246,7 +247,9 @@ Local nValIss   := 0    // Valor do ISS
 Local nValIssR  := 0    // Valor do ISS Retido
 Local nValIRR   := 0    // Valor do IR do item
 Local nValIns   := 0    // Valor do INSS do item
-
+Local aImpostos	:= {}	// Array contendo todos os impostos calculados na funcao Fiscal com quebra por impostos+aliquotas
+Local nPInss	:= 0
+Local nPIrrf	:= 0
 
 //Calculo dos Impostos
 MaFisIni(SC5->C5_CLIENTE,;                      // 01 – Codigo Cliente/Fornecedor
@@ -263,7 +266,7 @@ MaFisIni(SC5->C5_CLIENTE,;                      // 01 – Codigo Cliente/Fornecedo
 nItem := 0
 //Enquanto houver itens
 SC6->(DbSeek(xFilial('SC6') + SC5->C5_NUM))
-While ! SC6->(EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
+While !SC6->(EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
    nItem++
    SB1->(DbSeek(xFilial("SB1")+SC6->C6_PRODUTO))
    SF4->(DbSeek(xFilial("SF4")+SC6->C6_TES))
@@ -338,25 +341,113 @@ Else
    nValIss := MaFisRet(,"NF_VALISS")     // Valor do ISS
 EndIf
 //a23 := MaFisRet(,"NF_DESCISS")    // Valor de desconto total de ISS
-//a24 := MaFisRet(,"NF_IR")         // Array contendo os valores do Imposto de renda
+//aIRRF := MaFisRet(,"NF_IR")         // Array contendo os valores do Imposto de renda
 //a25 := MaFisRet(,"NF_BASEIRR")    // Base do Imposto de Renda do item
 nValIRR := MaFisRet(,"NF_VALIRR")     // Valor do IR do item
-//a27 := MaFisRet(,"NF_INSS")       // Array contendo os valores de INSS
+//aINSS := MaFisRet(,"NF_INSS")       // Array contendo os valores de INSS
 //a28 := MaFisRet(,"NF_BASEINS")    // Base de calculo do INSS
 nValIns := MaFisRet(,"NF_VALINS")     // Valor do INSS do item
 //a30 := MaFisRet(,"NF_NATUREZA")   // Codigo da natureza a ser gravado nos titulos do Financeiro.
 
+aImpostos := MaFisRet(,"NF_IMPOSTOS") //Array contendo todos os impostos calculados na funcao Fiscal com quebra por impostos+aliquotas
+//aImpostos[1]: Array {size=6}
+//aImpostos[1][1]: "..."
+//aImpostos[1][2]: ""
+//aImpostos[1][3]: 0
+//aImpostos[1][4]: 0
+//aImpostos[1][5]: 0
+//aImpostos[1][6]: "NEW"
+//aImpostos[2]: Array {size=6}
+//aImpostos[2][1]: "ISS"
+//aImpostos[2][2]: "ISS Imposto sobre servico "
+//aImpostos[2][3]: 432866.88
+//aImpostos[2][4]: 2
+//aImpostos[2][5]: 8657.33
+//aImpostos[2][6]: "ISS"
+//aImpostos[3]: Array {size=6}
+//aImpostos[3][1]: "IRR"
+//aImpostos[3][2]: "IRRF Imposto de renda "
+//aImpostos[3][3]: 432866.88
+//aImpostos[3][4]: 1.5
+//aImpostos[3][5]: 6493
+//aImpostos[3][6]: "IRR"
+//aImpostos[4]: Array {size=6}
+//aImpostos[4][1]: "INS"
+//aImpostos[4][2]: "INSS "
+//aImpostos[4][3]: 432866.88
+//aImpostos[4][4]: 11
+//aImpostos[4][5]: 47615.35
+//aImpostos[4][6]: "INS"
+//aImpostos[5]: Array {size=6}
+//aImpostos[5][1]: "PS2"
+//aImpostos[5][2]: "PIS/Pasep - Via apuracao"
+//aImpostos[5][3]: 432866.88
+//aImpostos[5][4]: 1.65
+//aImpostos[5][5]: 7142.3
+//aImpostos[5][6]: "PS2"
+//aImpostos[6]: Array {size=6}
+//aImpostos[6][1]: "CF2"
+//aImpostos[6][2]: "COFINS - Via apuracao"
+//aImpostos[6][3]: 432866.88
+//aImpostos[6][4]: 7.6
+//aImpostos[6][5]: 32897.88
+//aImpostos[6][6]: "CF2"
+
+For nI := 1 To Len(aImpostos)
+	If aImpostos[nI,1]  = "INS"
+		nPInss := aImpostos[nI,4]
+	ElseIf aImpostos[nI,1]  = "IRR"
+		nPIrrf := aImpostos[nI,4]
+	EndIf
+Next
+
 MaFisEnd()
+
+// funcao Condicao() de Pagamento
+aParc := Condicao(nTotVal,SC5->C5_CONDPAG,,IIF(!EMPTY(dEmisNF),dEmisNF,SC5->C5_EMISSAO))
+If Len(aParc) > 0
+   cVencto := DTOC(aParc[1,1])
+EndIf
+
 
 If !EMPTY(SC5->C5_NOTA)
    dbSelectArea("SF2")
    dbSetOrder(1)
    If dbSeek(xFilial("SF2")+cNota+cSerie+cCliente+cLoja)
-      nTotLiq := SF2->(F2_VALFAT - F2_VALCSLL - F2_VALCOFI - F2_VALPIS - F2_VALIRRF - F2_VALINSS - F2_VLCPM - IIF(F2_RECISS = "1",F2_VALISS,0))
-      nRetCtr := SF2->F2_XXVRETC
-      nValFat := nTotLiq - nRetCtr
-      cFaturis:= SF2->(FWLeUserlg('F2_USERLGI',1))
-      dEmisNF := SF2->F2_EMISSAO
+		nTotVal := SF2->F2_VALFAT
+		nValPis := SF2->F2_VALPIS
+		nValCof := SF2->F2_VALCOFI
+		nValCsl := SF2->F2_VALCSLL
+		nValIRR := SF2->F2_VALIRRF
+		nValIns := SF2->F2_VALINSS
+		nValCpm := SF2->F2_VLCPM
+		If SF2->F2_RECISS == "1"
+			nValIssR:= SF2->F2_VALISS    // Valor do ISS Retido
+			nValIss := 0
+		Else
+			nValIss := SF2->F2_VALISS    // Valor do ISS
+			nValIssR:= 0			
+		EndIf
+
+		nTotLiq := SF2->(F2_VALFAT - F2_VALCSLL - F2_VALCOFI - F2_VALPIS - F2_VALIRRF - F2_VALINSS - F2_VLCPM - IIF(F2_RECISS = "1",F2_VALISS,0))
+		nRetCtr := SF2->F2_XXVRETC
+		nValFat := nTotLiq - nRetCtr
+		cFaturis:= SF2->(FWLeUserlg('F2_USERLGI',1))
+		dEmisNF := SF2->F2_EMISSAO
+
+		// Financeiro
+		cQuery := "SELECT TOP 1 E1_VENCREA,E1_NATUREZ "+ CRLF
+		cQuery += " FROM "+RETSQLNAME("SE1")+" SE1 "+ CRLF
+		cQuery += " WHERE E1_TIPO = 'NF' AND E1_PREFIXO = '"+SF2->F2_SERIE+"' AND E1_NUM = '"+SF2->F2_DOC+"'" + CRLF
+		cQuery += "  AND SE1.D_E_L_E_T_ ='' AND E1_FILIAL = '"+xFilial("SE1")+"' "+ CRLF
+		TCQUERY cQuery NEW ALIAS "QSE1"
+		dbSelectArea("QSE1")
+		QSE1->(dbGoTop())
+		If !Eof()
+			cVencto   := DTOC(STOD(QSE1->E1_VENCREA))
+			cNatureza := QSE1->E1_NATUREZ
+		Endif
+		QSE1->(dbCloseArea())
    EndIf
 Else
    nTotLiq := nTotVal - nValPis - nValCof - nValCsl - nValIRR - nValIns - nValIssR - nValCpm
@@ -372,12 +463,6 @@ If nTpNF > 0
 EndIf
 
 
-// funcao Condicao() de Pagamento
-aParc := Condicao(nTotVal,SC5->C5_CONDPAG,,IIF(!EMPTY(dEmisNF),dEmisNF,SC5->C5_EMISSAO))
-If Len(aParc) > 0
-   cVencto := DTOC(aParc[1,1])
-EndIf
-
 If !EMPTY(cMedicao)
 
    cRev    := SPACE(LEN(CN9->CN9_REVISA))
@@ -386,11 +471,11 @@ If !EMPTY(cMedicao)
    aTmp := U_QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"'")
 
 	If !EMPTY(aTmp)
-	   nReg := aTmp[1]
-      CND->(dbGoTo(nReg))
-	   cObsMed  := TRIM(CND->CND_OBS)
-	   cRev     := CND->CND_REVISA
-      cEmissor := CND->CND_USUAR
+		nReg := aTmp[1]
+    	CND->(dbGoTo(nReg))
+		cObsMed  := TRIM(CND->CND_OBS)
+		cRev     := CND->CND_REVISA
+    	cEmissor := CND->CND_USUAR
 	EndIf
 
 EndIf
@@ -419,6 +504,9 @@ If SA1->(dbSeek(xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI))
 	//cCodMun		:= SA1->A1_COD_MUN
 	cUFCli		:= ALLTRIM(SA1->A1_EST)
 	//cEmailCli	:= SA1->A1_EMAIL
+	If Empty(cNatureza)
+		cNatureza := SA1->A1_NATUREZ
+	EndIf
 EndIf
 
 
@@ -494,7 +582,7 @@ AADD(aHtml,'<div class="folha">')
 AADD(aHtml,'<table class="tg">')
 
 AADD(aHtml,'<colgroup>')
-AADD(aHtml,'<col style="width: 060px">')
+AADD(aHtml,'<col style="width: 100px">')
 AADD(aHtml,'<col style="width: 300px">')
 AADD(aHtml,'<col style="width: 060px">')
 AADD(aHtml,'<col style="width: 060px">')
@@ -544,11 +632,13 @@ AADD(aHtml,'      <td class="tg-ndr">'+cRM+ '</td>')
 AADD(aHtml,'    </tr>')
     
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-hcliente" colspan="6">Endereço</td>')
+AADD(aHtml,'      <td class="tg-hcliente" colspan="5">Endereço</td>')
+AADD(aHtml,'      <td class="tg-hndr">Natureza</td>')
 AADD(aHtml,'      <td class="tg-hndr">Vencimento</td>')
 AADD(aHtml,'    </tr>')
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-cliente" colspan="6">'+cEndCli+'</td>')
+AADD(aHtml,'      <td class="tg-cliente" colspan="5">'+cEndCli+'</td>')
+AADD(aHtml,'      <td class="tg-ndr">'+cNatureza+'</td>')
 AADD(aHtml,'      <td class="tg-ndr">'+cVencto+'</td>')
 AADD(aHtml,'    </tr>')
 
@@ -572,7 +662,7 @@ AADD(aHtml,'    </td>')
 AADD(aHtml,'  </tr>')
 
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-hcliente">Contrato</td>')
+AADD(aHtml,'      <td class="tg-hndr">Contrato</td>')
 AADD(aHtml,'      <td class="tg-hndr" colspan="3">Descrição</td>')
 AADD(aHtml,'      <td class="tg-hndr">Medição</td>')
 AADD(aHtml,'      <td class="tg-hndr">Planilha</td>')
@@ -580,7 +670,7 @@ AADD(aHtml,'      <td class="tg-hndr">Emissor</td>')
 AADD(aHtml,'    </tr>')
 
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-cliente">'+TRIM(cContra)+'</td>')
+AADD(aHtml,'      <td class="tg-ndr">'+TRIM(cContra)+'</td>')
 AADD(aHtml,'      <td class="tg-ndr" colspan="3">'+cDescCtr+'</td>')
 AADD(aHtml,'      <td class="tg-ndr">'+cMedicao+'</td>')
 AADD(aHtml,'      <td class="tg-ndr">'+cPlan+'</td>')
@@ -588,7 +678,7 @@ AADD(aHtml,'      <td class="tg-ndr">'+cEmissor+'</td>')
 AADD(aHtml,'    </tr>')
 
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-hcliente">Código</td>')
+AADD(aHtml,'      <td class="tg-hndr">Código</td>')
 AADD(aHtml,'      <td class="tg-hndr" colspan="3">Município de Prestação</td>')
 AADD(aHtml,'      <td class="tg-hndr">UF</td>')
 AADD(aHtml,'      <td class="tg-hndr">Tipo NF</td>')
@@ -596,7 +686,7 @@ AADD(aHtml,'      <td class="tg-hndr">Competência</td>')
 AADD(aHtml,'    </tr>')
 
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-cliente">'+cMunPres+'</td>')
+AADD(aHtml,'      <td class="tg-ndr">'+cMunPres+'</td>')
 AADD(aHtml,'      <td class="tg-ndr" colspan="3">'+cDescMun+'</td>')
 AADD(aHtml,'      <td class="tg-ndr">'+cEstPres+'</td>')
 AADD(aHtml,'      <td class="tg-ndr">'+cTpNF+'</td>')
@@ -631,10 +721,10 @@ If Len(aItens) > 0
    //AADD(aItens,{SC6->C6_PRODUTO,SB1->B1_DESC,SC6->C6_CODISS,SB1->B1_ALIQISS,SC6->C6_TES,SC6->C6_VALOR})
 
 	AADD(aHtml,'    <td class="tg-hsc">Produto</td>')
-	AADD(aHtml,'    <td class="tg-hdesc" colspan="2">Descrição</td>')
+	AADD(aHtml,'    <td class="tg-hsc" colspan="2">Descrição</td>')
 	AADD(aHtml,'    <td class="tg-hrdv">TES</td>')
 	AADD(aHtml,'    <td class="tg-hrdv">Aliq Iss</td>')
-	AADD(aHtml,'    <td class="tg-hsc">Cod. ISS</td>')
+	AADD(aHtml,'    <td class="tg-hrdv">Cod. ISS</td>')
 	AADD(aHtml,'    <td class="tg-hvalor">Valor</td>')
 	AADD(aHtml,'  </tr>')
 
@@ -644,7 +734,7 @@ If Len(aItens) > 0
 			AADD(aHtml,'    <td class="tg-sc" colspan="2">'+aItens[nI,2]+'</td>')
 			AADD(aHtml,'    <td class="tg-rdv">'+aItens[nI,5]+'</td>')
 			AADD(aHtml,'    <td class="tg-sc">'+ALLTRIM(STR(aItens[nI,4],5,2))+'%</td>')
-			AADD(aHtml,'    <td class="tg-sc">'+aItens[nI,3]+'</td>')
+			AADD(aHtml,'    <td class="tg-ndr">'+aItens[nI,3]+'</td>')
 			AADD(aHtml,'    <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(aItens[nI,6],cPict))+'</td>')
 			AADD(aHtml,'  </tr>')
 		Next
@@ -681,8 +771,8 @@ AADD(aHtml,'      <tr>')
 AADD(aHtml,'        <td class="ti-hvalor">PIS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">COFINS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">CSLL</td>')
-AADD(aHtml,'        <td class="ti-hvalor">IRRF</td>')
-AADD(aHtml,'        <td class="ti-hvalor">INSS</td>')
+AADD(aHtml,'        <td class="ti-hvalor">IRRF'+IIF(nPIrrf>0,' '+ALLTRIM(STR(nPIrrf))+'%','')+'</td>')
+AADD(aHtml,'        <td class="ti-hvalor">INSS'+IIF(nPInss>0,' '+ALLTRIM(STR(nPinss))+'%','')+'</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS RETIDO</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS CPOM</td>')
@@ -755,18 +845,8 @@ RestArea(aAreaAtu)
 
 Return(aHtml)
 
- 
-
-
-
-
-
-
-
-
 
 /*
-
 #DEFINE NF_TIPONF		 01     //Tipo : N , I , C , P
 #DEFINE NF_OPERNF		 02     //E-Entrada | S - Saida
 #DEFINE NF_CLIFOR		 03     //C-Cliente | F - Fornecedor

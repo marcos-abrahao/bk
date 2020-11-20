@@ -51,6 +51,7 @@ IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMDiretoria .OR. ASCAN(aUs
 	IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMRepac //ASCAN(aUser[1,10],cMRepac) > 0       
 	   AADD(aRotY,{OemToAnsi("Alt Sit Vigente"), "U_BKGCTA03", 0, 2 })
 	   AADD(aRotY,{OemToAnsi("Alt Modo Filial"), "U_BKGCTA21", 0, 2 })
+	   AADD(aRotY,{OemToAnsi("Remove % Caução"), "U_BKGCTA23", 0, 2 })
 	ENDIF
  
    AADD(aRotY,{OemToAnsi("Dados Repac."), "U_BKGCTA04", 0, 2 })
@@ -121,7 +122,18 @@ Endif
 
 Return Nil
 
-
+// Remover percentual de Caução - 15/11/2020 - Marcos
+User Function BKGCTA23()
+If ALLTRIM(CN9->CN9_SITUAC) $ "05/09/A"
+	If MsgYesNo("Deseja remover o % de caução deste contrato?")
+		dbSelectArea("CN9")
+		RecLock("CN9",.F.)
+	  	CN9->CN9_FLGCAU := "2"
+		CN9->CN9_MINCAU := 0
+	  	msUnlock()
+	EndIf
+EndIf
+Return Nil
 
 // Alteração de dados referentes a Repactuação
 User Function BKGCTA04()

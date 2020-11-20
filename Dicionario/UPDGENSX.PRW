@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"28/10/2020 SB1"
+#DEFINE FIN_LAST_UPDATED 		"17/11/2020 AtuaGenFIl"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -183,9 +183,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			
 			//AtuGenXX( @cTexto )
 
-			////AtuGenFil( @cTexto )
+			AtuGenFil( @cTexto )
 
-			AtuGenX3( @cTexto )    // 28/10/20
+			//AtuGenX3( @cTexto )    // 28/10/20
 
 			//AtuGenP12( @cTexto )
 
@@ -1460,6 +1460,7 @@ aAdd(aSx2,"NNR") // - *Locais de Estoque
 aAdd(aSx2,"QAD") // - *Departamentos/Setor           
 aAdd(aSx2,"SAH") // - *Unidades de Medida            
 
+aAdd(aSx2,"SAI") // - -Solicitantes                                 
 aAdd(aSx2,"SAJ") // - -Grupos de Compras             
 aAdd(aSx2,"SAK") // - *Aprovadores                 
 aAdd(aSx2,"SAL") // - -Grupos de Aprovação               
@@ -1477,6 +1478,15 @@ aAdd(aSx2,"SZU") // - *Grupo Financeiro Produto BK
 //aAdd(aSx2,"VE5") // - Grupos de Desconto            
 //aAdd(aSx2,"WD2") // - Status do Workflow                   
 //aAdd(aSx2,"WD3") // - Rastreabilidade do Workflow   
+
+// Compras
+aAdd(aSx2,"DBK") // - Entidades Contábeis X Solic.                       
+aAdd(aSx2,"DBL") // - Entidades Contábeis X Grp Apr                     
+aAdd(aSx2,"DBM") // - Itens de Doc. com Alçada                         
+
+aAdd(aSx2,"DHK") // - Tipos de Compra               
+aAdd(aSx2,"DHL") // - Perfil de Aprovadores         
+aAdd(aSx2,"DHM") // - Tipo de Compra X Aprovador             
 
 
 // Financeiro
@@ -1940,7 +1950,7 @@ aAdd(aSx2,"CQX") // - *SALDO CONTAS CONSOL BL K
 aAdd(aSx2,"CQY") // - *SALDO CONTAS CONSOL BL K      
 aAdd(aSx2,"CQZ") // - *EMP CONTRAPARTES VL ELIM BL K 
 
-/* Grupo CS já está compartilhado
+// Grupo CS já está compartilhado
 aAdd(aSx2,"CS0") // - Revisão                       
 aAdd(aSx2,"CS1") // - Dados complementares da revis.
 aAdd(aSx2,"CS2") // - Empresa                       
@@ -1976,7 +1986,6 @@ aAdd(aSx2,"CSW") // - Itens Layouts de Diarios
 aAdd(aSx2,"CSX") // - Importacao de Diarios         
 aAdd(aSx2,"CSY") // - Importacao de Diarios Quebras 
 aAdd(aSx2,"CSZ") // - Dados ECF                     
-*/
 
 cQuery := ""
 For nI := 1 To Len( aSX2 )

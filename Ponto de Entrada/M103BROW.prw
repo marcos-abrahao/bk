@@ -128,8 +128,8 @@ IF __cUserId <> "000000" // Administrador
 	
 	
 	cFiltro := ""
-	// Se o usuario pertence ao grupo Administradores ou Master Diretoria : não filtrar
-    IF ASCAN(aUser[1,10],"000000") = 0 .AND. !lMDiretoria 
+	// Se o usuario pertence ao grupo Administradores, User Fiscal ou Master Diretoria : não filtrar
+    IF ASCAN(aUser[1,10],"000000") = 0 .AND. ASCAN(aUser[1,10],"000031") = 0 .AND. !lMDiretoria 
        IF !lStaf .OR. EMPTY(cSuper)
           IF lAClas
           	 IF EMPTY(cSuper)  .AND. __cUserId $ cGerGestao 

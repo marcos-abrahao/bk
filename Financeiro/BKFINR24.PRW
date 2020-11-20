@@ -95,6 +95,7 @@ Local cTipoNDC  := "1"
 Local cRefComp  := ""
 Local cTaxa     := ""
 Local cTotal    := ""
+Local cConta	:= ""
 
 // Itens
 Local nTamTex   := 0
@@ -103,7 +104,7 @@ Local aLin1     := {}
 Local aItens    := {}
 Local lColRdv   := .F.
 Local lColFinal := .F.
-
+Local cItem		:= ""
 If SE1->E1_TIPO <> "NDC"
  	cTipoTit := Posicione("SX5",1,xFilial("SX5")+"05"+SE1->E1_TIPO,"X5_DESCRI")
 EndIf
@@ -179,6 +180,7 @@ If SA1->(dbSeek(xFilial("SA1")+SE1->E1_CLIENTE+SE1->E1_LOJA))
 	//cCodMun		:= SA1->A1_COD_MUN
 	cUFCli		:= ALLTRIM(SA1->A1_EST)
 	//cEmailCli	:= SA1->A1_EMAIL
+	cConta		:= TRIM(SA1->A1_XXCTABC)
 EndIf
 
 
@@ -400,7 +402,6 @@ If Len(aItens) > 0
 		AADD(aHtml,'    <td class="tg-obs" colspan="5">'+IIF(VAL(cTaxa)>0,'A FATURAR COM A TAXA DE '+cTaxa,'')+' ('+Extenso(SE1->E1_VALOR)+')</td>')
 		AADD(aHtml,'    <td class="tg-vtotal">R$ '+ALLTRIM(TRANSFORM(SE1->E1_VALOR,cPict))+'</td>')
 		AADD(aHtml,'  </tr>')
-	
 			
 	Else
 	
@@ -408,12 +409,12 @@ If Len(aItens) > 0
 		AADD(aHtml,'    <td class="tg-hdesc" colspan="5">Descrição</td>')
 		AADD(aHtml,'    <td class="tg-hvalor">Valor</td>')
 		AADD(aHtml,'  </tr>')
-		cITEM := ""
+		cItem := ""
 		For nI := 1 To Len(aItens)
-			cITEM += aItens[nI,1]+cCrLf
+			cItem += aItens[nI,1]+cCrLf
 		Next
 		AADD(aHtml,'  <tr>')
-		AADD(aHtml,'    <td class="tg-desc" colspan="5">'+cITEM+'</td>')
+		AADD(aHtml,'    <td class="tg-desc" colspan="5">'+cItem+'</td>')
 		AADD(aHtml,'    <td class="tg-valor">&nbsp;</td>')
 		AADD(aHtml,'  </tr>')
 		
@@ -425,9 +426,16 @@ If Len(aItens) > 0
 	EndIf
 EndIf
 
+If !Empty(cConta) .AND. !("DADOS BANC" $ UPPER(cItem))
+	AADD(aHtml,'  <tr>')
+	AADD(aHtml,'  	<td class="tg-obs" colspan="6">DADOS BANCÁRIOS: '+ALLTRIM(cConta)+'</td>')
+	AADD(aHtml,'  </tr>')
+EndIf
+
 AADD(aHtml,'  <tr>')
-AADD(aHtml,'  	<td colspan="6">')
+AADD(aHtml,'  	<td colspan="6"></td>')
 AADD(aHtml,'  </tr>')
+
 
 AADD(aHtml,'</table>')
 AADD(aHtml,'<br>')

@@ -57,8 +57,8 @@ Else
 
 	// Data de Agendamento do Job
 	dAgJob		:= U_BKGetMv("BKGCTR1410")
-	If !(dAgJob == DATE())
-		u_xxLog(cArqLog,titulo+": não agendado - "+cStart,.T.,"")
+	If Empty(dAgJob) .OR. !(dAgJob == DATE())
+		u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+DTOC(dAgLog),.T.,"")
 		Reset Environment
 		Return Nil
 	EndIf
@@ -154,7 +154,14 @@ If !lJob
 		Return Nil
 	Endif
 	nAgendar := MV_PAR09
-	If nAgendar == 1
+	If nAgendar == 1 
+		If  MV_PAR10 < (dDatabase + 1)
+			MV_PAR10 := (dDatabase + 1)
+		EndIf
+		If LEN(ALLTRIM(MV_PAR11)) < 5
+			MV_PAR11 := "bruno.bueno@bkconsultoria.com.br"
+		EndIf
+		MV_PAR01 := " " // Sempre agendar todos os contratos
 		U_BKPutMv("BKGCTR1401",MV_PAR01,"C",10,0,"Contrato?")
 		U_BKPutMv("BKGCTR1402",MV_PAR02,"N", 2,0,"Mês Competência?")
 		U_BKPutMv("BKGCTR1403",MV_PAR03,"N", 4,0,"Ano Competência?")
@@ -166,7 +173,7 @@ If !lJob
 		U_BKPutMv("BKGCTR1409",MV_PAR09,"N", 1,0,"Agendar ?")
 		U_BKPutMv("BKGCTR1410",MV_PAR10,"D", 8,0,"Agendar para:")
 		U_BKPutMv("BKGCTR1411",MV_PAR11,"C",70,0,"E-Mail?")
-		MsgInfo("Agendamento efetuado!")
+		MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR10)+" 1h")
 		Return Nil
 	EndIf
 Else
@@ -746,7 +753,7 @@ FOR _nI := 1 TO nPeriodo
 	EndIf
    
 	//*********Faturamento do Contrato
-	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"+CRLF
+	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"+CRLF
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
     cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
 	cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_ = ''"+CRLF
@@ -834,7 +841,7 @@ FOR _nI := 1 TO nPeriodo
 		//Não tem cronograma neste mes
 
 	    QTMP->(dbCloseArea())
-		cQueryA := " SELECT TOP 1 CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,' ' AS CNA_XXMUN,0 AS D2_TOTAL,0 AS D2_VALISS, 0 AS E5DESC"+CRLF
+		cQueryA := " SELECT TOP 1 CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,' ' AS CNA_XXMUN,0 AS D2_TOTAL,0 AS D2_VALISS,0 AS D2_VALCPM, 0 AS E5DESC"+CRLF
 		cQueryA += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
 		cQueryA += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
@@ -906,17 +913,18 @@ FOR _nI := 1 TO nPeriodo
         ELSE
         	AADD(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,QTMP->D2_VALISS/(nIndTC/100),QTMP->D2_VALISS)})            
         ENDIF
-        AADD(aRentab,{"05-1","","S",0})
+        AADD(aRentab,{"05-1","(-) ISS Bitributado","S",IIF(nIndTC>0,QTMP->D2_VALCPM/(nIndTC/100),QTMP->D2_VALCPM)})
+        AADD(aRentab,{"05-2","","S",0})
 		IF lISSFURNAS
         	AADD(aRentab,{"06","Total dos Impostos + ISS","S",((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS})              
         ELSE
-        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS)/(nIndTC/100),((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS)})            
+        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)/(nIndTC/100),((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)})            
         ENDIF
         AADD(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))+nNDC}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+nIssBi))+nNDC}) 
         ELSE
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS))+nNDC}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))+nNDC}) 
 		ENDIF
         AADD(aRentab,{"07-1","","S",0})
         AADD(aRentab,{"08","CUSTO","S",0})
@@ -958,7 +966,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])
 			ENDIF
-			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|06|07|30-2|"  // 28/10/20
+			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|"  // 28/10/20
 				cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 				&cCampo2 += aRentab[_nJ,4]
 			ENDIF
@@ -972,7 +980,7 @@ FOR _nI := 1 TO nPeriodo
     QTMP->(dbCloseArea())
 
 	//*********Faturamento do Contrato
-	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"+CRLF
+	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"+CRLF
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
     cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA AND  CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_ = ''"+CRLF
 	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
@@ -1055,7 +1063,7 @@ FOR _nI := 1 TO nPeriodo
 
 	    QTMP->(dbCloseArea())
 
-		cQueryA := " SELECT TOP 1 CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK,0 AS D2_TOTAL,0 AS D2_VALISS, 0 AS E5DESC"+CRLF
+		cQueryA := " SELECT TOP 1 CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK,0 AS D2_TOTAL,0 AS D2_VALISS,0 AS D2_VALCPM, 0 AS E5DESC"+CRLF
 		cQueryA += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
 		cQueryA += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
@@ -3579,7 +3587,7 @@ FOR _nI := 1 TO nPeriodo
 		EndIf
 		
 		//********* FATURAMENTO - Inclusão para medição avulso
-		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS, SUM(E5_VALOR) AS E5DESC"
+		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"
 		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" 
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SC6")+" SC6 ON SC5.C5_NUM = SC6.C6_NUM" 
 		
@@ -3622,14 +3630,15 @@ FOR _nI := 1 TO nPeriodo
 			          
 			//AADD(aRentab,{"05","(-) ISS","S",TMPX2->D2_VALISS}) 
         	AADD(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,TMPX2->D2_VALISS/(nIndTC/100),TMPX2->D2_VALISS)})            
+        	AADD(aRentab,{"05-01","(-) ISS Bitributado","S",IIF(nIndTC>0,TMPX2->D2_VALCPM/(nIndTC/100),TMPX2->D2_VALCPM)})
 			           
-	        AADD(aRentab,{"05-1","","S",0}) 
+	        AADD(aRentab,{"05-2","","S",0}) 
 	        //AADD(aRentab,{"06","Total dos Impostos + ISS","S",((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS})            
-        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)/(nIndTC/100),((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)})            
+        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM)/(nIndTC/100),((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM)})            
 
 			AADD(aRentab,{"06-1","","S",0}) 
 			//AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)}) 
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS))/(nIndTC/100),TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS))}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM))/(nIndTC/100),TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM))}) 
 			
 	        AADD(aRentab,{"07-1","","S",0}) 
 	        AADD(aRentab,{"08","CUSTO","S",0}) 
@@ -3667,7 +3676,7 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 					(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4]+IIF("|"+aRentab[_nJ,1]+"|"="|01|"," - Medição Avulsa",""),aRentab[_nJ,2])
 				ENDIF
-				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|06|07|30-2|"
+				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|"
 					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 					&cCampo2 += aRentab[_nJ,4]
 				ENDIF
@@ -3902,7 +3911,7 @@ Do While (ALIAS_TMP)->(!eof())
 	nTDOMES 	:= 0
 
 	FOR _nI := 1 TO nPeriodo
-		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
+		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-2|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
 			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 	        nTotal		 += &cCampo2
 	        IF _nI == nCompet
@@ -4687,7 +4696,7 @@ Do While (ALIAS_TMP)->(!eof())
 	nTotalMES := 0
 	nTDOMES := 0
 	FOR _nI := 1 TO nPeriodo
-		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-1|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
+		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-2|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
 			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 	        nTotal		 += &cCampo2
 	        IF _nI == nCompet

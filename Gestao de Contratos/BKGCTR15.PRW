@@ -206,7 +206,7 @@ AADD(aSITUAC,"05 - Vigente")
 AADD(aSITUAC,"06 - Paralisado")
 AADD(aSITUAC,"07 - Sol. Finalização")
 AADD(aSITUAC,"08 - Finalizado")
-AADD(aSITUAC,"09 - Resisão")
+AADD(aSITUAC,"09 - Revisão")
 AADD(aSITUAC,"10 - Revisado")
 
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )

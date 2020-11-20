@@ -226,7 +226,7 @@ Return Nil
 User Function LBKCOMR11()
 Local aLegenda := {}
 
-AADD(aLegenda,{"BR_AMARELO"," - Cancelado"})
+AADD(aLegenda,{"BR_VERMELHO"," - Cancelado"})
 AADD(aLegenda,{"BR_AMARELO"," - Em Elaboração" })
 AADD(aLegenda,{"BR_AZUL" ," - Emitido"})
 AADD(aLegenda,{"BR_LARANJA"," - Em Aprovação" })
@@ -234,7 +234,7 @@ AADD(aLegenda,{"BR_VERDE"," - Vigente" })
 AADD(aLegenda,{"BR_CINZA"," - Paralisado" })
 AADD(aLegenda,{"BR_MARRON"," - Sol. Finalização" })
 AADD(aLegenda,{"BR_PRETO"," - Finalizado" })
-AADD(aLegenda,{"BR_PINK"," - Resisão" })
+AADD(aLegenda,{"BR_PINK"," - Revisão" })
 AADD(aLegenda,{"BR_BRANCO"," - Revisado" })
 
 BrwLegenda(cCadastro, "Legenda", aLegenda)

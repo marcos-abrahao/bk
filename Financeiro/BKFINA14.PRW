@@ -620,7 +620,11 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn001H += SPACE(9)          //009 017
 			Bcn001H += "2"               //018 018
 			Bcn001H += STRZERO(VAL(cCGC),14) //019 032
-			Bcn001H += "0008539930126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052
+			//If SM0->M0_CODIGO <> "15"
+				Bcn001H += "0008539930126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
+			//Else
+			//	Bcn001H += "0002732690126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
+			//EndIf
 			Bcn001H += STRZERO(VAL(cAgencia),5)   //053 057
 			Bcn001H += STRZERO(VAL(cDVAgenc),1)   //058 058 DV AGENCIA
 			Bcn001H += STRZERO(VAL(cConta),12)  //059 070
@@ -663,7 +667,11 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn001HD += SPACE(1)     //017 017
 			Bcn001HD += "2"          //018 018
 			Bcn001HD += STRZERO(VAL(cCGC),14) //019 032
-			Bcn001HD += "0008539930126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052
+			//If SM0->M0_CODIGO <> "15"
+				Bcn001HD += "0008539930126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
+			//Else
+			//	Bcn001HD += "0002732690126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
+			//EndIf
 			Bcn001HD += STRZERO(VAL(cAgencia),5)    //053 057
 			Bcn001HD += STRZERO(VAL(cDVAgenc),1)   //058 058
 			Bcn001HD += STRZERO(VAL(cConta),12)  //059 070
