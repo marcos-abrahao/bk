@@ -1,10 +1,14 @@
 #include "rwmake.ch"
 #include "protheus.ch"
 
-// Ponto de entrada para filtrar UserId e Superior 
-// 26/11/09 - Marcos B Abrahão
+/*/{Protheus.doc} M103FILB
+BK - Ponto de entrada para filtrar UserId e Superior
+@Return
+@author Marcos Bispo Abrahão
+@since 26/11/09
+@version P12
+/*/
 
-//User Function M103BROW()
 User Function M103FILB()
 
 Local aUser,cStaf,lStaf
@@ -69,11 +73,6 @@ IF __cUserId <> "000000" // Administrador
  	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007") //SUBSTR(SuperGetMV("MV_XXGRPMD",.F.,"000007"),1,6) 
     lMDiretoria := .F.
     aGrupo := {}
-    //AADD(aGRUPO,aUser[1,10])
-    //FOR i:=1 TO LEN(aGRUPO[1])
-	//	lMDiretoria := (aGRUPO[1,i] $ cMDiretoria)
-	//NEXT
-	//Ajuste nova rotina a antiga não funciona na nova lib MDI
 	aGrupo := UsrRetGrp(aUser[1][2])
 	IF LEN(aGrupo) > 0
 		FOR i:=1 TO LEN(aGrupo)
@@ -135,11 +134,11 @@ IF __cUserId <> "000000" // Administrador
           	 IF EMPTY(cSuper)  .AND. __cUserId $ cGerGestao 
              	//SET FILTER TO (SF1->F1_XXUSER <> __cUserId .AND. ( SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. F1_XXUSERS = '000075' .OR. F1_XXUSERS = '000120') .AND.  SF1->F1_STATUS = ' ')
              	// Filtro 1
-             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000175') AND F1_STATUS = ' ')" 
+             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000175') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L') " 
              ELSE
              	//SET FILTER TO (SF1->F1_XXUSER <> __cUserId .AND. ( SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' ) .AND.  SF1->F1_STATUS = ' ')
              	// Filtro 2
-             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' ) AND F1_STATUS = ' ')"
+             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' ) AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
              ENDIF
           ELSE   
           	 IF EMPTY(cSuper)   .AND. __cUserId $ cGerGestao
@@ -165,7 +164,7 @@ IF __cUserId <> "000000" // Administrador
 
        		 // Filtro 6
              cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
-          	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+") AND F1_STATUS = ' ')"
+          	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+") AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
 
           ELSE
               				 
@@ -181,7 +180,7 @@ IF __cUserId <> "000000" // Administrador
     ELSEIF lAClas   
        //SET FILTER TO (SF1->F1_STATUS = ' ')
        // Filtro 8
-       cFiltro := "(F1_STATUS = ' ')"
+       cFiltro := "(F1_STATUS = ' ' AND F1_XXLIB = 'L')"
     ENDIF
     //If !Empty(cFiltro)
     //    cFiltro := " F1_FILIAL='"+xFilial("SF1")+"' AND "+cFiltro

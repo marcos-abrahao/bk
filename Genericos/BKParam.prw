@@ -11,13 +11,13 @@ Generico - Substituir SuperGetMv e GetMv
 
 //SUPERGETMV( <nome do parâmetro>, <lHelp>, <cPadrão>, <Filial do sistema> )
 
-User Function BKGetMv(_cPar,_lHelp,_cPadrao,_cFil,_cEmp)
+User Function BKGetMv(_cPar,_lHelp,_xPadrao,_cFil,_cEmp)
 
 Local aArea         := GetArea()
 Local xRet          := Nil
 Local nTam          := 0
 Default _lHelp      := .F.
-Default _cPadrao    := ""
+Default _xPadrao    := ""
 Default _cFil       := "  "
 Default _cEmp       := "  "
 
@@ -51,9 +51,9 @@ If dbSeek(_cFil+_cEmp+_cPar,.F.)
             xRet := CTOD(ALLTRIM(SZX->ZX_CONTE01))
         Else
             xRet := STOD(ALLTRIM(SZX->ZX_CONTE01))
-            If Empty(xRet)
-                xRet := CTOD("")
-            EndIf
+        EndIf
+        If Empty(xRet)
+            xRet := CTOD("")
         EndIf
     ElseIf SZX->ZX_TIPO == "N"
         xRet := VAL(ALLTRIM(SZX->ZX_CONTE01))
@@ -61,7 +61,7 @@ If dbSeek(_cFil+_cEmp+_cPar,.F.)
         xRet := IIF("T" $ UPPER(SZX->ZX_CONTE01),.T.,.F.)
     EndIf
 Else 
-    xRet := _cPadrao
+    xRet := _xPadrao
 EndIf
 
 RestArea(aArea)

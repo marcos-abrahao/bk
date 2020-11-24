@@ -56,9 +56,10 @@ Else
 	cArqLog		:= "\TMP\BKGCTR14-"+cEmpPar+".LOG"
 
 	// Data de Agendamento do Job
-	dAgJob		:= U_BKGetMv("BKGCTR1410")
+	dAgJob		:= U_BKGetMv("BKGCTR1410",.F.,CTOD(""))
 	If Empty(dAgJob) .OR. !(dAgJob == DATE())
-		u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+DTOC(dAgLog),.T.,"")
+	
+		u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""),.T.,"")
 		Reset Environment
 		Return Nil
 	EndIf
@@ -173,6 +174,7 @@ If !lJob
 		U_BKPutMv("BKGCTR1409",MV_PAR09,"N", 1,0,"Agendar ?")
 		U_BKPutMv("BKGCTR1410",MV_PAR10,"D", 8,0,"Agendar para:")
 		U_BKPutMv("BKGCTR1411",MV_PAR11,"C",70,0,"E-Mail?")
+		u_xxLog(cArqLog,cStart+": "+titulo+" - agendamento efetuado para: "+DTOC(MV_PAR10),.T.,"")
 		MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR10)+" 1h")
 		Return Nil
 	EndIf
@@ -922,7 +924,7 @@ FOR _nI := 1 TO nPeriodo
         ENDIF
         AADD(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+nIssBi))+nNDC}) 
+        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM))+nNDC}) 
         ELSE
         	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))+nNDC}) 
 		ENDIF

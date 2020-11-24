@@ -1,10 +1,15 @@
 #include "protheus.ch"
 #include "rwmake.ch"
 
-// Ponto de entrada para gravar UserId e Superior 
-// 19/11/09 - Marcos B Abrahão
-// Gravar dados de pagamento
-// 19/03/19 - Marcos B Abrahão
+
+/*/{Protheus.doc} BKParam
+BK - Ponto de entrada para gravar UserId e Superior
+19/11/09 - Marcos B Abrahão - Gravar dados de pagamento
+@Return
+@author Marcos Bispo Abrahão
+@since 19/11/2009 
+@version P12
+/*/
 
 User Function SF1140I()
 Local aUser,cSuper
@@ -19,7 +24,7 @@ Private nTipoPg  := 0
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 
-IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__CUSERID) > 0  // Não Gravar Administrador
+IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	PswOrder(1) 
 	PswSeek(__CUSERID) 
 	aUser  := PswRet(1)
@@ -27,7 +32,7 @@ IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__CUSERID) > 0  // Não Gravar Administrador
 	RecLock("SF1",.F.)
 	SF1->F1_XXUSER  := __cUserId
 	SF1->F1_XXUSERS := cSuper
-	MSUNLOCK("SF1")
+	MsUnLock("SF1")
 ENDIF
 
 If !l140Auto
@@ -41,7 +46,14 @@ SF1->F1_XBANCO  := cxBanco
 SF1->F1_XAGENC  := cxAgencia
 SF1->F1_XNUMCON := cxConta
 SF1->F1_CHVNFE  := cChvNfe
-MSUNLOCK("SF1")
+
+// Limpar dados de Liberação
+SF1->F1_XXLIB   := " "
+SF1->F1_XXULIB  := " "
+SF1->F1_XXDLIB  := " "
+SF1->F1_XXDINC  := DtoC(Date())+"-"+Time()
+
+MsUnLock("SF1")
 
 If nTipoPg == 1 .AND. SF1->F1_FORNECE <> "000084"
 	PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
