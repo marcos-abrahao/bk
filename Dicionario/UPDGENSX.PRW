@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"17/11/2020 AtuGenFil"
+#DEFINE FIN_LAST_UPDATED 		"19/12/2020 AtuGenX3 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )  // 06/10/20
+			//AtuGenPar( @cTexto )   // 06/10/20
 			
 			//AtuGenXX( @cTexto )
 
-			AtuGenFil( @cTexto )
+			//AtuGenFil( @cTexto )   // 21/11/20
 
-			//AtuGenX3( @cTexto )    // 28/10/20
+			AtuGenX3( @cTexto )    // 19/12/20
 
 			//AtuGenP12( @cTexto )
 
@@ -829,7 +829,7 @@ Local nBrw := 0
 
 cTexto  += "Inicio da Atualizacao X31UPDTABLE" + CRLF 
 
-oProcess:IncRegua2( "Incluir campo no banco de dados via X31UPDTABLE(“ALIAS”)" )
+oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“ALIAS”)" )
 
 dbSelectArea( "SX3" )
 
@@ -1108,10 +1108,11 @@ APPEND FROM \sx3cnanat.dtc
 X31UPDTABLE("CNA")
 */
 
+
+/*
 aNBrowse:= {}
 aSBrowse:= {}
 
-/*
 aAdd(aNBrowse,"F1_XXANEXO")
 aAdd(aNBrowse,"F1_DOCFOL")
 aAdd(aNBrowse,"F1_VERBAFO")
@@ -1133,7 +1134,6 @@ aAdd(aNBrowse,"F1_BSFCPST")
 aAdd(aNBrowse,"F1_VFCPANT")
 aAdd(aNBrowse,"F1_SERMDF")
 aAdd(aNBrowse,"F1_NUMMDF")
-*/
 aAdd(aNBrowse,"B1_POSIPI")
 
 dbSelectArea( "SX3" )
@@ -1147,7 +1147,6 @@ For nBrw := 1 TO Len(aNBrowse)
 		MsUnLock()
 	EndIf
 Next
-
 
 //aAdd(aSBrowse,"F1_CHVNFE")
 aAdd(aSBrowse,"B1_TS")
@@ -1163,12 +1162,59 @@ For nBrw := 1 TO Len(aSBrowse)
 		MsUnLock()
 	EndIf
 Next
+*/
+
 
 /*
 dbSelectArea( "SX3" )
 APPEND FROM \sx3sf1.dtc
 X31UPDTABLE("SF1")
 */
+
+/*
+// 24/11/20 - Liberação de Pré-Notas
+dbSelectArea( "SX3" )
+APPEND FROM \sx3f1lib.dtc
+X31UPDTABLE("SF1")
+*/
+
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "F1_XXLIB" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_CBOX  := "L=Liberada;N=Nao Liberada;A=A liberar;C=Classificada;E=Estornada;B=Bloqueada"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "CN9_CLIENT" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_PROPRI  := "U"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "CN9_LOJACL" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_PROPRI  := "U"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+
+// 02/12/20 - Data prev pgto pré-nota
+/*
+dbSelectArea( "SX3" )
+APPEND FROM \x3sf1.dtc
+X31UPDTABLE("SF1")
+*/
+
 
 Return
 

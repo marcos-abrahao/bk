@@ -2,21 +2,15 @@
 #include "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
+/*/{Protheus.doc} GQREENTR
+BK - Este ponto de entrada tem o objetivo de eviar a-mail para o grupo de solicitante, quando entrada da NF aviso de entrada
+@Return
+@author Adilson do Prado
+@since 04/06/13
+@version P12
+/*/
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³GQREENTR  ºAutor  ³Adilson do Prado    º Data ³  04/06/13   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Este ponto de entrada tem o objetivo de eviar a-mail       º±±
-±±ºpara o grupo de solicitante, quando entrada da NF aviso de entrada     º±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
-
-
-USER FUNCTION GQREENTR()
+User Function GQREENTR()
 Local cQuery    := ""
 Local cQuery1	:= ""
 Local cQuery2	:= ""
@@ -86,10 +80,9 @@ For nX_ := 1 to Len(aUsers)
 NEXT
 
 
-
-cQuery1 := "Select F1_DOC,F1_SERIE,F1_FORNECE,F1_LOJA,F1_STATUS,F1_XXUSERS"
+cQuery1 := "SELECT F1_DOC,F1_SERIE,F1_FORNECE,F1_LOJA,F1_STATUS,F1_XXUSERS"
 cQuery1 += " FROM "+RETSQLNAME("SF1")+" SF1" 
-cQuery1 += " where SF1.F1_FILIAL='"+xFilial('SF1')+"' AND SF1.D_E_L_E_T_='' AND SF1.F1_DOC='"+@CNFISCAL +"' AND SF1.F1_SERIE='"+ @CSERIE +"'"
+cQuery1 += " WHERE SF1.F1_FILIAL='"+xFilial('SF1')+"' AND SF1.D_E_L_E_T_='' AND SF1.F1_DOC='"+@CNFISCAL +"' AND SF1.F1_SERIE='"+ @CSERIE +"'"
 cQuery1 += " AND SF1.F1_FORNECE='"+ @CA100FOR +"' AND SF1.F1_LOJA='"+ @CLOJA +"' AND SF1.F1_TIPO='"+ @cTipo +"'"
 	        
 TCQUERY cQuery1 NEW ALIAS "TMPSF1"
@@ -168,7 +161,7 @@ DO While !TMPSF1->(EOF())
 		NEXT
 
 		IF lAtFixo
-  			cAssunto:= "ATIVO IMOBILIZADO - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+  			cAssunto:= "Ativo Imobilizado - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
 			aCabs   := {}
 			aCabs   := {"Nº Pedido","Nº Solict.","Item SC.","Cod. Produto","Descr. Produto","UM","Quant. Solicitada","Quant. Atendida","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo"}
 			aEmail := {}
@@ -178,9 +171,9 @@ DO While !TMPSF1->(EOF())
 	  		U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 
 		ELSE
 	
-	    	cQuery2 := "Select D1_ITEM,D1_COD,D1_XXDESCP,D1_UM,D1_QUANT,D1_VUNIT,D1_TOTAL,D1_CC,D1_XXDCC,D1_TP "
+	    	cQuery2 := "SELECT D1_ITEM,D1_COD,D1_XXDESCP,D1_UM,D1_QUANT,D1_VUNIT,D1_TOTAL,D1_CC,D1_XXDCC,D1_TP "
 			cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" 
-			cQuery2 += " where SD1.D1_FILIAL='"+xFilial('SD1')+"' AND SD1.D_E_L_E_T_='' AND SD1.D1_DOC='"+TMPSF1->F1_DOC+"' AND SD1.D1_SERIE='"+TMPSF1->F1_SERIE+"'"
+			cQuery2 += " WHERE SD1.D1_FILIAL='"+xFilial('SD1')+"' AND SD1.D_E_L_E_T_='' AND SD1.D1_DOC='"+TMPSF1->F1_DOC+"' AND SD1.D1_SERIE='"+TMPSF1->F1_SERIE+"'"
 			cQuery2 += " AND SD1.D1_FORNECE='"+TMPSF1->F1_FORNECE+"' AND SD1.D1_LOJA='"+TMPSF1->F1_LOJA+"'"
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPSD1"
@@ -217,7 +210,7 @@ Enddo
 TMPSF1->(DbCloseArea())
 
 IF lBkCla
-	AvalForn(.F.)
+	U_AvalForn(.F.)
 ENDIF
 
 Return( NIL )
@@ -230,14 +223,14 @@ User Function RAvalForn()
 cAvalia := "000000/000138/000093/000005" // Adm/Michele/Fabio Quirino/Anderson
  
 If __cUserId $ cAvalia 
-	AvalForn(.T.)
+	U_AvalForn(.T.)
 Else
 	MsgStop("Função não permitida para seu usuário!!","GQREENTR - Atenção")
 EndIf
 Return Nil 
 
 
-STATIC function AvalForn(lReavalia) 
+User Function AvalForn(lReavalia) 
 
 Local oGroup1,oGroup2,oGroup3,oGroup4  //,oGroup5
 Local oSay,oFont1,oFont2,oFont3
@@ -334,7 +327,7 @@ ACTIVATE MSDIALOG oDlg CENTERED  Valid(validaSF1(nRadio1,nRadio2,nRadio3,nRadio4
 Return
 
 
-STATIC FUNCTION validaSF1(nRadio1,nRadio2,nRadio3,nRadio4,nRadio5)
+Static Function validaSF1(nRadio1,nRadio2,nRadio3,nRadio4,nRadio5)
 LOCAL lOK := .T.
 
 IF nRadio1 == 0 .OR. nRadio2 == 0 .OR. nRadio3 == 0 .OR. nRadio4 == 0
@@ -347,7 +340,7 @@ ENDIF
 RETURN lOK
 
 
-STATIC FUNCTION  GrvSF1(nRadio1,nRadio2,nRadio3,nRadio4,nRadio5) 
+Static Function GrvSF1(nRadio1,nRadio2,nRadio3,nRadio4,nRadio5) 
 Local lOK       := .T. 
 Local cQuery    := ""
 Local cAvali    := "" 

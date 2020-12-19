@@ -95,7 +95,7 @@ EndIf
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 
-DEFINE MSDIALOG oDlg TITLE cTitulo2 FROM 000,000 TO 270,430 PIXEL 
+DEFINE MSDIALOG oDlg TITLE cTitulo2 FROM 000,000 TO 300,430 PIXEL 
 
 @ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 220,125
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
@@ -103,7 +103,7 @@ lAll := .F.
 @ 005, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
 oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[3]) >= dDatabase,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
 
-@ 020, 005 LISTBOX oListID FIELDS HEADER "","Lote (CTRID)","Pgto","Total R$" SIZE 210,100 OF oPanelLeft PIXEL 
+@ 018, 005 LISTBOX oListID FIELDS HEADER "","Lote (CTRID)","Pgto","Total R$" SIZE 210,100 OF oPanelLeft PIXEL 
 oListID:SetArray(aCtrId)
 oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),aCtrId[oListId:nAt][2],aCtrId[oListId:nAt][3],aCtrId[oListId:nAt][4]}}
 oListID:bLDblClick := {|| aCtrId[oListId:nAt][1] := ValidaMrk(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][3]), oListID:DrawSelect()}
@@ -176,9 +176,9 @@ oBx := LoadBitmap( GetResources(), "BR_VERMELHO" )
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 
-DEFINE MSDIALOG oDlg TITLE "Marque os Titulos que deseja excluir" FROM 000,000 TO 450,630 PIXEL 
+DEFINE MSDIALOG oDlg TITLE "Marque os Titulos que deseja excluir" FROM 000,000 TO 490,680 PIXEL 
 
-@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 320,225
+@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 350,245
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
 
 //lAll := .F.
@@ -187,7 +187,7 @@ oPanelLeft:Align := CONTROL_ALIGN_LEFT
 
 @ 005, 005 SAY "Total: "+TRANSFORM(nTotal,"@E 999,999,999.99") OF oPanelLeft SIZE 100,10 PIXEL
 
-@ 012, 005 LISTBOX oListID FIELDS HEADER "Ok","Titulo","Lote (CTRID)","Tipo","Banco","Data Pgt","Valor R$","Validação" SIZE 310,200 OF oPanelLeft PIXEL 
+@ 013, 005 LISTBOX oListID FIELDS HEADER "Ok","Titulo","Lote (CTRID)","Tipo","Banco","Data Pgt","Valor R$","Validação" SIZE 335,200 OF oPanelLeft PIXEL 
 
 //cPrf,cTitulo,QSZ2->Z2_CTRID,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_DATAPGT,TRANSFORM(QSZ2->XX_TOTAL,"@E 999,999,999.99")
 

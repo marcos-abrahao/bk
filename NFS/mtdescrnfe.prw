@@ -157,14 +157,16 @@ IF !EMPTY(cContrato)
 	dbSelectArea("CN9")
     cRevisa := SPACE(LEN(CN9->CN9_REVISA))
     cObsMed := ""
-	IF !EMPTY(aTmp)
-	   nReg := aTmp[1]
-	   dbSelectArea("CND")
-       dbGoTo(nReg)
-	   cObsMed := TRIM(CND->CND_OBS)
-	   cRevisa := CND->CND_REVISA
-	ENDIF
-    
+	If !EMPTY(aTmp)
+		nReg := aTmp[1]
+		dbSelectArea("CND")
+    	dbGoTo(nReg)
+		cObsMed := TRIM(CND->CND_OBS)
+		cRevisa := CND->CND_REVISA
+		If TRIM(CND->CND_CONTRA) == '132000464' // CPRM (Obs: pendente de criar campo no CNA para esta função)
+			cObsMed += " A gestão financeira do contrato é feita pela CPRM/BH"
+		EndIf
+	EndIf
 
 	// Descrição do contrato = descrição do centro de custo
 	dbSelectArea("CTT")
@@ -362,7 +364,7 @@ IF SF2->F2_VALIRRF > 0
       nPIrrf := GETMV("MV_ALIQIRF")
    ENDIF
    ++nQTDIMP
-   cImpost += "IRRF: "+ALLTRIM(STR(nPIrrf,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALIRRF,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "IRRF: "+PicPer(nPIrrf,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALIRRF,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -371,7 +373,7 @@ ENDIF
 IF SF2->F2_VALPIS > 0
    nTOTIMP += SF2->F2_VALPIS
    ++nQTDIMP
-   cImpost += "PIS: "+ALLTRIM(STR(nPPis,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "PIS: "+PicPer(nPPis,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -380,7 +382,7 @@ ENDIF
 IF SF2->F2_VALCOFI > 0
    nTOTIMP += SF2->F2_VALCOFI
    ++nQTDIMP
-   cImpost += "COFINS: "+ALLTRIM(STR(nPCofins,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99"))+CRLF  //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "COFINS: "+PicPer(nPCofins,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99"))+CRLF  //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -389,7 +391,7 @@ ENDIF
 IF SF2->F2_VALCSLL > 0
    nTOTIMP += SF2->F2_VALCSLL
    ++nQTDIMP
-   cImpost += "CSLL: "+ALLTRIM(STR(nPCsll,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "CSLL: "+PicPer(nPCsll,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -399,7 +401,7 @@ IF !cCliente $ cXXNOISS .AND. !STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS
 	IF SF2->F2_VALISS > 0  .AND. SF2->F2_RECISS = "1"
    		nTOTIMP += SF2->F2_VALISS
   	 	++nQTDIMP
-  	 	cImpost += "ISS: "+ALLTRIM(STR(nPIss,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALISS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+  	 	cImpost += "ISS: "+PicPer(nPIss,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALISS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
   	 	lImp := !lImp
   	 	IF nQTDIMP==3
    			nQTDIMP := 0
@@ -415,7 +417,7 @@ IF SF2->F2_VALINSS > 0
    ELSE
       cImpost += "INSS: "
    ENDIF
-   cImpost += ALLTRIM(STR(nPInss,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALINSS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += PicPer(nPInss,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALINSS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -433,7 +435,7 @@ IF SA1->A1_XXFUMDI == "S" .OR. SF2->F2_XXVFUMD > 0
 	ENDIF
 	nTOTIMP += SF2->F2_XXVFUMD
 	++nQTDIMP
-	cImpost += "FUMDIP: "+ALLTRIM(STR(SF2->F2_XXAFUMD,5,2))+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVFUMD,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))
+	cImpost += "FUMDIP: "+PicPer(SF2->F2_XXAFUMD,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVFUMD,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))
  	lImp := !lImp
  	IF nQTDIMP==3
 		nQTDIMP := 0
@@ -505,7 +507,7 @@ IF !EMPTY(SF2->F2_XXVRETC)
 	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
 		cDescr += "|"
 	ENDIF
-	cDescr += "Retenção Contratual ("+ALLTRIM(TRANSFORM(SF2->F2_XXRETC,"@E 99.99"))+"%): R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVRETC,"@E 999,999,999.99"))+"|"
+	cDescr += "Retenção Contratual ("+PicPer(SF2->F2_XXRETC,5,2)+"%): R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVRETC,"@E 999,999,999.99"))+"|"
 ENDIF
 
 IF nINSSME > 0
@@ -521,7 +523,7 @@ IF nINSSME > 0
 	
 	cDescr1 += "VALOR DA NOTA FISCAL R$"+TRANSFORM(SF2->F2_VALBRUT,"@E 999,999,999.99")+CRLF
 	cDescr1 += "(-) "+STR(nINSSME,2)+"% REDUÇÃO DO INSS POR FORNECIMENTO DE MATERIAIS R$"+TRANSFORM(nREDINSS,"@E 999,999,999.99")+CRLF
-	cDescr1 += "BASE DE CALCULO DE INSS R$"+TRANSFORM(nBINSS,"@E 999,999,999.99")+" x "+STR(nPInss,5,2)+"% A SER RETIDO R$"+TRANSFORM(nVALINSS,"@E 999,999,999.99")+CRLF
+	cDescr1 += "BASE DE CALCULO DE INSS R$"+TRANSFORM(nBINSS,"@E 999,999,999.99")+" x "+PicPer(nPInss,5,2)+"% A SER RETIDO R$"+TRANSFORM(nVALINSS,"@E 999,999,999.99")+CRLF
 
 	cDescr  += TextoNF(cDescr1,nMaxTLin)
 
@@ -562,8 +564,19 @@ CND->(RestArea(aAreaCND))
 RestArea(aAreaAtu)
 
 return cDescr
-                       
 
+
+// Retorna o Percentual em caracteres sem .00 no final
+Static Function PicPer(nAliq,nT,nD)
+Local cAliq := ALLTRIM(STR(nAliq,nT,nD))
+If ("."+Replicate("0",nD)) $ cAliq
+	cAliq := STRTRAN(cAliq,"."+Replicate("0",nD),"")
+EndIf
+Return cAliq
+
+
+
+// Tela para alterar o corpo da NF
 Static Function AltCorpo(cCorpo,cNF)
 LOCAL aLin ,cLin,xLin
 LOCAL nI,nJ
@@ -854,7 +867,7 @@ FOR nI:= 1 to MLCOUNT(cTexto,nMaxTLin)
 			cRetTexto += IIF(!EMPTY(cLastLin),cLastLin+"|","")
 			cLastLin := cNewLin
 		ElseIf (LEN(cNewLin) + nTamLast) = nMaxTlin
-			cRetTexto += IIF(!EMPTY(cLastLin),cLastLin+"|","")
+			cRetTexto += IIF(!EMPTY(cLastLin),cLastLin+IIF(!EMPTY(cNewLin)," - ",""),"")
 			cRetTexto += IIF(!EMPTY(cNewLin),cNewLin+"|","")
 			cLastLin := ""
 		Else

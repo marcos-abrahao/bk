@@ -21,6 +21,7 @@ Private cPerg    	:= "BKGCTR15"
 
 Aadd( aDbf, { 'XX_CONTRAT', 'C', 10,00 } )
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )
+Aadd( aDbf, { 'XX_CNPJ', 'C', 18,00 } )
 Aadd( aDbf, { 'XX_ENDER','C', 200,00 } )
 Aadd( aDbf, { 'XX_TELS','C', 30,00 } )
 Aadd( aDbf, { 'XX_XXDESC',  'C', 100,00 } )
@@ -58,6 +59,9 @@ AADD(aCabs  ,"Nº SIGA")
 
 AADD(aCampos,"TRB->XX_NOMCLI")
 AADD(aCabs  ,"Contratante")
+
+AADD(aCampos,"TRB->XX_CNPJ")
+AADD(aCabs  ,"CNPJ")
 
 AADD(aCampos,"TRB->XX_ENDER")
 AADD(aCabs  ,"Endereço Completo do Cliente")
@@ -158,6 +162,11 @@ DO WHILE CN9->(!EOF())
     
     cENDER := TRIM(Posicione("SA1",1,xFilial("SA1")+CN9->CN9_CLIENT+CN9->CN9_LOJACL,"A1_END")) 
     cENDER := TRIM(SA1->A1_END)+' - '+TRIM(SA1->A1_BAIRRO)+' - '+TRIM(SA1->A1_MUN)+' - '+SA1->A1_EST   
+	If RetPessoa(SA1->A1_CGC) == "F"
+		cCNPJCli := Transform(SA1->A1_CGC,"@R 999.999.999-99")
+	Else
+		cCNPJCli := Transform(SA1->A1_CGC,"@R 99.999.999/9999-99")
+	Endif
 
     dtFIM  := CTOD("")
     dtFIM  := MonthSum( CN9->CN9_DTINIC , nPRAZOMES ) 
@@ -167,6 +176,7 @@ DO WHILE CN9->(!EOF())
 	Reclock("TRB",.T.)
 	TRB->XX_CONTRAT := CN9->CN9_NUMERO
 	TRB->XX_NOMCLI  := SA1->A1_NOME
+	TRB->XX_CNPJ	:= cCNPJCli
 	TRB->XX_ENDER   := cENDER
 	TRB->XX_TELS    := CN9->CN9_XXTELS
 	TRB->XX_XXDESC  := CN9->CN9_XXDESC

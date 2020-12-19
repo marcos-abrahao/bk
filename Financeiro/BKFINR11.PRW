@@ -1204,11 +1204,11 @@ For j := 1 To nDias
 	   			ENDIF
 	       			
 				nTot:= 0
-				nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC })
+				nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC .AND. x[3]==SD1->D1_COD })
 	            IF nTot > 0
 	               	aTot[nTot,2] += SD1->D1_TOTAL
 	            ELSE
-					AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL})
+					AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL,SD1->D1_COD})
 				ENDIF
 				IF SE2->E2_TIPO $ "TX #ISS#TXA#INS"
 					cHist2 := SE2->E2_NATUREZ+" Ref. NF ENTRADA nº:"+SD1->D1_DOC+" série:"+SD1->D1_SERIE+" Fornecedor:"+SD1->D1_FORNECE+" Loja:"+SD1->D1_LOJA
@@ -1240,11 +1240,11 @@ For j := 1 To nDias
 			DO WHILE SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE == ;
 				xFilial("SD2")+cChave
 				nTot:= 0
-				nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO })
+				nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO .AND. x[3]==SD2->D2_COD })
                 IF nTot > 0
                 	aTot[nTot,2] += SD2->D2_TOTAL
                 ELSE
-					AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL})
+					AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL,SD2->D2_COD})
 				ENDIF
 				cTHist := ""
            		cTHist := SE2->E2_NATUREZ+" Ref. NF SAIDA nº:"+SD2->D2_DOC+" série:"+SD2->D2_SERIE+" Cliente:"+SD2->D2_CLIENTE+" Loja:"+SD2->D2_SERIE
@@ -1306,7 +1306,7 @@ For j := 1 To nDias
                	IF nTot > 0
                		aTot[nTot,2] += QSZ2->Z2_VALOR
                	ELSE
-					AADD(aTot,{QSZ2->Z2_CC,QSZ2->Z2_VALOR})
+					AADD(aTot,{QSZ2->Z2_CC,QSZ2->Z2_VALOR,""})
 				ENDIF
 					
 				IF !(cHist $ cTHist)
@@ -1372,9 +1372,9 @@ For j := 1 To nDias
 				(cAliasTmp3)->XXCC   	 := cCC
 				(cAliasTmp3)->DESCRCC    := cDescrCC
 				//(cAliasTmp3)->XX_TIPO    := SE2->E2_TIPO
-				(cAliasTmp3)->B1_COD     := cProduto
-				IF !EMPTY(cProduto)
-					(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_DESC")
+				(cAliasTmp3)->B1_COD     := aTot[IX,3]
+				IF !EMPTY(aTot[IX,3])
+					(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+aTot[IX,3],"B1_DESC")
 				ENDIF
 				//(cAliasTmp3)->DESCFIN 	 := cDESCFIN				
 				(cAliasTmp3)->XX_VENCREA := SE2->E2_VENCREA
@@ -1600,11 +1600,11 @@ For j := 1 To nDias
 		DO WHILE SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE+SD2->D2_CLIENTE+SD2->D2_LOJA == ;
 			xFilial("SD2")+SE1->E1_NUM+SE1->E1_PREFIXO+SE1->E1_CLIENTE+SE1->E1_LOJA
 			nTot:= 0
-			nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO })
+			nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO .AND. x[3]==SD2->D2_COD })
             IF nTot > 0
                	aTot[nTot,2] += SD2->D2_TOTAL
             ELSE
-				AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL})
+				AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL,SD2->D2_COD})
 			ENDIF
 			cHist := ""
        		cHist := "Rec. NF nº:"+SD2->D2_DOC+" série:"+SD2->D2_SERIE
@@ -1675,9 +1675,9 @@ For j := 1 To nDias
 				(cAliasTmp3)->XXCC   	 := cCC
 				(cAliasTmp3)->DESCRCC    := cDescrCC
 				//(cAliasTmp3)->XX_TIPO    := SE1->E1_TIPO
-				(cAliasTmp3)->B1_COD     := cProduto
-				IF !EMPTY(cProduto)
-					(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_DESC")
+				(cAliasTmp3)->B1_COD     := aTot[IX,3]
+				IF !EMPTY(aTot[IX,3])
+					(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+aTot[IX,3],"B1_DESC")
 				ENDIF
 				//(cAliasTmp3)->DESCFIN 	 := cDESCFIN
 				(cAliasTmp3)->XX_VENCREA := SE1->E1_VENCREA

@@ -63,7 +63,11 @@ If !lRet
 		
 		    RecLock("SF1",.F.)
 			SF1->F1_APROV := ""
+			SF1->F1_XXLIB := "E"
+			SF1->F1_XXULIB := __cUserId
+			SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
 			SF1->(MsUnlock())
+
 		EndIf
 	Else
 		lRet := .T. 
@@ -73,9 +77,14 @@ If !lRet
 		Else
 		    // Aqui, verificar valores
 			lRet := U_BlqDoc(U_GetValTot(),.F.)
-			//If lRet
-			//	MsgAlert("Este documento foi bloqueado, aguarde a liberação e classifique-o novamente. ")
-			//EndIf
+			If lRet
+				//	MsgAlert("Este documento foi bloqueado, aguarde a liberação e classifique-o novamente. ")
+			    RecLock("SF1",.F.)
+				SF1->F1_XXLIB := "B"
+				SF1->F1_XXULIB := __cUserId
+				SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+				SF1->(MsUnlock())
+			EndIf
 		EndIf
 
 	EndIf

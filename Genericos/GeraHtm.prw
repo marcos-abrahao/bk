@@ -11,7 +11,7 @@ Local cPicN   := "@E 99999999.99"
 Local cAlign  := ""
 Default cPrw  := ""
 
-cMsg += CabHtml(cTitulo)   
+cMsg += CabHtml(cTitulo)  
 cMsg += Cab1Html(aCabs)
 
 For _nJ := 1 TO LEN(aDet)
@@ -111,7 +111,6 @@ cHtm += '  </tr>'
 cHtm += '</table>' 
 cHtm += '<br>' 
 Return cHtm
-
 
 
 Static Function Cab1Html(aCabs)

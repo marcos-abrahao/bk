@@ -107,12 +107,17 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	ENDIF
 	
 	cEmail += cEmUSER
-	u_xxLog("\TMP\MT094END.TXT","1-"+cEmail,.T.,"")        
+	u_xxLog("\TMP\MT094END.TXT","1-"+cEmail,.T.,"") 
+	       
+	RecLock("SF1",.F.)
 	IF nOpcao = 5  //3
 		cAssunto:= "Bloqueada"
+		SF1->F1_XXLIB  := "B"
 	ELSE
 		cAssunto:= "Liberada"
+		SF1->F1_XXLIB  := "L"
 	ENDIF
+	MsUnLock("SF1")
                                                                                                 
 	cAssunto += " a classificação da Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
 

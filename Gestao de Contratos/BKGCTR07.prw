@@ -107,6 +107,9 @@ AADD(aCabs  ,"Municipio")
 AADD(aCampos,"QTMP->CNF_COMPET")
 AADD(aCabs  ,"Competencia")
 
+AADD(aCampos,"QTMP->CND_XXRM")
+AADD(aCabs  ,"RM")
+
 AADD(aCampos,"QTMP->XX_PROD")
 AADD(aCabs  ,"Produto")
 
@@ -224,12 +227,13 @@ Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-cQuery := " SELECT DISTINCT F2_FILIAL,CND_CLIENT AS XX_CLIENTE,CND_LOJACL AS XX_LOJA,C6_PRODUTO AS XX_PROD,B1_DESC,B1_CODISS,B1_ALIQISS,CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
+cQuery := " SELECT DISTINCT F2_FILIAL,CNA_CLIENT AS XX_CLIENTE,CNA_LOJACL AS XX_LOJA,C6_PRODUTO AS XX_PROD,B1_DESC,B1_CODISS,B1_ALIQISS,CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
 cQuery += "    CTT_DESC01, "+ CRLF
 cQuery += "    CNA_NUMERO,CNA_XXMUN, "+ CRLF
 cQuery += "    CND_NUMMED, "+ CRLF
+cQuery += "    CND_XXRM, "+ CRLF
 cQuery += "    C6_NUM, "+ CRLF
 
 // 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
@@ -273,6 +277,8 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1"
 cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+ CRLF
 cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+ CRLF
+//cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON CNA_CLIENT = A1_COD AND CNA_LOJACL = A1_LOJA" + CRLF
+//cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
 //cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"
 
 cQuery += " WHERE CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+ CRLF
@@ -295,6 +301,7 @@ cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) A
 cQuery += "        A1_NOME, "  + CRLF // CTT_DESC01
 cQuery += "        ' ', CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF  // CNA_NUMERO,CNA_XXMUN
 cQuery += "        ' ', "  + CRLF     // CND_NUMMED
+cQuery += "        C5_XXRM, "  + CRLF     // CND_XXRM
 cQuery += "        D2_PEDIDO AS C6_NUM, " + CRLF   // C6_NUM
 cQuery += "        0,0, "  + CRLF   // XX_BONIF,XX_MULTA
 cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS,F2_VLCPM,F2_XXVRETC, " + CRLF

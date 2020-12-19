@@ -1245,11 +1245,11 @@ While Eval(bCondWhile)
 			DO WHILE SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE+SD2->D2_CLIENTE+SD2->D2_LOJA == ;
 				xFilial("SD2")+SE5->E5_NUMERO+SE5->E5_PREFIXO+SE5->E5_CLIFOR+SE5->E5_LOJA
 				nTot:= 0
-				nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO })
+				nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO .AND. x[3]==SD2->D2_COD })
                 IF nTot > 0
                 	aTot[nTot,2] += SD2->D2_TOTAL
                 ELSE
-					AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL})
+					AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL,SD2->D2_COD})
 				ENDIF
 				cHist := ""
            		cHist := "Rec. NF nº:"+SD2->D2_DOC+" série:"+SD2->D2_SERIE
@@ -1327,9 +1327,9 @@ While Eval(bCondWhile)
 					(cAliasTmp3)->XXCC   	 := cCC
 					(cAliasTmp3)->DESCRCC    := cDescrCC
 					//(cAliasTmp3)->DESCFIN    := cDESCFIN
-					(cAliasTmp3)->B1_COD     := cProduto
-					IF !EMPTY(cProduto)
-						(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_DESC")
+					(cAliasTmp3)->B1_COD     := aTot[IX,3]   //cProduto
+					IF !EMPTY(aTot[IX,3])
+						(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+aTot[IX,3],"B1_DESC")
 					ENDIF
 					(cAliasTmp3)->E5_TIPO    := SE5->E5_TIPO
 					(cAliasTmp3)->E5_DATA    := IIF(nTpData == 1,SE5->E5_DATA,SE5->E5_DTDISPO)
@@ -1615,22 +1615,22 @@ While Eval(bCondWhile)
 			       				aTot := RetIRAUT(cRef,SD1->D1_TOTAL)
 			       			ELSE
 								nTot:= 0
-								nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC })
+								nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC .AND. x[3]==SD1->D1_COD})
 			                	IF nTot > 0
 			                		aTot[nTot,2] += SD1->D1_TOTAL
 			                	ELSE
-									AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL})
+									AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL,SD1->D1_COD})
 								ENDIF
 							ENDIF
 	                    ENDIF
 	                    
 						IF LEN(aTot) == 0
 							nTot:= 0
-							nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC })
+							nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC .AND. x[3]==SD1->D1_COD })
 		                	IF nTot > 0
 		                		aTot[nTot,2] += SD1->D1_TOTAL
 		                	ELSE
-								AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL})
+								AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL,SD1->D1_COD})
 							ENDIF
 						ENDIF
 						
@@ -1676,11 +1676,11 @@ While Eval(bCondWhile)
 						ENDIF
 				
 						nTot:= 0
-						nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO })
+						nTot:= aScan(aTot,{|x| x[1]==SD2->D2_CCUSTO .AND. x[3]==SD2->D2_COD})
 		                IF nTot > 0
 		                	aTot[nTot,2] += SD2->D2_TOTAL
 		                ELSE
-							AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL})
+							AADD(aTot,{SD2->D2_CCUSTO,SD2->D2_TOTAL,SD2->D2_COD})
 						ENDIF
 						cTHist := ""
 		           		cTHist := SE2->E2_NATUREZ+" Ref. NF SAIDA nº:"+SD2->D2_DOC+" série:"+SD2->D2_SERIE+" Cliente:"+SD2->D2_CLIENTE+" Loja:"+SD2->D2_SERIE
@@ -1731,7 +1731,7 @@ While Eval(bCondWhile)
 	                	IF nTot > 0
 	                		aTot[nTot,2] += QSZ2->Z2_VALOR
 	                	ELSE
-							AADD(aTot,{QSZ2->Z2_CC,QSZ2->Z2_VALOR})
+							AADD(aTot,{QSZ2->Z2_CC,QSZ2->Z2_VALOR,""})
 						ENDIF
 						
 						IF !(cHist $ cTHist)
@@ -1743,7 +1743,7 @@ While Eval(bCondWhile)
 					QSZ2->(DbCloseArea())
 				ENDIF
 				
-				IF LEN(aTot)> 0           
+				IF LEN(aTot) > 0           
 					aTot := U_Rateia(aTot,aSE5P[_IY,7])
 					IX := 0
 					FOR IX := 1 TO LEN(aTot)
@@ -1798,9 +1798,9 @@ While Eval(bCondWhile)
 						//(cAliasTmp3)->DESCRCT    := cDescrCt
 						(cAliasTmp3)->XXCC   	 := cCC
 						(cAliasTmp3)->DESCRCC    := cDescrCC
-						(cAliasTmp3)->B1_COD     := cProduto
-						IF !EMPTY(cProduto)
-							(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_DESC")
+						(cAliasTmp3)->B1_COD     := aTot[IX,3]
+						IF !EMPTY(aTot[IX,3])
+							(cAliasTmp3)->B1_DESC := Posicione("SB1",1,xFilial("SB1")+aTot[IX,3],"B1_DESC")
 						ENDIF
 						//(cAliasTmp3)->DESCFIN  := cDESCFIN
 						(cAliasTmp3)->E5_TIPO    := aSE5P[_IY,6] //SE5->E5_TIPO
@@ -2380,7 +2380,7 @@ DO WHILE QCOFINS->(!EOF())
 	IF nScan > 0
 		aCC[nScan,2] -= QCOFINS->VALCOF
     ELSE
-    	AADD(aCC,{cCusto,QCOFINS->VALCOF})
+    	AADD(aCC,{cCusto,QCOFINS->VALCOF,""})
 	ENDIF
 
 	nTotCOFINS += QCOFINS->VALCOF
@@ -2427,7 +2427,7 @@ IF nTotCOFINS > 0
 			aCC[nScan,2] += nTotCOFINS
 		ENDIF
 	ELSE
-		AADD(aCC,{"000000001",nTotCOFINS})
+		AADD(aCC,{"000000001",nTotCOFINS,""})
 	ENDIF
 ELSE
 	nScan := 0
@@ -2439,7 +2439,7 @@ ELSE
 			aCC[nScan,2] += (nTotCOFINS* -1 )
 		ENDIF
 	ELSE
-		AADD(aCC,{"000000001",(nTotCOFINS* -1 )})
+		AADD(aCC,{"000000001",(nTotCOFINS* -1),""})
 	ENDIF                                                
 ENDIF
 
@@ -2476,7 +2476,7 @@ DO WHILE QPIS->(!EOF())
 	IF nScan > 0
 		aCC[nScan,2] -= QPIS->VALPIS
     ELSE
-    	AADD(aCC,{cCusto,QPIS->VALPIS})
+    	AADD(aCC,{cCusto,QPIS->VALPIS,""})
 	ENDIF
 
 	nTotPIS += QPIS->VALPIS
@@ -2520,7 +2520,7 @@ IF nTotPIS > 0
 			aCC[nScan,2] += nTotPIS
 		ENDIF
 	ELSE
-		AADD(aCC,{"000000001",nTotPIS})
+		AADD(aCC,{"000000001",nTotPIS,""})
 	ENDIF
 ELSE
 	nScan := 0
@@ -2532,7 +2532,7 @@ ELSE
 			aCC[nScan,2] += (nTotPIS* -1 )
 		ENDIF
 	ELSE
-		AADD(aCC,{"000000001",(nTotPIS* -1 )})
+		AADD(aCC,{"000000001",(nTotPIS* -1),""})
 	ENDIF                                                
 ENDIF
 

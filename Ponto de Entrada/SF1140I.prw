@@ -20,7 +20,10 @@ Private cxBanco  := SF1->F1_XBANCO
 Private cxAgencia:= SF1->F1_XAGENC
 Private cxConta  := SF1->F1_XNUMCON
 Private cChvNfe  := SF1->F1_CHVNFE
+Private dPrvPgt  := SF1->F1_XXPVPGT
+Private cJsPgt	 := SF1->F1_XXJSPGT
 Private nTipoPg  := 0
+Private cEspecie := SF1->F1_ESPECIE
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 
@@ -46,9 +49,11 @@ SF1->F1_XBANCO  := cxBanco
 SF1->F1_XAGENC  := cxAgencia
 SF1->F1_XNUMCON := cxConta
 SF1->F1_CHVNFE  := cChvNfe
+SF1->F1_XXPVPGT := dPrvPgt
+SF1->F1_XXJSPGT := cJsPgt
 
 // Limpar dados de Liberação
-SF1->F1_XXLIB   := " "
+SF1->F1_XXLIB   := "A"
 SF1->F1_XXULIB  := " "
 SF1->F1_XXDLIB  := " "
 SF1->F1_XXDINC  := DtoC(Date())+"-"+Time()
@@ -71,9 +76,15 @@ Local oRadMenu1
 Local oSay1
 Local bClickP
 Local lAnexo := .F.
+
 Static oDlg3
+
 Private nRadMenu1 := 1
-Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv
+Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv,oGetPvPgt,oGetJsPgt
+Private dValid := dDataBase
+
+dValid := DataValida(dValid+1,.T.)
+dValid := DataValida(dValid+1,.T.)
 
 aadd(aOpcoes,"DEPOSITO")   //01
 aadd(aOpcoes,"CARTAO")     //02
@@ -87,7 +98,7 @@ If nRadMenu1 = 0
 	nRadMenu1 := 1
 EndIf
 
-DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000, 000 TO 310, 430 COLORS 0, 16777215 PIXEL
+DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000, 000 TO 350, 430 COLORS 0, 16777215 PIXEL
 
 oDlg3:lEscClose := .F.
 
@@ -107,14 +118,19 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 @ 102,010 SAY "P.A."     OF oDlg3 PIXEL
 @ 100,040 MSGET oGetPA VAR cxNumPa	  OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==4) Valid IIf(nRadMenu1==4,!Empty(cxNumPa),.T.)
 
-@ 122,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
-@ 120,040 MSGET oGetChv VAR cChvNfe  OF oDlg3 PICTURE "@!" SIZE 140,10 PIXEL 
+@ 117,010 SAY 'Prev. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 115,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
 
-@ 140,040 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
+@ 117,110 SAY "Justificativa:"  OF oDlg3 PIXEL
+@ 115,145 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 PICTURE "@!" SIZE 60,10 PIXEL //WHEN (dPrvPgt < dValid)
+
+@ 132,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 130,040 MSGET oGetChv VAR cChvNfe   OF oDlg3 PICTURE "@!" SIZE 140,10 PIXEL 
+
+@ 150,040 BUTTON "Ok" SIZE 050, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
 //@ 140,150 BUTTON "Cancelar" SIZE 050, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
 
-@ 140,110 BUTTON "Anexos" SIZE 050, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
-
+@ 150,110 BUTTON "Anexos" SIZE 050, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
 
 ACTIVATE MSDIALOG oDlg3 CENTERED VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL))  //cNFiscal+cSerie+cA100For+cLoja+cTipo
 If nRadMenu1 > 0
@@ -131,6 +147,7 @@ Return
 
 Static Function ValidFP(nRadio)
 Local lRet := .T.
+
 If nRadio <> 1 .AND. nRadio <> 4
 	cxNumPa   := SPACE(9)
 	cxBanco   := ""
@@ -163,6 +180,35 @@ Else
 		EndIf
 	EndIf
 EndIf
+If lRet
+	If Empty(dPrvPgt)
+		MsgStop("Informe a data prevista para pagamento","SF1140I - Validação data prevista de pagamento")
+		oGetPvPgt:Setfocus()
+		lRet := .F.
+	Else
+		If dPrvPgt < dDataBase
+			MsgStop("Data prevista para pagamento inferior a database","SF1140I - Validação data prevista de pagamento")
+			oGetPvPgt:Setfocus()
+			lRet := .F.
+		ElseIf dPrvPgt < dValid
+			If EMPTY(cJsPgt)
+				MsgStop("Data prevista para pagamento inferior a 2 dias uteis, justifique","SF1140I - Validação data prevista de pagamento")
+				oGetJsPgt:Setfocus()
+				lRet := .F.
+			EndIf
+		EndIf
+	EndIf
+EndIf
+If lRet
+	If Empty(cChvNfe)
+		If (ALLTRIM(UPPER(cEspecie))+"/") $ "SPED/BPE/CTE/CTEOS/NF3E/"
+			MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
+			oGetChv:Setfocus()
+			lRet := .F.
+		EndIf
+	EndIf
+EndIf
+
 
 Return lRet
 
@@ -254,4 +300,3 @@ AC9->(RestArea(aAreaAC9))
 RestArea(aArea)
 
 Return lRet
-

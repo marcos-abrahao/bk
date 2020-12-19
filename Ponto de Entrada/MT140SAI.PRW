@@ -118,7 +118,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 				PswOrder(1) 
 				PswSeek(SCR->CR_USER) 
 				aUser  := PswRet(1)
-				IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
+				IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 					cEmail += ALLTRIM(aUser[1,14])+';'
 				ENDIF
 			ENDIF
@@ -134,6 +134,10 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 			AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA})
 
         ELSE
+			RecLock("SF1",.F.)
+			SF1->F1_XXLIB  := "B"
+			MsUnLock("SF1")
+
 			cAssunto:= "Solicitação de Liberação de Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    Fornecedor: " +SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"   "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
 
 			aEmail := {}

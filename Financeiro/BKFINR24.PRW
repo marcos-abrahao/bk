@@ -60,7 +60,6 @@ Local aHtml     := {}
 Local nPag      := 1
 Local cLogo     := ""
 Local nI        := 0
-Local cCrLf		:= Chr(13) + Chr(10)
 Local cPict     := "@E 99,999,999,999.99"
 
 // Dados da Empresa/Filial
@@ -105,6 +104,9 @@ Local aItens    := {}
 Local lColRdv   := .F.
 Local lColFinal := .F.
 Local cItem		:= ""
+Local cTexUn	:= ""
+Local nItens	:= 0
+
 If SE1->E1_TIPO <> "NDC"
  	cTipoTit := Posicione("SX5",1,xFilial("SX5")+"05"+SE1->E1_TIPO,"X5_DESCRI")
 EndIf
@@ -127,22 +129,38 @@ nTamTex := mlCount(cTexto, 254)
 For nI := 1 To nTamTex
 	cLinha := memoline(cTexto, 254, nI)
 	If nI == 1
-	   aLin1 := U_StringToArray(cLinha,"|")
-	ElseIf !Empty(cLinha)
-	   AADD(aItens,U_StringToArray(cLinha,"|"))
+		aLin1 := U_StringToArray(cLinha,"|")
+		cTipoNDC := aLin1[1]
+		cRefComp := aLin1[2]
+		cTaxa    := aLin1[3]
+		cTotal   := aLin1[4]
+		If LEN(aLin1) > 4
+			nItens := VAL(aLin1[5])
+		Endif
+	Else
+		If cTipoNDC == "3"
+			If nI <= nItens + 1
+				If !Empty(cLinha)
+					AADD(aItens,U_StringToArray(cLinha,"|"))
+				EndIf
+			Else
+				cTexUn += cLinha +'<br>'
+			EndIf
+		Else
+			If !Empty(cLinha)
+				AADD(aItens,U_StringToArray(cLinha,"|"))
+			EndIf
+			cTexUn += cLinha +'<br>'
+		EndIf
 	EndIf
 Next
 
 If LEN(aLin1) > 0
-	cTipoNDC := aLin1[1]
-	cRefComp := aLin1[2]
-	cTaxa    := aLin1[3]
-	cTotal   := aLin1[4]
 //Else
 //   MsgStop("Erro")
 //   Return aHtml
 
-	If cTipoNDC == "1"
+	If cTipoNDC <> "2"
 		For nI := 1 To Len(aItens)
 		    If !Empty(aItens[nI,3]) .AND. !Empty(CTOD(aItens[nI,3]))
 		    	lColFinal := .T.
@@ -356,7 +374,21 @@ AADD(aHtml,'      </td>')
 AADD(aHtml,'    </tr>')
 
 If Len(aItens) > 0
-	If cTipoNDC == "1"
+	If cTipoNDC <> "2"
+
+
+		If cTipoNDC == "3"
+			AADD(aHtml,' <tr>')
+			AADD(aHtml,'    <td class="tg-hdesc" colspan="6">Descrição</td>')
+			AADD(aHtml,'  </tr>')
+
+			cItem := cTexUn
+			AADD(aHtml,'  <tr>')
+			AADD(aHtml,'    <td class="tg-desc" colspan="6">'+cItem+'</td>')
+			AADD(aHtml,'  </tr>')
+		EndIf
+
+
 		AADD(aHtml,'  <tr>')
 		AADD(aHtml,'    <td class="tg-hdesc">Nome</td>')
 		If lColFInal
@@ -409,10 +441,14 @@ If Len(aItens) > 0
 		AADD(aHtml,'    <td class="tg-hdesc" colspan="5">Descrição</td>')
 		AADD(aHtml,'    <td class="tg-hvalor">Valor</td>')
 		AADD(aHtml,'  </tr>')
-		cItem := ""
-		For nI := 1 To Len(aItens)
-			cItem += aItens[nI,1]+cCrLf
-		Next
+
+		cItem := cTexUn
+		//cItem := STRTRAN(cTexUn,CRLF,'<br>')
+		
+		//For nI := 1 To Len(aItens)
+		//	cItem += aItens[nI,1]+'<br>'
+		//Next
+
 		AADD(aHtml,'  <tr>')
 		AADD(aHtml,'    <td class="tg-desc" colspan="5">'+cItem+'</td>')
 		AADD(aHtml,'    <td class="tg-valor">&nbsp;</td>')

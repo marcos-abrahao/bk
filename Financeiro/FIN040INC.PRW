@@ -208,6 +208,7 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
     Local cRet 		:= ""
 	Local cCrLf     := Chr(13) + Chr(10)
 	Local _iX       := 0
+	Local _iY		:= 0
 	Local cPict     := "@E 99,999,999,999.99"
     
     Default cMunComp    := ""
@@ -244,7 +245,7 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
         //Monta o browser com inclusão, remoção e atualização
  		@ 065, 010 Say  oSay Prompt "Descrição Detalhada:" Size  400, 10 Of oPanel01 Pixel
 
-        oLista := MsNewGetDados():New(075, 010, 165, 340, GD_INSERT+GD_DELETE+GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,1, 999, "U_SOMANDC()", "", "Eval(bfDeleta)", oPanel01, aCabecalho, aColsEx)
+        oLista := MsNewGetDados():New(075, 010, 165, 340, GD_INSERT+GD_DELETE+GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,1, 999, "U_SOMANDC()", "", "Eval(bfDeleta)", oPanel01, aCabecalho, aColsEx,"U_SOMANDC()")
 
         //oBrw1  := MsNewGetDados():New( 32 , 10, nBrwAlt, nBrwLarg,nOpc                  ,’Eval(bLinOk)’,’AllwaysTrue()’,”,{“PRODUTO”,”QUANT”,”ALMOX”,”ENDEREC”,”NUMSERI”},0,99,’AllwaysTrue()’,,’Eval(bfDeleta)’,oDlgSep,aHead1,aCols1)
 
@@ -276,10 +277,10 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
 	IF ( lOk )
 		lOk := .F.
 		nValor := nTotal
-		IF !EMPTY(cDescUni)
+		IF !EMPTY(cDescUni) .AND. LEN(oLista:aCols) == 0
 			cRet := "2|"+ALLTRIM(cRefer)+"|"+ALLTRIM(TRANSFORM(nTaxa,cPict))+"|"+ALLTRIM(TRANSFORM(nSTotal,cPict))+cCrLf 
 			cRet += cDescUni+cCrLf 
-		ELSE
+		ELSEIF EMPTY(cDescUni) .AND. LEN(oLista:aCols) > 0
 			cRet := "1|"+ALLTRIM(cRefer)+"|"+ALLTRIM(STR(nTaxa,14,2))+"|"+ALLTRIM(TRANSFORM(nSTotal,cPict))+cCrLf 
 			//{"IMG","NOME","INICIO","FINAL","QTDE","RDV","VALOR","DELETE"} 
 			FOR _IX:= 1 TO LEN(oLista:aCols)
@@ -287,7 +288,21 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
 					cRet +=ALLTRIM(oLista:aCols[_IX,2])+"|"+DTOC(oLista:aCols[_IX,3])+"|"+DTOC(oLista:aCols[_IX,4])+"|"+ALLTRIM(STR(oLista:aCols[_IX,5],14,2))+"|"+ALLTRIM(oLista:aCols[_IX,6])+"|"+ALLTRIM(TRANSFORM(oLista:aCols[_IX,7],cPict))+cCrLf
 			    ENDIF
 			NEXT _IX 
+		ELSE 
+			//{"IMG","NOME","INICIO","FINAL","QTDE","RDV","VALOR","DELETE"} 
+			_iY  := 0 
+			cRet := ""
+			FOR _IX:= 1 TO LEN(oLista:aCols)
+			    IF !oLista:aCols[_IX,nColDel]  //.AND. oLista:aCols[_IX,7] > 1
+					cRet +=ALLTRIM(oLista:aCols[_IX,2])+"|"+DTOC(oLista:aCols[_IX,3])+"|"+DTOC(oLista:aCols[_IX,4])+"|"+ALLTRIM(STR(oLista:aCols[_IX,5],14,2))+"|"+ALLTRIM(oLista:aCols[_IX,6])+"|"+ALLTRIM(TRANSFORM(oLista:aCols[_IX,7],cPict))+cCrLf
+					_iY++
+			    ENDIF
+			NEXT _IX 
+			cRet := "3|"+ALLTRIM(cRefer)+"|"+ALLTRIM(STR(nTaxa,14,2))+"|"+ALLTRIM(TRANSFORM(nSTotal,cPict))+"|"+ALLTRIM(STR(_iY,0))+cCrLf ;
+					+ cRet
+			cRet += cDescUni+cCrLf 
 		ENDIF
+
 	ENDIF
   
 Return {cRet,oLista:aCols}
@@ -315,7 +330,7 @@ Static Function CriaCabec()
                   "Nome",;	//X3Titulo()
                   "NOME",;  	//X3_CAMPO
                   "@!",;		//X3_PICTURE
-                  30,;			//X3_TAMANHO
+                  50,;			//X3_TAMANHO
                   0,;			//X3_DECIMAL
                   "NAOVAZIO()",;			//X3_VALID
                   "",;			//X3_USADO
@@ -502,10 +517,10 @@ IF Empty(cDescUni) .AND. nColLst == 0
 	lOK := .F.
 ENDIF
 
-IF !Empty(cDescUni) .AND. nColLst <> 0
-	MSGSTOP("Descrião Detalhada e Descrião Única informada.Informar apenas uma das descrições. Verifique!")
-	lOK := .F.
-ENDIF
+//IF !Empty(cDescUni) .AND. nColLst <> 0
+//	MSGSTOP("Descrião Detalhada e Descrião Única informada.Informar apenas uma das descrições. Verifique!")
+//	lOK := .F.
+//ENDIF
 
    
 IF nTaxa > 0 
@@ -533,10 +548,15 @@ USER Function SOMANDC()
 Local lOK := .T.
 Local nSomaNDC := 0
 Local _iX := 0
+//oLista:ForceRefresh()
 
 FOR _IX:= 1 TO LEN(oLista:aCols)
-	IF !oLista:aCols[_IX,nColDel]  
-		nSomaNDC += oLista:aCols[_IX,7]
+	IF !oLista:aCols[_IX,nColDel] 
+		If oLista:nAt == _iX .AND. READVAR() == "M->VALOR" 
+			nSomaNDC += M->VALOR
+		Else	
+			nSomaNDC += oLista:aCols[_IX,7]
+		EndIf
 	ENDIF
 NEXT 
 
