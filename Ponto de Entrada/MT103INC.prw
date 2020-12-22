@@ -103,7 +103,7 @@ If lClass
 		PswOrder(1) 
 		PswSeek(__cUserId) 
 		aUser  := PswRet(1)
-		If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 //.OR. lMDiretoria 
+		If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 //.OR. lMDiretoria 
 			If ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXUSER
 				MessageBox("Usuário sem permissão para classificar este Doc.","MT103INC",MB_ICONEXCLAMATION)
 			Else
@@ -150,11 +150,11 @@ If lClass
 		MessageBox("Documento já foi classificado: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
 	EndIf
 Else
-	// Inclusão permitida apenas para administradores
+	// Inclusão permitida apenas para administradores e master financeiro
 	PswOrder(1) 
 	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
-	If ASCAN(aUser[1,10],"000000") <> 0
+	If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0
 		lRet := .T.
 	EndIf
 EndIf

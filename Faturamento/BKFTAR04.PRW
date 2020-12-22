@@ -164,7 +164,7 @@ Return
 Static Function BkFR04Par
 Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
-If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFATR04",.T.         ,.T.))
+If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFATR04" ,.T.         ,.T.))
 	lRet       := .T.
 	dDataI     := mv_par01
 	dDataF     := mv_par02

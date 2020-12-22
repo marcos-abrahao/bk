@@ -180,8 +180,10 @@ IF __cUserId <> "000000" // Administrador
     ELSEIF lAClas   
        //SET FILTER TO (SF1->F1_STATUS = ' ')
        // Filtro 8
-	   If ASCAN(aUser[1,10],"000031") <> 0
+	   If ASCAN(aUser[1,10],"000031") <> 0 
        	   cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
+	   ElseIf ASCAN(aUser[1,10],"000005") <> 0
+       	   cFiltro := "(F1_STATUS IN (' ','B'))"
 	   Else
        	   cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB <> 'L')"
        EndIf

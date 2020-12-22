@@ -16,26 +16,45 @@ Return Nil
 User Function BKTestes()
 Private cRot  := PAD("U_BKTESTE",20)
 
-@ 200,01 TO 285,450 DIALOG oDlg1 TITLE "Teste de User Functions"
+@ 200,01 TO 330,450 DIALOG oDlg1 TITLE "Teste de User Functions"
 @ 15,015 SAY "Funcão: "
 @ 15,046 GET cRot SIZE 180,10
-@ 30,060 BMPBUTTON TYPE 01 ACTION ProcRot()   
-@ 30,110 BMPBUTTON TYPE 02 ACTION Close(Odlg1)
+
+@ 30,015 SAY "Exemplos:"
+@ 30,046 SAY "U_BKPARFIS,U_BKPARGEN,U_NIVERSADVPL,U_TSTYEXCEL"
+
+@ 50,060 BMPBUTTON TYPE 01 ACTION ProcRot()   
+@ 50,110 BMPBUTTON TYPE 02 ACTION Close(Odlg1)
+
 ACTIVATE DIALOG oDlg1 CENTER
 
 RETURN
 
 
 Static FUNCTION ProcRot()
+Local bError 
 Private nProc := 0
 
 cRot:= ALLTRIM(cRot)+"(@lEnd)"
 
 If MsgBox("Confirma a execução do processo ?",cRot,"YESNO")
-   x:= &(cRot)
+	//-> Recupera e/ou define um bloco de código para ser avaliado quando ocorrer um erro em tempo de execução.
+	//bError := ErrorBlock( {|e| cError := e:Description, Break(e) } ) //, Break(e) } )
+		
+	//-> Inicia sequencia.
+	BEGIN SEQUENCE
+      x:= &(cRot)
+	//RECOVER
+		//-> Recupera e apresenta o erro.
+		//ErrorBlock( bError )
+		//MsgStop( cError )
+	END SEQUENCE
+
 Endif   
 
-MsgBox("Registros processados: "+STR(nProc,6),cRot,"INFO")
+If nProc > 0
+   MsgBox("Registros processados: "+STR(nProc,6),cRot,"INFO")
+EndIf
 
 Close(oDlg1)
 Return 
