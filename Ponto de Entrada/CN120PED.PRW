@@ -20,7 +20,7 @@ Local ExpA2 	:= PARAMIXB[2]
 Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""
-Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE INSS
+Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE ISS
 Local cCliente  := CND->CND_CLIENT
 Local aArea		:= GetArea()
 Local aAreaCNA	

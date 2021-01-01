@@ -82,6 +82,7 @@ Private aFixeFX     := {}
 Private aHeader	    := {}
 Private nConsolida	:= 2
 Private nIndConsor	:= 1
+Private nIndDesp	:= 1
 Private nRateia     := 2
 Private nConsol     := 0
 Private cConsolida 	:= ""
@@ -1668,11 +1669,12 @@ FOR _nI := 1 TO nPeriodo
 			//<--- Fim: Buscar Acrescimos e Decrescimos Financeiros da NFE
 
 			dbSelectArea("TMPX2")
+			nIndDesp := 1
+			cOutros  := 'S'
 
-			cOutros := 'S'
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
 				/*
 		   		dbSelectArea(ALIAS_TMP)
@@ -1686,7 +1688,7 @@ FOR _nI := 1 TO nPeriodo
 				*/
 
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 				/*
    				// GRAVA VALOR NO CUSTO
@@ -1704,7 +1706,7 @@ FOR _nI := 1 TO nPeriodo
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
 
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'14',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'14',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
 				/*
 		   		dbSelectArea(ALIAS_TMP)
@@ -1717,7 +1719,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 				*/
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
    				// GRAVA VALOR NO CUSTO
 				/*
@@ -1734,7 +1736,7 @@ FOR _nI := 1 TO nPeriodo
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
 
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'20',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'20',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 				/*
 		   		dbSelectArea(ALIAS_TMP)
 		   		IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(TMPX2->D1_CC))+'20',.F.)
@@ -1746,7 +1748,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 				*/
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
    				// GRAVA VALOR NO CUSTO
 				/*
    				dbSelectArea(ALIAS_TMP)
@@ -1816,7 +1818,7 @@ FOR _nI := 1 TO nPeriodo
 					EndIf
 					*/
 					
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'30',XI_,nValRat,aAcrDcr,cOutros,cOutros,lPRat,"",.T.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'30',XI_,nValRat,aAcrDcr,cOutros,cOutros,lPRat,"",.T.,nIndDesp)
 
 					/*
 					dbSelectArea(ALIAS_TMP)
@@ -1845,7 +1847,7 @@ FOR _nI := 1 TO nPeriodo
 					///	(ALIAS_TMP)->(Msunlock())
 					///ENDIF
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,"W"+cCodCC,XI_,nValRat,aAcrDcr,cOutros,cOutros,lPRat,cCodCC,.T.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,"W"+cCodCC,XI_,nValRat,aAcrDcr,cOutros,cOutros,lPRat,cCodCC,.T.,nIndDesp)
 
 					lPRat   := .F.
 				NEXT
@@ -1881,7 +1883,7 @@ FOR _nI := 1 TO nPeriodo
 				///	EndIf
 				///ENDIF
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,"W"+TMPX2->D1_COD,_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC,.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,"W"+TMPX2->D1_COD,_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC,.F.,nIndDesp)
 
 	   			/*
 				   dbSelectArea(ALIAS_TMP)
@@ -1893,7 +1895,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 				*/
 
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'30',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'30',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 
 			ENDIF
@@ -1951,7 +1953,7 @@ FOR _nI := 1 TO nPeriodo
 				If !Empty(TMPX2->D1_DOC)
 					If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 						cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
-						aAcrDcr := u_fAcrDcr()
+						aAcrDcr := u_fAcrDcr(ALLTRIM(aConsorcio[nScan,2]))
 					EndIf
 				Else
 					aAcrDcr := {}
@@ -1961,11 +1963,12 @@ FOR _nI := 1 TO nPeriodo
 				dbSelectArea("TMPX2")
 
 				cOutros := 'S'
-				nAuxVl  := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+				nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
+				nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
 					/*
 			   		dbSelectArea(ALIAS_TMP)
@@ -1978,7 +1981,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 					*/
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 					/*
 	   				// GRAVA VALOR NO CUSTO
@@ -1995,7 +1998,7 @@ FOR _nI := 1 TO nPeriodo
 	
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
 					/*
 			   		dbSelectArea(ALIAS_TMP)
@@ -2008,7 +2011,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 					*/
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 					/*
 	   				// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
@@ -2024,7 +2027,7 @@ FOR _nI := 1 TO nPeriodo
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
 
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
 					/*
 			   		dbSelectArea(ALIAS_TMP)
@@ -2037,7 +2040,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 					*/
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 	   				/*
 					// GRAVA VALOR NO CUSTO
 	   				dbSelectArea(ALIAS_TMP)
@@ -2079,7 +2082,10 @@ FOR _nI := 1 TO nPeriodo
 				    FOR XI_ := _nI TO nParcela
 
 		   				dbSelectArea(ALIAS_TMP)
-						nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
+						//nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
+
+						nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
+						nAuxVl  := nValRat/nIndDesp
 
 						/*
 		   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
@@ -2099,7 +2105,7 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 						*/
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,"",.T.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,"",.T.,nIndDesp)
 
 						/*
 						dbSelectArea(ALIAS_TMP)
@@ -2128,7 +2134,7 @@ FOR _nI := 1 TO nPeriodo
 						///	(ALIAS_TMP)->(Msunlock())
 						///ENDIF
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+cCodCC,XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,cCodCC,.T.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+cCodCC,XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,cCodCC,.T.,nIndDesp)
 
 						lPRat   := .F.
 					NEXT
@@ -2137,7 +2143,10 @@ FOR _nI := 1 TO nPeriodo
 				IF cOutros == 'S'
 					dbSelectArea(ALIAS_TMP)
 
-					nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+					//nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+
+					nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
+					nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
 					/*
 		   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+ALLTRIM(TMPX2->D1_COD),.F.)
@@ -2168,7 +2177,7 @@ FOR _nI := 1 TO nPeriodo
 					///	EndIf
 					///ENDIF
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+TMPX2->D1_COD,_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC,.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+TMPX2->D1_COD,_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC,.F.,nIndDesp)
 
 
 		   			/*
@@ -2181,7 +2190,7 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 					*/
 
-					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 				ENDIF
 				
@@ -2234,22 +2243,22 @@ FOR _nI := 1 TO nPeriodo
 
 			 //Consorcio balsa nova
 	  		IF LEN(aConsorcio[nScan]) > 7
-			   	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"
-				cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,8])+" SD1" 
-				cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "                                        
-				cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "
-				IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
-					cQuery2 += " AND D1_FORNECE<>'002918'"
+			   	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
+				cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,8])+" SD1"+CRLF
+				cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
+				cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+				IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504"+CRLF // Despesas médicas 
+					cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 				ENDIF 
 				IF SM0->M0_CODIGO == "14"   
-					cQuery2 += " AND D1_FORNECE<>'000604'"
+					cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 				ENDIF 
-				cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
-				cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "  
-				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
-				//cQuery2 += " ORDER BY B1_DESC"
+				cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+				cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "+CRLF
+				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
+				//cQuery2 += " ORDER BY B1_DESC"+CRLF
 				
-				//u_xxLog("\TMP\BKGCTR11-D1-3.SQL",cQuery2,.F.,"TESTE")        
+				u_LogMemo("BKGCTR11-D1-3-"+STRZERO(_nI,3)+".SQL",cQuery2)				
 				cLastE2 := "-"
 				aAcrDcr := {}
 
@@ -2265,7 +2274,7 @@ FOR _nI := 1 TO nPeriodo
 					If !Empty(TMPX2->D1_DOC)
 						If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 							cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
-							aAcrDcr := u_fAcrDcr()
+							aAcrDcr := u_fAcrDcr(ALLTRIM(aConsorcio[nScan,8]))
 						EndIf
 					Else
 						aAcrDcr := {}
@@ -2275,13 +2284,15 @@ FOR _nI := 1 TO nPeriodo
 
 					cOUTROS := 'S'
 
-					nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+					//nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+					nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
+					nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 				   		/*
 				   		dbSelectArea(ALIAS_TMP)
 						IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'12',.F.)
@@ -2305,9 +2316,9 @@ FOR _nI := 1 TO nPeriodo
 		
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 						/*
 				   		dbSelectArea(ALIAS_TMP)
@@ -2331,9 +2342,9 @@ FOR _nI := 1 TO nPeriodo
 	
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 						/*
 				   		dbSelectArea(ALIAS_TMP)
@@ -2384,7 +2395,15 @@ FOR _nI := 1 TO nPeriodo
 					    FOR XI_ := _nI TO nParcela
 			   				dbSelectArea(ALIAS_TMP)
 							
-							nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
+							//nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),nValRat/VAL(aConsorcio[nScan,5]),nValRat)
+							nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
+							nAuxVl  := nValRat/nIndDesp
+
+
+							//CONSIDERAR O RATEIO DOS CONSORCIOS
+							//VERIFICAR PORQUE ESTÁ GERANDO RESULTADO NEGATIVO EM NOV/2020
+
+
 
 							/*   
 			   				IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'30',.F.)
@@ -2404,7 +2423,7 @@ FOR _nI := 1 TO nPeriodo
 							ENDIF
 							*/
 
-							cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,"",.T.)
+							cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,"",.T.,nIndDesp)
 
 							/*
 							dbSelectArea(ALIAS_TMP)
@@ -2432,7 +2451,7 @@ FOR _nI := 1 TO nPeriodo
 							///	(ALIAS_TMP)->(Msunlock())
 							///ENDIF
 
-							cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+cCodCC,XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,cCodCC,.T.)
+							cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+cCodCC,XI_,nAuxVl,aAcrDcr,cOutros,cOutros,lPRat,cCodCC,.T.,nIndDesp)
 
 							lPRat   := .F.
 						NEXT
@@ -2440,7 +2459,9 @@ FOR _nI := 1 TO nPeriodo
 
 					IF cOUTROS == 'S'
 
-						nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+						//nAuxVl := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
+						nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
+						nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
 						/*
 						dbSelectArea(ALIAS_TMP)
@@ -2472,7 +2493,7 @@ FOR _nI := 1 TO nPeriodo
 						///	EndIf
 						///ENDIF
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+TMPX2->D1_COD,_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC,.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,"W"+TMPX2->D1_COD,_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,TMPX2->B1_DESC,.F.,nIndDesp)
 
 
 						/*
@@ -2485,7 +2506,7 @@ FOR _nI := 1 TO nPeriodo
 						ENDIF
 						*/
 
-						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.)
+						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'30',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 					ENDIF
 					
 					dbSelectArea("TMPX2")
@@ -2693,7 +2714,7 @@ FOR _nI := 1 TO nPeriodo
 		TMPX2->(dbCloseArea())
 	
 
-       nScan:= 0
+    	nScan:= 0
  		nScan:= aScan(aContratos,{|x| x = IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))})
 		IF nScan == 0
 			AADD(aContratos  ,IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA)))
@@ -3933,6 +3954,7 @@ PRIVATE aFixeFX     := {}
 Private aHeader	    := {}
 PRIVATE nConsolida	:= 2
 PRIVATE nIndConsor	:= 2
+PRIVATE nIndDesp	:= 1
 PRIVATE nRateia     := 2
 PRIVATE nConsol     := 0
 PRIVATE cConsolida 	:= ""
@@ -4879,7 +4901,7 @@ Return aRet
 
 // Buscar Titulos do contas a pagar por itens dos Documentos de Entrada
 // 20/07//2020
-User Function fAcrDcr()
+User Function fAcrDcr(cEmpC)
 Local aAcrDcr := {}
 Local cQuery3 := ""
 Local nTotE2  := 0
@@ -4887,19 +4909,29 @@ Local nACrDcr := 0
 Local _nY	  := 0
 Local nValTit := 0
 
+Default cEmpC := ""
+
 cQuery3 := " SELECT E2_VENCREA,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS"+CRLF
-cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
+If EMPTY(cEmpC)
+	cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
+Else
+	cQuery3 += " FROM SE2"+cEmpC+" SE2"+CRLF
+EndIf
 cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
 cQuery3 += "   AND E2_PREFIXO = '"+TMPX2->D1_SERIE+"'" +CRLF
 cQuery3 += "   AND E2_NUM = '"+TMPX2->D1_DOC+"'" +CRLF
 cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
 cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
 
-u_LogMemo("BKGCTR11-E2-1"+STRZERO(_nI,3)+".SQL",cQuery3)
+u_LogMemo("BKGCTR11-E2"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
 
 TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
 dbSelectArea("QTMPXE2")
 dbGoTop()
+
+If TMPX2->D1_DOC == "100330299"
+	nTotE2  := 0
+EndIf
 
 nTotE2  := 0
 Do While !QTMPXE2->(EOF())
@@ -4941,12 +4973,12 @@ Return aAcrDcr
 
 // Gravar o custo dos Documentos de Entrada por Categoria/Produto
 // 19/07/2020
-Static Function GravaCCD1(cAliasTmp,nConsol,cCusto,cPrd,_nI,nValor,aAcrDcr,cOutros,cOutros1,lPRat,cDesc,lRat)
+Static Function GravaCCD1(cAliasTmp,nConsol,cCusto,cPrd,_nI,nValor,aAcrDcr,cOutros,cOutros1,lPRat,cDesc,lRat,nIndDesp)
 
 Local nY 			:= 0
 Local nYMes 		:= 0
 Local cRet 			:= cOutros
-//Local nValParc		:= 0
+Local lNoRat		:= .F.
 
 Private cCampo2
 
@@ -4968,31 +5000,44 @@ Else
 	Reclock(cAliasTmp,.F.)
 EndIf
 
-If lRat
-	// Antes de 15/12/20 
-	cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(_nI,3)
-	&cCampo2 += nValor
-	If lPRat // Só fazer no primeiro item do rateio
-		// Gravar Acrescimos e Decrescimos Financeiros
+If nValor <> 0
+	If lRat
+
+		// Se for rateio e o titulo for parcelado, não rateia
+		If Len(aAcrDcr) > 0
+			lNoRat := .T.
+		EndIf
+
+		If lPRat // Só fazer no primeiro item do rateio
+			// Gravar Acrescimos e Decrescimos Financeiros
+			For nY := 1 To Len(aAcrDcr)
+				nYMes := ASCAN(aAnoMes,{|x| x == aAcrDcr[nY,1]})
+				If nYmes > 0
+					cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(nYMes,3)
+					&cCampo2 += (aAcrDcr[nY,3]/nIndDesp)
+					If lNoRat
+						&cCampo2 += (aAcrDcr[nY,5]/nIndDesp)
+					EndIf		
+				EndIf
+			Next
+		EndIf
+
+		If !lNoRat
+			cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(_nI,3)
+			&cCampo2 += nValor
+		EndIf
+
+	Else
 		For nY := 1 To Len(aAcrDcr)
 			nYMes := ASCAN(aAnoMes,{|x| x == aAcrDcr[nY,1]})
 			If nYmes > 0
 				cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(nYMes,3)
 				&cCampo2 += aAcrDcr[nY,3]
+				&cCampo2 += aAcrDcr[nY,5]
 			EndIf
 		Next
 	EndIf
-Else
-	For nY := 1 To Len(aAcrDcr)
-		nYMes := ASCAN(aAnoMes,{|x| x == aAcrDcr[nY,1]})
-		If nYmes > 0
-			cCampo2  := cAliasTmp+"->XX_VAL"+STRZERO(nYMes,3)
-			&cCampo2 += aAcrDcr[nY,3]
-			&cCampo2 += aAcrDcr[nY,5]
-		EndIf
-	Next
 EndIf
-
 
 (cAliasTmp)->(Msunlock())
 cRet := cOutros1
@@ -5020,8 +5065,6 @@ cQuery += "    SE1.E1_TIPO = 'NDC'" + CRLF
 cQuery += "    AND SE1.E1_SALDO=0" + CRLF
 cQuery += "    AND SUBSTRING(E1_BAIXA,1,6) ='"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
 cQuery += "    AND E1_XXCUSTO='"+cNunContr+"'" + CRLF
-
-
 
 u_LogMemo("BKGCTR11-E1-1"+STRZERO(_nI,3)+".SQL",cQuery)
 

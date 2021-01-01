@@ -1,4 +1,5 @@
-#include "rwmake.ch"
+#INCLUDE 'PROTHEUS.CH'
+#INCLUDE 'FWMVCDEF.CH'
 
 /*/{Protheus.doc} CNA130INC
 BK - Ponto de Entrada para carregar campos na inclusão das mediçoes
@@ -10,33 +11,54 @@ BK - Ponto de Entrada para carregar campos na inclusão das mediçoes
 /*/
 
 User Function C121VCPO()
+Local oStruCND := PARAMIXB[1]
+Local oStruCXN := PARAMIXB[2]
+Local oStruCNE := PARAMIXB[3]
+Local bBloc
 
-//Local oStruCND := PARAMIXB[1]
-//Local oStruCXN := PARAMIXB[2]
-//Local oStruCNE := PARAMIXB[3]
-
-Local X
-X:=0
-
+//bBloc:=FWBuildFeature(STRUCT_FEATURE_VALID,"U_CNACPOS(), .T.")
+//oStruCXN:SetProperty("CXN_XXMUN", MODEL_FIELD_INIT, {|| "X"} ) 
+//oStruCXN:SetFieldAction( "CXN_CHECK"   , {|| M->CXN_XXMUN  := "x"} )    
 Return
 
+
 User Function CN120CPO()
-Local aCpo  := {"CNA_XXMOT","CNA_XXMUN"}
-IF FWIsInCallStack("CNTA121")
-    FWFLDPUT("CND_XXMUN",CNA->CNA_XXMUN)
-ENDIF
+Local aCpo  := {}
+
+aAdd(aCpo,"CNA_XXMOT")
+aAdd(aCpo,"CNA_XXMUN")
+
+//IF FWIsInCallStack("CNTA121")
+//ENDIF
+
 Return aCpo
 
 
+
+// Ponto de entrada para alterar a pesquisa padrão de contratos
 User Function CN120CMP()
+Local ExpA1  := PARAMIXB[1]
+Local ExpA2  := PARAMIXB[2]
 
-Local aCpo  := {"CNA_XXMOT","CNA_XXMUN"}
+aAdd(ExpA1, "Descrição")
+aAdd(Expa2, {"CN9_XXDESC",ExpA2[3,2],ExpA2[3,3],ExpA2[3,4]})
 
-Return aCpo           
+Return {ExpA1,ExpA2}
 
 
+
+User Function CN120ESY()
+Local ExpA1  := PARAMIXB[1]
+Local cQuery
+
+// Incluir o campo CN9_XXDESC na query
+cQuery := STRTRAN( ExpA1,", CN9_FILCTR",", CN9_FILCTR, CN9_XXDESC")
+
+Return cQuery
+
+
+// Pesquisa padrão de contratos na medição (não usado na nova medição)
 User Function CN120SXB()
-// Pesquisa padrão de contratos na medição
 Return "CN9001"
 
 

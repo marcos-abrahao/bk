@@ -104,7 +104,7 @@ If lClass
 		PswSeek(__cUserId) 
 		aUser  := PswRet(1)
 		If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 //.OR. lMDiretoria 
-			If ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXUSER
+			If ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXULIB
 				MessageBox("Usuário sem permissão para classificar este Doc.","MT103INC",MB_ICONEXCLAMATION)
 			Else
 				nOper := Aviso("MT103INC","Classificação fiscal:",{"Classifica","Estorna Lib.","Cancelar"})

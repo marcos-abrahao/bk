@@ -256,7 +256,7 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
         //Ao abrir a janela o cursor está posicionado no meu objeto
         //oLista:oBrowse:SetFocus()
 
-		@ 170, 010 Say  oSay Prompt "Descrição Única:" Size  400, 10 Of oPanel01 Pixel
+		@ 170, 010 Say  oSay Prompt "Descrição única ou opcional:" Size  400, 10 Of oPanel01 Pixel
 		@ 180, 010 Get oDesc Var  cDescUni Memo Size  330, 040 Of oPanel01 Pixel
 
 		@ 225, 150 Say  oSay Prompt "Sub Total:" Size  100, 10 Of oPanel01 Pixel
