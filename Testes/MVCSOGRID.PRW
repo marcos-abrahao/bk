@@ -2,7 +2,7 @@
 #include "fwmvcdef.ch"
 
 #define MVC_TITLE "Grid MVC sem cabeçalho"
-#define MVC_ALIAS "SB1"
+#define MVC_ALIAS "SZU"
 #define MVC_VIEWDEF_NAME "VIEWDEF.MVCSOGRID"
 
 //-------------------------------------------------------------------
@@ -16,16 +16,16 @@ Função principal da rotina MVC
 //-------------------------------------------------------------------
 user function MVCGRID()
 //Inserção - Inclusão de itens
-FWExecView( getTitle(MODEL_OPERATION_INSERT), MVC_VIEWDEF_NAME, MODEL_OPERATION_INSERT)
+//FWExecView( getTitle(MODEL_OPERATION_INSERT), MVC_VIEWDEF_NAME, MODEL_OPERATION_INSERT)
 
 //Visualização - Verificar os itens incluídos
 FWExecView( getTitle(MODEL_OPERATION_VIEW), MVC_VIEWDEF_NAME, MODEL_OPERATION_VIEW)
 
 //Alteração - Por ser um grid, a alteração já vai permitir a exclusão
-FWExecView( getTitle(MODEL_OPERATION_UPDATE), MVC_VIEWDEF_NAME, MODEL_OPERATION_UPDATE)
+//FWExecView( getTitle(MODEL_OPERATION_UPDATE), MVC_VIEWDEF_NAME, MODEL_OPERATION_UPDATE)
 
 //Visualização - Verificar os itens adicionados, alterados ou excluidos
-FWExecView( getTitle(MODEL_OPERATION_VIEW), MVC_VIEWDEF_NAME, MODEL_OPERATION_VIEW)
+//FWExecView( getTitle(MODEL_OPERATION_VIEW), MVC_VIEWDEF_NAME, MODEL_OPERATION_VIEW)
 return
 
 //-------------------------------------------------------------------

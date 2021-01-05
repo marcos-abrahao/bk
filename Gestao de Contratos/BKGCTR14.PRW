@@ -1,6 +1,8 @@
 #INCLUDE "PROTHEUS.CH"  
 #INCLUDE "topconn.ch"                     
 #include "tbiconn.ch"
+#Include 'Totvs.ch'
+#Include 'FWMVCDef.ch'
                             
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR14()
@@ -17,10 +19,11 @@ User Function BKGCTR14(aParam)
 
 Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado"
 Local _nI           := 0
-Local aDbf 		    := {} //cArqTmp
+
 Local oTmpTb1
-Local aDbf2         := {} //,cArqTmp2
 Local oTmpTb2
+Local oTmpTb3
+
 Local cMes          := ""
 Local cXXSEMAF		:= "N"
 Local aRetCons		:= {}
@@ -123,10 +126,16 @@ PRIVATE lPetro		:= .F.
 PRIVATE cExm_Prod	:= ""
 PRIVATE cMFG_Prod	:= "" 
 PRIVATE cDCH_Prod	:= ""
+
 PRIVATE aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aFormat,aFormula
+PRIVATE aDbf 	    := {}
+PRIVATE aDbf2       := {}
+PRIVATE aDbf3	    := {}
+PRIVATE aTitulos,aCampos,aCabs,aFormat,aFormula,aImpr,aPict
 PRIVATE aCampos2,aCabs2
+PRIVATE aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
+
 PRIVATE cXXPLR 		:= ""
 PRIVATE nConsolida	:= 0
 PRIVATE nIndConsor	:= 0
@@ -197,7 +206,7 @@ aXXMIMPC	:= {}
 aXXMIMPC	:= StrTokArr(GetMv("MV_XXMIMPC"),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
 FOR IX := 1 TO LEN(aXXMIMPC)
-    AADD(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
+    aAdd(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
 NEXT
 
 cContrato  	:= mv_par01
@@ -352,7 +361,7 @@ IF EMPTY(cContrato)
 ENDIF
 
 FOR IX:= 1 TO LEN(aContrCons)
-    AADD(aConsorcio,StrTokArr(aContrCons[IX],";"))
+    aAdd(aConsorcio,StrTokArr(aContrCons[IX],";"))
 NEXT
 
 //MV_XXASSMP	C	Cod. Prod. desc. assist. medica calculo Rentabilid
@@ -496,12 +505,12 @@ titulo   := titulo+" - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
 u_xxLog(cArqLog,titulo,.T.,"")
 
 aDbf := {}
-Aadd( aDbf, { 'XX_LINHA' ,'N', 10,00 } )
-Aadd( aDbf, { 'XX_CODGCT','C', 09,00 } )
-Aadd( aDbf, { 'XX_DESC'  ,'C', 50,00 } )
-Aadd( aDbf, { 'XX_PROJ'  ,'C', 200,00 } )
-Aadd( aDbf, { 'XX_REAL'  ,'C', 200,00 } )
-Aadd( aDbf, { 'XX_DIF'   ,'C', 200,00 } )
+aAdd( aDbf, { 'XX_LINHA' ,'N', 10,00 } )
+aAdd( aDbf, { 'XX_CODGCT','C', 09,00 } )
+aAdd( aDbf, { 'XX_DESC'  ,'C', 50,00 } )
+aAdd( aDbf, { 'XX_PROJ'  ,'C', 200,00 } )
+aAdd( aDbf, { 'XX_REAL'  ,'C', 200,00 } )
+aAdd( aDbf, { 'XX_DIF'   ,'C', 200,00 } )
 
 ///cArqTmp := CriaTrab( aDbf, .t. )
 ///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
@@ -518,56 +527,140 @@ aTitulos:= {}
 aImpr	:= {}
 aFormat := {}
 aFormula:= {}
+aPict	:= {}
 
-AADD(aTitulos,titulo)
+aAdd(aTitulos,titulo)
 
-//AADD(aCampos,"TRB->XX_LINHA")
-//AADD(aCabs  ,"Linha")
-//AADD(aImpr,.T.)
-//AADD(aFormat,"")
+aAdd(aCampos,"TRB->XX_LINHA")
+aAdd(aCabs  ,"Linha")
+aAdd(aImpr,.T.)
+aAdd(aFormat,"")
+aAdd(aPict,"")
 
-AADD(aCampos,"TRB->XX_CODGCT")
-AADD(aCabs  ,"Contrato")
-AADD(aImpr,.T.)
-AADD(aFormat,"")
+aAdd(aCampos,"TRB->XX_CODGCT")
+aAdd(aCabs  ,"Contrato")
+aAdd(aImpr,.T.)
+aAdd(aFormat,"")
+aAdd(aPict,"")
 
-AADD(aCampos,"TRB->XX_DESC")
-AADD(aCabs  ,"Descrição")
-AADD(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
-AADD(aImpr,.T.)
-AADD(aFormat,"")
+aAdd(aCampos,"TRB->XX_DESC")
+aAdd(aCabs  ,"Descrição")
+aAdd(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
+aAdd(aImpr,.T.)
+aAdd(aFormat,"")
+aAdd(aPict,"@!")
 
-AADD(aCampos,"TRB->XX_PROJ")
-AADD(aCabs  ,"Previsão Financeira")
-AADD(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
-AADD(aImpr,.T.)
-AADD(aFormat,"N")
+aAdd(aCampos,"TRB->XX_PROJ")
+aAdd(aCabs  ,"Previsão Financeira")
+aAdd(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
+aAdd(aImpr,.T.)
+aAdd(aFormat,"N")
+aAdd(aPict,"")
 
-AADD(aCampos,"TRB->XX_REAL")
-AADD(aCabs  ,"Realizado")
-AADD(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
-AADD(aImpr,.T.)
-AADD(aFormat,"N")
+aAdd(aCampos,"TRB->XX_REAL")
+aAdd(aCabs  ,"Realizado")
+aAdd(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
+aAdd(aImpr,.T.)
+aAdd(aFormat,"N")
+aAdd(aPict,"")
 
-AADD(aCampos,"TRB->XX_DIF")
-AADD(aCabs  ,"% Diferença")
-AADD(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
-AADD(aImpr,.T.)
-AADD(aFormat,"N")
+aAdd(aCampos,"TRB->XX_DIF")
+aAdd(aCabs  ,"% Diferença")
+aAdd(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
+aAdd(aImpr,.T.)
+aAdd(aFormat,"N")
+aAdd(aPict,"@E 99999.99999")
+
+If lSintetico
+	// Modelo Diretoria
+
+	aDbf3     := {}
+	aCabs3    := {}
+	aCampos3  := {}
+	aTitulos3 := {}
+	aImpr3	  := {}
+	aFormat3  := {}
+	aFormula3 := {}
+	aPict3	  := {}
+
+	aAdd(aTitulos3,titulo)
+
+	aAdd(aDbf3		,{ 'XX_CODGCT' ,'C', 09,00 } )
+	aAdd(aCampos3	,"TRB3->XX_CODGCT")
+	aAdd(aCabs3		,"Contrato")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"")
+
+	aAdd(aDbf3		,{ 'XX_DESC'   ,'C', 50,00 } )
+	aAdd(aCampos3	,"TRB3->XX_DESC")
+	aAdd(aCabs3  	,"Descrição")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@!")
+
+	aAdd(aDbf3		,{ 'XX_OBJETO' ,'C', 50,00 } )
+	aAdd(aCampos3	,"TRB3->XX_OBJETO")
+	aAdd(aCabs3 	,"Objeto")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@!")
+
+	aAdd(aDbf3		,{ 'XX_FATRM'  ,'N', 18,02 } )
+	aAdd(aCampos3	,"TRB3->XX_FATRM")
+	aAdd(aCabs3 	,"Fat Real Mês")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@E 99,999,999,999.99")
+
+	aAdd(aDbf3		,{ 'XX_RENTM'  ,'N', 18,02 } )
+	aAdd(aCampos3	,"TRB3->XX_RENTM")
+	aAdd(aCabs3 	,"Rent. Mes")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@E 99,999,999,999.99")
+
+	aAdd(aDbf3		,{ 'XX_RENTMP' ,'N', 06,02 } )
+	aAdd(aCampos3	,"TRB3->XX_RENTMP")
+	aAdd(aCabs3 	,"Rent. Mes %")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@E 99999.99999")
+
+	aAdd(aDbf3		,{ 'XX_RENTAC' ,'N', 18,02 } )
+	aAdd(aCampos3	,"TRB3->XX_RENTAC")
+	aAdd(aCabs3 	,"Rent. Acum.")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@E 99,999,999,999.99")
+
+	aAdd(aDbf3		,{ 'XX_RENTACP','N', 06,02 } )
+	aAdd(aCampos3	,"TRB3->XX_RENTACP")
+	aAdd(aCabs3 	,"Rent. Acum. %")
+	aAdd(aImpr3		,.T.)
+	aAdd(aFormat3	,"")
+	aAdd(aPict3		,"@E 99999.99999")
+
+	oTmpTb3 := FWTemporaryTable():New( "TRB3" ) 
+	oTmpTb3:SetFields( aDbf3 )
+	oTmpTb3:Create()
+
+EndIf
+
 
 aDbf2    := {}
 
 nTamCodGct := 9
 nTamCodigo := 16
 
-Aadd( aDbf2, { 'XX_CODGCT','C', nTamCodGct,00 } )
-Aadd( aDbf2, { 'XX_CODIGO','C', nTamCodigo,00 } )
-Aadd( aDbf2, { 'XX_DESC'  ,'C',         50,00 } )
+aAdd( aDbf2, { 'XX_CODGCT','C', nTamCodGct,00 } )
+aAdd( aDbf2, { 'XX_CODIGO','C', nTamCodigo,00 } )
+aAdd( aDbf2, { 'XX_DESC'  ,'C',         50,00 } )
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
-	Aadd( aDbf2, { 'XX_VALP'+cMes,'N', 18,02 } )
-	Aadd( aDbf2, { 'XX_VALR'+cMes,'N', 18,02 } )
-	Aadd( aDbf2, { 'XX_VL2P'+cMes,'N', 18,02 } )
+	aAdd( aDbf2, { 'XX_VALP'+cMes,'N', 18,02 } )
+	aAdd( aDbf2, { 'XX_VALR'+cMes,'N', 18,02 } )
+	aAdd( aDbf2, { 'XX_VL2P'+cMes,'N', 18,02 } )
 NEXT
 
 ///cArqTmp2 := CriaTrab( aDbf2, .T. )
@@ -583,14 +676,14 @@ oTmpTb2:Create()
 aCabs2   := {}
 aCampos2 := {}
 
-AADD(aCampos2,ALIAS_TMP+"->XX_CODGCT")
-AADD(aCabs2  ,"Contrato")
+aAdd(aCampos2,ALIAS_TMP+"->XX_CODGCT")
+aAdd(aCabs2  ,"Contrato")
 
-AADD(aCampos2,ALIAS_TMP+"->XX_CODIGO")
-AADD(aCabs2  ,"Cod.Rentab")
+aAdd(aCampos2,ALIAS_TMP+"->XX_CODIGO")
+aAdd(aCabs2  ,"Cod.Rentab")
 
-AADD(aCampos2,ALIAS_TMP+"->XX_DESC")
-AADD(aCabs2  ,"Descrição")
+aAdd(aCampos2,ALIAS_TMP+"->XX_DESC")
+aAdd(aCabs2  ,"Descrição")
 
 aPeriodo := {}
 nCompet		:= 0
@@ -598,12 +691,12 @@ dDataInicio := dDataI
 
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
-	AADD(aCampos2,ALIAS_TMP+"->XX_VALP"+cMes)
-	AADD(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-	AADD(aCampos2,ALIAS_TMP+"->XX_VALR"+cMes)
-	AADD(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-  	AAdd(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
-	AADD(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))  
+	aAdd(aCampos2,ALIAS_TMP+"->XX_VALP"+cMes)
+	aAdd(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
+	aAdd(aCampos2,ALIAS_TMP+"->XX_VALR"+cMes)
+	aAdd(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
+  	aAdd(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
+	aAdd(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))  
   	IF Month(dDataInicio) == nMesC .AND. YEAR(dDataInicio)== nAnoC
   		nCompet	:= _nI
   	ENDIF
@@ -613,7 +706,11 @@ If !lJob
 	If nCompet <> 0
 		ProcRegua(1)
 		Processa( {|| ProcR14(lJob) })
-		Processa( {|| MBrwR14() })
+		If !lSintetico
+			Processa( {|| MBrwR14() })
+		Else
+			U_BKGCTM14()
+		EndIf
 	Else
 		MsgStop("Competencia não encontrada!!")
 	EndIf
@@ -625,14 +722,11 @@ Else
 		u_xxLog(cArqLog,"Competencia não encontrada : "+STR(nCompet),.T.,"")
 	EndIf
 EndIf
-///(ALIAS_TMP)->(Dbclosearea())
-///FErase(cArqTmp2+GetDBExtension())
-///FErase(cArqTmp2+OrdBagExt())
-oTmpTb2:Delete()
 
-///TRB->(Dbclosearea())
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())
+If lSintetico
+	oTmpTb3:Delete()
+EndIf
+oTmpTb2:Delete()
 oTmpTb1:Delete()
 
 If lJob
@@ -660,8 +754,8 @@ Private aButton := {}
 Private _oGetDbSint
 Private _oDlgSint
 
-AADD(aRotina,{"Exp. Excel"	,"U_CR14",0,6})
-AADD(aRotina,{"Parametros"	,"U_PR14",0,7})
+aAdd(aRotina,{"Exp. Excel"	,"U_CR14",0,6})
+aAdd(aRotina,{"Parametros"	,"U_PR14",0,7})
 
 
 dbSelectArea(cAlias)
@@ -673,12 +767,15 @@ From aSize[7],0 to aSize[6],aSize[5] of oMainWnd PIXEL
 	
 _oGetDbSint := MsGetDb():New(aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","TRB")
 	
-aadd(aButton , { "BMPTABLE" , { || U_CR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
-aadd(aButton , { "BMPTABLE" , { || U_PR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Parametros" } )
+aAdd(aButton , { "BMPTABLE" , { || U_CR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
+aAdd(aButton , { "BMPTABLE" , { || U_PR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Parametros" } )
 
 ACTIVATE MSDIALOG _oDlgSint ON INIT EnchoiceBar(_oDlgSint,{|| _oDlgSint:End()}, {||_oDlgSint:End()},, aButton)
 
 Return Nil
+
+
+
 
 
 
@@ -725,8 +822,14 @@ dbSelectArea(cAlias)
 If !lJob
 	ProcRegua(1)
 	Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)})
+	If lSintetico
+		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"S",aTitulos,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
+	EndIf
 Else
 	GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
+	If lSintetico
+		GeraCR14(lJob,"TRB3",TRIM(cPerg)+"S",aTitulos,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
+	EndIf
 EndIf
 
 Return Nil
@@ -742,8 +845,12 @@ Local nIndTC	:= 0
 Local nVlp2		:= 0
 Local nPrev		:= 0
 
-LimpaBrw ("TRB")
-LimpaBrw (ALIAS_TMP)
+LimpaBrw("TRB")
+LimpaBrw(ALIAS_TMP)
+If lSintetico
+	LimpaBrw("TRB3")
+EndIf
+
 If !lJob
 	ProcRegua(nPeriodo)
 EndIf
@@ -873,7 +980,7 @@ FOR _nI := 1 TO nPeriodo
         nScan:= 0
  		nScan:= aScan(aContConsol,{|x| x[1] =ALLTRIM(QTMP->CNF_CONTRA)})
 		IF nScan == 0
-			AADD(aContConsol,{ALLTRIM(QTMP->CNF_CONTRA),QTMP->A1_NOME,QTMP->CTT_DESC01,QTMP->CN9_XXNRBK})
+			aAdd(aContConsol,{ALLTRIM(QTMP->CNF_CONTRA),QTMP->A1_NOME,QTMP->CTT_DESC01,QTMP->CN9_XXNRBK})
 		ENDIF
 
         //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
@@ -906,61 +1013,61 @@ FOR _nI := 1 TO nPeriodo
 		NEXT _IXFUR
 
         aRentab  := {}
-        AADD(aRentab,{"00","CLIENTE: ","S",QTMP->A1_NOME})              
-        AADD(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})              
-        AADD(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
-        AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
+        aAdd(aRentab,{"00","CLIENTE: ","S",QTMP->A1_NOME})              
+        aAdd(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})              
+        aAdd(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
+        aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
 		nNDC := 0 
 		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI)
-        AADD(aRentab,{"03-1","NDC","S",nNDC}) 
-        AADD(aRentab,{"03-2","","S",0}) 
-        AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
+        aAdd(aRentab,{"03-1","NDC","S",nNDC}) 
+        aAdd(aRentab,{"03-2","","S",0}) 
+        aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
 		IF lISSFURNAS
-        	AADD(aRentab,{"05","(-) ISS","S",nISSFURNAS})
+        	aAdd(aRentab,{"05","(-) ISS","S",nISSFURNAS})
         ELSE
-        	AADD(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,QTMP->D2_VALISS/(nIndTC/100),QTMP->D2_VALISS)})            
+        	aAdd(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,QTMP->D2_VALISS/(nIndTC/100),QTMP->D2_VALISS)})            
         ENDIF
-        AADD(aRentab,{"05-1","(-) ISS Bitributado","S",IIF(nIndTC>0,QTMP->D2_VALCPM/(nIndTC/100),QTMP->D2_VALCPM)})
-        AADD(aRentab,{"05-2","","S",0})
+        aAdd(aRentab,{"05-1","(-) ISS Bitributado","S",IIF(nIndTC>0,QTMP->D2_VALCPM/(nIndTC/100),QTMP->D2_VALCPM)})
+        aAdd(aRentab,{"05-2","","S",0})
 		IF lISSFURNAS
-        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS})              
+        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS})              
         ELSE
-        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)/(nIndTC/100),((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)})            
+        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)/(nIndTC/100),((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)})            
         ENDIF
-        AADD(aRentab,{"06-1","","S",0})
+        aAdd(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM))+nNDC}) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM))+nNDC}) 
         ELSE
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))+nNDC}) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))+nNDC}) 
 		ENDIF
-        AADD(aRentab,{"07-1","","S",0})
-        AADD(aRentab,{"08","CUSTO","S",0})
-        AADD(aRentab,{"09","PROVENTOS","S",0}) 
-        AADD(aRentab,{"10","ENCARGOS","S",0}) 
-        AADD(aRentab,{"11","INCIDENCIAS","S",0})
-        AADD(aRentab,{"110","PLR","S",0}) 
-        AADD(aRentab,{"111","VERBAS SEM ENCARGOS/INCIDENCIAS","S",0}) 
-        AADD(aRentab,{"12A","BENEFICIOS","S",0}) 
-        AADD(aRentab,{"12","VT","S",0}) 
-        AADD(aRentab,{"13","(-) Recuperação de VT","S",0}) 
-        AADD(aRentab,{"14","VR/VA","S",0}) 
-        AADD(aRentab,{"15","(-) Recuperação de VR/VA","S",0}) 
-        AADD(aRentab,{"16","ASSMEDICA","S",0}) 
-        AADD(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
-        AADD(aRentab,{"18","Sindicato (Odonto)","S",0}) 
-        //AADD(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
-        AADD(aRentab,{"20","CECREMEF/ADV","S",0}) 
-        AADD(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
-        AADD(aRentab,{"22-1","","S",0})
-        AADD(aRentab,{"30","GASTOS GERAIS","S",0}) 
+        aAdd(aRentab,{"07-1","","S",0})
+        aAdd(aRentab,{"08","CUSTO","S",0})
+        aAdd(aRentab,{"09","PROVENTOS","S",0}) 
+        aAdd(aRentab,{"10","ENCARGOS","S",0}) 
+        aAdd(aRentab,{"11","INCIDENCIAS","S",0})
+        aAdd(aRentab,{"110","PLR","S",0}) 
+        aAdd(aRentab,{"111","VERBAS SEM ENCARGOS/INCIDENCIAS","S",0}) 
+        aAdd(aRentab,{"12A","BENEFICIOS","S",0}) 
+        aAdd(aRentab,{"12","VT","S",0}) 
+        aAdd(aRentab,{"13","(-) Recuperação de VT","S",0}) 
+        aAdd(aRentab,{"14","VR/VA","S",0}) 
+        aAdd(aRentab,{"15","(-) Recuperação de VR/VA","S",0}) 
+        aAdd(aRentab,{"16","ASSMEDICA","S",0}) 
+        aAdd(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
+        aAdd(aRentab,{"18","Sindicato (Odonto)","S",0}) 
+        //aAdd(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
+        aAdd(aRentab,{"20","CECREMEF/ADV","S",0}) 
+        aAdd(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
+        aAdd(aRentab,{"22-1","","S",0})
+        aAdd(aRentab,{"30","GASTOS GERAIS","S",0}) 
 		//27/02/20
-        AADD(aRentab,{"30-1","","S",0}) 
-        AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMP->E5DESC/(nIndTC/100),QTMP->E5DESC)}) 
+        aAdd(aRentab,{"30-1","","S",0}) 
+        aAdd(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMP->E5DESC/(nIndTC/100),QTMP->E5DESC)}) 
 
-        AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
-        AADD(aRentab,{"YYYYYYYYZ","","S",0}) 
-        AADD(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
-        AADD(aRentab,{"ZZZZZZZZZ","RESULTADO GLOBAL","S",0})
+        aAdd(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
+        aAdd(aRentab,{"YYYYYYYYZ","","S",0}) 
+        aAdd(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
+        aAdd(aRentab,{"ZZZZZZZZZ","RESULTADO GLOBAL","S",0})
 		
 		FOR _nJ := 1 TO LEN(aRentab)
 			dbSelectArea(ALIAS_TMP)
@@ -1094,7 +1201,7 @@ FOR _nI := 1 TO nPeriodo
         nScan:= 0
  		nScan:= aScan(aContratos,{|x| x = IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))})
 		IF nScan == 0
-			AADD(aContratos  ,IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA)))
+			aAdd(aContratos  ,IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA)))
 		ENDIF
         
  		FOR _XI := 1 TO nPeriodo
@@ -2107,7 +2214,7 @@ FOR _nI := 1 TO nPeriodo
         nVContrat := 0
         nVContrat := aScan(aVContrat, {|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA)})
  		IF nVContrat == 0
-			AADD(aVContrat,{ALLTRIM(QTMP->CNF_CONTRA),QTMPX3->CNF_INICIO,QTMPX3->CNF_FIM,0})
+			aAdd(aVContrat,{ALLTRIM(QTMP->CNF_CONTRA),QTMPX3->CNF_INICIO,QTMPX3->CNF_FIM,0})
         ENDIF
         
 		QTMPX3->(Dbclosearea())
@@ -3641,54 +3748,54 @@ FOR _nI := 1 TO nPeriodo
 		dbGoTop()
 		DO While !TMPX2->(EOF())
 	        aRentab  := {}
-	        AADD(aRentab,{"00","CLIENTE: ","S",TMPX2->A1_NOME})              
-	        AADD(aRentab,{"01","CONTRATO: ","S",TMPX2->CTT_DESC01})              
-	        AADD(aRentab,{"02","Gestor BK: ","S",""})              
-			//AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
-			AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
-	        AADD(aRentab,{"03-1","NDC","S",0}) 
+	        aAdd(aRentab,{"00","CLIENTE: ","S",TMPX2->A1_NOME})              
+	        aAdd(aRentab,{"01","CONTRATO: ","S",TMPX2->CTT_DESC01})              
+	        aAdd(aRentab,{"02","Gestor BK: ","S",""})              
+			//aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
+			aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
+	        aAdd(aRentab,{"03-1","NDC","S",0}) 
 			          
-	        AADD(aRentab,{"03-2","","S",0}) 
-			//AADD(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})  
-			AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((TMPX2->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(TMPX2->D2_TOTAL*nMImpContr)/100)})            
+	        aAdd(aRentab,{"03-2","","S",0}) 
+			//aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})  
+			aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((TMPX2->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(TMPX2->D2_TOTAL*nMImpContr)/100)})            
 			          
-			//AADD(aRentab,{"05","(-) ISS","S",TMPX2->D2_VALISS}) 
-        	AADD(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,TMPX2->D2_VALISS/(nIndTC/100),TMPX2->D2_VALISS)})            
-        	AADD(aRentab,{"05-01","(-) ISS Bitributado","S",IIF(nIndTC>0,TMPX2->D2_VALCPM/(nIndTC/100),TMPX2->D2_VALCPM)})
+			//aAdd(aRentab,{"05","(-) ISS","S",TMPX2->D2_VALISS}) 
+        	aAdd(aRentab,{"05","(-) ISS","S",IIF(nIndTC>0,TMPX2->D2_VALISS/(nIndTC/100),TMPX2->D2_VALISS)})            
+        	aAdd(aRentab,{"05-01","(-) ISS Bitributado","S",IIF(nIndTC>0,TMPX2->D2_VALCPM/(nIndTC/100),TMPX2->D2_VALCPM)})
 			           
-	        AADD(aRentab,{"05-2","","S",0}) 
-	        //AADD(aRentab,{"06","Total dos Impostos + ISS","S",((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS})            
-        	AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM)/(nIndTC/100),((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM)})            
+	        aAdd(aRentab,{"05-2","","S",0}) 
+	        //aAdd(aRentab,{"06","Total dos Impostos + ISS","S",((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS})            
+        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM)/(nIndTC/100),((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM)})            
 
-			AADD(aRentab,{"06-1","","S",0}) 
-			//AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)}) 
-        	AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM))/(nIndTC/100),TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM))}) 
+			aAdd(aRentab,{"06-1","","S",0}) 
+			//aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS)}) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM))/(nIndTC/100),TMPX2->D2_TOTAL-(((TMPX2->D2_TOTAL*nMImpContr)/100)+TMPX2->D2_VALISS+TMPX2->D2_VALCPM))}) 
 			
-	        AADD(aRentab,{"07-1","","S",0}) 
-	        AADD(aRentab,{"08","CUSTO","S",0}) 
-	        AADD(aRentab,{"09","PROVENTOS","S",0}) 
-	        AADD(aRentab,{"10","ENCARGOS","S",0}) 
-	        AADD(aRentab,{"11","INCIDENCIAS","S",0}) 
-	        AADD(aRentab,{"110","PLR","S",0}) 
-        	AADD(aRentab,{"111","VERBAS SEM ENCARGOS/INCIDENCIAS","S",0}) 
-	        AADD(aRentab,{"12","VT","S",0}) 
-	        AADD(aRentab,{"13","(-) Recuperação de VT","S",0}) 
-	        AADD(aRentab,{"14","VR/VA","S",0}) 
-	        AADD(aRentab,{"15","(-) Recuperação de VR/VA","S",0}) 
-	        AADD(aRentab,{"16","ASSMEDICA","S",0}) 
-	        AADD(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
-	        AADD(aRentab,{"18","Sindicato (Odonto)","S",0}) 
-	        //AADD(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
-        	AADD(aRentab,{"20","CECREMEF/ADV","S",0}) 
-        	AADD(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
-	        AADD(aRentab,{"22-1","","S",0}) 
-	        AADD(aRentab,{"30","GASTOS GERAIS","S",0}) 
-	        AADD(aRentab,{"30-1","","S",0}) 
-	        AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,TMPX2->E5DESC/(nIndTC/100),TMPX2->E5DESC)}) 
-	        AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
-	        AADD(aRentab,{"YYYYYYYYZ","","S",0}) 
-        	AADD(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
-        	AADD(aRentab,{"ZZZZZZZZZ","RESULTADO GLOBAL","S",0})
+	        aAdd(aRentab,{"07-1","","S",0}) 
+	        aAdd(aRentab,{"08","CUSTO","S",0}) 
+	        aAdd(aRentab,{"09","PROVENTOS","S",0}) 
+	        aAdd(aRentab,{"10","ENCARGOS","S",0}) 
+	        aAdd(aRentab,{"11","INCIDENCIAS","S",0}) 
+	        aAdd(aRentab,{"110","PLR","S",0}) 
+        	aAdd(aRentab,{"111","VERBAS SEM ENCARGOS/INCIDENCIAS","S",0}) 
+	        aAdd(aRentab,{"12","VT","S",0}) 
+	        aAdd(aRentab,{"13","(-) Recuperação de VT","S",0}) 
+	        aAdd(aRentab,{"14","VR/VA","S",0}) 
+	        aAdd(aRentab,{"15","(-) Recuperação de VR/VA","S",0}) 
+	        aAdd(aRentab,{"16","ASSMEDICA","S",0}) 
+	        aAdd(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
+	        aAdd(aRentab,{"18","Sindicato (Odonto)","S",0}) 
+	        //aAdd(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
+        	aAdd(aRentab,{"20","CECREMEF/ADV","S",0}) 
+        	aAdd(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
+	        aAdd(aRentab,{"22-1","","S",0}) 
+	        aAdd(aRentab,{"30","GASTOS GERAIS","S",0}) 
+	        aAdd(aRentab,{"30-1","","S",0}) 
+	        aAdd(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,TMPX2->E5DESC/(nIndTC/100),TMPX2->E5DESC)}) 
+	        aAdd(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
+	        aAdd(aRentab,{"YYYYYYYYZ","","S",0}) 
+        	aAdd(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
+        	aAdd(aRentab,{"ZZZZZZZZZ","RESULTADO GLOBAL","S",0})
 			
 			FOR _nJ := 1 TO LEN(aRentab)
 				dbSelectArea(ALIAS_TMP)
@@ -3866,7 +3973,7 @@ cMaster := ""
 cMaster := SuperGetMV("MV_XXGRREN",.F.,"000000/000003/000007/000008/000010/000020")
 lMaster := .F.
 aGRUPO := {}
-//AADD(aGRUPO,aUser[1,10])
+//aAdd(aGRUPO,aUser[1,10])
 //FOR i:=1 TO LEN(aGRUPO[1])
 //	lMaster := (aGRUPO[1,i] $ cMaster)
 //NEXT
@@ -3900,9 +4007,9 @@ nValTADR := 0
 nTXATMESR:= 0
 nTXMESR  := 0
 cCustoBk := ""
-cCampoX	:= ""
+cCampoX	 := ""
 cCampoX  := "XX_VALP"+STRZERO(nCompet,3)
-cCampoY	:= ""
+cCampoY	 := ""
 cCampoY  := "XX_VALR"+STRZERO(nCompet,3)
 cCampoZ  := "XX_VL2P"+STRZERO(nCompet,3)
 
@@ -3920,16 +4027,7 @@ aBenef		:= {}
 
 Do While (ALIAS_TMP)->(!eof())
 
-
-	IF cCodigo <> (ALIAS_TMP)->XX_CODGCT
-		nTotFat :=0
-		nTotFatMES := 0
-		nTFATDOMES := 0
-		nTotCUSTO  := 0
- 		cCodigo    := (ALIAS_TMP)->XX_CODGCT
-   		nTXATMESR  :=	0	
- 	ENDIF
- 	
+	
 	nTotal 		:= 0
 	nTotalMES 	:= 0
 	nTDOMES 	:= 0
@@ -3989,7 +4087,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				TRB->(Msunlock())
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 
 		 		++nLINHA
 	    	
@@ -4002,7 +4100,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,2]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 				
 		 		++nLINHA
@@ -4015,7 +4113,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock()) 
 				
 		 		++nLINHA
@@ -4026,7 +4124,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,4]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 				nVContrat := 0
@@ -4039,7 +4137,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 			NEXT
@@ -4051,7 +4149,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF		:= ""
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -4063,10 +4161,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4136,7 +4234,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -4147,7 +4245,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -4158,10 +4256,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4177,10 +4275,10 @@ Do While (ALIAS_TMP)->(!eof())
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
 		TRB->XX_PROJ 	:= transform((ALIAS_TMP)->&cCampoX,cPict)
-		AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
+		aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
 
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-		AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
+		aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
 
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
 
@@ -4298,7 +4396,7 @@ Do While (ALIAS_TMP)->(!eof())
 	IF nDespGeral == 1 .AND. nCompras == 0
 		// 28/02/20 incluido |111"
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|111|12|14|16|18|19|20|"  .OR. SUBSTR((ALIAS_TMP)->XX_CODIGO,1,4) == "18-1"
-	 		AADD(aBenef,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
+	 		aAdd(aBenef,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
 		ENDIF
 	ENDIF
 
@@ -4342,7 +4440,7 @@ Do While (ALIAS_TMP)->(!eof())
 	
 	IF nDespGeral == 1 .AND. (nCompras == 0  .OR. nCompras == 1)
 		IF SUBSTR((ALIAS_TMP)->XX_CODIGO,1,1) == "W"   .AND. !"|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W29104004|"
-        	AADD(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
+        	aAdd(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
 		ENDIF
 	ENDIF
 
@@ -4628,11 +4726,22 @@ Do While (ALIAS_TMP)->(!eof())
 		nValTADR	:= 0
 
 	ENDIF
-	
-	
+
+
  	++nLINHA
  	DbSelectArea(ALIAS_TMP)
 	(ALIAS_TMP)->(dbSkip())
+
+	IF cCodigo <> (ALIAS_TMP)->XX_CODGCT .OR. (ALIAS_TMP)->(EOF())
+
+		nTotFat    := 0
+		nTotFatMES := 0
+		nTFATDOMES := 0
+		nTotCUSTO  := 0
+ 		cCodigo    := (ALIAS_TMP)->XX_CODGCT
+   		nTXATMESR  := 0	
+ 	ENDIF
+
 ENDDO
                                                                                                                  
 
@@ -4658,7 +4767,7 @@ cMaster := ""
 cMaster := SuperGetMV("MV_XXGRREN",.F.,"000000/000003/000007/000008/000010/000020")
 lMaster := .F.
 aGRUPO := {}
-AADD(aGRUPO,aUser[1,10])
+aAdd(aGRUPO,aUser[1,10])
 FOR i:=1 TO LEN(aGRUPO[1])
 	lMaster := (aGRUPO[1,i] $ cMaster)
 NEXT
@@ -4705,17 +4814,6 @@ nTXATMESR 	:= 0
 
 Do While (ALIAS_TMP)->(!eof())
 
-
-	IF cCodigo <> (ALIAS_TMP)->XX_CODGCT
-		nTotFat    := 0
-		nTotFatMES := 0
-		nTFATDOMES := 0
-		nTotCUSTO  := 0
- 		cCodigo    := (ALIAS_TMP)->XX_CODGCT
- 		nTXATMESR  := 0
-		nValNDC    := 0 
- 	ENDIF
- 	
 	nTotal := 0
 	nTotalMES := 0
 	nTDOMES := 0
@@ -4786,7 +4884,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,2]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 				
 		 		++nLINHA
@@ -4799,7 +4897,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock()) 
 				
 		 		++nLINHA
@@ -4822,7 +4920,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 			NEXT
@@ -4834,7 +4932,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -4846,10 +4944,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= ""
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4919,7 +5017,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -4930,7 +5028,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -4942,10 +5040,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= ""
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			AADD(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -5223,6 +5321,30 @@ Do While (ALIAS_TMP)->(!eof())
  	++nLINHA
  	DbSelectArea(ALIAS_TMP)
 	(ALIAS_TMP)->(dbSkip())
+
+	IF cCodigo <> (ALIAS_TMP)->XX_CODGCT .OR. (ALIAS_TMP)->(EOF())
+		
+		// Grava modelo para diretoria
+
+
+ 		Reclock("TRB3",.T.)
+		TRB3->XX_CODGCT := cCodigo
+		TRB3->XX_DESC	:= Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_NOMCLI")
+		TRB3->XX_OBJETO	:= Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_XXDESC")
+		TRB3->XX_FATRM	:= nFatura
+		TRB3->XX_RENTM	:= 0
+		TRB3->XX_RENTMP	:= 0
+		TRB3->XX_RENTAC	:= 0
+		TRB3->XX_RENTACP:= 0
+
+		nTotFat    := 0
+		nTotFatMES := 0
+		nTFATDOMES := 0
+		nTotCUSTO  := 0
+ 		cCodigo    := (ALIAS_TMP)->XX_CODGCT
+   		nTXATMESR  := 0	
+ 	ENDIF
+
 ENDDO
                                                                                                                  
 
@@ -5272,16 +5394,16 @@ cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 Private xQuebra,xCampo
 
 If !lJob
-	If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+	If MsgYesNo(cArqs+": Deseja gerar no formato Excel (.xlsx) ?")
 		//Processa( {|| U_GeraXCSV(_cAlias,cArqE,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
-		AADD(aPlans,{_cAlias,cPerg,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-		cArqXls := U_GeraXlsx(aPlans,"",cPerg, lClose:= .F.,)
+		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+		cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		Return Nil
 	EndIf
 Else
 	u_xxLog(cArqLog,"Gerando planilha xlsx",.T.,"")
-	AADD(aPlans,{_cAlias,cPerg,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-	cArqXls := U_GeraXlsx(aPlans,"",cPerg, lClose:= .F.,,,.F.,lJob)
+	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+	cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 
 	cMsg :=aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
@@ -5328,9 +5450,9 @@ If nHandle > 0
                 	IF cLetra > "Z"
                    		cLetra := "A"+CHR(_ni+64-26)
                 	ENDIF
-                	AADD(aSoma,'=Soma('+cLetra+ALLTRIM(STR(nCab))+':')
+                	aAdd(aSoma,'=Soma('+cLetra+ALLTRIM(STR(nCab))+':')
              	Else
-                	AADD(aSoma,"")
+                	aAdd(aSoma,"")
              	Endif
              ENDIF
          Next
@@ -5485,12 +5607,12 @@ Local cCrLf   			:= Chr(13) + Chr(10)
 Local cAtivos			:= "N"
 Local aAtivos			:= {}
 
-AADD(aTpCons,"N° Contrato")
-AADD(aTpCons,"Prefixo")
-AADD(aTpCons,"Sufixo")
+aAdd(aTpCons,"N° Contrato")
+aAdd(aTpCons,"Prefixo")
+aAdd(aTpCons,"Sufixo")
 
-AADD(aAtivos,"Ativos")
-AADD(aAtivos,"Todos")
+aAdd(aAtivos,"Ativos")
+aAdd(aAtivos,"Todos")
 
 IF !EMPTY(cContrato)
  	cConsolida := cContrato
@@ -5535,7 +5657,7 @@ If ( lOk )
 	cConsolida := STRTRAN(cConsolida,cCrLf,"")
 	cConsolida := STRTRAN(cConsolida,",","")
 	cConsolida := STRTRAN(cConsolida," ","")
-  	AADD(aRet,{cTpCons,cConsolida,cAtivos})
+  	aAdd(aRet,{cTpCons,cConsolida,cAtivos})
 EndIf
 
 RestArea( aAreaAtu )
@@ -5554,17 +5676,17 @@ dbSetOrder(1)
 
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Contrato?","Contrato?","Contrato?","mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
-AADD(aRegistros,{cPerg,"02","Mês Competência?","Mês Competência?","Mês Competência?","mv_ch2","N",02,0,0,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Ano Competência?","Ano Competência?","Ano Competência?","mv_ch3","N",04,0,0,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"04","%Taxa de Administração?","%Taxa de Administração?" ,"%Taxa de Administração?" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"05","Consolidar Contratos?","Consolidar Contratos?","Consolidar Contratos?","mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"06","Consórcio Aplicar Índice Total?","Consórcio Aplicar Índice Total","Consórcio Aplicar Índice Total","mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"07","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","mv_ch7","N",01,0,1,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"08","Detalhar ?","Detalhar ?","Detalhar ?","mv_ch8","N",01,0,2,"C","","mv_par08","Benefíc.Desp.Gerais","Benefíc.Desp.Gerais","Benefíc.Desp.Gerais","","","Desp.Gerais","Desp.Gerais","Desp.Gerais","","","Nao Detalhar","Nao Detalhar","Nao Detalhar","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"09","Agendar ?","Agendar ?","Agendar ?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"10","Agendar para:" ,"Agendar para:" ,"Agendar para:" ,"mv_cha","D",8,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"11","E-Mail?","E-Mail?","E-Mail?","mv_chb","C",70,0,0,"G","","mv_par11","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"01","Contrato?","Contrato?","Contrato?","mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
+aAdd(aRegistros,{cPerg,"02","Mês Competência?","Mês Competência?","Mês Competência?","mv_ch2","N",02,0,0,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"03","Ano Competência?","Ano Competência?","Ano Competência?","mv_ch3","N",04,0,0,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"04","%Taxa de Administração?","%Taxa de Administração?" ,"%Taxa de Administração?" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"05","Consolidar Contratos?","Consolidar Contratos?","Consolidar Contratos?","mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+aAdd(aRegistros,{cPerg,"06","Consórcio Aplicar Índice Total?","Consórcio Aplicar Índice Total","Consórcio Aplicar Índice Total","mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+aAdd(aRegistros,{cPerg,"07","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","mv_ch7","N",01,0,1,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+aAdd(aRegistros,{cPerg,"08","Detalhar ?","Detalhar ?","Detalhar ?","mv_ch8","N",01,0,2,"C","","mv_par08","Benefíc.Desp.Gerais","Benefíc.Desp.Gerais","Benefíc.Desp.Gerais","","","Desp.Gerais","Desp.Gerais","Desp.Gerais","","","Nao Detalhar","Nao Detalhar","Nao Detalhar","","","","","","","","","","","",""})
+aAdd(aRegistros,{cPerg,"09","Agendar ?","Agendar ?","Agendar ?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+aAdd(aRegistros,{cPerg,"10","Agendar para:" ,"Agendar para:" ,"Agendar para:" ,"mv_cha","D",8,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"11","E-Mail?","E-Mail?","E-Mail?","mv_chb","C",70,0,0,"G","","mv_par11","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

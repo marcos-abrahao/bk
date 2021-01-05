@@ -240,3 +240,9 @@ static function niversInsert(oMultiGe1, cAniversariante, dNiver)
 	// [*Submit] Insere aniversarios na lista
 	oMultiGe1:appendText(chr(10) + trim(cAniversariante) +" | "+ DtoC(dNiver))
 return
+
+
+
+
+
+

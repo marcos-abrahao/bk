@@ -32,7 +32,7 @@ RETURN
 
 
 Static FUNCTION ProcRot()
-Local bError 
+//Local bError 
 Private nProc := 0
 
 cRot:= ALLTRIM(cRot)+"(@lEnd)"
