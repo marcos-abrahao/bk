@@ -18,11 +18,13 @@ BK - Rentabilidade dos Contrato - Projeção X Realizado
 User Function BKGCTR14(aParam)
 
 Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado"
+Local cTitulo		:= ""
 Local _nI           := 0
 
-Local oTmpTb1
-Local oTmpTb2
-Local oTmpTb3
+Local oTmpTb1		as Object
+Local oTmpTb2		as Object
+Local oTmpTb3		as Object
+Local oTmpTbT		as Object
 
 Local cMes          := ""
 Local cXXSEMAF		:= "N"
@@ -128,12 +130,18 @@ PRIVATE cMFG_Prod	:= ""
 PRIVATE cDCH_Prod	:= ""
 
 PRIVATE aHeader	    := {}
-PRIVATE aDbf 	    := {}
+PRIVATE aDbf1 	    := {}
+PRIVATE aTitulos1,aCampos1,aCabs1,aFormat1,aFormula1,aImpr1,aPict1
+
 PRIVATE aDbf2       := {}
+PRIVATE aTitulos2,aCampos2,aCabs2,aFormat2,aFormula2,aImpr2,aPict2
+
 PRIVATE aDbf3	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aFormat,aFormula,aImpr,aPict
-PRIVATE aCampos2,aCabs2
-PRIVATE aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
+PRIVATE aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
+
+PRIVATE aDbfT		:= {}
+PRIVATE aCamposT,aCabsT
+
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 
 PRIVATE cXXPLR 		:= ""
@@ -497,81 +505,134 @@ dDataI := dDataI - Day(dDataI)+1
 //Determina quantos Meses utilizar no calculo
 nPeriodo += DateDiffMonth( dDataI , dDataFinal )
 
-IF lSintetico
-	titulo := "Sintético - "+titulo
-ENDIF
+cTitulo  := titulo + " - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
 
-titulo   := titulo+" - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
-u_xxLog(cArqLog,titulo,.T.,"")
+u_xxLog(cArqLog,cTitulo,.T.,"")
 
-aDbf := {}
-aAdd( aDbf, { 'XX_LINHA' ,'N', 10,00 } )
-aAdd( aDbf, { 'XX_CODGCT','C', 09,00 } )
-aAdd( aDbf, { 'XX_DESC'  ,'C', 50,00 } )
-aAdd( aDbf, { 'XX_PROJ'  ,'C', 200,00 } )
-aAdd( aDbf, { 'XX_REAL'  ,'C', 200,00 } )
-aAdd( aDbf, { 'XX_DIF'   ,'C', 200,00 } )
+aDbf1		:= {}
+aCabs1   	:= {}
+aCampos1 	:= {}
+aTitulos1	:= {}
+aImpr1		:= {}
+aFormat1 	:= {}
+aFormula1	:= {}
+aPict1		:= {}
 
-///cArqTmp := CriaTrab( aDbf, .t. )
-///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
+aAdd(aTitulos1,cTitulo)
+
+aAdd(aDbf1, { 'XX_LINHA' ,'N', 10,00 } )
+aAdd(aCampos1,"TRB->XX_LINHA")
+aAdd(aCabs1  ,"Linha")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_CODGCT','C', 09,00 } )
+aAdd(aCampos1,"TRB->XX_CODGCT")
+aAdd(aCabs1  ,"Contrato")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_DESC'  ,'C', 50,00 } )
+aAdd(aCampos1,"TRB->XX_DESC")
+aAdd(aCabs1  ,"Descrição")
+aAdd(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"@!")
+
+aAdd(aDbf1, { 'XX_PROJ'  ,'C', 200,00 } )
+aAdd(aCampos1,"TRB->XX_PROJ")
+aAdd(aCabs1  ,"Previsão Financeira")
+aAdd(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"N")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_REAL'  ,'C', 200,00 } )
+aAdd(aCampos1,"TRB->XX_REAL")
+aAdd(aCabs1  ,"Realizado")
+aAdd(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"N")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_DIF'   ,'C', 200,00 } )
+aAdd(aCampos1,"TRB->XX_DIF")
+aAdd(aCabs1  ,"% Diferença")
+aAdd(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"N")
+aAdd(aPict1,"@E 99999.99999")
 
 oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
-oTmpTb1:SetFields( aDbf )
+oTmpTb1:SetFields( aDbf1 )
 oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
 oTmpTb1:Create()
 
-aCabs   := {}
-aCampos := {}
-aTitulos:= {}
-aImpr	:= {}
-aFormat := {}
-aFormula:= {}
-aPict	:= {}
 
-aAdd(aTitulos,titulo)
+If lSintetico .OR. lJob
 
-aAdd(aCampos,"TRB->XX_LINHA")
-aAdd(aCabs  ,"Linha")
-aAdd(aImpr,.T.)
-aAdd(aFormat,"")
-aAdd(aPict,"")
+	aDbf2		:= {}
+	aCabs2   	:= {}
+	aCampos2 	:= {}
+	aTitulos2	:= {}
+	aImpr2		:= {}
+	aFormat2 	:= {}
+	aFormula2	:= {}
+	aPict2		:= {}
 
-aAdd(aCampos,"TRB->XX_CODGCT")
-aAdd(aCabs  ,"Contrato")
-aAdd(aImpr,.T.)
-aAdd(aFormat,"")
-aAdd(aPict,"")
+	aAdd(aTitulos2,"Sintético: "+cTitulo)
 
-aAdd(aCampos,"TRB->XX_DESC")
-aAdd(aCabs  ,"Descrição")
-aAdd(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
-aAdd(aImpr,.T.)
-aAdd(aFormat,"")
-aAdd(aPict,"@!")
+	aAdd(aDbf2, { 'XX_LINHA' ,'N', 10,00 } )
+	aAdd(aCampos2,"TRB2->XX_LINHA")
+	aAdd(aCabs2  ,"Linha")
+	aAdd(aImpr2,.T.)
+	aAdd(aFormat2,"")
+	aAdd(aPict2,"")
 
-aAdd(aCampos,"TRB->XX_PROJ")
-aAdd(aCabs  ,"Previsão Financeira")
-aAdd(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
-aAdd(aImpr,.T.)
-aAdd(aFormat,"N")
-aAdd(aPict,"")
+	aAdd(aDbf2, { 'XX_CODGCT','C', 09,00 } )
+	aAdd(aCampos2,"TRB2->XX_CODGCT")
+	aAdd(aCabs2  ,"Contrato")
+	aAdd(aImpr2,.T.)
+	aAdd(aFormat2,"")
+	aAdd(aPict2,"")
 
-aAdd(aCampos,"TRB->XX_REAL")
-aAdd(aCabs  ,"Realizado")
-aAdd(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
-aAdd(aImpr,.T.)
-aAdd(aFormat,"N")
-aAdd(aPict,"")
+	aAdd(aDbf2, { 'XX_DESC'  ,'C', 50,00 } )
+	aAdd(aCampos2,"TRB2->XX_DESC")
+	aAdd(aCabs2  ,"Descrição")
+	aAdd(aImpr2,.T.)
+	aAdd(aFormat2,"")
+	aAdd(aPict2,"@!")
 
-aAdd(aCampos,"TRB->XX_DIF")
-aAdd(aCabs  ,"% Diferença")
-aAdd(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
-aAdd(aImpr,.T.)
-aAdd(aFormat,"N")
-aAdd(aPict,"@E 99999.99999")
+	aAdd(aDbf2, { 'XX_PROJ'  ,'C', 200,00 } )
+	aAdd(aCampos2,"TRB2->XX_PROJ")
+	aAdd(aCabs2  ,"Previsão Financeira")
+	aAdd(aImpr2,.T.)
+	aAdd(aFormat2,"N")
+	aAdd(aPict2,"")
 
-If lSintetico
+	aAdd(aDbf2, { 'XX_REAL'  ,'C', 200,00 } )
+	aAdd(aCampos2,"TRB2->XX_REAL")
+	aAdd(aCabs2  ,"Realizado")
+	aAdd(aImpr2,.T.)
+	aAdd(aFormat2,"N")
+	aAdd(aPict2,"")
+
+	aAdd(aDbf2, { 'XX_DIF'   ,'C', 200,00 } )
+	aAdd(aCampos2,"TRB2->XX_DIF")
+	aAdd(aCabs2  ,"% Diferença")
+	aAdd(aImpr2,.T.)
+	aAdd(aFormat2,"N")
+	aAdd(aPict2,"@E 99999.99999")
+
+	oTmpTb2 := FWTemporaryTable():New( "TRB2" ) 
+	oTmpTb2:SetFields( aDbf2 )
+	oTmpTb2:AddIndex("indice1", {"XX_LINHA"} )
+	oTmpTb2:Create()
+
+
 	// Modelo Diretoria
 
 	aDbf3     := {}
@@ -583,7 +644,7 @@ If lSintetico
 	aFormula3 := {}
 	aPict3	  := {}
 
-	aAdd(aTitulos3,titulo)
+	aAdd(aTitulos3,"Demonstrativo de Rentabilidades - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4))
 
 	aAdd(aDbf3		,{ 'XX_CODGCT' ,'C', 09,00 } )
 	aAdd(aCampos3	,"TRB3->XX_CODGCT")
@@ -648,60 +709,55 @@ If lSintetico
 EndIf
 
 
-aDbf2    := {}
+aDbfT		:= {}
+aCabsT		:= {}
+aCamposT 	:= {}
 
-nTamCodGct := 9
-nTamCodigo := 16
-
-aAdd( aDbf2, { 'XX_CODGCT','C', nTamCodGct,00 } )
-aAdd( aDbf2, { 'XX_CODIGO','C', nTamCodigo,00 } )
-aAdd( aDbf2, { 'XX_DESC'  ,'C',         50,00 } )
-FOR _nI := 1 TO nPeriodo
-	cMes := STRZERO(_nI,3)
-	aAdd( aDbf2, { 'XX_VALP'+cMes,'N', 18,02 } )
-	aAdd( aDbf2, { 'XX_VALR'+cMes,'N', 18,02 } )
-	aAdd( aDbf2, { 'XX_VL2P'+cMes,'N', 18,02 } )
-NEXT
-
-///cArqTmp2 := CriaTrab( aDbf2, .T. )
-///dbUseArea( .T.,NIL,cArqTmp2,ALIAS_TMP,.F.,.F. )
-///IndRegua(ALIAS_TMP,cArqTmp2,"XX_CODGCT+XX_CODIGO",,,"Indexando Arquivo de Trabalho") 
-///dbSetIndex(cArqTmp2+ordBagExt())
-
-oTmpTb2 := FWTemporaryTable():New( ALIAS_TMP ) 
-oTmpTb2:SetFields( aDbf2 )
-oTmpTb2:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
-oTmpTb2:Create()
-
-aCabs2   := {}
-aCampos2 := {}
-
-aAdd(aCampos2,ALIAS_TMP+"->XX_CODGCT")
-aAdd(aCabs2  ,"Contrato")
-
-aAdd(aCampos2,ALIAS_TMP+"->XX_CODIGO")
-aAdd(aCabs2  ,"Cod.Rentab")
-
-aAdd(aCampos2,ALIAS_TMP+"->XX_DESC")
-aAdd(aCabs2  ,"Descrição")
-
-aPeriodo := {}
+nTamCodGct	:= 9
+nTamCodigo	:= 16
+aPeriodo	:= {}
 nCompet		:= 0
 dDataInicio := dDataI
 
+aAdd(aDbfT, { 'XX_CODGCT','C', nTamCodGct,00 } )
+aAdd(aCamposT,ALIAS_TMP+"->XX_CODGCT")
+aAdd(aCabsT  ,"Contrato")
+
+aAdd(aDbfT, { 'XX_CODIGO','C', nTamCodigo,00 } )
+aAdd(aCamposT,ALIAS_TMP+"->XX_CODIGO")
+aAdd(aCabsT  ,"Cod.Rentab")
+
+aAdd(aDbfT, { 'XX_DESC'  ,'C',         50,00 } )
+aAdd(aCamposT,ALIAS_TMP+"->XX_DESC")
+aAdd(aCabsT  ,"Descrição")
+
 FOR _nI := 1 TO nPeriodo
 	cMes := STRZERO(_nI,3)
-	aAdd(aCampos2,ALIAS_TMP+"->XX_VALP"+cMes)
-	aAdd(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-	aAdd(aCampos2,ALIAS_TMP+"->XX_VALR"+cMes)
-	aAdd(aCabs2,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
+	aAdd(aDbfT, { 'XX_VALP'+cMes,'N', 18,02 } )
+	aAdd(aCamposT,ALIAS_TMP+"->XX_VALP"+cMes)
+	aAdd(aCabsT,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
+
+	aAdd( aDbfT, { 'XX_VALR'+cMes,'N', 18,02 } )
+	aAdd(aCamposT,ALIAS_TMP+"->XX_VALR"+cMes)
+	aAdd(aCabsT,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
+
+	aAdd( aDbfT, { 'XX_VL2P'+cMes,'N', 18,02 } )
+
   	aAdd(aPeriodo,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4)})
 	aAdd(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))  
   	IF Month(dDataInicio) == nMesC .AND. YEAR(dDataInicio)== nAnoC
   		nCompet	:= _nI
   	ENDIF
 	dDataInicio := MonthSum(dDataInicio,1)
+
 NEXT
+
+oTmpTbT := FWTemporaryTable():New( ALIAS_TMP ) 
+oTmpTbT:SetFields( aDbfT )
+oTmpTbT:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
+oTmpTbT:Create()
+
+
 If !lJob
 	If nCompet <> 0
 		ProcRegua(1)
@@ -723,11 +779,13 @@ Else
 	EndIf
 EndIf
 
-If lSintetico
+
+oTmpTb1:Delete()
+If lSintetico .OR. lJob
+	oTmpTb2:Delete()
 	oTmpTb3:Delete()
 EndIf
-oTmpTb2:Delete()
-oTmpTb1:Delete()
+oTmpTbT:Delete()
 
 If lJob
 	Reset Environment
@@ -821,15 +879,17 @@ dbSelectArea(cAlias)
 
 If !lJob
 	ProcRegua(1)
-	Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)})
 	If lSintetico
-		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"S",aTitulos,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
+		Processa( {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
+		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
+	Else
+		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
 	EndIf
 Else
-	GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
-	If lSintetico
-		GeraCR14(lJob,"TRB3",TRIM(cPerg)+"S",aTitulos,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
-	EndIf
+	// Gerar o analitico e os sintéticos no Schedule
+	GeraCR14(lJob,cAlias,TRIM(cPerg),    aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)
+	GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)
+	GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
 EndIf
 
 Return Nil
@@ -3946,11 +4006,16 @@ For Yi_ := 1 TO LEN(aContratos)
 NEXT
 
 //GERA TIPO DE RELATORIO SINTETICO OU NORMAL
-IF lSintetico 
-	Gera2Result()
-ELSE
+If !lJob
+	IF lSintetico 
+		Gera2Result()
+	ELSE
+		GeraResult()
+	ENDIF
+Else
 	GeraResult()
-ENDIF
+	Gera2Result()
+EndIf
 
 RETURN NIL
 
@@ -4087,7 +4152,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				TRB->(Msunlock())
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 
 		 		++nLINHA
 	    	
@@ -4100,7 +4165,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,2]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 				
 		 		++nLINHA
@@ -4113,7 +4178,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,3]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock()) 
 				
 		 		++nLINHA
@@ -4124,7 +4189,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= aContConsol[_IX,4]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 				nVContrat := 0
@@ -4137,7 +4202,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 				TRB->(Msunlock())
 
 			NEXT
@@ -4149,7 +4214,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF		:= ""
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 	
 		 	++nLINHA
@@ -4161,10 +4226,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4234,7 +4299,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -4245,7 +4310,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
 			TRB->(Msunlock())
 
 		 	++nLINHA
@@ -4256,10 +4321,10 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
 			TRB->XX_DIF 	:= "% Diferença"
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
+			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
 			TRB->(Msunlock())
 		
 		ENDIF
@@ -4275,10 +4340,10 @@ Do While (ALIAS_TMP)->(!eof())
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
 		TRB->XX_PROJ 	:= transform((ALIAS_TMP)->&cCampoX,cPict)
-		aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
+		aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
 
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-		aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
+		aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
 
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
 
@@ -4862,93 +4927,93 @@ Do While (ALIAS_TMP)->(!eof())
 			aBenef		:= {}
 			FOR _IX := 1 TO LEN(aContConsol)
 
-				dbSelectArea("TRB")
+				dbSelectArea("TRB2")
 				//GRAVA CABECALHO 
-	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
-	 			TRB->XX_CODGCT  := "999999999"
-				TRB->XX_DESC	:= ""
-				TRB->XX_PROJ 	:= "Num. Siga: "+aContConsol[_IX,1] 
-				TRB->XX_REAL 	:= ""
-				TRB->XX_DIF 	:= ""
-				TRB->(Msunlock())
+	 			Reclock("TRB2",.T.)
+				TRB2->XX_LINHA  := nLINHA
+	 			TRB2->XX_CODGCT  := "999999999"
+				TRB2->XX_DESC	:= ""
+				TRB2->XX_PROJ 	:= "Num. Siga: "+aContConsol[_IX,1] 
+				TRB2->XX_REAL 	:= ""
+				TRB2->XX_DIF 	:= ""
+				TRB2->(Msunlock())
 	
 		 		++nLINHA
 	    	
-				dbSelectArea("TRB")
+				dbSelectArea("TRB2")
 				//GRAVA CABECALHO 
-	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA  := nLINHA
-	 			TRB->XX_CODGCT  := "999999999"
-				TRB->XX_DESC	:= "Cliente:"
-				TRB->XX_PROJ 	:= aContConsol[_IX,2]
-				TRB->XX_REAL 	:= ""
-				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
-				TRB->(Msunlock())
+	 			Reclock("TRB2",.T.)
+				TRB2->XX_LINHA  := nLINHA
+	 			TRB2->XX_CODGCT  := "999999999"
+				TRB2->XX_DESC	:= "Cliente:"
+				TRB2->XX_PROJ 	:= aContConsol[_IX,2]
+				TRB2->XX_REAL 	:= ""
+				TRB2->XX_DIF 	:= ""
+				aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","C","",""})
+				TRB2->(Msunlock())
 				
 		 		++nLINHA
-				dbSelectArea("TRB")
+				dbSelectArea("TRB2")
 				//GRAVA CABECALHO 
-	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA   := nLINHA
-	 			TRB->XX_CODGCT  := "999999999"
-				TRB->XX_DESC	:= "Contrato:"
-				TRB->XX_PROJ 	:= aContConsol[_IX,3]
-				TRB->XX_REAL 	:= ""
-				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
-				TRB->(Msunlock()) 
+	 			Reclock("TRB2",.T.)
+				TRB2->XX_LINHA   := nLINHA
+	 			TRB2->XX_CODGCT  := "999999999"
+				TRB2->XX_DESC	:= "Contrato:"
+				TRB2->XX_PROJ 	:= aContConsol[_IX,3]
+				TRB2->XX_REAL 	:= ""
+				TRB2->XX_DIF 	:= ""
+				aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","C","",""})
+				TRB2->(Msunlock()) 
 				
 		 		++nLINHA
-	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA   := nLINHA
-	 			TRB->XX_CODGCT  :="999999999"
-				TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
-				TRB->XX_PROJ 	:= aContConsol[_IX,4]
-				TRB->XX_REAL 	:= ""
-				TRB->XX_DIF 	:= ""
-				TRB->(Msunlock())
+	 			Reclock("TRB2",.T.)
+				TRB2->XX_LINHA   := nLINHA
+	 			TRB2->XX_CODGCT  :="999999999"
+				TRB2->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
+				TRB2->XX_PROJ 	:= aContConsol[_IX,4]
+				TRB2->XX_REAL 	:= ""
+				TRB2->XX_DIF 	:= ""
+				TRB2->(Msunlock())
 
 				nVContrat := 0
         		nVContrat := aScan(aVContrat, {|x| x[1]==aContConsol[_IX,1] })
 		 		++nLINHA
-	 			Reclock("TRB",.T.)
-				TRB->XX_LINHA   := nLINHA
-	 			TRB->XX_CODGCT  :="999999999"
-				TRB->XX_DESC	:= "Vigência:"
-				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
-				TRB->XX_REAL 	:= ""
-				TRB->XX_DIF 	:= ""
-				aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
-				TRB->(Msunlock())
+	 			Reclock("TRB2",.T.)
+				TRB2->XX_LINHA   := nLINHA
+	 			TRB2->XX_CODGCT  :="999999999"
+				TRB2->XX_DESC	:= "Vigência:"
+				TRB2->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
+				TRB2->XX_REAL 	:= ""
+				TRB2->XX_DIF 	:= ""
+				aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","C","",""})
+				TRB2->(Msunlock())
 
 			NEXT
 
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Competência Analisada:"
-			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA  := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Competência Analisada:"
+			TRB2->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","C","",""})
+			TRB2->(Msunlock())
 	
 		 	++nLINHA
 	
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA   := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Descrição Item"
-			TRB->XX_PROJ 	:= ""
-			TRB->XX_REAL 	:= "Realizado"
-			TRB->XX_DIF 	:= "% Diferença"
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA   := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Descrição Item"
+			TRB2->XX_PROJ 	:= ""
+			TRB2->XX_REAL 	:= "Realizado"
+			TRB2->XX_DIF 	:= "% Diferença"
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_DESC","","S","",""})
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","S","",""})
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_REAL","","S","",""})
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_DIF" ,"","S","",""})
+			TRB2->(Msunlock())
 		
 		ENDIF
 	ELSE
@@ -4956,95 +5021,95 @@ Do While (ALIAS_TMP)->(!eof())
 	    	nRENTABIL	:= 0
 			aGeral 		:= {}
 			aBenef		:= {}
-			dbSelectArea("TRB")
+			dbSelectArea("TRB2")
 			//GRAVA CABECALHO 
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA   := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= ""
-			TRB->XX_PROJ 	:= "Num. Siga: "+(ALIAS_TMP)->XX_CODGCT 
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA   := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= ""
+			TRB2->XX_PROJ 	:= "Num. Siga: "+(ALIAS_TMP)->XX_CODGCT 
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			TRB2->(Msunlock())
 	
 		 	++nLINHA
 	    	
-			dbSelectArea("TRB")
+			dbSelectArea("TRB2")
 			//GRAVA CABECALHO 
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA   := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Cliente:"
-			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA   := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Cliente:"
+			TRB2->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			TRB2->(Msunlock())
 	    ENDIF
 	
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|01|"
 	 
-			dbSelectArea("TRB")
+			dbSelectArea("TRB2")
 			//GRAVA CABECALHO 
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA   := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Contrato:"
-			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA   := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Contrato:"
+			TRB2->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			TRB2->(Msunlock())
 	
 	    ENDIF
 	
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|02|"
 	
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA   := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
-			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA   := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
+			TRB2->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			TRB2->(Msunlock())
 	
 			nVContrat := 0
        		nVContrat := aScan(aVContrat,{|x| x[1]==(ALIAS_TMP)->XX_CODGCT })
 	 		++nLINHA
- 			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
- 			TRB->XX_CODGCT  :=(ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Vigência:"
-			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
-			TRB->(Msunlock())
+ 			Reclock("TRB2",.T.)
+			TRB2->XX_LINHA  := nLINHA
+ 			TRB2->XX_CODGCT  :=(ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Vigência:"
+			TRB2->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","C","",""})
+			TRB2->(Msunlock())
 
 		 	++nLINHA
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Competência Analisada:"
-			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA  := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Competência Analisada:"
+			TRB2->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","C","",""})
+			TRB2->(Msunlock())
 	
 		 	++nLINHA
 	
-	 		Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
-	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Descrição Item"
-			TRB->XX_PROJ 	:= ""
-			TRB->XX_REAL 	:= "Realizado"
-			TRB->XX_DIF 	:= "% Diferença"
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
-			aAdd(aFormula,{TRB->(RECNO()),"TRB->XX_DIF" ,"","S","",""})
-			TRB->(Msunlock())
+	 		Reclock("TRB2",.T.)
+			TRB2->XX_LINHA  := nLINHA
+	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Descrição Item"
+			TRB2->XX_PROJ 	:= ""
+			TRB2->XX_REAL 	:= "Realizado"
+			TRB2->XX_DIF 	:= "% Diferença"
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_DESC","","S","",""})
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","S","",""})
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_REAL","","S","",""})
+			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_DIF" ,"","S","",""})
+			TRB2->(Msunlock())
 		
 		ENDIF
     ENDIF
@@ -5052,20 +5117,20 @@ Do While (ALIAS_TMP)->(!eof())
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
 		nFatura := 0
 		nFatura := (ALIAS_TMP)->&cCampoY 
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//FATURAMENTO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
-		TRB->XX_PROJ 	:= "" //transform((ALIAS_TMP)->&cCampoX,cPict)
-		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= (ALIAS_TMP)->XX_DESC
+		TRB2->XX_PROJ 	:= "" //transform((ALIAS_TMP)->&cCampoX,cPict)
+		TRB2->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB2->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
 		nValTADP	:=  0
       	nValTADP 	:= ((ALIAS_TMP)->&cCampoX * nTaxaAdm)/100		
 		nValTADR	:=  0
       	nValTADR 	:= ((ALIAS_TMP)->&cCampoY * nTaxaAdm)/100		
-		TRB->(Msunlock())
+		TRB2->(Msunlock())
 		nRNTBILP	:= 0
 		nRNTBILP	:= (ALIAS_TMP)->&cCampoX
 		nRNTBILR	:= 0
@@ -5073,16 +5138,16 @@ Do While (ALIAS_TMP)->(!eof())
 	ENDIF
 /*
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|09|"
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//PROVENTO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
-		TRB->XX_PROJ 	:= transform( (ALIAS_TMP)->&cCampoX,cPict)
-		TRB->XX_REAL 	:= transform( (ALIAS_TMP)->&cCampoY,cPict)
-		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= (ALIAS_TMP)->XX_DESC
+		TRB2->XX_PROJ 	:= transform( (ALIAS_TMP)->&cCampoX,cPict)
+		TRB2->XX_REAL 	:= transform( (ALIAS_TMP)->&cCampoY,cPict)
+		TRB2->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		nRNTBILP	-=  (ALIAS_TMP)->&cCampoX
 		nRNTBILR	-=  (ALIAS_TMP)->&cCampoY
 	ENDIF
@@ -5098,16 +5163,16 @@ Do While (ALIAS_TMP)->(!eof())
 	ENDIF
 
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|19|"
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//BENEFICIOS 
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "BENEFICIOS"
-		TRB->XX_PROJ 	:= transform(nBficP,cPict)
-		TRB->XX_REAL 	:= transform(nBficR,cPict)
-		TRB->XX_DIF 	:= transform(((nBficP - nBficR) / nBficP * 100)*-1,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "BENEFICIOS"
+		TRB2->XX_PROJ 	:= transform(nBficP,cPict)
+		TRB2->XX_REAL 	:= transform(nBficR,cPict)
+		TRB2->XX_DIF 	:= transform(((nBficP - nBficR) / nBficP * 100)*-1,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		nRNTBILP	-= nBficP
 		nRNTBILR	-= nBficR
 		nBficP		:= 0
@@ -5134,16 +5199,16 @@ Do While (ALIAS_TMP)->(!eof())
 
 	// 28/02/20
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|30-2|"
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//DESCONTO NA NF
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA   := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "DESCONTO NA NF"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-		TRB->XX_DIF 	:= ""
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA   := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "DESCONTO NA NF"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB2->XX_DIF 	:= ""
+		TRB2->(Msunlock())
 		++nLINHA
 	ENDIF
 
@@ -5158,77 +5223,77 @@ Do While (ALIAS_TMP)->(!eof())
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|ZZZZZZZZZ|"
 
 
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//RESULTADO PREVISTO"
-		Reclock("TRB",.T.)
-		TRB->XX_LINHA   := nLINHA
-		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "RESULTADO PREVISTO"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= ""
-		TRB->XX_DIF 	:= transform(nRPREVISTO,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+		TRB2->XX_CODGCT := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "RESULTADO PREVISTO"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= ""
+		TRB2->XX_DIF 	:= transform(nRPREVISTO,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		++nLINHA
 
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//RESULTADO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "RESULTADO DO MÊS - PARCIAL"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= transform((nFatura*nRDOMES)/100,cPict)
-		TRB->XX_DIF 	:= transform(nRDOMES,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "RESULTADO DO MÊS - PARCIAL"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= transform((nFatura*nRDOMES)/100,cPict)
+		TRB2->XX_DIF 	:= transform(nRDOMES,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		++nLINHA
 
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//RESULTADO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "RESULTADO ATÉ O MÊS - PARCIAL"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= transform((nTotFatMES*nRESULTMES)/100,cPict)
-		TRB->XX_DIF 	:= transform(nRESULTMES,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "RESULTADO ATÉ O MÊS - PARCIAL"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= transform((nTotFatMES*nRESULTMES)/100,cPict)
+		TRB2->XX_DIF 	:= transform(nRESULTMES,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		++nLINHA
 
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//RESULTADO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "RESULTADO DO MÊS - GLOBAL"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= transform((nFatura*nRGDOMES)/100,cPict)
-		TRB->XX_DIF 	:= transform(nRGDOMES,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "RESULTADO DO MÊS - GLOBAL"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= transform((nFatura*nRGDOMES)/100,cPict)
+		TRB2->XX_DIF 	:= transform(nRGDOMES,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		++nLINHA 
 		
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//RESULTADO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "RESULTADO ATÉ O MÊS - GLOBAL"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= transform((nTotFatMES*nRGATMES)/100,cPict)
-		TRB->XX_DIF 	:= transform(nRGATMES,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "RESULTADO ATÉ O MÊS - GLOBAL"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= transform((nTotFatMES*nRGATMES)/100,cPict)
+		TRB2->XX_DIF 	:= transform(nRGATMES,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		++nLINHA
 
 /*
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//RESULTADO
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "RESULTADO"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= ""
-		TRB->XX_DIF 	:= transform(nRESULT,"@E 99999.99999")+"%"
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= "RESULTADO"
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= ""
+		TRB2->XX_DIF 	:= transform(nRESULT,"@E 99999.99999")+"%"
+		TRB2->(Msunlock())
 		++nLINHA
   */
 
@@ -5265,16 +5330,16 @@ Do While (ALIAS_TMP)->(!eof())
 			cDFun := STRTRAN(cDFun,"8 - L","L")
 			cDFun := STRTRAN(cDFun,"9 - L","L")
 
-			dbSelectArea("TRB")
+			dbSelectArea("TRB2")
 			//PULA LINHA
- 			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
- 			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Qtd. Funcionarios: "
-			TRB->XX_PROJ 	:= cDFun1
-			TRB->XX_REAL 	:= "Descr.: "+STRTRAN(cDFun,"|","")
-			TRB->XX_DIF 	:= ""
-			TRB->(Msunlock())
+ 			Reclock("TRB2",.T.)
+			TRB2->XX_LINHA  := nLINHA
+ 			TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Qtd. Funcionarios: "
+			TRB2->XX_PROJ 	:= cDFun1
+			TRB2->XX_REAL 	:= "Descr.: "+STRTRAN(cDFun,"|","")
+			TRB2->XX_DIF 	:= ""
+			TRB2->(Msunlock())
 			++nLINHA
 		ENDIF
 
@@ -5284,29 +5349,29 @@ Do While (ALIAS_TMP)->(!eof())
 		NEXT
 
 		IF !EMPTY(cJFun)
-			dbSelectArea("TRB")
+			dbSelectArea("TRB2")
 			//PULA LINHA
- 			Reclock("TRB",.T.)
-			TRB->XX_LINHA  := nLINHA
- 			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Justificativa Funcionarios"
-			TRB->XX_PROJ 	:= cJFun
-			TRB->XX_REAL 	:= ""
-			TRB->XX_DIF 	:= ""
-			TRB->(Msunlock())
+ 			Reclock("TRB2",.T.)
+			TRB2->XX_LINHA  := nLINHA
+ 			TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+			TRB2->XX_DESC	:= "Justificativa Funcionarios"
+			TRB2->XX_PROJ 	:= cJFun
+			TRB2->XX_REAL 	:= ""
+			TRB2->XX_DIF 	:= ""
+			TRB2->(Msunlock())
 			++nLINHA
 		ENDIF
  
-		dbSelectArea("TRB")
+		dbSelectArea("TRB2")
 		//PULA LINHA
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA  := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= ""
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= ""
-		TRB->XX_DIF 	:= ""
-		TRB->(Msunlock())
+ 		Reclock("TRB2",.T.)
+		TRB2->XX_LINHA  := nLINHA
+ 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB2->XX_DESC	:= ""
+		TRB2->XX_PROJ 	:= ""
+		TRB2->XX_REAL 	:= ""
+		TRB2->XX_DIF 	:= ""
+		TRB2->(Msunlock())
 
 		nCustoBkP 	:= 0
 		nCustoBkR 	:= 0
@@ -5332,10 +5397,11 @@ Do While (ALIAS_TMP)->(!eof())
 		TRB3->XX_DESC	:= Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_NOMCLI")
 		TRB3->XX_OBJETO	:= Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_XXDESC")
 		TRB3->XX_FATRM	:= nFatura
-		TRB3->XX_RENTM	:= 0
-		TRB3->XX_RENTMP	:= 0
-		TRB3->XX_RENTAC	:= 0
-		TRB3->XX_RENTACP:= 0
+		TRB3->XX_RENTM	:= ((nFatura*nRGDOMES)/100)        //Resultado do Mês em valor - com a taxa de administração
+		TRB3->XX_RENTMP	:= nRGDOMES    //Resultado do Mês em percentual - com a taxa de administração
+		TRB3->XX_RENTAC	:= ((nTotFatMES*nRGATMES)/100)     //Resultado até o Mês em valor - com a taxa de administração
+		TRB3->XX_RENTACP:= nRGATMES  //Resultado até o Mês em percentual - com a taxa de administração
+		TRB3->(Msunlock())
 
 		nTotFat    := 0
 		nTotFatMES := 0
@@ -5348,8 +5414,8 @@ Do While (ALIAS_TMP)->(!eof())
 ENDDO
                                                                                                                  
 
-dbSelectArea("TRB")
-TRB->(dbgotop())
+dbSelectArea("TRB2")
+TRB2->(dbgotop())
 
 
 Return NIL
@@ -5394,7 +5460,7 @@ cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 Private xQuebra,xCampo
 
 If !lJob
-	If MsgYesNo(cArqs+": Deseja gerar no formato Excel (.xlsx) ?")
+	If MsgYesNo(aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?")
 		//Processa( {|| U_GeraXCSV(_cAlias,cArqE,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
 		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 		cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)

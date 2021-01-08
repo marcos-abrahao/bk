@@ -16,11 +16,11 @@ Visualizacao de Grupos de Produtos em MVC (com tabela temporaria)
 /*/
  
 User Function BKGCTM14()
-    Local aArea := GetArea()
-    Local aButtons := {{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.T.,"Sair"},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil}}    
-    Private cAliasTmp1 := "TRB"
-    Private cAliasTmp2 := "TRB3"
-    Private cTitle   := aTitulos[1]+" "+DTOC(dDataI)+" "+DTOC(dDataFinal)  
+    Local aArea         := GetArea()
+    Local aButtons      := {{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.T.,"Sair"},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil},{.F.,Nil}}    
+    Private cAliasTmp1  := "TRB2"
+    Private cAliasTmp2  := "TRB3"
+    Private cTitle      := aTitulos1[1]
  
     //Executa a inclusao na tela
     //FWExecView('GRID Sem Cabeçalho', "VIEWDEF.zGrid", MODEL_OPERATION_INSERT, , { || .T. }, , 30)
@@ -46,27 +46,27 @@ Static Function ModelDef()
     oStrGrid1 := FWFormModelStruct():New() 
     //oStrGrid:AddTable(cAliasTmp, {'XXTABKEY', 'XXCODIGO', 'XXDESCRI'}, "Temporaria")
     aCpos := {}
-    For nS := 1 to Len(aDbf)
-        aAdd(aCpos,aDbf[nS,1])
+    For nS := 1 to Len(aDbf2)
+        aAdd(aCpos,aDbf2[nS,1])
     Next
     //oStrGrid1:AddTable(cAliasTmp1, {'XXCODIGO', 'XXDESCRI'}, "Temporaria")
     oStrGrid1:AddTable(cAliasTmp1, aCpos, "Sintético")
       
     //Adiciona os campos da estrutura da Grid 1
-    For nS := 1 to Len(aDbf)
+    For nS := 1 to Len(aDbf2)
 
         oStrGrid1:AddField(;
-            aCabs[nS],;                                                                                 // [01]  C   Titulo do campo
-            aCabs[nS],;                                                                                 // [02]  C   ToolTip do campo
-            aDbf[nS,1],;                                                                                // [03]  C   Id do Field
-            aDbf[nS,2],;                                                                                // [04]  C   Tipo do campo
-            aDbf[nS,3],;                                                                                // [05]  N   Tamanho do campo
-            aDbf[nS,4],;                                                                                // [06]  N   Decimal do campo
+            aCabs2[nS],;                                                                                 // [01]  C   Titulo do campo
+            aCabs2[nS],;                                                                                 // [02]  C   ToolTip do campo
+            aDbf2[nS,1],;                                                                                // [03]  C   Id do Field
+            aDbf2[nS,2],;                                                                                // [04]  C   Tipo do campo
+            aDbf2[nS,3],;                                                                                // [05]  N   Tamanho do campo
+            aDbf2[nS,4],;                                                                                // [06]  N   Decimal do campo
             Nil,;                                                                                       // [07]  B   Code-block de validação do campo
             Nil,;                                                                                       // [08]  B   Code-block de validação When do campo
             {},;                                                                                        // [09]  A   Lista de valores permitido do campo
             .T.,;                                                                                       // [10]  L   Indica se o campo tem preenchimento obrigatório
-            FwBuildFeature( STRUCT_FEATURE_INIPAD, cAliasTmp1+"->"+aDbf[nS,1] ),;                          // [11]  B   Code-block de inicializacao do campo
+            FwBuildFeature( STRUCT_FEATURE_INIPAD, cAliasTmp1+"->"+aDbf2[nS,1] ),;                          // [11]  B   Code-block de inicializacao do campo
             .T.,;                                                                                       // [12]  L   Indica se trata-se de um campo chave
             .F.,;                                                                                       // [13]  L   Indica se o campo pode receber valor em uma operação de update.
             .F.)                                                                                        // [14]  L   Indica se o campo é virtual
@@ -136,15 +136,15 @@ Static Function ViewDef()
     oStrGrid1 := FWFormViewStruct():New()
   
     //Adicionando campos da estrutura da grid 1
-    For nS := 1 to Len(aDbf)
+    For nS := 1 to Len(aDbf2)
         oStrGrid1:AddField(;
-            aDbf[nS,1],;                // [01]  C   Nome do Campo
+            aDbf2[nS,1],;               // [01]  C   Nome do Campo
             STRZERO(nS,2),;             // [02]  C   Ordem
-            aCabs[nS],;                 // [03]  C   Titulo do campo
-            aCabs[nS],;                 // [04]  C   Descricao do campo
+            aCabs2[nS],;                // [03]  C   Titulo do campo
+            aCabs2[nS],;                // [04]  C   Descricao do campo
             Nil,;                       // [05]  A   Array com Help
-            aDbf[nS,2],;                // [06]  C   Tipo do campo
-            aPict[nS],;                 // [07]  C   Picture
+            aDbf2[nS,2],;               // [06]  C   Tipo do campo
+            aPict2[nS],;                // [07]  C   Picture
             Nil,;                       // [08]  B   Bloco de PictTre Var
             Nil,;                       // [09]  C   Consulta F3
             .F.,;                       // [10]  L   Indica se o campo é alteravel
@@ -195,19 +195,19 @@ Static Function ViewDef()
     oView:CreateHorizontalBox('PRINCIPAL', 100)
     oView:CreateFolder( 'PASTAS', 'PRINCIPAL' )
 
-    oView:AddSheet( 'PASTAS'    , 'ABA_TRB1'	, "Sintético")
-    oView:AddSheet( 'PASTAS'    , 'ABA_TRB2' 	, "Demonstrativo de Rentabilidades")
+    oView:AddSheet( 'PASTAS'    , 'ABA_TRB2'	, "Sintético")
+    oView:AddSheet( 'PASTAS'    , 'ABA_TRB3' 	, "Demonstrativo de Rentabilidades")
 
     oView:AddField('CAB', oStrCab, 'CABID')
     oView:AddGrid('GRID1', oStrGrid1, 'GRIDID1')
     oView:AddGrid('GRID2', oStrGrid2, 'GRIDID2')
 
-    oView:CreateHorizontalBox( 'TRB1',  100, , , 'PASTAS', 'ABA_TRB1' )
     oView:CreateHorizontalBox( 'TRB2',  100, , , 'PASTAS', 'ABA_TRB2' )
+    oView:CreateHorizontalBox( 'TRB3',  100, , , 'PASTAS', 'ABA_TRB3' )
 
     oView:SetOwnerView('CAB'  , 'FAKE')
-    oView:SetOwnerView('GRID1', 'TRB1')
-    oView:SetOwnerView('GRID2', 'TRB2')
+    oView:SetOwnerView('GRID1', 'TRB2')
+    oView:SetOwnerView('GRID2', 'TRB3')
 
     oView:AddUserButton( 'Exporta Excel', 'CLIPS', { |oView| u_GM14Exc(oView) } )
 
@@ -244,6 +244,3 @@ User Function GM14Exc(oView)
 U_CR14(lJob)
 
 Return Nil
-
-
-
