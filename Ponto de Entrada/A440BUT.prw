@@ -6,7 +6,7 @@
 BK - Ponto de Entrada para incluir botão na enchoice da liberação do pedido de venda
 @Return
 @author Adilson do Prado / Marcos Bispo Abrahão
-@since 15/09/15 rev 17/05/20
+@since 15/09/15 rev 10/01/21
 @version P12
 /*/
 
@@ -42,10 +42,15 @@ DbGoTop()
 
 Do While (cAliasCNR)->(!eof())
 	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "1","Bonificação","Glosa")
-	DBSELECTAREA("CND")
+	DbSelectArea("CND")
 	CND->(DBSETORDER(4))
-	CND->(DBSEEK(xFILIAL("CND")+SC5->C5_MDNUMED,.F.))
-
+	CND->(DBSEEK(xFilial("CND")+SC5->C5_MDNUMED,.F.))
+	Do While !Eof() .AND. xFilial("CND")+SC5->C5_MDNUMED == CND->CND_FILIAL+CND->CND_NUMMED
+		If CND->CND_REVISA == CND->CND_REVGER
+			Exit
+		EndIf
+		CND->(dbSkip())
+	EndDo
 	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
 
 	(cAliasCNR)->(dbSkip())
@@ -56,16 +61,18 @@ If LEN(aCNR) > 0
    	dTINIC 	:= CTOD("")
    	cDETG	:= ""
    	cJUST	:= ""
-	DBSELECTAREA("CND")
+	DbSelectArea("CND")
 	CND->(DBSETORDER(4))
 	CND->(DBSEEK(xFILIAL("CND")+SC5->C5_MDNUMED,.F.))
 	DO While CND->(!eof()) .AND. CND->CND_NUMMED==SC5->C5_MDNUMED
-        IF CND->CND_REVISA > cREVISA
+        //IF CND->CND_REVISA > cREVISA
+		If CND->CND_REVISA == CND->CND_REVGER
         	cREVISA := CND->CND_REVISA
         	dTINIC 	:= CND->CND_DTINIC
         	cDETG	:= CND->CND_XXDETG
         	cJUST	:= CND->CND_XXJUST
-        ENDIF 
+			Exit
+        EndIf 
 		CND->(dbSkip())
 	ENDDO
 	

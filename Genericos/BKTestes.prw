@@ -1,6 +1,8 @@
-#INCLUDE "PROTHEUS.CH"
-#INCLUDE "RWMAKE.CH"
-#INCLUDE "TOPCONN.CH"
+#INCLUDE "PROTHEUS.CH"  
+#INCLUDE "TOPCONN.CH"                     
+#INCLUDE "TBICONN.CH"
+#INCLUDE 'TOTVS.CH'
+#INCLUDE 'FWMVCDEF.CH'
 
 /*/
 Programa     : Autor: Marcos B. Abrahao - Data: 29/01/2011
@@ -14,19 +16,34 @@ Return Nil
 
 
 User Function BKTestes()
+Local oDlg1 as Object
+Local oSay,oSay1,oSay2,oRot
+
 Private cRot  := PAD("U_BKTESTE",20)
 
-@ 200,01 TO 330,450 DIALOG oDlg1 TITLE "Teste de User Functions"
-@ 15,015 SAY "Funcão: "
-@ 15,046 GET cRot SIZE 180,10
 
-@ 30,015 SAY "Exemplos:"
-@ 30,046 SAY "U_BKPARFIS,U_BKPARGEN,U_NIVERSADVPL,U_TSTYEXCEL"
+DEFINE DIALOG oDlg1;
+ TITLE "Teste de User Functions"  ;
+ FROM 0,0 TO 150,480 OF oMainWnd PIXEL //STYLE nOr(WS_VISIBLE,WS_POPUP)
 
-@ 50,060 BMPBUTTON TYPE 01 ACTION ProcRot()   
-@ 50,110 BMPBUTTON TYPE 02 ACTION Close(Odlg1)
+//FROM oSize:aWindSize[1],oSize:aWindSize[2] TO oSize:aWindSize[3],oSize:aWindSize[4] PIXEL;
 
-ACTIVATE DIALOG oDlg1 CENTER
+//@ 200,01 TO 330,450 DIALOG oDlg1 TITLE "Teste de User Functions"
+@ 15,015 Say oSay Prompt "Funcão: " Size  40, 10 Of oDlg1 Pixel 
+@ 15,046 MsGet oRot Var cRot SIZE 180,10 Of oDlg1 Pixel 
+
+@ 30,015 SAY oSay1 Prompt "Exemplos:" SIZE 180,10 Of oDlg1 Pixel 
+@ 30,046 SAY oSay2 Prompt "U_BKPARFIS,U_BKPARGEN,U_NIVERSADVPL,U_TSTYEXCEL" SIZE 180,10 Of oDlg1 Pixel 
+
+DEFINE SBUTTON FROM 050,060 TYPE 1 ACTION (ProcRot(),oDlg1:End()) ENABLE OF oDlg1
+DEFINE SBUTTON FROM 050,110 TYPE 2 ACTION oDlg1:End() ENABLE OF oDlg1
+	
+ACTIVATE MSDIALOG oDlg1  CENTERED
+
+
+//@ 50,060 BMPBUTTON TYPE 01 ACTION ProcRot()   
+//@ 50,110 BMPBUTTON TYPE 02 ACTION Close(Odlg1)
+//ACTIVATE DIALOG oDlg1 CENTER
 
 RETURN
 
@@ -37,7 +54,7 @@ Private nProc := 0
 
 cRot:= ALLTRIM(cRot)+"(@lEnd)"
 
-If MsgBox("Confirma a execução do processo ?",cRot,"YESNO")
+If MsgYesNo("Confirma a execução do processo ?",cRot,"YESNO")
 	//-> Recupera e/ou define um bloco de código para ser avaliado quando ocorrer um erro em tempo de execução.
 	//bError := ErrorBlock( {|e| cError := e:Description, Break(e) } ) //, Break(e) } )
 		
@@ -53,11 +70,53 @@ If MsgBox("Confirma a execução do processo ?",cRot,"YESNO")
 Endif   
 
 If nProc > 0
-   MsgBox("Registros processados: "+STR(nProc,6),cRot,"INFO")
+   MsgInfo("Registros processados: "+STR(nProc,6),cRot,"INFO")
 EndIf
 
-Close(oDlg1)
 Return 
+
+
+Static Function PEmailSa1()
+Local lEnd := .F.
+MsAguarde({|lEnd| EmailSa1(@lEnd) },"Processando...",cRot,.T.)
+Return
+
+Static Function EmailSa1(lEnd)
+Local cEmail := ""
+
+   dbSelectArea("SA1")
+   dbSetOrder(0)
+   dbGoTop()
+   
+   While !EOF()
+      If lEnd
+        MsgInfo(cCancel,"Título da janela")
+        Exit
+      Endif
+      MsProcTxt("Lendo tabela: SA1 ")
+      ProcessMessage()
+
+      If !EMPTY(SA1->A1_EMAIL)
+         cEmail := STRTRAN(SA1->A1_EMAIL,"|",";")
+         cEmail := LOWER(ALLTRIM(cEmail))
+         If SUBSTR(cEmail,LEN(cEmail),1) == ";"
+            cEmail := SUBSTR(cEmail,1,LEN(cEmail)-1)
+         EndIf
+         RecLock("SA1",.F.)
+         SA1->A1_EMAIL := cEmail
+         MsUnLock()
+      EndIf
+
+      dbSkip()
+
+      nProc++
+
+   End
+
+Return lEnd
+
+
+
 
 /*
 Static Function FuncUser1()

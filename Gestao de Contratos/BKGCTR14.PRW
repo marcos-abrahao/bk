@@ -1,8 +1,8 @@
 #INCLUDE "PROTHEUS.CH"  
-#INCLUDE "topconn.ch"                     
-#include "tbiconn.ch"
-#Include 'Totvs.ch'
-#Include 'FWMVCDef.ch'
+#INCLUDE "TOPCONN.CH"                     
+#INCLUDE "TBICONN.CH"
+#INCLUDE 'TOTVS.CH'
+#INCLUDE 'FWMVCDEF.CH'
                             
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR14()
@@ -44,6 +44,7 @@ Private cFilPar		:= "01"
 Private cPerg       := "BKGCTR14"
 Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
 Private cArqLog		:= ""
+Private cContrato   := ""
 
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
@@ -62,26 +63,28 @@ Else
 
 	// Data de Agendamento do Job
 	dAgJob		:= U_BKGetMv("BKGCTR1410",.F.,CTOD(""))
-	If Empty(dAgJob) .OR. !(dAgJob == DATE())
-	
-		u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""),.T.,"")
-		Reset Environment
-		Return Nil
-	EndIf
+	cContrato  	:= U_BKGetMv("BKGCTR1401")
+	If DAY(DATE()) <> 10 .AND. !("*" $ cContrato)
+		If Empty(dAgJob) .OR. !(dAgJob == DATE())
+		
+			u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""),.T.,"")
+			Reset Environment
+			Return Nil
+		EndIf
+	Endif
 EndIf
 
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 Private aContratos 	:= {}
 Private lSintetico  := lSintet
 
-PRIVATE dDataInicio := dDatabase
-PRIVATE dDataI		:= dDatabase
-PRIVATE dDataFinal  := dDatabase
-PRIVATE cSituac     := "05"
-PRIVATE	cPict       := "@E 99,999,999,999.99"
-PRIVATE nPeriodo    := 1
-PRIVATE nPlan       := 1
-PRIVATE cContrato   := ""
+Private dDataInicio := dDatabase
+Private dDataI		:= dDatabase
+Private dDataFinal  := dDatabase
+Private cSituac     := "05"
+Private	cPict       := "@E 99,999,999,999.99"
+Private nPeriodo    := 1
+Private nPlan       := 1
 
 Private aPeriodo    := {}
 Private aAnoMes     := {}
@@ -92,75 +95,75 @@ Private lPRat		:= .T.
 Private nTamCodGct	:= 9
 Private nTamCodigo	:= 16
 
-PRIVATE nMesC 		:= 0
-PRIVATE nAnoC  		:= 0
-PRIVATE nMImpContr  := 0
-PRIVATE nTaxaAdm    := 0
-PRIVATE nEncargos   := 0
-PRIVATE nEncarIPT   := 0
-PRIVATE nIncidenci  := 0
-PRIVATE nRateia     := 2
-PRIVATE nDespGeral  := 0
-PRIVATE nAgendar    := 2
-PRIVATE nCompras  	:= 0
+Private nMesC 		:= 0
+Private nAnoC  		:= 0
+Private nMImpContr  := 0
+Private nTaxaAdm    := 0
+Private nEncargos   := 0
+Private nEncarIPT   := 0
+Private nIncidenci  := 0
+Private nRateia     := 2
+Private nDespGeral  := 0
+Private nAgendar    := 2
+Private nCompras  	:= 0
 
-PRIVATE nCompet		:= 0
-PRIVATE cProventos  := ""
-PRIVATE cDescontos  := ""
-PRIVATE cVT_Prov 	:= ""
-PRIVATE cVT_Verb 	:= ""
-PRIVATE cVT_Prod   	:= ""
-PRIVATE cVRVA_Verb  := ""
-PRIVATE cVRVA_Prod  := ""
-PRIVATE cASSM_Verb	:= ""
-PRIVATE cASSM_Prod	:= ""
-PRIVATE cSINO_Verb	:= ""
-PRIVATE cSINO_Prod	:= ""
-PRIVATE cCCRE_Verb	:= ""
-PRIVATE cCCRE_Prod	:= ""
-PRIVATE cCDPR_Prod	:= ""
-PRIVATE cCDPR_GRUP  := ""
-PRIVATE cNINC_Verb	:= ""
-PRIVATE aConsorcio	:= {}
-PRIVATE lConsorcio  := .F.
-PRIVATE lFurnas		:= .F.
-PRIVATE lPetro		:= .F.
-PRIVATE cExm_Prod	:= ""
-PRIVATE cMFG_Prod	:= "" 
-PRIVATE cDCH_Prod	:= ""
+Private nCompet		:= 0
+Private cProventos  := ""
+Private cDescontos  := ""
+Private cVT_Prov 	:= ""
+Private cVT_Verb 	:= ""
+Private cVT_Prod   	:= ""
+Private cVRVA_Verb  := ""
+Private cVRVA_Prod  := ""
+Private cASSM_Verb	:= ""
+Private cASSM_Prod	:= ""
+Private cSINO_Verb	:= ""
+Private cSINO_Prod	:= ""
+Private cCCRE_Verb	:= ""
+Private cCCRE_Prod	:= ""
+Private cCDPR_Prod	:= ""
+Private cCDPR_GRUP  := ""
+Private cNINC_Verb	:= ""
+Private aConsorcio	:= {}
+Private lConsorcio  := .F.
+Private lFurnas		:= .F.
+Private lPetro		:= .F.
+Private cExm_Prod	:= ""
+Private cMFG_Prod	:= "" 
+Private cDCH_Prod	:= ""
 
-PRIVATE aHeader	    := {}
-PRIVATE aDbf1 	    := {}
-PRIVATE aTitulos1,aCampos1,aCabs1,aFormat1,aFormula1,aImpr1,aPict1
+Private aHeader	    := {}
+Private aDbf1 	    := {}
+Private aTitulos1,aCampos1,aCabs1,aFormat1,aFormula1,aImpr1,aPict1
 
-PRIVATE aDbf2       := {}
-PRIVATE aTitulos2,aCampos2,aCabs2,aFormat2,aFormula2,aImpr2,aPict2
+Private aDbf2       := {}
+Private aTitulos2,aCampos2,aCabs2,aFormat2,aFormula2,aImpr2,aPict2
 
-PRIVATE aDbf3	    := {}
-PRIVATE aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
+Private aDbf3	    := {}
+Private aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
 
-PRIVATE aDbfT		:= {}
-PRIVATE aCamposT,aCabsT
+Private aDbfT		:= {}
+Private aCamposT,aCabsT
 
-PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
+Private ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 
-PRIVATE cXXPLR 		:= ""
-PRIVATE nConsolida	:= 0
-PRIVATE nIndConsor	:= 0
-PRIVATE nIndDesp	:= 1
-PRIVATE nConsol     := 0
-PRIVATE cConsolida 	:= ""
-PRIVATE aConsolida 	:= {}
-PRIVATE aContConsol := {}
-PRIVATE cTipoContra := ""
-PRIVATE nVContrat 	:= 0
-PRIVATE aVContrat	:= {}
-PRIVATE aXXMIMPC	:= {}
-PRIVATE aMImpContr  := {}
-PRIVATE dDtProj 	:= CTOD("")
-PRIVATE cSeqProj	:= ""
-PRIVATE aFurnas:= {} 
-PRIVATE aPetro:= {} 
+Private cXXPLR 		:= ""
+Private nConsolida	:= 0
+Private nIndConsor	:= 0
+Private nIndDesp	:= 1
+Private nConsol     := 0
+Private cConsolida 	:= ""
+Private aConsolida 	:= {}
+Private aContConsol := {}
+Private cTipoContra := ""
+Private nVContrat 	:= 0
+Private aVContrat	:= {}
+Private aXXMIMPC	:= {}
+Private aMImpContr  := {}
+Private dDtProj 	:= CTOD("")
+Private cSeqProj	:= ""
+Private aFurnas:= {} 
+Private aPetro:= {} 
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 //aPetro   := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXPETRO",.F.,"281001455")), "/" )
@@ -198,6 +201,10 @@ If !lJob
 	EndIf
 Else
 	MV_PAR01 := cContrato  	:= U_BKGetMv("BKGCTR1401") // teste "005000114"
+	If "*" $ cContrato
+		MV_PAR01 := cContrato := SPACE(LEN(TamSX3("CN9_NUMERO")[1]))
+	EndIf
+
 	MV_PAR02 := nMesC 		:= U_BKGetMv("BKGCTR1402") // MONTH(dDataBase - DAY(dDatabase))
 	MV_PAR03 := nAnoC  		:= U_BKGetMv("BKGCTR1403") // YEAR(dDataBase - DAY(dDatabase))
 	MV_PAR04 := U_BKGetMv("BKGCTR1404")                // 3
@@ -4800,11 +4807,15 @@ Do While (ALIAS_TMP)->(!eof())
 	IF cCodigo <> (ALIAS_TMP)->XX_CODGCT .OR. (ALIAS_TMP)->(EOF())
 
 		nTotFat    := 0
+		nFatura    := 0
 		nTotFatMES := 0
 		nTFATDOMES := 0
 		nTotCUSTO  := 0
  		cCodigo    := (ALIAS_TMP)->XX_CODGCT
    		nTXATMESR  := 0	
+		nRGATMES   := 0
+		nRGDOMES   := 0
+		nTXMESR    := 0
  	ENDIF
 
 ENDDO
@@ -5212,8 +5223,6 @@ Do While (ALIAS_TMP)->(!eof())
 		++nLINHA
 	ENDIF
 
-
-
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|PREVISTO|"
 		nRPREVISTO 	:= 0
 		nRPREVISTO 	:= (ALIAS_TMP)->&cCampoX
@@ -5221,8 +5230,6 @@ Do While (ALIAS_TMP)->(!eof())
 
 
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|ZZZZZZZZZ|"
-
-
 		dbSelectArea("TRB2")
 		//RESULTADO PREVISTO"
 		Reclock("TRB2",.T.)
@@ -5404,11 +5411,15 @@ Do While (ALIAS_TMP)->(!eof())
 		TRB3->(Msunlock())
 
 		nTotFat    := 0
+		nFatura    := 0
 		nTotFatMES := 0
 		nTFATDOMES := 0
 		nTotCUSTO  := 0
  		cCodigo    := (ALIAS_TMP)->XX_CODGCT
    		nTXATMESR  := 0	
+		nRGATMES   := 0
+		nRGDOMES   := 0
+		nTXMESR    := 0
  	ENDIF
 
 ENDDO
@@ -5443,7 +5454,10 @@ Local cEmailTO	:= ""
 Local cEmailCC	:= "microsiga@bkconsultoria.com.br"
 Local cArqE		:= cArqS+"-"+cEmpAnt
 
+Private xQuebra,xCampo
+
 cEmailTO := LOWER(U_BKGetMv("BKGCTR1411"))
+
 If !Empty(cEmailTO)
 	If ! "bruno.bueno" $ cEmailTO
 		cEmailTO += ";bruno.bueno@bkconsultoria.com.br"
@@ -5457,8 +5471,6 @@ If lJob
 EndIf
 cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 
-Private xQuebra,xCampo
-
 If !lJob
 	If MsgYesNo(aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?")
 		//Processa( {|| U_GeraXCSV(_cAlias,cArqE,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
@@ -5470,12 +5482,6 @@ Else
 	u_xxLog(cArqLog,"Gerando planilha xlsx",.T.,"")
 	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 	cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
-
-	cMsg :=aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
-	U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
-
-	u_xxLog(cArqLog,cMsg,.T.,"")
-
 EndIf
 
 MakeDir(cDirTmp)
@@ -5611,11 +5617,19 @@ Else
 		u_xxLog(cArqLog,"Falha na criação do arquivo "+cArqTmp,.T.,"")
 	EndIf
 Endif
-   
+
+If lJob
+	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
+	u_xxLog(cArqLog,cMsg,.T.,"")
+	//U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
+	u_BkSnMail("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp},lJob)
+	u_xxLog(cArqLog,"Email enviado",.T.,"")
+EndIf
+
 Return
 
 
-//Atualiza tabela de custro 
+//Atualiza tabela de custo 
 Static Function AtualizaCC(lJob)
 Local _IX := 0
 
