@@ -4171,80 +4171,80 @@ ENDIF
 
 IF !EMPTY(cContrato)
 
-	cQuery := "SELECT MIN(CNF_DTVENC) AS CNF_INICIO, MAX(CNF_DTVENC) AS CNF_FIM FROM ( "
-	cQuery += " SELECT CNF_DTVENC FROM "+RETSQLNAME("CNF")+" CNF "
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA " 
-	cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' "
-	cQuery += " WHERE CNF.D_E_L_E_T_='' " 
+	cQuery := "SELECT MIN(CNF_DTVENC) AS CNF_INICIO, MAX(CNF_DTVENC) AS CNF_FIM FROM ( "+CRLF
+	cQuery += " SELECT CNF_DTVENC FROM "+RETSQLNAME("CNF")+" CNF "+CRLF
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA " +CRLF
+	cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' "+CRLF
+	cQuery += " WHERE CNF.D_E_L_E_T_='' " +CRLF
 	IF nConsol == 1
-   		cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"
+   		cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
    		IF cTipoContra == 'A'
-			cQuery += " AND CN9_SITUAC = '05'"
+			cQuery += " AND CN9_SITUAC = '05'"+CRLF
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    		ENDIF
 	ELSEIF nConsol == 2
-   		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"
+   		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
    		IF cTipoContra == 'A'
-			cQuery += " AND CN9_SITUAC = '05'"
+			cQuery += " AND CN9_SITUAC = '05'"+CRLF
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    		ENDIF
 	ELSEIF nConsol == 3
-   		cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"
+   		cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"+CRLF
    		IF cTipoContra == 'A'
-			cQuery += " AND CN9_SITUAC = '05'"
+			cQuery += " AND CN9_SITUAC = '05'"+CRLF
    		ELSE
-			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
    		ENDIF
 	ELSE
-   		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'" 
-		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
+   		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'" +CRLF
+		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
 	ENDIF
 	
-	cQuery += "	) AS REGISTRO"
+	cQuery += "	) AS REGISTRO"+CRLF
 
 ELSE
 	cContrCons := ""
  	For IX:= 1 TO LEN(aConsorcio)
  		cContrCons += "'"+ALLTRIM(aConsorcio[IX,1])+"',"
  	NEXT
-	cQuery := " SELECT MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"
-	cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"
-	cQuery += " AND CN9_SITUAC = '05'"
+	cQuery := " SELECT MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
+	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+	cQuery += " AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"+CRLF
+	cQuery += " AND CN9_SITUAC = '05'"+CRLF
 	IF !lConsorcio
 		IF !EMPTY(cContrCons)
-			cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") " 
+			cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") " +CRLF
 		ENDIF
 	ENDIF
 	IF !lJob
 		IF !lFurnas
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"
+			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
 		ENDIF
 	ELSE
- 	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' " //IPT 
+ 	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' "+CRLF //IPT 
  //	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '049' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' " //FURNAS
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "  
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "
-	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "
-    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "
-	    cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  
-	    cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"  
-    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" 
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "+CRLF  
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "+CRLF  
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "+CRLF  
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "+CRLF  
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "+CRLF
+	    cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "+CRLF
+    	cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "+CRLF
+	    cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"  +CRLF
+	    cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"  +CRLF
+    	cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')" +CRLF
 	    IF SM0->M0_CODIGO <> "14"  
-	    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"
+	    	cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
 	    ENDIF  
 	ENDIF
 
-	cQuery += " GROUP BY CN9_SITUAC"
+	cQuery += " GROUP BY CN9_SITUAC"+CRLF
 
 ENDIF	
 
@@ -4264,6 +4264,7 @@ IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
 		MSGSTOP("Contrato não encontrado!!")
 	ELSE
 		ConOut("BK2GCTR11: Contrato não encontrado!!"+cLogCons+DTOC(DATE())+" "+TIME())   
+		ConOut("BK2GCTR11: Query:"+CRLF+cQuery)   
 	ENDIF
     Return Nil
 

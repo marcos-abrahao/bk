@@ -70,12 +70,14 @@ Static Function BK140OK(aNFs)
 	
 	DEFINE MSDIALOG oDlg TITLE "Últimas NFs do fornecedor "+CA100FOR+": " FROM 000,000 TO 450,640 PIXEL 
 	
-	@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 330,225
-	oPanelLeft:Align := CONTROL_ALIGN_LEFT
+	@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 320,225
+	oPanelLeft:Align := CONTROL_ALIGN_ALLCLIENT
 	
 	@ 005, 005 LISTBOX oListID FIELDS HEADER "Série","Doc","Data","Valor","Usuário" SIZE 310,185 OF oPanelLeft PIXEL 
 	oListID:SetArray(aNfs)
 	oListID:bLine := {|| {aNfs[oListId:nAt][1],aNfs[oListId:nAt][2],aNFs[oListId:nAt][3],aNfs[oListId:nAt][4],aNfs[oListId:nAt][5]}}
+	oListID:Align := CONTROL_ALIGN_ALLCLIENT
+
 	ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
 
 RETURN lOk

@@ -25,12 +25,12 @@ Local aAreaIni  := GetArea()
 Local cAliasCNR := GetNextAlias()
 Local aCNR      := {}
 Local oDlg,oListID,oPanelLeft 
-Local aButtons  := {}
 Local lOk       := .T.
 Local cREVISA 	:= ""
 Local dTINIC 	:= CTOD("")
 Local cDETG		:= ""
 Local cJUST		:= ""
+Local aButtons 	:= {}
 
 cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
 cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+SC5->C5_MDNUMED+"' AND CNR_FILIAL = '"+SC5->C5_FILIAL+"' "
@@ -106,14 +106,15 @@ If LEN(aCNR) > 0
 
 		DEFINE MSDIALOG oDlg TITLE "Glosas e Bonificações" FROM 000,000 TO 420,630 PIXEL 
 	
-		@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 320,225
-		oPanelLeft:Align := CONTROL_ALIGN_LEFT
+		@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 315,210 COLORS CLR_BLACK,CLR_HGRAY LOWERED RAISED
+		oPanelLeft:Align := CONTROL_ALIGN_ALLCLIENT
 	
-		@ 015, 005 LISTBOX oListID FIELDS HEADER "Incidente","Descrição","Valor","Justificativa" SIZE 310,170 OF oPanelLeft PIXEL 
+		@ 003, 003 LISTBOX oListID FIELDS HEADER "Incidente","Descrição","Valor","Justificativa" SIZE 300,170 OF oPanelLeft PIXEL 
 		oListID:SetArray(aCNR)
 		oListID:bLine := {|| {aCNR[oListId:nAt][1],aCNR[oListId:nAt][2],aCNR[oListId:nAt][3],aCNR[oListId:nAt][4]}}
-	
-		ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F.,oDlg:End()}, , aButtons)
+		oListID:Align := CONTROL_ALIGN_ALLCLIENT
+
+		ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.T.,oDlg:End()}, /*lMsgDel*/, aButtons,/*nRecNo*/,/*cAlias*/,.F./*lMashups*/,.F./*lImpCad*/,.F./*lPadrao*/,.F./*lHasOk*/,.F./*lWalkThru*/)
 
     ENDIF
 Else
