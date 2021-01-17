@@ -20,46 +20,23 @@ Public cMotMulta := "S"
 BKGCTR1X()
 Return 
 
+Static aRecNo := {}
 
 STATIC Function BKGCTR1X()
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Local titulo        := ""
+Local aTitulos		:= {}
+Local aCampos		:= {}
+Local aCabs			:= {}
+Local aPlans		:= {}
 
-Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ""
-Local titulo         := ""
-Local nLin           := 80
-Local Cabec1         := ""
-Local Cabec2         := ""
-Local aOrd           := {}
-Local aTitulos,aCampos,aCabs,aPlans := {}
+Private cPerg       := "BKGCTR01"
 
-Private lEnd         := .F.
-Private lAbortPrint  := .F.
-Private limite       := 220
-Private tamanho      := " "
-Private nomeprog     := "BKGCTR01" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo        := 18
-Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey     := 0
-Private cPerg        := "BKGCTR01"
-Private cbtxt        := Space(10)
-Private cbcont       := 00
-Private CONTFL       := 01
-Private m_pag        := 01
-Private wnrel        := "BKGCTR01" // Coloque aqui o nome do arquivo usado para impressao em disco
-Private cString      := "CN9"
-
-Private cMesComp     := "01"
-Private cAnoComp     := "2010"
-Private nPlan        := 1
+Private cMesComp    := "01"
+Private cAnoComp    := "2010"
+Private nPlan       := 1
 Private cMes 
-
-dbSelectArea(cString)
-dbSetOrder(1)
+Private nValPrev	:= 0
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -88,157 +65,120 @@ cMes := cAnoComp+STRZERO(VAL(cMesComp),2)
 
 titulo   := "Mapa de Medições : Competencia "+cMesComp+"/"+cAnoComp
 
-If .f. //nPlan = 2
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Monta a interface padrao com o usuario...                           ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
-	wnrel := SetPrint(cString,NomeProg,cPerg,@titulo,cDesc1,cDesc2,cDesc3,.T.,aOrd,.T.,Tamanho,,.T.)
-	
-	If nLastKey == 27
-		Return
-	Endif
-	
-	SetDefault(aReturn,cString)
-	
-	If nLastKey == 27
-	   Return
-	Endif
-	
-	nTipo := If(aReturn[4]==1,15,18)
-	            
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Processamento. RPTSTATUS monta janela com a regua de processamento. ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
-	nomeprog := "BKGCTR01/"+TRIM(SUBSTR(cUsuario,7,15))
-	ProcRegua(1)
-	Processa( {|| ProcQuery() })
-	RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
-	
-Else
-	ProcRegua(1)
-	Processa( {|| ProcQuery() })
-
-	aCabs   := {}
-	aCampos := {}
-	aTitulos:= {}
+ProcRegua(1)
+Processa( {|| ProcQuery() })
    
-	nomeprog := "BKGCTR01/"+TRIM(SUBSTR(cUsuario,7,15))
-	AADD(aTitulos,titulo)
+AADD(aTitulos,titulo)
 
-	AADD(aCampos,"QTMP->CNF_CONTRA")
-	AADD(aCabs  ,"Contrato")
+AADD(aCampos,"QTMP->CNF_CONTRA")
+AADD(aCabs  ,"Contrato")
 
-	AADD(aCampos,"QTMP->CNF_REVISA")
-	AADD(aCabs  ,"Revisão")
+AADD(aCampos,"QTMP->CNF_REVISA")
+AADD(aCabs  ,"Revisão")
 
-	AADD(aCampos,"QTMP->CTT_DESC01")
-	AADD(aCabs  ,"Centro de Custos")
+AADD(aCampos,"QTMP->CTT_DESC01")
+AADD(aCabs  ,"Centro de Custos")
 
-	AADD(aCampos,"U_BUSCACN9(QTMP->CNF_CONTRA,'CN9_XXNRBK')")
-	AADD(aCabs  ,"Gestor "+ALLTRIM(SM0->M0_NOME))
+AADD(aCampos,"U_BUSCACN9(QTMP->CNF_CONTRA,'CN9_XXNRBK')")
+AADD(aCabs  ,"Gestor "+ALLTRIM(SM0->M0_NOME))
 
-	AADD(aCampos,"QTMP->CNA_NUMERO")
-	AADD(aCabs  ,"Planilha")
+AADD(aCampos,"QTMP->CNA_NUMERO")
+AADD(aCabs  ,"Planilha")
 
-	AADD(aCampos,"QTMP->CNA_XXMUN")
-	AADD(aCabs  ,"Municipio")
+AADD(aCampos,"QTMP->CNA_XXMUN")
+AADD(aCabs  ,"Municipio")
 
-	AADD(aCampos,"QTMP->CNF_COMPET")
-	AADD(aCabs  ,"Competencia")
+AADD(aCampos,"QTMP->CNF_COMPET")
+AADD(aCabs  ,"Competencia")
 
-	AADD(aCampos,"QTMP->CND_NUMMED")
-	AADD(aCabs  ,"Medição")
+AADD(aCampos,"QTMP->CND_NUMMED")
+AADD(aCabs  ,"Medição")
 
-	AADD(aCampos,"QTMP->C6_NUM")
-	AADD(aCabs  ,"Pedido")
+AADD(aCampos,"QTMP->C6_NUM")
+AADD(aCabs  ,"Pedido")
    
-	AADD(aCampos,"QTMP->C5_EMISSAO")
-	AADD(aCabs  ,"Emissao Ped.")
+AADD(aCampos,"QTMP->C5_EMISSAO")
+AADD(aCabs  ,"Emissao Ped.")
 
-	AADD(aCampos,"QTMP->F2_EMISSAO")
-	AADD(aCabs  ,"Emissao NF")
+AADD(aCampos,"QTMP->F2_EMISSAO")
+AADD(aCabs  ,"Emissao NF")
 
-	AADD(aCampos,"QTMP->F2_DOC")
-	AADD(aCabs  ,"Nota Fiscal")
+AADD(aCampos,"QTMP->F2_DOC")
+AADD(aCabs  ,"Nota Fiscal")
    
-	AADD(aCampos,"QTMP->XX_VENCTO")
-	AADD(aCabs  ,"Vencimento")
+AADD(aCampos,"QTMP->XX_VENCTO")
+AADD(aCabs  ,"Vencimento")
 
-	AADD(aCampos,"QTMP->XX_BAIXA")
-	AADD(aCabs  ,"Recebimento")
+AADD(aCampos,"QTMP->XX_BAIXA")
+AADD(aCabs  ,"Recebimento")
 
-	AADD(aCampos,"QTMP->CNF_VLPREV")
-	AADD(aCabs  ,"Valor Previsto")
+//AADD(aCampos,"QTMP->CNF_VLPREV")
+//AADD(aCabs  ,"Valor Previsto")
 
-	AADD(aCampos,"QTMP->CNF_SALDO")
-	AADD(aCabs  ,"Saldo Previsto")
+AADD(aCampos,"nValPrev := U_GCTR1VP(QTMP->CNFRECNO,QTMP->CNF_VLPREV)")
+AADD(aCabs  ,"Valor Previsto")
 
-	AADD(aCampos,"QTMP->F2_VALFAT")
-	AADD(aCabs  ,"Valor faturado")
+AADD(aCampos,"iIf(nValPrev>0,QTMP->CNF_SALDO,0)")
+AADD(aCabs  ,"Saldo Previsto")
 
-	AADD(aCampos,"QTMP->CNF_VLPREV - QTMP->F2_VALFAT")
-	AADD(aCabs  ,"Previsto - Faturado")
+AADD(aCampos,"QTMP->F2_VALFAT")
+AADD(aCabs  ,"Valor faturado")
 
-	AADD(aCampos,"QTMP->XX_BONIF")
-	AADD(aCabs  ,"Bonificações")
+AADD(aCampos,"nValPrev - QTMP->F2_VALFAT")
+AADD(aCabs  ,"Previsto - Faturado")
 
-	AADD(aCampos,"QTMP->XX_MULTA")
-	AADD(aCabs  ,"Multas")
+AADD(aCampos,"QTMP->XX_BONIF")
+AADD(aCabs  ,"Bonificações")
 
-	AADD(aCampos,"QTMP->XX_E5DESC")
-	AADD(aCabs  ,"Desconto na NF")
+AADD(aCampos,"QTMP->XX_MULTA")
+AADD(aCabs  ,"Multas")
 
-	AADD(aCampos,"QTMP->XX_E5MULTA")
-	AADD(aCabs  ,"Cliente não Reteve")
+AADD(aCampos,"QTMP->XX_E5DESC")
+AADD(aCabs  ,"Desconto na NF")
 
-	AADD(aCampos,"QTMP->F2_VALIRRF")
-	AADD(aCabs  ,"IRRF Retido")
+AADD(aCampos,"QTMP->XX_E5MULTA")
+AADD(aCabs  ,"Cliente não Reteve")
 
-	AADD(aCampos,"QTMP->F2_VALINSS")
-	AADD(aCabs  ,"INSS Retido")
+AADD(aCampos,"QTMP->F2_VALIRRF")
+AADD(aCabs  ,"IRRF Retido")
 
-	AADD(aCampos,"QTMP->F2_VALPIS")
-	AADD(aCabs  ,"PIS Retido")
+AADD(aCampos,"QTMP->F2_VALINSS")
+AADD(aCabs  ,"INSS Retido")
 
-	AADD(aCampos,"QTMP->F2_VALCOFI")
-	AADD(aCabs  ,"COFINS Retido")
+AADD(aCampos,"QTMP->F2_VALPIS")
+AADD(aCabs  ,"PIS Retido")
 
-	AADD(aCampos,"QTMP->F2_VALCSLL")
-	AADD(aCabs  ,"CSLL Retido")
+AADD(aCampos,"QTMP->F2_VALCOFI")
+AADD(aCabs  ,"COFINS Retido")
 
-	AADD(aCampos,"IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
-	AADD(aCabs  ,"ISS Retido")
+AADD(aCampos,"QTMP->F2_VALCSLL")
+AADD(aCabs  ,"CSLL Retido")
 
-	AADD(aCampos,"QTMP->F2_VLCPM")
-	AADD(aCabs  ,"ISS Bitrib")
+AADD(aCampos,"IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
+AADD(aCabs  ,"ISS Retido")
 
-	AADD(aCampos,"QTMP->F2_XXVRETC")
-	AADD(aCabs  ,"Ret. Contratual")
+AADD(aCampos,"QTMP->F2_VLCPM")
+AADD(aCabs  ,"ISS Bitrib")
 
-	AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0) - QTMP->F2_VLCPM - QTMP->XX_E5DESC + QTMP->XX_E5MULTA - QTMP->F2_XXVRETC")
-	AADD(aCabs  ,"Valor liquido")
+AADD(aCampos,"QTMP->F2_XXVRETC")
+AADD(aCabs  ,"Ret. Contratual")
 
-	IF cMotMulta = "S"
-		// 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
+AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0) - QTMP->F2_VLCPM - QTMP->XX_E5DESC + QTMP->XX_E5MULTA - QTMP->F2_XXVRETC")
+AADD(aCabs  ,"Valor liquido")
 
-		AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'1')")
-		AADD(aCabs  ,"Motivo Bonificação")
+If cMotMulta = "S"
+	// 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
 
-		AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'2')")
-		AADD(aCabs  ,"Motivo Multa")
+	AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'1')")
+	AADD(aCabs  ,"Motivo Bonificação")
 
-	ENDIF
-	//If nPlan == 1
-	//	ProcRegua(QTMP->(LASTREC()))
-	//	Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
-	//Else	
-		AADD(aPlans,{"QTMP",wnrel,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-		U_GeraXlsx(aPlans,Titulo,wnrel,.F.)
-	//EndIf
+	AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'2')")
+	AADD(aCabs  ,"Motivo Multa")
+EndIf
+
+AADD(aPlans,{"QTMP",cPerg,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+U_GeraXlsx(aPlans,Titulo,cPerg,.F.)
 	   
-EndIf	
 Return
 
 
@@ -247,16 +187,12 @@ Local cQuery
 
 IncProc("Consultando o banco de dados...")
 
-/*
-
-*/
-
 cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_REVISA,CNF_COMPET,CN9_XXNRBK,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
 cQuery += "    CTT_DESC01, "+ CRLF
 cQuery += "    CNA_NUMERO,CNA_XXMUN, "+ CRLF
-cQuery += "    CND_NUMMED, "+ CRLF
+cQuery += "    CND_NUMMED,CNF.R_E_C_N_O_ AS CNFRECNO, "+ CRLF
 cQuery += "    C6_NUM, "+ CRLF
 cQuery += "    C6_DATCPL AS C5_EMISSAO, "+ CRLF
 
@@ -311,7 +247,7 @@ cQuery += "        CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXX
 cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,' ',0,0, "  // CNF_REVISA,CNF_COMPET,CN9_XXNRBK,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, " + CRLF // CTT_DESC01
 cQuery += "        ' ',CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF // CNA_NUMERO,CNA_XXMUN
-cQuery += "        ' ', " + CRLF     // CND_NUMMED
+cQuery += "        ' ',0 AS CNFRECNO," + CRLF  // CND_NUMMED
 cQuery += "        D2_PEDIDO AS C6_NUM, "      // C6_NUM
 cQuery += "        C5_EMISSAO, "+ CRLF
 cQuery += "        0,0, " + CRLF     // XX_BONIF,XX_MULTA
@@ -359,186 +295,6 @@ u_LogMemo("BKGCTR01.SQL",cQuery)
 
 Return
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFun‡„o    ³RUNREPORT º Autor ³ AP6 IDE            º Data ³  08/04/08   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescri‡„o ³ Funcao auxiliar chamada pela RPTSTATUS. A funcao RPTSTATUS º±±
-±±º          ³ monta a janela com a regua de processamento.               º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ Programa principal                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
-
-Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
-
-Local lCabec
-
-Dbselectarea("QTMP")
-Dbgotop()
-
-SetRegua(LastRec())
-
-nEsp    := 2
-cPicVlr := "@E 9,999,999.99"
-
-Cabec1  := PAD("Banco",LEN(QTMP->Z2_BANCO)+nEsp)
-Cabec1  += PAD("Nome",LEN(QTMP->Z2_NOME)+nEsp)
-Cabec1  += PAD("Agencia",LEN(QTMP->Z2_AGENCIA)+LEN(QTMP->Z2_DIGAGEN)+1+nEsp)
-Cabec1  += PAD("Conta",LEN(QTMP->Z2_CONTA)+LEN(QTMP->Z2_DIGCONT)+1+nEsp)
-Cabec1  += PAD("Tipo",LEN(QTMP->Z2_TIPO)+nEsp)
-Cabec1  += PAD("T.Pes.",LEN(QTMP->Z2_TIPOPES)+nEsp)
-Cabec1  += PAD("Titulo",LEN(QTMP->E2_NUM)+nEsp)
-Cabec1  += PAD("Usuario",20+nEsp)
-Cabec1  += PAD("CtrId",LEN(QTMP->Z2_CTRID)+nEsp)
-Cabec1  += PADL("Valor",LEN(cPicVlr)-3)+SPACE(nEsp)
-
-IF LEN(Cabec1) > 132
-   Tamanho := "G"
-ENDIF   
-
-Dbselectarea("QTMP")
-Dbgotop()
-SetRegua(LastRec())        
-
-cBanco := QTMP->Z2_BANCO
-nPos1  := nPos2 := nPos3 := nCont := 0
-nTotTP := nTotBc := nTotG := 0
-
-DO While !QTMP->(EOF())
-
-   cTipoPes := QTMP->Z2_TIPOPES
-   nTotTP   := 0
-
-   //If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
-      Cabec(Titulo+" Tipo Pes: "+cTipoPes,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
-      nLin := 9
-      lCabec := .T. 
-      //@ nLin,0 PSAY TRIM(QTMP->C6_PRODUTO) + " - " +  Posicione("SB1",1,xFilial("SB1")+QTMP->C6_PRODUTO,"B1_DESC")
-      //nLin += 2
-   //Endif
-   
-   
-   DO While !QTMP->(EOF()) .AND. cTipoPes == QTMP->Z2_TIPOPES
-       IF !lCabec
-         Cabec(Titulo+" Tipo Pes: "+cTipoPes,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
-         nLin   := 9
-         lCabec := .T. 
-       ENDIF
-       cBanco := QTMP->Z2_BANCO
-       nTotBc := 0
-
-	   nPos1  := 0
-	   @ nLin,nPos1 PSAY QTMP->Z2_BANCO
-	   nPos1  := PCOL()+nEsp
-
-	   DO While !QTMP->(EOF()) .AND. cBanco == QTMP->Z2_BANCO .AND. cTipoPes == QTMP->Z2_TIPOPES
-		  //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-		  //³ Impressao do cabecalho do relatorio. . .                            ³
-		  //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
-		  IncRegua()
-	      If lAbortPrint
-			 @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
-			 QTMP->(DBGOBOTTOM())
-			 dbSkip()
-		     Exit
-	      Endif
-	      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
-	         Cabec(Titulo+" Tipo Pes: "+cTipoPes,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
-	         nLin := 9 
-	         @ nLin,0 PSAY cBanco
-	      Endif
-	
-	      @ nLin,nPos1 PSAY QTMP->Z2_NOME
-	      nPos2  := PCOL()+nEsp
-	      
-	      @ nLin,nPos2 PSAY PAD(TRIM(QTMP->Z2_AGENCIA)+'-'+TRIM(QTMP->Z2_DIGAGEN),LEN(QTMP->Z2_AGENCIA)+LEN(QTMP->Z2_DIGAGEN)+1)
-	      nPos2  := PCOL()+nEsp
-	
-	      @ nLin,nPos2 PSAY PAD(TRIM(QTMP->Z2_CONTA)+'-'+TRIM(QTMP->Z2_DIGCONTA),LEN(QTMP->Z2_CONTA)+LEN(QTMP->Z2_DIGCONTA)+1)
-	      nPos2  := PCOL()+nEsp
-	
-	      @ nLin,nPos2 PSAY QTMP->Z2_TIPO
-	      nPos2  := PCOL()+nEsp
-	
-	      @ nLin,nPos2 PSAY QTMP->Z2_TIPOPES
-	      nPos2  := PCOL()+nEsp
-	
-	      @ nLin,nPos2 PSAY QTMP->E2_NUM
-	      nPos2  := PCOL()+nEsp
-	
-	      @ nLin,nPos2 PSAY PAD(QTMP->Z2_USUARIO,20)
-	      nPos2  := PCOL()+nEsp
-
-	      @ nLin,nPos2 PSAY PAD(QTMP->Z2_CTRID,20)
-	      nPos2  := PCOL()+nEsp
-	      
-	      @ nLin,nPos2 PSAY QTMP->Z2_VALOR PICTURE cPicVlr
-	      nPos3  := nPos2
-	      nPos2  := PCOL()+nEsp
-	
-	      nCont++
-	      nLin++
-	      
-	      nTotBc += QTMP->Z2_VALOR
-	      nTotTP += QTMP->Z2_VALOR
-	      nTotG  += QTMP->Z2_VALOR
-	
-	      dbSkip()
-	  ENDDO
-	  IF nPos3 > 0
-	    nLin++
-	    @ nLin,nPos3-22 PSAY "TOTAL DO BANCO "+cBanco
-	    @ nLin,nPos3 PSAY nTotBc PICTURE cPicVlr 
-	    nLin+=2
-	  ENDIF
-      lCabec := .F.
-  ENDDO
-  IF nPos3 > 0
-    @ nLin,nPos3-22 PSAY "TOTAL "+cTipoPes
-    @ nLin,nPos3 PSAY nTotTP PICTURE cPicVlr 
-    nLin++
-  ENDIF
-  
-  nLin++
-ENDDO
-
-/*  Removido o total geral
-nLin++
-IF nPos3 > 0
-   @ nLin,0 PSAY "TOTAL GERAL"
-   @ nLin,nPos3 PSAY nTotG PICTURE cPicVlr 
-ENDIF
-*/
-
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Finaliza a execucao do relatorio...                                 ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-SET DEVICE TO SCREEN
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Se impressao em disco, chama o gerenciador de impressao...          ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-If aReturn[5]==1
-   dbCommitAll()
-   SET PRINTER TO
-   OurSpool(wnrel)
-Endif
-
-MS_FLUSH()
-
-QTMP->(Dbclosearea())
-
-Return
-
 
 Static Function  ValidPerg(cPerg)
 
@@ -578,8 +334,9 @@ RestArea(aArea)
 Return(NIL)
 
 
-USER FUNCTION BKCNR01(cNumMed,cTipo)
-LOCAL cQuery,cMotivo := ""
+User Function BKCNR01(cNumMed,cTipo)
+Local cQuery  := ""
+Local cMotivo := ""
 
 cQuery := " SELECT CNR_DESCRI FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = '"+cNumMed+"' "
 cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '"+cTipo+"' "
@@ -596,8 +353,13 @@ QTMP1->(Dbclosearea())
 Return cMotivo
 
 
-//cQuery += "        (SELECT SUM(CNR_VALOR) FROM CNR010 CNR WHERE CND_NUMMED = CNR_NUMMED
-//cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,
-//cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC"  
-
-                        
+// Evitar previsões duplicadas                        
+User Function GCTR1VP(nRec,nVlPrev)
+If nRec > 0
+	If AsCan(aRecNo,nRec) == 0
+		aAdd(aRecno,nRec)
+	Else
+		nVlPrev := 0
+	EndIf
+EndIf
+Return nVlPrev

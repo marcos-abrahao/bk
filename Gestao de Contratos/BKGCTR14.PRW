@@ -688,7 +688,7 @@ If lSintetico .OR. lJob
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99,999,999,999.99")
 
-	aAdd(aDbf3		,{ 'XX_RENTMP' ,'N', 06,02 } )
+	aAdd(aDbf3		,{ 'XX_RENTMP' ,'N', 11,02 } )
 	aAdd(aCampos3	,"TRB3->XX_RENTMP")
 	aAdd(aCabs3 	,"Rent. Mes %")
 	aAdd(aImpr3		,.T.)
@@ -702,7 +702,7 @@ If lSintetico .OR. lJob
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99,999,999,999.99")
 
-	aAdd(aDbf3		,{ 'XX_RENTACP','N', 06,02 } )
+	aAdd(aDbf3		,{ 'XX_RENTACP','N', 11,02 } )
 	aAdd(aCampos3	,"TRB3->XX_RENTACP")
 	aAdd(aCabs3 	,"Rent. Acum. %")
 	aAdd(aImpr3		,.T.)

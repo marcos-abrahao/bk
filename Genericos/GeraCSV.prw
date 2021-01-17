@@ -44,6 +44,7 @@ Local cDirTmp := "C:\TMP"
 Local cArqTmp := cDirTmp+"\"+cArqS+"-"+DTOS(Date())+".CSV"
 Local lSoma,aSoma,nCab
 Local aPlans  := {}
+Local lFirst  := .T.
 
 Private xQuebra,xCampo
 
@@ -70,7 +71,7 @@ If File(cArqTmp)
 	EndIf
 EndIf
 
-lSoma := .F.
+lSoma := .T.
 aSoma := {}
 nCab  := 0
 
@@ -91,10 +92,13 @@ If nHandle > 0
 
    fWrite(nHandle, cCrLf ) // Pula linha
 
+   lFirst := .T.
+
    (_cAlias)->(dbgotop())
    ProcRegua((_cAlias)->(LastRec())) 
    Do While (_cAlias)->(!eof())
 
+      /*
       IF !lSoma
          For _ni :=1 to LEN(aCampos)
              xCampo := &(aCampos[_ni])
@@ -107,14 +111,23 @@ If nHandle > 0
              Endif
          Next
          lSoma := .T.
-      ENDIF
-   
+      EndIf
+      */
+      
       IncProc("Gerando arquivo "+cArqS)   
 
       For _ni :=1 to LEN(aCampos)
 
          xCampo := &(aCampos[_ni])
             
+         If lFirst
+             If VALTYPE(xCampo) == "N" // Trata campos numericos
+                AADD(aSoma,'=SOMA('+U_LETRA(_ni)+ALLTRIM(STR(nCab+1))+':')
+             Else
+                AADD(aSoma,"")
+             Endif
+         EndIf
+
          _uValor := ""
             
          If VALTYPE(xCampo) == "D" // Trata campos data
@@ -129,16 +142,6 @@ If nHandle > 0
             ENDIF
          Endif
             
-		 /*
-		 IF LEN(_uValor) > 255
-           	For i = 0 To Int(Len(_uValor) / 255)
-				fWrite(nHandle, substr(_uValor, (i * 255) + 1, 255) + ";") 
-			Next 
-			fWrite(nHandle,IIF(_ni < LEN(aCampos),";","")) 
-         ELSE
-         	fWrite(nHandle, _uValor + IIF(_ni < LEN(aCampos),";",""))
-         ENDIF
-         */
       	fWrite(nHandle, _uValor + IIF(_ni < LEN(aCampos),";",""))
 
       Next _ni
@@ -169,16 +172,18 @@ If nHandle > 0
             (_cAlias)->(dbskip())
             
          Enddo
-      ENDIF
+      EndIf
       fWrite(nHandle, cCrLf )
 
       (_cAlias)->(dbskip())
-         
+
+      lFirst := .F.
+
    Enddo
-   IF lSoma
+
+   IF !lFirst .AND. lSoma
 	   FOR _ni := 1 TO LEN(aSoma)
 	       IF !EMPTY(aSoma[_ni])
-              //aSoma[_ni] += CHR(_ni+64)+ALLTRIM(STR(nCab))+')'
               aSoma[_ni] += U_LETRA(_ni)+ALLTRIM(STR(nCab))+')'
 	       ENDIF
 	       fWrite(nHandle, aSoma[_ni] + IIF(_ni < LEN(aSoma),";",""))

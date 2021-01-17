@@ -1,3 +1,4 @@
+
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"
 
@@ -11,25 +12,27 @@ BK - Mapa de INSS retido
 @return Nil
 /*/
 //-------------------------------------------------------------------
+Static aRecNo := {}
 
 User Function BKGCTR07()
 
-Local titulo         := ""
+Local titulo        := ""
 Local aTitulos,aCampos,aCabs
 
-Private cPerg        := "BKGCTR07"
-Private cString      := "CN9"
+Private cPerg       := "BKGCTR07"
+Private cString     := "CN9"
 
-Private cMesEmis     := "01"
-Private cAnoEmis     := "2011"
-Private nPlan        := 1
-Private nTipo		 := 1
+Private cMesEmis    := "01"
+Private cAnoEmis    := "2011"
+Private nPlan       := 1
+Private nTipo		:= 1
 Private cMes
-Private _cTXPIS  	 := STR(GetMv("MV_TXPIS"))
-Private _cTXCOF  	 := STR(GetMv("MV_TXCOFINS"))
+Private _cTXPIS  	:= STR(GetMv("MV_TXPIS"))
+Private _cTXCOF  	:= STR(GetMv("MV_TXCOFINS"))
 
-Public XX_PESSOA     := ""
-Public cMotMulta     := "N"
+Public XX_PESSOA    := ""
+Public cMotMulta    := "N"
+Private nValPrev	:= 0
 
 dbSelectArea('SA1')
 dbSelectArea(cString)
@@ -143,16 +146,20 @@ AADD(aCabs  ,"Venc. Original")
 AADD(aCampos,"QTMP->XX_BAIXA")
 AADD(aCabs  ,"Recebimento")
 
-AADD(aCampos,"QTMP->CNF_VLPREV")
+//AADD(aCampos,"QTMP->CNF_VLPREV")
+//AADD(aCabs  ,"Valor Previsto")
+
+AADD(aCampos,"nValPrev := U_GCTR7VP(QTMP->CNFRECNO,QTMP->CNF_VLPREV)")
 AADD(aCabs  ,"Valor Previsto")
 
-AADD(aCampos,"QTMP->CNF_SALDO")
+//AADD(aCampos,"QTMP->CNF_SALDO")
+AADD(aCampos,"iIf(nValPrev>0,QTMP->CNF_SALDO,0)")
 AADD(aCabs  ,"Saldo Previsto")
 
 AADD(aCampos,"QTMP->F2_VALFAT")
 AADD(aCabs  ,"Valor faturado")
 
-AADD(aCampos,"QTMP->CNF_VLPREV - QTMP->F2_VALFAT")
+AADD(aCampos,"nValPrev - QTMP->F2_VALFAT")
 AADD(aCabs  ,"Previsto - Faturado")
 
 AADD(aCampos,"QTMP->XX_BONIF")
@@ -232,7 +239,7 @@ cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END A
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
 cQuery += "    CTT_DESC01, "+ CRLF
 cQuery += "    CNA_NUMERO,CNA_XXMUN, "+ CRLF
-cQuery += "    CND_NUMMED, "+ CRLF
+cQuery += "    CND_NUMMED, CNF.R_E_C_N_O_ AS CNFRECNO,"+ CRLF
 cQuery += "    CND_XXRM, "+ CRLF
 cQuery += "    C6_NUM, "+ CRLF
 
@@ -259,7 +266,7 @@ cQuery += "        AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"'
 cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
 cQuery += "      AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC, "+ CRLF
 cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "      AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA "+ CRLF
+cQuery += "      AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA"+ CRLF
 
 cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
 
@@ -300,7 +307,7 @@ cQuery += "        CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXX
 cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,0,0, " + CRLF  // CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO
 cQuery += "        A1_NOME, "  + CRLF // CTT_DESC01
 cQuery += "        ' ', CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF  // CNA_NUMERO,CNA_XXMUN
-cQuery += "        ' ', "  + CRLF     // CND_NUMMED
+cQuery += "        ' ', 0 AS CNFRECNO, "  + CRLF     // CND_NUMMED, CNF.R_E_C_N_O_
 cQuery += "        C5_XXRM, "  + CRLF     // CND_XXRM
 cQuery += "        D2_PEDIDO AS C6_NUM, " + CRLF   // C6_NUM
 cQuery += "        0,0, "  + CRLF   // XX_BONIF,XX_MULTA
@@ -355,10 +362,17 @@ TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
 //U_SendMail(PROCNAME(),PROCNAME(1),"marcos@rkainformatica.com.br","",cQuery,"",.F.)
 
 /*
+aRec := {}
 dbSelectArea("QTMP")
 dbGoTop()
 DO WHILE !EOF()
-
+	VLPREV := 0
+	If ascan(aRec,TMP->CNFREC) <> 0
+		VLPREV := 0
+	Else
+		add()
+		VLPREV := TMP->CNF_VALPREV
+	Endif
 
 	dbSelectArea("QTMP")
 	dbSkip()
@@ -431,4 +445,13 @@ Return cMotivo
 //cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,
 //cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC"  
 
-                        
+// Evitar previsões duplicadas                        
+User Function GCTR7VP(nRec,nVlPrev)
+If nRec > 0
+	If AsCan(aRecNo,nRec) == 0
+		aAdd(aRecno,nRec)
+	Else
+		nVlPrev := 0
+	EndIf
+EndIf
+Return nVlPrev

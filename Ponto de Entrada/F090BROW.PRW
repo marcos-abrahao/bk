@@ -16,3 +16,11 @@ User Function F090BROW()
 SE2->(DBORDERNICKNAME("E2_VALOR"))
   
 Return Nil
+
+//@since 12/01/2021
+User Function F090QFIL()
+Local cFiltro := ParamIxb[1]
+
+SE2->(DBORDERNICKNAME("E2_VALOR"))
+
+Return cFiltro 

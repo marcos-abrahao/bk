@@ -49,6 +49,7 @@ Local aTotal  := {}
 Local nTamCol := 0
 Local aStruct := {}
 Local aRef    := {}
+Local lFirst  := .T.
 
 Local aResumo := {}
 Local cMacro  := ""
@@ -271,6 +272,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	(_cAlias)->(dbgotop())
 	aStruct := (_cAlias)->(dbStruct())
 
+/*
 	For nI :=1 to LEN(_aCampos)
 
 	    IF !EMPTY(_aImpr)  // Coluna a ignorar
@@ -347,24 +349,26 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	Next
 
+
 	For nJ := 1 To Len(aTamCol)
 		If aTamCol[nJ] > 0
 			oExcel:AddTamCol(nJ,nJ,aTamCol[nJ])
 		EndIf
-	NEXT
-
-	(_cAlias)->(dbgotop())
+	Next
+*/
 
 	If !empty(_cFiltra)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
+
+	lFirst := .T.
 
 	Do While (_cAlias)->(!eof()) 
 
 		nLin++
 		nCont++
 
-		For nI :=1 to LEN(_aCampos)
+		For nI := 1 to LEN(_aCampos)
 
 			IF !EMPTY(_aImpr)  // Coluna a ignorar
 				IF !_aImpr[nI]
@@ -372,16 +376,86 @@ FOR nPl := 1 TO LEN(_aPlans)
 				ENDIF 
 			ENDIF
 
-			xCampo	:= &(_aCampos[nI])
+			xCampo := &(_aCampos[nI])
+			// Obs: esta macro não pode ser executada mais de uma vez
 
-			//Tipo	:= ValType(xCampo)
-			//If !Empty(_aFormat[nI])
-				cTipo := _aFormat[nI]
-			//If cTipo $ "CM"
-			//	xCampo := StrTran( xCampo, '&', "E" )
-			//EndIf
-			//EndIf
+			If lFirst
+				// Calcular o tamanho das colunas
+				nTamCol := 0
+				lTotal  := .F.
+				cTipo   := ""
 
+				nF := aScan(aStruct,{|x| x[1] = SUBSTR(_aCampos[nI],aT(">",_aCampos[nI])+1) })
+				If nF > 0
+					cTipo   := aStruct[nF,2]
+					//nTamCol := aStruct[nF,3]+aStruct[nF,4]+1
+					nTamCol := aStruct[nF,3]+1
+					If cTipo == "N"
+						lTotal := .T.
+						If aStruct[nF,4] == 0
+							cTipo := "N0"
+						ElseIf aStruct[nF,4] > 2 .AND. aStruct[nF,4] < 6
+							cTipo := "N5"
+							nTamCol += 5
+						Else
+							nTamCol := 15
+						EndIf
+					Elseif cTipo == "D"
+						nTamCol := 10
+					ElseiF nTamCol > 150
+						nTamCol := 150
+					EndIf
+				EndIf
+
+				If Empty(cTipo)
+
+					cTipo  := ValType(xCampo)
+
+					If cTipo == "N"
+						nTamCol := 15
+						lTotal  := .T.
+					ElseIf cTipo == "D"
+						nTamCol := 10
+					Else
+						If Len(xCampo) > 8
+							If Len(xCampo) < 150
+								nTamCol := Len(xCampo) + 1
+							Else
+								nTamCol := 150
+							EndIf
+						EndIf
+					EndIf
+				EndIf
+
+				If Empty(_aFormat[nI])
+					_aFormat[nI] := cTipo
+				EndIf
+
+				IF !EMPTY(_aTotal)
+					IF _aTotal[nI] <> NIL 
+						IF lTotal
+							lTotal  := _aTotal[nI]
+						ENDIF
+					ENDIF 
+				ENDIF
+
+				If  nTamCol < 8
+					// Não reduzir a coluna do Logo //nI == 1 .AND.
+					nTamCol := 8
+				EndIf
+
+				aAdd( aTamCol, nTamCol)
+				aAdd( aTotal,lTotal)
+
+				For nJ := 1 To Len(aTamCol)
+					If aTamCol[nJ] > 0
+						oExcel:AddTamCol(nJ,nJ,aTamCol[nJ])
+					EndIf
+				Next
+
+			EndIf
+
+			cTipo	:= _aFormat[nI]
 			nF		:= 0
 			lFormula:= .F.
 
@@ -461,27 +535,32 @@ FOR nPl := 1 TO LEN(_aPlans)
 		Next
 
 		(_cAlias)->(dbskip())
+
+		lFirst := .F.
 	EndDo
 
-	oExcel:AutoFilter(nTop-1,1,nLin,Len(_aCabs))	//Auto filtro
-	oExcel:AddPane(nTop-1,1)	//Congela paineis
+	If !lFirst
 
-	nLin++
-	// Linha de Total
-	oExcel:Cell(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")",,nTotStyle)
-	If nCont > 0
-		For nI := 2 To Len(aTotal)
-			If aTotal[nI]
-				oExcel:AddNome("P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0)),nTop, nI, nLin-1, nI)
-				nStyle := nT2Style
-				If _aFormat[nI] == "N0"
-					nStyle := nT0Style
-				ElseIf _aFormat[nI] == "N5"
-					nStyle := nT5Style
+		oExcel:AutoFilter(nTop-1,1,nLin,Len(_aCabs))	//Auto filtro
+		oExcel:AddPane(nTop-1,1)	//Congela paineis
+
+		nLin++
+		// Linha de Total
+		oExcel:Cell(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")",,nTotStyle)
+		If nCont > 0
+			For nI := 2 To Len(aTotal)
+				If aTotal[nI]
+					oExcel:AddNome("P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0)),nTop, nI, nLin-1, nI)
+					nStyle := nT2Style
+					If _aFormat[nI] == "N0"
+						nStyle := nT0Style
+					ElseIf _aFormat[nI] == "N5"
+						nStyle := nT5Style
+					EndIf
+					oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0))+")",nStyle)
 				EndIf
-				oExcel:Cell(nLin,nI,0,"SUBTOTAL(9,"+"P"+ALLTRIM(STR(nPl,1,0))+"COL"+ALLTRIM(STR(nI,3,0))+")",nStyle)
-			EndIf
-		Next
+			Next
+		EndIf
 	EndIf
 
 	If _lClose   
