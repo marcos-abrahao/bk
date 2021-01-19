@@ -677,10 +677,11 @@ Return Nil
   
  
 Static Function ProcBKGCTR11(lJob)
-Local cQuery  := ""
-Local cQueryA := ""
-Local cQueryX := ""
-Local nAuxVl  :=0
+Local cQuery	:= ""
+Local cQueryA	:= ""
+Local cQueryX	:= ""
+Local nAuxVl	:= 0
+Local aNDC		:= {}
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
@@ -815,7 +816,7 @@ FOR _nI := 1 TO nPeriodo
 
 	EndIf
 
-
+	aNDC := {}
 	DO WHILE QTMP->(!EOF())
 	
 	    nScan:= 0
@@ -824,8 +825,8 @@ FOR _nI := 1 TO nPeriodo
 			AADD(aContConsol,{ALLTRIM(QTMP->CNF_CONTRA),QTMP->A1_NOME,QTMP->CTT_DESC01})
 		ENDIF
 
-        //VERIFICA INDECE CONSORCIO CASO CONTRATO DE CONSORCIO
-         nIndTC := 0
+        //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
+        nIndTC := 0
         IF nIndConsor == 1
 			nScan:= 0
 			nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
@@ -859,7 +860,7 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"02","NUMERO-SIGA: ","S",ALLTRIM(QTMP->CNF_CONTRA)})              
         AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)}) 
 		nNDC := 0 
-		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI)
+		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
         AADD(aRentab,{"03-1","NDC","S",nNDC}) 
         AADD(aRentab,{"03-2","","S",0}) 
         AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})                  
@@ -870,9 +871,6 @@ FOR _nI := 1 TO nPeriodo
         ENDIF            
        	AADD(aRentab,{"05-1","(-) ISS Bitributado","S",IIF(nIndTC>0,QTMP->D2_VALCPM/(nIndTC/100),QTMP->D2_VALCPM)})
         AADD(aRentab,{"05-2","","S",0})
-		//If aAnoMes[_nI] = '202010'
-		//	xxx:= 0
-		//EndIf
 		IF lISSFURNAS
         	AADD(aRentab,{"06","Total dos Impostos + ISS","S",((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM})              
         ELSE
@@ -4924,7 +4922,7 @@ cQuery3 += "   AND E2_NUM = '"+TMPX2->D1_DOC+"'" +CRLF
 cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
 cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
 
-u_LogMemo("BKGCTR11-E2"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
+u_LogMemo("BKGCTR11-E2-"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
 
 TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
 dbSelectArea("QTMPXE2")
@@ -5047,37 +5045,41 @@ Return cRet
 
 
 //NOTAS DE DEBITO DO CLIENTE - NDC
-USER FUNCTION VALNDC(cNunContr,cCompt,_nI)
-LOCAL nTOTSE1 := 0
-LOCAL cQuery := ""
+USER FUNCTION VALNDC(cNumContr,cCompt,_nI,aNDC)
+LOCAL nTotSE1	:= 0
+LOCAL cQuery	:= ""
+STATIC nCount	:= 1
+If aScan(aNDC,cNumContr+cCompt) == 0
+	aAdd(aNDC,cNumContr+cCompt)
 
-cQuery += " SELECT
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC NOT IN ('MT','JR','CM','DC') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_VALOR ," + CRLF
-cQuery += "    (SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_ISS) AS XX_IMPOST," + CRLF
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, " + CRLF
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA ," + CRLF
-cQuery += "    E1_NUM AS XX_NDC" + CRLF
-cQuery += "  FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
-cQuery += " WHERE SE1.D_E_L_E_T_ = ' ' AND " + CRLF
-cQuery += "    SE1.E1_TIPO = 'NDC'" + CRLF
-cQuery += "    AND SE1.E1_SALDO=0" + CRLF
-cQuery += "    AND SUBSTRING(E1_BAIXA,1,6) ='"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
-cQuery += "    AND E1_XXCUSTO='"+cNunContr+"'" + CRLF
+	cQuery += " SELECT
+	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC NOT IN ('MT','JR','CM','DC') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_VALOR ," + CRLF
+	cQuery += "    (SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_ISS) AS XX_IMPOST," + CRLF
+	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, " + CRLF
+	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA ," + CRLF
+	cQuery += "    E1_NUM AS XX_NDC" + CRLF
+	cQuery += "  FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
+	cQuery += " WHERE SE1.D_E_L_E_T_ = ' ' AND " + CRLF
+	cQuery += "    SE1.E1_TIPO = 'NDC'" + CRLF
+	cQuery += "    AND SE1.E1_SALDO=0" + CRLF
+	cQuery += "    AND SUBSTRING(E1_BAIXA,1,6) ='"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
+	cQuery += "    AND E1_XXCUSTO='"+cNumContr+"'" + CRLF
 
-u_LogMemo("BKGCTR11-E1-1"+STRZERO(_nI,3)+".SQL",cQuery)
+	u_LogMemo("BKGCTR11-NDC-"+STRZERO(_nI,3)+"-"+STRZERO(nCount++,3)+".SQL",cQuery)
 
-TCQUERY cQuery NEW ALIAS "QTMPXE1"
-dbSelectArea("QTMPXE1")
-dbGoTop()
+	TCQUERY cQuery NEW ALIAS "QTMPXE1"
+	dbSelectArea("QTMPXE1")
+	dbGoTop()
 
-nTOTSE1  := 0
-Do While !QTMPXE1->(EOF())
-	nTOTSE1 += QTMPXE1->XX_VALOR - QTMPXE1->XX_E5DESC + QTMPXE1->XX_E5MULTA
-	QTMPXE1->(dbSkip())
-Enddo
-QTMPXE1->(Dbclosearea())
+	nTotSE1  := 0
+	Do While !QTMPXE1->(EOF())
+		nTotSE1 += QTMPXE1->XX_VALOR - QTMPXE1->XX_E5DESC + QTMPXE1->XX_E5MULTA
+		QTMPXE1->(dbSkip())
+	Enddo
+	QTMPXE1->(Dbclosearea())
+EndIf
 
-RETURN nTOTSE1
+RETURN nTotSE1

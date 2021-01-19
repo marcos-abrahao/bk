@@ -474,7 +474,7 @@ ELSE
 	cQuery += " GROUP BY CN9_SITUAC"+CRLF
 ENDIF	
 
-//u_LogMemo("BKGCTR14.SQL",cQuery)
+u_LogMemo("BKGCTR14.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP1"
 TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
@@ -911,6 +911,7 @@ Local cProcSZG	:= ""
 Local nIndTC	:= 0 
 Local nVlp2		:= 0
 Local nPrev		:= 0
+Local aNDC		:= {}
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -1008,7 +1009,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
 	cQuery += " ORDER BY CNF_CONTRA"+CRLF
  
-	//u_LogMemo("BKGCTR14-1.SQL",cQuery)
+	u_LogMemo("BKGCTR14-1.SQL",cQuery)
 
 	If Select("QTMP") > 0
 		QTMP->(dbCloseArea())
@@ -1034,13 +1035,15 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		//u_LogMemo("BKGCTR14-CNF-A-"+STRZERO(_nI,3)+".SQL",cQueryA)
+		u_LogMemo("BKGCTR14-CNF-A-"+STRZERO(_nI,3)+".SQL",cQueryA)
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
 		dbSelectArea("QTMP")
 		QTMP->(dbGoTop())
 
 	EndIf
+
+	//aNDC := {}
 
 	DO WHILE QTMP->(!EOF())
 	
@@ -1085,7 +1088,7 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
         aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
 		nNDC := 0 
-		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI)
+		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
         aAdd(aRentab,{"03-1","NDC","S",nNDC}) 
         aAdd(aRentab,{"03-2","","S",0}) 
         aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
@@ -1232,7 +1235,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += cQueryX
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK ORDER BY CNF_CONTRA"+CRLF
  
-	//u_LogMemo("BKGCTR14-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
+	u_LogMemo("BKGCTR14-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP" 
 
@@ -1256,7 +1259,7 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		//u_LogMemo("BKGCTR14-CNF-B-"+STRZERO(_nI,3)+".SQL",cQueryA)
+		u_LogMemo("BKGCTR14-CNF-B-"+STRZERO(_nI,3)+".SQL",cQueryA)
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
 		dbSelectArea("QTMP")
@@ -1515,7 +1518,7 @@ FOR _nI := 1 TO nPeriodo
 		
 		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-		//u_LogMemo("BKGCTR14-SZ2-"+STRZERO(_nI,3)+".SQL",cQuery1)
+		u_LogMemo("BKGCTR14-SZ2-"+STRZERO(_nI,3)+".SQL",cQuery1)
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
@@ -1878,7 +1881,7 @@ FOR _nI := 1 TO nPeriodo
 
 		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve"+CRLF
 
-		//u_LogMemo("BKGCTR14-FOL-"+STRZERO(_nI,3)+".SQL",cQuery2)
+		u_LogMemo("BKGCTR14-FOL-"+STRZERO(_nI,3)+".SQL",cQuery2)
 	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		nProventos := 0
@@ -2330,7 +2333,7 @@ FOR _nI := 1 TO nPeriodo
         
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-		//u_LogMemo("BKGCTR14-D1-1-"+STRZERO(_nI,3)+".SQL",cQuery2)        
+		u_LogMemo("BKGCTR14-D1-1-"+STRZERO(_nI,3)+".SQL",cQuery2)        
 				
 		cOutros := 'S'
 		dbSelectArea("TMPX2")
@@ -4865,7 +4868,6 @@ InsumosP := 0
 nValTADP := 0
 InsumosR := 0
 nValTADR := 0
-nValNDC  := 0
 
 cCustoBk := ""
 
