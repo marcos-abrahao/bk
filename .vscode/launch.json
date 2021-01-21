@@ -204,6 +204,11 @@
 			"args": [],
 			"label": "mpsdu",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "global",
+			"description": ""
 		}
 	],
 	"lastProgramExecuted": "SIGAFIN"

@@ -39,7 +39,7 @@ IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 ENDIF
 
 If !l140Auto
-	SelFPgto()
+	U_SelFPgto()
 EndIf
 
 RecLock("SF1",.F.)
@@ -70,7 +70,7 @@ EndIf
 Return .T.
 
 
-Static Function SelFPgto
+User Function SelFPgto
 Local aOpcoes   := {}
 Local oRadMenu1
 Local oSay1

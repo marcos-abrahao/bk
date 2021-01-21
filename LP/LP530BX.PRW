@@ -27,6 +27,9 @@ Else
             cCta := "11301003"
         Case cTipBk == "LPM" // salario a pagar
             cCta := "21301001"
+            If "PJ" $ UPPER(SE2->E2_NUMBCO) .OR. "PAG" $ UPPER(SE2->E2_NUMBCO)
+                cCta := "21101001"
+            EndIf
         Case cTipBk == "LFE" // provisão férias
             cCta := "21301002"
         Case cTipBk == "LRC" // indenizações a pagar

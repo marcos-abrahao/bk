@@ -1043,7 +1043,7 @@ FOR _nI := 1 TO nPeriodo
 
 	EndIf
 
-	//aNDC := {}
+	aNDC := {}
 
 	DO WHILE QTMP->(!EOF())
 	

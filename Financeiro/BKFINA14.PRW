@@ -461,27 +461,42 @@ IF SM0->M0_CODIGO $ "06/08/09/10/11/14/15"
 	cQuery  += " FROM SEE010 "
 	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
 	cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
-			
+
+	If Select("QSEE") > 0
+		QSEE->(DbCloseArea())
+	EndIf
+
 	TCQUERY cQuery NEW ALIAS "QSEE"
 			
 	DbSelectArea("QSEE")
-	DbGoTop()
-  
-	nLote := VAL(Soma1(QSEE->EE_LOTECP,8))
+	QSEE->(DbGoTop())
+	DO WHILE QSEE->(!EOF())
+		nLote := VAL(QSEE->EE_LOTECP)
+		QSEE->(dbSkip())
+	ENDDO
 	QSEE->(DbCloseArea())
 
-    cQuery 	:= " UPDATE SEE010 SET EE_LOTECP = '"+STRZERO(nLote,8)+"' "
-	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
-	cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
-    TcSqlExec(cQuery)
+	IF  nLote > 0
+		nLote := VAL(Soma1(STR(nLote),8))
+
+    	cQuery 	:= " UPDATE SEE010 SET EE_LOTECP = '"+STRZERO(nLote,8)+"' "
+		cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
+		cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
+    	TcSqlExec(cQuery)
+	ENDIF
 
 ENDIF
 
 DbSelectArea("SEE")
 DbSetOrder(1)
 IF DbSeek(xFilial("SEE")+cSEE,.F.)
+	//BKDAHER USAR CNPJ BK
+	cCGC      := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"03022122000177",SM0->M0_CGC)
+    cNomeCom  := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
+    //***************** 
+    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15" .AND. nLote >0 ,MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira / BHG INT 3 - Considerando CNPJ BK / Consorcio Nova Balsa !!",cPerg),"")
 	RecLock("SEE",.F.)                             
-	Replace SEE->EE_LOTECP With IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15",STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
+	Replace SEE->EE_LOTECP With IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
 	SEE->( MsUnlock() )
 	nLote := VAL(SEE->EE_LOTECP)
  
@@ -489,11 +504,6 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	cDVAgenc  := SEE->EE_DVAGE
 	cConta    := STRTRAN(SEE->EE_CONTA,"-","")
 	cDVConta  := SEE->EE_DVCTA
-	//BKDAHER USAR CNPJ BK
-	cCGC      := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15","03022122000177",SM0->M0_CGC)
-    cNomeCom  := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15","BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
-    //***************** 
-    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15",MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira / BHG INT 3 - Considerando CNPJ BK / Consorcio Nova Balsa !!",cPerg),"")
 ELSE
 	MSGSTOP("Parâmetro do Banco não cadastrado!!",'Atenção')
 	Return nil
@@ -620,11 +630,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn001H += SPACE(9)          //009 017
 			Bcn001H += "2"               //018 018
 			Bcn001H += STRZERO(VAL(cCGC),14) //019 032
-			//If SM0->M0_CODIGO <> "15"
-				Bcn001H += "0008539930126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
-			//Else
-			//	Bcn001H += "0002732690126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
-			//EndIf
+			Bcn001H += PAD(STRZERO(VAL(SEE->EE_CODEMP),13),20) //033 052 - Código do Convênio //  "0008539930126       "
 			Bcn001H += STRZERO(VAL(cAgencia),5)   //053 057
 			Bcn001H += STRZERO(VAL(cDVAgenc),1)   //058 058 DV AGENCIA
 			Bcn001H += STRZERO(VAL(cConta),12)  //059 070
