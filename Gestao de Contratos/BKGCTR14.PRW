@@ -135,6 +135,7 @@ Private cDCH_Prod	:= ""
 Private aHeader	    := {}
 Private aDbf1 	    := {}
 Private aTitulos1,aCampos1,aCabs1,aFormat1,aFormula1,aImpr1,aPict1
+Private cRealTb1	:= ""
 
 Private aDbf2       := {}
 Private aTitulos2,aCampos2,aCabs2,aFormat2,aFormula2,aImpr2,aPict2
@@ -144,6 +145,7 @@ Private aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
 
 Private aDbfT		:= {}
 Private aCamposT,aCabsT
+Private cRealTbT	:= ""
 
 Private ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 
@@ -577,7 +579,7 @@ oTmpTb1 := FWTemporaryTable():New( "TRB" )
 oTmpTb1:SetFields( aDbf1 )
 oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
 oTmpTb1:Create()
-
+cRealTb1 := oTmpTb1:GetRealName()
 
 If lSintetico .OR. lJob
 
@@ -763,6 +765,7 @@ oTmpTbT := FWTemporaryTable():New( ALIAS_TMP )
 oTmpTbT:SetFields( aDbfT )
 oTmpTbT:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
 oTmpTbT:Create()
+cRealTbT := oTmpTbT:GetRealName()
 
 
 If !lJob
@@ -1146,9 +1149,14 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])
 			ELSE
 				Reclock(ALIAS_TMP,.T.)
+
 				(ALIAS_TMP)->XX_CODGCT := IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
 				(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])
+
+				//teste
+				//(ALIAS_TMP)->XX_DESC   := aPeriodo[_nI,1]+IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])+TRANSFORM(QTMP->D2_TOTAL,"@E 99999999.99999")
+
 			ENDIF
 			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|"  // 28/10/20
 				cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
@@ -4017,17 +4025,29 @@ NEXT
 
 //GERA TIPO DE RELATORIO SINTETICO OU NORMAL
 If !lJob
+	//u_CpyToSql(cRealTbT,"BKGCTR14T")
 	IF lSintetico 
 		Gera2Result()
 	ELSE
 		GeraResult()
 	ENDIF
+	//u_CpyToSql(cRealTb1,"BKGCTR141")
 Else
 	GeraResult()
 	Gera2Result()
 EndIf
 
 RETURN NIL
+
+
+
+User Function CpyToSql(cRealName,cTable)
+cQuery := "SELECT * INTO "+cTable+GetNextAlias()+" FROM "+cRealName
+If TCSQLExec(cQuery) < 0 
+	MsgStop(TCSQLERROR())
+EndIf
+Return Nil
+
 
 
 STATIC FUNCTION GeraResult()
@@ -4480,6 +4500,22 @@ Do While (ALIAS_TMP)->(!eof())
 		InsumosP :=  (ALIAS_TMP)->&cCampoX
 		InsumosR := 0
 		InsumosR :=  (ALIAS_TMP)->&cCampoY
+	ENDIF
+
+
+	// 21/01/21
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
+		dbSelectArea("TRB")
+		//NDC
+ 		Reclock("TRB",.T.)
+		TRB->XX_LINHA   := nLINHA
+ 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB->XX_DESC	:= "NDC"
+		TRB->XX_PROJ 	:= ""
+		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB->XX_DIF 	:= ""
+		TRB->(Msunlock())
+		++nLINHA
 	ENDIF
 
 	// 28/02/20

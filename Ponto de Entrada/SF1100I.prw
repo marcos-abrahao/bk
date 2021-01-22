@@ -16,10 +16,11 @@ Private dPrvPgt  := SF1->F1_XXPVPGT
 Private cJsPgt	 := SF1->F1_XXJSPGT
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
+Private cxCond	 := SF1->F1_COND
 
-IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__CUSERID) > 0  // Não Gravar Administrador
+IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	PswOrder(1) 
-	PswSeek(__CUSERID) 
+	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
 	cSuper := aUser[1,11]
 	RecLock("SF1",.F.)
@@ -29,17 +30,23 @@ IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__CUSERID) > 0  // Não Gravar Administrador
 ENDIF
 
 If Inclui .AND. !l103Auto
-	U_SelFPgto()
-	RecLock("SF1",.F.)
-	SF1->F1_XTIPOPG := cxTipoPg
-	SF1->F1_XNUMPA  := cxNumPa
-	SF1->F1_XBANCO  := cxBanco
-	SF1->F1_XAGENC  := cxAgencia
-	SF1->F1_XNUMCON := cxConta
-	SF1->F1_CHVNFE  := cChvNfe
-	SF1->F1_XXPVPGT := dPrvPgt
-	SF1->F1_XXJSPGT := cJsPgt
-	MsUnLock("SF1")
+	//If !__cUserId $ "000011/000012/000016"
+	If Empty(dPrvPgt) 
+		dPrvPgt := SE2->E2_VENCREA
+	EndIf
+	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016")
+		RecLock("SF1",.F.)
+		SF1->F1_XTIPOPG := cxTipoPg
+		SF1->F1_XNUMPA  := cxNumPa
+		SF1->F1_XBANCO  := cxBanco
+		SF1->F1_XAGENC  := cxAgencia
+		SF1->F1_XNUMCON := cxConta
+		SF1->F1_CHVNFE  := cChvNfe
+		SF1->F1_XXPVPGT := dPrvPgt
+		SF1->F1_XXJSPGT := cJsPgt
+		SF1->F1_COND	:= cxCond
+		MsUnLock("SF1")
+	EndIf
 EndIf
 
 If l103Class .OR. Inclui

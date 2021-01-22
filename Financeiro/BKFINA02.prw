@@ -786,7 +786,7 @@ cQuery  += " AND SZ2Y.Z2_STATUS <> 'D' "
 cQuery  += " AND SZ2Y.Z2_TIPOPES=SZ2X.Z2_TIPOPES "
 cQuery  += " AND SZ2Y.R_E_C_N_O_ <> SZ2X.R_E_C_N_O_) AS EXISTE  "
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2X WHERE SZ2X.D_E_L_E_T_ = '' "
-cQuery  += " AND SZ2X.Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND SZ2X.Z2_STATUS = ' ' AND Z2_TIPO<>'LFG' AND Z2_TIPO<>'PEN'" 
+cQuery  += " AND SZ2X.Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND SZ2X.Z2_STATUS = ' ' AND Z2_TIPO<>'LFG' AND Z2_TIPO<>'PEN' AND Z2_ANEXO<>'LIBERADO' " 
 
 TCQUERY cQuery NEW ALIAS "QSZ2"
 
@@ -796,7 +796,8 @@ Do While QSZ2->(!eof())
 	IF !EMPTY(QSZ2->EXISTE)
 		dbSelectArea("SZ2")
 		SZ2->(dbGoto(QSZ2->nREGSZ2))
-		IF SZ2->(RecNo()) == QSZ2->nREGSZ2 .AND. SZ2->Z2_STATUS <> 'D'
+		IF SZ2->(RecNo()) == QSZ2->nREGSZ2 .AND. SZ2->Z2_STATUS <> 'D' 
+
 			RecLock("SZ2",.F.)
    			SZ2->Z2_STATUS := "D"
    			SZ2->Z2_OBS    := "Titulo já lançado - excluido: "+DTOC(DATE())+"-"+TIME()

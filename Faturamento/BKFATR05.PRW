@@ -206,6 +206,7 @@ Local cCliente  := SC5->C5_CLIENTE
 Local cLoja     := SC5->C5_LOJACLI
 Local cLiber    := SC5->C5_XXULIB
 Local cNatureza := SC5->C5_NATUREZ
+Local cMenPed	:= ALLTRIM(TRIM(SC5->C5_XXDNFS)+" "+SC5->C5_MENNOTA)
 Local dEmisNF   := CTOD("")
 Local cFaturis  := ""
 
@@ -702,14 +703,22 @@ AADD(aHtml,'    </tr>')
 //AADD(aHtml,'    </tr>')
 
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da Medição</td>')
-AADD(aHtml,'  </tr>')
-
-
-AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-sg" colspan="7">'+cObsMed)
-AADD(aHtml,'      </td>')
+AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da Medição/Pedido</td>')
 AADD(aHtml,'    </tr>')
+
+If !Empty(cMenPed)
+	AADD(aHtml,'    <tr>')
+	AADD(aHtml,'      <td class="tg-sg" colspan="7">'+cMenPed)
+	AADD(aHtml,'      </td>')
+	AADD(aHtml,'    </tr>')
+EndIf
+
+If !Empty(cObsMed)
+	AADD(aHtml,'    <tr>')
+	AADD(aHtml,'      <td class="tg-sg" colspan="7">'+cObsMed)
+	AADD(aHtml,'      </td>')
+	AADD(aHtml,'    </tr>')
+EndIf
 
 AADD(aHtml,'  <tr>')
 AADD(aHtml,'    <td class="tg-sg" colspan="7">')
