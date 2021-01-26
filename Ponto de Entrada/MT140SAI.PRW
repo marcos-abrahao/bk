@@ -127,7 +127,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 		Enddo
 	
         IF ParamIxb[1] == 5
-	  		cAssunto:= "Cancelamento de Solicitação de Liberação de Nota Fiscal excluida nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+	  		cAssunto:= "Cancelamento de Solicitação de Liberação de Nota Fiscal excluida nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 			aCabs   := {}
 			aCabs   := {"Nota Fiscal nº.:","Série:"," Cod.For.:"," Loja:"}
 			aEmail := {}
@@ -138,7 +138,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 			SF1->F1_XXLIB  := "B"
 			MsUnLock("SF1")
 
-			cAssunto:= "Solicitação de Liberação de Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    Fornecedor: " +SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"   "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+			cAssunto:= "Solicitação de Liberação de Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    Fornecedor: " +SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"   "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 
 			aEmail := {}
 			AADD(aEmail,{"Solicitante:"+UsrFullName(RetCodUsr())})
@@ -162,7 +162,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
    
 	    ENDIF
 
-		//cMsg    := "Solicitação de Liberação divergência com o pedido de compras Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+" Cod.For.:"+SF1->F1_FORNECE+" Loja:"+SF1->F1_LOJA+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+		//cMsg    := "Solicitação de Liberação divergência com o pedido de compras Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+" Cod.For.:"+SF1->F1_FORNECE+" Loja:"+SF1->F1_LOJA+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT140SAI")
 		cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
 		U_SendMail("MT140SAI",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)

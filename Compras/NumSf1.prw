@@ -10,7 +10,7 @@ IF VAL(cNFiscal) == 0 .AND. cSerie == "DNF"
 	   RecLock("SX6",.T.)
 	   SX6->X6_VAR     := "MV_XXNUMF1"
 	   SX6->X6_TIPO    := "N"
-	   SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(SM0->M0_NOME)+" (doc de entrada)"
+	   SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(FWEmpName(cEmpAnt))+" (doc de entrada)"
 	   SX6->X6_CONTEUD := STRZERO(_nI,9)
 	   SX6->(MsUnlock())
 	ELSE

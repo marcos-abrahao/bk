@@ -95,7 +95,7 @@ Enddo
 
 IF !EMPTY(cDirCtr)
    aArqCtr := Directory("\Anexos\"+cDirCtr+"\*.*")
-   Aeval(aArqCtr,{|x| Aadd(aArqList,{x[1],"Integração Liq. "+ALLTRIM(SM0->M0_NOME)+" "+SE2->E2_XXCTRID,DTOC(x[3]),ALLTRIM(x[4]),cDirCtr}  )  })
+   Aeval(aArqCtr,{|x| Aadd(aArqList,{x[1],"Integração Liq. "+FWEmpName(cEmpAnt)+" "+SE2->E2_XXCTRID,DTOC(x[3]),ALLTRIM(x[4]),cDirCtr}  )  })
 ENDIF
 
 If Empty(aArqList)
@@ -111,7 +111,7 @@ If Empty(aArqList)
 			SE2->E2_XXANEXO := "N"
 			msUnlock()
 		ELSE
-			MsgStop("Não há anexos integrados (Liq. "+ALLTRIM(SM0->M0_NOME)+")", "Atenção")
+			MsgStop("Não há anexos integrados (Liq. "+FWEmpName(cEmpAnt)+")", "Atenção")
 		ENDIF	
     ElseIf cAliasKey == "SE1"
 		MsgStop("Problemas entre a base de dados e os anexos", "Atenção")

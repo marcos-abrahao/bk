@@ -70,7 +70,7 @@ AADD(aCampos,"u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)")
 AADD(aCabs  ,"Vigencia")
 
 AADD(aCampos,"QCN9->CN9_XXNRBK")
-AADD(aCabs  ,"Gestor "+ALLTRIM(SM0->M0_NOME))
+AADD(aCabs  ,"Gestor "+FWEmpName(cEmpAnt))
 
 AADD(aCampos,"QCN9->CN9_XXNGC")
 AADD(aCabs  ,"Nome Gestor")

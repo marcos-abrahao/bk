@@ -20,7 +20,7 @@
 User Function BKFINA16()
 
 Local lOk      := .F.
-Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Transparencia - "+ALLTRIM(SM0->M0_NOME)
+Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Transparencia - "+FWEmpName(cEmpAnt)
 
 PRIVATE oDlg
 PRIVATE oListId

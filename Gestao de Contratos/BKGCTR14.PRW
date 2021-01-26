@@ -1091,8 +1091,8 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
         aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
 		nNDC := 0 
-		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
-        aAdd(aRentab,{"03-1","NDC","S",nNDC}) 
+		//nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
+        //aAdd(aRentab,{"03-1","NDC","S",nNDC}) 
         aAdd(aRentab,{"03-2","","S",0}) 
         aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
 		IF lISSFURNAS
@@ -3831,7 +3831,7 @@ FOR _nI := 1 TO nPeriodo
 	        aAdd(aRentab,{"02","Gestor BK: ","S",""})              
 			//aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
 			aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
-	        aAdd(aRentab,{"03-1","NDC","S",0}) 
+	        //aAdd(aRentab,{"03-1","NDC","S",0}) 
 			          
 	        aAdd(aRentab,{"03-2","","S",0}) 
 			//aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})  
@@ -3935,12 +3935,12 @@ For Yi_ := 1 TO LEN(aContratos)
 		ENDIF
 
       	//VALOR DA NDC
-		nNDC := 0
-		dbSelectArea(ALIAS_TMP)
-		IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
-			cCampo2   := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-			nNDC := &cCampo2
-		ENDIF
+		//nNDC := 0
+		//dbSelectArea(ALIAS_TMP)
+		//IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
+		//	cCampo2   := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+		//	nNDC := &cCampo2
+		//ENDIF
 
 		//GRAVA TAXA ADM
 		dbSelectArea(ALIAS_TMP)
@@ -4215,7 +4215,7 @@ Do While (ALIAS_TMP)->(!eof())
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  :="999999999"
-				TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
+				TRB->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
 				TRB->XX_PROJ 	:= aContConsol[_IX,4]
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
@@ -4313,7 +4313,7 @@ Do While (ALIAS_TMP)->(!eof())
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
+			TRB->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
 			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
@@ -4504,19 +4504,19 @@ Do While (ALIAS_TMP)->(!eof())
 
 
 	// 21/01/21
-	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
-		dbSelectArea("TRB")
+	//IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
+	//	dbSelectArea("TRB")
 		//NDC
- 		Reclock("TRB",.T.)
-		TRB->XX_LINHA   := nLINHA
- 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "NDC"
-		TRB->XX_PROJ 	:= ""
-		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-		TRB->XX_DIF 	:= ""
-		TRB->(Msunlock())
-		++nLINHA
-	ENDIF
+ 	//	Reclock("TRB",.T.)
+	//	TRB->XX_LINHA   := nLINHA
+ 	//	TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+	//	TRB->XX_DESC	:= "NDC"
+	//	TRB->XX_PROJ 	:= ""
+	//	TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+	//	TRB->XX_DIF 	:= ""
+	//	TRB->(Msunlock())
+	//	++nLINHA
+	//ENDIF
 
 	// 28/02/20
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|30-2|"
@@ -5018,7 +5018,7 @@ Do While (ALIAS_TMP)->(!eof())
 	 			Reclock("TRB2",.T.)
 				TRB2->XX_LINHA   := nLINHA
 	 			TRB2->XX_CODGCT  :="999999999"
-				TRB2->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
+				TRB2->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
 				TRB2->XX_PROJ 	:= aContConsol[_IX,4]
 				TRB2->XX_REAL 	:= ""
 				TRB2->XX_DIF 	:= ""
@@ -5115,7 +5115,7 @@ Do While (ALIAS_TMP)->(!eof())
 	 		Reclock("TRB2",.T.)
 			TRB2->XX_LINHA   := nLINHA
 	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-			TRB2->XX_DESC	:= "Gestor Responsável "+ALLTRIM(SM0->M0_NOME)+":"
+			TRB2->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
 			TRB2->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
 			TRB2->XX_REAL 	:= ""
 			TRB2->XX_DIF 	:= ""
@@ -5660,7 +5660,7 @@ If lJob
 	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	u_xxLog(cArqLog,cMsg,.T.,"")
 	//U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
-	u_BkSnMail("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp},lJob)
+	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp},lJob)
 	u_xxLog(cArqLog,"Email enviado",.T.,"")
 EndIf
 

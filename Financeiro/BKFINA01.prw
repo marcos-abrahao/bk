@@ -16,7 +16,7 @@
 User Function BKFINA01()
 
 Private cString   := "SZ2"
-Private cCadastro := "Liquidos - Folha "+ALLTRIM(SM0->M0_NOME)
+Private cCadastro := "Liquidos - Folha "+FWEmpName(cEmpAnt)
 Private aRotina
 
 dbSelectArea("SZ2")

@@ -112,7 +112,7 @@ cXXJUST := ""
 aSC1USER:= {} 
 
 FOR IX_ := 1 TO LEN(aPedido)
-	cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(aPedido[IX_])+"       "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+	cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(aPedido[IX_])+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	DbSelectArea("SC7")
 	DbSeek(xFilial("SC7")+aPedido[IX_],.T.)
 	
@@ -288,7 +288,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 
 	//Pedido de Compras para Almoxarifado    
 
-	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+"   Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+"   Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
 	cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT160WF")
 	U_SendMail("MT160WF",cAssunto,cAlEmail,cEmailCC,cMsg,"",.T.)

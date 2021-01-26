@@ -11,7 +11,7 @@ BK - Integração Contabilização - Folha Rubi
 
 User Function BKCTBA01()
 Private cString   := "SZ5"
-Private cCadastro := "Contabilização - Folha "+ALLTRIM(SM0->M0_NOME)
+Private cCadastro := "Contabilização - Folha "+FWEmpName(cEmpAnt)
 
 Private aRotina
 

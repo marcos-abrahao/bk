@@ -59,7 +59,7 @@ IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMDiretoria .OR. ASCAN(aUs
    AADD(aRotY,{OemToAnsi("Dados Reeq."),  "U_BKGCTA07", 0, 2 })
    AADD(aRotY,{OemToAnsi("Hist. Reeq."),  "U_BKGCTA08", 0, 2 })
 
-   AADD( aRotina, {OemToAnsi("Adm Gestão "+ALLTRIM(SM0->M0_NOME)), aRotY, 0, 4 } )
+   AADD( aRotina, {OemToAnsi("Adm Gestão "+FWEmpName(cEmpAnt)), aRotY, 0, 4 } )
 
 ENDIF
 
@@ -77,7 +77,7 @@ AADD(aRotZ,{OemToAnsi("Planos de Ação"),"U_BKGCTA22(.F.)", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Consultar Planos de Ação"),"U_BKGCTV22", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
 
-AADD( aRotina, {OemToAnsi("Gestão "+ALLTRIM(SM0->M0_NOME)), aRotZ, 0, 4 } )
+AADD( aRotina, {OemToAnsi("Gestão "+FWEmpName(cEmpAnt)), aRotZ, 0, 4 } )
 
 
 
@@ -144,7 +144,7 @@ Local nSnd  := 0,nTLin := 12
 Local nSin  := 0
 //Local aStatus := {"Atrasado","Em Processo - Gestão","Aguardando retorno do cliente","Em Analise - Gestão","Finalizado"}
 Local aStatus := {"1-Atrasado",;                        // Status 1
-                  "2-Em análise "+TRIM(SM0->M0_NOME),;  //        2 
+                  "2-Em análise "+FWEmpName(cEmpAnt),;  //        2 
                   "3-Aguardando retorno do cliente",;   //        3
                   "4-Em analise cliente",;              //        4
                   "5-Pedido enviado",;                  //        5
@@ -492,7 +492,7 @@ Local nSnd  := 0,nTLin := 12
 Local nSin  := 0
 //Local aStatus := {"Atrasado","Em Processo - Gestão","Aguardando retorno do cliente","Em Analise - Gestão","Finalizado"}
 Local aStatus := {"1-Atrasado",;                        // Status 1
-                  "2-Em análise "+TRIM(SM0->M0_NOME),;  //        2 
+                  "2-Em análise "+FWEmpName(cEmpAnt),;  //        2 
                   "3-Aguardando retorno do cliente",;   //        3
                   "4-Em analise cliente",;              //        4
                   "5-Pedido enviado",;                  //        5

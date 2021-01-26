@@ -43,7 +43,7 @@ Local cKey
 Local cMsgEx
 Local cDataF
 Local cE2CtrId
-Local cTitulo2 := "Exclusão de Titulos - Liquidos "+ALLTRIM(SM0->M0_NOME)
+Local cTitulo2 := "Exclusão de Titulos - Liquidos "+FWEmpName(cEmpAnt)
 
 Private cE2Filial := xFilial("SE2")
 

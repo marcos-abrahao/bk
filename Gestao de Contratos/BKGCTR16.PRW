@@ -50,7 +50,7 @@ AADD(aCampos,"QTMP->CN9_SITUAC")
 AADD(aCabs  ,"Situação")
 
 AADD(aCampos,"QTMP->CN9_XXNRBK")
-AADD(aCabs  ,"Nome Gestor "+ALLTRIM(SM0->M0_NOME))
+AADD(aCabs  ,"Nome Gestor "+FWEmpName(cEmpAnt))
 
 AADD(aCampos,"QTMP->CN9_XXNGC")
 AADD(aCabs  ,"Gestor do Cliente")

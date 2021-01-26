@@ -146,7 +146,7 @@ Default cPrw := ""
 cHtm += '</table>' 
 cHtm += '<br>'
 If !EMPTY(cPrw) 
-	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+TRIM(SM0->M0_NOME)+'</p> 
+	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+'</p> 
 EndIf
 
 /*

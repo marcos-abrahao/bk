@@ -80,7 +80,7 @@ AADD(aCampos,"QTMP->CTT_DESC01")
 AADD(aCabs  ,"Centro de Custos")
 
 AADD(aCampos,"U_BUSCACN9(QTMP->CNF_CONTRA,'CN9_XXNRBK')")
-AADD(aCabs  ,"Gestor "+ALLTRIM(SM0->M0_NOME))
+AADD(aCabs  ,"Gestor "+FWEmpName(cEmpAnt))
 
 AADD(aCampos,"QTMP->CNA_NUMERO")
 AADD(aCabs  ,"Planilha")

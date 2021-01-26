@@ -214,7 +214,7 @@ BEGIN TRANSACTION
 	Else
 		nOpc := 4
        	AADD(aFina100,{"E5_DOCUMEN" ,ALLTRIM(STR(nRecno))+"-DESBLOQUEIO JUDICIAL"  ,Nil})
-       	AADD(aFina100,{"E5_BENEF"   ,SM0->M0_NOME  ,Nil})
+       	AADD(aFina100,{"E5_BENEF"   ,FWEmpName(cEmpAnt),Nil})
        	AADD(aFina100,{"E5_HISTOR"  ,"DEP. JUDICIAL ACAO TRABALHISTA -DESBLOQU",Nil})
 		AADD(aFina100,{"E5_CREDITO" ,SZO->ZO_CONTAB ,Nil})
 		AADD(aFina100,{"E5_CCC"     ,'000000001'    ,Nil})

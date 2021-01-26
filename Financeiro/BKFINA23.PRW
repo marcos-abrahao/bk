@@ -17,7 +17,7 @@ Copiado do BKFINA16.PRW
 User Function BKFINA23()
 
 Local lOk     := .F.
-Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Petrobras - "+ALLTRIM(SM0->M0_NOME)
+Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Petrobras - "+FWEmpName(cEmpAnt)
 Local nLin1   := 10
 Local nLin2   := 10
 

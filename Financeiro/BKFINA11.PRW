@@ -18,5 +18,5 @@
 /*/ 
 
 User Function BKFINA11()
-AxCadastro("SZE","Cadastro Codigo Fluxo de Caixa "+ALLTRIM(SM0->M0_NOME))
+AxCadastro("SZE","Cadastro Codigo Fluxo de Caixa "+FWEmpName(cEmpAnt))
 Return Nil

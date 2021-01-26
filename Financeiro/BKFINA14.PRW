@@ -28,7 +28,7 @@ Local lOk      := .F.
 Local aAreaIni  := GetArea()
 Local cQuery    := ""
 Local nI        := 0
-Local cTitulo   := "Seleção de Título - Borderô "+ALLTRIM(SM0->M0_NOME)
+Local cTitulo   := "Seleção de Título - Borderô "+FWEmpName(cEmpAnt)
 Local aErros	:= {}
 Local cBanco    := ""
 Local cBancos	:= "001/033/104/151/237/341"
@@ -189,7 +189,7 @@ If ( lOk )
 			DbGoTop()
 			ProcRegua(LastRec())
 			Do While !eof()
-				IncProc("Carregando titulos para Borderôs "+ALLTRIM(SM0->M0_NOME)+"...")
+				IncProc("Carregando titulos para Borderôs "+FWEmpName(cEmpAnt)+"...")
  				IF QSZ2->Z2_DATAPGT == dData .AND. QSZ2->Z2_BANCO $ cBancos
 					If QSZ2->Z2_CODEMP = "01" .AND. QSZ2->Z2_PRONT = "000296"
 						cTpPes := "CLT"
@@ -222,9 +222,9 @@ Endif
 If !EMPTY(aErros)
 	For _nI:= 1 To Len(aErros)
 		IF aErros[_nI,1] == 1 
-			MsgStop("CtrId "+ALLTRIM(SM0->M0_NOME)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5], "Atenção")
+			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5], "Atenção")
 		ELSEIF aErros[_nI,1] == 2 
-			MsgStop("CtrId "+ALLTRIM(SM0->M0_NOME)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ", "Atenção")
+			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ", "Atenção")
 		ENDIF
 	NEXT
 EndIf
@@ -283,7 +283,7 @@ nTotal := 0
 
 ProcRegua(Len(aTit1Ger))
 FOR nI := 1 TO LEN(aTit1Ger)
-	IncProc("Gerando Confirmação dos Borderôs "+ALLTRIM(SM0->M0_NOME)+"...")
+	IncProc("Gerando Confirmação dos Borderôs "+FWEmpName(cEmpAnt)+"...")
 
 	IF aTit1Ger[nI,1]
 		nTotal += aTit1Ger[nI,5] 
@@ -693,7 +693,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			nSeq := 0
 			ProcRegua(Len(aTitGer))
 			For nI:=1 To Len(aTitGer)
-				IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+				IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 						
 				qValTot += aTitGer[nI,4]
 				qTot++
@@ -902,7 +902,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		fWrite(nHandle2,Bcn033H)
 		ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 			qValTot += aTitGer[nI,4]
 			qTot++
 			nSeq++
@@ -1038,7 +1038,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		nSeq := 0
 		ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1281,7 +1281,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		nSeq := 0
 		ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1474,7 +1474,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 	
 		ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1589,7 +1589,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 	
 		ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
  					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1818,7 +1818,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		nSeq := 0
 		ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1977,7 +1977,7 @@ DbGoTop()
 ProcRegua(LastRec())
 dbSeek(xFilial("SE2")+DTOS(dData),.T.)
 Do While !eof() .AND. SE2->E2_VENCREAL == dData 
-	IncProc("Localizando titulos para Borderôs "+ALLTRIM(SM0->M0_NOME)+"...") 
+	IncProc("Localizando titulos para Borderôs "+FWEmpName(cEmpAnt)+"...") 
     IF !EMPTY(SE2->E2_XXCTRID) .AND. SE2->E2_VENCREAL == dData  .AND. SE2->E2_VALOR == SE2->E2_SALDO .AND. ALLTRIM(SE2->E2_XXTIPBK) <> 'MFG' .AND.;
 		  IIF(cBcoBor=='001' .AND. (nFurnas == 1 .OR. nFurnas == 2) .AND. nTED == 1, ALLTRIM(SE2->E2_PORTADO) $ cBCOTED, SE2->E2_PORTADO == cBcoBor) 
 		  // Filtro abaixo removido em 09/12/2019, desta forma, serão incluídos os pagamentos a PJ.
@@ -2122,7 +2122,7 @@ ENDIF
 ProcRegua(Len(aCtrId))
 For _nI:=1 To Len(aCtrId)
 	IF aCtrId[_nI,1]
-		IncProc("Associando Título ao Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+		IncProc("Associando Título ao Borderô "+FWEmpName(cEmpAnt)+"...")
 		
 		dbSelectArea("SE2")
 		dbSetOrder(1)

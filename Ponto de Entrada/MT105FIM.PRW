@@ -76,7 +76,7 @@ dbSelectArea("SCP")
 SET ORDER TO 1               
 dbGoTop()
 IF DBSEEK(xFilial("SCP")+cSOLALMOX+"01",.T.)
-	cAssunto:= "Solicitação ao Almoxarifado - nº.:"+cSOLALMOX+" de "+SCP->CP_SOLICIT+"    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+	cAssunto:= "Solicitação ao Almoxarifado - nº.:"+cSOLALMOX+" de "+SCP->CP_SOLICIT+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {}
 	aCabs   := {"Nº Sol. Almox.","Item","Cod. Produto","Descr. Produto","UM","Quant. Solicitada","Centro de Custo","Descr. Centro de Custo"}
 

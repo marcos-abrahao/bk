@@ -15,5 +15,5 @@
 /*/
 
 User Function BKCOMA05()
-AxCadastro("SZI","Cadastro Sub Grupos Produtos "+ALLTRIM(SM0->M0_NOME))
+AxCadastro("SZI","Cadastro Sub Grupos Produtos - "+FWEmpName(cEmpAnt))
 Return Nil

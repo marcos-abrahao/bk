@@ -93,7 +93,7 @@ Next
 
 aCabs   := {}
 IF _lProc 
-	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS")
 	U_SendMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
@@ -112,7 +112,7 @@ ELSE
 	    	   //U_BKSADO(aSaldos)
 	    	ENDIF
 	    ENDIF            
-		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS")
 		U_SendMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)

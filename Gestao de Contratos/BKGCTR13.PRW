@@ -82,7 +82,7 @@ AADD(aCampos,"QTMP->XX_XXDVIG")
 AADD(aCabs  ,"Vigencia")
 
 AADD(aCampos,"QTMP->XX_XXNRBK")
-AADD(aCabs  ,"Nome Gestor "+ALLTRIM(SM0->M0_NOME))
+AADD(aCabs  ,"Nome Gestor "+FWEmpName(cEmpAnt))
 
 AADD(aCampos,"QTMP->XX_XXFUNC")
 AADD(aCabs  ,"Funcionarios Contrato")

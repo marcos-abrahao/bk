@@ -54,13 +54,13 @@ IF BOF() .OR. EOF()
 ENDIF
 
 IF EMPTY(SE2->E2_XXCTRID)
-	MsgStop("Selecione um titulo de integração liq. "+ALLTRIM(SM0->M0_NOME), "Atenção")
+	MsgStop("Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "Atenção")
 	RestArea(aAreaIni)
 	Return
 ENDIF
 
 IF TRIM(SE2->E2_TIPO) = 'PA'
-	MsgStop("Titulo tipo PA: utilize a opção Excluir liq. "+ALLTRIM(SM0->M0_NOME), "Atenção")
+	MsgStop("Titulo tipo PA: utilize a opção Excluir liq. "+FWEmpName(cEmpAnt), "Atenção")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -439,7 +439,7 @@ Return lRet
 
 Static Function ExcluiBord(cChave,cAlt,cNumBor)
 
-IncProc("Excluido Borderô "+ALLTRIM(SM0->M0_NOME)+"...")
+IncProc("Excluido Borderô "+FWEmpName(cEmpAnt)+"...")
 
 dbSelectArea("SE2")
 dbSetOrder(1)

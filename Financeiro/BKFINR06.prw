@@ -174,7 +174,7 @@ IF Pergunte(cPerg,.T.)
 				Processa( {|| U_GeraCSV("QSZ2",cPerg,aTitulos,aCampos,aCabs)})
    
 		    ELSE
-				MsgStop("Opção disponivel apenas para titulos gerados pelo Depto Pessoal (Liquidos "+ALLTRIM(SM0->M0_NOME)+")")
+				MsgStop("Opção disponivel apenas para titulos gerados pelo Depto Pessoal (Liquidos "+FWEmpName(cEmpAnt)+")")
 		    ENDIF
 		ELSE
 			MsgStop("Opção não disponivel, escolha titulo unico")
@@ -506,10 +506,10 @@ Begin Sequence
 	Endif	
 
     nLin += 50
-	oPrn:Say(nLin,0100,"Tipo "+ALLTRIM(SM0->M0_NOME)+" / Pes.:  "+OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
+	oPrn:Say(nLin,0100,"Tipo "+FWEmpName(cEmpAnt)+" / Pes.:  "+OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
    //	oPrn:Say(nLin,0400,OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
 	
-	oPrn:Say(nLin,1300,"Lote "+ALLTRIM(SM0->M0_NOME)+":",oFont12N)
+	oPrn:Say(nLin,1300,"Lote "+FWEmpName(cEmpAnt)+":",oFont12N)
 	oPrn:Say(nLin,1700,OemToAnsi(SE2->E2_XXCTRID),oFont12N)
 
 	If lLands
@@ -663,7 +663,7 @@ Begin Sequence
 
           cDescCC := ALLTRIM(Posicione("CTT",1,xFilial("CTT")+QSZ2->Z2_CC,"CTT_DESC01"))
           IF EMPTY(cDescCC)
-          	cDescCC := ALLTRIM(SM0->M0_NOME)+" ("+TRIM(QSZ2->Z2_CC)+")"
+          	cDescCC := FWEmpName(cEmpAnt)+" ("+TRIM(QSZ2->Z2_CC)+")"
           ENDIF   
 
 	      cLin := SUBSTR(cDescCC,1,40)

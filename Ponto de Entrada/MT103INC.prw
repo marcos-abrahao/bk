@@ -48,7 +48,6 @@ Local lClass    := Paramixb
 Local lRet      := .F.
 Local nOper     := 0
 Local aUser     := {}
-Local cQryD1	:= ""
 Local aArea		:= GetArea()
 Local cEmail	:= ""
 
@@ -71,13 +70,7 @@ If lClass
 				cAvalia := "000093/000005"   // Apenas o Fabio Quirino e o Anderson
 
 				If __cUserId $ cAvalia
-					cQryD1 := "SELECT D1_PEDIDO"
-					cQryD1 += " FROM "+RetSqlName("SD1")+" SD1" 
-					cQryD1 += " WHERE "+RetSqlCond("SD1")
-					cQryD1 += "  AND SD1.D1_DOC='"+SF1->F1_DOC+"' AND SD1.D1_SERIE='"+SF1->F1_SERIE+"'"
-					cQryD1 += "  AND SD1.D1_FORNECE='"+SF1->F1_FORNECE+"' AND SD1.D1_LOJA='"+SF1->F1_LOJA+"' AND SD1.D1_PEDIDO<>''"
-				
-					TCQUERY cQryD1 NEW ALIAS "TMPSD?1"
+					MsAguarde({|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
 
 					dbSelectArea("TMPSD1")
 					dbGoTop()
@@ -162,6 +155,18 @@ RestArea(aArea)
 Return lRet
 
 
+Static Function prcD1Aval()
+Local cQryD1
+
+cQryD1 := "SELECT D1_PEDIDO"
+cQryD1 += " FROM "+RetSqlName("SD1")+" SD1" 
+cQryD1 += " WHERE "+RetSqlCond("SD1")  //D1_FILIAL = '" + xFilial("SD1") + "' AND D_E_L_E_T_ = ' ' " 
+cQryD1 += "  AND SD1.D1_DOC='"+SF1->F1_DOC+"' AND SD1.D1_SERIE='"+SF1->F1_SERIE+"'"
+cQryD1 += "  AND SD1.D1_FORNECE='"+SF1->F1_FORNECE+"' AND SD1.D1_LOJA='"+SF1->F1_LOJA+"' AND SD1.D1_PEDIDO<>''"
+TCQUERY cQryD1 NEW ALIAS "TMPSD1"
+
+Return Nil
+
 
 User Function SF1Email(cAssunto)
 Local cEmail    := "microsiga@bkconsultoria.com.br;"
@@ -175,7 +180,7 @@ Local cJust		:= ""
 
 cJust := JustBlq(cAssunto)
 
-cAssunto += " nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+cAssunto += " nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 
 PswOrder(1) 
 PswSeek(SF1->F1_XXUSER) 

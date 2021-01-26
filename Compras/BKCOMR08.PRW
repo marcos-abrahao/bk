@@ -252,7 +252,7 @@ While SM0->(!EoF())
 	    	nReg++
 			IncProc("Consultando banco de dados...")
 			Reclock("TRB",.T.)
-			TRB->XX_EMPRES 	:= ALLTRIM(SM0->M0_NOME)
+			TRB->XX_EMPRES 	:= ALLTRIM(FWEmpName(cEmpAnt))
 			TRB->XX_PRODT 	:= QSC7->C7_PRODUTO
 			TRB->XX_DESCP 	:= QSC7->B1_DESC
 			TRB->XX_VUNIT 	:= QSC7->C7_PRECO

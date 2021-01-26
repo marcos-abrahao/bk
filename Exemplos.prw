@@ -242,4 +242,38 @@ static function niversInsert(oMultiGe1, cAniversariante, dNiver)
 return
 
 
+/*
+Funções SX - Conversão para o banco
+Classes com métodos estáticos:
 
+SM0 - FWSM0Util: https://tdn.totvs.com/display/public/PROT/FWSM0Util
+SIX - FWSIXUtil - https://tdn.totvs.com/display/public/PROT/FWSIXUtil
+SX1 - FWSX1Util - https://tdn.totvs.com/display/public/PROT/FWSX1Util
+SX2 - FWSX2Util - https://tdn.totvs.com/display/public/PROT/FWSX2Util
+SX3 - FWSX3Util -https://tdn.totvs.com/display/public/PROT/FWSX3Util
+SX6 - FWSX6Util - https://tdn.totvs.com/display/public/PROT/FWSX6Util
+SX9 - FWSX9Util - https://tdn.totvs.com/display/public/PROT/FWSX9Util
+Outras funções:
+
+Montagem de aCols e aHeader - FillGetDados - https://tdn.totvs.com/display/public/PROT/FillGetDados
+Leitura de dados da SX5 - FWGetSX5 - https://tdn.totvs.com/display/public/PROT/FWGetSX5
+Gravação de dados na SX5 - FwPutSX5 - https://tdn.totvs.com/pages/releaseview.action?pageId=286016719
+Atualização de conteúdo de parâmetros na SX6 - PutMV - https://tdn.totvs.com/pages/releaseview.action?pageId=6814924
+Funções de usuários - Nessa árvore do TDN existem diversas funções - https://tdn.totvs.com/pages/releaseview.action?pageId=6814847
+Demais funções: https://tdn.totvs.com/pages/releaseview.action?pageId=353290193
+
+*/
+
+// Exemplos de Funçoes do ADVPL
+// Alterar pergunta
+User Function exUpdPrg()
+
+Pergunte("CFG025",.F.)//Carrego as MV_PAR's sem exibir a tela
+Alert(MV_PAR03)// Mostra o valor que estava gravado
+
+SetMVValue("CFG025","MV_PAR03",Date()) //Atualizo o valor da terceira pergunta para a data de hoje
+Alert(MV_PAR03)// Continua com o mesmo valor (as variáveis MV_PAR não são atualizadas...)
+
+Pergunte("CFG025",.T.) //Mostra a tela de Pergunte com o parâmetro de data final atualizado
+
+Return

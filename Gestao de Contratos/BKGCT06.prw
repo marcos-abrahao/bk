@@ -51,7 +51,7 @@ IF !DBSEEK("  MV_XXBKENV",.F.)
    RecLock("SX6",.T.)
    SX6->X6_VAR     := "MV_XXBKENV"
    SX6->X6_TIPO    := "C"
-   SX6->X6_DESCRIC := "Ultimo email enviado - Aviso de Termino de Contatos - "+SM0->M0_NOME
+   SX6->X6_DESCRIC := "Ultimo email enviado - Aviso de Termino de Contatos - "+FWEmpName(cEmpAnt)
    SX6->X6_CONTEUD := ""
    MsUnlock()
 ELSE
@@ -489,7 +489,7 @@ Local nDias   := 0
 Local nDiasVig:= 0
 //Local aStatus := {"Atrasado","Em Processo - Gestão","Aguardando retorno do cliente","Em Analise - Gestão","Finalizado"}
 Local aStatus := {"1-Atrasado",;                        // Status 1
-                  "2-Em análise "+TRIM(SM0->M0_NOME),;  //        2 
+                  "2-Em análise "+FWEmpName(cEmpAnt),;  //        2 
                   "3-Aguardando retorno do cliente",;   //        3
                   "4-Em analise cliente",;              //        4
                   "5-Pedido enviado",;                  //        5
@@ -565,7 +565,7 @@ NEXT
 
 //------------------
 
-cArqS := "BKGCT06_"+ALLTRIM(SM0->M0_NOME)
+cArqS := "BKGCT06_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
@@ -794,7 +794,7 @@ FOR _ni := 1 TO LEN(aHtm)
 NEXT
 //------------------
 
-cAssunto := "Aviso de repactuação - "+SM0->M0_NOME
+cAssunto := "Aviso de repactuação - "+FWEmpName(cEmpAnt)
 
 If lEmail
 
@@ -1017,7 +1017,7 @@ EndDo
 
 //---------------------------
 
-cArqS := "BKGCT06V_"+ALLTRIM(SM0->M0_NOME)
+cArqS := "BKGCT06V_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
@@ -1108,7 +1108,7 @@ QCN9->(Dbclosearea())
 
 //------------------
 
-cAssunto := "Aviso de termino de vigência de contratos - "+SM0->M0_NOME
+cAssunto := "Aviso de termino de vigência de contratos - "+FWEmpName(cEmpAnt)
 
 If lEmail
 
@@ -1322,7 +1322,7 @@ EndDo
 
 //---------------------------
 
-cArqS := "BKGCT6V2_"+ALLTRIM(SM0->M0_NOME)
+cArqS := "BKGCT6V2_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
@@ -1411,7 +1411,7 @@ QCN9->(Dbclosearea())
 
 //------------------
 
-cAssunto := "Alerta de término de vigencia de contratos - "+SM0->M0_NOME
+cAssunto := "Alerta de término de vigencia de contratos - "+FWEmpName(cEmpAnt)
 
 //If !lJobV2
 //   _cArqSv := ""
@@ -1573,7 +1573,7 @@ AADD(aHtm,'</table>')
 //AADD(aHtm,'</table>')
 If !EMPTY(cPrw) 
 	//AADD(aHtm,'<br>Origem: '+cPrw) 
-	AADD(aHtm,'<br><p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+TRIM(SM0->M0_NOME)+'</p>') 
+	AADD(aHtm,'<br><p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+'</p>') 
 EndIf
 AADD(aHtm,'</body>')
 AADD(aHtm,'</html>')
@@ -1585,7 +1585,7 @@ Local aHtm := {}
 Default cPrw := ""
 
 If !EMPTY(cPrw) 
-	AADD(aHtm,'<br><p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+TRIM(SM0->M0_NOME)+'</p>') 
+	AADD(aHtm,'<br><p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+'</p>') 
 Else
 	AADD(aHtm,'<br>')
 EndIf
@@ -1643,7 +1643,7 @@ Local nDias   := 0
 Local nDiasVig:= 0
 //Local aStatus := {"Atrasado","Em Processo - Gestão","Aguardando retorno do cliente","Em Analise - Gestão","Finalizado"}
 Local aStatus := {"1-Atrasado",;                        // Status 1
-                  "2-Em análise "+TRIM(SM0->M0_NOME),;  //        2 
+                  "2-Em análise "+FWEmpName(cEmpAnt),;  //        2 
                   "3-Aguardando retorno do cliente",;   //        3
                   "4-Em analise cliente",;              //        4
                   "5-Pedido enviado",;                  //        5
@@ -1741,7 +1741,7 @@ NEXT
 
 //------------------
 
-cArqS := "BKGCT06_"+ALLTRIM(SM0->M0_NOME)
+cArqS := "BKGCT06_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
@@ -2088,7 +2088,7 @@ FOR _ni := 1 TO LEN(aHtm)
 NEXT
 //------------------
 
-cAssunto := "Aviso de repactuação - Detalhado - "+SM0->M0_NOME
+cAssunto := "Aviso de repactuação - Detalhado - "+FWEmpName(cEmpAnt)
 
 
 IF lEmail
@@ -2461,7 +2461,7 @@ ENDIF
 
 //---------------------------
 
-cArqS := "BKGCT6V5_"+ALLTRIM(SM0->M0_NOME)
+cArqS := "BKGCT6V5_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
@@ -2546,7 +2546,7 @@ QCN9->(Dbclosearea())
 
 //------------------
 
-cAssunto := "Aviso de Insumos Operacionais - "+SM0->M0_NOME
+cAssunto := "Aviso de Insumos Operacionais - "+FWEmpName(cEmpAnt)
 
 //If !lJobV2
 //   _cArqSv := ""
@@ -3197,7 +3197,7 @@ While SM0->(!EoF())
 
 	Do While (_cAlias)->(!eof())
     
-  			AADD(aEmail,{ALLTRIM(SM0->M0_NOME),;
+  			AADD(aEmail,{FWEmpName(cEmpAnt),;
   						(_cAlias)->CR_NUM,;
 		   				(_cAlias)->CTT_CUSTO,;
     	   				(_cAlias)->CTT_DESC01,;
@@ -3309,7 +3309,7 @@ While SM0->(!EoF())
 	
 		IF DATE() - QSC7->C7_DATPRF > 2 
     
-  			AADD(aEmail,{ALLTRIM(SM0->M0_NOME),;
+  			AADD(aEmail,{FWEmpName(cEmpAnt),;
    	   					(_cAlias)->C7_NUM,;
    	   					(_cAlias)->C7_DATPRF,;
    	   					(_cAlias)->C7_FORNECE,;
@@ -3427,7 +3427,7 @@ While SM0->(!EoF())
 	Do While (_cAlias)->(!eof())
 	
  		IF DATE() - QSC1->C1_EMISSAO > 7 // Alterado de 2 para 7, a pedido da Sra. Michele Moraes em 31/01/2019 
-  			AADD(aEmail,{ALLTRIM(SM0->M0_NOME),;
+  			AADD(aEmail,{FWEmpName(cEmpAnt),;
    	   					(_cAlias)->C1_SOLICIT,;
    	   					(_cAlias)->C1_EMISSAO,;
    	   					(_cAlias)->C1_DATPRF,;
@@ -3455,7 +3455,7 @@ CONOUT("V11BKGct06: Emails: "+cEmail)
 
 IF LEN(aEmail) > 0
 
-	cArqS := "V11BKGct06"+ALLTRIM(SM0->M0_NOME)
+	cArqS := "V11BKGct06"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 	_cArqSv  := cPath+cArqS+".csv"
 
@@ -3585,7 +3585,7 @@ While SM0->(!EoF())
 	
 		IF DATE() - QSC7->C7_DATPRF > 2 
     
-  			AADD(aEmail,{ALLTRIM(SM0->M0_NOME),;
+  			AADD(aEmail,{FWEmpName(cEmpAnt),;
    	   					(_cAlias)->C7_NUM,;
    	   					(_cAlias)->C7_DATPRF,;
    	   					(_cAlias)->C7_FORNECE,;

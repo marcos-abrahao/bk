@@ -18,21 +18,21 @@
 */
 User Function F750BROW() 
 Local aRotY
-
-aRotY := { {OemToAnsi("Integração Liq. "+ALLTRIM(SM0->M0_NOME)), "U_BKFINA02",  0, 2 },;
-           {OemToAnsi("Alterar Liq. "+ALLTRIM(SM0->M0_NOME)),    "U_BKFINA04(.F.)", 0, 2 },;
-           {OemToAnsi("Excluir Liq. "+ALLTRIM(SM0->M0_NOME)),    "U_BKFINA03",  0, 2 },;
-           {OemToAnsi("Consultar Liq. "+ALLTRIM(SM0->M0_NOME)),  "U_BKFINA04(.T.)", 0, 2 },;
-           {OemToAnsi("Imprimir Liq. "+ALLTRIM(SM0->M0_NOME)),   "U_BKFINR05",  0, 2 },;
-           {OemToAnsi("Gerar Borderô "+ALLTRIM(SM0->M0_NOME)),   "U_BKFINA14",  0, 2 },;
-           {OemToAnsi("Retorno Borderô "+ALLTRIM(SM0->M0_NOME)), "U_BKBXBNCO",  0, 2 }}
+Local cEmpName := FWEmpName(cEmpAnt)
+aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
+           {OemToAnsi("Alterar Liq. "+cEmpName),    "U_BKFINA04(.F.)", 0, 2 },;
+           {OemToAnsi("Excluir Liq. "+cEmpName),    "U_BKFINA03",  0, 2 },;
+           {OemToAnsi("Consultar Liq. "+cEmpName),  "U_BKFINA04(.T.)", 0, 2 },;
+           {OemToAnsi("Imprimir Liq. "+cEmpName),   "U_BKFINR05",  0, 2 },;
+           {OemToAnsi("Gerar Borderô "+cEmpName),   "U_BKFINA14",  0, 2 },;
+           {OemToAnsi("Retorno Borderô "+cEmpName), "U_BKBXBNCO",  0, 2 }}
            
-AADD( aRotina, {OemToAnsi("Liquidos "+ALLTRIM(SM0->M0_NOME)), aRotY, 0, 4 } )
+AADD( aRotina, {OemToAnsi("Liquidos "+cEmpName), aRotY, 0, 4 } )
 
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"),  "U_BKF750A", 0, 4 } )
-//AADD( aRotina, {OemToAnsi("Anexar Arq. "+ALLTRIM(SM0->M0_NOME)),   "U_BKANXA01('1','SE2')", 0, 4 } )
-//AADD( aRotina, {OemToAnsi("Abrir Anexos "+ALLTRIM(SM0->M0_NOME)),  "U_BKANXA02('1','SE2')", 0, 4 } )
+//AADD( aRotina, {OemToAnsi("Anexar Arq. "+cEmpName),   "U_BKANXA01('1','SE2')", 0, 4 } )
+//AADD( aRotina, {OemToAnsi("Abrir Anexos "+cEmpName),  "U_BKANXA02('1','SE2')", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Alterar Emissão"),  "U_BKFINA10", 0, 4 } )
 IF SM0->M0_CODIGO <> "01"
 	AADD( aRotina, {OemToAnsi("Incluir DNF na BK"),"U_BKFINA18", 0, 4 } )
@@ -71,7 +71,7 @@ Local nSnd,nTLin := 12
 Local dEmis := SE2->E2_EMISSAO
 
 IF EMPTY(SE2->E2_XXCTRID)
-	MsgStop("Selecione um titulo de integração liq. "+ALLTRIM(SM0->M0_NOME), "Atenção")
+	MsgStop("Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "Atenção")
 	RestArea(aAreaAtu)
 	Return
 ENDIF

@@ -860,8 +860,8 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"02","NUMERO-SIGA: ","S",ALLTRIM(QTMP->CNF_CONTRA)})              
         AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)}) 
 		nNDC := 0 
-		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
-        AADD(aRentab,{"03-1","NDC","S",nNDC}) 
+		//nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
+        //AADD(aRentab,{"03-1","NDC","S",nNDC}) 
         AADD(aRentab,{"03-2","","S",0}) 
         AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})                  
 		IF lISSFURNAS
@@ -2635,7 +2635,7 @@ FOR _nI := 1 TO nPeriodo
 	        AADD(aRentab,{"02","NUMERO-SIGA: ","S",TMPX2->C5_ESPECI1})              
 	        //AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})              
 			AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})             
-	        AADD(aRentab,{"03-1","NDC","S",0}) 
+	        //AADD(aRentab,{"03-1","NDC","S",0}) 
 	        AADD(aRentab,{"03-2","","S",0}) 
 	        //AADD(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})            
 			AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((TMPX2->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(TMPX2->D2_TOTAL*nMImpContr)/100)})                  
@@ -2742,12 +2742,12 @@ For Yi_ := 1 TO LEN(aContratos)
 		ENDIF
 
         //VALOR DA NDC
-		nNDC := 0
-		dbSelectArea(ALIAS_TMP)
-		IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
-			cCampo2   := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
-			nNDC := &cCampo2
-		ENDIF
+		//nNDC := 0
+		//dbSelectArea(ALIAS_TMP)
+		//IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
+		//	cCampo2   := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
+		//	nNDC := &cCampo2
+		//ENDIF
 
 		//GRAVA TAXA ADM
 		dbSelectArea(ALIAS_TMP)
@@ -2830,7 +2830,8 @@ For Yi_ := 1 TO LEN(aContratos)
 		IF MsSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZYY',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
-			&cCampo2 := (nResultado/(nFaturaOF+nNDC))*100
+			//&cCampo2 := (nResultado/(nFaturaOF+nNDC))*100
+			&cCampo2 := (nResultado/(nFaturaOF))*100
 			(ALIAS_TMP)->(Msunlock())
 		ENDIF
         //CALCULA RESULTADO GLOBAL
@@ -2846,7 +2847,8 @@ For Yi_ := 1 TO LEN(aContratos)
 		IF MsSeek(ALLTRIM(aContratos[Yi_])+'ZZZZZZZZZ',.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
-			&cCampo2 := (n2Resultado/(nFaturaOF+nNDC))*100
+			//&cCampo2 := (n2Resultado/(nFaturaOF+nNDC))*100
+			&cCampo2 := (n2Resultado/(nFaturaOF))*100
 			(ALIAS_TMP)->(Msunlock())
 		ENDIF
 

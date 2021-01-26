@@ -599,7 +599,7 @@ AADD(aHtml,'  </tr>')
 AADD(aHtml,'    <tr>')
 
 If EMPTY(cLogo)
-	AADD(aHtml,'    <td class="tg-empr" colspan="3">'+TRIM(SM0->M0_NOME)+'</td>')
+	AADD(aHtml,'    <td class="tg-empr" colspan="3">'+FWEmpName(cEmpAnt)+'</td>')
 Else
 	AADD(aHtml,'    <td class="tg-empr" colspan="3">'+cLogo+'</td>')
 Endif

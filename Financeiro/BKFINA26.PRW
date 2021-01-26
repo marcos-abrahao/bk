@@ -13,5 +13,5 @@ Grupo Financeiro Produto BK
 //-------------------------------------------------------------------
 
 User Function BKFINA26()
-AxCadastro("SZU","Grupo Financeiro - Produto "+ALLTRIM(SM0->M0_NOME))
+AxCadastro("SZU","Grupo Financeiro - Produto "+FWEmpName(cEmpAnt))
 Return Nil

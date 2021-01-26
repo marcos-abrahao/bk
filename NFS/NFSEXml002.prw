@@ -1602,7 +1602,7 @@ If cCodMun $ '4303905-4307906' //Campo Bom-RS  - Farroupilha-RS
 	cString += '<BairroPrestador>'+AllTrim(SM0->M0_BAIRCOB)+'</BairroPrestador>' 
 Endif
 If !cCodMun $ '4303905-4307906' //Campo Bom-RS  - Farroupilha-RS
-	cString += '<NFantasiaPrestador>'+IIF(lUsaGesEmp,FWFilialName(),Alltrim(SM0->M0_NOME))+'</NFantasiaPrestador>'
+	cString += '<NFantasiaPrestador>'+IIF(lUsaGesEmp,FWFilialName(),FWEmpName(cEmpAnt))+'</NFantasiaPrestador>'
 	cString += '<CidadePrestador>'+AllTrim(SM0->M0_CODMUN)+'</CidadePrestador>'
 EndIf
 cString += '<UFPrestador>'+AllTrim(SM0->M0_ESTCOB)+'</UFPrestador>'  

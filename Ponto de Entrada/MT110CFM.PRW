@@ -183,7 +183,7 @@ IF lAprov
 		
 	ENDIF
                
-	cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+ALLTRIM(SM0->M0_NOME)
+	cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue"}//"Motivo"}
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM")
 	IF 	!EMPTY(_cXXENDEN)

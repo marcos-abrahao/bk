@@ -18,7 +18,7 @@
 */
 User Function MC090MNU() 
 
-AADD( aRotina,{OemToAnsi("Inf. do Faturamento "+ALLTRIM(SM0->M0_NOME)),"U_BKFATA01", 0, 6 })
+AADD( aRotina,{OemToAnsi("Inf. do Faturamento "+FWEmpName(cEmpAnt)),"U_BKFATA01", 0, 6 })
 
 Return Nil
 

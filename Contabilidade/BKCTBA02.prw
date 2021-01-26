@@ -5,7 +5,7 @@
 
 User Function BKCTBA02()
 Private cString   := "SZ2"
-Private cCadastro := "Contabilização Liquidos da Folha - "+ALLTRIM(SM0->M0_NOME)
+Private cCadastro := "Contabilização Liquidos da Folha - "+FWEmpName(cEmpAnt)
 
 Private aRotina
 
@@ -30,7 +30,7 @@ Local aArea1   := GetArea()
 
 Private cPerg     := "BKCTBA02"
 Private cString   := "SZ2"
-Private cCadastro := "Contabilização Liquidos da Folha - "+ALLTRIM(SM0->M0_NOME)
+Private cCadastro := "Contabilização Liquidos da Folha - "+FWEmpName(cEmpAnt)
 Private aRotina
 Private cPerComp
 Private cMesComp,cAnoComp,cCtaCred
