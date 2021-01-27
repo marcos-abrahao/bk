@@ -386,6 +386,7 @@ Begin Sequence
        DBSELECTAREA("QSZ2")
        DBGOTOP()
        cTipoPes := " / "+QSZ2->Z2_TIPOPES
+	   
     Endif
 
     // Inicio da Impressao

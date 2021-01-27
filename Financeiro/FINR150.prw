@@ -2769,6 +2769,9 @@ Return cString
 Static Function PutDtBase()
 Local _sAlias	:= Alias()
 
+SetMVValue("FIN150","MV_PAR33",dDataBase)
+
+/* Removido 26/01/21
 dbSelectArea("SX1")
 dbSetOrder(1)
 If MsSeek( padr( "FIN150" , Len( x1_grupo ) , ' ' )+ "33")
@@ -2777,6 +2780,7 @@ If MsSeek( padr( "FIN150" , Len( x1_grupo ) , ' ' )+ "33")
 	Replace x1_cnt01 With "'"+DTOC(dDataBase)+"'"
 	MsUnlock()	
 Endif
+*/
 
 dbSelectArea(_sAlias)
 Return       

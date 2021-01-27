@@ -3863,7 +3863,7 @@ FOR _nI := 1 TO nPeriodo
 	        aAdd(aRentab,{"16","ASSMEDICA","S",0}) 
 	        aAdd(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
 	        aAdd(aRentab,{"18","Sindicato (Odonto)","S",0}) 
-	        //aAdd(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
+	        aAdd(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
         	aAdd(aRentab,{"20","CECREMEF/ADV","S",0}) 
         	aAdd(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
 	        aAdd(aRentab,{"22-1","","S",0}) 

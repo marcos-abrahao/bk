@@ -209,7 +209,12 @@
 			"args": [],
 			"label": "global",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "resultado",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigagct"
+	"lastProgramExecuted": "resultado"
 }
