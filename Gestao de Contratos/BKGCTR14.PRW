@@ -489,7 +489,7 @@ dDataI		:= QTMP1->CN9_DTOSER
 If Empty(dDataI)
 	dDataI	:= QTMP1->CN9_DTINIC
 EndIf
-If !Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI
+If (!Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI) .OR. Empty(dDataI)
 	dDataI	:= QTMP1->CNF_INICIO
 EndIf
 

@@ -1136,7 +1136,7 @@ While Eval(bCondWhile)
 
     // INCLUI MOVIMENTO DE CAIXINHA 
 	IF nCaixinha <> 1
-		If ALLTRIM(SE5->E5_BANCO) $ "CBX/CX1/DRS"
+		If ALLTRIM(SE5->E5_BANCO) $ "CBX/CX1/DRS/CBB"
 			SE5->( dbSkip() )
 			Loop
 		EndIf

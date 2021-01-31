@@ -1,7 +1,7 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/*/{Protheus.doc} BKFINR25
+/*/{Protheus.doc} BKFINR06
 BK - Impressao de Titulo a Pagar
 @Return
 @author Marcos Bispo Abrahão
