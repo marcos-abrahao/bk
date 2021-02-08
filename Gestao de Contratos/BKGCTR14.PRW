@@ -3198,6 +3198,8 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
+			u_LogMemo("BKGCTR14-E5-1-"+STRZERO(_nI,3)+".SQL",cQuery2)    
+
 			dbSelectArea("TMPX2")
 			dbGoTop()
 			DO While !TMPX2->(EOF()) 
@@ -3666,6 +3668,8 @@ FOR _nI := 1 TO nPeriodo
 		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
+				u_LogMemo("BKGCTR14-E5-2-"+STRZERO(_nI,3)+".SQL",cQuery2)        
+
 				dbSelectArea("TMPX2")
 				dbGoTop()
 				DO While !TMPX2->(EOF()) 
@@ -3731,6 +3735,7 @@ FOR _nI := 1 TO nPeriodo
 	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
+			u_LogMemo("BKGCTR14-E5-3-"+STRZERO(_nI,3)+".SQL",cQuery2)
 			
 			dbSelectArea("TMPX2")
 			dbGoTop()

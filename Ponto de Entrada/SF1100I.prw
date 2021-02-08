@@ -66,6 +66,8 @@ If l103Class .OR. Inclui
 		If Empty(SF1->F1_XXDINC)
 			SF1->F1_XXDINC  := DtoC(Date())+"-"+Time()
 		EndIf
+		SF1->F1_XXUCLAS := __cUserId
+		SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 		MsUnLock("SF1")
 	EndIf
 EndIf

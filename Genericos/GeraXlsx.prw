@@ -28,7 +28,8 @@ Local cFile := ""
 Default lJob := .F.
 
 If !lJob
-	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
+	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
+	FWMsgRun(, {|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) }, "Aguarde", "Criando Planilha Excel: "+_cProg+"...")	
 Else
 	cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob)
 EndIf
@@ -850,14 +851,15 @@ Return cArqXls
 //	... Aadd(aDados, aItens )
 
 //	AADD(aPlans,{aDados,cPerg,cTitExcel,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })   
-//	MsAguarde({|| U_ArrToXml(aPlans,cTitExcel,cPerg,.T.)},"Aguarde","Gerando planilha...",.F.)
+//	MsAguarde({|| U_ArrToXlsx(aPlans,cTitExcel,cPerg,aParam,.F.)},"Aguarde","Gerando planilha...",.F.)
 
 
 User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
 Default lJob := .F.
 
 If !lJob
-	MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) })
+	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) })
+	FWMsgRun(, {|oSay| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) }, "Aguarde", "Gerando planilha excel...")
 Else
 	U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob)
 EndIf
@@ -1101,10 +1103,12 @@ FOR nPl := 1 TO LEN(_aPlans)
 			lTotal  := .T.
 		ElseIf cTipo == "D"
 			nTamCol := 10
-		Else
+		ElseIf cTipo == "C"
 			If Len(xCampo) > 8
 				nTamCol := Len(xCampo) + 1
 			EndIf
+		Else
+			nTamCol := 20
 		EndIf
 
 	    IF !EMPTY(_aTotal)

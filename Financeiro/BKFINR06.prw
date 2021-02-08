@@ -244,6 +244,12 @@ Local aCC,aPrd,aValCC,nI
 Local cFilD1,cFilF1,cUser
 Local cDigUser   := ""
 Local cLibUser   := ""
+
+Local cNFELib	 := ""	//F1_XXULIB
+Local cNFEData	 := ""	//F1_XXDLIB
+Local cClsUser   := ""  //F1_XXUCLAS
+Local cClsData   := ""	//F1_XXDCLAS
+
 Local aLib       := {}
 Local xO
 Local nMaxLin    := 0
@@ -291,6 +297,11 @@ Begin Sequence
     cUser      := ""
     cDigUser   := ""
     cFormaPgto := ""
+
+	cNFELib	   := ""
+	cNFEData   := ""
+	cClsUser   := ""
+	cClsData   := ""
     
     IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
        cUser := SF1->F1_XXUSER
@@ -316,6 +327,23 @@ Begin Sequence
 				cFormaPgto += " "+cxNumPa
 			EndIf
 		EndIf
+
+		If !EMPTY(SF1->F1_XXULIB)
+			PswOrder(1) 
+			PswSeek(SF1->F1_XXULIB) 
+			aUser	:= PswRet(1)
+			cNFELib := aUser[1,2]
+		EndIf
+		cNFEData   := SF1->F1_XXDLIB
+
+		If !EMPTY(SF1->F1_XXUCLAS)
+			PswOrder(1) 
+			PswSeek(SF1->F1_XXUCLAS) 
+			aUser	 := PswRet(1)
+			cClsUser := aUser[1,2]
+		EndIf
+		cClsData   := SF1->F1_XXDCLAS
+
     ENDIF
     IF EMPTY(cDigUser) .AND. !EMPTY(SE2->E2_USERLGI)
     	//cDigUser := USRFULLNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
@@ -522,17 +550,29 @@ Begin Sequence
 	oPrn:Say(nLin,0100,"Usuário:",oFont12N)
 	oPrn:Say(nLin,0400,OemToAnsi(Capital(cDigUser)),oFont12N)
 
-	oPrn:Say(nLin,1300,"Liberado por:",oFont12N)
-	oPrn:Say(nLin,1700,OemToAnsi(Capital(cLibUser)+IIF(!EMPTY(cDtHoraLib)," em "+cDtHoraLib,"")),oFont12N)
+	oPrn:Say(nLin,1300,"Lib. Fin.:",oFont12N)
+	oPrn:Say(nLin,1700,Trim(Capital(cLibUser)+IIF(!EMPTY(cDtHoraLib)," "+cDtHoraLib,"")),oFont12N)
 
     nLin += 50
   
+	If !Empty(cNFELib) .OR. !Empty(cClsUser)
+		oPrn:Say(nLin,0100,"Lib. Doc:",oFont12N)
+		oPrn:Say(nLin,0400,Trim(Capital(cNFELib))+" "+cNFEData,oFont12N)
+
+		oPrn:Say(nLin,1300,"Classificação:",oFont12N)
+		oPrn:Say(nLin,1700,Trim(Capital(cClsUser))+" "+cClsData,oFont12N)
+	
+	    nLin += 50
+	EndIf
+
+
   	If !Empty(cFormaPgto)
 		oPrn:Say(nLin,1300,"Forma pgto:",oFont12N)
 		oPrn:Say(nLin,1700,cFormaPgto,oFont14N)
 		nLin    += 50
 //		nIniBox += 60
 	EndIf
+	nLin    += 10
 
   
     lquebra := .F.

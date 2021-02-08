@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"10/01/2021 AtuGenX3 "
+#DEFINE FIN_LAST_UPDATED 		"05/02/2021 AtuGenX3 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -832,12 +832,27 @@ oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“ALIAS”)" )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "10/01/21 - Email na tabela CNC " + CRLF 
+cTexto  += "05/02/21 - F1_XXUCLAS e F1_XXDCLAS " + CRLF 
+
+
+//05/02/21 - F1_XXUCLAS e F1_XXDCLAS
+dbSelectArea( "SX3" )
+APPEND FROM \tmp\sx3f1cl.dtc
+X31UPDTABLE("SF1")
+
+
+
+//31/01/21 - CNC_XCTABC e CNR_XTPJUS 
+//dbSelectArea( "SX3" )
+//APPEND FROM \tmp\sx3cnr.dtc
+//X31UPDTABLE("CNR")
+//X31UPDTABLE("CNC")
+
 
 // 10/01/21 - Email na tabela CNC
-dbSelectArea( "SX3" )
-APPEND FROM \tmp\sx3cnc.dtc
-X31UPDTABLE("CNC")
+//dbSelectArea( "SX3" )
+//APPEND FROM \tmp\sx3cnc.dtc
+//X31UPDTABLE("CNC")
 
 Return
 

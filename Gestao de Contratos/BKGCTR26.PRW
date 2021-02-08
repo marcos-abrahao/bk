@@ -1,5 +1,53 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"                     
+#INCLUDE "DBSTRUCT.CH"
+
+
+// - Conteudo do array - aRelat[x]
+#Define ID_PREFIXO     01 // Prefixo
+#Define ID_NUMERO      02 // Numero
+#Define ID_PARCELA     03 // Parcela
+#Define ID_TIPO        04 // Tipo do Documento
+#Define ID_CLIFOR      05 // Cod Cliente/Fornec
+#Define ID_NOMECLIFOR  06 // Nome Cli/Fornec
+#Define ID_NATUREZA    07 // Natureza
+#Define ID_VENCIMENTO  08 // Vencimento
+#Define ID_HISTORICO   09 // Historico
+#Define ID_DTBAIXA     10 // Data de Baixa
+#Define ID_VALORORIG   11 // Valor Original
+#Define ID_JUROSMULTA  12 // Jur/Multa
+#Define ID_CORRECAO    13 // Correcao
+#Define ID_DESCONTO    14 // Descontos
+#Define ID_ABATIMENTO  15 // Abatimento
+#Define ID_IMPOSTO     16 // Impostos
+#Define ID_TOTALPAGO   17 // Total Pago
+#Define ID_BANCO       18 // Banco
+#Define ID_DTDIGITACAO 19 // Data Digitacao
+#Define ID_MOTIVO      20 // Motivo
+#Define ID_FILORIG     21 // Filial de Origem
+#Define ID_FILIAL      22 // Filial
+#Define ID_E5BENEFIC   23 // E5_BENEF - cCliFor
+#Define ID_E5LOTE      24 // E5_LOTE
+#Define ID_E5DTDISPO   25 // E5_DTDISPO
+#Define ID_LORIGINAL   26 // LORIGINAL
+#Define ID_VALORPG     27 // VALORPG
+#Define ID_E5RECNO     28 // Recno SE5
+#Define ID_TEMVALOR    29 // Tem Valor para apresentar
+#Define ID_AGENCIA     30 // Agencia
+#Define ID_CONTA       31 // Conta
+#Define ID_LOJA        32 // Loja
+#Define ID_TIPODOC     33 // Tipo de Documento
+#Define ID_VALORVA     34 // Tipo de Documento
+// -->BK
+#Define ID_DEBITO       35 // Cta Debito
+#Define ID_CREDITO      36 // Cta Crédito
+#Define ID_CCD          37 // CC Debito
+#Define ID_CCC          38 // CC Credito
+#Define ID_CC           39 // Centro de Custo
+#Define ID_RECPAG       40 // Receber ou Pagar
+// <--BK
+#Define ID_ARRAYSIZE    40 // Tamanho do Array
+
 
 /*/{Protheus.doc} BKGCTR26
 BK - Planilha diária de Pagamentos
@@ -9,7 +57,20 @@ BK - Planilha diária de Pagamentos
 @version P12-25
 /*/
 
+// -->Finr190
+Static lFwCodFil    := .T.
+Static lUnidNeg     := IIf(lFwCodFil, SubStr(FwSM0Layout(), 1, 1) $ "U", .F.)   // Indica se usa Gestao Corporativa
+Static __oFINR190   := Nil
+Static __lTemFKD    := .F.
+Static oFinR190Tb   := Nil
+Static _aMotBaixa   := {}
+Static lRelMulNat   := .F.
+// <--Finr190
+
+
 User Function BKGCTR26()
+Local aRelat        As Array
+Local aRelat2       As Array
 
 Private cTitulo     := "Fluxo de Caixa Por Contrato"
 Private cPerg       := "BKGCTR26"
@@ -33,6 +94,15 @@ Private aPlan2      := {}
 
 Private	cPict       := "@E 99,999,999,999.99"
 
+// Include do FINR190_PT_TRES DE 15/10/2020
+Private cSTR0077    := "Baixa Automatica / Lote"
+Private cSTR0071    := "Sub Total"
+Private cSTR0028    := "Baixados"
+Private cSTR0031    := "Mov.Fin."
+Private cSTR0037    := "Compens."
+Private cSTR0075    := "Geral"
+Private cSTR0076    := "Bx.Fatura"
+Private cSTR0080    := "Estorno de tranferencia"
 
 aAdd( aParam, { 1, "Centro de Custos:"  , cContrato	, ""    , "", "CTT"	, "" , 70  , .F. })
 aAdd( aParam ,{ 2, "Sintético/Analítico", "Sintético", {"Sintético", "Analítico"}, 70,'.T.'  ,.T.})
@@ -49,16 +119,31 @@ For nI := 1 To Len(aPlan2)
 	EndIf
 Next
 
-Processa( {|| ProcPer() })
-Processa( {|| Proc191() })
+aRelat := {}
+aRelat2:= {}
+
+//Processa( {|| ProcPer() })
+FWMsgRun(, {|oSay| ProcPer(oSay) }, "Processando", "Calculando período...")
+// Para teste
+dDataI := CTOD("01/12/2020")
+dDataF := dDataBase
+
+FWMsgRun(, {|oSay| Proc191(oSay,@aRelat,"R") }, "", "Contas a Receber...")
+FWMsgRun(, {|oSay| Proc191(oSay,@aRelat,"P") }, "Processando", "Contas a Pagar...")
+
+FWMsgRun(, {|oSay| ProcPG26(oSay,@aRelat,@aRelat2) }, "Processando", "Centros de custos...")
+
+If !lSintetico
+    G26Anal(aRelat)
+EndIf
 
 //Processa( {|| ProcGC26() })
 
-If nCont > 0
+//If nCont > 0
 	//MsAguarde({|| BKGCTX26(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
-Else
-    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
-EndIf
+//Else
+//    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
+//EndIf
 
 Return
 
@@ -71,7 +156,7 @@ If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.     
 	lRet        := .T.
 
 	cContrato   := mv_par01
-	lSintetico  := IIF(SUBSTR(mv_par02,1,1)=="S",.F.,.T.)
+	lSintetico  := IIF(SUBSTR(mv_par02,1,1)=="S",.T.,.F.)
     If ! Empty(cContrato)
 	    cTitulo  += ": "+cContrato
     EndIf
@@ -79,7 +164,7 @@ Endif
 Return lRet
 
 
-Static Function ProcPer()
+Static Function ProcPer(oSay)
 Local cQuery := ""
 Local dDataInicio := dDataBase
 
@@ -731,7 +816,7 @@ Return Nil
 Static Function BKGC26PL()
 Local aPlan := {}
 aAdd(aPlan,{.T.,"SALDO",""})
-aAdd(aPlan,{.F.,"saldo do mês anterior","XSALDO"})
+aAdd(aPlan,{.F.,"Saldo do mês anterior","XSALDO"})
 
 aAdd(aPlan,{.T.,"RECEITAS",""})
 aAdd(aPlan,{.F.,"Notas Fiscais","XFAT"})
@@ -801,6 +886,221 @@ aAdd(aPlan,{.F.,"Total",""})
 Return aPlan
 
 
+// Buscando centros de Custos dos movimentos financeiros
+Static Function ProcPG26(oSay,aRelat,aRelat2)
+Local nI        As Numeric
+Local aLinha    As Array
+
+For nI := 1 To Len(aRelat)
+    aLinha := aRelat[nI]
+    If aRelat[nI,ID_RECPAG] == "R"
+        aAdd(aRelat2,aLinha)
+    Else
+
+        cTipoBk := TRIM((cAliasQry)->E2_XXTIPBK)
+        If !((TRIM(cTipoBk)+"/") $ cTTipos) .AND. !((TRIM(cTipoBk)+"/") $ cXTipos)
+            // Tipos não Classificados
+            cXTipos += TRIM(cTipoBk)+"/"
+        EndIf
+
+        If Empty(cTipoBk)
+            cTitPai := SUBSTR(SE2->E2_TITPAI,4,9)+SUBSTR(SE2->E2_TITPAI,1,3)+SUBSTR(SE2->E2_TITPAI,18,8) //E  000000014  NF 00108501
+            If TRIM(SE2->E2_NATUREZ) == "IRF"
+                cTipoBk := "IIRRF"
+            ElseIf TRIM(SE2->E2_NATUREZ) == "INSS"
+                cTipoBk := "INSS"
+            ElseIf TRIM(SE2->E2_NATUREZ) == "ISS"
+                cTipoBk := "ISS"
+                If TRIM(SE2->E2_ORIGEM) == "MATA460"  // Faturamento
+                    cTitPai := ""
+                    SD2->(dbSetOrder(3))
+                    SD2->(dbSeek(xFilial("SD2")+SE2->E2_NUM+SE2->E2_PREFIXO,.T.))
+                    If SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE == ;
+                                            xFilial("SD2")+SE2->E2_NUM+SE2->E2_PREFIXO
+                        cCCusto := SD2->D2_CCUSTO
+                    EndIf
+                EndIf
+
+            ElseIf TRIM(SE2->E2_NATUREZ) $ "PIS/COFINS/CSLL"
+                cTipoBk := "PCC"
+            Else
+                cTitPai := ""
+            EndIf
+
+            (cAliasTrb)->XX_XXTIPBK := cTipoBk
+        Else
+            lRH := .T.
+        EndIf
+
+        // Gravar valor padrão do item caso não haja Doc de Entrada
+        If lDetCC
+            (cAliasTrb)->XX_VALITEM := (cAliasTrb)->XX_VALOR
+            (cAliasTrb)->XX_RATEIO  := "N"
+            (cAliasTrb)->XX_CC := cCCusto
+        EndIf
+
+        aItem := {}
+        If Empty(cTipoBk) .OR. !Empty(cTitPai)
+
+            SE2->(dbGoTo((cAliasQry)->E2RECNO))
+
+            dbSelectArea("SD1")
+            If !Empty(cTitPai)
+                cChave := cTitPai
+            Else
+                cChave := SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA
+            EndIf
+
+            IF dbSeek(xFilial("SD1")+cChave)
+                // Pega o primeiro produto
+
+                SB1->(dbSeek(xFilial("SB1")+SD1->D1_COD,.F.))
+                If Empty(cTitPai)
+                    cTipoBk := SB1->B1_XXGRPF
+                EndIf
+                If TRIM(SB1->B1_GRUPO) $ "0008/0009/0010"
+                    cDescB1 := TRIM(Posicione("SBM",1,xFilial("SBM")+SB1->B1_GRUPO,"BM_DESC"))
+                Else
+                    cDescB1 := TRIM(SB1->B1_DESC)
+                EndIf
+
+                (cAliasTrb)->XX_PRODUTO := TRIM(SD1->D1_COD)
+                (cAliasTrb)->XX_DESC    := cDescB1
+                If lDetCC
+                    (cAliasTrb)->XX_CC  := TRIM(SD1->D1_CC)
+                EndIf
+
+                If aScan(aPrd,{|x| x[1] == SD1->D1_COD}) = 0
+                    aAdd(aPrd,{SD1->D1_COD,(cAliasTrb)->XX_DESC,cTipoBk})
+                EndIf
+
+                If lDetCC 
+                    cHist := ""
+                    Do While !Eof() .AND. cChave  == SD1->D1_DOC+SD1->D1_SERIE+SD1->D1_FORNECE+SD1->D1_LOJA
+                        SB1->(dbSeek(xFilial("SB1")+SD1->D1_COD,.F.))
+                        If Empty(cTitPai)
+                            cTipoBk := SB1->B1_XXGRPF
+                        EndIf
+                        If TRIM(SB1->B1_GRUPO) $ "0008/0009/0010"
+                            cDescB1 := TRIM(Posicione("SBM",1,xFilial("SBM")+SB1->B1_GRUPO,"BM_DESC"))
+                            cCodPrd := TRIM(SB1->B1_GRUPO)
+                        Else
+                            cDescB1 := TRIM(SB1->B1_DESC)
+                            cCodPrd := TRIM(SD1->D1_COD)
+                        EndIf
+                        nScan := aScan(aItem,{|x| x[1] == cCodPrd .AND. x[4] == SD1->D1_CC})
+                        If nScan = 0
+                            aAdd(aItem,{cCodPrd,cDescB1,cTipoBk,SD1->D1_CC,SD1->D1_TOTAL})
+                        Else
+                            aItem[nScan,5] += SD1->D1_TOTAL
+                        EndIf
+                        If !AllTrim(SD1->D1_XXHIST) $ cHist
+                            cHist += AllTrim(SD1->D1_XXHIST)+" " 
+                        EndIf
+                        dbSkip()
+                    EndDo
+                    If Empty(cHist)
+                        cHist := SE2->E2_HIST
+                    EndIf
+                    (cAliasTrb)->XX_HIST := cHist
+                Endif
+            ENDIF
+
+            If Empty(cTipoBk)
+                cTipoBk := "FORN"
+            EndIf
+            
+            (cAliasTrb)->XX_XXTIPBK := cTipoBk
+            //(cAliasTrb)->XX_VALITEM := (cAliasTrb)->XX_VALOR
+
+            // Detalhar Centros de Custos
+            If lDetCC .AND. Len(aItem) > 1
+                Rateio(@aItem,(cAliasTrb)->XX_VALOR,5)
+                aDupLin := {}
+                dbSelectArea(cAliasTrb)
+                For nX := 1 To Len(aFields)
+                    AADD(aDupLin,FieldGet(nX))
+                Next
+                For nX := 1 To Len(aItem)
+                    If nX > 1
+                        Reclock(cAliasTrb,.T.)
+                        For nF := 1 To Len(aDupLin)
+                            FieldPut(nF,aDupLin[nF])
+                        Next
+                        (cAliasTrb)->XX_SALDO	:= 0
+                        (cAliasTrb)->XX_VALOR	:= 0
+                        (cAliasTrb)->XX_FORMPGT	:= ""
+                        (cAliasTrb)->XX_HIST	:= ""
+                        (cAliasTrb)->XX_JUST	:= ""
+                    Endif
+
+                    (cAliasTrb)->XX_PRODUTO := aItem[nx,1]
+                    (cAliasTrb)->XX_DESC	:= aItem[nx,2]
+                    (cAliasTrb)->XX_XXTIPBK	:= aItem[nx,3]				
+                    (cAliasTrb)->XX_CC		:= aItem[nx,4]
+                    (cAliasTrb)->XX_DESCCC  := Posicione("CTT",1,xFilial("CTT")+(cAliasTrb)->XX_CC,"CTT_DESC01")
+                    (cAliasTrb)->XX_VALITEM := aItem[nx,5]
+                    (cAliasTrb)->XX_RATEIO	:= "S"
+                Next
+            EndIf
+        ElseIf lRH .AND. lDetCC
+
+            (cAliasTrb)->XX_HIST := SE2->E2_HIST
+
+            ProcSz2(@aItem)
+            If Len(aItem) > 0
+                Rateio(@aItem,(cAliasTrb)->XX_VALOR,2)
+                aDupLin := {}
+                dbSelectArea(cAliasTrb)
+                For nX := 1 To Len(aFields)
+                    AADD(aDupLin,FieldGet(nX))
+                Next
+                For nX := 1 To Len(aItem)
+                    If nX > 1
+                        Reclock(cAliasTrb,.T.)
+                        For nF := 1 To Len(aDupLin)
+                            FieldPut(nF,aDupLin[nF])
+                        Next
+                        (cAliasTrb)->XX_SALDO := 0
+                        (cAliasTrb)->XX_VALOR := 0
+                        (cAliasTrb)->XX_FORMPGT:= ""
+                        (cAliasTrb)->XX_HIST	:= ""
+                        (cAliasTrb)->XX_JUST	:= ""
+                    Endif
+
+                    //(cAliasTrb)->XX_PRODUTO := aItem[nx,1]
+                    //(cAliasTrb)->XX_DESC	:= aItem[nx,2]
+                    //(cAliasTrb)->XX_XXTIPBK	:= aItem[nx,3]				
+                    (cAliasTrb)->XX_CC		:= aItem[nx,1]
+                    (cAliasTrb)->XX_VALITEM := aItem[nx,2]
+                    (cAliasTrb)->XX_DESCCC  := Posicione("CTT",1,xFilial("CTT")+(cAliasTrb)->XX_CC,"CTT_DESC01")
+                    If Len(aItem) > 1
+                        (cAliasTrb)->XX_RATEIO	:= "S"
+                    Else
+                        (cAliasTrb)->XX_RATEIO	:= "N"
+                    EndIf
+                Next
+            EndIf
+
+        EndIf
+
+        //nValor  := (cAliasQry)->E2_VALOR
+        If lDetCC .AND. Empty((cAliasTrb)->XX_DESCCC)
+            (cAliasTrb)->XX_DESCCC := Posicione("CTT",1,xFilial("CTT")+(cAliasTrb)->XX_CC,"CTT_DESC01")
+        EndIf
+        
+        (cAliasTrb)->(MsUnLock())
+            
+        dbSelectArea(cAliasQry)
+        (cAliasQry)->(dbSkip())
+        
+    EndIf    
+
+Next
+
+Return nil
+
+
 
 Static Function Rateio(aRTot,nVal,nPos)
 // Parametros: Array, Valor a ratear, posição do valor
@@ -868,9 +1168,8 @@ Return Nil
 
 
 
-Static Function Proc191()
+Static Function Proc191(oSay,aRelat,cRecPag)
 
-Local aRelat        As Array
 Local nOrdem        As Numeric
 Local aTotais       As Array
 Local oReport		As Object
@@ -878,7 +1177,17 @@ Local nGerOrig      As Numeric
 Local nI            As Numeric
 Local cTotText      As Character
 
-aRelat 		:= {}
+// -->Finr190
+Private aSelFil         As Array
+Private cChaveInterFun  As Character
+Private cSitCartei      As Character
+
+aSelFil         := {}
+cChaveInterFun  := ""
+cSitCartei      := FN022LSTCB(1) + Space(TamSX3("E5_SITCOB")[1])
+__lTemFKD       := TableInDic("FKD")
+// <--Finr190
+
 nOrdem		:= 1
 aTotais		:= {}
 
@@ -886,13 +1195,72 @@ nGerOrig 	:= 0
 nI			:= 1
 cTotText	:= "Sub Total"
 
+
+/// Parâmetros do FINR190
+MV_PAR01    := dDataI
+MV_PAR02    := dDataF
+MV_PAR03    := SPACE(TamSx3("E5_BANCO")[1])
+MV_PAR04    := REPLICATE("z",TamSx3("E5_BANCO")[1])
+MV_PAR05    := SPACE(TamSx3("E5_NATUREZ")[1])
+MV_PAR06    := REPLICATE("z",TamSx3("E5_NATUREZ")[1])
+MV_PAR07    := SPACE(TamSx3("E5_CLIFOR")[1])
+MV_PAR08    := REPLICATE("z",TamSx3("E5_CLIFOR")[1])
+MV_PAR09    := CTOD("01/01/2009")  // E5_DTDIGIT
+MV_PAR10    := CTOD("01/01/2030")  // E5_DTDIGIT
+MV_PAR11    := iIf(cRecPag=="R",1,2) // 1=Contas a Receber 2=Contas a Pagar
+MV_PAR12    := 1 // Moeda
+MV_PAR13    := 1 // Histórico: Baixa ou Emissão
+MV_PAR14    := 2 // Imprime Baixas: Normais ou Todas
+MV_PAR15    := "01234567FGH" // Situações
+MV_PAR16    := 1 // Considera mov. fin. da Baixa?
+MV_PAR17    := 2 // Cons filiais abaixo
+MV_PAR18    := SPACE(TamSx3("E5_FILIAL")[1])
+MV_PAR19    := REPLICATE("z",TamSx3("E5_FILIAL")[1])
+MV_PAR20    := SPACE(TamSx3("E5_LOTE")[1])
+MV_PAR21    := REPLICATE("z",TamSx3("E5_LOTE")[1])
+MV_PAR22    := SPACE(TamSx3("E5_LOJA")[1])
+MV_PAR23    := REPLICATE("z",TamSx3("E5_LOJA")[1])
+MV_PAR24    := 1 // NCC Compensados?
+MV_PAR25    := 1 // Outras Moedas: Converter / Não imprimir
+MV_PAR26    := SPACE(TamSx3("E5_PREFIXO")[1])
+MV_PAR27    := REPLICATE("z",TamSx3("E5_PREFIXO")[1])
+MV_PAR28    := "                                                  " // Imprimir Tipos
+MV_PAR29    := "                                                  " // Não imprimir tipos
+MV_PAR30    := 2 // Imprime Nome: Reduzido / Razão Social
+MV_PAR31    := MV_PAR09  // Vencto de:
+MV_PAR32    := MV_PAR10  // Vencto até:
+MV_PAR33    := SPACE(TamSx3("E5_FILORIG")[1])
+MV_PAR34    := REPLICATE("z",TamSx3("E5_FILORIG")[1])
+MV_PAR35    := 1 // Imprime incl. Adiantamentos
+MV_PAR36    := 1 // Imprime titulos em carteira
+MV_PAR37    := 3 // Imprime cheque aglutinado: Cheques / Baixas / Ambos
+MV_PAR38    := 1 // Cons. natureza Aglutinada?
+MV_PAR39    := 2 // Filtrar natureza por: Padrão / Nat Principal / Multinaturezas
+MV_PAR40    := 2 // Seleciona Filiais?
+MV_PAR41    := 1 // Coluna valor original: Soma Impostos / Não soma impostos
+MV_PAR42    := 1 // Cons. bx. mpor mov. bancária?
+
+Private cNomeArq    As Character
+Private cTxtFil     As Character
+Private lVarFil     As Logical
+Private nCond1      As Numeric
+
+lVarFil     := (MV_PAR17 == 1 .And. SM0->(RecCount()) >= 1) // Cons filiais abaixo //Alterado para quando houver 1 filial ou mais
+nCond1      := ID_DTBAIXA
+
+oSay:SetText( "Processando xxx" )
+//oSay:SetTextAlign( 2, 2 )
+//oSay:lTransparent = .T.
+//oSay:lWordWrap = .F.
+ 
 FA190ImpR4(@aRelat, nOrdem, @aTotais, oReport, nGerOrig, @nI, @cTotText)
+
 
 Return aRelat
 
 
 
-
+// Copiado do FINR190.PRX DE 15/10/2020
 /*/{Protheus.doc} FA190ImpR4
 Efetua montagem do array para definir quais baixas serão apresentadas no relatório.
 
@@ -962,6 +1330,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     Local cXFilSA2      As Character
     Local cXFilSA6      As Character
     Local cXFilSE1      As Character
+    Local cXFilSD2      As Character  // BK
     Local cXFilSE2      As Character
     Local cXFilSE5      As Character
     Local cXFilSED      As Character
@@ -1062,11 +1431,12 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     Local nVlr          As Numeric
     Local nVlrGlosa     As Numeric
 
-    Local oBaixas       As Object
+    Local cCCBK         AS Character  // BK
+    //Local oBaixas       As Object
 
     Default aRet        := {}
 
-    oBaixas     := oReport:Section(1)
+    //oBaixas     := oReport:Section(1) // BK
     nValor      := 0
     nDesc       := 0
     nJuros      := 0
@@ -1113,7 +1483,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     cNatureza   := ""
     cAnterior   := ""
     cCliFor     := ""
-    nCT         = 0
+    nCT         := 0
     cLoja       := ""
     lContinua   := .T.
     lBxTit      := .F.
@@ -1141,6 +1511,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     cXFilSA2    := ""
     cXFilSA6    := ""
     cXFilSE1    := ""
+    cXFilSD2    := ""  // BK
     cXFilSE2    := ""
     cXFilSE5    := ""
     cXFilSED    := ""
@@ -1162,7 +1533,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     nRecnoSE5   := 0
     nValTroco   := 0
     lTroco      := .F.
-    cEstorno    := "Estorno de tranferencia" // -bk- STR0080 
+    cEstorno    := cSTR0080  //"Estorno de tranferencia"
 
     //Controla o Pis Cofins e Csll na baixa (1-Retem PCC na Baixa ou 2-Retem PCC na Emissão(default))
     lPccBxCr    := FPccBxCr()
@@ -1392,7 +1763,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     cInsert += "                                                            AND SE5ES.D_E_L_E_T_ = ' ' "
     cInsert += "                                                            ) AND "
     cInsert += "    ((E5_TIPODOC = 'CD' AND E5_VENCTO <= E5_DATA) OR (E5_TIPODOC <> 'CD')) "
-    cInsert += "        AND E5_HISTOR NOT LIKE '%" + STR0077 + "%'"
+    cInsert += "        AND E5_HISTOR NOT LIKE '%" + cSTR0077 + "%'"
     cInsert += "        AND E5_TIPODOC NOT IN ('DC','D2','JR','J2','TL','MT','M2','CM','C2','ES' "
 
     If !Empty(MV_PAR42) .And. MV_PAR42 == 2 // Cons. Baixa por Mov. Bancário //dms
@@ -1455,7 +1826,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     EndIf
     /* GESTAO - fim */
 
-    cFilUser := oBaixas:GetSQLExp("SE5")
+    cFilUser := "" //oBaixas:GetSQLExp("SE5") - BK
 
     If lF190Qry
         cInsertAdd := ExecBlock("F190QRY", .F., .F., {cFilUser})
@@ -1656,6 +2027,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
             cXFilSA2 := FwXFilial("SA2")
             cXFilSA6 := FwXFilial("SA6")
             cXFilSE1 := FwXFilial("SE1")
+            cXFilSD2 := FwXFilial("SD2") // BK
             cXFilSE2 := FwXFilial("SE2")
             cXFilSE5 := FwXFilial("SE5")
             cXFilSED := FwXFilial("SED")
@@ -1736,6 +2108,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
                     lBxTit      := .F.
                     cFilorig    := NEWSE5->E5_FILORIG
                     nMoedMov    := Val(NEWSE5->E5_MOEDA)
+                    cCCBK       := "" // BK
 
                     cMaxSeq := NEWSE5->SE5MAXSEQ
 
@@ -1764,10 +2137,21 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
                                     Loop
                                 EndIf
                             EndIf
-
+                            cCCBK := SE1->E1_XXCUSTO  // BK - NDC
+                            // --> BK Buscar centro de custos no SD2
+                            If Empty(cCCBK)
+                                SD2->(dbSetOrder(3))               //filial,doc,serie,cliente,loja,cod
+                                SD2->(dbSeek(cXFilSD2+NEWSE5->(E5_NUMERO+E5_PREFIXO+E5_CLIFOR+E5_LOJA),.T.))
+                                If SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE+SD2->D2_CLIENTE+SD2->D2_LOJA == ;
+                                    cXFilSD2+NEWSE5->(E5_NUMERO+E5_PREFIXO+E5_CLIFOR+E5_LOJA)
+                                    cCCBK := SD2->D2_CCUSTO
+                                EndIf
+                            EndIf
+                            // <-- BK
                         EndIf
                         cCond3  := "1"
                         nDesc   := nJuros := nValor := nMulta := nJurMul := nCM := nVlMovFin := 0
+
                     Else
                         DbSelectArea("SE2")
                         DbSetOrder(1)
@@ -2356,21 +2740,32 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 
                         aRet[nTamRet][ID_VALORVA] := NEWSE5->SE5VA
 
+                        // -->BK
+                        aRet[nTamRet][ID_DEBITO]    := NEWSE5->E5_DEBITO
+                        aRet[nTamRet][ID_CREDITO]   := NEWSE5->E5_CREDITO
+                        aRet[nTamRet][ID_CCD]       := NEWSE5->E5_CCD
+                        aRet[nTamRet][ID_CCC]       := NEWSE5->E5_CCC
+                        aRet[nTamRet][ID_CC]        := cCCBK
+                        aRet[nTamRet][ID_RECPAG]    := iIf(MV_PAR11 == 1,"R","P")
+                        // <--BK
+
                         If !lRelMulNat
                             SE5->(DbGoTo(aRet[nTamRet][ID_E5RECNO]))
                             If !lRelatInit
                                 lRelatInit := .T.
-                                InitReport(oReport, aRet, @nI, @cTotText)
-                                oBaixas:Init()
+                                //InitReport(oReport, aRet, @nI, @cTotText) // BK
+                                //oBaixas:Init() // BK
                             EndIf
 
                             nI := nTamRet
+                            /* --> BK
                             If oReport:Cancel()
                                 nI++
                                 EndReport()
                                 FwFreeArray(aChaveTit)
                                 Return Nil
                             EndIf
+                            <-- BK*/
 
                             If aRet[nTamRet][ID_CLIFOR] == Nil
                                 aRet[nTamRet][ID_CLIFOR] := ""
@@ -2380,12 +2775,12 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
                                 ZeraVA(aRet[nTamRet])
                             EndIf
 
-                            oBaixas:PrintLine()
+                            //oBaixas:PrintLine() // BK
 
                             If (nOrdem == 1 .Or. nOrdem == 6 .Or. nOrdem == 8)
-                                cTotText := STR0071 + " : " + DToC(aRet[nTamRet][nCond1])   //"Sub Total"
+                                cTotText := cSTR0071 + " : " + DToC(aRet[nTamRet][nCond1])   //"Sub Total"
                             Else //nOrdem == 2 .Or. nOrdem == 3 .Or. nOrdem == 4 .Or. nOrdem == 5 .Or. nOrdem == 7
-                                cTotText := STR0071 + " : " + aRet[nTamRet][nCond1]         //"Sub Total"
+                                cTotText := cSTR0071 + " : " + aRet[nTamRet][nCond1]         //"Sub Total"
                                 If nOrdem == 2 //Banco
                                     SA6->(DbSetOrder(1))
                                     SA6->(MsSeek(cXFilSA6 + aRet[nTamRet][nCond1] + aRet[nTamRet][ID_AGENCIA] + aRet[nTamRet][ID_CONTA]))
@@ -2423,16 +2818,16 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
                 If (nTotValor + nDesc + nJurMul + nCM + nTotOrig + nTotMovFin + nTotComp + nTotFat) > 0
                     If nCT > 0
                         If nTotBaixado > 0
-                            AAdd(aTotais, {cQuebra, STR0028, nTotBaixado})  //"Baixados"
+                            AAdd(aTotais, {cQuebra, cSTR0028, nTotBaixado})  //"Baixados"
                         EndIf
                         If nTotMovFin > 0
-                            AAdd(aTotais, {cQuebra, STR0031, nTotMovFin})  //"Mov Fin."
+                            AAdd(aTotais, {cQuebra, cSTR0031, nTotMovFin})  //"Mov Fin."
                         EndIf
                         If nTotComp > 0
-                            AAdd(aTotais, {cQuebra, STR0037, nTotComp})  //"Compens."
+                            AAdd(aTotais, {cQuebra, cSTR0037, nTotComp})  //"Compens."
                         EndIf
                         If nTotFat > 0
-                            AAdd(aTotais, {cQuebra, STR0076, nTotFat})  //"Bx.Fatura"
+                            AAdd(aTotais, {cQuebra, cSTR0076, nTotFat})  //"Bx.Fatura"
                         EndIf
                     EndIf
                 EndIf
@@ -2461,16 +2856,16 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
         //Imprimir TOTAL por filial somente quando houver 1 filial ou mais.
         If MV_PAR17 == 1 .And. SM0->(RecCount()) >= 1
             If nFilBaixado > 0
-                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), STR0028, nFilBaixado})  //"Baixados"
+                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), cSTR0028, nFilBaixado})  //"Baixados"
             EndIf
             If nFilMovFin > 0
-                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), STR0031, nFilMovFin})  //"Mov Fin."
+                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), cSTR0031, nFilMovFin})  //"Mov Fin."
             EndIf
             If nFilComp > 0
-                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), STR0037, nFilComp})  //"Compens."
+                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), cSTR0037, nFilComp})  //"Compens."
             EndIf
             If nFilFat > 0
-                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), STR0076, nFilFat})  //"Compens."
+                AAdd(aTotais, {IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL), cSTR0076, nFilFat})  //"Compens."
             EndIf
 
             If MV_PAR17 == 2 .And. Empty(cXFilSE5)
@@ -2486,19 +2881,19 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     End
 
     If nGerBaixado > 0
-        AAdd(aTotais, {STR0075, STR0028, nGerBaixado})  //"Baixados"
+        AAdd(aTotais, {cSTR0075, cSTR0028, nGerBaixado})  //"Baixados"
     EndIf
 
     If nGerMovFin > 0
-        AAdd(aTotais, {STR0075, STR0031, nGerMovFin})   //"Mov Fin."
+        AAdd(aTotais, {cSTR0075, cSTR0031, nGerMovFin})   //"Mov Fin."
     EndIf
 
     If nGerComp > 0
-        AAdd(aTotais, {STR0075, STR0037, nGerComp})     //"Compens."
+        AAdd(aTotais, {cSTR0075, cSTR0037, nGerComp})     //"Compens."
     EndIf
 
     If nGerFat > 0
-        AAdd(aTotais, {STR0075, STR0076, nGerFat})      //"Bx.Fatura"
+        AAdd(aTotais, {cSTR0075, cSTR0076, nGerFat})      //"Bx.Fatura"
     EndIf
 
     SM0->(DbGoTo(nRecEmp))
@@ -2515,7 +2910,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
     EndIf
     /* GESTAO - fim */
 
-    EndReport()
+    //EndReport()
 
     FwFreeArray(aChaveTit)
 
@@ -2525,4 +2920,128 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 Return NIl
 
 
+/*/{Protheus.doc} F190InitTb
+Efetua a criação da tabela temporária para realização da busca das baixas a serem impressas.
+
+@type       function
+@author     Rafael Riego
+@since      15/09/2020
+@return     Nil
+/*/
+Static Function F190InitTb()
+
+    Local aFields   As Array
+
+    Local cAliasTMP As Character
+
+    aFields   := {}
+    cAliasTMP := "NEWSE5"
+
+    If oFinR190Tb != Nil
+        oFinR190Tb:Delete()
+        oFinR190Tb := Nil
+    EndIf
+
+    aFields := F190Fields()
+
+    oFinR190Tb := FwTemporaryTable():New(cAliasTMP)
+    oFinR190Tb:SetFields(aFields)
+
+    FwFreeArray(aFields)
+
+Return Nil
+
+/*/{Protheus.doc} F190IndexTb
+Efetua a criação do índice da tabela temporária se baseando na ordem escolhida pelo usuário.
+
+@type       function
+@author     Rafael Riego
+@since      15/09/2020
+@param      aIndex, array, array com os campos do índice
+@return     Nil
+/*/
+Static Function F190IndexTb(aIndex As Array)
+
+    AAdd(aIndex, "SE5RECNO") //Adiciona recno ao final do índice selecionado para manter a ordenação correta para todos os SGBD
+    oFinR190Tb:AddIndex("1", aIndex)
+
+Return Nil
+
+/*/{Protheus.doc} F190Fields
+Retorna os campos que estarão presentes na tabela temporária.
+
+@type       function
+@author     Rafael Riego
+@since      15/09/2020
+@return     array, array dos campos que estarão presentes na tabela temporária.
+/*/
+Static Function F190Fields() As Array
+
+    Local aFields   As Array
+    Local aStruct   As Array
+
+    aFields := {}
+    aStruct := SE5->(DbStruct())
+    AEval(aStruct, {|campo| campo[DBS_TYPE] <> "M", AAdd(aFields, AClone(campo)), Nil})
+
+    AAdd(aFields, {"SE5RECNO", "N", 8, 0})
+    AAdd(aFields, {"SE5MAXSEQ", GetSX3Cache("E5_SEQ", "X3_TIPO"), GetSX3Cache("E5_SEQ", "X3_TAMANHO"), GetSX3Cache("E5_SEQ", "X3_DECIMAL")})
+    AAdd(aFields, {"SE5VA", GetSX3Cache("FK6_VALMOV", "X3_TIPO"), GetSX3Cache("FK6_VALMOV", "X3_TAMANHO"), GetSX3Cache("FK6_VALMOV", "X3_DECIMAL")})
+
+    FwFreeArray(aStruct)
+
+Return aFields
+
+
+// Impressão dos dados analíticos
+
+Static Function G26Anal(aRelat)
+Local aPlans := {}
+Local aCabec := {}
+
+aAdd(aCabec,"Prefixo")
+aAdd(aCabec,"Numero")
+aAdd(aCabec,"Parcela")
+aAdd(aCabec,"Tipo do Documento")
+aAdd(aCabec,"Cod Cliente/Fornec")
+aAdd(aCabec,"Nome Cli/Fornec")
+aAdd(aCabec,"Natureza")
+aAdd(aCabec,"Vencimento")
+aAdd(aCabec,"Historico")
+aAdd(aCabec,"Data de Baixa")
+aAdd(aCabec,"Valor Original")
+aAdd(aCabec,"Jur/Multa")
+aAdd(aCabec,"Correcao")
+aAdd(aCabec,"Descontos")
+aAdd(aCabec,"Abatimento")
+aAdd(aCabec,"Impostos")
+aAdd(aCabec,"Total Pago")
+aAdd(aCabec,"Banco")
+aAdd(aCabec,"Data Digitacao")
+aAdd(aCabec,"Motivo")
+aAdd(aCabec,"Filial de Origem")
+aAdd(aCabec,"Filial")
+aAdd(aCabec,"E5_BENEF - cCliFor")
+aAdd(aCabec,"E5_LOTE")
+aAdd(aCabec,"E5_DTDISPO")
+aAdd(aCabec,"LORIGINAL")
+aAdd(aCabec,"VALORPG")
+aAdd(aCabec,"Recno SE5")
+aAdd(aCabec,"Tem Valor para apresentar")
+aAdd(aCabec,"Agencia")
+aAdd(aCabec,"Conta")
+aAdd(aCabec,"Loja")
+aAdd(aCabec,"Tipo de Documento")
+aAdd(aCabec," Tipo de Documento")
+aAdd(aCabec,"Debito")
+aAdd(aCabec,"Credito")
+aAdd(aCabec,"CC Debito")
+aAdd(aCabec,"CC Credito")
+aAdd(aCabec,"Centro de Custo")
+aAdd(aCabec,"Pagar/Receber")
+
+AADD(aPlans,{aRelat,cPerg,cTitulo,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })   
+U_ArrToXlsx(aPlans,cTitulo,cPerg,aParam,.F.)
+
+Return Nil
 

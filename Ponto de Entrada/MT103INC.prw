@@ -96,7 +96,7 @@ If lClass
 		PswOrder(1) 
 		PswSeek(__cUserId) 
 		aUser  := PswRet(1)
-		If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 //.OR. lMDiretoria 
+		If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000007") <> 0//.OR. lMDiretoria 
 			If ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXULIB
 				MessageBox("Usuário sem permissão para classificar este Doc.","MT103INC",MB_ICONEXCLAMATION)
 			Else
@@ -107,8 +107,8 @@ If lClass
 				ElseIf nOper == 2
 					RecLock("SF1",.F.)
 					SF1->F1_XXLIB  := "E"
-					SF1->F1_XXULIB := __cUserId
-					SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+					SF1->F1_XXUCLAS := __cUserId
+					SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 					MsUnLock("SF1")
 					u_SF1Email("Pré-Nota Estornada pelo Fiscal")
 				EndIf
@@ -133,14 +133,14 @@ If lClass
 				MsUnLock("SF1")
 			EndIf
 		Else
-			MessageBox("Documento bloqueado para classificação: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
+			MessageBox("Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 		EndIf
 	ElseIf SF1->F1_XXLIB == 'E'
-		MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
+		MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 	ElseIf SF1->F1_XXLIB == 'B'
 		MessageBox("Documento bloqueado, aguarde liberação da diretoria: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
 	ElseIf SF1->F1_XXLIB == 'C'
-		MessageBox("Documento já foi classificado: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
+		MessageBox("Documento já foi classificado: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 	EndIf
 Else
 	// Inclusão permitida apenas para administradores e master financeiro

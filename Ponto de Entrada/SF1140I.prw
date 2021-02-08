@@ -28,7 +28,7 @@ Private cxCond	 := SF1->F1_COND
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 
-IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
+IF VAL(__cUserId) > 0  // EMPTY(SF1->F1_XXUSER) .AND. //Não Gravar Administrador
 	PswOrder(1) 
 	PswSeek(__CUSERID) 
 	aUser  := PswRet(1)

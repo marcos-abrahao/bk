@@ -66,6 +66,7 @@ Local aAreaCN9
 Local aAreaSYP
 Local aAreaCTT
 Local aAreaCND
+Local aAreaCNC
 
 Local nMaxTLin := 95
 
@@ -116,13 +117,14 @@ ENDIF
  
 aAreaSE1   := GetArea("SE1")
 aAreaSA1   := GetArea("SA1")
-aAreaSD2   := GetArea("SD2")     
-aAreaSED   := GetArea("SED")     
-aAreaSC5   := GetArea("SC5")     
-aAreaCN9   := GetArea("CN9")     
-aAreaSYP   := GetArea("SYP")     
-aAreaCTT   := GetArea("CTT")     
-aAreaCND   := GetArea("CND")     
+aAreaSD2   := GetArea("SD2")
+aAreaSED   := GetArea("SED")
+aAreaSC5   := GetArea("SC5")
+aAreaCN9   := GetArea("CN9")
+aAreaSYP   := GetArea("SYP")
+aAreaCTT   := GetArea("CTT")
+aAreaCND   := GetArea("CND")
+aAreaCNC   := GetArea("CNC")
    
 dbSelectArea ("SD2")             //itens de venda da NF
 dbSetOrder (3)                 //filial,doc,serie,cliente,loja,cod
@@ -240,7 +242,7 @@ IF !EMPTY(cContrato)
 	dbSelectArea("CND")
 	dbSetOrder(4)
 	IF dbSeek(xFilial("CND") + cMedicao)
-		IF  ALLTRIM(CND->CND_CONTRA) <> '307000496'
+		IF ALLTRIM(CND->CND_CONTRA) <> '307000496'
 			IF !(ALLTRIM(CND->CND_CLIENT) $ cXXCOMPE)
 	   			cCompet  := "Competencia: "+CND->CND_COMPET
 			ENDIF
@@ -261,6 +263,14 @@ IF !EMPTY(cContrato)
 	      cConta := TRIM(SA1->A1_XXCTABC)
 	   ENDIF   
 	   // cMun := "Municipio: "+TRIM(Posicione("CC2",1,xFilial("CC2")+SA1->A1_EST+SA1->A1_COD_MUN,"CC2_MUN"))+" - "+SA1->A1_EST
+	ENDIF
+	// Se tiver conta no CNC, usar - 31/01/2021.
+	dbSelectArea("CNC")
+	dbSetOrder(3)
+	IF dbSeek(xFilial("CNC")+cContrato+cRevisa+cCliente+cLoja)
+	   IF !EMPTY(CNC->CNC_XCTABC)
+	      cConta := TRIM(CNC->CNC_XCTABC)
+	   ENDIF   
 	ENDIF
 
     IF !EMPTY(cProduto)
@@ -560,6 +570,7 @@ CN9->(RestArea(aAreaCN9))
 SYP->(RestArea(aAreaSYP))
 CTT->(RestArea(aAreaCTT))
 CND->(RestArea(aAreaCND))
+CNC->(RestArea(aAreaCNC))
 
 RestArea(aAreaAtu)
 

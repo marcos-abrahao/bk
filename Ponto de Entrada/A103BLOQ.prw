@@ -62,10 +62,10 @@ If !lRet
 			EnvAvBlq(aAKUser,SF1->F1_VALBRUT,nValBlq,.T.)
 		
 		    RecLock("SF1",.F.)
-			SF1->F1_APROV := ""
-			SF1->F1_XXLIB := "E"
-			SF1->F1_XXULIB := __cUserId
-			SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+			SF1->F1_APROV   := ""
+			SF1->F1_XXLIB   := "E"
+			SF1->F1_XXUCLAS := __cUserId
+			SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 			SF1->(MsUnlock())
 
 		EndIf
@@ -81,8 +81,8 @@ If !lRet
 				//	MsgAlert("Este documento foi bloqueado, aguarde a liberação e classifique-o novamente. ")
 			    RecLock("SF1",.F.)
 				SF1->F1_XXLIB := "B"
-				SF1->F1_XXULIB := __cUserId
-				SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+				SF1->F1_XXUCLAS := __cUserId
+				SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 				SF1->(MsUnlock())
 			EndIf
 		EndIf
