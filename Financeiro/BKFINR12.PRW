@@ -243,9 +243,7 @@ AADD(aCabs  ,"Valor liquido")
 AADD(aCampos,"IIF(QTMP->E1_SALDO > 0,QTMP->E1_VALOR - QTMP->E1_IRRF - QTMP->E1_INSS - QTMP->E1_PIS - QTMP->E1_COFINS - QTMP->E1_CSLL - QTMP->F2_XXVCVIN - QTMP->F2_XXVFUMD - IIF(QTMP->F2_RECISS = '1',QTMP->E1_ISS,0) - QTMP->E1_VRETBIS - QTMP->F2_XXVRETC - (QTMP->E1_VALOR - QTMP->E1_SALDO),0)") //- QTMP->XX_E5DESC + QTMP->XX_E5MULTA 
 AADD(aCabs  ,"Saldo a Receber")
 
-
-ProcRegua(QTMP->(LASTREC()))
-Processa( {|| U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)})
+U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)
    
 Return
 
@@ -354,7 +352,7 @@ Return(NIL)
 */
 
 Static Function  ValidPerg2
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 cPerg := "2BKFINR12"
@@ -384,7 +382,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg3()
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 cPerg := "3BKFINR12"
@@ -415,7 +413,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg4()
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 cPerg := "4BKFINR12"
@@ -445,7 +443,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg5
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 cPerg := "5BKFINR12"
@@ -476,7 +474,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg6
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 cPerg := "6BKFINR12"

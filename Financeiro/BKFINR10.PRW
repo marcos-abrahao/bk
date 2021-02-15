@@ -336,8 +336,7 @@ dbSetOrder(1)
 // Exportação dos saldos bancarios
 If nSaldos == 1                                              
 	If nFormato == 1
-		ProcRegua((cAliasTmp1)->(LASTREC()))
-		Processa( {|| U_GeraCSV(cAliasTmp1,cNomePrg+"-Saldos",aTitulos1,aCampos1,aCabs1,,,,.F.)})
+		U_GeraCSV(cAliasTmp1,cNomePrg+"-Saldos",aTitulos1,aCampos1,aCabs1,,,,.F.)
         //                        cAlias,    cArqS             ,aTitulos, aCampos, aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
   	EndIf
 	//Else	
@@ -925,7 +924,7 @@ If nFormato == 1
 		(cAliasTmp3)->(dbsetfilter({|| &cFiltro} , cFiltro))
 	EndIf
 	
-	Processa( {|| U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)})
+	U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)
 Else
 	//aPlans := {}
 	

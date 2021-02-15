@@ -21,22 +21,23 @@
 */
 // Validação da condiçao de pgto na tela de doc de entrada
 User Function A103CND2()
-Local nV
+Local nV As Numeric
 Local dDtUtil
 
 dDtUtil := DataValida(dDatabase,.T.)
 //dDtUtil := DataValida(dDatabase+1,.T.)
 //dDtUtil := DataValida(dDtUtil+1,.T.)
 FOR nV := 1 TO LEN(PARAMIXB)
-	If LEN(PARAMIXB) == 1 .AND. cCondicao == "999"
+    IF PARAMIXB[nV,1] < dDtUtil
+       PARAMIXB[nV,1] := dDtUtil
+    ENDIF
+
+	If nV == 1 .AND. cCondicao == "999" //.AND. LEN(PARAMIXB) == 1
 		If !Empty(SF1->F1_XXPVPGT)
 			PARAMIXB[nV,1] := SF1->F1_XXPVPGT
 		EndIf
 	EndIf
 
-    IF PARAMIXB[nV,1] < dDtUtil
-       PARAMIXB[nV,1] := dDtUtil
-    ENDIF
 NEXT
 
 Return(PARAMIXB)

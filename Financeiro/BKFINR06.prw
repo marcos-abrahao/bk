@@ -170,8 +170,7 @@ IF Pergunte(cPerg,.T.)
 				AADD(aCampos,"QSZ2->Z2_OBSTITU")
 				AADD(aCabs  ,"Observações")
 
-				ProcRegua(QSZ2->(LASTREC()))
-				Processa( {|| U_GeraCSV("QSZ2",cPerg,aTitulos,aCampos,aCabs)})
+				U_GeraCSV("QSZ2",cPerg,aTitulos,aCampos,aCabs)
    
 		    ELSE
 				MsgStop("Opção disponivel apenas para titulos gerados pelo Depto Pessoal (Liquidos "+FWEmpName(cEmpAnt)+")")
@@ -261,6 +260,7 @@ Local cxNumPa    := ""
 Local cFormaPgto := ""
 Local nIniBox    := 0
 Local cLinObs    := ""
+Local xi		 := 0
 
 nMaxLin := Iif(lLands,2300,3100)
 nMaxObs := Iif(lLands,120,090)
@@ -1154,7 +1154,7 @@ RETURN cDIGTA
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 dbSelectArea("SX1")

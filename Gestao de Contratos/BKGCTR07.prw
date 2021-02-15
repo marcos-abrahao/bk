@@ -2,7 +2,6 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR07()
 BK - Mapa de INSS retido
 
@@ -11,13 +10,14 @@ BK - Mapa de INSS retido
 @version P12
 @return Nil
 /*/
-//-------------------------------------------------------------------
+
 Static aRecNo := {}
 
 User Function BKGCTR07()
 
 Local titulo        := ""
 Local aTitulos,aCampos,aCabs
+//Local aPlans		:= {}
 
 Private cPerg       := "BKGCTR07"
 Private cString     := "CN9"
@@ -64,8 +64,7 @@ ENDIF
 
 titulo   := "Mapa de INSS Retido :"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
 
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
 
 aCabs   := {}
 aCampos := {}
@@ -224,15 +223,17 @@ IF cMotMulta = "S"
 	AADD(aCabs  ,"Motivo Multa")
 ENDIF
 
-ProcRegua(QTMP->(LASTREC()))
-Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
+//ProcRegua(QTMP->(LASTREC()))
+U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
+
+//AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .T. })
+//U_GeraXlsx(aPlans,"",cPerg, .T.,)
+
 Return
 
 
 Static Function ProcQuery
 Local cQuery
-
-IncProc("Consultando o banco de dados...")
 
 cQuery := " SELECT DISTINCT F2_FILIAL,CNA_CLIENT AS XX_CLIENTE,CNA_LOJACL AS XX_LOJA,C6_PRODUTO AS XX_PROD,B1_DESC,B1_CODISS,B1_ALIQISS,CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
 cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
@@ -388,6 +389,7 @@ Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
+Local i,j
 
 dbSelectArea("SX1")
 dbSetOrder(1)

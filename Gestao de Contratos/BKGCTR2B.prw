@@ -203,8 +203,7 @@ AADD(aTitulos,cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo1)
 	            
 If cTpRel == "C"
 	// CSV
-	ProcRegua(TMPC->(LASTREC()))
-	Processa( {|| U_GeraCSV("TMPC",cProg,aTitulos,aCampos,aCabs,,,,.F.)})
+	U_GeraCSV("TMPC",cProg,aTitulos,aCampos,aCabs,,,,.F.)
 ElseIf cTpRel == "X"
 	// XLSX
 	aPlans := {}
@@ -231,6 +230,7 @@ Local dDtR   := DATE()
 Local nDiasA := 0
 Local nDiasB := 0
 Local nDiasT := 0
+Local _nI	 := 0
 
 Private cCampo
 Private _cEmpresa := _cEmp

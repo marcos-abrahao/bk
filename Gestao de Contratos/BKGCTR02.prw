@@ -287,8 +287,7 @@ Next
 
 If cTpRel == "C"
 	// CSV
-	ProcRegua(TMPC->(LASTREC()))
-	Processa( {|| U_GeraCSV("TMPC",cProg,aTitulos,aCampos1,aCabs1,,,,.F.)})
+	U_GeraCSV("TMPC",cProg,aTitulos,aCampos1,aCabs1,,,,.F.)
 ElseIf cTpRel == "X"
 	// XLSX
 	aPlans := {}
@@ -329,6 +328,7 @@ Return
 
 Static Function ProcQuery(_cEmp)
 Local cQuery,cQuery2
+Local _nI 
 
 Private cCampo
 Private _cEmpresa := _cEmp

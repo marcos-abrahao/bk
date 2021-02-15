@@ -188,9 +188,7 @@ Else
 	AADD(aCabs2  ,"Just.Num.Funcion")
 	cQuery2 := ""
 
-	ProcRegua(QTMP->(LASTREC()))
-	
-	Processa( {|| U_GeraCSV2("QTMP",cPerg,aTitulos,aCampos,aCabs,cQuery2,"QTMP2",aCampos2,aCabs2)})
+	U_GeraCSV2("QTMP",cPerg,aTitulos,aCampos,aCabs,cQuery2,"QTMP2",aCampos2,aCabs2)
    
 EndIf	
 Return
@@ -323,7 +321,7 @@ Return
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
@@ -389,6 +387,7 @@ Local cDirTmp := "C:\TMP"
 Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
 Local lSoma,aSoma,nCab
 Local cLetra
+Local nxx
 
 Local cContra := ""
 

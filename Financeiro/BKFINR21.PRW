@@ -1,25 +1,17 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
 
+/*/{Protheus.doc} BKFINR21()
+BK - Mapa de INSS retido
+
+@author Adilson Prado
+@since 01/08/17
+@version P12
+@return Nil
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFINR21 Autor Adilson Prado                Data ³01/08/17 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Bloqueio ou Desbloqueio judicial                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+
 
 User Function BKFINR21()
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Declaracao de Variaveis                                             ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 Local aTitulos,aCampos,aCabs
 Local cTitulo   := "Bloqueio ou Desbloqueio judicial"
@@ -34,7 +26,6 @@ Private cAgencia  	:= ""
 Private cConta	  	:= "" 
 Private cProcesso 	:= "" 
 Private cReclamante	:= "" 
-
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -95,16 +86,13 @@ AADD(aCabs  ,"Tribunal")
 AADD(aCampos,"QSZO->ZO_RECLAM") 
 AADD(aCabs  ,"Reclamante")
 
-
 AADD(aCampos,"IIF(QSZO->ZO_TIPO=='B',QSZO->ZO_VALOR,0)")
 AADD(aCabs  ,"Bloqueio")
 
 AADD(aCampos,"IIF(QSZO->ZO_TIPO=='D',QSZO->ZO_VALOR,0)")
 AADD(aCabs  ,"Desbloqueio")
 
-
-ProcRegua(QSZO->(LASTREC()))
-Processa( {|| U_GeraCSV("QSZO",wnrel,aTitulos,aCampos,aCabs)})
+U_GeraCSV("QSZO",wnrel,aTitulos,aCampos,aCabs)
    
 Return
 
@@ -147,7 +135,7 @@ Return
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

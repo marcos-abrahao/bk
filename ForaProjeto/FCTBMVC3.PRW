@@ -12,7 +12,7 @@ User Function FCTBMVC3()
 	Local l_Cont	:= .F.
 	Local aButtons 	:= {{.F.,Nil},{.F.,Nil},{.F.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.F.,"Salvar"},{.T.,"Cancelar"},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil}}
 	
-	FWMsgRun(, {|oSay| VerTrack(@l_Cont) }, "Processando", "Verificando contabilizacao...")
+	FWMsgRun(, {|oSay| VerTrack(@l_Cont) }, "" /* Aguarde*/, "Verificando contabilizacao...")
 	If( l_Cont )
 		Processa({|| CursorWait(), FWExecView( "Track contabil" , "FCTBMVC3", MODEL_OPERATION_VIEW, , { || .T. } ,{|| .T. } , ,aButtons ), CursorArrow() }, "Aguarde! Processando Track contabil...")
 	EndIf
@@ -97,10 +97,10 @@ Return( oView )
 @type function
 /*/
 Static Function VerTrack(l_Cont)
-	Local c_Fils	:= ""
-	Local a_Fils	:= {}
+	//Local c_Fils	:= ""
+	//Local a_Fils	:= {}
 	Local cQryCT2   := ""
-	Local n_Pos		:= 0
+	//Local n_Pos		:= 0
 	Local a_Area	:= SE5->( GetArea() )
 		
 	cQryCT2 := "SELECT CT2_KEY, CT2_FILIAL, CT2_DATA, CT2_LOTE, CT2_SBLOTE, CT2_DOC, CT2_LINHA, CT2_DC, CT2_DEBITO, CT2_CREDIT, CT2_VALOR, CT2_HIST, CT2_ITEMC, CT2_ITEMD, CT2_CCC, CT2_CCD, CT2_ORIGEM, CT2_ROTINA , CT2_LP, CT2_SEQHIS, CT2_SEQLAN, R_E_C_N_O_" + chr(13)+chr(10)

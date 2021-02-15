@@ -377,6 +377,7 @@ Return lOk
 
 Static Function MudaCell(lAll)
 Local nAviso := 1
+Local nI
 
 nTotal := 0
 
@@ -2059,7 +2060,7 @@ Return( cImpLin )
 
 
 Static Function ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

@@ -15,6 +15,7 @@ BK - Rentabilidade dos Contratos
 
 User Function BKGCTR11(lJob)
 Local _nI           := 0
+Local iX			:= 0
 Local aDbf 		    := {} //cArqTmp
 Local oTmpTb1
 Local aDbf2         := {} //,cArqTmp2
@@ -682,6 +683,13 @@ Local cQueryA	:= ""
 Local cQueryX	:= ""
 Local nAuxVl	:= 0
 Local aNDC		:= {}
+Local IX		:= 0
+Local _IX2		:= 0
+Local _IXFUR	:= 0
+Local XI_		:= 0
+Local _IX		:= 0
+Local i
+Local Yi_
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
@@ -1672,6 +1680,10 @@ FOR _nI := 1 TO nPeriodo
 
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
 
+				If TMPX2->D1_DOC == '000051817'
+					xbk := 0
+				EndIf
+
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
 				/*
@@ -1965,6 +1977,11 @@ FOR _nI := 1 TO nPeriodo
 				nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+
+
+					If TMPX2->D1_DOC == '000051817'
+						xbk := 0
+					EndIf
 
 					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
@@ -2287,6 +2304,11 @@ FOR _nI := 1 TO nPeriodo
 					nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+
+
+						If TMPX2->D1_DOC == '000051817'
+							xbk := 0
+						EndIf
 
 						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
@@ -3854,27 +3876,29 @@ Return
 
 
 Static Function  ValidPerg
+Local i		:= 0
+Local j		:= 0
+Local aArea	:= GetArea()
+Local aRegs	:= {}
 
-Local aArea      := GetArea()
-Local aRegistros := {}
 cPerg := "BKGCTR11"
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Contrato:","Contrato:","Contrato:","mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","","BKGCTR11H1."})
-AADD(aRegistros,{cPerg,"02","%Média Impostos e Contribuições:","%Média Impostos e Contribuições:" ,"%Média Impostos e Contribuições:" ,"mv_ch2","N",10,5,2,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H2."})
-AADD(aRegistros,{cPerg,"03","%Encargos CLT:","%Encargos:" ,"%Encargos:" ,"mv_ch3","N",10,5,2,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H3."})
-AADD(aRegistros,{cPerg,"04","%Encargos Autonomos:","%Encargos Autonomos:" ,"%Encargos Autonomos:" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H4."})
-AADD(aRegistros,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"mv_ch5","N",10,5,2,"G","NaoVazio()","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H5."})
-AADD(aRegistros,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H6."})
+AADD(aRegs,{cPerg,"01","Contrato:","Contrato:","Contrato:","mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","","BKGCTR11H1."})
+AADD(aRegs,{cPerg,"02","%Média Impostos e Contribuições:","%Média Impostos e Contribuições:" ,"%Média Impostos e Contribuições:" ,"mv_ch2","N",10,5,2,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H2."})
+AADD(aRegs,{cPerg,"03","%Encargos CLT:","%Encargos:" ,"%Encargos:" ,"mv_ch3","N",10,5,2,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H3."})
+AADD(aRegs,{cPerg,"04","%Encargos Autonomos:","%Encargos Autonomos:" ,"%Encargos Autonomos:" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H4."})
+AADD(aRegs,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"mv_ch5","N",10,5,2,"G","NaoVazio()","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H5."})
+AADD(aRegs,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H6."})
 
-For i:=1 to Len(aRegistros)
-	If !MsSeek(cPerg+aRegistros[i,2])
+For i:=1 to Len(aRegs)
+	If !MsSeek(cPerg+aRegs[i,2])
 		RecLock("SX1",.T.)
 		For j:=1 to FCount()
-			If j <= Len(aRegistros[i])
-				FieldPut(j,aRegistros[i,j])
+			If j <= Len(aRegs[i])
+				FieldPut(j,aRegs[i,j])
 			Endif
 		Next
 		MsUnlock()
@@ -3900,6 +3924,8 @@ Local cXXSEMAF		:= "N"
 Local aRetCons		:= {}
 Local cLogCons   	:= ""
 Local cCrLf   		:= Chr(13) + Chr(10) 
+Local _IX			:= 0
+Local IX			:= 0
 
 Private titulo      := "Rentabilidade dos Contratos"
 Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
@@ -4523,30 +4549,32 @@ Return aRet
 
 
 Static Function  ValidPerg2
+Local i		:= 0
+Local j		:= 0
+Local aArea	:= GetArea()
+Local aRegs := {}
 
-Local aArea      := GetArea()
-Local aRegistros := {}
 cPerg := "BK2GCTR11"
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Contrato:","Contrato:","Contrato:","mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
-AADD(aRegistros,{cPerg,"02","%Média Impostos e Contribuições:","%Média Impostos e Contribuições:" ,"%Média Impostos e Contribuições:" ,"mv_ch2","N",10,5,2,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","%Encargos CLT:","%Encargos:" ,"%Encargos:" ,"mv_ch3","N",10,5,2,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"04","%Encargos Autonomos:","%Encargos Autonomos:" ,"%Encargos Autonomos:" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"mv_ch5","N",10,5,2,"G","NaoVazio()","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"07","Consolidar Contratos?","Consolidar Contratos?","Consolidar Contratos?","mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"08","Consorcio Aplicar Indice Total?","Consorcio Aplicar Indice Total","Consorcio Aplicar Indice Total","mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"09","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegs,{cPerg,"01","Contrato:","Contrato:","Contrato:","mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
+AADD(aRegs,{cPerg,"02","%Média Impostos e Contribuições:","%Média Impostos e Contribuições:" ,"%Média Impostos e Contribuições:" ,"mv_ch2","N",10,5,2,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegs,{cPerg,"03","%Encargos CLT:","%Encargos:" ,"%Encargos:" ,"mv_ch3","N",10,5,2,"G","NaoVazio()","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegs,{cPerg,"04","%Encargos Autonomos:","%Encargos Autonomos:" ,"%Encargos Autonomos:" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegs,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"mv_ch5","N",10,5,2,"G","NaoVazio()","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegs,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegs,{cPerg,"07","Consolidar Contratos?","Consolidar Contratos?","Consolidar Contratos?","mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegs,{cPerg,"08","Consorcio Aplicar Indice Total?","Consorcio Aplicar Indice Total","Consorcio Aplicar Indice Total","mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegs,{cPerg,"09","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","Rateia Despesas no Cronograma?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
-For i:=1 to Len(aRegistros)
-	If !MsSeek(cPerg+aRegistros[i,2])
+For i:=1 to Len(aRegs)
+	If !MsSeek(cPerg+aRegs[i,2])
 		RecLock("SX1",.T.)
 		For j:=1 to FCount()
-			If j <= Len(aRegistros[i])
-				FieldPut(j,aRegistros[i,j])
+			If j <= Len(aRegs[i])
+				FieldPut(j,aRegs[i,j])
 			Endif
 		Next
 		MsUnlock()
@@ -4625,8 +4653,9 @@ RETURN NIL
 
 
 USER FUNCTION PREVCONTRA(cCONTRA,cPERIODO)
-LOCAL aPREV := {}
-LOCAL lCOMPET := .F.
+LOCAL aPREV		:= {}
+LOCAL lCOMPET	:= .F.
+LOCAL _IX		:= 0
 
 IF nConsolida == 1
 	nTSZG03   := 0

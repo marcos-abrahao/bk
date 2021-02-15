@@ -493,7 +493,7 @@ Return Nil
  
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
@@ -611,8 +611,7 @@ cQuery += "       AND Z8_FILIAL = '"+xFilial("SZ8")+"' AND SZ8.D_E_L_E_T_ = ' ' 
 
 TCQUERY cQuery NEW ALIAS "QSZ8"
 
-ProcRegua(QSZ8->(LASTREC()))
-Processa( {|| U_GeraCSV("QSZ8",cPerg+"F",aTitulos,aCampos,aCabs)})
+U_GeraCSV("QSZ8",cPerg+"F",aTitulos,aCampos,aCabs)
 
 Return Nil
 
@@ -664,7 +663,6 @@ cQuery += "       AND Z9_FILIAL = '"+xFilial("SZ9")+"' AND SZ9.D_E_L_E_T_ = ' '"
 
 TCQUERY cQuery NEW ALIAS "QSZ9"
 
-ProcRegua(QSZ9->(LASTREC()))
-Processa( {|| U_GeraCSV("QSZ9",cPerg+"D",aTitulos,aCampos,aCabs)})
+U_GeraCSV("QSZ9",cPerg+"D",aTitulos,aCampos,aCabs)
 
 Return Nil

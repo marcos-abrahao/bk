@@ -35,7 +35,33 @@ Generico - Gera planilha excel no formato .CSV
 //  Chamada
 //    Processa( {|| U_GeraCSVQ("QSC6",TRIM(cPerg),aTitulos,aCampos,aCabs)})
 
-User Function GeraCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
+
+User Function GeraCsv(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
+Local cFile    := ""
+Local aPlans   := {}
+Local lJob     := IsBlind()
+
+Default cTpQuebra := " "
+Default lClose    := .T.
+
+
+If !lJob
+   If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+      AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
+      cFile := U_GeraXlsx(aPlans,"",cArqS, lClose,)
+   Else
+      //MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
+      FWMsgRun(, {|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "", "Gerando arquivo CSV: "+cArqS+"...")	
+   EndIf
+Else
+	cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
+EndIf
+
+Return cFile
+
+
+
+User Function ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
 Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
@@ -43,7 +69,6 @@ Local cPicN   := "@E 9999999999.999999"
 Local cDirTmp := "C:\TMP"
 Local cArqTmp := cDirTmp+"\"+cArqS+"-"+DTOS(Date())+".CSV"
 Local lSoma,aSoma,nCab
-Local aPlans  := {}
 Local lFirst  := .T.
 
 Private xQuebra,xCampo
@@ -56,11 +81,6 @@ IF lClose == NIL
    lClose := .T.
 ENDIF
 
-If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
-   AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
-   U_GeraXlsx(aPlans,"",cArqS, lClose,)
-   Return Nil
-EndIf
 
 MakeDir(cDirTmp)
 
@@ -95,7 +115,7 @@ If nHandle > 0
    lFirst := .T.
 
    (_cAlias)->(dbgotop())
-   ProcRegua((_cAlias)->(LastRec())) 
+   //ProcRegua((_cAlias)->(LastRec())) 
    Do While (_cAlias)->(!eof())
 
       /*
@@ -114,7 +134,7 @@ If nHandle > 0
       EndIf
       */
       
-      IncProc("Gerando arquivo "+cArqS)   
+      //IncProc("Gerando arquivo "+cArqS)   
 
       For _ni :=1 to LEN(aCampos)
 
@@ -191,18 +211,24 @@ If nHandle > 0
    ENDIF	
       
    fClose(nHandle)
-      
-	MsgRun(cArqs,"Aguarde a abertura da planilha...",{|| ShellExecute("open", cArqTmp,"","",1) })
+
+   If !IsBlind()
+	   FWMsgRun(, {|oSay| ShellExecute("open", cArqTmp,"","",1)}, "", cPerg+" Aguarde a abertura da planilha...")
+   EndIf
+
+	//MsgRun(cArqs,"Aguarde a abertura da planilha...",{|| ShellExecute("open", cArqTmp,"","",1) })
 
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp)
+   If !IsBlind()
+      MsgAlert("Falha na criação do arquivo "+cArqTmp)
+   EndIf
 Endif
 
 IF lClose   
    (_cAlias)->(dbCloseArea())
 ENDIF
    
-Return
+Return cArqTmp
 
 
 // Converte query ou dbf em arquivo .csv
@@ -219,8 +245,7 @@ FOR _nI := 1 TO FCOUNT()
     AADD(aCampos,_cAlias+"->"+FIELDNAME(_ni))
 NEXT
 
-ProcRegua(LASTREC())
-Processa( {|| U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)})
+FWMsgRun(, {|oSay| U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)}, "", cPerg+"Aguarde geração do arquivo CSV...")
 
 Return nil
 

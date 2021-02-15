@@ -121,8 +121,7 @@ ProcRegua(1)
 Processa( {|| ProcQuery() })
  
 If nFormato == 1
-	ProcRegua(QTMP->(LASTREC()))
-	Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
+	U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
 Else	
 	AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 	U_GeraXlsx(aPlans,cTitulo,cPerg,.F.)
@@ -137,6 +136,7 @@ Static Function ProcQuery
 Local aContrCons:= {}
 Local aConsorcio:= {}
 Local nScan		:= 0
+Local IX
 
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 FOR IX:= 1 TO LEN(aContrCons)
@@ -346,7 +346,7 @@ Return
  
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
