@@ -181,8 +181,8 @@ User Function BKGCTR26()
     EndIf
 
     // Para teste
-	//dDataI := CTOD("01/12/2020")
-	//dDataF := dDataBase
+	dDataI := CTOD("01/02/2021")
+	dDataF := dDataBase
 
 	cAliasT1 := GetNextAlias()
 
@@ -215,12 +215,15 @@ User Function BKGCTR26()
 	oTmpT1:Create()
 	cRealT1 := oTmpT1:GetRealName()
 
+	u_xxLog(cArqLog,cStart+": "+cUserName,.T.,"")
+
 	If !lIsBlind
 		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
 		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
 		FWMsgRun(, {|oSay| GCT26CC(oSay,@aRelat,@aRelat2) }, "", cPerg+" Processando Centros de custos...")
 		FWMsgRun(, {|oSay| GCT26Sld(oSay) }, "", cPerg+" Calculando saldos anteriores...")
 	Else
+
 		u_xxLog(cArqLog,"Processando Contas a Receber...",.T.,"")
 		GCT26P191(oSay,@aRelat,"R")
 
@@ -245,6 +248,8 @@ User Function BKGCTR26()
 
 	u_xxLog(cArqLog,"Gerando planilha Fluxo...",.T.,"")
 	GCT26Rel()
+
+	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName,.T.,"")
 
 //If nCont > 0
 	//MsAguarde({|| GCT26Xls(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
@@ -2667,14 +2672,15 @@ Static Function GCT26Rel()
 	Local cPrc      := "Fluxo"
 	Local lClose    := .F.
 	Local cFile		:= ""
-	Local cMsg 		:= FWEmpName(cEmpAnt)+" - "+aTitulos[1]
+	Local cMsg 		:= ""
 
 	AADD(aTitulos,cTitulo)
 	AADD(aPlans,{cAliasT1,cPerg+"-"+cPrc,"",aTitulos,aCamposT1,aCabsT1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
 
 	cFile := U_GeraXlsx(aPlans,"",cPerg+"-"+cPrc, lClose,)
 
-	u_BkSnMail("BKGCTR14",cMsg,cEmailTO,cEmailCC,cMsg,{cFile},IsBlind())
+	cMsg:= FWEmpName(cEmpAnt)+" - "+aTitulos[1]
+	u_BkSnMail("BKGCTR26",cMsg,cEmailTO,cEmailCC,cMsg,{cFile})
 
 Return Nil
 

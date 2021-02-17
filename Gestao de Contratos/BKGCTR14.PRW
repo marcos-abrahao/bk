@@ -5665,7 +5665,7 @@ If lJob
 	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	u_xxLog(cArqLog,cMsg,.T.,"")
 	//U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
-	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp},lJob)
+	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
 	u_xxLog(cArqLog,"Email enviado",.T.,"")
 EndIf
 

@@ -297,7 +297,7 @@ Processa( {|| ProcPFIS09() })
 If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
 	cArqTmp := U_CORPFIS09()
 	//U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp,cArqTmp,.F.)
-    U_BkSnMail("PFIS09", "Backup PIS COFINS", "microsiga@bkconsultoria.com.br;", "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp}, IsBlind())
+    U_BkSnMail("PFIS09", "Backup PIS COFINS", "microsiga@bkconsultoria.com.br;", "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp})
 
 Else
 	Processa ( {|| U_CSVPFIS09()})

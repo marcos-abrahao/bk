@@ -35,7 +35,7 @@ Função para disparo do e-mail utilizando TMailMessage e tMailManager com opção d
 /*/
                 
 
-User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, _lJob, lUsaTLS)
+User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     Local aArea        := GetArea()
     Local nAtual       := 0
     Local lRet         := .T.
@@ -51,6 +51,13 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, _lJob, lUsaT
     Local nTimeOut     := GetMV("MV_RELTIME")
     Local cLog         := ""
 	Local lMostraLog   := .F.
+    Local lJob         := IsBlind()
+    Local cPath        := "\tmp\"
+
+    Local cDrive       := ""
+    Local cDir         := ""
+    Local cNome        := ""
+    Local cExt         := ""
 
     Default cPara      := ""
     Default cAssunto   := ""
@@ -61,7 +68,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, _lJob, lUsaT
 	// Para testes
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 		cPara := cCc := "microsiga@bkconsultoria.com.br"
-		If _lJob
+		If lJob
 			ConOut(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto))
 		Else
 			//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
@@ -99,7 +106,13 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, _lJob, lUsaT
         For nAtual := 1 To Len(aAnexos)
             //Se o arquivo existir
             If File(aAnexos[nAtual])
- 
+
+                If ":" $ aAnexos[nAtual]
+                    CpyT2S( aAnexos[nAtual] , cPath, .T. )
+                    SplitPath( aAnexos[nAtual], @cDrive, @cDir, @cNome, @cExt )
+                    aAnexos[nAtual] := cPath+cNome+cExt
+                EndIf    
+
                 //Anexa o arquivo na mensagem de e-Mail
                 nRet := oMsg:AttachFile(aAnexos[nAtual])
                 If nRet < 0
@@ -161,7 +174,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, _lJob, lUsaT
                 //Disconecta do servidor
                 nRet := oSrv:SMTPDisconnect()
                 If nRet <> 0
-                    cLog += "009 - Nao foi possivel disconectar do servidor SMTP: " + oSrv:GetErrorString(nRet) + CRLF
+                    cLog += "009 - Nao foi possivel desconectar do servidor SMTP: " + oSrv:GetErrorString(nRet) + CRLF
                 EndIf
             EndIf
         EndIf
@@ -169,14 +182,14 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, _lJob, lUsaT
  
     //Se tiver log de avisos/erros
     If !Empty(cLog)
-        cLog := "zEnvMail - "+dToC(Date())+ " " + Time() + CRLF + ;
+        cLog := "BkSnMail: "+dToC(Date())+ " " + Time() + CRLF + ;
             "Funcao - " + FunName() + CRLF + CRLF +;
             "Existem mensagens de aviso: "+ CRLF +;
             cLog
         ConOut(cLog)
  
         //Se for para mostrar o log visualmente e for processo com interface com o usuário, mostra uma mensagem na tela
-        If lMostraLog .and. ! IsBlind() .and. !_lJob
+        If lMostraLog .and. !lJob
             Aviso("Log", cLog, {"Ok"}, 2)
         EndIf
     EndIf
@@ -200,7 +213,7 @@ Local lRelauth   := GetMv("MV_RELAUTH")
 Local cDe        := cEmail
 Local nTent      := 0
 
-Default _lJob    := .T.
+Default _lJob    := IsBlind()
 Private lResult  := .T.
 
 // Para testes
