@@ -296,7 +296,9 @@ Processa( {|| ProcPFIS09() })
 //Processa ( {|| MBrwPFIS09()})
 If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
 	cArqTmp := U_CORPFIS09()
-	U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp,cArqTmp,.F.)
+	//U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp,cArqTmp,.F.)
+    U_BkSnMail("PFIS09", "Backup PIS COFINS", "microsiga@bkconsultoria.com.br;", "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp}, IsBlind())
+
 Else
 	Processa ( {|| U_CSVPFIS09()})
 EndIf
@@ -432,8 +434,9 @@ Return cFile
    
 
 Static Function ProcPFIS09()
-LOCAL  cQuery,cERRO := ""
+LOCAL cQuery,cERRO := ""
 LOCAL nLINHA := 0
+LOCAL _Xi
 
 LimpaBrw("TRB")
 
@@ -1068,6 +1071,7 @@ Return
 
 
 Static Function  ValidPerg(cPerg)
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

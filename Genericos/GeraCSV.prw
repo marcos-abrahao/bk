@@ -213,7 +213,7 @@ If nHandle > 0
    fClose(nHandle)
 
    If !IsBlind()
-	   FWMsgRun(, {|oSay| ShellExecute("open", cArqTmp,"","",1)}, "", cPerg+" Aguarde a abertura da planilha...")
+	   FWMsgRun(, {|oSay| ShellExecute("open", cArqTmp,"","",1)}, "", cArqTmp+": Aguarde a abertura do arquivo...")
    EndIf
 
 	//MsgRun(cArqs,"Aguarde a abertura da planilha...",{|| ShellExecute("open", cArqTmp,"","",1) })
@@ -245,7 +245,7 @@ FOR _nI := 1 TO FCOUNT()
     AADD(aCampos,_cAlias+"->"+FIELDNAME(_ni))
 NEXT
 
-FWMsgRun(, {|oSay| U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)}, "", cPerg+"Aguarde geração do arquivo CSV...")
+FWMsgRun(, {|oSay| U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)}, "", cArqS+": Aguarde geração do arquivo CSV...")
 
 Return nil
 
