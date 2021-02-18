@@ -136,6 +136,7 @@ Private xQuebra
 
 If lJob
 	cDirTmp := "\tmp\"
+	lOpen	:= .F.
 EndIf
 
 
@@ -943,6 +944,7 @@ Local nTit2Style
 Local nTit3Style	
 Local nTotStyle	
 Local nIDImg
+Local lOpen := .T.
 
 //Local nStyle
 Default lJob	:= IsBlind()
@@ -951,6 +953,7 @@ Private xQuebra
 
 If lJob
 	cDirTmp := "\tmp\"
+	lOpen	:= .F.
 EndIf
 
 //If lClose == NIL
@@ -1236,7 +1239,7 @@ If File(cFile)
 	EndIf
 EndIf
 
-oExcel:Gravar(cDirTmp+"\",.T.,.T.)
+oExcel:Gravar(cDirTmp+"\",lOpen,.T.)
 
 RestArea(aArea)
 
