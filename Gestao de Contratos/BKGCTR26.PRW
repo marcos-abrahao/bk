@@ -103,6 +103,11 @@ User Function BKGCTR26()
 
 	Private dDataI  	:= CTOD("")
 	Private dDataF  	:= CTOD("")
+
+	Private lFiltDt		:= .F.
+	Private dDataIFlt  	:= CTOD("")
+	Private dDataFFlt  	:= CTOD("")
+
 	Private aPeriodo    := {}
 	Private aAnoMes     := {}
 	Private nPeriodo    := 1
@@ -137,11 +142,14 @@ User Function BKGCTR26()
 	aAdd( aParam ,{ 2, "Agendar"			, "Nao"		 , {"Nao", "Sim"}            , 40,'.T.'  ,.T.})
 	aAdd( aParam, { 1, "Agendar para:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 	aAdd( aParam, { 1, "E-Mail:"	 	 	, cEmailTo	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	aAdd( aParam ,{ 2, "Filtrar Datas"		, "Nao"		 , {"Nao", "Sim"}            , 40,'.T.'  ,.T.})
+	aAdd( aParam, { 1, "Data Inicial:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	aAdd( aParam, { 1, "Data Final:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 
     If lIsBlind .OR. FWGetRunSchedule()
 		dDataJob	:= U_BKGetMv("BKGCTR2604",.F.,CTOD(""))
 		cEmailTo  	:= U_BKGetMv("BKGCTR2605")
-        lSintetico  := .F.
+        lSintetico  := .T.
 
 		If Empty(dDataJob) .OR. !(dDataJob == DATE())
 			u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
@@ -181,8 +189,8 @@ User Function BKGCTR26()
     EndIf
 
     // Para teste
-	dDataI := CTOD("01/02/2021")
-	dDataF := dDataBase
+	//dDataI := CTOD("01/02/2021")
+	//dDataF := dDataBase
 
 	cAliasT1 := GetNextAlias()
 
@@ -274,6 +282,9 @@ Static Function GCT26Par
 		lAgendar	:= IIF(SUBSTR(mv_par03,1,1)=="S",.T.,.F.)
 		dDataJob	:= mv_par04
 		cEmailTO	:= mv_par05
+		lFiltDt		:= IIF(SUBSTR(mv_par06,1,1)=="S",.T.,.F.)
+		dDataIFlt	:= mv_par07
+		dDataFFlt	:= mv_par08
 
 		If !Empty(cContrato)
 			cTitulo  += ": "+cContrato
@@ -287,47 +298,52 @@ Static Function GCT26Per(oSay)
 	Local cQuery := ""
 	Local dDataInicio := dDataBase
 
-	cQuery := " SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
-	cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
-	cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
-	If !Empty(cContrato)
-		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
+	If !lFiltDt
+		cQuery := " SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
+		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+		cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+		If !Empty(cContrato)
+			cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
+		EndIf
+		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+		cQuery += " GROUP BY CN9_SITUAC"+CRLF
+
+		u_LogMemo("BKGCTR26-CNF.SQL",cQuery)
+
+		TCQUERY cQuery NEW ALIAS "QTMP1"
+		TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)
+		TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)
+		TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)
+		TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)
+
+		dbSelectArea("QTMP1")
+		dDataI		:= QTMP1->CN9_DTOSER
+		If Empty(dDataI)
+			dDataI	:= QTMP1->CN9_DTINIC
+		EndIf
+		If (!Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI) .OR. Empty(dDataI)
+			dDataI	:= QTMP1->CNF_INICIO
+		EndIf
+		If Empty(dDataI)
+			dDataI := dDataBase
+		EndIf
+		dDataF	:= QTMP1->CNF_FIM
+
+		If Empty(dDataF)
+			dDataF := dDataBase
+		EndIf
+
+		QTMP1->(Dbclosearea())
+
+	// Voltar 1 mes
+		dDataI	:= dDataI - Day(dDataI)
+		dDataI	:= dDataI - Day(dDataI)+1
+	Else
+		dDataI	:= dDataIFlt
+		dDataF	:= dDataFFlt
 	EndIf
-	cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
-	cQuery += " GROUP BY CN9_SITUAC"+CRLF
-
-	u_LogMemo("BKGCTR26-CNF.SQL",cQuery)
-
-	TCQUERY cQuery NEW ALIAS "QTMP1"
-	TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)
-	TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)
-	TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)
-	TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)
-
-	dbSelectArea("QTMP1")
-	dDataI		:= QTMP1->CN9_DTOSER
-	If Empty(dDataI)
-		dDataI	:= QTMP1->CN9_DTINIC
-	EndIf
-	If (!Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI) .OR. Empty(dDataI)
-		dDataI	:= QTMP1->CNF_INICIO
-	EndIf
-	If Empty(dDataI)
-		dDataI := dDataBase
-	EndIf
-	dDataF	:= QTMP1->CNF_FIM
-
-	If Empty(dDataF)
-		dDataF := dDataBase
-	EndIf
-
-	QTMP1->(Dbclosearea())
-
-// Voltar 1 mes
-	dDataI      := dDataI - Day(dDataI)
-	dDataI      := dDataI - Day(dDataI)+1
 
 //Determina quantos Meses utilizar no calculo
 	nPeriodo    := DateDiffMonth( dDataI , dDataF ) + 1
@@ -566,15 +582,18 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 							For nX := 1 To Len(aItem)
 								aAdd(aRelat2,aClone(aLinha))
 								nScan := LEN(aRelat2)
-								aRelat2[nScan,ID_TIPOBK] := aItem[nX,1]
-								aRelat2[nScan,ID_CC]     := aItem[nX,2]
-								aRelat2[nScan,ID_VALORPG]:= aItem[nX,3]
-								If GCT26GT1(aItem[nX,1],aItem[nX,2],aLinha,-nValor)
+								aRelat2[nScan,ID_TIPOBK]  := aItem[nX,1]
+								aRelat2[nScan,ID_CC]      := aItem[nX,2]
+								aRelat2[nScan,ID_TOTALPAGO]:= aItem[nX,3]
+								If GCT26GT1(aItem[nX,1],aItem[nX,2],aLinha,-aItem[nX,3])
 									aRelat[nI,ID_CONSIDER] := "SD1"
 								Else
 									aRelat[nI,ID_CONSIDER] := "N1-SD1"
 								Endif
 								aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
+								If nX > 1
+									aRelat2[nScan,ID_VALORORIG] := 0
+								EndIf
 							Next
 						Else
 							aRelat[nI,ID_CONSIDER] := "N2-SD1"
@@ -592,15 +611,18 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 						For nX := 1 To Len(aItem)
 							aAdd(aRelat2,aClone(aLinha))
 							nScan := LEN(aRelat2)
-							aRelat2[nScan,ID_TIPOBK] := cTipoBK
-							aRelat2[nScan,ID_CC]     := aItem[nX,1]
-							aRelat2[nScan,ID_VALORPG]:= aItem[nX,2]
-							If GCT26GT1(cTipoBK,aItem[nX,1],aLinha,-nValor)
+							aRelat2[nScan,ID_TIPOBK]   := cTipoBK
+							aRelat2[nScan,ID_CC]       := aItem[nX,1]
+							aRelat2[nScan,ID_TOTALPAGO]:= aItem[nX,2]
+							If GCT26GT1(cTipoBK,aItem[nX,1],aLinha,-aItem[nX,2])
 								aRelat[nI,ID_CONSIDER] := "RH"
 							Else
 								aRelat[nI,ID_CONSIDER] := "N1-RH"
 							Endif
 							aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
+							If nX > 1
+								aRelat2[nScan,ID_VALORORIG] := 0
+							EndIf
 						Next
 					Else
 						aRelat[nI,ID_CONSIDER] := "N2-RH"
@@ -2677,7 +2699,7 @@ Static Function GCT26Rel()
 	AADD(aTitulos,cTitulo)
 	AADD(aPlans,{cAliasT1,cPerg+"-"+cPrc,"",aTitulos,aCamposT1,aCabsT1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
 
-	cFile := U_GeraXlsx(aPlans,"",cPerg+"-"+cPrc, lClose,)
+	cFile := U_GeraXlsx(aPlans,"",cPerg+"-"+cPrc, lClose, aParam)
 
 	cMsg:= FWEmpName(cEmpAnt)+" - "+aTitulos[1]
 	u_BkSnMail("BKGCTR26",cMsg,cEmailTO,cEmailCC,cMsg,{cFile})
