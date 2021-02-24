@@ -544,7 +544,7 @@ U_SOMANDC()
 Return()
 
 
-USER Function SOMANDC()
+User Function SOMANDC()
 Local lOK := .T.
 Local nSomaNDC := 0
 Local _iX := 0

@@ -243,6 +243,7 @@ Local aCC,aPrd,aValCC,nI
 Local cFilD1,cFilF1,cUser
 Local cDigUser   := ""
 Local cLibUser   := ""
+Local cDigData	 := ""
 
 Local cNFELib	 := ""	//F1_XXULIB
 Local cNFEData	 := ""	//F1_XXDLIB
@@ -296,6 +297,7 @@ Begin Sequence
     cFilF1     := xFilial("SF1")
     cUser      := ""
     cDigUser   := ""
+	cDigData   := ""
     cFormaPgto := ""
 
 	cNFELib	   := ""
@@ -311,6 +313,7 @@ Begin Sequence
 	   IF !EMPTY(aUser)
           cDigUser := aUser[1,2]
        ENDIF
+	   cDigData   := FWLeUserlg("F1_USERLGI", 2)
        cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
 		cxTipoPg := SF1->F1_XTIPOPG
 		cxNumPa  := SF1->F1_XNUMPA
@@ -348,6 +351,10 @@ Begin Sequence
     IF EMPTY(cDigUser) .AND. !EMPTY(SE2->E2_USERLGI)
     	//cDigUser := USRFULLNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
     	cDigUser := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+		cDigData := SE2->(FWLeUserlg("E2_USERLGI", 2))
+		If Empty(cDtHoraLib) .AND. !EMPTY(SE2->E2_USERLGA)
+			cDtHoraLib := SE2->(FWLeUserlg("E2_USERLGA", 2))
+		EndIf
     ENDIF   
     cLibUser := SE2->E2_USUALIB
     
@@ -535,8 +542,8 @@ Begin Sequence
 	Endif	
 
     nLin += 50
-	oPrn:Say(nLin,0100,"Tipo "+FWEmpName(cEmpAnt)+" / Pes.:  "+OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
-   //	oPrn:Say(nLin,0400,OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
+	oPrn:Say(nLin,0100,"Tipo BK / Pes.:",oFont12N)
+	oPrn:Say(nLin,0400,OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
 	
 	oPrn:Say(nLin,1300,"Lote "+FWEmpName(cEmpAnt)+":",oFont12N)
 	oPrn:Say(nLin,1700,OemToAnsi(SE2->E2_XXCTRID),oFont12N)
@@ -548,10 +555,10 @@ Begin Sequence
 
     nLin += 50
 	oPrn:Say(nLin,0100,"Usuário:",oFont12N)
-	oPrn:Say(nLin,0400,OemToAnsi(Capital(cDigUser)),oFont12N)
+	oPrn:Say(nLin,0400,OemToAnsi(Capital(cDigUser))+" "+cDigData,oFont12N)
 
 	oPrn:Say(nLin,1300,"Lib. Fin.:",oFont12N)
-	oPrn:Say(nLin,1700,Trim(Capital(cLibUser)+IIF(!EMPTY(cDtHoraLib)," "+cDtHoraLib,"")),oFont12N)
+	oPrn:Say(nLin,1700,Trim(Capital(TRIM(cLibUser))+IIF(!EMPTY(cDtHoraLib)," "+cDtHoraLib,"")),oFont12N)
 
     nLin += 50
   

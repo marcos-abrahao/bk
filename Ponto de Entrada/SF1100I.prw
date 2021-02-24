@@ -17,6 +17,7 @@ Private cJsPgt	 := SF1->F1_XXJSPGT
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
+Private mParcel	 := SF1->F1_HISTRET
 
 IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	PswOrder(1) 
@@ -45,6 +46,7 @@ If Inclui .AND. !l103Auto
 		SF1->F1_XXPVPGT := dPrvPgt
 		SF1->F1_XXJSPGT := cJsPgt
 		SF1->F1_COND	:= cxCond
+		SF1->F1_HISTRET := mParcel
 		MsUnLock("SF1")
 	EndIf
 EndIf

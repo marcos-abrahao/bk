@@ -562,13 +562,14 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 							//cDescB1 := TRIM(SB1->B1_DESC)
 							//    cCodPrd := TRIM(SD1->D1_COD)
 							//EndIf
-
-							nScan := aScan(aItem,{|x| x[1] == cTipoBk .AND. x[2] == SD1->D1_CC})
-							If nScan = 0
-								aAdd(aItem,{cTipoBk,SD1->D1_CC,SD1->D1_TOTAL})
-							Else
-								aItem[nScan,3] += SD1->D1_TOTAL
-							EndIf
+							//If TRIM(cTipoBK) <> "APO"
+								nScan := aScan(aItem,{|x| x[1] == cTipoBk .AND. x[2] == SD1->D1_CC})
+								If nScan = 0
+									aAdd(aItem,{cTipoBk,SD1->D1_CC,SD1->D1_TOTAL})
+								Else
+									aItem[nScan,3] += SD1->D1_TOTAL
+								EndIf
+							//EndIf
 							dbSkip()
 						EndDo
 
@@ -874,13 +875,7 @@ Static Function GCT26P191(oSay,aRelat,cRecPag)
 	lVarFil     := (MV_PAR17 == 1 .And. SM0->(RecCount()) >= 1) // Cons filiais abaixo //Alterado para quando houver 1 filial ou mais
 	nCond1      := ID_DTBAIXA
 
-//oSay:SetText( "Processando xxx" )
-//oSay:SetTextAlign( 2, 2 )
-//oSay:lTransparent = .T.
-//oSay:lWordWrap = .F.
-
 	FA190ImpR4(@aRelat, nOrdem, @aTotais, oReport, nGerOrig, @nI, @cTotText)
-
 
 Return aRelat
 

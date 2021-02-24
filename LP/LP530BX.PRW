@@ -26,7 +26,7 @@ Else
             cCta := "11301002"
         Case cTipBk == "LAD" // Adto fornecedor
             cCta := "11301003"
-        Case cTipBk == "LPM" // salario a pagar
+        Case cTipBk == "LPM" .OR. cTipBk == "COM" // salario a pagar ou Comissão
             cCta := "21301001"
             If !EMPTY(SE2->E2_XXCTRID)
                 cTipoPes := RetPesZ2(SE2->E2_XXCTRID)
