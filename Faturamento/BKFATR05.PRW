@@ -110,14 +110,14 @@ If nHandle > 0
 		For _nJ := 1 TO LEN(aPeds)
 			cPed := aPeds[_nJ]
 			If SC5->(dbSeek(xFilial("SC5")+cPed))
-				aHtml := PedHtml()
+				FWMsgRun(, {|oSay| aHtml := PedHtml() }, "", "BKFATR05 - Consultando pedidos...")
 				For _nI := 1 TO LEN(aHtml)
 					fWrite(nHandle, aHtml[_nI] + cCrLf )
 				Next
 			EndIf
 		Next
 	Else
-		aHtml := PedHtml()
+		FWMsgRun(, {|oSay| aHtml := PedHtml() }, "", "BKFATR05 - Consultando pedido...")
 		For _nI := 1 TO LEN(aHtml)
 			fWrite(nHandle, aHtml[_nI] + cCrLf )
 		Next
@@ -190,6 +190,7 @@ Local cRev      := ""
 Local cMedicao  := SC5->C5_MDNUMED
 Local cPlan     := SC5->C5_MDPLANI
 Local cObsMed   := ""
+Local cObsNF    := ""
 Local cEmissor  := ""
 Local cDescCtr  := ""
 
@@ -239,6 +240,8 @@ Local nRetCtr   := 0
 Local nValFat   := 0
 
 // Impostos
+Local nAlqCPM	:= 0 	// Aliquota do ISS CEPOM
+Local cAlqCPM	:= ""
 Local nValCpm   := 0    // Valor do ISS CEPOM
 Local cRecIss   := ""   // Recolhe ISS
 Local nValCof   := 0    // Valor do COFINS
@@ -308,8 +311,9 @@ While !SC6->(EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
 
    nTotCofins += nValCOFINS
    */
+   nAlqCPM := MaFisRet(nItem, "IT_ALQCPM")
 
-   AADD(aItens,{SC6->C6_PRODUTO,SB1->B1_DESC,SC6->C6_CODISS,SB1->B1_ALIQISS,SC6->C6_TES,SC6->C6_VALOR})
+   AADD(aItens,{SC6->C6_PRODUTO,SB1->B1_DESC,SC6->C6_CODISS,SB1->B1_ALIQISS,SC6->C6_TES,SC6->C6_VALOR,nAlqCpm})
 
    nTotVal += SC6->C6_VALOR
    SC6->(DbSkip())
@@ -415,6 +419,7 @@ If !EMPTY(SC5->C5_NOTA)
    dbSelectArea("SF2")
    dbSetOrder(1)
    If dbSeek(xFilial("SF2")+cNota+cSerie+cCliente+cLoja)
+		cObsNF	:= SF2->F2_XXCORPO
 		nTotVal := SF2->F2_VALFAT
 		nValPis := SF2->F2_VALPIS
 		nValCof := SF2->F2_VALCOFI
@@ -449,6 +454,19 @@ If !EMPTY(SC5->C5_NOTA)
 			cNatureza := QSE1->E1_NATUREZ
 		Endif
 		QSE1->(dbCloseArea())
+
+		// Itens
+		//dbSelectArea("SD2")
+		SD2->(dbSetOrder(3))
+		If SD2->(dbSeek(xFilial("SD2")+SF2->F2_DOC+SF2->F2_SERIE+SF2->F2_CLIENTE+SF2->F2_LOJA))
+			aItens := {}
+			While SD2->(!Eof()) .And. xFilial("SD2")+SF2->F2_DOC+SF2->F2_SERIE+SF2->F2_CLIENTE+SF2->F2_LOJA==xFilial("SD2")+SD2->D2_DOC+SD2->D2_SERIE+SD2->D2_CLIENTE+SD2->D2_LOJA
+				SB1->(DbSeek(xFilial("SB1")+SD2->D2_COD))
+				AADD(aItens,{SD2->D2_COD,SB1->B1_DESC,SD2->D2_CODISS,SD2->D2_ALIQISS,SD2->D2_TES,SD2->D2_TOTAL,SD2->D2_ALQCPM})
+				SD2->(dbSkip())
+			Enddo 
+		Endif 
+
    EndIf
 Else
    nTotLiq := nTotVal - nValPis - nValCof - nValCsl - nValIRR - nValIns - nValIssR - nValCpm
@@ -702,11 +720,12 @@ AADD(aHtml,'    </tr>')
 //AADD(aHtml,'    	<td colspan="6">')
 //AADD(aHtml,'    </tr>')
 
-AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da Medição/Pedido</td>')
-AADD(aHtml,'    </tr>')
 
 If !Empty(cMenPed)
+	AADD(aHtml,'    <tr>')
+	AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações do Pedido</td>')
+	AADD(aHtml,'    </tr>')
+
 	AADD(aHtml,'    <tr>')
 	AADD(aHtml,'      <td class="tg-sg" colspan="7">'+cMenPed)
 	AADD(aHtml,'      </td>')
@@ -715,10 +734,26 @@ EndIf
 
 If !Empty(cObsMed)
 	AADD(aHtml,'    <tr>')
+	AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da Medição</td>')
+	AADD(aHtml,'    </tr>')
+
+	AADD(aHtml,'    <tr>')
 	AADD(aHtml,'      <td class="tg-sg" colspan="7">'+cObsMed)
 	AADD(aHtml,'      </td>')
 	AADD(aHtml,'    </tr>')
 EndIf
+
+If !Empty(cObsNF)
+	AADD(aHtml,'    <tr>')
+	AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da NF</td>')
+	AADD(aHtml,'    </tr>')
+
+	AADD(aHtml,'    <tr>')
+	AADD(aHtml,'      <td class="tg-sg" colspan="7">'+cObsNF)
+	AADD(aHtml,'      </td>')
+	AADD(aHtml,'    </tr>')
+EndIf
+
 
 AADD(aHtml,'  <tr>')
 AADD(aHtml,'    <td class="tg-sg" colspan="7">')
@@ -732,17 +767,23 @@ If Len(aItens) > 0
 	AADD(aHtml,'    <td class="tg-hsc">Produto</td>')
 	AADD(aHtml,'    <td class="tg-hsc" colspan="2">Descrição</td>')
 	AADD(aHtml,'    <td class="tg-hrdv">TES</td>')
-	AADD(aHtml,'    <td class="tg-hrdv">Aliq Iss</td>')
+	AADD(aHtml,'    <td class="tg-hrdv">ISS / CPOM</td>')
 	AADD(aHtml,'    <td class="tg-hrdv">Cod. ISS</td>')
 	AADD(aHtml,'    <td class="tg-hvalor">Valor</td>')
 	AADD(aHtml,'  </tr>')
 
 	For nI := 1 To Len(aItens)
+			If !Empty(aItens[nI,7])
+				cAlqCPM	:= +" / "+PicPer(aItens[nI,7],5,2)+'%'
+			Else
+				cAlqCPM	:= ""
+			EndIf
+
 			AADD(aHtml,'  <tr>')
 			AADD(aHtml,'    <td class="tg-sc">'+aItens[nI,1]+'</td>')
 			AADD(aHtml,'    <td class="tg-sc" colspan="2">'+aItens[nI,2]+'</td>')
 			AADD(aHtml,'    <td class="tg-rdv">'+aItens[nI,5]+'</td>')
-			AADD(aHtml,'    <td class="tg-sc">'+ALLTRIM(STR(aItens[nI,4],5,2))+'%</td>')
+			AADD(aHtml,'    <td class="tg-sc">'+PicPer(aItens[nI,4],5,2)+'%'+cAlqCPM+'</td>')
 			AADD(aHtml,'    <td class="tg-ndr">'+aItens[nI,3]+'</td>')
 			AADD(aHtml,'    <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(aItens[nI,6],cPict))+'</td>')
 			AADD(aHtml,'  </tr>')
@@ -853,6 +894,15 @@ SF2->(RestArea(aAreaSF2))
 RestArea(aAreaAtu)
 
 Return(aHtml)
+
+
+// Retorna o Percentual em caracteres sem .00 no final
+Static Function PicPer(nAliq,nT,nD)
+Local cAliq := ALLTRIM(STR(nAliq,nT,nD))
+If ("."+Replicate("0",nD)) $ cAliq
+	cAliq := STRTRAN(cAliq,"."+Replicate("0",nD),"")
+EndIf
+Return cAliq
 
 
 /*

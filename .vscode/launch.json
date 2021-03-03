@@ -214,7 +214,14 @@
 			"args": [],
 			"label": "resultado",
 			"description": ""
+		},
+		{
+			"args": [
+				"  ()"
+			],
+			"label": "U_UPDGENSX",
+			"description": "  ()"
 		}
 	],
-	"lastProgramExecuted": "sigacom"
+	"lastProgramExecuted": "U_UPDGENSX"
 }

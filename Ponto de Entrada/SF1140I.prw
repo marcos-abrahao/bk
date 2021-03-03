@@ -184,11 +184,11 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 
 @ 117,110 SAY oSaySE4 PROMPT cDescrSE4 OF oDlg3 PIXEL COLOR CLR_RED
 
-@ 132,010 SAY 'Prev. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
-@ 130,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 WHEN .F. /*lAlt*/ VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
+//@ 132,010 SAY 'Prev. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
+//@ 130,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 WHEN .F. /*lAlt*/ VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
 
-@ 132,110 SAY "Justificativa:"  OF oDlg3 PIXEL
-@ 130,145 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 60,10 PIXEL //WHEN (dPrvPgt < dValid)
+@ 132,010 SAY "Justificativa:"  OF oDlg3 PIXEL
+@ 130,040 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 60,10 PIXEL //WHEN (dPrvPgt < dValid)
 
 @ 147,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
 @ 145,040 MSGET oGetChv VAR cChvNfe   OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 140,10 PIXEL 
@@ -223,7 +223,7 @@ Local nTotal := 0
 dbSelectArea("SD1")                   // * Itens da N.F. de Compra
 If DbSeek(xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA)
 	Do While !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA  
-		nTotal += SD1->D1_TOTAL				
+		nTotal += SD1->(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)
 		SD1->(dbSkip())
 	EndDo
 EndIf
@@ -303,6 +303,8 @@ Else
 		EndIf
 	EndIf
 EndIf
+
+/*
 If lRet
 	If Empty(dPrvPgt)
 		MsgStop("Informe a data prevista para pagamento","SF1140I - Validação data prevista de pagamento")
@@ -322,6 +324,8 @@ If lRet
 		EndIf
 	EndIf
 EndIf
+*/
+
 If lRet
 	If Empty(cChvNfe) .AND. !Empty(cEspecie)
 		If (ALLTRIM(UPPER(cEspecie))+"/") $ "SPED/BPE/CTE/CTEOS/NF3E/"
@@ -379,7 +383,7 @@ If ExistCpo("SE4", cxCond)
 		oLista:SetArray(aDados,.T.)
 		oLista:Refresh()
 
-		oGetPvPgt:Refresh()
+		//oGetPvPgt:Refresh()
 		oSaySE4:Refresh()
 	EndIf
 Else

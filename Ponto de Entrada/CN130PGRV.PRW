@@ -149,10 +149,12 @@ IF ExpN1 == 3 .OR. ExpN1 == 4
 		ENDIF
 	ELSE
 		//GRAVA DESCRIÇÃO QUANDO NAO TEM GLOSA OU BONIFICAÇÃO
-		RecLock("CND",.F.)
-		CND->CND_XXDETG := "Medição Cheia"
-		CND->CND_XXJUST := "Medição Cheia"
-		MsUnlock("CND")
+
+		// Removido em 28/02/21
+		//RecLock("CND",.F.)
+		//CND->CND_XXDETG := "Medição Cheia"
+		//CND->CND_XXJUST := "Medição Cheia"
+		//MsUnlock("CND")
 
 	ENDIF
 ENDIF
@@ -225,6 +227,8 @@ Local aCNR2     := {}
 Local lOk       := .T.
 Local cTitulo2	:= "Valida Opções de Multa e Bonificação da Medição"
 Local oSay1		
+Local _IX		:= 0
+
 PRIVATE oSay2
 PRIVATE oDlg2,oListID2,oPanelLeft2
 PRIVATE nBonif2	:= 0
@@ -309,6 +313,7 @@ RETURN NIL
 STATIC FUNCTION VldSOMA(nMulta,nBonif,aCNR2)
 Local lOk	:=.T.
 LOCAL lJut 	:= .T.
+Local _IX	:= 0
 
 IF ABS(ABS(nMulta2) - ABS(nMulta)) > 0.01
 	MSGSTOP("Multa atual diferente da informada. Favor verificar!!")

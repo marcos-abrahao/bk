@@ -26,10 +26,10 @@ Local cAliasCNR := GetNextAlias()
 Local aCNR      := {}
 Local oDlg,oListID,oPanelLeft 
 Local lOk       := .T.
-Local cREVISA 	:= ""
-Local dTINIC 	:= CTOD("")
-Local cDETG		:= ""
-Local cJUST		:= ""
+//Local cREVISA 	:= ""
+//Local dTINIC 	:= CTOD("")
+//Local cDETG		:= ""
+//Local cJUST		:= ""
 Local aButtons 	:= {}
 
 cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
@@ -51,12 +51,15 @@ Do While (cAliasCNR)->(!eof())
 		EndIf
 		CND->(dbSkip())
 	EndDo
-	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
+	//AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
+	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),""})
 
 	(cAliasCNR)->(dbSkip())
 EndDo
 
 If LEN(aCNR) > 0
+
+	/*
     cREVISA := ""
    	dTINIC 	:= CTOD("")
    	cDETG	:= ""
@@ -103,7 +106,7 @@ If LEN(aCNR) > 0
 		MsgStop("medição ("+TRIM(SC5->C5_MDNUMED)+") não justificada ou incorreta, favor estornar a medição, incluir novamente com a justificativa de Glosas ou Bonificações")
     	lOk:=.F.
     ELSE
-
+	*/
 		DEFINE MSDIALOG oDlg TITLE "Glosas e Bonificações" FROM 000,000 TO 420,630 PIXEL 
 	
 		@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 315,210 COLORS CLR_BLACK,CLR_HGRAY LOWERED RAISED
@@ -116,7 +119,7 @@ If LEN(aCNR) > 0
 
 		ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.T.,oDlg:End()}, /*lMsgDel*/, aButtons,/*nRecNo*/,/*cAlias*/,.F./*lMashups*/,.F./*lImpCad*/,.F./*lPadrao*/,.F./*lHasOk*/,.F./*lWalkThru*/)
 
-    ENDIF
+    //ENDIF
 Else
 	If lBut	
 		MsgInfo("Não há glosas nem bonificações nesta medição ("+TRIM(SC5->C5_MDNUMED)+")")

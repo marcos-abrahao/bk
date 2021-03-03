@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"05/02/2021 AtuGenX3 "
+#DEFINE FIN_LAST_UPDATED 		"02/03/2021 AtuGenX3 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 06/10/20
+			//AtuGenPar( @cTexto )   // 01/03/21
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20
 
-			AtuGenX3( @cTexto )    // 19/12/20
+			AtuGenX3( @cTexto )    // 02/03/21
 
 			//AtuGenP12( @cTexto )
 
@@ -283,6 +283,35 @@ SX6->( dbSetOrder( 1 ) )
 SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
+
+
+// 01/03/2021 - Arredondamento de impostos
+oProcess:IncRegua2( "Atualizando parametro MV_IBGE886..." )
+If dbSeek(xFilial()+"MV_IBGE886")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_RNDSOBR - ARRENDONDAMENTO SOBRAS IMPOSTOS..." )
+If dbSeek(xFilial()+"MV_RNDSOBR")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+// Fim Arredondamento de impostos
+
+
 
 /*
 oProcess:IncRegua2( "Atualizando parametro MV_XXMIMPC..." )
@@ -792,6 +821,8 @@ EndIf
 */
 // ------------> Fim e-mail
 
+
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_XXGRPMD - Grupo Master Diretoria..." )
 If dbSeek(xFilial()+"MV_XXGRPMD")
 	RecLock( "SX6", .F. )
@@ -803,6 +834,8 @@ If dbSeek(xFilial()+"MV_XXGRPMD")
 	dbCommit()
 	MsUnLock()
 EndIf
+*/
+
 
 cTexto += CRLF + "Final da Atualizacao" + CRLF 
 
@@ -823,22 +856,32 @@ Return
 
 
 Static Function AtuGenX3( cTexto )
-Local aNBrowse:= {}
-Local aSBrowse:= {}
-Local nBrw := 0
+//Local aNBrowse:= {}
+//Local aSBrowse:= {}
+//Local nBrw := 0
 
 
-oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“ALIAS”)" )
+oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CNC”)" )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "05/02/21 - F1_XXUCLAS e F1_XXDCLAS " + CRLF 
+cTexto  += "03/03/21 - CNC_XCNPJ,CNC_XMUN " + CRLF 
+dbSelectArea( "SX3" )
+
+//03/03/21 - CNC_XCNPJ,CNC_XMUN
+//APPEND FROM \tmp\sx3cnc.dtc
+//X31UPDTABLE("CNC")
+
+
+//26/02/21 - CT1_XXGRPF
+//APPEND FROM \tmp\sx3ct1.dtc
+//X31UPDTABLE("CT1")
 
 
 //05/02/21 - F1_XXUCLAS e F1_XXDCLAS
-dbSelectArea( "SX3" )
-APPEND FROM \tmp\sx3f1cl.dtc
-X31UPDTABLE("SF1")
+//dbSelectArea( "SX3" )
+//APPEND FROM \tmp\sx3f1cl.dtc
+//X31UPDTABLE("SF1")
 
 
 

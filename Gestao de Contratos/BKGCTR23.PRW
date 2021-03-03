@@ -26,7 +26,8 @@ LOCAL _SQL 		:= ""
 LOCAL cCompet1 	:= SubStr(DtoS(MonthSub(dDataBase,2)),5,2)+"/"+SubStr(DtoS(MonthSub(dDataBase,2)),1,4)
 LOCAL cCompet2 	:= SubStr(DtoS(MonthSub(dDataBase,1)),5,2)+"/"+SubStr(DtoS(MonthSub(dDataBase,1)),1,4)
 LOCAL cCompet3 	:= SubStr(DtoS(dDataBase),5,2)+"/"+SubStr(DtoS(dDataBase),1,4)
-
+LOCAL _IX		:= 0
+LOCAL _IY		:= 0
 
 	IF SM0->M0_CODIGO == "01"      // BK
 
@@ -283,10 +284,10 @@ Local cQuery    := ""
 Local aAreaIni  := GetArea()
 Local cAliasCNR := GetNextAlias()
 Local aCNR      := {}
-Local cREVISA 	:= ""
-Local dTINIC 	:= CTOD("")
-Local cDETG		:= ""
-Local cJUST		:= ""
+//Local cREVISA 	:= ""
+//Local dTINIC 	:= CTOD("")
+//Local cDETG		:= ""
+//Local cJUST		:= ""
 
 cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
 cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+nMDNUMED+"' "
@@ -302,10 +303,13 @@ Do While (cAliasCNR)->(!eof())
 	CND->(DBSETORDER(4))
 	CND->(DBSEEK(xFILIAL("CND")+nMDNUMED,.F.))
 
-	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
+	//AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
+	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),""})
 
 	(cAliasCNR)->(dbSkip())
 EndDo
+
+/*
 
 If LEN(aCNR) > 0
     cREVISA := ""
@@ -348,6 +352,7 @@ If LEN(aCNR) > 0
 		ENDIF
 	ENDIF
 EndIf
+*/
 
 (cAliasCNR)->(dbCloseArea())
 
