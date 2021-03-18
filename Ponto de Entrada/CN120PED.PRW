@@ -9,8 +9,12 @@ BK - Ponto de Entrada para carregar campos Estado e Cod. Munic. IBGE e RECISS no
 @version P11/P12
 /*/
 
-User Function CN121PED()
+User Function CN121PED()  //executado na nova medição
 Return U_CN120PED()
+
+
+
+
 
 
 User Function CN120PED()
@@ -57,14 +61,19 @@ ELSE
 	AADD(ExpA1,{"C5_MUNPRES" ,CNA->CNA_XXCMUN, Nil})
 ENDIF
 
-
-If Empty(CND->CND_XXTPNF)
-	If !Empty(CNA->CNA_XXTPNF)
-		cTpNF := CNA->CNA_XXTPNF
-	EndIf
+If FWIsInCallStack("U_CN121PED")
+	cTpNF := CNA->CNA_XXTPNF
 Else
-	cTpNf := CND->CND_XXTPNF
+	// Remover quando a medição antiga for desabilitada
+	If Empty(CND->CND_XXTPNF)
+		If !Empty(CNA->CNA_XXTPNF)
+			cTpNF := CNA->CNA_XXTPNF
+		EndIf
+	Else
+		cTpNf := CND->CND_XXTPNF
+	EndIf
 EndIf
+
 AADD(ExpA1,{"C5_XXTPNF" ,cTpNF, Nil})    // N=Normal;B=Balcão;F=Filial
 
 // Retenção Contratual
@@ -74,7 +83,6 @@ Else
 	cNaturez := Posicione("SA1",1,xFilial("SA1")+CND->CND_CLIENT+CND->CND_LOJACL,"A1_NATUREZ")
 	AADD(ExpA1,{"C5_NATUREZ",cNaturez, Nil}) 
 EndIf
-
 
 AADD(ExpA1,{"C5_XXRETC" ,CNA->CNA_XXRETC, Nil})   
 

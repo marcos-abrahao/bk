@@ -103,9 +103,15 @@ Local aLin1     := {}
 Local aItens    := {}
 Local lColRdv   := .F.
 Local lColFinal := .F.
+Local lColVunit := .F.
 Local cItem		:= ""
 Local cTexUn	:= ""
 Local nItens	:= 0
+Local cVunit	:= ""
+Local nVUnit	:= 0
+Local nQuant	:= 0
+Local cVTot		:= 0
+
 
 If SE1->E1_TIPO <> "NDC"
  	cTipoTit := Posicione("SX5",1,xFilial("SX5")+"05"+SE1->E1_TIPO,"X5_DESCRI")
@@ -113,15 +119,32 @@ EndIf
 
 
 // Simulação Tipo 1
-//cTexto := "1|HOSPEDAGENS - BELO HORIZONTE  - (JULHO DE 2019)|1.03|5555.33"+cCrLf
-//cTexto += "JOAO DA SILVA|31/12/2019|31/12/2020|200|RDV1130530513|2222.33"+cCrLf
-//cTexto += "JOAO DA SILVA|31/12/2019|31/12/2020|200|RDV1130530513|2222.33"+cCrLf
-//cTexto += "JOAO DA SILVA|31/12/2019|31/12/2020|200|RDV1130530513|2222.33"+cCrLf
-//cTexto += "JOAO DA SILVA|31/12/2019|31/12/2020|200|RDV1130530513|2222.33"+cCrLf
+/*
+1|SAO PAULO - 02/2021|0.00|5.605,00
+BRUNO BRITO DE JESUS|11/02/2021|  /  /    |1.00||796,50
+BRUNO BRITO DE JESUS|18/02/2021|  /  /    |1.00||796,50
+BRUNO BRITO DE JESUS|25/02/2021|  /  /    |1.00||560,50
+CARLOS ROBERTO DE SOUZA|05/02/2021|  /  /    |1.00||265,50
+CLAYTON BATISTA FABIANO|05/02/2021|  /  /    |1.00||619,50
+CLAYTON BATISTA FABIANO|11/02/2021|  /  /    |1.00||265,50
+CLAYTON BATISTA FABIANO|18/02/2021|  /  /    |1.00||265,50
+CLAYTON BATISTA FABIANO|18/02/2021|  /  /    |1.00||796,50
+CLAYTON BATISTA FABIANO|18/02/2021|  /  /    |1.00||265,50
+CLAYTON BATISTA FABIANO|25/02/2021|  /  /    |1.00||973,50
+*/
 
 // Simulação Tipo 2
-//cTexto := "2|DIARIAS - (JULHO DE 2019)||5555.33"+cCrLf
-//cTexto += "JOAO DA SILVA Ignotum per ignotius Ignotum per ignotiusIgnotum per ignotiusIgnotum per ignotiusIgnotum per ignotiusIgnotum per ignotiusIgnotum per ignotius|2222.33"+cCrLf
+/*
+2|OUTUBRO 2020.|0,00|60.427,45
+REEMBOLSO - DECRETO - 59.321 - COVID 19 - COMPETENCIA - OUTUBRO / 2020 - PERÍODO DESUSPENSÃO : 01/10/2020 A 15/10/2020.
+*/
+
+// Simulação Tipo 3
+/*
+3|AS HOSPEDAGENS DE 19/01  A 17/02|1.03|2.900,00|1
+MARCELO KRUMEL|19/01/2021|17/02/2021|30.00|RDV 001|2.900,00
+REF. A RDV/001-GEHITE-PA/2021
+*/
 
 
 nTamTex := mlCount(cTexto, 254)
@@ -169,6 +192,9 @@ If LEN(aLin1) > 0
 		    	lColRdv   := .T.
 		    EndIf
 		Next
+		If !lColRdv
+			lColVunit := .T.
+		Endif
 	EndIf
 EndIf
 
@@ -263,7 +289,7 @@ AADD(aHtml,'<div class="folha">')
 AADD(aHtml,'<table class="tg">')
 
 AADD(aHtml,'<colgroup>')
-If lColRdv
+If lColRdv .or. lColVunit
 	AADD(aHtml,'<col style="width: 300px">')
 Else
 	AADD(aHtml,'<col style="width: 500px">')
@@ -278,7 +304,7 @@ EndIf
 
 AADD(aHtml,'<col style="width: 060px">')
 
-If lColRdv
+If lColRdv .or. lColVunit
 	AADD(aHtml,'<col style="width: 200px">')
 Else
 	AADD(aHtml,'<col style="width: 001px">')
@@ -316,7 +342,7 @@ AADD(aHtml,'      <td class="tg-empr" colspan="6">'+cTipoTit+'</td>')
 AADD(aHtml,'    </tr>')
 
 AADD(aHtml,'    <tr>')
-AADD(aHtml,'      <td class="tg-hcliente" colspan="4">Nome</td>')
+AADD(aHtml,'      <td class="tg-hcliente" colspan="4">'+iIf(lColRdv,"Nome","Descrição")+'</td>')
 AADD(aHtml,'      <td class="tg-hndr">CNPJ</td>')
 AADD(aHtml,'      <td class="tg-hndr">'+IIF(SE1->E1_TIPO=="NDC","NDR",SE1->E1_TIPO)+'</td>')
 AADD(aHtml,'    </tr>')
@@ -397,9 +423,13 @@ If Len(aItens) > 0
 		Else
 			AADD(aHtml,'    <td class="tg-hsc" colspan="2">Data</td>')
 		EndIf
-		If lColRdv
+		If lColRdv .or. lColVunit
 			AADD(aHtml,'    <td class="tg-hsc">Quant.</td>')
-			AADD(aHtml,'    <td class="tg-hrdv">Nº RDV</td>')
+			If !lColVunit
+				AADD(aHtml,'    <td class="tg-hrdv">Nº RDV</td>')
+			Else
+				AADD(aHtml,'    <td class="tg-hrdv">Vl.Unit.</td>')
+			EndIf
 		Else
 			AADD(aHtml,'    <td class="tg-hsc" colspan="2">Quant.</td>')
 		EndIf
@@ -415,9 +445,20 @@ If Len(aItens) > 0
 			Else
 				AADD(aHtml,'    <td class="tg-sc" colspan="2">'+aItens[nI,2]+'</td>')
 			EndIf
-			If lColRdv
+			If lColRdv .or. lColVunit
 				AADD(aHtml,'    <td class="tg-sc">'+aItens[nI,4]+'</td>')
-				AADD(aHtml,'    <td class="tg-rdv">'+aItens[nI,5]+'</td>')
+				If !lColVunit
+					AADD(aHtml,'    <td class="tg-rdv">'+aItens[nI,5]+'</td>')
+				Else
+					nQuant := Val(aItens[nI,4])
+					If  nQuant > 0
+						cVTot  := StrTran(aItens[nI,6],".","")
+						cVTot  := StrTran(cVTot,",",".")
+						nVUnit := ROUND(Val(cVTot) / Val(aItens[nI,4]),2)
+						cVunit := ALLTRIM(TRANSFORM(nVUnit,cPict))
+					EndIf
+					AADD(aHtml,'    <td class="tg-rdv">R$ '+cVunit+'</td>')
+				EndIf
 			Else
 				AADD(aHtml,'    <td class="tg-sc" colspan="2">'+aItens[nI,4]+'</td>')
 			EndIf

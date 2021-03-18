@@ -1,5 +1,6 @@
 #Include "TOTVS.ch"
 #Include "FWMVCDEF.ch"
+#Include "TOPCONN.CH"
 
 User Function CNTA121()
 	Local aParam 	:= PARAMIXB
@@ -140,6 +141,7 @@ User Function CNTA121()
 			//MsgInfo("Chamada após a gravação total do modelo e dentro da transação.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCOMMITNTTS")
 			//MsgInfo("Chamada após a gravação total do modelo e fora da transação.",cIdPonto)
+			GrvFinal(nOpc)
 		ElseIf (cIdPonto =="FORMCOMMITTTSPRE")
 			//MsgInfo("Chamada após a gravação da tabela do formulário.",cIdPonto)
 		ElseIf (cIdPonto =="FORMCOMMITTTSPOS")
@@ -166,6 +168,7 @@ Local nLin		:= 0
 Local cContra	:= ""
 Local cRevisa	:= ""
 Local cPlan		:= ""
+Local nCnt		:= 0
 
 oModel  := FwModelActivate()
 oMdlCND := oModel:GetModel("CNDMASTER")
@@ -209,3 +212,77 @@ EndIf
 Return Nil
 
 
+
+Static Function GrvFinal(nOpc)
+Local cSql		as Character
+Local nMesComp	as Numeric
+Local nAnoComp	as Numeric
+Local cAliasSZ2 as Character
+
+If nOpc == 3
+	// Inclusão
+
+	// Gravar Parcela no CND
+	/*
+	dbSelectArea("CXN")
+	dbSetOrder(1)
+	dbSeek(xFilial("CXN")+CND->CND_CONTRA+CND->CND_REVISA+CND->CND_NUMMED,.T.)
+	Do While xFilial("CNX") == CNX->CNX_FILIAL .AND. CNX->(CNX_CONTRA+CNX_REVISA+CNX_NUMMED) == CND->CND_CONTRA+CND->CND_REVISA+CND->CND_NUMMED .AND. !EOF()
+		If CXN->CXN_CHECK 
+			If Empty(M->CND_PARCEL)
+				//  Gravar campos do CXN na CND
+				RecLock("CND")
+				//CND->CND_CLIENT  := CXN->CXN_CLIENT
+				//CND->CND_LOJACL  := CXN->CXN_LJCLI
+				//CND->CND_NUMERO  := CXN->CXN_NUMPLA
+				CND->CND_PARCEL  := CXN->CXN_PARCEL
+				CND->(MsUnLock())
+				//Exit
+			EndIf
+		EndIf
+		dbSkip()
+	EndDo
+	*/
+	
+	cAliasSZ2:= GetNextAlias()
+
+	// Buscar solicitações de até 3 meses atras
+	nMesComp := VAL(SUBSTR(M->CND_COMPET,1,2))
+	nAnoComp := VAL(SUBSTR(M->CND_COMPET,4,4))
+
+	nMesComp := nMesComp - 3
+	If nMesComp < 1
+		nMesComp := 12 + nMesComp
+		nAnoComp--
+	EndIf
+		
+	cSql := "SELECT Z2_CC,SUM(Z2_VALOR)AS TOTAL,"
+	cSql += " (SELECT TOP 1 CND_XXDV FROM CND010 CND WHERE CND.D_E_L_E_T_='' "
+	cSql += "  AND CND_CONTRA='"+M->CND_CONTRA+"' AND CND_COMPET='"+M->CND_COMPET+"' AND CND_XXDV<>'' ) AS CND_XXDV " 
+	cSql += "FROM SZ2010 SZ2 "
+	cSql += "WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP='"+SM0->M0_CODIGO+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
+	//cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)='"+SUBSTR(M->CND_COMPET,4,4)+SUBSTR(M->CND_COMPET,1,2)+"'"
+	cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)>='"+STRZERO(nAnoComp,4)+STRZERO(nMesComp,2)+"'"
+	cSql += " AND Z2_CC='"+M->CND_CONTRA+"' "
+	cSql += "GROUP BY Z2_CC "
+		
+	TCQUERY cSql NEW ALIAS (cAliasSZ2)
+		
+	dbSelectArea(cAliasSZ2)
+	(cAliasSZ2)->(DbGotop()) 
+	If (cAliasSZ2)->TOTAL > 0 
+		If MsgYesNo("Faturado solicitação de viagens contrato: "+TRIM(M->CND_CONTRA)+" - Valor R$ "+ALLTRIM(TRANSFORM((cAliasSZ2)->TOTAL,"@E 999,999,999.99")))
+			M->CND_XXDV   := "S"
+			M->CND_XXVLND := (cAliasSZ2)->TOTAL
+			//Inclui a NDC
+			U_FIN040INC(CND->(RECNO()),(cAliasSZ2)->TOTAL) 
+		Else
+			M->CND_XXDV   := "N"
+		EndIf
+	EndIf
+ElseIf nOpc == 5 .AND. !EMPTY(CND->CND_XXNDC)
+	// Exclui a NDC
+   	U_FIN040EXC(CND->(RECNO())) 
+EndIf
+
+Return nil

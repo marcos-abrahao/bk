@@ -37,13 +37,15 @@ Else
                 cCta := "21101001"
             EndIf
         Case cTipBk == "LFE" // provisão férias
-            cCta := "21301002"
+            cCta := "11301005" // Era "21301002" até 18/03/2021
         Case cTipBk == "LRC" // indenizações a pagar
             cCta := "21301007"
         Case cTipBk == "PEN" // pensões a pagar
             cCta := "21301010"
         Case cTipBk == "LD1" // adto 13 salario
             cCta := "11301004"
+        Case cTipBk == "MGF" // Multa 40% FGTS
+            cCta := "31201053"
     EndCase
 EndIf
 Return(cCta)

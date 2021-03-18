@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"02/03/2021 AtuGenX3 "
+#DEFINE FIN_LAST_UPDATED 		"16/03/2021 AtuGenSX3 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 01/03/21
+			AtuGenPar( @cTexto )   // 07/03/21
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20
 
-			AtuGenX3( @cTexto )    // 02/03/21
+			//AtuGenX3( @cTexto )    // 02/03/21
 
 			//AtuGenP12( @cTexto )
 
@@ -284,7 +284,34 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
+// 01/03/2021 - Arredondamento de impostos
+oProcess:IncRegua2( "Atualizando parametro MV_LOGMAIL..." )
+If dbSeek(xFilial()+"MV_LOGMAIL")
+	RecLock( "SX6", .F. )
 
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "microsiga@bkconsultoria.com.br"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+oProcess:IncRegua2( "Atualizando parametro MV_LOGTT..." )
+If dbSeek(xFilial()+"MV_LOGTT")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "marcos@rkainformatica.com.br;adilson@rkainformatica.com.br;"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+// Fim errorlog por e-mail
+
+
+/*
 // 01/03/2021 - Arredondamento de impostos
 oProcess:IncRegua2( "Atualizando parametro MV_IBGE886..." )
 If dbSeek(xFilial()+"MV_IBGE886")
@@ -310,6 +337,7 @@ If dbSeek(xFilial()+"MV_RNDSOBR")
 	MsUnLock()
 EndIf
 // Fim Arredondamento de impostos
+*/
 
 
 

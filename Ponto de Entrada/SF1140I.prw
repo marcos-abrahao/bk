@@ -107,6 +107,9 @@ If U_SelFPgto(lAlt,.T.)
 	SF1->F1_XXJSPGT := cJsPgt
 	SF1->F1_COND	:= cxCond
 	SF1->F1_HISTRET := mParcel
+	If Empty(SF1->F1_XXLIB) .AND. Empty(SF1->F1_STATUS)
+		SF1->F1_XXLIB := "A"
+	EndIf
 	MsUnLock("SF1")
 EndIf
 

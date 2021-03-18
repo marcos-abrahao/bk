@@ -287,6 +287,12 @@ Static Function GCT26Par
 		lFiltDt		:= IIF(SUBSTR(mv_par06,1,1)=="S",.T.,.F.)
 		dDataIFlt	:= mv_par07
 		dDataFFlt	:= mv_par08
+		IF Empty(dDataIFlt)
+			lFiltDt := .F.
+		ENDIF
+		IF Empty(dDataFFlt)
+			lFiltDt := .F.
+		ENDIF
 
 		If !Empty(cContrato)
 			cTitulo  += ": "+cContrato
@@ -493,7 +499,9 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 						cTipoBk := "OREC"
 					EndIf
 
-					aLinha[ID_TIPOBK] := cTipoBK
+					aLinha[ID_TIPOBK] 	:= cTipoBK
+					aRelat[nI,ID_TIPOBK]:= cTipoBK
+
 					aAdd(aRelat2,aClone(aLinha))
 					nScan := Len(aRelat2)
 
@@ -506,22 +514,30 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 				Else
 					If !Empty(aLinha[ID_CREDITO]) .AND. !Empty(aLinha[ID_CCC])
 						cTipoBk := Posicione("CT1",1,xFilial("CT1")+aLinha[ID_CREDITO],"CT1_XXGRPF")
+						If Empty(cTipoBk)
+							cTipoBk := "OREC"
+						EndIf
+						
+						cCCBK   := aLinha[ID_CCC]
 
-						aLinha[ID_TIPOBK] := cTipoBK
+						aLinha[ID_TIPOBK]    := cTipoBK
+						aRelat[nI,ID_TIPOBK] := cTipoBK
+						aLinha[ID_CC]		 := cCCBK
+						aRelat[nI,ID_CC]     := cCCBK
+
 						aAdd(aRelat2,aClone(aLinha))
 						nScan   := Len(aRelat2)
 
-						cCCBK   := aLinha[ID_CCC]
 						If !Empty(cTipoBk)
 							If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
 								aRelat[nI,ID_CONSIDER] := "R-CT1"
 							Else
 								aRelat[nI,ID_CONSIDER] := "N4-R"
 							EndIf
-							aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
 						Else
 							aRelat[nI,ID_CONSIDER] := "N3-R"
 						EndIf
+						aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
 					Else
 						aRelat[nI,ID_CONSIDER] := "N2-R"
 					EndIf
@@ -2774,3 +2790,4 @@ aParam := {	"P",;		//Tipo R para relatorio P para processo
 			"Teste SchedDef"}
 
 Return aParam
+

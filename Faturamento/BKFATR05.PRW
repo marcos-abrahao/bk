@@ -475,7 +475,7 @@ Else
 EndIf
 
 // Tipo da NF
-aTpNf     := U_StringToArray(GetSx3Cache("CND_XXTPNF", "X3_CBOX"),";") 
+aTpNf     := U_StringToArray(GetSx3Cache("CNA_XXTPNF", "X3_CBOX"),";") 
 nTpNF     := ASCAN(aTpNf,{ |x| SUBSTR(x,1,1) == SUBSTR(SC5->C5_XXTPNF,1,1)})
 If nTpNF > 0
    cTpNF   := aTpNf[nTpNf]

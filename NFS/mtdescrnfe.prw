@@ -247,6 +247,7 @@ IF !EMPTY(cContrato)
 	   			cCompet  := "Competencia: "+CND->CND_COMPET
 			ENDIF
 			IF ALLTRIM(CND->CND_CLIENT) $ cXXMEDIC
+				// Aqui, verificar se existe CXN e pegar a parcela do CXN
 	   			cParcela := " "+CND->CND_PARCELA+"ª MEDICAO"
 	   		ELSE
 	   			cParcela := "Parcela: "+CND->CND_PARCELA

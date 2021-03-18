@@ -1,16 +1,14 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINR20()
-BK - Mapa de INSS retido Financeiro  
+BK - Mapa INSS retido Financeiro  
 
 @author Marcos B. Abrahão / Adilson Prado
 @since 18/05/17
 @version P12
 @return Nil
 /*/
-//-------------------------------------------------------------------
 
 User Function BKFINR20() 
 

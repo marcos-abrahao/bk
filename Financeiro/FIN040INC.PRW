@@ -12,7 +12,7 @@ BK - Criar Nota de Débito Cliente
 /*/
 //-------------------------------------------------------------------
 
-USER Function FIN040INC(nRecCND)  	 
+USER Function FIN040INC(nRecCND,nValor)  	 
 Local aAreas    := GetArea()
 Local aArray 	:= {}
 Local cProxNum  := "000000001"
@@ -25,7 +25,6 @@ Local aRetNDC   := {}
 Local cDesNDC  	:= ""
 Local aSZ2      := {}
 Local dEmissao 	:= dDataBase
-Local nValor 	:= 0
 Local cPerg 	:= "F040INC"
 Local cQuery 	:= ""
 Local cNumMed   := "" 
@@ -36,6 +35,10 @@ Local cPlan     := ""
 Local nI        := 0
 Local nColDel   := 9
 Local cMunComp  := ""
+
+Default nValor		:= 0
+Private aParam		:= {}
+Private aRet		:= {}
 
 Private cPict       := "@E 99,999,999,999.99"
 Private lMsErroAuto := .F. 
@@ -74,7 +77,9 @@ IF nRecCND > 0
 	cRev     := CND->CND_REVISA
 	cDesNDC  := ""
 	dEmissao := dDataBase //SC5->C5_EMISSAO
-	nValor 	 := CND->CND_XXVLND
+	If nValor == 0
+		nValor 	 := CND->CND_XXVLND
+	EndIf
 	cMunComp := IIF(!EMPTY(CNA->CNA_XXMUN),TRIM(CNA->CNA_XXMUN)+" - "+CND->CND_COMPET,"")
 ELSE
  
@@ -91,24 +96,37 @@ ELSE
 	
 	DBSELECTAREA("CN9")
 	CN9->(DBSETORDER(1))
-	IF CN9->(DBSEEK(xFILIAL("CN9")+cContra,.T.))
+	If CN9->(DBSEEK(xFILIAL("CN9")+cContra,.T.))
 		Do While CN9->(!eof())  .AND. ALLTRIM(CN9->CN9_NUMERO) == ALLTRIM(cContra) 
-			IF CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
+			If CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
 			 	cRev 	 := CN9->CN9_REVISA
 				cCliente := CN9->CN9_CLIENT
 				cLoja 	 := CN9->CN9_LOJACL
-			ENDIF
+			EndIf
 			CN9->(DBSKIP()) 
-		ENDDO
-	ELSE
-		MSGSTOP("Contrato não encontrado")
-		Return
+		EndDo
+
+		If !SelCli(cContra,cRev,@cCliente,@cLoja)
+			Return
+		EndIf
+		//cCliente := U_CNCF3(cContra,cRev,@cCliente,@cLoja)
+	Else
+		dbSelectArea("CTT")
+		If dbSeek(xFilial("CTT")+cContra,.F.)
+			aParam := {}
+			cCliente := SPACE(TamSx3("A1_COD")[1])
+			cLoja	 := SPACE(TamSx3("A1_LOJA")[1])
+			aAdd( aParam,{1,RetTitle("A1_COD") ,cCliente,"","","SA1","",0,.T.})
+			aAdd( aParam,{1,RetTitle("A1_LOJA"),cLoja   ,"","",""	,"",0,.T.})  
+			If !BkFin40(cPerg,@cCliente,@cLoja)
+				Return
+			EndIf
+		Else
+			MsgStop("Centro de Custos não encontrado")
+			Return
+		Endif
 	Endif
 
-	If !SelCli(cContra,cRev,@cCliente,@cLoja)
-		Return
-	EndIf
-	//cCliente := U_CNCF3(cContra,cRev,@cCliente,@cLoja)
 
 	cCompe   := SUBSTR(DTOS(dEmissao),1,6)
 	
@@ -160,15 +178,14 @@ IF nValor > 0
 		MsExecAuto( { |x,y| FINA040(x,y)} , aArray, 3)  // 3 - Inclusao, 4 - Alteração, 5 - Exclusão
 	
 		If lMsErroAuto		
-			MsgStop("Erro na gravação.")	
+			MsgStop("Erro na gravação da NDC.")	
 			MostraErro()
 		Else	
 			If !Empty(nRecCND)
-				dbSelectArea("CND")
 				RecLock("CND")
 				CND->CND_XXNDC  := cProxNum
 				CND->CND_XXVLND := nValor
-				MsUnLock()
+				CND->(MsUnLock())
 			EndIf
 			
 			// Gravar SZ2
@@ -193,6 +210,19 @@ ENDIF
 RestArea(aAreas)
 
 Return
+
+
+Static Function BkFin40(cPerg,cCliente,cLoja)
+Local lRet := .F.
+//   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
+If (Parambox(aParam     ,"Cliente",@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
+	lRet     := .T.
+	cCliente := mv_par01
+	cLoja    := mv_par02
+Endif
+Return lRet
+
+
 
 //CHAMADA NO MENU
 USER FUNCTION FN40INCMNU
@@ -294,7 +324,14 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
 			cRet := ""
 			FOR _IX:= 1 TO LEN(oLista:aCols)
 			    IF !oLista:aCols[_IX,nColDel]  //.AND. oLista:aCols[_IX,7] > 1
-					cRet +=ALLTRIM(oLista:aCols[_IX,2])+"|"+DTOC(oLista:aCols[_IX,3])+"|"+DTOC(oLista:aCols[_IX,4])+"|"+ALLTRIM(STR(oLista:aCols[_IX,5],14,2))+"|"+ALLTRIM(oLista:aCols[_IX,6])+"|"+ALLTRIM(TRANSFORM(oLista:aCols[_IX,7],cPict))+cCrLf
+					cRet += ALLTRIM(oLista:aCols[_IX,2])+"|"
+					cRet += DTOC(oLista:aCols[_IX,3])+"|"
+					cRet += DTOC(oLista:aCols[_IX,4])+"|"
+					cRet += ALLTRIM(STR(oLista:aCols[_IX,5],14,2))
+					cRet += "|"+ALLTRIM(oLista:aCols[_IX,6])
+					cRet += "|"+ALLTRIM(TRANSFORM(oLista:aCols[_IX,7],cPict))
+					//cRet += "|"+ALLTRIM(TRANSFORM(oLista:aCols[_IX,8],cPict))
+					cRet += cCrLf
 					_iY++
 			    ENDIF
 			NEXT _IX 
@@ -311,12 +348,12 @@ Return {cRet,oLista:aCols}
 Static Function CriaCabec()
    
  Aadd(aCabecalho, {;
-                  "",;//X3Titulo()
-                  "IMAGEM",;  //X3_CAMPO
+                  "",;			//X3Titulo()
+                  "IMAGEM",;  	//X3_CAMPO
                   "@BMP",;		//X3_PICTURE
                   3,;			//X3_TAMANHO
                   0,;			//X3_DECIMAL
-                  ".F.",;			//X3_VALID
+                  ".F.",;		//X3_VALID
                   "",;			//X3_USADO
                   "C",;			//X3_TIPO
                   "",; 			//X3_F3
@@ -327,15 +364,15 @@ Static Function CriaCabec()
                   "V"})			//
                    
     Aadd(aCabecalho, {;
-                  "Nome",;	//X3Titulo()
+                  "Nome",;		//X3Titulo()
                   "NOME",;  	//X3_CAMPO
                   "@!",;		//X3_PICTURE
                   50,;			//X3_TAMANHO
                   0,;			//X3_DECIMAL
-                  "NAOVAZIO()",;			//X3_VALID
+                  "NAOVAZIO()",;//X3_VALID
                   "",;			//X3_USADO
                   "C",;			//X3_TIPO
-                  "",;		//X3_F3
+                  "",;			//X3_F3
                   "R",;			//X3_CONTEXT
                   "",;			//X3_CBOX
                   "",;			//X3_RELACAO
@@ -344,7 +381,7 @@ Static Function CriaCabec()
     Aadd(aCabecalho, {;
                   "Inicio",;	//X3Titulo()
                   "INICIO",;  	//X3_CAMPO
-                  "",;		//X3_PICTURE
+                  "",;			//X3_PICTURE
                   8,;			//X3_TAMANHO
                   0,;			//X3_DECIMAL
                   "",;			//X3_VALID
@@ -357,9 +394,9 @@ Static Function CriaCabec()
                   ""})			//X3_WHEN
  
   Aadd(aCabecalho, {;
-                  "Final",;	//X3Titulo()
+                  "Final",;		//X3Titulo()
                   "FINAL",;  	//X3_CAMPO
-                  "",;		//X3_PICTURE
+                  "",;			//X3_PICTURE
                   8,;			//X3_TAMANHO
                   0,;			//X3_DECIMAL
                   "",;			//X3_VALID
@@ -373,7 +410,7 @@ Static Function CriaCabec()
  
 
   Aadd(aCabecalho, {;
-                  "Qtde",;	//X3Titulo()
+                  "Qtde",;		//X3Titulo()
                   "QTDE",;  	//X3_CAMPO
                   "@E 999.99",;	//X3_PICTURE
                   6,;			//X3_TAMANHO
@@ -389,14 +426,14 @@ Static Function CriaCabec()
 
     Aadd(aCabecalho, {;
                   "Nº RDV",;	//X3Titulo()
-                  "RDV",;  	//X3_CAMPO
+                  "RDV",;  		//X3_CAMPO
                   "@!",;		//X3_PICTURE
                   30,;			//X3_TAMANHO
                   0,;			//X3_DECIMAL
                   "",;			//X3_VALID
                   "",;			//X3_USADO
                   "C",;			//X3_TIPO
-                  "",;		//X3_F3
+                  "",;			//X3_F3
                   "R",;			//X3_CONTEXT
                   "",;			//X3_CBOX
                   "",;			//X3_RELACAO
@@ -417,6 +454,23 @@ Static Function CriaCabec()
                   "",;		//X3_CBOX
                   "",;		//X3_RELACAO
                   ""})		//X3_WHEN
+
+/*
+Aadd(aCabecalho, {;
+                  "Vl Unit.",;	//X3Titulo()
+                  "VUNIT",; //X3_CAMPO
+                  "@E 999,999,999.99",;		//X3_PICTURE
+                  14,;		//X3_TAMANHO
+                  2,;		//X3_DECIMAL
+                  "",;		//X3_VALID
+                  "",;		//X3_USADO
+                  "N",;		//X3_TIPO
+                  "",;		//X3_F3
+                  "R",;		//X3_CONTEXT
+                  "",;		//X3_CBOX
+                  "",;		//X3_RELACAO
+                  ""})		//X3_WHEN
+*/
 
  Aadd(aCabecalho, {;
                   "Registro",;	//X3Titulo()
@@ -500,6 +554,7 @@ Return
 Static Function ValidaNDC()
 Local lOK := .T.
 Local nColLst := 0
+Local _IX
 
 FOR _IX:= 1 TO LEN(oLista:aCols)
 	IF !oLista:aCols[_IX,nColDel] .AND. oLista:aCols[_IX,7]>0 
@@ -589,13 +644,14 @@ Static Function  ValidPerg(cPerg)
 
 Local aArea		:= GetArea()
 Local aRegistros:= {}
+Local i,j
 Default cPerg	:= "F040INC"
 
 dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Contrato:","Contrato:" ,"Contrato:" ,"mv_ch1","C",15,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CN9","S","",""})
+AADD(aRegistros,{cPerg,"01","Contrato:","Contrato:" ,"Contrato:" ,"mv_ch1","C",15,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"02","Vencimento:","Vencimento:" ,"Vencimento:" ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"03","Valor:","Valor:" ,"Valor:" ,"mv_ch3","N",14,2,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 

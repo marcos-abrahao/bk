@@ -96,18 +96,18 @@ IF ExpN1 == 3 .OR. ExpN1 == 4
 
  //alterado em 30/10/2018
 		AADD(aCNR,{.F.,"Postos não implantados - BK"})
-		AADD(aCNR,{.F.,"Postos não implantados -CLIENTE"})
+		AADD(aCNR,{.F.,"Postos não implantados - CLIENTE"})
 		AADD(aCNR,{.F.,"Inicio de contrato"})
 		AADD(aCNR,{.F.,"Termino de contrato"})
-		AADD(aCNR,{.F.,"Posto descoberto por falta/atraso -BK"})
-		AADD(aCNR,{.F.,"Posto descoberto por falta/atraso -CLIENTE"})
-		AADD(aCNR,{.F.,"Posto descoberto por férias -BK"})
-		AADD(aCNR,{.F.,"Posto descoberto por férias -CLIENTE"})
+		AADD(aCNR,{.F.,"Posto descoberto por falta/atraso - BK"})
+		AADD(aCNR,{.F.,"Posto descoberto por falta/atraso - CLIENTE"})
+		AADD(aCNR,{.F.,"Posto descoberto por férias - BK"})
+		AADD(aCNR,{.F.,"Posto descoberto por férias - CLIENTE"})
 		AADD(aCNR,{.F.,"Produtividade"})
 		AADD(aCNR,{.F.,"HE não utilizadas"})
 		AADD(aCNR,{.F.,"Diárias/Despesas viagem/Deslocamento não utilizados"})
 		AADD(aCNR,{.F.,"Inicio de contrato"})
-		AADD(aCNR,{.F.,"Terminio de contrato"})
+		AADD(aCNR,{.F.,"Termino de contrato"})
 		AADD(aCNR,{.F.,"Acerto de Valores/Repact/Ajustes"})
 
 
@@ -177,12 +177,12 @@ If ExpN1 == 3 .OR. ExpN1 == 4
 	EndIf
 EndIf
 
-// Gravar tipo da NF na Planilha
-If CNA->CNA_XXTPNF <> cTpNF
-	RecLock("CNA",.F.)
-	CNA->CNA_XXTPNF := cTpNf
-	MsUnlock("CNA")
-EndIf
+// Gravar tipo da NF na Planilha - removido - nova medição
+//If CNA->CNA_XXTPNF <> cTpNF
+//	RecLock("CNA",.F.)
+//	CNA->CNA_XXTPNF := cTpNf
+//	MsUnlock("CNA")
+//EndIf
 
 IF ExpN1 == 12 .OR. ExpN1 == 3
 	IF CND->CND_XXDV == "S" .OR. CND->CND_XXVLND > 0	  
@@ -357,8 +357,8 @@ FOR _IX := 1 TO LEN(aCNR2)
 NEXT
 
 RecLock("CND",.F.)
-	CND->CND_XXDETG := cDesc
-	CND->CND_XXJUST := cJust
+CND->CND_XXDETG := cDesc
+CND->CND_XXJUST := cJust
 MsUnlock("CND")
 
 RETURN NIL
