@@ -21,10 +21,23 @@
 */
 // Validação da condiçao de pgto na tela de doc de entrada
 User Function A103CND2()
-Local nV As Numeric
+Local nV 		As Numeric
+Local nI		As Numeric
 Local dDtUtil
-Local mParcel := SF1->F1_HISTRET
-Local aDados  := {}
+Local mParcel	:= SF1->F1_XXPARCE
+Local aDados	:= {}
+Local aArea		:= GetArea()
+
+//SF1->(dbSetOrder(1))
+//If SF1->(DbSeek(FWxFilial("SF1") + cNFiscal + cSerie + cA100For + cLoja + cTipo))
+//	mParcel	:= SF1->F1_XXPARCE
+//EndIf
+If l103Auto
+	nI := Ascan(aAutoCab,{ |x| x[1] == "F1_XXPARCE"})
+	If nI > 0
+		mParcel := aAutoCab[nI,2]
+	EndIf
+EndIf
 
 dDtUtil := DataValida(dDatabase,.T.)
 //dDtUtil := DataValida(dDatabase+1,.T.)
@@ -56,6 +69,7 @@ Else
 		*/
 	Next
 EndIf
+RestArea(aArea)
 Return(PARAMIXB)
 
 

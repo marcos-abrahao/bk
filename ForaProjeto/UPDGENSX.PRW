@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"16/03/2021 AtuGenSX3 "
+#DEFINE FIN_LAST_UPDATED 		"29/03/2021 F1_XXPARCE "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			AtuGenPar( @cTexto )   // 07/03/21
+			//AtuGenPar( @cTexto )   // 19/03/21
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20
 
-			//AtuGenX3( @cTexto )    // 02/03/21
+			AtuGenX3( @cTexto )    // 29/03/21
 
 			//AtuGenP12( @cTexto )
 
@@ -284,7 +284,36 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
-// 01/03/2021 - Arredondamento de impostos
+
+
+// 19/03/2021 - Arredondamento de impostos
+
+oProcess:IncRegua2( "Atualizando parametro MV_RNDIRF..." )
+If dbSeek(xFilial()+"MV_RNDIRF")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If dbSeek(xFilial()+"MV_RNDIRRF")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+// 01/03/2021 -Error log por e-mail
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_LOGMAIL..." )
 If dbSeek(xFilial()+"MV_LOGMAIL")
 	RecLock( "SX6", .F. )
@@ -309,7 +338,7 @@ If dbSeek(xFilial()+"MV_LOGTT")
 	MsUnLock()
 EndIf
 // Fim errorlog por e-mail
-
+*/
 
 /*
 // 01/03/2021 - Arredondamento de impostos
@@ -889,12 +918,17 @@ Static Function AtuGenX3( cTexto )
 //Local nBrw := 0
 
 
-oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CNC”)" )
+oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“SF1”)" )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "03/03/21 - CNC_XCNPJ,CNC_XMUN " + CRLF 
+cTexto  += "29/03/21 - F1_XXPARCE " + CRLF 
 dbSelectArea( "SX3" )
+
+//29/03/21 - F1_XXPARCE
+APPEND FROM \tmp\sx3sf1.dtc
+X31UPDTABLE("SF1")
+
 
 //03/03/21 - CNC_XCNPJ,CNC_XMUN
 //APPEND FROM \tmp\sx3cnc.dtc

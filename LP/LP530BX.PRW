@@ -46,6 +46,16 @@ Else
             cCta := "11301004"
         Case cTipBk == "MGF" // Multa 40% FGTS
             cCta := "31201053"
+        Case cTipBk == "VA" // Vale Alimentação
+            cCta := "31201101"
+        Case cTipBk == "VR" // Vale Refeição
+            cCta := "31201045"
+        Case cTipBk == "VT" // Vale Transporte
+            cCta := "31201046"
+        Case cTipBk == "EXM" // Exames Adm. e Dem.
+            cCta := "34202090"
+        Case cTipBk == "REE" // Reemb. Desc. Indev.
+            cCta := "31201092"
     EndCase
 EndIf
 Return(cCta)

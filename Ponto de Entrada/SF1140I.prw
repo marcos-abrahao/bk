@@ -25,7 +25,7 @@ Private cJsPgt	 := SF1->F1_XXJSPGT
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
-Private mParcel  := SF1->F1_HISTRET
+Private mParcel  := SF1->F1_XXPARCE
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 
@@ -54,7 +54,7 @@ SF1->F1_CHVNFE  := cChvNfe
 SF1->F1_XXPVPGT := dPrvPgt
 SF1->F1_XXJSPGT := cJsPgt
 SF1->F1_COND	:= cxCond
-SF1->F1_HISTRET := mParcel
+SF1->F1_XXPARCE := mParcel
 
 // Limpar dados de Liberação
 SF1->F1_XXLIB   := "A"
@@ -87,7 +87,7 @@ Private cJsPgt	 := SF1->F1_XXJSPGT
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
-Private mParcel	 := SF1->F1_HISTRET
+Private mParcel	 := SF1->F1_XXPARCE
 
 If SF1->F1_XXLIB $ "AE" .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
@@ -106,7 +106,7 @@ If U_SelFPgto(lAlt,.T.)
 	SF1->F1_XXPVPGT := dPrvPgt
 	SF1->F1_XXJSPGT := cJsPgt
 	SF1->F1_COND	:= cxCond
-	SF1->F1_HISTRET := mParcel
+	SF1->F1_XXPARCE := mParcel
 	If Empty(SF1->F1_XXLIB) .AND. Empty(SF1->F1_STATUS)
 		SF1->F1_XXLIB := "A"
 	EndIf

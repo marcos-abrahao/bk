@@ -235,7 +235,12 @@
 			],
 			"label": "u_dicSzr",
 			"description": " ()"
+		},
+		{
+			"args": [],
+			"label": "u_DicSzs",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigagct"
+	"lastProgramExecuted": "sigacom"
 }

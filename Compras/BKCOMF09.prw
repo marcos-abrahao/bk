@@ -52,9 +52,16 @@ nReg := 0
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
-	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,LEN(B1_COD)) AS B1_COD1 from SB1"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' " 
-	cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,LEN(B1_COD)) AS INT) DESC "
+	//cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,LEN(B1_COD)) AS B1_COD1 from SB1"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' " 
+	//cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,LEN(B1_COD)) AS INT) DESC "
+	//TCQUERY cQuery NEW ALIAS "QSB1"
+
+
+	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 from SB1"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
+	cQuery += " 	AND SUBSTRING(B1_COD,11,1) = ' ' "   // para não estourar a quantidade de casas do INT
+	cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,6) AS INT) DESC "
 	TCQUERY cQuery NEW ALIAS "QSB1"
+
 
 	dbSelectArea("QSB1")	
 	QSB1->(dbGoTop()) 
@@ -76,6 +83,7 @@ Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
+Local i,j
 
 dbSelectArea("SX1")
 dbSetOrder(1)
