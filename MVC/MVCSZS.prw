@@ -506,6 +506,12 @@ User Function MVCSZSM()
 		cIdPonto := aParam[2]
 		cIdModel := aParam[3]
 		
+		// Validação antes da ativação do modelo
+        If (cIdPonto == "MODELVLDACTIVE")
+            // MODELO -> SUBMODELO -> ESTRUTURA -> PROPRIEDADE -> BLOCO DE CÓDIGO -> X3_WHEN := .F.
+            //oObj:GetModel("SB1MASTER"):GetStruct():SetProperty("B1_COD", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
+        EndIf
+
 		//Antes da alteracao de qualquer campo do modelo 
 		If cIdPonto == "MODELPRE" 
 			xRet := .T. 
@@ -546,6 +552,10 @@ User Function MVCSZSM()
 		ElseIf cIdPonto == "MODELCANCEL" 
 			xRet := .T. 
 			
+		// ?????????
+		ElseIf cIdPonto == "FORMCANCEL" 
+			xRet := .T. 
+
 		//Para a inclusao de botoes na ControlBar 
 		ElseIf cIdPonto == "BUTTONBAR" 
 			xRet := {} 

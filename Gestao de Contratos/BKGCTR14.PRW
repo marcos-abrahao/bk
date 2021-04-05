@@ -916,6 +916,15 @@ Local nVlp2		:= 0
 Local nPrev		:= 0
 Local aNDC		:= {}
 
+Local cContraA	:= ""
+Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
+Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
+Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
+Local cJCNACN9	:= FWJoinFilial("CNA", "CN9")
+Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
+Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
+Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
+
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
 If lSintetico
@@ -938,6 +947,81 @@ FOR _nI := 1 TO nPeriodo
 	EndIf
    
 	//*********Faturamento do Contrato
+
+	cQuery := " SELECT"+CRLF 
+	cQuery += "   CNF_CONTRA" +CRLF
+	cQuery += "   ,CNF_REVISA"+CRLF
+	cQuery += "   ,A1_NOME"   +CRLF
+	cQuery += "   ,CTT_DESC01"+CRLF
+	cQuery += "   ,CN9_SITUAC"+CRLF
+	cQuery += "   ,CN9_XXNRBK"+CRLF
+	cQuery += "   ,CNA_XXMUN"+CRLF
+	cQuery += "   ,SUM(D2_TOTAL)  AS D2_TOTAL"+CRLF
+	cQuery += "   ,SUM(D2_VALISS) AS D2_VALISS"+CRLF
+	cQuery += "   ,SUM(D2_VALCPM) AS D2_VALCPM"+CRLF
+	cQuery += "   ,SUM(E5_VALOR)  AS E5DESC"+CRLF
+
+	// Nova Medição
+	cQuery += " FROM "+RETSQLNAME("CNE")+" CNE"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+	cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = CNE_REVISA" +CRLF
+	cQuery += " 		AND "+cJCNDCNE+" AND CND.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+	cQuery += " 	ON (CXN_CONTRA = CNE_CONTRA AND CXN_REVISA = CNE_REVISA AND CXN_NUMMED = CNE_NUMMED AND CXN_NUMPLA = CNE_NUMERO AND CXN.CXN_CHECK = 'T'" +CRLF
+	cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+	cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
+	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
+	cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
+	cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
+	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
+	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
+	cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
+	cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
+	cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
+	cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
+	cQuery += " 		AND "+cJSC5CNE+" AND SC5.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SC6")+" SC6" + CRLF
+	cQuery += " 	ON (C5_CLIENT = C6_CLI AND C5_LOJACLI = C6_LOJA AND C6_NUM = C5_NUM AND C6_ITEMED = CNE_ITEM" +CRLF
+	cQuery += " 		AND "+cJSC6SC5+" AND SC6.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SD2")+" SD2" + CRLF
+	cQuery += " 	ON (D2_PEDIDO = C5_NUM AND D2_ITEMPV = C6_ITEM AND C5_CLIENT = D2_CLIENTE AND D2_LOJA = C5_LOJACLI" +CRLF
+	cQuery += " 		AND "+cJSD2SC6+" AND SD2.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5" + CRLF
+	cQuery += " 	ON (E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  " + CRLF
+	cQuery += " 	    E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND " + CRLF
+	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND " + CRLF
+	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
+
+    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
+	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
+
+	cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += "       AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
+
+
+	// Medição antiga
+	/*
 	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"+CRLF
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
     cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
@@ -961,6 +1045,7 @@ FOR _nI := 1 TO nPeriodo
     cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
+	*/
 
 	cQueryX:= ""
     IF !EMPTY(cContrato)
@@ -1169,6 +1254,8 @@ FOR _nI := 1 TO nPeriodo
 	   	QTMP->(dbSkip())
 	ENDDO
 
+	/*
+
     QTMP->(dbCloseArea())
 
 	//*********Faturamento do Contrato
@@ -1273,8 +1360,23 @@ FOR _nI := 1 TO nPeriodo
 		dbSelectArea("QTMP")
 		QTMP->(dbGoTop())
 	EndIf
+	*/
+
+
+	dbSelectArea("QTMP")
+	QTMP->(dbGoTop())
+	
+	cContraA := ""
 
 	DO WHILE QTMP->(!EOF())
+
+		If cContraA == QTMP->CNF_CONTRA
+			dbSelectArea("QTMP")
+			dbSkip()
+			Loop
+		EndIf
+
+		cContraA := QTMP->CNF_CONTRA
 
         nScan:= 0
  		nScan:= aScan(aContratos,{|x| x = IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))})
@@ -4873,6 +4975,9 @@ Return NIL
 
 //GERA RESULTADO SINTETICO - VISAO FINANCEIRO
 STATIC FUNCTION Gera2Result()
+Local i		As Numeric
+Local _IX	As Numeric
+Local nI	As Numeric
 
 //Verifica o Crupo do usuario - visualização do relatorio
 PswOrder(1) 

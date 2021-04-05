@@ -690,6 +690,18 @@ Local XI_		:= 0
 Local _IX		:= 0
 Local i
 Local Yi_
+Local cContraA	:= ""
+
+Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
+Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
+Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
+Local cJCNACN9	:= FWJoinFilial("CNA", "CN9")
+Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
+Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
+Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
+//Local cJSF2SC6:= FWJoinFilial("SF2", "SC6")
+//Local cJSB1SC6:= FWJoinFilial("SB1", "SC6")
+
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
@@ -700,6 +712,80 @@ FOR _nI := 1 TO nPeriodo
 	IncProc("Consultando faturamento dos contratos...")
    
 	//*********Faturamento do Contrato
+
+
+	cQuery := " SELECT"+CRLF 
+	cQuery += "   CNF_CONTRA" +CRLF
+	cQuery += "   ,CNF_REVISA"+CRLF
+	cQuery += "   ,A1_NOME"   +CRLF
+	cQuery += "   ,CTT_DESC01"+CRLF
+	cQuery += "   ,CN9_SITUAC"+CRLF
+	cQuery += "   ,CNA_XXMUN"+CRLF
+	cQuery += "   ,SUM(D2_TOTAL)  AS D2_TOTAL"+CRLF
+	cQuery += "   ,SUM(D2_VALISS) AS D2_VALISS"+CRLF
+	cQuery += "   ,SUM(D2_VALCPM) AS D2_VALCPM"+CRLF
+	cQuery += "   ,SUM(E5_VALOR)  AS E5DESC"+CRLF
+
+	// Nova Medição
+	cQuery += " FROM "+RETSQLNAME("CNE")+" CNE"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+	cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = CNE_REVISA" +CRLF
+	cQuery += " 		AND "+cJCNDCNE+" AND CND.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+	cQuery += " 	ON (CXN_CONTRA = CNE_CONTRA AND CXN_REVISA = CNE_REVISA AND CXN_NUMMED = CNE_NUMMED AND CXN_NUMPLA = CNE_NUMERO AND CXN.CXN_CHECK = 'T'" +CRLF
+	cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+	cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
+	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
+	cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
+	cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
+	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
+	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
+	cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
+	cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
+	cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
+	cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
+	cQuery += " 		AND "+cJSC5CNE+" AND SC5.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SC6")+" SC6" + CRLF
+	cQuery += " 	ON (C5_CLIENT = C6_CLI AND C5_LOJACLI = C6_LOJA AND C6_NUM = C5_NUM AND C6_ITEMED = CNE_ITEM" +CRLF
+	cQuery += " 		AND "+cJSC6SC5+" AND SC6.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SD2")+" SD2" + CRLF
+	cQuery += " 	ON (D2_PEDIDO = C5_NUM AND D2_ITEMPV = C6_ITEM AND C5_CLIENT = D2_CLIENTE AND D2_LOJA = C5_LOJACLI" +CRLF
+	cQuery += " 		AND "+cJSD2SC6+" AND SD2.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5" + CRLF
+	cQuery += " 	ON (E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  " + CRLF
+	cQuery += " 	    E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND " + CRLF
+	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND " + CRLF
+	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
+
+    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
+	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
+
+	cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += "       AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
+
+	// Medição Antiga
+	/*
 	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"+CRLF
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
     cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
@@ -723,6 +809,7 @@ FOR _nI := 1 TO nPeriodo
     cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
+	*/
 
 	cQueryX:= ""
     IF !EMPTY(cContrato)
@@ -791,9 +878,10 @@ FOR _nI := 1 TO nPeriodo
     ENDIF
 
 	cQuery += cQueryX
-	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN ORDER BY CNF_CONTRA"+CRLF
+	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN"+CRLF
+	cQuery += " ORDER BY CNF_CONTRA"+CRLF
  
-	u_LogMemo("BKGCTR11-CNF-1-"+STRZERO(_nI,3)+"-"+aAnoMes[_nI]+".SQL",cQuery)
+	u_LogMemo("BKGCTR11-CNF-1N-"+STRZERO(_nI,3)+"-"+aAnoMes[_nI]+".SQL",cQuery)
 	
 	TCQUERY cQuery NEW ALIAS "QTMP"
 
@@ -944,11 +1032,88 @@ FOR _nI := 1 TO nPeriodo
 	ENDDO
 
 
+/* ===================================================================
+
     QTMP->(dbCloseArea())
     
 
 	//*********Contrato
-	cQuery := " SELECT CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"+CRLF
+	cQuery := " SELECT"+CRLF 
+	cQuery += "   CNF_CONTRA" +CRLF
+	cQuery += "   ,CNF_REVISA"+CRLF
+	cQuery += "   ,A1_NOME"   +CRLF
+	cQuery += "   ,CTT_DESC01"+CRLF
+	cQuery += "   ,CN9_SITUAC"+CRLF
+	cQuery += "   ,SUM(D2_TOTAL)  AS D2_TOTAL"+CRLF
+	cQuery += "   ,SUM(D2_VALISS) AS D2_VALISS"+CRLF
+	cQuery += "   ,SUM(D2_VALCPM) AS D2_VALCPM"+CRLF
+	cQuery += "   ,SUM(E5_VALOR)  AS E5DESC"+CRLF
+
+	// Nova Medição
+	cQuery += " FROM "+RETSQLNAME("CNE")+" CNE"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+	cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = CNE_REVISA" +CRLF
+	cQuery += " 		AND "+cJCNDCNE+" AND CND.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+	cQuery += " 	ON (CXN_CONTRA = CNE_CONTRA AND CXN_REVISA = CNE_REVISA AND CXN_NUMMED = CNE_NUMMED AND CXN_NUMPLA = CNE_NUMERO AND CXN.CXN_CHECK = 'T'" +CRLF
+	cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+	cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
+	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
+	cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
+	cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
+	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
+	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
+	cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
+	cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
+	cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
+
+	// Não há necessidade do CNA
+	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
+	//cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
+	cQuery += " 		AND "+cJSC5CNE+" AND SC5.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SC6")+" SC6" + CRLF
+	cQuery += " 	ON (C5_CLIENT = C6_CLI AND C5_LOJACLI = C6_LOJA AND C6_NUM = C5_NUM AND C6_ITEMED = CNE_ITEM" +CRLF
+	cQuery += " 		AND "+cJSC6SC5+" AND SC6.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("SD2")+" SD2" + CRLF
+	cQuery += " 	ON (D2_PEDIDO = C5_NUM AND D2_ITEMPV = C6_ITEM AND C5_CLIENT = D2_CLIENTE AND D2_LOJA = C5_LOJACLI" +CRLF
+	cQuery += " 		AND "+cJSD2SC6+" AND SD2.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5" + CRLF
+	cQuery += " 	ON (E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  " + CRLF
+	cQuery += " 	    E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND " + CRLF
+	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND " + CRLF
+	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
+
+    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
+	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
+
+	cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
+	cQuery += "      AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
+
+	//cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
+
+=========================================================*/
+
+	// Medição Antiga
+	/*
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
     cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9.CN9_NUMERO = CNF.CNF_CONTRA AND CN9.CN9_REVISA = CNF.CNF_REVISA"+CRLF
     cQuery += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
@@ -970,8 +1135,11 @@ FOR _nI := 1 TO nPeriodo
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
     cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
-	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
+	cQuery += " WHERE CNF.D_E_L_E_T_='' "
+	*/
 
+
+/*====================================================================================
 	cQueryX:= ""
     IF !EMPTY(cContrato)
 		IF nConsol == 1
@@ -1042,11 +1210,13 @@ FOR _nI := 1 TO nPeriodo
     ENDIF	
 
 	cQuery += cQueryX
-	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC ORDER BY CNF_CONTRA"+CRLF
+	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC"
+	cQuery += " ORDER BY CNF_CONTRA"+CRLF
 
- 	u_LogMemo("BKGCTR11-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
+ 	u_LogMemo("BKGCTR11-CNF-2N-"+STRZERO(_nI,3)+".SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP"
+
 
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
@@ -1074,7 +1244,23 @@ FOR _nI := 1 TO nPeriodo
 		QTMP->(dbGoTop())
 	EndIf
 
+========================================================================*/
+
+
+	dbSelectArea("QTMP")
+	QTMP->(dbGoTop())
+	
+	cContraA := ""
+
 	DO WHILE QTMP->(!EOF())
+
+		If cContraA == QTMP->CNF_CONTRA
+			dbSelectArea("QTMP")
+			dbSkip()
+			Loop
+		EndIf
+
+		cContraA := QTMP->CNF_CONTRA
 
 		//Calcula LF Avulso SZ2 - CLT
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"+CRLF
@@ -1612,13 +1798,10 @@ FOR _nI := 1 TO nPeriodo
 
 		QTMPX3->(Dbclosearea())
 
-
-
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
-
 
 		//*********GASTOS GERAIS
 		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
@@ -2742,6 +2925,7 @@ FOR _nI := 1 TO nPeriodo
  
 	   	dbSelectArea("QTMP")
 	   	QTMP->(dbSkip())
+
 	ENDDO
     QTMP->(dbCloseArea())
 
@@ -3179,6 +3363,31 @@ IF lJob
 						cQuery +="				 "+STR(aPrev[1,3],14,2)+")"
 						cQuery +="END "						
 						TcSqlExec(cQuery)
+
+						cEmpresa := ""
+						cEmpresa := U_BUSCAEMPR(cCODGCT)
+						//TABELA DE Previsao Proventos
+						cQuery := ""
+						cQuery +=" IF  (SELECT TOP 1 [CodigoContrato] FROM [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
+						cQuery +="BEGIN "
+						cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[PrevisaoProventos] SET [PrevisaoProventos]="+STR(aPrev[1,5],14,2)
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59'"
+						cQuery +="END "
+						cQuery +="ELSE "
+						cQuery +="BEGIN "
+						cQuery +=" INSERT INTO [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="            ([Empresa] "
+						cQuery +="            ,[CodigoContrato] "
+						cQuery +="            ,[Competencia] "
+						cQuery +="            ,[PrevisaoProventos])"
+						cQuery +="      VALUES ("+cEmpresa+","
+						cQuery +="              '"+cCODGCT+"',"
+						cQuery +="              '"+cXCompet+" 00:00:00',"
+						cQuery +="				 "+STR(aPrev[1,5],14,2)+")"
+						cQuery +="END "						
+						TcSqlExec(cQuery)
+
 					ENDIF 
 			    ENDIF
 				IF ALLTRIM(TRB->XX_DESC) == "GASTOS GERAIS"
@@ -3229,6 +3438,32 @@ IF lJob
 						cQuery +="				 0)"
 						cQuery +="END "						
 						TcSqlExec(cQuery)
+
+						cEmpresa := ""
+						cEmpresa := U_BUSCAEMPR(cCODGCT)
+						//TABELA DE Previsao Proventos
+						cQuery := ""
+						cQuery +=" IF  (SELECT TOP 1 [CodigoContrato] FROM [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
+						cQuery +="BEGIN "
+						cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[PrevisaoProventos] SET [PrevisaoProventos]="+STR(aPrev[1,5],14,2)
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59'"
+						cQuery +="END "
+						cQuery +="ELSE "
+						cQuery +="BEGIN "
+						cQuery +=" INSERT INTO [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="            ([Empresa] "
+						cQuery +="            ,[CodigoContrato] "
+						cQuery +="            ,[Competencia] "
+						cQuery +="            ,[PrevisaoProventos])"
+						cQuery +="      VALUES ("+cEmpresa+","
+						cQuery +="              '"+cCODGCT+"',"
+						cQuery +="              '"+cXCompet+" 00:00:00',"
+						cQuery +="				 "+STR(aPrev[1,5],14,2)+")"
+						cQuery +="END "						
+						TcSqlExec(cQuery)
+
+
 					ENDIF 
 			    ENDIF
    				IF ALLTRIM(TRB->XX_DESC) == "TAXA DE ADMINISTRAÇÃO"
@@ -3377,6 +3612,32 @@ IF lJob
 						cQuery +="				 "+STR(aPrev[1,3],14,2)+")"
 						cQuery +="END "						
 						TcSqlExec(cQuery)
+
+						cEmpresa := ""
+						cEmpresa := U_BUSCAEMPR(cCODGCT)
+						//TABELA DE Previsao Proventos
+						cQuery := ""
+						cQuery +=" IF  (SELECT TOP 1 [CodigoContrato] FROM [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
+						cQuery +="BEGIN "
+						cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[PrevisaoProventos] SET [PrevisaoProventos]="+STR(aPrev[1,5],14,2)
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59'"
+						cQuery +="END "
+						cQuery +="ELSE "
+						cQuery +="BEGIN "
+						cQuery +=" INSERT INTO [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="            ([Empresa] "
+						cQuery +="            ,[CodigoContrato] "
+						cQuery +="            ,[Competencia] "
+						cQuery +="            ,[PrevisaoProventos])"
+						cQuery +="      VALUES ("+cEmpresa+","
+						cQuery +="              '"+cCODGCT+"',"
+						cQuery +="              '"+cXCompet+" 00:00:00',"
+						cQuery +="				 "+STR(aPrev[1,5],14,2)+")"
+						cQuery +="END "						
+						TcSqlExec(cQuery)
+
+
 					ENDIF 
 			    ENDIF
 
@@ -3428,6 +3689,32 @@ IF lJob
 						cQuery +="				 0)"
 						cQuery +="END "						
 						TcSqlExec(cQuery)
+
+						cEmpresa := ""
+						cEmpresa := U_BUSCAEMPR(cCODGCT)
+						//TABELA DE Previsao Proventos
+						cQuery := ""
+						cQuery +=" IF  (SELECT TOP 1 [CodigoContrato] FROM [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
+						cQuery +="BEGIN "
+						cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[PrevisaoProventos] SET [PrevisaoProventos]="+STR(aPrev[1,5],14,2)
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59'"
+						cQuery +="END "
+						cQuery +="ELSE "
+						cQuery +="BEGIN "
+						cQuery +=" INSERT INTO [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="            ([Empresa] "
+						cQuery +="            ,[CodigoContrato] "
+						cQuery +="            ,[Competencia] "
+						cQuery +="            ,[PrevisaoProventos])"
+						cQuery +="      VALUES ("+cEmpresa+","
+						cQuery +="              '"+cCODGCT+"',"
+						cQuery +="              '"+cXCompet+" 00:00:00',"
+						cQuery +="				 "+STR(aPrev[1,5],14,2)+")"
+						cQuery +="END "						
+						TcSqlExec(cQuery)
+
+
 					ENDIF 
 			    ENDIF
 				IF ALLTRIM(TRB->XX_DESC) == "TAXA DE ADMINISTRAÇÃO"
@@ -3578,6 +3865,31 @@ IF lJob
 						cQuery +="				 "+STR(aPrev[1,3],14,2)+")"
 						cQuery +="END "						
 						TcSqlExec(cQuery)
+
+						cEmpresa := ""
+						cEmpresa := U_BUSCAEMPR(cCODGCT)
+						//TABELA DE Previsao Proventos
+						cQuery := ""
+						cQuery +=" IF  (SELECT TOP 1 [CodigoContrato] FROM [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
+						cQuery +="BEGIN "
+						cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[PrevisaoProventos] SET [PrevisaoProventos]="+STR(aPrev[1,5],14,2)
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59'"
+						cQuery +="END "
+						cQuery +="ELSE "
+						cQuery +="BEGIN "
+						cQuery +=" INSERT INTO [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="            ([Empresa] "
+						cQuery +="            ,[CodigoContrato] "
+						cQuery +="            ,[Competencia] "
+						cQuery +="            ,[PrevisaoProventos])"
+						cQuery +="      VALUES ("+cEmpresa+","
+						cQuery +="              '"+cCODGCT+"',"
+						cQuery +="              '"+cXCompet+" 00:00:00',"
+						cQuery +="				 "+STR(aPrev[1,5],14,2)+")"
+						cQuery +="END "						
+						TcSqlExec(cQuery)
+
 					ENDIF 
 			    ENDIF
 				IF ALLTRIM(TRB->XX_DESC) == "GASTOS GERAIS"
@@ -3628,6 +3940,31 @@ IF lJob
 						cQuery +="				 0)"
 						cQuery +="END "						
 						TcSqlExec(cQuery)
+
+						cEmpresa := ""
+						cEmpresa := U_BUSCAEMPR(cCODGCT)
+						//TABELA DE Previsao Proventos
+						cQuery := ""
+						cQuery +=" IF  (SELECT TOP 1 [CodigoContrato] FROM [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
+						cQuery +="BEGIN "
+						cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[PrevisaoProventos] SET [PrevisaoProventos]="+STR(aPrev[1,5],14,2)
+						cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59'"
+						cQuery +="END "
+						cQuery +="ELSE "
+						cQuery +="BEGIN "
+						cQuery +=" INSERT INTO [EstudoRentabilidade].[dbo].[PrevisaoProventos] "
+						cQuery +="            ([Empresa] "
+						cQuery +="            ,[CodigoContrato] "
+						cQuery +="            ,[Competencia] "
+						cQuery +="            ,[PrevisaoProventos])"
+						cQuery +="      VALUES ("+cEmpresa+","
+						cQuery +="              '"+cCODGCT+"',"
+						cQuery +="              '"+cXCompet+" 00:00:00',"
+						cQuery +="				 "+STR(aPrev[1,5],14,2)+")"
+						cQuery +="END "						
+						TcSqlExec(cQuery)
+
 					ENDIF 
 			    ENDIF
    				IF ALLTRIM(TRB->XX_DESC) == "TAXA DE ADMINISTRAÇÃO"
@@ -4181,7 +4518,6 @@ FOR IX:= 1 TO LEN(aContrCons)
     AADD(aConsorcio,StrTokArr(aContrCons[IX],";"))
 NEXT
 
- 		
 IF ALLTRIM(cXXSEMAF) == 'N'
 	ProcRegua(100)
 	Processa( {|| AtualizaCC() }) 
@@ -4660,8 +4996,9 @@ LOCAL _IX		:= 0
 IF nConsolida == 1
 	nTSZG03   := 0
 	nTResult  := 0
-	nTSalario := 0
+	nTSalBenef:= 0
 	nTDespesa := 0
+	nTSalario := 0
 
 	FOR _IX := 1 TO LEN(aContConsol)
 		//Calcula Valores da Projeção Financeira
@@ -4744,15 +5081,16 @@ IF nConsolida == 1
 		
 		nResult := 0
 		nResult := IIF(nSZG03>0,nSZG03-nDespesa,0)
-		//FATURAMENTOPREV/RESULTADOPREV/SALARIOSPREV/GASTOSGERAISPREV
+		//FATURAMENTOPREV/RESULTADOPREV/SALARIOSPREV/GASTOSGERAISPREV/SALARIOSPREV
 		IF lCOMPET
 			nTSZG03   += nSZG03
 			nTResult  += nResult
-			nTSalario += nSZG09+nSZG12 // Salarios
+			nTSalBenef+= nSZG09+nSZG12 // Salarios + Beneficios
 			nTDespesa += nSZG30 //nInsumos //nDespesa-nSalario
+			nTSalario += nSZG09 // Salarios
 	    ENDIF
     NEXT
-	AADD(aPrev,{nTSZG03,nTResult,nTSalario,nTDespesa})
+	AADD(aPrev,{nTSZG03,nTResult,nTSalBenef,nTDespesa,nTSalario})
 ELSE
 	//Calcula Valores da Projeção Financeira
     nSZG03 := 0
@@ -4826,12 +5164,12 @@ ELSE
 	
 	nResult := 0
 	nResult := IIF(nSZG03>0,nSZG03-nDespesa,0)
-	//FATURAMENTOPREV/RESULTADOPREV/SALARIOSPREV/GASTOSGERAISPREV
-	AADD(aPrev,{nSZG03,nResult,nSZG09+nSZG12,nSZG30})//nSalario,nSZG30})//nInsumos}) //nDespesa-nSalario})
+	//FATURAMENTOPREV/RESULTADOPREV/SALARIOSPREV+BENEF/GASTOSGERAISPREV/SALARIOSPREV
+	AADD(aPrev,{nSZG03,nResult,nSZG09+nSZG12,nSZG30,nSZG09})//nSalario,nSZG30})//nInsumos}) //nDespesa-nSalario})
 ENDIF
 
 IF LEN(aPrev) == 0 
-	AADD(aPrev,{0,0,0,0})
+	AADD(aPrev,{0,0,0,0,0})
 ENDIF
 
 RETURN aPrev
@@ -5114,3 +5452,35 @@ If aScan(aNDC,cNumContr+cCompt) == 0
 EndIf
 
 RETURN nTotSE1
+
+//BUSCA CODIGO DA EMPRESA RUBI
+USER FUNCTION BUSCAEMPR(cCUSTO)
+LOCAL cCODEMP 	:= ""
+LOCAL nScan		:= 0
+LOCAL _SQL 		:= ""
+				
+	nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(cCUSTO) })
+	IF nScan > 0
+		cCODEMP := SUBSTR(aConsorcio[nScan,2],1,2)
+	ELSE
+
+		_SQL := "SELECT TOP 1 [NumEmp]  FROM [BKIntegraRubi].[dbo].[CUSTOSIGA]"
+		_SQL += " WHERE ccSIGA='"+cCUSTO+"'"
+
+		TCQUERY _SQL NEW ALIAS "QCDEMP"
+		
+		dbSelectArea("QCDEMP")
+		QCDEMP->(dbGoTop())
+		DO WHILE QCDEMP->(!EOF())
+			cCODEMP := STR(QCDEMP->NumEmp)
+			QCDEMP->(dbSkip())
+		ENDDO
+		QCDEMP->(Dbclosearea())
+
+	ENDIF
+
+	IF VAL(cCODEMP) < 1
+		cCODEMP := SUBSTR(FWCodEmp(),1,2)
+	ENDIF
+
+RETURN cCODEMP

@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"29/03/2021 F1_XXPARCE "
+#DEFINE FIN_LAST_UPDATED 		"30/03/2021 indice sc5 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,10 +185,11 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20
 
-			AtuGenX3( @cTexto )    // 29/03/21
+			//AtuGenX3( @cTexto )    // 29/03/21
 
 			//AtuGenP12( @cTexto )
 
+			FSAtuSIX()
 
 			cAux += Replicate( "-", 128 ) + CRLF
 			cAux += Replicate( " ", 128 ) + CRLF
@@ -918,17 +919,25 @@ Static Function AtuGenX3( cTexto )
 //Local nBrw := 0
 
 
-oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“SF1”)" )
+oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CXN”)" )
 
 dbSelectArea( "SX3" )
 
+cTexto  += "29/03/21 - CXN_XXOBS " + CRLF 
+dbSelectArea( "SX3" )
+
+//29/03/21 - CXN_XXOBS
+APPEND FROM \tmp\sx3cxn.dtc
+X31UPDTABLE("CXN")
+
+/*
 cTexto  += "29/03/21 - F1_XXPARCE " + CRLF 
 dbSelectArea( "SX3" )
 
 //29/03/21 - F1_XXPARCE
 APPEND FROM \tmp\sx3sf1.dtc
 X31UPDTABLE("SF1")
-
+*/
 
 //03/03/21 - CNC_XCNPJ,CNC_XMUN
 //APPEND FROM \tmp\sx3cnc.dtc
@@ -1549,6 +1558,7 @@ Local aSx2   := {}
 Local cQuery := ""
 Local cNFil  := ""
 Local cTable := ""
+Local nI	 := 0
 
 /*
 Bom dia a todos,
@@ -2224,7 +2234,7 @@ Static Function AtuGenP12( cTexto )
 //Local cAlias    := ""
 //Local cEmpr     := ""
 //Local cPath     := ""
-//Local nI        := 0
+Local nI        := 0
 //Local nJ        := 0
 //Local nCamp	  := 0
 
@@ -2353,7 +2363,7 @@ Local   oDlg     := NIL
 Local   oChkMar  := NIL
 Local   oLbx     := NIL
 Local   oMascEmp := NIL
-Local   oMascFil := NIL
+//Local   oMascFil := NIL
 Local   oButMarc := NIL
 Local   oButDMar := NIL
 Local   oButInv  := NIL
@@ -2361,10 +2371,10 @@ Local   oSay     := NIL
 Local   oOk      := LoadBitmap( GetResources(), "LBOK" )
 Local   oNo      := LoadBitmap( GetResources(), "LBNO" )
 Local   lChk     := .F.
-Local   lOk      := .F.
+//Local   lOk      := .F.
 Local   lTeveMarc:= .F.
 Local   cVar     := ""
-Local   cNomEmp  := ""
+//Local   cNomEmp  := ""
 Local   cMascEmp := "??"
 Local   cMascFil := "??"
 
@@ -2472,7 +2482,7 @@ Return NIL
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-Static Function InvSelecao( aVetor, oLbx )
+Static Function InvSelecao( aVetor, oLbx, x, y )
 Local  nI := 0
 
 For nI := 1 To Len( aVetor )
@@ -2778,3 +2788,102 @@ Return
 
 
 
+/*/{Protheus.doc} FSAtuSIX
+Função de processamento da gravação do SIX - Indices
+
+@author TOTVS Protheus
+@since  28/03/2021
+@obs    Gerado por COMPADIC - V.6.5.3.2 EFS / Upd. V.5.1.0 EFS
+@version 1.0
+/*/
+//--------------------------------------------------------------------
+Static Function FSAtuSIX()
+Local aEstrut   := {}
+Local aSIX      := {}
+Local lAlt      := .F.
+Local lDelInd   := .F.
+Local nI        := 0
+Local nJ        := 0
+
+AutoGrLog( "Ínicio da Atualização" + " SIX" + CRLF )
+
+aEstrut := { "INDICE" , "ORDEM" , "CHAVE", "DESCRICAO", "DESCSPA"  , ;
+             "DESCENG", "PROPRI", "F3"   , "NICKNAME" , "SHOWPESQ" }
+
+//
+// Tabela SZS
+//
+
+aAdd( aSIX, { ;
+	'SC5'																	, ; //INDICE
+	'1'																		, ; //ORDEM
+	'C5_FILIAL+C5_NUM'														, ; //CHAVE
+	'Numero'																, ; //DESCRICAO
+	'Numero'																, ; //DESCSPA
+	'Numero'																, ; //DESCENG
+	'S'																		, ; //PROPRI
+	''																		, ; //F3
+	''																		, ; //NICKNAME
+	'S'																		} ) //SHOWPESQ
+
+
+aAdd( aSIX, { ;
+	'SC5'																	, ; //INDICE
+	'A'																		, ; //ORDEM
+	'C5_FILIAL+C5_MDNUMED+C5_MDPLANI'										, ; //CHAVE
+	'Num.Medicao+Num.Planilha'												, ; //DESCRICAO
+	'Num.Medicao+Num.Planilha'												, ; //DESCSPA
+	'Num.Medicao+Num.Planilha'												, ; //DESCENG
+	'U'																		, ; //PROPRI
+	''																		, ; //F3
+	''																		, ; //NICKNAME
+	'S'																		} ) //SHOWPESQ
+
+
+
+//
+// Atualizando dicionário
+//
+oProcess:SetRegua2( Len( aSIX ) )
+
+dbSelectArea( "SIX" )
+SIX->( dbSetOrder( 1 ) )
+
+For nI := 1 To Len( aSIX )
+
+	lAlt    := .F.
+	lDelInd := .F.
+
+	If !SIX->( dbSeek( aSIX[nI][1] + aSIX[nI][2] ) )
+		AutoGrLog( "Índice criado " + aSIX[nI][1] + "/" + aSIX[nI][2] + " - " + aSIX[nI][3] )
+	Else
+		lAlt := .T.
+		aAdd( aArqUpd, aSIX[nI][1] )
+		If !StrTran( Upper( AllTrim( CHAVE )       ), " ", "" ) == ;
+		    StrTran( Upper( AllTrim( aSIX[nI][3] ) ), " ", "" )
+			AutoGrLog( "Chave do índice alterado " + aSIX[nI][1] + "/" + aSIX[nI][2] + " - " + aSIX[nI][3] )
+			lDelInd := .T. // Se for alteração precisa apagar o indice do banco
+		EndIf
+	EndIf
+
+	RecLock( "SIX", !lAlt )
+	For nJ := 1 To Len( aSIX[nI] )
+		If FieldPos( aEstrut[nJ] ) > 0
+			FieldPut( FieldPos( aEstrut[nJ] ), aSIX[nI][nJ] )
+		EndIf
+	Next nJ
+	MsUnLock()
+
+	dbCommit()
+
+	If lDelInd
+		TcInternal( 60, RetSqlName( aSIX[nI][1] ) + "|" + RetSqlName( aSIX[nI][1] ) + aSIX[nI][2] )
+	EndIf
+
+	oProcess:IncRegua2( "Atualizando índices..." )
+
+Next nI
+
+AutoGrLog( CRLF + "Final da Atualização" + " SIX" + CRLF + Replicate( "-", 128 ) + CRLF )
+
+Return NIL

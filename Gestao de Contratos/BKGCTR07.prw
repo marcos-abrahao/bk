@@ -242,15 +242,15 @@ Static Function ProcQueryN
 Local cQuery as Character
 Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 
-Local cJoinCND:= FWJoinFilial("CND", "CNE")
-Local cJoinCXN:= FWJoinFilial("CXN", "CNE")
-Local cJoinCN1:= FWJoinFilial("CN1", "CN9")
-Local cJoinCNA:= FWJoinFilial("CNA", "CN9")
-Local cJoinSC5:= FWJoinFilial("SC5", "CNE")
-Local cJoinSC6:= FWJoinFilial("SC6", "SC5")
-Local cJoinSD2:= FWJoinFilial("SD2", "SC6")
-Local cJoinSF2:= FWJoinFilial("SF2", "SC6")
-Local cJoinSB1:= FWJoinFilial("SB1", "SC6")
+Local cJCNDCNE:= FWJoinFilial("CND", "CNE")
+Local cJCXNCNE:= FWJoinFilial("CXN", "CNE")
+Local cJCN1CN9:= FWJoinFilial("CN1", "CN9")
+Local cJCNACN9:= FWJoinFilial("CNA", "CN9")
+Local cJSC5CNE:= FWJoinFilial("SC5", "CNE")
+Local cJSC6SC5:= FWJoinFilial("SC6", "SC5")
+Local cJSD2SC6:= FWJoinFilial("SD2", "SC6")
+Local cJSF2SC6:= FWJoinFilial("SF2", "SC6")
+Local cJSB1SC6:= FWJoinFilial("SB1", "SC6")
 
 /*
 Resposta Totvs 15/03/21
@@ -311,16 +311,16 @@ cQuery += " FROM "+RETSQLNAME("CNE")+" CNE" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND" + CRLF
 cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = CNE_REVISA" +CRLF
-cQuery += " 		AND "+cJoinCND+" AND CND.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJCNDCNE+" AND CND.D_E_L_E_T_='')" + CRLF
 
 //cQuery += " INNER JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
 //cQuery += " 	ON (CXN_NUMMED = CNE_NUMMED AND CXN_CONTRA = CNE_CONTRA AND CXN_REVISA = CNE_REVISA AND CXN_NUMPLA = CNE_NUMERO" +CRLF
-//cQuery += " 		AND "+cJoinCXN+" AND CXN.D_E_L_E_T_='')" + CRLF
+//cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
 // Sugestão Totvs: CXN.CXN_FILIAL = CND.CND_FILIAL AND CXN.CXN_CONTRA = CND.CND_CONTRA AND CXN.CXN_REVISA = CND.CND_REVISA AND CXN.CXN_NUMMED = CND.CND_NUMMED AND CXN.CXN_CHECK = 'T'
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
 cQuery += " 	ON (CXN_CONTRA = CNE_CONTRA AND CXN_REVISA = CNE_REVISA AND CXN_NUMMED = CNE_NUMMED AND CXN_NUMPLA = CNE_NUMERO AND CXN.CXN_CHECK = 'T'" +CRLF
-cQuery += " 		AND "+cJoinCXN+" AND CXN.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
@@ -337,31 +337,31 @@ cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
 cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
-cQuery += " 		AND "+cJoinCN1+" AND CN1.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-cQuery += " 		AND "+cJoinCNA+" AND CNA.D_E_L_E_T_='')"+CRLF
+cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
-cQuery += " 		AND "+cJoinSC5+" AND SC5.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJSC5CNE+" AND SC5.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SC6")+" SC6" + CRLF
 cQuery += " 	ON (C5_CLIENT = C6_CLI AND C5_LOJACLI = C6_LOJA AND C6_NUM = C5_NUM AND C6_ITEMED = CNE_ITEM" +CRLF
-cQuery += " 		AND "+cJoinSC6+" AND SC6.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJSC6SC5+" AND SC6.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SD2")+" SD2" + CRLF
 cQuery += " 	ON (D2_PEDIDO = C5_NUM AND D2_ITEMPV = C6_ITEM AND C5_CLIENT = D2_CLIENTE AND D2_LOJA = C5_LOJACLI" +CRLF
-cQuery += " 		AND "+cJoinSD2+" AND SD2.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJSD2SC6+" AND SD2.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
 cQuery += " 	ON (C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC" + CRLF
-cQuery += " 		AND "+cJoinSF2+" AND SF2.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND "+cJSF2SC6+" AND SF2.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SB1")+" SB1" + CRLF
 cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
-cQuery += " 		AND "+cJoinSB1+" AND SB1.D_E_L_E_T_='')"+CRLF
+cQuery += " 		AND "+cJSB1SC6+" AND SB1.D_E_L_E_T_='')"+CRLF
 
 cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
