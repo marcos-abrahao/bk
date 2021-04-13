@@ -46,15 +46,16 @@ Static Function MenuDef()
 
 	// Menu Padrão exemplo: FWMVCMenu('VIEWDEF.MVCSZS') -> cria menu com as opções padrões
     //Criação das opções
-    ADD OPTION aRotina TITLE 'Visualizar'  ACTION 'VIEWDEF.MVCSZS' OPERATION 2 ACCESS 0
-    ADD OPTION aRotina TITLE 'Incluir'     ACTION 'VIEWDEF.MVCSZS' OPERATION 3 ACCESS 0
-    ADD OPTION aRotina TITLE 'Alterar'     ACTION 'VIEWDEF.MVCSZS' OPERATION 4 ACCESS 0
-    ADD OPTION aRotina TITLE 'Excluir'     ACTION 'VIEWDEF.MVCSZS' OPERATION 5 ACCESS 0
-    ADD OPTION aRotina TITLE 'Processar'   ACTION 'StaticCall(BKCOMA09, SZSProc)'  OPERATION 2 ACCESS 0
-    ADD OPTION aRotina TITLE 'Classificar' ACTION 'StaticCall(BKCOMA09, SZSClas)'  OPERATION 2 ACCESS 0
-    ADD OPTION aRotina TITLE 'Visual.Doc'  ACTION 'StaticCall(BKCOMA09, SZSVDoc)'  OPERATION 2 ACCESS 0
-    ADD OPTION aRotina TITLE 'Anexar Doc'  ACTION 'StaticCall(BKCOMA09, SZSConh)'  OPERATION 2 ACCESS 0
-    ADD OPTION aRotina TITLE 'Legenda'     ACTION 'u_SZSLeg'       OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Visualizar'    ACTION 'VIEWDEF.MVCSZS' OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Incluir'       ACTION 'VIEWDEF.MVCSZS' OPERATION 3 ACCESS 0
+    ADD OPTION aRotina TITLE 'Alterar'       ACTION 'VIEWDEF.MVCSZS' OPERATION 4 ACCESS 0
+    ADD OPTION aRotina TITLE 'Excluir'       ACTION 'VIEWDEF.MVCSZS' OPERATION 5 ACCESS 0
+    ADD OPTION aRotina TITLE 'Processar'     ACTION 'StaticCall(BKCOMA09, SZSProc)'  OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Classificar'   ACTION 'StaticCall(BKCOMA09, SZSClas)'  OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Visual.Doc'    ACTION 'StaticCall(BKCOMA09, SZSVDoc)'  OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Anexar Doc'    ACTION 'StaticCall(BKCOMA09, SZSConh)'  OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Alterar Datas' ACTION 'StaticCall(BKCOMA09, SZSData)'  OPERATION 2 ACCESS 0
+    ADD OPTION aRotina TITLE 'Legenda'       ACTION 'u_SZSLeg'       OPERATION 2 ACCESS 0
 Return aRotina
  
 /*---------------------------------------------------------------------*
@@ -371,3 +372,60 @@ Static Function SZSVDoc()
 	RestArea(aArea)
 
 Return Nil
+
+
+Static Function SZSData()
+Local aParam 	:= {}
+Local aRet		:=	{}
+Local cTitulo   := "Alterar datas em Lote"
+Local dDataE	:= SZS->ZS_EMISSAO
+Local dDataP	:= SZS->ZS_XXPVPGT
+Local lTodos	:= .T.
+
+aAdd( aParam, { 1, "Emissão:"		, CTOD("")	, ""    , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Pagamento:"		, CTOD("")	, ""    , "", ""	, "" , 70  , .F. })  
+aAdd( aParam ,{ 2, "Seleção:"       , "Todos"   , {"Todos", "Marcados"}, 70,'.T.'  ,.T.})
+
+If (Parambox(aParam     ,"BKCOMA09 - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKCOMA09",.T.         ,.T.))
+	lRet := .T.
+	dDataE  := mv_par01
+	dDataP  := mv_par02
+	lTodos  := (substr(mv_par04,1,1) == "T")	
+
+	FWMsgRun(, {|oSay| SZSProc2(dDataE,dDataP,lTodos) }, "", "BKCOMA09 - Alterando datas...")
+
+Endif
+
+Return Nil
+
+
+Static Function SZSProc2(dDataE,dDataP,lTodos)
+
+	Local aArea		:= GetArea()
+	Local cMarca	:= oMark:Mark()
+	//Local lInverte := oMark:IsInvert()
+
+	//Percorrendo os registros da SZS
+	SZS->(DbGoTop())
+	While !SZS->(EoF())
+
+		If lTodos .OR. oMark:IsMark(cMarca)
+
+			RecLock('SZS', .F.)
+			SZS->ZS_OK		:= ''
+			SZS->ZS_EMISSAO	:= dDataE
+			SZS->ZS_XXPVPGT	:= dDataP
+			SZS->(MsUnlock())
+
+		EndIf
+
+		//Pulando registro
+		SZS->(DbSkip())
+	EndDo
+
+	//Mostrando a mensagem de registros marcados
+	MsgInfo('Datas alteradas', "Atenção")
+
+	//Restaurando área armazenada
+	RestArea(aArea)
+Return .T.

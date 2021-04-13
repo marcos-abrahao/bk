@@ -1,6 +1,29 @@
 
 
 
+
+
+==============================================================
+
+07/04/21 - Fernando pediu para refazer lanç fin a receber
+
+UPDATE SE5010 SET E5_LA = ' ' FROM SE5010 WHERE
+E5_RECPAG = 'R' AND
+E5_TIPODOC <> 'ES' AND E5_TIPODOC <> 'DC' AND
+E5_PREFIXO = '001'
+AND E5_DATA = '20210104'
+AND E5_BANCO = '001'
+
+AND E5_DATA = '20210105'
+AND E5_DATA = '20210106'
+AND E5_DATA = '20210107'
+AND E5_DATA = '20210108'
+
+AND E5_DATA >= '20210109'
+AND E5_DATA <= '20210111'
+
+========================================================================================
+
 16/03/21 - Considerar cadastro de cliente para reter o IRF
 
 SELECT ED_RECIRRF,* FROM SED010 WHERE ED_COND = 'R' AND SUBSTRING(ED_CODIGO,1,1) = '0' 

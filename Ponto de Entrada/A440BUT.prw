@@ -1,5 +1,5 @@
 #INCLUDE "PROTHEUS.CH"
-#INCLUDE "TOPCONN.CH"
+//#INCLUDE "TOPCONN.CH"
 
 
 /*/{Protheus.doc} A440BUT
@@ -20,42 +20,14 @@ Return aBotao
 
 
 User Function VerGlosa(lBut)
-Local cQuery    := ""
 Local aAreaIni  := GetArea()
-Local cAliasCNR := GetNextAlias()
 Local aCNR      := {}
 Local oDlg,oListID,oPanelLeft 
 Local lOk       := .T.
-//Local cREVISA 	:= ""
-//Local dTINIC 	:= CTOD("")
-//Local cDETG		:= ""
-//Local cJUST		:= ""
 Local aButtons 	:= {}
 
-cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
-cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+SC5->C5_MDNUMED+"' AND CNR_FILIAL = '"+SC5->C5_FILIAL+"' "
 
-TCQUERY cQuery NEW ALIAS (cAliasCNR)
-
-DbSelectArea(cAliasCNR)
-DbGoTop()
-
-Do While (cAliasCNR)->(!eof())
-	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "1","Bonificação","Glosa")
-	DbSelectArea("CND")
-	CND->(DBSETORDER(4))
-	CND->(DBSEEK(xFilial("CND")+SC5->C5_MDNUMED,.F.))
-	Do While !Eof() .AND. xFilial("CND")+SC5->C5_MDNUMED == CND->CND_FILIAL+CND->CND_NUMMED
-		If CND->CND_REVISA == CND->CND_REVGER
-			Exit
-		EndIf
-		CND->(dbSkip())
-	EndDo
-	//AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
-	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),""})
-
-	(cAliasCNR)->(dbSkip())
-EndDo
+aCNR := U_BKGlosas(SC5->C5_MDNUMED,SC5->C5_MDPLANI)
 
 If LEN(aCNR) > 0
 
@@ -126,11 +98,52 @@ Else
 	EndIf
 EndIf
 
-(cAliasCNR)->(dbCloseArea())
-
 RestArea(aAreaIni)
 
 Return lOk
 
 
+// Retorna array com glosas e Bonificações
+User Function BKGlosas(cMedicao,cPlanilha)
+Local cQuery 	:= ""
+Local cTipoNome	:= ""
+Local cAliasCNR := GetNextAlias()
+Local cJust		:= ""
+Local aCNR		:= {}
+Local aAreaIni  := GetArea()
 
+cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR,CNR_XTPJUS,CNR_CODPLA " 
+cQuery  += " FROM "+RETSQLNAME("CNR")+" CNR "
+cQuery  += " WHERE CNR.D_E_L_E_T_ = '' AND CNR_FILIAL = '"+xFilial("CNR")+"' "
+cQuery  += "       AND CNR_NUMMED = '"+SC5->C5_MDNUMED+"'" 
+cQuery  += "       AND (CNR_CODPLA = ' ' OR CNR_CODPLA = '"+cPlanilha+"')"
+
+cQuery  := ChangeQuery(cQuery)
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasCNR,.T.,.T.)
+
+DbSelectArea(cAliasCNR)
+DbGoTop()
+
+Do While (cAliasCNR)->(!eof())
+
+	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "1","Bonificação","Glosa")
+
+	//If Empty((cAliasCNR)->CNR_CODPLA) .OR. (cAliasCNR)->CNR_CODPLA == SC5->C5_MDPLANI
+		If !Empty((cAliasCNR)->CNR_XTPJUS)
+			cJust:= (cAliasCNR)->CNR_XTPJUS+"-"+Trim(Posicione("SZR",1,xFilial("SZR")+(cAliasCNR)->CNR_XTPJUS,"ZR_DESCR"))
+		Else
+			cJust := ""
+		EndIf
+
+		AADD(aCNR,{cTipoNome,TRIM((cAliasCNR)->CNR_DESCRI),TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),cJust})
+	//EndIf
+
+	(cAliasCNR)->(dbSkip())
+EndDo
+
+(cAliasCNR)->(dbCloseArea())
+
+RestArea(aAreaIni)
+
+Return aCNR

@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"30/03/2021 indice sc5 "
+#DEFINE FIN_LAST_UPDATED 		"11/04/2021 CXN "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,11 +185,11 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20
 
-			//AtuGenX3( @cTexto )    // 29/03/21
+			AtuGenX3( @cTexto )    // 11/04/21
 
 			//AtuGenP12( @cTexto )
 
-			FSAtuSIX()
+			//FSAtuSIX()
 
 			cAux += Replicate( "-", 128 ) + CRLF
 			cAux += Replicate( " ", 128 ) + CRLF
@@ -923,12 +923,29 @@ oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CXN”)" )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "29/03/21 - CXN_XXOBS " + CRLF 
+cTexto  += "11/04/21 - CNR " + CRLF 
 dbSelectArea( "SX3" )
 
+/*
+//CNR_XTPJUS F3 SZR
+dbSetOrder( 2 )
+If SX3->( dbSeek( "CNR_XTPJUS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "SZR"
+	dbCommit()
+	MsUnLock()
+EndIf
+dbSetOrder( 1 )
+*/
+
+
+/*
 //29/03/21 - CXN_XXOBS
+//11/04/21 - CXN_XXVLN CXN_XXRM
 APPEND FROM \tmp\sx3cxn.dtc
 X31UPDTABLE("CXN")
+*/
+
 
 /*
 cTexto  += "29/03/21 - F1_XXPARCE " + CRLF 
@@ -2814,6 +2831,7 @@ aEstrut := { "INDICE" , "ORDEM" , "CHAVE", "DESCRICAO", "DESCSPA"  , ;
 // Tabela SZS
 //
 
+/*
 aAdd( aSIX, { ;
 	'SC5'																	, ; //INDICE
 	'1'																		, ; //ORDEM
@@ -2838,7 +2856,7 @@ aAdd( aSIX, { ;
 	''																		, ; //F3
 	''																		, ; //NICKNAME
 	'S'																		} ) //SHOWPESQ
-
+*/
 
 
 //

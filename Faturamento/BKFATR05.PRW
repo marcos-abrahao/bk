@@ -189,6 +189,7 @@ Local cContra   := IIF(!EMPTY(SC5->C5_MDCONTR),SC5->C5_MDCONTR,SC5->C5_ESPECI1)
 Local cRev      := ""
 Local cMedicao  := SC5->C5_MDNUMED
 Local cPlan     := SC5->C5_MDPLANI
+Local cParcel	:= ""
 Local cObsMed   := ""
 Local cObsNF    := ""
 Local cEmissor  := ""
@@ -210,7 +211,7 @@ Local cNatureza := SC5->C5_NATUREZ
 Local cMenPed	:= ALLTRIM(TRIM(SC5->C5_XXDNFS)+" "+SC5->C5_MENNOTA)
 Local dEmisNF   := CTOD("")
 Local cFaturis  := ""
-
+Local aCNR		:= {}
 Local cRefComp  := ""
 
 // Itens
@@ -229,8 +230,8 @@ Local aAreaSF2   := GetArea("SF2")
 
 // Variaveis auxiliares
 Local aParc     := {}
-Local aTmp      := {}
-Local nReg      := 0
+//Local aTmp      := {}
+//Local nReg      := 0
 
 // Totalizadores
 Local nTotVal   := 0
@@ -487,15 +488,11 @@ If !EMPTY(cMedicao)
    cRev    := SPACE(LEN(CN9->CN9_REVISA))
    cObsMed := ""
 
-   aTmp := U_QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"'")
+	// Nova Medição
+	U_PMedPed(cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
 
-	If !EMPTY(aTmp)
-		nReg := aTmp[1]
-    	CND->(dbGoTo(nReg))
-		cObsMed  := TRIM(CND->CND_OBS)
-		cRev     := CND->CND_REVISA
-    	cEmissor := CND->CND_USUAR
-	EndIf
+	// Glosas e Bonificações
+	aCNR := U_BKGlosas(SC5->C5_MDNUMED,SC5->C5_MDPLANI)
 
 EndIf
 
@@ -607,7 +604,7 @@ AADD(aHtml,'<col style="width: 060px">')
 AADD(aHtml,'<col style="width: 060px">')
 AADD(aHtml,'<col style="width: 100px">')
 AADD(aHtml,'<col style="width: 100px">')
-AADD(aHtml,'<col style="width: 100px">')
+AADD(aHtml,'<col style="width: 120px">')
 AADD(aHtml,'</colgroup>')
 
 AADD(aHtml,'  <tr>')
@@ -682,8 +679,8 @@ AADD(aHtml,'  </tr>')
 
 AADD(aHtml,'    <tr>')
 AADD(aHtml,'      <td class="tg-hndr">Contrato</td>')
-AADD(aHtml,'      <td class="tg-hndr" colspan="3">Descrição</td>')
-AADD(aHtml,'      <td class="tg-hndr">Medição</td>')
+AADD(aHtml,'      <td class="tg-hndr" colspan="3">Descrição '+iIf(!Empty(cRev),' - Revisão '+cRev,'')+'</td>')
+AADD(aHtml,'      <td class="tg-hndr">Medição '+cParcel+'</td>')
 AADD(aHtml,'      <td class="tg-hndr">Planilha</td>')
 AADD(aHtml,'      <td class="tg-hndr">Emissor</td>')
 AADD(aHtml,'    </tr>')
@@ -713,17 +710,9 @@ AADD(aHtml,'      <td class="tg-ndr">'+cCompM+'</td>')
 AADD(aHtml,'    </tr>')
 
 
-//Local cLiber    := SC5->C5_XXULIB
-
-
-//AADD(aHtml,'    <tr>')
-//AADD(aHtml,'    	<td colspan="6">')
-//AADD(aHtml,'    </tr>')
-
-
 If !Empty(cMenPed)
 	AADD(aHtml,'    <tr>')
-	AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações do Pedido</td>')
+	AADD(aHtml,'      <td class="tg-hsc" colspan="7">Observações do Pedido</td>')
 	AADD(aHtml,'    </tr>')
 
 	AADD(aHtml,'    <tr>')
@@ -732,9 +721,10 @@ If !Empty(cMenPed)
 	AADD(aHtml,'    </tr>')
 EndIf
 
+
 If !Empty(cObsMed)
 	AADD(aHtml,'    <tr>')
-	AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da Medição</td>')
+	AADD(aHtml,'      <td class="tg-hsc" colspan="7">Observações da Medição</td>')
 	AADD(aHtml,'    </tr>')
 
 	AADD(aHtml,'    <tr>')
@@ -743,9 +733,45 @@ If !Empty(cObsMed)
 	AADD(aHtml,'    </tr>')
 EndIf
 
+If Len(aCNR) > 0
+	AADD(aHtml,'  <tr>')
+	AADD(aHtml,'    <td class="tg-hsc" colspan="7">Glosas e Bonificações</td>')
+	AADD(aHtml,'  </tr>')
+	AADD(aHtml,'  <tr>')
+	AADD(aHtml,'  	<td colspan="7">')
+	AADD(aHtml,'    <table class="ti">')
+	AADD(aHtml,'      <colgroup>')
+	AADD(aHtml,'       <col style="width: 70px">')
+	AADD(aHtml,'       <col style="width: 230px">')
+	AADD(aHtml,'       <col style="width: 230px">')
+	AADD(aHtml,'       <col style="width: 70px">')
+	AADD(aHtml,'      </colgroup>')
+
+	AADD(aHtml,'      <tr>')
+	AADD(aHtml,'        <td class="ti-hvalor">Tipo</td>')
+	AADD(aHtml,'        <td class="ti-hvalor">Descrição</td>')
+	AADD(aHtml,'        <td class="ti-hvalor">Justificativa</td>')
+	AADD(aHtml,'        <td class="ti-hvalor">Valor</td>')
+	AADD(aHtml,'      </tr>')
+
+	For nI := 1 To Len(aCNR)
+		AADD(aHtml,'  <tr>')
+		AADD(aHtml,'    <td class="tg-sc">'+aCNR[nI,1]+'</td>')
+		AADD(aHtml,'    <td class="tg-sc">'+aCNR[nI,2]+'</td>')
+		AADD(aHtml,'    <td class="tg-sc">'+aCNR[nI,4]+'</td>')
+		AADD(aHtml,'    <td class="tg-valor">R$ '+ALLTRIM(aCNR[nI,3])+'</td>')
+		AADD(aHtml,'  </tr>')
+	Next
+
+	AADD(aHtml,'    </table>')
+	AADD(aHtml,'   </td>')
+	AADD(aHtml,'  </tr>')
+EndIf
+
+
 If !Empty(cObsNF)
 	AADD(aHtml,'    <tr>')
-	AADD(aHtml,'      <td class="tg-hndr" colspan="7">Observações da NF</td>')
+	AADD(aHtml,'      <td class="tg-hsc" colspan="7">Observações da NF</td>')
 	AADD(aHtml,'    </tr>')
 
 	AADD(aHtml,'    <tr>')

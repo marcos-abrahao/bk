@@ -13,10 +13,6 @@ User Function CN121PED()  //executado na nova medição
 Return U_CN120PED()
 
 
-
-
-
-
 User Function CN120PED()
 
 Local ExpA1 	:= PARAMIXB[1]
@@ -25,13 +21,17 @@ Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""
 Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE ISS
-Local cCliente  := CND->CND_CLIENT
+Local cCliente  := ""
+Local cLoja		:= ""
 Local aArea		:= GetArea()
 Local aAreaCNA	
 Local cNaturez  := ""
 Local cTpNf		:= "N"
+Local lRec		:= .F.
 
-cPlanilha  := ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDPLANI"}),2]
+cCliente	:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_CLIENTE"}),2]
+cLoja		:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_LOJACLI"}),2]
+cPlanilha	:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDPLANI"}),2]
 
 dbSelectArea("CNA")
 aAreaCNA := CNA->(getArea())
@@ -39,21 +39,24 @@ aAreaCNA := CNA->(getArea())
 dbSetOrder(1)
 CNA->(dbSeek(xFilial("CNA")+cContrato+cRevisa+cPlanilha)) 
 
-If SM0->M0_CODIGO == "01"      // BK
-	IF cCliente $ cXXNOISS .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS 
-		IF CNA->CNA_XXUF == SM0->M0_ESTENT .AND. ALLTRIM(SUBSTR(SM0->M0_CODMUN,3,LEN(SM0->M0_CODMUN))) == ALLTRIM(CNA->CNA_XXCMUN) 
+If cEmpAnt == "01"      // BK
+	If cCliente $ cXXNOISS .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS 
+		If CNA->CNA_XXUF == SM0->M0_ESTENT .AND. ALLTRIM(SUBSTR(SM0->M0_CODMUN,3,LEN(SM0->M0_CODMUN))) == ALLTRIM(CNA->CNA_XXCMUN) 
 			AADD(ExpA1,{"C5_RECISS" ,'2', Nil})
-		ENDIF 
-	ENDIF
+			lRec := .T.
+		EndIf 
+	EndIf
+EndIf
 
-	IF CNA->CNA_XXRISS == "1"
+If !lRec
+	If CNA->CNA_XXRISS == "1"
 		AADD(ExpA1,{"C5_RECISS" ,'1', Nil})
-	ELSEIF CNA->CNA_XXRISS == "2"
+	ElseIf CNA->CNA_XXRISS == "2"
 		AADD(ExpA1,{"C5_RECISS" ,'2', Nil})
-	ENDIF
-ENDIF                     
+	EndIf
+EndIf                 
 
-IF (CND->CND_CLIENT <> CNA->CNA_CLIENT) .OR. (CND->CND_LOJACL <> CNA->CNA_LOJACL)
+IF (cCliente <> CNA->CNA_CLIENT) .OR. (cLoja <> CNA->CNA_LOJACL)
 	AADD(ExpA1,{"C5_ESTPRES" ,SA1->A1_EST, Nil}) 
 	AADD(ExpA1,{"C5_MUNPRES" ,SA1->A1_COD_MUN, Nil})
 ELSE
@@ -80,7 +83,7 @@ AADD(ExpA1,{"C5_XXTPNF" ,cTpNF, Nil})    // N=Normal;B=Balcão;F=Filial
 If !EMPTY(CNA->CNA_XXNAT)
 	AADD(ExpA1,{"C5_NATUREZ" ,CNA->CNA_XXNAT, Nil}) 
 Else
-	cNaturez := Posicione("SA1",1,xFilial("SA1")+CND->CND_CLIENT+CND->CND_LOJACL,"A1_NATUREZ")
+	cNaturez := Posicione("SA1",1,xFilial("SA1")+cCliente+cLoja,"A1_NATUREZ")
 	AADD(ExpA1,{"C5_NATUREZ",cNaturez, Nil}) 
 EndIf
 

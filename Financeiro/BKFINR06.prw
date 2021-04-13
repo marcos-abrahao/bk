@@ -382,8 +382,9 @@ Begin Sequence
 			oPrn:Say(0180,0050,"FURNAS LOTE BK",oFont14N)
         ENDIF
 		aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
-  		cDigUser := aLib[1]
-		cLibUser := aLib[2]
+  		cDigUser 	:= aLib[1]
+		cLibUser 	:= aLib[2]
+		cDtHoraLib 	:= IIF(!EMPTY(aLib[4]),aLib[4],aLib[3])
     ENDIF
 
     dbSelectArea("SD1")                   // * Itens da N.F. de Compra
@@ -555,7 +556,7 @@ Begin Sequence
 
     nLin += 50
 	oPrn:Say(nLin,0100,"Usuário:",oFont12N)
-	oPrn:Say(nLin,0400,OemToAnsi(Capital(cDigUser))+" "+cDigData,oFont12N)
+	oPrn:Say(nLin,0400,Trim(Capital(TRIM(cDigUser))+IIF(!EMPTY(cDigData)," "+cDigData,"")),oFont12N)
 
 	oPrn:Say(nLin,1300,"Lib. Fin.:",oFont12N)
 	oPrn:Say(nLin,1700,Trim(Capital(TRIM(cLibUser))+IIF(!EMPTY(cDtHoraLib)," "+cDtHoraLib,"")),oFont12N)

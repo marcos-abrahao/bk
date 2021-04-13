@@ -65,7 +65,15 @@ User Function CNTA121()
 
 		ElseIf (cIdPonto == "MODELVLDACTIVE")
 			
-			cMsg := "Chamada na ativação do modelo de dados."
+			//cMsg := "Chamada na ativação do modelo de dados."
+
+            // MODELO -> SUBMODELO -> ESTRUTURA -> PROPRIEDADE -> BLOCO DE CÓDIGO -> X3_WHEN := .F.
+            oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XXRM"  , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
+            oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
+            oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XXTPNF", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
+            oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_OBS"   , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
+
+			//oObj:GetModel("CXNDETAIL"):GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
 			//oObj:GetModel("CXNDETAIL"):GetStruct():SetProperty("CXN_NUMPLA",MODEL_FIELD_VALID,FwBuildFeatures(MODEL_FIELD_VALID,"U_CNACPOS()"))
 			//xRet := MsgYesNo(cMsg + "Continua?")
@@ -174,6 +182,10 @@ oModel  := FwModelActivate()
 oMdlCND := oModel:GetModel("CNDMASTER")
 oMdlCXN := oModel:GetModel("CXNDETAIL")
 //oMdlCNE := oModel:GetModel("CNEDETAIL")
+
+// Habilitar campos de usuário na CXN
+oMdlCXN:GetStruct():SetProperty("CXN_XXRM"  , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+oMdlCXN:GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
 If oMdlCXN:Length() > 0
 	nLin := oMdlCXN:nLine

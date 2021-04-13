@@ -22,19 +22,22 @@ Local cProduto  := ""
 Local cContrato := ""
 Local cPlanilha := ""
 Local cMedicao  := ""
-Local nReg		:= 0
+Local cRevisa   := ""
+Local cCompet   := ""
+Local cParcel	:= ""
+Local cEmissor	:= ""
+//Local nReg		:= 0
 
 Local cObjeto   := ""
 Local cObsMed   := ""
-Local cRevisa   := ""
-Local cCompet   := ""
+Local cxCompet  := ""
+Local cxParcel  := ""
 Local cConta    := ""
 Local cMun      := ""
 
 Local cVencto   := ""
-Local cParcela  := ""
 Local nI
-Local aTmp
+//Local aTmp
 Local cImpDtV   := "S"
 Local cMenNota  := ""
 Local aBancos   := {}
@@ -151,15 +154,19 @@ ENDDO
 
 cDescr := ""
 
-IF !EMPTY(cContrato)
+IF !Empty(cContrato)
 
     // QryProc(cAlias,nCampos,cCampos,cWhere)
-    aTmp := U_QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"'")
+    //aTmp := U_QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"' AND CND_REVISA = CND_REVGER")
 
 	dbSelectArea("CN9")
-    cRevisa := SPACE(LEN(CN9->CN9_REVISA))
+    cRevisa := Space(Len(CN9->CN9_REVISA))
     cObsMed := ""
-	If !EMPTY(aTmp)
+	cParcel := ""
+	cCompet := ""
+
+	/*
+	If !Empty(aTmp)
 		nReg := aTmp[1]
 		dbSelectArea("CND")
     	dbGoTo(nReg)
@@ -169,6 +176,10 @@ IF !EMPTY(cContrato)
 			cObsMed += " A gestão financeira do contrato é feita pela CPRM/BH"
 		EndIf
 	EndIf
+	*/
+
+	// Nova Medição
+	U_PMedPed(cContrato,cMedicao,cPlanilha,@cRevisa,@cCompet,@cParcel,@cObsMed,@cEmissor)
 
 	// Descrição do contrato = descrição do centro de custo
 	dbSelectArea("CTT")
@@ -237,23 +248,36 @@ IF !EMPTY(cContrato)
 
 	cDescr1 += cObsMed+CRLF
 
-	cCompet := ""
-	cParcela:= ""
+	cxCompet := ""
+	cxParcel := ""
+	If AllTrim(cContrato) <> '307000496'
+		If !(AllTrim(cCliente) $ cXXCOMPE)
+   			cxCompet  := "Competencia: "+cCompet
+		EndIf
+		If AllTrim(cCliente) $ cXXMEDIC
+   			cxParcel := " "+cParcel+"ª Medicao"
+   		Else
+	   		cxParcel := "Parcela: "+cParcel
+   		EndIf
+    EndIf
+
+	/*
 	dbSelectArea("CND")
 	dbSetOrder(4)
 	IF dbSeek(xFilial("CND") + cMedicao)
-		IF ALLTRIM(CND->CND_CONTRA) <> '307000496'
-			IF !(ALLTRIM(CND->CND_CLIENT) $ cXXCOMPE)
-	   			cCompet  := "Competencia: "+CND->CND_COMPET
+		IF AllTrim(CND->CND_CONTRA) <> '307000496'
+			IF !(AllTrim(CND->CND_CLIENT) $ cXXCOMPE)
+	   			cxCompet  := "Competencia: "+CND->CND_COMPET
 			ENDIF
-			IF ALLTRIM(CND->CND_CLIENT) $ cXXMEDIC
+			IF AllTrim(CND->CND_CLIENT) $ cXXMEDIC
 				// Aqui, verificar se existe CXN e pegar a parcela do CXN
-	   			cParcela := " "+CND->CND_PARCELA+"ª MEDICAO"
+	   			cxParcel := " "+CND->CND_PARCELA+"ª MEDICAO"
 	   		ELSE
-	   			cParcela := "Parcela: "+CND->CND_PARCELA
+	   			cxParcel := "Parcela: "+CND->CND_PARCELA
 	   		ENDIF
 	   ENDIF
 	ENDIF
+	*/
 
 	cMun   := ""
 	cConta := ""
@@ -290,7 +314,7 @@ IF !EMPTY(cContrato)
     	   cMun := "Municipio: "+TRIM(CNA->CNA_XXMUN)
     	ENDIF
     	IF CNA->CNA_XXIMPP = "S"
-    	   cCompet := IIF(!EMPTY(cCompet),cCompet+" - ","") + cParcela
+    	   cxCompet := IIF(!EMPTY(cxCompet),cxCompet+" - ","") + cxParcel
     	ENDIF
     ENDIF
 
@@ -343,7 +367,7 @@ IF cImpDtV <> "S"
 ENDIF	
 
 
-cDescr1 += cVencto+IIF(!EMPTY(cVencto) .AND. !EMPTY(cCompet)," - ","")+cCompet+CRLF
+cDescr1 += cVencto+IIF(!EMPTY(cVencto) .AND. !EMPTY(cxCompet)," - ","")+cxCompet+CRLF
 
 IF !EMPTY(cMun)
 	cDescr1 += cMun+CRLF
@@ -734,16 +758,77 @@ Return TRIM(cTxt)
   
 
 
+User Function PMedPed(cContrato,cMedicao,cPlanilha,cRevisa,cCompet,cParcel,cObsMed,cEmissor)
 
-User Function QryProc(cAlias,nCampos,cCampos,cWhere)
-LOCAL cQuery,aRet := {},nX
-LOCAL aAreaTmp
+Local cQuery 	:= ""
+Local aAreaTmp
+
+
+aAreaTmp   := GetArea()
+
+cQuery := "SELECT CND_CONTRA,CND_NUMMED,CND_REVISA,CND_COMPET,CND_PARCEL,CND_USUAR,CONVERT(VARCHAR(1024),CONVERT(Binary(1024),CND_OBS)) CND_OBS"
+cQuery += " FROM "+RETSQLNAME("CND")+" CND "
+cQuery += " WHERE CND.D_E_L_E_T_ = ' ' AND CND_FILIAL = '"+xFilial("CND")+"' "
+cQuery += "       AND CND_NUMMED = '"+cMedicao+"' AND CND_REVISA = CND_REVGER"
+cQuery := ChangeQuery(cQuery)
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
+dbSelectArea("QTMP")
+dbGotop()
+If !Eof()
+	cRevisa := QTMP->CND_REVISA
+	cCompet	:= QTMP->CND_COMPET
+	cParcel := QTMP->CND_PARCEL
+	cObsMed := QTMP->CND_OBS
+	cEmissor:= QTMP->CND_USUAR
+EndIf
+dbCloseArea()
+
+// Nova Medição
+cQuery := "SELECT CXN_CONTRA,CXN_NUMMED,CXN_REVISA,CXN_PARCEL,CND_COMPET,CND_USUAR,CONVERT(VARCHAR(1024),CONVERT(Binary(1024),CXN_XXOBS)) CXN_XXOBS"
+cQuery += " FROM "+RETSQLNAME("CXN")+" CXN "
+cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND "
+cQuery += "       ON CND.D_E_L_E_T_='' AND CND_FILIAL = '"+xFilial("CND")+"' "
+cQuery += "       AND CND_NUMMED = CXN_NUMMED AND CXN_REVISA = CND_REVGER AND CND_REVISA = CND_REVGER"
+cQuery += " WHERE CXN.D_E_L_E_T_ = '' AND CXN_FILIAL = '"+xFilial("CXN")+"' "
+cQuery += "       AND CXN_NUMMED = '"+cMedicao+"' AND CXN_NUMPLA = '"+cPlanilha+"' AND CXN_CHECK = 'T'"
+cQuery := ChangeQuery(cQuery)
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
+dbSelectArea("QTMP")
+dbGotop()
+If !EOF()
+	cRevisa := QTMP->CXN_REVISA
+	cCompet	:= QTMP->CND_COMPET
+	cParcel := QTMP->CXN_PARCEL
+	cObsMed := QTMP->CXN_XXOBS
+	cEmissor:= QTMP->CND_USUAR
+EndIf
+dbCloseArea()
+
+If Trim(cContrato) == '132000464' // CPRM (Obs: pendente de criar campo no CNA para esta função)
+	cObsMed += " A gestão financeira do contrato é feita pela CPRM/BH"
+EndIf
+
+RestArea(aAreaTmp)
+
+Return Nil
+
+
+
+User Function QryProc(cAlias,nCampos,cCampos,cWhere,cInner)
+Local cQuery	:= ""
+Local aRet 		:= {}
+Local nX		:= 0
+Local aAreaTmp
+Default cInner	:= ""
 
 aAreaTmp   := GetArea()
 
 cQuery := "SELECT "+cCampos+" "
 cQuery += "FROM "+RETSQLNAME(cAlias)+" "+cAlias+" "
-cQuery += "WHERE "+cWhere+" AND D_E_L_E_T_ = ' ' "
+If !Empty(cInner)
+	cQuery += "INNER JOIN "+cInner
+EndIf
+cQuery += "WHERE "+cWhere+" AND "+cAlias+".D_E_L_E_T_ = ' ' "
 TCQUERY cQuery NEW ALIAS "QTMP"
 dbSelectArea("QTMP")
 dbGotop()
