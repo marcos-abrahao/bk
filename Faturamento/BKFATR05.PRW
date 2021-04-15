@@ -511,14 +511,14 @@ If SA1->(dbSeek(xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI))
 	Else
 		cCNPJCli := Transform(SA1->A1_CGC,"@R 99.999.999/9999-99")
 	Endif
-	cNomeCli	:= ALLTRIM(SA1->A1_NOME)
+	cNomeCli	:= AllTrim(SA1->A1_NOME)
 	//cIMCli		:= SA1->A1_INSCRM
-	cEndCli		:= ALLTRIM(SA1->A1_END)+IIF(!EMPTY(SA1->A1_BAIRRO)," - "+ALLTRIM(SA1->A1_BAIRRO),"")
+	cEndCli		:= AllTrim(SA1->A1_END)+IIF(!EMPTY(SA1->A1_BAIRRO)," - "+AllTrim(SA1->A1_BAIRRO),"")
 	//cBairrCli	:= SA1->A1_BAIRRO
-	cCepCli		:= ALLTRIM(SA1->A1_CEP)
-	cMunCli		:= ALLTRIM(SA1->A1_MUN)
+	cCepCli		:= AllTrim(SA1->A1_CEP)
+	cMunCli		:= AllTrim(SA1->A1_MUN)
 	//cCodMun		:= SA1->A1_COD_MUN
-	cUFCli		:= ALLTRIM(SA1->A1_EST)
+	cUFCli		:= AllTrim(SA1->A1_EST)
 	//cEmailCli	:= SA1->A1_EMAIL
 	If Empty(cNatureza)
 		cNatureza := SA1->A1_NATUREZ

@@ -691,11 +691,14 @@ Local _IX		:= 0
 Local i
 Local Yi_
 Local cContraA	:= ""
+Local cAnoMes	:= ""
+Local nVarLog	:= 0
+Local cVarLog	:= 0
 
 Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
 Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
-Local cJCNACN9	:= FWJoinFilial("CNA", "CN9")
+Local cJCNACNF	:= FWJoinFilial("CNA", "CNF")
 Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
@@ -711,8 +714,9 @@ FOR _nI := 1 TO nPeriodo
 
 	IncProc("Consultando faturamento dos contratos...")
    
-	//*********Faturamento do Contrato
+    cAnoMes := aAnoMes[_nI] 
 
+	//*********Faturamento do Contrato
 
 	cQuery := " SELECT"+CRLF 
 	cQuery += "   CNF_CONTRA" +CRLF
@@ -756,7 +760,7 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 	cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-	cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF
+	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
@@ -879,9 +883,45 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += cQueryX
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CNA_XXMUN"+CRLF
+
+
+	// Juntar os cronogramas que não tiveram faturamento
+	cQuery += " UNION ALL "+CRLF
+	cQuery += "  SELECT DISTINCT"+CRLF
+	cQuery += "   CNF_CONTRA" +CRLF
+	cQuery += "   ,CNF_REVISA"+CRLF
+	cQuery += "   ,A1_NOME"   +CRLF
+	cQuery += "   ,CTT_DESC01"+CRLF
+	cQuery += "   ,CN9_SITUAC"+CRLF
+	cQuery += "   ,' ' AS CNA_XXMUN" +CRLF
+	cQuery += "   ,0 AS D2_TOTAL"+CRLF
+	cQuery += "   ,0 AS D2_VALISS"+CRLF
+	cQuery += "   ,0 AS D2_VALCPM"+CRLF
+	cQuery += "   ,0 AS E5DESC"+CRLF
+	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+	cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+
+	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+	cQuery += " 	ON (CTT_CUSTO = CNF_CONTRA" + CRLF
+	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+
+	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
+	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
+
+    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
+	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
+
+	cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+	cQuery += "       AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
+	cQuery += cQueryX
 	cQuery += " ORDER BY CNF_CONTRA"+CRLF
  
-	u_LogMemo("BKGCTR11-CNF-1N-"+STRZERO(_nI,3)+"-"+aAnoMes[_nI]+".SQL",cQuery)
+	u_LogMemo("BKGCTR11-CNF-1N-"+STRZERO(_nI,3)+"-"+cAnoMes+".SQL",cQuery)
 	
 	TCQUERY cQuery NEW ALIAS "QTMP"
 
@@ -904,7 +944,7 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		u_LogMemo("BKGCTR11-CNF-A-"+STRZERO(_nI,3)+"-"+aAnoMes[_nI]+".SQL",cQueryA)
+		u_LogMemo("BKGCTR11-CNF-A-"+STRZERO(_nI,3)+"-"+cAnoMes+".SQL",cQueryA)
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
 		dbSelectArea("QTMP")
@@ -1251,6 +1291,7 @@ FOR _nI := 1 TO nPeriodo
 	QTMP->(dbGoTop())
 	
 	cContraA := ""
+	nVarLog  := 0
 
 	DO WHILE QTMP->(!EOF())
 
@@ -1261,6 +1302,8 @@ FOR _nI := 1 TO nPeriodo
 		EndIf
 
 		cContraA := QTMP->CNF_CONTRA
+		nVarLog++
+		cVarLog := STRZERO(nVarLog,3)+"-"+cAnoMes+"-"+ALLTRIM(cContraA)
 
 		//Calcula LF Avulso SZ2 - CLT
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"+CRLF
@@ -1280,7 +1323,7 @@ FOR _nI := 1 TO nPeriodo
 		
 		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-		u_LogMemo("BKGCTR11-SZ2-"+STRZERO(_nI,3)+".SQL",cQuery1)
+		u_LogMemo("BKGCTR11-SZ2-"+cVarLog+".SQL",cQuery1)
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
@@ -1529,7 +1572,7 @@ FOR _nI := 1 TO nPeriodo
 
 		cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
 		     	
-		u_LogMemo("BKGCTR11-FOL-"+STRZERO(_nI,3)+".SQL",cQuery2)
+		u_LogMemo("BKGCTR11-FOL-"+cVarLog+".SQL",cQuery2)
 
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		
@@ -1833,7 +1876,7 @@ FOR _nI := 1 TO nPeriodo
 
 		//cQuery2 += " ORDER BY B1_DESC"+CRLF
 
-		u_LogMemo("BKGCTR11-D1-1-"+STRZERO(_nI,3)+".SQL",cQuery2)
+		u_LogMemo("BKGCTR11-D1-1-"+cVarLog+".SQL",cQuery2)
 		        
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		cOUTROS := 'S'
@@ -2130,7 +2173,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 			//cQuery2 += " ORDER BY B1_DESC"+CRLF
 
-			u_LogMemo("BKGCTR11-D1-2-"+STRZERO(_nI,3)+".SQL",cQuery2)
+			u_LogMemo("BKGCTR11-D1-2-"+cVarLog+".SQL",cQuery2)
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
 			cOutros := 'S'
@@ -2403,7 +2446,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-			u_LogMemo("BKGCTR11-E5-1-"+STRZERO(_nI,3)+".SQL",cQuery2)
+			u_LogMemo("BKGCTR11-E5-1-"+cVarLog+".SQL",cQuery2)
 
 
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
@@ -2456,7 +2499,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 				//cQuery2 += " ORDER BY B1_DESC"+CRLF
 				
-				u_LogMemo("BKGCTR11-D1-3-"+STRZERO(_nI,3)+".SQL",cQuery2)				
+				u_LogMemo("BKGCTR11-D1-3-"+cVarLog+".SQL",cQuery2)				
 				cLastE2 := "-"
 				aAcrDcr := {}
 
@@ -2725,7 +2768,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"+CRLF
 
-				u_LogMemo("BKGCTR11-E5-2-"+STRZERO(_nI,3)+".SQL",cQuery2)
+				u_LogMemo("BKGCTR11-E5-2-"+cVarLog+".SQL",cQuery2)
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
 				dbSelectArea("TMPX2")
@@ -2766,7 +2809,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"+CRLF
 	        
-			u_LogMemo("BKGCTR11-E5-3-"+STRZERO(_nI,3)+".SQL",cQuery2)
+			u_LogMemo("BKGCTR11-E5-3-"+cVarLog+".SQL",cQuery2)
 
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
 			
@@ -2827,7 +2870,7 @@ FOR _nI := 1 TO nPeriodo
 	    	
 	    cQuery2 += " GROUP BY SC5.C5_ESPECI1,SA1.A1_NOME,CTT.CTT_DESC01" +CRLF
 	      	
-		u_LogMemo("BKGCTR11-SC5-1-"+STRZERO(_nI,3)+".SQL",cQuery2)
+		u_LogMemo("BKGCTR11-SC5-1-"+cVarLog+".SQL",cQuery2)
 
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		
@@ -5006,6 +5049,7 @@ IF nConsolida == 1
 		lCOMPET 	:= .F.
 	    nSZG03 		:= 0
 	    nSZG09 		:= 0
+		n2SZG09 	:= 0
 	    nSZG110		:= 0
 	    nSZG12 		:= 0
 	    nSZG30  	:= 0
@@ -5066,6 +5110,7 @@ IF nConsolida == 1
 				TMPX2->(dbCloseArea())
 	         	//PROVENTOS	
 				nSZG09 := IIF(nIndTC>0,(SZG->ZG_CLT+SZG->ZG_VLENCSO)/(nIndTC/100),SZG->ZG_CLT+SZG->ZG_VLENCSO)
+				n2SZG09 := IIF(nIndTC>0,SZG->ZG_CLT/(nIndTC/100),SZG->ZG_CLT) // Sem Encargos Sociais
 	            //BENEFICIOS
 	         	nSZG12 := IIF(nIndTC>0,SZG->ZG_BENEFIC/(nIndTC/100),SZG->ZG_BENEFIC)
 	            //GASTOS GERAIS-INSUMOS
@@ -5085,9 +5130,9 @@ IF nConsolida == 1
 		IF lCOMPET
 			nTSZG03   += nSZG03
 			nTResult  += nResult
-			nTSalBenef+= nSZG09+nSZG12 // Salarios + Beneficios
+			nTSalBenef+= nSZG09+nSZG12 // Salarios +Encargos Sociais+ Beneficios
 			nTDespesa += nSZG30 //nInsumos //nDespesa-nSalario
-			nTSalario += nSZG09 // Salarios
+			nTSalario += n2SZG09 // Proventos Sem Encargos Sociais
 	    ENDIF
     NEXT
 	AADD(aPrev,{nTSZG03,nTResult,nTSalBenef,nTDespesa,nTSalario})
@@ -5095,6 +5140,7 @@ ELSE
 	//Calcula Valores da Projeção Financeira
     nSZG03 := 0
     nSZG09 := 0
+	n2SZG09:= 0
     nSZG110:= 0
     nSZG12 := 0
     nSZG30  := 0
@@ -5149,6 +5195,7 @@ ELSE
 			TMPX2->(dbCloseArea())
          	//PROVENTOS	
 			nSZG09 := IIF(nIndTC>0,(SZG->ZG_CLT+SZG->ZG_VLENCSO)/(nIndTC/100),SZG->ZG_CLT+SZG->ZG_VLENCSO)
+			n2SZG09 := IIF(nIndTC>0,SZG->ZG_CLT/(nIndTC/100),SZG->ZG_CLT) // Sem Encargos Sociais
             //BENEFICIOS
          	nSZG12 := IIF(nIndTC>0,SZG->ZG_BENEFIC/(nIndTC/100),SZG->ZG_BENEFIC)
             //GASTOS GERAIS-INSUMOS
@@ -5165,7 +5212,7 @@ ELSE
 	nResult := 0
 	nResult := IIF(nSZG03>0,nSZG03-nDespesa,0)
 	//FATURAMENTOPREV/RESULTADOPREV/SALARIOSPREV+BENEF/GASTOSGERAISPREV/SALARIOSPREV
-	AADD(aPrev,{nSZG03,nResult,nSZG09+nSZG12,nSZG30,nSZG09})//nSalario,nSZG30})//nInsumos}) //nDespesa-nSalario})
+	AADD(aPrev,{nSZG03,nResult,nSZG09+nSZG12,nSZG30,n2SZG09})//nSalario,nSZG30})//nInsumos}) //nDespesa-nSalario})
 ENDIF
 
 IF LEN(aPrev) == 0 

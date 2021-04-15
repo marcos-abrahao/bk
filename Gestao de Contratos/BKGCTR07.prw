@@ -109,6 +109,9 @@ AADD(aCabs  ,"Planilha")
 AADD(aCampos,"QTMP->CNA_XXMUN")
 AADD(aCabs  ,"Municipio")
 
+AADD(aCampos,"X3COMBO('CNA_FLREAJ',QTMP->CNA_FLREAJ)")
+AADD(aCabs  ,"Reajuste")
+
 AADD(aCampos,"QTMP->CNF_COMPET")
 AADD(aCabs  ,"Competencia")
 
@@ -275,6 +278,7 @@ cQuery += "   (CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END) AS CNF_SA
 cQuery += "   CTT_DESC01," + CRLF 
 cQuery += "   CNA_NUMERO," + CRLF 
 cQuery += "   CNA_XXMUN," + CRLF 
+cQuery += "   CNA_FLREAJ," + CRLF 
 cQuery += "   CND_NUMMED," + CRLF 
 //cQuery += "   CNF.R_E_C_N_O_ AS CNFRECNO," + CRLF 
 cQuery += "   ISNULL(CXN_PARCEL,CND_PARCEL) AS CXN_PARCEL," + CRLF 
@@ -390,6 +394,7 @@ cQuery += "   0," + CRLF  // CNF_SALDO
 cQuery += "   A1_NOME," + CRLF // CTT_DESC01
 cQuery += "   ' '," + CRLF // CNA_NUMERO
 cQuery += "   CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF  // CNA_XXMUN
+cQuery += "   ' '," + CRLF // CNA_FLREAJ
 cQuery += "   ' '," + CRLF // CND_NUMMED
 //cQuery += "   0 AS CNFRECNO," + CRLF // CNF.R_E_C_N_O_
 cQuery += "   ' '," + CRLF // CXN_PARCEL
