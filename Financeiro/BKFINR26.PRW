@@ -120,7 +120,7 @@ aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
 
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
-aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC" ,"Desconto - Imp. Cli não reteve"})
+aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC"  ,"Desconto - Imp. Cli não reteve"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
 If cOpcBco == "1"
@@ -128,6 +128,7 @@ If cOpcBco == "1"
 EndIf
 
 aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO",  ""          ,"Saldo a Receber"})
+aAdd(aFields,{"XX_SITUACA","FRV_DESCRI","" ,"Situação"})
 
 If cOpcBco == "1"
 	nIniBc := Len(aFields)
@@ -315,7 +316,7 @@ IncProc("Consultando o banco de dados...")
 //		cQuery += aFields[nF,2]+","
 //	EndIf
 //Next
-cQuery := "SELECT "
+cQuery := "SELECT "+ CRLF
 cQuery += "		A1_NOME" + CRLF
 cQuery += "		,C5_CLIENTE" + CRLF
 cQuery += "		,C5_LOJACLI" + CRLF
@@ -326,7 +327,7 @@ cQuery += "		,C5_MDNUMED" + CRLF
 cQuery += "		,C5_MDPLANI" + CRLF
 cQuery += "		,C5_NUM" + CRLF
 cQuery += "		,C5_EMISSAO" + CRLF
-cQuery += "		,CND_VLPREV" + CRLF
+cQuery += "		,ISNULL(CXN_VLPREV,CND_VLPREV) AS CND_VLPREV" + CRLF
 cQuery += "		,C5_LIBEROK" + CRLF
 cQuery += "		,C5_XXULIB" + CRLF
 cQuery += "		,C5_XXDLIB" + CRLF
@@ -337,6 +338,7 @@ cQuery += "		,F2_VALBRUT" + CRLF
 cQuery += "		,E1_VENCREA" + CRLF
 cQuery += "		,E1_BAIXA" + CRLF
 cQuery += "		,E1_SALDO" + CRLF
+cQuery += "		,FRV_DESCRI" + CRLF
 cQuery += "		,SC5.R_E_C_N_O_ AS C5RECNO" + CRLF
 cQuery += "		,SF2.R_E_C_N_O_ AS F2RECNO" + CRLF
 cQuery += "		,SE1.R_E_C_N_O_ AS E1RECNO" + CRLF
@@ -353,25 +355,33 @@ cQuery += "		,'' AS XX_NDC" + CRLF
 cQuery += " FROM "+RETSQLNAME("SC5")+" SC5" + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
-cQuery += " 	ON C5_NOTA = F2_DOC AND SF2.D_E_L_E_T_ = ''" + CRLF
-cQuery += "		AND SF2.F2_FILIAL = C5_FILIAL " + CRLF
+cQuery += " 	ON C5_NOTA = F2_DOC" + CRLF
+cQuery += "		AND SF2.D_E_L_E_T_ = '' AND SF2.F2_FILIAL = C5_FILIAL " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("SE1")+" SE1" + CRLF 
 cQuery += "		ON SF2.F2_DOC = SE1.E1_NUM AND SF2.F2_SERIE = SE1.E1_PREFIXO" + CRLF
 cQuery += "		AND E1_CLIENTE=F2_CLIENTE AND E1_LOJA=F2_LOJA AND E1_TIPO='NF '" + CRLF
-cQuery += "		AND  SE1.D_E_L_E_T_ = ' ' AND SE1.E1_FILIAL = '" + xFilial("SE1") + "' " + CRLF
+cQuery += "		AND SE1.D_E_L_E_T_ = ' ' AND SE1.E1_FILIAL = '" + xFilial("SE1") + "' " + CRLF
+
+cQuery += " LEFT JOIN "+RETSQLNAME("FRV")+" FRV" + CRLF
+cQuery += " 	ON FRV.FRV_CODIGO = SE1.E1_SITUACA" + CRLF
+cQuery += "		AND FRV.D_E_L_E_T_ = ' ' AND FRV.FRV_FILIAL = '" + xFilial("FRV") + "' " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1" + CRLF
 cQuery += "		ON SA1.A1_COD = SC5.C5_CLIENTE AND SA1.A1_LOJA = SC5.C5_LOJACLI" + CRLF
 cQuery += "		AND SA1.D_E_L_E_T_ = ' ' AND SA1.A1_FILIAL = '" + xFilial("SA1") + "' " + CRLF
 
-cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+" CN9
-cQuery += "		ON CN9_NUMERO = C5_MDCONTR AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09' 
-cQuery += "		AND CN9.CN9_FILIAL = '" + xFilial("CN9") + "' " + CRLF
-
 cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
-cQuery += "		ON C5_MDNUMED = CND_NUMMED AND CND_REVISA = CN9_REVISA" + CRLF
-cQuery += "		AND CND.D_E_L_E_T_ = '' " + CRLF
+cQuery += "		ON C5_MDNUMED = CND_NUMMED AND CND_REVISA = CND_REVGER" + CRLF
+cQuery += "		AND CND.D_E_L_E_T_ = '' AND CND.CND_FILIAL = SC5.C5_FILIAL" + CRLF
+
+cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+cQuery += "		ON C5_MDNUMED = CXN_NUMMED AND CXN_NUMPLA = C5_MDPLANI AND CXN_CHECK = 'T'" + CRLF
+cQuery += "		AND CXN.CXN_FILIAL = SC5.C5_FILIAL AND CXN.D_E_L_E_T_ = '' " + CRLF
+
+cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
+cQuery += "		ON CN9_NUMERO = C5_MDCONTR AND CN9_REVISA = CND_REVISA
+cQuery += "		AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_FILIAL = '" + xFilial("CN9") + "' " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 cQuery += "		ON CTT_CUSTO = (CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END)" + CRLF
@@ -399,23 +409,63 @@ EndIf
 // NDC
 cQuery += " UNION ALL"+CRLF
 
-cQuery += " SELECT A1_NOME,E1_CLIENTE AS C5_CLIENTE,E1_LOJA AS C5_LOJACLI,CTT_DESC01,CN9_XXNRBK,'' AS C5_XXCOMPM,E1_XXMED AS C5_MDNUMED,'' AS C5_MDPLANI,'' AS C5_NUM,E1_EMISSAO AS C5_EMISSAO,0 AS CND_VLPREV,'' AS C5_LIBEROK,'' AS C5_XXULIB,'' AS C5_XXDLIB,'' AS F2_DOC,E1_EMISSAO AS F2_EMISSAO,'' AS F2_USERLGI,E1_VALOR AS F2_VALBRUT,E1_VENCREA,E1_BAIXA,E1_SALDO,0 AS C5RECNO,0 AS F2RECNO, SE1.R_E_C_N_O_ AS E1RECNO," + CRLF
-cQuery += "    E1_XXCUSTO AS XX_CONTRAT," + CRLF
-cQuery += "    0 AS XX_VALPED," + CRLF
-cQuery += "    E1_VALOR AS XX_VALLIQ," + CRLF
-cQuery += "    (SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_ISS) AS XX_IMPOST," + CRLF
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, " + CRLF
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
-cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA ," + CRLF
-cQuery += "    E1_NUM AS XX_NDC" + CRLF
+cQuery += " SELECT"+ CRLF
+cQuery += "		A1_NOME" + CRLF
+cQuery += "		,E1_CLIENTE AS C5_CLIENTE" + CRLF
+cQuery += "		,E1_LOJA AS C5_LOJACLI" + CRLF
+cQuery += "		,CTT_DESC01,CN9_XXNRBK" + CRLF
+cQuery += "		,'' AS C5_XXCOMPM" + CRLF
+cQuery += "		,E1_XXMED AS C5_MDNUMED" + CRLF
+cQuery += "		,'' AS C5_MDPLANI" + CRLF
+cQuery += "		,'' AS C5_NUM" + CRLF
+cQuery += "		,E1_EMISSAO AS C5_EMISSAO" + CRLF
+cQuery += "		,0 AS CND_VLPREV" + CRLF
+cQuery += "		,'' AS C5_LIBEROK" + CRLF
+cQuery += "		,'' AS C5_XXULIB" + CRLF
+cQuery += "		,'' AS C5_XXDLIB" + CRLF
+cQuery += "		,'' AS F2_DOC,E1_EMISSAO AS F2_EMISSAO" + CRLF
+cQuery += "		,'' AS F2_USERLGI" + CRLF
+cQuery += "		,E1_VALOR AS F2_VALBRUT" + CRLF
+cQuery += "		,E1_VENCREA,E1_BAIXA" + CRLF
+cQuery += "		,E1_SALDO" + CRLF
+cQuery += "		,FRV_DESCRI" + CRLF
+cQuery += "		,0 AS C5RECNO" + CRLF
+cQuery += "		,0 AS F2RECNO" + CRLF
+cQuery += "		,SE1.R_E_C_N_O_ AS E1RECNO" + CRLF
+cQuery += "		,E1_XXCUSTO AS XX_CONTRAT" + CRLF
+cQuery += "		,0 AS XX_VALPED" + CRLF
+cQuery += "		,E1_VALOR AS XX_VALLIQ" + CRLF
+cQuery += "		,(SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_ISS) AS XX_IMPOST" + CRLF
+cQuery += "		,(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+cQuery += "			AND E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC" + CRLF
+cQuery += "		,(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+cQuery += "			AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA" + CRLF
+cQuery += "		,E1_NUM AS XX_NDC" + CRLF
+
 cQuery += "  FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
-cQuery += "  LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON SA1.A1_COD = SE1.E1_CLIENTE AND SA1.A1_LOJA = SE1.E1_LOJA AND SA1.D_E_L_E_T_ = ' ' AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' " + CRLF
-cQuery += "  LEFT JOIN "+RETSQLNAME("CN9")+" CN9 ON CN9_NUMERO = E1_XXCUSTO AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09' AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' " + CRLF
-cQuery += "  LEFT JOIN "+RETSQLNAME("CND")+" CND ON E1_XXMED = CND_NUMMED AND E1_XXREV = CN9_REVISA AND CND.D_E_L_E_T_ = ''" + CRLF
-cQuery += "  LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON CTT_CUSTO = E1_XXCUSTO AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_ = ' ' " + CRLF
-cQuery += " WHERE SE1.D_E_L_E_T_ = ' ' AND " + CRLF
-cQuery += "    SE1.E1_TIPO = 'NDC'" + CRLF
+
+cQuery += "  LEFT JOIN "+RETSQLNAME("FRV")+" FRV" + CRLF
+cQuery += " 	ON FRV.FRV_CODIGO = SE1.E1_SITUACA" + CRLF
+cQuery += "		AND FRV.D_E_L_E_T_ = ' ' AND FRV.FRV_FILIAL = '" + xFilial("FRV") + "' " + CRLF
+
+cQuery += "  LEFT JOIN "+RETSQLNAME("SA1")+" SA1" + CRLF
+cQuery += "		ON SA1.A1_COD = SE1.E1_CLIENTE AND SA1.A1_LOJA = SE1.E1_LOJA" + CRLF
+cQuery += "		AND SA1.D_E_L_E_T_ = ' ' AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' " + CRLF
+
+cQuery += "  LEFT JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
+cQuery += "		ON CN9_NUMERO = E1_XXCUSTO AND CN9_REVISA = E1_XXREV AND CN9.CN9_SITUAC <> '10' AND CN9.CN9_SITUAC <> '09'" + CRLF
+cQuery += "		AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' " + CRLF
+
+//cQuery += "  LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+//cQuery += "		ON E1_XXMED = CND_NUMMED AND E1_XXREV = CN9_REVISA" + CRLF
+//cQuery += "		AND CND.D_E_L_E_T_ = ''" + CRLF
+
+cQuery += "  LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+cQuery += "		ON CTT_CUSTO = E1_XXCUSTO" + CRLF
+cQuery += "		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_ = ' ' " + CRLF
+
+cQuery += " WHERE SE1.D_E_L_E_T_ = ' '" + CRLF
+cQuery += "   AND SE1.E1_TIPO = 'NDC'" + CRLF
 cQuery += "   AND SE1.E1_EMISSAO >= '"+DTOS(dDataI)+"'" + CRLF
 cQuery += "   AND SE1.E1_EMISSAO <= '"+DTOS(dDataF)+"'" + CRLF
  
