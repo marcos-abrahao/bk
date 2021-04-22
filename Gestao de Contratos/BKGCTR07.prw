@@ -247,13 +247,13 @@ Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 
 Local cJCNDCNE:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE:= FWJoinFilial("CXN", "CNE")
-Local cJCN1CN9:= FWJoinFilial("CN1", "CN9")
+//Local cJCN1CN9:= FWJoinFilial("CN1", "CN9")
 Local cJCNACN9:= FWJoinFilial("CNA", "CN9")
 Local cJSC5CNE:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6:= FWJoinFilial("SD2", "SC6")
 Local cJSF2SC6:= FWJoinFilial("SF2", "SC6")
-Local cJSB1SC6:= FWJoinFilial("SB1", "SC6")
+//Local cJSB1SC6:= FWJoinFilial("SB1", "SC6")
 
 /*
 Resposta Totvs 15/03/21
@@ -328,24 +328,24 @@ cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
-cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
 cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
-cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
+cQuery += " 	 	AND CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
 cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
 cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
-cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+cQuery += " 	 	AND CNF_FILIAL = CN9_FILIAL AND CNF.D_E_L_E_T_='')" + CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
-cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
-cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
+//cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
+//cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
+//cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
-cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF
+cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
 
 cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
@@ -360,12 +360,12 @@ cQuery += " 	ON (D2_PEDIDO = C5_NUM AND D2_ITEMPV = C6_ITEM AND C5_CLIENT = D2_C
 cQuery += " 		AND "+cJSD2SC6+" AND SD2.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
-cQuery += " 	ON (C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC" + CRLF
+cQuery += " 	ON (C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND F2_CLIENTE = C6_CLI AND F2_LOJA = C6_LOJA AND F2_TIPO = 'N' AND F2_FORMUL = ' '" + CRLF
 cQuery += " 		AND "+cJSF2SC6+" AND SF2.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("SB1")+" SB1" + CRLF
 cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
-cQuery += " 		AND "+cJSB1SC6+" AND SB1.D_E_L_E_T_='')"+CRLF
+cQuery += " 		AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_='')"+CRLF
 
 cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
@@ -399,7 +399,7 @@ cQuery += "   ' '," + CRLF // CND_NUMMED
 //cQuery += "   0 AS CNFRECNO," + CRLF // CNF.R_E_C_N_O_
 cQuery += "   ' '," + CRLF // CXN_PARCEL
 cQuery += "   C5_XXRM," + CRLF 
-cQuery += "   D2_PEDIDO AS C6_NUM," + CRLF 
+cQuery += "   C5_NUM AS C6_NUM," + CRLF 
 cQuery += "   0," + CRLF // XX_BONIF
 cQuery += "   0," + CRLF // XX_MULTA
 cQuery += "   F2_DOC," + CRLF 
@@ -429,10 +429,10 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_L
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE = F2_SERIE AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA" + CRLF
 cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"' AND  SD2.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
-cQuery += "      AND  C5_FILIAL = D2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D2_COD = B1_COD"+ CRLF
-cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NOTA = F2_DOC AND C5_SERIE = F2_SERIE " + CRLF
+cQuery += "      AND  C5_FILIAL = F2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
+cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF
 cQuery +=         "C5_MDCONTR IS NULL ) "+ CRLF
 IF nTipo == 1

@@ -211,7 +211,7 @@ Else
 	MV_PAR02 := nMesC 		:= U_BKGetMv("BKGCTR1402") // MONTH(dDataBase - DAY(dDatabase))
 	MV_PAR03 := nAnoC  		:= U_BKGetMv("BKGCTR1403") // YEAR(dDataBase - DAY(dDatabase))
 	MV_PAR04 := U_BKGetMv("BKGCTR1404")                // 3
-	MV_PAR05 := nConsolida	:= U_BKGetMv("BKGCTR1405") // 2
+	MV_PAR05 := nConsolida	:= 0 //U_BKGetMv("BKGCTR1405") // 2
 	MV_PAR06 := nIndConsor	:= U_BKGetMv("BKGCTR1406") // 1
 	MV_PAR07 := nRateia     := U_BKGetMv("BKGCTR1407") // 2
 	MV_PAR08 := nDespGeral  := U_BKGetMv("BKGCTR1408") // 1

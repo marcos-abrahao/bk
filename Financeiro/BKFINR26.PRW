@@ -355,7 +355,7 @@ cQuery += "		,'' AS XX_NDC" + CRLF
 cQuery += " FROM "+RETSQLNAME("SC5")+" SC5" + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
-cQuery += " 	ON C5_NOTA = F2_DOC" + CRLF
+cQuery += " 	ON C5_NOTA = F2_DOC AND C5_SERIE = F2_SERIE" + CRLF
 cQuery += "		AND SF2.D_E_L_E_T_ = '' AND SF2.F2_FILIAL = C5_FILIAL " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("SE1")+" SE1" + CRLF 
