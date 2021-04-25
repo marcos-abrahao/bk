@@ -697,8 +697,8 @@ Local cVarLog	:= 0
 
 Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
-Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
-Local cJCNACNF	:= FWJoinFilial("CNA", "CNF")
+//Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
+Local cJCNACN9  := FWJoinFilial("CNA", "CN9")
 Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
@@ -743,24 +743,28 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 	cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
-	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+	cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
 	cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
-	cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
+	cQuery += " 	 	AND CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_='')" + CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
 	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
 	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
-	cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+	cQuery += " 	 	AND CNF_FILIAL = CN9_FILIAL AND CNF.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
-	cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
-	cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
+	//cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
+	//cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
+	//cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
-	cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
+	cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+	cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
+
+	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
+	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
@@ -905,7 +909,7 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 	cQuery += " 	ON (CTT_CUSTO = CNF_CONTRA" + CRLF
-	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+	cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
 
 	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
@@ -1852,10 +1856,11 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
 		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+		cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 		ENDIF 
-		IF SM0->M0_CODIGO == "14"  // Despesas médicas 
+		IF SM0->M0_CODIGO == "14"  // Despesas médicas
 			cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 		ENDIF 
 		//// Para teste de alugueis: 
@@ -2148,6 +2153,8 @@ FOR _nI := 1 TO nPeriodo
 
 		IF nScan > 0 
 
+			IncProc("Consultando gastos gerais consorcios ..."+STRZERO(_nI,3))
+
 			cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 			cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1"+CRLF
 			//cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,2])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''"+CRLF
@@ -2169,6 +2176,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 			ENDIF
 			cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' " +CRLF 
+			cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 			//cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 			cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 			//cQuery2 += " ORDER BY B1_DESC"+CRLF
@@ -2439,12 +2447,15 @@ FOR _nI := 1 TO nPeriodo
 				dbSkip()
 			ENDDO
 			TMPX2->(dbCloseArea())
-			
+
+			IncProc("Consultando movimento bancário ..."+STRZERO(_nI,3))
+
 			cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
 			cQuery2 += " FROM SE5"+ALLTRIM(aConsorcio[nScan,2])+" SE5" +CRLF
 			cQuery2 += " LEFT JOIN CT1"+ALLTRIM(aConsorcio[nScan,2])+" CT1 ON CT1_FILIAL = '"+xFilial("CT1")+"' AND (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"+CRLF
 			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
 			u_LogMemo("BKGCTR11-E5-1-"+cVarLog+".SQL",cQuery2)
 
@@ -2496,6 +2507,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF 
 				cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 				cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "+CRLF
+				cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 				//cQuery2 += " ORDER BY B1_DESC"+CRLF
 				
@@ -2767,6 +2779,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
 				cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"+CRLF
+				cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
 				u_LogMemo("BKGCTR11-E5-2-"+cVarLog+".SQL",cQuery2)
 		        
@@ -2808,6 +2821,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"+CRLF
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"+CRLF
+			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 	        
 			u_LogMemo("BKGCTR11-E5-3-"+cVarLog+".SQL",cQuery2)
 
@@ -2854,13 +2868,14 @@ FOR _nI := 1 TO nPeriodo
 
 		// 27/02/20   
 		cQuery2 += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " +CRLF//--AND E5_PARCELA = '  '
-		cQuery2 += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "+CRLF
+		cQuery2 += "      AND  E5_FILIAL = '"+xFilial("SE5")+"' AND SE5.D_E_L_E_T_ = '' "+CRLF
 
 	    cQuery2 += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON SC5.C5_CLIENTE = SA1.A1_COD AND SC5.C5_LOJACLI = SA1.A1_LOJA " +CRLF
 	    cQuery2 += "      AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 	    
 	    cQuery2 += " INNER JOIN "+RETSQLNAME("CTT")+" CTT ON SC5.C5_ESPECI1 = CTT.CTT_CUSTO AND CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''" +CRLF
 	    cQuery2 += " WHERE SC5.D_E_L_E_T_ = '' AND SC5.C5_MDCONTR='' AND SC5.C5_XXCOMPT ='"+SUBSTR(aPeriodo[_nI,1],1,2)+SUBSTR(aPeriodo[_nI,1],4,4)+"'"+CRLF
+		cQuery2 += " AND C5_FILIAL = '"+xFilial("SC5")+"'"+CRLF
 
 	   	//cQuery2 += " AND C5_ESPECI1 <> '000000001'"+CRLF
 	    //IF !EMPTY(cContrato)

@@ -923,8 +923,9 @@ Local nVarLog	:= 0
 Local cVarLog	:= 0
 Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
-Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
-Local cJCNACNF	:= FWJoinFilial("CNA", "CNF")
+//Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
+//Local cJCNACNF	:= FWJoinFilial("CNA", "CNF")
+Local cJCNACN9	:= FWJoinFilial("CNA", "CN9")
 Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
@@ -980,24 +981,28 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 	cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
-	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
+	cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
 	cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
-	cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
+	cQuery += " 	 	AND CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_='')" + CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
 	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
 	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
-	cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+	cQuery += " 	 	AND CNF_FILIAL = CN9_FILIAL AND CNF.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
-	cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
-	cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
+	//cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
+	//cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
+	//cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
-	cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
+	cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+	cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
+
+	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
+	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
 	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
@@ -2492,6 +2497,7 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'" +CRLF
+		cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 //		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004','12201006','12201005','12201010'))") 
 		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004') OR SUBSTRING(D1_CONTA,1,5) = '12201')") +CRLF
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
@@ -2945,6 +2951,7 @@ FOR _nI := 1 TO nPeriodo
 			//cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,2])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"
 			cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "
 			//cQuery2 += " AND D1_CC = '000000001'"
+			cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 			IF SM0->M0_CODIGO == "01" .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 				cQuery2 += " AND D1_FORNECE<>'002918'"
 			ENDIF 
@@ -3377,7 +3384,8 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " LEFT JOIN CT1"+ALLTRIM(aConsorcio[nScan,2])+" CT1 ON (CT1_CONTA=E5_DEBITO OR CT1_CONTA=E5_CREDITO) AND CT1.D_E_L_E_T_=''"
 			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
-	        
+   			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
+
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
 			u_LogMemo("BKGCTR14-E5-1-"+cVarLog+".SQL",cQuery2)    
 
@@ -3455,6 +3463,7 @@ FOR _nI := 1 TO nPeriodo
 					cQuery2 += " AND D1_PEDIDO <> ''"
 				ENDIF 
 				cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
+				cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 				cQuery2 += " GROUP BY  D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
 				//cQuery2 += " ORDER BY B1_DESC"
 		        
@@ -3847,6 +3856,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"
 				cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
 		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
+				cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
 				u_LogMemo("BKGCTR14-E5-2-"+cVarLog+".SQL",cQuery2)        
@@ -3914,6 +3924,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " WHERE SE5.D_E_L_E_T_='' AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )  AND E5_SITUACA<>'C'"
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
 	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
+			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
 			u_LogMemo("BKGCTR14-E5-3-"+cVarLog+".SQL",cQuery2)

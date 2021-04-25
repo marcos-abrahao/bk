@@ -30,6 +30,8 @@ Local aMotivo	:= {}
 Local lAprov	:= .T.
 Local aSaldos 	:= {}
 Local nSaldo 	:= 0
+Local _i 		:= 0
+Local _IX		:= 0
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
@@ -103,9 +105,11 @@ ELSE
 		FOR _IX:= 1 TO LEN(aEmail)
 			nSaldo := 0
 			nSaldo := CalcEst(aEmail[_IX,4],"01", dDataBase+1)
-			IF nSaldo > 0
-				AADD(aSaldos,{aEmail[_IX,3],aEmail[_IX,3],aEmail[_IX,4],aEmail[_IX,5],aEmail[_IX,6],aEmail[_IX,7],nSaldo})
-	        ENDIF
+			If ValType(nSaldo) == "N"
+				IF nSaldo > 0
+					AADD(aSaldos,{aEmail[_IX,3],aEmail[_IX,3],aEmail[_IX,4],aEmail[_IX,5],aEmail[_IX,6],aEmail[_IX,7],nSaldo})
+				ENDIF
+			EndIf
 	    NEXT
 	    IF LEN(aSaldos) > 0
 	    	IF MsgYesNo("Produtos da solicitação em estoque. Deseja utilizalos??")
