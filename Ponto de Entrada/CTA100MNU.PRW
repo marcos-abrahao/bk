@@ -1330,8 +1330,9 @@ LOCAL lOk:=.T.
 		lOk:= .F.
 	ENDIF 
 	If TRANSFORM(nTotFat,"@E 999,999,999,999.99") <> TRANSFORM(nTotGeral,"@E 999,999,999,999.99")
-		MsgStop("Valor Total Mensal informado diferente do Total Geral!"+Chr(13) + Chr(10)+"Valor Total Mensal="+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Total Geral=            "+TRANSFORM(nTotGeral,"@E 999,999,999,999.99"), "Atenção")
-		lOk:= .F.
+		IF !MsgYesNo("Valor Total Mensal informado diferente do Total Geral!"+Chr(13) + Chr(10)+"Valor Total Mensal="+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Total Geral=            "+TRANSFORM(nTotGeral,"@E 999,999,999,999.99"), "Atenção")
+			lOk:= .F.
+		ENDIF
 	Endif                                                                                                                                                                                                                                    
 	If TRANSFORM(nTotFat,"@E 999,999,999,999.99") <> TRANSFORM(nFatPrev,"@E 999,999,999,999.99") 
 		MsgStop("Valor Total Mensal informado diferente do Fat. Previsto no Cronograma!"+Chr(13) + Chr(10)+"Valor Total Mensal=                 "+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Fat. Previsto no Cronograma="+TRANSFORM(nFatPrev,"@E 999,999,999,999.99"), "Atenção")
