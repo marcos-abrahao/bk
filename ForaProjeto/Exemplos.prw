@@ -68,6 +68,7 @@ Return
 
 #include "totvs.ch"
 
+/*
 function u_niversAdvPL()
 local i := 0       
 local tempPath := GetTempPath()
@@ -215,7 +216,7 @@ Static oDlg
 
 	@ 014, 145 BUTTON oButton1 PROMPT "INSERIR" SIZE 054, 012 OF oDlg PIXEL Action {|| NiversInsert(oMultiGe1, cAniversariante, dNiver) }
 	
-	/* [*CustomButton] Definicao do CSS */
+	// [*CustomButton] Definicao do CSS 
 	oButton1:SetCss(;
 		"QPushButton {"+;
     	"	border: none;"+;
@@ -240,7 +241,7 @@ static function niversInsert(oMultiGe1, cAniversariante, dNiver)
 	// [*Submit] Insere aniversarios na lista
 	oMultiGe1:appendText(chr(10) + trim(cAniversariante) +" | "+ DtoC(dNiver))
 return
-
+*/
 
 /*
 Funções SX - Conversão para o banco
@@ -275,5 +276,27 @@ SetMVValue("CFG025","MV_PAR03",Date()) //Atualizo o valor da terceira pergunta p
 Alert(MV_PAR03)// Continua com o mesmo valor (as variáveis MV_PAR não são atualizadas...)
 
 Pergunte("CFG025",.T.) //Mostra a tela de Pergunte com o parâmetro de data final atualizado
+
+Return
+
+
+
+// Liberação de pedidos de venda!
+
+Static Function fLibPed(cNumPed)
+
+
+    dbSelectArea("SC6")
+    SC6->(dbSetOrder(1))
+    SC6->(dbSeek(xFilial("SC6")+cNumPed))
+
+    While SC6->(!EOF()) .And. SC6->C6_FILIAL == xFilial("SC6") .And. SC6->C6_NUM == cNumPed
+
+        MaLibDoFat(SC6->(RecNo()),SC6->C6_QTDVEN,.F.,.F.,.F.,.F.,)
+
+
+        SC6->(dbSkip())
+    EndDo
+
 
 Return

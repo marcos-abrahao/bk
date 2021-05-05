@@ -23,6 +23,7 @@ Local cPict 	:= ""
 Local cTitC 	:= ""
 Local nTamCol   := 0
 Local lTotal    := .F.
+Local nI 		:= 0
 
 Private cTTipos 	:= ""
 Private cXTipos 	:= ""
@@ -129,7 +130,11 @@ aAdd( aTamCol, 06.90)
 
 aAdd(aFields,{"XX_XXTIPBK","E2_XXTIPBK","","Tipo","@!","C",6,0})
 aAdd( aTamCol, 06.60)
+
 nColTipo := Len(aFields)
+
+aAdd(aFields,{"XX_XXDTPBK","ZU_DESCR","(cAliasTrb)->XX_XXDTPBK"})
+aAdd( aTamCol, 20.00)
 
 aAdd(aFields,{"XX_PRODUTO","D1_COD","(cAliasTrb)->XX_PRODUTO"})
 aAdd( aTamCol, 16.00)
@@ -191,7 +196,7 @@ nPosV := LEN(aTamCol)
 aAdd( aTamCol, 14.00)  
 nPosS := LEN(aTamCol)
 
-aAdd( aTamCol, 22.00)  
+aAdd( aTamCol, 36.00)  
 nPosL := LEN(aTamCol)
 
 //aAdd(aFields,{"XX_SALDO","","(cAliasTrb)->(XX_SALDO)","Saldo Consolidado",cPict,"N",18,2})
@@ -347,16 +352,19 @@ Local cHist		:= ""
 
 Private xCampo
 
-cQuery := "SELECT "
-For nF := 1 To Len(aFields)
-	If LEN(aFields[nF]) < 3 .OR. Empty(aFields[nF,3])
-		cQuery += aFields[nF,2]+","
-	EndIf
-Next
-//For nF := 1 To Len(aOthers)
-//	cQuery += aOthers[nF]+","
-//Next
-cQuery += "R_E_C_N_O_ AS E2RECNO"+ CRLF
+cQuery := "SELECT "+ CRLF
+cQuery += " E2_FORNECE"+ CRLF
+cQuery += " ,E2_LOJA"+ CRLF
+cQuery += " ,E2_NOMFOR"+ CRLF
+cQuery += " ,E2_PREFIXO"+ CRLF
+cQuery += " ,E2_NUM"+ CRLF
+cQuery += " ,E2_PARCELA"+ CRLF
+cQuery += " ,E2_XXTIPBK"+ CRLF
+cQuery += " ,E2_PORTADO"+ CRLF
+cQuery += " ,E2_VENCREA"+ CRLF
+cQuery += " ,E2_VALOR"+ CRLF
+cQuery += " ,E2_SALDO"+ CRLF
+cQuery += " ,R_E_C_N_O_ AS E2RECNO"+ CRLF
 cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" + CRLF
 cQuery += " WHERE SE2.D_E_L_E_T_ = ' ' "+ CRLF
 cQuery += " AND SE2.E2_FILIAL = '" + xFilial("SE2") + "' "+ CRLF
@@ -473,6 +481,7 @@ DO WHILE (cAliasQry)->(!EOF())
 		EndIf
 
 		(cAliasTrb)->XX_XXTIPBK := cTipoBk
+		(cAliasTrb)->XX_XXDTPBK := Posicione("SZU",1,xFilial("SZU")+cTipoBk,"ZU_DESCR")
 	Else
 		lRH := .T.
 	EndIf
@@ -481,7 +490,7 @@ DO WHILE (cAliasQry)->(!EOF())
 	If lDetCC
 		(cAliasTrb)->XX_VALITEM := (cAliasTrb)->XX_VALOR
 		(cAliasTrb)->XX_RATEIO  := "N"
-		(cAliasTrb)->XX_CC := cCCusto
+		(cAliasTrb)->XX_CC 		:= cCCusto
 	EndIf
 
 	aItem := {}
@@ -556,6 +565,7 @@ DO WHILE (cAliasQry)->(!EOF())
 		EndIf
 		
 		(cAliasTrb)->XX_XXTIPBK := cTipoBk
+		(cAliasTrb)->XX_XXDTPBK := Posicione("SZU",1,xFilial("SZU")+cTipoBk,"ZU_DESCR")
 		//(cAliasTrb)->XX_VALITEM := (cAliasTrb)->XX_VALOR
 
 		// Detalhar Centros de Custos
@@ -581,7 +591,8 @@ DO WHILE (cAliasQry)->(!EOF())
 
 				(cAliasTrb)->XX_PRODUTO := aItem[nx,1]
 				(cAliasTrb)->XX_DESC	:= aItem[nx,2]
-				(cAliasTrb)->XX_XXTIPBK	:= aItem[nx,3]				
+				//(cAliasTrb)->XX_XXTIPBK	:= aItem[nx,3]				
+				//(cAliasTrb)->XX_XXDTPBK := Posicione("SZU",1,xFilial("SZU")+aItem[nx,3],"ZU_DESCR")
 				(cAliasTrb)->XX_CC		:= aItem[nx,4]
 				(cAliasTrb)->XX_DESCCC  := Posicione("CTT",1,xFilial("CTT")+(cAliasTrb)->XX_CC,"CTT_DESC01")
 				(cAliasTrb)->XX_VALITEM := aItem[nx,5]
@@ -616,6 +627,7 @@ DO WHILE (cAliasQry)->(!EOF())
 				//(cAliasTrb)->XX_PRODUTO := aItem[nx,1]
 				//(cAliasTrb)->XX_DESC	:= aItem[nx,2]
 				//(cAliasTrb)->XX_XXTIPBK	:= aItem[nx,3]				
+				(cAliasTrb)->XX_XXDTPBK := Posicione("SZU",1,xFilial("SZU")+(cAliasTrb)->XX_XXTIPBK,"ZU_DESCR")
 				(cAliasTrb)->XX_CC		:= aItem[nx,1]
 				(cAliasTrb)->XX_VALITEM := aItem[nx,2]
 				(cAliasTrb)->XX_DESCCC  := Posicione("CTT",1,xFilial("CTT")+(cAliasTrb)->XX_CC,"CTT_DESC01")
@@ -633,6 +645,8 @@ DO WHILE (cAliasQry)->(!EOF())
 	If lDetCC .AND. Empty((cAliasTrb)->XX_DESCCC)
 		(cAliasTrb)->XX_DESCCC := Posicione("CTT",1,xFilial("CTT")+(cAliasTrb)->XX_CC,"CTT_DESC01")
 	EndIf
+
+	(cAliasTrb)->XX_XXDTPBK := Posicione("SZU",1,xFilial("SZU")+(cAliasTrb)->XX_XXTIPBK,"ZU_DESCR")
 	
 	(cAliasTrb)->(MsUnLock())
 		
@@ -964,7 +978,7 @@ RETURN NIL
 User Function BKR25PL2()
 Local aPlan := {}
 aAdd(aPlan,{.T.,"PESSOAL",""})
-aAdd(aPlan,{.F.,"Folha CLT","LPM/LAD/LAS/LFG/COM"})
+aAdd(aPlan,{.F.,"Folha CLT","LPM/LAD/LAS/LFG/COM/HEX/GRA"})
 aAdd(aPlan,{.F.,"Férias","LFE"})
 aAdd(aPlan,{.F.,"13º Salário","LD1/LD2"})
 aAdd(aPlan,{.F.,"Rescisões + MFG","MFG/LRC"})

@@ -2,7 +2,7 @@
 
 #DEFINE SIMPLES Char( 39 )
 #DEFINE DUPLAS  Char( 34 )
-
+/*
 #DEFINE CSSBOTAO	"QPushButton { color: #024670; "+;
 "    border-image: url(rpo:fwstd_btn_nml.png) 3 3 3 3 stretch; "+;
 "    border-top-width: 3px; "+;
@@ -15,6 +15,7 @@
 "    border-left-width: 3px; "+;
 "    border-right-width: 3px; "+;
 "    border-bottom-width: 3px }"
+*/
 
 //--------------------------------------------------------------------
 /*/{Protheus.doc} compdic
