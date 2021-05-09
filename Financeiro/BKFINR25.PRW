@@ -978,7 +978,7 @@ RETURN NIL
 User Function BKR25PL2()
 Local aPlan := {}
 aAdd(aPlan,{.T.,"PESSOAL",""})
-aAdd(aPlan,{.F.,"Folha CLT","LPM/LAD/LAS/LFG/COM/HEX/GRA"})
+aAdd(aPlan,{.F.,"Folha CLT","LPM/LAD/LAS/LFG/COM/HEX/GRA/DIN/DSA"})
 aAdd(aPlan,{.F.,"Férias","LFE"})
 aAdd(aPlan,{.F.,"13º Salário","LD1/LD2"})
 aAdd(aPlan,{.F.,"Rescisões + MFG","MFG/LRC"})

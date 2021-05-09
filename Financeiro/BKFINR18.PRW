@@ -67,7 +67,7 @@ AADD(aDbf, { 'XX_CONTRAT',	'C', TamSX3("C5_MDCONTR")[1],00 } )
 AADD(aCampos,"TRB->XX_CONTRAT")
 AADD(aCabs  ,"Contrato")
 
-AADD(aDbf, { 'XX_COMPET',	'C', TamSX3("CND_COMPET")[1],00 } )
+AADD(aDbf, { 'XX_COMPET',	'C', TamSX3("C5_XXCOMPM")[1],00 } )
 AADD(aCampos,"TRB->XX_COMPET")
 AADD(aCabs  ,"Competencia")
 
@@ -257,7 +257,7 @@ Do While QSF2->(!EOF())
 		
 	    If !(QSE1->(EOF()))
 			TRB->XX_CONTRAT := QSE1->CONTRATO
-			TRB->XX_COMPET  := QSE1->CND_COMPET
+			TRB->XX_COMPET  := QSE1->C5_XXCOMPM
 			TRB->XX_VENC    := QSE1->E1_VENCREA
 		EndIf
 		
@@ -341,7 +341,7 @@ Local cQuery  := ""
 
 //IncProc("Consultando o banco de dados...")
 
-cQuery := "SELECT DISTINCT E1_VENCREA,E1_VALOR,CND_COMPET,"
+cQuery := "SELECT DISTINCT E1_VENCREA,E1_VALOR,C5_XXCOMPM,"
 cQuery += " E1_PREFIXO,E1_NUM,E1_PARCELA,E1_TIPO,E1_CLIENTE,E1_LOJA,"
 cQuery += " CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END AS CONTRATO "
 cQuery += "FROM "+RETSQLNAME("SE1")+ " SE1 "
@@ -350,7 +350,7 @@ cQuery += "FROM "+RETSQLNAME("SE1")+ " SE1 "
 //cQuery += "AND SE1.E1_CLIENTE=SF2.F2_CLIENTE AND SE1.E1_LOJA=SF2.F2_LOJA AND SF2.D_E_L_E_T_=''"
 
 cQuery += "LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SE1.E1_PEDIDO  "
-cQuery += "LEFT JOIN "+RETSQLNAME("CND")+ " CND ON SC5.C5_NUM=CND.CND_PEDIDO "
+//cQuery += "LEFT JOIN "+RETSQLNAME("CND")+ " CND ON SC5.C5_NUM=CND.CND_PEDIDO "
 
 cQuery += "WHERE SE1.D_E_L_E_T_ <> '' "  //AND SE1.E1_VALOR <> SE1.E1_SALDO AND SE1.E1_VALOR = SF2.F2_VALFAT " 
 
@@ -373,7 +373,7 @@ Return
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

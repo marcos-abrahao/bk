@@ -29,6 +29,7 @@ Local nValLiq	:= 0
 Local lFirst	:= .T.
 Local cObsX     := ""
 Local oTmpTb
+Local j			:= 0
 
 Private cPerg        := "BKFINR17"
 Private nEmissao 	 := 1
@@ -338,7 +339,7 @@ Do While !Eof()
 						RecLock("QTMP",.T.)
 						QTMP->A1_NOME    := QTMP1->A1_NOME
 						QTMP->CONTRATO   := QTMP1->CONTRATO 
-						QTMP->CND_COMPET := QTMP1->CND_COMPET 
+						QTMP->C5_XXCOMPM := QTMP1->C5_XXCOMPM 
 						QTMP->F2_DOC     := QTMP1->F2_DOC  
 					EndIf
 					QTMP->E1_XXOBX   := cObsX //QTMP1->E1_XXOBX  
@@ -413,7 +414,7 @@ AADD(aCabs  ,"Contrato")
 AADD(aCampos,'IIF(!EMPTY(QTMP->CONTRATO),ALLTRIM(Posicione("CTT",1,xFilial("CTT")+QTMP->CONTRATO,"CTT_DESC01")),"")')
 AADD(aCabs  ,"Centro de Custos")
 
-AADD(aCampos,"QTMP->CND_COMPET")
+AADD(aCampos,"QTMP->C5_XXCOMPM")
 AADD(aCabs  ,"Competencia")
 
 AADD(aCampos,"QTMP->F2_DOC")
@@ -492,7 +493,7 @@ Local cQuery  := ""
 
 IncProc("Consultando o banco de dados...")
 
-cQuery := "SELECT DISTINCT A1_NOME,E1_VENCREA,E1_VALOR,E1_SALDO,E1_BAIXA,CND_COMPET,F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,"
+cQuery := "SELECT DISTINCT A1_NOME,E1_VENCREA,E1_VALOR,E1_SALDO,E1_BAIXA,C5_XXCOMPM,F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,"
 cQuery += " E1_PREFIXO,E1_NUM,E1_PARCELA,E1_TIPO,E1_CLIENTE,E1_LOJA,"
 cQuery += " F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS,F2_XXVCVIN,F2_XXVFUMD,F2_VLCPM, "
 cQuery += " CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END AS CONTRATO "
@@ -501,13 +502,13 @@ cQuery += " FROM "+RETSQLNAME("SE1")+ " SE1 "
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON SE1.E1_NUM=SF2.F2_DOC AND SE1.E1_PREFIXO=SF2.F2_SERIE "
 cQuery += " AND SE1.E1_CLIENTE=SF2.F2_CLIENTE AND SE1.E1_LOJA=SF2.F2_LOJA AND SF2.D_E_L_E_T_=''"
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SE1.E1_PEDIDO AND SC5.D_E_L_E_T_='' "
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON SC5.C5_NUM=CND.CND_PEDIDO AND CND.D_E_L_E_T_=''"
+//cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON SC5.C5_NUM=CND.CND_PEDIDO AND CND.D_E_L_E_T_=''"
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON SA1.D_E_L_E_T_='' AND SE1.E1_CLIENTE=SA1.A1_COD AND SE1.E1_LOJA=SA1.A1_LOJA"
 
 cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_VALOR <> SE1.E1_SALDO AND SE1.E1_VALOR = SF2.F2_VALFAT " 
 
 IF nEmissao == 1
-	cQuery += " AND CND_COMPET='"+cCompet+"'"
+	cQuery += " AND C5_XXCOMPM='"+cCompet+"'"
 ELSEIF nEmissao == 2
 	cQuery += " AND E1_VENCREA>='"+DTOS(dDataI)+"' AND E1_VENCREA<='"+DTOS(dDataF)+"'"
 ELSEIF nEmissao == 3
@@ -603,7 +604,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg3(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
@@ -634,7 +635,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg4(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
@@ -665,7 +666,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg5(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
@@ -695,7 +696,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg6(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
@@ -725,7 +726,7 @@ Return(NIL)
 
 
 Static Function  ValidPerg7(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 
