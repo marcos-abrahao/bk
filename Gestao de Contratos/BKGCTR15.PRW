@@ -19,6 +19,10 @@ Private cTitulo     := "Relatório de Informações dos Contratos para Licitações -
 Private cCompet     := STRZERO(YEAR(dDataBase),4)+STRZERO(Month(dDataBase),2) 
 Private cPerg    	:= "BKGCTR15"
 
+If !MsgYesNo("Confirma a execução do "+cTitulo+" ?",cPerg)
+   Return
+EndIf
+
 Aadd( aDbf, { 'XX_CONTRAT', 'C', 10,00 } )
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )
 Aadd( aDbf, { 'XX_CNPJ', 'C', 18,00 } )
@@ -43,8 +47,8 @@ oTmpTb1 := FWTemporaryTable():New( "TRB" )
 oTmpTb1:SetFields( aDbf )
 oTmpTb1:Create()
 
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+
+FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
 
 aCabs   := {}
 aCampos := {}
@@ -197,7 +201,7 @@ ENDDO
 Return
 
 
-
+/*
 User Function xBKGCTR15()
 Local aTitulos,aCampos,aCabs,aPlans
 Local aDbf 		    := {} 
@@ -297,7 +301,11 @@ AADD(aCabs  ,"Situação atual do Contrato")
 //ProcRegua(TRB->(LASTREC()))
 //Processa( {|| U_GeraCSV("TRB",cPerg,aTitulos,aCampos,aCabs,,,,.F.)})
 
-AADD(aPlans,{"TRB",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+*/
+
+////AADD(aPlans,{"TRB",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+/*
+
 U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
 
 oTmpTb1:Delete()
@@ -428,3 +436,4 @@ ENDDO
 
 RETURN NIL
 
+*/

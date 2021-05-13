@@ -140,7 +140,7 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := "000084"
 			cProd := "29104004"  
 			cCCus := "000000001"
-		ElseIf SM0->M0_CODIGO == "02"  // HF
+		ElseIf SM0->M0_CODIGO == "02"  // BK TER
 			cForn := "001570"
 			cProd := "29104004"
 			cCCus := "000000001"
@@ -258,8 +258,9 @@ Local aCabec     := {}
 Local aItem      := {}
 Local aItens     := {}
 Local cRetorno   := ""
+Local _nX 		 := 0
 
-Private cErro      := ""
+Private cErro    := ""
 Private cNFiscal := ""
 Private cSerie   := "DNF
 Private lMsErroAuto := .F.
