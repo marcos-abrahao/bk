@@ -294,7 +294,7 @@ DbSelectArea(cAliasCNR)
 DbGoTop()
 
 Do While (cAliasCNR)->(!eof())
-	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "1","Bonificação","Glosa")
+	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "2","Bonificação","Multa")
 	DBSELECTAREA("CND")
 	CND->(DBSETORDER(4))
 	CND->(DBSEEK(xFILIAL("CND")+nMDNUMED,.F.))

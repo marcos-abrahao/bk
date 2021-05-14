@@ -309,17 +309,6 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 		Processa( {|| cGraph := GeraChart1(aTMensal,cProg,aTitulos)})
 	EndIf
 
-///dbSelectArea("TMPC")
-///dbCloseArea()
-///FErase(cArqTmp1+GetDBExtension())
-///FErase(cArqTmp1+OrdBagExt())
-
-///dbSelectArea("TMPD")
-///dbCloseArea()
-///FErase(cArqTmp2+GetDBExtension())
-///FErase(cArqTmp2+"1"+OrdBagExt())
-///FErase(cArqTmp2+"2"+OrdBagExt())
-
 	oTmpTb1:Delete()
 	oTmpTb2:Delete()
 

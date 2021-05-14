@@ -226,10 +226,10 @@ AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_V
 AADD(aCabs  ,"Valor liquido")
 
 IF cMotMulta = "S"
-	AADD(aCampos,"U_BKCNR07(QTMP->CND_NUMMED,'1')")
+	AADD(aCampos,"U_BKCNR07(QTMP->CND_NUMMED,'2')")
 	AADD(aCabs  ,"Motivo Bonificação")
 
-	AADD(aCampos,"U_BKCNR07(QTMP->CND_NUMMED,'2')")
+	AADD(aCampos,"U_BKCNR07(QTMP->CND_NUMMED,'1')")
 	AADD(aCabs  ,"Motivo Multa")
 ENDIF
 
@@ -285,9 +285,9 @@ cQuery += "   ISNULL(CXN_PARCEL,CND_PARCEL) AS CXN_PARCEL," + CRLF
 cQuery += "   CND_XXRM," + CRLF 
 cQuery += "   C6_NUM," + CRLF 
 cQuery += "   (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = CNE_NUMMED AND CNR_CODPLA = ISNULL(CXN_NUMPLA,'      ')" + CRLF    // AND CNR_CODPLA = CNE_NUMERO
-cQuery += "   	AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF," + CRLF 
+cQuery += "   	AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_BONIF," + CRLF 
 cQuery += "   (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = CNE_NUMMED AND CNR_CODPLA = ISNULL(CXN_NUMPLA,'      ')" + CRLF    // AND CNR_CODPLA = CNE_NUMERO
-cQuery += "   	AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA," + CRLF 
+cQuery += "   	AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_MULTA," + CRLF 
 cQuery += "   F2_DOC," + CRLF 
 cQuery += "   F2_EMISSAO," + CRLF 
 cQuery += "   F2_VALFAT," + CRLF 
@@ -468,14 +468,11 @@ cQuery += "    CND_NUMMED, CNF.R_E_C_N_O_ AS CNFRECNO,"+ CRLF
 cQuery += "    CND_XXRM, "+ CRLF
 cQuery += "    C6_NUM, "+ CRLF
 
-// 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
 cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
-//cQuery += "         AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF,"+ CRLF
-cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF,"+ CRLF
+cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_BONIF,"+ CRLF
 
 cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
-//cQuery += "         AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,"+ CRLF
-cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,"+ CRLF
+cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_MULTA,"+ CRLF
 
 cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS,F2_VLCPM,F2_XXVRETC, " + CRLF
 

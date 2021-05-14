@@ -2,7 +2,7 @@
 #INCLUDE "PROTHEUS.CH"
 
 //-------------------------------------------------------------------
-/*/{Protheus.doc} BKFINR19
+/*/{Protheus.doc} BKFIN19
 BK - Digitação de mov bancario em lote
 @Return
 @author Marcos Bispo Abrahão

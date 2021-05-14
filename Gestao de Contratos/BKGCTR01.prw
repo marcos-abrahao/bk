@@ -169,10 +169,10 @@ AADD(aCabs  ,"Valor liquido")
 If cMotMulta = "S"
 	// 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
 
-	AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'1')")
+	AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'2')")
 	AADD(aCabs  ,"Motivo Bonificação")
 
-	AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'2')")
+	AADD(aCampos,"U_BKCNR01(QTMP->CND_NUMMED,'1')")
 	AADD(aCabs  ,"Motivo Multa")
 EndIf
 
@@ -221,10 +221,10 @@ cQuery += "   ,C6_DATCPL AS C5_EMISSAO"+ CRLF
 
 // 18/11/14 - Campos XX_BONIF alterado de '2' para '1' e XX_MULTA alterado de '1' para '2'
 cQuery += "   ,(SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = CNE_NUMMED AND CNR_CODPLA = ISNULL(CXN_NUMPLA,'      ')" + CRLF    // AND CNR_CODPLA = CNE_NUMERO
-cQuery += "   	AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF" + CRLF 
+cQuery += "   	AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_BONIF" + CRLF 
 
 cQuery += "   ,(SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = CNE_NUMMED AND CNR_CODPLA = ISNULL(CXN_NUMPLA,'      ')" + CRLF    // AND CNR_CODPLA = CNE_NUMERO
-cQuery += "   	AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA" + CRLF 
+cQuery += "   	AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_MULTA" + CRLF 
 
 cQuery += "   ,F2_DOC
 cQuery += "   ,F2_EMISSAO" + CRLF

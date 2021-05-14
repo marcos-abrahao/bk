@@ -127,7 +127,7 @@ DbGoTop()
 
 Do While (cAliasCNR)->(!eof())
 
-	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "1","Bonificação","Glosa")
+	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "2","Bonificação","Multa")
 
 	//If Empty((cAliasCNR)->CNR_CODPLA) .OR. (cAliasCNR)->CNR_CODPLA == SC5->C5_MDPLANI
 		If !Empty((cAliasCNR)->CNR_XTPJUS)
