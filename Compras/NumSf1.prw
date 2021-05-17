@@ -57,7 +57,7 @@ Enddo
 TMPSF1->(DbCloseArea())
 
 IF !lOk
-	IF MSGNOYES("Já existe NF lançada para este Fornecedor com a SERIE: "+cXSerie+"!! Incluir assim mesmo?")
+	IF MSGNOYES("Já existe a NF "+cXDoc+" lançada para o Fornecedor "+cXFORNECE+" com a série: "+cXSerie+"! Incluir assim mesmo?")
 		lOk := .T.
 	ENDIF
 ENDIF

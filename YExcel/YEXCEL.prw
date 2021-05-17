@@ -2,6 +2,8 @@
 #include "Fileio.ch"
 #Include "ParmType.ch"
 
+// BK 05/03/21
+
 Static cAr7Zip	//Caminho do 7zip para compactar o arquivo
 Static cRootPath
 //CLASSE EXCEL

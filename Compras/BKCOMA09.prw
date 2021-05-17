@@ -11,7 +11,13 @@ BK- MarkBrow em MVC da tabela SZS-Facilitador p/ Doc de Entrada
 /*/
 
 User Function BKCOMA09()
+	Local aGrp := UsrRetGrp()
 	Private oMark
+
+	If aScan(aGrp,"000000") == 0
+		MsgStop("Usuário sem permissão de acesso a esta rotina")
+		Return
+	EndIf
 
 	//Criando o MarkBrow
 	oMark := FWMarkBrowse():New()
@@ -120,6 +126,7 @@ Static Function SZSProc1()
 	While !SZS->(EoF())
 		//Caso esteja marcado, aumenta o contador
 		If oMark:IsMark(cMarca)
+		//If !Empty(SZS->ZS_OK)
 			nCt++
 			cErro := ""
 			//Limpando a marca
@@ -127,6 +134,7 @@ Static Function SZSProc1()
 		EndIf
 
 		//Pulando registro
+		dbSelectArea("SZS")
 		SZS->(DbSkip())
 	EndDo
 
@@ -382,15 +390,15 @@ Local dDataE	:= SZS->ZS_EMISSAO
 Local dDataP	:= SZS->ZS_XXPVPGT
 Local lTodos	:= .T.
 
-aAdd( aParam, { 1, "Emissão:"		, CTOD("")	, ""    , "", ""	, "" , 70  , .F. })
-aAdd( aParam, { 1, "Pagamento:"		, CTOD("")	, ""    , "", ""	, "" , 70  , .F. })  
+aAdd( aParam, { 1, "Emissão:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Pagamento:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })  
 aAdd( aParam ,{ 2, "Seleção:"       , "Todos"   , {"Todos", "Marcados"}, 70,'.T.'  ,.T.})
 
 If (Parambox(aParam     ,"BKCOMA09 - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKCOMA09",.T.         ,.T.))
 	lRet := .T.
 	dDataE  := mv_par01
 	dDataP  := mv_par02
-	lTodos  := (substr(mv_par04,1,1) == "T")	
+	lTodos  := (substr(mv_par03,1,1) == "T")	
 
 	FWMsgRun(, {|oSay| SZSProc2(dDataE,dDataP,lTodos) }, "", "BKCOMA09 - Alterando datas...")
 
@@ -413,6 +421,7 @@ Static Function SZSProc2(dDataE,dDataP,lTodos)
 
 			RecLock('SZS', .F.)
 			SZS->ZS_OK		:= ''
+			SZS->ZS_STATUS  := '2'
 			SZS->ZS_EMISSAO	:= dDataE
 			SZS->ZS_XXPVPGT	:= dDataP
 			SZS->(MsUnlock())
