@@ -89,7 +89,9 @@ EndIf
 
 AADD(ExpA1,{"C5_XXRETC" ,CNA->CNA_XXRETC, Nil})   
 
-AADD(ExpA1,{"C5_XXCOMPM",CND->CND_COMPET, Nil})  
+AADD(ExpA1,{"C5_XXCOMPM",CND->CND_COMPET, Nil}) 
+
+// Aqui acertar quando for nova medição CXN_XXRM
 AADD(ExpA1,{"C5_XXRM"   ,CND->CND_XXRM  , Nil})  
 
 CNA->(RestArea(aAreaCNA))

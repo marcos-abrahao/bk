@@ -11,27 +11,34 @@ BK - Ponto de Entrada para carregar campos na inclusão das mediçoes
 /*/
 
 User Function C121VCPO()
-//Local oStruCND := PARAMIXB[1]
-//Local oStruCXN := PARAMIXB[2]
-//Local oStruCNE := PARAMIXB[3]
+Local oStruCND := PARAMIXB[1]
+Local oStruCXN := PARAMIXB[2]
+Local oStruCNE := PARAMIXB[3]
 //Local bBloc
 
 //bBloc:=FWBuildFeature(STRUCT_FEATURE_VALID,"U_CNACPOS(), .T.")
 //oStruCXN:SetProperty("CXN_XXMUN", MODEL_FIELD_INIT, {|| "X"} ) 
 //oStruCXN:SetFieldAction( "CXN_CHECK"   , {|| M->CXN_XXMUN  := "x"} )    
+
+oStruCXN:SetProperty("CXN_XXOBS", MODEL_FIELD_WHEN, {|| .T.} ) 
 Return
 
 
 User Function CN120CPO()
 Local aCpo  := {}
-// Esta sendo executado na nova medição
-aAdd(aCpo,"CNA_XXMOT")
-aAdd(aCpo,"CNA_XXMUN")
 
-//IF FWIsInCallStack("CNTA121")
-//ENDIF
+// Esta sendo executado na nova medição
+
+IF FWIsInCallStack("CNTA121")
+    //aAdd(aCpo,"CXN_XXOBS")
+ELSE
+    aAdd(aCpo,"CNA_XXMOT")
+    aAdd(aCpo,"CNA_XXMUN")
+ENDIF
 
 Return aCpo
+
+
 
 
 

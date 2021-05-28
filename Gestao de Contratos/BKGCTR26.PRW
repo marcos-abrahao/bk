@@ -391,9 +391,9 @@ Static Function GCT26Plan()
 	aAdd(aPlan,{.F.,"",""})
 
 	aAdd(aPlan,{.T.,"DESPESAS",""})
-	aAdd(aPlan,{.T.,"PESSOAL",""})
-	aAdd(aPlan,{.F.,"Folha CLT","LPMCLT/LADCLT/LASCLT/LFGCLT/COMCLT/"})
-	aAdd(aPlan,{.F.,"Folha PJ/AC","LPMPJ/LADPJ/LASPJ/LFGPJ/COMPJ/"})
+	aAdd(aPlan,{.T.,"PESSOAL",""}) 
+	aAdd(aPlan,{.F.,"Folha CLT","LPMCLT/LADCLT/LASCLT/LFGCLT/COMCLT/HEXCLT/GRACLT/DINCLT/DSACLT/"})
+	aAdd(aPlan,{.F.,"Folha PJ/AC","LPMPJ/LADPJ/LASPJ/LFGPJ/COMPJ/HEXPJ/GRAPJ/DINPJ/DSAPJ/"})
 	aAdd(aPlan,{.F.,"Férias CLT","LFECLT/"})
 	aAdd(aPlan,{.F.,"Férias PJ/AC","LFEPJ/"})
 	aAdd(aPlan,{.F.,"13º Salário CLT","LD1CLT/LD2CLT/"})
@@ -407,17 +407,17 @@ Static Function GCT26Plan()
 
 	aAdd(aPlan,{.F.,"",""})
 	aAdd(aPlan,{.T.,"BENEFÍCIOS",""})
-	aAdd(aPlan,{.F.,"Seguro Saúde","SS/"})
-	aAdd(aPlan,{.F.,"Seguro Odontológico","SO/"})
-	aAdd(aPlan,{.F.,"Seguro de Vida","SV/"})
-	aAdd(aPlan,{.F.,"Vale Refeição","VR/"})
-	aAdd(aPlan,{.F.,"Vale Alimentação","VA/"})
-	aAdd(aPlan,{.F.,"Vale Transporte","VT/"})
-	aAdd(aPlan,{.F.,"Cursos e Treinamento","CT/"})
+	aAdd(aPlan,{.F.,"Seguro Saúde","SS/SSCLT/SSPJ"})
+	aAdd(aPlan,{.F.,"Seguro Odontológico","SO/SOCLT/SOPJ"})
+	aAdd(aPlan,{.F.,"Seguro de Vida","SV/SVCLT/SV/PJ"})
+	aAdd(aPlan,{.F.,"Vale Refeição","VR/VRCLT/VRPJ"})
+	aAdd(aPlan,{.F.,"Vale Alimentação","VA/VACLT/VAPJ"})
+	aAdd(aPlan,{.F.,"Vale Transporte","VT/VTCLT/VTPJ"})
+	aAdd(aPlan,{.F.,"Cursos e Treinamento","CT/CTCLT/CTPJ"})
 	aAdd(aPlan,{.F.,"",""})
 	aAdd(aPlan,{.T.,"DESPESAS DE VIAGEM",""})
-	aAdd(aPlan,{.F.,"Despesas de Viagem CLT","SOLCLT/HOSCLT/REECLT/"})
-	aAdd(aPlan,{.F.,"Despesas de Viagem PJ/AC","SOLPJ/HOSPJ/REEPJ/"})
+	aAdd(aPlan,{.F.,"Despesas de Viagem CLT","SOLCLT/HOSCLT/REECLT/CXACLT/"})
+	aAdd(aPlan,{.F.,"Despesas de Viagem PJ/AC","SOL/SOLPJ/HOSPJ/REEPJ/CXAPJ/"})
 	aAdd(aPlan,{.F.,"",""})
 	aAdd(aPlan,{.T.,"ENCARGOS",""})
 	aAdd(aPlan,{.F.,"INSS","INSS/"})
@@ -425,7 +425,7 @@ Static Function GCT26Plan()
 	aAdd(aPlan,{.F.,"IRRF","EIRRF/"})
 	aAdd(aPlan,{.F.,"Sindicatos e Assoc. Classe (CECM Furnas)","SIN/"})
 	aAdd(aPlan,{.F.,"Exames Médicos CLT","EXMCLT/"})
-	aAdd(aPlan,{.F.,"Exames Médicos PJ/AC","EXMPJ/"})
+	aAdd(aPlan,{.F.,"Exames Médicos PJ/AC","EXM/EXMPJ/"})
 	aAdd(aPlan,{.F.,"Trabalhistas","TRB/"})
 	aAdd(aPlan,{.F.,"",""})
 	aAdd(aPlan,{.T.,"OUTRAS DESPESAS",""})
@@ -452,7 +452,7 @@ Static Function GCT26Plan()
 	aAdd(aPlan,{.F.,"Representantes","REPR/"})
 	aAdd(aPlan,{.F.,"Aportes Consórcios","APO/"})
 	aAdd(aPlan,{.F.,"BK TER","BKTER/"})
-	aAdd(aPlan,{.F.,"Fundo Fixo","CXA/"})
+	aAdd(aPlan,{.F.,"Fundo Fixo","CXFF/"})
 	aAdd(aPlan,{.F.,"Diretoria","DIR/"})
 	aAdd(aPlan,{.F.,"DERSA Arrecadação","DERSA/"})
 	aAdd(aPlan,{.F.,"Sem classificação","XXX/"})
@@ -478,6 +478,12 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 	Local cTitPai   As Character
 	Local cChave    As Character
 	Local nScan     As Numeric
+	Local cXFilSA6 	As Character
+	
+	cXFilSA6 := FwXFilial("SA6")
+
+	dbSelectArea("SA6")
+	SA6->(DbSetOrder(1))
 
 	For nI := 1 To Len(aRelat)
 
@@ -489,59 +495,68 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 		If TRIM(aLinha[ID_MOTIVO]) <> "CMP"
 
 			If aLinha[ID_RECPAG] == "R"
-				cCCBK   := PAD(aLinha[ID_CC],nTamCodGct)
-				If !Empty(cCCBK)
-					If TRIM(aLinha[ID_TIPO]) == "NF"
-						cTipoBk := "FAT"
-					ElseIf TRIM(aLinha[ID_TIPO]) == "NDC"
-						cTipoBk := "NDC"
-					Else
-						cTipoBk := "OREC"
-					EndIf
 
-					aLinha[ID_TIPOBK] 	:= cTipoBK
-					aRelat[nI,ID_TIPOBK]:= cTipoBK
+				SA6->(MsSeek(cXFilSA6 + aLinha[ID_BANCO] + aLinha[ID_AGENCIA] + aLinha[ID_CONTA]))
 
-					aAdd(aRelat2,aClone(aLinha))
-					nScan := Len(aRelat2)
+				If !SA6->(EOF()) .AND. SA6->A6_FLUXCAI <> "N"
 
-					If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
-						aRelat[nI,ID_CONSIDER] := "R"
-					Else
-						aRelat[nI,ID_CONSIDER] := "N1-R"
-					EndIf
-					aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
-				Else
-					If !Empty(aLinha[ID_CREDITO]) .AND. !Empty(aLinha[ID_CCC])
-						cTipoBk := Posicione("CT1",1,xFilial("CT1")+aLinha[ID_CREDITO],"CT1_XXGRPF")
-						If Empty(cTipoBk)
+					cCCBK   := PAD(aLinha[ID_CC],nTamCodGct)
+					If !Empty(cCCBK)
+						If TRIM(aLinha[ID_TIPO]) == "NF"
+							cTipoBk := "FAT"
+						ElseIf TRIM(aLinha[ID_TIPO]) == "NDC"
+							cTipoBk := "NDC"
+						Else
 							cTipoBk := "OREC"
 						EndIf
-						
-						cCCBK   := aLinha[ID_CCC]
 
-						aLinha[ID_TIPOBK]    := cTipoBK
-						aRelat[nI,ID_TIPOBK] := cTipoBK
-						aLinha[ID_CC]		 := cCCBK
-						aRelat[nI,ID_CC]     := cCCBK
+						aLinha[ID_TIPOBK] 	:= cTipoBK
+						aRelat[nI,ID_TIPOBK]:= cTipoBK
 
 						aAdd(aRelat2,aClone(aLinha))
-						nScan   := Len(aRelat2)
+						nScan := Len(aRelat2)
 
-						If !Empty(cTipoBk)
-							If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
-								aRelat[nI,ID_CONSIDER] := "R-CT1"
-							Else
-								aRelat[nI,ID_CONSIDER] := "N4-R"
-							EndIf
+						If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
+							aRelat[nI,ID_CONSIDER] := "R"
 						Else
-							aRelat[nI,ID_CONSIDER] := "N3-R"
+							aRelat[nI,ID_CONSIDER] := "N1-R"
 						EndIf
 						aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
 					Else
-						aRelat[nI,ID_CONSIDER] := "N2-R"
-					EndIf
+						If !Empty(aLinha[ID_CREDITO]) .AND. !Empty(aLinha[ID_CCC])
+							cTipoBk := Posicione("CT1",1,xFilial("CT1")+aLinha[ID_CREDITO],"CT1_XXGRPF")
+							If Empty(cTipoBk)
+								cTipoBk := "OREC"
+							EndIf
+							
+							cCCBK   := aLinha[ID_CCC]
 
+							aLinha[ID_TIPOBK]    := cTipoBK
+							aRelat[nI,ID_TIPOBK] := cTipoBK
+							aLinha[ID_CC]		 := cCCBK
+							aRelat[nI,ID_CC]     := cCCBK
+
+							aAdd(aRelat2,aClone(aLinha))
+							nScan   := Len(aRelat2)
+
+							If !Empty(cTipoBk)
+								If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
+									aRelat[nI,ID_CONSIDER] := "R-CT1"
+								Else
+									aRelat[nI,ID_CONSIDER] := "N4-R"
+								EndIf
+							Else
+								aRelat[nI,ID_CONSIDER] := "N3-R"
+							EndIf
+							aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
+						Else
+							aRelat[nI,ID_CONSIDER] := "N2-R"
+						EndIf
+
+					EndIf
+				Else
+					// Conta não faz parte do fluxo de caixa
+					aRelat[nI,ID_CONSIDER] := "NB-R"
 				EndIf
 			Else
 				If aLinha[ID_E2RECNO] > 0
@@ -669,13 +684,11 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 							For nX := 1 To Len(aItem)
 								aAdd(aRelat2,aClone(aLinha))
 								nScan := LEN(aRelat2)
-								//If TRIM(cTipoBk) $ "LPM/LAD/LAS/LFG/COM/"
-									If TRIM(aItem[nX,2])+"/" $ "AC/RPA/PJ/"
-										cTipoBk2 := TRIM(cTipoBK) + "PJ"
-									Else 
-										cTipoBk2 := TRIM(cTipoBK) + "CLT"
-									EndIf
-								//EndIf
+								If TRIM(aItem[nX,2])+"/" $ "AC/RPA/PJ/"
+									cTipoBk2 := TRIM(cTipoBK) + "PJ"
+								Else 
+									cTipoBk2 := TRIM(cTipoBK) + "CLT"
+								EndIf
 								aRelat2[nScan,ID_TIPOBK]   := cTipoBK2
 								aRelat2[nScan,ID_CC]       := aItem[nX,1]
 								aRelat2[nScan,ID_TIPOPES]  := aItem[nX,2]
@@ -888,7 +901,7 @@ Static Function GCT26P191(oSay,aRelat,cRecPag)
 	__lTemFKD       := TableInDic("FKD")
 // <--Finr190
 
-	nOrdem		:= 1
+	nOrdem		:= 1 
 	aTotais		:= {}
 
 	nGerOrig 	:= 0

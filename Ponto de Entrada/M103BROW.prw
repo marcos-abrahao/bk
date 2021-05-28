@@ -15,6 +15,7 @@ Local aUser,cStaf,lStaf
 Local cFiltro		:= ""
 Local cMDiretoria	:= ""
 Local laClas		:= .F.
+Local lAdmFiscal	:= .F.
 Local cGerGestao	:= ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras	:= ALLTRIM(SuperGetMV("MV_XXGCOM",.F.,"000015")) 
 Local aGrupo		:= {}
@@ -177,10 +178,14 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
           	 
           ENDIF
        ENDIF
-    ELSEIF lAClas   
+    ELSEIF lAClas
        //SET FILTER TO (SF1->F1_STATUS = ' ')
        // Filtro 8
-	   If ASCAN(aUser[1,10],"000031") <> 0 
+	   If ASCAN(aUser[1,10],"000000") <> 0
+			lAdmFiscal := MsgBox("Filtra os Doc a liberar", "M103FILB", "YESNO")
+	   EndIf
+
+	   If ASCAN(aUser[1,10],"000031") <> 0 .OR. lAdmFiscal
        	   cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
 	   ElseIf ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000007") <> 0
        	   cFiltro := "(F1_STATUS IN (' ','B'))"

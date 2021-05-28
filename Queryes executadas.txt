@@ -1,8 +1,18 @@
+==============================================================
 
 
 
+==============================================================
 
+27/05/21 - Substituição de centros de custos - Xavier
+UPDATE SD1010 SET D1_CC='372000568' WHERE D1_CC = '368000568'
+UPDATE SZ2010 SET Z2_CC='372000568' WHERE Z2_CC = '368000568'
+UPDATE SC1010 SET C1_CC='372000568' WHERE C1_CC = '368000568'
+UPDATE SC7010 SET C7_CC='372000568' WHERE C7_CC = '368000568'
+UPDATE SD3010 SET D3_CC='372000568' WHERE D3_CC = '368000568'
 
+--BKIntegraRubi
+UPDATE CUSTOSIGA SET ccSIGA ='372000568' WHERE ccSIGA = '368000568'
 ==============================================================
 
 07/04/21 - Fernando pediu para refazer lanç fin a receber
