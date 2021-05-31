@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"11/04/2021 CXN "
+#DEFINE FIN_LAST_UPDATED 		"30/05/2021 NFE "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 19/03/21
+			AtuGenPar( @cTexto )   // 30/05/21
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20
 
-			AtuGenX3( @cTexto )    // 11/04/21
+			//AtuGenX3( @cTexto )    // 11/04/21
 
 			//AtuGenP12( @cTexto )
 
@@ -287,8 +287,34 @@ oProcess:SetRegua2( 2 )
 
 
 
-// 19/03/2021 - Arredondamento de impostos
+// 30/05/2021 - Validação Chave NFE
 
+oProcess:IncRegua2( "Atualizando parametro MV_DCHVNFE e MV_VCHVNFE..." )
+If dbSeek(xFilial()+"MV_DCHVNFE") // Informa se deverá digitar a chave da Nfe/Cte      
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If dbSeek(xFilial()+"MV_VCHVNFE")  //Verifica se a Chave NFE confere com a nota de entrada que está sendo digitada.    
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+// 19/03/2021 - Arredondamento de impostos
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_RNDIRF..." )
 If dbSeek(xFilial()+"MV_RNDIRF")
 	RecLock( "SX6", .F. )
@@ -311,7 +337,7 @@ If dbSeek(xFilial()+"MV_RNDIRRF")
 	dbCommit()
 	MsUnLock()
 EndIf
-
+*/
 
 // 01/03/2021 -Error log por e-mail
 /*

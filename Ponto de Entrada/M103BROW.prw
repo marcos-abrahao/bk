@@ -62,7 +62,7 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 	cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
 	//                                     Luis          Bruno Santiago
 	lStaf  := (__cUserId $ cStaf)
-	lAClas := MsgBox("Filtra os Doc a Classificar", "M103FILB", "YESNO")
+	lAClas := MsgBox("Filtrar os Doc a Classificar", "M103FILB", "YESNO")
 
 	DBCLEARFILTER() 
 	PswOrder(1) 
@@ -182,7 +182,7 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
        //SET FILTER TO (SF1->F1_STATUS = ' ')
        // Filtro 8
 	   If ASCAN(aUser[1,10],"000000") <> 0
-			lAdmFiscal := MsgBox("Filtra os Doc a liberar", "M103FILB", "YESNO")
+			lAdmFiscal := MsgBox("Filtrar os Doc a liberar", "M103FILB", "YESNO")
 	   EndIf
 
 	   If ASCAN(aUser[1,10],"000031") <> 0 .OR. lAdmFiscal

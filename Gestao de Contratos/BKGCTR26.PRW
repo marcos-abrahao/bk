@@ -776,7 +776,6 @@ Static Function GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
 			(cAliasT1)->XX_CODGCT := cCCBK
 			(cAliasT1)->XX_LINHA  := STRZERO(nLinha,2)
 			(cAliasT1)->XX_DESCR  := aPlan2[nLinha,2]
-			(cAliasT1)->XX_DESCR  := aPlan2[nLinha,2]
 			If nLinha == nPosXPag
 				(cAliasT1)->XX_TIPOS  := cXTipos
 			Else

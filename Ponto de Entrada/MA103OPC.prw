@@ -22,7 +22,7 @@ Local aRot := {}
 Local aGrp := UsrRetGrp()
 
 If LEN(aGrp) > 0
-	If aGrp[1] == "000000" 
+	If aGrp[1] $ "000000/000029" 
 		AADD( aRot, {OemToAnsi("Informar Chave NFE"), "U_BKCOMA08", 0, 1 } )
 	EndIf
 EndIf
