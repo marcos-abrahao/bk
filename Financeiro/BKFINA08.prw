@@ -435,7 +435,8 @@ cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' 
 	cQuery += "      AND  C5_FILIAL = F2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
 	//cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D2_COD = B1_COD"+ CRLF
 	//cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
-	cQuery += " WHERE (C5_MDCONTR = ' ' OR C5_MDCONTR IS NULL )"+ CRLF
+	cQuery += " WHERE (C5_MDCONTR = ' ' OR C5_MDCONTR IS NULL)"+ CRLF
+	cQuery += "      AND C5_NUM IS NOT NULL"+ CRLF
 	cQuery += "      AND C5_XXCOMPM = '"+cCompet+"' " + CRLF
 	cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 

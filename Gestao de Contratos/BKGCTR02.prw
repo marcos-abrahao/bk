@@ -451,8 +451,8 @@ Static Function ProcQuery(_cEmp)
 		//cQuery += " LEFT JOIN "+xRETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
 		//cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = ' '"+ CRLF
 
-		cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF
-		cQuery +=         "C5_MDCONTR IS NULL ) "+ CRLF
+		cQuery += " WHERE (C5_MDCONTR = ' ' OR C5_MDCONTR IS NULL)"+ CRLF
+		cQuery += "      AND C5_NUM IS NOT NULL"+ CRLF
 		cQuery += "      AND SC5.C5_XXCOMPT ='"+SUBSTR(cCompet,1,2)+SUBSTR(cCompet,4,4)+"'"+ CRLF
 		cQuery += "      AND C5_ESPECI1 <> '000000001'"+ CRLF
 		cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF

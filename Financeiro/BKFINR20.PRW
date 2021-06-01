@@ -394,8 +394,8 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NOTA = F2_DOC AND C5_SERI
 cQuery += "      AND  C5_FILIAL = F2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
 cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF
-cQuery +=         "C5_MDCONTR IS NULL ) "+ CRLF
+cQuery += " WHERE (C5_MDCONTR = ' ' OR C5_MDCONTR IS NULL)"+ CRLF
+cQuery += "      AND C5_NUM IS NOT NULL"+ CRLF
 cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 
 IF !EMPTY(dEMISI) .and. !EMPTY(dEMISF)
