@@ -768,6 +768,8 @@ Local nMenor    := 0
 Local nQtdMed   := 0
 Local nDesconto := 0
 
+Local nY		as Numeric
+
 Local aAreaSC8  := SC8->(GetArea())
 Local aAreaSA2  := SA2->(GetArea())
 Local aAreaSC1  := SC1->(GetArea())

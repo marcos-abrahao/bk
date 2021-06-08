@@ -24,6 +24,8 @@ Local nOpcx      := PARAMIXB[3]
 Local aMTCM		 := {}
 Local nPQEST	 := 0
 Local nLin       := 0
+Local nC 		 := 0
+
 Public dDATPRF 	 := CTOD("")
 Public cXXMTCM 	 := Space(TamSX3("C1_XXMTCM")[1])    
 Public cCC		 := Space(TamSX3("C1_CC")[1])    
@@ -54,8 +56,8 @@ ENDIF
 IF lCopia
 	dDATPRF	 := CTOD("")
 	nPQEST   := aScan(aHeader, {|x| AllTrim(x[2]) == "C1_XXQEST"})
-	FOR _IX:= 1 TO LEN(aCols)
-		aCols[_IX][nPQEST] := 0
+	FOR nC:= 1 TO LEN(aCols)
+		aCols[nC][nPQEST] := 0
 	NEXT
 ENDIF
 
@@ -69,7 +71,7 @@ EndIf
 @ nLin,aPosGet[1,2] MSGET dDATPRF PIXEL SIZE 50,10 Of oNewDialog    
 
 @ nLin,aPosGet[1,3] SAY 'Endereço Entrega' PIXEL SIZE 50,10 Of oNewDialog
-@ nLin,aPosGet[1,4] MSGET cXXENDEN PIXEL SIZE 130,10 Of oNewDialog    
+@ nLin,aPosGet[1,4] MSGET cXXENDEN PIXEL SIZE 150,10 Of oNewDialog    
 
 nLin += 15
 

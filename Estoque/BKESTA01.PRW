@@ -131,6 +131,8 @@ Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(Supe
 Local _cXXENDEN := ""
 Local _cXXEN 	:= ""
 Local _nXXEN 	:= 0
+Local nX_		as Numeric
+Local i			as Numeric
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
@@ -168,7 +170,7 @@ For nX_ := 1 to Len(aUsers)
 		aGRUPO := UsrRetGrp(aUsers[nX_][1][2])
 		IF LEN(aGRUPO) > 0
 			FOR i:=1 TO LEN(aGRUPO)
-				lAlmox := (ALLTRIM(aGRUPO[i]) $ cAlmox )
+				lAlmox := (ALLTRIM(aGRUPO[i]) $ cAlmox)
 			NEXT
 		ENDIF	
     	If lAlmox
@@ -205,8 +207,8 @@ IF lAprov
     	_cXXEN := ""
 		_nXXEN := 0
 		_nXXEN := MLCOUNT(_cXXENDEN,80)
-		FOR xi := 1 TO _nXXEN
-   			_cXXEN += MemoLine(_cXXENDEN,80,xi)+" "
+		FOR i := 1 TO _nXXEN
+   			_cXXEN += MemoLine(_cXXENDEN,80,i)+" "
 		NEXT    
 		AADD(aEmail,{"<b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"})  
 		

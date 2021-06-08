@@ -1,5 +1,4 @@
 #include "Protheus.ch"       
-#DEFINE FIN_LAST_UPDATED 		"30/09/2020"
 
 /*/{Protheus.doc} BKPARFIS
 BK - Atualização do Parâmetro MV_DATAFIS
@@ -12,13 +11,25 @@ BK - Atualização do Parâmetro MV_DATAFIS
 User Function BKPARFIS()
 Local odParF as Object
 Local oDlg1 as Object
+Local aGrp := UsrRetGrp()
+Local lOk  := .F.
+Local nI
 
 Private dParF
-Private aMarcadas := {}
 Private cTexto:=""
 
-If PswAdmin(,,__cUserId) > 0
-    MsgStop("Função permitida apenas para administradores","BKPARFIS - Data do Fechamento Fiscal")
+For nI := 1 TO Len(aGrp)
+    //             Admin /Contab/Fiscal
+	If aGrp[nI] $ "000000/000029/000031"
+        lOk := .T.
+        Exit 
+	EndIf
+Next
+
+
+//If PswAdmin(,,__cUserId) > 0
+If !lOk
+    MsgStop("Acesso não permitido para este usuário!","BKPARFIS - Data do Fechamento Fiscal")
     Return Nil 
 EndIf
 
@@ -34,16 +45,15 @@ SButton():New( 40, 120,  2, {|| oDlg1:End() },oDlg1,.T.,"Cancela")
 
 ACTIVATE DIALOG oDlg1 CENTER
 
-RETURN
+Return Nil
 
 
-Static FUNCTION OkPar1()
+Static Function OkPar1()
 Local oDlg as Object
 Local nI          := 0
 Local aAllCompany := {}
 Local cMask       := "Arquivos Texto" + "(*.TXT)|*.txt|"
 Local cFile       := ""
-
 
 cTexto += Replicate( "-", 70 ) + CRLF
 cTexto += " Data / Hora Inicial.: " + DtoC( Date() ) + " / " + Time()  + " - "+cUserName+ CRLF
@@ -52,7 +62,9 @@ cTexto += Replicate( "-", 70 ) + CRLF
 aAllCompany := FWAllGrpCompany()
 For nI := 1 TO LEN(aAllCompany)
     cTexto += "Empresa: "+aAllCompany[nI]+" - "+FWEmpName(aAllCompany[nI])+ CRLF
-    AltX6(aAllCompany[nI])
+    If !AltX6(aAllCompany[nI])
+        Exit
+    EndIf
 Next
 
 cTexto += Replicate( "-", 70 ) + CRLF
@@ -74,13 +86,17 @@ MemoWrite( cFile, cTexto ) ) ) Enable Of oDlg Pixel
 
 Activate MsDialog oDlg Center
 
+u_BkSnMail("BKPARFIS","Alteração de Data de Fechamento Fiscal","microsiga@bkconsultoria.com.br","",STRTRAN(cTexto,CRLF,"<br>"),)
 
-RETURN
+Return Nil
 
 
 
-STATIC FUNCTION AltX6(cEmpX6)
+Static Function AltX6(cEmpX6)
 Local cArqTr := "SX6"+cEmpX6+"0"
+Local nOper  := 0
+Local lOk    := .T.
+
 // Abre tabela de outra empresa
 IF SELECT("SZZX6") > 0
    SELECT SZZX6
@@ -88,8 +104,12 @@ IF SELECT("SZZX6") > 0
 ENDIF
 USE (cArqTr) INDEX (cArqTr) ALIAS SZZX6 NEW
 SELECT SZZX6
-IF DBSEEK("  MV_DATAFIS",.F.)
-    If MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+"Confirma a alteração para "+DTOC(dParF)+"?","Data do fechamento Fiscal")
+
+If DBSEEK("  MV_DATAFIS",.F.)
+	nOper := Aviso("BKPARFIS - Data do fechamento Fiscal","Empresa "+TRIM(FWEmpName(cEmpX6))+" - Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+CRLF+"Deseja alterar para "+DTOC(dParF)+"?",{"Alterar","Não Alterar","Sair"})
+    //MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+" alterar para "+DTOC(dParF)+"?","Data do fechamento Fiscal")
+
+    If nOper == 1
     	cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo anterior: " + SZZX6->X6_CONTEUD + CRLF
 
         RecLock("SZZX6",.F.)
@@ -97,12 +117,17 @@ IF DBSEEK("  MV_DATAFIS",.F.)
 
         cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo alterado: " + SZZX6->X6_CONTEUD + CRLF
         MsUnlock()
-    Else
+    ElseIf nOper == 2
         cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
+    ElseIf nOper == 3
+        cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
+        lOk := .F.
     EndIf
-else
+Else
     cTexto += "Parametro não encontrado" + CRLF
-ENDIF
+EndIf
+
 SELECT SZZX6
 USE
-RETURN NIL
+
+Return lOk

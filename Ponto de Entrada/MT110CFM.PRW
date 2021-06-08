@@ -40,7 +40,10 @@ Local _nXXEN 	:= 0
 Local aSaldos 	:= {}
 Local nSaldo 	:= 0
 Local cQuery2 	:= ""
-  
+Local nX_		as Numeric
+Local i 		as Numeric  
+Local _IX		as Numeric
+Local xi		as Numeric
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")

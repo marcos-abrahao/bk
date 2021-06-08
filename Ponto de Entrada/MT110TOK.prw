@@ -21,14 +21,16 @@ Local nEndEnt  := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXENDEN'})
 //Local nCC      := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
 Local lValido  := .T. 
 LOcal aCols1
+Local i			as Numeric
+
 //Private cEndEnt := Space(TamSX3("C1_XXENDEN")[1])
 Private cCusto  := Space(TamSX3("C1_CC")[1])
 
 aCols1 := aCols
 
-FOR _IX :=1 TO LEN(aCols)
+FOR i := 1 TO LEN(aCols)
 	IF !EMPTY(dDATPRF)
-		aCols[_IX,nDATPRF] := dDATPRF
+		aCols[i,nDATPRF] := dDATPRF
 	ENDIF
 	//aCols[_IX,nCC] := cCC
 NEXT
@@ -44,8 +46,8 @@ ENDIF
 
 lValido  := BKALTENT()
 
-FOR _IX :=1 TO LEN(aCols)
-	aCols[_IX,nEndEnt] := cXXENDEN
+FOR i :=1 TO LEN(aCols)
+	aCols[i,nEndEnt] := cXXENDEN
 NEXT
 
 Return(lValido) 
@@ -94,7 +96,7 @@ DO WHILE .T.
 	@ 025, 070 MSGET cEndBK  SIZE 150,10 OF oPanelLeft PIXEL HASBUTTON WHEN .F.
 	
 	@ 040, 005 SAY "Endereço de Entrega:"  SIZE 60,12 OF oPanelLeft PIXEL
-	@ 040, 070 MSGET cXXENDEN SIZE 150,10  OF oPanelLeft PIXEL HASBUTTON
+	@ 040, 070 MSGET cXXENDEN SIZE 200,10  OF oPanelLeft PIXEL HASBUTTON
 
 	ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , @aButtons)
 		
