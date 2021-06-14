@@ -21,6 +21,7 @@ Local oStruCNE := PARAMIXB[3]
 //oStruCXN:SetFieldAction( "CXN_CHECK"   , {|| M->CXN_XXMUN  := "x"} )    
 
 oStruCXN:SetProperty("CXN_XXOBS", MODEL_FIELD_WHEN, {|| .T.} ) 
+oStruCXN:SetProperty("CXN_ZERO", MODEL_FIELD_WHEN, {|| .T.} ) 
 Return
 
 

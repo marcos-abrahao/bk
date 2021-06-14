@@ -38,6 +38,7 @@
 #Define ID_LOJA        32 // Loja
 #Define ID_TIPODOC     33 // Tipo de Documento
 #Define ID_VALORVA     34 // Tipo de Documento
+
 // -->BK
 #Define ID_DEBITO       35 // Cta Debito
 #Define ID_CREDITO      36 // Cta Crédito
@@ -50,14 +51,15 @@
 #Define ID_CONSIDER     43 // Se o registro foi considerado no processo
 #Define ID_PRODUTO      44 // Produto
 #Define ID_TIPOPES      45 // Tipo pessoa
-
+#Define ID_DESCTIPO     46 // Descrição do tipo BK
 // <--BK
-#Define ID_ARRAYSIZE    45 // Tamanho do Array
+
+#Define ID_ARRAYSIZE    46 // Tamanho do Array
 
 
 
 /*/{Protheus.doc} BKGCTR26
-BK - Planilha diária de Pagamentos
+BK - Fluxo de Caixa Por Contrato
 @Return
 @author Marcos Bispo Abrahão
 @since 28/01/2021
@@ -250,10 +252,10 @@ User Function BKGCTR26()
 
 	If !lSintetico
 		u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
-		GCT26Anal(aRelat,"Fase1")
+		GCT26Anal(aRelat,"Fase1",.F.)
 
 		u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
-		GCT26Anal(aRelat2,"Fase2")
+		GCT26Anal(aRelat2,"Fase2",.T.)
 	EndIf
 
 	u_xxLog(cArqLog,"Gerando planilha Fluxo...",.T.,"")
@@ -471,6 +473,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 	Local cCCBK     As Character
 	Local cTipoBk   As Character
 	Local cTipoBk2  As Character
+	Local cDescTipo As Character
 	Local nValor    As Numeric
 
 	Local aItem     As Array
@@ -515,13 +518,15 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 
 						aAdd(aRelat2,aClone(aLinha))
 						nScan := Len(aRelat2)
-
-						If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
+						cDescTipo := ""
+						If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,@cDescTipo)
 							aRelat[nI,ID_CONSIDER] := "R"
 						Else
 							aRelat[nI,ID_CONSIDER] := "N1-R"
 						EndIf
 						aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
+						aRelat[nI,ID_DESCTIPO]     := cDescTipo
+						aRelat2[nScan,ID_DESCTIPO] := cDescTipo
 					Else
 						If !Empty(aLinha[ID_CREDITO]) .AND. !Empty(aLinha[ID_CCC])
 							cTipoBk := Posicione("CT1",1,xFilial("CT1")+aLinha[ID_CREDITO],"CT1_XXGRPF")
@@ -537,10 +542,10 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 							aRelat[nI,ID_CC]     := cCCBK
 
 							aAdd(aRelat2,aClone(aLinha))
-							nScan   := Len(aRelat2)
-
+							nScan     := Len(aRelat2)
+							cDescTipo := ""
 							If !Empty(cTipoBk)
-								If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
+								If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,@cDescTipo)
 									aRelat[nI,ID_CONSIDER] := "R-CT1"
 								Else
 									aRelat[nI,ID_CONSIDER] := "N4-R"
@@ -549,6 +554,9 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 								aRelat[nI,ID_CONSIDER] := "N3-R"
 							EndIf
 							aRelat2[nScan,ID_CONSIDER] := aRelat[nI,ID_CONSIDER]
+							aRelat[nI,ID_DESCTIPO]     := cDescTipo
+							aRelat2[nScan,ID_DESCTIPO] := cDescTipo
+
 						Else
 							aRelat[nI,ID_CONSIDER] := "N2-R"
 						EndIf
@@ -658,7 +666,8 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 									aRelat2[nScan,ID_CC]       := aItem[nX,2]
 									aRelat2[nScan,ID_PRODUTO]  := aItem[nX,3]
 									aRelat2[nScan,ID_TOTALPAGO]:= aItem[nX,4]
-									If GCT26GT1(aItem[nX,1],aItem[nX,2],aLinha,-aItem[nX,4])
+									cDescTipo := ""
+									If GCT26GT1(aItem[nX,1],aItem[nX,2],aLinha,-aItem[nX,4],@cDescTipo)
 										aRelat[nI,ID_CONSIDER] := "SD1"
 									Else
 										aRelat[nI,ID_CONSIDER] := "N1-SD1"
@@ -667,6 +676,9 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 									If nX > 1
 										aRelat2[nScan,ID_VALORORIG] := 0
 									EndIf
+									aRelat[nI,ID_DESCTIPO]     := cDescTipo
+									aRelat2[nScan,ID_DESCTIPO] := cDescTipo
+
 								Next
 							Else
 								aRelat[nI,ID_CONSIDER] := "N2-SD1"
@@ -693,7 +705,8 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 								aRelat2[nScan,ID_CC]       := aItem[nX,1]
 								aRelat2[nScan,ID_TIPOPES]  := aItem[nX,2]
 								aRelat2[nScan,ID_TOTALPAGO]:= aItem[nX,3]
-								If GCT26GT1(cTipoBK2,aItem[nX,1],aLinha,-aItem[nX,3])
+								cDescTipo := ""
+								If GCT26GT1(cTipoBK2,aItem[nX,1],aLinha,-aItem[nX,3],@cDescTipo)
 									aRelat[nI,ID_CONSIDER] := "RH"
 								Else
 									aRelat[nI,ID_CONSIDER] := "N1-RH"
@@ -702,6 +715,8 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 								If nX > 1
 									aRelat2[nScan,ID_VALORORIG] := 0
 								EndIf
+								aRelat[nI,ID_DESCTIPO]     := cDescTipo
+								aRelat2[nScan,ID_DESCTIPO] := cDescTipo
 							Next
 						Else
 							aRelat[nI,ID_CONSIDER] := "N2-RH"
@@ -752,7 +767,7 @@ Return Nil
 
 
 // Grava temporario T1 - Rel Fluxo
-Static Function GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
+Static Function GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,cDescTipo)
 	Local nLinha    As Numeric
 	Local nPer      As Numeric
 	Local lRet      As Logical
@@ -767,6 +782,7 @@ Static Function GCT26GT1(cTipoBk,cCCBK,aLinha,nValor)
 			nLinha := nPosXPag
 		EndIf
 	EndIf
+	cDescTipo := aPlan2[nLinha,2]
 
 	nPer    := aScan(aAnoMes,STRZERO(YEAR(aLinha[ID_DTBAIXA]),4)+STRZERO(MONTH(aLinha[ID_DTBAIXA]),2))
 	If nPer > 0
@@ -2712,9 +2728,10 @@ Return aFields
 
 // Impressão dos dados analíticos
 
-Static Function GCT26Anal(aRelat,cPrc)
+Static Function GCT26Anal(aRelat,cPrc,lTipos)
 	Local aPlans := {}
 	Local aCabec := {}
+	Local aCabTp := {}
 
 	aAdd(aCabec,"Prefixo")
 	aAdd(aCabec,"Numero")
@@ -2761,8 +2778,17 @@ Static Function GCT26Anal(aRelat,cPrc)
 	aAdd(aCabec,"Considerado")
 	aAdd(aCabec,"Produto")
 	aAdd(aCabec,"Tp Pessoa")
+	aAdd(aCabec,"Descrição do Tipo")
 
 	AADD(aPlans,{aRelat,cPerg+"-"+cPrc,cTitulo+"-"+cPrc,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })
+
+	If lTipos
+		aAdd(aCabTp,"Titulo")
+		aAdd(aCabTp,"Descrição")
+		aAdd(aCabTp,"Tipos")
+		AADD(aPlans,{aPlan2,"Tipos",cTitulo+"-"+cPrc,aCabTp,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })
+	EndIf
+
 	U_ArrToXlsx(aPlans,cTitulo+"-"+cPrc,cPerg+"-"+cPrc,aParam,.F.)
 
 Return Nil

@@ -126,6 +126,8 @@ Local lRet 		:= .T.
 Local aCabecalho:= {}
 Local aaCampos	:= {"PARC","VENCTO","VALOR"} //Variável contendo o campo editável no Grid
 Local nValTot	:= 0
+Local aGrp 		:= UsrRetGrp()
+
 Static oDlg3
 
 Default lAlt 		:= .T.
@@ -137,11 +139,12 @@ Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv,oGetCond,oSaySE4,oGetPvPgt,oGetJs
 Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
 
-If __cUserId == "000000"  // Para testar a tela
-	lAlt := .T.
-	lEsc := .T.
+If LEN(aGrp) > 0
+	If aGrp[1] $ "000000" 
+		lAlt := .T.
+		lEsc := .T.
+	EndIf
 EndIf
-
 
 nValTot := CalcTot()
 

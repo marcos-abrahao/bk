@@ -186,6 +186,8 @@ oMdlCXN := oModel:GetModel("CXNDETAIL")
 // Habilitar campos de usuário na CXN
 oMdlCXN:GetStruct():SetProperty("CXN_XXRM"  , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 oMdlCXN:GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+oMdlCXN:GetStruct():SetProperty("CXN_XXOBS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+oMdlCXN:GetStruct():SetProperty("CXN_ZERO", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
 If oMdlCXN:Length() > 0
 	nLin := oMdlCXN:nLine
