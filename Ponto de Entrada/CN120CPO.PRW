@@ -3,7 +3,6 @@
 
 /*/{Protheus.doc} CNA130INC
 BK - Ponto de Entrada para carregar campos na inclusão das mediçoes
-
 @Return
 @author Marcos B Abrahão
 @since 01/12/11

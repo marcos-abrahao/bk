@@ -1,36 +1,18 @@
 #include "rwmake.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณM410ALOK  บAutor  ณEwerton C Tomaz     บ Data ณ  09/12/03   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Ponto de Entrada antes da exclusao do pedido pelo fat.     บฑฑ
-ฑฑบ          ณ                                                            บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ AP                                                         บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบData      ณAnalista/Altera็๕es                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑบ          ณ                                                            บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-M410ALOK Revisใo: 01/01/2002
-Sintaxe M410ALOK ( < UPAR > ) --> URET
-Parโmetros
-Argumento	Tipo	Descri็ใo
-UPAR 	 (Qualquer)	Nenhum
-Retorno
-Tipo	    Descri็ใo
-(Qualquer)	Variavel logica, sendo:.T. Prossegue alteracao do Pedido de Venda
-.F. Impede alteracao no pedido de venda
-Descri็ใo
-EXECUTA ANTES DE ALTERAR PEDIDO VENDA
-Executado antes de iniciar a alteracao do pedido de venda
-Grupos Relacionados
-Principal / Sistemas / Pontos de Entrada / Vendas e Fiscal / SIGAFAT / MATA410 */
+/*/{Protheus.doc} M410ALOK
+	BK - Ponto de Entrada antes da exclusao do pedido pelo fat
+	@type  Function
+	@author user
+	@since 01/01/2002
+	@version P10,P11,P12
+	@param param_name, param_type, param_descr
+	@return _lRet, L๓gica, sendo:.T. Prossegue alteracao do Pedido de Venda .F. Impede alteracao no pedido de venda
+	@example
+	(examples)
+	@see (links_or_references)
+	/*/
+
 
 User Function M410ALOK()
 Local _lRet := .T.

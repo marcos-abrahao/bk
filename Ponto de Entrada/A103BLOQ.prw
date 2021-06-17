@@ -2,8 +2,14 @@
 #include "protheus.ch"
 #INCLUDE "topconn.ch"
 
-// Ponto de entrada para Bloquear NF de Entrada
-// 26/05/15 - Marcos B Abrahão
+/*/{Protheus.doc} A103BLOQ
+BK - Ponto de entrada para Bloquear NF de Entrada
+@Return
+@author Marcos Bispo Abrahão
+@since 26/05/15
+@version P12
+/*/
+
 
 User Function A103BLOQ()
 Local lRet      := .F. 
