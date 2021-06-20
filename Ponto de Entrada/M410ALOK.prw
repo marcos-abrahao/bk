@@ -1,7 +1,7 @@
 #include "rwmake.ch"
 
 /*/{Protheus.doc} M410ALOK
-	BK - Ponto de Entrada antes da exclusao do pedido pelo fat
+	BK - Ponto de Entrada antes da exclusao do pedido pelo faturamento
 	@type  Function
 	@author user
 	@since 01/01/2002
