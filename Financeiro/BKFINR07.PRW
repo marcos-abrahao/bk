@@ -41,7 +41,7 @@ Private wnrel        := "FINR07" // Coloque aqui o nome do arquivo usado para im
 Private fGFrota      := fFrota
 Private cString      := "SD1"
 
-Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers
+Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos
 
 Private nPlan
 
@@ -58,6 +58,7 @@ cProduto := MV_PAR04
 cCustoDe := MV_PAR05
 cCustoAte:= MV_PAR06
 nUsers   := MV_PAR07
+nImpostos:= MV_PAR08
 fGFrota  := fFrota
 
 
@@ -125,8 +126,11 @@ Else
 	AADD(aCampos,"QSD1->D1_TES")
 	AADD(aCabs  ,"TES")
 
-	AADD(aCampos,"QSD1->F4_CSTPIS")
-	AADD(aCabs  ,"Sit.Trib.PIS")
+	AADD(aCampos,"QSD1->F4_TEXTO")
+	AADD(aCabs  ,GetSX3Cache("F4_TEXTO", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->F4_CF")
+	AADD(aCabs  ,GetSX3Cache("F4_CF", "X3_TITULO"))
 
 	AADD(aCampos,"QSD1->D1_CC")
 	AADD(aCabs  ,"Centro de Custos")
@@ -172,6 +176,7 @@ Else
 
 		AADD(aCampos,"U_BUSER(QSD1->F1_XXUSERS)")
 		AADD(aCabs  ,"Classificador")
+
 	EndIf
 
 	AADD(aCampos,"QSD1->D1_QUANT")
@@ -183,12 +188,204 @@ Else
 	AADD(aCampos,"QSD1->D1_TOTAL")
 	AADD(aCabs  ,"Valor")
 	
+	If nImpostos == 1
+
+		AADD(aCampos,"QSD1->F1_DTLANC")
+		AADD(aCabs  ,GetSX3Cache("F1_DTLANC", "X3_TITULO")+" Ctb")
+
+		AADD(aCampos,"QSD1->E2_NATUREZ")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_NATUREZ", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_DESCRIC")
+		AADD(aCabs  ,GetSX3Cache("ED_DESCRIC", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->F4_CODBCC")
+		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CODBCC", "X3_TITULO"))
+
+		// INSS
+		AADD(aCampos,"X3COMBO('A2_RECINSS',QSD1->A2_RECINSS)")
+		AADD(aCabs  ,"(INSS Forn) "+GetSX3Cache("A2_RECINSS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_CALCINS")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCINS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_PERCINS")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCINS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_BASEINS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEINS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_VALINS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALINS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->F1_INSS")
+		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_INSS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_VRETINS")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETINS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->B1_INSS")
+		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_INSS", "X3_TITULO"))
+
+		// IRRF
+		AADD(aCampos,"X3COMBO('A2_CALCIRF',QSD1->A2_CALCIRF)")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_CALCIRF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_CALCIRF")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCIRF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_PERCIRF")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCIRF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_BASEIRR")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEIRR", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_ALIQIRR")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALIQIRR", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->F1_VALIRF")
+		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_VALIRF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_VALIRR")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALIRR", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_IRRF")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_IRRF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_VRETIRF")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETIRF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->B1_IRRF")
+		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_IRRF", "X3_TITULO"))
+
+		// ISS
+		AADD(aCampos,"QSD1->A2_RECISS")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("A2_RECISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_CALCISS")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_BASEISS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_ALIQISS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALIQISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_VALISS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->F1_ISS")
+		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_ISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_VRETISS")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETISS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->B1_CODISS")
+		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_CODISS", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('F4_RETISS',QSD1->F4_RETISS)")
+		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_RETISS", "X3_TITULO"))
+
+		//PIS
+		AADD(aCampos,"X3COMBO('A2_RECPIS',QSD1->A2_RECPIS)")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_CALCPIS")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_PERCPIS")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_BASEPIS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_ALQPIS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_VALPIS")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->F1_VALPIS")
+		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_VALPIS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_VRETPIS")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETPIS", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('B1_PIS',QSD1->B1_PIS)")
+		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_PIS", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('F4_CSTPIS',QSD1->F4_CSTPIS)")
+		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CSTPIS", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('F4_PISCRED',QSD1->F4_PISCRED)")
+		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_PISCRED", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('F4_PISCOF',QSD1->F4_PISCOF)")
+		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_PISCOF", "X3_TITULO"))
+
+		// COFINS
+		AADD(aCampos,"X3COMBO('A2_RECCOFI',QSD1->A2_RECCOFI)")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECCOFI", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_CALCCOF")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCCOF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_PERCCOF")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCCOF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_BASECOF")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASECOF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_ALQCOF")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQCOF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_VALCOF")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALCOF", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_VRETCOF")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETCOF", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('B1_COFINS',QSD1->B1_COFINS)")
+		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_COFINS", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->F4_CSTCOF")
+		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CSTCOF", "X3_TITULO"))
+
+		// CSLL
+		AADD(aCampos,"X3COMBO('A2_RECCSLL',QSD1->A2_RECCSLL)")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECCSLL", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_CALCCSL")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCCSL", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->ED_PERCCSL")
+		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCCSL", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_BASECSL")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASECSL", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_ALQCSL")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQCSL", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->D1_VALCSL")
+		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALCSL", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->E2_VRETCSL")
+		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETCSL", "X3_TITULO"))
+
+		AADD(aCampos,"X3COMBO('B1_CSLL',QSD1->B1_CSLL)")
+		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_CSLL", "X3_TITULO"))
+
+	EndIf
+
+
 	AADD(aCampos,"QSD1->C7_XXURGEN")
 	AADD(aCabs  ,"Pedido Urgente")
 
 	AADD(aCampos,"QSD1->D1_XXHIST")
 	AADD(aCabs  ,"Historico")
-	
+
+
 	AADD(aPlans,{"QSD1",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 	U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
 
@@ -209,8 +406,17 @@ cTitulo := "Despesas mensais por Doc. de Entrada: "
 
 cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"+CRLF
 cQuery += " D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,A2_TIPO,A2_CGC,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN, "+CRLF
-cQuery += " ZI_COD,ZI_DESC,D1_TES,F4_CSTPIS, "+CRLF
+cQuery += " ZI_COD,ZI_DESC,D1_TES,F4_TEXTO,F4_CF, "+CRLF
 cQuery += " E2_VENCREA,E2_BAIXA, "+CRLF
+If nImpostos == 1
+	cQuery += " F1_DTLANC,E2_NATUREZ,ED_DESCRIC,F4_CODBCC, "+CRLF
+	cQuery += " A2_RECINSS,ED_CALCINS,ED_PERCINS,D1_BASEINS,D1_VALINS,F1_INSS,E2_VRETINS,B1_INSS, "+CRLF
+	cQuery += " A2_CALCIRF,ED_CALCIRF,ED_PERCIRF,D1_BASEIRR,D1_ALIQIRR,D1_VALIRR,F1_VALIRF,E2_IRRF,E2_VRETIRF,B1_IRRF, "+CRLF
+	cQuery += " A2_RECISS,ED_CALCISS,D1_BASEISS,D1_ALIQISS,D1_VALISS,F1_ISS,E2_VRETISS,B1_CODISS,F4_RETISS, "+CRLF
+	cQuery += " A2_RECPIS,ED_CALCPIS,ED_PERCPIS,D1_BASEPIS,D1_ALQPIS,D1_VALPIS,F1_VALPIS,E2_VRETPIS,B1_PIS,F4_PISCRED,F4_PISCOF,F4_CSTPIS, "+CRLF
+	cQuery += " A2_RECCOFI,ED_CALCCOF,ED_PERCCOF,D1_BASECOF,D1_ALQCOF,D1_VALCOF,E2_VRETCOF,B1_COFINS,F4_CSTCOF, "+CRLF
+	cQuery += " A2_RECCSLL,ED_CALCCSL,ED_PERCCSL,D1_BASECSL,D1_ALQCSL,D1_VALCSL,E2_VRETCSL,B1_CSLL, "+CRLF
+EndIf
 If nUsers == 1
 	cQuery += " F1_XXUSER,F1_XXUSERS, "+CRLF
 EndIf
@@ -228,6 +434,7 @@ cQuery += "   AND E2_PREFIXO = SD1.D1_SERIE" +CRLF
 cQuery += "   AND E2_NUM = SD1.D1_DOC" +CRLF
 cQuery += "   AND E2_FORNECE = SD1.D1_FORNECE" +CRLF
 cQuery += "   AND E2_LOJA = SD1.D1_LOJA" +CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SED")+" SED ON ED_FILIAL = '"+xFilial("SED")+"' AND ED_CODIGO = E2_NATUREZ AND SED.D_E_L_E_T_ = ' ' "+CRLF
 
 cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
 
@@ -475,6 +682,7 @@ AADD(aRegistros,{cPerg,"04","Pesquisar produto","Produto"      ,"Produto"      ,
 AADD(aRegistros,{cPerg,"05","Contrato de?"     ,"Contrato de?" ,"Contrato de?" ,"mv_ch5","C",09,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"06","Contrato até?"    ,"Contrato até?","Contrato até?","mv_ch6","C",09,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"07","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"08","Listar impostos?" ,"Impostos"     ,"Impostos"     ,"mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

@@ -19,7 +19,7 @@ User Function BKTestes()
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Private cRot  := PAD("U_BKTESTE",20)
+Private cRot  := PAD("u_fwprtxlsx",20)
 
 
 DEFINE DIALOG oDlg1;

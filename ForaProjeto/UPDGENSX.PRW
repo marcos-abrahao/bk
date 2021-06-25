@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"30/05/2021 NFE "
+#DEFINE FIN_LAST_UPDATED 		"22/06/2021 Fil "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			AtuGenPar( @cTexto )   // 30/05/21
+			//AtuGenPar( @cTexto )   // 30/05/21
 			
 			//AtuGenXX( @cTexto )
 
-			//AtuGenFil( @cTexto )   // 21/11/20
+			AtuGenFil( @cTexto )   // 21/11/20
 
-			//AtuGenX3( @cTexto )    // 11/04/21
+			//AtuGenX3( @cTexto )    // 20/06/21 SF4
 
 			//AtuGenP12( @cTexto )
 
@@ -941,7 +941,7 @@ Return
 
 Static Function AtuGenX3( cTexto )
 //Local aNBrowse:= {}
-//Local aSBrowse:= {}
+Local aSBrowse:= {}
 //Local nBrw := 0
 
 
@@ -949,8 +949,42 @@ oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CXN”)" )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "11/04/21 - CNR " + CRLF 
+cTexto  += "20/06/21 - SF4 " + CRLF 
+aAdd(aSBrowse,"F4_CODIGO")
+aAdd(aSBrowse,"F4_TIPO")
+aAdd(aSBrowse,"F4_CF")
+aAdd(aSBrowse,"F4_TEXTO")
+aAdd(aSBrowse,"F4_ISS")
+aAdd(aSBrowse,"F4_CSTPIS")
+aAdd(aSBrowse,"F4_CSTCOF")
+aAdd(aSBrowse,"F4_LFISS")
+aAdd(aSBrowse,"F4_LFICM")
+aAdd(aSBrowse,"F4_LFIPI")
+aAdd(aSBrowse,"F4_ISSST")
+aAdd(aSBrowse,"F4_PISCOF")
+aAdd(aSBrowse,"F4_PISCRED")
+aAdd(aSBrowse,"F4_CODBCC")
+aAdd(aSBrowse,"F4_TPREG")
+aAdd(aSBrowse,"F4_CRDCOF")
+aAdd(aSBrowse,"F4_CRDPIS")
+aAdd(aSBrowse,"F4_RETISS")
+
 dbSelectArea( "SX3" )
+dbSetOrder(1)
+dbSeek("SF4")
+Do While!Eof() .AND. SX3->X3_ARQUIVO = "SF4"
+	RecLock( "SX3", .F. )
+	If Ascan(aSBrowse,{ |x| AllTrim( x ) == ALLTRIM(SX3->X3_CAMPO) } )
+		SX3->X3_BROWSE  := "S"
+	Else
+		SX3->X3_BROWSE  := "N"
+	EndIf
+	dbCommit()
+	MsUnLock()
+	dbSkip()
+EndDo
+
+Return
 
 /*
 //CNR_XTPJUS F3 SZR
@@ -1011,7 +1045,6 @@ X31UPDTABLE("SF1")
 //APPEND FROM \tmp\sx3cnc.dtc
 //X31UPDTABLE("CNC")
 
-Return
 
 
 // 01/01/21 - Planilhas nova medição

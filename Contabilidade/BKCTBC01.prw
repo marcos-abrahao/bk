@@ -33,7 +33,7 @@ Private cChave  := ""
 ValidPerg(cPerg)
 	
 IF !Pergunte(cPerg,.T.)
-	RestArea(aAreaIni)
+	//RestArea(aAreaIni)
 	Return
 ENDIF
 
@@ -46,8 +46,8 @@ nValor  := mv_par06
 cOrigem := mv_par07
 cChave  := mv_par08
 
-
 MsAguarde({|| PesqCt2() },"Aguarde","Pesquisando Lançamentos...",.F.)
+
 Return NIL
 
 

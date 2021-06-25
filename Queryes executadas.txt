@@ -1,5 +1,16 @@
+
+
 ==============================================================
 
+22/06/2021 - Solicitado pelo Josão e Sergio RH
+
+
+SELECT ''''+D2_CLIENTE+'''',''''+D2_LOJA+'''',''''+D2_CCUSTO+'''',''''+A1_CGC+'''',A1_NOME FROM SD2010 SD2
+LEFT JOIN SA1010 SA1 ON A1_COD = D2_CLIENTE AND A1_LOJA = D2_LOJA AND SA1.D_E_L_E_T_ = ''
+WHERE D2_EMISSAO > '20201231' AND SD2.D_E_L_E_T_ = ''
+GROUP BY D2_CLIENTE,D2_LOJA,D2_CCUSTO,A1_CGC,A1_NOME
+
+==============================================================
 
 04/06/2021 - Solicitado pelo Anderson
 

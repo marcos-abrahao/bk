@@ -213,6 +213,9 @@ AADD(aCabs  ,"COFINS Retido")
 AADD(aCampos,"QTMP->F2_VALCSLL")
 AADD(aCabs  ,"CSLL Retido")
 
+AADD(aCampos,"IIF(QTMP->F2_RECISS <> '1',QTMP->F2_VALISS,0)")
+AADD(aCabs  ,"ISS Apurado")
+
 AADD(aCampos,"IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
 AADD(aCabs  ,"ISS Retido")
 

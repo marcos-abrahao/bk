@@ -61,15 +61,32 @@ Return Nil
 
 
 // Chamada na Medição
-User Function BKFATR5C()  
+User Function BKFATR5C()
+Local aPeds		:= {}  
 Local aArea     := GetArea()
 Local aAreaSC5  := GetArea("SC5")
+Local aAreaCNE  := GetArea("CNE")
 
 cPed := CND->CND_PEDIDO
 If SC5->(dbSeek(xFilial("SC5")+cPed))
     u_BKFATR05()
 Else
-    MsgStop("Pedido não encontrado!","BKFATR5C")
+	// Nova Medição
+	dbSelectArea("CNE")
+	dbSetOrder(4)
+	dbSeek(CND->CND_FILIAL+CND->CND_NUMMED,.T.)
+	Do While !CNE->(Eof()) .AND. CNE->CNE_NUMMED == CND->CND_NUMMED
+		If !Empty(CNE->CNE_PEDIDO)
+			aAdd(aPeds,CNE->CNE_PEDIDO)
+		EndIf
+		CNE->(dbSkip())
+	EndDo
+	CNE->(RestArea(aAreaCNE))
+	If Len(aPeds) == 0
+    	MsgStop("Pedidos não encontrados!","BKFATR5C")
+	Else
+		u_BKFATR05(aPeds)
+	EndIf
 EndIf
 
 SC5->(RestArea(aAreaSC5))
