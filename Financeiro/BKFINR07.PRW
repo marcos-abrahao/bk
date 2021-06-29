@@ -190,6 +190,21 @@ Else
 	
 	If nImpostos == 1
 
+		AADD(aCampos,"X3COMBO('A2_SIMPNAC',QSD1->A2_SIMPNAC)")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_SIMPNAC", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->A2_CONTA")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_CONTA", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->CT1_DESC01")
+		AADD(aCabs  ,"(Forn) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->B1_CONTA")
+		AADD(aCabs  ,"(Prod) "+GetSX3Cache("B1_CONTA", "X3_TITULO"))
+
+		AADD(aCampos,"QSD1->CT1B_DESC01")
+		AADD(aCabs  ,"(Prod) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
+
 		AADD(aCampos,"QSD1->F1_DTLANC")
 		AADD(aCabs  ,GetSX3Cache("F1_DTLANC", "X3_TITULO")+" Ctb")
 
@@ -387,8 +402,8 @@ Else
 
 
 	AADD(aPlans,{"QSD1",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
-
+	//U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+	U_BKXlsx(aPlans,cTitulo,cPerg,.T.)
 Endif	
 	
 Return
@@ -402,13 +417,19 @@ If SELECT("QSD1") > 0
    	dbCloseArea()
 EndIf
 
+
+// Conta do Prd
+// Conta do Forn
+// Forn opt Simple
+
 cTitulo := "Despesas mensais por Doc. de Entrada: "
 
 cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"+CRLF
-cQuery += " D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,A2_TIPO,A2_CGC,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN, "+CRLF
+cQuery += " D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,A2_TIPO,A2_CGC,A2_CONTA,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN, "+CRLF
 cQuery += " ZI_COD,ZI_DESC,D1_TES,F4_TEXTO,F4_CF, "+CRLF
 cQuery += " E2_VENCREA,E2_BAIXA, "+CRLF
 If nImpostos == 1
+	cQuery += " A2_SIMPNAC,A2_CONTA,CT1.CT1_DESC01 AS CT1_DESC01,B1_CONTA,CT1B.CT1_DESC01 AS CT1B_DESC01, "+CRLF
 	cQuery += " F1_DTLANC,E2_NATUREZ,ED_DESCRIC,F4_CODBCC, "+CRLF
 	cQuery += " A2_RECINSS,ED_CALCINS,ED_PERCINS,D1_BASEINS,D1_VALINS,F1_INSS,E2_VRETINS,B1_INSS, "+CRLF
 	cQuery += " A2_CALCIRF,ED_CALCIRF,ED_PERCIRF,D1_BASEIRR,D1_ALIQIRR,D1_VALIRR,F1_VALIRF,E2_IRRF,E2_VRETIRF,B1_IRRF, "+CRLF
@@ -434,8 +455,19 @@ cQuery += "   AND E2_PREFIXO = SD1.D1_SERIE" +CRLF
 cQuery += "   AND E2_NUM = SD1.D1_DOC" +CRLF
 cQuery += "   AND E2_FORNECE = SD1.D1_FORNECE" +CRLF
 cQuery += "   AND E2_LOJA = SD1.D1_LOJA" +CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SED")+" SED ON ED_FILIAL = '"+xFilial("SED")+"' AND ED_CODIGO = E2_NATUREZ AND SED.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += "   AND SE2.R_E_C_N_O_ = " +CRLF
+// 				Subquery para pegar apenas 1 registro na left join
+cQuery += "   	(SELECT TOP 1 R_E_C_N_O_ FROM "+RETSQLNAME("SE2")+" SE2 WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF'" +CRLF
+cQuery += "   		AND E2_PREFIXO = SD1.D1_SERIE" +CRLF
+cQuery += "   		AND E2_NUM = SD1.D1_DOC" +CRLF
+cQuery += "   		AND E2_FORNECE = SD1.D1_FORNECE" +CRLF
+cQuery += "   		AND E2_LOJA = SD1.D1_LOJA)" +CRLF
 
+cQuery += " LEFT JOIN "+RETSQLNAME("SED")+" SED ON ED_FILIAL = '"+xFilial("SED")+"' AND ED_CODIGO = E2_NATUREZ AND SED.D_E_L_E_T_ = '' "+CRLF
+If nImpostos == 1
+	cQuery += " LEFT JOIN "+RETSQLNAME("CT1")+" CT1 ON CT1_FILIAL = '"+xFilial("CT1")+"' AND CT1_CONTA = A2_CONTA AND CT1.D_E_L_E_T_ = ''  "+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CT1")+" CT1B ON CT1B.CT1_FILIAL = '"+xFilial("CT1")+"' AND CT1B.CT1_CONTA = B1_CONTA AND CT1B.D_E_L_E_T_ = ''  "+CRLF
+EndIf
 cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
 
 IF !EMPTY(dDtIni)

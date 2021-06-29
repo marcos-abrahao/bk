@@ -747,103 +747,6 @@ End Sub
 */
 
 
-
-User Function QryToXlsx(_cAlias,_cPlan,_cTitulo,_aDefs,_cQuebra,_lClose)
-// _Adefs: {Campo,Formula,Titulo,Impr,Align,Format,Total}
-Local nI       := 0
-Local aCabsX   := {}
-Local aCamposX := {}                 
-Local aPlansX  := {} 
-Local cNomeC   := {}
-Local aImpr    := {}
-Local aAlign   := {}
-Local aFormat  := {}
-Local aTotal   := {}
-Local cArqXls  := ""
-
-Default _cPlan   := _cAlias
-Default _cTitulo := _cAlias
-Default _lClose  := .F.
-Default _aDefs   := {}
-Default _cQuebra := ""
-
-dbSelectArea(_cAlias)
-FOR nI := 1 TO FCOUNT() 
-
-	cNomeC := RetTitle(FIELDNAME(nI))
-
-	nX := aScan(_aDefs,{|x| x[1] == FIELDNAME(nI) })
-	If nX > 0
-        // Formula
-		If _aDefs[nX,2] <> NIL
-		    AADD(aCamposX,_aDefs[nX,2])
-		Else
-		    AADD(aCamposX,_cAlias+"->"+FIELDNAME(nI))
-		EndIf
-		
-		// Titulo
-		If _aDefs[nX,3] <> NIL
-		    AADD(aCabsX,_aDefs[nX,3])
-		Else
-			AADD(aCabsX,Capital(cNomeC))
-		EndIf
-
-		// Imprime
-		If _aDefs[nX,4] <> NIL
-		    AADD(aImpr,_aDefs[nX,4])
-		Else
-			AADD(aImpr,.T.)
-		EndIf
-		
-		// Align
-		If _aDefs[nX,5] <> NIL
-		    AADD(aAlign,_aDefs[nX,5])
-		Else
-			AADD(aAlign,NIL)
-		EndIf
-
-		// Format
-		If _aDefs[nX,6] <> NIL
-		    AADD(aFormat,_aDefs[nX,6])
-		Else
-			AADD(aFormat,NIL)
-		EndIf
-
-		// Total
-		If _aDefs[nX,7] <> NIL
-		    AADD(aTotal,_aDefs[nX,7])
-		Else
-			AADD(aTotal,NIL)
-		EndIf
-
-    Else
-		//If nI <= LEN(_aTitulos)
-		//	If !EMPTY(_aTitulos[nI])
-		//		cNomeC := _aTitulos[nI]
-		//	EndIf
-		//EndIf
-		
-		If EMPTY(cNomeC)
-			cNomeC := FIELDNAME(nI)
-		//Else
-		//    cNomeC := GetSx3Cache( FIELDNAME(nI) , "X3_DESCRIC" )
-		EndIf
-		
-	    AADD(aCabsX,Capital(cNomeC))
-	    AADD(aCamposX,_cAlias+"->"+FIELDNAME(nI))
-	    AADD(aImpr,.T.)
-	    AADD(aAlign,NIL)
-	    AADD(aFormat,NIL)
-	    AADD(aTotal,NIL)
-
-    EndIf
-NEXT
-
-AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
-cArqXls := U_GeraXlsx(aPlansX,_cTitulo,_cAlias,.F.)
-
-Return cArqXls
-
 // Marcos - v04/04/20
 // Exemplo:
 
@@ -855,19 +758,19 @@ Return cArqXls
 //	MsAguarde({|| U_ArrToXlsx(aPlans,cTitExcel,cPerg,aParam,.F.)},"Aguarde","Gerando planilha...",.F.)
 
 
-User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
+User Function xArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
 Default lJob := IsBlind()
 
 If !lJob
 	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) })
-	FWMsgRun(, {|oSay| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")
+	FWMsgRun(, {|oSay| U_xPrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")
 Else
-	U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob)
+	U_xPrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob)
 EndIf
 
 Return Nil
 
-User Function PrcArrXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
+User Function xPrcArrXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
 
 Local oExcel := YExcel():new()
 Local oObjPerg

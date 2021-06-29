@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"22/06/2021 Fil "
+#DEFINE FIN_LAST_UPDATED 		"29/06/2021 e1  "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -183,9 +183,9 @@ If ( lOpen := MyOpenSm0(.T.) )
 			
 			//AtuGenXX( @cTexto )
 
-			AtuGenFil( @cTexto )   // 21/11/20
+			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			//AtuGenX3( @cTexto )    // 20/06/21 SF4
+			AtuGenX3( @cTexto )    // 29/06/21 SE1
 
 			//AtuGenP12( @cTexto )
 
@@ -941,7 +941,7 @@ Return
 
 Static Function AtuGenX3( cTexto )
 //Local aNBrowse:= {}
-Local aSBrowse:= {}
+//Local aSBrowse:= {}
 //Local nBrw := 0
 
 
@@ -949,6 +949,14 @@ oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CXN”)" )
 
 dbSelectArea( "SX3" )
 
+cTexto  += "29/06/21 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3ue1.dtc
+X31UPDTABLE("SE1")
+
+Return
+
+
+/*
 cTexto  += "20/06/21 - SF4 " + CRLF 
 aAdd(aSBrowse,"F4_CODIGO")
 aAdd(aSBrowse,"F4_TIPO")
@@ -983,8 +991,7 @@ Do While!Eof() .AND. SX3->X3_ARQUIVO = "SF4"
 	MsUnLock()
 	dbSkip()
 EndDo
-
-Return
+*/
 
 /*
 //CNR_XTPJUS F3 SZR

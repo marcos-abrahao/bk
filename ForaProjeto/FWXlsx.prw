@@ -6,7 +6,7 @@ static oCellVertAlign := FwXlsxCellAlignment():Vertical()
  
 function u_fwprtxlsx()
     classe()
-    alert('terminou')
+    //alert('terminou')
 return
  
  
@@ -14,11 +14,12 @@ static function classe()
     // Antes de rodar este programa coloque uma imagem válida nos diretórios mencionados a seguir
     // ou indique um caminho válido para uma imagem
     //local cRootPath := 'C:\Especif\Protheus12\sistemico\protheus_data_27'
-    local cRootPath := 'C:\tmp'
-    local cPath := "\spool\"  // /spool/ para uma geração no server
+    //local cRootPath := GetSrvProfString( "RootPath" , "" ) 
+    local cStartPath := GetSrvProfString( "StartPath", "" ) 
+    local cPath := "\tmp\"  // /spool/ para uma geração no server
     local cArquivo := cPath + "exemplo.rel"
     local cImgRel := 'logo'
-    local cImgDir := cRootPath + cPath + 'LGMID01.png'
+    local cImgDir :=  cStartPath+ 'LGMID01.png'
  
     local cBuffer:= ""
  
@@ -43,18 +44,18 @@ static function classe()
  
     // Atenção, antes de remover os comentários dos comandos a seguir
     // confira o endereço para a imagem
-    // nHndImagem := fOpen(cImgDir, FO_READ)
-    // if nHndImagem < 0
-    //     return MsgStop("Não foi possível abrir " + cImgDir)
-    // endif
+     nHndImagem := fOpen(cImgDir, FO_READ)
+     if nHndImagem < 0
+         return MsgStop("Não foi possível abrir " + cImgDir)
+     endif
  
-    // nLenImagem := fSeek( nHndImagem, 0, FS_END)
-    // fSeek( nHndImagem, 0, FS_SET)
-    // fRead( nHndImagem, @cBuffer, nLenImagem)
+     nLenImagem := fSeek( nHndImagem, 0, FS_END)
+     fSeek( nHndImagem, 0, FS_SET)
+     fRead( nHndImagem, @cBuffer, nLenImagem)
  
-    // lRet := oPrtXlsx:AddImageFromBuffer(5, 8, cImgRel, cBuffer, 0, 0)
-    // lRet := oPrtXlsx:AddImageFromAbsolutePath(10, 8, cImgDir, 200, 100)
-    // lRet := oPrtXlsx:UseImageFromBuffer(20, 8, cImgRel, 114, 33)
+     lRet := oPrtXlsx:AddImageFromBuffer(5, 8, cImgRel, cBuffer, 50, 50)
+     //lRet := oPrtXlsx:AddImageFromAbsolutePath(10, 8, cImgDir, 200, 100)
+     //lRet := oPrtXlsx:UseImageFromBuffer(20, 8, cImgRel, 114, 33)
  
     // cFont := FwPrinterFont():getFromName("Calibri")
     cFont := FwPrinterFont():Calibri()
@@ -540,5 +541,19 @@ static function classe()
     lRet := oPrtXlsx:ApplyAutoFilter(1,1,7,3)
  
     lRet := oPrtXlsx:toXlsx()
- 
+
+    cGenFile := StrTran(cArquivo, ".rel", ".xlsx")
+    cDestFile := "c:\tmp\"
+
+    if file(cArquivo)
+        CpyS2T(cGenFile, cDestFile)
+        ShellExecute("open",cGenFile,"",cDestFile, 1 )
+    else
+        // arquivo não gerado
+    endif 
+
+    //ShellExecute("open",cFileN,"",cDestFile, 1 )
+
+    FwPrinterXlsx():EraseBaseFile()
+
 return
