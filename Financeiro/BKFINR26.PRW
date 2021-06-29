@@ -118,6 +118,7 @@ aAdd(aFields,{"XX_NDC"    ,"E1_NUM","XX_NDC","Nota Debito número"})
 aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Data Emissao NF/ND"})
 aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
 aAdd(aFields,{"XX_VALNF"  ,"F2_VALBRUT","","Vl Bruto NF"})
+aAdd(aFields,{"XX_VRETC"  ,"F2_XXVRETC","","Retenção Contratual"})
 
 aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
 aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC"  ,"Desconto - Imp. Cli não reteve"})
@@ -127,7 +128,7 @@ If cOpcBco == "1"
 	aAdd(aFields,{"XX_TOTBX" ,"","XX_TOTBX","Total Bcos",cPict,"N",18,2})
 EndIf
 
-aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO",  ""          ,"Saldo a Receber"})
+aAdd(aFields,{"XX_SALDO"  ,"E1_SALDO",  "" ,"Saldo a Receber"})
 aAdd(aFields,{"XX_SITUACA","FRV_DESCRI","" ,"Situação"})
 
 If cOpcBco == "1"
@@ -335,16 +336,17 @@ cQuery += "		,F2_DOC" + CRLF
 cQuery += "		,F2_EMISSAO" + CRLF
 cQuery += "		,F2_USERLGI" + CRLF
 cQuery += "		,F2_VALBRUT" + CRLF
+cQuery += "		,F2_XXVRETC" + CRLF
 cQuery += "		,E1_VENCREA" + CRLF
 cQuery += "		,E1_BAIXA" + CRLF
-cQuery += "		,E1_SALDO" + CRLF
+cQuery += "		,E1_SALDO" + CRLF // CASE E1_SALDO WHEN 0 THEN 0 ELSE E1_SALDO - E1_XXVRETC END AS E1_SALDO
 cQuery += "		,FRV_DESCRI" + CRLF
 cQuery += "		,SC5.R_E_C_N_O_ AS C5RECNO" + CRLF
 cQuery += "		,SF2.R_E_C_N_O_ AS F2RECNO" + CRLF
 cQuery += "		,SE1.R_E_C_N_O_ AS E1RECNO" + CRLF
 cQuery += "		,CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END AS XX_CONTRAT" + CRLF
 cQuery += "		,(SELECT SUM(C6_VALOR) FROM "+RETSQLNAME("SC6")+" SC6 WHERE SC6.C6_NUM = SC5.C5_NUM AND SC6.D_E_L_E_T_ = ' ' AND SC6.C6_FILIAL = C5_FILIAL) AS XX_VALPED" + CRLF
-cQuery += "		,(SF2.F2_VALFAT - SF2.F2_VALIRRF - SF2.F2_VALINSS - SF2.F2_VALPIS - SF2.F2_VALCOFI - SF2.F2_VALCSLL - SF2.F2_VLCPM - (CASE SF2.F2_RECISS WHEN '1' THEN SF2.F2_VALISS ELSE 0 END)) AS XX_VALLIQ" + CRLF
+cQuery += "		,(SF2.F2_VALFAT - SF2.F2_VALIRRF - SF2.F2_VALINSS - SF2.F2_VALPIS - SF2.F2_VALCOFI - SF2.F2_VALCSLL - SF2.F2_VLCPM - F2_XXVRETC - (CASE SF2.F2_RECISS WHEN '1' THEN SF2.F2_VALISS ELSE 0 END)) AS XX_VALLIQ" + CRLF
 cQuery += "		,(SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + (CASE SF2.F2_RECISS WHEN '1' THEN SE1.E1_ISS ELSE 0 END)) AS XX_IMPOST"+ CRLF
 cQuery += "		,(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
 cQuery += "			AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC"+ CRLF
@@ -426,15 +428,16 @@ cQuery += "		,'' AS C5_XXDLIB" + CRLF
 cQuery += "		,'' AS F2_DOC,E1_EMISSAO AS F2_EMISSAO" + CRLF
 cQuery += "		,'' AS F2_USERLGI" + CRLF
 cQuery += "		,E1_VALOR AS F2_VALBRUT" + CRLF
+cQuery += "		,E1_XXVRETC AS F2_XXVRETC"+ CRLF
 cQuery += "		,E1_VENCREA,E1_BAIXA" + CRLF
-cQuery += "		,E1_SALDO" + CRLF
+cQuery += "		,E1_SALDO" + CRLF // CASE E1_SALDO WHEN 0 THEN 0 ELSE E1_SALDO - E1_XXVRETC END AS E1_SALDO
 cQuery += "		,FRV_DESCRI" + CRLF
 cQuery += "		,0 AS C5RECNO" + CRLF
 cQuery += "		,0 AS F2RECNO" + CRLF
 cQuery += "		,SE1.R_E_C_N_O_ AS E1RECNO" + CRLF
 cQuery += "		,E1_XXCUSTO AS XX_CONTRAT" + CRLF
 cQuery += "		,0 AS XX_VALPED" + CRLF
-cQuery += "		,E1_VALOR AS XX_VALLIQ" + CRLF
+cQuery += "		,(E1_VALOR - E1_XXVRETC) AS XX_VALLIQ" + CRLF
 cQuery += "		,(SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_ISS) AS XX_IMPOST" + CRLF
 cQuery += "		,(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
 cQuery += "			AND E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC" + CRLF
@@ -558,6 +561,9 @@ DO WHILE (cAliasQry)->(!EOF())
 				EndIf
 			Endif
 			*/
+			If nSaldo > 0
+				nSaldo -= (cAliasQry)->F2_XXVRETC
+			EndIf
 			xCampo := nSaldo
 
 		ElseIf aFields[nF,2] = "F2_USERLGI" .AND. !EMPTY((cAliasQry)->F2RECNO)

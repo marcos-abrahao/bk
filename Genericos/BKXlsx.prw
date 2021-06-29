@@ -443,7 +443,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 			//ElseIf cTipo == "S"   // Estilo Subtotal
 				
 			//ElseIf cTipo == "S1"  // Estilo Subtotal 1
-				
+			ElseIf cTipo == "U"
+				xCampo  := ""
 			EndIf
             
 			//If lFormula
@@ -475,12 +476,16 @@ FOR nPl := 1 TO LEN(_aPlans)
         oPrtXlsx:SetValue(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")")
         
 		If nCont > 0
+			// Formatação dos totais		
+			cFormat := "#,##0.00"
+			oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", cFormat )
 			For nI := 2 To Len(aTotal)
 				If aTotal[nI]
 					cColExcel := NumToString(nI)
 					cLinTop   := ALLTRIM(STR(nTop))
 					cLinExcel := ALLTRIM(STR(nLin-1))
 					oPrtXlsx:SetFormula(nLin,nI, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+
 				EndIf
 			Next
 		EndIf
@@ -1085,6 +1090,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 		nLin++
 		// Linha de Total
 		oPrtXlsx:SetValue(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")")
+
+		// Formatação dos totais		
+	    cFormat := "#,##0.00"
+		oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", cFormat )
+
 		For nI := 2 To Len(aTotal)
 			If aTotal[nI]
 				cColExcel := NumToString(nI)
