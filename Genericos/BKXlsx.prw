@@ -403,7 +403,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 				EndIf
 			EndIf
-
+ 
 			/*
 			If !Empty(xCampo) .AND. Substr(cTipo,1,1) $ "NP" .AND. ValType(xCampo) == "C" .AND. !IsAlpha(xCampo)
 				yCampo := ALLTRIM(xCampo)
