@@ -245,6 +245,11 @@
 			"args": [],
 			"label": "u_fwprtxlsx",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "nSaldo",
+			"description": ""
 		}
 	],
 	"lastProgramExecuted": "SIGAFIN"

@@ -46,6 +46,8 @@ PRIVATE nMulta  := 0
 PRIVATE nReceb  := 0
 PRIVATE nTotBK	:= 0
 PRIVATE nSaldo	:= 0
+Private aSIM   := {}
+Private cSim   := "Sim"
 PRIVATE lCancelou := .F.
 
 // BANCO: BAIXA
@@ -77,6 +79,8 @@ private cJConta   := PAD("0000000001",LEN(cConta))
 private cJHist    := PAD("DESCONTO JUROS ANTECIPADOS",TamSX3("E5_HISTOR")[1])
 private nJValor   := 0
 
+AADD(aSIM,"Sim")
+AADD(aSIM,"Não")
 
 DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL 
 
@@ -206,6 +210,9 @@ nLin2 := nLin1+10
 
 @ nLin1, 310 SAY "Saldo" SIZE 35, 7 OF oPanelLeft PIXEL
 @ nLin2, 310 MSGET nSaldo Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL
+
+@ nLin1, 365 SAY "1 Real" SIZE 35, 7 OF oPanelLeft PIXEL
+@ nLin2, 365 COMBOBOX cSim   ITEMS aSIM SIZE 30, 15 OF oPanelLeft PIXEL PIXEL VALID(SOMATAB())
 
 @ nLin2, 400 Button "Incluir" Size 050,013 OF oPanelLeft Pixel Action (InclTab())
 
@@ -355,9 +362,14 @@ Return lRet
 STATIC FUNCTION SOMATAB()
 
 nReceb  := 0
-If nJValor > 0
-	nReceb  := nVlrLi + nMulta - nDesc - nRValor - nJValor - nIValor - 1
-	nSaldo  := 1
+If nJValor > 0 
+	IF SUBSTR(cSim,1,1) <> 'S'
+		nReceb  := nVlrLi + nMulta - nDesc - nRValor - nJValor - nIValor
+		nSaldo  := 0
+	ELSE
+		nReceb  := nVlrLi + nMulta - nDesc - nRValor - nJValor - nIValor - 1
+		nSaldo  := 1
+	ENDIF
 Else
 	nReceb  := nVlrLi + nMulta - nDesc - nRValor - nIValor
 	nSaldo  := 0
@@ -609,6 +621,7 @@ Return nil
 
 STATIC FUNCTION DeleTab(nItem)
 LOCAL aItem := {}
+Local _nx   := 0
 
 IF nItem > 0 .AND. ALLTRIM(aTitGer[nItem,1]) <> ""
 	IF MsgYesNo("Confirma a exclusão do Titulo: '"+aTitGer[nItem,1]+"' selecionado?")

@@ -252,6 +252,7 @@ Return
 
 Static FUNCTION P1BKGCT06()
 // Emails para o aviso de Repactuação de Contatos - MODELO 1
+Local nI := 0
 Local aEmail :={"sigarepac1@bkconsultoria.com.br",;
 				"",;
 				"",;
@@ -292,6 +293,7 @@ RETURN
 
 Static FUNCTION P2BKGCT06()
 // Emails para aviso de Vigencia de Contatos - MODELO 1
+Local nI := 0
 Local aEmail :={"sigavigencia1@bkconsultoria.com.br",;
 				"",;
 				"",;
@@ -312,7 +314,6 @@ Local aEmail :={"sigavigencia1@bkconsultoria.com.br",;
 				"",;
 				"",;
 				""}
-Local nI
 
 cEmailTo := "" 
 
@@ -818,7 +819,7 @@ Static Function VigBKGct06()
 Local cPath     := "\tmp\"
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
-Local _ni
+Local _ni,_nj
 Local cPicN     := "@E 99999999.99999"
 Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
@@ -2112,7 +2113,7 @@ Static Function V5BKGct06()
 Local cPath     := "\tmp\"
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
-Local _ni
+Local _ni,_X,_nj
 Local cPicN     := "@E 99999999.99999"
 Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
@@ -3291,14 +3292,15 @@ While SM0->(!EoF())
 		Loop
 	EndIf
 
-	cQuery := "Select C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
-	cQuery += " From SC7"+SM0->M0_CODIGO+"0 SC7"
-	cQuery += " INNER join SC1"+SM0->M0_CODIGO+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC =C1_NUM"
-	cQuery += " INNER join SA2"+SM0->M0_CODIGO+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE =A2_COD"
-	cQuery += " INNER join CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC =CTT_CUSTO
-	cQuery += "  WHERE SC7.D_E_L_E_T_=''  AND C7_RESIDUO='' AND C7_QUJE<C7_QUANT "
-	cQuery += " GROUP BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
-	cQuery += " ORDER BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
+	cQuery := "SELECT C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
+	cQuery += " FROM SC7"+SM0->M0_CODIGO+"0 SC7"
+	cQuery += " INNER JOIN SC1"+SM0->M0_CODIGO+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC = C1_NUM"
+	cQuery += " INNER JOIN SA2"+SM0->M0_CODIGO+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
+	cQuery += " INNER JOIN CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO"
+	cQuery += "  WHERE SC7.D_E_L_E_T_='' AND C7_RESIDUO='' AND C7_QUJE < C7_QUANT"
+	cQuery += "   AND C7_QTDACLA < C7_QUANT"  // Não lista pedidos em pré-nota (02/07/2021)
+	cQuery += " GROUP BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
+	cQuery += " ORDER BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
 	
 	TCQUERY cQuery NEW ALIAS "QSC7"
 	TCSETFIELD("QSC7","C7_DATPRF","D",8,0)
@@ -3362,7 +3364,7 @@ Local aUser     := {}
 Local nRegSM0 := SM0->(Recno()) 
 Local cPath     := "\tmp\"
 Local cCrLf   := Chr(13) + Chr(10)
-
+Local _ni
 
 If FWCodEmp() <> "01"
 	CONOUT("V11BKGct06: Esta Funcao Rodar somente na empresa 01")
