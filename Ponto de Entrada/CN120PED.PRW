@@ -37,7 +37,7 @@ dbSelectArea("CNA")
 aAreaCNA := CNA->(getArea())
 
 dbSetOrder(1)
-CNA->(dbSeek(xFilial("CNA")+cContrato+cRevisa+cPlanilha)) 
+CNA->(dbSeek(xFilial("CNA",cFilCtr)+cContrato+cRevisa+cPlanilha)) 
 
 If cEmpAnt == "01"      // BK
 	If cCliente $ cXXNOISS .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS 
@@ -75,6 +75,10 @@ Else
 	Else
 		cTpNf := CND->CND_XXTPNF
 	EndIf
+EndIf
+
+If Empty(cTpNF)
+	cTpNF := "N"
 EndIf
 
 AADD(ExpA1,{"C5_XXTPNF" ,cTpNF, Nil})    // N=Normal;B=Balcão;F=Filial

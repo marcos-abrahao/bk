@@ -197,8 +197,8 @@ If oMdlCXN:Length() > 0
 	For nCnt:=1 to oMdlCXN:Length()
 		oMdlCXN:GoLine(nCnt)
 		cPlan 	:= oMdlCXN:GetValue("CXN_NUMPLA")	
-		oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA")+cContra+cRevisa+cPlan,"CNA_XXMUN"))
-		oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA")+cContra+cRevisa+cPlan,"CNA_XXMOT"))
+		oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMUN"))
+		oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMOT"))
 	Next
 	If nLin > 0
 		oMdlCXN:GoLine(nLin)

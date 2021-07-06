@@ -117,6 +117,9 @@ Else
 	AADD(aCampos,"QSD1->B1_DESC")
 	AADD(aCabs  ,"Descricao do Produto")
 
+	AADD(aCampos,"QSD1->B1_CONTA")
+	AADD(aCabs  ,"(Prod) "+GetSX3Cache("B1_CONTA", "X3_TITULO"))
+
 	AADD(aCampos,"QSD1->ZI_COD")
 	AADD(aCabs  ,"Sub Grupo")
 
@@ -170,6 +173,9 @@ Else
 	AADD(aCampos,"QSD1->E2_BAIXA")
 	AADD(aCabs  ,"Pagamento")
 
+	AADD(aCampos,"IIF(QSD1->F1_VALBRUT>0,ROUND(QSD1->E2_VALOR/QSD1->F1_VALBRUT*QSD1->D1_TOTAL,2),0)")
+	AADD(aCabs  ,"Valor parcela")
+
 	If nUsers == 1
 		AADD(aCampos,"U_BUSER(QSD1->F1_XXUSER)")
 		AADD(aCabs  ,"Responsável")
@@ -198,9 +204,6 @@ Else
 
 		AADD(aCampos,"QSD1->CT1_DESC01")
 		AADD(aCabs  ,"(Forn) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
-
-		AADD(aCampos,"QSD1->B1_CONTA")
-		AADD(aCabs  ,"(Prod) "+GetSX3Cache("B1_CONTA", "X3_TITULO"))
 
 		AADD(aCampos,"QSD1->CT1B_DESC01")
 		AADD(aCabs  ,"(Prod) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
@@ -427,7 +430,7 @@ cTitulo := "Despesas mensais por Doc. de Entrada: "
 cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"+CRLF
 cQuery += " D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,A2_TIPO,A2_CGC,A2_CONTA,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN, "+CRLF
 cQuery += " ZI_COD,ZI_DESC,D1_TES,F4_TEXTO,F4_CF, "+CRLF
-cQuery += " E2_VENCREA,E2_BAIXA, "+CRLF
+cQuery += " E2_VENCREA,E2_BAIXA,E2_VALOR,F1_VALBRUT, "+CRLF
 If nImpostos == 1
 	cQuery += " A2_SIMPNAC,A2_CONTA,CT1.CT1_DESC01 AS CT1_DESC01,B1_CONTA,CT1B.CT1_DESC01 AS CT1B_DESC01, "+CRLF
 	cQuery += " F1_DTLANC,E2_NATUREZ,ED_DESCRIC,F4_CODBCC, "+CRLF

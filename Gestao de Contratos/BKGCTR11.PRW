@@ -1867,7 +1867,8 @@ FOR _nI := 1 TO nPeriodo
 		//cQuery2 += " AND (D1_COD = '000000000000102' OR D1_COD = '320200301')  "+CRLF  // AND D1_FORNECE = '004190'
 
 //		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004','12201006','12201005','12201010'))")  +CRLF
-		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004') OR SUBSTRING(D1_CONTA,1,5) = '12201')") +CRLF
+		// 12105 - Alugueis 06/07/2021
+		cQuery2 += IIF(nScan > 0," AND SUBSTRING(B1_CONTA,1,3) <> '113' "," AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA in ('29104004') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))") +CRLF
 		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 
 		cQuery2 += " UNION ALL"+CRLF
@@ -1876,7 +1877,7 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 		cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 //		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004','12201006','12201005','12201010'))") 
-		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) = '12201')") +CRLF
+		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))") +CRLF
 		cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"+CRLF
 
 		//cQuery2 += " ORDER BY B1_DESC"+CRLF
@@ -1894,11 +1895,16 @@ FOR _nI := 1 TO nPeriodo
 
 		DO While !TMPX2->(EOF())
 
+			IF TMPX2->D1_DOC = '000050737' //'000053049'
+				XBK:= 0
+			ENDIF
 			//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
 			If !Empty(TMPX2->D1_DOC)
 				If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 					cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 					aAcrDcr := u_fAcrDcr()
+				Else
+					aAcrDcr := u_fAcrDcr(,aAcrDcr)
 				EndIf
 			Else
 				aAcrDcr := {}
@@ -1910,10 +1916,6 @@ FOR _nI := 1 TO nPeriodo
 			cOutros  := 'S'
 
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
-
-				If TMPX2->D1_DOC == '000051817'
-					xbk := 0
-				EndIf
 
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
@@ -2175,7 +2177,7 @@ FOR _nI := 1 TO nPeriodo
             ELSE
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 			ENDIF
-			cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' " +CRLF 
+			cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' " +CRLF 
 			cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 			//cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 			cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
@@ -2198,6 +2200,8 @@ FOR _nI := 1 TO nPeriodo
 					If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 						cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 						aAcrDcr := u_fAcrDcr(ALLTRIM(aConsorcio[nScan,2]))
+					Else
+						aAcrDcr := u_fAcrDcr(ALLTRIM(aConsorcio[nScan,2]),aAcrDcr)
 					EndIf
 				Else
 					aAcrDcr := {}
@@ -2506,7 +2510,7 @@ FOR _nI := 1 TO nPeriodo
 					cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 				ENDIF 
 				cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
-				cQuery2 += " AND SUBSTRING(D1_CONTA,1,1) <> '2' AND SUBSTRING(D1_CONTA,1,3) <> '113' "+CRLF
+				cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' "+CRLF
 				cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 				cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 				//cQuery2 += " ORDER BY B1_DESC"+CRLF
@@ -2528,6 +2532,8 @@ FOR _nI := 1 TO nPeriodo
 						If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 							cLastE2 :=  TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
 							aAcrDcr := u_fAcrDcr(ALLTRIM(aConsorcio[nScan,8]))
+						Else
+							aAcrDcr := u_fAcrDcr(ALLTRIM(aConsorcio[nScan,8]),aAcrDcr)
 						EndIf
 					Else
 						aAcrDcr := {}
@@ -5321,8 +5327,8 @@ Local aRet
 
 // Rateio especifico por produtos ex. alugueis lançados em um unico doc de entrada
 // Rateio  Contrato  x  Produtos                       15/01/20 - Marcos
-aRet := {{"345000529",{"320200301","000000000000102"}}}
-
+//aRet := {{"345000529",{"320200301","000000000000102"}}}
+aRet := {}
 //		 {"302000508",{"000000000000102"}}}
 Return aRet
 
@@ -5331,8 +5337,8 @@ Return aRet
 
 // Buscar Titulos do contas a pagar por itens dos Documentos de Entrada
 // 20/07//2020
-User Function fAcrDcr(cEmpC)
-Local aAcrDcr := {}
+User Function fAcrDcr(cEmpC,aLAcrDcr)
+
 Local cQuery3 := ""
 Local nTotE2  := 0
 Local nACrDcr := 0
@@ -5340,65 +5346,74 @@ Local _nY	  := 0
 Local nValTit := 0
 
 Default cEmpC := ""
+Default aLAcrDcr := {}
 
-cQuery3 := " SELECT E2_VENCREA,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS"+CRLF
-If EMPTY(cEmpC)
-	cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
-Else
-	cQuery3 += " FROM SE2"+cEmpC+" SE2"+CRLF
-EndIf
-cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
-cQuery3 += "   AND E2_PREFIXO = '"+TMPX2->D1_SERIE+"'" +CRLF
-cQuery3 += "   AND E2_NUM = '"+TMPX2->D1_DOC+"'" +CRLF
-cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
-cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
+If Len(aLAcrDcr) = 0
+	cQuery3 := " SELECT E2_VENCREA,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS"+CRLF
+	If EMPTY(cEmpC)
+		cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
+	Else
+		cQuery3 += " FROM SE2"+cEmpC+" SE2"+CRLF
+	EndIf
+	cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
+	cQuery3 += "   AND E2_PREFIXO = '"+TMPX2->D1_SERIE+"'" +CRLF
+	cQuery3 += "   AND E2_NUM = '"+TMPX2->D1_DOC+"'" +CRLF
+	cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
+	cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
 
-u_LogMemo("BKGCTR11-E2-"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
+	u_LogMemo("BKGCTR11-E2-"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
 
-TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
-dbSelectArea("QTMPXE2")
-dbGoTop()
+	TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
+	dbSelectArea("QTMPXE2")
+	dbGoTop()
 
-If TMPX2->D1_DOC == "100330299"
+	If TMPX2->D1_DOC == "100330299"
+		nTotE2  := 0
+	EndIf
+
 	nTotE2  := 0
+	Do While !QTMPXE2->(EOF())
+		nACrDcr := 0
+		If QTMPXE2->E2_DECRESC > 0
+			nACrDcr -= QTMPXE2->E2_DECRESC
+		Else
+			nACrDcr -= QTMPXE2->E2_DESCONT
+		EndIf
+		If QTMPXE2->E2_ACRESC > 0
+			nACrDcr += QTMPXE2->E2_ACRESC
+		Else
+			nACrDcr += QTMPXE2->E2_MULTA + QTMPXE2->E2_JUROS
+		EndIf
+		// Guardar no Array o valor proporcional do decrescimo ou acrescimo no mes de referencia
+		nValTit := QTMPXE2->(E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS)
+		nTotE2  += nValTit
+
+		aAdd(aLAcrDcr,{SUBSTR(QTMPXE2->E2_VENCREA,1,6),nACrDcr,0,nValTit,0,nTotE2})
+
+		dbSkip()
+	Enddo
+
+	For _nY := 1 To Len(aLAcrDcr)
+		//                        Val desc/Acr  / Tot Geral * Valor do Item   			
+		//aLAcrDcr[_nY,3] := Round((aLAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
+		//                        Val titulo    / Tot Geral * Valor do Item   			
+		//aLAcrDcr[_nY,5] := Round((aLAcrDcr[_nY,4] / nTotE2) * TMPX2->D1_TOTAL,2)
+		aLAcrDcr[_nY,6] := nTotE2
+	Next
+
+	QTMPXE2->(Dbclosearea())
 EndIf
 
-nTotE2  := 0
-Do While !QTMPXE2->(EOF())
-	nACrDcr := 0
-	If QTMPXE2->E2_DECRESC > 0
-		nACrDcr -= QTMPXE2->E2_DECRESC
-	Else
-		nACrDcr -= QTMPXE2->E2_DESCONT
-	EndIf
-	If QTMPXE2->E2_ACRESC > 0
-		nACrDcr += QTMPXE2->E2_ACRESC
-	Else
-		nACrDcr += QTMPXE2->E2_MULTA + QTMPXE2->E2_JUROS
-	EndIf
-	// Guardar no Array o valor proporcional do decrescimo ou acrescimo no mes de referencia
-	nValTit := QTMPXE2->(E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS)
-	//If ABS(nACrDcr) > 0
-		aAdd(aAcrDcr,{SUBSTR(QTMPXE2->E2_VENCREA,1,6),nACrDcr,0,nValTit,0})
-	//EndIf
-	nTotE2 += nValTit
-	dbSkip()
-Enddo
-
-// Teste
-//If TMPX2->D1_TOTAL > nTotE2
-//	ixi := 0
-//EndIf
-
-For _nY := 1 To Len(aAcrDcr)
+For _nY := 1 To Len(aLAcrDcr)
 	//                        Val desc/Acr  / Tot Geral * Valor do Item   			
-	aAcrDcr[_nY,3] := Round((aAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
-	//                        Val titulo    / Tot Geral * Valor do Item   			
-	aAcrDcr[_nY,5] := Round((aAcrDcr[_nY,4] / nTotE2) * TMPX2->D1_TOTAL,2)
-NExt
-QTMPXE2->(Dbclosearea())
+	nTotE2 := aLAcrDcr[_nY,6]
 
-Return aAcrDcr
+	aLAcrDcr[_nY,3] := Round((aLAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
+	//                        Val titulo    / Tot Geral * Valor do Item   			
+	aLAcrDcr[_nY,5] := Round((aLAcrDcr[_nY,4] / nTotE2) * TMPX2->D1_TOTAL,2)
+Next
+
+Return aLAcrDcr
 
 
 // Gravar o custo dos Documentos de Entrada por Categoria/Produto
