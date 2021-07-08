@@ -370,7 +370,8 @@ cQuery += " INNER JOIN "+RETSQLNAME("SB1")+" SB1" + CRLF
 cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
 cQuery += " 		AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_='')"+CRLF
 
-cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
+//cQuery += "     AND CNE_FILIAL = '"+xFilial("CNE")+"'" Removido para co
 cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
 
 IF nTipo == 1

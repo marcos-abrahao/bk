@@ -376,7 +376,7 @@ Static Function ProcQuery(_cEmp)
 
 		cQuery += " INNER JOIN "+xRETSQLNAME("CN9")+" CN9" + CRLF
 		cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
-		cQuery += " 	 	AND CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_='')" + CRLF
+		cQuery += " 	 	AND CN9_FILIAL = CND_FILCTR AND CN9.D_E_L_E_T_='')" + CRLF
 
 		cQuery += " INNER JOIN "+xRETSQLNAME("CNF")+" CNF" + CRLF
 		cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
@@ -411,7 +411,8 @@ Static Function ProcQuery(_cEmp)
 		//cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
 		//cQuery += " 		AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_='')"+CRLF
 
-		cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
+		cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
+		//cQuery += "       AND CNE_FILIAL = '"+xFilial("CNE")+"'" // Removido para considerar todas as filiais
 		cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
 		cQuery += "     AND CNF_COMPET = '"+cCompet+"'"+ CRLF
 
