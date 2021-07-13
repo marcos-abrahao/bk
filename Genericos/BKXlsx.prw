@@ -222,7 +222,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		fSeek( nHndImagem, 0, FS_SET)
 		fRead( nHndImagem, @cBuffer, nLenImagem)
 	
-		oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 40, 40)
+		oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 38, 38)
 	EndIf
 
 	nTop := nLin + 1
@@ -232,6 +232,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 	// Formatação do cabeçalho
     oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
     oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, "FFFFFF", "9E0000", "" )
+
+	OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
 
 	// Cabeçalho
 	For nJ := 1 To Len(_aCabs)
@@ -526,13 +528,17 @@ oPrtXlsx:MergeCells(nLin,1,nLin,2)
 oPrtXlsx:SetValue(nLin,1,_cProg+" - "+_cTitulo)
 nLin++
 
-oPrtXlsx:SetValue(nLin,1,"Emitido por: "+Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
+oPrtXlsx:SetValue(nLin,1,"Emitido por: ")
+oPrtXlsx:SetValue(nLin,2,Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
 nLin++
-oPrtXlsx:SetValue(nLin,1,"Data Base: "+DTOC(dDataBase))
+oPrtXlsx:SetValue(nLin,1,"Data Base: ")
+oPrtXlsx:SetValue(nLin,2,+DTOC(dDataBase))
 nLin++
-oPrtXlsx:SetValue(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]))
+oPrtXlsx:SetValue(nLin,1,"Empresa "+cEmpAnt+": ")
+oPrtXlsx:SetValue(nLin,2,ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]))
 nLin++
-oPrtXlsx:SetValue(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]))
+oPrtXlsx:SetValue(nLin,1,"Filial "+cFilAnt+": ")
+oPrtXlsx:SetValue(nLin,2,ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]))
 nLin++
 
 If Len(aLocPar) > 0

@@ -467,6 +467,8 @@ TRCell():New(oSection4,"CMP29"		,  "", "C.Custo","@!" ,9)
 TRCell():New(oSection4,"CMP30"		,  "", "Descr. Centro de Custo","@!" ,40)
 TRCell():New(oSection4,"CMP31"		,  "", "Usuário","@!" ,15)
 TRCell():New(oSection4,"CMP32"		,  "", "Emissão","@R 99/99/9999" ,10)
+TRCell():New(oSection4,"CMP33"		,  "", "Ret PIS","@E 99,999,999,999.99",14)
+TRCell():New(oSection4,"CMP34"		,  "", "Ret COF","@E 99,999,999,999.99",14)
 
 
 oBreak := SetQuebra(oSection4, 'CMP1', '4')
@@ -1059,12 +1061,12 @@ If Valtype(MV_PAR12) =='C'
 EndIf
 
 cFrom				:= oApurEFD:GetJoinFrm(0,.F.,cTipoMov)			
-cSlctSFT   			:=	oApurEFD:GetCmpSFT(,.F.,.F.)
+cSlctSFT   			:= oApurEFD:GetCmpSFT(,.F.,.F.)
 cFiltro 			:= oApurEFD:GetWhrSFT(cTipoMov,.T.,.T.)
 cFiltro				:= '%'+ cFiltro + '%'		
 cOrdem				:= '%'+ cOrdem + '%'
 
-cSlctSFT			:= SUBSTR(cSlctSFT,1,LEN(cSlctSFT)-1)+",SFT.FT_TES,SFT.FT_PRODUTO,SFT.FT_EMISSAO,SFT.FT_CLIEFOR,SFT.FT_LOJA%"
+cSlctSFT			:= SUBSTR(cSlctSFT,1,LEN(cSlctSFT)-1)+",SFT.FT_TES,SFT.FT_PRODUTO,SFT.FT_EMISSAO,SFT.FT_CLIEFOR,SFT.FT_LOJA,SFT.FT_VRETPIS,SFT.FT_VRETCOF%"
 
 BeginSql Alias cAliasSFT    	
     COLUMN FT_ENTRADA AS DATE
@@ -1121,6 +1123,8 @@ while (cAliasSFT)->(!EOF())
 		oSecao4:Cell("CMP24")		:SetValue((cAliasSFT)->FT_EMISSAO)
 		oSecao4:Cell("CMP25")		:SetValue((cAliasSFT)->FT_CLIEFOR)
 		oSecao4:Cell("CMP26")		:SetValue((cAliasSFT)->FT_LOJA)
+		oSecao4:Cell("CMP33")		:SetValue((cAliasSFT)->FT_VRETPIS)
+		oSecao4:Cell("CMP34")		:SetValue((cAliasSFT)->FT_VRETCOF)
 
 		cNomeCF 	:= ""
 		cCGC 		:= ""

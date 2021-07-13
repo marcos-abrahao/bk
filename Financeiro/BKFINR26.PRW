@@ -383,7 +383,7 @@ cQuery += "		AND CXN.CXN_FILIAL = SC5.C5_FILIAL AND CXN.D_E_L_E_T_ = '' " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
 cQuery += "		ON CN9_NUMERO = C5_MDCONTR AND CN9_REVISA = CND_REVISA
-cQuery += "		AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_FILIAL = '" + xFilial("CN9") + "' " + CRLF
+cQuery += "		AND CN9.D_E_L_E_T_ = '' AND CN9.CN9_FILIAL = CND.CND_FILCTR " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 cQuery += "		ON CTT_CUSTO = (CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END)" + CRLF
@@ -689,7 +689,9 @@ Local cConta	:= ""
 
 dbSelectArea("SE5")
 dbSetOrder(7)
-		
+//If SE1->E1_NUM = '000000467'
+//	x:=0
+//EndIf
 If dbSeek(xFilial("SE5")+SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA))
 	While !SE5->(Eof()).AND. ;
 		SE5->(E5_FILIAL+E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO) == ;

@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"29/06/2021 e1  "
+#DEFINE FIN_LAST_UPDATED 		"13/07/2021 X6  "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,13 +179,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 30/05/21
+			AtuGenPar( @cTexto )   // 13/07/21
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 29/06/21 SE1
+			//AtuGenX3( @cTexto )    // 29/06/21 SE1
 
 			//AtuGenP12( @cTexto )
 
@@ -285,8 +285,20 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
+oProcess:IncRegua2( "Atualizando parametro MV_GCTFIN..." )
+//MV_GCTFIN que verifica a incompatibilidade entre os modos de compartilhamento das tabelas desses módulos alertando sobre possíveis inconsistências na integração.
+If dbSeek(xFilial()+"MV_GCTFIN")
+	RecLock( "SX6", .F. )
 
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".F."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
 
+	dbCommit()
+	MsUnLock()
+EndIf
+
+/*
 // 30/05/2021 - Validação Chave NFE
 
 oProcess:IncRegua2( "Atualizando parametro MV_DCHVNFE e MV_VCHVNFE..." )
@@ -311,7 +323,7 @@ If dbSeek(xFilial()+"MV_VCHVNFE")  //Verifica se a Chave NFE confere com a nota 
 	dbCommit()
 	MsUnLock()
 EndIf
-
+*/
 
 // 19/03/2021 - Arredondamento de impostos
 /*

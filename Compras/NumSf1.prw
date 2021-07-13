@@ -2,26 +2,31 @@
 #INCLUDE "topconn.ch"
 
 User Function NumSf1()
-Local _nI
-_nI := 1
+Local _nI := 1
+Local _lRet := .T.
 // Numero sequencial DNF - BK (doc de entrada)
-IF VAL(cNFiscal) == 0 .AND. cSerie == "DNF"
-	IF !SX6->(DBSEEK("  MV_XXNUMF1",.F.))
-	   RecLock("SX6",.T.)
-	   SX6->X6_VAR     := "MV_XXNUMF1"
-	   SX6->X6_TIPO    := "N"
-	   SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(FWEmpName(cEmpAnt))+" (doc de entrada)"
-	   SX6->X6_CONTEUD := STRZERO(_nI,9)
-	   SX6->(MsUnlock())
-	ELSE
-	  RecLock("SX6",.F.)
-	  _nI := VAL(SX6->X6_CONTEUD)+1
-	  SX6->X6_CONTEUD := STRZERO(_nI,9)
-	  SX6->(MsUnlock())
-	ENDIF
-	cNFiscal := STRZERO(_nI,9)
-ENDIF
-Return .T.
+If VAL(cNFiscal) == 0 
+	If cSerie == "DNF"
+		If !SX6->(DBSEEK("  MV_XXNUMF1",.F.))
+			RecLock("SX6",.T.)
+			SX6->X6_VAR     := "MV_XXNUMF1"
+			SX6->X6_TIPO    := "N"
+			SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(FWEmpName(cEmpAnt))+" (doc de entrada)"
+			SX6->X6_CONTEUD := STRZERO(_nI,9)
+			SX6->(MsUnlock())
+		Else
+			RecLock("SX6",.F.)
+			_nI := VAL(SX6->X6_CONTEUD)+1
+			SX6->X6_CONTEUD := STRZERO(_nI,9)
+			SX6->(MsUnlock())
+		EndIf
+		cNFiscal := STRZERO(_nI,9)
+	Else
+		_lRet := .F.
+		MsgStop("Número do Documento não pode ser zero","NumSf1")
+	EndIf
+EndIf
+Return _lRet
 
 
 
