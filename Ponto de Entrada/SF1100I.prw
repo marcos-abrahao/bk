@@ -35,7 +35,7 @@ If Inclui .AND. !l103Auto
 	If Empty(dPrvPgt) 
 		dPrvPgt := SE2->E2_VENCREA
 	EndIf
-	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016")
+	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170") // 170-João Cordeiro
 		RecLock("SF1",.F.)
 		SF1->F1_XTIPOPG := cxTipoPg
 		SF1->F1_XNUMPA  := cxNumPa
