@@ -586,7 +586,12 @@ Else
 	If !Empty(aPergunte[2])
 		For nI := 1 TO Len(aPergunte[2])
 			xCampo := "MV_PAR"+STRZERO(nI,2)
-			aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
+			If aPergunte[2,nI,"CX1_GSC"] == "C"
+				yCampo := "CX1_DEF0"+cValToChar(&xCampo)
+				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+			Else
+				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
+			EndIf
 		Next
 	EndIf
 EndIf
@@ -1097,7 +1102,12 @@ Else
 	If !Empty(aPergunte[2])
 		For nI := 1 TO Len(aPergunte[2])
 			xCampo := "MV_PAR"+STRZERO(nI,2)
-			aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
+			If aPergunte[2,nI,"CX1_GSC"] == "C"
+				yCampo := "CX1_DEF0"+cValToChar(&xCampo)
+				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+			Else
+				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
+			EndIf
 		Next
 	EndIf
 EndIf

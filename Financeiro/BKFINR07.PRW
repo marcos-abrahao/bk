@@ -406,7 +406,7 @@ Else
 
 	AADD(aPlans,{"QSD1",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 	//U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
-	U_BKXlsx(aPlans,cTitulo,cPerg,.T.)
+	U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
 Endif	
 	
 Return

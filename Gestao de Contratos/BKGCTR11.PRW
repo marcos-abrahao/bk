@@ -698,7 +698,7 @@ Local cVarLog	:= 0
 Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
 //Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
-Local cJCNACN9  := FWJoinFilial("CNA", "CN9")
+//Local cJCNACN9  := FWJoinFilial("CNA", "CN9")
 Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
@@ -752,7 +752,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
 	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
 	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
-	cQuery += " 	 	AND CNF_FILIAL = CN9_FILIAL AND CNF.D_E_L_E_T_='')" + CRLF
+	cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
 
 	//cQuery += " INNER JOIN "+RETSQLNAME("CN1")+" CN1" + CRLF
 	//cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
@@ -760,7 +760,7 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 	cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
-	cQuery += " 		AND "+cJCNACN9+" AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
+	cQuery += " 		AND CNA_FILIAL = '01' AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
 
 	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF

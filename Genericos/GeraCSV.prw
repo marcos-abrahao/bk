@@ -40,15 +40,18 @@ User Function GeraCsv(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQu
 Local cFile    := ""
 Local aPlans   := {}
 Local lJob     := IsBlind()
-
+Local cTitulo  := ""
 Default cTpQuebra := " "
 Default lClose    := .T.
-
+If Len(aTitulos) > 0
+   cTitulo := aTitulos[1]
+EndIf
 
 If !lJob
    If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
       AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
-      cFile := U_GeraXlsx(aPlans,"",cArqS, lClose,)
+      cFile := U_PlanXlsx(aPlans,cTitulo,cArqS, lClose,)
+      //cFile := U_GeraXlsx(aPlans,"",cArqS, lClose,)
    Else
       //MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
       FWMsgRun(, {|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "", "Gerando arquivo CSV: "+cArqS+"...")	
