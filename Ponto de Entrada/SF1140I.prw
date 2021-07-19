@@ -34,10 +34,13 @@ IF VAL(__cUserId) > 0  // EMPTY(SF1->F1_XXUSER) .AND. //Não Gravar Administrador
 	PswSeek(__CUSERID) 
 	aUser  := PswRet(1)
 	cSuper := aUser[1,11]
-	RecLock("SF1",.F.)
-	SF1->F1_XXUSER  := __cUserId
-	SF1->F1_XXUSERS := cSuper
-	MsUnLock("SF1")
+
+	If Empty(SF1->F1_XXUSER) .OR. !(ASCAN(aUser[1,10],"000031") == 0)
+		RecLock("SF1",.F.)
+		SF1->F1_XXUSER  := __cUserId
+		SF1->F1_XXUSERS := cSuper
+		MsUnLock("SF1")
+	EndIf
 ENDIF
 
 If !l140Auto

@@ -127,7 +127,7 @@ Local nTRotation 	:= 0
 
 Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
 Local cImgRel 		:= 'logo'
-Local cImgDir 		:=  cStartPath + "LGMID"+cEmpAnt+".PNG"
+Local cImgDir 		:= cStartPath + "LGMID"+cEmpAnt+".PNG"
 Local nHndImagem 	:= 0
 Local nLenImagem 	:= 0
 Local cBuffer		:= ""
@@ -871,7 +871,7 @@ Local nTRotation 	:= 0
 
 Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
 Local cImgRel 		:= 'logo'
-Local cImgDir 		:=  cStartPath + "LGMID"+cEmpAnt+".PNG"
+Local cImgDir 		:= cStartPath + "LGMID"+cEmpAnt+".PNG"
 Local nHndImagem 	:= 0
 Local nLenImagem 	:= 0
 Local cBuffer		:= ""
