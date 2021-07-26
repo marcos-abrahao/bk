@@ -5,27 +5,29 @@ User Function NumSf1()
 Local _nI := 1
 Local _lRet := .T.
 // Numero sequencial DNF - BK (doc de entrada)
-If VAL(cNFiscal) == 0 
-	If cSerie == "DNF"
-		If !SX6->(DBSEEK("  MV_XXNUMF1",.F.))
-			RecLock("SX6",.T.)
-			SX6->X6_VAR     := "MV_XXNUMF1"
-			SX6->X6_TIPO    := "N"
-			SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(FWEmpName(cEmpAnt))+" (doc de entrada)"
-			SX6->X6_CONTEUD := STRZERO(_nI,9)
-			SX6->(MsUnlock())
+If !FWIsInCallStack("MSEXECAUTO")   //ALLTRIM(ProcName(9)) <> "MSEXECAUTO" // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
+	If VAL(cNFiscal) == 0 
+		If cSerie == "DNF"
+			If !SX6->(DBSEEK("  MV_XXNUMF1",.F.))
+				RecLock("SX6",.T.)
+				SX6->X6_VAR     := "MV_XXNUMF1"
+				SX6->X6_TIPO    := "N"
+				SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(FWEmpName(cEmpAnt))+" (doc de entrada)"
+				SX6->X6_CONTEUD := STRZERO(_nI,9)
+				SX6->(MsUnlock())
+			Else
+				RecLock("SX6",.F.)
+				_nI := VAL(SX6->X6_CONTEUD)+1
+				SX6->X6_CONTEUD := STRZERO(_nI,9)
+				SX6->(MsUnlock())
+			EndIf
+			cNFiscal := STRZERO(_nI,9)
 		Else
-			RecLock("SX6",.F.)
-			_nI := VAL(SX6->X6_CONTEUD)+1
-			SX6->X6_CONTEUD := STRZERO(_nI,9)
-			SX6->(MsUnlock())
+			_lRet := .F.
+			MsgStop("Número do Documento não pode ser zero","NumSf1")
 		EndIf
-		cNFiscal := STRZERO(_nI,9)
-	Else
-		_lRet := .F.
-		MsgStop("Número do Documento não pode ser zero","NumSf1")
 	EndIf
-EndIf
+ENDIF
 Return _lRet
 
 

@@ -579,7 +579,7 @@ ENDIF
 
    
 IF nTaxa > 0 
-	IF TRANSFORM((nSTotal*nTaxa),cPict) <> TRANSFORM(nTotal,cPict)
+	IF TRANSFORM((nSTotal*nTaxa)+nSTotal,cPict) <> TRANSFORM(nTotal,cPict)
 		MSGSTOP("Valor Total divergende. Verifique!")
 		lOK := .F.
 	ENDIF 
@@ -620,16 +620,17 @@ If nSomaNDC > 0
 	
 	IF nTaxa > 0
 		nTotal := nSTotal * nTaxa
+		nTotal += nSTotal
 	ELSE
 		nTotal := nSTotal
 	ENDIF
 Else
 	If nTaxa > 0 
-		nSTotal := nTotalOri / nTaxa
+		nTotal := nTotalOri / nTaxa
+		nTotal += nTotalOri
 	Else
-		nSTotal := nTotalOri
+		nTotal := nTotalOri
 	EndIf
-	nTotal  := nTotalOri
 EndIf
 
 

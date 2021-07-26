@@ -20,6 +20,7 @@ Local oDlg01     as Object
 Local nOpcA      := 0
 Local lOk        := .F.
 Local aSX5       := {}
+Local nX		 := 0
 //Local aTbSx5     := {}
 //Local nX5        := 0
 
@@ -151,6 +152,7 @@ Local nVALITNF   := 0
 Local nTotal     := 0
 Local nValRat    := 0
 Local aX5        := {}
+Local nI		 := 0
 //Local aTbSx5     := {}
 //Local nX5        := 0
 Local aItemLinha := {}
@@ -345,9 +347,9 @@ IF LEN(aItemCC) > 0
  	   RETURN NIL
 	ENDIF
 
-    Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 380,600 Of oDlg01 Pixel
+    Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 450,600 Of oDlg01 Pixel
 	
-	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 380,600 
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 430,600 
 	oPanelLeft:Align := CONTROL_ALIGN_LEFT
 	
 	@ nSnd,010 Say "Número" Size 080,010 Pixel OF oPanelLeft
@@ -414,8 +416,9 @@ RETURN NIL
 
 
 Static Function ValidaNF()
-LOCAL lOk:=.T.
-LOCAL aArq := {}
+LOCAL lOk	:=.T.
+LOCAL aArq 	:= {}
+Local nX	:= 0
 
 aArq:= StrTokArr(cArq,"\")
 
@@ -504,9 +507,7 @@ IF LEN(aArq) > 0 .And. SUBSTR(cTipoNF,1,2) <> "AS"
 	nArq := LEN(aArq)
 	cNomeArq := ''
 	cNomeArq := UPPER(aArq[nArq])
-	IF SUBSTR(cTipoNF,1,2) $ cNomeArq
-	   MsgInfo("Aquivo Ok!!")
-	ELSE
+	IF !(SUBSTR(cTipoNF,1,2) $ cNomeArq)
 	    MsgStop("Arquivo de importação de rateio do Pré-Documento de Entrada incorreto, verifique a extenção do arquivo", "Atenção")
 		lOk:= .F.
     	RETURN lOk 
@@ -526,6 +527,7 @@ PRIVATE aAutoErro := {}
 
 ASORT(aItemCC,,,{|x,y| x[2]<y[2]})
 
+aadd(aCabec,{"F1_FILIAL ",xFilial("SF1")})
 aadd(aCabec,{"F1_TIPO"   ,"N"})
 aadd(aCabec,{"F1_FORMUL" ,"N"})
 aadd(aCabec,{"F1_DOC"    ,ALLTRIM(cDoc)})
@@ -546,8 +548,9 @@ ENDIF
 //Carrega valores 
 nTotal := 0
 For nX := 1 To LEN(aItemCC)
-	IF nItem <> nX
+	IF nItem <> nX .AND. !EMPTY(aItemCC[nX,1])
 		aLinha := {}
+		aadd(aLinha,{"D1_FILIAL ",xFilial("SD1")})
 		aadd(aLinha,{"D1_COD"  ,aItemCC[nX,1],Nil})
 		aadd(aLinha,{"D1_QUANT",1,Nil})
 		aadd(aLinha,{"D1_VUNIT",VAL(STR(aItemCC[nX,4],18,2)),Nil})
@@ -563,6 +566,7 @@ IF nItem > 0
     nDifRat := 0
     nDifRat := nValor - nTotal
 	aLinha := {}
+	aadd(aLinha,{"D1_FILIAL ",xFilial("SD1")})
 	aadd(aLinha,{"D1_COD"  ,aItemCC[nItem,1],Nil})
 	aadd(aLinha,{"D1_QUANT",1,Nil})
 	aadd(aLinha,{"D1_VUNIT",VAL(STR(aItemCC[nItem,4]+nDifRat,18,2)),Nil})
@@ -581,13 +585,14 @@ Begin Transaction
 	IncProc('Incluido Pré-Documento de Entrada')
 	
 	nOpc := 3
- 	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc)   
+ 	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc,.T.)   
 	IF lMsErroAuto
-		
+
 		MsgStop("Problemas em Pré-Documento de Entrada "+cDoc+"    "+cSerie+", informe o setor de T.I. ", "Atenção")
 	    MostraErro()
 		DisarmTransaction()
-		Return
+		Return .F.
+
 	Else
 		Msginfo(OemToAnsi("Pré-Documento de Entrada incluido com sucesso! ")+cDoc+"    "+cSerie)
 	EndIf
@@ -670,7 +675,7 @@ RETURN lOk
 
 
 Static Function MontaItemAS(cPlano)
-Local nSnd  := 15,nTLin := 15
+Local nSnd  := 15,nTLin := 15,_i:=0
 Local oDlg01,aButtons := {}
 LOCAL lOk := .F.
 LOCAL cQuery1:=''
@@ -714,17 +719,17 @@ IF LEN(aItemAS) > 0
 	aItemDep:= {}
 	aItemDep:= ItemDep(cPlano,aItemAS)
 
-	FOR i:=1 to LEN(aItemDep)
-    	AADD(aItemAS,aItemDep[i])
+	FOR _i:=1 to LEN(aItemDep)
+    	AADD(aItemAS,aItemDep[_i])
 	NEXT
     nTotPlan := 0
-	FOR i:=1 to LEN(aItemAS)
+	FOR _i:=1 to LEN(aItemAS)
 	    aCusto := {}
-	    aCusto := ItemCusto(aItemAS[i,4])
+	    aCusto := ItemCusto(aItemAS[_i,4])
 
-    	aItemAS[i,4] := aCusto[1,1]
-    	aItemAS[i,5] := aCusto[1,2]
-    	nTotPlan += aItemAS[i,6]
+    	aItemAS[_i,4] := aCusto[1,1]
+    	aItemAS[_i,5] := aCusto[1,2]
+    	nTotPlan += aItemAS[_i,6]
 	NEXT
 	
 	ASORT(aItemAS,,,{|x,y| x[11]<y[11]})
@@ -734,9 +739,9 @@ IF LEN(aItemAS) > 0
 	ENDIF
 	
 
-    Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 380,600 Of oDlg01 Pixel
+    Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 450,600 Of oDlg01 Pixel
 	
-	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 380,600 
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 430,600 
 	oPanelLeft:Align := CONTROL_ALIGN_LEFT
 	
 	@ nSnd,010 Say "Número" Size 080,010 Pixel OF oPanelLeft
@@ -927,9 +932,9 @@ IF LEN(aItemCC) > 0
 	   MSGSTOP("Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"Atenção")
 	ENDIF
 
-    Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 380,600 Of oDlg01 Pixel
+    Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 450,600 Of oDlg01 Pixel
 	
-	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 380,600 
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 430,600 
 	oPanelLeft:Align := CONTROL_ALIGN_LEFT
 	
 	@ nSnd,010 Say "Número" Size 080,010 Pixel OF oPanelLeft

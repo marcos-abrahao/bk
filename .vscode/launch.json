@@ -250,7 +250,14 @@
 			"args": [],
 			"label": "nSaldo",
 			"description": ""
+		},
+		{
+			"args": [
+				"OK"
+			],
+			"label": "arquivo",
+			"description": "OK"
 		}
 	],
-	"lastProgramExecuted": "SIGAFIN"
+	"lastProgramExecuted": "arquivo"
 }

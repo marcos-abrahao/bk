@@ -470,7 +470,8 @@ If Len(aItens) > 0
 		AADD(aHtml,'    <td class="tg-obs" colspan="5"></td>')
 		AADD(aHtml,'    <td class="tg-vtotal">R$ '+cTotal+'</td>')
 		AADD(aHtml,'  </tr>')
-	
+
+
 		AADD(aHtml,'  <tr>')
 		AADD(aHtml,'    <td class="tg-obs" colspan="5">'+IIF(VAL(cTaxa)>0,'A FATURAR COM A TAXA DE '+cTaxa,'')+' ('+Extenso(SE1->E1_VALOR)+')</td>')
 		AADD(aHtml,'    <td class="tg-vtotal">R$ '+ALLTRIM(TRANSFORM(SE1->E1_VALOR,cPict))+'</td>')

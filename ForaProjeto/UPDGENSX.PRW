@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"13/07/2021 X6  "
+#DEFINE FIN_LAST_UPDATED 		"20/07/2021 FIL "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,11 +179,11 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			AtuGenPar( @cTexto )   // 13/07/21
+			//AtuGenPar( @cTexto )   // 13/07/21
 			
 			//AtuGenXX( @cTexto )
 
-			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
+			AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
 			//AtuGenX3( @cTexto )    // 29/06/21 SE1
 
@@ -1660,9 +1660,12 @@ Bom dia a todos,
 
 Conforme solicitado pelo Dep. Fiscal e Contabilidade, iremos cadastrar no sistema as seguintes filiais para a Empresa BK:
 
-03.022.122/0005-09 – BK BRASILIA - DF
-03.022.122/0006-81 – BK RIO DE JANEIRO - RJ
-03.022.122/0007-62 – BK SALVADOR - BA
+03.022.122/0005-09 – BK BRASILIA - DF  - 03022122000509
+03.022.122/0006-81 – BK RIO DE JANEIRO - RJ - 03022122000681 
+
+03.022.122/0007-62 – BK SALVADOR - BA - 03022122000762 
+Contrato:281046510  Planilha 000002 - Salvador
+
 03.022.122/0008-43 – BK BETIM - MG
 03.022.122/0009-24 – BK IPOJUCA - PE
 03.022.122/0010-68 - BK SAO FRANCISCO DE ITABAPOANA -  RJ
@@ -1687,7 +1690,7 @@ Para adequarmos o sistema a incorporação de novas filiais, iremos alterar para a
 Módulo Faturamento: Exclusivo
 Módulo de Compras: Exclusivo (utilizará somente a Matriz)
 Módulo de Fiscal: Exclusivo
-Módulo Financeiro: ** Exclusivo
+Módulo Financeiro: Compartilhado
 Modulo Contábil: Compartilhado
 Módulo de Gestão de Contratos: Exclusivo (utilizará somente a matriz, com opção em contratos específicos de se efetuar medições em outras filiais).
 
@@ -1708,6 +1711,10 @@ Informo que esta alteração no sistema é muito delicada, portanto não negligencie
 
 As tabelas do sistema que a princípio terão seu mode de compartilhamento alteradas são as seguintes
 
+
+Erros:
+se2020 contem registros com filial = '00'
+UPDATE SE2020 SET E2_FILIAL = '' WHERE E2_FILIAL ='01'
 */
 
 
@@ -2271,6 +2278,10 @@ aAdd(aSx2,"CSW") // - Itens Layouts de Diarios
 aAdd(aSx2,"CSX") // - Importacao de Diarios         
 aAdd(aSx2,"CSY") // - Importacao de Diarios Quebras 
 aAdd(aSx2,"CSZ") // - Dados ECF                     
+
+// Tabelas novas
+aAdd(aSx2,"F71") // - Monitor PIX - Receber                     
+
 
 cQuery := ""
 For nI := 1 To Len( aSX2 )

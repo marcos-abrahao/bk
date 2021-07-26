@@ -43,6 +43,7 @@ Local oObjPerg
 
 Local aPergunte
 Local aLocPar := {}
+Local cVarDef := ""
 
 Local aTitulos:= {}
 Local aTamCol := {}
@@ -587,8 +588,11 @@ Else
 		For nI := 1 TO Len(aPergunte[2])
 			xCampo := "MV_PAR"+STRZERO(nI,2)
 			If aPergunte[2,nI,"CX1_GSC"] == "C"
-				yCampo := "CX1_DEF0"+cValToChar(&xCampo)
-				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				cVarDef := SUBSTR(cValToChar(&xCampo),1,1)
+				If cVarDef $ "12345"
+					yCampo := "CX1_DEF0"+cVarDef
+					aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				EndIf
 			Else
 				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
 			EndIf
@@ -782,6 +786,8 @@ Local oObjPerg
 
 Local aPergunte
 Local aLocPar := {}
+Local cVarDef := ""
+
 
 Local aTitulos:= {}
 Local aTamCol := {}
@@ -1102,9 +1108,13 @@ Else
 	If !Empty(aPergunte[2])
 		For nI := 1 TO Len(aPergunte[2])
 			xCampo := "MV_PAR"+STRZERO(nI,2)
+
 			If aPergunte[2,nI,"CX1_GSC"] == "C"
-				yCampo := "CX1_DEF0"+cValToChar(&xCampo)
-				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				cVarDef := SUBSTR(cValToChar(&xCampo),1,1)
+				If cVarDef $ "12345"
+					yCampo := "CX1_DEF0"+cVarDef
+					aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				EndIf
 			Else
 				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
 			EndIf
