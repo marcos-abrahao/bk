@@ -3309,7 +3309,7 @@ While SM0->(!EoF())
 
 	Do While (_cAlias)->(!eof())
 	
-		IF DATE() - QSC7->C7_DATPRF > 2 
+		IF DATE() - QSC7->C7_DATPRF > 0 // Era 2, alterada para zero - Solicitado pela Michele em 26/07/21 
     
   			AADD(aEmail,{FWEmpName(cEmpAnt),;
    	   					(_cAlias)->C7_NUM,;

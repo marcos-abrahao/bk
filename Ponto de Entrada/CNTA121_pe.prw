@@ -9,9 +9,9 @@ User Function CNTA121()
 	Local cIdPonto 	:= ""
 	Local cIdModel 	:= ""
 	Local lIsGrid 	:= .F.
-	Local nLinha 	:= 0
-	Local nQtdLinhas:= 0
-	Local cMsg 		:= ""
+	//Local nLinha 	:= 0
+	//Local nQtdLinhas:= 0
+	//Local cMsg 		:= ""
 	Local cCampoIXB := ""
 	Local nOpc 		:= 0
 
@@ -29,9 +29,14 @@ User Function CNTA121()
 		If (cIdPonto == "FORMPRE")
 			If lIsGrid 
 				//If (cIdModel == "CXNDETAIL" .AND.  aParam[5] == "ADDLINE" .OR. (aParam[5] == "SETVALUE" .AND. aParam[6]="CXN_CHECK")
-				If cIdModel == "CNDMASTER" .AND.  aParam[5] == "CND_REVISA" .AND. aParam[4] == "SETVALUE"
-					CnaMun()
-				Endif
+				//If cIdModel == "CNDMASTER" .AND.  aParam[5] == "CND_REVISA" .AND. aParam[4] == "SETVALUE"
+				//	CnaMun()
+				//Endif
+
+				///If (cIdModel == "CXNDETAIL" .AND.  aParam[5] == "SETVALUE" .AND. aParam[6]="CXN_CHECK")
+				///	CnaMun()
+				///EndIf
+
 			EndIf
 
 		ElseIf (cIdPonto == "MODELPOS")
@@ -81,6 +86,7 @@ User Function CNTA121()
 			
 		ElseIf (cIdPonto == "FORMPOS")
 			
+			/*
 			cMsg := "Chamada na validação total do formulário." + CRLF
 			cMsg += "ID " + cIdModel + CRLF
 
@@ -90,14 +96,15 @@ User Function CNTA121()
 			Else
 				cMsg += "É um FORMFIELD" + CRLF
 			EndIf
-
-			//xRet := MsgYesNo(cMsg + "Continua?")
+			xRet := MsgYesNo(cMsg + "Continua?")
+			*/
 			//MsgInfo(cMsg,cIdPonto)			
 			
 		ElseIf (cIdPonto =="FORMLINEPRE")
 
-
-			If (cIdModel == "CXNDETAIL" .And. LEN(aParam) >= 6 )   // Executa a função se clicar no checkbox da tela de medição
+			If (cIdModel == "CXNDETAIL" .And. LEN(aParam) >= 6 );
+				 .AND. cCampoIXB == "CXN_CHECK";
+				 .AND. aParam[5] == "CANSETVALUE"   // Executa a função se clicar no checkbox da tela de medição
 				CnaMun()
 			Endif
 
@@ -135,7 +142,7 @@ User Function CNTA121()
 		ElseIf (cIdPonto =="FORMLINEPOS")
 			If cIdModel == "CXNDETAIL" 
 				If aParam[5] <> "DELETE"
-					CnaMun()
+					///CnaMun()
 
 				//	cMsg := "Chamada na validação da linha do formulário." + CRLF
 				//	cMsg += "ID " + cIdModel + CRLF
@@ -177,6 +184,7 @@ Local cContra	:= ""
 Local cRevisa	:= ""
 Local cPlan		:= ""
 Local nCnt		:= 0
+Local oView     := FwViewActive()
 
 oModel  := FwModelActivate()
 oMdlCND := oModel:GetModel("CNDMASTER")
@@ -188,6 +196,8 @@ oMdlCXN:GetStruct():SetProperty("CXN_XXRM"  , MODEL_FIELD_WHEN, FwBuildFeature(S
 oMdlCXN:GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 oMdlCXN:GetStruct():SetProperty("CXN_XXOBS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 oMdlCXN:GetStruct():SetProperty("CXN_ZERO", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+oMdlCXN:GetStruct():SetProperty("CXN_XXMUN", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+
 
 If oMdlCXN:Length() > 0
 	nLin := oMdlCXN:nLine
@@ -199,11 +209,15 @@ If oMdlCXN:Length() > 0
 		cPlan 	:= oMdlCXN:GetValue("CXN_NUMPLA")	
 		oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMUN"))
 		oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMOT"))
+
 	Next
 	If nLin > 0
 		oMdlCXN:GoLine(nLin)
 	Endif
+	oView:Refresh()
 EndIf
+
+
 
 /*
 If oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):Length() > 0
@@ -300,3 +314,17 @@ ElseIf nOpc == 5 .AND. !EMPTY(CND->CND_XXNDC)
 EndIf
 
 Return nil
+
+
+/*
+// Retornar CNA_XXMOT via dic
+User Function BkPosCna(cOrigem,cCampo)
+Local cRet := ""
+If cOrigem == "R"   // x3_relacao
+	cRet := IIf(Inclui,"",Posicione("CNA",1,xFilial("CNA",cFilCtr)+CXN->CXN_CONTRA+CXN->CXN_REVISA+CXN->CXN_NUMPLA,cCampo))
+	cRet := Posicione("CNA",1,xFilial("CNA",cFilCtr)+CXN->CXN_CONTRA+CXN->CXN_REVISA+CXN->CXN_NUMPLA,cCampo)
+ElseIf cOrigem == "I"  // x3_inibrw
+	cRet := Posicione("CNA",1,xFilial("CNA",cFilCtr)+FWFldGet("CXN_CONTRA")+FWFldGet("CXN_REVISA")+FWFldGet("CXN_NUMPLA"),cCampo)      
+EndIf
+Return cRet
+*/
