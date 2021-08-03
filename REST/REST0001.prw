@@ -28,11 +28,13 @@ WSMETHOD GET WSRECEIVE mensagem WSSERVICE helloworld
 
 
 	//via query string
+	// exemplo: http://localhost:8080/sample?startIndex=1&count=10
 	//If Valtype(::mensagem) <> 'U'
 	//	cMsg += ::mensagem + ' via query string'
 	//EndIf
 			
 	//via parametros de url
+	// exemplo: http://localhost:8080/sample/1
 	//If Len(::aURLParms) > 0
 	//	cMsg += ::aURLParms[1] + ' via parametro de url'
 	//EndIf

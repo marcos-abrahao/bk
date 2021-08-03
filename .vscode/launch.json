@@ -9,7 +9,14 @@
 			"cwb": "${workspaceFolder}",
 			"smartclientBin": "C:\\Totvs12\\smartclient\\smartclient.exe",
 			"isMultiSession": true,
-			"enableTableSync": true
+			"enableTableSync": true,
+			"programArguments": "undefined",
+			"enableMultiThread": true,
+			"enableProfile": false,
+			"isAccessibilityMode": false,
+			"doNotShowSplash": false,
+			"language": "",
+			"ignoreFiles": true
 		}
 	],
 	"lastPrograms": [
@@ -257,7 +264,12 @@
 			],
 			"label": "arquivo",
 			"description": "OK"
+		},
+		{
+			"args": [],
+			"label": "XXXX",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "sigagct"
+	"lastProgramExecuted": "XXXX"
 }

@@ -217,26 +217,6 @@ If oMdlCXN:Length() > 0
 	oView:Refresh()
 EndIf
 
-
-
-/*
-If oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):Length() > 0
-	nLin := oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):nLine
-	cContra	:= oObj:GetModel("CNDMASTER"):GetModel("CNDMASTER"):GetValue("CND_CONTRA")
-	cRevisa	:= oObj:GetModel("CNDMASTER"):GetModel("CNDMASTER"):GetValue("CND_REVISA")
-
-	For nCnt:=1 to oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):Length()
-		oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):GoLine(nCnt)
-		cPlan 	:= oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):GetValue("CXN_NUMPLA")	
-		oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):LoadValue("CXN_XXMUN",cContra+cRevisa+cPlan)
-		oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA")+cContra+cRevisa+cPlan,"CNA_XXMUN"))
-	Next
-	If nLin > 0
-		oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):GoLine(nLin)
-	Endif
-EndIf
-*/
-
 Return Nil
 
 
