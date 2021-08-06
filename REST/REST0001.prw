@@ -6,10 +6,11 @@
 
 WSRESTFUL helloworld DESCRIPTION "Rest Hello World"
 	
-	WSDATA mensagem as STRING
+	WSDATA mensagem AS STRING
 	
 	WSMETHOD GET DESCRIPTION "Metodo get para Hello World" WSSYNTAX "/helloworld/{}"
 	
+
 END WSRESTFUL
 
 

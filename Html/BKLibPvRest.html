@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
+    <meta charset="iso-8859-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
@@ -22,7 +22,7 @@
       }
 
       td {
-          line-height: 3rem;
+          line-height: 1.5rem;
       }
     </style>
 
@@ -31,15 +31,17 @@
     
     <nav class="navbar navbar-dark bg-mynav">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">My App</a>
+        <a class="navbar-brand" href="#">BK</a>
       </div>
     </nav>
 
     <div class="container">
       <div class="d-flex bd-highlight mb-3">
-        <div class="me-auto p-2 bd-highlight"><h2>Users</div>
+        <div class="me-auto p-2 bd-highlight"><h2>Liberação de Pedidos</div>
         <div class="p-2 bd-highlight">
-          <button type="button" class="btn btn-secondary" onclick="showUserCreateBox()">Create</button>
+          <!--
+           <button type="button" class="btn btn-secondary" onclick="showUserCreateBox()">Create</button>
+          -->
         </div>
       </div>
       
@@ -51,6 +53,7 @@
               <th scope="col">Cliente</th>
               <th scope="col">Loja</th>
               <th scope="col">Nome</th>
+              <th scope="col">Ação</th>
             </tr>
           </thead>
           <tbody id="mytable">
@@ -65,7 +68,7 @@
 <script>
 
 
-async function getPed() {
+async function getPeds() {
     let url = 'http://10.139.0.30:8080/rest/RestLibPV/';
     try {
         let res = await fetch(url);
@@ -76,7 +79,7 @@ async function getPed() {
 }
 
 async function loadTable() {
-    let pedidos = await getPed();
+    let pedidos = await getPeds();
     let trHTML = '';
     pedidos.forEach(object => {
         trHTML += '<tr>'; 
@@ -84,6 +87,9 @@ async function loadTable() {
         trHTML += '<td>'+object['CLIENTE']+'</td>';
         trHTML += '<td>'+object['LOJACLI']+'</td>';
         trHTML += '<td>'+object['NOME']+'</td>';
+        
+        trHTML += '<td><button type="button" class="btn btn-outline-danger" onclick="libPedido('+object['NUM']+')">Liberar</button></td>';
+        
         trHTML += "</tr>";
     });
 
@@ -91,136 +97,36 @@ async function loadTable() {
     
 }
 
-
-function loadTable1() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "http://10.139.0.30:8080/rest/RestLibPV/");
-  xhttp.send();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      console.log(this.responseText);
-      var trHTML = ''; 
-      const objects = JSON.parse(this.responseText);
-      for (let object of objects) {
-        trHTML += '<tr>'; 
-        trHTML += '<td>'+object['NUM']+'</td>';
-        trHTML += '<td>'+object['CLIENTE']+'</td>';
-        trHTML += '<td>'+object['LOJACLI']+'</td>';
-        trHTML += '<td>'+object['NOME']+'</td>';
-        trHTML += "</tr>";
-      }
-      document.getElementById("mytable").innerHTML = trHTML;
-    }
-  };
-}
-
 loadTable();
 
 
-function showUserCreateBox() {
+async function getPed(id) {
+    let url = 'http://10.139.0.30:8080/rest/RestLibPV/v1?pedido='+id;
+    try {
+        let res = await fetch(url);
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function libPedido(id) {
+
+  let pedido = await getPed(id);
+  let trHTML = '';
   Swal.fire({
-    title: 'Create user',
+    title: 'Pedido',
     html:
-      '<input id="id" type="hidden">' +
-      '<input id="fname" class="swal2-input" placeholder="First">' +
-      '<input id="lname" class="swal2-input" placeholder="Last">' +
-      '<input id="username" class="swal2-input" placeholder="Username">' +
-      '<input id="email" class="swal2-input" placeholder="Email">',
+      pedido,
     focusConfirm: false,
     preConfirm: () => {
-      userCreate();
+      /*userCreate();*/
+      console.log(id);
     }
   })
 }
 
-function userCreate() {
-  const fname = document.getElementById("fname").value;
-  const lname = document.getElementById("lname").value;
-  const username = document.getElementById("username").value;
-  const email = document.getElementById("email").value;
-    
-  const xhttp = new XMLHttpRequest();
-  xhttp.open("POST", "https://www.mecallapi.com/api/users/create");
-  xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  xhttp.send(JSON.stringify({ 
-    "fname": fname, "lname": lname, "username": username, "email": email, 
-    "avatar": "https://www.mecallapi.com/users/cat.png"
-  }));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      const objects = JSON.parse(this.responseText);
-      Swal.fire(objects['message']);
-      loadTable();
-    }
-  };
-}
 
-function showUserEditBox(id) {
-  console.log(id);
-  const xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "https://www.mecallapi.com/api/users/"+id);
-  xhttp.send();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      const objects = JSON.parse(this.responseText);
-      const user = objects['user'];
-      console.log(user);
-      Swal.fire({
-        title: 'Edit User',
-        html:
-          '<input id="id" type="hidden" value='+user['id']+'>' +
-          '<input id="fname" class="swal2-input" placeholder="First" value="'+user['fname']+'">' +
-          '<input id="lname" class="swal2-input" placeholder="Last" value="'+user['lname']+'">' +
-          '<input id="username" class="swal2-input" placeholder="Username" value="'+user['username']+'">' +
-          '<input id="email" class="swal2-input" placeholder="Email" value="'+user['email']+'">',
-        focusConfirm: false,
-        preConfirm: () => {
-          userEdit();
-        }
-      })
-    }
-  };
-}
-
-function userEdit() {
-  const id = document.getElementById("id").value;
-  const fname = document.getElementById("fname").value;
-  const lname = document.getElementById("lname").value;
-  const username = document.getElementById("username").value;
-  const email = document.getElementById("email").value;
-    
-  const xhttp = new XMLHttpRequest();
-  xhttp.open("PUT", "https://www.mecallapi.com/api/users/update");
-  xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  xhttp.send(JSON.stringify({ 
-    "id": id, "fname": fname, "lname": lname, "username": username, "email": email, 
-    "avatar": "https://www.mecallapi.com/users/cat.png"
-  }));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      const objects = JSON.parse(this.responseText);
-      Swal.fire(objects['message']);
-      loadTable();
-    }
-  };
-}
-
-
-function userDelete(id) {
-  const xhttp = new XMLHttpRequest();
-  xhttp.open("DELETE", "https://www.mecallapi.com/api/users/delete");
-  xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  xhttp.send(JSON.stringify({ 
-    "id": id
-  }));
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4) {
-      const objects = JSON.parse(this.responseText);
-      Swal.fire(objects['message']);
-      loadTable();
-    } 
-  };
-}
 </script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>

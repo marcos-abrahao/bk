@@ -172,6 +172,31 @@ Return
 
 
 
+// Retorna HTML de um pedido de vendas
+User Function BKFATR5H(cPed)
+Local aAreaAtu   := GetArea()
+Local aHtml		 := {}
+Local cHtml 	 := ""
+Local nI		 := 0
+
+Do While Len(cPed) < 6
+	cPed := "0" + cPed
+EndDo
+
+dbSelectArea("SC5")
+If SC5->(DbSeek(xFilial("SC5")+cPed))
+	aHtml := PedHtml()
+	For nI := 1 To Len(aHtml)
+		cHtml += aHtml[nI]
+	Next
+Else
+	cHtml 	 := "Pedido não encontrado"
+EndIf
+RestArea(aAreaAtu)
+Return cHtml
+
+
+
 Static Function PedHtml()
 Local aHtml     := {}
 Local nPag      := 1
@@ -548,14 +573,15 @@ If SM0->M0_CODIGO == "01"      // BK
 Endif	
 
 If nPag == 1
-	AADD(aHtml,'<html>')
+	AADD(aHtml,'<html lang="pt-BR">')
 	AADD(aHtml,'<head>') 
+	//AADD(aHtml,'<meta charset="iso-8859-1">')
 	AADD(aHtml,'<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' )
 	AADD(aHtml,'<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' )
 	AADD(aHtml,'<title>Pedido '+TRIM(SC5->C5_NUM)+' - '+DTOC(date())+' '+TIME()+'</title>' )
 	AADD(aHtml,'<style type="text/css">')
 
-	AADD(aHtml,'.tg  {border-collapse:collapse;border-spacing:0;}')
+	AADD(aHtml,'.tg  {border-collapse:collapse;border-spacing:0;margin:auto;}')
 	AADD(aHtml,'')
 	AADD(aHtml,'.tg td{font-family:Arial, sans-serif;font-size:14px;padding:2px 3px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}')
 	AADD(aHtml,'.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:2px 3px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}')
