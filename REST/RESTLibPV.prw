@@ -12,10 +12,11 @@
 
 WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
 	
-	WSDATA mensagem     AS STRING
+	WSDATA mensagem       AS STRING
     WSDATA empresa      AS STRING
     WSDATA filial       AS STRING
-	WSDATA pedido 		AS STRING
+	  WSDATA pedido 		  AS STRING
+	  WSDATA userlib 		  AS STRING
 
     WSDATA page         AS INTEGER OPTIONAL
     WSDATA pageSize     AS INTEGER OPTIONAL
@@ -52,7 +53,7 @@ WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
 END WSRESTFUL
 
 
-WSMETHOD PUT WSRECEIVE empresa,filial,pedido WSSERVICE RestLibPV    
+WSMETHOD PUT WSRECEIVE empresa,filial,pedido,userlib WSSERVICE RestLibPV    
 //  Local cJson        := Self:GetContent()   
   Local lRet         := .T.
   Local lLib         := .T.
@@ -62,6 +63,25 @@ WSMETHOD PUT WSRECEIVE empresa,filial,pedido WSSERVICE RestLibPV
   Local cPedido      As char
 
 
+/*
+	//Seta job para nao consumir licensas
+	RpcSetType(3)
+	RpcClearEnv()
+	// Seta job para empresa filial desejada
+	RpcSetEnv( cEmpX,cFilX,,,,,)
+
+	//PutGlbValue(cVarStatus,stThrConnect) VARIAVEL PÚBLICA publica
+
+	//Set o usuário para buscar as perguntas do profile
+	lMsErroAuto := .F.
+	lMsHelpAuto := .T. 
+	lAutoErrNoFile := .T.
+
+	__cUserId := cXUserId 
+	cUserName := cXUserName
+	cAcesso   := cXAcesso
+	cUsuario  := cXUsuario
+*/
 
 	//Define o tipo de retorno do servico
 	::setContentType('application/json')
@@ -73,7 +93,11 @@ WSMETHOD PUT WSRECEIVE empresa,filial,pedido WSSERVICE RestLibPV
 
     //If cCatch == Nil
         //PrePareContexto(::empresa,::filial)
-        cPedido := ::pedido
+        cPedido   := ::pedido
+        If !Empty(::userlib)
+          __cUserId := ::userlib
+          cUserName := UsrRetName(__cUserId)
+        EndIf
 
         Do While Len(cPedido) < 6
             cPedido := "0" + cPedido
@@ -81,17 +105,13 @@ WSMETHOD PUT WSRECEIVE empresa,filial,pedido WSSERVICE RestLibPV
 
         lLib := fLibPed(cPedido)
 
-        //If lLib
-            //Objeto responsavel por tratar os dados e gerar como json
-            oMessages['liberacao'] :="Pedido "+cPedido+iIf(lLib," liberado"," nao foi liberado")
+        oMessages['liberacao'] :="Pedido "+cPedido+iIf(lLib," liberado"," nao foi liberado")
         
-            //Retorna os dados no formato json
-            cRet := oMessages:ToJson()
+        cRet := oMessages:ToJson()
         
-            //Retorno do servico
-            ::SetResponse(cRet)
+        //Retorno do servico
+        ::SetResponse(cRet)
 
-        //EndIf
     //Else
     //    oMessages["code"] 	:= "400"
     //    oMessages["message"]	:= "Bad Request"
@@ -135,7 +155,7 @@ Local nReg := 0
 Local oJsonSales := JsonObject():New()
  
 Default self:page := 1
-Default self:pageSize := 100
+Default self:pageSize := 500
 
 //nStart := INT(self:pageSize * (self:page - 1))
 //nTamPag := self:pageSize := 100
@@ -146,7 +166,12 @@ Default self:pageSize := 100
 
  
 BeginSQL Alias cQrySC5
-    SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,SA1.A1_NOME,SC5.C5_EMISSAO
+    SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,
+            SC5.C5_EMISSAO,SC5.C5_LIBEROK,C5_MDCONTR,C5_XXCOMPM,
+            (SELECT SUM(C6_VALOR) FROM %Table:SC6% SC6 
+                WHERE SC6.%NotDel% AND SC6.C6_FILIAL = SC5.C5_FILIAL AND SC6.C6_NUM = SC5.C5_NUM)
+                AS C6_TOTAL,
+            SA1.A1_NOME
             
     FROM %Table:SC5% SC5
             INNER JOIN %Table:SA1% SA1 
@@ -155,9 +180,9 @@ BeginSQL Alias cQrySC5
                 AND SA1.%NotDel%
 
     WHERE   SC5.%NotDel%
-            AND SC5.C5_LIBEROK = '' AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
+            AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
             %exp:cWhereSC5%
-    ORDER BY SC5.C5_NUM
+    ORDER BY SC5.C5_NUM DESC
     
 EndSQL
 
@@ -219,8 +244,12 @@ Do While ( cQrySC5 )->( ! Eof() )
         aAdd( aListSales , JsonObject():New() )
         nPos := Len(aListSales)
         aListSales[nPos]['NUM']       := (cQrySC5)->C5_NUM
-        aListSales[nPos]['EMISSAO']      := DTOC(STOD((cQrySC5)->C5_EMISSAO))
-        aListSales[nPos]['CLIENTE']      := TRIM((cQrySC5)->A1_NOME)
+        aListSales[nPos]['EMISSAO']   := DTOC(STOD((cQrySC5)->C5_EMISSAO))
+        aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
+        aListSales[nPos]['CONTRATO']  := TRIM((cQrySC5)->C5_MDCONTR)
+        aListSales[nPos]['COMPET']    := TRIM((cQrySC5)->C5_XXCOMPM)
+        aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
+        aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
         (cQrySC5)->(DBSkip())
         
         If Len(aListSales) >= self:pageSize
@@ -264,7 +293,7 @@ self:setStatus(200)
 return .T.
 
 
-WSMETHOD GET BROWPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV
+WSMETHOD GET BROWPV QUERYPARAM userlib WSRECEIVE userlib WSREST RestLibPV
 
 local cHTML as char
 
@@ -274,7 +303,7 @@ begincontent var cHTML
 <html lang="pt-BR">
   <head>
     <!-- Required meta tags -->
-    <!--<meta charset="iso-8859-1"> -->
+    <meta charset="iso-8859-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
@@ -322,6 +351,9 @@ begincontent var cHTML
               <th scope="col">Pedido</th>
               <th scope="col">Emissão</th>
               <th scope="col">Cliente</th>
+              <th scope="col">Contrato</th>
+              <th scope="col">Competência</th>
+              <th scope="col">Total</th>
               <th scope="col">Ação</th>
             </tr>
           </thead>
@@ -390,11 +422,19 @@ async function loadTable() {
     let trHTML = '';
     pedidos.forEach(object => {
         let cPedido = object['NUM']
+        let cLiberOk = object['LIBEROK']
         trHTML += '<tr>';
         trHTML += '<td>'+cPedido+'</td>';
         trHTML += '<td>'+object['EMISSAO']+'</td>';
         trHTML += '<td>'+object['CLIENTE']+'</td>';
-        trHTML += '<td><button type="button" class="btn btn-outline-danger" onclick="showPed(\''+object['NUM']+'\')">Liberar</button></td>';
+        trHTML += '<td>'+object['CONTRATO']+'</td>';
+        trHTML += '<td>'+object['COMPET']+'</td>';
+        trHTML += '<td>'+object['TOTAL']+'</td>';
+        if (cLiberOk == 'S'){
+            trHTML += '<td><button type="button" class="btn btn-outline-warning" onclick="showPed(\''+object['NUM']+'\',2)">Liberado</button></td>';
+        } else {
+            trHTML += '<td><button type="button" class="btn btn-outline-danger" onclick="showPed(\''+object['NUM']+'\',1)">Liberar</button></td>';
+        }
         trHTML += '</tr>';
     });
     document.getElementById("mytable").innerHTML = trHTML;
@@ -403,15 +443,14 @@ async function loadTable() {
 loadTable();
 
 
-function showPed(idPed) {
+function showPed(idPed,canLib) {
   let url = 'http://10.139.0.30:8080/rest/RestLibPV/v1?pedido='+idPed;
   $("#titulo").text(url);
   $("#conteudo").load(url);
-
-  let btn = '<button type="button" class="btn btn-primary" onclick="libPed(\''+idPed+'\')">Liberar</button>';
-    
-  //xx   $("#btnlib").text(btn);
-  document.getElementById("btnlib").innerHTML = btn;
+  if (canLib === 1){
+    let btn = '<button type="button" class="btn btn-primary" onclick="libPed(\''+idPed+'\',\'#userlib#\')">Liberar</button>';
+    document.getElementById("btnlib").innerHTML = btn;
+  }
 
   $('#meuModal').modal('show');
 
@@ -422,10 +461,10 @@ function showPed(idPed) {
 }
 
 
-async function putLibPed(id){
+async function putLibPed(id,userlib){
   let dataObject = {empresa:"01", filial: "01", pedido: id};
 
-  await fetch('http://10.139.0.30:8080/rest/RestLibPV/v3?pedido='+id, {
+  fetch('http://10.139.0.30:8080/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -433,25 +472,22 @@ async function putLibPed(id){
     body: JSON.stringify(dataObject)})
 
   .then(response=>{
-    console.log(response)
-    //return response.json()
+    //console.log(response)
+    return response.json()
   })
   .then(data=> {
   // this is the data we get after putting our data,
   console.log(data)
-  return data
   })
 }
 
-async function libPed(id) {
+
+
+function libPed(id,userlib) {
 let resposta = ''
-resposta = await putLibPed(id);
-
+resposta = putLibPed(id,userlib);
 $('#meuModal').modal('toggle');
-alert(resposta);
-
 }
-
 
 </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -461,6 +497,16 @@ alert(resposta);
 </html>
 
 endcontent
+
+If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
+    cHtml := STRTRAN(cHtml,"10.139.0.30:8080","10.139.0.30:8081")
+EndIf
+
+iF !Empty(::userlib)
+    cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
+EndIf
+
+//Memowrite("\tmp\x.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)
@@ -483,14 +529,16 @@ Local lOk := .F.
 
         While SC6->(!EOF()) .And. SC6->C6_FILIAL == xFilial("SC6") .And. SC6->C6_NUM == cNumPed
 
-            MaLibDoFat(SC6->(RecNo()),SC6->C6_QTDVEN,.T.,.T.,.F.,.F.,)
+            MaLibDoFat(SC6->(RecNo()),SC6->C6_QTDVEN,.T.,.T.,.F.,.F.,,,,{||SC9->C9_XXRM := SC5->C5_XXRM,SC9->C9_XXORPED := SC5->C5_XXTPNF})
 
             Begin Transaction
-			    SC6->(MaLiberOk({cNumPed},.F.))
-		    End Transaction
+			        SC6->(MaLiberOk({cNumPed},.F.))
+		        End Transaction
 
             SC6->(dbSkip())
         EndDo
+
+        u_MTA410T()
 
         lOk := .T.
     Else

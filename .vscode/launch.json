@@ -269,7 +269,12 @@
 			"args": [],
 			"label": "XXXX",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "sigmdi",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "XXXX"
+	"lastProgramExecuted": "SIGAMDI"
 }
