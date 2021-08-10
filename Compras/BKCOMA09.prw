@@ -180,6 +180,8 @@ ZS_UDATA
 
 ZS_COD
 ZS_TOTAL
+ZS_VALDESC
+ZS_DESPESA
 ZS_TES
 ZS_CC
 ZS_XXHIST
@@ -203,8 +205,11 @@ ZS_XXHIST
 	aAdd(aCabec, {"F1_XXJSPGT",	SZS->ZS_XXJSPGT,      Nil})
 
 	//01;29/03/2021;397.90;
-	mParcel := "01;"+DTOC(SZS->ZS_XXPVPGT)+";"+ALLTRIM(STR(SZS->ZS_TOTAL,14,2))+";"+CRLF
+	mParcel := "01;"+DTOC(SZS->ZS_XXPVPGT)+";"+ALLTRIM(STR(SZS->ZS_TOTAL-SZS->ZS_VALDESC+SZS->ZS_DESPESA,14,2))+";"+CRLF
 	aAdd(aCabec, {"F1_XXPARCE", mParcel,              Nil})
+	
+	aAdd(aCabec, {"F1_DESCONT", SZS->ZS_VALDESC,      Nil})
+	aAdd(aCabec, {"F1_DESPESA", SZS->ZS_DESPESA,      Nil})
 
 	// Liberar automaticamente o Doc
 	//aAdd(aCabec, {"F1_XXLIB",	"L",			      Nil})
@@ -223,6 +228,8 @@ ZS_XXHIST
 	aAdd(aLinha,  {"D1_QUANT",   1,                   Nil})
 	aAdd(aLinha,  {"D1_VUNIT",   SZS->ZS_TOTAL,       Nil})
 	aAdd(aLinha,  {"D1_TOTAL",   SZS->ZS_TOTAL,       Nil})
+	//aAdd(aLinha,  {"D1_VALDESC", SZS->ZS_VALDESC,     Nil})
+	//aAdd(aLinha,  {"D1_DESPESA", SZS->ZS_DESPESA,     Nil})
 	aAdd(aLinha,  {"D1_TES",     SZS->ZS_TES,         Nil})
 	aAdd(aLinha,  {"D1_CC",      SZS->ZS_CC,          Nil})
 	aAdd(aLinha,  {"D1_XXHIST",  SZS->ZS_XXHIST,      Nil})

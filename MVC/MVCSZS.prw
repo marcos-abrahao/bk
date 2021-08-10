@@ -370,6 +370,8 @@ If cPrxDoc == "S"
 			oModel:GetModel("FORMSZS"):SetValue("ZS_COD",(cTmpAlias)->(D1_COD))
 			oModel:GetModel("FORMSZS"):SetValue("ZS_TES",(cTmpAlias)->(D1_TES))
 			oModel:GetModel("FORMSZS"):SetValue("ZS_TOTAL",(cTmpAlias)->(F1_VALBRUT))
+			oModel:GetModel("FORMSZS"):SetValue("ZS_VALDESC",(cTmpAlias)->(D1_VALDESC))
+			oModel:GetModel("FORMSZS"):SetValue("ZS_DESPESA",(cTmpAlias)->(D1_DESPESA))
 			oModel:GetModel("FORMSZS"):SetValue("ZS_CC",(cTmpAlias)->(D1_CC))
 			oModel:GetModel("FORMSZS"):SetValue("ZS_XXHIST",(cTmpAlias)->(D1_XXHIST))
 

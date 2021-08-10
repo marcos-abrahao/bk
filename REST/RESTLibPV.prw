@@ -506,7 +506,7 @@ iF !Empty(::userlib)
     cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 EndIf
 
-//Memowrite("\tmp\x.html",cHtml)
+Memowrite("\tmp\x.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)
