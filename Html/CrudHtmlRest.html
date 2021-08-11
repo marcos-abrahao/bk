@@ -83,7 +83,7 @@ function loadTable() {
         trHTML += '<td>'+object['lname']+'</td>';
         trHTML += '<td>'+object['username']+'</td>';
         trHTML += '<td><button type="button" class="btn btn-outline-secondary" onclick="showUserEditBox('+object['id']+')">Edit</button>';
-        trHTML += '<button type="button" class="btn btn-outline-danger" onclick="userDelete('+object['id']+')">Del</button></td>';
+        trHTML += '<button type="button" class="btn btn-outline-success" onclick="userDelete('+object['id']+')">Del</button></td>';
         trHTML += "</tr>";
       }
       document.getElementById("mytable").innerHTML = trHTML;

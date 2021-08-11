@@ -328,7 +328,8 @@ begincontent var cHTML
       }
 
       td {
-          line-height: 1.2rem;
+          line-height: 1rem;
+          vertical-align: middle;
       }
     </style>
 
@@ -344,7 +345,7 @@ begincontent var cHTML
     <div class="container">
       
 
-      <div class="table-responsive">
+      <div class="table-responsive-sm">
         <table class="table">
           <thead>
             <tr>
@@ -352,14 +353,14 @@ begincontent var cHTML
               <th scope="col">Emissão</th>
               <th scope="col">Cliente</th>
               <th scope="col">Contrato</th>
-              <th scope="col">Competência</th>
-              <th scope="col">Total</th>
-              <th scope="col">Ação</th>
+              <th scope="col" style="text-align:center;">Competência</th>
+              <th scope="col" style="text-align:center;">Total</th>
+              <th scope="col" style="text-align:center;">Ação</th>
             </tr>
           </thead>
           <tbody id="mytable">
             <tr>
-              <th scope="row" colspan="5">Loading...</th>
+              <th scope="row" colspan="5" style="text-align:center;">Carregando pedidos...</th>
             </tr>
           </tbody>
         </table>
@@ -376,21 +377,22 @@ begincontent var cHTML
         <div class="modal-content">
 
           <!-- Cabeçalho do modal -->
-          <div class="modal-header">
-            <h4 id="titulo" class="modal-title">Título do modal</h4>
-            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-          </div>
+          <!-- <div class="modal-header">-->
+          <!--   <h4 id="titulo" class="modal-title">Título do modal</h4>-->
+          <!--   <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">-->
+          <!--           <span aria-hidden="true">&times;</span>-->
+          <!--       </button>-->
+          <!-- </div>-->
+
 
           <!-- Corpo do modal -->
           <div class="modal-body">
-              <div id="conteudo">Aguarde...</div>
+              <div id="conteudo" align="center">Aguarde, carregando o pedido...</div>
           </div>
 
           <!-- Rodapé do modal-->
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
             <div id="btnlib"></div>
           </div>
 
@@ -428,12 +430,12 @@ async function loadTable() {
         trHTML += '<td>'+object['EMISSAO']+'</td>';
         trHTML += '<td>'+object['CLIENTE']+'</td>';
         trHTML += '<td>'+object['CONTRATO']+'</td>';
-        trHTML += '<td>'+object['COMPET']+'</td>';
-        trHTML += '<td>'+object['TOTAL']+'</td>';
+        trHTML += '<td align="center">'+object['COMPET']+'</td>';
+        trHTML += '<td align="right">'+object['TOTAL']+'</td>';
         if (cLiberOk == 'S'){
-            trHTML += '<td><button type="button" class="btn btn-outline-warning" onclick="showPed(\''+object['NUM']+'\',2)">Liberado</button></td>';
+            trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPed(\''+object['NUM']+'\',2)">Liberado</button></td>';
         } else {
-            trHTML += '<td><button type="button" class="btn btn-outline-danger" onclick="showPed(\''+object['NUM']+'\',1)">Liberar</button></td>';
+            trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPed(\''+object['NUM']+'\',1)">Liberar</button></td>';
         }
         trHTML += '</tr>';
     });
@@ -448,7 +450,7 @@ function showPed(idPed,canLib) {
   $("#titulo").text(url);
   $("#conteudo").load(url);
   if (canLib === 1){
-    let btn = '<button type="button" class="btn btn-primary" onclick="libPed(\''+idPed+'\',\'#userlib#\')">Liberar</button>';
+    let btn = '<button type="button" class="btn btn-outline-success" onclick="libPed(\''+idPed+'\',\'#userlib#\')">Liberar</button>';
     document.getElementById("btnlib").innerHTML = btn;
   }
 
