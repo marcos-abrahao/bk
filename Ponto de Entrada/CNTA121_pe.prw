@@ -14,6 +14,10 @@ User Function CNTA121()
 	//Local cMsg 		:= ""
 	Local cCampoIXB := ""
 	Local nOpc 		:= 0
+	Local oModel	as Object
+	Local oModelCND as Object
+	Local cContra	as Character
+	Local cRevisa 	as Character
 
 	If (aParam <> NIL)
 		oObj     := aParam[1]
@@ -27,7 +31,20 @@ User Function CNTA121()
 		nOpc := oObj:GetOperation() // PEGA A OPERAÇÃO
 
 		If (cIdPonto == "FORMPRE")
-			If lIsGrid 
+			If (cIdModel == "CNDMASTER" .AND. aParam[4] == "SETVALUE" .AND. aParam[5]="CND_REVGER")
+
+				oModel		:= FwModelActivate()
+				oModelCND	:= oModel:GetModel('CNDMASTER')
+
+				cContra	:= oModelCND:GetValue("CND_CONTRA")
+				cRevisa	:= oModelCND:GetValue("CND_REVISA")
+
+				oModelCND:LoadValue("CND_XXDESC",Posicione("CTT",1,xFilial("CTT")+cContra,"CTT_DESC01"))
+				oModelCND:LoadValue("CND_NOMCLI",Posicione("CN9",1,xFilial("CN9",cFilCtr)+cContra+cRevisa,"CN9_NOMCLI"))
+				//oModelCND:LoadValue("CND_NOMCLI",SUBSTR(Posicione("SA1",1,xFilial("SA1")+CN9->(CN9_CLIENT+CN9_LOJACL),"A1_NOME"),1,30))
+
+			EndIf
+			//If lIsGrid 
 				//If (cIdModel == "CXNDETAIL" .AND.  aParam[5] == "ADDLINE" .OR. (aParam[5] == "SETVALUE" .AND. aParam[6]="CXN_CHECK")
 				//If cIdModel == "CNDMASTER" .AND.  aParam[5] == "CND_REVISA" .AND. aParam[4] == "SETVALUE"
 				//	CnaMun()
@@ -37,7 +54,7 @@ User Function CNTA121()
 				///	CnaMun()
 				///EndIf
 
-			EndIf
+			//EndIf
 
 		ElseIf (cIdPonto == "MODELPOS")
 			/*
@@ -140,8 +157,8 @@ User Function CNTA121()
 			*/
 
 		ElseIf (cIdPonto =="FORMLINEPOS")
-			If cIdModel == "CXNDETAIL" 
-				If aParam[5] <> "DELETE"
+			//If cIdModel == "CXNDETAIL" 
+				//If aParam[5] <> "DELETE"
 					///CnaMun()
 
 				//	cMsg := "Chamada na validação da linha do formulário." + CRLF
@@ -150,8 +167,8 @@ User Function CNTA121()
 				//	cMsg += "Posicionado na linha " + Alltrim(Str(nLinha)) + CRLF
 
 				//	xRet := MsgYesNo(cMsg + " Continua?")
-				Endif
-			EndIf
+				//Endif
+			//EndIf
 		ElseIf (cIdPonto =="MODELCOMMITTTS")
 			//MsgInfo("Chamada após a gravação total do modelo e dentro da transação.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCOMMITNTTS")

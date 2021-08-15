@@ -274,7 +274,31 @@
 			"args": [],
 			"label": "sigmdi",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "excode64",
+			"description": ""
+		},
+		{
+			"args": [],
+			"label": "u_excode64",
+			"description": ""
+		},
+		{
+			"args": [
+				"()"
+			],
+			"label": "u_exbkcode",
+			"description": "()"
+		},
+		{
+			"args": [
+				" ()"
+			],
+			"label": "u_exbkcode",
+			"description": " ()"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "XXXX"
 }

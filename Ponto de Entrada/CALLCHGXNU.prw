@@ -29,15 +29,17 @@ Local cId	  := ParamIXB[1]
 Local cEmpAtu := ParamIXB[2] 
 Local nModulo := ParamIXB[4]
 Local cMenu   := ParamIXB[5]
+Local cToken  := u_BKEnCode()
+
 If nModulo <> nModAnt
     If nModulo = 5 .OR. nModulo = 69
         //        Vanderleia/Zé Mario/Teste/Xavier/Fabia/Bruno
         If cId $ "000056/000175/000038/000012/000023/000153"
             If MsgYesNo("Deseja abrir a liberação de pedidos web?")
                 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-                    ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPV/v2?userlib="+__cUserId, "", "", 1)
+                    ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPV/v2?userlib="+cToken, "", "", 1)
                 Else
-                    ShellExecute("open", "http://10.139.0.30:8080/rest/RestLibPV/v2?userlib="+__cUserId, "", "", 1)
+                    ShellExecute("open", "http://10.139.0.30:8080/rest/RestLibPV/v2?userlib="+cToken, "", "", 1)
                 EndIf
             EndIf
         EndIf

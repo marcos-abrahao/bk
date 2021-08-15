@@ -346,8 +346,8 @@ Static Function ProcQuery(_cEmp)
 		cQuery += "   ,CNF_PARCEL"+ CRLF
 		cQuery += "   ,CNF_REVISA"+ CRLF
 		cQuery += "   ,CN9_SITUAC"+ CRLF
-		cQuery += "   ,CND_CLIENT"+ CRLF
-		cQuery += "   ,CND_LOJACL"+ CRLF
+		cQuery += "   ,ISNULL(CXN.CXN_CLIENT, CND.CND_CLIENT) CND_CLIENT"+ CRLF
+		cQuery += "   ,ISNULL(CXN.CXN_CLIENT, CND.CND_LOJACL) CND_LOJACL"+ CRLF
 		cQuery += "   ,CN9_NOMCLI"+ CRLF
 		cQuery += "   ,CN9_XXDESC"+ CRLF
 		cQuery += "   ,CNF_COMPET"+ CRLF

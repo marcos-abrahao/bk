@@ -280,23 +280,19 @@ Pergunte("CFG025",.T.) //Mostra a tela de Pergunte com o parâmetro de data final
 Return
 
 
+User Function ExCode64()
+Local cTexto := ""
+Local cEncode64 := ""
+Local cDecode64 := ""
+Local cMensagem := ""
 
-// Liberação de pedidos de venda!
-
-Static Function fLibPed(cNumPed)
-
-
-    dbSelectArea("SC6")
-    SC6->(dbSetOrder(1))
-    SC6->(dbSeek(xFilial("SC6")+cNumPed))
-
-    While SC6->(!EOF()) .And. SC6->C6_FILIAL == xFilial("SC6") .And. SC6->C6_NUM == cNumPed
-
-        MaLibDoFat(SC6->(RecNo()),SC6->C6_QTDVEN,.F.,.F.,.F.,.F.,)
-
-
-        SC6->(dbSkip())
-    EndDo
-
-
+cTexto := "000038"+DTOS(DATE())+TIME()
+cTexto := Embaralha(cTexto,0)
+cEncode64 := Encode64(cTexto)
+cDecode64 := Decode64(cEncode64)
+cMensagem := "Pangrama origem: [" + cTexto + "]"
+cMensagem += CRLF + "Texto -> Texto64: [" + cEncode64 + "]"
+cMensagem += CRLF + "Texto64 -> Texto: [" + cDecode64 + "]"
+cMensagem += CRLF + "Desembaralha -> Texto: [" + Embaralha(cDecode64,1) + "]"
+MsgInfo(cMensagem, "Exemplo")
 Return

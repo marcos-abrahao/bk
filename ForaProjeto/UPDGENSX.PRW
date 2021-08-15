@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"10/08/2021 SZS "
+#DEFINE FIN_LAST_UPDATED 		"11/08/2021 SZS "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -957,13 +957,17 @@ Static Function AtuGenX3( cTexto )
 //Local nBrw := 0
 
 
-oProcess:IncRegua2( "Incluir campo via X31UPDTABLE(“CXN”)" )
+oProcess:IncRegua2( "Incluir campo via X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "10/08/21 - SZS " + CRLF 
+/*
+cTexto  += "11/08/21 - SZS " + CRLF 
 APPEND FROM \tmp\sx3szs.dtc
 X31UPDTABLE("SZS")
+X31UPDTABLE("SB1")
+X31UPDTABLE("SA2")
+*/
 
 Return
 
