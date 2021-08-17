@@ -177,12 +177,11 @@ Else
 	AADD(aCabs  ,"Valor parcela")
 
 	If nUsers == 1
-		AADD(aCampos,"U_BUSER(QSD1->F1_XXUSER)")
+		AADD(aCampos,"UsrRetName(QSD1->F1_XXUSER)")
 		AADD(aCabs  ,"Responsável")
 
-		AADD(aCampos,"U_BUSER(QSD1->F1_XXUSERS)")
+		AADD(aCampos,"UsrRetName(QSD1->F1_XXUSERS)")
 		AADD(aCabs  ,"Classificador")
-
 	EndIf
 
 	AADD(aCampos,"QSD1->D1_QUANT")

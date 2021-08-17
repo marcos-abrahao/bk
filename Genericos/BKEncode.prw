@@ -64,4 +64,34 @@ Return
 
 
 
+User Function BKAvPar(cToken,aParams,cMsg)
+Local lRet As Logical
+lRet := .F.
+
+If !Empty(cToken)
+  
+	aParams := u_BKDeCode(cToken)
+    If !Len(aParams) < 3
+    	__cUserId := aParams[1]
+    	cUserName := UsrRetName(__cUserId)
+		If !Empty(cUserName)
+			If STOD(aParams[2]) == DATE()
+          		lRet := .T.
+          		cMsg := "Ok"
+        	Else
+          		cMsg := "Token expirado"
+        	EndIf
+      	Else
+        	cMsg := "Usuário inválido"
+      	EndIf
+    Else
+    	cMsg := "Token incorreto"
+    EndIf
+Else
+	cMsg := "Token não informado"
+EndIf
+Return lRet
+
+
+
 

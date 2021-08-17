@@ -1,30 +1,26 @@
 #include "rwmake.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณMT140FIL  บAutor  ณMarcos B Abrahao    บ Data ณ  17/11/09   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Ponto de Entrada para filtrar SF1 antes do Browse          บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบData      ณAnalista/Altera็๕es                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑบ          ณ                                                            บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
+/*/{Protheus.doc} MT140FIL
+    Ponto de Entrada para filtrar SF1 antes do Browse
+    @type  Function
+    @author Marcos B. Abrahใo
+    @since 17/11/09
+    @version 12.1.25
+/*/
 
 User Function MT140FIL()
-Local cFilt  := ""
-Local aUser,cSuper := ""
-Local cMDiretoria := ""
-Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
-Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
-Local i:= 0
+
+Local cFilt  		:= ""
+Local aUser			:= {}
+Local cSuper 		:= ""
+Local cMDiretoria 	:= ""
+Local cGerGestao 	:= ALLTRIM(GetMv("MV_XXGGCT"))
+Local cGerCompras 	:= ALLTRIM(GetMv("MV_XXGCOM"))
+Local i				:= 0
+Local aGrupo 		:= {}
+Local cStaf			:= ""
+Local lStaf			:= .F.
+Local lMDiretoria	:= .F.
 
 Dbselectarea("SF1")
 
@@ -36,7 +32,7 @@ IF __cUserId <> "000000"  // Administrador: nใo filtrar
 
 	DBCLEARFILTER() 
 	PswOrder(1) 
-	PswSeek(__CUSERID) 
+	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,11])
 	   cSuper := SUBSTR(aUser[1,11],1,6)
@@ -44,18 +40,18 @@ IF __cUserId <> "000000"  // Administrador: nใo filtrar
 
  	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007") //SUBSTR(SuperGetMV("MV_XXGRPMD",.F.,"000007"),1,6)    
     lMDiretoria := .F.
-    aGRUPO := {}
-//    AADD(aGRUPO,aUser[1,10])
+    aGrupo := {}
+//    AADD(aGrupo,aUser[1,10])
 //    IF LEN(aUser[1,10]) > 0
-//	    FOR i:=1 TO LEN(aGRUPO[1])
-//			lMDiretoria := (aGRUPO[1,i] $ cMDiretoria)
+//	    FOR i:=1 TO LEN(aGrupo[1])
+//			lMDiretoria := (aGrupo[1,i] $ cMDiretoria)
 //		NEXT
 //	ENDIF
 	//Ajuste nova rotina a antiga nใo funciona na nova lib MDI
-	aGRUPO := UsrRetGrp(aUser[1][2])
-	IF LEN(aGRUPO) > 0
-		FOR i:=1 TO LEN(aGRUPO)
-			lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
+	aGrupo := UsrRetGrp(aUser[1][2])
+	IF LEN(aGrupo) > 0
+		FOR i:=1 TO LEN(aGrupo)
+			lMDiretoria := (ALLTRIM(aGrupo[i]) $ cMDiretoria )
 		NEXT
 	ENDIF	
 

@@ -3,58 +3,58 @@
 #Include "Protheus.ch"
 #Include "TBICONN.CH"
 
-/*/{Protheus.doc} RestLibPV
-    REST para liberação de pedidos de venda
+/*/{Protheus.doc} RestLibPN
+    REST para Liberação de Pré-notas de Entrada
     @type  Function
     @author Marcos B. Abrahão
-    @since 15/08/2021
+    @since 16/08/2021
     @version 12.1.25
 /*/
 
-WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
+WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
 	WSDATA filial       AS STRING
-	WSDATA pedido 		AS STRING
+	WSDATA Pré-nota 		AS STRING
 	WSDATA userlib 		AS STRING
 
 	WSDATA page         AS INTEGER OPTIONAL
 	WSDATA pageSize     AS INTEGER OPTIONAL
 
-	WSMETHOD GET LISTPV;
-		DESCRIPTION "Listar pedido de venda em aberto";
-		WSSYNTAX "/RestLibPV";
-		PATH  "/RestLibPV";
+	WSMETHOD GET LISTPN;
+		DESCRIPTION "Listar Pré-notas de Entrada em aberto";
+		WSSYNTAX "/RestLibPN";
+		PATH  "/RestLibPN";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 	WSMETHOD GET CONSPV;
-		DESCRIPTION "Retorna Consulta Pedido como página HTML";
-		WSSYNTAX "/RestLibPV/v1";
-		PATH "/RestLibPV/v1";
+		DESCRIPTION "Retorna Consulta Pré-nota como página HTML";
+		WSSYNTAX "/RestLibPN/v1";
+		PATH "/RestLibPN/v1";
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
-	WSMETHOD GET BROWPV;
-		DESCRIPTION "Browse Pedidos de Venda a Liberar como página HTML";
-		WSSYNTAX "/RestLibPV/v2";
-		PATH "/RestLibPV/v2";
+	WSMETHOD GET BROWPN;
+		DESCRIPTION "Browse Pré-notas de Entrada a Liberar como página HTML";
+		WSSYNTAX "/RestLibPN/v2";
+		PATH "/RestLibPN/v2";
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
 
 	WSMETHOD PUT ;
-		DESCRIPTION "Liberação de Pedido de Venda" ;
-		WSSYNTAX "/RestLibPV/v3";
-		PATH "/RestLibPV/v3";
+		DESCRIPTION "Liberação de Pré-notas de Entrada" ;
+		WSSYNTAX "/RestLibPN/v3";
+		PATH "/RestLibPN/v3";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 END WSRESTFUL
 
 
-WSMETHOD PUT QUERYPARAM empresa,filial,pedido,userlib,liberacao WSREST RestLibPV
+WSMETHOD PUT QUERYPARAM empresa,filial,prenota,userlib,liberacao WSREST RestLibPN
 
 Local cJson        := Self:GetContent()   
 Local lRet         := .T.
@@ -62,29 +62,10 @@ Local lRet         := .T.
 //	Local oJson        As Object
 //  Local cCatch       As Character  
 Local oJson        As Object
-Local cPedido      As char
+Local cPrenota     As char
 Local aParams      As Array
 Local cMsg         As String
 
-/*
-	//Seta job para nao consumir licensas
-	RpcSetType(3)
-	RpcClearEnv()
-	// Seta job para empresa filial desejada
-	RpcSetEnv( cEmpX,cFilX,,,,,)
-
-	//PutGlbValue(cVarStatus,stThrConnect) VARIAVEL PÚBLICA publica
-
-	//Set o usuário para buscar as perguntas do profile
-	lMsErroAuto := .F.
-	lMsHelpAuto := .T. 
-	lAutoErrNoFile := .T.
-
-	__cUserId := cXUserId 
-	cUserName := cXUserName
-	cAcesso   := cXAcesso
-	cUsuario  := cXUsuario
-*/
 
 	//Define o tipo de retorno do servico
 	::setContentType('application/json')
@@ -97,13 +78,13 @@ Local cMsg         As String
 
 	//If cCatch == Nil
 	//PrePareContexto(::empresa,::filial)
-	cPedido   := ::pedido
+	cPrenota   := ::prenota
 
 	If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-		lRet := fLibPed(cPedido)
+		lRet := fLibPN(cPrenota)
 
-		oJson['liberacao'] := "Pedido "+cPedido+iIf(lRet," liberado"," não foi liberado")
+		oJson['liberacao'] := "Pré-nota "+cPrenota+iIf(lRet," liberada"," não foi liberada")
 	Else
 		oJson['liberacao'] := EncodeUTF8(cMsg)
 	EndIf
@@ -113,29 +94,23 @@ Local cMsg         As String
   	FreeObj(oJson)
 
  	Self:SetResponse(cRet)
-  //Else 
-  //  SetRestFault(404, EncodeUTF8(cMsg), .T.)
-	//EndIf
-
-	//If !lRet
-	//    SetRestFault(Val(oMessages["code"]),oMessages["detailMessage"])
-	//EndIf
+  
 Return lRet
 
 
 
 /*/{Protheus.doc} GET / salesorder
-Retorna a lista de pedidos.
+Retorna a lista de prenotas.
  
 @param 
  Page , numerico, numero da pagina 
  PageSize , numerico, quantidade de registros por pagina
  
-@return cResponse , caracter, JSON contendo a lista de pedidos
+@return cResponse , caracter, JSON contendo a lista de Pré-notas
 /*/
 
 
-WSMETHOD GET LISTPV QUERYPARAM userlib, page, pageSize WSREST RestLibPV
+WSMETHOD GET LISTPN QUERYPARAM userlib, page, pageSize WSREST RestLibPN
 
 Local aListSales := {}
 Local cQrySC5       := GetNextAlias()
@@ -159,7 +134,7 @@ Default self:pageSize := 500
 //nTamPag := self:pageSize := 100
 
 //-------------------------------------------------------------------
-// Query para selecionar pedidos
+// Query para selecionar Pré-notas
 //-------------------------------------------------------------------
 
   If !u_BkAvPar(::userlib,@aParams,@cMsg)
@@ -241,7 +216,7 @@ Default self:pageSize := 500
 	EndIf
 
 //-------------------------------------------------------------------
-// Alimenta array de pedidos
+// Alimenta array de Pré-notas
 //-------------------------------------------------------------------
 	Do While ( cQrySC5 )->( ! Eof() )
 
@@ -288,12 +263,12 @@ Default self:pageSize := 500
 Return( lRet )
 
 
-WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV
+WSMETHOD GET CONSPV QUERYPARAM Pré-nota WSRECEIVE Pré-nota WSREST RestLibPN
 
 Local cHTML as char
 Local cPed  as char
 
-cPed  := self:pedido
+cPed  := self:Pré-nota
 cHtml := u_BKFATR5H(cPed)
 self:setResponse(cHTML)
 self:setStatus(200)
@@ -301,7 +276,7 @@ self:setStatus(200)
 return .T.
 
 
-WSMETHOD GET BROWPV QUERYPARAM userlib WSRECEIVE userlib WSREST RestLibPV
+WSMETHOD GET BROWPN QUERYPARAM userlib WSRECEIVE userlib WSREST RestLibPN
 
 local cHTML as char
 
@@ -315,7 +290,7 @@ begincontent var cHTML
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-<title>Liberação de Pedidos</title>
+<title>Liberação de Pré-notas</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
 .bg-mynav {
@@ -336,7 +311,7 @@ line-height: 1rem;
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-	<a class="navbar-brand" href="#">BK - Liberação de Pedidos de Vendas</a>
+	<a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas</a>
     <button type="button" 
         class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
         Atualizar
@@ -348,9 +323,9 @@ line-height: 1rem;
 <table class="table">
 <thead>
 <tr>
-<th scope="col">Pedido</th>
+<th scope="col">Pré-nota</th>
 <th scope="col">Emissão</th>
-<th scope="col">Cliente</th>
+<th scope="col">Fornecedor</th>
 <th scope="col">Contrato</th>
 <th scope="col" style="text-align:center;">Competência</th>
 <th scope="col" style="text-align:center;">Total</th>
@@ -359,7 +334,7 @@ line-height: 1rem;
 </thead>
 <tbody id="mytable">
 <tr>
-<th scope="row" colspan="7" style="text-align:center;">Carregando pedidos...</th>
+<th scope="row" colspan="7" style="text-align:center;">Carregando Pré-notas...</th>
 </tr>
 </tbody>
 </table>
@@ -379,7 +354,7 @@ line-height: 1rem;
        <!-- </div>-->
        <!-- Corpo do modal -->
        <div class="modal-body">
-         <div id="conteudo" align="center">Aguarde, carregando o pedido...</div>
+         <div id="conteudo" align="center">Aguarde, carregando o Pré-nota...</div>
        </div>
         <!-- Rodapé do modal-->
        <div class="modal-footer">
@@ -412,7 +387,7 @@ line-height: 1rem;
 <script>
 
 async function getPeds() {
-	let url = 'http://10.139.0.30:8080/rest/RestLibPV/?userlib='+'#userlib#';
+	let url = 'http://10.139.0.30:8080/rest/RestLibPN/?userlib='+'#userlib#';
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -423,14 +398,14 @@ async function getPeds() {
 
 
 async function loadTable() {
-let pedidos = await getPeds();
+let Pré-notas = await getPeds();
 let trHTML = '';
-if (Array.isArray(pedidos)) {
-    pedidos.forEach(object => {
-    let cPedido = object['NUM']
+if (Array.isArray(Pré-notas)) {
+    Pré-notas.forEach(object => {
+    let cPré-nota = object['NUM']
     let cLiberOk = object['LIBEROK']
     trHTML += '<tr>';
-    trHTML += '<td>'+cPedido+'</td>';
+    trHTML += '<td>'+cPré-nota+'</td>';
     trHTML += '<td>'+object['EMISSAO']+'</td>';
     trHTML += '<td>'+object['CLIENTE']+'</td>';
     trHTML += '<td>'+object['CONTRATO']+'</td>';
@@ -445,7 +420,7 @@ if (Array.isArray(pedidos)) {
     });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="7" style="text-align:center;">'+pedidos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="7" style="text-align:center;">'+Pré-notas['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
     trHTML += ' <th scope="row" colspan="7" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
@@ -459,7 +434,7 @@ loadTable();
 
 
 function showPed(idPed,canLib) {
-let url = 'http://10.139.0.30:8080/rest/RestLibPV/v1?pedido='+idPed;
+let url = 'http://10.139.0.30:8080/rest/RestLibPN/v1?Pré-nota='+idPed;
 
 $("#titulo").text(url);
 $("#conteudo").load(url);
@@ -480,7 +455,7 @@ async function libPed(id,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8081/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
+fetch('http://10.139.0.30:8081/rest/RestLibPN/v3?Pré-nota='+id+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -532,7 +507,7 @@ return .T.
 
 
 
-Static Function fLibPed(cNumPed)
+Static Function fLibPN(cNumPed)
 	Local lOk := .F.
 
 	dbSelectArea("SC5")
@@ -563,13 +538,4 @@ Static Function fLibPed(cNumPed)
 	EndIf
 Return lOk
 
-
-
-Static Function PrePareContexto(cCodEmpresa , cCodFilial)
-
-	RESET ENVIRONMENT
-	RPCSetType(3)
-	PREPARE ENVIRONMENT EMPRESA cCodEmpresa FILIAL cCodFilial TABLES "SC5" MODULO "FAT"
-
-Return .T.
 

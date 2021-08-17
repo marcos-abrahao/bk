@@ -193,7 +193,7 @@ DO While !TMPSF1->(EOF())
 			TMPSD1->(DbCloseArea())
 
 			IF lAtFixo
-  				cAssunto := "ATIVO IMOBILIZADO - Usuário: "+ALLTRIM(U_BUSER(TMPSF1->F1_XXUSERS))+" - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+  				cAssunto := "ATIVO IMOBILIZADO - Usuário: "+ALLTRIM(UsrRetName(TMPSF1->F1_XXUSERS))+" - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 				aCabs    := {}
 				aCabs    := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo",}
 				aEmail   := {}

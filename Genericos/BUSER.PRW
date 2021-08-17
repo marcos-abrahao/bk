@@ -1,5 +1,5 @@
 //Retorna Nome do Usuario
-USER FUNCTION BUSER(cUSER)
+USER FUNCTION BUSER(cUser)
 LOCAL cNUser := ""
 
    PswOrder(1) 

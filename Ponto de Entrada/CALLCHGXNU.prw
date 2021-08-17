@@ -26,7 +26,7 @@ Static nModAnt := 0
 User Function CALLCHGXNU()
 
 Local cId	  := ParamIXB[1]
-Local cEmpAtu := ParamIXB[2] 
+//Local cEmpAtu := ParamIXB[2] 
 Local nModulo := ParamIXB[4]
 Local cMenu   := ParamIXB[5]
 Local cToken  := u_BKEnCode()

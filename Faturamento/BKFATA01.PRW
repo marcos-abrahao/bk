@@ -95,7 +95,7 @@ AADD(aCamposF2,{"F2_EMISSAO"  ,,RetTitle("F2_EMISSAO"),""})
 AADD(aStruct1, {"F2_EMISSAO"  ,"D",8,0})
 
 AADD(aCamposF2,{"F2_FATURIS" ,,"Responsável"})
-AADD(aStruct1, {"F2_FATURIS" ,"C" ,20,0})
+AADD(aStruct1, {"F2_FATURIS" ,"C" ,25,0})
 
 AADD(aStruct1, {"F2_XXUSFAT" ,"C" ,GetSx3Cache("F2_XXUSFAT", "X3_TAMANHO"),0})
 
@@ -384,7 +384,7 @@ While (cAliasTmp2)->(!EoF())
 		(cAliasTmp1)->F2_XXENVNF  := SF2->F2_XXENVNF
 		(cAliasTmp1)->F2_XXENDOC  := SF2->F2_XXENDOC
 		(cAliasTmp1)->F2_XXOBSFA  := SF2->F2_XXOBSFA
-		(cAliasTmp1)->F2_FATURIS  := U_Buser(SF2->F2_XXUSFAT) 
+		(cAliasTmp1)->F2_FATURIS  := UsrRetName(SF2->F2_XXUSFAT) 
 		(cAliasTmp1)->F2_XXUSFAT  := SF2->F2_XXUSFAT 
 		(cAliasTmp1)->F2_USERLGI  := FWLeUserlg("F2_USERLGI", 1)
 		(cAliasTmp1)->F2_XXCONTR  := IIF(EMPTY((cAliasTmp2)->F2_XXCONTR),(cAliasTmp2)->F2_XXESPEC,(cAliasTmp2)->F2_XXCONTR)
@@ -404,6 +404,7 @@ Return nI
 Static Function AjustaSX1(cPerg)
 Local aArea      := GetArea()
 Local aRegistros := {}
+Local i,J
 
 dbSelectArea("SX1")
 dbSetOrder(1)
