@@ -2642,7 +2642,7 @@ ELSE
 	    dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
 	    SF1->(dbSetOrder(1))
 	    IF SF1->(dbSeek(xFilial("SF1")+cCHAVESD1+"N"))
-			cDIGTA := U_BUSER(SF1->F1_XXUSER)
+			cDIGTA := UsrRetName(SF1->F1_XXUSER)   //U_BUSER(SF1->F1_XXUSER)
 	    ENDIF
 	    
 		dbSelectArea("SCR")        
@@ -2650,7 +2650,7 @@ ELSE
 		SCR->(dbSeek(xFilial("SCR")+"PC"+cPedido,.T.))
 		DO WHILE SCR->(!EOF()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(cPedido)
 		    IF !EMPTY(SCR->CR_LIBAPRO)
-		    	cAPROV += U_BUSER(SCR->CR_USERLIB)+"/"
+		    	cAPROV += UsrRetName(SCR->CR_USERLIB)+"/"    //U_BUSER(SCR->CR_USERLIB)
 		    ENDIF
 			SCR->(dbSkip())
 		ENDDO
@@ -2662,11 +2662,11 @@ ELSE
 	    dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
 	    SF1->(dbSetOrder(1))
 	    IF SF1->(dbSeek(xFilial("SF1")+cCHAVESD1+"N"))
-			cDIGTA := U_BUSER(SF1->F1_XXUSER)
+			cDIGTA := UsrRetName(SF1->F1_XXUSER)  //U_BUSER(SF1->F1_XXUSER)
 			IF !EMPTY(SF1->F1_XXUSERS)
-				cAPROV := U_BUSER(SF1->F1_XXUSERS)
+				cAPROV := UsrRetName(SF1->F1_XXUSERS)
 			ELSE
-				cAPROV := U_BUSER(SF1->F1_XXUSER)
+				cAPROV := UsrRetName(SF1->F1_XXUSER)
 			ENDIF
 	    ENDIF
 		
@@ -2675,7 +2675,7 @@ ELSE
 		DbSeek(xFilial("SCR")+'NF'+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA,.T.)
 		Do While SCR->(!eof()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA)
 		    IF !EMPTY(SCR->CR_LIBAPRO)
-		    	cAPROV += "/"+U_BUSER(SCR->CR_USERLIB)
+		    	cAPROV += "/"+UsrRetName(SCR->CR_USERLIB)    //U_BUSER(SCR->CR_USERLIB)
 		    ENDIF
 			SCR->(dbSkip())
 		EndDo

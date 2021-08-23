@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"11/08/2021 SZS "
+#DEFINE FIN_LAST_UPDATED 		"20/08/2021 SC9 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 10/08/21 SZS
+			AtuGenX3( @cTexto )    // 20/08/21 SC9
 
 			//AtuGenP12( @cTexto )
 
@@ -961,17 +961,22 @@ oProcess:IncRegua2( "Incluir campo via X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
+
+//cTexto  += "20/08/21 - SC9 " + CRLF 
+//APPEND FROM \tmp\sx3sc9.dtc
+//X31UPDTABLE("SC9")
+
+Return
+
+
 /*
 cTexto  += "11/08/21 - SZS " + CRLF 
 APPEND FROM \tmp\sx3szs.dtc
 X31UPDTABLE("SZS")
 X31UPDTABLE("SB1")
 X31UPDTABLE("SA2")
-*/
 
-Return
 
-/*
 cTexto  += "29/06/21 - SE1 " + CRLF 
 APPEND FROM \tmp\sx3ue1.dtc
 X31UPDTABLE("SE1")

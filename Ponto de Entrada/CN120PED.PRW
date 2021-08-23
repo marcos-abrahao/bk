@@ -20,18 +20,23 @@ Local ExpA2 	:= PARAMIXB[2]
 Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""
+Local cNumMed	:= ""
+Local cIteMed	:= ""
 Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE ISS
 Local cCliente  := ""
 Local cLoja		:= ""
 Local aArea		:= GetArea()
 Local aAreaCNA	
+Local aAreaCNE
 Local cNaturez  := ""
 Local cTpNf		:= "N"
 Local lRec		:= .F.
+Local nI		:= 0
 
 cCliente	:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_CLIENTE"}),2]
 cLoja		:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_LOJACLI"}),2]
 cPlanilha	:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDPLANI"}),2]
+cNumMed		:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDNUMED"}),2]
 
 dbSelectArea("CNA")
 aAreaCNA := CNA->(getArea())
@@ -68,6 +73,7 @@ If FWIsInCallStack("U_CN121PED")
 	cTpNF := CNA->CNA_XXTPNF
 Else
 	// Remover quando a medição antiga for desabilitada
+
 	If Empty(CND->CND_XXTPNF)
 		If !Empty(CNA->CNA_XXTPNF)
 			cTpNF := CNA->CNA_XXTPNF
@@ -97,6 +103,27 @@ AADD(ExpA1,{"C5_XXCOMPM",CND->CND_COMPET, Nil})
 
 // Aqui acertar quando for nova medição CXN_XXRM
 AADD(ExpA1,{"C5_XXRM"   ,CND->CND_XXRM  , Nil})  
+
+
+// Acertar valor total dos itens do pedido de vendas
+/*
+dbSelectArea("CNE")
+aAreaCNE := CNE->(getArea())
+dbSetOrder(1)
+For nI := 1 To Len(ExpA2)
+
+    //Chave 1 do CNE: CNE_FILIAL+CNE_CONTRA+CNE_REVISA+CNE_NUMERO+CNE_NUMMED+CNE_ITEM
+	cIteMed	:= ExpA2[nI,aScan(ExpA2[nI], {|x| x[1]=="C6_ITEMED"}),2]
+	
+	If CNE->(dbSeek(xFilial("CNE")+cContrato+cRevisa+cPlanilha+cNumMed+cIteMed)) 
+		AADD(ExpA2[nI],{"C6_VALOR"   ,CNE->CNE_VLLIQD , Nil}) 
+	EndIf
+
+Next
+
+CNE->(RestArea(aAreaCNE))
+
+*/
 
 CNA->(RestArea(aAreaCNA))
 RestArea(aArea)
