@@ -296,3 +296,36 @@ cMensagem += CRLF + "Texto64 -> Texto: [" + cDecode64 + "]"
 cMensagem += CRLF + "Desembaralha -> Texto: [" + Embaralha(cDecode64,1) + "]"
 MsgInfo(cMensagem, "Exemplo")
 Return
+
+
+/*{Protheus.doc} u_exp_json
+Exemplo de objetos json dentro de outros objetos json, com apenas
+uma variável
+
+@author Daniel Mendes
+@since 29/06/2020
+@version 1.0
+*/
+//-------------------------------------------------------------------
+function u_exp_json()
+local jTest
+
+jTest := JsonObject():New()
+jTest["id"] := 1
+jTest["data"] := JsonObject():New()
+jTest["data"]["nome"] := "Daniel"
+jTest["data"]["nome"] := "Mendes"
+
+aPedidos := {}
+aAdd(aPedidos,JsonObject():New())
+aPedidos[1]["pedido"] := "X1"
+aPedidos[1]["teste"]  := "Y1"
+aAdd(aPedidos,JsonObject():New())
+aPedidos[2]["pedido"] := "X2"
+aPedidos[2]["teste"]  := "Y2"
+
+jTest["pedidoS"]:= aPedidos
+
+ConOut(jTest:toJson())
+
+return
