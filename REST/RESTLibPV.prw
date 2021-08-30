@@ -294,7 +294,8 @@ Local cHTML as char
 Local cPed  as char
 
 cPed  := self:pedido
-cHtml := u_BKFATR5H(cPed)
+cHtml := StrIConv(u_BKFATR5H(cPed), "CP1252", "UTF-8")
+
 self:setResponse(cHTML)
 self:setStatus(200)
 
@@ -342,6 +343,8 @@ line-height: 1rem;
         Atualizar
     </button>
 </nav>
+<br>
+<br>
 <br>
 <div class="container">
 <div class="table-responsive-sm">
@@ -480,7 +483,7 @@ async function libPed(id,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8081/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
+fetch('http://10.139.0.30:8080/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'

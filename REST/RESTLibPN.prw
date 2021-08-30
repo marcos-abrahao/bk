@@ -5,7 +5,7 @@
 
 /*/{Protheus.doc} RestLibPN
     REST para Liberação de Pré-notas de Entrada
-    @type  Function
+    @type  REST
     @author Marcos B. Abrahão
     @since 16/08/2021
     @version 12.1.25
@@ -18,6 +18,7 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 	WSDATA filial       AS STRING
 	WSDATA prenota 		AS STRING
 	WSDATA userlib 		AS STRING
+	WSDATA documento	AS STRING
 
 	WSDATA page         AS INTEGER OPTIONAL
 	WSDATA pageSize     AS INTEGER OPTIONAL
@@ -43,6 +44,11 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
+	WSMETHOD GET DOWNLPN;
+		DESCRIPTION "Retorna um arquivo por meio do método FwFileReader().";
+		WSSYNTAX "/RestLibPN/v4";
+		PATH "/RestLibPN/v4";
+		TTALK "v1"
 
 	WSMETHOD PUT ;
 		DESCRIPTION "Liberação de Pré-notas de Entrada" ;
@@ -51,7 +57,34 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
+
 END WSRESTFUL
+
+
+
+WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento WSREST RestLibPN
+    Local cFile  := ""// VALORES RETORNADOS NA LEITURA
+	Local cName  := Decode64(self:documento)
+	Local cFName := "/dirdoc/co"+self:empresa+"/shared/"+cName
+    Local oFile  := FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
+
+    // SE FOR POSSÍVEL ABRIR O ARQUIVO, LEIA-O
+    // SE NÃO, EXIBA O ERRO DE ABERTURA
+    If (oFile:Open())
+        cFile := oFile:FullRead() // EFETUA A LEITURA DO ARQUIVO
+
+        // RETORNA O ARQUIVO PARA DOWNLOAD
+        Self:SetHeader("Content-Disposition", "attachment; filename="+cName)
+        Self:SetResponse(cFile)
+
+        lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+    Else
+        SetRestFault(002, "can't load file") // GERA MENSAGEM DE ERRO CUSTOMIZADA
+
+        lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+    EndIf
+Return (lSuccess)
+
 
 
 WSMETHOD PUT QUERYPARAM empresa,prenota,userlib,liberacao WSREST RestLibPN
@@ -97,18 +130,20 @@ Return lRet
 
 
 Static Function fLibPN(empresa,prenota,cMsg)
-Local lOk 		:= .F.
+Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSF1	:= "SF1"+empresa+"0"
 Local cQrySF1	:= GetNextAlias()
+Default cMsg	:= ""
 
-Set(_SET_DATEFORMAT, 'mm/dd/yyyy')
+Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cQuery := "SELECT SF1.F1_XXLIB,SF1.F1_STATUS,SF1.D_E_L_E_T_ AS F1DELET"+CRLF
 cQuery += " FROM "+cTabSF1+" SF1"+CRLF
 cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
+
 
 Do Case
 	Case (cQrySF1)->(Eof()) 
@@ -137,7 +172,7 @@ EndCase
 
 (cQrySF1)->(dbCloseArea())
 
-Return lOk
+Return lRet
 
 
 /*/{Protheus.doc} GET / salesorder
@@ -151,7 +186,7 @@ Retorna a lista de prenotas.
 /*/
 
 
-WSMETHOD GET LISTPN QUERYPARAM userlib, page, pageSize WSREST RestLibPN
+WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN
 Local aEmpresas		:= {}
 Local aListSales 	:= {}
 Local cQrySF1       := GetNextAlias()
@@ -177,9 +212,13 @@ Local cTabSA2		:= ""
 Local cQuery		:= ""
 Local cLiberOk		:= "N"
 Local cStatus		:= ""
+Local aGroups 		:= {}
+Local lFiscal		:= .F.
 
-Default self:page 	:= 1
-Default self:pageSize := 500
+//Default self:page 	:= 1
+//Default self:pageSize := 500
+Local page := 1
+Local pagesize := 500
 
 aEmpresas := u_BKGrupo()
 //nStart := INT(self:pageSize * (self:page - 1))
@@ -203,10 +242,9 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
 EndIf
 
 cFilSF1 := U_M103FILB()
-//If !Empty(cFilSF1)
-//	cWhereSF1 += "AND "+cFilSF1
-//EndIf
-//cWhereSF1 += "%"
+
+aGroups := FWSFUsrGrps(__cUserId)
+lFiscal	:= ASCAN(aGroups,"000031")
 
 For nE := 1 To Len(aEmpresas)
 
@@ -225,7 +263,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "		'"+cEmpresa+"' AS F1EMPRESA,'"+cNomeEmp+"' AS F1NOMEEMP,SF1.F1_FILIAL,SF1.R_E_C_N_O_ F1RECNO,"+CRLF
 	cQuery += "		SF1.F1_DOC,SF1.F1_FORNECE,SF1.F1_LOJA,"+CRLF
 	cQuery += "		SF1.F1_XXLIB,F1_STATUS,"+CRLF
-	cQuery += "		SF1.F1_DTDIGIT,F1_XXPVPGT,"+CRLF
+	cQuery += "		SF1.F1_XXUSER,SF1.F1_XXUSERS,SF1.F1_DTDIGIT,F1_XXPVPGT,"+CRLF
 	cQuery += "		(SELECT SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) FROM "+cTabSD1+" SD1 "+CRLF
 	cQuery += "		WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.D_E_L_E_T_ = ' ')"+CRLF
 	cQuery += "		AS D1_TOTAL,"+CRLF
@@ -244,7 +282,7 @@ For nE := 1 To Len(aEmpresas)
 	EndIf
 Next
 
-cQuery += "ORDER BY SF1.F1_XXPVPGT,SF1.F1_DOC"+CRLF
+cQuery += "ORDER BY SF1.F1_XXPVPGT,SF1.F1_DTDIGIT,SF1.F1_DOC"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 
@@ -290,8 +328,8 @@ If (cQrySF1)->( ! Eof() )
 	// nStart -> primeiro registro da pagina
 	// nReg -> numero de registros do inicio da pagina ao fim do arquivo
 	//-------------------------------------------------------------------
-	If self:page > 1
-		nStart := ( ( self:page - 1 ) * self:pageSize ) + 1
+	If page > 1
+		nStart := ( ( page - 1 ) * pageSize ) + 1
 		nReg := nRecord - nStart + 1
 	Else
 		nReg := nRecord
@@ -305,7 +343,7 @@ If (cQrySF1)->( ! Eof() )
 	//-------------------------------------------------------------------
 	// Valida a exitencia de mais paginas
 	//-------------------------------------------------------------------
-	If nReg > self:pageSize
+	If nReg > pageSize
 		//oJsonSales['hasNext'] := .T.
 	Else
 		//oJsonSales['hasNext'] := .F.
@@ -326,13 +364,18 @@ Do While ( cQrySF1 )->( ! Eof() )
 
 	If nCount >= nStart
 
-		cStatus  := "Indefinido"
 		cLiberOk := (cQrySF1)->F1_XXLIB
+		cStatus  := Alltrim("Indefinido "+cLiberOk)
 
 		Do Case
 		Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
-			cLiberOk := "A"
-			cStatus  := "Liberar"
+			If lFiscal .AND. (cQrySF1)->F1_XXUSERS <> __cUserId
+				cLiberOk := "X"
+				cStatus  := "A Liberar"
+			Else
+				cLiberOk := "A"
+				cStatus  := "Liberar"
+			EndIf
 		Case cLiberOk == "B"
 			cStatus  := "Bloqueada"
 		Case cLiberOk == "C"
@@ -346,19 +389,20 @@ Do While ( cQrySF1 )->( ! Eof() )
 
 		aAdd( aListSales , JsonObject():New() )
 		nPos := Len(aListSales)
-		aListSales[nPos]['DOC']       := (cQrySF1)->F1_DOC
-		aListSales[nPos]['DTDIGIT']   := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
-		aListSales[nPos]['FORNECEDOR']:= TRIM((cQrySF1)->A2_NOME)
-		aListSales[nPos]['PGTO']  	  := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
-		aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
-		aListSales[nPos]['LIBEROK']   := cLiberOk
-		aListSales[nPos]['STATUS']    := cStatus
-		aListSales[nPos]['F1EMPRESA'] := (cQrySF1)->F1EMPRESA
-		aListSales[nPos]['F1NOMEEMP'] := (cQrySF1)->F1NOMEEMP
-		aListSales[nPos]['F1RECNO']   := STRZERO((cQrySF1)->F1RECNO,7)
+		aListSales[nPos]['DOC']        := (cQrySF1)->F1_DOC
+		aListSales[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
+		aListSales[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
+		aListSales[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
+		aListSales[nPos]['PGTO']  	   := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
+		aListSales[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
+		aListSales[nPos]['LIBEROK']    := cLiberOk
+		aListSales[nPos]['STATUS']     := cStatus
+		aListSales[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
+		aListSales[nPos]['F1NOMEEMP']  := (cQrySF1)->F1NOMEEMP
+		aListSales[nPos]['F1RECNO']    := STRZERO((cQrySF1)->F1RECNO,7)
 		(cQrySF1)->(DBSkip())
 
-		If Len(aListSales) >= self:pageSize
+		If Len(aListSales) >= pageSize
 			Exit
 		EndIf
 	Else
@@ -397,6 +441,7 @@ Local cTabSA2	:= "SA2"+self:empresa+"0"
 Local cTabSB1	:= "SB1"+self:empresa+"0"
 Local cQrySF1	:= GetNextAlias()
 Local aItens	:= {}
+Local aAnexos	:= {}
 Local nI		:= 0
 Local aEmpresas	As Array
 Local aParams	As Array
@@ -405,6 +450,7 @@ Local cHist		:= ""
 Local aParcelas := {}
 Local cParcelas := ""
 Local nGeral	:= 0
+Local aFiles	:= {}
 
 aEmpresas := u_BKGrupo()
 u_BkAvPar(::userlib,@aParams,@cMsg)
@@ -471,6 +517,15 @@ For nI := 1 TO LEN(aParcelas)
 Next
 oJsonPN['F1_XXPARCE']	:= cParcelas
 
+// Documentos anexos
+aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
+For nI := 1 To Len(aFiles)
+	aAdd(aAnexos,JsonObject():New())
+	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,1]
+	aAnexos[nI]["F1_ENCODE"]	:= aFiles[nI,2]
+Next
+oJsonPN['F1_ANEXOS']	:= aAnexos
+
 nI := 0
 Do While (cQrySF1)->(!EOF())
 	aAdd(aItens,JsonObject():New())
@@ -495,6 +550,7 @@ oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-
 oJsonPN['D1_ITENS']		:= aItens
 oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
 
+
 (cQrySF1)->(dbCloseArea())
 
 cRet := oJsonPN:ToJson()
@@ -507,7 +563,7 @@ FreeObj(oJsonPN)
 return .T.
 
 
-WSMETHOD GET BROWPN QUERYPARAM userlib WSRECEIVE userlib WSREST RestLibPN
+WSMETHOD GET BROWPN QUERYPARAM userlib WSREST RestLibPN
 
 local cHTML as char
 
@@ -566,6 +622,7 @@ line-height: 1rem;
 <th scope="col">Pré-nota</th>
 <th scope="col">Entrada</th>
 <th scope="col">Fornecedor</th>
+<th scope="col">Responsável</th>
 <th scope="col">Vencimento</th>
 <th scope="col" style="text-align:center;">Total</th>
 <th scope="col" style="text-align:center;">Ação</th>
@@ -678,8 +735,9 @@ line-height: 1rem;
 				</div>
 			</div>
 
-            <div class="col-12">
-              <button type="submit" class="btn btn-primary">Sign in</button>
+            <div class="col-12" id="anexos">
+				<!-- <button type="submit" class="btn btn-primary">Sign in</button> -->
+
             </div>
 
           </form>
@@ -741,21 +799,22 @@ if (Array.isArray(prenotas)) {
     trHTML += '<td>'+cprenota+'</td>';
     trHTML += '<td>'+object['DTDIGIT']+'</td>';
     trHTML += '<td>'+object['FORNECEDOR']+'</td>';
+    trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
     trHTML += '<td>'+object['PGTO']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
     if (cLiberOk == 'A'){
-    	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+cLiberOk+'</button></td>';
+    	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
   	} else {
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+cLiberOk+'</button></td>';
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
     }
 	trHTML += '</tr>';
     });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="7" style="text-align:center;">'+prenotas['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+prenotas['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="7" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -780,6 +839,7 @@ let prenota = await getPN(f1empresa,f1recno,userlib);
 let itens = ''
 let i = 0
 let foot = ''
+let anexos = ''
 document.getElementById('SF1Doc').value = prenota['F1_DOC'];
 document.getElementById('SF1Serie').value = prenota['F1_SERIE'];
 document.getElementById('SF1Emissao').value = prenota['F1_EMISSAO'];
@@ -819,9 +879,18 @@ if (Array.isArray(prenota.D1_ITENS)) {
 
   })
 }
+
+if (Array.isArray(prenota.F1_ANEXOS)) {
+	prenota.F1_ANEXOS.forEach(object => {
+	anexos += '<a href="http://10.139.0.30:8080/rest/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+  })
+}
+document.getElementById("anexos").innerHTML = anexos;
+
 document.getElementById("d1Table").innerHTML = itens;
 foot = '<th scope="row" colspan="8" style="text-align:right;">'+prenota['F1_GERAL']+'</th>'
 document.getElementById("d1Foot").innerHTML = foot;
+
 
 $("#titLib").text('Liberação de Pré-Nota - Empresa: '+prenota['EMPRESA'] + ' - Usuário: '+prenota['USERNAME']);
 $('#meuModal').modal('show');
@@ -836,7 +905,7 @@ async function libdoc(f1empresa,f1recno,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8081/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib, {
+fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -850,7 +919,7 @@ fetch('http://10.139.0.30:8081/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='
 		// this is the data we get after putting our data,
 		console.log(data);
 
-		//document.getElementById("msgLiberacao").innerHTML = data.liberacao;
+	  //document.getElementById("titConf").innerHTML = data["liberacao"];
 	  $("#titConf").text(data.liberacao);
 	  $('#confModal').modal('show');
 	  $('#confModal').on('hidden.bs.modal', function () {
@@ -901,3 +970,55 @@ For nX := 1 To nTamTex
 Next
 
 Return aDados
+
+
+
+
+Static Function DocsPN(empresa,cChave)
+Local oStatement := nil
+Local cQuery     := ""
+Local cAliasSQL  := ""
+Local nSQLParam  := 0
+Local cTabAC9	 := "AC9"+empresa+"0" 
+Local cTabACB	 := "ACB"+empresa+"0"
+Local aFiles	 := {}
+
+cQuery := "SELECT ACB.ACB_OBJETO " + CRLF
+cQuery += " FROM " + cTabAC9 + " AC9 " + CRLF // Entidade x objeto.
+cQuery += "LEFT JOIN " + cTabACB + " ACB ON ACB.D_E_L_E_T_ = ' ' " + CRLF // Objeto.
+cQuery += " AND ACB.ACB_FILIAL = AC9.AC9_FILIAL " + CRLF
+cQuery += " AND ACB.ACB_CODOBJ = AC9.AC9_CODOBJ " + CRLF
+cQuery += "WHERE AC9.D_E_L_E_T_ = '' " + CRLF
+cQuery += " AND AC9.AC9_FILIAL = ? " + CRLF
+cQuery += " AND AC9.AC9_ENTIDA = ? " + CRLF
+cQuery += " AND AC9.AC9_CODENT = ? " + CRLF
+
+//cQuery += "ORDER BY AC9.AC9_FILIAL, AC9.AC9_ENTIDA, AC9.AC9_CODENT, AC9.AC9_CODOBJ "
+
+// Trata SQL para proteger de SQL injection.
+oStatement := FWPreparedStatement():New()
+oStatement:SetQuery(cQuery)
+
+nSQLParam++
+oStatement:SetString(nSQLParam, xFilial("AC9"))  // Filial
+
+nSQLParam++
+oStatement:SetString(nSQLParam, "SF1")  // Entidade.
+
+nSQLParam++
+oStatement:SetString(nSQLParam, cChave) // Chave.
+
+cQuery := oStatement:GetFixQuery()
+oStatement:Destroy()
+oStatement := nil
+
+cAliasSQL := MPSysOpenQuery(cQuery)
+
+Do While (cAliasSQL)->(!eof())
+	aAdd(aFiles,{AllTrim((cAliasSQL)->ACB_OBJETO),Encode64(Alltrim((cAliasSQL)->ACB_OBJETO))})
+	(cAliasSQL)->(dbSkip())
+EndDo
+(cAliasSQL)->(dbCloseArea())
+
+Return (aFiles)
+

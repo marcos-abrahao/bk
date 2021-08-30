@@ -178,7 +178,13 @@ Local aEmail 	:= {}
 Local cMsg		:= ""
 Local cJust		:= ""
 
-cJust := JustBlq(cAssunto)
+If !IsBlind()
+	cJust := JustBlq(cAssunto)
+EndIf
+
+RecLock("SF1",.F.)
+SF1->F1_HISTRET := cJust
+MsUnLock("SF1")
 
 cAssunto += " nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 

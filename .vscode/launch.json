@@ -312,6 +312,11 @@
 			],
 			"label": "u_exp_json",
 			"description": " ()"
+		},
+		{
+			"args": [],
+			"label": "u_leusuarios",
+			"description": ""
 		}
 	],
 	"lastProgramExecuted": "XXXX"

@@ -70,7 +70,7 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 
 	DBCLEARFILTER() 
 	PswOrder(1) 
-	PswSeek(__CUSERID) 
+	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,11])
 	   cSuper := SUBSTR(aUser[1,11],1,6)
@@ -139,26 +139,26 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
           	 IF EMPTY(cSuper)  .AND. __cUserId $ cGerGestao 
              	//SET FILTER TO (SF1->F1_XXUSER <> __cUserId .AND. ( SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. F1_XXUSERS = '000075' .OR. F1_XXUSERS = '000120') .AND.  SF1->F1_STATUS = ' ')
              	// Filtro 1
-             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000175') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L') " 
+             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '000175') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L') " 
              ELSE
              	//SET FILTER TO (SF1->F1_XXUSER <> __cUserId .AND. ( SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' ) .AND.  SF1->F1_STATUS = ' ')
              	// Filtro 2
-             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' ) AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
+             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
              ENDIF
           ELSE   
           	 IF EMPTY(cSuper)   .AND. __cUserId $ cGerGestao
              	//SET FILTER TO (SF1->F1_XXUSER = __cUserId .AND. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. F1_XXUSERS = '000075' .OR. F1_XXUSERS = '000120')
              	// Filtro 3
-             	cFiltro := "(F1_XXUSER = '"+__cUserId+"' AND F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000175')"
+             	cFiltro := "(F1_XXUSER = '"+__cUserId+"' AND F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '000175')"
              ELSE
              	IF __cUserId $ cGerCompras
              		//SET FILTER TO (SF1->F1_XXUSER = __cUserId .OR. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      '  .OR. SF1->F1_XXUSER $ cAlmox)
              		// Filtro 4
-             		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(!empty(cAlmox)," OR F1_XXUSER IN ("+cAlmox+")","")+")"
+             		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(!empty(cAlmox)," OR F1_XXUSER IN ("+cAlmox+")","")+")"
              	ELSE
              		//SET FILTER TO (SF1->F1_XXUSER = __cUserId .OR. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ')
              		// Filtro 5
-             		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ')"
+             		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+")'"
              	ENDIF
              ENDIF  
           ENDIF
@@ -168,7 +168,7 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
           	 //			      SF1->F1_XXUSER = '&cSuper' .OR. SF1->F1_XXUSERS = '&cSuper' ) .AND.  SF1->F1_STATUS = ' ')
 
        		 // Filtro 6
-             cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
+             cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
           	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+") AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
 
           ELSE
@@ -177,7 +177,7 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
           	 //			     SF1->F1_XXUSER = "&cSuper" .OR. SF1->F1_XXUSERS = "&cSuper" )  
 
        		 // Filtro 7
-             cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
+             cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
           	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+")"          	 
           	 
           ENDIF
@@ -194,7 +194,11 @@ IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 	   EndIf
 
 	   If ASCAN(aUser[1,10],"000031") <> 0 .OR. lAdmFiscal
-       	   cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
+			If !IsBlind()
+      	   		cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
+			Else // Mostrar as Notas a Liberar também
+	       		cFiltro := "(F1_STATUS IN (' ','B'))"
+			EndIf
 	   ElseIf ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000007") <> 0
        	   cFiltro := "(F1_STATUS IN (' ','B'))"
 	   Else
