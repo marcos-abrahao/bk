@@ -108,7 +108,7 @@ Return
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 Local nCount
-Local cStaf,lStaf,cSuper,aUser,cMDiretoria,cFiltro := ""
+Local lStaf,cSuper,aUser,cMDiretoria,cFiltro := ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local cUniao   := ""
 Local cINSS    := ""
@@ -116,6 +116,7 @@ Local cMunic   := ""
 Local cTxUniao := "TX "  // PadR(MVTAXA,Len(SE2->E2_TIPO))
 Local cTxINSS  := "INS"  // PadR(MVINSS,Len(SE2->E2_TIPO))
 Local cTxMunic := "ISS"  //PadR(MVISS,Len(SE2->E2_TIPO))
+Local i
 
 dbSelectArea("SE2")
 cUniao   := PadR(GetMv('MV_UNIAO') ,Len(SE2->E2_FORNECE)) + PadR('00',Len(SE2->E2_LOJA))
@@ -127,9 +128,10 @@ IF __cUserId <> "000000" // Administrador
 
 	//__cUserId := "000067"
 
-   cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
+   //cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
    //                                     Luis          Bruno Santiago
-   lStaf  := (__cUserId $ cStaf)
+   lStaf  := IsStaf(__cUserId)
+
    //lAClas := MsgBox("Filtra os Doc a Classificar", "M103BROW", "YESNO")
    DBCLEARFILTER() 
    PswOrder(1) 
@@ -445,6 +447,7 @@ Static Function  ValidPerg(cPerg)
 
 Local aArea      := GetArea()
 Local aRegistros := {}
+Local i,j
 
 dbSelectArea("SX1")
 dbSetOrder(1)

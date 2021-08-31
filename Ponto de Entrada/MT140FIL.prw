@@ -18,7 +18,6 @@ Local cGerGestao 	:= ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras 	:= ALLTRIM(GetMv("MV_XXGCOM"))
 Local i				:= 0
 Local aGrupo 		:= {}
-Local cStaf			:= ""
 Local lStaf			:= .F.
 Local lMDiretoria	:= .F.
 
@@ -26,9 +25,9 @@ Dbselectarea("SF1")
 
 IF __cUserId <> "000000"  // Administrador: não filtrar
 
-	cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
-	//                                     Luis          Bruno Santiago
-	lStaf  := (__cUserId $ cStaf)
+	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
+
+	lStaf  := IsStaf(__cUserId)
 
 	DBCLEARFILTER() 
 	PswOrder(1) 

@@ -40,9 +40,10 @@ private aRotina := {{"","",0,1},{"","",0,2},{"","",0,2},{"","",0,2},{"","",0,2}}
 Private aHeader	    := {}
 
 IF __cUserId <> "000000"  // Administrador
-	cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
-	//                                     Luis          Bruno Santiago
-	lStaf  := (__cUserId $ cStaf)
+
+	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
+	lStaf  := IsStaf(__cUserId)
+
 	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007")
 	cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
 

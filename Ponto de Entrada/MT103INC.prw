@@ -179,7 +179,7 @@ Local cMsg		:= ""
 Local cJust		:= ""
 
 If !IsBlind()
-	cJust := JustBlq(cAssunto)
+	cJust := "("+DTOC(DATE())+"-"+TIME()+") "+JustBlq(cAssunto)
 EndIf
 
 RecLock("SF1",.F.)

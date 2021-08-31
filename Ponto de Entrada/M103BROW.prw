@@ -11,7 +11,7 @@ BK - Ponto de entrada para filtrar UserId e Superior
 
 User Function M103FILB()
 
-Local aUser,cStaf,lStaf
+Local aUser,lStaf
 Local cFiltro		:= ""
 Local cMDiretoria	:= ""
 Local laClas		:= .F.
@@ -59,9 +59,10 @@ NEXT
 
 Dbselectarea("SF1")
 IF __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marcio Kogan
-	cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
-	//                                     Luis          Bruno Santiago
-	lStaf  := (__cUserId $ cStaf)
+	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
+
+	lStaf  := IsStaf(__cUserId)
+	
 	If !IsBlind()
 		lAClas := MsgBox("Filtrar os Doc a Classificar", "M103FILB", "YESNO")
 	Else
