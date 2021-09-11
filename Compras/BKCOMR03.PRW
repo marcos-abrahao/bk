@@ -130,7 +130,7 @@ IF __cUserId <> "000000" // Administrador
 
    //cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
    //                                     Luis          Bruno Santiago
-   lStaf  := IsStaf(__cUserId)
+   lStaf  := u_IsStaf(__cUserId)
 
    //lAClas := MsgBox("Filtra os Doc a Classificar", "M103BROW", "YESNO")
    DBCLEARFILTER() 

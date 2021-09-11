@@ -17,7 +17,7 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 	WSDATA empresa      AS STRING
 	WSDATA filial       AS STRING
 	WSDATA prenota 		AS STRING
-	WSDATA userlib 		AS STRING
+	WSDATA userlib 		AS STRING OPTIONAL
 	WSDATA documento	AS STRING
 
 	WSDATA page         AS INTEGER OPTIONAL
@@ -25,8 +25,8 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 
 	WSMETHOD GET LISTPN;
 		DESCRIPTION "Listar Pré-notas de Entrada em aberto";
-		WSSYNTAX "/RestLibPN";
-		PATH  "/RestLibPN";
+		WSSYNTAX "/RestLibPN/v0";
+		PATH  "/RestLibPN/v0";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -115,10 +115,9 @@ Local cMsg         As String
 
 		lRet := fLibPN(::empresa,::prenota,@cMsg)
 
-		oJson['liberacao'] := "Pré-nota "+self:prenota+" "+cMsg
-	Else
-		oJson['liberacao'] := cMsg
 	EndIf
+
+	oJson['liberacao'] := StrIConv( "Pré-nota "+cMsg, "CP1252", "UTF-8")
 
 	cRet := oJson:ToJson()
 
@@ -134,16 +133,19 @@ Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSF1	:= "SF1"+empresa+"0"
 Local cQrySF1	:= GetNextAlias()
+Local cDoc		:= ""
 Default cMsg	:= ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
-cQuery := "SELECT SF1.F1_XXLIB,SF1.F1_STATUS,SF1.D_E_L_E_T_ AS F1DELET"+CRLF
+cQuery := "SELECT SF1.F1_XXLIB,SF1.F1_STATUS,SF1.F1_DOC,SF1.D_E_L_E_T_ AS F1DELET"+CRLF
 cQuery += " FROM "+cTabSF1+" SF1"+CRLF
 cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
-
+If !(cQrySF1)->(Eof()) 
+	cDoc := (cQrySF1)->F1_DOC
+EndIf
 
 Do Case
 	Case (cQrySF1)->(Eof()) 
@@ -169,6 +171,8 @@ Do Case
 	OtherWise 
 		cMsg:= "não pode ser liberada por motivo indefinido"
 EndCase
+
+cMsg := cDoc+" "+cMsg
 
 (cQrySF1)->(dbCloseArea())
 
@@ -462,7 +466,8 @@ cQuery += "		SF1.F1_XXLIB,"+CRLF
 cQuery += "		SD1.D1_ITEM,SD1.D1_COD,SB1.B1_DESC,D1_TOTAL,(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_GERAL,"+CRLF
 cQuery += "		SD1.D1_QUANT,SD1.D1_VUNIT,SB1.B1_DESC,SD1.D1_CC,SD1.D1_XXDCC,"+CRLF
 cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SD1.D1_XXHIST)) D1_XXHIST,"+CRLF
-cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SF1.F1_XXPARCE)) F1_XXPARCE"+CRLF
+cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SF1.F1_XXPARCE)) F1_XXPARCE,"+CRLF
+cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SF1.F1_HISTRET)) F1_HISTRET"+CRLF
 
 cQuery += "FROM "+cTabSF1+" SF1"+CRLF
 
@@ -526,6 +531,10 @@ For nI := 1 To Len(aFiles)
 Next
 oJsonPN['F1_ANEXOS']	:= aAnexos
 
+If !Empty((cQrySF1)->F1_HISTRET)
+	cHist += AllTrim(((cQrySF1)->F1_HISTRET))+" "
+EndIf
+
 nI := 0
 Do While (cQrySF1)->(!EOF())
 	aAdd(aItens,JsonObject():New())
@@ -573,10 +582,14 @@ begincontent var cHTML
 <html lang="pt-BR">
 <head>
 <!-- Required meta tags -->
-<meta charset="iso-8859-1">
+<!--<meta charset="iso-8859-1"> -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.11.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
 <title>Liberação de Pré-notas</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
@@ -615,7 +628,7 @@ line-height: 1rem;
 <br>
 <div class="container">
 <div class="table-responsive-sm">
-<table class="table">
+<table id="tableSF1" class="table">
 <thead>
 <tr>
 <th scope="col">Empresa</th>
@@ -630,7 +643,14 @@ line-height: 1rem;
 </thead>
 <tbody id="mytable">
 <tr>
-<th scope="row" colspan="7" style="text-align:center;">Carregando Pré-notas...</th>
+  <th scope="col">Carregando Pré-notas...</th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
 </tr>
 </tbody>
 </table>
@@ -767,14 +787,14 @@ line-height: 1rem;
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
 
 async function getPNs() {
-	let url = 'http://10.139.0.30:8080/rest/RestLibPN/?userlib='+'#userlib#';
+	let url = 'http://10.139.0.30:8080/rest/RestLibPN/v0?userlib='+'#userlib#';
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -818,6 +838,26 @@ if (Array.isArray(prenotas)) {
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
+
+$('#tableSF1').DataTable({
+  "pageLength": 100,
+  "language": {
+  "lengthMenu": "Registros por página: _MENU_ ",
+  "zeroRecords": "Nada encontrado",
+  "info": "Página _PAGE_ de _PAGES_",
+  "infoEmpty": "Nenhum registro disponível",
+  "infoFiltered": "(filtrado de _MAX_ registros no total)",
+  "search": "Filtrar:",
+  "decimal": ",",
+  "thousands": ".",
+  "paginate": {
+    "first":  "Primeira",
+    "last":   "Ultima",
+    "next":   "Próxima",
+    "previous": "Anterior"
+    }
+   }
+ });
 
 }
 
@@ -930,9 +970,9 @@ fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='
 
 
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
 </body>
 </html>
 
@@ -945,6 +985,14 @@ EndIf
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 EndIf
+
+//StrIConv( cHtml, "UTF-8", "CP1252")
+//DecodeUtf8(cHtml)
+cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+//cPre  := StrIConv( "Pré", "CP1252", "UTF-8")
+//cHtml := STRTRAN(cHtml,"Pré",cPre)
+
+
 
 Memowrite("\tmp\pn.html",cHtml)
 

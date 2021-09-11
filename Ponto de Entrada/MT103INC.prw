@@ -29,12 +29,11 @@ Se F1_XXLIB
 	A: Libera ou Não Libera (L ou N)
 		Se não Libera-> enviar e-mail para quem incluiu (e quem liberou)
 
-	L: Somente Grupo User Fiscal ou Administradores podem classificar
+	L ou E: Somente Grupo User Fiscal ou Administradores podem classificar
 		Opções: Classifica
 				Estorna (F1_XXLIB := "E") e envia e-mail a quem incluiu e quem liberou
 
 	N: Permite aprovador Liberar novamente
-	E: Nenhuma operação pode ser feita aqui
 	B: Nenhuma operação pode ser feita aqui
 	
 ---------------------------------------------------
@@ -91,22 +90,25 @@ If lClass
 				u_SF1Email("Pré-Nota não liberada pelo aprovador")
 			EndIf
 		EndIf
-
-	ElseIf SF1->F1_XXLIB == 'L'
+	ElseIf SF1->F1_XXLIB == 'L' .OR. SF1->F1_XXLIB == 'E'
 		PswOrder(1) 
 		PswSeek(__cUserId) 
 		aUser  := PswRet(1)
 		If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000007") <> 0//.OR. lMDiretoria 
-			If ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXULIB
+			If .F. //ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXULIB // REMOVIDO EM 03/09/21
 				MessageBox("Usuário sem permissão para classificar este Doc.","MT103INC",MB_ICONEXCLAMATION)
 			Else
-				nOper := Aviso("MT103INC","Classificação fiscal:",{"Classifica","Estorna Lib.","Cancelar"})
+				If SF1->F1_XXLIB == 'L'
+					nOper := Aviso("MT103INC","Classificação fiscal:",{"Classifica","Estorna Lib.","Cancelar"})
+				Else
+					nOper := Aviso("MT103INC","Classificação fiscal (documento estornado):",{"Classifica","Cancelar"})
+				EndIf
 				If nOper == 1
 					// Segue a classificação
 					lRet := .T.
-				ElseIf nOper == 2
+				ElseIf nOper == 2 .AND. SF1->F1_XXLIB == 'L'
 					RecLock("SF1",.F.)
-					SF1->F1_XXLIB  := "E"
+					SF1->F1_XXLIB   := "E"
 					SF1->F1_XXUCLAS := __cUserId
 					SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 					MsUnLock("SF1")
@@ -114,7 +116,11 @@ If lClass
 				EndIf
 			EndIf
 		Else
-			MessageBox("Documento já foi liberado, aguarde a classificação pelo Depto Fiscal.","MT103INC",MB_ICONEXCLAMATION)
+			If SF1->F1_XXLIB == 'E'
+				MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+			Else
+				MessageBox("Documento já foi liberado, aguarde a classificação pelo Depto Fiscal.","MT103INC",MB_ICONEXCLAMATION)
+			EndIf
 		EndIf
 	ElseIf SF1->F1_XXLIB == 'N'
 		PswOrder(1) 
@@ -135,8 +141,8 @@ If lClass
 		Else
 			MessageBox("Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 		EndIf
-	ElseIf SF1->F1_XXLIB == 'E'
-		MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+	//ElseIf SF1->F1_XXLIB == 'E'
+	//	MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 	ElseIf SF1->F1_XXLIB == 'B'
 		MessageBox("Documento bloqueado, aguarde liberação da diretoria: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
 	ElseIf SF1->F1_XXLIB == 'C'

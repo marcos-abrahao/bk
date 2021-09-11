@@ -26,6 +26,9 @@ Next
 
 cEnCode   := Embaralha(cEnCode,0)
 cEnCode   := Encode64(cEnCode)
+cEnCode   := STRTRAN(cEncode,"+",".")
+cEnCode   := STRTRAN(cEncode,"/","_")
+cEnCode   := STRTRAN(cEncode,"=","-")
 
 Return cEnCode
 
@@ -35,7 +38,10 @@ Local aDeCode As Array
 Local cEnCode As Character
 
 aDecode   := {}
-cEnCode   := Decode64(cCode)
+cEnCode   := STRTRAN(cCode,".","+")
+cEnCode   := STRTRAN(cEncode,"_","/")
+cEnCode   := STRTRAN(cEncode,"-","=")
+cEnCode   := Decode64(cEncode)
 cEnCode   := Embaralha(cEncode,1)
 aDecode   := StrTokArr(cEncode,";")
 

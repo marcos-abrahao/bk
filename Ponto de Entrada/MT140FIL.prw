@@ -27,7 +27,7 @@ IF __cUserId <> "000000"  // Administrador: não filtrar
 
 	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
 
-	lStaf  := IsStaf(__cUserId)
+	lStaf  := u_IsStaf(__cUserId)
 
 	DBCLEARFILTER() 
 	PswOrder(1) 

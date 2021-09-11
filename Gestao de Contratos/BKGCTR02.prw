@@ -518,16 +518,18 @@ Static Function ProcQuery(_cEmp)
 			dbSelectArea("TMPC")
 			If !TMPC->(MsSeek(_cEmpresa+QTMP->CNF_CONTRA,.F.))
 
-				cQuery := " SELECT CNF_CONTRA,MAX(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) AS XX_FIM,"
-				cQuery += "                   MIN(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) AS XX_INI "
+				cQuery := " SELECT CNF_CONTRA,MAX(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) AS XX_FIM," + CRLF
+				cQuery += "                   MIN(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)) AS XX_INI " + CRLF
 
-				cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF"
+				cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF" + CRLF
 
-				cQuery += " WHERE CNF_CONTRA = '"+TRIM(QTMP->CNF_CONTRA)+"'"
-				cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"
+				cQuery += " WHERE CNF_CONTRA = '"+TRIM(QTMP->CNF_CONTRA)+"'" + CRLF
+				cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = '' " + CRLF
 
-				cQuery += " GROUP BY CNF_CONTRA "
-				cQuery += " ORDER BY CNF_CONTRA "
+				cQuery += " GROUP BY CNF_CONTRA " + CRLF
+				cQuery += " ORDER BY CNF_CONTRA " + CRLF
+
+				u_LogMemo("BKGCTR02-x-"+cEmpAnt+"+.SQL",cQuery)
 
 				TCQUERY cQuery NEW ALIAS "TMP1"
 

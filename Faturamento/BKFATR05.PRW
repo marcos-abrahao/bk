@@ -76,7 +76,7 @@ Else
 	dbSetOrder(4)
 	dbSeek(CND->CND_FILIAL+CND->CND_NUMMED,.T.)
 	Do While !CNE->(Eof()) .AND. CNE->CNE_NUMMED == CND->CND_NUMMED
-		If !Empty(CNE->CNE_PEDIDO)
+		If !Empty(CNE->CNE_PEDIDO) .AND. aScan(aPeds,{|x| x == CNE->CNE_PEDIDO}) == 0
 			aAdd(aPeds,CNE->CNE_PEDIDO)
 		EndIf
 		CNE->(dbSkip())

@@ -29,6 +29,7 @@ Local cMDiretoria :="", cMFinanceiro:= ""
 Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local oTmpTb
+Local i,j
 
 cGerGestao := ALLTRIM(U_BKGetMv("MV_XXGGCT"))
 
@@ -42,7 +43,7 @@ Private aHeader	    := {}
 IF __cUserId <> "000000"  // Administrador
 
 	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
-	lStaf  := IsStaf(__cUserId)
+	lStaf  := u_IsStaf(__cUserId)
 
 	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007")
 	cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
@@ -261,7 +262,7 @@ Return {Alltrim(RetTitle(_cCampo)),;
         "R"}
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 dbSelectArea("SX1")

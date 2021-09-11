@@ -11,8 +11,8 @@ User Function MDIOk()
 Local cToken  := u_BKEnCode()
 
 If nModulo = 5 .OR. nModulo = 69
-	//        Vanderleia/Zé Mario/Teste/Xavier/Fabia/Bruno/João Cordeiro
-	If __cUserId $ "000000/000038/000012/000056/000175/000023/000153/000170"
+	//        Vanderleia/Zé Mario/Teste/Xavier/Fabia/Bruno/João Cordeiro/Nelson
+	If __cUserId $ "000000/000038/000012/000056/000175/000023/000153/000170/000165"
     	If MsgYesNo("Deseja abrir a liberação de pedidos web?")
 			If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 				ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPV/v2?userlib="+cToken, "", "", 1)

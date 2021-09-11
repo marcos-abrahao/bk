@@ -526,7 +526,9 @@ iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 EndIf
 
-Memowrite("\tmp\x.html",cHtml)
+cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+
+Memowrite("\tmp\PV.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)
