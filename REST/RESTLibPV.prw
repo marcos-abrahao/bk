@@ -311,11 +311,15 @@ begincontent var cHTML
 <!doctype html>
 <html lang="pt-BR">
 <head>
+
 <!-- Required meta tags -->
-<meta charset="iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.11.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
 <title>Liberação de Pedidos</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
@@ -348,7 +352,7 @@ line-height: 1rem;
 <br>
 <div class="container">
 <div class="table-responsive-sm">
-<table class="table">
+<table id="tableSC5" class="table">
 <thead>
 <tr>
 <th scope="col">Pedido</th>
@@ -362,7 +366,13 @@ line-height: 1rem;
 </thead>
 <tbody id="mytable">
 <tr>
-<th scope="row" colspan="7" style="text-align:center;">Carregando pedidos...</th>
+<th scope="col">Carregando Pedidos...</th>
+<th scope="col"></th>
+<th scope="col"></th>
+<th scope="col"></th>
+<th scope="col" style="text-align:center;"></th>
+<th scope="col" style="text-align:center;"></th>
+<th scope="col" style="text-align:center;"></th>
 </tr>
 </tbody>
 </table>
@@ -373,13 +383,6 @@ line-height: 1rem;
    <div class="modal-dialog modal-xl">
      <!-- Conteúdo do modal-->
      <div class="modal-content">
-       <!-- Cabeçalho do modal -->
-       <!-- <div class="modal-header">-->
-       <!--   <h4 id="titulo" class="modal-title">Título do modal</h4>-->
-       <!--   <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">-->
-       <!--           <span aria-hidden="true">&times;</span>-->
-       <!--       </button>-->
-       <!-- </div>-->
        <!-- Corpo do modal -->
        <div class="modal-body">
          <div id="conteudo" align="center">Aguarde, carregando o pedido...</div>
@@ -408,12 +411,12 @@ line-height: 1rem;
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap5.min.js"></script>
+
 
 <script>
-
 async function getPeds() {
 	let url = 'http://10.139.0.30:8080/rest/RestLibPV/?userlib='+'#userlib#';
 		try {
@@ -455,6 +458,26 @@ if (Array.isArray(pedidos)) {
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
+
+$('#tableSC5').DataTable({
+ "pageLength": 100,
+ "language": {
+ "lengthMenu": "Registros por página: _MENU_ ",
+ "zeroRecords": "Nada encontrado",
+ "info": "Página _PAGE_ de _PAGES_",
+ "infoEmpty": "Nenhum registro disponível",
+ "infoFiltered": "(filtrado de _MAX_ registros no total)",
+ "search": "Filtrar:",
+ "decimal": ",",
+ "thousands": ".",
+ "paginate": {
+   "first":  "Primeira",
+   "last":   "Ultima",
+   "next":   "Próxima",
+   "previous": "Anterior"
+   }
+  }
+});
 
 }
 
@@ -508,11 +531,10 @@ fetch('http://10.139.0.30:8080/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib
 
 }
 
-
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
 </body>
 </html>
 
@@ -528,7 +550,7 @@ EndIf
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-Memowrite("\tmp\PV.html",cHtml)
+//Memowrite("\tmp\PV.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)

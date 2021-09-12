@@ -582,7 +582,6 @@ begincontent var cHTML
 <html lang="pt-BR">
 <head>
 <!-- Required meta tags -->
-<!--<meta charset="iso-8859-1"> -->
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -992,9 +991,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 //cPre  := StrIConv( "Pré", "CP1252", "UTF-8")
 //cHtml := STRTRAN(cHtml,"Pré",cPre)
 
-
-
-Memowrite("\tmp\pn.html",cHtml)
+//Memowrite("\tmp\pn.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)
