@@ -1,11 +1,13 @@
-//Bibliotecas
 #Include "Protheus.ch"
  
-/*------------------------------------------------------------------------------------------------------*
- | P.E.:  MDIOk                                                                                         |
- | Desc:  P.E. ao abrir o módulo SIGAMDI                                                                |
- *------------------------------------------------------------------------------------------------------*/
- 
+/*/{Protheus.doc} MDIOk
+MDIOk - P.E. ao abrir o módulo SIGAMDI
+@Return
+@author Marcos Bispo Abrahão
+@since 19/08/21
+@version P12.1.25
+/*/
+
 User Function MDIOk()
     
 Local cToken  := u_BKEnCode()

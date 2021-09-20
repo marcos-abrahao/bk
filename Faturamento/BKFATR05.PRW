@@ -229,6 +229,7 @@ Local cRM       := ALLTRIM(SC5->C5_XXRM)
                     
 Local cContra   := IIF(!EMPTY(SC5->C5_MDCONTR),SC5->C5_MDCONTR,SC5->C5_ESPECI1)
 Local cRev      := ""
+Local cPedido	:= SC5->C5_NUM
 Local cMedicao  := SC5->C5_MDNUMED
 Local cPlan     := SC5->C5_MDPLANI
 Local cParcel	:= ""
@@ -531,7 +532,7 @@ If !EMPTY(cMedicao)
    cObsMed := ""
 
 	// Nova Medição
-	U_PMedPed(cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
+	U_PMedPed(cPedido,cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
 
 	// Glosas e Bonificações
 	aCNR := U_BKGlosas(SC5->C5_MDNUMED,SC5->C5_MDPLANI)

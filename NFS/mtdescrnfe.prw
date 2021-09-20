@@ -19,6 +19,7 @@ Local nPIss    := 0
 Local cNF,cSerie,cCliente,cLoja
 Local cKeyD2
 Local cProduto  := ""
+Local cPedido	:= ""
 Local cContrato := ""
 Local cPlanilha := ""
 Local cMedicao  := ""
@@ -140,7 +141,8 @@ DO WHILE !EOF() .and. SD2->D2_FILIAL + SD2->D2_DOC + SD2->D2_SERIE == cKeyD2
 		cProduto := SD2->D2_COD
 	ENDIF
 	dbSelectArea("SC5")
-	IF dbSeek(xFilial("SC5") + SD2->D2_PEDIDO)
+	cPedido := SD2->D2_PEDIDO
+	IF dbSeek(xFilial("SC5") + cPedido)
 		cMenNota := TRIM(SC5->C5_MENNOTA)
 		IF EMPTY(cContrato)
 			cContrato := SC5->C5_MDCONTR
@@ -179,7 +181,7 @@ IF !Empty(cContrato)
 	*/
 
 	// Nova Medição
-	U_PMedPed(cContrato,cMedicao,cPlanilha,@cRevisa,@cCompet,@cParcel,@cObsMed,@cEmissor)
+	U_PMedPed(cPedido,cContrato,cMedicao,cPlanilha,@cRevisa,@cCompet,@cParcel,@cObsMed,@cEmissor)
 
 	// Descrição do contrato = descrição do centro de custo
 	dbSelectArea("CTT")
@@ -758,7 +760,7 @@ Return TRIM(cTxt)
   
 
 
-User Function PMedPed(cContrato,cMedicao,cPlanilha,cRevisa,cCompet,cParcel,cObsMed,cEmissor)
+User Function PMedPed(cPedido,cContrato,cMedicao,cPlanilha,cRevisa,cCompet,cParcel,cObsMed,cEmissor)
 
 Local cQuery 	:= ""
 Local aAreaTmp
@@ -792,6 +794,9 @@ cQuery += "       AND CND_NUMMED = CXN_NUMMED AND CXN_REVISA = CND_REVGER AND CN
 cQuery += " WHERE CXN.D_E_L_E_T_ = '' AND CXN_FILIAL = '"+xFilial("CXN")+"' "
 cQuery += "       AND CXN_NUMMED = '"+cMedicao+"' AND CXN_NUMPLA = '"+cPlanilha+"' AND CXN_CHECK = 'T'"
 cQuery := ChangeQuery(cQuery)
+
+//u_LogMemo("MTDESCRNFE.SQL",cQuery)
+
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 dbSelectArea("QTMP")
 dbGotop()
