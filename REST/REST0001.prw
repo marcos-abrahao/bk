@@ -25,7 +25,7 @@ WSMETHOD GET WSRECEIVE mensagem WSSERVICE helloworld
 	
 	//Mensagem 
 	cMsg := 'Hello World!'	
-	Conout(cMsg)
+	//Conout(cMsg)
 
 
 	//via query string

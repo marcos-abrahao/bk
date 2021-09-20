@@ -87,7 +87,7 @@ If lOk
 			AutoGrLog( Replicate( "-", 128 ) )
 			AutoGrLog( Replicate( " ", 128 ) )
 			AutoGrLog( cMsg )
-			ConOut( DToC(Date()) + "|" + Time() + cMsg )
+			//ConOut( DToC(Date()) + "|" + Time() + cMsg )
 		Else
 			MsgInfo( cMsg )
 		EndIf

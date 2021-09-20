@@ -182,7 +182,7 @@ oTmpTb:AddIndex("indice2", {"CONTR", "ALIAS"} )
 oTmpTb:Create()
 
 
-Conout("Executando a cópia dos registros da tabela: " + RetSqlName("CT0") )
+//Conout("Executando a cópia dos registros da tabela: " + RetSqlName("CT0") )
 
 //--------------------------------------------------------------------------
 //Caso o INSERT INTO SELECT preencha todos os campos, este será um método facilitador

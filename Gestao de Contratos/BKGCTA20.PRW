@@ -24,7 +24,8 @@ Local lRet := .T.
 Local cVig := ""
 Local aArea      := GetArea()
 
-Conout("BKGCTA20: "+funname())
+u_xxConOut("INFO","BKGCTA20","Valida Vencimento do Contrato Chamada do Centro de Custo "+cContrato)
+
 IF  ALLTRIM(funname()) == 'RPC'   // GERA APORT BK
 	RestArea(aArea)
 	Return lRet

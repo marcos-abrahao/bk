@@ -481,7 +481,6 @@ DO WHILE (cAliasQry)->(!EOF())
             ElseIf aFields[nF,1] = "XX_VALPROD"
                 xCampo := nD1Prod
             EndIf
-            //ConOut(aFields[nF,1],xCampo)
             &(cAliasTrb+"->"+aFields[nF,1]) :=  xCampo
         Next
 

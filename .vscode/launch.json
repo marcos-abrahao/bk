@@ -317,7 +317,12 @@
 			"args": [],
 			"label": "u_leusuarios",
 			"description": ""
+		},
+		{
+			"args": [],
+			"label": "U_XTESTLOG",
+			"description": ""
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "U_XTESTLOG"
 }

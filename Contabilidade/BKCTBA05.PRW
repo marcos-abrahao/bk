@@ -293,7 +293,7 @@ cQuery += " FROM " + RetSqlName("CT1") + " WHERE D_E_L_E_T_ = ' ' ORDER BY CT1_C
 
 //Envia o insert into para o banco de dados, portanto toda a cópia é feita pelo banco de dados, com grande performance!
 if TCSqlExec(cQuery) < 0
-    ConOut("O comando SQL gerou erro:", TCSqlError())
+    u_xxConOut("ERROR",cPerg,"O comando SQL gerou erro:", TCSqlError())
 endif
 
 return oTempTable

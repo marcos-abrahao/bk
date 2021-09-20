@@ -112,19 +112,19 @@ lMsErroAuto := .F.
           
 MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão 
 
-Conout(DtoC(Date())+" "+Time()+" "+__cUserId+": BKMATJ10 - Empresa: "+_cEmpresa+" - Produto: "+cRetorno)
+u_xxConOut("INFO","BKMATJ10","Empresa: "+_cEmpresa+" - Produto: "+cRetorno)
 
 If lMsErroAuto
     MostraErro() 
  	// Função que retorna o evento de erro na forma de um array
 	aAutoErro := GETAUTOGRLOG()
 	cErro := (XCONVERRLOG(aAutoErro))
-	Conout("BKMATJ10 - Erro em MSExecAuto: "+cErro)
+	u_xxConOut("ERROR","BKMATJ10","Erro em MSExecAuto: "+cErro)
 	cRetorno := cErro
 	lRet := .F.
 Else
 	cRetorno := "OK"
-	Conout(DTOC(date())+' '+TIME()+" BKMATJ10 - Produto "+cRetorno)
+	u_xxConOut("INFO","BKMATJ10","Produto "+cRetorno)	
 EndIf
 
 RpcClearEnv()

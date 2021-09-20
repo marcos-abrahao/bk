@@ -2883,16 +2883,16 @@ USE &cTable ALIAS "__TRB__" Exclusive New Via 'TOPCONN'
 lIntransaction := .f.
 
 IF !NetErr() .and. ( TCUNIQUE(cTable,"") == 0 )
-	conout("Sucesso: "+cTable+" - Chave unica deletada" )
+	//conout("Sucesso: "+cTable+" - Chave unica deletada" )
 else
-	conout("Error: "+cTable+"- Ao deletar chave " )
+	//conout("Error: "+cTable+"- Ao deletar chave " )
 EndIf
 
 IF !NetErr() .and. ( TCUNIQUE(cTable,cChave) == 0 )
-	conout("Sucesso: "+cTable+" - Chave unica criada : "+cChave)
+	//conout("Sucesso: "+cTable+" - Chave unica criada : "+cChave)
 	lRet:= .T.
 else
-	conout("Error: "+cTable+" ao criar chave. ")
+	//conout("Error: "+cTable+" ao criar chave. ")
 EndIf
 
 IF Select("__TRB__") > 0

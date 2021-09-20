@@ -58,71 +58,70 @@ ELSE
 	lEnvT := EMPTY(ALLTRIM(SX6->X6_CONTEUD))	   
 ENDIF
 
-
-ConOut("RepBKGCT06: processando avisos de repactuação - "+DTOC(DATE())+" "+TIME())   
+u_xxConOut("INFO","RepBKGCT06","Processando avisos de repactuação")
 RepBKGCT06()
 
-ConOut("RepBK06b: processando avisos de repactuação - Detalhado - "+DTOC(DATE())+" "+TIME())   
+u_xxConOut("INFO","RepBK06b","Processando avisos de repactuação - Detalhado")
 RepBK06b()
 
 IF DOW(dDataEnv) = 1 .OR. lEnvT
 
-	ConOut("VigBKGCT06: processando avisos de termino de vigencia - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","VigBKGCT06","Processando avisos de termino de vigencia")
 	VigBKGCT06()
 	
-	ConOut("Vg2BKGct06: processando avisos de termino de vigencia 2 - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","Vg2BKGct06","Processando avisos de termino de vigencia 2")
 	Vg2BKGct06()
 	
 ENDIF
 
-ConOut("V5BKGct06: processando Aviso de Insumos Operacionais - "+DTOC(DATE())+" "+TIME())   
+u_xxConOut("INFO","V5BKGct06","Processando avisos de Insumos Operacionais")
 V5BKGct06()
 
-ConOut("V6BKGct06: processando Aviso Atestado de Capacidade Técnica - "+DTOC(DATE())+" "+TIME())   
+u_xxConOut("INFO","V6BKGct06","Processando avisos de Atestado de Capacidade Técnica")
 V6BKGct06()
 
-ConOut("V7BKGct06: processando Aviso Vigência da Caução - "+DTOC(DATE())+" "+TIME())   
+u_xxConOut("INFO","V7BKGct06","Processando avisos de Vigência da Caução")
 V7BKGct06()
 
-ConOut("V8BKGct06: processando Aviso Doc. Segurança do Trabalho - "+DTOC(DATE())+" "+TIME())   
+u_xxConOut("INFO","V8BKGct06","Processando avisos de Doc. Segurança do Trabalho")
 V8BKGct06()
 
 //IF DOW(Date()) == 1
 
 cFWEmp := SUBSTR(FWCodEmp(),1,2)
  
-ConOut("BKGCT06 Empresa:"+FWCodEmp()+".")
+u_xxConOut("INFO","BKGCT06","Empresa:"+FWCodEmp()+".")
 
 If cFWEmp $ "01" 
-	ConOut("V9BKGct06: Aviso de pedido de compras aguardando aprovação - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","V9BKGct06","Processando avisos de pedidos de compras aguardando aprovação")
 	V9BKGct06()
 EndIf
 
 If cFWEmp $ "01" 
-	ConOut("V10BKGct06: Aviso de pedido de compras não entregue - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","V10BKGct06","Processando avisos de pedidos de compras não entregues")
 	V10BKGct06()
 EndIf
 
 If cFWEmp $ "01" 
-	ConOut("V11BKGct06: Aviso de Solicitação de compras em aberto - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","V11BKGct06","Processando avisos de Solicitação de compras em aberto")
 	V11BKGct06()
 EndIf
 
 If cFWEmp == "01" 
-	//ConOut("V12BKGct06: Aviso de pedido de venda em aberto - "+DTOC(DATE())+" "+TIME())   
+	//ConOut("V12BKGct06: Aviso de pedido de venda em aberto - "+DTOC(DATE())+" "+TIME())  
 	//V12BKGct06()
 EndIf
 
 If cFWEmp $ "01/02/14" 
-	ConOut("GRFBKGCT11: Processando Grafico Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","GRFBKGCT11","Processando Grafico Rentabilidade dos Contratos")
 	U_GRFBKGCT11(.T.)
-	ConOut("GRFBKGCT11: Finalizado processamento Grafico Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","GRFBKGCT11","Finalizado rocessando Grafico Rentabilidade dos Contratos")
 ENDIF
 
 If cFWEmp $ "01/02/14" 
-	ConOut("BKGCTR23: Processando Dados do Dashboard  Funcionários e Glosas - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","BKGCTR23","Processando Dados do Dashboard - Funcionários e Glosas")
 	U_BKGCTR23()
-	ConOut("BKGCTR23: Finalizado processamento Dados do Dashboard  Funcionários e Glosas - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","BKGCTR23","Finalizado processamento Dados do Dashboard - Funcionários e Glosas")
 ENDIF
 
 Reset Environment
@@ -212,7 +211,8 @@ Return lRet
 
 Static FUNCTION ProcAvi(cRel)
 
-ConOut("BKGCT06: processando avisos automaticos. (Dialogo) ")   
+u_xxConOut("INFO","BKGCT06","Avisos automaticos. (Dialogo)")
+
 IF VALTYPE(cRel) == "N"
    cRel := "1"
 ENDIF                            
@@ -773,14 +773,14 @@ If nHandle > 0
 
     
 	If lJobV2
-		ConOut(cPrw+": Exito ao criar "+_cArqs )
+		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
 
 Else
 	If lJobV2
-		ConOut("Falha na criação do arquivo "+_cArqS)
+		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
 	Else	
         MsgAlert("Falha na criação do arquivo "+_cArqS)
     Endif    
@@ -1090,7 +1090,7 @@ Next
 If nHandle > 0
 	fClose(nHandle)
 	If lJobV2
-		ConOut(cPrw+": Exito ao criar "+_cArqs )
+		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
@@ -1098,7 +1098,7 @@ If nHandle > 0
 Else
 	fClose(nHandle)
 	If lJobV2
-		ConOut("Falha na criação do arquivo "+_cArqS)
+		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
 	Else	
         MsgAlert("Falha na criação do arquivo "+_cArqS)
     Endif    
@@ -1393,7 +1393,7 @@ EndIf
 If nHandle > 0
 	fClose(nHandle)
 	If lJobV2
-		ConOut(cPrw+": Exito ao criar "+_cArqs )
+		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
@@ -1401,7 +1401,7 @@ If nHandle > 0
 Else
 	fClose(nHandle)
 	If lJobV2
-		ConOut("Falha na criação do arquivo "+_cArqS)
+		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
 	Else	
         MsgAlert("Falha na criação do arquivo "+_cArqS)
     Endif    
@@ -2067,14 +2067,14 @@ If nHandle > 0
 
     
 	If lJobV2
-		ConOut(cPrw+": Exito ao criar "+_cArqs )
+		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
 
 Else
 	If lJobV2
-		ConOut("Falha na criação do arquivo "+_cArqS)
+		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
 	Else	
         MsgAlert("Falha na criação do arquivo "+_cArqS)
     Endif    
@@ -2528,7 +2528,7 @@ EndIf
 If nHandle > 0
 	fClose(nHandle)
 	If lJobV2
-		ConOut(cPrw+": Exito ao criar "+_cArqs )
+		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
@@ -2536,7 +2536,7 @@ If nHandle > 0
 Else
 	fClose(nHandle)
 	If lJobV2
-		ConOut("Falha na criação do arquivo "+_cArqS)
+		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
 	Else	
         MsgAlert("Falha na criação do arquivo "+_cArqS)
     Endif    
@@ -3147,11 +3147,11 @@ Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
 Local nRegSM0 := SM0->(Recno()) 
 
 If FWCodEmp() <> "01"
-	CONOUT("V9BKGct06: Esta Funcao Rodar somente na empresa 01")
+	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-CONOUT("V9BKGct06: Inicio Processo - Aviso de pedido de compras aguardando aprovação")
+//CONOUT("V9BKGct06: Inicio Processo - Aviso de pedido de compras aguardando aprovação")
 
 If !lJobV2
 	IncProc()
@@ -3228,7 +3228,7 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-CONOUT("V9BKGct06: Fim Processo - Aviso de pedido de compras aguardando aprovação")
+//CONOUT("V9BKGct06: Fim Processo - Aviso de pedido de compras aguardando aprovação")
 
 RestArea(aArea)
 
@@ -3253,11 +3253,11 @@ Local nRegSM0 := SM0->(Recno())
 
 
 If FWCodEmp() <> "01"
-	CONOUT("V10BKGct06: Esta Funcao Rodar somente na empresa 01")
+	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-CONOUT("V10BKGct06: Inicio Processo - Aviso de pedido de compras não entregue")
+//CONOUT("V10BKGct06: Inicio Processo - Aviso de pedido de compras não entregue")
 
 If !lJobV2
 	IncProc()
@@ -3341,7 +3341,7 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-CONOUT("V10BKGct06: Fim Processo - Aviso de pedido de compras não entregue")
+//CONOUT("V10BKGct06: Fim Processo - Aviso de pedido de compras não entregue")
 
 RestArea(aArea)
 
@@ -3367,11 +3367,11 @@ Local cCrLf   := Chr(13) + Chr(10)
 Local _ni
 
 If FWCodEmp() <> "01"
-	CONOUT("V11BKGct06: Esta Funcao Rodar somente na empresa 01")
+	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-CONOUT("V11BKGct06: Inicio Processo - Aviso de solicitação de compras em aberto")
+//CONOUT("V11BKGct06: Inicio Processo - Aviso de solicitação de compras em aberto")
 
 
 If !lJobV2
@@ -3494,7 +3494,7 @@ IF LEN(aEmail) > 0
 		If nHandle > 0
 			fClose(nHandle)
 			If lJobV2
-				ConOut(cPrw+": Exito ao criar "+_cArqs )
+				u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
 			Else   
 				lOk := CpyT2S( _cArqs , cPath, .T. )
 			EndIf
@@ -3509,7 +3509,7 @@ IF LEN(aEmail) > 0
 		Else
 			fClose(nHandle)
 			If lJobV2
-				ConOut("Falha na criação do arquivo "+_cArqS)
+				u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)			
 			Else	
 				MsgAlert("Falha na criação do arquivo "+_cArqS)
    	 		Endif    
@@ -3517,7 +3517,7 @@ IF LEN(aEmail) > 0
 	ENDIF
 ENDIF
 
-CONOUT("V11BKGct06: Fim Processo - Aviso de solicitação de compras em aberto")
+//CONOUT("V11BKGct06: Fim Processo - Aviso de solicitação de compras em aberto")
 
 RestArea(aArea)
 
@@ -3541,11 +3541,11 @@ Local nRegSM0 := SM0->(Recno())
 
 
 If FWCodEmp() <> "01"
-	CONOUT("V12BKGct06: Esta Funcao Rodar somente na empresa 01")
+	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-CONOUT("V12BKGct06: Inicio Processo - Aviso de pedido de venda em aberto")
+//CONOUT("V12BKGct06: Inicio Processo - Aviso de pedido de venda em aberto")
 
 If !lJobV2
 	IncProc()
@@ -3617,7 +3617,7 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-CONOUT("V12BKGct06: Fim Processo - Aviso de Pedido de venda em aberto")
+//CONOUT("V12BKGct06: Fim Processo - Aviso de Pedido de venda em aberto")
 
 RestArea(aArea)
 

@@ -326,6 +326,6 @@ aPedidos[2]["teste"]  := "Y2"
 
 jTest["pedidoS"]:= aPedidos
 
-ConOut(jTest:toJson())
+//ConOut(jTest:toJson())
 
 return

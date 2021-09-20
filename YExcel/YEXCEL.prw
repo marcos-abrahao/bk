@@ -513,7 +513,7 @@ METHOD OpenRead(cFile,nPlanilha) Class YExcel
 	PARAMTYPE 1	VAR nPlanilha	  	AS NUMERIC		OPTIONAL DEFAULT 1
 	cFile	:= Alltrim(cFile)
 	If !File(cFile,,.F.)
-		ConOut("Arquivo nao encontrado!")
+		//ConOut("Arquivo nao encontrado!")
 		Return .F.
 	EndIf
 	If ValType(cRootPath)=="U"
@@ -536,7 +536,7 @@ METHOD OpenRead(cFile,nPlanilha) Class YExcel
 			WaitRunSrv('"'+cAr7Zip+'" x -tzip "'+cCamSrv+'" -o"'+cRootPath+'\tmpxls\'+::cTmpFile+'\'+::cNomeFile+'" * -r -y',.T.,"C:\")
 			If !File("\tmpxls\"+::cTmpFile+"\"+::cNomeFile+"\xl\sharedStrings.xml",,.F.)
 				nRet	:= -1
-				ConOut("Arquivo nao descompactado!")
+				//ConOut("Arquivo nao descompactado!")
 				Return .F.
 			Else
 				nRet	:= 0
@@ -545,8 +545,8 @@ METHOD OpenRead(cFile,nPlanilha) Class YExcel
 			nRet	:= FUnZip(cCamLocal,"\tmpxls\"+::cTmpFile+'\'+::cNomeFile+'\')
 		EndIf
 		If nRet!=0
-			ConOut(Ferror())
-			ConOut("Arquivo nao descompactado!")
+			//ConOut(Ferror())
+			//ConOut("Arquivo nao descompactado!")
 			Return .F.
 		EndIf
 		oXml	:= TXmlManager():New()
@@ -2175,15 +2175,15 @@ Static Function DelPasta(cCaminho)
 		Else
 //			ConOut("Deletando:"+cCaminho+"\"+aFiles[nCont][1])
 			If fErase(cCaminho+"\"+aFiles[nCont][1],,.F.)<>0
-				ConOut(cCaminho+"\"+aFiles[nCont][1])
-				ConOut("Ferror:"+cValToChar(ferror()))
+				//ConOut(cCaminho+"\"+aFiles[nCont][1])
+				//ConOut("Ferror:"+cValToChar(ferror()))
 			EndIf
 		EndIf
 	Next
 //	ConOut("Apagando pasta:"+cCaminho)
 	If !DirRemove(cCaminho,,.F.)
-		ConOut(cCaminho)
-		ConOut("Ferror:"+cValToChar(ferror()))
+		//ConOut(cCaminho)
+		//ConOut("Ferror:"+cValToChar(ferror()))
 	EndIf
 Return
 //NÃO DOCUMENTAR

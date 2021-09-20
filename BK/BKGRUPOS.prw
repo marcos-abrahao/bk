@@ -35,7 +35,6 @@ Local aSup		:= {}
 Local lRet := .F.
 
 For nx := 1 To Len(aAllusers)
-    //conout(aAllusers[nx][4] + " -" + aAllusers[nx][5])
 	aSup := FWSFUsrSup(aAllusers[nx][2])
 	For ny := 1 To Len(aSup)
 		If cId == aSup[ny]

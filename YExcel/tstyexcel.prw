@@ -210,38 +210,38 @@ User Function tst2Excel()
 	Local nStart, nElapsed
 	Local nMemIni,nMemCon
 
-	conout( "FwMsExcel")
+	//conout( "FwMsExcel")
 	nStart := Seconds()
 	nMemIni	:= GetUserInfoArray()[1][12]
 	TestFwMsExcel()
 	nElapsed	:= Seconds() - nStart
 	nMemCon		:= GetUserInfoArray()[1][12] - nMemIni
 	ntam		:= Directory("Pasta2.xml","HSD")[1][2]
-	conout( "Tempo: " + LTrim( Str( nElapsed ) ) + " segundos" )
-	conout( "Memoria: " + LTrim( Str( Round(nMemCon/1024/1024,3) ) ) + " MB" )
-	conout( "Tamanho Arquivo: " + LTrim( Str( Round(ntam/1024/1024,3) ) ) + " MB" )
+	//conout( "Tempo: " + LTrim( Str( nElapsed ) ) + " segundos" )
+	//conout( "Memoria: " + LTrim( Str( Round(nMemCon/1024/1024,3) ) ) + " MB" )
+	//conout( "Tamanho Arquivo: " + LTrim( Str( Round(ntam/1024/1024,3) ) ) + " MB" )
 
-	conout( "YExcel")
+	//conout( "YExcel")
 	nStart := Seconds()
 	nMemIni	:= GetUserInfoArray()[1][12]
 	Test2yExcel()
 	nElapsed	:= Seconds() - nStart
 	nMemCon		:= GetUserInfoArray()[1][12] - nMemIni
 	ntam		:= Directory("c:\temp\Pasta1.xlsx","HSD")[1][2]
-	conout( "Tempo: " + LTrim( Str( nElapsed ) ) + " segundos" )
-	conout( "Memoria: " + LTrim( Str( Round(nMemCon/1024/1024,3) ) ) + " MB" )
-	conout( "Tamanho Arquivo: " + LTrim( Str( Round(ntam/1024/1024,3) ) ) + " MB" )
+	//conout( "Tempo: " + LTrim( Str( nElapsed ) ) + " segundos" )
+	//conout( "Memoria: " + LTrim( Str( Round(nMemCon/1024/1024,3) ) ) + " MB" )
+	//conout( "Tamanho Arquivo: " + LTrim( Str( Round(ntam/1024/1024,3) ) ) + " MB" )
 
-	conout( "Treport")
+	//conout( "Treport")
 	nStart := Seconds()
 	nMemIni	:= GetUserInfoArray()[1][12]
 	TestTreport()
 	nElapsed	:= Seconds() - nStart
 	nMemCon		:= GetUserInfoArray()[1][12] - nMemIni
 	ntam		:= Directory("Pasta3.xml","HSD")[1][2]
-	conout( "Tempo: " + LTrim( Str( nElapsed ) ) + " segundos" )
-	conout( "Memoria: " + LTrim( Str( Round(nMemCon/1024/1024,3) ) ) + " MB" )
-	conout( "Tamanho Arquivo: " + LTrim( Str( Round(ntam/1024/1024,3) ) ) + " MB" )
+	//conout( "Tempo: " + LTrim( Str( nElapsed ) ) + " segundos" )
+	//conout( "Memoria: " + LTrim( Str( Round(nMemCon/1024/1024,3) ) ) + " MB" )
+	//conout( "Tamanho Arquivo: " + LTrim( Str( Round(ntam/1024/1024,3) ) ) + " MB" )
 Return
 
 Static Function TesteyExcel()
@@ -388,20 +388,20 @@ User Function YxlsRead()
 	oExcel:ADDPlan()
 	oExcel:Cell(1,1,"OK",,)
 	cArquivo	:= oExcel:Gravar(GetTempPath(),.F.)	//Não abrir arquivo
-	ConOut(cArquivo)
+	//ConOut(cArquivo)
 	oExcel	:= YExcel():new()
 	oExcel:OpenRead(cArquivo)
 	For nLinha	:= 1 to oExcel:adimension[1][1]
 		For nColuna	:= 1 to oExcel:adimension[1][2]
-			ConOut("Tipo:"+ValType(oExcel:CellRead(nLinha,nColuna)))
-			ConOut(oExcel:CellRead(nLinha,nColuna))
+			//ConOut("Tipo:"+ValType(oExcel:CellRead(nLinha,nColuna)))
+			//ConOut(oExcel:CellRead(nLinha,nColuna))
 		Next
 		If nLinha==5
 			oDateTime	:= oExcel:GetDateTime(,,oExcel:CellRead(nLinha,1))
-			ConOut("Formato data")
-			ConOut(oDateTime:GetDate())
-			ConOut(oDateTime:GetTime())
-			ConOut(oDateTime:GetStrNumber())
+			//ConOut("Formato data")
+			//ConOut(oDateTime:GetDate())
+			//ConOut(oDateTime:GetTime())
+			//ConOut(oDateTime:GetStrNumber())
 		EndIf
 	Next
 //	ConOut("Tipo:"+ValType(oExcel:CellRead(1,1)))
@@ -412,16 +412,16 @@ User Function YxlsRead()
 //	ConOut(oExcel:CellRead(3,1))
 //	ConOut("Tipo:"+ValType(oExcel:CellRead(4,1)))
 //	ConOut(oExcel:CellRead(4,1))
-	ConOut("Ler planilha 2")
+//	ConOut("Ler planilha 2")
 //	oExcel:OpenRead(cArquivo,2)
 	For nLinha	:= 1 to oExcel:adimension[1][1]
 		For nColuna	:= 1 to oExcel:adimension[1][2]
-			ConOut("Tipo:"+ValType(oExcel:CellRead(nLinha,nColuna)))
-			ConOut(oExcel:CellRead(nLinha,nColuna))
+			//ConOut("Tipo:"+ValType(oExcel:CellRead(nLinha,nColuna)))
+			//ConOut(oExcel:CellRead(nLinha,nColuna))
 		Next
 	Next
-	ConOut("Tipo:"+ValType(oExcel:CellRead(1,1)))
-	ConOut(oExcel:CellRead(1,1))
+	//ConOut("Tipo:"+ValType(oExcel:CellRead(1,1)))
+	//ConOut(oExcel:CellRead(1,1))
 	oExcel:CloseRead()
 	FreeObj(oDateTime)
 Return

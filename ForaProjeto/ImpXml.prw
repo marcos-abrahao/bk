@@ -602,9 +602,7 @@ If nHdl > 0
      FWrite(nHdl, cTexto)
      FClose(nHdl)
 Else
-     ConOut("******************************************")
-     ConOut("Base - Nao foi possivel criar arquivo " + cArq)
-     ConOut("******************************************")
+     //ConOut("Base - Nao foi possivel criar arquivo " + cArq)
 Endif
 
 Return(NIL)

@@ -339,12 +339,12 @@ If lMsErroAuto
 	For _nX := 1 To Len(aAutoErro) 
 		cErro += aAutoErro[_nX]+CHR(13)+CHR(10)
 	NEXT
-	Conout("BKFINJ18 - Erro em MSExecAuto: "+cErro)
+	u_xxConOut("ERROR","BKFINJ18","Erro em MSExecAuto: "+cErro)
 	cRetorno := cErro
 	lRet := .F.
 Else
 	cRetorno := "DNF"+cNFiscal
-	Conout(DTOC(date())+' '+TIME()+" BKFINJ18 - Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
+	u_xxConOut("INFO","BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
 EndIf
 
 //dDataBase := dDataAt

@@ -124,7 +124,7 @@ IF !lJob
 	cContrato  	:= mv_par01
 ELSE
 	cContrato  	:= "" 
-	ConOut("BKGCTR11: Iniciado processando Rentabilidade dos Contratos - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","BKGCTR11","Inicio do processamento: Rentabilidade dos Contratos")
 ENDIF
 
 
@@ -216,7 +216,7 @@ ELSE
 	IF !lJob
 		Msginfo("Atualizando tabela Folha de Pagamento!!")
 	ELSE
-		ConOut("BKGCTR11: Atualizando tabela Folha de Pagamento - "+DTOC(DATE())+" "+TIME())   
+		u_xxConOut("INFO","BKGCTR11","Atualizando tabela Folha de Pagamento")
 	ENDIF
     Return Nil
 ENDIF
@@ -3304,7 +3304,7 @@ IF lJob
 		ENDDO
 	ENDIF
 
-	ConOut("BKGCTR11: Gravando dados Rentabilidade dos contratos - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","BKGCTR11","Gravando dados Rentabilidade dos contratos")
 
 	nSCAN1 := 0    
 	nSCAN2 := 0    
@@ -4080,7 +4080,8 @@ IF lJob
 			ENDIF
 		TRB->(dbSkip())
 	ENDDO
-	ConOut("BKGCTR11: Finalizado processando Rentabilidade dos contratos - "+DTOC(DATE())+" "+TIME())   
+	u_xxConOut("INFO","BKGCTR11","Finalizado processamento Rentabilidade dos contratos")
+
 ENDIF
 
 
@@ -4474,7 +4475,7 @@ IF nConsolida == 1
 				IF !lJob
 					MSGSTOP("Contrato n° "+cConsolida+" inválido. Verifique!!")
 				ELSE
-					ConOut("BK2GCTR11: Contrato n° "+cConsolida+" inválido. Verifique!!"+DTOC(DATE())+" "+TIME())   
+					u_xxConOut("ERROR","BKGCTR11","Contrato n° "+cConsolida+" inválido. Verifique!!")
 				ENDIF
 				RETURN NIl
 			ENDIF
@@ -4493,7 +4494,7 @@ IF nConsolida == 1
 				IF !lJob
 					MSGSTOP("Contrato n° "+cConsolida+" inválido. Verifique!!")
 				ELSE
-					ConOut("BK2GCTR11: Contrato n° "+cConsolida+" inválido. Verifique!!"+DTOC(DATE())+" "+TIME())   
+					u_xxConOut("ERROR","BK2GCTR11","Contrato n° "+cConsolida+" inválido. Verifique!!")
 				ENDIF
 				RETURN NIL
 			ENDIF
@@ -4522,7 +4523,7 @@ IF nConsolida == 1
 			     	IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
 			     	ENDIF
 				ELSE
-					ConOut("BK2GCTR11: - Contratos não encontrados e será desconsiderado da Consolidação - "+cLogCons+DTOC(DATE())+" "+TIME())   
+					u_xxConOut("ERROR","BK2GCTR11","Contratos não encontrados, serão desconsiderados da Consolidação - "+cLogCons)
 				ENDIF
 				RETURN NIL
 			ENDIF		
@@ -4531,7 +4532,7 @@ IF nConsolida == 1
 		IF !lJob
     		MSGSTOP("Informações para Consolidar invalida. Verifique!!")
 		ELSE
-			ConOut("BK2GCTR11: Informações para Consolidar invalida. Verifique!!"+cLogCons+DTOC(DATE())+" "+TIME())   
+			u_xxConOut("ERROR","BK2GCTR11","Informações para Consolidar invalidas. Verifique!!")
 		ENDIF
 		Return Nil
     ENDIF
@@ -4590,7 +4591,7 @@ ELSE
 	IF !lJob
 		Msginfo("Atualizando tabela Folha de Pagamento!!")
 	ELSE
-		ConOut("BK2GCTR11: Atualizando tabela Folha de Pagamento"+cLogCons+DTOC(DATE())+" "+TIME())   
+		u_xxConOut("INFO","BK2GCTR11","Atualizando tabela Folha de Pagamento "+cLogCons)
 	ENDIF
     Return Nil
 ENDIF
@@ -4690,8 +4691,7 @@ IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
 	IF !lJob
 		MSGSTOP("Contrato não encontrado!!")
 	ELSE
-		ConOut("BK2GCTR11: Contrato não encontrado!!"+cLogCons+DTOC(DATE())+" "+TIME())   
-		ConOut("BK2GCTR11: Query:"+CRLF+cQuery)   
+		u_xxConOut("INFO","BK2GCTR11","Contrato não encontrado!! "+cLogCons+CRLF+cQuery)
 	ENDIF
     Return Nil
 

@@ -69,7 +69,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 		cPara := cCc := "microsiga@bkconsultoria.com.br"
 		If lJob
-			ConOut(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto))
+            FWLogMsg("INFO", /*cTransactionId*/, cPrw /*cGroup*/, FunName() /*cCategory*/, /*cStep*/, /*cMsgId*/, "E-mail simulado: "+TRIM(cAssunto), /*nMensure*/, /*nElapseTime*/, /*aMessage*/)
 		Else
 			//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
 		Endif
@@ -182,14 +182,15 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
  
     //Se tiver log de avisos/erros
     If !Empty(cLog)
-        cLog := "BkSnMail: "+dToC(Date())+ " " + Time() + CRLF + ;
-            "Funcao - " + FunName() + CRLF + CRLF +;
-            "Existem mensagens de aviso: "+ CRLF +;
-            cLog
-        ConOut(cLog)
- 
+
+        u_xxConOut("ERROR","BkSnMail",cLog)
+
         //Se for para mostrar o log visualmente e for processo com interface com o usuário, mostra uma mensagem na tela
         If lMostraLog .and. !lJob
+            cLog := "BkSnMail: "+dToC(Date())+ " " + Time() + CRLF + ;
+                "Funcao - " + FunName() + CRLF + CRLF +;
+                "Existem mensagens de aviso: "+ CRLF +;
+                cLog
             Aviso("Log", cLog, {"Ok"}, 2)
         EndIf
     EndIf
@@ -220,7 +221,7 @@ Private lResult  := .T.
 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 	cPara := cCc := "microsiga@bkconsultoria.com.br"
 	If _lJob
-		ConOut(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto))
+        u_xxConOut("INFO",cPrw,"E-mail simulado em ambiente de teste: "+TRIM(cAssunto))
 	Else
 		//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
 	Endif
@@ -237,7 +238,7 @@ CONNECT SMTP SERVER cServer ACCOUNT cEmail PASSWORD cPass RESULT lResulConn
 If !lResulConn
 	GET MAIL ERROR cError
 	If _lJob
-		ConOut(cPrw+": Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
+        u_xxConOut("ERROR",cPrw,"Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
 	Else
 		MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
 	Endif
@@ -255,7 +256,7 @@ If !lResulConn
 		Else
 			GET MAIL ERROR cError
 			If _lJob
-				ConOut(cPrw+":"+TIME()+": Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
+                u_xxConOut("ERROR",cPrw,"Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
 				u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Erro: "+cError,.T.,"")
 			EndIf	
 		EndIf
@@ -302,7 +303,7 @@ If lResult
 	If !lResulSend
 		GET MAIL ERROR cError
 		If _lJob
-			ConOut(cPrw+": Falha no Envio do e-mail: "+TRIM(cAssunto)+"-"+cError)
+            u_xxConOut("ERROR",cPrw,"Falha no Envio do e-mail: "+TRIM(cAssunto)+"-"+cError)
 		Else
 			MsgAlert(cPrw+": Falha no Envio do e-mail "+TRIM(cAssunto)+"-"+cError)
 		Endif
@@ -310,7 +311,7 @@ If lResult
 Else
 	lResultSend := .F.
 	If _lJob
-		ConOut(cPrw+": Falha na autenticação do e-mail: "+TRIM(cAssunto)+"-"+cError)
+        u_xxConOut("ERROR",cPrw,"Falha na autenticação do e-mail: "+TRIM(cAssunto)+"-"+cError)
 	Else
 		MsgAlert(cPrw+": Falha na autenticação do e-mail: "+TRIM(cAssunto)+"-"+cError)
 	Endif
@@ -320,7 +321,7 @@ DISCONNECT SMTP SERVER
 
 IF lResulSend
 	If _lJob
-		ConOut(cPrw+": E-mail enviado com sucesso: "+TRIM(cAssunto))
+        u_xxConOut("INFO",cPrw,"E-mail enviado com sucesso: "+TRIM(cAssunto)+"-"+cError)
 	Else
 		MsgInfo(cPrw+": E-mail enviado com sucesso: " +TRIM(cAssunto))
 	Endif
