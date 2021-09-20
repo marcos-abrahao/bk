@@ -13,6 +13,7 @@ User Function BKFINR23()
 
 Local nB      := 0
 Local cNCampo := ""
+Local nF
 
 Private aParam		:=	{}
 Private aRet		:=	{}

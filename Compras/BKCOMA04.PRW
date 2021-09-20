@@ -23,7 +23,9 @@ Local oDlg
 Local oListId
 Local oPanelLeft
 Local aButtons := {}
-
+Local I		:= 0
+Local Ix_	:= 0
+Local _IX	:= 0
 Local lOk      := .F.
 Local nTotal := 0
 Local cNUser:= ""

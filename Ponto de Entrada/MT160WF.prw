@@ -43,6 +43,7 @@ Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local nTotPed 	:= 0
 Local cXXJUST 	:= ""
 Local aSC1USER 	:= {} 
+Local nX_,IX_,IY_,i,_IX,xi
 
 Private cXXOBS   := Space(TamSX3("C7_XXOBS")[1]) 
 Private cXXURGEN := Space(TamSX3("C7_XXURGEN")[1])

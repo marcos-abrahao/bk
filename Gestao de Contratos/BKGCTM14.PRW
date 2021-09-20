@@ -127,6 +127,7 @@ Static Function ViewDef()
     Local oStrCab   As Object
     Local oStrGrid1 As Object
     Local oStrGrid2 As Object
+    Local nS        As Numeric
 
     //Criamos agora a estrtutura falsa do cabeçalho na visualização dos dados
     oStrCab := FWFormViewStruct():New()

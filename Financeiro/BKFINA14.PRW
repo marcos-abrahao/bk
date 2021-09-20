@@ -28,6 +28,7 @@ Local lOk      := .F.
 Local aAreaIni  := GetArea()
 Local cQuery    := ""
 Local nI        := 0
+Local _nI       := 0
 Local cTitulo   := "Seleção de Título - Borderô "+FWEmpName(cEmpAnt)
 Local aErros	:= {}
 Local cBanco    := ""
@@ -454,6 +455,7 @@ Local cCGC		:= ""
 Local cNomeCom  := ""
 Local nLote 	:= 0
 Local cDirTmp2  := ALLTRIM(cDirTmp)
+Local nI
 
 DbSelectArea("SM0")
 

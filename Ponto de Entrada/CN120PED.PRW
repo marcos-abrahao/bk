@@ -21,17 +21,17 @@ Local cContrato := CN9->CN9_NUMERO
 Local cRevisa   := CN9->CN9_REVISA
 Local cPlanilha := ""
 Local cNumMed	:= ""
-Local cIteMed	:= ""
+//Local cIteMed	:= ""
 Local cXXNOISS  := ALLTRIM(GetMv("MV_XXNOISS")) // CLIENTE NÃO SAIR RETENÇÃO DE ISS
 Local cCliente  := ""
 Local cLoja		:= ""
 Local aArea		:= GetArea()
 Local aAreaCNA	
-Local aAreaCNE
+//Local aAreaCNE
 Local cNaturez  := ""
 Local cTpNf		:= "N"
 Local lRec		:= .F.
-Local nI		:= 0
+//Local nI		:= 0
 
 cCliente	:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_CLIENTE"}),2]
 cLoja		:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_LOJACLI"}),2]

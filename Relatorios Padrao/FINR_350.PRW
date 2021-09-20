@@ -296,8 +296,8 @@ Local cCondicao2 := ""
 Local lInitForn	:=	.T.
 Local	lPrintForn	:=	.T.
 Local cFilDe,cFilAte, cFilDeSA2,cFilAteSA2        
-Local cFiliAnt:= cFiliAtu := ""  
-Local cFornAnt:= cFornAtu := ""
+//Local cFiliAnt:= cFiliAtu := ""  
+//Local cFornAnt:= cFornAtu := ""
 Local nTotFil0:= nTotForn0:= nTotGeral0:=0
 Local nTotFil1:= nTotForn1:= nTotGeral1:=0
 Local nTotFil2:= nTotForn2:= nTotGeral2:=0

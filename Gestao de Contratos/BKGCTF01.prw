@@ -22,6 +22,7 @@ Local aContrCons:= {}
 Local aConsorcio:= {}
 Local nScan		:= 0
 Local aRet		:= {}
+Local IX
 
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 

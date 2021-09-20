@@ -95,8 +95,8 @@ Return
 
 Static Function Commit(oModel)
 
-Local cEstPres := oModel:GetValue("MASTER", "ESTPRES")
-Local cMunPres := oModel:GetValue("MASTER", "MUNPRES")	
+//Local cEstPres := oModel:GetValue("MASTER", "ESTPRES")
+//Local cMunPres := oModel:GetValue("MASTER", "MUNPRES")	
 	
 Return lRet
 

@@ -32,7 +32,7 @@ Local aUsers    := {}
 Local aGrupo    := {}
 Local lBkCla 	:= .F.
 Local lAtFixo 	:= .F.
-
+Local i,_X1,_X2
  
 //GRAVA USUARIO CLASSIFICOU O DOCUMENTO
 cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXUSERS = '"+__cUserId+"', F1_HORA = '"+SUBSTR(TIME(),1,5)+"'"

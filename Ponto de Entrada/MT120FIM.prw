@@ -33,6 +33,7 @@ Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local nTotPed 	:= 0
 Local cXXJUST 	:= ""
 Local aSC1USER  := {}
+Local nX_,IY_,i,xi,_IX
 //Local cCrLf   	:= Chr(13) + Chr(10)
 
 IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1

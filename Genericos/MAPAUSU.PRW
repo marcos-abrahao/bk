@@ -754,6 +754,7 @@ Static Function fGetMnu(cArq,cUsuario)
 
 Local aRet := {}
 Local aTmp := {}
+Local i
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Abre o Arquivo ³

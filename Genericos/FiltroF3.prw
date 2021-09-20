@@ -59,12 +59,14 @@ User Function FiltroF3(cTitulo,cQuery,nTamCpo,cAlias,cCodigo,cCpoChave,cTitCampo
 	Local cCampos 	:= ""
 	Local bCampo		:= {}
 	Local nCont		:= 0
-	Local bTitulos	:= {}
+	Local nX
+
+	//Local bTitulos	:= {}
 	Local aCampos 	:= {}
 	Local cTabela 
 	Local cCSSGet		:= "QLineEdit{ border: 1px solid gray;border-radius: 3px;background-color: #ffffff;selection-background-color: #3366cc;selection-color: #ffffff;padding-left:1px;}"
 	Local cCSSButton 	:= "QPushButton{background-repeat: none; margin: 2px;background-color: #ffffff;border-style: outset;border-width: 2px;border: 1px solid #C0C0C0;border-radius: 5px;border-color: #C0C0C0;font: bold 12px Arial;padding: 6px;QPushButton:pressed {background-color: #ffffff;border-style: inset;}"
-	Local cCSSButF3	:= "QPushButton {background-color: #ffffff;margin: 2px;border-style: outset;border-width: 2px;border: 1px solid #C0C0C0;border-radius: 3px; border-color: #C0C0C0;font: Normal 10px Arial;padding: 3px;} QPushButton:pressed {background-color: #e6e6f9;border-style: inset;}"
+	//Local cCSSButF3	:= "QPushButton {background-color: #ffffff;margin: 2px;border-style: outset;border-width: 2px;border: 1px solid #C0C0C0;border-radius: 3px; border-color: #C0C0C0;font: Normal 10px Arial;padding: 3px;} QPushButton:pressed {background-color: #e6e6f9;border-style: inset;}"
 
 	Private _oLista	:= nil
 	Private _oDlg 	:= nil
@@ -126,7 +128,7 @@ User Function FiltroF3(cTitulo,cQuery,nTamCpo,cAlias,cCodigo,cCpoChave,cTitCampo
 		(cTabela)->(DbSkip())     
 	Enddo
    
-	DbCloseArea(cTabela)
+	DbCloseArea()
 	
 	If Len(_aDados) == 0
 		MsgInfo("Não há dados para exibir!","Aviso")

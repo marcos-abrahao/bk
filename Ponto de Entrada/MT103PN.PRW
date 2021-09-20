@@ -25,6 +25,7 @@ Local cAlmox := ""
 Local lAlmox := .F.
 Local aAreaIni  := GetArea()
 Local lClass := .T.
+Local i
 
 PswOrder(1) 
 PswSeek(__CUSERID) 

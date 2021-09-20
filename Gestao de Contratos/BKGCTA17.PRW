@@ -20,7 +20,9 @@
 User Function BKGCTA17(cContrat,cTipo)
 Local lOk       := .F.
 Local cTITULO2  := IIF(cTipo=="01","Benefícios","Gastos Gerais")+" - Cadastro Itens da Projeção Financeira do Contrato"
- 
+Local _nx
+Local _IX
+
 PRIVATE aSZL  := {}
 PRIVATE oDlg2 
 PRIVATE oPanelLeft2
@@ -269,6 +271,7 @@ Return lRet
 
 STATIC FUNCTION ExcSZL(nItem)
 LOCAL aItem := {}
+Local _nx
 
 IF nItem > 0
 	IF !EMPTY(aSZL[nITEM,1])
@@ -335,7 +338,7 @@ Local cQuery   := ""
 Local cTitulo2 := "Seleção de Codigos Projeção Financeira"
 Local nScan    := 0
 Local lOk      := .F.
-
+Local _IX
 PRIVATE oOk
 PRIVATE oNo
 PRIVATE oDlg3

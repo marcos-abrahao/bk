@@ -6,6 +6,8 @@
 // -------------------------------------------------------------------------------------------
 
 User Function SCRNFS(mv_par01,mv_par02,mv_par03,mv_par04,mv_par05,mv_par06,cPerg)
+Local _nNotas,_nSeq
+Local _nI,nK,_nY,iAux,iAux1
 
 SetPrvt ("WNREL,CNREL,CTITULO,CDESC1,CDESC2,CDESC3,ARETURN")
 SetPrvt ("CIMPNORM,CIMPCOMP,CIMP20CPP,CIMPESP,CIMPON,CIMPOFF,CIMPRESET,NK,NLASTKEY,LCONTINUA,NPOSREG,CKEY")
@@ -1047,7 +1049,8 @@ Return
 
 Static Function SCCabRod()
 Local _cEndEmp:= _cCidEmp:=_cTelEmp:=Space(75)
-Local _cCepEmp:=_cHomePg:=_cEmail:=Space(75)
+Local _cEmail:=Space(75)
+Local _nCont,_nSeq
 
 nLin := 0
 
@@ -1175,7 +1178,7 @@ Return()
 Static Function ImpRodape()
 
 Local cMensagem	:= "" 
-
+Local iAux,iAux1,nS
 
 //旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
 //쿣alor dos impostos.                                            �

@@ -760,6 +760,8 @@ Return TRIM(cTxt)
   
 
 
+
+
 User Function PMedPed(cPedido,cContrato,cMedicao,cPlanilha,cRevisa,cCompet,cParcel,cObsMed,cEmissor)
 
 Local cQuery 	:= ""

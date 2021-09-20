@@ -33,7 +33,7 @@ Local cRetorno    := ""
 Local cUsuario    := __cUserId
 Local cSuper	  := "" 
 Local aEmpr       := {}
-
+Local nI
 If msgYesNo('Deseja incluir este produto em outras empresas?')
 	
     aProd := {{"B1_TIPO"    ,SB1->B1_TIPO        ,Nil},;      
@@ -95,8 +95,8 @@ User Function BKMATJ10(_aParametros)
 Local _cEmpresa  := _aParametros[1] // Usar o paramixb
 Local _cFilial   := _aParametros[2]
 Local _aProd     := _aParametros[3]
-Local _cUsuario  := _aParametros[4]
-Local _cSuper 	 := _aParametros[5]
+//Local _cUsuario  := _aParametros[4]
+//Local _cSuper 	 := _aParametros[5]
 
 Local cErro      := ""
 Local cRetorno   := _aProd[2,2]

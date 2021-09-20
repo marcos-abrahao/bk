@@ -16,6 +16,7 @@ Local aUser
 Local cMDiretoria,cMRepac,cMRepac2
 Local aRotY := {}
 Local aRotZ := {}
+Local i
 
 AADD(aRotina,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
 
@@ -834,6 +835,7 @@ Local nTotFat1:=nTotCLT1:=nEncSoc1:=nAJCuto1:=nEncAC1:=0
 Local nMaterial1:=nEquip1:=nBenef1:=nUnif1:=nTributos1:=nDespDiv1:=nRentab1:=0
 Local cNewSeq := ""
 Local cQuery  := ""
+Local _nx
 
 PRIVATE dDVigPrFin := date()
 PRIVATE nTotFat:=nTotCLT:=nEncSoc:=nVlEncSoc:=nAJCuto:=nEncAC:=nVLEncAC:=nInsumos:=nBenef:=nUnif:=nDespDiv:=0

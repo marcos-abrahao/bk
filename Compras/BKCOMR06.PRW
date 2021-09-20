@@ -308,9 +308,9 @@ Return
 Static Function ProcBKCOMR6
 Local cQuery := ""
 Local nReg := 0
+Local Ix_	:= 0
 
 LimpaBrw("TRB")
-
 
 cQuery := "SELECT C7_FORNECE,C7_LOJA,C7_NUM,C7_NUMCOT,C7_ITEM,C7_XXURGEN,C7_EMISSAO,C7_PRODUTO,SB1.B1_DESC,C7_UM,C7_QUANT,C7_QUJE,C7_PRECO,C7_TOTAL,C7_CC,"
 cQuery += " C7_CONAPRO,CTT.CTT_DESC01, SA2.A2_NREDUZ, SA2.A2_NOME,SA2.A2_CGC"
@@ -591,7 +591,7 @@ Return
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

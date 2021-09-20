@@ -18,7 +18,7 @@ Local aFields   As Array
 Local aColumns  As Array
 Local aPesq     As Array
 Local oMark     As Object
-Local cQuery    As Character
+//Local cQuery    As Character
 Local oTempTable    As Object
 
 Local aSize	   	:= FWGetDialogSize( oMainWnd )

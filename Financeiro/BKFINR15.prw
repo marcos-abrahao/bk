@@ -408,7 +408,7 @@ Return {nTotSaldo,nTotAplAtu,nTotIr,nTotIof}
 
 
 Static Function AjustaSX1(cPerg)
-
+Local i,j
 Local aArea := GetArea()
 Local aRegs := {}
 

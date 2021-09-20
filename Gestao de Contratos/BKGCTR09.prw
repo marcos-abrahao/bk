@@ -18,7 +18,7 @@ Local aDbf 		:= {}
 Local aDbf2 	:= {}
 Local oTmpTb1
 Local oTmpTb2
-
+Local IX
 Local cMes := ""
 
 Private aMeses	:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
@@ -333,6 +333,7 @@ Return Nil
 
 Static Function ProcQuery(nOpc)
 Local cQuery
+Local _nI,_nJ,i
 
 LimpaBrw ("TRB")
 LimpaBrw (ALIAS_TMP)
@@ -702,13 +703,12 @@ dbSelectArea("TRB")
 TRB->(dbgotop())
 
 
-
 IF nOpc == 1 // Avisa se diferença valores do cronograma e planilha
 	cCroXPla = ""
 	IF LEN(aCroXPla) > 0
 		cCroXPla += "VERIFICAR CONTRATOS"+ Chr(13) + Chr(10)+ Chr(13) + Chr(10)
-		FOR XI__ := 1 TO LEN(aCroXPla)
-			cCroXPla += aCroXPla[XI__]+ Chr(13) + Chr(10)+ Chr(13) + Chr(10)
+		FOR i := 1 TO LEN(aCroXPla)
+			cCroXPla += aCroXPla[i]+ Chr(13) + Chr(10)+ Chr(13) + Chr(10)
 		NEXT
 		Aviso("Atencao",cCroXPla, {"Ok"})
 	ENDIF
@@ -864,7 +864,7 @@ Return
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

@@ -982,6 +982,7 @@ LOCAL lFiltPrd    := .F.
 LOCAL cDigitado   := ""
 LOCAL cLiberado   := ""
 LOCAL aLib        := {}
+Local j,IX,xi
 
 nDias := (dDataF-dDataI)+1
 dDataBs:= dDataI
@@ -1775,7 +1776,7 @@ Return NIL
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 dbSelectArea("SX1")

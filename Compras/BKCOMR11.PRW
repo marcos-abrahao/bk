@@ -284,6 +284,7 @@ Return
 Static Function ProcBKCOMR11
 Local cQuery := ""
 Local nReg := 0
+Local nF
 
 Private xCampo
 

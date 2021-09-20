@@ -20,6 +20,8 @@ User Function BKGCTR14(aParam)
 Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado"
 Local cTitulo		:= ""
 Local _nI           := 0
+Local iX			:= 0
+Local _IX			:= 0
 
 Local oTmpTb1		as Object
 Local oTmpTb2		as Object
@@ -929,6 +931,12 @@ Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
 Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
+Local IX		:= 0
+Local _IX2		:= 0
+Local _IXFUR	:= 0
+Local XI_		:= 0
+Local Yi_
+Local _XI
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -4260,6 +4268,7 @@ STATIC FUNCTION GeraResult()
 Local aGeral 	:= {}
 Local aBenef 	:= {}
 Local I			:= 0
+Local _IX,_XI
 
 //Verifica o Crupo do usuario - visualização do relatorio
 PswOrder(1) 

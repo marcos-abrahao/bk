@@ -223,7 +223,7 @@ Local oAll
 Local aButtons := {}
 Local lOk      := .F.
 Local cPicV    := ""
-
+Local _IX
 Local cDtVenc,cCPFFav,cNome,cBcFav,cAgFav,cDvAgFav,cCCFav,cDvCCFav,nValFav,cOcorr,cDesOcorr,nCont,cStatus
 
 
@@ -556,6 +556,7 @@ RETURN
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 Local nTotLot   := 0
 Local nRegistro := 0
+Local _XI
 
 nEsp    := 2
 cPicQ 	:= "@E 99999999"

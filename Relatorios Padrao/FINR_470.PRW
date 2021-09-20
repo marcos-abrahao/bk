@@ -190,7 +190,7 @@ Local lAllFil	:= .F.
 Local cChave	:= ""
 Local cAliasSA6	:= "SA6"
 Local cAliasSE5	:= "SE5"
-Local cSql1:= cSql2	:= ""
+Local cSql1		:= ""
 Local nMoeda	:= GetMv("MV_CENT"+(IIF(mv_par06 > 1 , STR(mv_par06,1),"")))            
 LOCAL lSpbInUse	:= SpbInUse()        
 Local nSaldoAtu	:= 0    

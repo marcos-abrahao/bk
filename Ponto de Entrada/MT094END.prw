@@ -62,6 +62,10 @@ Local nTotPed   := 0
 Local cEmUser   := ""
 Local cXXJUST   := ""
 Local aSC1USER  := {}
+Local IT_
+Local Ix_
+Local xi
+Local _IX
 
 //MsgInfo(nPedido)
 //MsgInfo(cTipoDoc)

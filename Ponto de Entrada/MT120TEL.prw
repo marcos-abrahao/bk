@@ -20,9 +20,9 @@ ExecBlock("MT120TEL",.F.,.F.,{@oDlg, aPosGet, aObj, nOpcx, nReg} )
 USER FUNCTION MT120TEL
 Local oNewDialog := PARAMIXB[1]
 Local aPosGet    := PARAMIXB[2]  
-Local aNewObj    := PARAMIXB[3]
+//Local aNewObj    := PARAMIXB[3]
 Local nOpcx      := PARAMIXB[4]
-Local nReg       := PARAMIXB[5]
+//Local nReg       := PARAMIXB[5]
 Local nLin       := 0
 
 Public aSIM   := {}

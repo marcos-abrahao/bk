@@ -202,6 +202,7 @@ Return
 Static Function ProcBKFR04
 Local cQuery := ""
 Local cFilCtr:= ""
+Local nF
 Private xCampo
 
 cQuery := " SELECT DISTINCT F2_FILIAL,F2_CLIENTE,F2_LOJA,A1_NOME,D2_COD,B1_DESC,B1_CODISS,B1_ALIQISS,"+ CRLF

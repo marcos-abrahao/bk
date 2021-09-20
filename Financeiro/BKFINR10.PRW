@@ -1011,6 +1011,7 @@ LOCAL nReceber   := 0
 
 LOCAL aStru 	 := SE5->(dbStruct())
 LOCAL nI         := 0
+Local IX,xi,_IY
 LOCAL cOrder
 
 LOCAL cCtaFin    := SPACE(12)
@@ -1999,6 +2000,7 @@ Local cSql			:= ""
 Local nTotINSS 		:= 0
 Local aContrCons	:= {}
 Local aConsorcio    := {}
+Local IX
 
 aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 
@@ -2357,6 +2359,7 @@ Local cSql		:= ""
 Local nTotCOFINS:= 0
 Local nCredCOF	:= 0
 Local cTXCOFINS	:= STR(GetMv("MV_TXCOFINS"))
+Local _X1
 
 cSql := "SELECT D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXCOFINS)+"/100)),2)-SUM(D2_VALCOF) AS VALCOF"
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
@@ -2453,6 +2456,7 @@ Local cSql		:= ""
 Local nTotPIS 	:= 0
 Local nCredPIS	:= 0
 Local cTXPIS	:= STR(GetMv("MV_TXPIS"))
+Local _X1
 
 cSql := "SELECT D2_CCUSTO,C5_ESPECI1,ROUND(SUM(D2_VALBRUT*("+ALLTRIM(cTXPIS)+"/100)),2)-SUM(D2_VALPIS) AS VALPIS"
 cSql += " FROM "+RetSqlName("SD2")+" SD2 "
@@ -2694,7 +2698,7 @@ Return aRest
 
 
 STATIC FUNCTION VldPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 dbSelectArea("SX1")

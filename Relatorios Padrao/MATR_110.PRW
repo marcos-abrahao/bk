@@ -303,7 +303,7 @@ Local cCident	  := ""
 Local cCidcob	  := ""
 Local nLinPC2	  := 0
 Local nLinPC3	  := 0
-
+Local nI
 Local nTamCdProd:= TamSX3("C7_PRODUTO")[1]
 Local nTamQtd   := TamSX3("C7_QUANT")[1]
 Local nTamanCorr:=148 // tamanho correto do final da linha

@@ -17,8 +17,8 @@
  
 User Function xMT140LOK
 Local lRet	 := ParamIXB[1]
-Local aTotais:= ParamIXB[2]
-Local aDesp  := ParamIXB[3]
+//Local aTotais:= ParamIXB[2]
+//Local aDesp  := ParamIXB[3]
 Local nPosPc := aScan(aHeader,{|x| AllTrim(x[2])=="D1_PEDIDO"})
 Local aUser:={},aGrupo:={}
 Local cAlmox := ""

@@ -73,6 +73,7 @@ Static Function FA19EdtCx(cAliasTmp)
 
 Local aArea      := GetArea()
 Local nTamBtn    := 50
+Local nAtual	 := 0
 
 Private nColunas := 0
 Private nLinhas  := 0

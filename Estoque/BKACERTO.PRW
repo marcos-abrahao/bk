@@ -214,6 +214,7 @@ Uso          : Mister Imagem
 /*/
 
 USER Function BKZJTOD3()
+Local nX
 nRepl := 0
 dData := CTOD("30/09/2013")
 cDoc  := '20130930'
@@ -374,6 +375,7 @@ Return Nil
 // Acerto SOMENTE para Julho 2011
 // alterar o parametro mv_estneg para N antes
 USER Function BKZJJUL11()
+Local nX
 nRepl := 0
 dData := CTOD("31/07/2011")
 cDoc  := "AC0711"

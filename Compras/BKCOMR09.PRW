@@ -360,6 +360,7 @@ Static Function ProcBKCOMR9
 Local cQuery  := ""
 Local nReg    := 0
 Local Iy_     := 0
+Local Ix_	  := 0
 Local naITx_  := 0
 Local dMedia
 Local nMedia  := 0
@@ -710,7 +711,7 @@ Return
 
 
 Static Function  ValidPerg
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 cPerg := "BKCOMR9"

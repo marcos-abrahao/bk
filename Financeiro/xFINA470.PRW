@@ -1298,7 +1298,7 @@ Return cFiltro
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 STATIC Function F470CriArq()
-Local aDbStru	:= aTamSX3 := {}
+Local aDbStru	:= {}
 //Arquivo de reconciliacao
 aadd(aDbStru,{"SEQMOV    ","C",04,0})
 aadd(aDbStru,{"SEQRECON  ","C",04,0})
@@ -2152,7 +2152,7 @@ Return NIL
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}  
 

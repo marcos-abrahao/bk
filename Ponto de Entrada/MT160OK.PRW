@@ -29,7 +29,7 @@ User Function  MT160OK()
 Local aPlanilha := PARAMIXB // Array contendo todos os dados da Planilha de Cotação para validação
 Local lContinua := .T.
 Local aCota := {}
-
+Local IX_,IY_
 
 aCota := {}
 For IX_ := 1 TO LEN(aPlanilha)

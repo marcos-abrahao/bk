@@ -35,7 +35,7 @@ cFilDoc == Filial do Documento
 Local nPedido   := PARAMIXB[1] 
 Local cTipoDoc  := PARAMIXB[2]
 Local nOpcao    := PARAMIXB[3]
-Local cFilDoc   := PARAMIXB[4]
+//Local cFilDoc   := PARAMIXB[4]
 Local nCotacao  := ""
 Local cAssunto	:= ""
 Local cEmail	:= "microsiga@bkconsultoria.com.br;fabio.quirino@bkconsultoria.com.br;"
@@ -61,6 +61,7 @@ Local nTotPed   := 0
 Local cEmUser   := ""
 Local cXXJUST   := ""
 Local aSC1USER  := {}
+Local IT_,Ix_,_IX,xi
 
 IF ALLTRIM(cTipoDoc) <> "PC"
 

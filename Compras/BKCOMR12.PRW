@@ -285,7 +285,7 @@ Return
 Static Function ProcBKCR12
 Local cQuery := ""
 Local nReg := 0
-
+Local nF
 Private xCampo
 
 LimpaBrw(cAliasTrb)

@@ -363,6 +363,7 @@ Static Function ImpDet(oDanfe,aNota)
 
 Local lServer := Getprofstring(GETPRINTERSESSION(),"LOCAL","SERVER",.T.) == "SERVER"
 Local nS := 0
+Local i,j
 If !lServer
 	nS := 1
 EndIf

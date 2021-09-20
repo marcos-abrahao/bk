@@ -10,9 +10,9 @@ BK - Ponto de Entrada para carregar campos na inclusão das mediçoes
 /*/
 
 User Function C121VCPO()
-Local oStruCND := PARAMIXB[1]
+//Local oStruCND := PARAMIXB[1]
 Local oStruCXN := PARAMIXB[2]
-Local oStruCNE := PARAMIXB[3]
+//Local oStruCNE := PARAMIXB[3]
 //Local bBloc
 
 //bBloc:=FWBuildFeature(STRUCT_FEATURE_VALID,"U_CNACPOS(), .T.")

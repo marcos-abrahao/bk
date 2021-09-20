@@ -39,6 +39,7 @@ Local aUsers    := {}
 Local aGrupo    := {}
 Local cAlmox    := ""
 Local lAlmox    := .F.
+Local nX,i
 
 cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
 

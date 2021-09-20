@@ -229,7 +229,7 @@ Return nil
 
 
 Static Function  ValidPerg(cPerg)
-
+Local i,j
 Local aArea      := GetArea()
 Local aRegistros := {}
 

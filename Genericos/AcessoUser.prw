@@ -323,8 +323,10 @@ Local   nTamMod  := 0//ref 26/02/13 - adicionadas as 2 variáveis de controle par
 Local   nTamGrup := 0 
 Local   nTamUser := Len(aUsers)
 
-Private i        := 2 //começa em 2 para pular o adm que tem acesso full
-Private j        := 1       
+Local i        := 2 //começa em 2 para pular o adm que tem acesso full
+Local j        := 1    
+Local _IX
+   
 Private lAppUser := .F.
 Private lAppMod  := .F.
 

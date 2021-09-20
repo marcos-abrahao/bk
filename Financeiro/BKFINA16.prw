@@ -445,6 +445,7 @@ Return nil
 
 STATIC FUNCTION DeleTab(nItem)
 LOCAL aItem := {}
+Local _nx
 
 IF nItem > 0 .AND. ALLTRIM(aTitGer[nItem,1]) <> ""
 	IF MsgYesNo("Confirma a exclusão do Titulo: '"+aTitGer[nItem,1]+"' selecionado?")

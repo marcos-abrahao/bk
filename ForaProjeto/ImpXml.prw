@@ -44,8 +44,9 @@ Return()
 Static Function XMLNfe(cFile)
 
 Local cError      := ""
-Local cWarning      := ""
-Local oXml           := NIL
+Local cWarning    := ""
+Local oXml        := NIL
+Local nContLote,nCont
 
 oXml := XmlParserFile( cPath+cFile, "_", @cError, @cWarning )
 If ValType(oXml) != "O"
@@ -92,7 +93,6 @@ Private cSerie := "1 "
 Private cTipo := "N"
 //Private cCod
 
-Private nCont
 Private cCodigo
 Private cUM
 Private bLote
@@ -107,7 +107,6 @@ Private nValDesc // $
 Private nItem := 0
 
 Private bMed
-Private nContLote // Contador do For
 Private nTotalMed // Len do Array Med
 Private nQtdeLote // Qtde do Lote Atual
 Private nDescLote // Desconto do Lote Atual

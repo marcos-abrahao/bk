@@ -364,8 +364,8 @@ Static Function fGeraNfe(oProc)
 	Local cPedAut
 	Local cItPedAut
 	Local nTamProd     := TamSX3('B1_COD')[1]
-	Local nTamForn     := TamSX3('A2_COD')[1]
-	Local nTamLoja     := TamSX3('A2_LOJA')[1]
+	//Local nTamForn     := TamSX3('A2_COD')[1]
+	//Local nTamLoja     := TamSX3('A2_LOJA')[1]
 	Local nPosProd
 	Local nFrete
 	Local nSeguro
