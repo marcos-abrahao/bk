@@ -62,9 +62,9 @@ Local lRet         := .T.
 //	Local oJson        As Object
 //  Local cCatch       As Character  
 Local oJson        As Object
-Local cPedido      As char
+Local cPedido      As Char
 Local aParams      As Array
-Local cMsg         As String
+Local cMsg         As Char
 
 /*
 	//Seta job para nao consumir licensas
@@ -192,7 +192,7 @@ Default self:pageSize := 500
     WHERE   SC5.%NotDel%
             AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
             %exp:cWhereSC5%
-    ORDER BY SC5.C5_NUM DESC
+    ORDER BY SC5.C5_NUM 
     
 	EndSQL
 
@@ -461,6 +461,7 @@ document.getElementById("mytable").innerHTML = trHTML;
 
 $('#tableSC5').DataTable({
  "pageLength": 100,
+ "order": [[ 0, "desc" ]],
  "language": {
  "lengthMenu": "Registros por página: _MENU_ ",
  "zeroRecords": "Nada encontrado",

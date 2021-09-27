@@ -47,6 +47,9 @@ Aadd( aDbf, { 'XX_PEXEC','N', 4,0 } )
 Aadd( aDbf, { 'XX_PAEXEC','N', 4,0 } )
 Aadd( aDbf, { 'XX_SALDOAT','N', 14,2 } )
 
+Aadd( aDbf, { 'XX_XXNGC',  'C', 40,00 } )
+Aadd( aDbf, { 'XX_XXEGC',  'C', 70,00 } )
+
 ///cArqTmp := CriaTrab( aDbf, .t. )
 ///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
 
@@ -76,6 +79,13 @@ AADD(aCabs  ,"CNPJ")
 
 AADD(aCampos,"TRB->XX_ENDER")
 AADD(aCabs  ,"Endereço Completo do Cliente")
+
+AADD(aCampos,"TRB->XX_XXNGC")
+AADD(aCabs  ,"Contato do Cliente")
+
+AADD(aCampos,"TRB->XX_XXEGC")
+AADD(aCabs  ,"E-mail Contato do Cliente")
+
 
 AADD(aCampos,"TRB->XX_TELS")
 AADD(aCabs  ,"Telefone do Cliente")
@@ -208,6 +218,10 @@ DO WHILE CN9->(!EOF())
 	TRB->XX_PEXEC   := ((nVTOTAL - nSALDOAT) * 100) / nVTOTAL
 	TRB->XX_PAEXEC  := (nSALDOAT * 100) / nVTOTAL
 	TRB->XX_SALDOAT := nSALDOAT
+
+	TRB->XX_XXNGC   := CN9->CN9_XXNGC
+	TRB->XX_XXEGC   := CN9->CN9_XXEGC
+	
 	TRB->(Msunlock())
 
 	CN9->(DBSKIP())

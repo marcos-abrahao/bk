@@ -96,7 +96,7 @@ Local lRet         := .T.
 //  Local cCatch       As Character  
 Local oJson        As Object
 Local aParams      As Array
-Local cMsg         As String
+Local cMsg         As Char
 
 
 	//Define o tipo de retorno do servico
@@ -206,7 +206,7 @@ Local nReg 			:= 0
 Local oJsonSales 	:= JsonObject():New()
 
 Local aParams      	As Array
-Local cMsg         	As String
+Local cMsg         	As Character
 Local nE			:= 0
 Local cEmpresa		:= ""
 Local cNomeEmp		:= 0

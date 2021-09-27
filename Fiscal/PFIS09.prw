@@ -437,6 +437,8 @@ Static Function ProcPFIS09()
 LOCAL cQuery,cERRO := ""
 LOCAL nLINHA := 0
 LOCAL _Xi
+Local cMV_DEDBPIS := ALLTRIM(GetMV("MV_DEDBPIS"))
+Local cMV_DEDBCOF := ALLTRIM(GetMV("MV_DEDBCOF"))
 
 LimpaBrw("TRB")
 
@@ -594,11 +596,11 @@ Do While (ALIAS_TMP)->(!eof())
 			ELSE
 				nALIPISC := _nTXPIS
 				nDescto  := 0
-				IF  ALLTRIM(GetMV("MV_DEDBPIS")) == 'I'
+				IF cMV_DEDBPIS == 'I'
 					nDescto  := (ALIAS_TMP)->FT_ICMSRET
-				ELSEIF  ALLTRIM(GetMV("MV_DEDBPIS")) == 'P'
+				ELSEIF cMV_DEDBPIS == 'P'
 					nDescto  := (ALIAS_TMP)->FT_VALIPI
-				ELSEIF  ALLTRIM(GetMV("MV_DEDBPIS")) == 'S'
+				ELSEIF cMV_DEDBPIS == 'S'
 					nDescto  := (ALIAS_TMP)->FT_VALIPI  + (ALIAS_TMP)->FT_ICMSRET
                 ENDIF
 				nBASPISC := (ALIAS_TMP)->FT_VALCONT - nDescto 
@@ -621,11 +623,11 @@ Do While (ALIAS_TMP)->(!eof())
 			ELSE
 				nALICOFC := _nTXCOFINS
 				nDescto  := 0
-				IF  ALLTRIM(GetMV("MV_DEDBCOF")) == 'I'
+				IF cMV_DEDBCOF == 'I'
 					nDescto  := (ALIAS_TMP)->FT_ICMSRET
-				ELSEIF  ALLTRIM(GetMV("MV_DEDBCOF")) == 'P'
+				ELSEIF cMV_DEDBCOF == 'P'
 					nDescto  := (ALIAS_TMP)->FT_VALIPI
-				ELSEIF  ALLTRIM(GetMV("MV_DEDBCOF")) == 'S'
+				ELSEIF cMV_DEDBCOF == 'S'
 					nDescto  := (ALIAS_TMP)->FT_VALIPI  + (ALIAS_TMP)->FT_ICMSRET
                 ENDIF
 				nBASCOFC := (ALIAS_TMP)->FT_VALCONT - nDescto

@@ -519,11 +519,13 @@ RETURN lOk
 
 
 Static function IncluiNF(aItemCC)
-LOCAL aCabec := {}, aLinha := {}, aItens := {}
-LOCAL nX := 0, nItem := 0
+Local aCabec := {}, aLinha := {}, aItens := {}
+Local nX := 0, nItem := 0
+Local lRet := .T.
+
 Private lMsHelpAuto := .T.
-PRIVATE lMsErroAuto := .F.
-PRIVATE aAutoErro := {}
+Private lMsErroAuto := .F.
+Private aAutoErro := {}
 
 ASORT(aItemCC,,,{|x,y| x[2]<y[2]})
 
@@ -577,7 +579,6 @@ IF nItem > 0
 ENDIF
 
 
-
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //| Inclusao Pre Nota                                            |
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
@@ -591,18 +592,15 @@ Begin Transaction
 		MsgStop("Problemas em Pré-Documento de Entrada "+cDoc+"    "+cSerie+", informe o setor de T.I. ", "Atenção")
 	    MostraErro()
 		DisarmTransaction()
-		Return .F.
+		lRet := .F.
 
 	Else
 		Msginfo(OemToAnsi("Pré-Documento de Entrada incluido com sucesso! ")+cDoc+"    "+cSerie)
 	EndIf
 
-
-
-
 End Transaction
 
-RETURN NIL
+Return lRet
                          
                          
 Static Function GrvMVARQ()

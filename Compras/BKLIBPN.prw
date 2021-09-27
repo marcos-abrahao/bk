@@ -18,14 +18,14 @@ User Function BKLIBPN()
 Local cToken  := u_BKEnCode()
     
     
-If u_IsSuperior(__cUserId) .OR. u_IsGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000")
+//If u_IsSuperior(__cUserId) .OR. u_IsGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000") .OR. .T.
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 		ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPN/v2?userlib="+cToken, "", "", 1)
 	Else
 		ShellExecute("open", "http://10.139.0.30:8080/rest/RestLibPN/v2?userlib="+cToken, "", "", 1)
 	EndIf
-Else
-    MsgStop("Acesso não concedido.","BKLIBPN")
-EndIf
+//Else
+    //MsgStop("Acesso não concedido.","BKLIBPN")
+//EndIf
 
 Return .T.
