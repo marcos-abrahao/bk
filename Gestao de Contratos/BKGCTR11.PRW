@@ -4397,7 +4397,8 @@ PRIVATE aCampos2,aCabs2
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE ALIAS_FOL   := "TMPF"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE cXXPLR 		:= ""
-PRIVATE aFurnas:= {} 
+PRIVATE aFurnas		:= {} 
+PRIVATE lFurnas		:= .F.
 
 Default lJob	:= .F.
 Default aAglContr := {}

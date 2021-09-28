@@ -76,3 +76,15 @@ EndIf
 Return (lRet)
 
 
+// Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
+
+User Function IsAvalia(cId)
+Local lRet := .F.
+// Admin/Fabio/Anderson/Luis/Michele/Caio
+If cId $ "000000/000093/000005/000116/000138/000126/"
+    lRet := .T.
+EndIf
+Return (lRet)
+
+
+

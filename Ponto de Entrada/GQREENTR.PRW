@@ -48,12 +48,12 @@ cAlmox  := SuperGetMV("MV_XXGRALX",.F.,"000021")
 // Michele Morais 138, Fabio 93, Anderson 5, João Brasileiro (antonio.filho) 171 e Vanderleia 56
 //cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
 
-// Alteração solicitada por William Santos em 21/01/20 - Anderson 25/07/20
-cAvalia := "000093/000005"   // Apenas o Fabio Quirino e o Anderson
+// Alteração solicitada por William Santos em 21/01/20 - Anderson 25/07/20 e 27/09/21 - Michele
+//cAvalia := "000093/000005/000138"   // Apenas o Fabio Quirino, Anderson e Michele
 
 // Falta criar campo A2_XXAVALC, criar check box "Fornecedor análise crítica"  e gravar no SA2 (ler e sugerir na avaliação)
   
-If __cUserId $ cAvalia
+If u_IsAvalia(__cUserId)
 	lBkCla := .T.
 EndIf
 
@@ -218,11 +218,10 @@ Return( NIL )
 
 User Function RAvalForn()
 // Reavaliação da NF
-
 //cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
-cAvalia := "000000/000138/000093/000005" // Adm/Michele/Fabio Quirino/Anderson
+//cAvalia := "000000/000138/000093/000005" // Adm/Michele/Fabio Quirino/Anderson
  
-If __cUserId $ cAvalia 
+If u_IsAvalia(__cUserId)
 	U_AvalForn(.T.)
 Else
 	MsgStop("Função não permitida para seu usuário!!","GQREENTR - Atenção")
@@ -233,7 +232,7 @@ Return Nil
 User Function AvalForn(lReavalia) 
 
 Local oGroup1,oGroup2,oGroup3,oGroup4  //,oGroup5
-Local oSay,oFont1,oFont2,oFont3
+Local oSay,oSayT,oFont1,oFont2,oFont3
 
 Local nTotal := 0
 Local aItens := {'Sim','Não'}
@@ -288,30 +287,30 @@ oSay  := TSay():New( 035,020, {|| 'Preço'},oGroup1,, oFont1,,,, .T.,,)
 oRadio1 := TRadMenu():Create (oGroup1,,30,150,aItens,,,,,,,,100,12,,,,.T.)
 
 oRadio1:bSetGet := {|u|Iif (PCount()==0,nRadio1,nRadio1:=u)}
-oRadio1:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)) }
+oRadio1:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)),oSayT:Refresh() }
 
 oGroup2:= tGroup():New(60,10,080,190,'',oDlg,,,.T.)
 oSay  := TSay():New( 065,020, {|| 'Prazo'},oGroup2,, oFont1,,,, .T.,,)
 oRadio2 := TRadMenu():Create (oGroup2,,60,150,aItens,,,,,,,,100,12,,,,.T.)
 
 oRadio2:bSetGet := {|u|Iif (PCount()==0,nRadio2,nRadio2:=u)}
-oRadio2:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)) }
+oRadio2:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)),oSayT:Refresh() }
 
 oGroup3:= tGroup():New(90,10,110,190,'',oDlg,,,.T.)
 oSay  := TSay():New( 095,020, {|| 'Quantidade/Atendimento'},oGroup3,, oFont1,,,, .T.,,)
 oRadio3 := TRadMenu():Create (oGroup3,,90,150,aItens,,,,,,,,100,12,,,,.T.)
 
 oRadio3:bSetGet := {|u|Iif (PCount()==0,nRadio3,nRadio3:=u)}
-oRadio3:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)) }
+oRadio3:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)),oSayT:Refresh() }
 
 oGroup4:= tGroup():New(120,10,140,190,'',oDlg,,,.T.)
 oSay  := TSay():New( 125,020, {|| 'Qualidade/Integridade'},oGroup4,, oFont1,,,, .T.,,)
 oRadio4 := TRadMenu():Create (oGroup4,,120,150,aItens,,,,,,,,100,12,,,,.T.)
 
 oRadio4:bSetGet := {|u|Iif (PCount()==0,nRadio4,nRadio4:=u)}
-oRadio4:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)) }
+oRadio4:bchange := {|| nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)),oSayT:Refresh() }
 
-oSay := TSay():New(145,75, {|| "Total (IQF):  "+str(nTOTAL,3)+"%"},oDlg,, oFont2,,,, .T.,,)
+oSayT := TSay():New(145,75, {|| "Total (IQF):  "+STR(nTOTAL,3)+"%"},oDlg,, oFont2,,,, .T.,,)
 
 //oGroup5:= tGroup():New(160,10,180,190,'',oDlg,,,.T.)
 //oSay  := TSay():New( 165,020, {|| 'Fornecedor crítico:'},oGroup5,, oFont1,,,, .T.,,)

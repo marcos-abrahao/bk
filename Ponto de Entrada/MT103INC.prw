@@ -66,9 +66,8 @@ If lClass
 
 			If nOper == 1
 				// Avaliação do Fornecedor
-				cAvalia := "000093/000005"   // Apenas o Fabio Quirino e o Anderson
 
-				If __cUserId $ cAvalia
+				If u_IsAvalia(__cUserId)
 					MsAguarde({|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
 
 					dbSelectArea("TMPSD1")

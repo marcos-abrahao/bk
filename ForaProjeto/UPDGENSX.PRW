@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"26/09/2021 SA2 "
+#DEFINE FIN_LAST_UPDATED 		"27/09/2021 SD1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -961,7 +961,21 @@ oProcess:IncRegua2( "Incluir campo via X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
+cTexto  += "27/09/21 - D1_TES " + CRLF 
+dbSetOrder( 2 )
+If SX3->( dbSeek( "D1_TES" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_VLDUSER := "U_BKVLTES()"
+	dbCommit()
+	MsUnLock()
+EndIf
+dbSetOrder( 1 )
 
+
+Return
+
+//cTexto  += "26/09/21 - SA2 " + CRLF 
+/*
 dbSetOrder( 2 )
 If SX3->( dbSeek( "A2_XXBLNAT" ) )
 	RecLock( "SX3", .F. )
@@ -970,12 +984,11 @@ If SX3->( dbSeek( "A2_XXBLNAT" ) )
 	MsUnLock()
 EndIf
 dbSetOrder( 1 )
+*/
 
 //cTexto  += "26/09/21 - SA2 " + CRLF 
 //APPEND FROM \tmp\sx3sa2.dtc
 //X31UPDTABLE("SA2")
-
-Return
 
 //cTexto  += "20/08/21 - SC9 " + CRLF 
 //APPEND FROM \tmp\sx3sc9.dtc

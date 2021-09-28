@@ -20,6 +20,7 @@ PRIVATE nImpPCT := 1
 PRIVATE nImpNDF := 1
 PRIVATE nImpSel := 1
 PRIVATE nParForm:= 1
+PRIVATE cTipoBk := "   "
 
 PRIVATE titulo 	:= ""
 PRIVATE wnrel   := FunName()            //Nome Default do relatorio em Disco
@@ -82,7 +83,8 @@ IF Pergunte(cPerg,.T.)
 	nImpPCT  := mv_par04
 	nImpNDF  := mv_par05
     nImpSel  := mv_par06
-    
+    cTipoBk  := mv_par07
+
 	IF nParPlan = 2 // Relatorio 
 		IF nParImpr = 1  // Unico titulo
 			oPrn := TMSPrinter():New(cTitulo)
@@ -196,6 +198,12 @@ DO WHILE !SE2->(EOF()) .AND. SE2->E2_FILIAL == xFilial("SE2") .AND. SE2->E2_VENC
 	IncRegua()
 	
 	dbselectarea("SE2")
+
+	IF !Empty(cTipoBk) .AND. TRIM(SE2->E2_XXTIPBK) <> TRIM(cTipoBk)
+		SE2->(dbSkip())
+		LOOP
+	ENDIF
+
 	IF nImpPCT = 2 .AND. TRIM(SE2->E2_XXTIPBK) = "PCT"
 		SE2->(dbSkip())
 		LOOP
@@ -1169,12 +1177,14 @@ dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Imprimir:"           ,"Imprimir"    ,"Imprimir"    ,"mv_ch1","N",01,0,2,"C","","mv_par01","Titulo unico","Titulo unico","Titulo unico","","","Por Vencto","Por Vencto","Por Vencto","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"02","Data de Vencimento:" ,"Da Data "    ,"Da Data"     ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Gerar Planilha? "    ,"Planilha"    ,"Planilha"    ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"04","Imprimir TipoBk PCT:","Imprimir PCT","Imprimir PCT","mv_ch4","N",01,0,2,"C","","mv_par04","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"05","Imprimir Tipo NDF: " ,"Imprimir NDF","Imprimir NDF","mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"06","Selecionar:"         ,"Selecionar:" ,"Selecionar:" ,"mv_ch6","N",01,0,2,"C","","mv_par06","Todos","Todos","Todos","","","Impressos","Impressos","Impressos","","","Não impressos","Não impressos","Não impressos","","","Desmarcar Impr.","Desmarcar Impr.","Desmarcar Impr.","","","","","","",""})
+AADD(aRegistros,{cPerg,"01","Imprimir:"           ,"Imprimir"      ,"Imprimir"      ,"mv_ch1","N",01,0,2,"C","","mv_par01","Titulo unico","Titulo unico","Titulo unico","","","Por Vencto","Por Vencto","Por Vencto","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"02","Data de Vencimento:" ,"Da Data "      ,"Da Data"       ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Gerar Planilha? "    ,"Planilha"      ,"Planilha"      ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"04","Imprimir TipoBk PCT:","Imprimir PCT"  ,"Imprimir PCT"  ,"mv_ch4","N",01,0,2,"C","","mv_par04","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"05","Imprimir Tipo NDF: " ,"Imprimir NDF"  ,"Imprimir NDF"  ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"06","Selecionar:"         ,"Selecionar:"   ,"Selecionar:"   ,"mv_ch6","N",01,0,2,"C","","mv_par06","Todos","Todos","Todos","","","Impressos","Impressos","Impressos","","","Não impressos","Não impressos","Não impressos","","","Desmarcar Impr.","Desmarcar Impr.","Desmarcar Impr.","","","","","","",""})
+AADD(aRegistros,{cPerg,"07","Filtrar TipoBk:"     ,"Filtrar TipoBk","Filtrar TipoBk","mv_ch7","C",03,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","",""})
+
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
