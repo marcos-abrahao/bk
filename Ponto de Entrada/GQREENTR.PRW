@@ -20,19 +20,19 @@ Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
 Local cSolici   := ""
-Local cAlmox	:= ""
+//Local cAlmox	:= ""
 Local cAlEmail  := ""
 Local _lJob		:= .F.
-Local nX_		:= 0
+//Local nX_		:= 0
 Local aCabs		:= {}
 Local aEmail	:= {}
 LOCAL aSD1		:= {}	
 LOCAL aUSERSC1	:= {}
-Local aUsers    := {}
-Local aGrupo    := {}
+//Local aUsers    := {}
+//Local aGrupo    := {}
 Local lBkCla 	:= .F.
 Local lAtFixo 	:= .F.
-Local i,_X1,_X2
+Local _X1,_X2
  
 //GRAVA USUARIO CLASSIFICOU O DOCUMENTO
 cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXUSERS = '"+__cUserId+"', F1_HORA = '"+SUBSTR(TIME(),1,5)+"'"
@@ -42,7 +42,7 @@ cQuery  += " AND F1_FORNECE='"+ @CA100FOR +"' AND F1_LOJA='"+ @CLOJA +"' AND F1_
 TcSqlExec(cQuery)
 
 
-cAlmox  := SuperGetMV("MV_XXGRALX",.F.,"000021")  
+//cAlmox  := SuperGetMV("MV_XXGRALX",.F.,"000021")  
 
 // Marcos 08/08/19 - Abrir tela de avaliação para quando os aprovadores estiverem na lista abaixo
 // Michele Morais 138, Fabio 93, Anderson 5, João Brasileiro (antonio.filho) 171 e Vanderleia 56
@@ -57,7 +57,8 @@ If u_IsAvalia(__cUserId)
 	lBkCla := .T.
 EndIf
 
-aUsers:=AllUsers()
+/*
+//aUsers:=AllUsers()
 
 For nX_ := 1 to Len(aUsers)
 	If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
@@ -78,6 +79,9 @@ For nX_ := 1 to Len(aUsers)
     	ENDIF
  	ENDIF
 NEXT
+*/
+
+cAlEmail  += u_EmEstAlm(__cUserId,.T.)
 
 
 cQuery1 := "SELECT F1_DOC,F1_SERIE,F1_FORNECE,F1_LOJA,F1_STATUS,F1_XXUSERS"

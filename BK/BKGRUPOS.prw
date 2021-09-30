@@ -88,3 +88,34 @@ Return (lRet)
 
 
 
+// Grupo Almoxarifado
+User Function GrpAlmox
+Return "000021"
+
+
+// Usuarios Almoxarifado (para queries)
+User Function UsrAlmox
+Return "'000093','000126','000139','000159','000216','000225','000226','000227'"
+
+
+// Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri)
+User Function EmEstAlm(cId,lAll)
+Local aUsers := {"000093","000126","000232","000216",'000227'}
+Local cEmail := ""
+Local cEmails:= ""
+Local nI	 := 0
+
+If Ascan(aUsers,cId) > 0 .OR. lAll
+	For nI := 1 To Len(aUsers)
+		If aUsers[nI] <> cId
+			cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
+			If !Empty(cEmail)
+				cEmails += cEmail+';'
+			EndIf
+		EndIf
+	Next
+EndIf
+
+Return (cEmails)
+
+

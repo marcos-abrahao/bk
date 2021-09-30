@@ -35,22 +35,23 @@ Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local aUsers    := {}
-Local aGrupo    := {}
-Local cAlmox    := ""
-Local lAlmox    := .F.
-Local nX,i
+//Local aUsers    := {}
+//Local aGrupo    := {}
+//Local cAlmox    := ""
+//Local lAlmox    := .F.
+//Local nX,i
 
-cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
+//cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
 
 PswOrder(1) 
-PswSeek(__CUSERID)  
+PswSeek(__cUserId)  
 aUser  := PswRet(1)
 IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
 
-aUsers:=AllUsers()
+/*
+//aUsers:=AllUsers()
 
 For nX := 1 to Len(aUsers)
 	If Len(aUsers[nX][1][10]) > 0 .AND. !aUsers[nX][1][17] //USUARIO BLOQUEADO
@@ -71,7 +72,9 @@ For nX := 1 to Len(aUsers)
     	ENDIF
  	ENDIF
 NEXT
+*/
 
+cEmail  += u_EmEstAlm(__cUserId,.T.)
 
 dbSelectArea("SCP")
 SET ORDER TO 1               

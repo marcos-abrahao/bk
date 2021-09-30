@@ -76,10 +76,12 @@ ElseIf FWCodEmp() == "10"  // BKDAHER TABOAO DA SERRA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BKDAHER TABOAO DA SERRA</span></b>'
 ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BKDAHER LIMEIRA</span></b>'
-ElseIf FWCodEmp() == "12"  // BKDAHER SEGUROS
+ElseIf FWCodEmp() == "12"  // SEGUROS
 	cLogo := '<img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0>'
 ElseIf FWCodEmp() == "14"  // CONSORCIO BALSA NOVA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSORCIO BALSA NOVA</span></b>'
+ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b>'
 Endif	
 
 cHtm += '<html>' 
@@ -140,13 +142,20 @@ Return cHtm
 
 
 Static Function FimHtml(cPrw)
-Local cHtm := ""
+Local cHtm   := ""
+Local cUser  := ""
 Default cPrw := ""
+
+If ValType(cUserName) == "U"
+   cUser := "Admin"
+Else
+   cUser := cUserName
+EndIf
 
 cHtm += '</table>' 
 cHtm += '<br>'
 If !EMPTY(cPrw) 
-	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+'</p> 
+	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+' - '+cUser+'</p>'
 EndIf
 
 /*

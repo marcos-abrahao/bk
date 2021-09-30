@@ -87,7 +87,7 @@ Local nTotPc := 0
 Local cCampo := ""
 Local oTmpTb
 
-Local cAlmox := GrpAlmox()
+Local cAlmox := u_UsrAlmox()
 
 cQuery := "SELECT"
 cQuery += " SF1.F1_DOC, SF1.F1_SERIE, SF1.F1_DTDIGIT, SF1.F1_DUPL, SF1.F1_FORNECE, SF1.F1_LOJA , SF1.F1_VALBRUT, SA2.A2_NREDUZ, SA2.A2_NOME, "
@@ -217,8 +217,8 @@ Return
 
 
 // Retorna membros do grupo almoxarifado
-
-Static Function GrpAlmox()
+/*
+User Function Grp1Almox()
 
 Local nX_,i,lAlmox
 Local cGrupAlmox   := SuperGetMV("MV_XXGRALX",.F.,"000021")
@@ -226,7 +226,7 @@ Local aUsers       := {}
 Local aGrupo       := {}
 Local cAlmox       := ""
 
-aUsers:=AllUsers()
+//aUsers:=AllUsers()
 
 cAlmox := ""
 cVirg  := ""
@@ -256,7 +256,7 @@ If !(__cUserId $ cAlmox)
 EndIf
 
 Return cAlmox
-
+*/
 
 
 

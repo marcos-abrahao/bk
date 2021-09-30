@@ -19,7 +19,7 @@ User Function MT110LOK()
 	Local _nPosFor	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_FORNECE'})
 
 	Local dDataInc
-	Local cAlmox	:= "000093/000160/000126"   //SuperGetMV("MV_XXGRALX",.F.,"000021")	
+	Local cAlmox	:= "000093/000216/000126"   //SuperGetMV("MV_XXGRALX",.F.,"000021")	
 	//Local nQuje		:= 0
 	Local aAreaSC1	:= SC1->(GetArea())
 

@@ -176,19 +176,21 @@ Return cRet
 //FAZ O LANCAMENTO BANCARIO do Bloqueio e Desbloqueio Judicial
 USER Function LBANCO(nRecno)
 
-Local nX
-Local aUsuarios := ALLUSERS()
+//Local nX
+//Local aUsuarios := ALLUSERS()
 Local nOpc      := 0
 Local aFina100  := {}
 Local lSucess	:= .T.
 
 Private lMsErroAuto := .F.
 
+/*
 nX := aScan(aUsuarios,{|x| x[1][1] == __cUserID})
 
 If nX > 0
 	cUsuario := aUsuarios[nX][1][2]
 EndIf
+*/
 
 BEGIN TRANSACTION
 	
@@ -250,19 +252,21 @@ Return lSucess
 //EXCLUI O LANCAMENTO BANCARIO do Bloqueio e Desbloqueio Judicial
 USER Function EXLBANCO(nRecno)
 
-Local nX
-Local aUsuarios := ALLUSERS()
+//Local nX
+//Local aUsuarios := ALLUSERS()
 Local nOpc      := 5
 Local aFina100  := {}
 Local lSucess   := .T.
 
 Private lMsErroAuto := .F.
 
+/*
 nX := aScan(aUsuarios,{|x| x[1][1] == __cUserID})
 
 If nX > 0
 	cUsuario := aUsuarios[nX][1][2]
 EndIf
+*/
 
 BEGIN TRANSACTION
 	

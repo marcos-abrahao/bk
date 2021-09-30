@@ -322,7 +322,16 @@
 			"args": [],
 			"label": "U_XTESTLOG",
 			"description": ""
+		},
+		{
+			"args": [
+				"(\"",
+				"000093",
+				"\")"
+			],
+			"label": "u_estalm",
+			"description": "(\" 000093 \")"
 		}
 	],
-	"lastProgramExecuted": "u_updgensx"
+	"lastProgramExecuted": "sigagct"
 }

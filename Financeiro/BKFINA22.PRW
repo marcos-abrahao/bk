@@ -392,18 +392,20 @@ Return
 
 Static Function ProcBaixa()
 
-Local nX, nY
-Local aUsuarios := ALLUSERS()
+Local nY
+//Local aUsuarios := ALLUSERS()
 Local aBaixa    := {}
 Local lSucess	:= .T.
 
 Private lMsErroAuto := .F.
 
+/*
 nX := aScan(aUsuarios,{|x| x[1][1] == __cUserID})
 
 If nX > 0
 	cUsuario := aUsuarios[nX][1][2]
 EndIf
+*/
 
 BEGIN TRANSACTION
 	

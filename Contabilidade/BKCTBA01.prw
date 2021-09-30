@@ -159,7 +159,7 @@ Do While !eof()
 		               {'CT2_VALOR'  , QSZ5->Z5_VALOR,     NIL},;
 		               {'CT2_ORIGEM' ,'BKCTBA01-'+QSZ5->Z5_EVENTO+'-'+SUBSTR(cUsuario,7,14)+'-'+QSZ5->Z5_ANOMES, NIL},;
 		               {'CT2_HP'     ,'',                  NIL},;
-		               {'CT2_HIST'   ,'FOLHA PGTO '+SUBSTR(QSZ5->Z5_ANOMES,5,2)+'/'+SUBSTR(QSZ5->Z5_ANOMES,1,4)+' - '+TRIM(QSZ5->Z5_EVDESCR), NIL} } )
+		               {'CT2_HIST'   ,'FOLHA PGTO '+SUBSTR(QSZ5->Z5_ANOMES,5,2)+'/'+SUBSTR(QSZ5->Z5_ANOMES,1,4)+' - '+TRIM(QSZ5->Z5_EVENTO)+"-"+TRIM(QSZ5->Z5_EVDESCR), NIL} } )
 
 		aAdd(aRecno,QSZ5->Z5RECNO)
 		

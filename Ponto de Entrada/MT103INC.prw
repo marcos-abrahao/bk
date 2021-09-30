@@ -208,6 +208,9 @@ If !Empty(SF1->F1_XXUSERS)
 	EndIf
 EndIf
 
+// Incluir usuarios do almoxarifado 28/09/2021 - Fabio Quirino
+cEmail  += u_EmEstAlm(SF1->F1_XXUSER,.F.)
+
 aCabs   := {"Pré-Nota nº.:" + TRIM(SF1->F1_DOC) + " Série:" + SF1->F1_SERIE+ " Valor: "+ALLTRIM(TRANSFORM(U_GetValTot(.F.),"@E 99,999,999,999.99"))}
 aEmail 	:= {}
 AADD(aEmail,{"Fornecedor: "+SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME})

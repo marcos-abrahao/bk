@@ -408,19 +408,22 @@ Return
 
 Static Function fProcessa1()
 
-Local nX, nY
-Local aUsuarios := ALLUSERS()
+Local  nY
+//Local aUsuarios := ALLUSERS()
 Local nOpc      := 0
 Local aFina100  := {}
 Local lSucess	:= .T.
 
 Private lMsErroAuto := .F.
 
+/*
 nX := aScan(aUsuarios,{|x| x[1][1] == __cUserID})
-
 If nX > 0
 	cUsuario := aUsuarios[nX][1][2]
 EndIf
+*/
+
+//cUsuario := UsrFullName(__cUserID)
 
 BEGIN TRANSACTION
 	

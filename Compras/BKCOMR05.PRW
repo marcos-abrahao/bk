@@ -75,6 +75,11 @@ Aadd( aDbf, { 'XX_FANTASI',	'C', 20,00 } )
 Aadd( aDbf, { 'XX_NFORNEC',	'C', 80,00 } )
 Aadd( aDbf, { 'XX_AVALC',	'C', 03,00 } )
 Aadd( aDbf, { 'XX_QNTNF',	'N', 10,00 } ) 
+Aadd( aDbf, { 'XX_AVAL1',	'N', 10,00 } ) 
+Aadd( aDbf, { 'XX_AVAL2',	'N', 10,00 } ) 
+Aadd( aDbf, { 'XX_AVAL3',	'N', 10,00 } ) 
+Aadd( aDbf, { 'XX_AVAL4',	'N', 10,00 } ) 
+Aadd( aDbf, { 'XX_TAVAL',	'N', 10,00 } ) 
 Aadd( aDbf, { 'XX_MDAVAL',	'N', 10,00 } ) 
 
 
@@ -123,6 +128,33 @@ aAdd(aCampos,"TRB->XX_QNTNF")
 aAdd(aCabs  ,"Qtde NF's entregues")
 aAdd(aTotal,.T.)
 aAdd(aHeader,{"Qtde NF's entregues","XX_QNTNF" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+
+
+aAdd(aCampos,"TRB->XX_AVAL1")
+aAdd(aCabs  ,"Preço")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Preço","XX_AVAL1" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+
+aAdd(aCampos,"TRB->XX_AVAL2")
+aAdd(aCabs  ,"Prazo")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Prazo","XX_AVAL2" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+
+aAdd(aCampos,"TRB->XX_AVAL3")
+aAdd(aCabs  ,"Quantidade/Atendimento")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Quantidade/Atendimento","XX_AVAL3" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+
+aAdd(aCampos,"TRB->XX_AVAL4")
+aAdd(aCabs  ,"Qualidade/Integridade")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Qualidade/Integridade","XX_AVAL4" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+
+aAdd(aCampos,"TRB->XX_TAVAL")
+aAdd(aCabs  ,"Total da Avaliação")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Total da Avaliação","XX_TAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+
 
 aAdd(aCampos,"TRB->XX_MDAVAL")
 aAdd(aCabs  ,"Média da Avaliação (IQF)")
@@ -233,8 +265,6 @@ DO WHILE QTMP->(!EOF())
 	dbSelectArea("TRB")
 	IF dbSeek(QTMP->F1_FORNECE+QTMP->F1_LOJA,.F.)
 		Reclock("TRB",.F.)
-		TRB->XX_QNTNF   += 1
-		TRB->XX_MDAVAL	+= 	IIF(SUBSTR(QTMP->F1_XXAVALI,1,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,2,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,3,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,4,1)='S',25,0)
  		TRB->(Msunlock())
 	ELSE
 		Reclock("TRB",.T.)
@@ -243,10 +273,17 @@ DO WHILE QTMP->(!EOF())
 		TRB->XX_FANTASI := QTMP->A2_NREDUZ
 		TRB->XX_NFORNEC := QTMP->A2_NOME
 		TRB->XX_AVALC   := IIF(QTMP->A2_XXAVALC=="S","SIM","NAO")
-		TRB->XX_QNTNF   := 1
-		TRB->XX_MDAVAL	:= IIF(SUBSTR(QTMP->F1_XXAVALI,1,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,2,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,3,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,4,1)='S',25,0)
- 		TRB->(Msunlock())
+		TRB->XX_QNTNF   := 0
 	ENDIF
+	TRB->XX_QNTNF   += 1
+	TRB->XX_AVAL1	+= IIF(SUBSTR(QTMP->F1_XXAVALI,1,1)='S',25,0)
+	TRB->XX_AVAL2	+= IIF(SUBSTR(QTMP->F1_XXAVALI,2,1)='S',25,0)
+	TRB->XX_AVAL3	+= IIF(SUBSTR(QTMP->F1_XXAVALI,3,1)='S',25,0)
+	TRB->XX_AVAL4	+= IIF(SUBSTR(QTMP->F1_XXAVALI,4,1)='S',25,0)
+
+	TRB->XX_TAVAL	+= 	IIF(SUBSTR(QTMP->F1_XXAVALI,1,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,2,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,3,1)='S',25,0)+IIF(SUBSTR(QTMP->F1_XXAVALI,4,1)='S',25,0)
+	TRB->(Msunlock())
+
 	dbSelectArea("QTMP")
 	QTMP->(dbSkip())
 ENDDO
@@ -260,7 +297,7 @@ ELSE
 	TRB->(dbGoTop())
 	DO WHILE TRB->(!EOF())
 		Reclock("TRB",.F.)
-		TRB->XX_MDAVAL	:= TRB->XX_MDAVAL / TRB->XX_QNTNF
+		TRB->XX_MDAVAL	:= TRB->XX_TAVAL / TRB->XX_QNTNF
  		TRB->(Msunlock())
 		dbSelectArea("TRB")
 		TRB->(dbSkip())

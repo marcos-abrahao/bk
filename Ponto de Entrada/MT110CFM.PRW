@@ -29,19 +29,19 @@ Local aCabs		:= {}
 Local aEmail	:= {}
 Local aMotivo	:= {} 
 Local lAprov	:= .T.
-Local lAlmox	:= .F.
-Local aGrupo	:= {}
+//Local lAlmox	:= .F.
+//Local aGrupo	:= {}
 Local cAlEmail	:= ""
-Local aUsers 	:= {}
-Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(SuperGetMV("MV_XXMSALX",.F.,"000027"))
+//Local aUsers 	:= {}
+//Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(SuperGetMV("MV_XXMSALX",.F.,"000027"))
 Local _cXXENDEN := ""
 Local _cXXEN 	:= ""
 Local _nXXEN 	:= 0
 Local aSaldos 	:= {}
 Local nSaldo 	:= 0
 Local cQuery2 	:= ""
-Local nX_		as Numeric
-Local i 		as Numeric  
+//Local nX_		as Numeric
+//Local i 		as Numeric  
 Local _IX		as Numeric
 Local xi		as Numeric
 
@@ -68,7 +68,8 @@ Do While SY1->(!eof())
     SY1->(dbskip())
 Enddo
 
-aUsers:=AllUsers()
+/*
+//aUsers:=AllUsers()
 
 For nX_ := 1 to Len(aUsers)
 	If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
@@ -89,7 +90,10 @@ For nX_ := 1 to Len(aUsers)
     	ENDIF
  	ENDIF
 NEXT
+*/
 
+
+cAlEmail  += u_EmEstAlm(__cUserId,.T.)
 IF !EMPTY(cAlEmail)
 	cEmail += cAlEmail
 ENDIF

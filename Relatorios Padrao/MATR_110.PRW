@@ -866,7 +866,12 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			
 			cTipoSC7:= IIF((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3),"PC","AE")
 			lNewAlc := .T.
-			cComprador := UsrFullName(SC7->C7_USER)
+			If SC7->C7_USER == "000232" // Barbara
+				// Solicitado pela Michele em 30/09/2021
+				cComprador := UsrFullName("000138")
+			Else
+				cComprador := UsrFullName(SC7->C7_USER)
+			EndIf
 			If SC7->C7_CONAPRO != "B"
 				lLiber := .T.
 			EndIf
@@ -874,18 +879,20 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			dbSetOrder(1)
 			dbSeek(xFilial("SCR")+cTipoSC7+SC7->C7_NUM)
 			While !Eof() .And. SCR->CR_FILIAL+Alltrim(SCR->CR_NUM) == xFilial("SCR")+Alltrim(SC7->C7_NUM) .And. SCR->CR_TIPO == cTipoSC7
-				cAprov += AllTrim(UsrFullName(SCR->CR_USER))+" ["
-				Do Case
-					Case SCR->CR_STATUS=="03" //Liberado
-						cAprov += "Ok"
-					Case SCR->CR_STATUS=="04" //Bloqueado
-						cAprov += "BLQ"
-					Case SCR->CR_STATUS=="05" //Nivel Liberado
-						cAprov += "##"
-					OtherWise                 //Aguar.Lib
-						cAprov += "??"
-				EndCase
-				cAprov += "] - "
+				If SCR->CR_USER <> "000232" // Barbara
+					cAprov += AllTrim(UsrFullName(SCR->CR_USER))+" ["
+					Do Case
+						Case SCR->CR_STATUS=="03" //Liberado
+							cAprov += "Ok"
+						Case SCR->CR_STATUS=="04" //Bloqueado
+							cAprov += "BLQ"
+						Case SCR->CR_STATUS=="05" //Nivel Liberado
+							cAprov += "##"
+						OtherWise                 //Aguar.Lib
+							cAprov += "??"
+					EndCase
+					cAprov += "] - "
+				EndIf
 				dbSelectArea("SCR")
 				dbSkip()
 			Enddo

@@ -25,14 +25,13 @@ Local cSuper		:= ""
 Local cAlmox		:= ""
 Local i:= 0
 
-Private cGrupAlmox	:= SuperGetMV("MV_XXGRALX",.F.,"000021")
  
 cGerCompras := "'"+cGerCompras+"'"
 
 /*
 Retirado em 27/09/11 - Marcos
 
-aUsers:=AllUsers()
+//aUsers:=AllUsers()
 For nX_ := 1 to Len(aUsers)
 	If Len(aUsers[nX_][1][10]) > 0 
 		aGrupo := {}
@@ -97,7 +96,7 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 	EndIf	
 
 	If __cUserId $ cGerCompras
-		cAlmox := GrpAlmox() 
+		cAlmox := u_UsrAlmox() 
 	EndIf
 
 	// Log dos Filtros
@@ -225,16 +224,17 @@ Return cFiltro
 
 
 
-
-Static Function GrpAlmox()
+/*
+User Function Grp2Almox()
 Local cAlmox := ""
 Local aUsers  := {}
 Local aGrupo := {}
 Local nX_ := 0
 Local lAlmox := .F.
 Local i:= 0
+Local cGrupAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")
 
-aUsers:=AllUsers()
+//aUsers:=AllUsers()
 For nX_ := 1 to Len(aUsers)
 	If Len(aUsers[nX_][1][10]) > 0 
 		aGrupo := {}
@@ -256,3 +256,5 @@ For nX_ := 1 to Len(aUsers)
 Next
 
 Return cAlmox
+*/
+

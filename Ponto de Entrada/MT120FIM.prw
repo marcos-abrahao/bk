@@ -33,7 +33,7 @@ Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local nTotPed 	:= 0
 Local cXXJUST 	:= ""
 Local aSC1USER  := {}
-Local nX_,IY_,i,xi,_IX
+Local IY_,xi,_IX
 //Local cCrLf   	:= Chr(13) + Chr(10)
 
 IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
@@ -42,12 +42,12 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	AADD(aMotivo,"Reposição Programada")
 	AADD(aMotivo,"Reposição Eventual") 
 	
-	cAlmox := ""
-	cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
-	cAlEmail := ""
+	//cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
+
 	cAlEmail := "microsiga@bkconsultoria.com.br;"
 	
-	aUsers:=AllUsers()
+	/*
+	//aUsers:=AllUsers()
 	
 	For nX_ := 1 to Len(aUsers)
 		If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
@@ -68,6 +68,9 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	    	ENDIF
 	 	ENDIF
 	NEXT
+	*/
+
+	cAlEmail  += u_EmEstAlm(__cUserId,.T.)
 
 	DbSelectArea("SC7")
 	SC7->(DbSetOrder(1))

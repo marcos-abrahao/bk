@@ -43,7 +43,7 @@ Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 Local nTotPed 	:= 0
 Local cXXJUST 	:= ""
 Local aSC1USER 	:= {} 
-Local nX_,IX_,IY_,i,_IX,xi
+Local IX_,IY_,_IX,xi
 
 Private cXXOBS   := Space(TamSX3("C7_XXOBS")[1]) 
 Private cXXURGEN := Space(TamSX3("C7_XXURGEN")[1])
@@ -57,7 +57,8 @@ cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")
 cAlEmail := ""
 cAlEmail := "microsiga@bkconsultoria.com.br;"
 
-aUsers:=AllUsers()
+/*
+//aUsers:=AllUsers()
 
 For nX_ := 1 to Len(aUsers)
 	If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
@@ -77,7 +78,9 @@ For nX_ := 1 to Len(aUsers)
     	ENDIF
  	ENDIF
 NEXT
+*/
 
+cAlEmail  += u_EmEstAlm(__cUserId,.T.)
 
 aPedido := {}
 
