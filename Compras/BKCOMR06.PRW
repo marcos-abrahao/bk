@@ -71,6 +71,7 @@ Aadd( aDbf, { 'XX_NFORNEC',	'C', 80,00 } )
 Aadd( aDbf, { 'XX_CGC',		'C', 18,00 } ) 
 Aadd( aDbf, { 'XX_PED',		'C', 06,00 } )
 Aadd( aDbf, { 'XX_EMISSAO',	'D', 08,00 } )
+Aadd( aDbf, { 'XX_CONDV',	'C', TamSX3("E4_DESCRI")[1],00 } )
 Aadd( aDbf, { 'XX_PRODT',  	'C', 15,00 } )
 Aadd( aDbf, { 'XX_DESCP',  	'C', 60,00 } )
 Aadd( aDbf, { 'XX_UM' ,   	'C', 03,00 } )
@@ -127,6 +128,11 @@ aAdd(aCampos,"TRB->XX_EMISSAO")
 aAdd(aCabs  ,"Emissão")
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Emissão","XX_EMISSAO" ,"",8,00,"","","D","TRB","R"})
+
+aAdd(aCampos,"TRB->XX_CONDV")
+aAdd(aCabs  ,"Cond. Vencedor")
+aAdd(aTotal,.F.)
+aAdd(aHeader,{"Cond.Vencedor","XX_CONDV" ,"",TamSX3("E4_DESCRI")[1],00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_PRODT")
 aAdd(aCabs  ,"Produtos")
@@ -306,9 +312,11 @@ Return
 
 
 Static Function ProcBKCOMR6
-Local cQuery := ""
-Local nReg := 0
-Local Ix_	:= 0
+Local cQuery 	:= ""
+Local nReg 		:= 0
+Local Ix_		:= 0
+Local cVencedor := ""
+Local cCondV	:= ""
 
 LimpaBrw("TRB")
 
@@ -340,15 +348,25 @@ DO WHILE QTMP->(!EOF())
     nReg++
 	IncProc("Consultando banco de dados...")
 	
-	aITx_ := {}
-	cForPagto :=  ""
+	aITx_ 		:= {}
+	cForPagto	:=  ""
+	cCondV		:= ""
+
 	DbSelectArea("SC8")
 	SC8->(DbSetOrder(1))
 	SC8->(DbSeek(xFilial("SC8")+QTMP->C7_NUMCOT,.T.))
     Do While SC8->(!eof()) .AND. SC8->C8_NUM==QTMP->C7_NUMCOT
         IF SC8->C8_ITEM==QTMP->C7_ITEM
-   	    	cForPagto := "For.Pgto: "+Posicione("SE4",1,xFilial("SE4")+SC8->C8_COND,"E4_DESCRI")
-	    	AADD(aITx_,{Posicione("SA2",1,Xfilial("SA2")+SC8->C8_FORNECE+SC8->C8_LOJA,"A2_NOME")+IIF(SC8->C8_NUMPED==QTMP->C7_NUM .AND. SC8->C8_ITEMPED ==QTMP->C7_ITEM ,"-Vencedor","")+" - "+cForPagto,SC8->C8_PRECO,SC8->C8_TOTAL})
+   	    	cForPagto := Posicione("SE4",1,xFilial("SE4")+SC8->C8_COND,"E4_DESCRI")
+			IF SC8->C8_NUMPED==QTMP->C7_NUM .AND. SC8->C8_ITEMPED == QTMP->C7_ITEM 
+				cVencedor := "-Vencedor"
+				cCondV    := cForPagto
+			Else
+				cVencedor := ""
+			EndIf
+			cForPagto := "For.Pgto: "+cForPagto
+
+	    	AADD(aITx_,{Posicione("SA2",1,Xfilial("SA2")+SC8->C8_FORNECE+SC8->C8_LOJA,"A2_NOME")+cVencedor+" - "+cForPagto,SC8->C8_PRECO,SC8->C8_TOTAL})
 		ENDIF
 		SC8->(DbSkip())
 	ENDDO
@@ -364,6 +382,7 @@ DO WHILE QTMP->(!EOF())
 	TRB->XX_VUNIT 	:= QTMP->C7_PRECO
 	TRB->XX_TOTAL 	:= QTMP->C7_TOTAL
 	TRB->XX_EMISSAO	:= QTMP->C7_EMISSAO
+	TRB->XX_CONDV	:= cCondV
 	TRB->XX_CC 		:= QTMP->C7_CC
 	TRB->XX_DESCC 	:= QTMP->CTT_DESC01
 	TRB->XX_LIB 	:= IIF(QTMP->C7_CONAPRO="L","Sim","Não")
@@ -386,7 +405,6 @@ DO WHILE QTMP->(!EOF())
 		cCampo  := "TRB->XX_TOTAL"+STRZERO(Ix_,2)
 		&cCampo	:= aITx_[Ix_,3]
 	NEXT
-
 
  	TRB->(Msunlock())
 	dbSelectArea("QTMP")

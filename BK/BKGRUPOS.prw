@@ -1,6 +1,8 @@
 #include "totvs.ch"
 #include "protheus.ch"
- 
+
+// Funcoes com códigos embutidos no fonte
+
 /*/{Protheus.doc} BKGRUPO
 BK - Array com as empresas do grupo BK
 
@@ -98,6 +100,10 @@ User Function UsrAlmox
 Return "'000093','000126','000139','000159','000216','000225','000226','000227'"
 
 
+// Usuarios Master Almoxarifado (grupo 27)
+User Function UsrMAlmox()
+Return "000093/000216/000126/000232/000227"  
+
 // Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri)
 User Function EmEstAlm(cId,lAll)
 Local aUsers := {"000093","000126","000232","000216",'000227'}
@@ -118,4 +124,9 @@ EndIf
 
 Return (cEmails)
 
+
+// Financeiro
+// Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
+User Function FinUsrPj()
+Return "000011/000012/000000/000016"  // Diego 16 incluido nas ferias do Lau
 

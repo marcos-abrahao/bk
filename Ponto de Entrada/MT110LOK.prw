@@ -17,11 +17,16 @@ User Function MT110LOK()
 	Local _nPosDesc	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DESCRI'})
 	//Local _nPosRec	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_REC_WT'})
 	Local _nPosFor	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_FORNECE'})
+	Local _nPosCC	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
 
 	Local dDataInc
-	Local cAlmox	:= "000093/000216/000126"   //SuperGetMV("MV_XXGRALX",.F.,"000021")	
+	Local cAlmox	:= u_UsrMAlmox() //SuperGetMV("MV_XXGRALX",.F.,"000021")	
 	//Local nQuje		:= 0
 	Local aAreaSC1	:= SC1->(GetArea())
+	
+	If Empty(cCC) .AND. !Empty(aCols[n][_nPosCC])
+		cCC := aCols[n][_nPosCC]
+	EndIf
 
 	If Empty( aCols[n][_nPosDesc] )
 		aCols[n][_nPosDesc] := Posicione("SB1",1,xFilial("SB1")+aCols[n][_nPosPrd],"B1_DESC")
@@ -39,8 +44,11 @@ User Function MT110LOK()
 			If "UNI" $ aCols[n][_nPosPrd] .OR. "EPI" $ aCols[n][_nPosPrd]
 				CN9->(dbSetOrder(1))
 				If CN9->(dbSeek(xFilial("CN9")+cCC,.F.))  // Existe contrato para este centro de custo
+
 					dDataInc := CTOD(CN9->(FWLeUserlg("CN9_USERGI", 2)))
-					If EMPTY(CN9->CN9_REVISA) .AND. dDataInc > CTOD("04/04/2019")
+					//If EMPTY(CN9->CN9_REVISA) .AND. dDataInc > CTOD("04/04/2019")
+
+					If CN9->CN9_DTINIC > CTOD("04/04/2019") .OR. dDataInc > CTOD("04/04/2019")
 						MsgStop("Preencha o valor previsto na licitação","MT110LOK - A T E N Ç Ã O !!")
 						_lRet := .F. // Quando false o sistema não permitirá que o usuário prossiga para a proxima linha
 					EndIf

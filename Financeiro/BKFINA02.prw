@@ -46,7 +46,7 @@ Local nI,cPrf,cTitulo,nProxTit
 Local nStatusX
 Local cNome
 Local cTitulo2 := "Seleção de Lotes - Liquidos "+FWEmpName(cEmpAnt)
-Local MV_XXUSRPJ := "000011/000012/000000"
+Local MV_XXUSRPJ := u_FinUsrPj()
 
 PRIVATE aFurnas  := {} 
 
