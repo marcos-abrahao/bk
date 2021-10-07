@@ -166,9 +166,9 @@ If nRadMenu1 = 0
 	nRadMenu1 := 1
 EndIf
 
-aCabecalho	:= CriaCabec()
+aCabecalho	:= u_a103Cab()
 nColDel 	:= Len(aCabecalho)+1
-LoadVenc()
+u_a103Load()
 
 DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000,000 TO 470,470 COLORS 0, 16777215 PIXEL
 oDlg3:lEscClose := .F.
@@ -232,7 +232,7 @@ Local nTotal := 0
 dbSelectArea("SD1")                   // * Itens da N.F. de Compra
 If DbSeek(xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA)
 	Do While !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA  
-		nTotal += SD1->(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)
+		nTotal += SD1->(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA+D1_VALIPI-D1_VALDESC)
 		SD1->(dbSkip())
 	EndDo
 EndIf
@@ -244,7 +244,7 @@ Local lOk := .T.
 Return lOK
 
 
-Static Function LoadVenc()
+User Function a103Load()
 Local aTmp		:= {}
 Local nX 		:= 0
 Local nTamTex	:= 0
@@ -402,7 +402,7 @@ Return lRet
 
 
 
-Static Function CriaCabec()
+User Function a103Cab()
 Local aCabecalho := {}   
 
 Aadd(aCabecalho, {;

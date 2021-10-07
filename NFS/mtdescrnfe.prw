@@ -986,7 +986,18 @@ Return cRetTexto
 
 
 
-// Função para incrementar a remessa da Prefeitura de Barueri
+// Função para incrementar a remessa da Prefeitura de Barueri: NFBARUE.INI
+/*
+...
+[XXX Chamada do Wizard]
+
+(PRE) _aTotal[06] := (xMagWizard(_aTotal[04],_aTotal[05],"NFESP"))
+(PRE) Iif(_aTotal[06],xMagLeWiz("NFESP",@_aTotal[07],.T.),Nil)
+(PRE) Iif(_aTotal[06],u_ProxRem("NFESP"),Nil)
+(PRE) lAbtMT950	:= !_aTotal[06]
+...
+*/
+
 User Function ProxRem(cArqIni)
 Local cIni		:= cArqIni+".CFP"
 Local cLinha	:= ""

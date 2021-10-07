@@ -307,9 +307,9 @@ cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
 cQuery += " 		AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_='')"+CRLF
 
 cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
-//cQuery += "       AND CNE_FILIAL = '"+xFilial("CNE")+"'" // Removido para considerar todas as filiais
-cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
-cQuery += "     AND CNF_COMPET = '"+cCompet+"'"+ CRLF
+cQuery += "       AND CNE_FILIAL = '"+xFilial("CNE")+"'" // Removido para considerar todas as filiais
+cQuery += " 	  AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
+cQuery += "       AND CNF_COMPET = '"+cCompet+"'"+ CRLF
 
 // Faturamento avulso - sem medição
 cQuery += " UNION ALL "+ CRLF

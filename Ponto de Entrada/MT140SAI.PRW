@@ -152,7 +152,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 					SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA
 
 					AADD(aEmail,{"",SD1->D1_ITEM,SD1->D1_COD,SD1->D1_XXDESCP,SD1->D1_UM,SD1->D1_QUANT,SD1->D1_VUNIT,SD1->D1_TOTAL,SD1->D1_CC,SD1->D1_XXDCC})
-					cHIST += IIF(SD1->D1_XXHIST $ cHIST,"",cHIST) 
+					cHIST += IIF(SD1->D1_XXHIST $ cHIST,"",SD1->D1_XXHIST) 
 				SD1->(dbskip())
 			Enddo
   			AADD(aEmail,{"<b>Histórico: </b>"+cHIST})

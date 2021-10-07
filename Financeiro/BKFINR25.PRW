@@ -509,7 +509,7 @@ DO WHILE (cAliasQry)->(!EOF())
 			// Pega o primeiro produto
 
 			SB1->(dbSeek(xFilial("SB1")+SD1->D1_COD,.F.))
-			If Empty(cTitPai)
+			If Empty(cTitPai) .OR. Empty(cTipoBk)
 				cTipoBk := SB1->B1_XXGRPF
 			EndIf
 			If TRIM(SB1->B1_GRUPO) $ "0008/0009/0010"
@@ -532,7 +532,7 @@ DO WHILE (cAliasQry)->(!EOF())
 				cHist := ""
 				Do While !Eof() .AND. cChave  == SD1->D1_DOC+SD1->D1_SERIE+SD1->D1_FORNECE+SD1->D1_LOJA
 					SB1->(dbSeek(xFilial("SB1")+SD1->D1_COD,.F.))
-					If Empty(cTitPai)
+					If Empty(cTitPai) .OR. Empty(cTipoBk)
 						cTipoBk := SB1->B1_XXGRPF
 					EndIf
 					If TRIM(SB1->B1_GRUPO) $ "0008/0009/0010"
@@ -548,6 +548,11 @@ DO WHILE (cAliasQry)->(!EOF())
 					Else
 						aItem[nScan,5] += SD1->D1_TOTAL
 					EndIf
+
+					If aScan(aPrd,{|x| x[1] == SD1->D1_COD}) = 0
+						aAdd(aPrd,{SD1->D1_COD,SB1->B1_DESC,SB1->B1_XXGRPF})
+					EndIf
+
 					If !AllTrim(SD1->D1_XXHIST) $ cHist
 						cHist += AllTrim(SD1->D1_XXHIST)+" " 
 					EndIf

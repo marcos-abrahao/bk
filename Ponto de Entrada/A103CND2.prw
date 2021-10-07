@@ -41,7 +41,18 @@ If cCondicao == "999" .OR. !Empty(mParcel)
 				PARAMIXB[nV,1] := dDtUtil
 			EndIf
 		Next
+	Else
+		PARAMIXB := {}
+		For nV := 1 TO Len(aDados)
+			aAdd(PARAMIXB,{aDados[nV,2],aDados[nV,3]})
+			If PARAMIXB[nV,1] < dDtUtil
+				PARAMIXB[nV,1] := dDtUtil
+			EndIf
+		Next
 	EndIf
+	//If cCondicao == "999"
+		cCondicao := SF1->F1_COND
+	//EndIf
 Else
 	For nV := 1 TO Len(PARAMIXB)
 		If PARAMIXB[nV,1] < dDtUtil
