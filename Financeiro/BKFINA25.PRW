@@ -313,7 +313,6 @@ FOR IX_:=1 TO LEN(aTITULO)
 		   	MsgStop("Problemas Inclusão da "+cSerie+"-"+cNFiscal+", informe o setor de T.I. ", "Atenção")
 	    	MostraErro()
 			DisarmTransaction()
-			Return
 		Else
 			Msginfo(STR(IX_)+" - DNF incluido com sucesso! "+cSerie+"-"+cNFiscal)
 		EndIf

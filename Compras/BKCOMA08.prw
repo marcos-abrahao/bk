@@ -12,7 +12,7 @@
     @example
     (examples)
     @see (links_or_references)
-    /*/
+/*/
 
 User Function BKCOMA08()
 Local aArea     := Getarea()

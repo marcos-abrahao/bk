@@ -41,7 +41,7 @@ PRIVATE	cPict       := "@E 99,999,999,999.99"
 PRIVATE nPeriodo    := 1
 PRIVATE nPlan       := 1
 Private aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aTotal
+PRIVATE aTitulos,aCampos,aCabs,aCampos2,aTotal,aImpr
 PRIVATE cGrupoPI  	:= ""
 PRIVATE cGrupoPF  	:= ""
 PRIVATE cSGrupoPI  	:= ""
@@ -94,6 +94,7 @@ oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
+aImpr	:= {}
 aTitulos:= {}
 aTotal  := {}
 
@@ -101,63 +102,75 @@ aAdd(aTitulos,titulo)
 
 aAdd(aCampos,"TRB->XX_FORNEC")
 aAdd(aCabs  ,"Cod. Fornecedor")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Cod. Fornecedor","XX_FORNEC" ,"@!",06,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_LOJA")
 aAdd(aCabs  ,"Loja Fornecedor")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Loja Fornecedor","XX_LOJA" ,"@!",02,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_FANTASI")
 aAdd(aCabs  ,"Nome Fantasia")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Nome Fantasia","XX_FANTASI" ,"@!",20,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_NFORNEC")
 aAdd(aCabs  ,"Razão Social")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_AVALC")
 aAdd(aCabs  ,"Avaliação Crítica")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Avaliação Críica","XX_AVALC" ,"@!",03,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_QNTNF")
 aAdd(aCabs  ,"Qtde NF's entregues")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.T.)
 aAdd(aHeader,{"Qtde NF's entregues","XX_QNTNF" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
 
-aAdd(aCampos,"TRB->XX_AVAL1")
-aAdd(aCabs  ,"Preço")
-aAdd(aTotal,.F.)
+//aAdd(aCampos,"TRB->XX_AVAL1")
+//aAdd(aCabs  ,"Preço")
+//aAdd(aImpr  ,.F.)
+//aAdd(aTotal,.F.)
 aAdd(aHeader,{"Preço","XX_AVAL1" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
-aAdd(aCampos,"TRB->XX_AVAL2")
-aAdd(aCabs  ,"Prazo")
-aAdd(aTotal,.F.)
+//aAdd(aCampos,"TRB->XX_AVAL2")
+//aAdd(aCabs  ,"Prazo")
+//aAdd(aImpr  ,.F.)
+//aAdd(aTotal,.F.)
 aAdd(aHeader,{"Prazo","XX_AVAL2" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
-aAdd(aCampos,"TRB->XX_AVAL3")
-aAdd(aCabs  ,"Quantidade/Atendimento")
-aAdd(aTotal,.F.)
+//aAdd(aCampos,"TRB->XX_AVAL3")
+//aAdd(aCabs  ,"Quantidade/Atendimento")
+//aAdd(aImpr  ,.F.)
+//aAdd(aTotal,.F.)
 aAdd(aHeader,{"Quantidade/Atendimento","XX_AVAL3" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
-aAdd(aCampos,"TRB->XX_AVAL4")
-aAdd(aCabs  ,"Qualidade/Integridade")
-aAdd(aTotal,.F.)
+//aAdd(aCampos,"TRB->XX_AVAL4")
+//aAdd(aCabs  ,"Qualidade/Integridade")
+//aAdd(aImpr  ,.F.)
+//aAdd(aTotal,.F.)
 aAdd(aHeader,{"Qualidade/Integridade","XX_AVAL4" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
-aAdd(aCampos,"TRB->XX_TAVAL")
-aAdd(aCabs  ,"Total da Avaliação")
-aAdd(aTotal,.F.)
+//aAdd(aCampos,"TRB->XX_TAVAL")
+//aAdd(aCabs  ,"Total da Avaliação")
+//aAdd(aImpr  ,.F.)
+//aAdd(aTotal,.F.)
 aAdd(aHeader,{"Total da Avaliação","XX_TAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
 
 aAdd(aCampos,"TRB->XX_MDAVAL")
 aAdd(aCabs  ,"Média da Avaliação (IQF)")
+aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"Média da Avaliação (IQF)","XX_MDAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
@@ -232,8 +245,9 @@ Local aPlans  := {}
 
 //Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
 
-aAdd(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
+aAdd(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,aImpr, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
+//U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
+u_GeraXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 
 Return 
 
@@ -245,7 +259,7 @@ Local nReg := 0
 
 LimpaBrw("TRB")
 
-cQuery := "SELECT F1_FILIAL,	F1_DOC,	F1_SERIE,	F1_FORNECE,	F1_LOJA,F1_EMISSAO,F1_DTDIGIT,F1_XXAVALI , SA2.A2_NREDUZ, SA2.A2_NOME, SA2.A2_XXAVALC"
+cQuery := "SELECT F1_FILIAL,F1_DOC,F1_SERIE,F1_FORNECE,F1_LOJA,F1_EMISSAO,F1_DTDIGIT,F1_XXAVALI,SA2.A2_NREDUZ,SA2.A2_NOME,SA2.A2_XXAVALC"
 cQuery += " FROM "+RETSQLNAME("SF1")+" SF1"
 cQuery += " INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON  SA2.A2_FILIAL='"+xFilial("SA2")+"' AND SF1.F1_FORNECE=SA2.A2_COD AND SF1.F1_LOJA=SA2.A2_LOJA AND SA2.D_E_L_E_T_=''" 
 cQuery += " WHERE SF1.D_E_L_E_T_='' AND SF1.F1_DTDIGIT>='"+DTOS(dDataI)+"' AND SF1.F1_DTDIGIT<='"+DTOS(dDataF)+"' AND SF1.F1_XXAVALI<>''"

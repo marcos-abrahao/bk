@@ -46,9 +46,9 @@ cXSerie   := CSERIE
 cXFORNECE := CA100FOR
 cXLoja    := IIF(!EMPTY(CLOJA),CLOJA,"01")
                                                      
-cQuery1 := "Select F1_DOC,F1_SERIE"
+cQuery1 := "SELECT F1_DOC,F1_SERIE"
 cQuery1 += " FROM "+RETSQLNAME("SF1")+" SF1" 
-cQuery1 += " where SF1.D_E_L_E_T_='' AND SF1.F1_FILIAL='"+xFilial('SF1')+"'  AND SF1.F1_DOC='"+cXDOC+"' "
+cQuery1 += " WHERE SF1.D_E_L_E_T_='' AND SF1.F1_FILIAL='"+xFilial('SF1')+"'  AND SF1.F1_DOC='"+cXDOC+"' "
 cQuery1 += " AND SF1.F1_FORNECE='"+cXFORNECE+"' AND SF1.F1_LOJA='"+cXLoja+"' AND SF1.F1_SERIE<>'"+cXSerie+"'"
         
         
