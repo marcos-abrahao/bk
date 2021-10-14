@@ -30,11 +30,11 @@ User Function xFISR101()
 local oReport
 Local lContinua		:= .T.
 
-Local dPer          := CtoD('01/11/2019')
+Local dPer          := CtoD('01/10/2021')
 Local cReg          := "4"
 Local cCKRLiv       := "*"
-Local dDtIni 		:= CtoD('01/11/2019')
-Local dDtFim		:= CtoD('30/11/2019')
+Local dDtIni 		:= CtoD('01/10/2021')
+Local dDtFim		:= CtoD('31/10/2021')
 
 //IF isincallstack("FISA001")
 	
@@ -469,7 +469,7 @@ TRCell():New(oSection4,"CMP31"		,  "", "Usuário","@!" ,15)
 TRCell():New(oSection4,"CMP32"		,  "", "Emissão","@R 99/99/9999" ,10)
 TRCell():New(oSection4,"CMP33"		,  "", "Ret PIS","@E 99,999,999,999.99",14)
 TRCell():New(oSection4,"CMP34"		,  "", "Ret COF","@E 99,999,999,999.99",14)
-
+TRCell():New(oSection4,"CMP35"		,  "", "Espécie","@!" ,5)
 
 oBreak := SetQuebra(oSection4, 'CMP1', '4')
 TRFunction():New(oSection4:Cell("CMP9"),NIL,"SUM",oBreak,'Valor Contábil',,,.F.,.F.		,,,{|| Empty(oSection4:Cell("CMP18"):getvalue()) })
@@ -1125,6 +1125,7 @@ while (cAliasSFT)->(!EOF())
 		oSecao4:Cell("CMP26")		:SetValue((cAliasSFT)->FT_LOJA)
 		oSecao4:Cell("CMP33")		:SetValue((cAliasSFT)->FT_VRETPIS)
 		oSecao4:Cell("CMP34")		:SetValue((cAliasSFT)->FT_VRETCOF)
+		oSecao4:Cell("CMP35")		:SetValue((cAliasSFT)->FT_ESPECIE)
 
 		cNomeCF 	:= ""
 		cCGC 		:= ""
