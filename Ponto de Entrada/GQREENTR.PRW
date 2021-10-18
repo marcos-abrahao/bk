@@ -114,9 +114,9 @@ DO While !TMPSF1->(EOF())
 			IF aScan(aUSERSC1,{|x| x == TMPSD1->C1_USER })  == 0
 	    		AADD(aUSERSC1,TMPSD1->C1_USER)
 	 		ENDIF
-	 		IF !EMPTY(TMPSD1->D1_PEDIDO)
-	 		   	lBkCla := .T. 
-	 		ENDIF
+	 		//IF !EMPTY(TMPSD1->D1_PEDIDO)
+	 		//   	lBkCla := .T. 
+	 		//ENDIF
 
 			dbSelectArea("SB1")
 			SB1->(dbSetOrder(1))
@@ -213,9 +213,9 @@ Enddo
 
 TMPSF1->(DbCloseArea())
 
-IF lBkCla
+If lBkCla
 	U_AvalForn(.F.)
-ENDIF
+EndIf
 
 Return( NIL )
 

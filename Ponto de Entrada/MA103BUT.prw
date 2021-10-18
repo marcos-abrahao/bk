@@ -24,6 +24,7 @@ Private aDados	:= {}
 Private mParcel := ""
 
 If !Inclui
+    // Inclui nova aba no documento de entrada
     aadd(aButtons, {'Conhecimento', {|| MsDocument("SF1",SF1->(Recno()),6)}, 'Conhecimento'})
 
     cJust   := SF1->F1_HISTRET
