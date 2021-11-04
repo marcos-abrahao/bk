@@ -4698,7 +4698,7 @@ dbSelectArea("QTMP1")
 dDataI		:= QTMP1->CNF_INICIO
 dDataFinal	:= QTMP1->CNF_FIM
 If !lJob .AND. EMPTY(cContrato) // Bruno Santiago 04/10/2021
-	dDataI := CTOD("01/01/2018")
+	//dDataI := CTOD("01/01/2018")
 EndIf
 //cSituac 	:= QTMP1->CN9_SITUAC
 

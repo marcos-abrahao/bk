@@ -1770,8 +1770,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341HD += "0001"       //004 007
 		Bcn341HD += "1"          //008 008
 		Bcn341HD += "C"          //009 009
-		Bcn341HD += IIf(cTipoPes == "CLT" .AND. nTEDItau == 2,"30","20")      //010 011
-		Bcn341HD += IIf(nTEDItau == 1,"41","01")     	 //012 013
+		Bcn341HD += IIf(cTipoPes == "CLT" .AND. nTEDItau == 2,"30","20") //IIF(cBanco=='341',"30","20") //010 011
+		Bcn341HD += IIF(cBanco=='341',"01","41") //IIf(nTEDItau == 1,"41","01") //IIF(cBanco=='341' .AND. cTipoPes == "CLT","01","41")   //012 013
 		Bcn341HD += "040"        //014 016
 		Bcn341HD += SPACE(1)     //017 017
 		Bcn341HD += "2"          //018 018

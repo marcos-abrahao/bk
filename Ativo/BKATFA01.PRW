@@ -2,20 +2,12 @@
 #include "TopConn.ch"
 #include "RwMake.ch" 
 
-
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบFuncao ณBKATFA01 บAutorณ Adilson Prado RKA INFORMATICAบDataณ17/12/2019 บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.  ณImportar planilha excel em CSV e importa็ใo do Ativo Fixo       ฑฑ
-ฑฑบ		                                                                   ฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso    ณBK                                                             บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+/*/{Protheus.doc} BKATFA01
+BK - Importar planilha excel em CSV e importa็ใo do Ativo Fixo
+@Return
+@author Adilson Prado
+@since 17/12/2019 
+@version P12
 /*/
 
 User Function BKATFA01()
@@ -80,6 +72,7 @@ While !FT_FEOF()
   */
             aLINHA[4]  := Acento(ALLTRIM(aLINHA[4]))
             aLINHA[5]  := Acento(ALLTRIM(aLINHA[5]))
+            aLINHA[8]  := STRZERO(VAL(aLINHA[8]),3)
             aLINHA[10] := STRTRAN(aLINHA[10],".","")
             aLINHA[10] := STRZERO(VAL(aLINHA[10]),9)
 			aLINHA[16] := STRTRAN(aLINHA[16],"R$","")
@@ -96,7 +89,7 @@ While !FT_FEOF()
                       {'N1_CHAPA'  ,STRZERO(VAL(aLINHA[7]),6) ,NIL},;
                       {'N1_CODBAR' ,STRZERO(VAL(aLINHA[7]),6),NIL},;
                       {'N1_PATRIM' ,'N',NIL},;
-                      {'N1_GRUPO'  ,'001' ,NIL},;
+                      {'N1_GRUPO'  ,aLinha[8] ,NIL},;
                       {'N1_LOCAL'  ,'000001' ,NIL},;
                       {'N1_NSERIE' ,ALLTRIM(aLINHA[13]) ,NIL},;
                       {'N1_NFISCAL',STRZERO(VAL(aLINHA[14]),9) ,NIL},;

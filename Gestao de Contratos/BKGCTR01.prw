@@ -617,12 +617,15 @@ User Function BKCNR01(cNumMed,cTipo)
 Local cQuery  := ""
 Local cMotivo := ""
 
-cQuery := " SELECT CNR_DESCRI FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = '"+cNumMed+"' "
+cQuery := " SELECT CNR_DESCRI,CNR_XTPJUS FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = '"+cNumMed+"' "
 cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '"+cTipo+"' "
 TCQUERY cQuery NEW ALIAS "QTMP1"
 dbSelectArea("QTMP1")
 dbGoTop()
 DO WHILE !EOF()
+	If !Empty(QTMP1->CNR_XTPJUS)
+		cMotivo += QTMP1->CNR_XTPJUS + iIf(!Empty(QTMP1->CNR_DESCRI),"-"," ")
+	EndIf
     cMotivo += ALLTRIM(QTMP1->CNR_DESCRI)+" "
 	dbSelectArea("QTMP1")
 	dbSkip()

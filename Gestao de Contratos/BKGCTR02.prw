@@ -340,7 +340,7 @@ Static Function ProcQuery(_cEmp)
 		cMes   := aMeses[_nI]
 		cCompet:= SUBSTR(cMes,5,2)+"/"+SUBSTR(cMes,1,4)
 
-		cQuery := " SELECT DISTINCT" + CRLF
+		cQuery := " SELECT " + CRLF
 		cQuery += "   CNF_CONTRA"+ CRLF
 		cQuery += "   ,CNF_NUMERO"+ CRLF
 		cQuery += "   ,CNF_PARCEL"+ CRLF
@@ -419,7 +419,7 @@ Static Function ProcQuery(_cEmp)
 		// Faturamento avulso - sem medição
 		cQuery += " UNION ALL "+ CRLF
 
-		cQuery += " SELECT DISTINCT" + CRLF
+		cQuery += " SELECT " + CRLF
 		cQuery += "   CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END AS CNF_CONTRA"+ CRLF
 		cQuery += "   ,' '        AS CNF_NUMERO"+ CRLF
 		cQuery += "   ,' '        AS CNF_PARCEL"+ CRLF
@@ -495,7 +495,7 @@ Static Function ProcQuery(_cEmp)
 
 		cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET" + CRLF
 
-		u_LogMemo("BKGCTR02-1-"+cEmpAnt+"+.SQL",cQuery)
+		u_LogMemo("BKGCTR02-1-"+_cEmpresa+".SQL",cQuery)
 
 		TCQUERY cQuery NEW ALIAS "QTMP"
 
@@ -529,7 +529,7 @@ Static Function ProcQuery(_cEmp)
 				cQuery += " GROUP BY CNF_CONTRA " + CRLF
 				cQuery += " ORDER BY CNF_CONTRA " + CRLF
 
-				u_LogMemo("BKGCTR02-x-"+cEmpAnt+"+.SQL",cQuery)
+				u_LogMemo("BKGCTR02-x-"+_cEmpresa+".SQL",cQuery)
 
 				TCQUERY cQuery NEW ALIAS "TMP1"
 

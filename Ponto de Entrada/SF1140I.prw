@@ -143,7 +143,7 @@ Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
 
 If LEN(aGrp) > 0
-	If aGrp[1] $ "000000" 
+	If aGrp[1] $ "000000/000031" 
 		lAlt := .T.
 		lEsc := .T.
 	EndIf

@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"27/09/2021 SD1 "
+#DEFINE FIN_LAST_UPDATED 		"31/10/2021 ISS "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 26/09/21 SA2
+			AtuGenX3( @cTexto )    // 28/10/21 SE2
 
 			//AtuGenP12( @cTexto )
 
@@ -960,7 +960,307 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Incluir campo via X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
+cTexto  += "31/10/21 - TABELA CCQ - COD ISS " + CRLF 
+dbSetOrder( 2 )
 
+If SX3->( dbSeek( "CDN_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: Vazio() .Or. ExistCpo('SX5','60'+M->CDN_CODISS)
+	SX3->X3_VLDUSER := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "FIM_CDISSM" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: ExistCpo( 'SX5', '60' + M->FIM_CDISSM )
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "B1_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: vazio() .or. existcpo('SX5','60'+M->B1_CODISS)
+	SX3->X3_VLDUSER := "Vazio() .Or. ExistCpo('CCQ')"
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "B4_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: Vazio() .Or. ExistCpo("SX5","60"+M->B4_CODISS) 
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "BI_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "BZ_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: vazio() .or. existcpo("SX5","60"+alltrim(M->BZ_CODISS))
+	SX3->X3_VLDUSER := "Vazio() .Or. ExistCpo('CCQ')"
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "C6_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "D2_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "F3_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: A900VerCpo() .And. (Vazio() .OR. EXISTCPO("SX5","60"+M->F3_CODISS))
+	SX3->X3_VALID := "A900VerCpo() .And. (Vazio() .OR. ExistCpo('CCQ'))"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "FT_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CE1_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: SX5->(dbseek(xFilial("SX5")+"60"+FWFLDget("CE1_CODISS")))
+	SX3->X3_VALID := 'CCQ->(dbseek(xFilial("CCQ")+FWFLDget("CE1_CODISS")))'
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CE1_CTOISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: SX5->(dbseek(xFilial("SX5") + "60" + M->CE1_CTOISS))
+	SX3->X3_VALID := 'CCQ->(dbseek(xFilial("CCQ")+M->CE1_CTOISS))'
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CE1_CPRISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: SX5->(dbseek(xFilial("SX5") + "60" + M->CE1_CPRISS))
+	SX3->X3_VALID := 'CCQ->(dbseek(xFilial("CCQ")+M->CE1_CPRISS))  '
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CGA_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: Vazio() .Or. ExistCpo("SX5","60"+M->CGA_CODISS)
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CGB_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: ExistCpo("SX5","60"+M->CGB_CODISS) .OR. Vazio()
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CLI_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: Existcpo("SX5","60"+Alltrim(M->CLI_CODISS))
+	SX3->X3_VALID := "ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "CLL_CODLST" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: Vazio() .Or. ExistCpo("SX5","60"+FwFldGet("CLL_CODLST"))
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "F13_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: vazio() .or.  existcpo("SX5","60"+M->F13_CODISS)
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "E1_CODSERV" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: ExistCpo("SX5","60"+AllTrim(M->E1_CODSERV)) .and. Fa040Natur()
+	SX3->X3_VALID := "ExistCpo('CCQ') .and. Fa040Natur()"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "E2_CODSERV" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: ExistCpo("SX5","60"+AllTrim(M->E2_CODSERV)) .and. Fa050Nat2()
+	SX3->X3_VALID := "ExistCpo('CCQ') .and. Fa050Nat2()"
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "S4_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: vazio() .or. existcpo("SX5","60"+alltrim(M->S4_CODISS))
+	SX3->X3_VLDUSER := "Vazio() .Or. ExistCpo('CCQ')"
+	// SX3->X3_VALID: 
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "S6_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: Vazio() .Or. ExistCpo("SX5","60"+Alltrim(M->S6_CODISS))
+	SX3->X3_VLDUSER := "Vazio() .Or. ExistCpo('CCQ')"
+	// SX3->X3_VALID:
+	//SX3->X3_VALID := ""
+	dbCommit()
+	MsUnLock()
+EndIf
+//
+
+If SX3->( dbSeek( "F1O_CODISS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_F3 := "CCQ"
+	// SX3->X3_VLDUSER: 
+	//SX3->X3_VLDUSER := ""
+	// SX3->X3_VALID: Vazio() .Or. ExistCpo("SX5","60"+M->F1O_CODISS)
+	SX3->X3_VALID := "Vazio() .Or. ExistCpo('CCQ')"
+	dbCommit()
+	MsUnLock()
+EndIf
+dbSetOrder( 1 )
+//
+
+Return
+
+
+/*
+cTexto  += "28/10/21 - E2_ACRESC " + CRLF 
+dbSetOrder( 2 )
+If SX3->( dbSeek( "E2_ACRESC" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_BROWSE := "S"
+	dbCommit()
+	MsUnLock()
+EndIf
+If SX3->( dbSeek( "E2_DECRESC" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_BROWSE := "S"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+*/
+
+
+/*
 cTexto  += "27/09/21 - D1_TES " + CRLF 
 dbSetOrder( 2 )
 If SX3->( dbSeek( "D1_TES" ) )
@@ -969,10 +1269,7 @@ If SX3->( dbSeek( "D1_TES" ) )
 	dbCommit()
 	MsUnLock()
 EndIf
-dbSetOrder( 1 )
-
-
-Return
+*/
 
 //cTexto  += "26/09/21 - SA2 " + CRLF 
 /*

@@ -1022,7 +1022,7 @@ nSnd += nTLin
 nSnd += nTLin
 
 @ nSnd,028 Say "Rentabilidade (%):"                Size 080,008 Pixel Of oPanelLeft 
-@ nSnd,075 MsGet nRentab Picture "@E 99.999999"    Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
+@ nSnd,075 MsGet nRentab Picture "@E 999.999999"    Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 
 @ nSnd,178 Say "Valor Rentabilidade:"                Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nVLRentab Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F. 
