@@ -389,7 +389,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 cQuery += "		ON CTT_CUSTO = (CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END)" + CRLF
 cQuery += "		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '" + CRLF
 
-cQuery += " WHERE SC5.D_E_L_E_T_ = ' ' " + CRLF
+cQuery += " WHERE SC5.D_E_L_E_T_ = ' ' AND SF2.F2_DOC='000000758'" + CRLF
 
 //cQuery += " AND SC5.C5_FILIAL = '" + xFilial("SC5") + "' " + CRLF
 If Substr(cTipoEm,1,1) == "P"

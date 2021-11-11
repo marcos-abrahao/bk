@@ -59,6 +59,16 @@ Local aBCVINC 	:= {}
 Local cAgVinc 	:= ""
 Local cCCVinc 	:= ""
 
+/*
+Conforme falamos há alguns dias,das notas do ministerio deverão constar as informações abaixo:
+1 - Nº do contrato (dispensando objeto,se for o caso)
+2 - Subtotais em linha de "secretarias"/"copeira"/"cargos"
+3 - Valor da folha e valor da retenção (conta vinculada)
+4 - Dados bancários e retenções de tributos
+*/
+Local cSemObj	:= "142000579/"
+Local lSemObj	:= .F.
+
 Local aAreaAtu
 Local aAreaSE1
 Local aAreaSA1
@@ -158,6 +168,7 @@ cDescr := ""
 
 IF !Empty(cContrato)
 
+	lSemObj := (TRIM(cContrato)+"/" $ cSemObj)
     // QryProc(cAlias,nCampos,cCampos,cWhere)
     //aTmp := U_QryProc("CND",1,"R_E_C_N_O_","CND_FILIAL = '"+xFilial("CND")+"' AND CND_NUMMED = '"+cMedicao+"' AND CND_REVISA = CND_REVGER")
 
@@ -199,22 +210,24 @@ IF !Empty(cContrato)
 	nINSSME := 0
 	dbSelectArea("CN9")
 	dbSetOrder(1)
-	IF dbSeek(xFilial("CN9") + cContrato + cRevisa)
+	If dbSeek(xFilial("CN9") + cContrato + cRevisa)
 		cImpDtV := CN9->CN9_XXIDTV
 		nINSSME := CN9->CN9_INSSME
 		dbSelectArea ("SYP")
 		dbSetOrder(1)
 		dbSeek(xFilial("SYP") + CN9->CN9_CODOBJ)
-		DO WHILE !EOF() .AND. (xFilial("SYP") + CN9->CN9_CODOBJ) = (SYP->YP_FILIAL + SYP->YP_CHAVE)
+		Do While !EOF() .AND. (xFilial("SYP") + CN9->CN9_CODOBJ) = (SYP->YP_FILIAL + SYP->YP_CHAVE)
 		    cObjeto += STRTRAN(TRIM(SYP->YP_TEXTO),"\13\10","")   //+"|"
 			dbSkip()
-		ENDDO
+		Enddo
 		cObjeto := STRTRAN(TRIM(cObjeto),"|"," ")
-	ENDIF
+	EndIf
 	
-	FOR nI:= 1 to MLCOUNT(cObjeto,nMaxTLin)
-		cDescr += TRIM(MEMOLINE(cObjeto,nMaxTLin,nI))+"|"
-	NEXT
+	If !lSemObj
+		For nI:= 1 To MLCOUNT(cObjeto,nMaxTLin)
+			cDescr += TRIM(MEMOLINE(cObjeto,nMaxTLin,nI))+"|"
+		Next
+	EndIf
 
 	//IF !EMPTY(cObjeto)
 	//	cObjeto1 += "|"
@@ -248,7 +261,9 @@ IF !Empty(cContrato)
 	//	cObjeto1 += cLastLin+"|"
 	//EndIf
 
-	cDescr1 += cObsMed+CRLF
+	If !lSemObj
+		cDescr1 += cObsMed+CRLF
+	EndIf
 
 	cxCompet := ""
 	cxParcel := ""
@@ -379,6 +394,9 @@ IF !EMPTY(cConta)
 	cDescr1 += cConta+CRLF
 ENDIF	
 
+If lSemObj // Não encurtar a observação da medição
+	cDescr += STRTRAN(ALLTRIM(cObsMed),CHR(13)+CHR(10),"|")+"|"
+EndIf
 cDescr += TextoNF(cDescr1,nMaxTLin)
 
 IF !EMPTY(cNaturez)
@@ -960,7 +978,7 @@ Local cRetTexto	:= ""
 Local nTamLast	:= 0
 Local nI 		:= 0
 
-FOR nI:= 1 to MLCOUNT(cTexto,nMaxTLin)
+For nI:= 1 To MLCOUNT(cTexto,nMaxTLin)
 	cNewLin := STRTRAN(TRIM(MEMOLINE(cTexto,nMaxTLin,nI)),CHR(13)+CHR(10),"")
 	nTamLast := LEN(cLastLin)
 	If nTamLast > 0
@@ -978,7 +996,7 @@ FOR nI:= 1 to MLCOUNT(cTexto,nMaxTLin)
 			cLastLin += IIF(!EMPTY(cLastLin)," - ","")+cNewLin
 		EndIf
 	EndIf
-NEXT
+Next
 If !Empty(cLastLin)
 	cRetTexto += cLastLin+"|"
 EndIf

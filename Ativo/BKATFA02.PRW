@@ -47,7 +47,7 @@ RETURN NIL
 Static Function QBKATFA2(cTitulo)
 Local cQuery
 Local dDtIni := CTOD("01/01/2021")
-Local dDtFim := CTOD("30/09/2021")
+Local dDtFim := CTOD("31/12/2021")
 
 If SELECT("QSD1") > 0 
 	dbSelectArea("QSD1")
@@ -59,10 +59,11 @@ cQuery += " D1_FORNECE,D1_LOJA,A2_NOME,D1_SERIE,D1_DOC,D1_DTDIGIT, "+CRLF
 cQuery += " CONVERT(VARCHAR(6000),CONVERT(Binary(6000),D1_XXHIST)) D1_XXHIST "+CRLF
 cQuery += "FROM "+RETSQLNAME("SD1")+" SD1 "
 cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = '' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SF4")+" SF4 ON F4_FILIAL = '"+xFilial("SF4")+"' AND D1_TES = SF4.F4_CODIGO AND SF4.D_E_L_E_T_='' "+CRLF
 
 cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
-
+cQuery += " AND (B1_TIPO = 'AI' OR F4_ATUATF = 'S') "+CRLF
 IF !EMPTY(dDtIni)
 	cQuery += "AND D1_DTDIGIT >= '"+DTOS(dDtIni)+"' "+CRLF
 ENDIF
@@ -72,7 +73,7 @@ ENDIF
 
 cQuery += "ORDER BY D1_DTDIGIT,D1_DOC "+CRLF
 
-u_LogMemo("BKFINR07.SQL",cQuery)
+u_LogMemo("BKATFA02.SQL",cQuery)
 
 cQuery := ChangeQuery(cQuery)
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QSD1",.T.,.T.)
@@ -140,14 +141,14 @@ Do While !Eof()
     cBuffer += STR(QSD1->D1_QUANT,5,0)+";"   // QUANTIDADE
     cBuffer += ";"   // NUMERO_PATRIMONIO
     cBuffer += ";"   // CLASSIFICACAO_PATRIMONIO
-    cBuffer += STRTRAN(QSD1->D1_XXHIST,";",",")+";"   // HISTORICO
+    cBuffer += ";" //STRTRAN(QSD1->D1_XXHIST,";",",")+";"   // HISTORICO
     cBuffer += QSD1->D1_CC+";"   // CENTRO_CUSTO
     cBuffer += QSD1->D1_FORNECE+";"   // FORNECEDOR
     cBuffer += QSD1->D1_LOJA+";"   // LOJA
     cBuffer += QSD1->D1_SERIE+";"   // SERIE_NF
     cBuffer += QSD1->D1_DOC+";"   // NUMERO_NF
     cBuffer += ";"   // DATA_GARANTIA
-    cBuffer += STR(QSD1->D1_TOTAL,5,0)+";"   // VALOR_DO_BEM
+    cBuffer += STR(QSD1->D1_TOTAL,16,2)+";"   // VALOR_DO_BEM
     cBuffer += "001;"   // ITEM
     cBuffer += ";"   // NOME_RESPONSÁVEL
     cBuffer += ";"   // LOCALIZAÇÃO
