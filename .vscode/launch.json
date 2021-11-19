@@ -84,36 +84,6 @@
 		},
 		{
 			"args": [],
-			"label": "up",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "SIGGCG",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "u_updbk09",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "u_u",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "u_upd",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "U_",
-			"description": ""
-		},
-		{
-			"args": [],
 			"label": "sigacfg",
 			"description": ""
 		},
@@ -129,77 +99,7 @@
 		},
 		{
 			"args": [],
-			"label": "u_ytstDB",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "u_tst2Excel",
-			"description": ""
-		},
-		{
-			"args": [],
 			"label": "SIGACTB",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "C5MUNPRES",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "U_C5MUNPRES",
-			"description": ""
-		},
-		{
-			"args": [],
-			"label": "U_MVCC5MUN",
-			"description": ""
-		},
-		{
-			"args": [
-				"()"
-			],
-			"label": "u_yTstDB",
-			"description": "()"
-		},
-		{
-			"args": [],
-			"label": "u_updatafis",
-			"description": ""
-		},
-		{
-			"args": [
-				" ()"
-			],
-			"label": "U_UPDGENSX",
-			"description": " ()"
-		},
-		{
-			"args": [
-				"()"
-			],
-			"label": "u_niversAdvPL",
-			"description": "()"
-		},
-		{
-			"args": [
-				" ()"
-			],
-			"label": "u_niversAdvPL",
-			"description": " ()"
-		},
-		{
-			"args": [
-				"()"
-			],
-			"label": "u_comadic",
-			"description": "()"
-		},
-		{
-			"args": [],
-			"label": "u_compadic",
 			"description": ""
 		},
 		{
@@ -331,7 +231,19 @@
 			],
 			"label": "u_estalm",
 			"description": "(\" 000093 \")"
+		},
+		{
+			"label": "upddistr",
+			"description": "<nil>"
+		},
+		{
+			"label": "sigagct",
+			"description": "<nil>"
+		},
+		{
+			"label": "sigamdi",
+			"description": "<nil>"
 		}
 	],
-	"lastProgramExecuted": "SIGAFIN"
+	"lastProgramExecuted": "sigamdi"
 }

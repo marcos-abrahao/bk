@@ -2507,9 +2507,17 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'" +CRLF
 		cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
-//		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D1_CONTA,1,3) <> '113' "," AND (SUBSTRING(D1_CONTA,1,1) = '3' OR D1_CONTA in ('29104004','12201006','12201005','12201010'))") 
 		// 12105 - Alugueis 06/07/2021
-		cQuery2 += IIF(nScan > 0," AND SUBSTRING(B1_CONTA,1,3) <> '113' "," AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA in ('29104004') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))") +CRLF
+		// 19/11/2021 - Contas alteradas de 113 para 121
+		//cQuery2 += IIF(nScan > 0," AND SUBSTRING(B1_CONTA,1,3) <> '113' "," AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA in ('29104004') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))") +CRLF
+
+		If nScan > 0
+			cQuery2 +=  " AND SUBSTRING(B1_CONTA,1,3) <> '113' " +CRLF
+			cQuery2 +=  " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
+		Else
+			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA in ('29104004') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
+		EndIf
+
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 			cQuery2 += " AND D1_FORNECE<>'002918'"
 		ENDIF 
@@ -2530,8 +2538,17 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'" 
 		cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
-//		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004','12201006','12201005','12201010'))") 
-		cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))") 
+
+		// 19/11/2021 - Contas alteradas de 113 para 121
+		//cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))") 
+		If nScan > 0
+			cQuery2 +=  " AND SUBSTRING(D3_CONTA,1,3) <> '113' " +CRLF
+			cQuery2 +=  " AND (SUBSTRING(D3_CONTA,1,3) <> '121' OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
+		Else
+			cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
+		EndIf
+
+
 		cQuery2 += " GROUP BY D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"
 
 		//cQuery2 += " ORDER BY B1_DESC"
@@ -2978,6 +2995,8 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" 
 			ENDIF
 			cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' "
+			// 19/11/2021 - Contas alteradas de 113 para 121
+			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
 			IF nCompras == 1
 				cQuery2 += " AND D1_PEDIDO <> ''"
 			ENDIF 
@@ -3467,6 +3486,9 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,8])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"
 				cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "
 				cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' "
+				// 19/11/2021 - Contas alteradas de 113 para 121
+				cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
+
 				IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 					cQuery2 += " AND D1_FORNECE<>'002918'"
 				ENDIF 

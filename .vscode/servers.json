@@ -1,0 +1,57 @@
+{
+	"version": "0.2.0",
+	"includes": [
+		""
+	],
+	"permissions": {
+		"authorizationtoken": ""
+	},
+	"connectedServer": {
+		"id": "om0roikb95akvv7m2ezijtffxuz2bj",
+		"type": "totvs_server_protheus",
+		"name": "VsCode",
+		"port": 1240,
+		"address": "10.139.0.30",
+		"buildVersion": "7.00.191205P",
+		"secure": true,
+		"includes": [
+			"E:\\Protheus12\\BK\\Protheus\\include"
+		],
+		"environments": [
+			"P12"
+		],
+		"username": "admin",
+		"environment": "P12",
+		"token": "djM6b20wcm9pa2I5NWFrdnY3bTJlemlqdGZmeHV6MmJqOjE6MTAuMTM5LjAuMzA6MTI0MDoxOjcuMDAuMTkxMjA1UDoz:djE6UDEyOmFkbWluOnBXUE9jclpQSGFqMDhHYUpTRDhYejZLNTZiOXhKVTl1MkNBUW9rTjhzTTQ9|djI6MTYzNzM1MzE5MDowOjE6MQ==.jROyLekolfVK8lfspHtUcV5Qxvwsco6bLQA2Ka5aV0ieucqPek7D4eRbjCyPzzShzVyD111LqmwLfO6RK7oCtcvq3VyBNm2IonVl4Nm2AfjCwSaaDgy3qBNJz5Qvq2mSlt5XqrWc0+WfaRJkzTcTb4TON+mUQUo2GwmGunJ/77MnKJ86mwUJ7rjQ2iXct8QvzfJS/grONQOVH9/Bjy9pZQguh+MCU79YedZFmB/85JF9UxYo8DRwJ5xD8QXZ4koqrbUD8wPG72Xcs0iMqCSL0Q6blmrcFr8CtTxocUwQRLUtlcTfl/7b2dXkYCQpcAHShU9bnrKj+X3TguKwomWpPA=="
+	},
+	"configurations": [
+		{
+			"id": "om0roikb95akvv7m2ezijtffxuz2bj",
+			"type": "totvs_server_protheus",
+			"name": "VsCode",
+			"port": 1240,
+			"address": "10.139.0.30",
+			"buildVersion": "7.00.191205P",
+			"secure": true,
+			"includes": [
+				"E:\\Protheus12\\BK\\Protheus\\include"
+			],
+			"environments": [
+				"P12"
+			],
+			"username": "admin",
+			"environment": "P12",
+			"token": "djM6b20wcm9pa2I5NWFrdnY3bTJlemlqdGZmeHV6MmJqOjE6MTAuMTM5LjAuMzA6MTI0MDoxOjcuMDAuMTkxMjA1UDoz:djE6UDEyOmFkbWluOnBXUE9jclpQSGFqMDhHYUpTRDhYejZLNTZiOXhKVTl1MkNBUW9rTjhzTTQ9|djI6MTYzNzM1MzE5MDowOjE6MQ==.jROyLekolfVK8lfspHtUcV5Qxvwsco6bLQA2Ka5aV0ieucqPek7D4eRbjCyPzzShzVyD111LqmwLfO6RK7oCtcvq3VyBNm2IonVl4Nm2AfjCwSaaDgy3qBNJz5Qvq2mSlt5XqrWc0+WfaRJkzTcTb4TON+mUQUo2GwmGunJ/77MnKJ86mwUJ7rjQ2iXct8QvzfJS/grONQOVH9/Bjy9pZQguh+MCU79YedZFmB/85JF9UxYo8DRwJ5xD8QXZ4koqrbUD8wPG72Xcs0iMqCSL0Q6blmrcFr8CtTxocUwQRLUtlcTfl/7b2dXkYCQpcAHShU9bnrKj+X3TguKwomWpPA=="
+		}
+	],
+	"savedTokens": [
+		[
+			"om0roikb95akvv7m2ezijtffxuz2bj:P12",
+			{
+				"id": "om0roikb95akvv7m2ezijtffxuz2bj",
+				"token": "djM6b20wcm9pa2I5NWFrdnY3bTJlemlqdGZmeHV6MmJqOjE6MTAuMTM5LjAuMzA6MTI0MDoxOjcuMDAuMTkxMjA1UDoz:djE6UDEyOmFkbWluOnBXUE9jclpQSGFqMDhHYUpTRDhYejZLNTZiOXhKVTl1MkNBUW9rTjhzTTQ9|djI6MTYzNzM1MzE5MDowOjE6MQ==.jROyLekolfVK8lfspHtUcV5Qxvwsco6bLQA2Ka5aV0ieucqPek7D4eRbjCyPzzShzVyD111LqmwLfO6RK7oCtcvq3VyBNm2IonVl4Nm2AfjCwSaaDgy3qBNJz5Qvq2mSlt5XqrWc0+WfaRJkzTcTb4TON+mUQUo2GwmGunJ/77MnKJ86mwUJ7rjQ2iXct8QvzfJS/grONQOVH9/Bjy9pZQguh+MCU79YedZFmB/85JF9UxYo8DRwJ5xD8QXZ4koqrbUD8wPG72Xcs0iMqCSL0Q6blmrcFr8CtTxocUwQRLUtlcTfl/7b2dXkYCQpcAHShU9bnrKj+X3TguKwomWpPA=="
+			}
+		]
+	],
+	"lastConnectedServer": "om0roikb95akvv7m2ezijtffxuz2bj"
+}

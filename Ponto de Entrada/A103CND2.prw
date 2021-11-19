@@ -25,49 +25,47 @@ If l103Auto
 	If nI > 0
 		mParcel := aAutoCab[nI,2]
 	EndIf
+ElseIf inclui
+	mParcel := ""
 EndIf
 
 dDtUtil := DataValida(dDatabase,.T.)
 //dDtUtil := DataValida(dDatabase+1,.T.)
 //dDtUtil := DataValida(dDtUtil+1,.T.)
 
-If cCondicao == "999" .OR. !Empty(mParcel)
-	LoadVenc(@aDados,mParcel)
-	If Len(aDados) == Len(PARAMIXB)
-		For nV := 1 TO Len(PARAMIXB)
-			PARAMIXB[nV,1] := aDados[nV,2]
-			PARAMIXB[nV,2] := aDados[nV,3]
-			If PARAMIXB[nV,1] < dDtUtil
-				PARAMIXB[nV,1] := dDtUtil
-			EndIf
-		Next
-	Else
-		PARAMIXB := {}
-		For nV := 1 TO Len(aDados)
-			aAdd(PARAMIXB,{aDados[nV,2],aDados[nV,3]})
-			If PARAMIXB[nV,1] < dDtUtil
-				PARAMIXB[nV,1] := dDtUtil
-			EndIf
-		Next
+If cCondicao == "999" .OR. cCondicaoOld = ''
+	If !Empty(mParcel) .AND. (cCondicao <> cCondicaoOld .OR. cCondicao = '999')
+		LoadVenc(@aDados,mParcel)
+		If Len(aDados) == Len(PARAMIXB)
+			For nV := 1 TO Len(PARAMIXB)
+				PARAMIXB[nV,1] := aDados[nV,2]
+				PARAMIXB[nV,2] := aDados[nV,3]
+				If PARAMIXB[nV,1] < dDtUtil
+					PARAMIXB[nV,1] := dDtUtil
+				EndIf
+			Next
+		Else
+			PARAMIXB := {}
+			For nV := 1 TO Len(aDados)
+				aAdd(PARAMIXB,{aDados[nV,2],aDados[nV,3]})
+				If PARAMIXB[nV,1] < dDtUtil
+					PARAMIXB[nV,1] := dDtUtil
+				EndIf
+			Next
+		EndIf
+		If !inclui .AND. cCondicao == "999"
+			cCondicao := SF1->F1_COND
+		EndIf
 	EndIf
-	//If cCondicao == "999"
-		cCondicao := SF1->F1_COND
-	//EndIf
 Else
 	For nV := 1 TO Len(PARAMIXB)
 		If PARAMIXB[nV,1] < dDtUtil
 			PARAMIXB[nV,1] := dDtUtil
 		EndIf
-		/*
-		If nV == 1 .AND. cCondicao == "999" //.AND. Len(PARAMIXB) == 1
-			If !Empty(SF1->F1_XXPVPGT)
-				PARAMIXB[nV,1] := SF1->F1_XXPVPGT
-			EndIf
-			cCondicao := "000"
-		EndIf
-		*/
 	Next
 EndIf
+
+
 RestArea(aArea)
 Return(PARAMIXB)
 

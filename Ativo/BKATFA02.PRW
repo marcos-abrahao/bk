@@ -18,7 +18,7 @@ Local oButSel
 Local nOpcA := 0
 Local nSnd:= 15,nTLin := 15
 
-PRIVATE cArq  := "ATIVOS.CSV"
+PRIVATE cArq  := "C:\TEMP\ATIVOS.CSV"
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -63,7 +63,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")
 cQuery += " LEFT JOIN "+RETSQLNAME("SF4")+" SF4 ON F4_FILIAL = '"+xFilial("SF4")+"' AND D1_TES = SF4.F4_CODIGO AND SF4.D_E_L_E_T_='' "+CRLF
 
 cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
-cQuery += " AND (B1_TIPO = 'AI' OR F4_ATUATF = 'S') "+CRLF
+//cQuery += " AND (B1_TIPO = 'AI' OR F4_ATUATF = 'S') "+CRLF
 IF !EMPTY(dDtIni)
 	cQuery += "AND D1_DTDIGIT >= '"+DTOS(dDtIni)+"' "+CRLF
 ENDIF
