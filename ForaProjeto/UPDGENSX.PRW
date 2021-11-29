@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"31/10/2021 ISS "
+#DEFINE FIN_LAST_UPDATED 		"25/11/2021 SB1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 28/10/21 SE2
+			AtuGenX3( @cTexto )    // 25/11/21 Sb1
 
 			//AtuGenP12( @cTexto )
 
@@ -953,9 +953,49 @@ Return
 
 Static Function AtuGenX3( cTexto )
 //Local aNBrowse:= {}
-//Local aSBrowse:= {}
-//Local nBrw := 0
+Local aSBrowse:= {}
+Local nBrw := 0
 
+
+oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
+
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+
+cTexto  += "25/11/21 - TABELA SB1 - BROWSE = 'S'" + CRLF 
+
+aAdd(aSBrowse,"B1_COD")
+aAdd(aSBrowse,"B1_DESC")
+aAdd(aSBrowse,"B1_TIPO")
+aAdd(aSBrowse,"B1_UM")
+aAdd(aSBrowse,"B1_GRUPO")
+aAdd(aSBrowse,"B1_ALIQISS")
+aAdd(aSBrowse,"B1_CODISS")
+aAdd(aSBrowse,"B1_TE")
+aAdd(aSBrowse,"B1_TS")
+aAdd(aSBrowse,"B1_CONTA")
+aAdd(aSBrowse,"B1_IRRF")
+aAdd(aSBrowse,"B1_INSS")
+aAdd(aSBrowse,"B1_PIS")
+aAdd(aSBrowse,"B1_COFINS")
+aAdd(aSBrowse,"B1_CSLL")
+aAdd(aSBrowse,"B1_XXGRPF")
+
+For nBrw := 1 TO Len(aSBrowse)
+	If SX3->( dbSeek( aSBrowse[nBrw] ) )
+		RecLock( "SX3", .F. )
+		SX3->X3_BROWSE  := "S"
+		dbCommit()
+		MsUnLock()
+	EndIf
+Next
+
+dbSetOrder( 1 )
+
+Return
+
+
+/* Cod ISS
 
 oProcess:IncRegua2( "Incluir campo via X31UPDTABLE..." )
 
@@ -1236,9 +1276,11 @@ If SX3->( dbSeek( "F1O_CODISS" ) )
 	MsUnLock()
 EndIf
 dbSetOrder( 1 )
-//
 
-Return
+fim cod iss
+
+/*
+
 
 
 /*

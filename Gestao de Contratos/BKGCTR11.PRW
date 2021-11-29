@@ -169,16 +169,16 @@ cXXPLR	    := SuperGetMV("MV_XXPLR",.F.,"|430|") //|430|
 
 IF EMPTY(cContrato)
 	IF !lJob
-		IF AVISO("Atenção","Incluir Contrato Consorcios??",{"Não","Sim"}) == 2
-	   		lConsorcio := .T.
-		ELSE
+		//IF AVISO("Atenção","Incluir Contrato Consorcios??",{"Não","Sim"}) == 2
+	   	//	lConsorcio := .T.
+		//ELSE
 	   		lConsorcio := .F.
-		ENDIF
-		IF AVISO("Atenção","Incluir Contrato Furnas - Filial 381/391  ??",{"Não","Sim"}) == 2
-			lFurnas := .T.
-		ELSE
+		//ENDIF
+		//IF AVISO("Atenção","Incluir Contrato Furnas - Filial 381/391  ??",{"Não","Sim"}) == 2
+		//	lFurnas := .T.
+		//ELSE
 			lFurnas := .F.
-		ENDIF
+		//ENDIF
 	ELSE
    		lConsorcio := .F.
 		lFurnas := .F.
@@ -1914,9 +1914,10 @@ FOR _nI := 1 TO nPeriodo
 
 		DO While !TMPX2->(EOF())
 
-			IF TMPX2->D1_DOC = '000050737' //'000053049'
-				XBK:= 0
-			ENDIF
+			//IF TMPX2->D1_DOC = '000050737' //'000053049'
+			//	XBK:= 0
+			//ENDIF
+
 			//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
 			If !Empty(TMPX2->D1_DOC)
 				If cLastE2 <> TMPX2->D1_SERIE+TMPX2->D1_DOC+TMPX2->D1_FORNECE+TMPX2->D1_LOJA
@@ -2240,9 +2241,9 @@ FOR _nI := 1 TO nPeriodo
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 
 
-					If TMPX2->D1_DOC == '000051817'
-						xbk := 0
-					EndIf
+					//If TMPX2->D1_DOC == '000051817'
+					//	xbk := 0
+					//EndIf
 
 					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 
@@ -2575,9 +2576,9 @@ FOR _nI := 1 TO nPeriodo
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 
 
-						If TMPX2->D1_DOC == '000051817'
-							xbk := 0
-						EndIf
+						//If TMPX2->D1_DOC == '000051817'
+						//	xbk := 0
+						//EndIf
 
 						cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 

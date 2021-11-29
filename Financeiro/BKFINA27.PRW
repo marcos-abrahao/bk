@@ -1,4 +1,3 @@
-#INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
 //-------------------------------------------------------------------
@@ -16,14 +15,14 @@ Local aArea     := GetArea()
 Local cAliasTmp := GetNextAlias()
 Local oTmpTb
 Local aStrut    := {}
-Local cTx       := ""
+
 Private aFacil  := {}
-Private cBanco  := PAD("",TamSX3("A6_COD")[1])
-Private cAgencia:= PAD("",TamSX3("A6_AGENCIA")[1])
-Private cNumCon := PAD("",TamSX3("A6_NUMCON")[1])
+Private cBanco  := PAD("CTB",TamSX3("A6_COD")[1])
+Private cAgencia:= PAD("00001",TamSX3("A6_AGENCIA")[1])
+Private cNumCon := PAD("0000000001",TamSX3("A6_NUMCON")[1])
 Private cNomeBc := PAD("",TamSX3("A6_NOME")[1]) 
 Private dDataMov:= dDataBase
-
+Private nTotPg := 0
 
 //              Campo        Tipo    Tamanho            Decimal
 aAdd( aStrut, { "XX_PREFIXO","C", TamSX3("E2_PREFIXO")[1], 0} )
@@ -37,8 +36,8 @@ aAdd( aStrut, { "XX_EMISSAO","D", TamSX3("E2_EMISSAO")[1], 0} )
 aAdd( aStrut, { "XX_VENCTO", "D", TamSX3("E2_VENCTO")[1] , 0} )
 aAdd( aStrut, { "XX_VENCREA","D", TamSX3("E2_VENCREA")[1] , 0} )
 aAdd( aStrut, { "XX_VALOR",  "N", TamSX3("E2_VALOR")[1], TamSX3("E2_VALOR")[2]} )
-aAdd( aStrut, { "XX_PORTADO", "C", TamSX3("E2_PORTADO")[1] , 0} )
-
+aAdd( aStrut, { "XX_PORTADO","C", TamSX3("E2_PORTADO")[1] , 0} )
+aAdd( aStrut, { "XX_HIST",   "C", TamSX3("E2_HIST")[1] , 0} )
 //Criando tabela temporária
 //cArq:= CriaTrab( aStrut, .T. )             
 //dbUseArea( .T.,NIL, cArq, cAliasTmp, .T., .F. )
@@ -48,8 +47,8 @@ oTmpTb := FWTemporaryTable():New( cAliasTmp )
 oTmpTb:SetFields( aStrut )
 oTmpTb:Create()
 
-cTx := FA27Dlg01(cTx,cAliasTmp)
-    
+FWMsgRun(, {|oSay| FA27Qry(cAliasTmp) }, "", "Consultando títulos não baixados...")
+
 FA22EdtCx(cAliasTmp)
 
 oTmpTb:Delete() 
@@ -95,10 +94,10 @@ Private nPosTIPO
 Private nPosFORNECE
 Private nPosLOJA
 Private nPosValor
+Private nPosHist
 
 Private nColDel
 Private nTotPg := 0
-Private nTotRc := 0
 
 // Tabela temporária
 dbSelectArea(cAliasTmp)
@@ -120,6 +119,7 @@ aAdd(aHeader,{	"Vencimento",	"XX_VENCTO"     ,	"@!"            ,TamSX3("E2_VENCT
 aAdd(aHeader,{	"Vencto Real" ,	"XX_VENCTO"     ,	"@!"            ,TamSX3("E2_VENCREA")[1],	0              				  	,	".T."           ,	".T.",	"D",	""   	,	""})
 aAdd(aHeader,{	"Valor"     ,	"XX_VALOR"    	,	"@E 999,999,999,999,999.99",TamSX3("E2_VALOR")[1],TamSX3("E2_VALOR")[2] 	,	".T." 			,	".T.",	"N",	""   	,	""})
 aAdd(aHeader,{	"Portado" ,		"XX_PORTADO"    ,	"@!"            ,TamSX3("E2_PORTADO")[1],	0                				,	".T."           ,	".T.",	"C",	"BCO"   ,	""})
+aAdd(aHeader,{	"Historico" ,	"XX_HIST"	    ,	"@!"            ,TamSX3("E2_HIST")[1]	,	0                				,	".T."           ,	".T.",	"C",	"" 		,	""})
 
 nPosPrefixo := aScan(aHeader, {|x| AllTrim(x[2]) == "XX_PREFIXO"})
 nPosNUM 	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_NUM"})
@@ -128,6 +128,7 @@ nPosTIPO	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_TIPO"})
 nPosFORNECE := aScan(aHeader, {|x| AllTrim(x[2]) == "XX_FORNECE"})
 nPosLOJA  	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_LOJA"})
 nPosVALOR 	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_VALOR"})
+nPosHIST 	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_HIST"})
 nColDel   	:= LEN(aHeader) + 1
 
 //Percorrendo as linhas e adicionando no aCols
@@ -144,7 +145,9 @@ While ! (cAliasTmp)->(EoF())
 		
 	(cAliasTmp)->(DbSkip())
 EndDo
-	
+
+MsgInfo("Atenção: Use a tecla DEL para desconsiderar titulos desta baixa","BKFINA27")
+
 //Montando a tela
 DEFINE MSDIALOG oDlgPvt TITLE "Baixa Contas a Pagar" FROM 000, 000  TO nJanAltu, nJanLarg COLORS 0, 16777215 PIXEL
 	//Dados
@@ -167,24 +170,23 @@ DEFINE MSDIALOG oDlgPvt TITLE "Baixa Contas a Pagar" FROM 000, 000  TO nJanAltu,
 
 	@ 030, 003  GROUP oGrpDad TO (nJanAltu/2)-030, (nJanLarg/2)-003  PROMPT "Dados: "  OF oDlgPvt PIXEL
 
-		oMGet22 := MsNewGetDados():New(	040,;          					//nTop
-										006,;          					//nLeft
-										(nJanAltu/2)-033,;        		//nBottom
-										(nJanLarg/2)-006,;       		//nRight
-										GD_DELETE,;	                    //nStyle
-										"",; 	      	   				//cLinhaOk
-										,;           					//cTudoOk
-										"",;          					//cIniCpos
-										,;          			    	//aAlter
-										,;           					//nFreeze
-										9999999,;         				//nMax
-										,;           					//cFieldOK
-										,;           					//cSuperDel
-										"Eval(bfDeleta)",;				//cDelOk
-										oDlgPvt,;     					//oWnd
-										aHeader,;        				//aHeader
-										aCols)         					//aCols
-
+	oMGet22 := MsNewGetDados():New(	040,;          					//nTop
+									006,;          					//nLeft
+									(nJanAltu/2)-033,;        		//nBottom
+									(nJanLarg/2)-006,;       		//nRight
+									GD_DELETE,;	                    //nStyle
+									"",; 	      	   				//cLinhaOk
+									,;           					//cTudoOk
+									"",;          					//cIniCpos
+									,;          			    	//aAlter
+									,;           					//nFreeze
+									9999999,;         				//nMax
+									,;           					//cFieldOK
+									,;           					//cSuperDel
+									"Eval(bfDeleta)",;				//cDelOk
+									oDlgPvt,;     					//oWnd
+									aHeader,;        				//aHeader
+									aCols)         					//aCols
 			
 	//Ações
 	@ (nJanAltu/2)-25, 03 GROUP oGrpAco TO (nJanAltu/2)-003, (nJanLarg/2)-003  PROMPT "Ações: "  OF oDlgPvt PIXEL
@@ -214,7 +216,6 @@ Return()
 Static Function SomaTot()
 Local nY := 0
 nTotPg := 0
-nTotRc := 0
 For nY := 1 to Len(oMGet22:aCols)
 	If !oMGet22:aCols[nY][nColDel]
 		nTotPg += oMGet22:aCols[nY][nPosValor]
@@ -228,45 +229,7 @@ Return Nil
 Static Function fValid(cCampo)
 
 Local lRet := .T.
-
-/*
-Local nY
-If cCampo == "TODOS"
-	// Valida todas as linhas
-	For nY := 1 to Len(oMGet22:aCols)
-		If !oMGet22:aCols[nY][nColDel]
-			If !fValCampo("XX_MOV",nY,.F.) .Or.;
-				!fValCampo("XX_DATA",nY,.F.) .Or.;
-				!fValCampo("XX_HIST",nY,.F.) .Or.;
-				!fValCampo("XX_CCUS",nY,.F.) .Or.;
-				!fValCampo("XX_VALOR",nY,.F.) .Or.;
-				!fValCampo("XX_CONTA",nY,.F.)
-				MsgStop("Problema encontrado na linha "+AllTrim(Str(nY)),"Atenção!")
-				oMGet22:GoTo(nY)
-				Return .F.
-			EndIf
-		EndIf
-	Next nY
-ElseIf cCampo == "LINHA"
-	// Valida a linha
-	nY := oMGet22:nAt
-	If !oMGet22:aCols[nY][nColDel]
-		If !fValCampo("XX_MOV",nY,.F.) .Or.;
-			!fValCampo("XX_DATA",nY,.F.) .Or.;
-			!fValCampo("XX_HIST",nY,.F.) .Or.;
-			!fValCampo("XX_CCUS",nY,.F.) .Or.;
-			!fValCampo("XX_VALOR",nY,.F.) .Or.;
-			!fValCampo("XX_CONTA",nY,.F.)
-			Return .F.
-		EndIf
-		//SomaTot()
-	EndIf
-Else
-	// Valida o campo digitado
-	lRet := fValCampo(cCampo,oMGet22:nAt,.T.)
-EndIf 
-*/
-If .F. // Remover Warning de Compilação
+If .F.
 	fValCampo(cCampo,0,.F.)
 EndIf
 
@@ -379,7 +342,7 @@ Return(.T.)
 Static Function fSalvar()
 Local lRet := .F.
 
-MsgRun("Aguarde, gerando Baixa a Pagar…","",{|| CursorWait(), lRet := ProcBaixa() ,CursorArrow()})
+FWMsgRun(, {|oSay| lRet := ProcBaixa() }, "", "Gerando Baixa a Pagar…")
 
 If lRet
 	oDlgPvt:End()
@@ -409,29 +372,27 @@ EndIf
 
 BEGIN TRANSACTION
 	
-	For nY := 1 to Len(oMGet22:aCols)
+	For nY := 1 to 10 //Len(oMGet22:aCols)
 
 		If !oMGet22:aCols[nY][nColDel] 	
-
 	
-	                          aBaixa := {}
-	                          AADD(aBaixa, {"E2_FILIAL" , xFILIAL("SE2") , Nil})
-	                          AADD(aBaixa, {"E2_PREFIXO" , oMGet22:aCols[nY][nPosPREFIXO] , Nil})
-	                          AADD(aBaixa, {"E2_NUM" , oMGet22:aCols[nY][nPosNUM] , Nil})
-	                          AADD(aBaixa, {"E2_PARCELA" , oMGet22:aCols[nY][nPosPARCELA] , Nil})
-	                          AADD(aBaixa, {"E2_TIPO" , oMGet22:aCols[nY][nPosTIPO] , Nil})
-	                          AADD(aBaixa, {"E2_FORNECE" , oMGet22:aCols[nY][nPosFORNECE] , Nil})
-	                          AADD(aBaixa, {"E2_LOJA" , oMGet22:aCols[nY][nPosLOJA] , Nil}) 
-	                          AADD(aBaixa, {"AUTMOTBX" , "DEBITO CC" , Nil})
-	                          AADD(aBaixa, {"AUTBANCO" , cBanco , Nil})
-	                          AADD(aBaixa, {"AUTAGENCIA" , cAgencia , Nil})
-	                          AADD(aBaixa, {"AUTCONTA" , cNumCon , Nil})
-	                          AADD(aBaixa, {"AUTDTBAIXA" , dDataMov , Nil}) 
-	                          AADD(aBaixa, {"AUTDTCREDITO", dDataMov , Nil})
- //	                          AADD(aBaixa, {"AUTHIST" , cHistBaixa , Nil})
-	                          AADD(aBaixa, {"AUTVLRPG" , oMGet22:aCols[nY][nPosValor] , Nil})
-
-	                          ACESSAPERG("FIN080", .F.)
+	        aBaixa := {}
+	        AADD(aBaixa, {"E2_FILIAL" , xFILIAL("SE2") , Nil})
+	        AADD(aBaixa, {"E2_PREFIXO" , oMGet22:aCols[nY][nPosPREFIXO] , Nil})
+	        AADD(aBaixa, {"E2_NUM" , oMGet22:aCols[nY][nPosNUM] , Nil})
+	        AADD(aBaixa, {"E2_PARCELA" , oMGet22:aCols[nY][nPosPARCELA] , Nil})
+	        AADD(aBaixa, {"E2_TIPO" , oMGet22:aCols[nY][nPosTIPO] , Nil})
+	        AADD(aBaixa, {"E2_FORNECE" , oMGet22:aCols[nY][nPosFORNECE] , Nil})
+	        AADD(aBaixa, {"E2_LOJA" , oMGet22:aCols[nY][nPosLOJA] , Nil}) 
+	        AADD(aBaixa, {"AUTMOTBX" , "DEBITO CC" , Nil})
+	        AADD(aBaixa, {"AUTBANCO" , cBanco , Nil})
+	        AADD(aBaixa, {"AUTAGENCIA" , cAgencia , Nil})
+	        AADD(aBaixa, {"AUTCONTA" , cNumCon , Nil})
+	        AADD(aBaixa, {"AUTDTBAIXA" , dDataMov , Nil}) 
+	        AADD(aBaixa, {"AUTDTCREDITO", dDataMov , Nil})
+            AADD(aBaixa, {"AUTHIST" , oMGet22:aCols[nY][nPosHIST] , Nil})
+	        AADD(aBaixa, {"AUTVLRPG" , oMGet22:aCols[nY][nPosValor] , Nil})
+	        ACESSAPERG("FIN080", .F.)
 
 			lMsErroAuto := .F.
 			MSEXECAUTO({|x,y| FINA080(x,y)}, aBaixa, 3)
@@ -463,22 +424,25 @@ Return lSucess
 // 3- O que ficou entre a data e o centro de custos, condidera-se o histórico
 // 4- O que sobrou depois do centro de custos, considera-se o valor
 
-STATIC Function FA27Dlg01(cAliasTmp)
+STATIC Function FA27Qry(cAliasTmp)
 Local aAreaAtu			:= GetArea()
-Local _cQuery 			:= ""
+Local cQuery 			:= ""
 
-_cQuery := "SELECT E2_PREFIXO,E2_NUM,E2_PARCELA,E2_TIPO,E2_FORNECE,E2_LOJA,E2_NOMFOR,"
-_cQuery += "E2_EMISSAO,E2_VENCTO,E2_VENCREA,E2_VALOR,E2_PORTADO,R_E_C_N_O_ as NREG"
-_cQuery += " FROM "+RetSqlName("SE2")+" SE2"
-_cQuery += " WHERE SE2.D_E_L_E_T_=''" 
-_cQuery += " AND E2_VENCREA='"+DTOS(CTOD(cData))+"'"
-_cQuery += " AND E2_VALOR="+ALLTRIM(cVal) 
-_cQuery += " AND E2_BAIXA=''"
-_cQuery += " AND E2_TIPO<>'PA'"
-_cQuery += " AND E2_VALOR = E2_SALDO" 
+cQuery := "SELECT E2_PREFIXO,E2_NUM,E2_PARCELA,E2_TIPO,E2_FORNECE,E2_LOJA,E2_NOMFOR,"
+cQuery += "E2_EMISSAO,E2_VENCTO,E2_VENCREA,E2_VALOR,E2_PORTADO,E2_HIST,R_E_C_N_O_ as NREG"
+cQuery += " FROM "+RetSqlName("SE2")+" SE2"
+cQuery += " WHERE SE2.D_E_L_E_T_=''" 
+//cQuery += " AND E2_VENCREA='"+DTOS(CTOD(cData))+"'"
+//cQuery += " AND E2_VALOR="+ALLTRIM(cVal) 
+cQuery += " AND SUBSTRING(E2_HIST,1,3)='DNF'"
+cQuery += " AND E2_BAIXA=''"
+cQuery += " AND E2_TIPO<>'PA'"
+cQuery += " AND E2_VALOR = E2_SALDO" 
 	
-TCQUERY _cQuery NEW ALIAS "QSE2"
-	
+u_LogMemo("BKFINA27.SQL",cQuery)
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QSE2",.T.,.T.)
+
 TCSETFIELD("QSE2","E2_EMISSAO","D",8,0)
 TCSETFIELD("QSE2","E2_VENCTO","D",8,0)
 TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
@@ -486,6 +450,7 @@ TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
 DbSelectArea("QSE2")
 QSE2->(dbgotop())
 
+nTotPg := 0
 Do While QSE2->(!eof())
 	dbSelectArea(cAliasTmp)
 	Reclock(cAliasTmp,.T.)
@@ -499,14 +464,16 @@ Do While QSE2->(!eof())
 	(cAliasTmp)->XX_EMISSAO := QSE2->E2_EMISSAO
 	(cAliasTmp)->XX_VENCTO 	:= QSE2->E2_VENCTO
 	(cAliasTmp)->XX_VENCREA := QSE2->E2_VENCREA
-	(cAliasTmp)->XX_VALOR 	:= VAL(ALLTRIM(cVal))
+	(cAliasTmp)->XX_VALOR 	:= QSE2->E2_VALOR
 	(cAliasTmp)->XX_PORTADO := QSE2->E2_PORTADO
-	(cAliasTmp)->(MsUnlock())         
+	(cAliasTmp)->XX_HIST	:= QSE2->E2_HIST
+	(cAliasTmp)->(MsUnlock())  
+	nTotPg += QSE2->E2_VALOR      
 	QSE2->(dbSkip())
 ENDDO
 QSE2->(dbCloseArea())
 
 RestArea( aAreaAtu )
 
-Return cRet
+Return Nil
                   
