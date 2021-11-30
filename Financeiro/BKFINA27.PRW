@@ -11,6 +11,29 @@ Balsa Nova - Baixas de contas a pagar - titulos pagos na BK
 //-------------------------------------------------------------------
 
 User Function BKFINA27()
+Local aParam 	:= {}
+Local aRet		:=	{}
+Local cTitulo   := "Baixas de contas a pagar - titulos pagos na BK"
+Local dDataI	:= CTOD("01/01/2009")
+Local dDataF	:= dDataBase
+
+
+aAdd( aParam, { 1, "Venc. inicial:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Venc. final:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })  
+
+If (Parambox(aParam     ,"BKFINA27 - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINA27",.T.         ,.T.))
+	lRet := .T.
+	dDataI  := mv_par01
+	dDataF  := mv_par02
+	
+	F27Proc(dDataI,dDataF)
+
+Endif
+
+Return Nil
+
+
+Static Function F27Proc(dDataI,dDataF)
 Local aArea     := GetArea()
 Local cAliasTmp := GetNextAlias()
 Local oTmpTb
@@ -47,7 +70,7 @@ oTmpTb := FWTemporaryTable():New( cAliasTmp )
 oTmpTb:SetFields( aStrut )
 oTmpTb:Create()
 
-FWMsgRun(, {|oSay| FA27Qry(cAliasTmp) }, "", "Consultando títulos não baixados...")
+FWMsgRun(, {|oSay| FA27Qry(cAliasTmp,dDataI,dDataF) }, "", "Consultando títulos não baixados...")
 
 FA22EdtCx(cAliasTmp)
 
@@ -97,7 +120,6 @@ Private nPosValor
 Private nPosHist
 
 Private nColDel
-Private nTotPg := 0
 
 // Tabela temporária
 dbSelectArea(cAliasTmp)
@@ -116,7 +138,7 @@ aAdd(aHeader,{	"LOJA"      ,	"XX_LOJA"       ,	"@!"            ,TamSX3("E2_LOJA"
 aAdd(aHeader,{	"Nome Fornece",	"XX_NOMFOR"     ,	"@!"            ,TamSX3("E2_NOMFOR")[1],	0                				,	".T."           ,	".T.",	"C",	"FOR"   ,	""})
 aAdd(aHeader,{	"DT Emissao"  ,	"XX_EMISSAO"    ,	"@!"            ,TamSX3("E2_EMISSAO")[1],	0              					,	".T." 			,	".T.",	"D",	""   	,	""})
 aAdd(aHeader,{	"Vencimento",	"XX_VENCTO"     ,	"@!"            ,TamSX3("E2_VENCTO")[1],	0               				,	".T."           ,	".T.",	"D",	""   	,	""})
-aAdd(aHeader,{	"Vencto Real" ,	"XX_VENCTO"     ,	"@!"            ,TamSX3("E2_VENCREA")[1],	0              				  	,	".T."           ,	".T.",	"D",	""   	,	""})
+aAdd(aHeader,{	"Vencto Real" ,	"XX_VENCREA"    ,	"@!"            ,TamSX3("E2_VENCREA")[1],	0              				  	,	".T."           ,	".T.",	"D",	""   	,	""})
 aAdd(aHeader,{	"Valor"     ,	"XX_VALOR"    	,	"@E 999,999,999,999,999.99",TamSX3("E2_VALOR")[1],TamSX3("E2_VALOR")[2] 	,	".T." 			,	".T.",	"N",	""   	,	""})
 aAdd(aHeader,{	"Portado" ,		"XX_PORTADO"    ,	"@!"            ,TamSX3("E2_PORTADO")[1],	0                				,	".T."           ,	".T.",	"C",	"BCO"   ,	""})
 aAdd(aHeader,{	"Historico" ,	"XX_HIST"	    ,	"@!"            ,TamSX3("E2_HIST")[1]	,	0                				,	".T."           ,	".T.",	"C",	"" 		,	""})
@@ -424,7 +446,7 @@ Return lSucess
 // 3- O que ficou entre a data e o centro de custos, condidera-se o histórico
 // 4- O que sobrou depois do centro de custos, considera-se o valor
 
-STATIC Function FA27Qry(cAliasTmp)
+STATIC Function FA27Qry(cAliasTmp,dDataI,dDataF)
 Local aAreaAtu			:= GetArea()
 Local cQuery 			:= ""
 
@@ -432,8 +454,8 @@ cQuery := "SELECT E2_PREFIXO,E2_NUM,E2_PARCELA,E2_TIPO,E2_FORNECE,E2_LOJA,E2_NOM
 cQuery += "E2_EMISSAO,E2_VENCTO,E2_VENCREA,E2_VALOR,E2_PORTADO,E2_HIST,R_E_C_N_O_ as NREG"
 cQuery += " FROM "+RetSqlName("SE2")+" SE2"
 cQuery += " WHERE SE2.D_E_L_E_T_=''" 
-//cQuery += " AND E2_VENCREA='"+DTOS(CTOD(cData))+"'"
-//cQuery += " AND E2_VALOR="+ALLTRIM(cVal) 
+cQuery += " AND E2_VENCREA >= '"+DTOS(CTOD(dDataI))+"'"
+cQuery += " AND E2_VENCREA <= '"+DTOS(CTOD(dDataF))+"'"
 cQuery += " AND SUBSTRING(E2_HIST,1,3)='DNF'"
 cQuery += " AND E2_BAIXA=''"
 cQuery += " AND E2_TIPO<>'PA'"

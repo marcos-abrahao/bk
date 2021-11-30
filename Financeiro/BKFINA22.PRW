@@ -37,7 +37,7 @@ aAdd( aStrut, { "XX_EMISSAO","D", TamSX3("E2_EMISSAO")[1], 0} )
 aAdd( aStrut, { "XX_VENCTO", "D", TamSX3("E2_VENCTO")[1] , 0} )
 aAdd( aStrut, { "XX_VENCREA","D", TamSX3("E2_VENCREA")[1] , 0} )
 aAdd( aStrut, { "XX_VALOR",  "N", TamSX3("E2_VALOR")[1], TamSX3("E2_VALOR")[2]} )
-aAdd( aStrut, { "XX_PORTADO", "C", TamSX3("E2_PORTADO")[1] , 0} )
+aAdd( aStrut, { "XX_PORTADO","C", TamSX3("E2_PORTADO")[1] , 0} )
 
 //Criando tabela temporária
 //cArq:= CriaTrab( aStrut, .T. )             

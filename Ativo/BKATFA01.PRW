@@ -50,10 +50,13 @@ Local cBuffer    := ""
 Local lOk 		 := .T.
 Local aCab       := {}
 Local aItens     := {}
+Local cConta     := ""
 
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
 Procregua(FT_FLASTREC())  //quantos registros para ler
+FT_FSKIP()   //proximo registro - pular cabeçalho
+
 While !FT_FEOF()
  
 	IncProc('Carregando Itens da Planilha...')
@@ -66,9 +69,9 @@ While !FT_FEOF()
 		IF LEN(aLINHA) >= 18 
 /*
      1	           2	          3	             4	                 5	                        6	       7	                        8	           
-   CODIGO_ATIVO	NUM_ITEM	DATA_AQUISIÇÃO	DESCRIÇÃO_DO_BEM	DESCRIÇÃO_COMPLETA_DO_BEM	QUANTIDADE	NUMERO_PATRIMONIO	Classificação de Patrimônio
-       9	         10	             11	      12	  13	       14	       15	             16	         17	        18	                19	       20
-   	HISTORICO	CENTRO_CUSTO	FORNECEDOR	LOJA	SERIE_NF	NUMERO_NF	DATA_GARANTIA	 VALOR_DO_BEM 	ITEM	NOME_RESPONSÁVEL	LOCALIZAÇÃO	 ATIVO
+   CODIGO_ATIVO	NUM_ITEM	DATA_AQUISIÇÃO	DESCRIÇÃO_DO_BEM	DESCRIÇÃO_COMPLETA_DO_BEM	QUANTIDADE	NUMERO_PATRIMONIO	Classificação de Patrimônio 
+       9	         10	             11	      12	  13	       14	       15	             16	         17	        18	                19	       20       21
+   	HISTORICO	CENTRO_CUSTO	FORNECEDOR	LOJA	SERIE_NF	NUMERO_NF	DATA_GARANTIA	 VALOR_DO_BEM 	ITEM	NOME_RESPONSÁVEL	LOCALIZAÇÃO	 ATIVO   PRODUTO
   */
             aLINHA[4]  := Acento(ALLTRIM(aLINHA[4]))
             aLINHA[5]  := Acento(ALLTRIM(aLINHA[5]))
@@ -78,7 +81,7 @@ While !FT_FEOF()
 			aLINHA[16] := STRTRAN(aLINHA[16],"R$","")
 			aLINHA[16] := STRTRAN(aLINHA[16],".","")
 			aLINHA[16] := STRTRAN(aLINHA[16],",",".")
-	        aLINHA[21] := STRTRAN(aLINHA[21],".","")
+	        //cConta     := Posicione()
 
             aCab := { {'N1_FILIAL',xFilial("SN1"),NIL},;
                       {'N1_CBASE'  ,STRZERO(VAL(aLINHA[7]),6) ,NIL},;
@@ -94,26 +97,26 @@ While !FT_FEOF()
                       {'N1_NSERIE' ,ALLTRIM(aLINHA[13]) ,NIL},;
                       {'N1_NFISCAL',STRZERO(VAL(aLINHA[14]),9) ,NIL},;
                       {'N1_DETPATR','06' ,NIL},;
-                      {'N1_UTIPATR','9' ,NIL}}
+                      {'N1_UTIPATR','9' ,NIL},;
+                      {'N1_FORNEC' ,aLINHA[11] ,NIL},;
+                      {'N1_LOJA' ,aLINHA[12] ,NIL},;
+                      {'N1_PRODUTO' ,aLINHA[21] , NIL}}
 
-                    //{'N1_FORNEC' ,'00652' ,NIL}
-                    //{'N1_LOJA' ,'01' ,NIL}
-         aItensAux := {}
-       AAdd(aItensAux,{'N3_FILIAL' ,xFilial("SN3"),NIL})
-       AAdd(aItensAux,{'N3_TIPO'   ,'01' , NIL})
-       AAdd(aItensAux,{'N3_HISTOR' ,SUBSTR(aLINHA[4],1,GetSx3Cache("N3_HISTOR", "X3_TAMANHO")), NIL})
-       AAdd(aItensAux,{'N3_DESCEST',aLINHA[5], NIL})
-       AAdd(aItensAux,{'N3_TPSALDO','1', NIL})
-       AAdd(aItensAux,{'N3_TPDEPR' ,'1', NIL})
-       AAdd(aItensAux,{'N3_VORIG1' , VAL(aLINHA[16]) , NIL})
-       AAdd(aItensAux,{'N3_DINDEPR',CTOD(aLINHA[3]) ,NIL})
-       AAdd(aItensAux,{'N3_CUSTBEM',aLINHA[10], NIL})
-
-//                 {'N3_CCONTAB' ,aLINHA[21] , NIL},;
-                    aItens := {}
-                    aAdd(aItens,aItensAux)
-
-                    U_Myatfa010Inc(aCab,aItens)
+                    
+            aItensAux := {}
+            AAdd(aItensAux,{'N3_FILIAL' ,xFilial("SN3"),NIL})
+            AAdd(aItensAux,{'N3_TIPO'   ,'01' , NIL})
+            AAdd(aItensAux,{'N3_HISTOR' ,SUBSTR(aLINHA[4],1,GetSx3Cache("N3_HISTOR", "X3_TAMANHO")), NIL})
+            AAdd(aItensAux,{'N3_DESCEST',aLINHA[5], NIL})
+            AAdd(aItensAux,{'N3_TPSALDO','1', NIL})
+            AAdd(aItensAux,{'N3_TPDEPR' ,'1', NIL})
+            AAdd(aItensAux,{'N3_VORIG1' , VAL(aLINHA[16]) , NIL})
+            AAdd(aItensAux,{'N3_DINDEPR',CTOD(aLINHA[3]) ,NIL})
+            AAdd(aItensAux,{'N3_CUSTBEM',aLINHA[10], NIL})
+            //AAdd(aItensAux,{'N3_CCONTAB',aLINHA[] , NIL})
+            aItens := {}
+            aAdd(aItens,aItensAux)
+            U_Myatfa010Inc(aCab,aItens)
 
  		ENDIF
     ENDIF
