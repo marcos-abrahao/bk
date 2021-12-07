@@ -2,20 +2,16 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TbiConn.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ F750BROW ºAutor  ³Marcos B. Abrahao   º Data ³  02/10/09   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de Entrada para criar opções na tela de Funcões      º±±
-±±º          ³ Contas a Pagar                                             º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+//-------------------------------------------------------------------
+/*/{Protheus.doc} F750BROW
+BK - Ponto de Entrada para criar opções na tela de Funcões Contas a Pagar
+@Return
+@author Marcos B. Abrahao
+@since 02/10/09
+@version P12
+/*/
+//-------------------------------------------------------------------
+
 User Function F750BROW() 
 Local aRotY
 Local cEmpName := FWEmpName(cEmpAnt)
@@ -28,12 +24,12 @@ aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
            {OemToAnsi("Retorno Borderô "+cEmpName), "U_BKBXBNCO",  0, 2 }}
            
 AADD( aRotina, {OemToAnsi("Liquidos "+cEmpName), aRotY, 0, 4 } )
-
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"),  "U_BKF750A", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Conhecimento"),  "MSDOCUMENT", 0, 4 } )
 //AADD( aRotina, {OemToAnsi("Anexar Arq. "+cEmpName),   "U_BKANXA01('1','SE2')", 0, 4 } )
 //AADD( aRotina, {OemToAnsi("Abrir Anexos "+cEmpName),  "U_BKANXA02('1','SE2')", 0, 4 } )
-AADD( aRotina, {OemToAnsi("Alterar Emissão"),  "U_BKFINA10", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Alt Emissão/Bco"),  "U_BKFINA10", 0, 4 } )
 IF SM0->M0_CODIGO <> "01"
 	AADD( aRotina, {OemToAnsi("Incluir DNF na BK"),"U_BKFINA18", 0, 4 } )
 ENDIF
@@ -61,14 +57,15 @@ RestArea( aArea )
 Return Nil
 
 
-// Alteração de data de emissao de titulo
+// Alteração de data de emissao de titulo e Portador
 User Function BKFINA10()
 Local _sAlias	:= Alias()
 Local oDlg01,aButtons := {},lOk := .F.
 Local aAreaAtu	:= GetArea()
 Local nSnd,nTLin := 12
 
-Local dEmis := SE2->E2_EMISSAO
+Local dEmis  := SE2->E2_EMISSAO
+Local cPort  := SE2->E2_PORTADO
 
 IF EMPTY(SE2->E2_XXCTRID)
 	MsgStop("Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "Atenção")
@@ -84,18 +81,22 @@ ENDIF
 
 Define MsDialog oDlg01 Title "BKFINA10-Alt. dados Tit. a Pagar: "+SE2->E2_NUM  From 000,000 To 280,600 Of oDlg01 Pixel
 
-nSnd := 30
-@ nSnd,010 Say "Data de emissão do titulo:" Size 080,008 Pixel Of oDlg01
-@ nSnd,100 MsGet dEmis Picture "@E"         Size 040,008 Pixel Of oDlg01
+nSnd := 35
+@ nSnd,010 Say "Data de emissão do titulo:" Size 080,009 Pixel Of oDlg01
+@ nSnd,100 MsGet dEmis Picture "@E"         Size 040,009 Pixel Of oDlg01
+
 nSnd += nTLin
+@ nSnd,010 Say "Portador:" Size 080,008 Pixel Of oDlg01
+@ nSnd,100 MsGet cPort Picture "999"       Size 025,009 Pixel Of oDlg01
 
 
 ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| oDlg01:End()}, , aButtons)
 If ( lOk )
-	IF dEmis <> SE2->E2_EMISSAO
+	IF dEmis <> SE2->E2_EMISSAO .OR. SE2->E2_PORTADO <> cPort
 		RecLock("SE2",.F.)
 		SE2->E2_EMISSAO := dEmis
 		SE2->E2_EMIS1   := dEmis
+		SE2->E2_PORTADO := cPort
 		msUnlock()
 	ENDIF
 EndIf

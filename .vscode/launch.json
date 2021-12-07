@@ -247,7 +247,11 @@
 		{
 			"label": "u_updgensx",
 			"description": "<nil>"
+		},
+		{
+			"label": "SIGAFIN",
+			"description": "<nil>"
 		}
 	],
-	"lastProgramExecuted": "u_updgensx"
+	"lastProgramExecuted": "SIGAFIN"
 }

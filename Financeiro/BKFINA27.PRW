@@ -14,20 +14,22 @@ User Function BKFINA27()
 Local aParam 	:= {}
 Local aRet		:=	{}
 Local cTitulo   := "Baixas de contas a pagar - titulos pagos na BK"
-Local dDataI	:= CTOD("01/01/2009")
+Local dDataI	:= CTOD("01/11/2018")
 Local dDataF	:= dDataBase
 
+If cEmpAnt == "01"
+	MsgStop("Esta rotina não pode ser utilizada na empresa BK","FINA027")
+	Return Nil
+EndIf
 
 aAdd( aParam, { 1, "Venc. inicial:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Venc. final:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })  
 
-If (Parambox(aParam     ,"BKFINA27 - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFINA27",.T.         ,.T.))
+If (Parambox(aParam,"BKFINA27 - "+cTitulo,@aRet,,,.T.,,,,"BKFINA27",.T.,.T.))
 	lRet := .T.
 	dDataI  := mv_par01
 	dDataF  := mv_par02
-	
 	F27Proc(dDataI,dDataF)
-
 Endif
 
 Return Nil
@@ -47,6 +49,8 @@ Private cNomeBc := PAD("",TamSX3("A6_NOME")[1])
 Private dDataMov:= dDataBase
 Private nTotPg := 0
 
+cNomeBC := Posicione("SA6",1,xFilial("SA6")+cBanco+cAgencia+cNumCon,"A6_NOME")
+
 //              Campo        Tipo    Tamanho            Decimal
 aAdd( aStrut, { "XX_PREFIXO","C", TamSX3("E2_PREFIXO")[1], 0} )
 aAdd( aStrut, { "XX_NUM",    "C", TamSX3("E2_NUM")[1]    , 0} )
@@ -58,7 +62,7 @@ aAdd( aStrut, { "XX_NOMFOR", "C", TamSX3("E2_NOMFOR")[1] , 0} )
 aAdd( aStrut, { "XX_EMISSAO","D", TamSX3("E2_EMISSAO")[1], 0} )
 aAdd( aStrut, { "XX_VENCTO", "D", TamSX3("E2_VENCTO")[1] , 0} )
 aAdd( aStrut, { "XX_VENCREA","D", TamSX3("E2_VENCREA")[1] , 0} )
-aAdd( aStrut, { "XX_VALOR",  "N", TamSX3("E2_VALOR")[1], TamSX3("E2_VALOR")[2]} )
+aAdd( aStrut, { "XX_SALDO",  "N", TamSX3("E2_SALDO")[1], TamSX3("E2_SALDO")[2]} )
 aAdd( aStrut, { "XX_PORTADO","C", TamSX3("E2_PORTADO")[1] , 0} )
 aAdd( aStrut, { "XX_HIST",   "C", TamSX3("E2_HIST")[1] , 0} )
 //Criando tabela temporária
@@ -116,7 +120,7 @@ Private nPosPARCELA
 Private nPosTIPO
 Private nPosFORNECE
 Private nPosLOJA
-Private nPosValor
+Private nPosSALDO
 Private nPosHist
 
 Private nColDel
@@ -139,7 +143,7 @@ aAdd(aHeader,{	"Nome Fornece",	"XX_NOMFOR"     ,	"@!"            ,TamSX3("E2_NOM
 aAdd(aHeader,{	"DT Emissao"  ,	"XX_EMISSAO"    ,	"@!"            ,TamSX3("E2_EMISSAO")[1],	0              					,	".T." 			,	".T.",	"D",	""   	,	""})
 aAdd(aHeader,{	"Vencimento",	"XX_VENCTO"     ,	"@!"            ,TamSX3("E2_VENCTO")[1],	0               				,	".T."           ,	".T.",	"D",	""   	,	""})
 aAdd(aHeader,{	"Vencto Real" ,	"XX_VENCREA"    ,	"@!"            ,TamSX3("E2_VENCREA")[1],	0              				  	,	".T."           ,	".T.",	"D",	""   	,	""})
-aAdd(aHeader,{	"Valor"     ,	"XX_VALOR"    	,	"@E 999,999,999,999,999.99",TamSX3("E2_VALOR")[1],TamSX3("E2_VALOR")[2] 	,	".T." 			,	".T.",	"N",	""   	,	""})
+aAdd(aHeader,{	"Saldo"     ,	"XX_SALDO"    	,	"@E 999,999,999,999,999.99",TamSX3("E2_SALDO")[1],TamSX3("E2_SALDO")[2] 	,	".T." 			,	".T.",	"N",	""   	,	""})
 aAdd(aHeader,{	"Portado" ,		"XX_PORTADO"    ,	"@!"            ,TamSX3("E2_PORTADO")[1],	0                				,	".T."           ,	".T.",	"C",	"BCO"   ,	""})
 aAdd(aHeader,{	"Historico" ,	"XX_HIST"	    ,	"@!"            ,TamSX3("E2_HIST")[1]	,	0                				,	".T."           ,	".T.",	"C",	"" 		,	""})
 
@@ -149,7 +153,7 @@ nPosPARCELA := aScan(aHeader, {|x| AllTrim(x[2]) == "XX_PARCELA"})
 nPosTIPO	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_TIPO"})
 nPosFORNECE := aScan(aHeader, {|x| AllTrim(x[2]) == "XX_FORNECE"})
 nPosLOJA  	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_LOJA"})
-nPosVALOR 	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_VALOR"})
+nPosSALDO 	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_SALDO"})
 nPosHIST 	:= aScan(aHeader, {|x| AllTrim(x[2]) == "XX_HIST"})
 nColDel   	:= LEN(aHeader) + 1
 
@@ -215,7 +219,7 @@ DEFINE MSDIALOG oDlgPvt TITLE "Baixa Contas a Pagar" FROM 000, 000  TO nJanAltu,
 
 	@ (nJanAltu/2)-19+5, 10 SAY oSayTot PROMPT "Total a pagar: "+TRANSFORM(nTotPg,"@E 999,999,999.99") SIZE 250, 10 OF oDlgPvt COLORS RGB(0,0,0) PIXEL
 	@ (nJanAltu/2)-19  , (nJanLarg/2)-((nTamBtn*1)+06) BUTTON oBtnConf PROMPT "Cancelar"   SIZE nTamBtn, 013 OF oDlgPvt ACTION(oDlgPvt:End())                   PIXEL
-	@ (nJanAltu/2)-19  , (nJanLarg/2)-((nTamBtn*2)+09) BUTTON oBtnLimp PROMPT "Baixar"     SIZE nTamBtn, 013 OF oDlgPvt ACTION(If(fValid("TODOS"),fSalvar(),))  PIXEL
+	@ (nJanAltu/2)-19  , (nJanLarg/2)-((nTamBtn*2)+09) BUTTON oBtnLimp PROMPT "Baixar"     SIZE nTamBtn, 013 OF oDlgPvt ACTION(If(fValid("TODOS"),fSalvar(),),oDlgPvt:End())  PIXEL
 
 
 ACTIVATE MSDIALOG oDlgPvt CENTERED
@@ -240,131 +244,23 @@ Local nY := 0
 nTotPg := 0
 For nY := 1 to Len(oMGet22:aCols)
 	If !oMGet22:aCols[nY][nColDel]
-		nTotPg += oMGet22:aCols[nY][nPosValor]
+		nTotPg += oMGet22:aCols[nY][nPosSALDO]
 	EndIf
 Next nY
 oSayTot:Refresh()
 Return Nil
 
 
-
 Static Function fValid(cCampo)
-
 Local lRet := .T.
-If .F.
-	fValCampo(cCampo,0,.F.)
-EndIf
-
 Return (lRet)
-
- 
-
-Static Function fValCampo(cCampo,nY,lDigitado)
-Local cHist := ""
-Local cConta
-Local cTipoMov
-
-If cCampo == "XX_MOV"
-	If !IIf(lDigitado,M->XX_MOV,oMGet22:aCols[nY][nPosMov]) $ "RP"
-		MsgStop("Preencha corretamente tipo de movimento!","Atenção!")
-		Return(.F.)
-	EndIf
-	If lDigitado
-		oMGet22:aCols[nY][nPosMov] := M->XX_MOV
-	EndIf
-	SomaTot()
-ElseIf cCampo == "XX_DATA"
-	If Empty(If(lDigitado,M->XX_DATA,oMGet22:aCols[nY][nPosData]))
-		MsgStop("Preencha a data do movimento!","Atenção!")
-		Return(.F.)
-	EndIf
-ElseIf cCampo == "XX_HIST"
-	cHist := If(lDigitado,M->XX_HIST,oMGet22:aCols[nY][nPosHist])
-	If Empty(cHist)
-		MsgStop("Preencha o histórico do movimento!","Atenção!")
-		Return(.F.)
-	EndIf
-        
-	If lDigitado .OR. Empty(oMGet22:aCols[nY][nPosConta])
-		cConta   := SPACE(LEN(CT1->CT1_CONTA))
-		cTipoMov := " "
-		BuscaFacil(cHist,@cConta,@cTipoMov)
-		oMGet22:aCols[nY][nPosConta] := cConta
-
-		CT1->(DbSetOrder(1))
-		If CT1->(DbSeek(xFilial("CT1")+cConta)) 
-			oMGet22:aCols[nY][nPosDesc] := CT1->CT1_DESC01
-		Else
-			oMGet22:aCols[nY][nPosDesc] := SPACE(LEN(CT1->CT1_DESC01))
-		EndIf
-    EndIf
-
-ElseIf cCampo == "XX_CCUS"
-	If Empty(If(lDigitado,M->XX_CCUS,oMGet22:aCols[nY][nPosCC]))
-		MsgStop("Preencha o centro de custos do movimento!","Atenção!")
-		Return(.F.)
-	EndIf
-
-	CTT->(DbSetOrder(1))
-	If !CTT->(DbSeek(xFilial("CTT")+If(lDigitado,M->XX_CCUS,oMGet22:aCols[nY][nPosCC]))) 
-		MsgStop("Centro de custos não encontrado!","Atenção!")
-		oMGet22:aCols[nY][nPosDescC] := ""
-		Return(.F.)
-	Else
-		oMGet22:aCols[nY][nPosDescC] := CTT->CTT_DESC01
-		If CTT->CTT_CLASSE == "1"
-			MsgStop("Conta do centro de custos dever ser analítica!","Atenção!")
-			Return(.F.)
-		EndIf
-	EndIf
-	If lDigitado
-		If M->XX_CCUS != oMGet22:aCols[nY][nPosCC]
-//			oMGet22:aCols[nY][nPosDesc] := CTT->CTT_DESC
-		EndIf
-	EndIf
-ElseIf cCampo == "XX_VALOR"
-	If Empty(If(lDigitado,M->XX_VALOR,oMGet22:aCols[nY][nPosValor]))
-		MsgStop("Preencha o valor do movimento!","Atenção!")
-		Return(.F.)
-	EndIf
-	If lDigitado
-		oMGet22:aCols[nY][nPosValor] := M->XX_VALOR
-	EndIf
-	SomaTot()
-ElseIf cCampo == "XX_CONTA"
-	If Empty(If(lDigitado,M->XX_CONTA,oMGet22:aCols[nY][nPosConta]))
-		MsgStop("Preencha a conta contábil!","Atenção!")
-		Return(.F.)
-	EndIf
-
-	CT1->(DbSetOrder(1))
-	If !CT1->(DbSeek(xFilial("CT1")+If(lDigitado,M->XX_CONTA,oMGet22:aCols[nY][nPosConta]))) 
-		MsgStop("Conta não encontrada!","Atenção!")
-		oMGet22:aCols[nY][nPosDesc] := ""
-		Return(.F.)
-	Else
-		oMGet22:aCols[nY][nPosDesc] := CT1->CT1_DESC01
-		If CT1->CT1_CLASSE == "1"
-			MsgStop("Conta dever ser analítica!","Atenção!")
-			Return(.F.)
-		EndIf
-	EndIf
-
-	If lDigitado
-		If M->XX_CONTA != oMGet22:aCols[nY][nPosConta]
-//			oMGet22:aCols[nY][nPosDesc] := CTT->CTT_DESC
-		EndIf
-	EndIf
-EndIf
-
-Return(.T.)
 
 
 
 Static Function fSalvar()
 Local lRet := .F.
 
-FWMsgRun(, {|oSay| lRet := ProcBaixa() }, "", "Gerando Baixa a Pagar…")
+FWMsgRun(, {|oSay| lRet := ProcBaixa() }, "", "Gerando Baixas a Pagar…")
 
 If lRet
 	oDlgPvt:End()
@@ -394,7 +290,7 @@ EndIf
 
 BEGIN TRANSACTION
 	
-	For nY := 1 to 10 //Len(oMGet22:aCols)
+	For nY := 1 to Len(oMGet22:aCols)
 
 		If !oMGet22:aCols[nY][nColDel] 	
 	
@@ -413,13 +309,14 @@ BEGIN TRANSACTION
 	        AADD(aBaixa, {"AUTDTBAIXA" , dDataMov , Nil}) 
 	        AADD(aBaixa, {"AUTDTCREDITO", dDataMov , Nil})
             AADD(aBaixa, {"AUTHIST" , oMGet22:aCols[nY][nPosHIST] , Nil})
-	        AADD(aBaixa, {"AUTVLRPG" , oMGet22:aCols[nY][nPosValor] , Nil})
+	        AADD(aBaixa, {"AUTVLRPG" , oMGet22:aCols[nY][nPosSALDO] , Nil})
 	        ACESSAPERG("FIN080", .F.)
 
 			lMsErroAuto := .F.
 			MSEXECAUTO({|x,y| FINA080(x,y)}, aBaixa, 3)
 			
 			If lMsErroAuto
+				MsgStop("Titulo não baixado: "+oMGet22:aCols[nY][nPosPREFIXO]+oMGet22:aCols[nY][nPosNUM]+oMGet22:aCols[nY][nPosPARCELA],"BKFINA27")
 				MostraErro()
 				DisarmTransaction()
 				lSucess := .F.
@@ -429,7 +326,6 @@ BEGIN TRANSACTION
 
 END TRANSACTION
 
-Aviso("Sucesso","Baixa contas a Pagar.",{"OK"})
 If lSucess
 	Aviso("Sucesso!","Baixas de contas a Pagar realizadas com sucesso.",{"OK"})
 Else
@@ -439,28 +335,22 @@ EndIf
 Return lSucess
 
 
-//Tela para colagem de dados do excel 
-// Para cada linha:
-// 1- O sistema busca uma primeira barra para encontrar a data do lançamento 
-// 2- Depois procura o padrão de um centro de custos 999.999.999 ou 999999999
-// 3- O que ficou entre a data e o centro de custos, condidera-se o histórico
-// 4- O que sobrou depois do centro de custos, considera-se o valor
 
 STATIC Function FA27Qry(cAliasTmp,dDataI,dDataF)
 Local aAreaAtu			:= GetArea()
 Local cQuery 			:= ""
 
 cQuery := "SELECT E2_PREFIXO,E2_NUM,E2_PARCELA,E2_TIPO,E2_FORNECE,E2_LOJA,E2_NOMFOR,"
-cQuery += "E2_EMISSAO,E2_VENCTO,E2_VENCREA,E2_VALOR,E2_PORTADO,E2_HIST,R_E_C_N_O_ as NREG"
+cQuery += "E2_EMISSAO,E2_VENCTO,E2_VENCREA,E2_SALDO-E2_SDDECRE+E2_SDACRES AS E2_SALDO,E2_PORTADO,E2_HIST,R_E_C_N_O_ AS NREG"
 cQuery += " FROM "+RetSqlName("SE2")+" SE2"
 cQuery += " WHERE SE2.D_E_L_E_T_=''" 
-cQuery += " AND E2_VENCREA >= '"+DTOS(CTOD(dDataI))+"'"
-cQuery += " AND E2_VENCREA <= '"+DTOS(CTOD(dDataF))+"'"
+cQuery += " AND E2_VENCREA >= '"+DTOS(dDataI)+"'"
+cQuery += " AND E2_VENCREA <= '"+DTOS(dDataF)+"'"
 cQuery += " AND SUBSTRING(E2_HIST,1,3)='DNF'"
 cQuery += " AND E2_BAIXA=''"
 cQuery += " AND E2_TIPO<>'PA'"
-cQuery += " AND E2_VALOR = E2_SALDO" 
-	
+cQuery += " AND E2_SALDO > 0" 
+
 u_LogMemo("BKFINA27.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QSE2",.T.,.T.)
@@ -486,11 +376,11 @@ Do While QSE2->(!eof())
 	(cAliasTmp)->XX_EMISSAO := QSE2->E2_EMISSAO
 	(cAliasTmp)->XX_VENCTO 	:= QSE2->E2_VENCTO
 	(cAliasTmp)->XX_VENCREA := QSE2->E2_VENCREA
-	(cAliasTmp)->XX_VALOR 	:= QSE2->E2_VALOR
+	(cAliasTmp)->XX_SALDO 	:= QSE2->E2_SALDO
 	(cAliasTmp)->XX_PORTADO := QSE2->E2_PORTADO
 	(cAliasTmp)->XX_HIST	:= QSE2->E2_HIST
 	(cAliasTmp)->(MsUnlock())  
-	nTotPg += QSE2->E2_VALOR      
+	nTotPg += QSE2->E2_SALDO      
 	QSE2->(dbSkip())
 ENDDO
 QSE2->(dbCloseArea())

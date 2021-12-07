@@ -245,7 +245,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
 		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
-    			MostraErro()
+    			MostraErro("\erros\","BKFINA04.ERR")
 				DisarmTransaction()
 		   		lSucess := .F.
 			EndIf
@@ -270,7 +270,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 			IF lMsErroAuto
 				MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
-				MostraErro()
+				MostraErro("\erros\","BKFINA04.ERR")
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf
@@ -278,20 +278,23 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 
 	Endif
 
-	dbSelectArea("SZ2")   
-	FOR nI := 1 TO LEN(aCtrId)
-		IF !aCtrId[nI,1]
-			dbGoto(aCtrId[nI,9])
-		   	RecLock("SZ2",.F.)
-	    	SZ2->Z2_STATUS := "D"
-	    	SZ2->Z2_OBS    := aCtrId[nI,8]
-	    	If SUBSTR(SZ2->Z2_TIPOPES,1,3) <> "CLT"
-	    		lCLT := .F.
-	    	EndIf
-	    	AADD(aEmail,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,SZ2->Z2_OBS,cPrefixo+cNum,SZ2->Z2_CTRID})
-		    MsUnlock()
-		EndIf
-	Next
+	If lSucess
+		dbSelectArea("SZ2")   
+		FOR nI := 1 TO LEN(aCtrId)
+			IF !aCtrId[nI,1]
+				dbGoto(aCtrId[nI,9])
+				RecLock("SZ2",.F.)
+				SZ2->Z2_STATUS := "D"
+				SZ2->Z2_OBS    := aCtrId[nI,8]
+				If SUBSTR(SZ2->Z2_TIPOPES,1,3) <> "CLT"
+					lCLT := .F.
+				EndIf
+				AADD(aEmail,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,SZ2->Z2_OBS,cPrefixo+cNum,SZ2->Z2_CTRID})
+				MsUnlock()
+			EndIf
+		Next
+	EndIf
+	
 	dbSelectArea("SE2")   
 Endif
 

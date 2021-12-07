@@ -1,4 +1,9 @@
 
+==============================================================
+30/11/2021 - Baixas aporte
+
+SELECT E5_LA,* FROM SE5140 WHERE E5_BANCO = 'CTB' AND D_E_L_E_T_=''
+UPDATE SE5140 SET E5_LA = 'S' WHERE E5_BANCO = 'CTB' AND D_E_L_E_T_=''
 
 ==============================================================
 29/11/2021 - Acerto de Ativos Imobilizados

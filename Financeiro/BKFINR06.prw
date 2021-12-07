@@ -21,6 +21,7 @@ PRIVATE nImpNDF := 1
 PRIVATE nImpSel := 1
 PRIVATE nParForm:= 1
 PRIVATE cTipoBk := "   "
+PRIVATE nUsrRub := 2
 
 PRIVATE titulo 	:= ""
 PRIVATE wnrel   := FunName()            //Nome Default do relatorio em Disco
@@ -84,6 +85,7 @@ IF Pergunte(cPerg,.T.)
 	nImpNDF  := mv_par05
     nImpSel  := mv_par06
     cTipoBk  := mv_par07
+	nUsrRub  := mv_par08
 
 	IF nParPlan = 2 // Relatorio 
 		IF nParImpr = 1  // Unico titulo
@@ -163,7 +165,11 @@ IF Pergunte(cPerg,.T.)
 				AADD(aCampos,"QSZ2->Z2_TIPOPES")
 				AADD(aCabs  ,"Tipo Pessoa")
 
-				AADD(aCampos,"Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO))")
+				If nUsrRub == 1
+					AADD(aCampos,"Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO))")
+				Else
+					AADD(aCampos,"Capital(QSZ2->Z2_USUARIO)")
+				EndIf
 				AADD(aCabs  ,"Usuario")
 
 				AADD(aCampos,"QSZ2->Z2_VALOR")
@@ -735,8 +741,11 @@ Begin Sequence
 	      //cLin := QSZ2->Z2_TIPOPES
           //oPrn:Say(nLin,nPos,cLin,oFont07)
           //nPos += 190
-
-	      cLin  := PAD(Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
+		  If nUsrRub == 1
+	      	cLin  := PAD(Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
+		  Else
+	      	cLin  := PAD(Capital(QSZ2->Z2_USUARIO),20)
+		  EndIf	
           oPrn:Say(nLin,nPos,cLin,oFont07)
           nPos  += 335
 		  cLinObs := ""
@@ -1118,8 +1127,8 @@ DO WHILE QCN9->(!EOF())
    Do While !EOF() .AND. cContRev == CNF_FILIAL+CNF_CONTRA+CNF_REVISA
       IF dDVIG < CNF->CNF_DTVENC
          dDVIG := CNF->CNF_DTVENC
-         ENDIF
-		CNF->(dbSkip())
+      ENDIF
+	  CNF->(dbSkip())
 	EndDo
 	QCN9->(dbSkip())
 ENDDO
@@ -1184,7 +1193,7 @@ AADD(aRegistros,{cPerg,"04","Imprimir TipoBk PCT:","Imprimir PCT"  ,"Imprimir PC
 AADD(aRegistros,{cPerg,"05","Imprimir Tipo NDF: " ,"Imprimir NDF"  ,"Imprimir NDF"  ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 AADD(aRegistros,{cPerg,"06","Selecionar:"         ,"Selecionar:"   ,"Selecionar:"   ,"mv_ch6","N",01,0,2,"C","","mv_par06","Todos","Todos","Todos","","","Impressos","Impressos","Impressos","","","Não impressos","Não impressos","Não impressos","","","Desmarcar Impr.","Desmarcar Impr.","Desmarcar Impr.","","","","","","",""})
 AADD(aRegistros,{cPerg,"07","Filtrar TipoBk:"     ,"Filtrar TipoBk","Filtrar TipoBk","mv_ch7","C",03,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","",""})
-
+AADD(aRegistros,{cPerg,"08","Listar usuario Rubi?","Usuario Rubi?" ,"Usuario Rubi?" ,"mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
