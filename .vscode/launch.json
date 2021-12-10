@@ -251,7 +251,11 @@
 		{
 			"label": "SIGAFIN",
 			"description": "<nil>"
+		},
+		{
+			"label": "SIGAFAT",
+			"description": "<nil>"
 		}
 	],
-	"lastProgramExecuted": "SIGAFIN"
+	"lastProgramExecuted": "SIGAFAT"
 }

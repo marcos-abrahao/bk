@@ -7,7 +7,6 @@
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR14()
 BK - Rentabilidade dos Contrato - Projeção X Realizado
-
 @author Adilson do Prado
 @since 16/05/14 Rev 20/07/20
 @version P12
@@ -106,6 +105,7 @@ Private nEncarIPT   := 0
 Private nIncidenci  := 0
 Private nRateia     := 2
 Private nDespGeral  := 0
+Private nCompAtual  := 2
 Private nAgendar    := 2
 Private nCompras  	:= 0
 
@@ -200,6 +200,7 @@ If !lJob
 		U_BKPutMv("BKGCTR1409",MV_PAR09,"N", 1,0,"Agendar ?")
 		U_BKPutMv("BKGCTR1410",MV_PAR10,"D", 8,0,"Agendar para:")
 		U_BKPutMv("BKGCTR1411",MV_PAR11,"C",70,0,"E-Mail?")
+		U_BKPutMv("BKGCTR1412",MV_PAR12,"N", 1,0,"Somente Competência Atual?")
 		u_xxLog(cArqLog,cStart+": "+titulo+" - agendamento efetuado para: "+DTOC(MV_PAR10),.T.,"")
 		MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR10)+" 1h")
 		Return Nil
@@ -217,7 +218,7 @@ Else
 	MV_PAR06 := nIndConsor	:= U_BKGetMv("BKGCTR1406") // 1
 	MV_PAR07 := nRateia     := U_BKGetMv("BKGCTR1407") // 2
 	MV_PAR08 := nDespGeral  := U_BKGetMv("BKGCTR1408") // 1
-
+	MV_PAR12 := nCompAtual  := U_BKGetMv("BKGCTR1412")
 	u_xxLog(cArqLog,titulo+": "+cStart,.T.,"")
 
 EndIf
@@ -236,6 +237,8 @@ nConsolida	:= mv_par05
 nIndConsor	:= mv_par06
 nRateia     := mv_par07
 nDespGeral  := mv_par08
+nCompAtual  := mv_par12
+
 IF nDespGeral == 2
 	nDespGeral := 1
 	nCompras := 1
@@ -361,6 +364,7 @@ IF EMPTY(cContrato)
 		lConsorcio := .T.
 		lFurnas := .T.
 		lPetro := .T.
+		nCompAtual := 2
 	ELSE
 		IF AVISO("Atenção","Incluir Contrato Consorcios ?",{"Não","Sim"}) == 2
 		lConsorcio := .T.
@@ -401,7 +405,6 @@ NEXT
 //MV_XXVTVER	C	Verba desconto de VT custos calculo Rentabilidade
 //MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
 
- 		
 IF ALLTRIM(cXXSEMAF) == 'N'
 	If !lJob
 		ProcRegua(100)
@@ -418,104 +421,111 @@ ELSE
 	EndIf
 ENDIF
 
+If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 
-IF !EMPTY(cContrato)
-	cQuery := " SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
-	cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
-	cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
-	IF nConsol == 1
-   		cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
-   		IF cTipoContra == 'A'
-			cQuery += " AND CN9_SITUAC = '05'"+CRLF
-   		ELSE
+	IF !EMPTY(cContrato)
+		cQuery := " SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
+		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+		cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+		IF nConsol == 1
+			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
+			IF cTipoContra == 'A'
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
+			ELSE
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+			ENDIF
+		ELSEIF nConsol == 2
+			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
+			IF cTipoContra == 'A'
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
+			ELSE
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+			ENDIF
+		ELSEIF nConsol == 3
+			cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"+CRLF
+			IF cTipoContra == 'A'
+				cQuery += " AND CN9_SITUAC = '05'"+CRLF
+			ELSE
+				cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+			ENDIF
+		ELSE
+			cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF 
 			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
-   		ENDIF
-	ELSEIF nConsol == 2
-   		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) ='"+ALLTRIM(cConsolida)+"'"+CRLF
-   		IF cTipoContra == 'A'
-			cQuery += " AND CN9_SITUAC = '05'"+CRLF
-   		ELSE
-			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
-   		ENDIF
-	ELSEIF nConsol == 3
-   		cQuery += " AND CNF_CONTRA IN ("+ALLTRIM(cConsolida)+")"+CRLF
-   		IF cTipoContra == 'A'
-			cQuery += " AND CN9_SITUAC = '05'"+CRLF
-   		ELSE
-			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
-   		ENDIF
-	ELSE
-   		cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF 
-		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
-	ENDIF
-   		
-	cQuery += " GROUP BY CN9_SITUAC"+CRLF
-//	cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC ORDER BY CN9_REVISA DESC"
-
-ELSE
-	cContrCons := ""
- 	For IX:= 1 TO LEN(aConsorcio)
- 		cContrCons += "'"+ALLTRIM(aConsorcio[IX,1])+"',"
- 	NEXT
-	cQuery := " SELECT MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
-	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
-	cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
-	cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
-	cQuery += "       AND CN9_SITUAC = '05'"+CRLF
-	IF !lConsorcio
-		IF !EMPTY(cContrCons)
-   			cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF
 		ENDIF
-	ENDIF
-	IF !lFurnas
-		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
-	ENDIF
-	IF !lPetro
-		cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455'"+CRLF
-	ENDIF
-	cQuery += " GROUP BY CN9_SITUAC"+CRLF
-ENDIF	
+			
+		cQuery += " GROUP BY CN9_SITUAC"+CRLF
+	//	cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC ORDER BY CN9_REVISA DESC"
 
-u_LogMemo("BKGCTR14.SQL",cQuery)
+	ELSE
+		cContrCons := ""
+		For IX:= 1 TO LEN(aConsorcio)
+			cContrCons += "'"+ALLTRIM(aConsorcio[IX,1])+"',"
+		NEXT
+		cQuery := " SELECT MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
+		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+		cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+		cQuery += "       AND CN9_SITUAC = '05'"+CRLF
+		IF !lConsorcio
+			IF !EMPTY(cContrCons)
+				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF
+			ENDIF
+		ENDIF
+		IF !lFurnas
+			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
+		ENDIF
+		IF !lPetro
+			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455'"+CRLF
+		ENDIF
+		cQuery += " GROUP BY CN9_SITUAC"+CRLF
+	ENDIF	
 
-TCQUERY cQuery NEW ALIAS "QTMP1"
-TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
-TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)	
-TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)	
-TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)	
+	u_LogMemo("BKGCTR14.SQL",cQuery)
 
-dbSelectArea("QTMP1")
-dDataI		:= QTMP1->CN9_DTOSER
-If Empty(dDataI)
-	dDataI	:= QTMP1->CN9_DTINIC
-EndIf
-If (!Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI) .OR. Empty(dDataI)
-	dDataI	:= QTMP1->CNF_INICIO
-EndIf
+	TCQUERY cQuery NEW ALIAS "QTMP1"
+	TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
+	TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)	
+	TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)	
+	TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)	
 
-dDataFinal	:= QTMP1->CNF_FIM
-cSituac 	:= QTMP1->CN9_SITUAC
-
-QTMP1->(Dbclosearea())
-
-IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal)) 
-	If !lJob
-		MSGSTOP("Contrato não encontrado!!")
-	Else
-		u_xxLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),.T.,"")
+	dbSelectArea("QTMP1")
+	dDataI		:= QTMP1->CN9_DTOSER
+	If Empty(dDataI)
+		dDataI	:= QTMP1->CN9_DTINIC
 	EndIf
-	Return Nil
-ENDIF
+	If (!Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI) .OR. Empty(dDataI)
+		dDataI	:= QTMP1->CNF_INICIO
+	EndIf
 
-// Voltar 1 mes
-dDataI := dDataI - Day(dDataI)
-dDataI := dDataI - Day(dDataI)+1
+	dDataFinal	:= QTMP1->CNF_FIM
+	cSituac 	:= QTMP1->CN9_SITUAC
 
-//Determina quantos Meses utilizar no calculo
-nPeriodo += DateDiffMonth( dDataI , dDataFinal )
+	QTMP1->(Dbclosearea())
+
+	IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal)) 
+		If !lJob
+			MSGSTOP("Contrato não encontrado!!")
+		Else
+			u_xxLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),.T.,"")
+		EndIf
+		Return Nil
+	ENDIF
+
+	// Voltar 1 mes
+	dDataI := dDataI - Day(dDataI)
+	dDataI := dDataI - Day(dDataI)+1
+
+	//Determina quantos Meses utilizar no calculo
+	nPeriodo += DateDiffMonth( dDataI , dDataFinal )
+Else
+	// Somente o mês de competência Informado	
+	dDataI := CTOD("01/"+STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4))
+	dDataFinal := LastDay(dDataI)
+	nPeriodo := 1
+EndIf
 
 cTitulo  := titulo + " - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
 
@@ -6045,6 +6055,7 @@ aAdd(aRegistros,{cPerg,"08","Detalhar ?","Detalhar ?","Detalhar ?","mv_ch8","N",
 aAdd(aRegistros,{cPerg,"09","Agendar ?","Agendar ?","Agendar ?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 aAdd(aRegistros,{cPerg,"10","Agendar para:" ,"Agendar para:" ,"Agendar para:" ,"mv_cha","D",8,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 aAdd(aRegistros,{cPerg,"11","E-Mail?","E-Mail?","E-Mail?","mv_chb","C",70,0,0,"G","","mv_par11","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+aAdd(aRegistros,{cPerg,"12","Somente competência atual?","Somente competência atual?","Somente competência atual?","mv_chc","N",01,0,2,"C","","mv_par12","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

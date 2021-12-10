@@ -63,54 +63,60 @@ cDirTmp	 := ALLTRIM(mv_par03)+"\BORDERO"
 nFurnas  := mv_par04
 nTED 	 := mv_par05
 nTEDItau := mv_par06
+cTedBco	 := mv_par07
 
 cBanco   := SUBSTR(cSEE,1,3)
 
 If nTEDItau == 1 
 	IF cBanco <> "341" 
-		MSGSTOP("TED Itau diponível apenas para CEF (104)!!","Atenção") 
-		Return Nil               
+		MSGSTOP("Para TED Itau, selecione conta do Banco 341 !",cPerg) 
+		Return Nil
 	ELSE
-		IF !MsgYesNo("Confirma a geração de pagamentos da CEF no Banco Itau?",cPerg)
-			Return Nil               
-		ENDIF
+		If !(cTedBco $ "104/237/001")
+			MSGSTOP("TED Itau diponível apenas para BB, CEF e BRD !",cPerg) 
+			Return Nil 
+		Else
+			IF !MsgYesNo("Confirma a geração de pagamentos do banco "+cTedBco+" no Banco Itau?",cPerg)
+				Return Nil               
+			ENDIF
+		EndIf
 	ENDIF
 ENDIF
 
 IF dData < dDatabase
-	MSGSTOP("Data deve ser maior ou igual que a database!!","Atenção")                
+	MSGSTOP("Data deve ser maior ou igual que a database!!",cPerg)                
 	Return Nil
 ENDIF
 
 IF EMPTY(cDirTmp)
-	MSGSTOP("Pasta deve ser preenchida!!","Atenção")                
+	MSGSTOP("Pasta deve ser preenchida!!",cPerg)                
 	Return Nil
 ENDIF
 
 IF nFurnas == 1
 	IF cBanco == "001"
 		IF ALLTRIM(cSEE) <> "0013340 5561           00"
-			MSGSTOP("Conta Furnas selecionada incorreta!!","Atenção")                
+			MSGSTOP("Conta Furnas selecionada incorreta!!",cPerg)                
 			Return Nil
 		ENDIF
 	ELSEIF nTED == 1
-		MSGSTOP("Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas incorreto!!","Atenção")                
+		MSGSTOP("Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas incorreto!!",cPerg)                
 		Return Nil
 	ENDIF
 ELSEIF nFurnas == 2
 	IF cBanco == "001"
 		IF ALLTRIM(cSEE) <> "0013340 5562           00"
-			MSGSTOP("Conta Furnas Lote BK selecionada incorreta!!","Atenção")                
+			MSGSTOP("Conta Furnas Lote BK selecionada incorreta!!",cPerg)                
 			Return Nil
 		ENDIF
 	ELSEIF nTED == 1
-		MSGSTOP("Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas Lote BK incorreto!!","Atenção")                
+		MSGSTOP("Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas Lote BK incorreto!!",cPerg)                
 		Return Nil
 	ENDIF
 ELSE
 	IF cBanco == "001"
 		IF ALLTRIM(cSEE) == "0013340 5561           00"  .OR. ALLTRIM(cSEE)="0013340 5562           00"
-			MSGSTOP("Conta selecionada incorreta!!","Atenção")                
+			MSGSTOP("Conta selecionada incorreta!!",cPerg)                
 			Return Nil
 		ENDIF
 	ENDIF
@@ -124,12 +130,12 @@ aCtrId := {}
 Processa ( {|| aCtrId := GeraQueryTit(dData,cBanco)})
 
 If Empty(aCtrId)
-	MsgStop("Não há títulos "+IIF(nFurnas==1," de FURNAS","")+IIF(nFurnas==2," de FURNAS LOTE BK","")+" disponíveis !!", "Atenção")
+	MsgStop("Não há títulos "+IIF(nFurnas==1," de FURNAS","")+IIF(nFurnas==2," de FURNAS LOTE BK","")+" disponíveis !!", cPerg)
 	RestArea(aAreaIni)
 	Return
 EndIf
 
-MsgAlert("Verifique a DATA do Bordero!!","Atenção")
+MsgAlert("Verifique a DATA do Bordero!!",cPerg)
 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
@@ -217,15 +223,15 @@ If ( lOk )
 			QSZ2->(DbCloseArea())
 		ENDIF
 	NEXT
-	MsgAlert("Verifique a DATA do Bordero!!","Atenção")
+	MsgAlert("Verifique a DATA do Bordero!!",cPerg)
 Endif
 
 If !EMPTY(aErros)
 	For _nI:= 1 To Len(aErros)
 		IF aErros[_nI,1] == 1 
-			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5], "Atenção")
+			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5], cPerg)
 		ELSEIF aErros[_nI,1] == 2 
-			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ", "Atenção")
+			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ", cPerg)
 		ENDIF
 	NEXT
 EndIf
@@ -245,10 +251,10 @@ IF CTOD(cPgto) >= dDataBase  .AND. cBanco $ cBancos
 	lRet := !lRet
 ELSE
 	IF CTOD(cPgto) < dDataBase
-   		MsgStop("Data de pgto deste lote é inferior a data base do sistema", "Atenção")
+   		MsgStop("Data de pgto deste lote é inferior a data base do sistema", cPerg)
    		lRet := .F.
 	ELSE 
-   		MsgStop("Layout banco ("+cBanco+") indisponível ", "Atenção")
+   		MsgStop("Layout banco ("+cBanco+") indisponível ", cPerg)
    		lRet := .F.
  	ENDIF
 ENDIF   
@@ -415,7 +421,7 @@ LOCAL lOk := .T.
 
 IF !EMPTY(cBordero)
     IF !lTit
-		IF AVISO("Atenção","Este PGTO ja incluso no Lote CNAB: "+cBordero+", enviar novamente??",{"Sim","Não"}) <> 1
+		IF AVISO(cPerg,"Este PGTO ja incluso no Lote CNAB: "+cBordero+", enviar novamente??",{"Sim","Não"}) <> 1
 			lOk := .F.
 		Endif
 	ELSE
@@ -1947,7 +1953,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 	cNumBor := ""
 	Processa ( {|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)})
 	
-	MSGINFO('Borderô Nº: '+cNumBor+ ' gerado com sucesso verificar na pasta   "  '+cDirTmp2+'  "    !!',"Atenção")
+	MSGINFO('Borderô Nº: '+cNumBor+ ' gerado com sucesso verificar na pasta   "  '+cDirTmp2+'  "    !!',cPerg)
 
 ELSE
 	IF nHandle <> 0
@@ -2076,7 +2082,8 @@ AADD(aRegistros,{cPerg,"02","Banco:","Banco:" ,"Banco:" ,"mv_ch2","C",26,0,0,"G"
 AADD(aRegistros,{cPerg,"03","Pasta (Diretório):","Pasta (Diretório):" ,"Pasta (Diretório):" ,"mv_ch3","C",40,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","",""})
 AADD(aRegistros,{cPerg,"04","Furnas:","Furnas:","Furnas" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Lote Emergencial","Lote Emergencial","Lote Emergencial","","","Lote BK","Lote BK","Lote BK","","","Não","Não","Não","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"05","TED Salario:","TED Salario:","TED Salario" ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"06","TED CEF no ITAU:","TED CEF no ITAU:","TED CEF no ITAU:" ,"mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"06","TED pelo ITAU:","TED pelo ITAU:","TED pelo ITAU:" ,"mv_ch6","N",01,0,2,"C","","mv_par06","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"07","TED do Banco:","TED do Banco:" ,"TED do Banco:" ,"mv_ch7","C",03,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","SA6BCO"})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

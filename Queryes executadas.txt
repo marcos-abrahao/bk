@@ -1,4 +1,13 @@
 
+
+==============================================================
+09/12/2021 - E-mails de clientes
+
+SELECT A1_EMAIL FROM SA1010 WHERE A1_EMAIL = 'financeiro@bkconsultoria.com.br' AND D_E_L_E_T_ = ''
+UPDATE SA1010 SET A1_EMAIL = 'microsiga@bkconsultoria.com.br' WHERE A1_EMAIL = 'financeiro@bkconsultoria.com.br' AND D_E_L_E_T_ = ''
+UPDATE SA1020 SET A1_EMAIL = 'microsiga@bkconsultoria.com.br' WHERE A1_EMAIL = 'financeiro@bkconsultoria.com.br' AND D_E_L_E_T_ = ''
+UPDATE SA1140 SET A1_EMAIL = 'microsiga@bkconsultoria.com.br' WHERE A1_EMAIL = 'financeiro@bkconsultoria.com.br' AND D_E_L_E_T_ = ''
+
 ==============================================================
 30/11/2021 - Baixas aporte
 
