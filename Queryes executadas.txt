@@ -1,6 +1,11 @@
 
 
 ==============================================================
+10/12/2021 - Acertos centro de custo Rubi
+
+UPDATE  CUSTOSIGA SET ccSIGA='179000580'
+ where ccSIGA='Er:000580'
+==============================================================
 09/12/2021 - E-mails de clientes
 
 SELECT A1_EMAIL FROM SA1010 WHERE A1_EMAIL = 'financeiro@bkconsultoria.com.br' AND D_E_L_E_T_ = ''

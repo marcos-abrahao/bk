@@ -2514,7 +2514,13 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 		cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" +CRLF
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
-		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+		cQuery2 += " WHERE SD1.D_E_L_E_T_ = '' "+CRLF
+		If nCompAtual = 1
+			cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
+		Else
+			cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6)  = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
+		EndIf
+		
 		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'" +CRLF
 		cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 		// 12105 - Alugueis 06/07/2021
@@ -2529,22 +2535,22 @@ FOR _nI := 1 TO nPeriodo
 		EndIf
 
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
-			cQuery2 += " AND D1_FORNECE<>'002918'"
+			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 		ENDIF 
 		IF SM0->M0_CODIGO == "14"   // Despesas médicas
-			cQuery2 += " AND D1_FORNECE<>'000604'"
+			cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 		ENDIF 
 		
 		//// Para teste de alugueis: 
 		//cQuery2 += " AND (D1_COD = '000000000000102' OR D1_COD = '320200301')  "+CRLF // AND D1_FORNECE = '004190'
 
 		IF nCompras == 1
-			cQuery2 += " AND D1_PEDIDO <> ''"
+			cQuery2 += " AND D1_PEDIDO <> ''"+CRLF
 		ENDIF
-		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
+		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 
-		cQuery2 += " UNION ALL"
-		cQuery2 += " SELECT D3_FILIAL,MAX(' '),MAX(' '),MAX(' '),MAX(' '),D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"
+		cQuery2 += " UNION ALL"+CRLF
+		cQuery2 += " SELECT D3_FILIAL,MAX(' '),MAX(' '),MAX(' '),MAX(' '),D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"+CRLF
 		cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'" 
 		cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
@@ -2559,7 +2565,7 @@ FOR _nI := 1 TO nPeriodo
 		EndIf
 
 
-		cQuery2 += " GROUP BY D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"
+		cQuery2 += " GROUP BY D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"+CRLF
 
 		//cQuery2 += " ORDER BY B1_DESC"
         
@@ -2983,12 +2989,17 @@ FOR _nI := 1 TO nPeriodo
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 		IF nScan > 0 
-			cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"
-			cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1" 
+			cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
+			cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1" +CRLF
 			//cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,2])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''" 
-			cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,2])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ''"                                         
+			cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,2])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ''"+CRLF
 			//cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,2])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"
-			cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "
+			cQuery2 += " WHERE SD1.D_E_L_E_T_ = '' "+CRLF
+			If nCompAtual == 1
+				cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+			Else
+				cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6)  = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+			EndIf
 			//cQuery2 += " AND D1_CC = '000000001'"
 			cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 			IF SM0->M0_CODIGO == "01" .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
@@ -3494,7 +3505,12 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,8])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''" 
 				cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ''"                                         
 				cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,8])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"
-				cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "
+				cQuery2 += " WHERE SD1.D_E_L_E_T_ = '' "+CRLF
+				If nCompAtual = 1
+					cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
+				Else
+					cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6)  = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
+				EndIf
 				cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' "
 				// 19/11/2021 - Contas alteradas de 113 para 121
 				cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
