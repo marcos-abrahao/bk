@@ -72,14 +72,14 @@ If nTEDItau == 1
 		MSGSTOP("Para TED Itau, selecione conta do Banco 341 !",cPerg) 
 		Return Nil
 	ELSE
-		If !(cTedBco $ "104/237/001")
-			MSGSTOP("TED Itau diponível apenas para BB, CEF e BRD !",cPerg) 
-			Return Nil 
-		Else
+		//If !(cTedBco $ "104/237/001")
+		//	MSGSTOP("TED Itau diponível apenas para BB, CEF e BRD !",cPerg) 
+		//	Return Nil 
+		//Else
 			IF !MsgYesNo("Confirma a geração de pagamentos do banco "+cTedBco+" no Banco Itau?",cPerg)
 				Return Nil               
 			ENDIF
-		EndIf
+		//EndIf
 	ENDIF
 ENDIF
 
@@ -1208,44 +1208,47 @@ If nHandle > 0 .OR. nHandle2 > 0
 	If cBanco == "104" .AND. nTEDItau == 2
 		//Layout CAIXA - 240 - HEADER DE ARQUIVO "0"		
 		Bcn104H := ""
-		Bcn104H += "104"    //001 003
-		Bcn104H += "0000"   //004 007
-		Bcn104H += "0"               //008 008
-		Bcn104H += SPACE(9)          //009 017
-		Bcn104H += "2"               //018 018
-		Bcn104H += STRZERO(VAL(cCGC),14) //019 032
-		Bcn104H += SUBSTR(SEE->EE_CODEMP,1,6) //"188161"  //"180327" //010001"  //033 038
-		Bcn104H += IIF(alltrim(cConta)=="0300000043","02","01") //"VA"  //039 040  ?????????????????????????????????????
-		Bcn104H += "P"   //041 041
-		Bcn104H += Space(1) //042 042
-		Bcn104H += Space(3) //043 045
-		Bcn104H += "0000" //046 049
-		Bcn104H += Space(3) //050 052
-		Bcn104H += STRZERO(VAL(cAgencia),5)   //053 057
-		Bcn104H += STRZERO(VAL(cDVAgenc),1)   //058 058 DV AGENCIA
-		Bcn104H += STRZERO(VAL(cConta),12)  //059 070
-		Bcn104H += STRZERO(VAL(cDVConta),1) //071 071 DV CONTA
-		Bcn104H += SPACE(1)	  //072 072 
-		Bcn104H += PAD(cNomeCom,30) //073 102
-		Bcn104H += PAD("CAIXA",30)  //103 132
-		Bcn104H += SPACE(10)                  //133 142
-		Bcn104H += "1"                        //143 143 1-Remessa 2-Retorno
-		Bcn104H += Day2Str(DATE())+Month2Str(DATE())+Year2Str(DATE())  //144 151
+		Bcn104H += "104"    				//001 003 - Código do Banco
+		Bcn104H += "0000"   				//004 007 - Lote de Serviço
+		Bcn104H += "0"               		//008 008 - Código do Registro
+		Bcn104H += SPACE(9)          		//009 017 - Filler
+		Bcn104H += "2"               		//018 018 - Tipo de inscrição
+		Bcn104H += STRZERO(VAL(cCGC),14) 	//019 032 - Número de inscrição
+		Bcn104H += SUBSTR(SEE->EE_CODEMP,1,6) //"188161"  //"180327" //010001"  
+											//033 038 - Código convênio no Banco
+		Bcn104H += IIF(alltrim(cConta)=="0300000043","02","01") //"VA"  
+											//039 040  - Parâmetro de Transmissão
+		Bcn104H += "P"   					//041 041 - Ambiente Cliente
+		Bcn104H += Space(1) 				//042 042 - Ambiente CAIXA
+		Bcn104H += Space(3) 				//043 045 - Origem Aplicativo
+		Bcn104H += "0000" 					//046 049 - Número de Versão
+		Bcn104H += Space(3) 				//050 052 - Filler
+		Bcn104H += STRZERO(VAL(cAgencia),5) //053 057 - Agencia da conta corrente
+		Bcn104H += STRZERO(VAL(cDVAgenc),1) //058 058 - DV da Agência
+		Bcn104H += STRZERO(VAL(cConta),12)  //059 070 - Número da conta
+		Bcn104H += STRZERO(VAL(cDVConta),1) //071 071 - DV da conta
+		Bcn104H += SPACE(1)	  				//072 072 - DV da agência/conta
+		Bcn104H += PAD(cNomeCom,30) 		//073 102 - Nome da empresa
+		Bcn104H += PAD("CAIXA",30)  		//103 132 - Nome do Banco
+		Bcn104H += SPACE(10)                //133 142 - Filler
+		Bcn104H += "1"                      //143 143 - Tipo de Arquivo = 1-Remessa 2-Retorno
+		Bcn104H += Day2Str(DATE())+Month2Str(DATE())+Year2Str(DATE())  
+											//144 151 - Data geração do arquivo
 		cTime := TIME()
 		cHora := SUBSTR(cTime, 1, 2)
 		cMinutos := SUBSTR(cTime, 4, 2)
 		cSegundos := SUBSTR(cTime, 7, 2)
-		Bcn104H += cHora+cMinutos+cSegundos      //152 157
-		Bcn104H += STRZERO(nLote,6)           //158 163  - LOTE
-		Bcn104H += "080"               //164 166  - VERSAO LAYOUT
-		Bcn104H += "01600"             //167 171
-		Bcn104H += SPACE(20)           //172 191
-		Bcn104H += SPACE(20)           //192 211
-		Bcn104H += SPACE(11)           //212 222
-		Bcn104H += SPACE(3)            //223 225
-		Bcn104H += "000"               //226 228
-		Bcn104H += SPACE(2)            //229 230
-		Bcn104H += SPACE(10)           //231 240
+		Bcn104H += cHora+cMinutos+cSegundos	//152 157 - Hora geração do arquivo
+		Bcn104H += STRZERO(nLote,6)         //158 163 - NSA - LOTE
+		Bcn104H += "080"               		//164 166 - Versão leiaute do arquivo
+		Bcn104H += "01600"             		//167 171 - Densidade de gravação
+		Bcn104H += SPACE(20)           		//172 191 - Reservado do Banco
+		Bcn104H += SPACE(20)           		//192 211 - Reservado da Empresa
+		Bcn104H += SPACE(11)           		//212 222 - Uso exclusivo FEBRABAN
+		Bcn104H += SPACE(3)            		//223 225 - Ident. Cobrança
+		Bcn104H += "000"               		//226 228 - Uso exclusivo das VAN
+		Bcn104H += SPACE(2)            		//229 230 - Tipo de serviço
+		Bcn104H += SPACE(10)           		//231 240 - Ocorrência Cob. Sem papel
 		Bcn104H += cCrLf
 						
 		//Grava Bordero - HEADER DE ARQUIVO "0"
@@ -1254,36 +1257,44 @@ If nHandle > 0 .OR. nHandle2 > 0
 
 	    //- HEADER DE ARQUIVO "1" 
 		Bcn104HD := ""
-		Bcn104HD += "104"        //001 003
-		Bcn104HD += "0001"       //004 007
-		Bcn104HD += "1"          //008 008
-		Bcn104HD += "C"          //009 009
-		Bcn104HD += IIf(cTipoPes == "CLT","30","20")         //010 011
-		Bcn104HD += "01"      	 //012 013
-		Bcn104HD += "041"        //014 016
-		Bcn104HD += SPACE(1)     //017 017
-		Bcn104HD += "2"          //018 018
-		Bcn104HD += STRZERO(VAL(cCGC),14) //019 032
-		Bcn104HD += SUBSTR(SEE->EE_CODEMP,1,6) //"188161" //"180327"  //033 038
-		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"01",SUBSTR(SEE->EE_CODEMP,7,2)) //"06"  //039 040
-		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"0001","0003") //"0002" //"0001" //"0002"  //041 044
-		Bcn104HD += IIF(alltrim(cConta)=="0300000043","02","01") //"01" //"VA"  //045 046
-		Bcn104HD += SPACE(6)   //047 052
-		Bcn104HD += STRZERO(VAL(cAgencia),5)    //053 057
-		Bcn104HD += STRZERO(VAL(cDVAgenc),1)    //058 058
-		Bcn104HD += STRZERO(VAL(cConta),12)  //059 070
-		Bcn104HD += STRZERO(VAL(cDVConta),1) //071 071 DV CONTA
-		Bcn104HD += SPACE(1)	  //072 072
-		Bcn104HD += PAD(cNomeCom,30) //073 102
-		Bcn104HD += SPACE(40)   //103 142
-		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_ENDCOB)),30) //143 172
-		Bcn104HD += "00000"		 //173 177
-		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_COMPENT)),15) //178 192
-		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_CIDCOB)),20)  //193 212
-		Bcn104HD += PAD(SM0->M0_CEPCOB,8)                    //213 220
-		Bcn104HD += PAD(SM0->M0_ESTCOB,2)                    //221 222
-		Bcn104HD += SPACE(8)                                 //223 230
-		Bcn104HD += SPACE(10)                                //231 240
+		Bcn104HD += "104"        			//001 003 - Código do Banco
+		Bcn104HD += "0001"     				//004 007 - Lote de Serviço
+		Bcn104HD += "1"          			//008 008 - Código do Registro
+		Bcn104HD += "C"          			//009 009 - Tipo de Operação
+		Bcn104HD += IIf(cTipoPes == "CLT","30","20")         
+											//010 011 - Tipo de Serviço
+		Bcn104HD += "01"      	 			//012 013 - Forma de Lançamento
+		Bcn104HD += "041"        			//014 016 - Versão do leiaute do lote
+		Bcn104HD += SPACE(1)     			//017 017 - Filler
+		Bcn104HD += "2"          			//018 018 - Tipo de inscrição
+		Bcn104HD += STRZERO(VAL(cCGC),14) 	//019 032 - Número da inscrição
+		Bcn104HD += SUBSTR(SEE->EE_CODEMP,1,6) //"188161" //"180327"  
+											//033 038 - Código Convênio no Banco
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"01",SUBSTR(SEE->EE_CODEMP,7,2)) //"06"  
+											//039 040 - Tipo de Compromisso
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"0001","0003") //"0002" //"0001" //"0002"  
+											//041 044 - Código do compromisso
+		Bcn104HD += IIF(alltrim(cConta)=="0300000043","02","01") //"01" //"VA"  
+											//045 046 - Parâmetro de transmissão
+		Bcn104HD += SPACE(6)   				//047 052 - Filler
+		Bcn104HD += STRZERO(VAL(cAgencia),5)//053 057 - Agencia da Conta Corrente
+		Bcn104HD += STRZERO(VAL(cDVAgenc),1)//058 058 - DV da Agência
+		Bcn104HD += STRZERO(VAL(cConta),12) //059 070 - Número da Conta Corrente
+		Bcn104HD += STRZERO(VAL(cDVConta),1)//071 071 - DV da Conta Corrente
+		Bcn104HD += SPACE(1)	  			//072 072 - Dígito da Agência/Conta
+		Bcn104HD += PAD(cNomeCom,30) 		//073 102 - Nome da Empresa
+		Bcn104HD += SPACE(40)   			//103 142 - Mensagem de Aviso 1
+		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_ENDCOB)),30) 
+											//143 172 - Logradouro
+		Bcn104HD += "00000"		 			//173 177 - Número no local
+		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_COMPENT)),15) 
+											//178 192 - Complemento
+		Bcn104HD += PAD(ACENTO(ALLTRIM(SM0->M0_CIDCOB)),20)  
+											//193 212 - Cidade
+		Bcn104HD += PAD(SM0->M0_CEPCOB,8)   //213 220 - CEP
+		Bcn104HD += PAD(SM0->M0_ESTCOB,2)   //221 222 - Sigla do Estado
+		Bcn104HD += SPACE(8)                //223 230 - Uso exclusivo FEBRABAN
+		Bcn104HD += SPACE(10)               //231 240 - Ocorrências
 		Bcn104HD += cCrLf
 						
 		//Grava Bordero - Descrição do Registro DETALHE - “A”
@@ -1300,44 +1311,52 @@ If nHandle > 0 .OR. nHandle2 > 0
 
             //Descrição do Registro DETALHE - “A”
 		    Bcn104D := ""
-			Bcn104D += "104"     //001 003
-			Bcn104D += "0001"    //004 007
-			Bcn104D += "3"       //008 008
-			Bcn104D += STRZERO(nSeq,5) //009 0013
-			Bcn104D += "A"             //014 014
-			Bcn104D += "0"             //015 015
-			Bcn104D += "00"            //016 017
-			Bcn104D += "700"           //018 020
-			Bcn104D += "104"           //021 023 
-			Bcn104D += STRZERO(VAL(aTitGer[nI,8]),5)  //024 028 AGENCIA
-			Bcn104D += PAD(aTitGer[nI,9],1)           //029 029
-//			Bcn104D += "0037" 						  //030 033 Operação Conta
+			Bcn104D += "104"     			//001 003 - Código do Banco
+			Bcn104D += "0001"    			//004 007 - Lote de Serviço
+			Bcn104D += "3"       			//008 008 - Código do registro
+			Bcn104D += STRZERO(nSeq,5) 		//009 013 - NSR
+			Bcn104D += "A"             		//014 014 - Cód. Segmento
+			Bcn104D += "0"             		//015 015 - Tipo Movimento
+			Bcn104D += "00"            		//016 017 - Código Instrução Movimento
+			Bcn104D += "700"           		//018 020 - Câmara compensação
+			Bcn104D += "104"           		//021 023 - Código Banco Destino
+			Bcn104D += STRZERO(VAL(aTitGer[nI,8]),5)  
+											//024 028 - Código Agencia Destino
+			Bcn104D += PAD(aTitGer[nI,9],1) //029 029 - DV Agência Destino
+//			Bcn104D += "0037" 				//030 033 Operação Conta
 //			Bcn104D += SUBSTR(STRZERO(VAL(aTitGer[nI,10]),12),5,8) //034 041 CONTA
-			Bcn104D += STRZERO(VAL(aTitGer[nI,10]),12) //030 041 CONTA
-			Bcn104D += STRZERO(VAL(aTitGer[nI,11]),1) //042 042 DV CONTA
-			Bcn104D += SPACE(1)						  //043 043
-			Bcn104D += PAD(Acento(ALLTRIM(IIF(aTitGer[nI,6]='PEN',IIF(!EMPTY(aTitGer[nI,20]),aTitGer[nI,20],aTitGer[nI,19]),aTitGer[nI,3]))),30) //044 073
-			Bcn104D += STRZERO(nI,6) //SUBSTRING(SEE->EE_CODEMP,1,6) //"188161"//"180327" //074 079
-			Bcn104D += SPACE(13) //080 092
-			Bcn104D += "0" //093 093
-			Bcn104D += Day2Str(aTitGer[nI,5])+Month2Str(aTitGer[nI,5])+Year2Str(aTitGer[nI,5]) //094 101
-			Bcn104D += "BRL"  //102 104
-			Bcn104D += STRZERO(0,15)//105 119
-		    Bcn104D += STRZERO(INT(aTitGer[nI,4]*100),15) //120 134
-			Bcn104D += STRZERO(0,9)	//135 143
-			Bcn104D += SPACE(3)   	//144 146
-			Bcn104D += "01"   		//147 148
-			Bcn104D += "N"   		//149 149
-			Bcn104D += "1"   		//150 150
-			Bcn104D += Day2Str(aTitGer[nI,5])	//151 152
-			Bcn104D += "00"   		//153 154
-			Bcn104D += STRZERO(0,8)		//155 162
-			Bcn104D += STRZERO(0,15)    //163 177
-			Bcn104D += SPACE(40)        //178 217
-			Bcn104D += "00" 			//218 219
-			Bcn104D += SPACE(10)		//220 229
-			Bcn104D += "0"              //230 230
-			Bcn104D += SPACE(10)        //231 240
+			Bcn104D += STRZERO(VAL(aTitGer[nI,10]),12) 
+											//030 041 - Conta Corrente Destino
+			Bcn104D += STRZERO(VAL(aTitGer[nI,11]),1) 
+											//042 042 - DV Conta Destino
+			Bcn104D += SPACE(1)				//043 043 - DV Agência/Conta Destino
+			Bcn104D += PAD(Acento(ALLTRIM(IIF(aTitGer[nI,6]='PEN',IIF(!EMPTY(aTitGer[nI,20]),aTitGer[nI,20],aTitGer[nI,19]),aTitGer[nI,3]))),30) 
+											//044 073 - Nome do Terceiro (favorecido)
+			Bcn104D += STRZERO(nI,6) //SUBSTRING(SEE->EE_CODEMP,1,6) //"188161"//"180327" 
+											//074 079 - Número Documento atribuído pela Empresa
+			Bcn104D += SPACE(13) 			//080 092 - Filler
+			Bcn104D += "0" 					//093 093 - Tipo de conta – Finalidade TED
+			Bcn104D += Day2Str(aTitGer[nI,5])+Month2Str(aTitGer[nI,5])+Year2Str(aTitGer[nI,5]) 
+											//094 101 - Data Vencimento
+			Bcn104D += "BRL"  				//102 104 - Tipo da moeda
+			Bcn104D += STRZERO(0,15)		//105 119 - Quantidade de moeda
+		    Bcn104D += STRZERO(INT(aTitGer[nI,4]*100),15) 
+											//120 134 - Valor Lançamento
+			Bcn104D += STRZERO(0,9)			//135 143 - Número Documento Banco
+			Bcn104D += SPACE(3)   			//144 146 - Filler
+			Bcn104D += "01"   				//147 148 - Quantidade de Parcelas
+			Bcn104D += "N"   				//149 149 - Indicador de bloqueio
+			Bcn104D += "1"   				//150 150 - Indicador forma parcelamento
+			Bcn104D += Day2Str(aTitGer[nI,5])	
+											//151 152 - Período ou dia vencimento
+			Bcn104D += "00"   				//153 154 - Número Parcela
+			Bcn104D += STRZERO(0,8)			//155 162 - Data da Efetivação
+			Bcn104D += STRZERO(0,15)    	//163 177 - Valor Real Efetivado
+			Bcn104D += SPACE(40)        	//178 217 - Informação 2
+			Bcn104D += "00" 				//218 219 - Finalidade DOC
+			Bcn104D += SPACE(10)			//220 229 - Uso FEBRABAN
+			Bcn104D += "0"              	//230 230 - Aviso ao Favorecido
+			Bcn104D += SPACE(10)        	//231 240 - Ocorrências
 			Bcn104D += cCrLf
 							
 
@@ -1347,29 +1366,37 @@ If nHandle > 0 .OR. nHandle2 > 0
 			nSeq++
 			//Descrição dos campos do Registro “B”
 	    	Bcn104DB := ""
-			Bcn104DB += "104"     //001 003
-			Bcn104DB += "0001"    //004 007
-			Bcn104DB += "3"       //008 008
-			Bcn104DB += STRZERO(nSeq,5) //009 0013
-			Bcn104DB += "B"             //014 014
-			Bcn104DB += SPACE(3)        //015 017
-			Bcn104DB += "1"            //018 018
-			Bcn104DB += STRZERO(VAL(aTitGer[nI,12]),14)          //019 032
-			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_ENDCOB)),30) //033 062
-			Bcn104DB += "00000"		 	//063 067
-			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_COMPENT)),15) 		//068 082
-			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_BAIRENT)),15) 		//083 097
-			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_CIDCOB)),20) 		//098 117
-			Bcn104DB += PAD(SM0->M0_CEPCOB,8) //118 125
-			Bcn104DB += PAD(SM0->M0_ESTCOB,2) //126 127
-			Bcn104DB += Day2Str(aTitGer[nI,5])+Month2Str(aTitGer[nI,5])+Year2Str(aTitGer[nI,5]) //128 135
-			Bcn104DB += STRZERO(0,15)	//136 150
-			Bcn104DB += STRZERO(0,15)	//151 165
-			Bcn104DB += STRZERO(0,15)	//166 180
-			Bcn104DB += STRZERO(0,15)	//181 195
-			Bcn104DB += STRZERO(0,15)	//196 210
-			Bcn104DB += SPACE(15)       //211 225
-			Bcn104DB += SPACE(15)       //226 240
+			Bcn104DB += "104"     			//001 003 - Código do Banco
+			Bcn104DB += "0001"    			//004 007 - Lote de Serviço
+			Bcn104DB += "3"       			//008 008 - Código do registro
+			Bcn104DB += STRZERO(nSeq,5) 	//009 013 - NSR
+			Bcn104DB += "B"             	//014 014 - Cód. Segmento
+			Bcn104DB += SPACE(3)        	//015 017 - Uso FEBRABAN
+			Bcn104DB += "1"            		//018 018 - Tipo Inscrição
+			Bcn104DB += STRZERO(VAL(aTitGer[nI,12]),14)          
+											//019 032 - Número Inscrição
+			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_ENDCOB)),30) 
+											//033 062 - Logradouro
+			Bcn104DB += "00000"		 		//063 067 - Número no local
+			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_COMPENT)),15) 		
+											//068 082 - Complemento
+			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_BAIRENT)),15) 		
+											//083 097 - Bairro
+			Bcn104DB += PAD(ACENTO(ALLTRIM(SM0->M0_CIDCOB)),20) 		
+											//098 117 - Cidade
+			Bcn104DB += PAD(SM0->M0_CEPCOB,8) 
+											//118 125 - CEP
+			Bcn104DB += PAD(SM0->M0_ESTCOB,2) 
+											//126 127 - UF do Estado
+			Bcn104DB += Day2Str(aTitGer[nI,5])+Month2Str(aTitGer[nI,5])+Year2Str(aTitGer[nI,5]) 
+											//128 135 - Data do Vencimento
+			Bcn104DB += STRZERO(0,15)		//136 150 - Valor do Documento
+			Bcn104DB += STRZERO(0,15)		//151 165 - Valor do Abatimento
+			Bcn104DB += STRZERO(0,15)		//166 180 - Valor do Desconto
+			Bcn104DB += STRZERO(0,15)		//181 195 - Valor da Mora
+			Bcn104DB += STRZERO(0,15)		//196 210 - Valor da Multa
+			Bcn104DB += SPACE(15)       	//211 225 - Código Documento Favorecido
+			Bcn104DB += SPACE(15)       	//226 240 - Uso da FEBRABAN
 			Bcn104DB += cCrLf
 							
 			//Grava Bordero - Descrição dos campos do Registro “B”
@@ -1396,16 +1423,17 @@ If nHandle > 0 .OR. nHandle2 > 0
 
         //Descrição do Registro “TRAILLER” de lote - “5”
 		Bcn104TD := ""
-		Bcn104TD += "104"    //001 003
-		Bcn104TD += "0001"   //004 007
-		Bcn104TD += "5"      //008 008
-		Bcn104TD += SPACE(9) //009 017
-		Bcn104TD += STRZERO(nSeq+2,6)  //018 023
-		Bcn104TD += STRZERO(INT(qValTot*100),18) //024 041
-		Bcn104TD += STRZERO(0,18)     //042 059
-		Bcn104TD += STRZERO(0,6)      //060 065
-		Bcn104TD += SPACE(165)        //066 230
-		Bcn104TD += SPACE(10)         //231 240
+		Bcn104TD += "104"    				//001 003 - Código do Banco
+		Bcn104TD += "0001"   				//004 007 - Lote de Serviço
+		Bcn104TD += "5"      				//008 008 - Código do registro
+		Bcn104TD += SPACE(9) 				//009 017 - Uso exclusivo FEBRABAN
+		Bcn104TD += STRZERO(nSeq+2,6)  		//018 023 - Quantidade de Registros no Lote
+		Bcn104TD += STRZERO(INT(qValTot*100),18) 
+											//024 041 - Somatória dos Valores
+		Bcn104TD += STRZERO(0,18)     		//042 059 - Somatório Qtde Moeda
+		Bcn104TD += STRZERO(0,6)      		//060 065 - Número Aviso Débito
+		Bcn104TD += SPACE(165)        		//066 230 - Uso exclusivo FEBRABAN-2
+		Bcn104TD += SPACE(10)         		//231 240 - Ocorrências
 		Bcn104TD += cCrLf 
 	
 		//Grava Bordero - Descrição do Registro “TRAILLER” de lote - “5”
@@ -1414,14 +1442,14 @@ If nHandle > 0 .OR. nHandle2 > 0
         //Descrição do Registro “TRAILLER” de arquivo - “9”
 		//nSeq++
 		Bcn104T := ""
-		Bcn104T += "104"   //001 003
-		Bcn104T += "9999"  //004 007
-		Bcn104T += "9"     //008 008
-		Bcn104T += SPACE(9) //009 017
-		Bcn104T += "000001" //018 023
-		Bcn104T += STRZERO(nSeq+4,6) //024 029
-		Bcn104T += STRZERO(0,6)      //030 035
-		Bcn104T += SPACE(205)      //036 240
+		Bcn104T += "104"   					//001 003 - Código do Banco
+		Bcn104T += "9999"  					//004 007 - Lote de Serviço
+		Bcn104T += "9"     					//008 008 - Código do registro
+		Bcn104T += SPACE(9) 				//009 017 - Uso exclusivo FEBRABAN
+		Bcn104T += "000001" 				//018 023 - Quantidade de Lotes no Arquivo
+		Bcn104T += STRZERO(nSeq+4,6) 		//024 029 - Quantidade de Registro do Arquivo
+		Bcn104T += STRZERO(0,6)      		//030 035 - Quantidade de Contas para Conciliação
+		Bcn104T += SPACE(205)      			//036 240 - Uso exclusivo FEBRABAN
 		Bcn104T += cCrLf 
 					
 		//Grava Bordero- Descrição do Registro “TRAILLER” de arquivo - “9”
@@ -1777,7 +1805,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341HD += "1"          //008 008
 		Bcn341HD += "C"          //009 009
 		Bcn341HD += IIf(cTipoPes == "CLT" .AND. nTEDItau == 2,"30","20") //IIF(cBanco=='341',"30","20") //010 011
-		Bcn341HD += IIF(cBanco=='341',"01","41") //IIf(nTEDItau == 1,"41","01") //IIF(cBanco=='341' .AND. cTipoPes == "CLT","01","41")   //012 013
+		Bcn341HD += IIF(nTEDItau == 1,"41","01") //IIf(nTEDItau == 1,"41","01") //IIF(cBanco=='341' .AND. cTipoPes == "CLT","01","41")   //012 013
 		Bcn341HD += "040"        //014 016
 		Bcn341HD += SPACE(1)     //017 017
 		Bcn341HD += "2"          //018 018
@@ -1837,55 +1865,59 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxtT := cNomeCom+'<BR>RELAÇÃO BANCÁRIA BANCO ITAU '+IIF(nFurnas==1," - FURNAS","")+IIF(nFurnas==2," - FURNAS LOTE BK","")+' <b> Lote: '+STRZERO(nLote,8)+'</b><BR> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=1><i>Emitida em : '+aTitGer[nI,15]+' - pelo usuário : '+aTitGer[nI,13]+'</i><br><br>&nbsp;'
 
 		    Bcn341D := ""
-			Bcn341D += "341"     //001 003
-			Bcn341D += "0001"    //004 007
-			Bcn341D += "3"       //008 008
-			Bcn341D += STRZERO(nSeq,5) //009 0013
-			Bcn341D += "A"             //014 014
-			Bcn341D += "000"           //015 017
-			Bcn341D += "000"           //018 020
-			Bcn341D += IIF(nTedItau==1,cTedBco,"341")   //021 023 
-			Bcn341D += "0"             //024 024
-			Bcn341D += STRZERO(VAL(aTitGer[nI,8]),4)  //025 028 AGENCIA
-			Bcn341D += SPACE(1)                       //029 029
-			Bcn341D += STRZERO(VAL(aTitGer[nI,10]),12)//030 041 CONTA
-			Bcn341D += SPACE(1)                       //042 042
-			Bcn341D += STRZERO(VAL(aTitGer[nI,11]),1) //043 043 DV CONTA
+			Bcn341D += "341"     					  	//001 003
+			Bcn341D += "0001"   					  	//004 007
+			Bcn341D += "3"       					  	//008 008
+			Bcn341D += STRZERO(nSeq,5)  			  	//009 0013
+			Bcn341D += "A"              			  	//014 014
+			Bcn341D += IIF(nTedItau==1,"000","001")     
+									       		      	//015 017 Verificação de dados - CPF 001 verifica, 000 Não verifica
+			Bcn341D += "000"            			  	//018 020
+			Bcn341D += IIF(nTedItau==1,cTedBco,"341") 	//021 023 
+			Bcn341D += "0"              			  	//024 024 COMPLEMENTO DE REGISTRO
+			Bcn341D += STRZERO(VAL(aTitGer[nI,8]),4)  	//025 028 NÚMERO AGÊNCIA CREDITADA
+			Bcn341D += SPACE(1)                       	//029 029 COMPLEMENTO DE REGISTRO
+			//Bcn341D += "000000"							//030 035 COMPLEMENTO DE REGISTRO
+			//Bcn341D += SUBSTR(STRZERO(VAL(aTitGer[nI,10]),12),7,6) //036 041 NÚMERO DE C/C CREDITADA 
+			Bcn341D += STRZERO(VAL(aTitGer[nI,10]),12)  //030 041 NÚMERO DE C/C CREDITADA 
+			Bcn341D += SPACE(1) 						//042 042 COMPLEMENTO DE REGISTRO
+			Bcn341D += STRZERO(VAL(aTitGer[nI,11]),1) 	//043 043 DAC DA AGÊNCIA/CONTA CREDITADA
 			Bcn341D += PAD(Acento(ALLTRIM(IIF(aTitGer[nI,6]='PEN',IIF(!EMPTY(aTitGer[nI,20]),aTitGer[nI,20],aTitGer[nI,19]),aTitGer[nI,3]))),30) //044 073
-			Bcn341D += SPACE(15) //074 088
-			Bcn341D += SPACE(05) //089 093
-			Bcn341D += Day2Str(aTitGer[nI,5])+Month2Str(aTitGer[nI,5])+Year2Str(aTitGer[nI,5]) //094 101
-			Bcn341D += "REA"  //102 104
-			Bcn341D += STRZERO(0,15)//105 119
+			Bcn341D += SPACE(15) 						//074 088
+			Bcn341D += SPACE(05) 						//089 093
+			Bcn341D += Day2Str(aTitGer[nI,5])+Month2Str(aTitGer[nI,5])+Year2Str(aTitGer[nI,5]) 
+														//094 101
+			Bcn341D += "REA"  							//102 104
+			Bcn341D += STRZERO(0,15)					//105 119
 		    Bcn341D += STRZERO(INT(aTitGer[nI,4]*100),15) //120 134
-			Bcn341D += SPACE(20)   		//135 154
-			Bcn341D += STRZERO(0,8)		//155 162
-			Bcn341D += STRZERO(0,15)    //163 177
+			Bcn341D += SPACE(20)   						//135 154
+			Bcn341D += STRZERO(0,8)						//155 162
+			Bcn341D += STRZERO(0,15)    				//163 177
 			//codigo tipo de pagamento CRÉDITO DE SALÁRIO - OLHAR MANUAL - Março 2013 SISPAG ITAU Febraban 240 PAG 45
 			IF ALLTRIM(aTitGer[nI,22]) = "PJ"
 				Bcn341D += "    "
 			ELSE
 				IF "PGTOSAL" $ cGRUPO
-					Bcn341D += "HP01"        	//178 181 PAGTO SALARIO
+					Bcn341D += "HP01"        			//178 181 PAGTO SALARIO
 				ELSEIF "FERIAS" $ cGRUPO
-					Bcn341D += "HP02"        	//178 181 PAGTO FÉRIAS
+					Bcn341D += "HP02"        			//178 181 PAGTO FÉRIAS
 				ELSEIF "RESCISAO" $ cGRUPO
-					Bcn341D += "HP07"        	//178 181 PAGTO RESCIS CONTRATUAL 
+					Bcn341D += "HP07"        			//178 181 PAGTO RESCIS CONTRATUAL 
 				ELSEIF "13SAL" $ cGRUPO
-					Bcn341D += "HP03"        	//178 181 PAGTO 13. SALARIO
+					Bcn341D += "HP03"        			//178 181 PAGTO 13. SALARIO
 				ELSEIF "ADIANT" $ cGRUPO
-					Bcn341D += "HP06"        	//178 181 PAGTO ADIANT SALARIAL
+					Bcn341D += "HP06"        			//178 181 PAGTO ADIANT SALARIAL
 				ELSEIF "PGTO_OUTROS" $ cGRUPO
-					Bcn341D += "HP06"        	//178 181 PAGTO VALE TRANSPORTE
+					Bcn341D += "HP06"        			//178 181 PAGTO VALE TRANSPORTE
 				ELSEIF "PENSAO" $ cGRUPO
-					Bcn341D += "HP10"        	//178 181 PAGTO PENSIONISTA
+					Bcn341D += "HP10"        			//178 181 PAGTO PENSIONISTA
 				ELSE
 					Bcn341D += "    "
 				ENDIF
 			ENDIF
 
-			Bcn341D += SPACE(16)		//182 196
-			Bcn341D += STRZERO(VAL(aTitGer[nI,12]),20) //197 216
+			Bcn341D += SPACE(16)						//182 196
+			Bcn341D += STRZERO(VAL(aTitGer[nI,12]),20) 	//197 216
 			Bcn341D += SPACE(12)
 			Bcn341D += "0" 
 			Bcn341D += SPACE(10)

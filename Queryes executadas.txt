@@ -1,6 +1,23 @@
 
 
 ==============================================================
+17/12/2021 - Acertos data de pagamento pensões
+
+SELECT * FROM SE2010 WHERE SUBSTRING(E2_NUM,7,3) = 'PEN' AND E2_VENCTO = '20211217'
+
+UPDATE SZ2010 SET Z2_DATAPGT = '20211217' WHERE Z2_E2NUM IN ('379456PEN',
+'379457PEN',
+'379459PEN',
+'379460PEN',
+'379461PEN',
+'379462PEN',
+'379463PEN',
+'379464PEN',
+'379465PEN',
+'379466PEN',
+'379468PEN')
+
+==============================================================
 10/12/2021 - Acertos centro de custo Rubi
 
 UPDATE  CUSTOSIGA SET ccSIGA='179000580'

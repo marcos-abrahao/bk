@@ -117,7 +117,7 @@ ENDIF
 IF !EMPTY(SF2->F2_XXCORPO)
 //If .F.
 	cDescr := TRIM(SF2->F2_XXCORPO)
-	cDescr := AltCorpo(cDescr,cNF)
+	cDescr := AltCorpo(cDescr,cNF,cSerie)
 
 	RecLock("SF2",.F.)
 	// Aqui
@@ -598,7 +598,7 @@ IF !EMPTY(ALLTRIM(GetMv("MV_XXDNFSE")))
 ENDIF 
 cDescr  += TextoNF(cDescr1,nMaxTLin)
 
-cDescr := AltCorpo(cDescr,cNF)
+cDescr := AltCorpo(cDescr,cNF,cSerie)
 
 RecLock("SF2",.F.)
 // Aqui 
@@ -633,7 +633,7 @@ Return cAliq
 
 
 // Tela para alterar o corpo da NF
-Static Function AltCorpo(cCorpo,cNF)
+Static Function AltCorpo(cCorpo,cNF,cSerie)
 LOCAL aLin ,cLin,xLin
 LOCAL nI,nJ
 Local cTexto
@@ -642,10 +642,14 @@ Local nMaxTLin := 95
 Local nMaxLin  := 22
 Local nMaxGet  := 22
 
-IF FWSM0Util():GetSM0Data( , , { "M0_CIDENT" } )[1][2] = "BARUERI" //  Barueri - SP
+If FWSM0Util():GetSM0Data( , , { "M0_CIDENT" } )[1][2] = "BARUERI" //  Barueri - SP
 	nMaxTLin := 100
 	nMaxGet  := 13
-ENDIF
+EndIf
+
+If cSerie == '006'   // Rio de Janeiro
+	nMaxTLin := 95
+EndIf'
 
 aLin   := ARRAY(nMaxLin)
 cTexto := cCorpo+"|"

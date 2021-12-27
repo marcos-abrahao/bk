@@ -13,6 +13,7 @@ BK- MarkBrow em MVC da tabela SZS-Facilitador p/ Doc de Entrada
 User Function BKCOMA09()
 	Local aGrp := UsrRetGrp()
 	Private oMark
+	Private cCadastro := 'Facilitador p/ Doc de Entrada'
 
 	If aScan(aGrp,"000000") == 0
 		MsgStop("Usuário sem permissão de acesso a esta rotina")
@@ -22,6 +23,9 @@ User Function BKCOMA09()
 	//Criando o MarkBrow
 	oMark := FWMarkBrowse():New()
 	oMark:SetAlias('SZS')
+	
+	oMark:SetIgnoreARotina(.T.) 
+	oMark:SetMenuDef("BKCOMA09")
 
 	//Setando semáforo, descrição e campo de mark
 	oMark:SetSemaphore(.T.)
@@ -40,6 +44,8 @@ User Function BKCOMA09()
 	oMark:Activate()
 Return NIL
 
+
+
 /*---------------------------------------------------------------------*
  | Func:  MenuDef                                                      |
  | Autor: Marcos Bispo Abrahão                                         |
@@ -50,20 +56,23 @@ Return NIL
 Static Function MenuDef()
     Local aRotina := {}
 
-	// Menu Padrão exemplo: FWMVCMenu('VIEWDEF.MVCSZS') -> cria menu com as opções padrões
+	// Menu Padrão exemplo: FWMVCMenu('MVCSZS') //-> cria menu com as opções padrões
     //Criação das opções
     ADD OPTION aRotina TITLE 'Visualizar'    ACTION 'VIEWDEF.MVCSZS' OPERATION 2 ACCESS 0
     ADD OPTION aRotina TITLE 'Incluir'       ACTION 'VIEWDEF.MVCSZS' OPERATION 3 ACCESS 0
     ADD OPTION aRotina TITLE 'Alterar'       ACTION 'VIEWDEF.MVCSZS' OPERATION 4 ACCESS 0
     ADD OPTION aRotina TITLE 'Excluir'       ACTION 'VIEWDEF.MVCSZS' OPERATION 5 ACCESS 0
+	
     ADD OPTION aRotina TITLE 'Processar'     ACTION 'StaticCall(BKCOMA09, SZSProc)'  OPERATION 2 ACCESS 0
     ADD OPTION aRotina TITLE 'Classificar'   ACTION 'StaticCall(BKCOMA09, SZSClas)'  OPERATION 2 ACCESS 0
     ADD OPTION aRotina TITLE 'Visual.Doc'    ACTION 'StaticCall(BKCOMA09, SZSVDoc)'  OPERATION 2 ACCESS 0
     ADD OPTION aRotina TITLE 'Anexar Doc'    ACTION 'StaticCall(BKCOMA09, SZSConh)'  OPERATION 2 ACCESS 0
     ADD OPTION aRotina TITLE 'Alterar Datas' ACTION 'StaticCall(BKCOMA09, SZSData)'  OPERATION 2 ACCESS 0
     ADD OPTION aRotina TITLE 'Legenda'       ACTION 'u_SZSLeg'       OPERATION 2 ACCESS 0
+	
 Return aRotina
  
+
 /*---------------------------------------------------------------------*
  | Func:  ModelDef                                                     |
  | Autor: Marcos Bispo Abrahão                                         |
@@ -72,9 +81,8 @@ Return aRotina
  *---------------------------------------------------------------------*/
   
 Static Function ModelDef()
-Local oModel:= FWLoadModel('MVCSZSM')
-
-
+//Local oModel:= FWLoadModel('MVCSZSM')
+Local oModel:= FWLoadModel('MVCSZS')
 
 Return oModel
  
@@ -84,9 +92,11 @@ Return oModel
  | Data:  06/03/2021                                                   |
  | Desc:  Criação da visão MVC                                         |
  *---------------------------------------------------------------------*/
-  
 Static Function ViewDef()
-Return FWLoadView('MVCSZS')
+Local oView := FWLoadView('MVCSZS')
+x:=0
+Return oView
+
  
 /*/{Protheus.doc} SZSProc
 Rotina para processamento dos registros marcados - inclusão de Doc de Entrada

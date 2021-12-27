@@ -19,7 +19,7 @@ User Function MVCSZS()
 	Local oBrowse
 	Local cFunBkp := FunName()
 	
-	SetFunName("MVCSZS")
+	//SetFunName("MVCSZS")
 	
 	//Instânciando FWMBrowse - Somente com dicionário de dados
 	oBrowse := FWMBrowse():New()
@@ -29,7 +29,7 @@ User Function MVCSZS()
 
 	//Setando a descrição da rotina
 	oBrowse:SetDescription(cTitulo)
-	
+	//oBrowse:SetMenuDef('MVCSZS')
 	//Legendas
 	// Setando Legenda cores disponíveis: GREEN, RED, YELLOW, ORANGE, BLUE, GRAY, BROWNS, BLACK, PINK e WHITE
 	// São criados filtros automáticos para as legendas
@@ -42,14 +42,14 @@ User Function MVCSZS()
 	//Ativa a Browse
 	oBrowse:Activate()
 	
-	SetFunName(cFunBkp)
+	//SetFunName(cFunBkp)
 	RestArea(aArea)
 Return Nil
 
 
 // Definição do Menu MVC
 Static Function MenuDef()
-	Local aRot := {}
+	Local aRot := {} 
 	
 	//Adicionando opções
 	ADD OPTION aRot TITLE 'Visualizar' ACTION 'VIEWDEF.MVCSZS' OPERATION MODEL_OPERATION_VIEW   ACCESS 0 //OPERATION 1

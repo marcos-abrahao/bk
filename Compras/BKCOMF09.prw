@@ -26,6 +26,12 @@ Local cCod	 := ""
 Local nCod	 := 0
 Local cPerg  := "BKCOMF09" 
 
+If l010Auto
+	cCod := ""
+	Return cCod 
+ENDIF
+
+
 If !MsgYesNo("Gerar Proximo numero?",cPerg)
 	cCod := ""
 	Return cCod 

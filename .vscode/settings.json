@@ -1,4 +1,4 @@
 {
     "totvsLanguageServer.welcomePage": false,
-    "totvsLanguageServer.askCompileResult": false
+    "totvsLanguageServer.askCompileResult": true
 }
