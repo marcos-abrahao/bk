@@ -27,12 +27,12 @@ oTmpTb:Delete()
 cQuery := "SELECT 1 "+ CRLF
 u_LogMemo("BKGCTR0X.SQL",cQuery)
 
-/// Alterar U_GeraCSV para U_GeraXlsx
+/// Alterar U_GeraCSV para U_PlanXlsx
 
 //ProcRegua(QTMP->(LASTREC()))
 //Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
 AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXlsx(aPlans,Titulo,cPerg,.T.)
+U_PlanXlsx(aPlans,Titulo,cPerg,.T.)
 
 ///
 

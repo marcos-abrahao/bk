@@ -75,13 +75,13 @@ Do While !Eof()
     If QSC5->XX_LIBEROK=='Nao Liberado'
         AADD(aFormula,{QSC5->(RECNO()),"QSC5->XX_LIBEROK","","S1","",""})
     Else
-        AADD(aFormula,{QSC5->(RECNO()),"QSC5->XX_LIBEROK","","S","",""})
+        AADD(aFormula,{QSC5->(RECNO()),"QSC5->XX_LIBEROK","","S2","",""})
     EndIf
     dbSkip()
 EndDo
 
 AADD(aPlans,{"QSC5",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, aFormula,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
  
 
 Return

@@ -17,7 +17,7 @@ Modelo 1 - Facilitador Doc Entrada
 User Function MVCSZS()
 	Local aArea   := GetArea()
 	Local oBrowse
-	Local cFunBkp := FunName()
+	//Local cFunBkp := FunName()
 	
 	//SetFunName("MVCSZS")
 	

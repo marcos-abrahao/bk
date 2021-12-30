@@ -714,7 +714,7 @@ nVRatStyle	:= oExcel:AddStyles(nFmtNum2/*numFmtId*/,nRatFont/*fontId*/,/*fillId*
 
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+nIDImg		:= oExcel:ADDImg("lgmid"+cEmpAnt+".png")	//Imagem no Protheus_data
 
 			  //nID,nLinha,nColuna,nX,nY,cUnidade,nRot
 oExcel:Img(nIDImg,1,1,36,36,/*"px"*/,)

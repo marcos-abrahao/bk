@@ -125,7 +125,7 @@ AADD(aCabs  ,"Situação Atual")
 
 AADD(aPlans,{"TRB",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
-U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
 
 oTmpTb1:Delete()
 

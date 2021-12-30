@@ -243,12 +243,8 @@ Return (.T.)
 User FUNCTION CBKCOR05()
 Local aPlans  := {}
 
-//Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
-
 aAdd(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,aImpr, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
-//U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
-u_GeraXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
-
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
 Return 
 
 

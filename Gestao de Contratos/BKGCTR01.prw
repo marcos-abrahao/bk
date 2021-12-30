@@ -178,7 +178,7 @@ EndIf
 
 
 AADD(aPlans,{"QTMP",cPerg,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXlsx(aPlans,Titulo,cPerg,.F.)
+U_PlanXlsx(aPlans,Titulo,cPerg,.F.)
 	   
 Return
 

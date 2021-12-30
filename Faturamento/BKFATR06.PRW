@@ -46,7 +46,7 @@ AADD(aCabs1  ,"Ult. Compra")
 
 AADD(aPlans,{"QSA1",cPerg,"",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
-U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
 
 Return
 

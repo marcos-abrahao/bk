@@ -302,7 +302,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 		Next
 		aGraph:= {cProg,cTitulo,aDGraph}
 
-		U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
+		U_PlanXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
 	Else
 		// Gráfico Google Charts
 		ProcRegua(TMPC->(LASTREC()))

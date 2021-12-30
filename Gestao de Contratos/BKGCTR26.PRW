@@ -2807,7 +2807,7 @@ Static Function GCT26Rel()
 	AADD(aTitulos,cTitulo)
 	AADD(aPlans,{cAliasT1,cPerg+"-"+cPrc,"",aTitulos,aCamposT1,aCabsT1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
 
-	cFile := U_GeraXlsx(aPlans,"",cPerg+"-"+cPrc, lClose, aParam)
+	cFile := U_PlanXlsx(aPlans,"",cPerg+"-"+cPrc, lClose, aParam)
 
 	cMsg:= FWEmpName(cEmpAnt)+" - "+aTitulos[1]
 	u_BkSnMail("BKGCTR26",cMsg,cEmailTO,cEmailCC,cMsg,{cFile})

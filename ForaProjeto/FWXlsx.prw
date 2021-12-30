@@ -19,7 +19,7 @@ static function classe()
     local cPath := "\tmp\"  // /spool/ para uma geração no server
     local cArquivo := cPath + "exemplo.rel"
     local cImgRel := 'logo'
-    local cImgDir :=  cStartPath+ 'LGMID01.png'
+    local cImgDir :=  cStartPath+ 'lgmid01.png'
  
     local cBuffer:= ""
  

@@ -82,7 +82,7 @@ AADD(aCampos,"QCN9->CN9_XXTELS")
 AADD(aCabs  ,"Tel Gestor")
 
 AADD(aPlans,{"QCN9",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
  
 
 Return

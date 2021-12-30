@@ -207,7 +207,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 		// XLSX
 		aPlans := {}
 		AADD(aPlans,{"TMPC",cProg,"",cTitulo1,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-		U_GeraXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
+		U_PlanXlsx(aPlans,cTitulo1,cProg,.F.,aParam)
 	EndIf
 
 	oTmpTb:Delete()

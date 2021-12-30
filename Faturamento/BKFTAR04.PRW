@@ -193,7 +193,7 @@ Static Function BKFR04E()
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXlsx(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.F.,aParam)
 
 Return 
 

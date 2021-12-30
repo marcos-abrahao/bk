@@ -67,7 +67,7 @@ AADD(aCabs  ,"Vigência")
 FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXlsx(aPlans,cTitulo,cPerg,.F.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
 
 Return
 

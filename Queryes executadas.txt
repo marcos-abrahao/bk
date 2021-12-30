@@ -1,6 +1,11 @@
 
 
 ==============================================================
+27/12/2021 - Alteração de conta contabil solicitada pelo Rodolfo
+
+UPDATE SA6010 SET A6_CONTA = '11102071' WHERE A6_CONTA = '11302030'
+
+==============================================================
 17/12/2021 - Acertos data de pagamento pensões
 
 SELECT * FROM SE2010 WHERE SUBSTRING(E2_NUM,7,3) = 'PEN' AND E2_VENCTO = '20211217'

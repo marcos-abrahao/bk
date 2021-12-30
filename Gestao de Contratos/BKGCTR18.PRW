@@ -192,7 +192,7 @@ User Function BKGCTR18()
 	AADD(aPlans,{cAliasTmp1,"Tabela 2","",cTitulo1 ,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 	AADD(aPlans,{cAliasTmp2,"Tabela 3","",cTitulo2 ,aCampos2,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 	AADD(aPlans,{cAliasTmp3,"Tabela 4","",cTitulo3 ,aCampos3,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	U_GeraXlsx(aPlans,cTitulo,cPerg,.F.)
+	U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
 
 	oTmpTb1:Delete()
 	oTmpTb2:Delete()

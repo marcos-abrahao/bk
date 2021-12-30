@@ -128,7 +128,7 @@ Else
 	AADD(aCabs  ,"Valor")
    
 	AADD(aPlans,{"QSE2",wnrel,"",Titulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	U_GeraXlsx(aPlans,Titulo,wnrel,.F.)
+	U_PlanXlsx(aPlans,Titulo,wnrel,.F.)
    
 EndIf	
 Return

@@ -104,7 +104,7 @@ AADD(aCabs2  ,"Data Alt.")
 AADD(aPlans,{"QSA2",cPerg+"F","",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 AADD(aPlans,{"QSB1",cPerg+"P","",aTitulos2,aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
-U_GeraXlsx(aPlans,cTitulo,cPerg,.T.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
  
 
 Return

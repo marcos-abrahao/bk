@@ -362,7 +362,7 @@ FOR _nI := 1 TO nPeriodo
 	AADD(aCabs,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
 	AADD(aFixeFX,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,'C', 10,00,'@!'})
     AADD(aHeader,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,"@!",10,00,"","","C","TRB","R"})
-	AADD(aFormat,"N")
+	AADD(aFormat,"N2")
  	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
 
@@ -370,13 +370,13 @@ AADD(aCampos,"TRB->XX_TOTAL")
 AADD(aCabs  ,"TOTAL")
 AAdd(aFixeFX,{"TOTAL","XX_TOTAL",'C', 10,00,'@!'})
 AADD(aHeader,{"TOTAL","XX_TOTAL","@!",10,00,"","","C","TRB","R"})
-AADD(aFormat,"N")
+AADD(aFormat,"N2")
 
 AADD(aCampos,"TRB->XX_INDIC")
 AADD(aCabs  ,"INDICE")
 AAdd(aFixeFX,{"INDICE","XX_INDIC",'C', 10,00,'@!'})
 AADD(aHeader,{"INDICE","XX_INDIC" ,"@!",10,00,"","","C","TRB","R"})
-AADD(aFormat,"N")
+AADD(aFormat,"N2")
 
 //AADD(aCampos,"TRB->XX_STATUS")
 
@@ -4135,7 +4135,7 @@ Private xQuebra,xCampo
 
 If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
    AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
+   U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,)
    Return Nil
 EndIf
 
@@ -4790,20 +4790,20 @@ FOR _nI := 1 TO nPeriodo
 	AADD(aFixeFX,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,'C', 10,00,'@!'})
     AADD(aHeader,{STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4),"XX_VAL"+cMes,"@!",10,00,"","","C","TRB","R"})
  	dDataInicio := MonthSum(dDataInicio,1)
-	AADD(aFormat,"N")
+	AADD(aFormat,"N2")
 NEXT
 
 AADD(aCampos,"TRB->XX_TOTAL")
 AADD(aCabs  ,"TOTAL")
 AADD(aFixeFX,{"TOTAL","XX_TOTAL",'C', 10,00,'@!'})
 AADD(aHeader,{"TOTAL","XX_TOTAL" ,"@!",10,00,"","","C","TRB","R"})
-AADD(aFormat,"N")
+AADD(aFormat,"N2")
 
 AADD(aCampos,"TRB->XX_INDIC")
 AADD(aCabs  ,"INDICE")
 AADD(aFixeFX,{"INDICE","XX_INDIC",'C', 10,00,'@!'})
 AADD(aHeader,{"INDICE","XX_INDIC" ,"@!",10,00,"","","C","TRB","R"})
-AADD(aFormat,"N")
+AADD(aFormat,"N2")
 
 //AADD(aCampos,"TRB->XX_STATUS")
 

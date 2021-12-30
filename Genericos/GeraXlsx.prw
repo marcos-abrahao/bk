@@ -7,7 +7,7 @@ Generico - Gera planilha excel
 @Return
 @author Marcos Bispo Abrahão
 @since 04/04/2020
-@version P12
+@version P12-30/12/2021
 /*/
 
 
@@ -29,9 +29,9 @@ Default lJob := IsBlind()
 
 If !lJob
 	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
-	FWMsgRun(, {|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
+	FWMsgRun(, {|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
 Else
-	cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob)
+	cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob)
 EndIf
 Return cFile
 
@@ -194,7 +194,7 @@ nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*bor
 nTit3Style	:= oExcel:AddStyles(/*numFmtId*/,nTit3Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+nIDImg		:= oExcel:ADDImg("lgmid"+cEmpAnt+".png")	//Imagem no Protheus_data
 
 FOR nPl := 1 TO LEN(_aPlans)
 
@@ -922,7 +922,7 @@ nTit2Style	:= oExcel:AddStyles(/*numFmtId*/,nTit2Font/*fontId*/,/*fillId*/,/*bor
 nTit3Style	:= oExcel:AddStyles(/*numFmtId*/,nTit3Font/*fontId*/,/*fillId*/,/*borderId*/,/*xfId*/,{oVtCenter})
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+nIDImg		:= oExcel:ADDImg("lgmid"+cEmpAnt+".png")	//Imagem no Protheus_data
 
 // --> Dif GeraXlsx
 

@@ -122,7 +122,7 @@ nDApoStyle	:= oExcel:AddStyles(14/*numFmtId*/,nApoFont/*fontId*/,/*fillId*/,nBor
 
 nTotStyle	:= oExcel:AddStyles(/*numFmtId*/,nTotFont/*fontId*/,nLisCor/*fillId*/,nBordas/*borderId*/,/*xfId*/,)
 
-nIDImg		:= oExcel:ADDImg("LGMID"+cEmpAnt+".PNG")	//Imagem no Protheus_data
+nIDImg		:= oExcel:ADDImg("lgmid"+cEmpAnt+".png")	//Imagem no Protheus_data
 
 // Logotipo
 //oExcel:mergeCells(1,1,Len(aTitulos)+1,1)						//Mescla as células 

@@ -185,7 +185,7 @@ AADD(aCabs  ,"Valor liquido")
 //Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
 
 AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXlsx(aPlans,Titulo,cPerg,.T.)
+U_PlanXlsx(aPlans,Titulo,cPerg,.T.)
 
 Return
 

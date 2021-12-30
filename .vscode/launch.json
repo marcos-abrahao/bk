@@ -16,7 +16,13 @@
 		{
 			"label": "SIGAMDI",
 			"description": "<nil>"
+		},
+		{
+			"label": "loo"
+		},
+		{
+			"label": "sigafin"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "sigafin"
 }

@@ -240,7 +240,7 @@ ENDIF
 U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
 
 //AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .T. })
-//U_GeraXlsx(aPlans,"",cPerg, .T.,)
+//U_PlanXlsx(aPlans,"",cPerg, .T.,)
 
 Return
 

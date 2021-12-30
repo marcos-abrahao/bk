@@ -9,7 +9,7 @@ Generico - Gera planilha excel
 @Return
 @author Marcos Bispo Abrahão
 @since 26/06/2021
-@version P12
+@version P12-30/12/2021
 /*/
 
 
@@ -31,9 +31,9 @@ Default lJob := IsBlind()
 
 If !lJob
 	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_PBKXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
-	FWMsgRun(, {|oSay| cFile := U_PlXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
+	FWMsgRun(, {|oSay| cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
 Else
-	cFile := U_PlXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob)
+	cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob)
 EndIf
 Return cFile
 
@@ -58,6 +58,23 @@ Local lFirst  		:= .T.
 
 Local cTipo   		:= ""
 Local cFormat 		:= ""
+Local cEstilo		:= ""
+Local cCorFonte		:= ""
+Local cCorFundo		:= ""
+
+Local cCorN			:= "000000" // Cor Preta
+Local cFundoN		:= "FFFFFF" // Fundo Branco
+
+Local cCorS			:= "FFFFFF" // Cor Branca
+Local cFundoS		:= "9E0000" // Fundo Vermelho BK
+
+Local cCorS1		:= "000000" // Cor Preta
+Local cFundoS1		:= "E9967A" // Fundo DarkSalmon
+
+Local cCorS2		:= "000000" // Cor Preta
+Local cFundoS2		:= "9ACD32" // Fundo YellowGreen
+
+Local cCorAntes		:= ""
 Local cCustomAnt	:= ""
 Local nDecimal		:= 0
 Local lTotal  		:= .F.
@@ -70,7 +87,7 @@ Local nTop    		:= 1
 Local cColExcel 	:= ""
 Local cLinTop   	:= ""
 Local cLinExcel 	:= ""
-Local cFile   		:= _cProg+"-"+cEmpAnt+"-"+DTOS(Date())
+Local cFile   		:= TRIM(_cProg)+"-"+cEmpAnt+"-"+DTOS(Date())
 Local cFileL  		:= ""
 Local cFileR  		:= ""
 Local cFileX  		:= ""
@@ -127,7 +144,7 @@ Local nTRotation 	:= 0
 
 Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
 Local cImgRel 		:= 'logo'
-Local cImgDir 		:= cStartPath + "LGMID"+cEmpAnt+".PNG"
+Local cImgDir 		:= cStartPath + "lgmid"+cEmpAnt+".png"
 Local nHndImagem 	:= 0
 Local nLenImagem 	:= 0
 Local cBuffer		:= ""
@@ -199,7 +216,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Formatação do cabeçalho
     oPrtXlsx:SetFont(cFont, nTSize1, lTItalic, lTBold, lTUnderl)
-    oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,"000000", "FFFFFF", "" )
+    oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
@@ -222,7 +239,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		fSeek( nHndImagem, 0, FS_SET)
 		fRead( nHndImagem, @cBuffer, nLenImagem)
 	
-		oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 38, 38)
+		oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 42, 40)
 	EndIf
 
 	nTop := nLin + 1
@@ -231,7 +248,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Formatação do cabeçalho
     oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
-    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, "FFFFFF", "9E0000", "" )
+    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 
 	OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
 
@@ -252,7 +269,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Formatação das linhas normais
     oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", "" )
+    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 
 	// Tamanho das colunas e colunas de Total
@@ -270,6 +287,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 	lFirst := .T.
 	cCustomAnt := ""
 	
+	cCorFonte := cCorN
+	cCorFundo := cFundoN
+	cCorAntes := ""
+
 	Do While (_cAlias)->(!eof()) 
 
 		nLin++
@@ -372,6 +393,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			EndIf
 
 			cTipo	:= _aFormat[nI]
+			cEstilo := ""
 			nF		:= 0
 			lFormula:= .F.
 
@@ -389,7 +411,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 					// "TIPO"
 					If !Empty(_aFormula[nf,4])
-						cTipo := _aFormula[nf,4]
+						If SUBSTR(_aFormula[nf,4],1,1) == "S"
+							cEstilo := _aFormula[nf,4]
+						Else
+							cTipo   := _aFormula[nf,4]
+						EndIf
 					EndIf
 
 					// NOME
@@ -407,28 +433,32 @@ FOR nPl := 1 TO LEN(_aPlans)
 				EndIf
 			EndIf
  
-			/*
 			If !Empty(xCampo) .AND. Substr(cTipo,1,1) $ "NP" .AND. ValType(xCampo) == "C" .AND. !IsAlpha(xCampo)
 				yCampo := ALLTRIM(xCampo)
 
 				If "," $ xCampo
+					If cTipo == "N"
+						nDecimal := Len(ycampo) - at(",",ycampo)
+						If nDecimal > 0
+							cTipo := "N"+ALLTRIM(STR(nDecimal))
+						EndIf
+					EndIf
 					yCampo := STRTRAN(yCampo,".","")
 					yCampo := STRTRAN(yCampo,",",".")
 				EndIf
-				If "." $ yCampo .AND. Substr(cTipo,1,1) ="N"
-					nDecimal := Len(SUBSTR(yCampo,AT(".",yCampo+1)))
-					cTipo := "N"+ALLTRIN(STR(nDecimal))
-				EndIf
 				
 				If "%" $ xCampo
-					cTipo := "P"
+					cTipo  := "P"
+					xCampo := VAL(yCampo) / 100
+				Else
+					xCampo := VAL(yCampo)
 				EndIf
-				xCampo := VAL(yCampo)
-				
+			
 			EndIf
-			*/
+
 
 			cFormat := ""
+
 			If SUBSTR(cTipo,1,1) == "N"
 			    cFormat := "#,##0"
 				nDecimal := VAL(SUBSTR(cTipo,2))
@@ -445,21 +475,33 @@ FOR nPl := 1 TO LEN(_aPlans)
 				Else
 					xCampo  := ""
 				EndIf
-			//ElseIf cTipo == "S"   // Estilo Subtotal
-				
-			//ElseIf cTipo == "S1"  // Estilo Subtotal 1
 			ElseIf cTipo == "U"
 				xCampo  := ""
 			EndIf
             
+			If cEstilo == "S"   // Estilo Cab
+				cCorFonte := cCorS
+				cCorFundo := cFundoS
+			ElseIf cEstilo == "S1"  // Estilo Subtotal 1
+				cCorFonte := cCorS1
+				cCorFundo := cFundoS1
+			ElseIf cEstilo == "S2"  // Estilo Subtotal 2
+				cCorFonte := cCorS2
+				cCorFundo := cFundoS2
+			Else
+				cCorFonte := cCorN
+				cCorFundo := cFundoN
+			EndIf
+
 			//If lFormula
 			//	oExcel:Cell(nLin,nI,0,xCampo,nStyle)
 			//Else
 			//	oExcel:Cell(nLin,nI,xCampo,,nStyle)
 			//EndIf
-			If cCustomAnt <> cFormat
-		    	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", cFormat )
+			If cCustomAnt <> cFormat .OR. cCorAntes <> (cCorFonte+cCorFundo)
+		    	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
 				cCustomAnt := cFormat
+				cCorAntes  := (cCorFonte+cCorFundo)
 			EndIf
             oPrtXlsx:SetValue(nLin,nI,xCampo)
 
@@ -484,7 +526,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		If nCont > 0
 			// Formatação dos totais		
 			cFormat := "#,##0.00;[Red]-#,##0.00"
-			oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", cFormat )
+			oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
 			For nI := 2 To Len(aTotal)
 				If aTotal[nI]
 					cColExcel := NumToString(nI)
@@ -520,22 +562,33 @@ Else
 		For nI := 1 TO Len(aPergunte[2])
 			xCampo := "MV_PAR"+STRZERO(nI,2)
 			If aPergunte[2,nI,"CX1_GSC"] == "C"
-				yCampo := "CX1_DEF0"+cValToChar(&xCampo)
-				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				cVarDef := SUBSTR(cValToChar(&xCampo),1,1)
+				If cVarDef $ "12345"
+					yCampo := "CX1_DEF0"+cVarDef
+					aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				EndIf
 			Else
 				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
 			EndIf
 		Next
 	EndIf
+
 EndIf
 
 nLin := 1
 oPrtXlsx:AddSheet("Parâmetros")    //Adiciona a planilha de Parâmetros
 oPrtXlsx:SetColumnsWidth(1,2,50)
 
+// Formatação de cabeçalho
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 oPrtXlsx:MergeCells(nLin,1,nLin,2)
 oPrtXlsx:SetValue(nLin,1,_cProg+" - "+_cTitulo)
 nLin++
+
+// Formatação das linhas normais
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 oPrtXlsx:SetValue(nLin,1,"Emitido por: ")
 oPrtXlsx:SetValue(nLin,2,Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
@@ -554,14 +607,14 @@ If Len(aLocPar) > 0
 
 	// Formatação de cabeçalho
     oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
-    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, "FFFFFF", "9E0000", "" )
+    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 
 	oPrtXlsx:SetValue(nLin,1,"Parâmetros - "+_cProg)
 	oPrtXlsx:SetValue(nLin,2,"Conteúdo")
 
 	// Formatação das linhas normais
     oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", "" )
+    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 	For nI := 1 TO LEN(aLocPar)
 		nLin++
@@ -871,7 +924,7 @@ Local nTRotation 	:= 0
 
 Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
 Local cImgRel 		:= 'logo'
-Local cImgDir 		:= cStartPath + "LGMID"+cEmpAnt+".PNG"
+Local cImgDir 		:= cStartPath + "lgmid"+cEmpAnt+".png"
 Local nHndImagem 	:= 0
 Local nLenImagem 	:= 0
 Local cBuffer		:= ""
