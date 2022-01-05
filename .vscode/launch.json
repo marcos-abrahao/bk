@@ -22,7 +22,10 @@
 		},
 		{
 			"label": "sigafin"
+		},
+		{
+			"label": "sigacom"
 		}
 	],
-	"lastProgramExecuted": "sigafin"
+	"lastProgramExecuted": "sigacom"
 }

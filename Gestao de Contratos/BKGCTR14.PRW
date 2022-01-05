@@ -582,8 +582,8 @@ aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_DIF'   ,'C', 200,00 } )
 aAdd(aCampos1,"TRB->XX_DIF")
-aAdd(aCabs1  ,"% Diferença")
-aAdd(aHeader,{"% Diferença","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
+aAdd(aCabs1  ,"Diferença %")
+aAdd(aHeader,{"Diferença %","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
 aAdd(aImpr1,.T.)
 aAdd(aFormat1,"N")
 aAdd(aPict1,"@E 99999.99999")
@@ -644,7 +644,7 @@ If lSintetico .OR. lJob
 
 	aAdd(aDbf2, { 'XX_DIF'   ,'C', 200,00 } )
 	aAdd(aCampos2,"TRB2->XX_DIF")
-	aAdd(aCabs2  ,"% Diferença")
+	aAdd(aCabs2  ,"Diferença %")
 	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"N")
 	aAdd(aPict2,"@E 99999.99999")
@@ -947,6 +947,7 @@ Local _IXFUR	:= 0
 Local XI_		:= 0
 Local Yi_
 Local _XI
+Local _nJ
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -1266,9 +1267,9 @@ FOR _nI := 1 TO nPeriodo
 		NEXT _IXFUR
 
         aRentab  := {}
-        aAdd(aRentab,{"00","CLIENTE: ","S",QTMP->A1_NOME})              
-        aAdd(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})              
-        aAdd(aRentab,{"02","GESTOR BK: ","S",QTMP->CN9_XXNRBK})              
+        aAdd(aRentab,{"00","CLIENTE: ","S",TRIM(QTMP->A1_NOME)})              
+        aAdd(aRentab,{"01","CONTRATO: ","S",TRIM(QTMP->CTT_DESC01)})              
+        aAdd(aRentab,{"02","GESTOR BK: ","S",TRIM(QTMP->CN9_XXNRBK)})              
         aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
 		nNDC := 0 
 		//nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
@@ -4087,8 +4088,8 @@ FOR _nI := 1 TO nPeriodo
 		dbGoTop()
 		DO While !TMPX2->(EOF())
 	        aRentab  := {}
-	        aAdd(aRentab,{"00","CLIENTE: ","S",TMPX2->A1_NOME})              
-	        aAdd(aRentab,{"01","CONTRATO: ","S",TMPX2->CTT_DESC01})              
+	        aAdd(aRentab,{"00","CLIENTE: ","S",TRIM(TMPX2->A1_NOME)})              
+	        aAdd(aRentab,{"01","CONTRATO: ","S",TRIM(TMPX2->CTT_DESC01)})              
 	        aAdd(aRentab,{"02","Gestor BK: ","S",""})              
 			//aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
 			aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
@@ -4441,7 +4442,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= ""
-				TRB->XX_PROJ 	:= "Num. Siga: "+aContConsol[_IX,1] 
+				TRB->XX_PROJ 	:= "Num. Siga: "+TRIM(aContConsol[_IX,1] )
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				TRB->(Msunlock())
@@ -4455,7 +4456,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Cliente:"
-				TRB->XX_PROJ 	:= aContConsol[_IX,2]
+				TRB->XX_PROJ 	:= TRIM(aContConsol[_IX,2])
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
@@ -4468,7 +4469,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Contrato:"
-				TRB->XX_PROJ 	:= aContConsol[_IX,3]
+				TRB->XX_PROJ 	:= TRIM(aContConsol[_IX,3])
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
@@ -4479,7 +4480,7 @@ Do While (ALIAS_TMP)->(!eof())
 				TRB->XX_LINHA   := nLINHA
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
-				TRB->XX_PROJ 	:= aContConsol[_IX,4]
+				TRB->XX_PROJ 	:= TRIM(aContConsol[_IX,4])
 				TRB->XX_REAL 	:= ""
 				TRB->XX_DIF 	:= ""
 				aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","C","",""})
@@ -4518,7 +4519,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
-			TRB->XX_DIF 	:= "% Diferença"
+			TRB->XX_DIF 	:= "Diferença %"
 			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
 			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
 			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
@@ -4550,7 +4551,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Cliente:"
-			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
+			TRB->XX_PROJ 	:= TRIM((ALIAS_TMP)->XX_DESC)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
 			TRB->(Msunlock())
@@ -4564,7 +4565,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Contrato:"
-			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
+			TRB->XX_PROJ 	:= TRIM((ALIAS_TMP)->XX_DESC)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
 			TRB->(Msunlock())
@@ -4577,7 +4578,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_LINHA   := nLINHA
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
-			TRB->XX_PROJ 	:= (ALIAS_TMP)->XX_DESC
+			TRB->XX_PROJ 	:= TRIM((ALIAS_TMP)->XX_DESC)
 			TRB->XX_REAL 	:= ""
 			TRB->XX_DIF 	:= ""
 			TRB->(Msunlock())
@@ -4613,7 +4614,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= "Previsão Financeira"
 			TRB->XX_REAL 	:= "Realizado"
-			TRB->XX_DIF 	:= "% Diferença"
+			TRB->XX_DIF 	:= "Diferença %"
 			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_DESC","","S","",""})
 			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ","","S","",""})
 			aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL","","S","",""})
@@ -4633,10 +4634,10 @@ Do While (ALIAS_TMP)->(!eof())
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
 		TRB->XX_PROJ 	:= transform((ALIAS_TMP)->&cCampoX,cPict)
-		aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
+		//aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
 
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-		aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
+		//aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
 
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
 
@@ -5323,7 +5324,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB2->XX_DESC	:= "Descrição Item"
 			TRB2->XX_PROJ 	:= ""
 			TRB2->XX_REAL 	:= "Realizado"
-			TRB2->XX_DIF 	:= "% Diferença"
+			TRB2->XX_DIF 	:= "Diferença %"
 			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_DESC","","S","",""})
 			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","S","",""})
 			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_REAL","","S","",""})
@@ -5419,7 +5420,7 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB2->XX_DESC	:= "Descrição Item"
 			TRB2->XX_PROJ 	:= ""
 			TRB2->XX_REAL 	:= "Realizado"
-			TRB2->XX_DIF 	:= "% Diferença"
+			TRB2->XX_DIF 	:= "Diferença %"
 			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_DESC","","S","",""})
 			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_PROJ","","S","",""})
 			aAdd(aFormula2,{TRB2->(RECNO()),"TRB2->XX_REAL","","S","",""})
@@ -5437,7 +5438,7 @@ Do While (ALIAS_TMP)->(!eof())
  		Reclock("TRB2",.T.)
 		TRB2->XX_LINHA  := nLINHA
  		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB2->XX_DESC	:= (ALIAS_TMP)->XX_DESC
+		TRB2->XX_DESC	:= TRIM((ALIAS_TMP)->XX_DESC)
 		TRB2->XX_PROJ 	:= "" //transform((ALIAS_TMP)->&cCampoX,cPict)
 		TRB2->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
 		TRB2->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
@@ -5705,8 +5706,8 @@ Do While (ALIAS_TMP)->(!eof())
 
  		Reclock("TRB3",.T.)
 		TRB3->XX_CODGCT := cCodigo
-		TRB3->XX_DESC	:= Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_NOMCLI")
-		TRB3->XX_OBJETO	:= Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_XXDESC")
+		TRB3->XX_DESC	:= TRIM(Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_NOMCLI"))
+		TRB3->XX_OBJETO	:= TRIM(Posicione("CN9",1,xFilial("CN9")+cCodigo,"CN9_XXDESC"))
 		TRB3->XX_FATRM	:= nFatura
 		TRB3->XX_RENTM	:= ((nFatura*nRGDOMES)/100)        //Resultado do Mês em valor - com a taxa de administração
 		TRB3->XX_RENTMP	:= nRGDOMES    //Resultado do Mês em percentual - com a taxa de administração
@@ -5777,15 +5778,16 @@ cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 
 If !lJob
 	If MsgYesNo(aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?")
-		//Processa( {|| U_GeraXCSV(_cAlias,cArqE,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,.F.)})
 		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-		cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
+		//cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
+		cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		Return Nil
 	EndIf
 Else
 	u_xxLog(cArqLog,"Gerando planilha xlsx",.T.,"")
 	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-	cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
+	//cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
+	cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 EndIf
 
 MakeDir(cDirTmp)

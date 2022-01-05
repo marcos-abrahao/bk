@@ -138,7 +138,10 @@ AADD(aCabs  ,"Medição")
 
 AADD(aCampos,"QTMP->C6_NUM")
 AADD(aCabs  ,"Pedido")
-   
+
+AADD(aCampos,"QTMP->F2_SERIE")
+AADD(aCabs  ,"Série NF")
+
 AADD(aCampos,"QTMP->F2_DOC")
 AADD(aCabs  ,"Nota Fiscal")
 
@@ -292,6 +295,7 @@ cQuery += "   (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NU
 cQuery += "   	AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_BONIF," + CRLF 
 cQuery += "   (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = CNE_NUMMED AND CNR_CODPLA = ISNULL(CXN_NUMPLA,'      ')" + CRLF    // AND CNR_CODPLA = CNE_NUMERO
 cQuery += "   	AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_MULTA," + CRLF 
+cQuery += "   F2_SERIE," + CRLF 
 cQuery += "   F2_DOC," + CRLF 
 cQuery += "   F2_EMISSAO," + CRLF 
 cQuery += "   F2_VALFAT," + CRLF 
@@ -413,6 +417,7 @@ cQuery += "   C5_XXRM," + CRLF
 cQuery += "   C5_NUM AS C6_NUM," + CRLF 
 cQuery += "   0," + CRLF // XX_BONIF
 cQuery += "   0," + CRLF // XX_MULTA
+cQuery += "   F2_SERIE," + CRLF 
 cQuery += "   F2_DOC," + CRLF 
 cQuery += "   F2_EMISSAO," + CRLF 
 cQuery += "   F2_VALFAT," + CRLF 
@@ -453,7 +458,7 @@ ELSE
 ENDIF
 cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 
-cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC" + CRLF
+cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_SERIE,F2_DOC" + CRLF
 
 u_LogMemo("BKGCTR07.SQL",cQuery)
 

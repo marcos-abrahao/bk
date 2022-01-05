@@ -2,6 +2,9 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "APWIZARD.CH"       
 
+Static oCellHorAlign := FwXlsxCellAlignment():Horizontal()
+Static oCellVertAlign := FwXlsxCellAlignment():Vertical()
+
 /*/{Protheus.doc} MT150ROT
 BK - Ponto de entrada utilizado para inserir novas opcoes no array aBotões na Atualiza Cotação.
 @Return
@@ -13,6 +16,7 @@ BK - Ponto de entrada utilizado para inserir novas opcoes no array aBotões na At
 User Function MT150ROT() 
 
 AADD(aRotina,{"Espelho Cotação","U_ESPELCOT()",0,9})
+AADD(aRotina,{"Espelho Excel","U_XESPELC()",0,9})
 AADD(aRotina,{"Copia valores SC","U_CPVALSC()",0,9})
 
 Return aRotina
@@ -231,6 +235,204 @@ EndIf
 RestArea(aArea)
 
 Return
+
+
+
+Static Function GeraMatriz(aCotacao,aItens,aForn)
+// Carregar Dados 
+
+Local aArea     := GetArea()
+Local cFilSx8   := ""
+Local aItem     := {}
+Local aFornN    := {}
+Local cNumCot   := SC8->C8_NUM
+Local nPosForn  := 0
+Local nPosIt    := 0
+
+Local nPObs     := 1
+Local nPEndEnt  := 2
+Local nPUrgente := 3
+
+//Local nPNome    := 3
+//Local nPCGC     := 4
+Local nPContato := 5
+//Local nPTel		:= 6
+//Local nPCond    := 7
+Local nPSubTot  := 8
+Local nPDesconto:= 9
+Local nPFrete   := 10
+Local nPOutros  := 11
+Local nPTotal   := 12
+Local nPPrazo   := 13
+//Local nPEmail   := 14
+
+//Local nPItem    := 1
+//Local nPProd    := 2
+//Local nPDProd   := 3
+//Local nPUM      := 4
+//Local nPSC      := 5
+Local nPQuant   := 6
+//Local nPVlLic   := 7
+Local nPMedia   := 8
+Local nPEcon    := 9
+Local nPMenor   := 10 
+Local nPVlNeg   := 11
+Local nPArray   := 12
+
+Local nMedia    := 0
+Local nMenor    := 0
+Local nQtdMed   := 0
+Local nDesconto := 0
+
+Local nY		as Numeric
+
+Local aAreaSC8  := SC8->(GetArea())
+Local aAreaSA2  := SA2->(GetArea())
+Local aAreaSC1  := SC1->(GetArea())
+Local aAreaSC7  := SC7->(GetArea())
+
+SC8->(DbSetOrder(1))
+SA2->(DbSetOrder(1))
+SC1->(DbSetOrder(1))
+SC7->(DbSetOrder(1))
+
+cFilSx8   := xFilial("SC8")
+DbSelectArea("SC8")
+SC8->(DbSeek(xFilial("SC8")+cNumCot,.T.))
+Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNumCot
+
+	nPosForn := aScan(aForn, {|x| x[1]==SC8->C8_FORNECE .AND. x[2]==SC8->C8_LOJA}) 
+	If nPosForn == 0
+		aFornN := {}
+		
+		SA2->(dbSeek(xFilial("SA2")+SC8->C8_FORNECE+SC8->C8_LOJA))
+		SC1->(dbSeek(xFilial("SC1")+SC8->C8_NUMSC+SC8->C8_ITEMSC))
+		SC7->(dbSeek(xFilial("SC7")+SC8->C8_NUMPED+SC8->C8_ITEMPED))
+
+		AADD(aFornN,SC8->C8_FORNECE)
+		AADD(aFornN,SC8->C8_LOJA)
+		AADD(aFornN,ALLTRIM(SA2->A2_NOME))
+		AADD(aFornN,SA2->A2_CGC)
+		AADD(aFornN,ALLTRIM(SA2->A2_CONTATO))
+		AADD(aFornN,'('+ALLTRIM(SA2->A2_DDD)+')'+ALLTRIM(SA2->A2_TEL)+" "+ALLTRIM(SA2->A2_FAX))
+		AADD(aFornN,Posicione("SE4",1,xFilial("SE4")+SC8->C8_COND,"E4_DESCRI"))
+		AADD(aFornN,0)  // 8-SubTotal
+		AADD(aFornN,0)  // 9-Desconto
+		AADD(aFornN,0)  // 10-Frete
+		AADD(aFornN,0)  // 11-Outros
+		AADD(aFornN,0)  // 12-Total
+		AADD(aFornN,ALLTRIM(STR(SC8->C8_PRAZO))) // 13-Prazo de Entrega
+		AADD(aFornN,ALLTRIM(SA2->A2_EMAIL))		 // 14-Email
+		AADD(aForn,aFornN)
+	EndIf
+
+	If !EMPTY(SC8->C8_OBS)
+		If !ALLTRIM(SC8->C8_OBS) $ aCotacao[nPObs]
+			aCotacao[nPObs] += ALLTRIM(SC8->C8_OBS)+" "  
+		EndIf
+	EndIf	
+
+	If EMPTY(aCotacao[nPEndEnt])
+		aCotacao[nPEndEnt] := ALLTRIM(SC1->C1_XXENDENT)
+	EndIf
+
+	If !aCotacao[nPUrgente] .AND. SC7->C7_XXURGEN == "S"
+		aCotacao[nPUrgente] := .T.
+	EndIf
+
+	SC8->(DbSkip())
+
+ENDDO
+
+SC8->(DbSeek(xFilial("SC8")+cNumCot,.T.))
+Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNumCot
+
+	nPosForn := aScan(aForn, {|x| x[1]==SC8->C8_FORNECE .AND. x[2]==SC8->C8_LOJA}) 
+	nPosIt   := aScan(aItens, {|x| x[2]==SC8->C8_PRODUTO})
+	
+	If nPosIt == 0
+	   aItem := {}
+
+	   // Buscar valor licitado na Solicitação de compras
+	   SC1->(dbSeek(xFilial("SC1")+SC8->C8_NUMSC+SC8->C8_ITEMSC,.F.))	   
+
+	   AADD(aItem,SC8->C8_ITEM)
+	   AADD(aItem,SC8->C8_PRODUTO)
+	   AADD(aItem,Posicione("SB1",1,xFilial("SB1")+SC8->C8_PRODUTO,"B1_DESC"))
+	   AADD(aItem,SC8->C8_UM)
+	   AADD(aItem,SC8->C8_NUMSC)
+	   AADD(aItem,SC8->C8_QUANT)
+	   AADD(aItem,SC1->C1_XXLCVAL)
+	   AADD(aItem,0) // Media
+	   AADD(aItem,0) // Economia
+	   AADD(aItem,0) // Menor Preço
+	   AADD(aItem,0) // Valor negociado (preço - desconto)
+	   For nY := 1 TO LEN(aForn)
+		   AADD(aItem,{0,0,0})  // Preço,Total,Desconto
+	   Next
+	   
+	   If !EMPTY(SC8->C8_CONTATO)
+	      aForn[nPosForn,nPContato] := SC8->C8_CONTATO
+	   EndIf
+	   
+	   AADD(aItens,aItem)
+	   nPosIt := LEN(aItens)
+	EndIf
+    
+	aItens[nPosIt,nPArray+nPosForn-1] := {SC8->C8_PRECO,SC8->C8_QUANT*SC8->C8_PRECO,SC8->C8_VLDESC}
+	
+	aForn[nPosForn,nPSubTot]   += (SC8->C8_QUANT*SC8->C8_PRECO)  // Sub-Total
+	aForn[nPosForn,nPDesconto] += (SC8->C8_VLDESC)  // Desconto
+	aForn[nPosForn,nPFrete]    += (SC8->C8_VALFRE)  // Frete
+	aForn[nPosForn,nPOutros]   += (SC8->C8_DESPESA+SC8->C8_SEGURO)  // Outros
+	aForn[nPosForn,nPTotal]    += ((SC8->C8_QUANT*SC8->C8_PRECO) - SC8->C8_VLDESC + SC8->C8_VALFRE + SC8->C8_DESPESA+SC8->C8_SEGURO)
+    
+	If EMPTY(aForn[nPosForn,nPPrazo])
+		aForn[nPosForn,nPPrazo] := ALLTRIM(STR(SC8->C8_PRAZO))
+	EndIf
+	
+	SC8->(DbSkip())
+ENDDO
+
+
+For nPosIt := 1 TO LEN(aItens)
+    
+	nMedia := 0
+	nMenor := 0
+	nQtdMed:= 0
+	nDesconto := 0
+	For nPosForn := 1 TO LEN(aForn)
+		nPreco := aItens[nPosIt,nPArray+nPosForn-1,1]
+		If nPreco > 0
+	    	nMedia += nPreco
+	    	nQtdMed++
+		    If nPreco <= nMenor .OR. nMenor == 0 
+		    	// Menor preço
+		    	nMenor    := nPreco
+		    	aItens[nPosIt,nPMenor] := nMenor
+		    	nDesconto := aItens[nPosIt,nPArray+nPosForn-1,3]
+		    EndIf
+	 	EndIf
+	Next
+	
+	// Calculo da Média
+   	aItens[nPosIt,nPMedia] := ROUND(nMedia / nQtdMed,2)
+   	
+   	// Calculo da Economia
+   	aItens[nPosIt,nPEcon] := aItens[nPosIt,nPQuant] * (aItens[nPosIt,nPMedia] - aItens[nPosIt,nPMenor])
+
+	// Valor negociado
+   	aItens[nPosIt,nPVlNeg] := nMenor - (nDesconto / aItens[nPosIt,nPQuant])
+	
+Next
+
+SC8->(RestArea(aAreaSC8))
+SA2->(RestArea(aAreaSA2))
+SC1->(RestArea(aAreaSC1))
+SC7->(RestArea(aAreaSC7))
+
+RestArea(aArea)
+Return Nil
 
 
 
@@ -721,200 +923,565 @@ AADD(aHtml,'</div>')
 Return Nil
 
  
+// Cotação Xlsx
 
-Static Function GeraMatriz(aCotacao,aItens,aForn)
-// Carregar Dados 
+User Function XESPELC()
+Local aCotacao	:= {}
+Local aItens	:= {}
+Local aForn		:= {}
+Local nCol		:= 0
 
-Local aArea     := GetArea()
-Local cFilSx8   := ""
-Local aItem     := {}
-Local aFornN    := {}
-Local cNumCot   := SC8->C8_NUM
-Local nPosForn  := 0
-Local nPosIt    := 0
+Local nMenor    := 0
+Local nTotEco   := 0
+Local nTotVlNeg := 0
+Local cUrgente  := ""
 
 Local nPObs     := 1
 Local nPEndEnt  := 2
 Local nPUrgente := 3
 
-//Local nPNome    := 3
-//Local nPCGC     := 4
+Local nPNome    := 3
+Local nPCGC     := 4
 Local nPContato := 5
-//Local nPTel		:= 6
-//Local nPCond    := 7
+Local nPTel		:= 6
+Local nPCond    := 7
 Local nPSubTot  := 8
 Local nPDesconto:= 9
 Local nPFrete   := 10
 Local nPOutros  := 11
 Local nPTotal   := 12
 Local nPPrazo   := 13
-//Local nPEmail   := 14
+Local nPEmail   := 14
 
-//Local nPItem    := 1
-//Local nPProd    := 2
-//Local nPDProd   := 3
-//Local nPUM      := 4
-//Local nPSC      := 5
+Local nPItem    := 1
+Local nPProd    := 2
+Local nPDProd   := 3
+Local nPUM      := 4
+Local nPSC      := 5
 Local nPQuant   := 6
-//Local nPVlLic   := 7
+Local nPVlLic   := 7
 Local nPMedia   := 8
 Local nPEcon    := 9
 Local nPMenor   := 10 
 Local nPVlNeg   := 11
 Local nPArray   := 12
 
-Local nMedia    := 0
-Local nMenor    := 0
-Local nQtdMed   := 0
-Local nDesconto := 0
+// Variaveis Excel
 
-Local nY		as Numeric
+Local oFileW    As Object
+Local oPrtXlsx  As Object
 
-Local aAreaSC8  := SC8->(GetArea())
-Local aAreaSA2  := SA2->(GetArea())
-Local aAreaSC1  := SC1->(GetArea())
-Local aAreaSC7  := SC7->(GetArea())
+Local cFormat 		:= "#,##0.00;[Red]-#,##0.00"
 
-SC8->(DbSetOrder(1))
-SA2->(DbSetOrder(1))
-SC1->(DbSetOrder(1))
-SC7->(DbSetOrder(1))
+Local cCorN			:= "000000" // Cor Preta
+Local cFundoN		:= "FFFFFF" // Fundo Branco
 
-cFilSx8   := xFilial("SC8")
-DbSelectArea("SC8")
-SC8->(DbSeek(xFilial("SC8")+cNumCot,.T.))
-Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNumCot
+//Local cCorS			:= "FFFFFF" // Cor Branca
+//Local cFundoS		:= "9E0000" // Fundo Vermelho BK
 
-	nPosForn := aScan(aForn, {|x| x[1]==SC8->C8_FORNECE .AND. x[2]==SC8->C8_LOJA}) 
-	If nPosForn == 0
-		aFornN := {}
-		
-		SA2->(dbSeek(xFilial("SA2")+SC8->C8_FORNECE+SC8->C8_LOJA))
-		SC1->(dbSeek(xFilial("SC1")+SC8->C8_NUMSC+SC8->C8_ITEMSC))
-		SC7->(dbSeek(xFilial("SC7")+SC8->C8_NUMPED+SC8->C8_ITEMPED))
+Local cCorS			:= "000000" // Cor Preta
+Local cFundoS		:= "A0A0A0" // Fundo Cinza
 
-		AADD(aFornN,SC8->C8_FORNECE)
-		AADD(aFornN,SC8->C8_LOJA)
-		AADD(aFornN,ALLTRIM(SA2->A2_NOME))
-		AADD(aFornN,SA2->A2_CGC)
-		AADD(aFornN,ALLTRIM(SA2->A2_CONTATO))
-		AADD(aFornN,'('+ALLTRIM(SA2->A2_DDD)+')'+ALLTRIM(SA2->A2_TEL)+" "+ALLTRIM(SA2->A2_FAX))
-		AADD(aFornN,Posicione("SE4",1,xFilial("SE4")+SC8->C8_COND,"E4_DESCRI"))
-		AADD(aFornN,0)  // 8-SubTotal
-		AADD(aFornN,0)  // 9-Desconto
-		AADD(aFornN,0)  // 10-Frete
-		AADD(aFornN,0)  // 11-Outros
-		AADD(aFornN,0)  // 12-Total
-		AADD(aFornN,ALLTRIM(STR(SC8->C8_PRAZO))) // 13-Prazo de Entrega
-		AADD(aFornN,ALLTRIM(SA2->A2_EMAIL))		 // 14-Email
-		AADD(aForn,aFornN)
-	EndIf
+Local cCorS1		:= "000000" // Cor Preta
+Local cFundoS1		:= "E0E0E0" // Fundo Cinza Claro
 
-	If !EMPTY(SC8->C8_OBS)
-		If !ALLTRIM(SC8->C8_OBS) $ aCotacao[nPObs]
-			aCotacao[nPObs] += ALLTRIM(SC8->C8_OBS)+" "  
-		EndIf
-	EndIf	
+//Local cCorS2		:= "000000" // Cor Preta
+//Local cFundoS2		:= "9ACD32" // Fundo YellowGreen
 
-	If EMPTY(aCotacao[nPEndEnt])
-		aCotacao[nPEndEnt] := ALLTRIM(SC1->C1_XXENDENT)
-	EndIf
+Local nI 	  		:= 0
+Local nJ	  		:= 0
+Local nLin    		:= 1
+Local cFile   		:= "Cotação-"+TRIM(SC8->C8_NUM)+"-"+cEmpAnt
+Local cFileL  		:= ""
+Local cFileR  		:= ""
+Local cFileX  		:= ""
+Local cDirDest		:= "C:\TMP\"
+Local cDirTmp 		:= "\tmp\"
+Local nRet    		:= 0
 
-	If !aCotacao[nPUrgente] .AND. SC7->C7_XXURGEN == "S"
-		aCotacao[nPUrgente] := .T.
-	EndIf
+Local aArea   		:= GetArea()
 
-	SC8->(DbSkip())
+Local _cPlan   		:= cFile
 
-ENDDO
+Local cFont 		:= ""
 
-SC8->(DbSeek(xFilial("SC8")+cNumCot,.T.))
-Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNumCot
+Local nLSize 		:= 9
+Local lLItalic 		:= .F.
+Local lLBold 		:= .F.
+Local lLUnderl		:= .F.
+Local cLHorAlig		:= oCellHorAlign:Default()
+Local cLVertAlig	:= oCellVertAlign:Center()
+Local lLWrapText	:= .F.
+Local nLRotation	:= 0
 
-	nPosForn := aScan(aForn, {|x| x[1]==SC8->C8_FORNECE .AND. x[2]==SC8->C8_LOJA}) 
-	nPosIt   := aScan(aItens, {|x| x[2]==SC8->C8_PRODUTO})
-	
-	If nPosIt == 0
-	   aItem := {}
+Local nHSize 		:= 9
+Local lHItalic 		:= .F.
+Local lHBold 		:= .T.
+Local lHUnderl		:= .F.
+Local cHHorAlig		:= oCellHorAlign:Center()
+Local cHVertAlig	:= oCellVertAlign:Center()
+Local lHWrapText	:= .T.
+Local nHRotation	:= 0
 
-	   // Buscar valor licitado na Solicitação de compras
-	   SC1->(dbSeek(xFilial("SC1")+SC8->C8_NUMSC+SC8->C8_ITEMSC,.F.))	   
+Local nTSize1 		:= 18
+Local nTSize2 		:= 9
+Local lTItalic 		:= .F.
+Local lTBold 		:= .T.
+Local lTUnderl		:= .F.
+Local cTHorAlig		:= oCellHorAlign:Center()
+Local cTVertAlig	:= oCellVertAlign:Center()
+Local lTWrapText 	:= .F.
+Local nTRotation 	:= 0
 
-	   AADD(aItem,SC8->C8_ITEM)
-	   AADD(aItem,SC8->C8_PRODUTO)
-	   AADD(aItem,Posicione("SB1",1,xFilial("SB1")+SC8->C8_PRODUTO,"B1_DESC"))
-	   AADD(aItem,SC8->C8_UM)
-	   AADD(aItem,SC8->C8_NUMSC)
-	   AADD(aItem,SC8->C8_QUANT)
-	   AADD(aItem,SC1->C1_XXLCVAL)
-	   AADD(aItem,0) // Media
-	   AADD(aItem,0) // Economia
-	   AADD(aItem,0) // Menor Preço
-	   AADD(aItem,0) // Valor negociado (preço - desconto)
-	   For nY := 1 TO LEN(aForn)
-		   AADD(aItem,{0,0,0})  // Preço,Total,Desconto
-	   Next
-	   
-	   If !EMPTY(SC8->C8_CONTATO)
-	      aForn[nPosForn,nPContato] := SC8->C8_CONTATO
-	   EndIf
-	   
-	   AADD(aItens,aItem)
-	   nPosIt := LEN(aItens)
-	EndIf
-    
-	aItens[nPosIt,nPArray+nPosForn-1] := {SC8->C8_PRECO,SC8->C8_QUANT*SC8->C8_PRECO,SC8->C8_VLDESC}
-	
-	aForn[nPosForn,nPSubTot]   += (SC8->C8_QUANT*SC8->C8_PRECO)  // Sub-Total
-	aForn[nPosForn,nPDesconto] += (SC8->C8_VLDESC)  // Desconto
-	aForn[nPosForn,nPFrete]    += (SC8->C8_VALFRE)  // Frete
-	aForn[nPosForn,nPOutros]   += (SC8->C8_DESPESA+SC8->C8_SEGURO)  // Outros
-	aForn[nPosForn,nPTotal]    += ((SC8->C8_QUANT*SC8->C8_PRECO) - SC8->C8_VLDESC + SC8->C8_VALFRE + SC8->C8_DESPESA+SC8->C8_SEGURO)
-    
-	If EMPTY(aForn[nPosForn,nPPrazo])
-		aForn[nPosForn,nPPrazo] := ALLTRIM(STR(SC8->C8_PRAZO))
-	EndIf
-	
-	SC8->(DbSkip())
-ENDDO
+Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
+Local cImgRel 		:= 'logo'
+Local cImgDir 		:= cStartPath + "lgmid"+cEmpAnt+".png"
+Local nHndImagem 	:= 0
+Local nLenImagem 	:= 0
+Local cBuffer		:= ""
+
+Private xCampo
+Private yCampo
+
+// Inicialização do array aCotacao
+AADD(aCotacao,"")  // Obs
+AADD(aCotacao,"")  // End. Entrega
+AADD(aCotacao,.F.) // Urgente
+
+GeraMatriz(aCotacao,aItens,aForn)
 
 
-For nPosIt := 1 TO LEN(aItens)
-    
-	nMedia := 0
-	nMenor := 0
-	nQtdMed:= 0
-	nDesconto := 0
-	For nPosForn := 1 TO LEN(aForn)
-		nPreco := aItens[nPosIt,nPArray+nPosForn-1,1]
-		If nPreco > 0
-	    	nMedia += nPreco
-	    	nQtdMed++
-		    If nPreco <= nMenor .OR. nMenor == 0 
-		    	// Menor preço
-		    	nMenor    := nPreco
-		    	aItens[nPosIt,nPMenor] := nMenor
-		    	nDesconto := aItens[nPosIt,nPArray+nPosForn-1,3]
-		    EndIf
-	 	EndIf
-	Next
-	
-	// Calculo da Média
-   	aItens[nPosIt,nPMedia] := ROUND(nMedia / nQtdMed,2)
-   	
-   	// Calculo da Economia
-   	aItens[nPosIt,nPEcon] := aItens[nPosIt,nPQuant] * (aItens[nPosIt,nPMedia] - aItens[nPosIt,nPMenor])
+MakeDir(cDirTmp)
 
-	// Valor negociado
-   	aItens[nPosIt,nPVlNeg] := nMenor - (nDesconto / aItens[nPosIt,nPQuant])
-	
+cFileR 		:= cDirTmp+cFile+".rel"
+cFileX 		:= cDirTmp+cFile+".xlsx"
+oFileW      := FwFileWriter():New(cFileR)
+oPrtXlsx    := FwPrinterXlsx():New()
+
+oPrtXlsx:Activate(cFileR, oFileW)
+
+
+oPrtXlsx:AddSheet(_cPlan)    //Adiciona nova planilha
+cFont   := FwPrinterFont():Calibri()
+
+
+// Primeira Linha
+nLin := 1
+
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
+
+oPrtXlsx:SetColumnsWidth(1,1,09)
+oPrtXlsx:SetColumnsWidth(2,2,09)
+oPrtXlsx:SetColumnsWidth(3,3,30)
+oPrtXlsx:SetColumnsWidth(4,4,09)
+oPrtXlsx:SetColumnsWidth(5,5,09)
+oPrtXlsx:SetColumnsWidth(6,6,09)
+oPrtXlsx:SetColumnsWidth(7,7,11)
+
+nCol := 8
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetColumnsWidth(nCol,nCol,0.5)
+	nCol++
+	oPrtXlsx:SetColumnsWidth(nCol,nCol,25)
+	nCol++
+	oPrtXlsx:SetColumnsWidth(nCol,nCol,25)
+	nCol++
+Next
+oPrtXlsx:SetColumnsWidth(nCol,nCol,09)
+nCol++
+oPrtXlsx:SetColumnsWidth(nCol,nCol,09)
+nCol++
+oPrtXlsx:SetColumnsWidth(nCol,nCol,09)
+
+nLin++
+oPrtXlsx:MergeCells(nLin,1,nLin,6)
+oPrtXlsx:SetValue(nLin,1,"Empresa")
+oPrtXlsx:SetValue(nLin,7,"Data")
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:MergeCells(nLin,nCol,nLin,nCol+1)
+	oPrtXlsx:SetValue(nLin,nCol,"Fornecedor " + ALLTRIM(STR(nI)))
+	nCol+=3
 Next
 
-SC8->(RestArea(aAreaSC8))
-SA2->(RestArea(aAreaSA2))
-SC1->(RestArea(aAreaSC1))
-SC7->(RestArea(aAreaSC7))
+oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, 90,cCorN, cFundoN, "" )
+
+nCol--
+oPrtXlsx:MergeCells(nLin,nCol,nLin+7,nCol)
+oPrtXlsx:SetValue(nLin,nCol,"Média")
+nCol++
+oPrtXlsx:MergeCells(nLin,nCol,nLin+7,nCol)
+oPrtXlsx:SetValue(nLin,nCol,"Economia")
+nCol++
+oPrtXlsx:MergeCells(nLin,nCol,nLin+7,nCol)
+oPrtXlsx:SetValue(nLin,nCol,"Valor Negociado")
+
+// Segunda linha
+nLin++
+oPrtXlsx:MergeCells(nLin,1,nLin+2,6)
+
+// Nome da Empresa
+oPrtXlsx:SetFont(cFont, nTSize1, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
+oPrtXlsx:SetValue(nLin,1,ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOMECOM"} )[1,2]))
+
+// Data
+oPrtXlsx:MergeCells(nLin,7,nLin+2,7)
+oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetValue(nLin,7,DTOC(SC8->C8_EMISSAO))
+
+// Nome dos fornecedores
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:MergeCells(nLin,nCol,nLin,nCol+1)
+	oPrtXlsx:SetValue(nLin,nCol,ALLTRIM(aForn[nI,nPNome]))
+	nCol+=3
+Next
+
+// Terceira Linha
+nLin++
+
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetValue(nLin,nCol,"CNPJ")
+	nCOl++
+	oPrtXlsx:SetValue(nLin,nCol,"Contato")
+	nCol+=2
+Next
+
+// Quarta Linha
+nLin++
+
+oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPCGC])
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPContato])
+	nCol+=2
+Next
+
+// Quinta Linha
+nLin++
+
+// Numero da Cotação
+oPrtXlsx:SetFont(cFont, nTSize1, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
+
+If aCotacao[nPUrgente]
+	cUrgente := ' - Urgente!'
+EndIf
+oPrtXlsx:MergeCells(nLin,1,nLin+3,7)
+oPrtXlsx:SetValue(nLin,1,"Cotação "+SC8->C8_NUM+cUrgente)
+
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:MergeCells(nLin,nCol,nLin,nCol+1)
+	oPrtXlsx:SetValue(nLin,nCol,"Telefones")
+	nCol+=3
+Next
+
+// Sexta Linha
+nLin++
+
+oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:MergeCells(nLin,nCol,nLin,nCol+1)
+	oPrtXlsx:SetValue(nLin,nCol,TRIM(aForn[nI,nPTel]))
+	nCol+=3
+Next
+
+// Setima linha
+nLin++
+
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:MergeCells(nLin,nCol,nLin,nCol+1)
+	oPrtXlsx:SetValue(nLin,nCol,"E-Mail")
+	nCol+=3
+Next
+
+// Oitava Linha
+nLin++
+
+oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:MergeCells(nLin,nCol,nLin,nCol+1)
+	oPrtXlsx:SetValue(nLin,nCol,ALLTRIM(aForn[nI,nPEmail]))
+	nCol+=3
+Next
+
+// Nona Linha - Cabeçalho dos itens
+nLin++
+
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+nCol := 1
+oPrtXlsx:SetValue(nLin,nCol,"Item")
+nCoL++
+oPrtXlsx:SetValue(nLin,nCol,"Código")
+nCoL++
+oPrtXlsx:SetValue(nLin,nCol,"Descrição")
+nCoL++
+oPrtXlsx:SetValue(nLin,nCol,"Unid")
+nCoL++
+oPrtXlsx:SetValue(nLin,nCol,"SC")
+nCoL++
+oPrtXlsx:SetValue(nLin,nCol,"Quant.")
+nCoL++
+oPrtXlsx:SetValue(nLin,nCol,"Vl.Lic.")
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetValue(nLin,nCol,"R$ Unit")
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,"R$ Total")
+	nCol+=2
+Next
+nCol--
+oPrtXlsx:SetValue(nLin,nCol,"R$")
+nCol++
+oPrtXlsx:SetValue(nLin,nCol,"R$")
+nCol++
+oPrtXlsx:SetValue(nLin,nCol,"R$")
+
+// Decima linha - Itens
+nLin++
+
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+For nI := 1 TO LEN(aItens)
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+	nCol := 1
+	oPrtXlsx:SetValue(nLin,nCol,TRIM(aItens[nI,nPItem]))
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,TRIM(aItens[nI,nPProd]))
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,TRIM(aItens[nI,nPDProd]))
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,TRIM(aItens[nI,nPUM]))
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,TRIM(aItens[nI,nPSC]))
+	nCol++
+
+	// Formato Numérico
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+
+	oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nPQuant])
+	nCol++
+
+	oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nPVlLic])
+	nCol+=2
+
+    
+	// Negritar o menor preço
+	nMenor := aItens[nI,nPMenor]
+    For nJ := 1 To Len(aForn)
+    	If aItens[nI,nJ+nPArray-1,1] == nMenor .AND. aItens[nI,nJ+nPArray-1,1] > 0
+			oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorS1, cFundoS1, cFormat )
+			oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+		//ELse
+		//	oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+		EndIf
+
+		oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nJ+nPArray-1,1])
+		nCol++
+		oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nJ+nPArray-1,2])
+		nCol+=2
+
+		oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+		oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+	Next
+	nCol--
+
+	oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+
+	oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nPMedia])
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nPEcon])
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,aItens[nI,nPVlNeg])
+	nCol++
+
+	nTotEco   += aItens[nI,nPEcon]
+	nTotVlNeg += aItens[nI,nPVlNeg]
+
+	nLin++
+
+Next
+
+oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+// Rodapé 1
+nCol := 1
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+oPrtXlsx:MergeCells(nLin,nCol,nLin,7)
+oPrtXlsx:SetValue(nLin,nCol,"Local de entrega")
+
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Subtotal")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPSubTot])
+	nCol+=2
+Next
+
+oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorS1, cFundoS1, cFormat )
+oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
+oPrtXlsx:SetValue(nLin,nCol,nTotEco)
+
+// Rodapé 2
+nLin++
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorN, cFundoN, "" )
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+oPrtXlsx:MergeCells(nLin,1,nLin+1,7)
+oPrtXlsx:SetValue(nLin,1,aCotacao[nPEndEnt])
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Desconto")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPDesconto])
+	nCol+=2
+Next
+
+// Rodapé 3
+nLin++
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Frete")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPFrete])
+	nCol+=2
+Next
+
+// Rodapé 4
+nLin++
+nCol := 1
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+oPrtXlsx:MergeCells(nLin,nCol,nLin,7)
+oPrtXlsx:SetValue(nLin,nCol,"Observações")
+
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Outros")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPOutros])
+	nCol+=2
+Next
+
+// Rodapé 5
+nLin++
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorN, cFundoN, "" )
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+oPrtXlsx:MergeCells(nLin,1,nLin+3,7)
+oPrtXlsx:SetValue(nLin,1,aCotacao[nPObs])
+
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Total")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPTotal])
+	nCol+=2
+Next
+
+// Rodapé 6
+nLin++
+nCol := 9
+oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetValue(nLin,nCol,"")
+	nCol++
+	oPrtXlsx:SetValue(nLin,nCol,"")
+	nCol+=2
+Next
+
+// Rodapé 7
+nLin++
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Cond Pgto")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPCond])
+	nCol+=2
+Next
+
+// Rodapé 8
+nLin++
+nCol := 9
+For nI := 1 To Len(aForn)
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+	oPrtXlsx:SetValue(nLin,nCol,"Prazo Entrega")
+	nCol++
+	oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorN, cFundoN, cFormat )
+	oPrtXlsx:SetValue(nLin,nCol,aForn[nI,nPPrazo]+' DIAS')
+	nCol+=2
+Next
+
+
+
+// Grava a Planilha
+cFileL  := cDirDest+cFile+".xlsx"
+
+If File(cFileL)
+	nRet:= FERASE(cFileL)
+	If nRet < 0
+		MsgAlert("Não será possivel gerar a planilha "+cFileL+", feche o arquivo","XESPELC")
+	EndIf
+EndIf
+
+oPrtXlsx:toXlsx()
+If file(cFileR)
+	CpyS2T(cFileX, cDirDest)
+	ShellExecute("open",cFileL,"",cDirDest+"\", 1 )
+EndIf
+
+oPrtXlsx:EraseBaseFile()
+oPrtXlsx:DeActivate()
+
+FErase(cFileX)
+FErase(cFileR)
 
 RestArea(aArea)
-Return Nil
+
+Return cFileL
+
 

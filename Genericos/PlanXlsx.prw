@@ -22,7 +22,7 @@ Generico - Gera planilha excel
 //	    AADD(aTotal,NIL)
 
 //AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
-//U_BKXlsx(aPlansX,_cTitulo,_cAlias,.F.)
+//U_BKXlsx(aPlansX,_cTitulo,_cAlias,.F.) 
 
 User Function PlanXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob )
 Local cFile := ""
@@ -449,6 +449,10 @@ FOR nPl := 1 TO LEN(_aPlans)
 				
 				If "%" $ xCampo
 					cTipo  := "P"
+					nDecimal := Len(ycampo) - at(".",ycampo)
+					If nDecimal > 0
+						cTipo := "P"+ALLTRIM(STR(nDecimal))
+					EndIf
 					xCampo := VAL(yCampo) / 100
 				Else
 					xCampo := VAL(yCampo)
@@ -467,8 +471,15 @@ FOR nPl := 1 TO LEN(_aPlans)
 				EndIf
 			    cFormat := cFormat+";[Red]-"+cFormat
 
-			ElseIf cTipo == "P"
-				cFormat := "0.00%"
+			ElseIf SUBSTR(cTipo,1,1) == "P"
+				cFormat  := "0"
+				nDecimal := VAL(SUBSTR(cTipo,2))
+				If nDecimal > 0
+					cFormat += "."+REPLICATE("0",nDecimal)+"%"
+				Else
+					cFormat := "0.00%"
+				EndIf
+				cFormat := cFormat+";[Red]-"+cFormat
 			ElseIf cTipo == "D"
 				If !Empty(xCampo)
 			    	cFormat := "dd/mm/yyyy"
@@ -477,6 +488,8 @@ FOR nPl := 1 TO LEN(_aPlans)
 				EndIf
 			ElseIf cTipo == "U"
 				xCampo  := ""
+			ElseIf cTipo == "C"
+				xCampo  := TRIM(xCampo)
 			EndIf
             
 			If cEstilo == "S"   // Estilo Cab
