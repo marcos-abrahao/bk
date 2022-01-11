@@ -3143,7 +3143,7 @@ Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
 
-Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
+Local cGerGestao := u_GerGestao()
 Local nRegSM0 := SM0->(Recno()) 
 
 If FWCodEmp() <> "01"

@@ -23,8 +23,6 @@ Local cAnexo	:= ""
 Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
-//Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
-//Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
 
 If EMPTY(ParamIxb[2] + ParamIxb[3] + ParamIxb[4] + ParamIxb[5])
    // 09/01/15 ->Para evitar execução duas vezes no retorno para o browser

@@ -14,8 +14,8 @@ Local cFilt  		:= ""
 Local aUser			:= {}
 Local cSuper 		:= ""
 Local cMDiretoria 	:= ""
-Local cGerGestao 	:= ALLTRIM(GetMv("MV_XXGGCT"))
-Local cGerCompras 	:= ALLTRIM(GetMv("MV_XXGCOM"))
+Local cGerGestao 	:= u_GerGestao()
+Local cGerCompras 	:= u_GerCompras()
 Local i				:= 0
 Local aGrupo 		:= {}
 Local lStaf			:= .F.
@@ -37,17 +37,10 @@ IF __cUserId <> "000000"  // Administrador: não filtrar
 	   cSuper := SUBSTR(aUser[1,11],1,6)
 	ENDIF   
 
- 	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007") //SUBSTR(SuperGetMV("MV_XXGRPMD",.F.,"000007"),1,6)    
+ 	cMDiretoria := u_GrpMDir()
     lMDiretoria := .F.
     aGrupo := {}
-//    AADD(aGrupo,aUser[1,10])
-//    IF LEN(aUser[1,10]) > 0
-//	    FOR i:=1 TO LEN(aGrupo[1])
-//			lMDiretoria := (aGrupo[1,i] $ cMDiretoria)
-//		NEXT
-//	ENDIF
-	//Ajuste nova rotina a antiga não funciona na nova lib MDI
-	aGrupo := UsrRetGrp(aUser[1][2])
+	aGrupo := UsrRetGrp(cUserName)
 	IF LEN(aGrupo) > 0
 		FOR i:=1 TO LEN(aGrupo)
 			lMDiretoria := (ALLTRIM(aGrupo[i]) $ cMDiretoria )
@@ -66,7 +59,7 @@ IF __cUserId <> "000000"  // Administrador: não filtrar
 	      IF lStaf .AND. cSuper $ cGerGestao
 	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS = '000175') "
 	      ELSEIF lStaf .AND. __cUserId $ cGerCompras
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"')" // OR F1_XXUSERS $ '"+cGerCompras+"')"  
+	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') OR F1_XXUSERS IN "+FormatIn(cGerCompras)+")"
           ELSE
 	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') "
           ENDIF

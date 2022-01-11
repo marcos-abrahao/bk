@@ -109,7 +109,7 @@ Return
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 Local nCount
 Local lStaf,cSuper,aUser,cMDiretoria,cFiltro := ""
-Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
+Local cGerGestao := u_GerGestao()
 Local cUniao   := ""
 Local cINSS    := ""
 Local cMunic   := ""
@@ -133,6 +133,7 @@ IF __cUserId <> "000000" // Administrador
    lStaf  := u_IsStaf(__cUserId)
 
    //lAClas := MsgBox("Filtra os Doc a Classificar", "M103BROW", "YESNO")
+   
    DBCLEARFILTER() 
    PswOrder(1) 
    PswSeek(__CUSERID) 
@@ -140,15 +141,14 @@ IF __cUserId <> "000000" // Administrador
    IF !EMPTY(aUser[1,11])
       cSuper := SUBSTR(aUser[1,11],1,6)
    ENDIF   
-   cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007") //SUBSTR(SuperGetMV("MV_XXGRPMD",.F.,"000007"),1,6) 
+   
+
+   //cSuper := Substr(FWSFUser(__cUserId,"DATASUPER","USR_SUPER",.T.),1,6)
+
+   cMDiretoria := u_GrpMDir()
    lMDiretoria := .F.
    aGRUPO := {}
-//   AADD(aGRUPO,aUser[1,10])
-//   FOR i:=1 TO LEN(aGRUPO[1])
-//		lMDiretoria := (aGRUPO[1,i] $ cMDiretoria)
-//   NEXT
-//Ajuste nova rotina a antiga não funciona na nova lib MDI
-	aGRUPO := UsrRetGrp(aUser[1][2])
+	aGRUPO := UsrRetGrp(cUserName)
 	IF LEN(aGRUPO) > 0
 		FOR i:=1 TO LEN(aGRUPO)
 			lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )

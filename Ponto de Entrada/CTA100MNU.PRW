@@ -20,7 +20,7 @@ Local i
 
 AADD(aRotina,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
 
-cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007") //SUBSTR(SuperGetMV("MV_XXGRPMD",.F.,"000007"),1,6
+cMDiretoria := u_GrpMDir()
 
 cMRepac     := SUBSTR(SuperGetMV("MV_XXGRPRP",.F.,"000008"),1,6)
 cMRepac2    := SUBSTR(SuperGetMV("MV_XXGRPR2",.F.,"000039"),1,6)

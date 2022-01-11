@@ -1870,7 +1870,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn341D += "3"       					  	//008 008
 			Bcn341D += STRZERO(nSeq,5)  			  	//009 0013
 			Bcn341D += "A"              			  	//014 014
-			Bcn341D += IIF(nTedItau==1,"000","001")     
+			Bcn341D += IIF(nTedItau==1 .OR. aTitGer[nI,6]='PEN',"000","001")     
 									       		      	//015 017 Verificação de dados - CPF 001 verifica, 000 Não verifica
 			Bcn341D += "000"            			  	//018 020
 			Bcn341D += IIF(nTedItau==1,cTedBco,"341") 	//021 023 

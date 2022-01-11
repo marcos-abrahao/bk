@@ -17,18 +17,19 @@ Local cFiltro		:= ""
 Local cMDiretoria	:= ""
 Local laClas		:= .F.
 Local lAdmFiscal	:= .F.
-Local cGerGestao	:= ALLTRIM(GetMv("MV_XXGGCT"))
-Local cGerCompras	:= ALLTRIM(SuperGetMV("MV_XXGCOM",.F.,"000015")) 
+Local cGerGestao	:= u_GerGestao()
+Local cGerCompras	:= u_GerCompras()
 Local aGrupo		:= {}
-Local cSuper		:= "" 
+Local cSuper		:= ""
+//Local cSuperIn		:= "" 
 //Local lAlmox		:= .F.
 Local cAlmox		:= ""
 Local i:= 0
 
- 
-cGerCompras := "'"+cGerCompras+"'"
 
 /*
+cGerCompras := "'"+cGerCompras+"'"
+
 Retirado em 27/09/11 - Marcos
 
 //aUsers:=AllUsers()
@@ -69,6 +70,7 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 		lAClas := .T.
 	EndIf
 
+	
 	DBCLEARFILTER() 
 	PswOrder(1) 
 	PswSeek(__cUserId) 
@@ -76,10 +78,15 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 	If !EMPTY(aUser[1,11])
 	   cSuper := SUBSTR(aUser[1,11],1,6)
 	EndIf   
- 	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007") //SUBSTR(SuperGetMV("MV_XXGRPMD",.F.,"000007"),1,6) 
+	
+
+	//cSuperIn := FormatIn(FWSFUser(__cUserId,"DATASUPER","USR_SUPER",.T.),";")
+
+
+ 	cMDiretoria := u_GrpMDir()
     lMDiretoria := .F.
     aGrupo := {}
-	aGrupo := UsrRetGrp(aUser[1][2])
+	aGrupo := UsrRetGrp(cUserName)
 	If LEN(aGrupo) > 0
 		For i:=1 To LEN(aGrupo)
 		
@@ -87,49 +94,12 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
 				lMDiretoria := (ALLTRIM(aGrupo[i]) $ cMDiretoria)
 			EndIf
 
-			// 27/11/19 - Marcos	
-			//If !lAlmox
-			//	lAlmox := (ALLTRIM(aGrupo[i]) $ cGrupAlmox)
-			//EndIf
-
 		Next
 	EndIf	
 
 	If __cUserId $ cGerCompras
 		cAlmox := u_UsrAlmox() 
 	EndIf
-
-	// Log dos Filtros
-	/*
-   	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120') AND F1_STATUS = ' ')" 
-	u_xxLog("\TMP\MT103FILB.LOG","1-"+cFiltro,.T.,"TST")
-		
-   	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' ) AND F1_STATUS = ' ')"
-	u_xxLog("\TMP\MT103FILB.LOG","2-"+cFiltro,.T.,"TST")
-
-   	cFiltro := "(F1_XXUSER = '"+__cUserId+"' AND F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120')"
-	u_xxLog("\TMP\MT103FILB.LOG","3-"+cFiltro,.T.,"TST")
-	
-	cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(!empty(cAlmox)," OR F1_XXUSER IN ("+cAlmox+")","")+")"
-	u_xxLog("\TMP\MT103FILB.LOG","4-"+cFiltro,.T.,"TST")
-
-
-	cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ')"
-	u_xxLog("\TMP\MT103FILB.LOG","5-"+cFiltro,.T.,"TST")
-	
-	
-    cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120'","")+" OR "
-  	cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+") AND F1_STATUS = ' ')"
-	u_xxLog("\TMP\MT103FILB.LOG","6-"+cFiltro,.T.,"TST")
-
-
-    cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      '"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000075' OR F1_XXUSERS = '000120'","")+" OR "
-    cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+")"          	 
-	u_xxLog("\TMP\MT103FILB.LOG","7-"+cFiltro,.T.,"TST")
-
-    cFiltro := "(F1_STATUS = ' ')"
-	u_xxLog("\TMP\MT103FILB.LOG","8-"+cFiltro,.T.,"TST")
-	*/
 	
 	
 	cFiltro := ""
@@ -138,11 +108,9 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
        If !lStaf .OR. EMPTY(cSuper)
           If lAClas
           	 If EMPTY(cSuper)  .AND. __cUserId $ cGerGestao 
-             	//SET FILTER TO (SF1->F1_XXUSER <> __cUserId .AND. ( SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. F1_XXUSERS = '000075' .OR. F1_XXUSERS = '000120') .AND.  SF1->F1_STATUS = ' ')
              	// Filtro 1
              	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '000175') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L') " 
              Else
-             	//SET FILTER TO (SF1->F1_XXUSER <> __cUserId .AND. ( SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' ) .AND.  SF1->F1_STATUS = ' ')
              	// Filtro 2
 				 If !IsBlind()
              		cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
@@ -152,38 +120,32 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
              EndIf
           Else   
           	 If EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-             	//SET FILTER TO (SF1->F1_XXUSER = __cUserId .AND. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. F1_XXUSERS = '000075' .OR. F1_XXUSERS = '000120')
              	// Filtro 3
              	cFiltro := "(F1_XXUSER = '"+__cUserId+"' AND F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '000175')"
              Else
              	If __cUserId $ cGerCompras
-             		//SET FILTER TO (SF1->F1_XXUSER = __cUserId .OR. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      '  .OR. SF1->F1_XXUSER $ cAlmox)
              		// Filtro 4
              		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(!empty(cAlmox)," OR F1_XXUSER IN ("+cAlmox+")","")+")"
              	Else
-             		//SET FILTER TO (SF1->F1_XXUSER = __cUserId .OR. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ')
              		// Filtro 5
              		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"')"
              	EndIf
              EndIf  
           EndIf
        Else
+		  // Staf
+
           If lAClas
-             //SET FILTER TO	((SF1->F1_XXUSER = __cUserId .OR. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. ;
-          	 //			      SF1->F1_XXUSER = '&cSuper' .OR. SF1->F1_XXUSERS = '&cSuper' ) .AND.  SF1->F1_STATUS = ' ')
 
        		 // Filtro 6
-             cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
-          	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+") AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
+             cFiltro := "("+IIF(lStaf .AND. __cUserId $ cGerCompras()," F1_XXUSER <> '"+__cUserId+"' AND","")+" (F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
+          	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/"),"")+") AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
 
           Else
               				 
-             //SET FILTER TO	(SF1->F1_XXUSER = __cUserId .OR. SF1->F1_XXUSERS = __cUserId .OR. SF1->F1_XXUSER = '      ' .OR. ;
-          	 //			     SF1->F1_XXUSER = "&cSuper" .OR. SF1->F1_XXUSERS = "&cSuper" )  
-
        		 // Filtro 7
              cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '000175'","")+" OR "
-          	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN ("+cGerCompras+")","")+")"          	 
+          	 cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/"),"")+")"          	 
           	 
           EndIf
        EndIf

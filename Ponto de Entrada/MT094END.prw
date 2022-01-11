@@ -50,8 +50,8 @@ Local cOBS		:= ""
 Local aUser 	:= {}
 Local dLiberado := dDataBase
 Local cQuery  	:= ""
-Local cGerGestao  := ALLTRIM(GetMv("MV_XXGGCT"))
-Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
+Local cGerGestao  := u_GerGestao()
+Local cGerCompras := u_GerCompras()
 Local cMCompras   := ALLTRIM(GetMv("MV_XXUMCOM"))
 
 // Emails colocados manualmente para atender a demanda com urgência / Alterar para grupo posteriormente 25/11/2019 - Marcos - a pedido do Fabio Querino

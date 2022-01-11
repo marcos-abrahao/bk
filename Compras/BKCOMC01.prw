@@ -26,12 +26,10 @@ Local cPerg := "MT103PBK"
 Local cProd,cHist,cCtC,nValIt,cForn
 Local cFiltU := ""
 Local cMDiretoria :="", cMFinanceiro:= ""
-Local cGerGestao := ALLTRIM(GetMv("MV_XXGGCT"))
-Local cGerCompras := ALLTRIM(GetMv("MV_XXGCOM"))
+Local cGerGestao  := u_GerGestao()
+Local cGerCompras := u_GerCompras()
 Local oTmpTb
 Local i,j
-
-cGerGestao := ALLTRIM(U_BKGetMv("MV_XXGGCT"))
 
 Private aSize   := MsAdvSize(,.F.,400)
 Private aObjects:= { { 450, 450, .T., .T. } }
@@ -45,12 +43,12 @@ IF __cUserId <> "000000"  // Administrador
 	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
 	lStaf  := u_IsStaf(__cUserId)
 
-	cMDiretoria := SuperGetMV("MV_XXGRPMD",.F.,"000007")
+	cMDiretoria := u_GrpMDir()
 	cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
 
 	//DBCLEARFILTER() 
 	PswOrder(1) 
-	PswSeek(__CUSERID) 
+	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
 	IF !EMPTY(aUser[1,11])
 	   cSuper := SUBSTR(aUser[1,11],1,6)
@@ -86,7 +84,7 @@ IF __cUserId <> "000000"  // Administrador
     		IF lStaf .AND. cSuper $ cGerGestao
   	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '000175') "  
     		ELSEIF lStaf .AND. __cUserId $ cGerCompras
-  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS $ '"+cGerCompras+"')"  
+  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+")"  
     		ELSE 
   	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ') "  
     		ENDIF
