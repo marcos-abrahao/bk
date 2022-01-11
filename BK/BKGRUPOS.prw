@@ -72,6 +72,7 @@ Return (lRet)
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 User Function IsStaf(cId)
 Local lRet := .F.
+// Laudecir/Diego.Oliveira/Edson/Fabio/Leandro/Vanderleia/Nelson/Luis
 If cId $ "000011/000016/000076/000093/000194/000056/000165/000116/"
     lRet := .T.
 EndIf
@@ -89,24 +90,44 @@ EndIf
 Return (lRet)
 
 
+// Gerente Compras
+User Function GerCompras
+// Michele,Luis,Fabio
+Return "000138/000116/000093"
+
+
+
+// Gerente Gestão
+User Function GerGestao
+// Vanderleia
+Return "000056"
+
 
 // Grupo Almoxarifado
 User Function GrpAlmox
 Return "000021"
 
 
+// Grupos Master Diretoria
+User Function GrpMDir
+// Master Fin-5/Master Dir-7/Master Repac-8/Master Ctb-10/Master Almox-27/Master ctb todas-29/User Fiscal-31
+//Return "000005/000007/000008/000010/000027/000029/000031/"
+Return "000005/000007/000008/000010/000029/000031/"
+
+
+
 // Usuarios Almoxarifado (para queries)
 User Function UsrAlmox
-Return "'000093','000126','000139','000159','000216','000225','000226','000227'"
+Return "'000093','000126','000216','000225','000226','000227'"
 
 
 // Usuarios Master Almoxarifado (grupo 27)
 User Function UsrMAlmox()
-Return "000093/000216/000126/000232/000227"  
+Return "000093/000216/000126/000232/000225/000227"  
 
-// Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri)
+// Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri,Andre Leitao)
 User Function EmEstAlm(cId,lAll)
-Local aUsers := {"000093","000126","000232","000216",'000227'}
+Local aUsers := {"000093","000126","000232","000216","000227"}
 Local cEmail := ""
 Local cEmails:= ""
 Local nI	 := 0
