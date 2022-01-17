@@ -1,4 +1,12 @@
 
+==============================================================
+12/01/2022 - Alteração de emissão e vencimento de titulos
+
+SELECT * FROM SE2010 WHERE E2_NUM = '585612202' AND D_E_L_E_T_ = ''
+UPDATE SE2010 SET E2_EMISSAO = '20220105',E2_EMIS1 = '20220105' WHERE E2_NUM = '585612202' AND D_E_L_E_T_ = ''
+
+SELECT * FROM SE2010 WHERE E2_NUM = '691210202' AND D_E_L_E_T_ = ''
+UPDATE SE2010 SET E2_EMISSAO = '20220105',E2_EMIS1 = '20220105' WHERE E2_NUM = '691210202' AND D_E_L_E_T_ = ''
 
 ==============================================================
 27/12/2021 - Alteração de conta contabil solicitada pelo Rodolfo

@@ -59,7 +59,7 @@ IF __cUserId <> "000000"  // Administrador: não filtrar
 	      IF lStaf .AND. cSuper $ cGerGestao
 	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS = '000175') "
 	      ELSEIF lStaf .AND. __cUserId $ cGerCompras
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') OR F1_XXUSERS IN "+FormatIn(cGerCompras)+")"
+	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+" ) "
           ELSE
 	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') "
           ENDIF

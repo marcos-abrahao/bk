@@ -19,6 +19,7 @@ Local aRotZ := {}
 Local i
 
 AADD(aRotina,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
+AADD(aRotina,{OemToAnsi("Exportar Planilhas BK"), "U_BKGCTR27", 0, 2 })
 
 cMDiretoria := u_GrpMDir()
 
@@ -77,6 +78,7 @@ AADD(aRotZ,{OemToAnsi("Hist. Venc. Doc. Segurança Trab."),"U_BKGCTA19", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Planos de Ação"),"U_BKGCTA22(.F.)", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Consultar Planos de Ação"),"U_BKGCTV22", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
+AADD(aRotZ,{OemToAnsi("Exportar Planilhas BK"), "U_BKGCTR27", 0, 2 })
 
 AADD( aRotina, {OemToAnsi("Gestão "+FWEmpName(cEmpAnt)), aRotZ, 0, 4 } )
 
