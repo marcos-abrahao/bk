@@ -42,8 +42,6 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	AADD(aMotivo,"Reposição Programada")
 	AADD(aMotivo,"Reposição Eventual") 
 	
-	//cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
-
 	cAlEmail := "microsiga@bkconsultoria.com.br;"
 	
 	/*

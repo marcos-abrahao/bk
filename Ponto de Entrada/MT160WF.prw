@@ -52,33 +52,9 @@ AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual") 
 
-cAlmox := ""
-cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
+cAlmox := u_GrpAlmox()
 cAlEmail := ""
 cAlEmail := "microsiga@bkconsultoria.com.br;"
-
-/*
-//aUsers:=AllUsers()
-
-For nX_ := 1 to Len(aUsers)
-	If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
-		aGrupo := {}
-//		AADD(aGRUPO,aUsers[nX_][1][10])
-//		FOR i:=1 TO LEN(aGRUPO[1])
-//			lAlmox := (aGRUPO[1,i] $ cAlmox)
-//		NEXT
-		aGRUPO := UsrRetGrp(aUsers[nX_][1][2])
-		IF LEN(aGRUPO) > 0
-			FOR i:=1 TO LEN(aGRUPO)
-				lAlmox := (ALLTRIM(aGRUPO[i]) $ cAlmox )
-			NEXT
-		ENDIF	
-    	If lAlmox
-    		cAlEmail += ALLTRIM(aUsers[nX_][1][14])+";"
-    	ENDIF
- 	ENDIF
-NEXT
-*/
 
 cAlEmail  += u_EmEstAlm(__cUserId,.T.)
 

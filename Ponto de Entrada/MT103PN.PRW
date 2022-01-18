@@ -30,7 +30,7 @@ Local i
 PswOrder(1) 
 PswSeek(__CUSERID) 
 aUser  := PswRet(1)
-cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021") 
+cAlmox := u_GrpAlmox()
 lAlmox := .F.
 aGRUPO := {}
 //AADD(aGRUPO,aUser[1,10])

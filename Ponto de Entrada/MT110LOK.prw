@@ -20,7 +20,7 @@ User Function MT110LOK()
 	Local _nPosCC	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
 
 	Local dDataInc
-	Local cAlmox	:= u_UsrMAlmox() //SuperGetMV("MV_XXGRALX",.F.,"000021")	
+	Local cAlmox	:= u_UsrMAlmox()
 	//Local nQuje		:= 0
 	Local aAreaSC1	:= SC1->(GetArea())
 	

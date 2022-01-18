@@ -29,19 +29,13 @@ Local aCabs		:= {}
 Local aEmail	:= {}
 Local aMotivo	:= {} 
 Local lAprov	:= .T.
-//Local lAlmox	:= .F.
-//Local aGrupo	:= {}
 Local cAlEmail	:= ""
-//Local aUsers 	:= {}
-//Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(SuperGetMV("MV_XXMSALX",.F.,"000027"))
 Local _cXXENDEN := ""
 Local _cXXEN 	:= ""
 Local _nXXEN 	:= 0
 Local aSaldos 	:= {}
 Local nSaldo 	:= 0
 Local cQuery2 	:= ""
-//Local nX_		as Numeric
-//Local i 		as Numeric  
 Local _IX		as Numeric
 Local xi		as Numeric
 

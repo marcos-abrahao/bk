@@ -41,9 +41,6 @@ cQuery  += " AND F1_FORNECE='"+ @CA100FOR +"' AND F1_LOJA='"+ @CLOJA +"' AND F1_
 
 TcSqlExec(cQuery)
 
-
-//cAlmox  := SuperGetMV("MV_XXGRALX",.F.,"000021")  
-
 // Marcos 08/08/19 - Abrir tela de avaliação para quando os aprovadores estiverem na lista abaixo
 // Michele Morais 138, Fabio 93, Anderson 5, João Brasileiro (antonio.filho) 171 e Vanderleia 56
 //cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")

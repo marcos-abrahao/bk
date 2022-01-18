@@ -2,7 +2,7 @@
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKGCTR27
-BK - Relação de Planilhas de Contratos
+BK - Relação de Planilhas e Cronogramas de Contratos
 @Return
 @author Marcos Bispo Abrahão
 @since 14/01/22
@@ -20,8 +20,8 @@ Local aTitulos2 := {}
 Local aCampos2  := {}
 Local aCabs2    := {}
 
-Private cTitulo      := "Planilhas de Contratos"
-Private cPerg        := "BKGCTR27"
+Private cTitulo := "Planilhas de Contratos"
+Private cPerg   := "BKGCTR27"
 
 FWMsgRun(, {|oSay| PrcQuery1() }, "", "Consultando planilhas...")	
 FWMsgRun(, {|oSay| PrcQuery2() }, "", "Consultando cronogramas...")	
@@ -62,6 +62,9 @@ AADD(aCabs1  ,"UF")
 
 AADD(aCampos1,"QCNB->CNA_XXMUN")
 AADD(aCabs1  ,"Município")
+
+AADD(aCampos1,"QCNB->CNB_ITEM")
+AADD(aCabs1  ,"Item")
 
 AADD(aCampos1,"QCNB->CNB_PRODUT")
 AADD(aCabs1  ,"Produto")
@@ -140,7 +143,7 @@ Local cJCNACNB:= FWJoinFilial("CNA", "CNB")
 Local cJCNBSB1:= FWJoinFilial("CNB", "SB1")
 //Local cJCNASA1:= FWJoinFilial("CNA", "SA1")
 
-cQuery := "SELECT CNB_CONTRA,CNB_REVISA,CNB_NUMERO,CNB_PRODUT,CNB_TS,CNB_QUANT,CNB_SLDMED,CNB_VLUNIT,CNB_VLTOT" + CRLF
+cQuery := "SELECT CNB_CONTRA,CNB_REVISA,CNB_NUMERO,CNB_ITEM,CNB_PRODUT,CNB_TS,CNB_QUANT,CNB_SLDMED,CNB_VLUNIT,CNB_VLTOT" + CRLF
 cQuery += "       ,CNA_XXMOT,CNA_NUMERO,CNA_CLIENT,CNA_LOJACL,CNA_XXCMUN,CNA_XXUF,CNA_XXMUN,CNA_XXTPNF,CNA_XXRETC,CNA_XXNAT,CNA_CRONOG"+ CRLF
 cQuery += "       ,B1_DESC,B1_CODISS,B1_ALIQISS,B1_TS"+ CRLF
 cQuery += "       ,A1_NOME,A1_CGC,A1_PESSOA"+ CRLF
@@ -163,7 +166,7 @@ cQuery += " WHERE CNB.D_E_L_E_T_=''" + CRLF
 cQuery += "      AND CNB_CONTRA = '"+ALLTRIM(CN9->CN9_NUMERO)+"'" + CRLF
 cQuery += "      AND CNB_REVISA = '"+CN9->CN9_REVISA+"'" + CRLF
 
-cQuery += "ORDER BY CNB_CONTRA,CNB_REVISA,CNB_NUMERO" + CRLF
+cQuery += "ORDER BY CNB_CONTRA,CNB_REVISA,CNB_NUMERO,CNB_ITEM" + CRLF
 
 u_LogMemo("BKGCTR27-1.SQL",cQuery)
 

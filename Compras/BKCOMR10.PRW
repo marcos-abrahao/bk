@@ -209,60 +209,8 @@ U_PlanXls(aPlans,cTitulo,cPerg,.F.)
 QSF1->(dbCloseArea())
 
 oTmpTb:Delete()
-///Ferase(cArqTmp + GetDBExtension())
-///FErase(cArqTmp + OrdBagExt())
 
 Return
-
-
-
-// Retorna membros do grupo almoxarifado
-/*
-User Function Grp1Almox()
-
-Local nX_,i,lAlmox
-Local cGrupAlmox   := SuperGetMV("MV_XXGRALX",.F.,"000021")
-Local aUsers       := {}
-Local aGrupo       := {}
-Local cAlmox       := ""
-
-//aUsers:=AllUsers()
-
-cAlmox := ""
-cVirg  := ""
-For nX_ := 1 to Len(aUsers)
-	If Len(aUsers[nX_][1][10]) > 0 
-		aGrupo := {}
-		//AADD(aGRUPO,aUsers[nX_][1][10])
-		//For i:=1 To LEN(aGRUPO[1])
-		//	lAlmox := (aGRUPO[1,i] $ cGrupAlmox)
-		//Next
-		//Ajuste nova rotina a antiga não funciona na nova lib MDI
-		aGRUPO := UsrRetGrp(aUsers[nX_][1][2])
-		IF LEN(aGRUPO) > 0
-			FOR i:=1 TO LEN(aGRUPO)
-				lAlmox := (ALLTRIM(aGRUPO[i]) $ cGrupAlmox )
-			NEXT
-		ENDIF	
-    	If lAlmox
-    		cAlmox += cVirg+"'"+ALLTRIM(aUsers[nX_][1][1])+"'"
-    		cVirg  := ","
-    	EndIf
- 	EndIf
-Next
-
-If !(__cUserId $ cAlmox)
-	cAlmox := ""
-EndIf
-
-Return cAlmox
-*/
-
-
-
-
-
-
 
 
 Static Function  ValidPerg(cPerg)

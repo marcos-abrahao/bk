@@ -105,7 +105,7 @@ Return "000056"
 
 // Grupo Almoxarifado
 User Function GrpAlmox
-Return "000021"
+Return "000021/000032"
 
 
 // Grupos Master Diretoria

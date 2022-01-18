@@ -185,39 +185,3 @@ EndIf
 
 Return cFiltro
 
-
-
-/*
-User Function Grp2Almox()
-Local cAlmox := ""
-Local aUsers  := {}
-Local aGrupo := {}
-Local nX_ := 0
-Local lAlmox := .F.
-Local i:= 0
-Local cGrupAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")
-
-//aUsers:=AllUsers()
-For nX_ := 1 to Len(aUsers)
-	If Len(aUsers[nX_][1][10]) > 0 
-		aGrupo := {}
-		aGrupo := UsrRetGrp(aUsers[nX_][1][2])
-		If LEN(aGrupo) > 0
-			For i:=1 To LEN(aGrupo)
-				If !lAlmox
-					lAlmox := (ALLTRIM(aGrupo[i]) $ cGrupAlmox )
-				EndIf
-			Next
-		EndIf			
-    	If lAlmox
-    		If !EMPTY(cAlmox)
-    			cAlmox += ","
-    		EndIf
-    		cAlmox += "'"+ALLTRIM(aUsers[nX_][1][1])+"'"
-    	EndIf
- 	EndIf
-Next
-
-Return cAlmox
-*/
-

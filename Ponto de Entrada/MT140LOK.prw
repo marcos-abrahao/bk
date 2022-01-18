@@ -26,14 +26,10 @@ Local lAlmox := .F.
 Local iX     := 0
 
 aUser  := PswRet(1)
-cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021") 
+cAlmox := u_GrpAlmox()
 lAlmox := .F.
+
 aGRUPO := {}
-//AADD(aGRUPO,aUser[1,10])
-//FOR i:=1 TO LEN(aGRUPO[1])
-//	lAlmox := (aGRUPO[1,i] $ cAlmox)
-//NEXT
-//Ajuste nova rotina a antiga não funciona na nova lib MDI
 aGRUPO := UsrRetGrp(aUser[1][2])
 IF LEN(aGRUPO) > 0
 	FOR iX:=1 TO LEN(aGRUPO)

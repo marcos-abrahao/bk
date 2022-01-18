@@ -41,38 +41,12 @@ Local aUser     := {}
 //Local lAlmox    := .F.
 //Local nX,i
 
-//cAlmox := SuperGetMV("MV_XXGRALX",.F.,"000021")  
-
 PswOrder(1) 
 PswSeek(__cUserId)  
 aUser  := PswRet(1)
 IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
-
-/*
-//aUsers:=AllUsers()
-
-For nX := 1 to Len(aUsers)
-	If Len(aUsers[nX][1][10]) > 0 .AND. !aUsers[nX][1][17] //USUARIO BLOQUEADO
-		aGrupo := {}
-		//AADD(aGRUPO,aUsers[nX][1][10])
-		//FOR i:=1 TO LEN(aGRUPO[1])
-		//	lAlmox := (aGRUPO[1,i] $ cAlmox)
-		//NEXT
-		//Ajuste nova rotina a antiga não funciona na nova lib MDI
-		aGRUPO := UsrRetGrp(aUsers[nX][1][2])
-		IF LEN(aGRUPO) > 0
-			FOR i:=1 TO LEN(aGRUPO)
-				lAlmox := (ALLTRIM(aGRUPO[i]) $ cAlmox )
-			NEXT
-		ENDIF	
-    	If lAlmox
-    		cEmail += ALLTRIM(aUsers[nX][1][14])+";"
-    	ENDIF
- 	ENDIF
-NEXT
-*/
 
 cEmail  += u_EmEstAlm(__cUserId,.T.)
 
