@@ -113,7 +113,8 @@ aAdd(aFields,{"XX_VALPED" ,"","XX_VALPED","Vl.Pedido",cPict,"N",18,2})
 aAdd(aFields,{"XX_LIBEROK","C5_LIBEROK","","Ped. liberado"})
 aAdd(aFields,{"XX_LIBERAD","C5_XXULIB"})
 aAdd(aFields,{"XX_DATALIB","C5_XXDLIB","","Data Lib. Pedido"})
-aAdd(aFields,{"XX_NF"     ,"F2_DOC","","Nota Fiscal número"})
+aAdd(aFields,{"XX_SERIE"  ,"F2_SERIE","","Série NF"})
+aAdd(aFields,{"XX_NF"     ,"F2_DOC","","Nota Fiscal numero"})
 aAdd(aFields,{"XX_NDC"    ,"E1_NUM","XX_NDC","Nota Debito número"})
 aAdd(aFields,{"XX_DATANF" ,"F2_EMISSAO","","Data Emissao NF/ND"})
 aAdd(aFields,{"XX_EMISSOR","F2_USERLGI","","Responsável emissão NF"})
@@ -332,6 +333,7 @@ cQuery += "		,ISNULL(CXN_VLPREV,CND_VLPREV) AS CND_VLPREV" + CRLF
 cQuery += "		,C5_LIBEROK" + CRLF
 cQuery += "		,C5_XXULIB" + CRLF
 cQuery += "		,C5_XXDLIB" + CRLF
+cQuery += "		,F2_SERIE" + CRLF
 cQuery += "		,F2_DOC" + CRLF
 cQuery += "		,F2_EMISSAO" + CRLF
 cQuery += "		,F2_USERLGI" + CRLF
@@ -373,8 +375,17 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1" + CRLF
 cQuery += "		ON SA1.A1_COD = SC5.C5_CLIENTE AND SA1.A1_LOJA = SC5.C5_LOJACLI" + CRLF
 cQuery += "		AND SA1.D_E_L_E_T_ = ' ' AND SA1.A1_FILIAL = '" + xFilial("SA1") + "' " + CRLF
 
+// Pegar a revisão do CNE de apenas um registro
+cQuery += " LEFT JOIN "+RETSQLNAME("CNE")+" CNE" + CRLF
+cQuery += "		ON CNE_NUMMED = C5_MDNUMED AND CNE_NUMERO = C5_MDPLANI AND CNE_PEDIDO = C5_NUM" + CRLF
+cQuery += "		AND CNE_FILIAL = C5_FILIAL AND CNE.D_E_L_E_T_ = ' ' " + CRLF
+cQuery += "		AND CNE.R_E_C_N_O_ = " + CRLF
+cQuery += "			(SELECT TOP 1 R_E_C_N_O_ FROM "+RETSQLNAME("CNE")+" CNE" + CRLF
+cQuery += "					WHERE CNE_NUMMED = C5_MDNUMED AND CNE_NUMERO = C5_MDPLANI AND CNE_PEDIDO = C5_NUM" + CRLF
+cQuery += "					      AND CNE_FILIAL = C5_FILIAL AND  CNE.D_E_L_E_T_ = ' ')"  + CRLF
+
 cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
-cQuery += "		ON C5_MDNUMED = CND_NUMMED AND CND_REVISA = CND_REVGER" + CRLF
+cQuery += "		ON C5_MDNUMED = CND_NUMMED AND CND_REVISA = CNE_REVISA" + CRLF
 cQuery += "		AND CND.D_E_L_E_T_ = '' AND CND.CND_FILIAL = SC5.C5_FILIAL" + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
@@ -425,6 +436,7 @@ cQuery += "		,0 AS CND_VLPREV" + CRLF
 cQuery += "		,'' AS C5_LIBEROK" + CRLF
 cQuery += "		,'' AS C5_XXULIB" + CRLF
 cQuery += "		,'' AS C5_XXDLIB" + CRLF
+cQuery += "		,'' AS F2_SERIE" + CRLF
 cQuery += "		,'' AS F2_DOC,E1_EMISSAO AS F2_EMISSAO" + CRLF
 cQuery += "		,'' AS F2_USERLGI" + CRLF
 cQuery += "		,E1_VALOR AS F2_VALBRUT" + CRLF

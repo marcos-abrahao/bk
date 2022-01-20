@@ -69,6 +69,7 @@ Local cNum      := ""
 Local cParcela  := ""
 Local cTipo     := ""
 Local nHdlArqIR := 0
+Local lAlter	:= .F.
 
 
 //-- Trata LOG de execucao do Ajuste:
@@ -120,14 +121,16 @@ If lProcessa
 
 	// LOG DE PROCESSAMENTO
 	fWrite(nHdlArqIR, "Titulos Ajustados:" + Chr(13) + Chr(10)) 
-	fWrite(nHdlArqIR, "===================================================" + Chr(13) + Chr(10)) 
+	fWrite(nHdlArqIR, "====================================================================" + Chr(13) + Chr(10)) 
 	fWrite(nHdlArqIR, "PREFIXO NUMERO    PARCELA TIPO FORNECEDOR LOJA COD." + Chr(13) + Chr(10)) 
-	fWrite(nHdlArqIR, "===================================================" + Chr(13) + Chr(10)) 
+	fWrite(nHdlArqIR, "====================================================================" + Chr(13) + Chr(10)) 
 
 	While !(cAliasQry)->(Eof())
 
 		SE2->(MsGoTo((cAliasQry)->SE2Recno))
-		
+
+		lAlter:= .F.
+
 		If (cAliasQry)->A2_TIPO == "F"
 			cCodRet := "3208"
 		Else
@@ -166,40 +169,52 @@ If lProcessa
 						cTipo    := MVTAXA						
 
 						//--Atualiza o titulo "pai"
-						RecLock("SE2", .F.)
-						SE2->E2_DIRF   := "2" //--NAO
-						SE2->E2_CODRET := cCodRet
-						SE2->(MsUnLock())
-										 
+						If Empty(SE2->E2_CODRET)
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "2" //--NAO
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
+							lAlter:= .T.
+						ENDIF
+						
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "1" //--SIM
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
+							If Empty(SE2->E2_CODRET)
+								RecLock("SE2", .F.)
+								SE2->E2_DIRF   := "1" //--SIM
+								SE2->E2_CODRET := cCodRet
+								SE2->(MsUnLock())
+								lAlter:= .T.
+							EndIf
                         Else
 							//--Se nao encontrou o titulo de retencao
 							//--de IRRF, posiciona novamente no titulo
 							//--principal e ajusta os dados:
                         	SE2->(MsGoTo((cAliasQry)->SE2Recno))
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "1" //--SIM
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
+							If Empty(SE2->E2_CODRET)
+								RecLock("SE2", .F.)
+								SE2->E2_DIRF   := "1" //--SIM
+								SE2->E2_CODRET := cCodRet
+								SE2->(MsUnLock())
+								lAlter:= .T.
+							EndIf
 						EndIf					
 					Else
 						//--Se nao houve retencao de IRRF, mas a
 						//--natureza indica que deve-se calcular o IRRF,
 						//--atualiza o titulo para ser considerado na DIRF:
 						RecLock("SE2", .F.)
-						SE2->E2_DIRF   := "1" //--SIM
-						SE2->E2_CODRET := cCodRet
-						SE2->(MsUnLock())
+						If Empty(SE2->E2_CODRET)
+							SE2->E2_DIRF   := "1" //--SIM
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
+							lAlter:= .T.
+						EndIf
 					EndIf
 
 					// LOG DE PROCESSAMENTO
-					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA) + Space(3) + cCodRet + Chr(13) + Chr(10))
+					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA + Space(3) + E2_CODRET) + Space(3) + cCodRet + iIf(lAlter," Alterado","")+Chr(13) + Chr(10))
 				EndIf
 			EndIf
 		EndIf
@@ -210,7 +225,7 @@ If lProcessa
 	
 	// LOG DE PROCESSAMENTO
 	
-	fWrite(nHdlArqIR, "==============================================" + Chr(13) + Chr(10)) 
+	fWrite(nHdlArqIR, "===================================================" + Chr(13) + Chr(10)) 
 	fWrite(nHdlArqIR, Chr(13) + Chr(10))
 	fWrite(nHdlArqIR, Chr(13) + Chr(10))
 	fWrite(nHdlArqIR, "Término do processamento" + Chr(13) + Chr(10))
@@ -234,6 +249,7 @@ Local cNum      := ""
 Local cParcela  := ""
 Local cTipo     := ""
 Local nHdlArqIR := 0
+Local lAlter	:= .F.
 
 //-- Trata LOG de execucao do Ajuste:
 If !File("BKRegIR.TXT")
@@ -311,6 +327,7 @@ If lProcessa
 			EndIf
 		EndIf
 		*/
+		lAlter:= .F.
 
 		cCodRet := "5952"
 		If !(SE2->E2_TIPO $ MVISS+"/"+MVTAXA+"/"+MVTXA+"/"+MVINSS+"/"+"SES"+"/"+"AB-")
@@ -331,20 +348,24 @@ If lProcessa
 						cTipo    := "TX "						
 
 						//--Atualiza o titulo "pai"
-						RecLock("SE2", .F.)
-						SE2->E2_DIRF   := "2" //--NAO
 						IF EMPTY(SE2->E2_CODRET)
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "2" //--NAO
 							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
+							lAlter := .T.
 						ENDIF
-						SE2->(MsUnLock())
 										 
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "1" //--SIM
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
+							IF EMPTY(SE2->E2_CODRET)
+								RecLock("SE2", .F.)
+								SE2->E2_DIRF   := "1" //--SIM
+								SE2->E2_CODRET := cCodRet
+								SE2->(MsUnLock())
+								lAlter := .T.
+							ENDIF
                         Else
 							//--Se nao encontrou o titulo de retencao
 							//--de IRRF, posiciona novamente no titulo
@@ -377,20 +398,24 @@ If lProcessa
 						cTipo    := "TX "						
 
 						//--Atualiza o titulo "pai"
-						RecLock("SE2", .F.)
-						SE2->E2_DIRF   := "2" //--NAO
 						IF EMPTY(SE2->E2_CODRET)
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "2" //--NAO
 							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
+							lAlter := .T.
 						ENDIF
-						SE2->(MsUnLock())
 										 
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "1" //--SIM
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
+							IF EMPTY(SE2->E2_CODRET)
+								RecLock("SE2", .F.)
+								SE2->E2_DIRF   := "1" //--SIM
+								SE2->E2_CODRET := cCodRet
+								SE2->(MsUnLock())
+								lAlter := .T.
+							ENDIF
 						EndIf					
 					EndIf
 
@@ -406,25 +431,28 @@ If lProcessa
 						cTipo    := "TX "						
 
 						//--Atualiza o titulo "pai"
-						RecLock("SE2", .F.)
-						SE2->E2_DIRF   := "2" //--NAO
 						IF EMPTY(SE2->E2_CODRET)
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "2" //--NAO
 							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
+							lAlter := .T.
 						ENDIF
-						SE2->(MsUnLock())
 										 
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "1" //--SIM
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
+							IF EMPTY(SE2->E2_CODRET)
+								RecLock("SE2", .F.)
+								SE2->E2_DIRF   := "1" //--SIM
+								SE2->E2_CODRET := cCodRet
+								SE2->(MsUnLock())
+							ENDIF
 						EndIf					
 					EndIf
 
 					// LOG DE PROCESSAMENTO
-					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA) + Space(3) + cCodRet + Chr(13) + Chr(10))
+					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA + Space(3) + E2_CODRET) + Space(3) + cCodRet + iIf(lAlter," Alterado","")+Chr(13) + Chr(10))
 				//EndIf
 			//EndIf
 		EndIf
@@ -435,7 +463,7 @@ If lProcessa
 	
 	// LOG DE PROCESSAMENTO
 	
-	fWrite(nHdlArqIR, "==============================================" + Chr(13) + Chr(10)) 
+	fWrite(nHdlArqIR, "==========================================================" + Chr(13) + Chr(10)) 
 	fWrite(nHdlArqIR, Chr(13) + Chr(10))
 	fWrite(nHdlArqIR, Chr(13) + Chr(10))
 	fWrite(nHdlArqIR, "Término do processamento" + Chr(13) + Chr(10))

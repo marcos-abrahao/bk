@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"25/11/2021 SB1 "
+#DEFINE FIN_LAST_UPDATED 		"18/01/2022 SA2 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -185,7 +185,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 25/11/21 Sb1
+			AtuGenX3( @cTexto )    // 18/01/22 Sa2
 
 			//AtuGenP12( @cTexto )
 
@@ -954,14 +954,109 @@ Return
 Static Function AtuGenX3( cTexto )
 //Local aNBrowse:= {}
 Local aSBrowse:= {}
+Local aNBrowse:= {}
 Local nBrw := 0
 
 
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
+cTexto  += "18/01/22 - TABELA SA2 BROWSE" + CRLF 
+
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 
+aAdd(aSBrowse,"A2_COD")    
+aAdd(aSBrowse,"A2_LOJA")    
+aAdd(aSBrowse,"A2_NOME")    
+aAdd(aSBrowse,"A2_END")    
+aAdd(aSBrowse,"A2_BAIRRO")    
+aAdd(aSBrowse,"A2_CGC")    
+aAdd(aSBrowse,"A2_NATUREZ")    
+aAdd(aSBrowse,"A2_OK")    
+aAdd(aSBrowse,"A2_XXVTVR")    
+aAdd(aSBrowse,"A2_TPJ")    
+aAdd(aSBrowse,"A2_EST")    
+aAdd(aSBrowse,"A2_MUN")    
+aAdd(aSBrowse,"A2_TEL")    
+aAdd(aSBrowse,"A2_CONTATO")     
+aAdd(aSBrowse,"A2_CONTA")     
+aAdd(aSBrowse,"A2_RECISS")    
+aAdd(aSBrowse,"A2_RECINSS")    
+aAdd(aSBrowse,"A2_RECPIS")     
+aAdd(aSBrowse,"A2_RECCOFI")    
+aAdd(aSBrowse,"A2_RECCSLL")    
+aAdd(aSBrowse,"A2_CALCIRF")    
+aAdd(aSBrowse,"A2_TIPO")    
+aAdd(aSBrowse,"A2_TPESSOA")    
+For nBrw := 1 TO Len(aSBrowse)
+	If SX3->( dbSeek( aSBrowse[nBrw] ) )
+		RecLock( "SX3", .F. )
+		SX3->X3_BROWSE  := "S"
+		dbCommit()
+		MsUnLock()
+	EndIf
+Next
+
+aAdd(aNBrowse,"A2_NREDUZ")     
+aAdd(aNBrowse,"A2_COD_MUN")    
+aAdd(aNBrowse,"A2_CX_POST")    
+aAdd(aNBrowse,"A2_DDI")        
+aAdd(aNBrowse,"A2_VINCULA")    
+aAdd(aNBrowse,"A2_EMAIL")      
+aAdd(aNBrowse,"A2_HPAGE")      
+aAdd(aNBrowse,"A2_PLGRUPO")    
+aAdd(aNBrowse,"A2_TIPAWB")     
+aAdd(aNBrowse,"A2_ABICS")      
+aAdd(aNBrowse,"A2_CTARE")      
+aAdd(aNBrowse,"A2_VINCULO")    
+aAdd(aNBrowse,"A2_SIMPNAC")    
+aAdd(aNBrowse,"A2_INSCMU")    
+aAdd(aNBrowse,"A2_ENDNOT")     
+aAdd(aNBrowse,"A2_FOMEZER")    
+aAdd(aNBrowse,"A2_CONTPRE")    
+aAdd(aNBrowse,"A2_MINIRF")     
+aAdd(aNBrowse,"A2_CGCEX")      
+aAdd(aNBrowse,"A2_NEMPR")      
+aAdd(aNBrowse,"A2_TPCON")      
+aAdd(aNBrowse,"A2_DTINIR")     
+aAdd(aNBrowse,"A2_DTFIMR")     
+aAdd(aNBrowse,"A2_PAISEX")     
+aAdd(aNBrowse,"A2_NIFEX")      
+aAdd(aNBrowse,"A2_TPREX")      
+aAdd(aNBrowse,"A2_TRBEX")      
+aAdd(aNBrowse,"A2_REGESIM")    
+aAdd(aNBrowse,"A2_CPFIRP")     
+aAdd(aNBrowse,"A2_CODADM")     
+aAdd(aNBrowse,"A2_MJURIDI")    
+aAdd(aNBrowse,"A2_FILTRF")     
+aAdd(aNBrowse,"A2_TRIBFAV")    
+aAdd(aNBrowse,"A2_SITESBH")    
+aAdd(aNBrowse,"A2_SUBCON")    
+aAdd(aNBrowse,"A2_FORMPAG")    
+aAdd(aNBrowse,"A2_CLIENTE")    
+aAdd(aNBrowse,"A2_CALCINP")    
+aAdd(aNBrowse,"A2_DESPORT")    
+aAdd(aNBrowse,"A2_DEDBSPC")    
+aAdd(aNBrowse,"A2_CPFRUR")     
+aAdd(aNBrowse,"A2_CARGO")      
+aAdd(aNBrowse,"A2_APOLICE")    
+aAdd(aNBrowse,"A2_LOJCLI")     
+aAdd(aNBrowse,"A2_PAISSUB")    
+For nBrw := 1 TO Len(aNBrowse)
+	If SX3->( dbSeek( aNBrowse[nBrw] ) )
+		RecLock( "SX3", .F. )
+		SX3->X3_BROWSE  := "N"
+		dbCommit()
+		MsUnLock()
+	EndIf
+Next
+
+dbSetOrder( 1 )
+
+Return
+
+
+/*
 cTexto  += "25/11/21 - TABELA SB1 - BROWSE = 'S'" + CRLF 
 
 aAdd(aSBrowse,"B1_COD")
@@ -989,10 +1084,8 @@ For nBrw := 1 TO Len(aSBrowse)
 		MsUnLock()
 	EndIf
 Next
+*/
 
-dbSetOrder( 1 )
-
-Return
 
 
 /* Cod ISS
