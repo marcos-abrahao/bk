@@ -27,7 +27,14 @@ If !Inclui
     // Inclui nova aba no documento de entrada
     aadd(aButtons, {'Conhecimento', {|| MsDocument("SF1",SF1->(Recno()),6)}, 'Conhecimento'})
 
-    cJust   := SF1->F1_HISTRET
+    cJust   := "Fornecedor: "+SA2->A2_COD+"-"+SA2->A2_LOJA+" "+TRIM(SA2->A2_NOME)+CRLF
+	If Len(AllTrim(SA2->A2_CGC)) > 11											//Se for CNPJ
+		cJust += "CNPJ: " +Transform(SA2->A2_CGC,"@R 99.999.999/9999-99")+CRLF
+	Else 																	//Se for CPF
+		cJust += "CPF: " +Transform(SA2->A2_CGC,"@R 999.999.999-99")+CRLF
+	EndIf
+
+    cJust   += SF1->F1_HISTRET
     cHist   := HistD1()
     mParcel := SF1->F1_XXPARCE
 

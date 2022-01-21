@@ -1,3 +1,20 @@
+==============================================================
+
+
+==============================================================
+21/01/22 - Correção de datas de vencimento de contas a pagar e integração
+
+select * from SE2010 WHERE E2_VENCTO = '20220125' AND D_E_L_E_T_ = ''
+select * from SE2020 WHERE E2_VENCTO = '20220125' AND D_E_L_E_T_ = ''
+select * from SE2120 WHERE E2_VENCTO = '20220125' AND D_E_L_E_T_ = ''
+select * from SE2140 WHERE E2_VENCTO = '20220125' AND D_E_L_E_T_ = ''
+select * from SE2150 WHERE E2_VENCTO= '20220125' AND D_E_L_E_T_ = ''
+
+UPDATE SE2150 SET E2_VENCTO = '20220124',E2_VENCREA = '20220124' WHERE E2_VENCREA = '20220125' AND D_E_L_E_T_ = ''
+
+SELECT * FROM SZ2010 WHERE Z2_DATAPGT = '20220125' AND D_E_L_E_T_ = ''
+
+UPDATE SZ2010 SET Z2_DATAPGT = '20220124' WHERE Z2_DATAPGT = '20220125' AND D_E_L_E_T_ = ''
 
 ==============================================================
 12/01/2022 - Alteração de emissão e vencimento de titulos
