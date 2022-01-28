@@ -28,7 +28,10 @@
 		},
 		{
 			"label": "U_UPDGENSX"
+		},
+		{
+			"label": "SIGACFG"
 		}
 	],
-	"lastProgramExecuted": "U_UPDGENSX"
+	"lastProgramExecuted": "SIGAMDI"
 }

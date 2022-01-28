@@ -2,7 +2,7 @@
 #INCLUDE "RWMAKE.CH"
 
 /*/{Protheus.doc} F050MCP
-BK - Ponto de Entrada para liberar campos de datas de vencimento nos títulos apagar
+BK - Ponto de Entrada para liberar alteração de campos nos títulos apagar
 
 @Return
 @author Marcos Bispo Abrahão
@@ -18,5 +18,8 @@ IF __cUserId $ "000000/000012" // Administrador / Xavier
     AADD(aCampos,"E2_VENCTO")
     AADD(aCampos,"E2_VENCREA")     
 Endif
+
+//28/01/2022 - 12.1.33
+AADD(aCampos,"E2_VALOR")     
 
 Return aCampos 

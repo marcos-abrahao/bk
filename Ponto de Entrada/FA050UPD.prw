@@ -27,3 +27,12 @@ ENDIF
 
 Return lRet
 
+
+
+/*
+User Function FA050ALT() 
+Local lRet := .T.
+
+
+Return lRet
+*/

@@ -196,6 +196,7 @@ Local lCLT   := .T.
 Local aSaveAreaSE5 := GetArea("SE5")
 Local aRet :={}
 Local lSucess := .T.
+Local cFunName := ""
 
 For nI := 1 TO LEN(aTitGer)
     nValor += aTitGer[nI,7]
@@ -242,6 +243,8 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 	
 		Begin Transaction
 			lMsErroAuto := .F.   
+			cFunName := FunName()
+			SetFunName( "FINA050" )
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
 		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
@@ -249,6 +252,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 				DisarmTransaction()
 		   		lSucess := .F.
 			EndIf
+			SetFunName( cFunName )
         End Transaction
 		
 	Else

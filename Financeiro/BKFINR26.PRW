@@ -826,9 +826,9 @@ Static aAbatBaixa 	:= {}
 Static __lBQ10925
 
 Private cMVBR10925	:= SuperGetMv("MV_BR10925", ,"2")
-Private xMV_PAR20	:= 1		// Considera Data Base
+Private xmv_par20	:= 1		// Considera Data Base
 Private xmv_par15	:= 1		// Qual Moeda
-Private xmv_par17	:= 1		// Reajuste pelo vecto
+Private xmv_par17	:= 2		// Reajuste pelo vecto
 Private xmv_par36	:= dDtBase	// Data Base
 Private xmv_par37	:= 1		// Compoe Saldo por: Data da Baixa, Credito ou DtDigit
 Private xmv_par39	:= 1		// Compoe Saldo por ?

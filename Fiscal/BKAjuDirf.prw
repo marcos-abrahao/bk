@@ -11,6 +11,13 @@
 	@example
 	(examples)
 	@see (Base TMSAJUDIRF)
+
+Dados Contador 2022
+22076940898
+FERNANDO VALLINARI DUARTE     
+(011 ) 3154-1818/R:01931 
+fernando.vallinari@conlinecontabil.com.br         
+
 /*/
 
 User Function BKAjuDIRF()
@@ -69,8 +76,6 @@ Local cNum      := ""
 Local cParcela  := ""
 Local cTipo     := ""
 Local nHdlArqIR := 0
-Local lAlter	:= .F.
-
 
 //-- Trata LOG de execucao do Ajuste:
 If !File("BKRegIR.TXT")
@@ -129,8 +134,6 @@ If lProcessa
 
 		SE2->(MsGoTo((cAliasQry)->SE2Recno))
 
-		lAlter:= .F.
-
 		If (cAliasQry)->A2_TIPO == "F"
 			cCodRet := "3208"
 		Else
@@ -169,52 +172,47 @@ If lProcessa
 						cTipo    := MVTAXA						
 
 						//--Atualiza o titulo "pai"
-						If Empty(SE2->E2_CODRET)
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "2" //--NAO
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
-							lAlter:= .T.
-						ENDIF
-						
+						RecLock("SE2", .F.)
+						SE2->E2_DIRF   := "2" //--NAO
+						SE2->E2_CODRET := cCodRet
+						SE2->(MsUnLock())
+					
+						// Marcos 28/01/2022
+						If SED->ED_CODRET <> cCodRet
+							RecLock("SED", .F.)
+							SED->ED_CODRET := cCodRet
+							SED->(MsUnLock())
+						EndIf
+
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							If Empty(SE2->E2_CODRET)
-								RecLock("SE2", .F.)
-								SE2->E2_DIRF   := "1" //--SIM
-								SE2->E2_CODRET := cCodRet
-								SE2->(MsUnLock())
-								lAlter:= .T.
-							EndIf
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "1" //--SIM
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
                         Else
 							//--Se nao encontrou o titulo de retencao
 							//--de IRRF, posiciona novamente no titulo
 							//--principal e ajusta os dados:
                         	SE2->(MsGoTo((cAliasQry)->SE2Recno))
-							If Empty(SE2->E2_CODRET)
-								RecLock("SE2", .F.)
-								SE2->E2_DIRF   := "1" //--SIM
-								SE2->E2_CODRET := cCodRet
-								SE2->(MsUnLock())
-								lAlter:= .T.
-							EndIf
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "1" //--SIM
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
 						EndIf					
 					Else
 						//--Se nao houve retencao de IRRF, mas a
 						//--natureza indica que deve-se calcular o IRRF,
 						//--atualiza o titulo para ser considerado na DIRF:
 						RecLock("SE2", .F.)
-						If Empty(SE2->E2_CODRET)
-							SE2->E2_DIRF   := "1" //--SIM
-							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
-							lAlter:= .T.
-						EndIf
+						SE2->E2_DIRF   := "1" //--SIM
+						SE2->E2_CODRET := cCodRet
+						SE2->(MsUnLock())
 					EndIf
 
 					// LOG DE PROCESSAMENTO
-					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA + Space(3) + E2_CODRET) + Space(3) + cCodRet + iIf(lAlter," Alterado","")+Chr(13) + Chr(10))
+					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA + Space(3) + E2_CODRET) + Space(3) + cCodRet + Chr(13) + Chr(10))
 				EndIf
 			EndIf
 		EndIf
@@ -240,7 +238,7 @@ Return
 Static Function BKAjuPCC()
 Local cQuery    := ''
 Local cAliasQry := ''
-Local nOpc      := 0
+//Local nOpc      := 0
 Local lProcessa := .T.
 Local cCodRet   := ""   //Alltrim(&(GetMv("MV_TMSCRET",,''))) //-- Codigo de Retencao da DIRF - TMS
 Local cUniao    := PadR( GetMV("MV_UNIAO",,""), Len(SA2->A2_COD) )		//-- Codigo do fornecedor para pagamento do Imposto de Renda
@@ -249,12 +247,13 @@ Local cNum      := ""
 Local cParcela  := ""
 Local cTipo     := ""
 Local nHdlArqIR := 0
-Local lAlter	:= .F.
 
 //-- Trata LOG de execucao do Ajuste:
 If !File("BKRegIR.TXT")
 	nHdlArqIR := MSFCREATE( "BKRegIR.TXT" )
 Else
+	nHdlArqIR := fOpen("BKRegIR.TXT",2)
+	/*
 	nOpc := Aviso("Atenção", "O ajuste já foi processado anteriormente. Processar novamente?", {"SIM", "NÃO"})
 	If nOpc == 1
 		FErase("BKRegIR.TXT")
@@ -262,6 +261,7 @@ Else
 	Else
 		lProcessa := .F.
 	EndIf
+	*/
 EndIf
 
 If lProcessa
@@ -327,7 +327,6 @@ If lProcessa
 			EndIf
 		EndIf
 		*/
-		lAlter:= .F.
 
 		cCodRet := "5952"
 		If !(SE2->E2_TIPO $ MVISS+"/"+MVTAXA+"/"+MVTXA+"/"+MVINSS+"/"+"SES"+"/"+"AB-")
@@ -348,24 +347,20 @@ If lProcessa
 						cTipo    := "TX "						
 
 						//--Atualiza o titulo "pai"
+						RecLock("SE2", .F.)
+						SE2->E2_DIRF   := "2" //--NAO
 						IF EMPTY(SE2->E2_CODRET)
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "2" //--NAO
 							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
-							lAlter := .T.
 						ENDIF
+						SE2->(MsUnLock())
 										 
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							IF EMPTY(SE2->E2_CODRET)
-								RecLock("SE2", .F.)
-								SE2->E2_DIRF   := "1" //--SIM
-								SE2->E2_CODRET := cCodRet
-								SE2->(MsUnLock())
-								lAlter := .T.
-							ENDIF
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "1" //--SIM
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
                         Else
 							//--Se nao encontrou o titulo de retencao
 							//--de IRRF, posiciona novamente no titulo
@@ -398,24 +393,20 @@ If lProcessa
 						cTipo    := "TX "						
 
 						//--Atualiza o titulo "pai"
+						RecLock("SE2", .F.)
+						SE2->E2_DIRF   := "2" //--NAO
 						IF EMPTY(SE2->E2_CODRET)
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "2" //--NAO
 							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
-							lAlter := .T.
 						ENDIF
+						SE2->(MsUnLock())
 										 
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							IF EMPTY(SE2->E2_CODRET)
-								RecLock("SE2", .F.)
-								SE2->E2_DIRF   := "1" //--SIM
-								SE2->E2_CODRET := cCodRet
-								SE2->(MsUnLock())
-								lAlter := .T.
-							ENDIF
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "1" //--SIM
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
 						EndIf					
 					EndIf
 
@@ -431,28 +422,25 @@ If lProcessa
 						cTipo    := "TX "						
 
 						//--Atualiza o titulo "pai"
+						RecLock("SE2", .F.)
+						SE2->E2_DIRF   := "2" //--NAO
 						IF EMPTY(SE2->E2_CODRET)
-							RecLock("SE2", .F.)
-							SE2->E2_DIRF   := "2" //--NAO
 							SE2->E2_CODRET := cCodRet
-							SE2->(MsUnLock())
-							lAlter := .T.
 						ENDIF
+						SE2->(MsUnLock())
 										 
 						//--Atualiza os dados do titulo de imposto (Tx)
 						SE2->( DbSetOrder(6) ) //--E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO
 						If SE2->( DbSeek( xFilial("SE2") + cUniao + Padr('00',Len(SE2->E2_LOJA)) + cPref + cNum + cParcela + cTipo ) )
-							IF EMPTY(SE2->E2_CODRET)
-								RecLock("SE2", .F.)
-								SE2->E2_DIRF   := "1" //--SIM
-								SE2->E2_CODRET := cCodRet
-								SE2->(MsUnLock())
-							ENDIF
+							RecLock("SE2", .F.)
+							SE2->E2_DIRF   := "1" //--SIM
+							SE2->E2_CODRET := cCodRet
+							SE2->(MsUnLock())
 						EndIf					
 					EndIf
 
 					// LOG DE PROCESSAMENTO
-					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA + Space(3) + E2_CODRET) + Space(3) + cCodRet + iIf(lAlter," Alterado","")+Chr(13) + Chr(10))
+					fWrite(nHdlArqIR, SE2->(E2_PREFIXO + Space(5) + E2_NUM + Space(1) + E2_PARCELA + Space(5) + E2_TIPO + Space(2) + E2_FORNECE + Space(3) + E2_LOJA + Space(3) + E2_CODRET) + Space(3) + cCodRet + Chr(13) + Chr(10))
 				//EndIf
 			//EndIf
 		EndIf
@@ -572,19 +560,18 @@ User Function MT103DRF()
 Local nCombo  := PARAMIXB[1] 
 Local cCodRet := PARAMIXB[2] 
 Local aImpRet := {}
+
 nCombo  := 1
-cCodRet := "1700"
+cCodRet := "1708"
 aadd(aImpRet,{"IRR",nCombo,cCodRet})
+
 nCombo  := 2
 cCodRet := "1708"
 aadd(aImpRet,{"ISS",nCombo,cCodRet})
+
 nCombo  := 1
-cCodRet := "2008"
+cCodRet := "5952"
 aadd(aImpRet,{"PIS",nCombo,cCodRet})
-nCombo  := 1
-cCodRet := "2010"
 aadd(aImpRet,{"COF",nCombo,cCodRet})              
-nCombo  := 2
-cCodRet := "2050"
 aadd(aImpRet,{"CSL",nCombo,cCodRet})
 Return aImpRet
