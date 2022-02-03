@@ -31,7 +31,10 @@
 		},
 		{
 			"label": "SIGACFG"
+		},
+		{
+			"label": "upddistr"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "upddistr"
 }

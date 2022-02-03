@@ -1041,7 +1041,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND " + CRLF
 	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
 
-    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
 	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
     cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
 	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
@@ -1154,7 +1154,7 @@ FOR _nI := 1 TO nPeriodo
 	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
 	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
-    cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
 	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
     cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
 	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
@@ -5744,7 +5744,7 @@ Local nHandle
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni,_nj
 Local cPicN  	:= "@E 99999999.99999"
-Local cDirTmp	:= "C:\TMP"
+Local cDirTmp	:= "c:\tmp"
 Local cArqTmp	:= ""
 Local lSoma,aSoma,nCab
 Local cLetra	:= ""
@@ -5772,7 +5772,7 @@ Else
 EndIf
 
 If lJob
-	cDirTmp := "\TMP"
+	cDirTmp := "\tmp"
 EndIf
 cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 
@@ -5788,6 +5788,7 @@ Else
 	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 	//cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 	cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
+	u_xxLog(cArqLog,"Planilha "+cArqXls+" gerada...",.T.,"")
 EndIf
 
 MakeDir(cDirTmp)
@@ -5801,6 +5802,10 @@ nHandle := MsfCreate(cArqTmp,0)
    
 If nHandle > 0
       
+	If lJob
+		u_xxLog(cArqLog,"Gerando "+cArqTmp+"...",.T.,"")
+	EndIf
+
    FOR _ni := 1 TO LEN(aTitulos)
       fWrite(nHandle, aTitulos[_ni] + cCrLf)
       nCab++
@@ -5929,7 +5934,7 @@ If lJob
 	u_xxLog(cArqLog,cMsg,.T.,"")
 	//U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
 	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
-	u_xxLog(cArqLog,"Email enviado",.T.,"")
+	u_xxLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp,.T.,"")
 EndIf
 
 Return

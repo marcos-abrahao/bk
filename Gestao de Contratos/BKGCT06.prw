@@ -3142,6 +3142,7 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
+Local cPrw		:= "V9BKGct06"
 
 Local cGerGestao := u_GerGestao()
 Local nRegSM0 := SM0->(Recno()) 
@@ -3220,11 +3221,11 @@ SM0->(dbGoTo(nRegSM0))
 
 IF LEN(aEmail) > 0
 
-	aCabs   := {"Empresa","Pedido N°","Centro Custo","Descrição C.Custo","Valor Total","Solicitante","Cod.Fornecedor","Nome Fornecedor"}
+	aCabs   := {"Empresa","N° Pedido","C.Custo","Descrição C.Custo","Valor Total","Solicitante","Fornecedor","Nome Fornecedor"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V9BKGct06")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
 
-	U_SendMail("V9BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 
 ENDIF
 
@@ -3249,7 +3250,8 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nRegSM0 := SM0->(Recno()) 
+Local nRegSM0 	:= SM0->(Recno()) 
+Local cPrw		:= "V10BKGct06"
 
 
 If FWCodEmp() <> "01"
@@ -3333,11 +3335,11 @@ SM0->(dbGoTo(nRegSM0))
 
 IF LEN(aEmail) > 0
 
-	aCabs   := {"Empresa","Pedido N°","Data de Entrega","Cod.Fornecedor","Nome Fornecedor","Solicitante","Centro Custo","Descrição C.Custo"}
+	aCabs   := {"Empresa","N°Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V10BKGct06")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
 
-	U_SendMail("V10BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 
 ENDIF
 
@@ -3353,7 +3355,7 @@ Static Function V11BKGct06()
 
 Local cQuery            
 Local _cAlias 	:= "QSC1"
-Local aArea      := GetArea()
+Local aArea     := GetArea()
 Local cAssunto	:= "Aviso de solicitação de compras em aberto"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
@@ -3361,10 +3363,11 @@ Local cMsg    	:= ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nRegSM0 := SM0->(Recno()) 
+Local nRegSM0 	:= SM0->(Recno()) 
 Local cPath     := "\tmp\"
-Local cCrLf   := Chr(13) + Chr(10)
+Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni
+Local cPrw		:= "V11BKGct06"
 
 If FWCodEmp() <> "01"
 	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -3453,7 +3456,7 @@ While SM0->(!EoF())
 ENDDO
 SM0->(dbGoTo(nRegSM0))
 
-CONOUT("V11BKGct06: Emails: "+cEmail)
+//CONOUT("V11BKGct06: Emails: "+cEmail)
 
 IF LEN(aEmail) > 0
 
@@ -3502,9 +3505,9 @@ IF LEN(aEmail) > 0
 			aCabs   := {"Arquivo"}
 			aEmail  := {}
 			AADD(aEmail,{"Segue arquivo anexo"})
-	   		cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs ,"V11BKGct06")
+	   		cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs ,cPrw)
        	
-			U_SendMail("V11BKGct06",cAssunto,cEmail,cEmailCC,cMsg,_cArqSv,lJobV2)
+			U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,_cArqSv,lJobV2)
 
 		Else
 			fClose(nHandle)
@@ -3537,8 +3540,8 @@ Local cMsg    	:= ""
 Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
-Local nRegSM0 := SM0->(Recno()) 
-
+Local nRegSM0 	:= SM0->(Recno()) 
+Local cPrw 		:= "V12BKGct06"
 
 If FWCodEmp() <> "01"
 	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -3609,11 +3612,11 @@ SM0->(dbGoTo(nRegSM0))
 
 IF LEN(aEmail) > 0
 
-	aCabs   := {"Empresa","Pedido N°","Data de Entrega","Cod.Fornecedor","Nome Fornecedor","Solicitante","Centro Custo","Descrição C.Custo"}
+	aCabs   := {"Empresa","N° Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V12BKGct06")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
 
-	U_SendMail("V12BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 
 ENDIF
 

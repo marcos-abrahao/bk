@@ -1,5 +1,6 @@
 ==============================================================
-
+01/02/22 - DIRF
+SELECT * FROM SE2010 WHERE E2_CODRET = '1708' AND D_E_L_E_T_ = ''  AND E2_TIPO <> 'TX' AND E2_PARCIR = ''
 
 ==============================================================
 21/01/22 - Correção de datas de vencimento de contas a pagar e integração

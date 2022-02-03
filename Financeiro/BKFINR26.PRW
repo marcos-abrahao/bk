@@ -821,7 +821,6 @@ Local nPos			:= 0
 Local aTitImp		:= {}
 Local nBx			:= 0
 
-
 Static aAbatBaixa 	:= {}
 Static __lBQ10925
 
@@ -854,7 +853,7 @@ Endif
 
 // Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
 If SE1->E1_VENCREA < dDataBase
-	If xmv_par17 == 2 .And. RecMoeda(SE1->E1_VENCREA,cMoeda) > 0
+	If xmv_par17 == 2 .And. RecMoeda(SE1->E1_VENCREA,SE1->E1_MOEDA) > 0
 		dDataReaj := SE1->E1_VENCREA
 	Else
 		dDataReaj := dDataBase

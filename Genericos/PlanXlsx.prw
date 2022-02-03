@@ -157,8 +157,8 @@ Private xCampo
 Private yCampo
 
 If lJob
-	//cDirTmp := "\tmp\"
-	lOpen	:= .F.
+	cDirDest := cDirTmp
+	lOpen	 := .F.
 EndIf
 
 
@@ -651,15 +651,20 @@ EndIf
 //cGenFile := StrTran(cArquivo, ".rel", ".xlsx")
 
 oPrtXlsx:toXlsx()
-If file(cFileR)
-	CpyS2T(cFileX, cDirDest)
-	ShellExecute("open",cFileL,"",cDirDest+"\", 1 )
+If !lJob
+	If file(cFileR)
+		CpyS2T(cFileX, cDirDest)
+		ShellExecute("open",cFileL,"",cDirDest+"\", 1 )
+	EndIf
 EndIf
 
 oPrtXlsx:EraseBaseFile()
 oPrtXlsx:DeActivate()
 
-FErase(cFileX)
+If !lJob
+	FErase(cFileX)
+EndIf
+
 FErase(cFileR)
 
 RestArea(aArea)
@@ -961,6 +966,7 @@ Private xCampo
 Private yCampo
 
 If lJob
+	cDirDest := cDirTmp
 	lOpen	:= .F.
 EndIf
 
@@ -1269,15 +1275,20 @@ EndIf
 //cGenFile := StrTran(cArquivo, ".rel", ".xlsx")
 
 oPrtXlsx:toXlsx()
-If file(cFileR)
-	CpyS2T(cFileX, cDirDest)
-	ShellExecute("open",cFileL,"",cDirDest+"\", 1 )
+If !lJob
+	If file(cFileR)
+		CpyS2T(cFileX, cDirDest)
+		ShellExecute("open",cFileL,"",cDirDest+"\", 1 )
+	EndIf
 EndIf
 
 oPrtXlsx:EraseBaseFile()
 oPrtXlsx:DeActivate()
 
-FErase(cFileX)
+If !lJob
+	FErase(cFileX)
+EndIf
+
 FErase(cFileR)
 
 RestArea(aArea)

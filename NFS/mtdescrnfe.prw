@@ -593,10 +593,18 @@ IF ALLTRIM(GetMv("MV_CODREG")) == "1"
 	cDescr1 += "Empresa Optante pelo Simples Nacional"+CRLF 
 ENDIF
 
+
 IF !EMPTY(ALLTRIM(GetMv("MV_XXDNFSE")))
 	cDescr1 += ALLTRIM(GetMv("MV_XXDNFSE"))+CRLF
 ENDIF 
+
 cDescr  += TextoNF(cDescr1,nMaxTLin)
+
+IF cEmpAnt == '14' // Balsa - Solicitado pelo Jalielison em 01/02/2022
+	cDescr += "Percentagem de participação:|"
+	cDescr += "BK Consultoria e Serviços Ltda: 97,75%|"
+	cDescr += "Trairi Comércio de Derivados de Petróleo Ltda: 2,25%"
+ENDIF
 
 cDescr := AltCorpo(cDescr,cNF,cSerie)
 
