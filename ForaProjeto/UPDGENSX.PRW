@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"18/01/2022 SA2 "
+#DEFINE FIN_LAST_UPDATED 		"04/02/2022 IMP "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -174,18 +174,20 @@ If ( lOpen := MyOpenSm0(.T.) )
 			oProcess:SetRegua1( 2 )
 
 			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
+
 			//AtuGenP12( @cTexto )
 
-			oProcess:IncRegua1( "Atualizando - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 13/07/21
+			//AtuGenPar( @cTexto )   // 03/02/22
+
+			AtuRndImp( @cTexto )   // 04/02/22
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 18/01/22 Sa2
+			//AtuGenX3( @cTexto )    // 18/01/22 Sa2
 
 			//AtuGenP12( @cTexto )
 
@@ -268,6 +270,565 @@ EndIf
 Return lRet
 
 
+// Parâmetros de arredondamento de Impostos
+Static Function AtuRndImp( cTexto )
+
+cTexto  += "Inicio da Atualizacao" + CRLF 
+
+dbSelectArea( "SX6" )
+SX6->( dbSetOrder( 1 ) )
+SX6->( dbGoTop() )
+
+oProcess:SetRegua2( 1 )
+
+// 03/02/2022 - Arredondamento de impostos
+// 19/03/2021 - Arredondamento de impostos
+// 01/03/2021 - Arredondamento de impostos
+
+
+oProcess:IncRegua2( "Atualizando parametros de arredontamentos impostos..." )
+
+// Indica se arredondamento de ISS respeitara a resoluc.886/66 do IBGE: Sendo o numero 5 a ser abandonado, arredonda se o antecessor for impar.
+If dbSeek(xFilial()+"MV_IBGE886")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// MV_RNDSOBR - ARRENDONDAMENTO SOBRAS IMPOSTOS
+// Indica se no truncamento dos impostos, o valor referente a terceira casa decimal (sobras) continuam a ser consideradas (.T.), ou nao (.F.)             
+If dbSeek(xFilial()+"MV_RNDSOBR")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Informe o critério de arredondamento do IRRF.
+If dbSeek(xFilial()+"MV_RNDIRF")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Informe o critério de arredondamento do IR.
+If dbSeek(xFilial()+"MV_RNDIRRF")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Controle para arredondamento de ISS onde .T. é arredondado e .F. não é arredondado
+If dbSeek(xFilial()+"MV_RNDISS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Arredondamento INSS
+If dbSeek(xFilial()+"MV_RNDINS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Arredondamento PIS
+If dbSeek(xFilial()+"MV_RNDPIS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Arredondamento Cofins
+If dbSeek(xFilial()+"MV_RNDCOF")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+// Arredondamento CSLL
+If dbSeek(xFilial()+"MV_RNDCSL")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Arredondamento PIS apuração
+If dbSeek(xFilial()+"MV_RNDPS2")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+// Arredondamento Cofins apuração
+If dbSeek(xFilial()+"MV_RNDCF2")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// Fim Arredondamento de impostos
+
+cTexto += CRLF + "Final da Atualizacao" + CRLF 
+
+/* 04/02/2022
+----------------------------------------------------------------------
+Empresa : 01/BK                                      
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 02/BK TER                                  
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 04/ESA                                     
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 06/BKDAHER SUZANO                          
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 07/JUST                                    
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 08/BHG CAMPINAS                            
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 09/BHG OSASCO                              
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 10/BKDAHER TABOAO                          
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 11/BKDAHER LIMEIRA                         
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 12/BK CORRETORA                            
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 14/CONSORCIO BALSA NOVA                    
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 15/BHG INTERIOR 3                          
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 97/CMOG PARTICIPACOES EIRELI               
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+Empresa : 98/TERO BRASIL PARTICIPACOES SOCIEDADE     
+
+Inicio da Atualizacao
+Parametro MV_IBGE886 conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_IBGE886 conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDSOBR conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDIRRF conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo: .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDISS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo: .F.                                                                                                                                                                                                                                                       
+Parametro MV_RNDINS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPIS  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCOF  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCSL  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDPS2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo: .f.                                                                                                                                                                                                                                                       
+Parametro MV_RNDCF2  conteudo alterado .T.                                                                                                                                                                                                                                                       
+
+Final da Atualizacao
+----------------------------------------------------------------------
+ Data / Hora Final.: 04/02/22 / 11:20:09
+----------------------------------------------------------------------
+*/
+
+Return
+
+
+
 Static Function AtuGenPar( cTexto )
 // Local cAlias    := ""
 // Local cEmpr     := ""
@@ -285,6 +846,28 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
+// 03/02/2022 - Arredondamento de impostos
+// 19/03/2021 - Arredondamento de impostos
+// 01/03/2021 - Arredondamento de impostos
+oProcess:IncRegua2( "Atualizando parametro MV_IBGE886..." )
+// Indica se arredondamento de ISS respeitara a resoluc.886/66 do IBGE: Sendo o numero 5 a ser abandonado, arredonda se o antecessor for impar.
+If dbSeek(xFilial()+"MV_IBGE886")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+cTexto += CRLF + "Final da Atualizacao" + CRLF 
+
+Return
+
+
+/*
 oProcess:IncRegua2( "Atualizando parametro MV_GCTFIN..." )
 //MV_GCTFIN que verifica a incompatibilidade entre os modos de compartilhamento das tabelas desses módulos alertando sobre possíveis inconsistências na integração.
 If dbSeek(xFilial()+"MV_GCTFIN")
@@ -297,6 +880,7 @@ If dbSeek(xFilial()+"MV_GCTFIN")
 	dbCommit()
 	MsUnLock()
 EndIf
+
 
 /*
 // 30/05/2021 - Validação Chave NFE
@@ -325,30 +909,6 @@ If dbSeek(xFilial()+"MV_VCHVNFE")  //Verifica se a Chave NFE confere com a nota 
 EndIf
 */
 
-// 19/03/2021 - Arredondamento de impostos
-/*
-oProcess:IncRegua2( "Atualizando parametro MV_RNDIRF..." )
-If dbSeek(xFilial()+"MV_RNDIRF")
-	RecLock( "SX6", .F. )
-
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	SX6->X6_CONTEUD := ".T."
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
-
-	dbCommit()
-	MsUnLock()
-EndIf
-
-If dbSeek(xFilial()+"MV_RNDIRRF")
-	RecLock( "SX6", .F. )
-
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	SX6->X6_CONTEUD := ".T."
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
-
-	dbCommit()
-	MsUnLock()
-EndIf
 */
 
 // 01/03/2021 -Error log por e-mail
@@ -380,31 +940,6 @@ EndIf
 */
 
 /*
-// 01/03/2021 - Arredondamento de impostos
-oProcess:IncRegua2( "Atualizando parametro MV_IBGE886..." )
-If dbSeek(xFilial()+"MV_IBGE886")
-	RecLock( "SX6", .F. )
-
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	SX6->X6_CONTEUD := ".T."
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
-
-	dbCommit()
-	MsUnLock()
-EndIf
-
-oProcess:IncRegua2( "Atualizando parametro MV_RNDSOBR - ARRENDONDAMENTO SOBRAS IMPOSTOS..." )
-If dbSeek(xFilial()+"MV_RNDSOBR")
-	RecLock( "SX6", .F. )
-
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
-	SX6->X6_CONTEUD := ".T."
-	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
-
-	dbCommit()
-	MsUnLock()
-EndIf
-// Fim Arredondamento de impostos
 */
 
 
@@ -931,11 +1466,6 @@ If dbSeek(xFilial()+"MV_XXGRPMD")
 	MsUnLock()
 EndIf
 */
-
-
-cTexto += CRLF + "Final da Atualizacao" + CRLF 
-
-Return
 
 
 Static Function AtuGenDic( cTexto )

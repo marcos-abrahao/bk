@@ -41,7 +41,7 @@ Private wnrel        := "FINR07" // Coloque aqui o nome do arquivo usado para im
 Private fGFrota      := fFrota
 Private cString      := "SD1"
 
-Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos
+Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin
 
 Private nPlan
 
@@ -59,6 +59,8 @@ cCustoDe := MV_PAR05
 cCustoAte:= MV_PAR06
 nUsers   := MV_PAR07
 nImpostos:= MV_PAR08
+nPaFin	 := MV_PAR09
+
 fGFrota  := fFrota
 
 
@@ -155,6 +157,9 @@ Else
 
 	AADD(aCampos,"QSD1->A2_NOME")
 	AADD(aCabs  ,"Nome do Fornecedor")
+
+	AADD(aCampos,"QSD1->D1_SERIE")
+	AADD(aCabs  ,"Série")
 
 	AADD(aCampos,"QSD1->D1_DOC")
 	AADD(aCabs  ,"Documento")
@@ -426,25 +431,124 @@ EndIf
 
 cTitulo := "Despesas mensais por Doc. de Entrada: "
 
-cQuery := "SELECT DISTINCT D1_FILIAL,D1_COD,D1_ITEM,B1_DESC,D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL,D1_QUANT,D1_CC,CTT_DESC01,"+CRLF
-cQuery += " D1_CONTA,D1_FORNECE,D1_LOJA,A2_NOME,A2_TIPO,A2_CGC,A2_CONTA,D1_DOC,D1_DTDIGIT,D1_EMISSAO,C7_XXURGEN, "+CRLF
-cQuery += " ZI_COD,ZI_DESC,D1_TES,F4_TEXTO,F4_CF, "+CRLF
-cQuery += " E2_VENCREA,E2_BAIXA,E2_VALOR,F1_VALBRUT, "+CRLF
+cQuery := "SELECT DISTINCT "+CRLF
+
+cQuery += " D1_FILIAL, "+CRLF
+cQuery += " D1_COD, "+CRLF
+cQuery += " D1_ITEM, "+CRLF
+cQuery += " B1_DESC, "+CRLF
+cQuery += " D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL, "+CRLF
+cQuery += " D1_QUANT, "+CRLF
+cQuery += " D1_CC, "+CRLF
+cQuery += " CTT_DESC01,"+CRLF
+
+cQuery += " D1_CONTA, "+CRLF
+cQuery += " D1_FORNECE, "+CRLF
+cQuery += " D1_LOJA, "+CRLF
+cQuery += " A2_NOME, "+CRLF
+cQuery += " A2_TIPO, "+CRLF
+cQuery += " A2_CGC, "+CRLF
+cQuery += " A2_CONTA, "+CRLF
+cQuery += " D1_SERIE, "+CRLF
+cQuery += " D1_DOC, "+CRLF
+cQuery += " D1_DTDIGIT, "+CRLF
+cQuery += " D1_EMISSAO, "+CRLF
+cQuery += " C7_XXURGEN, "+CRLF
+
+cQuery += " ZI_COD, "+CRLF
+cQuery += " ZI_DESC, "+CRLF
+cQuery += " D1_TES, "+CRLF
+cQuery += " F4_TEXTO, "+CRLF
+cQuery += " F4_CF, "+CRLF
+
+cQuery += " E2_VENCREA, "+CRLF
+cQuery += " E2_BAIXA, "+CRLF
+cQuery += " E2_VALOR, "+CRLF
+cQuery += " F1_VALBRUT, "+CRLF
 cQuery += " B1_CONTA, "+CRLF
+
 If nImpostos == 1
-	cQuery += " A2_SIMPNAC,A2_CONTA,CT1.CT1_DESC01 AS CT1_DESC01,CT1B.CT1_DESC01 AS CT1B_DESC01, "+CRLF
-	cQuery += " F1_DTLANC,E2_NATUREZ,ED_DESCRIC,F4_CODBCC, "+CRLF
-	cQuery += " A2_RECINSS,ED_CALCINS,ED_PERCINS,D1_BASEINS,D1_VALINS,F1_INSS,E2_VRETINS,B1_INSS, "+CRLF
-	cQuery += " A2_CALCIRF,ED_CALCIRF,ED_PERCIRF,D1_BASEIRR,D1_ALIQIRR,D1_VALIRR,F1_VALIRF,E2_IRRF,E2_VRETIRF,B1_IRRF, "+CRLF
-	cQuery += " A2_RECISS,ED_CALCISS,D1_BASEISS,D1_ALIQISS,D1_VALISS,F1_ISS,E2_VRETISS,B1_CODISS,F4_RETISS, "+CRLF
-	cQuery += " A2_RECPIS,ED_CALCPIS,ED_PERCPIS,D1_BASEPIS,D1_ALQPIS,D1_VALPIS,F1_VALPIS,E2_VRETPIS,B1_PIS,F4_PISCRED,F4_PISCOF,F4_CSTPIS, "+CRLF
-	cQuery += " A2_RECCOFI,ED_CALCCOF,ED_PERCCOF,D1_BASECOF,D1_ALQCOF,D1_VALCOF,E2_VRETCOF,B1_COFINS,F4_CSTCOF, "+CRLF
-	cQuery += " A2_RECCSLL,ED_CALCCSL,ED_PERCCSL,D1_BASECSL,D1_ALQCSL,D1_VALCSL,E2_VRETCSL,B1_CSLL, "+CRLF
+
+	cQuery += " A2_SIMPNAC, "+CRLF
+	cQuery += " A2_CONTA, "+CRLF
+	cQuery += " CT1.CT1_DESC01 AS CT1_DESC01, "+CRLF
+	cQuery += " CT1B.CT1_DESC01 AS CT1B_DESC01, "+CRLF
+
+	cQuery += " F1_DTLANC, "+CRLF
+	cQuery += " E2_NATUREZ, "+CRLF
+	cQuery += " ED_DESCRIC, "+CRLF
+	cQuery += " F4_CODBCC, "+CRLF
+
+	cQuery += " A2_RECINSS, "+CRLF
+	cQuery += " ED_CALCINS, "+CRLF
+	cQuery += " ED_PERCINS, "+CRLF
+	cQuery += " D1_BASEINS, "+CRLF
+	cQuery += " D1_VALINS, "+CRLF
+	cQuery += " F1_INSS, "+CRLF
+	cQuery += " E2_VRETINS, "+CRLF
+	cQuery += " B1_INSS, "+CRLF
+
+	cQuery += " A2_CALCIRF, "+CRLF
+	cQuery += " ED_CALCIRF, "+CRLF
+	cQuery += " ED_PERCIRF, "+CRLF
+	cQuery += " D1_BASEIRR, "+CRLF
+	cQuery += " D1_ALIQIRR, "+CRLF
+	cQuery += " D1_VALIRR, "+CRLF
+	cQuery += " F1_VALIRF, "+CRLF
+	cQuery += " E2_IRRF, "+CRLF
+	cQuery += " E2_VRETIRF, "+CRLF
+	cQuery += " B1_IRRF, "+CRLF
+
+	cQuery += " A2_RECISS, "+CRLF
+	cQuery += " ED_CALCISS, "+CRLF
+	cQuery += " D1_BASEISS, "+CRLF
+	cQuery += " D1_ALIQISS, "+CRLF
+	cQuery += " D1_VALISS, "+CRLF
+	cQuery += " F1_ISS, "+CRLF
+	cQuery += " E2_VRETISS, "+CRLF
+	cQuery += " B1_CODISS, "+CRLF
+	cQuery += " F4_RETISS, "+CRLF
+
+	cQuery += " A2_RECPIS, "+CRLF
+	cQuery += " ED_CALCPIS, "+CRLF
+	cQuery += " ED_PERCPIS, "+CRLF
+	cQuery += " D1_BASEPIS, "+CRLF
+	cQuery += " D1_ALQPIS, "+CRLF
+	cQuery += " D1_VALPIS, "+CRLF
+	cQuery += " F1_VALPIS, "+CRLF
+	cQuery += " E2_VRETPIS, "+CRLF
+	cQuery += " B1_PIS, "+CRLF
+	cQuery += " F4_PISCRED, "+CRLF
+	cQuery += " F4_PISCOF, "+CRLF
+	cQuery += " F4_CSTPIS, "+CRLF
+
+	cQuery += " A2_RECCOFI, "+CRLF
+	cQuery += " ED_CALCCOF, "+CRLF
+	cQuery += " ED_PERCCOF, "+CRLF
+	cQuery += " D1_BASECOF, "+CRLF
+	cQuery += " D1_ALQCOF, "+CRLF
+	cQuery += " D1_VALCOF, "+CRLF
+	cQuery += " E2_VRETCOF, "+CRLF
+	cQuery += " B1_COFINS, "+CRLF
+	cQuery += " F4_CSTCOF, "+CRLF
+
+	cQuery += " A2_RECCSLL, "+CRLF
+	cQuery += " ED_CALCCSL, "+CRLF
+	cQuery += " ED_PERCCSL, "+CRLF
+	cQuery += " D1_BASECSL, "+CRLF
+	cQuery += " D1_ALQCSL, "+CRLF
+	cQuery += " D1_VALCSL, "+CRLF
+	cQuery += " E2_VRETCSL, "+CRLF
+	cQuery += " B1_CSLL, "+CRLF
+
 EndIf
 If nUsers == 1
-	cQuery += " F1_XXUSER,F1_XXUSERS, "+CRLF
+	cQuery += " F1_XXUSER, "+CRLF
+	cQuery += " F1_XXUSERS, "+CRLF
 EndIf
+
 cQuery += " CONVERT(VARCHAR(6000),CONVERT(Binary(6000),D1_XXHIST)) D1_XXHIST "+CRLF
+
 cQuery += "FROM "+RETSQLNAME("SD1")+" SD1 "
 cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
@@ -508,6 +612,157 @@ IF !EMPTY(cCustoAte)
 		ctitulo += " - Contrato até: "+ALLTRIM(cCustoAte)
 	ENDIF
 ENDIF
+
+If nPaFin == 1 .AND. EMPTY(cProduto)
+
+	// 04/02/2022 - Incluir pagamentos antecipados
+	cQuery += " UNION ALL "+CRLF
+	cQuery += " SELECT "+CRLF
+	cQuery += " E2_FILIAL	AS D1_FILIAL,"+CRLF
+	cQuery += " 'PA' 		AS D1_COD,"+CRLF
+	cQuery += " ' ' 		AS D1_ITEM,"+CRLF
+	cQuery += " 'PAGAMENTO ANTECIPADO' AS B1_DESC,"+CRLF
+	cQuery += " E2_SALDO 	AS D1_TOTAL,"+CRLF
+	cQuery += " 0 			AS D1_QUANT,"+CRLF
+	cQuery += " E2_CCUSTO 	AS D1_CC,CTT_DESC01,"+CRLF
+
+	cQuery += " ' ' 		AS D1_CONTA,"+CRLF
+	cQuery += " E2_FORNECE 	AS D1_FORNECE,"+CRLF
+	cQuery += " E2_LOJA		AS D1_LOJA,"+CRLF
+	cQuery += " A2_NOME,"+CRLF
+	cQuery += " A2_TIPO,"+CRLF
+	cQuery += " A2_CGC,"+CRLF
+	cQuery += " A2_CONTA,"+CRLF
+	cQuery += " E2_PREFIXO	AS D1_SERIE,"+CRLF
+	cQuery += " E2_NUM		AS D1_DOC,"+CRLF
+	cQuery += " E2_EMIS1	AS D1_DTDIGIT,"+CRLF
+	cQuery += " E2_EMISSAO	AS D1_EMISSAO,"+CRLF
+	cQuery += " ' '			AS C7_XXURGEN, "+CRLF
+
+	cQuery += " ' '			AS ZI_COD,"+CRLF
+	cQuery += " ' '			AS ZI_DESC,"+CRLF
+	cQuery += " ' '			AS D1_TES,"+CRLF
+	cQuery += " ' '			AS F4_TEXTO,"+CRLF
+	cQuery += " ' '			AS F4_CF, "+CRLF
+
+	cQuery += " E2_VENCREA,"+CRLF
+	cQuery += " E2_BAIXA,"+CRLF
+	cQuery += " E2_VALOR,"+CRLF
+	cQuery += " 0 			AS F1_VALBRUT, "+CRLF
+	cQuery += " ' '			AS B1_CONTA, "+CRLF
+
+	If nImpostos == 1
+		cQuery += " A2_SIMPNAC, "+CRLF
+		cQuery += " A2_CONTA, "+CRLF
+		cQuery += " CT1.CT1_DESC01 AS CT1_DESC01, "+CRLF
+		cQuery += " ' '			AS CT1B_DESC01, "+CRLF
+
+		cQuery += " E2_MOVIMEN	AS F1_DTLANC, "+CRLF
+		cQuery += " E2_NATUREZ, "+CRLF
+		cQuery += " ED_DESCRIC, "+CRLF
+		cQuery += " ' '			AS F4_CODBCC, "+CRLF
+
+		cQuery += " A2_RECINSS, "+CRLF
+		cQuery += " ED_CALCINS, "+CRLF
+		cQuery += " ED_PERCINS, "+CRLF
+		cQuery += " 0			AS D1_BASEINS, "+CRLF
+		cQuery += " 0			AS D1_VALINS, "+CRLF
+		cQuery += " 0			AS F1_INSS, "+CRLF
+		cQuery += " E2_VRETINS, "+CRLF
+		cQuery += " ' '			AS B1_INSS, "+CRLF
+
+		cQuery += " A2_CALCIRF, "+CRLF
+		cQuery += " ED_CALCIRF, "+CRLF
+		cQuery += " ED_PERCIRF, "+CRLF
+		cQuery += " 0			AS D1_BASEIRR, "+CRLF
+		cQuery += " 0			AS D1_ALIQIRR, "+CRLF
+		cQuery += " 0			AS D1_VALIRR, "+CRLF
+		cQuery += " 0			AS F1_VALIRF, "+CRLF
+		cQuery += " E2_IRRF, "+CRLF
+		cQuery += " E2_VRETIRF, "+CRLF
+		cQuery += " ' '			AS B1_IRRF, "+CRLF
+
+		cQuery += " A2_RECISS, "+CRLF
+		cQuery += " ED_CALCISS, "+CRLF
+		cQuery += " 0			AS D1_BASEISS, "+CRLF
+		cQuery += " 0			AS D1_ALIQISS, "+CRLF
+		cQuery += " 0			AS D1_VALISS, "+CRLF
+		cQuery += " 0			AS F1_ISS, "+CRLF
+		cQuery += " 0			AS E2_VRETISS, "+CRLF
+		cQuery += " ' '			AS B1_CODISS, "+CRLF
+		cQuery += " ' '			AS F4_RETISS, "+CRLF
+
+		cQuery += " A2_RECPIS, "+CRLF
+		cQuery += " ED_CALCPIS, "+CRLF
+		cQuery += " ED_PERCPIS, "+CRLF
+		cQuery += " 0			AS D1_BASEPIS, "+CRLF
+		cQuery += " 0			AS D1_ALQPIS, "+CRLF
+		cQuery += " 0			AS D1_VALPIS, "+CRLF
+		cQuery += " 0			AS F1_VALPIS, "+CRLF
+		cQuery += " E2_VRETPIS, "+CRLF
+		cQuery += " ' '			AS B1_PIS, "+CRLF
+		cQuery += " ' '			AS F4_PISCRED, "+CRLF
+		cQuery += " ' '			AS F4_PISCOF, "+CRLF
+		cQuery += " ' '			AS F4_CSTPIS, "+CRLF
+
+		cQuery += " A2_RECCOFI, "+CRLF
+		cQuery += " ED_CALCCOF, "+CRLF
+		cQuery += " ED_PERCCOF, "+CRLF
+		cQuery += " 0			AS D1_BASECOF, "+CRLF
+		cQuery += " 0			AS D1_ALQCOF, "+CRLF
+		cQuery += " 0			AS D1_VALCOF, "+CRLF
+		cQuery += " E2_VRETCOF, "+CRLF
+		cQuery += " 0			AS B1_COFINS, "+CRLF
+		cQuery += " ' '			AS F4_CSTCOF, "+CRLF
+
+		cQuery += " A2_RECCSLL, "+CRLF
+		cQuery += " ED_CALCCSL, "+CRLF
+		cQuery += " ED_PERCCSL, "+CRLF
+		cQuery += " 0			AS D1_BASECSL, "+CRLF
+		cQuery += " 0			AS D1_ALQCSL, "+CRLF
+		cQuery += " 0			AS D1_VALCSL, "+CRLF
+		cQuery += " E2_VRETCSL, "+CRLF
+		cQuery += " ' '			AS B1_CSLL, "+CRLF
+
+	EndIf
+	If nUsers == 1
+		cQuery += " ' '			AS F1_XXUSER, "+CRLF
+		cQuery += " ' '			AS F1_XXUSERS, "+CRLF
+	EndIf
+	cQuery += " E2_HIST			AS D1_XXHIST "+CRLF
+
+	cQuery += "FROM "+RETSQLNAME("SE2")+" SE2 "
+	cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND E2_FORNECE = A2_COD AND E2_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON CTT_FILIAL = '"+xFilial("CTT")+"' AND E2_CCUSTO = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SED")+" SED ON ED_FILIAL = '"+xFilial("SED")+"' AND ED_CODIGO = E2_NATUREZ AND SED.D_E_L_E_T_ = '' "+CRLF
+	If nImpostos == 1
+		cQuery += " LEFT JOIN "+RETSQLNAME("CT1")+" CT1 ON CT1_FILIAL = '"+xFilial("CT1")+"' AND CT1_CONTA = A2_CONTA AND CT1.D_E_L_E_T_ = ''  "+CRLF
+		//cQuery += " LEFT JOIN "+RETSQLNAME("CT1")+" CT1B ON CT1B.CT1_FILIAL = '"+xFilial("CT1")+"' AND CT1B.CT1_CONTA = B1_CONTA AND CT1B.D_E_L_E_T_ = ''  "+CRLF
+	EndIf
+	cQuery += "WHERE SE2.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += " AND E2_PREFIXO = '001' "+CRLF
+	cQuery += " AND E2_TIPO = 'PA' "+CRLF
+	cQuery += " AND E2_SALDO > 0 "+CRLF
+
+	IF !EMPTY(dDtIni)
+		cQuery += "AND E2_EMIS1 >= '"+DTOS(dDtIni)+"' "+CRLF
+	ENDIF
+	IF !EMPTY(dDtFim)
+		cQuery += "AND E2_EMIS1 <= '"+DTOS(dDtFim)+"' "+CRLF
+	ENDIF
+
+	IF !EMPTY(cCustoDe)
+		cQuery += " AND SE2.E2_CCUSTO >= '"+ALLTRIM(cCustoDe)+"' "+CRLF
+	ELSE
+		cQuery += " AND SE2.E2_CCUSTO > ' ' "+CRLF
+	ENDIF
+
+	IF !EMPTY(cCustoAte)
+		cQuery += " AND SE2.E2_CCUSTO <= '"+ALLTRIM(cCustoAte)+"' "+CRLF
+	ENDIF
+
+EndIf
+
 
 cQuery += "ORDER BY D1_COD,D1_DTDIGIT,D1_DOC "+CRLF
 
@@ -718,6 +973,7 @@ AADD(aRegistros,{cPerg,"05","Contrato de?"     ,"Contrato de?" ,"Contrato de?" ,
 AADD(aRegistros,{cPerg,"06","Contrato até?"    ,"Contrato até?","Contrato até?","mv_ch6","C",09,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"07","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 AADD(aRegistros,{cPerg,"08","Listar impostos?" ,"Impostos"     ,"Impostos"     ,"mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"09","Listar PA (fin)?" ,"Listar PA"    ,"Listar PA"    ,"mv_ch9","N",01,0,2,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

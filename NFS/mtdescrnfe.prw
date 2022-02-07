@@ -538,7 +538,18 @@ IF !EMPTY(SF2->F2_XXCVINC) .OR. SF2->F2_XXVCVIN > 0
 	cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //  IIF(nMaxTLin>80," ","|")
 	cDescr1 += "R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
 ELSE
-	IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
+	//IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
+	
+	// 07/02/2022 - Filtrar somente os clientes abaixo para pedir conta vinculada (Pedido pelo João Cordeiro) provisoriamente.
+	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014801/00023001/00016401/")
+
+		/*
+		000142	01	MINISTERIO DA FAZENDA                   
+		000148	01	MINISTERIO DA FAZENDA 
+		000230	01	MINISTERIO DA FAZENDA                   
+		000164	01	TRIBUNAL REGIONAL FEDERAL DA 3A REGIAO
+		*/
+
 		ContVinc()
    		nScan:= 0
    		nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
@@ -601,9 +612,9 @@ ENDIF
 cDescr  += TextoNF(cDescr1,nMaxTLin)
 
 IF cEmpAnt == '14' // Balsa - Solicitado pelo Jalielison em 01/02/2022
-	cDescr += "Percentagem de participação:|"
-	cDescr += "BK Consultoria e Serviços Ltda: 97,75%|"
-	cDescr += "Trairi Comércio de Derivados de Petróleo Ltda: 2,25%"
+	cDescr += "O serviço desta Nota Fiscal foi prestado na seguinte proporção:|"
+	cDescr += "97,75% pela BK Consultoria e Serviços Ltda 03.022.122/0001-77|"
+	cDescr += "2,25% pela Trairi Comércio de Derivados de Petroleo Ltda 04.811.052/0001-07"
 ENDIF
 
 cDescr := AltCorpo(cDescr,cNF,cSerie)

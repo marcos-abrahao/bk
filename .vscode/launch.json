@@ -34,7 +34,10 @@
 		},
 		{
 			"label": "upddistr"
+		},
+		{
+			"label": "U_UPDGENPAR"
 		}
 	],
-	"lastProgramExecuted": "upddistr"
+	"lastProgramExecuted": "U_UPDGENSX"
 }
