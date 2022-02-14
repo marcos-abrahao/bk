@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"04/02/2022 IMP "
+#DEFINE FIN_LAST_UPDATED 		"08/02/2022 SE2 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -181,13 +181,13 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenPar( @cTexto )   // 03/02/22
 
-			AtuRndImp( @cTexto )   // 04/02/22
+			//AtuRndImp( @cTexto )   // 04/02/22
 			
 			//AtuGenXX( @cTexto )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			//AtuGenX3( @cTexto )    // 18/01/22 Sa2
+			AtuGenX3( @cTexto )    // 08/02/22 SE2
 
 			//AtuGenP12( @cTexto )
 
@@ -1490,8 +1490,29 @@ Local nBrw := 0
 
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
-cTexto  += "18/01/22 - TABELA SA2 BROWSE" + CRLF 
+cTexto  += "08/02/22 - TABELA SE2 BROWSE" + CRLF 
 
+dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+
+aAdd(aSBrowse,"E2_FORNECE")    
+aAdd(aSBrowse,"E2_LOJA")    
+For nBrw := 1 TO Len(aSBrowse)
+	If SX3->( dbSeek( aSBrowse[nBrw] ) )
+		RecLock( "SX3", .F. )
+		SX3->X3_BROWSE  := "S"
+		dbCommit()
+		MsUnLock()
+	EndIf
+Next
+
+dbSetOrder( 1 )
+
+Return
+
+/*
+
+cTexto  += "18/01/22 - TABELA SA2 BROWSE" + CRLF 
 dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 
@@ -1581,10 +1602,7 @@ For nBrw := 1 TO Len(aNBrowse)
 	EndIf
 Next
 
-dbSetOrder( 1 )
-
-Return
-
+*/
 
 /*
 cTexto  += "25/11/21 - TABELA SB1 - BROWSE = 'S'" + CRLF 

@@ -79,8 +79,8 @@ User Function MATA094 ()
 		ElseIf (cIdPonto =="FORMCOMMITTTSPRE")
 			//MsgInfo("Chamada após a gravação da tabela do formulário.")
 		ElseIf (cIdPonto =="FORMCOMMITTTSPOS")
-			U_MT094END(FWFldGet("CR_NUM"),FWFldGet("CR_TIPO"),nOpc)
 			//MsgInfo("Chamada após a gravação da tabela do formulário.")
+			U_MT094END(FWFldGet("CR_NUM"),FWFldGet("CR_TIPO"),nOpc)
 		ElseIf (cIdPonto =="MODELCANCEL")
 			/*
 			cMsg := "Deseja realmente sair?"
@@ -95,5 +95,9 @@ Return (xRet)
 
 
 USER FUNCTION MT094LOK
-U_BKCOMA04()
+
+If !IsBlind()
+	U_BKCOMA04()
+EndIf
+
 Return

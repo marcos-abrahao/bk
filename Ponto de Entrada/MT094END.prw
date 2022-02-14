@@ -8,7 +8,7 @@ Ponto de Entrada para envio Pedido de Compras para Liberação Alçada
 Retorno ao 02 Nivel e ao grupo de compras
 @Return
 @author Adilson do Prado
-@since 18/02/13 - rev 14/11/20
+@since 18/02/13 - rev 11/02/22
 @version P12
 /*/
 
@@ -184,7 +184,7 @@ Do While QSCR->(!eof())
 		ENDIF
 	SAL->(dbskip())
 	Enddo
-QSCR->(dbskip())
+	QSCR->(dbskip())
 ENDDO
 QSCR->(DbCloseArea())    
 
@@ -412,7 +412,7 @@ Do While QSC7->(!eof())
     ELSE
     	dDATPRF := Date() 
     ENDIF 
-   	cQuery  := "UPDATE "+RETSQLNAME("SC7")+" SET  C7_DATPRF='"+DTOS(dDATPRF)+"'"
+   	cQuery  := "UPDATE "+RETSQLNAME("SC7")+" SET C7_DATPRF='"+DTOS(dDATPRF)+"'"
 	cQuery  += " WHERE D_E_L_E_T_='' AND C7_NUM='"+ALLTRIM(QSC7->C7_NUM)+"'"
 	cQuery  += " AND C7_ITEM='"+ALLTRIM(QSC7->C7_ITEM)+"'" 
     TcSqlExec(cQuery)

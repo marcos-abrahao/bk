@@ -151,7 +151,6 @@ If nCont > 0
 EndIf
 
 
-
 If nCont > 0
 
     AADD(aPlans,{cAliasTrb2,TRIM(cPerg),"",aTitulos,aCampos,aCabs,/*aImpr*/,aFormula,/*aFormat*/, /*aTotal */, /*cQuebra*/, lClose:= .F. })
@@ -162,7 +161,10 @@ Else
 EndIf
 
 oTmpTb:Delete()
-oTmpTb2:Delete()
+
+If nCont > 0
+    oTmpTb2:Delete()
+EndIf
 
 //-----------------------
 If !Empty( __oTBxCanc )

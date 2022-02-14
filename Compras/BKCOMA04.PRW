@@ -1,22 +1,14 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
+#INCLUDE "RWMAKE.CH"
+#INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
+/*/{Protheus.doc} BKCOMA04
+Aprovação do Pedido de Compras - Alçada
+@Return
+@author Adilson do Prado
+@since 07/02/2013
+@version P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKCOMA04º      Adilson do Prado              Data ³07/02/13º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Aprovação do Pedido de Compras - Alçada					  º±±
-±±º																		  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK Consultoria                                             º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
-
 
 User Function BKCOMA04()
 Local oDlg
@@ -110,7 +102,7 @@ Do While SC7->(!eof()) .AND. cNumPC == SC7->C7_NUM
 	DbSelectArea("SC1")
 	SC1->(DbSetOrder(1))
 	IF SC1->(DbSeek(xFilial("SC1")+SC7->C7_NUMSC+SC7->C7_ITEMSC,.F.))
-   		AADD(aItems,{SC1->C1_SOLICIT,SC1->C1_NUM,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_EMISSAO,SC1->C1_DATPRF,aMotivo[val(SC1->C1_XXMTCM)],TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99"),TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99"),"Obs: "+SC1->C1_OBS,"Contrato: "+SC1->C1_CC,"Desc.Contr: "+SC1->C1_XXDCC,"Objeto: "+SC1->C1_XXOBJ})
+   		AADD(aItems,{SC1->C1_SOLICIT,SC1->C1_NUM,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_EMISSAO,SC1->C1_DATPRF,aMotivo[val(SC1->C1_XXMTCM)],TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99"),TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99"),"Obs: "+TRIM(SC1->C1_OBS),"Contrato: "+SC1->C1_CC,"Desc.Contr: "+SC1->C1_XXDCC,"Objeto: "+SC1->C1_XXOBJ})
 		cXXJUST += IIF(SC1->C1_XXJUST $ cXXJUST,"",SC1->C1_XXJUST) 
    		aITx_ := {}
 		DbSelectArea("SC8")
@@ -118,8 +110,23 @@ Do While SC7->(!eof()) .AND. cNumPC == SC7->C7_NUM
 		SC8->(DbSeek(xFilial("SC8")+SC7->C7_NUMCOT,.T.))
 	    Do While SC8->(!eof()) .AND. SC8->C8_NUM==SC7->C7_NUMCOT 
 	    	IF SC8->C8_NUMSC==SC1->C1_NUM  .AND. SC8->C8_ITEMSC == SC1->C1_ITEM
-	    	    cForPagto := "For.Pgto: "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_COND,SC8->C8_COND)+" - "+Posicione("SE4",1,xFilial("SE4")+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_COND,SC8->C8_COND),"E4_DESCRI")
-	   		    AADD(aITx_,{"",SC8->C8_NUM,SC8->C8_ITEM,SC8->C8_PRODUTO,SC8->C8_XXDESCP,SC8->C8_UM,SC8->C8_QUANT,SC8->C8_EMISSAO,IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_DATPRF,""),IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,"Vencedor",""),TRANSFORM(SC8->C8_PRECO,"@E 999,999,999.99"),TRANSFORM(SC8->C8_TOTAL,"@E 999,999,999.99"),cForPagto,"Cod.For: "+SC8->C8_FORNECE,"Fornecedor: "+SC8->C8_XXNFOR,"Validade da Proposta: "+DTOC(SC8->C8_VALIDA)+"      "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM,IIF(ALLTRIM(SC8->C8_MOTIVO) == "ENCERRADO AUTOMATICAMENTE","X - Vencedor Indicado Pelo Sistema","* - Fornecedor Selecionado Pelo Usuário"),"")+IIF(!EMPTY(SC8->C8_OBS),"   OBS:"+SC8->C8_OBS,"")})
+	    	    cForPagto := TRIM("For.Pgto: "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_COND,SC8->C8_COND)+" - "+Posicione("SE4",1,xFilial("SE4")+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_COND,SC8->C8_COND),"E4_DESCRI"))
+	   		    AADD(aITx_,{"",;
+				   			SC8->C8_NUM,;
+							SC8->C8_ITEM,;
+							SC8->C8_PRODUTO,;
+							SC8->C8_XXDESCP,;
+							SC8->C8_UM,;
+							SC8->C8_QUANT,;
+							SC8->C8_EMISSAO,;
+							IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_DATPRF,""),;
+							IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,"Vencedor",""),;
+							TRANSFORM(SC8->C8_PRECO,"@E 999,999,999.99"),;
+							TRANSFORM(SC8->C8_TOTAL,"@E 999,999,999.99"),;
+							TRIM(cForPagto),;
+							"Cod.Forn: "+SC8->C8_FORNECE,;
+							"Forn.: "+SC8->C8_XXNFOR,;
+							"Validade da Proposta: "+DTOC(SC8->C8_VALIDA)+"      "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM,IIF(ALLTRIM(SC8->C8_MOTIVO) == "ENCERRADO AUTOMATICAMENTE","X - Vencedor Indicado Pelo Sistema","* - Fornecedor Selecionado Pelo Usuário"),"")+IIF(!EMPTY(SC8->C8_OBS),"   OBS:"+SC8->C8_OBS,"")})
 			ENDIF
 			SC8->(DbSkip())
 		ENDDO
@@ -152,7 +159,6 @@ IF !lPedido
 	Return lOk
 ENDIF
 
-
    
 DEFINE MSDIALOG oDlg TITLE "Liberar Pedido de Compra" FROM 000,000 TO 500,800 PIXEL 
 
@@ -163,26 +169,55 @@ oPanelLeft:Align := CONTROL_ALIGN_LEFT
 
 @ 005, 300 SAY "Comprador: "+cNUser OF oPanelLeft SIZE 200,10 PIXEL
 
-@ 015, 005 LISTBOX oListID FIELDS HEADER "Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes" SIZE 393,160 OF oPanelLeft PIXEL 
+//@ 015, 005 LISTBOX oListID FIELDS HEADER "Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes" SIZE 393,160 OF oPanelLeft PIXEL 
+
+oListID := TCBrowse():New(;
+				015,;	// [ nRow ]
+				005,;	// [ nCol ]
+				393,;	// [ nWidth ]
+				160,;	// [ nHeight ]
+				,;		// [ bLine ]
+				{"Solic./Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licit./Cotado","Tot.Licit./Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"},; //[ aHeaders ]
+				{ 45,			   20,    18,    50,         100,                8,   20,     20,       20,              100,                    45,                 45,                 100,           50,              100,                            200},; 	  //[ aColSizes ]
+				oPanelLeft,;	// [ oWnd ]
+				,;		// [ cField ]
+				,;		// [ uValue1 ]
+				,;		// [ uValue2 ]
+				,;		// [ bChange ]
+				{||},;	// [ bLDblClick ]
+				,;		// [ bRClicked ]
+				,;		// [ oFont ]
+				,;		// [ oCursor ]
+				,;		// [ nClrFore ]
+				,;		// [ nClrBack ]
+				,;		// [ cMsg ]
+				.F.,;	// [ uParam20 ]
+				,;		// [ cAlias ]
+				.T.,;	// [ lPixel ]
+				,;		// [ bWhen ]
+				.F.,;	// [ uParam24 ]
+				,;		// [ bValid ]
+				.T.,;		// [ lHScroll ]
+				.T., )		// [ lVScroll ]
 
 oListID:SetArray(aItems)
 IF LEN(aItems) > 1
-oListID:bLine := {|| {	aItems[oListId:nAt][1],;
-						aItems[oListId:nAt][2],;
-						aItems[oListId:nAt][3],;
-						aItems[oListId:nAt][4],;
-						aItems[oListId:nAt][5],;
-						aItems[oListId:nAt][6],;
-						aItems[oListId:nAt][7],;
-						aItems[oListId:nAt][8],;
-						aItems[oListId:nAt][9],;
-						aItems[oListId:nAt][10],;
-						aItems[oListId:nAt][11],;
-						aItems[oListId:nAt][12],;
-						aItems[oListId:nAt][13],;
-						aItems[oListId:nAt][14],;
-						aItems[oListId:nAt][15],;
-						aItems[oListId:nAt][16]	}}
+	oListID:bLine := {|| {	aItems[oListId:nAt][1],;
+							aItems[oListId:nAt][2],;
+							aItems[oListId:nAt][3],;
+							aItems[oListId:nAt][4],;
+							aItems[oListId:nAt][5],;
+							aItems[oListId:nAt][6],;
+							aItems[oListId:nAt][7],;
+							aItems[oListId:nAt][8],;
+							aItems[oListId:nAt][9],;
+							aItems[oListId:nAt][10],;
+							aItems[oListId:nAt][11],;
+							aItems[oListId:nAt][12],;
+							aItems[oListId:nAt][13],;
+							aItems[oListId:nAt][14],;
+							aItems[oListId:nAt][15],;
+							aItems[oListId:nAt][16]	}}
 
 ENDIF
 
