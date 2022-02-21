@@ -483,6 +483,156 @@ FreeObj(oJsonPN)
 return .T.
 
 
+WSMETHOD GET CONSPC QUERYPARAM empresa,documento,userlib WSREST RestLibDc
+
+Local oJsonPN	:= JsonObject():New()
+Local cRet		:= ""
+Local cQuery	:= ""
+Local cTabSC7	:= "SC7"+self:empresa+"0"
+Local cTabSC1	:= "SC1"+self:empresa+"0"
+Local cTabSC8	:= "SC8"+self:empresa+"0"
+Local cTabSE4	:= "SE4010"
+Local cQrySC7	:= GetNextAlias()
+Local aItens	:= {}
+Local nI		:= 0
+Local aEmpresas	As Array
+Local aParams	As Array
+Local cMsg		As String
+Local cHist		:= ""
+Local nGeral	:= 0
+
+aEmpresas := u_BKGrupo()
+u_BkAvPar(::userlib,@aParams,@cMsg)
+
+cQuery := "SELECT "+CRLF
+cQuery += "  C1_CC,"		+CRLF
+cQuery += "  C1_DATPRF,"	+CRLF
+cQuery += "  C1_DESCRI,"	+CRLF
+cQuery += "  C1_EMISSAO,"	+CRLF
+cQuery += "  C1_ITEM,"		+CRLF
+cQuery += "  C1_NUM,"		+CRLF
+cQuery += "  C1_OBS,"		+CRLF
+cQuery += "  C1_PRODUTO,"	+CRLF
+cQuery += "  C1_QUANT-C1_XXQEST AS C1_QUANT,"	+CRLF
+cQuery += "  C1_SOLICIT,"	+CRLF
+cQuery += "  C1_UM,"		+CRLF
+cQuery += "  C1_XXDCC,"		+CRLF
+cQuery += "  C1_XXLCTOT,"	+CRLF
+cQuery += "  C1_XXLCVAL,"	+CRLF
+cQuery += "  C1_XXMTCM,"	+CRLF
+cQuery += "  C1_XXOBJ,"		+CRLF
+cQuery += "  C7_DATPRF,"	+CRLF
+cQuery += "  C7_ITEM,"		+CRLF
+cQuery += "  C7_NUM,"		+CRLF
+cQuery += "  C8_EMISSAO,"	+CRLF
+cQuery += "  C8_FORNECE,"	+CRLF
+cQuery += "  C8_ITEM,"		+CRLF
+cQuery += "  C8_ITEMPED,"	+CRLF
+cQuery += "  C8_MOTIVO,"	+CRLF
+cQuery += "  C8_NUM,"		+CRLF
+cQuery += "  C8_NUMPED,"	+CRLF
+cQuery += "  C8_OBS,"		+CRLF
+cQuery += "  C8_PRECO,"		+CRLF
+cQuery += "  C8_PRODUTO,"	+CRLF
+cQuery += "  C8_QUANT,"		+CRLF
+cQuery += "  C8_TOTAL,"		+CRLF
+cQuery += "  C8_UM,"		+CRLF
+cQuery += "  C8_VALIDA,"	+CRLF
+cQuery += "  C8_XXDESCP,"	+CRLF
+cQuery += "  C8_XXNFOR"		+CRLF
+cQuery += "  CASE WHEN C8_NUMPED = C7_NUM AND C8_ITEMPED = C7_ITEM THEN 'Vencedor' ELSE '' END AS STATUS,"	+CRLF
+cQuery += "  CASE WHEN C8_NUMPED = C7_NUM AND C8_ITEMPED = C7_ITEM THEN C7_DATPRF ELSE '' END AS C7_DATPRF,"+CRLF
+
+cQuery += "	INNER JOIN "+cTabSC1+" SC1 "+CRLF
+cQuery += "		ON C7_NUMSC = C1_NUM AND C7_ITEMSC = C1_ITEM AND C1_FILIAL = C7_FILIAL AND SC1.D_E_L_E_T_ = ''"+CRLF
+
+cQuery += "	INNER JOIN "+cTabSC8+" SC8 "+CRLF
+cQuery += "		ON C7_NUMCOT = C8_NUM  AND C8_NUMSC = C1_NUM AND C8_ITEMSC = C1_ITEM AND C8_FILIAL = C7_FILIAL AND SC8.D_E_L_E_T_ = ''"+CRLF
+cQuery += " FROM "+cTabSC7+" SC7"+CRLF
+
+cQuery += "WHERE C7_NUM = "+self:documento +CRLF
+cQuery += "  AND SC7.D_E_L_E_T_ = '' +CRLF
+
+cQuery += "ORDER BY C7_ITEM"+CRLF
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySC7,.T.,.T.)
+
+dbSelectArea(cQrySF1)
+dbGoTop()
+
+oJsonPN['USERNAME']		:= cUserName
+oJsonPN['EMPRESA']		:= aEmpresas[aScan(aEmpresas,{|x| x[1] == self:empresa }),2]
+oJsonPN['F1_XXUSER']	:= UsrRetName((cQrySF1)->F1_XXUSER)
+oJsonPN['F1_DOC']		:= (cQrySF1)->F1_DOC
+oJsonPN['F1_SERIE']		:= (cQrySF1)->F1_SERIE
+oJsonPN['F1_EMISSAO']	:= DTOC(STOD((cQrySF1)->F1_EMISSAO))
+oJsonPN['F1_DTDIGIT']	:= DTOC(STOD((cQrySF1)->F1_DTDIGIT))
+oJsonPN['F1_XXPVPGT']	:= DTOC(STOD((cQrySF1)->F1_XXPVPGT))
+oJsonPN['F1_ESPECIE']	:= (cQrySF1)->F1_ESPECIE
+
+oJsonPN['F1_FORN']		:= (cQrySF1)->F1_FORNECE+"-"+(cQrySF1)->F1_LOJA+" - "+TRIM((cQrySF1)->A2_NOME)
+If Len(AllTrim((cQrySF1)->A2_CGC)) > 11		//Se for CNPJ
+	oJsonPN['A2_CGC']	:= Transform((cQrySF1)->A2_CGC,"@R 99.999.999/9999-99")
+Else 										//Se for CPF
+	oJsonPN['A2_CGC']	:= Transform((cQrySF1)->A2_CGC,"@R 999.999.999-99")
+EndIf
+oJsonPN['A2_ESTMUN']	:= (cQrySF1)->A2_EST+"-"+TRIM((cQrySF1)->A2_MUN)
+
+oJsonPN['F1_XXLIB']		:= (cQrySF1)->F1_XXLIB
+
+
+// Documentos anexos
+aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
+For nI := 1 To Len(aFiles)
+	aAdd(aAnexos,JsonObject():New())
+	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,1]
+	aAnexos[nI]["F1_ENCODE"]	:= aFiles[nI,2]
+Next
+oJsonPN['F1_ANEXOS']	:= aAnexos
+
+If !Empty((cQrySF1)->F1_HISTRET)
+	cHist += AllTrim(((cQrySF1)->F1_HISTRET))+" "
+EndIf
+
+nI := 0
+Do While (cQrySF1)->(!EOF())
+	aAdd(aItens,JsonObject():New())
+	nI++
+	aItens[nI]["D1_ITEM"]	:= (cQrySF1)->D1_ITEM
+	aItens[nI]["D1_COD"]	:= TRIM((cQrySF1)->D1_COD)
+	aItens[nI]["B1_DESC"]	:= TRIM((cQrySF1)->B1_DESC)
+	aItens[nI]["D1_QUANT"]	:= TRANSFORM((cQrySF1)->D1_QUANT,"@E 99999999.99")
+	aItens[nI]["D1_VUNIT"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.9999")
+	aItens[nI]["D1_TOTAL"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
+	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySF1)->D1_GERAL,"@E 999,999,999.99")
+	aItens[nI]["D1_CC"]		:= (cQrySF1)->D1_CC+"-"+TRIM((cQrySF1)->D1_XXDCC)
+	If !ALLTRIM((cQrySF1)->D1_XXHIST) $ cHist                   
+       cHist += ALLTRIM((cQrySF1)->D1_XXHIST)+" "
+    EndIf
+	nGeral += (cQrySF1)->D1_GERAL
+	dbSkip()
+EndDo
+
+cHist := STRTRAN(cHist,CRLF," ")
+oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-1
+oJsonPN['D1_ITENS']		:= aItens
+oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
+
+
+(cQrySF1)->(dbCloseArea())
+
+cRet := oJsonPN:ToJson()
+
+FreeObj(oJsonPN)
+
+//Retorno do servico
+::SetResponse(cRet)
+
+return .T.
+
+
+
+
 WSMETHOD GET BROWDC QUERYPARAM userlib WSREST RestLibDc
 
 local cHTML as char
@@ -570,7 +720,7 @@ line-height: 1rem;
 </table>
 </div>
 </div>
-<!-- Modal -->
+<!-- Modal Doc de Entrada -->
 <div id="docModal" class="modal fade" role="dialog">
    <div class="modal-dialog modal-fullscreen">
      <!-- Conteúdo do modal-->
@@ -685,6 +835,88 @@ line-height: 1rem;
      </div>
    </div>
 </div>
+
+<!-- Modal do Pedido de Compras -->
+<div id="pcModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-fullscreen">
+    <!-- Conteúdo do modal-->
+    <div class="modal-content">
+      <!-- Cabeçalho do modal -->
+      <div class="modal-header bk-colors">
+        <h4 id="titPC" class="modal-title">Pedido de Compra</h4>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <!-- Corpo do modal -->
+      <div class="modal-body">
+         <form class="row g-3 font-condensed">
+           
+         <div class="col-md-1">
+            <label for="pcDoc" class="form-label">Pedido</label>
+            <input type="text" class="form-control form-control-sm" id="pcDoc" value="#pcDoc#" readonly="">
+          </div>
+          </div>
+          <div class="col-md-1">
+            <label for="pcEmissao" class="form-label">Emissão</label>
+            <input type="text" class="form-control form-control-sm" id="pcEmissao" value="#pcEmissao#" readonly="">
+          </div>
+          <div class="col-md-1">
+            <label for="pcComprador" class="form-label">Comprador</label>
+            <input type="text" class="form-control form-control-sm" id="pcComprador" value="#pcComprador#" readonly="">
+          </div>
+          <div class="col-md-6">
+            <label for="pcForn" class="form-label">Fornecedor</label>
+            <input type="text" class="form-control form-control-sm" id="pcForn" value="#pcForn#" readonly>
+          </div>
+      </div>
+    <div class="container">
+      <div class="table-responsive-sm">
+      <table class="table ">
+        <thead>
+          <tr>
+            <th scope="col">Solic/Cotação</th>
+            <th scope="col">Prod.</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">UM</th>
+            <th scope="col" style="text-align:right;">Quant.</th>
+            <th scope="col">Emissão</th>
+            <th scope="col">Limite Entrega</th>
+            <th scope="col">Motivo/Status Cotação</th>
+
+            <th scope="col" style="text-align:right;">V.Lic/Cotado</th>
+            <th scope="col" style="text-align:right;">T.Lic/Cotado</th>
+
+            <th scope="col">Obs/Forma Pgto.</th>
+            <th scope="col">Contrato/Forn.</th>
+            <th scope="col">Desc. Contrato/Nome Forn.</th>
+            <th scope="col">Detalhes</th>
+
+          </tr>
+        </thead>
+        <tbody id="d1Table">
+          <tr>
+            <th scope="row" colspan="8" style="text-align:center;">Carregando itens...</th>
+          </tr>
+        </tbody>
+        <tfoot id="d1Foot">
+          <th scope="row" colspan="8" style="text-align:right;">Total Geral</th>
+        </tfoot>
+      </table>
+      </div>
+    </div>
+    </form>
+      </div>
+       <!-- Rodapé do modal-->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+        <div id="btnlib"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
  <div id="confModal" class="modal" tabindex="-1">
    <div class="modal-dialog">
      <div class="modal-content">
@@ -739,9 +971,9 @@ if (Array.isArray(documentos)) {
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
 
     if (cTipoDoc == 'NF'){
-    	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showDC(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
+    	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showDC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
   	} else {
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
     }
 	   
 	trHTML += '</tr>';
@@ -849,7 +1081,7 @@ foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['F1_GE
 document.getElementById("d1Foot").innerHTML = foot;
 
 
-$("#titLib").text('Liberação de Documento de Entrada - Empresa: '+documento['EMPRESA'] + ' - Usuário: '+documento['USERNAME']);
+$("#titLib").text('Aprovação de Documento de Entrada - Empresa: '+documento['EMPRESA'] + ' - Usuário: '+documento['USERNAME']);
 $('#docModal').modal('show');
 $('#docModal').on('hidden.bs.modal', function () {
 	location.reload();
@@ -883,6 +1115,61 @@ fetch('http://10.139.0.30:8080/rest/RestLibDc/v3?empresa='+f1empresa+'&documento
 	  $('#docModal').modal('toggle');
 	  })
 	})
+}
+
+
+async function getPC(f1empresa,f1recno,userlib) {
+let url = 'http://10.139.0.30:8081/rest/RestLibDc/v5?empresa='+f1empresa+'&documento='+f1recno+'&userlib='+userlib;
+try {
+let res = await fetch(url);
+  return await res.json();
+  } catch (error) {
+console.log(error);
+  }
+}
+
+async function showPC(f1empresa,f1recno,userlib,canLib) {
+let documento = await getPC(f1empresa,f1recno,userlib);
+let itens = ''
+let i = 0
+let foot = ''
+let anexos = ''
+
+document.getElementById('pcDoc').value = documento['F1_DOC'];
+document.getElementById('pcEmissao').value = documento['F1_SERIE'];
+document.getElementById('pcComprador').value = documento['F1_DTDIGIT'];
+document.getElementById('pcForn').value = documento['F1_XXPVPGT'];
+if (canLib === 1){
+let btn = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'MjswNDEyMDM0MDA6OzIwMzEyMTAwMDI7Og--\')">Liberar</button>';
+document.getElementById("btnlib").innerHTML = btn;
+}
+if (Array.isArray(documento.D1_ITENS)) {
+  documento.D1_ITENS.forEach(object => {
+   i++
+itens += '<tr>';
+itens += '<td>'+object['D1_ITEM']+'</td>';  
+itens += '<td>'+object['D1_COD']+'</td>';
+    itens += '<td>'+object['B1_DESC']+'</td>';
+itens += '<td>'+object['D1_CC']+'</td>';
+itens += '<td align="right">'+object['D1_QUANT']+'</td>';
+itens += '<td align="right">'+object['D1_VUNIT']+'</td>';
+itens += '<td align="right">'+object['D1_TOTAL']+'</td>';
+itens += '<td align="right">'+object['D1_GERAL']+'</td>';
+itens += '</tr>';
+   <!-- itens += '<div class="col-md-2">' -->
+   <!-- itens += '  <input type="text" class="form-control" id="D1_TOTAL'+i+'" value="'+object['D1_TOTAL']+'" readonly="">' -->
+   <!-- itens += '</div>' -->
+ })
+}
+
+document.getElementById("d1Table").innerHTML = itens;
+foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['F1_GERAL']+'</th>'
+document.getElementById("d1Foot").innerHTML = foot;
+$("#titPC").text('Liberação de Pedido de Compra - Empresa: '+documento['EMPRESA'] + ' - Usuário: '+documento['USERNAME']);
+$('#pcModal').modal('show');
+$('#pcModal').on('hidden.bs.modal', function () {
+location.reload();
+})
 }
 
 

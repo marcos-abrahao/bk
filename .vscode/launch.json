@@ -37,7 +37,10 @@
 		},
 		{
 			"label": "U_UPDGENPAR"
+		},
+		{
+			"label": "xxxx"
 		}
 	],
-	"lastProgramExecuted": "U_UPDGENSX"
+	"lastProgramExecuted": "SIGAMDI"
 }
