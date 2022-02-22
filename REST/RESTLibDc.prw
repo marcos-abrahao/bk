@@ -311,7 +311,7 @@ Do While ( cQrySCR )->( ! Eof() )
 	nPos := Len(aListSales)
 	aListSales[nPos]['CREMPRESA']  := (cQrySCR)->CREMPRESA
 	aListSales[nPos]['CRNOMEEMP']  := (cQrySCR)->CRNOMEEMP
-	aListSales[nPos]['NUM']        := (cQrySCR)->CR_NUM
+	aListSales[nPos]['NUM']        := TRIM((cQrySCR)->CR_NUM)
 	aListSales[nPos]['TIPO']       := (cQrySCR)->CR_TIPO
 	aListSales[nPos]['USER'] 	   := UsrRetName((cQrySCR)->CR_USER)
 	aListSales[nPos]['APROV']	   := UsrRetName((cQrySCR)->CR_APROV)
@@ -491,6 +491,7 @@ Local cQuery	:= ""
 Local cTabSC7	:= "SC7"+self:empresa+"0"
 Local cTabSC1	:= "SC1"+self:empresa+"0"
 Local cTabSC8	:= "SC8"+self:empresa+"0"
+Local cTabSA2	:= "SA2"+self:empresa+"0"
 Local cTabSE4	:= "SE4010"
 Local cQrySC7	:= GetNextAlias()
 Local aItens	:= {}
@@ -505,6 +506,7 @@ aEmpresas := u_BKGrupo()
 u_BkAvPar(::userlib,@aParams,@cMsg)
 
 cQuery := "SELECT "+CRLF
+cQuery += "  A2_NOME,"		+CRLF
 cQuery += "  C1_CC,"		+CRLF
 cQuery += "  C1_DATPRF,"	+CRLF
 cQuery += "  C1_DESCRI,"	+CRLF
@@ -522,8 +524,13 @@ cQuery += "  C1_XXLCVAL,"	+CRLF
 cQuery += "  C1_XXMTCM,"	+CRLF
 cQuery += "  C1_XXOBJ,"		+CRLF
 cQuery += "  C7_DATPRF,"	+CRLF
+cQuery += "  C7_EMISSAO,"	+CRLF
+cQuery += "  C7_FORNECE,"	+CRLF
+cQuery += "  C7_LOJA,"		+CRLF
 cQuery += "  C7_ITEM,"		+CRLF
 cQuery += "  C7_NUM,"		+CRLF
+cQuery += "  C7_USER,"		+CRLF
+cQuery += "  C7_XXURGEN,"	+CRLF
 cQuery += "  C8_EMISSAO,"	+CRLF
 cQuery += "  C8_FORNECE,"	+CRLF
 cQuery += "  C8_ITEM,"		+CRLF
@@ -539,77 +546,86 @@ cQuery += "  C8_TOTAL,"		+CRLF
 cQuery += "  C8_UM,"		+CRLF
 cQuery += "  C8_VALIDA,"	+CRLF
 cQuery += "  C8_XXDESCP,"	+CRLF
-cQuery += "  C8_XXNFOR"		+CRLF
+cQuery += "  C8_XXNFOR,"	+CRLF
 cQuery += "  CASE WHEN C8_NUMPED = C7_NUM AND C8_ITEMPED = C7_ITEM THEN 'Vencedor' ELSE '' END AS STATUS,"	+CRLF
-cQuery += "  CASE WHEN C8_NUMPED = C7_NUM AND C8_ITEMPED = C7_ITEM THEN C7_DATPRF ELSE '' END AS C7_DATPRF,"+CRLF
+cQuery += "  CASE WHEN C8_NUMPED = C7_NUM AND C8_ITEMPED = C7_ITEM THEN C7_DATPRF ELSE '' END AS C7_DATPRF"+CRLF
+
+cQuery += " FROM "+cTabSC7+" SC7"+CRLF
+
+cQuery += "	INNER JOIN "+cTabSA2+" SA2 "+CRLF
+cQuery += "		ON C7_FORNECE = A2_COD AND C7_LOJA = C7_LOJA AND A2_FILIAL = '"+xFilial("SA2")+"' AND SA2.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "	INNER JOIN "+cTabSC1+" SC1 "+CRLF
 cQuery += "		ON C7_NUMSC = C1_NUM AND C7_ITEMSC = C1_ITEM AND C1_FILIAL = C7_FILIAL AND SC1.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "	INNER JOIN "+cTabSC8+" SC8 "+CRLF
 cQuery += "		ON C7_NUMCOT = C8_NUM  AND C8_NUMSC = C1_NUM AND C8_ITEMSC = C1_ITEM AND C8_FILIAL = C7_FILIAL AND SC8.D_E_L_E_T_ = ''"+CRLF
-cQuery += " FROM "+cTabSC7+" SC7"+CRLF
 
-cQuery += "WHERE C7_NUM = "+self:documento +CRLF
-cQuery += "  AND SC7.D_E_L_E_T_ = '' +CRLF
+cQuery += "WHERE C7_NUM = '"+self:documento+"'" +CRLF
+cQuery += "  AND SC7.D_E_L_E_T_ = '' "+CRLF
 
 cQuery += "ORDER BY C7_ITEM"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySC7,.T.,.T.)
 
-dbSelectArea(cQrySF1)
+dbSelectArea(cQrySC7)
 dbGoTop()
 
 oJsonPN['USERNAME']		:= cUserName
 oJsonPN['EMPRESA']		:= aEmpresas[aScan(aEmpresas,{|x| x[1] == self:empresa }),2]
-oJsonPN['F1_XXUSER']	:= UsrRetName((cQrySF1)->F1_XXUSER)
-oJsonPN['F1_DOC']		:= (cQrySF1)->F1_DOC
-oJsonPN['F1_SERIE']		:= (cQrySF1)->F1_SERIE
-oJsonPN['F1_EMISSAO']	:= DTOC(STOD((cQrySF1)->F1_EMISSAO))
-oJsonPN['F1_DTDIGIT']	:= DTOC(STOD((cQrySF1)->F1_DTDIGIT))
-oJsonPN['F1_XXPVPGT']	:= DTOC(STOD((cQrySF1)->F1_XXPVPGT))
-oJsonPN['F1_ESPECIE']	:= (cQrySF1)->F1_ESPECIE
+oJsonPN['C7_NUM']		:= (cQrySC7)->C7_NUM
+oJsonPN['C7_EMISSAO']	:= DTOC(STOD((cQrySC7)->C8_EMISSAO))
+oJsonPN['C7_XXUSER']	:= UsrRetName((cQrySC7)->C7_USER)
+oJsonPN['C7_XFORN']		:= (cQrySC7)->C7_FORNECE+"-"+(cQrySC7)->C7_LOJA+" - "+TRIM((cQrySC7)->A2_NOME)
+oJsonPN['C7_XXURGEN']	:= (cQrySC7)->C7_XXURGEN
 
-oJsonPN['F1_FORN']		:= (cQrySF1)->F1_FORNECE+"-"+(cQrySF1)->F1_LOJA+" - "+TRIM((cQrySF1)->A2_NOME)
-If Len(AllTrim((cQrySF1)->A2_CGC)) > 11		//Se for CNPJ
-	oJsonPN['A2_CGC']	:= Transform((cQrySF1)->A2_CGC,"@R 99.999.999/9999-99")
-Else 										//Se for CPF
-	oJsonPN['A2_CGC']	:= Transform((cQrySF1)->A2_CGC,"@R 999.999.999-99")
+/*
+If !Empty((cQrySC7)->F1_HISTRET)
+	cHist += AllTrim(((cQrySC7)->F1_HISTRET))+" "
 EndIf
-oJsonPN['A2_ESTMUN']	:= (cQrySF1)->A2_EST+"-"+TRIM((cQrySF1)->A2_MUN)
-
-oJsonPN['F1_XXLIB']		:= (cQrySF1)->F1_XXLIB
-
-
-// Documentos anexos
-aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
-For nI := 1 To Len(aFiles)
-	aAdd(aAnexos,JsonObject():New())
-	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,1]
-	aAnexos[nI]["F1_ENCODE"]	:= aFiles[nI,2]
-Next
-oJsonPN['F1_ANEXOS']	:= aAnexos
-
-If !Empty((cQrySF1)->F1_HISTRET)
-	cHist += AllTrim(((cQrySF1)->F1_HISTRET))+" "
-EndIf
-
+*/
 nI := 0
-Do While (cQrySF1)->(!EOF())
+Do While (cQrySC7)->(!EOF())
 	aAdd(aItens,JsonObject():New())
 	nI++
-	aItens[nI]["D1_ITEM"]	:= (cQrySF1)->D1_ITEM
-	aItens[nI]["D1_COD"]	:= TRIM((cQrySF1)->D1_COD)
-	aItens[nI]["B1_DESC"]	:= TRIM((cQrySF1)->B1_DESC)
-	aItens[nI]["D1_QUANT"]	:= TRANSFORM((cQrySF1)->D1_QUANT,"@E 99999999.99")
-	aItens[nI]["D1_VUNIT"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.9999")
-	aItens[nI]["D1_TOTAL"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
-	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySF1)->D1_GERAL,"@E 999,999,999.99")
-	aItens[nI]["D1_CC"]		:= (cQrySF1)->D1_CC+"-"+TRIM((cQrySF1)->D1_XXDCC)
-	If !ALLTRIM((cQrySF1)->D1_XXHIST) $ cHist                   
-       cHist += ALLTRIM((cQrySF1)->D1_XXHIST)+" "
+/*
+					<th scope="col">Solic/Cotação</th>
+					<th scope="col">Prod.</th>
+					<th scope="col">Descrição</th>
+					<th scope="col">UM</th>
+					<th scope="col" style="text-align:right;">Quant.</th>
+					<th scope="col">Emissão</th>
+					<th scope="col">Limite Entrega</th>
+					<th scope="col">Motivo/Status Cotação</th>
+
+					<th scope="col" style="text-align:right;">V.Lic/Cotado</th>
+					<th scope="col" style="text-align:right;">T.Lic/Cotado</th>
+
+					<th scope="col">Obs/Forma Pgto.</th>
+					<th scope="col">Contrato/Forn.</th>
+					<th scope="col">Desc. Contrato/Nome Forn.</th>
+					<th scope="col">Detalhes</th>
+*/
+
+	aItens[nI]["C8_ITEM"]	:= (cQrySC7)->C8_ITEM
+	aItens[nI]["C8_PRODUTO"]:= TRIM((cQrySC7)->C8_PRODUTO)
+	aItens[nI]["C8_XXDESCP"]:= TRIM((cQrySC7)->C8_XXDESCP)
+	aItens[nI]["C8_UM"]		:= TRIM((cQrySC7)->C8_UM)
+	aItens[nI]["C8_QUANT"]	:= TRANSFORM((cQrySC7)->C8_QUANT,"@E 99999999.99")
+	aItens[nI]["C8_EMISSAO"]:= TRIM((cQrySC7)->C8_EMISSAO)
+	aItens[nI]["C7_DATPRF"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,(cQrySC7)->C7_DATPRF,"")
+	aItens[nI]["C8_STATUS"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,"Vencedor","")
+
+	aItens[nI]["C8_PRECO"]	:= TRANSFORM((cQrySC7)->C8_PRECO,"@E 999,999,999.9999")
+	aItens[nI]["C8_TOTAL"]	:= TRANSFORM((cQrySC7)->C8_TOTAL,"@E 999,999,999.99")
+	
+	
+	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySC7)->D1_GERAL,"@E 999,999,999.99")
+	aItens[nI]["D1_CC"]		:= (cQrySC7)->D1_CC+"-"+TRIM((cQrySC7)->D1_XXDCC)
+	If !ALLTRIM((cQrySC7)->D1_XXHIST) $ cHist                   
+       cHist += ALLTRIM((cQrySC7)->D1_XXHIST)+" "
     EndIf
-	nGeral += (cQrySF1)->D1_GERAL
+	nGeral += (cQrySC7)->D1_GERAL
 	dbSkip()
 EndDo
 
@@ -618,8 +634,9 @@ oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-
 oJsonPN['D1_ITENS']		:= aItens
 oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
 
+*/
 
-(cQrySF1)->(dbCloseArea())
+(cQrySC7)->(dbCloseArea())
 
 cRet := oJsonPN:ToJson()
 
@@ -856,12 +873,11 @@ line-height: 1rem;
             <label for="pcDoc" class="form-label">Pedido</label>
             <input type="text" class="form-control form-control-sm" id="pcDoc" value="#pcDoc#" readonly="">
           </div>
-          </div>
           <div class="col-md-1">
             <label for="pcEmissao" class="form-label">Emissão</label>
             <input type="text" class="form-control form-control-sm" id="pcEmissao" value="#pcEmissao#" readonly="">
           </div>
-          <div class="col-md-1">
+          <div class="col-md-2">
             <label for="pcComprador" class="form-label">Comprador</label>
             <input type="text" class="form-control form-control-sm" id="pcComprador" value="#pcComprador#" readonly="">
           </div>
@@ -869,49 +885,48 @@ line-height: 1rem;
             <label for="pcForn" class="form-label">Fornecedor</label>
             <input type="text" class="form-control form-control-sm" id="pcForn" value="#pcForn#" readonly>
           </div>
-      </div>
-    <div class="container">
-      <div class="table-responsive-sm">
-      <table class="table ">
-        <thead>
-          <tr>
-            <th scope="col">Solic/Cotação</th>
-            <th scope="col">Prod.</th>
-            <th scope="col">Descrição</th>
-            <th scope="col">UM</th>
-            <th scope="col" style="text-align:right;">Quant.</th>
-            <th scope="col">Emissão</th>
-            <th scope="col">Limite Entrega</th>
-            <th scope="col">Motivo/Status Cotação</th>
+		  <div class="container">
+			<div class="table-responsive-sm">
+			<table class="table ">
+				<thead>
+				<tr>
+					<th scope="col">Solic/Cotação</th>
+					<th scope="col">Prod.</th>
+					<th scope="col">Descrição</th>
+					<th scope="col">UM</th>
+					<th scope="col" style="text-align:right;">Quant.</th>
+					<th scope="col">Emissão</th>
+					<th scope="col">Limite Entrega</th>
+					<th scope="col">Motivo/Status Cotação</th>
 
-            <th scope="col" style="text-align:right;">V.Lic/Cotado</th>
-            <th scope="col" style="text-align:right;">T.Lic/Cotado</th>
+					<th scope="col" style="text-align:right;">V.Lic/Cotado</th>
+					<th scope="col" style="text-align:right;">T.Lic/Cotado</th>
 
-            <th scope="col">Obs/Forma Pgto.</th>
-            <th scope="col">Contrato/Forn.</th>
-            <th scope="col">Desc. Contrato/Nome Forn.</th>
-            <th scope="col">Detalhes</th>
+					<th scope="col">Obs/Forma Pgto.</th>
+					<th scope="col">Contrato/Forn.</th>
+					<th scope="col">Desc. Contrato/Nome Forn.</th>
+					<th scope="col">Detalhes</th>
 
-          </tr>
-        </thead>
-        <tbody id="d1Table">
-          <tr>
-            <th scope="row" colspan="8" style="text-align:center;">Carregando itens...</th>
-          </tr>
-        </tbody>
-        <tfoot id="d1Foot">
-          <th scope="row" colspan="8" style="text-align:right;">Total Geral</th>
-        </tfoot>
-      </table>
-      </div>
+				</tr>
+				</thead>
+				<tbody id="d1Table">
+				<tr>
+					<th scope="row" colspan="8" style="text-align:center;">Carregando itens...</th>
+				</tr>
+				</tbody>
+				<tfoot id="d1Foot">
+				<th scope="row" colspan="8" style="text-align:right;">Total Geral</th>
+				</tfoot>
+			</table>
+			</div>
+		</div>
+    	</form>
     </div>
-    </form>
-      </div>
-       <!-- Rodapé do modal-->
-      <div class="modal-footer">
+    <!-- Rodapé do modal-->
+    <div class="modal-footer">
         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
         <div id="btnlib"></div>
-      </div>
+    </div>
     </div>
   </div>
 </div>
@@ -973,7 +988,7 @@ if (Array.isArray(documentos)) {
     if (cTipoDoc == 'NF'){
     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showDC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
   	} else {
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['NUM']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
     }
 	   
 	trHTML += '</tr>';
@@ -1135,10 +1150,12 @@ let i = 0
 let foot = ''
 let anexos = ''
 
-document.getElementById('pcDoc').value = documento['F1_DOC'];
-document.getElementById('pcEmissao').value = documento['F1_SERIE'];
-document.getElementById('pcComprador').value = documento['F1_DTDIGIT'];
-document.getElementById('pcForn').value = documento['F1_XXPVPGT'];
+//oJsonPN['C7_XXURGEN']	:= (cQrySC7)->C7_XXURGEN
+
+document.getElementById('pcDoc').value = documento['C7_NUM'];
+document.getElementById('pcEmissao').value = documento['C7_EMISSAO'];
+document.getElementById('pcComprador').value = documento['C7_XXUSER'];
+document.getElementById('pcForn').value = documento['C7_XFORN'];
 if (canLib === 1){
 let btn = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'MjswNDEyMDM0MDA6OzIwMzEyMTAwMDI7Og--\')">Liberar</button>';
 document.getElementById("btnlib").innerHTML = btn;
