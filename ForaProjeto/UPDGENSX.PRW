@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"08/02/2022 SE2 "
+#DEFINE FIN_LAST_UPDATED 		"25/02/2022 SE1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -1490,6 +1490,18 @@ Local nBrw := 0
 
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
+dbSelectArea( "SX3" )
+
+cTexto  += "25/02/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3e1ad.dtc
+X31UPDTABLE("SE1")
+
+dbSetOrder( 1 )
+
+Return
+
+
+/*
 cTexto  += "08/02/22 - TABELA SE2 BROWSE" + CRLF 
 
 dbSelectArea( "SX3" )
@@ -1505,10 +1517,7 @@ For nBrw := 1 TO Len(aSBrowse)
 		MsUnLock()
 	EndIf
 Next
-
-dbSetOrder( 1 )
-
-Return
+*/
 
 /*
 

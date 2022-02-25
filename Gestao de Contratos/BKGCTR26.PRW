@@ -2,6 +2,13 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "DBSTRUCT.CH"
 
+/*/{Protheus.doc} BKGCTR26
+BK - Fluxo de Caixa Por Contrato
+@Return
+@author Marcos Bispo Abrahão
+@since 28/01/2021
+@version P12-25
+/*/
 
 // - Conteudo do array - aRelat[x]
 #Define ID_PREFIXO     01 // Prefixo
@@ -55,16 +62,6 @@
 // <--BK
 
 #Define ID_ARRAYSIZE    46 // Tamanho do Array
-
-
-
-/*/{Protheus.doc} BKGCTR26
-BK - Fluxo de Caixa Por Contrato
-@Return
-@author Marcos Bispo Abrahão
-@since 28/01/2021
-@version P12-25
-/*/
 
 // -->Finr190
 Static lFwCodFil    := .T.

@@ -1,8 +1,14 @@
 #include "rwmake.ch"
 #include "protheus.ch"
 
-// LP513BX - INCLUSAO PAGAMENTO ANTECIPADO
-  
+/*/{Protheus.doc} XCADSZM()
+BK - LP513BX - INCLUSAO PAGAMENTO ANTECIPADO
+@author Marcos B. Abrahão
+@since 
+@version P12
+@return Nil
+/*/
+
 User Function LP513BX()
 Local lOk    := .F.
 Local cTIPOPES  := ""

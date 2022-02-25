@@ -5,6 +5,14 @@
 #include "AP5MAIL.CH"
 #include "TOTVS.CH"
 
+/*/{Protheus.doc} BKGCT06
+BK - Avisos automaticos de Repactuação de contratos e Compras
+@Return
+@author Marcos Bispo Abrahão
+@since 13/09/2010
+@version P12
+/*/
+
 // Função via Schedule
 User Function BKGCT06(aParam)
 
@@ -24,12 +32,6 @@ Private cEmpPar  := "01"
 Private cFilPar  := "01"
 
 default aParam := {"01","01"} // caso nao receba nenhum parametro
-
-/*/
-Programa     : BKGCT06 - Autor: Marcos B. Abrahao - Data: 13/09/2010
-Objetivo     : Avisos automaticos de Repactuação de contratos
-Uso          : BK
-/*/
 
 cEmpPar := aParam[1]
 cFilPar := aParam[2]

@@ -2,7 +2,13 @@
 #INCLUDE "topconn.ch"
 #Include "Protheus.ch"
 
-// Montagem do corpo da NF de serviços
+/*/{Protheus.doc} MtDescrNFE
+BK - Montagem do corpo da NF de serviços
+@author Marcos Bispo Abrahão
+@since 
+@version P12
+@return Nil
+/*/
 
 User Function MtDescrNFE()
 

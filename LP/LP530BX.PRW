@@ -1,7 +1,13 @@
 #include "rwmake.ch"
 #include "protheus.ch"
 
-// LP530BXD - Conta Débito baixas a pagar
+/*/{Protheus.doc} XCADSZM()
+BK - LP530BXD - Conta Débito baixas a pagar
+@author Marcos B. Abrahão
+@since 
+@version P12
+@return Nil
+/*/
 
 User Function LP530BXD()
 Local cCta := "21101002"

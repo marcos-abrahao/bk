@@ -146,6 +146,78 @@ EndIf
 Return (cEmails)
 
 
+// Gestão de Contratos
+
+/* Clientes Petrobras
+A1_COD	A1_NOME
+000153	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000249	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000255	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000256	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000281	PETROLEO BRASILEIRO S A PETROBRAS                                               
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CATU                                      
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-210                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-277                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-344                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-346                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-411                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-413                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-657_R15                     
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-709_R15                     
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - JAPARATUBA                                
+000291	PETROLEO BRASILEIRO S/A PETROBRAS                                               
+000310	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000313	PETROBRAS DISTRIBUIDORA SA                                                      
+000316	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL SAO CAETANO DO SUL             
+000317	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL BARUERI                        
+000318	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL GUARULHOS                      
+000319	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL GUARAREMA                      
+000320	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL CUBATAO                        
+000321	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL SAO SEBASTIAO                  
+000333	PETROLEO BRAS S/A PETROBRAS - UIRAPURU                                          
+000334	PETROLEO BRAS S/A PETROBRAS - TRES MARIAS                                       
+000335	PETROLEO BRASILEIRO S/A  CABO FRIO CENTRAL                                      
+000336	PETROLEO BRASILEIRO S/A - DOIS IRMAOS                                           
+000345	PETROBRAS EDUCACAO AMBIENTAL                                                    
+000346	PETROBRAS CARAGUATATUBA - BOMBEIROS                                             
+000347	PETROBRAS EDICIN - U.P.                                                         
+000372	PETROBRAS TRANSPORTE S.A. - TRANSPETRO                                          
+*/
+User Function IsPetro(cCliente)
+Local lRet		:= .F.
+Local aPetro 	:= {}
+If cEmpAnt == "01"
+	aAdd(aPetro,"000153")
+	aAdd(aPetro,"000249")
+	aAdd(aPetro,"000255")
+	aAdd(aPetro,"000256")
+	aAdd(aPetro,"000281")
+	aAdd(aPetro,"000291")
+	aAdd(aPetro,"000310")
+	aAdd(aPetro,"000316")
+	aAdd(aPetro,"000317")
+	aAdd(aPetro,"000318")
+	aAdd(aPetro,"000319")
+	aAdd(aPetro,"000320")
+	aAdd(aPetro,"000321")
+	aAdd(aPetro,"000333")
+	aAdd(aPetro,"000334")
+	aAdd(aPetro,"000335")
+	aAdd(aPetro,"000336")
+	aAdd(aPetro,"000345")
+	aAdd(aPetro,"000346")
+	aAdd(aPetro,"000347")
+	aAdd(aPetro,"000372")
+	If Ascan(aPetro,cCliente) > 0
+		lRet := .T.
+	EndIf
+EndIf
+
+Return lRet
+
+
+
 // Financeiro
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()

@@ -1,7 +1,16 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-//RETORNA O DIA UTIL CONFORME PARAMETROS
+//-------------------------------------------------------------------
+/*/{Protheus.doc} DATAUTIL
+BK - RETORNA O DIA UTIL CONFORME PARAMETROS
+@Return
+@author Marcos B. Abrahao
+@since 29/01/2011
+@version P12
+/*/
+//-------------------------------------------------------------------
+
 USER FUNCTION DIASUTIL(dData,nDIAS)
 Local dData2 := CTOD("")
 Local nSoma  := 1

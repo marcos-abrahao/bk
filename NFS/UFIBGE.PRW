@@ -1,8 +1,14 @@
 #include "rwmake.ch"
 #Include "Protheus.ch"
 
-//Funcao Utilizada na Instrução Nomativa para NFS-e,
-//retorna ESTADO CODIGO IBGE
+/*/{Protheus.doc} UfIBGE
+BK - Funcao Utilizada na Instrução Nomativa para NFS-e
+@author Adilson do Prado
+@since 
+@version P12
+@return ESTADO CODIGO IBGE
+/*/
+
 USER Function UfIBGE(cUF )
 Local nX        := 0
 Local cRetorno  := ""

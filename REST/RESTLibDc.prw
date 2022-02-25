@@ -49,7 +49,7 @@ WSRESTFUL RestLibDc DESCRIPTION "Rest Liberação de Documentos"
 		PATH "/RestLibDc/v4";
 		TTALK "v1"
 
-	WSMETHOD PUT ;
+	WSMETHOD PUT LIBDOC;
 		DESCRIPTION "Liberação de Documentos" ;
 		WSSYNTAX "/RestLibDc/v3";
 		PATH "/RestLibDc/v3";
@@ -60,6 +60,13 @@ WSRESTFUL RestLibDc DESCRIPTION "Rest Liberação de Documentos"
 		DESCRIPTION "Retorna dados do Pedido de Compras";
 		WSSYNTAX "/RestLibDc/v5";
 		PATH "/RestLibDc/v5";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
+	WSMETHOD PUT LIBPC;
+		DESCRIPTION "Liberação de Pedidos de Compras" ;
+		WSSYNTAX "/RestLibDc/v6";
+		PATH "/RestLibDc/v6";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -92,7 +99,7 @@ Return (lSuccess)
 
 
 
-WSMETHOD PUT QUERYPARAM empresa,documento,userlib,liberacao WSREST RestLibDc
+WSMETHOD PUT LIBDOC QUERYPARAM empresa,documento,userlib,liberacao WSREST RestLibDc
 
 Local cJson        := Self:GetContent()   
 Local lRet         := .T.
@@ -493,6 +500,7 @@ Local cTabSC1	:= "SC1"+self:empresa+"0"
 Local cTabSC8	:= "SC8"+self:empresa+"0"
 Local cTabSA2	:= "SA2"+self:empresa+"0"
 Local cTabSE4	:= "SE4010"
+Local cPedido 	:= TRIM(self:documento)
 Local cQrySC7	:= GetNextAlias()
 Local aItens	:= {}
 Local nI		:= 0
@@ -523,6 +531,7 @@ cQuery += "  C1_XXLCTOT,"	+CRLF
 cQuery += "  C1_XXLCVAL,"	+CRLF
 cQuery += "  C1_XXMTCM,"	+CRLF
 cQuery += "  C1_XXOBJ,"		+CRLF
+cQuery += "  C7_COND,"		+CRLF
 cQuery += "  C7_DATPRF,"	+CRLF
 cQuery += "  C7_EMISSAO,"	+CRLF
 cQuery += "  C7_FORNECE,"	+CRLF
@@ -531,6 +540,7 @@ cQuery += "  C7_ITEM,"		+CRLF
 cQuery += "  C7_NUM,"		+CRLF
 cQuery += "  C7_USER,"		+CRLF
 cQuery += "  C7_XXURGEN,"	+CRLF
+cQuery += "  C8_COND,"		+CRLF
 cQuery += "  C8_EMISSAO,"	+CRLF
 cQuery += "  C8_FORNECE,"	+CRLF
 cQuery += "  C8_ITEM,"		+CRLF
@@ -538,7 +548,7 @@ cQuery += "  C8_ITEMPED,"	+CRLF
 cQuery += "  C8_MOTIVO,"	+CRLF
 cQuery += "  C8_NUM,"		+CRLF
 cQuery += "  C8_NUMPED,"	+CRLF
-cQuery += "  C8_OBS,"		+CRLF
+cQuery += "  CONVERT(VARCHAR(1000),CONVERT(Binary(1000),C8_OBS)) C8_OBS,"		+CRLF
 cQuery += "  C8_PRECO,"		+CRLF
 cQuery += "  C8_PRODUTO,"	+CRLF
 cQuery += "  C8_QUANT,"		+CRLF
@@ -561,12 +571,14 @@ cQuery += "		ON C7_NUMSC = C1_NUM AND C7_ITEMSC = C1_ITEM AND C1_FILIAL = C7_FIL
 cQuery += "	INNER JOIN "+cTabSC8+" SC8 "+CRLF
 cQuery += "		ON C7_NUMCOT = C8_NUM  AND C8_NUMSC = C1_NUM AND C8_ITEMSC = C1_ITEM AND C8_FILIAL = C7_FILIAL AND SC8.D_E_L_E_T_ = ''"+CRLF
 
-cQuery += "WHERE C7_NUM = '"+self:documento+"'" +CRLF
+cQuery += "WHERE C7_NUM = '"+cPedido+"'" +CRLF
 cQuery += "  AND SC7.D_E_L_E_T_ = '' "+CRLF
 
 cQuery += "ORDER BY C7_ITEM"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySC7,.T.,.T.)
+
+u_LogMemo("RESTLIBDC"+cPedido+".SQL",cQuery)
 
 dbSelectArea(cQrySC7)
 dbGoTop()
@@ -619,20 +631,21 @@ Do While (cQrySC7)->(!EOF())
 	aItens[nI]["C8_PRECO"]	:= TRANSFORM((cQrySC7)->C8_PRECO,"@E 999,999,999.9999")
 	aItens[nI]["C8_TOTAL"]	:= TRANSFORM((cQrySC7)->C8_TOTAL,"@E 999,999,999.99")
 	
-	
-	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySC7)->D1_GERAL,"@E 999,999,999.99")
-	aItens[nI]["D1_CC"]		:= (cQrySC7)->D1_CC+"-"+TRIM((cQrySC7)->D1_XXDCC)
-	If !ALLTRIM((cQrySC7)->D1_XXHIST) $ cHist                   
-       cHist += ALLTRIM((cQrySC7)->D1_XXHIST)+" "
-    EndIf
-	nGeral += (cQrySC7)->D1_GERAL
+	aItens[nI]["C7_COND"]	:= TRIM((cQrySC7)->C7_COND)
+
+	aItens[nI]["C8_FORNECE"]:= TRIM((cQrySC7)->C8_FORNECE)
+	aItens[nI]["C8_XXNFOR"]	:= TRIM((cQrySC7)->C8_XXNFOR)
+	aItens[nI]["C8_VALIDA"]	:= TRIM((cQrySC7)->C8_VALIDA)
+	aItens[nI]["C8_OBS"]	:= TRIM((cQrySC7)->C8_OBS)
+
+	nGeral += (cQrySC7)->C8_TOTAL
 	dbSkip()
 EndDo
 
-cHist := STRTRAN(cHist,CRLF," ")
-oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-1
-oJsonPN['D1_ITENS']		:= aItens
-oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
+//cHist := STRTRAN(cHist,CRLF," ")
+//oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-1
+oJsonPN['C7_ITENS']		:= aItens
+oJsonPN['C8_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
 
 */
 
@@ -887,7 +900,7 @@ line-height: 1rem;
           </div>
 		  <div class="container">
 			<div class="table-responsive-sm">
-			<table class="table ">
+			<table id="tableSC7" class="table ">
 				<thead>
 				<tr>
 					<th scope="col">Solic/Cotação</th>
@@ -896,7 +909,7 @@ line-height: 1rem;
 					<th scope="col">UM</th>
 					<th scope="col" style="text-align:right;">Quant.</th>
 					<th scope="col">Emissão</th>
-					<th scope="col">Limite Entrega</th>
+					<th scope="col">Lim Entrega</th>
 					<th scope="col">Motivo/Status Cotação</th>
 
 					<th scope="col" style="text-align:right;">V.Lic/Cotado</th>
@@ -909,12 +922,12 @@ line-height: 1rem;
 
 				</tr>
 				</thead>
-				<tbody id="d1Table">
+				<tbody id="c7Table">
 				<tr>
 					<th scope="row" colspan="8" style="text-align:center;">Carregando itens...</th>
 				</tr>
 				</tbody>
-				<tfoot id="d1Foot">
+				<tfoot id="c7Foot">
 				<th scope="row" colspan="8" style="text-align:right;">Total Geral</th>
 				</tfoot>
 			</table>
@@ -985,7 +998,7 @@ if (Array.isArray(documentos)) {
     trHTML += '<td>'+object['DATALIB']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
 
-    if (cTipoDoc == 'NF'){
+    if (cTipoDoc == 'NF')
     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showDC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
   	} else {
      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['NUM']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
@@ -1133,8 +1146,8 @@ fetch('http://10.139.0.30:8080/rest/RestLibDc/v3?empresa='+f1empresa+'&documento
 }
 
 
-async function getPC(f1empresa,f1recno,userlib) {
-let url = 'http://10.139.0.30:8081/rest/RestLibDc/v5?empresa='+f1empresa+'&documento='+f1recno+'&userlib='+userlib;
+async function getPC(c7empresa,c7num,userlib) {
+let url = 'http://10.139.0.30:8081/rest/RestLibDc/v5?empresa='+c7empresa+'&documento='+c7num+'&userlib='+userlib;
 try {
 let res = await fetch(url);
   return await res.json();
@@ -1143,8 +1156,8 @@ console.log(error);
   }
 }
 
-async function showPC(f1empresa,f1recno,userlib,canLib) {
-let documento = await getPC(f1empresa,f1recno,userlib);
+async function showPC(c7empresa,c7num,userlib,canLib) {
+let documento = await getPC(c7empresa,c7num,userlib);
 let itens = ''
 let i = 0
 let foot = ''
@@ -1157,36 +1170,77 @@ document.getElementById('pcEmissao').value = documento['C7_EMISSAO'];
 document.getElementById('pcComprador').value = documento['C7_XXUSER'];
 document.getElementById('pcForn').value = documento['C7_XFORN'];
 if (canLib === 1){
-let btn = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'MjswNDEyMDM0MDA6OzIwMzEyMTAwMDI7Og--\')">Liberar</button>';
+let btn = '<button type="button" class="btn btn-outline-success" onclick="libpc(\''+c7empresa+'\',\''+c7num+'\',\'#userlib#\')">Liberar</button>';
 document.getElementById("btnlib").innerHTML = btn;
 }
-if (Array.isArray(documento.D1_ITENS)) {
-  documento.D1_ITENS.forEach(object => {
+if (Array.isArray(documento.C7_ITENS)) {
+  documento.C7_ITENS.forEach(object => {
    i++
 itens += '<tr>';
-itens += '<td>'+object['D1_ITEM']+'</td>';  
-itens += '<td>'+object['D1_COD']+'</td>';
-    itens += '<td>'+object['B1_DESC']+'</td>';
-itens += '<td>'+object['D1_CC']+'</td>';
-itens += '<td align="right">'+object['D1_QUANT']+'</td>';
-itens += '<td align="right">'+object['D1_VUNIT']+'</td>';
-itens += '<td align="right">'+object['D1_TOTAL']+'</td>';
-itens += '<td align="right">'+object['D1_GERAL']+'</td>';
+
+if (cTipoDoc == 'NF')
+	itens += '<td><p class="text-success">'+object['C8_ITEM']+'</p></td>';  
+} else {
+	itens += '<td><p class="text-success">'+object['C8_ITEM']+'</p></td>';  
+}
+
+itens += '<td>'+object['C8_PRODUTO']+'</td>';
+itens += '<td>'+object['C8_XXDESCP']+'</td>';
+itens += '<td>'+object['C8_UM']+'</td>';
+itens += '<td align="right">'+object['C8_QUANT']+'</td>';
+itens += '<td>'+object['C8_EMISSAO']+'</td>';
+itens += '<td>'+object['C7_DATPRF']+'</td>';
+itens += '<td align="right">'+object['C8_PRECO']+'</td>';
+itens += '<td align="right">'+object['C8_TOTAL']+'</td>';
+itens += '<td>'+object['C7_COND']+'</td>';
+itens += '<td>'+object['C8_FORNECE']+'</td>';
+itens += '<td>'+object['C8_XXNFOR']+'</td>';
+itens += '<td>'+object['C8_VALIDA']+'</td>';
+itens += '<td>'+object['C8_OBS']+'</td>';
+
 itens += '</tr>';
    <!-- itens += '<div class="col-md-2">' -->
-   <!-- itens += '  <input type="text" class="form-control" id="D1_TOTAL'+i+'" value="'+object['D1_TOTAL']+'" readonly="">' -->
+   <!-- itens += '  <input type="text" class="form-control" id="C8_GERAL'+i+'" value="'+object['C8_GERAL']+'" readonly="">' -->
    <!-- itens += '</div>' -->
  })
 }
 
-document.getElementById("d1Table").innerHTML = itens;
-foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['F1_GERAL']+'</th>'
-document.getElementById("d1Foot").innerHTML = foot;
+document.getElementById("c7Table").innerHTML = itens;
+foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['C8_GERAL']+'</th>'
+document.getElementById("c7Foot").innerHTML = foot;
 $("#titPC").text('Liberação de Pedido de Compra - Empresa: '+documento['EMPRESA'] + ' - Usuário: '+documento['USERNAME']);
 $('#pcModal').modal('show');
 $('#pcModal').on('hidden.bs.modal', function () {
 location.reload();
 })
+}
+
+
+async function libpc(c7empresa,c7num,userlib){
+let dataObject = {liberacao:'ok'};
+let resposta = ''
+
+fetch('http://10.139.0.30:8080/rest/RestLibDc/v6?empresa='+c7empresa+'&documento='+c7num+'&userlib='+userlib, {
+	method: 'PUT',
+	headers: {
+	'Content-Type': 'application/json'
+	},
+	body: JSON.stringify(dataObject)})
+	.then(response=>{
+		console.log(response);
+		return response.json();
+	})
+	.then(data=> {
+		// this is the data we get after putting our data,
+		console.log(data);
+
+	  //document.getElementById("titConf").innerHTML = data["liberacao"];
+	  $("#titConf").text(data.liberacao);
+	  $('#confModal').modal('show');
+	  $('#confModal').on('hidden.bs.modal', function () {
+	  $('#docModal').modal('toggle');
+	  })
+	})
 }
 
 

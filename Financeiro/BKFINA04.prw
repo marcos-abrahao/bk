@@ -197,6 +197,7 @@ Local aSaveAreaSE5 := GetArea("SE5")
 Local aRet :={}
 Local lSucess := .T.
 Local cFunName := ""
+Local cErrLog	:= ""
 
 For nI := 1 TO LEN(aTitGer)
     nValor += aTitGer[nI,7]
@@ -247,7 +248,8 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			SetFunName( "FINA050" )
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
-		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
+		        cErrLog := u_xConvErr(GETAUTOGRLOG())
+		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
     			MostraErro("\erros\","BKFINA04.ERR")
 				DisarmTransaction()
 		   		lSucess := .F.
@@ -273,7 +275,8 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			lMsErroAuto := .F.   
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 			IF lMsErroAuto
-				MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.", "Atenção")
+				cErrLog := u_xConvErr(GETAUTOGRLOG())
+				MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
 				MostraErro("\erros\","BKFINA04.ERR")
 				DisarmTransaction()
 				lSucess := .F.

@@ -4,14 +4,20 @@
 #INCLUDE 'TOTVS.CH'
 #INCLUDE 'FWMVCDEF.CH'
 
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKTestes
+BK - Acertos diversos
+@Return
+@author Marcos B. Abrahao
+@since 29/01/2011
+@version P12
 /*/
-Programa     : Autor: Marcos B. Abrahao - Data: 29/01/2011
-Objetivo     : Acertos diversos 
-/*/
+//-------------------------------------------------------------------
 
 
 User Function BKTESTE()
-u_BKFATR5A()
+u_IsPetro("000112")
+u_IsPetro("000281")
 Return Nil
 
 

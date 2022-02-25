@@ -1,13 +1,13 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
-#include "rwmake.ch"
+#include "RWMAKE.CH"
 
 /*/{Protheus.doc} CNA130INC
 BK - Ponto de Entrada para carregar campos na inclusão das mediçoes
 
 @Return
 @author Marcos B Abrahão
-@since 18/05/10
+@since 18/05/10 rev 22/02/2022
 @version P11/P12
 /*/
 
@@ -73,33 +73,31 @@ If nMesComp < 1
    nMesComp := 12 + nMesComp
    nAnoComp--
 EndIf
-	
-cSql := "SELECT Z2_CC,SUM(Z2_VALOR)AS TOTAL,"
-cSql += " (SELECT TOP 1 CND_XXDV FROM CND010 CND WHERE CND.D_E_L_E_T_='' "
-cSql += "  AND CND_CONTRA='"+M->CND_CONTRA+"' AND CND_COMPET='"+M->CND_COMPET+"' AND CND_XXDV<>'' ) AS CND_XXDV " 
-cSql += "FROM SZ2010 SZ2 "
-cSql += "WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP='"+SM0->M0_CODIGO+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
-//cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)='"+SUBSTR(M->CND_COMPET,4,4)+SUBSTR(M->CND_COMPET,1,2)+"'"
-cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)>='"+STRZERO(nAnoComp,4)+STRZERO(nMesComp,2)+"'"
-cSql += " AND Z2_CC='"+M->CND_CONTRA+"' "
-cSql += "GROUP BY Z2_CC "
-	
-TCQUERY cSql NEW ALIAS (cAliasSZ2)
-	
-dbSelectArea(cAliasSZ2)
-(cAliasSZ2)->(DbGotop()) 
-//IF EMPTY((cAliasSZ2)->CND_XXDV)
+
+M->CND_XXDV   := "N"
+If !U_IsPetro(M->CND_CLIENT)
+	cSql := "SELECT Z2_CC,SUM(Z2_VALOR) AS TOTAL,"
+	cSql += " (SELECT TOP 1 CND_XXDV FROM CND010 CND WHERE CND.D_E_L_E_T_='' "
+	cSql += "  AND CND_CONTRA='"+M->CND_CONTRA+"' AND CND_COMPET='"+M->CND_COMPET+"' AND CND_XXDV<>'' ) AS CND_XXDV " 
+	cSql += "FROM SZ2010 SZ2 "
+	cSql += "WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP='"+SM0->M0_CODIGO+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
+	//cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)='"+SUBSTR(M->CND_COMPET,4,4)+SUBSTR(M->CND_COMPET,1,2)+"'"
+	cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)>='"+STRZERO(nAnoComp,4)+STRZERO(nMesComp,2)+"'"
+	cSql += " AND Z2_CC='"+M->CND_CONTRA+"' "
+	cSql += "GROUP BY Z2_CC "
+		
+	TCQUERY cSql NEW ALIAS (cAliasSZ2)
+		
+	//dbSelectArea(cAliasSZ2)
+	(cAliasSZ2)->(DbGotop()) 
 	IF (cAliasSZ2)->TOTAL > 0 
 		IF MsgYesNo("Faturado solicitação de viagens contrato: "+TRIM(M->CND_CONTRA)+" - Valor R$ "+ALLTRIM(TRANSFORM((cAliasSZ2)->TOTAL,"@E 999,999,999.99")))
 			M->CND_XXDV   := "S"
 			M->CND_XXVLND := (cAliasSZ2)->TOTAL
-		ELSE
-			M->CND_XXDV   := "N"
 		ENDIF
 	ENDIF
-//ELSE
-//	M->CND_XXDV := (cAliasSZ2)->CND_XXDV
-//ENDIF
+	(cAliasSZ2)->(DbCloseArea())
+ENDIF
 
 //If M->CND_VLTOT > M->CND_VLPREV
 //	M->CND_DESCME := M->CND_VLTOT > M->CND_VLPREV
@@ -121,9 +119,6 @@ If (INCLUI .Or. ALTERA)
         EndIf
     EndIf
 EndIf
-
-
-(cAliasSZ2)->(DbCloseArea())
 
 RestArea(aAreas)
 Return NIL

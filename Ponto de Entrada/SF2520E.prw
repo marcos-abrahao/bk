@@ -1,5 +1,13 @@
 #INCLUDE "PROTHEUS.CH"
 
+/*/{Protheus.doc} SF2520E
+	BK - Informar o responsável pelo cancelamento da NF
+	@type  Function
+	@author Marcos Bispo Abrahão
+	@since 
+	@version version
+	/*/
+
 User Function SF2520E() 
 Local aArea 	:= GetArea()
 Local aAreaSF3	:= SF3->(GetArea("SF3"))
@@ -18,8 +26,6 @@ Define MsDialog oDlgEx Title "Exclusão da NF "+SF2->F2_DOC From 000,000 To 110,4
 
 @ 040,080 Button "&Ok" Size 036,013 Pixel Action (GrvMotEx(cMotEx,cAprEx),oDlgEx:End())
 Activate MsDialog oDlgEx Centered
-
-
 
 dbSelectArea("SF3")
 dbSetOrder(4)

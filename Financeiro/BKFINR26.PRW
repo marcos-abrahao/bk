@@ -6,13 +6,13 @@ BK - Planilha de Pedidos e Faturamento
 v29/03/20
 @Return
 @author Marcos Bispo Abrahใo
-@since 15/03/2020
+@since 15/03/2020 rev 25/02/2022
 @version P12
 /*/
-Static __oTBxCanc
-Static __oTipoBa
+//Static __oTBxCanc
+//Static __oTipoBa
 //Static __oHash
-Static __aTtImp
+//Static __aTtImp
 
 
 User Function BKFINR26()
@@ -125,6 +125,7 @@ aAdd(aFields,{"XX_VALLIQ" ,"","XX_VALLIQ","Vl Liq.NF",cPict,"N",18,2})
 aAdd(aFields,{"XX_E5DESC" ,"E5_VLDESCO","XX_E5DESC"  ,"Desconto - Imp. Cli nใo reteve"})
 aAdd(aFields,{"XX_VENC"   ,"E1_VENCREA"})
 aAdd(aFields,{"XX_BAIXA"  ,"E1_BAIXA"})
+aAdd(aFields,{"XX_XXDTADT","E1_XXDTADT"})
 If cOpcBco == "1"
 	aAdd(aFields,{"XX_TOTBX" ,"","XX_TOTBX","Total Bcos",cPict,"N",18,2})
 EndIf
@@ -244,6 +245,7 @@ oTmpTb := FWTemporaryTable():New( cAliasTrb )
 oTmpTb:SetFields( aDbf )
 oTmpTb:Create()
 
+/*
 If !Empty( __oTBxCanc )
 	__oTBxCanc:Destroy()
 	__oTBxCanc := Nil
@@ -256,7 +258,7 @@ EndIf
 __oTBxCanc	:= FWPreparedStatement():New( '' )
 __oTipoBa	:= FWPreparedStatement():New( '' )
 //__oHash		:= tHashMap():New() //Cria o Objeto do Hash Map
-
+*/
 Processa( {|| ProcBKR26() })
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
@@ -264,6 +266,7 @@ U_PlanXlsx(aPlans,cTitulo,cPerg, .F.,aParam)
 
 oTmpTb:Delete()
 
+/*
 If !Empty( __oTBxCanc )
 	__oTBxCanc:Destroy()
 	__oTBxCanc := Nil
@@ -272,7 +275,7 @@ If !Empty( __oTipoBa )
 	__oTipoBa:Destroy()
 	__oTipoBa := Nil
 EndIf
-
+*/
 SE5->(RestArea(aAreaSE5))
 
 Return
@@ -306,6 +309,12 @@ Local aBcoRec := {}
 Local aBcos   := {}
 Local cNomeBco:= ""
 Local nTotBx  := 0
+
+// --> FINC040
+Local lClcMultLj := ( SuperGetMv("MV_JURTIPO",,"") == "L" ) .Or. ( SuperGetMv("MV_LJINTFS", ,.F.) )
+Private nJuros 	:= 0
+Private nMulta 	:= 0
+// <-- FINC040
 
 Private xCampo
 
@@ -342,6 +351,7 @@ cQuery += "		,F2_XXVRETC" + CRLF
 cQuery += "		,E1_VENCREA" + CRLF
 cQuery += "		,E1_BAIXA" + CRLF
 cQuery += "		,E1_SALDO" + CRLF // CASE E1_SALDO WHEN 0 THEN 0 ELSE E1_SALDO - E1_XXVRETC END AS E1_SALDO
+cQuery += "		,E1_XXDTADT" + CRLF
 cQuery += "		,FRV_DESCRI" + CRLF
 cQuery += "		,SC5.R_E_C_N_O_ AS C5RECNO" + CRLF
 cQuery += "		,SF2.R_E_C_N_O_ AS F2RECNO" + CRLF
@@ -443,6 +453,7 @@ cQuery += "		,E1_VALOR AS F2_VALBRUT" + CRLF
 cQuery += "		,E1_XXVRETC AS F2_XXVRETC"+ CRLF
 cQuery += "		,E1_VENCREA,E1_BAIXA" + CRLF
 cQuery += "		,E1_SALDO" + CRLF // CASE E1_SALDO WHEN 0 THEN 0 ELSE E1_SALDO - E1_XXVRETC END AS E1_SALDO
+cQuery += "		,E1_XXDTADT" + CRLF
 cQuery += "		,FRV_DESCRI" + CRLF
 cQuery += "		,0 AS C5RECNO" + CRLF
 cQuery += "		,0 AS F2RECNO" + CRLF
@@ -500,6 +511,7 @@ dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 TCSETFIELD(cAliasQry,"C5_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"F2_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_VENCREA","D", 8,0)
+TCSETFIELD(cAliasQry,"E1_XXDTADT","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_BAIXA","D", 8,0)
 TCSETFIELD(cAliasQry,"C5_XXDLIB","D", 8,0)
 ProcRegua((cAliasQry)->(LastRec()))
@@ -525,7 +537,67 @@ DO WHILE (cAliasQry)->(!EOF())
 	If (cAliasQry)->E1RECNO > 0
 		SE1->(dbGoTo((cAliasQry)->E1RECNO))
 		SF2->(dbGoTo((cAliasQry)->F2RECNO))
-		nSaldo := U_SaldoSe1(dDataBase)
+		//nSaldo := U_SaldoSe1(dDataBase)
+
+		// --> Copiado do FINC040
+		nAbatim  := 0
+		nDescFin := 0
+		nMultaTit:= 0
+		nValAces := 0
+		nJuros	 := 0  // Private
+		nMulta	 := 0  // Private
+
+		If SE1->E1_SALDO = 0
+   			//dBaixa := SE1->E1_BAIXA
+			nSaldo := SE1->E1_VALOR
+		Else
+			nSaldo := SaldoTit( SE1->E1_PREFIXO ,SE1->E1_NUM  ,SE1->E1_PARCELA ,SE1->E1_TIPO , ;
+							SE1->E1_NATUREZ ,"R"           ,SE1->E1_CLIENTE , 1           , ;
+							NIL             ,NIL           ,SE1->E1_LOJA    ,NIL          , ;
+							If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0) )
+		EndIf
+		//Desconto Financeiro e Abatimento
+		IF !(SE1->E1_TIPO $ MVRECANT+"/"+MV_CRNEG)
+
+			//Abatimento
+			nAbatim	 := SomaAbat(SE1->E1_PREFIXO, SE1->E1_NUM, SE1->E1_PARCELA,"R",SE1->E1_MOEDA,,SE1->E1_CLIENTE,SE1->E1_LOJA)
+			//Desconto Financeiro
+			If SE1->E1_VENCREA >= dDataBase .AND. SE1->E1_SALDO > 0
+				nDescFin   := FaDescFin("SE1",dDataBase,SE1->E1_SALDO-nAbatim,SE1->E1_MOEDA)
+			Endif
+			//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+			//ณ Se o Saldo ja estiver Zero, nao calcular os juros.           ณ
+			//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+			If SE1->E1_SALDO > 0
+				If lClcMultLj
+					//*ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+					//*ณ Calcula o valor da Multa  :funcao LojxRMul :fonte Lojxrec          ณ
+					//*ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+					nMultaTit := LojxRMul(,,,nSaldo,SE1->E1_ACRESC,SE1->E1_VENCREA,dDataBase,,SE1->E1_MULTA,,SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_CLIENTE,SE1->E1_LOJA,"SE1",.T.)
+				EndIf
+				fa070Juros(1, nSaldo)
+				
+				If	ExistFunc('FValAcess')
+					nValAces := FValAcess(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_CLIENTE,SE1->E1_LOJA, SE1->E1_NATUREZ,!Empty(SE1->E1_BAIXA),,"R",SE1->E1_BAIXA,,SE1->E1_MOEDA)		
+				EndIf
+			Endif
+		Endif
+		nJuros   += nMulta
+
+		If Empty(SE1->E1_BAIXA)
+			//@ 012, 055 SAY Trans(SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin, tm(SE1->E1_SALDO, 17, ncasas)) SIZE 50,16 OF oPanel3 PIXEL //"Saldo Tกtulo (Impostos)"
+			nSaldo := SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin
+		Else	
+			If SE1->E1_SALDO = 0 
+				//@ 012, 055 SAY Trans(SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit, tm(SE1->E1_SALDO, 17, ncasas)) SIZE 50,16 OF oPanel3 PIXEL //"Saldo Tกtulo (Impostos)"
+				nSaldo := SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit
+			Else
+				//@ 012, 055 SAY Trans(SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin, tm(SE1->E1_SALDO, 17, ncasas)) SIZE 50,16 OF oPanel3 PIXEL //"Saldo Tกtulo (Impostos)"
+				nSaldo := SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin
+			EndIf
+		EndIf
+
+		//<-- FINC040
 
 		// Posiciona nos Bancos
 		SE1->(dbGoTo((cAliasQry)->E1RECNO))
@@ -573,9 +645,9 @@ DO WHILE (cAliasQry)->(!EOF())
 				EndIf
 			Endif
 			*/
-			If nSaldo > 0
-				nSaldo -= (cAliasQry)->F2_XXVRETC
-			EndIf
+			//If nSaldo > 0
+			//	nSaldo -= (cAliasQry)->F2_XXVRETC
+			//EndIf
 			xCampo := nSaldo
 
 		ElseIf aFields[nF,2] = "F2_USERLGI" .AND. !EMPTY((cAliasQry)->F2RECNO)
@@ -799,466 +871,5 @@ If dbSeek(xFilial("SE5")+SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E
 Endif
 Return aBcoRec
 
-// salto Contas a Receber
-// BKFINR26/BKFINR29
-User Function SaldoSe1(dDtBase)
-Local dDataReaj 	
-Local dOldData		:= dDataBase
 
-Local nSaldo		:= 0
-Local nDecs			:= 2		// Casas Decimais era Msdecimais(mv_par15)
-Local nValPcc	  	:= 0
-Local nRecSA1		:= 0
-Local cSeq			:= ""
-Local nTamSeq		:= TamSX3("E5_SEQ")[1]
-Local cMvDesFin		:= SuperGetMV("MV_DESCFIN",,"I")
-Local lTemGem		:= ExistTemplate("GEMDESCTO") .And. HasTemplate("LOT")
-Local nDescont		:= 0
-Local cFilNat 		:= SE1->E1_NATUREZ
-Local lExistAba		:= .F. // Verifica se existem tํtulos de abatimento
-Local cTipoIn		:= ""
-Local nPos			:= 0
-Local aTitImp		:= {}
-Local nBx			:= 0
 
-Static aAbatBaixa 	:= {}
-Static __lBQ10925
-
-Private cMVBR10925	:= SuperGetMv("MV_BR10925", ,"2")
-Private xmv_par20	:= 1		// Considera Data Base
-Private xmv_par15	:= 1		// Qual Moeda
-Private xmv_par17	:= 2		// Reajuste pelo vecto
-Private xmv_par36	:= dDtBase	// Data Base
-Private xmv_par37	:= 1		// Compoe Saldo por: Data da Baixa, Credito ou DtDigit
-Private xmv_par39	:= 1		// Compoe Saldo por ?
-Private xmv_par38	:= 1		// Tit. Emissao Futura
-Private xmv_par33	:= 2		// Abatimentos  - Lista/Nao Lista/Despreza
-
-
-// ----> Inicializa็ใo de variแveis
-
-__lBQ10925		:= SuperGetMV("MV_BQ10925",,"2") == "1"
-
-//Acerta a database de acordo com o parametro
-If xmv_par20 == 1    // Considera Data Base
-	dBaixa := dDataBase := xmv_par36
-Else
-	If dDataBase < xMV_PAR36
-		dBaixa := dDataBase := xmv_par36
-	EndIf
-Endif
-
-// <---- Inicializa็ใo de variแveis
-
-
-// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
-If SE1->E1_VENCREA < dDataBase
-	If xmv_par17 == 2 .And. RecMoeda(SE1->E1_VENCREA,SE1->E1_MOEDA) > 0
-		dDataReaj := SE1->E1_VENCREA
-	Else
-		dDataReaj := dDataBase
-	EndIf
-Else
-	dDataReaj := dDataBase
-EndIf
-
-Dbselectarea("SE5")
-DbSetorder(7) //E5_FILIAL+E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO+E5_CLIFOR+E5_LOJA+E5_SEQ
-MSSeek(xFilial("SE5")+SE1->E1_PREFIXO+SE1->E1_NUM+ SE1->E1_PARCELA + SE1->E1_TIPO +SE1->E1_CLIENTE )                                                                                 
-If xMV_PAR20 == 1	// Considera Data Base
-				
-	nSaldo := SaldoTit( SE1->E1_PREFIXO, SE1->E1_NUM, SE1->E1_PARCELA, SE1->E1_TIPO, SE1->E1_NATUREZ, "R", SE1->E1_CLIENTE, xmv_par15, dDataReaj,;
-						xMV_PAR36, SE1->E1_LOJA,	xFilial('SE5') , Iif(xmv_par39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0),;
-						xmv_par37, .F., __oTBxCanc )
-									
-	/*
-	//Verifica se existem compensa็๕es em outras filiais para descontar do saldo, pois a SaldoTit() somente
-	//verifica as movimenta็๕es da filial corrente. Nao deve processar quando existe somente uma filial.
-	If lVerCmpFil .and. ( mv_par41 == 1 ) .and. ( nSaldo != SE1->E1_SALDO ) .and.;
-						 aScan( aRecSE1Cmp , { |x| x[1] == SE1->( R_E_C_N_O_ )} ) > 0
-		proclogatu("INICIO",STR0085) //"PESQUISA DE COMPENSAวรO DE MULTI-FILIIAS"
-		nSaldo -= Round(NoRound( xMoeda( FRVlCompFil("R",SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_CLIENTE,SE1->E1_LOJA,xmv_par37,aFiliais,cFilQry,lAS400),;
-						SE1->E1_MOEDA,xmv_par15,dDataReaj,ndecs+1,Iif(xmv_par39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA) ),0 ) ),;
-						nDecs+1),nDecs)
-		proclogatu("FIM",STR0085)//Log pesquisa de compensa็ใo
-	EndIf
-	*/			
-
-
-	//Subtrai decrescimo para recompor o saldo na data escolhida
-	//Converte o decrescimo e acrescimo para a moeda do nsaldo
-	If SE1->E1_DECRESC > 0
-		If  xmv_par15 = SE1->E1_MOEDA .and. Str(SE1->E1_VALOR,17,2) == Str(nSaldo,17,2)
-			nSaldo -= SE1->E1_DECRESC
-		ElseIf Round(NoRound(xMoeda(SE1->E1_VALOR,SE1->E1_MOEDA,xmv_par15,dDataReaj,nDecs+1,Iif(xmv_par39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0)),nDecs+1),nDecs) == nSaldo
-			nSaldo := Round(NoRound(xMoeda(SE1->E1_VALOR-SE1->E1_DECRESC,SE1->E1_MOEDA,xmv_par15,dDataReaj,nDecs+1,Iif(xmv_par39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0)),nDecs+1),nDecs)
-		Endif
-	EndIf
-
-	// Soma Acrescimo para recompor o saldo na data escolhida.
-	If SE1->E1_ACRESC > 0
-		If  xmv_par15 = SE1->E1_MOEDA .and. Str(SE1->E1_VALOR,17,2) == Str(nSaldo,17,2)
-			nSaldo += SE1->E1_ACRESC
-		ElseIf Round(NoRound(xMoeda(SE1->E1_VALOR,SE1->E1_MOEDA,xmv_par15,dDataReaj,nDecs+1,Iif(xmv_par39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0)),nDecs+1),nDecs) == nSaldo
-			nSaldo := Round(NoRound(xMoeda(SE1->E1_VALOR+SE1->E1_ACRESC,SE1->E1_MOEDA,xmv_par15,dDataReaj,nDecs+1,Iif(xmv_par39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0)),nDecs+1),nDecs)
-		EndIf
-	EndIf
-
-	//Se abatimento verifico a data da baixa.
-	//Por nao possuirem movimento de baixa no SE5, a saldotit retorna
-	//sempre saldo em aberto quando xmv_par33 = 1 (Abatimentos = Lista)
-	If SE1->E1_TIPO $ MVABATIM	+"/"+MVFUABT .and. ;
-		((SE1->E1_BAIXA <= dDataBase .and. !Empty(SE1->E1_BAIXA)) .or. ;
-		 (SE1->E1_MOVIMEN <= dDataBase .and. !Empty(SE1->E1_MOVIMEN))	) .and.;
-		 SE1->E1_SALDO == 0
-		nSaldo := 0
-		If !Empty(SE1->E1_TITPAI)
-			aAdd( aAbatBaixa , { SE1->(E1_FILIAL+E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA) , SE1->E1_TITPAI } )
-		Else
-			cMTitPai := FTITPAI()
-			aAdd( aAbatBaixa , { SE1->(E1_FILIAL+E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA) , cMTitPai } )
-		EndIf
-
-		aAdd( aAbatBaixa , { SE1->(E1_FILIAL+E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA) , SE1->E1_TITPAI } )
-	EndIf
-
-	//certifica-se de que estแ posicionado no cliente correto, para que seja deduzido corretamente o IR baixado do saldo do tํtulo.
-	If AllTrim(SA1->A1_COD)+AllTrim(SA1->A1_LOJA) <> AllTrim(SE1->E1_CLIENTE)+AllTrim(SE1->E1_LOJA) .and. cMVBR10925 == "1" .And. __lBQ10925 
-		nRecSA1 := SA1->(Recno())															
-		If !SA1->(MsSeek(xFilial("SA1")+SE1->E1_CLIENTE+SE1->E1_LOJA)) 																	 
-			SA1->(DbGoto(nRecSA1))
-			nRecSA1 := 0						
-		EndIf
-	ElseIf cMVBR10925 == "1" .And. __lBQ10925
-		nRecSA1 := SA1->(Recno())									
-	EndIf
-
-	If cPaisLoc == "BRA"
-		If (( cMVBR10925 == "1" .and. SE1->E1_EMISSAO <= xMV_PAR36 .and. !(SE1->E1_TIPO $ "PIS/COF/CSL").and. !(SE1->E1_TIPO $ MVABATIM) ) ;
-			.AND. ( "S" $ (SA1->(A1_RECPIS+A1_RECCOFI+A1_RECCSLL) ) ) ) .Or. (SA1->A1_IRBAX == '1' .And. SE1->E1_EMISSAO <= xMV_PAR36 .and. ;
-			!(SE1->E1_TIPO $ MVIRF).and. !(SE1->E1_TIPO $ MVABATIM) .AND. ( (SA1->(A1_RECIRRF) $ "1 " ) .And. SA1->A1_TPESSOA == 'EP' ) )
-	
-			nValPcc := SumBxPCC(SE1->E1_PREFIXO,SE1->E1_NUM,dBaixa,SE1->E1_CLIENTE,SE1->E1_LOJA,xmv_par15)
-			nSaldo -= nValPcc
-								
-			//tratamento para emissใo correta do saldo do tํtulo, quando o PCC+IR estiver na baixa e for realizado baixa parcial.
-			If nRecSA1 > 0
-				SE5->(DbSetOrder(7))
-				while  SE5->(!EOF()) .And. SE5->(MsSeek(xFilial("SE5")+SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA)+cSeq));
-					.And. nSaldo <> SE1->E1_SALDO .And. AllTrim(SA1->A1_IRBAX) = "1" .And. SE5->E5_VRETIRF > 0			
-					nSaldo	:= Iif(SE5->E5_DATA <= xmv_par36,  (nSaldo - SE5->E5_VRETIRF), nSaldo)
-					cSeq	:= ALLTRIM(STR(VAL(SE5->E5_SEQ)+1))
-					cSeq	:= Replicate("0", nTamSeq - Len(Alltrim(Str(Val(cSeq))))) + cSeq
-				EndDo										
-			Endif					
-		EndIf
-	EndIf
-
-
-	nRecSA1 := 0				
-	If SE1->E1_TIPO == "RA "   //somente para titulos ref adiantamento verifica se nao houve cancelamento da baixa posterior data base (xmv_par36)
-		nSaldo -= F130TipoBA()
-	EndIf
-Else
-	nSaldo := xMoeda((SE1->E1_SALDO+SE1->E1_SDACRES-SE1->E1_SDDECRE),SE1->E1_MOEDA,xmv_par15,dDataReaj,ndecs+1,Iif(xMV_PAR39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0))
-Endif
-
-/*
-// Se titulo do Template GEM
-If __lTempLOT .And.  !Empty(SE1->E1_NCONTR)
-	nGem := CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
-	If SE1->E1_VALOR==SE1->E1_SALDO
-		nSaldo += nGem
-	EndIf
-EndIf
-*/
-
-//Caso exista desconto financeiro (cadastrado na inclusao do titulo),
-//subtrai do valor principal.
-If !(!Empty( SE1->E1_BAIXA ) .AND. SE1->E1_BAIXA < dDatabase) .Or. cMvDesFin == "P" 
-	nDescont := FaDescFin("SE1",dBaixa,SE1->E1_SALDO,1,.T.,lTemGem)
-	If xMv_par15 > 1
-		If SE1->E1_MOEDA == xMv_par15
-			nDescont := xMoeda((nDescont),1,xMv_par15,dDataReaj,ndecs+1,Iif(xMV_PAR39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0))
-		Else
-			nDescont := xMoeda((nDescont),SE1->E1_MOEDA,xmv_par15,dDataReaj,ndecs+1,Iif(xMV_PAR39==2,Iif(!Empty(SE1->E1_TXMOEDA),SE1->E1_TXMOEDA,RecMoeda(SE1->E1_EMISSAO,SE1->E1_MOEDA)),0))
-		EndIf
-	EndIf
-	If nDescont > 0
-		nSaldo := nSaldo - nDescont
-	Endif
-EndIf
-
-If ! SE1->E1_TIPO $ MVABATIM	+"/"+MVFUABT
-	If ! (SE1->E1_TIPO $ MVRECANT+"/"+MV_CRNEG) .And. ;
-			!( xMV_PAR20 == 2 .And. nSaldo == 0 )  	// deve olhar abatimento pois e zerado o saldo na liquidacao final do titulo
-
-		cFilNat		:= SE1->E1_NATUREZ
-		lExistAba	:= HashNatur(@cTipoIn)
-					
-		//Busca as informa็๕es para alimentar a array aTitImp utilizando a fun็ใo F130RETIMP
-		If lExistAba
-			If __aTtImp == Nil
-				__aTtImp := {}
-			EndIf
-
-			If ( nPos := (aScan(__aTtImp, {|x| x[1] == cFilNat}))) == 0
-				aTitImp		:= F130RETIMP(cFilNat)
-				aAdd(__aTtImp, {cFilNat, aTitImp} )
-			Else
-				aTitImp := aClone(__aTtImp[nPos,2])
-			EndIf
-		Else				        
-			aTitImp:= {}
-		EndIf
-					
-		If ((nPos := (aScan(aTitImp, {|x| x[1] <> SE1->E1_TIPO }))) > 0 .and. aTitImp[nPos][2]) .OR.;
-			aScan(aAbatBaixa, {|x| ALLTRIM(x[2])==ALLTRIM(SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA)) }) > 0
-
-			//Quando considerar Titulos com emissao futura, eh necessario
-			//colocar-se a database para o futuro de forma que a Somaabat()
-			//considere os titulos de abatimento
-			If xmv_par38 == 1
-				//dOldData := dDataBase
-				dDataBase := CTOD("31/12/40")
-			Endif
-
-			// Somente verifica abatimentos se existirem titulos deste tipo para o cliente
-			If lExistAba
-				nAbatim := SomaAbat(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,"R",xmv_par15,dDataReaj,SE1->E1_CLIENTE,SE1->E1_LOJA)
-			Else
-				nAbatim := 0
-			EndIf
-
-			If xmv_par38 == 1
-   				dDataBase := dOldData
-			Endif
-
-			If xmv_par33 != 1  //somente deve considerar abatimento no saldo se nao listar
-				If STR(nSaldo,17,2) == STR(nAbatim,17,2)
-					nSaldo := 0
-				ElseIf xmv_par33 == 2  //Se nao listar ele diminui do saldo								
-					nSaldo-= nAbatim
-				Endif
-			Else
-			    // Subtrai o Abatimento caso o mesmo jแ tenho sido baixado ou nใo esteja listado no relatorios
-			  	nBx := aScan( aAbatBaixa, {|x| x[2]= SE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO+E1_CLIENTE+E1_LOJA) } )
-			  	If (SE1->E1_BAIXA <= dDataBase .and. !Empty(SE1->E1_BAIXA) .and. nBx>0)
-			  		aDel( aAbatBaixa , nBx)
-			  		aSize(aAbatBaixa, Len(aAbatBaixa)-1)
-					nSaldo -= nAbatim
-				EndIf
-			EndIf
-		Endif
-	Endif
-Endif
-
-nSaldo:=Round(NoRound(nSaldo,3),2)
-
-//__oHash:Clean()
-dDataBase := dOldData
-
-Return nSaldo
-
-
-
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณF130TipoBAบAutor  ณMicrosiga           บ Data ณ  13/08/12   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Rotina para buscar na SE5 quando titulo eh tipo RA para    บฑฑ
-ฑฑบ          ณ verificar a data de cancelamento que sera gravado no       บฑฑ
-ฑฑบ          ณ campo E5_HIST entre ###[AAAAMMDD]### a fim de compor o     บฑฑ
-ฑฑบ          ณ saldo adequadamente                                        บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ AP                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
-Static Function F130TipoBA()
-	Local aSavArea		:= GetArea()
-	Local nPosDtCanc	:= 0
-	Local nValor		:= 0
-	Local cQuery		:= ''
-	Local cTipoBA		:= '' 
-
-	If !Empty( __oTipoBa )
-		If Empty( __oTipoBa:cBaseQuery )
-
-			cQuery += "SELECT E5_DATA, E5_HISTOR, E5_VALOR "
-			cQuery += " FROM " + RetSqlName("SE5") + " SE5 "
-			cQuery += " WHERE SE5.E5_FILIAL = ? "
-			cQuery += " AND SE5.E5_PREFIXO = ? "
-			cQuery += " AND SE5.E5_NUMERO = ? "
-			cQuery += " AND SE5.E5_PARCELA = ? "
-			cQuery += " AND SE5.E5_TIPO = ? "
-			cQuery += " AND SE5.E5_CLIFOR = ? "
-			cQuery += " AND SE5.E5_LOJA = ? "
-			cQuery += " AND SE5.E5_DATA <= ? "
-			cQuery += " AND SE5.E5_TIPODOC = 'BA' "
-			cQuery += " AND SE5.E5_SITUACA = 'C' "
-			cQuery += " AND SE5.E5_HISTOR LIKE '%###%' "
-			cQuery += " AND SE5.D_E_L_E_T_ = ' ' "
-
-			cQuery := ChangeQuery(cQuery)
-			__oTipoBa:SetQuery( cQuery )
-		EndIf
-
-		__oTipoBa:SetString( 1, xFilial("SE5")	)
-		__oTipoBa:SetString( 2, SE1->E1_PREFIXO	)
-		__oTipoBa:SetString( 3, SE1->E1_NUM		)
-		__oTipoBa:SetString( 4, SE1->E1_PARCELA	)
-		__oTipoBa:SetString( 5, SE1->E1_TIPO	)
-		__oTipoBa:SetString( 6, SE1->E1_CLIENTE	)
-		__oTipoBa:SetString( 7, SE1->E1_LOJA	)
-		__oTipoBa:SetDate(	8, mv_par36			)
-
-		cQuery := __oTipoBa:GetFixQuery()
-		cTipoBA := MpSysOpenQuery( cQuery )
-
-		While ( cTipoBA )->(!EOF()) 
-			nPosDtCanc := At( "###[", ( cTipoBA )->E5_HISTOR ) 
-			If StoD( Subs( ( cTipoBA )->E5_HISTOR, nPosDtCanc + 4, 8 ) ) > xMV_PAR36
-				nValor := ( cTipoBA )->E5_VALOR
-				Exit
-			EndIf
-			( cTipoBA )->(dbSkip())
-		EndDo
-
-		( cTipoBA )->( dbCloseArea() )
-	EndIf
-
-	RestArea(aSavArea)
-
-Return nValor
-
-
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณHashNatur  ณ Ronaldo Tapia             บ Data ณ  05/04/16   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Faz querypara verificar se existe abatimento para determi- บฑฑ
-ฑฑบ          ณ cliente                                                   .บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ AP                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/ 
-Static Function HashNatur(cTipoIn)
-
-Local cQuery 
-Local cAreaAtu // := Alias()//- salvo o alias aberto 
-Local lTemCli := .F.
-Local lFlag
-
-Static __oHash	:= tHashMap():New() //Cria o Objeto do Hash Map
-
-Default cTipoIn := ""
-
-lTemCli := __oHash:Get( SE1->(E1_CLIENTE+E1_LOJA) , lFlag )
-
-If !lTemCli
-	cAreaAtu := Alias()//- salvo o alias aberto 
-	cQuery := " SELECT Max(R_E_C_N_O_) AS RECNO"
-	cQuery += "   FROM " + RetSqlName("SE1")+" SE1 "
-	cQuery += "  WHERE SE1.E1_FILIAL = '"+xFilial("SE1")+"'"
-	cQuery += "    AND SE1.E1_CLIENTE = '"+SE1->E1_CLIENTE+"'"
-	cQuery += "    AND SE1.E1_LOJA = '"+SE1->E1_LOJA+"'"
-	cQuery += "    AND SE1.E1_TIPO IN "  + F130MontaIn(@cTipoIn)
-	cQuery += "    AND SE1.D_E_L_E_T_ = ' ' "
-
-	dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"HashNatur",.T.,.T.)
-
-	If !Eof()
-		lTemCli := __oHash:Set( SE1->(E1_CLIENTE+E1_LOJA) , .T. )
-	Endif
-
-	HashNatur->(dbCloseArea())		
-
-	//- restauro o alias anterior 
-	dbSelectArea(cAreaAtu)
-EndIf 
-
-Return (lTemCli)
-
-
-//-------------------------------------------------------------------
-/*/{Protheus.doc} F130MontaIn
-Formata a expressใo para IN ou NOT IN
-
-@author Mauricio Pequim Jr
-@since 02/05/2016
-@version 12.1.7
-/*/
-//-------------------------------------------------------------------
-Static Function F130MontaIn(cTipoIn)
-Local cTiposAbt	:= MVABATIM +"|"+MVFUABT
-Default cTipoIn   := ""
-
-If cTipoIn == ""
-	cTipoIn	:=	StrTran(cTiposAbt,',','/')
-	cTipoIn	:=	StrTran(cTipoIn,';','/')
-	cTipoIn	:=	StrTran(cTipoIn,'|','/')
-	cTipoIn	:=	StrTran(cTipoIn,'\','/')
-
-	cTipoIn := Formatin(cTipoIn,"/")
-Endif
-
-Return cTipoIn
-
-
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณF040RETIMPบAutor  ณ Totvs              บ Data ณ  30/07/12   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Efetua a validacao na exclusao do titulo                   บฑฑ
-ฑฑบ          ณ                                                            บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ AP                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
-Static Function F130RETIMP(cFiltro)
-
-Local aTitulos := {}
-Local aAreaSE1	:= SE1->(GetArea())
-
-dbSelectArea("SED")
-dbSetOrder(1)
-If MSSeek (xFilial("SED")+cFiltro)
-	If SED->ED_CALCIRF=="S"
-     	AADD(aTitulos,{MVIRABT, .T.})
- 	EndIf
-   	If SED->ED_CALCINS=="S"
-       	AADD(aTitulos,{MVINABT,.T.})
-   	EndIf
- 	If SED->ED_CALCPIS=="S"
-    	 AADD(aTitulos,{MVPIABT,.T.})
- 	EndIf
-   	If SED->ED_CALCCOF=="S"
-     	AADD(aTitulos,{MVCFABT,.T.})
- 	EndIf
-   	If SED->ED_CALCCSL=="S"
-     	AADD(aTitulos,{MVCSABT,.T.})
-   	EndIf
- 	If SED->ED_CALCISS=="S"
-     	AADD(aTitulos,{MVISABT,.T.})
-	EndIf
-	//ISS Bitributado
-	If SED->ED_CALCISS=="S"
-     	AADD(aTitulos,{MVI2ABT,.T.})
-	EndIf
-EndIf
-
-RestArea(aAreaSE1)
-
-Return aTitulos

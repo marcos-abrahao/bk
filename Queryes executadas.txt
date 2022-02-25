@@ -1,4 +1,14 @@
 
+==============================================================
+24/02/22 - Baixados parcialmente (ou adiantamento)
+
+SELECT * FROM SE1010 WHERE E1_STATUS = 'A' 
+AND D_E_L_E_T_= '' AND E1_TIPO = 'NF'
+AND E1_BAIXA <> ''
+
+UPDATE SE1010 SET E1_XXDTADT = E1_BAIXA FROM SE1010 WHERE E1_STATUS = 'A' 
+AND D_E_L_E_T_= '' AND E1_TIPO = 'NF'
+AND E1_BAIXA <> ''
 
 ==============================================================
 11/02/22 - Teste Mapa de INSS Retido:
