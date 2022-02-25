@@ -217,9 +217,7 @@ EndIf
 Return lRet
 
 
-
 // Financeiro
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()
 Return "000011/000012/000000/000016"  // Diego 16 incluido nas ferias do Lau
-

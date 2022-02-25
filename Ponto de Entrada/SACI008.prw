@@ -15,9 +15,11 @@ Local aAreaE1 := SE1->(GetArea())
      
 // Gravar data de adiantamento se o título ficou em aberto
 If SE1->E1_STATUS == "A" .AND. EMPTY(SE1->E1_XXDTADT)
-    RecLock("SE1", .F.)
-    SE1->E1_XXDTADT := SE1->E1_BAIXA
-    SE1->(MsUnlock())
+    If u_IsPetro(SE1->E1_CLIENTE)
+        RecLock("SE1", .F.)
+        SE1->E1_XXDTADT := SE1->E1_BAIXA
+        SE1->(MsUnlock())
+    EndIf
 EndIf
 
 RestArea(aAreaE1)

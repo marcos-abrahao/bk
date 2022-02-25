@@ -2,16 +2,10 @@
 
 /*/{Protheus.doc} BKCOMA08
     Alteração de Chave NFE após digitação da NF
-
     @type  Function
     @author Marcos Bispo Abrahão
     @since 10/01/2020
     @version 1.0
-    @param param_name, param_type, param_descr
-    @return return_var, return_type, return_description
-    @example
-    (examples)
-    @see (links_or_references)
 /*/
 
 User Function BKCOMA08()
