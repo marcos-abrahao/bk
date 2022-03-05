@@ -2,12 +2,12 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "DBSTRUCT.CH"
 
-/*/{Protheus.doc} BKGCTR26
-BK - Fluxo de Caixa Por Contrato
+/*/{Protheus.doc} BKGCTR28
+BK - Pagamentos x Responsáveis
 @Return
 @author Marcos Bispo Abrahão
-@since 28/01/2021
-@version P12-25
+@since 04/03/2022
+@version P12.V1
 /*/ 
 
 // - Conteudo do array - aRelat[x]
@@ -74,19 +74,18 @@ Static lRelMulNat   := .F.
 // <--Finr190
 
 
-User Function BKGCTR26()
+User Function BKGCTR28()
 	Local aRelat        As Array
 	Local aRelat2       As Array
+	Local aRelat3       As Array
 	Local nI            As Numeric
-	Local cMes          As Character
-	Local oTmpT1		As Object
     Local oSay          As Object
     
     Local lIsBlind	    := IsBlind()
 
-	Private cTitulo     := "Fluxo de Caixa Por Contrato"
-	Private cPerg       := "BKGCTR26"
-	Private cArqLog		:= "\TMP\BKGCTR26-"+cEmpAnt+".LOG"
+	Private cTitulo     := "Pagamentos x Responsáveis"
+	Private cPerg       := "BKGCTR28"
+	Private cArqLog		:= "\TMP\BKGCTR28-"+cEmpAnt+".LOG"
 
 	Private cTTipos 	:= ""
 	Private cXTipos 	:= ""
@@ -94,16 +93,14 @@ User Function BKGCTR26()
 	Private aParam		:=	{}
 	Private aRet		:=	{}
 
-	Private cContrato 	:= SPACE(TamSx3("CN9_NUMERO")[1])
-	Private lSintetico  := .T.
+	Private dDataI  	:= CTOD("")
+	Private dDataF  	:= CTOD("")
+
 	Private lAgendar	:= .F.
 	Private dDataJob	:= dDataBase
 	Private cEmailTO	:= Pad("bruno.bueno@bkconsultoria.com.br",70)
 	Private cEmailCC	:= "microsiga@bkconsultoria.com.br"
 	Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
-
-	Private dDataI  	:= CTOD("")
-	Private dDataF  	:= CTOD("")
 
 	Private lFiltDt		:= .F.
 	Private dDataIFlt  	:= CTOD("")
@@ -121,7 +118,6 @@ User Function BKGCTR26()
 	Private aCamposT1   := {}
 	Private aCabsT1     := {}
 	Private cRealT1	    := ""
-	Private cAliasT1    := ""
 
 	Private nPosXRec    := 0
 	Private nPosXPag    := 0
@@ -138,32 +134,28 @@ User Function BKGCTR26()
 	Private cSTR0076    := "Bx.Fatura"
 	Private cSTR0080    := "Estorno de tranferencia"
 
-	aAdd( aParam, { 1, "Centro de Custos:"  , cContrato	 , ""                        , "", "CTT" , "" , 70  , .F. })
-	aAdd( aParam ,{ 2, "Sintético/Analítico", "Sintético", {"Sintético", "Analítico"}, 70,'.T.'  ,.T.})
+	aAdd( aParam, { 1, "Data Inicial:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	aAdd( aParam, { 1, "Data Final:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 	aAdd( aParam ,{ 2, "Agendar"			, "Nao"		 , {"Nao", "Sim"}            , 40,'.T.'  ,.T.})
 	aAdd( aParam, { 1, "Agendar para:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 	aAdd( aParam, { 1, "E-Mail:"	 	 	, cEmailTo	 ,  ""                        , "", ""	 , "" , 70  , .F. })
-	aAdd( aParam ,{ 2, "Filtrar Datas"		, "Nao"		 , {"Nao", "Sim"}            , 40,'.T.'  ,.T.})
-	aAdd( aParam, { 1, "Data Inicial:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
-	aAdd( aParam, { 1, "Data Final:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 
     If lIsBlind .OR. FWGetRunSchedule()
-		dDataJob	:= U_BKGetMv("BKGCTR2604",.F.,CTOD(""))
-		cEmailTo  	:= U_BKGetMv("BKGCTR2605")
-        lSintetico  := .T.
+		dDataJob	:= U_BKGetMv("BKGCTR2804",.F.,CTOD(""))
+		cEmailTo  	:= U_BKGetMv("BKGCTR2805")
 
 		If Empty(dDataJob) .OR. !(dDataJob == DATE())
 			u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
 			Return Nil
 		EndIf
     Else
-        If !GCT26Par()
+        If !GCT28Par()
             Return
         EndIf
 
 		If lAgendar
-			U_BKPutMv("BKGCTR2604",MV_PAR04,"D", 8,0,"Agendar para:")
-			U_BKPutMv("BKGCTR2605",MV_PAR05,"C",70,0,"E-Mail?")
+			U_BKPutMv("BKGCTR2804",MV_PAR04,"D", 8,0,"Agendar para:")
+			U_BKPutMv("BKGCTR2805",MV_PAR05,"C",70,0,"E-Mail?")
 			MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR04)+" 1h")
 			Return
 		EndIf
@@ -171,7 +163,7 @@ User Function BKGCTR26()
 
     EndIf
 
-	aPlan2 := GCT26Plan()
+	aPlan2 := GCT28Plan()
 
 	For nI := 1 To Len(aPlan2)
 		If !Empty(aPlan2[nI,3])
@@ -181,199 +173,63 @@ User Function BKGCTR26()
 
 	aRelat := {}
 	aRelat2:= {}
-
-    If lIsBlind
-        GCT26Per(oSay)
-    Else
-		u_xxLog(cArqLog,"Calculando período...",.T.,"")
-    	FWMsgRun(, {|oSay| GCT26Per(oSay) }, "", "Calculando período...")
-    EndIf
+    aRelat3:= {}
 
     // Para teste
 	//dDataI := CTOD("01/02/2021")
 	//dDataF := dDataBase
 
-	cAliasT1 := GetNextAlias()
-
-	aAdd(aDbfT1   ,{ 'XX_CODGCT','C', nTamCodGct,00 } )
-	aAdd(aCamposT1,cAliasT1+"->XX_CODGCT")
-	aAdd(aCabsT1  ,"Contrato")
-
-	aAdd(aDbfT1   , { 'XX_LINHA','C', 2,00 } )
-	aAdd(aCamposT1,cAliasT1+"->XX_LINHA")
-	aAdd(aCabsT1  ,"Linha")
-
-	aAdd(aDbfT1   , { 'XX_DESCR','C', 70,00 } )
-	aAdd(aCamposT1,cAliasT1+"->XX_DESCR")
-	aAdd(aCabsT1  ,"Descrição")
-
-	aAdd(aDbfT1   , { 'XX_TIPOS','C', 70,00 } )
-	aAdd(aCamposT1,cAliasT1+"->XX_TIPOS")
-	aAdd(aCabsT1  ,"Tipos")
-
-	FOR nI := 1 TO nPeriodo
-		cMes := STRZERO(nI,3)
-		aAdd(aDbfT1, { 'XX_VAL'+cMes,'N', 18,02 } )
-		aAdd(aCamposT1,cAliasT1+"->XX_VAL"+cMes)
-		aAdd(aCabsT1,aPeriodo[nI])
-	NEXT
-
-	oTmpT1 := FWTemporaryTable():New( cAliasT1 )
-	oTmpT1:SetFields( aDbfT1 )
-	oTmpT1:AddIndex("indice1", {"XX_CODGCT","XX_LINHA"} )
-	oTmpT1:Create()
-	cRealT1 := oTmpT1:GetRealName()
 
 	u_xxLog(cArqLog,cStart+": "+cUserName,.T.,"")
 
 	If !lIsBlind
-		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
-		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
-		FWMsgRun(, {|oSay| GCT26CC(oSay,@aRelat,@aRelat2) }, "", cPerg+" Processando Centros de custos...")
-		FWMsgRun(, {|oSay| GCT26Sld(oSay) }, "", cPerg+" Calculando saldos anteriores...")
+		//FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
+		FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
+		FWMsgRun(, {|oSay| GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3) }, "", cPerg+" Processando Centros de custos...")
 	Else
 
-		u_xxLog(cArqLog,"Processando Contas a Receber...",.T.,"")
-		GCT26P191(oSay,@aRelat,"R")
+		//u_xxLog(cArqLog,"Processando Contas a Receber...",.T.,"")
+		//GCT28P191(oSay,@aRelat,"R")
 
 		u_xxLog(cArqLog,"Processando Contas a Pagar...",.T.,"")
-		GCT26P191(oSay,@aRelat,"P")
+		GCT28P191(oSay,@aRelat,"P")
 
 		u_xxLog(cArqLog,"Processando Centros de Custo...",.T.,"")
-		GCT26CC(oSay,@aRelat,@aRelat2)
-
-		u_xxLog(cArqLog,"Processando Saldos...",.T.,"")
-		GCT26Sld(oSay)
+		GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3)
 
 	EndIf
 
-	If !lSintetico
-		u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
-		GCT26Anal(aRelat,"Fase1",.F.)
+	u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
+	GCT28Anal(aRelat,"Fase1",.F.)
 
-		u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
-		GCT26Anal(aRelat2,"Fase2",.T.)
-	EndIf
+	u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
+	GCT28Anal(aRelat2,"Fase2",.T.)
 
-	u_xxLog(cArqLog,"Gerando planilha Fluxo...",.T.,"")
-	GCT26Rel()
+	u_xxLog(cArqLog,"Gerando planilha Fase3...",.T.,"")
+	GCT28Rel(aRelat3,"Fase3")
 
 	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName,.T.,"")
-
-//If nCont > 0
-	//MsAguarde({|| GCT26Xls(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
-//Else
-//    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
-//EndIf
-
-	oTmpT1:Delete()
 
 Return
 
 
 
-Static Function GCT26Par
+Static Function GCT28Par
 	Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
 	If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
 		lRet        := .T.
-
-		cContrato   := mv_par01
-		lSintetico  := IIF(SUBSTR(mv_par02,1,1)=="S",.T.,.F.)
+		dDataI  	:= mv_par01
+		dDataF  	:= mv_par02
 		lAgendar	:= IIF(SUBSTR(mv_par03,1,1)=="S",.T.,.F.)
 		dDataJob	:= mv_par04
 		cEmailTO	:= mv_par05
-		lFiltDt		:= IIF(SUBSTR(mv_par06,1,1)=="S",.T.,.F.)
-		dDataIFlt	:= mv_par07
-		dDataFFlt	:= mv_par08
-		IF Empty(dDataIFlt)
-			lFiltDt := .F.
-		ENDIF
-		IF Empty(dDataFFlt)
-			lFiltDt := .F.
-		ENDIF
-
-		If !Empty(cContrato)
-			cTitulo  += ": "+cContrato
-		EndIf
 	Endif
 Return lRet
 
 
-Static Function GCT26Per(oSay)
-	Local nI    As Numeric
-	Local cQuery := ""
-	Local dDataInicio := dDataBase
 
-	If !lFiltDt
-		cQuery := " SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC"+CRLF
-		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
-		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
-		cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
-		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
-		If !Empty(cContrato)
-			cQuery += " AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
-		EndIf
-		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
-		cQuery += " GROUP BY CN9_SITUAC"+CRLF
-
-		u_LogMemo("BKGCTR26-CNF.SQL",cQuery)
-
-		TCQUERY cQuery NEW ALIAS "QTMP1"
-		TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)
-		TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)
-		TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)
-		TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)
-
-		dbSelectArea("QTMP1")
-		dDataI		:= QTMP1->CN9_DTOSER
-		If Empty(dDataI)
-			dDataI	:= QTMP1->CN9_DTINIC
-		EndIf
-		If (!Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI) .OR. Empty(dDataI)
-			dDataI	:= QTMP1->CNF_INICIO
-		EndIf
-		If Empty(dDataI)
-			dDataI := dDataBase
-		EndIf
-		dDataF	:= QTMP1->CNF_FIM
-
-		If Empty(dDataF)
-			dDataF := dDataBase
-		EndIf
-
-		QTMP1->(Dbclosearea())
-
-	// Voltar 1 mes
-		dDataI	:= dDataI - Day(dDataI)
-		dDataI	:= dDataI - Day(dDataI)+1
-	Else
-		dDataI	:= dDataIFlt
-		dDataF	:= dDataFFlt
-	EndIf
-
-//Determina quantos Meses utilizar no calculo
-	nPeriodo    := DateDiffMonth( dDataI , dDataF ) + 1
-
-	aPeriodo	:= {}
-	aAnoMes     := {}
-	dDataInicio := dDataI
-
-	For nI := 1 To nPeriodo
-
-		aAdd(aPeriodo,STRZERO(Month(dDataInicio),2)+"/"+STRZERO(YEAR(dDataInicio),4))
-		aAdd(aAnoMes,STRZERO(YEAR(dDataInicio),4)+STRZERO(Month(dDataInicio),2))
-
-		dDataInicio := MonthSum(dDataInicio,1)
-
-	Next
-
-Return Nil
-
-
-
-
-Static Function GCT26Plan()
+Static Function GCT28Plan()
 	Local aPlan := {}
 	aAdd(aPlan,{.T.,"SALDO",""})
 	aAdd(aPlan,{.F.,"Saldo do mês anterior","XSALDO/"})
@@ -463,7 +319,7 @@ Return aPlan
 
 
 // Buscando centros de Custos dos movimentos financeiros
-Static Function GCT26CC(oSay,aRelat,aRelat2)
+Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 	Local nI        As Numeric
 	Local nX        As Numeric
 	Local aLinha    As Array
@@ -488,6 +344,9 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 	For nI := 1 To Len(aRelat)
 
 		aLinha  := aClone(aRelat[nI])
+
+        // Alimentar o Array do relatorio final
+
 		cCCBK   := ""
 		cTipoBk := ""
 		nValor  := aLinha[ID_TOTALPAGO]
@@ -516,7 +375,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 						aAdd(aRelat2,aClone(aLinha))
 						nScan := Len(aRelat2)
 						cDescTipo := ""
-						If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,@cDescTipo)
+						If GCT28GT1(cTipoBk,cCCBK,aLinha,nValor,@cDescTipo)
 							aRelat[nI,ID_CONSIDER] := "R"
 						Else
 							aRelat[nI,ID_CONSIDER] := "N1-R"
@@ -542,7 +401,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 							nScan     := Len(aRelat2)
 							cDescTipo := ""
 							If !Empty(cTipoBk)
-								If GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,@cDescTipo)
+								If GCT28GT1(cTipoBk,cCCBK,aLinha,nValor,@cDescTipo)
 									aRelat[nI,ID_CONSIDER] := "R-CT1"
 								Else
 									aRelat[nI,ID_CONSIDER] := "N4-R"
@@ -562,6 +421,8 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 				Else
 					// Conta não faz parte do fluxo de caixa
 					aRelat[nI,ID_CONSIDER] := "NB-R"
+                    // BKGCTR28
+                    aAdd(aRelat2,aClone(aLinha))
 				EndIf
 			Else
 				If aLinha[ID_E2RECNO] > 0
@@ -664,7 +525,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 									aRelat2[nScan,ID_PRODUTO]  := aItem[nX,3]
 									aRelat2[nScan,ID_TOTALPAGO]:= aItem[nX,4]
 									cDescTipo := ""
-									If GCT26GT1(aItem[nX,1],aItem[nX,2],aLinha,-aItem[nX,4],@cDescTipo)
+									If GCT28GT1(aItem[nX,1],aItem[nX,2],aLinha,-aItem[nX,4],@cDescTipo)
 										aRelat[nI,ID_CONSIDER] := "SD1"
 									Else
 										aRelat[nI,ID_CONSIDER] := "N1-SD1"
@@ -675,6 +536,14 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 									EndIf
 									aRelat[nI,ID_DESCTIPO]     := cDescTipo
 									aRelat2[nScan,ID_DESCTIPO] := cDescTipo
+
+									If Empty(aRelat[nI,ID_TIPOBK])
+                                        aRelat[nI,ID_TIPOBK] := aItem[nX,1]
+                                    EndIf
+
+                                    If Empty(aRelat[nI,ID_CC])
+                                        aRelat[nI,ID_CC] := aItem[nX,2]
+                                    EndIf
 
 								Next
 							Else
@@ -687,7 +556,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 
 					ElseIf lRH
 
-						GCT26SZ2(@aItem)
+						GCT28SZ2(@aItem)
 						If Len(aItem) > 0
 							Rateio(@aItem,nValor,3)
 							For nX := 1 To Len(aItem)
@@ -703,7 +572,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 								aRelat2[nScan,ID_TIPOPES]  := aItem[nX,2]
 								aRelat2[nScan,ID_TOTALPAGO]:= aItem[nX,3]
 								cDescTipo := ""
-								If GCT26GT1(cTipoBK2,aItem[nX,1],aLinha,-aItem[nX,3],@cDescTipo)
+								If GCT28GT1(cTipoBK2,aItem[nX,1],aLinha,-aItem[nX,3],@cDescTipo)
 									aRelat[nI,ID_CONSIDER] := "RH"
 								Else
 									aRelat[nI,ID_CONSIDER] := "N1-RH"
@@ -714,6 +583,11 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 								EndIf
 								aRelat[nI,ID_DESCTIPO]     := cDescTipo
 								aRelat2[nScan,ID_DESCTIPO] := cDescTipo
+
+								If Empty(aRelat[nI,ID_CC])
+                                    aRelat[nI,ID_CC] := aItem[nX,1]
+                                EndIf
+
 							Next
 						Else
 							aRelat[nI,ID_CONSIDER] := "N2-RH"
@@ -727,46 +601,49 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 			aRelat[nI,ID_CONSIDER] := "N-CMP"
 		EndIf
 
+        AddRel3(@aRelat3,aRelat[nI])
+
 	Next
-
-
 
 Return nil
 
 
-Static Function GCT26Sld(oSay)
-Local nX	As Numeric
-Local cLinha := STRZERO(nPosXSaldo,2)
-Local nSldAnt:= 0
-Local xCampo
 
-// Atualizando saldos
+Static Function AddRel3(aRelat3,aLinha)
+Local aLin3 := {}
 
-	dbSelectArea(cAliasT1)
-	dbGoTop()
-	Do While !Eof()
-		If (cAliasT1)->XX_LINHA == cLinha
-			RecLock(cAliasT1,.F.)
-			For nX := 2 To Len(aPeriodo)
-				xCampo  := cAliasT1+"->XX_VAL"+STRZERO(nX-1,3)
-				nSldAnt := &xCampo
+aAdd(aLin3,aLinha[ID_PREFIXO])
+aAdd(aLin3,aLinha[ID_NUMERO])
+aAdd(aLin3,aLinha[ID_PARCELA])
+aAdd(aLin3,aLinha[ID_TIPO])
+aAdd(aLin3,aLinha[ID_CLIFOR])
+aAdd(aLin3,aLinha[ID_NOMECLIFOR])
 
-				xCampo  := cAliasT1+"->XX_VAL"+STRZERO(nX,3)
-				&xCampo += nSldAnt
-			Next
-		EndIf
-		dbSkip()
-	Enddo
-	dbGoTop()
+aAdd(aLin3,aLinha[ID_VENCIMENTO])
+aAdd(aLin3,aLinha[ID_DTBAIXA])
+aAdd(aLin3,aLinha[ID_VALORORIG])
+aAdd(aLin3,aLinha[ID_JUROSMULTA])
+aAdd(aLin3,aLinha[ID_CORRECAO])
+aAdd(aLin3,aLinha[ID_DESCONTO])
+aAdd(aLin3,aLinha[ID_ABATIMENTO])
+aAdd(aLin3,aLinha[ID_IMPOSTO])
+aAdd(aLin3,aLinha[ID_TOTALPAGO])
+aAdd(aLin3,aLinha[ID_VALORPG])
+aAdd(aLin3,aLinha[ID_CCD])
+aAdd(aLin3,aLinha[ID_CCC])
+aAdd(aLin3,aLinha[ID_CC])
+aAdd(aLin3,aLinha[ID_RECPAG])
+aAdd(aLin3,aLinha[ID_TIPOBK])
+aAdd(aLin3,aLinha[ID_DESCTIPO])
 
-Return Nil
+aAdd(aRelat3,aLin3)
 
 
+Return NIL
 
-// Grava temporario T1 - Rel Fluxo
-Static Function GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,cDescTipo)
+
+Static Function GCT28GT1(cTipoBk,cCCBK,aLinha,nValor,cDescTipo)
 	Local nLinha    As Numeric
-	Local nPer      As Numeric
 	Local lRet      As Logical
 	Private xCampo
 
@@ -781,50 +658,8 @@ Static Function GCT26GT1(cTipoBk,cCCBK,aLinha,nValor,cDescTipo)
 	EndIf
 	cDescTipo := aPlan2[nLinha,2]
 
-	nPer    := aScan(aAnoMes,STRZERO(YEAR(aLinha[ID_DTBAIXA]),4)+STRZERO(MONTH(aLinha[ID_DTBAIXA]),2))
-	If nPer > 0
-		dbSelectArea(cAliasT1)
-		If !dbSeek(cCCBK+STRZERO(nLinha,2))
-			RecLock(cAliasT1,.T.)
-			(cAliasT1)->XX_CODGCT := cCCBK
-			(cAliasT1)->XX_LINHA  := STRZERO(nLinha,2)
-			(cAliasT1)->XX_DESCR  := aPlan2[nLinha,2]
-			If nLinha == nPosXPag
-				(cAliasT1)->XX_TIPOS  := cXTipos
-			Else
-				(cAliasT1)->XX_TIPOS  := aPlan2[nLinha,3]
-			EndIf
-		Else
-			RecLock(cAliasT1,.F.)
-		EndIf
-		xCampo  := cAliasT1+"->XX_VAL"+STRZERO(nPer,3)
-		&xCampo += nValor
-		MsUnLock()
-
-		// Atualizar saldo inicial do mês seguinte
-		nPer++
-		If nPer <= Len(aAnoMes)
-					
-			dbSelectArea(cAliasT1)
-			If !dbSeek(cCCBK+STRZERO(nPosXSaldo,2))
-				RecLock(cAliasT1,.T.)
-				(cAliasT1)->XX_CODGCT := cCCBK
-				(cAliasT1)->XX_LINHA  := STRZERO(nPosXSaldo,2)
-				(cAliasT1)->XX_DESCR  := aPlan2[nPosXSaldo,2]
-				(cAliasT1)->XX_TIPOS  := aPlan2[nPosXSaldo,3]
-			Else
-				RecLock(cAliasT1,.F.)
-			EndIf
-			xCampo  := cAliasT1+"->XX_VAL"+STRZERO(nPer,3)
-			&xCampo += nValor
-			MsUnLock()
-		EndIf
-
-	Else
-		lRet := .F.
-	EndIf
-
 Return lRet
+
 
 
 Static Function Rateio(aRTot,nVal,nPos)
@@ -849,7 +684,7 @@ Return Nil
 
 
 
-Static Function GCT26SZ2(aItem)
+Static Function GCT28SZ2(aItem)
 	Local cQryZ2
 	Local cPrefixo := SE2->E2_PREFIXO
 	Local cNum     := SE2->E2_NUM
@@ -893,7 +728,7 @@ Return Nil
 
 
 
-Static Function GCT26P191(oSay,aRelat,cRecPag)
+Static Function GCT28P191(oSay,aRelat,cRecPag)
 
 	Local nOrdem        As Numeric
 	Local aTotais       As Array
@@ -2725,7 +2560,7 @@ Return aFields
 
 // Impressão dos dados analíticos
 
-Static Function GCT26Anal(aRelat,cPrc,lTipos)
+Static Function GCT28Anal(aRelat,cPrc,lTipos)
 	Local aPlans := {}
 	Local aCabec := {}
 	Local aCabTp := {}
@@ -2791,25 +2626,41 @@ Static Function GCT26Anal(aRelat,cPrc,lTipos)
 Return Nil
 
 
+// Relatorio Pagamentos x Responsáveis
+Static Function GCT28Rel(aRelat3,cPrc)
 
-Static Function GCT26Rel()
+Local aPlans := {}
+Local aCab3  := {}
 
-	Local aPlans    := {}
-	Local aTitulos  := {}
-	Local cPrc      := "Fluxo"
-	Local lClose    := .F.
-	Local cFile		:= ""
-	Local cMsg 		:= ""
+aAdd(aCab3,"Prefixo")
+aAdd(aCab3,"Numero")
+aAdd(aCab3,"Parcela")
+aAdd(aCab3,"Tipo do Documento")
+aAdd(aCab3,"Cod Cliente/Fornec")
+aAdd(aCab3,"Nome Cli/Fornec")
+aAdd(aCab3,"Vencimento")
+aAdd(aCab3,"Data de Baixa")
+aAdd(aCab3,"Valor Original")
+aAdd(aCab3,"Jur/Multa")
+aAdd(aCab3,"Correcao")
+aAdd(aCab3,"Descontos")
+aAdd(aCab3,"Abatimento")
+aAdd(aCab3,"Impostos")
+aAdd(aCab3,"Total Pago")
+aAdd(aCab3,"VALORPG")
+aAdd(aCab3,"CC Debito")
+aAdd(aCab3,"CC Credito")
+aAdd(aCab3,"Centro de Custo")
+aAdd(aCab3,"Receber ou Pagar")
+aAdd(aCab3,"Tipo BK")
+aAdd(aCab3,"Descrição do tipo BK")
 
-	AADD(aTitulos,cTitulo)
-	AADD(aPlans,{cAliasT1,cPerg+"-"+cPrc,"",aTitulos,aCamposT1,aCabsT1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
+AADD(aPlans,{aRelat3,cPerg+"-"+cPrc,cTitulo+"-"+cPrc,aCab3,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })
 
-	cFile := U_PlanXlsx(aPlans,"",cPerg+"-"+cPrc, lClose, aParam)
-
-	cMsg:= FWEmpName(cEmpAnt)+" - "+aTitulos[1]
-	u_BkSnMail("BKGCTR26",cMsg,cEmailTO,cEmailCC,cMsg,{cFile})
+U_ArrToXlsx(aPlans,cTitulo+"-"+cPrc,cPerg+"-"+cPrc,aParam,.F.)
 
 Return Nil
+
 
 
 

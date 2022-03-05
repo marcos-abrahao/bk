@@ -10,6 +10,7 @@ BK - Ponto de entrada após a gravação da baixa a receber  - Gravar data de Adian
 /*/
 
 User Function SACI008()
+/* Removido em 03/03/2022
 Local aArea := GetArea()
 Local aAreaE1 := SE1->(GetArea())
      
@@ -24,5 +25,6 @@ EndIf
 
 RestArea(aAreaE1)
 RestArea(aArea)
+*/
 
 Return Nil 

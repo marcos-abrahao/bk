@@ -185,7 +185,7 @@ nLin2 := nLin1+10
 @ nLin2, 190 MSGET cHist	Picture "@!"  When .T.  SIZE 200, 11 OF oPanelLeft PIXEL
 
 @ nLin1, 400 SAY "Valor Baixa" SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 400 MSGET nReceb Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL 
+@ nLin2, 400 MSGET nReceb Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL //VALID(POSITIVO(nReceb),SOMATAB())
 
 nLin1 += 25
 nLin2 := nLin1+10
@@ -212,7 +212,7 @@ nLin2 := nLin1+10
 @ nLin2, 310 MSGET nSaldo Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL
 
 @ nLin1, 365 SAY "1 Real" SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 365 COMBOBOX cSim   ITEMS aSIM SIZE 30, 15 OF oPanelLeft PIXEL PIXEL VALID(SOMATAB())
+@ nLin2, 365 COMBOBOX cSim ITEMS aSIM SIZE 30, 15 OF oPanelLeft PIXEL PIXEL VALID(SOMATAB())
 
 @ nLin2, 400 Button "Incluir" Size 050,013 OF oPanelLeft Pixel Action (InclTab())
 
@@ -360,6 +360,7 @@ Return lRet
 
 
 STATIC FUNCTION SOMATAB()
+Local lRet := .T.
 
 nReceb  := 0
 If nJValor > 0 
@@ -374,8 +375,10 @@ Else
 	nReceb  := nVlrLi + nMulta - nDesc - nRValor - nIValor
 	nSaldo  := 0
 EndIf
-		
-RETURN NIL
+
+
+
+RETURN lRet
 
 
 STATIC FUNCTION LIMPTAB()
@@ -679,6 +682,7 @@ Local aBaixa:= {}
 Local lOK := .T.
 Local cCrLf := Chr(13) + Chr(10)
 Local cLOG  := ""
+Local nRegE1 := 0
 
 Private dDtBaixa   := dDataBase
 Private MsErroAuto := .F.
@@ -695,7 +699,7 @@ For nI:=1 TO LEN(aTitGer)
 		SE1->(DbSeek(xFilial("SE1")+aTitGer[nI,2]+aTitGer[nI,1]+aTitGer[nI,3]+aTitGer[nI,4],.T.))
 
 		cQuery 	:= ""
-		cQuery 	:= " DELETE from "+RETSQLNAME("SE8")+"  where D_E_L_E_T_=''"
+		cQuery 	:= " DELETE FROM "+RETSQLNAME("SE8")+" WHERE D_E_L_E_T_=''"
 		cQuery 	+= " AND E8_MOEDA=' 1'AND E8_FILIAL='"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
 		cQuery 	+= " AND E8_BANCO='"+aTitGer[nI,21]+"' AND E8_AGENCIA='"+aTitGer[nI,22]+"' AND E8_CONTA='"+aTitGer[nI,23]+"'"
 	
@@ -744,7 +748,7 @@ For nI:=1 TO LEN(aTitGer)
 		SE1->(DbSeek(xFilial("SE1")+aTitGer[nI,2]+aTitGer[nI,1]+aTitGer[nI,3]+aTitGer[nI,4],.T.))
 
 		cQuery 	:= ""
-		cQuery 	:= " DELETE from "+RETSQLNAME("SE8")+"  where D_E_L_E_T_=''"
+		cQuery 	:= " DELETE FROM "+RETSQLNAME("SE8")+" WHERE D_E_L_E_T_=''"
 		cQuery 	+= " AND E8_MOEDA=' 1'AND E8_FILIAL='"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
 		cQuery 	+= " AND E8_BANCO='"+aTitGer[nI,21]+"' AND E8_AGENCIA='"+aTitGer[nI,22]+"' AND E8_CONTA='"+aTitGer[nI,23]+"'"
 	
@@ -791,9 +795,10 @@ For nI:=1 TO LEN(aTitGer)
 		DbSelectArea("SE1")
 		SE1->(DbSetOrder(1))
 		SE1->(DbSeek(xFilial("SE1")+aTitGer[nI,2]+aTitGer[nI,1]+aTitGer[nI,3]+aTitGer[nI,4],.T.))
+		nRegE1 := SE1->(RECNO())
 
 		cQuery 	:= ""
-		cQuery 	:= " DELETE from "+RETSQLNAME("SE8")+"  where D_E_L_E_T_=''"
+		cQuery 	:= " DELETE FROM "+RETSQLNAME("SE8")+" WHERE D_E_L_E_T_=''"
 		cQuery 	+= " AND E8_MOEDA=' 1'AND E8_FILIAL='"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
 		cQuery 	+= " AND E8_BANCO='"+aTitGer[nI,21]+"' AND E8_AGENCIA='"+aTitGer[nI,22]+"' AND E8_CONTA='"+aTitGer[nI,23]+"'"
 	
@@ -815,7 +820,7 @@ For nI:=1 TO LEN(aTitGer)
 		AADD( aBaixa, { "AUTHIST"   	, aTitGer[nI,35]    , Nil } )	// 25
 		AADD( aBaixa, { "AUTVALREC"  	, aTitGer[nI,36]	, Nil } )	// 20
 		//AADD( aBaixa, { "AUTDESCONT" 	, aTitGer[nI,15]	, Nil } )	// 13
-		//AADD( aBaixa, { "AUTMULTA"	 	, aTitGer[nI,16]	, Nil } )	// 14
+		//AADD( aBaixa, { "AUTMULTA"	, aTitGer[nI,16]	, Nil } )	// 14
 
 		lMsErroAuto := .F.
 		
@@ -833,15 +838,13 @@ For nI:=1 TO LEN(aTitGer)
   	   	End Transaction
 	ENDIF
 
-
-
 	dbSelectArea("SE8")
 	dbSetOrder(1)
 	dbSeek(xFilial("SE8")+aTitGer[nI,18]+aTitGer[nI,19]+aTitGer[nI,20]+DtoS(dDtBaixa),.T.)
 
 	cQuery 	:= ""
-	cQuery 	:= " DELETE from "+RETSQLNAME("SE8")+"  where D_E_L_E_T_=''"
-	cQuery 	+= " AND E8_MOEDA=' 1'AND E8_FILIAL='"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
+	cQuery 	:= " DELETE FROM "+RETSQLNAME("SE8")+" WHERE D_E_L_E_T_=''"
+	cQuery 	+= " AND E8_MOEDA=' 1' AND E8_FILIAL='"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
 	cQuery 	+= " AND E8_BANCO='"+aTitGer[nI,18]+"' AND E8_AGENCIA='"+aTitGer[nI,19]+"' AND E8_CONTA='"+aTitGer[nI,20]+"'"
 	
 	TcSqlExec(cQuery)
@@ -883,7 +886,14 @@ For nI:=1 TO LEN(aTitGer)
 			break
 		ENDIF
   	End Transaction
- 			
+
+	If !lMsErroAuto .and. aTitGer[nI,36] > 0 
+		// Data da Antecipação
+		RecLock("SE1", .F.)
+        SE1->E1_XXDTADT := SE1->E1_BAIXA
+        SE1->(MsUnlock())		
+	EndIf
+
 Next nI
 
 

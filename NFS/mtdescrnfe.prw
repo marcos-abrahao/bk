@@ -528,21 +528,22 @@ cDescr1 := ""
 
 //INFORMACAO CONTA VINCULADA 
 IF !EMPTY(SF2->F2_XXCVINC) .OR. SF2->F2_XXVCVIN > 0 
-	ContVinc()
-    nScan:= 0
-    nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
-    aBCVINC := {}
-    aBCVINC := U_BCTAVINC(SF2->F2_XXCVINC)
-   	cAgVinc := ""
-   	cAgVinc := aBCVINC[2]
-   	//cAgVinc := IIF(EMPTY(SUBSTR(SF2->F2_XXCVINC,9,1)),SUBSTR(SF2->F2_XXCVINC,4,4)+"-"+SUBSTR(SF2->F2_XXCVINC,8,1),SUBSTR(SF2->F2_XXCVINC,4,5)+"-"+SUBSTR(SF2->F2_XXCVINC,9,1)) 
-    cCCVinc := ""
-   	cCCVinc := aBCVINC[3]
- 
-    // 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
-  	//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
-	cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //  IIF(nMaxTLin>80," ","|")
-	cDescr1 += "R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
+	IF ContVinc()
+		nScan:= 0
+		nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
+		aBCVINC := {}
+		aBCVINC := U_BCTAVINC(SF2->F2_XXCVINC)
+		cAgVinc := ""
+		cAgVinc := aBCVINC[2]
+		//cAgVinc := IIF(EMPTY(SUBSTR(SF2->F2_XXCVINC,9,1)),SUBSTR(SF2->F2_XXCVINC,4,4)+"-"+SUBSTR(SF2->F2_XXCVINC,8,1),SUBSTR(SF2->F2_XXCVINC,4,5)+"-"+SUBSTR(SF2->F2_XXCVINC,9,1)) 
+		cCCVinc := ""
+		cCCVinc := aBCVINC[3]
+	
+		// 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
+		//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
+		cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //  IIF(nMaxTLin>80," ","|")
+		cDescr1 += "R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
+	ENDIF
 ELSE
 	//IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
 	
@@ -556,19 +557,20 @@ ELSE
 		000164	01	TRIBUNAL REGIONAL FEDERAL DA 3A REGIAO
 		*/
 
-		ContVinc()
-   		nScan:= 0
-   		nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
-    	aBCVINC := U_BCTAVINC(SF2->F2_XXCVINC)
-   		cAgVinc := ""
-   		cAgVinc := aBCVINC[2]
-		//cAgVinc := IIF(EMPTY(SUBSTR(SF2->F2_XXCVINC,9,1)),SUBSTR(SF2->F2_XXCVINC,4,4)+"-"+SUBSTR(SF2->F2_XXCVINC,8,1),SUBSTR(SF2->F2_XXCVINC,4,5)+"-"+SUBSTR(SF2->F2_XXCVINC,9,1)) 
-   		cCCVinc := ""
-   		cAgVinc := aBCVINC[3]
-	    // 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
-   		//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
-		cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //IIF(nMaxTLin>80," ","|")
-		cDescr1 += "R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
+		IF ContVinc()
+			nScan:= 0
+			nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
+			aBCVINC := U_BCTAVINC(SF2->F2_XXCVINC)
+			cAgVinc := ""
+			cAgVinc := aBCVINC[2]
+			//cAgVinc := IIF(EMPTY(SUBSTR(SF2->F2_XXCVINC,9,1)),SUBSTR(SF2->F2_XXCVINC,4,4)+"-"+SUBSTR(SF2->F2_XXCVINC,8,1),SUBSTR(SF2->F2_XXCVINC,4,5)+"-"+SUBSTR(SF2->F2_XXCVINC,9,1)) 
+			cCCVinc := ""
+			cAgVinc := aBCVINC[3]
+			// 11/08/16 - Alterada a posição do dígito da conta de 20 para 25
+			//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
+			cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //IIF(nMaxTLin>80," ","|")
+			cDescr1 += "R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
+		ENDIF
 	ENDIF
 ENDIF
 
@@ -916,22 +918,22 @@ STATIC Function ContVinc()
 Local cCONTA := SF2->F2_XXCVINC
 Local nVALOR := SF2->F2_XXVCVIN
 Local oTELA01
-
-
+Local lRet := .T.
 
 Define MsDialog oTELA01 Title "Dados conta vinculada NF N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE) From 000,000 To 110,320 Of oTELA01 Pixel Style DS_MODALFRAME
 @ 010,010 Say "Conta Vinculada :" Size 060,025 Pixel Of oTELA01
-@ 010,075 MSGET cCONTA SIZE 080,010 OF oTELA01 PIXEL PICTURE "@!" HASBUTTON  F3 "SA6_2" VALID NaoVazio(cCONTA)
+@ 010,075 MSGET cCONTA SIZE 080,010 OF oTELA01 PIXEL PICTURE "@!" HASBUTTON  F3 "SA6_2" //VALID NaoVazio(cCONTA)
 
 @ 025,010 Say "Valor Conta Vinculada:" Size 080,008 Pixel Of oTELA01
-@ 025,075 MsGet nVALOR  Size 060,008 Pixel Of oTELA01 Picture "@E 999,999,999,999.99" VALID nVALOR > 0
+@ 025,075 MsGet nVALOR  Size 060,008 Pixel Of oTELA01 Picture "@E 999,999,999,999.99" //VALID nVALOR > 0
 
 @ 040,010 Button "&Ok" Size 036,013 Pixel Action (GrvSF2(cCONTA,nVALOR),oTELA01:End())
-@ 040,060 Button "&Cancelar" Size 036,013 Pixel Action oTELA01:End()
+@ 040,060 Button "&Cancelar" Size 036,013 Pixel Action (lRet := .F.,oTELA01:End())
 Activate MsDialog oTELA01 Centered
-
-
-Return .T.
+If nValor == 0
+	lRet := .F.
+Endif
+Return lRet
 
 
 Static Function GrvSF2(cCONTA,nVALOR)

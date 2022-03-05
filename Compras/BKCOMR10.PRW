@@ -203,7 +203,7 @@ Do While QSF1->(!EOF())
 ENDDO
 
 AADD(aPlans,{"TRB",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,/*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_PlanXls(aPlans,cTitulo,cPerg,.F.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
 
 
 QSF1->(dbCloseArea())

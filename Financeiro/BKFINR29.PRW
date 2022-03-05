@@ -317,6 +317,12 @@ Local cVencRea  := ""
 Local nLinCli   := 0
 Local cAliasQry := ""
 
+// --> FINC040
+Local lClcMultLj := ( SuperGetMv("MV_JURTIPO",,"") == "L" ) .Or. ( SuperGetMv("MV_LJINTFS", ,.F.) )
+Private nJuros 	:= 0
+Private nMulta 	:= 0
+// <-- FINC040
+
 cQuery := "SELECT R_E_C_N_O_ AS E1RECNO"+ CRLF
 cQuery += " FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
 cQuery += " WHERE SE1.D_E_L_E_T_ = ' ' "+ CRLF
@@ -351,11 +357,76 @@ Do While (cAliasQry)->(!EOF())
 
 	SE1->(dbGoTo((cAliasQry)->E1RECNO))
 
-	nSaldo := U_SaldoSe1(dDataBase-1)
+	//nSaldo := U_SaldoSe1(dDataBase-1)
+
+	// --> Copiado do FINC040
+	nAbatim  := 0
+	nDescFin := 0
+	nMultaTit:= 0
+	nValAces := 0
+	nJuros	 := 0  // Private
+	nMulta	 := 0  // Private
+
+	If SE1->E1_SALDO = 0
+  			//dBaixa := SE1->E1_BAIXA
+		nSaldo := SE1->E1_VALOR
+	Else
+		nSaldo := SaldoTit( SE1->E1_PREFIXO ,SE1->E1_NUM  ,SE1->E1_PARCELA ,SE1->E1_TIPO , ;
+						SE1->E1_NATUREZ ,"R"           ,SE1->E1_CLIENTE , 1           , ;
+						NIL             ,NIL           ,SE1->E1_LOJA    ,NIL          , ;
+						If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0) )
+	EndIf
+	//Desconto Financeiro e Abatimento
+	IF !(SE1->E1_TIPO $ MVRECANT+"/"+MV_CRNEG)
+
+		//Abatimento
+		nAbatim	 := SomaAbat(SE1->E1_PREFIXO, SE1->E1_NUM, SE1->E1_PARCELA,"R",SE1->E1_MOEDA,,SE1->E1_CLIENTE,SE1->E1_LOJA)
+		//Desconto Financeiro
+		If SE1->E1_VENCREA >= dDataBase .AND. SE1->E1_SALDO > 0
+			nDescFin   := FaDescFin("SE1",dDataBase,SE1->E1_SALDO-nAbatim,SE1->E1_MOEDA)
+		Endif
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Se o Saldo ja estiver Zero, nao calcular os juros.           ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If SE1->E1_SALDO > 0
+			If lClcMultLj
+				//*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+				//*³ Calcula o valor da Multa  :funcao LojxRMul :fonte Lojxrec          ³
+				//*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+				nMultaTit := LojxRMul(,,,nSaldo,SE1->E1_ACRESC,SE1->E1_VENCREA,dDataBase,,SE1->E1_MULTA,,SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_CLIENTE,SE1->E1_LOJA,"SE1",.T.)
+			EndIf
+			fa070Juros(1, nSaldo)
+			
+			If	ExistFunc('FValAcess')
+				nValAces := FValAcess(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_CLIENTE,SE1->E1_LOJA, SE1->E1_NATUREZ,!Empty(SE1->E1_BAIXA),,"R",SE1->E1_BAIXA,,SE1->E1_MOEDA)		
+			EndIf
+		Endif
+	Endif
+	nJuros   += nMulta
+
+	If Empty(SE1->E1_BAIXA)
+		//@ 012, 055 SAY Trans(SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin, tm(SE1->E1_SALDO, 17, ncasas)) SIZE 50,16 OF oPanel3 PIXEL //"Saldo T¡tulo (Impostos)"
+		nSaldo := SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin
+	Else	
+		If SE1->E1_SALDO = 0 
+			//@ 012, 055 SAY Trans(SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit, tm(SE1->E1_SALDO, 17, ncasas)) SIZE 50,16 OF oPanel3 PIXEL //"Saldo T¡tulo (Impostos)"
+			nSaldo := SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit
+		Else
+			//@ 012, 055 SAY Trans(SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin, tm(SE1->E1_SALDO, 17, ncasas)) SIZE 50,16 OF oPanel3 PIXEL //"Saldo T¡tulo (Impostos)"
+			nSaldo := SE1->E1_SALDO + SE1->E1_SDACRES - SE1->E1_SDDECRE + nJuros + nValAces + nMultaTit - nAbatim - nDescFin
+		EndIf
+	EndIf
+
+	//<-- FINC040
+
 
     If nSaldo > 0
+
         SE1->(dbGoTo((cAliasQry)->E1RECNO))
 
+        nSaldo -= SE1->E1_XXVRETC
+        // Aqui: falta retirar a vinculada
+        
         cVencRea := DTOS(SE1->E1_VENCREA)
 
         // Coluna do dia
