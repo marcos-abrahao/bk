@@ -47,21 +47,32 @@ BK - Pagamentos x Responsáveis
 #Define ID_VALORVA     34 // Tipo de Documento
 
 // -->BK
-#Define ID_DEBITO       35 // Cta Debito
-#Define ID_CREDITO      36 // Cta Crédito
-#Define ID_CCD          37 // CC Debito
-#Define ID_CCC          38 // CC Credito
-#Define ID_CC           39 // Centro de Custo
-#Define ID_RECPAG       40 // Receber ou Pagar
-#Define ID_TIPOBK       41 // Tipo BK
-#Define ID_E2RECNO      42 // Recno() SE2
-#Define ID_CONSIDER     43 // Se o registro foi considerado no processo
-#Define ID_PRODUTO      44 // Produto
-#Define ID_TIPOPES      45 // Tipo pessoa
-#Define ID_DESCTIPO     46 // Descrição do tipo BK
+#Define ID_COND         35 // Cond Pgto
+#Define ID_DEBITO       36 // Cta Debito
+#Define ID_CREDITO      37 // Cta Crédito
+#Define ID_CCD          38 // CC Debito
+#Define ID_CCC          39 // CC Credito
+#Define ID_CC           40 // Centro de Custo
+#Define ID_RECPAG       41 // Receber ou Pagar
+#Define ID_TIPOBK       42 // Tipo BK
+#Define ID_E2RECNO      43 // Recno() SE2
+#Define ID_CONSIDER     44 // Se o registro foi considerado no processo
+#Define ID_PRODUTO      45 // Produto
+#Define ID_TIPOPES      46 // Tipo pessoa
+#Define ID_DESCTIPO     47 // Descrição do tipo BK
+// BKGCTR28
+#Define ID_LIBSE2       48 // Aprovador Pgto
+#Define ID_USRSE2       49 // Usuario Pgto
+#Define ID_CLSSF1       50 // Classificador
+#Define ID_LIBSF1       51 // Aprovador NF
+#Define ID_USRSF1       52 // Usuario NF
+#Define ID_LIBSC7       53 // Aprovador Ped
+#Define ID_USRSC7       54 // Usuario Pef
+#Define ID_LIBSC1       55 // Aprovador Sol
+#Define ID_USRSC1       56 // Usuario Sol
 // <--BK
 
-#Define ID_ARRAYSIZE    46 // Tamanho do Array
+#Define ID_ARRAYSIZE    56 // Tamanho do Array
 
 // -->Finr190
 Static lFwCodFil    := .T.
@@ -184,15 +195,19 @@ User Function BKGCTR28()
 
 	If !lIsBlind
 		//FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
-		FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
+		FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Pagamentos...")
+		FWMsgRun(, {|oSay| GCT28CP(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
 		FWMsgRun(, {|oSay| GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3) }, "", cPerg+" Processando Centros de custos...")
 	Else
 
 		//u_xxLog(cArqLog,"Processando Contas a Receber...",.T.,"")
 		//GCT28P191(oSay,@aRelat,"R")
 
-		u_xxLog(cArqLog,"Processando Contas a Pagar...",.T.,"")
+		u_xxLog(cArqLog,"Processando Pagamentos...",.T.,"")
 		GCT28P191(oSay,@aRelat,"P")
+
+		u_xxLog(cArqLog,"Processando Contas a Pagar...",.T.,"")
+		GCT28CP(oSay,@aRelat,"P")
 
 		u_xxLog(cArqLog,"Processando Centros de Custo...",.T.,"")
 		GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3)
@@ -202,8 +217,8 @@ User Function BKGCTR28()
 	u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
 	GCT28Anal(aRelat,"Fase1",.F.)
 
-	u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
-	GCT28Anal(aRelat2,"Fase2",.T.)
+	//u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
+	//GCT28Anal(aRelat2,"Fase2",.T.)
 
 	u_xxLog(cArqLog,"Gerando planilha Fase3...",.T.,"")
 	GCT28Rel(aRelat3,"Fase3")
@@ -288,6 +303,7 @@ Static Function GCT28Plan()
 	aAdd(aPlan,{.F.,"Condomínio","COND/"})
 	aAdd(aPlan,{.F.,"IPTU","IPTU/"})
 	aAdd(aPlan,{.F.,"Fornecedores","FORN/"})
+	aAdd(aPlan,{.F.,"Adiantamentos a Fornecedores","PA/"})
 	aAdd(aPlan,{.F.,"Prestadores de Serviços","LPM/LAD/LAS/LFG/COM/LFE/LD1/LD2/MFG/LRC/PEN/LDV/"})
 	aAdd(aPlan,{.F.,"Consultoria Jurídica / Contábil e Financeira","JCF/"})
 	aAdd(aPlan,{.F.,"Tarifas Bancárias","TAR/"})
@@ -351,7 +367,11 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 		cTipoBk := ""
 		nValor  := aLinha[ID_TOTALPAGO]
 
-		If TRIM(aLinha[ID_MOTIVO]) <> "CMP"
+		If !aLinha[ID_TEMVALOR]
+
+			aRelat[nI,ID_CONSIDER] := "N-SEMVLR"
+
+		ElseIf TRIM(aLinha[ID_MOTIVO]) <> "CMP"
 
 			If aLinha[ID_RECPAG] == "R"
 
@@ -450,6 +470,8 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 								If SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE == ;
 										xFilial("SD2")+SE2->E2_NUM+SE2->E2_PREFIXO
 									cCCBK := SD2->D2_CCUSTO
+									aLinha[ID_CC]    := cCCBK
+									aRelat[nI,ID_CC] := cCCBK
 								EndIf
 							EndIf
 
@@ -458,6 +480,11 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 						Else
 							cTitPai := ""
 						EndIf
+						If Empty(cTipoBK) .AND. TRIM(aLinha[ID_TIPO]) == "PA"
+							cTipoBK := "PA"
+						EndIf
+						aLinha[ID_TIPOBK] := cTipoBk
+						aRelat[nI,ID_TIPOBK] := cTipoBk
 					Else
 						lRH := .T.
 					EndIf
@@ -597,11 +624,16 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 
 				EndIf
 			EndIf
+
+			If Empty(aRelat[nI,ID_DESCTIPO])
+				GCT28GT1(aRelat[nI,ID_TIPOBK],aRelat[nI,ID_CC],aRelat[nI],0,@cDescTipo)
+				aRelat[nI,ID_DESCTIPO] := cDescTipo
+			EndIf
+	        AddRel3(@aRelat3,aRelat[nI])
+
 		Else
 			aRelat[nI,ID_CONSIDER] := "N-CMP"
 		EndIf
-
-        AddRel3(@aRelat3,aRelat[nI])
 
 	Next
 
@@ -628,18 +660,151 @@ aAdd(aLin3,aLinha[ID_DESCONTO])
 aAdd(aLin3,aLinha[ID_ABATIMENTO])
 aAdd(aLin3,aLinha[ID_IMPOSTO])
 aAdd(aLin3,aLinha[ID_TOTALPAGO])
-aAdd(aLin3,aLinha[ID_VALORPG])
-aAdd(aLin3,aLinha[ID_CCD])
-aAdd(aLin3,aLinha[ID_CCC])
+//aAdd(aLin3,aLinha[ID_CCD])
+//aAdd(aLin3,aLinha[ID_CCC])
 aAdd(aLin3,aLinha[ID_CC])
-aAdd(aLin3,aLinha[ID_RECPAG])
+aAdd(aLin3,Posicione("CTT",1,xFilial("CTT")+aLinha[ID_CC],"CTT_DESC01"))
+//aAdd(aLin3,aLinha[ID_RECPAG])
 aAdd(aLin3,aLinha[ID_TIPOBK])
 aAdd(aLin3,aLinha[ID_DESCTIPO])
 
+FindUsr(aLinha[ID_E2RECNO],aLin3)
+
+/*
+aAdd(aLin3,aLinha[ID_LIBSE2])
+aAdd(aLin3,aLinha[ID_USRSE2])
+aAdd(aLin3,aLinha[ID_CLSSF1])
+aAdd(aLin3,aLinha[ID_LIBSF1])
+aAdd(aLin3,aLinha[ID_USRSF1])
+aAdd(aLin3,aLinha[ID_LIBSC7])
+aAdd(aLin3,aLinha[ID_USRSC7])
+aAdd(aLin3,aLinha[ID_LIBSC1])
+aAdd(aLin3,aLinha[ID_USRSC1])
+*/
 aAdd(aRelat3,aLin3)
 
-
 Return NIL
+
+
+// Retorna Array com os usuarios e aprovadores
+Static Function FindUsr(nE2Rec,aLin3)
+Local aUser	 := {}
+Local cUser	 := ""
+Local cFilF1 := xFilial("SF1")
+Local aLib 	 := {}
+
+Local cLIBSE2 := ""
+Local cUSRSE2 := ""
+Local cCLSSF1 := ""
+Local cLIBSF1 := ""
+Local cUSRSF1 := ""
+Local cLIBSC7 := ""
+Local cUSRSC7 := ""
+Local cLIBSC1 := ""
+Local cUSRSC1 := ""
+Local cCond	  := ""
+
+If nE2Rec > 0
+	SE2->(dbGoTo(nE2Rec))
+
+    dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
+    dbSetOrder(1)
+   
+    IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
+       cUser := SF1->F1_XXUSER
+	   PswOrder(1) 
+	   PswSeek(cUser) 
+	   aUser  := PswRet(1)
+	   IF !EMPTY(aUser)
+          cUSRSF1 := aUser[1,2]
+       ENDIF
+
+		If !EMPTY(SF1->F1_XXULIB)
+			PswOrder(1) 
+			PswSeek(SF1->F1_XXULIB) 
+			aUser	:= PswRet(1)
+			cLIBSF1 := aUser[1,2]
+		EndIf
+
+		If !EMPTY(SF1->F1_XXUCLAS)
+			PswOrder(1) 
+			PswSeek(SF1->F1_XXUCLAS) 
+			aUser	 := PswRet(1)
+			cCLSSF1 := aUser[1,2]
+		EndIf
+
+		cCond := Posicione("SE4",1,xFilial("SE4")+SF1->F1_COND,"E4_DESCRI")
+    ENDIF
+    IF !EMPTY(SE2->E2_USERLGI)
+    	cUSRSE2 := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+    ENDIF   
+    cLIBSE2 := SE2->E2_USUALIB
+    
+    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+    dbSetOrder(1)
+	aLib   := {} 
+
+    IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
+    	DbSelectArea("SZ2")
+		DbSetOrder(3)
+		dbSeek(xFilial("SZ2")+SM0->M0_CODIGO+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
+
+		aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
+  		cUSRSE2 := aLib[1]
+		cLIBSE2 := aLib[2]
+    ENDIF
+
+    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+    IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+
+       aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
+       IF LEN(aLib) > 0
+    	  cUSRSC7 := aLib[1]
+	   	  cLIBSC7 := aLib[2]
+       ENDIF
+
+	   IF !EMPTY(SD1->D1_PEDIDO)	
+			dbSelectArea("SC1")        
+			SC1->(dbSetOrder(6))
+			SC1->(dbSeek(xFilial("SC1")+SD1->D1_PEDIDO,.T.))
+			cLIBSC1	:= ""
+			cUSRSC1	:= ""
+			DO WHILE SC1->(!EOF()) .AND. ALLTRIM(SC1->C1_PEDIDO) == ALLTRIM(SD1->D1_PEDIDO)
+				IF !EMPTY(SC1->C1_NOMAPRO) .AND. !(TRIM(SC1->C1_NOMAPRO) $ cLIBSC1)
+					cLIBSC1 += TRIM(SC1->C1_NOMAPRO)+"/"
+				ENDIF
+				IF !EMPTY(SC1->C1_SOLICIT) .AND. !(TRIM(SC1->C1_SOLICIT) $ cUSRSC1)
+					cUSRSC1 += TRIM(SC1->C1_SOLICIT)+"/"
+				ENDIF
+				SC1->(dbSkip())
+			ENDDO
+
+			IF SUBSTR(cLIBSC1,LEN(cLIBSC1),1) == "/"
+				cLIBSC1 := SUBSTR(cLIBSC1,1,LEN(cLIBSC1)-1)
+			ENDIF 
+
+			IF SUBSTR(cUSRSC1,LEN(cUSRSC1),1) == "/"
+				cUSRSC1 := SUBSTR(cUSRSC1,1,LEN(cUSRSC1)-1)
+			ENDIF 
+
+		ENDIF
+    ENDIF
+EndIf
+
+aAdd(aLin3,cCond)
+aAdd(aLin3,cLIBSE2)
+aAdd(aLin3,cUSRSE2)
+aAdd(aLin3,cCLSSF1)
+aAdd(aLin3,cLIBSF1)
+aAdd(aLin3,cUSRSF1)
+aAdd(aLin3,cLIBSC7)
+aAdd(aLin3,cUSRSC7)
+aAdd(aLin3,cLIBSC1)
+aAdd(aLin3,cUSRSC1)
+
+Return Nil
+
+
 
 
 Static Function GCT28GT1(cTipoBk,cCCBK,aLinha,nValor,cDescTipo)
@@ -727,7 +892,125 @@ Static Function GCT28SZ2(aItem)
 Return Nil
 
 
+// Conta a Pagar
+Static Function GCT28CP(oSay,aRelat,cRecPag)
 
+cQuery := "SELECT "+ CRLF
+cQuery += " E2_FORNECE"+ CRLF
+cQuery += " ,E2_LOJA"+ CRLF
+cQuery += " ,E2_NOMFOR"+ CRLF
+cQuery += " ,E2_TIPO"+ CRLF
+cQuery += " ,E2_PREFIXO"+ CRLF
+cQuery += " ,E2_NUM"+ CRLF
+cQuery += " ,E2_PARCELA"+ CRLF
+cQuery += " ,E2_NATUREZ"+ CRLF
+cQuery += " ,E2_XXTIPBK"+ CRLF
+cQuery += " ,E2_PORTADO"+ CRLF
+cQuery += " ,E2_VENCREA"+ CRLF
+cQuery += " ,E2_VALOR"+ CRLF
+cQuery += " ,E2_SALDO"+ CRLF
+cQuery += " ,E2_HIST"+ CRLF
+cQuery += " ,E2_PORTADO"+ CRLF
+cQuery += " ,E2_EMIS1"+ CRLF
+cQuery += " ,R_E_C_N_O_ AS E2RECNO"+ CRLF
+cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" + CRLF
+cQuery += " WHERE SE2.D_E_L_E_T_ = ' ' "+ CRLF
+cQuery += " AND SE2.E2_FILIAL = '" + xFilial("SE2") + "' "+ CRLF
+cQuery += " AND SE2.E2_TIPO NOT IN "+FormatIn(MVABATIM,";")+ CRLF
+cQuery += " AND SE2.E2_BAIXA = ''"+ CRLF
+If !Empty(dDataI)
+	cQuery += " AND SE2.E2_VENCREA >= '"+DTOS(dDataI)+"'"+ CRLF
+EndIf
+If !Empty(dDataF)
+	cQuery += " AND SE2.E2_VENCREA <= '"+DTOS(dDataF)+"'"+ CRLF
+EndIf          
+cQuery += " ORDER BY E2_VENCREA,E2_NUM,E2_PREFIXO,E2_PARCELA"+ CRLF
+
+u_LogMemo("BKFINR25.SQL",cQuery)
+
+cAliasQry := "QSE2" //GetNextAlias()
+
+dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
+TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
+TCSETFIELD(cAliasQry,"E2_VALOR"  ,"N",18,2)
+
+dbSelectArea(cAliasQry)
+(cAliasQry)->(dbGoTop())
+DO WHILE (cAliasQry)->(!EOF())
+
+	If aScan(aRelat,{|x| x[ID_E2RECNO] == QSE2->E2RECNO }) == 0
+		AAdd(aRelat, Array(ID_ARRAYSIZE))
+		nTamRet := Len(aRelat)
+
+		// Defaults >>>
+		aRelat[nTamRet][ID_PREFIXO]   	:= QSE2->E2_PREFIXO
+		aRelat[nTamRet][ID_NUMERO ]   	:= QSE2->E2_NUM
+		aRelat[nTamRet][ID_PARCELA]   	:= QSE2->E2_PARCELA
+		aRelat[nTamRet][ID_TIPO]      	:= QSE2->E2_TIPO
+		aRelat[nTamRet][ID_CLIFOR]    	:= QSE2->E2_FORNECE
+		aRelat[nTamRet][ID_NOMECLIFOR]	:= QSE2->E2_NOMFOR
+		aRelat[nTamRet][ID_NATUREZA]	:= QSE2->E2_NATUREZ
+		aRelat[nTamRet][ID_VENCIMENTO]	:= QSE2->E2_VENCREA
+		aRelat[nTamRet][ID_HISTORICO]	:= QSE2->E2_HIST
+		aRelat[nTamRet][ID_DTBAIXA]		:= CTOD("")
+		aRelat[nTamRet][ID_VALORORIG]	:= QSE2->E2_VALOR
+		aRelat[nTamRet][ID_JUROSMULTA]	:= 0
+		aRelat[nTamRet][ID_CORRECAO]	:= 0
+		aRelat[nTamRet][ID_DESCONTO]	:= 0
+		aRelat[nTamRet][ID_ABATIMENTO]	:= 0
+		aRelat[nTamRet][ID_IMPOSTO]		:= 0
+		aRelat[nTamRet][ID_TOTALPAGO]	:= 0
+		aRelat[nTamRet][ID_BANCO]		:= QSE2->E2_PORTADO
+		aRelat[nTamRet][ID_DTDIGITACAO]	:= QSE2->E2_EMIS1
+		aRelat[nTamRet][ID_MOTIVO]		:= ""
+		aRelat[nTamRet][ID_FILORIG]		:= xFilial("SE2")
+		aRelat[nTamRet][ID_E5BENEFIC]	:= QSE2->E2_NOMFOR
+		aRelat[nTamRet][ID_E5LOTE   ]	:= ""
+		aRelat[nTamRet][ID_E5DTDISPO]	:= ""
+		aRelat[nTamRet][ID_LORIGINAL]	:= ""
+		aRelat[nTamRet][ID_VALORPG  ]	:= 0
+		aRelat[nTamRet][ID_E5RECNO  ]	:= 0
+		aRelat[nTamRet][ID_TEMVALOR ]	:= .T.
+		aRelat[nTamRet][ID_AGENCIA  ]	:= ""
+		aRelat[nTamRet][ID_CONTA    ]	:= ""
+		aRelat[nTamRet][ID_LOJA     ]	:= QSE2->E2_LOJA
+		aRelat[nTamRet][ID_TIPODOC  ]	:= ""
+		aRelat[nTamRet][ID_VALORVA  ]	:= 0
+		aRelat[nTamRet][ID_COND     ]	:= ""
+		aRelat[nTamRet][ID_DEBITO   ]	:= ""
+		aRelat[nTamRet][ID_CREDITO  ]	:= ""
+		aRelat[nTamRet][ID_CCD      ]	:= ""
+		aRelat[nTamRet][ID_CCC      ]	:= ""
+		aRelat[nTamRet][ID_CC       ]	:= ""
+		aRelat[nTamRet][ID_RECPAG   ]	:= "P"
+		aRelat[nTamRet][ID_TIPOBK   ]	:= E2_XXTIPBK
+		aRelat[nTamRet][ID_E2RECNO  ]	:= QSE2->E2RECNO
+		aRelat[nTamRet][ID_CONSIDER ]	:= ""
+		aRelat[nTamRet][ID_PRODUTO  ]	:= ""
+		aRelat[nTamRet][ID_TIPOPES  ]	:= ""
+		aRelat[nTamRet][ID_DESCTIPO ]	:= ""
+		aRelat[nTamRet][ID_LIBSE2   ]	:= ""
+		aRelat[nTamRet][ID_USRSE2   ]	:= ""
+		aRelat[nTamRet][ID_CLSSF1   ]	:= ""
+		aRelat[nTamRet][ID_LIBSF1   ]	:= ""
+		aRelat[nTamRet][ID_USRSF1   ]	:= ""
+		aRelat[nTamRet][ID_LIBSC7   ]	:= ""
+		aRelat[nTamRet][ID_USRSC7   ]	:= ""
+		aRelat[nTamRet][ID_LIBSC1   ]	:= ""
+		aRelat[nTamRet][ID_USRSC1   ]	:= ""
+
+	EndIf
+
+	dbSelectArea(cAliasQry)
+	(cAliasQry)->(dbSkip())
+ENDDO
+
+(cAliasQry)->(dbCloseArea())
+
+Return Nil
+
+
+// Baixas e movimento bancário
 Static Function GCT28P191(oSay,aRelat,cRecPag)
 
 	Local nOrdem        As Numeric
@@ -2306,11 +2589,15 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 						aRet[nTamRet][ID_CREDITO]   := NEWSE5->E5_CREDITO
 						aRet[nTamRet][ID_CCD]       := NEWSE5->E5_CCD
 						aRet[nTamRet][ID_CCC]       := NEWSE5->E5_CCC
+						If Empty(cCCBK) .AND. !Empty(NEWSE5->E5_CCD)
+							cCCBK := NEWSE5->E5_CCD
+						EndIf
 						aRet[nTamRet][ID_CC]        := cCCBK
 						aRet[nTamRet][ID_RECPAG]    := iIf(MV_PAR11 == 1,"R","P")
 						aRet[nTamRet][ID_TIPOBK]    := cTipoBK
 						aRet[nTamRet][ID_E2RECNO]   := nRecSE2
 						aRet[nTamRet][ID_CONSIDER]  := SPACE(7)
+						aRet[nTamRet][ID_COND]      := ""
 
 						// <--BK
 
@@ -2446,23 +2733,23 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 End
 
 If nGerBaixado > 0
-        AAdd(aTotais, {cSTR0075, cSTR0028, nGerBaixado})  //"Baixados"
+    AAdd(aTotais, {cSTR0075, cSTR0028, nGerBaixado})  //"Baixados"
 EndIf
 
 If nGerMovFin > 0
-        AAdd(aTotais, {cSTR0075, cSTR0031, nGerMovFin})   //"Mov Fin."
+    AAdd(aTotais, {cSTR0075, cSTR0031, nGerMovFin})   //"Mov Fin."
 EndIf
 
 If nGerComp > 0
-        AAdd(aTotais, {cSTR0075, cSTR0037, nGerComp})     //"Compens."
+    AAdd(aTotais, {cSTR0075, cSTR0037, nGerComp})     //"Compens."
 EndIf
 
 If nGerFat > 0
-        AAdd(aTotais, {cSTR0075, cSTR0076, nGerFat})      //"Bx.Fatura"
+    AAdd(aTotais, {cSTR0075, cSTR0076, nGerFat})      //"Bx.Fatura"
 EndIf
 
-    SM0->(DbGoTo(nRecEmp))
-    cFilAnt := IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL)
+SM0->(DbGoTo(nRecEmp))
+cFilAnt := IIf(lFwCodFil, FWGETCODFILIAL, SM0->M0_CODFIL)
 
 If (__oFINR190 <> Nil)
         __oFINR190:Delete()
@@ -2647,13 +2934,26 @@ aAdd(aCab3,"Descontos")
 aAdd(aCab3,"Abatimento")
 aAdd(aCab3,"Impostos")
 aAdd(aCab3,"Total Pago")
-aAdd(aCab3,"VALORPG")
-aAdd(aCab3,"CC Debito")
-aAdd(aCab3,"CC Credito")
+//aAdd(aCab3,"CC Debito")
+//aAdd(aCab3,"CC Credito")
 aAdd(aCab3,"Centro de Custo")
-aAdd(aCab3,"Receber ou Pagar")
+aAdd(aCab3,"Descr. C. Custo")
+//aAdd(aCab3,"Receber ou Pagar")
 aAdd(aCab3,"Tipo BK")
 aAdd(aCab3,"Descrição do tipo BK")
+
+aAdd(aCab3,"Cond. Pgto")
+
+aAdd(aCab3,"Aprovador Pgto")
+aAdd(aCab3,"Usuario Pgto")
+aAdd(aCab3,"Classificador NF")
+aAdd(aCab3,"Aprovador NF")
+aAdd(aCab3,"Usuario NF")
+aAdd(aCab3,"Aprovador Ped")
+aAdd(aCab3,"Usuario Ped")
+aAdd(aCab3,"Aprovador Sol")
+aAdd(aCab3,"Usuario Sol")
+
 
 AADD(aPlans,{aRelat3,cPerg+"-"+cPrc,cTitulo+"-"+cPrc,aCab3,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })
 

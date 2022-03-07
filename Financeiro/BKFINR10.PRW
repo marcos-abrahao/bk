@@ -2543,110 +2543,138 @@ Return aCC
 
 //Busca a Liberacao do Documento - Alcada
 USER FUNCTION BLibera(cCHAVESD1,cPedido)
-LOCAL cDIGTA  	:= ""
-LOCAL cDTEMI  	:= ""
-LOCAL cHORALIB	:= ""
-LOCAL cAPROV  	:= ""
+LOCAL cAprov  	:= ""
+LOCAL cDigta  	:= ""
+LOCAL cDtEmi  	:= ""
+LOCAL cDtLib	:= ""
 LOCAL aRest   	:= {}
 LOCAL cSQL	  	:= ""
 LOCAL aAreaIni 	:= GetArea()
 
-//		AADD(aRest,cDIGTA)
-//		AADD(aRest,cAPROV)
+//		AADD(aRest,cDigta)
+//		AADD(aRest,cAprov)
 //Return aRest
 //STATIC FUNCTION BLIB2()
 
 IF ALLTRIM(cCHAVESD1) == "LFRH"
 
-	cSQL:= "SELECT USUARIO.NOME,SZ2.Z2_USUARIO,Z2_TIPO,SZ2.Z2_PRONT,Z2_DATAEMI,Z2_DATAPGT,Z2_HORALIB,SZ2.Z2_APROV "
-  	cSQL+= " FROM dataP10.dbo.SZ2010  AS SZ2 "
-  	cSQL+= "  LEFT JOIN [BKIntegraRubi].[dbo].[FINANCE_GRADE_CONSOLIDADA] as TBPGTO ON NumSiga=Z2_CODEMP "
-  	cSQL+= "  AND PRONT=Z2_PRONT COLLATE SQL_Latin1_General_CP1_CI_AS "
-  	cSQL+= "  AND TIPO=Z2_TIPO COLLATE SQL_Latin1_General_CP1_CI_AS "
-//  	cSQL+= "  AND TBPGTO.Z2_CTRID= SZ2.Z2_CTRID COLLATE SQL_Latin1_General_CP1_CI_AS "
+	If SE2->E2_NUM == cPedido .AND. !EMPTY(SE2->E2_XXRHLIB)
+		// aqui
+		cAprov	:= SE2->E2_XXRHLIB
+		cDigta	:= SE2->E2_XXRHUSR
+		cDtEmi	:= DTOC(SE2->E2_XXRHTDE)
+		cDtLib	:= DTOC(SE2->E2_XXRHDTL)
 
-  	cSQL+= "  AND TBPGTO.DATAPGT=Z2_DATAPGT COLLATE SQL_Latin1_General_CP1_CI_AS "
-  	cSQL+= "  AND TBPGTO.TIPOPES=Z2_TIPOPES COLLATE SQL_Latin1_General_CP1_CI_AS "
-  	cSQL+= "  AND TBPGTO.tipcol=Z2_TIPCOL "
-  
-  	cSQL+= "  AND VALOR=Z2_VALOR "
-  	cSQL+= "  LEFT JOIN  [BKIntegraRubi].[dbo].[FINANCE_USUARIOS] AS USUARIO ON TBPGTO.IDUSER=USUARIO.ID"
-	cSQL+= " WHERE SZ2.D_E_L_E_T_='' AND Z2_FILIAL = '" + xFilial("SZ2") + "'"
-  	cSQL+= "  AND Z2_E2NUM='"+cPedido+"' AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"
+	Else
 
-	TCQUERY cSQL NEW ALIAS "QSZ2_2" 
+		cSQL:= "SELECT USUARIO.NOME,SZ2.Z2_USUARIO,Z2_TIPO,SZ2.Z2_PRONT,Z2_DATAEMI,Z2_DATAPGT,Z2_HORALIB,SZ2.Z2_APROV "
+		cSQL+= " FROM dataP10.dbo.SZ2010  AS SZ2 "
+		cSQL+= "  LEFT JOIN [BKIntegraRubi].[dbo].[FINANCE_GRADE_CONSOLIDADA] as TBPGTO ON NumSiga=Z2_CODEMP "
+		cSQL+= "  AND PRONT=Z2_PRONT COLLATE SQL_Latin1_General_CP1_CI_AS "
+		cSQL+= "  AND TIPO=Z2_TIPO COLLATE SQL_Latin1_General_CP1_CI_AS "
+	//  	cSQL+= "  AND TBPGTO.Z2_CTRID= SZ2.Z2_CTRID COLLATE SQL_Latin1_General_CP1_CI_AS "
 
-	TCSETFIELD("QSZ2_2","Z2_DATAEMI","D",8,0)
-	TCSETFIELD("QSZ2_2","Z2_DATAPGT","D",8,0)
+		cSQL+= "  AND TBPGTO.DATAPGT=Z2_DATAPGT COLLATE SQL_Latin1_General_CP1_CI_AS "
+		cSQL+= "  AND TBPGTO.TIPOPES=Z2_TIPOPES COLLATE SQL_Latin1_General_CP1_CI_AS "
+		cSQL+= "  AND TBPGTO.tipcol=Z2_TIPCOL "
+	
+		cSQL+= "  AND VALOR=Z2_VALOR "
+		cSQL+= "  LEFT JOIN [BKIntegraRubi].[dbo].[FINANCE_USUARIOS] AS USUARIO ON TBPGTO.IDUSER=USUARIO.ID"
+		cSQL+= " WHERE SZ2.D_E_L_E_T_='' AND Z2_FILIAL = '" + xFilial("SZ2") + "'"
+		cSQL+= "  AND Z2_E2NUM='"+cPedido+"' AND Z2_CODEMP='"+cEmpAnt+"'"
 
-	dbSelectArea("QSZ2_2")
-	QSZ2_2->(DbGotop())
-	DO WHILE QSZ2_2->(!EOF())
-		cDTEMI   := DTOC(QSZ2_2->Z2_DATAEMI)
-		cHORALIB := QSZ2_2->Z2_HORALIB
-		IF ALLTRIM(QSZ2_2->Z2_TIPO) $ "LFE/LRC"
-		
-			cSQL:= "SELECT TOP 1 USU.CodUsu,NomUsu FROM bk_senior.bk_senior.R067LPR LPR"
-			cSQL+= " INNER join bk_senior.bk_senior.R999USU USU on LPR.CodUsu=USU.CodUsu"
-			cSQL+= " where "
-			IF ALLTRIM(QSZ2_2->Z2_TIPO) == "LFE"
-				cSQL+= " MsgLog like '%Tipo Féria%'"
-			ELSE
-				cSQL+= " MsgLog like '%Tipo Rescisão%'"
-			ENDIF
-			cSQL+= " AND MsgLog like '%NumEmp: "+ALLTRIM(STR(VAL(SM0->M0_CODIGO)))+"%'"
-			cSQL+= " AND MsgLog like '%NumCad: "+ALLTRIM(STR(VAL(QSZ2_2->Z2_PRONT)))+"%'"
-			cSQL+= " AND MsgLog like '%Data Pagamento: "+Day2Str(QSZ2_2->Z2_DATAPGT)+"/"+Month2Str(QSZ2_2->Z2_DATAPGT)+"/"+Year2Str(QSZ2_2->Z2_DATAPGT)+"%'"     
+		TCQUERY cSQL NEW ALIAS "QSZ2_2" 
 
-			TCQUERY cSQL NEW ALIAS "QLSenior" 
+		TCSETFIELD("QSZ2_2","Z2_DATAEMI","D",8,0)
+		TCSETFIELD("QSZ2_2","Z2_DATAPGT","D",8,0)
 
-			dbSelectArea("QLSenior")
-			IF !EMPTY(QLSenior->NomUsu)
-				IF ! ALLTRIM(QLSenior->NomUsu) $ cDIGTA
-					cDIGTA += ALLTRIM(QLSenior->NomUsu)+"/"
+		dbSelectArea("QSZ2_2")
+		QSZ2_2->(DbGotop())
+		DO WHILE QSZ2_2->(!EOF())
+			cDtEmi   := DTOC(QSZ2_2->Z2_DATAEMI)
+			cDtLib := QSZ2_2->Z2_HORALIB
+			IF ALLTRIM(QSZ2_2->Z2_TIPO) $ "LFE/LRC"
+			
+				cSQL:= "SELECT TOP 1 USU.CodUsu,NomUsu FROM bk_senior.bk_senior.R067LPR LPR"
+				cSQL+= " INNER join bk_senior.bk_senior.R999USU USU on LPR.CodUsu=USU.CodUsu"
+				cSQL+= " where "
+				IF ALLTRIM(QSZ2_2->Z2_TIPO) == "LFE"
+					cSQL+= " MsgLog like '%Tipo Féria%'"
+				ELSE
+					cSQL+= " MsgLog like '%Tipo Rescisão%'"
 				ENDIF
+				cSQL+= " AND MsgLog like '%NumEmp: "+ALLTRIM(STR(VAL(SM0->M0_CODIGO)))+"%'"
+				cSQL+= " AND MsgLog like '%NumCad: "+ALLTRIM(STR(VAL(QSZ2_2->Z2_PRONT)))+"%'"
+				cSQL+= " AND MsgLog like '%Data Pagamento: "+Day2Str(QSZ2_2->Z2_DATAPGT)+"/"+Month2Str(QSZ2_2->Z2_DATAPGT)+"/"+Year2Str(QSZ2_2->Z2_DATAPGT)+"%'"     
+
+				TCQUERY cSQL NEW ALIAS "QLSenior" 
+
+				dbSelectArea("QLSenior")
+				IF !EMPTY(QLSenior->NomUsu)
+					IF ! ALLTRIM(QLSenior->NomUsu) $ cDigta
+						cDigta += ALLTRIM(QLSenior->NomUsu)+"/"
+					ENDIF
+				ELSE
+					IF !EMPTY(QSZ2_2->NOME)
+						cDigta := QSZ2_2->NOME
+					ELSE
+						cDigta := QSZ2_2->Z2_USUARIO
+					ENDIF
+				ENDIF
+				QLSenior->(Dbclosearea()) 
 			ELSE
 				IF !EMPTY(QSZ2_2->NOME)
-					cDIGTA := QSZ2_2->NOME
+					cDigta := QSZ2_2->NOME
 				ELSE
-					cDIGTA := QSZ2_2->Z2_USUARIO
+					cDigta := QSZ2_2->Z2_USUARIO
 				ENDIF
 			ENDIF
-			QLSenior->(Dbclosearea()) 
-		ELSE
-			IF !EMPTY(QSZ2_2->NOME)
-				cDIGTA := QSZ2_2->NOME
+
+			IF !EMPTY(QSZ2_2->Z2_APROV)
+				cAprov := QSZ2_2->Z2_APROV
 			ELSE
-				cDIGTA := QSZ2_2->Z2_USUARIO
+				cAprov := QSZ2_2->Z2_USUARIO
 			ENDIF
-		ENDIF
 
-		IF !EMPTY(QSZ2_2->Z2_APROV)
-			cAPROV := QSZ2_2->Z2_APROV
-		ELSE
-			cAPROV := QSZ2_2->Z2_USUARIO
-		ENDIF
+			QSZ2_2->(dbSkip())
+		ENDDO
+		QSZ2_2->(Dbclosearea()) 
+		
+		//IF SUBSTR(cDigta,LEN(cDigta),1) == "/"
+		//	AADD(aRest,SUBSTR(cDigta,1,LEN(cDigta)-1))
+		//ELSE
+		//	AADD(aRest,TRIM(cDigta))
+		//ENDIF 
 
-		QSZ2_2->(dbSkip())
-	ENDDO
-	QSZ2_2->(Dbclosearea()) 
-	
-	IF SUBSTR(cDIGTA,LEN(cDIGTA),1) == "/"
-		AADD(aRest,SUBSTR(cDIGTA,1,LEN(cDIGTA)-1))
-	ELSE
-		AADD(aRest,cDIGTA)
-	ENDIF  
-	
-	AADD(aRest,cAPROV)
-	AADD(aRest,cDTEMI)
-	AADD(aRest,cHORALIB)
+		IF SUBSTR(cDigta,LEN(cDigta),1) == "/"
+			cDigta := SUBSTR(cDigta,1,LEN(cDigta)-1)
+		ENDIF 
+
+		cAprov := LOWER(cAprov)
+		cDigta := LOWER(cDigta)
+
+		If SE2->E2_NUM == cPedido
+			// aqui
+			RecLock("SE2",.F.)
+			SE2->E2_XXRHLIB := PAD(cAprov,25)
+			SE2->E2_XXRHUSR	:= PAD(cDigta,60)
+			SE2->E2_XXRHTDE	:= CTOD(cDtEmi)
+			SE2->E2_XXRHDTL := CTOD(cDtLib)
+			SE2->(MsUnlock())
+		EndIf
+	EndIf
+
+	AADD(aRest,TRIM(cDigta))
+	AADD(aRest,TRIM(cAprov))
+	AADD(aRest,cDtEmi)
+	AADD(aRest,cDtLib)
 
 ELSE
 	IF !EMPTY(cPedido)
 	    dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
 	    SF1->(dbSetOrder(1))
 	    IF SF1->(dbSeek(xFilial("SF1")+cCHAVESD1+"N"))
-			cDIGTA := UsrRetName(SF1->F1_XXUSER)   //U_BUSER(SF1->F1_XXUSER)
+			cDigta := UsrRetName(SF1->F1_XXUSER)   //U_BUSER(SF1->F1_XXUSER)
 	    ENDIF
 	    
 		dbSelectArea("SCR")        
@@ -2654,23 +2682,25 @@ ELSE
 		SCR->(dbSeek(xFilial("SCR")+"PC"+cPedido,.T.))
 		DO WHILE SCR->(!EOF()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(cPedido)
 		    IF !EMPTY(SCR->CR_LIBAPRO)
-		    	cAPROV += UsrRetName(SCR->CR_USERLIB)+"/"    //U_BUSER(SCR->CR_USERLIB)
+		    	cAprov += UsrRetName(SCR->CR_USERLIB)+"/"    //U_BUSER(SCR->CR_USERLIB)
 		    ENDIF
 			SCR->(dbSkip())
 		ENDDO
-	
-		AADD(aRest,cDIGTA)
-		AADD(aRest,SUBSTR(cAPROV,1,LEN(cAPROV)-1))
-	
+
+		AADD(aRest,cDigta)
+		AADD(aRest,SUBSTR(cAprov,1,LEN(cAprov)-1))
+		AADD(aRest,"")
+		AADD(aRest,"")
+
 	ELSE
 	    dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
 	    SF1->(dbSetOrder(1))
 	    IF SF1->(dbSeek(xFilial("SF1")+cCHAVESD1+"N"))
-			cDIGTA := UsrRetName(SF1->F1_XXUSER)  //U_BUSER(SF1->F1_XXUSER)
+			cDigta := UsrRetName(SF1->F1_XXUSER)  //U_BUSER(SF1->F1_XXUSER)
 			IF !EMPTY(SF1->F1_XXUSERS)
-				cAPROV := UsrRetName(SF1->F1_XXUSERS)
+				cAprov := UsrRetName(SF1->F1_XXUSERS)
 			ELSE
-				cAPROV := UsrRetName(SF1->F1_XXUSER)
+				cAprov := UsrRetName(SF1->F1_XXUSER)
 			ENDIF
 	    ENDIF
 		
@@ -2679,15 +2709,15 @@ ELSE
 		DbSeek(xFilial("SCR")+'NF'+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA,.T.)
 		Do While SCR->(!eof()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA)
 		    IF !EMPTY(SCR->CR_LIBAPRO)
-		    	cAPROV += "/"+UsrRetName(SCR->CR_USERLIB)    //U_BUSER(SCR->CR_USERLIB)
+		    	cAprov += "/"+UsrRetName(SCR->CR_USERLIB)    //U_BUSER(SCR->CR_USERLIB)
 		    ENDIF
 			SCR->(dbSkip())
 		EndDo
-				
-		AADD(aRest,cDIGTA)
-		AADD(aRest,cAPROV)
-		AADD(aRest,cDTEMI)
-		AADD(aRest,cHORALIB)
+
+		AADD(aRest,cDigta)
+		AADD(aRest,cAprov)
+		AADD(aRest,cDtEmi)
+		AADD(aRest,cDtLib)
 		
 	ENDIF
 ENDIF
@@ -2695,6 +2725,7 @@ ENDIF
 RestArea(aAreaIni)
 	
 Return aRest
+
 
 
 STATIC FUNCTION VldPerg(cPerg)

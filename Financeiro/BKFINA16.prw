@@ -219,7 +219,7 @@ Local lRet := .T.
 Local cKey := ""
 
 IF EMPTY(cPrefix)
-	cPrefix := "1  "
+	cPrefix := "001"
 ENDIF
     
 IF EMPTY(cParc)
@@ -235,9 +235,13 @@ cKey    := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
 DbSelectArea ("SE1")
 DbSetOrder (1)
 
-IF !DbSeek (cKey,.F.) .AND. cPrefix == "1  "
-	cPrefix := "001"
+IF !DbSeek (cKey,.F.) .AND. cPrefix == "001"
+	cPrefix := "1  "
 	cKey    := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
+	IF !DbSeek (cKey,.F.)
+		cPrefix := "006"
+		cKey    := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
+	ENDIF
 ENDIF
 
 IF DbSeek (cKey,.F.)

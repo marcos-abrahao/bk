@@ -892,6 +892,22 @@ Local aRef    		:= {}
 Local cTipo   		:= ""
 Local cFormat 		:= ""
 Local cCustomAnt	:= ""
+
+Local cCorFonte		:= ""
+Local cCorFundo		:= ""
+
+Local cCorN			:= "000000" // Cor Preta
+Local cFundoN		:= "FFFFFF" // Fundo Branco
+
+Local cCorS			:= "FFFFFF" // Cor Branca
+Local cFundoS		:= "9E0000" // Fundo Vermelho BK
+
+//Local cCorS1		:= "000000" // Cor Preta
+//Local cFundoS1		:= "E9967A" // Fundo DarkSalmon
+
+//Local cCorS2		:= "000000" // Cor Preta
+//Local cFundoS2		:= "9ACD32" // Fundo YellowGreen
+
 Local lTotal  		:= .F.
 Local nI 	  		:= 0
 Local nJ	  		:= 0
@@ -1015,7 +1031,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Formatação dos titulos
     oPrtXlsx:SetFont(cFont, nTSize1, lTItalic, lTBold, lTUnderl)
-    oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,"000000", "FFFFFF", "" )
+    oPrtXlsx:SetCellsFormat(cTHorAlig, cTVertAlig, lTWrapText, nTRotation,cCorN, cFundoN, "" )
 
 	nLin := 1
 	For nJ := 1 To Len(aTitulos)
@@ -1038,7 +1054,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		fSeek( nHndImagem, 0, FS_SET)
 		fRead( nHndImagem, @cBuffer, nLenImagem)
 	
-		oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 40, 40)
+		oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 42, 40)
 	EndIf
 
 	nTop := nLin + 1
@@ -1047,7 +1063,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Formatação do cabeçalho
     oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
-    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, "FFFFFF", "9E0000", "" )
+    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 
 	OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
 	
@@ -1068,7 +1084,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 	// Formatação das linhas normais
     oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", "" )
+    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 
 	// Tamanho das colunas e colunas de Total
@@ -1130,6 +1146,9 @@ FOR nPl := 1 TO LEN(_aPlans)
 		EndIf
 	NEXT
 
+	cCorFonte := cCorN
+	cCorFundo := cFundoN
+
 	For nRow := 1 To Len(_aDados)
 
 		nLin++
@@ -1162,7 +1181,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			EndIf
             
 			If cCustomAnt <> cFormat
-		    	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", cFormat )
+		    	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
 				cCustomAnt := cFormat
 			EndIf
 
@@ -1188,7 +1207,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 		// Formatação dos totais		
 		cFormat := "#,##0.00;[Red]-#,##0.00"
-		oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", cFormat )
+		oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
 
 		For nI := 2 To Len(aTotal)
 			If aTotal[nI]
@@ -1202,7 +1221,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	EndIf
 Next
 
-// Planilha de Parâmetros
+// --> Planilha de Parâmetros
 If ValType(_aParam) == "A"
 	For nI := 1 TO LEN(_aParam)
 		xCampo := "MV_PAR"+STRZERO(nI,2)
@@ -1217,50 +1236,68 @@ Else
 		For nI := 1 TO Len(aPergunte[2])
 			xCampo := "MV_PAR"+STRZERO(nI,2)
 			If aPergunte[2,nI,"CX1_GSC"] == "C"
-				yCampo := "CX1_DEF0"+cValToChar(&xCampo)
-				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				cVarDef := SUBSTR(cValToChar(&xCampo),1,1)
+				If cVarDef $ "12345"
+					yCampo := "CX1_DEF0"+cVarDef
+					aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],aPergunte[2,nI,yCampo]})
+				EndIf
 			Else
 				aAdd(aLocPar,{aPergunte[2,nI,"CX1_PERGUNT"],cValToChar(&xCampo)})
 			EndIf
 		Next
 	EndIf
+
 EndIf
 
+nLin := 1
+oPrtXlsx:AddSheet("Parâmetros")    //Adiciona a planilha de Parâmetros
+oPrtXlsx:SetColumnsWidth(1,2,50)
+
+// Formatação de cabeçalho
+oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+oPrtXlsx:MergeCells(nLin,1,nLin,2)
+oPrtXlsx:SetValue(nLin,1,_cProg+" - "+_cTitulo)
+nLin++
+
+// Formatação das linhas normais
+oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+oPrtXlsx:SetValue(nLin,1,"Emitido por: ")
+oPrtXlsx:SetValue(nLin,2,Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
+nLin++
+oPrtXlsx:SetValue(nLin,1,"Data Base: ")
+oPrtXlsx:SetValue(nLin,2,+DTOC(dDataBase))
+nLin++
+oPrtXlsx:SetValue(nLin,1,"Empresa "+cEmpAnt+": ")
+oPrtXlsx:SetValue(nLin,2,ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]))
+nLin++
+oPrtXlsx:SetValue(nLin,1,"Filial "+cFilAnt+": ")
+oPrtXlsx:SetValue(nLin,2,ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]))
+nLin++
+
 If Len(aLocPar) > 0
-	nLin := 1
-
-	oPrtXlsx:AddSheet("Parâmetros")    //Adiciona nova planilha
-	oPrtXlsx:SetColumnsWidth(1,2,50)
-
-	oPrtXlsx:MergeCells(nLin,1,nLin,2)
-	oPrtXlsx:SetValue(nLin,1,_cProg+" - "+_cTitulo)
-
-	oPrtXlsx:SetValue(nLin,1,"Emitido por: "+Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
-	nLin++
-	oPrtXlsx:SetValue(nLin,1,"Data Base: "+DTOC(dDataBase))
-	nLin++
-	oPrtXlsx:SetValue(nLin,1,"Empresa "+cEmpAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]))
-	nLin++
-	oPrtXlsx:SetValue(nLin,1,"Filial "+cFilAnt+": "+ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_FILIAL"} )[1,2]))
-	nLin++
 
 	// Formatação de cabeçalho
     oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
-    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, "FFFFFF", "9E0000", "" )
+    oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 
 	oPrtXlsx:SetValue(nLin,1,"Parâmetros - "+_cProg)
 	oPrtXlsx:SetValue(nLin,2,"Conteúdo")
 
 	// Formatação das linhas normais
     oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "000000", "FFFFFF", "" )
+    oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 	For nI := 1 TO LEN(aLocPar)
 		nLin++
-		oPrtXlsx:SetValue(nLin,1,aLocPar[nI,1])
-		oPrtXlsx:SetValue(nLin,2,aLocPar[nI,2])
+		oPrtXlsx:SetValue(nLin,1,aLocPar[nI,1],)
+		oPrtXlsx:SetValue(nLin,2,aLocPar[nI,2],)
 	Next
 EndIf
+// <-- Parâmetros
+
 
 // Grava a Planilha
 cFileL  := cDirDest+cFile+".xlsx"
