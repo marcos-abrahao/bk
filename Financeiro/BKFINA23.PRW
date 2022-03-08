@@ -46,8 +46,8 @@ PRIVATE nMulta  := 0
 PRIVATE nReceb  := 0
 PRIVATE nTotBK	:= 0
 PRIVATE nSaldo	:= 0
-Private aSIM   := {}
-Private cSim   := "Sim"
+Private aSaldo  := {}
+Private cSaldo  := "1 Real"
 PRIVATE lCancelou := .F.
 
 // BANCO: BAIXA
@@ -79,8 +79,9 @@ private cJConta   := PAD("0000000001",LEN(cConta))
 private cJHist    := PAD("DESCONTO JUROS ANTECIPADOS",TamSX3("E5_HISTOR")[1])
 private nJValor   := 0
 
-AADD(aSIM,"Sim")
-AADD(aSIM,"Não")
+AADD(aSaldo,"1 Real")
+AADD(aSaldo,"Zero")
+AADD(aSaldo,"Livre")
 
 DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL 
 
@@ -131,7 +132,7 @@ nLin2 := nLin1+10
 @ nLin2, 190 MSGET cRHist	Picture "@!"  When .T.  SIZE 200, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cRHist))
 
 @ nLin1, 400 SAY "Valor Ret. Ctr." SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 400 MSGET nRValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nRValor),SOMATAB())
+@ nLin2, 400 MSGET nRValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nRValor) .AND. SOMATAB())
 
 nLin1 += 25
 nLin2 := nLin1+10
@@ -149,7 +150,7 @@ nLin2 := nLin1+10
 @ nLin2, 190 MSGET cJHist	Picture "@!"  When .T.  SIZE 200, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cJHist))
 
 @ nLin1, 400 SAY "Valor Juros Ant." SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 400 MSGET nJValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nJValor),SOMATAB())
+@ nLin2, 400 MSGET nJValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nJValor) .AND. SOMATAB())
 
 nLin1 += 25
 nLin2 := nLin1+10
@@ -167,7 +168,7 @@ nLin2 := nLin1+10
 @ nLin2, 190 MSGET cIHist	Picture "@!"  When .F.  SIZE 200, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cIHist))
 
 @ nLin1, 400 SAY "Valor Dif. ISS" SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 400 MSGET nIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nIValor),SOMATAB())
+@ nLin2, 400 MSGET nIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nIValor) .AND. SOMATAB())
 
 nLin1 += 25
 nLin2 := nLin1+10
@@ -185,7 +186,7 @@ nLin2 := nLin1+10
 @ nLin2, 190 MSGET cHist	Picture "@!"  When .T.  SIZE 200, 11 OF oPanelLeft PIXEL
 
 @ nLin1, 400 SAY "Valor Baixa" SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 400 MSGET nReceb Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL //VALID(POSITIVO(nReceb),SOMATAB())
+@ nLin2, 400 MSGET nReceb Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID POSITIVO(nReceb) .AND. (nReceb <= nVlrLi) .AND. SOMATAB()
 
 nLin1 += 25
 nLin2 := nLin1+10
@@ -200,10 +201,10 @@ nLin2 := nLin1+10
 @ nLin2, 130 MSGET nVlrLi Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL
 
 @ nLin1, 190 SAY "- Desconto " SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 190 MSGET nDesc Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nDesc),SOMATAB())
+@ nLin2, 190 MSGET nDesc Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nDesc) .AND. SOMATAB())
 
 @ nLin1, 250 SAY "+ Multa " SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 250 MSGET nMulta Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nMulta),SOMATAB())
+@ nLin2, 250 MSGET nMulta Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nMulta) .AND. SOMATAB())
 
 //@ nLin1, 310 SAY "A Receber" SIZE 35, 7 OF oPanelLeft PIXEL
 //@ nLin2, 310 MSGET nReceb Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL
@@ -211,8 +212,8 @@ nLin2 := nLin1+10
 @ nLin1, 310 SAY "Saldo" SIZE 35, 7 OF oPanelLeft PIXEL
 @ nLin2, 310 MSGET nSaldo Picture cPict When .F. SIZE 50, 11 OF oPanelLeft PIXEL
 
-@ nLin1, 365 SAY "1 Real" SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 365 COMBOBOX cSim ITEMS aSIM SIZE 30, 15 OF oPanelLeft PIXEL PIXEL VALID(SOMATAB())
+@ nLin1, 365 SAY "Saldo" SIZE 35, 7 OF oPanelLeft PIXEL
+@ nLin2, 365 COMBOBOX cSaldo ITEMS aSaldo SIZE 30, 15 OF oPanelLeft PIXEL PIXEL VALID(SOMATAB())
 
 @ nLin2, 400 Button "Incluir" Size 050,013 OF oPanelLeft Pixel Action (InclTab())
 
@@ -304,7 +305,7 @@ Local lRet := .T.
 Local cKey := ""
 
 IF EMPTY(cPrefix)
-	cPrefix := "1  "
+	cPrefix := "001"
 ENDIF
     
 IF EMPTY(cParc)
@@ -353,7 +354,9 @@ ELSE
 	//lRet := .F.
 	oFatura:SetFocus()
 ENDIF
-
+If lRet
+	SomaTab()
+EndIf
 Return lRet 
 
 
@@ -362,9 +365,10 @@ Return lRet
 STATIC FUNCTION SOMATAB()
 Local lRet := .T.
 
+/* Antes
 nReceb  := 0
 If nJValor > 0 
-	IF SUBSTR(cSim,1,1) <> 'S'
+	IF SUBSTR(cSaldo,1,1) <> 'S'
 		nReceb  := nVlrLi + nMulta - nDesc - nRValor - nJValor - nIValor
 		nSaldo  := 0
 	ELSE
@@ -375,8 +379,18 @@ Else
 	nReceb  := nVlrLi + nMulta - nDesc - nRValor - nIValor
 	nSaldo  := 0
 EndIf
+*/
 
-
+IF SUBSTR(cSaldo,1,1) == '1'
+	nReceb  := nVlrLi + nMulta - nDesc - nRValor - nJValor - nIValor - 1
+	nSaldo  := 1
+ELSEIF SUBSTR(cSaldo,1,1) == 'Z'
+	nReceb  := nVlrLi + nMulta - nDesc - nRValor - nJValor - nIValor - 0
+	nSaldo  := 0
+ELSE
+	// Digitar valor da baixa
+	nSaldo  := nVlrLi - nReceb - (nMulta - nDesc - nRValor - nJValor - nIValor)
+ENDIF
 
 RETURN lRet
 
