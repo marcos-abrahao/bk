@@ -922,14 +922,14 @@ Static Function GCT26P191(oSay,aRelat,cRecPag)
 
 
 /// Parâmetros do FINR190
-	MV_PAR01    := dDataI
-	MV_PAR02    := dDataF
-	MV_PAR03    := SPACE(TamSx3("E5_BANCO")[1])
-	MV_PAR04    := REPLICATE("z",TamSx3("E5_BANCO")[1])
-	MV_PAR05    := SPACE(TamSx3("E5_NATUREZ")[1])
-	MV_PAR06    := REPLICATE("z",TamSx3("E5_NATUREZ")[1])
-	MV_PAR07    := SPACE(TamSx3("E5_CLIFOR")[1])
-	MV_PAR08    := REPLICATE("z",TamSx3("E5_CLIFOR")[1])
+	MV_PAR01X   := dDataI
+	MV_PAR02X   := dDataF
+	MV_PAR03X   := SPACE(TamSx3("E5_BANCO")[1])
+	MV_PAR04X   := REPLICATE("z",TamSx3("E5_BANCO")[1])
+	MV_PAR05X   := SPACE(TamSx3("E5_NATUREZ")[1])
+	MV_PAR06X   := REPLICATE("z",TamSx3("E5_NATUREZ")[1])
+	MV_PAR07X   := SPACE(TamSx3("E5_CLIFOR")[1])
+	MV_PAR08X   := REPLICATE("z",TamSx3("E5_CLIFOR")[1])
 	MV_PAR09    := CTOD("01/01/2009")  // E5_DTDIGIT
 	MV_PAR10    := CTOD("01/01/2030")  // E5_DTDIGIT
 	MV_PAR11    := iIf(cRecPag=="R",1,2) // 1=Contas a Receber 2=Contas a Pagar
@@ -1421,26 +1421,26 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 		EndIf
 	EndIf
 
-	cInsert += " E5_DATA    BETWEEN '" + DToS(MV_PAR01) + "' AND '" + DToS(MV_PAR02) + "' AND "
+	cInsert += " E5_DATA    BETWEEN '" + DToS(MV_PAR01X) + "' AND '" + DToS(MV_PAR02X) + "' AND "
 	cInsert += " E5_DATA    <= '" + DToS(dDataBase) + "' AND "
 
 	//Retirado da função FR190TstCond
 	cInsert += " E5_MOTBX <> 'DSD' AND "
 	//Retirado da função
 
-	If cPaisLoc == "ARG" .And. MV_PAR03 == MV_PAR04
-		cInsert += " (E5_BANCO = '" + MV_PAR03 + "' OR E5_BANCO = '" + Space(TamSX3("A6_COD")[1]) + "') AND "
+	If cPaisLoc == "ARG" .And. MV_PAR03X == MV_PAR04X
+		cInsert += " (E5_BANCO = '" + MV_PAR03X + "' OR E5_BANCO = '" + Space(TamSX3("A6_COD")[1]) + "') AND "
 	Else
-		cInsert += " E5_BANCO   BETWEEN '" + MV_PAR03 + "' AND '" + MV_PAR04 + "' AND "
+		cInsert += " E5_BANCO   BETWEEN '" + MV_PAR03X + "' AND '" + MV_PAR04X + "' AND "
 	EndIf
 	If cPaisLoc == "ARG" .And. MV_PAR11 == 2 // pagar
 		cInsert += " (E5_DOCUMEN <> ' ' AND E5_TIPO <> 'CH') AND "
 	EndIf
 	// Realiza filtragem pela natureza principal
 	If MV_PAR39 == 2
-		cInsert +=  " E5_NATUREZ BETWEEN '" + MV_PAR05 + "' AND '" + MV_PAR06 + "' AND "
+		cInsert +=  " E5_NATUREZ BETWEEN '" + MV_PAR05X + "' AND '" + MV_PAR06X + "' AND "
 	Else
-		cInsert +=       " (E5_NATUREZ BETWEEN '" + MV_PAR05 + "' AND '" + MV_PAR06 + "' OR "
+		cInsert +=       " (E5_NATUREZ BETWEEN '" + MV_PAR05X + "' AND '" + MV_PAR06X + "' OR "
 		cInsert +=       " EXISTS (SELECT EV_FILIAL, EV_PREFIXO, EV_NUM, EV_PARCELA, EV_CLIFOR, EV_LOJA "
 		cInsert +=                 " FROM " + RetSQLName("SEV") + " SEV "
 		cInsert +=                " WHERE E5_FILIAL  = EV_FILIAL AND "
@@ -1450,10 +1450,10 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 		cInsert +=                       "E5_TIPO    = EV_TIPO AND "
 		cInsert +=                       "E5_CLIFOR  = EV_CLIFOR AND "
 		cInsert +=                       "E5_LOJA    = EV_LOJA AND "
-		cInsert +=                       "EV_NATUREZ BETWEEN '" + MV_PAR05 + "' AND '" + MV_PAR06 + "' AND "
+		cInsert +=                       "EV_NATUREZ BETWEEN '" + MV_PAR05X + "' AND '" + MV_PAR06X + "' AND "
 		cInsert +=                       "SEV.D_E_L_E_T_ = ' ')) AND "
 	EndIf
-	cInsert += "        E5_CLIFOR  BETWEEN '" + MV_PAR07       + "' AND '" + MV_PAR08       + "' AND "
+	cInsert += "        E5_CLIFOR  BETWEEN '" + MV_PAR07X      + "' AND '" + MV_PAR08X      + "' AND "
 	cInsert += "        E5_DTDIGIT BETWEEN '" + DToS(MV_PAR09) + "' AND '" + DToS(MV_PAR10) + "' AND "
 	cInsert += "        E5_LOTE    BETWEEN '" + MV_PAR20       + "' AND '" + MV_PAR21       + "' AND "
 	cInsert += "        E5_LOJA    BETWEEN '" + MV_PAR22       + "' AND '" + MV_PAR23       + "' AND "

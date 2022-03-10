@@ -47,7 +47,7 @@ PRIVATE nReceb  := 0
 PRIVATE nTotBK	:= 0
 PRIVATE nSaldo	:= 0
 Private aSaldo  := {}
-Private cSaldo  := "1 Real"
+Private cSaldo  := "Zero"
 PRIVATE lCancelou := .F.
 
 // BANCO: BAIXA
@@ -79,8 +79,8 @@ private cJConta   := PAD("0000000001",LEN(cConta))
 private cJHist    := PAD("DESCONTO JUROS ANTECIPADOS",TamSX3("E5_HISTOR")[1])
 private nJValor   := 0
 
-AADD(aSaldo,"1 Real")
 AADD(aSaldo,"Zero")
+AADD(aSaldo,"1 Real")
 AADD(aSaldo,"Livre")
 
 DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL 

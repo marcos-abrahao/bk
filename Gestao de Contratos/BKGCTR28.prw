@@ -44,7 +44,7 @@ BK - Pagamentos x Responsáveis
 #Define ID_CONTA       31 // Conta
 #Define ID_LOJA        32 // Loja
 #Define ID_TIPODOC     33 // Tipo de Documento
-#Define ID_VALORVA     34 // Tipo de Documento
+#Define ID_VALORVA     34 // VALORVA
 
 // -->BK
 #Define ID_COND         35 // Cond Pgto
@@ -106,6 +106,9 @@ User Function BKGCTR28()
 
 	Private dDataI  	:= CTOD("")
 	Private dDataF  	:= CTOD("")
+	Private lSintetico	:= .T.
+	Private cSintetico	:= ""
+	Private lPlanTmp	:= .F.
 
 	Private lAgendar	:= .F.
 	Private dDataJob	:= dDataBase
@@ -145,13 +148,16 @@ User Function BKGCTR28()
 	Private cSTR0076    := "Bx.Fatura"
 	Private cSTR0080    := "Estorno de tranferencia"
 
-	aAdd( aParam, { 1, "Data Inicial:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
-	aAdd( aParam, { 1, "Data Final:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
-	aAdd( aParam ,{ 2, "Agendar"			, "Nao"		 , {"Nao", "Sim"}            , 40,'.T.'  ,.T.})
-	aAdd( aParam, { 1, "Agendar para:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
-	aAdd( aParam, { 1, "E-Mail:"	 	 	, cEmailTo	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	aAdd( aParam, { 1, "Data Inicial:" 	 		, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	aAdd( aParam, { 1, "Data Final:" 	 		, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	aAdd( aParam ,{ 2, "Analitico/Sintético"	, "Sintético", {"Sintético", "Analítico"} , 70,'.T.'  ,.T.})
+	aAdd( aParam ,{ 2, "Planilhas temporárias"	, "Nao"		 , {"Nao", "Sim"}             , 40,'.T.'  ,.T.})
+	//aAdd( aParam ,{ 2, "Agendar"			, "Nao"		 , {"Nao", "Sim"}             , 40,'.T.'  ,.T.})
+	//aAdd( aParam, { 1, "Agendar para:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
+	//aAdd( aParam, { 1, "E-Mail:"	 	 	, cEmailTo	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 
     If lIsBlind .OR. FWGetRunSchedule()
+		/*
 		dDataJob	:= U_BKGetMv("BKGCTR2804",.F.,CTOD(""))
 		cEmailTo  	:= U_BKGetMv("BKGCTR2805")
 
@@ -159,18 +165,20 @@ User Function BKGCTR28()
 			u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
 			Return Nil
 		EndIf
+		*/
     Else
         If !GCT28Par()
             Return
         EndIf
 
+		/*
 		If lAgendar
 			U_BKPutMv("BKGCTR2804",MV_PAR04,"D", 8,0,"Agendar para:")
 			U_BKPutMv("BKGCTR2805",MV_PAR05,"C",70,0,"E-Mail?")
 			MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR04)+" 1h")
 			Return
 		EndIf
-
+		*/
 
     EndIf
 
@@ -214,14 +222,16 @@ User Function BKGCTR28()
 
 	EndIf
 
-	u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
-	GCT28Anal(aRelat,"Fase1",.F.)
+	If lPlanTmp
+		u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
+		GCT28Anal(aRelat,"Fase1",.F.)
 
-	//u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
-	//GCT28Anal(aRelat2,"Fase2",.T.)
+		u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
+		GCT28Anal(aRelat2,"Fase2",.T.)
+	EndIf
 
-	u_xxLog(cArqLog,"Gerando planilha Fase3...",.T.,"")
-	GCT28Rel(aRelat3,"Fase3")
+	u_xxLog(cArqLog,"Gerando planilha - "+cSintetico+"...",.T.,"")
+	GCT28Rel(aRelat3,cSintetico)
 
 	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName,.T.,"")
 
@@ -236,9 +246,12 @@ Static Function GCT28Par
 		lRet        := .T.
 		dDataI  	:= mv_par01
 		dDataF  	:= mv_par02
-		lAgendar	:= IIF(SUBSTR(mv_par03,1,1)=="S",.T.,.F.)
-		dDataJob	:= mv_par04
-		cEmailTO	:= mv_par05
+		lSintetico	:= IIF(SUBSTR(mv_par03,1,1)=="S",.T.,.F.)
+		cSintetico	:= mv_par03
+		lPlanTmp	:= IIF(SUBSTR(mv_par04,1,1)=="S",.T.,.F.)
+		//lAgendar	:= IIF(SUBSTR(mv_par04,1,1)=="S",.T.,.F.)
+		//dDataJob	:= mv_par05
+		//cEmailTO	:= mv_par06
 	Endif
 Return lRet
 
@@ -570,7 +583,13 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 
                                     If Empty(aRelat[nI,ID_CC])
                                         aRelat[nI,ID_CC] := aItem[nX,2]
+									else
+                                        aRelat[nI,ID_CC] := "Diversos"
                                     EndIf
+
+									If !lSintetico
+										AddRel3(@aRelat3,aRelat2[nScan])
+									EndIf
 
 								Next
 							Else
@@ -613,7 +632,12 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 
 								If Empty(aRelat[nI,ID_CC])
                                     aRelat[nI,ID_CC] := aItem[nX,1]
+								Else
+                                    aRelat[nI,ID_CC] := "Diversos"
                                 EndIf
+								If !lSintetico
+									AddRel3(@aRelat3,aRelat2[nScan])
+								EndIf
 
 							Next
 						Else
@@ -629,7 +653,9 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 				GCT28GT1(aRelat[nI,ID_TIPOBK],aRelat[nI,ID_CC],aRelat[nI],0,@cDescTipo)
 				aRelat[nI,ID_DESCTIPO] := cDescTipo
 			EndIf
-	        AddRel3(@aRelat3,aRelat[nI])
+			If Empty(aItem)	.OR. lSintetico
+		        AddRel3(@aRelat3,aRelat[nI])
+			EndIf
 
 		Else
 			aRelat[nI,ID_CONSIDER] := "N-CMP"
@@ -654,11 +680,11 @@ aAdd(aLin3,aLinha[ID_NOMECLIFOR])
 aAdd(aLin3,aLinha[ID_VENCIMENTO])
 aAdd(aLin3,aLinha[ID_DTBAIXA])
 aAdd(aLin3,aLinha[ID_VALORORIG])
-aAdd(aLin3,aLinha[ID_JUROSMULTA])
-aAdd(aLin3,aLinha[ID_CORRECAO])
-aAdd(aLin3,aLinha[ID_DESCONTO])
-aAdd(aLin3,aLinha[ID_ABATIMENTO])
-aAdd(aLin3,aLinha[ID_IMPOSTO])
+//aAdd(aLin3,aLinha[ID_JUROSMULTA])
+//aAdd(aLin3,aLinha[ID_CORRECAO])
+//aAdd(aLin3,aLinha[ID_DESCONTO])
+//aAdd(aLin3,aLinha[ID_ABATIMENTO])
+//aAdd(aLin3,aLinha[ID_IMPOSTO])
 aAdd(aLin3,aLinha[ID_TOTALPAGO])
 //aAdd(aLin3,aLinha[ID_CCD])
 //aAdd(aLin3,aLinha[ID_CCC])
@@ -926,7 +952,7 @@ If !Empty(dDataF)
 EndIf          
 cQuery += " ORDER BY E2_VENCREA,E2_NUM,E2_PREFIXO,E2_PARCELA"+ CRLF
 
-u_LogMemo("BKFINR25.SQL",cQuery)
+u_LogMemo("BKGCTR28.SQL",cQuery)
 
 cAliasQry := "QSE2" //GetNextAlias()
 
@@ -1040,10 +1066,10 @@ Static Function GCT28P191(oSay,aRelat,cRecPag)
 
 
 /// Parâmetros do FINR190
-	MV_PAR01    := dDataI
-	MV_PAR02    := dDataF
-	MV_PAR03    := SPACE(TamSx3("E5_BANCO")[1])
-	MV_PAR04    := REPLICATE("z",TamSx3("E5_BANCO")[1])
+	MV_PAR01X   := dDataI
+	MV_PAR02X   := dDataF
+	MV_PAR03X   := SPACE(TamSx3("E5_BANCO")[1])
+	MV_PAR04X   := REPLICATE("z",TamSx3("E5_BANCO")[1])
 	MV_PAR05    := SPACE(TamSx3("E5_NATUREZ")[1])
 	MV_PAR06    := REPLICATE("z",TamSx3("E5_NATUREZ")[1])
 	MV_PAR07    := SPACE(TamSx3("E5_CLIFOR")[1])
@@ -1539,17 +1565,17 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 		EndIf
 	EndIf
 
-	cInsert += " E5_DATA    BETWEEN '" + DToS(MV_PAR01) + "' AND '" + DToS(MV_PAR02) + "' AND "
+	cInsert += " E5_DATA    BETWEEN '" + DToS(MV_PAR01X) + "' AND '" + DToS(MV_PAR02X) + "' AND "
 	cInsert += " E5_DATA    <= '" + DToS(dDataBase) + "' AND "
 
 	//Retirado da função FR190TstCond
 	cInsert += " E5_MOTBX <> 'DSD' AND "
 	//Retirado da função
 
-	If cPaisLoc == "ARG" .And. MV_PAR03 == MV_PAR04
-		cInsert += " (E5_BANCO = '" + MV_PAR03 + "' OR E5_BANCO = '" + Space(TamSX3("A6_COD")[1]) + "') AND "
+	If cPaisLoc == "ARG" .And. MV_PAR03X == MV_PAR04X
+		cInsert += " (E5_BANCO = '" + MV_PAR03X + "' OR E5_BANCO = '" + Space(TamSX3("A6_COD")[1]) + "') AND "
 	Else
-		cInsert += " E5_BANCO   BETWEEN '" + MV_PAR03 + "' AND '" + MV_PAR04 + "' AND "
+		cInsert += " E5_BANCO   BETWEEN '" + MV_PAR03X + "' AND '" + MV_PAR04X + "' AND "
 	EndIf
 	If cPaisLoc == "ARG" .And. MV_PAR11 == 2 // pagar
 		cInsert += " (E5_DOCUMEN <> ' ' AND E5_TIPO <> 'CH') AND "
@@ -2852,6 +2878,7 @@ Static Function GCT28Anal(aRelat,cPrc,lTipos)
 	Local aCabec := {}
 	Local aCabTp := {}
 
+
 	aAdd(aCabec,"Prefixo")
 	aAdd(aCabec,"Numero")
 	aAdd(aCabec,"Parcela")
@@ -2859,24 +2886,28 @@ Static Function GCT28Anal(aRelat,cPrc,lTipos)
 	aAdd(aCabec,"Cod Cliente/Fornec")
 	aAdd(aCabec,"Nome Cli/Fornec")
 	aAdd(aCabec,"Natureza")
+
 	aAdd(aCabec,"Vencimento")
 	aAdd(aCabec,"Historico")
 	aAdd(aCabec,"Data de Baixa")
 	aAdd(aCabec,"Valor Original")
+
 	aAdd(aCabec,"Jur/Multa")
 	aAdd(aCabec,"Correcao")
 	aAdd(aCabec,"Descontos")
 	aAdd(aCabec,"Abatimento")
 	aAdd(aCabec,"Impostos")
 	aAdd(aCabec,"Total Pago")
+
 	aAdd(aCabec,"Banco")
 	aAdd(aCabec,"Data Digitacao")
 	aAdd(aCabec,"Motivo")
 	aAdd(aCabec,"Filial de Origem")
 	aAdd(aCabec,"Filial")
-	aAdd(aCabec,"E5_BENEF - cCliFor")
-	aAdd(aCabec,"E5_LOTE")
-	aAdd(aCabec,"E5_DTDISPO")
+
+	aAdd(aCabec,"Beneficiario")
+	aAdd(aCabec,"Lote")
+	aAdd(aCabec,"Data Disponivel")
 	aAdd(aCabec,"LORIGINAL")
 	aAdd(aCabec,"VALORPG")
 	aAdd(aCabec,"Recno SE5")
@@ -2885,7 +2916,9 @@ Static Function GCT28Anal(aRelat,cPrc,lTipos)
 	aAdd(aCabec,"Conta")
 	aAdd(aCabec,"Loja")
 	aAdd(aCabec,"Tipo de Documento")
-	aAdd(aCabec," Tipo de Documento")
+	aAdd(aCabec,"VALORVA")
+	// BK
+	aAdd(aCabec,"Cond. Pgto")
 	aAdd(aCabec,"Debito")
 	aAdd(aCabec,"Credito")
 	aAdd(aCabec,"CC Debito")
@@ -2898,6 +2931,15 @@ Static Function GCT28Anal(aRelat,cPrc,lTipos)
 	aAdd(aCabec,"Produto")
 	aAdd(aCabec,"Tp Pessoa")
 	aAdd(aCabec,"Descrição do Tipo")
+	aAdd(aCabec,"Aprovador Pgto")
+	aAdd(aCabec,"Usuario Pgto")
+	aAdd(aCabec,"Classificador")
+	aAdd(aCabec,"Aprovador NF")
+	aAdd(aCabec,"Usuario NF")
+	aAdd(aCabec,"Aprovador Ped")
+	aAdd(aCabec,"Usuario Pef")
+	aAdd(aCabec,"Aprovador Sol")
+	aAdd(aCabec,"Usuario Sol")
 
 	AADD(aPlans,{aRelat,cPerg+"-"+cPrc,cTitulo+"-"+cPrc,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })
 
@@ -2928,11 +2970,11 @@ aAdd(aCab3,"Nome Cli/Fornec")
 aAdd(aCab3,"Vencimento")
 aAdd(aCab3,"Data de Baixa")
 aAdd(aCab3,"Valor Original")
-aAdd(aCab3,"Jur/Multa")
-aAdd(aCab3,"Correcao")
-aAdd(aCab3,"Descontos")
-aAdd(aCab3,"Abatimento")
-aAdd(aCab3,"Impostos")
+//aAdd(aCab3,"Jur/Multa")
+//aAdd(aCab3,"Correcao")
+//aAdd(aCab3,"Descontos")
+//aAdd(aCab3,"Abatimento")
+//aAdd(aCab3,"Impostos")
 aAdd(aCab3,"Total Pago")
 //aAdd(aCab3,"CC Debito")
 //aAdd(aCab3,"CC Credito")
