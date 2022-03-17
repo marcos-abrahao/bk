@@ -201,8 +201,14 @@ IF FWCodEmp() == "12"  .OR. FWCodEmp() == "02"
 	
 ENDIF
 
+AADD(aCampos,"QTMP->D2_ALQIRRF")
+AADD(aCabs  ,"IRRF%")
+
 AADD(aCampos,"QTMP->F2_VALIRRF")
 AADD(aCabs  ,"IRRF Retido")
+
+AADD(aCampos,"QTMP->D2_ALIQINS")
+AADD(aCabs  ,"IRRF%")
 
 AADD(aCampos,"QTMP->F2_VALINSS")
 AADD(aCabs  ,"INSS Retido")
@@ -273,6 +279,8 @@ cQuery := " SELECT DISTINCT" + CRLF
 cQuery += "   F2_FILIAL," + CRLF 
 cQuery += "   D2_CLIENTE AS XX_CLIENTE," + CRLF 
 cQuery += "   D2_LOJA XX_LOJA," + CRLF 
+cQuery += "   D2_ALIQINS," + CRLF 
+cQuery += "   D2_ALQIRRF," + CRLF 
 cQuery += "   C6_PRODUTO AS XX_PROD," + CRLF 
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 
@@ -397,6 +405,8 @@ cQuery += " SELECT DISTINCT" + CRLF
 cQuery += "   F2_FILIAL," + CRLF 
 cQuery += "   F2_CLIENTE AS XX_CLIENTE," + CRLF 
 cQuery += "   F2_LOJA AS XX_LOJA," + CRLF 
+cQuery += "   D2_ALIQINS," + CRLF 
+cQuery += "   D2_ALQIRRF," + CRLF 
 cQuery += "   D2_COD AS XX_PROD," + CRLF 
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 

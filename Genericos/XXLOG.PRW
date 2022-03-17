@@ -71,7 +71,7 @@ Return(.t.)
 User Function LogMemo(cProg,cTexto)
 Local cDir:= "C:\TMP"
 
-IF __cUserId == "000000"
+IF __cUserId == "000000" .OR. __cUserId == "000012"
 	If !("\" $ cProg)
 		MakeDir(cDir)
 		MemoWrite(cDir+"\"+cProg,cTexto)

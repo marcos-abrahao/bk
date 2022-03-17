@@ -8,6 +8,7 @@ P.E. - Após o destravamento de todas as tabelas envolvidas na gravação das NF En
 @version 1.0
 @type function
 /*/
+
 User Function MT103FIM()
 Local nOpcao	:= ParamIxb[1]
 Local nConfirma	:= ParamIxb[2]

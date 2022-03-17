@@ -577,6 +577,9 @@ cQuery += "  AND SC7.D_E_L_E_T_ = '' "+CRLF
 cQuery += "ORDER BY C7_ITEM"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySC7,.T.,.T.)
+tcSetField(cQrySC7,"C8_EMISSAO","D",8,0)
+tcSetField(cQrySC7,"C7_DATPRF","D",8,0)
+tcSetField(cQrySC7,"C8_VALIDA","D",8,0)
 
 u_LogMemo("RESTLIBDC"+cPedido+".SQL",cQuery)
 
@@ -586,7 +589,7 @@ dbGoTop()
 oJsonPN['USERNAME']		:= cUserName
 oJsonPN['EMPRESA']		:= aEmpresas[aScan(aEmpresas,{|x| x[1] == self:empresa }),2]
 oJsonPN['C7_NUM']		:= (cQrySC7)->C7_NUM
-oJsonPN['C7_EMISSAO']	:= DTOC(STOD((cQrySC7)->C8_EMISSAO))
+oJsonPN['C7_EMISSAO']	:= DTOC((cQrySC7)->C8_EMISSAO)
 oJsonPN['C7_XXUSER']	:= UsrRetName((cQrySC7)->C7_USER)
 oJsonPN['C7_XFORN']		:= (cQrySC7)->C7_FORNECE+"-"+(cQrySC7)->C7_LOJA+" - "+TRIM((cQrySC7)->A2_NOME)
 oJsonPN['C7_XXURGEN']	:= (cQrySC7)->C7_XXURGEN
@@ -624,8 +627,8 @@ Do While (cQrySC7)->(!EOF())
 	aItens[nI]["C8_XXDESCP"]:= TRIM((cQrySC7)->C8_XXDESCP)
 	aItens[nI]["C8_UM"]		:= TRIM((cQrySC7)->C8_UM)
 	aItens[nI]["C8_QUANT"]	:= TRANSFORM((cQrySC7)->C8_QUANT,"@E 99999999.99")
-	aItens[nI]["C8_EMISSAO"]:= TRIM((cQrySC7)->C8_EMISSAO)
-	aItens[nI]["C7_DATPRF"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,(cQrySC7)->C7_DATPRF,"")
+	aItens[nI]["C8_EMISSAO"]:= DTOC((cQrySC7)->C8_EMISSAO)
+	aItens[nI]["C7_DATPRF"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,DTOC((cQrySC7)->C7_DATPRF),"")
 	aItens[nI]["C8_STATUS"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,"Vencedor","")
 
 	aItens[nI]["C8_PRECO"]	:= TRANSFORM((cQrySC7)->C8_PRECO,"@E 999,999,999.9999")
@@ -635,7 +638,7 @@ Do While (cQrySC7)->(!EOF())
 
 	aItens[nI]["C8_FORNECE"]:= TRIM((cQrySC7)->C8_FORNECE)
 	aItens[nI]["C8_XXNFOR"]	:= TRIM((cQrySC7)->C8_XXNFOR)
-	aItens[nI]["C8_VALIDA"]	:= TRIM((cQrySC7)->C8_VALIDA)
+	aItens[nI]["C8_VALIDA"]	:= DTOC((cQrySC7)->C8_VALIDA)
 	aItens[nI]["C8_OBS"]	:= TRIM((cQrySC7)->C8_OBS)
 
 	nGeral += (cQrySC7)->C8_TOTAL
@@ -998,7 +1001,7 @@ if (Array.isArray(documentos)) {
     trHTML += '<td>'+object['DATALIB']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
 
-    if (cTipoDoc == 'NF')
+    if (cTipoDoc == 'NF'){
     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showDC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
   	} else {
      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['NUM']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
@@ -1162,47 +1165,53 @@ let itens = ''
 let i = 0
 let foot = ''
 let anexos = ''
-
+let txtidel = '';
+let txtedel = '';
 //oJsonPN['C7_XXURGEN']	:= (cQrySC7)->C7_XXURGEN
 
 document.getElementById('pcDoc').value = documento['C7_NUM'];
 document.getElementById('pcEmissao').value = documento['C7_EMISSAO'];
 document.getElementById('pcComprador').value = documento['C7_XXUSER'];
 document.getElementById('pcForn').value = documento['C7_XFORN'];
+
 if (canLib === 1){
-let btn = '<button type="button" class="btn btn-outline-success" onclick="libpc(\''+c7empresa+'\',\''+c7num+'\',\'#userlib#\')">Liberar</button>';
-document.getElementById("btnlib").innerHTML = btn;
+	let btn = '<button type="button" class="btn btn-outline-success" onclick="libpc(\''+c7empresa+'\',\''+c7num+'\',\'#userlib#\')">Liberar</button>';
+	document.getElementById("btnlib").innerHTML = btn;
 }
 if (Array.isArray(documento.C7_ITENS)) {
-  documento.C7_ITENS.forEach(object => {
-   i++
-itens += '<tr>';
+	documento.C7_ITENS.forEach(object => {
+	i++
+	itens += '<tr>';
 
-if (cTipoDoc == 'NF')
-	itens += '<td><p class="text-success">'+object['C8_ITEM']+'</p></td>';  
-} else {
-	itens += '<td><p class="text-success">'+object['C8_ITEM']+'</p></td>';  
-}
+	if (object['C8_STATUS'] == 'Vencedor'){
+		txtidel = '';
+		txtedel = '';
+	} else {
+		txtidel = '<del>';
+		txtedel = '</del>';
+	}
 
-itens += '<td>'+object['C8_PRODUTO']+'</td>';
-itens += '<td>'+object['C8_XXDESCP']+'</td>';
-itens += '<td>'+object['C8_UM']+'</td>';
-itens += '<td align="right">'+object['C8_QUANT']+'</td>';
-itens += '<td>'+object['C8_EMISSAO']+'</td>';
-itens += '<td>'+object['C7_DATPRF']+'</td>';
-itens += '<td align="right">'+object['C8_PRECO']+'</td>';
-itens += '<td align="right">'+object['C8_TOTAL']+'</td>';
-itens += '<td>'+object['C7_COND']+'</td>';
-itens += '<td>'+object['C8_FORNECE']+'</td>';
-itens += '<td>'+object['C8_XXNFOR']+'</td>';
-itens += '<td>'+object['C8_VALIDA']+'</td>';
-itens += '<td>'+object['C8_OBS']+'</td>';
+	itens += '<td>'+txtidel+object['C8_ITEM']+txtedel+'</td>';  
+	itens += '<td>'+txtidel+object['C8_PRODUTO']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C8_XXDESCP']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C8_UM']+txtedel+'</td>';
+	itens += '<td align="right">'+txtidel+object['C8_QUANT']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C8_EMISSAO']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C7_DATPRF']+txtedel+'</td>';
+	itens += '<td align="right">'+txtidel+object['C8_PRECO']+txtedel+'</td>';
+	itens += '<td align="right">'+txtidel+object['C8_TOTAL']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C7_COND']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C8_FORNECE']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C8_XXNFOR']+txtedel+'</td>';
+	itens += '<td>'+txtidel+object['C8_VALIDA']+txtedel+'</td>';
+	<!-- itens += '<td>'+txtidel+object['C8_OBS']+txtedel+'</td>';-->
+	itens += '<td>'+txtidel+object['C8_STATUS']+txtedel+'</td>';
 
-itens += '</tr>';
-   <!-- itens += '<div class="col-md-2">' -->
-   <!-- itens += '  <input type="text" class="form-control" id="C8_GERAL'+i+'" value="'+object['C8_GERAL']+'" readonly="">' -->
-   <!-- itens += '</div>' -->
- })
+	itens += '</tr>';
+	<!-- itens += '<div class="col-md-2">' -->
+	<!-- itens += '  <input type="text" class="form-control" id="C8_GERAL'+i+'" value="'+object['C8_GERAL']+'" readonly="">' -->
+	<!-- itens += '</div>' -->
+	})
 }
 
 document.getElementById("c7Table").innerHTML = itens;

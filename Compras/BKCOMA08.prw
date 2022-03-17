@@ -37,7 +37,7 @@ DO WHILE .T.
 	oPanelLeft:Align := CONTROL_ALIGN_LEFT
 
 	@ nLin,010 SAY 'Chave NFE:' PIXEL SIZE 50,10 OF oPanelLeft
-    @ nLin,070 MSGET oGetChv VAR cChvNfe  OF oPanelLeft PICTURE "@!" SIZE 130,10 PIXEL 
+    @ nLin,070 MSGET oGetChv VAR cChvNfe VALID u_ConsNfe(cChvNfe) OF oPanelLeft PICTURE "@!" SIZE 130,10 PIXEL 
 	nLin += 25
 
 	@ nLin,010 SAY 'Especie:' PIXEL SIZE 50,10 OF oPanelLeft

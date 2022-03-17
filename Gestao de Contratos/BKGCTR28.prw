@@ -714,8 +714,8 @@ Return NIL
 
 // Retorna Array com os usuarios e aprovadores
 Static Function FindUsr(nE2Rec,aLin3)
-Local aUser	 := {}
-Local cUser	 := ""
+//Local aUser	 := {}
+//Local cUser	 := ""
 Local cFilF1 := xFilial("SF1")
 Local aLib 	 := {}
 
@@ -729,45 +729,83 @@ Local cUSRSC7 := ""
 Local cLIBSC1 := ""
 Local cUSRSC1 := ""
 Local cCond	  := ""
+Local cAprov  := ""
+
 
 If nE2Rec > 0
 	SE2->(dbGoTo(nE2Rec))
+
+    //IF !EMPTY(SE2->E2_USERLGI)
+    //	cUSRSE2 := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
+    //ENDIF
+	If SE2->E2_NUM == '000010037'
+		x:= 0
+	EndIf
+	
+    cUSRSE2 := SE2->E2_USUALIB
 
     dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
     dbSetOrder(1)
    
     IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
-       cUser := SF1->F1_XXUSER
-	   PswOrder(1) 
-	   PswSeek(cUser) 
-	   aUser  := PswRet(1)
-	   IF !EMPTY(aUser)
-          cUSRSF1 := aUser[1,2]
-       ENDIF
+       //cUser := SF1->F1_XXUSER
+	   //PswOrder(1) 
+	   //PswSeek(cUser) 
+	   //aUser  := PswRet(1)
+	   //IF !EMPTY(aUser)
+       //   cUSRSF1 := aUser[1,2]
+       //ENDIF
+
+		cUSRSF1 := UsrRetName(SF1->F1_XXUSER)
 
 		If !EMPTY(SF1->F1_XXULIB)
-			PswOrder(1) 
-			PswSeek(SF1->F1_XXULIB) 
-			aUser	:= PswRet(1)
-			cLIBSF1 := aUser[1,2]
+			//PswOrder(1) 
+			//PswSeek(SF1->F1_XXULIB) 
+			//aUser	:= PswRet(1)
+			//cLIBSF1 := aUser[1,2]
+			cLIBSF1 := UsrRetName(SF1->F1_XXULIB)
 		EndIf
 
 		If !EMPTY(SF1->F1_XXUCLAS)
-			PswOrder(1) 
-			PswSeek(SF1->F1_XXUCLAS) 
-			aUser	 := PswRet(1)
-			cCLSSF1 := aUser[1,2]
+			//PswOrder(1) 
+			//PswSeek(SF1->F1_XXUCLAS) 
+			//aUser	 := PswRet(1)
+			//cCLSSF1 := aUser[1,2]
+			cCLSSF1 := UsrRetName(SF1->F1_XXUCLAS)
 		EndIf
 
 		cCond := Posicione("SE4",1,xFilial("SE4")+SF1->F1_COND,"E4_DESCRI")
+
+		cAprov := ""
+		DbSelectArea("SCR")
+		SCR->(DbSetOrder(1))
+		If DbSeek(xFilial("SCR")+'NF'+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA,.T.)
+			cAprov := ""
+			Do While SCR->(!eof()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA)
+				IF !EMPTY(SCR->CR_LIBAPRO)
+					If !Empty(cAprov)
+						cAprov += "/"
+					EndIf
+					cAprov += UsrRetName(SCR->CR_USERLIB)
+				ENDIF
+				SCR->(dbSkip())
+			EndDo
+		EndIf
+
+
+		// Se o Classificador for do grupo de aprovação 000002, liberou automatico
+		If Empty(cAprov)
+			dbSelectArea("SAL")
+			dbSetOrder(4)
+			If dbSeek(xFilial("SAL")+"000002"+SF1->F1_XXUCLAS,.F.)
+				cAprov := cCLSSF1
+			EndIf
+		EndIf
+
+		cLIBSE2 := cAprov
+
     ENDIF
-    IF !EMPTY(SE2->E2_USERLGI)
-    	cUSRSE2 := USRRETNAME(SUBSTR(EMBARALHA(SE2->E2_USERLGI,1),3,6))
-    ENDIF   
-    cLIBSE2 := SE2->E2_USUALIB
     
-    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-    dbSetOrder(1)
 	aLib   := {} 
 
     IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
@@ -778,55 +816,85 @@ If nE2Rec > 0
 		aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
   		cUSRSE2 := aLib[1]
 		cLIBSE2 := aLib[2]
-    ENDIF
+		cCond   := DTOC(SZ2->Z2_DORIPGT)
 
-    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-    IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
+	ELSE
+	    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
+    	dbSetOrder(1)
+		IF dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA)
 
-       aLib := U_BLibera(SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA,SD1->D1_PEDIDO) // Localiza liberação Alcada
-       IF LEN(aLib) > 0
-    	  cUSRSC7 := aLib[1]
-	   	  cLIBSC7 := aLib[2]
-       ENDIF
+			IF !EMPTY(SD1->D1_PEDIDO)
 
-	   IF !EMPTY(SD1->D1_PEDIDO)	
-			dbSelectArea("SC1")        
-			SC1->(dbSetOrder(6))
-			SC1->(dbSeek(xFilial("SC1")+SD1->D1_PEDIDO,.T.))
-			cLIBSC1	:= ""
-			cUSRSC1	:= ""
-			DO WHILE SC1->(!EOF()) .AND. ALLTRIM(SC1->C1_PEDIDO) == ALLTRIM(SD1->D1_PEDIDO)
-				IF !EMPTY(SC1->C1_NOMAPRO) .AND. !(TRIM(SC1->C1_NOMAPRO) $ cLIBSC1)
-					cLIBSC1 += TRIM(SC1->C1_NOMAPRO)+"/"
+				cAprov := ""
+				dbSelectArea("SCR")        
+				SCR->(dbSetOrder(1))
+				SCR->(dbSeek(xFilial("SCR")+"PC"+SD1->D1_PEDIDO,.T.))
+				DO WHILE SCR->(!EOF()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(SD1->D1_PEDIDO)
+					IF !EMPTY(SCR->CR_LIBAPRO)
+						If !Empty(cAprov)
+							cAprov += "/"
+						EndIf
+						cAprov += UsrRetName(SCR->CR_USERLIB)
+					ENDIF
+					SCR->(dbSkip())
+				ENDDO
+				cLIBSC7 := cAprov
+
+				// Caso não tenha aprovação por alçada da NF, usar do Pedido
+				If Empty(cLIBSE2)
+					cLIBSE2 := cLIBSC7
+				EndIf
+
+				cUSRSC7 := ""
+				dbSelectArea("SC7")
+				SC7->(dbSetOrder(1))
+				SC7->(dbSeek(xFilial("SC7")+SD1->D1_PEDIDO,.T.))
+				IF SC7->C7_NUM == SD1->D1_PEDIDO
+					cUSRSC7 := UsrRetName(SC7->C7_USER)
 				ENDIF
-				IF !EMPTY(SC1->C1_SOLICIT) .AND. !(TRIM(SC1->C1_SOLICIT) $ cUSRSC1)
-					cUSRSC1 += TRIM(SC1->C1_SOLICIT)+"/"
-				ENDIF
-				SC1->(dbSkip())
-			ENDDO
 
-			IF SUBSTR(cLIBSC1,LEN(cLIBSC1),1) == "/"
-				cLIBSC1 := SUBSTR(cLIBSC1,1,LEN(cLIBSC1)-1)
-			ENDIF 
+				dbSelectArea("SC1")        
+				SC1->(dbSetOrder(6))
+				SC1->(dbSeek(xFilial("SC1")+SD1->D1_PEDIDO,.T.))
+				cLIBSC1	:= ""
+				cUSRSC1	:= ""
+				DO WHILE SC1->(!EOF()) .AND. ALLTRIM(SC1->C1_PEDIDO) == ALLTRIM(SD1->D1_PEDIDO)
+					IF !EMPTY(SC1->C1_NOMAPRO) .AND. !(TRIM(SC1->C1_NOMAPRO) $ cLIBSC1)
+						cLIBSC1 += TRIM(SC1->C1_NOMAPRO)+"/"
+					ENDIF
+					IF !EMPTY(SC1->C1_SOLICIT) .AND. !(TRIM(SC1->C1_SOLICIT) $ cUSRSC1)
+						cUSRSC1 += TRIM(SC1->C1_SOLICIT)+"/"
+					ENDIF
+					SC1->(dbSkip())
+				ENDDO
 
-			IF SUBSTR(cUSRSC1,LEN(cUSRSC1),1) == "/"
-				cUSRSC1 := SUBSTR(cUSRSC1,1,LEN(cUSRSC1)-1)
-			ENDIF 
+				IF SUBSTR(cLIBSC1,LEN(cLIBSC1),1) == "/"
+					cLIBSC1 := SUBSTR(cLIBSC1,1,LEN(cLIBSC1)-1)
+				ENDIF 
 
+				IF SUBSTR(cUSRSC1,LEN(cUSRSC1),1) == "/"
+					cUSRSC1 := SUBSTR(cUSRSC1,1,LEN(cUSRSC1)-1)
+				ENDIF 
+
+			ENDIF
 		ENDIF
-    ENDIF
+	ENDIF
+
+	If Empty(cCond)
+		cCond  := DTOC(SE2->E2_VENCREA)
+	EndIf
 EndIf
 
-aAdd(aLin3,cCond)
-aAdd(aLin3,cLIBSE2)
-aAdd(aLin3,cUSRSE2)
-aAdd(aLin3,cCLSSF1)
-aAdd(aLin3,cLIBSF1)
-aAdd(aLin3,cUSRSF1)
-aAdd(aLin3,cLIBSC7)
-aAdd(aLin3,cUSRSC7)
-aAdd(aLin3,cLIBSC1)
-aAdd(aLin3,cUSRSC1)
+aAdd(aLin3,Lower(cCond))
+aAdd(aLin3,Lower(cLIBSE2))
+aAdd(aLin3,Lower(cUSRSE2))
+aAdd(aLin3,Lower(cCLSSF1))
+aAdd(aLin3,Lower(cLIBSF1))
+aAdd(aLin3,Lower(cUSRSF1))
+aAdd(aLin3,Lower(cLIBSC7))
+aAdd(aLin3,Lower(cUSRSC7))
+aAdd(aLin3,Lower(cLIBSC1))
+aAdd(aLin3,Lower(cUSRSC1))
 
 Return Nil
 
@@ -2794,6 +2862,8 @@ EndIf
 
     DbSelectArea("SE5")
     DbSetOrder(1)
+
+NEWSE5->(dbCloseArea())
 
 Return NIl
 

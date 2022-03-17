@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"08/03/2022 SE1 "
+#DEFINE FIN_LAST_UPDATED 		"16/03/2022 SE1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -179,7 +179,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 03/02/22
+			//AtuGenPar( @cTexto )   // 14/03/22
 
 			//AtuRndImp( @cTexto )   // 04/02/22
 			
@@ -187,7 +187,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 08/02/22 SE2
+			AtuGenX3( @cTexto )    // 16/03/22 SE1
 
 			//AtuGenP12( @cTexto )
 
@@ -846,6 +846,76 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
+// 14/03/2022 - Consistencia chave NFE SEFAZ
+oProcess:IncRegua2( "Atualizando parametro MV_CHVESPE..." )
+
+// MV_CHVESPE - Define quais Especies de Nota Fiscal permite a geracao da Chave da DANFE.     
+If dbSeek(xFilial()+"MV_CHVESPE")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "BPE,CTEOS,NF3E"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// MV_CHVNFE - Informa se haverá consulta da NFE/CTE no portal da SEFAZ
+If dbSeek(xFilial()+"MV_CHVNFE")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".F."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// MV_SPEDURL - URL de comunicação com o TSS
+If dbSeek(xFilial()+"MV_SPEDURL")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := "http://10.139.0.30:8085/"
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// MV_DCHVNFE - Informa se deverá digitar a chave da Nfe/Cte caso a espécie seja SPED/CTE e Form.Próprio=NÃO
+If dbSeek(xFilial()+"MV_DCHVNFE")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+// MV_VCHVNFE - Verifica se a Chave NFE confere com a nota de entrada que está sendo digitada.    
+If dbSeek(xFilial()+"MV_VCHVNFE")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+cTexto += CRLF + "Final da Atualizacao" + CRLF 
+
+Return
+
+
+/*
 // 03/02/2022 - Arredondamento de impostos
 // 19/03/2021 - Arredondamento de impostos
 // 01/03/2021 - Arredondamento de impostos
@@ -862,12 +932,6 @@ If dbSeek(xFilial()+"MV_IBGE886")
 	MsUnLock()
 EndIf
 
-cTexto += CRLF + "Final da Atualizacao" + CRLF 
-
-Return
-
-
-/*
 oProcess:IncRegua2( "Atualizando parametro MV_GCTFIN..." )
 //MV_GCTFIN que verifica a incompatibilidade entre os modos de compartilhamento das tabelas desses módulos alertando sobre possíveis inconsistências na integração.
 If dbSeek(xFilial()+"MV_GCTFIN")
@@ -909,7 +973,7 @@ If dbSeek(xFilial()+"MV_VCHVNFE")  //Verifica se a Chave NFE confere com a nota 
 EndIf
 */
 
-*/
+
 
 // 01/03/2021 -Error log por e-mail
 /*
@@ -1483,17 +1547,17 @@ Return
 
 Static Function AtuGenX3( cTexto )
 //Local aNBrowse:= {}
-Local aSBrowse:= {}
-Local aNBrowse:= {}
-Local nBrw := 0
+//Local aSBrowse:= {}
+//Local aNBrowse:= {}
+//Local nBrw := 0
 
 
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "08/03/22 - SE1 " + CRLF 
-APPEND FROM \tmp\sx3e1hi.dtc
+cTexto  += "16/03/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3hism.dtc
 X31UPDTABLE("SE1")
 
 dbSetOrder( 1 )
@@ -1502,6 +1566,9 @@ Return
 
 
 /*
+
+cTexto  += "08/03/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3e1hi.dtc
 
 cTexto  += "05/03/22 - SE2 " + CRLF 
 APPEND FROM \tmp\sx3rh.dtc

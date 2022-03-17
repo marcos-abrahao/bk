@@ -834,13 +834,10 @@ Local cCC      := ""
 Local cMsg     := "" 
 Local cAnexo   := ""
 Local _lJob    := .F.
-
 Local aCabs
 
-
-//cEmail1 := "microsiga@bkconsultoria.com.br;"
-//cEmail2 := ""
-
+cEmail1 += ";microsiga@bkconsultoria.com.br;"
+cEmail2 += ";microsiga@bkconsultoria.com.br;"
 
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 cMsg    := u_GeraHtmA(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw)

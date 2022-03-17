@@ -336,16 +336,51 @@ EndIf
 */
 
 If lRet
+	/*
 	If Empty(cChvNfe) .AND. !Empty(cEspecie)
-		If (ALLTRIM(UPPER(cEspecie))+"/") $ "SPED/BPE/CTE/CTEOS/NF3E/"
+		If (ALLTRIM(UPPER(cEspecie))+"/") $ "SPED/BPE/CTE/CTEOS/NF3E/NFA/"   // MV_CHVESPE
 			MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
 			oGetChv:Setfocus()
 			lRet := .F.
 		EndIf
 	EndIf
+	*/
+
+	If !Empty(cEspecie)
+		If (ALLTRIM(UPPER(cEspecie))+"|") $ "SPED|BPE|CTE|CTEOS|NF3E|NFA|"   // MV_CHVESPE
+			If Empty(cChvNfe)
+				MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
+				oGetChv:Setfocus()
+				lRet := .F.
+			Else
+				If !u_ConsNfe(cChvNfe) 
+					oGetChv:Setfocus()
+					lRet := .F.
+				EndIf
+			EndIf
+		EndIf
+	EndIf
+EndIf
+Return lRet
+
+
+User Function ConsNfe(cChvNfe)
+Local lRet := .T.
+Local aAreaSA2 := SA2->(GetArea())
+Local cCNPJ := ""
+
+cCNPJ := Posicione("SA2",1,xFilial("SA2") + SF1->F1_FORNECE + SF1->F1_LOJA,"A2_CGC")
+If !Empty(cCNPJ)
+	If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14))
+		MsgStop("CNPJ da Chave da NFe diferente do CNPJ do fornecedor","SF1140I - Validação da Chave NFE - CNPJ")
+		lRet := .F.
+	ElseIf SUBSTR(STR(YEAR(SF1->F1_EMISSAO),4),3,2)+STRZERO(MONTH(SF1->F1_EMISSAO),2) <> SUBSTR(cChvnfe,3,4)
+		MsgStop("Mês da Chave da NFe diferente do mês de emissão informado","SF1140I - Validação da Chave NFE - Emissão")
+		lRet := .F.
+	EndIf
 EndIf
 
-
+SA2->(RestArea(aAreaSA2))
 Return lRet
 
 
