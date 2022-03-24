@@ -36,6 +36,7 @@ Local cCKRLiv       := "*"
 Local dDtIni 		:= CtoD('01/10/2021')
 Local dDtFim		:= CtoD('31/10/2021')
 
+u_LogPrw("xFISR101")
 //IF isincallstack("FISA001")
 	
 //	IF AliasINdic('F0T')

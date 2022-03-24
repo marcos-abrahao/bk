@@ -10,8 +10,10 @@ Uso          : BK Consultoria
 User Function BKACERTO()
 Private nRepl := 0
 Private cRot  := PAD("U_BKB1TOZJ()",20)
- 
-  dbSelectArea("SZJ")
+
+u_LogPrw("BKACERTO")
+
+dbSelectArea("SZJ")
 
 @ 200,01 TO 285,450 DIALOG oDlg1 TITLE "Rotinas emergenciais (30/09/13)"
 @ 15,015 SAY "Rotina: "

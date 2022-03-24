@@ -25,6 +25,7 @@ If PswAdmin(,,__cUserId) > 0
     MsgStop("Função permitida apenas para administradores",cTitulo)
     Return Nil 
 EndIf
+u_LogPrw("BKPARGEN")
 
 aAdd( aParam, { 1, "Parametro:"	    , SPACE(LEN(SX6->X6_VAR))  	, ""            , ""   , "SX6", "" , 70  , .F. })
 

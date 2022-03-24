@@ -46,6 +46,8 @@ Local cMsgEx   := SPACE(50)
 PRIVATE cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,nValTit
 PRIVATE cObs
 
+u_LogPrw("BKFINA04")
+
 dbSelectArea("SE2")
 IF BOF() .OR. EOF()
 	MsgStop("Selecione um titulo!", "Atenção")
@@ -169,7 +171,7 @@ If !lConsulta
 		   //If !EMPTY(aTitGer)
 		   		aRet := {}
 		      	aRet := ConfAltTit(aTitGer,aCtrId)
-		      	IF !EMPTY(aRet[1,1])
+		      	IF LEN(aRet) > 0 .AND. !EMPTY(aRet[1,1])
 	    			Processa ( {|| ExcluiBord(aRet[1,2],"3",aRet[1,1])})
    				ENDIF
 
@@ -248,9 +250,9 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			SetFunName( "FINA050" )
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
-		        cErrLog := u_xConvErr(GETAUTOGRLOG())
+    			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
+				u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
 		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
-    			MostraErro("\erros\","BKFINA04.ERR")
 				DisarmTransaction()
 		   		lSucess := .F.
 			EndIf
@@ -275,7 +277,8 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			lMsErroAuto := .F.   
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 			IF lMsErroAuto
-				cErrLog := u_xConvErr(GETAUTOGRLOG())
+    			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
+				u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
 				MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
 				MostraErro("\erros\","BKFINA04.ERR")
 				DisarmTransaction()
@@ -321,19 +324,16 @@ Return aRet
 User Function Fina04E(aEmail,lCLT)
 Local cPrw     := "BKFINA04"
 Local cAssunto := ""
-Local cEmail1  := "sigapgto1@bkconsultoria.com.br"  //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
-Local cEmail2  := "sigapgto2@bkconsultoria.com.br"  //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
+Local cEmail1  := "sigapgto1@bkconsultoria.com.br;"  //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
+Local cEmail2  := "sigapgto2@bkconsultoria.com.br;"  //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cCC      := ""
 Local cMsg     := "" 
 Local cAnexo   := ""
 Local _lJob    := .F.
-
 Local aCabs
 
-
-//cEmail1 := "microsiga@bkconsultoria.com.br;"
-//cEmail2 := ""
-
+cEmail1 += "microsiga@bkconsultoria.com.br;"
+cEmail2 += "microsiga@bkconsultoria.com.br;"
 
 cAssunto:= "Pagamentos nao Efetuados "+DTOC(DATE())+"-"+TIME()
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
@@ -449,30 +449,35 @@ Return lRet
 
 Static Function ExcluiBord(cChave,cAlt,cNumBor)
 
-IncProc("Excluido Borderô "+FWEmpName(cEmpAnt)+"...")
+IncProc("Excluindo Borderô "+cNumBor+" da empresa "+FWEmpName(cEmpAnt)+"...")
 
 dbSelectArea("SE2")
 dbSetOrder(1)
 DBSEEK(xFilial("SE2")+cChave)
+
+// 18/03/2022 - Remover flag de contabilização para não ocorrer erro na alteração/exclusão
+RecLock("SE2")
+SE2->E2_LA := " "
+MsUnlock()
+
 IF cAlt == "3"
 	RecLock("SE2")
-	Replace SE2->E2_NUMBOR  With cNumBor
+	SE2->E2_NUMBOR := cNumBor
 	MsUnlock( )
 	FKCOMMIT()
 	RETURN cNumBor
 ENDIF
 
 IF !EMPTY(SE2->E2_NUMBOR)
-
 	cNumBor := ALLTRIM(SE2->E2_NUMBOR)
 	RecLock("SE2")
-	Replace SE2->E2_NUMBOR  With ""
+	SE2->E2_NUMBOR := " "
 	MsUnlock( )
 	FKCOMMIT()
 	IF cAlt == "2"
 		RETURN cNumBor
 	ENDIF
-    IF cALT == "1"
+    IF cAlt == "1"
 		dbSelectArea("SEA")
 		dbSetOrder(1)
 		DBSEEK(xFilial("SEA")+cNumBor+cChave)

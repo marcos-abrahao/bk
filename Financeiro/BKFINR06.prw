@@ -43,6 +43,7 @@ PRIVATE aFurnas  := {}
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
+u_LogPrw("BKFINR06")
 
 DEFINE FONT oFont1 NAME "Times New Roman" SIZE 0,20 BOLD  OF oPrn
 DEFINE FONT oFont2 NAME "Times New Roman" SIZE 0,14 BOLD OF oPrn

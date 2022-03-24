@@ -41,6 +41,7 @@ Private cCompl   := "2-Não"
 Private aCompl   := {"1-Sim","2-Não"}
 
 //aTbSx5 := FWGetSX5("Z3")
+u_LogPrw("BKCOMA03")
 
 dbSelectArea("SX5")
 dbSetOrder(1)
@@ -519,13 +520,15 @@ RETURN lOk
 
 
 Static function IncluiNF(aItemCC)
-Local aCabec := {}, aLinha := {}, aItens := {}
-Local nX := 0, nItem := 0
-Local lRet := .T.
+Local aCabec 	:= {}, aLinha := {}, aItens := {}
+Local nX		:= 0
+Local nItem		:= 0
+Local lRet		:= .T.
+Local cErrLog	:= ""
 
 Private lMsHelpAuto := .T.
 Private lMsErroAuto := .F.
-Private aAutoErro := {}
+Private aAutoErro 	:= {}
 
 ASORT(aItemCC,,,{|x,y| x[2]<y[2]})
 
@@ -578,22 +581,18 @@ IF nItem > 0
 	aadd(aItens,aLinha)
 ENDIF
 
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//| Inclusao Pre Nota                                            |
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Inclusao da Pre Nota
 Begin Transaction
 	IncProc('Incluido Pré-Documento de Entrada')
 	
 	nOpc := 3
  	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc,.T.)   
 	IF lMsErroAuto
-
-		MsgStop("Problemas em Pré-Documento de Entrada "+cDoc+"    "+cSerie+", informe o setor de T.I. ", "Atenção")
-	    MostraErro()
+		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA03.ERR")
+		u_xxLog("\TMP\BKCOMA03.LOG",cErrLog)
+		MsgStop("Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie+", informe o setor de T.I.:"+cErrLog,"Atenção")
 		DisarmTransaction()
 		lRet := .F.
-
 	Else
 		Msginfo(OemToAnsi("Pré-Documento de Entrada incluido com sucesso! ")+cDoc+"    "+cSerie)
 	EndIf

@@ -28,7 +28,7 @@ aAdd( aParam ,{ 2, "Somente contratos com saldo", cComSaldo  ,{"Sim", "Não"}	, 6
 If !BkGC15()
    Return
 EndIf
-
+u_LogPrw(cPerg)
 
 Aadd( aDbf, { 'XX_CONTRAT', 'C', 10,00 } )
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )

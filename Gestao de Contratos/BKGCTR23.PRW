@@ -25,6 +25,8 @@ LOCAL cCompet3 	:= SubStr(DtoS(dDataBase),5,2)+"/"+SubStr(DtoS(dDataBase),1,4)
 LOCAL _IX		:= 0
 LOCAL _IY		:= 0
 
+u_LogPrw("BKGCTR23")
+
 	IF SM0->M0_CODIGO == "01"      // BK
 
 		AADD(aAglContr,{'S','105000391','A'})

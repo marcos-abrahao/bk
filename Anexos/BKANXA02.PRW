@@ -32,6 +32,8 @@ Local cKey:= "",cDocOri:=""
 Local cDirCtr:="",aArqCtr :={}
 Local x,y
 
+u_LogPrw("BKANXA02")
+
 dbSelectArea(cAliasKey)
 IF BOF() .OR. EOF()
 	MsgStop("Selecione um Documento", "Atenção")

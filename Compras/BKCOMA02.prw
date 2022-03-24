@@ -1,18 +1,8 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKCOMA02  ºAutor  ³ Marcos B. Abrahão  º Data ³ 29/09/2009  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Seleção de NF - Integração VT/VR                           º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} BKCOMA02()
+BK - Seleção de NF - Integração VT/VR 
 
 Integrado com o aplicativo : http://intranet.bkinformatica.com/WebIntegraRubi/
 
@@ -29,6 +19,10 @@ Tratamento do campo campo Z2_STATUS pelos sistemas:
         Quando Z2_TIPOPES = CLA, utilizar fornecedor 000071
         Quando Z2_TIPOPES = CLT, utilizar fornecedor 000084
 
+@author Marcos B. Abrahão
+@since 29/09/2009
+@version P10
+@return Nil
 /*/
 
 User Function BKCOMA02()
@@ -56,6 +50,8 @@ IF BOF() .OR. EOF()
 	RestArea(aAreaIni)
 	Return
 ENDIF
+
+u_LogPrw("BKCOMA02")
 
 // Verificar se há processos de integração em andamento
 cQuery  := "SELECT COUNT(*) AS ZBSTATUSX " 
@@ -259,8 +255,9 @@ Local cFornBK := "000084"
 Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
+Local cErrLog := ""
 
-If SM0->M0_CODIGO <> "01"
+If cEmpAnt <> "01"
    cFornAC := "000084"
 ENDIF
 
@@ -358,7 +355,9 @@ For nI := 1 TO LEN(aTitGer)
 	lMsErroAuto := .F.   
 	MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
 	If lMsErroAuto
-	   MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.", "Atenção")
+		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA02.ERR")
+		u_xxLog("\TMP\BKCOMA02.LOG",cErrLog)
+	   MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.:"+cErrLog, "Atenção")
 	   Return
 	EndIf
 

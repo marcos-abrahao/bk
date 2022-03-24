@@ -36,6 +36,8 @@ Local lCopiado   := .F.
 Local aAreaDoc := GetArea()
 Local cDocOri,cKey
 
+u_LogPrw("BKANXA01")
+
 dbSelectArea(cAliasKey)
 IF BOF() .OR. EOF()
 	MsgStop("Selecione um registro", "Atenção")

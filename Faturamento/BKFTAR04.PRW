@@ -79,6 +79,8 @@ If !BkFR04Par()
    Return
 EndIf
 
+u_LogPrw(cPerg)
+
 aCabs   := {}
 aCampos := {}
 

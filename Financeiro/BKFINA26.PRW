@@ -13,5 +13,6 @@ Grupo Financeiro Produto BK
 //-------------------------------------------------------------------
 
 User Function BKFINA26()
+u_LogPrw("BKFINA26")
 AxCadastro("SZU","Grupo Financeiro - Produto "+FWEmpName(cEmpAnt))
 Return Nil

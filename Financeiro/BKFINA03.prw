@@ -1,19 +1,8 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFuncao    ³BKFIN03   ºAutor  ³ Marcos B. Abrahão  º Data ³ 08/10/2009  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Liquidos - Folha BK - Exclusão dos titulos por CTRID       º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³BK                                                          º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-
+/*/{Protheus.doc} BKFINA03
+BK - Liquidos - Folha BK - Exclusão dos titulos por CTRID
 Tratamento do campo campo Z2_STATUS pelos sistemas:
 
 " "- Gerado ou alterado pelo RH: financeiro pode importar ou RH pode manipular
@@ -21,6 +10,10 @@ Tratamento do campo campo Z2_STATUS pelos sistemas:
 "S"- Titulos gerados no financeiro: financeiro pode excluir,RH não pode manipular
 "D"- Titulos excluídos no financeiro: RH pode manipular
 
+@Return
+@author Marcos Bispo Abrahão
+@since 08/10/2009
+@version P12
 /*/
 
 User Function BKFINA03()
@@ -47,8 +40,9 @@ Local cTitulo2 := "Exclusão de Titulos - Liquidos "+FWEmpName(cEmpAnt)
 
 Private cE2Filial := xFilial("SE2")
 
-cE2CtrID := SE2->E2_XXCTRID
+u_LogPrw("BKFINA03")
 
+cE2CtrID := SE2->E2_XXCTRID
 
 dbSelectArea("SZ2")
 dbGoTop()
@@ -227,6 +221,7 @@ Local cKey,cCtrId,aTitErr:= {}
 Local nI,lOk := .T.
 Local aEmail1 := {}
 Local aEmail2 := {}
+Local cErrLog := ""
 
 dbSelectArea("SE2")
 dbSetOrder(1)
@@ -250,14 +245,17 @@ For nI := 1 TO LEN(aTitGer)
 		             {"E2_FORNECE"  ,SE2->E2_FORNECE,Nil},; 
 		             {"E2_LOJA"     ,SE2->E2_LOJA,Nil}}
 		             
-			lMsErroAuto := .F.   
-			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
-			IF lMsErroAuto
-				MsgStop("Problemas na exclusão do titulo "+cKey+", informe o setor de T.I.", "Atenção")
-			   	AADD(aTitErr,cKey)
-	    		MostraErro()
-				DisarmTransaction()
-			EndIf
+			lMsErroAuto := .F.  
+			Begin Transaction 
+				MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
+				IF lMsErroAuto
+					cErrLog:= CRLF+MostraErro("\TMP\","BKFINA03.ERR")
+					u_xxLog("\TMP\BKFINA03.LOG",cErrLog)
+					MsgStop("Problemas na exclusão do titulo "+cKey+", informe o setor de T.I.:"+cErrLog, "Atenção")
+					AADD(aTitErr,cKey)
+					DisarmTransaction()
+				EndIf
+			End Transaction
 	    Endif	
 	Else    
 	   AADD(aTitErr,cKey)
@@ -318,7 +316,7 @@ IF EMPTY(cMsg)
       cRet := "B"
    ENDIF      
 ELSE
-   MsgStop(cMsg, "Atenção: título não pode ser excluido")
+   MsgStop(cMsg, "Atenção: título não pode ser excluido!")
    cRet := "B"
 ENDIF   
 Return cRet
@@ -408,6 +406,12 @@ IncProc("Excluido Borderô BK...")
 dbSelectArea("SE2")
 dbSetOrder(1)
 DBSEEK(cChave)
+
+// 18/03/2022 - Remover flag de contabilização para não ocorrer erro na alteração/exclusão
+RecLock("SE2")
+SE2->E2_LA := " "
+MsUnlock()
+
 IF !EMPTY(SE2->E2_NUMBOR)
 
 	cNumBor := ALLTRIM(SE2->E2_NUMBOR)
@@ -415,6 +419,7 @@ IF !EMPTY(SE2->E2_NUMBOR)
 	Replace E2_NUMBOR  With ""
 	MsUnlock( )
 	FKCOMMIT()
+
 	dbSelectArea("SEA")
 	dbSetOrder(1)
 	DBSEEK(xFilial("SE2")+cNumBor+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO+SE2->E2_FORNECE+SE2->E2_LOJA)

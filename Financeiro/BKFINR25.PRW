@@ -93,6 +93,7 @@ aAdd( aParam ,{ 2, "Detalhar C.Custo", "Nao"		, {"Nao", "Sim"}, 40,'.T.'  ,.T.})
 If !BkFR25()
    Return
 EndIf
+u_LogPrw(cPerg)
 
 If Substr(cCadGrp,1,1) == "S"
 	U_BKFINA26()

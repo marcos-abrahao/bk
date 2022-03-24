@@ -150,6 +150,7 @@ ValidPerg(cPerg)
 IF !Pergunte(cPerg,.T.)
 	Return Nil
 ENDIF
+u_LogPrw(cPerg)
 
 // Variaveis utilizadas para parametros	
 dDataI   := MV_PAR01	// Data Inicial

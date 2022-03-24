@@ -50,6 +50,8 @@ Local MV_XXUSRPJ := u_FinUsrPj()
 
 PRIVATE aFurnas  := {} 
 
+u_LogPrw("BKFINA02")
+
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 dbSelectArea("SZ2")
@@ -335,8 +337,9 @@ Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
 Local lErroT  := .F.
+Local cErrLog := ""
 
-If SM0->M0_CODIGO <> "01"
+If cEmpAnt <> "01"
    cFornAC := "000084"
 ENDIF
 
@@ -498,15 +501,17 @@ For nI := 1 TO LEN(aTitGer)
 
 	Begin Transaction
 
-    	cErro       := ""
+    	cErrLog     := ""
 		lMsErroAuto := .F.   
 		MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
 		
 
 		IF lMsErroAuto
-		
-			MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I. "+cKey1, "Atenção")
-		    MostraErro()
+
+			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA02.ERR")
+			u_xxLog("\TMP\BKFINA02.LOG",cErrLog)
+			MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.: "+cKey1+cErrLog, "Atenção")
+
 			DisarmTransaction()
 			lErroT := .T.
 		ENDIF	
@@ -670,12 +675,12 @@ Return lRet
 
 
 Static Function CadColab(cFornece,cLoja,cNome,cCPF)
-Local lRet := .T.
+Local lRet 		:= .T.
 Local aVetor,nAcao,cReg,cNReduz
-Local aArea1 := GetArea()
+Local aArea1 	:= GetArea()
 Local aAutoErro := {}
+Local cErrLog   := ""
 Private lMsErroAuto := .F.	
-
 
 IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
    aVetor := {}
@@ -705,15 +710,22 @@ IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
    aAutoErro := {}
    
    IF nAcao > 0
-      	lMsErroAuto := .F.	
-      	MSExecAuto({|x,y| Mata020(x,y)},aVetor,nAcao) //Inclusao ou Alteração
-         
-		IF lMsErroAuto
-		    MostraErro()
-			DisarmTransaction()
-			Return
-		ENDIF	
-   
+      	lMsErroAuto := .F.
+	  	cErrLog     := ""
+	  	Begin Transaction
+
+			MSExecAuto({|x,y| Mata020(x,y)},aVetor,nAcao) //Inclusao ou Alteração
+			
+			IF lMsErroAuto
+
+				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA02.ERR")
+				u_xxLog("\TMP\BKFINA02.LOG",cErrLog)
+
+				DisarmTransaction()
+				Return
+			ENDIF	
+
+		End Transaction
 	ENDIF
 ENDIF
 

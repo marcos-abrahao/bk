@@ -138,7 +138,8 @@ DEFAULT cClieFor:= PARAMIXB[6]
 DEFAULT cLoja   := PARAMIXB[7]
 DEFAULT cMotCancela := PARAMIXB[8]
 
- 
+u_LogPrw("NfseM002")
+
 //旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 //쿛reenchimento do Array de UF                                            �
 //읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸

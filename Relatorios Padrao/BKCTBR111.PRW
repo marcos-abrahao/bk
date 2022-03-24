@@ -50,6 +50,8 @@ If ( !AMIIn(34) )		// Acesso somente pelo SIGACTB
 	Return
 EndIf
 
+u_LogPrw("BKCTBR111")
+
 wnrel :="CTBR110"
 
 Pergunte("CTR110",.F.)

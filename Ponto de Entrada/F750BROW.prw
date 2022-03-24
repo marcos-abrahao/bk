@@ -2,7 +2,6 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TbiConn.ch"
 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} F750BROW
 BK - Ponto de Entrada para criar opções na tela de Funcões Contas a Pagar
 @Return
@@ -10,7 +9,6 @@ BK - Ponto de Entrada para criar opções na tela de Funcões Contas a Pagar
 @since 02/10/09
 @version P12
 /*/
-//-------------------------------------------------------------------
 
 User Function F750BROW() 
 Local aRotY
@@ -335,7 +333,6 @@ If lMsErroAuto
  	// Função que retorna o evento de erro na forma de um array
 	aAutoErro := GETAUTOGRLOG()
 	
-	//cErro := ALLTRIM((XCONVERRLOG(aAutoErro)))
 	cErro := ""
 	For _nX := 1 To Len(aAutoErro) 
 		cErro += aAutoErro[_nX]+CHR(13)+CHR(10)
@@ -355,28 +352,6 @@ EndIf
 RpcClearEnv()
 
 //RpcSetEnv( cEmpAnt, cFilAnt )
-
    
 Return cRetorno
 
-
-
-/*/
-+-----------------------------------------------------------------------
-| Função | XCONVERRLOG | Autor | Arnaldo R. Junior | Data | |
-+-----------------------------------------------------------------------
-| Descrição | CONVERTE O ARRAY AAUTOERRO EM TEXTO CONTINUO. |
-+-----------------------------------------------------------------------
-| Uso | Curso ADVPL |
-+-----------------------------------------------------------------------
-/*/
-
-/*
-STATIC FUNCTION XCONVERRLOG(aAutoErro)
-LOCAL cRet := ""
-LOCAL nX := 1
-FOR nX := 1 to Len(aAutoErro)
-	cRet += aAutoErro[nX]+CHR(13)+CHR(10)
-NEXT nX
-RETURN cRet
-*/

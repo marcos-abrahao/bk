@@ -83,6 +83,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 If !BkFR23()
    Return
 EndIf
+u_LogPrw(cPerg)
 
 If !KFin23Bco()
 	MsgStop("Nenhuma conta selecionada!","Atenção")

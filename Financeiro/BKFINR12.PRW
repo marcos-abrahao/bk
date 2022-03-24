@@ -14,10 +14,10 @@ User Function BKFINR12()
 
 Local titulo         := ""
 Local aTitulos,aCampos,aCabs
-Local oDlg01		AS Object
-Local aButtons 		:= {}
-Local lOk 			:= .F.
-Local oPanelLeft 	AS Object
+Local oDlg01		 AS Object
+Local aButtons 		 := {}
+Local lOk 			 := .F.
+Local oPanelLeft 	 AS Object
 
 Private lEnd         := .F.
 Private lAbortPrint  := .F.
@@ -46,7 +46,7 @@ Private cNFIni       := ""
 Private cNFFim       := ""
 Private aTipoEmis    := {"1-Competência","2-Vencimento","3-Centro de Custo","4-Emissão","5-NF/Título"}
 Private cTipoEmis    := ""
-
+Private cCrLf		 := CRLF
 
 dbSelectArea(cString)
 dbSetOrder(1)
@@ -157,6 +157,7 @@ ELSEIF nEmissao = 5
 
 ENDIF
 
+u_LogPrw("BKFINR12")
 
 ProcRegua(1)
 Processa( {|| ProcQuery() })
@@ -243,7 +244,7 @@ AADD(aCabs  ,"Valor liquido")
 AADD(aCampos,"IIF(QTMP->E1_SALDO > 0,QTMP->E1_VALOR - QTMP->E1_IRRF - QTMP->E1_INSS - QTMP->E1_PIS - QTMP->E1_COFINS - QTMP->E1_CSLL - QTMP->F2_XXVCVIN - QTMP->F2_XXVFUMD - IIF(QTMP->F2_RECISS = '1',QTMP->E1_ISS,0) - QTMP->E1_VRETBIS - QTMP->F2_XXVRETC - (QTMP->E1_VALOR - QTMP->E1_SALDO),0)") //- QTMP->XX_E5DESC + QTMP->XX_E5MULTA 
 AADD(aCabs  ,"Saldo a Receber")
 
-AADD(aCampos,"QTMP->E1_XXHISTM")
+AADD(aCampos,"STRTRAN(QTMP->E1_XXHISTM,cCrLf,' ')")
 AADD(aCabs  ,"Histórico BK")
 
 U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)

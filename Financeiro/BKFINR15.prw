@@ -32,6 +32,8 @@ AjustaSX1(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
+u_LogPrw(cPerg)
+
 dDtSld	:= MV_PAR01
 cTitulo += " em "+DTOC(dDtSld)
 

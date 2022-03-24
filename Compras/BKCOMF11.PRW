@@ -39,6 +39,8 @@ Local aArea  := GetArea()
 	QSA2->(Dbclosearea())
 
 RestArea(aArea)
+
+u_LogPrw("BKCOMF11",cCod)
 	
 Return cCod
 

@@ -182,6 +182,8 @@ User Function BKGCTR28()
 
     EndIf
 
+	u_LogPrw(cPerg)
+
 	aPlan2 := GCT28Plan()
 
 	For nI := 1 To Len(aPlan2)
@@ -379,12 +381,13 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 		cCCBK   := ""
 		cTipoBk := ""
 		nValor  := aLinha[ID_TOTALPAGO]
+		SA6->(MsSeek(cXFilSA6 + aLinha[ID_BANCO] + aLinha[ID_AGENCIA] + aLinha[ID_CONTA]))
 
 		If !aLinha[ID_TEMVALOR]
 
 			aRelat[nI,ID_CONSIDER] := "N-SEMVLR"
 
-		ElseIf TRIM(aLinha[ID_MOTIVO]) <> "CMP"
+		ElseIf TRIM(aLinha[ID_MOTIVO]) <> "CMP" .AND. SA6->A6_FLUXCAI <> "N"
 
 			If aLinha[ID_RECPAG] == "R"
 
@@ -468,6 +471,7 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 						cXTipos += TRIM(cTipoBk)+"/"
 					EndIf
 
+					cTitPai := ""
 					If Empty(cTipoBk)
 						cTitPai := SUBSTR(SE2->E2_TITPAI,4,9)+SUBSTR(SE2->E2_TITPAI,1,3)+SUBSTR(SE2->E2_TITPAI,18,8) //E  000000014  NF 00108501
 						If TRIM(SE2->E2_NATUREZ) == "IRF"
@@ -658,7 +662,11 @@ Static Function GCT28CC(oSay,aRelat,aRelat2,aRelat3)
 			EndIf
 
 		Else
-			aRelat[nI,ID_CONSIDER] := "N-CMP"
+			If SA6->A6_FLUXCAI <> "N"
+				aRelat[nI,ID_CONSIDER] := "N-CMP"
+			else
+				aRelat[nI,ID_CONSIDER] := "N-CX"
+			EndIf
 		EndIf
 
 	Next

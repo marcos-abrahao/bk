@@ -52,6 +52,7 @@ private cVBanco  := space(3)
 private cVAgencia := space(5)
 private cVConta   := space(15)
 
+u_LogPrw("BKFINA16")
 
 DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL 
 

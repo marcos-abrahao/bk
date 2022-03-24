@@ -20,6 +20,8 @@ Local cDescProd  := ""
 Local cCodSubPro := ""
 Local cDesSubPro := ""
 
+u_LogPrw("BKCOMF01")
+
 cDescProd := ALLTRIM(Posicione("SB1",1,xFilial("SB1")+cCodProd,"B1_DESC"))
 cCodSubPro := Posicione("SB1",1,xFilial("SB1")+cCodProd,"B1_XXSGRP")
 cDesSubPro := ALLTRIM(Posicione("SZI",1,xFilial("SZI")+cCodSubPro,"ZI_DESC"))

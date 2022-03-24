@@ -499,7 +499,7 @@ Local cTabSC7	:= "SC7"+self:empresa+"0"
 Local cTabSC1	:= "SC1"+self:empresa+"0"
 Local cTabSC8	:= "SC8"+self:empresa+"0"
 Local cTabSA2	:= "SA2"+self:empresa+"0"
-Local cTabSE4	:= "SE4010"
+//Local cTabSE4	:= "SE4010"
 Local cPedido 	:= TRIM(self:documento)
 Local cQrySC7	:= GetNextAlias()
 Local aItens	:= {}
@@ -507,7 +507,7 @@ Local nI		:= 0
 Local aEmpresas	As Array
 Local aParams	As Array
 Local cMsg		As String
-Local cHist		:= ""
+//Local cHist		:= ""
 Local nGeral	:= 0
 
 aEmpresas := u_BKGrupo()
@@ -604,7 +604,7 @@ Do While (cQrySC7)->(!EOF())
 	aAdd(aItens,JsonObject():New())
 	nI++
 /*
-					<th scope="col">Solic/Cotação</th>
+					<th scope="col">Item</th>
 					<th scope="col">Prod.</th>
 					<th scope="col">Descrição</th>
 					<th scope="col">UM</th>
@@ -628,14 +628,11 @@ Do While (cQrySC7)->(!EOF())
 	aItens[nI]["C8_UM"]		:= TRIM((cQrySC7)->C8_UM)
 	aItens[nI]["C8_QUANT"]	:= TRANSFORM((cQrySC7)->C8_QUANT,"@E 99999999.99")
 	aItens[nI]["C8_EMISSAO"]:= DTOC((cQrySC7)->C8_EMISSAO)
-	aItens[nI]["C7_DATPRF"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,DTOC((cQrySC7)->C7_DATPRF),"")
-	aItens[nI]["C8_STATUS"]	:= IIF((cQrySC7)->C8_NUMPED==SC7->C7_NUM .AND. (cQrySC7)->C8_ITEMPED ==(cQrySC7)->C7_ITEM ,"Vencedor","")
-
+	aItens[nI]["C7_DATPRF"]	:= IIF((cQrySC7)->(C8_NUMPED == C7_NUM) .AND. (cQrySC7)->(C8_ITEMPED == C7_ITEM) ,DTOC((cQrySC7)->C7_DATPRF),"")
+	aItens[nI]["C8_STATUS"]	:= IIF((cQrySC7)->(C8_NUMPED == C7_NUM) .AND. (cQrySC7)->(C8_ITEMPED == C7_ITEM) ,"Vencedor","")
 	aItens[nI]["C8_PRECO"]	:= TRANSFORM((cQrySC7)->C8_PRECO,"@E 999,999,999.9999")
 	aItens[nI]["C8_TOTAL"]	:= TRANSFORM((cQrySC7)->C8_TOTAL,"@E 999,999,999.99")
-	
 	aItens[nI]["C7_COND"]	:= TRIM((cQrySC7)->C7_COND)
-
 	aItens[nI]["C8_FORNECE"]:= TRIM((cQrySC7)->C8_FORNECE)
 	aItens[nI]["C8_XXNFOR"]	:= TRIM((cQrySC7)->C8_XXNFOR)
 	aItens[nI]["C8_VALIDA"]	:= DTOC((cQrySC7)->C8_VALIDA)
@@ -681,9 +678,10 @@ begincontent var cHTML
 
 <!-- Bootstrap CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.11.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
-<title>Liberação de Documentos de Entrada</title>
+<title>Liberação de Documentos</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
 .bk-colors{
@@ -906,7 +904,8 @@ line-height: 1rem;
 			<table id="tableSC7" class="table ">
 				<thead>
 				<tr>
-					<th scope="col">Solic/Cotação</th>
+					<th ></th>
+					<th scope="col">Item</th>
 					<th scope="col">Prod.</th>
 					<th scope="col">Descrição</th>
 					<th scope="col">UM</th>
@@ -931,7 +930,7 @@ line-height: 1rem;
 				</tr>
 				</tbody>
 				<tfoot id="c7Foot">
-				<th scope="row" colspan="8" style="text-align:right;">Total Geral</th>
+				<th scope="row" colspan="10" style="text-align:right;">Total Geral</th>
 				</tfoot>
 			</table>
 			</div>
@@ -1004,7 +1003,7 @@ if (Array.isArray(documentos)) {
     if (cTipoDoc == 'NF'){
     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showDC(\''+object['CREMPRESA']+'\',\''+object['CRRECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
   	} else {
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['NUM']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPC(\''+object['CREMPRESA']+'\',\''+object['NUM']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
     }
 	   
 	trHTML += '</tr>';
@@ -1159,6 +1158,24 @@ console.log(error);
   }
 }
 
+function formatd ( d ) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        '<tr>'+
+            '<td>Full name:</td>'+
+            '<td>'+d[1]+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Status:</td>'+
+            '<td>'+d[15]+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Extra info:</td>'+
+            '<td>And any further details here (images etc)...</td>'+
+        '</tr>'+
+    '</table>';
+}
+
 async function showPC(c7empresa,c7num,userlib,canLib) {
 let documento = await getPC(c7empresa,c7num,userlib);
 let itens = ''
@@ -1178,43 +1195,87 @@ if (canLib === 1){
 	let btn = '<button type="button" class="btn btn-outline-success" onclick="libpc(\''+c7empresa+'\',\''+c7num+'\',\'#userlib#\')">Liberar</button>';
 	document.getElementById("btnlib").innerHTML = btn;
 }
+
+
+const xarray = [];
 if (Array.isArray(documento.C7_ITENS)) {
-	documento.C7_ITENS.forEach(object => {
-	i++
-	itens += '<tr>';
+documento.C7_ITENS.forEach(object => {
 
-	if (object['C8_STATUS'] == 'Vencedor'){
-		txtidel = '';
-		txtedel = '';
-	} else {
-		txtidel = '<del>';
-		txtedel = '</del>';
-	}
+  if (object['C8_STATUS'] == 'Vencedor'){
+    txtidel = ' ';
+    txtedel = ' ';
+  } else {
+    txtidel = '<del>';
+    txtedel = '</del>';
+  }
 
-	itens += '<td>'+txtidel+object['C8_ITEM']+txtedel+'</td>';  
-	itens += '<td>'+txtidel+object['C8_PRODUTO']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C8_XXDESCP']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C8_UM']+txtedel+'</td>';
-	itens += '<td align="right">'+txtidel+object['C8_QUANT']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C8_EMISSAO']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C7_DATPRF']+txtedel+'</td>';
-	itens += '<td align="right">'+txtidel+object['C8_PRECO']+txtedel+'</td>';
-	itens += '<td align="right">'+txtidel+object['C8_TOTAL']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C7_COND']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C8_FORNECE']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C8_XXNFOR']+txtedel+'</td>';
-	itens += '<td>'+txtidel+object['C8_VALIDA']+txtedel+'</td>';
-	<!-- itens += '<td>'+txtidel+object['C8_OBS']+txtedel+'</td>';-->
-	itens += '<td>'+txtidel+object['C8_STATUS']+txtedel+'</td>';
-
-	itens += '</tr>';
-	<!-- itens += '<div class="col-md-2">' -->
-	<!-- itens += '  <input type="text" class="form-control" id="C8_GERAL'+i+'" value="'+object['C8_GERAL']+'" readonly="">' -->
-	<!-- itens += '</div>' -->
-	})
+  const yarray = []
+  yarray.push(null);
+  yarray.push(txtidel+object['C8_ITEM']+txtedel);
+  yarray.push(txtidel+object['C8_PRODUTO']+txtedel);
+  yarray.push(txtidel+object['C8_XXDESCP']+txtedel);
+  yarray.push(txtidel+object['C8_UM']+txtedel);
+  yarray.push(txtidel+'<div align="right">'+object['C8_QUANT']+'</div>'+txtedel);
+  yarray.push(txtidel+object['C8_EMISSAO']+txtedel);
+  yarray.push(txtidel+object['C7_DATPRF']+txtedel);
+  yarray.push(txtidel+'<div align="right">'+object['C8_PRECO']+'</div>'+txtedel);
+  yarray.push(txtidel+'<div align="right">'+object['C8_TOTAL']+'</div>'+txtedel);
+  yarray.push(txtidel+object['C7_COND']+txtedel);
+  yarray.push(txtidel+object['C8_FORNECE']+txtedel);
+  yarray.push(txtidel+object['C8_XXNFOR']+txtedel);
+  yarray.push(txtidel+object['C8_VALIDA']+txtedel);
+  yarray.push(txtidel+object['C8_STATUS']+txtedel);
+  yarray.push(txtidel+object['C8_STATUS']+txtedel);
+  xarray.push(yarray);
+i++
+})
 }
 
-document.getElementById("c7Table").innerHTML = itens;
+ var table7 = $('#tableSC7').DataTable( {
+            data: xarray,
+            paging: false,
+            searching: false,
+            columns: [
+            {
+                "className":      'dt-control',
+                "orderable":      false,
+                "defaultContent": ''
+            },           
+            { title: "Item" },
+            { title: "Produto" },
+            { title: "Descrição" },
+            { title: "UM" },
+            { title: "Quant." },
+            { title: "Emissão" },
+            { title: "Validade" },
+            { title: "Preço" },
+            { title: "Total" },
+            { title: "Cond.Pgto." },
+            { title: "Fornec." },
+            { title: "Nome Fornecedor" },
+            { title: "Valida" },
+            { title: "Status" }
+        ]
+    } );
+
+    // Add event listener for opening and closing details
+    $('#tableSC7 tbody').on('click', 'td.dt-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table7.row( tr );
+ 
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( formatd(row.data()) ).show();
+            tr.addClass('shown');
+        }
+    } );   
+
+
 foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['C8_GERAL']+'</th>'
 document.getElementById("c7Foot").innerHTML = foot;
 $("#titPC").text('Liberação de Pedido de Compra - Empresa: '+documento['EMPRESA'] + ' - Usuário: '+documento['USERNAME']);
@@ -1224,6 +1285,25 @@ location.reload();
 })
 }
 
+function format (name, value) {
+    return '<div>Name: ' + name + '<br />Value: ' + value + '</div>';
+}
+
+function detpc (table7) {
+    var tr = $(this).closest('tr');
+        var row = table7.row( tr );
+ 
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child(format(tr.data('child-name'), tr.data('child-value'))).show();
+            tr.addClass('shown');
+        }
+    } 
 
 async function libpc(c7empresa,c7num,userlib){
 let dataObject = {liberacao:'ok'};

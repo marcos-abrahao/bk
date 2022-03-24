@@ -46,6 +46,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
+u_LogPrw(cPerg)
 
 DEFINE MSDIALOG oDlg FROM  96,9 TO 310,592 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 

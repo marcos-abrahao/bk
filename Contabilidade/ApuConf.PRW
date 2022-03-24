@@ -26,5 +26,6 @@ If Upper(Funname()) == Upper("CTBANFS")
 		nValor1 := Round(SD2->D2_TOTAL*Val(cParCof)/100,2)
 	EndIf     
 EndIf
+u_LogPrw("APUCONF",Funname())
 
 Return(nValor1)

@@ -44,6 +44,8 @@ Default lUnico := .T.
 //| mv_par16     // Exibir Aprovadores Itens? Sim/NЦo: 			 Ё
 //юдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
 
+u_LogPrw("xCNTR010")
+
 Pergunte("CNR011",.F.)
 
 If lUnico

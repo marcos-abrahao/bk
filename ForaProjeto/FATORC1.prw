@@ -35,6 +35,8 @@ User Function FATORC1()
 	Private cCadastro := "Integração Protheus com Ms-Word"
 	Private aSay := {}
 	Private aButton := {}
+	
+	u_LogPrw("FATORC1")
 
 	aAdd( aSay, "Esta rotina efetua a impressão da Nota Fiscal de Venda(Saida) conforme parametros informados." )
 

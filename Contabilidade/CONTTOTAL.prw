@@ -22,7 +22,9 @@
 User Function CONTTOTAL()
 
 Local cValTot
-        
+
+u_LogPrw("CONTTOTAL")
+
 DbSelectArea("SE2")
 DbSetOrder(1)
 DbSeek(xFilial("SE2")+SE2->E2_PREFIXO+SD1->D1_DOC)

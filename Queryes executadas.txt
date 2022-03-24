@@ -1,4 +1,12 @@
 
+
+
+
+==============================================================
+21/03/22 - Retenção contratual TRANSPETRO
+
+UPDATE CNA010 SET CNA_XXRETC = 2.00 from CNA010 WHERE D_E_L_E_T_ ='' AND CNA_CONTRA = '316000569'
+
 ==============================================================
 15/03/2022 - Troca de Contrato
 

@@ -49,6 +49,7 @@ Local nOper     := 0
 Local aUser     := {}
 Local aArea		:= GetArea()
 Local cEmail	:= ""
+Local cLogDoc	:= SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE
 
 If lClass
 	If SF1->F1_XXLIB == 'A'
@@ -78,7 +79,10 @@ If lClass
 					TMPSD1->(DbCloseArea())
 				EndIf
 
+				u_LogPrw("MT103INC","Doc liberado: "+cLogDoc)
+
 			ElseIf nOper == 2
+
 				// Caso não libere, enviar e-mail para quem incluiu o Documento
 				PswOrder(1)
 				PswSeek(SF1->F1_XXUSER) 
@@ -87,6 +91,8 @@ If lClass
 					cEmail += ALLTRIM(aUser[1,14])+';'
 				ENDIF
 				u_SF1Email("Pré-Nota não liberada pelo aprovador")
+
+				u_LogPrw("MT103INC","Doc não liberado: "+cLogDoc)
 			EndIf
 		EndIf
 	ElseIf SF1->F1_XXLIB == 'L' .OR. SF1->F1_XXLIB == 'E'
@@ -112,6 +118,8 @@ If lClass
 					SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 					MsUnLock("SF1")
 					u_SF1Email("Pré-Nota Estornada pelo Fiscal")
+					u_LogPrw("MT103INC","Doc estornado: "+cLogDoc)
+
 				EndIf
 			EndIf
 		Else
@@ -136,6 +144,7 @@ If lClass
 				SF1->F1_XXULIB := __cUserId
 				SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
 				MsUnLock("SF1")
+				u_LogPrw("MT103INC","Doc liberado: "+cLogDoc)
 			EndIf
 		Else
 			MessageBox("Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)

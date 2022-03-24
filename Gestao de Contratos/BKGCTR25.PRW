@@ -16,6 +16,8 @@ Private cTitulo      := "Relação de Contratos"
 Private cPerg        := "BKGCTR25"
 Private cCompet      := STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4)
 
+u_LogPrw(cPerg)
+
 ProcRegua(1)
 Processa( {|| ProcQuery() })
 

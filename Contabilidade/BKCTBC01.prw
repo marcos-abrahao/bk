@@ -28,14 +28,13 @@ Private nValor  := 0
 Private cOrigem := ""
 Private cChave  := ""
 
-
-
 ValidPerg(cPerg)
 	
 IF !Pergunte(cPerg,.T.)
 	//RestArea(aAreaIni)
 	Return
 ENDIF
+u_LogPrw(cPerg)
 
 dIni    := mv_par01
 dFim    := mv_par02

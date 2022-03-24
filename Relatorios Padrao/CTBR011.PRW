@@ -31,6 +31,8 @@ Private oTmpTb
 
 Default lTReport := .F.
 
+u_LogPrw("Ctbr010")
+
 CtAjustSx1( "CTR010" )
 
 If lTReport .Or. (FindFunction( "TRepInUse" ) .And. TRepInUse()) 

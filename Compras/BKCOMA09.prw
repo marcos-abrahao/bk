@@ -20,6 +20,8 @@ User Function BKCOMA09()
 		Return
 	EndIf
 
+	u_LogPrw("BKCOMA09")
+
 	//Criando o MarkBrow
 	oMark := FWMarkBrowse():New()
 	oMark:SetAlias('SZS')
@@ -129,16 +131,13 @@ Static Function SZSProc1()
 	Local cMarca	:= oMark:Mark()
 	//Local lInverte := oMark:IsInvert()
 	Local nCt		:= 0
-	Local cErro		:= ""
 
 	//Percorrendo os registros da SZS
 	SZS->(DbGoTop())
 	While !SZS->(EoF())
 		//Caso esteja marcado, aumenta o contador
-		If oMark:IsMark(cMarca)
-		//If !Empty(SZS->ZS_OK)
+		If oMark:IsMark(cMarca) //If !Empty(SZS->ZS_OK)
 			nCt++
-			cErro := ""
 			//Limpando a marca
 			GeraDocE(.F.)
 		EndIf
@@ -168,7 +167,7 @@ Static Function GeraDocE(lTela)
 	//Local cCodigo	:= SZS->ZS_FORNEC
 	//Local cLoja	:= SZS->ZS_LOJA
 	Local mParcel	:= ""
-	Local cErro		:= ""
+	Local cErrLog	:= ""
 
 /* Tabela SZS
 ZS_OK C 2 Não usado
@@ -269,8 +268,11 @@ ZS_XXHIST
         MSExecAuto({|x,y,z|Mata103(x,y,z)}, aCabec, aItens, 3,lTela)
             
         If lMsErroAuto
+
+			cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA09.ERR")
+			u_xxLog("\TMP\BKCOMA09.LOG",cErrLog)
+			//MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
             DisarmTransaction()
-            //cLogTxt 	+= MostraErro("\system\")
             break
         EndIf                            
 
@@ -278,7 +280,7 @@ ZS_XXHIST
 
 	//Se não houve erros
 	If !lMsErroAuto
-		cErro := "Documento "+cDoc+" Série "+cSerie+" incluido com sucesso em "+DtoC(Date())+"-"+Time()
+		cErrLog := "Documento "+cDoc+" Série "+cSerie+" incluido com sucesso em "+DtoC(Date())+"-"+Time()
 
 		//Posiciona na SF1
 		/*
@@ -327,7 +329,6 @@ ZS_XXHIST
 	Else 		//Senão, mostra o erro do execauto
 		lRet :=.F.
 		Aviso("Atenção", "Falha ao incluir Documento / Série ('"+cDoc+"/"+cSerie+"')!", {"Ok"}, 2)
-		cErro:= MostraErro()
 	EndIf
 
 	If lRet
@@ -335,12 +336,12 @@ ZS_XXHIST
 		SZS->ZS_OK		:= ''
 		SZS->ZS_STATUS	:= '1'
 		SZS->ZS_DULT	:= dDataBase
-		SZS->ZS_ERRO	:= cErro
+		SZS->ZS_ERRO	:= cErrLog
 		SZS->(MsUnlock())
 	Else
 		RecLock('SZS', .F.)
 		SZS->ZS_STATUS	:= '2'
-		SZS->ZS_ERRO	:= cErro
+		SZS->ZS_ERRO	:= cErrLog
 		SZS->(MsUnlock())
 	EndIf
 

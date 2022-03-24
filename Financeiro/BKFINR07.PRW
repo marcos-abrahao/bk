@@ -50,6 +50,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
+u_LogPrw(cPerg)
 
 dDtIni   := MV_PAR01
 dDtFim   := MV_PAR02

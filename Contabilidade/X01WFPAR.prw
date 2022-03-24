@@ -15,21 +15,14 @@
 */
 User Function X01WFPAR()
 
-////////////
-//DECLARA VARIAVEL
-////////////  
 Local oTELA01
 Private cDPTOLB
 
-////////////
-//CARREGA VARIAVEIS CONFORME PARAMETROS
-////////////  
+u_LogPrw("X01WFPAR")
+
 cDPTOLB := Left(AllTrim(GetMV("MV_PARPIS")),4)
 cDPTOLC := Left(AllTrim(GetMV("MV_PARCOF")),4)
 
-////////////
-//MONTA TELA
-////////////  
 Define MsDialog oTELA01 Title "Porcentagem de Apuração PIS/COFINS" From 000,000 To 155,410 Of oTELA01 Pixel
 @010,004 Say "Porcentagem PIS:" Size 070,025 Pixel Of oTELA01
 @020,004 MsGet cDPTOLB Picture "@!" Size 040,007 Pixel Of oTELA01

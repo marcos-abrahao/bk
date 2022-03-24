@@ -168,8 +168,9 @@ User Function BKGCTR26()
 			Return
 		EndIf
 
-
     EndIf
+
+	u_LogPrw(cPerg)
 
 	aPlan2 := GCT26Plan()
 
@@ -492,7 +493,13 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 		cTipoBk := ""
 		nValor  := aLinha[ID_TOTALPAGO]
 
-		If TRIM(aLinha[ID_MOTIVO]) <> "CMP"
+		SA6->(MsSeek(cXFilSA6 + aLinha[ID_BANCO] + aLinha[ID_AGENCIA] + aLinha[ID_CONTA]))
+
+		If !aLinha[ID_TEMVALOR]
+
+			aRelat[nI,ID_CONSIDER] := "N-SEMVLR"
+
+		ElseIf TRIM(aLinha[ID_MOTIVO]) <> "CMP" .AND. SA6->A6_FLUXCAI <> "N"
 
 			If aLinha[ID_RECPAG] == "R"
 
@@ -566,6 +573,11 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 			Else
 				If aLinha[ID_E2RECNO] > 0
 					SE2->(dbGoTo(aLinha[ID_E2RECNO]))
+					// Debug
+					If SE2->E2_NUM == "003243545"
+						X:= 0
+					EndIf
+
 					lRH := .F.
 
 					cTipoBk := aLinha[ID_TIPOBK]
@@ -574,6 +586,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 						cXTipos += TRIM(cTipoBk)+"/"
 					EndIf
 
+					cTitPai := ""
 					If Empty(cTipoBk)
 						cTitPai := SUBSTR(SE2->E2_TITPAI,4,9)+SUBSTR(SE2->E2_TITPAI,1,3)+SUBSTR(SE2->E2_TITPAI,18,8) //E  000000014  NF 00108501
 						If TRIM(SE2->E2_NATUREZ) == "IRF"
@@ -724,7 +737,11 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 				EndIf
 			EndIf
 		Else
-			aRelat[nI,ID_CONSIDER] := "N-CMP"
+			If SA6->A6_FLUXCAI <> "N"
+				aRelat[nI,ID_CONSIDER] := "N-CMP"
+			else
+				aRelat[nI,ID_CONSIDER] := "N-CX"
+			EndIf
 		EndIf
 
 	Next

@@ -28,6 +28,8 @@ Local nOpcx  := PARAMIXB[3]
 PRIVATE lAuto := (nReg!=Nil)
 PRIVATE cEndEnt := Space(TamSX3("C1_XXENDEN")[1])
 
+u_LogPrw("Matr_110")
+
 // BK - Abrir dialogo para digitação do endereço de entrega
 If lAuto
 	dbSelectArea("SC7")

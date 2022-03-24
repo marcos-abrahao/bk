@@ -15,6 +15,8 @@ Private cCadastro := "Contabilização - Folha "+FWEmpName(cEmpAnt)
 
 Private aRotina
 
+u_LogPrw("BKCTBA01")
+
 dbSelectArea("SZ5")
 dbSetOrder(1)
 DbGoTop()
@@ -68,6 +70,7 @@ Local nStatus := 0
 Local nI := 0,dUDia,nMes,nAno
 Local cDoc := ""
 Local cEvento := ""
+Local cErrLog := ""
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -170,35 +173,25 @@ Do While !eof()
 		EndIf   
 	Enddo
 		
+    cErrLog     := ""
 	Begin Transaction
-	    cErro       := ""
+	
 		lMsErroAuto := .F.
 	    MSExecAuto( {|X,Y,Z| CTBA102(X,Y,Z)} ,aCab ,aItens, 3)
 		
-//		IF lMsErroAuto
-//			MsgStop("Não foi possivel importar todos os lançamentos, contate o setor de T.I.", "Atenção")
-//	    	MostraErro()
-//			DisarmTransaction()
-//		ENDIF
-
 		IF lMsErroAuto
-			// Função que retorna o evento de erro na forma de um array
-			aAutoErro := GETAUTOGRLOG()
-			// Função especifica que converte o array aAutoErro em texto
-			// contínuo, com a quantidade de caracteres desejada por linha
-			// Função específica que efetua a gravação do evento de erro no
-			// arquivo previamente crado.
-			cErro := (XCONVERRLOG(aAutoErro))
+			cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA01.ERR")
+			u_xxLog("\TMP\BKCTBA01.LOG",cErrLog)
 			DisarmTransaction()
 		ENDIF
-
-
 		
 	End Transaction
-	IF !EMPTY(cErro)
-	   MsgStop(cErro)
+
+	IF !EMPTY(cErrLog)
+	   MsgStop(cErrLog)
 	   Exit
-	ENDIF   
+	ENDIF
+
     IF !lMsErroAuto
     	FOR nI := 1 TO LEN(aRecno)
        		dbSelectArea("SZ5")
@@ -220,23 +213,4 @@ EndDo
 QSZ5->(DbCloseArea())
 
 Return  
-
-
-
-/*/
-+-----------------------------------------------------------------------
-| Função | XCONVERRLOG | Autor | Arnaldo R. Junior | Data | |
-+-----------------------------------------------------------------------
-| Descrição | CONVERTE O ARRAY AAUTOERRO EM TEXTO CONTINUO. |
-+-----------------------------------------------------------------------
-| Uso | Curso ADVPL |
-+-----------------------------------------------------------------------
-/*/
-STATIC FUNCTION XCONVERRLOG(aAutoErro)
-LOCAL cRet := ""
-LOCAL nX := 1
-FOR nX := 1 to Len(aAutoErro)
-	cRet += aAutoErro[nX]+CHR(13)+CHR(10)
-NEXT nX
-RETURN cRet
 

@@ -58,6 +58,8 @@ If !Pergunte(cPerg,.T.)
    	Return (Nil)
 EndIf
 
+u_LogPrw(cPerg)
+
 cNotaDe 	:= MV_PAR01
 cNotaAte 	:= MV_PAR02
 cSerie		:= MV_PAR03

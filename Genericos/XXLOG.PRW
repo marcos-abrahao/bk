@@ -1,6 +1,21 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE 'FWMVCDEF.CH'
 
+/*/{Protheus.doc} User Function LogPrw
+	Grava log de acesso aos rdmakes da empresa
+	@type  Function
+	@author Marcos Bispo Abrahão
+	@since 21/03/2022
+	@version 12.1.33
+/*/
+
+// Log de acesso a rdmakes BK
+User Function LogPrw(cProg,cMens)
+Local cArqLog := "\log\LogPrw.log"
+Default cMens := "Acesso"
+Return u_xxLog(cArqLog,cProg + ": "+cMens)
+
+
 /*/{Protheus.doc} User Function xxLog
 	Grava o arquivo de log.
 	@type  Function
@@ -8,17 +23,16 @@
 	@since 10/06/18
 	@version 12.1.25
 /*/
-
 User Function xxLog(cArqLog,cMens,lMens,cEnv)  //U_xxLog("jjErro.log","[Rotina][Funcao]"+"Erro...")
 Local nPosFim,nHandle,cBuffer
 
-DEFAULT lMens:= .t.  //Inicializa cMens com Data e Hora
+DEFAULT lMens:= .T.  //Inicializa cMens com Data e Hora
 DEFAULT cEnv := ""
        
 u_xxConOut("INFO","xxLog",cMens)
 
 If lMens  //Inicializa cMens com Data e Hora
-	cMens:=DtoC(Date())+" "+Time()+" "+__cUserId+" => "+cMens
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|"
 EndIf
 
 If !EMPTY(cEnv) .AND. !(UPPER(TRIM(cEnv)) $ GetEnvServer())
@@ -28,16 +42,20 @@ EndIf
 If !File(cArqLog)
 	nHandle:=fCreate(cArqLog,0)
 	If nHandle==-1
-		Alert("LOG ERROR: "+STR(nHandle)+" ==> Nao foi possivel criar "+cArqLog)
+		If !IsBlind()
+			Alert("LOG ERROR: "+STR(nHandle)+" ==> Nao foi possivel criar "+cArqLog)
+		EndIf
 		Return(.f.)
 	EndIf
 	fClose(nHandle)
 EndIf
 
-nHandle:=fOpen(cArqLog,2)
+nHandle := fOpen(cArqLog,2)
 
 If fError()<>0
-	Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel abrir "+cArqLog)
+	If !IsBlind()
+		Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel abrir "+cArqLog)
+	EndIf
 	Return(.f.)
 EndIf
 
@@ -47,8 +65,10 @@ nPosFim:=fSeek(nHandle,0,2)  //Posiciona no Fim do Arquivo
 
 fWrite(nHandle,cBuffer,Len(cBuffer))
 
-If fError()<>0
-	Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel gravar "+cArqLog)
+If fError() <> 0
+	If !IsBlind()
+		Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel gravar "+cArqLog)
+	EndIf
 	fClose(nHandle)
 	Return(.f.)
 EndIf
@@ -70,7 +90,9 @@ Return(.t.)
 
 User Function LogMemo(cProg,cTexto)
 Local cDir:= "C:\TMP"
-
+If IsBlind()
+	cDir:= "\TMP"
+ENDIF
 IF __cUserId == "000000" .OR. __cUserId == "000012"
 	If !("\" $ cProg)
 		MakeDir(cDir)

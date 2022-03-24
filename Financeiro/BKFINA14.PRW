@@ -56,6 +56,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
+u_LogPrw(cPerg)
 
 dData  	 := mv_par01
 cSEE	 := ALLTRIM(mv_par02) //aBancos[mv_par02]

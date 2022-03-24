@@ -36,6 +36,8 @@ Private aRet	:=	{}
 Private dDataI 	:= CTOD("")
 Private dDataF 	:= CTOD("")
 
+u_LogPrw("BKCTBA05")
+
 aAdd( aParam, { 1, "Data Inicial:" 		, CTOD("")					, ""            , ""   , ""	  , "" , 70  , .F. })
 aAdd( aParam, { 1, "Data Final:" 		, CTOD("")					, ""            , ""   , ""	  , "" , 70  , .F. })  
 

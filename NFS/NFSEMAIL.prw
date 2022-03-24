@@ -17,6 +17,8 @@ Local aAreaSD2
 Local aAreaSC5
 Local aAreaCNC
 
+u_LogPrw("NFSEMAIL")
+
 dbSelectArea("SD2")
 aAreaSD2   := GetArea("SD2")
 dbSelectArea("SC5")
@@ -66,7 +68,7 @@ If !Empty(cContrato)
 EndIf
 
 If Empty(cEmail)
-    cEmail := "financeiro@bkconsultoria.com.br"
+    cEmail := "microsiga@bkconsultoria.com.br"
 EndIf
 cEmail := STRTRAN(cEmail,";","|")
 

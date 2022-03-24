@@ -17,6 +17,8 @@ Private cString   := "SF2"
 Private cCadastro := "Documentos de saída"
 Private aRotina
 
+u_LogPrw("BKFATA1A")
+
 dbSelectArea("SF2")
 dbSetOrder(1)
 DbGoTop()

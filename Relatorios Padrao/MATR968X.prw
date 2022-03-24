@@ -99,6 +99,8 @@ Private oPrint
 
 Private oMvMatNfSe := yMATSIGANFSE():New()
 
+u_LogPrw("MATR968X")
+
 cString := "SF2"
 wnrel   := "MATR968"
 cPerg   := "MTR968"

@@ -36,6 +36,8 @@ Static lFWCodFil := FindFunction("FWCodFil")
 /*/
 User Function FinR350()
 
+u_LogPrw("FinR350")
+
 AjustaHLP()
 
 If FindFunction("TRepInUse") .And. TRepInUse()

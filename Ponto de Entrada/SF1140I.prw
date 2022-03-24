@@ -71,8 +71,7 @@ If nTipoPg == 1 .AND. SF1->F1_FORNECE <> "000084"
 	PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 EndIf
 
-//If Inclui
-//EndIf
+u_LogPrw("SF1140I",iIf(Inclui,"Doc incluido: ","Doc alterado: ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
 	
 Return .T.
 
@@ -346,37 +345,40 @@ If lRet
 	EndIf
 	*/
 
+	// Validação da Chave NFE
 	If !Empty(cEspecie)
-		If (ALLTRIM(UPPER(cEspecie))+"|") $ "SPED|BPE|CTE|CTEOS|NF3E|NFA|"   // MV_CHVESPE
-			If Empty(cChvNfe)
-				MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
-				oGetChv:Setfocus()
-				lRet := .F.
-			Else
-				If !u_ConsNfe(cChvNfe) 
-					oGetChv:Setfocus()
-					lRet := .F.
-				EndIf
-			EndIf
+		If !u_ConsNfe(cChvNfe,cEspecie) 
+			oGetChv:Setfocus()
+			lRet := .F.
 		EndIf
 	EndIf
+
 EndIf
 Return lRet
 
 
-User Function ConsNfe(cChvNfe)
+User Function ConsNfe(cChvNfe,cEspecie)
 Local lRet := .T.
 Local aAreaSA2 := SA2->(GetArea())
 Local cCNPJ := ""
 
-cCNPJ := Posicione("SA2",1,xFilial("SA2") + SF1->F1_FORNECE + SF1->F1_LOJA,"A2_CGC")
-If !Empty(cCNPJ)
-	If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14))
-		MsgStop("CNPJ da Chave da NFe diferente do CNPJ do fornecedor","SF1140I - Validação da Chave NFE - CNPJ")
-		lRet := .F.
-	ElseIf SUBSTR(STR(YEAR(SF1->F1_EMISSAO),4),3,2)+STRZERO(MONTH(SF1->F1_EMISSAO),2) <> SUBSTR(cChvnfe,3,4)
-		MsgStop("Mês da Chave da NFe diferente do mês de emissão informado","SF1140I - Validação da Chave NFE - Emissão")
-		lRet := .F.
+If !Empty(cEspecie)
+	If ("|"+(ALLTRIM(UPPER(cEspecie))+"|")) $ "|SPED|BPE|CTE|CTEOS|NF3E|NFA|"   // MV_CHVESPE
+		If Empty(cChvNfe)
+			MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
+			lRet := .F.
+		Else
+			cCNPJ := Posicione("SA2",1,xFilial("SA2") + SF1->F1_FORNECE + SF1->F1_LOJA,"A2_CGC")
+			If !Empty(cCNPJ)
+				If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14))
+					MsgStop("CNPJ da Chave da NFe diferente do CNPJ do fornecedor","SF1140I - Validação da Chave NFE - CNPJ")
+					lRet := .F.
+				ElseIf SUBSTR(STR(YEAR(SF1->F1_EMISSAO),4),3,2)+STRZERO(MONTH(SF1->F1_EMISSAO),2) <> SUBSTR(cChvnfe,3,4)
+					MsgStop("Mês da Chave da NFe diferente do mês de emissão informado","SF1140I - Validação da Chave NFE - Emissão")
+					lRet := .F.
+				EndIf
+			EndIf
+		EndIf
 	EndIf
 EndIf
 

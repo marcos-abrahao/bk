@@ -53,7 +53,8 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
- 
+u_LogPrw(cPerg)
+
 cPEDI  		:= mv_par01
 cPEDF 	 	:= mv_par02
 dDataI  	:= mv_par03

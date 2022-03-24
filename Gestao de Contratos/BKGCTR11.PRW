@@ -110,6 +110,7 @@ IF !lJob
 	If !Pergunte(cPerg,.T.)
 		Return Nil
 	Endif
+	u_LogPrw(cPerg)
 ENDIF
 
 

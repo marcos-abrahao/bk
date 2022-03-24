@@ -68,6 +68,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 If !BkComR11Par()
    Return
 EndIf
+u_LogPrw(cPerg)
 
 aCabs   := {}
 aCampos := {}

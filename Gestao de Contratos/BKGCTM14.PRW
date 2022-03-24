@@ -21,7 +21,8 @@ User Function BKGCTM14()
     Private cAliasTmp1  := "TRB2"
     Private cAliasTmp2  := "TRB3"
     Private cTitle      := aTitulos1[1]
- 
+    u_LogPrw("BKGCTM14")
+
     //Executa a inclusao na tela
     //FWExecView('GRID Sem Cabeçalho', "VIEWDEF.zGrid", MODEL_OPERATION_INSERT, , { || .T. }, , 30)
     FWExecView(cTitle, "VIEWDEF.BKGCTM14", MODEL_OPERATION_VIEW, , { || .T. }, , ,aButtons )

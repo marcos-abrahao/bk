@@ -244,5 +244,7 @@ EndIf
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"A103BLOQ")
 cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
 U_SendMail("A103BLOQ",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
-	
+
+u_LogPrw("A103BLOQ",cAssunto)
+
 Return( NIL )

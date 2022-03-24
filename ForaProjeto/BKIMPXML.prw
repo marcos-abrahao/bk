@@ -44,7 +44,8 @@ User Function BKIMPXML()
 	Private aPos      := {nTopAux, aTamanho[1]+5, aTamanho[4]-15, aTamanho[3]}
 	//Outras variáveis
 	Private nXML      := 0
-	
+	u_LogPrw("BKIMPXML")	
+
 	//Adiciona os parametros para a pergunta
 	aAdd(aPergs, {1, "Diretório com arquivos xml",	cDirect, "", ".T.", "", ".T.", 80, .T.})
 	aAdd(aPergs, {2, "Tipo Importação",				Val(cTipoImp), {"1=Pré Nota",              "2=Classificação em Documento de Entrada"},     122, ".T.", .F.})

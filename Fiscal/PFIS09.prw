@@ -26,9 +26,10 @@ PRIVATE nTPMOV    	:= 1
 PRIVATE cArqS		:= "\tmp\PFIS09"
 PRIVATE aFixeFX     := {}
 PRIVATE aTitulos,aCampos,aCabs,aTotais
-PRIVATE ALIAS_TMP    := "QTMP1"
+PRIVATE ALIAS_TMP   := "QTMP1"
 PRIVATE _nTXPIS 	:= GetMV("MV_TXPIS") //1.65 //
 PRIVATE _nTXCOFINS 	:= GetMV("MV_TXCOFINS") //7.6 //
+
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
@@ -42,23 +43,22 @@ nTPMOV    	:= mv_par05
 cProd 		:= mv_par06
 cForn   	:= mv_par07
 
+u_LogPrw(cPerg,"Tes: "+cCODTES)
+
 
 IF EMPTY(dDataFinal) .OR.  EMPTY(dDataInicio)
 	MSGSTOP("Informe a data início e final")                
 	Return Nil
-
 ENDIF 
 
 IF dDataFinal < dDataInicio
 	MSGSTOP("Informe a data início e final")                
 	Return Nil
-
 ENDIF
 
 IF dDataInicio > dDataFinal
 	MSGSTOP("Informe a data início e final")                
 	Return Nil
-
 ENDIF
 
 cTitulo   := cTitulo+" - Período:"+DTOC(dDataInicio)+" até "+DTOC(dDataFinal)

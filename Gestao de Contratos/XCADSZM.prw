@@ -23,6 +23,8 @@ Private bFiltraBrw	:= { || FilBrowse(cString,@aIndexSz,@cFiltra) }
 Private aCores  := {}
 Private aRotina	:= {}
 
+u_LogPrw("XCADSZM")
+
 AADD(aCores,{"SZM->ZM_STATUS<>'A'","BR_VERDE"})
 AADD(aCores,{"SZM->ZM_STATUS=='A'","BR_VERMELHO"})
 

@@ -18,7 +18,9 @@ Função para cadastro de Itens de Doc de Entrada (SD1), exemplo de Modelo 1 em MV
 User Function BKCOMA11()
     Local aArea   := GetArea()
     Local oBrowse
-     
+
+    u_LogPrw("BKCOMA11") 
+
     //Instânciando FWMBrowse - Somente com dicionário de dados
     oBrowse := FWMBrowse():New()
      

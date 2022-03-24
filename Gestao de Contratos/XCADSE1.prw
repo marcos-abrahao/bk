@@ -22,6 +22,8 @@ Private bFiltraBrw	:= { || FilBrowse(cString,@aIndexSz,@cFiltra) }
 Private aCores  := {}
 Private aRotina	:= {}
 
+u_LogPrw("XCADSE1")
+
 AADD(aCores,{"SE1->E1_SALDO == SE1->E1_VALOR","BR_VERDE"})
 AADD(aCores,{"SE1->E1_SALDO <> SE1->E1_VALOR .and. SE1->E1_SALDO>0","BR_AZUL"})
 AADD(aCores,{"SE1->E1_SALDO==0","BR_VERMELHO"})

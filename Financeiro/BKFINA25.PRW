@@ -34,6 +34,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
+u_LogPrw(cPerg)
 
 cQuery  := "SELECT E2_FORNECE,A2_NOME,E2_LOJA,SUM(E2_VALOR) AS E2_VALOR FROM "+RETSQLNAME("SE2")+" SE2"
 cQuery  += " INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON SA2.D_E_L_E_T_='' AND A2_COD=E2_FORNECE AND A2_LOJA=E2_LOJA"

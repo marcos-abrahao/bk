@@ -128,4 +128,6 @@ CNE->(RestArea(aAreaCNE))
 CNA->(RestArea(aAreaCNA))
 RestArea(aArea)
 
+u_LogPrw("CN120PED","Medição "+cNumMed)
+
 Return {ExpA1,ExpA2}                           

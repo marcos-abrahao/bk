@@ -213,7 +213,7 @@ Return lRet
 
 Static FUNCTION ProcAvi(cRel)
 
-u_xxConOut("INFO","BKGCT06","Avisos automaticos. (Dialogo)")
+u_LogPrw("BKGCT06","Avisos automaticos. (Dialogo)")
 
 IF VALTYPE(cRel) == "N"
    cRel := "1"

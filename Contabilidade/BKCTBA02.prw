@@ -9,6 +9,8 @@ Private cCadastro := "Contabilização Liquidos da Folha - "+FWEmpName(cEmpAnt)
 
 Private aRotina
 
+u_LogPrw("BKCTBA02")
+
 dbSelectArea("SZ2")
 dbSetOrder(1)
 DbGoTop()
@@ -44,6 +46,8 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 EndIf
+
+u_LogPrw(cPerg)
 
 cMesComp := STRZERO(VAL(mv_par01),2)
 cAnoComp := STRZERO(VAL(mv_par02),4)
@@ -113,7 +117,7 @@ Local cQuery
 Local nStatus := 0
 Local nI := 0,dUDia
 Local cCHAVEZ2 := ""
-
+Local cErrLog  := ""
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -232,30 +236,21 @@ Do While !eof()
 		QSZ2->(DbSkip())
 	Enddo
 		
-	IncProc("Incluindo lançamentos...")
+	IncProc("Incluindo lançamentos contábeis...")
+	cErrLog := ""
+
 	Begin Transaction
-	    cErro       := ""
 		lMsErroAuto := .F.
 	    MSExecAuto( {|X,Y,Z| CTBA102(X,Y,Z)} ,aCab ,aItens, 3)
 		
 		IF lMsErroAuto
- //	    	MostraErro()
- //			DisarmTransaction()
-			// Função que retorna o evento de erro na forma de um array
-			aAutoErro := GETAUTOGRLOG()
-			// Função especifica que converte o array aAutoErro em texto
-			// contínuo, com a quantidade de caracteres desejada por linha
-			// Função específica que efetua a gravação do evento de erro no
-			// arquivo previamente crado.
-			cErro := (XCONVERRLOG(aAutoErro))
+ 			cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA02.ERR")
+			u_xxLog("\TMP\BKCTBA02.LOG",cErrLog)
 			DisarmTransaction()
-
 		ENDIF
-		
 	End Transaction
-	IF !EMPTY(cErro)
-	   MsgStop(cErro+IIF(LEN(aCHAVEZ2)>1,"      LIQ. FOLHA "+TRIM(aCHAVEZ2[1])+CHR(13)+CHR(10)+"      LIQ. FOLHA "+TRIM(aCHAVEZ2[LEN(aCHAVEZ2)]),''))
-	   //aItens
+	IF !EMPTY(cErrLog)
+	   MsgStop(cErrLog+CRLF+IIF(LEN(aCHAVEZ2)>1,"      LIQ. FOLHA "+TRIM(aCHAVEZ2[1])+CHR(13)+CHR(10)+"      LIQ. FOLHA "+TRIM(aCHAVEZ2[LEN(aCHAVEZ2)]),''))
 	   Exit
 	ENDIF   
     IF !lMsErroAuto
@@ -285,29 +280,10 @@ Do While !eof()
 	DbSelectArea("QSZ2")
 EndDo
 
-
 QSZ2->(DbCloseArea())
 
 Return  
 
-
-
-/*/
-+-----------------------------------------------------------------------
-| Função | XCONVERRLOG | Autor | Arnaldo R. Junior | Data | |
-+-----------------------------------------------------------------------
-| Descrição | CONVERTE O ARRAY AAUTOERRO EM TEXTO CONTINUO. |
-+-----------------------------------------------------------------------
-| Uso | Curso ADVPL |
-+-----------------------------------------------------------------------
-/*/
-STATIC FUNCTION XCONVERRLOG(aAutoErro)
-LOCAL cRet := ""
-LOCAL nX := 1
-FOR nX := 1 to Len(aAutoErro)
-	cRet += aAutoErro[nX]+CHR(13)+CHR(10)
-NEXT nX
-RETURN cRet
 
 
 Static Function  ValidPerg(cPerg)

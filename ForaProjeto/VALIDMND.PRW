@@ -19,7 +19,7 @@
 User Function VALIDMND()
 Local nSnd:= 15,nTLin := 15
 Local cTipoArq := "Todos os Arquivos (*.TXT) | *.TXT | "
-Local CPROG	   := "VALIDMND"
+Local cProg	   := "VALIDMND"
 Local ctitulo  := "Analisa MND"
 Local oDlg01,nOpcA := 0
 Local lOk:= .F.
@@ -47,6 +47,7 @@ Private a9900 := {}
 Private a9990 := {}
 Private a9999 := {}
 
+u_LogPrw(cProg)
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 

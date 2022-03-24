@@ -24,12 +24,15 @@ Local cContaDe      := "11102001"
 Local cContaPara    := "11102002"
 
 Local cArqLog		:= "\TMP\BKCTBA06-"+cEmpAnt+".LOG"
+Local cErrLog       := ""
 
-Private lMsErroAuto     := .F.
-Private lMsHelpAuto     := .T.
-Private CTF_LOCK        := 0
-Private lSubLote        := .T.
- 
+Private lMsErroAuto := .F.
+Private lMsHelpAuto := .T.
+Private CTF_LOCK    := 0
+Private lSubLote    := .T.
+
+u_LogPrw("BKCTBA06")
+
 dbselectArea("CT2")
 //dbGoTo(13069)
 dbGoTop()
@@ -80,12 +83,16 @@ Do While !CT2->(Eof())
                         {'CT2_HIST'      ,CT2->CT2_HIST   ,NIL},;
                         {'LINPOS'        ,'CT2_LINHA'     ,cLinha}})  
 
+        cErrLog := ""
+        
         Begin Transaction
             lMsErroAuto := .F.
             MSExecAuto({|x, y,z| CTBA102(x,y,z)}, aCab ,aItens, 4)
 
             IF lMsErroAuto
-                MostraErro()
+                cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA06.ERR")
+                u_xxLog("\TMP\BKCTBA06.LOG",cErrLog)
+                MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
                 DisarmTransaction()
             Else
                 u_xxLog(cArqLog,"Recno: "+STRZERO(nRec,9),.T.,"")            

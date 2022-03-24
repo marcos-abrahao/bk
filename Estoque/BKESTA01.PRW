@@ -2,7 +2,7 @@
 #include "protheus.ch"
 #include "TopConn.ch"
  
-/*/{Protheus.doc} BKCOMR12
+/*/{Protheus.doc} BKESTA01
 BK - Rotina para gerar solicitação ao Armazem de uma solicitação de Compras
 
 @Return
@@ -20,6 +20,7 @@ PRIVATE cCC      := aSaldos[1,09]
 PRIVATE cDCC 	 := aSaldos[1,10]
 PRIVATE cSolict  := aSaldos[1,11]
 
+u_LogPrw("BKESTA01")
 
 MsgRun("Aguarde, gerando Solicitação ao Estoque - Almoxarifado…","",{|| CursorWait(), lRet := fProcessa1(aSaldos) ,CursorArrow()})
 
@@ -36,6 +37,7 @@ Local aUsuarios := ALLUSERS()
 Local aCabec := {}
 Local aItens := {}
 Local lItem  := .F.
+Local cErrLog:= ""
 
 Private lMsErroAuto := .F.
 
@@ -89,7 +91,10 @@ BEGIN TRANSACTION
 	IF lItem
 		MSExecAuto({|x,y,z| MATA105(x,y,z)},aCabec,aItens,3)     
 		If lMsErroAuto
-			MostraErro()
+			cErrLog:= CRLF+MostraErro("\TMP\","BKESTA01.ERR")
+			u_xxLog("\TMP\BKESTA01.LOG",cErrLog)
+			MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+
 			DisarmTransaction()
 		ELSE
 			FOR nY := 1 TO LEN(aItens)

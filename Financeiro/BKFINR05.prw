@@ -46,6 +46,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
+u_LogPrw(cPerg)
 
 IF mv_par01 == mv_par02
 	titulo   := "Liquidos "+cDesc3+" - Vencimento: "+dtoc(mv_par01)

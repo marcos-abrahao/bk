@@ -25,6 +25,8 @@ Private cCombo  := Space(15)
 Private aCombo  := {}
 Private oTmpTb AS oBject
 
+u_LogPrw("BKESTC02")
+
 _cAlias := Alias()
 _nOrder := IndexOrd()
 _nRecno := Recno()

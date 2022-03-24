@@ -22,6 +22,7 @@ Local nSnd:= 15,nTLin := 15
 
 PRIVATE cArq  := ""
 
+u_LogPrw("BKCOMA12")
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -101,13 +102,14 @@ User Function IBKCOMA12(aProd)
 
 Local lRet := .T.
 Local _aProd := {}
-LOCAL cCODPROD := ""
+Local cCodProd := ""
+Local cErrLog := ""
 
 Private lMsErroAuto := .F.
 
-    cCODPROD := PXNUMSB1("INS")
+    cCodProd := PXNUMSB1("INS")
 
-    _aProd  := {{"B1_COD"     ,cCODPROD         ,Nil},;
+    _aProd  := {{"B1_COD"     ,cCodProd         ,Nil},;
                 {"B1_DESC"    ,Acento(aProd[1]) ,Nil},;                      
                 {"B1_TIPO"    ,aProd[2]         ,Nil},;      
                 {"B1_UM"      ,UPPER(aProd[3])  ,Nil},;
@@ -123,7 +125,9 @@ Private lMsErroAuto := .F.
     MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão 
 
     If lMsErroAuto
-        MostraErro() 
+		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA12.ERR")
+		u_xxLog("\TMP\BKCOMA12.LOG",cErrLog)
+		MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
         lRet := .F.
     EndIf
   

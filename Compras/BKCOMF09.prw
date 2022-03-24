@@ -31,11 +31,11 @@ If l010Auto
 	Return cCod 
 ENDIF
 
-
 If !MsgYesNo("Gerar Proximo numero?",cPerg)
 	cCod := ""
 	Return cCod 
 EndIf
+
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -81,6 +81,8 @@ While SM0->(!EoF())
 ENDDO
 nCod++
 cCod := cSubPdt+STRZERO(nCod,IIF(nCod>999,4,3))
+
+u_LogPrw("BKCOMF09",cCod)
 
 Return cCod
 

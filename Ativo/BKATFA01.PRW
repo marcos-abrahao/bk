@@ -21,6 +21,7 @@ Local nSnd:= 15,nTLin := 15
 
 PRIVATE cArq  := ""
 
+u_LogPrw(cProg)
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -50,7 +51,7 @@ Local cBuffer    := ""
 Local lOk 		 := .T.
 Local aCab       := {}
 Local aItens     := {}
-Local cConta     := ""
+//Local cConta     := ""
 
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
@@ -130,7 +131,7 @@ RETURN lOk
 
 User Function Myatfa010Inc(aCab,aItens)
 Local aParam	:= {}
-
+Local cErrLog   := ""
 Private lMsHelpAuto := .f. // Determina se as mensagens de help devem ser direcionadas para o arq. de log
 Private lMsErroAuto := .f. // Determina se houve alguma inconsistencia na execucao da rotina
 
@@ -142,7 +143,9 @@ Begin Transaction
 
     MSExecAuto({|x,y,z| Atfa012(x,y,z)},aCab,aItens,3,aParam)
     If lMsErroAuto 
-        MostraErro()
+		cErrLog:= CRLF+MostraErro("\TMP\","BKATFA01.ERR")
+		u_xxLog("\TMP\BKATFA01.LOG",cErrLog)
+   		MsgStop("Problemas na execução do MSExecAuto, informe o setor de T.I.:"+cErrLog, "Atenção")
         DisarmTransaction()
     Endif
  End Transaction

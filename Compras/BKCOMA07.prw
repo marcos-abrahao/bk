@@ -30,6 +30,8 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
+
+u_LogPrw("BKCOMA07")
  
 cCNPJ := ALLTRIM(mv_par01) 
 
@@ -112,11 +114,12 @@ Return nil
 
 
 STATIC FUNCTION CopySA2(cA2ARQ,cA2COD,cA2LOJA)
-Local cQry1 := ""
-Local aSA2  := {}
-Local aSx3  := {}
-Local nI    := 0
-Local cCpo  := ""
+Local cQry1		:= ""
+Local aSA2		:= {}
+Local aSx3		:= {}
+Local nI		:= 0
+Local cCpo		:= ""
+Local cErrLog	:= ""
 
 Private lMsHelpAuto := .f.
 Private lMsErroAuto := .f.
@@ -218,8 +221,10 @@ Begin Transaction
 	MSExecAuto({|x,y| MATA020(x,y)},aSA2,3)
 
 	IF lMsErroAuto
+		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA07.ERR")
+		u_xxLog("\TMP\BKCOMA07.LOG",cErrLog)
+		MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 	   	DisarmTransaction()
-		MostraErro()
 	Else
 		MSGINFO("Fornecedor copiado com sucesso!! código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME)
 	Endif

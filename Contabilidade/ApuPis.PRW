@@ -27,4 +27,6 @@ If Upper(Funname()) == Upper("CTBANFS")
 	EndIf
 EndIf
 
+u_LogPrw("APUPIS",Funname())
+
 Return(nValor2)

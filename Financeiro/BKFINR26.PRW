@@ -74,6 +74,7 @@ aAdd( aParam ,{ 2, "Somente com saldo", cSaldo	  ,{"Sim", "Não"}	, 60,'.T.'  ,.T
 If !BkFR26()
    Return
 EndIf
+u_LogPrw(cPerg)
 
 /*
 Codigo Cliente

@@ -14,22 +14,14 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 User Function X02WFPAR()
-
-////////////
-//DECLARA VARIAVEL
-////////////  
 Local oTELA01
 Private cDPTOLB
 
-////////////
-//CARREGA VARIAVEIS CONFORME PARAMETROS
-////////////  
+u_LogPrw("X02WFPAR") 
+
 cDPTOLB := AllTrim(GetMV("MV_TESPAG"))
 cDPTOLC := AllTrim(GetMV("MV_TESREC"))
 
-////////////
-//MONTA TELA
-////////////  
 Define MsDialog oTELA01 Title "Parametros de Contabilidade - TES" From 000,000 To 155,410 Of oTELA01 Pixel
 @010,004 Say "TES A PAGAR:" Size 050,025 Pixel Of oTELA01
 @020,004 MsGet cDPTOLB Picture "@!" Size 040,007 Pixel Of oTELA01

@@ -1,18 +1,15 @@
 #include "protheus.ch"
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT010BRW ºAutor  ³Marcos B. Abrahao   º Data ³  23/03/17   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de Entrada para criar opções na tela de Funcões      º±±
-±±º          ³ no cadstro de produtos                                     º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+
+/*/{Protheus.doc} MT010BRW
+BK - Copiar produtos p/ outras empresas
+Ponto de Entrada para criar opções na tela de Funcões no cadastro de produtos            
+
+@Return
+@author Marcos Bispo Abrahão
+@since 23/03/17
+@version P12-25
+/*/ 
+
 User Function MT010BRW() 
 Local aRotY
 
@@ -36,14 +33,21 @@ Local aEmpr       := {}
 Local nI
 If msgYesNo('Deseja incluir este produto em outras empresas?')
 	
-    aProd := {{"B1_TIPO"    ,SB1->B1_TIPO        ,Nil},;      
+    aProd := {{"B1_TIPO"    ,SB1->B1_TIPO        ,Nil},;
 	          {"B1_COD"     ,SB1->B1_COD         ,Nil},;
-	          {"B1_DESC"    ,SB1->B1_DESC        ,Nil},;                      
+	          {"B1_DESC"    ,SB1->B1_DESC        ,Nil},;
 	          {"B1_UM"      ,SB1->B1_UM          ,Nil},;
-	          {"B1_LOCPAD"  ,SB1->B1_LOCPAD      ,Nil},;                      
-	          {"B1_GRUPO"   ,SB1->B1_GRUPO       ,Nil},;                      
-	          {"B1_XXSGRP"  ,SB1->B1_XXSGRP      ,Nil},;                      
-	          {"B1_CONTA"   ,SB1->B1_CONTA       ,Nil}}                      
+	          {"B1_ALIQISS" ,SB1->B1_ALIQISS     ,Nil},;
+	          {"B1_LOCPAD"  ,SB1->B1_LOCPAD      ,Nil},;
+	          {"B1_GRUPO"   ,SB1->B1_GRUPO       ,Nil},;
+	          {"B1_CONTA"   ,SB1->B1_CONTA       ,Nil},;
+	          {"B1_IRRF"    ,SB1->B1_IRRF        ,Nil},;
+	          {"B1_INSS"    ,SB1->B1_INSS        ,Nil},;
+	          {"B1_PIS"     ,SB1->B1_PIS         ,Nil},;
+	          {"B1_COFINS"  ,SB1->B1_COFINS      ,Nil},;
+	          {"B1_CSLL"    ,SB1->B1_CSLL        ,Nil},;
+	          {"B1_XXSGRP"  ,SB1->B1_XXSGRP      ,Nil},;
+	          {"B1_XXGRPF"  ,SB1->B1_XXGRPF      ,Nil}}
                                    
 
 	aParametros := {"11","01",aProd,cUsuario,cSuper}
@@ -82,6 +86,7 @@ If msgYesNo('Deseja incluir este produto em outras empresas?')
 	dbSelectArea(sAlias)
 	dbGoTo(nRecNo)
 	
+	u_LogPrw("BKMAT010",SB1->B1_COD)
 EndIf
 
 Return
@@ -98,7 +103,7 @@ Local _aProd     := _aParametros[3]
 //Local _cUsuario  := _aParametros[4]
 //Local _cSuper 	 := _aParametros[5]
 
-Local cErro      := ""
+Local cErrLog    := ""
 Local cRetorno   := _aProd[2,2]
 //Local aUser		 := {}
 
@@ -115,12 +120,11 @@ MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão
 u_xxConOut("INFO","BKMATJ10","Empresa: "+_cEmpresa+" - Produto: "+cRetorno)
 
 If lMsErroAuto
-    MostraErro() 
- 	// Função que retorna o evento de erro na forma de um array
-	aAutoErro := GETAUTOGRLOG()
-	cErro := (XCONVERRLOG(aAutoErro))
-	u_xxConOut("ERROR","BKMATJ10","Erro em MSExecAuto: "+cErro)
-	cRetorno := cErro
+
+	cErrLog:= CRLF+MostraErro("\TMP\","BKMATJ10.ERR")
+	u_xxLog("\TMP\BKMATJ10.LOG",cErrLog)
+
+	cRetorno := cErrLog
 	lRet := .F.
 Else
 	cRetorno := "OK"
@@ -131,21 +135,3 @@ RpcClearEnv()
   
 Return cRetorno
 
-
-
-/*/
-+-----------------------------------------------------------------------
-| Função | XCONVERRLOG | Autor | Arnaldo R. Junior | Data | |
-+-----------------------------------------------------------------------
-| Descrição | CONVERTE O ARRAY AAUTOERRO EM TEXTO CONTINUO. |
-+-----------------------------------------------------------------------
-| Uso | Curso ADVPL |
-+-----------------------------------------------------------------------
-/*/
-STATIC FUNCTION XCONVERRLOG(aAutoErro)
-LOCAL cRet := ""
-LOCAL nX := 1
-FOR nX := 1 to Len(aAutoErro)
-	cRet += aAutoErro[nX]+CHR(13)+CHR(10)
-NEXT nX
-RETURN cRet

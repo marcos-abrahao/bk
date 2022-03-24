@@ -2,24 +2,13 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "RWMAKE.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFATA02  ºAutor  ³Adilson do Prado     º Data ³  30/11/17 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Gera titulo de abatimento utilizado para calculo impostos  º±±
-±±º            FE-FUMDIP OSASCO  		                                  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºData      ³ Analista/Alterações                                        º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±º          ³                                                            º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+/*/{Protheus.doc} BKFATA02
+BK - Gera titulo de abatimento utilizado para calculo impostos FE-FUMDIP OSASCO 
+@Return
+@author Adilson Prado
+@since 30/11/17 
+@version P12
+/*/
 
 USER FUNCTION BKFATA02(nOPCAO)
 Local aArea := getarea()
@@ -37,8 +26,10 @@ Local cLoja		:= ""
 Local cChaveSE1 := ""
 Local cFILORIG	:= ""
 Local aReceber  := {}
-Default nOPCAO := 3
+Local cErrLog   := ""
+Default nOPCAO  := 3
 
+u_LogPrw("BKFATA02",STR(nOPCAO))
 
 IF SF2->F2_XXVFUMD  > 0
 	cChaveSE1 := SF2->(F2_SERIE)+SF2->(F2_DOC)+" "+cTIPO+SF2->(F2_CLIENTE)+SF2->(F2_LOJA)
@@ -84,13 +75,17 @@ IF SF2->F2_XXVFUMD  > 0
 						{"E1_SITUACA",cSITUACA,Nil},;
 						{"E1_MOEDA",cMOEDA,Nil},;
 						{"E1_FILORIG",cFILORIG,Nil}}
-		
+
+		cErrLog := ""
+
 		Begin Transaction
 			lMsErroAuto := .F.
 			MSExecAuto({|x,y| Fina040(x,y)},aReceber,3) //Inclusao
 
 			IF lMsErroAuto
-	    		MostraErro()
+				cErrLog:= CRLF+MostraErro("\TMP\","BKFATA02.ERR")
+				u_xxLog("\TMP\BKFATA02.LOG",cErrLog)
+				MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 				DisarmTransaction()
 			EndIf
 
@@ -121,12 +116,16 @@ IF SF2->F2_XXVFUMD  > 0
 						{"E1_MOEDA",cMOEDA,Nil},;
 						{"E1_FILORIG",cFILORIG,Nil}}
 		
+		cErrLog := ""
+
 		Begin Transaction
 			lMsErroAuto := .F.
 			MSExecAuto({|x,y| Fina040(x,y)},aReceber,5) //Exclusao
 
 			IF lMsErroAuto
-	    		MostraErro()
+				cErrLog:= CRLF+MostraErro("\TMP\","BKFATA02.ERR")
+				u_xxLog("\TMP\BKFATA02.LOG",cErrLog)
+				MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 				DisarmTransaction()
 			EndIf
 

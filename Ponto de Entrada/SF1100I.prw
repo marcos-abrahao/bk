@@ -5,6 +5,7 @@
 
 User Function SF1100I()
 Local aUser,cSuper
+Local aAreaE2 	 := SE2->(GetArea())
 
 Private cxTipoPg := SF1->F1_XTIPOPG
 Private cxNumPa  := SF1->F1_XNUMPA
@@ -71,8 +72,33 @@ If l103Class .OR. Inclui
 		SF1->F1_XXUCLAS := __cUserId
 		SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 		MsUnLock("SF1")
+
+		// Se for Beneficiamento ou Devolucao, será Título a Receber, senão será Título a Pagar
+		If !(SF1->F1_TIPO $ "B;D;") .AND. !Empty(SF1->F1_XBANCO)
+			DbSelectArea("SE2")
+			SE2->(DbSetOrder(6))  //E2_FILIAL + E2_FORNECE + E2_LOJA + E2_PREFIXO + E2_NUM
+			
+			//Se conseguir posicionar, altera o banco
+			SE2->(DbSeek(xFilial("SE2")+SF1->F1_FORNECE+SF1->F1_LOJA+SF1->F1_SERIE+SF1->F1_DOC))
+			Do While SF1->F1_FORNECE+SF1->F1_LOJA+SF1->F1_SERIE+SF1->F1_DOC == ;
+					 SE2->E2_FORNECE+SE2->E2_LOJA+SE2->E2_PREFIXO+SE2->E2_NUM .AND. !SE2->(EOF())
+				RecLock("SE2",.F.)
+				If Empty(SE2->E2_PORTADO)
+					SE2->E2_PORTADO  := SF1->F1_XBANCO
+					SE2->(MsUnLock())
+				EndIf
+				SE2->(dbSkip())
+			EndDo
+		EndIf
+     
+		RestArea(aAreaE2)
+
+		u_LogPrw("SF1100I",iIf(l103Class,"Doc classificado: ","Doc incluido    : ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
+
 	EndIf
 EndIf
+
+Return
 
 Return .T.
 

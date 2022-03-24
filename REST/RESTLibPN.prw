@@ -174,6 +174,8 @@ EndCase
 
 cMsg := cDoc+" "+cMsg
 
+u_LogPrw("RESTLIBPN",cMsg)
+
 (cQrySF1)->(dbCloseArea())
 
 Return lRet

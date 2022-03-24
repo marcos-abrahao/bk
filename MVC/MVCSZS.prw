@@ -17,9 +17,8 @@ Modelo 1 - Facilitador Doc Entrada
 User Function MVCSZS()
 	Local aArea   := GetArea()
 	Local oBrowse
-	//Local cFunBkp := FunName()
-	
-	//SetFunName("MVCSZS")
+
+	u_LogPrw("MVCSZS")
 	
 	//Instânciando FWMBrowse - Somente com dicionário de dados
 	oBrowse := FWMBrowse():New()

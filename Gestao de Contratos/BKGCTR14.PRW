@@ -180,6 +180,8 @@ If !lJob
 	If !Pergunte(cPerg,.T.)
 		Return Nil
 	Endif
+	u_LogPrw(cPerg)
+
 	nAgendar := MV_PAR09
 	If nAgendar == 1 
 		If  MV_PAR10 < (dDatabase + 1)

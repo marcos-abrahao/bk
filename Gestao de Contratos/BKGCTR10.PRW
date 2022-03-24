@@ -48,6 +48,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
+u_LogPrw(cPerg)
 
 cContrat := mv_par01
 cRevisa  := ""

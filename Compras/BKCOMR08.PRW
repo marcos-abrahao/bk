@@ -45,7 +45,8 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
- 
+u_LogPrw(cPerg)
+
 cProdI 	:= mv_par01
 titulo  := "Tomada de Preços Compras - Produto: "+TRIM(cProdI)
 cTitulo := titulo

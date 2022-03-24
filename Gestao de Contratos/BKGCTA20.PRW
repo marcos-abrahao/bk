@@ -3,7 +3,7 @@
 #include "TopConn.ch"
 #INCLUDE "rwmake.ch"
 
-/*/{Protheus.doc} BKGCTA17
+/*/{Protheus.doc} BKGCTA20
 BK - Valida Vencimento do Contrato Chamada do Centro de Custo Contratos
 
 @Return
@@ -17,7 +17,7 @@ Local lRet := .T.
 Local cVig := ""
 Local aArea      := GetArea()
 
-u_xxConOut("INFO","BKGCTA20","Valida Vencimento do Contrato Chamada do Centro de Custo "+cContrato)
+//u_LogPrw("BKGCTA20","Valida Vencimento do Contrato Chamada do Centro de Custo "+cContrato)
 
 IF  ALLTRIM(funname()) == 'RPC'   // GERA APORT BK
 	RestArea(aArea)

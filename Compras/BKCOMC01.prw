@@ -16,18 +16,24 @@ BK - Pesquisa itens de Documentos de entrada
 
 User Function BKCOMC01()
 
-Local oDlg
-Local oPanelLeft
-Local aButtons := {}
-Local lOk      := .F.
-Local aAreaIni := GetArea()
-Local cQuery
-Local cPerg := "MT103PBK"
-Local cProd,cHist,cCtC,nValIt,cForn
-Local cFiltU := ""
-Local cMDiretoria :="", cMFinanceiro:= ""
-Local cGerGestao  := u_GerGestao()
-Local cGerCompras := u_GerCompras()
+Local oDlg			as Object
+Local oPanel		as Object
+Local aButtons		:= {}
+Local lOk			:= .F.
+Local aAreaIni		:= GetArea()
+Local cQuery		:= ""
+Local cPerg 		:= "MT103PBK"
+Local cProd			:= ""
+Local cHist			:= ""
+Local cCtC			:= ""
+Local nValIt		:= 0
+Local cForn			:= ""
+Local cNForn		:= ""
+Local cFiltU 		:= ""
+Local cMDiretoria	:= ""
+Local cMFinanceiro	:= ""
+Local cGerGestao 	:= u_GerGestao()
+Local cGerCompras	:= u_GerCompras()
 Local oTmpTb
 Local i,j
 
@@ -37,6 +43,8 @@ Private aInfo   := { aSize[ 1 ], aSize[ 2 ], aSize[ 3 ], aSize[ 4 ], 5, 5 }
 Private aPosObj := MsObjSize( aInfo, aObjects, .T. )
 private aRotina := {{"","",0,1},{"","",0,2},{"","",0,2},{"","",0,2},{"","",0,2}}
 Private aHeader	    := {}
+
+u_LogPrw("BKCOMC01")
 
 IF __cUserId <> "000000"  // Administrador
 
@@ -67,8 +75,6 @@ IF __cUserId <> "000000"  // Administrador
 			lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
 		NEXT
 	ENDIF
-
-
     
 	//cSuper := aUser[1,11]
 	// Se o usuario pertence ao grupo Administradores ou Master Financeiro ou Master Diretoria: não filtrar
@@ -92,7 +98,6 @@ IF __cUserId <> "000000"  // Administrador
     ENDIF   
 ENDIF
 
-
 ValidPerg(cPerg)
 	
 IF !Pergunte(cPerg,.T.)
@@ -105,35 +110,39 @@ cHist  := mv_par02
 cCtc   := mv_par03
 nValIt := mv_par04
 cForn  := mv_par05
+cNForn := mv_par06
 
-cQuery  := "SELECT "
-cQuery  += "D1_FILIAL,D1_DOC,D1_SERIE,D1_ITEM,D1_FORNECE,D1_LOJA,D1_COD,D1_TOTAL,D1_EMISSAO,D1_DTDIGIT,D1_CC,Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(300)) As D1_XXHIST, " 
-cQuery  += "F1_XXUSER,F1_XXUSERS "
-//cQuery  := "SELECT D1_FILIAL,D1_DOC,D1_SERIE,D1_ITEM,D1_FORNECE,D1_LOJA,D1_COD,D1_TOTAL,D1_EMISSAO,D1_DTDIGIT,D1_CC,D1_XXHIST " 
-cQuery  += "FROM "+RETSQLNAME("SD1")+" SD1 "
-cQuery  += "INNER JOIN "+RETSQLNAME("SF1")+" SF1 ON "
-cQuery  += "F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND F1_TIPO = D1_TIPO "
-cQuery  += "AND SF1.D_E_L_E_T_ <> '*' " 
-cQuery  += cFiltU
-cQuery  += "WHERE SD1.D_E_L_E_T_ <> '*' "
+cQuery  := "SELECT "+CRLF
+cQuery  += " D1_FILIAL,D1_DOC,D1_SERIE,D1_ITEM,D1_FORNECE,D1_LOJA,D1_COD,D1_TOTAL,D1_EMISSAO,D1_DTDIGIT,D1_CC,Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(300)) As D1_XXHIST, " +CRLF
+cQuery  += " F1_XXUSER,F1_XXUSERS, A2_NOME "+CRLF
+cQuery  += " FROM "+RETSQLNAME("SD1")+" SD1 "+CRLF
+cQuery  += " INNER JOIN "+RETSQLNAME("SF1")+" SF1 ON "+CRLF
+cQuery  += "    F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND F1_TIPO = D1_TIPO "+CRLF
+cQuery  += "    AND SF1.D_E_L_E_T_ <> '*' " +CRLF
+cQuery  += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
+cQuery  += cFiltU+CRLF
+cQuery  += "WHERE SD1.D_E_L_E_T_ <> '*' "+CRLF
 IF !EMPTY(cProd)
-	cQuery  += "AND D1_COD LIKE '%"+ALLTRIM(cProd)+"%' "
+	cQuery  += "AND D1_COD LIKE '%"+ALLTRIM(cProd)+"%' "+CRLF
 ENDIF
 IF !EMPTY(cHist)
-	cQuery  += "AND UPPER(Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(max))) LIKE '%"+UPPER(ALLTRIM(cHist))+"%' "
+	cQuery  += "AND UPPER(Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(max))) LIKE '%"+UPPER(ALLTRIM(cHist))+"%' "+CRLF
 ENDIF
 IF !EMPTY(cCtC)
-	cQuery  += "AND D1_CC LIKE '%"+ALLTRIM(cCtc)+"%' "
+	cQuery  += "AND D1_CC LIKE '%"+ALLTRIM(cCtc)+"%' "+CRLF
 ENDIF
 IF nValIt > 0
 	nValIt := INT(nValIt)
-	cQuery  += "AND ( D1_TOTAL >= "+ALLTRIM(STR(nValIt - 1))+" AND  D1_TOTAL <= "+ALLTRIM(STR(nValIt + 1))+" ) "
+	cQuery  += "AND ( D1_TOTAL >= "+ALLTRIM(STR(nValIt - 1))+" AND  D1_TOTAL <= "+ALLTRIM(STR(nValIt + 1))+" ) "+CRLF
 ENDIF
 IF !EMPTY(cForn)
-	cQuery  += "AND D1_FORNECE LIKE '%"+ALLTRIM(cForn)+"%' "
+	cQuery  += "AND D1_FORNECE LIKE '%"+ALLTRIM(cForn)+"%' "+CRLF
+ENDIF
+IF !EMPTY(cNForn)
+	cQuery  += "AND A2_NOME LIKE '%"+ALLTRIM(cNForn)+"%' "+CRLF
 ENDIF
 
-cQuery  += "ORDER BY D1_FILIAL,D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_COD,D1_ITEM "
+cQuery  += "ORDER BY D1_FILIAL,D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_COD,D1_ITEM "+CRLF
 
 u_LogMemo("BKCOMC01.SQL",cQuery)
 
@@ -215,11 +224,19 @@ aadd(aHeader, DefAHeader("QSD11","F1_XXUSERS"))
 
 DEFINE MSDIALOG oDlg TITLE "Pesquisa itens de Documentos de entrada" From aSize[7],0 to aSize[6],aSize[5] of oMainWnd PIXEL
 
-@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE aSize[6],aSize[5]
-oPanelLeft:Align := CONTROL_ALIGN_LEFT
+oPanel := TPanel():New(20,0,'',oDlg,, .T., .T.,, ,aSize[6],aSize[5],.T.,.T. ) 
+oPanel:Align:=CONTROL_ALIGN_TOP
+
+@ 010,012 BUTTON "Excel" SIZE 060, 015 PIXEL OF oPanel ACTION (ComC01Xls(cPerg))
+@ 010,090 BUTTON "Ok"    SIZE 060, 015 PIXEL OF oPanel ACTION (lOk:=.T.,oDlg:End())
+@ 010,168 BUTTON "Sair"  SIZE 060, 015 PIXEL OF oPanel ACTION (lOk:=.F.,oDlg:End())
+
+//@ 025,000 MSPANEL oPanelLeft OF oDlg SIZE aSize[6],aSize[5]
+//oPanelLeft:Align := CONTROL_ALIGN_LEFT
 
 _oGetDbSint := MsGetDb():New(aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","QSD11")
 _oGetDbSint:oBrowse:BlDblClick := {|| lOk:=.T., oDlg:End()}        
+
 
 //@ 000, 000 LISTBOX oListID FIELDS HEADER "Filial","Doc","Serie","Item","Produto","Total R$","Histórico" SIZE aSize[6],aSize[5] OF oPanelLeft PIXEL 
 //oListID:SetArray(aSd1)
@@ -227,7 +244,7 @@ _oGetDbSint:oBrowse:BlDblClick := {|| lOk:=.T., oDlg:End()}
 //oListID:bLDblClick := {|| lOk:=.T.,nPos := oListId:nAt, oListID:DrawSelect(), oDlg:End()}
 
 //ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T.,nPos := oListId:nAt, oDlg:End()},{|| nPos:=0,oDlg:End()}, , aButtons)
-ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T.,oDlg:End()}, {||oDlg:End()},, aButtons)
+ACTIVATE MSDIALOG oDlg CENTERED ON INIT ( EnchoiceBar(oDlg,{|| lOk:=.T.,oDlg:End()}, {||oDlg:End()},, aButtons), oPanel:Align:=CONTROL_ALIGN_TOP )
 
 If ( lOk ) //.AND. nPos > 0
 	dbSelectArea("SF1")
@@ -245,6 +262,7 @@ oTmpTb:Delete()
 
 Return
 
+
 Static Function DefAHeader(_cAlias,_cCampo)
 
 Return {Alltrim(RetTitle(_cCampo)),;
@@ -259,6 +277,74 @@ Return {Alltrim(RetTitle(_cCampo)),;
         _cAlias,;
         "R"}
 
+
+
+/*/{Protheus.doc} ComC01Xls
+	Exportar consulta para o Excel
+	@type  Static Function
+	@author Marcos Bispo Abrahão
+	@since 22/03/2022
+	@version 12.1.33
+/*/
+Static Function ComC01Xls(cPerg)
+Local aCabs   := {}
+Local aCampos := {}
+Local aTitulos:= {}
+Local aPlans  := {}
+Local aFormula:= {}
+Local cTitulo := "Pesquisa itens de Documentos de entrada"
+
+AADD(aTitulos,cTitulo)
+
+aAdd(aCampos,"QSD11->D1_DOC")
+aAdd(aCabs  ,GetSX3Cache("D1_DOC", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_SERIE")
+aAdd(aCabs  ,GetSX3Cache("D1_SERIE", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_ITEM")
+aAdd(aCabs  ,GetSX3Cache("D1_ITEM", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_FORNECE")
+aAdd(aCabs  ,GetSX3Cache("D1_FORNECE", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_LOJA")
+aAdd(aCabs  ,GetSX3Cache("D1_LOJA", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->A2_NOME")
+aAdd(aCabs  ,GetSX3Cache("A2_NOME", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_COD")
+aAdd(aCabs  ,GetSX3Cache("D1_COD", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_TOTAL")
+aAdd(aCabs  ,GetSX3Cache("D1_TOTAL", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_EMISSAO")
+aAdd(aCabs  ,GetSX3Cache("D1_EMISSAO", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_DTDIGIT")
+aAdd(aCabs  ,GetSX3Cache("D1_DTDIGIT", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_CC")
+aAdd(aCabs  ,GetSX3Cache("D1_CC", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->D1_XXHIST")
+aAdd(aCabs  ,GetSX3Cache("D1_XXHIST", "X3_TITULO"))
+
+aAdd(aCampos,"UsrRetName(QSD11->F1_XXUSER)")
+aAdd(aCabs  ,GetSX3Cache("F1_XXUSER", "X3_TITULO"))
+
+aAdd(aCampos,"UsrRetName(QSD11->F1_XXUSERS)")
+aAdd(aCabs  ,GetSX3Cache("F1_XXUSERS", "X3_TITULO"))
+
+AADD(aPlans,{"QSD11",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, aFormula,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
+ 
+	
+Return .T.
+
+
 Static Function  ValidPerg(cPerg)
 Local i,j
 Local aArea      := GetArea()
@@ -272,7 +358,7 @@ AADD(aRegistros,{cPerg,"02","Pesquisar histórico"      ,"Historico"      ,"Histo
 AADD(aRegistros,{cPerg,"03","Pesquisar Centro de Custo","Centro de Custo","Centro de Custo","mv_ch3","C",09,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"04","Pesquisar Valor item"     ,"Valor do item"  ,"Valor do Item"  ,"mv_ch4","N",12,2,0,"G","","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"05","Pesquisar Fornecedor"     ,"Fornecedor"     ,"Fornecedor"     ,"mv_ch5","C",06,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
-//AADD(aRegistros,{cPerg,"06","Loja do Cliente(T):"   ,"Loja:"    ,"Loja:"    ,"mv_ch6","C",02,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"06","Pesquisar Nome Forn."     ,"Fornecedor"     ,"Fornecedor"     ,"mv_ch6","C",30,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

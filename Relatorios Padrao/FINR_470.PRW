@@ -4,9 +4,6 @@
 #DEFINE REC_CONCILIADO		2
 #DEFINE PAG_NAO_CONCILIADO 3
 #DEFINE PAG_CONCILIADO		4
-
-
-
  
 /*/
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -26,6 +23,8 @@
 
 USER Function FINR_470()
 Private lTReport := .F.
+
+u_LogPrw("FINR_470")
 
 If FindFunction("TRepInUse") .And. TRepInUse() 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿

@@ -44,6 +44,8 @@ Private cSim   := "Não"
 Private aFurnas:= {} 
 Private cArqTmp
 
+u_LogPrw(cPerg)
+
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 AADD(aSIM,"Emergencial")

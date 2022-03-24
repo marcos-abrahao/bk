@@ -59,7 +59,7 @@ aAdd( aParam, { 1, "Produto"         , cProd        , ""   , "", "SB1" , "" , 70
 If !BkFR27()
    Return
 EndIf
-
+u_LogPrw(cPerg)
 
 aAdd(aTitulos,cPerg+"/"+TRIM(cUserName)+" - "+cTitulo)
 

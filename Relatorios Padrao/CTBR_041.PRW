@@ -24,6 +24,8 @@ PRIVATE titulo		:= ""
 Private nomeprog	:= "CTBR041"
 Private aSelFil	:= {}
 
+u_LogPrw("xCtbr041")
+
 If TYPE("CRELEASERPO") == "U"
 	CtAjustSx1('CTR041')	// Protheus 11  - P11
 Else

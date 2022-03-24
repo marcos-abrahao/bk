@@ -198,7 +198,12 @@ IF FWCodEmp() == "12"  .OR. FWCodEmp() == "02"
 	
 	AADD(aCampos,"VAL(STR(((QTMP->F2_VALFAT*0.32)*0.09),14,02))")
 	AADD(aCabs  ,"CSLL Apuração")
+ELSE
+	AADD(aCampos,"F2_VALIMP6")
+	AADD(aCabs  ,"PIS Apuração")
 	
+	AADD(aCampos,"F2_VALIMP5")
+	AADD(aCabs  ,"COFINS Apuração")
 ENDIF
 
 AADD(aCampos,"QTMP->D2_ALQIRRF")
@@ -315,6 +320,8 @@ cQuery += "   F2_VALCSLL," + CRLF
 cQuery += "   F2_RECISS," + CRLF 
 cQuery += "   F2_VALISS," + CRLF 
 cQuery += "   F2_VLCPM," + CRLF 
+cQuery += "   F2_VALIMP6," + CRLF 
+cQuery += "   F2_VALIMP5," + CRLF 
 cQuery += "   F2_XXVRETC," + CRLF 
 cQuery += "   (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
 cQuery += "   	AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO, " + CRLF
@@ -439,6 +446,8 @@ cQuery += "   F2_VALCSLL," + CRLF
 cQuery += "   F2_RECISS," + CRLF 
 cQuery += "   F2_VALISS," + CRLF 
 cQuery += "   F2_VLCPM," + CRLF 
+cQuery += "   F2_VALIMP6," + CRLF 
+cQuery += "   F2_VALIMP5," + CRLF 
 cQuery += "   F2_XXVRETC," + CRLF 
 cQuery += "   (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
 cQuery += "       AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO, " + CRLF

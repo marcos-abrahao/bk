@@ -22,6 +22,7 @@ Default lJob := .f.
 Private cPath := "\nfe\"
 
 //PREPARE ENVIRONMENT EMPRESA "01" FILIAL "00" MODULO "EST" TABLES "SA2", "SA5", "SD1", "SB1", "SLK"
+u_LogPrw("ImpXML")
 
 While .T.
 

@@ -59,6 +59,8 @@ If !Pergunte(cPerg,.T.)
 	Return
 Endif
 
+u_LogPrw(cPerg)
+
 dDataI := mv_par01
 dDataF := mv_par02
 cFilP  := mv_par03
