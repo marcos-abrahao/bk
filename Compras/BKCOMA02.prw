@@ -352,14 +352,17 @@ For nI := 1 TO LEN(aTitGer)
              {"E2_EMIS1"    ,dDataBase,NIL},;              
              {"E2_VALOR"    ,nValor,Nil}}
 
-	lMsErroAuto := .F.   
-	MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
-	If lMsErroAuto
-		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA02.ERR")
-		u_xxLog("\TMP\BKCOMA02.LOG",cErrLog)
-	   MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.:"+cErrLog, "Atenção")
-	   Return
-	EndIf
+	lMsErroAuto := .F.
+   Begin Transaction
+      MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
+      If lMsErroAuto
+         cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA02.ERR")
+         u_xxLog("\TMP\BKCOMA02.LOG",cErrLog)
+         MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.:"+cErrLog, "Atenção")
+         DisarmTransaction()
+         Return
+      EndIf
+   End Transaction
 
 	dbSelectArea("SZ2")   
 	dbSetorder(2)   // Z2_FILIAL+ Z2_CODEMP+Z2_CTRID+Z2_TIPO+Z2_BANCO+Z2_DATAPGT     

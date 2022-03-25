@@ -148,7 +148,7 @@ Begin Transaction
    		MsgStop("Problemas na execução do MSExecAuto, informe o setor de T.I.:"+cErrLog, "Atenção")
         DisarmTransaction()
     Endif
- End Transaction
+End Transaction
 
 Return NIL
 

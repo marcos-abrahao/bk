@@ -94,7 +94,6 @@ BEGIN TRANSACTION
 			cErrLog:= CRLF+MostraErro("\TMP\","BKESTA01.ERR")
 			u_xxLog("\TMP\BKESTA01.LOG",cErrLog)
 			MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
-
 			DisarmTransaction()
 		ELSE
 			FOR nY := 1 TO LEN(aItens)

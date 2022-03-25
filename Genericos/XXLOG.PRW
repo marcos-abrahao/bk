@@ -16,6 +16,25 @@ Default cMens := "Acesso"
 Return u_xxLog(cArqLog,cProg + ": "+cMens)
 
 
+// Gravar erros na execução de MSExecAuto
+User Function ErrExecA(cProg,cMens,lMens)
+Local cArqLog := "\log\"+AllTrim(cProg)+".log"
+Local cArqErr := AllTrim(cProg)+".err"
+Local cErrLog := ""
+
+Default cMens := "Problemas na execução do MSExecAuto:"
+Default lMens := .T.
+
+cErrLog:= cMens+CRLF+MostraErro("\log\",cArqErr)
+u_xxLog(cArqLog,cErrLog)
+
+If !IsBlind() .AND. lMens
+	MsgStop(cErrLog, cProg)
+EndIf
+
+Return Nil
+
+
 /*/{Protheus.doc} User Function xxLog
 	Grava o arquivo de log.
 	@type  Function

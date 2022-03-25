@@ -83,7 +83,7 @@ u_LogPrw("BKFINA23")
 
 AADD(aSaldo,"Zero")
 AADD(aSaldo,"1 Real")
-AADD(aSaldo,"Livre")
+AADD(aSaldo,"Parcial")
 
 DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL 
 
@@ -391,7 +391,7 @@ ELSEIF SUBSTR(cSaldo,1,1) == 'Z'
 	nSaldo  := 0
 ELSE
 	// Digitar valor da baixa
-	nSaldo  := nVlrLi - nReceb - (nMulta - nDesc - nRValor - nJValor - nIValor)
+	nSaldo  := nVlrLi - nReceb + nMulta - nDesc - nRValor - nJValor - nIValor
 ENDIF
 
 RETURN lRet

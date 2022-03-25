@@ -498,11 +498,12 @@ RETURN NIL
 
 
 STATIC FUNCTION BAIXATAB()
-LOCAL nI := 0
+LOCAL nI 	:= 0
 LOCAL aBaixa:= {}
-LOCAL lOK := .T.
+LOCAL lOK 	:= .T.
 Local cCrLf := Chr(13) + Chr(10)
 Local cLOG  := ""
+Local cErrLog := ""
 
 Private dDtBaixa  := dDataBase
 Private MsErroAuto := .F.
@@ -557,9 +558,11 @@ For nI:=1 TO LEN(aTitGer)
 		MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 			
 		IF lMsErroAuto
+   			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
+			u_xxLog("\TMP\BKFINA16.LOG",cErrLog)
+			MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
 			lOK := .F.
 			DisarmTransaction()
-			Mostraerro()
 			break
 		ENDIF
   	End Transaction
@@ -602,9 +605,11 @@ For nI:=1 TO LEN(aTitGer)
 			MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 				
 			IF lMsErroAuto
+				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
+				u_xxLog("\TMP\BKFINA16.LOG",cErrLog)
+				MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
 				lOK := .F.
 				DisarmTransaction()
-				Mostraerro()
 				break
 			ENDIF
 	

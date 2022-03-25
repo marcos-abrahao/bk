@@ -36,21 +36,15 @@ aCabs := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs."
 
 cMsg := u_GeraHtmA(aDet,cTitulo,aCabs,ProcName(1))
 
-
-
 @ 200,01 TO 285,450 DIALOG oDlg1 TITLE "Teste de envio de email"
 @ 15,015 SAY "Email: "
 @ 15,046 GET cEmail SIZE 180,10
 @ 30,060 BMPBUTTON TYPE 01 ACTION ( U_SendMail(cPrw,cAssunto,TRIM(cEmail),cCc,cMsg,cAnexo,_lJob), Close(Odlg1) )
 @ 30,110 BMPBUTTON TYPE 01 ACTION ( U_BkSnMail(cPrw,cAssunto,TRIM(cEmail),cCc,cMsg,{cAnexo},_lJob), Close(Odlg1) )
 
-//zEnvMail(cPara, cAssunto, cCorpo, aAnexos, lMostraLog, lUsaTLS)
-
-
 @ 30,160 BMPBUTTON TYPE 02 ACTION Close(Odlg1)
 
 ACTIVATE DIALOG oDlg1 CENTER
-
 
 RETURN
 

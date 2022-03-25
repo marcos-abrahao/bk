@@ -396,6 +396,7 @@ Local nY
 //Local aUsuarios := ALLUSERS()
 Local aBaixa    := {}
 Local lSucess	:= .T.
+Local cErrLog	:= ""
 
 Private lMsErroAuto := .F.
 
@@ -437,7 +438,9 @@ BEGIN TRANSACTION
 			MSEXECAUTO({|x,y| FINA080(x,y)}, aBaixa, 3)
 			
 			If lMsErroAuto
-				MostraErro()
+				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA22.ERR")
+				u_xxLog("\TMP\BKFINA22.LOG",cErrLog)
+				MsgStop("Problemas na alteração do contas a pagar, informe o setor de T.I.:"+cErrLog, "Atenção")
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf

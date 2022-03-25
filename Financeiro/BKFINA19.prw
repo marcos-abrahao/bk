@@ -415,6 +415,7 @@ Local  nY
 Local nOpc      := 0
 Local aFina100  := {}
 Local lSucess	:= .T.
+Local cErrLog	:= ""
 
 Private lMsErroAuto := .F.
 
@@ -468,7 +469,9 @@ BEGIN TRANSACTION
 	        MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
 			
 			If lMsErroAuto
-				MostraErro()
+				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA19.ERR")
+				u_xxLog("\TMP\BKFINA19.LOG",cErrLog)
+				MsgStop("Problemas na alteração do mov bancario, informe o setor de T.I.:"+cErrLog, "Atenção")
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf

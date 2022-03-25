@@ -250,9 +250,11 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			SetFunName( "FINA050" )
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
-    			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
-				u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
-		   		MsgStop("Problemas na alteração do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
+    			//cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
+				//u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
+		   		cErrLog  := "Problemas na alteração do titulo "+cKey1
+				U_ErrExecA("BKFINA04",cErrLog)
+
 				DisarmTransaction()
 		   		lSucess := .F.
 			EndIf
@@ -277,10 +279,13 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			lMsErroAuto := .F.   
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 			IF lMsErroAuto
-    			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
-				u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
-				MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
-				MostraErro("\erros\","BKFINA04.ERR")
+    			//cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
+				//u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
+				//MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
+
+		   		cErrLog  := "Problemas na exclusão do titulo "+cKey1
+				U_ErrExecA("BKFINA04",cErrLog)
+
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf

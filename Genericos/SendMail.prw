@@ -201,8 +201,6 @@ Return lRet
 
 
 
-
-
 USER FUNCTION SendMail(cPrw,cAssunto,cPara,cCc,cMsg,cAnexo,_lJob)
 Local lResulConn := .F.
 Local lResulSend := .F.

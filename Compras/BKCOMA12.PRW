@@ -121,16 +121,18 @@ Private lMsErroAuto := .F.
                 {"B1_CONTA"   ,aProd[9]         ,Nil}}                      
 
     lMsErroAuto := .F.    
-            
-    MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão 
+    Begin Transaction            
 
-    If lMsErroAuto
-		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA12.ERR")
-		u_xxLog("\TMP\BKCOMA12.LOG",cErrLog)
-		MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
-        lRet := .F.
-    EndIf
-  
+        MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão 
+        If lMsErroAuto
+            cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA12.ERR")
+            u_xxLog("\TMP\BKCOMA12.LOG",cErrLog)
+            MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+            DisarmTransaction()
+            lRet := .F.
+        EndIf
+
+    End Transaction
 Return lRet
 
 
