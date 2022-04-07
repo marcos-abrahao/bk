@@ -638,6 +638,20 @@ Do While (cQrySC7)->(!EOF())
 	aItens[nI]["C8_VALIDA"]	:= DTOC((cQrySC7)->C8_VALIDA)
 	aItens[nI]["C8_OBS"]	:= TRIM((cQrySC7)->C8_OBS)
 
+	// Detalhes
+	/*
+	SC1->C1_SOLICIT,
+	SC1->C1_NUM,
+	SC1->C1_QUANT-SC1->C1_XXQEST,
+	SC1->C1_EMISSAO,
+	SC1->C1_DATPRF,
+	aMotivo[val(SC1->C1_XXMTCM)],
+	TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99"),
+	TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99"),
+	"Obs: "+TRIM(SC1->C1_OBS),"Contrato: "+SC1->C1_CC,"Desc.Contr: "+SC1->C1_XXDCC,"Objeto: "+SC1->C1_XXOBJ})
+	"Validade da Proposta: "+DTOC(SC8->C8_VALIDA)+"      "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM,IIF(ALLTRIM(SC8->C8_MOTIVO) == "ENCERRADO AUTOMATICAMENTE","X - Vencedor Indicado Pelo Sistema","* - Fornecedor Selecionado Pelo Usuário"),"")+IIF(!EMPTY(SC8->C8_OBS),"   OBS:"+SC8->C8_OBS,"")})
+*/
+
 	nGeral += (cQrySC7)->C8_TOTAL
 	dbSkip()
 EndDo

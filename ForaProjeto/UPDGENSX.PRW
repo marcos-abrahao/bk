@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"16/03/2022 SE1 "
+#DEFINE FIN_LAST_UPDATED 		"07/04/2022 SE1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -48,7 +48,7 @@ Local   lOk       := .F.
 Private oMainWnd  := NIL
 Private oProcess  := NIL
 
-u_LogPrw("UPDGENSX",FIN_LAST_UPDATED)
+//u_LogPrw("UPDGENSX",FIN_LAST_UPDATED)
 
 #IFDEF TOP
     TCInternal( 5, "*OFF" ) // Desliga Refresh no Lock do Top
@@ -189,7 +189,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 16/03/22 SE1
+			AtuGenX3( @cTexto )    // 07/04/22 SE1
 
 			//AtuGenP12( @cTexto )
 
@@ -1558,8 +1558,8 @@ oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "16/03/22 - SE1 " + CRLF 
-APPEND FROM \tmp\sx3hism.dtc
+cTexto  += "07/07/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3prrec.dtc
 X31UPDTABLE("SE1")
 
 dbSetOrder( 1 )
@@ -1568,6 +1568,12 @@ Return
 
 
 /*
+
+
+cTexto  += "16/03/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3hism.dtc
+X31UPDTABLE("SE1")
+
 
 cTexto  += "08/03/22 - SE1 " + CRLF 
 APPEND FROM \tmp\sx3e1hi.dtc

@@ -95,6 +95,8 @@ User Function CNTA121()
             oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XXTPNF", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
             oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_OBS"   , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
 
+			oObj:GetModel("CXNDETAIL"):GetStruct():SetProperty("CXN_XXOBS" , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+
 			//oObj:GetModel("CXNDETAIL"):GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
 			//oObj:GetModel("CXNDETAIL"):GetStruct():SetProperty("CXN_NUMPLA",MODEL_FIELD_VALID,FwBuildFeatures(MODEL_FIELD_VALID,"U_CNACPOS()"))

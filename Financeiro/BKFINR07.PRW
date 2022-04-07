@@ -1,6 +1,11 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"
 
+// --> FINR350
+Static __oTBxCanc
+// <-- FINR350
+
+
 /*/{Protheus.doc} BKFINR07
 BK - RELATORIO DE DESPESAS POR ITEM DO DOCUMENTO DE ENTRADA 
 @Return
@@ -11,40 +16,18 @@ BK - RELATORIO DE DESPESAS POR ITEM DO DOCUMENTO DE ENTRADA
 
 User Function FINR07(fFrota)
 
-Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2         := "de acordo com os parametros informados pelo usuario."
-Local cDesc3         := ""
 Local cTitulo        := "Despesas mensais por Doc. de Entrada"
-Local nLin           := 80
-Local Cabec1         := ""
-Local Cabec2         := ""
-Local aOrd           := {}
 Local aCabs          := {}
 Local aCampos        := {}
 Local aTitulos       := {}
 Local aPlans         := {}
 
-Private lEnd         := .F.
-Private lAbortPrint  := .F.
-Private limite       := 132
-Private tamanho      := " "
-Private nomeprog     := "FINR07" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo        := 18
-Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey     := 0
 Private cPerg        := "FINR07"
-Private cbtxt        := Space(10)
-Private cbcont       := 00
-Private CONTFL       := 01
-Private m_pag        := 01
-Private wnrel        := "FINR07" // Coloque aqui o nome do arquivo usado para impressao em disco
 Private fGFrota      := fFrota
-Private cString      := "SD1"
 
 Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin
-
-Private nPlan
-
+Private nPagto
+Private aPgtos 		 := {}
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -54,7 +37,7 @@ u_LogPrw(cPerg)
 
 dDtIni   := MV_PAR01
 dDtFim   := MV_PAR02
-nPlan    := MV_PAR03
+nPagto   := MV_PAR03
 cProduto := MV_PAR04
 cCustoDe := MV_PAR05
 cCustoAte:= MV_PAR06
@@ -64,360 +47,344 @@ nPaFin	 := MV_PAR09
 
 fGFrota  := fFrota
 
+// --> FINR350
+If !Empty( __oTBxCanc )
+	__oTBxCanc:Destroy()
+	__oTBxCanc := Nil
+EndIf
 
-If nPlan = 2
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Monta a interface padrao com o usuario...                           ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
-	wnrel := SetPrint(cString,NomeProg,cPerg,@cTitulo,cDesc1,cDesc2,cDesc3,.T.,aOrd,.T.,Tamanho,,.T.)
-	
-	If nLastKey == 27
-		Return
-	Endif
-	
-	SetDefault(aReturn,cString)
-	
-	If nLastKey == 27
-	   Return
-	Endif
-	
-	nTipo := If(aReturn[4]==1,15,18)
-	            
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Processamento. RPTSTATUS monta janela com a regua de processamento. ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
-	Processa( {|| ProcGer1(@Titulo) })
-	RptStatus({|| RunReport(Cabec1,Cabec2,cTitulo,nLin) },cTitulo)
-	QSD1->(Dbclosearea())
-	
-Else
- 
-		//dbSelectArea("SE2")
-		//dbSetOrder(6)
-		//dbSeek(xFilial("SE2")+(cAliasSF1)->F1_FORNECE+(cAliasSF1)->F1_LOJA+(cAliasSF1)->F1_SERIE+(cAliasSF1)->F1_DOC)
-		//While !Eof() .And. E2_FILIAL+E2_FORNECE+E2_LOJA+E2_PREFIXO+E2_NUM == ;
-		//	xFilial("SE2")+(cAliasSF1)->F1_FORNECE+(cAliasSF1)->F1_LOJA+(cAliasSF1)->F1_SERIE+(cAliasSF1)->F1_DOC
-		//	If ALLTRIM(E2_ORIGEM)=="MATA100"
-		//		aADD(aVencto,E2_VENCTO)
-		//	EndIf
-		//	dbSkip()
-		//EndDo
-
-
-	Processa( {|| ProcGer1(@cTitulo) })
-
-	aCabs   := {}
-	aCampos := {}
-	aTitulos:= {}
-
-	AADD(aTitulos,ctitulo)
-
-	AADD(aCampos,"QSD1->D1_COD")
-	AADD(aCabs  ,"Produto")
-
-	AADD(aCampos,"QSD1->B1_DESC")
-	AADD(aCabs  ,"Descricao do Produto")
-
-	AADD(aCampos,"QSD1->B1_CONTA")
-	AADD(aCabs  ,"(Prod) "+GetSX3Cache("B1_CONTA", "X3_TITULO"))
-
-	AADD(aCampos,"QSD1->ZI_COD")
-	AADD(aCabs  ,"Sub Grupo")
-
-	AADD(aCampos,"QSD1->ZI_DESC")
-	AADD(aCabs  ,"Descricao Sub Grupo")
-
-	AADD(aCampos,"QSD1->D1_TES")
-	AADD(aCabs  ,"TES")
-
-	AADD(aCampos,"QSD1->F4_TEXTO")
-	AADD(aCabs  ,GetSX3Cache("F4_TEXTO", "X3_TITULO"))
-
-	AADD(aCampos,"QSD1->F4_CF")
-	AADD(aCabs  ,GetSX3Cache("F4_CF", "X3_TITULO"))
-
-	AADD(aCampos,"QSD1->D1_CC")
-	AADD(aCabs  ,"Centro de Custos")
+__oTBxCanc	:= FWPreparedStatement():New( '' )
 
-	AADD(aCampos,"QSD1->CTT_DESC01")
-	AADD(aCabs  ,"Descriçao do C.C.")
+FDelQuery(.T.)
+// <-- FINR350
 
-	AADD(aCampos,"QSD1->D1_CONTA")
-	AADD(aCabs  ,"Conta")
 
-	AADD(aCampos,"QSD1->D1_FORNECE")
-	AADD(aCabs  ,"Cod. do Fornecedor")
+Processa( {|| ProcGer1(@cTitulo) })
 
-	AADD(aCampos,"QSD1->D1_LOJA")
-	AADD(aCabs  ,"Loja")
+aCabs   := {}
+aCampos := {}
+aTitulos:= {}
 
-	AADD(aCampos,"TRANSFORM(QSD1->A2_CGC,IIF(QSD1->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
-	AADD(aCabs  ,"CNPJ/CPF")
+AADD(aTitulos,ctitulo)
 
-	AADD(aCampos,"QSD1->A2_NOME")
-	AADD(aCabs  ,"Nome do Fornecedor")
+AADD(aCampos,"QSD1->D1_COD")
+AADD(aCabs  ,"Produto")
 
-	AADD(aCampos,"QSD1->D1_SERIE")
-	AADD(aCabs  ,"Série")
+AADD(aCampos,"QSD1->B1_DESC")
+AADD(aCabs  ,"Descricao do Produto")
 
-	AADD(aCampos,"QSD1->D1_DOC")
-	AADD(aCabs  ,"Documento")
+AADD(aCampos,"QSD1->B1_CONTA")
+AADD(aCabs  ,"(Prod) "+GetSX3Cache("B1_CONTA", "X3_TITULO"))
 
-	IF fGFrota
-		AADD(aCampos,"QSD1->D1_EMISSAO")
-		AADD(aCabs  ,"Emissão")
-    ENDIF
+AADD(aCampos,"QSD1->ZI_COD")
+AADD(aCabs  ,"Sub Grupo")
 
-	AADD(aCampos,"QSD1->D1_DTDIGIT")
-	AADD(aCabs  ,"Data Entrada")
+AADD(aCampos,"QSD1->ZI_DESC")
+AADD(aCabs  ,"Descricao Sub Grupo")
 
-	AADD(aCampos,"QSD1->E2_VENCREA")
-	AADD(aCabs  ,"Vencimento")
+AADD(aCampos,"QSD1->D1_TES")
+AADD(aCabs  ,"TES")
 
-	AADD(aCampos,"QSD1->E2_BAIXA")
-	AADD(aCabs  ,"Pagamento")
+AADD(aCampos,"QSD1->F4_TEXTO")
+AADD(aCabs  ,GetSX3Cache("F4_TEXTO", "X3_TITULO"))
 
-	AADD(aCampos,"IIF(QSD1->F1_VALBRUT>0,ROUND(QSD1->E2_VALOR/QSD1->F1_VALBRUT*QSD1->D1_TOTAL,2),0)")
-	AADD(aCabs  ,"Valor parcela")
+AADD(aCampos,"QSD1->F4_CF")
+AADD(aCabs  ,GetSX3Cache("F4_CF", "X3_TITULO"))
 
-	If nUsers == 1
-		AADD(aCampos,"UsrRetName(QSD1->F1_XXUSER)")
-		AADD(aCabs  ,"Responsável")
+AADD(aCampos,"QSD1->D1_CC")
+AADD(aCabs  ,"Centro de Custos")
 
-		AADD(aCampos,"UsrRetName(QSD1->F1_XXUSERS)")
-		AADD(aCabs  ,"Classificador")
-	EndIf
+AADD(aCampos,"QSD1->CTT_DESC01")
+AADD(aCabs  ,"Descriçao do C.C.")
 
-	AADD(aCampos,"QSD1->D1_QUANT")
-	AADD(aCabs  ,"Qtd.")
-	
-	AADD(aCampos,"ROUND(QSD1->D1_TOTAL / QSD1->D1_QUANT,2)")
-	AADD(aCabs  ,"Unit.")
+AADD(aCampos,"QSD1->D1_CONTA")
+AADD(aCabs  ,"Conta")
 
-	AADD(aCampos,"QSD1->D1_TOTAL")
-	AADD(aCabs  ,"Valor")
-	
-	If nImpostos == 1
+AADD(aCampos,"QSD1->D1_FORNECE")
+AADD(aCabs  ,"Cod. do Fornecedor")
 
-		AADD(aCampos,"X3COMBO('A2_SIMPNAC',QSD1->A2_SIMPNAC)")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_SIMPNAC", "X3_TITULO"))
+AADD(aCampos,"QSD1->D1_LOJA")
+AADD(aCabs  ,"Loja")
 
-		AADD(aCampos,"QSD1->A2_CONTA")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_CONTA", "X3_TITULO"))
+AADD(aCampos,"TRANSFORM(QSD1->A2_CGC,IIF(QSD1->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
+AADD(aCabs  ,"CNPJ/CPF")
 
-		AADD(aCampos,"QSD1->CT1_DESC01")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
+AADD(aCampos,"QSD1->A2_NOME")
+AADD(aCabs  ,"Nome do Fornecedor")
 
-		AADD(aCampos,"QSD1->CT1B_DESC01")
-		AADD(aCabs  ,"(Prod) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
+AADD(aCampos,"QSD1->D1_SERIE")
+AADD(aCabs  ,"Série")
 
-		AADD(aCampos,"QSD1->F1_DTLANC")
-		AADD(aCabs  ,GetSX3Cache("F1_DTLANC", "X3_TITULO")+" Ctb")
+AADD(aCampos,"QSD1->D1_DOC")
+AADD(aCabs  ,"Documento")
 
-		AADD(aCampos,"QSD1->E2_NATUREZ")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_NATUREZ", "X3_TITULO"))
+If fGFrota
+	AADD(aCampos,"QSD1->D1_EMISSAO")
+	AADD(aCabs  ,"Emissão")
+EndIf
 
-		AADD(aCampos,"QSD1->ED_DESCRIC")
-		AADD(aCabs  ,GetSX3Cache("ED_DESCRIC", "X3_TITULO"))
+AADD(aCampos,"QSD1->D1_DTDIGIT")
+AADD(aCabs  ,"Data Entrada")
 
-		AADD(aCampos,"QSD1->F4_CODBCC")
-		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CODBCC", "X3_TITULO"))
+If nPagto == 1
 
-		// INSS
-		AADD(aCampos,"X3COMBO('A2_RECINSS',QSD1->A2_RECINSS)")
-		AADD(aCabs  ,"(INSS Forn) "+GetSX3Cache("A2_RECINSS", "X3_TITULO"))
+	AADD(aCampos,"iIf(LEN(aPagtos := u_ValPag('NF',QSD1->D1_SERIE,QSD1->D1_DOC,QSD1->D1_FORNECE,QSD1->D1_LOJA,QSD1->D1_TOTAL)) > 0, aPagtos[5],0)")
+	AADD(aCabs  ,"Valor pago item")
 
-		AADD(aCampos,"QSD1->ED_CALCINS")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCINS", "X3_TITULO"))
+	AADD(aCampos,"aPagtos[2]")
+	AADD(aCabs  ,"Saldo item")
 
-		AADD(aCampos,"QSD1->ED_PERCINS")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCINS", "X3_TITULO"))
+	AADD(aCampos,"aPagtos[3]")
+	AADD(aCabs  ,"Parcelas")
 
-		AADD(aCampos,"QSD1->D1_BASEINS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEINS", "X3_TITULO"))
+	AADD(aCampos,"iIf(Empty(QSD1->E2_VENCREA),aPagtos[6],QSD1->E2_VENCREA)")
+	AADD(aCabs  ,"Ultimo Vencimento")
 
-		AADD(aCampos,"QSD1->D1_VALINS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALINS", "X3_TITULO"))
+	AADD(aCampos,"iIf(Empty(QSD1->E2_BAIXA),aPagtos[7],QSD1->E2_BAIXA)")
+	AADD(aCabs  ,"Ultimo Pagamento")
 
-		AADD(aCampos,"QSD1->F1_INSS")
-		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_INSS", "X3_TITULO"))
+//AADD(aCampos,"IIF(QSD1->F1_VALBRUT>0,ROUND(QSD1->E2_VALOR/QSD1->F1_VALBRUT*QSD1->D1_TOTAL,2),0)")
+//AADD(aCabs  ,"Valor parcela")
 
-		AADD(aCampos,"QSD1->E2_VRETINS")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETINS", "X3_TITULO"))
+EndIf
 
-		AADD(aCampos,"QSD1->B1_INSS")
-		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_INSS", "X3_TITULO"))
+If nUsers == 1
+	AADD(aCampos,"UsrRetName(QSD1->F1_XXUSER)")
+	AADD(aCabs  ,"Responsável")
 
-		// IRRF
-		AADD(aCampos,"X3COMBO('A2_CALCIRF',QSD1->A2_CALCIRF)")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_CALCIRF", "X3_TITULO"))
+	AADD(aCampos,"UsrRetName(QSD1->F1_XXULIB)")
+	AADD(aCabs  ,"Liberado por")
+EndIf
 
-		AADD(aCampos,"QSD1->ED_CALCIRF")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCIRF", "X3_TITULO"))
+AADD(aCampos,"QSD1->D1_QUANT")
+AADD(aCabs  ,"Qtd.")
 
-		AADD(aCampos,"QSD1->ED_PERCIRF")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCIRF", "X3_TITULO"))
+AADD(aCampos,"ROUND(QSD1->D1_TOTAL / QSD1->D1_QUANT,2)")
+AADD(aCabs  ,"Unit.")
 
-		AADD(aCampos,"QSD1->D1_BASEIRR")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEIRR", "X3_TITULO"))
+AADD(aCampos,"QSD1->D1_TOTAL")
+AADD(aCabs  ,"Valor")
 
-		AADD(aCampos,"QSD1->D1_ALIQIRR")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALIQIRR", "X3_TITULO"))
+If nImpostos == 1
+	AADD(aCampos,"X3COMBO('A2_SIMPNAC',QSD1->A2_SIMPNAC)")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_SIMPNAC", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->F1_VALIRF")
-		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_VALIRF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->A2_CONTA")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_CONTA", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_VALIRR")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALIRR", "X3_TITULO"))
+	AADD(aCampos,"QSD1->CT1_DESC01")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->E2_IRRF")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_IRRF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->CT1B_DESC01")
+	AADD(aCabs  ,"(Prod) "+GetSX3Cache("CT1_DESC01", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->E2_VRETIRF")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETIRF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->F1_DTLANC")
+	AADD(aCabs  ,GetSX3Cache("F1_DTLANC", "X3_TITULO")+" Ctb")
 
-		AADD(aCampos,"QSD1->B1_IRRF")
-		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_IRRF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->E2_NATUREZ")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_NATUREZ", "X3_TITULO"))
 
-		// ISS
-		AADD(aCampos,"QSD1->A2_RECISS")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("A2_RECISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_DESCRIC")
+	AADD(aCabs  ,GetSX3Cache("ED_DESCRIC", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_CALCISS")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->F4_CODBCC")
+	AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CODBCC", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_BASEISS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEISS", "X3_TITULO"))
+	// INSS
+	AADD(aCampos,"X3COMBO('A2_RECINSS',QSD1->A2_RECINSS)")
+	AADD(aCabs  ,"(INSS Forn) "+GetSX3Cache("A2_RECINSS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_ALIQISS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALIQISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_CALCINS")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCINS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_VALISS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_PERCINS")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCINS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->F1_ISS")
-		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_ISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_BASEINS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEINS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->E2_VRETISS")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_VALINS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALINS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->B1_CODISS")
-		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_CODISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->F1_INSS")
+	AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_INSS", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('F4_RETISS',QSD1->F4_RETISS)")
-		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_RETISS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->E2_VRETINS")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETINS", "X3_TITULO"))
 
-		//PIS
-		AADD(aCampos,"X3COMBO('A2_RECPIS',QSD1->A2_RECPIS)")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->B1_INSS")
+	AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_INSS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_CALCPIS")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCPIS", "X3_TITULO"))
+	// IRRF
+	AADD(aCampos,"X3COMBO('A2_CALCIRF',QSD1->A2_CALCIRF)")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_CALCIRF", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_PERCPIS")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_CALCIRF")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCIRF", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_BASEPIS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_PERCIRF")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCIRF", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_ALQPIS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_BASEIRR")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEIRR", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_VALPIS")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_ALIQIRR")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALIQIRR", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->F1_VALPIS")
-		AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_VALPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->F1_VALIRF")
+	AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_VALIRF", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->E2_VRETPIS")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_VALIRR")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALIRR", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('B1_PIS',QSD1->B1_PIS)")
-		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_PIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->E2_IRRF")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_IRRF", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('F4_CSTPIS',QSD1->F4_CSTPIS)")
-		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CSTPIS", "X3_TITULO"))
+	AADD(aCampos,"QSD1->E2_VRETIRF")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETIRF", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('F4_PISCRED',QSD1->F4_PISCRED)")
-		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_PISCRED", "X3_TITULO"))
+	AADD(aCampos,"QSD1->B1_IRRF")
+	AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_IRRF", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('F4_PISCOF',QSD1->F4_PISCOF)")
-		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_PISCOF", "X3_TITULO"))
+	// ISS
+	AADD(aCampos,"QSD1->A2_RECISS")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("A2_RECISS", "X3_TITULO"))
 
-		// COFINS
-		AADD(aCampos,"X3COMBO('A2_RECCOFI',QSD1->A2_RECCOFI)")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECCOFI", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_CALCISS")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_CALCCOF")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCCOF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_BASEISS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_PERCCOF")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCCOF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_ALIQISS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALIQISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_BASECOF")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASECOF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_VALISS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_ALQCOF")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQCOF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->F1_ISS")
+	AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_ISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_VALCOF")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALCOF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->E2_VRETISS")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->E2_VRETCOF")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETCOF", "X3_TITULO"))
+	AADD(aCampos,"QSD1->B1_CODISS")
+	AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_CODISS", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('B1_COFINS',QSD1->B1_COFINS)")
-		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_COFINS", "X3_TITULO"))
+	AADD(aCampos,"X3COMBO('F4_RETISS',QSD1->F4_RETISS)")
+	AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_RETISS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->F4_CSTCOF")
-		AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CSTCOF", "X3_TITULO"))
+	//PIS
+	AADD(aCampos,"X3COMBO('A2_RECPIS',QSD1->A2_RECPIS)")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECPIS", "X3_TITULO"))
 
-		// CSLL
-		AADD(aCampos,"X3COMBO('A2_RECCSLL',QSD1->A2_RECCSLL)")
-		AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECCSLL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_CALCPIS")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCPIS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_CALCCSL")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCCSL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->ED_PERCPIS")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCPIS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->ED_PERCCSL")
-		AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCCSL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_BASEPIS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASEPIS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_BASECSL")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASECSL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_ALQPIS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQPIS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_ALQCSL")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQCSL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->D1_VALPIS")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALPIS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->D1_VALCSL")
-		AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALCSL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->F1_VALPIS")
+	AADD(aCabs  ,"(NF) "+GetSX3Cache("F1_VALPIS", "X3_TITULO"))
 
-		AADD(aCampos,"QSD1->E2_VRETCSL")
-		AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETCSL", "X3_TITULO"))
+	AADD(aCampos,"QSD1->E2_VRETPIS")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETPIS", "X3_TITULO"))
 
-		AADD(aCampos,"X3COMBO('B1_CSLL',QSD1->B1_CSLL)")
-		AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_CSLL", "X3_TITULO"))
+	AADD(aCampos,"X3COMBO('B1_PIS',QSD1->B1_PIS)")
+	AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_PIS", "X3_TITULO"))
 
-	EndIf
+	AADD(aCampos,"X3COMBO('F4_CSTPIS',QSD1->F4_CSTPIS)")
+	AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CSTPIS", "X3_TITULO"))
 
+	AADD(aCampos,"X3COMBO('F4_PISCRED',QSD1->F4_PISCRED)")
+	AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_PISCRED", "X3_TITULO"))
 
-	AADD(aCampos,"QSD1->C7_XXURGEN")
-	AADD(aCabs  ,"Pedido Urgente")
+	AADD(aCampos,"X3COMBO('F4_PISCOF',QSD1->F4_PISCOF)")
+	AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_PISCOF", "X3_TITULO"))
 
-	AADD(aCampos,"QSD1->D1_XXHIST")
-	AADD(aCabs  ,"Historico")
+	// COFINS
+	AADD(aCampos,"X3COMBO('A2_RECCOFI',QSD1->A2_RECCOFI)")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECCOFI", "X3_TITULO"))
 
+	AADD(aCampos,"QSD1->ED_CALCCOF")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCCOF", "X3_TITULO"))
 
-	AADD(aPlans,{"QSD1",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-	
-	U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
-Endif	
-	
+	AADD(aCampos,"QSD1->ED_PERCCOF")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCCOF", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->D1_BASECOF")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASECOF", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->D1_ALQCOF")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQCOF", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->D1_VALCOF")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALCOF", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->E2_VRETCOF")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETCOF", "X3_TITULO"))
+
+	AADD(aCampos,"X3COMBO('B1_COFINS',QSD1->B1_COFINS)")
+	AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_COFINS", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->F4_CSTCOF")
+	AADD(aCabs  ,"(TES) "+GetSX3Cache("F4_CSTCOF", "X3_TITULO"))
+
+	// CSLL
+	AADD(aCampos,"X3COMBO('A2_RECCSLL',QSD1->A2_RECCSLL)")
+	AADD(aCabs  ,"(Forn) "+GetSX3Cache("A2_RECCSLL", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->ED_CALCCSL")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_CALCCSL", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->ED_PERCCSL")
+	AADD(aCabs  ,"(Nat) "+GetSX3Cache("ED_PERCCSL", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->D1_BASECSL")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_BASECSL", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->D1_ALQCSL")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_ALQCSL", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->D1_VALCSL")
+	AADD(aCabs  ,"(Item) "+GetSX3Cache("D1_VALCSL", "X3_TITULO"))
+
+	AADD(aCampos,"QSD1->E2_VRETCSL")
+	AADD(aCabs  ,"(Fin) "+GetSX3Cache("E2_VRETCSL", "X3_TITULO"))
+
+	AADD(aCampos,"X3COMBO('B1_CSLL',QSD1->B1_CSLL)")
+	AADD(aCabs  ,"(Prd) "+GetSX3Cache("B1_CSLL", "X3_TITULO"))
+EndIf
+
+AADD(aCampos,"QSD1->C7_XXURGEN")
+AADD(aCabs  ,"Pedido Urgente")
+
+AADD(aCampos,"QSD1->D1_XXHIST")
+AADD(aCabs  ,"Historico")
+
+AADD(aPlans,{"QSD1",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
+
+
+// --> FINR350
+__oTBxCanc:Destroy()
+__oTBxCanc := Nil
+// <-- FINR350
+
 Return
 
 
-Static Function procger1(cTitulo)
+Static Function ProcGer1(cTitulo)
 Local cQuery
 
 If SELECT("QSD1") > 0 
@@ -462,9 +429,9 @@ cQuery += " D1_TES, "+CRLF
 cQuery += " F4_TEXTO, "+CRLF
 cQuery += " F4_CF, "+CRLF
 
-cQuery += " E2_VENCREA, "+CRLF
-cQuery += " E2_BAIXA, "+CRLF
-cQuery += " E2_VALOR, "+CRLF
+cQuery += " '' AS E2_VENCREA, "+CRLF // E2_VENCREA
+cQuery += " '' AS E2_BAIXA, "+CRLF   // E2_BAIXA
+cQuery += " 0  AS E2_VALOR, "+CRLF   // E2_VALOR
 cQuery += " F1_VALBRUT, "+CRLF
 cQuery += " B1_CONTA, "+CRLF
 
@@ -546,6 +513,7 @@ EndIf
 If nUsers == 1
 	cQuery += " F1_XXUSER, "+CRLF
 	cQuery += " F1_XXUSERS, "+CRLF
+	cQuery += " F1_XXULIB, "+CRLF
 EndIf
 
 cQuery += " CONVERT(VARCHAR(6000),CONVERT(Binary(6000),D1_XXHIST)) D1_XXHIST "+CRLF
@@ -558,6 +526,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SC7")+" SC7 ON D1_FILIAL = C7_FILIAL AND D1_
 cQuery += " LEFT JOIN "+RETSQLNAME("SZI")+" SZI ON ZI_FILIAL = '"+xFilial("SZI")+"' AND ZI_COD = B1_XXSGRP AND SZI.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF1")+" SF1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF4")+" SF4 ON F4_FILIAL = '"+xFilial("SF4")+"'AND SD1.D1_TES=SF4.F4_CODIGO AND SF4.D_E_L_E_T_=''"+CRLF
+
 cQuery += " LEFT JOIN "+RETSQLNAME("SE2")+" SE2 ON SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
 cQuery += "   AND E2_PREFIXO = SD1.D1_SERIE" +CRLF
 cQuery += "   AND E2_NUM = SD1.D1_DOC" +CRLF
@@ -729,6 +698,7 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 	If nUsers == 1
 		cQuery += " ' '			AS F1_XXUSER, "+CRLF
 		cQuery += " ' '			AS F1_XXUSERS, "+CRLF
+		cQuery += " ' '			AS F1_XXULIB, "+CRLF
 	EndIf
 	cQuery += " E2_HIST			AS D1_XXHIST "+CRLF
 
@@ -782,178 +752,182 @@ QSD1->(Dbgotop())
 
 Return nil
 
+#Define I_CORRECAO_MONETARIA     1
+#Define I_DESCONTO               2
+#Define I_JUROS                  3
+#Define I_MULTA                  4
+#Define I_VALOR_RECEBIDO         5
+#Define I_VALOR_PAGO             6
+#Define I_RECEB_ANT              7
+#Define I_PAGAM_ANT              8
+#Define I_MOTBX                  9
+#Define I_RECPAG_REAIS         	10
+#Define I_LEI10925              12
+#DeFine I_VALOR_ACESSORIO		13
+
+#Define X_VALOR_PAGO             1
+#Define X_SALDO		             2
+#Define X_PARCELAS               3
+#Define X_VLORIGINAL             4
+#Define X_VLPAGOITEM             5
+#Define X_ULTVENC	             6
+#Define X_ULTPGTO                7
 
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFun‡„o    ³RUNREPORT º Autor ³ AP6 IDE            º Data ³  11/05/10   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescri‡„o ³ Funcao auxiliar chamada pela RPTSTATUS. A funcao RPTSTATUS º±±
-±±º          ³ monta a janela com a regua de processamento.               º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ Programa principal                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
 
-Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
+User Function ValPag(cTipo,cSerie,cDoc,cForn,cLoja,nValItem)
+Local aPgtos   	:= {0,0,0,0,0,CTOD(""),CTOD("")}
+Local aValor 	:= {}
+Local cQuery3   := ""
+Local cAliasSE2 := "SE2"
+Local nMoeda 	:= 1
+Local nDecs		:= 2
+Local lPaBruto	:= GetNewPar("MV_PABRUTO","2") == "1"  //Indica se o PA terá o valor dos impostos descontados do seu valor
 
-Local nEsp,cPicVlr,pTotal,tTotal,cPrdAnt,nPos1
+Local xmv_par05 := dDtIni   // Emissao inicial
+Local xmv_par06 := dDtFim	// Emissao Finan
 
-SetRegua(LastRec())
+Local xmv_par10 := 1	// Qual a moeda ?   
+Local xmv_par11 := 1	// Reajusta Venc.pela ?				1=Data Base   
+Local xmv_par14 := 2	// Compoe Saldo Retroativo ?		1=Sim            
+Local xmv_par17 := 1	// Conv.mov. na moeda sel. pela ?	1=Data Movimento 
+Local xmv_par18 := 1	// Considera Data de Emissao ? 		1=Do Documento     
 
-nEsp    := 2
-cPicVlr := "@E 9,999,999.99"
+// Valores acessórios.
+Local nValAcess	:= 0
+Local lExistVlAc:= ExistFunc('FValAcess')
+Local lFxLoadFK6:= ExistFunc('FxLoadFK6')
 
-//Cabec1  := PAD("Fil",LEN(QSD1->D1_FILIAL)+nEsp)
-Cabec1  := PAD("Produto",LEN(QSD1->D1_COD)+nEsp)
-Cabec1  += PAD("Descr. Produto",LEN(QSD1->B1_DESC)+nEsp)
+cQuery3 := " SELECT E2_PREFIXO,E2_NUM,E2_PARCELA,E2_TIPO,E2_FORNECE,E2_LOJA"
+//cQuery3 += " E2_VENCREA,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS"+CRLF
+cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
+cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='"+cTipo+"' "+CRLF
+cQuery3 += "   AND E2_PREFIXO = '"+cSerie+"'" +CRLF
+cQuery3 += "   AND E2_NUM = '"+cDoc+"'" +CRLF
+cQuery3 += "   AND E2_FORNECE = '"+cForn+"'" +CRLF
+cQuery3 += "   AND E2_LOJA = '"+cLoja+"'" +CRLF
 
-Cabec1  += PAD("C. de Custos",LEN(QSD1->D1_CC)+nEsp)
-Cabec1  += PAD("Descr. C.C.",LEN(QSD1->CTT_DESC01)+nEsp)
+//	u_LogMemo("BKGCTR11-E2-"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
 
-Cabec1  += PAD("Forn.",LEN(QSD1->D1_FORNECE)+nEsp)
-Cabec1  += PAD("Lj",LEN(QSD1->D1_LOJA)+nEsp)
-Cabec1  += PAD("Fornecedor",LEN(QSD1->A2_NOME)+nEsp)
+TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
+dbSelectArea("QTMPXE2")
+dbGoTop()
 
-Cabec1  += PAD("Documento",LEN(QSD1->D1_DOC)+nEsp)
-Cabec1  += PAD("Data",LEN(DTOC(QSD1->D1_DTDIGIT))+nEsp)
+nTotE2  := 0
 
-Cabec1  += PADL("Valor",LEN(cPicVlr)-3)+SPACE(nEsp)
+// Posicionamento do SE5 neste ponto que servira para   
+// pesquisa de descarte de registros geradores de       
+// desdobramento                                        
 
-//IF fGFrota
-	Cabec1  += PADL("Histórico",20-3)+SPACE(nEsp)
-//ENDIF 
+dbSelectArea("SE5")
+SE5->(dbSetOrder(7))
 
-IF LEN(Cabec1) > 132
-   Tamanho := "G"
-ENDIF   
+Do While !QTMPXE2->(EOF())
 
-nomeprog := "FINR07/"+TRIM(SUBSTR(cUsuario,7,15))
-   
-Dbselectarea("QSD1")
-Dbgotop()
-SetRegua(LastRec())
-
-cPrdAnt := QSD1->D1_COD
-
-pTotal  := 0
-tTotal  := 0
-nPos1   := 0
-
-DO While !QSD1->(EOF())
-
-   IncRegua()
-   If lAbortPrint
-      @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
-      Exit
-   Endif
-
-   //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-   //³ Impressao do cabecalho do relatorio. . .                            ³
-   //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-   If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
-      Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
-      nLin := 9
-   Endif
-
-   IF QSD1->D1_COD <> cPrdAnt
-      @ nLin,0     PSAY "TOTAL DO PRODUTO "+cPrdAnt
-      @ nLin,nPos1 PSAY pTotal  PICTURE cPicVlr 
-      nLin+=2
-      pTotal := 0
-      cPrdAnt := QSD1->D1_COD
-      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
-         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
-         nLin := 9
-      Endif
-   ENDIF
-    
-   nPos := 0
-   //@ nLin,nPos PSAY QSD1->D1_FILIAL
-   //nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY QSD1->D1_COD
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY QSD1->B1_DESC
-   nPos := PCOL()+nEsp
-   
-   @ nLin,nPos PSAY QSD1->D1_CC
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY QSD1->CTT_DESC01
-   nPos := PCOL()+nEsp
-   
-   @ nLin,nPos PSAY QSD1->D1_FORNECE
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY QSD1->D1_LOJA
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY QSD1->A2_NOME
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY QSD1->D1_DOC
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY DTOC(QSD1->D1_DTDIGIT)
-   nPos := PCOL()+nEsp
-
-   IF nPos1 = 0
-      nPos1 := nPos
-   ENDIF
-
-   @ nLin,nPos PSAY QSD1->D1_TOTAL PICTURE cPicVlr 
-   nPos := PCOL()+nEsp
-
-	//IF fGFrota
-   		@ nLin,nPos PSAY PAD(QSD1->D1_XXHIST,20)
-   		nPos := PCOL()+nEsp
-	//ENDIF
-   
-   pTotal  += QSD1->D1_TOTAL
-   tTotal  += QSD1->D1_TOTAL
-   
-   nLin++
-   
-   dbSkip()
-EndDo
-
-nLin++
-IF nPos1 > 0
-   @ nLin,0     PSAY "TOTAL DO PRODUTO "+cPrdAnt                   
-   @ nLin,nPos1 PSAY pTotal  PICTURE cPicVlr 
-   nLin++
-   @ nLin,0     PSAY "TOTAL GERAL"
-   @ nLin,nPos1 PSAY tTotal  PICTURE cPicVlr 
-ENDIF                         
-//Roda(0,,Tamanho)
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Finaliza a execucao do relatorio...                                 ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-SET DEVICE TO SCREEN
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Se impressao em disco, chama o gerenciador de impressao...          ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-If aReturn[5]==1
-   dbCommitAll()
-   SET PRINTER TO
-   OurSpool(wnrel)
-Endif
-
-MS_FLUSH()
+	SE2->( dbSetOrder(1) )
+	If SE2->( MsSeek( xFilial("SE2")+QTMPXE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA ) ) )
 
 
-Return
+		aValor := Baixas((cAliasSE2)->E2_NATUREZ,(cAliasSE2)->E2_PREFIXO,(cAliasSE2)->E2_NUM,(cAliasSE2)->E2_PARCELA,(cAliasSE2)->E2_TIPO,;
+						nMoeda,"P",(cAliasSE2)->E2_FORNECE,dDataBase,(cAliasSE2)->E2_LOJA,(cAliasSE2)->E2_FILORIG,,,,nMoeda == 2,__oTBxCanc)
+
+		If SE2->E2_TIPO == "NDF"
+			aValor[I_VALOR_PAGO]:=0
+		Endif
+
+		If xmv_par14 == 1
+			nSaldo :=SaldoTit((cAliasSE2)->E2_PREFIXO,(cAliasSE2)->E2_NUM,(cAliasSE2)->E2_PARCELA,(cAliasSE2)->E2_TIPO,;
+							(cAliasSE2)->E2_NATUREZ,"P",(cAliasSE2)->E2_FORNECE,nMoeda,;
+							If(xmv_par11==1,dDataBase,(cAliasSE2)->E2_VENCREA),,(cAliasSE2)->E2_LOJA,,If(xmv_par17 == 1 ,(cAliasSE2)->E2_TXMOEDA,0),,,__oTBxCanc)
+		Else
+			nSaldo := Round(xMoeda(((cAliasSE2)->E2_SALDO+(cAliasSE2)->E2_SDACRES-(cAliasSE2)->E2_SDDECRE),(cAliasSE2)->E2_MOEDA,xmv_par10,;
+				If(xmv_par17 == 1,If(xmv_par18 == 1,(cAliasSE2)->E2_EMISSAO,(cAliasSE2)->E2_EMIS1),dDataBase),nDecs+1,If(xmv_par17 == 1 .and. (cAliasSE2)->E2_TXMOEDA>0,(cAliasSE2)->E2_TXMOEDA, )), nDecs)
+		Endif
+
+		//compensação de nf x pa/ncc de filiais diferentes.
+						//vld para corrigir o sld atual do total geral.
+		If nSaldo > 0 .And. (cAliasSE2)->E2_SALDO == 0 .And. (cAliasSE2)->E2_TIPO $ MVPAGANT+"/"+MV_CPNEG .And. len(aValor) > 0 .And. xmv_par18 == 2
+			If AllTrim(aValor[9]) == "Compensação"
+				nSaldo := 0
+			EndIf
+		EndIf
+
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ SE2 - Calcula valor acessório
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		nValAcess	:= 0
+		If SE2->E2_SALDO <> SE2->E2_VALOR //Sofreu baixa
+			aAreaSE5	:= SE5->(GetArea())
+			DbSelectArea("SE5")
+			DBSetOrder(2)  // E5_FILIAL, E5_TIPODOC, E5_PREFIXO, E5_NUMERO, E5_PARCELA, E5_TIPO, E5_DATA, E5_CLIFOR, E5_LOJA, E5_SEQ.
+			If SE5->(DBSeek(xFilial("SE5") + "VA" + SE2->E2_PREFIXO + SE2->E2_NUM + SE2->E2_PARCELA + SE2->E2_TIPO + Dtos(SE2->E2_BAIXA) + SE2->E2_FORNECE + SE2->E2_LOJA))
+				nValAcess := IIf(lFxLoadFK6,FxLoadFK6("FK1",SE5->E5_IDORIG,"VA")[1,2],0)
+			Endif
+			RestArea(aAreaSE5)
+		Else
+			nValAcess := IIf(lExistVlAc,FValAcess(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_FORNECE,SE2->E2_LOJA,SE2->E2_NATUREZ, Iif(Empty(SE2->E2_BAIXA),.F.,.T.),"","P",DDataBase),0)
+			nSaldo	+= nValAcess
+		Endif
+
+		aValor[I_DESCONTO]+= (cAliasSE2)->E2_SDDECRE
+		aValor[I_JUROS]   += (cAliasSE2)->E2_SDACRES
+		aValor[I_VALOR_ACESSORIO]	+= nValAcess
+
+		nTotAbat := SumAbatPag(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_FORNECE,xmv_par10,"V",,SE2->E2_LOJA,If(xmv_par18==1,"1","2"),xmv_par05,xmv_par06,;
+						If(xmv_par17 == 1,If(xmv_par18 == 1,SE2->E2_EMISSAO,SE2->E2_EMIS1),dDataBase),SE2->E2_TIPO)
+
+		If !((cAliasSE2)->E2_TIPO $ MVPAGANT+"/"+MV_CPNEG) .And. !( xMV_PAR14 == 2 .And. nSaldo == 0 ) // nao deve olhar abatimento pois e zerado o saldo na liquidacao final do titulo
+			nSaldo -= nTotAbat
+		EndIf
+
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Se foi gerada fatura, colocar Motbx == Faturado				  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If !Empty((cAliasSE2)->E2_DTFATUR) .and. (cAliasSE2)->E2_DTFATUR <= dDataBase
+			aValor[I_MOTBX] := "Faturado"
+			aValor[I_VALOR_PAGO] -= nTotAbat
+		Endif
+
+		If cPaisLoc == "BRA" .And. !lPaBruto  .And. alltrim((cAliasSE2)->E2_TIPO)$"PA ,"+MV_CPNEG
+			nValorOrig:=(cAliasSE2)->E2_VALOR+(cAliasSE2)->E2_COFINS+(cAliasSE2)->E2_PIS+(cAliasSE2)->E2_CSLL
+		Else
+			nValorOrig:=(cAliasSE2)->E2_VALOR
+		EndIf
+
+		aPgtos[X_VALOR_PAGO] 	+= aValor[I_VALOR_PAGO]
+		aPgtos[X_SALDO] 		+= nSaldo
+		aPgtos[X_PARCELAS]++
+		aPgtos[X_VLORIGINAL] 	+= nValorOrig
+		If (cAliasSE2)->E2_VENCREA > aPgtos[X_ULTVENC] 
+			aPgtos[X_ULTVENC]  := (cAliasSE2)->E2_VENCREA
+		EndIf
+		If (cAliasSE2)->E2_BAIXA > aPgtos[X_ULTPGTO] 
+			aPgtos[X_ULTPGTO]  := (cAliasSE2)->E2_BAIXA
+		EndIf
+
+	EndIf
+
+	QTMPXE2->(dbSkip())
+Enddo
+QTMPXE2->(Dbclosearea())
+
+aPgtos[X_VLPAGOITEM] := Round((aPgtos[X_VALOR_PAGO]  / aPgtos[X_VLORIGINAL]) * nValItem,2)
+	//                       Val total pago titulos  / Tot Geral             * Valor do Item   			
+aPgtos[X_SALDO]      := Round((aPgtos[X_SALDO]       / aPgtos[X_VLORIGINAL]) * nValItem,2)
+	//                       saldo                   / Tot Geral             * Valor do Item   			
+
+/*
+For _nY := 1 To Len(aLAcrDcr)
+	//                        Val desc/Acr  / Tot Geral * Valor do Item   			
+	nTotE2 := aLAcrDcr[_nY,6]
+
+	aLAcrDcr[_nY,3] := Round((aLAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
+	//                        Val titulo    / Tot Geral * Valor do Item   			
+	aLAcrDcr[_nY,5] := Round((aLAcrDcr[_nY,4] / nTotE2) * TMPX2->D1_TOTAL,2)
+Next
+*/
+Return aPgtos
+
 
 
 Static Function ValidPerg(cPerg)
@@ -968,7 +942,7 @@ cPerg := PADR(cPerg,10)
 
 AADD(aRegistros,{cPerg,"01","Data inicial:"    ,"Data I:"      ,"Data I:"      ,"mv_ch1","D",08,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"02","Data Final:"      ,"Data F:"      ,"Data F:"      ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Gerar Planilha? " ,"Planilha"     ,"Planilha"     ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"03","Mostrar Pgto?"    ,"Mostrar Pgto?","Mostrar Pgto?","mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 AADD(aRegistros,{cPerg,"04","Pesquisar produto","Produto"      ,"Produto"      ,"mv_ch4","C",15,0,0,"G",'Vazio() .or. ExistCpo("SB1")',"mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
 AADD(aRegistros,{cPerg,"05","Contrato de?"     ,"Contrato de?" ,"Contrato de?" ,"mv_ch5","C",09,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 AADD(aRegistros,{cPerg,"06","Contrato até?"    ,"Contrato até?","Contrato até?","mv_ch6","C",09,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})

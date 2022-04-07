@@ -46,7 +46,10 @@
 		},
 		{
 			"label": "sigagct"
+		},
+		{
+			"label": "sigafat"
 		}
 	],
-	"lastProgramExecuted": "sigafin"
+	"lastProgramExecuted": "U_UPDGENSX"
 }

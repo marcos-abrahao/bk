@@ -399,7 +399,7 @@ Begin Sequence
 		aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
   		cDigUser 	:= aLib[1]
 		cLibUser 	:= aLib[2]
-		cDtHoraLib 	:= IIF(!EMPTY(aLib[4]),aLib[4],aLib[3])
+		cDtHoraLib 	:= IIF(!EMPTY(CTOD(aLib[4])),aLib[4],aLib[3])
     ENDIF
 
     dbSelectArea("SD1")                   // * Itens da N.F. de Compra
@@ -558,10 +558,11 @@ Begin Sequence
 	Endif	
 
     nLin += 50
-	oPrn:Say(nLin,0100,"Tipo BK / Pes.:",oFont12N)
+	oPrn:Say(nLin,0100,"Tipo BK/Pes.:",oFont12N)
 	oPrn:Say(nLin,0400,OemToAnsi(SE2->E2_XXTIPBK+cTipoPes),oFont12N)
 	
-	oPrn:Say(nLin,1300,"Lote "+FWEmpName(cEmpAnt)+":",oFont12N)
+	//oPrn:Say(nLin,1300,"Lote "+FWEmpName(cEmpAnt)+":",oFont12N)
+	oPrn:Say(nLin,1300,"Lote :",oFont12N)
 	oPrn:Say(nLin,1700,OemToAnsi(SE2->E2_XXCTRID),oFont12N)
 
 	If lLands

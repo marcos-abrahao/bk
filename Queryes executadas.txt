@@ -1,6 +1,36 @@
 
 
 
+SELECT A2_COD,A2_NOME,A2_PRICOM,CONVERT(VARCHAR, DATEADD(DAY, ((ASCII(SUBSTRING(A2_USERLGI,12,1)) - 50) * 100 + (ASCII(SUBSTRING(A2_USERLGI,16,1)) - 50)), '19960101'), 112) AS DATACAD FROM SA2010 WHERE A2_PRICOM >= '20220101'
+
+==============================================================
+01/04/22 - Alterar natureza para Emprestimos
+UPDATE SE5010 SET E5_NATUREZ = '0000000016' FROM SE5010 WHERE E5_FORNECE IN ('460001',
+'004650',
+'000894',
+'001331',
+'000894',
+'500146',
+'000116')
+==============================================================
+31/03/22 - Apagar lote 202202 da folha (reintegrar na integração Rubi)
+
+--SELECT * 
+DELETE 
+FROM SZ5010 WHERE SUBSTRING(Z5_ANOMES,1,6) = '202202'
+
+==============================================================
+28/03/22 - Acerto custo Integra Rubi
+
+USE [BKIntegraRubi]
+GO
+
+select * from CUSTOSIGA
+--UPDATE CUSTOSIGA SET ccSIGA='036000592'
+where ccSIGA = '036000592'
+
+SELECT [dbo].[fnCCSiga] (1,1,11929,'CLT')
+GO
 
 ==============================================================
 21/03/22 - Retenção contratual TRANSPETRO

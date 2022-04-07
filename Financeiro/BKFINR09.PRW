@@ -161,12 +161,8 @@ AADD(aCabs  ,"OBS")
 
 IF !QSZ2->(EOF())
 	ProcRegua(QSZ2->(LASTREC()))
-
-	//Processa( {|| U_GeraCSV("QSZ2",cProg,aTitulos,aCampos,aCabs)})
-
    AADD(aPlans,{"QSZ2",TRIM(cPerg),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-   U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
-
+   U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 ELSE
    MsgStop("Sem dados para imprimir, verifique os parâmetros do relatório")
 	Dbselectarea("QSZ2")
