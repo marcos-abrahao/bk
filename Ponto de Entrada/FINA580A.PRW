@@ -52,7 +52,7 @@ IF !EMPTY(SE2->E2_XXCTRID)
 	EndDo
 	QSZ2->(dbCloseArea())
 ELSE
-	cQuery := " SELECT D1_CC "
+	cQuery := " SELECT D1_CC " 
 	cQuery += " FROM "+RETSQLNAME("SD1")+" SD1"
 	cQuery += " WHERE D1_FILIAL ='"+xFilial("SD1")+"' AND "
 	cQuery += "D1_DOC='"+SE2->E2_NUM+"'	AND D1_SERIE='"+SE2->E2_PREFIXO+"' AND D1_FORNECE='"+SE2->E2_FORNECE+"' AND D1_LOJA='"+SE2->E2_LOJA+"'"                                                                                                                                                                                                                        

@@ -398,7 +398,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 			lFormula:= .F.
 
 			If !Empty(_aFormula)
-				nF := aScan(_aFormula,{|x| x[1]=nCont .AND. x[2]= _aCampos[nI]})
+				nF := aScan(_aFormula,{|x| x[1]=(_cAlias)->(RECNO()) .AND. x[2]= _aCampos[nI]})
 
 				If nF > 0
 					// Formula ou Conteúdo fixo

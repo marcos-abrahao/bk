@@ -3522,8 +3522,6 @@ IF LEN(aEmail) > 0
 	ENDIF
 ENDIF
 
-//CONOUT("V11BKGct06: Fim Processo - Aviso de solicitação de compras em aberto")
-
 RestArea(aArea)
 
 Return Nil
@@ -3550,8 +3548,6 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-//CONOUT("V12BKGct06: Inicio Processo - Aviso de pedido de venda em aberto")
-
 If !lJobV2
 	IncProc()
 EndIf
@@ -3559,8 +3555,6 @@ EndIf
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
 ENDIF
-
-
 
 SM0->(DbGoTop())
 While SM0->(!EoF())
@@ -3621,8 +3615,6 @@ IF LEN(aEmail) > 0
 	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 
 ENDIF
-
-//CONOUT("V12BKGct06: Fim Processo - Aviso de Pedido de venda em aberto")
 
 RestArea(aArea)
 

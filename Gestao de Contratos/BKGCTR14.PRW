@@ -976,7 +976,9 @@ FOR _nI := 1 TO nPeriodo
 	//nDespesa := 0
 	//nDespCon := 0
 	If !lJob
-		IncProc("Consultando faturamento dos contratos...")
+		IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
+
+		//IncProc("Consultando faturamento dos contratos...")
 	Else
 		//u_xxLog(cArqLog,"Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
 		u_xxLog(cArqLog,"BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
@@ -1050,7 +1052,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5" + CRLF
 	cQuery += " 	ON (E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  " + CRLF
 	cQuery += " 	    E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND " + CRLF
-	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND " + CRLF
+	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' AND " + CRLF
 	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
 
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
@@ -1283,9 +1285,7 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"01","CONTRATO: ","S",TRIM(QTMP->CTT_DESC01)})              
         aAdd(aRentab,{"02","GESTOR BK: ","S",TRIM(QTMP->CN9_XXNRBK)})              
         aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
-		nNDC := 0 
-		//nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
-        //aAdd(aRentab,{"03-1","NDC","S",nNDC}) 
+
         aAdd(aRentab,{"03-2","","S",0}) 
         aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
 		IF lISSFURNAS
@@ -1302,9 +1302,9 @@ FOR _nI := 1 TO nPeriodo
         ENDIF
         aAdd(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM))+nNDC}) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM)) /*+nNDC*/}) 
         ELSE
-        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))+nNDC}) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)) /*+nNDC*/ }) 
 		ENDIF
         aAdd(aRentab,{"07-1","","S",0})
         aAdd(aRentab,{"08","CUSTO","S",0})
@@ -1330,6 +1330,10 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"30-1","","S",0}) 
         aAdd(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMP->E5DESC/(nIndTC/100),QTMP->E5DESC)}) 
 
+		nNDC := 0 
+		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
+        aAdd(aRentab,{"30-3","NDC","S",-nNDC}) 
+
         aAdd(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
         aAdd(aRentab,{"YYYYYYYYZ","","S",0}) 
         aAdd(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
@@ -1351,7 +1355,7 @@ FOR _nI := 1 TO nPeriodo
 				//(ALIAS_TMP)->XX_DESC   := aPeriodo[_nI,1]+IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])+TRANSFORM(QTMP->D2_TOTAL,"@E 99999999.99999")
 
 			ENDIF
-			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|"  // 28/10/20
+			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|30-3|"  // 28/10/20
 				cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 				&cCampo2 += aRentab[_nJ,4]
 			ENDIF
@@ -2110,7 +2114,7 @@ FOR _nI := 1 TO nPeriodo
 		NEXT _IXFUR
 
 		If !lJob
-			IncProc("Consultando Folha Pagamento...")
+			//IncProc("Consultando Folha Pagamento...")
 		Else
 			//u_xxLog(cArqLog,"Consultando Folha Pagamento..."+STR(_nI),.T.,"")
 		EndIf
@@ -2478,7 +2482,7 @@ FOR _nI := 1 TO nPeriodo
 		TMPX2->(dbCloseArea())
 
 		If !lJob
-			IncProc("Consultando Folha Pagamento - Autonomos...")
+			//IncProc("Consultando Folha Pagamento - Autonomos...")
 		Else
 			//u_xxLog(cArqLog,"Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
 		EndIf
@@ -2576,7 +2580,7 @@ FOR _nI := 1 TO nPeriodo
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 		If !lJob
-			IncProc("Consultando gastos gerais..."+STRZERO(_nI,3))
+			//IncProc("Consultando gastos gerais..."+aPeriodo[_nI,1]) //STRZERO(_nI,3))
 		Else
 			//u_xxLog(cArqLog,"Consultando gastos gerais..."+STR(_nI),.T.,"")
 		EndIf
@@ -4122,7 +4126,7 @@ FOR _nI := 1 TO nPeriodo
 	  	ENDIF
 
 		If !lJob
-			IncProc("Consultando faturamento de medições avulsas...")
+			//IncProc("Consultando faturamento de medições avulsas...")
 		Else
 			//u_xxLog(cArqLog,"Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
 		EndIf
@@ -4136,7 +4140,7 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " AND  SD2.D2_FILIAL = '"+xFilial("SD2")+"'  AND  SD2.D_E_L_E_T_ = ''"
 	    
 		// 27/02/20   
-		cQuery2 += "LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " //--AND E5_PARCELA = '  '
+		cQuery2 += "LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C'  AND E5_DTCANBX = ''" //--AND E5_PARCELA = '  '
 		cQuery2 += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "
 
 	    cQuery2 += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON SC5.C5_CLIENTE = SA1.A1_COD" 
@@ -4163,7 +4167,6 @@ FOR _nI := 1 TO nPeriodo
 	        aAdd(aRentab,{"02","Gestor BK: ","S",""})              
 			//aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",TMPX2->D2_TOTAL})    
 			aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,TMPX2->D2_TOTAL/(nIndTC/100),TMPX2->D2_TOTAL)})              
-	        //aAdd(aRentab,{"03-1","NDC","S",0}) 
 			          
 	        aAdd(aRentab,{"03-2","","S",0}) 
 			//aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",(TMPX2->D2_TOTAL*nMImpContr)/100})  
@@ -4202,6 +4205,7 @@ FOR _nI := 1 TO nPeriodo
 	        aAdd(aRentab,{"30","GASTOS GERAIS","S",0}) 
 	        aAdd(aRentab,{"30-1","","S",0}) 
 	        aAdd(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,TMPX2->E5DESC/(nIndTC/100),TMPX2->E5DESC)}) 
+	        aAdd(aRentab,{"30-3","NDC","S",0}) 
 	        aAdd(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
 	        aAdd(aRentab,{"YYYYYYYYZ","","S",0}) 
         	aAdd(aRentab,{"ZZZZZZZZY","RESULTADO PARCIAL","S",0})
@@ -4217,7 +4221,7 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 					(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4]+IIF("|"+aRentab[_nJ,1]+"|"="|01|"," - Medição Avulsa",""),aRentab[_nJ,2])
 				ENDIF
-				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|"
+				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|30-3|"
 					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 					&cCampo2 += aRentab[_nJ,4]
 				ENDIF
@@ -4269,7 +4273,7 @@ For Yi_ := 1 TO LEN(aContratos)
       	//VALOR DA NDC
 		//nNDC := 0
 		//dbSelectArea(ALIAS_TMP)
-		//IF MsSeek(ALLTRIM(aContratos[Yi_])+'03-1',.F.)
+		//IF MsSeek(ALLTRIM(aContratos[Yi_])+'30-3',.F.)
 		//	cCampo2   := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 		//	nNDC := &cCampo2
 		//ENDIF
@@ -4279,7 +4283,7 @@ For Yi_ := 1 TO LEN(aContratos)
 	   	IF dbSeek(ALLTRIM(aContratos[Yi_])+"YYYYYYYYY",.F.)
 			Reclock(ALIAS_TMP,.F.)
 			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-			&cCampo2 += nValTaxaAdm
+			&cCampo2 += nValTaxaAdm 
 			(ALIAS_TMP)->(Msunlock())
 		ELSE
 			Reclock(ALIAS_TMP,.T.)
@@ -4287,7 +4291,7 @@ For Yi_ := 1 TO LEN(aContratos)
 			(ALIAS_TMP)->XX_CODIGO := "YYYYYYYYY"
 			(ALIAS_TMP)->XX_DESC   := "TAXA DE ADMINISTRAÇÃO"
 			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-			&cCampo2 += nValTaxaAdm
+			&cCampo2 += nValTaxaAdm 
 			(ALIAS_TMP)->(Msunlock())
 		ENDIF
 		
@@ -4327,9 +4331,18 @@ For Yi_ := 1 TO LEN(aContratos)
 
 			nResultado -= nDescE5
 			n2Resultado -= nDescE5
-
 		ENDIF
 
+	    nNDC := 0
+		dbSelectArea(ALIAS_TMP)
+		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30-3',.F.)
+   			Reclock(ALIAS_TMP,.F.)
+			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+			nNDC  := &cCampo2
+
+			nResultado -= nNDC
+			n2Resultado -= nNDC
+		ENDIF
 
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
@@ -4462,7 +4475,7 @@ Do While (ALIAS_TMP)->(!eof())
 	nTDOMES 	:= 0
 
 	FOR _nI := 1 TO nPeriodo
-		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-2|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
+		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-2|06-1|07-1|22-1|30-1|30-3|YYYYYYYYZ|")	
 			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 	        nTotal		 += &cCampo2
 	        IF _nI == nCompet
@@ -4838,19 +4851,19 @@ Do While (ALIAS_TMP)->(!eof())
 
 
 	// 21/01/21
-	//IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03-1|"
-	//	dbSelectArea("TRB")
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|30-3|"
+		dbSelectArea("TRB")
 		//NDC
- 	//	Reclock("TRB",.T.)
-	//	TRB->XX_LINHA   := nLINHA
- 	//	TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-	//	TRB->XX_DESC	:= "NDC"
-	//	TRB->XX_PROJ 	:= ""
-	//	TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
-	//	TRB->XX_DIF 	:= ""
-	//	TRB->(Msunlock())
-	//	++nLINHA
-	//ENDIF
+ 		Reclock("TRB",.T.)
+		TRB->XX_LINHA   := nLINHA
+ 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+		TRB->XX_DESC	:= "NDC"
+		TRB->XX_PROJ 	:= ""
+		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB->XX_DIF 	:= ""
+		TRB->(Msunlock())
+		++nLINHA
+	ENDIF
 
 	// 28/02/20
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|30-2|"

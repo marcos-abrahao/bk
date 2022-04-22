@@ -103,6 +103,12 @@ User Function GerGestao
 Return "000056"
 
 
+// Gerente Gestão Petrobrás
+User Function GerPetro
+// Vanderleia
+Return "000056"
+
+
 // Grupo Almoxarifado
 User Function GrpAlmox
 Return "000021/000032"

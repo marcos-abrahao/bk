@@ -1,8 +1,7 @@
 #INCLUDE "PROTHEUS.CH"
-#INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKGCTR08
-BK - Mapa de Mediçoes c/ historico
+BK - Mapa de Multas e Bonificações
 
 @Return
 @author Marcos Bispo Abrahão
@@ -12,31 +11,22 @@ BK - Mapa de Mediçoes c/ historico
 
 User Function BKGCTR08()
 
-Local titulo         := ""
-Local aTitulos,aCampos,aCabs
+Local cTitulo   := ""
+Local aPlans    := {}
+Local aTitulos	:= {}
+Local aCampos	:= {}
+Local aCabs		:= {}
+Local cMesA 	:= ""
+Local cAnoA 	:= ""
 
-Private lEnd         := .F.
-Private lAbortPrint  := .F.
-Private limite       := 220
-Private tamanho      := " "
-Private nomeprog     := "BKGCTR08" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo        := 18
-Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey     := 0
-Private cPerg        := "BKGCTR08"
-Private cbtxt        := Space(10)
-Private cbcont       := 00
-Private CONTFL       := 01
-Private m_pag        := 01
-Private cString      := "CN9"
-
-Private cMesComp     := "01"
-Private cAnoComp     := "2010"
-Private nPlan        := 1
-Private cMes 
-
-dbSelectArea(cString)
-dbSetOrder(1)
+Private cPerg       := "BKGCTR08"
+Private cMesComp    := "01"
+Private cAnoComp    := "2010"
+Private cMes 	    := "01"
+Private nFiltro 	:= 1
+Private cCompet		:= ""
+Private cCompetA 	:= ""
+//Private oTmpTb		As Object
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -46,260 +36,304 @@ u_LogPrw(cPerg)
 
 cMesComp := mv_par01
 cAnoComp := mv_par02
+nFiltro	 := mv_par03
 cCompet  := cMesComp+"/"+cAnoComp
-nPlan    := mv_par03
+cMes 	 := cAnoComp+cMesComp
 
-//nMes := VAL(cMesComp) + 1
-//nAno := VAL(cAnoComp)
-//IF nMes = 13
-//   nMes := 1
-//   nAno := nAno + 1
-//ENDIF
-//cMes := STR(nAno,4)+STRZERO(nMes,2)   
+// Competência Anterior
+cMesA 	 := STRZERO(VAL(cMesComp) - 1,2)
+cAnoA 	 := cAnoComp
+If cMesA == "00"
+	cMesA := "12"
+	cAnoA := STRZERO(VAL(cAnoComp) - 1,2)
+EndIf
+cCompetA := cMesA+"/"+cAnoA
 
-cMes := cAnoComp+cMesComp
-
-titulo   := "Mapa de Medições : Competencia "+cMesComp+"/"+cAnoComp
-
-If .f. //nPlan = 2
-
+If nFiltro = 1
+	cTitulo  := "Mapa de Multas e Bonificações : Emissão em "+cMesComp+"/"+cAnoComp
 Else
-	ProcRegua(1)
-	Processa( {|| ProcQuery() })
+	cTitulo  := "Mapa de Multas e Bonificações : Competencia "+cMesComp+"/"+cAnoComp
+EndIf
+FWMsgRun(, {|oSay| ProcQuery() }, "", cPerg+" - Consultando dados...")
 
-	aCabs   := {}
-	aCampos := {}
-	aTitulos:= {}
-	
-	aCampos2:= {}
-	aCabs2  := {}
-   
-	nomeprog := "BKGCTR08/"+TRIM(SUBSTR(cUsuario,7,15))
-	AADD(aTitulos,nomeprog+" - "+titulo)
+AADD(aTitulos,cTitulo)
+AADD(aCampos,"QTMP->CND_CONTRA")
+AADD(aCabs  ,"Contrato")
 
-	AADD(aCampos,"QTMP->CNF_CONTRA")
-	AADD(aCabs  ,"Contrato")
+AADD(aCampos,"QTMP->CTT_DESC01")
+AADD(aCabs  ,"Centro de Custos")
 
-	//AADD(aCampos,"QTMP->CNF_REVISA")
-	//AADD(aCabs  ,"Revisão")
+AADD(aCampos,"QTMP->C5_XXCOMPM")
+AADD(aCabs  ,"Competencia")
 
-	AADD(aCampos,"QTMP->CTT_DESC01")
-	AADD(aCabs  ,"Centro de Custos")
+AADD(aCampos,"QTMP->C5_NUM")
+AADD(aCabs  ,"Pedido")
 
-	//AADD(aCampos,"QTMP->CNA_NUMERO")
-	//AADD(aCabs  ,"Planilha")
+AADD(aCampos,"QTMP->C5_MDNUMED")
+AADD(aCabs  ,"Medição")
 
-	//AADD(aCampos,"QTMP->CNA_XXMUN")
-	//AADD(aCabs  ,"Municipio")
+AADD(aCampos,"QTMP->C5_MDPLANI")
+AADD(aCabs  ,"Planilha")
 
-	AADD(aCampos,"QTMP->CNF_COMPET")
-	AADD(aCabs  ,"Competencia")
+AADD(aCampos,"QTMP->F2_SERIE")
+AADD(aCabs  ,"Serie")
 
-	//AADD(aCampos,"QTMP->CND_NUMMED")
-	//AADD(aCabs  ,"Medição")
+AADD(aCampos,"QTMP->F2_DOC")
+AADD(aCabs  ,"NF")
 
-	//AADD(aCampos,"QTMP->C6_NUM")
-	//AADD(aCabs  ,"Pedido")
-   
-	//AADD(aCampos,"QTMP->F2_DOC")
-	//AADD(aCabs  ,"Nota Fiscal")
+AADD(aCampos,"QTMP->F2_EMISSAO")
+AADD(aCabs  ,"Emissão")
 
-	//AADD(aCampos,"QTMP->F2_EMISSAO")
-	//AADD(aCabs  ,"Emissao")
-   
-	//AADD(aCampos,"QTMP->XX_VENCTO")
-	//AADD(aCabs  ,"Vencimento")
+AADD(aCampos,"QTMP->CXN_VLPREV")
+AADD(aCabs  ,"Valor Previsto")
 
-	AADD(aCampos,"QTMP->CNF_VLPREV")
-	AADD(aCabs  ,"Valor Previsto")
+AADD(aCampos,"QTMP->F2_VALFAT")
+AADD(aCabs  ,"Valor Faturado")
 
-	AADD(aCampos,"QTMP->CNF_SALDO")
-	AADD(aCabs  ,"Saldo Previsto")
+AADD(aCabs  ,"Multas")
+AADD(aCampos,"QTMP->CXN_VLMULT")
 
-	AADD(aCampos,"QTMP->F2_VALFAT")
-	AADD(aCabs  ,"Valor faturado")
+AADD(aCampos,"-QTMP->CXN_VLBONI")
+AADD(aCabs  ,"Bonificações")
 
-	//AADD(aCampos,"QTMP->CNF_VLPREV - QTMP->F2_VALFAT")
-	//AADD(aCabs  ,"Previsto - Faturado")
+AADD(aCampos,"QTMP->CNRTPMUL")
+AADD(aCabs  ,"Tipos Multas")
 
-	AADD(aCampos,"QTMP->XX_BONIF")
-	AADD(aCabs  ,"Bonificações do mes")
+AADD(aCampos,"QTMP->CNRDESCMUL")
+AADD(aCabs  ,"Descrição das Multas")
 
-	AADD(aCampos,"QTMP->XX_MULTA")
-	AADD(aCabs  ,"Multas no mes")
+AADD(aCampos,"QTMP->CNRTPBON")
+AADD(aCabs  ,"Tipos Bonificações")
 
-	//AADD(aCampos,"QTMP->XX_MULANT")
-	//AADD(aCabs  ,"Multas Anteriores")
+AADD(aCampos,"QTMP->CNRDESCBON")
+AADD(aCabs  ,"Descrição das Bonificações")
 
-	//AADD(aCampos,"QTMP->XX_BONANT")
-	//AADD(aCabs  ,"Bonificações Anteriores")
+AADD(aCampos,"QTMP->FORMAMED")
+AADD(aCabs  ,"Forma Medição")
 
-	AADD(aCampos,"QTMP->XX_MULANT - QTMP->XX_BONANT")
-	AADD(aCabs  ,"Sobras Anteriores")
+AADD(aCampos,"Capital(QTMP->CND_USUAR)")
+AADD(aCabs  ,"Usuário")
 
 
-	//AADD(aCampos,"QTMP->F2_VALIRRF")
-	//AADD(aCabs  ,"IRRF Retido")
+AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/,/* aFormula */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
-	//AADD(aCampos,"QTMP->F2_VALINSS")
-	//AADD(aCabs  ,"INSS Retido")
+U_PlanXlsx(aPlans,cTitulo,cPerg, lClose := .T.)
 
-	//AADD(aCampos,"QTMP->F2_VALPIS")
-	//AADD(aCabs  ,"PIS Retido")
-
-	//AADD(aCampos,"QTMP->F2_VALCOFI")
-	//AADD(aCabs  ,"COFINS Retido")
-
-	//AADD(aCampos,"QTMP->F2_VALCSLL")
-	//AADD(aCabs  ,"CSLL Retido")
-
-	//AADD(aCampos,"IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
-	//AADD(aCabs  ,"ISS Retido")
-
-	//AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
-	//AADD(aCabs  ,"Valor liquido")
-
-
-	AADD(aCampos2,"STRTRAN(ALLTRIM(QTMP2->CND_XXDETG),';',',')")
-	AADD(aCabs2  ,"Desc. Mult/Bon")
-
-	AADD(aCampos2,"STRTRAN(ALLTRIM(QTMP2->CND_XXJUST),';',',')")
-	AADD(aCabs2  ,"Just.Mult/Bon")
-
-	AADD(aCampos2,"STRTRAN(ALLTRIM(QTMP2->CND_XXACAO),';',',')")
-	AADD(aCabs2  ,"Acao Mult/Bon")
-
-	AADD(aCampos2,"QTMP2->CND_XXDTAC")
-	AADD(aCabs2  ,"Data Acao Mult/Bon")
-    
-	AADD(aCampos2,"QTMP2->CND_XXPOST")
-	AADD(aCabs2  ,"Qtd. Postos")
-
-	AADD(aCampos2,"QTMP2->CND_XXFUNC")
-	AADD(aCabs2  ,"Qtd. Funcionarios")
-
-	AADD(aCampos2,"QTMP2->CND_XXNFUN")
-	AADD(aCabs2  ,"Qtd. Func. Atual")
-
-	AADD(aCampos2,"STRTRAN(ALLTRIM(QTMP2->CND_XXJFUN),';',',')")
-	AADD(aCabs2  ,"Just.Num.Funcion")
-	cQuery2 := ""
-
-	U_GeraCSV2("QTMP",cPerg,aTitulos,aCampos,aCabs,cQuery2,"QTMP2",aCampos2,aCabs2)
-   
-EndIf	
 Return
+
 
 
 Static Function ProcQuery
 Local cQuery
+//Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
+Local cFilSel := ""
+//Local aStruct := {}
 
-IncProc("Consultando o banco de dados...")
-
-
-cQuery := " SELECT DISTINCT CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
-cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
-cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
-cQuery += "    CTT_DESC01, "+ CRLF
-cQuery += "    CNA_NUMERO, "+ CRLF
-cQuery += "    CND_NUMERO, "+ CRLF
-//cQuery += "    CNA_XXMUN, "+ CRLF
-cQuery += "    CND_NUMMED, "+ CRLF
-//cQuery += "    C6_NUM, "+ CRLF
-cQuery += "    CNF_PARCEL, "+ CRLF
-
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
-cQuery += "         AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONIF,"+ CRLF
-
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
-cQuery += "         AND CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,"+ CRLF
-
-// Somar Bonificações Anteriores
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR "+ CRLF
-cQuery += "         INNER JOIN "+RETSQLNAME("CND")+ " CNDB ON CNDB.CND_NUMMED = CNR_NUMMED AND"+ CRLF
-cQuery += "                      SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '"+cAnoComp+cMesComp+"'" + CRLF
-cQuery += "                      AND CNDB.CND_CONTRA = CNF_CONTRA AND CNDB.CND_REVISA = CNF_REVISA "+ CRLF
-//cQuery += "                      AND CNDB.CND_PARCEL = CNF_PARCEL "+ CRLF
-cQuery += "                      AND CNDB.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += "         WHERE CNR_FILIAL = CNDB.CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_BONANT,"+ CRLF
-
-// Somar Multas Anteriores
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR "+ CRLF
-cQuery += "         INNER JOIN "+RETSQLNAME("CND") + " CNDB ON CNDB.CND_NUMMED = CNR_NUMMED AND" + CRLF
-cQuery += "                      SUBSTRING(CNDB.CND_COMPET,4,4)+SUBSTRING(CNDB.CND_COMPET,1,2) < '"+cAnoComp+cMesComp+"'" + CRLF
-cQuery += "                      AND CNDB.CND_CONTRA = CNF_CONTRA AND CNDB.CND_REVISA = CNF_REVISA "+ CRLF
-//cQuery += "                      AND CNDB.CND_PARCEL = CNF_PARCEL "
-cQuery += "                      AND CNDB.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += "         WHERE CNR_FILIAL = CNDB.CND_FILIAL AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULANT,"+ CRLF
+If nFiltro == 1
+	cFilSel := xFilial("SF2")
+Else
+	cFilSel := xFilial("SC5")
+EndIf
 
 
-cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
+//Local cJCNDCNE:= FWJoinFilial("CND", "CNE")
+//Local cJCXNCNE:= FWJoinFilial("CXN", "CNE")
+//Local cJCNACN9:= FWJoinFilial("CNA", "CN9")
+//Local cJSC5CNE:= FWJoinFilial("SC5", "CNE")
+//Local cJSC6SC5:= FWJoinFilial("SC6", "SC5")
+//Local cJSD2SC6:= FWJoinFilial("SD2", "SC6")
+//Local cJSF2SC6:= FWJoinFilial("SF2", "SC6")
 
-cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
 
-cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
+cQuery := " SELECT " + CRLF
+cQuery += "   ISNULL(CND_CONTRA,C5_ESPECI1) AS CND_CONTRA"+ CRLF
+cQuery += "   ,CTT_DESC01"+ CRLF
+cQuery += "   ,C5_XXCOMPM"+ CRLF
+cQuery += "   ,C5_NUM"+ CRLF
+cQuery += "   ,C5_MDNUMED"+ CRLF
+cQuery += "   ,C5_MDPLANI"+ CRLF
+cQuery += "   ,F2_SERIE"+ CRLF
+cQuery += "   ,F2_DOC"+ CRLF
+cQuery += "   ,F2_EMISSAO"+ CRLF
+cQuery += "   ,F2_VALFAT"+ CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9.CN9_SITUAC NOT IN ('01','02','08','09','10') "+ CRLF
+cQuery += "   ,CND_USUAR"+ CRLF
+cQuery += "   ,(CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END) AS FORMAMED"+ CRLF
+
+cQuery += "   ,ISNULL(CXN_VLPREV,CND_VLPREV) AS CXN_VLPREV"+ CRLF
+cQuery += "   ,ISNULL(CXN_VLBONI,CND_VLBONI) AS CXN_VLBONI"+ CRLF
+cQuery += "   ,ISNULL(CXN_VLMULT,CND_VLMULT) AS CXN_VLMULT"+ CRLF
+
+cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
+cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF //AQUI
+cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'"+ CRLF
+cQuery += "          ORDER BY '; ' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
+cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)' 
+cQuery += "          ), 1, 1, '') AS CNRTPMUL"+ CRLF
+
+cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
+cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'"+ CRLF
+cQuery += "          ORDER BY '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
+cQuery += "          ), 1, 1, '') AS CNRDESCMUL"+ CRLF
+
+cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
+cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
+cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'"+ CRLF
+cQuery += "          ORDER BY '; ' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
+cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
+cQuery += "          ), 1, 1, '') AS CNRTPBON"+ CRLF
+
+cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
+cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'"+ CRLF
+cQuery += "          ORDER BY '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
+cQuery += "          ), 1, 1, '') AS CNRDESCBON"+ CRLF
+
+If nFiltro == 1
+	cQuery  += " FROM "+RETSQLNAME("SF2")+" SF2" + CRLF
+	cQuery  += " LEFT JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery  += " 	ON (C5_NOTA = F2_DOC AND C5_SERIE = F2_SERIE" + CRLF
+	cQuery  += " 		AND C5_FILIAL = F2_FILIAL AND SC5.D_E_L_E_T_='')" + CRLF
+Else
+	cQuery  += " FROM "+RETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery  += " LEFT JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
+	cQuery  += " 	ON (C5_NOTA = F2_DOC AND C5_SERIE = F2_SERIE" + CRLF
+	cQuery  += " 		AND F2_FILIAL = C5_FILIAL AND SF2.D_E_L_E_T_='')" + CRLF
+EndIf
+
+// Sugestão Totvs: CXN.CXN_FILIAL = CND.CND_FILIAL AND CXN.CXN_CONTRA = CND.CND_CONTRA AND CXN.CXN_REVISA = CND.CND_REVISA AND CXN.CXN_NUMMED = CND.CND_NUMMED AND CXN.CXN_CHECK = 'T'
+cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+cQuery += " 	ON (CXN_CONTRA = C5_MDCONTR AND CXN_NUMMED = C5_MDNUMED AND CXN_NUMPLA = C5_MDPLANI AND CXN.CXN_CHECK = 'T'" +CRLF
+cQuery += " 		AND CXN_FILIAL = '"+cFilSel+"' AND CXN.D_E_L_E_T_='')" + CRLF
+
+cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+cQuery += " 	ON (CND_NUMMED = C5_MDNUMED" +CRLF
+cQuery += " 		AND CND_FILIAL = '"+cFilSel+"' AND CND.D_E_L_E_T_=''" + CRLF
+cQuery += " 		AND CND.R_E_C_N_O_= " + CRLF
+cQuery += "	        (SELECT TOP 1 R_E_C_N_O_ FROM CND010 CND1 " + CRLF
+cQuery += "	            WHERE CND1.CND_NUMMED = C5_MDNUMED"+CRLF
+cQuery += "	            AND CND1.CND_FILIAL = '"+cFilSel+"' AND CND1.D_E_L_E_T_=''))" + CRLF
+
+/* caso precise de produto
+LEFT JOIN CNE010 CNE
+ON (CNE_CONTRA = C5_MDCONTR AND CNE_NUMMED = C5_MDNUMED AND CNE_PEDIDO = C5_NUM
+    AND CNE_REVISA = CND_REVGER AND CNE.D_E_L_E_T_ = '' AND
+    CNE.R_E_C_N_O_ = 
+	(SELECT TOP 1 R_E_C_N_O_ FROM CNE010 CNE1 WHERE CNE_CONTRA = C5_MDCONTR AND CNE_NUMMED = C5_MDNUMED AND CNE_PEDIDO = C5_NUM
+	AND CNE_REVISA = CND_REVGER  AND CNE1.D_E_L_E_T_ = ''))
+
+cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+cQuery += " 	ON ISNULL(CND_CONTRA,C5_ESPECI1) = CTT_CUSTO" + CRLF
+cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
+*/
+
+cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+cQuery += " 	ON (ISNULL(CND_CONTRA,C5_ESPECI1) = CTT_CUSTO" + CRLF
+cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
+
+cQuery += " WHERE "+ CRLF
+If nFiltro == 1
+	cQuery += " SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"'"+ CRLF
+	cQuery += " AND SF2.D_E_L_E_T_=''"+ CRLF
+Else 
+	cQuery += " C5_XXCOMPM = '"+cCompet+"'"+ CRLF
+	cQuery += " AND SC5.D_E_L_E_T_=''"+ CRLF
+EndIf
+
+If nFiltro == 1
+
+
+EndIf
+
+// Cronograma não faturado
+cQuery += " UNION ALL "+ CRLF
+cQuery += " SELECT DISTINCT" + CRLF
+
+cQuery += "   CNF_CONTRA 	AS CND_CONTRA"+ CRLF
+cQuery += "   ,CTT_DESC01"+ CRLF
+cQuery += "   ,CNF_COMPET	AS C5_XXCOMPM"+ CRLF
+cQuery += "   ,' '			AS C5_NUM"+ CRLF
+cQuery += "   ,' '			AS C5_MDNUMED"+ CRLF
+cQuery += "   ,CNF_NUMPLA	AS C5_MDPLANI"+ CRLF
+cQuery += "   ,' '			AS F2_SERIE"+ CRLF
+cQuery += "   ,'PREVISTO'	AS F2_DOC"+ CRLF
+cQuery += "   ,' '			AS F2_EMISSAO"+ CRLF
+cQuery += "   ,0			AS F2_VALFAT"+ CRLF
+
+cQuery += "   ,' '			AS CND_USUAR"+ CRLF
+cQuery += "   ,' '			AS FORMAMED"+ CRLF
+
+
+cQuery += "   ,CNF_VLPREV	AS CXN_VLPREV"+ CRLF
+cQuery += "   ,0 			AS CXN_VLBONI"+ CRLF
+cQuery += "   ,0 			AS CXN_VLMULT"+ CRLF
+
+cQuery += "   ,' '			AS CNRTPMUL"+ CRLF
+cQuery += "   ,' '			AS CNRDESCMUL"+ CRLF
+cQuery += "   ,' '			AS CNRTPBON"+ CRLF
+cQuery += "   ,' '			AS CNRDESCBON"+ CRLF
+
+cQuery += " FROM "+RETSQLNAME("CNF")+" CNF" + CRLF
+cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_REVATU = ' '"+ CRLF
 cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+ CRLF
 cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"+ CRLF
-cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNA_NUMERO = CND_NUMERO AND CND_PARCEL = CNF_PARCEL AND CND_REVISA = CNA_REVISA"+ CRLF
-cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+ CRLF
-cQuery += "      AND  C6_FILIAL = CND.CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+ CRLF
-cQuery += "      AND  F2_FILIAL = CND.CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+ CRLF
 
-cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"+ CRLF
-// para teste cQuery += " WHERE SUBSTRING(F2_EMISSAO,1,6) = "+cMes
+If nFiltro = 1
+	// Emissão: usar competência anterior para previsões
+	cQuery += " WHERE CNF_COMPET = '"+cCompetA+"'"+ CRLF
+Else
+	cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"+ CRLF
+EndIf
 
+cQuery += "      AND  CNF_SALDO = CNF_VLPREV"+ CRLF
 cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+ CRLF
 
-cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "+ CRLF
-cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "+ CRLF
-
-
-cQuery += " UNION ALL "+ CRLF
-cQuery += " SELECT "+ CRLF
-cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF
-cQuery += "        ' ',' ',0,0, "  // CNF_CONTRA,CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO
-cQuery += "        A1_NOME, "  // CTT_DESC01
-cQuery += "        ' ', "  // CNA_NUMERO
-cQuery += "        ' ', "  // CND_NUMERO
-//cQuery += "        ' ', "  // CNA_XXMUN
-cQuery += "        ' ', "      // CND_NUMMED
-//cQuery += "        ' ', "      // C6_NUM
-cQuery += "        ' ', "      // CNF_PARCEL
-cQuery += "        0,0,0,0, "+ CRLF      // XX_BONIF,XX_MULTA
-cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS, " + CRLF
-cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "            AND  E1_FILIAL = '"+xFilial("SE1")+"'  AND  SE1.D_E_L_E_T_ = ' ') AS XX_VENCTO "+ CRLF
-
-cQuery += " FROM "+RETSQLNAME("SF2")+" SF2"+ CRLF
-//cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = "+cqContr
-//cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
-cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA"+ CRLF
-cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " WHERE ("+cqContr+" = ' ' OR "+ CRLF
-cQuery +=           cqContr+" IS NULL ) "+ CRLF
-cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"'" + CRLF
-cQuery += "      AND SF2.D_E_L_E_T_ = ' '"+ CRLF
-
-//cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = C6_CONTRA"
-//cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
-
-//cQuery += " ORDER BY F2_DOC"  
-
-cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC" + CRLF
+cQuery += " ORDER BY F2_DOC"+ CRLF
 
 u_LogMemo("BKGCTR08.SQL",cQuery)
 
-TCQUERY cQuery NEW ALIAS "QTMP"
+// Change query insere erro no XML PATH
+//cQuery := ChangeQuery(cQuery)
+//u_LogMemo("CBKGCTR08.SQL",cQuery)
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
-TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
+//TCSETFIELD("QTMP","CNRDESCBON","C",100,0)
+/*
+aStruct := QTMP->(dbStruct())
+aadd(aStruct,{"XX_VALBX","N",18,2})
+aadd(aStruct,{"XX_VALDCAC","N",18,2})
+aadd(aStruct,{"E1_XXOBX","C",15,0})
+aadd(aStruct,{"E5_TIPODOC","C",2,0})
+
+oTmpTb := FWTemporaryTable():New( "TRB")
+oTmpTb:SetFields( aStruct )
+oTmpTb:Create()
+
+
+dbSelectArea(QTMP)
+dbGoTop()
+Do While !EOF()
+
+	RecLock("TRB",.T.)
+	For j:=1 to QTMP->(FCount())
+		FieldPut(j,QCNC->(FieldGet(j)))
+	Next
+
+	dbSelectArea(QTMP)
+	dbSkip()
+EndDO
+*/
 
 Return
 
@@ -313,8 +347,9 @@ dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Mes de Competencia"  ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"02","Ano de Competencia"  ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"01","Mes"          ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"02","Ano"          ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Filtrar por:" ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","Emissão","Emissão","Emissão","","","Competencia","Competencia","Competencia","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
@@ -325,14 +360,6 @@ For i:=1 to Len(aRegistros)
 			Endif
 		Next
 		MsUnlock()
-	//Else	
-	//	RecLock("SX1",.F.)
-	//	For j:=1 to FCount()
-	//		If j <= Len(aRegistros[i])
-	//			FieldPut(j,aRegistros[i,j])
-	//		Endif
-	//	Next
-	//	MsUnlock()
 	Endif
 Next
 
@@ -340,239 +367,3 @@ RestArea(aArea)
 
 Return(NIL)
 
-/*
-USER FUNCTION BKCNR08(cNumMed,cTipo)
-LOCAL cQuery,cMotivo := ""
-
-cQuery := " SELECT CNR_DESCRI FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR_NUMMED = '"+cNumMed+"' "
-cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '"+cTipo+"' "
-TCQUERY cQuery NEW ALIAS "QTMP1"
-dbSelectArea("QTMP1")
-dbGoTop()
-DO WHILE !EOF()
-    cMotivo += ALLTRIM(QTMP1->CNR_DESCRI)+" "
-	dbSelectArea("QTMP1")
-	dbSkip()
-ENDDO
-
-QTMP1->(Dbclosearea())
-Return cMotivo
-*/
-
-                       
-
-User Function GeraCSV2(_cAlias,cArqS,aTitulos,aCampos,aCabs,cQuery2,_cAlias2,aCampos2,aCabs2)
-
-Local nHandle
-Local cCrLf   := Chr(13) + Chr(10)
-Local _ni,_nj
-Local cPicN   := "@E 99999999.99999"
-Local cDirTmp := "C:\TMP"
-Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
-Local lSoma,aSoma,nCab
-Local cLetra
-Local nxx
-
-Local cContra := ""
-
-Private xQuebra,xCampo
-
-MakeDir(cDirTmp)
-fErase(cArqTmp)
-
-//If fErase(cArqTmp) == -1
-//   MsgStop('O arquivo '+cArqTmp+' esta em uso ( FError'+str(ferror(),4)+ ')')
-//   Return
-//EndIf
-
-lSoma := .F.
-aSoma := {}
-nCab  := 0
-
-nHandle := MsfCreate(cArqTmp,0)
-   
-If nHandle > 0
-      
-   FOR _ni := 1 TO LEN(aTitulos)
-      fWrite(nHandle, aTitulos[_ni])
-      fWrite(nHandle, cCrLf ) // Pula linha
-      nCab++
-   NEXT
-
-   FOR _ni := 1 TO LEN(aCabs)
-       fWrite(nHandle, aCabs[_ni] + ";" )
-   NEXT
-
-   FOR _ni := 1 TO LEN(aCabs2)
-       fWrite(nHandle, aCabs2[_ni] + IIF(_ni < LEN(aCabs2),";",""))
-   NEXT
-
-
-   fWrite(nHandle, cCrLf ) // Pula linha
-   nCab++
-
-   (_cAlias)->(dbgotop())
-   
-   cContra := ""  //(_cAlias)->CNF_CONTRA
-   
-   Do While (_cAlias)->(!eof())
-
-     IF (_cAlias)->XX_BONIF == 0 .AND. (_cAlias)->XX_MULTA == 0 .AND. (_cAlias)->CNF_SALDO == 0
- 		(_cAlias)->(dbSkip())
-		LOOP
-      ENDIF
-
-      IF !lSoma
-         For _ni :=1 to LEN(aCampos)
-             xCampo := &(aCampos[_ni])
-             If VALTYPE(xCampo) == "N" // Trata campos numericos
-                cLetra := CHR(_ni+64)
-                IF cLetra > "Z"
-                   cLetra := "A"+CHR(_ni+64-26)
-                ENDIF
-                AADD(aSoma,'=Soma('+cLetra+ALLTRIM(STR(nCab))+':')
-             Else
-                AADD(aSoma,"")
-             Endif
-         Next
-         lSoma := .T.
-      ENDIF
-   
-      IncProc("Gerando arquivo "+cArqS)   
-
-      For _ni :=1 to LEN(aCampos)
-
-         xCampo := &(aCampos[_ni])
-            
-         _uValor := ""
-            
-         If VALTYPE(xCampo) == "D" // Trata campos data
-            _uValor := dtoc(xCampo)
-         Elseif VALTYPE(xCampo) == "N" // Trata campos numericos
-         	IF (cContra == (_cAlias)->CNF_CONTRA) .AND. (aCampos[_ni] == "QTMP->XX_MULANT")
-               _uValor := transform(0,cPicN)
-         	ELSEIF (cContra == (_cAlias)->CNF_CONTRA) .AND. (aCampos[_ni] == "QTMP->XX_BONANT")
-               _uValor := transform(0,cPicN)
-         	ELSEIF (cContra == (_cAlias)->CNF_CONTRA) .AND. (aCampos[_ni] == "QTMP->XX_MULANT - QTMP->XX_BONANT")
-               _uValor := transform(0,cPicN)
-            ELSE
-               _uValor := transform(xCampo,cPicN)
-            ENDIF   
-         Elseif VALTYPE(xCampo) == "C" // Trata campos caracter
-             //_uValor := xCampo+CHR(160)
-            _uValor := '="'+ALLTRIM(xCampo)+'"'
-         Endif
-            
-         fWrite(nHandle, _uValor + ";" )
-      Next _ni
-
-      cContra := (_cAlias)->CNF_CONTRA
-
-      //nCab++   
-
-
-//Select CONVERT(VARCHAR(8000),CONVERT(Binary(8000),XML_SIG)) XML_SIG from SPED050
-
-	  cQuery2 := "SELECT CONVERT(VARCHAR(8000),CONVERT(Binary(8000),CND_XXDETG)) CND_XXDETG, "
-	  cQuery2 += "	     CONVERT(VARCHAR(8000),CONVERT(Binary(8000),CND_XXJUST)) CND_XXJUST, "
-	  cQuery2 += "	     CONVERT(VARCHAR(8000),CONVERT(Binary(8000),CND_XXACAO)) CND_XXACAO, "
-	  cQuery2 += "	     CONVERT(VARCHAR(8000),CONVERT(Binary(8000),CND_XXJFUN)) CND_XXJFUN, "
-	  cQuery2 += "	     CND_XXDTAC,CND_XXPOST,CND_XXFUNC,CND_XXNFUN "
-      cQuery2 += " FROM "+RETSQLNAME("CND")+" CND"
-      cQuery2 += " WHERE CND.D_E_L_E_T_ = ' '  AND CND_CONTRA = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
-      cQuery2 += " AND CND_COMPET = '"+ALLTRIM(QTMP->CNF_COMPET)+"' "
-      cQuery2 += " AND CND_NUMERO = '"+QTMP->CNA_NUMERO+"' "
-      cQuery2 += " AND CND_PARCEL = '"+QTMP->CNF_PARCEL+"' "
-      cQuery2 += " AND CND_REVISA = '"+QTMP->CNF_REVISA+"' " 
-      cQuery2 += " AND CND_NUMMED = '"+QTMP->CND_NUMMED+"' " 
-      
-      TCQUERY cQuery2 NEW ALIAS "QTMP2"
-      TCSETFIELD("QTMP2","CND_XXDTAC","D",8,0)
-      
-      dbSelectArea(_cAlias2)
-      dbGoTop()
-      lC1 := .T.
-	  DO WHILE !EOF()
-		 IF !lC1
-			 For _nJ :=1 to LEN(aCampos)
-            	fWrite(nHandle, " ;" )
-   			 Next _nJ
-		 ENDIF   
-         lC1 := .F.
-
-	     For _ni := 1 to LEN(aCampos2)
-	         xCampo := &(aCampos2[_ni])
-	            
-	         _uValor := ""
-	            
-	         If VALTYPE(xCampo) == "D" // Trata campos data
-	            _uValor := dtoc(xCampo)
-	         Elseif VALTYPE(xCampo) == "N" // Trata campos numericos
-	         	IF ALLTRIM(aCampos[_ni]) $ "QTMP2->CND_XXPOST/QTMP2->CND_XXFUNC/QTMP2->CND_XXNFUN"
-	         		_uValor := STR(xCampo,6)
-	         	ELSE
-	           		 _uValor := transform(xCampo,cPicN)
-	            ENDIF
-	         Elseif VALTYPE(xCampo) == "C" .OR. VALTYPE(xCampo) == "M"// Trata campos caracter
-	             //_uValor := xCampo+CHR(160)
-	            //_uValor := '="'+ALLTRIM(xCampo)+'"'
-                //_uValor := '="'+STRTRAN(ALLTRIM(xCampo),";",",")+'"'
-                _uValor := '="'
-                xCampo := ALLTRIM(xCampo)
-                for nxx := 1 to len(xCampo)
-                	xxChar := SUBSTR(xCampo,nxx,1)
-                	IF ASC(xxChar) >= 32 //.AND. ASC(xxChar) <= 128
-                       _uValor += SUBSTR(xCampo,nxx,1) 
-                    ENDIF
-                next
-                _uValor += '"'
-	         Endif
-            
-	         fWrite(nHandle, _uValor + IIF(_ni < LEN(aCampos2),";",""))
-
-	     Next _ni
-	     
-         fWrite(nHandle, cCrLf ) // Pula linha
-         nCab++
-		 dbSkip()
-
-	  ENDDO
-
-      dbSelectArea(_cAlias2)
-	  (_cAlias2)->(dbCloseArea())
-
-      dbSelectArea(_cAlias)
-
-   
-	  IF lC1
-      	fWrite(nHandle, cCrLf ) // Pula linha
-      	nCab++
-      Endif
-      (_cAlias)->(dbskip())
-         
-   Enddo
-   IF lSoma
-	   FOR _ni := 1 TO LEN(aCampos)
-           cLetra := CHR(_ni+64)
-           IF cLetra > "Z"
-              cLetra := "A"+CHR(_ni+64-26)
-           ENDIF
-	       IF !EMPTY(aSoma[_ni])
-              aSoma[_ni] += cLetra+ALLTRIM(STR(nCab))+')'
-	       ENDIF
-	       fWrite(nHandle, aSoma[_ni] + IIF(_ni < LEN(aCampos),";",""))
-	   NEXT
-   ENDIF	
-      
-   fClose(nHandle)
-      
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel","BKGCTR08")
-   ShellExecute("open", cArqTmp,"","",1)
-
-Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp,"BKGCTR08")
-Endif
-   
-(_cAlias)->(dbCloseArea())
-   
-Return

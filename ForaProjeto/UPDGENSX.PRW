@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"07/04/2022 SE1 "
+#DEFINE FIN_LAST_UPDATED 		"18/04/2022 ISS "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -181,7 +181,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   // 14/03/22
+			AtuGenPar( @cTexto )   //  18/04/22 ISS BASE PIS/COF
 
 			//AtuRndImp( @cTexto )   // 04/02/22
 			
@@ -189,7 +189,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 07/04/22 SE1
+			//AtuGenX3( @cTexto )    //
 
 			//AtuGenP12( @cTexto )
 
@@ -848,6 +848,25 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
+oProcess:IncRegua2( "Atualizando parametro MV_DEISSBS..." )
+
+// 18/04/2022 - MV_DEISSBS - ISS sera descontada na base do PIS/COF/CSLL conforme IN 475/04
+If dbSeek(xFilial()+"MV_DEISSBS")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+cTexto += CRLF + "Final da Atualizacao" + CRLF 
+
+Return
+
+/*
 // 14/03/2022 - Consistencia chave NFE SEFAZ
 oProcess:IncRegua2( "Atualizando parametro MV_CHVESPE..." )
 
@@ -911,12 +930,7 @@ If dbSeek(xFilial()+"MV_VCHVNFE")
 	MsUnLock()
 EndIf
 
-
-cTexto += CRLF + "Final da Atualizacao" + CRLF 
-
-Return
-
-
+*/
 /*
 // 03/02/2022 - Arredondamento de impostos
 // 19/03/2021 - Arredondamento de impostos

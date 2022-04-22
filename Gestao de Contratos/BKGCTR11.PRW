@@ -730,8 +730,10 @@ LimpaBrw (ALIAS_TMP)
 ProcRegua(nPeriodo)
 FOR _nI := 1 TO nPeriodo
 
-	IncProc("Consultando faturamento dos contratos...")
-   
+	IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
+
+	//IncProc("Consultando faturamento dos contratos...")
+
     cAnoMes := aAnoMes[_nI] 
 
 	//*********Faturamento do Contrato
@@ -803,7 +805,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5" + CRLF
 	cQuery += " 	ON (E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  " + CRLF
 	cQuery += " 	    E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND " + CRLF
-	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND " + CRLF
+	cQuery += " 	    E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' AND " + CRLF
 	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
 
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
@@ -1023,9 +1025,6 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})              
         AADD(aRentab,{"02","NUMERO-SIGA: ","S",ALLTRIM(QTMP->CNF_CONTRA)})              
         AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)}) 
-		nNDC := 0 
-		//nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
-        //AADD(aRentab,{"03-1","NDC","S",nNDC}) 
         AADD(aRentab,{"03-2","","S",0}) 
         AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})                  
 		IF lISSFURNAS
@@ -1042,9 +1041,9 @@ FOR _nI := 1 TO nPeriodo
         ENDIF            
         AADD(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-	        AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP2->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM))+nNDC})
+	        AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP2->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM))})
         ELSE
-	        AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)+nNDC)})
+	        AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))})
         ENDIF
         AADD(aRentab,{"07-1","","S",0})
         AADD(aRentab,{"08","CUSTO","S",0})
@@ -1069,6 +1068,10 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"30-1","","S",0}) 
         AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMP->E5DESC/(nIndTC/100),QTMP->E5DESC)}) 
 
+		nNDC := 0 
+		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
+        aAdd(aRentab,{"30-3","NDC","S",-nNDC}) 
+
         AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
         AADD(aRentab,{"YYYYYYYYZ","","S",0}) 
         AADD(aRentab,{"ZZZZZZYYY","RESULTADO PARCIAL","S",0})
@@ -1087,7 +1090,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->XX_CODIGO := aRentab[_nJ,1]
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,2]+aRentab[_nJ,4],aRentab[_nJ,2])
 			ENDIF
-			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|"  // 10/09/20
+			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|30-3|"  // 10/09/20
 				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 				&cCampo2 += aRentab[_nJ,4]
 			ENDIF
@@ -1584,7 +1587,7 @@ FOR _nI := 1 TO nPeriodo
 		NEXT _IXFUR
 
 
-		IncProc("Consultando Folha Pagamento...")
+		//IncProc("Consultando Folha Pagamento...")
 		//*********Folha Pagamento
 		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
 		cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
@@ -1817,7 +1820,7 @@ FOR _nI := 1 TO nPeriodo
 		TMPX2->(dbCloseArea())
 
 
-		IncProc("Consultando Folha Pagamento - Autonomos...")
+		//IncProc("Consultando Folha Pagamento - Autonomos...")
 		//*********Folha Pagamento - Autonomos IPT
 		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
 		cQuery2 += " FROM  webLancamentoIPT.dbo.LancamentoIPT "
@@ -1906,7 +1909,7 @@ FOR _nI := 1 TO nPeriodo
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
-		IncProc("Consultando gastos gerais: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
+		//IncProc("Consultando gastos gerais: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 
 		//*********GASTOS GERAIS
 		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
@@ -2225,7 +2228,7 @@ FOR _nI := 1 TO nPeriodo
 
 		IF nScan > 0 
 
-			IncProc("Consultando gastos gerais consorcios: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
+			//IncProc("Consultando gastos gerais consorcios: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 
 			cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 			cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1"+CRLF
@@ -2526,7 +2529,7 @@ FOR _nI := 1 TO nPeriodo
 			ENDDO
 			TMPX2->(dbCloseArea())
 
-			IncProc("Consultando movimento bancário ..."+STRZERO(_nI,3))
+			//IncProc("Consultando movimento bancário ..."+STRZERO(_nI,3))
 
 			cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
 			cQuery2 += " FROM SE5"+ALLTRIM(aConsorcio[nScan,2])+" SE5" +CRLF
@@ -2938,7 +2941,7 @@ FOR _nI := 1 TO nPeriodo
 			TMPX2->(dbCloseArea())
 	  	ENDIF
 
-		IncProc("Consultando faturamento das medições avulsas...")
+		//IncProc("Consultando faturamento das medições avulsas...")
 		//********* FATURAMENTO - Inclusão para medição avulso
 		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"+CRLF
 		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" +CRLF
@@ -2949,7 +2952,7 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += "       AND  SD2.D2_FILIAL = '"+xFilial("SD2")+"' AND SD2.D_E_L_E_T_ = ''"+CRLF
 
 		// 27/02/20   
-		cQuery2 += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " +CRLF//--AND E5_PARCELA = '  '
+		cQuery2 += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " +CRLF//--AND E5_PARCELA = '  '
 		cQuery2 += "      AND  E5_FILIAL = '"+xFilial("SE5")+"' AND SE5.D_E_L_E_T_ = '' "+CRLF
 
 	    cQuery2 += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 ON SC5.C5_CLIENTE = SA1.A1_COD AND SC5.C5_LOJACLI = SA1.A1_LOJA " +CRLF
@@ -3015,6 +3018,7 @@ FOR _nI := 1 TO nPeriodo
 	        AADD(aRentab,{"30","GASTOS GERAIS","S",0}) 
 	        AADD(aRentab,{"30-1","","S",0}) 
 	        AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,TMPX2->E5DESC/(nIndTC/100),TMPX2->E5DESC)}) 
+	        aAdd(aRentab,{"30-3","NDC","S",0}) 
 	        AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
 	        AADD(aRentab,{"YYYYYYYYZ","","S",0}) 
         	AADD(aRentab,{"ZZZZZZYYY","RESULTADO PARCIAL","S",0})
@@ -3039,7 +3043,7 @@ FOR _nI := 1 TO nPeriodo
 
 					
 				ENDIF
-				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|" // 10/09/20
+				IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|06|07|30-2|30-3|" // 10/09/20
 					cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
 					&cCampo2 += aRentab[_nJ,4]
 				ENDIF
@@ -3140,6 +3144,21 @@ For Yi_ := 1 TO LEN(aContratos)
 			ENDIF
 			
 		ENDIF
+
+	    nNDC := 0
+		dbSelectArea(ALIAS_TMP)
+		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30-3',.F.)
+   			Reclock(ALIAS_TMP,.F.)
+			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
+			nNDC  := &cCampo2
+			IF MsSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
+				Reclock(ALIAS_TMP,.F.)
+				cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
+				&cCampo2 += nNDC
+				(ALIAS_TMP)->(Msunlock())
+			ENDIF
+		ENDIF
+
 
 	    // Calculo do Resultado
 	    nResultado := 0
@@ -5601,12 +5620,12 @@ If aScan(aNDC,cNumContr+cCompt) == 0
 	aAdd(aNDC,cNumContr+cCompt)
 
 	cQuery += " SELECT
-	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC NOT IN ('MT','JR','CM','DC') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC NOT IN ('MT','JR','CM','DC') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' AND E5_DTCANBX = ''" + CRLF
 	cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_VALOR ," + CRLF
 	cQuery += "    (SE1.E1_IRRF + SE1.E1_INSS + SE1.E1_PIS + SE1.E1_COFINS + SE1.E1_CSLL + SE1.E1_ISS) AS XX_IMPOST," + CRLF
-	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = ''" + CRLF
 	cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5DESC, " + CRLF
-	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = E1_PREFIXO AND E5_NUMERO = E1_NUM  AND E5_TIPO = 'NDC' AND  E5_CLIFOR = E1_CLIENTE AND E5_LOJA = E1_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = ''" + CRLF
 	cQuery += "    AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = ' ') AS XX_E5MULTA ," + CRLF
 	cQuery += "    E1_NUM AS XX_NDC" + CRLF
 	cQuery += "  FROM "+RETSQLNAME("SE1")+" SE1" + CRLF

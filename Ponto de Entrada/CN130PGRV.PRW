@@ -168,7 +168,7 @@ If ExpN1 == 3 .OR. ExpN1 == 4
 	If !EMPTY(aUser[1,11])
 	   cSuper := SUBSTR(aUser[1,11],1,6)
 	EndIf
-	If cSuper == "000175" .OR. __CUSERID == "000000" // Equipe do José Mário
+	If cSuper == u_GerPetro .OR. __CUSERID == "000000" // Equipe da Petrobrás
 		ValTpNf(@cTpNf,@cRM)
 		RecLock("CND",.F.)
 		CND->CND_XXTPNF := cTpNf

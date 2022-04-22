@@ -403,6 +403,8 @@ ENDIF
 If lSemObj // Não encurtar a observação da medição
 	cDescr += STRTRAN(ALLTRIM(cObsMed),CHR(13)+CHR(10),"|")+"|"
 EndIf
+
+//// AQUI
 cDescr += TextoNF(cDescr1,nMaxTLin)
 
 IF !EMPTY(cNaturez)

@@ -10,21 +10,24 @@ BK - Clientes em aberto
 
 User Function BKFINR30()
 
-Local aParam 		:= {}
 Local aRet			:= {}
 
 Private cTitulo     := "Clientes em aberto"
 Private cPerg       := "BKFINR30"
 Private aTipoEmis   := {"1-Emissão", "2-Vencimento"}
-Private cTipoEmis   := "1"
+Private cTipoEmis   := "2"
 Private dDataI   	:= CTOD("")
 Private dDataF   	:= CTOD("")
 Private cCrLf		:= CRLF
-Private oTmpTb		As Object
+Private oTmpTb1		As Object
+Private oTmpTb2		As Object
+Private aParam 		:= {}
 
-aAdd( aParam ,{ 2, "Emitir por:"    , "1-Emissão" , aTipoEmis, 70,'.T.'  ,.T.})
-aAdd( aParam, { 1, "Data inicial:"	, dDataBase	  , ""       , "", ""	, "" , 70  , .F. })
-aAdd( aParam, { 1, "Data final:"	, dDataBase	  , ""       , "", ""	, "" , 70  , .F. })  
+Private aFormula3   := {}
+
+aAdd( aParam ,{ 2, "Emitir por:"    , "2-Vencimento" , aTipoEmis, 70,'.T.'  ,.T.})
+aAdd( aParam, { 1, "Data inicial:"	, dDataBase	     , ""       , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Data final:"	, dDataBase	     , ""       , "", ""	, "" , 70  , .F. })  
 
 If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKCOMA09",.T.         ,.T.))
 
@@ -56,7 +59,12 @@ Local lClose 		:= .F.
 Local aTitulos2		:= {}
 Local aCampos2		:= {}
 Local aCabs2		:= {}
+Local aFormat2		:= {}
 
+Local aTitulos3		:= {}
+Local aCampos3		:= {}
+Local aCabs3		:= {}
+Local aFormat3		:= {}
 
 AADD(aTitulos1,cTitulo)
 
@@ -96,6 +104,15 @@ AADD(aCabs1  ,"Emissao")
 AADD(aCampos1,"QTMP->E1_VENCREA")
 AADD(aCabs1  ,"Vencimento")
 
+AADD(aCampos1,"u_AtrsRec(QTMP->E1_VENCREA)")
+AADD(aCabs1  ,"Atraso")
+
+AADD(aCampos1,"QTMP->E1_XXDTPRV")
+AADD(aCabs1  ,"Previsão")
+
+AADD(aCampos1,"X3COMBO('E1_XXTPPRV',QTMP->E1_XXTPPRV)")
+AADD(aCabs1  ,"Status Previsão")
+
 AADD(aCampos1,"QTMP->E1_VALOR")
 AADD(aCabs1  ,"Valor Bruto / Parcela")
 
@@ -109,33 +126,69 @@ AADD(aCabs1  ,"Saldo a Receber")
 AADD(aCampos1,"STRTRAN(QTMP->E1_XXHISTM,cCrLf,' ')")
 AADD(aCabs1  ,"Histórico BK")
 
-AADD(aPlans,{"QTMP",cPerg,"",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+AADD(aPlans,{"QTMP",cPerg,"",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
 AADD(aTitulos2,cTitulo)
 AADD(aCampos2,"QTMP1->XX_CLIENTE")
 AADD(aCabs2  ,"Cliente")
+AADD(aFormat2,"")
 
 AADD(aCampos2,"QTMP1->XX_EMISSAO")
 AADD(aCabs2  ,"Emissão")
+AADD(aFormat2,"")
 
 AADD(aCampos2,"QTMP1->XX_VENCREA")
 AADD(aCabs2  ,"Vencto")
+AADD(aFormat2,"")
 
-AADD(aCampos2,"QTMP1->XX_DTPREV")
+AADD(aCampos2,"QTMP1->XX_XXDTPRV")
 AADD(aCabs2  ,"Previsão")
+AADD(aFormat2,"")
 
-AADD(aCampos2,"QTMP1->XX_TIPOPRV")
-AADD(aCabs2  ,"Obs Prev.")
+AADD(aCampos2,"X3COMBO('E1_XXTPPRV',QTMP1->XX_XXTPPRV)")
+AADD(aCabs2  ,"Status Previsão")
+AADD(aFormat2,"")
+
+AADD(aCampos2,"QTMP1->XX_ATRASO")
+AADD(aCabs2  ,"Atraso")
+AADD(aFormat2,"N0")
+
+AADD(aCampos2,"QTMP1->XX_QTDTIT")
+AADD(aCabs2  ,"Qtd.")
+AADD(aFormat2,"N0")
 
 AADD(aCampos2,"QTMP1->XX_SALDO")
 AADD(aCabs2  ,"Saldo")
+AADD(aFormat2,"")
 
 AADD(aCampos2,"QTMP1->XX_HIST")
 AADD(aCabs2  ,"Histórico")
+AADD(aFormat2,"")
 
-AADD(aPlans,{"QTMP1","Resumo","",aTitulos2,aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+AADD(aPlans,{"QTMP1","Resumo","",aTitulos2,aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,aFormat2, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
-U_PlanXlsx(aPlans,cTitulo,cPerg, lClose := .F.,)
+
+AADD(aTitulos3,cTitulo)
+
+AADD(aCampos3,"QTMP2->XX_DIAS")
+AADD(aCabs3  ,"Classe")
+AADD(aFormat3,"")
+
+AADD(aCampos3,"QTMP2->XX_CLIENTE")
+AADD(aCabs3  ,"Cliente")
+AADD(aFormat3,"")
+
+AADD(aCampos3,"QTMP2->XX_SALDO")
+AADD(aCabs3  ,"Saldo")
+AADD(aFormat3,"")
+
+AADD(aCampos3,"QTMP2->XX_ATRASO")
+AADD(aCabs3  ,"Atraso")
+AADD(aFormat3,"N0")
+
+AADD(aPlans,{"QTMP2","10, 30 60 Dias","",aTitulos3,aCampos3,aCabs3,/*aImpr1*/, aFormula3,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+
+U_PlanXlsx(aPlans,cTitulo,cPerg, lClose := .T.,aParam)
    
 Return
 
@@ -168,6 +221,8 @@ cQuery += ",E1_COFINS"+CRLF
 cQuery += ",E1_CSLL"+CRLF
 cQuery += ",E1_ISS"+CRLF
 cQuery += ",E1_VRETBIS "+CRLF
+cQuery += ",E1_XXDTPRV"+CRLF
+cQuery += ",E1_XXTPPRV"+CRLF
 cQuery += ",CONVERT(VARCHAR(1000),CONVERT(Binary(1000),E1_XXHISTM)) E1_XXHISTM "+CRLF
 cQuery += ",SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 cQuery += ",F2_RECISS" + CRLF
@@ -177,9 +232,9 @@ cQuery += ",F2_XXVRETC" + CRLF
 cQuery += ",CASE E1_XXCUSTO WHEN '' THEN CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1
 cQuery += "     ELSE C5_MDCONTR END ELSE E1_XXCUSTO END AS CONTRATO" + CRLF
 cQuery += ",CASE WHEN E1_VALOR<>E1_SALDO THEN 'Baixa Parcial' ELSE '' END AS E1_XXOBX " + CRLF
-cQuery += ",(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+cQuery += ",(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
 cQuery += "   AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC "+ CRLF
-cQuery += ",(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' " + CRLF
+cQuery += ",(SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
 cQuery += "   AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA "+ CRLF
 cQuery += " FROM "+RETSQLNAME("SE1")+ " SE1 " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON SF2.D_E_L_E_T_='' AND SE1.E1_NUM=SF2.F2_DUPL " + CRLF
@@ -190,10 +245,10 @@ cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_TIPO IN('NF','NDC')" + CRLF
 cQuery += " AND SE1.E1_SALDO > 0 " + CRLF
 IF cTipoEmis == '1'
 	cQuery += " AND E1_EMISSAO >= '"+DTOS(dDataI)+"' AND E1_EMISSAO <= '"+DTOS(dDataF)+"'" + CRLF
-	cQuery += "ORDER BY E1_EMISSAO" + CRLF
+	cQuery += "ORDER BY E1_EMISSAO,E1_PREFIXO,E1_NUM" + CRLF
 ELSEIF cTipoEmis == '2'
 	cQuery += " AND E1_VENCREA >= '"+DTOS(dDataI)+"' AND E1_VENCREA <= '"+DTOS(dDataF)+"'" + CRLF
-	cQuery += "ORDER BY E1_VENCREA" + CRLF
+	cQuery += "ORDER BY E1_VENCREA,E1_PREFIXO,E1_NUM" + CRLF
 ENDIF 
 
 u_LogMemo("BKFINR30.SQL",cQuery)
@@ -205,52 +260,239 @@ dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 TCSetField("QTMP","E1_EMISSAO","D",8,0)
 TCSetField("QTMP","E1_VENCREA","D",8,0)
 TCSetField("QTMP","E1_VENCORI","D",8,0)
+TCSETFIELD("QTMP","E1_XXDTPRV","D",8,0)
 
 Return
 
 
 Static Function ProcRes
-Local aStruc := {}
+Local aStruc1  := {}
+Local aStruc2  := {}
+Local nAtraso  := 0
 
-Aadd( aStruc, { 'XX_CLIENTE', 'C', TamSX3("A1_NOME")[1],00 } )
-Aadd( aStruc, { 'XX_EMISSAO', 'D', 08,00 } )
-Aadd( aStruc, { 'XX_VENCREA', 'D', 08,00 } )
-Aadd( aStruc, { 'XX_DTPREV',  'D', 08,00 } )
-Aadd( aStruc, { 'XX_TIPOPRV', 'C', 20,00 } )
-Aadd( aStruc, { 'XX_SALDO',   'N', 14,02 } )
-Aadd( aStruc, { 'XX_HIST',	  'M', 10,00 } ) 
+Aadd( aStruc1, { 'XX_CLIENTE', 'C', TamSX3("A1_NOME")[1],00 } )
+Aadd( aStruc1, { 'XX_EMISSAO', 'D', 08,00 } )
+Aadd( aStruc1, { 'XX_VENCREC', 'C', 08,00 } )
+Aadd( aStruc1, { 'XX_VENCREA', 'D', 08,00 } )
+Aadd( aStruc1, { 'XX_XXDTPRV', 'D', 08,00 } )
+Aadd( aStruc1, { 'XX_XXTPPRV', 'C',  1,00 } )
+Aadd( aStruc1, { 'XX_SALDO',   'N', 14,02 } )
+Aadd( aStruc1, { 'XX_ATRASO',  'N',  5,00 } )
+Aadd( aStruc1, { 'XX_QTDTIT',  'N',  5,00 } )
+Aadd( aStruc1, { 'XX_HIST',	   'M', 10,00 } ) 
 
-oTmpTb := FWTemporaryTable():New( "QTMP1" )	
-oTmpTb:SetFields( aStruc )
-oTmpTb:AddIndex("indice1", {"XX_CLIENTE"} )
-oTmpTb:Create()
+oTmpTb1 := FWTemporaryTable():New( "QTMP1" )	
+oTmpTb1:SetFields( aStruc1 )
+oTmpTb1:AddIndex("indice1", {"XX_CLIENTE","XX_VENCREC"} )
+oTmpTb1:Create()
+
+
+Aadd( aStruc2, { 'XX_DIAS',    'C', 2,00 } )
+Aadd( aStruc2, { 'XX_INDICE',  'C', 10+TamSX3("A1_NOME")[1],00 } )
+Aadd( aStruc2, { 'XX_CLIENTE', 'C', TamSX3("A1_NOME")[1],00 } )
+Aadd( aStruc2, { 'XX_SALDO',   'N', 14,02 } )
+Aadd( aStruc2, { 'XX_ATRASO',  'N',  5,00 } )
+
+oTmpTb2 := FWTemporaryTable():New( "QTMP2" )	
+oTmpTb2:SetFields( aStruc2 )
+oTmpTb2:AddIndex("indice2", {"XX_INDICE"} )
+oTmpTb2:Create()
+
 
 DbSelectArea("QTMP")
 dbGoTop()
 
 Do While !EOF()
 	DbSelectArea("QTMP1")
-	IF dbSeek(QTMP->A1_NOME,.F.)
+	IF dbSeek(QTMP->A1_NOME+DTOS(QTMP->E1_VENCREA),.F.)
 		Reclock("QTMP1",.F.)
+		QTMP1->XX_QTDTIT++
 	Else
 		Reclock("QTMP1",.T.)
 		QTMP1->XX_CLIENTE := QTMP->A1_NOME
-	EndIf
-
-	If QTMP->E1_VENCREA > QTMP1->XX_VENCREA
+		QTMP1->XX_EMISSAO := QTMP->E1_EMISSAO
 		QTMP1->XX_VENCREA := QTMP->E1_VENCREA
+		QTMP1->XX_VENCREC := DTOS(QTMP->E1_VENCREA)
+		QTMP1->XX_QTDTIT  := 1
 	EndIf
 
 	QTMP1->XX_SALDO += U_SaldoRec(QTMP->E1RECNO)	
+
+	nAtraso := u_AtrsRec(QTMP->E1_VENCREA)
+	If nAtraso > QTMP1->XX_ATRASO
+		QTMP1->XX_ATRASO := nAtraso
+	EndIf
+
+	If QTMP->E1_XXDTPRV > QTMP1->XX_XXDTPRV
+		QTMP1->XX_XXDTPRV := QTMP->E1_XXDTPRV
+	EndIf
+
+	If !Empty(QTMP->E1_XXTPPRV)
+		QTMP1->XX_XXTPPRV := QTMP->E1_XXTPPRV
+	EndIf
+
+	If !Empty(QTMP->E1_XXHISTM)
+		If !ALLTRIM(QTMP->E1_XXHISTM) $ QTMP1->XX_HIST
+			If !Empty(QTMP1->XX_HIST)
+				QTMP1->XX_HIST += CRLF
+			EndIf
+			QTMP1->XX_HIST := QTMP1->XX_HIST + ALLTRIM(QTMP->E1_XXHISTM)
+		EndIf
+	EndIf
+	dbUnLock()
 
 	DbSelectArea("QTMP")
 	dbSkip()
 ENDDO
 
+// Indices por atraso 10 dias, 30 dias e mais de 60 dias
+
+
+DbSelectArea("QTMP2")
+Reclock("QTMP2",.T.)
+QTMP2->XX_DIAS    := "00"
+QTMP2->XX_INDICE  := "00"
+QTMP2->XX_CLIENTE := "TÍTULOS A VENCER"
+dbUnLock()
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_DIAS","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_CLIENTE","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_SALDO"," ","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_ATRASO"," ","S","",""})
+
+DbSelectArea("QTMP2")
+Reclock("QTMP2",.T.)
+QTMP2->XX_DIAS    := "10"
+QTMP2->XX_INDICE  := "10"
+QTMP2->XX_CLIENTE := "TÍTULOS VENCIDOS ATÉ 10 DIAS"
+dbUnLock()
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_DIAS","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_CLIENTE","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_SALDO"," ","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_ATRASO"," ","S","",""})
+
+Reclock("QTMP2",.T.)
+QTMP2->XX_DIAS    := "30"
+QTMP2->XX_INDICE  := "30"
+QTMP2->XX_CLIENTE := "TÍTULOS VENCIDOS DE 11 À 30 DIAS"
+dbUnLock()
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_DIAS","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_CLIENTE","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_SALDO"," ","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_ATRASO"," ","S","",""})
+
+Reclock("QTMP2",.T.)
+QTMP2->XX_DIAS    := "60"
+QTMP2->XX_INDICE  := "60"
+QTMP2->XX_CLIENTE := "TÍTULOS VENCIDOS DE 31 À 60 DIAS"
+dbUnLock()
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_DIAS","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_CLIENTE","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_SALDO"," ","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_ATRASO"," ","S","",""})
+
+
+Reclock("QTMP2",.T.)
+QTMP2->XX_DIAS    := "ZZ"
+QTMP2->XX_INDICE  := "ZZ"
+QTMP2->XX_CLIENTE := "TÍTULOS VENCIDOS A MAIS DE 60 DIAS"
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_DIAS","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_CLIENTE","","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_SALDO"," ","S","",""})
+aAdd(aFormula3,{QTMP2->(RECNO()),"QTMP2->XX_ATRASO"," ","S","",""})
+dbUnLock()
+
+
+DbSelectArea("QTMP1")
+dbGoTop()
+
+Do While !EOF()
+	DbSelectArea("QTMP2")
+
+	If QTMP1->XX_ATRASO <= 0
+		IF dbSeek('00'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC,.F.)
+			Reclock("QTMP2",.F.)
+		Else
+			Reclock("QTMP2",.T.)
+			QTMP2->XX_DIAS    := "00"
+			QTMP2->XX_INDICE  := '00'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC
+			QTMP2->XX_CLIENTE := QTMP1->XX_CLIENTE
+			QTMP2->XX_ATRASO  := QTMP1->XX_ATRASO
+		EndIf
+		QTMP2->XX_SALDO += QTMP1->XX_SALDO
+		dbUnLock()
+
+	ElseIf QTMP1->XX_ATRASO <= 10
+		IF dbSeek('10'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC,.F.)
+			Reclock("QTMP2",.F.)
+		Else
+			Reclock("QTMP2",.T.)
+			QTMP2->XX_DIAS    := "10"
+			QTMP2->XX_INDICE  := '10'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC
+			QTMP2->XX_CLIENTE := QTMP1->XX_CLIENTE
+			QTMP2->XX_ATRASO  := QTMP1->XX_ATRASO
+		EndIf
+		QTMP2->XX_SALDO += QTMP1->XX_SALDO
+		dbUnLock()
+
+	ElseIf QTMP1->XX_ATRASO <= 30
+		IF dbSeek('30'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC,.F.)
+			Reclock("QTMP2",.F.)
+		Else
+			Reclock("QTMP2",.T.)
+			QTMP2->XX_DIAS    := "30"
+			QTMP2->XX_INDICE  := '30'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC
+			QTMP2->XX_CLIENTE := QTMP1->XX_CLIENTE
+			QTMP2->XX_ATRASO  := QTMP1->XX_ATRASO
+		EndIf
+		QTMP2->XX_SALDO += QTMP1->XX_SALDO
+		dbUnLock()
+	ElseIf QTMP1->XX_ATRASO <= 60
+		IF dbSeek('60'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC,.F.)
+			Reclock("QTMP2",.F.)
+		Else
+			Reclock("QTMP2",.T.)
+			QTMP2->XX_DIAS    := "60"
+			QTMP2->XX_INDICE  := '60'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC
+			QTMP2->XX_CLIENTE := QTMP1->XX_CLIENTE
+			QTMP2->XX_ATRASO  := QTMP1->XX_ATRASO
+		EndIf
+		QTMP2->XX_SALDO += QTMP1->XX_SALDO
+		dbUnLock()
+	Else
+		IF dbSeek('ZZ'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC,.F.)
+			Reclock("QTMP2",.F.)
+		Else
+			Reclock("QTMP2",.T.)
+			QTMP2->XX_DIAS    := "ZZ"
+			QTMP2->XX_INDICE  := 'ZZ'+QTMP1->XX_CLIENTE+QTMP1->XX_VENCREC
+			QTMP2->XX_CLIENTE := QTMP1->XX_CLIENTE
+			QTMP2->XX_ATRASO  := QTMP1->XX_ATRASO
+		EndIf
+		QTMP2->XX_SALDO += QTMP1->XX_SALDO
+		dbUnLock()
+
+	EndIf
+
+	dbUnLock()
+
+	DbSelectArea("QTMP1")
+	dbSkip()
+ENDDO
+
+
 Return Nil
 
 
+// Calculo do atrazo em dias
+User Function AtrsRec(dVencRea)
+Local nDias := 0
+If dVencRea < dDataBase
+	nDias := dDataBase - dVencRea + 1
+EndIf
+Return nDias
 
+
+// Saldo a receber do titulo informado pelo recno
 User Function SaldoRec(nRecE1)
 Local nSaldo	 := 0
 Local aArea 	 := GetArea()
@@ -270,7 +512,9 @@ If nRecE1 > 0
 
 	DbSelectArea("SE1")
 	dbGoTo(nRecE1)
-
+	iF SE1->E1_NUM = '000000622'
+		X:= 0
+	eNDiF
 	If SE1->E1_SALDO = 0
   			//dBaixa := SE1->E1_BAIXA
 		nSaldo := SE1->E1_VALOR
