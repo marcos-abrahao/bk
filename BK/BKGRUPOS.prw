@@ -152,6 +152,24 @@ EndIf
 Return (cEmails)
 
 
+
+// Email para Grupo Master Repac (Fabia, Bruno e Fernando Sampaio)
+User Function EmMRepac()
+Local aUsers := {"000023","000153","000241"}
+Local cEmail := ""
+Local cEmails:= ""
+Local nI	 := 0
+
+For nI := 1 To Len(aUsers)
+	cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
+	If !Empty(cEmail)
+		cEmails += cEmail+';'
+	EndIf
+Next
+
+Return (cEmails)
+
+
 // Gestão de Contratos
 
 /* Clientes Petrobras

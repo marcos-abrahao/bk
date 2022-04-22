@@ -110,8 +110,8 @@ If cFWEmp $ "01"
 EndIf
 
 If cFWEmp == "01" 
-	//ConOut("V12BKGct06: Aviso de pedido de venda em aberto - "+DTOC(DATE())+" "+TIME())  
-	//V12BKGct06()
+	ConOut("V15BKGCT06: Aviso de lançamentos em contratos vencidos - "+DTOC(DATE())+" "+TIME())  
+	V15BKGct06()
 EndIf
 
 If cFWEmp $ "01/02/14" 
@@ -150,7 +150,8 @@ Local aRel       := {"01-Aviso de contratos pendentes de repactuação",;
                      "11-Aviso de solicitação de compras em aberto",;
                      "12-Aviso de pedido de venda em aberto",;
                      "13-Funcionario Dashbord",;
-                     "14-Rentabilidade Dashbord"}
+                     "14-Rentabilidade Dashbord",;
+                     "15-Aviso de Lanç. em contratos vencidos"}
 
 Private lExp     := .F.
 Private dDataEnv := DATE()
@@ -219,7 +220,7 @@ IF VALTYPE(cRel) == "N"
    cRel := "1"
 ENDIF                            
 IF SUBSTR(cRel,1,2) = "01"
-   Processa( {|| RepBKGct06() } )
+   Processa( {|| REPBKGCT06() } )
 ELSEIF SUBSTR(cRel,1,2) = "02"   
    Processa( {|| VigBKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "03"   
@@ -246,6 +247,8 @@ ELSEIF SUBSTR(cRel,1,2) = "13"
    Processa( {|| U_BKGCTR23() } )
 ELSEIF SUBSTR(cRel,1,2) = "14"   
    Processa( {|| U_GRFBKGCT11(.T.) } )
+ELSEIF SUBSTR(cRel,1,2) = "15"   
+   Processa( {|| V15BKGCT06() } )    
 ENDIF 
 
 Close(oDlg1)
@@ -469,7 +472,7 @@ RETURN
 
 
 
-Static Function RepBKGct06()
+Static Function REPBKGCT06()
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Contratos a Repactuar
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
@@ -3528,7 +3531,7 @@ Return Nil
 
 
 //Aviso de pedido de venda em aberto
-Static Function V12BKGct06()
+Static Function V12BKGCT06()
 
 Local cQuery            
 Local _cAlias 	:= "QSC5"
@@ -3541,7 +3544,7 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local nRegSM0 	:= SM0->(Recno()) 
-Local cPrw 		:= "V12BKGct06"
+Local cPrw 		:= "V12BKGCT06"
 
 If FWCodEmp() <> "01"
 	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -3621,10 +3624,6 @@ RestArea(aArea)
 Return Nil
 
 
-
-
-
-
 Static Function CabV5()
 Local aHtm := {}
 AADD(aHtm,'<table width="100%" Align="center" border="1" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >')
@@ -3637,3 +3636,194 @@ AADD(aHtm,'    <td width="15%" class="F10A"><b>Responsavel</b></td>')
 AADD(aHtm,'    <td width="05%" class="F10A"><b>Insumos Operacionais</b></td>')
 AADD(aHtm,'  </tr>')
 Return aHtm
+
+
+//Aviso de lançamentos de despesas em contratos vencidos
+// Marcos - 22/04/2022
+Static Function V15BKGCT06()
+
+Local cQuery	:= ""            
+Local aArea     := GetArea()
+Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos"
+Local cEmail	:= ""
+Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
+Local cMsg    	:= "Segue planilha anexa."
+Local cPrw 		:= "V15BKGCT06"
+Local nE		:= 0
+Local aEmpresas := u_BKGrupo()
+Local aCabs     := {}
+Local aCampos   := {}
+Local aTitulos  := {}
+Local aPlans    := {}
+Local cArqXls   := ""
+Local cTabSZ2	:= "SZ2010"
+Local cTabCNF   := ""
+Local cTabSE2   := ""
+Local cTabSD1   := ""
+Local cTabSF1   := ""
+Local cTabSB1   := ""
+Local cTabCTT   := ""
+
+cEmail += u_EmMRepac()
+
+If FWCodEmp() <> "01"
+	u_xxConOut("ERROR",cPrw,"Executar somente na empresa 01")
+	Return Nil
+EndIf
+
+If !lJobV2
+	IncProc()
+EndIf
+
+cQuery := "WITH AVISO AS ( "+CRLF
+
+For nE := 1 TO Len(aEmpresas)
+
+ 	If !lJobV2
+		IncProc()
+	EndIf   
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabCNF := "CNF"+cEmpresa+"0"
+	cTabSE2 := "SE2"+cEmpresa+"0"
+	cTabSD1 := "SD1"+cEmpresa+"0"
+	cTabSF1 := "SF1"+cEmpresa+"0"
+	cTabSB1 := "SB1"+cEmpresa+"0"
+	cTabCTT := "CTT"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += "SELECT "+CRLF
+	cQuery += "    '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "    '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "    E2_VENCREA, "+CRLF
+	cQuery += "    E2_EMIS1, "+CRLF
+	cQuery += "    E2_PREFIXO, "+CRLF
+	cQuery += "    E2_NUM, "+CRLF
+	cQuery += "    E2_PARCELA, "+CRLF
+	cQuery += "    ISNULL(Z2_CC, D1_CC) AS D1_CC, "+CRLF
+	cQuery += "    CTT_DESC01, "+CRLF
+	cQuery += "    ISNULL(D1_COD, 'RH') AS D1_COD, "+CRLF
+	cQuery += "    ISNULL(Z2_NOME, B1_DESC) AS B1_DESC, "+CRLF
+	cQuery += "    ISNULL(D1_TOTAL, Z2_VALOR) AS D1_TOTAL, "+CRLF
+	cQuery += "    F1_XXUSER, "+CRLF
+	cQuery += "    ("+CRLF
+	cQuery += "      SELECT "+CRLF
+	cQuery += "        MAX(CNF_DTVENC) "+CRLF
+	cQuery += "      FROM "+CRLF
+	cQuery += "        "+cTabCNF+" CNF "+CRLF
+	cQuery += "      WHERE "+CRLF
+	cQuery += "        CNF_CONTRA = ISNULL(Z2_CC, D1_CC) "+CRLF
+	cQuery += "        AND CNF_FILIAL = '"+xFilial("CNF")+"' AND CNF.D_E_L_E_T_ = '' "+CRLF
+	cQuery += "      GROUP BY "+CRLF
+	cQuery += "        CNF_CONTRA"+CRLF
+	cQuery += "    ) AS CNFDVIG "+CRLF
+
+	cQuery += "  FROM "+CRLF
+	cQuery += "    "+cTabSE2+" SE2 "+CRLF
+
+	cQuery += "    LEFT JOIN "+cTabSZ2+" SZ2 ON Z2_CODEMP = '"+cEmpresa+"' "+CRLF
+	cQuery += "    AND Z2_E2PRF = E2_PREFIXO "+CRLF
+	cQuery += "    AND Z2_E2NUM = E2_NUM "+CRLF
+	cQuery += "    AND Z2_E2PARC = E2_PARCELA "+CRLF
+	cQuery += "    AND Z2_E2TIPO = E2_TIPO "+CRLF
+	cQuery += "    AND Z2_E2FORN = E2_FORNECE "+CRLF
+	cQuery += "    AND Z2_E2LOJA = E2_LOJA "+CRLF
+	cQuery += "    AND SZ2.D_E_L_E_T_ = '' "+CRLF
+
+	cQuery += "    LEFT JOIN "+cTabSD1+" SD1 ON D1_DOC = E2_NUM "+CRLF
+	cQuery += "    AND D1_SERIE = E2_PREFIXO "+CRLF
+	cQuery += "    AND D1_FORNECE = E2_FORNECE "+CRLF
+	cQuery += "    AND D1_LOJA = E2_LOJA "+CRLF
+	cQuery += "    AND D1_FILIAL = '"+xFilial("SD1")+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+
+	cQuery += "    LEFT JOIN "+cTabSF1+" SF1 ON F1_DOC = D1_DOC "+CRLF
+	cQuery += "    AND F1_SERIE = D1_SERIE "+CRLF
+	cQuery += "    AND F1_FORNECE = D1_FORNECE "+CRLF
+	cQuery += "    AND F1_LOJA = D1_LOJA "+CRLF
+	cQuery += "    AND F1_FILIAL = D1_FILIAL AND SF1.D_E_L_E_T_ = '' "+CRLF
+
+	cQuery += "    LEFT JOIN "+cTabSB1+" SB1 ON B1_COD = D1_COD "+CRLF
+	cQuery += "    AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = '' "+CRLF
+
+	cQuery += "    LEFT JOIN "+cTabCTT+" CTT ON CTT_CUSTO = ISNULL(D1_CC, Z2_CC) "+CRLF
+	cQuery += "    AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_ = '' "+CRLF
+	
+	cQuery += "  WHERE "+CRLF
+	cQuery += "    E2_VENCREA > '"+DTOS(dDataBase)+"' "+CRLF
+	cQuery += "    AND E2_FILIAL = '"+xFilial("SE2")+"' AND SE2.D_E_L_E_T_ = ''"+CRLF
+Next
+cQuery += ") "+CRLF
+cQuery += "SELECT "+CRLF
+cQuery += "  * "+CRLF
+cQuery += "FROM "+CRLF
+cQuery += "  AVISO "+CRLF
+cQuery += "WHERE "+CRLF
+cQuery += "  CNFDVIG <= '"+DTOS(dDataBase)+"' "+CRLF
+cQuery += "  OR SUBSTRING(D1_CC,1,1) = 'E' "+CRLF
+cQuery += "ORDER BY "+CRLF
+cQuery += "  E2_VENCREA,E2_NUM"+CRLF
+
+u_LogMemo("V15BKGCT06.SQL",cQuery)
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
+tcSetField("QTMP","E2_EMIS1","D",8,0)
+tcSetField("QTMP","E2_VENCREA","D",8,0)
+tcSetField("QTMP","CNFDVIG","D",8,0)
+
+AADD(aTitulos,cAssunto)
+
+aAdd(aCampos,"QTMP->EMPRESA")
+aAdd(aCabs  ,"Empresa")
+
+aAdd(aCampos,"QTMP->NOMEEMP")
+aAdd(aCabs  ,"Nome Empresa")
+
+aAdd(aCampos,"QTMP->E2_VENCREA")
+aAdd(aCabs  ,GetSX3Cache("E2_VENCREA", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->E2_EMIS1")
+aAdd(aCabs  ,GetSX3Cache("E2_EMIS1", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->E2_PREFIXO")
+aAdd(aCabs  ,GetSX3Cache("E2_PREFIXO", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->E2_NUM")
+aAdd(aCabs  ,GetSX3Cache("E2_NUM", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->E2_PARCELA")
+aAdd(aCabs  ,GetSX3Cache("E2_PARCELA", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->D1_CC")
+aAdd(aCabs  ,GetSX3Cache("D1_CC", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->CTT_DESC01")
+aAdd(aCabs  ,GetSX3Cache("CTT_DESC01", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->CNFDVIG")
+aAdd(aCabs  ,"Vigência")
+
+aAdd(aCampos,"QTMP->D1_COD")
+aAdd(aCabs  ,GetSX3Cache("D1_COD", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->B1_DESC")
+aAdd(aCabs  ,GetSX3Cache("B1_DESC", "X3_TITULO"))
+
+aAdd(aCampos,"QTMP->D1_TOTAL")
+aAdd(aCabs  ,GetSX3Cache("D1_TOTAL", "X3_TITULO"))
+
+aAdd(aCampos,"UsrRetName(QTMP->F1_XXUSER)")
+aAdd(aCabs  ,GetSX3Cache("F1_XXUSER", "X3_TITULO"))
+
+AADD(aPlans,{"QTMP",cPrw,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /*aFormula*/,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+cArqXls := U_PlanXlsx(aPlans,cAssunto,cPrw,.F.)
+
+u_BkSnMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls})
+
+RestArea(aArea)
+
+Return Nil
