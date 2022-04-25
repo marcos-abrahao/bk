@@ -206,100 +206,388 @@ ORDER BY
 ==============================================================
 19/04/22 - BKGTR08 PARA AGENDAR
 
- SELECT 
-   ISNULL(CND_CONTRA,C5_ESPECI1) AS CND_CONTRA
-   ,CTT_DESC01
-   ,C5_XXCOMPM
-   ,C5_NUM
-   ,C5_MDNUMED
-   ,C5_MDPLANI
-   ,F2_SERIE
-   ,F2_DOC
-   ,F2_EMISSAO
-   ,F2_VALFAT
-   ,CND_USUAR
-   ,(CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END) AS FORMAMED
-   ,ISNULL(CXN_VLPREV,CND_VLPREV) AS CXN_VLPREV
-   ,ISNULL(CXN_VLBONI,CND_VLBONI) AS CXN_VLBONI
-   ,ISNULL(CXN_VLMULT,CND_VLMULT) AS CXN_VLMULT
-   ,STUFF ((SELECT '; ' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)
-          FROM CNR010 CNR
-   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS
-          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA
-                AND CNR_FILIAL = '01' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'
-          ORDER BY '; ' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)
-          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'           ), 1, 1, '') AS CNRTPMUL
-   ,STUFF ((SELECT '; ' + RTRIM(CNR_DESCRI)
-          FROM CNR010 CNR
-          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA
-                AND CNR_FILIAL = '01' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'
-          ORDER BY '; ' + RTRIM(CNR_DESCRI)
-          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'          ), 1, 1, '') AS CNRDESCMUL
-   ,STUFF ((SELECT '; ' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)
-          FROM CNR010 CNR
-   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS
-          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA
-                AND CNR_FILIAL = '01' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'
-          ORDER BY '; ' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)
-          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'          ), 1, 1, '') AS CNRTPBON
-   ,STUFF ((SELECT '; ' + RTRIM(CNR_DESCRI)
-          FROM CNR010 CNR
-          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA
-                AND CNR_FILIAL = '01' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'
-          ORDER BY '; ' + RTRIM(CNR_DESCRI)
-          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'          ), 1, 1, '') AS CNRDESCBON
-  into powerbk.dbo.GLOSAS 
- FROM SF2010 SF2
- LEFT JOIN SC5010 SC5
- 	ON (C5_NOTA = F2_DOC AND C5_SERIE = F2_SERIE
- 		AND C5_FILIAL = F2_FILIAL AND SC5.D_E_L_E_T_='')
- LEFT JOIN CXN010 CXN
- 	ON (CXN_CONTRA = C5_MDCONTR AND CXN_NUMMED = C5_MDNUMED AND CXN_NUMPLA = C5_MDPLANI AND CXN.CXN_CHECK = 'T'
- 		AND CXN_FILIAL = '01' AND CXN.D_E_L_E_T_='')
- LEFT JOIN CND010 CND
- 	ON (CND_NUMMED = C5_MDNUMED
- 		AND CND_FILIAL = '01' AND CND.D_E_L_E_T_=''
- 		AND CND.R_E_C_N_O_= 
-	        (SELECT TOP 1 R_E_C_N_O_ FROM CND010 CND1 
-	            WHERE CND1.CND_NUMMED = C5_MDNUMED
-	            AND CND1.CND_FILIAL = '01' AND CND1.D_E_L_E_T_=''))
- LEFT JOIN CTT010 CTT
- 	ON (ISNULL(CND_CONTRA,C5_ESPECI1) = CTT_CUSTO
- 		AND CTT_FILIAL = '01' AND CTT.D_E_L_E_T_='')
- WHERE 
- --SUBSTRING(F2_EMISSAO,1,6) = '202204' AND
-  SF2.D_E_L_E_T_=''
- UNION ALL
- SELECT DISTINCT
-   CNF_CONTRA 	AS CND_CONTRA
-   ,CTT_DESC01
-   ,CNF_COMPET	AS C5_XXCOMPM
-   ,' '			AS C5_NUM
-   ,' '			AS C5_MDNUMED
-   ,CNF_NUMPLA	AS C5_MDPLANI
-   ,' '			AS F2_SERIE
-   ,'PREVISTO'	AS F2_DOC
-   ,' '			AS F2_EMISSAO
-   ,0			AS F2_VALFAT
-   ,' '			AS CND_USUAR
-   ,' '			AS FORMAMED
-   ,CNF_VLPREV	AS CXN_VLPREV
-   ,0 			AS CXN_VLBONI
-   ,0 			AS CXN_VLMULT
-   ,' '			AS CNRTPMUL
-   ,' '			AS CNRDESCMUL
-   ,' '			AS CNRTPBON
-   ,' '			AS CNRDESCBON
+DROP TABLE powerbk.dbo.GLOSAS
+SELECT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  ISNULL(CND_CONTRA, C5_ESPECI1) AS CND_CONTRA, 
+  CTT_DESC01, 
+  C5_XXCOMPM, 
+  C5_NUM, 
+  C5_MDNUMED, 
+  C5_MDPLANI, 
+  F2_SERIE, 
+  F2_DOC, 
+  F2_EMISSAO, 
+  F2_VALFAT, 
+  CND_USUAR, 
+  (
+    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END
+  ) AS FORMAMED, 
+  ISNULL(CXN_VLPREV, CND_VLPREV) AS CXN_VLPREV, 
+  ISNULL(CXN_VLBONI, CND_VLBONI) AS CXN_VLBONI, 
+  ISNULL(CXN_VLMULT, CND_VLMULT) AS CXN_VLMULT, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) 
+      FROM 
+        CNR010 CNR 
+        INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '1' 
+      ORDER BY 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRTPMUL, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_DESCRI) 
+      FROM 
+        CNR010 CNR 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '1' 
+      ORDER BY 
+        ';' + RTRIM(CNR_DESCRI) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRDESCMUL, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) 
+      FROM 
+        CNR010 CNR 
+        INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '2' 
+      ORDER BY 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRTPBON, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_DESCRI) 
+      FROM 
+        CNR010 CNR 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '2' 
+      ORDER BY 
+        ';' + RTRIM(CNR_DESCRI) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRDESCBON into powerbk.dbo.GLOSAS 
+FROM 
+  SF2010 SF2 
+  LEFT JOIN SC5010 SC5 ON (
+    C5_NOTA = F2_DOC 
+    AND C5_SERIE = F2_SERIE 
+    AND C5_FILIAL = F2_FILIAL 
+    AND SC5.D_E_L_E_T_ = ''
+  ) 
+  LEFT JOIN CXN010 CXN ON (
+    CXN_CONTRA = C5_MDCONTR 
+    AND CXN_NUMMED = C5_MDNUMED 
+    AND CXN_NUMPLA = C5_MDPLANI 
+    AND CXN.CXN_CHECK = 'T' 
+    AND CXN_FILIAL = '01' 
+    AND CXN.D_E_L_E_T_ = ''
+  ) 
+  LEFT JOIN CND010 CND ON (
+    CND_NUMMED = C5_MDNUMED 
+    AND CND_FILIAL = '01' 
+    AND CND.D_E_L_E_T_ = '' 
+    AND CND.R_E_C_N_O_ = (
+      SELECT 
+        TOP 1 R_E_C_N_O_ 
+      FROM 
+        CND010 CND1 
+      WHERE 
+        CND1.CND_NUMMED = C5_MDNUMED 
+        AND CND1.CND_FILIAL = '01' 
+        AND CND1.D_E_L_E_T_ = ''
+    )
+  ) 
+  LEFT JOIN CTT010 CTT ON (
+    ISNULL(CND_CONTRA, C5_ESPECI1) = CTT_CUSTO 
+    AND CTT_FILIAL = '01' 
+    AND CTT.D_E_L_E_T_ = ''
+  ) 
+WHERE 
+  --SUBSTRING(F2_EMISSAO,1,6) = '202204' AND
+  SF2.D_E_L_E_T_ = '' 
+UNION ALL 
+SELECT 
+  DISTINCT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  CNF_CONTRA AS CND_CONTRA, 
+  CTT_DESC01, 
+  CNF_COMPET AS C5_XXCOMPM, 
+  ' ' AS C5_NUM, 
+  ' ' AS C5_MDNUMED, 
+  CNF_NUMPLA AS C5_MDPLANI, 
+  ' ' AS F2_SERIE, 
+  'PREVISTO' AS F2_DOC, 
+  ' ' AS F2_EMISSAO, 
+  0 AS F2_VALFAT, 
+  ' ' AS CND_USUAR, 
+  ' ' AS FORMAMED, 
+  CNF_VLPREV AS CXN_VLPREV, 
+  0 AS CXN_VLBONI, 
+  0 AS CXN_VLMULT, 
+  ' ' AS CNRTPMUL, 
+  ' ' AS CNRDESCMUL, 
+  ' ' AS CNRTPBON, 
+  ' ' AS CNRDESCBON 
+FROM 
+  CNF010 CNF 
+  INNER JOIN CN9010 CN9 ON CN9_NUMERO = CNF_CONTRA 
+  AND CN9_REVISA = CNF_REVISA 
+  AND CN9_REVATU = ' ' 
+  AND CN9_FILIAL = '01' 
+  AND CN9.D_E_L_E_T_ = ' ' 
+  LEFT JOIN CTT010 CTT ON CTT_CUSTO = CNF_CONTRA 
+  AND CTT_FILIAL = '01' 
+  AND CTT.D_E_L_E_T_ = ' ' 
+WHERE 
+  --CNF_COMPET = '03/2022' AND
+  CNF_SALDO = CNF_VLPREV 
+  AND CNF_FILIAL = '01' 
+  AND CNF.D_E_L_E_T_ = ' ' 
 
- FROM CNF010 CNF
- INNER JOIN CN9010 CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_REVATU = ' '
-      AND  CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ' '
- LEFT JOIN CTT010 CTT ON CTT_CUSTO = CNF_CONTRA
-      AND  CTT_FILIAL = '01' AND  CTT.D_E_L_E_T_ = ' '
- WHERE --CNF_COMPET = '03/2022' AND
-       CNF_SALDO = CNF_VLPREV
-      AND  CNF_FILIAL = '01' AND  CNF.D_E_L_E_T_ = ' '
- ORDER BY F2_DOC
+UNION ALL
+SELECT 
+  '14' AS EMPRESA,
+  'BALSA NOVA' AS NOMEEMP,
+  ISNULL(CND_CONTRA, C5_ESPECI1) AS CND_CONTRA, 
+  CTT_DESC01, 
+  C5_XXCOMPM, 
+  C5_NUM, 
+  C5_MDNUMED, 
+  C5_MDPLANI, 
+  F2_SERIE, 
+  F2_DOC, 
+  F2_EMISSAO, 
+  F2_VALFAT, 
+  CND_USUAR, 
+  (
+    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END
+  ) AS FORMAMED, 
+  ISNULL(CXN_VLPREV, CND_VLPREV) AS CXN_VLPREV, 
+  ISNULL(CXN_VLBONI, CND_VLBONI) AS CXN_VLBONI, 
+  ISNULL(CXN_VLMULT, CND_VLMULT) AS CXN_VLMULT, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) 
+      FROM 
+        CNR140 CNR 
+        INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '1' 
+      ORDER BY 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRTPMUL, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_DESCRI) 
+      FROM 
+        CNR140 CNR 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '1' 
+      ORDER BY 
+        ';' + RTRIM(CNR_DESCRI) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRDESCMUL, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) 
+      FROM 
+        CNR140 CNR 
+        INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '2' 
+      ORDER BY 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRTPBON, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_DESCRI) 
+      FROM 
+        CNR140 CNR 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (
+          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END
+        ) = CNR_CODPLA 
+        AND CNR_FILIAL = '01' 
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '2' 
+      ORDER BY 
+        ';' + RTRIM(CNR_DESCRI) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRDESCBON  
+FROM 
+  SF2140 SF2 
+  LEFT JOIN SC5140 SC5 ON (
+    C5_NOTA = F2_DOC 
+    AND C5_SERIE = F2_SERIE 
+    AND C5_FILIAL = F2_FILIAL 
+    AND SC5.D_E_L_E_T_ = ''
+  ) 
+  LEFT JOIN CXN140 CXN ON (
+    CXN_CONTRA = C5_MDCONTR 
+    AND CXN_NUMMED = C5_MDNUMED 
+    AND CXN_NUMPLA = C5_MDPLANI 
+    AND CXN.CXN_CHECK = 'T' 
+    AND CXN_FILIAL = '01' 
+    AND CXN.D_E_L_E_T_ = ''
+  ) 
+  LEFT JOIN CND140 CND ON (
+    CND_NUMMED = C5_MDNUMED 
+    AND CND_FILIAL = '01' 
+    AND CND.D_E_L_E_T_ = '' 
+    AND CND.R_E_C_N_O_ = (
+      SELECT 
+        TOP 1 R_E_C_N_O_ 
+      FROM 
+        CND140 CND1 
+      WHERE 
+        CND1.CND_NUMMED = C5_MDNUMED 
+        AND CND1.CND_FILIAL = '01' 
+        AND CND1.D_E_L_E_T_ = ''
+    )
+  ) 
+  LEFT JOIN CTT140 CTT ON (
+    ISNULL(CND_CONTRA, C5_ESPECI1) = CTT_CUSTO 
+    AND CTT_FILIAL = '01' 
+    AND CTT.D_E_L_E_T_ = ''
+  ) 
+WHERE 
+  --SUBSTRING(F2_EMISSAO,1,6) = '202204' AND
+  SF2.D_E_L_E_T_ = '' 
+UNION ALL 
+SELECT 
+  DISTINCT 
+  '14' AS EMPRESA,
+  'BALSA NOVA' AS NOMEEMP,
+  CNF_CONTRA AS CND_CONTRA, 
+  CTT_DESC01, 
+  CNF_COMPET AS C5_XXCOMPM, 
+  ' ' AS C5_NUM, 
+  ' ' AS C5_MDNUMED, 
+  CNF_NUMPLA AS C5_MDPLANI, 
+  ' ' AS F2_SERIE, 
+  'PREVISTO' AS F2_DOC, 
+  ' ' AS F2_EMISSAO, 
+  0 AS F2_VALFAT, 
+  ' ' AS CND_USUAR, 
+  ' ' AS FORMAMED, 
+  CNF_VLPREV AS CXN_VLPREV, 
+  0 AS CXN_VLBONI, 
+  0 AS CXN_VLMULT, 
+  ' ' AS CNRTPMUL, 
+  ' ' AS CNRDESCMUL, 
+  ' ' AS CNRTPBON, 
+  ' ' AS CNRDESCBON 
+FROM 
+  CNF140 CNF 
+  INNER JOIN CN9140 CN9 ON CN9_NUMERO = CNF_CONTRA 
+  AND CN9_REVISA = CNF_REVISA 
+  AND CN9_REVATU = ' ' 
+  AND CN9_FILIAL = '01' 
+  AND CN9.D_E_L_E_T_ = ' ' 
+  LEFT JOIN CTT140 CTT ON CTT_CUSTO = CNF_CONTRA 
+  AND CTT_FILIAL = '01' 
+  AND CTT.D_E_L_E_T_ = ' ' 
+WHERE 
+  --CNF_COMPET = '03/2022' AND
+  CNF_SALDO = CNF_VLPREV 
+  AND CNF_FILIAL = '01' 
+  AND CNF.D_E_L_E_T_ = ' ' 
+   
+  ORDER BY
+    EMPRESA,F2_DOC
 
 ==============================================================
 14/04/22 - UPDATE CNR_XTPJUS - Tipo justificativa multa/bonificação

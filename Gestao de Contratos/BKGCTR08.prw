@@ -164,37 +164,37 @@ cQuery += "   ,ISNULL(CXN_VLPREV,CND_VLPREV) AS CXN_VLPREV"+ CRLF
 cQuery += "   ,ISNULL(CXN_VLBONI,CND_VLBONI) AS CXN_VLBONI"+ CRLF
 cQuery += "   ,ISNULL(CXN_VLMULT,CND_VLMULT) AS CXN_VLMULT"+ CRLF
 
-cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
+cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
 cQuery += "   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS"+ CRLF
 cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF //AQUI
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'"+ CRLF
-cQuery += "          ORDER BY '; ' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
+cQuery += "          ORDER BY ';' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)' 
 cQuery += "          ), 1, 1, '') AS CNRTPMUL"+ CRLF
 
-cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
 cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'"+ CRLF
-cQuery += "          ORDER BY '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "          ORDER BY ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
 cQuery += "          ), 1, 1, '') AS CNRDESCMUL"+ CRLF
 
-cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
+cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
 cQuery += "   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS"+ CRLF
 cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'"+ CRLF
-cQuery += "          ORDER BY '; ' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
+cQuery += "          ORDER BY ';' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
 cQuery += "          ), 1, 1, '') AS CNRTPBON"+ CRLF
 
-cQuery += "   ,STUFF ((SELECT '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
 cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'"+ CRLF
-cQuery += "          ORDER BY '; ' + RTRIM(CNR_DESCRI)"+ CRLF
+cQuery += "          ORDER BY ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
 cQuery += "          ), 1, 1, '') AS CNRDESCBON"+ CRLF
 

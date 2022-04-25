@@ -105,12 +105,12 @@ If cFWEmp $ "01"
 EndIf
 
 If cFWEmp $ "01" 
-	u_xxConOut("INFO","V11BKGct06","Processando avisos de Solicitação de compras em aberto")
+	u_xxConOut("INFO","V11BKGct06","Processando aviso de Solicitação de compras em aberto")
 	V11BKGct06()
 EndIf
 
 If cFWEmp == "01" 
-	ConOut("V15BKGCT06: Aviso de lançamentos em contratos vencidos - "+DTOC(DATE())+" "+TIME())  
+	u_xxConOut("INFO","V15BKGct06","Processando Aviso de lançamentos em contratos vencidos")
 	V15BKGct06()
 EndIf
 
@@ -125,6 +125,12 @@ If cFWEmp $ "01/02/14"
 	U_BKGCTR23()
 	u_xxConOut("INFO","BKGCTR23","Finalizado processamento Dados do Dashboard - Funcionários e Glosas")
 ENDIF
+
+// Dashboard powrbk
+If cFWEmp == "01" 
+	u_xxConOut("INFO","BKDASH01","Atualizando a tabela GLOSAS do banco de dados powerbk")
+	BKDASH01()()
+EndIf
 
 Reset Environment
 
@@ -151,7 +157,8 @@ Local aRel       := {"01-Aviso de contratos pendentes de repactuação",;
                      "12-Aviso de pedido de venda em aberto",;
                      "13-Funcionario Dashbord",;
                      "14-Rentabilidade Dashbord",;
-                     "15-Aviso de Lanç. em contratos vencidos"}
+                     "15-Aviso de Lanç. em contratos vencidos",;
+					 "16-Atualizar tabela GLOSAS do banco de dados powerbk"}
 
 Private lExp     := .F.
 Private dDataEnv := DATE()
@@ -249,6 +256,8 @@ ELSEIF SUBSTR(cRel,1,2) = "14"
    Processa( {|| U_GRFBKGCT11(.T.) } )
 ELSEIF SUBSTR(cRel,1,2) = "15"   
    Processa( {|| V15BKGCT06() } )    
+ELSEIF SUBSTR(cRel,1,2) = "16"
+   U_BKDASH01()
 ENDIF 
 
 Close(oDlg1)

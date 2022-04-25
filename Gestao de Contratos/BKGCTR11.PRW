@@ -1,5 +1,5 @@
 #INCLUDE "PROTHEUS.CH"
-#INCLUDE "topconn.ch"
+#INCLUDE "TOPCONN.CH"
                                      
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTR11()
