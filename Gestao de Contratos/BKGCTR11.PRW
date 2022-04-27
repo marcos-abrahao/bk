@@ -1069,7 +1069,7 @@ FOR _nI := 1 TO nPeriodo
         AADD(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMP->E5DESC/(nIndTC/100),QTMP->E5DESC)}) 
 
 		nNDC := 0 
-		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
+		nNDC := U_VALNDCE(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
         aAdd(aRentab,{"30-3","NDC","S",-nNDC}) 
 
         AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
@@ -5611,8 +5611,47 @@ cRet := cOutros1
 Return cRet
 
 
-//NOTAS DE DEBITO DO CLIENTE - NDC
-USER FUNCTION VALNDC(cNumContr,cCompt,_nI,aNDC)
+//NOTAS DE DEBITO DO CLIENTE - NDC - Emissão
+USER FUNCTION VALNDCE(cNumContr,cCompt,_nI,aNDC)
+LOCAL nTotSE1	:= 0
+LOCAL cQuery	:= ""
+STATIC nCount	:= 1
+If aScan(aNDC,cNumContr+cCompt) == 0
+	aAdd(aNDC,cNumContr+cCompt)
+
+	cQuery += " SELECT
+	cQuery += "    E1_VALOR," + CRLF
+	cQuery += "    E1_NUM AS XX_NDC" + CRLF
+	cQuery += "  FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
+	cQuery += " WHERE 
+	cQuery += "    SE1.D_E_L_E_T_ = ' ' AND " + CRLF
+	cQuery += "    SE1.E1_FILIAL = '"+xFilial("SE1")+"' AND " + CRLF
+	cQuery += "    SE1.E1_TIPO = 'NDC'" + CRLF
+	//cQuery += "    AND SE1.E1_SALDO=0" + CRLF
+	//cQuery += "    AND SUBSTRING(E1_EMISSAO,1,6) ='"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
+	cQuery += "    AND E1_XXCOMPE = '"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
+	cQuery += "    AND E1_XXCUSTO = '"+cNumContr+"'" + CRLF
+
+	u_LogMemo("BKGCTR11-NDC-"+STRZERO(_nI,3)+"-"+STRZERO(nCount++,3)+".SQL",cQuery)
+
+	TCQUERY cQuery NEW ALIAS "QTMPXE1"
+	dbSelectArea("QTMPXE1")
+	dbGoTop()
+
+	nTotSE1  := 0
+	Do While !QTMPXE1->(EOF())
+		nTotSE1 += QTMPXE1->E1_VALOR
+		QTMPXE1->(dbSkip())
+	Enddo
+	QTMPXE1->(Dbclosearea())
+EndIf
+
+RETURN nTotSE1
+
+
+
+//NOTAS DE DEBITO DO CLIENTE - NDC - Pagamento
+USER FUNCTION VALNDCP(cNumContr,cCompt,_nI,aNDC)
 LOCAL nTotSE1	:= 0
 LOCAL cQuery	:= ""
 STATIC nCount	:= 1

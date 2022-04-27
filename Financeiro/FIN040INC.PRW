@@ -136,7 +136,7 @@ dVenciR  := DATAVALIDA(dVenci)
 
 IF nValor > 0
 
-	Processa ( {|| aRetNDC  := U_DescrNDC(nRecCND,cContra,cCompe,@nValor,cMunComp,@dVenci)})
+	Processa ( {|| aRetNDC  := U_DescrNDC(nRecCND,cContra,@cCompe,@nValor,cMunComp,@dVenci)})
 	
 	dVenciR := DATAVALIDA(dVenci)
 	cDesNDC := aRetNDC[1]
@@ -265,11 +265,14 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
         //chamar a função que cria a estrutura do aHeader
         CriaCabec()
 
-		@ 032, 010 Say  oSay Prompt "Vencimento:" Size  40, 10 Of oPanel01 Pixel
-		@ 030, 040 MSGet  oVenc Var  dVenci Size  50,10 Of oPanel01 Pixel Picture "@E"  
+		@ 035, 010 Say  oSay Prompt "Vencimento:" Size  40, 10 Of oPanel01 Pixel
+		@ 034, 040 MSGet  oVenc Var  dVenci Size  50,10 Of oPanel01 Pixel Picture "@E"  
 
-		@ 047, 010 Say  oSay Prompt "Referencia:" Size  40, 10 Of oPanel01 Pixel
-		@ 045, 040 MSGet  oRefer Var  cRefer Size  300,10 Of oPanel01 Pixel Picture "@!"  
+		@ 035, 100 Say  oSay Prompt "Competência:" Size  40, 10 Of oPanel01 Pixel
+		@ 034, 140 MSGet  oVenc Var  cCompe Size  30,10 Of oPanel01 Pixel Picture "@9"  
+
+		@ 050, 010 Say  oSay Prompt "Referencia:" Size  40, 10 Of oPanel01 Pixel
+		@ 049, 040 MSGet  oRefer Var  cRefer Size  300,10 Of oPanel01 Pixel Picture "@!"  
 		
 
         //Monta o browser com inclusão, remoção e atualização
@@ -302,7 +305,7 @@ User Function DescrNDC(nRecCND,cContra,cCompe,nValor,cMunComp,dVenci) //Cria Des
         Carregar(nRecCND,cContra,cCompe)
 
 		
- 	ACTIVATE MSDIALOG oDlg CENTERED Valid(ValidaNDC()) ON INIT EnchoiceBar(oDlg, {|| lOk := .T. ,U_SOMANDC(),oDlg:End() }, {|| lOk := .F. ,oDlg:End() },,aBotoes)
+ 	ACTIVATE MSDIALOG oDlg CENTERED Valid(ValidaNDC(@cCompe)) ON INIT EnchoiceBar(oDlg, {|| lOk := .T. ,U_SOMANDC(),oDlg:End() }, {|| lOk := .F. ,oDlg:End() },,aBotoes)
 
 	IF ( lOk )
 		lOk := .F.
@@ -551,7 +554,7 @@ EndIf
 
 Return
 
-Static Function ValidaNDC()
+Static Function ValidaNDC(cCompe)
 Local lOK := .T.
 Local nColLst := 0
 Local _IX
@@ -569,6 +572,11 @@ ENDIF
 
 IF Empty(cDescUni) .AND. nColLst == 0
 	MSGSTOP("Descrição Detalhada ou Descrião Única não informada. Verifique!")
+	lOK := .F.
+ENDIF
+
+IF VAL(SUBSTR(cCompe,1,4)) < 2021 .OR. VAL(SUBSTR(cCompe,5,2)) < 1 .OR. VAL(SUBSTR(cCompe,5,2)) > 12
+	MSGSTOP("Competência incorreta, o formato deve ser AAAAMM. Verifique!")
 	lOK := .F.
 ENDIF
 

@@ -128,7 +128,7 @@ ENDIF
 
 // Dashboard powrbk
 If cFWEmp == "01" 
-	u_xxConOut("INFO","BKDASH01","Atualizando a tabela GLOSAS do banco de dados powerbk")
+	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
 	BKDASH01()()
 EndIf
 
@@ -158,7 +158,7 @@ Local aRel       := {"01-Aviso de contratos pendentes de repactuação",;
                      "13-Funcionario Dashbord",;
                      "14-Rentabilidade Dashbord",;
                      "15-Aviso de Lanç. em contratos vencidos",;
-					 "16-Atualizar tabela GLOSAS do banco de dados powerbk"}
+					 "16-Atualizar tabelas do banco de dados PowerBk"}
 
 Private lExp     := .F.
 Private dDataEnv := DATE()

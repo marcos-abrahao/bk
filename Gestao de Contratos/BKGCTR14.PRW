@@ -1331,7 +1331,7 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"30-2","DESCONTOS NA NF","S",IIF(nIndTC>0,QTMP->E5DESC/(nIndTC/100),QTMP->E5DESC)}) 
 
 		nNDC := 0 
-		nNDC := U_VALNDC(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
+		nNDC := U_VALNDCE(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
         aAdd(aRentab,{"30-3","NDC","S",-nNDC}) 
 
         aAdd(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})

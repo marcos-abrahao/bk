@@ -203,6 +203,15 @@ WHERE
 ORDER BY 
   E2_NUM
 
+
+
+
+==============================================================
+27/04/22 - Solicitado pelo Rodolfo via e-mail
+
+UPDATE CT5010 SET CT5_DEBITO = '21401012' WHERE CT5_DEBITO = '21401010'
+UPDATE CT5010 SET CT5_CREDIT = '21401012' WHERE CT5_CREDIT = '21401010'
+
 ==============================================================
 19/04/22 - BKGTR08 PARA AGENDAR
 
