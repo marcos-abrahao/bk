@@ -117,7 +117,7 @@ ENDIF
 
 
 aXXMIMPC	:= {}
-aXXMIMPC	:= StrTokArr(GetMv("MV_XXMIMPC"),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+aXXMIMPC	:= StrTokArr(U_MVXXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
 FOR IX := 1 TO LEN(aXXMIMPC)
     AADD(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
@@ -136,7 +136,7 @@ nEncargos  	:= GetMv("MV_XXENCAP") //mv_par03
 nEncarIPT	:= GetMv("MV_XXEIPT")  //mv_par04
 nIncidenci	:= GetMv("MV_XXINCID") //mv_par05
 nTaxaAdm	:= GetMv("MV_XXTXADM") //mv_par06
-cProventos  := GetMv("MV_XXPROVE") //"|1|2|11|34|36|56|60|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|696|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|"
+cProventos  := U_MVXXPROVE()
 cDescontos  := GetMv("MV_XXDESCO") //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
 cVT_Prov 	:= GetMv("MV_XXVTPRO") //"|671|"  // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
 cVT_Verb 	:= GetMv("MV_XXVTVER") //"|290|667|"
@@ -201,7 +201,7 @@ NEXT
 //MV_XXCEXMP	C	Cod. Prod. para rateio no calculo de rentabilidade
 //MV_XXCMFGP	C	Cod. Prod. para rateio no calculo de rentabilidade
 //MV_XXDESCO	C	Descontos calculo Rentabilidade dos Contratos
-//MV_XXPROVE	C	Proventos calculo Rentabilidade dos Contratos
+//U_MVXXPROVE()	C	Proventos calculo Rentabilidade dos Contratos
 //MV_XXSINOP	C	Cod. Prod. desc. sind. odonto  calculo Rentabilida
 //MV_XXSINOV	C	Verba desc. sind. odonto  calculo Rentabilidade
 //MV_XXVRVAP	C	COD Produto de TR/VA calculo Rentabilidade
@@ -953,6 +953,10 @@ FOR _nI := 1 TO nPeriodo
  
 	u_LogMemo("BKGCTR11-CNF-1N-"+STRZERO(_nI,3)+"-"+cAnoMes+".SQL",cQuery)
 	
+	If Select("QTMP") > 0
+		QTMP->(DbCloseArea())
+	EndIf
+
 	TCQUERY cQuery NEW ALIAS "QTMP"
 
 	dbSelectArea("QTMP")
@@ -4512,7 +4516,7 @@ ENDIF
 
 
 aXXMIMPC	:= {}
-aXXMIMPC	:= StrTokArr(GetMv("MV_XXMIMPC"),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+aXXMIMPC	:= StrTokArr(U_MVXXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
 FOR IX := 1 TO LEN(aXXMIMPC)
     AADD(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
@@ -4643,7 +4647,7 @@ IF nConsolida == 1
 ENDIF
 
 
-cProventos  := GetMv("MV_XXPROVE") //"|1|2|11|34|36|56|60|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|696|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|"
+cProventos  := U_MVXXPROVE()
 cDescontos  := GetMv("MV_XXDESCO") //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784"
 cVT_Prov 	:= GetMv("MV_XXVTPRO") //"|671|"
 cVT_Verb 	:= GetMv("MV_XXVTVER") //"|290|667|"

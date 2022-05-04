@@ -92,7 +92,7 @@ BEGIN TRANSACTION
 		MSExecAuto({|x,y,z| MATA105(x,y,z)},aCabec,aItens,3)     
 		If lMsErroAuto
 			cErrLog:= CRLF+MostraErro("\TMP\","BKESTA01.ERR")
-			u_xxLog("\TMP\BKESTA01.LOG",cErrLog)
+			u_xxLog("\LOG\BKESTA01.LOG",cErrLog)
 			MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 			DisarmTransaction()
 		ELSE

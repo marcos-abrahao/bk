@@ -84,7 +84,7 @@ IF SF2->F2_XXVFUMD  > 0
 
 			IF lMsErroAuto
 				cErrLog:= CRLF+MostraErro("\TMP\","BKFATA02.ERR")
-				u_xxLog("\TMP\BKFATA02.LOG",cErrLog)
+				u_xxLog("\LOG\BKFATA02.LOG",cErrLog)
 				MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 				DisarmTransaction()
 			EndIf
@@ -124,7 +124,7 @@ IF SF2->F2_XXVFUMD  > 0
 
 			IF lMsErroAuto
 				cErrLog:= CRLF+MostraErro("\TMP\","BKFATA02.ERR")
-				u_xxLog("\TMP\BKFATA02.LOG",cErrLog)
+				u_xxLog("\LOG\BKFATA02.LOG",cErrLog)
 				MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 				DisarmTransaction()
 			EndIf

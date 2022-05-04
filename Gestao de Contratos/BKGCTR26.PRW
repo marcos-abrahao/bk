@@ -86,7 +86,7 @@ User Function BKGCTR26()
 
 	Private cTitulo     := "Fluxo de Caixa Por Contrato"
 	Private cPerg       := "BKGCTR26"
-	Private cArqLog		:= "\TMP\BKGCTR26-"+cEmpAnt+".LOG"
+	Private cArqLog		:= "\LOG\BKGCTR26-"+cEmpAnt+".LOG"
 
 	Private cTTipos 	:= ""
 	Private cXTipos 	:= ""

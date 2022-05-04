@@ -270,7 +270,7 @@ ZS_XXHIST
         If lMsErroAuto
 
 			cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA09.ERR")
-			u_xxLog("\TMP\BKCOMA09.LOG",cErrLog)
+			u_xxLog("\LOG\BKCOMA09.LOG",cErrLog)
 			//MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
             DisarmTransaction()
             break

@@ -112,7 +112,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 				ENDIF
 			ENDIF
             */
-			IF ALLTRIM(SCR->CR_APROV)  $ '000013/000014' //enviar e-mail apenas para Sr. Marcio e Xavier
+			IF ALLTRIM(SCR->CR_APROV)  $ '000013/000014/000043' //enviar e-mail apenas para Sr. Marcio e Xavier
 				PswOrder(1) 
 				PswSeek(SCR->CR_USER) 
 				aUser  := PswRet(1)

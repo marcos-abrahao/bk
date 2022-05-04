@@ -122,7 +122,7 @@ u_xxConOut("INFO","BKMATJ10","Empresa: "+_cEmpresa+" - Produto: "+cRetorno)
 If lMsErroAuto
 
 	cErrLog:= CRLF+MostraErro("\TMP\","BKMATJ10.ERR")
-	u_xxLog("\TMP\BKMATJ10.LOG",cErrLog)
+	u_xxLog("\LOG\BKMATJ10.LOG",cErrLog)
 
 	cRetorno := cErrLog
 	lRet := .F.

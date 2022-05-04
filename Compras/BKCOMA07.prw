@@ -222,7 +222,7 @@ Begin Transaction
 
 	IF lMsErroAuto
 		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA07.ERR")
-		u_xxLog("\TMP\BKCOMA07.LOG",cErrLog)
+		u_xxLog("\LOG\BKCOMA07.LOG",cErrLog)
 		MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 	   	DisarmTransaction()
 	Else

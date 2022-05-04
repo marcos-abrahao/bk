@@ -439,7 +439,7 @@ BEGIN TRANSACTION
 			
 			If lMsErroAuto
 				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA22.ERR")
-				u_xxLog("\TMP\BKFINA22.LOG",cErrLog)
+				u_xxLog("\LOG\BKFINA22.LOG",cErrLog)
 				MsgStop("Problemas na alteração do contas a pagar, informe o setor de T.I.:"+cErrLog, "Atenção")
 				DisarmTransaction()
 				lSucess := .F.

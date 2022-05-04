@@ -357,7 +357,7 @@ For nI := 1 TO LEN(aTitGer)
       MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
       If lMsErroAuto
          cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA02.ERR")
-         u_xxLog("\TMP\BKCOMA02.LOG",cErrLog)
+         u_xxLog("\LOG\BKCOMA02.LOG",cErrLog)
          MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.:"+cErrLog, "Atenção")
          DisarmTransaction()
          Return

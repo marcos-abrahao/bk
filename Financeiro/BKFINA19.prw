@@ -470,7 +470,7 @@ BEGIN TRANSACTION
 			
 			If lMsErroAuto
 				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA19.ERR")
-				u_xxLog("\TMP\BKFINA19.LOG",cErrLog)
+				u_xxLog("\LOG\BKFINA19.LOG",cErrLog)
 				MsgStop("Problemas na alteração do mov bancario, informe o setor de T.I.:"+cErrLog, "Atenção")
 				DisarmTransaction()
 				lSucess := .F.

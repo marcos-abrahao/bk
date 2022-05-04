@@ -57,6 +57,11 @@ If cCondicao == "999" .OR. cCondicaoOld = ''
 			cCondicao := SF1->F1_COND
 		EndIf
 	EndIf
+ElseIf cCondicao == "101" 
+	// 28/04/22 - Configurar condição de pagamento 101 para não postegar pagamentos em feriados e finais de semana
+	For nV := 1 TO Len(PARAMIXB)
+		PARAMIXB[nV,1] := DataValida(PARAMIXB[nV,1],.F.)
+	Next
 Else
 	For nV := 1 TO Len(PARAMIXB)
 		If PARAMIXB[nV,1] < dDtUtil
@@ -64,7 +69,6 @@ Else
 		EndIf
 	Next
 EndIf
-
 
 RestArea(aArea)
 Return(PARAMIXB)
@@ -106,5 +110,6 @@ IF nModulo = 2
 	   lRet := .F.
 	ENDIF
 ENDIF
+
 
 RETURN lRet

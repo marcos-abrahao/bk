@@ -51,7 +51,7 @@ Private cContrato   := ""
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
 	lJob 		:= aParam[2]
-	cArqLog		:= "\TMP\BKGCTR14-"+cEmpAnt+".LOG"
+	cArqLog		:= "\LOG\BKGCTR14-"+cEmpAnt+".LOG"
 Else
 
 	lSintet  	:= aParam[1]
@@ -61,7 +61,7 @@ Else
 
 	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9","SZX"},"GCT")
 
-	cArqLog		:= "\TMP\BKGCTR14-"+cEmpPar+".LOG"
+	cArqLog		:= "\LOG\BKGCTR14-"+cEmpPar+".LOG"
 
 	// Data de Agendamento do Job
 	dAgJob		:= U_BKGetMv("BKGCTR1410",.F.,CTOD(""))
@@ -162,15 +162,15 @@ Private nConsol     := 0
 Private cConsolida 	:= ""
 Private aConsolida 	:= {}
 Private aContConsol := {}
-Private cTipoContra := ""
+Private cTipoContra := "A" // 04/05/22 - SOMENTE CONTRATOS VIGENTES
 Private nVContrat 	:= 0
 Private aVContrat	:= {}
 Private aXXMIMPC	:= {}
 Private aMImpContr  := {}
 Private dDtProj 	:= CTOD("")
 Private cSeqProj	:= ""
-Private aFurnas:= {} 
-Private aPetro:= {} 
+Private aFurnas		:= {} 
+Private aPetro		:= {} 
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 //aPetro   := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXPETRO",.F.,"281001455")), "/" )
@@ -228,7 +228,7 @@ Else
 EndIf
 
 aXXMIMPC	:= {}
-aXXMIMPC	:= StrTokArr(GetMv("MV_XXMIMPC"),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+aXXMIMPC	:= StrTokArr(U_MVXXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
 FOR IX := 1 TO LEN(aXXMIMPC)
     aAdd(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
@@ -336,7 +336,7 @@ IF nConsolida == 1
 ENDIF
 
 
-cProventos  := GetMv("MV_XXPROVE") //"|1|2|11|34|36|56|60|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|696|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|"
+cProventos  := U_MVXXPROVE()
 cDescontos  := GetMv("MV_XXDESCO") //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784"
 cVT_Prov 	:= GetMv("MV_XXVTPRO") //"|671|"
 cVT_Verb 	:= GetMv("MV_XXVTVER") //"|290|667|"
@@ -366,14 +366,14 @@ cXXPLR	    := SuperGetMV("MV_XXPLR",.F.,"|430|") //|430|
 IF EMPTY(cContrato)
 	IF lJob
 		lConsorcio := .T.
-		lFurnas := .T.
-		lPetro := .T.
+		lFurnas    := .T.
+		lPetro     := .T.
 		nCompAtual := 2
 	ELSE
 		IF AVISO("Atenção","Incluir Contrato Consorcios ?",{"Não","Sim"}) == 2
-		lConsorcio := .T.
+			lConsorcio := .T.
 		ELSE
-		lConsorcio := .F.
+			lConsorcio := .F.
 		ENDIF
 		IF AVISO("Atenção","Incluir Contrato Furnas - Filial 381/391 ?",{"Não","Sim"}) == 2
 			lFurnas := .T.
@@ -386,6 +386,8 @@ IF EMPTY(cContrato)
 			lPetro := .F.
 		ENDIF
 	ENDIF
+ELSEIF nConsolida == 0
+	cTipoContra := "" // Se informar o contrato, permitir contratos não vigentes
 ENDIF
 
 FOR IX:= 1 TO LEN(aContrCons)
@@ -400,7 +402,7 @@ NEXT
 //MV_XXCEXMP	C	Cod. Prod. para rateio no calculo de rentabilidade
 //MV_XXCMFGP	C	Cod. Prod. para rateio no calculo de rentabilidade
 //MV_XXDESCO	C	Descontos calculo Rentabilidade dos Contratos
-//MV_XXPROVE	C	Proventos calculo Rentabilidade dos Contratos
+//U_MVXXPROVE()	C	Proventos calculo Rentabilidade dos Contratos
 //MV_XXSINOP	C	Cod. Prod. desc. sind. odonto  calculo Rentabilida
 //MV_XXSINOV	C	Verba desc. sind. odonto  calculo Rentabilidade
 //MV_XXVRVAP	C	COD Produto de TR/VA calculo Rentabilidade
@@ -567,6 +569,13 @@ aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
+aAdd(aDbf1, { 'XX_COMPET','C', 07,00 } )
+aAdd(aCampos1,"TRB->XX_COMPET")
+aAdd(aCabs1  ,"Competência")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
 aAdd(aDbf1, { 'XX_DESC'  ,'C', 50,00 } )
 aAdd(aCampos1,"TRB->XX_DESC")
 aAdd(aCabs1  ,"Descrição")
@@ -598,6 +607,37 @@ aAdd(aHeader,{"Diferença %","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
 aAdd(aImpr1,.T.)
 aAdd(aFormat1,"N")
 aAdd(aPict1,"@E 99999.99999")
+
+// PowerBK
+
+aAdd(aDbf1, { 'XX_PROJN'  ,'N', 18,02 } )
+aAdd(aCampos1,"TRB->XX_PROJN")
+aAdd(aCabs1  ,"Previsão Financeira N")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_REALN'  ,'N', 18,02 } )
+aAdd(aCampos1,"TRB->XX_REALN")
+aAdd(aCabs1  ,"Realizado N")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_DIFN'   ,'N', 18,05 } )
+aAdd(aCampos1,"TRB->XX_DIFN")
+aAdd(aCabs1  ,"Diferença % N")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
+aAdd(aDbf1, { 'XX_POWERBK','C',  1,00 } )
+aAdd(aCampos1,"TRB->XX_POWERBK")
+aAdd(aCabs1  ,"Power BK")
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
 
 oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
 oTmpTb1:SetFields( aDbf1 )
@@ -908,6 +948,7 @@ Return (.T.)
 
 User FUNCTION CR14(lJob)
 Local cAlias := "TRB"
+Local cQuery := ""
 
 dbSelectArea(cAlias)
 
@@ -918,9 +959,27 @@ If !lJob
 		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
 	Else
 		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
+
+		cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
+		nErro  := TcSqlExec(cQuery)
+
+		cQuery := "SELECT * INTO PowerBk.dbo.PROJXREALTELA"+cEmpAnt+" FROM "+cRealTb1 //+" WHERE XX_POWERBK = 'S' "
+		If TCSQLExec(cQuery) < 0 
+			MsgStop(TCSQLERROR())
+		EndIf
+
 	EndIf
 Else
+
+	// Gerar tabela no banco PowerBk
+
+	cQuery := "DROP TABLE PowerBk.dbo.PROJXREAL"+cEmpAnt+CRLF
+	nErro  := TcSqlExec(cQuery)
+	cQuery := "SELECT * INTO PowerBk.dbo.PROJXREAL"+cEmpAnt+" FROM "+cRealTb1+" WHERE XX_POWERBK = 'S' "
+	nErro  := TcSqlExec(cQuery)
+
 	// Gerar o analitico e os sintéticos no Schedule
+
 	GeraCR14(lJob,cAlias,TRIM(cPerg),    aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)
 	GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)
 	GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
@@ -928,7 +987,7 @@ EndIf
 
 Return Nil
 
-  
+
  
 Static Function ProcR14(lJob)
 Local cQuery	:= ""
@@ -947,7 +1006,7 @@ Local cVarLog	:= 0
 Local cJCNDCNE	:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE	:= FWJoinFilial("CXN", "CNE")
 //Local cJCN1CN9	:= FWJoinFilial("CN1", "CN9")
-//Local cJCNACNF	:= FWJoinFilial("CNA", "CNF")
+Local cJCNACNF	:= FWJoinFilial("CNA", "CNF")
 //Local cJCNACN9	:= FWJoinFilial("CNA", "CN9")
 Local cJSC5CNE	:= FWJoinFilial("SC5", "CNE")
 Local cJSC6SC5	:= FWJoinFilial("SC6", "SC5")
@@ -977,18 +1036,15 @@ FOR _nI := 1 TO nPeriodo
 	//nDespCon := 0
 	If !lJob
 		IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
-
-		//IncProc("Consultando faturamento dos contratos...")
-	Else
-		//u_xxLog(cArqLog,"Consultando faturamento dos contratos..."+STR(_nI),.T.,"")
-		u_xxLog(cArqLog,"BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
 	EndIf
+	u_xxLog(cArqLog,"BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
 
     cAnoMes := aAnoMes[_nI] 
 
 	//*********Faturamento do Contrato
 
-	cQuery := " SELECT"+CRLF 
+	cQuery := "WITH FATPREV AS ("+CRLF 
+	cQuery += " SELECT"+CRLF 
 	cQuery += "   CNF_CONTRA" +CRLF
 	cQuery += "   ,CNF_REVISA"+CRLF
 	cQuery += "   ,A1_NOME"   +CRLF
@@ -1004,7 +1060,7 @@ FOR _nI := 1 TO nPeriodo
 	// Nova Medição
 	cQuery += " FROM "+RETSQLNAME("CNE")+" CNE"+CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
 	cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = CNE_REVISA" +CRLF
 	cQuery += " 		AND "+cJCNDCNE+" AND CND.D_E_L_E_T_='')" + CRLF
 
@@ -1012,15 +1068,15 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " 	ON (CXN_CONTRA = CNE_CONTRA AND CXN_REVISA = CNE_REVISA AND CXN_NUMMED = CNE_NUMMED AND CXN_NUMPLA = CNE_NUMERO AND CXN.CXN_CHECK = 'T'" +CRLF
 	cQuery += " 		AND "+cJCXNCNE+" AND CXN.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 	cQuery += " 	ON (CTT_CUSTO = CNE_CONTRA" + CRLF
 	cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+" CN9" + CRLF
 	cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REVISA = CNE_REVISA" +CRLF
 	cQuery += " 	 	AND CN9_FILIAL = CND_FILCTR AND CN9.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
 	cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
 	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
 	cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
@@ -1029,7 +1085,7 @@ FOR _nI := 1 TO nPeriodo
 	//cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
 	//cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 	cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
 	cQuery += " 		AND CNA_FILIAL = '01' AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
 
@@ -1037,15 +1093,15 @@ FOR _nI := 1 TO nPeriodo
 	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
 	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
 	cQuery += " 		AND "+cJSC5CNE+" AND SC5.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("SC6")+" SC6" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+" SC6" + CRLF
 	cQuery += " 	ON (C5_CLIENT = C6_CLI AND C5_LOJACLI = C6_LOJA AND C6_NUM = C5_NUM AND C6_ITEMED = CNE_ITEM" +CRLF
 	cQuery += " 		AND "+cJSC6SC5+" AND SC6.D_E_L_E_T_='')" + CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("SD2")+" SD2" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+" SD2" + CRLF
 	cQuery += " 	ON (D2_PEDIDO = C5_NUM AND D2_ITEMPV = C6_ITEM AND C5_CLIENT = D2_CLIENTE AND D2_LOJA = C5_LOJACLI" +CRLF
 	cQuery += " 		AND "+cJSD2SC6+" AND SD2.D_E_L_E_T_='')" + CRLF
 
@@ -1150,23 +1206,23 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += "   ,CTT_DESC01"+CRLF
 	cQuery += "   ,CN9_SITUAC"+CRLF
 	cQuery += "   ,CN9_XXNRBK"+CRLF
-	cQuery += "   ,' ' AS CNA_XXMUN" +CRLF
+	cQuery += "   ,CNA_XXMUN" +CRLF
 	cQuery += "   ,0 AS D2_TOTAL"+CRLF
 	cQuery += "   ,0 AS D2_VALISS"+CRLF
 	cQuery += "   ,0 AS D2_VALCPM"+CRLF
 	cQuery += "   ,0 AS E5DESC"+CRLF
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
 	cQuery += "       AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
 
-	cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 	cQuery += " 	ON (CTT_CUSTO = CNF_CONTRA" + CRLF
 	cQuery += " 		AND CTT_FILIAL = "+xFilial("CTT")+" AND CTT.D_E_L_E_T_='')" + CRLF
 
-	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
-	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+	cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
 	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
@@ -1204,8 +1260,24 @@ FOR _nI := 1 TO nPeriodo
 		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
 	ENDIF
 	*/
-	
-	cQuery += " ORDER BY CNF_CONTRA"+CRLF
+	cQuery += ")"+CRLF
+
+ 	cQuery += "SELECT " + CRLF
+    cQuery += "  CNF_CONTRA" + CRLF
+   	cQuery += "  ,CNF_REVISA" + CRLF
+   	cQuery += "  ,A1_NOME" + CRLF
+   	cQuery += "  ,CTT_DESC01" + CRLF
+   	cQuery += "  ,CN9_SITUAC" + CRLF
+   	cQuery += "  ,CN9_XXNRBK" + CRLF
+   	cQuery += "  ,CNA_XXMUN" + CRLF
+   	cQuery += "  ,SUM(D2_TOTAL)  AS D2_TOTAL" + CRLF
+   	cQuery += "  ,SUM(D2_VALISS) AS D2_VALISS" + CRLF
+   	cQuery += "  ,SUM(D2_VALCPM) AS D2_VALCPM" + CRLF
+   	cQuery += "  ,SUM(E5DESC)    AS E5DESC " + CRLF
+ 
+  	cQuery += " FROM FATPREV "+CRLF
+   	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
+   	cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
  
 	u_LogMemo("BKGCTR14-"+cAnoMes+".SQL",cQuery)
 
@@ -1320,7 +1392,7 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"15","(-) Recuperação de VR/VA","S",0}) 
         aAdd(aRentab,{"16","ASSMEDICA","S",0}) 
         aAdd(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
-        aAdd(aRentab,{"18","Sindicato (Odonto)","S",0}) 
+        aAdd(aRentab,{"18","SINDICATO (ODONTO)","S",0}) 
         //aAdd(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
         aAdd(aRentab,{"20","CECREMEF/ADV","S",0}) 
         aAdd(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
@@ -2301,7 +2373,7 @@ FOR _nI := 1 TO nPeriodo
 							SZL->ZL_DATA   	:= dDtProj
 							SZL->ZL_SEQ   	:= cSeqProj
 							SZL->ZL_CODIGO 	:= '18'
-							SZL->ZL_DESC 	:= "Sindicato (Odonto)"
+							SZL->ZL_DESC 	:= "SINDICATO (ODONTO)"
 							SZL->ZL_VALOR  	:= 0
 							SZL->(msUnlock())
                    		ENDIF
@@ -4125,12 +4197,14 @@ FOR _nI := 1 TO nPeriodo
 			TMPX2->(dbCloseArea())
 	  	ENDIF
 
+		/*
 		If !lJob
-			//IncProc("Consultando faturamento de medições avulsas...")
+			IncProc("Consultando faturamento de medições avulsas...")
 		Else
-			//u_xxLog(cArqLog,"Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
+			u_xxLog(cArqLog,"Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
 		EndIf
-		
+		*/
+
 		//********* FATURAMENTO - Inclusão para medição avulso
 		cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM, SUM(E5_VALOR) AS E5DESC"
 		cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" 
@@ -4197,8 +4271,8 @@ FOR _nI := 1 TO nPeriodo
 	        aAdd(aRentab,{"15","(-) Recuperação de VR/VA","S",0}) 
 	        aAdd(aRentab,{"16","ASSMEDICA","S",0}) 
 	        aAdd(aRentab,{"17","(-) Recuperação de ASSMEDICA","S",0}) 
-	        aAdd(aRentab,{"18","Sindicato (Odonto)","S",0}) 
-	        aAdd(aRentab,{"19","(-) Recuperação de Sindicato (Odonto)","S",0}) 
+	        aAdd(aRentab,{"18","SINDICATO (ODONTO)","S",0}) 
+	        aAdd(aRentab,{"19","(-) Recuperação de SINDICATO (ODONTO)","S",0}) 
         	aAdd(aRentab,{"20","CECREMEF/ADV","S",0}) 
         	aAdd(aRentab,{"21","(-) CECREMEF/ADV","S",0}) 
 	        aAdd(aRentab,{"22-1","","S",0}) 
@@ -4400,7 +4474,10 @@ STATIC FUNCTION GeraResult()
 Local aGeral 	:= {}
 Local aBenef 	:= {}
 Local I			:= 0
-Local _IX,_XI
+Local _IX		:= 0
+Local _XI		:= 0
+Local _nI		:= 0
+Local cCompet   := STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
 
 //Verifica o Crupo do usuario - visualização do relatorio
 PswOrder(1) 
@@ -4437,8 +4514,8 @@ cCodigo  := (ALIAS_TMP)->XX_CODGCT
 
 nBficP 	 := 0
 nBficR 	 := 0
-nCustoBkP := 0
-nCustoBkR := 0
+nCustoBkP:= 0
+nCustoBkR:= 0
 nRNTBILP := 0
 nRNTBILR := 0
 InsumosP := 0
@@ -4464,11 +4541,8 @@ nTFATDOMES 	:= 0
 nTDOMES 	:= 0
 nRPREVISTO 	:= 0
 nVPREVISTO 	:= 0
-aGeral 		:= {}
-aBenef		:= {}
 
 Do While (ALIAS_TMP)->(!eof())
-
 	
 	nTotal 		:= 0
 	nTotalMES 	:= 0
@@ -4523,6 +4597,7 @@ Do While (ALIAS_TMP)->(!eof())
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
+				TRB->XX_COMPET  := cCompet
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= ""
 				TRB->XX_PROJ 	:= "Num. Siga: "+TRIM(aContConsol[_IX,1] )
@@ -4537,6 +4612,7 @@ Do While (ALIAS_TMP)->(!eof())
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
+				TRB->XX_COMPET  := cCompet
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Cliente:"
 				TRB->XX_PROJ 	:= TRIM(aContConsol[_IX,2])
@@ -4550,6 +4626,7 @@ Do While (ALIAS_TMP)->(!eof())
 				//GRAVA CABECALHO 
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
+				TRB->XX_COMPET  := cCompet
 	 			TRB->XX_CODGCT  := "999999999"
 				TRB->XX_DESC	:= "Contrato:"
 				TRB->XX_PROJ 	:= TRIM(aContConsol[_IX,3])
@@ -4561,6 +4638,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 		++nLINHA
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
+				TRB->XX_COMPET  := cCompet
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
 				TRB->XX_PROJ 	:= TRIM(aContConsol[_IX,4])
@@ -4574,6 +4652,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 		++nLINHA
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
+				TRB->XX_COMPET  := cCompet
 	 			TRB->XX_CODGCT  :="999999999"
 				TRB->XX_DESC	:= "Vigência:"
 				TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
@@ -4586,6 +4665,7 @@ Do While (ALIAS_TMP)->(!eof())
 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Competência Analisada:"
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
@@ -4598,6 +4678,7 @@ Do While (ALIAS_TMP)->(!eof())
 	
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= "Previsão Financeira"
@@ -4619,6 +4700,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= "Num. Siga: "+(ALIAS_TMP)->XX_CODGCT 
@@ -4632,6 +4714,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Cliente:"
 			TRB->XX_PROJ 	:= TRIM((ALIAS_TMP)->XX_DESC)
@@ -4646,6 +4729,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//GRAVA CABECALHO 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Contrato:"
 			TRB->XX_PROJ 	:= TRIM((ALIAS_TMP)->XX_DESC)
@@ -4659,6 +4743,7 @@ Do While (ALIAS_TMP)->(!eof())
 	
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Gestor Responsável "+FWEmpName(cEmpAnt)+":"
 			TRB->XX_PROJ 	:= TRIM((ALIAS_TMP)->XX_DESC)
@@ -4671,7 +4756,8 @@ Do While (ALIAS_TMP)->(!eof())
 	 		++nLINHA
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
- 			TRB->XX_CODGCT  :=(ALIAS_TMP)->XX_CODGCT
+			TRB->XX_COMPET  := cCompet
+ 			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Vigência:"
 			TRB->XX_PROJ 	:= IIF(nVContrat > 0,DTOC(aVContrat[nVContrat,2])+" até "+DTOC(aVContrat[nVContrat,3]),"")
 			TRB->XX_REAL 	:= ""
@@ -4682,6 +4768,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 	++nLINHA
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Competência Analisada:"
 			TRB->XX_PROJ 	:= aMeses[nMesC]+"/"+STRZERO(nAnoC,4)
@@ -4693,6 +4780,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 	++nLINHA
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
 	 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Descrição Item"
 			TRB->XX_PROJ 	:= "Previsão Financeira"
@@ -4714,21 +4802,29 @@ Do While (ALIAS_TMP)->(!eof())
 		//FATURAMENTO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
+
 		TRB->XX_PROJ 	:= transform((ALIAS_TMP)->&cCampoX,cPict)
+		TRB->XX_PROJN 	:= (ALIAS_TMP)->&cCampoX
+
 		//aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_PROJ" ,"","N","PREVISTO"+cCodigo,"PREVISTO"+cCodigo})
 
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB->XX_REALN 	:= (ALIAS_TMP)->&cCampoY
+
 		//aAdd(aFormula1,{TRB->(RECNO()),"TRB->XX_REAL" ,"","N","REALIZADO"+cCodigo,"REALIZADO"+cCodigo})
 
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= (((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1
+		TRB->XX_POWERBK := "S"
+		TRB->(Msunlock())
 
 		nValTADP	:=  0
       	nValTADP 	:= ((ALIAS_TMP)->&cCampoX * nTaxaAdm)/100		
 		nValTADR	:=  0
       	nValTADR 	:= ((ALIAS_TMP)->&cCampoY * nTaxaAdm)/100
-		TRB->(Msunlock())
 		nRNTBILP	:= 0
 		nRNTBILP	:= (ALIAS_TMP)->&cCampoX
 		nRNTBILR	:= 0
@@ -4740,11 +4836,16 @@ Do While (ALIAS_TMP)->(!eof())
 		//PROVENTO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA  := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= (ALIAS_TMP)->XX_DESC
 		TRB->XX_PROJ 	:= transform( (ALIAS_TMP)->&cCampoX,cPict)
+		TRB->XX_PROJN 	:= (ALIAS_TMP)->&cCampoX
 		TRB->XX_REAL 	:= transform( (ALIAS_TMP)->&cCampoY,cPict)
+		TRB->XX_REALN 	:= (ALIAS_TMP)->&cCampoY
 		TRB->XX_DIF 	:= transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= (((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		nRNTBILP	-=  (ALIAS_TMP)->&cCampoX
 		nRNTBILR	-=  (ALIAS_TMP)->&cCampoY
@@ -4771,11 +4872,16 @@ Do While (ALIAS_TMP)->(!eof())
 		//BENEFICIOS 
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "BENEFICIOS"
 		TRB->XX_PROJ 	:= transform(nBficP,cPict)
+		TRB->XX_PROJN 	:= nBficP
 		TRB->XX_REAL 	:= transform(nBficR,cPict)
+		TRB->XX_REALN 	:= nBficR
 		TRB->XX_DIF 	:= transform(((nBficP - nBficR) / nBficP * 100)*-1,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= ((nBficP - nBficR) / nBficP * 100)*-1
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		nRNTBILP	-= nBficP
 		nRNTBILR	-= nBficR
@@ -4788,6 +4894,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//PULA LINHA
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= ""
@@ -4798,6 +4905,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "DETALHE DOS BENEFICIOS"
 			TRB->XX_PROJ 	:= ""
@@ -4806,16 +4914,22 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->(Msunlock())
 			
 			FOR _XI := 1 TO LEN(aBenef)
-				IF VAL(aBenef[_XI,3]) <> 0 .OR. VAL(aBenef[_XI,4]) <> 0
+				IF aBenef[_XI,3] <> 0 .OR. aBenef[_XI,4] <> 0
 					dbSelectArea("TRB")
 					//GASTOS GERAIS
  					Reclock("TRB",.T.)
 					TRB->XX_LINHA   := nLINHA
+					TRB->XX_COMPET  := cCompet
  					TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
+
 					TRB->XX_DESC	:= aBenef[_XI,2]
-					TRB->XX_PROJ 	:= aBenef[_XI,3]
-					TRB->XX_REAL 	:= aBenef[_XI,4]
-					TRB->XX_DIF 	:= aBenef[_XI,5]
+					TRB->XX_PROJ 	:= transform(aBenef[_XI,3],cPict)
+					TRB->XX_PROJN 	:= aBenef[_XI,3]
+					TRB->XX_REAL 	:= transform(aBenef[_XI,4],cPict)
+					TRB->XX_REALN 	:= aBenef[_XI,4]
+					TRB->XX_DIF 	:= transform(aBenef[_XI,5],"@E 99999.99999")+"%"
+					TRB->XX_DIFN 	:= aBenef[_XI,5]
+					TRB->XX_POWERBK := "S"
 				ENDIF
 			NEXT
 
@@ -4823,6 +4937,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//PULA LINHA
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= ""
@@ -4838,7 +4953,7 @@ Do While (ALIAS_TMP)->(!eof())
 	IF nDespGeral == 1 .AND. nCompras == 0
 		// 28/02/20 incluido |111"
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|110|111|12|14|16|18|19|20|"  .OR. SUBSTR((ALIAS_TMP)->XX_CODIGO,1,4) == "18-1"
-	 		aAdd(aBenef,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
+	 		aAdd(aBenef,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,(ALIAS_TMP)->&cCampoX,(ALIAS_TMP)->&cCampoY,(((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1})
 		ENDIF
 	ENDIF
 
@@ -4856,11 +4971,14 @@ Do While (ALIAS_TMP)->(!eof())
 		//NDC
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "NDC"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB->XX_REALN 	:= (ALIAS_TMP)->&cCampoY
 		TRB->XX_DIF 	:= ""
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 	ENDIF
@@ -4871,11 +4989,14 @@ Do While (ALIAS_TMP)->(!eof())
 		//DESCONTO NA NF
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "DESCONTO NA NF"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform((ALIAS_TMP)->&cCampoY,cPict)
+		TRB->XX_REALN 	:= (ALIAS_TMP)->&cCampoY
 		TRB->XX_DIF 	:= ""
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 	ENDIF
@@ -4898,7 +5019,8 @@ Do While (ALIAS_TMP)->(!eof())
 	
 	IF nDespGeral == 1 .AND. (nCompras == 0  .OR. nCompras == 1)
 		IF SUBSTR((ALIAS_TMP)->XX_CODIGO,1,1) == "W"   .AND. !"|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W29104004|"
-        	aAdd(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
+        	//aAdd(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
+        	aAdd(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,(ALIAS_TMP)->&cCampoX,(ALIAS_TMP)->&cCampoY,(((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1})
 		ENDIF
 	ENDIF
 
@@ -4909,11 +5031,16 @@ Do While (ALIAS_TMP)->(!eof())
 		//INSUMOS
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
-		TRB->XX_DESC	:= "INSUMOS"
+		TRB->XX_DESC	:= "INSUMOS."
 		TRB->XX_PROJ 	:= transform(InsumosP,cPict)
+		TRB->XX_PROJN 	:= InsumosP
 		TRB->XX_REAL 	:= transform(InsumosR-nValTADR-nCustoBkR,cPict)
+		TRB->XX_REALN 	:= InsumosR-nValTADR-nCustoBkR
 		TRB->XX_DIF 	:= transform((((InsumosP) - (InsumosR-nValTADR-nCustoBkR)) / InsumosP * 100)*-1,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= (((InsumosP) - (InsumosR-nValTADR-nCustoBkR)) / InsumosP * 100)*-1
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 
@@ -4921,11 +5048,16 @@ Do While (ALIAS_TMP)->(!eof())
 		//TAXA DE ADMINISTRAÇÃO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "TAXA DE ADMINISTRAÇÃO DO MÊS"
 		TRB->XX_PROJ 	:= transform(nValTADP,cPict)
+		TRB->XX_PROJN 	:= nValTADP
 		TRB->XX_REAL 	:= transform(nValTADR,cPict)
+		TRB->XX_REALN 	:= nValTADR
 		TRB->XX_DIF 	:= transform(((nValTADP - nValTADR) / nValTADP * 100)*-1,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= ((nValTADP - nValTADR) / nValTADP * 100)*-1
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 
@@ -4933,11 +5065,14 @@ Do While (ALIAS_TMP)->(!eof())
 		//TAXA DE ADMINISTRAÇÃO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "TAXA DE ADMINISTRAÇÃO ATÉ O MÊS"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform(nTXATMESR,cPict)
+		TRB->XX_REALN 	:= nTXATMESR
 		TRB->XX_DIF 	:= ""
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
         
@@ -4946,11 +5081,15 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= cCustoBk
 			TRB->XX_PROJ 	:= transform(nCustoBKP,cPict)
+			TRB->XX_PROJN 	:= nCustoBKP
 			TRB->XX_REAL 	:= transform(nCustoBKR,cPict)
+			TRB->XX_REALN 	:= nCustoBKR
 			TRB->XX_DIF 	:= ""
+			TRB->XX_POWERBK := "S"
 			TRB->(Msunlock())
 			++nLINHA
 		ENDIF
@@ -4960,6 +5099,7 @@ Do While (ALIAS_TMP)->(!eof())
 		//TOTAL INSUMOS
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA  := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "TOTAL INSUMOS"
 		TRB->XX_PROJ 	:= transform(InsumosP+nValTADP,cPict)
@@ -4975,6 +5115,7 @@ Do While (ALIAS_TMP)->(!eof())
 		//RENTABILIDADE
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RENTABILIDADE"
 		TRB->XX_PROJ 	:= transform(nRNTBILP,cPict)
@@ -4988,11 +5129,15 @@ Do While (ALIAS_TMP)->(!eof())
 		//RESULTADO PREVISTO"
 		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
 		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO PREVISTO"
 		TRB->XX_PROJ 	:= transform(nVPREVISTO,cPict)
+		TRB->XX_PROJN 	:= nVPREVISTO
 		TRB->XX_REAL 	:= ""
 		TRB->XX_DIF 	:= transform(nRPREVISTO,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= nRPREVISTO
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 
@@ -5001,11 +5146,15 @@ Do While (ALIAS_TMP)->(!eof())
 		//RESULTADO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO DO MÊS - PARCIAL"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform((nFatura*nRDOMES)/100,cPict)
+		TRB->XX_REALN 	:= (nFatura*nRDOMES)/100
 		TRB->XX_DIF 	:= transform(nRDOMES,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= nRDOMES
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 
@@ -5013,11 +5162,15 @@ Do While (ALIAS_TMP)->(!eof())
 		//RESULTADO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO ATÉ O MÊS - PARCIAL"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform((nTotFatMES*nRESULTMES)/100,cPict)
+		TRB->XX_REALN 	:= (nTotFatMES*nRESULTMES)/100
 		TRB->XX_DIF 	:= transform(nRESULTMES,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= nRESULTMES
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 
@@ -5026,11 +5179,15 @@ Do While (ALIAS_TMP)->(!eof())
 		//RESULTADO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO DO MÊS - GLOBAL"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform((nFatura*nRGDOMES)/100,cPict)
+		TRB->XX_REALN 	:= (nFatura*nRGDOMES)/100
 		TRB->XX_DIF 	:= transform(nRGDOMES,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= nRGDOMES
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA 
 		
@@ -5038,11 +5195,15 @@ Do While (ALIAS_TMP)->(!eof())
 		//RESULTADO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO ATÉ O MÊS - GLOBAL"
 		TRB->XX_PROJ 	:= ""
 		TRB->XX_REAL 	:= transform((nTotFatMES*nRGATMES)/100,cPict)
+		TRB->XX_REALN 	:= (nTotFatMES*nRGATMES)/100
 		TRB->XX_DIF 	:= transform(nRGATMES,"@E 99999.99999")+"%"
+		TRB->XX_DIFN 	:= nRGATMES
+		TRB->XX_POWERBK := "S"
 		TRB->(Msunlock())
 		++nLINHA
 
@@ -5051,6 +5212,7 @@ Do While (ALIAS_TMP)->(!eof())
 		//RESULTADO
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= "RESULTADO"
 		TRB->XX_PROJ 	:= ""
@@ -5097,6 +5259,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//PULA LINHA
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Qtd. Funcionarios: "
 			TRB->XX_PROJ 	:= cDFun1
@@ -5116,6 +5279,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//PULA LINHA
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "Justificativa Funcionarios"
 			TRB->XX_PROJ 	:= cJFun
@@ -5131,6 +5295,7 @@ Do While (ALIAS_TMP)->(!eof())
 			//PULA LINHA
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= ""
 			TRB->XX_PROJ 	:= ""
@@ -5142,6 +5307,7 @@ Do While (ALIAS_TMP)->(!eof())
 			dbSelectArea("TRB")
  			Reclock("TRB",.T.)
 			TRB->XX_LINHA  := nLINHA
+			TRB->XX_COMPET  := cCompet
  			TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 			TRB->XX_DESC	:= "DETALHE DOS INSUMOS"
 			TRB->XX_PROJ 	:= ""
@@ -5150,16 +5316,21 @@ Do While (ALIAS_TMP)->(!eof())
 			TRB->(Msunlock())
 
 			FOR _XI := 1 TO LEN(aGeral)
-				IF VAL(aGeral[_XI,3]) <> 0 .OR. VAL(aGeral[_XI,4]) <> 0
+				IF aGeral[_XI,3] <> 0 .OR. aGeral[_XI,4] <> 0
 					dbSelectArea("TRB")
 					//GASTOS GERAIS
  					Reclock("TRB",.T.)
 					TRB->XX_LINHA   := nLINHA
+					TRB->XX_COMPET  := cCompet
  					TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 					TRB->XX_DESC	:= aGeral[_XI,2]
-					TRB->XX_PROJ 	:= aGeral[_XI,3]
-					TRB->XX_REAL 	:= aGeral[_XI,4]
-					TRB->XX_DIF 	:= aGeral[_XI,5]
+					TRB->XX_PROJ 	:= transform(aGeral[_XI,3],cPict)
+					TRB->XX_PROJN 	:= aGeral[_XI,3]
+					TRB->XX_REAL 	:= transform(aGeral[_XI,4],cPict)
+					TRB->XX_REALN 	:= aGeral[_XI,4]
+					TRB->XX_DIF 	:= Transform(aGeral[_XI,5],"@E 99999.99999")+"%"
+					TRB->XX_DIFN 	:= aGeral[_XI,5]
+					TRB->XX_POWERBK := "S"
 				ENDIF
 			NEXT
 
@@ -5169,6 +5340,7 @@ Do While (ALIAS_TMP)->(!eof())
 		//PULA LINHA
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
+		TRB->XX_COMPET  := cCompet
  		TRB->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
 		TRB->XX_DESC	:= ""
 		TRB->XX_PROJ 	:= ""

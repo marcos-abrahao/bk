@@ -589,7 +589,7 @@ Begin Transaction
  	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc,.T.)   
 	IF lMsErroAuto
 		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA03.ERR")
-		u_xxLog("\TMP\BKCOMA03.LOG",cErrLog)
+		u_xxLog("\LOG\BKCOMA03.LOG",cErrLog)
 		MsgStop("Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie+", informe o setor de T.I.:"+cErrLog,"Atenção")
 		DisarmTransaction()
 		lRet := .F.

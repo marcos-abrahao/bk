@@ -73,10 +73,10 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
 		Else
 			//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
 		Endif
-		u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Assunto: "+cAssunto,.T.,"")
-		u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Para: "+cPara,.T.,"")
-		u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
-		u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cCorpo,1,100),.T.,"")
+		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+"- Assunto: "+cAssunto,.T.,"")
+		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+"- Para: "+cPara,.T.,"")
+		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
+		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cCorpo,1,100),.T.,"")
 		
 		//Return .T.
 	EndIf

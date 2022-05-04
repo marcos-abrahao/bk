@@ -248,28 +248,6 @@ Local cAliasSZ2 as Character
 
 If nOpc == 3
 	// Inclusão
-
-	// Gravar Parcela no CND
-	/*
-	dbSelectArea("CXN")
-	dbSetOrder(1)
-	dbSeek(xFilial("CXN")+CND->CND_CONTRA+CND->CND_REVISA+CND->CND_NUMMED,.T.)
-	Do While xFilial("CNX") == CNX->CNX_FILIAL .AND. CNX->(CNX_CONTRA+CNX_REVISA+CNX_NUMMED) == CND->CND_CONTRA+CND->CND_REVISA+CND->CND_NUMMED .AND. !EOF()
-		If CXN->CXN_CHECK 
-			If Empty(M->CND_PARCEL)
-				//  Gravar campos do CXN na CND
-				RecLock("CND")
-				//CND->CND_CLIENT  := CXN->CXN_CLIENT
-				//CND->CND_LOJACL  := CXN->CXN_LJCLI
-				//CND->CND_NUMERO  := CXN->CXN_NUMPLA
-				CND->CND_PARCEL  := CXN->CXN_PARCEL
-				CND->(MsUnLock())
-				//Exit
-			EndIf
-		EndIf
-		dbSkip()
-	EndDo
-	*/
 	
 	cAliasSZ2:= GetNextAlias()
 
@@ -287,7 +265,7 @@ If nOpc == 3
 	cSql += " (SELECT TOP 1 CND_XXDV FROM CND010 CND WHERE CND.D_E_L_E_T_='' "
 	cSql += "  AND CND_CONTRA='"+M->CND_CONTRA+"' AND CND_COMPET='"+M->CND_COMPET+"' AND CND_XXDV<>'' ) AS CND_XXDV " 
 	cSql += "FROM SZ2010 SZ2 "
-	cSql += "WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP='"+SM0->M0_CODIGO+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
+	cSql += "WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP='"+cEmpAnt+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
 	//cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)='"+SUBSTR(M->CND_COMPET,4,4)+SUBSTR(M->CND_COMPET,1,2)+"'"
 	cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)>='"+STRZERO(nAnoComp,4)+STRZERO(nMesComp,2)+"'"
 	cSql += " AND Z2_CC='"+M->CND_CONTRA+"' "
@@ -302,7 +280,7 @@ If nOpc == 3
 			M->CND_XXDV   := "S"
 			M->CND_XXVLND := (cAliasSZ2)->TOTAL
 			//Inclui a NDC
-			U_FIN040INC(CND->(RECNO()),(cAliasSZ2)->TOTAL) 
+			U_FIN040INC(CND->(RECNO()),(cAliasSZ2)->TOTAL)
 		Else
 			M->CND_XXDV   := "N"
 		EndIf

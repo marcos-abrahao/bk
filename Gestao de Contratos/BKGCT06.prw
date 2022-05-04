@@ -129,7 +129,7 @@ ENDIF
 // Dashboard powrbk
 If cFWEmp == "01" 
 	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
-	BKDASH01()()
+	U_BKDASH01()()
 EndIf
 
 Reset Environment
@@ -3155,7 +3155,7 @@ Local cMsg    	:= ""
 Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
-Local aUser     := {}
+//Local aUser     := {}
 Local cPrw		:= "V9BKGct06"
 
 Local cGerGestao := u_GerGestao()
@@ -3176,14 +3176,16 @@ IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
 ENDIF
 
-
+/*
 PswOrder(1) 
 PswSeek(SUBSTR(cGerGestao,1,6)) 
 aUser  := PswRet(1)
 IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF                                                                                                
+*/
 
+cEmail := u_EmpPcAprv()
 
 SM0->(DbGoTop())
 While SM0->(!EoF())
@@ -3196,7 +3198,6 @@ While SM0->(!EoF())
 		SM0->(DbSKip())
 		Loop
 	EndIf
-
 
 	cQuery := "SELECT CR_NUM,CTT_CUSTO,CTT_DESC01,CR_TOTAL,C1_SOLICIT,C7_FORNECE,A2_NOME "
 	cQuery += " FROM SCR"+SM0->M0_CODIGO+"0 SCR"

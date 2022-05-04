@@ -245,7 +245,7 @@ Do While !eof()
 		
 		IF lMsErroAuto
  			cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA02.ERR")
-			u_xxLog("\TMP\BKCTBA02.LOG",cErrLog)
+			u_xxLog("\LOG\BKCTBA02.LOG",cErrLog)
 			DisarmTransaction()
 		ENDIF
 	End Transaction

@@ -559,7 +559,7 @@ For nI:=1 TO LEN(aTitGer)
 			
 		IF lMsErroAuto
    			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
-			u_xxLog("\TMP\BKFINA16.LOG",cErrLog)
+			u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
 			MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
 			lOK := .F.
 			DisarmTransaction()
@@ -606,7 +606,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
-				u_xxLog("\TMP\BKFINA16.LOG",cErrLog)
+				u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
 				MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
 				lOK := .F.
 				DisarmTransaction()

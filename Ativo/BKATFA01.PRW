@@ -144,7 +144,7 @@ Begin Transaction
     MSExecAuto({|x,y,z| Atfa012(x,y,z)},aCab,aItens,3,aParam)
     If lMsErroAuto 
 		cErrLog:= CRLF+MostraErro("\TMP\","BKATFA01.ERR")
-		u_xxLog("\TMP\BKATFA01.LOG",cErrLog)
+		u_xxLog("\LOG\BKATFA01.LOG",cErrLog)
    		MsgStop("Problemas na execução do MSExecAuto, informe o setor de T.I.:"+cErrLog, "Atenção")
         DisarmTransaction()
     Endif

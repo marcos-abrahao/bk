@@ -23,7 +23,7 @@ Local cCredito      := ""
 Local cContaDe      := "11102001"
 Local cContaPara    := "11102002"
 
-Local cArqLog		:= "\TMP\BKCTBA06-"+cEmpAnt+".LOG"
+Local cArqLog		:= "\LOG\BKCTBA06-"+cEmpAnt+".LOG"
 Local cErrLog       := ""
 
 Private lMsErroAuto := .F.
@@ -90,8 +90,8 @@ Do While !CT2->(Eof())
             MSExecAuto({|x, y,z| CTBA102(x,y,z)}, aCab ,aItens, 4)
 
             IF lMsErroAuto
-                cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA06.ERR")
-                u_xxLog("\TMP\BKCTBA06.LOG",cErrLog)
+                cErrLog:= CRLF+MostraErro("\LOG\","BKCTBA06.ERR")
+                u_xxLog("\LOG\BKCTBA06.LOG",cErrLog)
                 MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
                 DisarmTransaction()
             Else

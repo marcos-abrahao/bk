@@ -63,14 +63,21 @@ Return Nil
 
  
 Static Function RunCtb01()
-Local aCab := {},aItens := {},aRecno:={}
-Local aAreaIni := GetArea()
-Local cQuery
-Local nStatus := 0
-Local nI := 0,dUDia,nMes,nAno
-Local cDoc := ""
-Local cEvento := ""
-Local cErrLog := ""
+Local aCab 		:= {}
+Local aItens 	:= {}
+Local aRecno	:={}
+Local aAreaIni	:= GetArea()
+Local cQuery	:= ""
+Local nStatus 	:= 0
+Local nI 		:= 0
+Local dUDia
+Local nMes
+Local nAno
+Local cDoc 		:= ""
+Local cEvento 	:= ""
+Local cErrLog 	:= ""
+Local nX 		:= 0
+Local aErro
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -127,8 +134,9 @@ Do While !eof()
 	          {'CSUBLOTE',  '001',     NIL},;
 	          {'CPADRAO',   '',        NIL},;
 	          {'NTOTINF',   0,         NIL},;
-	          {'NTOTINFLOT',0,         NIL},;
-	          {'CDOC',      cDoc      ,NIL} }
+	          {'NTOTINFLOT',0,         NIL}}
+
+//	          {'CDOC',      cDoc /*STRZERO( seconds() ,6)*/ ,NIL},;
 
 //NOPC,DDATALANC,CLOTE,CSUBLOTE,CDOC,LAGLUT,CSEQUENC,LCUSTO,LITEM,LCLVL,NTOTINF,CPROG,CPRELCTO,DREPROC,CEMPORI,CFILORI,@AFLAGCTB,@ACTKXCT2,@ATPSALDO,CMODOCLR,ASEQDIARIO,LMLTSLD,CSEQCORR		
 
@@ -152,17 +160,19 @@ Do While !eof()
 		   cCCC := QSZ5->Z5_CC
 		ENDIF
 		
-		aAdd(aItens,{  {'CT2_LINHA'  ,STRZERO(nLinha++,3), NIL},;
+		aAdd(aItens,{  {'CT2_FILIAL' ,xFilial("CT2")     , NIL},;
+					   {'CT2_LINHA'  ,STRZERO(nLinha++,3), NIL},;
 		               {'CT2_MOEDLC' ,'01',                NIL},;
 		               {'CT2_DC'     ,'3',                 NIL},;
 		               {'CT2_DEBITO' ,QSZ5->Z5_DEBITO,     NIL},;
 		               {'CT2_CREDIT' ,QSZ5->Z5_CREDITO,    NIL},;
 		               {'CT2_CCD'    ,cCCD,                NIL},;
 		               {'CT2_CCC'    ,cCCC,                NIL},;
-		               {'CT2_VALOR'  , QSZ5->Z5_VALOR,     NIL},;
+		               {'CT2_VALOR'  ,QSZ5->Z5_VALOR,      NIL},;
 		               {'CT2_ORIGEM' ,'BKCTBA01-'+QSZ5->Z5_EVENTO+'-'+SUBSTR(cUsuario,7,14)+'-'+QSZ5->Z5_ANOMES, NIL},;
 		               {'CT2_HP'     ,'',                  NIL},;
 		               {'CT2_HIST'   ,'FOLHA PGTO '+SUBSTR(QSZ5->Z5_ANOMES,5,2)+'/'+SUBSTR(QSZ5->Z5_ANOMES,1,4)+' - '+TRIM(QSZ5->Z5_EVENTO)+"-"+TRIM(QSZ5->Z5_EVDESCR), NIL} } )
+
 
 		aAdd(aRecno,QSZ5->Z5RECNO)
 		
@@ -180,8 +190,15 @@ Do While !eof()
 	    MSExecAuto( {|X,Y,Z| CTBA102(X,Y,Z)} ,aCab ,aItens, 3)
 		
 		IF lMsErroAuto
-			cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA01.ERR")
-			u_xxLog("\TMP\BKCTBA01.LOG",cErrLog)
+			aErro := GetAutoGRLog() 
+			cErrLog := ""
+			FOR nX := 1 to Len(aErro)
+				 cErrLog += aErro[nX]+CRLF
+		    NEXT
+		    //Mostraerro()
+			//cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA01.ERR")
+			//cErrLog:= CRLF+MostraErro()
+			u_xxLog("\LOG\BKCTBA01.LOG",cErrLog)
 			DisarmTransaction()
 		ENDIF
 		

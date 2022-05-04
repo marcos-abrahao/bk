@@ -27,6 +27,7 @@ Local cCliente  := ""
 Local cLoja		:= ""
 Local aArea		:= GetArea()
 Local aAreaCNA	
+Local aAreaCXN
 //Local aAreaCNE
 Local cNaturez  := ""
 Local cTpNf		:= "N"
@@ -38,9 +39,13 @@ cLoja		:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_LOJACLI"}),2]
 cPlanilha	:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDPLANI"}),2]
 cNumMed		:= ExpA1[aScan(ExpA1, {|x| x[1]=="C5_MDNUMED"}),2]
 
+dbSelectArea("CXN")
+aAreaCXN := CXN->(getArea())
+CXN->(dbSetOrder(3))
+CXN->(dbSeek(xFilial("CXN",cFilCtr)+cContrato+cNumMed+cPlanilha)) 
+
 dbSelectArea("CNA")
 aAreaCNA := CNA->(getArea())
-
 dbSetOrder(1)
 CNA->(dbSeek(xFilial("CNA",cFilCtr)+cContrato+cRevisa+cPlanilha)) 
 
@@ -102,8 +107,11 @@ AADD(ExpA1,{"C5_XXRETC" ,CNA->CNA_XXRETC, Nil})
 AADD(ExpA1,{"C5_XXCOMPM",CND->CND_COMPET, Nil}) 
 
 // Aqui acertar quando for nova medição CXN_XXRM
-AADD(ExpA1,{"C5_XXRM"   ,CND->CND_XXRM  , Nil})  
-
+If FWIsInCallStack("U_CN121PED")
+	AADD(ExpA1,{"C5_XXRM"   ,CXN->CXN_XXRM  , Nil})  
+Else
+	AADD(ExpA1,{"C5_XXRM"   ,CND->CND_XXRM  , Nil})  
+EndIf
 
 // Acertar valor total dos itens do pedido de vendas
 /*
@@ -126,6 +134,8 @@ CNE->(RestArea(aAreaCNE))
 */
 
 CNA->(RestArea(aAreaCNA))
+CXN->(RestArea(aAreaCXN))
+
 RestArea(aArea)
 
 u_LogPrw("CN120PED","Medição "+cNumMed)

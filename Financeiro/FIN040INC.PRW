@@ -12,7 +12,7 @@ BK - Criar Nota de Débito Cliente
 /*/
 //-------------------------------------------------------------------
 
-USER Function FIN040INC(nRecCND,nValor)  	 
+USER Function FIN040INC(nRecCND,nValor,nRecCXN)  	 
 Local aAreas    := GetArea()
 Local aArray 	:= {}
 Local cProxNum  := "000000001"
@@ -36,18 +36,18 @@ Local nI        := 0
 Local nColDel   := 9
 Local cMunComp  := ""
 
-Default nValor		:= 0
 Private aParam		:= {}
 Private aRet		:= {}
-
 Private cPict       := "@E 99,999,999,999.99"
 Private lMsErroAuto := .F. 
 
-Default nRecCND := 0
+Default nRecCND 	:= 0
+Default nValor		:= 0
+Default nRecCXN 	:= 0
 
 //Posiciona na Medição
 IF nRecCND > 0
-	DBSELECTAREA("CND")
+	dbSelectArea("CND")
 	dbGoTo(nRecCND)
 	
 	cNumMed := CND->CND_NUMMED
@@ -55,25 +55,45 @@ IF nRecCND > 0
 	cRev    := CND->CND_REVISA
 	cCompe  := SUBSTR(CND->CND_COMPET,4,4)+SUBSTR(CND->CND_COMPET,1,2)
 	cPlan   := CND->CND_NUMERO
-	
+
+	dbSelectArea("CXN")
+	dbSetOrder(1)
+	dbSeek(xFilial("CXN")+CND->CND_CONTRA+CND->CND_REVISA+CND->CND_NUMMED,.T.)
+	Do While xFilial("CXN") == CXN->CXN_FILIAL .AND. CXN->(CXN_CONTRA+CXN_REVISA+CXN_NUMMED) == CND->(CND_CONTRA+CND_REVISA+CND_NUMMED) .AND. !EOF()
+		If CXN->CXN_CHECK 
+			cCliente := CXN->CXN_CLIENT
+			cLoja    := CXN->CXN_LJCLI
+			Exit
+		EndIf
+		dbSkip()
+	EndDo
+
+	IF Empty(cCliente)
+		cCliente := CND->CND_CLIENT
+		cLoja    := CND->CND_LOJACL
+	ENDIF
+
+	dbSelectArea("CNE")
+	CNE->(dbSetOrder(4))
+	CNE->(dbSeek(xFilial("CNE")+cNumMed))
+	CNE->(dbSetOrder(1))
+
 	dbSelectArea("SA1")
 	SA1->(dbSetOrder(1))
-	SA1->(dbSeek(xFilial("SA1")+CND->CND_CLIENT+CND->CND_LOJACL))
+	SA1->(dbSeek(xFilial("SA1")+cCliente+cLoja))
 
 	dbSelectArea("SC5")
 	SC5->(dbSetOrder(1))
-	SC5->(DbSeek(xFilial("SC5")+CND->CND_PEDIDO))
+	SC5->(DbSeek(xFilial("SC5")+CNE->CNE_PEDIDO))
 
 	dbSelectArea("SC6")
 	SC6->(dbSetOrder(1))
-	SC6->(DbSeek(xFilial("SC6")+CND->CND_PEDIDO)) 
+	SC6->(DbSeek(xFilial("SC6")+CNE->CNE_PEDIDO)) 
 
 	dbSelectArea("CNA")
 	SC6->(dbSetOrder(1))
 	SC6->(DbSeek(xFilial("CNA")+cContra+cRev+CPlan)) 
 
-	cCliente := CND->CND_CLIENT
-	cLoja    := CND->CND_LOJACL
 	cRev     := CND->CND_REVISA
 	cDesNDC  := ""
 	dEmissao := dDataBase //SC5->C5_EMISSAO

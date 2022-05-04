@@ -170,6 +170,24 @@ Next
 Return (cEmails)
 
 
+// Email para Grupo Master Repac (Vanderleia, Bruno e Marcio M)
+User Function EmpPcAprv()
+Local aUsers := {"000056","000153","000240"}
+Local cEmail := ""
+Local cEmails:= ""
+Local nI	 := 0
+
+For nI := 1 To Len(aUsers)
+	cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
+	If !Empty(cEmail)
+		cEmails += cEmail+';'
+	EndIf
+Next
+
+Return (cEmails)
+
+
+
 // Gestão de Contratos
 
 /* Clientes Petrobras

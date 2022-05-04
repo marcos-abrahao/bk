@@ -250,7 +250,7 @@ For nI := 1 TO LEN(aTitGer)
 				MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 				IF lMsErroAuto
 					cErrLog:= CRLF+MostraErro("\TMP\","BKFINA03.ERR")
-					u_xxLog("\TMP\BKFINA03.LOG",cErrLog)
+					u_xxLog("\LOG\BKFINA03.LOG",cErrLog)
 					MsgStop("Problemas na exclusão do titulo "+cKey+", informe o setor de T.I.:"+cErrLog, "Atenção")
 					AADD(aTitErr,cKey)
 					DisarmTransaction()

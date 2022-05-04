@@ -509,7 +509,7 @@ For nI := 1 TO LEN(aTitGer)
 		IF lMsErroAuto
 
 			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA02.ERR")
-			u_xxLog("\TMP\BKFINA02.LOG",cErrLog)
+			u_xxLog("\LOG\BKFINA02.LOG",cErrLog)
 			MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.: "+cKey1+cErrLog, "Atenção")
 
 			DisarmTransaction()
@@ -719,7 +719,7 @@ IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
 			IF lMsErroAuto
 
 				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA02.ERR")
-				u_xxLog("\TMP\BKFINA02.LOG",cErrLog)
+				u_xxLog("\LOG\BKFINA02.LOG",cErrLog)
 
 				DisarmTransaction()
 				Return

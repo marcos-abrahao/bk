@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"18/04/2022 ISS "
+#DEFINE FIN_LAST_UPDATED 		"03/05/2022 VER "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -181,7 +181,8 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenDic( @cTexto ) 
 
-			AtuGenPar( @cTexto )   //  18/04/22 ISS BASE PIS/COF
+			//AtuGenPar( @cTexto )   //  18/04/22 ISS BASE PIS/COF
+			VerGenPar( @cTexto )  
 
 			//AtuRndImp( @cTexto )   // 04/02/22
 			
@@ -828,6 +829,24 @@ Final da Atualizacao
 */
 
 Return
+
+
+Static Function VerGenPar( cTexto )
+
+dbSelectArea( "SX6" )
+SX6->( dbSetOrder( 1 ) )
+SX6->( dbGoTop() )
+
+oProcess:SetRegua2( 2 )
+
+oProcess:IncRegua2( "Verificando parametro..." )
+
+If dbSeek(xFilial()+"MV_XXPROVE")
+	cTexto += "Parametro " + SX6->X6_DESCRIC+ ": " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+EndIf
+
+Return
+
 
 
 
@@ -1572,9 +1591,21 @@ oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "07/07/22 - SE1 " + CRLF 
-APPEND FROM \tmp\sx3prrec.dtc
-X31UPDTABLE("SE1")
+//SA1_CODPAIS
+dbSetOrder( 2 )
+If SX3->( dbSeek( "A1_CODPAIS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := "'01058'"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "A1_PAIS" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_RELACAO := "'105'"
+	dbCommit()
+	MsUnLock()
+EndIf
 
 dbSetOrder( 1 )
 
@@ -1582,6 +1613,9 @@ Return
 
 
 /*
+cTexto  += "07/07/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3prrec.dtc
+X31UPDTABLE("SE1")
 
 
 cTexto  += "16/03/22 - SE1 " + CRLF 

@@ -309,7 +309,7 @@ cQuery += "    EMPRESA,F2_DOC" + CRLF
 
 //u_LogMemo("BKDASH01.SQL",cQuery)
 
-If !TCIsConnected()
+If !TCIsConnected() 
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
 Endif  
