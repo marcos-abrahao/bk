@@ -382,14 +382,14 @@ Begin Sequence
 	aPrd   := {}
 	aLib   := {} 
 	
-    IF SM0->M0_CODIGO == '12'
+    IF cEmpAnt == '12'
 		oPrn:Say(0180,0050,"CORRETORA",oFont16N)
 	ENDIF
 
     IF ALLTRIM(SE2->E2_PREFIXO) $ "LF/DV/CX"
     	DbSelectArea("SZ2")
 		DbSetOrder(3)
-		dbSeek(xFilial("SZ2")+SM0->M0_CODIGO+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
+		dbSeek(xFilial("SZ2")+cEmpAnt+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
 		IF ALLTRIM(SZ2->Z2_CC) == aFurnas[1]
 			oPrn:Say(0180,0050,"FURNAS",oFont14N)
         ENDIF
@@ -1001,7 +1001,7 @@ cQuery := "SELECT ""
 cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
 cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU,Z2_NOMDEP,Z2_NOMMAE "
 cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2"
-cQuery += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
+cQuery += " WHERE Z2_CODEMP = '"+cEmpAnt+"' "
 cQuery += " AND Z2_E2PRF  = '"+cPrefixo+"' "
 cQuery += " AND Z2_E2NUM  = '"+cNum+"' "
 cQuery += " AND Z2_E2PARC = '"+cParcela+"' "
@@ -1157,7 +1157,7 @@ IF ALLTRIM(cTIPO) $ "LFE/LRC"
 	ELSE
 		cSQL+= " MsgLog like '%Tipo Rescisão%'"
 	ENDIF
-	cSQL+= " AND MsgLog like '%NumEmp: "+ALLTRIM(STR(VAL(SM0->M0_CODIGO)))+"%'"
+	cSQL+= " AND MsgLog like '%NumEmp: "+ALLTRIM(STR(VAL(cEmpAnt)))+"%'"
 	cSQL+= " AND MsgLog like '%NumCad: "+ALLTRIM(STR(VAL(cPRONT)))+"%'"	
 	cSQL+= " AND MsgLog like '%Data Pagamento: "+DTOC(dDTPGTO)+"%'"
 

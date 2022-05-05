@@ -46,6 +46,8 @@ Local cErro1 	:= ""
 Local cErro2 	:= ""
 Local aEmpresas := u_BKGrupo()
 Local nE 		:= 0
+Local cEmpresa  := ""
+Local cNomeEmp  := ""
 
 Local cTabSZR   := ""
 Local cTabCNR   := ""

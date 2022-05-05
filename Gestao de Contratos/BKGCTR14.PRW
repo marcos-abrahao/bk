@@ -960,6 +960,7 @@ If !lJob
 	Else
 		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
 
+		
 		cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
 		nErro  := TcSqlExec(cQuery)
 
@@ -967,22 +968,67 @@ If !lJob
 		If TCSQLExec(cQuery) < 0 
 			MsgStop(TCSQLERROR())
 		EndIf
-
+		
 	EndIf
 Else
 
-	// Gerar tabela no banco PowerBk
-
-	cQuery := "DROP TABLE PowerBk.dbo.PROJXREAL"+cEmpAnt+CRLF
-	nErro  := TcSqlExec(cQuery)
-	cQuery := "SELECT * INTO PowerBk.dbo.PROJXREAL"+cEmpAnt+" FROM "+cRealTb1+" WHERE XX_POWERBK = 'S' "
-	nErro  := TcSqlExec(cQuery)
-
 	// Gerar o analitico e os sintéticos no Schedule
-
 	GeraCR14(lJob,cAlias,TRIM(cPerg),    aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)
 	GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)
 	GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
+
+	// Gerar tabela no banco PowerBk
+	GeraPwBk()
+
+EndIf
+
+Return Nil
+
+
+Static Function GeraPwBK()
+Local aEmpresas := u_BKGrupo()
+Local nE 		:= 0
+Local cQuery 	:= ""
+Local cQueryV	:= ""
+Local nErro		:= 0
+Local cEmpresa  := ""
+Local cNomeEmp  := ""
+
+cQuery := "DROP TABLE PowerBk.dbo.PROJXREAL"+cEmpAnt+CRLF
+nErro  := TcSqlExec(cQuery)
+cQuery := "SELECT * INTO PowerBk.dbo.PROJXREAL"+cEmpAnt+" FROM "+cRealTb1+" WHERE XX_POWERBK = 'S' "
+nErro  := TcSqlExec(cQuery)
+
+If cEmpAnt == '01' 
+	cQuery := "DROP TABLE PowerBk.dbo.PROJXREAL"+CRLF
+	nErro  := TcSqlExec(cQuery)
+
+	cQuery := ""
+	For nE := 1 TO Len(aEmpresas)
+
+		cEmpresa := aEmpresas[nE,1]
+		cNomeEmp := aEmpresas[nE,2]
+
+		If nE > 1
+			cQueryV := "SELECT TOP 1 * FROM PowerBk.dbo.PROJXREAL"+cEmpresa+" "+CRLF
+			nErro   := TcSqlExec(cQueryV)
+			If nErro < 0 
+				Loop
+			EndIf
+			cQuery += "UNION ALL "+CRLF
+		EndIf
+		cQuery += " SELECT "+CRLF
+		cQuery += "    '"+cEmpresa+"' AS EMPRESA,"+CRLF
+		cQuery += "    '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+		cQuery += "    '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
+		cQuery += "    '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
+		cQuery += "    *"+CRLF
+		If nE == 1
+			cQuery += " INTO PowerBk.dbo.PROJXREAL "+CRLF
+		EndIf
+		cQuery += " FROM PowerBk.dbo.PROJXREAL"+cEmpresa+" "+CRLF
+	Next
+	nErro  := TcSqlExec(cQuery)
 EndIf
 
 Return Nil
@@ -1379,7 +1425,7 @@ FOR _nI := 1 TO nPeriodo
         	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM)) /*+nNDC*/ }) 
 		ENDIF
         aAdd(aRentab,{"07-1","","S",0})
-        aAdd(aRentab,{"08","CUSTO","S",0})
+        aAdd(aRentab,{"08","CUSTO.","S",0})
         aAdd(aRentab,{"09","PROVENTOS","S",0}) 
         aAdd(aRentab,{"10","ENCARGOS","S",0}) 
         aAdd(aRentab,{"11","INCIDENCIAS","S",0})

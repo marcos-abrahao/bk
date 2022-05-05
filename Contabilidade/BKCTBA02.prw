@@ -77,7 +77,7 @@ EndIf
 // Verificar se há Lançamentos a gerar
 cQuery  := "SELECT COUNT(*) AS Z2CONTAB " 
 cQuery  += "FROM "+RETSQLNAME("SZ2")+" SZ2 "
-cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
+cQuery  += " WHERE Z2_CODEMP = '"+cEmpAnt+"' "
 cQuery  += " AND SUBSTRING(Z2_DATAEMI,1,6) = '"+cPerComp+"' "
 cQuery  += " AND Z2_VALOR > 0 "  // Existira valores zerados apenas como informativo que o pgto foi gerado pela folha
 cQuery  += " AND Z2_CONTAB = ' ' "

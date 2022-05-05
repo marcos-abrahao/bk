@@ -1696,7 +1696,7 @@ While Eval(bCondWhile)
 					cQuery += "SELECT Z2_E2NUM,Z2_E2PRF,Z2_CC,SUM(Z2_VALOR) AS Z2_VALOR"
 					cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
 					cQuery += " WHERE SZ2.D_E_L_E_T_='' AND Z2_FILIAL = '" + xFilial("SZ2") + "'"
-					cQuery += "  AND Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_E2NUM='"+aSE5P[_IY,4]+"'"
+					cQuery += "  AND Z2_CODEMP = '"+cEmpAnt+"' AND Z2_E2NUM='"+aSE5P[_IY,4]+"'"
 					cQuery += "  AND Z2_E2PRF='"+aSE5P[_IY,3]+"' AND Z2_E2PARC='"+aSE5P[_IY,5]+"' AND Z2_STATUS='S'"
 					cQuery += "  AND Z2_E2TIPO='"+aSE5P[_IY,6]+"'AND Z2_E2FORN='"+aSE5P[_IY,1]+"' AND Z2_E2LOJA='"+aSE5P[_IY,2]+"'" 
 					cQuery += " GROUP BY Z2_E2NUM,Z2_E2PRF,Z2_CC "				
@@ -1949,7 +1949,7 @@ Local nTotFgts := 0
 
 cSql := "SELECT NumEmp,BKIntegraRubi.dbo.fnCCSiga(NumEmp,TipCol,Numcad,'CLT') as CCsiga,SUM(ValEve) as ValEve " 
 cSql += " FROM  bk_senior.dbo.Bk_vw_MicrosigaFGTS "
-cSql += " Where Perref='"+cRef+"' And NumEmp = '"+SM0->M0_CODIGO+"' " 
+cSql += " Where Perref='"+cRef+"' And NumEmp = '"+cEmpAnt+"' " 
 cSql += " Group By NumEmp,BKIntegraRubi.dbo.fnCCSiga(NumEmp,TipCol,Numcad,'CLT') "
 
 TCQUERY cSql NEW ALIAS "QFGTS" 
@@ -2057,7 +2057,7 @@ cSql += "  INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON bk_senior.bk_senior.R046VER
 cSql += "  AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad "
 cSql += "  AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol "
 cSql += "  AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal "
-cSql += "  Where bk_senior.bk_senior.R046VER.NumEmp='"+SM0->M0_CODIGO+"' and Tipcal In(11) And Sitcal = 'T' " 
+cSql += "  Where bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' and Tipcal In(11) And Sitcal = 'T' " 
 cSql += "  AND PerRef ='"+cRef+"' and bk_senior.bk_senior.R046VER.CodEve in ('301','302','303','307') "
 cSql += "  group by BKIntegraRubi.dbo.CUSTOSIGA.ccSiga "
 
@@ -2095,7 +2095,7 @@ cSql += " FROM bk_senior.dbo.BK_vw_MicrosigaTotalAutIPT "
 cSql += " INNER JOIN [BKIntegraRubi].[dbo].[FINANCE_INTREGRA_CONTABIL] "
 cSql += " ON [BKIntegraRubi].[dbo].[FINANCE_INTREGRA_CONTABIL].NumEmpr=bk_senior.dbo.BK_vw_MicrosigaTotalAutIPT.codempresa "
 cSql += " AND [BKIntegraRubi].[dbo].[FINANCE_INTREGRA_CONTABIL].Campo=bk_senior.dbo.BK_vw_MicrosigaTotalAutIPT.DesEv  collate Latin1_General_CI_AS "
-cSql += " Where competencia='"+SUBSTR(cRef,1,6)+"' And codempresa = '"+SM0->M0_CODIGO+"' and total<> 0 AND DesEv='INSS' "
+cSql += " Where competencia='"+SUBSTR(cRef,1,6)+"' And codempresa = '"+cEmpAnt+"' and total<> 0 AND DesEv='INSS' "
 cSql += " group by codempresa,CCsiga "
 
 TCQUERY cSql NEW ALIAS "QINSS" 
@@ -2236,7 +2236,7 @@ cSql += "  INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON bk_senior.bk_senior.R046VER
 cSql += "  AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad "
 cSql += "  AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol "
 cSql += "  AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal "
-cSql += "  Where bk_senior.bk_senior.R046VER.NumEmp='"+SM0->M0_CODIGO+"' and Tipcal In(11) And Sitcal = 'T' " 
+cSql += "  Where bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' and Tipcal In(11) And Sitcal = 'T' " 
 cSql += "  AND PerRef ='"+cRef+"' and bk_senior.bk_senior.R046VER.CodEve in ('00304','00310') "
 cSql += "  group by BKIntegraRubi.dbo.CUSTOSIGA.ccSiga "
 
@@ -2300,7 +2300,7 @@ cSql += " FROM bk_senior.dbo.BK_vw_MicrosigaTotalAutIPT "
 cSql += " INNER JOIN [BKIntegraRubi].[dbo].[FINANCE_INTREGRA_CONTABIL] "
 cSql += " ON [BKIntegraRubi].[dbo].[FINANCE_INTREGRA_CONTABIL].NumEmpr=bk_senior.dbo.BK_vw_MicrosigaTotalAutIPT.codempresa "
 cSql += " AND [BKIntegraRubi].[dbo].[FINANCE_INTREGRA_CONTABIL].Campo=bk_senior.dbo.BK_vw_MicrosigaTotalAutIPT.DesEv  collate Latin1_General_CI_AS "
-cSql += " Where competencia='"+substr(cRef,1,6)+"' And codempresa = '"+SM0->M0_CODIGO+"' and total<> 0 AND DesEv='IRRF' "
+cSql += " Where competencia='"+substr(cRef,1,6)+"' And codempresa = '"+cEmpAnt+"' and total<> 0 AND DesEv='IRRF' "
 cSql += " group by CCsiga "
    
 TCQUERY cSql NEW ALIAS "QIRRF" 
