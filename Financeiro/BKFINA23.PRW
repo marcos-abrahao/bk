@@ -71,6 +71,7 @@ private cIAgencia := PAD("00001",LEN(cAgencia))
 private cIConta   := PAD("0000000001",LEN(cConta))
 private cIHist    := PAD("DIFERENCA ISS",TamSX3("E5_HISTOR")[1])
 private nIValor   := 0
+private nBIValor  := 0
 
 // BANCO: BAIXA JUROS ANTECIPADOS
 private cJBanco   := PAD("CX1",LEN(cBanco))
@@ -158,19 +159,21 @@ nLin1 += 25
 nLin2 := nLin1+10
 
 @ nLin1, 010 SAY "Banco Dif. ISS"  SIZE 50, 7 OF oPanelLeft PIXEL 
-@ nLin2, 010 MSGET cIBanco Picture "@!"  When .T. SIZE 50, 11 OF oPanelLeft PIXEL F3 "SA6" VALID (NaoVazio(cIBanco)) HASBUTTON
+@ nLin2, 010 MSGET cIBanco Picture "@!"  When .F. SIZE 50, 11 OF oPanelLeft PIXEL F3 "SA6" VALID (NaoVazio(cIBanco)) HASBUTTON
                         
 @ nLin1, 070 SAY "Agência Dif. ISS" SIZE 50, 7 OF oPanelLeft PIXEL
-@ nLin2, 070 MSGET cIAgencia Picture "@!" When .T. SIZE 30, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cIAgencia))
+@ nLin2, 070 MSGET cIAgencia Picture "@!" When .F. SIZE 30, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cIAgencia))
 
 @ nLin1, 120 SAY "Conta Dif. ISS" SIZE 50, 7 OF oPanelLeft PIXEL
-@ nLin2, 120 MSGET cIConta Picture "@!" When .T. SIZE 60, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cIConta))
+@ nLin2, 120 MSGET cIConta Picture "@!" When .F. SIZE 60, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cIConta))
 
 @ nLin1, 190 SAY "Histórico" SIZE 50, 7 OF oPanelLeft PIXEL 
 @ nLin2, 190 MSGET cIHist	Picture "@!"  When .F.  SIZE 200, 11 OF oPanelLeft PIXEL VALID (NaoVazio(cIHist))
 
-@ nLin1, 400 SAY "Valor Dif. ISS" SIZE 35, 7 OF oPanelLeft PIXEL
-@ nLin2, 400 MSGET nIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nIValor) .AND. SOMATAB())
+//@ nLin1, 400 SAY "Valor Dif. ISS" SIZE 35, 7 OF oPanelLeft PIXEL
+//@ nLin2, 400 MSGET nIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nIValor) .AND. SOMATAB())
+@ nLin1, 400 SAY "ISS Bi Indevido" SIZE 35, 7 OF oPanelLeft PIXEL
+@ nLin2, 400 MSGET nBIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nBIValor))
 
 nLin1 += 25
 nLin2 := nLin1+10
@@ -220,8 +223,10 @@ nLin2 := nLin1+10
 @ nLin2, 400 Button "Incluir" Size 050,013 OF oPanelLeft Pixel Action (InclTab())
 
 nLin1 += 30
-@ nLin1, 005 LISTBOX oListID FIELDS HEADER "N°Titulo","Prefixo","Parcela","Tipo","Natureza","Cliente","Loja","NomeCli","Emissao","VenctoReal",;
-"Vlr.Titulo","Vlr.Impostos","Vlr.Liquido","Ret. Contratual","- Desconto ","+ Multa ","A Receber","Banco Baixa","Agencia Baixa","Conta Baixa","Banco Ret.","Agencia Ret.","Conta Ret.","Histórico" SIZE 470,80 OF oPanelLeft PIXEL 
+@ nLin1, 005 LISTBOX oListID FIELDS HEADER ;
+	"N°Titulo","Prefixo","Parcela","Tipo","Natureza","Cliente","Loja","NomeCli","Emissao","VenctoReal",;
+	"Vlr.Titulo","Vlr.Impostos","Vlr.Liquido","Ret. Contratual","- Desconto ","+ Multa ","A Receber","Banco Baixa","Agencia Baixa","Conta Baixa",,;
+	"Banco Ret.","Agencia Ret.","Conta Ret.","Histórico" SIZE 470,80 OF oPanelLeft PIXEL 
 
 aTitGer := {}
 
@@ -415,6 +420,7 @@ nMulta  := 0
 nReceb  := 0
 nRvalor := 0
 nIvalor := 0
+nBIvalor:= 0
 nJvalor := 0
 nSaldo	:= 0
 
@@ -602,7 +608,7 @@ AADD(aTitulo,cJAgencia)
 AADD(aTitulo,cJConta)
 AADD(aTitulo,cJHist)
 AADD(aTitulo,nJValor)  // 36
-
+AADD(aTitulo,nBIValor) // 37
 
 AADD(aTitGer,aTitulo)
 
@@ -656,7 +662,7 @@ IF nItem > 0 .AND. ALLTRIM(aTitGer[nItem,1]) <> ""
         NEXT
         
         IF LEN(aTitGer) == 0 
-			AADD(aTitGer,{"","","","","","","","","","",0,0,0,0,0,0,0,"","","","","","",""})
+			AADD(aTitGer,{"","","","","","","","","","",0,0,0,0,0,0,0,"","","","","","","",0})
         ENDIF
          
 		oListID:SetArray(aTitGer)
@@ -683,7 +689,7 @@ IF nItem > 0 .AND. ALLTRIM(aTitGer[nItem,1]) <> ""
                 		         aTitGer[oListId:nAt][21],;                         
 		                         aTitGer[oListId:nAt][22],;                         
         		                 aTitGer[oListId:nAt][23],;
-        		                 aTitGer[oListId:nAt][24]}}
+								 aTitGer[oListId:nAt][24]}}
 
 		oListID:Refresh()
 	ENDIF
@@ -903,11 +909,19 @@ For nI:=1 TO LEN(aTitGer)
 		ENDIF
   	End Transaction
 
-	If !lMsErroAuto .and. aTitGer[nI,36] > 0 
-		// Data da Antecipação
-		RecLock("SE1", .F.)
-        SE1->E1_XXDTADT := SE1->E1_BAIXA
-        SE1->(MsUnlock())		
+	If !lMsErroAuto 
+		If aTitGer[nI,36] > 0 
+			// Data da Antecipação
+			RecLock("SE1", .F.)
+			SE1->E1_XXDTADT := SE1->E1_BAIXA
+			SE1->(MsUnlock())
+		EndIf
+		If aTitGer[nI,37] > 0 
+			// ISS Bitributado Indevidamente
+			RecLock("SE1", .F.)
+			SE1->E1_XXISSBI := aTitGer[nI,37]
+			SE1->(MsUnlock())
+		EndIf
 	EndIf
 
 Next nI

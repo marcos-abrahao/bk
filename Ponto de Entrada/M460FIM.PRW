@@ -18,7 +18,7 @@ Local aArea     := GetArea()
 Local aAreaSE1  := SE1->(GetArea())
 Local cE1Tipo   := ""
 
-IF SF2->F2_XXVRETC  > 0
+IF SF2->F2_XXVRETC > 0 .OR. SF2->F2_XXVCVIN > 0
 	aAreaSE1  := SE1->(GetArea()) 
 	cE1Tipo   := Left(MVNOTAFIS, TamSX3("E1_TIPO")[1]) 
 	
@@ -26,7 +26,8 @@ IF SF2->F2_XXVRETC  > 0
 	
  	If SE1->(MsSeek(xFilial("SE1") + SF2->(F2_CLIENTE) + SF2->(F2_LOJA) + SF2->(F2_SERIE) + SF2->(F2_DOC) + SPACE(LEN(SE1->E1_PARCELA))+cE1Tipo,.T.))     
 		SE1->(RECLOCK("SE1",.F.))
-		SE1->(E1_XXVRETC) 	:= SF2->F2_XXVRETC
+		SE1->E1_XXVRETC	:= SF2->F2_XXVRETC
+		SE1->E1_XXVCVIN := SF2->F2_XXVCVIN
 		SE1->(MSUNLOCK())
 	ENDIF 
 	SE1->(RestArea(aAreaSE1))

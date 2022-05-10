@@ -345,13 +345,15 @@ cQuery += " AND SE1.E1_PREFIXO=SF2.F2_PREFIXO AND SE1.E1_CLIENTE=SF2.F2_CLIENTE 
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SE1.E1_PEDIDO AND SC5.D_E_L_E_T_='' " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON SA1.D_E_L_E_T_='' AND SA1.A1_COD=SE1.E1_CLIENTE AND SA1.A1_LOJA=SE1.E1_LOJA" + CRLF
 cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_TIPO IN('NF','NDC')" + CRLF
+
 IF nEmissao <> 2
 	cQuery += " AND SE1.E1_SALDO > 0 " + CRLF
 ENDIF 
+
 IF nEmissao == 1
 	cQuery += " AND C5_XXCOMPM='"+cCompet+"'" + CRLF
 ELSEIF nEmissao == 2
-	cQuery += " AND E1_VENCREA>='"+DTOS(dDataI)+"' AND E1_VENCREA<='"+DTOS(dDataF)+"'" + CRLF
+	cQuery += " AND E1_VENCREA >= '"+DTOS(dDataI)+"' AND E1_VENCREA <= '"+DTOS(dDataF)+"'" + CRLF
 ELSEIF nEmissao == 3
 	IF !EMPTY(cContrato) 
 		cQuery += " AND (C5_MDCONTR='"+ALLTRIM(cContrato)+"' OR  C5_ESPECI1='"+ALLTRIM(cContrato)+"' )" + CRLF

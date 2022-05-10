@@ -173,7 +173,6 @@ Private aFurnas		:= {}
 Private aPetro		:= {} 
 
 aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
-//aPetro   := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXPETRO",.F.,"281001455")), "/" )
 
 mv_par03 := YEAR(dDataBase)
 
@@ -555,6 +554,14 @@ aPict1		:= {}
 
 aAdd(aTitulos1,cTitulo)
 
+aAdd(aDbf1, { 'XX_COMPET','C', 07,00 } )
+aAdd(aCampos1,"TRB->XX_COMPET")
+aAdd(aCabs1  ,"Competência")
+aAdd(aHeader,{"Competência","XX_COMPET" ,"@!",7,00,"","","C","TRB","R"})
+aAdd(aImpr1,.T.)
+aAdd(aFormat1,"")
+aAdd(aPict1,"")
+
 aAdd(aDbf1, { 'XX_LINHA' ,'N', 10,00 } )
 aAdd(aCampos1,"TRB->XX_LINHA")
 aAdd(aCabs1  ,"Linha")
@@ -569,12 +576,6 @@ aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
-aAdd(aDbf1, { 'XX_COMPET','C', 07,00 } )
-aAdd(aCampos1,"TRB->XX_COMPET")
-aAdd(aCabs1  ,"Competência")
-aAdd(aImpr1,.T.)
-aAdd(aFormat1,"")
-aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_DESC'  ,'C', 50,00 } )
 aAdd(aCampos1,"TRB->XX_DESC")
@@ -641,7 +642,7 @@ aAdd(aPict1,"")
 
 oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
 oTmpTb1:SetFields( aDbf1 )
-oTmpTb1:AddIndex("indice1", {"XX_LINHA"} )
+oTmpTb1:AddIndex("indice1", {"XX_COMPET","XX_LINHA"} )
 oTmpTb1:Create()
 cRealTb1 := oTmpTb1:GetRealName()
 
@@ -908,9 +909,6 @@ Return Nil
 
 
 
-
-
-
 User FUNCTION PR14(lJob)
 LOCAL cPerg     := "BKGCTR14"
 DEFAULT lJob	:= .F.
@@ -959,7 +957,6 @@ If !lJob
 		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
 	Else
 		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
-
 		
 		cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
 		nErro  := TcSqlExec(cQuery)
@@ -1027,6 +1024,9 @@ If cEmpAnt == '01'
 			cQuery += " INTO PowerBk.dbo.PROJXREAL "+CRLF
 		EndIf
 		cQuery += " FROM PowerBk.dbo.PROJXREAL"+cEmpresa+" "+CRLF
+
+		//SELECT * INTO RESULTADOGLOBAL FROM PROJXREAL  WHERE XX_DESC = 'RESULTADO DO MÊS - GLOBAL'
+
 	Next
 	nErro  := TcSqlExec(cQuery)
 EndIf
@@ -1065,6 +1065,7 @@ Local Yi_
 Local _XI
 Local _nJ
 Local dMaxCompet:= CTOD("")
+Local cCompet := ""
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -1133,11 +1134,7 @@ FOR _nI := 1 TO nPeriodo
 
 	cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 	cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
-	cQuery += " 		AND CNA_FILIAL = '01' AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
-
-	//cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
-	//cQuery += " 	ON (CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA" +CRLF
-	//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
+	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
 	cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 	cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
@@ -1616,8 +1613,9 @@ FOR _nI := 1 TO nPeriodo
 			aAdd(aContratos  ,IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA)))
 		ENDIF
         
- 		FOR _XI := 1 TO nPeriodo
-        	IF aPeriodo[_XI,1] == STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)  .AND. cProcSZG <> QTMP->CNF_CONTRA
+ 		////FOR _XI := 1 TO nPeriodo
+			_XI		 := _nI
+        	/////IF aPeriodo[_XI,1] == STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)  .AND. cProcSZG <> QTMP->CNF_CONTRA
 	        	cProcSZG := QTMP->CNF_CONTRA
 				//Calcula Valores da Projeção Financeira
             	nSZG03   := 0
@@ -1635,7 +1633,7 @@ FOR _nI := 1 TO nPeriodo
 				cContRev := xFilial("SZG")+ALLTRIM(QTMP->CNF_CONTRA) //+QTMP->CNF_REVISA
 				SZG->(dbSeek(cContRev,.T.))
 				Do While !EOF() .AND. ALLTRIM(cContRev) == ALLTRIM(SZG->ZG_FILIAL+SZG->ZG_CONTRAT) //+SZG->ZG_REVISAO
-					IF SUBSTR(DTOS(SZG->ZG_DATA),1,6) <= STRZERO(nAnoC,4)+STRZERO(nMesC,2)
+					IF SUBSTR(DTOS(SZG->ZG_DATA),1,6) <= aAnoMes[_nI] //STRZERO(nAnoC,4)+STRZERO(nMesC,2)
 
          				nDespesa := SZG->ZG_CLT+SZG->ZG_VLENCSO+SZG->ZG_AJCUSTO+SZG->ZG_VLENAC+SZG->ZG_BENEFIC+SZG->ZG_UNIFORM+SZG->ZG_DESPDIV+SZG->ZG_MATERIA+SZG->ZG_EQUIPAM+SZG->ZG_VLTRIBU
                         
@@ -1707,10 +1705,10 @@ FOR _nI := 1 TO nPeriodo
         			dbselectArea("SZG")
 	   				SZG->(dbSkip())
 				ENDDO
-			ENDIF
-		NEXT
+			//////ENDIF
+		////NEXT
 
-        IF aPeriodo[_nI,1] == STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
+        /////IF aPeriodo[_nI,1] == STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
 
 			//Carrega Valores da Projeção Financeira
 			IF nSZG03 <> 0
@@ -1839,7 +1837,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDDO
         	ENDIF
 
-		ENDIF
+		/////ENDIF
 		        
         
 		//Calcula LF Avulso SZ2 - CLT
@@ -2231,11 +2229,14 @@ FOR _nI := 1 TO nPeriodo
 			ENDIF
 		NEXT _IXFUR
 
+		/*
 		If !lJob
 			//IncProc("Consultando Folha Pagamento...")
 		Else
 			//u_xxLog(cArqLog,"Consultando Folha Pagamento..."+STR(_nI),.T.,"")
 		EndIf
+		*/
+
 		//*********Folha Pagamento
 		cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
 		cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
@@ -2599,11 +2600,14 @@ FOR _nI := 1 TO nPeriodo
 
 		TMPX2->(dbCloseArea())
 
+		/*
 		If !lJob
 			//IncProc("Consultando Folha Pagamento - Autonomos...")
 		Else
 			//u_xxLog(cArqLog,"Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
 		EndIf
+		*/
+
 		//*********Folha Pagamento - Autonomos IPT
 		cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao" 
 		cQuery2 += " FROM  webLancamentoIPT.dbo.LancamentoIPT"
@@ -2697,12 +2701,15 @@ FOR _nI := 1 TO nPeriodo
 
 		nScan:= 0
 		nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
+
+		/*
 		If !lJob
 			//IncProc("Consultando gastos gerais..."+aPeriodo[_nI,1]) //STRZERO(_nI,3))
 		Else
 			//u_xxLog(cArqLog,"Consultando gastos gerais..."+STR(_nI),.T.,"")
 		EndIf
-		
+		*/
+
 		//*********GASTOS GERAIS
 		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 		cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" +CRLF
@@ -4377,7 +4384,7 @@ EndIf
 For Yi_ := 1 TO LEN(aContratos)
 	FOR _nI := 1 TO nPeriodo
 		If !lJob
-			IncProc("Calculando resultados...")
+			IncProc("Calculando resultados"+aContratos[Yi_]+"...")
 		Else
 			//u_xxLog(cArqLog,"Calculando resultados..."+STR(_nI),.T.,"")
 		EndIf
@@ -4489,42 +4496,55 @@ For Yi_ := 1 TO LEN(aContratos)
 NEXT
 
 //GERA TIPO DE RELATORIO SINTETICO OU NORMAL
+
+cCompet	:= STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
+
 If !lJob
 	//u_CpyToSql(cRealTbT,"BKGCTR14T")
 	IF lSintetico 
 		Gera2Result()
 	ELSE
-		GeraResult()
+		For _nJ := 1 To nPeriodo
+			cCompet	:= aPeriodo[_nJ,1]
+			IncProc("Calculando resultados "+cCompet+"...")
+			GeraResult(_nJ,cCompet)
+		Next
 	ENDIF
 	//u_CpyToSql(cRealTb1,"BKGCTR141")
 Else
-	GeraResult()
+	For _nJ := 1 To nPeriodo
+		cCompet	:= aPeriodo[_nJ,1]
+		u_xxLog(cArqLog,"Calculando resultados "+cCompet,.T.,"")
+		GeraResult(_nJ,cCompet)
+	Next
+	//GeraResult(nCompet,cCompet)
 	Gera2Result()
 EndIf
 
 RETURN NIL
 
 
-
+/*
 User Function CpyToSql(cRealName,cTable)
 cQuery := "SELECT * INTO "+cTable+GetNextAlias()+" FROM "+cRealName
 If TCSQLExec(cQuery) < 0 
 	MsgStop(TCSQLERROR())
 EndIf
 Return Nil
+*/
 
 
-
-STATIC FUNCTION GeraResult()
+STATIC FUNCTION GeraResult(nCompet,cCompet)
 
 Local aGeral 	:= {}
 Local aBenef 	:= {}
-Local I			:= 0
+//Local I			:= 0
 Local _IX		:= 0
 Local _XI		:= 0
 Local _nI		:= 0
-Local cCompet   := STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
+Local nI		:= 0
 
+/*
 //Verifica o Crupo do usuario - visualização do relatorio
 PswOrder(1) 
 PswSeek(__CUSERID) 
@@ -4549,7 +4569,7 @@ IF LEN(aGRUPO) > 0
 		lMaster := (ALLTRIM(aGRUPO[i]) $ cMaster )
 	NEXT
 ENDIF	
-
+*/
 
 nLINHA := 1
 aLINHA := {}
@@ -4572,9 +4592,8 @@ nValTADR := 0
 nTXATMESR:= 0
 nTXMESR  := 0
 cCustoBk := ""
-cCampoX	 := ""
+
 cCampoX  := "XX_VALP"+STRZERO(nCompet,3)
-cCampoY	 := ""
 cCampoY  := "XX_VALR"+STRZERO(nCompet,3)
 cCampoZ  := "XX_VL2P"+STRZERO(nCompet,3)
 
@@ -4587,6 +4606,7 @@ nTFATDOMES 	:= 0
 nTDOMES 	:= 0
 nRPREVISTO 	:= 0
 nVPREVISTO 	:= 0
+
 
 Do While (ALIAS_TMP)->(!eof())
 	
@@ -5423,7 +5443,6 @@ Do While (ALIAS_TMP)->(!eof())
  	ENDIF
 
 ENDDO
-                                                                                                                 
 
 dbSelectArea("TRB")
 TRB->(dbgotop())
@@ -5433,10 +5452,11 @@ Return NIL
 
 //GERA RESULTADO SINTETICO - VISAO FINANCEIRO
 STATIC FUNCTION Gera2Result()
-Local i		As Numeric
+//Local i		As Numeric
 Local _IX	As Numeric
 Local nI	As Numeric
 
+/*
 //Verifica o Crupo do usuario - visualização do relatorio
 PswOrder(1) 
 PswSeek(__CUSERID) 
@@ -5454,7 +5474,7 @@ aAdd(aGRUPO,aUser[1,10])
 FOR i:=1 TO LEN(aGRUPO[1])
 	lMaster := (aGRUPO[1,i] $ cMaster)
 NEXT
-
+*/
 
 nLINHA := 1
 aLINHA := {}
@@ -6316,15 +6336,11 @@ ENDIF
   
 Define MsDialog oDlg01 Title "Solicitação de Informações - Consolidação:" From 000,000 To 240+(nSin*nTLin),600 Of oDlg01 Pixel
 
-
-
 If TYPE("CRELEASERPO") == "U"
 	nSnd := 15	// Protheus 11  - P11
 Else
 	nSnd := 35  // Protheus 12 - P12
 EndIf
-
-
 
 @ nSnd,010 SAY "Consolidar por?"   SIZE 080,010 Pixel Of oDlg01
 @ nSnd,100 COMBOBOX cTpCons  ITEMS aTpCons SIZE 100,010 Pixel Of oDlg01

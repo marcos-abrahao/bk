@@ -52,6 +52,12 @@
 		},
 		{
 			"label": "sigactb"
+		},
+		{
+			"label": "sigafis"
+		},
+		{
+			"label": "sigfis"
 		}
 	],
 	"lastProgramExecuted": "sigafin"

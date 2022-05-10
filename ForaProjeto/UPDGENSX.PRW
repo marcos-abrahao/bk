@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"03/05/2022 VER "
+#DEFINE FIN_LAST_UPDATED 		"05/05/2022 SE1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -171,7 +171,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 			lMsHelpAuto  := .F.
 
 			cTexto += Replicate( "-", 70 ) + CRLF
-			cTexto += "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF + CRLF
+			cTexto += "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF //+ CRLF
 
 			oProcess:SetRegua1( 2 )
 
@@ -182,7 +182,8 @@ If ( lOpen := MyOpenSm0(.T.) )
 			//AtuGenDic( @cTexto ) 
 
 			//AtuGenPar( @cTexto )   //  18/04/22 ISS BASE PIS/COF
-			VerGenPar( @cTexto )  
+
+			//VerGenPar( @cTexto )  
 
 			//AtuRndImp( @cTexto )   // 04/02/22
 			
@@ -1590,6 +1591,16 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
+cTexto  += "05/05/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3issbi.dtc
+X31UPDTABLE("SE1")
+
+dbSetOrder( 1 )
+
+Return
+
+
+/*
 
 //SA1_CODPAIS
 dbSetOrder( 2 )
@@ -1607,12 +1618,8 @@ If SX3->( dbSeek( "A1_PAIS" ) )
 	MsUnLock()
 EndIf
 
-dbSetOrder( 1 )
-
-Return
 
 
-/*
 cTexto  += "07/07/22 - SE1 " + CRLF 
 APPEND FROM \tmp\sx3prrec.dtc
 X31UPDTABLE("SE1")

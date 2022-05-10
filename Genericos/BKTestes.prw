@@ -25,7 +25,7 @@ User Function BKTestes()
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Private cRot  := PAD("u_fwprtxlsx",20)
+Private cRot  := PAD("u_piscof",20)
 
 
 DEFINE DIALOG oDlg1;
@@ -52,6 +52,14 @@ ACTIVATE MSDIALOG oDlg1  CENTERED
 //ACTIVATE DIALOG oDlg1 CENTER
 
 RETURN
+
+User Function PisCof()
+Local aRet := {}
+
+aRet := FinSpdF600(3,2022) 
+x:= 0
+
+Return
 
 
 Static FUNCTION ProcRot()
