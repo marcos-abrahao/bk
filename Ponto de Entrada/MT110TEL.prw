@@ -61,11 +61,11 @@ IF lCopia
 	NEXT
 ENDIF
 
-If TYPE("CRELEASERPO") == "U"
-	nLin := 33	// Protheus 11
-Else
+//If TYPE("CRELEASERPO") == "U"
+//	nLin := 33	// Protheus 11
+//Else
 	nLin := 63	// Protheus 12
-EndIf
+//EndIf
 
 @ nLin,aPosGet[1,1] SAY 'Limite Entrega' PIXEL SIZE 50,10 Of oNewDialog
 @ nLin,aPosGet[1,2] MSGET dDATPRF PIXEL SIZE 50,10 Of oNewDialog    
@@ -97,13 +97,13 @@ RETURN
 User Function MT110GET() 
 Local aRet:= PARAMIXB[1] 
 
-If TYPE("CRELEASERPO") == "U"  // Protheus 11
-	aRet[2,1] := 85
-	aRet[1,3] := 115 
-Else   // Protheus 12
+//If TYPE("CRELEASERPO") == "U"  // Protheus 11
+//	aRet[2,1] := 85
+//	aRet[1,3] := 115 
+//Else   // Protheus 12
 	aRet[2,1] := 115
 	aRet[1,3] := 145 
-EndIf
+//EndIf
 
 Return(aRet)
 

@@ -106,7 +106,7 @@ Private nEncarIPT   := 0
 Private nIncidenci  := 0
 Private nRateia     := 2
 Private nDespGeral  := 0
-Private nCompAtual  := 2
+Private nCompAtual  := 3
 Private nAgendar    := 2
 Private nCompras  	:= 0
 
@@ -210,10 +210,6 @@ If !lJob
 	EndIf
 Else
 	MV_PAR01 := cContrato  	:= U_BKGetMv("BKGCTR1401") // teste "005000114"
-	If "*" $ cContrato
-		MV_PAR01 := cContrato := SPACE(LEN(TamSX3("CN9_NUMERO")[1]))
-	EndIf
-
 	MV_PAR02 := nMesC 		:= U_BKGetMv("BKGCTR1402") // MONTH(dDataBase - DAY(dDatabase))
 	MV_PAR03 := nAnoC  		:= U_BKGetMv("BKGCTR1403") // YEAR(dDataBase - DAY(dDatabase))
 	MV_PAR04 := U_BKGetMv("BKGCTR1404")                // 3
@@ -367,7 +363,9 @@ IF EMPTY(cContrato)
 		lConsorcio := .T.
 		lFurnas    := .T.
 		lPetro     := .T.
-		nCompAtual := 2
+		If nCompAtual == 1
+			nCompAtual := 3
+		EndIf
 	ELSE
 		IF AVISO("Atenção","Incluir Contrato Consorcios ?",{"Não","Sim"}) == 2
 			lConsorcio := .T.
@@ -838,7 +836,13 @@ If !lJob
 		ProcRegua(1)
 		Processa( {|| ProcR14(lJob) })
 		If !lSintetico
-			Processa( {|| MBrwR14() })
+			//Processa( {|| MBrwR14() })
+
+			DbSelectArea("TRB")
+			dbSetOrder(1)
+
+			Processa( {|| U_CR14(.F.) })
+
 		Else
 			U_BKGCTM14()
 		EndIf
@@ -956,26 +960,50 @@ If !lJob
 		Processa( {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
 		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
 	Else
-		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
 		
-		cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
-		nErro  := TcSqlExec(cQuery)
+		If Empty(cContrato)	
+			cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
+			nErro  := TcSqlExec(cQuery)
 
-		cQuery := "SELECT * INTO PowerBk.dbo.PROJXREALTELA"+cEmpAnt+" FROM "+cRealTb1 //+" WHERE XX_POWERBK = 'S' "
-		If TCSQLExec(cQuery) < 0 
-			MsgStop(TCSQLERROR())
+			//cQuery := "SELECT * INTO PowerBk.dbo.PROJXREALT"+cEmpAnt+" FROM "+cRealTb1 //+" WHERE XX_POWERBK = 'S' "
+
+			cNomeEmp := ""
+			If cEmpAnt == '01'
+				cNomeEmp := "BK"
+			ElseIf cEmpAnt == '02'
+				cNomeEmp := "BKTER"
+			ElseIf cEmpAnt == '14'
+				cNomeEmp := "BALSA NOVA"
+			EndIf
+			cQuery := " SELECT "+CRLF
+			cQuery += "    '"+cEmpAnt+"' AS EMPRESA,"+CRLF
+			cQuery += "    '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+			cQuery += "    '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
+			cQuery += "    '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
+			cQuery += "    *"+CRLF
+			cQuery += " INTO PowerBk.dbo.PROJXREALTELA"+cEmpAnt+" FROM "+cRealTb1+" WHERE XX_POWERBK = 'S' "
+
+			u_xxLog(cArqLog,"BKGCTR14: Gerando tabela PowerBk.dbo.PROJXREALTELA"+cEmpAnt,.T.,"")
+
+			If TCSQLExec(cQuery) < 0 
+				MsgStop(TCSQLERROR())
+			EndIf
 		EndIf
-		
+
+		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
+
 	EndIf
 Else
+
+	// Gerar tabela no banco PowerBk
+	If Empty(cContrato)
+		GeraPwBk()
+	EndIf
 
 	// Gerar o analitico e os sintéticos no Schedule
 	GeraCR14(lJob,cAlias,TRIM(cPerg),    aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)
 	GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)
 	GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
-
-	// Gerar tabela no banco PowerBk
-	GeraPwBk()
 
 EndIf
 
@@ -1061,11 +1089,16 @@ Local IX		:= 0
 Local _IX2		:= 0
 Local _IXFUR	:= 0
 Local XI_		:= 0
-Local Yi_
-Local _XI
-Local _nJ
+Local Yi_		:= 0
+Local _XI		:= 0
+Local _nI		:= 0
+Local _nJ		:= 0
 Local dMaxCompet:= CTOD("")
-Local cCompet := ""
+Local cCompet	:= ""
+Local cNMeses	:= ""
+Local nNMeses	:= 12
+Local nMesA		:= 0
+Local nAnoA 	:= 0
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -4368,7 +4401,7 @@ FOR _nI := 1 TO nPeriodo
 NEXT
 
 
-//CALCULA RESULTADOS
+//Calcular resultados
 
 nRDOMES 	:= 0
 nRESULTMES 	:= 0
@@ -4382,14 +4415,15 @@ If !lJob
 EndIf
 
 For Yi_ := 1 TO LEN(aContratos)
+
+	If !lJob
+		IncProc("Calculando resultados "+aContratos[Yi_]+"...")
+	EndIf
+	u_xxLog(cArqLog,"Calculando resultados "+aContratos[Yi_],.T.,"")
+
 	FOR _nI := 1 TO nPeriodo
-		If !lJob
-			IncProc("Calculando resultados"+aContratos[Yi_]+"...")
-		Else
-			//u_xxLog(cArqLog,"Calculando resultados..."+STR(_nI),.T.,"")
-		EndIf
 		
-		//CALCULA TAXA ADM
+		//Calcular taxa adm
         nValTaxaAdm := 0
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'03',.F.)
@@ -4397,7 +4431,7 @@ For Yi_ := 1 TO LEN(aContratos)
         	nValTaxaAdm := (&cCampo2*nTaxaAdm)/100 
 		ENDIF
 
-      	//VALOR DA NDC
+      	//Valor da ndc
 		//nNDC := 0
 		//dbSelectArea(ALIAS_TMP)
 		//IF MsSeek(ALLTRIM(aContratos[Yi_])+'30-3',.F.)
@@ -4405,7 +4439,7 @@ For Yi_ := 1 TO LEN(aContratos)
 		//	nNDC := &cCampo2
 		//ENDIF
 
-		//GRAVA TAXA ADM
+		//Gravar taxa adm
 		dbSelectArea(ALIAS_TMP)
 	   	IF dbSeek(ALLTRIM(aContratos[Yi_])+"YYYYYYYYY",.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -4422,7 +4456,7 @@ For Yi_ := 1 TO LEN(aContratos)
 			(ALIAS_TMP)->(Msunlock())
 		ENDIF
 		
-		//SOMA TAXA ADM NOS GASTOS GERAIS
+		//Somar taxa adm nos gastos gerais
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30',.F.)
    			Reclock(ALIAS_TMP,.F.)
@@ -4448,7 +4482,7 @@ For Yi_ := 1 TO LEN(aContratos)
 			n2Resultado -= &cCampo2
 		ENDIF
 
-		//SOMA DESCONTOS DO SE5 NOS GASTOS GERAIS 28/02/20
+		//Somar descontos do SE5 nos gastos gerais 28/02/20
 	    nDescE5 := 0
 		dbSelectArea(ALIAS_TMP)
 		IF dbSeek(ALLTRIM(aContratos[Yi_])+'30-2',.F.)
@@ -4495,43 +4529,43 @@ For Yi_ := 1 TO LEN(aContratos)
     NEXT
 NEXT
 
-//GERA TIPO DE RELATORIO SINTETICO OU NORMAL
 
 cCompet	:= STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
 
-If !lJob
-	//u_CpyToSql(cRealTbT,"BKGCTR14T")
-	IF lSintetico 
-		Gera2Result()
-	ELSE
-		For _nJ := 1 To nPeriodo
-			cCompet	:= aPeriodo[_nJ,1]
+// Calcular os ultimos n meses
+cNMeses := STRZERO(YEAR(DATE()),4)+STRZERO(MONTH(DATE()),2) +"|"
+nMesA   := MONTH(DATE())
+nAnoA	:= YEAR(DATE())
+If nCompAtual == 3
+	For _nj := 1 TO nNmeses
+		nMesA--
+		If nMesA < 1
+			nMesA := 12
+			nAnoA--
+		EndIf
+		cNMeses += STRZERO(nAnoA,4) + STRZERO(nMesA,2) + "|"
+	Next
+EndIf
+
+u_xxLog(cArqLog,"Calculando resultados de "+STRZERO(nNMeses,2)+" meses",.T.,"")
+For _nJ := 1 To nPeriodo
+	cCompet	:= aPeriodo[_nJ,1]
+	If nCompAtual == 2 .OR. (aAnoMes[_nJ] +"|") $ cNMeses 
+		If !lJob
 			IncProc("Calculando resultados "+cCompet+"...")
-			GeraResult(_nJ,cCompet)
-		Next
-	ENDIF
-	//u_CpyToSql(cRealTb1,"BKGCTR141")
-Else
-	For _nJ := 1 To nPeriodo
-		cCompet	:= aPeriodo[_nJ,1]
+		EndIf
 		u_xxLog(cArqLog,"Calculando resultados "+cCompet,.T.,"")
 		GeraResult(_nJ,cCompet)
-	Next
-	//GeraResult(nCompet,cCompet)
+	EndIf
+Next
+
+// Gerar tipo de relatorio sintetico ou normal
+If lSintetico .or. lJob
 	Gera2Result()
 EndIf
 
-RETURN NIL
-
-
-/*
-User Function CpyToSql(cRealName,cTable)
-cQuery := "SELECT * INTO "+cTable+GetNextAlias()+" FROM "+cRealName
-If TCSQLExec(cQuery) < 0 
-	MsgStop(TCSQLERROR())
-EndIf
 Return Nil
-*/
+
 
 
 STATIC FUNCTION GeraResult(nCompet,cCompet)
@@ -4607,7 +4641,6 @@ nTDOMES 	:= 0
 nRPREVISTO 	:= 0
 nVPREVISTO 	:= 0
 
-
 Do While (ALIAS_TMP)->(!eof())
 	
 	nTotal 		:= 0
@@ -4660,7 +4693,7 @@ Do While (ALIAS_TMP)->(!eof())
 			FOR _IX := 1 TO LEN(aContConsol)
 
 				dbSelectArea("TRB")
-				//GRAVA CABECALHO 
+				//Gravar cabeçalho 
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
 				TRB->XX_COMPET  := cCompet
@@ -4675,7 +4708,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 		++nLINHA
 	    	
 				dbSelectArea("TRB")
-				//GRAVA CABECALHO 
+				//Gravar cabeçalho 
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
 				TRB->XX_COMPET  := cCompet
@@ -4689,7 +4722,7 @@ Do While (ALIAS_TMP)->(!eof())
 				
 		 		++nLINHA
 				dbSelectArea("TRB")
-				//GRAVA CABECALHO 
+				//Gravar cabeçalho 
 	 			Reclock("TRB",.T.)
 				TRB->XX_LINHA   := nLINHA
 				TRB->XX_COMPET  := cCompet
@@ -4763,7 +4796,7 @@ Do While (ALIAS_TMP)->(!eof())
 			aGeral 		:= {}
 			aBenef		:= {}
 			dbSelectArea("TRB")
-			//GRAVA CABECALHO 
+			//Gravar cabeçalho 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
 			TRB->XX_COMPET  := cCompet
@@ -4777,7 +4810,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 	++nLINHA
 	    	
 			dbSelectArea("TRB")
-			//GRAVA CABECALHO 
+			//Gravar cabeçalho 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
 			TRB->XX_COMPET  := cCompet
@@ -4792,7 +4825,7 @@ Do While (ALIAS_TMP)->(!eof())
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|01|"
 	 
 			dbSelectArea("TRB")
-			//GRAVA CABECALHO 
+			//Gravar cabeçalho 
 	 		Reclock("TRB",.T.)
 			TRB->XX_LINHA   := nLINHA
 			TRB->XX_COMPET  := cCompet
@@ -5052,7 +5085,7 @@ Do While (ALIAS_TMP)->(!eof())
 	// 28/02/20
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|30-2|"
 		dbSelectArea("TRB")
-		//DESCONTO NA NF
+		//Desconto na nf
  		Reclock("TRB",.T.)
 		TRB->XX_LINHA   := nLINHA
 		TRB->XX_COMPET  := cCompet
@@ -5455,6 +5488,7 @@ STATIC FUNCTION Gera2Result()
 //Local i		As Numeric
 Local _IX	As Numeric
 Local nI	As Numeric
+Local nJ	As Numeric
 
 /*
 //Verifica o Crupo do usuario - visualização do relatorio
@@ -5519,26 +5553,26 @@ Do While (ALIAS_TMP)->(!eof())
 	nTotal := 0
 	nTotalMES := 0
 	nTDOMES := 0
-	FOR _nI := 1 TO nPeriodo
+	FOR nJ := 1 TO nPeriodo
 		IF !("|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|00|01|03-2|02|05-2|06-1|07-1|22-1|30-1|YYYYYYYYZ|")	
-			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+			cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(nJ,3)
 	        nTotal		 += &cCampo2
-	        IF _nI == nCompet
+	        IF nJ == nCompet
 	        	nRDOMES += &cCampo2
 	        	nTDOMES  += &cCampo2
 				IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
-			 		cCampo2	:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+			 		cCampo2	:= ALIAS_TMP+"->XX_VALR"+STRZERO(nJ,3)
       				nTXMESR := (&cCampo2 * nTaxaAdm)/100
 		    	ENDIF
 	        ENDIF
-	        IF _nI <= nCompet
+	        IF nJ <= nCompet
 	        	nRESULTMES += &cCampo2
 	        	nTotalMES  += &cCampo2
 	        ENDIF
 		ENDIF
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|03|"
-			IF _nI <= nCompet
-			    cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
+			IF nJ <= nCompet
+			    cCampo2		:= ALIAS_TMP+"->XX_VALR"+STRZERO(nJ,3)
       			nTXATMESR 	+= (&cCampo2 * nTaxaAdm)/100
 		    ENDIF
 		ENDIF
@@ -5565,7 +5599,7 @@ Do While (ALIAS_TMP)->(!eof())
 			FOR _IX := 1 TO LEN(aContConsol)
 
 				dbSelectArea("TRB2")
-				//GRAVA CABECALHO 
+				//Gravar cabeçalho 
 	 			Reclock("TRB2",.T.)
 				TRB2->XX_LINHA  := nLINHA
 	 			TRB2->XX_CODGCT  := "999999999"
@@ -5578,7 +5612,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 		++nLINHA
 	    	
 				dbSelectArea("TRB2")
-				//GRAVA CABECALHO 
+				//Gravar cabeçalho 
 	 			Reclock("TRB2",.T.)
 				TRB2->XX_LINHA  := nLINHA
 	 			TRB2->XX_CODGCT  := "999999999"
@@ -5591,7 +5625,7 @@ Do While (ALIAS_TMP)->(!eof())
 				
 		 		++nLINHA
 				dbSelectArea("TRB2")
-				//GRAVA CABECALHO 
+				//Gravar cabeçalho 
 	 			Reclock("TRB2",.T.)
 				TRB2->XX_LINHA   := nLINHA
 	 			TRB2->XX_CODGCT  := "999999999"
@@ -5659,7 +5693,7 @@ Do While (ALIAS_TMP)->(!eof())
 			aGeral 		:= {}
 			aBenef		:= {}
 			dbSelectArea("TRB2")
-			//GRAVA CABECALHO 
+			//Gravar cabeçalho 
 	 		Reclock("TRB2",.T.)
 			TRB2->XX_LINHA   := nLINHA
 	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
@@ -5672,7 +5706,7 @@ Do While (ALIAS_TMP)->(!eof())
 		 	++nLINHA
 	    	
 			dbSelectArea("TRB2")
-			//GRAVA CABECALHO 
+			//Gravar cabeçalho 
 	 		Reclock("TRB2",.T.)
 			TRB2->XX_LINHA   := nLINHA
 	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
@@ -5686,7 +5720,7 @@ Do While (ALIAS_TMP)->(!eof())
 		IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|01|"
 	 
 			dbSelectArea("TRB2")
-			//GRAVA CABECALHO 
+			//Gravar cabeçalho 
 	 		Reclock("TRB2",.T.)
 			TRB2->XX_LINHA   := nLINHA
 	 		TRB2->XX_CODGCT  := (ALIAS_TMP)->XX_CODGCT
@@ -5773,6 +5807,7 @@ Do While (ALIAS_TMP)->(!eof())
 		nRNTBILR	:= 0
 		nRNTBILR	:= (ALIAS_TMP)->&cCampoY
 	ENDIF
+
 /*
 	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|09|"
 		dbSelectArea("TRB2")
@@ -6261,13 +6296,11 @@ EndIf
 Return
 
 
-//Atualiza tabela de custo 
+//Atualizar tabela de custo
 Static Function AtualizaCC(lJob)
 Local _IX := 0
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Grava o Semaforo Tabela Centro de Custo                         ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Gravar o Semaforo Tabela Centro de Custo
 dbSelectArea("SX6")
 GetMv("MV_XXSEMAF")
 RecLock("SX6",.F.)
@@ -6294,9 +6327,7 @@ FOR _IX:= 1 TO LEN(aConsorcio)
 
 NEXT
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Grava o Semaforo Tabela Centro de Custo                         ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+//Gravar o Semaforo Tabela Centro de Custo
 dbSelectArea("SX6")
 GetMv("MV_XXSEMAF")
 RecLock("SX6",.F.)
@@ -6305,7 +6336,7 @@ msUnlock()
 Return
 
 
-//Monta Tela Para informações de Consolidação
+//Montar Tela Para informações de Consolidação
 STATIC Function MtaDlg01()
 Local aAreaAtu			:= GetArea()
 Local oDlg01,aButtons 	:= {},lOk := .F.
@@ -6330,17 +6361,11 @@ IF !EMPTY(cContrato)
  	cConsolida := cContrato
 ENDIF
 
-////////////
-//SOLICITACAO DE INFORMACAO - Consolidação:
-////////////
+//Solicitacao de informacao - consolidação:
   
 Define MsDialog oDlg01 Title "Solicitação de Informações - Consolidação:" From 000,000 To 240+(nSin*nTLin),600 Of oDlg01 Pixel
 
-If TYPE("CRELEASERPO") == "U"
-	nSnd := 15	// Protheus 11  - P11
-Else
-	nSnd := 35  // Protheus 12 - P12
-EndIf
+nSnd := 35  // Protheus 12 - P12
 
 @ nSnd,010 SAY "Consolidar por?"   SIZE 080,010 Pixel Of oDlg01
 @ nSnd,100 COMBOBOX cTpCons  ITEMS aTpCons SIZE 100,010 Pixel Of oDlg01
@@ -6395,7 +6420,7 @@ aAdd(aRegistros,{cPerg,"08","Detalhar ?","Detalhar ?","Detalhar ?","mv_ch8","N",
 aAdd(aRegistros,{cPerg,"09","Agendar ?","Agendar ?","Agendar ?","mv_ch9","N",01,0,1,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 aAdd(aRegistros,{cPerg,"10","Agendar para:" ,"Agendar para:" ,"Agendar para:" ,"mv_cha","D",8,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 aAdd(aRegistros,{cPerg,"11","E-Mail?","E-Mail?","E-Mail?","mv_chb","C",70,0,0,"G","","mv_par11","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-aAdd(aRegistros,{cPerg,"12","Somente competência atual?","Somente competência atual?","Somente competência atual?","mv_chc","N",01,0,2,"C","","mv_par12","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+aAdd(aRegistros,{cPerg,"12","Somente competência atual?","Somente competência atual?","Somente competência atual?","mv_chc","N",01,0,2,"C","","mv_par12","Sim","Sim","Sim","","","Nao","Nao","Nao","","","x Meses","x Meses","x Meses","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

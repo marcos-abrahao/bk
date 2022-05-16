@@ -3,7 +3,7 @@
 
 // Funcoes com códigos embutidos no fonte
 
-/*/{Protheus.doc} BKGRUPO
+/*/{Protheus.doc} BKGRUPOS
 BK - Array com as empresas do grupo BK
 
 @Return
@@ -229,7 +229,7 @@ A1_COD	A1_NOME
 User Function IsPetro(cCliente)
 Local lRet		:= .F.
 Local aPetro 	:= {}
-If cEmpAnt == "01"
+If cEmpAnt == "01" .AND. !Empty(cCliente)
 	aAdd(aPetro,"000153")
 	aAdd(aPetro,"000249")
 	aAdd(aPetro,"000255")

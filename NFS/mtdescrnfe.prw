@@ -64,7 +64,6 @@ Local nScan		:= 0
 Local aBCVINC 	:= {}
 Local cAgVinc 	:= ""
 Local cCCVinc 	:= ""
-
 /*
 Conforme falamos há alguns dias,das notas do ministerio deverão constar as informações abaixo:
 1 - Nº do contrato (dispensando objeto,se for o caso)
@@ -572,6 +571,7 @@ ELSE
 			//cCCVinc := TRIM(SUBSTR(SF2->F2_XXCVINC,10,10))+IIF(!EMPTY(SUBSTR(SF2->F2_XXCVINC,25,1)),"-"+SUBSTR(SF2->F2_XXCVINC,25,1),"")
 			cDescr1 += "Deposito para vinculada = "+aBancos[nScan,2]+"-Ag.: "+ALLTRIM(cAgVinc)+" C/C: "+ALLTRIM(cCCVinc)+CRLF //IIF(nMaxTLin>80," ","|")
 			cDescr1 += "R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVCVIN,"@E 999,999,999.99"))+CRLF
+
 		ENDIF
 	ENDIF
 ENDIF
@@ -939,13 +939,27 @@ Return lRet
 
 
 Static Function GrvSF2(cCONTA,nVALOR)
+Local aAreaSE1
+Local cE1Tipo
 
-//GRAVA CONTA NO CABECALHO DA NOTA
+// Grava conta no cabecalho da nota
 RecLock("SF2",.F.)
 SF2->F2_XXCVINC := cCONTA
 SF2->F2_XXVCVIN := nVALOR
 MsUnlock("SF2")
 
+// Grava SE1
+aAreaSE1  := SE1->(GetArea()) 
+cE1Tipo   := Left(MVNOTAFIS, TamSX3("E1_TIPO")[1]) 
+			
+SE1->(dbSetOrder(2)) // SE1->(dbSetOrder(RETORDEM("SE1","E1_FILIAL+E1_CLIENTE+E1_LOJA+E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO")))             
+	
+If SE1->(MsSeek(xFilial("SE1") + SF2->(F2_CLIENTE) + SF2->(F2_LOJA) + SF2->(F2_SERIE) + SF2->(F2_DOC) + SPACE(LEN(SE1->E1_PARCELA))+cE1Tipo,.T.))     
+	SE1->(RECLOCK("SE1",.F.))
+	SE1->E1_XXVCVIN := SF2->F2_XXVCVIN
+	SE1->(MSUNLOCK())
+ENDIF 
+SE1->(RestArea(aAreaSE1))
 
 Return
 

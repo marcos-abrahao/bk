@@ -28,7 +28,7 @@ Local aUser := {}
 Local aGRUPO := {}
 Local aItems:= {}
 Local aMotivo:= {}
-Local nReg1 := SCR->(RecNo())
+//Local nReg1 := SCR->(RecNo())
 Local cMDiretoria := u_GrpMDir()
 Local lMDiretoria := .F.
 Local cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
@@ -155,9 +155,9 @@ ENDIF
 
 IF !lPedido
 	lOk:=.T.
-	If TYPE("CRELEASERPO") == "U"  // P11
-	    A097Libera("SCR",nReg1,4)
-	EndIf
+	//If TYPE("CRELEASERPO") == "U"  // P11
+	//    A097Libera("SCR",nReg1,4)
+	//EndIf
 	Return lOk
 ENDIF
 
@@ -250,9 +250,9 @@ IF ( lOk )
 			ENDIF
         NEXT
    	ENDIF
-	If TYPE("CRELEASERPO") == "U"  // P11
-	    A097Libera("SCR",nReg1,4)
-	EndIf
+	//If TYPE("CRELEASERPO") == "U"  // P11
+	//    A097Libera("SCR",nReg1,4)
+	//EndIf
 EndIf
 Return lOk
 

@@ -19,6 +19,7 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 	WSDATA prenota 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
 	WSDATA documento	AS STRING
+	WSDATA acao 		AS STRING
 
 	WSDATA page         AS INTEGER OPTIONAL
 	WSDATA pageSize     AS INTEGER OPTIONAL
@@ -87,7 +88,7 @@ Return (lSuccess)
 
 
 
-WSMETHOD PUT QUERYPARAM empresa,prenota,userlib,liberacao WSREST RestLibPN
+WSMETHOD PUT QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN
 
 Local cJson        := Self:GetContent()   
 Local lRet         := .T.
@@ -97,7 +98,9 @@ Local lRet         := .T.
 Local oJson        As Object
 Local aParams      As Array
 Local cMsg         As Char
+Local aQueryString As Array
 
+	aQueryString := Self:aQueryString
 
 	//Define o tipo de retorno do servico
 	::setContentType('application/json')
@@ -113,7 +116,7 @@ Local cMsg         As Char
 
 	If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-		lRet := fLibPN(::empresa,::prenota,@cMsg)
+		lRet := fLibPN(::empresa,::prenota,::acao,@cMsg)
 
 	EndIf
 
@@ -128,7 +131,7 @@ Local cMsg         As Char
 Return lRet
 
 
-Static Function fLibPN(empresa,prenota,cMsg)
+Static Function fLibPN(empresa,prenota,acao,cMsg)
 Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSF1	:= "SF1"+empresa+"0"
@@ -156,7 +159,13 @@ Do Case
 		cMsg:= "não pode ser liberada"
 	Case (cQrySF1)->F1_XXLIB $ "AN"
 		cQuery := "UPDATE "+cTabSF1
-		cQuery += "  SET F1_XXLIB = 'L',"
+		If acao == 'E'
+			cQuery += "  SET F1_XXLIB = 'N',"
+			cMsg := "estornada"
+		Else
+			cQuery += "  SET F1_XXLIB = 'L',"
+			cMsg := "liberada"
+		EndIf
 		cQuery += "      F1_XXULIB = '"+__cUserId+"',"
 		cQuery += "      F1_XXDLIB = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
 		cQuery += " FROM "+cTabSF1+" SF1"+CRLF
@@ -165,7 +174,6 @@ Do Case
 		If TCSQLExec(cQuery) < 0 
 			cMsg := "Erro: "+TCSQLERROR()
 		Else
-			cMsg := "liberada"
 			lRet := .T.
 		EndIf
 	OtherWise 
@@ -271,7 +279,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "		SF1.F1_XXLIB,F1_STATUS,"+CRLF
 	cQuery += "		SF1.F1_XXUSER,SF1.F1_XXUSERS,SF1.F1_DTDIGIT,F1_XXPVPGT,"+CRLF
 	cQuery += "		(SELECT SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) FROM "+cTabSD1+" SD1 "+CRLF
-	cQuery += "		WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.D_E_L_E_T_ = ' ')"+CRLF
+	cQuery += "			WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.D_E_L_E_T_ = ' ')"+CRLF
 	cQuery += "		AS D1_TOTAL,"+CRLF
 	cQuery += "		SA2.A2_NOME"+CRLF
 				
@@ -379,8 +387,12 @@ Do While ( cQrySF1 )->( ! Eof() )
 				cLiberOk := "X"
 				cStatus  := "A Liberar"
 			Else
+				If cLiberOk == "A"
+					cStatus  := "Liberar"
+				Else
+					cStatus  := "Estornada"
+				EndIf
 				cLiberOk := "A"
-				cStatus  := "Liberar"
 			EndIf
 		Case cLiberOk == "B"
 			cStatus  := "Bloqueada"
@@ -765,7 +777,9 @@ line-height: 1rem;
 
        </div>
         <!-- Rodapé do modal-->
-       <div class="modal-footer">
+        <div class="modal-footer">
+         <div id="inpest"></div>
+         <div id="btnest"></div>
          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
          <div id="btnlib"></div>
        </div>
@@ -898,8 +912,15 @@ document.getElementById('SF1XXParce').value = prenota['F1_XXPARCE'];
 
 
 if (canLib === 1){
-	let btn = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\')">Liberar</button>';
-	document.getElementById("btnlib").innerHTML = btn;
+	let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+	document.getElementById("btnlib").innerHTML = btnL;
+	if (prenota['F1_XXLIB'] === 'A'){
+		let btnE = '<button type="button" class="btn btn-outline-warning" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\')">Estornar</button>';
+		let inpE = '<input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="Motivo do estorno: " >'
+
+		document.getElementById("btnest").innerHTML = btnE;
+		document.getElementById("inpest").innerHTML = inpE;
+	}
 }
 if (Array.isArray(prenota.D1_ITENS)) {
    prenota.D1_ITENS.forEach(object => {
@@ -942,11 +963,11 @@ $('#meuModal').on('hidden.bs.modal', function () {
 
 
 
-async function libdoc(f1empresa,f1recno,userlib){
+async function libdoc(f1empresa,f1recno,userlib,acao){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib, {
+fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -993,7 +1014,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 //cPre  := StrIConv( "Pré", "CP1252", "UTF-8")
 //cHtml := STRTRAN(cHtml,"Pré",cPre)
 
-//Memowrite("\tmp\pn.html",cHtml)
+Memowrite("\tmp\pn.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)

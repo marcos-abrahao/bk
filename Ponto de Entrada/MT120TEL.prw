@@ -44,11 +44,11 @@ IF nOpcx <> 3
     ENDIF
 ENDIF 
 
-If TYPE("CRELEASERPO") == "U"
-	nLin := 45	// Protheus 11
-Else
+//If TYPE("CRELEASERPO") == "U"
+//	nLin := 45	// Protheus 11
+//Else
 	nLin := 75	// Protheus 12
-EndIf
+//EndIf
 
 @ nLin,aPosGet[1,1] SAY 'Pedido urgente?' PIXEL SIZE 50,10 Of oNewDialog
 @ nLin,aPosGet[1,2] COMBOBOX cSim ITEMS aSIM SIZE 100,50  PIXEL SIZE 130,10 Of oNewDialog    
@@ -63,13 +63,14 @@ RETURN
 User Function MT120GET() 
 Local aRet:= PARAMIXB[1] 
 
-If TYPE("CRELEASERPO") == "U"  // P11
-	aRet[2,1] := 90
-	aRet[1,3] := 120 
-Else   // P12
+//If TYPE("CRELEASERPO") == "U"  // P11
+//	aRet[2,1] := 90
+//	aRet[1,3] := 120 
+//Else   // P12
 	aRet[2,1] := 120
 	aRet[1,3] := 150 
-EndIf
+//EndIf
+
 Return(aRet)
 
 

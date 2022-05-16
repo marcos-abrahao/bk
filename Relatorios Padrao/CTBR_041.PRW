@@ -26,12 +26,13 @@ Private aSelFil	:= {}
 
 u_LogPrw("xCtbr041")
 
+/*
 If TYPE("CRELEASERPO") == "U"
 	CtAjustSx1('CTR041')	// Protheus 11  - P11
 Else
 	// Protheus 12 - P12
 EndIf
-
+*/
 
 If FindFunction("TRepInUse") .And. TRepInUse() 
 	XCTBR041R3() //CTBR040R4()

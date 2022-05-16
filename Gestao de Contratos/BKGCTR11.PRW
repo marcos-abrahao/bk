@@ -5460,7 +5460,7 @@ Return aRet
 
 
 // Buscar Titulos do contas a pagar por itens dos Documentos de Entrada
-// 20/07//2020
+// 20/07/2020
 User Function fAcrDcr(cEmpC,aLAcrDcr)
 
 Local cQuery3 := ""
