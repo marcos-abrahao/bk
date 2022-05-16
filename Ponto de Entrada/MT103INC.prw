@@ -185,8 +185,6 @@ Return Nil
 User Function SF1Email(cAssunto)
 Local cEmail    := "microsiga@bkconsultoria.com.br;"
 Local cEmailCC  := "" 
-Local cAnexo	:= "" 
-Local lJob		:= .F.
 Local aCabs   	:= {}
 Local aEmail 	:= {}
 Local cMsg		:= ""
@@ -202,20 +200,14 @@ MsUnLock("SF1")
 
 cAssunto += " nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 
-PswOrder(1) 
-PswSeek(SF1->F1_XXUSER) 
-aUser  := PswRet(1)
-If !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-	cEmail += ALLTRIM(aUser[1,14])+';'
+If !Empty(SF1->F1_XXUSER)
+	cEmail += UsrRetMail(SF1->F1_XXUSER)+';'
 EndIf
 If !Empty(SF1->F1_XXUSERS)
-	PswOrder(1) 
-	PswSeek(SF1->F1_XXUSERS) 
-	aUser  := PswRet(1)
-	If !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmail += ALLTRIM(aUser[1,14])+';'
-	EndIf
+	cEmail += UsrRetMail(SF1->F1_XXUSERS)+';'
 EndIf
+
+cEmailCC += UsrRetMail(__cUserId)+';'
 
 // Incluir usuarios do almoxarifado 28/09/2021 - Fabio Quirino
 cEmail  += u_EmEstAlm(SF1->F1_XXUSER,.F.)
@@ -227,7 +219,7 @@ AADD(aEmail,{"Reprovador:"+UsrFullName(RetCodUsr())})
 AADD(aEmail,{"Motivo    :"+cJust})
 
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT103INC")
-U_SendMail("MT103INC",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJob)
+U_BkSnMail("MT103INC",cAssunto,cEmail,cEmailCC,cMsg)
 
 Return Nil
 

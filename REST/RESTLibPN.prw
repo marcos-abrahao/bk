@@ -90,17 +90,19 @@ Return (lSuccess)
 
 WSMETHOD PUT QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN
 
-Local cJson        := Self:GetContent()   
-Local lRet         := .T.
+Local cJson			:= Self:GetContent()   
+Local lRet			:= .T.
 //	Local lLib         := .T.
 //	Local oJson        As Object
 //  Local cCatch       As Character  
-Local oJson        As Object
-Local aParams      As Array
-Local cMsg         As Char
-Local aQueryString As Array
+Local oJson			As Object
+Local aParams		As Array
+Local cMsg			As Char
+Local cMotivo 		As Char
 
-	aQueryString := Self:aQueryString
+//Local aQueryString As Array // Aqui tem todos os parâmetros QUERYPARAM em array
+
+	//aQueryString := Self:aQueryString
 
 	//Define o tipo de retorno do servico
 	::setContentType('application/json')
@@ -116,7 +118,12 @@ Local aQueryString As Array
 
 	If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-		lRet := fLibPN(::empresa,::prenota,::acao,@cMsg)
+		cMotivo := AllTrim(oJson['motivo'])
+		If !Empty(cMotivo)
+			cMotivo := StrIConv( cMotivo, "UTF-8", "CP1252")+"."+CRLF
+		EndIf
+
+		lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo)
 
 	EndIf
 
@@ -131,28 +138,51 @@ Local aQueryString As Array
 Return lRet
 
 
-Static Function fLibPN(empresa,prenota,acao,cMsg)
+Static Function fLibPN(empresa,prenota,acao,cMsg,cMotivo)
 Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSF1	:= "SF1"+empresa+"0"
+Local cTabSA2	:= "SA2"+empresa+"0"
 Local cQrySF1	:= GetNextAlias()
 Local cDoc		:= ""
+Local cSerie	:= ""
+Local cxUser	:= ""
+Local cxUsers	:= ""
+Local cFornece	:= ""
 Default cMsg	:= ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
-cQuery := "SELECT SF1.F1_XXLIB,SF1.F1_STATUS,SF1.F1_DOC,SF1.D_E_L_E_T_ AS F1DELET"+CRLF
-cQuery += " FROM "+cTabSF1+" SF1"+CRLF
-cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
+cQuery := "SELECT "
+cQuery += "  SF1.F1_XXLIB,"
+cQuery += "  SF1.F1_STATUS,"
+cQuery += "  SF1.F1_DOC,"
+cQuery += "  SF1.F1_SERIE,"
+cQuery += "  SF1.F1_XXUSER,"
+cQuery += "  SF1.F1_XXUSERS,"
+cQuery += "  SF1.D_E_L_E_T_ AS F1DELET,"
+cQuery += "  SA2.A2_COD,"
+cQuery += "  SA2.A2_LOJA,"
+cQuery += "  SA2.A2_NOME "
+cQuery += " FROM "+cTabSF1+" SF1 "
+cQuery += " INNER JOIN "+cTabSA2+" SA2 ON "
+cQuery += "    SA2.A2_FILIAL='"+xFilial("SA2")+"' AND SF1.F1_FORNECE = SA2.A2_COD AND SF1.F1_LOJA = SA2.A2_LOJA AND SA2.D_E_L_E_T_='' " 
+cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 If !(cQrySF1)->(Eof()) 
-	cDoc := (cQrySF1)->F1_DOC
+	cDoc    := (cQrySF1)->F1_DOC
+	cSerie  := (cQrySF1)->F1_SERIE
+	cxUser  := (cQrySF1)->F1_XXUSER
+	cxUsers := (cQrySF1)->F1_XXUSER
+	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 
 Do Case
 	Case (cQrySF1)->(Eof()) 
 		cMsg:= "não encontrada"
+	Case (cQrySF1)->F1DELET = '*'
+		cMsg:= "foi excluída"
 	Case (cQrySF1)->F1_STATUS == "B"
 		cMsg:= "está bloqueada"
 	Case (cQrySF1)->F1_STATUS <> " "
@@ -162,9 +192,18 @@ Do Case
 		If acao == 'E'
 			cQuery += "  SET F1_XXLIB = 'N',"
 			cMsg := "estornada"
+			If !Empty(cMotivo)
+				cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+			EndIf
 		Else
 			cQuery += "  SET F1_XXLIB = 'L',"
 			cMsg := "liberada"
+			If !Empty(cMotivo)
+				cMotivo := "Obs liberação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+			EndIf
+		EndIf
+		If !Empty(cMotivo)
+			cQuery += "      F1_HISTRET = CONVERT(VARBINARY(800),'"+cMotivo+"' + ISNULL(CONVERT(varchar(800),F1_HISTRET),'')),"
 		EndIf
 		cQuery += "      F1_XXULIB = '"+__cUserId+"',"
 		cQuery += "      F1_XXDLIB = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
@@ -180,6 +219,11 @@ Do Case
 		cMsg:= "não pode ser liberada por motivo indefinido"
 EndCase
 
+// Enviar e-mail de aviso do estorno
+If lRet .AND. !Empty(cMotivo)
+	LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
+ENDIF
+
 cMsg := cDoc+" "+cMsg
 
 u_LogPrw("RESTLIBPN",cMsg)
@@ -187,6 +231,47 @@ u_LogPrw("RESTLIBPN",cMsg)
 (cQrySF1)->(dbCloseArea())
 
 Return lRet
+
+
+
+Static Function LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
+Local cEmail    := "microsiga@bkconsultoria.com.br;"
+Local cEmailCC  := "" 
+Local aCabs   	:= {}
+Local aEmail 	:= {}
+Local cMsg		:= ""
+Local cAssunto	:= ""
+
+If acao == "E"
+	cAssunto := "Não liberação"
+Else
+	cAssunto := "Liberação"
+EndIF
+	
+cAssunto +=" do Documento nº.:"+cDoc+" Série:"+cSerie+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(empresa)
+
+If !Empty(cxUser)
+	cEmail += UsrRetMail(cxUser)+';'
+EndIf
+If !Empty(cxUsers)
+	cEmail += UsrRetMail(cxUsers)+';'
+EndIf
+
+cEmailCC += UsrRetMail(__cUserId)+';'
+
+// Incluir usuarios do almoxarifado 28/09/2021 - Fabio Quirino
+cEmail  += u_EmEstAlm(cxUser,.F.)
+
+aCabs   := {"Pré-Nota nº.:" + TRIM(cDoc) + " Série:" + cSerie + " Fornecedor: "+cFornece}
+aEmail 	:= {}
+AADD(aEmail,{"Reprovador:"+UsrFullName(__cUserId)})
+AADD(aEmail,{cMotivo})
+
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"RESTLIBPN")
+
+U_BkSnMail("RESTLIBPN",cAssunto,cEmail,cEmailCC,cMsg)
+
+Return Nil
 
 
 /*/{Protheus.doc} GET / salesorder
@@ -630,7 +715,7 @@ line-height: 1rem;
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-	<a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas</a>
+	<a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas - #cUserName#</a>
     <button type="button" 
         class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
         Atualizar
@@ -891,10 +976,12 @@ let url = 'http://10.139.0.30:8080/rest/RestLibPN/v1?empresa='+f1empresa+'&preno
 
 async function showPN(f1empresa,f1recno,userlib,canLib) {
 let prenota = await getPN(f1empresa,f1recno,userlib);
-let itens = ''
-let i = 0
-let foot = ''
-let anexos = ''
+let itens = '';
+let i = 0;
+let foot = '';
+let anexos = '';
+let inpE = '';
+
 document.getElementById('SF1Doc').value = prenota['F1_DOC'];
 document.getElementById('SF1Serie').value = prenota['F1_SERIE'];
 document.getElementById('SF1Emissao').value = prenota['F1_EMISSAO'];
@@ -914,12 +1001,17 @@ document.getElementById('SF1XXParce').value = prenota['F1_XXPARCE'];
 if (canLib === 1){
 	let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
 	document.getElementById("btnlib").innerHTML = btnL;
+
+	//inpE    += '<label for="SF1Motivo" class="col-sm-2 col-form-label">Obs:</label>';
+	//inpE    += '<div class="col-sm-10">';
+	inpE    += '  <input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="" placeholder="Obs ou Motivo do Estorno">';
+	//inpE    += '</div>';
+
+	document.getElementById("inpest").innerHTML = inpE;
+
 	if (prenota['F1_XXLIB'] === 'A'){
 		let btnE = '<button type="button" class="btn btn-outline-warning" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\')">Estornar</button>';
-		let inpE = '<input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="Motivo do estorno: " >'
-
 		document.getElementById("btnest").innerHTML = btnE;
-		document.getElementById("inpest").innerHTML = inpE;
 	}
 }
 if (Array.isArray(prenota.D1_ITENS)) {
@@ -964,8 +1056,10 @@ $('#meuModal').on('hidden.bs.modal', function () {
 
 
 async function libdoc(f1empresa,f1recno,userlib,acao){
-let dataObject = {liberacao:'ok'};
 let resposta = ''
+let SF1Motivo = document.getElementById("SF1Motivo").value;
+let dataObject = {	liberacao:'ok',
+					motivo:SF1Motivo};
 
 fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
@@ -1006,6 +1100,7 @@ EndIf
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
+	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 EndIf
 
 //StrIConv( cHtml, "UTF-8", "CP1252")
