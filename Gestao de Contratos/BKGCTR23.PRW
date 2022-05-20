@@ -1,4 +1,5 @@
-#INCLUDE "rwmake.ch"
+//#INCLUDE "rwmake.ch"
+#INCLUDE "protheus.ch"
 #INCLUDE "topconn.ch"
 
 /*/{Protheus.doc} BKGCTR23
@@ -24,8 +25,9 @@ LOCAL cCompet2 	:= SubStr(DtoS(MonthSub(dDataBase,1)),5,2)+"/"+SubStr(DtoS(Month
 LOCAL cCompet3 	:= SubStr(DtoS(dDataBase),5,2)+"/"+SubStr(DtoS(dDataBase),1,4)
 LOCAL _IX		:= 0
 LOCAL _IY		:= 0
+//Local cJCXNCND	:= FWJoinFilial("CXN", "CND")
 
-u_LogPrw("BKGCTR23")
+	u_LogPrw("BKGCTR23")
 
 	IF SM0->M0_CODIGO == "01"      // BK
 
@@ -53,10 +55,35 @@ u_LogPrw("BKGCTR23")
 
 	ENDIF
 
-	_SQL := "SELECT CND_CONTRA,CND_REVISA,CN9_XXDESC,CN9_CLIENT,CN9_NOMCLI,CN9_XXNRBK,CND_NUMMED,CND_XXFUNC,CND_XXNFUN,CND.R_E_C_N_O_ AS nREGCND,CND_COMPET"
-	_SQL += " FROM "+RETSQLNAME("CN9")+" CN9"
-	_SQL += " INNER JOIN "+RETSQLNAME("CND")+" CND ON CND.D_E_L_E_T_='' AND CN9.CN9_NUMERO=CND_CONTRA AND CN9.CN9_REVISA=CND_REVISA"
-	_SQL += " WHERE CN9.D_E_L_E_T_='' AND CN9.CN9_SITUAC='05' AND CND_COMPET IN ('"+cCompet1+"','"+cCompet2+"','"+cCompet3+"') ORDER BY CN9_NUMERO"
+	_SQL := "SELECT "+ CRLF
+	_SQL += "  CND_CONTRA,"+ CRLF
+	_SQL += "  CND_REVISA,"+ CRLF
+	_SQL += "  CN9_XXDESC,"+ CRLF
+	_SQL += "  CN9_CLIENT,"+ CRLF
+	_SQL += "  CN9_NOMCLI,"+ CRLF
+	_SQL += "  CN9_XXNRBK,"+ CRLF
+	_SQL += "  CND_NUMMED,"+ CRLF
+	_SQL += "  CND_XXFUNC,"+ CRLF
+	_SQL += "  CND_XXNFUN,"+ CRLF
+	_SQL += "  CND.R_E_C_N_O_ AS nREGCND,"+ CRLF
+	_SQL += "  CND_COMPET"+ CRLF
+	//_SQL += "  ISNULL(CXN_NUMPLA,'') AS CXN_NUMPLA"+ CRLF
+	_SQL += " FROM "+RETSQLNAME("CN9")+" CN9"+ CRLF
+	_SQL += " LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
+	_SQL += "  ON CND.D_E_L_E_T_='' AND CN9.CN9_NUMERO = CND_CONTRA AND CN9.CN9_REVISA=CND_REVISA"+ CRLF
+	//_SQL += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+	//_SQL += " 	ON (CXN_CONTRA = CN9.CN9_NUMERO AND CXN_REVISA = CN9.CN9_REVISA AND CXN_NUMMED = CND_NUMMED AND CXN.CXN_CHECK = 'T'" +CRLF
+	//_SQL += " 		AND "+cJCXNCND+" AND CXN.D_E_L_E_T_='')" + CRLF
+	_SQL += " WHERE " + CRLF
+	_SQL += "  CN9.D_E_L_E_T_='' " + CRLF
+	_SQL += "  AND CN9.CN9_SITUAC='05' " + CRLF
+	_SQL += "  AND CND_COMPET IN ('"+cCompet1+"','"+cCompet2+"','"+cCompet3+"') " + CRLF
+
+	//_SQL += "  AND SUBSTRING(CND_COMPET,4,4) >= '2021' " + CRLF
+
+	_SQL += "  ORDER BY CN9_NUMERO" + CRLF
+	
+	//u_LogMemo("BKGCTR23-CND.SQL",_SQL)
 
 	TCQUERY _SQL NEW ALIAS "QCND"
 	dbSelectArea("QCND")
@@ -183,8 +210,8 @@ u_LogPrw("BKGCTR23")
 	NEXT
 
 	aGlosas2  	:= {}
-	aGlosas2  	:= aGlosas
-	aGlosas 		:= {}
+	aGlosas2  	:= AClone(aGlosas)
+	aGlosas 	:= {}
 	FOR _IX:= 1 TO LEN(aGlosas2)
 
         nConsolida := 0
@@ -229,7 +256,7 @@ u_LogPrw("BKGCTR23")
 	NEXT
 
     FOR _IX:= 1 TO LEN(aGlosas)
-		IF aGlosas[_IX,3] == "Glosa"
+		IF aGlosas[_IX,3] == "Glosa" .OR. aGlosas[_IX,3] == "Bonificação"
 			cXCompet:= ""
 			cXCompet := SUBSTR(DTOS(CTOD("01/"+aGlosas[_IX,2])),1,4)+"-"+SUBSTR(DTOS(CTOD("01/"+aGlosas[_IX,2])),7,2)+"-"+SUBSTR(DTOS(CTOD("01/"+aGlosas[_IX,2])),5,2) 
 			_SQL := ""
@@ -271,13 +298,11 @@ u_LogPrw("BKGCTR23")
 		ENDIF
 	NEXT
 
-
-
 RETURN NIL
 
 
 
-Static Function VGlosa(nMDNUMED)
+Static Function VGlosa(cNumMed)
 Local cQuery    := ""
 Local aAreaIni  := GetArea()
 Local cAliasCNR := GetNextAlias()
@@ -288,7 +313,7 @@ Local aCNR      := {}
 //Local cJUST		:= ""
 
 cQuery  := "SELECT CNR_TIPO,CNR_DESCRI,CNR_VALOR " 
-cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+nMDNUMED+"' "
+cQuery  += "FROM "+RETSQLNAME("CNR")+" CNR WHERE CNR.D_E_L_E_T_ = '' AND CNR_NUMMED = '"+cNumMed+"' "
 
 TCQUERY cQuery NEW ALIAS (cAliasCNR)
 
@@ -297,9 +322,10 @@ DbGoTop()
 
 Do While (cAliasCNR)->(!eof())
 	cTipoNome := IIF((cAliasCNR)->CNR_TIPO == "2","Bonificação","Multa")
-	DBSELECTAREA("CND")
-	CND->(DBSETORDER(4))
-	CND->(DBSEEK(xFILIAL("CND")+nMDNUMED,.F.))
+
+	//DBSELECTAREA("CND")
+	//CND->(DBSETORDER(4))
+	//CND->(DBSEEK(xFILIAL("CND")+cNumMed,.F.))
 
 	//AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),CND->CND_XXJUST})
 	AADD(aCNR,{cTipoNome,(cAliasCNR)->CNR_DESCRI,TRANSFORM((cAliasCNR)->CNR_VALOR,"@E 999,999,999.99"),""})
@@ -316,8 +342,8 @@ If LEN(aCNR) > 0
    	cJUST	:= ""
 	DBSELECTAREA("CND")
 	CND->(DBSETORDER(4))
-	CND->(DBSEEK(xFILIAL("CND")+nMDNUMED,.F.))
-	DO While CND->(!eof()) .AND. CND->CND_NUMMED==nMDNUMED
+	CND->(DBSEEK(xFILIAL("CND")+cNumMed,.F.))
+	DO While CND->(!eof()) .AND. CND->CND_NUMMED==cNumMed
         IF CND->CND_REVISA > cREVISA
         	cREVISA := CND->CND_REVISA
         	dTINIC 	:= CND->CND_DTINIC

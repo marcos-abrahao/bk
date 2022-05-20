@@ -629,7 +629,7 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 							cChave := cTitPai
 						Else
 							cChave := SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA
-						EndIf
+						EndIf 
 
 						If dbSeek(xFilial("SD1")+cChave)
 							// Documento de Entrada
@@ -745,8 +745,6 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 		EndIf
 
 	Next
-
-
 
 Return nil
 

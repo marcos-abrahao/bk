@@ -341,7 +341,7 @@ line-height: 1rem;
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-	<a class="navbar-brand" href="#">BK - Liberação de Pedidos de Vendas</a>
+	<a class="navbar-brand" href="#">BK - Liberação de Pedidos de Vendas - #cUserName#</a>
     <button type="button" 
         class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
         Atualizar
@@ -547,6 +547,7 @@ EndIf
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
+	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 EndIf
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")

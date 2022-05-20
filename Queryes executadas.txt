@@ -1,5 +1,42 @@
 
 
+
+==============================================================
+19/05/22 
+
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: 000002640%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: 000002641%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: 000003075%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: 000003076%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: 000003282%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: 000003283%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: FC0000021%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF: FEE000008%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000003459%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000003460:%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000004100:M%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000004101:%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000004533:%'
+UNION ALL
+select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000004535:%'
+
+==============================================================
+16/05/22 
+
+SELECT F1_HISTRET,Cast(Cast(F1_HISTRET As VarBinary)as VarChar(Max)) AS X,* FROM SF1150 WHERE F1_DOC = '242348721'
+
 ==============================================================
 12/05/22 
 

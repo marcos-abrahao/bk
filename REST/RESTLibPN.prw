@@ -220,7 +220,7 @@ Do Case
 EndCase
 
 // Enviar e-mail de aviso do estorno
-If lRet .AND. !Empty(cMotivo)
+If lRet .AND. (!Empty(cMotivo) .OR. acao == 'E')
 	LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
 ENDIF
 
@@ -715,7 +715,7 @@ line-height: 1rem;
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-	<a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas - #cUserName#</a>
+	<a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas - #cUserName#</a> 
     <button type="button" 
         class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
         Atualizar
@@ -1109,7 +1109,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 //cPre  := StrIConv( "Pré", "CP1252", "UTF-8")
 //cHtml := STRTRAN(cHtml,"Pré",cPre)
 
-Memowrite("\tmp\pn.html",cHtml)
+//Memowrite("\tmp\pn.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)
