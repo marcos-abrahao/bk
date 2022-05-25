@@ -167,13 +167,32 @@ cQuery += "   ,CNA_XXMUN"+ CRLF
 
 //cQuery += "   ,ISNULL(CXN_VLPREV,CND_VLPREV) AS CXN_VLPREV"+ CRLF
 cQuery += "   ,CASE WHEN ISNULL(CXN_VLPREV, CND_VLPREV) = CNF_VLPREV THEN CNF_VLPREV ELSE 0 END AS CXN_VLPREV"+ CRLF
-cQuery += "   ,ISNULL(CXN_VLBONI,CND_VLBONI) AS CXN_VLBONI"+ CRLF
-cQuery += "   ,ISNULL(CXN_VLMULT,CND_VLMULT) AS CXN_VLMULT"+ CRLF
+//cQuery += "   ,ISNULL(CXN_VLBONI,CND_VLBONI) AS CXN_VLBONI"+ CRLF
+//cQuery += "   ,ISNULL(CXN_VLMULT,CND_VLMULT) AS CXN_VLMULT"+ CRLF
+
+cQuery += "   ,(SELECT SUM(CNR_VALOR)"+ CRLF
+cQuery += "        FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "        WHERE "+ CRLF
+cQuery += "          C5_MDNUMED = CNR.CNR_NUMMED "+ CRLF
+cQuery += "          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
+cQuery += "          AND CNR_FILIAL = '"+cFilSel+"'"+ CRLF
+cQuery += "          AND CNR.D_E_L_E_T_ = ' ' "+ CRLF
+cQuery += "          AND CNR_TIPO = '2' ) AS CXN_VLBONI"+ CRLF
+
+cQuery += "   ,(SELECT SUM(CNR_VALOR)"+ CRLF
+cQuery += "        FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+cQuery += "        WHERE "+ CRLF
+cQuery += "          C5_MDNUMED = CNR.CNR_NUMMED "+ CRLF
+cQuery += "          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
+cQuery += "          AND CNR_FILIAL = '"+cFilSel+"'"+ CRLF
+cQuery += "          AND CNR.D_E_L_E_T_ = ' ' "+ CRLF
+cQuery += "          AND CNR_TIPO = '1' ) AS CXN_VLMULT"+ CRLF
 
 cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
 cQuery += "   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS"+ CRLF
-cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF //AQUI
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED"+ CRLF
+cQuery += "                AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'"+ CRLF
 cQuery += "          ORDER BY ';' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)' 
@@ -181,7 +200,8 @@ cQuery += "          ), 1, 1, '') AS CNRTPMUL"+ CRLF
 
 cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
-cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED"+ CRLF
+cQuery += "                AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1'"+ CRLF
 cQuery += "          ORDER BY ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
@@ -190,7 +210,8 @@ cQuery += "          ), 1, 1, '') AS CNRDESCMUL"+ CRLF
 cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_XTPJUS+'-'+ZR_DESCR)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
 cQuery += "   			INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS"+ CRLF
-cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED"+ CRLF
+cQuery += "                AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'"+ CRLF
 cQuery += "          ORDER BY ';' + RTRIM(CNR_XTPJUS+ '-'+ZR_DESCR)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
@@ -198,7 +219,8 @@ cQuery += "          ), 1, 1, '') AS CNRTPBON"+ CRLF
 
 cQuery += "   ,STUFF ((SELECT ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
-cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED AND (CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END) = CNR_CODPLA"+ CRLF
+cQuery += "          WHERE C5_MDNUMED = CNR.CNR_NUMMED"+ CRLF
+cQuery += "                AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
 cQuery += "                AND CNR_FILIAL = '"+cFilSel+"' AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2'"+ CRLF
 cQuery += "          ORDER BY ';' + RTRIM(CNR_DESCRI)"+ CRLF
 cQuery += "          FOR XML PATH (''), TYPE).value('.', 'varchar(100)'
@@ -217,26 +239,55 @@ Else
 EndIf
 
 // Sugestão Totvs: CXN.CXN_FILIAL = CND.CND_FILIAL AND CXN.CXN_CONTRA = CND.CND_CONTRA AND CXN.CXN_REVISA = CND.CND_REVISA AND CXN.CXN_NUMMED = CND.CND_NUMMED AND CXN.CXN_CHECK = 'T'
-cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
-cQuery += " 	ON (CXN_CONTRA = C5_MDCONTR AND CXN_NUMMED = C5_MDNUMED AND CXN_NUMPLA = C5_MDPLANI AND CXN.CXN_CHECK = 'T'" +CRLF
-cQuery += " 		AND CXN_FILIAL = '"+cFilSel+"' AND CXN.D_E_L_E_T_='')" + CRLF
-
 cQuery += " LEFT JOIN "+RETSQLNAME("CND")+" CND" + CRLF
-cQuery += " 	ON (CND_NUMMED = C5_MDNUMED" +CRLF
-cQuery += " 		AND CND_FILIAL = '"+cFilSel+"' AND CND.D_E_L_E_T_=''" + CRLF
+cQuery += " 	ON (CND_NUMMED = C5_MDNUMED" + CRLF
+//cQuery += "         AND CND_REVISA = CND_REVGER " + CRLF
+cQuery += "         AND CND_FILIAL = '"+cFilSel+"'" + CRLF
+cQuery += "         AND CND.D_E_L_E_T_ = '' " + CRLF
+cQuery += "         AND CND.R_E_C_N_O_ = (" + CRLF
+cQuery += "            SELECT " + CRLF
+cQuery += "                MIN(R_E_C_N_O_) " + CRLF
+cQuery += "              FROM " + CRLF
+cQuery += "                "+RETSQLNAME("CND")+" CND1 " + CRLF
+cQuery += "              WHERE " + CRLF
+cQuery += "                CND1.CND_NUMMED = C5_MDNUMED " + CRLF
+cQuery += "                AND CND1.CND_FILIAL = '01' " + CRLF
+cQuery += "                AND CND1.D_E_L_E_T_ = ''" + CRLF
+cQuery += "    			)" + CRLF
+cQuery += "    )" + CRLF
+	
+
+/*
 cQuery += " 		AND CND.R_E_C_N_O_= " + CRLF
 cQuery += "	        (SELECT TOP 1 R_E_C_N_O_ FROM CND010 CND1 " + CRLF
 cQuery += "	            WHERE CND1.CND_NUMMED = C5_MDNUMED"+CRLF
 cQuery += "	            AND CND1.CND_FILIAL = '"+cFilSel+"' AND CND1.D_E_L_E_T_=''))" + CRLF
+*/
+
+cQuery += " LEFT JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
+cQuery += "    ON (CXN_CONTRA = C5_MDCONTR " + CRLF
+cQuery += "        AND CXN_NUMMED = C5_MDNUMED " + CRLF
+cQuery += "        AND CXN_NUMPLA = C5_MDPLANI " + CRLF
+cQuery += "        AND CXN_REVISA = CND_REVISA " + CRLF
+cQuery += "        AND CXN.CXN_CHECK = 'T' " + CRLF
+cQuery += "        AND CXN_FILIAL = '"+cFilSel+"' " + CRLF
+cQuery += "        AND CXN.D_E_L_E_T_ = '') " + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
-cQuery += " 	ON (CND_CONTRA = CNF_CONTRA AND C5_XXCOMPM = CNF_COMPET AND ISNULL(CXN_NUMPLA,CND_NUMERO) = CNF_NUMPLA AND ISNULL(CXN_REVISA, CND_REVISA) = CNF_REVISA" +CRLF
+cQuery += " 	ON (CND_CONTRA = CNF_CONTRA" + CRLF
+cQuery += " 	    AND C5_XXCOMPM = CNF_COMPET" + CRLF
+cQuery += " 	    AND ISNULL(CXN_NUMPLA,CND_NUMERO) = CNF_NUMPLA" + CRLF
+cQuery += " 	    AND ISNULL(CXN_REVISA, CND_REVISA) = CNF_REVISA" + CRLF
 cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
 cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
-cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
-cQuery += " 		AND CNA_FILIAL = CNF_FILIAL AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
+cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA" + CRLF
+cQuery += " 	    AND CNA_CRONOG = CNF_NUMERO" + CRLF
+cQuery += " 	    AND CNA_REVISA = CNF_REVISA" + CRLF
+cQuery += " 	    AND CNA_NUMERO = CNF_NUMPLA" + CRLF
+cQuery += " 		AND CNA_FILIAL = CNF_FILIAL" + CRLF
+cQuery += " 	    AND CNA.D_E_L_E_T_='')" + CRLF // CNE_CONTRA
 
 /* caso precise de produto
 LEFT JOIN CNE010 CNE
@@ -253,7 +304,8 @@ cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CR
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
 cQuery += " 	ON (ISNULL(CND_CONTRA,C5_ESPECI1) = CTT_CUSTO" + CRLF
-cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
+cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"'" + CRLF
+cQuery += " 		AND CTT.D_E_L_E_T_='')" + CRLF
 
 cQuery += " WHERE "+ CRLF
 If nFiltro == 1

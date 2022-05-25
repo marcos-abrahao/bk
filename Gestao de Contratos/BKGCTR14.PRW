@@ -1096,7 +1096,7 @@ Local _nJ		:= 0
 Local dMaxCompet:= CTOD("")
 Local cCompet	:= ""
 Local cNMeses	:= ""
-Local nNMeses	:= 12
+Local nNMeses	:= 3
 Local nMesA		:= 0
 Local nAnoA 	:= 0
 
@@ -4533,7 +4533,12 @@ NEXT
 cCompet	:= STRZERO(nMesC,2)+"/"+STRZERO(nAnoC,4)
 
 // Calcular os ultimos n meses
-cNMeses := STRZERO(YEAR(DATE()),4)+STRZERO(MONTH(DATE()),2) +"|"
+If lJob
+	cNMeses := STRZERO(YEAR(DATE()),4)+STRZERO(MONTH(DATE()),2) +"|"
+Else
+	cNMeses := STRZERO(nAnoC,4)+STRZERO(nMesC,2) +"|"
+EndIf
+
 nMesA   := MONTH(DATE())
 nAnoA	:= YEAR(DATE())
 If nCompAtual == 3

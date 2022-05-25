@@ -3,11 +3,17 @@
 #INCLUDE "DBSTRUCT.CH"
 
 /*/{Protheus.doc} BKGCTR26
-BK - Fluxo de Caixa Por Contrato
+BKGCTR26 - Fluxo de Caixa Por Contrato
 @Return
 @author Marcos Bispo Abrahão
 @since 28/01/2021
 @version P12-25
+
+
+SELECT Z5_ANOMES,Z5_CC,Z5_EVENTO,Z5_EVDESCR,SUM(Z5_VALOR) AS Z5_VALOR FROM SZ5010
+WHERE Z5_ANOMES = '202203'
+GROUP BY Z5_ANOMES,Z5_CC,Z5_EVENTO,Z5_EVDESCR
+ORDER BY Z5_ANOMES,Z5_CC,Z5_EVENTO,Z5_EVDESCR
 /*/ 
 
 // - Conteudo do array - aRelat[x]

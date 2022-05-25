@@ -12,7 +12,7 @@ BK - Faturamento por contrato
 
 User Function BKDASH01()
 
-Private cTitulo     := "Atualizar Dashboard: Faturamento e Glosas"
+Private cTitulo     := "Atualizar Dashboard PowerBk"
 Private cPerg       := "BKDASH01"
 
 If FWCodEmp() == "01"
@@ -22,10 +22,16 @@ If FWCodEmp() == "01"
 	If IsBlind()
 		ProcDS01()
 		ProcDS02()
+		ProcDS03()
 	Else
-		If MsgYesNo("Confirma a atualização das tabelas do banco de dados PowerBk?", cPerg)	
-			FWMsgRun(, {|oSay| ProcDS01() }, "", "Atualizando a tabela GLOSAS do banco de dados PowerBk...")
+		If MsgYesNo("Confirma a atualização da tabela FATURAMENTO do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDS01() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela GESTORES do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDS02() }, "", "Atualizando a tabela GESTORES do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela GLOSAS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDS03() }, "", "Atualizando a tabela GLOSAS do banco de dados PowerBk...")
 		EndIf
 	EndIf
 Else
@@ -37,7 +43,7 @@ EndiF
 Return
 
 
-// Atualização da tabela GLOSAS do banco de dados PowerBk
+// Atualização da tabela FATURAMENTO do banco de dados PowerBk
 Static Function ProcDS01
 Local cQuery	:= ""
 Local cQueryD	:= ""
@@ -79,8 +85,6 @@ For nE := 1 TO Len(aEmpresas)
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
-	//else
-	//	cQuery += "DROP TABLE PowerBk.dbo.GLOSAS "+CRLF
 	EndIf
 
 	cQuery += "SELECT "+CRLF
@@ -106,8 +110,27 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
 	//cQuery += "  ISNULL(CXN_VLPREV, CND_VLPREV) AS CXN_VLPREV, " + CRLF
 	cQuery += "  CASE WHEN ISNULL(CXN_VLPREV, CND_VLPREV) = CNF_VLPREV THEN CNF_VLPREV ELSE 0 END AS CXN_VLPREV,"+ CRLF
-	cQuery += "  ISNULL(CXN_VLBONI, CND_VLBONI) AS CXN_VLBONI, " + CRLF
-	cQuery += "  ISNULL(CXN_VLMULT, CND_VLMULT) AS CXN_VLMULT, " + CRLF
+	//cQuery += "  ISNULL(CXN_VLBONI, CND_VLBONI) AS CXN_VLBONI, " + CRLF
+	//cQuery += "  ISNULL(CXN_VLMULT, CND_VLMULT) AS CXN_VLMULT, " + CRLF
+
+	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
+	cQuery += "        FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+	cQuery += "        WHERE "+ CRLF
+	cQuery += "          C5_MDNUMED = CNR.CNR_NUMMED "+ CRLF
+	cQuery += "          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
+	cQuery += "          AND CNR_FILIAL = '01'"+ CRLF
+	cQuery += "          AND CNR.D_E_L_E_T_ = ' ' "+ CRLF
+	cQuery += "          AND CNR_TIPO = '2' ) AS CNRVLBONI,"+ CRLF
+
+	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
+	cQuery += "        FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+	cQuery += "        WHERE "+ CRLF
+	cQuery += "          C5_MDNUMED = CNR.CNR_NUMMED "+ CRLF
+	cQuery += "          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
+	cQuery += "          AND CNR_FILIAL = '01'"+ CRLF
+	cQuery += "          AND CNR.D_E_L_E_T_ = ' ' "+ CRLF
+	cQuery += "          AND CNR_TIPO = '1' ) AS CNRVLMULT,"+ CRLF
+
 	cQuery += "  STUFF (" + CRLF
 	cQuery += "    (" + CRLF
 	cQuery += "      SELECT " + CRLF
@@ -117,10 +140,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "        INNER JOIN "+cTabSZR+" SZR ON ZR_TIPO = CNR_XTPJUS " + CRLF
 	cQuery += "      WHERE " + CRLF
 	cQuery += "        C5_MDNUMED = CNR.CNR_NUMMED " + CRLF
-	cQuery += "        AND (" + CRLF
-	cQuery += "          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END" + CRLF
-	cQuery += "        ) = CNR_CODPLA " + CRLF
-	cQuery += "        AND CNR_FILIAL = '"+xFilial("CNR")+"'" + CRLF
+	cQuery += "        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))" + CRLF
+	cQuery += "        AND CNR_FILIAL = CND_FILIAL" + CRLF
 	cQuery += "        AND CNR.D_E_L_E_T_ = ' ' " + CRLF
 	cQuery += "        AND CNR_TIPO = '1' " + CRLF
 	cQuery += "      ORDER BY " + CRLF
@@ -139,10 +160,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "        "+cTabCNR+" CNR " + CRLF
 	cQuery += "      WHERE " + CRLF
 	cQuery += "        C5_MDNUMED = CNR.CNR_NUMMED " + CRLF
-	cQuery += "        AND (" + CRLF
-	cQuery += "          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END" + CRLF
-	cQuery += "        ) = CNR_CODPLA " + CRLF
-	cQuery += "        AND CNR_FILIAL = '"+xFilial("CNR")+"'" + CRLF
+	cQuery += "        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))" + CRLF
+	cQuery += "        AND CNR_FILIAL = CND_FILIAL" + CRLF
 	cQuery += "        AND CNR.D_E_L_E_T_ = ' ' " + CRLF
 	cQuery += "        AND CNR_TIPO = '1' " + CRLF
 	cQuery += "      ORDER BY " + CRLF
@@ -162,10 +181,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "        INNER JOIN "+cTabSZR+" SZR ON ZR_TIPO = CNR_XTPJUS " + CRLF
 	cQuery += "      WHERE " + CRLF
 	cQuery += "        C5_MDNUMED = CNR.CNR_NUMMED " + CRLF
-	cQuery += "        AND (" + CRLF
-	cQuery += "          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END" + CRLF
-	cQuery += "        ) = CNR_CODPLA " + CRLF
-	cQuery += "        AND CNR_FILIAL = '"+xFilial("CNR")+"'" + CRLF
+	cQuery += "        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))" + CRLF
+	cQuery += "        AND CNR_FILIAL = CND_FILIAL" + CRLF
 	cQuery += "        AND CNR.D_E_L_E_T_ = ' ' " + CRLF
 	cQuery += "        AND CNR_TIPO = '2' " + CRLF
 	cQuery += "      ORDER BY " + CRLF
@@ -184,10 +201,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "        "+cTabCNR+" CNR " + CRLF
 	cQuery += "      WHERE " + CRLF
 	cQuery += "        C5_MDNUMED = CNR.CNR_NUMMED " + CRLF
-	cQuery += "        AND (" + CRLF
-	cQuery += "          CASE WHEN CND_NUMERO = '' THEN CXN_NUMPLA ELSE '' END" + CRLF
-	cQuery += "        ) = CNR_CODPLA " + CRLF
-	cQuery += "        AND CNR_FILIAL = '"+xFilial("CNR")+"'" + CRLF
+	cQuery += "        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))" + CRLF
+	cQuery += "        AND CNR_FILIAL = CND_FILIAL" + CRLF
 	cQuery += "        AND CNR.D_E_L_E_T_ = ' ' " + CRLF
 	cQuery += "        AND CNR_TIPO = '2' " + CRLF
 	cQuery += "      ORDER BY " + CRLF
@@ -199,34 +214,28 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "    ''" + CRLF
 	cQuery += "  ) AS CNRDESCBON "+CRLF
 	If nE == 1
-		cQuery += "  INTO PowerBk.dbo.GLOSAS " + CRLF
+		cQuery += "  INTO PowerBk.dbo.FATURAMENTO " + CRLF
 	EndIf
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabSF2+" SF2 " + CRLF
 
-	cQuery += "  LEFT JOIN "+cTabSC5+" SC5 ON (" + CRLF
-	cQuery += "    C5_NOTA = F2_DOC " + CRLF
-	cQuery += "    AND C5_SERIE = F2_SERIE " + CRLF
-	cQuery += "    AND C5_FILIAL = F2_FILIAL " + CRLF
-	cQuery += "    AND SC5.D_E_L_E_T_ = ''" + CRLF
-	cQuery += "  ) " + CRLF
+	cQuery += " LEFT JOIN "+cTabSC5+" SC5" + CRLF
+	cQuery += "     ON (C5_NOTA = F2_DOC " + CRLF
+	cQuery += "         AND C5_SERIE = F2_SERIE " + CRLF
+	cQuery += "         AND C5_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "         AND SC5.D_E_L_E_T_ = ''" + CRLF
+	cQuery += " ) " + CRLF
 
-	cQuery += "  LEFT JOIN "+cTabCXN+" CXN ON (" + CRLF
-	cQuery += "    CXN_CONTRA = C5_MDCONTR " + CRLF
-	cQuery += "    AND CXN_NUMMED = C5_MDNUMED " + CRLF
-	cQuery += "    AND CXN_NUMPLA = C5_MDPLANI " + CRLF
-	cQuery += "    AND CXN.CXN_CHECK = 'T' " + CRLF
-	cQuery += "    AND CXN_FILIAL = '01' " + CRLF
-	cQuery += "    AND CXN.D_E_L_E_T_ = ''" + CRLF
-	cQuery += "  ) " + CRLF
+	cQuery += " LEFT JOIN "+cTabCND+" CND" + CRLF
+	cQuery += "     ON (CND_NUMMED = C5_MDNUMED " + CRLF
+	//cQuery += "         AND CND_REVISA = CND_REVGER " + CRLF
+	cQuery += "         AND CND_FILIAL = '01' " + CRLF
+	cQuery += "         AND CND.D_E_L_E_T_ = '' " + CRLF
 
-	cQuery += "  LEFT JOIN "+cTabCND+" CND ON (" + CRLF
-	cQuery += "    CND_NUMMED = C5_MDNUMED " + CRLF
-	cQuery += "    AND CND_FILIAL = '01' " + CRLF
-	cQuery += "    AND CND.D_E_L_E_T_ = '' " + CRLF
+	
 	cQuery += "    AND CND.R_E_C_N_O_ = (" + CRLF
 	cQuery += "      SELECT " + CRLF
-	cQuery += "        TOP 1 R_E_C_N_O_ " + CRLF
+	cQuery += "        MIN(R_E_C_N_O_) " + CRLF
 	cQuery += "      FROM " + CRLF
 	cQuery += "        "+cTabCND+" CND1 " + CRLF
 	cQuery += "      WHERE " + CRLF
@@ -234,22 +243,41 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "        AND CND1.CND_FILIAL = '01' " + CRLF
 	cQuery += "        AND CND1.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "    )" + CRLF
+	
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCXN+" CXN" + CRLF
+	cQuery += "     ON (CXN_CONTRA = C5_MDCONTR " + CRLF
+	cQuery += "         AND CXN_NUMMED = C5_MDNUMED " + CRLF
+	cQuery += "         AND CXN_NUMPLA = C5_MDPLANI " + CRLF
+	cQuery += "         AND CXN_REVISA = CND_REVISA " + CRLF
+	cQuery += "         AND CXN.CXN_CHECK = 'T' " + CRLF
+	cQuery += "         AND CXN_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "         AND CXN.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabCNF+" CNF" + CRLF
-	cQuery += " 	ON (CND_CONTRA = CNF_CONTRA AND C5_XXCOMPM = CNF_COMPET AND ISNULL(CXN_NUMPLA,CND_NUMERO) = CNF_NUMPLA AND ISNULL(CXN_REVISA, CND_REVISA) = CNF_REVISA" +CRLF
+	cQuery += " 	ON (CND_CONTRA = CNF_CONTRA AND C5_XXCOMPM = CNF_COMPET" + CRLF
+	cQuery += " 	    AND ISNULL(CXN_NUMPLA,CND_NUMERO) = CNF_NUMPLA" + CRLF
+	cQuery += " 	    AND ISNULL(CXN_REVISA,CND_REVISA) = CNF_REVISA" + CRLF
 	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
-	cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
+	cQuery += " 	 	AND CNF_FILIAL = F2_FILIAL AND CNF.D_E_L_E_T_=''" + CRLF
+	cQuery += "  ) " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabCNA+" CNA" + CRLF
-	cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
-	cQuery += " 		AND CNA_FILIAL = CNF_FILIAL AND CNA.D_E_L_E_T_='')"+CRLF
-
-	cQuery += "  LEFT JOIN "+cTabCTT+" CTT ON (" + CRLF
-	cQuery += "    ISNULL(CND_CONTRA, C5_ESPECI1) = CTT_CUSTO " + CRLF
-	cQuery += "    AND CTT_FILIAL = '01' " + CRLF
-	cQuery += "    AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA" + CRLF
+	cQuery += " 	 	AND CNA_CRONOG = CNF_NUMERO" + CRLF
+	cQuery += " 	 	AND CNA_REVISA = CNF_REVISA" + CRLF
+	cQuery += " 	 	AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+	cQuery += " 		AND CNA_FILIAL = CNF_FILIAL AND CNA.D_E_L_E_T_=''"+CRLF
 	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (ISNULL(CND_CONTRA, C5_ESPECI1) = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
 	cQuery += "WHERE " + CRLF
 	cQuery += "  SF2.D_E_L_E_T_ = '' " + CRLF
 
@@ -286,28 +314,33 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabCNF+" CNF " + CRLF
 
-	cQuery += "  INNER JOIN "+cTabCN9+" CN9 ON CN9_NUMERO = CNF_CONTRA " + CRLF
-	cQuery += "  AND CN9_REVISA = CNF_REVISA " + CRLF
-	cQuery += "  AND CN9_REVATU = ' ' " + CRLF
-	cQuery += "  AND CN9_FILIAL = '01' " + CRLF
-	cQuery += "  AND CN9.D_E_L_E_T_ = ' ' " + CRLF
+	cQuery += " INNER JOIN "+cTabCN9+" CN9" + CRLF
+	cQuery += "     ON CN9_NUMERO = CNF_CONTRA " + CRLF
+	cQuery += "     AND CN9_REVISA = CNF_REVISA " + CRLF
+	cQuery += "     AND CN9_REVATU = ' ' " + CRLF
+	cQuery += "     AND CN9_FILIAL = '01' " + CRLF
+	cQuery += "     AND CN9.D_E_L_E_T_ = ' ' " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabCNA+" CNA" + CRLF
-	cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+	cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA" + CRLF
+	cQuery += " 	AND CNA_CRONOG = CNF_NUMERO" + CRLF
+	cQuery += " 	AND CNA_REVISA = CNF_REVISA" + CRLF
+	cQuery += " 	AND CNA_NUMERO = CNF_NUMPLA" +CRLF
 	cQuery += " 		AND CNA_FILIAL = CNF_FILIAL AND CNA.D_E_L_E_T_='')"+CRLF
 
-	cQuery += "  LEFT JOIN "+cTabCTT+" CTT ON CTT_CUSTO = CNF_CONTRA " + CRLF
-	cQuery += "  AND CTT_FILIAL = '01' " + CRLF
-	cQuery += "  AND CTT.D_E_L_E_T_ = ' ' " + CRLF
+	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON CTT_CUSTO = CNF_CONTRA" + CRLF
+	cQuery += " 	AND CTT_FILIAL = '"+xFilial("CTT")+"'" + CRLF
+	cQuery += "     AND CTT.D_E_L_E_T_ = ' ' " + CRLF
 
 	cQuery += "WHERE " + CRLF
-	cQuery += "  CNF_SALDO = CNF_VLPREV " + CRLF
-	cQuery += "  AND CNF_FILIAL = '01' " + CRLF
-	cQuery += "  AND CNF.D_E_L_E_T_ = ' ' " + CRLF
+	cQuery += "     CNF_SALDO = CNF_VLPREV " + CRLF
+	cQuery += "     AND CNF_FILIAL = '01' " + CRLF
+	cQuery += "     AND CNF.D_E_L_E_T_ = ' ' " + CRLF
 Next
 
 cQuery += " ORDER BY" + CRLF
-cQuery += "    EMPRESA,F2_DOC" + CRLF
+cQuery += "    EMPRESA,F2_SERIE,F2_DOC" + CRLF
 
 //u_LogMemo("BKDASH01.SQL",cQuery)
 
@@ -318,7 +351,8 @@ Endif
 
 //Begin Transaction
 
-	cQueryD := "DROP TABLE PowerBk.dbo.GLOSAS "+CRLF
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.FATURAMENTO', N'U') IS NOT NULL"  
+ 	cQueryD += "   DROP TABLE PowerBk.dbo.FATURAMENTO "+CRLF
 	nErro   := TcSqlExec(cQueryD)
 
 	If nErro != 0
@@ -340,7 +374,7 @@ Endif
 
 //End Transaction
 
-u_LogMemo("BKDASH01-1.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogMemo("BKDASH01-FAT.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
 
@@ -405,7 +439,8 @@ Endif
 
 //Begin Transaction
 
-	cQueryD := "DROP TABLE PowerBk.dbo.GESTORES "+CRLF
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GESTORES', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.GESTORES "+CRLF
 	nErro   := TcSqlExec(cQueryD)
 
 	If nErro != 0
@@ -427,8 +462,198 @@ Endif
 
 //End Transaction
 
-u_LogMemo("BKDASH01-2.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogMemo("BKDASH01-GES.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
 
 
+// Atualização da tabela GLOSAS do banco de dados PowerBk
+Static Function ProcDS03
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrupo()
+Local nE 		:= 0
+Local cEmpresa  := ""
+Local cNomeEmp  := ""
+
+Local cTabSZR   := ""
+Local cTabCNR   := ""
+Local cTabSF2   := ""
+Local cTabSC5   := ""
+Local cTabCXN   := ""
+Local cTabCND   := ""
+Local cTabCTT   := ""
+Local cTabCN9   := ""
+Local cTabCNF   := ""
+Local cTabCNA   := ""
+
+cTabSZR := "SZR010"
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabCNR := "CNR"+cEmpresa+"0"
+	cTabSF2 := "SF2"+cEmpresa+"0"
+	cTabSC5 := "SC5"+cEmpresa+"0"
+	cTabCXN := "CXN"+cEmpresa+"0"
+	cTabCND := "CND"+cEmpresa+"0"
+	cTabCTT := "CTT"+cEmpresa+"0"
+	cTabCN9 := "CN9"+cEmpresa+"0"
+	cTabCNF := "CNF"+cEmpresa+"0"
+	cTabCNA := "CNA"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += "SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
+	cQuery += "  '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
+	cQuery += "  ISNULL(CND_CONTRA, C5_ESPECI1) AS CND_CONTRA, " + CRLF
+	cQuery += "  CTT_DESC01, " + CRLF
+	cQuery += "  C5_XXCOMPM, " + CRLF
+	cQuery += "  C5_NUM, " + CRLF
+	cQuery += "  C5_MDNUMED, " + CRLF
+	cQuery += "  C5_MDPLANI, " + CRLF
+	cQuery += "  F2_SERIE, " + CRLF
+	cQuery += "  F2_DOC, " + CRLF
+	cQuery += "  F2_EMISSAO, " + CRLF
+	cQuery += "  CND_USUAR, " + CRLF
+	cQuery += "  (" + CRLF
+	cQuery += "    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END" + CRLF
+	cQuery += "  ) AS FORMAMED, " + CRLF
+	cQuery += "  CNA_XXMUN  AS CNA_XXMUN," + CRLF
+	cQuery += "    CNR_TIPO," + CRLF
+  	cQuery += "  (" + CRLF
+    cQuery += "    CASE WHEN CNR_TIPO = '1' THEN 'MULTA' ELSE 'BONIFICAÇÃO' END" + CRLF
+  	cQuery += "  ) AS CNRTIPO, " + CRLF
+  	cQuery += "  CNR_VALOR," + CRLF
+  	cQuery += "  CNR_XTPJUS," + CRLF
+  	cQuery += "  ZR_DESCR," + CRLF
+  	cQuery += "  CNR_DESCRI" + CRLF
+
+	If nE == 1
+		cQuery += "  INTO PowerBk.dbo.GLOSAS " + CRLF
+	EndIf
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSF2+" SF2" + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSC5+" SC5" + CRLF
+	cQuery += "     ON (C5_NOTA = F2_DOC " + CRLF
+	cQuery += "         AND C5_SERIE = F2_SERIE " + CRLF
+	cQuery += "         AND C5_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "         AND SC5.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCND+" CND" + CRLF
+	cQuery += "     ON (CND_NUMMED = C5_MDNUMED " + CRLF
+	//cQuery += "         AND CND_REVISA = CND_REVGER " + CRLF
+	cQuery += "         AND CND_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "         AND CND.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "         AND CND.R_E_C_N_O_ = (" + CRLF
+	cQuery += "         SELECT " + CRLF
+	cQuery += "             MIN(R_E_C_N_O_) " + CRLF
+	cQuery += "         FROM " + CRLF
+	cQuery += "            "+cTabCND+" CND1 " + CRLF
+	cQuery += "         WHERE " + CRLF
+	cQuery += "             CND1.CND_NUMMED = C5_MDNUMED " + CRLF
+	cQuery += "             AND CND1.CND_FILIAL = '01' " + CRLF
+	cQuery += "             AND CND1.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "         )" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCXN+" CXN" + CRLF
+	cQuery += "     ON (CXN_CONTRA = C5_MDCONTR " + CRLF
+	cQuery += "         AND CXN_NUMMED = C5_MDNUMED " + CRLF
+	cQuery += "         AND CXN_NUMPLA = C5_MDPLANI " + CRLF
+	cQuery += "         AND CXN_REVISA = CND_REVISA " + CRLF
+	cQuery += "         AND CXN.CXN_CHECK = 'T' " + CRLF
+	cQuery += "         AND CXN_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "         AND CXN.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCNF+" CNF" + CRLF
+	cQuery += " 	ON (CND_CONTRA = CNF_CONTRA" +CRLF
+	cQuery += " 	    AND C5_XXCOMPM = CNF_COMPET AND ISNULL(CXN_NUMPLA,CND_NUMERO) = CNF_NUMPLA" +CRLF
+	cQuery += " 	    AND ISNULL(CXN_REVISA, CND_REVISA) = CNF_REVISA" +CRLF
+	cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
+	cQuery += " 	 	AND CNF_FILIAL = F2_FILIAL" + CRLF
+	cQuery += " 	 	AND CNF.D_E_L_E_T_='')" + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCNA+" CNA" + CRLF
+	cQuery += " 	ON (CNA_CONTRA = CNF_CONTRA" + CRLF
+	cQuery += " 	    AND CNA_CRONOG = CNF_NUMERO" + CRLF
+	cQuery += " 	    AND CNA_REVISA = CNF_REVISA" + CRLF
+	cQuery += " 	    AND CNA_NUMERO = CNF_NUMPLA" +CRLF
+	cQuery += " 		AND CNA_FILIAL = CNF_FILIAL" +CRLF
+	cQuery += " 		AND CNA.D_E_L_E_T_=''"+CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (ISNULL(CND_CONTRA, C5_ESPECI1) = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " INNER JOIN "+cTabCNR+" CNR" + CRLF
+	cQuery += "     ON (C5_MDNUMED = CNR.CNR_NUMMED " + CRLF
+	cQuery += "         AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))" + CRLF
+	cQuery += "         AND CNR_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "         AND CNR.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSZR+" SZR" + CRLF
+	cQuery += "     ON ZR_TIPO = CNR_XTPJUS" + CRLF
+	cQuery += "     AND SZR.D_E_L_E_T_ = ''" + CRLF
+
+	cQuery += "WHERE " + CRLF
+	cQuery += "     SF2.D_E_L_E_T_ = '' " + CRLF
+
+Next
+
+cQuery += " ORDER BY" + CRLF
+cQuery += "      EMPRESA,F2_SERIE,F2_DOC" + CRLF
+
+u_LogMemo("BKDASH01-GLO.SQL",cQuery)
+
+If !TCIsConnected() 
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+//Begin Transaction
+
+
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GLOSAS', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.GLOSAS "+CRLF
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+
+	nErro   := TcSqlExec(cQuery)
+
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+
+
+//End Transaction
+
+u_LogMemo("BKDASH01-GLO.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return

@@ -46,6 +46,7 @@ WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 //WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
 //TABLES "SA1" "SC5" "SC6" 
 
+u_LogPrw("BKGCT06")
 
 dDataEnv := DATE()
 dbSelectArea("SX6")
@@ -158,7 +159,7 @@ Local aRel       := {"01-Aviso de contratos pendentes de repactuação",;
                      "13-Funcionario Dashbord",;
                      "14-Rentabilidade Dashbord",;
                      "15-Aviso de Lanç. em contratos vencidos",;
-					 "16-Atualizar tabelas do banco de dados PowerBk"}
+					 "16-PowerBk - Atualizar tabelas"}
 
 Private lExp     := .F.
 Private dDataEnv := DATE()
