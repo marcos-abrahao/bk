@@ -114,7 +114,7 @@ For nE := 1 TO Len(aEmpresas)
 	//cQuery += "  ISNULL(CXN_VLMULT, CND_VLMULT) AS CXN_VLMULT, " + CRLF
 
 	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
-	cQuery += "        FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+	cQuery += "        FROM "+cTabCNR+" CNR " + CRLF
 	cQuery += "        WHERE "+ CRLF
 	cQuery += "          C5_MDNUMED = CNR.CNR_NUMMED "+ CRLF
 	cQuery += "          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
@@ -123,7 +123,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "          AND CNR_TIPO = '2' ) AS CNRVLBONI,"+ CRLF
 
 	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
-	cQuery += "        FROM "+RETSQLNAME("CNR")+" CNR"+ CRLF
+	cQuery += "        FROM "+cTabCNR+" CNR " + CRLF
 	cQuery += "        WHERE "+ CRLF
 	cQuery += "          C5_MDNUMED = CNR.CNR_NUMMED "+ CRLF
 	cQuery += "          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))"+ CRLF
@@ -231,17 +231,15 @@ For nE := 1 TO Len(aEmpresas)
 	//cQuery += "         AND CND_REVISA = CND_REVGER " + CRLF
 	cQuery += "         AND CND_FILIAL = '01' " + CRLF
 	cQuery += "         AND CND.D_E_L_E_T_ = '' " + CRLF
-
-	
-	cQuery += "    AND CND.R_E_C_N_O_ = (" + CRLF
-	cQuery += "      SELECT " + CRLF
-	cQuery += "        MIN(R_E_C_N_O_) " + CRLF
-	cQuery += "      FROM " + CRLF
-	cQuery += "        "+cTabCND+" CND1 " + CRLF
-	cQuery += "      WHERE " + CRLF
-	cQuery += "        CND1.CND_NUMMED = C5_MDNUMED " + CRLF
-	cQuery += "        AND CND1.CND_FILIAL = '01' " + CRLF
-	cQuery += "        AND CND1.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "         AND CND.R_E_C_N_O_ = (" + CRLF
+	cQuery += "         SELECT " + CRLF
+	cQuery += "            MIN(R_E_C_N_O_) " + CRLF
+	cQuery += "         FROM " + CRLF
+	cQuery += "            "+cTabCND+" CND1 " + CRLF
+	cQuery += "         WHERE " + CRLF
+	cQuery += "            CND1.CND_NUMMED = C5_MDNUMED " + CRLF
+	cQuery += "            AND CND1.CND_FILIAL = '01' " + CRLF
+	cQuery += "            AND CND1.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "    )" + CRLF
 	
 	cQuery += "  ) " + CRLF
@@ -293,23 +291,23 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CNF_CONTRA AS CND_CONTRA, " + CRLF
 	cQuery += "  CTT_DESC01, " + CRLF
 	cQuery += "  CNF_COMPET AS C5_XXCOMPM, " + CRLF
-	cQuery += "  ' ' AS C5_NUM, " + CRLF
-	cQuery += "  ' ' AS C5_MDNUMED, " + CRLF
+	cQuery += "  ' ' 		AS C5_NUM, " + CRLF
+	cQuery += "  ' ' 		AS C5_MDNUMED, " + CRLF
 	cQuery += "  CNF_NUMPLA AS C5_MDPLANI, " + CRLF
-	cQuery += "  ' ' AS F2_SERIE, " + CRLF
+	cQuery += "  ' ' 		AS F2_SERIE, " + CRLF
 	cQuery += "  'PREVISTO' AS F2_DOC, " + CRLF
-	cQuery += "  ' ' AS F2_EMISSAO, " + CRLF
-	cQuery += "  0 AS F2_VALFAT, " + CRLF
-	cQuery += "  ' ' AS CND_USUAR, " + CRLF
-	cQuery += "  ' ' AS FORMAMED, " + CRLF
+	cQuery += "  ' ' 		AS F2_EMISSAO, " + CRLF
+	cQuery += "  0 			AS F2_VALFAT, " + CRLF
+	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
+	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
 	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
 	cQuery += "  CNF_VLPREV AS CXN_VLPREV, " + CRLF
-	cQuery += "  0 AS CXN_VLBONI, " + CRLF
-	cQuery += "  0 AS CXN_VLMULT, " + CRLF
-	cQuery += "  ' ' AS CNRTPMUL, " + CRLF
-	cQuery += "  ' ' AS CNRDESCMUL, " + CRLF
-	cQuery += "  ' ' AS CNRTPBON, " + CRLF
-	cQuery += "  ' ' AS CNRDESCBON " + CRLF
+	cQuery += "  0 			AS CXN_VLBONI, " + CRLF
+	cQuery += "  0 			AS CXN_VLMULT, " + CRLF
+	cQuery += "  ' ' 		AS CNRTPMUL, " + CRLF
+	cQuery += "  ' ' 		AS CNRDESCMUL, " + CRLF
+	cQuery += "  ' ' 		AS CNRTPBON, " + CRLF
+	cQuery += "  ' ' 		AS CNRDESCBON " + CRLF
 
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabCNF+" CNF " + CRLF

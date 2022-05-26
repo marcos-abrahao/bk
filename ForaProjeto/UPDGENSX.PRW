@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"05/05/2022 SE1 "
+#DEFINE FIN_LAST_UPDATED 		"25/05/2022 CTT "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -191,7 +191,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			//AtuGenX3( @cTexto )    //
+			AtuGenX3( @cTexto )    // 25/05/22 - CTT
 
 			//AtuGenP12( @cTexto )
 
@@ -1591,9 +1591,9 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
-cTexto  += "05/05/22 - SE1 " + CRLF 
-APPEND FROM \tmp\sx3issbi.dtc
-X31UPDTABLE("SE1")
+cTexto  += "25/05/22 - CTT " + CRLF 
+APPEND FROM \tmp\sx3ctt.dtc
+X31UPDTABLE("CTT")
 
 dbSetOrder( 1 )
 
@@ -1601,6 +1601,11 @@ Return
 
 
 /*
+
+cTexto  += "05/05/22 - SE1 " + CRLF 
+APPEND FROM \tmp\sx3issbi.dtc
+X31UPDTABLE("SE1")
+
 
 //SA1_CODPAIS
 dbSetOrder( 2 )

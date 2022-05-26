@@ -335,15 +335,12 @@ cQuery += "   ,' '			AS F2_SERIE"+ CRLF
 cQuery += "   ,'PREVISTO'	AS F2_DOC"+ CRLF
 cQuery += "   ,' '			AS F2_EMISSAO"+ CRLF
 cQuery += "   ,0			AS F2_VALFAT"+ CRLF
-
 cQuery += "   ,' '			AS CND_USUAR"+ CRLF
 cQuery += "   ,' '			AS FORMAMED"+ CRLF
 cQuery += "   ,CNA_XXMUN    AS CNA_XXMUN"+ CRLF
-
 cQuery += "   ,CNF_VLPREV	AS CXN_VLPREV"+ CRLF
 cQuery += "   ,0 			AS CXN_VLBONI"+ CRLF
 cQuery += "   ,0 			AS CXN_VLMULT"+ CRLF
-
 cQuery += "   ,' '			AS CNRTPMUL"+ CRLF
 cQuery += "   ,' '			AS CNRDESCMUL"+ CRLF
 cQuery += "   ,' '			AS CNRTPBON"+ CRLF
