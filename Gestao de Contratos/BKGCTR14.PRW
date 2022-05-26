@@ -1011,7 +1011,7 @@ Return Nil
 
 
 Static Function GeraPwBK()
-Local aEmpresas := u_BKGrupo()
+Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
 Local cQuery 	:= ""
 Local cQueryV	:= ""

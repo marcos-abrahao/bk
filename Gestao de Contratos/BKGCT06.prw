@@ -1503,10 +1503,12 @@ ElseIf FWCodEmp() == "10"  // BKDAHER TABOAO DA SERRA
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BKDAHER TABOAO DA SERRA</span></b></p>')
 ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BKDAHER LIMEIRA</span></b></p>')
-ElseIf FWCodEmp() == "12"  // BKDAHER CORRETORA
+ElseIf FWCodEmp() == "12"  // BK CORRETORA
 	AADD(aHtm,'    <p align=center style="text-align:center"><img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0></p>')
 ElseIf FWCodEmp() == "14"  // CONSORCIO NOVA BALSA
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">CONSORCIO NOVA BALSA</span></b></p>')
+ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
+	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b></p>')
 Endif	
 
 AADD(aHtm,'  </td>')
@@ -3661,7 +3663,7 @@ Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
 Local cMsg    	:= "Segue planilha anexa."
 Local cPrw 		:= "V15BKGCT06"
 Local nE		:= 0
-Local aEmpresas := u_BKGrupo()
+Local aEmpresas := u_BKGrpGct()
 Local aCabs     := {}
 Local aCampos   := {}
 Local aTitulos  := {}

@@ -13,12 +13,22 @@ BK - Array com as empresas do grupo BK
 /*/
 
 User Function BKGrupo()
-
+// Empresas ativas
 Local aEmpresas	:= {    {"01","BK"},;
                         {"02","BKTER"},;
+                        {"12","BK CORRETORA"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"} }
 Return aEmpresas
+
+
+User Function BKGrpGct()
+// Empresas que utilizam Gestão de Contratos
+Local aEmpresas	:= {    {"01","BK"},;
+                        {"02","BKTER"},;
+                        {"14","BALSA NOVA"}}
+Return aEmpresas
+
 
 
 /*/{Protheus.doc} IsSuperior

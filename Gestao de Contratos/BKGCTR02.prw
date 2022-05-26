@@ -12,7 +12,7 @@ BK - Faturamento x Previsão de Faturamento
 
 User Function BKGCTR02()
 
-	Local cTitulo   := "Previsto x Faturado - Empresas: 01, 02 e 14"
+	Local cTitulo   := "Previsto x Faturado - Empresas do Grupo BK"
 	Local aTitulos  := {}
 	Local aCampos1  := {}
 	Local aCabs1    := {}
@@ -21,6 +21,8 @@ User Function BKGCTR02()
 	Local aGraph	:= {}
 	Local aDGraph   := {}
 	Local aCabGraph := {}
+	Local aEmpresas := u_BKGrpGct()
+	Local nE 		:= 0
 	Local _nI       := 0
 	Local _nY 		:= 0
 	Local aDbf1     := {}
@@ -206,13 +208,11 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 	oTmpTb2:Create()
 	dbSetOrder(1)
 
-
 	dbSelectArea("TMPC")
 
-
-	FWMsgRun(, {|oSay| ProcQuery("01") }, "", "Empresa 01 - Consultando o banco de dados...")	
-	FWMsgRun(, {|oSay| ProcQuery("02") }, "", "Empresa 02 - Consultando o banco de dados...")	
-	FWMsgRun(, {|oSay| ProcQuery("14") }, "", "Empresa 14 - Consultando o banco de dados...")	
+	For nE := 1 To aEmpresas
+		FWMsgRun(, {|oSay| ProcQuery(aEmpresas[nE,1]) }, "", aEmpresas[nE,2]+" - Consultando o banco de dados...")
+	Next
 
 	aCabs1   := {}
 	aCampos1 := {}
@@ -477,7 +477,6 @@ Static Function ProcQuery(_cEmp)
 		cQuery += "   ,CNF_VLPREV"+ CRLF
 		cQuery += "   ,0 AS D2_TOTAL"+ CRLF
 		cQuery += "   ,CN9_DTULST"+ CRLF
-
 
 		cQuery += " FROM "+xRETSQLNAME("CNF")+" CNF" + CRLF
 

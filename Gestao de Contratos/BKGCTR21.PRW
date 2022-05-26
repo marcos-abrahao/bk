@@ -32,9 +32,10 @@ Private m_pag        := 01
 Private cString      := "CN9"
 
 Private cMesEmis     := "01"
-Private cAnoEmis     := "2011"
+Private cAnoEmis     := "2021"
 Private nPlan        := 1
 Private nTipo		 := 1
+Private nFiltro 	 := 1
 Private cMes 
 Private nValPrev	 := 0
 Public XX_PESSOA     := ""
@@ -54,12 +55,13 @@ cAnoEmis := mv_par02
 cCompet  := cMesEmis+"/"+cAnoEmis
 nPlan    := mv_par03
 nTipo    := mv_par04
+nFiltro  := mv_par05
 
-IF nTipo == 1
+//IF nTipo == 1
 	cMes := cAnoEmis+cMesEmis
-ELSE
-	cMes := cAnoEmis
-ENDIF
+//ELSE
+//	cMes := cAnoEmis
+//ENDIF
 
 cTitulo   := "Faturamento Reajustes, Repactuação e Retroativo :"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
 
@@ -103,6 +105,12 @@ AADD(aCabs  ,"Planilha")
 AADD(aCampos,"QTMP->CNA_XXMUN")
 AADD(aCabs  ,"Municipio")
 
+AADD(aCampos,"QA_CBox('CNA_XXTIPO',QTMP->CNA_XXTIPO)")
+AADD(aCabs  ,"Tipo")
+
+AADD(aCampos,"QTMP->CNA_XXMOT")
+AADD(aCabs  ,"Motivo da Planilha")
+
 AADD(aCampos,"QTMP->CNF_COMPET")
 AADD(aCabs  ,"Competencia")
 
@@ -123,6 +131,9 @@ AADD(aCabs  ,"Emissao")
    
 AADD(aCampos,"QTMP->XX_VENCTO")
 AADD(aCabs  ,"Vencimento")
+
+AADD(aCampos,"QTMP->XX_BAIXA")
+AADD(aCabs  ,"Baixa")
 
 //AADD(aCampos,"QTMP->CNF_VLPREV")
 AADD(aCampos,"nValPrev := U_GCTR21VP(QTMP->(CNF_CONTRA+CNF_REVISA+CNA_NUMERO+CNF_COMPET+CXN_PARCEL),QTMP->CNF_VLPREV)")
@@ -198,6 +209,8 @@ cQuery += "   (CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END) AS CNF_SA
 cQuery += "   CTT_DESC01," + CRLF 
 cQuery += "   CNA_NUMERO," + CRLF 
 cQuery += "   CNA_XXMUN," + CRLF 
+cQuery += "   CNA_XXTIPO," + CRLF 
+cQuery += "   CNA_XXMOT," + CRLF 
 cQuery += "   CND_NUMMED," + CRLF 
 cQuery += "   ISNULL(CXN_PARCEL,CND_PARCEL) AS CXN_PARCEL," + CRLF 
 cQuery += "   C6_NUM," + CRLF 
@@ -216,8 +229,11 @@ cQuery += "   F2_VALCSLL," + CRLF
 cQuery += "   F2_RECISS," + CRLF 
 cQuery += "   F2_VALISS," + CRLF 
 cQuery += "   F2_VLCPM," + CRLF 
+cQuery += "   (SELECT TOP 1 E1_BAIXA FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
+cQuery += "   	AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_BAIXA, " + CRLF
 cQuery += "   (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
 cQuery += "   	AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO " + CRLF
+
 
 cQuery += " FROM "+RETSQLNAME("CNE")+" CNE" + CRLF
 
@@ -253,7 +269,11 @@ cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
 
 cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
-cQuery += " 		AND CNA_FILIAL = '01' AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
+cQuery += " 		AND CNA_FILIAL = '01'" +CRLF
+If nFiltro == 1
+	cQuery += " 		AND CNA_XXTIPO = '2'" +CRLF
+EndIf
+cQuery += " 		AND CNA.D_E_L_E_T_='')" + CRLF 
 
 cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
 cQuery += " 	ON (C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO" + CRLF
@@ -282,7 +302,8 @@ cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
 IF nTipo == 1
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF
 ELSE
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMes+"' "+ CRLF
+	//cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
 ENDIF
 
 
@@ -342,6 +363,7 @@ u_LogMemo("BKGCTR21.SQL",cQuery)
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
 TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
+TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
 
 Return
 
@@ -356,10 +378,11 @@ dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Mes de Emissao  "  ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"02","Ano de Emissao  "  ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Gerar Planilha? "  ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"04","Tipo? "  ,"" ,"" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Mensal","Mensal","Mensal","","","Anual","Anual","Anual","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"01","Mes de Emissao   "  ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"02","Ano de Emissao   "  ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Gerar Planilha?  "  ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"04","Período"            ,"" ,"" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Mes informado","Mes informado","Mes informado","","","Desde o mes inf","Desde o mes inf","Desde o mes","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"05","Só Reajustes?"      ,"" ,"" ,"mv_ch5","N",01,0,2,"C","","mv_par05","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])
