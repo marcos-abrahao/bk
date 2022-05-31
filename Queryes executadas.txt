@@ -1,5 +1,206 @@
+==============================================================
+==============================================================
+==============================================================
 
 
+
+==============================================================
+30/05/22 - Acerto na competencia do pedido de vendas
+
+WITH X AS (
+SELECT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  GETDATE() AS DATAPRC,
+  ISNULL(CND_CONTRA, C5_ESPECI1) AS CND_CONTRA, 
+  CTT_DESC01, 
+  --CONVERT(DATE,CONVERT(VARCHAR,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01'),112) AS C5XXCOMPM, 
+  C5_XXCOMPT,
+  C5_XXCOMPM,
+  SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4) AS COMPET,
+  SUBSTRING(F2_EMISSAO,1,6) AS COMPET1,
+  C5_NUM, 
+  C5_MDNUMED, 
+  C5_MDPLANI, 
+  F2_SERIE, 
+  F2_DOC, 
+  CONVERT(DATE,F2_EMISSAO,112) AS F2_EMISSAO,  
+  F2_VALFAT, 
+  CND_USUAR, 
+  (
+    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END
+  ) AS FORMAMED, 
+  CNA_XXMUN  AS CNA_XXMUN,
+  CASE WHEN ISNULL(CXN_VLPREV, CND_VLPREV) = CNF_VLPREV THEN CNF_VLPREV ELSE 0 END AS CXN_VLPREV,
+   (SELECT SUM(CNR_VALOR)
+        FROM CNR010 CNR 
+        WHERE 
+          C5_MDNUMED = CNR.CNR_NUMMED 
+          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))
+          AND CNR_FILIAL = '01'
+          AND CNR.D_E_L_E_T_ = ' ' 
+          AND CNR_TIPO = '2' ) AS CNRVLBONI,
+   (SELECT SUM(CNR_VALOR)
+        FROM CNR010 CNR 
+        WHERE 
+          C5_MDNUMED = CNR.CNR_NUMMED 
+          AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))
+          AND CNR_FILIAL = '01'
+          AND CNR.D_E_L_E_T_ = ' ' 
+          AND CNR_TIPO = '1' ) AS CNRVLMULT,
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) 
+      FROM 
+        CNR010 CNR 
+        INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))
+        AND CNR_FILIAL = CND_FILIAL
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '1' 
+      ORDER BY 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRTPMUL, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_DESCRI) 
+      FROM 
+        CNR010 CNR 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))
+        AND CNR_FILIAL = CND_FILIAL
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '1' 
+      ORDER BY 
+        ';' + RTRIM(CNR_DESCRI) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRDESCMUL, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) 
+      FROM 
+        CNR010 CNR 
+        INNER JOIN SZR010 SZR ON ZR_TIPO = CNR_XTPJUS 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))
+        AND CNR_FILIAL = CND_FILIAL
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '2' 
+      ORDER BY 
+        ';' + RTRIM(CNR_XTPJUS + '-' + ZR_DESCR) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRTPBON, 
+  STUFF (
+    (
+      SELECT 
+        ';' + RTRIM(CNR_DESCRI) 
+      FROM 
+        CNR010 CNR 
+      WHERE 
+        C5_MDNUMED = CNR.CNR_NUMMED 
+        AND (CNR_CODPLA = ' ' OR CNR_CODPLA = ISNULL(CXN_NUMPLA,CND_NUMERO))
+        AND CNR_FILIAL = CND_FILIAL
+        AND CNR.D_E_L_E_T_ = ' ' 
+        AND CNR_TIPO = '2' 
+      ORDER BY 
+        ';' + RTRIM(CNR_DESCRI) FOR XML PATH (''), 
+        TYPE
+    ).value('.', 'varchar(100)'), 
+    1, 
+    1, 
+    ''
+  ) AS CNRDESCBON 
+  --INTO PowerBk.dbo.FATURAMENTO 
+FROM 
+  SF2010 SF2 
+ LEFT JOIN SC5010 SC5
+     ON (C5_NOTA = F2_DOC 
+         AND C5_SERIE = F2_SERIE 
+         AND C5_FILIAL = F2_FILIAL 
+         AND SC5.D_E_L_E_T_ = ''
+ ) 
+ LEFT JOIN CND010 CND
+     ON (CND_NUMMED = C5_MDNUMED 
+         AND CND_FILIAL = '01' 
+         AND CND.D_E_L_E_T_ = '' 
+         AND CND.R_E_C_N_O_ = (
+         SELECT 
+            MIN(R_E_C_N_O_) 
+         FROM 
+            CND010 CND1 
+         WHERE 
+            CND1.CND_NUMMED = C5_MDNUMED 
+            AND CND1.CND_FILIAL = '01' 
+            AND CND1.D_E_L_E_T_ = ''
+    )
+  ) 
+ LEFT JOIN CXN010 CXN
+     ON (CXN_CONTRA = C5_MDCONTR 
+         AND CXN_NUMMED = C5_MDNUMED 
+         AND CXN_NUMPLA = C5_MDPLANI 
+         AND CXN_REVISA = CND_REVISA 
+         AND CXN.CXN_CHECK = 'T' 
+         AND CXN_FILIAL = F2_FILIAL 
+         AND CXN.D_E_L_E_T_ = ''
+  ) 
+ LEFT JOIN CNF010 CNF
+ 	ON (CND_CONTRA = CNF_CONTRA AND C5_XXCOMPM = CNF_COMPET
+ 	    AND ISNULL(CXN_NUMPLA,CND_NUMERO) = CNF_NUMPLA
+ 	    AND ISNULL(CXN_REVISA,CND_REVISA) = CNF_REVISA
+ 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)
+ 	 	AND CNF_FILIAL = F2_FILIAL AND CNF.D_E_L_E_T_=''
+  ) 
+ LEFT JOIN CNA010 CNA
+ 	ON (CNA_CONTRA = CNF_CONTRA
+ 	 	AND CNA_CRONOG = CNF_NUMERO
+ 	 	AND CNA_REVISA = CNF_REVISA
+ 	 	AND CNA_NUMERO = CNF_NUMPLA
+ 		AND CNA_FILIAL = CNF_FILIAL AND CNA.D_E_L_E_T_=''
+  ) 
+ LEFT JOIN CTT010 CTT
+     ON (ISNULL(CND_CONTRA, C5_ESPECI1) = CTT_CUSTO 
+ 		AND CTT_FILIAL = '01'
+         AND CTT.D_E_L_E_T_ = ''
+  ) 
+WHERE 
+  SF2.D_E_L_E_T_ = '' 
+)
+--SELECT SC5010.C5_NUM,X.C5_NUM,SC5010.C5_XXCOMPM,SC5010.C5_XXCOMPT,SC5010.C5_MDCONTR,SC5010.C5_MDNUMED,X.C5_MDNUMED,X.COMPET,X.COMPET1 FROM X 
+UPDATE SC5010 SET SC5010.C5_XXCOMPM = COMPET FROM X
+--UPDATE SC5010 SET SC5010.C5_XXCOMPT = COMPET1 FROM X
+INNER JOIN SC5010 ON SC5010.C5_NUM = X.C5_NUM
+WHERE --X.C5_MDNUMED = ' '
+
+--AND 
+(SUBSTRING(X.C5_XXCOMPM,1,2) < '01' 
+OR SUBSTRING(X.C5_XXCOMPM,1,2) > '12')
+  --AND X.C5_MDNUMED = ' '
+--AND 
+  --X.C5_XXCOMPM <> ' '
+
+
+
+--SELECT C5_XXCOMPT,C5_XXCOMPM,C5_MDCONTR FROM SC5010
 
 ==============================================================
 
@@ -836,6 +1037,19 @@ select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000004533:%'
 UNION ALL
 select D_E_L_E_T_,* from CT2010 WHERE CT2_HIST LIKE 'NF:000004535:%'
 
+
+==============================================================
+USE [dataP10]
+GO
+
+INSERT INTO CVD01X (CVD_FILIAL,CVD_ENTREF,CVD_CTAREF,CVD_CONTA,D_E_L_E_T_,R_E_C_N_O_,R_E_C_D_E_L_,CVD_CODPLA,CVD_CUSTO,CVD_TPUTIL,CVD_CLASSE,CVD_NATCTA,CVD_CTASUP,CVD_VERSAO) VALUES ( '  ', '10', '1.01.01.02.01', '11102068', '', 0, 0, '2020', ' ', 'A', '2', '01', '1.01.01.02', '0001')
+GO
+
+INSERT INTO CVD01X (CVD_FILIAL,CVD_ENTREF,CVD_CTAREF,CVD_CONTA,D_E_L_E_T_,R_E_C_N_O_,R_E_C_D_E_L_,CVD_CODPLA,CVD_CUSTO,CVD_TPUTIL,CVD_CLASSE,CVD_NATCTA,CVD_CTASUP,CVD_VERSAO) VALUES (  '  ', '10', '1.01.01.02.01', '11102068', '', 0, 0, '2020', ' ', 'A', '2', '01', '1.01.01.02', '0001')
+
+
+SELECT * FROM CVD01X
+
 ==============================================================
 16/05/22 
 
@@ -844,9 +1058,9 @@ SELECT F1_HISTRET,Cast(Cast(F1_HISTRET As VarBinary)as VarChar(Max)) AS X,* FROM
 ==============================================================
 12/05/22 
 
---DROP TABLE PowerBk.dbo.DESPESAS
+--DROP TABLE PowerBk.dbo.GASTOSGERAIS
 
-WITH DESPESAS AS (
+WITH GASTOSGERAIS AS (
 SELECT 
 
  SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4) AS COMPET,

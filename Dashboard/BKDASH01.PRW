@@ -23,6 +23,8 @@ If FWCodEmp() == "01"
 		ProcDS01()
 		ProcDS02()
 		ProcDS03()
+		ProcDS04()
+		ProcDS05()
 	Else
 		If MsgYesNo("Confirma a atualização da tabela FATURAMENTO do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDS01() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
@@ -32,6 +34,12 @@ If FWCodEmp() == "01"
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GLOSAS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDS03() }, "", "Atualizando a tabela GLOSAS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela GASTOSGERAIS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDS04() }, "", "Atualizando a tabela GASTOSGERAIS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela GERAL do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDS05() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
 		EndIf
 	EndIf
 Else
@@ -88,20 +96,21 @@ For nE := 1 TO Len(aEmpresas)
 	EndIf
 
 	cQuery += "SELECT "+CRLF
-	cQuery += "    '"+cEmpresa+"' AS EMPRESA,"+CRLF
-	cQuery += "    '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
-	cQuery += "    '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
-	cQuery += "    '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
 
-	cQuery += "  ISNULL(CND_CONTRA, C5_ESPECI1) AS CND_CONTRA, " + CRLF
-	cQuery += "  CTT_DESC01, " + CRLF
-	cQuery += "  C5_XXCOMPM, " + CRLF
+	cQuery += "  ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')) AS CONTRATO, " + CRLF
+	cQuery += "  ISNULL(CTT_DESC01,'BK CONSULTORIA') AS DESCRICAO, " + CRLF
+	cQuery += "  ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS COMPET, " + CRLF
+	cQuery += "  SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2) AS COMPETAM, " + CRLF
+	cQuery += "  CONVERT(DATE,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01',112) AS COMPETD, " + CRLF
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
 	cQuery += "  C5_MDPLANI, " + CRLF
 	cQuery += "  F2_SERIE, " + CRLF
 	cQuery += "  F2_DOC, " + CRLF
-	cQuery += "  F2_EMISSAO, " + CRLF
+	cQuery += "  CONVERT(DATE,F2_EMISSAO,112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  F2_VALFAT, " + CRLF
 	cQuery += "  CND_USUAR, " + CRLF
 	cQuery += "  (" + CRLF
@@ -285,18 +294,19 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  DISTINCT " + CRLF
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
-	cQuery += "  '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
-	cQuery += "   '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
 
-	cQuery += "  CNF_CONTRA AS CND_CONTRA, " + CRLF
-	cQuery += "  CTT_DESC01, " + CRLF
-	cQuery += "  CNF_COMPET AS C5_XXCOMPM, " + CRLF
+	cQuery += "  CNF_CONTRA AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+	cQuery += "  CNF_COMPET AS COMPET, " + CRLF
+	cQuery += "  SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2) AS COMPETAM, " + CRLF
+	cQuery += "  CONVERT(DATE,SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)+'01',112) AS COMPETD, " + CRLF
 	cQuery += "  ' ' 		AS C5_NUM, " + CRLF
 	cQuery += "  ' ' 		AS C5_MDNUMED, " + CRLF
 	cQuery += "  CNF_NUMPLA AS C5_MDPLANI, " + CRLF
 	cQuery += "  ' ' 		AS F2_SERIE, " + CRLF
 	cQuery += "  'PREVISTO' AS F2_DOC, " + CRLF
-	cQuery += "  ' ' 		AS F2_EMISSAO, " + CRLF
+	cQuery += "  CONVERT(DATE,CONVERT(VARCHAR,''),112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  0 			AS F2_VALFAT, " + CRLF
 	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
 	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
@@ -406,10 +416,9 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "SELECT DISTINCT "+CRLF
 	cQuery += " '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += " '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
-	cQuery += " '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
-	cQuery += " '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
 
-	cQuery += "  CN9_NUMERO, " + CRLF
+	cQuery += "  CN9_NUMERO AS CONTRATO, " + CRLF
 	cQuery += "  CN9_GESTC, " + CRLF
 	cQuery += "  CN9_XXNRBK " + CRLF
 
@@ -512,17 +521,18 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "SELECT "+CRLF
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
-	cQuery += "  '"+DTOS(DATE())+"' AS DATAPRC,"+CRLF
-	cQuery += "  '"+SUBSTR(TIME(),1,5)+"' AS HORAPRC,"+CRLF
-	cQuery += "  ISNULL(CND_CONTRA, C5_ESPECI1) AS CND_CONTRA, " + CRLF
-	cQuery += "  CTT_DESC01, " + CRLF
-	cQuery += "  C5_XXCOMPM, " + CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')) AS CONTRATO, " + CRLF
+	cQuery += "  ISNULL(CTT_DESC01,'BK CONSULTORIA') AS DESCRICAO, " + CRLF
+	cQuery += "  ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS COMPET, " + CRLF
+	cQuery += "  SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2) AS COMPETAM, " + CRLF
+	cQuery += "  CONVERT(DATE,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01',112) AS COMPETD, " + CRLF
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
 	cQuery += "  C5_MDPLANI, " + CRLF
 	cQuery += "  F2_SERIE, " + CRLF
 	cQuery += "  F2_DOC, " + CRLF
-	cQuery += "  F2_EMISSAO, " + CRLF
+	cQuery += "  CONVERT(DATE,F2_EMISSAO,112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  CND_USUAR, " + CRLF
 	cQuery += "  (" + CRLF
 	cQuery += "    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END" + CRLF
@@ -552,7 +562,6 @@ For nE := 1 TO Len(aEmpresas)
 
 	cQuery += " LEFT JOIN "+cTabCND+" CND" + CRLF
 	cQuery += "     ON (CND_NUMMED = C5_MDNUMED " + CRLF
-	//cQuery += "         AND CND_REVISA = CND_REVGER " + CRLF
 	cQuery += "         AND CND_FILIAL = F2_FILIAL " + CRLF
 	cQuery += "         AND CND.D_E_L_E_T_ = '' " + CRLF
 	cQuery += "         AND CND.R_E_C_N_O_ = (" + CRLF
@@ -653,5 +662,226 @@ Endif
 //End Transaction
 
 u_LogMemo("BKDASH01-GLO.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
+
+
+// Atualização da tabela GASTOSGERAIS do banco de dados PowerBk
+Static Function ProcDS04
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrpGct()
+Local nE 		:= 0
+Local cEmpresa  := ""
+Local cNomeEmp  := ""
+
+Local cTabSD1	:= ""
+Local cTabSB1	:= ""
+Local cTabSE2	:= ""
+Local cTabSF1	:= ""
+Local cTabCTT	:= ""
+
+cQuery := "WITH DESPESAS AS ("+CRLF
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabSD1 := "SD1"+cEmpresa+"0"
+	cTabSB1 := "SB1"+cEmpresa+"0"
+	cTabSE2 := "SE2"+cEmpresa+"0"
+	cTabSF1 := "SF1"+cEmpresa+"0"
+	cTabCTT := "CTT"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  D1_CC AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(E2_VENCREA,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(E2_VENCREA,1,6)+'01',112) AS COMPETD,"+CRLF
+ 	cQuery += "  D1_FILIAL,"+CRLF
+ 	cQuery += "  D1_SERIE,"+CRLF
+ 	cQuery += "  D1_DOC,"+CRLF
+ 	cQuery += "  D1_FORNECE,"+CRLF
+ 	cQuery += "  D1_LOJA,"+CRLF
+ 	cQuery += "  D1_ITEM,"+CRLF
+ 	cQuery += "  D1_COD,"+CRLF
+ 	cQuery += "  B1_DESC,"+CRLF
+ 	cQuery += "  B1_GRUPO,"+CRLF
+ 	cQuery += "  F1_VALBRUT,"+CRLF
+ 	cQuery += "  E2_PARCELA,"+CRLF
+ 	cQuery += "  E2_VALOR,"+CRLF
+ 	cQuery += "  E2_DESCONT,"+CRLF
+ 	cQuery += "  E2_MULTA,"+CRLF
+ 	cQuery += "  E2_JUROS,"+CRLF
+ 	cQuery += "  E2_ACRESC,"+CRLF
+ 	cQuery += "  E2_DECRESC,"+CRLF
+ 	cQuery += "  E2_VRETPIS,"+CRLF
+ 	cQuery += "  E2_VRETCOF,"+CRLF
+ 	cQuery += "  E2_VRETCSL,"+CRLF
+ 	cQuery += "  E2_VRETINS,"+CRLF
+ 	cQuery += "  E2_VRETIRF,"+CRLF
+ 	cQuery += "  E2_VRETISS,"+CRLF
+ 	cQuery += "  E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS AS E2VALTIT,"+CRLF
+ 	cQuery += "  (D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)  AS D1TOTAL,"+CRLF
+ 	cQuery += "  CASE WHEN E2_ACRESC  > 0 THEN E2_ACRESC  ELSE E2_MULTA+E2_JUROS END - "+CRLF
+ 	cQuery += "  	CASE WHEN E2_DECRESC > 0 THEN E2_DECRESC ELSE E2_DESCONT END AS E2ACDEC"+CRLF
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSD1+" SD1" + CRLF
+	cQuery += " INNER JOIN "+cTabSB1+" SB1" + CRLF
+	cQuery += "     ON (B1_COD = D1_COD " + CRLF
+	cQuery += "         AND B1_FILIAL = '01' " + CRLF
+	cQuery += "         AND SB1.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+ 	cQuery += " INNER JOIN "+cTabSE2+" SE2" + CRLF
+	cQuery += "     ON (E2_TIPO = 'NF' " + CRLF
+	cQuery += "         AND E2_PREFIXO = D1_SERIE" + CRLF
+	cQuery += "         AND E2_NUM = D1_DOC" + CRLF
+	cQuery += "         AND E2_FORNECE = D1_FORNECE" + CRLF
+	cQuery += "         AND E2_LOJA = D1_LOJA" + CRLF
+	cQuery += "         AND E2_FILIAL = '01' " + CRLF
+	cQuery += "         AND SE2.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+ 	cQuery += " INNER JOIN "+cTabSF1+" SF1" + CRLF
+	cQuery += "     ON (F1_SERIE = D1_SERIE" + CRLF
+	cQuery += "         AND F1_DOC = D1_DOC" + CRLF
+	cQuery += "         AND F1_FORNECE = D1_FORNECE" + CRLF
+	cQuery += "         AND F1_LOJA = D1_LOJA" + CRLF
+	cQuery += "         AND F1_FILIAL = D1_FILIAL " + CRLF
+	cQuery += "         AND SF1.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (D1_CC = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE SD1.D1_FILIAL = '01' " + CRLF
+	cQuery += "      AND SD1.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
+	cQuery += "      	OR B1_CONTA IN ('29104004') " + CRLF
+	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) " + CRLF
+Next
+
+cQuery += ")"+CRLF
+cQuery += " SELECT *,"+CRLF
+cQuery += "	   (E2ACDEC  / F1_VALBRUT * D1TOTAL)   AS E2ACDECIT,"+CRLF
+cQuery += "	   (E2VALTIT / F1_VALBRUT * D1TOTAL)   AS D1TOTIT,"+CRLF
+cQuery += "       (E2ACDEC  / F1_VALBRUT * D1TOTAL) + (E2VALTIT / F1_VALBRUT * D1TOTAL) AS DESPESA"+CRLF
+cQuery += "	   INTO PowerBk.dbo.GASTOSGERAIS FROM DESPESAS"+CRLF
+cQuery += " ORDER BY" + CRLF
+cQuery += "      EMPRESA,D1_SERIE,D1_DOC" + CRLF
+
+u_LogMemo("BKDASH01-GG.SQL",cQuery)
+
+If !TCIsConnected() 
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+//Begin Transaction
+
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GASTOSGERAIS', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.GASTOSGERAIS "+CRLF
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+
+	nErro   := TcSqlExec(cQuery)
+
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+
+//End Transaction
+
+u_LogMemo("BKDASH01-GG.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
+// Atualização da tabela GERAIS do banco de dados PowerBk
+Static Function ProcDS05
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+
+BEGINCONTENT VAR cQuery
+
+ SELECT EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,SUM(VALFAT) AS VALFAT,SUM(PREVFAT) AS PREVFAT,SUM(DESPESA) AS TOTDESP
+ INTO PowerBk.dbo.GERAL
+ FROM 
+ 	(SELECT EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,SUM(F2_VALFAT) AS VALFAT,SUM(CXN_VLPREV) AS PREVFAT,SUM(0) AS DESPESA 
+ 	   FROM PowerBk.dbo.FATURAMENTO
+ 	   GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+ 	 UNION ALL
+ 	 SELECT EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,SUM(0) AS VALFAT,SUM(0) AS PREVFAT,SUM(DESPESA) AS DESPESA 
+ 	   FROM PowerBk.dbo.GASTOSGERAIS
+        GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+ 	 ) AS X
+ 
+ GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+ ORDER BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+
+ENDCONTENT
+
+u_LogMemo("BKDASH01-G.SQL",cQuery)
+
+If !TCIsConnected() 
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+//Begin Transaction
+
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GERAL', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.GERAL "+CRLF
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+
+	nErro   := TcSqlExec(cQuery)
+
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+
+//End Transaction
+
+u_LogMemo("BKDASH01-G.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
