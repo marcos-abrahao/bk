@@ -10,9 +10,16 @@ BK - Chamada da Consulta de pedido de venda
 /*/
 
 User Function MA461ROT() 
-Local aRot := {}
+Local aRot    := {}
+Local lParIss := GETMV("MV_DEISSBS")
+
 aadd(aRot,{'Consulta Pedido','U_BKFATR5B' , 0 , 2,0,NIL})   
-aadd(aRot,{'Consulta Ped Marcados','U_BKFATR5M' , 0 , 2,0,NIL})   
+aadd(aRot,{'Consulta Ped Marcados','U_BKFATR5M' , 0 , 2,0,NIL})
+If lParIss
+    aadd(aRot,{'Desc. ISS desativado','U_BKPARISS' , 0 , 2,0,NIL})   
+Else
+    aadd(aRot,{'Desc. ISS ativado','U_BKPARISS' , 0 , 2,0,NIL})   
+EndIf
 
 /*/ONDE:Parametros do array a Rotina:
 1. Nome a aparecer no cabecalho

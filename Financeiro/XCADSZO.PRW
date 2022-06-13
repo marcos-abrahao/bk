@@ -14,7 +14,7 @@ BK - AXCADASTRO Tabela SZO Dados de Bloqueio judicial Financeiro
 User Function XCADSZO
 Local 	cFiltra     := ""
 
-Private cCadastro	:= "Bloqueio Judicial Finceiro"
+Private cCadastro	:= "Bloqueio Judicial Financeiro"
 Private cDelFunc	:= ".T." // Validacao para a exclusao. Pode-se utilizar ExecBlock
 Private cString 	:= "SZO"
 Private aIndexSz  	:= {}

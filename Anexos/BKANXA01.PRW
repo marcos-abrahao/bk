@@ -91,7 +91,7 @@ If Empty(aSourceImg)
 	RestArea(aAreaDoc)
 	Return
 EndIf
-
+ 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 

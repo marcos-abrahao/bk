@@ -47,15 +47,16 @@ DEFINE MSDIALOG oDlg1 TITLE "BKPARGEN - Parametros Empresas: "+cParam FROM 200,0
 @ 12,10 SAY "Conteúdo:" Size 030,010 Pixel OF oDlg1
 @ 10,50 MSGET oConteud VAR cConteudo Size 300,010 HASBUTTON Pixel OF oDlg1
 
-SButton():New( 30, 080,  1, {|| OkPar1(),oDlg1:End() },oDlg1,.T.,"Atualiza os parâmetros")
-SButton():New( 30, 120,  2, {|| oDlg1:End() },oDlg1,.T.,"Cancela")
+SButton():New( 30, 080,  1, {|| OkPar1(.T.),oDlg1:End() },oDlg1,.T.,"Atualiza os parâmetros")
+SButton():New( 30, 120, 15, {|| OkPar1(.F.),oDlg1:End() },oDlg1,.T.,"Visualiza os parâmetros")
+SButton():New( 30, 160,  2, {|| oDlg1:End() },oDlg1,.T.,"Cancela")
 
 ACTIVATE DIALOG oDlg1 CENTER
 
 RETURN
 
 
-Static FUNCTION OkPar1()
+Static FUNCTION OkPar1(lAlt)
 Local oDlg as Object
 Local nI          := 0
 Local aAllCompany := {}
@@ -70,7 +71,7 @@ cTexto += Replicate( "-", 70 ) + CRLF
 aAllCompany := FWAllGrpCompany()
 For nI := 1 TO LEN(aAllCompany)
     cTexto += "Empresa: "+aAllCompany[nI]+" - "+FWEmpName(aAllCompany[nI])+ CRLF
-    AltX6(aAllCompany[nI])
+    AltX6(aAllCompany[nI],lAlt)
 Next
 
 cTexto += Replicate( "-", 70 ) + CRLF
@@ -97,7 +98,7 @@ RETURN
 
 
 
-STATIC FUNCTION AltX6(cEmpX6)
+STATIC FUNCTION AltX6(cEmpX6,lAlt)
 Local cArqTr := "SX6"+cEmpX6+"0"
 // Abre tabela de outra empresa
 IF SELECT("SZZX6") > 0
@@ -107,16 +108,20 @@ ENDIF
 USE (cArqTr) INDEX (cArqTr) ALIAS SZZX6 NEW
 SELECT SZZX6
 IF DBSEEK("  "+cParam,.F.)
-    If MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+ALLTRIM(SZZX6->X6_CONTEUD)+CRLF+"Confirma a alteração para "+ALLTRIM(cConteudo)+"?","Parâmetro "+cParam)
-    	cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo anterior: " + SZZX6->X6_CONTEUD + CRLF
+    If lAlt
+        If MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+ALLTRIM(SZZX6->X6_CONTEUD)+CRLF+"Confirma a alteração para "+ALLTRIM(cConteudo)+"?","Parâmetro "+cParam)
+            cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo anterior: " + SZZX6->X6_CONTEUD + CRLF
 
-        RecLock("SZZX6",.F.)
-        SZZX6->X6_CONTEUD := cConteudo
+            RecLock("SZZX6",.F.)
+            SZZX6->X6_CONTEUD := cConteudo
 
-        cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo alterado: " + SZZX6->X6_CONTEUD + CRLF
-        MsUnlock()
+            cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo alterado: " + SZZX6->X6_CONTEUD + CRLF
+            MsUnlock()
+        Else
+            cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
+        EndIf
     Else
-        cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
+       cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo:  " + SZZX6->X6_CONTEUD + CRLF
     EndIf
 else
     cTexto += "Parametro não encontrado" + CRLF

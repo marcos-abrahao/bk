@@ -12,9 +12,9 @@ User Function SF2520E()
 Local aArea 	:= GetArea()
 Local aAreaSF3	:= SF3->(GetArea("SF3"))
 
-Local oDlgEx
-Local cMotEx	:= SPACE(LEN(SF2->F2_XXMOTEX)) 
-Local cAprEx	:= SPACE(LEN(SF2->F2_XXAPREX))
+//Local oDlgEx
+Local cMotEx	:= PAD("SISTEMA",LEN(SF2->F2_XXMOTEX)) 
+Local cAprEx	:= PAD(cUserName,LEN(SF2->F2_XXAPREX))
 
 Define MsDialog oDlgEx Title "Exclusão da NF "+SF2->F2_DOC From 000,000 To 110,400 Of oDlgEx Pixel Style DS_MODALFRAME
 
@@ -26,6 +26,9 @@ Define MsDialog oDlgEx Title "Exclusão da NF "+SF2->F2_DOC From 000,000 To 110,4
 
 @ 040,080 Button "&Ok" Size 036,013 Pixel Action (GrvMotEx(cMotEx,cAprEx),oDlgEx:End())
 Activate MsDialog oDlgEx Centered
+
+
+GrvMotEx(cMotEx,cAprEx)
 
 dbSelectArea("SF3")
 dbSetOrder(4)

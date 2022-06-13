@@ -5,10 +5,11 @@
 
 /*/{Protheus.doc} RestLibPN
     REST para Liberação de Pré-notas de Entrada
+	https://datatables.net/examples/api/row_details.html
     @type  REST
     @author Marcos B. Abrahão
-    @since 16/08/2021
-    @version 12.1.25
+    @since 16/08/2021 rev 07/06/22
+    @version 12.1.33
 /*/
 
 WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
@@ -51,13 +52,12 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 		PATH "/RestLibPN/v4";
 		TTALK "v1"
 
-	WSMETHOD PUT ;
+	WSMETHOD PUT LIBDOC;
 		DESCRIPTION "Liberação de Pré-notas de Entrada" ;
 		WSSYNTAX "/RestLibPN/v3";
 		PATH "/RestLibPN/v3";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
-
 
 END WSRESTFUL
 
@@ -88,7 +88,7 @@ Return (lSuccess)
 
 
 
-WSMETHOD PUT QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN
+WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -99,6 +99,7 @@ Local oJson			As Object
 Local aParams		As Array
 Local cMsg			As Char
 Local cMotivo 		As Char
+Local cAvali 		As Char
 
 //Local aQueryString As Array // Aqui tem todos os parâmetros QUERYPARAM em array
 
@@ -119,11 +120,12 @@ Local cMotivo 		As Char
 	If u_BkAvPar(::userlib,@aParams,@cMsg)
 
 		cMotivo := AllTrim(oJson['motivo'])
+		cAvali  := AllTrim(oJson['avaliacao'])
 		If !Empty(cMotivo)
 			cMotivo := StrIConv( cMotivo, "UTF-8", "CP1252")+"."+CRLF
 		EndIf
 
-		lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo)
+		lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo,cAvali)
 
 	EndIf
 
@@ -138,7 +140,7 @@ Local cMotivo 		As Char
 Return lRet
 
 
-Static Function fLibPN(empresa,prenota,acao,cMsg,cMotivo)
+Static Function fLibPN(empresa,prenota,acao,cMsg,cMotivo,cAvali)
 Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSF1	:= "SF1"+empresa+"0"
@@ -196,7 +198,7 @@ Do Case
 				cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
 			EndIf
 		Else
-			cQuery += "  SET F1_XXLIB = 'L',"
+			cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"',"
 			cMsg := "liberada"
 			If !Empty(cMotivo)
 				cMotivo := "Obs liberação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
@@ -222,7 +224,11 @@ EndCase
 // Enviar e-mail de aviso do estorno
 If lRet .AND. (!Empty(cMotivo) .OR. acao == 'E')
 	LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
-ENDIF
+EndIf
+
+If lRet .AND. !Empty(cAvali) .AND. TRIM(cAvali) <> "NNNN"
+	LibEmail("I",empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
+EndIf
 
 cMsg := cDoc+" "+cMsg
 
@@ -244,8 +250,10 @@ Local cAssunto	:= ""
 
 If acao == "E"
 	cAssunto := "Não liberação"
-Else
+ElseIf acao == "L"
 	cAssunto := "Liberação"
+ElseIf acao == "L"
+	cAssunto := "Índice Negativo da Avaliação"
 EndIF
 	
 cAssunto +=" do Documento nº.:"+cDoc+" Série:"+cSerie+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(empresa)
@@ -359,15 +367,24 @@ For nE := 1 To Len(aEmpresas)
 	EndIf
 
 	cQuery += "SELECT "+CRLF
-	cQuery += "		'"+cEmpresa+"' AS F1EMPRESA,'"+cNomeEmp+"' AS F1NOMEEMP,SF1.F1_FILIAL,SF1.R_E_C_N_O_ F1RECNO,"+CRLF
-	cQuery += "		SF1.F1_DOC,SF1.F1_FORNECE,SF1.F1_LOJA,"+CRLF
-	cQuery += "		SF1.F1_XXLIB,F1_STATUS,"+CRLF
-	cQuery += "		SF1.F1_XXUSER,SF1.F1_XXUSERS,SF1.F1_DTDIGIT,F1_XXPVPGT,"+CRLF
+	cQuery += "		'"+cEmpresa+"' AS F1EMPRESA,"+CRLF
+	cQuery += "		'"+cNomeEmp+"' AS F1NOMEEMP,"+CRLF
+	cQuery += "		SF1.F1_FILIAL,"+CRLF
+	cQuery += "		SF1.R_E_C_N_O_ F1RECNO,"+CRLF
+	cQuery += "		SF1.F1_DOC,"+CRLF
+	cQuery += "		SF1.F1_FORNECE,"+CRLF
+	cQuery += "		SF1.F1_LOJA,"+CRLF
+	cQuery += "		SF1.F1_XXLIB,"+CRLF
+	cQuery += "		SF1.F1_STATUS,"+CRLF
+	cQuery += "		SF1.F1_XXUSER,"+CRLF
+	cQuery += "		SF1.F1_XXUSERS,"+CRLF
+	cQuery += "		SF1.F1_DTDIGIT,"+CRLF
+	cQuery += "		SF1.F1_XXPVPGT,"+CRLF
+	//cQuery += "		SF1.F1_XXAVALI,"+CRLF
 	cQuery += "		(SELECT SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) FROM "+cTabSD1+" SD1 "+CRLF
-	cQuery += "			WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.D_E_L_E_T_ = ' ')"+CRLF
-	cQuery += "		AS D1_TOTAL,"+CRLF
+	cQuery += "				WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.D_E_L_E_T_ = ' ')"+CRLF
+	cQuery += "			AS D1_TOTAL,"+CRLF
 	cQuery += "		SA2.A2_NOME"+CRLF
-				
 	cQuery += "FROM "+cTabSF1+" SF1"+CRLF
 	cQuery += "		INNER JOIN "+cTabSA2+" SA2 "+CRLF
 	cQuery += "			ON SF1.F1_FORNECE = SA2.A2_COD AND SF1.F1_LOJA = SA2.A2_LOJA"+CRLF
@@ -554,17 +571,44 @@ Local aParcelas := {}
 Local cParcelas := ""
 Local nGeral	:= 0
 Local aFiles	:= {}
+Local cAvalForn := 'N'
+Local nAvalIQF	:= 0
+Local cAvalIQF	:= ""
+Local cF1Avali  := ""
+Local cPedidos  := ""
+Local dUltPag   := DATE()
 
 aEmpresas := u_BKGrupo()
 u_BkAvPar(::userlib,@aParams,@cMsg)
 
 cQuery := "SELECT "+CRLF
-cQuery += "		SF1.F1_DOC,SF1.F1_SERIE,SF1.F1_EMISSAO,SF1.F1_DTDIGIT,F1_XXPVPGT,F1_ESPECIE,F1_XXUSER,"+CRLF
-cQuery += "		SF1.F1_FORNECE,SF1.F1_LOJA,SA2.A2_NOME,SA2.A2_CGC,SA2.A2_EST,SA2.A2_MUN,"+CRLF
+cQuery += "		SF1.F1_DOC,"+CRLF
+cQuery += "		SF1.F1_SERIE,"+CRLF
+cQuery += "		SF1.F1_EMISSAO,"+CRLF
+cQuery += "		SF1.F1_DTDIGIT,"+CRLF
+cQuery += "		SF1.F1_XXPVPGT,"+CRLF
+cQuery += "		SF1.F1_ESPECIE,"+CRLF
+cQuery += "		SF1.F1_XXUSER,"+CRLF
+cQuery += "		SF1.F1_XXUSERS,"+CRLF
+cQuery += "		SF1.F1_FORNECE,"+CRLF
+cQuery += "		SF1.F1_LOJA,"+CRLF
+cQuery += "		SA2.A2_NOME,"+CRLF
+cQuery += "		SA2.A2_CGC,"+CRLF
+cQuery += "		SA2.A2_EST,"+CRLF
+cQuery += "		SA2.A2_MUN,"+CRLF
 cQuery += "		SF1.F1_XXLIB,"+CRLF
-cQuery += "		SD1.D1_ITEM,SD1.D1_COD,SB1.B1_DESC,D1_TOTAL,(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_GERAL,"+CRLF
-cQuery += "		SD1.D1_QUANT,SD1.D1_VUNIT,SB1.B1_DESC,SD1.D1_CC,SD1.D1_XXDCC,"+CRLF
-cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SD1.D1_XXHIST)) D1_XXHIST,"+CRLF
+cQuery += "		SF1.F1_XXAVALI,"+CRLF
+cQuery += "		SD1.D1_ITEM,"+CRLF
+cQuery += "		SD1.D1_COD,"+CRLF
+cQuery += "		SB1.B1_DESC,"+CRLF
+cQuery += "		SD1.D1_TOTAL,"+CRLF
+cQuery += "		(SD1.D1_TOTAL+SD1.D1_VALFRE+SD1.D1_SEGURO+SD1.D1_DESPESA-SD1.D1_VALDESC) AS D1_GERAL,"+CRLF
+cQuery += "		SD1.D1_QUANT,"+CRLF
+cQuery += "		SD1.D1_VUNIT,"+CRLF
+cQuery += "		SD1.D1_PEDIDO,"+CRLF
+cQuery += "		SD1.D1_CC,"+CRLF
+cQuery += "		SD1.D1_XXDCC,"+CRLF
+cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SD1.D1_XXHIST))  D1_XXHIST,"+CRLF
 cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SF1.F1_XXPARCE)) F1_XXPARCE,"+CRLF
 cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SF1.F1_HISTRET)) F1_HISTRET"+CRLF
 
@@ -612,6 +656,7 @@ oJsonPN['F1_XXLIB']		:= (cQrySF1)->F1_XXLIB
 
 aParcelas := LoadVenc((cQrySF1)->F1_XXPARCE)
 For nI := 1 TO LEN(aParcelas)
+	dUltPag := aParcelas[nI,2]
 	cParcelas += aParcelas[nI,1]+" - "+DTOC(aParcelas[nI,2])+ " - R$ "+ALLTRIM(TRANSFORM(aParcelas[nI,3],"@E 999,999,999.99"))
 	If MOD(nI,2) == 0
 		cParcelas += CRLF
@@ -620,6 +665,22 @@ For nI := 1 TO LEN(aParcelas)
 	EndIf
 Next
 oJsonPN['F1_XXPARCE']	:= cParcelas
+
+// Avaliação do Fornecedor
+cF1Avali 			:= (cQrySF1)->F1_XXAVALI
+oJsonPN['F1AVAL1']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)='S','S','N')
+oJsonPN['F1AVAL2']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)='S','S','N')
+oJsonPN['F1AVAL3']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)='S','S','N')
+oJsonPN['F1AVAL4']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S','S','N')
+
+nAvalIQF :=	IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)='S',25,0)+;
+			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)='S',25,0)+;
+			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)='S',25,0)+;
+			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S',25,0)
+
+If u_IsAvalia(__cUserId) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSER)) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSERS))
+	cAvalForn := 'S'
+EndIf
 
 // Documentos anexos
 aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
@@ -634,22 +695,29 @@ If !Empty((cQrySF1)->F1_HISTRET)
 	cHist += AllTrim(((cQrySF1)->F1_HISTRET))+" "
 EndIf
 
+
 nI := 0
 Do While (cQrySF1)->(!EOF())
 	aAdd(aItens,JsonObject():New())
 	nI++
 	aItens[nI]["D1_ITEM"]	:= (cQrySF1)->D1_ITEM
 	aItens[nI]["D1_COD"]	:= TRIM((cQrySF1)->D1_COD)
-	aItens[nI]["B1_DESC"]	:= TRIM((cQrySF1)->B1_DESC)
+	aItens[nI]["B1_DESC"]	:= StrIConv(TRIM((cQrySF1)->B1_DESC), "CP1252", "UTF-8") 
 	aItens[nI]["D1_QUANT"]	:= TRANSFORM((cQrySF1)->D1_QUANT,"@E 99999999.99")
 	aItens[nI]["D1_VUNIT"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.9999")
 	aItens[nI]["D1_TOTAL"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
 	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySF1)->D1_GERAL,"@E 999,999,999.99")
-	aItens[nI]["D1_CC"]		:= (cQrySF1)->D1_CC+"-"+TRIM((cQrySF1)->D1_XXDCC)
+	aItens[nI]["D1_CC"]		:= (cQrySF1)->D1_CC
+	aItens[nI]["D1_CC"]		+= "-"+StrIConv(TRIM((cQrySF1)->D1_XXDCC), "CP1252", "UTF-8") 
+	aItens[nI]["D1CCVIG"]	:= " "+ALLTRIM(U_Vig2Contrat((cQrySF1)->D1_CC,dUltPag,self:empresa))
 	If !ALLTRIM((cQrySF1)->D1_XXHIST) $ cHist                   
        cHist += ALLTRIM((cQrySF1)->D1_XXHIST)+" "
     EndIf
 	nGeral += (cQrySF1)->D1_GERAL
+	If !Empty((cQrySF1)->D1_PEDIDO)
+		cAvalForn := 'S'
+		cPedidos  += (cQrySF1)->D1_PEDIDO + " "
+	EndIf
 	dbSkip()
 EndDo
 
@@ -658,6 +726,22 @@ oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-
 oJsonPN['D1_ITENS']		:= aItens
 oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
 
+If cAvalForn = 'S' .OR. nAvalIQF > 0 
+
+	If Empty(cF1Avali)
+		cAvalIQF := StrIConv( "Não avaliado", "CP1252", "UTF-8")
+	Else
+		cAvalIQF := ALLTRIM(STR(nAvalIQF,3,0))+"%"
+	EndIf
+	cAvalIQF  := "IQF: "+cAvalIQF
+	cAvalForn := "S"
+Else
+	cAvalIQF :=  "Avaliação não necessária "+TRIM(cF1Avali)
+EndIf
+
+oJsonPN['F1AVAL']		:= cAvalIQF
+oJsonPN['F1AVALFORN']	:= cAvalForn
+oJsonPN['D1PEDIDOS']	:= TRIM(cPedidos)
 
 (cQrySF1)->(dbCloseArea())
 
@@ -686,7 +770,7 @@ begincontent var cHTML
 
 <!-- Bootstrap CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.11.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <title>Liberação de Pré-notas</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
@@ -800,6 +884,10 @@ line-height: 1rem;
              <label for="SF1XXUser" class="form-label">Usuário</label>
              <input type="text" class="form-control form-control-sm" id="SF1XXUser" value="#SF1XXUser#" readonly="">
            </div>
+           <div class="col-md-2">
+             <label for="SD1Pedidos" class="form-label">Pedidos</label>
+             <input type="text" class="form-control form-control-sm" id="SD1Pedidos" value="#SD1Pedidos#" readonly="">
+           </div>
 
            <div class="col-md-6">
              <label for="SF1Forn" class="form-label">Fornecedor</label>
@@ -812,6 +900,10 @@ line-height: 1rem;
            <div class="col-md-2">
              <label for="SF1EstMun" class="form-label">Estado/Município</label>
              <input type="text" class="form-control form-control-sm" id="SF1EstMun" value="#SF1EstMun#" readonly="">
+           </div>
+           <div class="col-md-2">
+             <label for="SF1Aval" class="form-label">Avaliação do Fornecedor</label>
+             <input type="text" class="form-control form-control-sm" id="SF1Aval" value="#SF1Aval#" readonly="">
            </div>
 
            <div class="col-md-6">
@@ -833,6 +925,7 @@ line-height: 1rem;
 							<th scope="col">Produto</th>
 							<th scope="col">Descrição</th>
 							<th scope="col">Centro de Custo</th>
+							<th scope="col">Obs</th>
 							<th scope="col" style="text-align:right;">Quant.</th>
 							<th scope="col" style="text-align:right;">V.Unitário</th>
 							<th scope="col" style="text-align:right;">Total</th>
@@ -885,11 +978,39 @@ line-height: 1rem;
    </div>
 </div>
 
+<div id="avalModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="titAval" class="modal-title">Avaliação do fornecedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-check form-switch" id="inpPreco">
+        </div>
+        <div class="form-check form-switch" id="inpPrazo">
+        </div>
+        <div class="form-check form-switch" id="inpQuant">
+        </div>
+        <div class="form-check form-switch" id="inpQuali">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+		<div id="btnlib2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
 
@@ -981,6 +1102,8 @@ let i = 0;
 let foot = '';
 let anexos = '';
 let inpE = '';
+let iCheck = '';
+let cClick = 'libdoc';
 
 document.getElementById('SF1Doc').value = prenota['F1_DOC'];
 document.getElementById('SF1Serie').value = prenota['F1_SERIE'];
@@ -989,17 +1112,55 @@ document.getElementById('SF1DtDigit').value = prenota['F1_DTDIGIT'];
 document.getElementById('SF1XXPvPgt').value = prenota['F1_XXPVPGT'];
 document.getElementById('SF1Especie').value = prenota['F1_ESPECIE'];
 document.getElementById('SF1XXUser').value = prenota['F1_XXUSER'];
+document.getElementById('SD1Pedidos').value = prenota['D1PEDIDOS'];
 
 document.getElementById('SF1Forn').value = prenota['F1_FORN'];
 document.getElementById('SF1CGC').value = prenota['A2_CGC'];
 document.getElementById('SF1EstMun').value = prenota['A2_ESTMUN'];
+document.getElementById('SF1Aval').value = prenota['F1AVAL'];
 
 document.getElementById('SF1XXHist').value = prenota['D1_XXHIST'];
 document.getElementById('SF1XXParce').value = prenota['F1_XXPARCE'];
 
+iCheck += '<input class="form-check-input" type="checkbox" id="f1Aval1" value="Preço" '
+if (prenota['F1AVAL1'] === 'S'){
+  iCheck += 'checked'
+}
+iCheck += '><label class="form-check-label" for="f1Aval1">Preço</label>'
+document.getElementById("inpPreco").innerHTML = iCheck;
+
+iCheck = '';
+iCheck += '<input class="form-check-input" type="checkbox" id="f1Aval2" value="Prazo" '
+if (prenota['F1AVAL2'] === 'S'){
+  iCheck += 'checked'
+}
+iCheck += '><label class="form-check-label" for="f1Aval2">Prazo</label>'
+document.getElementById("inpPrazo").innerHTML = iCheck;
+
+iCheck = '';
+iCheck += '<input class="form-check-input" type="checkbox" id="f1Aval3" value="Quantidade" '
+if (prenota['F1AVAL3'] === 'S'){
+  iCheck += 'checked'
+}
+iCheck += '><label class="form-check-label" for="f1Aval3">Quantidade/Atendimento</label>'
+document.getElementById("inpQuant").innerHTML = iCheck;
+
+iCheck = '';
+iCheck += '<input class="form-check-input" type="checkbox" id="f1Aval4" value="Qualidade" '
+if (prenota['F1AVAL4'] === 'S'){
+  iCheck += 'checked'
+}
+iCheck += '><label class="form-check-label" for="f1Aval4">Qualidade/Integridade</label>'
+document.getElementById("inpQuali").innerHTML = iCheck;
 
 if (canLib === 1){
-	let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+	if (prenota['F1AVALFORN'] === 'S'){
+		cClick = 'avalForn';
+	} else {
+		cClick = 'libdoc';
+	}
+	let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+
 	document.getElementById("btnlib").innerHTML = btnL;
 
 	//inpE    += '<label for="SF1Motivo" class="col-sm-2 col-form-label">Obs:</label>';
@@ -1022,6 +1183,7 @@ if (Array.isArray(prenota.D1_ITENS)) {
 	itens += '<td>'+object['D1_COD']+'</td>';
    	itens += '<td>'+object['B1_DESC']+'</td>';
 	itens += '<td>'+object['D1_CC']+'</td>';
+	itens += '<td>'+object['D1CCVIG']+'</td>';
 	itens += '<td align="right">'+object['D1_QUANT']+'</td>';
 	itens += '<td align="right">'+object['D1_VUNIT']+'</td>';
 	itens += '<td align="right">'+object['D1_TOTAL']+'</td>';
@@ -1053,13 +1215,49 @@ $('#meuModal').on('hidden.bs.modal', function () {
 	})
 }
 
+async function avalForn(f1empresa,f1recno,userlib,acao){
 
+let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+document.getElementById("btnlib2").innerHTML = btnL;
+
+$('#avalModal').modal('show');
+
+
+}
 
 async function libdoc(f1empresa,f1recno,userlib,acao){
 let resposta = ''
 let SF1Motivo = document.getElementById("SF1Motivo").value;
+let SF1Avali = ''
+
+if (document.getElementById("f1Aval1").checked){
+	SF1Avali += 'S';
+} else {
+	SF1Avali += 'N';
+}
+
+if (document.getElementById("f1Aval2").checked){
+	SF1Avali += 'S';
+} else {
+	SF1Avali += 'N';
+}
+
+if (document.getElementById("f1Aval3").checked){
+	SF1Avali += 'S';
+} else {
+	SF1Avali += 'N';
+}
+
+if (document.getElementById("f1Aval4").checked){
+	SF1Avali += 'S';
+} else {
+	SF1Avali += 'N';
+}
+
 let dataObject = {	liberacao:'ok',
-					motivo:SF1Motivo};
+					motivo:SF1Motivo,
+					avaliacao:SF1Avali 
+				 };
 
 fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
@@ -1076,6 +1274,7 @@ fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='
 		console.log(data);
 
 	  //document.getElementById("titConf").innerHTML = data["liberacao"];
+	  $('#avalModal').modal('hide');
 	  $("#titConf").text(data.liberacao);
 	  $('#confModal').modal('show');
 	  $('#confModal').on('hidden.bs.modal', function () {
@@ -1086,8 +1285,9 @@ fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='
 
 
 </script>
-
+<!-- JavaScript Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
 
 </body>
 </html>

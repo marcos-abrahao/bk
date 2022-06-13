@@ -5,18 +5,18 @@
 #INCLUDE 'FWMVCDEF.CH'
                             
 //-------------------------------------------------------------------
-/*/{Protheus.doc} BKGCTR14()
-BK - Rentabilidade dos Contrato - Projeção X Realizado
-@author Adilson do Prado
-@since 16/05/14 Rev 20/07/20
+/*/{Protheus.doc} BKGCTP14()
+BK - Rentabilidade dos Contrato - Projeção X Realizado - Versão 2
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 07/06/2022
 @version P12
 @return Nil
 /*/
 //-------------------------------------------------------------------
 
-User Function BKGCTR14(aParam)
+User Function BKGCTP14(aParam)
 
-Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado"
+Local titulo        := "Rentabilidade dos Contratos - Projeção X Realizado V2"
 Local cTitulo		:= ""
 Local _nI           := 0
 Local iX			:= 0
@@ -51,7 +51,7 @@ Private cContrato   := ""
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
 	lJob 		:= aParam[2]
-	cArqLog		:= "\LOG\BKGCTR14-"+cEmpAnt+".LOG"
+	cArqLog		:= "\LOG\BKGCTP14-"+cEmpAnt+".LOG"
 Else
 
 	lSintet  	:= aParam[1]
@@ -61,7 +61,7 @@ Else
 
 	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9","SZX"},"GCT")
 
-	cArqLog		:= "\LOG\BKGCTR14-"+cEmpPar+".LOG"
+	cArqLog		:= "\LOG\BKGCTP14-"+cEmpPar+".LOG"
 
 	// Data de Agendamento do Job
 	dAgJob		:= U_BKGetMv("BKGCTR1410",.F.,CTOD(""))
@@ -498,7 +498,7 @@ If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 		cQuery += " GROUP BY CN9_SITUAC"+CRLF
 	ENDIF	
 
-	u_LogMemo("BKGCTR14.SQL",cQuery)
+	u_LogMemo("BKGCTP14.SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP1"
 	TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
@@ -851,7 +851,7 @@ If !lJob
 			DbSelectArea("TRB")
 			dbSetOrder(1)
 
-			Processa( {|| U_CR14(.F.) })
+			Processa( {|| U_BKCP14(.F.) })
 
 		Else
 			U_BKGCTM14()
@@ -862,7 +862,7 @@ If !lJob
 Else
 	If nCompet <> 0
 		ProcR14(lJob)
-		U_CR14(lJob)
+		U_BKCP14(lJob)
 	Else
 		u_xxLog(cArqLog,"Competencia não encontrada : "+STR(nCompet),.T.,"")
 	EndIf
@@ -901,8 +901,8 @@ Private aButton := {}
 Private _oGetDbSint
 Private _oDlgSint
 
-aAdd(aRotina,{"Exp. Excel"	,"U_CR14",0,6})
-aAdd(aRotina,{"Parametros"	,"U_PR14",0,7})
+aAdd(aRotina,{"Exp. Excel"	,"U_BKCP14",0,6})
+aAdd(aRotina,{"Parametros"	,"U_BKPR14",0,7})
 
 
 dbSelectArea(cAlias)
@@ -914,8 +914,8 @@ From aSize[7],0 to aSize[6],aSize[5] of oMainWnd PIXEL
 	
 _oGetDbSint := MsGetDb():New(aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","TRB")
 	
-aAdd(aButton , { "BMPTABLE" , { || U_CR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
-aAdd(aButton , { "BMPTABLE" , { || U_PR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Parametros" } )
+aAdd(aButton , { "BMPTABLE" , { || U_BKCP14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
+aAdd(aButton , { "BMPTABLE" , { || U_BKPR14(.F.), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Parametros" } )
 
 ACTIVATE MSDIALOG _oDlgSint ON INIT EnchoiceBar(_oDlgSint,{|| _oDlgSint:End()}, {||_oDlgSint:End()},, aButton)
 
@@ -923,7 +923,7 @@ Return Nil
 
 
 
-User FUNCTION PR14(lJob)
+User FUNCTION BKPR14(lJob)
 LOCAL cPerg     := "BKGCTR14"
 DEFAULT lJob	:= .F.
 
@@ -958,7 +958,7 @@ Return (.T.)
 
 
 
-User FUNCTION CR14(lJob)
+User FUNCTION BKCP14(lJob)
 Local cAlias := "TRB"
 Local cQuery := ""
 
@@ -993,7 +993,7 @@ If !lJob
 			cQuery += "    *"+CRLF
 			cQuery += " INTO PowerBk.dbo.PROJXREALTELA"+cEmpAnt+" FROM "+cRealTb1+" WHERE XX_POWERBK = 'S' "
 
-			u_xxLog(cArqLog,"BKGCTR14: Gerando tabela PowerBk.dbo.PROJXREALTELA"+cEmpAnt,.T.,"")
+			u_xxLog(cArqLog,"BKGCTP14: Gerando tabela PowerBk.dbo.PROJXREALTELA"+cEmpAnt,.T.,"")
 
 			If TCSQLExec(cQuery) < 0 
 				MsgStop(TCSQLERROR())
@@ -1007,7 +1007,7 @@ Else
 
 	// Gerar tabela no banco PowerBk
 	If Empty(cContrato)
-		u_xxLog(cArqLog,"BKGCTR14: Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt,.T.,"")
+		u_xxLog(cArqLog,"BKGCTP14: Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt,.T.,"")
 		GeraPwBk()
 	EndIf
 
@@ -1128,7 +1128,7 @@ FOR _nI := 1 TO nPeriodo
 	If !lJob
 		IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 	EndIf
-	u_xxLog(cArqLog,"BKGCTR14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
+	u_xxLog(cArqLog,"BKGCTP14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
 
     cAnoMes := aAnoMes[_nI] 
 
@@ -1366,7 +1366,7 @@ FOR _nI := 1 TO nPeriodo
    	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
    	cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
  
-	u_LogMemo("BKGCTR14-"+cAnoMes+".SQL",cQuery)
+	u_LogMemo("BKGCTP14-"+cAnoMes+".SQL",cQuery)
 
 	If Select("QTMP") > 0
 		QTMP->(dbCloseArea())
@@ -1392,7 +1392,7 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		u_LogMemo("BKGCTR14-CNF-A-"+cAnoMes+".SQL",cQueryA)
+		u_LogMemo("BKGCTP14-CNF-A-"+cAnoMes+".SQL",cQueryA)
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
 		dbSelectArea("QTMP")
@@ -1601,7 +1601,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += cQueryX
 	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_DTULST,CN9_XXNRBK ORDER BY CNF_CONTRA"+CRLF
  
-	u_LogMemo("BKGCTR14-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
+	u_LogMemo("BKGCTP14-CNF-2-"+STRZERO(_nI,3)+".SQL",cQuery)
 
 	TCQUERY cQuery NEW ALIAS "QTMP" 
 
@@ -1625,7 +1625,7 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		u_LogMemo("BKGCTR14-CNF-B-"+STRZERO(_nI,3)+".SQL",cQueryA)
+		u_LogMemo("BKGCTP14-CNF-B-"+STRZERO(_nI,3)+".SQL",cQueryA)
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
 		dbSelectArea("QTMP")
@@ -1671,7 +1671,7 @@ FOR _nI := 1 TO nPeriodo
             	nSZCSTBK := 0
 				nDespesa := 0
 				//nDespCon := 0
-
+				
 				nScan:= 0
 				nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
@@ -1729,8 +1729,6 @@ FOR _nI := 1 TO nPeriodo
 					    //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
        					nIndTC := 0
        					IF nIndConsor == 1
-							nScan:= 0
-							nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 	   						IF nScan > 0
 	       						nIndTC := VAL(aConsorcio[nScan,6]) 
 	    					ENDIF
@@ -1831,8 +1829,6 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VL2P"+STRZERO(_nI,3)
 					&cCampo2 += nSZG03 - nDespesa
 
-					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
-
 				ELSE
 					nSZG03C := 1
 					dbSelectArea(ALIAS_TMP)
@@ -1852,14 +1848,8 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 					&cCampo2 := (nVlp2*100)/nSZG03C
 					
-					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
-					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nVlp2 "+STR(nVlp2)+" - nSZG03C "+STR(nSZG03C)+" - Previsto "+STR(&cCampo2),.T.,"TESTE")
 				ENDIF
-
-				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
-				//&cCampo2 += ((nSZG03-nDespesa)*100)/nSZG03
-				//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - nDespCon "+STR(nDespCon),.F.,"TESTE")
-				
+			
 				(ALIAS_TMP)->(Msunlock())
 				
         	ENDIF   
@@ -1910,7 +1900,7 @@ FOR _nI := 1 TO nPeriodo
 		
 		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-		u_LogMemo("BKGCTR14-SZ2-"+cVarLog+".SQL",cQuery1)
+		u_LogMemo("BKGCTP14-SZ2-"+cVarLog+".SQL",cQuery1)
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
@@ -2333,7 +2323,7 @@ FOR _nI := 1 TO nPeriodo
 
 		cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve"+CRLF
 
-		u_LogMemo("BKGCTR14-FOL-"+cVarLog+".SQL",cQuery2)
+		u_LogMemo("BKGCTP14-FOL-"+cVarLog+".SQL",cQuery2)
 	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 		nProventos := 0
@@ -2828,7 +2818,7 @@ FOR _nI := 1 TO nPeriodo
         
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-		u_LogMemo("BKGCTR14-D1-1-"+cVarLog+".SQL",cQuery2)        
+		u_LogMemo("BKGCTP14-D1-1-"+cVarLog+".SQL",cQuery2)        
 				
 		cOutros := 'S'
 		dbSelectArea("TMPX2")
@@ -3698,7 +3688,7 @@ FOR _nI := 1 TO nPeriodo
    			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogMemo("BKGCTR14-E5-1-"+cVarLog+".SQL",cQuery2)    
+			u_LogMemo("BKGCTP14-E5-1-"+cVarLog+".SQL",cQuery2)    
 
 			dbSelectArea("TMPX2")
 			dbGoTop()
@@ -3787,8 +3777,6 @@ FOR _nI := 1 TO nPeriodo
 				//cQuery2 += " ORDER BY B1_DESC"
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
-
-				//u_xxLog("\TMP\BKGCTR14-D1-2.SQL",cQuery2,.F.,"TESTE")        
 
 				cOutros := 'S'
 				dbSelectArea("TMPX2")
@@ -4180,7 +4168,7 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 		        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
-				u_LogMemo("BKGCTR14-E5-2-"+cVarLog+".SQL",cQuery2)        
+				u_LogMemo("BKGCTP14-E5-2-"+cVarLog+".SQL",cQuery2)        
 
 				dbSelectArea("TMPX2")
 				dbGoTop()
@@ -4248,7 +4236,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 	        
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogMemo("BKGCTR14-E5-3-"+cVarLog+".SQL",cQuery2)
+			u_LogMemo("BKGCTP14-E5-3-"+cVarLog+".SQL",cQuery2)
 			
 			dbSelectArea("TMPX2")
 			dbGoTop()
@@ -6317,8 +6305,7 @@ Endif
 If lJob
 	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	u_xxLog(cArqLog,cMsg,.T.,"")
-	//U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
-	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
+	u_BkSnMail("BKGCTP14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
 	u_xxLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp,.T.,"")
 EndIf
 
@@ -6468,8 +6455,8 @@ RestArea(aArea)
 Return(NIL)
 
 
-User Function BKGCTR_14()
-	U_BKGCTR14({.T.,.F.})
+User Function BKGCTP_14()
+	U_BKGCTP14({.T.,.F.})
 Return
 
 

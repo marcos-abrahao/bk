@@ -8,6 +8,16 @@ BK - Faturamento por contrato
 @author Marcos Bispo Abrahão
 @since 28/08/2020
 @version P12.1.25
+
+
+Faltam:
+
+Tabela Geral: Faturamento liquido, folha, calculo de resultado, % rentabilidade
+Tabela Folha: tudo
+Tabela GastosGerais: Categorias de produtos
+Tabela Previsoesdegastos: 
+Tabela Previsoesdecustos: 
+
 /*/
 
 User Function BKDASH01()
@@ -17,7 +27,7 @@ Private cPerg       := "BKDASH01"
 
 If FWCodEmp() == "01"
 
-	u_LogPrw(cPerg)
+	u_LogPrw(cPerg,"Inicio")
 
 	If IsBlind()
 		ProcDS01()
@@ -42,6 +52,9 @@ If FWCodEmp() == "01"
 			FWMsgRun(, {|oSay| ProcDS05() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
 		EndIf
 	EndIf
+
+	u_LogPrw(cPerg,"Final")
+
 Else
 	If !IsBlind()
 		MsgStop("Rodar apenas na empresa 01-BK", cPerg)
@@ -74,6 +87,8 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 
+u_LogPrw(cPerg,"Faturamento")
+
 cTabSZR := "SZR010"
 
 For nE := 1 TO Len(aEmpresas)
@@ -100,11 +115,17 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
 
-	cQuery += "  ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')) AS CONTRATO, " + CRLF
+	cQuery += "  SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) AS CONTRATO, " + CRLF
 	cQuery += "  ISNULL(CTT_DESC01,'BK CONSULTORIA') AS DESCRICAO, " + CRLF
 	cQuery += "  ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS COMPET, " + CRLF
 	cQuery += "  SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2) AS COMPETAM, " + CRLF
 	cQuery += "  CONVERT(DATE,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01',112) AS COMPETD, " + CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+	cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
+	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS CHAVE, " + CRLF
+
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
 	cQuery += "  C5_MDPLANI, " + CRLF
@@ -296,11 +317,17 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
 
-	cQuery += "  CNF_CONTRA AS CONTRATO, " + CRLF
+	cQuery += "  SUBSTRING(CNF_CONTRA,1,9) AS CONTRATO, " + CRLF
 	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
 	cQuery += "  CNF_COMPET AS COMPET, " + CRLF
 	cQuery += "  SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2) AS COMPETAM, " + CRLF
 	cQuery += "  CONVERT(DATE,SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)+'01',112) AS COMPETD, " + CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+	cQuery += "     SUBSTRING(CNF_CONTRA,1,9) +  " + CRLF
+	cQuery += "     CNF_COMPET AS CHAVE, " + CRLF
+
 	cQuery += "  ' ' 		AS C5_NUM, " + CRLF
 	cQuery += "  ' ' 		AS C5_MDNUMED, " + CRLF
 	cQuery += "  CNF_NUMPLA AS C5_MDPLANI, " + CRLF
@@ -401,6 +428,11 @@ Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
 
 Local cTabCN9   := ""
+Local cTabCNF   := ""
+
+u_LogPrw(cPerg,"Gestores")
+ 
+cQuery := "WITH VIG AS ( " + CRLF
 
 For nE := 1 TO Len(aEmpresas)
 
@@ -408,36 +440,70 @@ For nE := 1 TO Len(aEmpresas)
 	cNomeEmp := aEmpresas[nE,2]
 
 	cTabCN9 := "CN9"+cEmpresa+"0"
+	cTabCNF := "CNF"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
-	cQuery += "SELECT DISTINCT "+CRLF
-	cQuery += " '"+cEmpresa+"' AS EMPRESA,"+CRLF
-	cQuery += " '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
-	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += " SELECT"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  SUBSTRING(CN9_NUMERO,1,9) AS CONTRATO,"+CRLF
+	cQuery += "  CN9_SITUAC,"+CRLF
+	cQuery += "  CN9_GESTC, "+CRLF
+    cQuery += "  CN9_XXNRBK, "+CRLF
+	cQuery += "  MIN(CN9_DTOSER) AS CN9DTOSER,"+CRLF
+	cQuery += "  MIN(CN9_DTINIC) AS CN9DTINIC,"+CRLF
+	cQuery += "  MIN(CNF_DTVENC) AS CNFINICIO,"+CRLF
+	cQuery += "  MAX(CNF_DTVENC) AS CNFFIM,"+CRLF
+	cQuery += "  MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
+	cQuery += " FROM " + CRLF
+	cQuery += "  "+cTabCNF+" CNF " + CRLF
 
-	cQuery += "  CN9_NUMERO AS CONTRATO, " + CRLF
-	cQuery += "  CN9_GESTC, " + CRLF
-	cQuery += "  CN9_XXNRBK " + CRLF
-
-	If nE == 1
-		cQuery += "  INTO PowerBk.dbo.GESTORES " + CRLF
-	EndIf
-
-	cQuery += "FROM " + CRLF
-	cQuery += "  "+cTabCN9+" CN9 " + CRLF
-	cQuery += "WHERE " + CRLF
-	cQuery += "  CN9_REVATU = ' ' " + CRLF
-	cQuery += "  AND CN9.D_E_L_E_T_ = '' " + CRLF
+	cQuery += " INNER JOIN "+cTabCN9+" CN9 ON "+ CRLF
+	cQuery += "    CN9_NUMERO = CNF_CONTRA" + CRLF
+	cQuery += "	   AND CN9_REVISA = CNF_REVISA" + CRLF
+	cQuery += "    AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ''" + CRLF
+	cQuery += " WHERE CNF.D_E_L_E_T_=''" + CRLF
+	cQuery += "      AND CN9_REVATU = ' '" + CRLF
+	cQuery += " GROUP BY " + CRLF
+	cQuery += "      CN9_NUMERO," + CRLF
+	cQuery += "      CN9_GESTC, " + CRLF
+	cQuery += "      CN9_SITUAC," + CRLF
+	cQuery += "      CN9_XXNRBK" + CRLF
 
 Next
 
-cQuery += " ORDER BY" + CRLF
-cQuery += "    EMPRESA,CN9_NUMERO" + CRLF
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  EMPRESA, " + CRLF
+cQuery += "  NOMEEMP, " + CRLF
+cQuery += "  GETDATE() AS DATAPRC, " + CRLF
+cQuery += "  CONTRATO,  " + CRLF
+cQuery += "  EMPRESA + CONTRATO AS CHAVE," + CRLF
+cQuery += "  CN9_GESTC,  " + CRLF
+cQuery += "  CN9_XXNRBK,  " + CRLF
+cQuery += "  VIG.CN9_SITUAC, " + CRLF
+cQuery += "  VIG.CN9DTOSER, " + CRLF
+cQuery += "  VIG.CN9DTINIC, " + CRLF
+cQuery += "  VIG.CNFINICIO, " + CRLF
+cQuery += "  VIG.CNFFIM, " + CRLF
+cQuery += "  VIG.MAXCOMPET, " + CRLF
+cQuery += "  -- Inicio do contrato " + CRLF
+cQuery += "  CASE WHEN VIG.CN9DTOSER > ' ' AND VIG.CN9DTOSER < CN9DTINIC AND VIG.CN9DTOSER < VIG.CNFINICIO THEN VIG.CN9DTOSER " + CRLF
+cQuery += "       WHEN VIG.CN9DTINIC > ' ' AND VIG.CN9DTINIC < VIG.CNFINICIO THEN VIG.CN9DTINIC " + CRLF
+cQuery += "       ELSE VIG.CNFINICIO  " + CRLF
+cQuery += "       END AS VIGINICIO, " + CRLF
+cQuery += "  -- Final do contrato " + CRLF
+cQuery += "  CASE WHEN VIG.MAXCOMPET > VIG.CNFFIM THEN VIG.MAXCOMPET ELSE VIG.CNFFIM END AS VIGFINAL " + CRLF
+cQuery += "  INTO PowerBk.dbo.GESTORES  " + CRLF
+cQuery += "  FROM VIG " + CRLF
 
-//u_LogMemo("BKDASH01.SQL",cQuery)
+cQuery += " ORDER BY" + CRLF
+cQuery += "    EMPRESA,CONTRATO" + CRLF
+
+u_LogMemo("BKDASH01.SQL",cQuery)
 
 If !TCIsConnected()
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
@@ -497,6 +563,8 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 
+u_LogPrw(cPerg,"Glosas")
+
 cTabSZR := "SZR010"
 
 For nE := 1 TO Len(aEmpresas)
@@ -522,11 +590,17 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
-	cQuery += "  ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')) AS CONTRATO, " + CRLF
+	cQuery += "  SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) AS CONTRATO, " + CRLF
 	cQuery += "  ISNULL(CTT_DESC01,'BK CONSULTORIA') AS DESCRICAO, " + CRLF
 	cQuery += "  ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS COMPET, " + CRLF
 	cQuery += "  SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2) AS COMPETAM, " + CRLF
 	cQuery += "  CONVERT(DATE,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01',112) AS COMPETD, " + CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+	cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
+	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS CHAVE, " + CRLF
+
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
 	cQuery += "  C5_MDPLANI, " + CRLF
@@ -686,6 +760,8 @@ Local cTabSE2	:= ""
 Local cTabSF1	:= ""
 Local cTabCTT	:= ""
 
+u_LogPrw(cPerg,"Gastos Gerais")
+
 cQuery := "WITH DESPESAS AS ("+CRLF
 
 For nE := 1 TO Len(aEmpresas)
@@ -707,11 +783,17 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
-	cQuery += "  D1_CC AS CONTRATO, " + CRLF
+	cQuery += "  SUBSTRING(D1_CC,1,9) AS CONTRATO, " + CRLF
 	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
  	cQuery += "  SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4) AS COMPET,"+CRLF
  	cQuery += "  SUBSTRING(E2_VENCREA,1,6) AS COMPETAM,"+CRLF
  	cQuery += "  CONVERT(DATE,SUBSTRING(E2_VENCREA,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+	cQuery += "     SUBSTRING(D1_CC,1,9) +  " + CRLF
+	cQuery += "     SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4)  AS CHAVE, " + CRLF
+
  	cQuery += "  D1_FILIAL,"+CRLF
  	cQuery += "  D1_SERIE,"+CRLF
  	cQuery += "  D1_DOC,"+CRLF
@@ -824,7 +906,7 @@ u_LogMemo("BKDASH01-GG.SQL",cErro1+cQueryD+cErro2+cQuery)
 Return
 
 
-// Atualização da tabela GERAIS do banco de dados PowerBk
+// Atualização da tabela GERAL do banco de dados PowerBk
 Static Function ProcDS05
 Local cQuery	:= ""
 Local cQueryD	:= ""
@@ -832,9 +914,24 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
+u_LogPrw(cPerg,"Geral")
+
 BEGINCONTENT VAR cQuery
 
- SELECT EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,SUM(VALFAT) AS VALFAT,SUM(PREVFAT) AS PREVFAT,SUM(DESPESA) AS TOTDESP
+ SELECT 
+ 	FG.EMPRESA,
+ 	FG.NOMEEMP,
+	GETDATE() AS DATAPRC,
+ 	FG.CONTRATO,
+	FG.DESCRICAO,
+	G.CN9_XXNRBK,
+	FG.COMPETAM,
+	FG.COMPET,
+	FG.COMPETD,
+	FG.EMPRESA + FG.CONTRATO + FG.COMPET AS CHAVE,
+	SUM(FG.VALFAT) AS VALFAT,
+	SUM(FG.PREVFAT) AS PREVFAT,
+	SUM(FG.DESPESA) AS TOTDESP
  INTO PowerBk.dbo.GERAL
  FROM 
  	(SELECT EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,SUM(F2_VALFAT) AS VALFAT,SUM(CXN_VLPREV) AS PREVFAT,SUM(0) AS DESPESA 
@@ -844,10 +941,12 @@ BEGINCONTENT VAR cQuery
  	 SELECT EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,SUM(0) AS VALFAT,SUM(0) AS PREVFAT,SUM(DESPESA) AS DESPESA 
  	   FROM PowerBk.dbo.GASTOSGERAIS
         GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
- 	 ) AS X
- 
- GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
- ORDER BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+ 	 ) AS FG
+LEFT JOIN PowerBk.dbo.GESTORES G
+    ON	G.EMPRESA  = FG.EMPRESA 
+	AND G.CONTRATO = FG.CONTRATO 
+ GROUP BY FG.EMPRESA,FG.NOMEEMP,FG.CONTRATO,FG.DESCRICAO,FG.COMPETAM,FG.COMPET,FG.COMPETD,G.CN9_XXNRBK
+ ORDER BY FG.EMPRESA,FG.NOMEEMP,FG.CONTRATO,FG.DESCRICAO,FG.COMPETAM,FG.COMPET,FG.COMPETD,G.CN9_XXNRBK
 
 ENDCONTENT
 

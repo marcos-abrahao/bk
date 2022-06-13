@@ -702,9 +702,7 @@ FOR nI := 1 TO LEN(cTexto)
     ENDIF
 NEXT 
 
-
 Define MsDialog oDlgE Title OemToAnsi ("Descrição do Serviço da NFS "+cNF) From 100, 010  To 610,690 Of oDlgE Pixel Style DS_MODALFRAME
-
 
 @ 012, 005  Say OemToAnsi ("01")  Pixel Of oDlgE
 @ 010, 015 MSGET aLin[01] Valid .T. SIZE 320, 010 OF oDlgE PIXEL PICTURE "@!" 

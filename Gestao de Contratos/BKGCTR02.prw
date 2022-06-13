@@ -210,7 +210,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 
 	dbSelectArea("TMPC")
 
-	For nE := 1 To aEmpresas
+	For nE := 1 To Len(aEmpresas)
 		FWMsgRun(, {|oSay| ProcQuery(aEmpresas[nE,1]) }, "", aEmpresas[nE,2]+" - Consultando o banco de dados...")
 	Next
 

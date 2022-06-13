@@ -127,11 +127,11 @@ If cFWEmp $ "01/02/14"
 	u_xxConOut("INFO","BKGCTR23","Finalizado processamento Dados do Dashboard - Funcionários e Glosas")
 ENDIF
 
-// Dashboard powrbk
-If cFWEmp == "01" 
-	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
-	U_BKDASH01()()
-EndIf
+// Dashboard powrbk - adicionado no Schedule com execução a cada 1h  
+//If cFWEmp == "01" 
+//	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
+//	U_BKDASH01()()
+//EndIf
 
 Reset Environment
 
@@ -3840,3 +3840,51 @@ u_BkSnMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls})
 RestArea(aArea)
 
 Return Nil
+
+
+
+//SEGUNDO AGENDAMENTO
+// Função via Schedule
+User Function BKGCT062(aParam)
+
+Local cFwEmp := ""
+
+Public lJobV2    := .T.
+Public cPrw      := "BKGCT062"
+Public cEmailS   := ""
+Public cContrRep := SPACE(15)
+Public dtIni     := CTOD("")
+Public dtFim     := CTOD("")
+
+Private lExp     := .F.
+Private dDataEnv
+Private lEnvT    := .T.
+Private cEmpPar  := "01"
+Private cFilPar  := "01"
+
+default aParam := {"01","01"} // caso nao receba nenhum parametro
+
+cEmpPar := aParam[1]
+cFilPar := aParam[2]
+
+//-- Evita que se consuma licenca
+//RpcSetType ( 3 )
+
+//PREPARE ENVIRONMENT EMPRESA cEmp FILIAL cFil MODULO "FAT" 
+
+WFPrepEnv(cEmpPar,cFilPar,"BKGCT062",{"CN9"},"GCT")
+
+//WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
+//TABLES "SA1" "SC5" "SC6" 
+
+cFWEmp := SUBSTR(FWCodEmp(),1,2)
+
+// Dashboard powrbk
+If cFWEmp == "01" 
+	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
+	U_BKDASH01()()
+EndIf
+
+Reset Environment
+
+RETURN

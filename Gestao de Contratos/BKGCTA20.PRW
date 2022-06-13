@@ -24,10 +24,12 @@ IF  ALLTRIM(funname()) == 'RPC'   // GERA APORT BK
 	Return lRet
 ENDIF
 
-cVig := U_Vig2Contrat(cContrato,Date())
+cVig := U_Vig2Contrat(cContrato,Date(),cEmpAnt)
 IF !EMPTY(cVig)
-   IF !MsgYesNo("Contrato "+cContrato+cVig+"  !!  Confirma Inclusão deste C.Custo ??","Atenção")
+   IF !MsgYesNo("Contrato "+TRIM(cContrato)+" - "+cVig+"  !!  Confirma Inclusão deste C.Custo ??","Atenção")
 		lRet := .F.
+   ELSE
+		u_LogPrw("BKGCTA20","Entrada em contrato vencido "+cContrato)
    ENDIF
 ENDIF
 

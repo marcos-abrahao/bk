@@ -770,7 +770,7 @@ Begin Sequence
               nPos  += 360
               
               cDesVig := ""
-	          cDesVig := U_Vig2Contrat(TRIM(QSZ2->Z2_CC),QSZ2->Z2_DATAPGT)
+	          cDesVig := U_Vig2Contrat(TRIM(QSZ2->Z2_CC),QSZ2->Z2_DATAPGT,cEmpAnt)
 	          
   	          nPosVig := nPos
               oPrn:Say(nLin,nPosVig,cDesVig,oFont07)
@@ -854,7 +854,7 @@ Begin Sequence
           nPos += (600+140+140+(190+190+140+100))
 
           cDesVig := ""
- 		  cDesVig := U_Vig2Contrat(TRIM(aCC[nI]),SE2->E2_VENCREA)
+ 		  cDesVig := U_Vig2Contrat(TRIM(aCC[nI]),SE2->E2_VENCREA,cEmpAnt)
 	          
   	      nPosVig := nPos
           oPrn:Say(nLin,nPosVig,cDesVig,oFont07)
@@ -1101,7 +1101,77 @@ oPrn:Say(nLin,2180,PADL("Valor",11),oFont12N)
 Return nil
 
 
-USER Function Vig2Contrat(cContrato,dPGTO)
+// Retorna a Vigencia de um contrato
+User Function Vig2Contrat(cContrato,dPgto,cEmpresa)
+LOCAL aArea   := GetArea()
+Local cVig    := ""
+Local cQuery  := ""
+Local cTabCN9 := ""
+Local cTabCNF := ""
+
+Default cEmpresa := cEmpAnt
+
+cTabCN9 := "CN9"+cEmpresa+"0"
+cTabCNF := "CNF"+cEmpresa+"0"
+
+cQuery := "WITH VIG AS ( " + CRLF
+cQuery += " SELECT"+CRLF
+cQuery += "  SUBSTRING(CN9_NUMERO,1,9) AS CONTRATO,"+CRLF
+cQuery += "  MIN(CN9_DTOSER) AS CN9DTOSER,"+CRLF
+cQuery += "  MIN(CN9_DTINIC) AS CN9DTINIC,"+CRLF
+cQuery += "  MIN(CNF_DTVENC) AS CNFINICIO,"+CRLF
+cQuery += "  MAX(CNF_DTVENC) AS CNFFIM,"+CRLF
+cQuery += "  MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
+cQuery += " FROM " + CRLF
+cQuery += "  "+cTabCNF+" CNF " + CRLF
+
+cQuery += " INNER JOIN "+cTabCN9+" CN9 ON "+ CRLF
+cQuery += "    CN9_NUMERO = CNF_CONTRA" + CRLF
+cQuery += "	   AND CN9_REVISA = CNF_REVISA" + CRLF
+cQuery += "    AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ''" + CRLF
+cQuery += " WHERE CNF.D_E_L_E_T_=''" + CRLF
+cQuery += "      AND CNF_CONTRA = '"+cContrato+"'" + CRLF
+cQuery += "      AND CN9_REVATU = ' '" + CRLF
+cQuery += " GROUP BY " + CRLF
+cQuery += "      CN9_NUMERO " + CRLF
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  CONTRATO,  " + CRLF
+cQuery += "  VIG.CN9DTOSER, " + CRLF
+cQuery += "  VIG.CN9DTINIC, " + CRLF
+cQuery += "  VIG.CNFINICIO, " + CRLF
+cQuery += "  VIG.CNFFIM, " + CRLF
+cQuery += "  VIG.MAXCOMPET, " + CRLF
+cQuery += "  -- Inicio do contrato " + CRLF
+cQuery += "  CASE WHEN VIG.CN9DTOSER > ' ' AND VIG.CN9DTOSER < CN9DTINIC AND VIG.CN9DTOSER < VIG.CNFINICIO THEN VIG.CN9DTOSER " + CRLF
+cQuery += "       WHEN VIG.CN9DTINIC > ' ' AND VIG.CN9DTINIC < VIG.CNFINICIO THEN VIG.CN9DTINIC " + CRLF
+cQuery += "       ELSE VIG.CNFINICIO  " + CRLF
+cQuery += "       END AS VIGINICIO, " + CRLF
+cQuery += "  -- Final do contrato " + CRLF
+cQuery += "  CASE WHEN VIG.MAXCOMPET > VIG.CNFFIM THEN VIG.MAXCOMPET ELSE VIG.CNFFIM END AS VIGFINAL " + CRLF
+cQuery += "  FROM VIG " + CRLF
+
+//u_LogMemo("BKFINR06-VIG.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QCNF"
+TCSETFIELD("QCNF","VIGINICIO","D",8,0)
+TCSETFIELD("QCNF","VIGFINAL","D",8,0) 
+
+DBSELECTAREA("QCNF")
+QCNF->(DBGOTOP())
+
+IF QCNF->VIGFINAL <= dPgto .AND. !EMPTY(QCNF->VIGFINAL)  
+	cVig := "Vig.: "+DTOC(QCNF->VIGINICIO)+"-"+DTOC(QCNF->VIGFINAL) 
+ENDIF
+QCNF->(Dbclosearea())
+
+RestArea(aArea)
+
+Return cVig
+
+
+/*
+USER Function Vig3Contrat(cContrato,dPgto)
 Local cVig  := ""
 Local dDTIN := CTOD("")
 Local dDVIG := CTOD("")
@@ -1136,11 +1206,12 @@ DO WHILE QCN9->(!EOF())
 ENDDO
 QCN9->(Dbclosearea())
 
-IF dDVIG <= dPGTO .AND. !EMPTY(dDVIG)  
+IF dDVIG <= dPgto .AND. !EMPTY(dDVIG)  
 	cVig := " - Vig.: "+DTOC(dDTIN)+" até "+DTOC(dDVIG) 
 ENDIF
 
 Return cVig
+*/
 
 
 USER FUNCTION BUSERRUBI(cTIPO,cPRONT,dDTPGTO,cUSER)
