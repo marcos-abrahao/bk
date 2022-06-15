@@ -960,7 +960,7 @@ Return (.T.)
 
 User FUNCTION CR14(lJob)
 Local cAlias := "TRB"
-Local cQuery := ""
+//Local cQuery := ""
 
 dbSelectArea(cAlias)
 
@@ -970,7 +970,7 @@ If !lJob
 		Processa( {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
 		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
 	Else
-		
+		/*
 		If Empty(cContrato)	
 			cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
 			nErro  := TcSqlExec(cQuery)
@@ -999,6 +999,7 @@ If !lJob
 				MsgStop(TCSQLERROR())
 			EndIf
 		EndIf
+		*/
 
 		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
 
@@ -1684,13 +1685,13 @@ FOR _nI := 1 TO nPeriodo
 	      
 				TCQUERY cQuery NEW ALIAS "TMPX2"
 
-				u_xxLog(cArqLog,"BKGCTP14: CNF-Prev "+QTMP->CNF_CONTRA+"-"+aPeriodo[_XI,1]+"-"+cEmpAnt,.T.,"")
+				//u_xxLog(cArqLog,"BKGCTR14: CNF-Prev "+QTMP->CNF_CONTRA+"-"+aPeriodo[_XI,1]+"-"+cEmpAnt,.T.,"")
 
 				dbSelectArea("TMPX2")
 				TMPX2->(dbGoTop())
 				DO WHILE TMPX2->(!EOF())
 						
-					u_xxLog(cArqLog,"BKGCTP14: SZG "+SZG->ZG_CONTRAT+"-"+DTOS(SZG->ZG_DATA)+"-"+cEmpAnt,.T.,"")
+					//u_xxLog(cArqLog,"BKGCTR14: SZG "+SZG->ZG_CONTRAT+"-"+DTOS(SZG->ZG_DATA)+"-"+cEmpAnt,.T.,"")
 
 				    //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
    					nIndTC := 0
