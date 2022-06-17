@@ -2168,7 +2168,7 @@ FOR _nI := 1 TO nPeriodo
 
 				//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - DCH
 				cVALGG := 0
-				IF nDespGeral == 1  .AND. nCompras == 0
+				IF nDespGeral == 1 .AND. nCompras == 0
 					IF !EMPTY(cSeqProj)
            				dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -2278,7 +2278,7 @@ FOR _nI := 1 TO nPeriodo
 				nIncidenci	:= 0
 				_IXFUR := LEN(aFurnas)
 			ELSE
-				nIncidenci	:= GetMv("MV_XXINCID") //mv_par05
+				nIncidenci	:= U_MVXXINCID() //GetMv("MV_XXINCID") //mv_par05
 			ENDIF
 		NEXT _IXFUR
 
@@ -2463,7 +2463,7 @@ FOR _nI := 1 TO nPeriodo
 			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cSINO_Prod
 				//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - ASS ODONTO
 				cVALGG := 0
-				IF nDespGeral == 1  .AND. nCompras == 0
+				IF nDespGeral == 1 .AND. nCompras == 0
 					IF !EMPTY(cSeqProj)
            				dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -2963,7 +2963,7 @@ FOR _nI := 1 TO nPeriodo
 			//CECREMEF
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
 				cVALGG := 0
-				IF nDespGeral == 1  .AND. nCompras == 0
+				IF nDespGeral == 1 .AND. nCompras == 0
 					IF !EMPTY(cSeqProj)
            				dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -3015,7 +3015,7 @@ FOR _nI := 1 TO nPeriodo
 
             	//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
 				cVALGG := 0
-				IF nDespGeral == 1 .AND. ( nCompras == 0 .or. nCompras == 1)  
+				IF nDespGeral == 1 .AND. (nCompras == 0 .or. nCompras == 1)  
 					IF !EMPTY(cSeqProj)
             			dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))

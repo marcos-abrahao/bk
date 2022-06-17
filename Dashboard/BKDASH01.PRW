@@ -30,30 +30,34 @@ If FWCodEmp() == "01"
 	u_LogPrw(cPerg,"Inicio")
 
 	If IsBlind()
-		ProcDS01()
-		ProcDS02()
-		ProcDS03()
-		ProcDS04()
-		ProcDS05()
-		ProcDS10()
+		ProcDSDP1()
+		ProcDSDP2()
+		ProcDSFAT()
+		ProcDSGES()
+		ProcDSGLO()
+		ProcDSGG()
+		ProcDSGER()
 	Else
+		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSDP1() }, "", "Atualizando a tabela PREVDESP1 do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela PREVDESP2 do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSDP2() }, "", "Atualizando a tabela PREVDESP2 do banco de dados PowerBk...")
+		EndIf
 		If MsgYesNo("Confirma a atualização da tabela FATURAMENTO do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDS01() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
+			FWMsgRun(, {|oSay| ProcDSFAT() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GESTORES do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDS02() }, "", "Atualizando a tabela GESTORES do banco de dados PowerBk...")
+			FWMsgRun(, {|oSay| ProcDSGES() }, "", "Atualizando a tabela GESTORES do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GLOSAS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDS03() }, "", "Atualizando a tabela GLOSAS do banco de dados PowerBk...")
+			FWMsgRun(, {|oSay| ProcDSGLO() }, "", "Atualizando a tabela GLOSAS do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GASTOSGERAIS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDS04() }, "", "Atualizando a tabela GASTOSGERAIS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDS05() }, "", "Atualizando a tabela PREVDESP1 do banco de dados PowerBk...")
+			FWMsgRun(, {|oSay| ProcDSGG() }, "", "Atualizando a tabela GASTOSGERAIS do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GERAL do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDS10() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
+			FWMsgRun(, {|oSay| ProcDSGER() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
 		EndIf
 	EndIf
 
@@ -69,7 +73,7 @@ Return
 
 
 // Atualização da tabela FATURAMENTO do banco de dados PowerBk
-Static Function ProcDS01
+Static Function ProcDSFAT
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -246,7 +250,19 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "    1, " + CRLF
 	cQuery += "    1, " + CRLF
 	cQuery += "    ''" + CRLF
-	cQuery += "  ) AS CNRDESCBON "+CRLF
+	cQuery += "  ) AS CNRDESCBON, "+CRLF
+
+	// Gravar a chave das Previsões
+	cQuery += "	(SELECT TOP 1 ZGCHAVE FROM "+CRLF
+	cQuery += "		(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE"+CRLF
+	cQuery += "		FROM PowerBk.dbo.PREVDESP1 "+CRLF
+	cQuery += "		WHERE PREVDESP1.EMPRESA = '"+cEmpresa+"'"+CRLF
+	cQuery += "		    AND PREVDESP1.CONTRATO = SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9)"+CRLF
+	cQuery += "		    AND PREVDESP1.COMPETAM <= SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)"+CRLF
+	cQuery += "		GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA"+CRLF
+	cQuery += "		) AS X"+CRLF
+	cQuery += "		ORDER BY ZGCHAVE DESC) AS CHAVEZG"+CRLF
+
 	If nE == 1
 		cQuery += "  INTO PowerBk.dbo.FATURAMENTO " + CRLF
 	EndIf
@@ -348,7 +364,18 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ' ' 		AS CNRTPMUL, " + CRLF
 	cQuery += "  ' ' 		AS CNRDESCMUL, " + CRLF
 	cQuery += "  ' ' 		AS CNRTPBON, " + CRLF
-	cQuery += "  ' ' 		AS CNRDESCBON " + CRLF
+	cQuery += "  ' ' 		AS CNRDESCBON, " + CRLF
+
+	// Gravar a chave das Previsões
+	cQuery += "	(SELECT TOP 1 ZGCHAVE FROM "+CRLF
+	cQuery += "		(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE"+CRLF
+	cQuery += "		FROM PowerBk.dbo.PREVDESP1 "+CRLF
+	cQuery += "		WHERE PREVDESP1.EMPRESA = '"+cEmpresa+"'"+CRLF
+	cQuery += "		    AND PREVDESP1.CONTRATO = SUBSTRING(CNF_CONTRA,1,9)"+CRLF
+	cQuery += "		    AND PREVDESP1.COMPETAM <= SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)"+CRLF
+	cQuery += "		GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA"+CRLF
+	cQuery += "		) AS X"+CRLF
+	cQuery += "		ORDER BY ZGCHAVE DESC) AS CHAVEZG"+CRLF
 
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabCNF+" CNF " + CRLF
@@ -419,7 +446,7 @@ Return
 
 
 // Atualização da tabela GESTORES do banco de dados PowerBk
-Static Function ProcDS02
+Static Function ProcDSGES
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -542,7 +569,7 @@ Return
 
 
 // Atualização da tabela GLOSAS do banco de dados PowerBk
-Static Function ProcDS03
+Static Function ProcDSGLO
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -744,7 +771,7 @@ Return
 
 
 // Atualização da tabela GASTOSGERAIS do banco de dados PowerBk
-Static Function ProcDS04
+Static Function ProcDSGG
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -822,6 +849,7 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  (D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)  AS D1TOTAL,"+CRLF
  	cQuery += "  CASE WHEN E2_ACRESC  > 0 THEN E2_ACRESC  ELSE E2_MULTA+E2_JUROS END - "+CRLF
  	cQuery += "  	CASE WHEN E2_DECRESC > 0 THEN E2_DECRESC ELSE E2_DESCONT END AS E2ACDEC"+CRLF
+
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabSD1+" SD1" + CRLF
 	cQuery += " INNER JOIN "+cTabSB1+" SB1" + CRLF
@@ -864,12 +892,25 @@ Next
 
 cQuery += ")"+CRLF
 cQuery += " SELECT *,"+CRLF
+
+// Gravar a chave das Previsões
+cQuery += "	(SELECT TOP 1 ZGCHAVE FROM "+CRLF
+cQuery += "		(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE"+CRLF
+cQuery += "		FROM PowerBk.dbo.PREVDESP1 "+CRLF
+cQuery += "		WHERE PREVDESP1.EMPRESA = DESPESAS.EMPRESA"+CRLF
+cQuery += "		    AND PREVDESP1.CONTRATO = DESPESAS.CONTRATO"+CRLF
+cQuery += "		    AND PREVDESP1.COMPETAM <= DESPESAS.COMPETAM"+CRLF
+cQuery += "		GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA"+CRLF
+cQuery += "		) AS X"+CRLF
+cQuery += "		ORDER BY ZGCHAVE DESC) AS CHAVEZG,"+CRLF
+
 cQuery += "	   (E2ACDEC  / F1_VALBRUT * D1TOTAL)   AS E2ACDECIT,"+CRLF
 cQuery += "	   (E2VALTIT / F1_VALBRUT * D1TOTAL)   AS D1TOTIT,"+CRLF
 cQuery += "       (E2ACDEC  / F1_VALBRUT * D1TOTAL) + (E2VALTIT / F1_VALBRUT * D1TOTAL) AS DESPESA"+CRLF
-cQuery += "	   INTO PowerBk.dbo.GASTOSGERAIS FROM DESPESAS"+CRLF
+cQuery += "	INTO PowerBk.dbo.GASTOSGERAIS"+CRLF
+cQuery += "	FROM DESPESAS"+CRLF
 cQuery += " ORDER BY" + CRLF
-cQuery += "      EMPRESA,D1_SERIE,D1_DOC" + CRLF
+cQuery += "      EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC" + CRLF
 
 u_LogMemo("BKDASH01-GG.SQL",cQuery)
 
@@ -909,7 +950,7 @@ Return
 
 
 // Atualização da tabela PREVDESP1 do banco de dados PowerBk
-Static Function ProcDS05
+Static Function ProcDSDP1
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -948,6 +989,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ZG_CONTRAT,1,9) +  " + CRLF
 	cQuery += "     SUBSTRING(ZG_DATA,5,2)+'/'+SUBSTRING(ZG_DATA,1,4)  AS CHAVE, " + CRLF
+ 	cQuery += "  SUBSTRING(ZG_DATA,1,6) + ZG_SEQ AS CHAVEZG,"+CRLF
+
    	cQuery += "  ZG_DATA,"+CRLF
    	cQuery += "  ZG_HORA,"+CRLF
    	cQuery += "  ZG_CLT,"+CRLF
@@ -1020,9 +1063,110 @@ u_LogMemo("BKDASH01-PVD1.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
 
+// Atualização da tabela PREVDESP2 do banco de dados PowerBk
+Static Function ProcDSDP2
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrpGct()
+Local nE 		:= 0
+
+Local cTabSZL   := ""
+
+u_LogPrw(cPerg,"Previsão de despesas 2")
+ 
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabSZL := "SZL"+cEmpresa+"0"
+	cTabCTT := "CTT"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  SUBSTRING(ZL_CONTRAT,1,9) AS CONTRATO,"+CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(ZL_DATA,5,2)+'/'+SUBSTRING(ZL_DATA,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(ZL_DATA,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(ZL_DATA,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+	cQuery += "     SUBSTRING(ZL_CONTRAT,1,9) +  " + CRLF
+	cQuery += "     SUBSTRING(ZL_DATA,5,2)+'/'+SUBSTRING(ZL_DATA,1,4) AS CHAVE, " + CRLF
+ 	cQuery += "  SUBSTRING(ZL_DATA,1,6) + ZL_SEQ AS CHAVEZG,"+CRLF
+
+   	cQuery += "  ZL_TIPO,"+CRLF
+	cQuery += "  (CASE WHEN ZL_TIPO = '01' THEN 'BENEFICIOS' ELSE 'GASTOS GERAIS' END) AS ZLDESCTIPO,"
+   	cQuery += "  ZL_DATA,"+CRLF
+   	cQuery += "  ZL_HORA,"+CRLF
+   	cQuery += "  ZL_CODIGO,"+CRLF
+   	cQuery += "  ZL_DESC,"+CRLF
+   	cQuery += "  ZL_VALOR,"+CRLF
+   	cQuery += "  ZL_SEQ"+CRLF
+	If nE = 1
+		cQuery += "  INTO PowerBk.dbo.PREVDESP2  " + CRLF
+	EndIf
+	cQuery += " FROM "+cTabSZL+" SZL " + CRLF
+	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (ZL_CONTRAT = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+	cQuery += " WHERE SZL.D_E_L_E_T_ = '' AND ZL_DATA <> ''" + CRLF
+Next
+cQuery += " ORDER BY" + CRLF
+cQuery += "      EMPRESA,CONTRATO,ZL_DATA,ZL_SEQ" + CRLF
+
+u_LogMemo("BKDASH01-PVD2.SQL",cQuery)
+
+If !TCIsConnected()
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+//Begin Transaction
+
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PREVDESP2', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.PREVDESP2 "+CRLF
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+
+	nErro   := TcSqlExec(cQuery)
+
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+
+//End Transaction
+
+u_LogMemo("BKDASH01-PVD2.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
+
 
 // Atualização da tabela GERAL do banco de dados PowerBk
-Static Function ProcDS10
+Static Function ProcDSGER
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -1057,18 +1201,21 @@ FROM
 		COMPETAM,
 		COMPET,
 		COMPETD,
+		CHAVEZG,
 		SUM(F2_VALFAT) AS VALFAT,
 		SUM(CXN_VLPREV) AS PREVFAT,
-		SUM(0) AS DESPESA,
-		(SELECT TOP 1 ZGCHAVE FROM 
-			(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
-			FROM PowerBk.dbo.PREVDESP1 
-			WHERE PREVDESP1.EMPRESA = FATURAMENTO.EMPRESA AND PREVDESP1.CONTRATO = FATURAMENTO.CONTRATO AND PREVDESP1.COMPETAM <= FATURAMENTO.COMPETAM
-			GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA
-			) AS X
-			ORDER BY ZGCHAVE DESC) AS CHAVEZG
+		SUM(0) AS DESPESA
+
+		--(SELECT TOP 1 ZGCHAVE FROM 
+		--	(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
+		--	FROM PowerBk.dbo.PREVDESP1 
+		--	WHERE PREVDESP1.EMPRESA = FATURAMENTO.EMPRESA AND PREVDESP1.CONTRATO = FATURAMENTO.CONTRATO AND PREVDESP1.COMPETAM <= FATURAMENTO.COMPETAM
+		--	GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA
+		--	) AS X
+		--	ORDER BY ZGCHAVE DESC) AS CHAVEZG1
+
 		FROM PowerBk.dbo.FATURAMENTO
-		GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+		GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,CHAVEZG
 	UNION ALL
 	SELECT 
 		EMPRESA,
@@ -1078,18 +1225,21 @@ FROM
 		COMPETAM,
 		COMPET,
 		COMPETD,
+		CHAVEZG,
 		SUM(0) AS VALFAT,
 		SUM(0) AS PREVFAT,
-		SUM(DESPESA) AS DESPESA,
-		(SELECT TOP 1 ZGCHAVE FROM 
-			(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
-			FROM PowerBk.dbo.PREVDESP1 
-			WHERE PREVDESP1.EMPRESA = GASTOSGERAIS.EMPRESA AND PREVDESP1.CONTRATO = GASTOSGERAIS.CONTRATO AND PREVDESP1.COMPETAM <= GASTOSGERAIS.COMPETAM
-			GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA
-			) AS X
-			ORDER BY ZGCHAVE DESC) AS CHAVEZG
+		SUM(DESPESA) AS DESPESA
+		
+		--(SELECT TOP 1 ZGCHAVE FROM 
+		--	(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
+		--	FROM PowerBk.dbo.PREVDESP1 
+		--	WHERE PREVDESP1.EMPRESA = GASTOSGERAIS.EMPRESA AND PREVDESP1.CONTRATO = GASTOSGERAIS.CONTRATO AND PREVDESP1.COMPETAM <= GASTOSGERAIS.COMPETAM
+		--	GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA
+		--	) AS X
+		--	ORDER BY ZGCHAVE DESC) AS CHAVEZG1
+
 		FROM PowerBk.dbo.GASTOSGERAIS
-			GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD
+			GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,CHAVEZG
 		) AS FG
 	LEFT JOIN PowerBk.dbo.GESTORES G
   	ON	G.EMPRESA  = FG.EMPRESA 
