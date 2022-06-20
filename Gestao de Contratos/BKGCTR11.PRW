@@ -92,20 +92,18 @@ Private cConsolida 	:= ""
 Private aConsolida 	:= {}
 Private aContConsol := {}
 Private cTipoContra := ""
-Private aXXMIMPC	:= {}
+Private aXMIMPC		:= {}
 Private aMImpContr  := {}
 Private ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 Private ALIAS_FOL   := "TMPF"+ALLTRIM(SM0->M0_CODIGO)
 Private cXXPLR 		:= ""
-Private aFurnas     := {} 
+Private aFurnas		:= U_MVXFURNAS()
 
 Private aTitulos,aCampos,aCabs,aFormat
 Private aCampos2,aCabs2
 Private aCampos3,aCabs3
 
 Default lJob		:= .F.
-
-aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 IF !lJob
 	ValidPerg()
@@ -116,11 +114,11 @@ IF !lJob
 ENDIF
 
 
-aXXMIMPC	:= {}
-aXXMIMPC	:= StrTokArr(U_MVXXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+aXMIMPC	:= {}
+aXMIMPC	:= StrTokArr(U_MVXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
-FOR IX := 1 TO LEN(aXXMIMPC)
-    AADD(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
+FOR IX := 1 TO LEN(aXMIMPC)
+    AADD(aMImpContr,StrTokArr(aXMIMPC[IX],";"))
 NEXT
 
 IF !lJob
@@ -131,44 +129,41 @@ ELSE
 ENDIF
 
 
-nMImpContr 	:= VAL(aMImpContr[1,2]) //mv_par02                                   
-nEncargos  	:= GetMv("MV_XXENCAP") //mv_par03
-nEncarIPT	:= GetMv("MV_XXEIPT")  //mv_par04
-nIncidenci	:= GetMv("MV_XXINCID") //mv_par05
-nTaxaAdm	:= GetMv("MV_XXTXADM") //mv_par06
-cProventos  := U_MVXXPROVE()
-cDescontos  := GetMv("MV_XXDESCO") //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
-cVT_Prov 	:= GetMv("MV_XXVTPRO") //"|671|"  // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
-cVT_Verb 	:= GetMv("MV_XXVTVER") //"|290|667|"
-cVT_Prod   	:= GetMv("MV_XXVTPRD") //"|31201046|"
-cVRVA_Verb  := GetMv("MV_XXVRVAV") //"|613|614|662|681|682|702|"
-cVRVA_Prod  := GetMv("MV_XXVRVAP") //"|31201045|31201047|"
-
-cASSM_Verb	:= GetMv("MV_XXASSMV") //"|605|689|733|734|742|770|771|773|794|796|832|856|"
-cASSM_Prod	:= GetMv("MV_XXASSMP") //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
-
-cSINO_Verb	:= GetMv("MV_XXSINOV") //"|510|607|665|679|724|739|825|900|"    
-cSINO_Prod	:= GetMv("MV_XXSINOP") //"|510|607|665|679|724|732|739|825|900|" 
-
-cCCRE_Verb	:= GetMv("MV_XXCCREV") //INUTILIZADO //"|774|775|776|812|814|"
-cCCRE_Prod	:= GetMv("MV_XXCCREP") //INUTILIZADO //"|34202016|"
-
-cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|34202057|34202086|"    cod produtos rateio no contrato
-cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********                               cod grupo de produto rateio no contrato
-
-cNINC_Verb	:= "|875|910|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
+nMImpContr 	:= VAL(aMImpContr[1,2])// mv_par02                                   
+nEncargos  	:= U_MVXENCAP()        // BK 37.1328 BK TER 8
+nEncarIPT	:= U_MVXEIPT()         // BK 20      BK TER 1
+nIncidenci	:= U_MVXINCID()        // BK 28.860  BK TER 20.700
+nTaxaAdm	:= U_MVXTXADM()	       // mv_par06
+cProventos  := U_MVXPROVE()
+cDescontos  := U_MVXDESCO()        //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
+cVT_Prov 	:= U_MVXVTPRO()	       //"|671|" // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
+cVT_Verb 	:= U_MVXVTVER()        //"|290|667|"
+cVT_Prod   	:= U_MVXVTPRD()        //"|31201046|"
+cVRVA_Verb  := U_MVXVRVAV()        //"|613|614|662|681|682|702|873|874|895|896|"
+cVRVA_Prod  := U_MVXVRVAP()        //"|31201045|31201047|"
+cASSM_Verb	:= U_MVXASSMV()        //"|605|689|733|734|742|770|771|773|794|796|832|856|"
+cASSM_Prod	:= U_MVXASSMP()        //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
+cSINO_Verb	:= U_MVXSINOV()        //"|510|607|665|679|724|739|825|900|"
+cSINO_Prod	:= U_MVXSINOP()        //"|510|607|665|679|724|732|739|825|900|"
+cCCRE_Verb	:= "" //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
+cCCRE_Prod	:= "" //GetMv("MV_XXCCREP") //INUTILIZADO //"|34202016|"
+cCDPR_Prod	:= U_MVXCDPRP()
+cCDPR_GRUP	:= U_MVXCDPRG()
+cNINC_Verb	:= U_MVXNINCI()
 
 aContrCons	:= {}
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
+aContrCons	:= U_MVXCONS()
 
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
 
-cExm_Prod	:= GetMv("MV_XXCEXMP") //"41201015"
-cMFG_Prod	:= GetMv("MV_XXCMFGP") //"31201053"
-cDCH_Prod	:= GetMv("MV_XXCDCH")  //"34202003"
+cExm_Prod	:= U_MVXCEXMP()
+cMFG_Prod	:= U_MVXCMFGP()
+cDCH_Prod	:= U_MVXCDCH()
+cXXPLR	    := U_MVXPLR()
+
+//MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
 cXXSEMAF	:= GetMv("MV_XXSEMAF")
-cXXPLR	    := SuperGetMV("MV_XXPLR",.F.,"|430|") //|430|
 
 IF EMPTY(cContrato)
 	IF !lJob
@@ -192,24 +187,6 @@ ENDIF
 FOR IX:= 1 TO LEN(aContrCons)
     AADD(aConsorcio,StrTokArr(aContrCons[IX],";"))
 NEXT
-
-//MV_XXASSMP	C	Cod. Prod. desc. assist. medica calculo Rentabilid
-//MV_XXASSMV	C	Verba desc. assist. medica calculo Rentabilidade
-//MV_XXCONS1	C	Codigo contrato Consorcio BKDAHER calculo Rentabil
-//MV_XXCDPRP	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXCDPRG	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXCEXMP	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXCMFGP	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXDESCO	C	Descontos calculo Rentabilidade dos Contratos
-//U_MVXXPROVE()	C	Proventos calculo Rentabilidade dos Contratos
-//MV_XXSINOP	C	Cod. Prod. desc. sind. odonto  calculo Rentabilida
-//MV_XXSINOV	C	Verba desc. sind. odonto  calculo Rentabilidade
-//MV_XXVRVAP	C	COD Produto de TR/VA calculo Rentabilidade
-//MV_XXVRVAV	C	Verba desconto de TR/VA calculo Rentabilidade
-//MV_XXVTPRD	C	Cod Produto VT custos calculo Rentabilidade
-//MV_XXVTVER	C	Verba desconto de VT custos calculo Rentabilidade
-//MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
-//cNINC_Verb	C   VERBA SEM INCIDENCIAS   
 
  		
 IF ALLTRIM(cXXSEMAF) == 'N'
@@ -1586,7 +1563,7 @@ FOR _nI := 1 TO nPeriodo
 				nIncidenci	:= 0
 				_IXFUR := LEN(aFurnas)
 			ELSE
-				nIncidenci	:= GetMv("MV_XXINCID") //mv_par05
+				nIncidenci	:= U_MVXINCID()
 			ENDIF
 		NEXT _IXFUR
 
@@ -1778,10 +1755,10 @@ FOR _nI := 1 TO nPeriodo
 		
 		FOR _IXFUR:= 1 TO LEN(aFurnas)
 			IF SUBSTR(ALLTRIM(QTMP->CNF_CONTRA),7,3) == SUBSTR(aFURNAS[_IXFUR],7,3)
-				nEncargos	:= GetMv("MV_XXENCFU") //Encargo Furnas
-				_IXFUR := LEN(aFurnas)
+				nEncargos := U_MVXENCFU()
+				_IXFUR	  := LEN(aFurnas)
 			ELSE
-				nEncargos  	:= GetMv("MV_XXENCAP") //mv_par03
+				nEncargos := U_MVXENCAP()
 			ENDIF
 		NEXT _IXFUR
 
@@ -4490,36 +4467,32 @@ PRIVATE cConsolida 	:= ""
 PRIVATE aConsolida 	:= {}
 PRIVATE aContConsol := {}
 PRIVATE cTipoContra := ""
-PRIVATE aXXMIMPC	:= {}
+PRIVATE aXMIMPC		:= {}
 PRIVATE aMImpContr  := {}
 PRIVATE aTitulos,aCampos,aCabs,aFormat
 PRIVATE aCampos2,aCabs2
 PRIVATE ALIAS_TMP   := "TMPC"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE ALIAS_FOL   := "TMPF"+ALLTRIM(SM0->M0_CODIGO)
 PRIVATE cXXPLR 		:= ""
-PRIVATE aFurnas		:= {} 
+Private aFurnas		:= U_MVXFURNAS()
 PRIVATE lFurnas		:= .F.
 
 Default lJob	:= .F.
 Default aAglContr := {}
-
-aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 IF !lJob
 	ValidPerg2()
 	If !Pergunte(cPerg,.T.)
 		Return Nil
 	Endif
-
 ENDIF
 
 
-
-aXXMIMPC	:= {}
-aXXMIMPC	:= StrTokArr(U_MVXXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+aXMIMPC	:= {}
+aXMIMPC	:= StrTokArr(U_MVXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
-FOR IX := 1 TO LEN(aXXMIMPC)
-    AADD(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
+FOR IX := 1 TO LEN(aXMIMPC)
+    AADD(aMImpContr,StrTokArr(aXMIMPC[IX],";"))
 NEXT
 
 IF !lJob
@@ -4535,11 +4508,11 @@ ELSE
 	ENDIF
 ENDIF
 
-nMImpContr 	:= VAL(aMImpContr[1,2]) //mv_par02                                   
-nEncargos  	:= GetMv("MV_XXENCAP") //mv_par03
-nEncarIPT	:= GetMv("MV_XXEIPT")  //mv_par04
-nIncidenci	:= GetMv("MV_XXINCID") //mv_par05
-nTaxaAdm	:= GetMv("MV_XXTXADM") //mv_par06
+nMImpContr 	:= VAL(aMImpContr[1,2])// mv_par02                                   
+nEncargos  	:= U_MVXENCAP()        // BK 37.1328 BK TER 8
+nEncarIPT	:= U_MVXEIPT()         // BK 20      BK TER 1
+nIncidenci	:= U_MVXINCID()        // BK 28.860  BK TER 20.700
+nTaxaAdm	:= U_MVXTXADM()        // mv_par06
 IF !lJob
 	nConsolida	:= mv_par07
 	nIndConsor	:= mv_par08
@@ -4647,33 +4620,36 @@ IF nConsolida == 1
 ENDIF
 
 
-cProventos  := U_MVXXPROVE()
-cDescontos  := GetMv("MV_XXDESCO") //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784"
-cVT_Prov 	:= GetMv("MV_XXVTPRO") //"|671|"
-cVT_Verb 	:= GetMv("MV_XXVTVER") //"|290|667|"
-cVT_Prod   	:= GetMv("MV_XXVTPRD") //"|31201046|"
-cVRVA_Verb  := GetMv("MV_XXVRVAV") //"|613|614|662|681|682|702|873|874|895|896|"
-cVRVA_Prod  := GetMv("MV_XXVRVAP") //"|31201045|31201047|"
-cASSM_Verb	:= GetMv("MV_XXASSMV") //"|605|689|733|734|742|770|771|773|794|796|832|856|"
-cASSM_Prod	:= GetMv("MV_XXASSMP") //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
-cSINO_Verb	:= GetMv("MV_XXSINOV") //"|510|607|665|679|724|739|825|900|"
-cSINO_Prod	:= GetMv("MV_XXSINOP") //"|510|607|665|679|724|732|739|825|900|"
-cCCRE_Verb	:= GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
-cCCRE_Prod	:= GetMv("MV_XXCCREP") //"|34202016|"
+cProventos  := U_MVXPROVE()
+cDescontos  := U_MVXDESCO()        //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
+cVT_Prov 	:= U_MVXVTPRO()	       //"|671|" // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
+cVT_Verb 	:= U_MVXVTVER()        //"|290|667|"
+cVT_Prod   	:= U_MVXVTPRD()        //"|31201046|"
+cVRVA_Verb  := U_MVXVRVAV()        //"|613|614|662|681|682|702|873|874|895|896|"
+cVRVA_Prod  := U_MVXVRVAP()        //"|31201045|31201047|"
+cASSM_Verb	:= U_MVXASSMV()        //"|605|689|733|734|742|770|771|773|794|796|832|856|"
+cASSM_Prod	:= U_MVXASSMP()        //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
+cSINO_Verb	:= U_MVXSINOV()        //"|510|607|665|679|724|739|825|900|"
+cSINO_Prod	:= U_MVXSINOP()        //"|510|607|665|679|724|732|739|825|900|"
+cCCRE_Verb	:= "" //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
+cCCRE_Prod	:= "" //GetMv("MV_XXCCREP") //"|34202016|"
 cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|34202057|34202086|"    cod produtos rateio no contrato
 cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********                               cod grupo de produto rateio no contrato
-cNINC_Verb	:= "|875|910|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
+cNINC_Verb	:= U_MVXNINCI()
 
 aContrCons	:= {}
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
+aContrCons	:= U_MVXCONS()
+
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
 
-cExm_Prod	:= GetMv("MV_XXCEXMP") //"41201015"
-cMFG_Prod	:= GetMv("MV_XXCMFGP") //"31201053"
-cDCH_Prod	:= GetMv("MV_XXCDCH") //"34202003"
+cExm_Prod	:= U_MVXCEXMP()
+cMFG_Prod	:= U_MVXCMFGP()
+cDCH_Prod	:= U_MVXCDCH()
+cXXPLR	    := U_MVXPLR()
+
+//MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
 cXXSEMAF	:= GetMv("MV_XXSEMAF")
-cXXPLR	    := SuperGetMV("MV_XXPLR",.F.,"|430|") //|430|
 
 IF EMPTY(cContrato)
 	IF !lJob
@@ -5446,19 +5422,6 @@ EndIf
 Return lRet
 
 
-User Function DefCtrPrd()
-Local aRet
-
-// Rateio especifico por produtos ex. alugueis lançados em um unico doc de entrada
-// Rateio  Contrato  x  Produtos                       15/01/20 - Marcos
-//aRet := {{"345000529",{"320200301","000000000000102"}}}
-aRet := {}
-//		 {"302000508",{"000000000000102"}}}
-Return aRet
-
-
-
-
 // Buscar Titulos do contas a pagar por itens dos Documentos de Entrada
 // 20/07/2020
 User Function fAcrDcr(cEmpC,aLAcrDcr)
@@ -5468,7 +5431,7 @@ Local nTotE2  := 0
 Local nACrDcr := 0
 Local _nY	  := 0
 Local nValTit := 0
-Local _nI	  := 0 
+//Local _nI	  := 0 
 
 Default cEmpC := ""
 Default aLAcrDcr := {}
@@ -5486,9 +5449,10 @@ If Len(aLAcrDcr) = 0
 	cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
 	cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
 
-	u_LogMemo("BKGCTR11-E2-"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
-
+	u_LogTxt("BKGCTR11-E2.SQL")
 	TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
+	u_LogTxt("BKGCTR11-E2.SQL",cQuery3)
+
 	dbSelectArea("QTMPXE2")
 	dbGoTop()
 
@@ -5636,9 +5600,10 @@ If aScan(aNDC,cNumContr+cCompt) == 0
 	cQuery += "    AND E1_XXCOMPE = '"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
 	cQuery += "    AND E1_XXCUSTO = '"+cNumContr+"'" + CRLF
 
-	u_LogMemo("BKGCTR11-NDC-"+STRZERO(_nI,3)+"-"+STRZERO(nCount++,3)+".SQL",cQuery)
-
+	u_LogTxt("BKGCTR11-NDC.SQL")
 	TCQUERY cQuery NEW ALIAS "QTMPXE1"
+	u_LogTxt("BKGCTR11-NDC.SQL",cQuery)
+
 	dbSelectArea("QTMPXE1")
 	dbGoTop()
 

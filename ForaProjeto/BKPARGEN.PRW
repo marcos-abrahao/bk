@@ -110,18 +110,19 @@ SELECT SZZX6
 IF DBSEEK("  "+cParam,.F.)
     If lAlt
         If MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+ALLTRIM(SZZX6->X6_CONTEUD)+CRLF+"Confirma a alteração para "+ALLTRIM(cConteudo)+"?","Parâmetro "+cParam)
-            cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo anterior: " + SZZX6->X6_CONTEUD + CRLF
+            cTexto += "Parametro: " + SZZX6->X6_VAR + " conteudo anterior: " + SZZX6->X6_CONTEUD + CRLF
 
             RecLock("SZZX6",.F.)
             SZZX6->X6_CONTEUD := cConteudo
 
-            cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo alterado: " + SZZX6->X6_CONTEUD + CRLF
+            cTexto += "Parametro: " + SZZX6->X6_VAR + " conteudo alterado: " + SZZX6->X6_CONTEUD + CRLF
             MsUnlock()
         Else
-            cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
+            cTexto += "Parametro: " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
         EndIf
     Else
-       cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo:  " + SZZX6->X6_CONTEUD + CRLF
+       cTexto += "Descrição: " + SZZX6->X6_DESCRIC + CRLF
+       cTexto += "Parametro: " + SZZX6->X6_VAR + " conteudo:  " + SZZX6->X6_CONTEUD + CRLF
     EndIf
 else
     cTexto += "Parametro não encontrado" + CRLF

@@ -12,8 +12,8 @@ BK - Fluxo de Caixa - Realizado
 
 User Function BKFINR10()
 
-PRIVATE cASSM_Prod	:= GetMv("MV_XXASSMP") //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
-PRIVATE cSINO_Prod	:= GetMv("MV_XXSINOP") //"|510|607|665|679|724|732|739|825|900|"
+PRIVATE cASSM_Prod	:= U_MVXASSMP()
+PRIVATE cSINO_Prod	:= U_MVXSINOP()
 PRIVATE cTitulo	    := OemToAnsi("Fluxo de Caixa Realizado ")
 PRIVATE cPerg		:= "BKFINR10"
 PRIVATE nLastKey	:= 0
@@ -2003,7 +2003,7 @@ Local aContrCons	:= {}
 Local aConsorcio    := {}
 Local IX
 
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
+aContrCons	:= U_MVXCONS()
 
 FOR IX:= 1 TO LEN(aContrCons)
     AADD(aConsorcio,StrTokArr(aContrCons[IX],";"))

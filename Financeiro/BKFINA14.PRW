@@ -46,11 +46,9 @@ Private aTit1Ger:= {}
 Private nFurnas := 0 
 Private nTED	:= 0
 Private cBCOTED := "/399/756/"
-PRIVATE aFurnas := {}
+Private aFurnas	:= U_MVXFURNAS()
 PRIVATE nTedItau:= 2
 PRIVATE cTedBco := "104"
-
-aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)

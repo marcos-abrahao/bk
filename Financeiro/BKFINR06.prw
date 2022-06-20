@@ -39,9 +39,7 @@ PRIVATE oFont6  := NIL
 PRIVATE oFont8  := NIL
 PRIVATE lLands  := .T.
 PRIVATE cDescCC := ""
-PRIVATE aFurnas  := {} 
-
-aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
+Private aFurnas	:= U_MVXFURNAS()
 
 u_LogPrw("BKFINR06")
 

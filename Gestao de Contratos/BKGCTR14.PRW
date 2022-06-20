@@ -165,14 +165,12 @@ Private aContConsol := {}
 Private cTipoContra := "A" // 04/05/22 - SOMENTE CONTRATOS VIGENTES
 Private nVContrat 	:= 0
 Private aVContrat	:= {}
-Private aXXMIMPC	:= {}
+Private aXMIMPC		:= {}
 Private aMImpContr  := {}
 Private dDtProj 	:= CTOD("")
 Private cSeqProj	:= ""
-Private aFurnas		:= {} 
+Private aFurnas		:= U_MVXFURNAS()
 Private aPetro		:= {} 
-
-aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 mv_par03 := YEAR(dDataBase)
 
@@ -222,11 +220,11 @@ Else
 
 EndIf
 
-aXXMIMPC	:= {}
-aXXMIMPC	:= StrTokArr(U_MVXXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+aXMIMPC	:= {}
+aXMIMPC	:= StrTokArr(U_MVXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 aMImpContr  := {}
-FOR IX := 1 TO LEN(aXXMIMPC)
-    aAdd(aMImpContr,StrTokArr(aXXMIMPC[IX],";"))
+FOR IX := 1 TO LEN(aXMIMPC)
+    aAdd(aMImpContr,StrTokArr(aXMIMPC[IX],";"))
 NEXT
 
 cContrato  	:= mv_par01
@@ -244,10 +242,10 @@ IF nDespGeral == 2
 ENDIF
 
 nMImpContr 	:= VAL(aMImpContr[1,2])                      
-nEncargos  	:= U_MVXXENCAP() // BK 37.1328 BK TER 8 
-nEncarIPT	:= U_MVXXEIPT()  // BK 20      BK TER 1
-nIncidenci	:= U_MVXXINCID() // BK 28.860  BK TER 20.700
-nTaxaAdm	:= U_MVXXTXADM() // 3
+nEncargos  	:= U_MVXENCAP()  // BK 37.1328 BK TER 8 
+nEncarIPT	:= U_MVXEIPT()   // BK 20      BK TER 1
+nIncidenci	:= U_MVXINCID()  // BK 28.860  BK TER 20.700
+nTaxaAdm	:= U_MVXTXADM()  // 3
 
                                                                                   
 //VERIFICA CHAMADA DE CONSOLIDAR
@@ -330,33 +328,35 @@ IF nConsolida == 1
 
 ENDIF
 
-
-cProventos  := U_MVXXPROVE()
-cDescontos  := GetMv("MV_XXDESCO") //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784"
-cVT_Prov 	:= GetMv("MV_XXVTPRO") //"|671|"
-cVT_Verb 	:= GetMv("MV_XXVTVER") //"|290|667|"
-cVT_Prod   	:= GetMv("MV_XXVTPRD") //"|31201046|"
-cVRVA_Verb  := GetMv("MV_XXVRVAV") //"|613|614|662|681|682|702| 
-cVRVA_Prod  := GetMv("MV_XXVRVAP") //"|31201045|31201047|"
-cASSM_Verb	:= GetMv("MV_XXASSMV") //"|605|689|733|734|742|770|771|773|794|796|832|856|"                
-cASSM_Prod	:= GetMv("MV_XXASSMP") //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|" 
-cSINO_Verb	:= GetMv("MV_XXSINOV") //"|510|607|665|679|724|739|825|900|"
-cSINO_Prod	:= GetMv("MV_XXSINOP") //"|510|607|665|679|724|732|739|825|900|"
-cCCRE_Verb	:= GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
-cCCRE_Prod	:= GetMv("MV_XXCCREP") //"|34202016|"
-cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|34202057|34202086|"    cod produtos rateio no contrato
-cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //"|0008|0009|0010|"  *********                               cod grupo de produto rateio no contrato
-cNINC_Verb	:= "|875|910|"  //GetMv("MV_XXNINCI") //"|875|"  VERBA SEM INCIDENCIAS   
+cProventos  := U_MVXPROVE()
+cDescontos  := U_MVXDESCO()        //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
+cVT_Prov 	:= U_MVXVTPRO()	       //"|671|" // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
+cVT_Verb 	:= U_MVXVTVER()        //"|290|667|"
+cVT_Prod   	:= U_MVXVTPRD()        //"|31201046|"
+cVRVA_Verb  := U_MVXVRVAV()        //"|613|614|662|681|682|702|873|874|895|896|"
+cVRVA_Prod  := U_MVXVRVAP()        //"|31201045|31201047|"
+cASSM_Verb	:= U_MVXASSMV()        //"|605|689|733|734|742|770|771|773|794|796|832|856|"
+cASSM_Prod	:= U_MVXASSMP()        //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|" 
+cSINO_Verb	:= U_MVXSINOV()        //"|510|607|665|679|724|739|825|900|"
+cSINO_Prod	:= U_MVXSINOP()        //"|510|607|665|679|724|732|739|825|900|"
+cCCRE_Verb	:= ""                  //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
+cCCRE_Prod	:= ""                  //GetMv("MV_XXCCREP") //"|34202016|"
+cCDPR_Prod	:= U_MVXCDPRP()
+cCDPR_GRUP	:= U_MVXCDPRG()
+cNINC_Verb	:= U_MVXNINCI()
 aContrCons	:= {}
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
+//aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
+aContrCons	:= U_MVXCONS()
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
 
-cExm_Prod	:= GetMv("MV_XXCEXMP") //"41201015"
-cMFG_Prod	:= GetMv("MV_XXCMFGP") //"31201053"
-cDCH_Prod	:= GetMv("MV_XXCDCH") //"34202003"
+cExm_Prod	:= U_MVXCEXMP()
+cMFG_Prod	:= U_MVXCMFGP()
+cDCH_Prod	:= U_MVXCDCH()
+cXXPLR	    := U_MVXPLR()
+
+//MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
 cXXSEMAF	:= GetMv("MV_XXSEMAF")
-cXXPLR	    := SuperGetMV("MV_XXPLR",.F.,"|430|") //|430|
 
 IF EMPTY(cContrato)
 	IF lJob
@@ -390,23 +390,6 @@ ENDIF
 FOR IX:= 1 TO LEN(aContrCons)
     aAdd(aConsorcio,StrTokArr(aContrCons[IX],";"))
 NEXT
-
-//MV_XXASSMP	C	Cod. Prod. desc. assist. medica calculo Rentabilid
-//MV_XXASSMV	C	Verba desc. assist. medica calculo Rentabilidade
-//MV_XXCONS1	C	Codigo contrato Consorcio BKDAHER calculo Rentabil
-//MV_XXCDPRP	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXCDPRG	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXCEXMP	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXCMFGP	C	Cod. Prod. para rateio no calculo de rentabilidade
-//MV_XXDESCO	C	Descontos calculo Rentabilidade dos Contratos
-//U_MVXXPROVE()	C	Proventos calculo Rentabilidade dos Contratos
-//MV_XXSINOP	C	Cod. Prod. desc. sind. odonto  calculo Rentabilida
-//MV_XXSINOV	C	Verba desc. sind. odonto  calculo Rentabilidade
-//MV_XXVRVAP	C	COD Produto de TR/VA calculo Rentabilidade
-//MV_XXVRVAV	C	Verba desconto de TR/VA calculo Rentabilidade
-//MV_XXVTPRD	C	Cod Produto VT custos calculo Rentabilidade
-//MV_XXVTVER	C	Verba desconto de VT custos calculo Rentabilidade
-//MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
 
 IF ALLTRIM(cXXSEMAF) == 'N'
 	If !lJob
@@ -498,13 +481,15 @@ If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 		cQuery += " GROUP BY CN9_SITUAC"+CRLF
 	ENDIF	
 
-	u_LogMemo("BKGCTR14.SQL",cQuery)
+	u_LogTxt("BKGCTR14-CN9.SQL")
 
 	TCQUERY cQuery NEW ALIAS "QTMP1"
 	TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
 	TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)	
 	TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)	
 	TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)	
+
+	u_LogTxt("BKGCTR14-CN9.SQL",cQuery)
 
 	dbSelectArea("QTMP1")
 	dDataI		:= QTMP1->CN9_DTOSER
@@ -1367,12 +1352,15 @@ FOR _nI := 1 TO nPeriodo
    	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
    	cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
  
-	u_LogMemo("BKGCTR14-"+cAnoMes+".SQL",cQuery)
-
 	If Select("QTMP") > 0
 		QTMP->(dbCloseArea())
 	EndIf
+
+	u_LogTxt("BKGCTR14-CNF.SQL")
+
 	TCQUERY cQuery NEW ALIAS "QTMP" 
+
+	u_LogTxt("BKGCTR14-CNF.SQL",cQuery)
 
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
@@ -1393,9 +1381,12 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		u_LogMemo("BKGCTR14-CNF-A-"+cAnoMes+".SQL",cQueryA)
+		u_LogTxt("BKGCTR14-CNF-A.SQL")
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
+
+		u_LogTxt("BKGCTR14-CNF-A.SQL",cQueryA)
+
 		dbSelectArea("QTMP")
 		QTMP->(dbGoTop())
 
@@ -1911,9 +1902,11 @@ FOR _nI := 1 TO nPeriodo
 		
 		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-		u_LogMemo("BKGCTR14-SZ2-"+cVarLog+".SQL",cQuery1)
+		u_LogTxt("BKGCTR14-SZ2.SQL")
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
+
+		u_LogTxt("BKGCTR14-SZ2.SQL",cQuery1)
 
 		dbSelectArea("TMPX2")
 		dbGoTop()
@@ -2278,7 +2271,7 @@ FOR _nI := 1 TO nPeriodo
 				nIncidenci	:= 0
 				_IXFUR := LEN(aFurnas)
 			ELSE
-				nIncidenci	:= U_MVXXINCID() //GetMv("MV_XXINCID") //mv_par05
+				nIncidenci	:= U_MVXINCID()
 			ENDIF
 		NEXT _IXFUR
 
@@ -2334,9 +2327,12 @@ FOR _nI := 1 TO nPeriodo
 
 		cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve"+CRLF
 
-		u_LogMemo("BKGCTR14-FOL-"+cVarLog+".SQL",cQuery2)
+		u_LogTxt("BKGCTR14-FOL.SQL")
 	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
+
+		u_LogTxt("BKGCTR14-FOL.SQL",cQuery2)
+
 		nProventos := 0
 		nCusto     := 0
 		nXXPLR	   := 0	
@@ -2556,10 +2552,10 @@ FOR _nI := 1 TO nPeriodo
 
 		FOR _IXFUR:= 1 TO LEN(aFurnas)
 			IF SUBSTR(ALLTRIM(QTMP->CNF_CONTRA),7,3) == SUBSTR(aFURNAS[_IXFUR],7,3)
-				nEncargos	:= GetMv("MV_XXENCFU") //Encargo Furnas
-				_IXFUR := LEN(aFurnas)
+				nEncargos := U_MVXENCFU()
+				_IXFUR	  := LEN(aFurnas)
 			ELSE
-				nEncargos  	:= GetMv("MV_XXENCAP") //mv_par03
+				nEncargos := U_MVXENCAP()
 			ENDIF
 		NEXT _IXFUR
 
@@ -2826,10 +2822,12 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " GROUP BY D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"+CRLF
 
 		//cQuery2 += " ORDER BY B1_DESC"
-        
+
+		u_LogTxt("BKGCTR14-D1-1.SQL")        
+
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-		u_LogMemo("BKGCTR14-D1-1-"+cVarLog+".SQL",cQuery2)        
+		u_LogTxt("BKGCTR14-D1-1.SQL",cQuery2)        
 				
 		cOutros := 'S'
 		dbSelectArea("TMPX2")
@@ -3698,8 +3696,9 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
    			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
+			u_LogTxt("BKGCTR14-E5-1.SQL")    
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogMemo("BKGCTR14-E5-1-"+cVarLog+".SQL",cQuery2)    
+			u_LogTxt("BKGCTR14-E5-1-.SQL",cQuery2)    
 
 			dbSelectArea("TMPX2")
 			dbGoTop()
@@ -4180,8 +4179,9 @@ FOR _nI := 1 TO nPeriodo
 		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 				cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 		        
+				u_LogTxt("BKGCTR14-E5-2.SQL")        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
-				u_LogMemo("BKGCTR14-E5-2-"+cVarLog+".SQL",cQuery2)        
+				u_LogTxt("BKGCTR14-E5-2.SQL",cQuery2)        
 
 				dbSelectArea("TMPX2")
 				dbGoTop()
@@ -4248,8 +4248,9 @@ FOR _nI := 1 TO nPeriodo
 	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 	        
+			u_LogTxt("BKGCTR14-E5-3.SQL")
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogMemo("BKGCTR14-E5-3-"+cVarLog+".SQL",cQuery2)
+			u_LogTxt("BKGCTR14-E5-3.SQL",cQuery2)
 			
 			dbSelectArea("TMPX2")
 			dbGoTop()

@@ -55,7 +55,7 @@ PRIVATE aContrCons	:= {}
 PRIVATE nIndConsor	:= 1
 Private aPeriodo
 
-aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
+aContrCons	:= U_MVXCONS()
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)

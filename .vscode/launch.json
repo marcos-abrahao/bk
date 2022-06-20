@@ -59,7 +59,10 @@
 		},
 		{
 			"label": "sigfis"
+		},
+		{
+			"label": "SIGAATF"
 		}
 	],
-	"lastProgramExecuted": "sigagct"
+	"lastProgramExecuted": "sigafin"
 }

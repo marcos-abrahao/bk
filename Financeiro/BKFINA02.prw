@@ -48,11 +48,9 @@ Local cNome
 Local cTitulo2 := "Seleção de Lotes - Liquidos "+FWEmpName(cEmpAnt)
 Local MV_XXUSRPJ := u_FinUsrPj()
 
-PRIVATE aFurnas  := {} 
+Private aFurnas	:= U_MVXFURNAS()
 
 u_LogPrw("BKFINA02")
-
-aFurnas  := U_StringToArray(ALLTRIM(SuperGetMV("MV_XXFURNAS",.F.,"105000381/105000391")), "/" )
 
 dbSelectArea("SZ2")
 dbGoTop()

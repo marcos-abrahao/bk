@@ -94,7 +94,7 @@ While !FT_FEOF()
                       {'N1_CODBAR' ,STRZERO(VAL(aLINHA[7]),6),NIL},;
                       {'N1_PATRIM' ,'N',NIL},;
                       {'N1_GRUPO'  ,aLinha[8] ,NIL},;
-                      {'N1_LOCAL'  ,'000001' ,NIL},;
+                      {'N1_LOCAL'  ,IIF(EMPTY(aLinha[19]),"000001",STRZERO(VAL(aLinha[19]),6)) ,NIL},;
                       {'N1_NSERIE' ,ALLTRIM(aLINHA[13]) ,NIL},;
                       {'N1_NFISCAL',STRZERO(VAL(aLINHA[14]),9) ,NIL},;
                       {'N1_DETPATR','06' ,NIL},;
