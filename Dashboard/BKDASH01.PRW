@@ -12,11 +12,15 @@ BK - Faturamento por contrato
 
 Faltam:
 
-Tabela Geral: Faturamento liquido, folha, calculo de resultado, % rentabilidade
+Tabela Geral: folha, calculo de resultado, % rentabilidade
 Tabela Folha: tudo
 Tabela GastosGerais: Categorias de produtos
-Tabela Previsoesdegastos: 
 Tabela Previsoesdecustos: 
+
+Ok:
+Tabela Previsoesdegastos: Ok
+Tabela Faturamento: Faturamento Liquido
+
 
 /*/
 
@@ -94,11 +98,13 @@ Local cTabCTT   := ""
 Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
+Local cTabSE5   := ""
 
 u_LogPrw(cPerg,"Faturamento")
 
 cTabSZR := "SZR010"
 
+cQuery := "WITH FATUR AS ("
 For nE := 1 TO Len(aEmpresas)
 
 	cEmpresa := aEmpresas[nE,1]
@@ -113,6 +119,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabCN9 := "CN9"+cEmpresa+"0"
 	cTabCNF := "CNF"+cEmpresa+"0"
 	cTabCNA := "CNA"+cEmpresa+"0"
+	cTabSE5 := "SE5"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -141,6 +148,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  F2_DOC, " + CRLF
 	cQuery += "  CONVERT(DATE,F2_EMISSAO,112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  F2_VALFAT, " + CRLF
+	cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - (CASE WHEN F2_RECISS = '1' THEN F2_VALISS ELSE 0 END) - F2_VLCPM  - F2_XXVRETC) AS F2VALLIQ1, " + CRLF
+
 	cQuery += "  CND_USUAR, " + CRLF
 	cQuery += "  (" + CRLF
 	cQuery += "    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END" + CRLF
@@ -150,6 +159,12 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CASE WHEN ISNULL(CXN_VLPREV, CND_VLPREV) = CNF_VLPREV THEN CNF_VLPREV ELSE 0 END AS CXN_VLPREV,"+ CRLF
 	//cQuery += "  ISNULL(CXN_VLBONI, CND_VLBONI) AS CXN_VLBONI, " + CRLF
 	//cQuery += "  ISNULL(CXN_VLMULT, CND_VLMULT) AS CXN_VLMULT, " + CRLF
+
+	// Movimento Financeiro (multas e descontos)
+	cQuery += "   (SELECT SUM(E5_VALOR) FROM "+cTabSE5+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
+	cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC," + CRLF
+	cQuery += "   (SELECT SUM(E5_VALOR) FROM "+cTabSE5+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
+	cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA," + CRLF
 
 	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
 	cQuery += "        FROM "+cTabCNR+" CNR " + CRLF
@@ -262,10 +277,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "		GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA"+CRLF
 	cQuery += "		) AS X"+CRLF
 	cQuery += "		ORDER BY ZGCHAVE DESC) AS CHAVEZG"+CRLF
-
-	If nE == 1
-		cQuery += "  INTO PowerBk.dbo.FATURAMENTO " + CRLF
-	EndIf
+	// --
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabSF2+" SF2 " + CRLF
 
@@ -355,12 +367,15 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  'PREVISTO' AS F2_DOC, " + CRLF
 	cQuery += "  CONVERT(DATE,CONVERT(VARCHAR,''),112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  0 			AS F2_VALFAT, " + CRLF
+	cQuery += "  0 			AS F2VALLIQ1, " + CRLF
 	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
 	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
 	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
 	cQuery += "  CNF_VLPREV AS CXN_VLPREV, " + CRLF
-	cQuery += "  0 			AS CXN_VLBONI, " + CRLF
-	cQuery += "  0 			AS CXN_VLMULT, " + CRLF
+	cQuery += "  0 			AS XX_E5DESC, " + CRLF
+	cQuery += "  0 			AS XX_E5MULTA, " + CRLF
+	cQuery += "  0 			AS CNRVLBONI, " + CRLF
+	cQuery += "  0 			AS CNRVLMULT, " + CRLF
 	cQuery += "  ' ' 		AS CNRTPMUL, " + CRLF
 	cQuery += "  ' ' 		AS CNRDESCMUL, " + CRLF
 	cQuery += "  ' ' 		AS CNRTPBON, " + CRLF
@@ -405,8 +420,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "     AND CNF.D_E_L_E_T_ = ' ' " + CRLF
 Next
 
+cQuery += ")"  + CRLF
+cQuery += " SELECT *," + CRLF
+cQuery += " F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) AS F2VALLIQ" + CRLF
+cQuery += " INTO PowerBk.dbo.FATURAMENTO " + CRLF
+cQuery += " FROM FATUR " + CRLF
 cQuery += " ORDER BY" + CRLF
-cQuery += "    EMPRESA,F2_SERIE,F2_DOC" + CRLF
+cQuery += "    EMPRESA,CONTRATO,COMPETAM,F2_DOC" + CRLF
 
 //u_LogMemo("BKDASH01.SQL",cQuery)
 
@@ -888,6 +908,14 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
 	cQuery += "      	OR B1_CONTA IN ('29104004') " + CRLF
 	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) " + CRLF
+
+	IF cEmpresa == "01" // Despesas médicas 
+		cQuery += "AND 1 = CASE WHEN D1_CC = 313000504 AND D1_FORNECE = '002918' THEN 0 ELSE 1 END"+CRLF
+	ENDIF 
+	IF cEmpresa == "14" // Despesas médicas
+		cQuery += "      AND D1_FORNECE <> '000604'"+CRLF
+	ENDIF 
+
 Next
 
 cQuery += ")"+CRLF
@@ -1249,6 +1277,8 @@ SELECT
 GER.* ,
 PDP1.ZG_CLT + PDP1.ZG_BENEFIC AS PREVCUSTOS,
 PDP1.ZG_DESPDIV AS PREVDESP,
+PDP1.ZG_DESPDIV * 0.9 AS PREVDESP09,
+PDP1.ZG_DESPDIV * 1.2 AS PREVDESP12,
 PDP1.ZG_VLRENTA AS PREVRESULT
   	--PDP1.ZG_DATA,
   	--PDP1.ZG_SEQ,

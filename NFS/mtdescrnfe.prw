@@ -1062,7 +1062,7 @@ Return cRetTexto
 */
 
 User Function ProxRem(cArqIni)
-Local cIni		:= cArqIni+".CFP"
+Local cIni		:= TRIM(cArqIni)+".CFP"
 Local cLinha	:= ""
 Local cArqBkp	:= ""
 Local aLinhas	:= {}
@@ -1070,7 +1070,7 @@ Local nHandle	:= 0
 Local lProx		:= .F.
 Local i 		:= 0
 
-If File (cIni)
+If !Empty(cArqIni) .AND. File(cIni)
 	FT_FUse(cIni)
 	FT_FGoTop()
 	While ( !FT_FEof() )
@@ -1084,7 +1084,7 @@ If File (cIni)
 	Enddo
 	FT_FUse()
 
-	cArqBkp := StrTran(cIni,".CFP",".#BK")
+	cArqBkp := StrTran(cIni,".CFP",".BAK")
 	Ferase(cArqBkp)
 	FRename(cIni,cArqBkp)
 	nHandle := MSFCREATE(cIni)
@@ -1097,3 +1097,186 @@ EndIf
 
 Return .T.
 
+
+
+
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³MATA916   ºAutor  ³Marcelo Alexandre   º Data ³  13/04/09   º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³Retorna o codigo do imposto e o valor                       º±±
+±±º          ³Impostsos: IRRF, PIS, COFINS e CSLL retencao.               º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³SigaFis                                                     º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function XRetImpost(cFilF3,cNF,cSerie,cCliFor,cLoja,nValTot,lLimpa,cIdentFT)
+
+Local nX      := 0
+Local cNFE	  := ""
+Local aCampos := {}
+Local aArqRet := {}
+Local aIndice := {}
+Local nValPis := 0
+Local nValCsl := 0
+Local nValCof := 0
+Local nValIrf := 0
+Local aVn     := {}
+Local cParcela  := " "
+Local cChaveSE1 := " "
+Local cPrefixo := Padr(cSerie , TamSx3("E1_SERIE")[1])
+Local cRetencao := SuperGetMv("MV_BR10925")
+Local lMV_NFSEPCC := SuperGetMv("MV_NFSEPCC", .F., .F.)
+Local lMV_NFSEIR := SuperGetMv("MV_NFSEIR", .F., .F.)
+Local nValPisNF := 0
+Local nValCslNF := 0
+Local nValCofNF := 0
+Local nValIrfNF := 0
+Local cChaveSFT := ""
+Local aAreaSFT := SFT->(getArea())
+
+Default lLimpa := .F.
+Default nValTot:= 0
+Default cIdentFT := ""
+
+If lLimpa
+	aArqRet := {}
+EndIf
+
+AADD(aCampos,{"TIPOIMP","C",002,0})
+AADD(aCampos,{"VALIMP" ,"N",015,2})
+
+cNFE :=	CriaTrab(aCampos)
+dbUseArea(.T.,__LocalDriver,cNFE,"NFE")
+IndRegua("NFE",cNFE,"TIPOIMP")
+DbClearIndex()
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Ponto de entrada para utilizar indice de usuario³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If ExistBlock("MT916IND")
+	aIndice := ExecBlock("MT916IND", .F., .F.,{SF3->F3_NFISCAL,SF3->F3_SERIE,SF3->F3_CLIEFOR,SF3->F3_LOJA})
+Else
+	AADD(aIndice,2)
+	AADD(aIndice,(xFilial("SE1")+cCliFor+cLoja+cPrefixo+cNF))
+EndIf
+
+DbSelectArea ("SE1")
+SE1->(dbSetOrder(aIndice[1]))
+SE1->(dbSeek(aIndice[2]))
+
+DbSelectArea("SFT")
+SFT->(dbSetOrder(3))
+SFT->(dbGoTop())
+
+If ExistBlock("MT916IND")
+	SumAbatRec(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_MOEDA,"V",SE1->E1_BAIXA,,@nValIrf,@nValCsl,@nValPis,@nValCof,@nValINSS)
+Else
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Titulos Parcelados   ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	cChaveSE1 := xFilial("SE1")+cCliFor+cLoja+cPrefixo+cNF
+	While SE1->(!Eof()) .And. cChaveSE1 == xFilial("SE1")+cCliFor+cLoja+cPrefixo+cNF
+		If Alltrim(cRetencao) == '1' //Retenção na Baixa do Titulo
+			If SE1->E1_TIPO = 'IR-'
+				nValIrf += SE1->E1_VALOR
+			ElseIf SE1->E1_TIPO = 'COF'
+				nValCof += SE1->E1_VALOR
+			ElseIf SE1->E1_TIPO = 'CSL'
+				nValCsl += SE1->E1_VALOR
+			ElseIf SE1->E1_TIPO = 'PIS'
+				nValPis += SE1->E1_VALOR
+			EndIF
+		Else
+			If AT("-",SE1->E1_TIPO)==0
+				SumAbatRec(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_MOEDA,"V",SE1->E1_BAIXA,,@nValIrf,@nValCsl,@nValPis,@nValCof,0)//,@nValINSS)
+			EndIf
+		EndIf
+		// --> BK
+		SE1->(dbSkip())
+		// <-- BK
+		cParcela :=SE1->E1_PARCELA
+		cChaveSE1 := xFilial("SE1")+SE1->E1_CLIENTE+SE1->E1_LOJA+SE1->E1_PREFIXO+SE1->E1_NUM
+		// skip estava aqui
+	EndDo
+	
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Dados da NF          ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	If (!Empty(cIdentFT) .And. (lMV_NFSEPCC .Or. lMV_NFSEIR))
+		
+		cChaveSFT := xFilial("SFT")+"S"+cCliFor+cLoja+cSerie+cNF+cIdentFT
+		 
+		If SFT->(MsSeek(cChaveSFT))
+		
+			While SFT->(!Eof()) .And. xFilial("SFT")+"S"+SFT->FT_CLIEFOR+SFT->FT_LOJA+SFT->FT_SERIE+SFT->FT_NFISCAL+SFT->FT_IDENTF3 == cChaveSFT
+			
+				If Empty(SFT->FT_DTCANC)
+					nValIrfNF += SFT->FT_VALIRR
+					nValPisNF += SFT->FT_VRETPIS
+					nValCofNF += SFT->FT_VRETCOF
+					nValCslNF += SFT->FT_VRETCSL
+				EndIf
+				
+				SFT->(dbSkip())
+				
+			EndDo
+		
+		EndIf
+		
+		// Substituo os valores obtidos da SE1 pelos valores da NF.
+		
+		If lMV_NFSEIR
+			nValIrf := nValIrfNF 	
+		EndIf
+		
+		If lMV_NFSEPCC
+			nValPis := nValPisNF 
+			nValCof := nValCofNF
+			nValCsl := nValCslNF
+		EndIf
+		
+	EndIf
+	
+Endif
+
+RestArea(aAreaSFT)	
+
+If nValIrf > 0
+	aadd(aArqRet,{nValIrf,"01"})
+EndIf
+If nValPis > 0
+	aadd(aArqRet,{nValPis,"02"})
+EndIf
+If nValCof > 0
+	aadd(aArqRet,{nValCof,"03"})
+EndIf
+If nValCsl > 0
+	aadd(aArqRet,{nValCsl,"04"})
+EndIf
+
+aVn := RetNotConj(cNF, cSerie, cCliFor, cLoja, "S")
+
+If Len(aVn)>0
+	For nX :=1 to Len (aVn)
+		aadd(aArqRet,{aVn[nX][2],"VN"})
+	Next nX
+EndIf
+
+nValTot := nValIrf+nValPis+nValCof+nValCsl
+
+If len(aArqRet)>0
+	For nX :=1 to Len(aArqRet)
+		RECLOCK("NFE",.T.)
+		NFE->TIPOIMP := aArqRet[nX][2]
+		NFE->VALIMP  := aArqRet[nX][1]
+		MsUnlock()
+	Next nX
+EndIf
+
+Return(cNFE)

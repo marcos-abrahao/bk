@@ -6,9 +6,9 @@
                             
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKGCTP14()
-BK - Rentabilidade dos Contrato - Projeção X Realizado - Versão 2
-@author Adilson do Prado / Marcos Bispo Abrahão
-@since 07/06/2022
+BK - Rentabilidade dos Contrato - Projeção X Realizado
+@author Adilson do Prado
+@since 16/05/14 Rev 21/06/22
 @version P12
 @return Nil
 /*/
@@ -328,10 +328,9 @@ IF nConsolida == 1
 
 ENDIF
 
-
 cProventos  := U_MVXPROVE()
 cDescontos  := U_MVXDESCO()        //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
-cVT_Prov 	:= U_MVXVTPRO()	       //"|671|"
+cVT_Prov 	:= U_MVXVTPRO()	       //"|671|" // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
 cVT_Verb 	:= U_MVXVTVER()        //"|290|667|"
 cVT_Prod   	:= U_MVXVTPRD()        //"|31201046|"
 cVRVA_Verb  := U_MVXVRVAV()        //"|613|614|662|681|682|702|873|874|895|896|"
@@ -340,12 +339,13 @@ cASSM_Verb	:= U_MVXASSMV()        //"|605|689|733|734|742|770|771|773|794|796|83
 cASSM_Prod	:= U_MVXASSMP()        //"|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|" 
 cSINO_Verb	:= U_MVXSINOV()        //"|510|607|665|679|724|739|825|900|"
 cSINO_Prod	:= U_MVXSINOP()        //"|510|607|665|679|724|732|739|825|900|"
-cCCRE_Verb	:= "" //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
-cCCRE_Prod	:= "" //GetMv("MV_XXCCREP") //"|34202016|"
+cCCRE_Verb	:= ""                  //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
+cCCRE_Prod	:= ""                  //GetMv("MV_XXCCREP") //"|34202016|"
 cCDPR_Prod	:= U_MVXCDPRP()
 cCDPR_GRUP	:= U_MVXCDPRG()
 cNINC_Verb	:= U_MVXNINCI()
 aContrCons	:= {}
+//aContrCons	:= StrTokArr(ALLTRIM(GetMv("MV_XXCONS1"))+ALLTRIM(GetMv("MV_XXCONS2"))+ALLTRIM(GetMv("MV_XXCONS3"))+ALLTRIM(GetMv("MV_XXCONS4")),"/") //"163000240"
 aContrCons	:= U_MVXCONS()
 // Rateio        Contrato  x  Produtos                       15/01/20 - Marcos
 aRatCtrPrd  := U_DefCtrPrd()
@@ -481,13 +481,15 @@ If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 		cQuery += " GROUP BY CN9_SITUAC"+CRLF
 	ENDIF	
 
-	u_LogMemo("BKGCTP14.SQL",cQuery)
+	u_LogTxt("BKGCTP14-CN9.SQL")
 
 	TCQUERY cQuery NEW ALIAS "QTMP1"
 	TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)	
 	TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)	
 	TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)	
 	TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)	
+
+	u_LogTxt("BKGCTP14-CN9.SQL",cQuery)
 
 	dbSelectArea("QTMP1")
 	dDataI		:= QTMP1->CN9_DTOSER
@@ -943,7 +945,7 @@ Return (.T.)
 
 User FUNCTION BKCP14(lJob)
 Local cAlias := "TRB"
-Local cQuery := ""
+//Local cQuery := ""
 
 dbSelectArea(cAlias)
 
@@ -953,7 +955,7 @@ If !lJob
 		Processa( {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
 		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
 	Else
-		
+		/*
 		If Empty(cContrato)	
 			cQuery := "DROP TABLE PowerBk.dbo.PROJXREALTELA"+cEmpAnt+CRLF
 			nErro  := TcSqlExec(cQuery)
@@ -982,6 +984,7 @@ If !lJob
 				MsgStop(TCSQLERROR())
 			EndIf
 		EndIf
+		*/
 
 		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
 
@@ -1349,12 +1352,15 @@ FOR _nI := 1 TO nPeriodo
    	cQuery += " GROUP BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
    	cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,A1_NOME,CTT_DESC01,CN9_SITUAC,CN9_XXNRBK,CNA_XXMUN"+CRLF
  
-	u_LogMemo("BKGCTP14-"+cAnoMes+".SQL",cQuery)
-
 	If Select("QTMP") > 0
 		QTMP->(dbCloseArea())
 	EndIf
+
+	u_LogTxt("BKGCTP14-CNF.SQL")
+
 	TCQUERY cQuery NEW ALIAS "QTMP" 
+
+	u_LogTxt("BKGCTP14-CNF.SQL",cQuery)
 
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
@@ -1375,9 +1381,12 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
 
-		u_LogMemo("BKGCTP14-CNF-A-"+cAnoMes+".SQL",cQueryA)
+		u_LogTxt("BKGCTP14-CNF-A.SQL")
 
 		TCQUERY cQueryA NEW ALIAS "QTMP"
+
+		u_LogTxt("BKGCTP14-CNF-A.SQL",cQueryA)
+
 		dbSelectArea("QTMP")
 		QTMP->(dbGoTop())
 
@@ -1654,7 +1663,7 @@ FOR _nI := 1 TO nPeriodo
             	nSZCSTBK := 0
 				nDespesa := 0
 				//nDespCon := 0
-				
+
 				nScan:= 0
 				nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
@@ -1665,16 +1674,16 @@ FOR _nI := 1 TO nPeriodo
 				cQuery += "       CNF.CNF_REVISA='"+QTMP->CNF_REVISA+"' AND CNF.CNF_FILIAL = '"+xFilial("CNF")+"'"+CRLF
 				cQuery += "       AND CNF.CNF_COMPET='"+aPeriodo[_XI,1]+"'"+CRLF
 	      
+				u_LogTxt("BKGCTP14-CNF-P.SQL")
+
 				TCQUERY cQuery NEW ALIAS "TMPX2"
 
-				u_xxLog(cArqLog,"BKGCTP14: CNF-Prev "+QTMP->CNF_CONTRA+"-"+aPeriodo[_XI,1]+"-"+cEmpAnt,.T.,"")
+				u_LogTxt("BKGCTP14-CNF-P.SQL",cQuery)
 
 				dbSelectArea("TMPX2")
 				TMPX2->(dbGoTop())
 				DO WHILE TMPX2->(!EOF())
 						
-					u_xxLog(cArqLog,"BKGCTP14: SZG "+SZG->ZG_CONTRAT+"-"+DTOS(SZG->ZG_DATA)+"-"+cEmpAnt,.T.,"")
-
 				    //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
    					nIndTC := 0
    					IF nIndConsor == 1
@@ -1883,9 +1892,11 @@ FOR _nI := 1 TO nPeriodo
 		
 		cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 
-		u_LogMemo("BKGCTP14-SZ2-"+cVarLog+".SQL",cQuery1)
+		u_LogTxt("BKGCTP14-SZ2.SQL")
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
+
+		u_LogTxt("BKGCTP14-SZ2.SQL",cQuery1)
 
 		dbSelectArea("TMPX2")
 		dbGoTop()
@@ -2140,7 +2151,7 @@ FOR _nI := 1 TO nPeriodo
 
 				//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - DCH
 				cVALGG := 0
-				IF nDespGeral == 1  .AND. nCompras == 0
+				IF nDespGeral == 1 .AND. nCompras == 0
 					IF !EMPTY(cSeqProj)
            				dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -2306,9 +2317,12 @@ FOR _nI := 1 TO nPeriodo
 
 		cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve"+CRLF
 
-		u_LogMemo("BKGCTP14-FOL-"+cVarLog+".SQL",cQuery2)
+		u_LogTxt("BKGCTP14-FOL.SQL")
 	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
+
+		u_LogTxt("BKGCTP14-FOL.SQL",cQuery2)
+
 		nProventos := 0
 		nCusto     := 0
 		nXXPLR	   := 0	
@@ -2435,7 +2449,7 @@ FOR _nI := 1 TO nPeriodo
 			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cSINO_Prod
 				//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - ASS ODONTO
 				cVALGG := 0
-				IF nDespGeral == 1  .AND. nCompras == 0
+				IF nDespGeral == 1 .AND. nCompras == 0
 					IF !EMPTY(cSeqProj)
            				dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -2798,10 +2812,12 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += " GROUP BY D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"+CRLF
 
 		//cQuery2 += " ORDER BY B1_DESC"
-        
+
+		u_LogTxt("BKGCTP14-D1-1.SQL")  
+
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-		u_LogMemo("BKGCTP14-D1-1-"+cVarLog+".SQL",cQuery2)        
+		u_LogTxt("BKGCTP14-D1-1.SQL",cQuery2)
 				
 		cOutros := 'S'
 		dbSelectArea("TMPX2")
@@ -2935,7 +2951,7 @@ FOR _nI := 1 TO nPeriodo
 			//CECREMEF
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
 				cVALGG := 0
-				IF nDespGeral == 1  .AND. nCompras == 0
+				IF nDespGeral == 1 .AND. nCompras == 0
 					IF !EMPTY(cSeqProj)
            				dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -2987,7 +3003,7 @@ FOR _nI := 1 TO nPeriodo
 
             	//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
 				cVALGG := 0
-				IF nDespGeral == 1 .AND. ( nCompras == 0 .or. nCompras == 1)  
+				IF nDespGeral == 1 .AND. (nCompras == 0 .or. nCompras == 1)  
 					IF !EMPTY(cSeqProj)
             			dbSelectArea("SZL")
 						SZL->(dbSetOrder(1))
@@ -3670,8 +3686,9 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
    			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
+			u_LogTxt("BKGCTP14-E5-1.SQL")
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogMemo("BKGCTP14-E5-1-"+cVarLog+".SQL",cQuery2)    
+			u_LogTxt("BKGCTP14-E5-1-.SQL",cQuery2)
 
 			dbSelectArea("TMPX2")
 			dbGoTop()
@@ -3759,7 +3776,11 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " GROUP BY  D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
 				//cQuery2 += " ORDER BY B1_DESC"
 		        
+				u_LogTxt("BKGCTP14-D1-2.SQL") 
+
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
+
+				u_LogTxt("BKGCTP14-D1-2.SQL",cQuery2) 
 
 				cOutros := 'S'
 				dbSelectArea("TMPX2")
@@ -4150,8 +4171,9 @@ FOR _nI := 1 TO nPeriodo
 		        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 				cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 		        
+				u_LogTxt("BKGCTP14-E5-2.SQL")        
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
-				u_LogMemo("BKGCTP14-E5-2-"+cVarLog+".SQL",cQuery2)        
+				u_LogTxt("BKGCTP14-E5-2.SQL",cQuery2)        
 
 				dbSelectArea("TMPX2")
 				dbGoTop()
@@ -4218,8 +4240,9 @@ FOR _nI := 1 TO nPeriodo
 	        cQuery2 += " AND (E5_CCC='"+ALLTRIM(QTMP->CNF_CONTRA)+"' OR E5_CCD='"+ALLTRIM(QTMP->CNF_CONTRA)+"')"
 			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 	        
+			u_LogTxt("BKGCTP14-E5-3.SQL")
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogMemo("BKGCTP14-E5-3-"+cVarLog+".SQL",cQuery2)
+			u_LogTxt("BKGCTP14-E5-3.SQL",cQuery2)
 			
 			dbSelectArea("TMPX2")
 			dbGoTop()

@@ -141,7 +141,7 @@ Local cFile   := ""
 Local cTexto  := ""
 Default cTxt  := ""
 
-If __cUserId == "000000" // .OR. __cUserId == "000012"
+If __cUserId == "000000" .OR. IsBlind()
 
 	cTexto := "--"+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
 	If !Empty(cTxt)
@@ -149,7 +149,7 @@ If __cUserId == "000000" // .OR. __cUserId == "000012"
 	EndIf
 
 	If IsBlind()
-		cDir:= "\TMP"
+		cDir:= "\tmp"
 	ENDIF
 
 	cFile := cDir+"\"+cArqLog

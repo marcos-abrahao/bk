@@ -8,7 +8,7 @@
 /*/{Protheus.doc} BKGCTR14()
 BK - Rentabilidade dos Contrato - Projeção X Realizado
 @author Adilson do Prado
-@since 16/05/14 Rev 20/07/20
+@since 16/05/14 Rev 21/06/22
 @version P12
 @return Nil
 /*/
@@ -1674,16 +1674,16 @@ FOR _nI := 1 TO nPeriodo
 				cQuery += "       CNF.CNF_REVISA='"+QTMP->CNF_REVISA+"' AND CNF.CNF_FILIAL = '"+xFilial("CNF")+"'"+CRLF
 				cQuery += "       AND CNF.CNF_COMPET='"+aPeriodo[_XI,1]+"'"+CRLF
 	      
+				u_LogTxt("BKGCTR14-CNF-P.SQL")
+
 				TCQUERY cQuery NEW ALIAS "TMPX2"
 
-				//u_xxLog(cArqLog,"BKGCTR14: CNF-Prev "+QTMP->CNF_CONTRA+"-"+aPeriodo[_XI,1]+"-"+cEmpAnt,.T.,"")
+				u_LogTxt("BKGCTR14-CNF-P.SQL",cQuery)
 
 				dbSelectArea("TMPX2")
 				TMPX2->(dbGoTop())
 				DO WHILE TMPX2->(!EOF())
 						
-					//u_xxLog(cArqLog,"BKGCTR14: SZG "+SZG->ZG_CONTRAT+"-"+DTOS(SZG->ZG_DATA)+"-"+cEmpAnt,.T.,"")
-
 				    //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
    					nIndTC := 0
    					IF nIndConsor == 1
@@ -1721,8 +1721,6 @@ FOR _nI := 1 TO nPeriodo
 					    //VERIFICA INDICE CONSORCIO CASO CONTRATO DE CONSORCIO
        					nIndTC := 0
        					IF nIndConsor == 1
-							nScan:= 0
-							nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 	   						IF nScan > 0
 	       						nIndTC := VAL(aConsorcio[nScan,6]) 
 	    					ENDIF
@@ -1823,8 +1821,6 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VL2P"+STRZERO(_nI,3)
 					&cCampo2 += nSZG03 - nDespesa
 
-					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
-
 				ELSE
 					nSZG03C := 1
 					dbSelectArea(ALIAS_TMP)
@@ -1844,14 +1840,8 @@ FOR _nI := 1 TO nPeriodo
 					cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 					&cCampo2 := (nVlp2*100)/nSZG03C
 					
-					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - Previsto "+STR(nSZG03 - nDespesa),.T.,"TESTE")
-					//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nVlp2 "+STR(nVlp2)+" - nSZG03C "+STR(nSZG03C)+" - Previsto "+STR(&cCampo2),.T.,"TESTE")
 				ENDIF
-
-				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
-				//&cCampo2 += ((nSZG03-nDespesa)*100)/nSZG03
-				//u_xxLog("\TMP\BKGCTR14-PREVISTO.TXT",QTMP->CNF_CONTRA+" nDespesa "+STR(nDespesa)+" - nSZG03 "+STR(nSZG03)+" - nDespCon "+STR(nDespCon),.F.,"TESTE")
-				
+			
 				(ALIAS_TMP)->(Msunlock())
 				
         	ENDIF   
@@ -2823,11 +2813,11 @@ FOR _nI := 1 TO nPeriodo
 
 		//cQuery2 += " ORDER BY B1_DESC"
 
-		u_LogTxt("BKGCTR14-D1-1.SQL")        
+		u_LogTxt("BKGCTR14-D1-1.SQL")
 
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-		u_LogTxt("BKGCTR14-D1-1.SQL",cQuery2)        
+		u_LogTxt("BKGCTR14-D1-1.SQL",cQuery2)
 				
 		cOutros := 'S'
 		dbSelectArea("TMPX2")
@@ -3696,9 +3686,9 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND SUBSTRING(E5_VENCTO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"
    			cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
-			u_LogTxt("BKGCTR14-E5-1.SQL")    
+			u_LogTxt("BKGCTR14-E5-1.SQL")
 			TCQUERY cQuery2 NEW ALIAS "TMPX2"
-			u_LogTxt("BKGCTR14-E5-1-.SQL",cQuery2)    
+			u_LogTxt("BKGCTR14-E5-1-.SQL",cQuery2)
 
 			dbSelectArea("TMPX2")
 			dbGoTop()
@@ -3786,9 +3776,11 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " GROUP BY  D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"
 				//cQuery2 += " ORDER BY B1_DESC"
 		        
+				u_LogTxt("BKGCTR14-D1-2.SQL") 
+
 				TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
-				//u_xxLog("\TMP\BKGCTR14-D1-2.SQL",cQuery2,.F.,"TESTE")        
+				u_LogTxt("BKGCTR14-D1-2.SQL",cQuery2) 
 
 				cOutros := 'S'
 				dbSelectArea("TMPX2")
@@ -6319,7 +6311,6 @@ Endif
 If lJob
 	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
 	u_xxLog(cArqLog,cMsg,.T.,"")
-	//U_SENDMAIL("BKGCTR14",aTitulos[1],cEmailTO,cEmailCC,cMsg,cArqXls,lJob)
 	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
 	u_xxLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp,.T.,"")
 EndIf
