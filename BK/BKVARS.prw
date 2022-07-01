@@ -33,13 +33,6 @@ ElseIf cEmpAnt == '15'
 EndIf
 Return cPar
 
-
-// Parametro Proventos calculo Rentabilidade dos Contratos
-User Function MVXPROVE()
-Local cVar := "|1|2|11|34|35|36|37|56|60|62|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|696|700|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|897|"
-Return cVar
-
-
 // Parametro Encargos calculo Rentabilidade dos Contratos
 User Function MVXENCAP()
 Local nVar := 37.13280
@@ -73,9 +66,16 @@ User Function MVXTXADM()
 Local nVar := 3.000
 Return nVar
 
-// Cod Produto VT custos calculo Rentabilidade
-User Function MVXVTPRD()
-Local cVar := "|31201046|"
+
+//
+// Retorna as variaveis abaixo no formato "IN" para queryes, retirando o "|" do inicio e do fim da string
+User Function FBkVars(cVar)
+Return Formatin(SUBSTRING(cVar,2,LEN(cVar)-2),"|")
+//
+
+// Parametro Proventos calculo Rentabilidade dos Contratos
+User Function MVXPROVE()
+Local cVar := "|1|2|11|34|35|36|37|56|60|62|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|696|700|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|897|"
 Return cVar
 
 // Descontos calculo Rentabilidade dos Contratos 
@@ -98,12 +98,6 @@ User Function MVXVRVAV()
 Local cVar := "|613|614|662|681|682|702|873|874|895|896|"
 Return cVar
 
-
-// COD Produto de VR/VA calculo Rentabilidade  
-User Function MVXVRVAP()
-Local cVar := "|31201045|31201047|"
-Return cVar
-
 // Verba desc. assist. medica calculo Rentabilidade 
 User Function MVXASSMV()
 Local cVar := "|605|689|733|734|742|770|771|773|794|796|832|856|"
@@ -117,6 +111,16 @@ Return cVar
 // Verba desc. sind. odonto  calculo Rentabilidade 
 User Function MVXSINOV()
 Local cVar := "|510|607|665|679|724|739|825|900|"
+Return cVar
+
+// Cod Produto VT custos calculo Rentabilidade
+User Function MVXVTPRD()
+Local cVar := "|31201046|"
+Return cVar
+
+// COD Produto de VR/VA calculo Rentabilidade  
+User Function MVXVRVAP()
+Local cVar := "|31201045|31201047|"
 Return cVar
 
 // Codigo contrato e empresa Consorcio calculo Rentabilidade
@@ -189,9 +193,15 @@ Local cVar := "31201053"
 Return cVar
 
 
-// Codigo produto Diaria de campo / Hospedagem 
+// Codigo produto Diaria de campo / Hospedagem / Viagens
 User Function MVXCDCH()
 Local cVar := "34202003"
+Return cVar
+
+
+// Codigo produto Custo BK
+User Function MVXCUSBK()
+Local cVar := "29104004"
 Return cVar
 
 

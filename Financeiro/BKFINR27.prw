@@ -34,7 +34,7 @@ Private aRet		:=	{}
 
 Private dDataI  	:= CTOD("")
 Private dDataF  	:= CTOD("")
-Private cProd       := PAD("29104004",nTamPrd)
+Private cProd       := PAD(U_MVXCUSBK(),nTamPrd)
 
 
 Private aFields     := {}

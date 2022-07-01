@@ -66,7 +66,7 @@ Else
 	// Data de Agendamento do Job
 	dAgJob		:= U_BKGetMv("BKGCTR1410",.F.,CTOD(""))
 	cContrato  	:= U_BKGetMv("BKGCTR1401")
-	If DAY(DATE()) <> 10 .AND. !("*" $ cContrato)
+	If DAY(DATE()) <> 9 .AND. !("*" $ cContrato)
 		If Empty(dAgJob) .OR. !(dAgJob == DATE())
 		
 			u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""),.T.,"")
@@ -133,9 +133,12 @@ Private lConsorcio  := .F.
 Private lFurnas		:= .F.
 Private lPetro		:= .F.
 Private cExm_Prod	:= ""
+Private cDescExm    := ""
 Private cMFG_Prod	:= "" 
 Private cDCH_Prod	:= ""
+Private cDescDCH	:= ""
 Private cDViagens	:= "34202003"
+Private cCusBK		:= U_MVXCUSBK()
 
 Private aHeader	    := {}
 Private aDbf1 	    := {}
@@ -351,8 +354,15 @@ aContrCons	:= U_MVXCONS()
 aRatCtrPrd  := U_DefCtrPrd()
 
 cExm_Prod	:= U_MVXCEXMP()
+cDescExm    := Posicione("SB1",1,xFilial("SB1")+cExm_Prod,"B1_DESC")
+
 cMFG_Prod	:= U_MVXCMFGP()
+
 cDCH_Prod	:= U_MVXCDCH()
+cDViagens   := cDCH_Prod
+cDescDCH	:= Posicione("SB1",1,xFilial("SB1")+cDCH_Prod,"B1_DESC")
+cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
+
 cXXPLR	    := U_MVXPLR()
 
 //MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
@@ -1790,16 +1800,14 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
         	ENDIF
 
-			cBK_Prod := ""
-			cBK_Prod := "29104004"
         	IF nSZCSTBK <> 0
       			dbSelectArea(ALIAS_TMP)
-				IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'W'+cBK_Prod,.F.)
+				IF !dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'W'+cCusBK,.F.)
 					// 19/02/19 - Marcos - incluir registro se não existir
 					Reclock(ALIAS_TMP,.T.)
 					(ALIAS_TMP)->XX_CODGCT := IIF( nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
-					(ALIAS_TMP)->XX_CODIGO := "W"+cBK_Prod
-					(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cBK_Prod,"B1_DESC")
+					(ALIAS_TMP)->XX_CODIGO := "W"+cCusBK
+					(ALIAS_TMP)->XX_DESC   := cDescCBK
 				Else
   					Reclock(ALIAS_TMP,.F.)
 				EndIf
@@ -1876,7 +1884,7 @@ FOR _nI := 1 TO nPeriodo
         
 		//Calcula LF Avulso SZ2 - CLT
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"+CRLF
-		cQuery1 += " WHERE  D_E_L_E_T_=''  AND Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA')"+CRLF  //REMOVIDO MULTA FGTS POR ENTENDER QUE ESTA EM INCIDENCIAS - TIPO = MFG
+		cQuery1 += " WHERE  D_E_L_E_T_='' AND Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA')"+CRLF  //REMOVIDO MULTA FGTS POR ENTENDER QUE ESTA EM INCIDENCIAS - TIPO = MFG
 		cQuery1 += " AND Z2_TIPOPES='CLT' AND Z2_STATUS='S'"+CRLF
 
 		nScan:= 0
@@ -2013,7 +2021,7 @@ FOR _nI := 1 TO nPeriodo
 							SZL->ZL_DATA   	:= dDtProj
 							SZL->ZL_SEQ   	:= cSeqProj
 							SZL->ZL_CODIGO 	:= "W"+cExm_Prod
-							SZL->ZL_DESC 	:= Posicione("SB1",1,xFilial("SB1")+cExm_Prod,"B1_DESC")
+							SZL->ZL_DESC 	:= cDescExm
 							SZL->ZL_VALOR  	:= 0
 							SZL->(msUnlock())
                    		ENDIF
@@ -2027,7 +2035,7 @@ FOR _nI := 1 TO nPeriodo
 					Reclock(ALIAS_TMP,.T.)
 					(ALIAS_TMP)->XX_CODGCT := IIF( nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
 					(ALIAS_TMP)->XX_CODIGO := "W"+cExm_Prod
-					(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cExm_Prod,"B1_DESC")
+					(ALIAS_TMP)->XX_DESC   := cDescExm
 				ENDIF
 				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 				//&cCampo2 += cVALGG
@@ -2095,7 +2103,6 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 
 			ENDIF
-*/
 
 			IF  ALLTRIM(TMPX2->Z2_TIPO)  == 'DCH'
 
@@ -2116,7 +2123,7 @@ FOR _nI := 1 TO nPeriodo
 							SZL->ZL_DATA   	:= dDtProj
 							SZL->ZL_SEQ   	:= cSeqProj
 							SZL->ZL_CODIGO 	:= "W"+cDCH_Prod
-							SZL->ZL_DESC 	:= Posicione("SB1",1,xFilial("SB1")+cDCH_Prod,"B1_DESC")
+							SZL->ZL_DESC 	:= cDescDCH
 							SZL->ZL_VALOR  	:= 0
 							SZL->(msUnlock())
                    		ENDIF
@@ -2130,7 +2137,7 @@ FOR _nI := 1 TO nPeriodo
 					Reclock(ALIAS_TMP,.T.)
 					(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
 					(ALIAS_TMP)->XX_CODIGO := "W"+cDCH_Prod
-					(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cDCH_Prod,"B1_DESC")
+					(ALIAS_TMP)->XX_DESC   := cDescDCH
 				ENDIF
 				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 				//&cCampo2 += cVALGG
@@ -2146,8 +2153,9 @@ FOR _nI := 1 TO nPeriodo
 					(ALIAS_TMP)->(Msunlock())
 				ENDIF
 			ENDIF
+*/
 			
-			IF  ALLTRIM(TMPX2->Z2_TIPO) $ 'SOL/HOS/REE/CXA' // Despesas de Viagens 04/04/2022
+			IF  ALLTRIM(TMPX2->Z2_TIPO) $ 'DCH/SOL/HOS/REE/CXA' // Despesas de Viagens 04/04/2022
 
 				//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - DCH
 				cVALGG := 0
@@ -2166,7 +2174,7 @@ FOR _nI := 1 TO nPeriodo
 							SZL->ZL_DATA   	:= dDtProj
 							SZL->ZL_SEQ   	:= cSeqProj
 							SZL->ZL_CODIGO 	:= "W"+cDViagens
-							SZL->ZL_DESC 	:= Posicione("SB1",1,xFilial("SB1")+cDViagens,"B1_DESC")
+							SZL->ZL_DESC 	:= cDescDCH
 							SZL->ZL_VALOR  	:= 0
 							SZL->(msUnlock())
                    		ENDIF
@@ -2180,7 +2188,7 @@ FOR _nI := 1 TO nPeriodo
 					Reclock(ALIAS_TMP,.T.)
 					(ALIAS_TMP)->XX_CODGCT := IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
 					(ALIAS_TMP)->XX_CODIGO := "W"+cDViagens
-					(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cDViagens,"B1_DESC")
+					(ALIAS_TMP)->XX_DESC   := cDescDCH
 				ENDIF
 				//cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
 				//&cCampo2 += cVALGG
@@ -2204,8 +2212,6 @@ FOR _nI := 1 TO nPeriodo
 		
 		
 		//Calcula LF Avulso SZ2 - AC e CLA CUSTO BK - produto 29104004 - Data emissão apartir de 01/01/2015
-		cBK_Prod := ""
-		cBK_Prod := "29104004"
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"
 		cQuery1 += " WHERE  D_E_L_E_T_=''  AND Z2_DATAPGT>='20150101' " 
 		cQuery1 += " AND Z2_TIPOPES IN ('AC','CLA') AND Z2_STATUS='S'"
@@ -2230,13 +2236,13 @@ FOR _nI := 1 TO nPeriodo
 		DO While !TMPX2->(EOF())
 
 			dbSelectArea(ALIAS_TMP)
-   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cBK_Prod,.F.)
+   			IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cCusBK,.F.)
 				Reclock(ALIAS_TMP,.F.)
 			ELSE
 				Reclock(ALIAS_TMP,.T.)
 				(ALIAS_TMP)->XX_CODGCT := IIF( nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
-				(ALIAS_TMP)->XX_CODIGO := "W"+cBK_Prod
-				(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cBK_Prod,"B1_DESC")
+				(ALIAS_TMP)->XX_CODIGO := "W"+cCusBK
+				(ALIAS_TMP)->XX_DESC   := cDescCBK
 			ENDIF
 			cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
 			&cCampo2 += TMPX2->Z2_VALOR
@@ -2775,7 +2781,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND SUBSTRING(B1_CONTA,1,3) <> '113' " +CRLF
 			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		Else
-			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA in ('29104004') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
+			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA IN ('"+cCusBK+"') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		EndIf
 
 		IF cEmpAnt == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
@@ -2805,7 +2811,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 +=  " AND SUBSTRING(D3_CONTA,1,3) <> '113' " +CRLF
 			cQuery2 +=  " AND (SUBSTRING(D3_CONTA,1,3) <> '121' OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		Else
-			cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
+			cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA IN ('"+cCusBK+"') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		EndIf
 
 
@@ -2948,7 +2954,9 @@ FOR _nI := 1 TO nPeriodo
 				*/
 
 			ENDIF
-			//CECREMEF
+	
+			//CECREMEF - DESATIVADO
+			/*
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
 				cVALGG := 0
 				IF nDespGeral == 1 .AND. nCompras == 0
@@ -2976,28 +2984,9 @@ FOR _nI := 1 TO nPeriodo
 				cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 				cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
-				/*
-		   		dbSelectArea(ALIAS_TMP)
-		   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'20',.F.)
-		     		Reclock(ALIAS_TMP,.F.)
-		  //			cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
-		  //			&cCampo2 += cVALGG
-					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-					&cCampo2 += TMPX2->D1_TOTAL
-					(ALIAS_TMP)->(Msunlock())
-					cOutros := 'N'
-				ENDIF
-   				// GRAVA VALOR NO CUSTO
-   				dbSelectArea(ALIAS_TMP)
-   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
-     				Reclock(ALIAS_TMP,.F.)
-					cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-					&cCampo2 += TMPX2->D1_TOTAL
-					(ALIAS_TMP)->(Msunlock())
-				ENDIF
-				*/
 			ENDIF
-			
+			*/
+
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
 				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 
@@ -3400,7 +3389,8 @@ FOR _nI := 1 TO nPeriodo
 					ENDIF
 					*/
 				ENDIF
-                //CECREMEF
+                //CECREMEF - DESATIVADO
+				/*
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
 					cVALGG := 0
 					IF nDespGeral == 1 .AND. nCompras == 0
@@ -3427,29 +3417,9 @@ FOR _nI := 1 TO nPeriodo
 
 					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
-					/*
-			   		dbSelectArea(ALIAS_TMP)
-			   		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'14',.F.)
-			     		Reclock(ALIAS_TMP,.F.)
-//						cCampo2  := ALIAS_TMP+"->XX_VALP"+STRZERO(_nI,3)
-//						&cCampo2 += cVALGG //IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),cVALGG/VAL(aConsorcio[nScan,5]),cVALGG)
-
-						cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
-						(ALIAS_TMP)->(Msunlock())
-						cOutros := 'N'
-					ENDIF
-	   				// GRAVA VALOR NO CUSTO
-	   				dbSelectArea(ALIAS_TMP)
-	   				IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'08',.F.)
-	     				Reclock(ALIAS_TMP,.F.)
-						cCampo2  := ALIAS_TMP+"->XX_VALR"+STRZERO(_nI,3)
-						&cCampo2 += IIF( ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),TMPX2->D1_TOTAL/VAL(aConsorcio[nScan,5]),TMPX2->D1_TOTAL)
-						(ALIAS_TMP)->(Msunlock())
-					ENDIF
-					*/
 				ENDIF
-	
+				*/
+
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
 				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
             		//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
@@ -3893,7 +3863,9 @@ FOR _nI := 1 TO nPeriodo
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
 					ENDIF
-	                //CECREMEF
+
+	                //CECREMEF - DESATIVADO
+					/*
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
 						cVALGG := 0
 						IF nDespGeral == 1 .AND. nCompras == 0
@@ -3938,7 +3910,8 @@ FOR _nI := 1 TO nPeriodo
 							(ALIAS_TMP)->(Msunlock())
 						ENDIF
 					ENDIF
-		
+					*/
+
 					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR.  "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
 					 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
 	            		//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - RATEIO
@@ -5124,7 +5097,7 @@ Do While (ALIAS_TMP)->(!eof())
 	ENDIF
 
 
-	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W29104004|"
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W"+cCusBK+"|"
 		nCustoBkP := 0
 		nCustoBkP :=  (ALIAS_TMP)->&cCampoX
 		nCustoBkR := 0
@@ -5140,7 +5113,7 @@ Do While (ALIAS_TMP)->(!eof())
 	ENDIF
 	
 	IF nDespGeral == 1 .AND. (nCompras == 0  .OR. nCompras == 1)
-		IF SUBSTR((ALIAS_TMP)->XX_CODIGO,1,1) == "W"   .AND. !"|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W29104004|"
+		IF SUBSTR((ALIAS_TMP)->XX_CODIGO,1,1) == "W"   .AND. !"|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W"+cCusBK+"|"
         	//aAdd(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,transform((ALIAS_TMP)->&cCampoX,cPict),transform((ALIAS_TMP)->&cCampoY,cPict),transform((((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1,"@E 99999.99999")+"%"})
         	aAdd(aGeral,{(ALIAS_TMP)->XX_CODGCT,(ALIAS_TMP)->XX_DESC,(ALIAS_TMP)->&cCampoX,(ALIAS_TMP)->&cCampoY,(((ALIAS_TMP)->&cCampoX - (ALIAS_TMP)->&cCampoY) / (ALIAS_TMP)->&cCampoX * 100)*-1})
 		ENDIF
@@ -5881,7 +5854,7 @@ Do While (ALIAS_TMP)->(!eof())
 		InsumosR :=  (ALIAS_TMP)->&cCampoY
 	ENDIF
 
-	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W29104004|"
+	IF "|"+ALLTRIM((ALIAS_TMP)->XX_CODIGO)+"|" $ "|W"+cCusBK+"|"
 		nCustoBkP := 0
 		nCustoBkP :=  (ALIAS_TMP)->&cCampoX
 		nCustoBkR := 0

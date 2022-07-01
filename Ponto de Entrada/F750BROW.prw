@@ -137,11 +137,11 @@ If !("DNF" $ SE2->E2_HIST)
     
 		If SM0->M0_CODIGO == "01"      // BK
 			cForn := "000084"
-			cProd := "29104004"  
+			cProd := U_MVXCUSBK()
 			cCCus := "000000001"
 		ElseIf SM0->M0_CODIGO == "02"  // BK TER
 			cForn := "001570"
-			cProd := "29104004"
+			cProd := U_MVXCUSBK()
 			cCCus := "000000001"
 		ElseIf SM0->M0_CODIGO == "04"  // ESA
 			cForn := "000082"

@@ -1224,7 +1224,7 @@ For j := 1 To nDias
 	            ENDIF
                 IF ALLTRIM(SD1->D1_COD) $ "31201046/31201045/31201047"
                 	nFin := 2
-                ELSEIF ALLTRIM(SD1->D1_COD) $ "29104004"
+                ELSEIF ALLTRIM(SD1->D1_COD) $ U_MVXCUSBK()
                 	nFin := 5
                 ELSE 
                 	nFin := 3

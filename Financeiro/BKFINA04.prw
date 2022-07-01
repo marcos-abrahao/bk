@@ -313,7 +313,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 	dbSelectArea("SE2")   
 Endif
 
-If LEN(aEmail) > 0 .AND.  __cUserId <> "000000" .AND. lSucess
+If LEN(aEmail) > 0 .AND. __cUserId <> "000000"
 	U_Fina04E(aEmail,lCLT)
 EndIf
 

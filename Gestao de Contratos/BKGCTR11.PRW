@@ -81,6 +81,7 @@ Private cExm_Prod	:= ""
 Private cMFG_Prod	:= ""
 Private cDCH_Prod	:= ""
 Private cDViagens	:= "34202003"
+Private cCusBK		:= U_MVXCUSBK()
 Private aFixeFX     := {}
 Private aHeader	    := {}
 Private nConsolida	:= 2
@@ -1502,8 +1503,6 @@ FOR _nI := 1 TO nPeriodo
 		
 		       
 		//Calcula LF Avulso SZ2 - AC e CLA CUSTO BK - produto 29104004 - Data emissão apartir de 01/01/2015
-		cBK_Prod := ""
-		cBK_Prod := "29104004"
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"
 		cQuery1 += " WHERE  D_E_L_E_T_=''  AND Z2_DATAPGT>='20150101' " 
 		cQuery1 += " AND Z2_TIPOPES IN ('AC','CLA') AND Z2_STATUS='S'"
@@ -1528,16 +1527,16 @@ FOR _nI := 1 TO nPeriodo
 		DO While !TMPX2->(EOF())
 
 			dbSelectArea(ALIAS_TMP)
-   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cBK_Prod,.F.)
+   			IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+"W"+cCusBK,.F.)
 				Reclock(ALIAS_TMP,.F.)
 			ELSE
 				Reclock(ALIAS_TMP,.T.)
 				(ALIAS_TMP)->XX_CODGCT := IIF( nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
-				(ALIAS_TMP)->XX_CODIGO := "W"+cBK_Prod
-				(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cBK_Prod,"B1_DESC")
+				(ALIAS_TMP)->XX_CODIGO := "W"+cCusBK
+				(ALIAS_TMP)->XX_DESC   := Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
 				// Debug
 				If EMPTY((ALIAS_TMP)->XX_DESC)
-					(ALIAS_TMP)->XX_DESC := "4 - Produto "+cBK_Prod
+					(ALIAS_TMP)->XX_DESC := "4 - Produto "+cCusBK
 				EndIf
 			ENDIF
 			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
@@ -1912,7 +1911,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 +=  " AND SUBSTRING(B1_CONTA,1,3) <> '113' " +CRLF
 			cQuery2 +=  " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		Else
-			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA in ('29104004') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
+			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA IN ('"+cCusBK+"') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		EndIf
 		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
 
@@ -1928,7 +1927,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 +=  " AND SUBSTRING(D3_CONTA,1,3) <> '113' " +CRLF
 			cQuery2 +=  " AND (SUBSTRING(D3_CONTA,1,3) <> '121' OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		Else
-			cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
+			cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA IN ('"+cCusBK+"') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))" +CRLF
 		EndIf
 
 		cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,D3_CC"+CRLF
@@ -4456,6 +4455,7 @@ PRIVATE cExm_Prod	:= ""
 PRIVATE cMFG_Prod	:= ""
 PRIVATE cDCH_Prod	:= ""
 Private cDViagens	:= "34202003"
+Private cCusBK		:= U_MVXCUSBK()
 PRIVATE aFixeFX     := {}
 Private aHeader	    := {}
 PRIVATE nConsolida	:= 2

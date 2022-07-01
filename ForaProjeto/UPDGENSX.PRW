@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"27/05/2022 SC5 "
+#DEFINE FIN_LAST_UPDATED 		"30/06/2022 API "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -181,7 +181,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenDic( @cTexto ) 
 
-			//AtuGenPar( @cTexto )   //  18/04/22 ISS BASE PIS/COF
+			AtuGenPar( @cTexto )   // 30/06/22 - API Carol
 
 			//VerGenPar( @cTexto )  
 
@@ -191,7 +191,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 27/05/22 - SC5
+			//AtuGenX3( @cTexto )    // 28/06/22
 
 			//AtuGenP12( @cTexto )
 
@@ -868,8 +868,39 @@ SX6->( dbGoTop() )
 
 oProcess:SetRegua2( 2 )
 
-oProcess:IncRegua2( "Atualizando parametro MV_DEISSBS..." )
+oProcess:IncRegua2( "Atualizando parametro Carol API..." )
 
+// 30/06/2022 - Carol API
+// MV_APIFOR = .T. (fornecedores)
+// MV_APICCGC = .T. (clientes) 
+If dbSeek(xFilial()+"MV_APIFOR")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If dbSeek(xFilial()+"MV_APICCGC")
+	RecLock( "SX6", .F. )
+
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo: " + SX6->X6_CONTEUD + CRLF
+	SX6->X6_CONTEUD := ".T."
+	cTexto += "Parametro " + SX6->X6_VAR + " conteudo alterado " + SX6->X6_CONTEUD + CRLF
+
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+cTexto += CRLF + "Final da Atualizacao" + CRLF 
+
+Return
+
+/*
 // 18/04/2022 - MV_DEISSBS - ISS sera descontada na base do PIS/COF/CSLL conforme IN 475/04
 If dbSeek(xFilial()+"MV_DEISSBS")
 	RecLock( "SX6", .F. )
@@ -882,11 +913,7 @@ If dbSeek(xFilial()+"MV_DEISSBS")
 	MsUnLock()
 EndIf
 
-cTexto += CRLF + "Final da Atualizacao" + CRLF 
 
-Return
-
-/*
 // 14/03/2022 - Consistencia chave NFE SEFAZ
 oProcess:IncRegua2( "Atualizando parametro MV_CHVESPE..." )
 
@@ -1591,9 +1618,9 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
-cTexto  += "27/05/22 - SC5 P " + CRLF 
-APPEND FROM \tmp\sx3c5parc.dtc
-X31UPDTABLE("SC5")
+cTexto  += "28/08/22 - SE2 " + CRLF 
+APPEND FROM \tmp\sx3e2e.dtc
+X31UPDTABLE("SE2")
 
 dbSetOrder( 1 )
 
@@ -1601,6 +1628,10 @@ Return
 
 
 /*
+dbSelectArea( "SX3" )
+cTexto  += "27/05/22 - SC5 P " + CRLF 
+APPEND FROM \tmp\sx3c5parc.dtc
+X31UPDTABLE("SC5")
 
 cTexto  += "27/05/22 - SC5 " + CRLF 
 APPEND FROM \tmp\sx3c5rev.dtc

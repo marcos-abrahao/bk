@@ -40,6 +40,7 @@ If FWCodEmp() == "01"
 		ProcDSGES()
 		ProcDSGLO()
 		ProcDSGG()
+		ProcDSGLF()
 		ProcDSGER()
 	Else
 		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
@@ -59,6 +60,9 @@ If FWCodEmp() == "01"
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GASTOSGERAIS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSGG() }, "", "Atualizando a tabela GASTOSGERAIS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela GASTOSLIQFOL do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSGLF() }, "", "Atualizando a tabela GASTOSLIQFOL do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela GERAL do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSGER() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
@@ -807,6 +811,10 @@ Local cTabSB1	:= ""
 Local cTabSE2	:= ""
 Local cTabSF1	:= ""
 Local cTabCTT	:= ""
+Local cTabSE5	:= ""
+Local cTabCT1	:= ""
+Local cCusBK	:= U_MVXCUSBK()
+
 
 u_LogPrw(cPerg,"Gastos Gerais")
 
@@ -821,7 +829,9 @@ For nE := 1 TO Len(aEmpresas)
 	cTabSB1 := "SB1"+cEmpresa+"0"
 	cTabSE2 := "SE2"+cEmpresa+"0"
 	cTabSF1 := "SF1"+cEmpresa+"0"
+	cTabCT1 := "CT1"+cEmpresa+"0"
 	cTabCTT := "CTT"+cEmpresa+"0"
+	cTabSE5 := "SE5"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -906,7 +916,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "WHERE SD1.D1_FILIAL = '01' " + CRLF
 	cQuery += "      AND SD1.D_E_L_E_T_ = '' " + CRLF
 	cQuery += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
-	cQuery += "      	OR B1_CONTA IN ('29104004') " + CRLF
+	cQuery += "      	OR B1_CONTA IN ('"+cCusBK+"') " + CRLF
 	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) " + CRLF
 
 	IF cEmpresa == "01" // Despesas médicas 
@@ -915,6 +925,90 @@ For nE := 1 TO Len(aEmpresas)
 	IF cEmpresa == "14" // Despesas médicas
 		cQuery += "      AND D1_FORNECE <> '000604'"+CRLF
 	ENDIF 
+
+	// Movimento Bancário
+	cQuery += "UNION ALL "+CRLF
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  CASE " + CRLF
+	cQuery += "  	WHEN E5_CCD = ' ' THEN E5_CCC " + CRLF
+	cQuery += "  	WHEN E5_CCC = ' ' THEN E5_CCD " + CRLF
+	cQuery += "  END AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(E5_VENCTO,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(E5_VENCTO,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+	cQuery += "  	CASE " + CRLF
+	cQuery += "  		WHEN E5_CCD = ' ' THEN E5_CCC " + CRLF
+	cQuery += "  		WHEN E5_CCC = ' ' THEN E5_CCD " + CRLF
+	cQuery += "  	END + " + CRLF
+	cQuery += "     SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4)  AS CHAVE, " + CRLF
+
+ 	//cQuery += "  E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E5_VALOR,"+CRLF
+ 	//cQuery += "  E5_RECPAG,"+CRLF
+ 	//cQuery += "  UPPER(E5_HISTOR) AS E5_HISTOR,"+CRLF
+ 	//Query += "  'W'+SUBSTRING(CT1_DESC01,1,15) AS E5CODIGO "+CRLF
+
+  	cQuery += "     E5_FILIAL  AS D1_FILIAL, " + CRLF
+  	cQuery += "     E5_PREFIXO AS D1_SERIE, " + CRLF
+  	cQuery += "     E5_NUMERO  AS D1_DOC, " + CRLF
+  	cQuery += "     E5_CLIFOR  AS D1_FORNECE, " + CRLF
+  	cQuery += "     E5_LOJA    AS D1_LOJA, " + CRLF
+  	cQuery += "     '0001'     AS D1_ITEM, " + CRLF
+  	cQuery += "     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, " + CRLF
+  	cQuery += "     CT1_DESC01 AS B1_DESC, " + CRLF
+  	cQuery += "     ' '        AS B1_GRUPO, " + CRLF
+  	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, " + CRLF
+  	cQuery += "     E5_PARCELA AS E2_PARCELA, " + CRLF
+  	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2_VALOR, " + CRLF
+  	cQuery += "     E5_VLDESCO AS E2_DESCONT, " + CRLF
+  	cQuery += "     E5_VLMULTA AS E2_MULTA, " + CRLF
+  	cQuery += "     E5_VLJUROS AS E2_JUROS, " + CRLF
+  	cQuery += "     E5_VLACRES AS E2_ACRESC, " + CRLF
+  	cQuery += "     E5_VLDECRE AS E2_DECRESC, " + CRLF
+  	cQuery += "     E5_VRETPIS AS E2_VRETPIS, " + CRLF
+  	cQuery += "     E5_VRETCOF AS E2_VRETCOF, " + CRLF
+  	cQuery += "     E5_VRETCSL AS E2_VRETCSL, " + CRLF
+  	cQuery += "     E5_VRETINS AS E2_VRETINS, " + CRLF
+  	cQuery += "     E5_VRETIRF AS E2_VRETIRF, " + CRLF
+  	cQuery += "     E5_VRETISS AS E2_VRETISS, " + CRLF
+  	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2VALTIT, " + CRLF
+  	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS D1TOTAL, " + CRLF
+  	cQuery += "     CASE WHEN E5_VLACRES > 0 THEN E5_VLACRES ELSE E5_VLMULTA+E5_VLJUROS END -  " + CRLF
+  	cQuery += "     	CASE WHEN E5_VLDECRE > 0 THEN E5_VLDECRE ELSE E5_VLDESCO END AS E2ACDEC " + CRLF
+
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSE5+" SE5" + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (
+	cQuery += "  	    CASE " + CRLF
+	cQuery += "  		   WHEN E5_CCD = ' ' THEN E5_CCC " + CRLF
+	cQuery += "  		   WHEN E5_CCC = ' ' THEN E5_CCD " + CRLF
+	cQuery += "  	    END = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCT1+" CT1" + CRLF
+	cQuery += "     ON ( "+ CRLF
+	cQuery += "        (CT1_CONTA = E5_DEBITO OR CT1_CONTA = E5_CREDITO)" + CRLF
+	cQuery += " 	   AND CT1_FILIAL = '  '" + CRLF
+	cQuery += "        AND CT1.D_E_L_E_T_=''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE SE5.E5_FILIAL = '01' " + CRLF
+	cQuery += "      AND SE5.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )" + CRLF
+	cQuery += "      AND E5_SITUACA <> 'C' " + CRLF
+	cQuery += "      AND (E5_CCC <> ' ' OR E5_CCD <> '  ') " + CRLF
+	cQuery += "      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') " + CRLF
 
 Next
 
@@ -934,7 +1028,30 @@ cQuery += "		ORDER BY ZGCHAVE DESC) AS CHAVEZG,"+CRLF
 
 cQuery += "	   (E2ACDEC  / F1_VALBRUT * D1TOTAL)   AS E2ACDECIT,"+CRLF
 cQuery += "	   (E2VALTIT / F1_VALBRUT * D1TOTAL)   AS D1TOTIT,"+CRLF
-cQuery += "       (E2ACDEC  / F1_VALBRUT * D1TOTAL) + (E2VALTIT / F1_VALBRUT * D1TOTAL) AS DESPESA"+CRLF
+cQuery += "       (E2ACDEC  / F1_VALBRUT * D1TOTAL) + (E2VALTIT / F1_VALBRUT * D1TOTAL) AS DESPESA,"+CRLF
+
+// Produtos das previsões
+
+cQuery += "    (CASE "+CRLF
+cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVTPRD())+" THEN '12' "+CRLF
+cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVRVAP())+" THEN '14' "+CRLF
+cQuery += "    	WHEN B1_GRUPO = '0008' THEN 'WUNIFORME' "+CRLF
+cQuery += "    	WHEN B1_GRUPO = '0009' THEN 'WMATERIAL DE SEG' "+CRLF
+cQuery += "    	WHEN B1_GRUPO = '0010' THEN 'WINSUMOS' "+CRLF
+cQuery += "     ELSE 'W'+D1_COD "+CRLF
+cQuery += "     END"+CRLF
+cQuery += "    ) AS PREVPROD,"+CRLF
+
+cQuery += "    (CASE "+CRLF
+cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVTPRD())+" THEN 'VT' "+CRLF
+cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVRVAP())+" THEN 'VR/VA' "+CRLF
+cQuery += "    	WHEN B1_GRUPO = '0008' THEN 'UNIFORME' "+CRLF
+cQuery += "    	WHEN B1_GRUPO = '0009' THEN 'MATERIAL DE SEGURANCA' "+CRLF
+cQuery += "    	WHEN B1_GRUPO = '0010' THEN 'INSUMOS' "+CRLF
+cQuery += "     ELSE B1_DESC "+CRLF
+cQuery += "     END"+CRLF
+cQuery += "    ) AS PREVDESC"+CRLF
+
 cQuery += "	INTO PowerBk.dbo.GASTOSGERAIS"+CRLF
 cQuery += "	FROM DESPESAS"+CRLF
 cQuery += " ORDER BY" + CRLF
@@ -974,6 +1091,187 @@ Endif
 u_LogMemo("BKDASH01-GG.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+
+// Atualização da tabela GASTOSLIQFOL do banco de dados PowerBk (Movimento Bancario)
+Static Function ProcDSGLF
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrpGct()
+Local nE 		:= 0
+Local cEmpresa  := ""
+Local cNomeEmp  := ""
+local cCusBK    := U_MVXCUSBK()
+
+Local cTabSZ2	:= "SZ2010"
+Local cTabCTT	:= ""
+
+Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
+Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
+Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
+
+u_LogPrw(cPerg,"Liquidos de Folha")
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+
+	cTabCTT := "CTT"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  ('"+cEmpresa+"' + "+CRLF
+	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
+	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+
+ 	cQuery += "  Z2_PRONT,"+CRLF
+ 	cQuery += "  Z2_NOME,"+CRLF
+ 	cQuery += "  Z2_TIPO,"+CRLF
+ 	cQuery += "  Z2_TIPOPES,"+CRLF
+ 	cQuery += "  Z2_VALOR,"+CRLF
+ 	cQuery += "  UPPER(Z2_OBSTITU) AS Z2_OBSTITU,"+CRLF
+
+	// PRODUTO CLT
+
+	cQuery += "    (CASE "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'VT' THEN '12' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('VR','VA') THEN '14' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'EXM' THEN '"+U_MVXCEXMP()+"'"+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN '"+U_MVXCDCH()+"'"+CRLF
+	cQuery += "     ELSE Z2_TIPO "+CRLF
+	cQuery += "     END"+CRLF
+	cQuery += "    ) AS PRODUTO,"+CRLF
+
+	cQuery += "    (CASE "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'VT' THEN 'VT' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('VR','VA') THEN 'VR/VA' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'EXM' THEN '"+cDescExm+"'"+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN '"+cDescDCH+"'"+CRLF
+	cQuery += "     ELSE Z2_TIPO "+CRLF
+	cQuery += "     END"+CRLF
+	cQuery += "    ) AS DESCPRD"+CRLF
+
+	If nE = 1
+		cQuery += "  INTO PowerBk.dbo.GASTOSLIQFOL  " + CRLF
+	EndIf
+
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSZ2+" SZ2" + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (Z2_CC = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
+	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
+	cQuery += "      AND SZ2.Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA') " + CRLF
+	cQuery += "      AND SZ2.Z2_TIPOPES = 'CLT' " + CRLF
+	cQuery += "      AND SZ2.Z2_STATUS = 'S' " + CRLF
+
+	cQuery += "UNION ALL "+CRLF
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  ('"+cEmpresa+"' + "+CRLF
+	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
+	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+
+ 	cQuery += "  Z2_PRONT,"+CRLF
+ 	cQuery += "  Z2_NOME,"+CRLF
+ 	cQuery += "  Z2_TIPO,"+CRLF
+ 	cQuery += "  Z2_TIPOPES,"+CRLF
+ 	cQuery += "  Z2_VALOR,"+CRLF
+ 	cQuery += "  UPPER(Z2_OBSTITU) AS Z2_OBSTITU,"+CRLF
+	// PRODUTO AC/CLA
+	cQuery += "  '"+cCusBK+"' AS PRODUTO,"+CRLF
+	cQuery += "  '"+cDescCBK+"' AS DESCPRD"+CRLF
+
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSZ2+" SZ2" + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (Z2_CC = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
+	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
+	cQuery += "      AND SZ2.Z2_TIPOPES IN ('AC','CLA') " + CRLF
+	cQuery += "      AND SZ2.Z2_STATUS = 'S' " + CRLF
+
+Next
+
+//cQuery += " ORDER BY" + CRLF
+//cQuery += "      EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC" + CRLF
+
+u_LogMemo("BKDASH01-GLF.SQL",cQuery)
+
+If !TCIsConnected() 
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+//Begin Transaction
+
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GASTOSLIQFOL', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.GASTOSLIQFOL "+CRLF
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+
+	nErro   := TcSqlExec(cQuery)
+
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+
+//End Transaction
+
+u_LogMemo("BKDASH01-GLF.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
 
 
 
