@@ -252,7 +252,7 @@ If acao == "E"
 	cAssunto := "Não liberação"
 ElseIf acao == "L"
 	cAssunto := "Liberação"
-ElseIf acao == "L"
+ElseIf acao == "I"
 	cAssunto := "Índice Negativo da Avaliação"
 EndIF
 	

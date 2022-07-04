@@ -328,23 +328,15 @@ Return aRet
 
 User Function Fina04E(aEmail,lCLT)
 Local cPrw     := "BKFINA04"
-Local cAssunto := ""
 Local cEmail1  := "sigapgto1@bkconsultoria.com.br;"  //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cEmail2  := "sigapgto2@bkconsultoria.com.br;"  //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
-Local cCC      := ""
-Local cMsg     := "" 
-Local cAnexo   := ""
-Local _lJob    := .F.
-Local aCabs
+Local cCC      := "microsiga@bkconsultoria.com.br;"
+Local cAssunto := "Pagamentos nao Efetuados "+DTOC(DATE())+"-"+TIME()
+Local aCabs    := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
+Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw)
 
-cEmail1 += "microsiga@bkconsultoria.com.br;"
-cEmail2 += "microsiga@bkconsultoria.com.br;"
-
-cAssunto:= "Pagamentos nao Efetuados "+DTOC(DATE())+"-"+TIME()
-aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw)
-
-U_SendMail("BKFINA04",cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,cAnexo,_lJob)
+//U_SendMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,cAnexo,_lJob)
+  U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg)
 
 Return Nil
 

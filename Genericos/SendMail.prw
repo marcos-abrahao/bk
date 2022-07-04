@@ -53,6 +53,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
 	Local lMostraLog   := .F.
     Local lJob         := IsBlind()
     Local cPath        := "\tmp\"
+    Local cArqLog      := "\log\bksendmail.log"
 
     Local cDrive       := ""
     Local cDir         := ""
@@ -65,20 +66,14 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     Default aAnexos    := {}
     Default lUsaTLS    := .T.
  
+	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC,.T.,"")
+
 	// Para testes
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 		cPara := cCc := "microsiga@bkconsultoria.com.br"
 		If lJob
             FWLogMsg("INFO", /*cTransactionId*/, cPrw /*cGroup*/, FunName() /*cCategory*/, /*cStep*/, /*cMsgId*/, "E-mail simulado: "+TRIM(cAssunto), /*nMensure*/, /*nElapseTime*/, /*aMessage*/)
-		Else
-			//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
 		Endif
-		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+"- Assunto: "+cAssunto,.T.,"")
-		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+"- Para: "+cPara,.T.,"")
-		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
-		u_xxLog("\LOG\BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cCorpo,1,100),.T.,"")
-		
-		//Return .T.
 	EndIf
 	// Fim testes
 
@@ -183,7 +178,8 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     //Se tiver log de avisos/erros
     If !Empty(cLog)
 
-        u_xxConOut("ERROR","BkSnMail",cLog)
+        //u_xxConOut("ERROR","BkSnMail",cLog)
+    	u_xxLog(cArqLog,cPrw+" - ERROR: "+ALLTRIM(cLog),.T.,"")
 
         //Se for para mostrar o log visualmente e for processo com interface com o usuário, mostra uma mensagem na tela
         If lMostraLog .and. !lJob
@@ -211,33 +207,28 @@ Local cPass      := AllTrim(GetMV("MV_RELPSW"))
 Local lRelauth   := GetMv("MV_RELAUTH")
 Local cDe        := cEmail
 Local nTent      := 0
+Local cArqLog    := "\log\sendmail.log"
 
 Default _lJob    := IsBlind()
 Private lResult  := .T.
+
+u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC,.T.,"")
 
 // Para testes
 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 	cPara := cCc := "microsiga@bkconsultoria.com.br"
 	If _lJob
         u_xxConOut("INFO",cPrw,"E-mail simulado em ambiente de teste: "+TRIM(cAssunto))
-	Else
-		//MsgAlert(cPrw+": E-mail simulado em ambiente de teste BK: "+TRIM(cAssunto)+"- Log: BKSENDMAIL.LOG")
 	Endif
-	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Assunto: "+cAssunto,.T.,"")
-	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Para: "+cPara,.T.,"")
-	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+" - CC: "+cCC,.T.,"")
-	u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+" - Msg: "+SUBSTR(cMsg,1,100),.T.,"")
-	
-	//Return .T.
 EndIf
 // Fim testes
 
 CONNECT SMTP SERVER cServer ACCOUNT cEmail PASSWORD cPass RESULT lResulConn
 If !lResulConn
 	GET MAIL ERROR cError
-	If _lJob
-        u_xxConOut("ERROR",cPrw,"Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
-	Else
+
+    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+	If !_lJob
 		MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
 	Endif
 	
@@ -253,10 +244,10 @@ If !lResulConn
 			Exit
 		Else
 			GET MAIL ERROR cError
-			If _lJob
-                u_xxConOut("ERROR",cPrw,"Falha na conexao: "+TRIM(cAssunto)+"-"+cError)
-				u_xxLog("\TMP\BKSENDMAIL.LOG",cPrw+"- Erro: "+cError,.T.,"")
-			EndIf	
+            u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+            If !_lJob
+                MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
+            Endif
 		EndIf
 		
 	    nTent++
@@ -300,23 +291,22 @@ If lResult
 	
 	If !lResulSend
 		GET MAIL ERROR cError
-		If _lJob
-            u_xxConOut("ERROR",cPrw,"Falha no Envio do e-mail: "+TRIM(cAssunto)+"-"+cError)
-		Else
-			MsgAlert(cPrw+": Falha no Envio do e-mail "+TRIM(cAssunto)+"-"+cError)
-		Endif
+        u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+        If !_lJob
+           MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
+        Endif
 	Endif
 Else
 	lResultSend := .F.
-	If _lJob
-        u_xxConOut("ERROR",cPrw,"Falha na autenticação do e-mail: "+TRIM(cAssunto)+"-"+cError)
-	Else
-		MsgAlert(cPrw+": Falha na autenticação do e-mail: "+TRIM(cAssunto)+"-"+cError)
-	Endif
+    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+    If !_lJob
+       MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
+    Endif
 Endif
 
 DISCONNECT SMTP SERVER
 
+/*
 IF lResulSend
 	If _lJob
         u_xxConOut("INFO",cPrw,"E-mail enviado com sucesso: "+TRIM(cAssunto)+"-"+cError)
@@ -324,4 +314,6 @@ IF lResulSend
 		MsgInfo(cPrw+": E-mail enviado com sucesso: " +TRIM(cAssunto))
 	Endif
 ENDIF
+*/
+
 RETURN lResulSend

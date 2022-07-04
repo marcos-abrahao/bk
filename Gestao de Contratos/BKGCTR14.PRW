@@ -153,10 +153,12 @@ Private aDbf3	    := {}
 Private aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
 
 Private aDbfT		:= {}
+
 Private aCamposT,aCabsT
 Private cRealTbT	:= ""
 
 Private ALIAS_TMP   := "TMPC"+cEmpAnt
+Private cRealName   := ""
 
 Private cXXPLR 		:= ""
 Private nConsolida	:= 0
@@ -836,7 +838,6 @@ oTmpTbT:AddIndex("indice2", {"XX_CODGCT","XX_CODIGO"} )
 oTmpTbT:Create()
 cRealTbT := oTmpTbT:GetRealName()
 
-
 If !lJob
 	If nCompet <> 0
 		ProcRegua(1)
@@ -870,6 +871,7 @@ If lSintetico .OR. lJob
 	oTmpTb2:Delete()
 	oTmpTb3:Delete()
 EndIf
+
 oTmpTbT:Delete()
 
 If lJob
