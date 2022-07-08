@@ -51,7 +51,7 @@ IF __cUserId <> "000000"  // Administrador: não filtrar
     IF ASCAN(aUser[1,10],"000000") = 0 .AND. !lMDiretoria
        IF !lStaf .OR. EMPTY(cSuper)
           IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro+"') "
+	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro()+"') "
 	      ELSE
 	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"') "
 	      ENDIF

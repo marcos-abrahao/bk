@@ -2226,7 +2226,7 @@ FOR _nI := 1 TO nPeriodo
 			IF ALLTRIM(aConsorcio[nScan,2]) == "140"
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" +CRLF
 			ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
-				cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
+				//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
             ELSE
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 			ENDIF

@@ -1260,19 +1260,15 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn104HD += "0001"     				//004 007 - Lote de Serviço
 		Bcn104HD += "1"          			//008 008 - Código do Registro
 		Bcn104HD += "C"          			//009 009 - Tipo de Operação
-		Bcn104HD += IIf(cTipoPes == "CLT","30","20")         
-											//010 011 - Tipo de Serviço
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"98",IIf(cTipoPes == "CLT","30","20"))	//010 011 - Tipo de Serviço
 		Bcn104HD += "01"      	 			//012 013 - Forma de Lançamento
 		Bcn104HD += "041"        			//014 016 - Versão do leiaute do lote
 		Bcn104HD += SPACE(1)     			//017 017 - Filler
 		Bcn104HD += "2"          			//018 018 - Tipo de inscrição
 		Bcn104HD += STRZERO(VAL(cCGC),14) 	//019 032 - Número da inscrição
-		Bcn104HD += SUBSTR(SEE->EE_CODEMP,1,6) //"188161" //"180327"  
-											//033 038 - Código Convênio no Banco
-		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"01",SUBSTR(SEE->EE_CODEMP,7,2)) //"06"  
-											//039 040 - Tipo de Compromisso
-		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"0001","0003") //"0002" //"0001" //"0002"  
-											//041 044 - Código do compromisso
+		Bcn104HD += SUBSTR(SEE->EE_CODEMP,1,6) //"188161" //"180327"  	//033 038 - Código Convênio no Banco
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"06",SUBSTR(SEE->EE_CODEMP,7,2)) //"01"//039 040 - Tipo de Compromisso
+		Bcn104HD += IIF(aTitGer[nI,6]='PEN',"0003","0003") //"0002" //"0001" //"0002" //041 044 - Código do compromisso
 		Bcn104HD += IIF(alltrim(cConta)=="0300000043","02","01") //"01" //"VA"  
 											//045 046 - Parâmetro de transmissão
 		Bcn104HD += SPACE(6)   				//047 052 - Filler
@@ -1317,17 +1313,15 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn104D += "A"             		//014 014 - Cód. Segmento
 			Bcn104D += "0"             		//015 015 - Tipo Movimento
 			Bcn104D += "00"            		//016 017 - Código Instrução Movimento
-			Bcn104D += "700"           		//018 020 - Câmara compensação
+			Bcn104D += IIF(aTitGer[nI,6]='PEN',"000","700")    //018 020 - Câmara compensação
 			Bcn104D += "104"           		//021 023 - Código Banco Destino
 			Bcn104D += STRZERO(VAL(aTitGer[nI,8]),5)  
 											//024 028 - Código Agencia Destino
 			Bcn104D += PAD(aTitGer[nI,9],1) //029 029 - DV Agência Destino
 //			Bcn104D += "0037" 				//030 033 Operação Conta
 //			Bcn104D += SUBSTR(STRZERO(VAL(aTitGer[nI,10]),12),5,8) //034 041 CONTA
-			Bcn104D += STRZERO(VAL(aTitGer[nI,10]),12) 
-											//030 041 - Conta Corrente Destino
-			Bcn104D += STRZERO(VAL(aTitGer[nI,11]),1) 
-											//042 042 - DV Conta Destino
+			Bcn104D += STRZERO(VAL(aTitGer[nI,10]),12) //030 041 - Conta Corrente Destino
+			Bcn104D += STRZERO(VAL(aTitGer[nI,11]),1) //042 042 - DV Conta Destino
 			Bcn104D += SPACE(1)				//043 043 - DV Agência/Conta Destino
 			Bcn104D += PAD(Acento(ALLTRIM(IIF(aTitGer[nI,6]='PEN',IIF(!EMPTY(aTitGer[nI,20]),aTitGer[nI,20],aTitGer[nI,19]),aTitGer[nI,3]))),30) 
 											//044 073 - Nome do Terceiro (favorecido)
@@ -1341,7 +1335,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn104D += STRZERO(0,15)		//105 119 - Quantidade de moeda
 		    Bcn104D += STRZERO(INT(aTitGer[nI,4]*100),15) 
 											//120 134 - Valor Lançamento
-			Bcn104D += STRZERO(0,9)			//135 143 - Número Documento Banco
+			Bcn104D += IIF(aTitGer[nI,6]='PEN',SPACE(9),STRZERO(0,9))			//135 143 - Número Documento Banco
 			Bcn104D += SPACE(3)   			//144 146 - Filler
 			Bcn104D += "01"   				//147 148 - Quantidade de Parcelas
 			Bcn104D += "N"   				//149 149 - Indicador de bloqueio

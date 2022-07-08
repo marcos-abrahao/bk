@@ -34,15 +34,19 @@ If FWCodEmp() == "01"
 	u_LogPrw(cPerg,"Inicio")
 
 	If IsBlind()
+		ProcDSUSR()
 		ProcDSDP1()
 		ProcDSDP2()
 		ProcDSFAT()
 		ProcDSGES()
 		ProcDSGLO()
 		ProcDSGG()
-		ProcDSGLF()
+		//ProcDSGLF()
 		ProcDSGER()
 	Else
+		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
+		EndIf
 		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSDP1() }, "", "Atualizando a tabela PREVDESP1 do banco de dados PowerBk...")
 		EndIf
@@ -61,9 +65,9 @@ If FWCodEmp() == "01"
 		If MsgYesNo("Confirma a atualização da tabela GASTOSGERAIS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSGG() }, "", "Atualizando a tabela GASTOSGERAIS do banco de dados PowerBk...")
 		EndIf
-		If MsgYesNo("Confirma a atualização da tabela GASTOSLIQFOL do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSGLF() }, "", "Atualizando a tabela GASTOSLIQFOL do banco de dados PowerBk...")
-		EndIf
+		//If MsgYesNo("Confirma a atualização da tabela GASTOSLIQFOL do banco de dados PowerBk?", cPerg)
+		//	FWMsgRun(, {|oSay| ProcDSGLF() }, "", "Atualizando a tabela GASTOSLIQFOL do banco de dados PowerBk...")
+		//EndIf
 		If MsgYesNo("Confirma a atualização da tabela GERAL do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSGER() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
 		EndIf
@@ -813,8 +817,11 @@ Local cTabSF1	:= ""
 Local cTabCTT	:= ""
 Local cTabSE5	:= ""
 Local cTabCT1	:= ""
+Local cTabSZ2   := "SZ2010"
 Local cCusBK	:= U_MVXCUSBK()
-
+Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
+Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
+Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
 
 u_LogPrw(cPerg,"Gastos Gerais")
 
@@ -859,9 +866,14 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  D1_LOJA,"+CRLF
  	cQuery += "  D1_ITEM,"+CRLF
  	cQuery += "  D1_COD,"+CRLF
+	cQuery += "  CONVERT(VARCHAR(600),CONVERT(Binary(600),D1_XXHIST)) D1_XXHIST,"+CRLF
  	cQuery += "  B1_DESC,"+CRLF
  	cQuery += "  B1_GRUPO,"+CRLF
  	cQuery += "  F1_VALBRUT,"+CRLF
+ 	cQuery += "  F1_XXUSER,"+CRLF
+	cQuery += "  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXUSER = USUARIOS.CODIGO) AS F1RESPON,"+CRLF
+ 	cQuery += "  F1_XXULIB,"+CRLF
+	cQuery += "  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXULIB = USUARIOS.CODIGO) AS F1APROV,"+CRLF
  	cQuery += "  E2_PARCELA,"+CRLF
  	cQuery += "  E2_VALOR,"+CRLF
  	cQuery += "  E2_DESCONT,"+CRLF
@@ -962,9 +974,14 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "     E5_LOJA    AS D1_LOJA, " + CRLF
   	cQuery += "     '0001'     AS D1_ITEM, " + CRLF
   	cQuery += "     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, " + CRLF
+	cQuery += "     ' '        AS D1_XXHIST, " + CRLF
   	cQuery += "     CT1_DESC01 AS B1_DESC, " + CRLF
   	cQuery += "     ' '        AS B1_GRUPO, " + CRLF
   	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, " + CRLF
+	cQuery += "     ' '        AS F1_XXUSER, " + CRLF
+	cQuery += "     ' '        AS F1RESPON, " + CRLF
+	cQuery += "     ' '        AS F1_XXULIB, " + CRLF
+	cQuery += "     ' '        AS F1APROV, " + CRLF
   	cQuery += "     E5_PARCELA AS E2_PARCELA, " + CRLF
   	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2_VALOR, " + CRLF
   	cQuery += "     E5_VLDESCO AS E2_DESCONT, " + CRLF
@@ -1009,6 +1026,159 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      AND E5_SITUACA <> 'C' " + CRLF
 	cQuery += "      AND (E5_CCC <> ' ' OR E5_CCD <> '  ') " + CRLF
 	cQuery += "      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') " + CRLF
+
+	// Despesas advindas da integração Rubi Microsiga
+	// CLT
+
+	cQuery += "UNION ALL "+CRLF
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  ('"+cEmpresa+"' + "+CRLF
+	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
+	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+
+	cQuery += "  Z2_FILIAL   AS D1_FILIAL,"+CRLF
+	cQuery += "  Z2_E2PRF	 AS D1_SERIE,"+CRLF
+	cQuery += "  Z2_E2NUM    AS D1_DOC,"+CRLF
+	cQuery += "  Z2_E2FORN   AS D1_FORNECE,"+CRLF
+	cQuery += "  Z2_E2LOJA   AS D1_LOJA,"+CRLF
+	cQuery += "  '0001'      AS D1_ITEM,"+CRLF
+
+	// PRODUTO CLT
+	cQuery += "  (CASE "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'VT' THEN '12' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('VR','VA') THEN '14' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'EXM' THEN '"+U_MVXCEXMP()+"'"+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN '"+U_MVXCDCH()+"'"+CRLF
+	cQuery += "     ELSE Z2_TIPO "+CRLF
+	cQuery += "   END"+CRLF
+	cQuery += "  ) AS D1_COD,"+CRLF
+
+	cQuery += "  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,"+CRLF
+
+	cQuery += "  (CASE "+CRLF
+	cQuery += "     WHEN Z2_TIPO = 'VT' THEN 'VT' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('VR','VA') THEN 'VR/VA' "+CRLF
+	cQuery += "    	WHEN Z2_TIPO = 'EXM' THEN '"+cDescExm+"'"+CRLF
+	cQuery += "    	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN '"+cDescDCH+"'"+CRLF
+	cQuery += "     ELSE Z2_TIPO "+CRLF
+	cQuery += "   END"+CRLF
+	cQuery += "  ) AS B1_DESC,"+CRLF
+
+	cQuery += "  ' '         AS B1_GRUPO, "+CRLF
+	cQuery += "  Z2_VALOR    AS F1_VALBRUT,"+CRLF
+	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, "+CRLF
+	cQuery += "  UPPER(Z2_USUARIO)  AS F1_RESPON,"+CRLF
+	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXULIB, "+CRLF
+	cQuery += "  UPPER(Z2_USUARIO)  AS F1_APROV,"+CRLF
+	cQuery += "  '  '        AS E2_PARCELA,"+CRLF
+	cQuery += "  Z2_VALOR    AS E2_VALOR,"+CRLF
+	cQuery += "  0           AS E2_DESCONT,"+CRLF
+	cQuery += "  0           AS E2_MULTA,"+CRLF
+	cQuery += "  0           AS E2_JUROS,"+CRLF
+	cQuery += "  0           AS E2_ACESC,"+CRLF
+	cQuery += "  0           AS E2_DECRESC,"+CRLF
+	cQuery += "  0           AS E2_VRETPIS,"+CRLF
+	cQuery += "  0           AS E2_VRETCOF,"+CRLF
+	cQuery += "  0           AS E2_VRETCSL,"+CRLF
+	cQuery += "  0           AS E2_VRETINS,"+CRLF
+	cQuery += "  0           AS E2_VRETIRF,"+CRLF
+	cQuery += "  0           AS E2_VRETISS,"+CRLF
+	cQuery += "  Z2_VALOR    AS E2VALTIT,"+CRLF
+	cQuery += "  Z2_VALOR    AS D1TOTAL,"+CRLF
+	cQuery += "  0           AS E2ACDEC"+CRLF
+
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSZ2+" SZ2" + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (Z2_CC = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
+	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
+	cQuery += "      AND SZ2.Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA') " + CRLF
+	cQuery += "      AND SZ2.Z2_TIPOPES = 'CLT' " + CRLF
+	cQuery += "      AND SZ2.Z2_STATUS = 'S' " + CRLF
+
+	cQuery += "UNION ALL "+CRLF
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+	cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  ('"+cEmpresa+"' + "+CRLF
+	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
+	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+
+	cQuery += "  Z2_FILIAL   AS D1_FILIAL,"+CRLF
+	cQuery += "  Z2_E2PRF	 AS D1_SERIE,"+CRLF
+	cQuery += "  Z2_E2NUM    AS D1_DOC,"+CRLF
+	cQuery += "  Z2_E2FORN   AS D1_FORNECE,"+CRLF
+	cQuery += "  Z2_E2LOJA   AS D1_LOJA,"+CRLF
+	cQuery += "  '0001'      AS D1_ITEM,"+CRLF
+
+	// PRODUTO AC/CLA
+	cQuery += "  '"+cCusBK+"' AS D1_COD,"+CRLF
+	cQuery += "  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,"+CRLF
+	cQuery += "  '"+cDescCBK+"' AS B1_DESC,"+CRLF
+	cQuery += "  ' '         AS B1_GRUPO, "+CRLF
+	cQuery += "  Z2_VALOR    AS F1_VALBRUT,"+CRLF
+	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, "+CRLF
+	cQuery += "  UPPER(Z2_USUARIO)  AS F1_RESPON,"+CRLF
+	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXULIB, "+CRLF
+	cQuery += "  UPPER(Z2_USUARIO)  AS F1_APROV,"+CRLF
+	cQuery += "  '  '        AS E2_PARCELA,"+CRLF
+	cQuery += "  Z2_VALOR    AS E2_VALOR,"+CRLF
+	cQuery += "  0           AS E2_DESCONT,"+CRLF
+	cQuery += "  0           AS E2_MULTA,"+CRLF
+	cQuery += "  0           AS E2_JUROS,"+CRLF
+	cQuery += "  0           AS E2_ACESC,"+CRLF
+	cQuery += "  0           AS E2_DECRESC,"+CRLF
+	cQuery += "  0           AS E2_VRETPIS,"+CRLF
+	cQuery += "  0           AS E2_VRETCOF,"+CRLF
+	cQuery += "  0           AS E2_VRETCSL,"+CRLF
+	cQuery += "  0           AS E2_VRETINS,"+CRLF
+	cQuery += "  0           AS E2_VRETIRF,"+CRLF
+	cQuery += "  0           AS E2_VRETISS,"+CRLF
+	cQuery += "  Z2_VALOR    AS E2VALTIT,"+CRLF
+	cQuery += "  Z2_VALOR    AS D1TOTAL,"+CRLF
+	cQuery += "  0           AS E2ACDEC"+CRLF
+
+	cQuery += "FROM " + CRLF
+	cQuery += "  "+cTabSZ2+" SZ2" + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON (Z2_CC = CTT_CUSTO " + CRLF
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
+	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
+	cQuery += "      AND SZ2.Z2_TIPOPES IN ('AC','CLA') " + CRLF
+	cQuery += "      AND SZ2.Z2_STATUS = 'S' " + CRLF
 
 Next
 
@@ -1489,8 +1659,6 @@ u_LogMemo("BKDASH01-PVD2.SQL",cErro1+cQueryD+cErro2+cQuery)
 Return
 
 
-
-
 // Atualização da tabela GERAL do banco de dados PowerBk
 Static Function ProcDSGER
 Local cQuery	:= ""
@@ -1640,3 +1808,427 @@ Endif
 u_LogMemo("BKDASH01-G.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+
+
+// Atualização da tabela USUARIOS do banco de dados PowerBk
+Static Function ProcDSUsr
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aUsers    := AllUsers()
+Local aGrupos   := AllGroups()
+Local aGrpUsr   := {}
+Local nZ 		:= 0
+Local nX 		:= 0
+Local xUsrCodigo:= ""
+Local xUsrConta := ""
+Local xUsrSenha := ""
+Local xUsrNome  := ""
+Local xUsrEmail := ""
+Local xUsrGrupo := ""
+Local xUsrDepto := ""
+Local xUsrBloq  := ""
+Local xUsrUltLog:= ""
+Local nPosGrp   := 0
+
+u_LogPrw(cPerg,"Usuários")
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.USUARIOS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.USUARIOS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+
+cQuery := "CREATE TABLE PowerBk.dbo.USUARIOS " + CRLF
+cQuery += "( " + CRLF
+cQuery += "  CODIGO    VARCHAR(06), " + CRLF
+cQuery += "  USUARIO   VARCHAR(50), " + CRLF
+cQuery += "  NOME      VARCHAR(50), " + CRLF
+cQuery += "  EMAIL     VARCHAR(50), " + CRLF
+cQuery += "  GRUPO     VARCHAR(50), " + CRLF
+cQuery += "  SENHA     VARCHAR(100)," + CRLF
+cQuery += "  DEPTO     VARCHAR(100)," + CRLF
+cQuery += "  ULTLOG    VARCHAR(100)," + CRLF
+cQuery += "  BLOQUEADO VARCHAR(03), " + CRLF    
+cQuery += "  DTRUN     VARCHAR(50), " + CRLF
+cQuery += "  PRIMARY KEY (CODIGO)         " + CRLF
+cQuery += ") " + CRLF
+
+nErro   := TcSqlExec(cQuery)
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+For nX := 1 To Len(aUsers)
+    // Popula elemento
+    xUsrCodigo   := aUsers[nX][01][01]                                           //CODIGO
+    xUsrConta    := Upper(FWSFUser(xUsrCodigo,"DATAUSER","USR_CODIGO",.F.))      //USUARIO
+    xUsrSenha    := RTrim(FWSFUser(xUsrCodigo,"DATAUSER","USR_PSWMD5",.F.))      //SENHA
+    xUsrNome     := Upper(FWSFUser(xUsrCodigo,"DATAUSER","USR_NOME",.F.))        //NOME
+    xUsrEmail    := Upper(FWSFUser(xUsrCodigo,"DATAUSER","USR_EMAIL",.F.))       //EMAIL
+    xUsrGrupo    := ""
+    xUsrDepto    := Upper(FWSFUser(xUsrCodigo,"DATAUSER","USR_DEPTO",.F.))       //DEPARTAMENTO
+    xUsrBloq     := RTrim(FWSFUser(xUsrCodigo,"DATAUSER","USR_MSBLQL",.F.))      //BLOQUEADO
+    xUsrUltLog   := FWUsrUltLog(xUsrCodigo)                                      //INFORMACOES DE LOGIN
+
+    // Obtem grupos de acesso do usuario
+    aGrpUsr := aUsers[nX][01][10]
+    For nZ := 1 To Len(aGrpUsr)
+        nPosGrp   := aScan(aGrupos, {|elem|AllTrim(elem[1][1]) == AllTrim(aGrpUsr[nZ])})
+        xUsrGrupo += Upper(AllTrim(aGrupos[nPosGrp][1][2])) + "#"
+    Next nZ
+    cQuery := "INSERT INTO PowerBk.dbo.USUARIOS " + CRLF
+    cQuery += "("         + CRLF
+    cQuery += "CODIGO,"   + CRLF
+    cQuery += "USUARIO,"  + CRLF
+    cQuery += "NOME,"     + CRLF
+    cQuery += "EMAIL,"    + CRLF
+    cQuery += "GRUPO,"    + CRLF
+    cQuery += "SENHA,"    + CRLF
+    cQuery += "DEPTO,"    + CRLF
+    cQuery += "ULTLOG,"   + CRLF
+    cQuery += "BLOQUEADO,"+ CRLF
+    cQuery += "DTRUN"     + CRLF
+    cQuery += ")"         + CRLF
+    cQuery += "VALUES"    + CRLF
+    cQuery += "("         + CRLF
+    cQuery += "'" + xUsrCodigo   + "',"    + CRLF
+    cQuery += "'" + xUsrConta    + "',"    + CRLF
+    cQuery += "'" + xUsrNome     + "',"    + CRLF
+    cQuery += "'" + xUsrEmail    + "',"    + CRLF
+    cQuery += "'" + xUsrGrupo    + "',"    + CRLF
+    cQuery += "'" + xUsrSenha    + "',"    + CRLF
+    cQuery += "'" + xUsrDepto    + "',"    + CRLF    
+    cQuery += "'" + "DATA: " + DtoC(xUsrUltLog[1]) + " HORA: " + xUsrUltLog[2] + " WORKSTATION: " + xUsrUltLog[4] + "'," + CRLF
+    cQuery += "'" + IIf( xUsrBloq == "1", "SIM", "NAO" ) + "'," + CRLF                 
+    cQuery += "'" + DtoC(Date()) + "'  " + CRLF
+    cQuery += ")"
+
+	nErro   := TcSqlExec(cQuery)
+	If nErro != 0
+		cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+Next nX
+
+u_LogMemo("BKDASH01-U.SQL",cErro1+cQueryD+cErro2+cQuery)
+Return
+
+
+/*
+
+
+WITH DESPESAS AS (
+ SELECT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  GETDATE() AS DATAPRC,
+  SUBSTRING(D1_CC,1,9) AS CONTRATO, 
+  CTT_DESC01 AS DESCRICAO, 
+  SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4) AS COMPET,
+  SUBSTRING(E2_VENCREA,1,6) AS COMPETAM,
+  CONVERT(DATE,SUBSTRING(E2_VENCREA,1,6)+'01',112) AS COMPETD,
+  '01' + 
+     SUBSTRING(D1_CC,1,9) +  
+     SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4)  AS CHAVE, 
+  D1_FILIAL,
+  D1_SERIE,
+  D1_DOC,
+  D1_FORNECE,
+  D1_LOJA,
+  D1_ITEM,
+  D1_COD,
+  CONVERT(VARCHAR(600),CONVERT(Binary(600),D1_XXHIST)) D1_XXHIST,
+  B1_DESC,
+  B1_GRUPO,
+  F1_VALBRUT,
+  F1_XXUSER,
+  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXUSER = USUARIOS.CODIGO) AS F1RESPON,
+  F1_XXULIB,
+  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXULIB = USUARIOS.CODIGO) AS F1APROV,
+  E2_PARCELA,
+  E2_VALOR,
+  E2_DESCONT,
+  E2_MULTA,
+  E2_JUROS,
+  E2_ACRESC,
+  E2_DECRESC,
+  E2_VRETPIS,
+  E2_VRETCOF,
+  E2_VRETCSL,
+  E2_VRETINS,
+  E2_VRETIRF,
+  E2_VRETISS,
+  E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS AS E2VALTIT,
+  (D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)  AS D1TOTAL,
+  CASE WHEN E2_ACRESC  > 0 THEN E2_ACRESC  ELSE E2_MULTA+E2_JUROS END - 
+  	CASE WHEN E2_DECRESC > 0 THEN E2_DECRESC ELSE E2_DESCONT END AS E2ACDEC
+FROM 
+  SD1010 SD1
+ INNER JOIN SB1010 SB1
+     ON (B1_COD = D1_COD 
+         AND B1_FILIAL = '01' 
+         AND SB1.D_E_L_E_T_ = ''
+  ) 
+ INNER JOIN SE2010 SE2
+     ON (E2_TIPO = 'NF' 
+         AND E2_PREFIXO = D1_SERIE
+         AND E2_NUM = D1_DOC
+         AND E2_FORNECE = D1_FORNECE
+         AND E2_LOJA = D1_LOJA
+         AND E2_FILIAL = '01' 
+         AND SE2.D_E_L_E_T_ = ''
+  ) 
+ INNER JOIN SF1010 SF1
+     ON (F1_SERIE = D1_SERIE
+         AND F1_DOC = D1_DOC
+         AND F1_FORNECE = D1_FORNECE
+         AND F1_LOJA = D1_LOJA
+         AND F1_FILIAL = D1_FILIAL 
+         AND SF1.D_E_L_E_T_ = ''
+  ) 
+ LEFT JOIN CTT010 CTT
+     ON (D1_CC = CTT_CUSTO 
+ 		AND CTT_FILIAL = '01'
+         AND CTT.D_E_L_E_T_ = ''
+  ) 
+WHERE SD1.D1_FILIAL = '01' 
+      AND SD1.D_E_L_E_T_ = '' 
+      AND (SUBSTRING(B1_CONTA,1,1) = '3'
+      	OR B1_CONTA IN ('29104004') 
+      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) 
+AND 1 = CASE WHEN D1_CC = 313000504 AND D1_FORNECE = '002918' THEN 0 ELSE 1 END
+UNION ALL 
+ SELECT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  GETDATE() AS DATAPRC,
+  CASE 
+  	WHEN E5_CCD = ' ' THEN E5_CCC 
+  	WHEN E5_CCC = ' ' THEN E5_CCD 
+  END AS CONTRATO, 
+  CTT_DESC01 AS DESCRICAO, 
+  SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4) AS COMPET,
+  SUBSTRING(E5_VENCTO,1,6) AS COMPETAM,
+  CONVERT(DATE,SUBSTRING(E5_VENCTO,1,6)+'01',112) AS COMPETD,
+  '01' + 
+  	CASE 
+  		WHEN E5_CCD = ' ' THEN E5_CCC 
+  		WHEN E5_CCC = ' ' THEN E5_CCD 
+  	END + 
+     SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4)  AS CHAVE, 
+     E5_FILIAL  AS D1_FILIAL, 
+     E5_PREFIXO AS D1_SERIE, 
+     E5_NUMERO  AS D1_DOC, 
+     E5_CLIFOR  AS D1_FORNECE, 
+     E5_LOJA    AS D1_LOJA, 
+     '0001'     AS D1_ITEM, 
+     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, 
+     ' '        AS D1_XXHIST, 
+     CT1_DESC01 AS B1_DESC, 
+     ' '        AS B1_GRUPO, 
+     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, 
+     ' '        AS F1_XXUSER, 
+     ' '        AS F1RESPON, 
+     ' '        AS F1_XXULIB, 
+     ' '        AS F1APROV, 
+     E5_PARCELA AS E2_PARCELA, 
+     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2_VALOR, 
+     E5_VLDESCO AS E2_DESCONT, 
+     E5_VLMULTA AS E2_MULTA, 
+     E5_VLJUROS AS E2_JUROS, 
+     E5_VLACRES AS E2_ACRESC, 
+     E5_VLDECRE AS E2_DECRESC, 
+     E5_VRETPIS AS E2_VRETPIS, 
+     E5_VRETCOF AS E2_VRETCOF, 
+     E5_VRETCSL AS E2_VRETCSL, 
+     E5_VRETINS AS E2_VRETINS, 
+     E5_VRETIRF AS E2_VRETIRF, 
+     E5_VRETISS AS E2_VRETISS, 
+     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2VALTIT, 
+     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS D1TOTAL, 
+     CASE WHEN E5_VLACRES > 0 THEN E5_VLACRES ELSE E5_VLMULTA+E5_VLJUROS END -  
+     	CASE WHEN E5_VLDECRE > 0 THEN E5_VLDECRE ELSE E5_VLDESCO END AS E2ACDEC 
+FROM 
+  SE5010 SE5
+LEFT JOIN CTT010 CTT
+     ON (  	    CASE 
+  		   WHEN E5_CCD = ' ' THEN E5_CCC 
+  		   WHEN E5_CCC = ' ' THEN E5_CCD 
+  	    END = CTT_CUSTO 
+ 		AND CTT_FILIAL = '01'
+         AND CTT.D_E_L_E_T_ = ''
+  ) 
+LEFT JOIN CT1010 CT1
+     ON ( 
+        (CT1_CONTA = E5_DEBITO OR CT1_CONTA = E5_CREDITO)
+ 	   AND CT1_FILIAL = '  '
+        AND CT1.D_E_L_E_T_=''
+  ) 
+WHERE SE5.E5_FILIAL = '01' 
+      AND SE5.D_E_L_E_T_ = '' 
+      AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )
+      AND E5_SITUACA <> 'C' 
+      AND (E5_CCC <> ' ' OR E5_CCD <> '  ') 
+      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') 
+union all
+ SELECT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  GETDATE() AS DATAPRC,
+  SUBSTRING(Z2_CC,1,9) AS CONTRATO, 
+  CTT_DESC01 AS DESCRICAO, 
+  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,
+  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,
+  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,
+  ('01' + 
+   SUBSTRING(Z2_CC,1,9) + 
+   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, 
+  Z2_FILIAL   AS D1_FILIAL,
+  Z2_E2PRF	  AS D1_SERIE,
+  Z2_E2NUM    AS D1_DOC,
+  Z2_E2FORN   AS D1_FORNECE,
+  Z2_E2LOJA   AS D1_LOJA,
+  '0001'      AS D1_ITEM,
+  (CASE 
+   	WHEN Z2_TIPO = 'VT' THEN '12' 
+   	WHEN Z2_TIPO IN ('VR','VA') THEN '14' 
+   	WHEN Z2_TIPO = 'EXM' THEN '41201015'
+   	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN '34202003'
+    ELSE Z2_TIPO 
+   END
+   ) AS D1_COD,
+  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,
+  (CASE 
+   	WHEN Z2_TIPO = 'VT' THEN 'VT' 
+   	WHEN Z2_TIPO IN ('VR','VA') THEN 'VR/VA' 
+   	WHEN Z2_TIPO = 'EXM' THEN 'EXAMES MEDICOS                                              '
+   	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN 'DIARIA DE CAMPO / HOSPEDAGEM                                '
+    ELSE Z2_TIPO 
+   END
+  ) AS B1_DESC,
+  ' '         AS B1_GRUPO, 
+  Z2_VALOR    AS F1_VALBRUT,
+  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, 
+  UPPER(Z2_USUARIO)  AS F1_RESPON,
+  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXULIB, 
+  UPPER(Z2_USUARIO)  AS F1_APROV,
+  '  '        AS E2_PARCELA,
+  Z2_VALOR    AS E2_VALOR,
+  0           AS E2_DESCONT,
+  0           AS E2_MULTA,
+  0           AS E2_JUROS,
+  0           AS E2_ACESC,
+  0           AS E2_DECRESC,
+  0           AS E2_VRETPIS,
+  0           AS E2_VRETCOF,
+  0           AS E2_VRETCSL,
+  0           AS E2_VRETINS,
+  0           AS E2_VRETIRF,
+  0           AS E2_VRETISS,
+  Z2_VALOR    AS E2VALTIT,
+  Z2_VALOR    AS D1TOTAL,
+  0           AS E2ACDEC
+
+
+
+  --Z2_PRONT,
+  --Z2_NOME,
+  --Z2_TIPO,
+  --Z2_TIPOPES,
+  --Z2_VALOR,
+  --UPPER(Z2_OBSTITU) AS Z2_OBSTITU,
+
+
+FROM 
+  SZ2010 SZ2
+LEFT JOIN CTT010 CTT
+     ON (Z2_CC = CTT_CUSTO 
+ 		AND CTT_FILIAL = '01'
+         AND CTT.D_E_L_E_T_ = ''
+  ) 
+WHERE Z2_FILIAL = '  ' 
+      AND SZ2.D_E_L_E_T_ = '' 
+      AND SZ2.Z2_CODEMP = '01'
+      AND SZ2.Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA') 
+      AND SZ2.Z2_TIPOPES = 'CLT' 
+      AND SZ2.Z2_STATUS = 'S' 
+UNION ALL 
+ SELECT 
+  '01' AS EMPRESA,
+  'BK' AS NOMEEMP,
+  GETDATE() AS DATAPRC,
+  SUBSTRING(Z2_CC,1,9) AS CONTRATO, 
+  CTT_DESC01 AS DESCRICAO, 
+  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,
+  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,
+  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,
+  ('01' + 
+   SUBSTRING(Z2_CC,1,9) + 
+   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, 
+  Z2_FILIAL   AS D1_FILIAL,
+  Z2_E2PRF	  AS D1_SERIE,
+  Z2_E2NUM    AS D1_DOC,
+  Z2_E2FORN   AS D1_FORNECE,
+  Z2_E2LOJA   AS D1_LOJA,
+  '0001'      AS D1_ITEM,
+  '29104004'  AS D1_COD,
+  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,
+  'CUSTO BK' AS B1_DESC,
+  ' '         AS B1_GRUPO, 
+  Z2_VALOR    AS F1_VALBRUT,
+  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, 
+  Z2_USUARIO  AS F1_RESPON,
+  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXULIB, 
+  Z2_USUARIO  AS F1_APROV,
+  '  '        AS E2_PARCELA,
+  Z2_VALOR    AS E2_VALOR,
+  0           AS E2_DESCONT,
+  0           AS E2_MULTA,
+  0           AS E2_JUROS,
+  0           AS E2_ACESC,
+  0           AS E2_DECRESC,
+  0           AS E2_VRETPIS,
+  0           AS E2_VRETCOF,
+  0           AS E2_VRETCSL,
+  0           AS E2_VRETINS,
+  0           AS E2_VRETIRF,
+  0           AS E2_VRETISS,
+  Z2_VALOR    AS E2VALTIT,
+  Z2_VALOR    AS D1TOTAL,
+  0           AS E2ACDEC
+
+FROM 
+  SZ2010 SZ2
+LEFT JOIN CTT010 CTT
+     ON (Z2_CC = CTT_CUSTO 
+ 		AND CTT_FILIAL = '01'
+         AND CTT.D_E_L_E_T_ = ''
+  ) 
+WHERE Z2_FILIAL = '  ' 
+      AND SZ2.D_E_L_E_T_ = '' 
+      AND SZ2.Z2_CODEMP = '01'
+      AND SZ2.Z2_TIPOPES IN ('AC','CLA') 
+      AND SZ2.Z2_STATUS = 'S' 
+
+)
+	select * 
+	FROM DESPESAS
+ ORDER BY
+      EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC
+
+*/

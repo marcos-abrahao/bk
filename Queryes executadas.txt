@@ -1,5 +1,11 @@
 
 
+==============================================================
+06/07/22
+
+ALTER DATABASE PowerBk SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
+ALTER DATABASE PowerBk COLLATE Latin1_General_BIN 
+ALTER DATABASE PowerBk SET MULTI_USER
 
 ==============================================================
 22/06/22

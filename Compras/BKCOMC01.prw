@@ -81,14 +81,14 @@ IF __cUserId <> "000000"  // Administrador
     IF ASCAN(aUser[1,10],"000000") = 0 .AND. ASCAN(aUser[1,10],cMFinanceiro) = 0  .AND. !lMDiretoria
        IF !lStaf .OR. EMPTY(cSuper)
        		IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-    			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro+"') "
+    			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "
        		ELSE
     			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
     		ENDIF
     	ELSE
     		//cFiltU := "AND ( F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' ) "
     		IF lStaf .AND. cSuper $ cGerGestao
-  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro+"') "  
+  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "  
     		ELSEIF lStaf .AND. __cUserId $ cGerCompras
   	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+")"  
     		ELSE 

@@ -78,6 +78,7 @@ cTexto += Replicate( "-", 70 ) + CRLF
 cTexto += " Data / Hora Final.: " + DtoC( Date() ) + " / " + Time()  + CRLF
 cTexto += Replicate( "-", 70 ) + CRLF
 
+u_xxLog("\LOG\BKPARGEN.LOG",cTexto)
 
 Define Font oFont Name "Mono AS" Size 5, 12
 
