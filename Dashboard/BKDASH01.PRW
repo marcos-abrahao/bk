@@ -147,7 +147,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
-	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS CHAVE, " + CRLF
+	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
 
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
@@ -366,7 +366,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(CNF_CONTRA,1,9) +  " + CRLF
-	cQuery += "     CNF_COMPET AS CHAVE, " + CRLF
+	cQuery += "     SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2) AS CHAVE, " + CRLF
 
 	cQuery += "  ' ' 		AS C5_NUM, " + CRLF
 	cQuery += "  ' ' 		AS C5_MDNUMED, " + CRLF
@@ -655,7 +655,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
-	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS CHAVE, " + CRLF
+	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
 
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
@@ -802,10 +802,11 @@ Return
 Static Function ProcDSGG
 Local cQuery	:= ""
 Local cQueryD	:= ""
+//Local cQueryF	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
-Local aEmpresas := u_BKGrpGct()
+Local aEmpresas := u_BKGrpDsp()
 Local nE 		:= 0
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
@@ -848,7 +849,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
-	cQuery += "  SUBSTRING(D1_CC,1,9) AS CONTRATO, " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '302000508' ELSE SUBSTRING(D1_CC,1,9) END) AS CONTRATO,"+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '305000554' ELSE SUBSTRING(D1_CC,1,9) END) AS CONTRATO,"+CRLF	
+	Else
+		cQuery += "  SUBSTRING(D1_CC,1,9) AS CONTRATO, " + CRLF
+	EndIf
 	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
  	cQuery += "  SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4) AS COMPET,"+CRLF
  	cQuery += "  SUBSTRING(E2_VENCREA,1,6) AS COMPETAM,"+CRLF
@@ -856,8 +863,15 @@ For nE := 1 TO Len(aEmpresas)
 
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
-	cQuery += "     SUBSTRING(D1_CC,1,9) +  " + CRLF
-	cQuery += "     SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4)  AS CHAVE, " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '302000508' ELSE SUBSTRING(D1_CC,1,9) END) + "+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '305000554' ELSE SUBSTRING(D1_CC,1,9) END) + "+CRLF	
+	Else
+		cQuery += "  SUBSTRING(D1_CC,1,9) + " + CRLF
+	EndIf
+	cQuery += "     SUBSTRING(E2_VENCREA,1,6)  AS CHAVE, " + CRLF
+	cQuery += "     'SD1' AS ORIGEM, " + CRLF
 
  	cQuery += "  D1_FILIAL,"+CRLF
  	cQuery += "  D1_SERIE,"+CRLF
@@ -920,7 +934,16 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ) " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
-	cQuery += "     ON (D1_CC = CTT_CUSTO " + CRLF
+	cQuery += "     ON ( CTT_CUSTO = " + CRLF
+
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '302000508' ELSE D1_CC END)"+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '305000554' ELSE D1_CC END)"+CRLF	
+	Else
+		cQuery += "  D1_CC " + CRLF
+	EndIf
+
 	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -932,7 +955,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) " + CRLF
 
 	IF cEmpresa == "01" // Despesas médicas 
-		cQuery += "AND 1 = CASE WHEN D1_CC = 313000504 AND D1_FORNECE = '002918' THEN 0 ELSE 1 END"+CRLF
+		cQuery += "AND 1 = CASE WHEN D1_CC = '313000504' AND D1_FORNECE = '002918' THEN 0 ELSE 1 END"+CRLF
 	ENDIF 
 	IF cEmpresa == "14" // Despesas médicas
 		cQuery += "      AND D1_FORNECE <> '000604'"+CRLF
@@ -945,10 +968,24 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
-	cQuery += "  CASE " + CRLF
-	cQuery += "  	WHEN E5_CCD = ' ' THEN E5_CCC " + CRLF
-	cQuery += "  	WHEN E5_CCC = ' ' THEN E5_CCD " + CRLF
-	cQuery += "  END AS CONTRATO, " + CRLF
+
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '302000508' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+	Else
+		cQuery += "  (CASE "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+	EndIf
+
 	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
  	cQuery += "  SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4) AS COMPET,"+CRLF
  	cQuery += "  SUBSTRING(E5_VENCTO,1,6) AS COMPETAM,"+CRLF
@@ -956,11 +993,25 @@ For nE := 1 TO Len(aEmpresas)
 
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
-	cQuery += "  	CASE " + CRLF
-	cQuery += "  		WHEN E5_CCD = ' ' THEN E5_CCC " + CRLF
-	cQuery += "  		WHEN E5_CCC = ' ' THEN E5_CCD " + CRLF
-	cQuery += "  	END + " + CRLF
-	cQuery += "     SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4)  AS CHAVE, " + CRLF
+
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '302000508' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) + " + CRLF
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) + " + CRLF
+	Else
+		cQuery += "  (CASE "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) + " + CRLF
+	EndIf
+	cQuery += "   SUBSTRING(E5_VENCTO,1,6) AS CHAVE, " + CRLF
+	cQuery += "     'SE5' AS ORIGEM, " + CRLF
 
  	//cQuery += "  E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E5_VALOR,"+CRLF
  	//cQuery += "  E5_RECPAG,"+CRLF
@@ -1004,11 +1055,23 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  "+cTabSE5+" SE5" + CRLF
 
 	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
-	cQuery += "     ON (
-	cQuery += "  	    CASE " + CRLF
-	cQuery += "  		   WHEN E5_CCD = ' ' THEN E5_CCC " + CRLF
-	cQuery += "  		   WHEN E5_CCC = ' ' THEN E5_CCD " + CRLF
-	cQuery += "  	    END = CTT_CUSTO " + CRLF
+	cQuery += "     ON ( CTT_CUSTO = "+ CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '302000508' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END)  " + CRLF
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END)  " + CRLF
+	Else
+		cQuery += "  (CASE "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END)  " + CRLF
+	EndIf
 	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -1025,7 +1088,9 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )" + CRLF
 	cQuery += "      AND E5_SITUACA <> 'C' " + CRLF
 	cQuery += "      AND (E5_CCC <> ' ' OR E5_CCD <> '  ') " + CRLF
-	cQuery += "      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') " + CRLF
+	If cEmpresa <> '14' .AND. cEmpresa <> '15'
+		cQuery += "      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') " + CRLF
+	EndIf
 
 	// Despesas advindas da integração Rubi Microsiga
 	// CLT
@@ -1036,7 +1101,15 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
-	cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
+	Else
+		cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	EndIf
+
 	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
  	cQuery += "  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,"+CRLF
  	cQuery += "  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,"+CRLF
@@ -1044,8 +1117,15 @@ For nE := 1 TO Len(aEmpresas)
 
 	// Chave
 	cQuery += "  ('"+cEmpresa+"' + "+CRLF
-	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
-	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
+	Else
+		cQuery += "  SUBSTRING(Z2_CC,1,9) + " + CRLF
+	EndIf
+	cQuery += "   SUBSTRING(Z2_DATAPGT,1,6)) AS CHAVE, " + CRLF
+	cQuery += "  'SZ2-CLT' AS ORIGEM, " + CRLF
 
 	cQuery += "  Z2_FILIAL   AS D1_FILIAL,"+CRLF
 	cQuery += "  Z2_E2PRF	 AS D1_SERIE,"+CRLF
@@ -1102,7 +1182,14 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  "+cTabSZ2+" SZ2" + CRLF
 
 	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
-	cQuery += "     ON (Z2_CC = CTT_CUSTO " + CRLF
+	cQuery += "     ON ( CTT_CUSTO = " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE Z2_CC END)"+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE Z2_CC END)"+CRLF	
+	Else
+		cQuery += "  Z2_CC " + CRLF
+	EndIf
 	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -1120,7 +1207,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
 	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
-	cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
+	Else
+		cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
+	EndIf	
 	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
  	cQuery += "  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,"+CRLF
  	cQuery += "  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,"+CRLF
@@ -1128,8 +1221,15 @@ For nE := 1 TO Len(aEmpresas)
 
 	// Chave
 	cQuery += "  ('"+cEmpresa+"' + "+CRLF
-	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
-	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
+	Else
+		cQuery += "  SUBSTRING(Z2_CC,1,9) + " + CRLF
+	EndIf
+	cQuery += "   SUBSTRING(Z2_DATAPGT,1,6)) AS CHAVE, " + CRLF
+	cQuery += "  'SZ2-AC' AS ORIGEM, " + CRLF
 
 	cQuery += "  Z2_FILIAL   AS D1_FILIAL,"+CRLF
 	cQuery += "  Z2_E2PRF	 AS D1_SERIE,"+CRLF
@@ -1169,7 +1269,14 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  "+cTabSZ2+" SZ2" + CRLF
 
 	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
-	cQuery += "     ON (Z2_CC = CTT_CUSTO " + CRLF
+	cQuery += "     ON ( CTT_CUSTO = " + CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE Z2_CC END)"+CRLF	
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE Z2_CC END)"+CRLF	
+	Else
+		cQuery += "  Z2_CC " + CRLF
+	EndIf
 	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -1234,33 +1341,59 @@ If !TCIsConnected()
   Return( Nil )
 Endif  
 
-//Begin Transaction
 
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GASTOSGERAIS', N'U') IS NOT NULL"  
-	cQueryD += "   DROP TABLE PowerBk.dbo.GASTOSGERAIS "+CRLF
-	nErro   := TcSqlExec(cQueryD)
+//  Apaga a tabela GASTOSGERAIS da base PowerBk
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GASTOSGERAIS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.GASTOSGERAIS "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
 
-	nErro   := TcSqlExec(cQuery)
+nErro   := TcSqlExec(cQuery)
 
-	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+If nErro != 0
+	cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
 	EndIf
-
-//End Transaction
+EndIf
 
 u_LogMemo("BKDASH01-GG.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+/*
+Static Function fQueryf()
+Local cQueryF := ""
+
+BEGINCONTENT VAR cQueryF
+CREATE FUNCTION bkccusto (
+	@empresa CHAR(2),
+	@ccusto CHAR(10)
+)
+RETURNS CHAR(9) AS
+BEGIN
+	DECLARE @contrato CHAR(9);
+	SET @contrato = 
+		CASE
+			WHEN @empresa = '14' AND SUBSTRING(@ccusto,1,3) = '000'
+				THEN '302000508'
+			WHEN @empresa = '15' AND SUBSTRING(@ccusto,1,3) = '000'
+				THEN '305000554'
+			ELSE
+				SUBSTRING(@ccusto,1,9)
+		END
+ 
+    RETURN @contrato
+END;
+ENDCONTENT
+Return cQueryF
+*/
 
 
 // Atualização da tabela GASTOSLIQFOL do banco de dados PowerBk (Movimento Bancario)
@@ -1310,7 +1443,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  ('"+cEmpresa+"' + "+CRLF
 	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
-	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+	cQuery += "   SUBSTRING(Z2_DATAPGT,1,6)) AS CHAVE, " + CRLF
 
  	cQuery += "  Z2_PRONT,"+CRLF
  	cQuery += "  Z2_NOME,"+CRLF
@@ -1374,7 +1507,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  ('"+cEmpresa+"' + "+CRLF
 	cQuery += "   SUBSTRING(Z2_CC,1,9) + " + CRLF
-	cQuery += "   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, " + CRLF
+	cQuery += "   SUBSTRING(Z2_DATAPGT,1,6)) AS CHAVE, " + CRLF
 
  	cQuery += "  Z2_PRONT,"+CRLF
  	cQuery += "  Z2_NOME,"+CRLF
@@ -1484,7 +1617,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ZG_CONTRAT,1,9) +  " + CRLF
-	cQuery += "     SUBSTRING(ZG_DATA,5,2)+'/'+SUBSTRING(ZG_DATA,1,4)  AS CHAVE, " + CRLF
+	cQuery += "     SUBSTRING(ZG_DATA,1,6) AS CHAVE, " + CRLF
  	cQuery += "  SUBSTRING(ZG_DATA,1,6) + ZG_SEQ AS CHAVEZG,"+CRLF
 
    	cQuery += "  ZG_DATA,"+CRLF
@@ -1598,7 +1731,7 @@ For nE := 1 TO Len(aEmpresas)
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ZL_CONTRAT,1,9) +  " + CRLF
-	cQuery += "     SUBSTRING(ZL_DATA,5,2)+'/'+SUBSTRING(ZL_DATA,1,4) AS CHAVE, " + CRLF
+	cQuery += "     SUBSTRING(ZL_DATA,1,6) AS CHAVE, " + CRLF
  	cQuery += "  SUBSTRING(ZL_DATA,1,6) + ZL_SEQ AS CHAVEZG,"+CRLF
 
    	cQuery += "  ZL_TIPO,"+CRLF
@@ -1681,7 +1814,7 @@ SELECT
 	FG.COMPETAM,
 	FG.COMPET,
 	FG.COMPETD,
-	FG.EMPRESA + FG.CONTRATO + FG.COMPET AS CHAVE,
+	FG.EMPRESA + FG.CONTRATO + FG.COMPETAM AS CHAVE,
 	SUM(FG.VALFAT) AS VALFAT,
 	SUM(FG.PREVFAT) AS PREVFAT,
 	SUM(FG.DESPESA) AS TOTDESP,

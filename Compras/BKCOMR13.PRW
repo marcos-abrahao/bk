@@ -51,17 +51,17 @@ AADD(aCabs1  ,"S.Grupo")
 AADD(aCampos1,"QSA2->ZI_DESC")
 AADD(aCabs1  ,"Desc.Sub.Grupo")
 
-AADD(aCampos2,"Capital(QSA2->(FWLeUserlg('XX_USERLGI',1)))")
-AADD(aCabs2  ,"Cadastrado por")
+AADD(aCampos1,"Capital(QSA2->(FWLeUserlg('XX_USERLGI',1)))")
+AADD(aCabs1  ,"Cadastrado por")
 
-AADD(aCampos2,"QSA2->(FWLeUserlg('XX_USERLGI',2))")
-AADD(aCabs2  ,"Data Cad.")
+AADD(aCampos1,"QSA2->(FWLeUserlg('XX_USERLGI',2))")
+AADD(aCabs1  ,"Data Cad.")
 
-AADD(aCampos2,"Capital(QSA2->(FWLeUserlg('XX_USERLGA',1)))")
-AADD(aCabs2  ,"Alterado por")
+AADD(aCampos1,"Capital(QSA2->(FWLeUserlg('XX_USERLGA',1)))")
+AADD(aCabs1  ,"Alterado por")
 
-AADD(aCampos2,"QSA2->(FWLeUserlg('XX_USERLGA',2))")
-AADD(aCabs2  ,"Data Alt.")
+AADD(aCampos1,"QSA2->(FWLeUserlg('XX_USERLGA',2))")
+AADD(aCabs1  ,"Data Alt.")
 
 
 ProcRegua(1000)

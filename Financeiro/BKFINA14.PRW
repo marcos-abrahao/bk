@@ -1315,8 +1315,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn104D += "00"            		//016 017 - Código Instrução Movimento
 			Bcn104D += IIF(aTitGer[nI,6]='PEN',"000","700")    //018 020 - Câmara compensação
 			Bcn104D += "104"           		//021 023 - Código Banco Destino
-			Bcn104D += STRZERO(VAL(aTitGer[nI,8]),5)  
-											//024 028 - Código Agencia Destino
+			Bcn104D += STRZERO(VAL(aTitGer[nI,8]),5)  //024 028 - Código Agencia Destino
 			Bcn104D += PAD(aTitGer[nI,9],1) //029 029 - DV Agência Destino
 //			Bcn104D += "0037" 				//030 033 Operação Conta
 //			Bcn104D += SUBSTR(STRZERO(VAL(aTitGer[nI,10]),12),5,8) //034 041 CONTA

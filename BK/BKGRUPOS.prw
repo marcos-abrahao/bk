@@ -30,6 +30,15 @@ Local aEmpresas	:= {    {"01","BK"},;
 Return aEmpresas
 
 
+User Function BKGrpDsp()
+// Empresas que utilizam possuem despesas em contratos
+Local aEmpresas	:= {    {"01","BK"},;
+                        {"02","BKTER"},;
+                        {"14","BALSA NOVA"},;
+                        {"15","BHG INT 3"} }   // Empresa 15 possui despesas
+Return aEmpresas
+
+
 
 /*/{Protheus.doc} IsSuperior
     Retorna se o usuario informado é superior de algum outro
