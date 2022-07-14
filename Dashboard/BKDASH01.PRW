@@ -34,16 +34,31 @@ If FWCodEmp() == "01"
 	u_LogPrw(cPerg,"Inicio")
 
 	If IsBlind()
-		ProcDSUSR()
-		ProcDSDP1()
-		ProcDSDP2()
-		ProcDSFAT()
-		ProcDSGES()
-		ProcDSGLO()
-		ProcDSGG()
-		//ProcDSGLF()
-		ProcDSGER()
+		If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '05'
+			ProcDSFOL()
+		EndIf
+		If SUBSTRING(TIME(),1,2) > '05' ;
+				.AND. SUBSTRING(TIME(),1,2) < '21';
+			 	.AND. DOW(DATE()) <> 7;
+			 	.AND. DOW(DATE()) <> 1
+			If SUBSTRING(TIME(),1,2) $ '12/18'
+				ProcDSUSR()
+			EndIf
+			ProcDSDP1()
+			ProcDSDP2()
+			ProcDSFAT()
+			ProcDSGES()
+			ProcDSGLO()
+			If SUBSTRING(TIME(),1,2) $ '06/10/12/16/18/20'
+				ProcDSGG()
+			EndIf
+			//ProcDSGLF()
+			ProcDSGER()
+		EndIf
 	Else
+		If MsgYesNo("Confirma a atualização da tabela FOLHA do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSFOL() }, "", "Atualizando a tabela FOLHA do banco de dados PowerBk...")
+		EndIf
 		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
 		EndIf
@@ -82,6 +97,127 @@ Else
 EndiF
 
 Return
+
+
+// Atualização da tabela FOLHA do banco de dados PowerBk
+Static Function ProcDSFOL
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+
+u_LogPrw(cPerg,"Folha")
+
+// R030EMP -- cadastro de empresas
+// R030FIL -- cadastro de filiais
+// R014SIN -- cadastro de sindicatos
+// R024CAR -- cadastro de cargos
+// R012BAN -- cadastro de bancos
+// R012AGE -- cadastro de agencias
+// R004HOR -- cadastro de horario
+// R018CCU -- cadastro de centros de custo
+// R010SIT -- cadastro de situacoes
+// R076MOT -- cadastro de motivos
+// R022GRA -- cadastro de grau de instrucao
+// R034FUN -- cadastro de funcionarios
+// R036DEP -- cadastro de dependentes
+// R038AFA -- historico de afastamentos
+// R038HSA -- historico de salarios
+
+BEGINCONTENT VAR cQuery
+	SELECT
+	REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0') AS EMPRESA,
+	UPPER(bk_senior.bk_senior.R030EMP.nomemp) AS NOMEEMP,
+	GETDATE() AS DATAPRC,
+    (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND 
+				SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
+          WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND 
+		        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
+		  ELSE BKIntegraRubi.dbo.CUSTOSIGA.ccSiga END) AS CONTRATO,
+
+	SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) AS COMPETAM,
+	REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0') + 
+       (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND 
+			  	  SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
+             WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND 
+		          SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
+		     ELSE BKIntegraRubi.dbo.CUSTOSIGA.ccSiga END) +
+	    SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) AS CHAVE,
+	bk_senior.bk_senior.R046VER.NumCad AS REGISTRO,
+	bk_senior.bk_senior.R034FUN.nomfun AS NOME,
+	bk_senior.bk_senior.R034FUN.codcar AS CODCARGO,
+	UPPER(bk_senior.bk_senior.R024CAR.TitCar) AS CARGO,
+	bk_senior.bk_senior.R046VER.CodEve AS EVENTO,
+	UPPER(bk_senior.bk_senior.R008EVC.DesEve) AS DESCREVENTO,
+	bk_senior.bk_senior.R046VER.ValEve AS VALOR,
+	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] 
+	  WHERE [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = '01' AND 
+	        CodTab = 1 AND 
+		    [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve = bk_senior.bk_senior.R046VER.CodEve AND 
+            SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) 
+      ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) AS VALASSOD 
+ INTO PowerBk.dbo.FOLHA
+ FROM bk_senior.bk_senior.R046VER 
+ LEFT JOIN bk_senior.bk_senior.R030EMP 
+            ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R030EMP.numemp
+ INNER JOIN bk_senior.bk_senior.R044cal  
+            ON  bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R044cal.NumEmp
+            AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal
+ INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA 
+			ON bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+			AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+			AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
+			AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+ INNER JOIN bk_senior.bk_senior.R008EVC 
+			ON bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab
+			AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve
+ LEFT JOIN bk_senior.bk_senior.R034FUN 
+		ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R034FUN.numemp
+		AND bk_senior.bk_senior.R046VER.NumCad = bk_senior.bk_senior.R034FUN.numcad
+		AND bk_senior.bk_senior.R046VER.TipCol = bk_senior.bk_senior.R034FUN.tipcol
+ LEFT JOIN bk_senior.bk_senior.R024CAR 
+		ON 	bk_senior.bk_senior.R034FUN.codcar = bk_senior.bk_senior.R024CAR.CodCar
+ WHERE 
+	Tipcal IN(11) AND Sitcal = 'T'
+    --AND bk_senior.bk_senior.R046VER.NumEmp='01' and 
+    --AND PerRef ='20220501'
+    --BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '358000567'
+ENDCONTENT
+
+u_LogMemo("BKDASH01-FOL.SQL",cQuery)
+
+If !TCIsConnected() 
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.FOLHA', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.FOLHA "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-FOL.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
+
 
 
 // Atualização da tabela FATURAMENTO do banco de dados PowerBk
@@ -141,13 +277,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) AS CONTRATO, " + CRLF
 	cQuery += "  ISNULL(CTT_DESC01,'BK CONSULTORIA') AS DESCRICAO, " + CRLF
 	cQuery += "  ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,5,2)+'/'+SUBSTRING(F2_EMISSAO,1,4)) AS COMPET, " + CRLF
-	cQuery += "  SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2) AS COMPETAM, " + CRLF
-	cQuery += "  CONVERT(DATE,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01',112) AS COMPETD, " + CRLF
+	cQuery += "  ISNULL(SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2),SUBSTRING(F2_EMISSAO,1,6)) AS COMPETAM, " + CRLF
+	cQuery += "  CONVERT(DATE,ISNULL(SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2),SUBSTRING(F2_EMISSAO,1,6))+'01',112) AS COMPETD, " + CRLF
 
 	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
-	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
+	cQuery += "     ISNULL(SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2),SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
 
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
