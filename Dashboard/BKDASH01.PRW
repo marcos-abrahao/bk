@@ -150,7 +150,9 @@ BEGINCONTENT VAR cQuery
 	UPPER(bk_senior.bk_senior.R024CAR.TitCar) AS CARGO,
 	bk_senior.bk_senior.R046VER.CodEve AS EVENTO,
 	UPPER(bk_senior.bk_senior.R008EVC.DesEve) AS DESCREVENTO,
-	bk_senior.bk_senior.R046VER.ValEve AS VALOR,
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN (112,114,120,122,177,181,187,636,650,680,683,691,780,783,784) 
+			   THEN -bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE bk_senior.bk_senior.R046VER.ValEve END) AS VALOR,
 	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] 
 	  WHERE [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = '01' AND 
 	        CodTab = 1 AND 

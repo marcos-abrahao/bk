@@ -2297,7 +2297,7 @@ FOR _nI := 1 TO nPeriodo
 		cQuery2 += "  			[BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = "
 		cQuery2 +=   				"'"+IIF(nScan > 0,SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2),cEmpAnt)+"'"+CRLF
 		cQuery2 += "  			AND CodTab = 1 "+CRLF
-		cQuery2 += " 			AND [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve=bk_senior.bk_senior.R046VER.CodEve "+CRLF
+		cQuery2 += " 			AND [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve = bk_senior.bk_senior.R046VER.CodEve "+CRLF
 		cQuery2 += " 			AND SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
 		cQuery2 += "  		ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) AS VALASSOD "+CRLF
 		cQuery2 += " FROM bk_senior.bk_senior.R046VER "+CRLF
@@ -2318,7 +2318,7 @@ FOR _nI := 1 TO nPeriodo
  			cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
 			cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga  IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
 		ELSE
-			cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' "+CRLF
+			cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp = '"+cEmpAnt+"' "+CRLF
 			cQuery2 += " 	AND Tipcal In(11) "+CRLF
 			cQuery2 += " 	AND Sitcal = 'T' "+CRLF
 	 		cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
