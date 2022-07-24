@@ -5,37 +5,23 @@
 /*/{Protheus.doc} BKFINR12
 BK - Contas a Receber
 @Return
-@author Adilson do Prado
-@since 11/07/14
-@version P12
+@author Adilson do Prado / Marcos Bispo Abrahão
+@since 11/07/14 Rev 19/07/2022
+@version P12 
 /*/
 
 User Function BKFINR12()
 
 Local titulo         := ""
-Local aTitulos,aCampos,aCabs
+Local aTitulos       := {}
+Local aCampos        := {}
+Local aCabs			 := {}
 Local oDlg01		 AS Object
 Local aButtons 		 := {}
 Local lOk 			 := .F.
 Local oPanelLeft 	 AS Object
 
-Private lEnd         := .F.
-Private lAbortPrint  := .F.
-Private CbTxt        := "G"
-Private limite       := 220
-Private tamanho      := " "
-Private nomeprog     := "BKFINR12" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo        := 18
-Private aReturn      := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey     := 0
 Private cPerg        := "BKFINR12"
-Private cbcont       := 00
-Private CONTFL       := 01
-Private m_pag        := 01
-Private wnrel        := "BKFINR12" // Coloque aqui o nome do arquivo usado para impressao em disco
-Private cString      := "CN9"
-
-Private nEmissao 	 := 1
 Private cMesComp     := ""
 Private cAnoComp     := ""
 Private cCompet      := ""
@@ -44,18 +30,14 @@ Private dDataF   	 := CTOD("")
 Private cContrato	 := ""
 Private cNFIni       := ""
 Private cNFFim       := ""
+Private nEmissao 	 := 1
 Private aTipoEmis    := {"1-Competência","2-Vencimento","3-Centro de Custo","4-Emissão","5-NF/Título"}
 Private cTipoEmis    := ""
+Private nOpcRel 	 := 1
+Private aOpcRel      := {"1-Todas","2-Vinculadas","3-ISS Bitr indevidamente"}
+Private cOpcRel      := ""
+
 Private cCrLf		 := CRLF
-
-dbSelectArea(cString)
-dbSetOrder(1)
-
-//cPerg        := "1BKFINR12"
-//ValidPerg1(cPerg)
-//If !Pergunte(cPerg,.T.)
-//	Return
-//Endif
 
 cTipoEmis := aTipoEmis[1] 
 
@@ -66,23 +48,29 @@ oPanelLeft:Align := CONTROL_ALIGN_LEFT
 	
 @ 15,10 SAY 'Emitir por:'   SIZE 080,010 OF oPanelLeft PIXEL
 @ 15,45 COMBOBOX cTipoEmis  ITEMS aTipoEmis SIZE 100,010 Pixel OF oPanelLeft 
-	
+
+@ 30,10 SAY 'Filtrar:'   SIZE 080,010 OF oPanelLeft PIXEL
+@ 30,45 COMBOBOX cOpcRel  ITEMS aOpcRel SIZE 100,010 Pixel OF oPanelLeft 
+
+
 ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
 
 If ( !lOk )
 	RETURN NIL
 EndIf
 
-                                                                                                                                     
-//nEmissao := mv_par01
-
 If VALTYPE(cTipoEmis) <> "N"
 	nEmissao := VAL(SUBSTR(cTipoEmis,1,1))
 Else
 	nEmissao := cTipoEmis
 EndIf
-                                                                                                                                     
-//nEmissao := mv_par01
+
+If VALTYPE(cOpcRel) <> "N"
+	nOpcRel := VAL(SUBSTR(cOpcRel,1,1))
+Else
+	nOpcRel := cOpcRel
+EndIf
+
 
 IF nEmissao = 1
 	cPerg	:= "2BKFINR12"
@@ -152,10 +140,16 @@ ELSEIF nEmissao = 5
 		titulo   := "Contas a Receber : NF/Titulo até "+TRIM(cNFFim)
 	ENDIF
 	IF EMPTY(cNFIni) .AND. EMPTY(cNFFim)
-		titulo   := "Contas a Recebidas "
+		titulo   := "Contas Recebidas "
 	ENDIF
 
 ENDIF
+
+If nOpcRel == 2
+	titulo += " - Vinculadas"
+ElseIf nOpcRel == 3
+	titulo += " - com Iss bitributado indevidamente"
+EndIf
 
 u_LogPrw("BKFINR12")
 
@@ -166,8 +160,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
    
-nomeprog := "BKFINR12/"+TRIM(SUBSTR(cUsuario,7,15))
-AADD(aTitulos,nomeprog+" - "+titulo)
+AADD(aTitulos,titulo)
 
 AADD(aCampos,"QTMP->E1_CLIENTE")
 AADD(aCabs  ,"Cliente")
@@ -211,7 +204,10 @@ AADD(aCabs  ,"Vencimento")
 AADD(aCampos,"QTMP->E1_VENCORI")
 AADD(aCabs  ,"Venc. Original")
 
-AADD(aCampos,"u_AtrsRec(QTMP->E1_VENCREA)")
+AADD(aCampos,"QTMP->E1_BAIXA")
+AADD(aCabs  ,"Última baixa")
+
+AADD(aCampos,"u_AtrsRec(QTMP->E1_VENCREA,IIF(QTMP->E1_SALDO > 0,dDataBase,QTMP->E1_BAIXA))")
 AADD(aCabs  ,"Atraso")
 
 AADD(aCampos,"QTMP->E1_XXDTPRV")
@@ -267,10 +263,13 @@ AADD(aCabs  ,"Valor liquido")
 AADD(aCampos,"U_SaldoRec(QTMP->E1RECNO)")
 AADD(aCabs  ,"Saldo a Receber")
 
+AADD(aCampos,"QTMP->E1_XXISSBI")
+AADD(aCabs  ,"Iss Bitrib. Indevidamente")
+
 AADD(aCampos,"STRTRAN(QTMP->E1_XXHISTM,cCrLf,' ')")
 AADD(aCabs  ,"Histórico BK")
 
-U_GeraCSV("QTMP",wnrel,aTitulos,aCampos,aCabs)
+U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
    
 Return
 
@@ -307,6 +306,7 @@ cQuery += ",A1_CGC"+CRLF
 cQuery += ",A1_PESSOA"+CRLF
 cQuery += ",E1_VENCREA"+CRLF
 cQuery += ",E1_VENCORI"+CRLF
+cQuery += ",E1_BAIXA"+CRLF
 cQuery += ",E1_VALOR"+CRLF
 cQuery += ",E1_SALDO" + CRLF
 cQuery += ",CASE WHEN E1_TIPO <> 'NDC' THEN C5_XXCOMPM ELSE SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4) END AS C5_XXCOMPM"  + CRLF
@@ -332,6 +332,7 @@ cQuery += ",F2_RECISS" + CRLF
 cQuery += ",F2_XXVCVIN" + CRLF
 cQuery += ",F2_XXVFUMD" + CRLF
 cQuery += ",F2_XXVRETC" + CRLF
+cQuery += ",E1_XXISSBI" +CRLF
 cQuery += ",CASE E1_XXCUSTO WHEN '' THEN CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1
 cQuery += "     ELSE C5_MDCONTR END ELSE E1_XXCUSTO END AS CONTRATO" + CRLF
 cQuery += ",CASE WHEN E1_VALOR<>E1_SALDO THEN 'Baixa Parcial' ELSE '' END AS E1_XXOBX " + CRLF
@@ -346,7 +347,7 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON SC5.C5_NUM=SE1.E1_PEDIDO AND
 cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON SA1.D_E_L_E_T_='' AND SA1.A1_COD=SE1.E1_CLIENTE AND SA1.A1_LOJA=SE1.E1_LOJA" + CRLF
 cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_TIPO IN('NF','NDC')" + CRLF
 
-IF nEmissao <> 2
+IF nEmissao <> 2 .AND. nOpcRel == 1
 	cQuery += " AND SE1.E1_SALDO > 0 " + CRLF
 ENDIF 
 
@@ -371,6 +372,13 @@ ELSEIF nEmissao == 5
 	ENDIF
 ENDIF 
 
+If nOpcRel == 2
+	// Viculadas / Recuperaveis
+	cQuery += " AND (F2_XXVCVIN > 0 OR F2_XXVRETC > 0 OR E1_XXISSBI > 0) "
+ElseIf nOpcRel == 3
+	cQuery += " AND E1_XXISSBI > 0 "
+EndIf
+
 //IF nEmissao == 4
 //	cQuery += "ORDER BY E1_EMISSAO"
 //ELSEIF nEmissao == 5
@@ -384,42 +392,12 @@ u_LogMemo("BKFINR12.SQL",cQuery)
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","E1_EMISSAO","D",8,0)
 TCSETFIELD("QTMP","E1_VENCREA","D",8,0)
+TCSETFIELD("QTMP","E1_BAIXA","D",8,0)
 TCSETFIELD("QTMP","E1_VENCORI","D",8,0)
 TCSETFIELD("QTMP","E1_XXDTPRV","D",8,0)
 
-
 Return
 
-
-/*
-Static Function  ValidPerg1
-
-Local aArea      := GetArea()
-Local aRegistros := {}
-cPerg := "1BKFINR12"
-dbSelectArea("SX1")
-dbSetOrder(1)
-cPerg := PADR(cPerg,10)
-
-
-AADD(aRegistros,{cPerg,"01","Emitir por:","Emitir por:","Emitir por:","mv_ch1","N",01,0,2,"C","","mv_par01","Competência","Competência","Competência","","","Vencimento","Vencimento","Vencimento","","","Centro de Custo","Centro de Custo","Centro de Custo","","","","","","","","","","","",""})
-
-For i:=1 to Len(aRegistros)
-	If !dbSeek(cPerg+aRegistros[i,2])
-		RecLock("SX1",.T.)
-		For j:=1 to FCount()
-			If j <= Len(aRegistros[i])
-				FieldPut(j,aRegistros[i,j])
-			Endif
-		Next
-		MsUnlock()
-	Endif
-Next
-
-RestArea(aArea)
-
-Return(NIL)
-*/
 
 Static Function  ValidPerg2
 Local i,j

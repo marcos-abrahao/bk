@@ -19,7 +19,7 @@ User Function BKTESTE()
 Local aTeste := {}
 //u_IsPetro("000112")
 //u_IsPetro("000281")
-aTeste := u_FinS600(5,2022)
+aTeste := u_FinS600(6,2022,'000006332')
 x := 0
 Return Nil
 
@@ -249,7 +249,7 @@ Arquivo anterior: MATXATU.PRX
 @since	28/04/2011
 /*/
 //-----------------------------------------------------------------------------------------------------
-User Function FinS600(nMesRef,nAnoRef)       
+User Function FinS600(nMesRef,nAnoRef,cNF)       
 Local dLastPcc := CTOD("22/06/2015")
 Local aReturn		:= {}
 Local cQuery 		:= ""
@@ -508,7 +508,11 @@ If !lBaixa
 
 	cQuery		+= "SE5.E5_SITUACA <> 'C' AND "
 	cQuery	 	+= "SE5.E5_DATA BETWEEN '" + cDataIni + "' AND '" + cDataFim + "' AND "
-	cQuery	 	+= "SE5.E5_NUMERO = 'EL0000116' AND "
+	///// BK AQUI
+	If !Empty(cNf)
+		cQuery	 	+= "SE5.E5_NUMERO = '"+cNf+"' AND "
+	EndIf
+	/////
 	cMotQry		:= "('FAT','LIQ'"
 			
 	If !Empty(cPeMBx)                    

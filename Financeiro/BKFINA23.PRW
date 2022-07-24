@@ -172,7 +172,7 @@ nLin2 := nLin1+10
 
 //@ nLin1, 400 SAY "Valor Dif. ISS" SIZE 35, 7 OF oPanelLeft PIXEL
 //@ nLin2, 400 MSGET nIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nIValor) .AND. SOMATAB())
-@ nLin1, 400 SAY "ISS Bi Indevido" SIZE 35, 7 OF oPanelLeft PIXEL
+@ nLin1, 400 SAY "ISS Bi Indevido" SIZE 55, 7 OF oPanelLeft PIXEL COLOR CLR_RED
 @ nLin2, 400 MSGET nBIValor Picture cPict When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nBIValor))
 
 nLin1 += 25

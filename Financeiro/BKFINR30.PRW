@@ -104,7 +104,7 @@ AADD(aCabs1  ,"Emissao")
 AADD(aCampos1,"QTMP->E1_VENCREA")
 AADD(aCabs1  ,"Vencimento")
 
-AADD(aCampos1,"u_AtrsRec(QTMP->E1_VENCREA)")
+AADD(aCampos1,"u_AtrsRec(QTMP->E1_VENCREA,dDataBase)")
 AADD(aCabs1  ,"Atraso")
 
 AADD(aCampos1,"QTMP->E1_XXDTPRV")
@@ -320,7 +320,7 @@ Do While !EOF()
 
 	QTMP1->XX_SALDO += U_SaldoRec(QTMP->E1RECNO)	
 
-	nAtraso := u_AtrsRec(QTMP->E1_VENCREA)
+	nAtraso := u_AtrsRec(QTMP->E1_VENCREA,dDataBase)
 	If nAtraso > QTMP1->XX_ATRASO
 		QTMP1->XX_ATRASO := nAtraso
 	EndIf
@@ -486,10 +486,10 @@ Return Nil
 
 
 // Calculo do atrazo em dias
-User Function AtrsRec(dVencRea)
+User Function AtrsRec(dVencRea,dDataF)
 Local nDias := 0
-If dVencRea < dDataBase
-	nDias := dDataBase - dVencRea + 1
+If dVencRea < dDataF
+	nDias := dDataF - dVencRea + 1
 EndIf
 Return nDias
 

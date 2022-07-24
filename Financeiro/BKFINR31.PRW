@@ -1,7 +1,7 @@
 #INCLUDE "PROTHEUS.CH"
 
 /*/{Protheus.doc} BKFINR31
-BK - Clientes em aberto
+BK - Títulos de Empréstimos Bancários
 @Return
 @author Marcos Bispo Abrahão
 @since 23/06/2022
