@@ -126,6 +126,7 @@ u_LogPrw(cPerg,"Folha")
 // R038HSA -- historico de salarios
 
 BEGINCONTENT VAR cQuery
+  WITH FOLHA AS (
 	SELECT
 	REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0') AS EMPRESA,
 	UPPER(bk_senior.bk_senior.R030EMP.nomemp) AS NOMEEMP,
@@ -151,17 +152,72 @@ BEGINCONTENT VAR cQuery
 	bk_senior.bk_senior.R046VER.CodEve AS EVENTO,
 	UPPER(bk_senior.bk_senior.R008EVC.DesEve) AS DESCREVENTO,
 	bk_senior.bk_senior.R008EVC.TipEve AS TIPOEVENTO,
-	--(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN (112,114,120,122,177,181,187,636,650,680,683,691,780,783,784) 
 	(CASE WHEN bk_senior.bk_senior.R008EVC.TipEve = 3
 			   THEN -bk_senior.bk_senior.R046VER.ValEve 
 	      ELSE bk_senior.bk_senior.R046VER.ValEve END) AS VALOR,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #PROVENTOS#
+			   THEN bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS PROVENTOS,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #DESCONTOS#
+			   THEN -bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS DESCONTOS,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #PLR#
+			   THEN bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS PLR,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #VTPROV#
+			   THEN bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS VTPROV,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #VTVER#
+			   THEN -bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS VTVER,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #VRVAV#
+			   THEN -bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS VRVAV,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #ASSMP#
+			   THEN bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS ASSMP,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #ASSMV#
+			   THEN -bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS ASSMV,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #SINOP#
+			   THEN bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS SINOP,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #SINOV#
+			   THEN -bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS SINOV,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.CodEve IN #SEMINC#
+			   THEN bk_senior.bk_senior.R046VER.ValEve 
+	      ELSE 0 END) AS SEMINC,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 2
+			   THEN 8
+		  WHEN BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN #FURNAS#
+			   THEN 35.8764
+		  ELSE 37.13280 END) AS PENCARGOS,
+
+	(CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 2
+			   THEN 20.700
+		  WHEN BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN #FURNAS#
+			   THEN 0
+		  ELSE 28.860 END) AS PINCIDENCIAS,
+
 	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] 
 	  WHERE [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = '01' AND 
 	        CodTab = 1 AND 
 		    [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve = bk_senior.bk_senior.R046VER.CodEve AND 
             SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) 
       ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) AS VALASSOD 
- INTO PowerBk.dbo.FOLHA
  FROM bk_senior.bk_senior.R046VER 
  LEFT JOIN bk_senior.bk_senior.R030EMP 
             ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R030EMP.numemp
@@ -187,7 +243,40 @@ BEGINCONTENT VAR cQuery
     --AND bk_senior.bk_senior.R046VER.NumEmp='01' and 
     --AND PerRef ='20220501'
     --BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '358000567'
+	)
+	SELECT 
+	*,
+	(PROVENTOS + DESCONTOS) * PENCARGOS / 100 AS ENCARGOS,
+	(PROVENTOS + DESCONTOS) * PINCIDENCIAS / 100 AS INCIDENCIAS,
+	((PROVENTOS + DESCONTOS) * PENCARGOS / 100  + 
+	 (PROVENTOS + DESCONTOS) * PINCIDENCIAS / 100 + 
+	 PLR + 
+	 VTPROV +
+	 VTVER  +
+	 VRVAV +
+	 ASSMP +
+	 ASSMV +
+	 SINOP +
+	 SINOV +
+	 SEMINC ) AS CUSTO
+
+	INTO PowerBk.dbo.FOLHA
+	FROM FOLHA 
+
 ENDCONTENT
+
+cQuery := STRTRAN(cQuery,"#PROVENTOS#",U_FBkVars(U_MVXPROVE()))
+cQuery := STRTRAN(cQuery,"#DESCONTOS#",U_FBkVars(U_MVXDESCO()))
+cQuery := STRTRAN(cQuery,"#PLR#",U_FBkVars(U_MVXPLR()))
+cQuery := STRTRAN(cQuery,"#VTPROV#",U_FBkVars(U_MVXVTPRO()))
+cQuery := STRTRAN(cQuery,"#VTVER#",U_FBkVars(U_MVXVTVER()))
+cQuery := STRTRAN(cQuery,"#VRVAV#",U_FBkVars(U_MVXVRVAV()))
+cQuery := STRTRAN(cQuery,"#ASSMP#",U_FBkVars(U_MVXASSMP()))
+cQuery := STRTRAN(cQuery,"#ASSMV#",U_FBkVars(U_MVXASSMV()))
+cQuery := STRTRAN(cQuery,"#SINOP#",U_FBkVars(U_MVXSINOP()))
+cQuery := STRTRAN(cQuery,"#SINOV#",U_FBkVars(U_MVXSINOV()))
+cQuery := STRTRAN(cQuery,"#SEMINC#",U_FBkVars(U_MVXNINCI()))
+cQuery := STRTRAN(cQuery,"#FURNAS#",U_FBkVars(U_MVYFURNAS()))
 
 u_LogMemo("BKDASH01-FOL.SQL",cQuery)
 
@@ -313,6 +402,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC," + CRLF
 	cQuery += "   (SELECT SUM(E5_VALOR) FROM "+cTabSE5+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
 	cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA," + CRLF
+	cQuery += "   (SELECT TOP 1 E1_XXISSBI FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'"+ CRLF
+	cQuery += "   	  AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS E1_XXISSBI, " + CRLF
 
 	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
 	cQuery += "        FROM "+cTabCNR+" CNR " + CRLF
@@ -522,6 +613,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CNF_VLPREV AS CXN_VLPREV, " + CRLF
 	cQuery += "  0 			AS XX_E5DESC, " + CRLF
 	cQuery += "  0 			AS XX_E5MULTA, " + CRLF
+	cQuery += "  0 			AS E1_XXISSBI, " + CRLF
 	cQuery += "  0 			AS CNRVLBONI, " + CRLF
 	cQuery += "  0 			AS CNRVLMULT, " + CRLF
 	cQuery += "  ' ' 		AS CNRTPMUL, " + CRLF
@@ -570,7 +662,7 @@ Next
 
 cQuery += ")"  + CRLF
 cQuery += " SELECT *," + CRLF
-cQuery += " F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) AS F2VALLIQ" + CRLF
+cQuery += " F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) - E1_XXISSBI AS F2VALLIQ" + CRLF
 cQuery += " INTO PowerBk.dbo.FATURAMENTO " + CRLF
 cQuery += " FROM FATUR " + CRLF
 cQuery += " ORDER BY" + CRLF
@@ -954,6 +1046,7 @@ Local cNomeEmp  := ""
 Local cTabSD1	:= ""
 Local cTabSB1	:= ""
 Local cTabSE2	:= ""
+Local cTabSA2	:= ""
 Local cTabSF1	:= ""
 Local cTabCTT	:= ""
 Local cTabSE5	:= ""
@@ -976,6 +1069,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabSD1 := "SD1"+cEmpresa+"0"
 	cTabSB1 := "SB1"+cEmpresa+"0"
 	cTabSE2 := "SE2"+cEmpresa+"0"
+	cTabSA2 := "SA2"+cEmpresa+"0"
 	cTabSF1 := "SF1"+cEmpresa+"0"
 	cTabCT1 := "CT1"+cEmpresa+"0"
 	cTabCTT := "CTT"+cEmpresa+"0"
@@ -1018,6 +1112,7 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  D1_DOC,"+CRLF
  	cQuery += "  D1_FORNECE,"+CRLF
  	cQuery += "  D1_LOJA,"+CRLF
+ 	cQuery += "  A2_NOME,"+CRLF
  	cQuery += "  D1_ITEM,"+CRLF
  	cQuery += "  D1_COD,"+CRLF
 	cQuery += "  CONVERT(VARCHAR(600),CONVERT(Binary(600),D1_XXHIST)) D1_XXHIST,"+CRLF
@@ -1047,10 +1142,18 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  	CASE WHEN E2_DECRESC > 0 THEN E2_DECRESC ELSE E2_DESCONT END AS E2ACDEC"+CRLF
 
 	cQuery += "FROM " + CRLF
-	cQuery += "  "+cTabSD1+" SD1" + CRLF
+	cQuery += " "+cTabSD1+" SD1" + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSA2+" SA2" + CRLF
+	cQuery += "     ON (A2_COD = D1_FORNECE " + CRLF
+	cQuery += "         AND A2_LOJA = D1_LOJA " + CRLF
+	cQuery += "         AND A2_FILIAL = '"+xFilial("SA2")+"' " + CRLF
+	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
 	cQuery += " INNER JOIN "+cTabSB1+" SB1" + CRLF
 	cQuery += "     ON (B1_COD = D1_COD " + CRLF
-	cQuery += "         AND B1_FILIAL = '01' " + CRLF
+	cQuery += "         AND B1_FILIAL = '"+xFilial("SB1")+"' "  + CRLF
 	cQuery += "         AND SB1.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
@@ -1060,7 +1163,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND E2_NUM = D1_DOC" + CRLF
 	cQuery += "         AND E2_FORNECE = D1_FORNECE" + CRLF
 	cQuery += "         AND E2_LOJA = D1_LOJA" + CRLF
-	cQuery += "         AND E2_FILIAL = '01' " + CRLF
+	cQuery += "         AND E2_FILIAL = '"+xFilial("SE2")+"' " + CRLF
 	cQuery += "         AND SE2.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
@@ -1163,6 +1266,7 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "     E5_NUMERO  AS D1_DOC, " + CRLF
   	cQuery += "     E5_CLIFOR  AS D1_FORNECE, " + CRLF
   	cQuery += "     E5_LOJA    AS D1_LOJA, " + CRLF
+ 	cQuery += "     A2_NOME,"+CRLF
   	cQuery += "     '0001'     AS D1_ITEM, " + CRLF
   	cQuery += "     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, " + CRLF
 	cQuery += "     ' '        AS D1_XXHIST, " + CRLF
@@ -1192,7 +1296,14 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "     	CASE WHEN E5_VLDECRE > 0 THEN E5_VLDECRE ELSE E5_VLDESCO END AS E2ACDEC " + CRLF
 
 	cQuery += "FROM " + CRLF
-	cQuery += "  "+cTabSE5+" SE5" + CRLF
+	cQuery += " "+cTabSE5+" SE5 " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabSA2+" SA2" + CRLF
+	cQuery += "     ON (A2_COD = E5_CLIFOR " + CRLF
+	cQuery += "         AND A2_LOJA = E5_LOJA " + CRLF
+	cQuery += "         AND A2_FILIAL = '"+xFilial("SA2")+"' " + CRLF
+	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
 
 	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
 	cQuery += "     ON ( CTT_CUSTO = "+ CRLF
@@ -1272,6 +1383,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  Z2_E2NUM    AS D1_DOC,"+CRLF
 	cQuery += "  Z2_E2FORN   AS D1_FORNECE,"+CRLF
 	cQuery += "  Z2_E2LOJA   AS D1_LOJA,"+CRLF
+ 	cQuery += "  A2_NOME,"+CRLF
 	cQuery += "  '0001'      AS D1_ITEM,"+CRLF
 
 	// PRODUTO CLT
@@ -1334,6 +1446,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
+	cQuery += " LEFT JOIN "+cTabSA2+" SA2" + CRLF
+	cQuery += "     ON (A2_COD = Z2_E2FORN " + CRLF
+	cQuery += "         AND A2_LOJA = Z2_E2LOJA " + CRLF
+	cQuery += "         AND A2_FILIAL = '"+xFilial("SA2")+"' " + CRLF
+	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
 	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
 	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
 	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
@@ -1376,6 +1495,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  Z2_E2NUM    AS D1_DOC,"+CRLF
 	cQuery += "  Z2_E2FORN   AS D1_FORNECE,"+CRLF
 	cQuery += "  Z2_E2LOJA   AS D1_LOJA,"+CRLF
+ 	cQuery += "  A2_NOME,"+CRLF
 	cQuery += "  '0001'      AS D1_ITEM,"+CRLF
 
 	// PRODUTO AC/CLA
@@ -1419,6 +1539,13 @@ For nE := 1 TO Len(aEmpresas)
 	EndIf
 	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabSA2+" SA2" + CRLF
+	cQuery += "     ON (A2_COD = Z2_E2FORN " + CRLF
+	cQuery += "         AND A2_LOJA = Z2_E2LOJA " + CRLF
+	cQuery += "         AND A2_FILIAL = '"+xFilial("SA2")+"' " + CRLF
+	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
 	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF

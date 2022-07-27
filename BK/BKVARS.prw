@@ -3,7 +3,6 @@
 
 /*/{Protheus.doc} BKVARS
 BK - Funcoes com parâmetros embutidos no fonte
-
 @Return
 @author Marcos B. Abrahão
 @since 03/05/22
@@ -39,6 +38,11 @@ Local nVar := 37.13280
 If cEmpAnt == '02'
     nVar := 8
 EndIf
+Return nVar
+
+// %Encargos Folha CLT calculo rentabilidade Contrato de FURNAS
+User Function MVXENCFU()
+Local nVar := 35.8764
 Return nVar
 
 // Parametro Encargos calculo Rentabilidade dos Contratos
@@ -215,9 +219,8 @@ User Function MVXFURNAS()
 Local aVar := {"105000381","105000391"}
 Return aVar
 
+User Function MVYFURNAS()
+Local cVar := "|381|391|"
+Return cVar
 
-// %Encargos Folha CLT calculo rentabilidade Contrato de FURNAS
-User Function MVXENCFU()
-Local nVar := 35.8764
-Return nVar
 

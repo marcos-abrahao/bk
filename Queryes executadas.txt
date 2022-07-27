@@ -1,6 +1,6 @@
 
 ==============================================================
-12/07/22 EFD na Base Teste
+25/07/22 - 12/07/22 EFD na Base Teste
 
 BAIXA DA NF 006-000000535 FOI REFEITA (DELETADO OS CANCELAMENTOS) ESTA NF NÃO APARECIA NOS retidos
 
