@@ -39,6 +39,23 @@ Local aEmpresas	:= {    {"01","BK"},;
 Return aEmpresas
 
 
+User Function BKEmpr()
+// Todas Empresas
+Local aEmpresas	:= {    {"01","BK"},;
+                        {"02","BKTER"},;
+                        {"04","ESA"},;
+                        {"06","BKDAHER SUZANO"},;
+                        {"07","JUST SOFTWARE"},;
+                        {"08","BHG CAMPINAS"},;
+                        {"09","BHG OSASCO"},;
+                        {"10","BKDAHER TABOAO"},;
+                        {"11","BKDAHER LIMEIRA"},;
+                        {"12","BK CORRETORA"},;
+                        {"14","BALSA NOVA"},;
+                        {"15","BHG INT 3"},;
+                        {"97","CMOG"},;
+                        {"98","TERO"} }
+Return aEmpresas
 
 /*/{Protheus.doc} IsSuperior
     Retorna se o usuario informado é superior de algum outro

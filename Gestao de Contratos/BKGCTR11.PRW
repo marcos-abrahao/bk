@@ -329,9 +329,14 @@ User Function BKGCTR11(lJob)
 
 	AADD(aTitulos,titulo)
 
-//AADD(aCampos,"TRB->XX_LINHA")
-//AADD(aCabs  ,"Linha")
-//AADD(aFormat,"")
+	
+	If __CUSERID = '000000'
+		AADD(aCampos,"TRB->XX_CODIGO")
+		AADD(aCabs  ,"Código")
+		AADD(aFormat,"")
+		AADD(aFixeFX,{"Linha","XX_CODIGO",'C', 16,00,''})
+		AADD(aHeader,{"Linha","XX_CODIGO","" ,16,00,"","","C","TRB","R"})
+	EndIf
 
 	AADD(aCampos,"TRB->XX_CODGCT")
 	AADD(aCabs  ,"Contrato")
@@ -4839,9 +4844,13 @@ User Function BK2GCTR11(lJob,aAglContr)
 
 	AADD(aTitulos,titulo)
 
-//AADD(aCampos,"TRB->XX_LINHA")
-//AADD(aCabs  ,"Linha")
-//AADD(aFormat,"")
+	If __CUSERID = '000000'
+		AADD(aCampos,"TRB->XX_CODIGO")
+		AADD(aCabs  ,"Código")
+		AADD(aFormat,"")
+		AADD(aFixeFX,{"Linha","XX_CODIGO",'C', 16,00,''})
+		AADD(aHeader,{"Linha","XX_CODIGO","" ,16,00,"","","C","TRB","R"})
+	EndIf
 
 	AADD(aCampos,"TRB->XX_CODGCT")
 	AADD(aCabs  ,"Contrato")

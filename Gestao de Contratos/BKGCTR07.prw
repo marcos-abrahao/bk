@@ -268,13 +268,13 @@ Return
 
 Static Function ProcQueryN
 Local cQuery as Character
-Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
+//Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 
 Local cJCNDCNE:= FWJoinFilial("CND", "CNE")
 Local cJCXNCNE:= FWJoinFilial("CXN", "CNE")
 //Local cJCN1CN9:= FWJoinFilial("CN1", "CN9")
 //Local cJCNACN9:= FWJoinFilial("CNA", "CN9")
-//Local cJSC5CNE:= FWJoinFilial("SC5", "CNE")
+Local cJSC5CNE:= FWJoinFilial("SC5", "CNE")
 Local cJSC6CNE:= FWJoinFilial("SC6", "CNE")
 //Local cJSC6SC5:= FWJoinFilial("SC6", "SC5")
 Local cJSD2SC6:= FWJoinFilial("SD2", "SC6")
@@ -349,8 +349,12 @@ cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS
 
 cQuery += " FROM "+RETSQLNAME("CNE")+" CNE" + CRLF
 
+cQuery += " INNER JOIN "+RETSQLNAME("SC5")+" SC5" + CRLF
+cQuery += " 	ON (C5_NUM = CNE_PEDIDO AND C5_MDNUMED = CNE_NUMMED AND C5_MDPLANI = CNE_NUMERO AND C5_XXREV = CNE_REVISA" + CRLF
+cQuery += " 		AND "+cJSC5CNE+" AND SC5.D_E_L_E_T_='')" + CRLF
+
 cQuery += " INNER JOIN "+RETSQLNAME("CND")+" CND" + CRLF
-cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = CNE_REVISA" +CRLF
+cQuery += " 	ON (CND_NUMMED = CNE_NUMMED AND CND_CONTRA = CNE_CONTRA AND CND_REVISA = C5_XXREV " +CRLF  //CNE_REVISA
 cQuery += " 		AND "+cJCNDCNE+" AND CND.D_E_L_E_T_='')" + CRLF
 
 //cQuery += " INNER JOIN "+RETSQLNAME("CXN")+" CXN" + CRLF
@@ -371,8 +375,8 @@ cQuery += " 	ON (CN9_FILCTR = CND_FILCTR AND CN9_NUMERO = CNE_CONTRA AND CN9_REV
 cQuery += " 	 	AND CN9.D_E_L_E_T_='')" + CRLF
 //cQuery += " 	 	AND CN9_FILIAL = CND_FILCTR AND CN9.D_E_L_E_T_='')" + CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
-cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND CNE_REVISA = CNF_REVISA" +CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNF")+" CNF" + CRLF
+cQuery += " 	ON (CNE_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CNE_NUMERO = CNF_NUMPLA AND C5_XXREV = CNF_REVISA" +CRLF   //CNE_REVISA = CNF_REVISA
 cQuery += " 	    AND CNF_PARCEL = ISNULL(CXN_PARCEL,CND_PARCEL)" + CRLF
 cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
 
@@ -380,7 +384,7 @@ cQuery += " 	 	AND CNF_FILIAL = '01' AND CNF.D_E_L_E_T_='')" + CRLF
 //cQuery += " 	ON (CN1_CODIGO = CN9_TPCTO AND CN1_ESPCTR IN ('2')" + CRLF
 //cQuery += " 		AND "+cJCN1CN9+" AND CN1.D_E_L_E_T_='')" + CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+" CNA" + CRLF
 cQuery += " 	ON (CNA_CONTRA = CNE_CONTRA AND CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA AND CNA_NUMERO = CNF_NUMPLA" +CRLF
 cQuery += " 		AND CNA_FILIAL = CND_FILCTR AND CNA.D_E_L_E_T_='')"+CRLF // CNE_CONTRA
 
@@ -405,13 +409,13 @@ cQuery += " INNER JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
 cQuery += " 	ON (C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND F2_CLIENTE = C6_CLI AND F2_LOJA = C6_LOJA AND F2_TIPO = 'N' AND F2_FORMUL = ' '" + CRLF
 cQuery += " 		AND "+cJSF2SC6+" AND SF2.D_E_L_E_T_='')" + CRLF
 
-cQuery += " INNER JOIN "+RETSQLNAME("SB1")+" SB1" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1" + CRLF
 cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
 cQuery += " 		AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_='')"+CRLF
 
 cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
 //cQuery += "     AND CNE_FILIAL = '"+xFilial("CNE")+"'" Removido para co
-cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
+///cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
 // CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
 IF nTipo == 1
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF

@@ -1317,9 +1317,15 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn104D += "104"           		//021 023 - Código Banco Destino
 			Bcn104D += STRZERO(VAL(aTitGer[nI,8]),5)  //024 028 - Código Agencia Destino
 			Bcn104D += PAD(aTitGer[nI,9],1) //029 029 - DV Agência Destino
-//			Bcn104D += "0037" 				//030 033 Operação Conta
-//			Bcn104D += SUBSTR(STRZERO(VAL(aTitGer[nI,10]),12),5,8) //034 041 CONTA
-			Bcn104D += STRZERO(VAL(aTitGer[nI,10]),12) //030 041 - Conta Corrente Destino
+
+			//AJUSTE POSICIONAMENTO DA CONTA
+			cCONTAF :=""
+			cCONTAF :=STRZERO(VAL(aTitGer[nI,10]),12)
+			IF SUBSTR(cCONTAF,1,3) == "013"
+				cCONTAF := "0013"+SUBSTR(cCONTAF,5,8) 
+			ENDIF
+
+			Bcn104D += cCONTAF //030 041 - Conta Corrente Destino 
 			Bcn104D += STRZERO(VAL(aTitGer[nI,11]),1) //042 042 - DV Conta Destino
 			Bcn104D += SPACE(1)				//043 043 - DV Agência/Conta Destino
 			Bcn104D += PAD(Acento(ALLTRIM(IIF(aTitGer[nI,6]='PEN',IIF(!EMPTY(aTitGer[nI,20]),aTitGer[nI,20],aTitGer[nI,19]),aTitGer[nI,3]))),30) 

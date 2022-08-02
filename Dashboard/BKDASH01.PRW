@@ -34,18 +34,21 @@ If FWCodEmp() == "01"
 	u_LogPrw(cPerg,"Inicio")
 
 	If IsBlind()
-		If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '05'
-			ProcDSFOL()
-		EndIf
+		//If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '06'
 		If SUBSTRING(TIME(),1,2) > '05' ;
 				.AND. SUBSTRING(TIME(),1,2) < '21';
 			 	.AND. DOW(DATE()) <> 7;
 			 	.AND. DOW(DATE()) <> 1
-			If SUBSTRING(TIME(),1,2) $ '12/18'
+
+			If SUBSTRING(TIME(),1,2) = '06'
+				ProcDSDP1()
+				ProcDSDP2()
+				ProcDSEMP()
+				ProcDSCC()
+				ProcDSFOL()
 				ProcDSUSR()
 			EndIf
-			ProcDSDP1()
-			ProcDSDP2()
+
 			ProcDSFAT()
 			ProcDSGES()
 			ProcDSGLO()
@@ -56,17 +59,23 @@ If FWCodEmp() == "01"
 			ProcDSGER()
 		EndIf
 	Else
-		If MsgYesNo("Confirma a atualização da tabela FOLHA do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSFOL() }, "", "Atualizando a tabela FOLHA do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
-		EndIf
 		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSDP1() }, "", "Atualizando a tabela PREVDESP1 do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela PREVDESP2 do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSDP2() }, "", "Atualizando a tabela PREVDESP2 do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela EMPRESAS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSEMP() }, "", "Atualizando a tabela EMPRESAS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela CCUSTOS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSCC() }, "", "Atualizando a tabela CCUSTOS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela FOLHA do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSFOL() }, "", "Atualizando a tabela FOLHA do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela FATURAMENTO do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSFAT() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
@@ -128,29 +137,29 @@ u_LogPrw(cPerg,"Folha")
 BEGINCONTENT VAR cQuery
   WITH FOLHA AS (
 	SELECT
-	REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0') AS EMPRESA,
-	UPPER(bk_senior.bk_senior.R030EMP.nomemp) AS NOMEEMP,
+	SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0'),1,2) COLLATE Latin1_General_BIN AS EMPRESA,
+	--SUBSTRING(UPPER(bk_senior.bk_senior.R030EMP.nomemp),1,10) AS NOMEEMP,
 	GETDATE() AS DATAPRC,
     (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND 
 				SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
           WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND 
 		        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
-		  ELSE BKIntegraRubi.dbo.CUSTOSIGA.ccSiga END) AS CONTRATO,
+		  ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO,
 
-	SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) AS COMPETAM,
-	REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0') + 
+	SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS COMPETAM,
+	SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0'),1,2) + 
        (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND 
 			  	  SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
              WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND 
 		          SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
 		     ELSE BKIntegraRubi.dbo.CUSTOSIGA.ccSiga END) +
-	    SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) AS CHAVE,
+	    SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS CHAVE,
 	bk_senior.bk_senior.R046VER.NumCad AS REGISTRO,
-	bk_senior.bk_senior.R034FUN.nomfun AS NOME,
+	bk_senior.bk_senior.R034FUN.nomfun COLLATE Latin1_General_BIN AS NOME,
 	bk_senior.bk_senior.R034FUN.codcar AS CODCARGO,
-	UPPER(bk_senior.bk_senior.R024CAR.TitCar) AS CARGO,
+	UPPER(bk_senior.bk_senior.R024CAR.TitCar) COLLATE Latin1_General_BIN AS CARGO,
 	bk_senior.bk_senior.R046VER.CodEve AS EVENTO,
-	UPPER(bk_senior.bk_senior.R008EVC.DesEve) AS DESCREVENTO,
+	UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN AS DESCREVENTO,
 	bk_senior.bk_senior.R008EVC.TipEve AS TIPOEVENTO,
 	(CASE WHEN bk_senior.bk_senior.R008EVC.TipEve = 3
 			   THEN -bk_senior.bk_senior.R046VER.ValEve 
@@ -202,13 +211,13 @@ BEGINCONTENT VAR cQuery
 
 	(CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 2
 			   THEN 8
-		  WHEN BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN #FURNAS#
+		  WHEN SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,7,3) IN #FURNAS#
 			   THEN 35.8764
 		  ELSE 37.13280 END) AS PENCARGOS,
 
 	(CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 2
 			   THEN 20.700
-		  WHEN BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN #FURNAS#
+		  WHEN SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,7,3) IN #FURNAS#
 			   THEN 0
 		  ELSE 28.860 END) AS PINCIDENCIAS,
 
@@ -219,8 +228,8 @@ BEGINCONTENT VAR cQuery
             SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) 
       ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) AS VALASSOD 
  FROM bk_senior.bk_senior.R046VER 
- LEFT JOIN bk_senior.bk_senior.R030EMP 
-            ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R030EMP.numemp
+ --LEFT JOIN bk_senior.bk_senior.R030EMP 
+            --ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R030EMP.numemp
  INNER JOIN bk_senior.bk_senior.R044cal  
             ON  bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R044cal.NumEmp
             AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal
@@ -240,12 +249,27 @@ BEGINCONTENT VAR cQuery
 		ON 	bk_senior.bk_senior.R034FUN.codcar = bk_senior.bk_senior.R024CAR.CodCar
  WHERE 
 	Tipcal IN(11) AND Sitcal = 'T'
+
+	AND (bk_senior.bk_senior.R046VER.CodEve IN #PROVENTOS#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #DESCONTOS#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #PLR#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #VTPROV#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #VTVER#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #VRVAV#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #ASSMP#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #ASSMV#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #SINOP#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #SINOV#
+		 OR bk_senior.bk_senior.R046VER.CodEve IN #SEMINC#)
+
     --AND bk_senior.bk_senior.R046VER.NumEmp='01' and 
     --AND PerRef ='20220501'
     --BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '358000567'
 	)
 	SELECT 
-	*,
+	EMPRESAS.NOMEEMP AS NOMEEMP,
+	FOLHA.*,
+	CCUSTOS.DESCRCC AS DESCRICAO,
 	(PROVENTOS + DESCONTOS) * PENCARGOS / 100 AS ENCARGOS,
 	(PROVENTOS + DESCONTOS) * PINCIDENCIAS / 100 AS INCIDENCIAS,
 	((PROVENTOS + DESCONTOS) * PENCARGOS / 100  + 
@@ -258,10 +282,21 @@ BEGINCONTENT VAR cQuery
 	 ASSMV +
 	 SINOP +
 	 SINOV +
-	 SEMINC ) AS CUSTO
+	 SEMINC ) AS CUSTO,
+     (SELECT TOP 1 ZGCHAVE FROM 
+		(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
+		FROM PowerBk.dbo.PREVDESP1 
+		WHERE PREVDESP1.EMPRESA = FOLHA.EMPRESA
+		    AND PREVDESP1.CONTRATO = FOLHA.CONTRATO
+		    AND PREVDESP1.COMPETAM <= FOLHA.COMPETAM
+		GROUP BY PREVDESP1.CONTRATO,PREVDESP1.ZG_DATA
+		) AS X
+		ORDER BY ZGCHAVE DESC) AS CHAVEZG
 
 	INTO PowerBk.dbo.FOLHA
 	FROM FOLHA 
+	LEFT JOIN PowerBk.dbo.EMPRESAS ON FOLHA.EMPRESA = EMPRESAS.EMPRESA COLLATE Latin1_General_BIN
+	LEFT JOIN PowerBk.dbo.CCUSTOS  ON FOLHA.EMPRESA = CCUSTOS.EMPRESA AND FOLHA.CONTRATO = CCUSTOS.CCUSTO COLLATE Latin1_General_BIN
 
 ENDCONTENT
 
@@ -385,7 +420,9 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  F2_DOC, " + CRLF
 	cQuery += "  CONVERT(DATE,F2_EMISSAO,112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  F2_VALFAT, " + CRLF
-	cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - (CASE WHEN F2_RECISS = '1' THEN F2_VALISS ELSE 0 END) - F2_VLCPM  - F2_XXVRETC) AS F2VALLIQ1, " + CRLF
+	// Fernando 01/08/22 - O ISS Retido e Apurado precisam entrar dentro da conta de faturamento líquido e a retenção e conta vinculada precisam sair
+	//cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - (CASE WHEN F2_RECISS = '1' THEN F2_VALISS ELSE 0 END) - F2_VLCPM - F2_XXVRETC - F2_XXVCVIN) AS F2VALLIQ1, " + CRLF
+	cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
 
 	cQuery += "  CND_USUAR, " + CRLF
 	cQuery += "  (" + CRLF
@@ -662,7 +699,15 @@ Next
 
 cQuery += ")"  + CRLF
 cQuery += " SELECT *," + CRLF
-cQuery += " F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) - E1_XXISSBI AS F2VALLIQ" + CRLF
+//cQuery += " F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) - E1_XXISSBI AS F2VALLIQ" + CRLF
+
+cQuery += " CASE WHEN CONTRATO = '305000554' " + CRLF
+cQuery += "      THEN (F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) - E1_XXISSBI) * 2 " + CRLF
+cQuery += "      ELSE (F2VALLIQ1 - ISNULL(XX_E5DESC,0) + ISNULL(XX_E5MULTA,0) - E1_XXISSBI) END AS F2VALLIQ," + CRLF
+cQuery += " CASE WHEN CONTRATO = '305000554' " + CRLF
+cQuery += "      THEN (F2_VALFAT * 2) " + CRLF
+cQuery += "      ELSE (F2_VALFAT) END AS VALFAT" + CRLF
+
 cQuery += " INTO PowerBk.dbo.FATURAMENTO " + CRLF
 cQuery += " FROM FATUR " + CRLF
 cQuery += " ORDER BY" + CRLF
@@ -703,6 +748,85 @@ Endif
 u_LogMemo("BKDASH01-FAT.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+
+// Atualização da tabela CCUSTOS do banco de dados PowerBk
+Static Function ProcDSCC
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrupo()
+Local nE 		:= 0
+Local cTabCTT   := ""
+
+u_LogPrw(cPerg,"Centros de Custo")
+ 
+cQuery := "WITH CCUSTOS AS ( " + CRLF
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabCTT := "CTT"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC, " + CRLF
+	cQuery += "  SUBSTRING(CTT_CUSTO,1,9) AS CCUSTO,"+CRLF
+	cQuery += "  CTT_DESC01 AS DESCRCC"+CRLF
+	cQuery += " FROM " + CRLF
+	cQuery += "  "+cTabCTT+" CTT " + CRLF
+	cQuery += " WHERE CTT.D_E_L_E_T_=''" + CRLF
+Next
+
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  * " + CRLF
+cQuery += "  INTO PowerBk.dbo.CCUSTOS" + CRLF
+cQuery += "  FROM CCUSTOS " + CRLF
+cQuery += " ORDER BY" + CRLF
+cQuery += "    EMPRESA,CCUSTO" + CRLF
+
+u_LogMemo("BKDASH01-CC.SQL",cQuery)
+
+If !TCIsConnected()
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CCUSTOS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.CCUSTOS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-CC.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
 
 
 // Atualização da tabela GESTORES do banco de dados PowerBk
@@ -791,37 +915,32 @@ cQuery += "  FROM VIG " + CRLF
 cQuery += " ORDER BY" + CRLF
 cQuery += "    EMPRESA,CONTRATO" + CRLF
 
-u_LogMemo("BKDASH01.SQL",cQuery)
+u_LogMemo("BKDASH01-GES.SQL",cQuery)
 
 If !TCIsConnected()
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
 Endif  
 
-//Begin Transaction
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GESTORES', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.GESTORES "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GESTORES', N'U') IS NOT NULL"  
-	cQueryD += "   DROP TABLE PowerBk.dbo.GESTORES "+CRLF
-	nErro   := TcSqlExec(cQueryD)
-
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
 
-	nErro   := TcSqlExec(cQuery)
+nErro   := TcSqlExec(cQuery)
 
-	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
 	EndIf
-
-
-//End Transaction
+EndIf
 
 u_LogMemo("BKDASH01-GES.SQL",cErro1+cQueryD+cErro2+cQuery)
 
@@ -1690,7 +1809,6 @@ For nE := 1 TO Len(aEmpresas)
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]
 
-
 	cTabCTT := "CTT"+cEmpresa+"0"
 
 	If nE > 1
@@ -2083,10 +2201,13 @@ SELECT
 	FG.COMPETD,
 	FG.EMPRESA + FG.CONTRATO + FG.COMPETAM AS CHAVE,
 	SUM(FG.VALFAT) AS VALFAT,
+	SUM(FG.F2VALLIQ) AS F2VALLIQ,
 	SUM(FG.PREVFAT) AS PREVFAT,
-	SUM(FG.DESPESA) AS TOTDESP,
+	SUM(FG.DESPESA) AS DESPESAS,
+	SUM(FG.CUSTO) AS CUSTOS,
 	CHAVEZG
 FROM 
+	-- FATURAMENTO
 	(SELECT 
 		EMPRESA,
 		NOMEEMP,
@@ -2096,9 +2217,11 @@ FROM
 		COMPET,
 		COMPETD,
 		CHAVEZG,
-		SUM(F2_VALFAT) AS VALFAT,
+		SUM(VALFAT) AS VALFAT,
+		SUM(F2VALLIQ) AS F2VALLIQ,
 		SUM(CXN_VLPREV) AS PREVFAT,
-		SUM(0) AS DESPESA
+		0 AS DESPESA,
+		0 AS CUSTO
 
 		--(SELECT TOP 1 ZGCHAVE FROM 
 		--	(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
@@ -2111,6 +2234,7 @@ FROM
 		FROM PowerBk.dbo.FATURAMENTO
 		GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,CHAVEZG
 	UNION ALL
+	-- DESPESAS
 	SELECT 
 		EMPRESA,
 		NOMEEMP,
@@ -2120,10 +2244,11 @@ FROM
 		COMPET,
 		COMPETD,
 		CHAVEZG,
-		SUM(0) AS VALFAT,
-		SUM(0) AS PREVFAT,
-		SUM(DESPESA) AS DESPESA
-		
+		0 AS VALFAT,
+		0 AS F2VALLIQ,
+		0 AS PREVFAT,
+		SUM(DESPESA) AS DESPESA,
+		0 AS CUSTO
 		--(SELECT TOP 1 ZGCHAVE FROM 
 		--	(SELECT MAX(COMPETAM+ZG_SEQ) AS ZGCHAVE
 		--	FROM PowerBk.dbo.PREVDESP1 
@@ -2134,13 +2259,34 @@ FROM
 
 		FROM PowerBk.dbo.GASTOSGERAIS
 			GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,COMPET,COMPETD,CHAVEZG
+
+	UNION ALL
+	-- FOLHA
+	SELECT 
+		EMPRESA,
+		NOMEEMP,
+		CONTRATO,
+		DESCRICAO,
+		COMPETAM,
+		SUBSTRING(COMPETAM,5,2) + '/' + SUBSTRING(COMPETAM,1,4) AS COMPET,
+	    CONVERT(DATE,COMPETAM+'01',112) AS COMPETD,
+		CHAVEZG,
+		0 AS VALFAT,
+		0 AS F2VALLIQ,
+		0 AS PREVFAT,
+		0 AS DESPESA,
+		SUM(CUSTO) AS CUSTO
+		FROM PowerBk.dbo.FOLHA
+			GROUP BY EMPRESA,NOMEEMP,CONTRATO,DESCRICAO,COMPETAM,CHAVEZG
 		) AS FG
 	LEFT JOIN PowerBk.dbo.GESTORES G
   	ON	G.EMPRESA  = FG.EMPRESA 
 	AND G.CONTRATO = FG.CONTRATO 
 	GROUP BY FG.EMPRESA,FG.NOMEEMP,FG.CONTRATO,FG.DESCRICAO,FG.COMPETAM,FG.COMPET,FG.COMPETD,G.CN9_XXNRBK,CHAVEZG)
+
 SELECT 
 GER.* ,
+GER.F2VALLIQ - GER.DESPESAS - GER.CUSTOS AS RESULTADO,
 PDP1.ZG_CLT + PDP1.ZG_BENEFIC AS PREVCUSTOS,
 PDP1.ZG_DESPDIV AS PREVDESP,
 PDP1.ZG_DESPDIV * 0.9 AS PREVDESP09,
@@ -2181,32 +2327,91 @@ If !TCIsConnected()
   Return( Nil )
 Endif  
 
-//Begin Transaction
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GERAL', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.GERAL "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GERAL', N'U') IS NOT NULL"  
-	cQueryD += "   DROP TABLE PowerBk.dbo.GERAL "+CRLF
-	nErro   := TcSqlExec(cQueryD)
-
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-G.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+// Atualização da tabela EMPRESAS do banco de dados PowerBk
+Static Function ProcDSEmp
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local nX 		:= 0
+Local aEmpresas := U_BKEmpr()
+
+u_LogPrw(cPerg,"Empresas")
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.EMPRESAS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.EMPRESAS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+cQuery := "CREATE TABLE PowerBk.dbo.EMPRESAS " + CRLF
+cQuery += "( " + CRLF
+cQuery += "  EMPRESA VARCHAR(02), " + CRLF
+cQuery += "  NOMEEMP VARCHAR(15), " + CRLF
+cQuery += "  PRIMARY KEY (EMPRESA)" + CRLF
+cQuery += ") " + CRLF
+
+nErro   := TcSqlExec(cQuery)
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+For nX := 1 To Len(aEmpresas)
+    // Popula elemento
+    cQuery := "INSERT INTO PowerBk.dbo.EMPRESAS " + CRLF
+    cQuery += "("         + CRLF
+    cQuery += "EMPRESA,"  + CRLF
+    cQuery += "NOMEEMP"   + CRLF
+    cQuery += ")"         + CRLF
+    cQuery += "VALUES"    + CRLF
+    cQuery += "("         + CRLF
+    cQuery += "'" + aEmpresas[nX,1] + "',"    + CRLF
+    cQuery += "'" + aEmpresas[nX,2] + "'"    + CRLF
+    cQuery += ")"
 
 	nErro   := TcSqlExec(cQuery)
-
 	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		EndIf
 	EndIf
+Next nX
 
-//End Transaction
-
-u_LogMemo("BKDASH01-G.SQL",cErro1+cQueryD+cErro2+cQuery)
-
+u_LogMemo("BKDASH01-EMP.SQL",cErro1+cQueryD+cErro2+cQuery)
 Return
 
 
@@ -2325,7 +2530,7 @@ For nX := 1 To Len(aUsers)
 	EndIf
 Next nX
 
-u_LogMemo("BKDASH01-U.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogMemo("BKDASH01-USR.SQL",cErro1+cQueryD+cErro2+cQuery)
 Return
 
 

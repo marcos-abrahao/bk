@@ -112,6 +112,12 @@ User Function MVXASSMP()
 Local cVar := "|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
 Return cVar
 
+
+// Cod. Prod. desc. sind. odonto  calculo Rentabilidade
+User Function MVXSINOP()
+Local cVar := "|510|607|665|679|724|732|739|825|900|"
+Return cVar
+
 // Verba desc. sind. odonto  calculo Rentabilidade 
 User Function MVXSINOV()
 Local cVar := "|510|607|665|679|724|739|825|900|"
@@ -160,12 +166,6 @@ Return aVar
 // Cod. Prod. para rateio no calculo de rentabilidade
 User Function MVXCEXMP()
 Local cVar := "41201015"
-Return cVar
-
-
-// Cod. Prod. desc. sind. odonto  calculo Rentabilidade
-User Function MVXSINOP()
-Local cVar := "|510|607|665|679|724|732|739|825|900|"
 Return cVar
 
 
