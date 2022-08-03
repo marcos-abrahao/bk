@@ -422,7 +422,20 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  F2_VALFAT, " + CRLF
 	// Fernando 01/08/22 - O ISS Retido e Apurado precisam entrar dentro da conta de faturamento líquido e a retenção e conta vinculada precisam sair
 	//cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - (CASE WHEN F2_RECISS = '1' THEN F2_VALISS ELSE 0 END) - F2_VLCPM - F2_XXVRETC - F2_XXVCVIN) AS F2VALLIQ1, " + CRLF
-	cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
+	//cQuery += "  (F2_VALFAT - F2_VALIRRF - F2_VALINSS - F2_VALPIS - F2_VALCOFI - F2_VALCSLL - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
+
+	cQuery += "  F2_VALISS, " + CRLF
+	cQuery += "  F2_VLCPM, " + CRLF
+
+	If cEmpresa = '02'
+		cQuery += "  16.8 AS PERIMP," + CRLF
+		cQuery += "  (F2_VALFAT * 16.8 / 100) AS VALIMP," + CRLF
+	    cQuery += "  (F2_VALFAT - (F2_VALFAT * 16.8 / 100) - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
+	Else
+		cQuery += "  9.5 AS PERIMP," + CRLF
+		cQuery += "  (F2_VALFAT * 9.5 / 100) AS VALIMP," + CRLF
+	    cQuery += "  (F2_VALFAT - (F2_VALFAT * 9.5 / 100) - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
+	EndIf
 
 	cQuery += "  CND_USUAR, " + CRLF
 	cQuery += "  (" + CRLF
@@ -643,7 +656,20 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  'PREVISTO' AS F2_DOC, " + CRLF
 	cQuery += "  CONVERT(DATE,CONVERT(VARCHAR,''),112) AS F2_EMISSAO, " + CRLF
 	cQuery += "  0 			AS F2_VALFAT, " + CRLF
-	cQuery += "  0 			AS F2VALLIQ1, " + CRLF
+
+	cQuery += "  0 			AS F2_VALISS, " + CRLF
+	cQuery += "  0 			AS F2_VLCPM, " + CRLF
+
+	If cEmpresa = '02'
+		cQuery += "  16.8 	AS PERIMP," + CRLF
+		cQuery += "  0 		AS VALIMP," + CRLF
+	    cQuery += "  0 		AS F2VALLIQ1, " + CRLF
+	Else
+		cQuery += "  9.5 	AS PERIMP," + CRLF
+		cQuery += "  0 		AS VALIMP," + CRLF
+	    cQuery += "  0 		AS F2VALLIQ1, " + CRLF
+	EndIf
+
 	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
 	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
 	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
@@ -2837,3 +2863,4 @@ WHERE Z2_FILIAL = '  '
       EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC
 
 */
+
