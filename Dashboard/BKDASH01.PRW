@@ -247,6 +247,7 @@ BEGINCONTENT VAR cQuery
 		AND bk_senior.bk_senior.R046VER.TipCol = bk_senior.bk_senior.R034FUN.tipcol
  LEFT JOIN bk_senior.bk_senior.R024CAR 
 		ON 	bk_senior.bk_senior.R034FUN.codcar = bk_senior.bk_senior.R024CAR.CodCar
+		AND	bk_senior.bk_senior.R024CAR.EstCar = 1
  WHERE 
 	Tipcal IN(11) AND Sitcal = 'T'
 
@@ -371,6 +372,7 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 Local cTabSE5   := ""
+Local cTabSE1   := ""
 
 u_LogPrw(cPerg,"Faturamento")
 
@@ -392,6 +394,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabCNF := "CNF"+cEmpresa+"0"
 	cTabCNA := "CNA"+cEmpresa+"0"
 	cTabSE5 := "SE5"+cEmpresa+"0"
+	cTabSE1 := "SE1"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -428,9 +431,9 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  F2_VLCPM, " + CRLF
 
 	If cEmpresa = '02'
-		cQuery += "  16.8 AS PERIMP," + CRLF
-		cQuery += "  (F2_VALFAT * 16.8 / 100) AS VALIMP," + CRLF
-	    cQuery += "  (F2_VALFAT - (F2_VALFAT * 16.8 / 100) - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
+		cQuery += "  16.98 AS PERIMP," + CRLF
+		cQuery += "  (F2_VALFAT * 16.98 / 100) AS VALIMP," + CRLF
+	    cQuery += "  (F2_VALFAT - (F2_VALFAT * 16.98 / 100) - F2_VALISS - F2_VLCPM) AS F2VALLIQ1, " + CRLF
 	Else
 		cQuery += "  9.5 AS PERIMP," + CRLF
 		cQuery += "  (F2_VALFAT * 9.5 / 100) AS VALIMP," + CRLF
@@ -452,7 +455,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC," + CRLF
 	cQuery += "   (SELECT SUM(E5_VALOR) FROM "+cTabSE5+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
 	cQuery += "   	AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA," + CRLF
-	cQuery += "   (SELECT TOP 1 E1_XXISSBI FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'"+ CRLF
+	cQuery += "   (SELECT TOP 1 E1_XXISSBI FROM "+cTabSE1+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'"+ CRLF
 	cQuery += "   	  AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS E1_XXISSBI, " + CRLF
 
 	cQuery += "   (SELECT SUM(CNR_VALOR)"+ CRLF
@@ -661,7 +664,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  0 			AS F2_VLCPM, " + CRLF
 
 	If cEmpresa = '02'
-		cQuery += "  16.8 	AS PERIMP," + CRLF
+		cQuery += "  16.98 	AS PERIMP," + CRLF
 		cQuery += "  0 		AS VALIMP," + CRLF
 	    cQuery += "  0 		AS F2VALLIQ1, " + CRLF
 	Else

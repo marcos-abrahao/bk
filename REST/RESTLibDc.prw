@@ -562,7 +562,7 @@ cQuery += "  CASE WHEN C8_NUMPED = C7_NUM AND C8_ITEMPED = C7_ITEM THEN C7_DATPR
 
 cQuery += " FROM "+cTabSC7+" SC7"+CRLF
 
-cQuery += "	INNER JOIN "+cTabSA2+" SA2 "+CRLF
+cQuery += "	LEFT JOIN "+cTabSA2+" SA2 "+CRLF
 cQuery += "		ON C7_FORNECE = A2_COD AND C7_LOJA = C7_LOJA AND A2_FILIAL = '"+xFilial("SA2")+"' AND SA2.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "	INNER JOIN "+cTabSC1+" SC1 "+CRLF
@@ -574,7 +574,7 @@ cQuery += "		ON C7_NUMCOT = C8_NUM  AND C8_NUMSC = C1_NUM AND C8_ITEMSC = C1_ITE
 cQuery += "WHERE C7_NUM = '"+cPedido+"'" +CRLF
 cQuery += "  AND SC7.D_E_L_E_T_ = '' "+CRLF
 
-cQuery += "ORDER BY C7_ITEM"+CRLF
+cQuery += "ORDER BY C1_CC,C7_ITEM"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySC7,.T.,.T.)
 tcSetField(cQrySC7,"C8_EMISSAO","D",8,0)
@@ -623,6 +623,7 @@ Do While (cQrySC7)->(!EOF())
 */
 
 	aItens[nI]["C8_ITEM"]	:= (cQrySC7)->C8_ITEM
+	aItens[nI]["C1_XXDCC"]	:= TRIM((cQrySC7)->C1_XXDCC)
 	aItens[nI]["C8_PRODUTO"]:= TRIM((cQrySC7)->C8_PRODUTO)
 	aItens[nI]["C8_XXDESCP"]:= TRIM((cQrySC7)->C8_XXDESCP)
 	aItens[nI]["C8_UM"]		:= TRIM((cQrySC7)->C8_UM)
@@ -920,6 +921,7 @@ line-height: 1rem;
 				<tr>
 					<th ></th>
 					<th scope="col">Item</th>
+					<th scope="col">Contrato</th>
 					<th scope="col">Prod.</th>
 					<th scope="col">Descrição</th>
 					<th scope="col">UM</th>
@@ -944,7 +946,7 @@ line-height: 1rem;
 				</tr>
 				</tbody>
 				<tfoot id="c7Foot">
-				<th scope="row" colspan="10" style="text-align:right;">Total Geral</th>
+				<th scope="row" colspan="14" style="text-align:right;">Total Geral</th>
 				</tfoot>
 			</table>
 			</div>
@@ -1176,16 +1178,16 @@ function formatd ( d ) {
     // `d` is the original data object for the row
     return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
         '<tr>'+
-            '<td>Full name:</td>'+
-            '<td>'+d[1]+'</td>'+
+            '<td>Produto:</td>'+
+            '<td>'+d[4]+'</td>'+
         '</tr>'+
         '<tr>'+
             '<td>Status:</td>'+
             '<td>'+d[15]+'</td>'+
         '</tr>'+
         '<tr>'+
-            '<td>Extra info:</td>'+
-            '<td>And any further details here (images etc)...</td>'+
+            '<td>Obs:</td>'+
+            '<td>'+d[14]+'</td>'+
         '</tr>'+
     '</table>';
 }
@@ -1226,6 +1228,7 @@ documento.C7_ITENS.forEach(object => {
   const yarray = []
   yarray.push(null);
   yarray.push(txtidel+object['C8_ITEM']+txtedel);
+  yarray.push(txtidel+object['C1_XXDCC']+txtedel);
   yarray.push(txtidel+object['C8_PRODUTO']+txtedel);
   yarray.push(txtidel+object['C8_XXDESCP']+txtedel);
   yarray.push(txtidel+object['C8_UM']+txtedel);
@@ -1239,7 +1242,7 @@ documento.C7_ITENS.forEach(object => {
   yarray.push(txtidel+object['C8_XXNFOR']+txtedel);
   yarray.push(txtidel+object['C8_VALIDA']+txtedel);
   yarray.push(txtidel+object['C8_STATUS']+txtedel);
-  yarray.push(txtidel+object['C8_STATUS']+txtedel);
+  yarray.push(txtidel+object['C8_OBS']+txtedel);
   xarray.push(yarray);
 i++
 })
@@ -1256,6 +1259,7 @@ i++
                 "defaultContent": ''
             },           
             { title: "Item" },
+            { title: "Contrato" },
             { title: "Produto" },
             { title: "Descrição" },
             { title: "UM" },

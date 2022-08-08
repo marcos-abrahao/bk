@@ -144,8 +144,8 @@ Local cWhereSC5     := "%AND SC5.C5_FILIAL = '"+xFilial('SC5')+"'%"
 Local cWhereSA1     := "%AND SA1.A1_FILIAL = '"+xFilial('SA1')+"'%"
 Local lRet 			:= .T.
 Local nCount 		:= 0
-Local nStart 		:= 1
-Local nReg 			:= 0
+//Local nStart 		:= 1
+//Local nReg 			:= 0
 //Local nTamPag 	:= 0
 Local oJsonSales 	:= JsonObject():New()
 
@@ -162,18 +162,14 @@ Default self:pageSize := 500
 // Query para selecionar pedidos
 //-------------------------------------------------------------------
 
-  If !u_BkAvPar(::userlib,@aParams,@cMsg)
-    oJsonSales['liberacao'] := cMsg
-
-    cRet := oJsonSales:ToJson()
-
-    FreeObj(oJsonSales)
-
-    //Retorno do servico
-    ::SetResponse(cRet)
-
-    Return lRet:= .t.
-  EndIf
+	If !u_BkAvPar(::userlib,@aParams,@cMsg)
+		oJsonSales['liberacao'] := cMsg
+		cRet := oJsonSales:ToJson()
+		FreeObj(oJsonSales)
+		//Retorno do servico
+		::SetResponse(cRet)
+		Return lRet:= .t.
+	EndIf
 
 	BeginSQL Alias cQrySC5
     SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,
@@ -192,53 +188,12 @@ Default self:pageSize := 500
     WHERE   SC5.%NotDel%
             AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
             %exp:cWhereSC5%
-    ORDER BY SC5.C5_NUM 
+    ORDER BY C5_LIBEROK,SC5.C5_NUM DESC 
     
 	EndSQL
 
 //Syntax abaixo somente para o SQL 2012 em diante
 //ORDER BY SC5.C5_NUM OFFSET %exp:nStart% ROWS FETCH NEXT %exp:nTamPag% ROWS ONLY
-
-
-//conout(cQrySC5)
-
-	If ( cQrySC5 )->( ! Eof() )
-
-		//-------------------------------------------------------------------
-		// Identifica a quantidade de registro no alias temporário
-		//-------------------------------------------------------------------
-		COUNT TO nRecord
-
-		//-------------------------------------------------------------------
-		// nStart -> primeiro registro da pagina
-		// nReg -> numero de registros do inicio da pagina ao fim do arquivo
-		//-------------------------------------------------------------------
-		If self:page > 1
-			nStart := ( ( self:page - 1 ) * self:pageSize ) + 1
-			nReg := nRecord - nStart + 1
-		Else
-			nReg := nRecord
-		EndIf
-
-		//-------------------------------------------------------------------
-		// Posiciona no primeiro registro.
-		//-------------------------------------------------------------------
-		( cQrySC5 )->( DBGoTop() )
-
-		//-------------------------------------------------------------------
-		// Valida a exitencia de mais paginas
-		//-------------------------------------------------------------------
-		If nReg > self:pageSize
-			//oJsonSales['hasNext'] := .T.
-		Else
-			//oJsonSales['hasNext'] := .F.
-		EndIf
-	Else
-		//-------------------------------------------------------------------
-		// Nao encontrou registros
-		//-------------------------------------------------------------------
-		//oJsonSales['hasNext'] := .F.
-	EndIf
 
 //-------------------------------------------------------------------
 // Alimenta array de pedidos
@@ -247,24 +202,19 @@ Default self:pageSize := 500
 
 		nCount++
 
-		If nCount >= nStart
+		aAdd( aListSales , JsonObject():New() )
+		nPos := Len(aListSales)
+		aListSales[nPos]['NUM']       := (cQrySC5)->C5_NUM
+		aListSales[nPos]['EMISSAO']   := DTOC(STOD((cQrySC5)->C5_EMISSAO))
+		aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
+		aListSales[nPos]['CONTRATO']  := TRIM((cQrySC5)->C5_MDCONTR)
+		aListSales[nPos]['COMPET']    := TRIM((cQrySC5)->C5_XXCOMPM)
+		aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
+		aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
+		(cQrySC5)->(DBSkip())
 
-			aAdd( aListSales , JsonObject():New() )
-			nPos := Len(aListSales)
-			aListSales[nPos]['NUM']       := (cQrySC5)->C5_NUM
-			aListSales[nPos]['EMISSAO']   := DTOC(STOD((cQrySC5)->C5_EMISSAO))
-			aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
-			aListSales[nPos]['CONTRATO']  := TRIM((cQrySC5)->C5_MDCONTR)
-			aListSales[nPos]['COMPET']    := TRIM((cQrySC5)->C5_XXCOMPM)
-			aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
-			aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
-			(cQrySC5)->(DBSkip())
-
-			If Len(aListSales) >= self:pageSize
-				Exit
-			EndIf
-		Else
-			(cQrySC5)->(DBSkip())
+		If Len(aListSales) >= self:pageSize
+			Exit
 		EndIf
 
 	EndDo
@@ -461,7 +411,7 @@ document.getElementById("mytable").innerHTML = trHTML;
 
 $('#tableSC5').DataTable({
  "pageLength": 100,
- "order": [[ 0, "desc" ]],
+ "order": [],
  "language": {
  "lengthMenu": "Registros por página: _MENU_ ",
  "zeroRecords": "Nada encontrado",

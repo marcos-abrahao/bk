@@ -28,6 +28,9 @@ Local nOpcx  := PARAMIXB[3]
 PRIVATE lAuto := (nReg!=Nil)
 PRIVATE cEndEnt := Space(TamSX3("C1_XXENDEN")[1])
 
+Private oFont10N 	:= TFont():New("Courier New",10,10,,.T.,,,,.T.,.F.)
+Private oFont12N	:= TFont():New("Courier New",12,12,,.T.,,,,.T.,.F.)
+
 u_LogPrw("Matr_110")
 
 // BK - Abrir dialogo para digitação do endereço de entrega
@@ -568,7 +571,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			If !Empty(SC7->C7_OBS) .And. nLinObs < 17
 				nLinObs++
 				cVar:="cObs"+StrZero(nLinObs,2)
-				Eval(MemVarBlock(cVar),SC7->C7_OBS)
+				Eval(MemVarBlock(cVar),"Item "+SC7->C7_ITEM + ": "+ SC7->C7_OBS)
 			Endif
 			
 			nTxMoeda   := IIF(SC7->C7_TXMOEDA > 0,SC7->C7_TXMOEDA,Nil)
@@ -703,10 +706,11 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 		oReport:Box( 2320 ,010,oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
 		
 		oReport:Box( 2200 , 1080 , 2320 , 1400 ) // Box da Data de Emissao
-		oReport:Box( 2320 ,  010 , 2406 , 1220 ) // Box do Reajuste
-		oReport:Box( 2320 , 1220 , 2460 , 1750 ) // Box do IPI e do Frete
-		oReport:Box( 2320 , 1750 , 2460 , nPageWidth ) // Box do ICMS Despesas e Seguro
-		oReport:Box( 2406 ,  010 , 2700 , 1220 ) // Box das Observacoes
+		oReport:Box( 2320 ,  010 , 2406 , 1080 ) // Box do Reajuste -> BK: Status do Pedido
+		oReport:Box( 2320 , 1080 , 2406 , 1750 ) // BK: Box da Obs Frete
+		//oReport:Box( 2320 , 1400 , 2460 , 1750 ) // Box do IPI e do Frete
+		oReport:Box( 2320 , 1750 , 2700 , nPageWidth ) // Box do ICMS Despesas e Seguro
+		oReport:Box( 2406 ,  010 , 2700 , 1750 ) // Box das Observacoes
 
 		cMensagem:= Formula(C7_MSG)
 		If !Empty(cMensagem)
@@ -772,7 +776,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 		SE4->(dbSeek(xFilial("SE4")+SC7->C7_COND))
 		
 		nLinPC := oReport:Row()
-		oReport:PrintText( STR0011+SubStr(SE4->E4_COND,1,40),nLinPC,050 )
+		oReport:PrintText( STR0011+SubStr(SE4->E4_DESCRI,1,40),nLinPC,050 )
 		oReport:PrintText( STR0070,nLinPC,1120 ) //"Data de Emissao"
 		oReport:PrintText( STR0013 +" "+ Transform(xMoeda(nTotal,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotal,14,MsDecimais(MV_PAR12)) ),nLinPC,1612 ) //"Total das Mercadorias : "
 		oReport:SkipLine()
@@ -786,12 +790,12 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 					nValIVA+=aValIVA[nY]
 				Next nY
 			EndIf
-			oReport:PrintText(SubStr(SE4->E4_DESCRI,1,34),nLinPC, 050 )
+			oReport:PrintText(SubStr(SE4->E4_COND,1,60),nLinPC, 050 )
 			oReport:PrintText( dtoc(SC7->C7_EMISSAO),nLinPC,1120 )
 			oReport:PrintText( STR0063+ "   " + ; //"Total dos Impostos:    "
 			Transform(xMoeda(nValIVA,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nValIVA,14,MsDecimais(MV_PAR12)) ),nLinPC,1612 )
 		Else
-			oReport:PrintText( SubStr(SE4->E4_DESCRI,1,34),nLinPC, 050 )
+			oReport:PrintText( SubStr(SE4->E4_COND,1,60),nLinPC, 050 )
 			oReport:PrintText( dtoc(SC7->C7_EMISSAO),nLinPC,1120 )
 			oReport:PrintText( STR0064+ "  " + ; //"Total com Impostos:    "
 			Transform(xMoeda(nTotMerc,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotMerc,14,MsDecimais(MV_PAR12)) ),nLinPC,1612 )
@@ -809,54 +813,12 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 		oReport:SkipLine()
 		nLinPC := oReport:Row()
 		
-		SM4->(dbSetOrder(1))
-		If SM4->(dbSeek(xFilial("SM4")+SC7->C7_REAJUST))
-			oReport:PrintText(  STR0014 + " " + SC7->C7_REAJUST + " " + SM4->M4_DESCR ,nLinPC, 050 )  //"Reajuste :"
-		EndIf			
+		//BK não usa reajuste
+		//SM4->(dbSetOrder(1))
+		//If SM4->(dbSeek(xFilial("SM4")+SC7->C7_REAJUST))
+		//	oReport:PrintText(  STR0014 + " " + SC7->C7_REAJUST + " " + SM4->M4_DESCR ,nLinPC, 050 )  //"Reajuste :"
+		//EndIf			
 
-		If cPaisLoc == "BRA"
-			oReport:PrintText( STR0071 + Transform(xMoeda(nTotIPI ,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotIpi ,14,MsDecimais(MV_PAR12))) ,nLinPC,1320 ) //"IPI      :"
-			oReport:PrintText( STR0072 + Transform(xMoeda(nTotIcms,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotIcms,14,MsDecimais(MV_PAR12))) ,nLinPC,1815 ) //"ICMS     :"
-		EndIf
-		oReport:SkipLine()
-
-		nLinPC := oReport:Row()
-		oReport:PrintText( STR0073 + Transform(xMoeda(nTotFrete,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotFrete,14,MsDecimais(MV_PAR12))) ,nLinPC,1320 ) //"Frete    :"
-		oReport:PrintText( STR0074 + Transform(xMoeda(nTotDesp ,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotDesp ,14,MsDecimais(MV_PAR12))) ,nLinPC,1815 ) //"Despesas :"
-		oReport:SkipLine()
-		
-		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-		//³ Inicializar campos de Observacoes.                           ³
-		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-		If Empty(cObs02)
-			If Len(cObs01) > 30
-				cObs := cObs01
-				cObs01 := Substr(cObs,1,30)
-				For nX := 2 To 16
-					cVar  := "cObs"+StrZero(nX,2)
-					&cVar := Substr(cObs,(30*(nX-1))+1,30)
-				Next nX
-			EndIf
-		Else
-			cObs01:= Substr(cObs01,1,IIf(Len(cObs01)<30,Len(cObs01),30))
-			cObs02:= Substr(cObs02,1,IIf(Len(cObs02)<30,Len(cObs01),30))
-			cObs03:= Substr(cObs03,1,IIf(Len(cObs03)<30,Len(cObs01),30))
-			cObs04:= Substr(cObs04,1,IIf(Len(cObs04)<30,Len(cObs01),30))
-			cObs05:= Substr(cObs05,1,IIf(Len(cObs05)<30,Len(cObs01),30))
-			cObs06:= Substr(cObs06,1,IIf(Len(cObs06)<30,Len(cObs01),30))
-			cObs07:= Substr(cObs07,1,IIf(Len(cObs07)<30,Len(cObs01),30))
-			cObs08:= Substr(cObs08,1,IIf(Len(cObs08)<30,Len(cObs01),30))
-			cObs09:= Substr(cObs09,1,IIf(Len(cObs09)<30,Len(cObs01),30))
-			cObs10:= Substr(cObs10,1,IIf(Len(cObs10)<30,Len(cObs01),30))
-			cObs11:= Substr(cObs11,1,IIf(Len(cObs11)<30,Len(cObs01),30))
-			cObs12:= Substr(cObs12,1,IIf(Len(cObs12)<30,Len(cObs01),30))
-			cObs13:= Substr(cObs13,1,IIf(Len(cObs13)<30,Len(cObs01),30))
-			cObs14:= Substr(cObs14,1,IIf(Len(cObs14)<30,Len(cObs01),30))
-			cObs15:= Substr(cObs15,1,IIf(Len(cObs15)<30,Len(cObs01),30))
-			cObs16:= Substr(cObs16,1,IIf(Len(cObs16)<30,Len(cObs01),30))
-		EndIf
-		
-				
 		cComprador:= ""
 		cAlter	  := ""
 		cAprov	  := ""
@@ -912,18 +874,79 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			EndIf
 		EndIf
 
+		//BK: Status do pedido / Obs frete
+
+		oReport:PrintText( If((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3), If( lLiber , STR0050 , STR0051 ) , If( lLiber , STR0085 , STR0086 ) ),nLinPC,50 ) //"     P E D I D O   L I B E R A D O"#"|     P E D I D O   B L O Q U E A D O !!!"
+		oReport:PrintText( STR0080 + Substr(RetTipoFrete(SC7->C7_TPFRETE),3),nLinPC,1120 ) //"Obs. do Frete: "
+
+
+		//If cPaisLoc == "BRA"
+			oReport:PrintText( STR0071 + Transform(xMoeda(nTotIPI ,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotIpi ,14,MsDecimais(MV_PAR12))) ,nLinPC,1815 ) //"IPI      :"
+		//EndIf
+		oReport:SkipLine()
+
+		nLinPC := oReport:Row()
+		oReport:PrintText( STR0073 + Transform(xMoeda(nTotFrete,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotFrete,14,MsDecimais(MV_PAR12))) ,nLinPC,1815 ) //"Frete    :"
+		oReport:SkipLine()
+		
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Inicializar campos de Observacoes.                           ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		nLenObs := 70
+		If Empty(cObs02)
+			If Len(cObs01) > nLenObs
+				cObs := cObs01
+				cObs01 := Substr(cObs,1,nLenObs)
+				For nX := 2 To 16
+					cVar  := "cObs"+StrZero(nX,2)
+					&cVar := Substr(cObs,(nLenObs*(nX-1))+1,nLenObs)
+				Next nX
+			EndIf
+		Else
+			cObs01:= Substr(cObs01,1,IIf(Len(cObs01)<nLenObs,Len(cObs01),nLenObs))
+			cObs02:= Substr(cObs02,1,IIf(Len(cObs02)<nLenObs,Len(cObs02),nLenObs))
+			cObs03:= Substr(cObs03,1,IIf(Len(cObs03)<nLenObs,Len(cObs03),nLenObs))
+			cObs04:= Substr(cObs04,1,IIf(Len(cObs04)<nLenObs,Len(cObs04),nLenObs))
+			cObs05:= Substr(cObs05,1,IIf(Len(cObs05)<nLenObs,Len(cObs05),nLenObs))
+			cObs06:= Substr(cObs06,1,IIf(Len(cObs06)<nLenObs,Len(cObs06),nLenObs))
+			cObs07:= Substr(cObs07,1,IIf(Len(cObs07)<nLenObs,Len(cObs07),nLenObs))
+			cObs08:= Substr(cObs08,1,IIf(Len(cObs08)<nLenObs,Len(cObs08),nLenObs))
+			cObs09:= Substr(cObs09,1,IIf(Len(cObs09)<nLenObs,Len(cObs09),nLenObs))
+			cObs10:= Substr(cObs10,1,IIf(Len(cObs10)<nLenObs,Len(cObs10),nLenObs))
+			cObs11:= Substr(cObs11,1,IIf(Len(cObs11)<nLenObs,Len(cObs11),nLenObs))
+			cObs12:= Substr(cObs12,1,IIf(Len(cObs12)<nLenObs,Len(cObs12),nLenObs))
+			cObs13:= Substr(cObs13,1,IIf(Len(cObs13)<nLenObs,Len(cObs13),nLenObs))
+			cObs14:= Substr(cObs14,1,IIf(Len(cObs14)<nLenObs,Len(cObs14),nLenObs))
+			cObs15:= Substr(cObs15,1,IIf(Len(cObs15)<nLenObs,Len(cObs15),nLenObs))
+			cObs16:= Substr(cObs16,1,IIf(Len(cObs16)<nLenObs,Len(cObs16),nLenObs))
+		EndIf
+		
+				
 		nLinPC := oReport:Row()
 		oReport:PrintText( STR0077 ,nLinPC, 050 ) // "Observacoes "
-		oReport:PrintText( STR0076 + Transform(xMoeda(nTotSeguro,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotSeguro,14,MsDecimais(MV_PAR12))) ,nLinPC, 1815 ) // "SEGURO   :"
 		oReport:SkipLine()
 
 		nLinPC2 := oReport:Row() 
 		oReport:PrintText(cObs01,,050 )
-		oReport:PrintText(cObs02,,050 )
+		oReport:PrintText( STR0072 + Transform(xMoeda(nTotIcms,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotIcms,14,MsDecimais(MV_PAR12))) ,nLinPC2,1815 ) //"ICMS     :"
+		oReport:SkipLine()
 
 		nLinPC := oReport:Row()
-		oReport:PrintText(cObs03,nLinPC,050 )
+		oReport:PrintText(cObs02,,050 )
+		oReport:PrintText( STR0074 + Transform(xMoeda(nTotDesp ,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotDesp ,14,MsDecimais(MV_PAR12))) ,nLinPC,1815 ) //"Despesas :"
+		oReport:SkipLine()
 
+		nLinPC := oReport:Row()
+		oReport:PrintText(cObs03,,050 )
+		oReport:PrintText( STR0076 + Transform(xMoeda(nTotSeguro,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotSeguro,14,MsDecimais(MV_PAR12))) ,nLinPC, 1815 ) // "SEGURO   :"
+		oReport:SkipLine()
+
+
+		oReport:PrintText(cObs04,,050 )
+		oReport:PrintText(cObs05,,050 )
+		oReport:PrintText(cObs06,,050 )
+
+		nLinPC := oReport:Row()
 		If !lNewAlc
 			oReport:PrintText( STR0078 + Transform(xMoeda(nTotalNF,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotalNF,14,MsDecimais(MV_PAR12))) ,nLinPC,1774 ) //"Total Geral :"
 		Else
@@ -934,22 +957,21 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			EndIf
 		EndIf
 		oReport:SkipLine()
-		
-		oReport:PrintText(cObs04,,050 )
-		oReport:PrintText(cObs05,,050 )
-		oReport:PrintText(cObs06,,050 )
+
+
 		nLinPC3 := oReport:Row()
 //		oReport:PrintText(cObs07,,050 )
 //		oReport:PrintText(cObs08,,050 )
 
-		oReport:PrintText(cObs07,nLinPC2,650 )
+		nPos2Obs := 850
+		oReport:PrintText(cObs07,nLinPC2,nPos2Obs )
 		oReport:SkipLine()
-		oReport:PrintText(cObs08,,650 )
-		oReport:PrintText(cObs09,,650 )
+		oReport:PrintText(cObs08,,nPos2Obs )
+		oReport:PrintText(cObs09,,nPos2Obs )
 //		oReport:SkipLine()
-		oReport:PrintText(cObs10,,650 )
-		oReport:PrintText(cObs11,,650 )
-		oReport:PrintText(cObs12,,650 )
+		oReport:PrintText(cObs10,,nPos2Obs )
+		oReport:PrintText(cObs11,,nPos2Obs )
+		oReport:PrintText(cObs12,,nPos2Obs )
 		//oReport:PrintText(cObs13,,650 )
 		//oReport:PrintText(cObs14,,650 )
 		//oReport:PrintText(cObs15,,650 )
@@ -968,17 +990,17 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			
 			oReport:Box( 2700 , 0010 , 3020 , 0400 )
 			oReport:Box( 2700 , 0400 , 3020 , 0800 )
-			oReport:Box( 2700 , 0800 , 3020 , 1220 )
-			oReport:Box( 2600 , 1220 , 3020 , 1770 )
-			oReport:Box( 2600 , 1770 , 3020 , nPageWidth )
+			oReport:Box( 2700 , 0800 , 3020 , 1400 )
+			//oReport:Box( 2600 , 1400 , 3020 , 1770 )
+			//oReport:Box( 2600 , 1770 , 3020 , nPageWidth )
 			
 			oReport:SkipLine()
 			oReport:SkipLine()
 			oReport:SkipLine()
 
 			nLinPC := oReport:Row()
-			oReport:PrintText( If((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3),STR0079,STR0084),nLinPC,1310) //"Liberacao do Pedido"##"Liber. Autorizacao "
-			oReport:PrintText( STR0080 + IF( SC7->C7_TPFRETE $ "F","FOB",IF(SC7->C7_TPFRETE $ "C","CIF",IF(SC7->C7_TPFRETE $ "T","Por Conta Terceiros"," " ) )) ,nLinPC,1820 )
+			//oReport:PrintText( If((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3),STR0079,STR0084),nLinPC,1310) //"Liberacao do Pedido"##"Liber. Autorizacao "
+			//oReport:PrintText( STR0080 + IF( SC7->C7_TPFRETE $ "F","FOB",IF(SC7->C7_TPFRETE $ "C","CIF",IF(SC7->C7_TPFRETE $ "T","Por Conta Terceiros"," " ) )) ,nLinPC,1820 )
 			oReport:SkipLine()
 
 			oReport:SkipLine()
@@ -1014,15 +1036,17 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			
 		Else
 			
-			oReport:Box( 2570 , 1220 , 2700 , 1820 )
-			oReport:Box( 2570 , 1820 , 2700 , nPageWidth )
+			//oReport:Box( 2570 , 1400 , 2700 , 1820 )
+			//oReport:Box( 2570 , 1820 , 2700 , nPageWidth )
 			oReport:Box( 2700 , 0010 , 3020 , nPageWidth )
 			oReport:Box( 2970 , 0010 , 3020 , 1340 )
 			
 			nLinPC := nLinPC3
 			
-			oReport:PrintText( If((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3), If( lLiber , STR0050 , STR0051 ) , If( lLiber , STR0085 , STR0086 ) ),nLinPC,1290 ) //"     P E D I D O   L I B E R A D O"#"|     P E D I D O   B L O Q U E A D O !!!"
-			oReport:PrintText( STR0080 + Substr(RetTipoFrete(SC7->C7_TPFRETE),3),nLinPC,1830 ) //"Obs. do Frete: "
+			// BK: linhas abaixo foram para o local do reajuste
+			//oReport:PrintText( If((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3), If( lLiber , STR0050 , STR0051 ) , If( lLiber , STR0085 , STR0086 ) ),nLinPC,1420 ) //"     P E D I D O   L I B E R A D O"#"|     P E D I D O   B L O Q U E A D O !!!"
+			//oReport:PrintText( STR0080 + Substr(RetTipoFrete(SC7->C7_TPFRETE),3),nLinPC,1830 ) //"Obs. do Frete: "
+
 			oReport:SkipLine()
 
 			oReport:SkipLine()
@@ -1046,10 +1070,24 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 
 			oReport:SkipLine()
 			If SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3
-				oReport:PrintText(STR0081,,050 ) //"NOTA: So aceitaremos a mercadoria se na sua Nota Fiscal constar o numero do nosso Pedido de Compras."
+				//oReport:PrintText(STR0081,,050 ) //"NOTA: So aceitaremos a mercadoria se na sua Nota Fiscal constar o numero do nosso Pedido de Compras."
+				oReport:Say(oReport:Row() , 25, STR0081, oFont10N)
 			Else
-				oReport:PrintText(STR0083,,050 ) //"NOTA: So aceitaremos a mercadoria se na sua Nota Fiscal constar o numero da Autorizacao de Entrega."
+				//oReport:PrintText(STR0083,,050 ) //"NOTA: So aceitaremos a mercadoria se na sua Nota Fiscal constar o numero da Autorizacao de Entrega."
+				oReport:Say(oReport:Row() , 25, STR0083, oFont10N)
 			EndIf
+			// BK
+			//oReport:PrintText("",,050 )
+			//oReport:PrintText("Informamos que nossos fornecedores são avaliados conforme procedimentos internos, considerando os quesitos: valor 25%, qualidade 25%, prazo 25% e integridade 25%.",,050)
+			//oReport:PrintText("Considera-se satisfatório índice >= 75%",,050 )
+
+			oReport:SkipLine()
+			oReport:SkipLine()
+			oReport:Say(oReport:Row() , 25, "Informamos que nossos fornecedores são avaliados conforme procedimentos internos, considerando os quesitos: valor 25%, qualidade 25%,", oFont10N)
+			oReport:SkipLine()
+			oReport:Say(oReport:Row()+5, 25, "prazo 25% e integridade 25%. Considera-se satisfatório índice >= 75%", oFont10N)
+
+
 		EndIf
 		
 	Next nVias
@@ -1593,7 +1631,8 @@ While !Eof() .And. C7_FILIAL = xFilial("SC7") .And. C7_NUM >= mv_par01 .And. ;
 			If !EMPTY(SC7->C7_OBS) .And. nLinObs < 5
 				nLinObs++
 				cVar:="cObs"+StrZero(nLinObs,2)
-				Eval(MemVarBlock(cVar),SC7->C7_OBS)
+				//Eval(MemVarBlock(cVar),SC7->C7_OBS)
+				Eval(MemVarBlock(cVar),"Item "+SC7->C7_ITEM + ": "+ SC7->C7_OBS)
 			Endif
 			lImpri  := .T.
 			dbSkip()
@@ -1890,7 +1929,8 @@ While !Eof().And.C7_FILIAL = xFilial("SC7") .And. C7_NUM >= mv_par01 .And. C7_NU
 			If !EMPTY(SC7->C7_OBS) .And. nLinObs < 5
 				nLinObs++
 				cVar:="cObs"+StrZero(nLinObs,2)
-				Eval(MemVarBlock(cVar),SC7->C7_OBS)
+				//Eval(MemVarBlock(cVar),SC7->C7_OBS)
+				Eval(MemVarBlock(cVar),"Item "+SC7->C7_ITEM + ": "+ SC7->C7_OBS)
 			Endif
 			lImpri  := .T.
 			dbSelectArea("SC7")
