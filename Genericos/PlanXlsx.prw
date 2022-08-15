@@ -998,7 +998,7 @@ oPrtXlsx:Activate(cFileR, oFileW)
 FOR nPl := 1 TO LEN(_aPlans)
 
 	_aDados  := _aPlans[nPl,01]
-	_cPlan   := _aPlans[nPl,02]
+	_cPlan   := STRTRAN(_aPlans[nPl,02],"/","-")
 	_xTitulos:= _aPlans[nPl,03] 
 	_aCabs   := _aPlans[nPl,04]
 	_aImpr   := _aPlans[nPl,05]

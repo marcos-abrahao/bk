@@ -383,7 +383,7 @@
 		#define STR0121 "C.C."
 		#define STR0122 "S.C."
 		#define STR0123 If( cPaisLoc $ "ANG|PTG", "Nr.SC", "Nro.SC" )
-		#define STR0124 If( cPaisLoc $ "COL|ANG|PTG", "CNPJ/CPF:", If( cPaisLoc == "MEX", "CNPJ/CPF", "CNPJ/CPF" ) )
+		#define STR0124 If( cPaisLoc $ "COL|ANG|PTG", "CNPJ/CPF:", If( cPaisLoc == "MEX", "CNPJ/CPF:", "CNPJ/CPF:" ) )
 		#define STR0125 "O pedido de compras chegou ao seu limite de reemissões."
 		#define STR0126 "Reimprimir 99ª emissão"
 		#define STR0127 "Voltar a 1ª emissão"

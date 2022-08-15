@@ -309,6 +309,7 @@ Local cCidcob	  := ""
 Local nLinPC2	  := 0
 Local nLinPC3	  := 0
 Local nI
+Local n93		:= 96
 Local nTamCdProd:= TamSX3("C7_PRODUTO")[1]
 Local nTamQtd   := TamSX3("C7_QUANT")[1]
 Local nTamanCorr:=148 // tamanho correto do final da linha
@@ -493,6 +494,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 		cNumSC7  := SC7->C7_NUM
 		aPedido  := {SC7->C7_FILIAL,SC7->C7_NUM,SC7->C7_EMISSAO,SC7->C7_FORNECE,SC7->C7_LOJA,SC7->C7_TIPO}
 		
+		nLinPc := oReport:Row()
 		While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7") .And. SC7->C7_NUM == cNumSC7
 			
 			If (SC7->C7_CONAPRO == "B" .And. mv_par10 == 1) .Or.;
@@ -674,12 +676,19 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			EndIf
 			
 			nPrinted ++
+			If Len(ALLTRIM(cDescPro)) > 30
+				nPrinted ++
+			EndIf
+			//If Len(ALLTRIM(cDescPro)) > 60
+			//	nPrinted ++
+			//EndIf
+
 			lImpri  := .T.
 			dbSelectArea("SC7")
 			dbSkip()
 			
 		EndDo
-		
+
 		SC7->(dbGoto(nRecnoSC7))
 		
 		If oReport:Row() > oReport:LineHeight() * 68
@@ -694,21 +703,21 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			oReport:EndPage()
 			oReport:PrintText(" ",1992 , 010 ) // Necessario para posicionar Row() para a impressao do Rodape
 			
-			oReport:Box( 280,010,oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
+			oReport:Box( 280,010,oReport:Row() + oReport:LineHeight() * ( n93 - nPrinted ) , nPageWidth )
 			
 		Else
-			oReport:Box( oReport:Row(),oReport:Col(),oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
+			oReport:Box( oReport:Row(),oReport:Col(),oReport:Row() + oReport:LineHeight() * ( n93 - nPrinted ) , nPageWidth ) // box dos produtos até o final
 		EndIf
 		
-		oReport:Box( 1990 ,010,oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
-		oReport:Box( 2080 ,010,oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
-		oReport:Box( 2200 ,010,oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
-		oReport:Box( 2320 ,010,oReport:Row() + oReport:LineHeight() * ( 93 - nPrinted ) , nPageWidth )
+		oReport:Box( 1990 ,010,oReport:Row() + oReport:LineHeight() * ( n93 - nPrinted ) , nPageWidth )
+		oReport:Box( 2080 ,010,oReport:Row() + oReport:LineHeight() * ( n93 - nPrinted ) , nPageWidth )
+		oReport:Box( 2200 ,010,oReport:Row() + oReport:LineHeight() * ( n93 - nPrinted ) , nPageWidth )
+		oReport:Box( 2320 ,010,oReport:Row() + oReport:LineHeight() * ( n93 - nPrinted ) , nPageWidth )
 		
 		oReport:Box( 2200 , 1080 , 2320 , 1400 ) // Box da Data de Emissao
 		oReport:Box( 2320 ,  010 , 2406 , 1080 ) // Box do Reajuste -> BK: Status do Pedido
 		oReport:Box( 2320 , 1080 , 2406 , 1750 ) // BK: Box da Obs Frete
-		//oReport:Box( 2320 , 1400 , 2460 , 1750 ) // Box do IPI e do Frete
+		//xxoReport:Box( 2320 , 1400 , 2460 , 1750 ) // Box do IPI e do Frete
 		oReport:Box( 2320 , 1750 , 2700 , nPageWidth ) // Box do ICMS Despesas e Seguro
 		oReport:Box( 2406 ,  010 , 2700 , 1750 ) // Box das Observacoes
 
@@ -941,14 +950,14 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 		oReport:PrintText( STR0076 + Transform(xMoeda(nTotSeguro,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotSeguro,14,MsDecimais(MV_PAR12))) ,nLinPC, 1815 ) // "SEGURO   :"
 		oReport:SkipLine()
 
-
 		oReport:PrintText(cObs04,,050 )
 		oReport:PrintText(cObs05,,050 )
 		oReport:PrintText(cObs06,,050 )
 
 		nLinPC := oReport:Row()
-		If !lNewAlc
+		//If !lNewAlc
 			oReport:PrintText( STR0078 + Transform(xMoeda(nTotalNF,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotalNF,14,MsDecimais(MV_PAR12))) ,nLinPC,1774 ) //"Total Geral :"
+		/*
 		Else
 			If lLiber
 				oReport:PrintText( STR0078 + Transform(xMoeda(nTotalNF,SC7->C7_MOEDA,MV_PAR12,SC7->C7_DATPRF,MsDecimais(SC7->C7_MOEDA),nTxMoeda) , tm(nTotalNF,14,MsDecimais(MV_PAR12))) ,nLinPC,1774 )
@@ -956,14 +965,15 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 				oReport:PrintText( STR0078 + If((SC7->C7_TIPO == 1 .OR. SC7->C7_TIPO == 3),STR0051,STR0086) ,nLinPC,1390 )
 			EndIf
 		EndIf
-		oReport:SkipLine()
+		*/
 
+		oReport:SkipLine()
 
 		nLinPC3 := oReport:Row()
 //		oReport:PrintText(cObs07,,050 )
 //		oReport:PrintText(cObs08,,050 )
 
-		nPos2Obs := 850
+		nPos2Obs := 905
 		oReport:PrintText(cObs07,nLinPC2,nPos2Obs )
 		oReport:SkipLine()
 		oReport:PrintText(cObs08,,nPos2Obs )
@@ -986,6 +996,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			ENDIF
 		NEXT
 
+		/*
 		If !lNewAlc
 			
 			oReport:Box( 2700 , 0010 , 3020 , 0400 )
@@ -1035,9 +1046,10 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			EndIf
 			
 		Else
-			
+		*/	
 			//oReport:Box( 2570 , 1400 , 2700 , 1820 )
 			//oReport:Box( 2570 , 1820 , 2700 , nPageWidth )
+
 			oReport:Box( 2700 , 0010 , 3020 , nPageWidth )
 			oReport:Box( 2970 , 0010 , 3020 , 1340 )
 			
@@ -1083,12 +1095,12 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 
 			oReport:SkipLine()
 			oReport:SkipLine()
-			oReport:Say(oReport:Row() , 25, "Informamos que nossos fornecedores são avaliados conforme procedimentos internos, considerando os quesitos: valor 25%, qualidade 25%,", oFont10N)
+			oReport:Say(oReport:Row() , 25, "Informamos que nossos fornecedores são avaliados conforme procedimentos internos, considerando os quesitos: valor 25%,", oFont10N)
 			oReport:SkipLine()
-			oReport:Say(oReport:Row()+5, 25, "prazo 25% e integridade 25%. Considera-se satisfatório índice >= 75%", oFont10N)
+			oReport:Say(oReport:Row()+5, 25, "qualidade 25%, prazo 25% e integridade 25%. Considera-se satisfatório índice >= 75%", oFont10N)
 
 
-		EndIf
+		//EndIf
 		
 	Next nVias
 	
@@ -1250,12 +1262,12 @@ EndIf
             
 nLinPC := oReport:Row()
 oReport:PrintText(STR0089 + Trans(SM0->M0_CEPENT,PesqPict("SA2","A2_CEP"))+Space(2)+STR0090 + "  " + RTRIM(SM0->M0_CIDENT) + " " + STR0091 + SM0->M0_ESTENT ,nLinPC,15)
-oReport:PrintText(STR0110+Left(SA2->A2_MUN, 30)+" "+STR0111+SA2->A2_EST+" "+STR0112+SA2->A2_CEP+" "+STR0124+":"+cCGC,nLinPC,1025)
+oReport:PrintText(STR0110+Alltrim(SA2->A2_MUN)+"-"+SA2->A2_EST+" - "+STR0112+SA2->A2_CEP,nLinPC,1025)
 oReport:SkipLine()
 
 nLinPC := oReport:Row()
 oReport:PrintText(STR0092 + SM0->M0_TEL + Space(2) + STR0093 + SM0->M0_FAX ,nLinPC,15)
-oReport:PrintText(STR0094 + "("+Substr(SA2->A2_DDD,1,3)+") "+Substr(SA2->A2_TEL,1,15) + " "+STR0114+"("+Substr(SA2->A2_DDD,1,3)+") "+SubStr(SA2->A2_FAX,1,15)+" "+If( cPaisLoc$"ARG|POR|EUA",space(11) , STR0095 )+If( cPaisLoc$"ARG|POR|EUA",space(18), SA2->A2_INSCR ),nLinPC,1025)
+oReport:PrintText(STR0094 + "("+Substr(SA2->A2_DDD,1,3)+") "+Substr(SA2->A2_TEL,1,15) + " "+STR0114+"("+Substr(SA2->A2_DDD,1,3)+") "+SubStr(SA2->A2_FAX,1,15),nLinPC,1025)
 oReport:SkipLine()
 
 nLinPC := oReport:Row()
@@ -1263,6 +1275,9 @@ oReport:PrintText(STR0124 + Transform(SM0->M0_CGC,PesqPict("SA2","A2_CGC")) ,nLi
 If cPaisLoc == "BRA"
 	oReport:PrintText(Space(2) + STR0041 + InscrEst() ,nLinPC,415)
 Endif
+oReport:PrintText(STR0124+cCGC,nLinPC,1025)
+oReport:PrintText(STR0095+SA2->A2_INSCR,nLinPC,1025+400)
+
 oReport:SkipLine()
 oReport:SkipLine()
 

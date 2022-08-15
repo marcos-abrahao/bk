@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"30/06/2022 API "
+#DEFINE FIN_LAST_UPDATED 		"10/08/2022 SE2 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -181,7 +181,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenDic( @cTexto ) 
 
-			AtuGenPar( @cTexto )   // 30/06/22 - API Carol
+			//AtuGenPar( @cTexto )   // 30/06/22 - API Carol
 
 			//VerGenPar( @cTexto )  
 
@@ -191,7 +191,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			//AtuGenX3( @cTexto )    // 28/06/22
+			AtuGenX3( @cTexto )    // 28/06/22
 
 			//AtuGenP12( @cTexto )
 
@@ -1618,17 +1618,32 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Manutenção SX3 X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
-cTexto  += "28/08/22 - SE2 " + CRLF 
-APPEND FROM \tmp\sx3e2e.dtc
-X31UPDTABLE("SE2")
 
+cTexto  += "10/08/22 - SE2 " + CRLF 
+dbSetOrder( 2 )
+If SX3->( dbSeek( "E2_XEAMOR" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_TITULO := "Principal"
+	SX3->X3_TITSPA := "Principal"
+	SX3->X3_TITENG := "Principal"
+	SX3->X3_DESCRIC:= "Vl Principal Emprestimo"
+	SX3->X3_DESCSPA:= "Vl Principal Emprestimo"
+	SX3->X3_DESCENG:= "Vl Principal Emprestimo"
+	dbCommit()
+	MsUnLock()
+EndIf
 dbSetOrder( 1 )
 
 Return
 
 
 /*
-dbSelectArea( "SX3" )
+
+cTexto  += "28/06/22 - SE2 " + CRLF 
+APPEND FROM \tmp\sx3e2e.dtc
+X31UPDTABLE("SE2")
+
+
 cTexto  += "27/05/22 - SC5 P " + CRLF 
 APPEND FROM \tmp\sx3c5parc.dtc
 X31UPDTABLE("SC5")
@@ -2752,7 +2767,7 @@ If SX3->( dbSeek( "A1_RECIRRF" ) )
 	dbCommit()
 	MsUnLock()
 EndIf
-*/
+
 
 // 05/05/2020
 If SX3->( dbSeek( "A1_RECINSS" ) )
@@ -2804,7 +2819,7 @@ If SX3->( dbSeek( "A2_RECISS" ) )
 	MsUnLock()
 EndIf
 
-/*
+
 dbSelectArea( "SXB" )
 APPEND FROM \sxbszu.dtc
 */

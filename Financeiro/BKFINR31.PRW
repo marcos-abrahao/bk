@@ -64,6 +64,10 @@ aAdd(aCabec,"Baixa")
 aAdd(aCabec,"Valor")
 aAdd(aCabec,"Valor Pago")
 aAdd(aCabec,"Saldo em aberto")
+aAdd(aCabec,"Principal")
+aAdd(aCabec,"Juros")
+aAdd(aCabec,"IOF")
+aAdd(aCabec,"Taxas Bancárias")
 
 For nI := 1 TO Len(aDados)
 	AADD(aPlans,{aDados[nI,2],aDados[nI,1],"Empréstimos Bancários",aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })   
@@ -91,6 +95,11 @@ cQuery += "  ,E2_BAIXA" + CRLF
 cQuery += "  ,E2_VALOR" + CRLF
 cQuery += "  ,E2_VALOR - E2_SALDO + E2_SDACRES - E2_SDDECRE AS E2VALPG" + CRLF
 cQuery += "  ,E2_SALDO + E2_SDACRES - E2_SDDECRE AS E2SALDO" + CRLF
+cQuery += "  ,E2_XEAMOR" + CRLF
+cQuery += "  ,E2_XEJUR" + CRLF
+cQuery += "  ,E2_XEIOF" + CRLF
+cQuery += "  ,E2_XETBANC" + CRLF
+
 cQuery += " FROM "+RETSQLNAME("SE2")+ " SE2 " + CRLF
 cQuery += " WHERE " + CRLF
 cQuery += "   SE2.D_E_L_E_T_=''" + CRLF

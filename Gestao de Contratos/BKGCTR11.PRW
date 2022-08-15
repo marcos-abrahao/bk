@@ -41,19 +41,17 @@ User Function BKGCTR11(lJob)
 	Private nPeriodo    := 1
 	Private nPlan       := 1
 	Private cContrato   := ""
+	Private cParAnoMes  := ""
 	Private aPeriodo    := {}
 	Private aAnoMes     := {}
 	Private aAcrDcr 	:= {}
 	Private cLastE2     := ""
 	Private lPRat		:= .T.
 
-
 	Private nTamCodGct	:= 9
 	Private nTamCodigo	:= 16
 
 	Private cCtrCons    := ""
-	Private cCodEve     := ""
-	Private cPCodEve    := ""
 
 	Private nMImpContr  := 0
 	Private nTaxaAdm    := 0
@@ -124,11 +122,15 @@ User Function BKGCTR11(lJob)
 
 	IF !lJob
 		cContrato  	:= mv_par01
+		cParAnoMes  := mv_par07
+		If Val(Substr(cParAnoMes,1,4)) < 2008 .OR. VAL(SUBSTR(cParAnoMes,5,2)) < 0 .OR. VAL(SUBSTR(cParAnoMes,5,2)) > 12
+			cParAnoMes  := ""
+		EndIf
 	ELSE
 		cContrato  	:= ""
+		cParAnoMes  := ""
 		u_xxConOut("INFO","BKGCTR11","Inicio do processamento: Rentabilidade dos Contratos")
 	ENDIF
-
 
 	nMImpContr 	:= VAL(aMImpContr[1,2])// mv_par02
 	nEncargos  	:= U_MVXENCAP()        // BK 37.1328 BK TER 8
@@ -202,97 +204,103 @@ User Function BKGCTR11(lJob)
 		Return Nil
 	ENDIF
 
-
-	IF !EMPTY(cContrato)
-		cQuery := "SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC,CN9_REVISA,"+CRLF
-		cQuery += " MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
-		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
-		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
-		cQuery += "    AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
-		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
-		cQuery += "    AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
-		cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC"+CRLF
-		cQuery += " ORDER BY CN9_REVISA DESC"+CRLF
-	ELSE
-		cContrCons := ""
-		For IX:= 1 TO LEN(aConsorcio)
-			cContrCons += "'"+ALLTRIM(aConsorcio[IX,1])+"',"
-		NEXT
-		cQuery := " SELECT MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC,"+CRLF
-		cQuery += " MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
-		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
-		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
-		cQuery += "    AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
-		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
-		cQuery += "    AND CN9_SITUAC = '05'"+CRLF
-		IF !lConsorcio
-			IF !EMPTY(cContrCons)
-				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF
-			ENDIF
-		ENDIF
-		IF !lJob
-			IF !lFurnas
-				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
-			ENDIF
+	If !Empty(cParAnoMes)
+		dDataI := CTOD('01/'+SUBSTR(cParAnoMes,5,2)+'/'+SUBSTR(cParAnoMes,1,4))
+		dDataFinal := LastDay(dDataI)
+	Else
+		IF !EMPTY(cContrato)
+			cQuery := "SELECT TOP 1 MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC,CN9_REVISA,"+CRLF
+			cQuery += " MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
+			cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+			cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+			cQuery += "    AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+			cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+			cQuery += "    AND CNF_CONTRA ='"+ALLTRIM(cContrato)+"'"+CRLF
+			cQuery += " GROUP BY CN9_REVISA,CN9_SITUAC"+CRLF
+			cQuery += " ORDER BY CN9_REVISA DESC"+CRLF
 		ELSE
-			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' "+CRLF //IPT
-			//cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '049' "
-			cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "+CRLF
-			cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "+CRLF
-			cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"+CRLF
-			cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"+CRLF
-			cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')"+CRLF
-			IF SM0->M0_CODIGO <> "14"
-				cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
+			cContrCons := ""
+			For IX:= 1 TO LEN(aConsorcio)
+				cContrCons += "'"+ALLTRIM(aConsorcio[IX,1])+"',"
+			NEXT
+			cQuery := " SELECT MIN(CN9_DTOSER) AS CN9_DTOSER,MIN(CN9_DTINIC) AS CN9_DTINIC,MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,CN9_SITUAC,"+CRLF
+			cQuery += " MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
+			cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
+			cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
+			cQuery += "    AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
+			cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
+			cQuery += "    AND CN9_SITUAC = '05'"+CRLF
+			IF !lConsorcio
+				IF !EMPTY(cContrCons)
+					cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") "+CRLF
+				ENDIF
 			ENDIF
+			IF !lJob
+				IF !lFurnas
+					cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391'"+CRLF
+				ENDIF
+			ELSE
+				cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '008' "+CRLF //IPT
+				//cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '049' "
+				cQuery += " AND SUBSTRING(CNF_CONTRA,1,3) <> '258' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '247' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '381' AND SUBSTRING(CNF_CONTRA,7,3) <> '391' "+CRLF //FURNAS
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '438' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '425' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '455' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '467' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '507' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '510' "+CRLF
+				cQuery += " AND SUBSTRING(CNF_CONTRA,7,3) <> '521' "+CRLF
+				cQuery += " AND CNF_CONTRA NOT IN ('193000288','194000289','195000290','196000291')"+CRLF
+				cQuery += " AND CNF_CONTRA NOT IN ('197000292','198000293','199000294')"+CRLF
+				cQuery += " AND CNF_CONTRA NOT IN ('197001292','198001293','199001294')"+CRLF
+				IF SM0->M0_CODIGO <> "14"
+					cQuery += " AND CNF_CONTRA NOT IN ('302000508')"+CRLF
+				ENDIF
+			ENDIF
+
+			cQuery += " GROUP BY CN9_SITUAC"+CRLF
 		ENDIF
 
-		cQuery += " GROUP BY CN9_SITUAC"+CRLF
-	ENDIF
+		u_LogMemo("BKGCTR11.SQL",cQuery)
 
-	u_LogMemo("BKGCTR11.SQL",cQuery)
+		TCQUERY cQuery NEW ALIAS "QTMP1"
+		TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)
+		TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)
+		TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)
+		TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)
 
-	TCQUERY cQuery NEW ALIAS "QTMP1"
-	TCSETFIELD("QTMP1","CNF_INICIO","D",8,0)
-	TCSETFIELD("QTMP1","CNF_FIM"   ,"D",8,0)
-	TCSETFIELD("QTMP1","CN9_DTINIC","D",8,0)
-	TCSETFIELD("QTMP1","CN9_DTOSER","D",8,0)
+		dbSelectArea("QTMP1")
+	//dDataI		:= QTMP1->CNF_INICIO
+		dDataI		:= QTMP1->CN9_DTOSER
+		If Empty(dDataI)
+			dDataI	:= QTMP1->CN9_DTINIC
+		EndIf
+		If !Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI
+			dDataI	:= QTMP1->CNF_INICIO
+		EndIf
 
-	dbSelectArea("QTMP1")
-//dDataI		:= QTMP1->CNF_INICIO
-	dDataI		:= QTMP1->CN9_DTOSER
-	If Empty(dDataI)
-		dDataI	:= QTMP1->CN9_DTINIC
+		dDataFinal	:= QTMP1->CNF_FIM
+		dMaxCompet  := STOD(QTMP1->MAXCOMPET)
+		If dMaxCompet > dDataFinal
+			dDataFinal := LastDay(dMaxCompet)
+		EndIf
+
+
+		QTMP1->(Dbclosearea())
+
+		IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
+			MSGSTOP("Contrato não encontrado!!")
+			RETURN NIL
+		ENDIF
+
+	// Voltar 1 mes
+		dDataI := dDataI - Day(dDataI)
+		dDataI := dDataI - Day(dDataI)+1
+ 
 	EndIf
-	If !Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI
-		dDataI	:= QTMP1->CNF_INICIO
-	EndIf
 
-	dDataFinal	:= QTMP1->CNF_FIM
-	dMaxCompet  := STOD(QTMP1->MAXCOMPET)
-	If dMaxCompet > dDataFinal
-		dDataFinal := LastDay(dMaxCompet)
-	EndIf
-
-
-	QTMP1->(Dbclosearea())
-
-	IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
-		MSGSTOP("Contrato não encontrado!!")
-		RETURN NIL
-	ENDIF
-
-// Voltar 1 mes
-	dDataI := dDataI - Day(dDataI)
-	dDataI := dDataI - Day(dDataI)+1
 
 //Determina quantos Meses utilizar no calculo
 	nPeriodo += DateDiffMonth( dDataI , dDataFinal )
@@ -696,7 +704,9 @@ Static Function ProcBKGCTR11(lJob)
 	Local cJSD2SC6	:= FWJoinFilial("SD2", "SC6")
 //Local cJSF2SC6	:= FWJoinFilial("SF2", "SC6")
 //Local cJSB1SC6:= FWJoinFilial("SB1", "SC6")
-	Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
+	Local cRevAtu   := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
+	Local cCodEve   := ""
+	Local cPCodEve  := ""
 
 	LimpaBrw ("TRB")
 	LimpaBrw (ALIAS_TMP)
@@ -1571,7 +1581,7 @@ NEXT _IXFUR
 
 //IncProc("Consultando Folha Pagamento...")
 //*********Folha Pagamento
-cQuery2 := "select bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
+cQuery2 := "SELECT bk_senior.bk_senior.R046VER.CodEve AS CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
 cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
 
 nScan:= 0
@@ -1606,38 +1616,54 @@ IF nScan > 0
 	cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
 	cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 ELSE
-	cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SM0->M0_CODIGO+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
+	cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
 	cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
-	cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+	If cEmpAnt <> '14'
+		cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+	EndIf
 ENDIF
 
-cQuery2 += " group by bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
+cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
+cQuery2 += " ORDER BY bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
 
 u_LogMemo("BKGCTR11-FOL-"+cVarLog+".SQL",cQuery2)
 
 TCQUERY cQuery2 NEW ALIAS "TMPX2"
+TCSETFIELD("TMPX2","CodEve","N",5,0)
 
 nProventos := 0
 nCusto     := 0
 nXXPLR	   := 0
 dbSelectArea("TMPX2")
 dbGoTop()
+
+
+//If SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2) = '202205'
+//	x:= 0
+//EndIf
 DO While !TMPX2->(EOF())
 
 	cCtrCons := IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
 	cCodEve  := ALLTRIM(STR(TMPX2->CodEve))
 	cPCodEve := "|"+cCodEve+"|"
-
+	lFolha   := .F.
+	//If cCodEve == '2' .or. cCodEve == '270'
+	//	x:=0 
+	//EndIf
 	IF cPCodEve $ cProventos
 		nProventos += TMPX2->valevent
 		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"01-Proventos",TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 	IF cPCodEve $ cDescontos
 		nProventos -= TMPX2->valevent
 		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"02-Descontos",-TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 	IF cPCodEve $ cXXPLR
 		nXXPLR += TMPX2->valevent
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"04-PLR",TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cVT_Prov
@@ -1649,6 +1675,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += TMPX2->valevent
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"12-VT Prov",TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve  $ cVT_Verb
@@ -1660,6 +1688,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += (TMPX2->valevent *-1)
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"13-VT Verba",-TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cVRVA_Verb
@@ -1671,6 +1701,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += (TMPX2->valevent *-1)
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"15-VRVA Verba",-TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cASSM_Prod
@@ -1682,6 +1714,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += TMPX2->valevent
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"16-Ass Med Prod",TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cASSM_Verb
@@ -1693,6 +1727,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += (TMPX2->valevent *-1)
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"17-Ass Med Verba",-TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cSINO_Prod
@@ -1704,6 +1740,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += IIF(TMPX2->VALASSOD<>0,TMPX2->VALASSOD * TMPX2->nCont,TMPX2->VALEVENT )
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"18-Sind Odonto",TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cSINO_Verb
@@ -1715,6 +1753,8 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += (TMPX2->valevent *-1)
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"19-Sind Odonto Verba",-TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cCCRE_Verb
@@ -1726,10 +1766,11 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += (TMPX2->valevent *-1)
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"21-CCRE",-TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
 
 	IF cPCodEve $ cNINC_Verb
-		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"03-Sem Encargos/Incidencias",TMPX2->valevent,_nI)
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'111',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1738,9 +1779,12 @@ DO While !TMPX2->(EOF())
 			(ALIAS_TMP)->(Msunlock())
 			nCusto += (TMPX2->valevent)
 		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"03-Sem Encargos/Incidencias",TMPX2->valevent,_nI)
+		lFolha   := .T.
 	ENDIF
-
-
+	If !lFolha
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"XX-Evento Não considerado",TMPX2->valevent,_nI)
+	Endif
 	dbSelectArea("TMPX2")
 	dbSkip()
 ENDDO
@@ -1896,7 +1940,7 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 //*********GASTOS GERAIS
 cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" +CRLF
-cQuery2 += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
+cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
 cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
@@ -1919,8 +1963,8 @@ cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DES
 
 cQuery2 += " UNION ALL"+CRLF
 cQuery2 += " SELECT D3_FILIAL,MAX(' '),MAX(' '),MAX(' '),MAX(' '),D3_COD,B1_DESC,B1_GRUPO,D3_CC,SUM(D3_CUSTO1) FROM "+RETSQLNAME("SD3")+" SD3"+CRLF
-cQuery2 += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
-cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+SM0->M0_CODIGO+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
+cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+cEmpAnt+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 
 // 19/11/2021 - Contas alteradas de 113 para 121
@@ -2215,7 +2259,7 @@ IF nScan > 0
 	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 	cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1"+CRLF
 	//cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,2])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''"+CRLF
-	cQuery2 += " INNER LEFT SB1"+ALLTRIM(aConsorcio[nScan,2])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
+	cQuery2 += " INNER JOIN SB1"+ALLTRIM(aConsorcio[nScan,2])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
 	//cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,2])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"+CRLF
 	cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 	//cQuery2 += " AND D1_CC = '000000001'"
@@ -4358,7 +4402,7 @@ Static Function AtualizaCC()
 Return
 
 
-Static Function  ValidPerg
+Static Function ValidPerg
 	Local i		:= 0
 	Local j		:= 0
 	Local aArea	:= GetArea()
@@ -4376,6 +4420,7 @@ Static Function  ValidPerg
 	AADD(aRegs,{cPerg,"04","%Encargos Autonomos:","%Encargos Autonomos:" ,"%Encargos Autonomos:" ,"mv_ch4","N",10,5,2,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H4."})
 	AADD(aRegs,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"mv_ch5","N",10,5,2,"G","NaoVazio()","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H5."})
 	AADD(aRegs,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H6."})
+	AADD(aRegs,{cPerg,"07","Ano/Mes somente (AAAAMM):","Ano/Mes somente (AAAAMM):" ,"Ano/Mes somente (AAAAMM):" ,"mv_ch7","C",06,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H7."})
 
 	For i:=1 to Len(aRegs)
 		If !MsSeek(cPerg+aRegs[i,2])
@@ -5374,8 +5419,8 @@ RETURN cCmpDesc
 User FUNCTION GCT11FOL()
 	Local aPlans  := {}
 
-	AADD(aPlans,{ALIAS_FOL,TRIM(cPerg),"","Detalhes FP: "+titulo,aCampos3,aCabs3,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	U_GeraXml(aPlans,"Detalhes FP: "+titulo,TRIM(cPerg),.F.)
+	AADD(aPlans,{ALIAS_FOL,TRIM(cPerg)+"-FOLHA","",{"Detalhes Folha: "+titulo},aCampos3,aCabs3,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+	U_PlanXlsx(aPlans,"",TRIM(cPerg)+"-FOLHA", lClose:= .F.,)
 
 Return
 
@@ -5388,19 +5433,19 @@ Static Function UpdTmpFol(lJob,cContrato,cEvento,cDesc,cTipo,nValor,_nI)
 	If !lJob
 		aArea3 := GetArea()
 		dbSelectArea(ALIAS_FOL)
-		If !MsSeek(cContrato+PAD(cTipo,25)+cEvento,.F.)
+		//If !MsSeek(cContrato+PAD(cTipo,25)+cEvento,.F.)
 			Reclock(ALIAS_FOL,.T.)
 			(ALIAS_FOL)->YY_CODGCT := cContrato
-			(ALIAS_FOL)->YY_CODIGO := cEvento
+			(ALIAS_FOL)->YY_CODIGO := STRZERO(VAL(cEvento),4)
 			(ALIAS_FOL)->YY_DESC   := cDesc
 			(ALIAS_FOL)->YY_TIPO   := cTipo
 			cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
 			&cCampo3 := nValor
-		Else
-			Reclock(ALIAS_FOL,.F.)
-			cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
-			&cCampo3 += nValor
-		EndIf
+		//Else
+		//	Reclock(ALIAS_FOL,.F.)
+		//	cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
+		//	&cCampo3 += nValor
+		//EndIf
 		(ALIAS_FOL)->(Msunlock())
 		RestArea(aArea3)
 	EndIf

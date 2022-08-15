@@ -1417,7 +1417,7 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "     A2_NOME,"+CRLF
   	cQuery += "     '0001'     AS D1_ITEM, " + CRLF
   	cQuery += "     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, " + CRLF
-	cQuery += "     ' '        AS D1_XXHIST, " + CRLF
+	cQuery += "     E5_HISTOR  AS D1_XXHIST, " + CRLF
   	cQuery += "     CT1_DESC01 AS B1_DESC, " + CRLF
   	cQuery += "     ' '        AS B1_GRUPO, " + CRLF
   	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, " + CRLF
@@ -1487,9 +1487,9 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )" + CRLF
 	cQuery += "      AND E5_SITUACA <> 'C' " + CRLF
 	cQuery += "      AND (E5_CCC <> ' ' OR E5_CCD <> '  ') " + CRLF
-	If cEmpresa <> '14' .AND. cEmpresa <> '15'
+	//If cEmpresa <> '14' .AND. cEmpresa <> '15'
 		cQuery += "      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') " + CRLF
-	EndIf
+	///EndIf
 
 	// Despesas advindas da integração Rubi Microsiga
 	// CLT
