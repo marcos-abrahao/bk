@@ -54,7 +54,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_LogPrw(cPerg)
+u_LogPrw(cPerg,"Venc: "+DTOC(mv_par01) + " - Banco "+mv_par02)
 
 dData  	 := mv_par01
 cSEE	 := ALLTRIM(mv_par02) //aBancos[mv_par02]
@@ -171,7 +171,7 @@ If ( lOk )
 	aTit1Ger := {}
 	aErros  := {}
 	For nI:=1 To Len(aCtrId)
-	    //Relugarização momentânia numero de CPF para IPT - Definitivo a partir de 01/10/12 - JA ESTA OK  
+	    //Regularização momentânia numero de CPF para IPT - Definitivo a partir de 01/10/12 - JA ESTA OK  
 		IF aCtrId[nI,1]
 			cQuery  := " SELECT Z2_CTRID,Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_E2TIPO,Z2_PRONT,Z2_NOME,Z2_VALOR,Z2_DATAPGT,Z2_TIPO,Z2_NOMDEP,Z2_NOMMAE,"
 			cQuery  += " Z2_CODEMP,Z2_TIPOPES,Z2_BANCO,Z2_AGENCIA,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_CPF,Z2_USUARIO,Z2_HORALIB,Z2_BORDERO,SZ2.R_E_C_N_O_ AS REC "
@@ -274,8 +274,9 @@ Local nI
 Local aTipoPes  := {"CLT","PJ"}
 Local nTipoPes  := 0
 Local cTipoPes  := ""
-
-PRIVATE aBordero := {} 
+Local lTitBor   := .T.
+Local nLimAvCLT := U_LimAvCLT()
+Private aBordero  := {} 
 
 AADD(aTPCNAB,{"LPMA/COM/LPM","PGTOSAL"})
 AADD(aTPCNAB,{"LFE","FERIAS"})
@@ -364,9 +365,21 @@ If ( lOk )
 			lTit := .F.
 			FOR nI := 1 TO LEN(aBordero)
 				IF aBordero[nI,1] .AND. ALLTRIM(aBordero[nI,7]) $ aTPCNAB[nTPCNAB,1] .AND. TRIM(aBordero[nI,22]) == cTipoPes
-					AADD(aTit,{aBordero[nI,2],aBordero[nI,3],aBordero[nI,4],aBordero[nI,5],aBordero[nI,6],aBordero[nI,7],aBordero[nI,8],aBordero[nI,9],aBordero[nI,10],aBordero[nI,11],aBordero[nI,12],aBordero[nI,13],aBordero[nI,14],aBordero[nI,15],aBordero[nI,16],aBordero[nI,17],aBordero[nI,18],aBordero[nI,19],aBordero[nI,20],aBordero[nI,21],,aBordero[nI,22]})
-					lTit := .T.
-					nBordero++
+					// Anderson solicitou aviso de pagamento acima de 15.000,00 em 04/08/22
+					lTitBor := .T.
+					If aBordero[nI,5] > nLimAvCLT .AND. aBordero[nI,22] == "CLT"
+						If !MsgYesNo("ATENÇÃO: Pagamento para "+ALLTRIM(aBordero[nI,4])+" acima de "+ALLTRIM(STR(nLimAvCLT,14,2))+", confirma?", "BKFINA14")
+							lTitBor := .F.
+							aBordero[nI,1] := .F.
+						Else
+							u_LogPrw(cPerg,"Pagamento para "+ALLTRIM(aBordero[nI,4])+" acima de "+ALLTRIM(STR(nLimAvCLT,14,2))+" foi confirmado")
+						EndIf
+					EndIf
+					If lTitBor
+						AADD(aTit,{aBordero[nI,2],aBordero[nI,3],aBordero[nI,4],aBordero[nI,5],aBordero[nI,6],aBordero[nI,7],aBordero[nI,8],aBordero[nI,9],aBordero[nI,10],aBordero[nI,11],aBordero[nI,12],aBordero[nI,13],aBordero[nI,14],aBordero[nI,15],aBordero[nI,16],aBordero[nI,17],aBordero[nI,18],aBordero[nI,19],aBordero[nI,20],aBordero[nI,21],,aBordero[nI,22]})
+						lTit := .T.
+						nBordero++
+					EndIf
 				ENDIF
 			NEXT nI 
 			IF lTit
@@ -427,12 +440,15 @@ IF !EMPTY(cBordero)
 		lOk := .F.
 	ENDIF
 ELSE
+
+
 	IF lTit
   		lOk := .F.
 	ENDIF
 ENDIF
 
 IF lTit <> lOk
+
 	IF lOk
 		nTotal += nVal
 	ELSE
@@ -461,6 +477,7 @@ Local cNomeCom  := ""
 Local nLote 	:= 0
 Local cDirTmp2  := ALLTRIM(cDirTmp)
 Local nI
+Local cMsgLog   := ""
 
 DbSelectArea("SM0")
 
@@ -551,14 +568,10 @@ ENDIF
 
 MakeDir(cDirTmp2)
 
-
 IF nFurnas==1
 	cDirTmp2 +="\FURNAS"
 	MakeDir(cDirTmp2)
 ENDIF
-
-
-	
 
 ASORT(aTitGer,,,{|x,y| x[3]<y[3]})
 
@@ -578,9 +591,7 @@ ELSEIF cBanco = "341"
 	cArqTmp := cDirTmp2+"\IT"
 ENDIF
 
-
 cArqTmp +=STRZERO(nLote,6)
-
 
 IF File(cArqTmp+".DOC")
    If !MsgYesNo("Ja existe arquivo(s) ("+cArqTmp+".DOC) neste local, deseja sobrepor?")
@@ -1977,27 +1988,30 @@ If nHandle > 0 .OR. nHandle2 > 0
  		//Fechar Bordero
 		fClose(nHandle2)
 	ENDIF
+	
 	//Grava e Fechar Doc 
 	fWrite(nHandle,BncoTxtT)
 	fClose(nHandle)
 	cNumBor := ""
 	Processa ( {|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)})
 	
-	MSGINFO('Borderô Nº: '+cNumBor+ ' gerado com sucesso verificar na pasta   "  '+cDirTmp2+'  "    !!',cPerg)
+	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso, verifique na pasta:    "'+cDirTmp2+'"'
+	MsgInfo(cMsgLog,cPerg)
 
 ELSE
 	IF nHandle <> 0
 		//cArqTmp := cDirTmp2+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+cGrupo+"_"+cBanco+"_"+DTOS(dData)+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+"RELACAO_BANCARIA_"+cGrupo+"_"+cBanco+"_"+DTOS(dData)+".DOC"
-		MsgAlert("Falha na criação do arquivo "+cArqTmp)
+		cMsgLog := "Falha na criação do arquivo "+cArqTmp
+		MsgAlert(cMsgLog)
 	ENDIF
 	IF nHandle2 <> 0
 		//cArqTmp := cDirTmp+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+cGrupo+"_"+cBanco+"_"+DTOS(dData)+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+"REMESSA_"+cGrupo+"_"+cBanco+"_"+DTOS(dData)+".TXT"
-		MsgAlert("Falha na criação do arquivo "+cArqTmp)
+		cMsgLog := "Falha na criação do arquivo "+cArqTmp
+		MsgAlert(cMsgLog)
 	ENDIF
 ENDIF
 
-
-
+u_LogPrw(cPerg,cMsgLog)
 
 Return nil 
 

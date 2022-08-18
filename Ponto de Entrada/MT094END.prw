@@ -209,7 +209,7 @@ IF nOpcao == 4 //Era 2
          
        	u_xxLog("\LOG\MT094END.LOG","3-"+cEmail,.T.,"")        
         
-		cAssunto:= "Pedido de Compra nº.:"+alltrim(nPedido)+"   Liberado   "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Pedido de Compra nº.:"+alltrim(nPedido)+" Liberado "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		IF __cUserId $ cGerGestao+"/"+cGerCompras+"/"+cMCompras
 			AADD(aEmail,{"Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
 		ELSE
@@ -252,7 +252,7 @@ ELSEIF nOpcao == 5 // era3
     ENDIF
 	u_xxLog("\LOG\MT094END.LOG","5-"+cEmail,.T.,"")        
 
-	cAssunto:= "Pedido de Compra  nº.:"+alltrim(nPedido)+"   Bloqueado    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Pedido de Compra  nº.:"+alltrim(nPedido)+" Bloqueado "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
     AADD(aEmail,{"Bloqueado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
     AADD(aEmail,{"","","","","","","","","","","","","","","",""})
 ELSE

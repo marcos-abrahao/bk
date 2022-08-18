@@ -867,7 +867,6 @@ line-height: 1rem;
 
             <div class="col-12" id="anexos">
 				<!-- <button type="submit" class="btn btn-primary">Sign in</button> -->
-
             </div>
 
           </form>
@@ -946,7 +945,7 @@ line-height: 1rem;
 				</tr>
 				</tbody>
 				<tfoot id="c7Foot">
-				<th scope="row" colspan="14" style="text-align:right;">Total Geral</th>
+				<!-- <th scope="row" colspan="2" style="text-align:right;">Total Geral</th> -->
 				</tfoot>
 			</table>
 			</div>
@@ -955,6 +954,7 @@ line-height: 1rem;
     </div>
     <!-- Rodapé do modal-->
     <div class="modal-footer">
+        <div id="c7Geral"></div>
         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
         <div id="btnlib"></div>
     </div>
@@ -1123,7 +1123,7 @@ if (Array.isArray(documento.F1_ANEXOS)) {
 document.getElementById("anexos").innerHTML = anexos;
 
 document.getElementById("d1Table").innerHTML = itens;
-foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['F1_GERAL']+'</th>'
+foot = '<th scope="row" colspan="9" style="text-align:right;">'+documento['F1_GERAL']+'</th>'
 document.getElementById("d1Foot").innerHTML = foot;
 
 
@@ -1187,7 +1187,7 @@ function formatd ( d ) {
         '</tr>'+
         '<tr>'+
             '<td>Obs:</td>'+
-            '<td>'+d[14]+'</td>'+
+            '<td>'+d[16]+'</td>'+
         '</tr>'+
     '</table>';
 }
@@ -1294,8 +1294,19 @@ i++
     } );   
 
 
-foot = '<th scope="row" colspan="8" style="text-align:right;">'+documento['C8_GERAL']+'</th>'
-document.getElementById("c7Foot").innerHTML = foot;
+//foot = '<th scope="row" colspan="9" style="text-align:right;">'+documento['C8_GERAL']+'</th>'
+//document.getElementById("c7Foot").innerHTML = foot;
+
+//foot += '  <input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="" placeholder="Obs ou Motivo do Estorno">';
+foot =  '<th scope="row" style="text-align:left;font-weight: bold;">Total do Pedido:</th>'
+foot += '<th scope="row" style="text-align:right;font-weight: 600;">'+documento['C8_GERAL']+'</th>'
+foot += '<th scope="row" style="text-align:right;font-weight: bold;">&nbsp</th>'
+foot += '<th scope="row" style="text-align:right;font-weight: bold;">&nbsp</th>'
+foot += '<th scope="row" style="text-align:right;font-weight: bold;">&nbsp</th>'
+
+document.getElementById("c7Geral").innerHTML = foot;
+
+
 $("#titPC").text('Liberação de Pedido de Compra - Empresa: '+documento['EMPRESA'] + ' - Usuário: '+documento['USERNAME']);
 $('#pcModal').modal('show');
 $('#pcModal').on('hidden.bs.modal', function () {

@@ -38,18 +38,18 @@ Local nSaldo 	:= 0
 Local cQuery2 	:= ""
 Local _IX		as Numeric
 Local xi		as Numeric
+Local cUserC1   := ""
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual")
 
 PswOrder(1) 
-PswSeek(__CUSERID)  
+PswSeek(__cUserId)  
 aUser  := PswRet(1)
 IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
-
 
 SY1->(dbgotop())
 Do While SY1->(!eof())                                                                                                               
@@ -103,6 +103,20 @@ Do While SC1->(!eof()) .AND. SC1->C1_NUM == cNumSol
 	ENDIF 
 	IF (SC1->C1_QUANT-SC1->C1_XXQEST) > 0
     	AADD(aEmail,{SC1->C1_NUM,SC1->C1_SOLICIT,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_DATPRF,SC1->C1_OBS,SC1->C1_CC,SC1->C1_XXDCC,SC1->C1_QUJE}) //aMotivo[val(SC1->C1_XXMTCM)]})
+
+		// Marcos 16/08/22 - Enviar e-mail para o solicitante também
+		If cUserC1 <> SC1->C1_USER
+			PswOrder(1) 
+			PswSeek(SC1->C1_USER)  
+			aUser  := PswRet(1)
+			IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
+				If !ALLTRIM(aUser[1,14]) $ cEmail
+					cEmail += ALLTRIM(aUser[1,14])+';'
+				EndIf
+			ENDIF
+			cUserC1 := SC1->C1_USER
+		EndIf
+
     ENDIF
     IF SC1->C1_APROV == "B"
     	lAprov := .F.

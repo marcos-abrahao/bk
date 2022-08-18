@@ -10,6 +10,11 @@ BK - Funcoes com parâmetros embutidos no fonte
 /*/
 
 
+// Acima deste limite, irá mostrar aviso ao gerar borderô BK - BKFINA14
+User Function LimAvCLT()
+Return 15000
+
+
 // Rateio especifico por produtos ex. alugueis lançados em um unico doc de entrada
 // Rateio  Contrato  x  Produtos                       15/01/20 - Marcos
 //aRet := {{"345000529",{"320200301","000000000000102"}}}

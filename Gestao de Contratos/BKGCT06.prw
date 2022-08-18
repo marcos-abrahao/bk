@@ -77,8 +77,9 @@ IF DOW(dDataEnv) = 1 .OR. lEnvT
 	
 ENDIF
 
-u_xxConOut("INFO","V5BKGct06","Processando avisos de Insumos Operacionais")
-V5BKGct06()
+// Desabilitado em 18/08/22 - Solicitado por Bruno Bueno e Vanderleia
+//u_xxConOut("INFO","V5BKGct06","Processando avisos de Insumos Operacionais")
+//V5BKGct06()
 
 u_xxConOut("INFO","V6BKGct06","Processando avisos de Atestado de Capacidade Técnica")
 V6BKGct06()

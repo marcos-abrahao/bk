@@ -32,6 +32,7 @@ IF SM0->M0_CODIGO <> "01"
 	AADD( aRotina, {OemToAnsi("Incluir DNF na BK"),"U_BKFINA18", 0, 4 } )
 ENDIF
 AADD( aRotina, {OemToAnsi("Baixa BK - RET BANCO"),  "U_BKFINA22", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Empréstimos BK"),  "U_BKFINA31", 0, 4 } )
 
 //aRotx := aClone(aRotina)
 
