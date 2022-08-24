@@ -9,10 +9,16 @@ Local _aMyBtn := {}
 //aButtons[x][3] = Texto a ser exibido na legenda do Botao.
 //aButtons[x][4] = Texto a ser exibido abaixo do bitmap.
 
-Aadd(_aMyBtn, { "WEB", {|| U_xConsCNPJ( M->A2_CGC ) }, OemToAnsi("Consultar CNPJ junto á Receita Federal"), "CNPJ"} )
+Aadd(_aMyBtn, { "WEB", {|| U_xConsCNPJ( M->A2_CGC ) }, OemToAnsi("Receita Federal"), "CNPJ"} )
 //AADD( aRotina, {OemToAnsi("Consulta CNPJ"), "U_xConsCNPJ( M->A1_CGC )", 0, 4 } )
 
 Return _aMyBtn
 
 
-// User Function xConsCNPJ( cCNPJ ) SE ENCONTRA NO FONTE MA030BUT.PRW
+User Function xConsCNPJ( cCNPJ )
+
+Local cURL := GetNewPar( "MV_TMKURLR", "http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao2.asp" )
+
+ShellExecute("open", cURL+"?cnpj="+Alltrim(cCNPJ), "", "", 1)
+
+Return .T.

@@ -180,46 +180,50 @@ If !(cQrySF1)->(Eof())
 	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 
-Do Case
-	Case (cQrySF1)->(Eof()) 
-		cMsg:= "não encontrada"
-	Case (cQrySF1)->F1DELET = '*'
-		cMsg:= "foi excluída"
-	Case (cQrySF1)->F1_STATUS == "B"
-		cMsg:= "está bloqueada"
-	Case (cQrySF1)->F1_STATUS <> " "
-		cMsg:= "não pode ser liberada"
-	Case (cQrySF1)->F1_XXLIB $ "AN"
-		cQuery := "UPDATE "+cTabSF1
-		If acao == 'E'
-			cQuery += "  SET F1_XXLIB = 'N',"
-			cMsg := "estornada"
-			If !Empty(cMotivo)
-				cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07'
+	cMsg:= "Não é permitido liberar pré-notas entre 18h e 7h"
+Else
+	Do Case
+		Case (cQrySF1)->(Eof()) 
+			cMsg:= "não encontrada"
+		Case (cQrySF1)->F1DELET = '*'
+			cMsg:= "foi excluída"
+		Case (cQrySF1)->F1_STATUS == "B"
+			cMsg:= "está bloqueada"
+		Case (cQrySF1)->F1_STATUS <> " "
+			cMsg:= "não pode ser liberada"
+		Case (cQrySF1)->F1_XXLIB $ "AN"
+			cQuery := "UPDATE "+cTabSF1
+			If acao == 'E'
+				cQuery += "  SET F1_XXLIB = 'N',"
+				cMsg := "estornada"
+				If !Empty(cMotivo)
+					cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+				EndIf
+			Else
+				cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"',"
+				cMsg := "liberada"
+				If !Empty(cMotivo)
+					cMotivo := "Obs liberação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+				EndIf
 			EndIf
-		Else
-			cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"',"
-			cMsg := "liberada"
 			If !Empty(cMotivo)
-				cMotivo := "Obs liberação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+				cQuery += "      F1_HISTRET = CONVERT(VARBINARY(800),'"+cMotivo+"' + ISNULL(CONVERT(varchar(800),F1_HISTRET),'')),"
 			EndIf
-		EndIf
-		If !Empty(cMotivo)
-			cQuery += "      F1_HISTRET = CONVERT(VARBINARY(800),'"+cMotivo+"' + ISNULL(CONVERT(varchar(800),F1_HISTRET),'')),"
-		EndIf
-		cQuery += "      F1_XXULIB = '"+__cUserId+"',"
-		cQuery += "      F1_XXDLIB = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
-		cQuery += " FROM "+cTabSF1+" SF1"+CRLF
-		cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
+			cQuery += "      F1_XXULIB = '"+__cUserId+"',"
+			cQuery += "      F1_XXDLIB = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
+			cQuery += " FROM "+cTabSF1+" SF1"+CRLF
+			cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
 
-		If TCSQLExec(cQuery) < 0 
-			cMsg := "Erro: "+TCSQLERROR()
-		Else
-			lRet := .T.
-		EndIf
-	OtherWise 
-		cMsg:= "não pode ser liberada por motivo indefinido"
-EndCase
+			If TCSQLExec(cQuery) < 0 
+				cMsg := "Erro: "+TCSQLERROR()
+			Else
+				lRet := .T.
+			EndIf
+		OtherWise 
+			cMsg:= "não liberada por motivo indeterminado"
+	EndCase
+EndIf
 
 // Enviar e-mail de aviso do estorno
 If lRet .AND. (!Empty(cMotivo) .OR. acao == 'E')

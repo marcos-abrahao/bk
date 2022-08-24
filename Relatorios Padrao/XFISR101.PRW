@@ -36,7 +36,6 @@ Local cCKRLiv       := "*"
 Local dDtIni 		:= CtoD('01/10/2021')
 Local dDtFim		:= CtoD('31/10/2021')
 
-u_LogPrw("xFISR101")
 //IF isincallstack("FISA001")
 	
 //	IF AliasINdic('F0T')
@@ -45,6 +44,8 @@ u_LogPrw("xFISR101")
 			dPer   := MV_PAR10
 			dDtIni := MV_PAR10
 			dDtFim := MV_PAR11
+
+			u_LogPrw("xFISR101",DTOC(dDtIni)+" - "+DTOC(dDtFim))
 		
 			If lContinua
 				oReport := reportDef('FSR101', dDtIni, dDtFim, dPer, cReg, cCKRLiv, .T.)

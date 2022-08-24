@@ -53,6 +53,9 @@ If FWCodEmp() == "01"
 			ProcDSGES()
 			ProcDSGLO()
 			If SUBSTRING(TIME(),1,2) $ '06/10/12/16/18/20'
+				ProcDSCTR()
+				ProcDSPLA()
+				ProcDSCRO()
 				ProcDSGG()
 			EndIf
 			//ProcDSGLF()
@@ -76,6 +79,15 @@ If FWCodEmp() == "01"
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela CONTRATOS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSCTR() }, "", "Atualizando a tabela CONTRATOS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela PLANILHAS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSPLA() }, "", "Atualizando a tabela PLANILHAS do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela CRONOGRAMAS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSCRO() }, "", "Atualizando a tabela CRONOGRAMAS do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela FATURAMENTO do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSFAT() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
@@ -266,6 +278,8 @@ BEGINCONTENT VAR cQuery
     --AND bk_senior.bk_senior.R046VER.NumEmp='01' and 
     --AND PerRef ='20220501'
     --BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '358000567'
+
+	---AND SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) = '000'
 	)
 	SELECT 
 	EMPRESAS.NOMEEMP AS NOMEEMP,
@@ -311,7 +325,7 @@ BEGINCONTENT VAR cQuery
 	FROM FOLHA 
 	LEFT JOIN PowerBk.dbo.EMPRESAS ON FOLHA.EMPRESA = EMPRESAS.EMPRESA COLLATE Latin1_General_BIN
 	LEFT JOIN PowerBk.dbo.CCUSTOS  ON FOLHA.EMPRESA = CCUSTOS.EMPRESA AND FOLHA.CONTRATO = CCUSTOS.CCUSTO COLLATE Latin1_General_BIN
-
+	WHERE SUBSTRING(FOLHA.CONTRATO,1,3) <> '000'
 ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#PROVENTOS#",U_FBkVars(U_MVXPROVE()))
@@ -867,6 +881,392 @@ EndIf
 u_LogMemo("BKDASH01-CC.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+
+// Atualização da tabela CONTRATOS do banco de dados PowerBk
+Static Function ProcDSCTR
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrpGct()
+Local nE 		:= 0
+
+Local cTabCN9   := ""
+Local cTabSYP   := ""
+
+u_LogPrw(cPerg,"Contratos")
+ 
+cQuery := "WITH CTR AS ( " + CRLF
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabCN9 := "CN9"+cEmpresa+"0"
+	cTabSYP := "SYP"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC, " + CRLF
+	cQuery += "  SUBSTRING(CN9_NUMERO,1,9) AS CONTRATO,"+CRLF
+	cQuery += "  CN9_REVISA,"+CRLF
+	cQuery += "  CONVERT(DATE,CN9_DTREV,112) AS CN9_DTREV, "+CRLF
+	cQuery += "  CN9_SITUAC,"+CRLF
+	cQuery += "  CASE CN9_SITUAC WHEN '01' THEN 'CANCELADO' "+CRLF
+	cQuery += "                  WHEN '02' THEN 'EM ELABORAÇÃO' "+CRLF
+	cQuery += "                  WHEN '03' THEN 'EMITIDO' "+CRLF
+	cQuery += "                  WHEN '04' THEN 'EM APROVAÇÃO' "+CRLF
+	cQuery += "                  WHEN '05' THEN 'VIGENTE' "+CRLF
+	cQuery += "                  WHEN '06' THEN 'PARALISADO' "+CRLF
+	cQuery += "                  WHEN '07' THEN 'SOL. FINALIZAÇÃO' "+CRLF
+	cQuery += "                  WHEN '08' THEN 'FINALIZADO' "+CRLF
+	cQuery += "                  WHEN '09' THEN 'EM REVISÃO' "+CRLF
+	cQuery += "                  WHEN '10' THEN 'REVISADO' "+CRLF
+	cQuery += "                  WHEN 'A'  THEN 'EM REVISÃO - APROVAÇÃO POR ALÇADAS' "+CRLF
+	cQuery += "                  ELSE 'INDEFINIDO' END AS SITUACAO, "+CRLF
+	cQuery += "  CN9_NOMCLI,"+CRLF
+	cQuery += "  CN9_GESTC, "+CRLF
+	cQuery += "  CN9_XXNRBK,"+CRLF
+	cQuery += "  CN9_XXNGC, "+CRLF
+	cQuery += "  CN9_XXEGC, "+CRLF
+	cQuery += "  CN9_XXTELS,"+CRLF
+	cQuery += "  CN9_VLINI, "+CRLF
+	cQuery += "  CN9_VLATU, "+CRLF
+	cQuery += "  CN9_SALDO, "+CRLF
+	cQuery += "  CONVERT(DATE,CN9_DTINIC,112) AS CN9_DTINIC,"+CRLF
+	cQuery += "  CONVERT(DATE,CN9_DTASSI,112) AS CN9_DTASSI,"+CRLF
+	cQuery += "  CONVERT(DATE,CN9_DTOSER,112) AS CN9_DTOSER,"+CRLF
+	cQuery += "  CONVERT(DATE,CN9_XXDVIG,112) AS CN9_XXDVIG,"+CRLF
+	cQuery += "  CONVERT(DATE,CN9_XXDREP,112) AS CN9_XXDREP,"+CRLF
+	cQuery += "  CN9_XXOREP,"+CRLF
+
+	cQuery += "  UPPER(REPLACE ("+CRLF
+	cQuery += "    ("+CRLF
+	cQuery += "      SELECT "+CRLF
+	cQuery += "        RTRIM(YP_TEXTO) "+CRLF
+	cQuery += "      FROM "+CRLF
+	cQuery += "        "+cTabSYP+" SYP"+CRLF
+	cQuery += "      WHERE "+CRLF
+	cQuery += "        CN9.CN9_CODOBJ = SYP.YP_CHAVE"+CRLF
+	cQuery += "        AND SYP.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += "      ORDER BY "+CRLF
+	cQuery += "        YP_CHAVE + YP_SEQ FOR XML PATH (''), "+CRLF
+	cQuery += "        TYPE"+CRLF
+	cQuery += "    ).value('.', 'varchar(1000)'),'\13\10',' '))"+CRLF
+	cQuery += "    AS OBJETO, "+CRLF
+
+	cQuery += "  CONVERT(VARCHAR(600),CONVERT(Binary(600),CN9_XXOBS)) CN9_XXOBS,"+CRLF
+
+	cQuery += "  UPPER(REPLACE ("+CRLF
+	cQuery += "    ("+CRLF
+	cQuery += "      SELECT "+CRLF
+	cQuery += "        RTRIM(YP_TEXTO) "+CRLF
+	cQuery += "      FROM "+CRLF
+	cQuery += "        "+cTabSYP+" SYP"+CRLF
+	cQuery += "      WHERE "+CRLF
+	cQuery += "        CN9.CN9_CODJUS = SYP.YP_CHAVE"+CRLF
+	cQuery += "        AND SYP.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += "      ORDER BY "+CRLF
+	cQuery += "        YP_CHAVE + YP_SEQ FOR XML PATH (''), "+CRLF
+	cQuery += "        TYPE"+CRLF
+	cQuery += "    ).value('.', 'varchar(1000)'),'\13\10',' '))"+CRLF
+	cQuery += "    AS JUSTIF "+CRLF
+
+	cQuery += " FROM " + CRLF
+	cQuery += "  "+cTabCN9+" CN9 " + CRLF
+
+	cQuery += " WHERE CN9.D_E_L_E_T_=''" + CRLF
+	//cQuery += "      AND CN9_REVATU = ' ' OR CN9_SITUAC = '05' " + CRLF
+	
+Next
+
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  *, " + CRLF
+cQuery += "  (EMPRESA+CONTRATO+CN9_REVISA) AS CHAVE " + CRLF
+cQuery += "  INTO PowerBk.dbo.CONTRATOS  " + CRLF
+cQuery += "  FROM CTR " + CRLF
+
+cQuery += " ORDER BY" + CRLF
+cQuery += "    EMPRESA,CONTRATO,CN9_REVISA" + CRLF
+
+u_LogMemo("BKDASH01-CTR.SQL",cQuery)
+
+If !TCIsConnected()
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CONTRATOS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.CONTRATOS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-CTR.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+// Atualização da tabela PLANILHAS do banco de dados PowerBk
+Static Function ProcDSPLA
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrpGct()
+Local nE 		:= 0
+
+Local cJCNACNB:= FWJoinFilial("CNA", "CNB")
+Local cJCNBSB1:= FWJoinFilial("CNB", "SB1")
+
+Local cTabCN9   := ""
+Local cTabCNA   := ""
+Local cTabCNB   := ""
+Local cTabSA1   := ""
+Local cTabSB1   := ""
+
+u_LogPrw(cPerg,"Planilhas")
+ 
+cQuery := "WITH PLANS AS ( " + CRLF
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabCN9 := "CN9"+cEmpresa+"0"
+	cTabCNA := "CNA"+cEmpresa+"0"
+	cTabCNB := "CNB"+cEmpresa+"0"
+	cTabSA1 := "SA1"+cEmpresa+"0"
+	cTabSB1 := "SB1"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC, " + CRLF
+	cQuery += "  SUBSTRING(CNB_CONTRA,1,9) AS CONTRATO,"+CRLF
+	cQuery += "  CNB_REVISA,"+CRLF
+	cQuery += "  CONVERT(DATE,CN9_DTREV,112) AS CN9_DTREV, "+CRLF
+	cQuery += "  CNB_NUMERO,"+CRLF
+	cQuery += "  CNB_ITEM,"+CRLF
+	cQuery += "  CNB_PRODUT,"+CRLF
+	cQuery += "  CNB_TS,"+CRLF
+	cQuery += "  CNB_QUANT,"+CRLF
+	cQuery += "  CNB_SLDMED,"+CRLF
+	cQuery += "  CNB_VLUNIT,"+CRLF
+	cQuery += "  CNB_VLTOT,"+CRLF
+	cQuery += "  CNA_XXMOT,"+CRLF
+	cQuery += "  CNA_NUMERO,"+CRLF
+	cQuery += "  CNA_CLIENT,"+CRLF
+	cQuery += "  CNA_LOJACL,"+CRLF
+	cQuery += "  CNA_XXCMUN,"+CRLF
+	cQuery += "  CNA_XXUF,"+CRLF
+	cQuery += "  CNA_XXMUN,"+CRLF
+	cQuery += "  CNA_XXTPNF,"+CRLF
+	cQuery += "  CNA_XXRETC,"+CRLF
+	cQuery += "  CNA_XXNAT,"+CRLF
+	cQuery += "  CNA_CRONOG,"+CRLF
+	cQuery += "  B1_DESC,"+CRLF
+	cQuery += "  B1_CODISS,"+CRLF
+	cQuery += "  B1_ALIQISS,"+CRLF
+	cQuery += "  B1_TS,"+CRLF
+	cQuery += "  A1_NOME,"+CRLF
+	cQuery += "  A1_CGC,"+CRLF
+	cQuery += "  A1_PESSOA"+CRLF
+
+	cQuery += " FROM "+cTabCNB+ " CNB " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabCNA+ " CNA " + CRLF
+	cQuery += "      ON CNB_NUMERO = CNA_NUMERO AND CNB_CONTRA = CNA_CONTRA AND CNB_REVISA = CNA_REVISA " + CRLF
+	cQuery += " 	 AND "+cJCNACNB+" AND CNA.D_E_L_E_T_=''" + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSB1+ " SB1 " + CRLF
+	cQuery += "      ON CNB_PRODUT = B1_COD" + CRLF
+	cQuery += " 	 AND "+cJCNBSB1+" AND SB1.D_E_L_E_T_=''" + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSA1+ " SA1 " + CRLF
+	cQuery += "      ON CNA_CLIENT = A1_COD AND CNA_LOJACL = A1_LOJA" + CRLF
+	cQuery += " 	 AND SA1.D_E_L_E_T_=''" + CRLF
+
+	cQuery += " INNER JOIN "+cTabCN9+ " CN9 " + CRLF
+	cQuery += "      ON CNB_CONTRA = CN9_NUMERO" + CRLF
+	cQuery += "      AND CNB_REVISA = CN9_REVISA" + CRLF
+	//cQuery += "      AND CN9_REVATU = ' '" + CRLF
+	cQuery += " 	 AND CN9.D_E_L_E_T_=''" + CRLF
+
+	cQuery += " WHERE CNB.D_E_L_E_T_=''" + CRLF
+	
+Next
+
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  *, " + CRLF
+cQuery += "  (EMPRESA+CONTRATO+CNB_REVISA) AS CHAVE " + CRLF
+cQuery += "  INTO PowerBk.dbo.PLANILHAS  " + CRLF
+cQuery += "  FROM PLANS " + CRLF
+
+cQuery += " ORDER BY" + CRLF
+cQuery += "    EMPRESA,CONTRATO,CNB_REVISA,CNA_NUMERO" + CRLF
+
+u_LogMemo("BKDASH01-PLA.SQL",cQuery)
+
+If !TCIsConnected()
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PLANILHAS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.PLANILHAS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-PLA.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+// AQUI
+// Atualização da tabela CRONOGRAMAS do banco de dados PowerBk
+Static Function ProcDSCRO
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local aEmpresas := u_BKGrpGct()
+Local nE 		:= 0
+
+
+Local cTabCN9   := ""
+Local cTabCNF   := ""
+
+u_LogPrw(cPerg,"Cronogramas")
+ 
+cQuery := "WITH CRON AS ( " + CRLF
+
+For nE := 1 TO Len(aEmpresas)
+
+	cEmpresa := aEmpresas[nE,1]
+	cNomeEmp := aEmpresas[nE,2]
+
+	cTabCN9 := "CN9"+cEmpresa+"0"
+	cTabCNF := "CNF"+cEmpresa+"0"
+
+	If nE > 1
+		cQuery += "UNION ALL "+CRLF
+	EndIf
+
+	cQuery += " SELECT"+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC, " + CRLF
+	cQuery += "  SUBSTRING(CNF_CONTRA,1,9) AS CONTRATO,"+CRLF
+	cQuery += "  CNF_NUMPLA,"+CRLF
+	cQuery += "  CNF_NUMERO,"+CRLF
+	cQuery += "  CNF_REVISA,"+CRLF
+	cQuery += "  CNF_PARCEL,"+CRLF
+	cQuery += "  CNF_COMPET,"+CRLF
+	cQuery += "  CNF_VLPREV,"+CRLF
+	cQuery += "  CNF_VLREAL,"+CRLF
+	cQuery += "  CNF_SALDO"+CRLF
+
+	cQuery += " FROM "+cTabCNF+ " CNF " + CRLF
+
+	cQuery += " INNER JOIN "+cTabCN9+" CN9 ON "+ CRLF
+	cQuery += "    CN9_NUMERO = CNF_CONTRA" + CRLF
+	cQuery += "	   AND CN9_REVISA = CNF_REVISA" + CRLF
+	cQuery += "    AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ''" + CRLF
+
+	cQuery += " WHERE CNF.D_E_L_E_T_=''" + CRLF
+	//cQuery += "      AND CN9_REVATU = ' '" + CRLF
+	
+Next
+
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  *, " + CRLF
+cQuery += "  (EMPRESA+CONTRATO+CNF_REVISA) AS CHAVE " + CRLF
+cQuery += "  INTO PowerBk.dbo.CRONOGRAMAS  " + CRLF
+cQuery += "  FROM CRON " + CRLF
+
+cQuery += " ORDER BY" + CRLF
+cQuery += "    EMPRESA,CONTRATO,CNF_REVISA,CNF_NUMPLA,CNF_PARCEL" + CRLF
+
+u_LogMemo("BKDASH01-CRO.SQL",cQuery)
+
+If !TCIsConnected()
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CRONOGRAMAS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.CRONOGRAMAS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-CRO.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
+
+
+
+
 
 
 
@@ -1761,6 +2161,7 @@ cQuery += "    ) AS PREVDESC"+CRLF
 
 cQuery += "	INTO PowerBk.dbo.GASTOSGERAIS"+CRLF
 cQuery += "	FROM DESPESAS"+CRLF
+cQuery += "	WHERE SUBSTRING(DESPESAS.CONTRATO,1,3) <> '000'
 cQuery += " ORDER BY" + CRLF
 cQuery += "      EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC" + CRLF
 

@@ -41,8 +41,6 @@ PRIVATE lLands  := .T.
 PRIVATE cDescCC := ""
 Private aFurnas	:= U_MVXFURNAS()
 
-u_LogPrw("BKFINR06")
-
 DEFINE FONT oFont1 NAME "Times New Roman" SIZE 0,20 BOLD  OF oPrn
 DEFINE FONT oFont2 NAME "Times New Roman" SIZE 0,14 BOLD OF oPrn
 DEFINE FONT oFont3 NAME "Times New Roman" SIZE 0,14 OF oPrn
@@ -77,6 +75,7 @@ ValidPerg(cPerg)
 	
 IF Pergunte(cPerg,.T.)
 
+
 	nParImpr := mv_par01
 	dParVenc := mv_par02
 	nParPlan := mv_par03
@@ -85,6 +84,8 @@ IF Pergunte(cPerg,.T.)
     nImpSel  := mv_par06
     cTipoBk  := mv_par07
 	nUsrRub  := mv_par08
+
+	u_LogPrw("BKFINR06",iIf(nParImpr == 1,SE2->E2_NUM,DTOC(dParVenc)))
 
 	IF nParPlan = 2 // Relatorio 
 		IF nParImpr = 1  // Unico titulo

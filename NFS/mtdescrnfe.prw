@@ -272,7 +272,7 @@ IF !Empty(cContrato)
 
 	cxCompet := ""
 	cxParcel := ""
-	If AllTrim(cContrato) <> '307000496'
+	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596' // VOA-SE
 		If !(AllTrim(cCliente) $ cXXCOMPE)
    			cxCompet  := "Competencia: "+cCompet
 		EndIf
