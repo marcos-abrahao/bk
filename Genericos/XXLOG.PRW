@@ -47,11 +47,13 @@ Local nPosFim,nHandle,cBuffer
 
 DEFAULT lMens:= .T.  //Inicializa cMens com Data e Hora
 DEFAULT cEnv := ""
-       
+
+Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
+
 u_xxConOut("INFO","xxLog",cMens)
 
 If lMens  //Inicializa cMens com Data e Hora
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|"
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|" // +cValToChar(nModulo)+"|
 EndIf
 
 If !EMPTY(cEnv) .AND. !(UPPER(TRIM(cEnv)) $ GetEnvServer())
@@ -219,4 +221,90 @@ FWLogMsg(cSeverity, /*cTransactionId*/, cGroup, cCategory, ""/*cStep*/, "01" /*c
 Return Nil
 
 
+
+/*/{Protheus.doc} LogMvc
+    Gerar log de alteração em cadastros MVC
+    Usar no ponto de entrada FORMCOMMITTTSPRE
+
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 25/08/2022
+    @version version
+    @param param_name, param_type, param_descr
+    @return return_var, return_type, return_description
+    @example
+    (Veja CRMA980_PE)
+    @see (links_or_references)
+    /*/
+
+User Function LogMvc(cPrw,cAlias,nOper,oModelMVC,cID,aNoFields)
+Local aFields   := {}
+Local nX        := 0
+Local cAntes    := ""
+Local cDepois   := ""
+
+Default aNoFields := {}
+
+IF nOper == 3 //Caso seja Inclusao
+
+    u_LogPrw(cPrw,"Inclusão "+cID)
+
+ElseIF nOper == 4 // Alteração
+
+    aFields   := oModelMVC:GetStruct():GetFields()
+
+    IF Len(aFields) > 0
+
+        For nX := 1 To Len( aFields )
+
+            cAntes  := ""
+            cDepois := ""
+                    
+            IF aScan(aNoFields, Alltrim(aFields[nX][MODEL_FIELD_IDFIELD]) ) == 0 
+                If oModelMVC:IsFieldUpdated( aFields[nX][MODEL_FIELD_IDFIELD] ) .And. !aFields[nX][MODEL_FIELD_VIRTUAL]
+
+                    IF aFields[nX][MODEL_FIELD_TIPO] $ 'N/L'
+                        cAntes  := Alltrim(AlltoChar((cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD])))
+                        cDepois := Alltrim(AlltoChar(FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD] )))
+
+                    ElseIF aFields[nX][MODEL_FIELD_TIPO] == 'D'
+                        cAntes  := DtoC((cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD]))
+                        cDepois := DtoC(FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD] ))
+
+                    ElseIF aFields[nX][MODEL_FIELD_TIPO] $ 'CM'
+                        IF Len(aFields[nX][MODEL_FIELD_VALUES]) > 0
+                            aCombo := aFields[nX][MODEL_FIELD_VALUES]
+
+                            IF Empty((cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD]))
+                                cAntes := (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD])
+                            Else
+                                cValorAnt := aCombo[ Ascan( aCombo , (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD]) + "=" ) ]
+                                cAntes := cValorAnt
+                            EndIF
+
+                            IF Empty(FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD	]))
+                                cDepois := FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD])
+                            Else
+                                cValorAtu := aCombo[ Ascan( aCombo , FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD]) + "=" ) ]
+                                cDepois := cValorAtu
+                            EndIF
+                        Else
+                            cAntes := (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD])
+                            cDepois := FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD] )
+                        EndIF
+                    EndIF
+
+                    u_LogPrw(cPrw,"Alteração "+cID+" : "+aFields[nX][MODEL_FIELD_IDFIELD]+ " Antes: "+TRIM(cAntes)+" - Depois: "+TRIM(cDepois))
+
+                EndIF
+            EndIF
+        Next nX
+    EndIF
+ElseIF nOper == 5 // Exclusão
+    u_LogPrw(cPrw,"Exclusão "+cID)
+Else
+    u_LogPrw(cPrw,"Operação ("+ALLTRIM(STR(nOper))+") "+cID)
+EndIf
+
+Return Nil
 

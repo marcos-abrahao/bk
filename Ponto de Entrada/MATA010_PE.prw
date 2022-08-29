@@ -8,29 +8,53 @@ BK - Ponto de entrada MVC - Cadastro de Produtos
 /*/
  
 User Function ITEM() 
-    Local aParam := PARAMIXB 
-    Local xRet := .T. 
-    Local oObj := Nil 
-    Local cIdPonto := ""
-    Local cIdModel := ""
-    Local nOper := 0 
-    Local cCod  := ""
-    //Local cCampo := ""
-    //Local cTipo := ""
-    //Local lEnd
+    Local aParam    := PARAMIXB 
+    Local xRet      := .T. 
+    Local oObj      := Nil 
+    Local cIdPonto  := ""
+    Local cIdModel  := ""
+    Local nOper     := 0 
+    Local cEvento   := ''
+    Local cCampo    := ''
+    Local cConteudo := ''
 
-    Local oModel
-    Local oModelSB1
- 
     //Se tiver parâmetros
     If aParam != Nil 
-        ConOut("> "+aParam[2]) 
+        //ConOut("> "+aParam[2]) 
  
         //Pega informações dos parâmetros
         oObj := aParam[1] 
         cIdPonto := aParam[2] 
         cIdModel := aParam[3] 
  
+        If cIDPonto == 'FORMPRE'
+    
+            cEvento     := aParam[4]
+            cCampo      := aParam[5]
+            cConteudo   := If( ValType(aParam[6]) == 'C',;
+                            "'" + aParam[6] + "'",;
+                            If( ValType(aParam[6]) == 'N',;
+                                AllTrim(Str(aParam[6])),;
+                                If( ValType(aParam[6]) == 'D',;
+                                    DtoC(aParam[6]),;
+                                    If(ValType(aParam[4]) == 'L',;
+                                        If(aParam[4], '.T.', '.F.'),;
+                                        ''))))
+            cIDForm     := oObj:GetID()
+    
+        ElseIf cIDPonto == 'FORMPOS'
+    
+            cIDForm     := oObj:GetID()
+    
+        ElseIf cIDPonto == 'FORMCOMMITTTSPRE' .OR. cIDPonto == 'FORMCOMMITTTSPOS'
+    
+            cConteudo   := If( ValType(aParam[4]) == 'L',;
+                            If( aParam[4], '.T.', '.F.'),;
+                            '')
+    
+        EndIf
+ 
+
         //Valida a abertura da tela
         If cIdPonto == "MODELVLDACTIVE"
             xRet := .T. 
@@ -106,7 +130,9 @@ User Function ITEM()
  
             //Pré validações do Commit
         ElseIf cIdPonto == "FORMCOMMITTTSPRE"
- 
+
+            MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
+
             //Pós validações do Commit
         ElseIf cIdPonto == "FORMCOMMITTTSPOS"
  
@@ -115,25 +141,56 @@ User Function ITEM()
  
             //Commit das operações (após a gravação)
         ElseIf cIdPonto == "MODELCOMMITNTTS"
-            nOper := oObj:nOperation
-
-            oModel		:= FwModelActivate()
-            oModelSB1	:= oModel:GetModel('SB1MASTER') 
-
-            cCod   	:= ALLTRIM(oModelSB1:GetValue('B1_COD'))+"-"+ALLTRIM(oModelSB1:GetValue('B1_DESC'))
-
             //Mostrando mensagens no fim da operação
-            
-            If nOper == 3
-                u_LogPrw("MATA010_PE","Inclusão do produto "+cCod)                 
-            ElseIf nOper == 4  
-                u_LogPrw("MATA010_PE","Alteração do produto "+cCod)                 
-            ElseIf nOper == 5
-                u_LogPrw("MATA010_PE","Exclusão do produto "+cCod)                 
-            Else
-                u_LogPrw("MATA010_PE","Produto "+cCod+" operação "+STR(nOper))                 
-            EndIf
-            
+           
         EndIf 
     EndIf 
 Return xRet
+
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} MyFTTSPre
+Função específica que será executada no momento FORM COMMIT TTS PRE
+@param      oObj, cIDPonto, cIDModel, cConteudo
+@return     NIL
+@author     Faturamento
+@version    12.1.17 / Superior
+@since      Mai/2021
+/*/
+//-------------------------------------------------------------------
+Static Function MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
+Local oModel    := FwModelActive()
+Local nOper     := oObj:GetOperation()
+
+//ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORM COMMIT TTS PRE'.")
+
+HistLog(oModel, nOper)
+
+Return NIL
+
+
+
+
+/*/{Protheus.doc} HistLog
+	Realiza gravação de histórico de log das informações do cliente.
+	@type  Static Function
+	@author Josuel Silva
+	@since 07/06/2022
+	@version 12.1.033
+	@param oModel, objeto, modelo de dados utilizado
+	@param nOperation, numerico, operação realizada.
+	@return Nil
+/*/
+Static Function HistLog(oModel, nOper)
+Local aArea     := GetArea()
+Local aNoFields := {}
+Local oModelSB1 := oModel:GetModel("SB1MASTER")
+Local cId       := ""
+
+cId := "Produto "+TRIM(FwFldGet('B1_COD')) + "-"+TRIM(FwFldGet('B1_DESC'))
+
+U_LogMvc("MATA010_PE","SB1",nOper,oModelSB1,cID,aNoFields)
+
+RestArea(aArea)
+
+Return

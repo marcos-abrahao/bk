@@ -69,6 +69,7 @@ If msgYesNo('Deseja incluir este produto em outras empresas?')
         
 		IF VALTYPE(cRetorno) <> "C"
 			MsgStop("Erro provavelmente ocorrido por se ter excedido o número de licenças, tente novamente mais tarde.", "Atenção")
+			u_LogPrw("BKMAT010","Erro1 ao incluir o o produto "+SB1->B1_COD+" na empresa "+TRIM(aEmpr[nI,4]))
 		ELSE
 			IF SUBSTR(cRetorno,1,2) <> "OK"
 				If !EMPTY(cRetorno)
@@ -77,6 +78,9 @@ If msgYesNo('Deseja incluir este produto em outras empresas?')
 				Else
 					MsgStop("Produto não incluído na empresa "+TRIM(aEmpr[nI,4]), "Atenção")
 				EndIf
+				u_LogPrw("BKMAT010","Erro2 ao incluir o o produto "+SB1->B1_COD+" na empresa "+TRIM(aEmpr[nI,4]))
+			ELSE
+				u_LogPrw("BKMAT010","Produto "+SB1->B1_COD+" incluido na empresa "+TRIM(aEmpr[nI,4]))
 			ENDIF
 		ENDIF
 
@@ -86,7 +90,6 @@ If msgYesNo('Deseja incluir este produto em outras empresas?')
 	dbSelectArea(sAlias)
 	dbGoTo(nRecNo)
 	
-	u_LogPrw("BKMAT010",SB1->B1_COD)
 EndIf
 
 Return

@@ -157,8 +157,10 @@ If aParam <> NIL
         /*
         ApMsgInfo("Chamada antes da gravação da tabela do formulário (PE '" + cIDPonto + "')." + CRLF +;
                   "ID " + cIDModel)
-        xRet    := MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
         */
+
+        xRet    := MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
+
     ElseIf cIDPonto == 'FORMCOMMITTTSPOS'
         /*
         ApMsgInfo("Chamada após a gravação da tabela do formulário (PE '" + cIDPonto + "')." + CRLF +;
@@ -326,8 +328,13 @@ Função específica que será executada no momento FORM COMMIT TTS PRE
 /*/
 //-------------------------------------------------------------------
 Static Function MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
- 
-ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORM COMMIT TTS PRE'.")
+Local oModel    := FwModelActive()
+Local nOper     := oObj:GetOperation()
+
+//ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORM COMMIT TTS PRE'.")
+
+HistLog(oModel, nOper)
+
 Return NIL
  
 //-------------------------------------------------------------------
@@ -342,7 +349,7 @@ Função específica que será executada no momento FORM COMMIT TTS POS
 //-------------------------------------------------------------------
 Static Function MyFTTSPos(oObj, cIDPonto, cIDModel, cConteudo)
  
-ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORM COMMIT TTS POS'.")
+//ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORM COMMIT TTS POS'.")
 Return NIL
  
 //-------------------------------------------------------------------
@@ -357,7 +364,8 @@ Função específica que será executada no momento MODEL COMMIT TTS
 //-------------------------------------------------------------------
 Static Function MyMTTS(oObj, cIDPonto, cIDModel, cConteudo)
  
-ApMsgInfo("Esta é a minha função específica que será executada no momento 'MODEL COMMIT TTS'.")
+//ApMsgInfo("Esta é a minha função específica que será executada no momento 'MODEL COMMIT TTS'.")
+
 Return NIL
  
 //-------------------------------------------------------------------
@@ -371,22 +379,54 @@ Função específica que será executada no momento MODEL COMMIT NÃO TTS
 /*/
 //-------------------------------------------------------------------
 Static Function MyMNTTS(oObj, cIDPonto, cIDModel, cConteudo)
-Local nOper := oObj:nOperation
-Local cCod  := "" 
+//Local nOper := oObj:nOperation
 
 //ApMsgInfo("Esta é a minha função específica que será executada no momento 'MODEL COMMIT NÃO TTS'.")
 
-cCod := SA1->A1_COD + "-"+SA1->A1_LOJA + " - "+TRIM(SA1->A1_NOME)
-
-//Log no fim da operação
-If nOper == 3
-    u_LogPrw("CRMA980_PE","Inclusão do Cliente "+cCod)                 
-ElseIf nOper == 4  
-    u_LogPrw("CRMA980_PE","Alteração do Cliente "+cCod)                 
-ElseIf nOper == 5
-    u_LogPrw("CRMA980_PE","Exclusão do Cliente "+cCod)                 
-Else
-    u_LogPrw("CRMA980_PE","Cliente "+cCod+" operação "+STR(nOper))                 
-EndIf
-
 Return NIL
+
+
+
+/*/{Protheus.doc} HistLog
+	Realiza gravação de histórico de log das informações do cliente.
+	@type  Static Function
+	@author Josuel Silva
+	@since 07/06/2022
+	@version 12.1.033
+	@param oModel, objeto, modelo de dados utilizado
+	@param nOperation, numerico, operação realizada.
+	@return Nil
+/*/
+Static Function HistLog(oModel, nOper)
+Local aArea     := GetArea()
+Local aNoFields := {}
+Local oModelSA1 := oModel:GetModel("SA1MASTER")
+Local cId       := ""
+
+cId := "Cliente "+FwFldGet('A1_COD') + "-"+FwFldGet('A1_LOJA') + " - "+TRIM(FwFldGet('A1_NOME'))
+
+aAdd(aNoFields, 'A1_SALPEDL'	)
+aAdd(aNoFields, 'A1_SALPED'		)
+aAdd(aNoFields, 'A1_NROCOM'		)
+aAdd(aNoFields, 'A1_NROPAG'		)
+aAdd(aNoFields, 'A1_SALDUP'		)
+aAdd(aNoFields, 'A1_METR'		)
+aAdd(aNoFields, 'A1_USERLGA'	)
+aAdd(aNoFields, 'A1_VACUM'		)
+aAdd(aNoFields, 'A1_ULTCOM'		)
+aAdd(aNoFields, 'A1_SALDUPM'	)
+aAdd(aNoFields, 'A1_MAIDUPL'	)
+aAdd(aNoFields, 'A1_MSALDO'		)
+aAdd(aNoFields, 'A1_SALPEDB'	)
+aAdd(aNoFields, 'A1_MCOMPRA'	)
+aAdd(aNoFields, 'A1_PAGATR'		)
+aAdd(aNoFields, 'A1_PRICOM'		)
+aAdd(aNoFields, 'A1_ATR'		)
+aAdd(aNoFields, 'A1_MATR'		)
+aAdd(aNoFields, 'A1_IDHIST'		)
+
+U_LogMvc("CRMA980_PE","SA1",nOper,oModelSA1,cID,aNoFields)
+
+RestArea(aArea)
+
+Return

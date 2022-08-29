@@ -8,11 +8,12 @@ BK - Legandas na nova medição
 @version P12
 /*/
 
-/*
-User Function CNT121LG()
-Local aRet := {}
-aAdd(aRet,{"ALLtrim(CND_SITUAC) == 'SA'", "BR_VERMELHO", "Med. Servic. Aberta"})
-aAdd(aRet,{"ALLtrim(CND_SITUAC) == 'SE'", "BR_VERDE",    "Med. Servic. Encerrada"})
 
-Return aRet
-*/
+User Function CNT121LG()
+Local aLegendas := ParamIXB[1]   //Legendas do produto padrão
+ 
+aAdd(aLegendas, {"ALLtrim(CND_SITUAC) == 'SA'", "BR_VERMELHO", "Med. Servic. Aberta"})
+aAdd(aLegendas, {"ALLtrim(CND_SITUAC) == 'SE'", "BR_VERDE",    "Med. Servic. Encerrada"})
+
+Return aLegendas
+

@@ -18,6 +18,7 @@ User Function CNTA121()
 	Local oModelCND as Object
 	Local cContra	as Character
 	Local cRevisa 	as Character
+	Local lCarMun	:= .F.
 
 	If (aParam <> NIL)
 		oObj     := aParam[1]
@@ -124,7 +125,10 @@ User Function CNTA121()
 			If (cIdModel == "CXNDETAIL" .And. LEN(aParam) >= 6 );
 				 .AND. cCampoIXB == "CXN_CHECK";
 				 .AND. aParam[5] == "CANSETVALUE"   // Executa a função se clicar no checkbox da tela de medição
-				CnaMun()
+				If !lCarMun
+					CnaMun()
+					lCarMun := .T.
+				EndIf
 			Endif
 
 			/*
