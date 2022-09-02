@@ -10,6 +10,18 @@ BK - Funcoes com parâmetros embutidos no fonte
 /*/
 
 
+User Function CCPadrao()
+Local cCC := SPACE(9)
+
+If cEmpAnt == '14'
+	cCC := '302000508'
+ElseIf cEmpAnt == '15'
+	cCC := '305000554'
+EndIf
+
+Return cCC
+
+
 // Acima deste limite, irá mostrar aviso ao gerar borderô BK - BKFINA14
 User Function LimAvCLT()
 Return 15000

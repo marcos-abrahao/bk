@@ -1033,12 +1033,12 @@ Local cTVertAlig	:= oCellVertAlign:Center()
 Local lTWrapText 	:= .F.
 Local nTRotation 	:= 0
 
-Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
-Local cImgRel 		:= 'logo'
-Local cImgDir 		:= cStartPath + "lgmid"+cEmpAnt+".png"
-Local nHndImagem 	:= 0
-Local nLenImagem 	:= 0
-Local cBuffer		:= ""
+//Local cStartPath 	:= GetSrvProfString( "StartPath", "" ) 
+//Local cImgRel 		:= 'logo'
+//Local cImgDir 		:= cStartPath + "lgmid"+cEmpAnt+".png"
+//Local nHndImagem 	:= 0
+//Local nLenImagem 	:= 0
+//Local cBuffer		:= ""
 
 Private xCampo
 Private yCampo

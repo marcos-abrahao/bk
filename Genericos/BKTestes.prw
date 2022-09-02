@@ -24,12 +24,13 @@ x := 0
 Return Nil
 
 
-User Function BKTestes()
+User Function BKTestes(cRotTest)
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Private cRot  := PAD("U_BKPARGEN",20)
+Default cRotTest := "BKPARGEN"
 
+Private cRot  := PAD("U_"+cRotTest,20)
 
 DEFINE DIALOG oDlg1;
  TITLE "Teste de User Functions"  ;

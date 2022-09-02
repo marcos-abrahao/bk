@@ -1,51 +1,26 @@
 #Include "PROTHEUS.CH"
 #include "FWMVCDEF.CH"
 
-/*/{Protheus.doc} CRMA980_PE
-BK - Ponto de entrada MVC - Cadastro de Clientes
+/*/{Protheus.doc} FINA010_PE
+BK - Ponto de entrada MVC - Cadastro de Naturezas
 @Return
 @author Marcos Bispo Abrahão
-@since 24/08/2022
+@since 30/08/2022
 @version P12.33
 /*/
- 
-//Static __LogTela    := NIL
-//Static __LogTela    := .F.
- 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} CRMA980
-Ponto de Entrada do Cadastro de Clientes (MVC)
-@param      Não há
-@return     Vários. Dependerá de qual PE está sendo executado.
-@author     Faturamento
-@version    12.1.17 / Superior
-@since      Mai/2021
-/*/
-//-------------------------------------------------------------------
-User Function CRMA980() ///cXXX1,cXXX2,cXXX3,cXXX4,cXXX5,cXXX6
+
+User Function FINA010()
  
 Local aParam        := PARAMIXB
 Local xRet          := .T.
 Local lIsGrid       := .F.
-//Local nLinha        := 0
-//Local nQtdLinhas    := 0
-//Local cRotMVC       := "CRMA980"
 Local cIDPonto      := ''
 Local cIDModel      := ''
 Local cIDForm       := ''
 Local cEvento       := ''
 Local cCampo        := ''
 Local cConteudo     := ''
-//Local cMsg          := ''
 Local oObj          := NIL
-
-/* 
-If __LogTela == NIL
-    __LogTela   := ApMsgYesNo("A geração do 'LOG de processamento' dos PE 'CRMA989' (MVC) será exibido em TELA ?" + CRLF + CRLF +;
-                              'SIM = TELA' + CRLF +;
-                              'NÃO = CONSOLE do AppServer')
-EndIf
-*/
 
 If aParam <> NIL
  
@@ -124,10 +99,6 @@ If aParam <> NIL
         ApMsgInfo("Adicionando um botão na barra de botões da rotina (PE '" + cIDPonto + "')." + CRLF +;
                   "ID '" + cIDModel + "'")
         */
-        xRet    := {{'Receita Federal',;                             //Titulo para o botão
-                     'WEB',;                                         //Nome do Bitmap para exibição
-                     {|| U_xConsCNPJ( M->A1_CGC )},;                 //CodeBlock a ser executado
-                     'Consultar CNPJ junto á Receita Federal'}}      //ToolTip (Opcional)
  
     ElseIf cIDPonto == 'FORMPOS'
         /*
@@ -198,72 +169,6 @@ Return xRet
  
  
 //-------------------------------------------------------------------
-/*/{Protheus.doc} ShwParam
-Exibe os parâmetros do Ponto de Entrada do Cadastro de Clientes (MVC)
-@param      aParam
-@return     NIL
-@author     Faturamento
-@version    12.1.17 / Superior
-@since      Mai/2021
-/*/
-//-------------------------------------------------------------------
-Static Function ShwParam(aParam)
- 
-Local nInd          := 1
-Local cAuxMsg       := ''
-Local cAuxMsg2      := ''
-//Local cSeparador    := Repl('-', 40)
-Local cMsg          := Iif( !(aParam[2] $ 'FORMPRE//FORMPOS//FORMCOMMITTTSPRE//FORMCOMMITTTSPOS'),;
-                            'OPERATION = ' + AllTrim(Str(aParam[01]:NOPERATION)) + CRLF,;
-                            '')
- 
-For nInd := 1 to Len(aParam)
- 
-    cAuxMsg     := ''
-    cAuxMsg2    := ''
- 
-    If ValType(aParam[nInd]) == 'U'
-        cAuxMsg2         := '= ' + ' NIL'
-    ElseIf ValType(aParam[nInd]) == 'O'
-        cAuxMsg2         := ' (OBJETO)'
-    ElseIf ValType(aParam[nInd]) == 'C'
-        cAuxMsg2         := "= '" + aParam[nInd] + "'"
-    ElseIf ValType(aParam[nInd]) == "N"
-        cAuxMsg2         := '= ' + AllTrim(Str(aParam[nInd]))
-    ElseIf ValType(aParam[nInd]) == "D"
-        cAuxMsg2         := '= ' + DtoC(aParam[nInd])
-    ElseIf ValType(aParam[nInd]) == 'L'
-        cAuxMsg2         := '= ' + If(aParam[4], '.T.', '.F.')
-    EndIf
- 
-    If nInd == 2
-        cAuxMsg        := 'IDPonto (Evento)'
-    ElseIf nInd == 3
-        cAuxMsg        := 'IDModelo'
-    ElseIf (nInd == 4 .OR. nInd == 5 .OR. nInd == 6)
-        If aParam[2] == 'FORMPRE'
-            If nInd == 4
-                cAuxMsg    := 'Evento'
-            ElseIf nInd == 5
-                cAuxMsg    := 'Campo'
-            ElseIf nInd == 6 .AND. aParam[4] == 'SETVALUE'
-                cAuxMsg    := 'Conteúdo'
-            EndIf
-        ElseIf (aParam[2] $ 'FORMCOMMITTTSPRE//FORMCOMMITTTSPOS') .AND. nInd == 6
-            cAuxMsg        := 'Conteúdo'
-        EndIf
-    EndIf
- 
-    cMsg    += 'PARAMIXB[' + StrZero(nInd,2) + '] => ' + If(!Empty(cAuxMsg),cAuxMsg + ' ', '') + cAuxMsg2 + CRLF
- 
-Next nInd
- 
-U_LogPrw("CRMA980_PE",cMsg )
-
-Return NIL
- 
- 
-//-------------------------------------------------------------------
 /*/{Protheus.doc} ModifModel
 Customizações nas propriedades dos campos do Modelo do Cadastro de Clientes (MVC)
 @param      oObj, cIDPonto, cIDModel
@@ -274,7 +179,7 @@ Customizações nas propriedades dos campos do Modelo do Cadastro de Clientes (MVC
 /*/
 //-------------------------------------------------------------------
 Static Function ModifModel(oObj, cIDPonto, cIDModel)
- 
+/* 
 If ApMsgYesNo("Vamos bloquear a digitação do campo 'A1_TELEX' no IDPonto '" + cIDPonto + "' - Modelo '" + cIDModel + "' ?")
  
     // Bloqueando a edição de um campo no Modelo...
@@ -284,6 +189,7 @@ If ApMsgYesNo("Vamos bloquear a digitação do campo 'A1_TELEX' no IDPonto '" + cI
     //
  
 EndIf
+*/
 Return NIL
  
 //-------------------------------------------------------------------
@@ -297,7 +203,7 @@ Exemplo de preenchimento de um campo do Modelo do Cadastro de Clientes (MVC)
 /*/
 //-------------------------------------------------------------------
 Static Function SetField(oObj, cIDPonto, cIDModel, cIDForm)
- 
+/*
 If cIDModel == 'SA1MASTER'
     If oObj:GetValue('A1_EST') $ 'AC/AL/AM/AP/BA/CE/DF/ES/GO/MA/MG/MS/MT/PA/PB/PE/PI/PR/RJ/RN/RO/RR/RS/SC/SE/SP/TO' .AND.;
        Empty(oObj:GetValue('A1_PAIS'))
@@ -310,6 +216,7 @@ If cIDModel == 'SA1MASTER'
  
     EndIf
 EndIf
+*/
 Return NIL
  
 //-------------------------------------------------------------------
@@ -395,32 +302,14 @@ Return NIL
 Static Function HistLog(oModel, nOper)
 Local aArea     := GetArea()
 Local aNoFields := {}
-Local oModelSA1 := oModel:GetModel("SA1MASTER")
+Local oModelSA1 := oModel:GetModel("SEDMASTER")
 Local cId       := ""
 
-cId := "Cliente "+FwFldGet('A1_COD') + "-"+FwFldGet('A1_LOJA') + " - "+TRIM(FwFldGet('A1_NOME'))
+cId := "Natureza "+FwFldGet('ED_CODIGO ') + " - "+TRIM(FwFldGet('ED_DESCRIC'))
 
-aAdd(aNoFields, 'A1_SALPEDL'	)
-aAdd(aNoFields, 'A1_SALPED'		)
-aAdd(aNoFields, 'A1_NROCOM'		)
-aAdd(aNoFields, 'A1_NROPAG'		)
-aAdd(aNoFields, 'A1_SALDUP'		)
-aAdd(aNoFields, 'A1_METR'		)
-aAdd(aNoFields, 'A1_USERLGA'	)
-aAdd(aNoFields, 'A1_VACUM'		)
-aAdd(aNoFields, 'A1_ULTCOM'		)
-aAdd(aNoFields, 'A1_SALDUPM'	)
-aAdd(aNoFields, 'A1_MAIDUPL'	)
-aAdd(aNoFields, 'A1_MSALDO'		)
-aAdd(aNoFields, 'A1_SALPEDB'	)
-aAdd(aNoFields, 'A1_MCOMPRA'	)
-aAdd(aNoFields, 'A1_PAGATR'		)
-aAdd(aNoFields, 'A1_PRICOM'		)
-aAdd(aNoFields, 'A1_ATR'		)
-aAdd(aNoFields, 'A1_MATR'		)
-aAdd(aNoFields, 'A1_IDHIST'		)
+//aAdd(aNoFields, 'A1_SALPEDL'	)
 
-U_LogMvc("CRMA980_PE","SA1",nOper,oModelSA1,cID,aNoFields)
+U_LogMvc("FINA010_PE","SED",nOper,oModelSA1,cID,aNoFields)
 
 RestArea(aArea)
 

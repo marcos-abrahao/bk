@@ -1,6 +1,5 @@
-#Include "TOTVS.ch"
-#Include "FWMVCDEF.ch"
-#Include "TOPCONN.CH"
+#Include "PROTHEUS.CH"
+#include "FWMVCDEF.CH"
 
 User Function CNTA121()
 	Local aParam 	:= PARAMIXB
@@ -8,6 +7,12 @@ User Function CNTA121()
 	Local xRet 		:= .T.
 	Local cIdPonto 	:= ""
 	Local cIdModel 	:= ""
+
+Local cIDForm       := ''
+Local cEvento       := ''
+Local cCampo        := ''
+Local cConteudo     := ''
+
 	Local lIsGrid 	:= .F.
 	//Local nLinha 	:= 0
 	//Local nQtdLinhas:= 0
@@ -18,7 +23,7 @@ User Function CNTA121()
 	Local oModelCND as Object
 	Local cContra	as Character
 	Local cRevisa 	as Character
-	Local lCarMun	:= .F.
+	
 
 	If (aParam <> NIL)
 		oObj     := aParam[1]
@@ -29,7 +34,36 @@ User Function CNTA121()
 			cCampoIXB := aParam[6]
 		EndIf
 
+		If cIDPonto == 'FORMPRE'
+	
+			cEvento     := aParam[4]
+			cCampo      := aParam[5]
+			cConteudo   := If( ValType(aParam[6]) == 'C',;
+							"'" + aParam[6] + "'",;
+							If( ValType(aParam[6]) == 'N',;
+								AllTrim(Str(aParam[6])),;
+								If( ValType(aParam[6]) == 'D',;
+									DtoC(aParam[6]),;
+									If(ValType(aParam[4]) == 'L',;
+										If(aParam[4], '.T.', '.F.'),;
+										''))))
+			cIDForm     := oObj:GetID()
+	
+		ElseIf cIDPonto == 'FORMPOS'
+	
+			cIDForm     := oObj:GetID()
+	
+		ElseIf cIDPonto == 'FORMCOMMITTTSPRE' .OR. cIDPonto == 'FORMCOMMITTTSPOS'
+	
+			cConteudo   := If( ValType(aParam[4]) == 'L',;
+							If( aParam[4], '.T.', '.F.'),;
+							'')
+	
+		EndIf
+
 		nOpc := oObj:GetOperation() // PEGA A OPERAÇÃO
+
+		///ShwParam(aParam)
 
 		If (cIdPonto == "FORMPRE")
 			If (cIdModel == "CNDMASTER" .AND. aParam[4] == "SETVALUE" .AND. aParam[5]="CND_REVGER")
@@ -44,6 +78,10 @@ User Function CNTA121()
 				oModelCND:LoadValue("CND_NOMCLI",Posicione("CN9",1,xFilial("CN9",cFilCtr)+cContra+cRevisa,"CN9_NOMCLI"))
 				//oModelCND:LoadValue("CND_NOMCLI",SUBSTR(Posicione("SA1",1,xFilial("SA1")+CN9->(CN9_CLIENT+CN9_LOJACL),"A1_NOME"),1,30))
 
+			ElseIf	lIsGrid .AND. (cIdModel == "CXNDETAIL" .AND. aParam[4] == Nil .AND. aParam[5]="ADDLINE") //.OR.;
+				//CnaMun()
+			ElseIf (cIdModel == "CNDMASTER" .AND. aParam[4] == "CANSETVALUE" .AND. aParam[5]="CND_XXRM")
+				//CnaMun()
 			EndIf
 			//If lIsGrid 
 				//If (cIdModel == "CXNDETAIL" .AND.  aParam[5] == "ADDLINE" .OR. (aParam[5] == "SETVALUE" .AND. aParam[6]="CXN_CHECK")
@@ -122,34 +160,13 @@ User Function CNTA121()
 			
 		ElseIf (cIdPonto =="FORMLINEPRE")
 
-			If (cIdModel == "CXNDETAIL" .And. LEN(aParam) >= 6 );
+			///
+			If (cIdModel == "CXNDETAIL" .And. LEN(aParam) >= 6 ) ;
 				 .AND. cCampoIXB == "CXN_CHECK";
-				 .AND. aParam[5] == "CANSETVALUE"   // Executa a função se clicar no checkbox da tela de medição
-				If !lCarMun
-					CnaMun()
-					lCarMun := .T.
-				EndIf
+				 .AND. aParam[5] == "SETVALUE"   // Executa a função se clicar no checkbox da tela de medição
+				CnaMunP()
 			Endif
-
-			/*
-			If cIdModel == "CXNDETAIL" .AND. aParam[5] <> "DELETE"
-				oModel		:= FwModelActivate()
-				oModelCXN	:= oModel:GetModel('CXNDETAIL')
-				oModelCND	:= oModel:GetModel('CNDMASTER')
-
-				oObj:GetModel("CNDMASTER"):GetModel("CXNDETAIL"):GetValue("CXN_NUMPLA")	
-				cPlan		:= oModelCXN:GetValue('CXN_NUMPLA')
-				cContra		:= oModelCND:GetValue('CND_CONTRA')
-				cRevisa		:= oModelCND:GetValue('CND_CONTRA')
-	
-				//CNA_FILIAL+CNA_CONTRA+CNA_NUMERO
-
-
-
-				oModelCXN:LoadValue("CXN_XXMUN","teste "+str(aparam[4]))
-			Endif
-			*/
-
+			
 			/* Exemplo
 			If aParam[5] =="DELETE"
 				cMsg := "Chamada na pré validação da linha do formulário." + CRLF
@@ -163,9 +180,9 @@ User Function CNTA121()
 			*/
 
 		ElseIf (cIdPonto =="FORMLINEPOS")
-			//If cIdModel == "CXNDETAIL" 
-				//If aParam[5] <> "DELETE"
-					///CnaMun()
+			If cIdModel == "CXNDETAIL" 
+				If lIsGrid .AND. aParam[5] <> "DELETE"
+					CnaMunP()
 
 				//	cMsg := "Chamada na validação da linha do formulário." + CRLF
 				//	cMsg += "ID " + cIdModel + CRLF
@@ -173,8 +190,8 @@ User Function CNTA121()
 				//	cMsg += "Posicionado na linha " + Alltrim(Str(nLinha)) + CRLF
 
 				//	xRet := MsgYesNo(cMsg + " Continua?")
-				//Endif
-			//EndIf
+				Endif
+			EndIf
 		ElseIf (cIdPonto =="MODELCOMMITTTS")
 			//MsgInfo("Chamada após a gravação total do modelo e dentro da transação.",cIdPonto)
 		ElseIf (cIdPonto =="MODELCOMMITNTTS")
@@ -207,7 +224,9 @@ Local cContra	:= ""
 Local cRevisa	:= ""
 Local cPlan		:= ""
 Local nCnt		:= 0
-Local oView     := FwViewActive()
+//Local oView     := FwViewActive()
+
+//U_LogPrw("CNTA121_PE","CnaMun" )
 
 oModel  := FwModelActivate()
 oMdlCND := oModel:GetModel("CNDMASTER")
@@ -215,29 +234,75 @@ oMdlCXN := oModel:GetModel("CXNDETAIL")
 //oMdlCNE := oModel:GetModel("CNEDETAIL")
 
 // Habilitar campos de usuário na CXN
-oMdlCXN:GetStruct():SetProperty("CXN_XXRM"  , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
-oMdlCXN:GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
-oMdlCXN:GetStruct():SetProperty("CXN_XXOBS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
-oMdlCXN:GetStruct():SetProperty("CXN_ZERO", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
-oMdlCXN:GetStruct():SetProperty("CXN_XXMUN", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+//oMdlCXN:GetStruct():SetProperty("CXN_XXRM"  , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+//oMdlCXN:GetStruct():SetProperty("CXN_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+//oMdlCXN:GetStruct():SetProperty("CXN_XXOBS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+//oMdlCXN:GetStruct():SetProperty("CXN_ZERO", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+//oMdlCXN:GetStruct():SetProperty("CXN_XXMUN", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
+nLin := oMdlCXN:Length()
+If oMdlCXN:Length() > 0
+	nLin := oMdlCXN:nLine
+	cContra	:= oMdlCND:GetValue("CND_CONTRA")
+	cRevisa	:= oMdlCND:GetValue("CND_REVISA")
+
+	//cPlan 	:= oMdlCXN:GetValue("CXN_NUMPLA")	
+	//	oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMUN"))
+	//	oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMOT"))
+
+
+	For nCnt:=1 to oMdlCXN:Length()
+		//oMdlCXN:SetLine(nCnt)
+		oMdlCXN:GoLine(nCnt)
+		cPlan 	:= oMdlCXN:GetValue("CXN_NUMPLA")	
+		oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMUN"))
+		oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMOT"))
+		//oMdlCXN:GoLine(nCnt)
+		//oMdlCXN:SetLine(nCnt)
+	Next
+	
+	If nLin > 0
+		//oMdlCXN:SetLine(nLin)
+		oMdlCXN:GoLine(nLin)
+	Endif
+	//oView:Refresh('VIEW_CXN')
+
+	//oView:Refresh()
+	//oModel:Refresh()
+EndIf
+
+Return Nil
+
+
+
+// Carrega o nome do municipio na grido do CXN
+Static Function CnaMunP()
+
+Local oModel,oMdlCND,oMdlCXN
+Local nLin		:= 0
+Local cContra	:= ""
+Local cRevisa	:= ""
+Local cPlan		:= ""
+//Local nCnt		:= 0
+Local oView     := FwViewActive()
+
+//U_LogPrw("CNTA121_PE","CnaMunP" )
+
+oModel  := FwModelActivate()
+oMdlCND := oModel:GetModel("CNDMASTER")
+oMdlCXN := oModel:GetModel("CXNDETAIL")
 
 If oMdlCXN:Length() > 0
 	nLin := oMdlCXN:nLine
 	cContra	:= oMdlCND:GetValue("CND_CONTRA")
 	cRevisa	:= oMdlCND:GetValue("CND_REVISA")
 
-	For nCnt:=1 to oMdlCXN:Length()
-		oMdlCXN:GoLine(nCnt)
-		cPlan 	:= oMdlCXN:GetValue("CXN_NUMPLA")	
-		oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMUN"))
-		oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMOT"))
-
-	Next
-	If nLin > 0
-		oMdlCXN:GoLine(nLin)
-	Endif
-	oView:Refresh()
+	cPlan 	:= oMdlCXN:GetValue("CXN_NUMPLA")	
+	oMdlCXN:LoadValue("CXN_XXMUN",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMUN"))
+	oMdlCXN:LoadValue("CXN_XXMOT",Posicione("CNA",1,xFilial("CNA",cFilCtr)+cContra+cRevisa+cPlan,"CNA_XXMOT"))
+	//oMdlCXN:SetLine(nLin)
+	//oMdlCXN:GoLine(nLin)
+	oView:Refresh('VIEW_CXN')
 EndIf
 
 Return Nil
@@ -276,8 +341,11 @@ If nOpc == 3
 		cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)>='"+STRZERO(nAnoComp,4)+STRZERO(nMesComp,2)+"'"
 		cSql += " AND Z2_CC='"+M->CND_CONTRA+"' "
 		cSql += "GROUP BY Z2_CC "
-			
-		TCQUERY cSql NEW ALIAS (cAliasSZ2)
+
+		cSql := ChangeQuery(cSql)
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cSql),cAliasSZ2,.T.,.T.)
+
+		//TCQUERY cSql NEW ALIAS (cAliasSZ2)
 			
 		dbSelectArea(cAliasSZ2)
 		(cAliasSZ2)->(DbGotop()) 
@@ -312,3 +380,78 @@ ElseIf cOrigem == "I"  // x3_inibrw
 EndIf
 Return cRet
 */
+
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} ShwParam
+Exibe os parâmetros do Ponto de Entrada do Cadastro de Clientes (MVC)
+@param      aParam
+@return     NIL
+@author     Faturamento
+@version    12.1.17 / Superior
+@since      Mai/2021
+/*/
+//-------------------------------------------------------------------
+Static Function ShwParam(aParam)
+ 
+Local nInd          := 1
+Local cAuxMsg       := ''
+Local cAuxMsg2      := ''
+//Local cSeparador    := Repl('-', 40)
+Local cMsg			:= ""
+/*
+cMsg := ""
+If  !aParam[2] $ 'FORMPRE//FORMPOS//FORMCOMMITTTSPRE//FORMCOMMITTTSPOS'
+	If ValType(aParam[nInd]) == 'O' .and. valtype(aParam[01]:NOPERATION) <> NIL
+		cMsg:= 'OPERATION = ' + AllTrim(Str(aParam[01]:NOPERATION)) + CRLF
+	EndIf
+Else
+	cMsg  := ""
+EndIf
+*/
+
+For nInd := 1 to Len(aParam)
+ 
+    cAuxMsg     := ''
+    cAuxMsg2    := ''
+ 
+    If ValType(aParam[nInd]) == 'U'
+        cAuxMsg2         := '= ' + ' NIL'
+    ElseIf ValType(aParam[nInd]) == 'O'
+        cAuxMsg2         := ' (OBJETO)'
+    ElseIf ValType(aParam[nInd]) == 'C'
+        cAuxMsg2         := "= '" + aParam[nInd] + "'"
+    ElseIf ValType(aParam[nInd]) == "N"
+        cAuxMsg2         := '= ' + AllTrim(Str(aParam[nInd]))
+    ElseIf ValType(aParam[nInd]) == "D"
+        cAuxMsg2         := '= ' + DtoC(aParam[nInd])
+    ElseIf ValType(aParam[nInd]) == 'L'
+        cAuxMsg2         := '= ' + If(aParam[4], '.T.', '.F.')
+    EndIf
+ 
+    If nInd == 2
+        cAuxMsg        := 'IDPonto (Evento)'
+    ElseIf nInd == 3
+        cAuxMsg        := 'IDModelo'
+    ElseIf (nInd == 4 .OR. nInd == 5 .OR. nInd == 6)
+        If aParam[2] == 'FORMPRE'
+            If nInd == 4
+                cAuxMsg    := 'Evento'
+            ElseIf nInd == 5
+                cAuxMsg    := 'Campo'
+            ElseIf nInd == 6 //.AND. aParam[4] == 'SETVALUE'
+                cAuxMsg    := 'Conteúdo'
+            EndIf
+        ElseIf (aParam[2] $ 'FORMCOMMITTTSPRE//FORMCOMMITTTSPOS') .AND. nInd == 6
+            cAuxMsg        := 'Conteúdo'
+        EndIf
+    EndIf
+ 
+    cMsg    += 'PARAMIXB[' + StrZero(nInd,2) + '] => ' + If(!Empty(cAuxMsg),cAuxMsg + ' ', '') + cAuxMsg2 + CRLF
+ 
+Next nInd
+ 
+U_LogPrw("CNTA121_PE",cMsg )
+
+Return NIL
+ 

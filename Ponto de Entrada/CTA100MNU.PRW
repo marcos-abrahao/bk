@@ -687,8 +687,12 @@ IF EMPTY(dDVIG)
       dbSkip()
    EndDo
    dbSelectArea("CN9")
+   If !Empty(dDVIG)
+      RecLock("CN9",.F.)
+      CN9->CN9_XXDVIG := dDVIG
+      msUnlock()
+   EndIf
 ENDIF
-
 
 cPROB   := CN9->CN9_XXPROB
 cPROA   := CN9->CN9_XXPROA

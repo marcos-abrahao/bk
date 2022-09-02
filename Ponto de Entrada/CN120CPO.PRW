@@ -29,12 +29,12 @@ Local aCpo  := {}
 
 // Esta sendo executado na nova medição
 
-IF FWIsInCallStack("CNTA121")
+//IF FWIsInCallStack("CNTA121")
     //aAdd(aCpo,"CXN_XXOBS")
-ELSE
+//ELSE
     aAdd(aCpo,"CNA_XXMOT")
     aAdd(aCpo,"CNA_XXMUN")
-ENDIF
+//ENDIF
 
 Return aCpo
 
