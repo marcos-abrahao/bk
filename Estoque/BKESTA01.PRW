@@ -106,7 +106,7 @@ BEGIN TRANSACTION
 				endif
 			NEXT
 			IF LEN(aItens) > 0
-				U_EMAILSOL(aItens[1][7][2])
+				U_EMAILSOL(aItens[1][7][2],"BKESTA01")
 			ENDIF
 		EndIf
 	ENDIF
@@ -116,10 +116,11 @@ END TRANSACTION
 Return .T. 
 
 
-User Function EMAILSOL(cNumSol)
+User Function EMAILSOL(cNumSol,cPrw)
 Local cAssunto	:= ""
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
-Local cEmailCC  := "" //microsiga@bkconsultoria.com.br;"
+Local cEmailCC  := ""
+Local cEmailU   := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
 Local _lJob		:= .T.
@@ -129,7 +130,7 @@ Local aMotivo	:= {}
 Local lAprov	:= .T.
 //Local lAlmox	:= .F.
 //Local aGrupo	:= {}
-Local cAlEmail	:= ""
+//Local cAlEmail	:= ""
 //Local aUsers 	:= {}
 //Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(SuperGetMV("MV_XXMSALX",.F.,"000027"))
 Local _cXXENDEN := ""
@@ -142,55 +143,22 @@ AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual")
 
-PswOrder(1) 
-PswSeek(__CUSERID)  
-aUser  := PswRet(1)
-IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-	cEmail += ALLTRIM(aUser[1,14])+';'
+cEmailU := ALLTRIM(UsrRetMail(__CUSERID))
+IF !EMPTY(cEmailU)
+	cEmail += cEmailU+';'
 ENDIF
-
 
 SY1->(dbgotop())
 Do While SY1->(!eof())                                                                                                               
-	PswOrder(1) 
-	PswSeek(SY1->Y1_USER) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmail += ALLTRIM(aUser[1,14])+';'
+	cEmailU := ALLTRIM(UsrRetMail(SY1->Y1_USER))
+	IF !EMPTY(cEmailU) .AND. !cEmailU $ cEmail
+		cEmail += cEmailU+';'
 	ENDIF
     SY1->(dbskip())
 Enddo
 
-/*
-//aUsers:=AllUsers()
-
-For nX_ := 1 to Len(aUsers)
-	If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
-		aGrupo := {}
-		//AADD(aGRUPO,aUsers[nX_][1][10])
-		//FOR i:=1 TO LEN(aGRUPO[1])
-		//	lAlmox := (aGRUPO[1,i] $ cAlmox)
-		//NEXT
-		//Ajuste nova rotina a antiga não funciona na nova lib MDI
-		aGRUPO := UsrRetGrp(aUsers[nX_][1][2])
-		IF LEN(aGRUPO) > 0
-			FOR i:=1 TO LEN(aGRUPO)
-				lAlmox := (ALLTRIM(aGRUPO[i]) $ cAlmox)
-			NEXT
-		ENDIF	
-    	If lAlmox
-    		cAlEmail += ALLTRIM(aUsers[nX_][1][14])+";"
-    	ENDIF
- 	ENDIF
-NEXT
-*/
-
-cAlEmail  += u_EmEstAlm(__cUserID,.T.)
-
-
-IF !EMPTY(cAlEmail)
-	cEmail += cAlEmail
-ENDIF
+cEmail += u_EmEstAlm(__cUserID,.T.,cEmail)
+//cEmail += u_EmGerCom(cEmail)
 
 //Monta corpo do email Solicitação de Compras
 _cXXENDEN := ""  
@@ -229,7 +197,8 @@ IF lAprov
 	IF 	!EMPTY(_cXXENDEN)
 		cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
     ENDIF
-	U_SendMail("BKESTA01",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+	u_LogPrw(cPrw,cAssunto+" "+cEmail)
 ENDIF
 
 Return Nil

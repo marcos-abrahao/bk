@@ -17,7 +17,7 @@ Local aAreaSD2
 Local aAreaSC5
 Local aAreaCNC
 
-u_LogPrw("NFSEMAIL")
+u_LogPrw("NFSEMAIL",SF3->F3_SERIE+SF3->F3_NFISCAL)
 
 dbSelectArea("SD2")
 aAreaSD2   := GetArea("SD2")

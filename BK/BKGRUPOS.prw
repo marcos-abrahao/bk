@@ -132,6 +132,24 @@ User Function GerCompras
 Return "000138/000116/000093"
 
 
+// Emails dos gerenciadores de compras
+User Function EmGerCom(cxEmail)
+Local aUsers := {"000138","000116","000093"} // Michele,Luis,Fabio
+Local cEmail := ""
+Local cEmails:= ""
+Local nI	 := 0
+Default cxEmail := "-"
+
+For nI := 1 To Len(aUsers)
+	cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
+	If !Empty(cEmail) .AND. !cEmail $ cxEmail
+		cEmails += cEmail+';'
+	EndIf
+Next
+
+Return (cEmails)
+
+
 
 // Gerente Gestão
 User Function GerGestao
@@ -168,17 +186,19 @@ User Function UsrMAlmox()
 Return "000093/000216/000126/000232/000225/000227"  
 
 // Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri,Andre Leitao)
-User Function EmEstAlm(cId,lAll)
+User Function EmEstAlm(cId,lAll,cxEmail)
 Local aUsers := {"000093","000126","000232","000216","000227"}
 Local cEmail := ""
 Local cEmails:= ""
 Local nI	 := 0
 
+Default cxEmail := "-"
+
 If Ascan(aUsers,cId) > 0 .OR. lAll
 	For nI := 1 To Len(aUsers)
 		If aUsers[nI] <> cId
 			cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
-			If !Empty(cEmail)
+			If !Empty(cEmail) .AND. !cEmail $ cxEmail
 				cEmails += cEmail+';'
 			EndIf
 		EndIf

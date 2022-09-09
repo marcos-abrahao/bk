@@ -224,7 +224,7 @@ EndIf
 cEmailCC += UsrRetMail(__cUserId)+';'
 
 // Incluir usuarios do almoxarifado 28/09/2021 - Fabio Quirino
-cEmail  += u_EmEstAlm(SF1->F1_XXUSER,.F.)
+cEmail  += u_EmEstAlm(SF1->F1_XXUSER,.F.,cEmail)
 
 aCabs   := {"Pré-Nota nº.:" + TRIM(SF1->F1_DOC) + " Série:" + SF1->F1_SERIE+ " Valor: "+ALLTRIM(TRANSFORM(U_GetValTot(.F.),"@E 99,999,999,999.99"))}
 aEmail 	:= {}

@@ -12,11 +12,13 @@ User Function MDIOk()
     
 Local cToken  := u_BKEnCode()
 
+/*
 If __cUserId == "000000"
    	If MsgYesNo("Deseja efetuar testes?")
 		u_BKTESTES("CN300AUTO")
 	EndIf
 EndIf
+*/
 //SetKey(K_SH_F7,  { || u_IsMVC() })     //Shift + F7
 
 If nModulo = 5 .OR. nModulo = 69

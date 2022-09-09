@@ -31,7 +31,7 @@ If TCSQLExec(cQuery) < 0
 	MsgStop(TCSQLERROR())
 endif
 
-U_EMAILSOL(SCP->CP_XXNSCOM)
+U_EMAILSOL(SCP->CP_XXNSCOM,"M185GRV")
 
 Return Nil 
 

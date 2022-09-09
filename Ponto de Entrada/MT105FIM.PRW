@@ -48,7 +48,7 @@ IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
 
-cEmail  += u_EmEstAlm(__cUserId,.T.)
+cEmail  += u_EmEstAlm(__cUserId,.T.,cEmail)
 
 dbSelectArea("SCP")
 SET ORDER TO 1               
@@ -89,7 +89,7 @@ IF nOpcap  == 3
 		MsgStop(TCSQLERROR())
 	endif
 
-	U_EMAILSOL(cSOLCOMPR)
+	U_EMAILSOL(cSOLCOMPR,"MT105FIM")
 ENDIF
 
 SCP->(dbGoTo(nREC_SCP))

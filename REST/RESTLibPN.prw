@@ -272,7 +272,7 @@ EndIf
 cEmailCC += UsrRetMail(__cUserId)+';'
 
 // Incluir usuarios do almoxarifado 28/09/2021 - Fabio Quirino
-cEmail  += u_EmEstAlm(cxUser,.F.)
+cEmail  += u_EmEstAlm(cxUser,.F.,cEmail)
 
 aCabs   := {"Pré-Nota nº.:" + TRIM(cDoc) + " Série:" + cSerie + " Fornecedor: "+cFornece}
 aEmail 	:= {}

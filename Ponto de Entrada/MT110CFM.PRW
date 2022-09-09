@@ -2,26 +2,28 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
+/*/{Protheus.doc} MT110CFM
+BK - Este Ponto de Entrada está localizado na função de Aprovação da Solicitação de Compras.
+Tem o objetivo de validar o usuário, após a execução das ações dos botões de Aprovação,
+Rejeição e Bloqueio, para todos os itens da Solicitação de Compras.
+
+Programa Fonte: mata110.prx
+
+@Return
+@author Adilson do Prado
+@since 13/07/14
+@version P11/P12
 /*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT110CFM ºAutor  ³Adilso do Prado   º Data ³  13/07/14     º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºPonto de Entrada para envio Solicitação de Compra aos compradores apos º±±
-±±º	aprovação      														  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
- 
+
+
 User Function MT110CFM()
-Local cNumSol	:= Paramixb[1]
+Local cNumSol	:= Paramixb[1]  // Número da Solicitação de Compras
+Local nOpcSel   := Paramixb[2]  // Contém a opção selecionada: 1 = Aprovar; 2 = Rejeitar; 3 = Bloquear
+Local aOpcSel   := {"Aprovada","Rejeitada","Bloqueada"}
+Local cOpcSel   := ""
 Local cAssunto	:= ""
 Local cEmail	:= "microsiga@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
-Local cEmailCC  := "" //microsiga@bkconsultoria.com.br;"
+Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
 Local _lJob		:= .F.
@@ -29,7 +31,7 @@ Local aCabs		:= {}
 Local aEmail	:= {}
 Local aMotivo	:= {} 
 Local lAprov	:= .T.
-Local cAlEmail	:= ""
+//Local cAlEmail	:= ""
 Local _cXXENDEN := ""
 Local _cXXEN 	:= ""
 Local _nXXEN 	:= 0
@@ -39,6 +41,10 @@ Local cQuery2 	:= ""
 Local _IX		as Numeric
 Local xi		as Numeric
 Local cUserC1   := ""
+
+If nOpcSel > 0 .and. nOpcSel < 4
+	cOpcSel := aOpcSel[nOpcSel]
+EndIf
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
@@ -86,11 +92,8 @@ For nX_ := 1 to Len(aUsers)
 NEXT
 */
 
-
-cAlEmail  += u_EmEstAlm(__cUserId,.T.)
-IF !EMPTY(cAlEmail)
-	cEmail += cAlEmail
-ENDIF
+cEmail += u_EmEstAlm(__cUserId,.T.,cEmail)
+cEmail += u_EmGerCom(cEmail)
 
 //Monta corpo do email Solicitação de Compras
 _cXXENDEN := ""  
@@ -124,6 +127,7 @@ Do While SC1->(!eof()) .AND. SC1->C1_NUM == cNumSol
     SC1->(dbskip())
 Enddo
 
+
 IF lAprov
 	//Verifica Saldo em estoque
 	aSaldos := {}
@@ -152,7 +156,7 @@ IF lAprov
 		ENDIF
 		IF nSaldo > 0
 			cQuery2 := ""
-			cQuery2 += "Select COUNT(CP_XXNSCOM) AS nXXNSCOM FROM "+RETSQLNAME("SCP")+" SCP"
+			cQuery2 += "SELECT COUNT(CP_XXNSCOM) AS nXXNSCOM FROM "+RETSQLNAME("SCP")+" SCP"
 			cQuery2 += " WHERE SCP.D_E_L_E_T_ = '' AND CP_XXNSCOM='"+aEmail[_IX,1]+"'"
 			cQuery2 += " AND CP_XXISCOM='"+aEmail[_IX,3]+"'"
 		
@@ -186,25 +190,28 @@ IF lAprov
     	ENDIF
     ENDIF            
 
-	//Adiciona Endereço de Entrega
-	IF 	!EMPTY(_cXXENDEN)
-    	_cXXEN := ""
-		_nXXEN := 0
-		_nXXEN := MLCOUNT(_cXXENDEN,80)
-		FOR xi := 1 TO _nXXEN
-   			_cXXEN += MemoLine(_cXXENDEN,80,xi)+" "
-		NEXT    
-		AADD(aEmail,{"<b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"})  
-		
-	ENDIF
-               
-	cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
-	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue"}//"Motivo"}
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM")
-	IF 	!EMPTY(_cXXENDEN)
-		cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
-    ENDIF
-	U_SendMail("MT110CFM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
 ENDIF
+
+
+//Adiciona Endereço de Entrega
+IF !EMPTY(_cXXENDEN)
+   	_cXXEN := ""
+	_nXXEN := 0
+	_nXXEN := MLCOUNT(_cXXENDEN,80)
+	FOR xi := 1 TO _nXXEN
+		_cXXEN += MemoLine(_cXXENDEN,80,xi)+" "
+	NEXT    
+	AADD(aEmail,{"<b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"})  
+ENDIF
+
+cAssunto:= "Solicitação de Compra nº.:"+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue"}//"Motivo"}
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM")
+IF 	!EMPTY(_cXXENDEN)
+	cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
+ENDIF
+U_SendMail("MT110CFM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+
+u_LogPrw("MT110CFM",cAssunto+" "+cEmail)
 
 Return Nil

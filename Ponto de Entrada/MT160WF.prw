@@ -20,6 +20,7 @@
 User Function MT160WF()
 Return U_MT161WF()
 
+
 User Function MT161WF()
 Local nCotacao  := PARAMIXB[1]
 Local cAssunto	:= ""
@@ -52,11 +53,10 @@ AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual") 
 
-cAlmox := u_GrpAlmox()
-cAlEmail := ""
+//cAlmox := u_GrpAlmox()
 cAlEmail := "microsiga@bkconsultoria.com.br;"
 
-cAlEmail  += u_EmEstAlm(__cUserId,.T.)
+cAlEmail += u_EmEstAlm(__cUserId,.T.,cAlEmail)
 
 aPedido := {}
 
@@ -73,7 +73,6 @@ Do While SC8->(!eof()) .AND. SC8->C8_NUM == nCotacao
 	ENDIF
 	SC8->(DbSkip())
 ENDDO                                                                                                                                                                                                  
-
 
 IF LEN(aPedido) < 1
    RETURN NIL

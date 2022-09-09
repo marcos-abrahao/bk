@@ -1,6 +1,7 @@
 #Include "PROTHEUS.CH"
 #include "FWMVCDEF.CH"
 
+
 User Function CNTA121()
 	Local aParam 	:= PARAMIXB
 	Local oObj 		as Object
@@ -63,7 +64,7 @@ Local cConteudo     := ''
 
 		nOpc := oObj:GetOperation() // PEGA A OPERAÇÃO
 
-		///ShwParam(aParam)
+		ShwParam(aParam)
 
 		If (cIdPonto == "FORMPRE")
 			If (cIdModel == "CNDMASTER" .AND. aParam[4] == "SETVALUE" .AND. aParam[5]="CND_REVGER")

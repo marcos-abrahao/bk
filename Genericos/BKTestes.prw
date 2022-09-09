@@ -30,7 +30,8 @@ Local oSay,oSay1,oSay2,oRot
 
 Default cRotTest := "BKPARGEN"
 
-Private cRot  := PAD("U_"+cRotTest,20)
+Private cRot := PAD("U_"+cRotTest,20)
+Private lEnd := .F.
 
 DEFINE DIALOG oDlg1;
  TITLE "Teste de User Functions"  ;
