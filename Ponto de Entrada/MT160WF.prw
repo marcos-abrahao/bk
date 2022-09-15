@@ -2,19 +2,12 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT160WF    ºAutor  ³Adilso do Prado     º Data ³  15/02/13 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºPonto de Entrada para envio Pedido de Compras para Liberação Alçada    º±±
-±±ºapos a cotação                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} MT160WF
+    Ponto de Entrada para envio Pedido de Compras para Liberação Alçada apos a cotação
+    @type  PE
+    @author Adilson do Prado
+    @since 15/02/13
+    @version 12.1.33
 /*/
 
 User Function MT160WF()
@@ -44,7 +37,7 @@ Local cGerCompras := u_GerCompras()
 Local nTotPed 	:= 0
 Local cXXJUST 	:= ""
 Local aSC1USER 	:= {} 
-Local IX_,IY_,_IX,xi
+Local IX_,IY_,xi
 
 Private cXXOBS   := Space(TamSX3("C7_XXOBS")[1]) 
 Private cXXURGEN := Space(TamSX3("C7_XXURGEN")[1])
@@ -91,7 +84,7 @@ cXXJUST := ""
 aSC1USER:= {} 
 
 FOR IX_ := 1 TO LEN(aPedido)
-	cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(aPedido[IX_])+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(aPedido[IX_])+" "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	DbSelectArea("SC7")
 	DbSeek(xFilial("SC7")+aPedido[IX_],.T.)
 	
@@ -137,42 +130,18 @@ FOR IX_ := 1 TO LEN(aPedido)
 		IF SC1->(DbSeek(xFilial("SC1")+SC7->C7_NUMSC+SC7->C7_ITEMSC,.F.))
 
 			cXXJUST  += IIF(SC1->C1_XXJUST $ cXXJUST,"",SC1->C1_XXJUST)
-			nScan:= 0
-    		nScan:= aScan(aSC1USER,{|x| x[1]== SC1->C1_USER }) 
-			IF nScan == 0 
-				AADD(aSC1USER,{SC1->C1_USER})
-            ENDIF
-            
+
+			AADD(aSC1USER,SC1->C1_USER)
+
 			AADD(aPedAlmx,{SC7->C7_ITEM,SC7->C7_PRODUTO,SC7->C7_DESCRI,SC7->C7_UM,STR(SC7->C7_QUANT,6,2),TRANSFORM(SC7->C7_PRECO,"@E 999,999,999.99"),TRANSFORM(SC7->C7_TOTAL,"@E 999,999,999.99"),SC7->C7_OBS,SC1->C1_CC,SC1->C1_XXDCC,SC1->C1_SOLICIT})
- 
+
 	   		AADD(aEmail,{SC1->C1_SOLICIT,SC1->C1_NUM,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,STR(SC1->C1_QUANT-SC1->C1_XXQEST,6,2),DTOC(SC1->C1_EMISSAO),DTOC(SC1->C1_DATPRF),aMotivo[val(SC1->C1_XXMTCM)],TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99"),TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99"),"<b>Obs: "+SC1->C1_OBS,"<b>Contrato: "+SC1->C1_CC,"<b>Desc.Contr: "+SC1->C1_XXDCC,"<b>Objeto: "+SC1->C1_XXOBJ})
-	   		IF SM0->M0_CODIGO == "01" .AND. SC1->C1_CC >= '000000001' .AND. SC1->C1_CC <= '000008001'
+	   		IF SM0->M0_CODIGO == "01" .AND. SUBSTR(SC1->C1_CC,1,3) = '000'
 				lContrato := .F.
 	   		ELSE
 	   			lContrato := .T.
 	   		ENDIF
-/*
 
-	   		IF SM0->M0_CODIGO == "01" .AND. SC1->C1_CC > '000008001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "02" .AND. SC1->C1_CC >= '000000001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "04" .AND. SC1->C1_CC >= '000000001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "06" //.AND. SC1->C1_CC >= '000000001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "07" .AND. SC1->C1_CC <> '000000001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "08" //.AND. SC1->C1_CC <> '000000001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "09" //.AND. SC1->C1_CC <> '000000001'
-	   			lContrato := .T.
-	   		ELSEIF SM0->M0_CODIGO == "10" //.AND. SC1->C1_CC <> '000000001'
-	   			lContrato := .T.
-	   		ELSE
-	   			lContrato := .F.
-	   		ENDIF
-  */	   		
    			aITx_ := {}
 			DbSelectArea("SC8")
 			SC8->(DbSetOrder(1))
@@ -197,20 +166,13 @@ FOR IX_ := 1 TO LEN(aPedido)
 		SC7->(DbSkip())
 	ENDDO
 	
- 	cEmail := "microsiga@bkconsultoria.com.br;"
-	
 	DbSelectArea("SCR")
 	SCR->(DbSetOrder(1))
 	DbSeek(xFilial("SCR")+'PC'+cNumPC,.T.)
 	Do While SCR->(!eof()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(cNumPC)
 		IF lContrato
 			IF SCR->CR_USER $ cGerGestao
-				PswOrder(1) 
-				PswSeek(SCR->CR_USER) 
-				aUser  := PswRet(1)
-				IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
-					cEmail += ALLTRIM(aUser[1,14])+';'
-				ENDIF
+				AADD(aSC1USER,SC1->C1_USER)
 			ELSEIF SCR->CR_USER $ cGerCompras
 				RecLock("SCR",.F.)
 				SCR->(dbDelete())
@@ -218,12 +180,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 			ENDIF
 		ELSE
 			IF SCR->CR_USER $ cGerCompras
-				PswOrder(1) 
-				PswSeek(SCR->CR_USER) 
-				aUser  := PswRet(1)
-				IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
-					cEmail += ALLTRIM(aUser[1,14])+';'
-				ENDIF
+				AADD(aSC1USER,SC1->C1_USER)
 			ELSEIF SCR->CR_USER $ cGerGestao
 				RecLock("SCR",.F.)
 				SCR->(dbDelete())
@@ -235,16 +192,10 @@ FOR IX_ := 1 TO LEN(aPedido)
 	Enddo
 
  	//EMAIL SOLICITANTE
- 	FOR _IX := 1 TO LEN(aSC1USER)
-		PswOrder(1) 
-		PswSeek(aSC1USER[_IX,1]) 
-		aUser  := PswRet(1)
-		IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
-			cEmail += ALLTRIM(aUser[1,14])+';'
-		ENDIF
- 	NEXT
+ 	cEmail := "microsiga@bkconsultoria.com.br;"
+	cEmail += u_aUsrEmail(aSC1USER)
 
-	IF 	!EMPTY(cXXJUST)
+	IF !EMPTY(cXXJUST)
     	cJust := ""
 		nJust := 0
 		nJust := MLCOUNT(cXXJUST,80)
@@ -255,19 +206,15 @@ FOR IX_ := 1 TO LEN(aPedido)
 	ENDIF
 	
 	aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
-	
-	  
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT160WF")
-
 	cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
-
 	
 	U_SendMail("MT160WF",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
 	_lJob		:= .T.
 
 	//Pedido de Compras para Almoxarifado    
 
-	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+"   Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+" Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
 	cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT160WF")
 	U_SendMail("MT160WF",cAssunto,cAlEmail,cEmailCC,cMsg,"",.T.)

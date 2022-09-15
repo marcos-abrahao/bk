@@ -2,19 +2,14 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณMT097END บAutor  ณAdilson do Prado          Data ณ  18/02/13 บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบPonto de Entrada para envio Pedido de Compras para Libera็ใo Al็ada    บฑฑ
-ฑฑบRetorno ao 02 Nivel e ao grupo de compras						      บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
+/*/{Protheus.doc} ณMT097END
+    Ponto de Entrada para envio Pedido de Compras para Libera็ใo Al็ada 
+	Retorno ao 02 Nivel e ao grupo de compras
+    @type  PE
+    @author Adilson do Prado
+    @since 18/02/13
+    @version 12.1.33
+/*/
 
 User Function MT097END() 
 /*
@@ -70,24 +65,15 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	ENDIF
 
 	cEmUSER := ""
-	PswOrder(1) 
-	PswSeek(SF1->F1_XXUSER) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmUSER += ALLTRIM(aUser[1,14])+';'
+	IF !EMPTY(SF1->F1_XXUSER)
+		cEmUSER += UsrRetMail(SF1->F1_XXUSER)+';'
 	ENDIF                                                                                                
-
-	PswSeek(SF1->F1_XXUSERS) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmUSER += ALLTRIM(aUser[1,14])+';'
+	IF !EMPTY(SF1->F1_XXUSERS)
+		cEmUSER += UsrRetMail(SF1->F1_XXUSERS)+';'
 	ENDIF
-	
 	// 23/07/15 - Incluir no email o usuแrio que liberou
-	PswSeek(__cUserId) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		cEmUSER += ALLTRIM(aUser[1,14])+';'
+	IF !EMPTY(__cUserId)
+		cEmUSER += UsrRetMail(__cUserId)+';'
 	ENDIF
 	
 	cEmail += cEmUSER
@@ -108,7 +94,6 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 
 	Return Nil
 ENDIF
- 
 
 AADD(aMotivo,"Inํcio de Contrato")
 AADD(aMotivo,"Reposi็ใo Programada")
@@ -149,11 +134,8 @@ Do While QSCR->(!eof())
 		ENDIF
 		IF SAL->AL_USER == QSCR->CR_USER .AND. SAL->AL_APROV == QSCR->CR_APROV
 			cEmUSER := ""
-			PswOrder(1) 
-			PswSeek(QSCR->CR_USER) 
-			aUser  := PswRet(1)
-			IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-				cEmUSER := ALLTRIM(aUser[1,14])+';'
+			IF !EMPTY(QSCR->CR_USER) 
+				cEmUSER := UsrRetMail(QSCR->CR_USER)+';'
 			ENDIF                                                                                                
 			AADD(aSCR,{QSCR->CR_USER,QSCR->CR_APROV,SAL->AL_TPLIBER,cEmUSER})
 		ENDIF
@@ -162,8 +144,6 @@ Do While QSCR->(!eof())
 QSCR->(dbskip())
 ENDDO
 QSCR->(DbCloseArea())    
-
-
 
 IF nOpcao == 2
 	IF cTPLIBER == "P"

@@ -84,7 +84,7 @@ For nx := 1 To Len(aAllusers)
 		Exit
 	Endif
 Next
-Return (lRet)
+Return lRet
 
 
 
@@ -101,7 +101,7 @@ For nx := 1 To Len(aGrp)
 	EndIf
 Next
 
-Return (lRet)
+Return lRet
 
 
 // Retorna se o usuário pertence ao STAF 
@@ -112,7 +112,7 @@ Local lRet := .F.
 If cId $ "000011/000016/000076/000093/000194/000056/000165/000116/"
     lRet := .T.
 EndIf
-Return (lRet)
+Return lRet
 
 
 // Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
@@ -123,7 +123,7 @@ Local lRet := .F.
 If cId $ "000000/000093/000005/000116/000138/000126/"
     lRet := .T.
 EndIf
-Return (lRet)
+Return lRet
 
 
 // Gerente Compras
@@ -135,20 +135,7 @@ Return "000138/000116/000093"
 // Emails dos gerenciadores de compras
 User Function EmGerCom(cxEmail)
 Local aUsers := {"000138","000116","000093"} // Michele,Luis,Fabio
-Local cEmail := ""
-Local cEmails:= ""
-Local nI	 := 0
-Default cxEmail := "-"
-
-For nI := 1 To Len(aUsers)
-	cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
-	If !Empty(cEmail) .AND. !cEmail $ cxEmail
-		cEmails += cEmail+';'
-	EndIf
-Next
-
-Return (cEmails)
-
+Return u_aUsrEmail(aUsers,cxEmail)
 
 
 // Gerente Gestão
@@ -185,62 +172,54 @@ Return "'000093','000126','000216','000225','000226','000227'"
 User Function UsrMAlmox()
 Return "000093/000216/000126/000232/000225/000227"  
 
+
 // Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri,Andre Leitao)
 User Function EmEstAlm(cId,lAll,cxEmail)
 Local aUsers := {"000093","000126","000232","000216","000227"}
-Local cEmail := ""
 Local cEmails:= ""
-Local nI	 := 0
 
 Default cxEmail := "-"
 
 If Ascan(aUsers,cId) > 0 .OR. lAll
-	For nI := 1 To Len(aUsers)
-		If aUsers[nI] <> cId
-			cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
-			If !Empty(cEmail) .AND. !cEmail $ cxEmail
-				cEmails += cEmail+';'
-			EndIf
-		EndIf
-	Next
+	cEmails := u_aUsrEmail(aUsers,cxEmail)
 EndIf
 
-Return (cEmails)
+Return cEmails
 
 
 
 // Email para Grupo Master Repac (Fabia, Bruno e Fernando Sampaio)
 User Function EmMRepac()
 Local aUsers := {"000023","000153","000241"}
-Local cEmail := ""
-Local cEmails:= ""
-Local nI	 := 0
-
-For nI := 1 To Len(aUsers)
-	cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
-	If !Empty(cEmail)
-		cEmails += cEmail+';'
-	EndIf
-Next
-
-Return (cEmails)
+Return u_aUsrEmail(aUsers)
 
 
 // Email para Grupo Master Repac (Vanderleia, Bruno e Marcio M)
 User Function EmpPcAprv()
 Local aUsers := {"000056","000153","000240"}
+Return u_aUsrEmail(aUsers)
+
+
+
+// Retorna emails de diversos usuarios (array de codigos)
+User Function aUsrEmail(aUsers,cxEmail)
 Local cEmail := ""
 Local cEmails:= ""
 Local nI	 := 0
 
+Default cxEmail := "-;"
+
 For nI := 1 To Len(aUsers)
-	cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
-	If !Empty(cEmail)
-		cEmails += cEmail+';'
+	If !Empty(aUsers[nI])
+		cEmail  := ALLTRIM(UsrRetMail(aUsers[nI]))
+		If !Empty(cEmail) .AND. !cEmail $ cxEmail
+			cEmails += cEmail+";"
+			cxEmail += cEmail+";"
+		EndIf
 	EndIf
 Next
 
-Return (cEmails)
+Return cEmails
 
 
 

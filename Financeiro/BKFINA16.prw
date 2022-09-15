@@ -549,11 +549,11 @@ For nI:=1 TO LEN(aTitGer)
 	AADD( aBaixa, { "AUTDESCONT" 	, aTitGer[nI,15]	, Nil } )	// 13
 	AADD( aBaixa, { "AUTMULTA"	 	, aTitGer[nI,16]	, Nil } )	// 14
 	AADD( aBaixa, { "AUTVALREC"  	, aTitGer[nI,13] - aTitGer[nI,14]- aTitGer[nI,15] + aTitGer[nI,16]					, Nil } )	// 20
-	AADD( aBaixa, { "AUTTXMOEDA"  	, 1 				, Nil } )	// 21
+	//AADD( aBaixa, { "AUTTXMOEDA"  	, 1 				, Nil } )	// 21
 
 	lMsErroAuto := .F.
 	
-   	Begin Transaction
+   	Begin Transaction 
 		
 		MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 			
@@ -565,6 +565,7 @@ For nI:=1 TO LEN(aTitGer)
 			DisarmTransaction()
 			break
 		ENDIF
+
   	End Transaction
 
 	IF aTitGer[nI,14] > 0 
@@ -605,7 +606,7 @@ For nI:=1 TO LEN(aTitGer)
 			MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 				
 			IF lMsErroAuto
-				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
+				cErrLog:= CRLF+MostraErro("\log\","BKFINA16.ERR")
 				u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
 				MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
 				lOK := .F.
