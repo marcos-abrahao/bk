@@ -46,6 +46,7 @@ If FWCodEmp() == "01"
 				ProcDSEMP()
 				ProcDSCC()
 				ProcDSFOL()
+				ProcDSFER()
 				ProcDSUSR()
 			EndIf
 
@@ -76,6 +77,9 @@ If FWCodEmp() == "01"
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela FOLHA do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSFOL() }, "", "Atualizando a tabela FOLHA do banco de dados PowerBk...")
+		EndIf
+		If MsgYesNo("Confirma a atualização da tabela FERIAS do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSFER() }, "", "Atualizando a tabela FERIAS do banco de dados PowerBk...")
 		EndIf
 		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
@@ -372,6 +376,118 @@ u_LogMemo("BKDASH01-FOL.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
 
+// Atualização da tabela FERIAS do banco de dados PowerBk
+Static Function ProcDSFER
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+
+u_LogPrw(cPerg,"Ferias")
+
+
+BEGINCONTENT VAR cQuery
+WITH FER AS 
+(
+SELECT DISTINCT --TOP 100
+SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R034fun.NumEmp,2),' ','0'),1,2) COLLATE Latin1_General_BIN AS EMPRESA,
+GETDATE() AS DATAPRC,
+
+(SELECT TOP 1 SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9)
+		FROM BKIntegraRubi.dbo.CUSTOSIGA 
+		WHERE bk_senior.bk_senior.R034fun.NumEmp = BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+		AND bk_senior.bk_senior.R034fun.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+		AND bk_senior.bk_senior.R034fun.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol) 
+		--AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+		AS CONTRATO,
+/*
+(CASE WHEN bk_senior.bk_senior.R034fun.NumEmp = 14 AND 
+		SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
+        WHEN bk_senior.bk_senior.R034fun.NumEmp = 15 AND 
+        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
+  ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO,
+*/
+bk_senior.bk_senior.R034fun.NumEmp,
+bk_senior.bk_senior.R034fun.NumCad,
+bk_senior.bk_senior.R034fun.nomfun,
+bk_senior.bk_senior.R034fun.datnas,
+bk_senior.bk_senior.R040acu.IniPer AS IniPerAcu,
+bk_senior.bk_senior.R040PER.IniPer,
+bk_senior.bk_senior.R040PER.FimPer,
+bk_senior.bk_senior.R040PER.QtdDir,
+bk_senior.bk_senior.R040PER.QtdAfa,
+bk_senior.bk_senior.R040PER.QtdFal,
+bk_senior.bk_senior.R040PER.SitPer,
+bk_senior.bk_senior.R040PER.QtdSld
+
+FROM bk_senior.bk_senior.R034fun
+/*
+INNER JOIN bk_senior.bk_senior.R044cal  
+        ON  bk_senior.bk_senior.R034fun.NumEmp = bk_senior.bk_senior.R044cal.NumEmp
+        AND bk_senior.bk_senior.R034fun.CodCal= bk_senior.bk_senior.R044cal.Codcal
+LEFT JOIN BKIntegraRubi.dbo.CUSTOSIGA 
+		ON bk_senior.bk_senior.R034fun.NumEmp = BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+		AND bk_senior.bk_senior.R034fun.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+		AND bk_senior.bk_senior.R034fun.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
+		--AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+*/
+INNER JOIN bk_senior.bk_senior.R040ACU
+		ON bk_senior.bk_senior.R034fun.NumEmp = bk_senior.bk_senior.R040ACU.NumEmp
+		AND bk_senior.bk_senior.R034fun.NumCad = bk_senior.bk_senior.R040ACU.Numcad
+		AND bk_senior.bk_senior.R034fun.TipCol = bk_senior.bk_senior.R040ACU.TipCol
+
+INNER JOIN bk_senior.bk_senior.R040PER
+		ON bk_senior.bk_senior.R034fun.NumEmp = bk_senior.bk_senior.R040PER.NumEmp
+		AND bk_senior.bk_senior.R034fun.NumCad = bk_senior.bk_senior.R040PER.Numcad
+		AND bk_senior.bk_senior.R034fun.TipCol = bk_senior.bk_senior.R040PER.TipCol
+		AND bk_senior.bk_senior.R040ACU.IniPer = bk_senior.bk_senior.R040PER.IniPer
+
+)
+SELECT 
+EMPRESAS.NOMEEMP AS NOMEEMP,
+FER.*,
+CCUSTOS.DESCRCC AS DESCRICAO
+INTO PowerBk.dbo.FERIAS
+FROM FER
+LEFT JOIN PowerBk.dbo.EMPRESAS ON FER.EMPRESA = EMPRESAS.EMPRESA COLLATE Latin1_General_BIN
+LEFT JOIN PowerBk.dbo.CCUSTOS  ON FER.EMPRESA = CCUSTOS.EMPRESA AND FER.CONTRATO = CCUSTOS.CCUSTO COLLATE Latin1_General_BIN
+ORDER by NumEmp,NumCad,IniPer
+
+--WHERE SUBSTRING(FER.CONTRATO,1,3) <> '000'
+
+ENDCONTENT
+
+u_LogMemo("BKDASH01-FER.SQL",cQuery)
+
+If !TCIsConnected() 
+  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  Return( Nil )
+Endif  
+
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.FERIAS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.FERIAS "+CRLF
+nErro   := TcSqlExec(cQueryD)
+
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
+	EndIf
+EndIf
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-FER.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return
 
 
 

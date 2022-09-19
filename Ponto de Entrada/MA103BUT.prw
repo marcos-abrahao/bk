@@ -22,6 +22,7 @@ Local cHist     := ""
 
 Private aDados	:= {}
 Private mParcel := ""
+Private dPrvPgt := SF1->F1_XXPVPGT
 
 If !Inclui
     // Inclui nova aba no documento de entrada

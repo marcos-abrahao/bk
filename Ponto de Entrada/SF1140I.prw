@@ -255,6 +255,9 @@ IF !EMPTY(mParcel)
 		aTmp := StrTokArr(memoline(mParcel, 200, nX),";")
 		If !Empty(aTmp[1])
 			aAdd(aDados,{aTmp[1],CTOD(aTmp[2]),VAL(aTmp[3]),.F.})
+			If nX == 1
+				dPrvPgt := CTOD(aTmp[2])
+			EndIf
 		EndIf
 	Next
 ENDIF
@@ -268,6 +271,10 @@ For nX := 1 To Len(aDados)
 	If nX == 1
 		dPrvPgt := oLista:aCols[nX,2]
 	EndIf
+	//aDados[nX,1] := oLista:aCols[nX,1]
+	//aDados[nX,2] := oLista:aCols[nX,2]
+	//aDados[nX,3] := oLista:aCols[nX,3]
+
 	mParcel += oLista:aCols[nX,1]+";"
 	mParcel += DTOC(oLista:aCols[nX,2])+";"
 	mParcel += ALLTRIM(STR(oLista:aCols[nX,3],14,2))+";"+CRLF
@@ -312,38 +319,31 @@ Else
 	EndIf
 EndIf
 
-/*
 If lRet
-	If Empty(dPrvPgt)
-		MsgStop("Informe a data prevista para pagamento","SF1140I - Validação data prevista de pagamento")
-		oGetPvPgt:Setfocus()
+	If Empty(cxCond) .OR. !ExistCpo("SE4", cxCond)
+		MsgStop("Condição de pagamento não encontrada","SF1140I - Validação da cond. de pgto")
+		oGetCond:Setfocus()
 		lRet := .F.
-	Else
-		If dPrvPgt < dDataBase
-			MsgStop("Data prevista para pagamento inferior a database","SF1140I - Validação data prevista de pagamento")
-			oGetPvPgt:Setfocus()
+	EndIf
+EndIf
+
+If lRet
+	If Len(oLista:aCols) > 0
+		//dPrvPgt := aDados[1,2]
+		dPrvPgt := oLista:aCols[1,2]
+	EndIf
+	If dPrvPgt < dValid
+		u_LogPrw("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid))
+		If EMPTY(cJsPgt)
+			MsgStop("Data prevista para pagamento inferior a 2 dias uteis, justifique","SF1140I - Validação data prevista de pagamento")
+			oGetJsPgt:Setfocus()
 			lRet := .F.
-		ElseIf dPrvPgt < dValid
-			If EMPTY(cJsPgt)
-				MsgStop("Data prevista para pagamento inferior a 2 dias uteis, justifique","SF1140I - Validação data prevista de pagamento")
-				oGetJsPgt:Setfocus()
-				lRet := .F.
-			EndIf
 		EndIf
 	EndIf
 EndIf
-*/
+
 
 If lRet
-	/*
-	If Empty(cChvNfe) .AND. !Empty(cEspecie)
-		If (ALLTRIM(UPPER(cEspecie))+"/") $ "SPED/BPE/CTE/CTEOS/NF3E/NFA/"   // MV_CHVESPE
-			MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
-			oGetChv:Setfocus()
-			lRet := .F.
-		EndIf
-	EndIf
-	*/
 
 	// Validação da Chave NFE
 	If !Empty(cEspecie)
