@@ -2,26 +2,11 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} BKDASH01
-BK - Faturamento por contrato
-
+BK - Geração de tabelas para o PowerBI no banco PowerBK - Gestão
 @Return
 @author Marcos Bispo Abrahão
-@since 28/08/2020
+@since 28/08/2022
 @version P12.1.25
-
-
-Faltam:
-
-Tabela Geral: folha, calculo de resultado, % rentabilidade
-Tabela Folha: tudo
-Tabela GastosGerais: Categorias de produtos
-Tabela Previsoesdecustos: 
-
-Ok:
-Tabela Previsoesdegastos: Ok
-Tabela Faturamento: Faturamento Liquido
-
-
 /*/
 
 User Function BKDASH01()
@@ -48,6 +33,7 @@ If FWCodEmp() == "01"
 				ProcDSFOL()
 				ProcDSFER()
 				ProcDSUSR()
+				ProcDSTur()
 			EndIf
 
 			ProcDSFAT()
@@ -63,6 +49,15 @@ If FWCodEmp() == "01"
 			ProcDSGER()
 		EndIf
 	Else
+
+		If MsgYesNo("Confirma a criação/atualização da procedure BKTURNOVER?", cPerg)
+			FWMsgRun(, {|oSay| ProcPRTur() }, "", "Atualizando a procedure BKTURNOVER...")
+		EndIf
+
+		If MsgYesNo("Confirma a atualização da tabela FOLHATUR do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| ProcDSTUR() }, "", "Atualizando a tabela FOLHATUR do banco de dados PowerBk...")
+		EndIf
+
 		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSDP1() }, "", "Atualizando a tabela PREVDESP1 do banco de dados PowerBk...")
 		EndIf
@@ -170,6 +165,7 @@ BEGINCONTENT VAR cQuery
 		          SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
 		     ELSE BKIntegraRubi.dbo.CUSTOSIGA.ccSiga END) +
 	    SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS CHAVE,
+	bk_senior.bk_senior.R044CAL.PerRef AS COMPETD,
 	bk_senior.bk_senior.R046VER.NumCad AS REGISTRO,
 	bk_senior.bk_senior.R034FUN.nomfun COLLATE Latin1_General_BIN AS NOME,
 	bk_senior.bk_senior.R034FUN.codcar AS CODCARGO,
@@ -388,61 +384,70 @@ u_LogPrw(cPerg,"Ferias")
 
 
 BEGINCONTENT VAR cQuery
-WITH FER AS 
+WITH FER1 AS 
 (
-SELECT DISTINCT --TOP 100
+SELECT --DISTINCT --TOP 100
 SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R034fun.NumEmp,2),' ','0'),1,2) COLLATE Latin1_General_BIN AS EMPRESA,
 GETDATE() AS DATAPRC,
-
 (SELECT TOP 1 SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9)
-		FROM BKIntegraRubi.dbo.CUSTOSIGA 
-		WHERE bk_senior.bk_senior.R034fun.NumEmp = BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
-		AND bk_senior.bk_senior.R034fun.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
-		AND bk_senior.bk_senior.R034fun.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol) 
-		--AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
-		AS CONTRATO,
-/*
-(CASE WHEN bk_senior.bk_senior.R034fun.NumEmp = 14 AND 
-		SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
-        WHEN bk_senior.bk_senior.R034fun.NumEmp = 15 AND 
-        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
-  ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO,
-*/
+	FROM BKIntegraRubi.dbo.CUSTOSIGA 
+	WHERE bk_senior.bk_senior.R034fun.NumEmp = BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+	AND bk_senior.bk_senior.R034fun.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+	AND bk_senior.bk_senior.R034fun.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol) AS CCUSTO,
 bk_senior.bk_senior.R034fun.NumEmp,
 bk_senior.bk_senior.R034fun.NumCad,
 bk_senior.bk_senior.R034fun.nomfun,
 bk_senior.bk_senior.R034fun.datnas,
-bk_senior.bk_senior.R040acu.IniPer AS IniPerAcu,
 bk_senior.bk_senior.R040PER.IniPer,
 bk_senior.bk_senior.R040PER.FimPer,
 bk_senior.bk_senior.R040PER.QtdDir,
 bk_senior.bk_senior.R040PER.QtdAfa,
 bk_senior.bk_senior.R040PER.QtdFal,
+bk_senior.bk_senior.R040PER.QtdSld,
+bk_senior.bk_senior.R034fun.caudem,
+bk_senior.bk_senior.R034fun.datafa,
+CONVERT(NCHAR(6),bk_senior.bk_senior.R034fun.datafa,112) as COMPETAMAF,
+bk_senior.bk_senior.R034fun.datadm,
+CONVERT(NCHAR(6),bk_senior.bk_senior.R034fun.datadm,112) as COMPETAMAD,
+bk_senior.bk_senior.R042CAU.DesDem,
+bk_senior.bk_senior.R034fun.sitafa,
+(CASE 
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  1 THEN 'TRABALHANDO'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  2 THEN 'FÉRIAS'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  3 THEN 'AUXÍLIO DOENÇA'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  4 THEN 'ACIDENTE DE TRABALHO'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  5 THEN 'SERVIÇO MILITAR'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  6 THEN 'LICENÇA MATERNIDADE'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  7 THEN 'DEMITIDO'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  8 THEN 'LIC. S/ REMUNARAÇÃO'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =  9 THEN 'LIC. REM. P/ EMPRESA'
+ WHEN bk_senior.bk_senior.R034fun.sitafa = 14 THEN 'ATESTADO'
+ WHEN bk_senior.bk_senior.R034fun.sitafa = 22 THEN 'APOSENTADORIA'
+ WHEN bk_senior.bk_senior.R034fun.sitafa =107 THEN 'APOSENTADORIA INVALIDEZ COD32'
+END) AS DESCAFA,
 bk_senior.bk_senior.R040PER.SitPer,
-bk_senior.bk_senior.R040PER.QtdSld
-
+(CASE WHEN bk_senior.bk_senior.R040PER.SitPer = 0 THEN 'ABERTA'
+  WHEN bk_senior.bk_senior.R040PER.SitPer = 1 THEN 'QUITADA NORMAL'
+  WHEN bk_senior.bk_senior.R040PER.SitPer = 2 THEN 'QUITADA RESCISÃO'
+     WHEN bk_senior.bk_senior.R040PER.SitPer = 3 THEN 'QUITADA P/ FALTAS'
+     WHEN bk_senior.bk_senior.R040PER.SitPer = 4 THEN 'QUITADA P/ AFASTAMENTOS'
+END) AS DESCRICAOPERIODO
 FROM bk_senior.bk_senior.R034fun
-/*
-INNER JOIN bk_senior.bk_senior.R044cal  
-        ON  bk_senior.bk_senior.R034fun.NumEmp = bk_senior.bk_senior.R044cal.NumEmp
-        AND bk_senior.bk_senior.R034fun.CodCal= bk_senior.bk_senior.R044cal.Codcal
-LEFT JOIN BKIntegraRubi.dbo.CUSTOSIGA 
-		ON bk_senior.bk_senior.R034fun.NumEmp = BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
-		AND bk_senior.bk_senior.R034fun.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
-		AND bk_senior.bk_senior.R034fun.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
-		--AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
-*/
-INNER JOIN bk_senior.bk_senior.R040ACU
-		ON bk_senior.bk_senior.R034fun.NumEmp = bk_senior.bk_senior.R040ACU.NumEmp
-		AND bk_senior.bk_senior.R034fun.NumCad = bk_senior.bk_senior.R040ACU.Numcad
-		AND bk_senior.bk_senior.R034fun.TipCol = bk_senior.bk_senior.R040ACU.TipCol
-
-INNER JOIN bk_senior.bk_senior.R040PER
-		ON bk_senior.bk_senior.R034fun.NumEmp = bk_senior.bk_senior.R040PER.NumEmp
-		AND bk_senior.bk_senior.R034fun.NumCad = bk_senior.bk_senior.R040PER.Numcad
-		AND bk_senior.bk_senior.R034fun.TipCol = bk_senior.bk_senior.R040PER.TipCol
-		AND bk_senior.bk_senior.R040ACU.IniPer = bk_senior.bk_senior.R040PER.IniPer
-
+LEFT JOIN bk_senior.bk_senior.R040PER
+	ON bk_senior.bk_senior.R034fun.NumEmp  = bk_senior.bk_senior.R040PER.NumEmp
+	AND bk_senior.bk_senior.R034fun.NumCad = bk_senior.bk_senior.R040PER.Numcad
+	AND bk_senior.bk_senior.R034fun.TipCol = bk_senior.bk_senior.R040PER.TipCol
+LEFT JOIN  bk_senior.bk_senior.R042CAU 
+	ON bk_senior.bk_senior.R034fun.caudem  = bk_senior.bk_senior.R042CAU.caudem
+WHERE bk_senior.bk_senior.R034fun.tipcol = 1
+),
+FER AS (
+SELECT 
+(CASE WHEN EMPRESA = '14' THEN '302000508'
+      WHEN EMPRESA = '15' THEN '305000554'
+	ELSE SUBSTRING(CCUSTO,1,9) END) AS CONTRATO,
+*
+FROM FER1
 )
 SELECT 
 EMPRESAS.NOMEEMP AS NOMEEMP,
@@ -453,8 +458,6 @@ FROM FER
 LEFT JOIN PowerBk.dbo.EMPRESAS ON FER.EMPRESA = EMPRESAS.EMPRESA COLLATE Latin1_General_BIN
 LEFT JOIN PowerBk.dbo.CCUSTOS  ON FER.EMPRESA = CCUSTOS.EMPRESA AND FER.CONTRATO = CCUSTOS.CCUSTO COLLATE Latin1_General_BIN
 ORDER by NumEmp,NumCad,IniPer
-
---WHERE SUBSTRING(FER.CONTRATO,1,3) <> '000'
 
 ENDCONTENT
 
@@ -2984,7 +2987,8 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
-Local aUsers    := AllUsers()
+//Local aUsers    := AllUsers()
+Local aUsersF	:= FWSFALLUSERS()
 Local aGrupos   := AllGroups()
 Local aGrpUsr   := {}
 Local nZ 		:= 0
@@ -3037,9 +3041,9 @@ If nErro != 0
 	EndIf
 EndIf
 
-For nX := 1 To Len(aUsers)
+For nX := 1 To Len(aUsersF)
     // Popula elemento
-    xUsrCodigo   := aUsers[nX][01][01]                                           //CODIGO
+    xUsrCodigo   := aUsersF[nX][02]                                              //CODIGO
     xUsrConta    := Upper(FWSFUser(xUsrCodigo,"DATAUSER","USR_CODIGO",.F.))      //USUARIO
     xUsrSenha    := RTrim(FWSFUser(xUsrCodigo,"DATAUSER","USR_PSWMD5",.F.))      //SENHA
     xUsrNome     := Upper(FWSFUser(xUsrCodigo,"DATAUSER","USR_NOME",.F.))        //NOME
@@ -3050,9 +3054,9 @@ For nX := 1 To Len(aUsers)
     xUsrUltLog   := FWUsrUltLog(xUsrCodigo)                                      //INFORMACOES DE LOGIN
 
     // Obtem grupos de acesso do usuario
-    aGrpUsr := aUsers[nX][01][10]
+    aGrpUsr := FWSFUsrGrps(xUsrCodigo)
     For nZ := 1 To Len(aGrpUsr)
-        nPosGrp   := aScan(aGrupos, {|elem|AllTrim(elem[1][1]) == AllTrim(aGrpUsr[nZ])})
+        nPosGrp   := aScan(aGrupos, {|elem| AllTrim(elem[1][1]) == AllTrim(aGrpUsr[nZ])})
         xUsrGrupo += Upper(AllTrim(aGrupos[nPosGrp][1][2])) + "#"
     Next nZ
     cQuery := "INSERT INTO PowerBk.dbo.USUARIOS " + CRLF
@@ -3095,307 +3099,179 @@ u_LogMemo("BKDASH01-USR.SQL",cErro1+cQueryD+cErro2+cQuery)
 Return
 
 
-/*
+
+// Atualização da Procedure BKTURNOVER do banco de dados dataP10
+Static Function ProcPRTur
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+
+u_LogPrw(cPerg,"Create BKTURNOVER")
+
+If TCSPExist( "BKTURNOVER" )
+	cQueryD := "DROP PROCEDURE BKTURNOVER"  
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+EndIf
+
+BEGINCONTENT VAR cQuery
+
+CREATE PROCEDURE BKTURNOVER
+AS
+-- Turnover
+DECLARE @NumEmp   smallint, @TipCol smallint, @NumCad int, @DatAlt datetime, @CodFil int
+DECLARE @NumEmp1  smallint, @TipCol1 smallint, @NumCad1 int, @DatAlt1 datetime, @CodFil1 int
+DECLARE @DataAfa  datetime
+DECLARE @DataFim  datetime
+DECLARE @DataNext datetime
+DECLARE @nAfa     int
+DECLARE @Compet   VARCHAR(6)
+DECLARE @CompetD  date
+
+IF OBJECT_ID(N'PowerBk.dbo.FOLHAFIL', N'U') IS NOT NULL   DROP TABLE PowerBk.dbo.FOLHAFIL 
+IF OBJECT_ID(N'PowerBk.dbo.FOLHATUR', N'U') IS NOT NULL   DROP TABLE PowerBk.dbo.FOLHATUR
+
+-- Tabela com Funcionarios x CCustos
+CREATE TABLE PowerBk.dbo.FOLHAFIL(NumEmp smallint, CompetAM date, TipCol smallint, NumCad int, DatAlt datetime, CodFil int, ContAd int,ContAt int, ContAf int, DataFim datetime)
+
+-- Cursor para percorrer os registros
+DECLARE cursor1 CURSOR FOR
+--SELECT TOP 1000 NumEmp,TipCol,Numcad,DatAlt,CodFil
+SELECT NumEmp,TipCol,Numcad,DatAlt,CodFil
+ FROM [bk_senior].[bk_senior].[R038hfi]
+ WHERE TipCol = 1
+ ORDER BY NumEmp,TipCol,Numcad,DatAlt,CodFil
+
+--Abrindo Cursor
+OPEN cursor1
+ 
+-- Lendo a próxima linha
+FETCH NEXT FROM cursor1 INTO @NumEmp,@TipCol,@Numcad,@DatAlt,@CodFil
+ 
+-- Percorrendo linhas do cursor (enquanto houverem)
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+	--SET @DataAfa = (SELECT datafa FROM [bk_senior].[bk_senior].[r034fun]
+	--							   WHERE numemp = @NumEmp AND tipcol = @TipCol AND numcad = @Numcad AND SitAfa = 7)
+
+	SET @DataAfa = (SELECT datafa FROM [bk_senior].[bk_senior].[R038AFA]
+								   WHERE numemp = @NumEmp AND tipcol = @TipCol AND numcad = @Numcad AND SitAfa = 7)
+
+	SET @nAfa = 1
+	--IF YEAR(@DataAfa) < 1910
+	IF @DataAfa IS NULL
+	BEGIN
+		SET @nAfa = 0
+		SET @DataAfa = GETDATE()
+	END
+	SET @DataFim = @DataAfa
+
+	-- Executando as rotinas desejadas manipulando o registro
+	SET @Compet  = CAST(YEAR(@DatAlt)  AS VARCHAR(4)) + REPLACE(STR(MONTH(@DatAlt),2),' ','0')
+	SET @CompetD = CONVERT(date,SUBSTRING(@Compet,1,4)+'-'+SUBSTRING(@Compet,5,2)+'-01', 126)
+
+    INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@DatAlt,@CodFil,1,1,0,@DataFim)
+
+	SET @NumEmp1 = @NumEmp
+	SET @TipCol1 = @TipCol
+	SET @Numcad1 = @Numcad
+	SET @DatAlt1 = @DatAlt
+	SET @CodFil1 = @CodFil
+
+	-- Lendo a próxima linha
+	FETCH NEXT FROM cursor1 INTO @NumEmp,@TipCol,@Numcad,@DatAlt,@CodFil
+	
+	IF @NumEmp1 = @NumEmp AND
+	   @TipCol1 = @TipCol AND
+	   @Numcad1 = @Numcad AND
+	   @@FETCH_STATUS = 0
+	   BEGIN
+		SET @DataFim = @DatAlt
+		SET @nAfa = 1
+	   END
+		  
+	SET @DataNext = @DatAlt1
+
+	WHILE (CAST(YEAR(@DataNext) AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataNext),2),' ','0') < 
+	       CAST(YEAR(@DataFim)  AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataFim),2),' ','0'))
+	BEGIN
+		SET @DataNext = DATEADD(m, 1, @DataNext)
+		SET @Compet   = CAST(YEAR(@DataNext) AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataNext),2),' ','0')
+		SET @CompetD  = CONVERT(date,SUBSTRING(@Compet,1,4)+'-'+SUBSTRING(@Compet,5,2)+'-01', 126)
+
+	    INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(@NumEmp1,@CompetD,@TipCol1,@Numcad1,@DataNext,@CodFil1,0,1,0,@DataFim);
+	END
+	IF @nAfa = 1
+		INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(@NumEmp1,@CompetD,@TipCol1,@Numcad1,@DataNext,@CodFil1,0,-1,1,@DataFim);
+
+END
+ 
+-- Fechando Cursor para leitura
+CLOSE cursor1
+ 
+-- Finalizado o cursor
+DEALLOCATE cursor1
+
+SELECT 
+NumEmp,
+CodFil,
+CompetAM,
+SUM(ContAd) AS ContAd,
+SUM(ContAt) AS ContAt,
+SUM(ContAf) AS ContAf
+
+INTO PowerBk.dbo.FOLHATUR
+FROM PowerBk.dbo.FOLHAFIL 
+GROUP BY NumEmp,CodFil,CompetAM
+ORDER BY NumEmp,CodFil,CompetAM
+
+ENDCONTENT
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-PRTUR.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 
-WITH DESPESAS AS (
- SELECT 
-  '01' AS EMPRESA,
-  'BK' AS NOMEEMP,
-  GETDATE() AS DATAPRC,
-  SUBSTRING(D1_CC,1,9) AS CONTRATO, 
-  CTT_DESC01 AS DESCRICAO, 
-  SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4) AS COMPET,
-  SUBSTRING(E2_VENCREA,1,6) AS COMPETAM,
-  CONVERT(DATE,SUBSTRING(E2_VENCREA,1,6)+'01',112) AS COMPETD,
-  '01' + 
-     SUBSTRING(D1_CC,1,9) +  
-     SUBSTRING(E2_VENCREA,5,2)+'/'+SUBSTRING(E2_VENCREA,1,4)  AS CHAVE, 
-  D1_FILIAL,
-  D1_SERIE,
-  D1_DOC,
-  D1_FORNECE,
-  D1_LOJA,
-  D1_ITEM,
-  D1_COD,
-  CONVERT(VARCHAR(600),CONVERT(Binary(600),D1_XXHIST)) D1_XXHIST,
-  B1_DESC,
-  B1_GRUPO,
-  F1_VALBRUT,
-  F1_XXUSER,
-  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXUSER = USUARIOS.CODIGO) AS F1RESPON,
-  F1_XXULIB,
-  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXULIB = USUARIOS.CODIGO) AS F1APROV,
-  E2_PARCELA,
-  E2_VALOR,
-  E2_DESCONT,
-  E2_MULTA,
-  E2_JUROS,
-  E2_ACRESC,
-  E2_DECRESC,
-  E2_VRETPIS,
-  E2_VRETCOF,
-  E2_VRETCSL,
-  E2_VRETINS,
-  E2_VRETIRF,
-  E2_VRETISS,
-  E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS AS E2VALTIT,
-  (D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)  AS D1TOTAL,
-  CASE WHEN E2_ACRESC  > 0 THEN E2_ACRESC  ELSE E2_MULTA+E2_JUROS END - 
-  	CASE WHEN E2_DECRESC > 0 THEN E2_DECRESC ELSE E2_DESCONT END AS E2ACDEC
-FROM 
-  SD1010 SD1
- INNER JOIN SB1010 SB1
-     ON (B1_COD = D1_COD 
-         AND B1_FILIAL = '01' 
-         AND SB1.D_E_L_E_T_ = ''
-  ) 
- INNER JOIN SE2010 SE2
-     ON (E2_TIPO = 'NF' 
-         AND E2_PREFIXO = D1_SERIE
-         AND E2_NUM = D1_DOC
-         AND E2_FORNECE = D1_FORNECE
-         AND E2_LOJA = D1_LOJA
-         AND E2_FILIAL = '01' 
-         AND SE2.D_E_L_E_T_ = ''
-  ) 
- INNER JOIN SF1010 SF1
-     ON (F1_SERIE = D1_SERIE
-         AND F1_DOC = D1_DOC
-         AND F1_FORNECE = D1_FORNECE
-         AND F1_LOJA = D1_LOJA
-         AND F1_FILIAL = D1_FILIAL 
-         AND SF1.D_E_L_E_T_ = ''
-  ) 
- LEFT JOIN CTT010 CTT
-     ON (D1_CC = CTT_CUSTO 
- 		AND CTT_FILIAL = '01'
-         AND CTT.D_E_L_E_T_ = ''
-  ) 
-WHERE SD1.D1_FILIAL = '01' 
-      AND SD1.D_E_L_E_T_ = '' 
-      AND (SUBSTRING(B1_CONTA,1,1) = '3'
-      	OR B1_CONTA IN ('29104004') 
-      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) 
-AND 1 = CASE WHEN D1_CC = 313000504 AND D1_FORNECE = '002918' THEN 0 ELSE 1 END
-UNION ALL 
- SELECT 
-  '01' AS EMPRESA,
-  'BK' AS NOMEEMP,
-  GETDATE() AS DATAPRC,
-  CASE 
-  	WHEN E5_CCD = ' ' THEN E5_CCC 
-  	WHEN E5_CCC = ' ' THEN E5_CCD 
-  END AS CONTRATO, 
-  CTT_DESC01 AS DESCRICAO, 
-  SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4) AS COMPET,
-  SUBSTRING(E5_VENCTO,1,6) AS COMPETAM,
-  CONVERT(DATE,SUBSTRING(E5_VENCTO,1,6)+'01',112) AS COMPETD,
-  '01' + 
-  	CASE 
-  		WHEN E5_CCD = ' ' THEN E5_CCC 
-  		WHEN E5_CCC = ' ' THEN E5_CCD 
-  	END + 
-     SUBSTRING(E5_VENCTO,5,2)+'/'+SUBSTRING(E5_VENCTO,1,4)  AS CHAVE, 
-     E5_FILIAL  AS D1_FILIAL, 
-     E5_PREFIXO AS D1_SERIE, 
-     E5_NUMERO  AS D1_DOC, 
-     E5_CLIFOR  AS D1_FORNECE, 
-     E5_LOJA    AS D1_LOJA, 
-     '0001'     AS D1_ITEM, 
-     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, 
-     ' '        AS D1_XXHIST, 
-     CT1_DESC01 AS B1_DESC, 
-     ' '        AS B1_GRUPO, 
-     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, 
-     ' '        AS F1_XXUSER, 
-     ' '        AS F1RESPON, 
-     ' '        AS F1_XXULIB, 
-     ' '        AS F1APROV, 
-     E5_PARCELA AS E2_PARCELA, 
-     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2_VALOR, 
-     E5_VLDESCO AS E2_DESCONT, 
-     E5_VLMULTA AS E2_MULTA, 
-     E5_VLJUROS AS E2_JUROS, 
-     E5_VLACRES AS E2_ACRESC, 
-     E5_VLDECRE AS E2_DECRESC, 
-     E5_VRETPIS AS E2_VRETPIS, 
-     E5_VRETCOF AS E2_VRETCOF, 
-     E5_VRETCSL AS E2_VRETCSL, 
-     E5_VRETINS AS E2_VRETINS, 
-     E5_VRETIRF AS E2_VRETIRF, 
-     E5_VRETISS AS E2_VRETISS, 
-     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2VALTIT, 
-     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS D1TOTAL, 
-     CASE WHEN E5_VLACRES > 0 THEN E5_VLACRES ELSE E5_VLMULTA+E5_VLJUROS END -  
-     	CASE WHEN E5_VLDECRE > 0 THEN E5_VLDECRE ELSE E5_VLDESCO END AS E2ACDEC 
-FROM 
-  SE5010 SE5
-LEFT JOIN CTT010 CTT
-     ON (  	    CASE 
-  		   WHEN E5_CCD = ' ' THEN E5_CCC 
-  		   WHEN E5_CCC = ' ' THEN E5_CCD 
-  	    END = CTT_CUSTO 
- 		AND CTT_FILIAL = '01'
-         AND CTT.D_E_L_E_T_ = ''
-  ) 
-LEFT JOIN CT1010 CT1
-     ON ( 
-        (CT1_CONTA = E5_DEBITO OR CT1_CONTA = E5_CREDITO)
- 	   AND CT1_FILIAL = '  '
-        AND CT1.D_E_L_E_T_=''
-  ) 
-WHERE SE5.E5_FILIAL = '01' 
-      AND SE5.D_E_L_E_T_ = '' 
-      AND (SUBSTRING(E5_DEBITO,1,1)='3' OR SUBSTRING(E5_CREDITO,1,1)='3' )
-      AND E5_SITUACA <> 'C' 
-      AND (E5_CCC <> ' ' OR E5_CCD <> '  ') 
-      AND (SUBSTRING(E5_CCC,1,3) <> '000' AND SUBSTRING(E5_CCD,1,3) <> '000') 
-union all
- SELECT 
-  '01' AS EMPRESA,
-  'BK' AS NOMEEMP,
-  GETDATE() AS DATAPRC,
-  SUBSTRING(Z2_CC,1,9) AS CONTRATO, 
-  CTT_DESC01 AS DESCRICAO, 
-  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,
-  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,
-  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,
-  ('01' + 
-   SUBSTRING(Z2_CC,1,9) + 
-   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, 
-  Z2_FILIAL   AS D1_FILIAL,
-  Z2_E2PRF	  AS D1_SERIE,
-  Z2_E2NUM    AS D1_DOC,
-  Z2_E2FORN   AS D1_FORNECE,
-  Z2_E2LOJA   AS D1_LOJA,
-  '0001'      AS D1_ITEM,
-  (CASE 
-   	WHEN Z2_TIPO = 'VT' THEN '12' 
-   	WHEN Z2_TIPO IN ('VR','VA') THEN '14' 
-   	WHEN Z2_TIPO = 'EXM' THEN '41201015'
-   	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN '34202003'
-    ELSE Z2_TIPO 
-   END
-   ) AS D1_COD,
-  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,
-  (CASE 
-   	WHEN Z2_TIPO = 'VT' THEN 'VT' 
-   	WHEN Z2_TIPO IN ('VR','VA') THEN 'VR/VA' 
-   	WHEN Z2_TIPO = 'EXM' THEN 'EXAMES MEDICOS                                              '
-   	WHEN Z2_TIPO IN ('DCH','SOL','HOS','REE','CXA') THEN 'DIARIA DE CAMPO / HOSPEDAGEM                                '
-    ELSE Z2_TIPO 
-   END
-  ) AS B1_DESC,
-  ' '         AS B1_GRUPO, 
-  Z2_VALOR    AS F1_VALBRUT,
-  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, 
-  UPPER(Z2_USUARIO)  AS F1_RESPON,
-  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXULIB, 
-  UPPER(Z2_USUARIO)  AS F1_APROV,
-  '  '        AS E2_PARCELA,
-  Z2_VALOR    AS E2_VALOR,
-  0           AS E2_DESCONT,
-  0           AS E2_MULTA,
-  0           AS E2_JUROS,
-  0           AS E2_ACESC,
-  0           AS E2_DECRESC,
-  0           AS E2_VRETPIS,
-  0           AS E2_VRETCOF,
-  0           AS E2_VRETCSL,
-  0           AS E2_VRETINS,
-  0           AS E2_VRETIRF,
-  0           AS E2_VRETISS,
-  Z2_VALOR    AS E2VALTIT,
-  Z2_VALOR    AS D1TOTAL,
-  0           AS E2ACDEC
+Return
+
+// Atualização da Procedure BKTURNOVER do banco de dados dataP10
+Static Function ProcDSTur
+Local cQuery	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+
+u_LogPrw(cPerg,"Turnover")
 
 
+If TCSPExist( "BKTURNOVER" )
+	cQuery  := "EXEC BKTURNOVER"  
+	nErro   := TcSqlExec(cQuery)
 
-  --Z2_PRONT,
-  --Z2_NOME,
-  --Z2_TIPO,
-  --Z2_TIPOPES,
-  --Z2_VALOR,
-  --UPPER(Z2_OBSTITU) AS Z2_OBSTITU,
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+EndIf
 
+u_LogMemo("BKDASH01-TUR.SQL",cErro1+cQuery)
 
-FROM 
-  SZ2010 SZ2
-LEFT JOIN CTT010 CTT
-     ON (Z2_CC = CTT_CUSTO 
- 		AND CTT_FILIAL = '01'
-         AND CTT.D_E_L_E_T_ = ''
-  ) 
-WHERE Z2_FILIAL = '  ' 
-      AND SZ2.D_E_L_E_T_ = '' 
-      AND SZ2.Z2_CODEMP = '01'
-      AND SZ2.Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA') 
-      AND SZ2.Z2_TIPOPES = 'CLT' 
-      AND SZ2.Z2_STATUS = 'S' 
-UNION ALL 
- SELECT 
-  '01' AS EMPRESA,
-  'BK' AS NOMEEMP,
-  GETDATE() AS DATAPRC,
-  SUBSTRING(Z2_CC,1,9) AS CONTRATO, 
-  CTT_DESC01 AS DESCRICAO, 
-  SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4) AS COMPET,
-  SUBSTRING(Z2_DATAPGT,1,6) AS COMPETAM,
-  CONVERT(DATE,SUBSTRING(Z2_DATAPGT,1,6)+'01',112) AS COMPETD,
-  ('01' + 
-   SUBSTRING(Z2_CC,1,9) + 
-   SUBSTRING(Z2_DATAPGT,5,2)+'/'+SUBSTRING(Z2_DATAPGT,1,4))  AS CHAVE, 
-  Z2_FILIAL   AS D1_FILIAL,
-  Z2_E2PRF	  AS D1_SERIE,
-  Z2_E2NUM    AS D1_DOC,
-  Z2_E2FORN   AS D1_FORNECE,
-  Z2_E2LOJA   AS D1_LOJA,
-  '0001'      AS D1_ITEM,
-  '29104004'  AS D1_COD,
-  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,
-  'CUSTO BK' AS B1_DESC,
-  ' '         AS B1_GRUPO, 
-  Z2_VALOR    AS F1_VALBRUT,
-  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, 
-  Z2_USUARIO  AS F1_RESPON,
-  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXULIB, 
-  Z2_USUARIO  AS F1_APROV,
-  '  '        AS E2_PARCELA,
-  Z2_VALOR    AS E2_VALOR,
-  0           AS E2_DESCONT,
-  0           AS E2_MULTA,
-  0           AS E2_JUROS,
-  0           AS E2_ACESC,
-  0           AS E2_DECRESC,
-  0           AS E2_VRETPIS,
-  0           AS E2_VRETCOF,
-  0           AS E2_VRETCSL,
-  0           AS E2_VRETINS,
-  0           AS E2_VRETIRF,
-  0           AS E2_VRETISS,
-  Z2_VALOR    AS E2VALTIT,
-  Z2_VALOR    AS D1TOTAL,
-  0           AS E2ACDEC
-
-FROM 
-  SZ2010 SZ2
-LEFT JOIN CTT010 CTT
-     ON (Z2_CC = CTT_CUSTO 
- 		AND CTT_FILIAL = '01'
-         AND CTT.D_E_L_E_T_ = ''
-  ) 
-WHERE Z2_FILIAL = '  ' 
-      AND SZ2.D_E_L_E_T_ = '' 
-      AND SZ2.Z2_CODEMP = '01'
-      AND SZ2.Z2_TIPOPES IN ('AC','CLA') 
-      AND SZ2.Z2_STATUS = 'S' 
-
-)
-	select * 
-	FROM DESPESAS
- ORDER BY
-      EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC
-
-*/
+Return
 

@@ -40,6 +40,8 @@ Private lFiltBrw	:= ExistBlock("F470FBRW")
 Private cFiltro		:= ""   
 Private nTotExt 	:= 0
 Private nTotSis 	:= 0
+Private cTipoCH		:= IIF(Type("MVCHEQUES")=="C",MVCHEQUES,MVCHEQUE) // Codeanalisys 21/09/22
+
 PUBLIC  cRecPag     := ""
 
 // Variaveis para contabilizacao
@@ -738,7 +740,7 @@ If !lSaida
 		Endif
 
 		If __lDefTop
-			cTipoCH:=IF(Type("MVCHEQUES")=="C",MVCHEQUES,MVCHEQUE)
+			//cTipoCH:=IF(Type("MVCHEQUES")=="C",MVCHEQUES,MVCHEQUE)
 			
 			cAliasTrb := GetNextAlias()
 			aStru  := SE5->(dbStruct())

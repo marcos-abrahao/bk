@@ -256,6 +256,7 @@ Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
 Local cErrLog := ""
+Local lErro   := .F.
 
 If cEmpAnt <> "01"
    cFornAC := "000084"
@@ -305,12 +306,12 @@ For nI := 1 TO LEN(aTitGer)
 	cTipBk   := PAD(aTitGer[nI,4],LEN(SE2->E2_XXTIPBK))
 	cPortado := PAD(STRZERO(VAL(aTitGer[nI,5]),3),LEN(SE2->E2_PORTADO))
 
-    cFornece := PAD(IIF(EMPTY(aTitGer[nI,6]),cFornBk,aTitGer[nI,6]),LEN(SE2->E2_FORNECE))
-    cLoja    := PAD(IIF(EMPTY(aTitGer[nI,7]),cLojaBk,aTitGer[nI,7]),LEN(SE2->E2_LOJA))
+   cFornece := PAD(IIF(EMPTY(aTitGer[nI,6]),cFornBk,aTitGer[nI,6]),LEN(SE2->E2_FORNECE))
+   cLoja    := PAD(IIF(EMPTY(aTitGer[nI,7]),cLojaBk,aTitGer[nI,7]),LEN(SE2->E2_LOJA))
 
-    cCodFor  := aTitGer[nI,6]
-    cLojFor  := aTitGer[nI,7]
-    cTipoPes := aTitGer[nI,8]
+   cCodFor  := aTitGer[nI,6]
+   cLojFor  := aTitGer[nI,7]
+   cTipoPes := aTitGer[nI,8]
 
 	dPgto    := dVencto  := aTitGer[nI,9]
 	nValor   := aTitGer[nI,10]
@@ -353,6 +354,7 @@ For nI := 1 TO LEN(aTitGer)
              {"E2_VALOR"    ,nValor,Nil}}
 
 	lMsErroAuto := .F.
+   lErro := .F.
    Begin Transaction
       MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
       If lMsErroAuto
@@ -360,36 +362,37 @@ For nI := 1 TO LEN(aTitGer)
          u_xxLog("\LOG\BKCOMA02.LOG",cErrLog)
          MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.:"+cErrLog, "Atenção")
          DisarmTransaction()
-         Return
+         lErro := .T.
       EndIf
    End Transaction
 
-	dbSelectArea("SZ2")   
-	dbSetorder(2)   // Z2_FILIAL+ Z2_CODEMP+Z2_CTRID+Z2_TIPO+Z2_BANCO+Z2_DATAPGT     
-	dbSeek(cKey2,.T.)
-	
-	Do While !EOF() .AND. SZ2->Z2_FILIAL == xFilial("SZ2") .AND. SZ2->Z2_CODEMP = SM0->M0_CODIGO .AND. SZ2->Z2_CTRID == cCtrId .AND. ;
-		                  SZ2->Z2_TIPO == cTipBk .AND. STRZERO(VAL(SZ2->Z2_BANCO),3) == cPortado
-		    
-		IF SZ2->Z2_DATAPGT == dPgto .AND. SZ2->Z2_CODFOR = cCodFor .AND. SZ2->Z2_LOJFOR = cLojFor .AND. SZ2->Z2_TIPOPES = cTipoPes
-            IF SZ2->Z2_STATUS == "X"
-		    	RecLock("SZ2",.F.)
-		    	SZ2->Z2_STATUS := "S"
-		    	SZ2->Z2_TITULO := cKey1
-		    	SZ2->Z2_E2Prf  := cPrefixo
-		    	SZ2->Z2_E2Num  := cNum
-		    	SZ2->Z2_E2Parc := cParcela
-		    	SZ2->Z2_E2Tipo := cTipo
-		    	SZ2->Z2_E2Forn := cFornece
-		    	SZ2->Z2_E2Loja := cLoja
+   If !lErro
+      dbSelectArea("SZ2")   
+      dbSetorder(2)   // Z2_FILIAL+ Z2_CODEMP+Z2_CTRID+Z2_TIPO+Z2_BANCO+Z2_DATAPGT     
+      dbSeek(cKey2,.T.)
+      
+      Do While !EOF() .AND. SZ2->Z2_FILIAL == xFilial("SZ2") .AND. SZ2->Z2_CODEMP = SM0->M0_CODIGO .AND. SZ2->Z2_CTRID == cCtrId .AND. ;
+                           SZ2->Z2_TIPO == cTipBk .AND. STRZERO(VAL(SZ2->Z2_BANCO),3) == cPortado
+            
+         IF SZ2->Z2_DATAPGT == dPgto .AND. SZ2->Z2_CODFOR = cCodFor .AND. SZ2->Z2_LOJFOR = cLojFor .AND. SZ2->Z2_TIPOPES = cTipoPes
+               IF SZ2->Z2_STATUS == "X"
+               RecLock("SZ2",.F.)
+               SZ2->Z2_STATUS := "S"
+               SZ2->Z2_TITULO := cKey1
+               SZ2->Z2_E2Prf  := cPrefixo
+               SZ2->Z2_E2Num  := cNum
+               SZ2->Z2_E2Parc := cParcela
+               SZ2->Z2_E2Tipo := cTipo
+               SZ2->Z2_E2Forn := cFornece
+               SZ2->Z2_E2Loja := cLoja
 
-			    MsUnlock()
-			ENDIF    
-		ENDIF
-		    
-		dbSkip()
-	EndDo
-
+               MsUnlock()
+            ENDIF    
+         ENDIF
+            
+         dbSkip()
+      EndDo
+   EndIf
 Next	
 Return Nil
 

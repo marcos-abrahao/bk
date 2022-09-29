@@ -69,7 +69,7 @@ Local cRevisa 	as Character
 
 		If (cIdPonto == "FORMPRE")
 
-			If ((nOpc == 1 .OR. nOpc == 4 .OR. nOpc == 5)  .AND. cIdModel == "CXNDETAIL" .AND. cCampo == "ISENABLE") .AND. aParam[6] == "CXNDETAIL"
+			If ((nOpc == 1 .OR. nOpc == 4 )  .AND. cIdModel == "CXNDETAIL" .AND. cCampo == "ISENABLE") .AND. aParam[6] == "CXNDETAIL"
 				CnaMun()
 
 			ElseIf (cIdModel == "CNDMASTER" .AND. aParam[4] == "SETVALUE" .AND. aParam[5]="CND_REVGER")

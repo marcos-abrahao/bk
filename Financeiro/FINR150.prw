@@ -349,6 +349,8 @@ User Function FINR150()
 Local oReport
 Local lRelease3  
 
+Private cMvComp := GetMv("MV_COMP") // Codeanalisys 21/09/22
+
 // Para não dar Warning de função não chamada
 If .F.
 	CriaSx1()
@@ -2284,7 +2286,7 @@ While !Eof() .and. M0_CODIGO == cEmpAnt .and. IIf( lFWCodFil, FWGETCODFILIAL, SM
 			IF li > 58
 				nAtuSM0 := SM0->(Recno())
 				SM0->(dbGoto(nRegSM0))
-				cabec(titulo,cabec1,cabec2,nomeprog,tamanho,GetMv("MV_COMP"))
+				cabec(titulo,cabec1,cabec2,nomeprog,tamanho,cMvComp)
 				SM0->(dbGoTo(nAtuSM0))
 			EndIF
 
@@ -2567,7 +2569,7 @@ EndIf
 IF li > 58
 	nAtuSM0 := SM0->(Recno())
 	SM0->(dbGoto(nRegSM0))
-	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,GetMv("MV_COMP"))
+	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,cMvComp)
 	SM0->(dbGoTo(nAtuSM0))
 EndIF
 
@@ -2621,7 +2623,7 @@ li++
 IF li > 58
 	nAtuSM0 := SM0->(Recno())
 	SM0->(dbGoto(nRegSM0))
-	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,GetMv("MV_COMP"))
+	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,cMvComp)
 	SM0->(dbGoTo(nAtuSM0))
 EndIF
 @li,000 PSAY OemToAnsi(STR0027)  //"T O T A L   G E R A L ----> "
@@ -2662,7 +2664,7 @@ li++
 IF li > 58
 	nAtuSM0 := SM0->(Recno())
 	SM0->(dbGoto(nRegSM0))
-	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,GetMv("MV_COMP"))
+	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,cMvComp)
 	SM0->(dbGoTo(nAtuSM0))
 EndIF
 @li,000 PSAY OemToAnsi(STR0030)  //"T O T A L   D O  M E S ---> "
@@ -2703,7 +2705,7 @@ li++
 IF li > 58
 	nAtuSM0 := SM0->(Recno())
 	SM0->(dbGoto(nRegSM0))
-	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,GetMv("MV_COMP"))
+	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,cMvComp)
 	SM0->(dbGoTo(nAtuSM0))
 EndIF
 @li,000 PSAY OemToAnsi(STR0032)+" "+cFilAnt+" - " + AllTrim(SM0->M0_FILIAL)  //"T O T A L   F I L I A L ----> " 

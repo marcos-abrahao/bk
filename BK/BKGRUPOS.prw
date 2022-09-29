@@ -108,8 +108,8 @@ Return lRet
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 User Function IsStaf(cId)
 Local lRet := .F.
-// Laudecir/Diego.Oliveira/Edson/Fabio/Leandro/Vanderleia/Nelson/Luis
-If cId $ "000011/000016/000076/000093/000194/000056/000165/000116/"
+// Laudecir/Diego.Oliveira/Edson/Fabio/Leandro/Vanderleia/Nelson/Luis (000116/ removido)
+If cId $ "000011/000016/000076/000093/000194/000056/000165/"
     lRet := .T.
 EndIf
 Return lRet
@@ -128,8 +128,8 @@ Return lRet
 
 // Gerente Compras
 User Function GerCompras
-// Michele,Luis,Fabio
-Return "000138/000116/000093"
+// Michele,Luis /000116 (removido),Fabio
+Return "000138/000093"
 
 
 // Emails dos gerenciadores de compras

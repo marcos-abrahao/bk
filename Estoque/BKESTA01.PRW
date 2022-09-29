@@ -32,8 +32,7 @@ Return Nil
 
 Static Function fProcessa1(aSaldos)
 
-Local nX, nY
-Local aUsuarios := ALLUSERS()
+Local nY
 Local aCabec := {}
 Local aItens := {}
 Local lItem  := .F.
@@ -41,14 +40,8 @@ Local cErrLog:= ""
 
 Private lMsErroAuto := .F.
 
-nX := aScan(aUsuarios,{|x| x[1][1] == __cUserID})
-
-If nX > 0
-	cUsuario := aUsuarios[nX][1][2]
-EndIf
-
 BEGIN TRANSACTION
-	
+
 	aCabec := {}
 	aadd(aCabec,{"CP_FILIAL"  ,xFilial("SCP")    ,Nil}) // Cód da Filial
 	aadd(aCabec,{"CP_NUM"     ,GETSXENUM("SCP","CP_NUM") ,Nil}) // Numero da SA (Calcular se necessário)

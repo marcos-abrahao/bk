@@ -514,9 +514,9 @@ If nRecE1 > 0
 
 	DbSelectArea("SE1")
 	dbGoTo(nRecE1)
-	iF SE1->E1_NUM = '000000622'
-		X:= 0
-	eNDiF
+	//iF SE1->E1_NUM = '000000622'
+	//	X:= 0
+	//eNDiF
 	If SE1->E1_SALDO = 0
   			//dBaixa := SE1->E1_BAIXA
 		nSaldo := SE1->E1_VALOR
