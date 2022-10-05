@@ -65,9 +65,10 @@ ORDER BY Z5_ANOMES,Z5_CC,Z5_EVENTO,Z5_EVDESCR
 #Define ID_PRODUTO      44 // Produto
 #Define ID_TIPOPES      45 // Tipo pessoa
 #Define ID_DESCTIPO     46 // Descrição do tipo BK
+#Define ID_EMISSAO      47 // Data de Emissão
 // <--BK
 
-#Define ID_ARRAYSIZE    46 // Tamanho do Array
+#Define ID_ARRAYSIZE    47 // Tamanho do Array
 
 // -->Finr190
 Static lFwCodFil    := .T.
@@ -80,7 +81,7 @@ Static lRelMulNat   := .F.
 // <--Finr190
 
 
-User Function BKGCTR26()
+User Function BKGCTR26(lDashBoard)
 	Local aRelat        As Array
 	Local aRelat2       As Array
 	Local nI            As Numeric
@@ -103,6 +104,7 @@ User Function BKGCTR26()
 	Private cContrato 	:= SPACE(TamSx3("CN9_NUMERO")[1])
 	Private lSintetico  := .T.
 	Private lAgendar	:= .F.
+	Default lDashBoard  := .F.
 	Private dDataJob	:= dDataBase
 	Private cEmailTO	:= Pad("bruno.bueno@bkconsultoria.com.br",70)
 	Private cEmailCC	:= "microsiga@bkconsultoria.com.br"
@@ -118,6 +120,7 @@ User Function BKGCTR26()
 	Private aPeriodo    := {}
 	Private aAnoMes     := {}
 	Private nPeriodo    := 1
+	Private nDiasAt     := 180  // Dias a retroceder para refazer o relatório
 
 	Private aPlan2      := {}
 
@@ -153,15 +156,29 @@ User Function BKGCTR26()
 	aAdd( aParam, { 1, "Data Inicial:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 	aAdd( aParam, { 1, "Data Final:" 	 	, dDataBase	 ,  ""                        , "", ""	 , "" , 70  , .F. })
 
-    If lIsBlind .OR. FWGetRunSchedule()
-		dDataJob	:= U_BKGetMv("BKGCTR2604",.F.,CTOD(""))
-		cEmailTo  	:= U_BKGetMv("BKGCTR2605")
-        lSintetico  := .T.
+	//lDashBoard := .T. /// TESTE
+    If lIsBlind .OR. FWGetRunSchedule() .OR. lDashBoard
+		lSintetico  := .T.
+		If !lDashBoard
+			dDataJob	:= U_BKGetMv("BKGCTR2604",.F.,CTOD(""))
+			cEmailTo  	:= U_BKGetMv("BKGCTR2605")
+			If Empty(dDataJob) .OR. !(dDataJob == DATE())
+				u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
+				Return Nil
+			EndIf
+		Else
+			// Se a tabela CXFATURAMENTO existe, filtrar dados de X dias anteriores
+			If ExisteFat() .AND. ContemFat(DATE() - nDiasAt)
+				lFiltDt   := .T.
+				dDataIFlt := DATE() - nDiasAt
+				dDataIFlt := dDataIFlt - Day(dDataIFlt) + 1
+				dDataFFlt := LastDay(DATE())
+			Else
+				lFiltDt   := .F.
+			EndIf
 
-		If Empty(dDataJob) .OR. !(dDataJob == DATE())
-			u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
-			Return Nil
 		EndIf
+
     Else
         If !GCT26Par()
             Return
@@ -176,7 +193,7 @@ User Function BKGCTR26()
 
     EndIf
 
-	u_LogPrw(cPerg)
+	u_LogPrw(cPerg,DTOC(dDataIFlt)+" a "+DTOC(dDataFFlt))
 
 	aPlan2 := GCT26Plan()
 
@@ -254,16 +271,20 @@ User Function BKGCTR26()
 
 	EndIf
 
-	If !lSintetico
-		u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
-		GCT26Anal(aRelat,"Fase1",.F.)
+	If !lDashBoard
+		If !lSintetico
+			u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
+			GCT26Anal(aRelat,"Fase1",.F.)
 
-		u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
-		GCT26Anal(aRelat2,"Fase2",.T.)
+			u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
+			GCT26Anal(aRelat2,"Fase2",.T.)
+		EndIf
+
+		u_xxLog(cArqLog,"Gerando planilha Fluxo...",.T.,"")
+		GCT26Rel()
+	Else
+		GCT26Dash(aRelat2)
 	EndIf
-
-	u_xxLog(cArqLog,"Gerando planilha Fluxo...",.T.,"")
-	GCT26Rel()
 
 	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName,.T.,"")
 
@@ -345,9 +366,9 @@ Static Function GCT26Per(oSay)
 		EndIf
 		dDataF	:= QTMP1->CNF_FIM
 
-		If Empty(dDataF)
+		//If Empty(dDataF)
 			dDataF := dDataBase
-		EndIf
+		//EndIf
 
 		QTMP1->(Dbclosearea())
 
@@ -1173,6 +1194,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 
 	Local cCCBK         As Character  // BK
 	Local cTipoBK       As Character  // BK
+	Local dEmissao		As Date		  // BK
 	//Local oBaixas       As Object
 
 	Default aRet        := {}
@@ -1853,6 +1875,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 					cCCBK       := ""
 					cTipoBK     := ""
 					nRecSE2     := 0
+					dEmissao	:= CTOD("")
 					// <-- BK
 
 					cMaxSeq := NEWSE5->SE5MAXSEQ
@@ -1890,6 +1913,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 								If SD2->(!EOF()) .and. SD2->D2_FILIAL+SD2->D2_DOC+SD2->D2_SERIE+SD2->D2_CLIENTE+SD2->D2_LOJA == ;
 										cXFilSD2+NEWSE5->(E5_NUMERO+E5_PREFIXO+E5_CLIFOR+E5_LOJA)
 									cCCBK := SD2->D2_CCUSTO
+									dEmissao := SD2->D2_EMISSAO
 								EndIf
 							EndIf
 							// <-- BK
@@ -1915,6 +1939,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 						cCheque := IIf(Empty(NEWSE5->E5_NUMCHEQ), SE2->E2_NUMBCO, NEWSE5->E5_NUMCHEQ)
 
 						cTipoBK := SE2->E2_XXTIPBK  //BK
+						dEmissao := SE2->E2_EMISSAO //BK
 					EndIf
 
 					DbSelectArea("NEWSE5")
@@ -2360,6 +2385,11 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 						EndIf
 
 						If cCarteira == "R"
+							// BK
+							If Empty(dEmissao)
+								dEmissao := SE1->E1_EMISSAO
+							EndIf
+
 							If (!lManual)
 								If MV_PAR13 == 1  // Utilizar o Hist¢rico da Baixa ou Emiss„o
 									cHistorico := IIf(Empty(cHistorico), SE1->E1_HIST, cHistorico)
@@ -2384,6 +2414,11 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 							aRet[nTamRet][ID_DTBAIXA]       := dBaixa
 							cChaveTit := SE1->(E1_FILIAL + E1_PREFIXO + E1_NUM + E1_PARCELA + E1_TIPO)
 						Else
+							// BK
+							If Empty(dEmissao)
+								dEmissao := SE2->E2_EMISSAO
+							EndIf
+
 							If MV_PAR13 == 1  // Utilizar o Hist¢rico da Baixa ou Emiss„o
 								cHistorico := IIf(Empty(cHistorico), SE2->E2_HIST, cHistorico)
 							Else
@@ -2497,7 +2532,7 @@ Static Function FA190ImpR4(aRet As Array, nOrdem As Numeric, aTotais As Array, o
 						aRet[nTamRet][ID_TIPOBK]    := cTipoBK
 						aRet[nTamRet][ID_E2RECNO]   := nRecSE2
 						aRet[nTamRet][ID_CONSIDER]  := SPACE(7)
-
+						aRet[nTamRet][ID_EMISSAO]   := dEmissao
 						// <--BK
 
 						If !lRelMulNat
@@ -2661,7 +2696,7 @@ If !Empty(cTmpSE5Fil)
 EndIf
     /* GESTAO - fim */
 
-    //EndReport()
+    EndReport()
 
     FwFreeArray(aChaveTit)
 
@@ -2797,6 +2832,7 @@ Static Function GCT26Anal(aRelat,cPrc,lTipos)
 	aAdd(aCabec,"Produto")
 	aAdd(aCabec,"Tp Pessoa")
 	aAdd(aCabec,"Descrição do Tipo")
+	aAdd(aCabec,"Emissão")
 
 	AADD(aPlans,{aRelat,cPerg+"-"+cPrc,cTitulo+"-"+cPrc,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ })
 
@@ -2810,6 +2846,188 @@ Static Function GCT26Anal(aRelat,cPrc,lTipos)
 	U_ArrToXlsx(aPlans,cTitulo+"-"+cPrc,cPerg+"-"+cPrc,aParam,.F.)
 
 Return Nil
+
+
+// Verificar se a tabela CXFATURAMENTO existe
+Static Function ExisteFat()
+Local lExiste := .T.
+Local cAliasTmp := GetNextAlias()
+
+cQuery := "SELECT ISNULL(OBJECT_ID(N'PowerBk.dbo.CXFATURAMENTO', N'U'),-1) AS EXIST"
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasTmp,.T.,.T.)
+If (cAliasTmp)->EXIST == -1
+	lExiste := .F.
+EndIf
+(cAliasTmp)->(dbCloseArea())
+Return lExiste
+
+
+// Verificar se a tabela CXFATURAMENTO contem movimento anterior
+Static Function ContemFat(dDataI)
+Local lContem := .T.
+Local cAliasTmp := GetNextAlias()
+
+cQuery := "SELECT TOP 1 COMPETD FROM PowerBk.dbo.CXFATURAMENTO "+CRLF
+cQuery += " WHERE EMPRESA = '"+cEmpAnt+"'" + CRLF
+cQuery += "   AND COMPETD < '"+DTOSQL(dDataI)+"' " + CRLF
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasTmp,.T.,.T.)
+If (cAliasTmp)->(EOF())
+	lContem := .F.
+EndIf
+(cAliasTmp)->(dbCloseArea())
+Return lContem
+
+
+// Impressão dos dados analíticos
+
+Static Function GCT26Dash(aRelat)
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+Local nX 		:= 0
+Local lCreate   := !ExisteFat()
+Local cNEmpr	:= u_BKNEmpr(cEmpAnt)
+
+u_LogPrw(cPerg,"PowerBk - Faturamento Caixa")
+
+If lCreate
+	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CXFATURAMENTO', N'U') IS NOT NULL"  
+	cQueryD += "   DROP TABLE PowerBk.dbo.CXFATURAMENTO "+CRLF
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+
+	cQuery := "CREATE TABLE PowerBk.dbo.CXFATURAMENTO " + CRLF
+	cQuery += "( " + CRLF
+	cQuery += "  EMPRESA    VARCHAR(02), " + CRLF
+	cQuery += "  NOMEEMP    VARCHAR(10), " + CRLF
+	cQuery += "  DATAPRC    DATETIME   , " + CRLF
+	cQuery += "  CONTRATO   VARCHAR(09), " + CRLF
+	cQuery += "  COMPET     VARCHAR(07), " + CRLF
+	cQuery += "  COMPETAM   VARCHAR(06), " + CRLF
+	cQuery += "  COMPETD    DATE       , " + CRLF
+	cQuery += "  PREFIXO    VARCHAR(03), " + CRLF
+	cQuery += "  DOCUMENTO  VARCHAR(09), " + CRLF
+	cQuery += "  PARCELA    VARCHAR(02), " + CRLF
+	cQuery += "  TIPODOC    VARCHAR(03), " + CRLF
+	cQuery += "  CODCLI     VARCHAR(06), " + CRLF
+	cQuery += "  HISTORICO  VARCHAR(80), " + CRLF
+	cQuery += "  EMISSAO    DATE       , " + CRLF
+	cQuery += "  BAIXA      DATE       , " + CRLF
+	cQuery += "  VALORBRUTO FLOAT      , " + CRLF
+	cQuery += "  JURMULTA   FLOAT      , " + CRLF
+	cQuery += "  CORRECAO   FLOAT      , " + CRLF
+	cQuery += "  DESCONTO   FLOAT      , " + CRLF
+	cQuery += "  ABATIMENTO FLOAT      , " + CRLF
+	cQuery += "  IMPOSTOS   FLOAT      , " + CRLF
+	cQuery += "  TOTALPAGO  FLOAT      , " + CRLF
+	cQuery += "  TIPOBK     VARCHAR(06), " + CRLF
+	cQuery += "  DESCTIPO   VARCHAR(50), " + CRLF
+	cQuery += ") " + CRLF
+
+	nErro   := TcSqlExec(cQuery)
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" + CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+Else
+	// Limpar dados	do periodo selecionado
+	cQuery := "DELETE FROM PowerBk.dbo.CXFATURAMENTO "
+	cQuery += " WHERE EMPRESA = '"+cEmpAnt+"'" + CRLF
+	If lFiltDt
+		If !Empty(dDataIFlt)
+			cQuery += " AND COMPETD >= '"+DTOSQL(dDataIFlt)+"' " + CRLF
+		EndIf	
+		If !Empty(dDataFFlt)
+			cQuery += " AND COMPETD <= '"+DTOSQL(dDataFFlt)+"' " + CRLF
+		EndIf
+	EndIf
+		
+	nErro   := TcSqlExec(cQuery)
+	If nErro != 0
+		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+	EndIf
+
+EndIf
+
+
+For nX := 1 To Len(aRelat)
+
+    // Popula elemento
+
+	If aRelat[nX,ID_RECPAG] = "R"
+
+		cQuery := "INSERT INTO PowerBk.dbo.CXFATURAMENTO " + CRLF
+		cQuery += "VALUES"    + CRLF
+		cQuery += "("         + CRLF
+		cQuery += "'" + cEmpAnt + "'," + CRLF
+		cQuery += "'" + cNEmpr  + "'," + CRLF
+        cQuery += "GETDATE()," + CRLF
+
+		cQuery += "'" + aRelat[nX,ID_CC]       + "'," + CRLF
+
+		cQuery += "'" + STRZERO(MONTH(aRelat[nX,ID_DTBAIXA]),2)+"/"+STR(YEAR(aRelat[nX,ID_DTBAIXA]),4) + "',"  + CRLF
+		cQuery += "'" + STR(YEAR(aRelat[nX,ID_DTBAIXA]),4)+STRZERO(MONTH(aRelat[nX,ID_DTBAIXA]),2)     + "',"  + CRLF
+		cQuery += "'" + STR(YEAR(aRelat[nX,ID_DTBAIXA]),4)+"-"+STRZERO(MONTH(aRelat[nX,ID_DTBAIXA]),2)+"-01'," + CRLF
+
+		cQuery += "'" + aRelat[nX,ID_PREFIXO]  + "'," + CRLF
+		cQuery += "'" + aRelat[nX,ID_NUMERO ]  + "'," + CRLF
+		cQuery += "'" + aRelat[nX,ID_PARCELA]  + "'," + CRLF
+		cQuery += "'" + aRelat[nX,ID_TIPO]     + "'," + CRLF
+		cQuery += "'" + aRelat[nX,ID_CLIFOR]   + "'," + CRLF
+		cQuery += "'" + aRelat[nX,ID_HISTORICO]+ "'," + CRLF
+		cQuery += "'" + DTOSQL(aRelat[nX,ID_EMISSAO])+ "'," + CRLF
+		cQuery += "'" + DTOSQL(aRelat[nX,ID_DTBAIXA])+ "'," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_VALORORIG] ,17,2)) + "," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_JUROSMULTA],17,2)) + "," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_CORRECAO]  ,17,2)) + "," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_DESCONTO]  ,17,2)) + "," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_ABATIMENTO],17,2)) + "," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_IMPOSTO]   ,17,2)) + "," + CRLF
+		cQuery += ALLTRIM(STR(aRelat[nX,ID_TOTALPAGO] ,17,2)) + "," + CRLF
+		cQuery += "'" + aRelat[nX,ID_TIPOBK]   + "'," + CRLF
+		cQuery += "'" + aRelat[nX,ID_DESCTIPO] + "'" + CRLF
+		cQuery += ")"
+		nErro   := TcSqlExec(cQuery)
+	EndIf
+
+	If nErro != 0
+		cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro2, cPerg)
+		EndIf
+		Exit
+	EndIf
+
+Next nX
+
+u_LogMemo("BKDASH01-FLUXOCAIXA.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+Return Nil
+
+
+// Converter data para o formato texto "YYYY-MM-DD"
+Static Function DTOSQL(dData)
+Local cData := ""
+cData := STRZERO(YEAR(dData),4)
+cData += "-"
+cData += STRZERO(MONTH(dData),2)
+cData += "-"
+cData += STRZERO(DAY(dData),2)
+Return cData
 
 
 
@@ -2847,3 +3065,53 @@ aParam := {	"P",;		//Tipo R para relatorio P para processo
 
 Return aParam
 
+
+/*/{Protheus.doc} DbOnError
+Rotina acionada após encontrar error nos comandos SQL executados.
+
+@type       function
+@author     Rafael Riego
+@since      25/09/2020
+@param      cSQLError, character, erro ocorrido no banco de dados
+@param      cVariable, character, variável usada para guardar o comando SQL
+@return     Nil
+/*/
+Static Function DbOnError(cSQLError As Character, cVariable As Character)
+
+EndReport()
+
+u_LogPrw(cPerg,cSQLError)
+
+Return Nil
+
+/*/{Protheus.doc} EndReport
+Encerra o alias temporário, excluí a tabela temporária, libera o array de motivos de baixa da memória e excluí a tabela de filiais selecionadas.
+
+@type       function
+@author     Rafael Riego
+@since      25/09/2020
+@param      nIndexSE5, numeric, índice de verificação
+@param      _SE5, character, alias a ser utilizado na verificação
+@return     logical, .T. caso tenha gerado
+/*/
+Static Function EndReport()
+
+    DbSelectArea("NEWSE5")
+    DbCloseArea()
+
+    If oFinR190Tb != Nil
+        oFinR190Tb:Delete()
+        oFinR190Tb := Nil
+    EndIf
+
+    FwFreeArray(_aMotBaixa)
+
+    If FindFunction("FinEraseTmpFil")
+        FinEraseTmpFil()
+    EndIf
+
+    If cNomeArq # Nil
+        FErase(cNomeArq + OrdBagExt())
+    EndIf
+
+Return Nil

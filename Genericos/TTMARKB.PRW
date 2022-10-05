@@ -18,6 +18,20 @@ MarkBrowse Dinâmico
 @type Function
 /*/
 //-----------------------------------------------------------
+User Function TestMrk()
+
+Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
+				  { "ROTINA"   , "C", 15, 0, "Rotina"   ,"@!", .T., "" },;
+				  { "DESCRICAO", "C", 50, 0, "Descrição","@!", .T., "" } }
+
+Local aDados  := {{"","Rotina1","Rotina11"},{"","Rotina2","Rotina22"}}
+
+u_TTMARKB(aCampos, aDados, .F., "", .F.)
+
+Return NIL
+
+
+
 User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
 
 	Local aSize as array
@@ -118,33 +132,38 @@ User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
 	oBrowse:DisableConfig()
 	oBrowse:DisableFilter()
 	oBrowse:SetFieldMark( "MARK" )
-	oBrowse:SetAllMark( { || FMarkAll( oBrowse, lCmpTot, cCmpTot ) } )
-	oBrowse:bMark := {|| FMArkOne(oBrowse, lCmpTot, cCmpTot )}
+	oBrowse:SetAllMark( { || FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot ) } )
+	oBrowse:bMark := {|| FMArkOne(oBrowse, aDados, lCmpTot, cCmpTot )}
 
 	oBrowse:Activate()
 
 	//Quantidade Selecionado
-	@ oPanelUp:nTop + 10, oPanelUp:nLeft + 10 	SAY   "Quantidade Selecionada" SIZE 038,007 OF oPanelUp PIXEL
-	@ oPanelUp:nTop + 18, oPanelUp:nLeft + 10	MSGET oQtdSel Var nQtdSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
+	@ oPanelUp:nTop + 02, oPanelUp:nLeft + 10 	SAY   "Marcados:" SIZE 038,007 OF oPanelUp PIXEL
+	@ oPanelUp:nTop + 10, oPanelUp:nLeft + 10	MSGET oQtdSel Var nQtdSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
 
 	//Verifica se existe o campo de Total
 	If lCmpTot
 		//Total Selecionado
-		@ 010, 110 	SAY   "Total Selecionado" SIZE 038,007 OF oPanelUp PIXEL
-		@ 018, 110 	MSGET oTotSel Var nTotSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999.99" HASBUTTON
+		@ oPanelUp:nTop + 02, oPanelUp:nLeft + 110	SAY   "Total Selecionado:" SIZE 038,007 OF oPanelUp PIXEL
+		@ oPanelUp:nTop + 10, oPanelUp:nLeft + 110 	MSGET oTotSel Var nTotSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999.99" HASBUTTON
 	EndIf
 
 	//Verifica se já traz o MarkBrowse Selecionado
 	If lMarcado
-		FMarkAll( oBrowse, lCmpTot, cCmpTot )
+		FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot )
 	EndIf
 
-	ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||FwMsgRun(Nil,{||ExecBlock("TTMARKEX",.F.,.F.,{cAliasBrw}) },Nil,"Aguarde, Atualizando Dados"),oDlgBrw:End()},{||oDlgBrw:End()},,))
+	//ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||FwMsgRun(Nil,{||ExecBlock("TTMARKEX",.F.,.F.,{cAliasBrw}) },Nil,"Aguarde, Atualizando Dados"),oDlgBrw:End()},{||oDlgBrw:End()},,))
+
+
+	ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||oDlgBrw:End()},{||FwMsgRun(Nil,{|| Aeval(aDados,{|x| x[1]:="" }) },Nil,"Aguarde, Atualizando Dados"),oDlgBrw:End()},,))	
+	//ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||oDlgBrw:End()},,),{||FwMsgRun(Nil,{|| Aeval(aDados,{|x| x[1]:="" }) },Nil,"Aguarde, Atualizando Dados"),oDlgBrw:End()})
 
 	//Exclui a tabela temporária
 	oTempTable:Delete()
 
-Return()
+Return(aDados)
+
 
 /*/{Protheus.doc} FGetColumn
 Alteração das colunas do FWMARKBROWSE
@@ -195,7 +214,7 @@ Inverte a seleção
 @version 1.0
 @type Function
 /*/
-Static Function FMarkAll( oBrowse, lCmpTot, cCmpTot )
+Static Function FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot )
 
 	Local cAlias as character
 	Local cMark	as character
@@ -211,12 +230,16 @@ Static Function FMarkAll( oBrowse, lCmpTot, cCmpTot )
 
 		If RecLock( cAlias, .F. )
 			( cAlias )->MARK := Iif( ( cAlias )->MARK == cMark, "  ", cMark )
+
+			// Marca/Desmarca o aDados
+			aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
+
 			( cAlias )->( MsUnlock() )
 
 			If ( cAlias )->MARK == cMark
-				nQtdSel ++
+				nQtdSel++
 			Else
-				nQtdSel --
+				nQtdSel--
 			EndIf
 
 			//Verifica se existe o campo de Total
@@ -258,7 +281,7 @@ Inverte a seleção
 @version 1.0
 @type Function
 /*/
-Static Function FMarkOne( oBrowse, lCmpTot, cCmpTot )
+Static Function FMarkOne( oBrowse, aDados, lCmpTot, cCmpTot )
 
 	Local cAlias as character
 	Local cMark	as character
@@ -267,6 +290,9 @@ Static Function FMarkOne( oBrowse, lCmpTot, cCmpTot )
 	cMark	:=	oBrowse:Mark()
 
 	lMarkAll	:= .T.
+
+	// Marca/Desmarca o aDados
+	aDados[(cAlias)->(RECNO()),1] := cMark
 
 	If ( cAlias )->MARK == cMark
 		nQtdSel ++

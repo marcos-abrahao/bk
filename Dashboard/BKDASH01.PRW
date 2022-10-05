@@ -10,6 +10,13 @@ BK - Geração de tabelas para o PowerBI no banco PowerBK - Gestão
 /*/
 
 User Function BKDASH01()
+Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
+				  { "ROTINA"   , "C", 15, 0, "Rotina"   ,"@!", .T., "" },;
+				  { "DESCRICAO", "C", 70, 0, "Descrição","@!", .T., "" } }
+
+Local aDados  := {}
+Local nX 	  := 0
+Local aGrpDsp := u_BKGrpDsp()
 
 Private cTitulo     := "Atualizar Dashboard PowerBk"
 Private cPerg       := "BKDASH01"
@@ -25,7 +32,7 @@ If FWCodEmp() == "01"
 			 	.AND. DOW(DATE()) <> 7;
 			 	.AND. DOW(DATE()) <> 1
 
-			If SUBSTRING(TIME(),1,2) = '06'
+			If SUBSTRING(TIME(),1,2) = '07'
 				ProcDSDP1()
 				ProcDSDP2()
 				ProcDSEMP()
@@ -34,12 +41,13 @@ If FWCodEmp() == "01"
 				ProcDSFER()
 				ProcDSUSR()
 				ProcDSTur()
+				ProcDSBkTur()
 			EndIf
 
 			ProcDSFAT()
 			ProcDSGES()
 			ProcDSGLO()
-			If SUBSTRING(TIME(),1,2) $ '06/10/12/16/18/20'
+			If SUBSTRING(TIME(),1,2) $ '07/10/12/16/18/20'
 				ProcDSCTR()
 				ProcDSPLA()
 				ProcDSCRO()
@@ -47,8 +55,48 @@ If FWCodEmp() == "01"
 			EndIf
 			//ProcDSGLF()
 			ProcDSGER()
+
 		EndIf
+
+		If SUBSTRING(TIME(),1,2) = '07'
+			U_BKGCTR26(.T.)
+		EndIf
+
 	Else
+		aDados := {}
+		aAdd(aDados,{"","U_BKGCTR26(.T.)","Tabelas de Fluxo de Caixa Por Contrato"})
+		aAdd(aDados,{"","ProcPRTur()"    ,"Criação/atualização da Procedure BKTURNOVER"})
+		aAdd(aDados,{"","ProcDSTUR()"    ,"Atualização da tabela FOLHATUR"})
+		aAdd(aDados,{"","ProcPRBKTur()"  ,"Criação/atualização da Procedure BKTURNOVER1"})
+		aAdd(aDados,{"","ProcDSBkTur()"  ,"Atualização da tabela FOLHATUR"})
+		aAdd(aDados,{"","ProcDSDP1()"    ,"Atualização da tabela PREVDESP1"})
+		aAdd(aDados,{"","ProcDSDP2()"    ,"Atualização da tabela PREVDESP2"})
+		aAdd(aDados,{"","ProcDSEMP()"    ,"Atualização da tabela EMPRESAS"})
+		aAdd(aDados,{"","ProcDSCC()"     ,"Atualização da tabela CCUSTOS"})
+		aAdd(aDados,{"","ProcDSFOL()"    ,"Atualização da tabela FOLHA"})
+		aAdd(aDados,{"","ProcDSFER()"    ,"Atualização da tabela FERIAS"})
+		aAdd(aDados,{"","ProcDSUSR()"    ,"Atualização da tabela USUARIOS"})
+		aAdd(aDados,{"","ProcDSCTR()"    ,"Atualização da tabela CONTRATOS"})
+		aAdd(aDados,{"","ProcDSPLA()"    ,"Atualização da tabela PLANILHAS"})
+		aAdd(aDados,{"","ProcDSCRO()"    ,"Atualização da tabela CRONOGRAMAS"})
+		aAdd(aDados,{"","ProcDSFAT()"    ,"Atualização da tabela FATURAMENTO"})
+		aAdd(aDados,{"","ProcDSGES()"    ,"Atualização da tabela GESTORES"})
+		aAdd(aDados,{"","ProcDSGLO()"    ,"Atualização da tabela GLOSAS"})
+		aAdd(aDados,{"","ProcDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})
+		aAdd(aDados,{"","ProcDSGER()"    ,"Atualização da tabela GERAL"})
+
+		u_TTMARKB(aCampos, aDados, .F., "", .F.)
+
+		For nX := 1 To Len(aDados)
+			If !Empty(aDados[nX,1])
+				x:= &(aDados[nX,2])
+			EndIf
+		Next nX
+
+		/*
+		If MsgYesNo("Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", cPerg)
+			FWMsgRun(, {|oSay| U_BKGCTR26(.T.) }, "", "Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
+		EndIf
 
 		If MsgYesNo("Confirma a criação/atualização da procedure BKTURNOVER?", cPerg)
 			FWMsgRun(, {|oSay| ProcPRTur() }, "", "Atualizando a procedure BKTURNOVER...")
@@ -64,6 +112,7 @@ If FWCodEmp() == "01"
 		If MsgYesNo("Confirma a atualização da tabela PREVDESP2 do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSDP2() }, "", "Atualizando a tabela PREVDESP2 do banco de dados PowerBk...")
 		EndIf
+
 		If MsgYesNo("Confirma a atualização da tabela EMPRESAS do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSEMP() }, "", "Atualizando a tabela EMPRESAS do banco de dados PowerBk...")
 		EndIf
@@ -106,13 +155,25 @@ If FWCodEmp() == "01"
 		If MsgYesNo("Confirma a atualização da tabela GERAL do banco de dados PowerBk?", cPerg)
 			FWMsgRun(, {|oSay| ProcDSGER() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
 		EndIf
-	EndIf
+		*/
 
+	EndIf
 	u_LogPrw(cPerg,"Final")
 
-Else
+ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
+
 	If !IsBlind()
-		MsgStop("Rodar apenas na empresa 01-BK", cPerg)
+		If MsgYesNo("Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", cPerg)
+			u_LogPrw(cPerg,"Inicio")
+			FWMsgRun(, {|oSay| U_BKGCTR26(.T.) }, "", "Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
+			u_LogPrw(cPerg,"Final")
+		EndIf
+	Else
+		If SUBSTRING(TIME(),1,2) = '20'
+			u_LogPrw(cPerg,"Inicio")
+			U_BKGCTR26(.T.)
+			u_LogPrw(cPerg,"Final")
+		EndIf
 	EndIf
 EndiF
 
@@ -3272,6 +3333,150 @@ If TCSPExist( "BKTURNOVER" )
 EndIf
 
 u_LogMemo("BKDASH01-TUR.SQL",cErro1+cQuery)
+
+Return
+
+// Nova
+
+// Atualização da Procedure BKTURNOVER1 do banco de dados dataP10
+Static Function ProcPRBKTur
+Local cQuery	:= ""
+Local cQueryD	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+Local cErro2 	:= ""
+
+u_LogPrw(cPerg,"Create BKTURNOVER1")
+
+If TCSPExist( "BKTURNOVER1" )
+	cQueryD := "DROP PROCEDURE BKTURNOVER1"  
+	nErro   := TcSqlExec(cQueryD)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+EndIf
+
+BEGINCONTENT VAR cQuery
+
+CREATE PROCEDURE BKTURNOVER1
+AS
+-- Turnover BK geral
+DECLARE @NumEmp   smallint, @TipCol smallint, @NumCad int, @datadm datetime, @datafa datetime, @caudem int
+DECLARE @DataFim  datetime
+DECLARE @DataAfa  datetime
+DECLARE @DataNext datetime
+DECLARE @nAfa     int
+DECLARE @Compet   VARCHAR(6)
+DECLARE @CompetD  date
+
+IF OBJECT_ID(N'PowerBk.dbo.FOLHAFILBK', N'U') IS NOT NULL   DROP TABLE PowerBk.dbo.FOLHAFILBK 
+--IF OBJECT_ID(N'PowerBk.dbo.FOLHATURBK', N'U') IS NOT NULL   DROP TABLE PowerBk.dbo.FOLHATURBK
+
+-- Tabela com Funcionarios x CCustos
+CREATE TABLE PowerBk.dbo.FOLHAFILBK(NumEmp smallint, CompetAM date, TipCol smallint, NumCad int, datadm datetime, datafa datetime, caudem int, ContAd int,ContAt int, ContAf int)
+
+-- Cursor para percorrer os registros
+DECLARE cursor1 CURSOR FOR
+  SELECT NumEmp,TipCol,Numcad,datadm,datafa,caudem
+  FROM [bk_senior].[bk_senior].[r034fun]
+  WHERE TipCol = 1
+  ORDER BY NumEmp,TipCol,Numcad
+
+--Abrindo Cursor
+OPEN cursor1
+ 
+-- Lendo a próxima linha
+FETCH NEXT FROM cursor1 INTO @NumEmp,@TipCol,@Numcad,@datadm,@datafa,@caudem
+ 
+-- Percorrendo linhas do cursor (enquanto houverem)
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+	SET @DataAfa = (SELECT datafa FROM [bk_senior].[bk_senior].[R038AFA]
+								   WHERE numemp = @NumEmp AND tipcol = @TipCol AND numcad = @Numcad AND SitAfa = 7)
+
+	SET @nAfa = 1
+	--IF YEAR(@DataAfa) < 1910
+	IF @DataAfa IS NULL
+	BEGIN
+		SET @nAfa = 0
+		SET @DataAfa = GETDATE()
+	END
+	SET @DataFim = @DataAfa
+
+	-- Executando as rotinas desejadas manipulando o registro
+	SET @Compet  = CAST(YEAR(@datadm)  AS VARCHAR(4)) + REPLACE(STR(MONTH(@datadm),2),' ','0')
+	SET @CompetD = CONVERT(date,SUBSTRING(@Compet,1,4)+'-'+SUBSTRING(@Compet,5,2)+'-01', 126)
+
+    INSERT INTO PowerBk.dbo.FOLHAFILBK VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@datadm,@DataAfa,0,1,1,0)
+
+	SET @DataNext = @datadm
+
+	WHILE (CAST(YEAR(@DataNext) AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataNext),2),' ','0') < 
+	       CAST(YEAR(@DataFim)  AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataFim),2),' ','0'))
+	BEGIN
+		SET @DataNext = DATEADD(m, 1, @DataNext)
+		SET @Compet   = CAST(YEAR(@DataNext) AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataNext),2),' ','0')
+		SET @CompetD  = CONVERT(date,SUBSTRING(@Compet,1,4)+'-'+SUBSTRING(@Compet,5,2)+'-01', 126)
+
+	    INSERT INTO PowerBk.dbo.FOLHAFILBK VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@datadm,@DataAfa,0,0,1,0)
+	END
+	IF @nAfa = 1
+	    INSERT INTO PowerBk.dbo.FOLHAFILBK VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@datadm,@DataAfa,@caudem,0,-1,1)
+
+	-- Lendo a próxima linha
+	FETCH NEXT FROM cursor1 INTO @NumEmp,@TipCol,@Numcad,@datadm,@datafa,@caudem
+	
+END
+ 
+-- Fechando Cursor para leitura
+CLOSE cursor1
+ 
+-- Finalizado o cursor
+DEALLOCATE cursor1
+
+ENDCONTENT
+
+nErro   := TcSqlExec(cQuery)
+
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-PRTUR1.SQL",cErro1+cQueryD+cErro2+cQuery)
+
+
+Return
+
+// Execução da Procedure BKTURNOVER1 do banco de dados dataP10
+Static Function ProcDSBkTur
+Local cQuery	:= ""
+Local nErro 	:= 0
+Local cErro1 	:= ""
+
+u_LogPrw(cPerg,"TurnoverBK")
+
+
+If TCSPExist( "BKTURNOVER1" )
+	cQuery  := "EXEC BKTURNOVER1"  
+	nErro   := TcSqlExec(cQuery)
+
+	If nErro != 0
+		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+		If !IsBlind()
+			MsgStop(cErro1, cPerg)
+		EndIf
+	EndIf
+EndIf
+
+u_LogMemo("BKDASH01-TURBK.SQL",cErro1+cQuery)
 
 Return
 

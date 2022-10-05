@@ -57,6 +57,17 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"98","TERO"} }
 Return aEmpresas
 
+
+User Function BKNEmpr(cEmpr)
+Local aEmpr := u_BKEmpr()
+Local nEmpr := Ascan(aEmpr,{|x| x[1] == cEmpr})
+Local cNEmp := ""
+If nEmpr > 0
+	cNEmp := aEmpr[nEmpr,2]
+EndIf
+Return cNEmp
+
+
 /*/{Protheus.doc} IsSuperior
     Retorna se o usuario informado é superior de algum outro
     @type  Function

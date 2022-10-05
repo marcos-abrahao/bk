@@ -3881,10 +3881,10 @@ WFPrepEnv(cEmpPar,cFilPar,"BKGCT062",{"CN9"},"GCT")
 cFWEmp := SUBSTR(FWCodEmp(),1,2)
 
 // Dashboard powrbk
-If cFWEmp == "01" 
+//If cFWEmp == "01" 
 	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
-	U_BKDASH01()()
-EndIf
+	U_BKDASH01()
+//EndIf
 
 Reset Environment
 
