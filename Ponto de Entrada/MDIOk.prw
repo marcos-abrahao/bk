@@ -11,20 +11,12 @@ MDIOk - P.E. ao abrir o módulo SIGAMDI
 User Function MDIOk()
     
 Local cToken  := u_BKEnCode()
-
-/*
-If __cUserId == "000000"
-   	If MsgYesNo("Deseja efetuar testes?")
-		u_BKTESTES("CN300AUTO")
-	EndIf
-EndIf
-*/
-//SetKey(K_SH_F7,  { || u_IsMVC() })     //Shift + F7
+Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
 
 If nModulo = 5 .OR. nModulo = 69
-	//        Vanderleia/Zé Mario/Teste/Xavier/Fabia/Bruno/João Cordeiro/Nelson
-	If __cUserId $ "000000/000038/000012/000056/000175/000023/000153/000170/000165"
-    	If MsgYesNo("Deseja abrir a liberação de pedidos web?")
+	//              Admin /Teste /Xavier/Fabia/Vanderle/Bruno/Nelson/João Cordeiro/
+	If __cUserId $ "000000/000038/00?0012/000023/000056/000153/000165/000170"
+    	If dUltLog <> date() .OR.  MsgYesNo("Deseja abrir a liberação de pedidos web?")
 			If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 				ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPV/v2?userlib="+cToken, "", "", 1)
 			Else
@@ -34,7 +26,7 @@ If nModulo = 5 .OR. nModulo = 69
 	EndIf
 ElseIf nModulo = 6 .OR. nModulo = 2  .OR. nModulo = 9
 	If u_IsSuperior(__cUserId) .OR. u_IsGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000")
-		If MsgYesNo("Deseja abrir a liberação de Docs de Entrada web?")
+		If dUltLog <> date() .OR. MsgYesNo("Deseja abrir a liberação de Docs de Entrada web?")
 			If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 				ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPN/v2?userlib="+cToken, "", "", 1)
 			Else

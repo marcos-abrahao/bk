@@ -6,8 +6,23 @@ BK - Geração de tabelas para o PowerBI no banco PowerBK - Gestão
 @Return
 @author Marcos Bispo Abrahão
 @since 28/08/2022
-@version P12.1.25
+@version P12.1.33
 /*/
+// Chamada do Schedule
+// https://tdn.totvs.com/pages/releaseview.action?pageId=36800166
+Static Function Scheddef()
+Local aParam
+Local aOrd     := {}
+
+aParam := {	"P",;		//Tipo R para relatorio P para processo   
+			"PARAMDEF",;// Pergunte do relatorio, caso nao use passar ParamDef            
+			"CN9",;		// Alias            
+			aOrd,;		//Array de ordens   
+			"PowerBk"}
+
+Return aParam
+
+
 
 User Function BKDASH01()
 Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
@@ -32,7 +47,7 @@ If FWCodEmp() == "01"
 			 	.AND. DOW(DATE()) <> 7;
 			 	.AND. DOW(DATE()) <> 1
 
-			If SUBSTRING(TIME(),1,2) = '07'
+			If SUBSTRING(TIME(),1,2) = '06'
 				ProcDSDP1()
 				ProcDSDP2()
 				ProcDSEMP()
@@ -58,7 +73,7 @@ If FWCodEmp() == "01"
 
 		EndIf
 
-		If SUBSTRING(TIME(),1,2) = '07'
+		If SUBSTRING(TIME(),1,2) = '06'
 			U_BKGCTR26(.T.)
 		EndIf
 
@@ -68,7 +83,7 @@ If FWCodEmp() == "01"
 		aAdd(aDados,{"","ProcPRTur()"    ,"Criação/atualização da Procedure BKTURNOVER"})
 		aAdd(aDados,{"","ProcDSTUR()"    ,"Atualização da tabela FOLHATUR"})
 		aAdd(aDados,{"","ProcPRBKTur()"  ,"Criação/atualização da Procedure BKTURNOVER1"})
-		aAdd(aDados,{"","ProcDSBkTur()"  ,"Atualização da tabela FOLHATUR"})
+		aAdd(aDados,{"","ProcDSBkTur()"  ,"Atualização da tabela FOLHAFILBK"})
 		aAdd(aDados,{"","ProcDSDP1()"    ,"Atualização da tabela PREVDESP1"})
 		aAdd(aDados,{"","ProcDSDP2()"    ,"Atualização da tabela PREVDESP2"})
 		aAdd(aDados,{"","ProcDSEMP()"    ,"Atualização da tabela EMPRESAS"})
@@ -169,7 +184,7 @@ ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 			u_LogPrw(cPerg,"Final")
 		EndIf
 	Else
-		If SUBSTRING(TIME(),1,2) = '20'
+		If SUBSTRING(TIME(),1,2) = '06'
 			u_LogPrw(cPerg,"Inicio")
 			U_BKGCTR26(.T.)
 			u_LogPrw(cPerg,"Final")
@@ -1881,7 +1896,7 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  E2_VRETISS,"+CRLF
  	cQuery += "  E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS AS E2VALTIT,"+CRLF
  	cQuery += "  (D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC)  AS D1TOTAL,"+CRLF
- 	cQuery += "  CASE WHEN E2_ACRESC  > 0 THEN E2_ACRESC  ELSE E2_MULTA+E2_JUROS END - "+CRLF
+ 	cQuery += "  CASE WHEN E2_ACRESC > 0 THEN E2_ACRESC  ELSE E2_MULTA+E2_JUROS END - "+CRLF
  	cQuery += "  	CASE WHEN E2_DECRESC > 0 THEN E2_DECRESC ELSE E2_DESCONT END AS E2ACDEC"+CRLF
 
 	cQuery += "FROM " + CRLF

@@ -70,7 +70,7 @@ Local cRevisa 	as Character
 		If (cIdPonto == "FORMPRE")
 
 			If ((nOpc == 1 .OR. nOpc == 4 )  .AND. cIdModel == "CXNDETAIL" .AND. cCampo == "ISENABLE") .AND. aParam[6] == "CXNDETAIL"
-				CnaMun()
+				////CnaMun()
 
 			ElseIf (cIdModel == "CNDMASTER" .AND. aParam[4] == "SETVALUE" .AND. aParam[5]="CND_REVGER")
 
@@ -170,7 +170,7 @@ Local cRevisa 	as Character
 			If (cIdModel == "CXNDETAIL" .And. LEN(aParam) >= 6 ) ;
 				 .AND. cCampoIXB == "CXN_CHECK";
 				 .AND. aParam[5] == "SETVALUE"   // Executa a função se clicar no checkbox da tela de medição
-				CnaMunP()
+				////CnaMunP()
 			Endif
 			
 			/* Exemplo
@@ -188,7 +188,7 @@ Local cRevisa 	as Character
 		ElseIf (cIdPonto =="FORMLINEPOS")
 			If cIdModel == "CXNDETAIL" 
 				If lIsGrid .AND. aParam[5] <> "DELETE"
-					CnaMunP()
+					////CnaMunP()
 
 				//	cMsg := "Chamada na validação da linha do formulário." + CRLF
 				//	cMsg += "ID " + cIdModel + CRLF

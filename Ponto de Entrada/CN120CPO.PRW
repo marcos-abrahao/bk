@@ -24,21 +24,65 @@ oStruCXN:SetProperty("CXN_ZERO", MODEL_FIELD_WHEN, {|| .T.} )
 Return
 
 
+/*/{Protheus.doc} C121LCXN
+    Possibilita carregar dados adicionais à CXN(Planilhas da Medição) durante sua carga
+@since 04/10/2022
+@param oModelCXN    , objeto    , instância de FwFormGrid do submodelo CXN
+@param cAliasQry    , caractere , alias com o resultado da query
+@return Nil
+/*/
+User Function C121LCXN()
+    Local oModelCXN := PARAMIXB[1]
+    Local cAliasQry := PARAMIXB[2]
+ 
+    //Utilizar os campos da query (CN120CPO()) para realizar carga na CXN
+    if oModelCXN:HasField("CXN_XXMOT") .And. (cAliasQry)->(FieldPos("CNA_XXMOT") > 0)       
+        oModelCXN:LoadValue("CXN_XXMOT", (cAliasQry)->CNA_XXMOT) 
+    endif
+
+    if oModelCXN:HasField("CXN_XXMUN") .And. (cAliasQry)->(FieldPos("CNA_XXMUN") > 0)       
+        oModelCXN:LoadValue("CXN_XXMUN", (cAliasQry)->CNA_XXMUN) 
+    endif
+
+Return Nil
+
+
+/* Na nova medição(CNTA121) não há mais uma tela de seleção das planilhas, 
+   todas elas são carregadas para aba Planilhas que contêm a tabela CXN(Planilhas da Medição) 
+   para seleção, porém durante a carga dos dados ainda é executada a consulta SQL à 
+   tabela CNA(Planilhas do Contrato) que era executada anteriormente no CNTA120, 
+   dessa forma o ponto de entrada CN120CPO continua tendo um propósito, 
+   contudo para que os dados da consulta(query) sejam carregadas para CXN é necessário a 
+   implementação do novo ponto de entrada C121LCXN. Com a utilização desse novo ponto 
+   de entrada é possível utilizar os dados retornados na consulta para exibição no modelo da CXN.
+*/
+
 User Function CN120CPO()
-Local aCpo  := {}
+Local aResult := {}
 
-// Esta sendo executado na nova medição
+// Campos de usuário a serem adicionados a query
 
-//IF FWIsInCallStack("CNTA121")
-    //aAdd(aCpo,"CXN_XXOBS")
-//ELSE
-    aAdd(aCpo,"CNA_XXMOT")
-    aAdd(aCpo,"CNA_XXMUN")
-//ENDIF
+If CNA->(FieldPos("CNA_XXMOT") > 0)
+    aAdd(aResult,"CNA_XXMOT") 
+EndIf
 
-Return aCpo
+If CNA->(FieldPos("CNA_XXMUN") > 0)
+    aAdd(aResult,"CNA_XXMUN") 
+EndIf
+
+Return aResult
 
 
+/* Update nos campos anteriores em branco
+SELECT CXN_NUMMED,CXN_CONTRA,CNA_CONTRA,CXN_REVISA,CNA_REVISA,CXN_NUMPLA,CNA_NUMERO,
+		CXN_XXMUN,CNA_XXMUN
+
+--UPDATE CXN010 SET CXN_XXMUN = CNA_XXMUN, CXN_XXMOT = CNA_XXMOT
+FROM CXN010 
+LEFT JOIN CNA010 ON
+	CXN_CONTRA = CNA_CONTRA AND CXN_REVISA = CNA_REVISA AND CXN_NUMPLA = CNA_NUMERO
+	--WHERE CXN_XXMUN = ''
+*/
 
 
 

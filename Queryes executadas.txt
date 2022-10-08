@@ -1,5 +1,31 @@
+==============================================================
+08/10/22 - Popular campos da CXN_XXMUN e CNA_XXMOT, após serem convertidos para campos reais
 
+SELECT CXN_NUMMED,CXN_CONTRA,CNA_CONTRA,CXN_REVISA,CNA_REVISA,CXN_NUMPLA,CNA_NUMERO,
+		CXN_XXMUN,CNA_XXMUN
 
+--UPDATE CXN010 SET CXN_XXMUN = CNA_XXMUN, CXN_XXMOT = CNA_XXMOT
+FROM CXN010 
+LEFT JOIN CNA010 ON
+	CXN_CONTRA = CNA_CONTRA AND CXN_REVISA = CNA_REVISA AND CXN_NUMPLA = CNA_NUMERO
+	--WHERE CXN_XXMUN = ''
+	
+SELECT CXN_NUMMED,CXN_CONTRA,CNA_CONTRA,CXN_REVISA,CNA_REVISA,CXN_NUMPLA,CNA_NUMERO,
+		CXN_XXMUN,CNA_XXMUN
+
+--UPDATE CXN140 SET CXN_XXMUN = CNA_XXMUN, CXN_XXMOT = CNA_XXMOT
+FROM CXN140 
+LEFT JOIN CNA140 ON
+	CXN_CONTRA = CNA_CONTRA AND CXN_REVISA = CNA_REVISA AND CXN_NUMPLA = CNA_NUMERO
+	--WHERE CXN_XXMUN = ''	
+	
+==============================================================
+05/10/2022 - Acerto no Rubi
+UPDATE [bk_senior].[bk_senior].[R038hfi] SET  DatAlt = '2014-12-01 00:00:00.000'
+--SELECT *
+ FROM [bk_senior].[bk_senior].[R038hfi]
+ WHERE numemp =1  AND tipcol = 1 AND numcad = 16572 AND DatAlt > '2034-12-01 00:00:00.000'
+ --ORDER BY NumEmp,TipCol,Numcad,DatAlt,CodFil
 ==============================================================
 02/08/2022 - Acerto pedidos com C5_XXREV incorretos
 
@@ -99,6 +125,7 @@ SELECT * FROM CNE010  WHERE CNE_PEDIDO = '050325'
 
 SELECT C5_XXREV,* FROM SC5010 WHERE C5_NOTA = '000005671'
 SELECT * FROM CNE010  WHERE CNE_PEDIDO = '051032' order by R_E_C_N_O_
+
 
 ==============================================================
 25/07/22 - 12/07/22 EFD na Base Teste
