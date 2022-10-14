@@ -380,7 +380,7 @@ u_BkAvPar(::userlib,@aParams,@cMsg)
 cQuery := "SELECT "+CRLF
 cQuery += "		SF1.F1_DOC,SF1.F1_SERIE,SF1.F1_EMISSAO,SF1.F1_DTDIGIT,F1_XXPVPGT,F1_ESPECIE,F1_XXUSER,"+CRLF
 cQuery += "		SF1.F1_FORNECE,SF1.F1_LOJA,SA2.A2_NOME,SA2.A2_CGC,SA2.A2_EST,SA2.A2_MUN,"+CRLF
-cQuery += "		SF1.F1_XXLIB,"+CRLF
+cQuery += "		SF1.F1_XXLIB,SF1.F1_XXJSPGT,"+CRLF
 cQuery += "		SD1.D1_ITEM,SD1.D1_COD,SB1.B1_DESC,D1_TOTAL,(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_GERAL,"+CRLF
 cQuery += "		SD1.D1_QUANT,SD1.D1_VUNIT,SB1.B1_DESC,SD1.D1_CC,SD1.D1_XXDCC,"+CRLF
 cQuery += "		CONVERT(VARCHAR(2000),CONVERT(Binary(2000),SD1.D1_XXHIST)) D1_XXHIST,"+CRLF
@@ -450,7 +450,10 @@ Next
 oJsonPN['F1_ANEXOS']	:= aAnexos
 
 If !Empty((cQrySF1)->F1_HISTRET)
-	cHist += AllTrim(((cQrySF1)->F1_HISTRET))+" "
+	cHist += AllTrim(((cQrySF1)->F1_HISTRET))
+EndIf
+If !Empty((cQrySF1)->F1_XXJSPGT)
+	cHist += "JUSTIFICATIVA: ***" +AllTrim(((cQrySF1)->F1_XXJSPGT))+" ***"+CRLF
 EndIf
 
 nI := 0
@@ -466,13 +469,13 @@ Do While (cQrySF1)->(!EOF())
 	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySF1)->D1_GERAL,"@E 999,999,999.99")
 	aItens[nI]["D1_CC"]		:= (cQrySF1)->D1_CC+"-"+TRIM((cQrySF1)->D1_XXDCC)
 	If !ALLTRIM((cQrySF1)->D1_XXHIST) $ cHist                   
-       cHist += ALLTRIM((cQrySF1)->D1_XXHIST)+" "
+       cHist += STRTRAN(LTRIM((cQrySF1)->D1_XXHIST),CRLF," ")
     EndIf
 	nGeral += (cQrySF1)->D1_GERAL
 	dbSkip()
 EndDo
 
-cHist := STRTRAN(cHist,CRLF," ")
+//cHist := STRTRAN(cHist,CRLF," ")
 oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-1
 oJsonPN['D1_ITENS']		:= aItens
 oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")

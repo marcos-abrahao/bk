@@ -511,15 +511,15 @@ Private MsErroAuto := .F.
 
 For nI:=1 TO LEN(aTitGer)
 
+	MsProcTxt("Baixando o título " + aTitGer[nI,1] + "...")
 
-	dbSelectArea("SE8")
-	dbSetOrder(1)
-	dbSeek(xFilial("SE8")+aTitGer[nI,18]+aTitGer[nI,19]+aTitGer[nI,20]+DtoS(dDtBaixa),.T.)
+	//dbSelectArea("SE8")
+	//dbSetOrder(1)
+	//dbSeek(xFilial("SE8")+aTitGer[nI,18]+aTitGer[nI,19]+aTitGer[nI,20]+DtoS(dDtBaixa),.T.)
 
-	cQuery 	:= ""
-	cQuery 	:= " DELETE from "+RETSQLNAME("SE8")+"  where D_E_L_E_T_=''"
-	cQuery 	+= " AND E8_MOEDA=' 1'AND E8_FILIAL='"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
-	cQuery 	+= " AND E8_BANCO='"+aTitGer[nI,18]+"' AND E8_AGENCIA='"+aTitGer[nI,19]+"' AND E8_CONTA='"+aTitGer[nI,20]+"'"
+	cQuery 	:= " DELETE from "+RETSQLNAME("SE8")+" WHERE D_E_L_E_T_=''"
+	cQuery 	+= " AND E8_MOEDA = ' 1' AND E8_FILIAL = '"+xFILIAL("SE8")+"' AND E8_DTSALAT='"+DTOS(dDtBaixa)+"'" 
+	cQuery 	+= " AND E8_BANCO = '"+aTitGer[nI,18]+"' AND E8_AGENCIA = '"+aTitGer[nI,19]+"' AND E8_CONTA = '"+aTitGer[nI,20]+"'"
 	
 	TcSqlExec(cQuery)
 
@@ -527,7 +527,6 @@ For nI:=1 TO LEN(aTitGer)
 	DbSelectArea("SE1")
 	SE1->(DbSetOrder(1))
 	SE1->(DbSeek(xFilial("SE1")+aTitGer[nI,2]+aTitGer[nI,1]+aTitGer[nI,3]+aTitGer[nI,4],.T.))
-
 
 	aBaixa := {}		
 	// grava baixa do titulo
@@ -616,7 +615,6 @@ For nI:=1 TO LEN(aTitGer)
 	
   	   	End Transaction
 	ENDIF
-    
  			
 Next nI
 
@@ -638,7 +636,7 @@ For nI:=1 TO LEN(aTitGer)
 Next nI
 
 IF lOK
-	Msginfo("Titulos Baixado com sucesso!!")
+	Msginfo("Titulos Baixados com sucesso!!")
 ELSE
 	IF !EMPTY(cLOG)
 		cLOG := "Titulo(s) com baixa parcial. Verifique!!"+cCrLf+cCrLf+cCrLf+cLOG

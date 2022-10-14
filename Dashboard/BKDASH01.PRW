@@ -42,12 +42,17 @@ If FWCodEmp() == "01"
 
 	If IsBlind()
 		//If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '06'
+
+		If SUBSTRING(TIME(),1,2) == '19' .AND. DOW(DATE()) <> 1
+			U_BKGCTR26(.T.)
+		EndIf
+
 		If SUBSTRING(TIME(),1,2) > '05' ;
 				.AND. SUBSTRING(TIME(),1,2) < '21';
 			 	.AND. DOW(DATE()) <> 7;
 			 	.AND. DOW(DATE()) <> 1
 
-			If SUBSTRING(TIME(),1,2) = '06'
+			If SUBSTRING(TIME(),1,2) == '06'
 				ProcDSDP1()
 				ProcDSDP2()
 				ProcDSEMP()
@@ -71,10 +76,6 @@ If FWCodEmp() == "01"
 			//ProcDSGLF()
 			ProcDSGER()
 
-		EndIf
-
-		If SUBSTRING(TIME(),1,2) = '06'
-			U_BKGCTR26(.T.)
 		EndIf
 
 	Else
@@ -108,70 +109,6 @@ If FWCodEmp() == "01"
 			EndIf
 		Next nX
 
-		/*
-		If MsgYesNo("Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| U_BKGCTR26(.T.) }, "", "Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
-		EndIf
-
-		If MsgYesNo("Confirma a criação/atualização da procedure BKTURNOVER?", cPerg)
-			FWMsgRun(, {|oSay| ProcPRTur() }, "", "Atualizando a procedure BKTURNOVER...")
-		EndIf
-
-		If MsgYesNo("Confirma a atualização da tabela FOLHATUR do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSTUR() }, "", "Atualizando a tabela FOLHATUR do banco de dados PowerBk...")
-		EndIf
-
-		If MsgYesNo("Confirma a atualização da tabela PREVDESP1 do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSDP1() }, "", "Atualizando a tabela PREVDESP1 do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela PREVDESP2 do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSDP2() }, "", "Atualizando a tabela PREVDESP2 do banco de dados PowerBk...")
-		EndIf
-
-		If MsgYesNo("Confirma a atualização da tabela EMPRESAS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSEMP() }, "", "Atualizando a tabela EMPRESAS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela CCUSTOS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSCC() }, "", "Atualizando a tabela CCUSTOS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela FOLHA do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSFOL() }, "", "Atualizando a tabela FOLHA do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela FERIAS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSFER() }, "", "Atualizando a tabela FERIAS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela USUARIOS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSUSR() }, "", "Atualizando a tabela USUARIOS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela CONTRATOS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSCTR() }, "", "Atualizando a tabela CONTRATOS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela PLANILHAS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSPLA() }, "", "Atualizando a tabela PLANILHAS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela CRONOGRAMAS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSCRO() }, "", "Atualizando a tabela CRONOGRAMAS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela FATURAMENTO do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSFAT() }, "", "Atualizando a tabela FATURAMENTO do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela GESTORES do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSGES() }, "", "Atualizando a tabela GESTORES do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela GLOSAS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSGLO() }, "", "Atualizando a tabela GLOSAS do banco de dados PowerBk...")
-		EndIf
-		If MsgYesNo("Confirma a atualização da tabela GASTOSGERAIS do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSGG() }, "", "Atualizando a tabela GASTOSGERAIS do banco de dados PowerBk...")
-		EndIf
-		//If MsgYesNo("Confirma a atualização da tabela GASTOSLIQFOL do banco de dados PowerBk?", cPerg)
-		//	FWMsgRun(, {|oSay| ProcDSGLF() }, "", "Atualizando a tabela GASTOSLIQFOL do banco de dados PowerBk...")
-		//EndIf
-		If MsgYesNo("Confirma a atualização da tabela GERAL do banco de dados PowerBk?", cPerg)
-			FWMsgRun(, {|oSay| ProcDSGER() }, "", "Atualizando a tabela GERAL do banco de dados PowerBk...")
-		EndIf
-		*/
-
 	EndIf
 	u_LogPrw(cPerg,"Final")
 
@@ -184,7 +121,7 @@ ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 			u_LogPrw(cPerg,"Final")
 		EndIf
 	Else
-		If SUBSTRING(TIME(),1,2) = '06'
+		If SUBSTRING(TIME(),1,2) = '20'
 			u_LogPrw(cPerg,"Inicio")
 			U_BKGCTR26(.T.)
 			u_LogPrw(cPerg,"Final")

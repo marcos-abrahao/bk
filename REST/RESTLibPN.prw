@@ -602,6 +602,7 @@ cQuery += "		SA2.A2_EST,"+CRLF
 cQuery += "		SA2.A2_MUN,"+CRLF
 cQuery += "		SF1.F1_XXLIB,"+CRLF
 cQuery += "		SF1.F1_XXAVALI,"+CRLF
+cQuery += "		SF1.F1_XXJSPGT,"+CRLF
 cQuery += "		SD1.D1_ITEM,"+CRLF
 cQuery += "		SD1.D1_COD,"+CRLF
 cQuery += "		SB1.B1_DESC,"+CRLF
@@ -696,9 +697,11 @@ Next
 oJsonPN['F1_ANEXOS']	:= aAnexos
 
 If !Empty((cQrySF1)->F1_HISTRET)
-	cHist += AllTrim(((cQrySF1)->F1_HISTRET))+" "
+	cHist += AllTrim(((cQrySF1)->F1_HISTRET)) 
 EndIf
-
+If !Empty((cQrySF1)->F1_XXJSPGT)
+	cHist += "JUSTIFICATIVA: ***" +AllTrim(((cQrySF1)->F1_XXJSPGT))+" ***"+CRLF
+EndIf
 
 nI := 0
 Do While (cQrySF1)->(!EOF())
@@ -715,7 +718,7 @@ Do While (cQrySF1)->(!EOF())
 	aItens[nI]["D1_CC"]		+= "-"+StrIConv(TRIM((cQrySF1)->D1_XXDCC), "CP1252", "UTF-8") 
 	aItens[nI]["D1CCVIG"]	:= " "+ALLTRIM(U_Vig2Contrat((cQrySF1)->D1_CC,dUltPag,self:empresa))
 	If !ALLTRIM((cQrySF1)->D1_XXHIST) $ cHist                   
-       cHist += ALLTRIM((cQrySF1)->D1_XXHIST)+" "
+       cHist += STRTRAN(LTRIM((cQrySF1)->D1_XXHIST),CRLF," ")
     EndIf
 	nGeral += (cQrySF1)->D1_GERAL
 	If !Empty((cQrySF1)->D1_PEDIDO)
@@ -725,7 +728,7 @@ Do While (cQrySF1)->(!EOF())
 	dbSkip()
 EndDo
 
-cHist := STRTRAN(cHist,CRLF," ")
+//cHist := STRTRAN(cHist,CRLF," ")
 oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-1
 oJsonPN['D1_ITENS']		:= aItens
 oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
@@ -1310,10 +1313,10 @@ EndIf
 //StrIConv( cHtml, "UTF-8", "CP1252")
 //DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
-//cPre  := StrIConv( "Pré", "CP1252", "UTF-8")
-//cHtml := STRTRAN(cHtml,"Pré",cPre)
 
-//Memowrite("\tmp\pn.html",cHtml)
+If __cUserId == '000000'
+	Memowrite("c:\tmp\pn.html",cHtml)
+EndIf
 
 self:setResponse(cHTML)
 self:setStatus(200)
