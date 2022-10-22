@@ -336,14 +336,16 @@ If lMsErroAuto
 	
 	cErro := ""
 	For _nX := 1 To Len(aAutoErro) 
-		cErro += aAutoErro[_nX]+CHR(13)+CHR(10)
+		cErro += aAutoErro[_nX]+"|"
 	NEXT
-	u_xxConOut("ERROR","BKFINJ18","Erro em MSExecAuto: "+cErro)
+	//u_xxConOut("ERROR","BKFINJ18","Erro em MSExecAuto: "+cErro)
+	u_LogPrw("BKFINJ18","Erro: "+cErro)
 	cRetorno := cErro
 	lRet := .F.
 Else
 	cRetorno := "DNF"+cNFiscal
-	u_xxConOut("INFO","BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
+	//u_xxConOut("INFO","BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
+	u_LogPrw("BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
 EndIf
 
 //dDataBase := dDataAt

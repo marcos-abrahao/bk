@@ -806,11 +806,17 @@ line-height: 1rem;
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-	<a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas - #cUserName#</a> 
-    <button type="button" 
-        class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
-        Atualizar
-    </button>
+   <div class="container-fluid">
+    <a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas - Administrador</a> 
+    <form class="d-flex">
+       <input class="form-control me-2" type="search" placeholder="Num. Documento" aria-label="Search">
+       <button class="btn btn-dark" type="submit">Token</button>
+     </form>
+   <button type="button" 
+       class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
+       Atualizar
+   </button>
+  </div>
 </nav>
 <br>
 <br>
@@ -1315,7 +1321,7 @@ EndIf
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 If __cUserId == '000000'
-	Memowrite("c:\tmp\pn.html",cHtml)
+	Memowrite("\tmp\pn.html",cHtml)
 EndIf
 
 self:setResponse(cHTML)

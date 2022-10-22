@@ -2922,7 +2922,7 @@ If lExiste
 
 	dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasTmp,.T.,.T.)
 
-	u_LogPrw(cPerg,"PowerBk - registros fitrados da tabela "+cTabela+": "+STR((cAliasTmp)->REGISTROS))
+	u_LogPrw(cPerg,"PowerBk - registros filtrados da tabela "+cTabela+": "+ALLTRIM(STR((cAliasTmp)->REGISTROS)))
 
 	(cAliasTmp)->(dbCloseArea())
 

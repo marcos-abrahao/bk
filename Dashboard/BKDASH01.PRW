@@ -43,7 +43,7 @@ If FWCodEmp() == "01"
 	If IsBlind()
 		//If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '06'
 
-		If SUBSTRING(TIME(),1,2) == '19' .AND. DOW(DATE()) <> 1
+		If SUBSTRING(TIME(),1,2) == '19' //.AND. DOW(DATE()) <> 1
 			U_BKGCTR26(.T.)
 		EndIf
 
@@ -603,7 +603,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  (" + CRLF
 	cQuery += "    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END" + CRLF
 	cQuery += "  ) AS FORMAMED, " + CRLF
-	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
+	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF
+	cQuery += "  CNA_XXTIPO AS CNA_XXTIPO,"+ CRLF		
 	//cQuery += "  ISNULL(CXN_VLPREV, CND_VLPREV) AS CXN_VLPREV, " + CRLF
 	cQuery += "  CASE WHEN ISNULL(CXN_VLPREV, CND_VLPREV) = CNF_VLPREV THEN CNF_VLPREV ELSE 0 END AS CXN_VLPREV,"+ CRLF
 	//cQuery += "  ISNULL(CXN_VLBONI, CND_VLBONI) AS CXN_VLBONI, " + CRLF
@@ -835,6 +836,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
 	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
 	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
+	cQuery += "  CNA_XXTIPO AS CNA_XXTIPO,"+ CRLF	
 	cQuery += "  CNF_VLPREV AS CXN_VLPREV, " + CRLF
 	cQuery += "  0 			AS XX_E5DESC, " + CRLF
 	cQuery += "  0 			AS XX_E5MULTA, " + CRLF
