@@ -13,7 +13,7 @@ BK - Atualização da tabela CONTRATOS do banco de dados PowerBk
 
 
 // Atualização da Procedure BKTURNOVER do banco de dados dataP10
-Static Function U_BKDSPRTUR
+User Function BKDSPRTUR
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -52,7 +52,15 @@ IF OBJECT_ID(N'PowerBk.dbo.FOLHAFIL', N'U') IS NOT NULL   DROP TABLE PowerBk.dbo
 IF OBJECT_ID(N'PowerBk.dbo.FOLHATUR', N'U') IS NOT NULL   DROP TABLE PowerBk.dbo.FOLHATUR
 
 -- Tabela com Funcionarios x CCustos
-CREATE TABLE PowerBk.dbo.FOLHAFIL(NumEmp smallint, CompetAM date, TipCol smallint, NumCad int, DatAlt datetime, CodFil int, ContAd int,ContAt int, ContAf int, DataFim datetime)
+CREATE TABLE PowerBk.dbo.FOLHAFIL(dataprc datetime,NumEmp smallint, CompetAM date, TipCol smallint, NumCad int, DatAlt datetime, CodFil int, ContAd int,ContAt int, ContAf int, DataFim datetime)
+CREATE NONCLUSTERED INDEX [FOLHAFIL01] ON [PowerBk].[dbo].[FOLHAFIL]
+(
+	[NumEmp] ASC,
+	[CompetAM] ASC,
+	[TipCol] ASC,
+	[NumCad] ASC
+
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 -- Cursor para percorrer os registros
 DECLARE cursor1 CURSOR FOR
@@ -91,7 +99,7 @@ BEGIN
 	SET @Compet  = CAST(YEAR(@DatAlt)  AS VARCHAR(4)) + REPLACE(STR(MONTH(@DatAlt),2),' ','0')
 	SET @CompetD = CONVERT(date,SUBSTRING(@Compet,1,4)+'-'+SUBSTRING(@Compet,5,2)+'-01', 126)
 
-    INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@DatAlt,@CodFil,1,1,0,@DataFim)
+    INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(GETDATE(),@NumEmp,@CompetD,@TipCol,@Numcad,@DatAlt,@CodFil,1,1,0,@DataFim)
 
 	SET @NumEmp1 = @NumEmp
 	SET @TipCol1 = @TipCol
@@ -120,10 +128,10 @@ BEGIN
 		SET @Compet   = CAST(YEAR(@DataNext) AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataNext),2),' ','0')
 		SET @CompetD  = CONVERT(date,SUBSTRING(@Compet,1,4)+'-'+SUBSTRING(@Compet,5,2)+'-01', 126)
 
-	    INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(@NumEmp1,@CompetD,@TipCol1,@Numcad1,@DataNext,@CodFil1,0,1,0,@DataFim);
+	    INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(GETDATE(),@NumEmp1,@CompetD,@TipCol1,@Numcad1,@DataNext,@CodFil1,0,1,0,@DataFim);
 	END
 	IF @nAfa = 1
-		INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(@NumEmp1,@CompetD,@TipCol1,@Numcad1,@DataNext,@CodFil1,0,-1,1,@DataFim);
+		INSERT INTO PowerBk.dbo.FOLHAFIL VALUES(GETDATE(),@NumEmp1,@CompetD,@TipCol1,@Numcad1,@DataNext,@CodFil1,0,-1,1,@DataFim);
 
 END
  
@@ -134,6 +142,7 @@ CLOSE cursor1
 DEALLOCATE cursor1
 
 SELECT 
+GETDATE() AS dataprc,
 NumEmp,
 CodFil,
 CompetAM,
@@ -169,7 +178,6 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 
 u_LogPrw("BKDSTUR","Turnover")
-
 
 If TCSPExist( "BKTURNOVER" )
 	cQuery  := "EXEC BKTURNOVER"  

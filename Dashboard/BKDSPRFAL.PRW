@@ -6,7 +6,7 @@ BK - Atualização da Procedure BKFALTAS do banco de dados dataP10
 
 @Return
 @author Marcos Bispo Abrahão
-@since 27/09/2022
+@since 25/10/2022
 @version P12.1.25
 /*/
 
@@ -48,18 +48,44 @@ DECLARE @CodHor	  smallint
 DECLARE @SeqReg	  smallint
 DECLARE @CodFil	  int
 
-IF OBJECT_ID(N'PowerBk.dbo.FOLHAFAL', N'U') IS NOT NULL DROP TABLE PowerBk.dbo.FOLHAFAL 
+IF OBJECT_ID(N'PowerBk.dbo.FOLHAFAL', N'U') IS NULL
+BEGIN
+    -- Tabela com Funcionarios x CCustos
+    CREATE TABLE PowerBk.dbo.FOLHAFAL(NumEmp smallint, CompetAM date, TipCol smallint, NumCad int, CodEsc int, datafa datetime, dattmp datetime,datter datetime, sitafa int, ContAfa int,ContTrb int,CodHor smallint, SeqReg smallint, CodFil int, dataprc datetime)
 
--- Tabela com Funcionarios x CCustos
-CREATE TABLE PowerBk.dbo.FOLHAFAL(NumEmp smallint, CompetAM date, TipCol smallint, NumCad int, CodEsc int, datafa datetime, dattmp datetime,datter datetime, sitafa int, ContAfa int,ContTrb int,CodHor smallint, SeqReg smallint, CodFil int)
+    -- Cursor para percorrer TODOS os registros
+    DECLARE cursor1 CURSOR FOR
+    SELECT NumEmp,TipCol,Numcad,datafa,datter,sitafa
+    FROM [bk_senior].[bk_senior].[vbi_hissit]
+    WHERE TipCol = 1 AND sitafa <> 1 AND sitafa <> 7
+    --AND numcad >= 32520 -- TESTE
+    --ORDER BY NumEmp,TipCol,Numcad,datafa
+    ORDER BY datafa,NumEmp,TipCol,Numcad
+END
+ELSE
+BEGIN
+	-- DROP TABLE PowerBk.dbo.FOLHAFAL
+    -- Deletar 3 meses
+    SET @datter   = GETDATE()
+    SET @datter   = DATEADD(m, -3, @datter)
+    SET @datter   = DATEADD(d, -DAY(@datter), @datter)
+    --SELECT @datter
+    DELETE FROM PowerBk.dbo.FOLHAFAL WHERE datafa > @datter
 
--- Cursor para percorrer os registros
-DECLARE cursor1 CURSOR FOR
-  SELECT NumEmp,TipCol,Numcad,datafa,datter,sitafa
-  FROM [bk_senior].[bk_senior].[vbi_hissit]
-  WHERE TipCol = 1 AND sitafa <> 1 AND sitafa <> 7
-  --AND numcad = 278 --32520 -- TESTE
-  ORDER BY NumEmp,TipCol,Numcad,datafa
+    -- Cursor para percorrer OS ULTIMOS 3 MESES
+    DECLARE cursor1 CURSOR FOR
+    SELECT NumEmp,TipCol,Numcad,datafa,datter,sitafa
+    FROM [bk_senior].[bk_senior].[vbi_hissit]
+    WHERE TipCol = 1 AND sitafa <> 1 AND sitafa <> 7
+          AND datafa > @datter
+    --AND numcad >= 32520 -- TESTE
+    --AND numcad = 249 --32520 -- TESTE
+    --ORDER BY NumEmp,TipCol,Numcad,datafa
+    ORDER BY datafa,NumEmp,TipCol,Numcad
+
+	-- SELECT * FROM FOLHAFAL where dataprc  >= CONVERT(datetime, '2022-10-26 08:40:24.950', 121)
+
+END
 
 --Abrindo Cursor
 OPEN cursor1
@@ -92,7 +118,7 @@ BEGIN
 						      AND DatAlt <= @DataNext ORDER BY DatAlt DESC)
 		---
 		
-		SET @CodFil = (SELECT TOP 1 CodFil FROM FOLHAFIL FI 
+		SET @CodFil = (SELECT TOP 1 CodFil FROM PowerBk.dbo.FOLHAFIL FI 
 						WHERE @Numemp = FI.NumEmp AND
 						       TipCol = FI.TipCol AND
 						      @Numcad = FI.NumCad AND
@@ -100,7 +126,7 @@ BEGIN
 
 		IF @CodFil IS NULL
 		BEGIN
-			SET @CodFil = (SELECT TOP 1 CodFil FROM FOLHAFIL FI 
+			SET @CodFil = (SELECT TOP 1 CodFil FROM PowerBk.dbo.FOLHAFIL FI 
 							WHERE @Numemp = FI.NumEmp AND
 								   TipCol = FI.TipCol AND
 								  @Numcad = FI.NumCad 
@@ -110,25 +136,20 @@ BEGIN
 		SET @SeqReg = DATEPART(dw,@DataNext)
 		SET @CodHor = (SELECT CodHor FROM [bk_senior].[bk_senior].[R006HOR] WHERE CodEsc = @CodEsc and SeqReg = @SeqReg)
 
-		--WHILE (CAST(YEAR(@DataNext) AS VARCHAR(4)) + REPLACE(STR(MONTH(@DataNext),2),' ','0') = @Compet) AND @DataNext < @DataFim
-		--BEGIN
-			SET @DataNext = DATEADD(d, 1, @DataNext)
-			IF @CodHor < 1000
-			BEGIN 
-				IF @sitafa = 1
-				BEGIN
-					SET @nTrb = @nTrb + 1
-				END
-				ELSE
-				BEGIN
-					SET @nAfa = @nAfa + 1
-				END
+		SET @DataNext = DATEADD(d, 1, @DataNext)
+		IF @CodHor < 1000
+		BEGIN 
+			IF @sitafa = 1
+			BEGIN
+				SET @nTrb = @nTrb + 1
 			END
-		--END
-	    INSERT INTO PowerBk.dbo.FOLHAFAL VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@CodEsc,@datafa,@DataNext,@datter,@sitafa,@nAfa,@nTrb,@CodHor,@SeqReg,@CodFil)
+			ELSE
+			BEGIN
+				SET @nAfa = @nAfa + 1
+			END
+		END
+	    INSERT INTO PowerBk.dbo.FOLHAFAL VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@CodEsc,@datafa,@DataNext,@datter,@sitafa,@nAfa,@nTrb,@CodHor,@SeqReg,@CodFil,GETDATE())
 	END
-	--IF @nAfa = 1
-	--    INSERT INTO PowerBk.dbo.FOLHAFILBK VALUES(@NumEmp,@CompetD,@TipCol,@Numcad,@datadm,@DataAfa,@caudem,0,-1,1)
 
 	-- Lendo a próxima linha
 	FETCH NEXT FROM cursor1 INTO @NumEmp,@TipCol,@Numcad,@datafa,@datter,@sitafa
@@ -202,4 +223,3 @@ EndIf
 u_LogMemo("BKDSBKFAL.SQL",cErro1+cQuery)
 
 Return
-

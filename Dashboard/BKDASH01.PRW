@@ -63,6 +63,7 @@ If FWCodEmp() == "01"
 				U_BKDSUSR()
 				U_BKDSTUR()
 				U_BKDSBKTUR()
+				U_BKDSBKFAL()
 			EndIf
 
 			U_BKDSFAT()
@@ -84,7 +85,7 @@ If FWCodEmp() == "01"
 		aDados := {}
 		aAdd(aDados,{"","U_BKGCTR26(.T.)","Tabelas de Fluxo de Caixa Por Contrato"})
 		aAdd(aDados,{"","U_BKDSPRTUR()"  ,"Criação/atualização da Procedure BKTURNOVER"})
-		aAdd(aDados,{"","U_BKDSTUR()"    ,"Atualização da tabela FOLHATUR"})
+		aAdd(aDados,{"","U_BKDSTUR()"    ,"Atualização da tabela FOLHAFIL e FOLHATUR"})
 
 		aAdd(aDados,{"","U_BKPRBKTUR()"  ,"Criação/atualização da Procedure BKTURNOVER1"})
 		aAdd(aDados,{"","U_BKDSBKTUR()"  ,"Atualização da tabela FOLHAFILBK"})
@@ -110,9 +111,9 @@ If FWCodEmp() == "01"
 
 		u_TTMARKB(aCampos, aDados, .F., "", .F.)
 
-		For nX := 1 To Len(aDados)
+		For nX := 1 To Len(aDados) 
 			If !Empty(aDados[nX,1])
-				x:= &(aDados[nX,2])
+				FWMsgRun(, {|oSay| x:= &(aDados[nX,2]) }, "", aDados[nX,2]+": "+aDados[nX,3])
 			EndIf
 		Next nX
 

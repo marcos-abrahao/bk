@@ -1,7 +1,7 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "TOTVS.CH"
 
-/*/{Protheus.doc} BKDSCTR
+/*/{Protheus.doc} BKPRBKTUR
 BK - Atualização da Procedure BKTURNOVER1 do banco de dados dataP10
 
 @Return
