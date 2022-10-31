@@ -9,11 +9,49 @@
 	@version 12.1.33
 /*/
 
-// Log de acesso a rdmakes BK
-User Function LogPrw(cProg,cMens)
-Local cArqLog := "\log\LogPrw.log"
-Default cMens := "Acesso"
-Return u_xxLog(cArqLog,cProg + ": "+cMens)
+/*
+Log e mensagens - rdmakes BK
+
+FWAlertError: Mostra uma mensagem com um círculo vermelho e um x no meio
+FWAlertExitPage: Mostra uma pergunta com 3 opções (Continuar editando, Salvar, Sair da Página)
+FWAlertHelp: Mostra uma mensagem de help e solução
+FWAlertInfo: Mensagem informativa com um círculo azul e um i no meio
+FWAlertNoYes: Mensagem que tem 2 opções (Não e Sim)
+FWAlertSuccess: Mostra uma mensagem com um círculo verde e um ícone de check
+FWAlertWarning: Mostra uma mensagem com um triângulo amarelo e uma exclamação no meio
+FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
+*/
+
+User Function LogPrw(cProg,cMens,cAlert)
+Local cArqLog  := "\log\LogPrw.log"
+Local lRet     := .T.
+Default cMens  := "Acesso"
+Default cAlert := " "
+
+If !IsBlind() .AND. !Empty(cAlert)
+	If cAlert == "I"
+		FWAlertInfo(cMens,cProg)
+	ElseIf cAlert == "W"
+		FWAlertWarning(cMens,cProg)
+	ElseIf cAlert == "E"
+		FWAlertError(cMens,cProg)
+	ElseIf cAlert == "S"
+		FWAlertSuccess(cMens,cProg)
+	ElseIf cAlert == "Y"
+		lRet := FWAlertYesNo(cMens,cProg)
+		If lRet
+			cMens += ": Sim"
+		Else
+			cMens += ": Nao"
+		EndIf
+	Else
+		FWAlertHelp(cMens,cProg)
+	EndIf
+EndIf
+
+u_xxLog(cArqLog,cProg + ": "+cMens)
+
+Return lRet
 
 
 // Gravar erros na execução de MSExecAuto
@@ -26,10 +64,10 @@ Default cMens := "Problemas na execução do MSExecAuto:"
 Default lMens := .T.
 
 cErrLog:= cMens+CRLF+MostraErro("\log\",cArqErr)
-u_xxLog(cArqLog,cErrLog)
+u_xxLog(cArqLog,cErrLog,"E")
 
 If !IsBlind() .AND. lMens
-	MsgStop(cErrLog, cProg)
+	Alert(cProg+": "+cMens)
 EndIf
 
 Return Nil
@@ -52,6 +90,8 @@ Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 u_xxConOut("INFO","xxLog",cMens)
 
+cMens := STRTRAN( cMens, CRLF, " ")
+
 If lMens  //Inicializa cMens com Data e Hora
 	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|" // +cValToChar(nModulo)+"|
 EndIf
@@ -64,7 +104,7 @@ If !File(cArqLog)
 	nHandle:=fCreate(cArqLog,0)
 	If nHandle==-1
 		If !IsBlind()
-			Alert("LOG ERROR: "+STR(nHandle)+" ==> Nao foi possivel criar "+cArqLog)
+			FWAlertError("LOG ERROR: "+STR(nHandle),"Nao foi possivel criar o arquivo"+cArqLog)
 		EndIf
 		Return(.f.)
 	EndIf
@@ -73,9 +113,9 @@ EndIf
 
 nHandle := fOpen(cArqLog,2)
 
-If fError()<>0
+If fError() <> 0
 	If !IsBlind()
-		Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel abrir "+cArqLog)
+		FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel abrir o arquivo "+cArqLog)
 	EndIf
 	Return(.f.)
 EndIf
@@ -88,7 +128,7 @@ fWrite(nHandle,cBuffer,Len(cBuffer))
 
 If fError() <> 0
 	If !IsBlind()
-		Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel gravar "+cArqLog)
+		FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel gravar o arquivo "+cArqLog)
 	EndIf
 	fClose(nHandle)
 	Return(.f.)
@@ -159,7 +199,7 @@ If __cUserId == "000000" .OR. IsBlind()
 		nHandle := fCreate(cFile,0)
 		If nHandle == -1
 			If !IsBlind()
-				Alert("LOG ERROR: "+STR(nHandle)+" ==> Nao foi possivel criar "+cFile)
+				FWAlertError("LOG ERROR: "+STR(nHandle),"Nao foi possivel criar "+cFile)
 			EndIf
 			Return(.F.)
 		EndIf
@@ -170,7 +210,7 @@ If __cUserId == "000000" .OR. IsBlind()
 
 	If fError()<>0
 		If !IsBlind()
-			Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel abrir "+cFile)
+			FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel abrir "+cFile)
 		EndIf
 		Return(.F.)
 	EndIf
@@ -181,7 +221,7 @@ If __cUserId == "000000" .OR. IsBlind()
 
 	If fError() <> 0
 		If !IsBlind()
-			Alert("LOG ERROR: "+fError()+" ==> Nao foi possivel gravar "+cFile)
+			FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel gravar "+cFile)
 		EndIf
 		fClose(nHandle)
 		Return(.F.)
@@ -193,8 +233,6 @@ If __cUserId == "000000" .OR. IsBlind()
 EndIf
 
 Return(.T.)
-
-
 
 
 /*/{Protheus.doc} User Function xxLog

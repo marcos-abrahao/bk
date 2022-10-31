@@ -22,7 +22,7 @@ Local nE 		:= 0
 Local cTabCN9   := ""
 Local cTabSYP   := ""
 
-u_LogPrw("BKDSCTR","Contratos")
+u_LogPrw("BKDSCTR","Inicio: Contratos")
  
 cQuery := "WITH CTR AS ( " + CRLF
 
@@ -152,5 +152,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSCTR.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSCTR","Final: Contratos")
 
 Return

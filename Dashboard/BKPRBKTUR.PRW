@@ -147,6 +147,7 @@ If TCSPExist( "BKTURNOVER1" )
 EndIf
 
 u_LogMemo("BKDSBKTUR.SQL",cErro1+cQuery)
+u_LogPrw("BKPRBKTUR","Final: TurnoverBK")
 
 Return
 

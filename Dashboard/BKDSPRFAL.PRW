@@ -221,5 +221,6 @@ If TCSPExist( "BKFALTAS" )
 EndIf
 
 u_LogMemo("BKDSBKFAL.SQL",cErro1+cQuery)
+u_LogPrw("BKDSPRFAL","Final: Faltas")
 
 Return

@@ -98,6 +98,36 @@ Next
 Return lRet
 
 
+// Listagem de usuarios x superiores
+User Function ListSup()
+Local nx		:= 0
+Local ny		:= 0
+Local aAllusers := FWSFALLUSERS(,,,,.T.)
+Local aSup		:= {}
+Local lRet 		:= .F.
+Local aUsSup 	:= {}
+Local aCabec	:= {"Usuários","Superiores"}
+
+For nx := 1 To Len(aAllusers)
+	If aAllUsers[nx,9] == '2' //usuário ativo
+		aSup := FWSFUsrSup(aAllusers[nx][2])
+		If Len(aSup) > 0
+			For ny := 1 To Len(aSup)
+				//u_LogPrw("ListSup",aAllusers[nx][2]+"-"+aAllusers[nx][4]+" : "+aSup[ny]+"-"+UsrRetName(aSup[ny]))
+				aAdd(aUsSup,{aAllusers[nx][2]+"-"+aAllusers[nx][3],aSup[ny]+"-"+UsrRetName(aSup[ny])})
+			Next
+		Else
+			aAdd(aUsSup,{aAllusers[nx][2]+"-"+aAllusers[nx][3],""})
+		EndIf	
+	EndIf
+Next
+
+u_ArrXls(aUsSup,"Usuários x Superiores",aCabec)
+
+Return lRet
+
+
+
 
 // Retorna se o usuário pertence ao grupo informado
 User Function IsGrupo(cId,cIdGrupo)

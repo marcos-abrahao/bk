@@ -29,7 +29,7 @@ Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
 Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
 Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
 
-u_LogPrw("BKDSGLF","Liquidos de Folha")
+u_LogPrw("BKDSGLF","Inicio: Liquidos de Folha")
 
 For nE := 1 TO Len(aEmpresas)
 
@@ -183,6 +183,7 @@ Endif
 //End Transaction
 
 u_LogMemo("BKDSGLF.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSGLF","Final: Liquidos de Folha")
 
 Return
 

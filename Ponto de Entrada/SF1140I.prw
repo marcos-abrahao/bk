@@ -26,6 +26,7 @@ Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel  := SF1->F1_XXPARCE
+Private cLibF1   := "A"
 
 //GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 
@@ -44,7 +45,7 @@ IF VAL(__cUserId) > 0  // EMPTY(SF1->F1_XXUSER) .AND. //Não Gravar Administrador
 ENDIF
 
 If !l140Auto
-	U_SelFPgto(.T.,.F.)
+	U_SelFPgto(.T.,.F.,@cLibF1)
 EndIf
 
 RecLock("SF1",.F.)
@@ -60,7 +61,7 @@ SF1->F1_COND	:= cxCond
 SF1->F1_XXPARCE := mParcel
 
 // Limpar dados de Liberação
-SF1->F1_XXLIB   := "A"
+SF1->F1_XXLIB   := cLibF1
 SF1->F1_XXULIB  := " "
 SF1->F1_XXDLIB  := " "
 SF1->F1_XXDINC  := DtoC(Date())+"-"+Time()
@@ -90,14 +91,15 @@ Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
+Private cLibF1   := "A"
 
-If SF1->F1_XXLIB $ "AE" .AND. Empty(SF1->F1_STATUS)
+If SF1->F1_XXLIB $ "AEP" .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
 Else
 	lAlt := .F.
 Endif
 
-If U_SelFPgto(lAlt,.T.)
+If U_SelFPgto(lAlt,.T.,@cLibF1)
 	RecLock("SF1",.F.)
 	SF1->F1_XTIPOPG := cxTipoPg
 	SF1->F1_XNUMPA  := cxNumPa
@@ -110,7 +112,7 @@ If U_SelFPgto(lAlt,.T.)
 	SF1->F1_COND	:= cxCond
 	SF1->F1_XXPARCE := mParcel
 	If Empty(SF1->F1_XXLIB) .AND. Empty(SF1->F1_STATUS)
-		SF1->F1_XXLIB := "A"
+		SF1->F1_XXLIB := cLibF1
 	EndIf
 	MsUnLock("SF1")
 EndIf
@@ -118,7 +120,7 @@ EndIf
 Return Nil
 
 
-User Function SelFPgto(lAlt,lEsc)
+User Function SelFPgto(lAlt,lEsc,cLibF1)
 Local aOpcoes   := {}
 Local oRadMenu1
 Local oSay1
@@ -141,6 +143,8 @@ Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv,oGetCond,oSaySE4,oGetPvPgt,oGetJs
 Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
 
+cLibF1 := "A"
+
 If LEN(aGrp) > 0
 	If aGrp[1] $ "000000/000031" 
 		lAlt := .T.
@@ -150,6 +154,7 @@ EndIf
 
 nValTot := CalcTot()
 
+dValid := DataValida(dValid+1,.T.)
 dValid := DataValida(dValid+1,.T.)
 dValid := DataValida(dValid+1,.T.)
 
@@ -196,7 +201,7 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 //@ 130,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 WHEN .F. /*lAlt*/ VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
 
 @ 132,010 SAY "Justificativa:"  OF oDlg3 PIXEL
-@ 130,040 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 60,10 PIXEL //WHEN (dPrvPgt < dValid)
+@ 130,040 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 60,10 PIXEL
 
 @ 147,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
 @ 145,040 MSGET oGetChv VAR cChvNfe   OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 140,10 PIXEL 
@@ -205,7 +210,7 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 oLista := MsNewGetDados():New(160, 040, 210, 180, GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,, 99, "U_VldV140()", "", "", oDlg3, aCabecalho, aDados,"U_VldV140()")
 
 If lAlt
-	@ 215,040 BUTTON "Ok" SIZE 040, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1),oDlg3:End(),AllwaysTrue()))
+	@ 215,040 BUTTON "Ok" SIZE 040, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1,@cLibF1),oDlg3:End(),AllwaysTrue()))
 	@ 215,090 BUTTON "Anexos" SIZE 040, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
 EndIf
 If lEsc .OR. !lAlt
@@ -283,9 +288,11 @@ Return
 
 
 
-Static Function ValidFP(nRadio)
-Local lRet := .T.
+Static Function ValidFP(nRadio,cLibF1)
+Local lRet   := .T.
+Local cMens2 := ""
 
+cLibF1 := "A"
 If nRadio <> 1 .AND. nRadio <> 4
 	cxNumPa   := SPACE(9)
 	cxBanco   := ""
@@ -321,7 +328,7 @@ EndIf
 
 If lRet
 	If Empty(cxCond) .OR. !ExistCpo("SE4", cxCond)
-		MsgStop("Condição de pagamento não encontrada","SF1140I - Validação da cond. de pgto")
+		u_LogPrw("SF1140I-ValidFP","Condição de pagamento não encontrada","E")
 		oGetCond:Setfocus()
 		lRet := .F.
 	EndIf
@@ -333,11 +340,18 @@ If lRet
 		dPrvPgt := oLista:aCols[1,2]
 	EndIf
 	If dPrvPgt < dValid
-		u_LogPrw("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid))
-		If EMPTY(cJsPgt)
-			MsgStop("Data prevista para pagamento inferior a 2 dias uteis, justifique","SF1140I - Validação data prevista de pagamento")
+		u_LogPrw("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid)+" Justificativa: "+ALLTRIM(cJsPgt))
+		If EMPTY(cJsPgt) .OR. LEN(ALLTRIM(cJsPgt)) < 5
+			If LEN(ALLTRIM(cJsPgt)) < 5
+				cMens2 := " COM CLAREZA"
+			EndIf
+			u_LogPrw("SF1140I","Data prevista para pagamento inferior a 3 dias uteis."+CRLF+"Justifique"+cMens2+"!!!"+CRLF+"Evite transtornos às outras áreas implantando os documentos com antecedência!!","E")
 			oGetJsPgt:Setfocus()
 			lRet := .F.
+		
+		//Else // Aqui: liberação por Token	31/10/22
+		//	cLibF1 := "T"
+		//	MsgStop("Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","SF1140I - Solicitar Token")
 		EndIf
 	EndIf
 EndIf

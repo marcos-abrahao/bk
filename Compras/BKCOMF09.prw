@@ -31,11 +31,11 @@ If l010Auto
 	Return cCod 
 ENDIF
 
-If !MsgYesNo("Gerar Proximo numero?",cPerg)
+//If !MsgYesNo("Gerar Proximo numero?",cPerg)
+If !u_LogPrw(cPerg,"Gerar proximo código de produto?","Y")
 	cCod := ""
 	Return cCod 
 EndIf
-
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -43,12 +43,10 @@ If !Pergunte(cPerg,.T.)
 	Return cCod
 Endif
  
-
 cSubPdt  	:= ALLTRIM(mv_par01)
- 
 
 IF EMPTY(cSubPdt)
-	MSGINFO("O Grupo de Produto dever ser selecionado!!","BKCOMF09")
+	u_LogPrw(cPerg,"O Grupo de Produto dever ser selecionado!!","W")
 	cCod := ""
 	Return cCod 
 EndIf

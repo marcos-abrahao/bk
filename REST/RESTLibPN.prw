@@ -59,6 +59,13 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
+	WSMETHOD GET TOKEN;
+		DESCRIPTION "Token para Liberação de digitação de Pré-notas de Entrada" ;
+		WSSYNTAX "/RestLibPN/v5";
+		PATH "/RestLibPN/v5";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
 END WSRESTFUL
 
 
@@ -192,11 +199,11 @@ Else
 			cMsg:= "está bloqueada"
 		Case (cQrySF1)->F1_STATUS <> " "
 			cMsg:= "não pode ser liberada"
-		Case (cQrySF1)->F1_XXLIB $ "AN"
+		Case (cQrySF1)->F1_XXLIB $ "AN "
 			cQuery := "UPDATE "+cTabSF1
 			If acao == 'E'
 				cQuery += "  SET F1_XXLIB = 'N',"
-				cMsg := "estornada"
+				cMsg := "Recusada"
 				If !Empty(cMotivo)
 					cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
 				EndIf
@@ -406,37 +413,6 @@ cQuery += "ORDER BY SF1.F1_XXPVPGT,SF1.F1_DTDIGIT,SF1.F1_DOC"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 
-	/*
-	BeginSQL Alias cQrySF1
-
-		SELECT  %exp:cEmpresa% AS F1EMPRESA,%exp:cNomeEmp% AS F1NOMEEMP,SF1.F1_FILIAL,SF1.R_E_C_N_O_ F1RECNO,
-				SF1.F1_DOC,SF1.F1_FORNECE,SF1.F1_LOJA,
-				SF1.F1_DTDIGIT,SF1.F1_XXLIB,F1_XXPVPGT,
-				(SELECT SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) FROM %exp:cTabSD1% SD1 
-					WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.%NotDel%)
-					AS D1_TOTAL,
-				SA2.A2_NOME
-				
-		FROM %exp:cTabSF1% SF1
-				INNER JOIN %exp:cTabSA2% SA2 
-					ON SF1.F1_FORNECE = SA2.A2_COD AND SF1.F1_LOJA = SA2.A2_LOJA
-					%exp:cWhereSA2%
-					AND SA2.%NotDel%
-
-		WHERE   SF1.%NotDel%
-				%exp:cWhereSF1%
-				
-		ORDER BY SF1.F1_DTDIGIT
-		
-	EndSQL
-
-	//Syntax abaixo somente para o SQL 2012 em diante
-	//ORDER BY SF1.F1_NUM OFFSET %exp:nStart% ROWS FETCH NEXT %exp:nTamPag% ROWS ONLY
-
-	X:= GetLastQuery()
-	//conout(cQrySF1)
-	*/
-
 If (cQrySF1)->( ! Eof() )
 
 	//-------------------------------------------------------------------
@@ -485,7 +461,7 @@ Do While ( cQrySF1 )->( ! Eof() )
 	If nCount >= nStart
 
 		cLiberOk := (cQrySF1)->F1_XXLIB
-		cStatus  := Alltrim("Indefinido "+cLiberOk)
+		cStatus  := Alltrim("Indefinida "+cLiberOk)
 
 		Do Case
 		Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
@@ -496,10 +472,12 @@ Do While ( cQrySF1 )->( ! Eof() )
 				If cLiberOk == "A"
 					cStatus  := "Liberar"
 				Else
-					cStatus  := "Estornada"
+					cStatus  := "Vetada"
 				EndIf
 				cLiberOk := "A"
 			EndIf
+		Case cLiberOk == "T"
+			cStatus  := "Token"
 		Case cLiberOk == "B"
 			cStatus  := "Bloqueada"
 		Case cLiberOk == "C"
@@ -806,16 +784,16 @@ line-height: 1rem;
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-   <div class="container-fluid">
+  <div class="container-fluid">
     <a class="navbar-brand" href="#">BK - Liberação de Pré-notas de Entradas - Administrador</a> 
     <form class="d-flex">
-       <input class="form-control me-2" type="search" placeholder="Num. Documento" aria-label="Search">
-       <button class="btn btn-dark" type="submit">Token</button>
-     </form>
-   <button type="button" 
+      <input class="form-control me-2" type="search" placeholder="Num. Documento" id="TokenDoc" value="" aria-label="TokenDoc">
+      <button type="button" class="btn btn-dark" aria-label="Token" onclick="token(1);">Token</button>
+    </form>
+    <button type="button" 
        class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
        Atualizar
-   </button>
+    </button>
   </div>
 </nav>
 <br>
@@ -977,6 +955,7 @@ line-height: 1rem;
      </div>
    </div>
 </div>
+
  <div id="confModal" class="modal" tabindex="-1">
    <div class="modal-dialog">
      <div class="modal-content">
@@ -990,6 +969,26 @@ line-height: 1rem;
      </div>
    </div>
 </div>
+
+
+<div id="confToken" class="modal" tabindex="-1">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 id="titToken" class="modal-title">Token gerado:</h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+       </div>
+      <div class="modal-body">
+	  	 <!-- <label for="txtToken" class="form-label">Token gerado:</label> -->
+		<input type="text" class="form-control form-control-sm" id="txtToken" size="100" value="">
+      </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+       </div>
+     </div>
+   </div>
+</div>
+
 
 <div id="avalModal" class="modal" tabindex="-1">
   <div class="modal-dialog">
@@ -1056,11 +1055,20 @@ if (Array.isArray(prenotas)) {
     trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
     trHTML += '<td>'+object['PGTO']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
-    if (cLiberOk == 'A'){
+    if (cLiberOk == 'A' ){
     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
-  	} else {
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+  	} else if (cLiberOk == 'T'){
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
+  	} else if (cLiberOk == 'B'){
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-danger btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+  	} else if (cLiberOk == 'C' || cLiberOk == 'L'){
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-primary btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+  	} else if (cLiberOk == 'E'){
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-secondary btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
+  	} else if (cLiberOk == ' '){
+     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-secondary btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
     }
+
 	trHTML += '</tr>';
     });
 } else {
@@ -1172,22 +1180,26 @@ if (canLib === 1){
 	} else {
 		cClick = 'libdoc';
 	}
-	let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
 
-	document.getElementById("btnlib").innerHTML = btnL;
+	if (prenota['F1_XXLIB'] !== ' '){
+		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+		document.getElementById("btnlib").innerHTML = btnL;
+	}
 
-	//inpE    += '<label for="SF1Motivo" class="col-sm-2 col-form-label">Obs:</label>';
-	//inpE    += '<div class="col-sm-10">';
-	inpE    += '  <input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="" placeholder="Obs ou Motivo do Estorno">';
-	//inpE    += '</div>';
-
+	inpE  += '<input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="" placeholder="Obs ou Motivo do Estorno">';
 	document.getElementById("inpest").innerHTML = inpE;
 
-	if (prenota['F1_XXLIB'] === 'A'){
-		let btnE = '<button type="button" class="btn btn-outline-warning" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\')">Estornar</button>';
+	if (prenota['F1_XXLIB'] === 'A' || prenota['F1_XXLIB'] == ' '){
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\')">Estornar</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
+} 
+if (prenota['F1_XXLIB'] === 'T'){
+	let btnE = '<button type="button" class="btn btn-outline-warning" onclick="token(2)">Token</button>';
+	document.getElementById("btnest").innerHTML = btnE;
 }
+
+
 if (Array.isArray(prenota.D1_ITENS)) {
    prenota.D1_ITENS.forEach(object => {
     i++
@@ -1220,7 +1232,6 @@ document.getElementById("d1Table").innerHTML = itens;
 foot = '<th scope="row" colspan="8" style="text-align:right;">'+prenota['F1_GERAL']+'</th>'
 document.getElementById("d1Foot").innerHTML = foot;
 
-
 $("#titLib").text('Liberação de Pré-Nota - Empresa: '+prenota['EMPRESA'] + ' - Usuário: '+prenota['USERNAME']);
 $('#meuModal').modal('show');
 $('#meuModal').on('hidden.bs.modal', function () {
@@ -1232,10 +1243,7 @@ async function avalForn(f1empresa,f1recno,userlib,acao){
 
 let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
 document.getElementById("btnlib2").innerHTML = btnL;
-
 $('#avalModal').modal('show');
-
-
 }
 
 async function libdoc(f1empresa,f1recno,userlib,acao){
@@ -1297,6 +1305,35 @@ fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='
 }
 
 
+async function getToken(cDoc) {
+let url = 'http://10.139.0.30:8080/rest/RestLibPN/v5?userlib='+'#userlib#'+'&documento='+cDoc;
+	try {
+	let res = await fetch(url);
+		return await res.json();
+		} catch (error) {
+	console.log(error);
+	}
+}
+
+
+async function token(nOrigem){
+
+let TokenDoc = '';
+
+if (nOrigem === 1) {
+	TokenDoc = document.getElementById("TokenDoc").value;
+} else {
+	TokenDoc = document.getElementById('SF1Doc').value;
+}
+
+let TokenRet = await getToken(TokenDoc);
+
+document.getElementById("titToken").innerHTML = 'Token gerado para o documento: '+TokenRet['DOC'];
+document.getElementById("txtToken").value = TokenRet['TOKEN'];
+$('#confToken').modal('show');
+}
+
+
 </script>
 <!-- JavaScript Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -1330,6 +1367,40 @@ self:setStatus(200)
 return .T.
 
 
+
+WSMETHOD GET TOKEN QUERYPARAM userlib,documento WSREST RestLibPN
+Local oJsonPN	:= JsonObject():New()
+Local lRet		:= .T.
+Local cRet		:= ""
+Local aParams	As Array
+Local cMsg		:= ""
+Local cDoc      := ::documento
+
+If u_BkAvPar(::userlib,@aParams,@cMsg)
+	If Val(::documento) > 0
+		cDoc := STRZERO(Val(::documento),9)
+		cMsg := U_BKEnCode({cDoc})
+	Else
+		cMsg := "Erro: Informe um valor numerico"
+	EndIf
+EndIf
+
+u_LogPrw("RESTLIBPN","Doc: "+cDoc+" Token: "+cMsg)
+
+oJsonPN['TOKEN'] := cMsg
+oJsonPN['DOC']   := cDoc
+
+cRet := oJsonPN:ToJson()
+
+FreeObj(oJsonPN)
+
+//Retorno do servico
+::SetResponse(cRet)
+
+Return lRet
+
+
+
 // Tranformar F1_XXPARCE em array
 Static Function LoadVenc(mParcel)
 Local aTmp		:= {}
@@ -1346,8 +1417,6 @@ For nX := 1 To nTamTex
 Next
 
 Return aDados
-
-
 
 
 Static Function DocsPN(empresa,cChave)

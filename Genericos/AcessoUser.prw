@@ -346,7 +346,7 @@ For i := 2 To nTamUser
          If SubStr(aUsers[i][3][j],3,1) != "X" .AND. cModDe <= SubStr(aUsers[i][3][j],1,2) .AND. cModAte >= SubStr(aUsers[i][3][j],1,2)
             lAppMod := .F.
             //preenche work de acesso passando o nome do xnu
-            preencMenu(SubStr(aUsers[i][3][j],4,Len(aUsers[i][3][j])-3),"U",SubStr(aUsers[i][3][j],1,2),"")
+            preencMenu(i,SubStr(aUsers[i][3][j],4,Len(aUsers[i][3][j])-3),"U",SubStr(aUsers[i][3][j],1,2),"")
             If lAppMod
                //preenche work de módulos
                WKMODULOS->(dbAppend())
@@ -375,7 +375,7 @@ For i := 2 To nTamUser
          		If SubStr(aGrups[j],3,1) != "X" .AND. cModDe <= SubStr(aGrups[j],1,2) .AND. cModAte >= SubStr(aGrups[j],1,2)
             		lAppMod := .F.
             		//preenche work de acesso passando o nome do xnu
-            		preencMenu(SubStr(aGrups[j],4,Len(aGrups[j])-3),"G",SubStr(aGrups[j],1,2),aGrpUser[_IX])
+            		preencMenu(i,SubStr(aGrups[j],4,Len(aGrups[j])-3),"G",SubStr(aGrups[j],1,2),aGrpUser[_IX])
             		If lAppMod
             			//preenche work de módulos
             			WKMODULOS->(dbAppend())
@@ -429,7 +429,7 @@ Autor       : Kanaãm L. R. Rodrigues
 Data/Hora   : 11/06/2012
 */
 *--------------------------*
-Static Function preencMenu(cFile,cTPMNU,cModulo,cGrupo)
+Static Function preencMenu(i,cFile,cTPMNU,cModulo,cGrupo)
 *--------------------------*
 Local nHandle  := -1
 Local lMenu    := .F.

@@ -21,7 +21,7 @@ Local nE 		:= 0
 
 Local cTabSZG   := ""
 
-u_LogPrw("BKDSDSP1","Previsão de despesas 1")
+u_LogPrw("BKDSDSP1","Inicio: Previsão de despesas 1")
  
 For nE := 1 TO Len(aEmpresas)
 
@@ -90,35 +90,31 @@ cQuery += "      EMPRESA,CONTRATO,ZG_DATA,ZG_SEQ" + CRLF
 u_LogMemo("BKDSDSP1.SQL",cQuery)
 
 If !TCIsConnected()
-  MsgAlert( "Sem conexão com o banco de dados", cPerg )
+  u_LogPrw("BKDSDSP1","Sem conexão com o banco de dados")
   Return( Nil )
 Endif  
 
-//Begin Transaction
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PREVDESP1', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.PREVDESP1 "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PREVDESP1', N'U') IS NOT NULL"  
-	cQueryD += "   DROP TABLE PowerBk.dbo.PREVDESP1 "+CRLF
-	nErro   := TcSqlExec(cQueryD)
-
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
 
-	nErro   := TcSqlExec(cQuery)
+nErro   := TcSqlExec(cQuery)
 
-	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
 	EndIf
-
-
-//End Transaction
+EndIf
 
 u_LogMemo("BKDSDSP1.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSDSP1","Final: Previsão de despesas 1")
 
 Return

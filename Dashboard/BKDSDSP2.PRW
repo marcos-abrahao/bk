@@ -10,7 +10,7 @@ BK - Atualização da tabela PREVDESP2 do banco de dados PowerBk
 @version P12.1.25
 /*/
 
-User Function U_BKDSDSP2
+User Function BKDSDSP2
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -21,7 +21,7 @@ Local nE 		:= 0
 
 Local cTabSZL   := ""
 
-u_LogPrw("BKDSDSP2","Previsão de despesas 2")
+u_LogPrw("BKDSDSP2","Inicio: Previsão de despesas 2")
  
 For nE := 1 TO Len(aEmpresas)
 
@@ -80,30 +80,27 @@ If !TCIsConnected()
   Return( Nil )
 Endif  
 
-//Begin Transaction
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PREVDESP2', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.PREVDESP2 "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PREVDESP2', N'U') IS NOT NULL"  
-	cQueryD += "   DROP TABLE PowerBk.dbo.PREVDESP2 "+CRLF
-	nErro   := TcSqlExec(cQueryD)
-
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
 
-	nErro   := TcSqlExec(cQuery)
+nErro   := TcSqlExec(cQuery)
 
-	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
 	EndIf
-
-//End Transaction
+EndIf
 
 u_LogMemo("BKDSDSP2.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSDSP2","Final: Previsão de despesas 2")
 
 Return

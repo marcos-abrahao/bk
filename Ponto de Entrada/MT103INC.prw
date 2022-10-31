@@ -11,7 +11,7 @@ Fluxo de liberação de Pré-Notas - BK
 
 ---------------------------------------------------
 Inclusão da Pré Nota: 
-SF1140i: Gravar F1_XXLIB := "A"
+SF1140i: Gravar F1_XXLIB := "A" ou "T" caso o vencimento esteja menor ou igual a 48h, solicitar Token
 MT140SAI: Gravar F1_XXLIB := "B" caso a pré nota tenha sido bloqueada 
 ---------------------------------------------------
 Inclusão de Doc. de Entrada (permitida para administradores)
@@ -158,6 +158,8 @@ If lClass
 			EndIf
 		//ElseIf SF1->F1_XXLIB == 'E'
 		//	MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+		ElseIf SF1->F1_XXLIB == 'T'
+			MessageBox("Documento pendente de liberação por token: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 		ElseIf SF1->F1_XXLIB == 'B'
 			MessageBox("Documento bloqueado, aguarde liberação da diretoria: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
 		ElseIf SF1->F1_XXLIB == 'C'

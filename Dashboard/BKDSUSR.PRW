@@ -10,7 +10,7 @@ BK - Atualização da tabela USUARIOS do banco de dados PowerBk
 @version P12.1.25
 /*/
 
-User Function U_BKDSUSR
+User Function BKDSUSR
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -32,7 +32,7 @@ Local xUsrBloq  := ""
 Local xUsrUltLog:= ""
 Local nPosGrp   := 0
 
-u_LogPrw("BKDSUSR","Usuários")
+u_LogPrw("BKDSUSR","Inicio: Usuários")
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.USUARIOS', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.USUARIOS "+CRLF
@@ -123,5 +123,7 @@ For nX := 1 To Len(aUsersF)
 Next nX
 
 u_LogMemo("BKDSUSR.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSUSR","Final: Usuários")
+
 Return
 

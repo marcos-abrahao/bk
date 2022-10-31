@@ -17,7 +17,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
-u_LogPrw("BKDSFER","Ferias")
+u_LogPrw("BKDSFER","Inicio: Ferias")
 
 BEGINCONTENT VAR cQuery
 WITH FER1 AS 
@@ -125,6 +125,7 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSFER.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSFER","Final: Ferias")
 
 Return
 

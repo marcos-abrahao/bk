@@ -32,7 +32,7 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 
-u_LogPrw("BKDSGLO","Glosas")
+u_LogPrw("BKDSGLO","Inicio: Glosas")
 
 cTabSZR := "SZR010"
 
@@ -178,32 +178,27 @@ If !TCIsConnected()
   Return( Nil )
 Endif  
 
-//Begin Transaction
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GLOSAS', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.GLOSAS "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.GLOSAS', N'U') IS NOT NULL"  
-	cQueryD += "   DROP TABLE PowerBk.dbo.GLOSAS "+CRLF
-	nErro   := TcSqlExec(cQueryD)
-
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
 
-	nErro   := TcSqlExec(cQuery)
+nErro   := TcSqlExec(cQuery)
 
-	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
 	EndIf
-
-
-//End Transaction
+EndIf
 
 u_LogMemo("BKDSGLO.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSGLO","Final: Glosas")
 
 Return

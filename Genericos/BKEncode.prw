@@ -24,7 +24,8 @@ For nI := 1 To Len(aParam)
     cEnCode += aParam[nI]+";"
 Next
 
-cEnCode   := Embaralha(cEnCode,0)
+//cEnCode   := Embaralha(cEnCode,0)
+cEnCode   := WebEncript(cEnCode,.F.)
 cEnCode   := Encode64(cEnCode)
 cEnCode   := STRTRAN(cEncode,"+",".")
 cEnCode   := STRTRAN(cEncode,"/","_")
@@ -42,7 +43,8 @@ cEnCode   := STRTRAN(cCode,".","+")
 cEnCode   := STRTRAN(cEncode,"_","/")
 cEnCode   := STRTRAN(cEncode,"-","=")
 cEnCode   := Decode64(cEncode)
-cEnCode   := Embaralha(cEncode,1)
+//cEnCode   := Embaralha(cEncode,1)
+cEnCode   := WebEncript(cEnCode,.T.)
 aDecode   := StrTokArr(cEncode,";")
 
 Return aDecode

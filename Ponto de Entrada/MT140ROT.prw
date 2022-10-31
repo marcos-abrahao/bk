@@ -9,8 +9,9 @@ BK - Ponto de Entrada para criar botões na pre-nota
 /*/
 
 User Function MT140ROT()
-AADD( aRotina, {OemToAnsi("Benefícios "+FWEmpName(cEmpAnt)), "U_BKCOMA03", 0, 4 } )
-AADD( aRotina, {OemToAnsi("Dados Pgto "+FWEmpName(cEmpAnt)), "U_AltFPgto", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Benefícios BK"), "U_BKCOMA03", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Dados Pgto BK"), "U_AltFPgto", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Validar Token BK"), "U_BKCOMA10", 0, 4 } )
 Return Nil
 
 

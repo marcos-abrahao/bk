@@ -49,11 +49,11 @@ If FWCodEmp() == "01"
 		EndIf
 
 		If SUBSTRING(TIME(),1,2) > '05' ;
-				.AND. SUBSTRING(TIME(),1,2) < '21';
+				.AND. SUBSTRING(TIME(),1,2) < '22';
 			 	.AND. DOW(DATE()) <> 7;
 			 	.AND. DOW(DATE()) <> 1
 
-			If SUBSTRING(TIME(),1,2) == '06'
+			If SUBSTRING(TIME(),1,2) $ '06/14'
 				U_BKDSDSP1()
 				U_BKDSDSP2()
 				U_BKDSEMP()
@@ -68,7 +68,7 @@ If FWCodEmp() == "01"
 
 			U_BKDSFAT()
 
-			If SUBSTRING(TIME(),1,2) $ '07/10/12/16/18/20'
+			If SUBSTRING(TIME(),1,2) $ '07/11/15'
 				U_BKDSGES()
 				U_BKDSGLO()
 				U_BKDSCTR()

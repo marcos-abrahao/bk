@@ -10,7 +10,7 @@ BK - Atualização da tabela EMPRESAS do banco de dados PowerBk
 @version P12.1.25
 /*/
 
-User Function U_BKDSEMP
+User Function BKDSEMP
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -19,7 +19,7 @@ Local cErro2 	:= ""
 Local nX 		:= 0
 Local aEmpresas := U_BKEmpr()
 
-u_LogPrw("BKDSEMP","Empresas")
+u_LogPrw("BKDSEMP","Inicio: Empresas")
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.EMPRESAS', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.EMPRESAS "+CRLF
@@ -70,4 +70,6 @@ For nX := 1 To Len(aEmpresas)
 Next nX
 
 u_LogMemo("BKDSEMP.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSEMP","Final: Empresas")
+
 Return

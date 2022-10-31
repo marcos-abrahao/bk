@@ -34,7 +34,7 @@ Local cTabCNA   := ""
 Local cTabSE5   := ""
 Local cTabSE1   := ""
 
-u_LogPrw("BKDSFAT","Faturamento")
+u_LogPrw("BKDSFAT","Inicio: Faturamento")
 
 cTabSZR := "SZR010"
 
@@ -404,38 +404,32 @@ cQuery += " FROM FATUR " + CRLF
 cQuery += " ORDER BY" + CRLF
 cQuery += "    EMPRESA,CONTRATO,COMPETAM,F2_DOC" + CRLF
 
-//u_LogMemo("BKDASH01.SQL",cQuery)
-
 If !TCIsConnected() 
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
 Endif  
 
-//Begin Transaction
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.FATURAMENTO', N'U') IS NOT NULL"  
+cQueryD += "   DROP TABLE PowerBk.dbo.FATURAMENTO "+CRLF
+nErro   := TcSqlExec(cQueryD)
 
-	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.FATURAMENTO', N'U') IS NOT NULL"  
- 	cQueryD += "   DROP TABLE PowerBk.dbo.FATURAMENTO "+CRLF
-	nErro   := TcSqlExec(cQueryD)
-
-	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+If nErro != 0
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro1, cPerg)
 	EndIf
+EndIf
 
-	nErro   := TcSqlExec(cQuery)
+nErro   := TcSqlExec(cQuery)
 
-	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+If nErro != 0
+	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	If !IsBlind()
+		MsgStop(cErro2, cPerg)
 	EndIf
-
-
-//End Transaction
+EndIf
 
 u_LogMemo("BKDSFAT.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_LogPrw("BKDSFAT","Final: Faturamento")
 
 Return

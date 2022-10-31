@@ -19,6 +19,7 @@ Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
+Private cLibF1   := ""
 
 IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	PswOrder(1) 
@@ -36,7 +37,7 @@ If Inclui .AND. !l103Auto
 	If Empty(dPrvPgt) 
 		dPrvPgt := SE2->E2_VENCREA
 	EndIf
-	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170") // 170-João Cordeiro
+	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170",@cLibF1) // 170-João Cordeiro
 		RecLock("SF1",.F.)
 		SF1->F1_XTIPOPG := cxTipoPg
 		SF1->F1_XNUMPA  := cxNumPa

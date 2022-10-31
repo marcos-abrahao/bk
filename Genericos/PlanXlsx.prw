@@ -849,6 +849,22 @@ cArqXls := U_PlanXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 Return cArqXls
 
 
+// Listagem de array simples - 28/10/22
+User Function ArrXls(aArrXls,cTitulo,aCabec)
+Local aPlans    := {}
+Local nI        := 0
+
+If Empty(aCabec) .AND. Len(aArrXls) > 0
+	aCabec := {}
+	For nI := 1 to LEN(aArrXls[1])
+		aAdd(aCabec,"Coluna "+STRZERO(nI,3))
+	Next
+EndIf
+
+AADD(aPlans,{aArrXls,"ARRXLS",cTitulo,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ }) 
+U_ArrToXlsx(aPlans,cTitulo,"ARRXLS")
+
+Return Nil
 // Marcos - v29/06/20
 // Exemplo:
 
