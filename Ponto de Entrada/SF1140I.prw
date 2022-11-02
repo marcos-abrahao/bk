@@ -351,7 +351,7 @@ If lRet
 		
 		//Else // Aqui: liberação por Token	31/10/22
 		//	cLibF1 := "T"
-		//	MsgStop("Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","SF1140I - Solicitar Token")
+		//	u_LogPrw("SF1140I","Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","E")
 		EndIf
 	EndIf
 EndIf

@@ -279,8 +279,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	(_cAlias)->(dbgotop())
 	aStruct := (_cAlias)->(dbStruct())
 
-
-	If !empty(_cFiltra)
+	If !Empty(_cFiltra)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
 
@@ -291,7 +290,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	cCorFundo := cFundoN
 	cCorAntes := ""
 
-	Do While (_cAlias)->(!eof()) 
+	Do While (_cAlias)->(!Eof()) 
 
 		nLin++
 		nCont++

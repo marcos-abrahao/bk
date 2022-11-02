@@ -49,37 +49,13 @@ TcSqlExec(cQuery)
 //cAvalia := "000093/000005/000138"   // Apenas o Fabio Quirino, Anderson e Michele
 
 // Falta criar campo A2_XXAVALC, criar check box "Fornecedor análise crítica"  e gravar no SA2 (ler e sugerir na avaliação)
-  
-If u_IsAvalia(__cUserId)
-	lBkCla := .T.
-EndIf
 
-/*
-//aUsers:=AllUsers()
-
-For nX_ := 1 to Len(aUsers)
-	If Len(aUsers[nX_][1][10]) > 0 .AND. !aUsers[nX_][1][17] //USUARIO BLOQUEADO
-		aGrupo := {}
-		//AADD(aGRUPO,aUsers[nX_][1][10])
-		//FOR i:=1 TO LEN(aGRUPO[1])
-		//	lAlmox := (aGRUPO[1,i] $ cAlmox)
-		//NEXT
-		//Ajuste nova rotina a antiga não funciona na nova lib MDI
-		aGRUPO := UsrRetGrp(aUsers[nX_][1][2])
-		IF LEN(aGRUPO) > 0
-			FOR i:=1 TO LEN(aGRUPO)
-				lAlmox := (ALLTRIM(aGRUPO[i]) $ cAlmox )
-			NEXT
-		ENDIF	
-    	IF lAlmox
-    		cAlEmail += ALLTRIM(aUsers[nX_][1][14])+";"
-    	ENDIF
- 	ENDIF
-NEXT
-*/
+//  31/10/22 - Michele: avaliar somente NFs com Pedido de compras
+//If u_IsAvalia(__cUserId)
+//	lBkCla := .T.
+//EndIf
 
 cAlEmail  += u_EmEstAlm(__cUserId,.T.)
-
 
 cQuery1 := "SELECT F1_DOC,F1_SERIE,F1_FORNECE,F1_LOJA,F1_STATUS,F1_XXUSERS"
 cQuery1 += " FROM "+RETSQLNAME("SF1")+" SF1" 
@@ -111,9 +87,11 @@ DO While !TMPSF1->(EOF())
 			IF aScan(aUSERSC1,{|x| x == TMPSD1->C1_USER })  == 0
 	    		AADD(aUSERSC1,TMPSD1->C1_USER)
 	 		ENDIF
-	 		//IF !EMPTY(TMPSD1->D1_PEDIDO)
-	 		//   	lBkCla := .T. 
-	 		//ENDIF
+
+			//  31/10/22 - Michele: avaliar somente NFs com Pedido de compras
+	 		IF !EMPTY(TMPSD1->D1_PEDIDO)
+	 		   	lBkCla := .T. 
+	 		ENDIF
 
 			dbSelectArea("SB1")
 			SB1->(dbSetOrder(1))
@@ -210,24 +188,22 @@ Enddo
 
 TMPSF1->(DbCloseArea())
 
-If lBkCla
+If lBkCla .AND. u_IsAvalia(__cUserId)
 	U_AvalForn(.F.)
 EndIf
 
 Return( NIL )
 
 
-User Function RAvalForn()
 // Reavaliação da NF
-//cAvalia := SuperGetMV("MV_XXGRAVF",.F.,"000138/000093/000005/000171/000056/")
-//cAvalia := "000000/000138/000093/000005" // Adm/Michele/Fabio Quirino/Anderson
- 
+User Function RAvalForn()
 If u_IsAvalia(__cUserId)
 	U_AvalForn(.T.)
 Else
-	MsgStop("Função não permitida para seu usuário!!","GQREENTR - Atenção")
+	u_LogPrw("GQREENTR","Avaliação de fornecedor não disponível para o seu usuário!!","E")
 EndIf
 Return Nil 
+
 
 
 User Function AvalForn(lReavalia) 

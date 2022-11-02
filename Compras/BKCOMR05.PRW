@@ -1,3 +1,4 @@
+#INCLUDE "Protheus.ch"
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
  
@@ -6,68 +7,40 @@ BK - Relatório Avaliação dos Fornecedores
 
 @Return
 @author Adilson do Prado
-@since 25/04/14
+@since 25/04/14 rev 31/10/22
 @version P12
 /*/
-
 
 User Function BKCOR05()
 
 Local aDbf 		    := {}
 Local oTmpTb
-Local titulo        := "Avaliação dos Fornecedores"
+Local aPlans  		:= {}
 
 Private cTitulo     := "Avaliação dos Fornecedores"
-Private lEnd        := .F.
-Private lAbortPrint := .F.
-Private limite      := 220
-Private tamanho     := "G"
-Private nomeprog    := "BKCOR05" // Coloque aqui o nome do programa para impressao no cabecalho
-Private nTipo       := 18
-Private aReturn     := { "Zebrado", 1, "Administracao", 2, 2, 1, "", 1}
-Private nLastKey    := 0
+Private cTitulo2    := "Avaliação dos Fornecedores"
 Private cPerg       := "BKCOR05"
-Private cbtxt        := Space(10)
-Private cbcont      := 00
-Private CONTFL      := 01
-Private m_pag       := 01
-Private wnrel       := "BKCOR05" // Coloque aqui o nome do arquivo usado para impressao em disco
-Private cString     := "SD1"
-
-PRIVATE dDataInicio := dDatabase
-PRIVATE dDataFinal  := dDatabase
-PRIVATE cSituac     := "05"
-PRIVATE	cPict       := "@E 99,999,999,999.99"
-PRIVATE nPeriodo    := 1
-PRIVATE nPlan       := 1
-Private aHeader	    := {}
-PRIVATE aTitulos,aCampos,aCabs,aCampos2,aTotal,aImpr
-PRIVATE cGrupoPI  	:= ""
-PRIVATE cGrupoPF  	:= ""
-PRIVATE cSGrupoPI  	:= ""
-PRIVATE cSGrupoPF  	:= ""
-PRIVATE cProdI  	:= ""
-PRIVATE cProdF  	:= ""
-PRIVATE dDataI		:= dDatabase
-PRIVATE dDataF  	:= dDatabase
-PRIVATE cFornI  	:= ""
-PRIVATE cLojaI  	:= ""
-PRIVATE cFornF  	:= ""
-PRIVATE cLojaF  	:= ""
-PRIVATE cContraI  	:= ""
-PRIVATE cContraF  	:= ""
+Private aTitulos,aCampos,aCabs,aTotal,aImpr
+Private aTitulos2,aCampos2,aCabs2,aTotal2,aImpr2
+Private aImprD		:= {}
+Private dDataI		:= dDatabase
+Private dDataF  	:= dDatabase
+Private nComPed     := 0
+Private nDet        := 0
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
+
 u_LogPrw(cPerg)
  
-dDataI  	:= mv_par01
-dDataF  	:= mv_par02
+dDataI   := mv_par01
+dDataF   := mv_par02
+nComPed	 := mv_par03
+nDet	 := mv_par04
 
-titulo   := "Avaliação dos Fornecedores - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
-cTitulo  := titulo
+cTitulo  := "Avaliação dos Fornecedores - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 
 aDbf    := {}
 Aadd( aDbf, { 'XX_FORNEC', 	'C', 06,00 } )
@@ -83,11 +56,6 @@ Aadd( aDbf, { 'XX_AVAL4',	'N', 10,00 } )
 Aadd( aDbf, { 'XX_TAVAL',	'N', 10,00 } ) 
 Aadd( aDbf, { 'XX_MDAVAL',	'N', 10,00 } ) 
 
-
-//cArqTmp := CriaTrab( aDbf, .t. )
-//dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-//IndRegua("TRB",cArqTmp,"XX_FORNEC+XX_LOJA",,,"Indexando Arquivo de Trabalho") 
-
 oTmpTb := FWTemporaryTable():New( "TRB")
 oTmpTb:SetFields( aDbf )
 oTmpTb:AddIndex("indice1", {"XX_FORNEC","XX_LOJA"} )
@@ -99,154 +67,142 @@ aImpr	:= {}
 aTitulos:= {}
 aTotal  := {}
 
-aAdd(aTitulos,titulo)
+aAdd(aTitulos,cTitulo)
 
 aAdd(aCampos,"TRB->XX_FORNEC")
 aAdd(aCabs  ,"Cod. Fornecedor")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
-aAdd(aHeader,{"Cod. Fornecedor","XX_FORNEC" ,"@!",06,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_LOJA")
 aAdd(aCabs  ,"Loja Fornecedor")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
-aAdd(aHeader,{"Loja Fornecedor","XX_LOJA" ,"@!",02,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_FANTASI")
 aAdd(aCabs  ,"Nome Fantasia")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
-aAdd(aHeader,{"Nome Fantasia","XX_FANTASI" ,"@!",20,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_NFORNEC")
 aAdd(aCabs  ,"Razão Social")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
-aAdd(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_AVALC")
 aAdd(aCabs  ,"Avaliação Crítica")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
-aAdd(aHeader,{"Avaliação Críica","XX_AVALC" ,"@!",03,00,"","","C","TRB","R"})
 
 aAdd(aCampos,"TRB->XX_QNTNF")
 aAdd(aCabs  ,"Qtde NF's entregues")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.T.)
-aAdd(aHeader,{"Qtde NF's entregues","XX_QNTNF" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
+If nDet == 1
+	aAdd(aCampos,"TRB->XX_AVAL1")
+	aAdd(aCabs  ,"Preço")
+	aAdd(aImpr  ,.T.)
+	aAdd(aTotal,.T.)
 
-//aAdd(aCampos,"TRB->XX_AVAL1")
-//aAdd(aCabs  ,"Preço")
-//aAdd(aImpr  ,.F.)
-//aAdd(aTotal,.F.)
-aAdd(aHeader,{"Preço","XX_AVAL1" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+	aAdd(aCampos,"TRB->XX_AVAL2")
+	aAdd(aCabs  ,"Prazo")
+	aAdd(aImpr  ,.T.)
+	aAdd(aTotal,.T.)
 
-//aAdd(aCampos,"TRB->XX_AVAL2")
-//aAdd(aCabs  ,"Prazo")
-//aAdd(aImpr  ,.F.)
-//aAdd(aTotal,.F.)
-aAdd(aHeader,{"Prazo","XX_AVAL2" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+	aAdd(aCampos,"TRB->XX_AVAL3")
+	aAdd(aCabs  ,"Quantidade/Atendimento")
+	aAdd(aImpr  ,.T.)
+	aAdd(aTotal,.T.)
 
-//aAdd(aCampos,"TRB->XX_AVAL3")
-//aAdd(aCabs  ,"Quantidade/Atendimento")
-//aAdd(aImpr  ,.F.)
-//aAdd(aTotal,.F.)
-aAdd(aHeader,{"Quantidade/Atendimento","XX_AVAL3" ,"@E 9999999999",10,00,"","","N","TRB","R"})
+	aAdd(aCampos,"TRB->XX_AVAL4")
+	aAdd(aCabs  ,"Qualidade/Integridade")
+	aAdd(aImpr  ,.T.)
+	aAdd(aTotal,.T.)
 
-//aAdd(aCampos,"TRB->XX_AVAL4")
-//aAdd(aCabs  ,"Qualidade/Integridade")
-//aAdd(aImpr  ,.F.)
-//aAdd(aTotal,.F.)
-aAdd(aHeader,{"Qualidade/Integridade","XX_AVAL4" ,"@E 9999999999",10,00,"","","N","TRB","R"})
-
-//aAdd(aCampos,"TRB->XX_TAVAL")
-//aAdd(aCabs  ,"Total da Avaliação")
-//aAdd(aImpr  ,.F.)
-//aAdd(aTotal,.F.)
-aAdd(aHeader,{"Total da Avaliação","XX_TAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
-
+	aAdd(aCampos,"TRB->XX_TAVAL")
+	aAdd(aCabs  ,"Total da Avaliação")
+	aAdd(aImpr  ,.T.)
+	aAdd(aTotal,.T.)
+EndIf
 
 aAdd(aCampos,"TRB->XX_MDAVAL")
 aAdd(aCabs  ,"Média da Avaliação (IQF)")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
-aAdd(aHeader,{"Média da Avaliação (IQF)","XX_MDAVAL" ,"@E 9999999999",10,00,"","","N","TRB","R"})
 
 Processa( {|| ProcBKCOR05() })
 
-Processa( {|| MBrwBKCOR05() })
+aAdd(aPlans,{"TRB",TRIM(cPerg)    ,"",cTitulo,aCampos,aCabs,aImpr, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
+
+If nDet == 1
+
+	aCabs2   := {}
+	aCampos2 := {}
+	aImpr2   := {}
+	aTitulos2:= {}
+	aTotal2  := {}
+
+	aAdd(aTitulos2,cTitulo2)
+
+	aAdd(aCampos2,"QTMP->F1_DOC")
+	aAdd(aCabs2  ,"Documento")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->F1_SERIE")
+	aAdd(aCabs2  ,"Série")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->D1_PEDIDO")
+	aAdd(aCabs2  ,"Pedido")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->F1_FORNECE")
+	aAdd(aCabs2  ,"Fornecedor")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->F1_LOJA")
+	aAdd(aCabs2  ,"Loja")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->A2_NOME")
+	aAdd(aCabs2  ,"Nome")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->F1_EMISSAO")
+	aAdd(aCabs2  ,"Emissão")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->F1_DTDIGIT")
+	aAdd(aCabs2  ,"Entrada")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->F1_XXAVALI")
+	aAdd(aCabs2  ,"Avaliação")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aCampos2,"QTMP->A2_XXAVALC")
+	aAdd(aCabs2  ,"Av. crítica")
+	aAdd(aImpr2  ,.T.)
+	aAdd(aTotal2 ,.F.)
+
+	aAdd(aPlans,{"QTMP",TRIM(cPerg)+"-Det" ,"",cTitulo2,aCampos2,aCabs2,aImpr2, /* aAlign */,/* aFormat */, aTotal2/*aTotal */, /*cQuebra*/, lClose:= .T. })
+EndIf
+
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
 
 oTmpTb:Delete()
 
-///TRB->(Dbclosearea())
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())                 
- 
 Return
-
-
-Static Function MBrwBKCOR05()
-Local 	cAlias 		:= "TRB"
-
-Private cCadastro	:= "Relatório de Avaliação dos Fornecedores"
-Private aRotina		:= {}
-Private aIndexSz  	:= {}
-
-Private aSize   := MsAdvSize(,.F.,400)
-Private aObjects:= { { 450, 450, .T., .T. } }
-Private aInfo   := { aSize[ 1 ], aSize[ 2 ], aSize[ 3 ], aSize[ 4 ], 5, 5 }
-Private aPosObj := MsObjSize( aInfo, aObjects, .T. )
-Private lRefresh:= .T.
-Private aButton := {}
-Private _oGetDbSint
-Private _oDlgSint
-
-AADD(aRotina,{"Exp. Excel"	,"U_CBKCOR05",0,6})
-AADD(aRotina,{"Imprimir"    ,"",0,7})
-
-dbSelectArea(cAlias)
-dbSetOrder(1)
-dbGoTop()
-	
-DEFINE MSDIALOG _oDlgSint ;
-TITLE cCadastro ;
-From aSize[7],0 to aSize[6],aSize[5] of oMainWnd PIXEL
-	
-_oGetDbSint := MsGetDb():New(aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4], 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","TRB")
-	
-aadd(aButton , { "BMPTABLE" , { || U_CBKCOR05(), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Gera Planilha Excel" } )
-aadd(aButton , { "BMPTABLE" , { || U_RBKCOR05(), TRB->(dbgotop()), _oGetDbSint:ForceRefresh(), _oDlgSint:Refresh()}, "Imprimir" } )
-	
-ACTIVATE MSDIALOG _oDlgSint ON INIT EnchoiceBar(_oDlgSint,{|| _oDlgSint:End()}, {||_oDlgSint:End()},, aButton)
-
-Return Nil
-
-
-
-Static Function LimpaBrw(cAlias)
-	DbSelectArea(cAlias)
-	(cAlias)->(dbgotop())
-	Do While (cAlias)->(!eof())
-		RecLock(cAlias,.F.)
-		(cAlias)->(dbDelete())
-		(cAlias)->(MsUnlock())
-       	dbselectArea(cAlias)
-   		(cAlias)->(dbskip())
-	ENDDO
-
-Return (.T.) 
-
-
-// Gera Excel
-User FUNCTION CBKCOR05()
-Local aPlans  := {}
-
-aAdd(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,aImpr, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
-Return 
 
 
 
@@ -254,13 +210,27 @@ Static Function ProcBKCOR05
 Local cQuery := ""
 Local nReg := 0
 
-LimpaBrw("TRB")
-
-cQuery := "SELECT F1_FILIAL,F1_DOC,F1_SERIE,F1_FORNECE,F1_LOJA,F1_EMISSAO,F1_DTDIGIT,F1_XXAVALI,SA2.A2_NREDUZ,SA2.A2_NOME,SA2.A2_XXAVALC"
+cQuery := "SELECT DISTINCT "+CRLF
+cQuery += "  F1_FILIAL,"+CRLF
+cQuery += "  F1_DOC,"+CRLF
+cQuery += "  F1_SERIE,"+CRLF
+cQuery += "  F1_FORNECE,"+CRLF
+cQuery += "  F1_LOJA,"+CRLF
+cQuery += "  F1_EMISSAO,"+CRLF
+cQuery += "  F1_DTDIGIT,"+CRLF
+cQuery += "  F1_XXAVALI,"+CRLF
+cQuery += "  D1_PEDIDO,"+CRLF
+cQuery += "  SA2.A2_NREDUZ,"+CRLF
+cQuery += "  SA2.A2_NOME,"+CRLF
+cQuery += "  SA2.A2_XXAVALC"+CRLF
 cQuery += " FROM "+RETSQLNAME("SF1")+" SF1"
-cQuery += " INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON  SA2.A2_FILIAL='"+xFilial("SA2")+"' AND SF1.F1_FORNECE=SA2.A2_COD AND SF1.F1_LOJA=SA2.A2_LOJA AND SA2.D_E_L_E_T_=''" 
-cQuery += " WHERE SF1.D_E_L_E_T_='' AND SF1.F1_DTDIGIT>='"+DTOS(dDataI)+"' AND SF1.F1_DTDIGIT<='"+DTOS(dDataF)+"' AND SF1.F1_XXAVALI<>''"
- 
+cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON  SA2.A2_FILIAL='"+xFilial("SA2")+"' AND SF1.F1_FORNECE=SA2.A2_COD AND SF1.F1_LOJA=SA2.A2_LOJA AND SA2.D_E_L_E_T_=''" +CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SD1")+" SD1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " WHERE SF1.D_E_L_E_T_='' AND SF1.F1_DTDIGIT >= '"+DTOS(dDataI)+"' AND SF1.F1_DTDIGIT <= '"+DTOS(dDataF)+"' AND SF1.F1_XXAVALI <> ''"+CRLF
+If nComPed == 1
+	cQuery += " AND SD1.D1_PEDIDO <> ''"+CRLF
+EndIf
+
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F1_DTDIGIT","D",8,0)
 
@@ -317,158 +287,9 @@ ENDIF
 
 TRB->(dbGoTop())
 
-QTMP->(dbCloseArea())
+
 
 Return
-
-
-
-User Function RBKCOR05()
-Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
-Local cDesc2        := "de acordo com os parametros informados pelo usuario."
-Local cDesc3        := ""
-Local nLin          := 80
-Local Cabec1        := ""
-Local Cabec2        := ""
-Local aOrd          := {}
-Local titulo        := ""
-
-titulo := "Avaliação dos Fornecedores - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
-
-
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Monta a interface padrao com o usuario...                           ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	
-	wnrel := SetPrint(cString,"BKCOR05",cPerg,@titulo,cDesc1,cDesc2,cDesc3,.T.,aOrd,.T.,Tamanho,,.T.) 
-	
-	If nLastKey == 27
-		Return
-	Endif
-	
-	SetDefault(aReturn,cString)
-	
-	If nLastKey == 27
-	   Return
-	Endif
-	
-	nTipo := If(aReturn[4]==1,15,18)
-	            
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Processamento. RPTSTATUS monta janela com a regua de processamento. ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
-	m_pag   := 01 
-	
-RETURN
-
-
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºFun‡„o    ³RUNREPORT º Autor ³ AP6 IDE            º Data ³  08/04/08   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescri‡„o ³ Funcao auxiliar chamada pela RPTSTATUS. A funcao RPTSTATUS º±±
-±±º          ³ monta a janela com a regua de processamento.               º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ Programa principal                                         º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
-
-Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
-
-nEsp    := 2
-cPicQ 	:= "@E 9999999999"
-cPicV 	:= "@E 999,999,999.99"
-
-Cabec1  += PAD("Fornec",LEN(TRB->XX_FORNEC)+nEsp)
-Cabec1  += PAD("Lj",LEN(TRB->XX_LOJA)+nEsp)
-Cabec1  += PAD("Nome Fantasia",LEN(TRB->XX_FANTASI)+nEsp)
-Cabec1  += PAD("Razão Social",30+nEsp)
-Cabec1  += PAD("Aval. Crítica",13+nEsp)
-Cabec1  += PADL("Qtde NF's entregues",LEN(cPicQ)-1)+SPACE(nEsp)
-Cabec1  += PADL("Média da Avaliação (IQF)",LEN(cPicQ)-1)+SPACE(nEsp)
-
-IF LEN(Cabec1) > 132
-   Tamanho := "G"
-ENDIF   
-
-Titulo   := TRIM(Titulo)
-
-nomeprog := "BKCOR05/"+TRIM(SUBSTR(cUsuario,7,15))
-   
-Dbselectarea("TRB")
-Dbgotop()
-SetRegua(LastRec())
-
-DO While !TRB->(EOF())
-
-   IncRegua()
-   If lAbortPrint
-      @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
-      Exit
-   Endif
-
-   //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-   //³ Impressao do cabecalho do relatorio. . .                            ³
-   //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-   If nLin > 75 // Salto de Página. Neste caso o formulario tem 55 linhas...
-      Cabec(Titulo,Cabec1,Cabec2,nomeprog,Tamanho,nTipo,,.F.)
-      nLin := 9
-   Endif
-
-   nPos := 0
-   @ nLin,nPos PSAY TRB->XX_FORNEC 
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY TRB->XX_LOJA 
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY TRB->XX_FANTASI
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY PAD(TRB->XX_NFORNEC,30) 
-   nPos := PCOL()+nEsp
-
-   @ nLin,nPos PSAY TRB->XX_AVALC
-   nPos := PCOL()+10+nEsp
-
-   @ nLin,nPos PSAY TRB->XX_QNTNF PICTURE cPicQ
-   nPos := PCOL()+nEsp
-   
-   @ nLin,nPos PSAY TRB->XX_MDAVAL PICTURE cPicQ
-   nPos := PCOL()+nEsp
-
-   nLin++
-  
-   dbSkip()
-EndDo
-
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Finaliza a execucao do relatorio...                                 ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-SET DEVICE TO SCREEN
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Se impressao em disco, chama o gerenciador de impressao...          ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-If aReturn[5]==1
-   dbCommitAll()
-   SET PRINTER TO
-   OurSpool(wnrel)
-Endif
-
-MS_FLUSH()
-
-Return
-
 
 
 
@@ -481,8 +302,10 @@ dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Data de Entrada de:"  ,"Data da Compra de:" ,"Data da Compra de:" ,"mv_ch1","D",08,0,0,"G","NaoVazio()","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"02","Data de Entrada até:"  ,"Data de Entrada até:" ,"Data de Entrada até:" ,"mv_ch2","D",08,0,0,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"01","Data de Entrada de:"  ,"Data da Compra de:"   ,"Data da Compra de:"   ,"mv_ch1","D",08,0,0,"G","NaoVazio()","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"02","Data de Entrada até:" ,"Data de Entrada até:" ,"Data de Entrada até:" ,"mv_ch2","D",08,0,0,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Somente com pedido?"  ,"Somente com pedido?"  ,"Somente com pedido?"  ,"mv_ch3","N",01,0,2,"C",""          ,"mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"04","Detalhado?"           ,"Detalhado?"           ,"Detalhado?"           ,"mv_ch4","N",01,0,2,"C",""          ,"mv_par04","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

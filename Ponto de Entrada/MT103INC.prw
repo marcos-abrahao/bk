@@ -55,8 +55,7 @@ If lClass
 	If !IsBlind() .AND. __cUserId <> "000000" .AND. __cUserId <> "000012" ;
     		.AND. (SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07')
 		
-		u_LogPrw("MT103INC","Doc não liberado, fora do horario: "+cLogDoc)
-    	MsgStop("Não é permitido incluir, classificar e liberar documentos entre 18h e 7h","MT103INC")
+		u_LogPrw("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 18h e 7h: "+cLogDoc,"E")
         lRet := .F.
 	Else
 		If SF1->F1_XXLIB == 'A'
@@ -74,14 +73,16 @@ If lClass
 
 				If nOper == 1
 					// Avaliação do Fornecedor
-
 					If u_IsAvalia(__cUserId)
 						MsAguarde({|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
 
 						dbSelectArea("TMPSD1")
 						dbGoTop()
 						If !TMPSD1->(EOF())
-							U_AvalForn(.F.)
+							// Somente avaliar NF com pedido de compra atrelado
+							If !Empty(TMPSD1->D1_PEDIDO)
+								U_AvalForn(.F.)
+							EndIf
 						EndIf
 						TMPSD1->(DbCloseArea())
 					EndIf

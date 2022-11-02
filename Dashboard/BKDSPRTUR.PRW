@@ -20,7 +20,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
-u_LogPrw("BKDSPRTUR","Inicio: Create BKTURNOVER")
+u_LogPrw("BKDSPRTUR","Create BKTURNOVER")
 
 If TCSPExist( "BKTURNOVER" )
 	cQueryD := "DROP PROCEDURE BKTURNOVER"  
@@ -177,7 +177,7 @@ Local cQuery	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 
-u_LogPrw("BKDSTUR","Turnover")
+u_LogPrw("BKDSTUR","Inicio: Turnover")
 
 If TCSPExist( "BKTURNOVER" )
 	cQuery  := "EXEC BKTURNOVER"  
@@ -192,6 +192,6 @@ If TCSPExist( "BKTURNOVER" )
 EndIf
 
 u_LogMemo("BKDSTUR.SQL",cErro1+cQuery)
-u_LogPrw("BKDSPRTUR","Final: Create BKTURNOVER")
+u_LogPrw("BKDSPRTUR","Final: Turnover")
 
 Return

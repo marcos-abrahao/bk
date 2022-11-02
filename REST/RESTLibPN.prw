@@ -472,7 +472,7 @@ Do While ( cQrySF1 )->( ! Eof() )
 				If cLiberOk == "A"
 					cStatus  := "Liberar"
 				Else
-					cStatus  := "Vetada"
+					cStatus  := "Nao Liberada"
 				EndIf
 				cLiberOk := "A"
 			EndIf
@@ -661,7 +661,8 @@ nAvalIQF :=	IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)='S',25,0)+;
 			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)='S',25,0)+;
 			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S',25,0)
 
-If u_IsAvalia(__cUserId) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSER)) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSERS))
+//If u_IsAvalia(__cUserId) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSER)) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSERS))
+If !Empty((cQrySF1)->D1_PEDIDO) .AND. u_IsAvalia(__cUserId)
 	cAvalForn := 'S'
 EndIf
 
