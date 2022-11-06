@@ -33,7 +33,7 @@ If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
  
 dDataI   := mv_par01
 dDataF   := mv_par02

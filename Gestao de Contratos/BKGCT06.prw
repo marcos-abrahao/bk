@@ -46,7 +46,7 @@ WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 //WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
 //TABLES "SA1" "SC5" "SC6" 
 
-u_LogPrw("BKGCT06")
+u_MsgLog("BKGCT06")
 
 dDataEnv := DATE()
 dbSelectArea("SX6")
@@ -223,7 +223,7 @@ Return lRet
 
 Static FUNCTION ProcAvi(cRel)
 
-u_LogPrw("BKGCT06","Avisos automaticos. (Dialogo)")
+u_MsgLog("BKGCT06","Avisos automaticos. (Dialogo)")
 
 IF VALTYPE(cRel) == "N"
    cRel := "1"
@@ -3429,10 +3429,10 @@ While SM0->(!EoF())
 		Loop
 	EndIf
 
-	cQuery := "Select C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01"
-	cQuery += " From SC1"+SM0->M0_CODIGO+"0 SC1"
-	cQuery += " INNER join SB1"+SM0->M0_CODIGO+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD =C1_PRODUTO"
-	cQuery += " INNER join CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC =CTT_CUSTO"
+	cQuery := "SELECT C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01"
+	cQuery += " FROM SC1"+SM0->M0_CODIGO+"0 SC1"
+	cQuery += " INNER JOIN SB1"+SM0->M0_CODIGO+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD =C1_PRODUTO"
+	cQuery += " INNER JOIN CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC =CTT_CUSTO"
 	cQuery += " LEFT JOIN SC8"+SM0->M0_CODIGO+"0 SC8 ON SC8.D_E_L_E_T_='' AND C8_NUM=C1_COTACAO AND C8_ITEMSC=C1_ITEM"
 	cQuery += " WHERE SC1.D_E_L_E_T_=''"  
 	cQuery += " AND C1_RESIDUO='' AND C1_APROV<>'B'"
@@ -3880,7 +3880,7 @@ WFPrepEnv(cEmpPar,cFilPar,"BKGCT062",{"CN9"},"GCT")
 
 cFWEmp := SUBSTR(FWCodEmp(),1,2)
 
-u_LogPrw(cPrw,aParam[1])
+u_MsgLog(cPrw,aParam[1])
 // Dashboard PowerBk
 //If cFWEmp == "01" 
 	//u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")

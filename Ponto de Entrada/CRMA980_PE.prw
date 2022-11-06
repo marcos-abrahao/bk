@@ -258,7 +258,7 @@ For nInd := 1 to Len(aParam)
  
 Next nInd
  
-U_LogPrw("CRMA980_PE",cMsg )
+U_MsgLog("CRMA980_PE",cMsg )
 
 Return NIL
  

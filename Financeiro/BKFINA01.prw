@@ -19,7 +19,7 @@ Private cString   := "SZ2"
 Private cCadastro := "Liquidos - Folha "+FWEmpName(cEmpAnt)
 Private aRotina
 
-u_LogPrw("BKFINA01")
+u_MsgLog("BKFINA01")
 
 dbSelectArea("SZ2")
 dbSetOrder(1)

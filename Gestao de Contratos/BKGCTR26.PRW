@@ -198,7 +198,7 @@ User Function BKGCTR26(lDashBoard)
 
     EndIf
 
-	u_LogPrw(cPerg,DTOC(dDataIFlt)+" a "+DTOC(dDataFFlt))
+	u_MsgLog(cPerg,DTOC(dDataIFlt)+" a "+DTOC(dDataFFlt))
 
 	aPlan2 := GCT26Plan()
 
@@ -262,16 +262,16 @@ User Function BKGCTR26(lDashBoard)
 		FWMsgRun(, {|oSay| GCT26Sld(oSay) }, "", cPerg+" Calculando saldos anteriores...")
 	Else
 
-		u_LogPrw(cPerg,"Processando Contas a Receber")		
+		u_MsgLog(cPerg,"Processando Contas a Receber")		
 		GCT26P191(oSay,@aRelat,"R")
 
-		u_LogPrw(cPerg,"Processando Contas a Pagar")		
+		u_MsgLog(cPerg,"Processando Contas a Pagar")		
 		GCT26P191(oSay,@aRelat,"P")
 
-		u_LogPrw(cPerg,"Processando Centros de Custo")		
+		u_MsgLog(cPerg,"Processando Centros de Custo")		
 		GCT26CC(oSay,@aRelat,@aRelat2)
 
-		u_LogPrw(cPerg,"Processando Saldos")
+		u_MsgLog(cPerg,"Processando Saldos")
 		GCT26Sld(oSay)
 
 	EndIf
@@ -2922,7 +2922,7 @@ If lExiste
 
 	dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasTmp,.T.,.T.)
 
-	u_LogPrw(cPerg,"PowerBk - registros filtrados da tabela "+cTabela+": "+ALLTRIM(STR((cAliasTmp)->REGISTROS)))
+	u_MsgLog(cPerg,"PowerBk - registros filtrados da tabela "+cTabela+": "+ALLTRIM(STR((cAliasTmp)->REGISTROS)))
 
 	(cAliasTmp)->(dbCloseArea())
 
@@ -2959,7 +2959,7 @@ Local nX 		:= 0
 Local cNEmpr	:= u_BKNEmpr(cEmpAnt)
 Local lOk 		:= .F.
 
-u_LogPrw(cPerg,"PowerBk - Caixa")
+u_MsgLog(cPerg,"PowerBk - Caixa")
 
 lOk := CreateFat()
 If lOk
@@ -2969,7 +2969,7 @@ If lOk
 	lOk:= CreateRH()
 EndIf
 If lOk
-	u_LogPrw(cPerg,"PowerBk - Caixa - inserindo dados")
+	u_MsgLog(cPerg,"PowerBk - Caixa - inserindo dados")
 	For nX := 1 To Len(aRelat)
 
 		// Popula elemento
@@ -3101,14 +3101,14 @@ If lOk
 			If !IsBlind()
 				MsgStop(cErro2, cPerg)
 			EndIf
-			u_LogPrw(cPerg,"PowerBk - Erro em insert "+aRelat[nX,ID_CONSIDER])
+			u_MsgLog(cPerg,"PowerBk - Erro em insert "+aRelat[nX,ID_CONSIDER])
 			u_LogMemo("BKGCTR26-ErroInsert.SQL",cErro2+cQuery)
 			Exit
 		EndIf
 
 	Next nX
 
-	u_LogPrw(cPerg,"PowerBk - Caixa - final de insersão de dados")
+	u_MsgLog(cPerg,"PowerBk - Caixa - final de insersão de dados")
 
 	// Só para mostrar a contagem de registros processados
 	ExisteTbl("CXFATURAMENTO")
@@ -3131,7 +3131,7 @@ Local lRet		:= .T.
 
 If !ExisteTbl("CXFATURAMENTO")
 
-	u_LogPrw(cPerg,"PowerBk - Criando a tabela CXFATURAMENTO")
+	u_MsgLog(cPerg,"PowerBk - Criando a tabela CXFATURAMENTO")
 
 	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CXFATURAMENTO', N'U') IS NOT NULL"  
 	cQueryD += "   DROP TABLE PowerBk.dbo.CXFATURAMENTO "+CRLF
@@ -3143,7 +3143,7 @@ If !ExisteTbl("CXFATURAMENTO")
 		If !IsBlind()
 			MsgStop(cErro1, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro deletando a tabela CXFATURAMENTO")
+			u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXFATURAMENTO")
 		EndIf
 	EndIf
 
@@ -3186,7 +3186,7 @@ If !ExisteTbl("CXFATURAMENTO")
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro criando a tabela CXFATURAMENTO")
+			u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXFATURAMENTO")
 		EndIf
 	EndIf
 Else
@@ -3203,7 +3203,7 @@ Else
 		EndIf
 	EndIf
 
-	u_LogPrw(cPerg,"PowerBk - "+cQuery)		
+	u_MsgLog(cPerg,"PowerBk - "+cQuery)		
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
@@ -3212,7 +3212,7 @@ Else
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro em delete na tabela CXFATURAMENTO")
+			u_MsgLog(cPerg,"PowerBk - Erro em delete na tabela CXFATURAMENTO")
 		EndIf
 	EndIf
 EndIf
@@ -3234,7 +3234,7 @@ Local cErro2 	:= ""
 Local lRet		:= .T.
 
 If !ExisteTbl("CXGASTOS")
-	u_LogPrw(cPerg,"PowerBk - Criando a tabela CXGASTOS")
+	u_MsgLog(cPerg,"PowerBk - Criando a tabela CXGASTOS")
 	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CXGASTOS', N'U') IS NOT NULL"  
 	cQueryD += "   DROP TABLE PowerBk.dbo.CXGASTOS "+CRLF
 	nErro   := TcSqlExec(cQueryD)
@@ -3245,7 +3245,7 @@ If !ExisteTbl("CXGASTOS")
 		If !IsBlind()
 			MsgStop(cErro1, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro deletando a tabela CXGASTOS")
+			u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXGASTOS")
 		EndIf
 	EndIf
 
@@ -3288,7 +3288,7 @@ If !ExisteTbl("CXGASTOS")
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro criando a tabela CXGASTOS")
+			u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXGASTOS")
 		EndIf
 	EndIf
 Else
@@ -3304,7 +3304,7 @@ Else
 		EndIf
 	EndIf
 
-	u_LogPrw(cPerg,"PowerBk - "+cQuery)	
+	u_MsgLog(cPerg,"PowerBk - "+cQuery)	
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
@@ -3313,7 +3313,7 @@ Else
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro em Delete na tabela CXGSTOS")
+			u_MsgLog(cPerg,"PowerBk - Erro em Delete na tabela CXGSTOS")
 		EndIf
 	EndIf
 EndIf
@@ -3335,7 +3335,7 @@ Local cErro2 	:= ""
 Local lRet		:= .T.
 
 If !ExisteTbl("CXFOLHA")
-	u_LogPrw(cPerg,"PowerBk - Criando a tabela CXFOLHA")
+	u_MsgLog(cPerg,"PowerBk - Criando a tabela CXFOLHA")
 	cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.CXFOLHA', N'U') IS NOT NULL"  
 	cQueryD += "   DROP TABLE PowerBk.dbo.CXFOLHA "+CRLF
 	nErro   := TcSqlExec(cQueryD)
@@ -3346,7 +3346,7 @@ If !ExisteTbl("CXFOLHA")
 		If !IsBlind()
 			MsgStop(cErro1, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro deletando a tabela CXFOLHA")
+			u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXFOLHA")
 		EndIf
 	EndIf
 
@@ -3389,7 +3389,7 @@ If !ExisteTbl("CXFOLHA")
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro criando a tabela CXFOLHA")
+			u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXFOLHA")
 		EndIf
 	EndIf
 Else
@@ -3405,7 +3405,7 @@ Else
 		EndIf
 	EndIf
 
-	u_LogPrw(cPerg,"PowerBk - "+cQuery)	
+	u_MsgLog(cPerg,"PowerBk - "+cQuery)	
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
@@ -3414,7 +3414,7 @@ Else
 		If !IsBlind()
 			MsgStop(cErro2, cPerg)
 		Else
-			u_LogPrw(cPerg,"PowerBk - Erro delete na tabela CXFOLHA")
+			u_MsgLog(cPerg,"PowerBk - Erro delete na tabela CXFOLHA")
 		EndIf
 	EndIf
 EndIf
@@ -3486,7 +3486,7 @@ Static Function DbOnError(cSQLError As Character, cVariable As Character)
 
 EndReport()
 
-u_LogPrw(cPerg,cSQLError)
+u_MsgLog(cPerg,cSQLError)
 
 Return Nil
 

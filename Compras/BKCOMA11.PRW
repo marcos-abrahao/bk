@@ -19,7 +19,7 @@ User Function BKCOMA11()
     Local aArea   := GetArea()
     Local oBrowse
 
-    u_LogPrw("BKCOMA11") 
+    u_MsgLog("BKCOMA11") 
 
     //Instânciando FWMBrowse - Somente com dicionário de dados
     oBrowse := FWMBrowse():New()

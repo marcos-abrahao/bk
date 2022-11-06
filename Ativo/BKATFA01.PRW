@@ -21,7 +21,7 @@ Local nSnd:= 15,nTLin := 15
 
 PRIVATE cArq  := ""
 
-u_LogPrw(cProg)
+u_MsgLog(cProg)
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 

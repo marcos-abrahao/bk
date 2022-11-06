@@ -20,7 +20,7 @@ Local aEmpresas := u_BKGrupo()
 Local nE 		:= 0
 Local cTabCTT   := ""
 
-u_LogPrw("BKDSCC","Inicio: Centros de Custo")
+u_MsgLog("BKDSCC","Inicio: Centros de Custo")
  
 cQuery := "WITH CCUSTOS AS ( " + CRLF
 
@@ -82,6 +82,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSCC.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_LogPrw("BKDSCC","Final: Centros de Custo")
+u_MsgLog("BKDSCC","Final: Centros de Custo")
 
 Return

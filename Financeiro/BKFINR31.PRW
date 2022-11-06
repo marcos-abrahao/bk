@@ -39,7 +39,7 @@ aAdd( aParam, { 1, "Data final:"	, dDataBase	     , ""       , "", ""	, "" , 70 
 
 If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKCOMA09",.T.         ,.T.))
 
-	u_LogPrw("BKFINR31")
+	u_MsgLog("BKFINR31")
 
 	cTipoEmis	:= SUBSTR(mv_par01,1,1)
 	dDataI		:= mv_par02

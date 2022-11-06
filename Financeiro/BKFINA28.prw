@@ -19,7 +19,7 @@ Local lOk      	:= .F.
 Local cTitulo 	:= "BKFINA28 - Valor ISS Retido Indevidamente: "+SE1->E1_NUM
 Local nValII    := SE1->E1_XXISSBI
 
-u_LogPrw("BKFINA28")
+u_MsgLog("BKFINA28")
 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )

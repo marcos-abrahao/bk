@@ -36,7 +36,7 @@ User Function BKFINA08()
 		Return
 	Endif
 
-	u_LogPrw(cPerg)
+	u_MsgLog(cPerg)
 	
 	cMesComp := STRZERO(VAL(mv_par01),2)
 	cAnoComp := STRZERO(VAL(mv_par02),4)

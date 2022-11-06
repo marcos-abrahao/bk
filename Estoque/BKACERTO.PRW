@@ -11,7 +11,7 @@ User Function BKACERTO()
 Private nRepl := 0
 Private cRot  := PAD("U_BKB1TOZJ()",20)
 
-u_LogPrw("BKACERTO")
+u_MsgLog("BKACERTO")
 
 dbSelectArea("SZJ")
 

@@ -33,16 +33,16 @@ Endif
 
 cCNPJ := ALLTRIM(mv_par01) 
 
-u_LogPrw("BKCOMA07",cCNPJ)
+u_MsgLog("BKCOMA07",cCNPJ)
 IF !CGC(cCNPJ,,.F.)
-	u_LogPrw(cPerg,"CNPJ "+cCNPJ+" incorreto. Verifique!!")
+	u_MsgLog(cPerg,"CNPJ "+cCNPJ+" incorreto. Verifique!!")
 	Return Nil
 ENDIF
 
 DBselectarea("SA2")
 dbSetOrder(3)
 IF dbSeek(xFILIAL("SA2")+cCNPJ,.F.)    
-	u_LogPrw(cPerg,"Fornecedor já cadastrado código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME)
+	u_MsgLog(cPerg,"Fornecedor já cadastrado código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME)
 	Return Nil
 ENDIF
 

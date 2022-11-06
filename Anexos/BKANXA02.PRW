@@ -32,7 +32,7 @@ Local cKey:= "",cDocOri:=""
 Local cDirCtr:="",aArqCtr :={}
 Local x,y
 
-u_LogPrw("BKANXA02")
+u_MsgLog("BKANXA02")
 
 dbSelectArea(cAliasKey)
 IF BOF() .OR. EOF()

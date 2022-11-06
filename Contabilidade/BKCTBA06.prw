@@ -31,7 +31,7 @@ Private lMsHelpAuto := .T.
 Private CTF_LOCK    := 0
 Private lSubLote    := .T.
 
-u_LogPrw("BKCTBA06")
+u_MsgLog("BKCTBA06")
 
 dbselectArea("CT2")
 //dbGoTo(13069)

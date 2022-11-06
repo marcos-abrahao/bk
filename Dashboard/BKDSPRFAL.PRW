@@ -17,7 +17,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
-u_LogPrw("BKDSPRFAL","Create BKFALTAS")
+u_MsgLog("BKDSPRFAL","Create BKFALTAS")
 
 If TCSPExist( "BKFALTAS" )
 	cQueryD := "DROP PROCEDURE BKFALTAS"  
@@ -206,7 +206,7 @@ Local cQuery	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 
-u_LogPrw("BKDSBKFAL","Inicio: Faltas")
+u_MsgLog("BKDSBKFAL","Inicio: Faltas")
 
 If TCSPExist( "BKFALTAS" )
 	cQuery  := "EXEC BKFALTAS"  
@@ -221,6 +221,6 @@ If TCSPExist( "BKFALTAS" )
 EndIf
 
 u_LogMemo("BKDSBKFAL.SQL",cErro1+cQuery)
-u_LogPrw("BKDSPRFAL","Final: Faltas")
+u_MsgLog("BKDSPRFAL","Final: Faltas")
 
 Return

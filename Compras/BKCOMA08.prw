@@ -22,7 +22,7 @@ Local cTitulo2 	:= "BKCOMA08 - Doc de Entrada: "+SF1->F1_DOC
 Local cChvNfe   := ""
 Local cEspecie  := ""  //SPACE(TAMSX3("F1_ESPECIE")[1])
 
-u_LogPrw("BKCOMA08","Acessado Doc: "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+": "+SF1->F1_ESPECIE+"-"+SF1->F1_CHVNFE )
+u_MsgLog("BKCOMA08","Acessado Doc: "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+": "+SF1->F1_ESPECIE+"-"+SF1->F1_CHVNFE )
 
 cChvNfe  := SF1->F1_CHVNFE
 cEspecie := SF1->F1_ESPECIE
@@ -101,7 +101,7 @@ If ( lOk )
     EndDo
     SFT->(RestArea(aAreaSFT))
 
-    u_LogPrw("BKCOMA08","Alterado Doc: "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+": "+SF1->F1_ESPECIE+"-"+SF1->F1_CHVNFE )
+    u_MsgLog("BKCOMA08","Alterado Doc: "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+": "+SF1->F1_ESPECIE+"-"+SF1->F1_CHVNFE )
 
 EndIf
 		                   

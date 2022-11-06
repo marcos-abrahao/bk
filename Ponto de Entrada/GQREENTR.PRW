@@ -200,7 +200,7 @@ User Function RAvalForn()
 If u_IsAvalia(__cUserId)
 	U_AvalForn(.T.)
 Else
-	u_LogPrw("GQREENTR","Avaliação de fornecedor não disponível para o seu usuário!!","E")
+	u_MsgLog("GQREENTR","Avaliação de fornecedor não disponível para o seu usuário!!","E")
 EndIf
 Return Nil 
 
@@ -367,9 +367,9 @@ Else
 EndIf
                         
 // Atualiza fornecedor critico
-If .F.
-	UpdSa2(@CA100FOR,@CLOJA,cAvalC)
-EndIf
+//If .F.
+//	UpdSa2(@CA100FOR,@CLOJA,cAvalC)
+//EndIf
 
 cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXAVALI = '"+cAvali+"'"
 cQuery  += " WHERE F1_FILIAL='"+xFilial('SF1')+"' AND D_E_L_E_T_='' AND F1_DOC='"+@CNFISCAL +"' AND F1_SERIE='"+ @CSERIE +"'"

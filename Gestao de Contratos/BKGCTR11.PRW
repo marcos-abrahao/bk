@@ -109,7 +109,7 @@ User Function BKGCTR11(lJob)
 		If !Pergunte(cPerg,.T.)
 			Return Nil
 		Endif
-		u_LogPrw(cPerg)
+		u_MsgLog(cPerg)
 	ENDIF
 
 

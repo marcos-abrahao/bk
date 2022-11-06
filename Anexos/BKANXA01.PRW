@@ -36,7 +36,7 @@ Local lCopiado   := .F.
 Local aAreaDoc := GetArea()
 Local cDocOri,cKey
 
-u_LogPrw("BKANXA01")
+u_MsgLog("BKANXA01")
 
 dbSelectArea(cAliasKey)
 IF BOF() .OR. EOF()

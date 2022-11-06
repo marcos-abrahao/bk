@@ -51,7 +51,7 @@ IF BOF() .OR. EOF()
 	Return
 ENDIF
 
-u_LogPrw("BKCOMA02")
+u_MsgLog("BKCOMA02")
 
 // Verificar se há processos de integração em andamento
 cQuery  := "SELECT COUNT(*) AS ZBSTATUSX " 

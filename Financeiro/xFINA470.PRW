@@ -28,7 +28,7 @@ USER Function XFina470(nPosArotina)
 Local lExec		:= .T.
 
 ValidPerg("XAFI470")
-u_LogPrw("XAFI470")
+u_MsgLog("XAFI470")
 
 pergunte("XAFI470",.F.)
 

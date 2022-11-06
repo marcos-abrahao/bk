@@ -69,7 +69,10 @@ If TRIM(CN9_NUMERO) == cContra .AND. EMPTY(CN9->CN9_REVATU)
     oModelCNB:SetValue("CNBDETAIL", 'CNB_VLUNIT', 1000) 
 
     //== Validação e Gravação do Modelo
-    lRet := oModel:VldData() .And. oModel:CommitData()
+    lRet := oModel:VldData() 
+    If lRet
+        lRet := oModel:CommitData()
+    Endif
 else
     MsgStop("Contrato não encontrado")
 EndIf

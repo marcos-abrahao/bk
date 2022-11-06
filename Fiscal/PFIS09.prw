@@ -43,7 +43,7 @@ nTPMOV    	:= mv_par05
 cProd 		:= mv_par06
 cForn   	:= mv_par07
 
-u_LogPrw(cPerg,"Tes: "+cCODTES)
+u_MsgLog(cPerg,"Tes: "+cCODTES)
 
 
 IF EMPTY(dDataFinal) .OR.  EMPTY(dDataInicio)

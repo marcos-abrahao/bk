@@ -58,7 +58,7 @@ If !Pergunte(cPerg,.T.)
    	Return (Nil)
 EndIf
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cNotaDe 	:= MV_PAR01
 cNotaAte 	:= MV_PAR02

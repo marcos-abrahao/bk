@@ -42,7 +42,7 @@ Local lVerpesssen := Iif(FindFunction("Verpesssen"),Verpesssen(),.T.)
 Private oReport := Nil
 Private oSecCab := Nil 
 
-u_LogPrw("XFISR050")
+u_MsgLog("XFISR050")
 
 If lVerpesssen
 	ReportDef()

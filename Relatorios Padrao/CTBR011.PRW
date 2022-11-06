@@ -31,7 +31,7 @@ Private oTmpTb
 
 Default lTReport := .F.
 
-u_LogPrw("Ctbr010")
+u_MsgLog("Ctbr010")
 
 CtAjustSx1( "CTR010" )
 

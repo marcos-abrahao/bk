@@ -54,7 +54,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_LogPrw(cPerg,"Venc: "+DTOC(mv_par01) + " - Banco "+mv_par02)
+u_MsgLog(cPerg,"Venc: "+DTOC(mv_par01) + " - Banco "+mv_par02)
 
 dData  	 := mv_par01
 cSEE	 := ALLTRIM(mv_par02) //aBancos[mv_par02]
@@ -372,7 +372,7 @@ If ( lOk )
 							lTitBor := .F.
 							aBordero[nI,1] := .F.
 						Else
-							u_LogPrw(cPerg,"Pagamento para "+ALLTRIM(aBordero[nI,4])+" acima de "+ALLTRIM(STR(nLimAvCLT,14,2))+" foi confirmado")
+							u_MsgLog(cPerg,"Pagamento para "+ALLTRIM(aBordero[nI,4])+" acima de "+ALLTRIM(STR(nLimAvCLT,14,2))+" foi confirmado")
 						EndIf
 					EndIf
 					If lTitBor
@@ -2011,7 +2011,7 @@ ELSE
 	ENDIF
 ENDIF
 
-u_LogPrw(cPerg,cMsgLog)
+u_MsgLog(cPerg,cMsgLog)
 
 Return nil 
 

@@ -11,7 +11,7 @@ BK - Cadastro Codigos de Glosa Bonificação
 /*/
 
 User Function BKGCTA01()
-u_LogPrw("BKGCTA01")
+u_MsgLog("BKGCTA01")
 
 AxCadastro("SZR","Cadastro Codigos de Glosa Bonificação - BK")
 Return Nil

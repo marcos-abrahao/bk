@@ -16,7 +16,7 @@ Função principal da rotina MVC
 //-------------------------------------------------------------------
 user function MVCGRID()
 
-u_LogPrw("MVCGRID")
+u_MsgLog("MVCGRID")
 
 //Inserção - Inclusão de itens
 //FWExecView( getTitle(MODEL_OPERATION_INSERT), MVC_VIEWDEF_NAME, MODEL_OPERATION_INSERT)

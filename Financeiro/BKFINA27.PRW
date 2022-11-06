@@ -17,7 +17,7 @@ Local cTitulo   := "Baixas de contas a pagar - titulos pagos na BK"
 Local dDataI	:= CTOD("01/11/2018")
 Local dDataF	:= dDataBase
 
-u_LogPrw("BKFINA27")
+u_MsgLog("BKFINA27")
 
 If cEmpAnt == "01"
 	MsgStop("Esta rotina não pode ser utilizada na empresa BK","FINA027")

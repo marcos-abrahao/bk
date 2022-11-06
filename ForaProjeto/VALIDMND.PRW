@@ -47,7 +47,7 @@ Private a9900 := {}
 Private a9990 := {}
 Private a9999 := {}
 
-u_LogPrw(cProg)
+u_MsgLog(cProg)
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 

@@ -18,7 +18,7 @@ User Function MVCSZS()
 	Local aArea   := GetArea()
 	Local oBrowse
 
-	u_LogPrw("MVCSZS")
+	u_MsgLog("MVCSZS")
 	
 	//Instânciando FWMBrowse - Somente com dicionário de dados
 	oBrowse := FWMBrowse():New()

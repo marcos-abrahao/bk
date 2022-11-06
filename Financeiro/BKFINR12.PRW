@@ -151,7 +151,7 @@ ElseIf nOpcRel == 3
 	titulo += " - com Iss bitributado indevidamente"
 EndIf
 
-u_LogPrw("BKFINR12")
+u_MsgLog("BKFINR12")
 
 ProcRegua(1)
 Processa( {|| ProcQuery() })

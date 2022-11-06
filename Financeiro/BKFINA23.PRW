@@ -80,7 +80,7 @@ private cJConta   := PAD("0000000001",LEN(cConta))
 private cJHist    := PAD("DESCONTO JUROS ANTECIPADOS",TamSX3("E5_HISTOR")[1])
 private nJValor   := 0
 
-u_LogPrw("BKFINA23")
+u_MsgLog("BKFINA23")
 
 AADD(aSaldo,"Zero")
 AADD(aSaldo,"1 Real")

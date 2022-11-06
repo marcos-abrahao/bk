@@ -76,11 +76,11 @@ If SX6->(DBSEEK("  MV_DEISSBS",.F.))
     If lAtivar
         SX6->X6_CONTEUD := '.F.'
         cTexto += "Parâmetro ativado "+SX6->X6_CONTEUD + CRLF
-        u_LogPrw("BKPARISS","Parâmetro ativado "+SX6->X6_CONTEUD)
+        u_MsgLog("BKPARISS","Parâmetro ativado "+SX6->X6_CONTEUD)
     Else
         SX6->X6_CONTEUD := '.T.'
         cTexto += "Parâmetro desativado "+SX6->X6_CONTEUD + CRLF
-        u_LogPrw("BKPARISS","Parâmetro desativado "+SX6->X6_CONTEUD)
+        u_MsgLog("BKPARISS","Parâmetro desativado "+SX6->X6_CONTEUD)
     EndIf
     MsUnlock()
 EndIf

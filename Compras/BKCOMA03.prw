@@ -41,7 +41,7 @@ Private cCompl   := "2-Não"
 Private aCompl   := {"1-Sim","2-Não"}
 
 //aTbSx5 := FWGetSX5("Z3")
-u_LogPrw("BKCOMA03")
+u_MsgLog("BKCOMA03")
 
 dbSelectArea("SX5")
 dbSetOrder(1)

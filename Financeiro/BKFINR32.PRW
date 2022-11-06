@@ -25,7 +25,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 dDtIni   := MV_PAR01
 

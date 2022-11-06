@@ -19,7 +19,7 @@ Local lOk      	:= .F.
 Local cTitulo 	:= "BKFINA24 - Alteração da data de Antecipação: "+SE1->E1_NUM
 Local dDtAdt    := SE1->E1_XXDTADT
 
-u_LogPrw("BKFINA24")
+u_MsgLog("BKFINA24")
 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )

@@ -139,6 +139,6 @@ CXN->(RestArea(aAreaCXN))
 
 RestArea(aArea)
 
-u_LogPrw("CN120PED","Medição "+cNumMed)
+u_MsgLog("CN120PED","Medição "+cNumMed)
 
 Return {ExpA1,ExpA2}                           

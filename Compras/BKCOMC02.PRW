@@ -30,7 +30,7 @@ Local oGetVal   AS object
 Static cPartNF   := SPACE(LEN(SF1->F1_DOC))
 Static nValor    := 0
 
-u_LogPrw("BKCOMC02")
+u_MsgLog("BKCOMC02")
 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )

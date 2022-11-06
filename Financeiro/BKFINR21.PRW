@@ -31,7 +31,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 dEMISI    := mv_par01
 dEMISF    := mv_par02

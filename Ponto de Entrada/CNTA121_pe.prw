@@ -234,7 +234,7 @@ Local cPlan		:= ""
 Local nCnt		:= 0
 Local oView     := FwViewActive()
 
-//U_LogPrw("CNTA121_PE","CnaMun" )
+//U_MsgLog("CNTA121_PE","CnaMun" )
 
 oModel  := FwModelActivate()
 oMdlCND := oModel:GetModel("CNDMASTER")
@@ -301,7 +301,7 @@ Local cPlan		:= ""
 //Local nCnt		:= 0
 Local oView     := FwViewActive()
 
-//U_LogPrw("CNTA121_PE","CnaMunP" )
+//U_MsgLog("CNTA121_PE","CnaMunP" )
 
 oModel  := FwModelActivate()
 oMdlCND := oModel:GetModel("CNDMASTER")

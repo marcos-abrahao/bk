@@ -32,7 +32,7 @@ If l010Auto
 ENDIF
 
 //If !MsgYesNo("Gerar Proximo numero?",cPerg)
-If !u_LogPrw(cPerg,"Gerar proximo código de produto?","Y")
+If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
 	cCod := ""
 	Return cCod 
 EndIf
@@ -46,7 +46,7 @@ Endif
 cSubPdt  	:= ALLTRIM(mv_par01)
 
 IF EMPTY(cSubPdt)
-	u_LogPrw(cPerg,"O Grupo de Produto dever ser selecionado!!","W")
+	u_MsgLog(cPerg,"O Grupo de Produto dever ser selecionado!!","W")
 	cCod := ""
 	Return cCod 
 EndIf
@@ -80,7 +80,7 @@ ENDDO
 nCod++
 cCod := cSubPdt+STRZERO(nCod,IIF(nCod>999,4,3))
 
-u_LogPrw("BKCOMF09",cCod)
+u_MsgLog("BKCOMF09",cCod)
 
 Return cCod
 

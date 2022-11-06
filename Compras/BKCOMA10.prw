@@ -23,11 +23,11 @@ Local oDlg
 Local oPanelLeft
 
 If SF1->F1_XXLIB <> "T" //.OR. SF1->F1_XXLIB <> " "
-    u_LogPrw("BKCOMA10","Doc não está com status='Token': "+SF1->F1_DOC,"E")
+    u_MsgLog("BKCOMA10","Doc não está com status='Token': "+SF1->F1_DOC,"E")
     Return Nil
 EndIf
 
-u_LogPrw("BKCOMA10","Validar token Doc: "+SF1->F1_DOC)
+u_MsgLog("BKCOMA10","Validar token Doc: "+SF1->F1_DOC)
 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
@@ -53,16 +53,16 @@ If lOk
                 RecLock("SF1",.F.)
                 SF1->F1_XXLIB := "A"
                 MsUnlock()
-                u_LogPrw("BKCOMA10","Token validado - Doc: "+SF1->F1_DOC,"S")
+                u_MsgLog("BKCOMA10","Token validado - Doc: "+SF1->F1_DOC,"S")
                 lOk := .T.
             Else
-                u_LogPrw("BKCOMA10","Token não validado - Doc: "+SF1->F1_DOC,"E")
+                u_MsgLog("BKCOMA10","Token não validado - Doc: "+SF1->F1_DOC,"E")
             EndIf
         Else
-            u_LogPrw("BKCOMA10","Token invalido - Doc: "+SF1->F1_DOC,"E")
+            u_MsgLog("BKCOMA10","Token invalido - Doc: "+SF1->F1_DOC,"E")
         EndIf
     Else
-        u_LogPrw("BKCOMA10","Token invalido - Doc: "+SF1->F1_DOC,"E")
+        u_MsgLog("BKCOMA10","Token invalido - Doc: "+SF1->F1_DOC,"E")
     EndIf
 EndIf
 

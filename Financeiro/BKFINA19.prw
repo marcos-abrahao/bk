@@ -24,7 +24,7 @@ Private cNumCon := PAD("0000000001",TamSX3("A6_NUMCON")[1])
 Private cNomeBc := PAD("",TamSX3("A6_NOME")[1]) 
 Private dDataMov:= dDataBase
 
-u_LogPrw("BKFINA19")
+u_MsgLog("BKFINA19")
 
 cNomeBC := Posicione("SA6",1,xFilial("SA6")+cBanco+cAgencia,"A6_NOME")
 

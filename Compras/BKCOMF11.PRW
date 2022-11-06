@@ -40,7 +40,7 @@ Local aArea  := GetArea()
 
 RestArea(aArea)
 
-u_LogPrw("BKCOMF11",cCod)
+u_MsgLog("BKCOMF11",cCod)
 	
 Return cCod
 

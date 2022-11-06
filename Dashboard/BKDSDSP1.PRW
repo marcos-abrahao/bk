@@ -21,7 +21,7 @@ Local nE 		:= 0
 
 Local cTabSZG   := ""
 
-u_LogPrw("BKDSDSP1","Inicio: Previsão de despesas 1")
+u_MsgLog("BKDSDSP1","Inicio: Previsão de despesas 1")
  
 For nE := 1 TO Len(aEmpresas)
 
@@ -90,7 +90,7 @@ cQuery += "      EMPRESA,CONTRATO,ZG_DATA,ZG_SEQ" + CRLF
 u_LogMemo("BKDSDSP1.SQL",cQuery)
 
 If !TCIsConnected()
-  u_LogPrw("BKDSDSP1","Sem conexão com o banco de dados")
+  u_MsgLog("BKDSDSP1","Sem conexão com o banco de dados")
   Return( Nil )
 Endif  
 
@@ -115,6 +115,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSDSP1.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_LogPrw("BKDSDSP1","Final: Previsão de despesas 1")
+u_MsgLog("BKDSDSP1","Final: Previsão de despesas 1")
 
 Return

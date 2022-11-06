@@ -23,7 +23,7 @@ Local aCabs2    := {}
 Private cTitulo := "Planilhas de Contratos"
 Private cPerg   := "BKGCTR27"
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 FWMsgRun(, {|oSay| PrcQuery1() }, "", "Consultando planilhas...")	
 FWMsgRun(, {|oSay| PrcQuery2() }, "", "Consultando cronogramas...")	

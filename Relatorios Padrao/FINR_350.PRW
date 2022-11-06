@@ -36,7 +36,7 @@ Static lFWCodFil := FindFunction("FWCodFil")
 /*/
 User Function FinR350()
 
-u_LogPrw("FinR350")
+u_MsgLog("FinR350")
 
 AjustaHLP()
 

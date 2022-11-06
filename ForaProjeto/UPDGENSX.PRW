@@ -48,7 +48,7 @@ Local   lOk       := .F.
 Private oMainWnd  := NIL
 Private oProcess  := NIL
 
-//u_LogPrw("UPDGENSX",FIN_LAST_UPDATED)
+//u_MsgLog("UPDGENSX",FIN_LAST_UPDATED)
 
 #IFDEF TOP
     TCInternal( 5, "*OFF" ) // Desliga Refresh no Lock do Top

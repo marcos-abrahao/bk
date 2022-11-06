@@ -12,7 +12,7 @@ BK - Cadastro Codigo Fluxo de Caixa
 
 User Function BKFINA11()
 
-u_LogPrw("BKFINA11")
+u_MsgLog("BKFINA11")
 
 AxCadastro("SZE","Cadastro Codigo Fluxo de Caixa "+FWEmpName(cEmpAnt))
 Return Nil

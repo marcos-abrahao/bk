@@ -541,7 +541,7 @@ Static Function fLibPed(cNumPed)
 		lOk := .F.
 	EndIf
 
-	u_LogPrw("RESTLIBPV","Pedido "+cNumPed+" "+iIf(lOk,"liberado","não liberado"))
+	u_MsgLog("RESTLIBPV","Pedido "+cNumPed+" "+iIf(lOk,"liberado","não liberado"))
 
 Return lOk
 

@@ -22,7 +22,7 @@ Private cSerie		:= ""
 Private cDir		:= ""
 Private aUF			:= {}
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 	
 //Preenchimento do Array de UF
 aadd(aUF,{"RO","11"})
@@ -66,10 +66,10 @@ RETURN NIL
 
 USER FUNCTION V2PRPSXML
 Local cXML			:= ""
-Local cXML2         := ""
-Local cArqTmp       := ""
+//Local cXML2         := ""
+//Local cArqTmp       := ""
 Local lErro			:= .F.
-Local lGRVARQ		:= .T.
+//Local lGRVARQ		:= .T.
 Local cCrLf     	:= Chr(13) + Chr(10)
 Local aEND          := {}
 Local cCDSIAF       := ""

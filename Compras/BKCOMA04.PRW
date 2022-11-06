@@ -34,7 +34,7 @@ Local lMDiretoria := .F.
 Local cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
 Local cXXJUST := ""
 
-u_LogPrw("BKCOMA04")
+u_MsgLog("BKCOMA04")
 
 AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")

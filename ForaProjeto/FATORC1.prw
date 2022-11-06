@@ -36,7 +36,7 @@ User Function FATORC1()
 	Private aSay := {}
 	Private aButton := {}
 	
-	u_LogPrw("FATORC1")
+	u_MsgLog("FATORC1")
 
 	aAdd( aSay, "Esta rotina efetua a impressão da Nota Fiscal de Venda(Saida) conforme parametros informados." )
 

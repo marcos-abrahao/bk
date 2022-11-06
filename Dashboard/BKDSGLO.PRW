@@ -32,7 +32,7 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 
-u_LogPrw("BKDSGLO","Inicio: Glosas")
+u_MsgLog("BKDSGLO","Inicio: Glosas")
 
 cTabSZR := "SZR010"
 
@@ -66,9 +66,15 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CONVERT(DATE,SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2)+'01',112) AS COMPETD, " + CRLF
 
 	// Chave
+	//cQuery += "  '"+cEmpresa+"' + "+CRLF
+	//cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
+	//cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
+
+	// Chave
 	cQuery += "  '"+cEmpresa+"' + "+CRLF
 	cQuery += "     SUBSTRING(ISNULL(CND_CONTRA, ISNULL(C5_ESPECI1,'000000001')),1,9) +  " + CRLF
-	cQuery += "     ISNULL(C5_XXCOMPM,SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
+	cQuery += "     ISNULL(SUBSTRING(C5_XXCOMPM,4,4)+SUBSTRING(C5_XXCOMPM,1,2),SUBSTRING(F2_EMISSAO,1,6)) AS CHAVE, " + CRLF
+
 
 	cQuery += "  C5_NUM, " + CRLF
 	cQuery += "  C5_MDNUMED, " + CRLF
@@ -199,6 +205,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSGLO.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_LogPrw("BKDSGLO","Final: Glosas")
+u_MsgLog("BKDSGLO","Final: Glosas")
 
 Return

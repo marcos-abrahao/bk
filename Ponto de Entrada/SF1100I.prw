@@ -94,7 +94,7 @@ If l103Class .OR. Inclui
      
 		RestArea(aAreaE2)
 
-		u_LogPrw("SF1100I",iIf(l103Class,"Doc classificado: ","Doc incluido    : ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
+		u_MsgLog("SF1100I",iIf(l103Class,"Doc classificado: ","Doc incluido    : ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
 
 	EndIf
 EndIf

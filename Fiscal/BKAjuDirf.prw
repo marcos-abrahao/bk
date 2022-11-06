@@ -27,7 +27,7 @@ Local aButtons := {}
 Local nOpcA    := 0
 Local cLockBy  := ""
 
-u_LogPrw("BKAJUDIRF")
+u_MsgLog("BKAJUDIRF")
 
 cLockBy := "BKAJUDIRF"
 If LockByName(cLockBy)

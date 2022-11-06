@@ -44,7 +44,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cCCusto  := mv_par01
 cCompet1 := mv_par02

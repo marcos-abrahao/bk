@@ -23,7 +23,7 @@ Local nSnd:= 15,nTLin := 15
 Private cArq  := ""
 Private cProg := "BKCTBA04"
 
-u_LogPrw("BKCTBA04")
+u_MsgLog("BKCTBA04")
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 

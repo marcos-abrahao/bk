@@ -182,7 +182,7 @@ User Function BKGCTR28()
 
     EndIf
 
-	u_LogPrw(cPerg)
+	u_MsgLog(cPerg)
 
 	aPlan2 := GCT28Plan()
 

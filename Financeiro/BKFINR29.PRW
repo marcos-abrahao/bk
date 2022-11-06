@@ -55,7 +55,7 @@ aAdd( aParam, { 1, "Data Final:" 	 , dDataBase	, "" , "", ""	, "" , 70  , .F. })
 If !BkFR29()
    Return
 EndIf
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 //----------------------------------- e1saldo ----
 If !Empty( __oTBxCanc )

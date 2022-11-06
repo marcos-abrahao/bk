@@ -44,7 +44,7 @@ Private cSim   := "Não"
 Private aFurnas:= U_MVXFURNAS()
 Private cArqTmp
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 AADD(aSIM,"Emergencial")
 AADD(aSIM,"Lote BK")

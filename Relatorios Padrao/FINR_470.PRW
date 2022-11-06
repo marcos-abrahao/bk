@@ -24,7 +24,7 @@
 USER Function FINR_470()
 Private lTReport := .F.
 
-u_LogPrw("FINR_470")
+u_MsgLog("FINR_470")
 
 If FindFunction("TRepInUse") .And. TRepInUse() 
 	//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커

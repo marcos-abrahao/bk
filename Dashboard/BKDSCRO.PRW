@@ -23,7 +23,7 @@ Local nE 		:= 0
 Local cTabCN9   := ""
 Local cTabCNF   := ""
 
-u_LogPrw("BKDSCRO","Inicio: Cronogramas")
+u_MsgLog("BKDSCRO","Inicio: Cronogramas")
  
 cQuery := "WITH CRON AS ( " + CRLF
 
@@ -103,6 +103,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSCRO.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_LogPrw("BKDSCRO","Final: Cronogramas")
+u_MsgLog("BKDSCRO","Final: Cronogramas")
 
 Return

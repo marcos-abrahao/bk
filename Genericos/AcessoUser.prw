@@ -68,7 +68,7 @@ Else
    cUserAte  := StrZero(Val(cUserAte),6)
 EndIf
 
-u_LogPrw("AcessoUser")
+u_MsgLog("AcessoUser")
 
 Processa({|| aUsers := AllUsers(),;
              aModulos := retModName(),;

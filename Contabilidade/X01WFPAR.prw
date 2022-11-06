@@ -18,7 +18,7 @@ User Function X01WFPAR()
 Local oTELA01
 Private cDPTOLB
 
-u_LogPrw("X01WFPAR")
+u_MsgLog("X01WFPAR")
 
 cDPTOLB := Left(AllTrim(GetMV("MV_PARPIS")),4)
 cDPTOLC := Left(AllTrim(GetMV("MV_PARCOF")),4)

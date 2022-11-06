@@ -20,7 +20,7 @@ User Function BKCOMA09()
 		Return
 	EndIf
 
-	u_LogPrw("BKCOMA09")
+	u_MsgLog("BKCOMA09")
 
 	//Criando o MarkBrow
 	oMark := FWMarkBrowse():New()

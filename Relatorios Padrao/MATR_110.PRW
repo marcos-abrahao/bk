@@ -1,3 +1,4 @@
+
 #INCLUDE "MATR110.CH"
 #INCLUDE "PROTHEUS.CH"
 /*/
@@ -31,7 +32,7 @@ PRIVATE cEndEnt := Space(TamSX3("C1_XXENDEN")[1])
 Private oFont10N 	:= TFont():New("Courier New",10,10,,.T.,,,,.T.,.F.)
 Private oFont12N	:= TFont():New("Courier New",12,12,,.T.,,,,.T.,.F.)
 
-u_LogPrw("Matr_110")
+u_MsgLog("Matr_110")
 
 // BK - Abrir dialogo para digitação do endereço de entrega
 If lAuto

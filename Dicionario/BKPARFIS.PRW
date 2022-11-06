@@ -87,7 +87,7 @@ MemoWrite( cFile, cTexto ) ) ) Enable Of oDlg Pixel
 Activate MsDialog oDlg Center
 
 u_BkSnMail("BKPARFIS","Alteração de Data de Fechamento Fiscal","microsiga@bkconsultoria.com.br","",STRTRAN(cTexto,CRLF,"<br>"),)
-u_LogPrw("BKPARFIS")
+u_MsgLog("BKPARFIS")
 
 Return Nil
 

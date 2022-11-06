@@ -39,7 +39,7 @@ User Function BKGCTR18()
 	If !MsgYesNo("Confirma a execução do relatório 'Licitação Mod. 2'?","BKFINR18")
 		Return
 	EndIf
-	u_LogPrw(cPerg)
+	u_MsgLog(cPerg)
 
 	aCabs    := {}
 	aCampos  := {}

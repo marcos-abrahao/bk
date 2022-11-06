@@ -18,7 +18,7 @@ Local oButSel
 Local nOpcA := 0
 Local nSnd:= 15,nTLin := 15
 
-u_LogPrw(cProg)
+u_MsgLog(cProg)
 
 PRIVATE cArq  := "C:\TEMP\ATIVOS.CSV"
 

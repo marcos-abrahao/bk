@@ -26,13 +26,13 @@ Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 
 Local aDados  := {{"","Rotina1","Rotina11"},{"","Rotina2","Rotina22"}}
 
-u_TTMARKB(aCampos, aDados, .F., "", .F.)
+u_TTMARKB(aCampos, aDados, .F.)
 
 Return NIL
 
 
 
-User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
+User Function TTMARKB(aCampos, aDados, lMarcado)
 
 	Local aSize as array
 	Local aObjects as array
@@ -48,15 +48,7 @@ User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
 
 	Default aCampos := {}
 	Default aDados := {}
-	Default lCmpTot := .F.
-	Default cCmpTot := ""
 	Default lMarcado := .T.
-
-	//Verifica o campo totalizado
-	If lCmpTot .And. Empty(cCmpTot)
-		Alert("Parâmetro do campo do total inválido")
-		Return()
-	EndIf
 
 	//Verifica se os campos do MarkBrowse foram passados como parâmetros
 	If Len(aCampos) == 0
@@ -87,7 +79,7 @@ User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
 	Next nX
 
 	aObjects := {}
-	AAdd( aObjects, { 100, 30, .T., .F., .F. } )
+	//AAdd( aObjects, { 100, 30, .T., .F., .F. } )
 	AAdd( aObjects, { 100, 100, .T., .T., .F. } )
 	aSize := MsAdvSize( .T. ) //Parametros verifica se exist enchoice
 
@@ -110,13 +102,13 @@ User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
 
 	// Cria o conteiner onde serão colocados os paineis
 	oTela     := FWFormContainer():New( oDlgBrw )
-	cIdTela	  := oTela:CreateHorizontalBox( 10 )
+	//cIdTela	  := oTela:CreateHorizontalBox( 10 )
 	cIdRod	  := oTela:CreateHorizontalBox( 80 )
 
 	oTela:Activate( oDlgBrw, .F. )
 
 	//Cria os paineis onde serao colocados os browses
-	oPanelUp  	:= oTela:GeTPanel( cIdTela )
+	//oPanelUp  	:= oTela:GeTPanel( cIdTela )
 	oPanelDown  := oTela:GeTPanel( cIdRod )
 
 	oBrowse := FWMarkBrowse():New()
@@ -132,25 +124,18 @@ User Function TTMARKB(aCampos, aDados, lCmpTot, cCmpTot, lMarcado)
 	oBrowse:DisableConfig()
 	oBrowse:DisableFilter()
 	oBrowse:SetFieldMark( "MARK" )
-	oBrowse:SetAllMark( { || FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot ) } )
-	oBrowse:bMark := {|| FMArkOne(oBrowse, aDados, lCmpTot, cCmpTot )}
+	oBrowse:SetAllMark( { || FMarkAll( oBrowse, aDados ) } )
+	oBrowse:bMark := {|| FMArkOne(oBrowse, aDados )}
 
 	oBrowse:Activate()
 
 	//Quantidade Selecionado
-	@ oPanelUp:nTop + 02, oPanelUp:nLeft + 10 	SAY   "Marcados:" SIZE 038,007 OF oPanelUp PIXEL
-	@ oPanelUp:nTop + 10, oPanelUp:nLeft + 10	MSGET oQtdSel Var nQtdSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
-
-	//Verifica se existe o campo de Total
-	If lCmpTot
-		//Total Selecionado
-		@ oPanelUp:nTop + 02, oPanelUp:nLeft + 110	SAY   "Total Selecionado:" SIZE 038,007 OF oPanelUp PIXEL
-		@ oPanelUp:nTop + 10, oPanelUp:nLeft + 110 	MSGET oTotSel Var nTotSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999.99" HASBUTTON
-	EndIf
+	//@ oPanelUp:nTop + 02, oPanelUp:nLeft + 10 	SAY   "Marcados:" SIZE 038,007 OF oPanelUp PIXEL
+	//@ oPanelUp:nTop + 10, oPanelUp:nLeft + 10	MSGET oQtdSel Var nQtdSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
 
 	//Verifica se já traz o MarkBrowse Selecionado
 	If lMarcado
-		FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot )
+		FMarkAll( oBrowse, aDados )
 	EndIf
 
 	//ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||FwMsgRun(Nil,{||ExecBlock("TTMARKEX",.F.,.F.,{cAliasBrw}) },Nil,"Aguarde, Atualizando Dados"),oDlgBrw:End()},{||oDlgBrw:End()},,))
@@ -214,7 +199,7 @@ Inverte a seleção
 @version 1.0
 @type Function
 /*/
-Static Function FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot )
+Static Function FMarkAll( oBrowse, aDados )
 
 	Local cAlias as character
 	Local cMark	as character
@@ -242,17 +227,6 @@ Static Function FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot )
 				nQtdSel--
 			EndIf
 
-			//Verifica se existe o campo de Total
-			If lCmpTot
-
-				If ( cAlias )->MARK == cMark
-					nTotSel += ( cAlias )->&(cCmpTot)
-				Else
-					ntotSel -= ( cAlias )->&(cCmpTot)
-				EndIf
-
-			EndIf
-
 		EndIf
 
 		( cAlias )->( DBSkip() )
@@ -264,13 +238,9 @@ Static Function FMarkAll( oBrowse, aDados, lCmpTot, cCmpTot )
 	oBrowse:Refresh()
 
 	//Atualiza a Quantidade
-	oQtdSel:Refresh()
+	//oQtdSel:Refresh()
 
 	//Verifica se existe o campo de Total
-	If lCmpTot
-		//Atualiza o Total
-		oTotSel:Refresh()
-	EndIf
 
 Return()
 
@@ -281,7 +251,7 @@ Inverte a seleção
 @version 1.0
 @type Function
 /*/
-Static Function FMarkOne( oBrowse, aDados, lCmpTot, cCmpTot )
+Static Function FMarkOne( oBrowse, aDados )
 
 	Local cAlias as character
 	Local cMark	as character
@@ -300,28 +270,11 @@ Static Function FMarkOne( oBrowse, aDados, lCmpTot, cCmpTot )
 		nQtdSel --
 	EndIf
 
-	//Verifica se existe o campo de Total
-	If lCmpTot
-
-		If ( cAlias )->MARK == cMark
-			nTotSel += ( cAlias )->&(cCmpTot)
-		Else
-			ntotSel -= ( cAlias )->&(cCmpTot)
-		EndIf
-
-	EndIf
-
 	//Atualiza o Browse
 	//oBrowse:Refresh()
 
 	//Atualiza a Quantidade
-	oQtdSel:Refresh()
-
-	//Verifica se existe o campo de Total
-	If lCmpTot
-		//Atualiza o Total
-		oTotSel:Refresh()
-	EndIf
+	//oQtdSel:Refresh()
 
 Return()
 

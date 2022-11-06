@@ -9,7 +9,7 @@ Private cCadastro := "Contabilização Liquidos da Folha - "+FWEmpName(cEmpAnt)
 
 Private aRotina
 
-u_LogPrw("BKCTBA02")
+u_MsgLog("BKCTBA02")
 
 dbSelectArea("SZ2")
 dbSetOrder(1)
@@ -47,7 +47,7 @@ If !Pergunte(cPerg,.T.)
 	Return
 EndIf
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cMesComp := STRZERO(VAL(mv_par01),2)
 cAnoComp := STRZERO(VAL(mv_par02),4)

@@ -15,7 +15,7 @@ Private cCadastro := "Contabilização - Folha "+FWEmpName(cEmpAnt)
 
 Private aRotina
 
-u_LogPrw("BKCTBA01")
+u_MsgLog("BKCTBA01")
 
 dbSelectArea("SZ5")
 dbSetOrder(1)

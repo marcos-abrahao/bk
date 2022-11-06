@@ -50,7 +50,7 @@ Local MV_XXUSRPJ := u_FinUsrPj()
 
 Private aFurnas	:= U_MVXFURNAS()
 
-u_LogPrw("BKFINA02")
+u_MsgLog("BKFINA02")
 
 dbSelectArea("SZ2")
 dbGoTop()

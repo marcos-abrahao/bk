@@ -17,7 +17,7 @@ User Function X02WFPAR()
 Local oTELA01
 Private cDPTOLB
 
-u_LogPrw("X02WFPAR") 
+u_MsgLog("X02WFPAR") 
 
 cDPTOLB := AllTrim(GetMV("MV_TESPAG"))
 cDPTOLC := AllTrim(GetMV("MV_TESREC"))

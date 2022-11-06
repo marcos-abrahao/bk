@@ -48,7 +48,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cMesEmis := mv_par01
 cAnoEmis := mv_par02

@@ -106,7 +106,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 	If !(Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cProg     ,.T.         ,.T.))
 		Return Nil
 	EndIf
-	u_LogPrw(cProg)
+	u_MsgLog(cProg)
 
 //If VALTYPE(aRet[1]) == "N"
 //	cTpRel := Substr(aTpRel[aRet[1]],1,1)

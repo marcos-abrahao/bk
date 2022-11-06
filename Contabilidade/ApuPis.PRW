@@ -27,6 +27,6 @@ If Upper(Funname()) == Upper("CTBANFS")
 	EndIf
 EndIf
 
-u_LogPrw("APUPIS",Funname())
+u_MsgLog("APUPIS",Funname())
 
 Return(nValor2)

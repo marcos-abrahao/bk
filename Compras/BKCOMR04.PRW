@@ -62,7 +62,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cGrupoPI  	:= mv_par01
 cGrupoPF  	:= mv_par02

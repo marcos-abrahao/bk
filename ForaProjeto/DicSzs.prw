@@ -44,7 +44,7 @@ Local   lAuto     := .F. //( cEmpAmb <> NIL .or. cFilAmb <> NIL )
 Private oMainWnd  := NIL
 Private oProcess  := NIL
 
-u_LogPrw("DicSzs")
+u_MsgLog("DicSzs")
 
 #IFDEF TOP
     TCInternal( 5, "*OFF" ) // Desliga Refresh no Lock do Top

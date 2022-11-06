@@ -10,7 +10,7 @@ Exemplo de programa MVC sem uso de dicionario de dados
 //-------------------------------------------------------------------
 User Function MVCC5MUN()
 
-	u_LogPrw("MVCC5MUN")
+	u_MsgLog("MVCC5MUN")
 
 	//If MsgYesNo('Deseja executar exemplo com load?')
 		FWExecView("Informações para Faturamento","MVCC5MUN",3,,{|| .T.},,85)

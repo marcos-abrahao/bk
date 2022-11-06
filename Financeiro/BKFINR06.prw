@@ -85,7 +85,7 @@ IF Pergunte(cPerg,.T.)
     cTipoBk  := mv_par07
 	nUsrRub  := mv_par08
 
-	u_LogPrw("BKFINR06",iIf(nParImpr == 1,SE2->E2_NUM,DTOC(dParVenc)))
+	u_MsgLog("BKFINR06",iIf(nParImpr == 1,SE2->E2_NUM,DTOC(dParVenc)))
 
 	IF nParPlan = 2 // Relatorio 
 		IF nParImpr = 1  // Unico titulo

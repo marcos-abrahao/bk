@@ -18,7 +18,7 @@ Local cTx       := ""
 
 Private cAliasTmp := GetNextAlias()
 
-u_LogPrw("BKCOMA19")
+u_MsgLog("BKCOMA19")
 
 //              Campo          Tipo    Tamanho                Decimal
 aAdd( aStrut, { "XX_COD",      "C",    TamSX3("B1_COD")[1],   0                     } )

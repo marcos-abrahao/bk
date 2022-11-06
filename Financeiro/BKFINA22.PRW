@@ -24,7 +24,7 @@ Private cNumCon := PAD("",TamSX3("A6_NUMCON")[1])
 Private cNomeBc := PAD("",TamSX3("A6_NOME")[1]) 
 Private dDataMov:= dDataBase
 
-u_LogPrw("BKFINA22")
+u_MsgLog("BKFINA22")
 //              Campo        Tipo    Tamanho            Decimal
 aAdd( aStrut, { "XX_PREFIXO","C", TamSX3("E2_PREFIXO")[1], 0} )
 aAdd( aStrut, { "XX_NUM",    "C", TamSX3("E2_NUM")[1]    , 0} )

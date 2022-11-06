@@ -137,7 +137,7 @@ VldPerg(cPerg)
 IF !Pergunte(cPerg,.T.)
 	Return Nil
 ENDIF
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 //旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커
 //� Variaveis utilizadas para parametros						 �

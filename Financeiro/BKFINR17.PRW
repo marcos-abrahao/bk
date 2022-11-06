@@ -151,7 +151,7 @@ ELSEIF nEmissao = 6
 
 ENDIF
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 ProcRegua(1)
 Processa( {|| ProcQuery() })

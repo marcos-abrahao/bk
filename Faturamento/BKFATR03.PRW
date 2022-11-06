@@ -15,7 +15,7 @@ Local aTitulos,aCampos,aCabs,aPlans,aFormula
 Private cTitulo      := "Relação de Pedidos não Liberados/Faturados"
 Private cPerg        := "BKFATR03"
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 ProcRegua(1)
 Processa( {|| ProcQuery() })

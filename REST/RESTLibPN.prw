@@ -99,50 +99,36 @@ WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST Res
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
-//	Local lLib         := .T.
-//	Local oJson        As Object
-//  Local cCatch       As Character  
 Local oJson			As Object
 Local aParams		As Array
 Local cMsg			As Char
 Local cMotivo 		As Char
 Local cAvali 		As Char
 
-//Local aQueryString As Array // Aqui tem todos os parâmetros QUERYPARAM em array
+::setContentType('application/json')
 
-	//aQueryString := Self:aQueryString
+oJson := JsonObject():New()
+oJson:FromJSON(cJson)
 
-	//Define o tipo de retorno do servico
-	::setContentType('application/json')
+If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-	//oJson  := JsonObject():New()
-	//cCatch := oJson:FromJSON(cJson)
-
-	oJson := JsonObject():New()
-  	oJson:FromJSON(cJson)
-
-	//If cCatch == Nil
-	//PrePareContexto(::empresa,::filial)
-
-	If u_BkAvPar(::userlib,@aParams,@cMsg)
-
-		cMotivo := AllTrim(oJson['motivo'])
-		cAvali  := AllTrim(oJson['avaliacao'])
-		If !Empty(cMotivo)
-			cMotivo := StrIConv( cMotivo, "UTF-8", "CP1252")+"."+CRLF
-		EndIf
-
-		lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo,cAvali)
-
+	cMotivo := AllTrim(oJson['motivo'])
+	cAvali  := AllTrim(oJson['avaliacao'])
+	If !Empty(cMotivo)
+		cMotivo := StrIConv( cMotivo, "UTF-8", "CP1252")+"."+CRLF
 	EndIf
 
-	oJson['liberacao'] := StrIConv( "Pré-nota "+cMsg, "CP1252", "UTF-8")
+	lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo,cAvali)
 
-	cRet := oJson:ToJson()
+EndIf
 
-  	FreeObj(oJson)
+oJson['liberacao'] := StrIConv( "Pré-nota "+cMsg, "CP1252", "UTF-8")
 
- 	Self:SetResponse(cRet)
+cRet := oJson:ToJson()
+
+FreeObj(oJson)
+
+Self:SetResponse(cRet)
   
 Return lRet
 
@@ -158,7 +144,11 @@ Local cSerie	:= ""
 Local cxUser	:= ""
 Local cxUsers	:= ""
 Local cFornece	:= ""
+Local nTAval    := 0
+Local nAv		:= 0
+
 Default cMsg	:= ""
+Default cMotivo := ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
@@ -237,13 +227,32 @@ If lRet .AND. (!Empty(cMotivo) .OR. acao == 'E')
 	LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
 EndIf
 
-If lRet .AND. !Empty(cAvali) .AND. TRIM(cAvali) <> "NNNN"
-	LibEmail("I",empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
-EndIf
+//cAvali := "SSNN"
+If lRet .AND. !Empty(cAvali)
+	cAvali := TRIM(cAvali)
+	For nAv := 1 To Len(cAvali)
+		If SUBSTR(cAvali,nAv,1) == "S"
+			nTAval += 25
+		Else
+			If nAv == 1
+				cMotivo += ' Preço'
+			ElseIf nAv == 2
+				cMotivo += ' Prazo'
+			ElseIf nAv == 3
+				cMotivo += ' Quantidade/Atendimento'
+			ElseIf nAv == 4
+				cMotivo += ' Qualidade/Integridade'
+			EndIf
+		EndIf
+	Next
+    If nTAval <= 50
+		LibEmail("I",empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
+	EndIf
+EndIf 
 
 cMsg := cDoc+" "+cMsg
 
-u_LogPrw("RESTLIBPN",cMsg)
+u_MsgLog("RESTLIBPN",cMsg+" "+cMotivo)
 
 (cQrySF1)->(dbCloseArea())
 
@@ -1386,7 +1395,7 @@ If u_BkAvPar(::userlib,@aParams,@cMsg)
 	EndIf
 EndIf
 
-u_LogPrw("RESTLIBPN","Doc: "+cDoc+" Token: "+cMsg)
+u_MsgLog("RESTLIBPN","Doc: "+cDoc+" Token: "+cMsg)
 
 oJsonPN['TOKEN'] := cMsg
 oJsonPN['DOC']   := cDoc

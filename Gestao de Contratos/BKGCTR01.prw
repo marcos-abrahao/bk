@@ -42,7 +42,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cMesComp := mv_par01
 cAnoComp := mv_par02

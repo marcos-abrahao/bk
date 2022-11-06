@@ -20,7 +20,7 @@ PRIVATE cCC      := aSaldos[1,09]
 PRIVATE cDCC 	 := aSaldos[1,10]
 PRIVATE cSolict  := aSaldos[1,11]
 
-u_LogPrw("BKESTA01")
+u_MsgLog("BKESTA01")
 
 MsgRun("Aguarde, gerando Solicitação ao Estoque - Almoxarifado…","",{|| CursorWait(), lRet := fProcessa1(aSaldos) ,CursorArrow()})
 
@@ -191,7 +191,7 @@ IF lAprov
 		cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
     ENDIF
 	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
-	u_LogPrw(cPrw,cAssunto+" "+cEmail)
+	u_MsgLog(cPrw,cAssunto+" "+cEmail)
 ENDIF
 
 Return Nil

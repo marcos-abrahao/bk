@@ -18,7 +18,7 @@ Local aTitulos2,aCampos2,aCabs2
 Private cTitulo      := "Relação de Fornecedores e produtos"
 Private cPerg        := "BKCOMR13"
 
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 ProcRegua(1000)
 Processa( {|| PrcQuery1() })

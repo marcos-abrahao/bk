@@ -65,7 +65,7 @@ aAdd(aParam, {1,"Ano final"  ,nAnoF ,"9999","mv_par05 >= 2010 .AND. mv_par05 <= 
 If !BkFR28()
    Return
 EndIf
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 cMesI  := STRZERO(nAnoI,4)+STRZERO(nMesI,2)
 cMesF  := STRZERO(nAnoF,4)+STRZERO(nMesF,2)

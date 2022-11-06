@@ -17,7 +17,7 @@ Private cString   := "SF2"
 Private cCadastro := "Documentos de saída"
 Private aRotina
 
-u_LogPrw("BKFATA1A")
+u_MsgLog("BKFATA1A")
 
 dbSelectArea("SF2")
 dbSetOrder(1)

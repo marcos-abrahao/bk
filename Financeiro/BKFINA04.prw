@@ -46,7 +46,7 @@ Local cMsgEx   := SPACE(50)
 PRIVATE cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,nValTit
 PRIVATE cObs
 
-u_LogPrw("BKFINA04")
+u_MsgLog("BKFINA04")
 
 dbSelectArea("SE2")
 IF BOF() .OR. EOF()

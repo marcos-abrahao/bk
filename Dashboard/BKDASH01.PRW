@@ -39,7 +39,7 @@ Private cPerg       := "BKDASH01"
 
 If FWCodEmp() == "01"
 
-	u_LogPrw(cPerg,"Inicio")
+	u_MsgLog(cPerg,"Inicio")
 
 	If IsBlind()
 		//If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '06'
@@ -64,6 +64,7 @@ If FWCodEmp() == "01"
 				U_BKDSTUR()
 				U_BKDSBKTUR()
 				U_BKDSBKFAL()
+				U_BKDSSC()
 			EndIf
 
 			U_BKDSFAT()
@@ -107,9 +108,10 @@ If FWCodEmp() == "01"
 		aAdd(aDados,{"","U_BKDSGES()"    ,"Atualização da tabela GESTORES"})
 		aAdd(aDados,{"","U_BKDSGLO()"    ,"Atualização da tabela GLOSAS"})
 		aAdd(aDados,{"","U_BKDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})
+		aAdd(aDados,{"","U_BKDSSC()"     ,"Atualização da tabela SOLCOMPRAS"})
 		aAdd(aDados,{"","U_BKDSGER()"    ,"Atualização da tabela GERAL"})
 
-		u_TTMARKB(aCampos, aDados, .F., "", .F.)
+		u_TTMARKB(aCampos, aDados, .F.)
 
 		For nX := 1 To Len(aDados) 
 			If !Empty(aDados[nX,1])
@@ -118,21 +120,21 @@ If FWCodEmp() == "01"
 		Next nX
 
 	EndIf
-	u_LogPrw(cPerg,"Final")
+	u_MsgLog(cPerg,"Final")
 
 ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 
 	If !IsBlind()
 		If MsgYesNo("Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", cPerg)
-			u_LogPrw(cPerg,"Inicio")
+			u_MsgLog(cPerg,"Inicio")
 			FWMsgRun(, {|oSay| U_BKGCTR26(.T.) }, "", "Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
-			u_LogPrw(cPerg,"Final")
+			u_MsgLog(cPerg,"Final")
 		EndIf
 	Else
 		If SUBSTRING(TIME(),1,2) = '20'
-			u_LogPrw(cPerg,"Inicio")
+			u_MsgLog(cPerg,"Inicio")
 			U_BKGCTR26(.T.)
-			u_LogPrw(cPerg,"Final")
+			u_MsgLog(cPerg,"Final")
 		EndIf
 	EndIf
 EndiF

@@ -33,7 +33,7 @@ PUBLIC cZO_VARA   := ""
 PUBLIC cZO_TRIB   := ""
 PUBLIC cZO_RECLAM := ""
 
-u_LogPrw("XCADSZO")
+u_MsgLog("XCADSZO")
 
 AADD(aCores,{"SZO->ZO_TIPO=='B'","BR_VERMELHO"})
 AADD(aCores,{"SZO->ZO_TIPO=='D'","BR_VERDE"})

@@ -45,7 +45,7 @@ Local dDtFim		:= CtoD('31/10/2021')
 			dDtIni := MV_PAR10
 			dDtFim := MV_PAR11
 
-			u_LogPrw("xFISR101",DTOC(dDtIni)+" - "+DTOC(dDtFim))
+			u_MsgLog("xFISR101",DTOC(dDtIni)+" - "+DTOC(dDtFim))
 		
 			If lContinua
 				oReport := reportDef('FSR101', dDtIni, dDtFim, dPer, cReg, cCKRLiv, .T.)

@@ -113,7 +113,7 @@ For nx := 1 To Len(aAllusers)
 		aSup := FWSFUsrSup(aAllusers[nx][2])
 		If Len(aSup) > 0
 			For ny := 1 To Len(aSup)
-				//u_LogPrw("ListSup",aAllusers[nx][2]+"-"+aAllusers[nx][4]+" : "+aSup[ny]+"-"+UsrRetName(aSup[ny]))
+				//u_MsgLog("ListSup",aAllusers[nx][2]+"-"+aAllusers[nx][4]+" : "+aSup[ny]+"-"+UsrRetName(aSup[ny]))
 				aAdd(aUsSup,{aAllusers[nx][2]+"-"+aAllusers[nx][3],aSup[ny]+"-"+UsrRetName(aSup[ny])})
 			Next
 		Else

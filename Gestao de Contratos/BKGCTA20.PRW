@@ -17,7 +17,7 @@ Local lRet := .T.
 Local cVig := ""
 Local aArea      := GetArea()
 
-//u_LogPrw("BKGCTA20","Valida Vencimento do Contrato Chamada do Centro de Custo "+cContrato)
+//u_MsgLog("BKGCTA20","Valida Vencimento do Contrato Chamada do Centro de Custo "+cContrato)
 
 IF  ALLTRIM(funname()) == 'RPC'   // GERA APORT BK
 	RestArea(aArea)
@@ -29,7 +29,7 @@ IF !EMPTY(cVig)
    IF !MsgYesNo("Contrato "+TRIM(cContrato)+" - "+cVig+"  !!  Confirma Inclusão deste C.Custo ??","Atenção")
 		lRet := .F.
    ELSE
-		u_LogPrw("BKGCTA20","Entrada em contrato vencido "+cContrato)
+		u_MsgLog("BKGCTA20","Entrada em contrato vencido "+cContrato)
    ENDIF
 ENDIF
 

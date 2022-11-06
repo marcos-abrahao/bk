@@ -27,7 +27,7 @@ Local oIOF			AS OBJECT
 Local oTxBanc		AS OBJECT
 
 
-u_LogPrw("BKFINA31")
+u_MsgLog("BKFINA31")
 
 If SE2->E2_NATUREZ <> '0000000016'
 	MsgStop("Opção válida apenas para títulos com natureza 0000000016","BKFINA31")

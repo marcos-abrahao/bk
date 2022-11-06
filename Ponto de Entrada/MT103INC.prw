@@ -55,7 +55,7 @@ If lClass
 	If !IsBlind() .AND. __cUserId <> "000000" .AND. __cUserId <> "000012" ;
     		.AND. (SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07')
 		
-		u_LogPrw("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 18h e 7h: "+cLogDoc,"E")
+		u_MsgLog("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 18h e 7h: "+cLogDoc,"E")
         lRet := .F.
 	Else
 		If SF1->F1_XXLIB == 'A'
@@ -87,7 +87,7 @@ If lClass
 						TMPSD1->(DbCloseArea())
 					EndIf
 
-					u_LogPrw("MT103INC","Doc liberado: "+cLogDoc)
+					u_MsgLog("MT103INC","Doc liberado: "+cLogDoc)
 
 				ElseIf nOper == 2
 
@@ -100,7 +100,7 @@ If lClass
 					ENDIF
 					u_SF1Email("Pré-Nota não liberada pelo aprovador")
 
-					u_LogPrw("MT103INC","Doc não liberado: "+cLogDoc)
+					u_MsgLog("MT103INC","Doc não liberado: "+cLogDoc)
 				EndIf
 			EndIf
 		ElseIf SF1->F1_XXLIB == 'L' .OR. SF1->F1_XXLIB == 'E'
@@ -126,7 +126,7 @@ If lClass
 						SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 						MsUnLock("SF1")
 						u_SF1Email("Pré-Nota Estornada pelo Fiscal")
-						u_LogPrw("MT103INC","Doc estornado: "+cLogDoc)
+						u_MsgLog("MT103INC","Doc estornado: "+cLogDoc)
 
 					EndIf
 				EndIf
@@ -152,7 +152,7 @@ If lClass
 					SF1->F1_XXULIB := __cUserId
 					SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
 					MsUnLock("SF1")
-					u_LogPrw("MT103INC","Doc liberado: "+cLogDoc)
+					u_MsgLog("MT103INC","Doc liberado: "+cLogDoc)
 				EndIf
 			Else
 				MessageBox("Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
@@ -175,7 +175,7 @@ Else
 	If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0
 		lRet := .T.
 	Else
-		u_LogPrw("MT103INC","Usuário sem permissão: "+cLogDoc)
+		u_MsgLog("MT103INC","Usuário sem permissão: "+cLogDoc)
 		If !IsBlind()
     		MsgStop("Usuário sem permissão para incluir Documentos de Entrada","MT103INC")
 		EndIf

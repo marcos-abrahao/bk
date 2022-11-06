@@ -185,7 +185,7 @@ If !lJob
 	If !Pergunte(cPerg,.T.)
 		Return Nil
 	Endif
-	u_LogPrw(cPerg)
+	u_MsgLog(cPerg)
 
 	nAgendar := MV_PAR09
 	If nAgendar == 1 

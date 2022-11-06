@@ -356,7 +356,7 @@ If .F.
 	CriaSx1()
 	AjustaSx1()
 EndIf
-u_LogPrw("FINR150")
+u_MsgLog("FINR150")
 
 lRelease3 := MsgYesNo("Deseja impressão em modo texto?","Posição dos Titulos a Pagar")
 

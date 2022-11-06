@@ -1,7 +1,7 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE 'FWMVCDEF.CH'
 
-/*/{Protheus.doc} User Function LogPrw
+/*/{Protheus.doc} User Function MsgLog
 	Grava log de acesso aos rdmakes da empresa
 	@type  Function
 	@author Marcos Bispo Abrahão
@@ -23,7 +23,11 @@ FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 */
 
 User Function LogPrw(cProg,cMens,cAlert)
-Local cArqLog  := "\log\LogPrw.log"
+Return u_MsgLog(cProg,cMens,cAlert)
+
+
+User Function MsgLog(cProg,cMens,cAlert)
+Local cArqLog  := "\log\msglog.log"
 Local lRet     := .T.
 Default cMens  := "Acesso"
 Default cAlert := " "
@@ -285,7 +289,7 @@ Default aNoFields := {}
 
 IF nOper == 3 //Caso seja Inclusao
 
-    u_LogPrw(cPrw,"Inclusão "+cID)
+    u_MsgLog(cPrw,"Inclusão "+cID)
 
 ElseIF nOper == 4 // Alteração
 
@@ -332,16 +336,16 @@ ElseIF nOper == 4 // Alteração
                         EndIF
                     EndIF
 
-                    u_LogPrw(cPrw,"Alteração "+cID+" : "+aFields[nX][MODEL_FIELD_IDFIELD]+ " Antes: "+TRIM(cAntes)+" - Depois: "+TRIM(cDepois))
+                    u_MsgLog(cPrw,"Alteração "+cID+" : "+aFields[nX][MODEL_FIELD_IDFIELD]+ " Antes: "+TRIM(cAntes)+" - Depois: "+TRIM(cDepois))
 
                 EndIF
             EndIF
         Next nX
     EndIF
 ElseIF nOper == 5 // Exclusão
-    u_LogPrw(cPrw,"Exclusão "+cID)
+    u_MsgLog(cPrw,"Exclusão "+cID)
 Else
-    u_LogPrw(cPrw,"Operação ("+ALLTRIM(STR(nOper))+") "+cID)
+    u_MsgLog(cPrw,"Operação ("+ALLTRIM(STR(nOper))+") "+cID)
 EndIf
 
 Return Nil

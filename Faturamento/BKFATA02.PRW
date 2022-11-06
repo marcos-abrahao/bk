@@ -29,7 +29,7 @@ Local aReceber  := {}
 Local cErrLog   := ""
 Default nOPCAO  := 3
 
-u_LogPrw("BKFATA02",STR(nOPCAO))
+u_MsgLog("BKFATA02",STR(nOPCAO))
 
 IF SF2->F2_XXVFUMD  > 0
 	cChaveSE1 := SF2->(F2_SERIE)+SF2->(F2_DOC)+" "+cTIPO+SF2->(F2_CLIENTE)+SF2->(F2_LOJA)

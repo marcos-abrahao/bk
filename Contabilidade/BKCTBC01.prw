@@ -34,7 +34,7 @@ IF !Pergunte(cPerg,.T.)
 	//RestArea(aAreaIni)
 	Return
 ENDIF
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 dIni    := mv_par01
 dFim    := mv_par02

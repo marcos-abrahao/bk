@@ -12,6 +12,6 @@ BK - Cadastro Sub Grupo Produtos Modulo Compras
 /*/
 
 User Function BKCOMA05()
-u_LogPrw("BKCOMA05")
+u_MsgLog("BKCOMA05")
 AxCadastro("SZI","Cadastro Sub Grupos Produtos - "+FWEmpName(cEmpAnt))
 Return Nil

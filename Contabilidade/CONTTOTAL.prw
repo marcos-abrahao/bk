@@ -23,7 +23,7 @@ User Function CONTTOTAL()
 
 Local cValTot
 
-u_LogPrw("CONTTOTAL")
+u_MsgLog("CONTTOTAL")
 
 DbSelectArea("SE2")
 DbSetOrder(1)

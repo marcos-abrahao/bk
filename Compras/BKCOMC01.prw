@@ -44,7 +44,7 @@ Private aPosObj := MsObjSize( aInfo, aObjects, .T. )
 private aRotina := {{"","",0,1},{"","",0,2},{"","",0,2},{"","",0,2},{"","",0,2}}
 Private aHeader	    := {}
 
-u_LogPrw("BKCOMC01")
+u_MsgLog("BKCOMC01")
 
 IF __cUserId <> "000000"  // Administrador
 

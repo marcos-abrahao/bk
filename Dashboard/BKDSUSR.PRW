@@ -32,7 +32,7 @@ Local xUsrBloq  := ""
 Local xUsrUltLog:= ""
 Local nPosGrp   := 0
 
-u_LogPrw("BKDSUSR","Inicio: Usuários")
+u_MsgLog("BKDSUSR","Inicio: Usuários")
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.USUARIOS', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.USUARIOS "+CRLF
@@ -123,7 +123,7 @@ For nX := 1 To Len(aUsersF)
 Next nX
 
 u_LogMemo("BKDSUSR.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_LogPrw("BKDSUSR","Final: Usuários")
+u_MsgLog("BKDSUSR","Final: Usuários")
 
 Return
 

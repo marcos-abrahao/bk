@@ -40,7 +40,7 @@ Local cTitulo2 := "Exclusão de Titulos - Liquidos "+FWEmpName(cEmpAnt)
 
 Private cE2Filial := xFilial("SE2")
 
-u_LogPrw("BKFINA03")
+u_MsgLog("BKFINA03")
 
 cE2CtrID := SE2->E2_XXCTRID
 

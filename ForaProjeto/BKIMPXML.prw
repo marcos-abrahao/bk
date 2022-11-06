@@ -44,7 +44,7 @@ User Function BKIMPXML()
 	Private aPos      := {nTopAux, aTamanho[1]+5, aTamanho[4]-15, aTamanho[3]}
 	//Outras variáveis
 	Private nXML      := 0
-	u_LogPrw("BKIMPXML")	
+	u_MsgLog("BKIMPXML")	
 
 	//Adiciona os parametros para a pergunta
 	aAdd(aPergs, {1, "Diretório com arquivos xml",	cDirect, "", ".T.", "", ".T.", 80, .T.})

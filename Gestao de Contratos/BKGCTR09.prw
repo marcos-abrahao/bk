@@ -61,7 +61,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_LogPrw(cPerg)
+u_MsgLog(cPerg)
 
 nAgrupar     := mv_par01
 cContrCli    := mv_par02

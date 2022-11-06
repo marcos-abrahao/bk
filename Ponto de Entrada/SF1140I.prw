@@ -72,7 +72,7 @@ If nTipoPg == 1 .AND. SF1->F1_FORNECE <> "000084"
 	PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 EndIf
 
-u_LogPrw("SF1140I",iIf(Inclui,"Doc incluido: ","Doc alterado: ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
+u_MsgLog("SF1140I",iIf(Inclui,"Doc incluido: ","Doc alterado: ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
 	
 Return .T.
 
@@ -328,7 +328,7 @@ EndIf
 
 If lRet
 	If Empty(cxCond) .OR. !ExistCpo("SE4", cxCond)
-		u_LogPrw("SF1140I-ValidFP","Condição de pagamento não encontrada","E")
+		u_MsgLog("SF1140I-ValidFP","Condição de pagamento não encontrada","E")
 		oGetCond:Setfocus()
 		lRet := .F.
 	EndIf
@@ -340,18 +340,18 @@ If lRet
 		dPrvPgt := oLista:aCols[1,2]
 	EndIf
 	If dPrvPgt < dValid
-		u_LogPrw("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid)+" Justificativa: "+ALLTRIM(cJsPgt))
+		u_MsgLog("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid)+" Justificativa: "+ALLTRIM(cJsPgt))
 		If EMPTY(cJsPgt) .OR. LEN(ALLTRIM(cJsPgt)) < 5
 			If LEN(ALLTRIM(cJsPgt)) < 5
 				cMens2 := " COM CLAREZA"
 			EndIf
-			u_LogPrw("SF1140I","Data prevista para pagamento inferior a 3 dias uteis."+CRLF+"Justifique"+cMens2+"!!!"+CRLF+"Evite transtornos às outras áreas implantando os documentos com antecedência!!","E")
+			u_MsgLog("SF1140I","Data prevista para pagamento inferior a 3 dias uteis."+CRLF+"Justifique"+cMens2+"!!!"+CRLF+"Evite transtornos às outras áreas implantando os documentos com antecedência!!","E")
 			oGetJsPgt:Setfocus()
 			lRet := .F.
 		
 		//Else // Aqui: liberação por Token	31/10/22
 		//	cLibF1 := "T"
-		//	u_LogPrw("SF1140I","Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","E")
+		//	u_MsgLog("SF1140I","Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","E")
 		EndIf
 	EndIf
 EndIf

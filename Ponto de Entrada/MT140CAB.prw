@@ -17,7 +17,7 @@ Local cMsg := ""
 If __cUserId <> "000000" .AND. __cUserId <> "000012"
     If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07'
         cMsg := "Não é permitido incluir pré-notas entre 18h e 7h"
-        u_LogPrw("MT140CAB",cMsg)
+        u_MsgLog("MT140CAB",cMsg)
         MsgStop(cMsg,"MT140CAB")
         lRet := .F.
     EndIf
