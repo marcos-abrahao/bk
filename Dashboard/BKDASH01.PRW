@@ -65,6 +65,7 @@ If FWCodEmp() == "01"
 				U_BKDSBKTUR()
 				U_BKDSBKFAL()
 				U_BKDSSC()
+				U_BKDSCFAT()
 			EndIf
 
 			U_BKDSFAT()
@@ -104,7 +105,10 @@ If FWCodEmp() == "01"
 		aAdd(aDados,{"","U_BKDSCTR()"    ,"Atualização da tabela CONTRATOS"})
 		aAdd(aDados,{"","U_BKDSPLA()"    ,"Atualização da tabela PLANILHAS"})
 		aAdd(aDados,{"","U_BKDSCRO()"    ,"Atualização da tabela CRONOGRAMAS"})
+
 		aAdd(aDados,{"","U_BKDSFAT()"    ,"Atualização da tabela FATURAMENTO"})
+		aAdd(aDados,{"","U_BKDSCFAT()"   ,"Atualização da tabela CANCFATURAMENTO"})
+	
 		aAdd(aDados,{"","U_BKDSGES()"    ,"Atualização da tabela GESTORES"})
 		aAdd(aDados,{"","U_BKDSGLO()"    ,"Atualização da tabela GLOSAS"})
 		aAdd(aDados,{"","U_BKDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})

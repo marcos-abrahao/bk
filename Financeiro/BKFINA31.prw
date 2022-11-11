@@ -26,13 +26,12 @@ Local oJuros		AS OBJECT
 Local oIOF			AS OBJECT
 Local oTxBanc		AS OBJECT
 
-
-u_MsgLog("BKFINA31")
-
 If SE2->E2_NATUREZ <> '0000000016'
-	MsgStop("Opção válida apenas para títulos com natureza 0000000016","BKFINA31")
+	u_MsgLog("BKFINA31","Opção válida apenas para títulos com natureza 0000000016","E")
 	Return Nil
 EndIf
+
+u_MsgLog("BKFINA31")
 
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )

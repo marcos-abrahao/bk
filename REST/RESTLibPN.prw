@@ -95,7 +95,7 @@ Return (lSuccess)
 
 
 
-WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN
+WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN  //v3
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -104,6 +104,7 @@ Local aParams		As Array
 Local cMsg			As Char
 Local cMotivo 		As Char
 Local cAvali 		As Char
+Local cAvaliar      As Char
 
 ::setContentType('application/json')
 
@@ -112,13 +113,14 @@ oJson:FromJSON(cJson)
 
 If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-	cMotivo := AllTrim(oJson['motivo'])
-	cAvali  := AllTrim(oJson['avaliacao'])
+	cMotivo  := AllTrim(oJson['motivo'])
+	cAvali   := AllTrim(oJson['avaliacao'])
+	cAvaliar := AllTrim(oJson['avaliar'])
 	If !Empty(cMotivo)
 		cMotivo := StrIConv( cMotivo, "UTF-8", "CP1252")+"."+CRLF
 	EndIf
 
-	lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo,cAvali)
+	lRet := fLibPN(::empresa,::prenota,::acao,@cMsg,cMotivo,cAvali,cAvaliar)
 
 EndIf
 
@@ -133,7 +135,7 @@ Self:SetResponse(cRet)
 Return lRet
 
 
-Static Function fLibPN(empresa,prenota,acao,cMsg,cMotivo,cAvali)
+Static Function fLibPN(empresa,prenota,acao,cMsg,cMotivo,cAvali,cAvaliar)
 Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSF1	:= "SF1"+empresa+"0"
@@ -228,7 +230,7 @@ If lRet .AND. (!Empty(cMotivo) .OR. acao == 'E')
 EndIf
 
 //cAvali := "SSNN"
-If lRet .AND. !Empty(cAvali)
+If lRet .AND. cAvaliar == "S" .AND. !Empty(cAvali)
 	cAvali := TRIM(cAvali)
 	For nAv := 1 To Len(cAvali)
 		If SUBSTR(cAvali,nAv,1) == "S"
@@ -620,6 +622,7 @@ cQuery += " 	INNER JOIN "+cTabSB1+" SB1 ON  SB1.B1_FILIAL='"+xFilial("SB1")+"' A
 cQuery += "WHERE SF1.R_E_C_N_O_ = "+self:prenota+CRLF
 
 //	cQuery += "ORDER BY SF1.F1_DTDIGIT"+CRLF
+//u_MsgLog("RESTLIBPN",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 
@@ -665,13 +668,14 @@ oJsonPN['F1AVAL2']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)='S','S','N')
 oJsonPN['F1AVAL3']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)='S','S','N')
 oJsonPN['F1AVAL4']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S','S','N')
 
-nAvalIQF :=	IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)='S',25,0)+;
-			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)='S',25,0)+;
-			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)='S',25,0)+;
-			IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S',25,0)
-
 //If u_IsAvalia(__cUserId) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSER)) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSERS))
-If !Empty((cQrySF1)->D1_PEDIDO) .AND. u_IsAvalia(__cUserId)
+//u_MsgLog("RESTLIBPN",(cQrySF1)->F1_DOC+"-"+(cQrySF1)->D1_PEDIDO)
+If !Empty((cQrySF1)->D1_PEDIDO) //.AND. u_IsAvalia(__cUserId)
+	nAvalIQF :=	IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)=='S',25,0)+;
+				IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)=='S',25,0)+;
+				IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)=='S',25,0)+;
+				IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)=='S',25,0)
+
 	cAvalForn := 'S'
 EndIf
 
@@ -721,17 +725,15 @@ oJsonPN['D1_XXHIST']	:= StrIConv( cHist, "CP1252", "UTF-8")  //CP1252  ISO-8859-
 oJsonPN['D1_ITENS']		:= aItens
 oJsonPN['F1_GERAL']		:= TRANSFORM(nGeral,"@E 999,999,999.99")
 
-If cAvalForn = 'S' .OR. nAvalIQF > 0 
-
+If cAvalForn == 'S' //.OR. nAvalIQF > 0 
 	If Empty(cF1Avali)
 		cAvalIQF := StrIConv( "Não avaliado", "CP1252", "UTF-8")
 	Else
 		cAvalIQF := ALLTRIM(STR(nAvalIQF,3,0))+"%"
 	EndIf
 	cAvalIQF  := "IQF: "+cAvalIQF
-	cAvalForn := "S"
 Else
-	cAvalIQF :=  "Avaliação não necessária "+TRIM(cF1Avali)
+	cAvalIQF :=  StrIConv( "Avaliação desnecessária "+TRIM(cF1Avali), "CP1252", "UTF-8")
 EndIf
 
 oJsonPN['F1AVAL']		:= cAvalIQF
@@ -1200,7 +1202,7 @@ if (canLib === 1){
 	document.getElementById("inpest").innerHTML = inpE;
 
 	if (prenota['F1_XXLIB'] === 'A' || prenota['F1_XXLIB'] == ' '){
-		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\')">Estornar</button>';
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\')">Estornar</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
 } 
@@ -1251,12 +1253,12 @@ $('#meuModal').on('hidden.bs.modal', function () {
 
 async function avalForn(f1empresa,f1recno,userlib,acao){
 
-let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\',\'S\')">Liberar</button>';
 document.getElementById("btnlib2").innerHTML = btnL;
 $('#avalModal').modal('show');
 }
 
-async function libdoc(f1empresa,f1recno,userlib,acao){
+async function libdoc(f1empresa,f1recno,userlib,acao,avaliar){
 let resposta = ''
 let SF1Motivo = document.getElementById("SF1Motivo").value;
 let SF1Avali = ''
@@ -1287,7 +1289,8 @@ if (document.getElementById("f1Aval4").checked){
 
 let dataObject = {	liberacao:'ok',
 					motivo:SF1Motivo,
-					avaliacao:SF1Avali 
+					avaliacao:SF1Avali,
+					avaliar:avaliar, 
 				 };
 
 fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {

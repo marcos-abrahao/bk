@@ -28,7 +28,7 @@ User Function BKTestes(cRotTest)
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Default cRotTest := "BKPARGEN"
+Default cRotTest := "PApvSC1"
 
 Private cRot := PAD("U_"+cRotTest,20)
 Private lEnd := .F.
@@ -134,6 +134,47 @@ Local cEmail := ""
 
 Return lEnd
 
+
+
+User Function PApvSC1()
+Local lEnd := .F.
+
+
+MsAguarde({|lEnd| ApvSC1(@lEnd) },"Processando...",cRot,.T.)
+Return
+
+Static Function ApvSC1(lEnd)
+Local dData := DATE()
+Local cUserLga := ""
+
+   dbSelectArea("SC1")
+   dbSetOrder(0)
+   dbGoTop()
+   
+   While !EOF()
+      If lEnd
+        MsgInfo(cCancel,"Título da janela")
+        Exit
+      Endif
+      MsProcTxt("Lendo tabela: SC1 ")
+      ProcessMessage()
+
+	  If !Empty(SC1->C1_USERLGA) //.AND. Empty(SC1->C1_XDTAPRV) 
+	    dData := CTOD(SC1->(FWLeUserlg("C1_USERLGA", 2)))
+		cUserLga := SC1->C1_USERLGA
+      	RecLock("SC1",.F.)
+      	SC1->C1_XDTAPRV := dData
+      	SC1->C1_USERLGA := cUserLga
+      	MsUnLock()
+	  EndIf
+
+      dbSkip()
+
+      nProc++
+
+   End
+
+Return lEnd
 
 
 

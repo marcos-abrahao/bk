@@ -200,7 +200,7 @@ User Function RAvalForn()
 If u_IsAvalia(__cUserId)
 	U_AvalForn(.T.)
 Else
-	u_MsgLog("GQREENTR","Avaliação de fornecedor não disponível para o seu usuário!!","E")
+	u_MsgLog("GQREENTR","Avaliação de fornecedor não disponível para o seu perfil!!","E")
 EndIf
 Return Nil 
 
@@ -402,8 +402,7 @@ IF nTOTAL <= 50
 	TMPSF1->(DbCloseArea())
 ENDIF
 	        
-
-MsgInfo("Avaliação gravada com sucesso!!","GQREENTR - Atenção")
+u_MsgLog("GQREENTR","Avaliação gravada com sucesso!! - "+@CNFISCAL,"I")
 
 RETURN lOK
 

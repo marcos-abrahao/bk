@@ -37,13 +37,23 @@ If Inclui .AND. !l103Auto
 	If Empty(dPrvPgt) 
 		dPrvPgt := SE2->E2_VENCREA
 	EndIf
+	If Empty(cxBanco)
+		u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
+	EndIf
+
 	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170",@cLibF1) // 170-João Cordeiro
 		RecLock("SF1",.F.)
 		SF1->F1_XTIPOPG := cxTipoPg
 		SF1->F1_XNUMPA  := cxNumPa
-		SF1->F1_XBANCO  := cxBanco
-		SF1->F1_XAGENC  := cxAgencia
-		SF1->F1_XNUMCON := cxConta
+		If ALLTRIM(cxTipoPg) == "DEPOSITO"
+			SF1->F1_XBANCO  := cxBanco
+			SF1->F1_XAGENC  := cxAgencia
+			SF1->F1_XNUMCON := cxConta
+		Else
+			SF1->F1_XBANCO  := " "
+			SF1->F1_XAGENC  := " "
+			SF1->F1_XNUMCON := " "
+		EndIf
 		SF1->F1_CHVNFE  := cChvNfe
 		SF1->F1_XXPVPGT := dPrvPgt
 		SF1->F1_XXJSPGT := cJsPgt

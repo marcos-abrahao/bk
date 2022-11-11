@@ -28,7 +28,9 @@ Private cxCond	 := SF1->F1_COND
 Private mParcel  := SF1->F1_XXPARCE
 Private cLibF1   := "A"
 
-//GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
+If Empty(cxBanco)
+	u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
+EndIf
 
 IF VAL(__cUserId) > 0  // EMPTY(SF1->F1_XXUSER) .AND. //Não Gravar Administrador
 	PswOrder(1) 
@@ -51,9 +53,15 @@ EndIf
 RecLock("SF1",.F.)
 SF1->F1_XTIPOPG := cxTipoPg
 SF1->F1_XNUMPA  := cxNumPa
-SF1->F1_XBANCO  := cxBanco
-SF1->F1_XAGENC  := cxAgencia
-SF1->F1_XNUMCON := cxConta
+If ALLTRIM(cxTipoPg) == "DEPOSITO"
+	SF1->F1_XBANCO  := cxBanco
+	SF1->F1_XAGENC  := cxAgencia
+	SF1->F1_XNUMCON := cxConta
+Else
+	SF1->F1_XBANCO  := " "
+	SF1->F1_XAGENC  := " "
+	SF1->F1_XNUMCON := " "
+EndIf
 SF1->F1_CHVNFE  := cChvNfe
 SF1->F1_XXPVPGT := dPrvPgt
 SF1->F1_XXJSPGT := cJsPgt
@@ -504,8 +512,8 @@ Aadd(aCabecalho, {;
 
 Return(aCabecalho)
 
-/*
-Static Function GetSa2(cCod,cLoja)
+
+User Function GetSa2(cCod,cLoja)
 Local aArea := GetArea()
 
 dbSelectArea("SA2")
@@ -521,7 +529,7 @@ EndIf
 
 RestArea(aArea)
 Return
-*/
+
 
 
 Static Function PutSa2(cCod,cLoja)

@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"27/10/2022 SF1 "
+#DEFINE FIN_LAST_UPDATED 		"09/11/2022 SF22"
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -191,7 +191,7 @@ If ( lOpen := MyOpenSm0(.T.) )
 
 			//AtuGenFil( @cTexto )   // 21/11/20 - implantação de filiais
 
-			AtuGenX3( @cTexto )    // 27/10/22
+			AtuGenX3( @cTexto )    // 07/11/22
 
 			//AtuGenP12( @cTexto )
 
@@ -1618,7 +1618,35 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Manutenção X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
+cTexto  += "09/11/22 - SF2 " + CRLF 
+APPEND FROM \tmp\sx3sf2.dtc
+X31UPDTABLE("SF2")
 
+dbSelectArea( "SX3" )
+
+cTexto  += "09/11/22 - SF2 " + CRLF 
+dbSetOrder( 2 )
+If SX3->( dbSeek( "F2_XXMCANC" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_CBOX  := "1=Gestao;2=Faturamento;3=Fiscal;4=Cliente;5=Sistema"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+//dbSetOrder( 1 )
+
+Return
+
+
+/*
+
+cTexto  += "09/11/22 - SF2 " + CRLF 
+APPEND FROM \tmp\sx3sf2.dtc
+X31UPDTABLE("SF2")
+
+APPEND FROM \tmp\sx3sc1.dtc
+X31UPDTABLE("SC1")
 
 cTexto  += "27/10/22 - SF1 " + CRLF 
 dbSetOrder( 2 )
@@ -1630,12 +1658,6 @@ If SX3->( dbSeek( "F1_XXLIB" ) )
 EndIf
 
 
-dbSetOrder( 1 )
-
-Return
-
-
-/*
 cTexto  += "10/08/22 - SE2 " + CRLF 
 dbSetOrder( 2 )
 If SX3->( dbSeek( "E2_XEAMOR" ) )

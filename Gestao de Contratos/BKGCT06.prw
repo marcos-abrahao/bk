@@ -3429,7 +3429,7 @@ While SM0->(!EoF())
 		Loop
 	EndIf
 
-	cQuery := "SELECT C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01"
+	cQuery := "SELECT C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV"
 	cQuery += " FROM SC1"+SM0->M0_CODIGO+"0 SC1"
 	cQuery += " INNER JOIN SB1"+SM0->M0_CODIGO+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD =C1_PRODUTO"
 	cQuery += " INNER JOIN CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC =CTT_CUSTO"
@@ -3438,13 +3438,14 @@ While SM0->(!EoF())
 	cQuery += " AND C1_RESIDUO='' AND C1_APROV<>'B'"
 	cQuery += " AND C1_QUJE<C1_QUANT "
 	cQuery += " AND C8_NUMSC IS NULL"
-	cQuery += " GROUP BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01" 
-	cQuery += " ORDER BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01"
+	cQuery += " GROUP BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" 
+	cQuery += " ORDER BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV"
  
 	
 	TCQUERY cQuery NEW ALIAS "QSC1"
 	TCSETFIELD("QSC1","C1_EMISSAO","D",8,0)
 	TCSETFIELD("QSC1","C1_DATPRF","D",8,0)
+	TCSETFIELD("QSC1","C1_XDTAPRV","D",8,0)
 
 	(_cAlias)->(dbgotop())
 
@@ -3463,7 +3464,8 @@ While SM0->(!EoF())
    	   					(_cAlias)->C1_QUANT,;
    	   					(_cAlias)->C1_QUJE,;
    	   					(_cAlias)->C1_CC,;
-   	   					(_cAlias)->CTT_DESC01}) 
+   	   					(_cAlias)->CTT_DESC01,; 
+   	   					(_cAlias)->C1_XDTAPRV}) 
    	 	ENDIF
 
 		(_cAlias)->(dbskip())
@@ -3501,15 +3503,15 @@ IF LEN(aEmail) > 0
    
 	If nHandle > 0
       
-		aCabs   := {"Empresa","Solicitante","Emissao","Limite Entrega","Solicitação N°","Item","Cod. Produto","Desc. Produto","Unidade","Quantidade","Qnt. Entregue","Contrato","Descrição Contrato"}
+		aCabs   := {"Empresa","Solicitante","Emissao","Limite Entrega","Solicitação N°","Item","Cod. Produto","Desc. Produto","Un.","Quant.","Qtd. Entregue","Contrato","Descrição Contrato","Aprov."}
   		FOR _ni := 1 TO LEN(aCabs)
        		fWrite(nHandle, aCabs[_ni] + IIF(_ni < LEN(aCabs),";",""))
    		NEXT
    		fWrite(nHandle, cCrLf ) // Pula linha
    		FOR _ni := 1 TO LEN(aEmail)
-   	    	cLinha :=     aEmail[_ni,01]+";"+aEmail[_ni,02]+";"+DTOC(aEmail[_ni,03])+";"+DTOC(aEmail[_ni,04])+";"+aEmail[_ni,05]+;
+   	    	cLinha := aEmail[_ni,01]+";"+aEmail[_ni,02]+";"+DTOC(aEmail[_ni,03])+";"+DTOC(aEmail[_ni,04])+";"+aEmail[_ni,05]+;
    	        	      ";"+aEmail[_ni,06]+";"+aEmail[_ni,07]+";"+aEmail[_ni,08]+";"+aEmail[_ni,09]+";"+STR(aEmail[_ni,10],6)+;
-   	           		  ";"+STR(aEmail[_ni,11],6)+";"+aEmail[_ni,12]+";"+aEmail[_ni,13]
+   	           		  ";"+STR(aEmail[_ni,11],6)+";"+aEmail[_ni,12]+";"+aEmail[_ni,13]+";"+DTOC(aEmail[_ni,14])
   			fWrite(nHandle, cLinha+cCrLf ) // Pula linha
    		NEXT
 

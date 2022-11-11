@@ -124,6 +124,12 @@ Do While SC1->(!eof()) .AND. SC1->C1_NUM == cNumSol
     IF SC1->C1_APROV == "B"
     	lAprov := .F.
     ENDIF
+
+	// Gravando a data de Aprovação/Bloqueio 08/11/22
+	RecLock(("SC1"), .F.)
+	SC1->C1_XDTAPRV := DATE()
+	MsUnlock()
+
     SC1->(dbskip())
 Enddo
 

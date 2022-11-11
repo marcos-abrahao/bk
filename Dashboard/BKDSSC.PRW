@@ -25,7 +25,7 @@ Local cTabSC1   := ""
 Local cTabSC7   := ""
 Local cTabSF1   := ""
 Local cTabSD1   := ""
-//Local cTabCTT   := ""
+Local cTabSA2   := ""
 
 u_MsgLog("BKDSSC","Inicio: Sol. Compras")
 
@@ -40,7 +40,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabSC7 := "SC7"+cEmpresa+"0"
 	cTabSF1 := "SF1"+cEmpresa+"0"
 	cTabSD1 := "SD1"+cEmpresa+"0"
-	//cTabCTT := "CTT"+cEmpresa+"0"
+	cTabSA2 := "SA2"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -79,9 +79,14 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CONVERT(DATE,C1_DATPRF,112) AS C1_DATPRF," + CRLF
 	cQuery += "  C1_CC," + CRLF
 	cQuery += "  CONVERT(DATE,C1_EMISSAO,112) AS C1_EMISSAO," + CRLF
+	cQuery += "  CONVERT(DATE,C1_XDTAPRV,112) AS C1_XDTAPRV," + CRLF
 	cQuery += "  C1_PEDIDO," + CRLF
 	cQuery += "  C1_ITEMPED," + CRLF
 	cQuery += "  C1_USER," + CRLF
+	cQuery += "  C1_FORNECE," + CRLF
+	cQuery += "  C1_LOJA," + CRLF
+ 	cQuery += "  A2_NOME,"+CRLF
+	cQuery += "  CONVERT(DATE,A2_PRICOM,112) AS A2_PRICOM," + CRLF
 	cQuery += "  C7_NUM," + CRLF
 	cQuery += "  CONVERT(DATE,C7_EMISSAO,112) AS C7_EMISSAO," + CRLF
 	cQuery += "  C7_QUANT," + CRLF
@@ -89,17 +94,19 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  C7_QTDACLA," + CRLF
 	cQuery += "  C7_USER," + CRLF
 	cQuery += "  C7_APROV," + CRLF
+	cQuery += "  C7_XXURGEN," + CRLF	 
 	cQuery += "  D1_PEDIDO," + CRLF
 	cQuery += "  D1_ITEMPC," + CRLF
 	cQuery += "  D1_SERIE," + CRLF
 	cQuery += "  D1_DOC," + CRLF
 	cQuery += "  CONVERT(DATE,D1_DTDIGIT,112) AS D1_DTDIGIT," + CRLF
-	cQuery += "  F1_XXAVALI," + CRLF
+	cQuery += "  D1_TOTAL," + CRLF
+	cQuery += "  CONVERT(DATE,F1_XXPVPGT,112) AS F1_XXPVPGT," + CRLF
 	cQuery += "  CASE WHEN SUBSTRING(F1_XXAVALI,1,1) = 'S' THEN 25 ELSE 0 END AS AVALPRECO," + CRLF
 	cQuery += "  CASE WHEN SUBSTRING(F1_XXAVALI,2,1) = 'S' THEN 25 ELSE 0 END AS AVALPRAZO," + CRLF
 	cQuery += "  CASE WHEN SUBSTRING(F1_XXAVALI,3,1) = 'S' THEN 25 ELSE 0 END AS AVALQUAL," + CRLF
-	cQuery += "  CASE WHEN SUBSTRING(F1_XXAVALI,4,1) = 'S' THEN 25 ELSE 0 END AS AVALATEND" + CRLF
-
+	cQuery += "  CASE WHEN SUBSTRING(F1_XXAVALI,4,1) = 'S' THEN 25 ELSE 0 END AS AVALATEND," + CRLF
+	cQuery += "  (SELECT AVG(C8_TOTAL) FROM SC8010 WHERE C8_FILIAL = C1_FILIAL AND C8_NUM = C7_NUMCOT AND C8_PRODUTO = C7_PRODUTO) AS MEDIACOTACAO" + CRLF
 	//If nE == 1
 	//	cQuery += "  INTO PowerBk.dbo.SOLCOMPRAS " + CRLF
 	//EndIf
@@ -131,6 +138,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND SF1.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
+	cQuery += " LEFT JOIN "+cTabSA2+" SA2" + CRLF
+	cQuery += "     ON (A2_COD = C1_FORNECE " + CRLF
+	cQuery += "         AND A2_LOJA = C1_LOJA " + CRLF
+	cQuery += "         AND A2_FILIAL = '  ' " + CRLF
+	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
 	/*
 	cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
 	cQuery += "     ON (C1_CC = CTT_CUSTO " + CRLF
@@ -147,7 +161,17 @@ Next
 
 cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
-cQuery += "  SC.*,CCUSTOS.DESCRCC AS DESCRICAO " + CRLF
+cQuery += "  SC.*," + CRLF
+cQuery += "  CCUSTOS.DESCRCC AS DESCRICAO," + CRLF
+cQuery += "  (CASE WHEN MEDIACOTACAO > D1_TOTAL THEN MEDIACOTACAO - D1_TOTAL ELSE 0 END) AS CUSTOEVITADO," + CRLF
+
+cQuery += "  (SELECT datediff(dd, F1_XXPVPGT, D1_DTDIGIT) - (datediff(wk, F1_XXPVPGT, D1_DTDIGIT) * 2) - " + CRLF
+cQuery += "        case when datepart(dw, F1_XXPVPGT) = 1 then 1 else 0 end +" + CRLF
+cQuery += "        case when datepart(dw, F1_XXPVPGT) = 1 then 1 else 0 end) AS DIFPGT," + CRLF
+cQuery += "  CASE WHEN (select datediff(dd, F1_XXPVPGT, D1_DTDIGIT) - (datediff(wk, F1_XXPVPGT, D1_DTDIGIT) * 2) -" + CRLF
+cQuery += "         case when datepart(dw, F1_XXPVPGT) = 1 then 1 else 0 end +" + CRLF
+cQuery += "        case when datepart(dw, F1_XXPVPGT) = 1 then 1 else 0 end) > -3 AND F1_XXPVPGT IS NOT NULL AND YEAR(F1_XXPVPGT) > 1900 THEN 'S' ELSE 'N' END AS DIF3DIAS" + CRLF
+
 cQuery += "  INTO PowerBk.dbo.SOLCOMPRAS" + CRLF
 cQuery += "  FROM SC " + CRLF
 cQuery += "  LEFT JOIN PowerBk.dbo.CCUSTOS ON SC.EMPRESA = CCUSTOS.EMPRESA AND SC.CONTRATO = CCUSTOS.CCUSTO COLLATE Latin1_General_BIN" + CRLF
