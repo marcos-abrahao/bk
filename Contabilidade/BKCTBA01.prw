@@ -12,10 +12,11 @@ BK - Integração Contabilização - Folha Rubi
 User Function BKCTBA01()
 Private cString   := "SZ5"
 Private cCadastro := "Contabilização - Folha "+FWEmpName(cEmpAnt)
+Private cPrw      := "BKCTBA01"
 
 Private aRotina
 
-u_MsgLog("BKCTBA01")
+u_MsgLog(cPrw)
 
 dbSelectArea("SZ5")
 dbSetOrder(1)
@@ -35,7 +36,8 @@ Return
 
 
 User Function BKCTB01()
-Local aAreaIni := GetArea()
+Local aAreaIni	:= GetArea()
+
 Private nStatus
 
 // Verificar se há Lançamentos a importar
@@ -50,12 +52,12 @@ nStatus := QSZ5->Z5STATUS
 QSZ5->(DbCloseArea())
 
 IF nStatus > 0
-   IF MsgYesNo("Confirma a importação de "+STRZERO(nStatus,6)+" lançamentos ?")
+   IF u_MsgLog(cPrw,"Confirma a importação de "+STRZERO(nStatus,6)+" lançamentos ?","Y")
       Processa( {|| RunCtb01() } )
       Return
    ENDIF
 ELSE
-   MsgStop("Não há lançamentos para importar","Atenção")    
+   u_MsgLog(cPrw,"Não há lançamentos para importar","W")    
 ENDIF
 RestArea(aAreaIni)
 
@@ -65,7 +67,7 @@ Return Nil
 Static Function RunCtb01()
 Local aCab 		:= {}
 Local aItens 	:= {}
-Local aRecno	:={}
+Local aRecno	:= {}
 Local aAreaIni	:= GetArea()
 Local cQuery	:= ""
 Local nStatus 	:= 0
@@ -75,9 +77,6 @@ Local nMes
 Local nAno
 Local cDoc 		:= ""
 Local cEvento 	:= ""
-Local cErrLog 	:= ""
-Local nX 		:= 0
-Local aErro
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -86,7 +85,7 @@ dbSelectArea("SZ5")
 dbSetOrder(1)
 dbGoTop()
 IF BOF() .OR. EOF()
-	MsgStop("Não ha lançamentos gerados", "Atenção")
+	u_MsgLog(cPrw,"Não há lançamentos gerados", "W")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -183,31 +182,27 @@ Do While !eof()
 		EndIf   
 	Enddo
 		
-    cErrLog     := ""
 	Begin Transaction
 	
 		lMsErroAuto := .F.
 	    MSExecAuto( {|X,Y,Z| CTBA102(X,Y,Z)} ,aCab ,aItens, 3)
 		
 		IF lMsErroAuto
-			aErro := GetAutoGRLog() 
-			cErrLog := ""
-			FOR nX := 1 to Len(aErro)
-				 cErrLog += aErro[nX]+CRLF
-		    NEXT
+			//aErro := GetAutoGRLog() 
+			//cErrLog := ""
+			//FOR nX := 1 to Len(aErro)
+			//	 cErrLog += aErro[nX]+CRLF
+		    //NEXT
 		    //Mostraerro()
 			//cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA01.ERR")
 			//cErrLog:= CRLF+MostraErro()
-			u_xxLog("\LOG\BKCTBA01.LOG",cErrLog)
+
+			U_LogMsExec(cPrw,"Problemas na inclusão de lançamento")
+
 			DisarmTransaction()
 		ENDIF
 		
 	End Transaction
-
-	IF !EMPTY(cErrLog)
-	   MsgStop(cErrLog)
-	   Exit
-	ENDIF
 
     IF !lMsErroAuto
     	FOR nI := 1 TO LEN(aRecno)
@@ -217,9 +212,8 @@ Do While !eof()
 	   		SZ5->Z5_STATUS := "P"
 	   		MsUnlock()
 	   	NEXT	
-    
     ELSE
-	   MsgStop("Não foi possivel importar todos os lançamentos, contate o setor de T.I.")
+	   u_MsgLog(cPrw,"Não foi possivel importar todos os lançamentos, contate o setor de T.I.","E")
 	   EXIT
 	ENDIF
 	DbSelectArea("QSZ5")

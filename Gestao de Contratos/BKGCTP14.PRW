@@ -69,7 +69,7 @@ Else
 	If DAY(DATE()) <> 9 .AND. !("*" $ cContrato)
 		If Empty(dAgJob) .OR. !(dAgJob == DATE())
 		
-			u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""),.T.,"")
+			u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""))
 			Reset Environment
 			Return Nil
 		EndIf
@@ -205,7 +205,7 @@ If !lJob
 		U_BKPutMv("BKGCTR1410",MV_PAR10,"D", 8,0,"Agendar para:")
 		U_BKPutMv("BKGCTR1411",MV_PAR11,"C",70,0,"E-Mail?")
 		U_BKPutMv("BKGCTR1412",MV_PAR12,"N", 1,0,"Somente Competência Atual?")
-		u_xxLog(cArqLog,cStart+": "+titulo+" - agendamento efetuado para: "+DTOC(MV_PAR10),.T.,"")
+		u_xxLog(cArqLog,cStart+": "+titulo+" - agendamento efetuado para: "+DTOC(MV_PAR10))
 		MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR10)+" 1h")
 		Return Nil
 	EndIf
@@ -219,7 +219,7 @@ Else
 	MV_PAR07 := nRateia     := U_BKGetMv("BKGCTR1407") // 2
 	MV_PAR08 := nDespGeral  := U_BKGetMv("BKGCTR1408") // 1
 	MV_PAR12 := nCompAtual  := U_BKGetMv("BKGCTR1412")
-	u_xxLog(cArqLog,titulo+": "+cStart,.T.,"")
+	u_xxLog(cArqLog,titulo+": "+cStart)
 
 EndIf
 
@@ -312,7 +312,7 @@ IF nConsolida == 1
 			ENDIF
 			IF !EMPTY(cLogCons)
 				IF lJob
-					u_xxLog(cArqLog,"- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons,.T.,"")
+					u_xxLog(cArqLog,"- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons)
 				ELSE
 					IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
 						RETURN NIL
@@ -322,7 +322,7 @@ IF nConsolida == 1
 		ENDIF
     ELSE
 		IF lJob
-			u_xxLog(cArqLog,"Informações para Consolidar invalida. Verifique!!",.T.,"")
+			u_xxLog(cArqLog,"Informações para Consolidar invalida. Verifique!!")
 		ELSE
 	    	MSGSTOP("Informações para Consolidar invalida. Verifique!!")
 		ENDIF
@@ -413,7 +413,7 @@ ELSE
 		Msginfo("Atualizando tabela Folha de Pagamento!!")
 	    Return Nil
 	Else
-		u_xxLog(cArqLog,"Atenção: tabela Folha de Pagamento não foi atualizada.",.T.,"")
+		u_xxLog(cArqLog,"Atenção: tabela Folha de Pagamento não foi atualizada.")
 	EndIf
 ENDIF
 
@@ -524,7 +524,7 @@ If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 		If !lJob
 			MSGSTOP("Contrato não encontrado!!")
 		Else
-			u_xxLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),.T.,"")
+			u_xxLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal))
 		EndIf
 		Return Nil
 	ENDIF
@@ -544,7 +544,7 @@ EndIf
 
 cTitulo  := titulo + " - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
 
-u_xxLog(cArqLog,cTitulo,.T.,"")
+u_xxLog(cArqLog,cTitulo)
 
 aDbf1		:= {}
 aCabs1   	:= {}
@@ -859,7 +859,7 @@ Else
 		ProcR14(lJob)
 		U_BKCP14(lJob)
 	Else
-		u_xxLog(cArqLog,"Competencia não encontrada : "+STR(nCompet),.T.,"")
+		u_xxLog(cArqLog,"Competencia não encontrada : "+STR(nCompet))
 	EndIf
 EndIf
 
@@ -988,7 +988,7 @@ If !lJob
 			cQuery += "    *"+CRLF
 			cQuery += " INTO PowerBk.dbo.PROJXREALTELA"+cEmpAnt+" FROM "+cRealTb1+" WHERE XX_POWERBK = 'S' "
 
-			u_xxLog(cArqLog,"BKGCTP14: Gerando tabela PowerBk.dbo.PROJXREALTELA"+cEmpAnt,.T.,"")
+			u_xxLog(cArqLog,"BKGCTP14: Gerando tabela PowerBk.dbo.PROJXREALTELA"+cEmpAnt)
 
 			If TCSQLExec(cQuery) < 0 
 				MsgStop(TCSQLERROR())
@@ -1003,7 +1003,7 @@ Else
 
 	// Gerar tabela no banco PowerBk
 	If Empty(cContrato)
-		u_xxLog(cArqLog,"BKGCTP14: Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt,.T.,"")
+		u_xxLog(cArqLog,"BKGCTP14: Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt)
 		GeraPwBk()
 	EndIf
 
@@ -1124,7 +1124,7 @@ FOR _nI := 1 TO nPeriodo
 	If !lJob
 		IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 	EndIf
-	u_xxLog(cArqLog,"BKGCTP14: Processando competencia "+aPeriodo[_nI,1],.T.,"")
+	u_xxLog(cArqLog,"BKGCTP14: Processando competencia "+aPeriodo[_nI,1])
 
     cAnoMes := aAnoMes[_nI] 
 
@@ -1195,8 +1195,8 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
 
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
-	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
-    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "     ON (CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND "+CRLF 
 	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
 
 	cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
@@ -1225,8 +1225,8 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
 	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"' AND SE5.D_E_L_E_T_ = '' "+CRLF
 
-    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD" +CRLF
-    cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD" +CRLF
+    cQuery += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
 	*/
@@ -1308,8 +1308,8 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
-	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
-    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "     ON (CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND "+CRLF 
 	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
@@ -1385,8 +1385,8 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_ = ''"+CRLF
 		cQueryA += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
 		cQueryA += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
-		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " +CRLF
-		cQueryA += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = ''"+CRLF
+		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD " +CRLF
+		cQueryA += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = ''"+CRLF
 
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
@@ -1549,8 +1549,8 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
 	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD" +CRLF
-    cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD" +CRLF
+    cQuery += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
 
@@ -1621,8 +1621,8 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
 		cQueryA += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
 		cQueryA += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
-		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " +CRLF
-		cQueryA += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
+		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD " +CRLF
+		cQueryA += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
@@ -2275,7 +2275,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			//IncProc("Consultando Folha Pagamento...")
 		Else
-			//u_xxLog(cArqLog,"Consultando Folha Pagamento..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando Folha Pagamento..."+STR(_nI))
 		EndIf
 		*/
 
@@ -2654,7 +2654,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			//IncProc("Consultando Folha Pagamento - Autonomos...")
 		Else
-			//u_xxLog(cArqLog,"Consultando Folha Pagamento - Autonomos..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando Folha Pagamento - Autonomos..."+STR(_nI))
 		EndIf
 		*/
 
@@ -2756,7 +2756,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			//IncProc("Consultando gastos gerais..."+aPeriodo[_nI,1]) //STRZERO(_nI,3))
 		Else
-			//u_xxLog(cArqLog,"Consultando gastos gerais..."+STR(_nI),.T.,"")
+			//u_xxLog(cArqLog,"Consultando gastos gerais..."+STR(_nI))
 		EndIf
 		*/
 
@@ -4278,7 +4278,7 @@ FOR _nI := 1 TO nPeriodo
 		If !lJob
 			IncProc("Consultando faturamento de medições avulsas...")
 		Else
-			u_xxLog(cArqLog,"Consultando faturamento de medições avulsas..."+STR(_nI),.T.,"")
+			u_xxLog(cArqLog,"Consultando faturamento de medições avulsas..."+STR(_nI))
 		EndIf
 		*/
 
@@ -4410,7 +4410,7 @@ For Yi_ := 1 TO LEN(aContratos)
 	If !lJob
 		IncProc("Calculando resultados "+aContratos[Yi_]+"...")
 	EndIf
-	u_xxLog(cArqLog,"Calculando resultados "+aContratos[Yi_],.T.,"")
+	u_xxLog(cArqLog,"Calculando resultados "+aContratos[Yi_])
 
 	FOR _nI := 1 TO nPeriodo
 		
@@ -4543,14 +4543,14 @@ If nCompAtual == 3
 	Next
 EndIf
 
-u_xxLog(cArqLog,"Calculando resultados de "+STRZERO(nNMeses,2)+" meses",.T.,"")
+u_xxLog(cArqLog,"Calculando resultados de "+STRZERO(nNMeses,2)+" meses")
 For _nJ := 1 To nPeriodo
 	cCompet	:= aPeriodo[_nJ,1]
 	If nCompAtual == 2 .OR. (aAnoMes[_nJ] +"|") $ cNMeses 
 		If !lJob
 			IncProc("Calculando resultados "+cCompet+"...")
 		EndIf
-		u_xxLog(cArqLog,"Calculando resultados "+cCompet,.T.,"")
+		u_xxLog(cArqLog,"Calculando resultados "+cCompet)
 		GeraResult(_nJ,cCompet)
 	EndIf
 Next
@@ -6136,11 +6136,11 @@ If !lJob
 		Return Nil
 	EndIf
 Else
-	u_xxLog(cArqLog,"Gerando planilha xlsx",.T.,"")
+	u_xxLog(cArqLog,"Gerando planilha xlsx")
 	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 	//cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 	cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
-	u_xxLog(cArqLog,"Planilha "+cArqXls+" gerada...",.T.,"")
+	u_xxLog(cArqLog,"Planilha "+cArqXls+" gerada...")
 EndIf
 
 MakeDir(cDirTmp)
@@ -6155,7 +6155,7 @@ nHandle := MsfCreate(cArqTmp,0)
 If nHandle > 0
       
 	If lJob
-		u_xxLog(cArqLog,"Gerando "+cArqTmp+"...",.T.,"")
+		u_xxLog(cArqLog,"Gerando "+cArqTmp+"...")
 	EndIf
 
    FOR _ni := 1 TO LEN(aTitulos)
@@ -6197,7 +6197,7 @@ If nHandle > 0
       If !lJob
          IncProc("Gerando arquivo "+cArqE)   
 	  Else
-	     //u_xxLog(cArqLog,"Gerando arquivo "+cArqE,.T.,"")
+	     //u_xxLog(cArqLog,"Gerando arquivo "+cArqE)
       EndIf 
 
       For _ni :=1 to LEN(aCampos)
@@ -6277,15 +6277,15 @@ Else
 	If !lJob
    		MsgAlert("Falha na criação do arquivo "+cArqTmp)
 	Else
-		u_xxLog(cArqLog,"Falha na criação do arquivo "+cArqTmp,.T.,"")
+		u_xxLog(cArqLog,"Falha na criação do arquivo "+cArqTmp)
 	EndIf
 Endif
 
 If lJob
 	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
-	u_xxLog(cArqLog,cMsg,.T.,"")
+	u_xxLog(cArqLog,cMsg)
 	u_BkSnMail("BKGCTP14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
-	u_xxLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp,.T.,"")
+	u_xxLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp)
 EndIf
 
 Return
@@ -6305,7 +6305,7 @@ msUnlock()
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo...")
 Else
-    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo...",.T.,"")
+    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo...")
 EndIf
 
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+cEmpAnt)
@@ -6313,7 +6313,7 @@ TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+cEmpAnt)
 If !lJob 
 	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
 Else
-    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo Consorcios...",.T.,"")
+    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo Consorcios...")
 EndIf
 
 FOR _IX:= 1 TO LEN(aConsorcio)

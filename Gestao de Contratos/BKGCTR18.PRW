@@ -298,7 +298,7 @@ Static Function ProcQuery
 
 		QCNF->(dbCloseArea())
 
-		cENDER := TRIM(Posicione("SA1",1,xFilial("SA1")+CN9->CN9_CLIENT+CN9->CN9_LOJACL,"A1_END"))
+		cENDER := TRIM(Posicione("SA1",1,xFilial("SA1")+CN9->CN9_XCLIEN+CN9->CN9_XLOJA,"A1_END"))
 		cENDER += TRIM(SA1->A1_END)+' - '+TRIM(SA1->A1_BAIRRO)+' - '+TRIM(SA1->A1_MUN)+' - '+SA1->A1_EST
 
 		dtFIM  := CTOD("")
@@ -506,7 +506,7 @@ DtCorte := LastDate(DtCorte)
 
 		QCNF->(dbCloseArea())
 	    
-	    cENDER := TRIM(Posicione("SA1",1,xFilial("SA1")+CN9->CN9_CLIENT+CN9->CN9_LOJACL,"A1_END")) 
+	    cENDER := TRIM(Posicione("SA1",1,xFilial("SA1")+CN9->CN9_XCLIEN+CN9->CN9_XLOJA,"A1_END")) 
 	    cENDER += TRIM(SA1->A1_END)+' - '+TRIM(SA1->A1_BAIRRO)+' - '+TRIM(SA1->A1_MUN)+' - '+SA1->A1_EST   
 	
 	    dtFIM  := CTOD("")

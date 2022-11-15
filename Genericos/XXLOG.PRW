@@ -22,15 +22,12 @@ FWAlertWarning: Mostra uma mensagem com um triângulo amarelo e uma exclamação no
 FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 */
 
-User Function LogPrw(cProg,cMens,cAlert)
-Return u_MsgLog(cProg,cMens,cAlert)
-
-
-User Function MsgLog(cProg,cMens,cAlert)
+User Function MsgLog(cProg,cMens,cAlert,cTxt)
 Local cArqLog  := "\log\msglog.log"
 Local lRet     := .T.
 Default cMens  := "Acesso"
 Default cAlert := " "
+Default cTxt   := ""
 
 If !IsBlind() .AND. !Empty(cAlert)
 	If cAlert == "I"
@@ -48,33 +45,23 @@ If !IsBlind() .AND. !Empty(cAlert)
 		Else
 			cMens += ": Nao"
 		EndIf
+	ElseIf cAlert == "N"
+		lRet := FWAlertNoYes(cMens,cProg)
+		If lRet
+			cMens += ": Sim"
+		Else
+			cMens += ": Nao"
+		EndIf
 	Else
 		FWAlertHelp(cMens,cProg)
 	EndIf
 EndIf
 
 u_xxLog(cArqLog,cProg + ": "+cMens)
-
-Return lRet
-
-
-// Gravar erros na execução de MSExecAuto
-User Function ErrExecA(cProg,cMens,lMens)
-Local cArqLog := "\log\"+AllTrim(cProg)+".log"
-Local cArqErr := AllTrim(cProg)+".err"
-Local cErrLog := ""
-
-Default cMens := "Problemas na execução do MSExecAuto:"
-Default lMens := .T.
-
-cErrLog:= cMens+CRLF+MostraErro("\log\",cArqErr)
-u_xxLog(cArqLog,cErrLog,"E")
-
-If !IsBlind() .AND. lMens
-	Alert(cProg+": "+cMens)
+If !Empty(cTxt)
+	u_xxLog("\log\"+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
 EndIf
-
-Return Nil
+Return lRet
 
 
 /*/{Protheus.doc} User Function xxLog
@@ -84,24 +71,23 @@ Return Nil
 	@since 10/06/18
 	@version 12.1.25
 /*/
-User Function xxLog(cArqLog,cMens,lMens,cEnv)  //U_xxLog("jjErro.log","[Rotina][Funcao]"+"Erro...")
-Local nPosFim,nHandle,cBuffer
+User Function xxLog(cArqLog,cMens,cTxt)
+Local nPosFim := 0
+Local nHandle := 0
+Local cBuffer := ""
 
-DEFAULT lMens:= .T.  //Inicializa cMens com Data e Hora
-DEFAULT cEnv := ""
+Default cTxt  := ""
+//DEFAULT lMens:= .T.  //Inicializa cMens com Data e Hora
+//DEFAULT cEnv := ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
-u_xxConOut("INFO","xxLog",cMens)
-
+//u_xxConOut("INFO","xxLog",cMens)
 cMens := STRTRAN( cMens, CRLF, " ")
-
-If lMens  //Inicializa cMens com Data e Hora
+If Empty(cTxt)
 	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|" // +cValToChar(nModulo)+"|
-EndIf
-
-If !EMPTY(cEnv) .AND. !(UPPER(TRIM(cEnv)) $ GetEnvServer())
-	Return(.F.)
+Else
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|"+CRLF+cTxt+CRLF
 EndIf
 
 If !File(cArqLog)
@@ -145,6 +131,18 @@ fClose(nHandle)
 Return(.t.)
 
 
+// Mensagens e log de erros na execução de MSExecAuto
+User Function LogMsExec(cProg,cMens)
+Local cArqErr := AllTrim(cProg)+".err"
+Local cErrLog := ""
+
+Default cMens := "Problemas na execução do MSExecAuto:"
+
+cErrLog := MostraErro("\log\",cArqErr)
+u_MsgLog(cProg,cMens,"E",cErrLog)
+
+Return Nil
+
 /*/{Protheus.doc} User Function LogMemo
 	Rotina de Log utilizada basicamente para gravar Queryes
 	@type  Function
@@ -158,7 +156,7 @@ Local cDir  := "C:\TMP"
 Local cMens := ""
 IF __cUserId == "000000" //.OR. __cUserId == "000012"
 	If IsBlind()
-		cDir:= "\TMP"
+		cDir:= "\tmp"
 	ENDIF
 	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
 	cMens += cTexto
@@ -239,7 +237,7 @@ EndIf
 Return(.T.)
 
 
-/*/{Protheus.doc} User Function xxLog
+/*/{Protheus.doc} User Function xxConOut
 	Funcão para substituir ConOut()
 	@type  Function
 	@author Marcos Bispo Abrahão

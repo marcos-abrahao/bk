@@ -120,8 +120,8 @@ ELSE
 		Do While CN9->(!eof())  .AND. ALLTRIM(CN9->CN9_NUMERO) == ALLTRIM(cContra) 
 			If CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
 			 	cRev 	 := CN9->CN9_REVISA
-				cCliente := CN9->CN9_CLIENT
-				cLoja 	 := CN9->CN9_LOJACL
+				cCliente := CN9->CN9_XCLIEN
+				cLoja 	 := CN9->CN9_XLOJA
 			EndIf
 			CN9->(DBSKIP()) 
 		EndDo

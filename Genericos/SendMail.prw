@@ -66,7 +66,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     Default aAnexos    := {}
     Default lUsaTLS    := .T.
  
-	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC,.T.,"")
+	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 
 	// Para testes
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
@@ -179,7 +179,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     If !Empty(cLog)
 
         //u_xxConOut("ERROR","BkSnMail",cLog)
-    	u_xxLog(cArqLog,cPrw+" - ERROR: "+ALLTRIM(cLog),.T.,"")
+    	u_xxLog(cArqLog,cPrw+" - ERROR: "+ALLTRIM(cLog))
 
         //Se for para mostrar o log visualmente e for processo com interface com o usuário, mostra uma mensagem na tela
         If lMostraLog .and. !lJob
@@ -212,7 +212,7 @@ Local cArqLog    := "\log\sendmail.log"
 Default _lJob    := IsBlind()
 Private lResult  := .T.
 
-u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC,.T.,"")
+u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 
 // Para testes
 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
@@ -227,7 +227,7 @@ CONNECT SMTP SERVER cServer ACCOUNT cEmail PASSWORD cPass RESULT lResulConn
 If !lResulConn
 	GET MAIL ERROR cError
 
-    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
 	If !_lJob
 		MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
 	Endif
@@ -244,7 +244,7 @@ If !lResulConn
 			Exit
 		Else
 			GET MAIL ERROR cError
-            u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+            u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
             If !_lJob
                 MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
             Endif
@@ -291,14 +291,14 @@ If lResult
 	
 	If !lResulSend
 		GET MAIL ERROR cError
-        u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+        u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
         If !_lJob
            MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
         Endif
 	Endif
 Else
 	lResultSend := .F.
-    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError,.T.,"")
+    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
     If !_lJob
        MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
     Endif

@@ -72,7 +72,7 @@ Local cEndCli  := Space(LEN(cXXENDEN))
 dbSelectArea("CN9")
 If CN9->(dbSeek(xFilial("CN9")+cCC,.F.))
 	dbSelectArea("SA1")
-	If SA1->(dbSeek(xFIlial("SA1")+CN9->CN9_CLIENT+CN9->CN9_LOJACL,.F.))
+	If SA1->(dbSeek(xFIlial("SA1")+CN9->CN9_XCLIEN+CN9->CN9_XLOJA,.F.))
        cEndCli := ALLTRIM(SA1->A1_END)+" "+Rtrim(SA1->A1_MUN)+" - "+SA1->A1_EST+" "+Trans(Alltrim(SA1->A1_CEP),PesqPict("SA1","A1_CEP"))
  	EndIf
 EndIf

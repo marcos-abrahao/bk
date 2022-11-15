@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"09/11/2022 SF22"
+#DEFINE FIN_LAST_UPDATED 		"15/11/2022 CN91 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -1618,6 +1618,50 @@ Static Function AtuGenX3( cTexto )
 oProcess:IncRegua2( "Manutenção X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
+//cTexto  += "15/11/22 - CN9 " + CRLF 
+//APPEND FROM \tmp\sx3cn9.dtc
+//X31UPDTABLE("CN9")
+
+//dbSelectArea( "SX3" )
+
+cTexto  += "15/11/22 - CN9-1 " + CRLF 
+dbSetOrder( 2 )
+If SX3->( dbSeek( "CN9_CLIENT" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_ORDEM    := "BY"
+	SX3->X3_TRIGGER  := " "
+	SX3->X3_USADO    := "€€€€€€€€€€€€€€€"
+	SX3->X3_RESERV   := "†À"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "CN9_LOJACL" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_ORDEM    := "BZ"
+	SX3->X3_TRIGGER  := " "
+	SX3->X3_USADO    := "€€€€€€€€€€€€€€€"
+	SX3->X3_RESERV   := "†À"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+dbSelectArea( "SX7" )
+dbSetOrder( 1 )
+If SX7->( dbSeek( "CN9_CLIENT" ) )
+	RecLock( "SX7", .F. )
+	SX7->X7_CAMPO := 'CN9_XCLIEN'
+	dbCommit()
+	MsUnLock()
+EndIf
+//dbSetOrder( 1 )
+
+Return
+
+
+/*
+dbSelectArea( "SX3" )
 cTexto  += "09/11/22 - SF2 " + CRLF 
 APPEND FROM \tmp\sx3sf2.dtc
 X31UPDTABLE("SF2")
@@ -1632,14 +1676,6 @@ If SX3->( dbSeek( "F2_XXMCANC" ) )
 	dbCommit()
 	MsUnLock()
 EndIf
-
-
-//dbSetOrder( 1 )
-
-Return
-
-
-/*
 
 cTexto  += "09/11/22 - SF2 " + CRLF 
 APPEND FROM \tmp\sx3sf2.dtc
@@ -2515,7 +2551,7 @@ If SX3->( dbSeek( "C7_XXNCC" ) )
 EndIf
 
 X31UPDTABLE("SC7")
-
+CN9_CLIENT
 dbSelectArea( "SX7" )
 If SX7->( dbSeek( "C7_CC" ) )
 	RecLock( "SX7", .F. )

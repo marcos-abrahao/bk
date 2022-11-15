@@ -18,7 +18,7 @@
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */ 
 
-// Chamado no gatilho do campo CN9_CLIENT
+// Chamado no gatilho do campo CN9_XCLIEN
 
 User Function KK00004()
 
@@ -27,15 +27,15 @@ Local _xRetorno := ""
 Local _aAreas 	:= {}
 
        
-If (ReadVar() == "M->CN9_CLIENT")
+If (ReadVar() == "M->CN9_XCLIEN")
 
 	//Código do Contrato
 	cQuery := " "
-	cQuery := "SELECT MAX("+M->CN9_CLIENT+" CASE WHEN LEN(SUBSTRING("+M->CN9_NUMERO+",7,3)) = 1 THEN '00'+CAST(SUBSTRING("+M->CN9_NUMERO+",7,3) AS CHAR(3)) "
+	cQuery := "SELECT MAX("+M->CN9_XCLIEN+" CASE WHEN LEN(SUBSTRING("+M->CN9_NUMERO+",7,3)) = 1 THEN '00'+CAST(SUBSTRING("+M->CN9_NUMERO+",7,3) AS CHAR(3)) "
 	cQuery += " WHEN LEN(SUBSTRING("+M->CN9_NUMERO+",7,3)) = 2 THEN '00'+CAST(SUBSTRING("+M->CN9_NUMERO+",7,3) AS CHAR(3)) "
 	cQuery += " ELSE CAST(SUBSTRING(CN9_NUMERO,7,3)AS CHAR(3))  END) + 1 AS NUM "
 	cQuery += " FROM " + RetSqlName("CN9")+" "
-	cQuery += " WHERE CN9_CLIENT ='"+M->CN9_CLIENT+"' "
+	cQuery += " WHERE CN9_XCLIEN ='"+M->CN9_XCLIEN+"' "
 
 	If SELECT("TRB") > 0
 		dbSelectArea("TRB")

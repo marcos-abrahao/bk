@@ -17,42 +17,43 @@ User Function BKFINA16()
 Local lOk      := .F.
 Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Transparencia - "+FWEmpName(cEmpAnt)
 
-PRIVATE oDlg
-PRIVATE oListId
-PRIVATE oPanelLeft
-PRIVATE aButtons := {}
-PRIVATE aTitGer  := {}
-PRIVATE cPICT := "@E 999,999,999.99"
-PRIVATE cFatura	:= SPACE(9)
-PRIVATE cPrefix	:= SPACE(3)
-PRIVATE cParc	:= SPACE(2)
-PRIVATE cTipo	:= SPACE(3)
-PRIVATE cCli	:= SPACE(6)
-PRIVATE cLoja	:= SPACE(2)
+Private oDlg
+Private oListId
+Private oPanelLeft
+Private aButtons:= {}
+Private aTitGer := {}
+Private cPICT   := "@E 999,999,999.99"
+Private cFatura	:= SPACE(9)
+Private cPrefix	:= SPACE(3)
+Private cParc	:= SPACE(2)
+Private cTipo	:= SPACE(3)
+Private cCli	:= SPACE(6)
+Private cLoja	:= SPACE(2)
 Private cNCli   := SPACE(40)
-PRIVATE dVencto := CTOD("") 
-PRIVATE nVlrTit := 0
+Private dVencto := CTOD("") 
+Private nVlrTit := 0
 Private nVlrCVinc := 0
-PRIVATE nVlrImp	:= 0
-PRIVATE nVlrLi  := 0
-PRIVATE nDesc   := 0
-PRIVATE nMulta  := 0
-PRIVATE nReceb  := 0
-PRIVATE nTotBK	:= 0
+Private nVlrImp	:= 0
+Private nVlrLi  := 0
+Private nDesc   := 0
+Private nMulta  := 0
+Private nReceb  := 0
+Private nTotBK	:= 0
 
 // BAIXA
-private cBanco  := space(3)
-private cAgencia := space(5)
-private cConta   := space(15)
-private dDtBaixa := dDataBase
-private cHist    := PAD("VALOR RECEBIDO S/ TITULO",40)
-private lCancelou := .F.
+Private cBanco  := space(3)
+Private cAgencia := space(5)
+Private cConta   := space(15)
+Private dDtBaixa := dDataBase
+Private cHist    := PAD("VALOR RECEBIDO S/ TITULO",40)
+Private lCancelou := .F.
 // BAIXA VINCULADA
-private cVBanco  := space(3)
-private cVAgencia := space(5)
-private cVConta   := space(15)
+Private cVBanco  := space(3)
+Private cVAgencia := space(5)
+Private cVConta   := space(15)
+Private cPrw	  := "BKFINA16"
 
-u_MsgLog("BKFINA16")
+u_MsgLog(cPrw)
 
 DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 600,950 PIXEL 
 
@@ -245,7 +246,7 @@ IF !DbSeek (cKey,.F.) .AND. cPrefix == "001"
 	ENDIF
 ENDIF
 
-IF DbSeek (cKey,.F.)
+IF DbSeek(cKey,.F.)
    	IF SE1->E1_VALOR == SE1->E1_SALDO
 		cCli	:= SE1->E1_CLIENTE
 		cLoja	:= SE1->E1_LOJA
@@ -267,14 +268,14 @@ IF DbSeek (cKey,.F.)
 		nReceb  := nVlrLi + nMulta - nDesc - nVlrCVinc
   	ELSE
   		if SE1->E1_SALDO > 0
-			MSGSTOP("Titulo Baixado parcial, favor utilizar rotina padrao de sistema!!")
+			u_MsgLog(cPrw,"Titulo "+SE1->E1_NUM+" baixado parcialmente, favor utilizar rotina padrao de sistema!!","E")
 		ELSE
-			MSGSTOP("Titulo ja foi Baixado !!")
+			u_MsgLog(cPrw,"Titulo "+SE1->E1_NUM+" ja está baixado !!","E")
 		ENDIF
 		LIMPTAB()
  	ENDIF
 ELSE
-	MSGSTOP("Titulo não Encontrado")
+	u_MsgLog(cPrw,"Titulo "+cKey+" não Encontrado","E")
 	LIMPTAB()
 	lRet := .F.
 ENDIF
@@ -502,7 +503,7 @@ LOCAL nI 	:= 0
 LOCAL aBaixa:= {}
 LOCAL lOK 	:= .T.
 Local cCrLf := Chr(13) + Chr(10)
-Local cLOG  := ""
+Local cLog  := ""
 Local cErrLog := ""
 
 Private dDtBaixa  := dDataBase
@@ -559,7 +560,7 @@ For nI:=1 TO LEN(aTitGer)
 		IF lMsErroAuto
    			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
 			u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
-			MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
+			u_MsgLog(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog,"E")
 			lOK := .F.
 			DisarmTransaction()
 			break
@@ -607,7 +608,7 @@ For nI:=1 TO LEN(aTitGer)
 			IF lMsErroAuto
 				cErrLog:= CRLF+MostraErro("\log\","BKFINA16.ERR")
 				u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
-				MsgStop("Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog, "Atenção")
+				u_MsgLog(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog,"E")
 				lOK := .F.
 				DisarmTransaction()
 				break
@@ -618,7 +619,7 @@ For nI:=1 TO LEN(aTitGer)
  			
 Next nI
 
-cLOG := ""
+cLog := ""
 For nI:=1 TO LEN(aTitGer)
 
 	cKey    := ""
@@ -628,19 +629,19 @@ For nI:=1 TO LEN(aTitGer)
 	DbSetOrder (1)
 	IF DbSeek (cKey,.F.)
    		IF SE1->E1_SALDO > 0
-   		   cLOG += 	"PREFIXO:"+aTitGer[nI,2]+"    NUM:"+aTitGer[nI,1]+"    PARCELA:"+aTitGer[nI,3]+"    TIPO:"+aTitGer[nI,4]+"    CLIENTE:"+aTitGer[nI,5]+"    LOJA:"+aTitGer[nI,6]+cCrLf
-			lOK := .F.
+   			cLog += "PREFIXO:"+aTitGer[nI,2]+"    NUM:"+aTitGer[nI,1]+"    PARCELA:"+aTitGer[nI,3]+"    TIPO:"+aTitGer[nI,4]+"    CLIENTE:"+aTitGer[nI,5]+"    LOJA:"+aTitGer[nI,6]+cCrLf
+			lOK  := .F.
    		ENDIF
     ENDIF
 
 Next nI
 
 IF lOK
-	Msginfo("Titulos Baixados com sucesso!!")
+	u_MsgLog(cPrw,"Titulos Baixados com sucesso!!","S")
 ELSE
-	IF !EMPTY(cLOG)
-		cLOG := "Titulo(s) com baixa parcial. Verifique!!"+cCrLf+cCrLf+cCrLf+cLOG
-		Aviso("Atencao",cLOG, {"Ok"})
+	IF !EMPTY(cLog)
+		cLog := "Titulo(s) com baixa parcial. Verifique!!"+cCrLf+cCrLf+cLog
+		u_MsgLog(cPrw,cLog,"E")
 	ENDIF
 ENDIF
 

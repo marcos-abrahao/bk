@@ -95,7 +95,7 @@ Do While !CT2->(Eof())
                 MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
                 DisarmTransaction()
             Else
-                u_xxLog(cArqLog,"Recno: "+STRZERO(nRec,9),.T.,"")            
+                u_xxLog(cArqLog,"Recno: "+STRZERO(nRec,9))            
             EndIf
 
         End Transaction

@@ -64,6 +64,7 @@ If FWCodEmp() == "01"
 				U_BKDSTUR()
 				U_BKDSBKTUR()
 				U_BKDSBKFAL()
+				U_BK040PER()
 				U_BKDSSC()
 				U_BKDSCFAT()
 			EndIf
@@ -114,6 +115,7 @@ If FWCodEmp() == "01"
 		aAdd(aDados,{"","U_BKDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})
 		aAdd(aDados,{"","U_BKDSSC()"     ,"Atualização da tabela SOLCOMPRAS"})
 		aAdd(aDados,{"","U_BKDSGER()"    ,"Atualização da tabela GERAL"})
+		aAdd(aDados,{"","U_BK040PER()"   ,"Atualização da tabela BK040PER"})
 
 		u_TTMARKB(aCampos, aDados, .F.)
 
@@ -129,7 +131,7 @@ If FWCodEmp() == "01"
 ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 
 	If !IsBlind()
-		If MsgYesNo("Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", cPerg)
+		If u_MsgLog(cPerg,"Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", "Y")
 			u_MsgLog(cPerg,"Inicio")
 			FWMsgRun(, {|oSay| U_BKGCTR26(.T.) }, "", "Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
 			u_MsgLog(cPerg,"Final")

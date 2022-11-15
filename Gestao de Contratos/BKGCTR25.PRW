@@ -41,7 +41,7 @@ AADD(aCabs  ,"Descrição")
 AADD(aCampos,"IIF(QCN9->CN9_SITUAC $ '02/03/04/05','Ativo','Inativo')")
 AADD(aCabs  ,"Status")
 
-AADD(aCampos,"QCN9->CN9_CLIENT+'-'+QCN9->CN9_LOJACL")
+AADD(aCampos,"QCN9->CN9_XCLIEN+'-'+QCN9->CN9_XLOJA")
 AADD(aCabs  ,"Cliente")
 
 AADD(aCampos,"QCN9->A1_NOME")
@@ -96,13 +96,13 @@ Local cQuery
 IncProc("Consultando o banco de dados...")
 
 cQuery := "SELECT CN9_SITUAC,CN9_NUMERO,CN9_REVISA,CN9_XXDESC," + CRLF
-cQuery += "  CN9_CLIENT,CN9_LOJACL,A1_NOME,A1_CGC," + CRLF
+cQuery += "  CN9_XCLIEN,CN9_XLOJA,A1_NOME,A1_CGC," + CRLF
 cQuery += "  A1_END,A1_BAIRRO,A1_MUN,A1_EST,A1_CEP," + CRLF
 cQuery += "  A1_DDD,A1_TEL,A1_EMAIL," + CRLF
 cQuery += "  CN9_DTINIC,CN9_XXDVIG,CN9_XXNRBK," + CRLF
 cQuery += "  CN9_XXNGC,CN9_XXEGC,CN9_XXTELS" + CRLF
 cQuery += " FROM "+RETSQLNAME("CN9")+ " CN9 " + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON A1_COD = CN9_CLIENT AND A1_LOJA = CN9_LOJACL"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON A1_COD = CN9_XCLIEN AND A1_LOJA = CN9_XLOJA"+ CRLF
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " WHERE CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_='' AND CN9_SITUAC NOT IN ('01','09','10')" + CRLF
 cQuery += "ORDER BY CN9_NOMCLI,CN9_NUMERO" + CRLF

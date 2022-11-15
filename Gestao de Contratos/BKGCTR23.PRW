@@ -59,7 +59,7 @@ LOCAL _IY		:= 0
 	_SQL += "  CND_CONTRA,"+ CRLF
 	_SQL += "  CND_REVISA,"+ CRLF
 	_SQL += "  CN9_XXDESC,"+ CRLF
-	_SQL += "  CN9_CLIENT,"+ CRLF
+	_SQL += "  CN9_XCLIEN,"+ CRLF
 	_SQL += "  CN9_NOMCLI,"+ CRLF
 	_SQL += "  CN9_XXNRBK,"+ CRLF
 	_SQL += "  CND_NUMMED,"+ CRLF
@@ -92,7 +92,7 @@ LOCAL _IY		:= 0
     	nScan:= 0
     	nScan:= aScan(aFunc,{|x| x[1]== QCND->CND_CONTRA .AND. x[2]== QCND->CND_COMPET })
 		IF nScan == 0
-			AADD(aFunc,{QCND->CND_CONTRA,QCND->CND_COMPET,QCND->CND_XXFUNC,QCND->CND_XXNFUN,QCND->CN9_XXDESC,QCND->CN9_CLIENT,QCND->CN9_NOMCLI,QCND->CN9_XXNRBK})
+			AADD(aFunc,{QCND->CND_CONTRA,QCND->CND_COMPET,QCND->CND_XXFUNC,QCND->CND_XXNFUN,QCND->CN9_XXDESC,QCND->CN9_XCLIEN,QCND->CN9_NOMCLI,QCND->CN9_XXNRBK})
 		ELSE
 			IF QCND->CND_XXFUNC> aFunc[nScan,3]
 		  		aFunc[nScan,3] := QCND->CND_XXFUNC
@@ -108,7 +108,7 @@ LOCAL _IY		:= 0
     		nScan:= 0
     		nScan:= aScan(aGlosas,{|x| x[1]==QCND->CND_CONTRA .AND. x[2] == QCND->CND_COMPET .AND. x[3] ==  aCNR[_IX,1] .AND. x[4] == aCNR[_IX,2] })
 			IF nScan == 0
-				AADD(aGlosas,{QCND->CND_CONTRA,QCND->CND_COMPET,aCNR[_IX,1],aCNR[_IX,2],VAL(StrTran(StrTran(aCNR[_IX,3],".",""),",",".")),QCND->CN9_XXDESC,QCND->CN9_CLIENT,QCND->CN9_NOMCLI,QCND->CN9_XXNRBK})
+				AADD(aGlosas,{QCND->CND_CONTRA,QCND->CND_COMPET,aCNR[_IX,1],aCNR[_IX,2],VAL(StrTran(StrTran(aCNR[_IX,3],".",""),",",".")),QCND->CN9_XXDESC,QCND->CN9_XCLIEN,QCND->CN9_NOMCLI,QCND->CN9_XXNRBK})
 			ELSE
 				aGlosas[nScan,5] += VAL(StrTran(StrTran(aCNR[_IX,3],".",""),",","."))
 			ENDIF                            	

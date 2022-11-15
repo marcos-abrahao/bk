@@ -82,7 +82,7 @@ Local cRevisa 	as Character
 
 				oModelCND:LoadValue("CND_XXDESC",Posicione("CTT",1,xFilial("CTT")+cContra,"CTT_DESC01"))
 				oModelCND:LoadValue("CND_NOMCLI",Posicione("CN9",1,xFilial("CN9",cFilCtr)+cContra+cRevisa,"CN9_NOMCLI"))
-				//oModelCND:LoadValue("CND_NOMCLI",SUBSTR(Posicione("SA1",1,xFilial("SA1")+CN9->(CN9_CLIENT+CN9_LOJACL),"A1_NOME"),1,30))
+				//oModelCND:LoadValue("CND_NOMCLI",SUBSTR(Posicione("SA1",1,xFilial("SA1")+CN9->(CN9_XCLIEN+CN9_XLOJA),"A1_NOME"),1,30))
 
 			ElseIf	lIsGrid .AND. (cIdModel == "CXNDETAIL" .AND. aParam[4] == Nil .AND. aParam[5]="ADDLINE") //.OR.;
 				//CnaMun()

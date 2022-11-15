@@ -199,7 +199,6 @@ Local aSaveAreaSE5 := GetArea("SE5")
 Local aRet :={}
 Local lSucess := .T.
 Local cFunName := ""
-Local cErrLog	:= ""
 
 For nI := 1 TO LEN(aTitGer)
     nValor += aTitGer[nI,7]
@@ -250,10 +249,8 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			SetFunName( "FINA050" )
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
-    			//cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
-				//u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
-		   		cErrLog  := "Problemas na alteração do titulo "+cKey1
-				U_ErrExecA("BKFINA04",cErrLog)
+
+				U_LogMsExec("BKFINA04","Problemas na alteração do titulo "+cKey1)
 
 				DisarmTransaction()
 		   		lSucess := .F.
@@ -279,12 +276,8 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			lMsErroAuto := .F.   
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 			IF lMsErroAuto
-    			//cErrLog:= CRLF+MostraErro("\TMP\","BKFINA04.ERR")
-				//u_xxLog("\TMP\BKFINA04.LOG",cErrLog)
-				//MsgStop("Problemas na exclusão do titulo "+cKey1+", informe o setor de T.I.:"+cErrLog, "Atenção")
 
-		   		cErrLog  := "Problemas na exclusão do titulo "+cKey1
-				U_ErrExecA("BKFINA04",cErrLog)
+				U_LogMsExec("BKFINA04","Problemas na exclusão do titulo "+cKey1)
 
 				DisarmTransaction()
 				lSucess := .F.

@@ -2,7 +2,7 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
-/*/{Protheus.doc} ³MT097END
+/*/{Protheus.doc} MT097END
     Ponto de Entrada para envio Pedido de Compras para Liberação Alçada 
 	Retorno ao 02 Nivel e ao grupo de compras
     @type  PE
@@ -77,7 +77,7 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	ENDIF
 	
 	cEmail += cEmUSER
-	u_xxLog("\LOG\MT097END.LOG","1-"+cEmail,.F.,"TESTE")        
+	//u_xxLog("\LOG\MT097END.LOG","1-"+cEmail)        
 	IF nOpcao = 3
 		cAssunto:= "Bloqueada"
 	ELSE
@@ -106,7 +106,7 @@ IF !EMPTY(aUser)
 	cNUser := aUser[1,2]
 	cEmail += ALLTRIM(aUser[1,14])+';'
 ENDIF
-u_xxLog("\LOG\MT097END.LOG","2-"+cEmail,.F.,"TESTE")        
+//u_xxLog("\LOG\MT097END.LOG","2-"+cEmail)        
 
 
 cTPLIBER := ""
@@ -158,7 +158,7 @@ IF nOpcao == 2
 	    		cEmail += aSCR[IT_,4]+';'
 			NEXT
         ENDIF
-       	u_xxLog("\LOG\MT097END.LOG","3-"+cEmail,.T.,"")        
+       	u_xxLog("\LOG\MT097END.LOG","3-"+cEmail)
 
 		cAssunto:= "Pedido de Compra nº.:"+alltrim(nPedido)+"   Liberado    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		IF __cUserId $ cGerGestao+"/"+cGerCompras+"/"+cMCompras
@@ -175,7 +175,7 @@ IF nOpcao == 2
 		    	cEmail += aSCR[IT_,4]+';'
 			ENDIF
 		NEXT
-		u_xxLog("\LOG\MT097END.LOG","4-"+cEmail,.T.,"")        
+		u_xxLog("\LOG\MT097END.LOG","4-"+cEmail)
 
 		cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(nPedido)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
      	AADD(aEmail,{"Aquardando Liberação - Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
@@ -195,7 +195,7 @@ ELSEIF nOpcao == 3
     		cEmail += aSCR[IT_,4]+';'
 		NEXT
     ENDIF
-	u_xxLog("\LOG\MT097END.LOG","5-"+cEmail,.T.,"")        
+	u_xxLog("\LOG\MT097END.LOG","5-"+cEmail)
 
 	cAssunto:= "Pedido de Compra  nº.:"+alltrim(nPedido)+"   Bloqueado    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
     AADD(aEmail,{"Bloqueado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
@@ -217,7 +217,7 @@ Do While SY1->(!eof())
 	SY1->(dbskip())
 Enddo
 
-u_xxLog("\LOG\MT097END.LOG","6-"+cEmail,.T.,"")        
+u_xxLog("\LOG\MT097END.LOG","6-"+cEmail)
 
 
 DbSelectArea("SC7")
@@ -305,7 +305,7 @@ FOR _IX := 1 TO LEN(aSC1USER)
 	ENDIF
 NEXT                                          
 
-u_xxLog("\LOG\MT097END.LOG","7-"+cEmail,.T.,"")        
+u_xxLog("\LOG\MT097END.LOG","7-"+cEmail)
 
 
 aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}

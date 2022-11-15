@@ -798,8 +798,8 @@ Static Function ProcBKGCTR11(lJob)
 		cQuery += "         E1_FILIAL = '"+xFilial("SE1")+"' AND SE1.D_E_L_E_T_ = '') "+CRLF
 
 		cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF
-		cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF
-		cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF
+		cQuery += "     ON (CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF
+		cQuery += "         AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND "+CRLF
 		cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
 
 		cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
@@ -827,8 +827,8 @@ Static Function ProcBKGCTR11(lJob)
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
 	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"' AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-	cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " +CRLF
-    cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
+	cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD " +CRLF
+    cQuery += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF   	//AND CN9.CN9_SITUAC ='"+cSituac+"'"
 	*/
@@ -931,8 +931,8 @@ Static Function ProcBKGCTR11(lJob)
 		//cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
 		cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF
-		cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF
-		cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF
+		cQuery += "     ON (CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF
+		cQuery += "         AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND "+CRLF
 		cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
 
 		cQuery += " WHERE CNF.D_E_L_E_T_=''"+CRLF
@@ -962,8 +962,8 @@ Static Function ProcBKGCTR11(lJob)
 			cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
 			cQueryA += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
 			cQueryA += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
-			cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " +CRLF
-			cQueryA += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
+			cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD " +CRLF
+			cQueryA += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 			cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF
 			cQueryA += cQueryX
@@ -1166,8 +1166,8 @@ Static Function ProcBKGCTR11(lJob)
 	cQuery += "         E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '') "+CRLF
 
     cQuery += " INNER JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
-	cQuery += "     ON (CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
-    cQuery += "         AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND "+CRLF 
+	cQuery += "     ON (CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF 
+    cQuery += "         AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND "+CRLF 
 	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
 
 	cQuery += " WHERE CNE_FILIAL = '"+xFilial("CNE")+"' AND CNE.D_E_L_E_T_ = ' '"+ CRLF
@@ -1197,8 +1197,8 @@ Static Function ProcBKGCTR11(lJob)
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
 	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD "+CRLF 
-    cQuery += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF 
+    cQuery += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' "
 	*/
@@ -1296,8 +1296,8 @@ Static Function ProcBKGCTR11(lJob)
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
 		cQueryA += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
 		cQueryA += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
-		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIENT = SA1.A1_COD " +CRLF
-		cQueryA += "      AND CN9.CN9_LOJACL = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
+		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD " +CRLF
+		cQueryA += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
 		cQueryA += cQueryX
@@ -3468,7 +3468,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[RentabilidadeContrato] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3492,7 +3492,7 @@ IF lJob
 					cQuery +="            ,[ResultadoPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3519,7 +3519,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3542,7 +3542,7 @@ IF lJob
 					cQuery +="            ,[SalariosPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3594,7 +3594,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3617,7 +3617,7 @@ IF lJob
 					cQuery +="            ,[SalariosPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3670,7 +3670,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3717,7 +3717,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[RentabilidadeContrato] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3741,7 +3741,7 @@ IF lJob
 					cQuery +="            ,[ResultadoPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3768,7 +3768,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3791,7 +3791,7 @@ IF lJob
 					cQuery +="            ,[SalariosPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3845,7 +3845,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3868,7 +3868,7 @@ IF lJob
 					cQuery +="            ,[SalariosPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3921,7 +3921,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3970,7 +3970,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[RentabilidadeContrato] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -3994,7 +3994,7 @@ IF lJob
 					cQuery +="            ,[ResultadoPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -4021,7 +4021,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -4044,7 +4044,7 @@ IF lJob
 					cQuery +="            ,[SalariosPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -4096,7 +4096,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -4119,7 +4119,7 @@ IF lJob
 					cQuery +="            ,[SalariosPrev])"
 					cQuery +="      VALUES ('"+cCODGCT+"',"
 					cQuery +="              '"+cXCompet+" 00:00:00',"
-					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				'"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"
@@ -4171,7 +4171,7 @@ IF lJob
 					cQuery +="     WHERE [CodigoContrato]= '"+cCODGCT+"' AND Competencia BETWEEN '"+cXCompet+" 00:00:00' AND '"+cXCompet+" 23:59:59') <> '' "
 					cQuery +="BEGIN "
 					cQuery +=" UPDATE  [EstudoRentabilidade].[dbo].[InsumosSalarios] SET "
-					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_CLIENT")+"',"
+					cQuery +="				[CodigoCliente]='"+U_BUSCACN9(cCODGCT,"CN9_XCLIEN")+"',"
 					cQuery +="				[NomeCliente]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_NOMCLI"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[NomeContrato]='"+PAD(ALLTRIM(U_BUSCACN9(cCODGCT,"CN9_XXDESC"))+IIF(nConsolida==1,"-Consolidado",""),80)+"',"
 					cQuery +="				[GestorBK]='"+U_BUSCACN9(cCODGCT,"CN9_XXNRBK")+"',"

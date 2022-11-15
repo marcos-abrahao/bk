@@ -162,7 +162,7 @@ User Function BKGCTR28()
 		cEmailTo  	:= U_BKGetMv("BKGCTR2805")
 
 		If Empty(dDataJob) .OR. !(dDataJob == DATE())
-			u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
+			u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""))
 			Return Nil
 		EndIf
 		*/
@@ -201,7 +201,7 @@ User Function BKGCTR28()
 	//dDataF := dDataBase
 
 
-	u_xxLog(cArqLog,cStart+": "+cUserName,.T.,"")
+	u_xxLog(cArqLog,cStart+": "+cUserName)
 
 	If !lIsBlind
 		//FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
@@ -210,32 +210,32 @@ User Function BKGCTR28()
 		FWMsgRun(, {|oSay| GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3) }, "", cPerg+" Processando Centros de custos...")
 	Else
 
-		//u_xxLog(cArqLog,"Processando Contas a Receber...",.T.,"")
+		//u_xxLog(cArqLog,"Processando Contas a Receber...")
 		//GCT28P191(oSay,@aRelat,"R")
 
-		u_xxLog(cArqLog,"Processando Pagamentos...",.T.,"")
+		u_xxLog(cArqLog,"Processando Pagamentos...")
 		GCT28P191(oSay,@aRelat,"P")
 
-		u_xxLog(cArqLog,"Processando Contas a Pagar...",.T.,"")
+		u_xxLog(cArqLog,"Processando Contas a Pagar...")
 		GCT28CP(oSay,@aRelat,"P")
 
-		u_xxLog(cArqLog,"Processando Centros de Custo...",.T.,"")
+		u_xxLog(cArqLog,"Processando Centros de Custo...")
 		GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3)
 
 	EndIf
 
 	If lPlanTmp
-		u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
+		u_xxLog(cArqLog,"Gerando planilha Fase1...")
 		GCT28Anal(aRelat,"Fase1",.F.)
 
-		u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
+		u_xxLog(cArqLog,"Gerando planilha Fase2...")
 		GCT28Anal(aRelat2,"Fase2",.T.)
 	EndIf
 
-	u_xxLog(cArqLog,"Gerando planilha - "+cSintetico+"...",.T.,"")
+	u_xxLog(cArqLog,"Gerando planilha - "+cSintetico+"...")
 	GCT28Rel(aRelat3,cSintetico)
 
-	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName,.T.,"")
+	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName)
 
 Return
 

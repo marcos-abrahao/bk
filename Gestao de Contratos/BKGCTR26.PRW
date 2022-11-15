@@ -164,7 +164,7 @@ User Function BKGCTR26(lDashBoard)
 			dDataJob	:= U_BKGetMv("BKGCTR2604",.F.,CTOD(""))
 			cEmailTo  	:= U_BKGetMv("BKGCTR2605")
 			If Empty(dDataJob) .OR. !(dDataJob == DATE())
-				u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""),.T.,"")
+				u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""))
 				Return Nil
 			EndIf
 		Else
@@ -214,7 +214,7 @@ User Function BKGCTR26(lDashBoard)
     If lIsBlind
         GCT26Per(oSay)
     Else
-		u_xxLog(cArqLog,"Calculando período...",.T.,"")
+		u_xxLog(cArqLog,"Calculando período...")
     	FWMsgRun(, {|oSay| GCT26Per(oSay) }, "", "Calculando período...")
     EndIf
 
@@ -253,7 +253,7 @@ User Function BKGCTR26(lDashBoard)
 	oTmpT1:Create()
 	cRealT1 := oTmpT1:GetRealName()
 
-	u_xxLog(cArqLog,cStart+": "+cUserName,.T.,"")
+	u_xxLog(cArqLog,cStart+": "+cUserName)
 
 	If !lIsBlind
 		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
@@ -278,20 +278,20 @@ User Function BKGCTR26(lDashBoard)
 
 	If !lDashBoard
 		If !lSintetico
-			u_xxLog(cArqLog,"Gerando planilha Fase1...",.T.,"")
+			u_xxLog(cArqLog,"Gerando planilha Fase1...")
 			GCT26Anal(aRelat,"Fase1",.F.)
 
-			u_xxLog(cArqLog,"Gerando planilha Fase2...",.T.,"")
+			u_xxLog(cArqLog,"Gerando planilha Fase2...")
 			GCT26Anal(aRelat2,"Fase2",.T.)
 		EndIf
 
-		u_xxLog(cArqLog,"Gerando planilha Fluxo...",.T.,"")
+		u_xxLog(cArqLog,"Gerando planilha Fluxo...")
 		GCT26Rel()
 	Else
 		GCT26Dash(aRelat2)
 	EndIf
 
-	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName,.T.,"")
+	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName)
 
 //If nCont > 0
 	//MsAguarde({|| GCT26Xls(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)

@@ -102,13 +102,13 @@ If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marci
        		// Filtro 6
             cFiltro := "("+IIF(lStaf .AND. __cUserId $ cGerCompras,""," F1_XXUSER <> '"+__cUserId+"' AND")+" (F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '"+u_GerPetro()+"'","")+" OR "
           	cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/"),"")+") AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
-			//u_xxLog("\LOG\M103BROW.LOG","f6 "+__cUserId+":"+cFiltro,.T.,"")
+			//u_xxLog("\LOG\M103BROW.LOG","f6 "+__cUserId+":"+cFiltro)
           Else
               				 
        		// Filtro 7
             cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '"+u_GerPetro()+"'","")+" OR "
           	cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/"),"")+")"          	 
-			//u_xxLog("\LOG\M103BROW.LOG","f7 "+__cUserId+":"+cFiltro,.T.,"")
+			//u_xxLog("\LOG\M103BROW.LOG","f7 "+__cUserId+":"+cFiltro)
           	 
           EndIf
        EndIf
@@ -143,7 +143,7 @@ If IsBlind() .AND. Empty(cFiltro)
 	cFiltro := "(F1_STATUS IN (' ','B'))"
 EndIf
 
-//u_xxLog("\LOG\M103FILB.LOG",__cUserId+":"+cFiltro,.T.,"")
+//u_xxLog("\LOG\M103FILB.LOG",__cUserId+":"+cFiltro)
 
 Return cFiltro
 

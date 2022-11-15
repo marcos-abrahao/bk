@@ -42,16 +42,17 @@ Local aAreaIni := GetArea()
 Local cQuery
 Local nI,cPrf,cTitulo,nProxTit
 Local nStatusX
+Local cPrw     := "BKCOMA02"
 
 dbSelectArea("SZB")
 dbGoTop()
 IF BOF() .OR. EOF()
-	MsgStop("Não ha VT/VR gerados", "Atenção")
+	u_MsgLog(cPrw,"Não há VT/VR gerados", "W")
 	RestArea(aAreaIni)
 	Return
 ENDIF
 
-u_MsgLog("BKCOMA02")
+u_MsgLog(cPrw)
 
 // Verificar se há processos de integração em andamento
 cQuery  := "SELECT COUNT(*) AS ZBSTATUSX " 
@@ -65,14 +66,14 @@ nStatusX := QSZB->ZBSTATUSX
 QSZB->(DbCloseArea())
 
 IF nStatusX > 0
-    MsgStop("Integração já iniciada por outra seção", "Atenção")
+   u_MsgLog(cPrw,"Integração já iniciada por outra seção", "W")
 	IF __cUserId <> "000000"
-	   MsgStop("Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "Atenção")
+	   u_MsgLog(cPrw,"Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "E")
     ELSE
-       IF MsgYesNo("Sr. Administrador, deseja resetar o campo ZB_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?")
+       IF u_MsgLog(cPrw,"Sr. Administrador, deseja resetar o campo ZB_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?","Y")
 		  cQuery := " UPDATE "+RetSqlName("SZB")+" SET ZB_STATUS = ' ' WHERE ZB_STATUS = 'X' AND D_E_L_E_T_ <> '*'"
     	  TcSqlExec(cQuery)
-    	  MsgInfo("Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa")
+    	  u_MsgLog(cPrw,"Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa","S")
        ENDIF  
     ENDIF
    RestArea(aAreaIni)
