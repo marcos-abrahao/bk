@@ -26,6 +26,7 @@ Local cQuery    := ""
 Local _xRetorno := ""
 Local _aAreas 	:= {}
 
+u_LogMsg("KK00004")
        
 If (ReadVar() == "M->CN9_XCLIEN")
 

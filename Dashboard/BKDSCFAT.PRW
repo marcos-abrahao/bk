@@ -27,7 +27,7 @@ Local cTabSC5   := ""
 Local cTabSA1   := ""
 Local cTabCTT   := ""
 
-u_MsgLog("BKDSCFAT","Inicio: Canc. Faturamento")
+//u_MsgLog("BKDSCFAT","Inicio: Canc. Faturamento")
 
 cQuery := "WITH CFATUR AS ("+CRLF
 For nE := 1 TO Len(aEmpresas)
@@ -169,6 +169,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSCFAT.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSCFAT","Final: Canc. Faturamento")
+//u_MsgLog("BKDSCFAT","Final: Canc. Faturamento")
 
 Return

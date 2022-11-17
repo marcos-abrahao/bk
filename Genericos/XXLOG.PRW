@@ -131,6 +131,21 @@ fClose(nHandle)
 Return(.t.)
 
 
+
+// Gravar log de processamentos
+
+User Function WaitLog(cProg,bFunction,cMens)
+Local cTimeI := Time()
+If !IsBlind()
+	FWMsgRun(, {|oSay| Eval(bFunction,oSay) }, "", cMens)
+Else
+	Eval(bFunction)
+EndIf
+u_MsgLog(cProg,cMens + " ("+elapTime(cTimeI,Time())+")")
+
+Return Nil
+
+
 // Mensagens e log de erros na execução de MSExecAuto
 User Function LogMsExec(cProg,cMens)
 Local cArqErr := AllTrim(cProg)+".err"

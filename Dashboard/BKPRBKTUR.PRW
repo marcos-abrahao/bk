@@ -17,7 +17,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
-u_MsgLog("BKPRBKTUR","Create BKTURNOVER1")
+//u_MsgLog("BKPRBKTUR","Create BKTURNOVER1")
 
 If TCSPExist( "BKTURNOVER1" )
 	cQueryD := "DROP PROCEDURE BKTURNOVER1"  
@@ -147,7 +147,7 @@ If TCSPExist( "BKTURNOVER1" )
 EndIf
 
 u_LogMemo("BKDSBKTUR.SQL",cErro1+cQuery)
-u_MsgLog("BKPRBKTUR","Final: TurnoverBK")
+//u_MsgLog("BKPRBKTUR","Final: TurnoverBK")
 
 Return
 

@@ -33,16 +33,16 @@ Endif
 
 cCNPJ := ALLTRIM(mv_par01) 
 
-u_MsgLog("BKCOMA07",cCNPJ)
+u_MsgLog(cPerg,cCNPJ)
 IF !CGC(cCNPJ,,.F.)
-	u_MsgLog(cPerg,"CNPJ "+cCNPJ+" incorreto. Verifique!!")
+	u_MsgLog(cPerg,"CNPJ "+cCNPJ+" incorreto. Verifique!!","E")
 	Return Nil
 ENDIF
 
 DBselectarea("SA2")
 dbSetOrder(3)
 IF dbSeek(xFILIAL("SA2")+cCNPJ,.F.)    
-	u_MsgLog(cPerg,"Fornecedor já cadastrado código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME)
+	u_MsgLog(cPerg,"Fornecedor já cadastrado código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME,"E")
 	Return Nil
 ENDIF
 
@@ -118,7 +118,7 @@ Local aSA2		:= {}
 Local aSx3		:= {}
 Local nI		:= 0
 Local cCpo		:= ""
-Local cErrLog	:= ""
+//Local cErrLog	:= ""
 
 Private lMsHelpAuto := .f.
 Private lMsErroAuto := .f.
@@ -220,12 +220,13 @@ Begin Transaction
 	MSExecAuto({|x,y| MATA020(x,y)},aSA2,3)
 
 	IF lMsErroAuto
-		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA07.ERR")
-		u_xxLog("\LOG\BKCOMA07.LOG",cErrLog)
-		MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+		//cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA07.ERR")
+		//u_xxLog("\LOG\BKCOMA07.LOG",cErrLog)
+		//MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+		u_LogMsExec(cPerg,"Erro ao copiar o fornecedor: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2ARQ)
 	   	DisarmTransaction()
 	Else
-		MSGINFO("Fornecedor copiado com sucesso!! código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME)
+		u_MsgLog(cPerg,"Fornecedor copiado com sucesso!! código: "+SA2->A2_COD+"  Loja: "+SA2->A2_LOJA+" - "+SA2->A2_NOME,"S")
 	Endif
 End Transaction
 

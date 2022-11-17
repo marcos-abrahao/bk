@@ -143,6 +143,12 @@ If nPagto == 1
 	AADD(aCampos,"iIf(Empty(QSD1->E2_BAIXA),aPagtos[7],QSD1->E2_BAIXA)")
 	AADD(aCabs  ,"Ultimo Pagamento")
 
+	AADD(aCampos,"-aPagtos[8]")
+	AADD(aCabs  ,"Decrescimos Fin. Item")
+
+	AADD(aCampos,"aPagtos[9]")
+	AADD(aCabs  ,"Acrescimos Fin. Item")
+
 //AADD(aCampos,"IIF(QSD1->F1_VALBRUT>0,ROUND(QSD1->E2_VALOR/QSD1->F1_VALBRUT*QSD1->D1_TOTAL,2),0)")
 //AADD(aCabs  ,"Valor parcela")
 
@@ -772,11 +778,12 @@ Return nil
 #Define X_VLPAGOITEM             5
 #Define X_ULTVENC	             6
 #Define X_ULTPGTO                7
-
+#Define X_DECRESCIMOS            8
+#Define X_ACRESCIMOS             9
 
 
 User Function ValPag(cTipo,cSerie,cDoc,cForn,cLoja,nValItem)
-Local aPgtos   	:= {0,0,0,0,0,CTOD(""),CTOD("")}
+Local aPgtos   	:= {0,0,0,0,0,CTOD(""),CTOD(""),0,0}
 Local aValor 	:= {}
 Local cQuery3   := ""
 Local cAliasSE2 := "SE2"
@@ -827,9 +834,12 @@ Do While !QTMPXE2->(EOF())
 	SE2->( dbSetOrder(1) )
 	If SE2->( MsSeek( xFilial("SE2")+QTMPXE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA ) ) )
 
-
 		aValor := Baixas((cAliasSE2)->E2_NATUREZ,(cAliasSE2)->E2_PREFIXO,(cAliasSE2)->E2_NUM,(cAliasSE2)->E2_PARCELA,(cAliasSE2)->E2_TIPO,;
 						nMoeda,"P",(cAliasSE2)->E2_FORNECE,dDataBase,(cAliasSE2)->E2_LOJA,(cAliasSE2)->E2_FILORIG,,,,nMoeda == 2,__oTBxCanc)
+
+		If (cAliasSE2)->E2_NUM == '000000590'
+			xTeste:= 0
+		EndIf
 
 		If SE2->E2_TIPO == "NDF"
 			aValor[I_VALOR_PAGO]:=0
@@ -838,10 +848,10 @@ Do While !QTMPXE2->(EOF())
 		If xmv_par14 == 1
 			nSaldo :=SaldoTit((cAliasSE2)->E2_PREFIXO,(cAliasSE2)->E2_NUM,(cAliasSE2)->E2_PARCELA,(cAliasSE2)->E2_TIPO,;
 							(cAliasSE2)->E2_NATUREZ,"P",(cAliasSE2)->E2_FORNECE,nMoeda,;
-							If(xmv_par11==1,dDataBase,(cAliasSE2)->E2_VENCREA),,(cAliasSE2)->E2_LOJA,,If(xmv_par17 == 1 ,(cAliasSE2)->E2_TXMOEDA,0),,,__oTBxCanc)
+							iIf(xmv_par11==1,dDataBase,(cAliasSE2)->E2_VENCREA),,(cAliasSE2)->E2_LOJA,,iIf(xmv_par17 == 1 ,(cAliasSE2)->E2_TXMOEDA,0),,,__oTBxCanc)
 		Else
 			nSaldo := Round(xMoeda(((cAliasSE2)->E2_SALDO+(cAliasSE2)->E2_SDACRES-(cAliasSE2)->E2_SDDECRE),(cAliasSE2)->E2_MOEDA,xmv_par10,;
-				If(xmv_par17 == 1,If(xmv_par18 == 1,(cAliasSE2)->E2_EMISSAO,(cAliasSE2)->E2_EMIS1),dDataBase),nDecs+1,If(xmv_par17 == 1 .and. (cAliasSE2)->E2_TXMOEDA>0,(cAliasSE2)->E2_TXMOEDA, )), nDecs)
+				iIf(xmv_par17 == 1,iIf(xmv_par18 == 1,(cAliasSE2)->E2_EMISSAO,(cAliasSE2)->E2_EMIS1),dDataBase),nDecs+1,iIf(xmv_par17 == 1 .and. (cAliasSE2)->E2_TXMOEDA>0,(cAliasSE2)->E2_TXMOEDA, )), nDecs)
 		Endif
 
 		//compensação de nf x pa/ncc de filiais diferentes.
@@ -873,8 +883,8 @@ Do While !QTMPXE2->(EOF())
 		aValor[I_JUROS]   += (cAliasSE2)->E2_SDACRES
 		aValor[I_VALOR_ACESSORIO]	+= nValAcess
 
-		nTotAbat := SumAbatPag(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_FORNECE,xmv_par10,"V",,SE2->E2_LOJA,If(xmv_par18==1,"1","2"),xmv_par05,xmv_par06,;
-						If(xmv_par17 == 1,If(xmv_par18 == 1,SE2->E2_EMISSAO,SE2->E2_EMIS1),dDataBase),SE2->E2_TIPO)
+		nTotAbat := SumAbatPag(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_FORNECE,xmv_par10,"V",,SE2->E2_LOJA,iIf(xmv_par18==1,"1","2"),xmv_par05,xmv_par06,;
+						iIf(xmv_par17 == 1,iIf(xmv_par18 == 1,SE2->E2_EMISSAO,SE2->E2_EMIS1),dDataBase),SE2->E2_TIPO)
 
 		If !((cAliasSE2)->E2_TIPO $ MVPAGANT+"/"+MV_CPNEG) .And. !( xMV_PAR14 == 2 .And. nSaldo == 0 ) // nao deve olhar abatimento pois e zerado o saldo na liquidacao final do titulo
 			nSaldo -= nTotAbat
@@ -904,6 +914,8 @@ Do While !QTMPXE2->(EOF())
 		If (cAliasSE2)->E2_BAIXA > aPgtos[X_ULTPGTO] 
 			aPgtos[X_ULTPGTO]  := (cAliasSE2)->E2_BAIXA
 		EndIf
+		aPgtos[X_DECRESCIMOS] 	+= aValor[I_DESCONTO]
+		aPgtos[X_ACRESCIMOS] 	+= aValor[I_JUROS]
 
 	EndIf
 
@@ -911,10 +923,14 @@ Do While !QTMPXE2->(EOF())
 Enddo
 QTMPXE2->(Dbclosearea())
 
-aPgtos[X_VLPAGOITEM] := Round((aPgtos[X_VALOR_PAGO]  / aPgtos[X_VLORIGINAL]) * nValItem,2)
-	//                       Val total pago titulos  / Tot Geral             * Valor do Item   			
-aPgtos[X_SALDO]      := Round((aPgtos[X_SALDO]       / aPgtos[X_VLORIGINAL]) * nValItem,2)
-	//                       saldo                   / Tot Geral             * Valor do Item   			
+aPgtos[X_VLPAGOITEM] := Round((aPgtos[X_VALOR_PAGO]   / aPgtos[X_VLORIGINAL]) * nValItem,2)
+	//                       Val total pago titulos   / Tot Geral             * Valor do Item   			
+aPgtos[X_SALDO]      := Round((aPgtos[X_SALDO]        / aPgtos[X_VLORIGINAL]) * nValItem,2)
+	//                       saldo                    / Tot Geral             * Valor do Item   			
+
+aPgtos[X_DECRESCIMOS] := Round((aPgtos[X_DECRESCIMOS] / aPgtos[X_VLORIGINAL]) * nValItem,2)
+aPgtos[X_ACRESCIMOS]  := Round((aPgtos[X_ACRESCIMOS]  / aPgtos[X_VLORIGINAL]) * nValItem,2)
+
 
 /*
 For _nY := 1 To Len(aLAcrDcr)

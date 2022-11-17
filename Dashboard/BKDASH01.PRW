@@ -33,116 +33,96 @@ Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 Local aDados  := {}
 Local nX 	  := 0
 Local aGrpDsp := u_BKGrpDsp()
+Local bProg
+Local cBlind1 := ""
+Local cBlind2 := ""
+Local lOk     := .F.
 
 Private cTitulo     := "Atualizar Dashboard PowerBk"
 Private cPerg       := "BKDASH01"
 
 If FWCodEmp() == "01"
 
-	u_MsgLog(cPerg,"Inicio")
+	aDados := {}
+	cBlind1 := ""
+	cBlind2 := ""
 
-	If IsBlind()
-		//If (DOW(DATE()) = 7 .OR. DOW(DATE()) = 4) .AND. SUBSTRING(TIME(),1,2) = '06'
-
-		If SUBSTRING(TIME(),1,2) == '19' //.AND. DOW(DATE()) <> 1
-			U_BKGCTR26(.T.)
-		EndIf
-
-		If SUBSTRING(TIME(),1,2) > '05' ;
-				.AND. SUBSTRING(TIME(),1,2) < '22';
-			 	.AND. DOW(DATE()) <> 7;
-			 	.AND. DOW(DATE()) <> 1
-
-			If SUBSTRING(TIME(),1,2) $ '06/14'
-				U_BKDSDSP1()
-				U_BKDSDSP2()
-				U_BKDSEMP()
-				U_BKDSCC()
-				U_BKDSFOL()
-				U_BKDSFER()
-				U_BKDSUSR()
-				U_BKDSTUR()
-				U_BKDSBKTUR()
-				U_BKDSBKFAL()
-				U_BK040PER()
-				U_BKDSSC()
-				U_BKDSCFAT()
-			EndIf
-
-			U_BKDSFAT()
-
-			If SUBSTRING(TIME(),1,2) $ '07/11/15'
-				U_BKDSGES()
-				U_BKDSGLO()
-				U_BKDSCTR()
-				U_BKDSPLA()
-				U_BKDSCRO()
-				U_BKDSGG()
-			EndIf
-			//U_BKDSGLF()
-			U_BKDSGER()
-
-		EndIf
-
-	Else
-		aDados := {}
-		aAdd(aDados,{"","U_BKGCTR26(.T.)","Tabelas de Fluxo de Caixa Por Contrato"})
-		aAdd(aDados,{"","U_BKDSPRTUR()"  ,"Criação/atualização da Procedure BKTURNOVER"})
-		aAdd(aDados,{"","U_BKDSTUR()"    ,"Atualização da tabela FOLHAFIL e FOLHATUR"})
-
-		aAdd(aDados,{"","U_BKPRBKTUR()"  ,"Criação/atualização da Procedure BKTURNOVER1"})
-		aAdd(aDados,{"","U_BKDSBKTUR()"  ,"Atualização da tabela FOLHAFILBK"})
-
-		aAdd(aDados,{"","U_BKDSPRFAL()"  ,"Criação/atualização da Procedure BKFALTAS"})
-		aAdd(aDados,{"","U_BKDSBKFAL()"  ,"Atualização da tabela FOLHAFAL"})
-
-		aAdd(aDados,{"","U_BKDSDSP1()"   ,"Atualização da tabela PREVDESP1"})
-		aAdd(aDados,{"","U_BKDSDSP2()"   ,"Atualização da tabela PREVDESP2"})
-		aAdd(aDados,{"","U_BKDSEMP()"    ,"Atualização da tabela EMPRESAS"})
-		aAdd(aDados,{"","U_BKDSCC()"     ,"Atualização da tabela CCUSTOS"})
-		aAdd(aDados,{"","U_BKDSFOL()"    ,"Atualização da tabela FOLHA"})
-		aAdd(aDados,{"","U_BKDSFER()"    ,"Atualização da tabela FERIAS"})
-		aAdd(aDados,{"","U_BKDSUSR()"    ,"Atualização da tabela USUARIOS"})
-		aAdd(aDados,{"","U_BKDSCTR()"    ,"Atualização da tabela CONTRATOS"})
-		aAdd(aDados,{"","U_BKDSPLA()"    ,"Atualização da tabela PLANILHAS"})
-		aAdd(aDados,{"","U_BKDSCRO()"    ,"Atualização da tabela CRONOGRAMAS"})
-
-		aAdd(aDados,{"","U_BKDSFAT()"    ,"Atualização da tabela FATURAMENTO"})
-		aAdd(aDados,{"","U_BKDSCFAT()"   ,"Atualização da tabela CANCFATURAMENTO"})
-	
-		aAdd(aDados,{"","U_BKDSGES()"    ,"Atualização da tabela GESTORES"})
-		aAdd(aDados,{"","U_BKDSGLO()"    ,"Atualização da tabela GLOSAS"})
-		aAdd(aDados,{"","U_BKDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})
-		aAdd(aDados,{"","U_BKDSSC()"     ,"Atualização da tabela SOLCOMPRAS"})
-		aAdd(aDados,{"","U_BKDSGER()"    ,"Atualização da tabela GERAL"})
-		aAdd(aDados,{"","U_BK040PER()"   ,"Atualização da tabela BK040PER"})
-
-		u_TTMARKB(aCampos, aDados, .F.)
-
-		For nX := 1 To Len(aDados) 
-			If !Empty(aDados[nX,1])
-				FWMsgRun(, {|oSay| x:= &(aDados[nX,2]) }, "", aDados[nX,2]+": "+aDados[nX,3])
-			EndIf
-		Next nX
-
+	If IsBlind(); 
+			.AND. SUBSTRING(TIME(),1,2) > '05' ;
+			.AND. SUBSTRING(TIME(),1,2) < '22';
+		 	.AND. DOW(DATE()) <> 7;
+		 	.AND. DOW(DATE()) <> 1
+		cBlind1 := "X"
 	EndIf
-	u_MsgLog(cPerg,"Final")
+
+	cBlind2 := ""
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) == '19'
+		cBlind2 := "X"
+	EndIf
+	aAdd(aDados,{cBlind2,"U_BKGCTR26(.T.)","Tabelas de Fluxo de Caixa Por Contrato"})
+
+	cBlind2 := ""
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '06/14'
+		cBlind2 := "X"
+	EndIf
+	aAdd(aDados,{cBlind2,"U_BKDSDSP1()"   ,"Atualização da tabela PREVDESP1"})
+	aAdd(aDados,{cBlind2,"U_BKDSDSP2()"   ,"Atualização da tabela PREVDESP2"})
+	aAdd(aDados,{cBlind2,"U_BKDSEMP()"    ,"Atualização da tabela EMPRESAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCC()"     ,"Atualização da tabela CCUSTOS"})
+	aAdd(aDados,{cBlind2,"U_BKDSFOL()"    ,"Atualização da tabela FOLHA"})
+	aAdd(aDados,{cBlind2,"U_BKDSFER()"    ,"Atualização da tabela FERIAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSUSR()"    ,"Atualização da tabela USUARIOS"})
+	aAdd(aDados,{cBlind2,"U_BKDSTUR()"    ,"Atualização da tabela FOLHAFIL e FOLHATUR"})
+	aAdd(aDados,{cBlind2,"U_BKDSBKTUR()"  ,"Atualização da tabela FOLHAFILBK"})
+	aAdd(aDados,{cBlind2,"U_BKDSBKFAL()"  ,"Atualização da tabela FOLHAFAL"})
+	aAdd(aDados,{cBlind2,"U_BK040PER()"   ,"Atualização da tabela BK040PER"})
+	aAdd(aDados,{cBlind2,"U_BKDSSC()"     ,"Atualização da tabela SOLCOMPRAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCFAT()"   ,"Atualização da tabela CANCFATURAMENTO"})
+
+	cBlind2 := ""
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '07/11/15'
+		cBlind2 := "X"
+	EndIf
+
+	aAdd(aDados,{cBlind2,"U_BKDSGES()"    ,"Atualização da tabela GESTORES"})
+	aAdd(aDados,{cBlind2,"U_BKDSGLO()"    ,"Atualização da tabela GLOSAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCTR()"    ,"Atualização da tabela CONTRATOS"})
+	aAdd(aDados,{cBlind2,"U_BKDSPLA()"    ,"Atualização da tabela PLANILHAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCRO()"    ,"Atualização da tabela CRONOGRAMAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})
+
+	aAdd(aDados,{cBlind1,"U_BKDSFAT()"    ,"Atualização da tabela FATURAMENTO"})
+	aAdd(aDados,{cBlind1,"U_BKDSGER()"    ,"Atualização da tabela GERAL"})
+
+	aAdd(aDados,{"","U_BKDSPRTUR()"  ,"Criação/atualização da Procedure BKTURNOVER"})
+	aAdd(aDados,{"","U_BKPRBKTUR()"  ,"Criação/atualização da Procedure BKTURNOVER1"})
+	aAdd(aDados,{"","U_BKDSPRFAL()"  ,"Criação/atualização da Procedure BKFALTAS"})
+
+	If !IsBlind()
+		u_TTMARKB(aCampos, aDados, .F.)
+	EndIf
+
+	For nX := 1 To Len(aDados) 
+		If !Empty(aDados[nX,1])
+			//FWMsgRun(, {|oSay| x:= &(aDados[nX,2]) }, "", aDados[nX,2]+": "+aDados[nX,3])
+			bProg := {|oSay| x:= &(aDados[nX,2]) }
+			u_WaitLog(cPerg, bProg, aDados[nX,2]+": "+aDados[nX,3])
+		EndIf
+	Next nX
 
 ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 
 	If !IsBlind()
 		If u_MsgLog(cPerg,"Confirma a atualização das tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk?", "Y")
-			u_MsgLog(cPerg,"Inicio")
-			FWMsgRun(, {|oSay| U_BKGCTR26(.T.) }, "", "Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
-			u_MsgLog(cPerg,"Final")
+			lOk := .T.
 		EndIf
-	Else
-		If SUBSTRING(TIME(),1,2) = '20'
-			u_MsgLog(cPerg,"Inicio")
-			U_BKGCTR26(.T.)
-			u_MsgLog(cPerg,"Final")
-		EndIf
+	ElseIf SUBSTRING(TIME(),1,2) == '20'
+		lOk := .T.
 	EndIf
+	If lOk
+		u_WaitLog(cPerg,{|oSay| U_BKGCTR26(.T.) },"Atualizando as tabelas de Fluxo de Caixa Por Contrato do banco de dados PowerBk...")
+	EndIf
+
 EndiF
 
 Return

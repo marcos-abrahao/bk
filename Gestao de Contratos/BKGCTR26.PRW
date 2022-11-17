@@ -255,20 +255,22 @@ User Function BKGCTR26(lDashBoard)
 
 	u_xxLog(cArqLog,cStart+": "+cUserName)
 
+	u_WaitLog(cPerg,{|oSay| GCT26P191(oSay,@aRelat,"R") },"Processando Contas a Receber...")
+
 	If !lIsBlind
-		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
+		//FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
 		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
 		FWMsgRun(, {|oSay| GCT26CC(oSay,@aRelat,@aRelat2) }, "", cPerg+" Processando Centros de custos...")
 		FWMsgRun(, {|oSay| GCT26Sld(oSay) }, "", cPerg+" Calculando saldos anteriores...")
 	Else
 
-		u_MsgLog(cPerg,"Processando Contas a Receber")		
-		GCT26P191(oSay,@aRelat,"R")
+		//u_MsgLog(cPerg,"Processando Contas a Receber")		
+		//GCT26P191(oSay,@aRelat,"R")
 
 		u_MsgLog(cPerg,"Processando Contas a Pagar")		
 		GCT26P191(oSay,@aRelat,"P")
 
-		u_MsgLog(cPerg,"Processando Centros de Custo")		
+		u_MsgLog(cPerg,"Processando Centros de Custos")		
 		GCT26CC(oSay,@aRelat,@aRelat2)
 
 		u_MsgLog(cPerg,"Processando Saldos")

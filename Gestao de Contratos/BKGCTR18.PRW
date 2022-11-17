@@ -36,11 +36,10 @@ User Function BKGCTR18()
 	Private cANOTAB2	:= STRZERO(YEAR(dDataBase),4)
 	Private cANOTAB3	:= STRZERO(YEAR(dDataBase),4)
 
-	If !MsgYesNo("Confirma a execução do relatório 'Licitação Mod. 2'?","BKFINR18")
+	If u_MsgLog(cPerg,"Confirma a execução do relatório 'Licitação Mod. 2'?","Y")
 		Return
 	EndIf
-	u_MsgLog(cPerg)
-
+	
 	aCabs    := {}
 	aCampos  := {}
 	nomeprog := ""

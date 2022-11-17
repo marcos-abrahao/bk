@@ -23,7 +23,7 @@ Local nSnd:= 15,nTLin := 15
 Private cArq  := ""
 Private cProg := "BKCTBA04"
 
-u_MsgLog("BKCTBA04")
+u_MsgLog(cProg)
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -91,7 +91,7 @@ Enddo
 FT_FUSE()  //fecha o arquivo txt
 fClose(nHandle)
 
-MsgInfo("Importe o arquivo "+cArq2+" através da rotina Contabilização Txt",cProg)
+u_MsgLog(cProg,"Importe o arquivo "+cArq2+" através da rotina Contabilização Txt","I")
 
 //CHAMA ROTINA CONTABILIZA TXT
 //CTBA500() - Retirada a chamada direta na versão 12 pois ocorre erro - 08/11/19 - Marcos

@@ -190,7 +190,7 @@ IF lAprov
         ENDIF
     NEXT
     IF LEN(aSaldos) > 0
-    	IF MsgYesNo("Produtos da solicitação em estoque. Deseja Utilizá-los?")
+    	IF u_MsgLog("MT110CFM","Produtos da solicitação em estoque. Deseja Utilizá-los?","Y")
     		U_BKESTA01(aSaldos)
     		Return Nil
     	ENDIF

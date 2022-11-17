@@ -27,7 +27,7 @@ Local cTabSF1   := ""
 Local cTabSD1   := ""
 Local cTabSA2   := ""
 
-u_MsgLog("BKDSSC","Inicio: Sol. Compras")
+//u_MsgLog("BKDSSC","Inicio: Sol. Compras")
 
 cQuery := "WITH SC AS ("
 
@@ -206,6 +206,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSSC.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSSC","Final: Sol. Compras")
+//u_MsgLog("BKDSSC","Final: Sol. Compras")
 
 Return

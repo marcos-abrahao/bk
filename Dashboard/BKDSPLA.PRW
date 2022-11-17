@@ -29,7 +29,7 @@ Local cTabCNB   := ""
 Local cTabSA1   := ""
 Local cTabSB1   := ""
 
-u_MsgLog("BKDSPLA","Inicio: Planilhas")
+//u_MsgLog("BKDSPLA","Inicio: Planilhas")
  
 cQuery := "WITH PLANS AS ( " + CRLF
 
@@ -144,6 +144,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSPLA.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSPLA","Final: Planilhas")
+//u_MsgLog("BKDSPLA","Final: Planilhas")
 
 Return

@@ -21,7 +21,7 @@ Local nE 		:= 0
 
 Local cTabSZL   := ""
 
-u_MsgLog("BKDSDSP2","Inicio: Previsão de despesas 2")
+//u_MsgLog("BKDSDSP2","Inicio: Previsão de despesas 2")
  
 For nE := 1 TO Len(aEmpresas)
 
@@ -101,6 +101,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSDSP2.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSDSP2","Final: Previsão de despesas 2")
+//u_MsgLog("BKDSDSP2","Final: Previsão de despesas 2")
 
 Return

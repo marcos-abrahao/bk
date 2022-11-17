@@ -32,7 +32,7 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 
-u_MsgLog("BKDSGLO","Inicio: Glosas")
+//u_MsgLog("BKDSGLO","Inicio: Glosas")
 
 cTabSZR := "SZR010"
 
@@ -205,6 +205,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSGLO.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSGLO","Final: Glosas")
+//u_MsgLog("BKDSGLO","Final: Glosas")
 
 Return

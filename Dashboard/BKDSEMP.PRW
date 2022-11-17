@@ -19,7 +19,7 @@ Local cErro2 	:= ""
 Local nX 		:= 0
 Local aEmpresas := U_BKEmpr()
 
-u_MsgLog("BKDSEMP","Inicio: Empresas")
+//u_MsgLog("BKDSEMP","Inicio: Empresas")
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.EMPRESAS', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.EMPRESAS "+CRLF
@@ -70,6 +70,6 @@ For nX := 1 To Len(aEmpresas)
 Next nX
 
 u_LogMemo("BKDSEMP.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSEMP","Final: Empresas")
+//u_MsgLog("BKDSEMP","Final: Empresas")
 
 Return

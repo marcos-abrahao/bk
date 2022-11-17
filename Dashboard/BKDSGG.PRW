@@ -36,7 +36,7 @@ Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
 Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
 Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
 
-u_MsgLog("BKDSGG","Inicio: Gastos Gerais")
+//u_MsgLog("BKDSGG","Inicio: Gastos Gerais")
 
 cQuery := "WITH DESPESAS AS ("+CRLF
 
@@ -611,6 +611,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSGG.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSGG","Final: Gastos Gerais")
+//u_MsgLog("BKDSGG","Final: Gastos Gerais")
 
 Return

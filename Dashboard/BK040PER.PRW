@@ -17,7 +17,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
-u_MsgLog("BK040PER","Inicio: BK040PER")
+//u_MsgLog("BK040PER","Inicio: BK040PER")
 
 // R030EMP -- cadastro de empresas
 // R030FIL -- cadastro de filiais
@@ -134,6 +134,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BK040PER.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BK040PER","Final: BK040PER")
+//u_MsgLog("BK040PER","Final: BK040PER")
 
 Return

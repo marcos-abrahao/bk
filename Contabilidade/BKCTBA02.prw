@@ -54,23 +54,23 @@ cAnoComp := STRZERO(VAL(mv_par02),4)
 cCtaCred := mv_par03
 
 If VAL(cMesComp) < 1 .OR. VAL(cMesComp) > 12
-	MsgStop("Mes incorreto")
+	u_MsgLog(cPerg,"Mes incorreto","E")
 	Return
 EndIf
 	
 If VAL(cAnoComp) < 2010 .OR. VAL(cAnoComp) > 2020
-	MsgStop("Ano incorreto")
+	u_MsgLog(cPerg,"Ano incorreto","E")
 	Return
 EndIf
 
 If EMPTY(cCtaCred)
-	MsgStop("Conta contábila a crédito deve ser informada")
+	u_MsgLog(cPerg,"Conta contábila a crédito deve ser informada","E")
 	Return
 EndIf
 	    
 cPerComp := cAnoComp+CMesComp
 If cPerComp >= cMesBase
-	MsgStop("Periodo selecionado deve ser anterior ao atual")
+	u_MsgLog(cPerg,"Periodo selecionado deve ser anterior ao atual","E")
 	Return
 EndIf
 	
@@ -93,12 +93,12 @@ nStatus := QSZ2->Z2CONTAB
 QSZ2->(DbCloseArea())
 	
 IF nStatus > 0
-   IF MsgYesNo("Confirma a geração de "+STRZERO(nStatus,6)+" lançamentos ?")
+   IF u_MsgLog(cPerg,"Confirma a geração de "+STRZERO(nStatus,6)+" lançamentos ?","Y")
       Processa( {|| RunCtb02() } )
       Return
    ENDIF
 ELSE
-   MsgStop("Não há lançamentos para gerar","Atenção")    
+   u_MsgLog(cPerg,"Não há lançamentos para gerar","W")
 ENDIF
 
 RestArea(aArea1)

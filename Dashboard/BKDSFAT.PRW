@@ -34,7 +34,7 @@ Local cTabCNA   := ""
 Local cTabSE5   := ""
 Local cTabSE1   := ""
 
-u_MsgLog("BKDSFAT","Inicio: Faturamento")
+//u_MsgLog("BKDSFAT","Inicio: Faturamento")
 
 cTabSZR := "SZR010"
 
@@ -430,6 +430,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSFAT.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSFAT","Final: Faturamento")
+//u_MsgLog("BKDSFAT","Final: Faturamento")
 
 Return

@@ -17,7 +17,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 
-u_MsgLog("BKDSGER","Inicio: Geral")
+//u_MsgLog("BKDSGER","Inicio: Geral")
 
 BEGINCONTENT VAR cQuery
 WITH GER AS (
@@ -180,6 +180,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSGER.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSGER","Final: Geral")
+//u_MsgLog("BKDSGER","Final: Geral")
 
 Return

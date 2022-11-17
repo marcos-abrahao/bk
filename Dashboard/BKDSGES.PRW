@@ -22,7 +22,7 @@ Local nE 		:= 0
 Local cTabCN9   := ""
 Local cTabCNF   := ""
 
-u_MsgLog("BKDSGES","Inicio: Gestores")
+//u_MsgLog("BKDSGES","Inicio: Gestores")
  
 cQuery := "WITH VIG AS ( " + CRLF
 
@@ -125,6 +125,6 @@ If nErro != 0
 EndIf
 
 u_LogMemo("BKDSGES.SQL",cErro1+cQueryD+cErro2+cQuery)
-u_MsgLog("BKDSGES","Final: Gestores")
+//u_MsgLog("BKDSGES","Final: Gestores")
 
 Return
