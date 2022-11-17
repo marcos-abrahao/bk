@@ -197,7 +197,7 @@ Do While !eof()
 			//cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA01.ERR")
 			//cErrLog:= CRLF+MostraErro()
 
-			U_LogMsExec(cPrw,"Problemas na inclusão de lançamento")
+			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento")
 
 			DisarmTransaction()
 		ENDIF

@@ -11,7 +11,6 @@ BK - Importar planilha excel em CSV e importação do Ativo Fixo
 /*/
 
 User Function BKATFA01()
-Local cProg := "BKATFA01"
 Local cTipoArq := "Arquivos no formato CSV (*.CSV) | *.CSV | "
 Local cTitulo  := "Importar planilha excel em CSV para importação do Ativo Fixo"
 Local oDlg01
@@ -19,7 +18,8 @@ Local oButSel
 Local nOpcA := 0
 Local nSnd:= 15,nTLin := 15
 
-PRIVATE cArq  := ""
+Private cArq  := ""
+Private cProg := "BKATFA01"
 
 u_MsgLog(cProg)
 
@@ -117,7 +117,7 @@ While !FT_FEOF()
             //AAdd(aItensAux,{'N3_CCONTAB',aLINHA[] , NIL})
             aItens := {}
             aAdd(aItens,aItensAux)
-            U_Myatfa010Inc(aCab,aItens)
+            Myatfa010Inc(aCab,aItens)
 
  		ENDIF
     ENDIF
@@ -128,10 +128,9 @@ FT_FUSE()  //fecha o arquivo CSV
 RETURN lOk 
 
 
-
-User Function Myatfa010Inc(aCab,aItens)
+Static Function Myatfa010Inc(aCab,aItens)
 Local aParam	:= {}
-Local cErrLog   := ""
+
 Private lMsHelpAuto := .f. // Determina se as mensagens de help devem ser direcionadas para o arq. de log
 Private lMsErroAuto := .f. // Determina se houve alguma inconsistencia na execucao da rotina
 
@@ -143,9 +142,7 @@ Begin Transaction
 
     MSExecAuto({|x,y,z| Atfa012(x,y,z)},aCab,aItens,3,aParam)
     If lMsErroAuto 
-		cErrLog:= CRLF+MostraErro("\TMP\","BKATFA01.ERR")
-		u_xxLog("\LOG\BKATFA01.LOG",cErrLog)
-   		MsgStop("Problemas na execução do MSExecAuto, informe o setor de T.I.:"+cErrLog, "Atenção")
+        u_LogMsExec(cProg)
         DisarmTransaction()
     Endif
 End Transaction

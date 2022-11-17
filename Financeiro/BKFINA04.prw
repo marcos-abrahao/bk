@@ -250,7 +250,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,4) //Alteração
 			IF lMsErroAuto
 
-				U_LogMsExec("BKFINA04","Problemas na alteração do titulo "+cKey1)
+				u_LogMsExec("BKFINA04","Problemas na alteração do titulo "+cKey1)
 
 				DisarmTransaction()
 		   		lSucess := .F.
@@ -277,7 +277,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 			MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 			IF lMsErroAuto
 
-				U_LogMsExec("BKFINA04","Problemas na exclusão do titulo "+cKey1)
+				u_LogMsExec("BKFINA04","Problemas na exclusão do titulo "+cKey1)
 
 				DisarmTransaction()
 				lSucess := .F.

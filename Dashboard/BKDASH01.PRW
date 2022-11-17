@@ -43,7 +43,7 @@ Private cPerg       := "BKDASH01"
 
 If FWCodEmp() == "01"
 
-	aDados := {}
+	aDados  := {}
 	cBlind1 := ""
 	cBlind2 := ""
 
@@ -55,7 +55,7 @@ If FWCodEmp() == "01"
 		cBlind1 := "X"
 	EndIf
 
-	cBlind2 := ""
+
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) == '19'
 		cBlind2 := "X"
 	EndIf

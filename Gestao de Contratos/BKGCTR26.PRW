@@ -164,7 +164,7 @@ User Function BKGCTR26(lDashBoard)
 			dDataJob	:= U_BKGetMv("BKGCTR2604",.F.,CTOD(""))
 			cEmailTo  	:= U_BKGetMv("BKGCTR2605")
 			If Empty(dDataJob) .OR. !(dDataJob == DATE())
-				u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""))
+				//u_xxLog(cArqLog,cStart+": "+cTitulo+" - ultimo agendamento: "+IIF(!EMPTY(dDataJob),DTOC(dDataJob),""))
 				Return Nil
 			EndIf
 		Else
@@ -192,7 +192,7 @@ User Function BKGCTR26(lDashBoard)
 		If lAgendar
 			U_BKPutMv("BKGCTR2604",MV_PAR04,"D", 8,0,"Agendar para:")
 			U_BKPutMv("BKGCTR2605",MV_PAR05,"C",70,0,"E-Mail?")
-			MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR04)+" 1h")
+			u_MsgLog(cPergMsg,"Agendamento efetuado para "+DTOC(MV_PAR04)+" 1h","I")
 			Return
 		EndIf
 
@@ -211,12 +211,7 @@ User Function BKGCTR26(lDashBoard)
 	aRelat := {}
 	aRelat2:= {}
 
-    If lIsBlind
-        GCT26Per(oSay)
-    Else
-		u_xxLog(cArqLog,"Calculando período...")
-    	FWMsgRun(, {|oSay| GCT26Per(oSay) }, "", "Calculando período...")
-    EndIf
+	u_WaitLog(cPerg, {|oSay| GCT26Per(oSay) },"Calculando período...")
 
     // Para teste
 	//dDataI := CTOD("01/02/2021")
@@ -253,47 +248,24 @@ User Function BKGCTR26(lDashBoard)
 	oTmpT1:Create()
 	cRealT1 := oTmpT1:GetRealName()
 
-	u_xxLog(cArqLog,cStart+": "+cUserName)
+	//u_xxLog(cArqLog,cStart+": "+cUserName)
 
-	u_WaitLog(cPerg,{|oSay| GCT26P191(oSay,@aRelat,"R") },"Processando Contas a Receber...")
-
-	If !lIsBlind
-		//FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
-		FWMsgRun(, {|oSay| GCT26P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
-		FWMsgRun(, {|oSay| GCT26CC(oSay,@aRelat,@aRelat2) }, "", cPerg+" Processando Centros de custos...")
-		FWMsgRun(, {|oSay| GCT26Sld(oSay) }, "", cPerg+" Calculando saldos anteriores...")
-	Else
-
-		//u_MsgLog(cPerg,"Processando Contas a Receber")		
-		//GCT26P191(oSay,@aRelat,"R")
-
-		u_MsgLog(cPerg,"Processando Contas a Pagar")		
-		GCT26P191(oSay,@aRelat,"P")
-
-		u_MsgLog(cPerg,"Processando Centros de Custos")		
-		GCT26CC(oSay,@aRelat,@aRelat2)
-
-		u_MsgLog(cPerg,"Processando Saldos")
-		GCT26Sld(oSay)
-
-	EndIf
+	u_WaitLog(cPerg, {|oSay| GCT26P191(oSay,@aRelat,"R") },"Processando Contas a Receber...")
+	u_WaitLog(cPerg, {|oSay| GCT26P191(oSay,@aRelat,"P") }, "Processando Contas a Pagar...")
+	u_WaitLog(cPerg, {|oSay| GCT26CC(oSay,@aRelat,@aRelat2) }, "Processando Centros de custos...")
+	u_WaitLog(cPerg, {|oSay| GCT26Sld(oSay) }, "Calculando saldos anteriores...")
 
 	If !lDashBoard
 		If !lSintetico
-			u_xxLog(cArqLog,"Gerando planilha Fase1...")
-			GCT26Anal(aRelat,"Fase1",.F.)
-
-			u_xxLog(cArqLog,"Gerando planilha Fase2...")
-			GCT26Anal(aRelat2,"Fase2",.T.)
+			u_WaitLog(cPerg, {|oSay| GCT26Anal(aRelat,"Fase1",.F.) }, "Fase1...")
+			u_WaitLog(cPerg, {|oSay| GCT26Anal(aRelat,"Fase2",.T.) }, "Fase2...")
 		EndIf
-
-		u_xxLog(cArqLog,"Gerando planilha Fluxo...")
-		GCT26Rel()
+		u_WaitLog(cPerg, {|oSay| GCT26Rel() }, "Gerando planilha Fluxo...")
 	Else
-		GCT26Dash(aRelat2)
+		u_WaitLog(cPerg, {|oSay| GCT26Dash(aRelat2) }, "Inserindo dados...")
 	EndIf
 
-	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName)
+	//u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName)
 
 //If nCont > 0
 	//MsAguarde({|| GCT26Xls(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
@@ -2961,7 +2933,7 @@ Local nX 		:= 0
 Local cNEmpr	:= u_BKNEmpr(cEmpAnt)
 Local lOk 		:= .F.
 
-u_MsgLog(cPerg,"PowerBk - Caixa")
+//u_MsgLog(cPerg,"PowerBk - Caixa")
 
 lOk := CreateFat()
 If lOk
@@ -2971,7 +2943,7 @@ If lOk
 	lOk:= CreateRH()
 EndIf
 If lOk
-	u_MsgLog(cPerg,"PowerBk - Caixa - inserindo dados")
+	//u_MsgLog(cPerg,"PowerBk - Caixa - inserindo dados")
 	For nX := 1 To Len(aRelat)
 
 		// Popula elemento
@@ -3100,17 +3072,13 @@ If lOk
 
 		If nErro != 0
 			cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-			If !IsBlind()
-				MsgStop(cErro2, cPerg)
-			EndIf
-			u_MsgLog(cPerg,"PowerBk - Erro em insert "+aRelat[nX,ID_CONSIDER])
-			u_LogMemo("BKGCTR26-ErroInsert.SQL",cErro2+cQuery)
+			u_MsgLog(cPerg,"PowerBk - Erro em insert "+aRelat[nX,ID_CONSIDER],"E",cErro2)
 			Exit
 		EndIf
 
 	Next nX
 
-	u_MsgLog(cPerg,"PowerBk - Caixa - final de insersão de dados")
+	//u_MsgLog(cPerg,"PowerBk - Caixa - final de insersão de dados")
 
 	// Só para mostrar a contagem de registros processados
 	ExisteTbl("CXFATURAMENTO")
@@ -3142,11 +3110,7 @@ If !ExisteTbl("CXFATURAMENTO")
 	If nErro != 0
 		lRet := .F.
 		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXFATURAMENTO")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXFATURAMENTO","E",cErro1)
 	EndIf
 
 	cQuery := "CREATE TABLE PowerBk.dbo.CXFATURAMENTO " + CRLF
@@ -3185,11 +3149,7 @@ If !ExisteTbl("CXFATURAMENTO")
 	If nErro != 0
 		lRet := .F.
 		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" + CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXFATURAMENTO")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXFATURAMENTO","E",cErro2)
 	EndIf
 Else
 	// Limpar dados	do periodo selecionado
@@ -3205,17 +3165,13 @@ Else
 		EndIf
 	EndIf
 
-	u_MsgLog(cPerg,"PowerBk - "+cQuery)		
+	//u_MsgLog(cPerg,"PowerBk - "+cQuery)		
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
 		lRet := .F.
 		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro em delete na tabela CXFATURAMENTO")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro em delete na tabela CXFATURAMENTO","E",cErro2)
 	EndIf
 EndIf
 If !lRet
@@ -3244,11 +3200,7 @@ If !ExisteTbl("CXGASTOS")
 	If nErro != 0
 		lRet := .F.
 		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXGASTOS")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXGASTOS","E",cErro1)
 	EndIf
 
 	cQuery := "CREATE TABLE PowerBk.dbo.CXGASTOS " + CRLF
@@ -3287,11 +3239,7 @@ If !ExisteTbl("CXGASTOS")
 	If nErro != 0
 		lRet := .F.
 		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" + CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXGASTOS")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXGASTOS","E",cErro2)
 	EndIf
 Else
 	// Limpar dados	do periodo selecionado
@@ -3306,17 +3254,13 @@ Else
 		EndIf
 	EndIf
 
-	u_MsgLog(cPerg,"PowerBk - "+cQuery)	
+	//u_MsgLog(cPerg,"PowerBk - "+cQuery)	
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
 		lRet := .F.
 		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro em Delete na tabela CXGSTOS")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro em Delete na tabela CXGSTOS","E",cErro2)
 	EndIf
 EndIf
 If !lRet
@@ -3345,11 +3289,7 @@ If !ExisteTbl("CXFOLHA")
 	If nErro != 0
 		lRet := .F.
 		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXFOLHA")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro deletando a tabela CXFOLHA","E",cErro1)
 	EndIf
 
 	cQuery := "CREATE TABLE PowerBk.dbo.CXFOLHA " + CRLF
@@ -3388,11 +3328,7 @@ If !ExisteTbl("CXFOLHA")
 	If nErro != 0
 		lRet := .F.
 		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" + CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXFOLHA")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro criando a tabela CXFOLHA","E",cErro2)
 	EndIf
 Else
 	// Limpar dados	do periodo selecionado
@@ -3407,17 +3343,13 @@ Else
 		EndIf
 	EndIf
 
-	u_MsgLog(cPerg,"PowerBk - "+cQuery)	
+	//u_MsgLog(cPerg,"PowerBk - "+cQuery)	
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
 		lRet := .F.
 		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		Else
-			u_MsgLog(cPerg,"PowerBk - Erro delete na tabela CXFOLHA")
-		EndIf
+		u_MsgLog(cPerg,"PowerBk - Erro delete na tabela CXFOLHA","E",cErro2)
 	EndIf
 EndIf
 If !lRet

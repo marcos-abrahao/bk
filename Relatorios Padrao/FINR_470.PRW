@@ -2180,15 +2180,24 @@ Return aCabecFull
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 Static Function FR470Tab14()
-
+Local aTbSx5    := {}
+Local nX5       := 0
 Local cTabela14 := ""
 
+aTbSx5 := FWGetSX5("14")
+FOR nX5 := 1 To Len(aTbSx5)
+	cTabela14 += AllTrim(aTbSx5[nX5,3]) + "/"
+NEXT
+
+/*
 SX5->(DbSetOrder(1))
 SX5->(MsSeek(xFilial("SX5")+"14"))
 While SX5->(!Eof()) .And. SX5->X5_TABELA == "14"
 	cTabela14 += (Alltrim(SX5->X5_CHAVE) + "/")
 	SX5->(DbSkip())
 End	
+*/
+
 cTabela14 += If(cPaisLoc=="BRA","","/$ ")         
 If cPaisLoc == "BRA"
 	cTabela14 := SubStr( cTabela14, 1, Len(cTabela14) - 1 )

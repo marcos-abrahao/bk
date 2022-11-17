@@ -28,7 +28,6 @@ aAdd( aParam ,{ 2, "Somente contratos com saldo", cComSaldo  ,{"Sim", "Não"}	, 6
 If !BkGC15()
    Return
 EndIf
-u_MsgLog(cPerg)
 
 Aadd( aDbf, { 'XX_CONTRAT', 'C', 10,00 } )
 Aadd( aDbf, { 'XX_NOMCLI', 'C', 100,00 } )
@@ -57,15 +56,13 @@ oTmpTb1 := FWTemporaryTable():New( "TRB" )
 oTmpTb1:SetFields( aDbf )
 oTmpTb1:Create()
 
-
-FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg,{|oSay| ProcQuery() }, "Consultando banco de dados...")
 
 aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 aPlans  := {}
    
-//nomeprog := "BKGCTR15/"+TRIM(SUBSTR(cUsuario,7,15))
 AADD(aTitulos,cTitulo)
 
 AADD(aCampos,"TRB->XX_CONTRAT")
@@ -85,7 +82,6 @@ AADD(aCabs  ,"Contato do Cliente")
 
 AADD(aCampos,"TRB->XX_XXEGC")
 AADD(aCabs  ,"E-mail Contato do Cliente")
-
 
 AADD(aCampos,"TRB->XX_TELS")
 AADD(aCabs  ,"Telefone do Cliente")
@@ -125,7 +121,7 @@ AADD(aCabs  ,"Situação Atual")
 
 AADD(aPlans,{"TRB",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
-U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.,aParam)
 
 oTmpTb1:Delete()
 
@@ -140,7 +136,6 @@ Local dDataFinal
 Local nPRAZOMES := 1
 Local nVTOTAL   := 0
 Local nSALDOAT  := 0
-
 
 dbSelectArea("CN9")
 CN9->(DBSETORDER(1))

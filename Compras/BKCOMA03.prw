@@ -21,8 +21,8 @@ Local nOpcA      := 0
 Local lOk        := .F.
 Local aSX5       := {}
 Local nX		 := 0
-//Local aTbSx5     := {}
-//Local nX5        := 0
+Local aTbSx5     := {}
+Local nX5        := 0
 
 Private cTitulo  := "Inclusão VT,VR,VA e AM em Pré-Documento de Entrada"
 Private cProg    := "BKCOMA03"
@@ -35,28 +35,35 @@ Private aTipoNF  := {}
 Private aValida  := {}
 Private cTipoNF  := '' 
 Private cArq     := GetMV("MV_XXAQBNB")
-Private cDir     := GetMV("MV_XXAQBNB")
+Private cDir     := cArq //GetMV("MV_XXAQBNB")
 Private dEmissao := dDatabase
 Private cCompl   := "2-Não"
 Private aCompl   := {"1-Sim","2-Não"}
 
-//aTbSx5 := FWGetSX5("Z3")
 u_MsgLog("BKCOMA03")
 
+
+/*
+// Codigo removido - codeanalisys 17/11/22
 dbSelectArea("SX5")
 dbSetOrder(1)
 dbSeek(xFilial("SX5")+"Z301",.F.)
 DO WHILE !EOF() .AND. SX5->X5_TABELA == "Z3"
-//FOR nX5 := 1 To Len(aTbSx5)
-	aItemX5 :={}
 	aItemX5 := StrTokArr(SX5->X5_DESCRI,";")
-	//aItemX5 := StrTokArr(aTbSx5[nX5,4],";")
     IF LEN(aItemX5) == 4
  		AADD(aSX5,{aItemX5[1],aItemX5[2],aItemX5[3],aItemX5[4]})
  	ENDIF
 	SX5->(DBSKIP())
-//NEXT
 ENDDO
+*/
+
+aTbSx5 := FWGetSX5("Z3")
+FOR nX5 := 1 To Len(aTbSx5)
+	aItemX5 := StrTokArr(aTbSx5[nX5,4],";")
+    IF LEN(aItemX5) == 4
+ 		AADD(aSX5,{aItemX5[1],aItemX5[2],aItemX5[3],aItemX5[4]})
+ 	ENDIF
+NEXT
 
 FOR nX := 2 TO LEN(aSX5)
     AADD(aTipoNF,ALLTRIM(aSX5[nX,1])+" - "+ALLTRIM(aSX5[nX,2]))
@@ -81,7 +88,7 @@ oNumNF:bLostFocus := { || IIF(LEN(ALLTRIM(cDoc)) < 9 ,cDoc := STRZERO(0,9-LEN(AL
 nSnd += nTLin
 
 @ nSnd,010 SAY "Fornecedor" SIZE 080,010 Pixel Of oDlg01
-@ nSnd,045 MSGET oForn VAR cForn SIZE 040,010 OF oDlg01 PIXEL PICTURE '@!' HASBUTTON  F3 "SA2" VALID NaoVazio(cForn)
+@ nSnd,045 MsGet oForn VAR cForn SIZE 040,010 OF oDlg01 PIXEL PICTURE '@!' HASBUTTON  F3 "SA2" VALID NaoVazio(cForn)
 
 oForn:bLostFocus := { || cLoja := SA2->A2_LOJA, oForn:Refresh() }
 
@@ -89,14 +96,14 @@ oForn:bLostFocus := { || cLoja := SA2->A2_LOJA, oForn:Refresh() }
 @ nSnd,125 MsGet cLoja Picture '@!' Size 008,010 Pixel Of oDlg01 VALID ExistCpo("SA2",cForn+cLoja) .AND. NaoVazio(cLoja)
 
 @ nSnd,185 Say "Espec. Docum." Size 080,010 Pixel Of oDlg01
-@ nSnd,230 MSGET cEspec SIZE 040,010 OF oDlg01 PIXEL PICTURE '@!' HASBUTTON  F3 "42" VALID CheckSx3("F2_ESPECIE") .AND. NaoVazio(cEspec)
+@ nSnd,230 MsGet cEspec SIZE 040,010 OF oDlg01 PIXEL PICTURE '@!' HASBUTTON  F3 "42" VALID CheckSx3("F2_ESPECIE") .AND. NaoVazio(cEspec)
 nSnd += nTLin
 
 @ nSnd,010 Say "Uf.Origem" Size 080,010 Pixel Of oDlg01
 @ nSnd,045 MsGet cUF Picture '@!' Size 008,010 OF oDlg01 PIXEL HASBUTTON  F3 "12" Valid Tk273Estado(cUF) .AND. NaoVazio(cUF)
 
 @ nSnd,090 Say "Produto"  Size 080,010 Pixel Of oDlg01
-@ nSnd,125 MSGET cProduto SIZE 060,010 OF oDlg01 PIXEL PICTURE '@!' HASBUTTON  F3 "SB1" VALID ExistCPO("SB1",cProduto) .AND. NaoVazio(cProduto)
+@ nSnd,125 MsGet cProduto SIZE 060,010 OF oDlg01 PIXEL PICTURE '@!' HASBUTTON  F3 "SB1" VALID ExistCPO("SB1",cProduto) .AND. NaoVazio(cProduto)
 
 @ nSnd,185 Say "Valor da NF" Size 080,010 Pixel Of oDlg01
 @ nSnd,230 MsGet nValor Picture "@E 999,999,999,999.99" Size 060,010 Pixel Of oDlg01 VALID NaoVazio(nValor)
@@ -110,7 +117,7 @@ nSnd += nTLin
 nSnd += nTLin
 
 @ nSnd,010  SAY "Arquivo " of oDlg01 PIXEL // "Objeto "
-@ nSnd,045  MSGET cArq SIZE 100,010 of oDlg01 PIXEL READONLY
+@ nSnd,045  MsGet cArq SIZE 100,010 of oDlg01 PIXEL READONLY
 
 @ nSnd,185 SAY 'NF Complementar'   SIZE 080,010 OF oDlg01 PIXEL
 @ nSnd,230 COMBOBOX cCompl  ITEMS aCompl SIZE 060,010 Pixel OF oDlg01
@@ -121,7 +128,6 @@ nSnd += nTLin
 
 DEFINE SBUTTON FROM nSnd, 223 TYPE 1 ACTION (oDlg01:End(),nOpcA:=1) ENABLE OF oDlg01
 DEFINE SBUTTON FROM nSnd, 253 TYPE 2 ACTION (oDlg01:End(),,nOpcA:=0) ENABLE OF oDlg01
-
 
 ACTIVATE MSDIALOG oDlg01 CENTER Valid(ValidaNF())
 
@@ -154,25 +160,30 @@ Local nTotal     := 0
 Local nValRat    := 0
 Local aX5        := {}
 Local nI		 := 0
-//Local aTbSx5     := {}
-//Local nX5        := 0
+Local aTbSx5     := {}
+Local nX5        := 0
 Local aItemLinha := {}
 Local aItemCC    := {}
 
 aX5 := {}
-//aTbSx5 := FWGetSX5("Z4",SUBSTR(cTipoNF,1,2))
 
+/*
 dbSelectArea("SX5")
 dbSetOrder(1)
 dbSeek(xFilial("SX5")+"Z4"+SUBSTR(cTipoNF,1,2),.T.)
 DO WHILE !EOF() .AND. SUBSTR(SX5->X5_CHAVE,1,2) == SUBSTR(cTipoNF,1,2)
-//FOR nX5 := 1 To Len(aTbSx5)
 	IncProc('Carregando Itens da NF')
 	AADD(aX5,StrTokArr(SX5->X5_DESCRI,";"))
-	//AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
 	SX5->(DBSKIP())
-//NEXT
 ENDDO
+*/
+
+aTbSx5 := FWGetSX5("Z4")
+FOR nX5 := 1 To Len(aTbSx5)
+	IncProc('Carregando definição de Itens')
+	AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
+NEXT
+
 nTotal := 0
 
 FT_FUSE(cArq)  //abrir
@@ -234,7 +245,7 @@ IF LEN(aItemLinha) > 0
 ENDIF
 
 IF LEN(aItemLinha) == 0
-   MSGSTOP("Itens da NF não encontrado verifique o arquivo de Lote","Atenção")
+   u_MsgLog(cProg,"Itens da NF não encontrados verifique o arquivo de Lote","E")
    RETURN NIL
 ENDIF
 
@@ -278,7 +289,6 @@ For nX := 1 To LEN(aItemLinha)
 	
 	QTB->(dbCloseArea())
 	
-
 	//cQuery := "SELECT CTT_CUSTO,CTT_DESC01 FROM "+RETSQLNAME("CTT")+" WHERE "+IIF(LEN(cQTBCC)>6,"CTT_CUSTO","substring(CTT_CUSTO,4,6)")+" = '"+cQTBCC+"' AND D_E_L_E_T_ <> '*' "
 	cQuery := "SELECT CTT_CUSTO,CTT_DESC01 FROM "+RETSQLNAME("CTT")+" WHERE CTT_CUSTO = '"+cQTBCC+"' AND D_E_L_E_T_ <> '*' "
 
@@ -329,7 +339,7 @@ IF LEN(aItemCC) > 0
     nMAXRAT := nValor*(VAL(aValida[nScan,2])*0.01)
 
     IF (nValor - nTotal) > nMAXRAT
-		MsgStop("Valor do rateio maior que valor maximo verifique Parâmetros Tabela X5 - Z3, Valor Total para Rateio: "+STR((nValor - nTotal),10,2)+"   Valor Máximo:"+STR(nMAXRAT,10,2), "Atenção")
+		u_MsgLog(cProg,"Valor do rateio maior que valor maximo verifique Parâmetros Tabela X5 - Z3, Valor Total para Rateio: "+STR((nValor - nTotal),10,2)+"   Valor Máximo:"+STR(nMAXRAT,10,2), "E")
  	    RETURN NIL    
     ENDIF
     
@@ -339,12 +349,12 @@ IF LEN(aItemCC) > 0
     	FOR nX := 1 to Len(aSemCC)
        		cCodFunc +=  "CodFun:  "+Alltrim(aSemCC[nX,1])+"  Valor:  "+STR(aSemCC[nX,2],14,2)+CHR(13)+CHR(10)
     	NEXT nX
-		Aviso( "Atenção", "Codigo Funcionário(s) não possui Centro de Custo: "+CHR(13)+CHR(10)+cCodFunc, { "OK" } )
+		u_MsgLog(cProg,"Código(s) de Funcionário(s) não possuem Centro de Custo: "+CHR(13)+CHR(10)+cCodFunc, "W" )
 	ENDIF
 
 	
 	IF TRANSFORM(nTotal,"@E 999,999,999.99") <> TRANSFORM(nValor,"@E 999,999,999.99")
-	   MSGSTOP("Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"Atenção")
+	   u_MsgLog(cProg,"Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"E")
  	   RETURN NIL
 	ENDIF
 
@@ -364,13 +374,13 @@ IF LEN(aItemCC) > 0
 	nSnd += nTLin
 	
 	@ nSnd,010 SAY "Fornecedor" SIZE 080,010 Pixel OF oPanelLeft
-	@ nSnd,045 MSGET oForn VAR cForn SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	@ nSnd,045 MsGet oForn VAR cForn SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	@ nSnd,090 Say "Loja" Size 080,010 Pixel OF oPanelLeft
 	@ nSnd,125 MsGet cLoja Picture '@!' Size 008,010 Pixel OF oPanelLeft WHEN .F.
 	
 	@ nSnd,185 Say "Espec. Docum." Size 080,010 Pixel OF oPanelLeft
-	@ nSnd,230 MSGET cEspec SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	@ nSnd,230 MsGet cEspec SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	nSnd += nTLin
 	
@@ -378,7 +388,7 @@ IF LEN(aItemCC) > 0
 	@ nSnd,045 MsGet cUF Picture '@!' Size 008,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	@ nSnd,090 Say "Produto"  Size 080,010 Pixel OF oPanelLeft
-	@ nSnd,125 MSGET cProduto SIZE 060,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	@ nSnd,125 MsGet cProduto SIZE 060,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	@ nSnd,185 Say "Valor da NF" Size 080,010 Pixel OF oPanelLeft
 	@ nSnd,230 MsGet nValor Picture "@E 999,999,999,999.99" Size 060,010 Pixel OF oPanelLeft WHEN .F.
@@ -389,7 +399,7 @@ IF LEN(aItemCC) > 0
 	nSnd += nTLin
 	
 	@ nSnd,010  SAY "Arquivo " OF oPanelLeft PIXEL // "Objeto "
-	@ nSnd,045  MSGET cArq SIZE 130,010 OF oPanelLeft PIXEL READONLY WHEN .F.
+	@ nSnd,045  MsGet cArq SIZE 130,010 OF oPanelLeft PIXEL READONLY WHEN .F.
 
 	@ nSnd,185 SAY 'NF Complementar'   SIZE 080,010 OF oPanelLeft PIXEL
 	@ nSnd,230 COMBOBOX cCompl  ITEMS aCompl SIZE 060,010 Pixel OF oPanelLeft WHEN .F.
@@ -432,49 +442,49 @@ IF LEN(aArq) > 0
 ENDIF
 
 IF EMPTY(cDoc) .OR. cDoc == '000000000'
-	MsgStop("Número do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"Número do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
    
 IF EMPTY(cForn)
-	MsgStop("Número do Fornecedor incorreto", "Atenção")
+	u_MsgLog(cProg,"Número do Fornecedor incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
 
 IF EMPTY(cEspec)
-	MsgStop("Espécie do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"Espécie do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
 
 IF EMPTY(cEspec)
-	MsgStop("UF do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"UF do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
 
 IF EMPTY(cProduto)
-	MsgStop("Produto do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"Produto do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
 
 IF nValor <= 0
-	MsgStop("Valor do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"Valor do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
 
 IF EMPTY(cTipoNF)
-	MsgStop("Tipo do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"Tipo do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
 
 IF EMPTY(cArq)  .And. SUBSTR(cTipoNF,1,2) <> "AS"
-	MsgStop("Arquivo de importação de rateio do Pré-Documento de Entrada incorreto", "Atenção")
+	u_MsgLog(cProg,"Arquivo de importação de rateio do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
@@ -482,7 +492,7 @@ Endif
 DbSelectArea("SF1")
 SET ORDER TO 1
 IF SF1->(dbSeek(xFilial("SF1")+cDoc+cSerie+cForn+cLoja+"N",.F.))
-	MsgStop("Pré-Documento de Entrada já Existe", "Atenção")
+	u_MsgLog(cProg,"Pré-Documento de Entrada já Existe", "E")
 	lOk:= .F.
     RETURN lOk 
 Endif
@@ -491,17 +501,17 @@ IF !EMPTY(cProduto)
     nScan:= 0
     nScan:= aScan(aValida,{|x| x[1] == SUBSTR(cTipoNF,1,2) })
     IF nScan == 0
-		MsgStop("Produto do Pré-Documento de Entrada incorreto", "Atenção")
+		u_MsgLog(cProg,"Produto do Pré-Documento de Entrada incorreto", "E")
 		lOk:= .F.
 		RETURN lOk 
     ELSEIF ALLTRIM(aValida[nScan,3]) $ ALLTRIM(cProduto)
 		lOk:= .T.
     ELSE
-		MsgStop("Produto do Pré-Documento de Entrada incorreto", "Atenção")
+		u_MsgLog(cProg,"Produto do Pré-Documento de Entrada incorreto", "E")
 		lOk:= .F.
     	RETURN lOk 
     ENDIF
-Endif
+ENDIF
 
 IF LEN(aArq) > 0 .And. SUBSTR(cTipoNF,1,2) <> "AS"
 	nArq := 0
@@ -509,12 +519,10 @@ IF LEN(aArq) > 0 .And. SUBSTR(cTipoNF,1,2) <> "AS"
 	cNomeArq := ''
 	cNomeArq := UPPER(aArq[nArq])
 	IF !(SUBSTR(cTipoNF,1,2) $ cNomeArq)
-	    MsgStop("Arquivo de importação de rateio do Pré-Documento de Entrada incorreto, verifique a extenção do arquivo", "Atenção")
+	    u_MsgLog(cProg,"Arquivo de importação de rateio do Pré-Documento de Entrada incorreto, verifique a extenção do arquivo", "E")
 		lOk:= .F.
-    	RETURN lOk 
     ENDIF
-Endif
-
+ENDIF
 
 RETURN lOk 
 
@@ -524,7 +532,6 @@ Local aCabec 	:= {}, aLinha := {}, aItens := {}
 Local nX		:= 0
 Local nItem		:= 0
 Local lRet		:= .T.
-Local cErrLog	:= ""
 
 Private lMsHelpAuto := .T.
 Private lMsErroAuto := .F.
@@ -588,13 +595,11 @@ Begin Transaction
 	nOpc := 3
  	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc,.T.)   
 	IF lMsErroAuto
-		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA03.ERR")
-		u_xxLog("\LOG\BKCOMA03.LOG",cErrLog)
-		MsgStop("Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie+", informe o setor de T.I.:"+cErrLog,"Atenção")
+		u_LogMsExec(cProg,"Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie)
 		DisarmTransaction()
 		lRet := .F.
 	Else
-		Msginfo(OemToAnsi("Pré-Documento de Entrada incluido com sucesso! ")+cDoc+"    "+cSerie)
+		u_MsgLog(cProg,"Pré-Documento de Entrada incluido com sucesso! "+cDoc+" "+cSerie,"S")
 	EndIf
 
 End Transaction
@@ -621,7 +626,6 @@ Static Function MontaPlaAS()
 Local oDlgAS,nOpcA := 0
 Local aPlanos:= {}
 Local cPlano:= ""
-
 
 cQueryPLA := "SELECT DISTINCT bk_senior.bk_senior.R032OEM.CodOem,bk_senior.bk_senior.R032OEM.NomOem "
 cQueryPLA += "FROM bk_senior.bk_senior.R164PLA " 
@@ -651,10 +655,8 @@ ACTIVATE MSDIALOG oDlgAS CENTER Valid(ValidaAS(cPlano))
 
 If nOpcA == 1
 	nOpcA := 0
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Faz Processamento.                                           ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-   Processa( {|| MontaItemAS(cPlano)})
+	// Faz Processamento
+	Processa( {|| MontaItemAS(cPlano)})
 Endif
 Return NIL
 
@@ -662,7 +664,7 @@ Static Function ValidaAS(cPlano)
 LOCAL lOk:=.T.
 
 IF VAL(SUBSTR(cPlano,1,6)) < 1 
-	MsgStop("Plano BS Rubi incorreto"+cPlano, "Atenção")
+	u_MsgLog(cProg,"Plano BS Rubi incorreto"+cPlano,"E")
 	lOk:= .F.
     RETURN lOk 
 Endif
@@ -691,7 +693,7 @@ DbSelectArea("QTPA")
 ProcRegua(QTPA->(LastRec()))
 QTPA->(DbGotop())
 DO WHILE !EOF()
-	IncProc('Incluido Itens Plano - BS Rubi')
+	IncProc('Incluindo Itens Plano - BS Rubi')
 
 	cQTPACC := ''
 	IF QTPA->cFil == '034'
@@ -732,7 +734,7 @@ IF LEN(aItemAS) > 0
 	ASORT(aItemAS,,,{|x,y| x[11]<y[11]})
 
 	IF TRANSFORM(nTotPlan,"@E 999,999,999.99") <> TRANSFORM(nValor,"@E 999,999,999.99")
-	   MSGSTOP("Valor total da NF diferente do valor total do plano: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotPlan,"@E 999,999,999.99"),"Atenção")
+	   u_MsgLog(cProg,"Valor total da NF diferente do valor total do plano: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotPlan,"@E 999,999,999.99"),"E")
 	ENDIF
 	
 
@@ -752,13 +754,13 @@ IF LEN(aItemAS) > 0
 	nSnd += nTLin
 	
 	@ nSnd,010 SAY "Fornecedor" SIZE 080,010 Pixel OF oPanelLeft
-	@ nSnd,045 MSGET oForn VAR cForn SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	@ nSnd,045 MsGet oForn VAR cForn SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	@ nSnd,090 Say "Loja" Size 080,010 Pixel OF oPanelLeft
 	@ nSnd,125 MsGet cLoja Picture '@!' Size 008,010 Pixel OF oPanelLeft WHEN .F.
 	
 	@ nSnd,185 Say "Espec. Docum." Size 080,010 Pixel OF oPanelLeft
-	@ nSnd,230 MSGET cEspec SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	@ nSnd,230 MsGet cEspec SIZE 040,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	nSnd += nTLin
 	
@@ -766,7 +768,7 @@ IF LEN(aItemAS) > 0
 	@ nSnd,045 MsGet cUF Picture '@!' Size 008,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	@ nSnd,090 Say "Produto"  Size 080,010 Pixel OF oPanelLeft
-	@ nSnd,125 MSGET cProduto SIZE 060,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	@ nSnd,125 MsGet cProduto SIZE 060,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
 	
 	@ nSnd,185 Say "Valor da NF" Size 080,010 Pixel OF oPanelLeft
 	@ nSnd,230 MsGet nValor Picture "@E 999,999,999,999.99" Size 060,010 Pixel OF oPanelLeft WHEN .F.
@@ -806,15 +808,14 @@ IF LEN(aItemAS) > 0
 ENDIF
 RETURN NIL
 
+
+
 STATIC FUNCTION ValidaBS()
 LOCAL ok := .T.
-
 IF TRANSFORM(nTotPlan,"@E 999,999,999.99") <> TRANSFORM(nValor,"@E 999,999,999.99")
-	MSGSTOP("Valor total da NF diferente do valor total do plano: "+TRANSFORM(nTotPlan,"@E 999,999,999.99")+"     "+TRANSFORM(nValor,"@E 999,999,999.99"),"Atenção")
+	u_MsgLog(cProg,"Valor total da NF diferente do valor total do plano: "+TRANSFORM(nTotPlan,"@E 999,999,999.99")+"     "+TRANSFORM(nValor,"@E 999,999,999.99"),"E")
   	ok := .F.
 ENDIF
-
-
 RETURN ok 
 
 
@@ -888,7 +889,6 @@ LOCAL lOk := .F.
 LOCAL nTotal:=0
 LOCAL aItemCC:={}
 
-
 Procregua(LEN(aItemAS))
 aItemCC := {}
 aSemCC  := {}
@@ -921,12 +921,12 @@ IF LEN(aItemCC) > 0
     	FOR nX := 1 to Len(aSemCC)
        		cCodFunc +=  "CodFun:  "+Alltrim(aSemCC[nX,1])+"  Valor:  "+STR(aSemCC[nX,2],14,2)+CHR(13)+CHR(10)
     	NEXT nX
-		Aviso( "Atenção", "Codigo Funcionário(s) não possui Centro de Custo: "+CHR(13)+CHR(10)+cCodFunc, { "OK" } )
+		u_MsgLog(cProg,"Codigo Funcionário(s) não possui Centro de Custo: "+cCodFunc,"W" )
 	ENDIF
 
 	
 	IF TRANSFORM(nTotal,"@E 999,999,999.99") <> TRANSFORM(nValor,"@E 999,999,999.99")
-	   MSGSTOP("Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"Atenção")
+	   u_MsgLog(cProg,"Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"E")
 	ENDIF
 
     Define MsDialog oDlg01 Title "Confirmar Itens da NF" From 000,000 To 450,600 Of oDlg01 Pixel
@@ -1001,9 +1001,8 @@ STATIC FUNCTION ValidaInNF(nTotal)
 LOCAL ok := .T.
 
 IF TRANSFORM(nTotal,"@E 999,999,999.99") <> TRANSFORM(nValor,"@E 999,999,999.99")
-	MSGSTOP("Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"Atenção")
+	u_MsgLog(cProg,"Valor total da NF diferente do valor calculado favor verificar: "+TRANSFORM(nValor,"@E 999,999,999.99")+"     "+TRANSFORM(nTotal,"@E 999,999,999.99"),"E")
   	ok := .F.
 ENDIF
 
 RETURN ok
-

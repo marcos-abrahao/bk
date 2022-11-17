@@ -311,7 +311,8 @@ LOCAL cIndex
 LOCAL nIndex
 LOCAL nCasas	:= nDecs
 LOCAL cFil
-
+LOCAL aTbSx5    := {}
+LOCAL nX5		:= 0
 LOCAL nSaldoIni := 0
 LOCAL nDisponiv	:= 0
 LOCAL nAplic    := 0
@@ -342,11 +343,21 @@ dbGoTop()
 //dbSeek(cFil+DtoS(dDataI),.T.)
 
 cTab14 := ""
+/*
+// Removido codeanalisys: 17/11/2022
 SX5->(MsSeek( xFilial("SX5") + "14" ) )
 While !SX5->(Eof()) .And. SX5->X5_TABELA == "14"
 	cTab14 += AllTrim(SX5->X5_CHAVE) + "/"
 	SX5->(dbSkip( ))
 Enddo
+*/
+
+aTbSx5 := FWGetSX5("14")
+FOR nX5 := 1 To Len(aTbSx5)
+	cTab14 += AllTrim(aTbSx5[nX5,3]) + "/"
+NEXT
+
+
 
 // Procura pelo 1.o banco no SA6
 dbSelectArea( "SA6" )

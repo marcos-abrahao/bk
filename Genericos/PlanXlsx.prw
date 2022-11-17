@@ -29,12 +29,17 @@ Local cFile := ""
 
 Default lJob := IsBlind()
 
+/*
 If !lJob
 	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_PBKXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
 	FWMsgRun(, {|oSay| cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
 Else
 	cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob)
 EndIf
+*/
+
+u_WaitLog(_cProg,{|oSay| cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "Gerando Planilha Excel: "+_cProg+"...")
+
 Return cFile
 
 

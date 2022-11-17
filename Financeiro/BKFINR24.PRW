@@ -20,16 +20,18 @@ Local cDirTmp   := "C:\TMP"
 Local cArqHtml  := cDirTmp+"\"+"NDC"+ALLTRIM(SE1->E1_NUM)+".HTML"
 Local aHtml     := {}
 Local _nI       := 0
+Private cProg   := "BKFINR24"
+
+IF SE1->E1_TIPO <> "NDC"
+ 	u_MsgLog(cProg,"Titulo selecionado não é Tipo NDC!","W")
+	RETURN NIL
+ENDIF
+u_MsgLog(cProg)
 
 IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
 ENDIF   
 
-IF SE1->E1_TIPO <> "NDC"
- 	MSGINFO("Titulo selecionado não é Tipo NDC. Verique!")
-	RETURN NIL
-ENDIF
- 
 fErase(cArqHtml)
 
 nHandle := MsfCreate(cArqHtml,0)
@@ -111,10 +113,14 @@ Local cVunit	:= ""
 Local nVUnit	:= 0
 Local nQuant	:= 0
 Local cVTot		:= 0
-
+Local aTabSX5   := {}
 
 If SE1->E1_TIPO <> "NDC"
- 	cTipoTit := Posicione("SX5",1,xFilial("SX5")+"05"+SE1->E1_TIPO,"X5_DESCRI")
+ 	//cTipoTit := Posicione("SX5",1,xFilial("SX5")+"05"+SE1->E1_TIPO,"X5_DESCRI")
+	aTabSX5 := FWGetSX5("05", PadR(SE1->E1_TIPO, TamSx3("X5_CHAVE")[1]))
+	If Len(aTabSX5) > 0
+		cTipoTit := aTabSX5[1,4]
+	EndIf
 EndIf
 
 

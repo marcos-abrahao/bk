@@ -137,7 +137,7 @@ Return(.t.)
 User Function WaitLog(cProg,bFunction,cMens)
 Local cTimeI := Time()
 If !IsBlind()
-	FWMsgRun(, {|oSay| Eval(bFunction,oSay) }, "", cMens)
+	FWMsgRun(, {|oSay| Eval(bFunction,oSay) }, "", cProg+": "+cMens)
 Else
 	Eval(bFunction)
 EndIf
