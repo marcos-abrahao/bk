@@ -31,16 +31,13 @@ aAdd( aParam, { 1, "Data final:"	, dDataBase	     , ""       , "", ""	, "" , 70 
 
 If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKCOMA09",.T.         ,.T.))
 
-	u_MsgLog("BKFINR30")
-
 	cTipoEmis	:= SUBSTR(mv_par01,1,1)
 	dDataI		:= mv_par02
 	dDataF		:= mv_par03
-		
 
-	FWMsgRun(, {|oSay| ProcQuery() }, "", cPerg+" - Consultando dados...")
-	FWMsgRun(, {|oSay| ProcRes() }  , "", cPerg+" - Resumindo dados...")
-	FWMsgRun(, {|oSay| RunFR30() }  , "", cPerg+" - Gerando relatório...")
+	u_WaitLog(, {|oSay| ProcQuery() }, "Consultando dados...")
+	u_WaitLog(, {|oSay| ProcRes() }  , "Resumindo dados...")
+	u_WaitLog(, {|oSay| RunFR30() }  , "Gerando relatório...")
 
 Endif
 

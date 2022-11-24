@@ -39,17 +39,15 @@ aAdd( aParam, { 1, "Data final:"	, dDataBase	     , ""       , "", ""	, "" , 70 
 
 If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKCOMA09",.T.         ,.T.))
 
-	u_MsgLog("BKFINR31")
-
 	cTipoEmis	:= SUBSTR(mv_par01,1,1)
 	dDataI		:= mv_par02
 	dDataF		:= mv_par03
 
-	FWMsgRun(, {|oSay| ProcQuery(.T.) }	, "", cPerg+" - Consultando dados...")
-	FWMsgRun(, {|oSay| ProcRes1() }  	, "", cPerg+" - Resumindo dados com parcela...")
-	FWMsgRun(, {|oSay| ProcQuery(.F.) }	, "", cPerg+" - Consultando dados...")
-	FWMsgRun(, {|oSay| ProcRes2() }  	, "", cPerg+" - Resumindo dados sem parcela...")
-	FWMsgRun(, {|oSay| RunFR31(aDados) }, "", cPerg+" - Gerando relatório...")
+	u_WaitLog(, {|oSay| ProcQuery(.T.) }, "Consultando dados...")
+	u_WaitLog(, {|oSay| ProcRes1() }  	, "Resumindo dados com parcela...")
+	u_WaitLog(, {|oSay| ProcQuery(.F.) }, "Consultando dados...")
+	u_WaitLog(, {|oSay| ProcRes2() }  	, "Resumindo dados sem parcela...")
+	u_WaitLog(, {|oSay| RunFR31(aDados)}, "Gerando relatório...")
 
 Endif
 

@@ -99,14 +99,14 @@ RestArea(aSM0Area)
 
 IF !EMPTY(cA2COD)
 	IF cEmpAT==cEmpOR
-		MSGALERT("Fornecedor já cadastrado código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME)
+		u_MsgLog(cPerg,"Fornecedor já cadastrado código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,"W")
 	ELSE
-		IF AVISO("Atenção","Confirma a Inclusão do Fornecedor?? código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,{"Sim","Não"}) == 1
+		IF u_MsgLog(cPerg,"Confirma a Inclusão do Fornecedor?? código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,"Y")
 	       CopySA2(cA2ARQ,cA2COD,cA2LOJA)
 		Endif
 	ENDIF
 ELSE
-    MSGSTOP("Fornecedor não encontrado!!")
+    u_MsgLog(cPerg,"Fornecedor não encontrado!!","E")
 ENDIF
 
 Return nil
@@ -220,9 +220,6 @@ Begin Transaction
 	MSExecAuto({|x,y| MATA020(x,y)},aSA2,3)
 
 	IF lMsErroAuto
-		//cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA07.ERR")
-		//u_xxLog("\LOG\BKCOMA07.LOG",cErrLog)
-		//MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
 		u_LogMsExec(cPerg,"Erro ao copiar o fornecedor: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2ARQ)
 	   	DisarmTransaction()
 	Else

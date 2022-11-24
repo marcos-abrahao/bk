@@ -127,14 +127,14 @@ If nHandle > 0
 		For _nJ := 1 TO LEN(aPeds)
 			cPed := aPeds[_nJ]
 			If SC5->(dbSeek(xFilial("SC5")+cPed))
-				FWMsgRun(, {|oSay| aHtml := PedHtml() }, "", "BKFATR05 - Consultando pedidos...")
+				u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedidos...")
 				For _nI := 1 TO LEN(aHtml)
 					fWrite(nHandle, aHtml[_nI] + cCrLf )
 				Next
 			EndIf
 		Next
 	Else
-		FWMsgRun(, {|oSay| aHtml := PedHtml() }, "", "BKFATR05 - Consultando pedido...")
+		u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedido...")
 		For _nI := 1 TO LEN(aHtml)
 			fWrite(nHandle, aHtml[_nI] + cCrLf )
 		Next
@@ -190,7 +190,7 @@ If SC5->(DbSeek(xFilial("SC5")+cPed))
 		cHtml += aHtml[nI]
 	Next
 Else
-	cHtml 	 := "Pedido não encontrado"
+	cHtml := "Pedido não encontrado"
 EndIf
 RestArea(aAreaAtu)
 Return cHtml

@@ -17,9 +17,7 @@ Local aTitulos1,aCampos1,aCabs1
 Private cTitulo      := "Relação de Clientes (primeira e ultima compra)"
 Private cPerg        := "BKFATR06"
 
-u_MsgLog(cPerg)
-
-FWMsgRun(, {|oSay| PrcQuery1() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg, {|oSay| PrcQuery1() }, cTitulo)
 
 aCabs1   := {}
 aCampos1 := {}

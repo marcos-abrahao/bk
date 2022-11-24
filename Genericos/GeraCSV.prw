@@ -58,8 +58,6 @@ If !lJob
 EndIf
 
 If !lImpr
-   //MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
-   //FWMsgRun(, {|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "", "Gerando arquivo CSV: "+cArqS+"...")	
    u_WaitLog(cArqS,{|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "Gerando arquivo CSV...")
 EndIf
 
@@ -87,13 +85,12 @@ IF lClose == NIL
    lClose := .T.
 ENDIF
 
-
 MakeDir(cDirTmp)
 
 If File(cArqTmp)
 	nRet:= FERASE(cArqTmp)
 	If nRet < 0
-		MsgAlert("Não será possivel gerar a planilha, feche o arquivo "+cArqTmp,cArqS)
+		u_MsgLog(,"Não será possivel gerar a planilha, feche o arquivo "+cArqTmp)
 	EndIf
 EndIf
 
@@ -218,16 +215,10 @@ If nHandle > 0
       
    fClose(nHandle)
 
-   If !IsBlind()
-	   FWMsgRun(, {|oSay| ShellExecute("open", cArqTmp,"","",1)}, "", cArqTmp+": Aguarde a abertura do arquivo...")
-   EndIf
-
-	//MsgRun(cArqs,"Aguarde a abertura da planilha...",{|| ShellExecute("open", cArqTmp,"","",1) })
+   u_WaitLog(, {|oSay| ShellExecute("open", cArqTmp,"","",1)}, cArqTmp+": Aguarde a abertura do arquivo...")
 
 Else
-   If !IsBlind()
-      MsgAlert("Falha na criação do arquivo "+cArqTmp)
-   EndIf
+   u_MsgLog(,"Falha na criação do arquivo "+cArqTmp,"E")
 Endif
 
 IF lClose   
@@ -251,7 +242,7 @@ FOR _nI := 1 TO FCOUNT()
     AADD(aCampos,_cAlias+"->"+FIELDNAME(_ni))
 NEXT
 
-FWMsgRun(, {|oSay| U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)}, "", cArqS+": Aguarde geração do arquivo CSV...")
+U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)
 
 Return nil
 

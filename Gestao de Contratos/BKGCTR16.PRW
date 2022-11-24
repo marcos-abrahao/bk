@@ -65,7 +65,7 @@ AADD(aCabs  ,"Telefones do Cliente")
 AADD(aCampos,"SUBSTR(QTMP->MAXCOMPET,5,2)+'/'+SUBSTR(QTMP->MAXCOMPET,1,4)")
 AADD(aCabs  ,"Vigência")
 
-FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg, {|oSay| ProcQuery() }, cTitulo)
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)

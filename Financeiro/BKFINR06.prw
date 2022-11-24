@@ -75,7 +75,6 @@ ValidPerg(cPerg)
 	
 IF Pergunte(cPerg,.T.)
 
-
 	nParImpr := mv_par01
 	dParVenc := mv_par02
 	nParPlan := mv_par03
@@ -85,14 +84,14 @@ IF Pergunte(cPerg,.T.)
     cTipoBk  := mv_par07
 	nUsrRub  := mv_par08
 
-	u_MsgLog("BKFINR06",iIf(nParImpr == 1,SE2->E2_NUM,DTOC(dParVenc)))
+	u_MsgLog(cPerg,cTitulo+" "+iIf(nParImpr == 1,SE2->E2_NUM,DTOC(dParVenc)))
 
 	IF nParPlan = 2 // Relatorio 
 		IF nParImpr = 1  // Unico titulo
 			oPrn := TMSPrinter():New(cTitulo)
 			IF lLands
 			   oPrn:SetLandscape()
-			ELSE   
+			ELSE
 			   oPrn:SetPortrait()
 			ENDIF
 			oPrn:Setup()
@@ -181,10 +180,10 @@ IF Pergunte(cPerg,.T.)
 				U_GeraCSV("QSZ2",cPerg,aTitulos,aCampos,aCabs)
    
 		    ELSE
-				MsgStop("Opção disponivel apenas para titulos gerados pelo Depto Pessoal (Liquidos "+FWEmpName(cEmpAnt)+")")
+				u_MsgLog(,"Opção disponivel apenas para titulos gerados pelo Depto Pessoal (Liquidos "+FWEmpName(cEmpAnt)+")","E")
 		    ENDIF
 		ELSE
-			MsgStop("Opção não disponivel, escolha titulo unico")
+			u_MsgLog(,"Opção não disponivel, escolha titulo unico","E")
 		ENDIF
 		
 	ENDIF	

@@ -22,9 +22,6 @@ Generico - Gera planilha excel no formato .XML com opção de gerar também no form
 User Function GeraXml( _aPlans,_cTitulo,_cProg, lClose, _aParam )
 Local cFile := ""
 
-//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam) })
-//FWMsgRun(, {|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
-
 u_WaitLog(_cProg,{|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam) }, "Gerando Planilha Excel: "+_cProg+"...")
 
 Return cFile

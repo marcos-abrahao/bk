@@ -118,7 +118,7 @@ QSZB->(DbCloseArea())
 //ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	MsgStop("Não há NFs disponíveis", "Atenção")
+	u_MsgLog(,"Não há NFs disponíveis", "W")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -256,7 +256,6 @@ Local cFornBK := "000084"
 Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
-Local cErrLog := ""
 Local lErro   := .F.
 
 If cEmpAnt <> "01"
@@ -359,9 +358,7 @@ For nI := 1 TO LEN(aTitGer)
    Begin Transaction
       MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
       If lMsErroAuto
-         cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA02.ERR")
-         u_xxLog("\LOG\BKCOMA02.LOG",cErrLog)
-         MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.:"+cErrLog, "Atenção")
+         u_LogMsExec(,"Problemas na geração do titulo "+cKey2)
          DisarmTransaction()
          lErro := .T.
       EndIf
@@ -402,7 +399,7 @@ Static Function ValidaMrk(lRet,cPgto)
 IF CTOD(cPgto) >= dDataBase
    lRet := !lRet
 ELSE
-   MsgStop("Data de pgto deste lote é inferior a data base do sistema", "Atenção")
+   u_MsgLog(,"Data de pgto deste lote é inferior a data base do sistema", "W")
    lRet := .F.
 ENDIF   
 Return lRet

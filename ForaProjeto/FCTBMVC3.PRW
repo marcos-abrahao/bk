@@ -12,8 +12,7 @@ User Function FCTBMVC3()
 	Local l_Cont	:= .F.
 	Local aButtons 	:= {{.F.,Nil},{.F.,Nil},{.F.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.F.,"Salvar"},{.T.,"Cancelar"},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil},{.T.,Nil}}
 	
-	u_MsgLog("FCTBMVC3")
-	FWMsgRun(, {|oSay| VerTrack(@l_Cont) }, "" /* Aguarde*/, "Verificando contabilizacao...")
+	u_WaitLog(, {|oSay| VerTrack(@l_Cont) }, "Verificando contabilizacao...")
 	If( l_Cont )
 		Processa({|| CursorWait(), FWExecView( "Track contabil" , "FCTBMVC3", MODEL_OPERATION_VIEW, , { || .T. } ,{|| .T. } , ,aButtons ), CursorArrow() }, "Aguarde! Processando Track contabil...")
 	EndIf

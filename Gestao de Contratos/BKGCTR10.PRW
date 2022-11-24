@@ -26,15 +26,14 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
 
 cContrat := mv_par01
 
-BKCNR10(cContrat)
+u_WaitLog(cPerg, {|oSay| BKCNR10(cContrat) }, "Localizando ultima revisão "+ cContrat )
 
 cTitulo  := "Histórico de Multa e Bonificações: "+TRIM(cContrat)+"-"+cRevisa+" - "+cDescr 
 
-FWMsgRun(, {|oSay| ProcQuery() }, "", cPerg+" - Consultando dados...")
+u_WaitLog(cPerg, {|oSay| ProcQuery() }, cTitulo)
   
 AADD(aTitulos,cTitulo)
 

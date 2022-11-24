@@ -48,7 +48,6 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
 
 cMesEmis := mv_par01
 cAnoEmis := mv_par02
@@ -65,7 +64,7 @@ nFiltro  := mv_par05
 
 cTitulo   := "Faturamento Reajustes, Repactuação e Retroativo :"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
 
-FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg, {|oSay| ProcQuery() }, cTitulo)
 
 aCabs   := {}
 aCampos := {}

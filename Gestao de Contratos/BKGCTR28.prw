@@ -200,42 +200,16 @@ User Function BKGCTR28()
 	//dDataI := CTOD("01/02/2021")
 	//dDataF := dDataBase
 
-
-	u_xxLog(cArqLog,cStart+": "+cUserName)
-
-	If !lIsBlind
-		//FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"R") }, "", cPerg+" Processando Contas a Receber...")
-		FWMsgRun(, {|oSay| GCT28P191(oSay,@aRelat,"P") }, "", cPerg+" Processando Pagamentos...")
-		FWMsgRun(, {|oSay| GCT28CP(oSay,@aRelat,"P") }, "", cPerg+" Processando Contas a Pagar...")
-		FWMsgRun(, {|oSay| GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3) }, "", cPerg+" Processando Centros de custos...")
-	Else
-
-		//u_xxLog(cArqLog,"Processando Contas a Receber...")
-		//GCT28P191(oSay,@aRelat,"R")
-
-		u_xxLog(cArqLog,"Processando Pagamentos...")
-		GCT28P191(oSay,@aRelat,"P")
-
-		u_xxLog(cArqLog,"Processando Contas a Pagar...")
-		GCT28CP(oSay,@aRelat,"P")
-
-		u_xxLog(cArqLog,"Processando Centros de Custo...")
-		GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3)
-
-	EndIf
+	u_WaitLog(cPerg,{|oSay| GCT28P191(oSay,@aRelat,"P") },"Processando Pagamentos...")
+	u_WaitLog(cPerg,{|oSay| GCT28CP(oSay,@aRelat,"P") },  "Processando Contas a Pagar...")
+	u_WaitLog(,{|oSay| GCT28CC(oSay,@aRelat,@aRelat2,@aRelat3) },"Processando Centros de custos...")
 
 	If lPlanTmp
-		u_xxLog(cArqLog,"Gerando planilha Fase1...")
 		GCT28Anal(aRelat,"Fase1",.F.)
-
-		u_xxLog(cArqLog,"Gerando planilha Fase2...")
 		GCT28Anal(aRelat2,"Fase2",.T.)
 	EndIf
 
-	u_xxLog(cArqLog,"Gerando planilha - "+cSintetico+"...")
 	GCT28Rel(aRelat3,cSintetico)
-
-	u_xxLog(cArqLog,"Final: "+DtoC(Date())+" "+Time()+": "+cUserName)
 
 Return
 

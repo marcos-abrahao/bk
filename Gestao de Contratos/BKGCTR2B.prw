@@ -195,9 +195,9 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 	oTmpTb:AddIndex("indice1", {"XX_CONTRA"} )
 	oTmpTb:Create()
 
-	FWMsgRun(, {|oSay| ProcQuery("01") }, "", "Empresa 01 - Consultando o banco de dados...")
-	FWMsgRun(, {|oSay| ProcQuery("02") }, "", "Empresa 02 - Consultando o banco de dados...")
-	FWMsgRun(, {|oSay| ProcQuery("14") }, "", "Empresa 14 - Consultando o banco de dados...")
+	u_WaitLog(, {|oSay| ProcQuery("01") }, "Empresa 01 - Consultando o banco de dados...")
+	u_WaitLog(, {|oSay| ProcQuery("02") }, "Empresa 02 - Consultando o banco de dados...")
+	u_WaitLog(, {|oSay| ProcQuery("14") }, "Empresa 14 - Consultando o banco de dados...")
 
 	AADD(aTitulos,cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo1)
 

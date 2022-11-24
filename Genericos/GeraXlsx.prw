@@ -27,12 +27,8 @@ Local cFile := ""
 
 Default lJob := IsBlind()
 
-If !lJob
-	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
-	FWMsgRun(, {|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
-Else
-	cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob)
-EndIf
+u_WaitLog(, {|oSay| cFile := U_ProcXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "Gerando Planilha Excel: "+_cProg+"...")	
+
 Return cFile
 
 
@@ -770,12 +766,7 @@ End Sub
 User Function xArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
 Default lJob := IsBlind()
 
-If !lJob
-	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) })
-	FWMsgRun(, {|oSay| U_xPrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")
-Else
-	U_xPrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob)
-EndIf
+u_WaitLog(_cProg, {|oSay| U_xPrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) }, "Gerando Planilha Excel: "+_cProg+"...")
 
 Return Nil
 

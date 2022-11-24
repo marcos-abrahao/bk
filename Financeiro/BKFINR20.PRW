@@ -34,7 +34,6 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
 
 dEMISI  := mv_par01
 dEMISF  := mv_par02
@@ -78,7 +77,7 @@ ELSE
 	ENDIF
 ENDIF
 
-FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg, {|oSay| ProcQuery() } , titulo)	
 
 aCabs   := {}
 aCampos := {}
@@ -586,14 +585,6 @@ For i:=1 to Len(aRegistros)
 			Endif
 		Next
 		MsUnlock()
-	//Else	
-	//	RecLock("SX1",.F.)
-	//	For j:=1 to FCount()
-	//		If j <= Len(aRegistros[i])
-	//			FieldPut(j,aRegistros[i,j])
-	//		Endif
-	//	Next
-	//	MsUnlock()
 	Endif
 Next
 

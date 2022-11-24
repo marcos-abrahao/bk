@@ -25,6 +25,8 @@ FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 User Function MsgLog(cProg,cMens,cAlert,cTxt)
 Local cArqLog  := "\log\msglog.log"
 Local lRet     := .T.
+
+Default cProg  := FunName()
 Default cMens  := "Acesso"
 Default cAlert := " "
 Default cTxt   := ""
@@ -60,6 +62,9 @@ EndIf
 u_xxLog(cArqLog,cProg + ": "+cMens)
 If !Empty(cTxt)
 	u_xxLog("\log\"+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
+	If !IsBlind()
+		FWAlertHelp(AllTrim(cTxt),AcProg)
+	EndIf
 EndIf
 Return lRet
 
@@ -136,7 +141,8 @@ Return(.t.)
 
 User Function WaitLog(cProg,bFunction,cMens)
 Local cTimeI := Time()
-Default cMens := "Aguarde, processando..."
+Default cProg := FunName()
+Default cMens := "Aguarde o processamento..."
 If !IsBlind()
 	FWMsgRun(, {|oSay| Eval(bFunction,oSay) }, "", cProg+": "+cMens)
 Else
@@ -152,6 +158,7 @@ User Function LogMsExec(cProg,cMens)
 Local cArqErr := AllTrim(cProg)+".err"
 Local cErrLog := ""
 
+Default cProg := FunName()
 Default cMens := "Problemas na execução do MSExecAuto:"
 
 cErrLog := MostraErro("\log\",cArqErr)

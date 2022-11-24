@@ -104,7 +104,6 @@ If FWCodEmp() == "01"
 
 	For nX := 1 To Len(aDados) 
 		If !Empty(aDados[nX,1])
-			//FWMsgRun(, {|oSay| x:= &(aDados[nX,2]) }, "", aDados[nX,2]+": "+aDados[nX,3])
 			bProg := {|oSay| x:= &(aDados[nX,2]) }
 			u_WaitLog(cPerg, bProg, aDados[nX,2]+": "+aDados[nX,3])
 		EndIf

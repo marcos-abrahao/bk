@@ -26,19 +26,9 @@ Generico - Gera planilha excel
 
 User Function PlanXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob )
 Local cFile := ""
-
 Default lJob := IsBlind()
 
-/*
-If !lJob
-	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_PBKXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
-	FWMsgRun(, {|oSay| cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")	
-Else
-	cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob)
-EndIf
-*/
-
-u_WaitLog(_cProg,{|oSay| cFile := U_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "Gerando Planilha Excel: "+_cProg+"...")
+u_WaitLog(_cProg,{|oSay| cFile := u_PlXlsx(_aPlans,_cTitulo,TRIM(_cProg), lClose, _aParam, _aGraph, lOpen, lJob) }, "Gerando Planilha Excel: "+_cProg+"...")
 
 Return cFile
 
@@ -883,12 +873,7 @@ Return Nil
 User Function ArrToXlsx( _aPlans,_cTitulo,_cProg, _aParam, lJob )
 Default lJob := IsBlind()
 
-If !lJob
-	//MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) })
-	FWMsgRun(, {|oSay| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) }, "", "Gerando Planilha Excel: "+_cProg+"...")
-Else
-	U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob)
-EndIf
+u_WaitLog(_cProg,{|oSay| U_PrcArrXlsx(_aPlans,_cTitulo,_cProg, _aParam, lJob) },"Gerando Planilha Excel: "+_cProg+"...")
 
 Return Nil
 

@@ -42,20 +42,11 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
 
 cMesComp := mv_par01
 cAnoComp := mv_par02
 cCompet  := cMesComp+"/"+cAnoComp
 nPlan    := mv_par03
-
-//nMes := VAL(cMesComp) + 1
-//nAno := VAL(cAnoComp)
-//IF nMes = 13
-//   nMes := 1
-//   nAno := nAno + 1
-//ENDIF
-//cMes := STR(nAno,4)+STRZERO(nMes,2)   
 
 IF LEN(ALLTRIM(cAnoComp)) < 4
    MSGSTOP('Ano deve conter 4 digitos!!',"Atenção")
@@ -66,7 +57,7 @@ cMes := cAnoComp+STRZERO(VAL(cMesComp),2)
 
 titulo   := "Mapa de Medições : Competencia "+cMesComp+"/"+cAnoComp
 
-FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg, {|oSay| PrcQuery() }, titulo)	
 
 AADD(aTitulos,titulo)
 
@@ -184,7 +175,7 @@ U_PlanXlsx(aPlans,Titulo,cPerg,.F.)
 Return
 
 
-Static Function ProcQuery()
+Static Function PrcQuery()
 Local cQuery as Character
 Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 

@@ -54,7 +54,8 @@ If nFiltro = 1
 Else
 	cTitulo  := "Mapa de Multas e Bonificações : Competencia "+cMesComp+"/"+cAnoComp
 EndIf
-FWMsgRun(, {|oSay| ProcQuery() }, "", cPerg+" - Consultando dados...")
+
+u_WaitLog(cPerg, {|oSay| ProcQuery() }, cTitulo)
 
 AADD(aTitulos,cTitulo)
 AADD(aCampos,"QTMP->CND_CONTRA")

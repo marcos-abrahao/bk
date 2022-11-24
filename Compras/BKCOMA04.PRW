@@ -67,7 +67,7 @@ If !Empty(SCR->CR_DATALIB) .And. SCR->CR_STATUS $ "03#05"
 	  //Aviso(STR0038,STR0039,{STR0037},2) //"Atencao!"###"Este pedido ja foi liberado anteriormente. Somente os pedidos que estao aguardando liberacao (destacado em vermelho no Browse) poderao ser liberados."###"Voltar"
 	Return NIL
 ElseIf  SCR->CR_STATUS $ "01"
-	Aviso("A097BLQ","Atenção",{"Esta operação não poderá ser realizada pois este registro se encontra bloqueado pelo sistema (aguardando outros niveis)"}) 
+	u_MsgLog("A097BLQ","Esta operação não poderá ser realizada pois este registro se encontra bloqueado pelo sistema (aguardando outros niveis)","w") 
 	Return NIL
 EndIf
 
@@ -80,7 +80,7 @@ IF ASCAN(aUser[1,10],"000000") = 0 .AND. ASCAN(aUser[1,10],cMFinanceiro) = 0  .A
 			SC1->(DbSetOrder(1))
 			IF SC1->(DbSeek(xFilial("SC1")+SC7->C7_NUMSC+SC7->C7_ITEMSC,.F.))
     	   		IF SC1->C1_USER == __cUserId
-					Aviso("Atenção","Usuário não autorizado Liberar o próprio Pedido!!",{"OK"}) 
+					u_MsgLog("BKCOMA04","Usuário não autorizado Liberar o próprio Pedido!!","E") 
 					Return NIL
     	   		ENDIF
     		ENDIF

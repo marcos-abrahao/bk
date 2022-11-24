@@ -38,8 +38,8 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 
 If nOpcA == 1
 	nOpcA:=0
-    FWMsgRun(, {|oSay| QBKATFA2() }, "", "Consultando Itens dos Documentos de Entrada...")
-    FWMsgRun(, {|oSay| PBKATFA2() }, "", "Gerando arquivo "+cArq+"...")
+    u_WaitLog(, {|oSay| QBKATFA2() }, "Consultando Itens dos Documentos de Entrada...")
+    u_WaitLog(, {|oSay| PBKATFA2() }, "Gerando arquivo "+cArq+"...")
 Endif
 
 RETURN NIL

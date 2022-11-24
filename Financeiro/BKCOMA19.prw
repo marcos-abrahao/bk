@@ -15,10 +15,8 @@ Local aArea     := GetArea()
 Local oTmpTb
 Local aStrut    := {}
 Local cTx       := ""
-
+Private cProg   := "BKCOMA19"
 Private cAliasTmp := GetNextAlias()
-
-u_MsgLog("BKCOMA19")
 
 //              Campo          Tipo    Tamanho                Decimal
 aAdd( aStrut, { "XX_COD",      "C",    TamSX3("B1_COD")[1],   0                     } )
@@ -163,10 +161,10 @@ Static Function fValid()
 Local lRet := .T.
 
 If (dDatPrf <= dDataBase)
-	MsgStop("Data limite de entrega deve ser maior que a database!","Atenção!")
+	u_MsgLog(cProg,"Data limite de entrega deve ser maior que a database!","E")
 	lRet := .F.
 ElseIf Empty(cCC) .OR. !ValidaCusto(cCC,,,,.T.) 
-	MsgStop("Centro de Custos não encontrado!","Atenção!")
+	u_MsgLog(cProg,"Centro de Custos não encontrado!","E")
 	lRet := .F.
 EndIf
 Return (lRet)
@@ -176,8 +174,7 @@ Return (lRet)
 Static Function fSalvar()
 Local lRet := .F.
 
-FWMsgRun(, {|oSay| lRet := fGravaSC1()  }, "", "Incluindo solicitação de compras...")
-
+u_WaitLog(cProg, lRet := fGravaSC1(), "Incluindo solicitação de compras...")
 If lRet
 	oDlgPvt:End()
 EndIf
@@ -340,8 +337,8 @@ For nI := 1 To nTamTex
 Next
 
 If !Empty(cErro)
+	u_MsgLog(cProg,cErro,"E")
 	lOk := .F.
-	Aviso("Erros",cErro,{"OK"})
 EndIf
 
 Return lOk

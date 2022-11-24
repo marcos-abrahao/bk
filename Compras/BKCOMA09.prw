@@ -12,11 +12,12 @@ BK- MarkBrow em MVC da tabela SZS-Facilitador p/ Doc de Entrada
 
 User Function BKCOMA09()
 	Local aGrp := UsrRetGrp()
+
 	Private oMark
 	Private cCadastro := 'Facilitador p/ Doc de Entrada'
 
 	If aScan(aGrp,"000000") == 0
-		MsgStop("Usuário sem permissão de acesso a esta rotina")
+		u_MsgLog(,"Usuário sem permissão de acesso a esta rotina","E")
 		Return
 	EndIf
 
@@ -108,7 +109,7 @@ Rotina para processamento dos registros marcados - inclusão de Doc de Entrada
 /*/
 Static Function SZSProc()
 
-FWMsgRun(, {|oSay| SZSProc1() }, "", "BKCOMA09 - Gerando Doc. de Entrada...")
+u_WaitLog(, {|oSay| SZSProc1() }, "BKCOMA09 - Gerando Doc. de Entrada...")
 
 Return Nil
 
@@ -120,7 +121,7 @@ Rotina para inclusão de Doc de Entrada
 /*/
 Static Function SZSClas()
 
-FWMsgRun(, {|oSay| GeraDocE(.T.) }, "", "BKCOMA09 - Gerando Doc. de Entrada...")
+u_WaitLog(, {|oSay| GeraDocE(.T.) }, "BKCOMA09 - Gerando Doc. de Entrada...")
 
 Return Nil
 
@@ -267,11 +268,8 @@ ZS_XXHIST
 
         MSExecAuto({|x,y,z|Mata103(x,y,z)}, aCabec, aItens, 3,lTela)
             
-        If lMsErroAuto
-
-			cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA09.ERR")
-			u_xxLog("\LOG\BKCOMA09.LOG",cErrLog)
-			//MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+		If lMsErroAuto 
+			u_LogMsExec(,,)
             DisarmTransaction()
             break
         EndIf                            
@@ -327,8 +325,8 @@ ZS_XXHIST
 		EndIf
 		*/
 	Else 		//Senão, mostra o erro do execauto
+		u_MsgLog("BKCOMA09", "Falha ao incluir Documento / Série ('"+cDoc+"/"+cSerie+"')!", "E")
 		lRet :=.F.
-		Aviso("Atenção", "Falha ao incluir Documento / Série ('"+cDoc+"/"+cSerie+"')!", {"Ok"}, 2)
 	EndIf
 
 	If lRet
@@ -418,7 +416,7 @@ If (Parambox(aParam     ,"BKCOMA09 - "+cTitulo,@aRet,       ,            ,.T.   
 	dDataP  := mv_par02
 	lTodos  := (substr(mv_par03,1,1) == "T")	
 
-	FWMsgRun(, {|oSay| SZSProc2(dDataE,dDataP,lTodos) }, "", "BKCOMA09 - Alterando datas...")
+	u_WaitLog(, {|oSay| SZSProc2(dDataE,dDataP,lTodos) }, "BKCOMA09 - Alterando datas...")
 
 Endif
 

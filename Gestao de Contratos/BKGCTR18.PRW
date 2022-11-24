@@ -186,7 +186,7 @@ User Function BKGCTR18()
 	AADD(aCampos3,cAliasTmp3+"->XX_TMPCONT")
 	AADD(aCampos3,cAliasTmp3+"->XX_VALFAT")
 
-	FWMsgRun(, {|oSay| ProcQuery() }, "", "Consultando o banco de dados...")	
+	u_WaitLog(cPerg, {|oSay| PrcQuery1() }, cTitulo)	
 
 	AADD(aPlans,{cAliasTmp ,"Tabela 1","",cTitulo  ,aCampos ,aCabs ,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 	AADD(aPlans,{cAliasTmp1,"Tabela 2","",cTitulo1 ,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })

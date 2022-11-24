@@ -30,7 +30,6 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_MsgLog(cPerg)
 
 dDataI := mv_par01
 dDataF := mv_par02
@@ -74,12 +73,12 @@ AADD(aDbf, { 'XX_VALLIQ',	'N', 18,02 } )
 AADD(aCampos,"TRB->XX_VALLIQ")
 AADD(aCabs  ,"Total Liquido")
 
-Processa( {|| ProcBKCOMR10() })
- 
+u_WaitLog(, {|| PrcCOMR10() }, cTitulo )
+
 Return
 
 
-Static Function ProcBKCOMR10
+Static Function PrcCOMR10
 Local cQuery := ""
 Local nReg   := 0
 Local nQtdPc := 0
@@ -102,8 +101,6 @@ cQuery += " WHERE SF1.D_E_L_E_T_ = '' AND SF1.F1_DTDIGIT >= '"+DTOS(dDataI)+"' A
 
 TCQUERY cQuery NEW ALIAS "QSF1"
 TCSETFIELD("QSF1","F1_DTDIGIT","D",8,0)
-
-ProcRegua(QSF1->(LASTREC()))
 
 dbSelectArea("SE2")
 dbSetOrder(6)
@@ -161,8 +158,6 @@ QSF1->(dbGoTop())
 
 Do While QSF1->(!EOF())
 
-	IncProc("Consultando banco de dados...")
-
 	Reclock("TRB",.T.)
 	TRB->XX_DOC 	:= QSF1->F1_DOC
 	TRB->XX_SERIE 	:= QSF1->F1_SERIE
@@ -204,7 +199,6 @@ ENDDO
 
 AADD(aPlans,{"TRB",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,/*aTotal */, /*cQuebra*/, lClose:= .F. })
 U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
-
 
 QSF1->(dbCloseArea())
 

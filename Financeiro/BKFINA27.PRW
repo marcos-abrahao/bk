@@ -76,7 +76,7 @@ oTmpTb := FWTemporaryTable():New( cAliasTmp )
 oTmpTb:SetFields( aStrut )
 oTmpTb:Create()
 
-FWMsgRun(, {|oSay| FA27Qry(cAliasTmp,dDataI,dDataF) }, "", "Consultando títulos não baixados...")
+u_WaitLog(, {|oSay| FA27Qry(cAliasTmp,dDataI,dDataF) },"Consultando títulos não baixados...")
 
 FA22EdtCx(cAliasTmp)
 
@@ -262,7 +262,7 @@ Return (lRet)
 Static Function fSalvar()
 Local lRet := .F.
 
-FWMsgRun(, {|oSay| lRet := ProcBaixa() }, "", "Gerando Baixas a Pagar…")
+u_WaitLog(, {|oSay| lRet := ProcBaixa() }, "Gerando Baixas a Pagar…")
 
 If lRet
 	oDlgPvt:End()

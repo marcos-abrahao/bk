@@ -143,10 +143,10 @@ If ( lOk )
 	EndIf
 	
    	If lCopiado
-		Aviso("BKANXA01",OemtoAnsi("Arquivo(s) anexado(s) com sucesso!"),{"Ok"})
+		u_MsgLog("BKANXA01",OemtoAnsi("Arquivo(s) anexado(s) com sucesso!"),"S")
 		
 	Else
-		Aviso("BKANXA01",OemtoAnsi("Arquivo(s) não foi(ram) anexado(s)!"),{"Ok"})
+		u_MsgLog("BKANXA01",OemtoAnsi("Arquivo(s) não foi(ram) anexado(s)!"),"W")
 	Endif	
 	
 EndIf

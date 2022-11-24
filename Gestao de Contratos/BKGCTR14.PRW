@@ -31,7 +31,6 @@ Local cMes          := ""
 Local cXXSEMAF		:= "N"
 Local aRetCons		:= {}
 Local cLogCons   	:= ""
-Local cCrLf   		:= Chr(13) + Chr(10) 
 Local dAgJob		:= DATE()
 Local dMaxCompet	:= CTOD("")
 
@@ -69,7 +68,7 @@ Else
 	If DAY(DATE()) <> 9 .AND. !("*" $ cContrato)
 		If Empty(dAgJob) .OR. !(dAgJob == DATE())
 		
-			u_xxLog(cArqLog,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""))
+			u_MsgLog(cPerg,cStart+": "+titulo+" - ultimo agendamento: "+IIF(!EMPTY(dAgJob),DTOC(dAgJob),""))
 			Reset Environment
 			Return Nil
 		EndIf
@@ -208,8 +207,7 @@ If !lJob
 		U_BKPutMv("BKGCTR1410",MV_PAR10,"D", 8,0,"Agendar para:")
 		U_BKPutMv("BKGCTR1411",MV_PAR11,"C",70,0,"E-Mail?")
 		U_BKPutMv("BKGCTR1412",MV_PAR12,"N", 1,0,"Somente Competência Atual?")
-		u_xxLog(cArqLog,cStart+": "+titulo+" - agendamento efetuado para: "+DTOC(MV_PAR10))
-		MsgInfo("Agendamento efetuado para "+DTOC(MV_PAR10)+" 1h")
+		u_MsgLog(cPerg,cStart+": "+titulo+" - agendamento efetuado para: "+DTOC(MV_PAR10),"I")
 		Return Nil
 	EndIf
 Else
@@ -222,7 +220,7 @@ Else
 	MV_PAR07 := nRateia     := U_BKGetMv("BKGCTR1407") // 2
 	MV_PAR08 := nDespGeral  := U_BKGetMv("BKGCTR1408") // 1
 	MV_PAR12 := nCompAtual  := U_BKGetMv("BKGCTR1412")
-	u_xxLog(cArqLog,titulo+": "+cStart)
+	u_MsgLog(cPerg,titulo+": "+cStart)
 
 EndIf
 
@@ -275,8 +273,7 @@ IF nConsolida == 1
 			dbSelectArea("CN9")
 			dbSetOrder(1)
 			IF !dbSeek(xFilial("CN9") + cConsolida)
-				MSGSTOP("Contrato n° "+cConsolida+" inválido. Verifique!!")
-				RETURN NIL
+				u_MsgLog(cPerg,"Contrato n° "+cConsolida+" inválido. Verifique!!","E")
 			ENDIF
 			cConsolida := SUBSTR(cConsolida,1,3)
 
@@ -314,21 +311,13 @@ IF nConsolida == 1
 				cConsolida := SUBSTR(cConsolida,1,LEN(cConsolida)-1)
 			ENDIF
 			IF !EMPTY(cLogCons)
-				IF lJob
-					u_xxLog(cArqLog,"- Contratos não encontrados e será desconsiderado da Consolidação: "+cLogCons)
-				ELSE
-					IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
-						RETURN NIL
-					ENDIF
+				IF !u_MsgLog(cPerg,"Contratos não encontrados e serão desconsiderados da Consolidação: Continua? "+cLogCons,"Y")
+					RETURN NIL
 				ENDIF
 			ENDIF		
 		ENDIF
     ELSE
-		IF lJob
-			u_xxLog(cArqLog,"Informações para Consolidar invalida. Verifique!!")
-		ELSE
-	    	MSGSTOP("Informações para Consolidar invalida. Verifique!!")
-		ENDIF
+		u_MsgLog(cPerg,"Informações de consolidação invalidas. Verifique!!","E")
 		Return Nil
     ENDIF
 
@@ -405,18 +394,10 @@ FOR IX:= 1 TO LEN(aContrCons)
 NEXT
 
 IF ALLTRIM(cXXSEMAF) == 'N'
-	If !lJob
-		ProcRegua(100)
-		Processa( {|| AtualizaCC(lJob) }) 
-	Else
-		AtualizaCC(lJob)
-	EndIf
+	u_WaitLog(cPerg,{|| AtualizaCC()},"Atualizando CC...")
 ELSE
-	If !lJob
-		Msginfo("Atualizando tabela Folha de Pagamento!!")
+	If !u_MsgLog(cPerg,"Atenção: tabela Folha de Pagamento não foi atualizada. Continua?","Y")
 	    Return Nil
-	Else
-		u_xxLog(cArqLog,"Atenção: tabela Folha de Pagamento não foi atualizada.")
 	EndIf
 ENDIF
 
@@ -524,11 +505,7 @@ If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 	QTMP1->(Dbclosearea())
 
 	IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal)) 
-		If !lJob
-			MSGSTOP("Contrato não encontrado!!")
-		Else
-			u_xxLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal))
-		EndIf
+		u_MsgLog(cArqLog,"Período de competência não encontrado: "+DTOC(dDataI) +" a "+ DTOC(dDataFinal),"W")
 		Return Nil
 	ENDIF
 
@@ -547,7 +524,7 @@ EndIf
 
 cTitulo  := titulo + " - Competencia: "+STRZERO(nMesC,2)+" / "+STRZERO(nAnoC,4)
 
-u_xxLog(cArqLog,cTitulo)
+u_MsgLog(cPerg,cTitulo)
 
 aDbf1		:= {}
 aCabs1   	:= {}
@@ -854,14 +831,14 @@ If !lJob
 			U_BKGCTM14()
 		EndIf
 	Else
-		MsgStop("Competencia não encontrada!!")
+		u_MsgLog(cPerg,"Competencia não encontrada : "+STR(nCompet),"W")
 	EndIf
 Else
 	If nCompet <> 0
 		ProcR14(lJob)
 		U_CR14(lJob)
 	Else
-		u_xxLog(cArqLog,"Competencia não encontrada : "+STR(nCompet))
+		u_MsgLog(cPerg,"Competencia não encontrada : "+STR(nCompet),"W")
 	EndIf
 EndIf
 
@@ -901,7 +878,6 @@ Private _oDlgSint
 
 aAdd(aRotina,{"Exp. Excel"	,"U_CR14",0,6})
 aAdd(aRotina,{"Parametros"	,"U_PR14",0,7})
-
 
 dbSelectArea(cAlias)
 dbSetOrder(1)
@@ -1006,8 +982,8 @@ Else
 
 	// Gerar tabela no banco PowerBk
 	If Empty(cContrato)
-		u_xxLog(cArqLog,"BKGCTR14: Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt)
-		GeraPwBk()
+		//u_xxLog(cArqLog,"BKGCTR14: Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt)
+		u_WaitLog(cPerg,{|| GeraPwBk()},"Gerando tabela PowerBk.dbo.PROJXREAL"+cEmpAnt)
 	EndIf
 
 	// Gerar o analitico e os sintéticos no Schedule
@@ -6143,18 +6119,14 @@ EndIf
 cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 
 If !lJob
-	If MsgYesNo(aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?")
+	If u_MsgLog(cPerg,aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?","Y")
 		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-		//cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		Return Nil
 	EndIf
 Else
-	u_xxLog(cArqLog,"Gerando planilha xlsx")
 	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
-	//cArqXls := U_GeraXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 	cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
-	u_xxLog(cArqLog,"Planilha "+cArqXls+" gerada...")
 EndIf
 
 MakeDir(cDirTmp)
@@ -6306,7 +6278,7 @@ Return
 
 
 //Atualizar tabela de custo
-Static Function AtualizaCC(lJob)
+Static Function AtualizaCC()
 Local _IX := 0
 
 // Gravar o Semaforo Tabela Centro de Custo
@@ -6316,24 +6288,10 @@ RecLock("SX6",.F.)
 SX6->X6_CONTEUD := "S"
 msUnlock()
 
-If !lJob 
-	IncProc("Atualizando Tabela Centro de Custo...")
-Else
-    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo...")
-EndIf
-
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+cEmpAnt)
 
-If !lJob 
-	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
-Else
-    //u_xxLog(cArqLog,"Atualizando Tabela Centro de Custo Consorcios...")
-EndIf
-
 FOR _IX:= 1 TO LEN(aConsorcio)
-
 	TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SUBSTR(ALLTRIM(aConsorcio[_IX,2]),1,2))
-
 NEXT
 
 //Gravar o Semaforo Tabela Centro de Custo
