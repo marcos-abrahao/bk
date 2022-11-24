@@ -134,9 +134,9 @@ ACTIVATE MSDIALOG oDlg01 CENTER Valid(ValidaNF())
 If nOpcA == 1
 	nOpcA:=0
 	IF SUBSTR(cTipoNF,1,2) == "AS"
-		Processa( {|| MontaPlaAS()})
+		MontaPlaAS()
 	ELSE
-		Processa( {|| MontaItemNF()})
+		MontaItemNF()
 	ENDIF
 Endif
 
@@ -180,19 +180,21 @@ ENDDO
 
 aTbSx5 := FWGetSX5("Z4")
 FOR nX5 := 1 To Len(aTbSx5)
-	IncProc('Carregando definição de Itens')
-	AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
+	//IncProc('Carregando definição de Itens')
+	If SUBSTR(aTbSx5[nX5,3],1,2) == SUBSTR(cTipoNF,1,2)
+		AADD(aX5,StrTokArr(aTbSx5[nX5,4],";"))
+	EndIf
 NEXT
 
 nTotal := 0
 
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
-Procregua(FT_FLASTREC())  //quantos registros para ler
+//Procregua(FT_FLASTREC())  //quantos registros para ler
  
 While !FT_FEOF()
  
-	IncProc('Carregando Itens da NF')
+	//IncProc('Carregando Itens da NF')
  
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha
@@ -236,9 +238,9 @@ FT_FUSE()  //fecha o arquivo txt
 aLINHAxx := {}
 IF LEN(aItemLinha) > 0
 	nValRat := (nValor - nTotal) / LEN(aItemLinha) 
-	Procregua(LEN(aItemLinha))
+	//Procregua(LEN(aItemLinha))
 	For nX := 1 To LEN(aItemLinha)
-		IncProc('Calculando Rateio do Item da NF')
+		//IncProc('Calculando Rateio do Item da NF')
 		AADD(aLINHAxx,{aItemLinha[nX,1],aItemLinha[nX,2],nValRat,""})		
 		aItemLinha[nX,2] += nValRat
 	NEXT
@@ -249,14 +251,14 @@ IF LEN(aItemLinha) == 0
    RETURN NIL
 ENDIF
 
-Procregua(LEN(aItemLinha))
+//Procregua(LEN(aItemLinha))
 aItemCC := {}
 aSemCC  := {}
 
 nTotal  := 0
 
 For nX := 1 To LEN(aItemLinha)
-	IncProc('Carregando Itens da NF')
+	//IncProc('Carregando Itens da NF')
 	nTotal += aItemLinha[nX,2]
 
 	cQuery  := "SELECT TOP 1 bk_senior.bk_senior.r034fun.numcad,bk_senior.bk_senior.r034fun.nomfun, "
@@ -419,7 +421,8 @@ IF LEN(aItemCC) > 0
 
 	If ( lOk )
 		lOk:=.F.
-	   Processa( {|| IncluiNF(aItemCC)})
+		//Processa( {|| IncluiNF(aItemCC)})
+		u_WaitLog(cProg, {|| IncluiNF(aItemCC)}, 'Incluido Pré-Documento de Entrada')
 	Endif
 ENDIF
 RETURN NIL
@@ -459,7 +462,7 @@ IF EMPTY(cEspec)
     RETURN lOk 
 Endif
 
-IF EMPTY(cEspec)
+IF EMPTY(cUF)
 	u_MsgLog(cProg,"UF do Pré-Documento de Entrada incorreto", "E")
 	lOk:= .F.
     RETURN lOk 
@@ -590,7 +593,7 @@ ENDIF
 
 // Inclusao da Pre Nota
 Begin Transaction
-	IncProc('Incluido Pré-Documento de Entrada')
+	//IncProc('Incluido Pré-Documento de Entrada')
 	
 	nOpc := 3
  	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc,.T.)   
@@ -656,7 +659,8 @@ ACTIVATE MSDIALOG oDlgAS CENTER Valid(ValidaAS(cPlano))
 If nOpcA == 1
 	nOpcA := 0
 	// Faz Processamento
-	Processa( {|| MontaItemAS(cPlano)})
+	MontaItemAS(cPlano)
+
 Endif
 Return NIL
 
@@ -690,10 +694,10 @@ TCQUERY cQuery1 NEW ALIAS "QTPA"
 
 nOrdem  := 0
 DbSelectArea("QTPA")
-ProcRegua(QTPA->(LastRec()))
+//ProcRegua(QTPA->(LastRec()))
 QTPA->(DbGotop())
 DO WHILE !EOF()
-	IncProc('Incluindo Itens Plano - BS Rubi')
+	//IncProc('Incluindo Itens Plano - BS Rubi')
 
 	cQTPACC := ''
 	IF QTPA->cFil == '034'
@@ -803,7 +807,7 @@ IF LEN(aItemAS) > 0
 
 	If ( lOk )
 	   lOk:=.F.
-       Processa( {|| MontaBS(aItemAS)})
+       MontaBS(aItemAS)
 	Endif
 ENDIF
 RETURN NIL
@@ -848,10 +852,10 @@ TCQUERY cQuery1 NEW ALIAS "QTPA"
 
 nTotal  := 0
 DbSelectArea("QTPA")
-ProcRegua(QTPA->(LastRec()))
+//ProcRegua(QTPA->(LastRec()))
 QTPA->(DbGotop())
 DO WHILE !EOF()
-	IncProc('Incluido Itens Plano - BS Rubi')
+	//IncProc('Incluido Itens Plano - BS Rubi')
 
 	cQTPACC := ''
 	IF QTPA->cFil == '034'
@@ -877,7 +881,6 @@ DO WHILE !EOF()
 ENDDO 	
 QTPA->(dbCloseArea())
 
-
 RETURN  aItemDep
 
 
@@ -889,13 +892,13 @@ LOCAL lOk := .F.
 LOCAL nTotal:=0
 LOCAL aItemCC:={}
 
-Procregua(LEN(aItemAS))
+//Procregua(LEN(aItemAS))
 aItemCC := {}
 aSemCC  := {}
 nTotal  := 0
 
 For nX := 1 To LEN(aItemAS)
-	IncProc('Carregando Itens da NF')
+	//IncProc('Carregando Itens da NF')
 	nTotal += aItemAS[nX,6]
 
     nScan:= 0
@@ -992,7 +995,8 @@ IF LEN(aItemCC) > 0
 	
 	If ( lOk )
 		lOk:=.F.
-	   Processa( {|| IncluiNF(aItemCC)})
+		//Processa( {|| IncluiNF(aItemCC)})
+		u_WaitLog(cProg, {|| IncluiNF(aItemCC)}, 'Incluido Pré-Documento de Entrada')
 	Endif
 ENDIF
 RETURN NIL

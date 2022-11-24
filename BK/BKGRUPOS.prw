@@ -145,6 +145,11 @@ Next
 Return lRet
 
 
+// É do grupo Fiscal
+User Function IsFiscal(cId)
+Return u_IsGrupo(cId,"000031")
+
+
 // Retorna se o usuário pertence ao STAF 
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 User Function IsStaf(cId)
@@ -205,9 +210,8 @@ User Function GrpMDir
 Return "000005/000007/000008/000010/000029/000031/"
 
 
-
 // Usuarios Almoxarifado (para queries)
-User Function UsrAlmox
+User Function UsrAlmox()
 Return "'000093','000126','000216','000225','000226','000227'"
 
 

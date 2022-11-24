@@ -132,7 +132,7 @@ Local cQuery	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 
-u_MsgLog(cPerg,"Início: TurnoverBK")
+//u_MsgLog(cPerg,"Início: TurnoverBK")
 
 If TCSPExist( "BKTURNOVER1" )
 	cQuery  := "EXEC BKTURNOVER1"  

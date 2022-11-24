@@ -30,11 +30,8 @@ Private cTipoRel     := aTipoRel[1]
 // Parametros - Pergunte
 Private dEmisI,dEmisF,dVencI,dVencF,nValI,nValF,cCC,cForn
 
-ProcRegua(10)
-Processa( {|| LoadTpBk()})
-
-ProcRegua(10)
-Processa( {|| LoadTpPes()})
+LoadTpBk()
+LoadTpPes()
 
 cTipoBk   := aTipoBk[LEN(aTipoBK)]
 cTipoPes  := aTipoPes[LEN(aTipoPes)]
@@ -46,7 +43,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
+//u_MsgLog(cPerg)
 
 DEFINE MSDIALOG oDlg FROM  96,9 TO 310,592 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -89,8 +86,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
-ProcRegua(5)
-Processa( {|| ProcSZ2() })
+u_WaitLog(cPerg,{|oSay| ProcSZ2() }, cTitulo)
 
 AADD(aCampos,"QSZ2->Z2_TIPO")
 AADD(aCabs  ,"Tipo")
@@ -160,11 +156,10 @@ AADD(aCabs  ,"OBS")
 
 
 IF !QSZ2->(EOF())
-	ProcRegua(QSZ2->(LASTREC()))
    AADD(aPlans,{"QSZ2",TRIM(cPerg),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
    U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 ELSE
-   MsgStop("Sem dados para imprimir, verifique os parâmetros do relatório")
+   u_MsgLog(cPerg,"Sem dados para imprimir, verifique os parâmetros do relatório","W")
 	Dbselectarea("QSZ2")
 	dbCloseArea()
 ENDIF	
@@ -175,8 +170,6 @@ Return
 Static Function ProcSZ2()
 Local cQuery
 
-
-IncProc()
 cQuery := "SELECT Z2_PRONT,Z2_NOME,Z2_CC,CTT_DESC01,Z2_VALOR,Z2_TIPO,Z2_TIPOPES,Z2_OBS,Z2_USUARIO,Z2_E2FORN,Z2_E2LOJA,Z2_DATAEMI,Z2_DATAPGT, "+CRLF
 cQuery += "Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_PRODUTO,Z2_OBSTITU, "+CRLF
 
@@ -276,7 +269,6 @@ Return nil
 
 Static Function LoadTpBk()
 Local cQry
-IncProc()
 // Opções tipo BK
 //cQry := "SELECT Z2_TIPO FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE SZ2.D_E_L_E_T_ = ' ' GROUP BY Z2_TIPO ORDER BY Z2_TIPO"
 cQry := "SELECT Z2_TIPO FROM "+RETSQLNAME("SZ2")+" SZ2 GROUP BY Z2_TIPO ORDER BY Z2_TIPO"
@@ -285,7 +277,6 @@ dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQry),"QSZ2",.T.,.T.)
 Dbselectarea("QSZ2")
 QSZ2->(Dbgotop())
 DO WHILE !EOF()
-   IncProc()
    AADD(aTipobK,QSZ2->Z2_TIPO)
    dbSkip()
 ENDDO
@@ -296,7 +287,6 @@ Return Nil
 
 Static Function LoadTpPes()
 Local cQry
-IncProc()
 // Opções tipo BK
 //cQry := "SELECT Z2_TIPOPES FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE SZ2.D_E_L_E_T_ = ' ' GROUP BY Z2_TIPOPES ORDER BY Z2_TIPOPES"
 cQry := "SELECT Z2_TIPOPES FROM "+RETSQLNAME("SZ2")+" SZ2 GROUP BY Z2_TIPOPES ORDER BY Z2_TIPOPES"
@@ -305,7 +295,6 @@ dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQry),"QSZ2",.T.,.T.)
 Dbselectarea("QSZ2")
 QSZ2->(Dbgotop())
 DO WHILE !EOF()
-   IncProc()
    AADD(aTipoPes,QSZ2->Z2_TIPOPES)
    dbSkip()
 ENDDO

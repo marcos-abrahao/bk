@@ -71,15 +71,10 @@ Local cXML			:= ""
 Local lErro			:= .F.
 //Local lGRVARQ		:= .T.
 Local cCrLf     	:= Chr(13) + Chr(10)
-Local aEND          := {}
+Local cEMISSAO 		:= ""
 Local cCDSIAF       := ""
 Local cMunPrest     := ""
-Local nRETINSS      := 0
-Local nValISS       := 0
-Local nVlrLiq       := 0
-Local _nALQISS      := 0
 Local nTotReg       := 0
-Local _cDescritivo  := ""
 
 cNotaDe 	:= ALLTRIM(MV_PAR01)
 cNotaAte 	:= ALLTRIM(MV_PAR02)
@@ -103,6 +98,16 @@ TcQuery cQuery New Alias "QSF2"
 nTotReg := Contar("QSF2","!Eof()")
 ProcRegua(nTotReg)
 
+//CABECALHO DO LOTE EM XML
+cXML := '<EnviarLoteRpsEnvio xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.abrasf.org.br/nfse.xsd">'+cCrLf
+cXML += '<LoteRps Id="Lote_'+ALLTRIM(Alltrim(SF2->F2_SERIE))+'_03022122000177" versao="2.01">'+cCrLf
+cXML += '<NumeroLote>'+cLOTE+'</NumeroLote>'+cCrLf
+cXML += '<CpfCnpj>'+cCrLf
+cXML += '<Cnpj>03022122000177</Cnpj>'+cCrLf
+cXML += '</CpfCnpj>'+cCrLf
+cXML += '<InscricaoMunicipal>5401684</InscricaoMunicipal>'+cCrLf
+cXML += '<QuantidadeRps>'+ALLTRIM(STR(nTotReg))+'</QuantidadeRps>'+cCrLf
+
 dbSelectArea("QSF2")
 QSF2->(dbGotop())
 While QSF2->(!EoF())
@@ -115,9 +120,6 @@ While QSF2->(!EoF())
 		dbselectarea("SA1")
         SA1->(DbSetOrder(1))
 		SA1->(DbSeek(xFilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA))
-
-        aEND := {}
-        aEND := U_StringToArray(SA1->A1_END,",")
         cCDSIAF := ""
         cCDSIAF := ALLTRIM(Posicione("CC2",1, xFilial("CC2")+SA1->A1_EST+PadR(SA1->A1_COD_MUN,TamSx3("CC2_CODMUN")[1]),"CC2_CDSIAF"))
 
@@ -140,107 +142,94 @@ While QSF2->(!EoF())
             cMunPrest := cCDSIAF
         ENDIF
 
-		nRETINSS := 0
-        _nALQISS := 0
-		dbSelectArea("SF3")
-		SF3->(dbSetOrder(4))
-		If DbSeek(xFilial("SF3")+SF2->F2_CLIENTE+SF2->F2_LOJA+SF2->F2_DOC+SF2->F2_SERIE)
-            While SF3->(!EoF()) .AND. SF2->F2_FILIAL == xFilial("SF3") .AND. F3_CLIEFOR == SF2->F2_CLIENTE .AND. F3_LOJA == SF2->F2_LOJA .AND. F3_NFISCAL == SF2->F2_DOC .AND. SF3->F3_SERIE == SF2->F2_SERIE .AND. SF3->F3_TIPO == "S"
-                IF !(!empty(SF3->F3_DTCANC) .OR.  'CANCEL' $ SF3->F3_OBSERV)
-                    _nALQISS := SF3->F3_ALIQICM
-			        If !EMPTY(SF3->F3_RECISS)
-				        nRETINSS  := VAL(SF3->F3_RECISS)
-                        IF nRETINSS == 1 
-                            nRETINSS  := 2
-                        ELSE
-		                    nRETINSS  := 0
-                        ENDIF
-		            ENDIF
-                ENDIF
-	        SF3->(DbSkip())
-            ENDDO
-		ENDIF
+		cEMISSAO := YEARSTR(SF2->F2_EMISSAO)+"-"+MONTHSTR(SF2->F2_EMISSAO)+"-"+DAYSTR(SF2->F2_EMISSAO)
 
-        IF ALLTRIM(SC5->C5_XITSERV) == "713"
-            nRETINSS  := 0
-        ENDIF 
+		cXML += '<ListaRps>'+cCrLf
+		cXML += '<Rps>'+cCrLf
+		cXML += ' <InfDeclaracaoPrestacaoServico Id="Declaracao_03022122000177">'+cCrLf
+		cXML += ' <Rps Id="RPS'+ALLTRIM(Alltrim(SF2->F2_DOC))+'">'+cCrLf
+		cXML += ' <IdentificacaoRps>'+cCrLf
+		cXML += ' <Numero>'+ALLTRIM(Alltrim(SF2->F2_DOC))+'</Numero>'+cCrLf
+		cXML += ' <Serie>'+ALLTRIM(Alltrim(SF2->F2_SERIE))+'</Serie>'+cCrLf
+		cXML += ' <Tipo>1</Tipo>'+cCrLf
+		cXML += ' </IdentificacaoRps>'+cCrLf
+		cXML += ' <DataEmissao>'+cEMISSAO+'</DataEmissao>'+cCrLf
+		cXML += ' <Status>1</Status>'+cCrLf
+		cXML += '</Rps>'+cCrLf
+		cXML += '<Competencia>2012-10-15</Competencia>'+cCrLf
+		cXML += '<Servico>'+cCrLf
+		cXML += ' <Valores>'+cCrLf
+		cXML += '  <ValorServicos>'+STR(SF2->F2_VALBRUT,14,2)+'</ValorServicos>'+cCrLf
+		cXML += '  <ValorDeducoes>00.00</ValorDeducoes>'+cCrLf
+		cXML += '  <ValorPis>'+STR(SF2->F2_VALPIS,14,2)+'</ValorPis>'+cCrLf
+		cXML += '  <ValorCofins>'+STR(SF2->F2_VALCOF,14,2)+'</ValorCofins>'+cCrLf
+		cXML += '  <ValorInss>'+STR(SF2->F2_VALINSS,14,2)+'</ValorInss>'+cCrLf
+		cXML += '  <ValorIr>'+STR(SF2->F2_VALIRF,14,2)+'</ValorIr>'+cCrLf
+		cXML += '  <ValorCsll>'+STR(SF2->F2_VALCSL,14,2)+'</ValorCsll>'+cCrLf
+		cXML += '  <OutrasRetencoes>00.00</OutrasRetencoes>'+cCrLf
+		cXML += '  <ValorIss>'+STR(SF2->F2_VALISS,14,2)+'</ValorIss>'+cCrLf
+		cXML += '  <Aliquota>'+SF2->F2_ALQISS+'</Aliquota>'+cCrLf
+		cXML += '  <DescontoIncondicionado>00.00</DescontoIncondicionado>'+cCrLf
+		cXML += '  <DescontoCondicionado>00.00</DescontoCondicionado>'+cCrLf
+		cXML += ' </Valores>'+cCrLf
+		cXML += ' <IssRetido>'+SF2->F2_RECISS+'</IssRetido>'+cCrLf
+		cXML += ' <ResponsavelRetencao></ResponsavelRetencao>'+cCrLf
+		cXML += ' <ItemListaServico>05.01</ItemListaServico>'+cCrLf
+		cXML += ' <CodigoCnae>0</CodigoCnae>'+cCrLf
+		cXML += ' <Discriminacao>'+TRIM(SF2->F2_XXCORPO)+'</Discriminacao>'+cCrLf
+		cXML += ' <CodigoMunicipio>4216602</CodigoMunicipio>'+cCrLf
+		cXML += ' <CodigoPais>1058</CodigoPais>'+cCrLf
+		cXML += ' <ExigibilidadeISS>1</ExigibilidadeISS>'+cCrLf
+		cXML += ' <MunicipioIncidencia>1200179</MunicipioIncidencia>'+cCrLf
+		cXML += '</Servico>'+cCrLf
+		cXML += '<Prestador>'+cCrLf
+		cXML += ' <CpfCnpj>'+cCrLf
+		cXML += '  <Cnpj>03022122000177</Cnpj>'+cCrLf
+		cXML += ' </CpfCnpj>'+cCrLf
+		cXML += ' <InscricaoMunicipal>5401684</InscricaoMunicipal>'+cCrLf
+		cXML += '</Prestador>'+cCrLf
+		cXML += '<Tomador>'+cCrLf
+		cXML += ' <IdentificacaoTomador>'+cCrLf
+		cXML += '  <CpfCnpj>'+cCrLf
+		cXML += '   <Cnpj>'+AllTrim(SA1->A1_CGC)+'</Cnpj>'+cCrLf
+		cXML += '  </CpfCnpj>'+cCrLf
+		cXML += '  <InscricaoMunicipal>'+SA1->A1_INSCRM+'</InscricaoMunicipal>'+cCrLf
+		cXML += ' </IdentificacaoTomador>'+cCrLf
+		cXML += ' <RazaoSocial>'+Alltrim(SA1->A1_NOME)+'</RazaoSocial>'+cCrLf
+		cXML += ' <Endereco>'+cCrLf
+		cXML += '  <Endereco>'+SA1->A1_END+'</Endereco>'+cCrLf
+		cXML += '  <Numero>14</Numero>'+cCrLf
+		cXML += '  <Complemento>'+ALLTRIM(SA1->A1_COMPLEM)+'</Complemento>'+cCrLf
+		cXML += '  <Bairro>'+ALLTRIM(SA1->A1_BAIRRO)+'</Bairro>'+cCrLf
+		cXML += '  <CodigoMunicipio>'+SA1->A1_COD_MUN+'</CodigoMunicipio>'+cCrLf
+		cXML += '  <Uf>'+Upper(SA1->A1_EST)+'</Uf>'+cCrLf
+		cXML += '  <CodigoPais>'+IIF(Empty(SA1->A1_PAIS),"1058"  ,Posicione("SYA",1,xFilial("SYA")+SA1->A1_PAIS,"YA_SISEXP"))+'</CodigoPais>'+cCrLf
+		cXML += '  <Cep>'+SA2->A2_CEP+'</Cep>'+cCrLf
+		cXML += ' </Endereco>'+cCrLf
+		cXML += ' <Contato>'+cCrLf
+		cXML += '  <Telefone>'+SA2->A2_DDD+SA2->A2_TEL+'</Telefone>'+cCrLf
+		cXML += '  <Email>'+ALLTRIM(SA1->A1_EMAIL)+'</Email>'+cCrLf
+		cXML += ' </Contato>'+cCrLf
+		cXML += '</Tomador>'+cCrLf
+		//cXML += '<ConstrucaoCivil>'+cCrLf
+		//cXML += '<CodigoObra>8888</CodigoObra>'+cCrLf
+		//cXML += '<Art>9999</Art>'+cCrLf
+		//cXML += '</ConstrucaoCivil>'+cCrLf
+		cXML += '<OptanteSimplesNacional>2</OptanteSimplesNacional>'+cCrLf
+		cXML += '<IncentivoFiscal>2</IncentivoFiscal>'+cCrLf
+		cXML += '</InfDeclaracaoPrestacaoServico>'+cCrLf
+		cXML += '</Rps>'+cCrLf
 
-		nValISS := 0
-		nVlrLiq := 0
-		nValISS := Round(SF2->((F2_VALBRUT-F2_DESCONT) * round( ((SF2->(F2_VALISS/(F2_VALBRUT-F2_DESCONT)))),05 ) ), 02 )
-		nVlrLiq := round(SF2->(F2_VALBRUT-F2_VALPIS-F2_VALCOFI-F2_VALCSLL-F2_VALINSS-F2_VALIRRF)-nValISS,2)
-
-        //REMOVE CARACTER ESPECIAIS
-        _cDescritivo := ""
-        _cDescritivo := STRTRAN(SC5->C5_XXDNFS,"º","o.")
-        _cDescritivo := STRTRAN(_cDescritivo,"ª","a.")
-
-		cXML := '<nfse>'+cCrLf
-		cXML += '<identificador>'+DTOS(DATE())+STRTRAN(ALLTRIM(Time()),":","")+SF2->F2_DOC+ALLTRIM(SF2->F2_SERIE)+'</identificador>'+cCrLf
- 		cXML += '<nf>'+cCrLf
-		cXML += '<valor_total>'+Alltrim(Transform(SF2->F2_VALBRUT,"@E 999999999999.99"))+'</valor_total>'+cCrLf
-		cXML += '<valor_desconto>'+Alltrim(Transform(SF2->F2_DESCONT,"@E 999999999999.99"))+'</valor_desconto>'+cCrLf
-		cXML += '<valor_ir>'+Alltrim(Transform(SF2->F2_VALIRRF,"@E 999999999999.99"))+'</valor_ir>'+cCrLf
-		cXML += '<valor_inss>'+Alltrim(Transform(SF2->F2_VALINSS,"@E 999999999999.99"))+'</valor_inss>'+cCrLf
-		cXML += '<valor_contribuicao_social>'+Alltrim(Transform(SF2->F2_VALCSLL,"@E 999999999999.99"))+'</valor_contribuicao_social>'+cCrLf
-		cXML += '<valor_rps>0,00</valor_rps>'+cCrLf
-		cXML += '<valor_pis>'+Alltrim(Transform(SF2->F2_VALPIS,"@E 999999999999.99"))+'</valor_pis>'+cCrLf
-		cXML += '<valor_cofins>'+Alltrim(Transform(SF2->F2_VALCOFI,"@E 999999999999.99"))+'</valor_cofins>'+cCrLf
-		cXML += '<observacao/>'+cCrLf
-		cXML += '</nf>'+cCrLf
-		cXML += '<prestador>'+cCrLf
-		cXML += '<cpfcnpj>'+Alltrim(SM0->M0_CGC)+'</cpfcnpj>'+cCrLf
-		cXML += '<cidade>8561</cidade>'+cCrLf
-		cXML += '</prestador>'+cCrLf
-		cXML += '<tomador>'+cCrLf
-		cXML += '<tipo>'+Alltrim(SA1->A1_PESSOA)+'</tipo>'+cCrLf
-		cXML += '<cpfcnpj>'+Alltrim(SA1->A1_CGC)+'</cpfcnpj>'+cCrLf
-		cXML += '<ie/>'+cCrLf
-		cXML += '<nome_razao_social>'+Alltrim(SA1->A1_NOME)+'</nome_razao_social>'+cCrLf
-		cXML += '<sobrenome_nome_fantasia/>'+cCrLf
-		cXML += '<logradouro>'+Alltrim(aEND[1])+'</logradouro>'+cCrLf
-		cXML += '<email>'+Alltrim(SA1->A1_EMAIL)+'</email>'+cCrLf
-		cXML += '<numero_residencia>'+IIF(LEN(aEND)>1,aEND[2],"0")+'</numero_residencia>'+cCrLf
-		cXML += '<complemento/>'+cCrLf
-		cXML += '<ponto_referencia/>'+cCrLf
-		cXML += '<bairro>'+Alltrim(SA1->A1_BAIRRO)+'</bairro>'+cCrLf
-		cXML += '<cidade>'+cCDSIAF+'</cidade>'+cCrLf
-		cXML += '<cep>'+Alltrim(SA1->A1_CEP)+'</cep>'+cCrLf
-		cXML += '<ddd_fone_comercial/>'+cCrLf
-		cXML += '<fone_comercial/>'+cCrLf
-		cXML += '<ddd_fone_residencial/>'+cCrLf
-		cXML += '<fone_residencial/>'+cCrLf
-		cXML += '<ddd_fax/>'+cCrLf
-		cXML += '<fone_fax/>'+cCrLf
-		cXML += '</tomador>'+cCrLf
-		cXML += '<itens>'+cCrLf
-		cXML += '<lista>'+cCrLf
-		cXML += '<codigo_local_prestacao_servico>'+cMunPrest+'</codigo_local_prestacao_servico>'+cCrLf
-		cXML += '<codigo_item_lista_servico>'+ALLTRIM(SC5->C5_XITSERV)+'</codigo_item_lista_servico>'+cCrLf
-		cXML += '<descritivo>'+_cDescritivo+'</descritivo>'+cCrLf
-		cXML += '<aliquota_item_lista_servico>'+Alltrim(Transform(_nALQISS,"@E 999.99"))+'</aliquota_item_lista_servico>'+cCrLf
-		cXML += '<situacao_tributaria>'+Alltrim(STR(nRETINSS))+'</situacao_tributaria>'+cCrLf
-		cXML += '<valor_tributavel>'+Alltrim(Transform(SF2->F2_VALBRUT,"@E 999999999999.99"))+'</valor_tributavel>'+cCrLf
-		cXML += '<valor_deducao>0,00</valor_deducao>'+cCrLf
-        IF nRETINSS > 0
-		    cXML += '<valor_issrf>'+Alltrim(Transform(SF2->F2_VALISS,"@E 999999999999.99"))+'</valor_issrf>'+cCrLf
-		    cXML += '<tributa_municipio_prestador>N</tributa_municipio_prestador>'+cCrLf
-        ELSE
-		    cXML += '<valor_issrf>0,00</valor_issrf>'+cCrLf
-		    cXML += '<tributa_municipio_prestador>S</tributa_municipio_prestador>'+cCrLf
-        ENDIF
-		cXML += '<unidade_codigo/>'+cCrLf
-		cXML += '<unidade_quantidade/>'+cCrLf
-		cXML += '<unidade_valor_unitario/>'+cCrLf
-		cXML += '</lista>'+cCrLf
-		cXML += '</itens>'+cCrLf
-		cXML += '</nfse>'+cCrLf
 	ENDIF
 	QSF2->(DbSkip())
 ENDDO
 QSF2->(DbCloseArea())
 
 IF !lErro
+	cXML += '</ListaRps>
+	cXML += '</LoteRps>
+	cXML += '</EnviarLoteRpsEnvio>
+
 	MSGINFO("XML NFS-e Gravado com Sucesso!!")
 ENDIF 
     	

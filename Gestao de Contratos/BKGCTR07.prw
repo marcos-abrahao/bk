@@ -1,4 +1,3 @@
-
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"
 
@@ -16,6 +15,8 @@ Static aChave := {}
 
 User Function BKGCTR07()
 
+Local cMes			:= ""
+Local nTipo 		:= 1
 Local titulo        := ""
 Local aTitulos,aCampos,aCabs
 //Local aPlans		:= {}
@@ -26,8 +27,7 @@ Private cString     := "CN9"
 Private cMesEmis    := "01"
 Private cAnoEmis    := "2011"
 Private nPlan       := 1
-Private nTipo		:= 1
-Private cMes
+
 Private _cTXPIS  	:= STR(GetMv("MV_TXPIS"))
 Private _cTXCOF  	:= STR(GetMv("MV_TXCOFINS"))
 
@@ -45,11 +45,11 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
+//u_MsgLog(cPerg)
 
 cMesEmis := mv_par01
 cAnoEmis := mv_par02
-cCompet  := cMesEmis+"/"+cAnoEmis
+//cCompet  := cMesEmis+"/"+cAnoEmis
 nPlan    := mv_par03
 nTipo    := mv_par04
 
@@ -68,7 +68,7 @@ ENDIF
 
 titulo   := "Mapa de INSS Retido :"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
 
-FWMsgRun(, {|oSay| ProcQueryN() }, "", "Consultando o banco de dados...")	
+u_WaitLog(cPerg,{|oSay| PrcGct07(nTipo,cMes) }, titulo)
 
 aCabs   := {}
 aCampos := {}
@@ -266,7 +266,26 @@ U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
 
 Return
 
-Static Function ProcQueryN
+
+Static Function PrcGct07(nTipo,cMes)
+Local cQuery := ""
+
+cQuery := u_QGctR07(nTipo,cMes)
+cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_SERIE,F2_DOC" + CRLF
+
+u_LogMemo("BKGCTR07.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QTMP"
+TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
+TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
+TCSETFIELD("QTMP","XX_VENCORI","D",8,0)
+TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
+
+Return Nil
+
+
+// Usada nas rotinas BKGCTR07 e BKCOMA13
+User Function QGctR07(nTipo,cMes)
 Local cQuery as Character
 //Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 
@@ -499,17 +518,7 @@ ELSE
 ENDIF
 cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 
-cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_SERIE,F2_DOC" + CRLF
-
-u_LogMemo("BKGCTR07.SQL",cQuery)
-
-TCQUERY cQuery NEW ALIAS "QTMP"
-TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
-TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
-TCSETFIELD("QTMP","XX_VENCORI","D",8,0)
-TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
-Return
-
+Return cQuery
 
 
 /*

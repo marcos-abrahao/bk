@@ -58,9 +58,9 @@ Param Box Tipo 1
 
 aAdd(aParam, {1,"Contrato:"  ,cCusto,""    ,""                                       ,"CTT","",70,.F.})
 aAdd(aParam, {1,"Mes inicial",nMesI ,"99"  ,"mv_par02 > 0 .AND. mv_par02 <= 12"      ,""   ,"",20,.F.})
-aAdd(aParam, {1,"Ano inicial",nAnoI ,"9999","mv_par03 >= 2010 .AND. mv_par03 <= 2030",""   ,"",20,.F.})
+aAdd(aParam, {1,"Ano inicial",nAnoI ,"9999","mv_par03 >= 2010 .AND. mv_par03 <= 2040",""   ,"",20,.F.})
 aAdd(aParam, {1,"Mes final"  ,nMesF ,"99"  ,"mv_par04 > 0 .AND. mv_par04 <= 12"      ,""   ,"",20,.F.})
-aAdd(aParam, {1,"Ano final"  ,nAnoF ,"9999","mv_par05 >= 2010 .AND. mv_par05 <= 2030",""   ,"",20,.F.})
+aAdd(aParam, {1,"Ano final"  ,nAnoF ,"9999","mv_par05 >= 2010 .AND. mv_par05 <= 2040",""   ,"",20,.F.})
 
 If !BkFR28()
    Return

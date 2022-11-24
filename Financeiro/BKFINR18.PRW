@@ -1,7 +1,7 @@
 #INCLUDE "rwmake.ch"
 #INCLUDE "topconn.ch"
  
-/*/{Protheus.doc} BKFINR12
+/*/{Protheus.doc} BKFINR18
 BK - Relatório de Notas Fiscais Canceladas
 @Return
 @author Marcos Bispo Abrahão
@@ -32,7 +32,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_MsgLog(cPerg)
+//u_MsgLog(cPerg)
 
 cCCusto  := mv_par01
 dDataI   := mv_par02
@@ -132,8 +132,8 @@ AADD(aDbf, { 'XX_DCANC',   		'D', 08,00 } )
 AADD(aCampos,"TRB->XX_DCANC")
 AADD(aCabs  ,"Cancelamento")
 
-Processa( {|| ProcBKFINR18() })
- 
+u_WaitLog(cPerg,{|oSay| ProcBKFINR18() }, cTitulo)
+
 Return
 
 
@@ -161,8 +161,6 @@ EndIf
 
 TCQUERY cQuery NEW ALIAS "QSF2"
 TCSETFIELD("QSF2","F2_EMISSAO","D",8,0)
-
-ProcRegua(QSF2->(LASTREC()))
 
 /*
 dbSelectArea("SE1")
@@ -224,8 +222,6 @@ Do While QSF2->(!EOF())
 	ProcQryE1()
     QSE1->(dbGoTop())
 
-	IncProc("Consultando banco de dados...")
-    
 	lFiltra:= .F.
 
 	SF2->(dbGoTo(QSF2->F2RECNO))
@@ -373,8 +369,6 @@ TCSETFIELD("QSE1","E1_VALOR"  ,"N",TamSX3("E1_VALOR")[1],TamSX3("E1_VALOR")[2])
 //U_QryToXml("QSE1")
 
 Return
-
-
 
 
 

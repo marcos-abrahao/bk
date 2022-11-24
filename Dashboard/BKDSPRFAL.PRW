@@ -206,7 +206,7 @@ Local cQuery	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 
-u_MsgLog("BKDSBKFAL","Inicio: Faltas")
+//u_MsgLog("BKDSBKFAL","Inicio: Faltas")
 
 If TCSPExist( "BKFALTAS" )
 	cQuery  := "EXEC BKFALTAS"  

@@ -92,7 +92,7 @@ Static Function ImpWord()
 	aAdd( aPARAM, { 6, "Arquivo Modelo Word", Space(50), ""    , "", ""   , 50 , .T., "Modelo MS-Word |*.dot", cMainPath })
 	aAdd( aPARAM, { 2, "Qual saída"         , 1        , aSaida, 80, ""   , .F.})
 
-	If !ParamBox(aPARAM,"ParÃ¢metros",@aRET)
+	If !ParamBox(aPARAM,"Parâmetros",@aRET)
 		Return
 	Endif
 

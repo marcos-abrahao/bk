@@ -77,8 +77,8 @@ If !lRet
 		EndIf
 	Else
 		lRet := .T. 
-		// Se tiver aprovador, é porque já foi aprovado
-		If !EMPTY(SF1->F1_APROV)
+		// Se tiver aprovador, é porque já foi aprovado ou é titulo de imposto
+		If !EMPTY(SF1->F1_APROV) .OR. TRIM(SF1->F1_FORNECE) == "UNIAO"   //FWIsInCallStack("U_BKCOMA13")
 			lRet := .F.
 		Else
 		    // Aqui, verificar valores
@@ -86,7 +86,7 @@ If !lRet
 			If lRet
 				//	MsgAlert("Este documento foi bloqueado, aguarde a liberação e classifique-o novamente. ")
 			    RecLock("SF1",.F.)
-				SF1->F1_XXLIB := "B"
+				SF1->F1_XXLIB   := "B"
 				SF1->F1_XXUCLAS := __cUserId
 				SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 				SF1->(MsUnlock())

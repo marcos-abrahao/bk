@@ -136,6 +136,7 @@ Return(.t.)
 
 User Function WaitLog(cProg,bFunction,cMens)
 Local cTimeI := Time()
+Default cMens := "Aguarde, processando..."
 If !IsBlind()
 	FWMsgRun(, {|oSay| Eval(bFunction,oSay) }, "", cProg+": "+cMens)
 Else

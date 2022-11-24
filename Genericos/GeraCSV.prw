@@ -10,7 +10,7 @@ Generico - Gera planilha excel no formato .CSV
 /*/
 
 
-// Funcão para gerar arquivo excell (texto, com campos separados por virgula)
+// Funcão para gerar arquivo excel (texto, com campos separados por virgula)
 //	Exemplo de campos:
 //	ProcRegua(1)
 //	Processa( {|| ProcQuery() })
@@ -41,6 +41,8 @@ Local cFile    := ""
 Local aPlans   := {}
 Local lJob     := IsBlind()
 Local cTitulo  := ""
+Local lImpr    := .F.
+
 Default cTpQuebra := " "
 Default lClose    := .T.
 If Len(aTitulos) > 0
@@ -51,12 +53,14 @@ If !lJob
    If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
       AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
       cFile := U_PlanXlsx(aPlans,cTitulo,cArqS, lClose,)
-   Else
-      //MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
-      FWMsgRun(, {|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "", "Gerando arquivo CSV: "+cArqS+"...")	
+      lImpr := .T.
    EndIf
-Else
-	cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
+EndIf
+
+If !lImpr
+   //MsgRun("Criando Planilha Excel "+_cProg,"Aguarde...",{|| cFile := U_ProcXlsx(_aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob) })
+   //FWMsgRun(, {|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "", "Gerando arquivo CSV: "+cArqS+"...")	
+   u_WaitLog(cArqS,{|oSay| cFile := U_ProcCSV(_cAlias,cArqS,aTitulos,aCampos,aCabs,cTpQuebra,cQuebra,aQuebra,lClose) }, "Gerando arquivo CSV...")
 EndIf
 
 Return cFile
