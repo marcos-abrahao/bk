@@ -12,18 +12,22 @@ Rateio de impostos na implantação de Doc. de Entrada referentes a impostos
 /*/
 
 User Function BKCOMA13()
-Local lRet := .F.
-Local cMes := ""
-Local nX   := 0
-Local cDesc:= ""
+Local lRet 		:= .F.
+Local cMesI		:= ""
+Local cMesF		:= ""
+Local nX   		:= 0
+Local cDesc		:= ""
 
-Private cProg    := "BKCOMA13"
-Private cTitulo  := "Inclusão de Doc de Impostos"
-Private cDocI	 := "000000000"
-Private nMesRef  := Month(MonthSub(dDataBase,1))
-Private nAnoRef  := Year(MonthSub(dDataBase,1))
-Private cProd    := "21301004       "
-Private nValor   := 0.00
+Private cProg   := "BKCOMA13"
+Private cTitulo := "Inclusão de Doc de Impostos"
+Private cDocI	:= "000000000"
+Private nMesI	:= Month(MonthSub(dDataBase,1))
+Private nAnoI	:= Year(MonthSub(dDataBase,1))
+Private nMesF	:= Month(MonthSub(dDataBase,1))
+Private nAnoF	:= Year(MonthSub(dDataBase,1))
+
+Private cProd   := "21301004       "
+Private nValor  := 0.00
 
 Private cForn 	 := "UNIAO "
 Private cLoja	 := "00"
@@ -33,7 +37,7 @@ Private cUF      := "SP"
 Private aParam	 :=	{}
 Private aRet	 :=	{}
 Private cHist    := ""
-Private aPrd     := {"21401003","21401004","DARF6912", "DARF5856"} 
+Private aPrd     := {"21401003","21401004","DARF6912", "DARF5856","INS4982"} 
 Private aPrdDesc := {}
 
 If !FWIsAdmin() .AND. !u_IsFiscal()
@@ -47,11 +51,13 @@ For nX := 1 To Len(aPrd)
 	aAdd(aPrdDesc,aPrd[nX]+"-"+cDesc)
 Next
 
-aAdd(aParam, { 1,"Documento"     ,cDocI   ,""    ,""                                       ,""   ,"",70,.T.})
-aAdd(aParam, { 1,"Mes referencia",nMesRef ,"99"  ,"mv_par02 > 0 .AND. mv_par02 <= 12"      ,""   ,"",20,.T.})
-aAdd(aParam, { 1,"Ano referencia",nAnoRef ,"9999","mv_par03 >= 2010 .AND. mv_par03 <= 2040",""   ,"",20,.T.})
-aAdd(aParam, { 3,"Produto"       ,1,aPrdDesc,70,"",.T.})
-aAdd(aParam, { 1,"Valor"         ,nValor  ,"@E 999,999,999.99"  ,"mv_par05 > 0"            ,""   ,"",70,.T.})
+aAdd(aParam, { 1,"Documento"      ,cDocI   ,""    ,""                                       ,""   ,"",70,.T.})
+aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par02 > 0 .AND. mv_par02 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano ref inicial",nAnoI   ,"9999","mv_par03 >= 2010 .AND. mv_par03 <= 2040",""   ,"",20,.T.})
+aAdd(aParam, { 1,"Mes ref final"  ,nMesF   ,"99"  ,"mv_par04 > 0 .AND. mv_par04 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano ref final"  ,nAnoF   ,"9999","mv_par05 >= 2010 .AND. mv_par05 <= 2040",""   ,"",20,.T.})
+aAdd(aParam, { 3,"Produto"        ,1,aPrdDesc,70,"",.T.})
+aAdd(aParam, { 1,"Valor"          ,nValor  ,"@E 999,999,999.99"  ,"mv_par07 > 0"            ,""   ,"",70,.T.})
 // Tipo 11 -> MultiGet (Memo)
 //            [2] = Descrição
 //            [3] = Inicializador padrão
@@ -71,10 +77,11 @@ Do While .T.
 	Endif
 EndDo
 
-cMes := STRZERO(nAnoRef,4)+STRZERO(nMesRef,2)
+cMesI := STRZERO(nAnoI,4)+STRZERO(nMesI,2)
+cMesF := STRZERO(nAnoF,4)+STRZERO(nMesF,2)
 
 If lRet
-	u_WaitLog(cProg, {|oSay| PGCTR07(cMes)}, 'Processando faturamento...')
+	u_WaitLog(cProg, {|oSay| PGCTR07(cMesI,cMesF)}, 'Processando faturamento...')
 	u_WaitLog(cProg, {|oSay| IncDoc()}, 'Incluindo Documento de Entrada...')
 EndIf
 
@@ -88,11 +95,13 @@ Local lRet := .F.
 If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cProg,.T.         ,.T.))
 	lRet	:= .T.
 	cDocI	:= mv_par01
-	nMesRef	:= mv_par02
-	nAnoRef	:= mv_par03
-    cProd	:= aPrd[mv_par04]
-	nValor  := mv_par05
-	cHist   := mv_par06
+	nMesI	:= mv_par02
+	nAnoI	:= mv_par03
+	nMesF	:= mv_par04
+	nAnoF	:= mv_par05
+    cProd	:= aPrd[mv_par06]
+	nValor  := mv_par07
+	cHist   := mv_par08
 Endif
 Return lRet
 
@@ -219,6 +228,7 @@ Do WHile !QTMP->(EOF())
 	aadd(aLinha,{"D1_CC"     ,QTMP->CNF_CONTRA,Nil})
 	aadd(aLinha,{"D1_XXHIST" ,ALLTRIM(cHist),Nil})
 	aadd(aItens,aLinha)
+	cHist := ""
 	nTotal += QTMP->F2_VALFAT
 	QTMP->(dbSkip())
 EndDo
@@ -270,11 +280,11 @@ EndIf
 Return lRet
 
 
-Static Function PGCTR07(cMes)
+Static Function PGCTR07(cMesI,cMesF)
 Local cQuery := ""
 
 cQuery := "WITH BKGCTR07 AS ("+CRLF
-cQuery += u_QGctR07(1,cMes)
+cQuery += u_QGctR07(iIf(cMesI == cMesF,1,3),cMesI,cMesF)
 cQuery += ")"+CRLF
 cQuery += "SELECT CNF_CONTRA,SUM(F2_VALFAT) AS F2_VALFAT FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
 cQuery += "ORDER BY CNF_CONTRA"+CRLF

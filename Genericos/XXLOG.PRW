@@ -90,9 +90,9 @@ Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 //u_xxConOut("INFO","xxLog",cMens)
 cMens := STRTRAN( cMens, CRLF, " ")
 If Empty(cTxt)
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|" // +cValToChar(nModulo)+"|
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+cMens+"|" 
 Else
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+cMens+"|"+CRLF+cTxt+CRLF
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+cMens+"|"+CRLF+cTxt+CRLF
 EndIf
 
 If !File(cArqLog)
@@ -181,7 +181,9 @@ IF __cUserId == "000000" //.OR. __cUserId == "000012"
 	If IsBlind()
 		cDir:= "\tmp"
 	ENDIF
-	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
+	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
+	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+CRLF
+
 	cMens += cTexto
 	If !("\" $ cProg)
 		MakeDir(cDir)

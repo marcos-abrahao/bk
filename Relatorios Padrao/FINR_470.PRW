@@ -2073,15 +2073,6 @@ PutSx1( "FIN470", "09","Converte valores pela  ?","Conv. valores por la","Conver
 	"mv_par09","Data Base","Tasa dia","Daily Rate","","Data Movimento","Tasa Movimiento","Movement Rate","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa)
 	
 
-If cPaisLoc == "COL"
-	DbSelectArea("SX1")
-	dbSetOrder(1)
-	If SX1->( MsSeek( PadR("FIN470", Len(SX1->X1_GRUPO) ) + "06" ) )//Dbseek(cteste) 
-		RecLock("SX1",.F.)
-		Replace  X1_VALID With "VerifMoeda(mv_par06)"
-		MsUnlock()
-	EndIf 	
-ENDIF
 RestArea(aArea)
 Return
                                                                                	

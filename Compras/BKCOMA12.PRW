@@ -12,17 +12,16 @@ BK - Importar planilha excel em CSV para inclusão de produtos
 /*/
 
 User Function BKCOMA12()
-Local cProg := "BKCOMA12"
+
 Local cTipoArq := "Arquivos no formato CSV (*.CSV) | *.CSV | "
 Local cTitulo  := "Importar planilha excel em CSV para inclusão de produtos"
 Local oDlg01
 Local oButSel
-Local nOpcA := 0
-Local nSnd:= 15,nTLin := 15
+Local nOpcA    := 0
+Local nSnd     := 15,nTLin := 15
 
-PRIVATE cArq  := ""
-
-u_MsgLog("BKCOMA12")
+Private cProg  := "BKCOMA12"
+Private cArq   := ""
 
 DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
 
@@ -40,7 +39,7 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 
 If nOpcA == 1
 	nOpcA:=0
-	Processa( {|| PBKCOMA12()})
+	u_WaitLog(, {|| PBKCOMA12()},'Carregando Itens da Planilha...')
 Endif
 
 RETURN NIL
@@ -52,14 +51,12 @@ Local cBuffer    := ""
 Local lOk 		 := .T.
 Local nLin 		 := 0
 
-FT_FUSE(cArq)  //abrir
-FT_FGOTOP() //vai para o topo
-Procregua(FT_FLASTREC())  //quantos registros para ler
-FT_FSKIP()   //proximo registro - pular cabeçalho
+FT_FUSE(cArq)   // abrir
+FT_FGOTOP()     // vai para o topo
+FT_FSKIP()      // proximo registro - pular cabeçalho
 
 While !FT_FEOF()
  
-	IncProc('Carregando Itens da Planilha...')
     nLin++
 
 	//Capturar dados
@@ -103,7 +100,6 @@ User Function IBKCOMA12(aProd)
 Local lRet := .T.
 Local _aProd := {}
 Local cCodProd := ""
-Local cErrLog := ""
 
 Private lMsErroAuto := .F.
 
@@ -125,9 +121,7 @@ Private lMsErroAuto := .F.
 
         MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão 
         If lMsErroAuto
-            cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA12.ERR")
-            u_xxLog("\LOG\BKCOMA12.LOG",cErrLog)
-            MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+            u_LogMsExec(cProg,)
             DisarmTransaction()
             lRet := .F.
         EndIf

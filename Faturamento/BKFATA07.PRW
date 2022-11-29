@@ -13,73 +13,56 @@ BK - GERAR XML NOTA FISCAL DO MUNICIPIO DE São Sebastião do Passé-BA
 /*/
 
 User Function BKFATA07()
-
-Local cPerg 		:= "BKFATA07"
+Local aParam 	:= {}
+Local aRet		:=	{}
+Local cTitulo   :=  "GERAR XML NOTA FISCAL DO MUNICIPIO DE São Sebastião do Passé-BA"
 
 Private cNotaDe 	:= ""
 Private cNotaAte 	:= ""
 Private cSerie		:= ""
 Private cDir		:= ""
-Private aUF			:= {}
-
-u_MsgLog(cPerg)
-	
-//Preenchimento do Array de UF
-aadd(aUF,{"RO","11"})
-aadd(aUF,{"AC","12"})
-aadd(aUF,{"AM","13"})
-aadd(aUF,{"RR","14"})
-aadd(aUF,{"PA","15"})
-aadd(aUF,{"AP","16"})
-aadd(aUF,{"TO","17"})
-aadd(aUF,{"MA","21"})
-aadd(aUF,{"PI","22"})
-aadd(aUF,{"CE","23"})
-aadd(aUF,{"RN","24"})
-aadd(aUF,{"PB","25"})
-aadd(aUF,{"PE","26"})
-aadd(aUF,{"AL","27"})
-aadd(aUF,{"MG","31"})
-aadd(aUF,{"ES","32"})
-aadd(aUF,{"RJ","33"})
-aadd(aUF,{"SP","35"})
-aadd(aUF,{"PR","41"})
-aadd(aUF,{"SC","42"})
-aadd(aUF,{"RS","43"})
-aadd(aUF,{"MS","50"})
-aadd(aUF,{"MT","51"})
-aadd(aUF,{"GO","52"})
-aadd(aUF,{"DF","53"})
-aadd(aUF,{"SE","28"})
-aadd(aUF,{"BA","29"})
-aadd(aUF,{"EX","99"})
 
 
-AjustaSX1(cPerg)
-If !Pergunte(cPerg,.T.)
-   	Return (Nil)
-EndIf
 
-Processa( {|| U_V2PRPSXML() })
+aAdd( aParam, { 1, "Nota Fiscal de?"	, SPACE(TamSx3("F2_DOC")[1])	, ""            , "", "SF2"	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Nota Fiscal até?"	, SPACE(TamSx3("F2_DOC")[1])	, ""            , "", "SF2"	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Serie?"		, SPACE(TamSx3("F2_SERIE")[1])	, ""            , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, 'Salvar em "Pasta"?'	, SPACE(200)	        , ""            , "", ""	, "" , 70  , .F. })
+
+
+If (Parambox(aParam,"BKFATA07 - "+cTitulo,@aRet,,,.T.,,,,"BKFATA07",.T.,.T.))
+	lRet := .T.
+	cNotaDe 	:= ALLTRIM(MV_PAR01)
+	cNotaAte 	:= ALLTRIM(MV_PAR02)
+	cSerie		:= ALLTRIM(MV_PAR03)
+	cDir		:= Alltrim(MV_PAR04)
+
+	IF EMPTY(cDir)
+		MSGSTOP("Pasta deve ser preenchida!!","BKFATA07")                
+		Return Nil
+	ENDIF
+
+	IF SUBSTR(cDir,LEN(cDir),1)<>'\'
+		cDir +='\'
+	ENDIF
+
+	MakeDir(cDir)
+	Processa( {|| U_V2PRPSXML() })
+Endif
 
 RETURN NIL
 
 USER FUNCTION V2PRPSXML
 Local cXML			:= ""
-//Local cXML2         := ""
-//Local cArqTmp       := ""
 Local lErro			:= .F.
-//Local lGRVARQ		:= .T.
 Local cCrLf     	:= Chr(13) + Chr(10)
 Local cEMISSAO 		:= ""
+Local cCORPONFS		:= ""
 Local cCDSIAF       := ""
 Local cMunPrest     := ""
 Local nTotReg       := 0
+Local cArquivo      := ""
 
-cNotaDe 	:= ALLTRIM(MV_PAR01)
-cNotaAte 	:= ALLTRIM(MV_PAR02)
-cSerie		:= ALLTRIM(MV_PAR03)
-cDir		:= Alltrim(MV_PAR04)
 cQuery := ""
 cQuery := " select F2.R_E_C_N_O_ AS _NF2"
 cQuery += " from "+retsqlname("SF2")+" F2 "
@@ -98,6 +81,8 @@ TcQuery cQuery New Alias "QSF2"
 nTotReg := Contar("QSF2","!Eof()")
 ProcRegua(nTotReg)
 
+cLOTE := U_NLoteNFS()
+
 //CABECALHO DO LOTE EM XML
 cXML := '<EnviarLoteRpsEnvio xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.abrasf.org.br/nfse.xsd">'+cCrLf
 cXML += '<LoteRps Id="Lote_'+ALLTRIM(Alltrim(SF2->F2_SERIE))+'_03022122000177" versao="2.01">'+cCrLf
@@ -107,6 +92,7 @@ cXML += '<Cnpj>03022122000177</Cnpj>'+cCrLf
 cXML += '</CpfCnpj>'+cCrLf
 cXML += '<InscricaoMunicipal>5401684</InscricaoMunicipal>'+cCrLf
 cXML += '<QuantidadeRps>'+ALLTRIM(STR(nTotReg))+'</QuantidadeRps>'+cCrLf
+cXML += '<ListaRps>'+cCrLf
 
 dbSelectArea("QSF2")
 QSF2->(dbGotop())
@@ -117,9 +103,11 @@ While QSF2->(!EoF())
     IncProc("Consultando o banco de dados...")
 	IF ALLTRIM(SF2->F2_SERIE) == cSerie
 	
-		dbselectarea("SA1")
-        SA1->(DbSetOrder(1))
-		SA1->(DbSeek(xFilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA))
+		//Cadastro do Cliente  + Tabela Cabeçalho das NotasFiscaisSaida SF2 //
+		dbSelectArea("SA1")
+		dbSetOrder(1)
+		dbSeek( xFilial("SA1") + SF2->( F2_CLIENTE + F2_LOJA) )
+
         cCDSIAF := ""
         cCDSIAF := ALLTRIM(Posicione("CC2",1, xFilial("CC2")+SA1->A1_EST+PadR(SA1->A1_COD_MUN,TamSx3("CC2_CODMUN")[1]),"CC2_CDSIAF"))
 
@@ -132,55 +120,50 @@ While QSF2->(!EoF())
        	IF EMPTY(cNUMNFE)
 			cNUMNFE := Alltrim(SF2->F2_DOC)
        	ENDIF
+
         cMunPrest := ""
-		dbSelectArea("SC5")
-        SC5->(DbSetOrder(1))
-		SC5->(dbSeek(xFilial("SC5") + SD2->D2_PEDIDO,.T.))
-        If ( len(Alltrim(SC5->C5_MUNPRES)) == 5 .AND. !empty(SC5->C5_ESTPRES) )
-            cMunPrest := ALLTRIM(Posicione("CC2",1, xFilial("CC2")+SC5->C5_ESTPRES+PadR(SC5->C5_MUNPRES,TamSx3("CC2_CODMUN")[1]),"CC2_CDSIAF"))
-        ELSE
-            cMunPrest := cCDSIAF
-        ENDIF
+		cMunPrest := ALLTRIM(Execblock("BCODIBGE",.F.,.F.,{SF2->F2_DOC,SF2->F2_SERIE,SF2->F2_CLIENTE,SF2->F2_LOJA}))
 
-		cEMISSAO := YEARSTR(SF2->F2_EMISSAO)+"-"+MONTHSTR(SF2->F2_EMISSAO)+"-"+DAYSTR(SF2->F2_EMISSAO)
+		cEMISSAO := Year2Str(SF2->F2_EMISSAO)+"-"+Month2Str(SF2->F2_EMISSAO)+"-"+Day2Str(SF2->F2_EMISSAO)
+		cCORPONFS:= TRIM(SF2->F2_XXCORPO)
+		cCORPONFS := STRTRAN(cCORPONFS,"|",cCrLf)
 
-		cXML += '<ListaRps>'+cCrLf
 		cXML += '<Rps>'+cCrLf
 		cXML += ' <InfDeclaracaoPrestacaoServico Id="Declaracao_03022122000177">'+cCrLf
 		cXML += ' <Rps Id="RPS'+ALLTRIM(Alltrim(SF2->F2_DOC))+'">'+cCrLf
 		cXML += ' <IdentificacaoRps>'+cCrLf
-		cXML += ' <Numero>'+ALLTRIM(Alltrim(SF2->F2_DOC))+'</Numero>'+cCrLf
-		cXML += ' <Serie>'+ALLTRIM(Alltrim(SF2->F2_SERIE))+'</Serie>'+cCrLf
-		cXML += ' <Tipo>1</Tipo>'+cCrLf
+		cXML += '  <Numero>'+ALLTRIM(Alltrim(SF2->F2_DOC))+'</Numero>'+cCrLf
+		cXML += '  <Serie>'+ALLTRIM(Alltrim(SF2->F2_SERIE))+'</Serie>'+cCrLf
+		cXML += '  <Tipo>1</Tipo>'+cCrLf
 		cXML += ' </IdentificacaoRps>'+cCrLf
 		cXML += ' <DataEmissao>'+cEMISSAO+'</DataEmissao>'+cCrLf
 		cXML += ' <Status>1</Status>'+cCrLf
 		cXML += '</Rps>'+cCrLf
-		cXML += '<Competencia>2012-10-15</Competencia>'+cCrLf
+		cXML += '<Competencia>'+cEMISSAO+'</Competencia>'+cCrLf
 		cXML += '<Servico>'+cCrLf
 		cXML += ' <Valores>'+cCrLf
-		cXML += '  <ValorServicos>'+STR(SF2->F2_VALBRUT,14,2)+'</ValorServicos>'+cCrLf
+		cXML += '  <ValorServicos>'+ALLTRIM(STR(SF2->F2_VALBRUT,14,2))+'</ValorServicos>'+cCrLf
 		cXML += '  <ValorDeducoes>00.00</ValorDeducoes>'+cCrLf
-		cXML += '  <ValorPis>'+STR(SF2->F2_VALPIS,14,2)+'</ValorPis>'+cCrLf
-		cXML += '  <ValorCofins>'+STR(SF2->F2_VALCOF,14,2)+'</ValorCofins>'+cCrLf
-		cXML += '  <ValorInss>'+STR(SF2->F2_VALINSS,14,2)+'</ValorInss>'+cCrLf
-		cXML += '  <ValorIr>'+STR(SF2->F2_VALIRF,14,2)+'</ValorIr>'+cCrLf
-		cXML += '  <ValorCsll>'+STR(SF2->F2_VALCSL,14,2)+'</ValorCsll>'+cCrLf
+		cXML += '  <ValorPis>'+ALLTRIM(STR(SF2->F2_VALPIS,14,2))+'</ValorPis>'+cCrLf
+		cXML += '  <ValorCofins>'+ALLTRIM(STR(SF2->F2_VALCOFI,14,2))+'</ValorCofins>'+cCrLf
+		cXML += '  <ValorInss>'+ALLTRIM(STR(SF2->F2_VALINSS,14,2))+'</ValorInss>'+cCrLf
+		cXML += '  <ValorIr>'+ALLTRIM(STR(SF2->F2_VALIRRF,14,2))+'</ValorIr>'+cCrLf
+		cXML += '  <ValorCsll>'+ALLTRIM(STR(SF2->F2_VALCSLL,14,2))+'</ValorCsll>'+cCrLf
 		cXML += '  <OutrasRetencoes>00.00</OutrasRetencoes>'+cCrLf
-		cXML += '  <ValorIss>'+STR(SF2->F2_VALISS,14,2)+'</ValorIss>'+cCrLf
-		cXML += '  <Aliquota>'+SF2->F2_ALQISS+'</Aliquota>'+cCrLf
+		cXML += '  <ValorIss>'+ALLTRIM(STR(SF2->F2_VALISS,14,2))+'</ValorIss>'+cCrLf
+		cXML += '  <Aliquota>'+ALLTRIM(STR(SD2->D2_ALIQISS,14,2))+'</Aliquota>'+cCrLf
 		cXML += '  <DescontoIncondicionado>00.00</DescontoIncondicionado>'+cCrLf
 		cXML += '  <DescontoCondicionado>00.00</DescontoCondicionado>'+cCrLf
 		cXML += ' </Valores>'+cCrLf
 		cXML += ' <IssRetido>'+SF2->F2_RECISS+'</IssRetido>'+cCrLf
-		cXML += ' <ResponsavelRetencao></ResponsavelRetencao>'+cCrLf
-		cXML += ' <ItemListaServico>05.01</ItemListaServico>'+cCrLf
+		cXML += ' <ResponsavelRetencao>'+SF2->F2_RECISS+'</ResponsavelRetencao>'+cCrLf
+		cXML += ' <ItemListaServico>'+SD2->D2_CODISS+'</ItemListaServico>'+cCrLf
 		cXML += ' <CodigoCnae>0</CodigoCnae>'+cCrLf
-		cXML += ' <Discriminacao>'+TRIM(SF2->F2_XXCORPO)+'</Discriminacao>'+cCrLf
-		cXML += ' <CodigoMunicipio>4216602</CodigoMunicipio>'+cCrLf
+		cXML += ' <Discriminacao>'+cCORPONFS+'</Discriminacao>'+cCrLf
+		cXML += ' <CodigoMunicipio>'+cMunPrest+'</CodigoMunicipio>'+cCrLf
 		cXML += ' <CodigoPais>1058</CodigoPais>'+cCrLf
 		cXML += ' <ExigibilidadeISS>1</ExigibilidadeISS>'+cCrLf
-		cXML += ' <MunicipioIncidencia>1200179</MunicipioIncidencia>'+cCrLf
+		cXML += ' <MunicipioIncidencia>'+cMunPrest+'</MunicipioIncidencia>'+cCrLf
 		cXML += '</Servico>'+cCrLf
 		cXML += '<Prestador>'+cCrLf
 		cXML += ' <CpfCnpj>'+cCrLf
@@ -193,21 +176,21 @@ While QSF2->(!EoF())
 		cXML += '  <CpfCnpj>'+cCrLf
 		cXML += '   <Cnpj>'+AllTrim(SA1->A1_CGC)+'</Cnpj>'+cCrLf
 		cXML += '  </CpfCnpj>'+cCrLf
-		cXML += '  <InscricaoMunicipal>'+SA1->A1_INSCRM+'</InscricaoMunicipal>'+cCrLf
+		cXML += '  <InscricaoMunicipal>'+ALLTRIM(SA1->A1_INSCRM)+'</InscricaoMunicipal>'+cCrLf
 		cXML += ' </IdentificacaoTomador>'+cCrLf
 		cXML += ' <RazaoSocial>'+Alltrim(SA1->A1_NOME)+'</RazaoSocial>'+cCrLf
 		cXML += ' <Endereco>'+cCrLf
-		cXML += '  <Endereco>'+SA1->A1_END+'</Endereco>'+cCrLf
+		cXML += '  <Endereco>'+ALLTRIM(SA1->A1_END)+'</Endereco>'+cCrLf
 		cXML += '  <Numero>14</Numero>'+cCrLf
 		cXML += '  <Complemento>'+ALLTRIM(SA1->A1_COMPLEM)+'</Complemento>'+cCrLf
 		cXML += '  <Bairro>'+ALLTRIM(SA1->A1_BAIRRO)+'</Bairro>'+cCrLf
-		cXML += '  <CodigoMunicipio>'+SA1->A1_COD_MUN+'</CodigoMunicipio>'+cCrLf
+		cXML += '  <CodigoMunicipio>'+U_UfIBGE(SA1->A1_EST)+SA1->A1_COD_MUN+'</CodigoMunicipio>'+cCrLf
 		cXML += '  <Uf>'+Upper(SA1->A1_EST)+'</Uf>'+cCrLf
 		cXML += '  <CodigoPais>'+IIF(Empty(SA1->A1_PAIS),"1058"  ,Posicione("SYA",1,xFilial("SYA")+SA1->A1_PAIS,"YA_SISEXP"))+'</CodigoPais>'+cCrLf
 		cXML += '  <Cep>'+SA2->A2_CEP+'</Cep>'+cCrLf
 		cXML += ' </Endereco>'+cCrLf
 		cXML += ' <Contato>'+cCrLf
-		cXML += '  <Telefone>'+SA2->A2_DDD+SA2->A2_TEL+'</Telefone>'+cCrLf
+		cXML += '  <Telefone>'+ALLTRIM(SA2->A2_DDD+SA2->A2_TEL)+'</Telefone>'+cCrLf
 		cXML += '  <Email>'+ALLTRIM(SA1->A1_EMAIL)+'</Email>'+cCrLf
 		cXML += ' </Contato>'+cCrLf
 		cXML += '</Tomador>'+cCrLf
@@ -225,46 +208,31 @@ While QSF2->(!EoF())
 ENDDO
 QSF2->(DbCloseArea())
 
-IF !lErro
+IF !lErro .and. nTotReg > 0
 	cXML += '</ListaRps>
 	cXML += '</LoteRps>
 	cXML += '</EnviarLoteRpsEnvio>
 
-	MSGINFO("XML NFS-e Gravado com Sucesso!!")
+	cArquivo := cDir+'Lote_NO_'+cLOTE+'-'+ALLTRIM(Alltrim(SF2->F2_SERIE))+'_03022122000177.XML'
+
+	MemoWrite(cArquivo,cXML)
+
+	MSGINFO("XML NFS-e Gerado com Sucesso! "+cCrLf+"Arquivo: "+cArquivo)
+ELSE
+	MSGSTOP("XML NFS-e Erro na Geração. Verifique!")
 ENDIF 
     	
 Return (Nil)
 
 
 
-Static Function AjustaSX1(cPerg)
+User Function NLoteNFS()
+Local _cNLoteNFS := ""
 
-Local aArea := GetArea()
-Local aRegs := {}
-Local i 	:= 0
-Local j 	:= 0
+_cNLoteNFS := U_BKGetMv("BKFATA0701")
 
-cPerg := PADR(cPerg,10)
+_cNLoteNFS := STRZERO(VAL(_cNLoteNFS)+1,6)
 
-aAdd(aRegs,{cPerg,"01","Da Nota?"  ,"Da Nota?"  ,"Da Nota?"  ,"mv_ch1","C",09,0,0,"G","","MV_PAR01","","","","","","","","","","","","","","","","","","","","","","","","","SF2","S","",""})
-aAdd(aRegs,{cPerg,"02","Ate Nota?" ,"Ate Nota?" ,"Ate Nota?" ,"mv_ch2","C",09,0,0,"G","","MV_PAR02","","","","","","","","","","","","","","","","","","","","","","","","","SF2","S","",""})
-aAdd(aRegs,{cPerg,"03","Serie?"	   ,"Serie?"    ,"Serie?"    ,"mv_ch3","C",03,0,0,"G","","MV_PAR03","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
-aAdd(aRegs,{cPerg,"04","Salvar em?","Salvar em?","Salvar em?","mv_ch4","C",99,0,0,"G","","MV_PAR04","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+U_BKPutMv("BKFATA0701",_cNLoteNFS,"C",06,0,"SAO SEBASTIAO DO PASSE-BA")
 
-DbSelectArea("SX1")
-DbSetOrder(1)
-For i := 1 to Len(aRegs)
-   If !dbSeek(cPerg+aRegs[i,2])
-      RecLock("SX1",.T.)
-	  For j:=1 to FCount()
-	     If j <= Len(aRegs[i])
-		    FieldPut(j,aRegs[i,j])
-		 Endif
-	  Next
-	  SX1->(MsUnlock())
-   Endif
-Next  
-
-RestArea(aArea)
-
-Return
+Return _cNLoteNFS

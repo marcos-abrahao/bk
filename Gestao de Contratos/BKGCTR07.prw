@@ -45,7 +45,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-//u_MsgLog(cPerg)
+//u_MsgLog(cPerg) 
 
 cMesEmis := mv_par01
 cAnoEmis := mv_par02
@@ -258,7 +258,6 @@ IF cMotMulta = "S"
 	AADD(aCabs  ,"Motivo Multa")
 ENDIF
 
-//ProcRegua(QTMP->(LASTREC()))
 U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
 
 //AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .T. })
@@ -270,7 +269,7 @@ Return
 Static Function PrcGct07(nTipo,cMes)
 Local cQuery := ""
 
-cQuery := u_QGctR07(nTipo,cMes)
+cQuery := u_QGctR07(nTipo,cMes,cMes)
 cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_SERIE,F2_DOC" + CRLF
 
 u_LogMemo("BKGCTR07.SQL",cQuery)
@@ -285,7 +284,7 @@ Return Nil
 
 
 // Usada nas rotinas BKGCTR07 e BKCOMA13
-User Function QGctR07(nTipo,cMes)
+User Function QGctR07(nTipo,cMes,cMesF)
 Local cQuery as Character
 //Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 
@@ -438,8 +437,11 @@ cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
 // CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
 IF nTipo == 1
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF
-ELSE
+ELSEIF nTipo == 2
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
+ELSE
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMes+"' "+ CRLF
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) <= '"+cMesF+"' "+ CRLF
 ENDIF
 
 cQuery += " UNION ALL "+ CRLF
@@ -511,10 +513,14 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF
 cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " WHERE (C5_MDCONTR = ' ' OR C5_MDCONTR IS NULL)"+ CRLF
 cQuery += "      AND C5_NUM IS NOT NULL"+ CRLF
+
 IF nTipo == 1
-	cQuery += "  AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' " 
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF
+ELSEIF nTipo == 2
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
 ELSE
-	cQuery += "  AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' " 
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMes+"' "+ CRLF
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) <= '"+cMesF+"' "+ CRLF
 ENDIF
 cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 

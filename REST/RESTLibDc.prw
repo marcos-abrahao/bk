@@ -367,7 +367,7 @@ Local aAnexos	:= {}
 Local nI		:= 0
 Local aEmpresas	As Array
 Local aParams	As Array
-Local cMsg		As String
+Local cMsg		As Character
 Local cHist		:= ""
 Local aParcelas := {}
 Local cParcelas := ""

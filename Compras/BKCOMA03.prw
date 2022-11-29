@@ -34,8 +34,8 @@ Private nTotPlan := 0
 Private aTipoNF  := {}
 Private aValida  := {}
 Private cTipoNF  := '' 
-Private cArq     := GetMV("MV_XXAQBNB")
-Private cDir     := cArq //GetMV("MV_XXAQBNB")
+Private cArq     := U_BKGetMv("BKCOMA03DR") // Diretorio do ultimo arquivo selecionado
+Private cDir     := cArq 
 Private dEmissao := dDatabase
 Private cCompl   := "2-Não"
 Private aCompl   := {"1-Sim","2-Não"}
@@ -612,13 +612,9 @@ Return lRet
                          
 Static Function GrvMVARQ()
 
-dbSelectArea("SX6")
-GetMv("MV_XXAQBNB")
 // Grava o Diretorio do ultimo arquivo selecionado
-If SX6->X6_CONTEUD <> UPPER(ALLTRIM(cDir))
-	RecLock("SX6",.F.)
-	SX6->X6_CONTEUD := UPPER(ALLTRIM(cDir))
-	msUnlock()
+If UPPER(ALLTRIM(U_BKGetMv("BKCOMA03DR"))) <> UPPER(ALLTRIM(cDir))
+	U_BKPutMv("BKCOMA03DR",UPPER(ALLTRIM(cDir)),"C",70,0,"Diretorio do ultimo arquivo selecionado")	
 EndIf
 
 RETURN NIL

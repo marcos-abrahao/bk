@@ -134,11 +134,12 @@ CNE->(RestArea(aAreaCNE))
 
 */
 
+u_MsgLog("CN120PED","Medição "+cNumMed+" - "+cContrato+" - "+CNA->CNA_XXMUN)
+
 CNA->(RestArea(aAreaCNA))
 CXN->(RestArea(aAreaCXN))
 
 RestArea(aArea)
 
-u_MsgLog("CN120PED","Medição "+cNumMed)
 
 Return {ExpA1,ExpA2}                           

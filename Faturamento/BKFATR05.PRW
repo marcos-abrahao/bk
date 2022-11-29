@@ -83,7 +83,7 @@ Else
 	EndDo
 	CNE->(RestArea(aAreaCNE))
 	If Len(aPeds) == 0
-    	MsgStop("Pedidos não encontrados!","BKFATR5C")
+    	u_MsgLog("BKFATR5C","Pedidos não encontrados!","E")
 	Else
 		u_BKFATR05(aPeds)
 	EndIf
@@ -127,14 +127,14 @@ If nHandle > 0
 		For _nJ := 1 TO LEN(aPeds)
 			cPed := aPeds[_nJ]
 			If SC5->(dbSeek(xFilial("SC5")+cPed))
-				u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedidos...")
+				u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedidos: "+SC5->C5_NUM)
 				For _nI := 1 TO LEN(aHtml)
 					fWrite(nHandle, aHtml[_nI] + cCrLf )
 				Next
 			EndIf
 		Next
 	Else
-		u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedido...")
+		u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedido "+SC5->C5_NUM)
 		For _nI := 1 TO LEN(aHtml)
 			fWrite(nHandle, aHtml[_nI] + cCrLf )
 		Next

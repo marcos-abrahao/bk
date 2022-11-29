@@ -212,7 +212,7 @@ If !lJob
 	EndIf
 Else
 	MV_PAR01 := cContrato  	:= U_BKGetMv("BKGCTR1401") // teste "005000114"
-	MV_PAR02 := nMesC 		:= U_BKGetMv("BKGCTR1402") // MONTH(dDataBase - DAY(dDatabase))
+	MV_PAR02 := nMesC 		:= U_("BKGCTR1402") // MONTH(dDataBase - DAY(dDatabase))
 	MV_PAR03 := nAnoC  		:= U_BKGetMv("BKGCTR1403") // YEAR(dDataBase - DAY(dDatabase))
 	MV_PAR04 := U_BKGetMv("BKGCTR1404")                // 3
 	MV_PAR05 := nConsolida	:= 0 //U_BKGetMv("BKGCTR1405") // 2

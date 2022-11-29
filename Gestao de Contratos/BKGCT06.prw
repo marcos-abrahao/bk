@@ -26,8 +26,7 @@ Public dtIni     := CTOD("")
 Public dtFim     := CTOD("")
 
 Private lExp     := .F.
-Private dDataEnv
-Private lEnvT    := .T.
+Private dDataEnv := DATE()
 Private cEmpPar  := "01"
 Private cFilPar  := "01"
 
@@ -46,93 +45,36 @@ WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 //WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
 //TABLES "SA1" "SC5" "SC6" 
 
-u_MsgLog("BKGCT06")
+u_WaitLog(, {|| RepBKGCT06()},"Processando avisos de repactuação")
+u_WaitLog(, {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
 
-dDataEnv := DATE()
-dbSelectArea("SX6")
-IF !DBSEEK("  MV_XXBKENV",.F.)
-   RecLock("SX6",.T.)
-   SX6->X6_VAR     := "MV_XXBKENV"
-   SX6->X6_TIPO    := "C"
-   SX6->X6_DESCRIC := "Ultimo email enviado - Aviso de Termino de Contatos - "+FWEmpName(cEmpAnt)
-   SX6->X6_CONTEUD := ""
-   MsUnlock()
-ELSE
-	lEnvT := EMPTY(ALLTRIM(SX6->X6_CONTEUD))	   
-ENDIF
-
-u_xxConOut("INFO","RepBKGCT06","Processando avisos de repactuação")
-RepBKGCT06()
-
-u_xxConOut("INFO","RepBK06b","Processando avisos de repactuação - Detalhado")
-RepBK06b()
-
-IF DOW(dDataEnv) = 1 .OR. lEnvT
-
-	u_xxConOut("INFO","VigBKGCT06","Processando avisos de termino de vigencia")
-	VigBKGCT06()
-	
-	u_xxConOut("INFO","Vg2BKGct06","Processando avisos de termino de vigencia 2")
-	Vg2BKGct06()
-	
+IF DOW(dDataEnv) = 1 .OR. DOW(dDataEnv) = 4
+	u_WaitLog(, {|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
+	u_WaitLog(, {|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
 ENDIF
 
 // Desabilitado em 18/08/22 - Solicitado por Bruno Bueno e Vanderleia
-//u_xxConOut("INFO","V5BKGct06","Processando avisos de Insumos Operacionais")
-//V5BKGct06()
+//u_WaitLog(, {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
 
-u_xxConOut("INFO","V6BKGct06","Processando avisos de Atestado de Capacidade Técnica")
-V6BKGct06()
-
-u_xxConOut("INFO","V7BKGct06","Processando avisos de Vigência da Caução")
-V7BKGct06()
-
-u_xxConOut("INFO","V8BKGct06","Processando avisos de Doc. Segurança do Trabalho")
-V8BKGct06()
-
-//IF DOW(Date()) == 1
+u_WaitLog(, {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
+u_WaitLog(, {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
+u_WaitLog(, {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
 
 cFWEmp := SUBSTR(FWCodEmp(),1,2)
  
-u_xxConOut("INFO","BKGCT06","Empresa:"+FWCodEmp()+".")
+//u_xxConOut("INFO","BKGCT06","Empresa:"+FWCodEmp()+".")
 
 If cFWEmp $ "01" 
-	u_xxConOut("INFO","V9BKGct06","Processando avisos de pedidos de compras aguardando aprovação")
-	V9BKGct06()
-EndIf
-
-If cFWEmp $ "01" 
-	u_xxConOut("INFO","V10BKGct06","Processando avisos de pedidos de compras não entregues")
-	V10BKGct06()
-EndIf
-
-If cFWEmp $ "01" 
-	u_xxConOut("INFO","V11BKGct06","Processando aviso de Solicitação de compras em aberto")
-	V11BKGct06()
-EndIf
-
-If cFWEmp == "01" 
-	u_xxConOut("INFO","V15BKGct06","Processando Aviso de lançamentos em contratos vencidos")
-	V15BKGct06()
+	u_WaitLog(, {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
+	u_WaitLog(, {|| V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
+	u_WaitLog(, {|| V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
+	u_WaitLog(, {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf
 
 If cFWEmp $ "01/02/14" 
-	u_xxConOut("INFO","GRFBKGCT11","Processando Grafico Rentabilidade dos Contratos")
-	U_GRFBKGCT11(.T.)
-	u_xxConOut("INFO","GRFBKGCT11","Finalizado rocessando Grafico Rentabilidade dos Contratos")
+	u_WaitLog(, {|| U_GRFBKGCT11(.T.)} ,"Processando Grafico Rentabilidade dos Contratos")
+	u_WaitLog(, {|| U_BKGCTR23()} ,"Processando Dados do Dashboard - Funcionários e Glosas")
 ENDIF
-
-If cFWEmp $ "01/02/14" 
-	u_xxConOut("INFO","BKGCTR23","Processando Dados do Dashboard - Funcionários e Glosas")
-	U_BKGCTR23()
-	u_xxConOut("INFO","BKGCTR23","Finalizado processamento Dados do Dashboard - Funcionários e Glosas")
-ENDIF
-
-// Dashboard powrbk - adicionado no Schedule com execução a cada 1h  
-//If cFWEmp == "01" 
-//	u_xxConOut("INFO","BKDASH01","Atualizando tabelas do banco de dados PowerBk")
-//	U_BKDASH01()()
-//EndIf
 
 Reset Environment
 
@@ -1133,21 +1075,7 @@ If lEmail
 	P2BKGCT06()     
 	
 	// Envia o email
-	If U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
-		dbSelectArea("SX6")
-		If DBSEEK("  MV_XXBKENV",.F.)
-	   		RecLock("SX6",.F.)
-			SX6->X6_CONTEUD := DTOS(dDataEnv)
-	   		MsUnlock()
-	    EndIf
-	Else
-		dbSelectArea("SX6")
-		If DBSEEK("  MV_XXBKENV",.F.)
-	   		RecLock("SX6",.F.)
-			SX6->X6_CONTEUD := ""
-	   		MsUnlock()
-	    EndIf
-	EndIf
+	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
 EndIf
 	
 Return Nil
@@ -1429,33 +1357,11 @@ QCN9->(Dbclosearea())
 //------------------
 
 cAssunto := "Alerta de término de vigencia de contratos - "+FWEmpName(cEmpAnt)
-
-//If !lJobV2
-//   _cArqSv := ""
-//EndIf
-   
+  
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P3BKGCT06()
 
-//msginfo(cEmailto)
-//msginfo(cEmailcc)
-
-
-If U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
-	dbSelectArea("SX6")
-	If DBSEEK("  MV_XXBKENV",.F.)
-   		RecLock("SX6",.F.)
-		SX6->X6_CONTEUD := DTOS(dDataEnv)
-   		MsUnlock()
-    EndIf
-Else
-	dbSelectArea("SX6")
-	If DBSEEK("  MV_XXBKENV",.F.)
-   		RecLock("SX6",.F.)
-		SX6->X6_CONTEUD := ""
-   		MsUnlock()
-    EndIf
-EndIf
+U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
 
 Return Nil
 
@@ -2545,19 +2451,10 @@ EndIf
     
 If nHandle > 0
 	fClose(nHandle)
-	If lJobV2
-		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
-	Else   
-		lOk := CpyT2S( _cArqs , cPath, .T. )
-	EndIf
-
+	lOk := CpyT2S( _cArqs , cPath, .T. )
 Else
 	fClose(nHandle)
-	If lJobV2
-		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
-	Else	
-        MsgAlert("Falha na criação do arquivo "+_cArqS)
-    Endif    
+    u_MsgLog(cPrw,"Falha na criação do arquivo "+_cArqS,"E")
 Endif
    
 QCN9->(Dbclosearea())
@@ -2567,32 +2464,10 @@ QCN9->(Dbclosearea())
 
 cAssunto := "Aviso de Insumos Operacionais - "+FWEmpName(cEmpAnt)
 
-//If !lJobV2
-//   _cArqSv := ""
-//EndIf
-   
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P5BKGCT06()
 
-//msginfo(cEmailto)
-//msginfo(cEmailcc)
-
-
-If U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
-	dbSelectArea("SX6")
-	If DBSEEK("  MV_XXBKENV",.F.)
-   		RecLock("SX6",.F.)
-		SX6->X6_CONTEUD := DTOS(dDataEnv)
-   		MsUnlock()
-    EndIf
-Else
-	dbSelectArea("SX6")
-	If DBSEEK("  MV_XXBKENV",.F.)
-   		RecLock("SX6",.F.)
-		SX6->X6_CONTEUD := ""
-   		MsUnlock()
-    EndIf
-EndIf
+U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
 
 Return Nil
 
@@ -3045,7 +2920,6 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-
 Return Nil
 
 
@@ -3248,8 +3122,6 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-//CONOUT("V9BKGct06: Fim Processo - Aviso de pedido de compras aguardando aprovação")
-
 RestArea(aArea)
 
 Return Nil 
@@ -3277,8 +3149,6 @@ If FWCodEmp() <> "01"
 	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
-
-//CONOUT("V10BKGct06: Inicio Processo - Aviso de pedido de compras não entregue")
 
 If !lJobV2
 	IncProc()
@@ -3362,8 +3232,6 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-//CONOUT("V10BKGct06: Fim Processo - Aviso de pedido de compras não entregue")
-
 RestArea(aArea)
 
 Return Nil
@@ -3392,9 +3260,6 @@ If FWCodEmp() <> "01"
 	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
-
-//CONOUT("V11BKGct06: Inicio Processo - Aviso de solicitação de compras em aberto")
-
 
 If !lJobV2
 	IncProc()
@@ -3683,7 +3548,7 @@ Local cTabCTT   := ""
 cEmail += u_EmMRepac()
 
 If FWCodEmp() <> "01"
-	u_xxConOut("ERROR",cPrw,"Executar somente na empresa 01")
+	u_MsgLog(cPrw,"Executar somente na empresa 01","E")
 	Return Nil
 EndIf
 

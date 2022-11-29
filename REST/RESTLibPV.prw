@@ -150,7 +150,7 @@ Local nCount 		:= 0
 Local oJsonSales 	:= JsonObject():New()
 
 Local aParams      	As Array
-Local cMsg         	As String
+Local cMsg         	As Character
 
 Default self:page 	:= 1
 Default self:pageSize := 500

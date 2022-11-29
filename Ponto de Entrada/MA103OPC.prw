@@ -26,7 +26,7 @@ AADD( aRot, {OemToAnsi("Pesquisa NF"), "U_BKCOMC02", 0, 1 } )
 AADD( aRot, {OemToAnsi("Aval. Fornecedor"), "U_VEWAVALFOR", 0, 4 } )
 AADD( aRot, {OemToAnsi("Reavaliar Fornecedor"), "U_RAvalForn", 0, 4 } )
 AADD( aRot, {OemToAnsi("Dados Pgto"), "U_AltFPgto", 0, 4 } )
-AADD( aRot, {OemToAnsi("Inc Doc Pis/Cofins"), "U_BKCOMA13", 0, 1 } )
+AADD( aRot, {OemToAnsi("Inc Doc PIS/COF/IRPJ"), "U_BKCOMA13", 0, 1 } )
 
 Return( aRot )
               

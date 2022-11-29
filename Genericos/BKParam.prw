@@ -117,5 +117,7 @@ MsUnLock()
 
 RestArea(aArea)
 
+u_MsgLog(,xConte01)
+
 Return Nil
 

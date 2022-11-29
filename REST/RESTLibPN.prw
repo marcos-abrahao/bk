@@ -558,7 +558,7 @@ Local aAnexos	:= {}
 Local nI		:= 0
 Local aEmpresas	As Array
 Local aParams	As Array
-Local cMsg		As String
+Local cMsg		As Character
 Local cHist		:= ""
 Local aParcelas := {}
 Local cParcelas := ""
@@ -1052,37 +1052,51 @@ async function getPNs() {
 async function loadTable() {
 let prenotas = await getPNs();
 let trHTML = '';
+let nlin = 0;
+let cbtn = '';
+let ccanl = '';
+let cbtnid = ''
+
 if (Array.isArray(prenotas)) {
-    prenotas.forEach(object => {
+   prenotas.forEach(object => {
+   let cprenota = object['DOC']
+   let cLiberOk = object['LIBEROK']
+   let cStatus  = object['STATUS']
+   nlin += 1;
+   trHTML += '<tr>';
+   trHTML += '<td>'+object['F1NOMEEMP']+'</td>';
+   trHTML += '<td>'+cprenota+'</td>';
+   trHTML += '<td>'+object['DTDIGIT']+'</td>';
+   trHTML += '<td>'+object['FORNECEDOR']+'</td>';
+   trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
+   trHTML += '<td>'+object['PGTO']+'</td>';
+   trHTML += '<td align="right">'+object['TOTAL']+'</td>';
 
-    let cprenota = object['DOC']
-    let cLiberOk = object['LIBEROK']
-    let cStatus  = object['STATUS']
+   if (cLiberOk == 'A' ){
+    cbtn = 'btn-outline-success';
+    ccanl = '1';
+ 	} else if (cLiberOk == 'T'){
+    cbtn = 'btn-outline-warning';
+    ccanl = '1';
+ 	} else if (cLiberOk == 'B'){
+    cbtn = 'btn-outline-danger';
+    ccanl = '2';
+ 	} else if (cLiberOk == 'C' || cLiberOk == 'L'){
+    cbtn = 'btn-outline-primary';
+    ccanl = '2';
+ 	} else if (cLiberOk == 'E'){
+    cbtn = 'btn-outline-secondary';
+    ccanl = '2';
+ 	} else if (cLiberOk == ' '){
+    cbtn = 'btn-outline-secondary';
+    ccanl = '1';
+  }
 
-    trHTML += '<tr>';
-    trHTML += '<td>'+object['F1NOMEEMP']+'</td>';
-    trHTML += '<td>'+cprenota+'</td>';
-    trHTML += '<td>'+object['DTDIGIT']+'</td>';
-    trHTML += '<td>'+object['FORNECEDOR']+'</td>';
-    trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
-    trHTML += '<td>'+object['PGTO']+'</td>';
-    trHTML += '<td align="right">'+object['TOTAL']+'</td>';
-    if (cLiberOk == 'A' ){
-    	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
-  	} else if (cLiberOk == 'T'){
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
-  	} else if (cLiberOk == 'B'){
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-danger btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
-  	} else if (cLiberOk == 'C' || cLiberOk == 'L'){
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-primary btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
-  	} else if (cLiberOk == 'E'){
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-secondary btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',2)">'+cStatus+'</button></td>';
-  	} else if (cLiberOk == ' '){
-     	trHTML += '<td align="right"><button type="button" class="btn btn-outline-secondary btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\',1)">'+cStatus+'</button></td>';
-    }
+cbtnid = 'btnac'+nlin;
+trHTML += '<td align="right"><button type="button" id="'+cbtnid+'" class="btn '+cbtn+' btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\','+ccanl+','+'\''+cbtnid+'\')">'+cStatus+'</button></td>';
 
-	trHTML += '</tr>';
-    });
+trHTML += '</tr>';
+   });
 } else {
     trHTML += '<tr>';
     trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+prenotas['liberacao']+'</th>';
@@ -1128,7 +1142,11 @@ let url = 'http://10.139.0.30:8080/rest/RestLibPN/v1?empresa='+f1empresa+'&preno
 		}
 	}
 
-async function showPN(f1empresa,f1recno,userlib,canLib) {
+async function showPN(f1empresa,f1recno,userlib,canLib,cbtnac) {
+
+document.getElementById(cbtnac).disabled = true;
+document.getElementById(cbtnac).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+
 let prenota = await getPN(f1empresa,f1recno,userlib);
 let itens = '';
 let i = 0;

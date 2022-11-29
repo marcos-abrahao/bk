@@ -27,7 +27,7 @@ LOCAL _IX		:= 0
 LOCAL _IY		:= 0
 //Local cJCXNCND	:= FWJoinFilial("CXN", "CND")
 
-	u_MsgLog("BKGCTR23")
+	//u_MsgLog("BKGCTR23")
 
 	IF SM0->M0_CODIGO == "01"      // BK
 

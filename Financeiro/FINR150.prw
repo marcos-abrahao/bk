@@ -1587,7 +1587,7 @@ Local dOldDtBase := dDataBase
 Local wnrel
 Local nTamPar01,nTamPar02,nTamPar03,nTamPar04,nTamPar05,nTamPar06,nTamPar09,nTamPar10,nTamPar11,nTamPar12,nTamPar23,nTamPar24,nTamPar25,nTamPar26,nTamPar30,nTamPar31
 
-PRIVATE cPerg    := Padr("FIN150",Len(SX1->X1_GRUPO))
+PRIVATE cPerg    := Padr("FIN150",10)
 PRIVATE aReturn := { OemToAnsi(STR0003), 1,OemToAnsi(STR0004), 1, 2, 1, "",1 }  //"Zebrado"###"Administracao"
 PRIVATE nomeprog:="FINR150"
 PRIVATE aLinha  := { },nLastKey := 0

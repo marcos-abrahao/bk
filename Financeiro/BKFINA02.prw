@@ -720,7 +720,7 @@ IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
 				u_xxLog("\LOG\BKFINA02.LOG",cErrLog)
 
 				DisarmTransaction()
-				Return
+				lRet := .F.
 			ENDIF	
 
 		End Transaction
