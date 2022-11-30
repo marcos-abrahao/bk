@@ -133,9 +133,9 @@ User Function BKGCTR11(lJob)
 	ENDIF
 
 	nMImpContr 	:= VAL(aMImpContr[1,2])// mv_par02
-	nEncargos  	:= U_MVXENCAP()        // BK 37.1328 BK TER 8
-	nEncarIPT	:= U_MVXEIPT()         // BK 20      BK TER 1
-	nIncidenci	:= U_MVXINCID()        // BK 28.860  BK TER 20.700
+	nEncargos  	:= U_MVXENCAP()        // BK 37.1328 MMDK 8
+	nEncarIPT	:= U_MVXEIPT()         // BK 20      MMDK 1
+	nIncidenci	:= U_MVXINCID()        // BK 28.860  MMDK 20.700
 	nTaxaAdm	:= U_MVXTXADM()	       // mv_par06
 	cProventos  := U_MVXPROVE()
 	cDescontos  := U_MVXDESCO()        //"|112|114|120|122|177|181|187|636|650|680|683|691|780|783|784|"
@@ -4560,9 +4560,9 @@ User Function BK2GCTR11(lJob,aAglContr)
 	ENDIF
 
 	nMImpContr 	:= VAL(aMImpContr[1,2])// mv_par02
-	nEncargos  	:= U_MVXENCAP()        // BK 37.1328 BK TER 8
-	nEncarIPT	:= U_MVXEIPT()         // BK 20      BK TER 1
-	nIncidenci	:= U_MVXINCID()        // BK 28.860  BK TER 20.700
+	nEncargos  	:= U_MVXENCAP()        // BK 37.1328 MMDK 8
+	nEncarIPT	:= U_MVXEIPT()         // BK 20      MMDK 1
+	nIncidenci	:= U_MVXINCID()        // BK 28.860  MMDK 20.700
 	nTaxaAdm	:= U_MVXTXADM()        // mv_par06
 	IF !lJob
 		nConsolida	:= mv_par07

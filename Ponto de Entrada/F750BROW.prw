@@ -140,7 +140,7 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := "000084"
 			cProd := U_MVXCUSBK()
 			cCCus := "000000001"
-		ElseIf SM0->M0_CODIGO == "02"  // BK TER
+		ElseIf SM0->M0_CODIGO == "02"  // MMDK
 			cForn := "001570"
 			cProd := U_MVXCUSBK()
 			cCCus := "000000001"

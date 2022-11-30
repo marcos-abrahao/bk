@@ -60,8 +60,8 @@ Local cLogo:= ""
 
 If FWCodEmp() == "01"      // BK
 	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
-ElseIf FWCodEmp() == "02"  // BK TERCEIRIZADOS
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK TERCEIRIZADOS</span></b>'
+ElseIf FWCodEmp() == "02"  // MMDK
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">MMDK</span></b>'
 ElseIf FWCodEmp() == "04"  // ESA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">ESA</span></b>'
 ElseIf FWCodEmp() == "06"  // BKDAHER SUZANO

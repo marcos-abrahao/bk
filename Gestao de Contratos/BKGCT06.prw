@@ -1395,7 +1395,7 @@ AADD(aHtm,'  <td width=15% class="Normal">')
 If FWCodEmp() == "01"      // BK
 	AADD(aHtm,'    <p align=center style="text-align:center"><img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0></p>')
 ElseIf FWCodEmp() == "02"  // HF
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK TERCEIRIZADOS</span></b></p>')
+	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">MMDK</span></b></p>')
 ElseIf FWCodEmp() == "04"  // ESA
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">ESA</span></b></p>')
 ElseIf FWCodEmp() == "06"  // BKDAHER SUZANO

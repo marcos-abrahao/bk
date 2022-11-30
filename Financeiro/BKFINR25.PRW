@@ -797,7 +797,7 @@ Do While (cAliasTrb)->(!eof())
 EndDo
 
 If !lDetCC
-	aAports := {"BALSA NOVA","LIMEIRA","OSASCO","CAMPINAS","TABOÃO","BKTER HF","CORRETORA","BHG INTERIOR 3","",""}
+	aAports := {"BALSA NOVA","LIMEIRA","OSASCO","CAMPINAS","TABOÃO","MMDK","CORRETORA","BHG INTERIOR 3","",""}
 	For nI := 1 To Len(aAports)
 		nLin++
 		For nJ := 1 To nColDiv - 1
@@ -1034,7 +1034,7 @@ aAdd(aPlan,{.F.,"",""})
 aAdd(aPlan,{.T.,"DESPESAS DIVERSAS",""})
 aAdd(aPlan,{.F.,"Representantes","REPR"})
 aAdd(aPlan,{.F.,"Aportes Consórcios","APO"})
-aAdd(aPlan,{.F.,"BK TER","BKTER"})
+aAdd(aPlan,{.F.,"MMDK","MMDK"})
 aAdd(aPlan,{.F.,"Fundo Fixo","CXFF"})
 aAdd(aPlan,{.F.,"Diretoria","DIR"})
 aAdd(aPlan,{.F.,"DERSA Arrecadação","DERSA"})

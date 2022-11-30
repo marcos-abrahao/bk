@@ -246,9 +246,9 @@ IF nDespGeral == 2
 ENDIF
 
 nMImpContr 	:= VAL(aMImpContr[1,2])                      
-nEncargos  	:= U_MVXENCAP()  // BK 37.1328 BK TER 8 
-nEncarIPT	:= U_MVXEIPT()   // BK 20      BK TER 1
-nIncidenci	:= U_MVXINCID()  // BK 28.860  BK TER 20.700
+nEncargos  	:= U_MVXENCAP()  // BK 37.1328 MMDK 8 
+nEncarIPT	:= U_MVXEIPT()   // BK 20      MMDK 1
+nIncidenci	:= U_MVXINCID()  // BK 28.860  MMDK 20.700
 nTaxaAdm	:= U_MVXTXADM()  // 3
 
                                                                                   
@@ -955,7 +955,7 @@ If !lJob
 			If cEmpAnt == '01'
 				cNomeEmp := "BK"
 			ElseIf cEmpAnt == '02'
-				cNomeEmp := "BKTER"
+				cNomeEmp := "MMDK"
 			ElseIf cEmpAnt == '14'
 				cNomeEmp := "BALSA NOVA"
 			EndIf

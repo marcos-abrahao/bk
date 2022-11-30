@@ -15,7 +15,7 @@ BK - Array com as empresas do grupo BK
 User Function BKGrupo()
 // Empresas ativas
 Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","BKTER"},;
+                        {"02","MMDK"},;
                         {"12","BK CORRETORA"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"} }
@@ -25,7 +25,7 @@ Return aEmpresas
 User Function BKGrpGct()
 // Empresas que utilizam Gestão de Contratos
 Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","BKTER"},;
+                        {"02","MMDK"},;
                         {"14","BALSA NOVA"}}
 Return aEmpresas
 
@@ -33,7 +33,7 @@ Return aEmpresas
 User Function BKGrpDsp()
 // Empresas que utilizam possuem despesas em contratos
 Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","BKTER"},;
+                        {"02","MMDK"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"} }   // Empresa 15 possui despesas
 Return aEmpresas
@@ -42,7 +42,7 @@ Return aEmpresas
 User Function BKEmpr()
 // Todas Empresas
 Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","BKTER"},;
+                        {"02","MMDK"},;
                         {"04","ESA"},;
                         {"06","BKDAHER SUZANO"},;
                         {"07","JUST SOFTWARE"},;

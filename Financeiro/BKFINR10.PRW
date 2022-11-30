@@ -125,7 +125,7 @@ AADD(aSitFin,"D – Rateio")
 AADD(aSitFin,"E – Diretoria")
 AADD(aSitFin,"F – Despesas com Veículos")
 AADD(aSitFin,"G – Impostos")
-AADD(aSitFin,"H – BK TER / ESA / Just / Consórcio")
+AADD(aSitFin,"H – MMDK / ESA / Just / Consórcio")
 AADD(aSitFin,"J – Outros")
 
 
