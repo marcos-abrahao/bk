@@ -358,7 +358,8 @@ cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
 cXXPLR	    := U_MVXPLR()
 
 //MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
-cXXSEMAF	:= GetMv("MV_XXSEMAF")
+
+cXXSEMAF	:= u_BkGetMv("MV_XXSEMAF",.F.,"N",,cEmpAnt)
 
 IF EMPTY(cContrato)
 	IF lJob
@@ -1209,7 +1210,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
 	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"' AND SE5.D_E_L_E_T_ = '' "+CRLF
 
-    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIEXNT = A1.A1_COD" +CRLF
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = A1.A1_COD" +CRLF
     cQuery += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
@@ -1293,7 +1294,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " 		AND "+cJCNACNF+" AND CNA.D_E_L_E_T_='')"+CRLF
 
     cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 "+CRLF 
-	cQuery += "     ON (CN9.CN9_CLIEXNT = A1.A1_COD "+CRLF 
+	cQuery += "     ON (CN9.CN9_XCLIEN = SA1.A1_COD "+CRLF 
     cQuery += "         AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND "+CRLF 
 	cQuery += "         SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = '')"+CRLF
 
@@ -1371,7 +1372,7 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND CN9.D_E_L_E_T_ = ''"+CRLF
 		cQueryA += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
 		cQueryA += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
-		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIEXNT = A1.A1_COD " +CRLF
+		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = SA1.A1_COD " +CRLF
 		cQueryA += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = ''"+CRLF
 
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
@@ -1535,7 +1536,7 @@ FOR _nI := 1 TO nPeriodo
 	cQuery += " LEFT JOIN "+RETSQLNAME("SE5")+" SE5 ON E5_PREFIXO = D2_SERIE AND E5_NUMERO = D2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = D2_CLIENTE AND E5_LOJA = D2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' "+CRLF //--AND E5_PARCELA = '  '
 	cQuery += "      AND  E5_FILIAL = '"+xFilial("SE5")+"'  AND  SE5.D_E_L_E_T_ = '' "+CRLF
 
-    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIEXNT = A1.A1_COD" +CRLF
+    cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = A1.A1_COD" +CRLF
     cQuery += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA  AND  SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"
 
 	cQuery += " WHERE CNF.D_E_L_E_T_='' AND CNF.CNF_COMPET='"+aPeriodo[_nI,1]+"' "+CRLF
@@ -1607,7 +1608,7 @@ FOR _nI := 1 TO nPeriodo
 		cQueryA += "      AND CN9.CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ''"+CRLF
 		cQueryA += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+CRLF
 		cQueryA += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ''"+CRLF
-		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_CLIEXNT = A1.A1_COD " +CRLF
+		cQueryA += " LEFT JOIN "+RETSQLNAME("SA1")+" SA1 ON CN9.CN9_XCLIEN = A1.A1_COD " +CRLF
 		cQueryA += "      AND CN9.CN9_XLOJA = SA1.A1_LOJA AND SA1.A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ''"+CRLF
 
 		cQueryA += " WHERE CNF.D_E_L_E_T_='' "+CRLF 
@@ -6140,10 +6141,6 @@ nHandle := MsfCreate(cArqTmp,0)
    
 If nHandle > 0
       
-	If lJob
-		u_xxLog(cArqLog,"Gerando "+cArqTmp+"...")
-	EndIf
-
    FOR _ni := 1 TO LEN(aTitulos)
       fWrite(nHandle, aTitulos[_ni] + cCrLf)
       nCab++
@@ -6180,12 +6177,6 @@ If nHandle > 0
          lSoma := .T.
       ENDIF
    
-      If !lJob
-         IncProc("Gerando arquivo "+cArqE)   
-	  Else
-	     //u_xxLog(cArqLog,"Gerando arquivo "+cArqE)
-      EndIf 
-
       For _ni :=1 to LEN(aCampos)
          IF SUBSTR(aCampos[_ni],6,8) <> "XX_LINHA" //.AND. SUBSTR(aCampos[_ni],6,9) <> "XX_CODGCT"
          	xCampo := &(aCampos[_ni])
@@ -6256,22 +6247,18 @@ If nHandle > 0
       
    fClose(nHandle)
    If !lJob   
-		MsgRun(cArqE,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
+		u_WaitLog(cArqE,{|| ShellExecute("open", cArqTmp,"","",1) },"Aguarde a abertura do Excel...")
    EndIf
 
 Else
-	If !lJob
-   		MsgAlert("Falha na criação do arquivo "+cArqTmp)
-	Else
-		u_xxLog(cArqLog,"Falha na criação do arquivo "+cArqTmp)
-	EndIf
+	u_MsgLog(,"Falha na criação do arquivo "+cArqTmp,"E")
 Endif
 
 If lJob
 	cMsg := aTitulos[1]+CRLF+cStart+" - final: "+DtoC(Date())+" "+Time()
-	u_xxLog(cArqLog,cMsg)
+	u_MsgLog(cArqLog,cMsg)
 	u_BkSnMail("BKGCTR14",FWEmpName(cEmpAnt)+" - "+aTitulos[1],cEmailTO,cEmailCC,cMsg,{cArqXls,cArqTmp})
-	u_xxLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp)
+	u_MsgLog(cArqLog,"Email ("+FWEmpName(cEmpAnt)+" - "+aTitulos[1]+") enviado, anexos: "+cArqXls+","+cArqTmp)
 EndIf
 
 Return
@@ -6282,11 +6269,7 @@ Static Function AtualizaCC()
 Local _IX := 0
 
 // Gravar o Semaforo Tabela Centro de Custo
-dbSelectArea("SX6")
-GetMv("MV_XXSEMAF")
-RecLock("SX6",.F.)
-SX6->X6_CONTEUD := "S"
-msUnlock()
+U_BKPutMv("MV_XXSEMAF","S","C",1,0,"Semaforo Tabela Centro de Custo")	
 
 TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+cEmpAnt)
 
@@ -6295,11 +6278,8 @@ FOR _IX:= 1 TO LEN(aConsorcio)
 NEXT
 
 //Gravar o Semaforo Tabela Centro de Custo
-dbSelectArea("SX6")
-GetMv("MV_XXSEMAF")
-RecLock("SX6",.F.)
-SX6->X6_CONTEUD := "N"
-msUnlock()
+U_BKPutMv("MV_XXSEMAF","N","C",1,0,"Semaforo Tabela Centro de Custo")	
+
 Return
 
 

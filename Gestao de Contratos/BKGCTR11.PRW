@@ -129,7 +129,7 @@ User Function BKGCTR11(lJob)
 	ELSE
 		cContrato  	:= ""
 		cParAnoMes  := ""
-		u_xxConOut("INFO","BKGCTR11","Inicio do processamento: Rentabilidade dos Contratos")
+		//u_xxConOut("INFO","BKGCTR11","Inicio do processamento: Rentabilidade dos Contratos")
 	ENDIF
 
 	nMImpContr 	:= VAL(aMImpContr[1,2])// mv_par02
@@ -166,8 +166,7 @@ User Function BKGCTR11(lJob)
 	cXXPLR	    := U_MVXPLR()
 
 //MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
-	cXXSEMAF	:= GetMv("MV_XXSEMAF")
-
+	cXXSEMAF	:= u_BkGetMv("MV_XXSEMAF",.F.,"N",,cEmpAnt)
 	IF EMPTY(cContrato)
 		IF !lJob
 			//IF AVISO("Atenção","Incluir Contrato Consorcios??",{"Não","Sim"}) == 2
@@ -191,16 +190,10 @@ User Function BKGCTR11(lJob)
 		AADD(aConsorcio,StrTokArr(aContrCons[IX],";"))
 	NEXT
 
-
 	IF ALLTRIM(cXXSEMAF) == 'N'
-		ProcRegua(100)
-		Processa( {|| AtualizaCC() })
+		u_WaitLog(cPerg, {|oSay| AtualizaCC()}, titulo)
 	ELSE
-		IF !lJob
-			Msginfo("Atualizando tabela Folha de Pagamento!!")
-		ELSE
-			u_xxConOut("INFO","BKGCTR11","Atualizando tabela Folha de Pagamento")
-		ENDIF
+		u_MsgLog(cPerg,"Atualizando tabela Folha de Pagamento!!")
 		Return Nil
 	ENDIF
 
@@ -305,7 +298,7 @@ User Function BKGCTR11(lJob)
 //Determina quantos Meses utilizar no calculo
 	nPeriodo += DateDiffMonth( dDataI , dDataFinal )
 
-	titulo   := titulo+" - Período: "+DTOC(dDataI)+" até "+DTOC(dDataFinal)
+	titulo   := titulo+IIf(!Empty(cContrato)," - "+TRIM(cContrato),"")+" - Período: "+DTOC(dDataI)+" até "+DTOC(dDataFinal)
 
 	aDbf    := {}
 	Aadd( aDbf, { 'XX_LINHA', 'N', 10,00 } )
@@ -468,9 +461,8 @@ User Function BKGCTR11(lJob)
 
 		//
 
-		ProcRegua(1)
-		Processa( {|| ProcBKGCTR11(lJob) })
-		Processa( {|| MBrwBKGCTR11() })
+		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob)}, titulo)
+		u_WaitLog(cPerg, {|oSay| MBrwBKGCTR11()}, "Browse")
 
 		///(ALIAS_FOL)->(Dbclosearea())
 		///FErase(cArqTmp3+GetDBExtension())
@@ -478,9 +470,7 @@ User Function BKGCTR11(lJob)
 		oTmpTb3:Delete()
 
 	ELSE
-
-		ProcBKGCTR11(lJob)
-
+		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob)}, titulo)
 	ENDIF
 
 
@@ -629,7 +619,6 @@ Return Nil
 
 User FUNCTION PBKGCTR11()
 
-
 	ValidPerg()
 	If !Pergunte(cPerg,.T.)
 		Return Nil
@@ -637,10 +626,7 @@ User FUNCTION PBKGCTR11()
 
 	cContrato   := mv_par01
 
-	ProcRegua(1)
-
-	Processa( {|| ProcBKGCTR11(lJob) })
-
+	u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob)}, cContrato)
 
 Return Nil
 
@@ -664,11 +650,9 @@ Return (.T.)
 User FUNCTION CBKGCTR11()
 	Local cAlias := "TRB"
 
-
 	dbSelectArea(cAlias)
 
-	ProcRegua(1)
-	Processa( {|| GeraXGCT11(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,/*aImpr*/,/*aAlign*/,aFormat)})
+	u_WaitLog(cPerg, {|oSay| GeraXGCT11(cAlias,TRIM(cPerg),aTitulos,aCampos,aCabs,/*aImpr*/,/*aAlign*/,aFormat)}, titulo)
 
 Return Nil
 
@@ -711,10 +695,10 @@ Static Function ProcBKGCTR11(lJob)
 	LimpaBrw ("TRB")
 	LimpaBrw (ALIAS_TMP)
 
-	ProcRegua(nPeriodo)
+	//ProcRegua(nPeriodo)
 	FOR _nI := 1 TO nPeriodo
 
-		IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
+		//IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 
 		//IncProc("Consultando faturamento dos contratos...")
 
@@ -3107,10 +3091,9 @@ NEXT
 
 
 //CALCULA RESULTADOS
-ProcRegua(Len(aContratos))
 For Yi_ := 1 TO LEN(aContratos)
 	FOR _nI := 1 TO nPeriodo
-		IncProc("Calculando resultados...")
+		//IncProc("Calculando resultados...")
 		//CALCULA TAXA ADM
 		nValTaxaAdm := 0
 		nFaturaOF := 0
@@ -4204,7 +4187,7 @@ IF lJob
 		ENDIF
 		TRB->(dbSkip())
 	ENDDO
-	u_xxConOut("INFO","BKGCTR11","Finalizado processamento Rentabilidade dos contratos")
+	//u_xxConOut("INFO","BKGCTR11","Finalizado processamento Rentabilidade dos contratos")
 
 ENDIF
 
@@ -4283,7 +4266,7 @@ Static Function GeraXGCT11(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFo
 				lSoma := .T.
 			ENDIF
 
-			IncProc("Gerando arquivo "+cArqS)
+			//IncProc("Gerando arquivo "+cArqS)
 
 			For _ni :=1 to LEN(aCampos)
 				IF SUBSTR(aCampos[_ni],6,8) <> "XX_LINHA" //.AND. SUBSTR(aCampos[_ni],6,9) <> "XX_CODGCT"
@@ -4355,10 +4338,10 @@ Static Function GeraXGCT11(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFo
 
 		fClose(nHandle)
 
-		MsgRun(cArqs,"Aguarde a abertura do Excel...",{|| ShellExecute("open", cArqTmp,"","",1) })
+		u_WaitLog(cArqs,{|| ShellExecute("open", cArqTmp,"","",1) },"Aguarde a abertura do Excel...")
 
 	Else
-		MsgAlert("Falha na criação do arquivo "+cArqTmp)
+		u_MsgLog(,"Falha na criação do arquivo "+cArqTmp,"E")
 	Endif
 
 Return
@@ -4368,21 +4351,10 @@ Return
 Static Function AtualizaCC()
 	Local _IX := 0
 
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Grava o Semaforo Tabela Centro de Custo                         ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	dbSelectArea("SX6")
-	GetMv("MV_XXSEMAF")
-	RecLock("SX6",.F.)
-	SX6->X6_CONTEUD := "S"
-	msUnlock()
-
-	IncProc("Atualizando Tabela Centro de Custo...")
+	// Grava o Semaforo Tabela Centro de Custo 
+	U_BKPutMv("MV_XXSEMAF","S","C",1,0,"Semaforo Tabela Centro de Custo")
 
 	TCSQLExec("EXEC BKIntegraRubi.DBO.PROC_UPD_CUSTO "+SM0->M0_CODIGO)
-
-	IncProc("Atualizando Tabela Centro de Custo Consorcios...")
 
 	FOR _IX:= 1 TO LEN(aConsorcio)
 
@@ -4390,14 +4362,8 @@ Static Function AtualizaCC()
 
 	NEXT
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Grava o Semaforo Tabela Centro de Custo                         ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	dbSelectArea("SX6")
-	GetMv("MV_XXSEMAF")
-	RecLock("SX6",.F.)
-	SX6->X6_CONTEUD := "N"
-	msUnlock()
+	// Grava o Semaforo Tabela Centro de Custo 
+	U_BKPutMv("MV_XXSEMAF","N","C",1,0,"Semaforo Tabela Centro de Custo")
 
 Return
 
@@ -4700,7 +4666,7 @@ User Function BK2GCTR11(lJob,aAglContr)
 	cXXPLR	    := U_MVXPLR()
 
 //MV_XXSEMAF    C   Semaforo controle de execução da procedure de atualização tabela centro de custo integração Rubi X Microsiga
-	cXXSEMAF	:= GetMv("MV_XXSEMAF")
+	cXXSEMAF	:= u_BkGetMv("MV_XXSEMAF",.F.,"N",,cEmpAnt)
 
 	IF EMPTY(cContrato)
 		IF !lJob
@@ -4719,17 +4685,11 @@ User Function BK2GCTR11(lJob,aAglContr)
 	NEXT
 
 	IF ALLTRIM(cXXSEMAF) == 'N'
-		ProcRegua(100)
-		Processa( {|| AtualizaCC() })
+		u_WaitLog(cPerg, {|oSay| AtualizaCC()}, titulo)
 	ELSE
-		IF !lJob
-			Msginfo("Atualizando tabela Folha de Pagamento!!")
-		ELSE
-			u_xxConOut("INFO","BK2GCTR11","Atualizando tabela Folha de Pagamento "+cLogCons)
-		ENDIF
+		u_MsgLog(cPerg,"Atualizando tabela Folha de Pagamento!!")
 		Return Nil
 	ENDIF
-
 
 	IF !EMPTY(cContrato)
 
@@ -5008,22 +4968,16 @@ User Function BK2GCTR11(lJob,aAglContr)
 
 		//
 
-		ProcRegua(1)
-		Processa( {|| ProcBKGCTR11(lJob) })
-		Processa( {|| MBrwBKGCTR11() })
+		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob)}, titulo)
+		u_WaitLog(cPerg, {|oSay| MBrwBKGCTR11()}, "Browse")
 
-		///(ALIAS_FOL)->(Dbclosearea())
-		///FErase(cArqTmp3+GetDBExtension())
-		///FErase(cArqTmp3+OrdBagExt())
 		oTmpTb3:Delete()
 
 	ELSE
-		ProcBKGCTR11(lJob)
+		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob)}, titulo)
 	ENDIF
 
-///(ALIAS_TMP)->(Dbclosearea())
 	oTmpTb2:Delete()
-///TRB->(Dbclosearea())
 	oTmpTb1:Delete()
 
 Return

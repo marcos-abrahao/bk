@@ -134,7 +134,7 @@ EndIf
 
 If !("DNF" $ SE2->E2_HIST)
 
-    If msgYesNo('Confirma a inclusão de DNF para este título na Empresa BK?')	
+    If u_MsgLog("BKFINA18",'Confirma a inclusão de DNF para este título na Empresa BK?',"Y")
     
 		If SM0->M0_CODIGO == "01"      // BK
 			cForn := "000084"
@@ -176,7 +176,7 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := "002702"
 			cProd := "12102007"
 			cCCus := "000000005"
-		ElseIf SM0->M0_CODIGO == "14"  // Consorcio Nova Balsa
+		ElseIf SM0->M0_CODIGO == "14"  // BALSA NOVA
 			cForn := "003148"
 			cProd := "11301027"
 			cCCus := "302000508"
@@ -201,7 +201,7 @@ If !("DNF" $ SE2->E2_HIST)
 	    nRecNo    := RECNO()
   		dDataBase := SE2->E2_VENCREA		
 	    
-		MsgRun("incluindo DNF na empresa BK, aguarde...","",{|| CursorWait(), cRetorno := StartJob("U_BKFINJ18",GetEnvServer(),.T.,aParametros) ,CursorArrow()})
+		u_WaitLog(,{|| cRetorno := StartJob("U_BKFINJ18",GetEnvServer(),.T.,aParametros) },"Incluindo DNF na empresa BK, aguarde...")
 	   	//MsgRun("incluindo DNF na empresa BK, aguarde...","",{|| CursorWait(), cRetorno := U_BKFINJ18(aParametros) ,CursorArrow()})
 	
 		RestArea( aAreaAtu )
@@ -213,9 +213,9 @@ If !("DNF" $ SE2->E2_HIST)
 			IF EMPTY(cRetorno)
 				cRetorno := "Erro ao incluir a DNF, contate o desenvolvimento"
 			ENDIF
-		   MsgStop(cRetorno, "Atenção")
+		    u_MsgLog(,cRetorno, "E")
 		ELSE
-		   MsgInfo(cRetorno+" incluída na empresa BK", "Atenção")
+		    u_MsgLog(,cRetorno+" incluída na empresa BK", "W")
 			RecLock("SE2",.F.)
 			IF UPPER(TRIM(SE2->E2_HIST)) == "DEPTO PESSOAL"
 				SE2->E2_HIST := cRetorno+" D. Pessoal"  
@@ -227,7 +227,7 @@ If !("DNF" $ SE2->E2_HIST)
 		ENDIF
 	EndIf    
 ELSE
-   MsgStop("Esta DNF já foi incluída na empresa BK: "+TRIM(SE2->E2_HIST), "Atenção")
+   u_MsgLog(,"Esta DNF já foi incluída na empresa BK: "+TRIM(SE2->E2_HIST), "W")
 ENDIF	
 
 

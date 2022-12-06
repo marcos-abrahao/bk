@@ -20,9 +20,7 @@ PRIVATE cCC      := aSaldos[1,09]
 PRIVATE cDCC 	 := aSaldos[1,10]
 PRIVATE cSolict  := aSaldos[1,11]
 
-u_MsgLog("BKESTA01")
-
-MsgRun("Aguarde, gerando Solicitação ao Estoque - Almoxarifado…","",{|| CursorWait(), lRet := fProcessa1(aSaldos) ,CursorArrow()})
+u_WaitLog("BKESTA01",{|| lRet := fProcessa1(aSaldos)},"Aguarde, gerando Solicitação ao Estoque do amoxarifado…")
 
 RestArea(aArea)
 
@@ -36,7 +34,6 @@ Local nY
 Local aCabec := {}
 Local aItens := {}
 Local lItem  := .F.
-Local cErrLog:= ""
 
 Private lMsErroAuto := .F.
 
@@ -84,9 +81,7 @@ BEGIN TRANSACTION
 	IF lItem
 		MSExecAuto({|x,y,z| MATA105(x,y,z)},aCabec,aItens,3)     
 		If lMsErroAuto
-			cErrLog:= CRLF+MostraErro("\TMP\","BKESTA01.ERR")
-			u_xxLog("\LOG\BKESTA01.LOG",cErrLog)
-			MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+			u_LogMsExec()
 			DisarmTransaction()
 		ELSE
 			FOR nY := 1 TO LEN(aItens)
@@ -95,7 +90,7 @@ BEGIN TRANSACTION
 				cQuery += " FROM "+RetSqlName("SC1")+" SC1" 
 				cQuery += " WHERE SC1.D_E_L_E_T_='' AND C1_NUM='"+aItens[nY][7][2]+"' AND C1_ITEM='"+aItens[nY][8][2]+"'"
 				If TCSQLExec(cQuery) < 0 
-					MsgStop(TCSQLERROR())
+					u_MsgLog(,TCSQLERROR(),"E")
 				endif
 			NEXT
 			IF LEN(aItens) > 0

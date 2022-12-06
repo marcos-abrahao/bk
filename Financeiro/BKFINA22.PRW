@@ -379,15 +379,12 @@ Return(.T.)
 Static Function fSalvar()
 Local lRet := .F.
 
-MsgRun("Aguarde, gerando Baixa a Pagar…","",{|| CursorWait(), lRet := ProcBaixa() ,CursorArrow()})
-
+u_WaitLog(, {|oSay| lRet := ProcBaixa() }, "Aguarde, gerando Baixa a Pagar…")
 If lRet
 	oDlgPvt:End()
 EndIf
 
 Return
-
- 
  
 
 Static Function ProcBaixa()

@@ -174,7 +174,7 @@ Return (lRet)
 Static Function fSalvar()
 Local lRet := .F.
 
-u_WaitLog(cProg, lRet := fGravaSC1(), "Incluindo solicitação de compras...")
+u_WaitLog(cProg, { |oSay| lRet := fGravaSC1()}, "Incluindo solicitação de compras...")
 If lRet
 	oDlgPvt:End()
 EndIf

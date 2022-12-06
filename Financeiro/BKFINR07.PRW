@@ -814,8 +814,6 @@ cQuery3 += "   AND E2_NUM = '"+cDoc+"'" +CRLF
 cQuery3 += "   AND E2_FORNECE = '"+cForn+"'" +CRLF
 cQuery3 += "   AND E2_LOJA = '"+cLoja+"'" +CRLF
 
-//	u_LogMemo("BKGCTR11-E2-"+cEmpC+"-"+STRZERO(_nI,3)+".SQL",cQuery3)
-
 TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
 dbSelectArea("QTMPXE2")
 dbGoTop()

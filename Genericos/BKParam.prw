@@ -87,6 +87,7 @@ If dbSeek(_cFil+_cEmp+_cPar,.F.)
    _cTipo := SZX->ZX_TIPO
    _nTam  := SZX->ZX_TAMANHO
    _nDec  := SZX->ZX_DECIMAL
+   _cDescr:= SZX->ZX_DESCR
 Else
    RecLock("SZX",.T.)
    SZX->ZX_FILIAL  := _cFil
@@ -117,7 +118,7 @@ MsUnLock()
 
 RestArea(aArea)
 
-u_MsgLog(,xConte01)
+u_MsgLog(_cPar,TRIM(_cDescr)+": "+TRIM(xConte01))
 
 Return Nil
 

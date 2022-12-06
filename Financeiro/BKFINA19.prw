@@ -397,7 +397,7 @@ Return(.T.)
 Static Function fSalvar()
 Local lRet := .F.
 
-MsgRun("Aguarde, gerando movimentação bancária…","",{|| CursorWait(), lRet := fProcessa1() ,CursorArrow()})
+u_WaitLog(,{|| lRet := fProcessa1()},"Aguarde, gerando movimentação bancária…")
 
 If lRet
 	oDlgPvt:End()
@@ -469,9 +469,7 @@ BEGIN TRANSACTION
 	        MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
 			
 			If lMsErroAuto
-				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA19.ERR")
-				u_xxLog("\LOG\BKFINA19.LOG",cErrLog)
-				MsgStop("Problemas na alteração do mov bancario, informe o setor de T.I.:"+cErrLog, "Atenção")
+				u_LogMsExec(,"Problemas na alteração do mov bancario")
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf
@@ -481,9 +479,9 @@ BEGIN TRANSACTION
 END TRANSACTION
 
 If lSucess
-	Aviso("Sucesso","Movimentos bancários realizadas com sucesso.",{"OK"})
+	u_MsgLog(,"Movimentos bancários realizadas com sucesso.","S")
 Else
-	Aviso("Erro!","Alguns movimentos bancários não foram realizadas",{"OK"})
+	u_MsgLog(,"Alguns movimentos bancários não foram realizados","E")
 EndIf
 
 Return lSucess

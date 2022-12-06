@@ -155,10 +155,10 @@ While QSF2->(!EoF())
 		cXML += '  <DescontoIncondicionado>00.00</DescontoIncondicionado>'+cCrLf
 		cXML += '  <DescontoCondicionado>00.00</DescontoCondicionado>'+cCrLf
 		cXML += ' </Valores>'+cCrLf
-		cXML += ' <IssRetido>'+SF2->F2_RECISS+'</IssRetido>'+cCrLf
+		cXML += ' <IssRetido>'+TRIM(SF2->F2_RECISS)+'</IssRetido>'+cCrLf
 		cXML += ' <ResponsavelRetencao>'+SF2->F2_RECISS+'</ResponsavelRetencao>'+cCrLf
-		cXML += ' <ItemListaServico>'+SD2->D2_CODISS+'</ItemListaServico>'+cCrLf
-		cXML += ' <CodigoCnae>0</CodigoCnae>'+cCrLf
+		cXML += ' <ItemListaServico>'+TRIM(SD2->D2_CODISS)+'</ItemListaServico>'+cCrLf
+		cXML += ' <CodigoCnae>0910600</CodigoCnae>'+cCrLf
 		cXML += ' <Discriminacao>'+cCORPONFS+'</Discriminacao>'+cCrLf
 		cXML += ' <CodigoMunicipio>'+cMunPrest+'</CodigoMunicipio>'+cCrLf
 		cXML += ' <CodigoPais>1058</CodigoPais>'+cCrLf
@@ -176,13 +176,15 @@ While QSF2->(!EoF())
 		cXML += '  <CpfCnpj>'+cCrLf
 		cXML += '   <Cnpj>'+AllTrim(SA1->A1_CGC)+'</Cnpj>'+cCrLf
 		cXML += '  </CpfCnpj>'+cCrLf
-		cXML += '  <InscricaoMunicipal>'+ALLTRIM(SA1->A1_INSCRM)+'</InscricaoMunicipal>'+cCrLf
+		//cXML += '  <InscricaoMunicipal>'+ALLTRIM(SA1->A1_INSCRM)+'</InscricaoMunicipal>'+cCrLf
 		cXML += ' </IdentificacaoTomador>'+cCrLf
 		cXML += ' <RazaoSocial>'+Alltrim(SA1->A1_NOME)+'</RazaoSocial>'+cCrLf
 		cXML += ' <Endereco>'+cCrLf
 		cXML += '  <Endereco>'+ALLTRIM(SA1->A1_END)+'</Endereco>'+cCrLf
 		cXML += '  <Numero>14</Numero>'+cCrLf
-		cXML += '  <Complemento>'+ALLTRIM(SA1->A1_COMPLEM)+'</Complemento>'+cCrLf
+		If !EMPTY(SA1->A1_COMPLEM)
+			cXML += '  <Complemento>'+ALLTRIM(SA1->A1_COMPLEM)+'</Complemento>'+cCrLf
+		EndIf
 		cXML += '  <Bairro>'+ALLTRIM(SA1->A1_BAIRRO)+'</Bairro>'+cCrLf
 		cXML += '  <CodigoMunicipio>'+U_UfIBGE(SA1->A1_EST)+SA1->A1_COD_MUN+'</CodigoMunicipio>'+cCrLf
 		cXML += '  <Uf>'+Upper(SA1->A1_EST)+'</Uf>'+cCrLf
