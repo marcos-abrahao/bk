@@ -502,15 +502,13 @@ Local cTabSC7	:= "SC7"+self:empresa+"0"
 Local cTabSC1	:= "SC1"+self:empresa+"0"
 Local cTabSC8	:= "SC8"+self:empresa+"0"
 Local cTabSA2	:= "SA2"+self:empresa+"0"
-//Local cTabSE4	:= "SE4010"
 Local cPedido 	:= TRIM(self:documento)
 Local cQrySC7	:= GetNextAlias()
 Local aItens	:= {}
 Local nI		:= 0
 Local aEmpresas	As Array
 Local aParams	As Array
-Local cMsg		As String
-//Local cHist		:= ""
+Local cMsg		As Character
 Local nGeral	:= 0
 
 aEmpresas := u_BKGrupo()

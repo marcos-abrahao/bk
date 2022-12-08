@@ -2,9 +2,12 @@
 #INCLUDE "topconn.ch"
 
 User Function NumSf1()
-Local _nI := 1
-Local _lRet := .T.
+Local lRet := .T.
+Local nPar := 0
+Local cPar := ""
+
 // Numero sequencial DNF - BK (doc de entrada)
+/*
 If !FWIsInCallStack("MSEXECAUTO")   //ALLTRIM(ProcName(9)) <> "MSEXECAUTO" // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
 	If VAL(cNFiscal) == 0 
 		If cSerie == "DNF"
@@ -17,18 +20,35 @@ If !FWIsInCallStack("MSEXECAUTO")   //ALLTRIM(ProcName(9)) <> "MSEXECAUTO" // MS
 				SX6->(MsUnlock())
 			Else
 				RecLock("SX6",.F.)
-				_nI := VAL(SX6->X6_CONTEUD)+1
-				SX6->X6_CONTEUD := STRZERO(_nI,9)
+				nI := VAL(SX6->X6_CONTEUD)+1
+				SX6->X6_CONTEUD := STRZERO(nI,9)
 				SX6->(MsUnlock())
 			EndIf
-			cNFiscal := STRZERO(_nI,9)
+			cNFiscal := STRZERO(nI,9)
 		Else
 			_lRet := .F.
 			MsgStop("Número do Documento não pode ser zero","NumSf1")
 		EndIf
 	EndIf
 ENDIF
-Return _lRet
+*/
+
+If !FWIsInCallStack("MSEXECAUTO")   // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
+	If VAL(cNFiscal) == 0 
+		If cSerie == "DNF"
+			nPar := GetMv("MV_XXNUMF1",.F.,STRZERO(0,9))
+			nPar++
+			cPar := STRZERO(nPar,9)
+			cNFiscal := cPar
+			PutMv("MV_XXNUMF1",cPar)
+		Else
+			lRet := .F.
+			u_MsgLog("NumSf1","Número do Documento não pode ser zero","E")
+		EndIf
+	EndIf
+ENDIF
+
+Return lRet
 
 
 

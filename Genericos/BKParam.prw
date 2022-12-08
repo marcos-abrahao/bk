@@ -34,6 +34,7 @@ If !dbSeek(_cFil+_cEmp+_cPar,.F.)
         SZX->ZX_DECIMAL := 0
         SZX->ZX_DESCR   := SX6->X6_DESCRIC
         SZX->ZX_CONTE01 := SX6->X6_CONTEUD
+        xRet := ALLTRIM(SX6->X6_CONTEUD)
         MsUnLock()
     EndIf
 EndIf
@@ -71,7 +72,6 @@ Return xRet
 
 
 User Function BKPutMv(_cPar,_xConteudo,_cTipo,_nTam,_nDec,_cDescr,_cFil,_cEmp)
-
 Local aArea         := GetArea()
 Local xConte01      := ""
 

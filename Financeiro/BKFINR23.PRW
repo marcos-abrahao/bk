@@ -449,21 +449,24 @@ Return
 
 Static Function KFin23Bco()
 
-Local cMarca     := GetMark()
-Local oDlg
-Local oMark
-Local lInverte   := .F.
-Local nOpcA 
-Local lRet       := .F.
-Local aCamposB2 := {{"A6_OK"      ,,"  ",""},;
+Local cMarca	:= GetMark()
+Local oDlg		As Object
+Local oMark		As Object
+Local lInverte	:= .F.
+Local nOpcA 	:= 0
+Local lRet		:= .F.
+Local aCamposB2	:= {{"A6_OK"      ,,"  ",""},;
 					{"A6_COD"     ,,"Banco","@X"}   ,;
 					{"A6_AGENCIA" ,,"Agencia","@X"} ,;
 					{"A6_NUMCON"  ,,"Conta","@X"}   ,;
 					{"A6_NREDUZ"  ,,"Nome","@X"}    ,;
 					{"A6_XXTIPBK" ,,"Tipo","@X"}    }
 					
-Local aTipBk := {"Corrente","Vinculada","Garantida","Outras"}					
-Local oTmpTb1
+Local aTipBk	:= {"Corrente","Vinculada","Garantida","Outras"}					
+Local oTmpTb1	As Object
+Local aSx3		:= {}
+Local nI		:= 0
+Local cCpo 		:= ""
 
 // Estrutura da tabela de bancos temporária
 aStruct1    := {}
@@ -481,17 +484,20 @@ AADD(aStruct1,{"A6_DATA","D",8,0})
 AADD(aCampos1,cAliasTmp1+"->A6_DATA")
 AADD(aCabs1  ,"Data")
 
-dbSelectArea("SX3")
-dbSetOrder(1)
-dbSeek ("SA6")
-Do While SX3->(!EOF()) .And. (SX3->x3_arquivo == "SA6")
-	IF Alltrim(SX3->X3_CAMPO) $ "A6_COD#A6_AGENCIA#A6_NUMCON#A6_NREDUZ"
-		AADD(aStruct1,{SX3->X3_CAMPO,SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-		AADD(aCampos1,cAliasTmp1+"->"+SX3->X3_CAMPO)
-		AADD(aCabs1  ,SX3->X3_TITULO)
-	ENDIF
-	SX3->(dbSkip())
-Enddo
+
+aSx3 := FWSX3Util():GetAllFields( "SA6" , .F. /*lVirtual */)
+For nI := 1 To Len(aSx3)
+	cCpo := AllTrim(aSx3[nI])
+	If cCpo $ "A6_COD#A6_AGENCIA#A6_NUMCON#A6_NREDUZ"
+		AADD(aStruct1,{	GetSx3Cache(cCpo,"X3_CAMPO"),;
+						GetSx3Cache(cCpo,"X3_TIPO"),;
+						GetSx3Cache(cCpo,"X3_TAMANHO"),;
+						GetSx3Cache(cCpo,"X3_DECIMAL")})
+		AADD(aCampos1,cAliasTmp1+"->"+cCpo)
+		AADD(aCabs1  ,GetSx3Cache(cCpo,"X3_TITULO"))
+	EndIf
+Next
+
 
 AADD(aStruct1,{"A6_XXTIPBK","C",20,0})
 AADD(aCampos1,cAliasTmp1+"->A6_XXTIPBK")

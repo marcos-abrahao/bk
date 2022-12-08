@@ -2916,18 +2916,13 @@ Return()
 */
 Static Function AjustaSX1()
 
-Local aArea := GetArea()
+Local aArea 	:= GetArea()
 Local aRegs		:= {}  
 Local nTamTitSX3:= 0       
 Local cGrupoSX3	:= ""
-
-
-dbSelectArea("SX3")
-dbSetOrder(2)
-dbSeek("E1_NUM")     
-nTamTitSX3	:= SX3->X3_TAMANHO
-cGrupoSX3	:= SX3->X3_GRPSXG  
-dbSetOrder(1)
+    
+nTamTitSX3	:= TamSX3("E1_NUM")[1]
+cGrupoSX3	:= GetSx3Cache("E1_NUM","X3_GRPSXG")
 
 //            cPerg	Ordem	PergPort         cPerSpa        cPerEng           cVar  Tipo     nTam	 1 2 3    4   cVar01  cDef01  cDefSpa1    cDefEng1    cCont01	        cVar02	   cDef02           cDefSpa2         cDefEng2   cCnt02 cVar03 cDef03   cDefSpa3  cDefEng3  	cCnt03	cVar04	cDef04  cDefSpa4  cDefEng4  cCnt04 	cVar05 	 cDef05	 cDefSpa5  cDefEng5	 cCnt05	 cF3	cGrpSxg  cPyme	 aHelpPor aHelpEng	aHelpSpa  cHelp
 AAdd(aRegs,{"FIN150", "01","Do Numero  ?","¿De Numero  ?","From Number  ?",  "mv_ch1","C",nTamTitSX3,0,0,"G","","mv_numde","",      "",         "",         "",               "",        "",              "",              "",       "",    "",   "",        "",      "",       "",     "",    "",      "",        "",      "",     "",      "",     "",       "",      "",   "",   cGrupoSX3, "S",     "",      "",        "",     ""})
