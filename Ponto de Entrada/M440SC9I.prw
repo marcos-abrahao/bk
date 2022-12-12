@@ -19,5 +19,4 @@ SC9->C9_XXRM := SC5->C5_XXRM
 
 SC9->(MsUnlock())
 
-
 Return Nil

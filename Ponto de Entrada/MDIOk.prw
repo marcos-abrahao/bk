@@ -14,8 +14,8 @@ Local cToken
 //Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
 
 If nModulo = 5 .OR. nModulo = 69
-	//              Admin /Teste /Xavier/Fabia/Vanderle/Bruno/Nelson/João Cordeiro/
-	If __cUserId $ "000000/000038/000012/000023/000056/000153/000165/000170"
+	//              Admin /Teste /Xavier/Diego.o/Fabia/Vanderle/Bruno/Nelson/João Cordeiro/
+	If __cUserId $ "000000/000038/000012/000016/000023/000056/000153/000165/000170" 
     	If u_MsgLog(,"Deseja abrir a liberação de pedidos web?","Y")
 			cToken  := u_BKEnCode()
 			If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())

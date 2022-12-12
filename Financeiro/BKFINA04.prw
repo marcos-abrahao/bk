@@ -328,8 +328,7 @@ Local cAssunto := "Pagamentos nao Efetuados "+DTOC(DATE())+"-"+TIME()
 Local aCabs    := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw)
 
-//U_SendMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,cAnexo,_lJob)
-  U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg)
+U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg)
 
 Return Nil
 

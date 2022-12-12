@@ -1,7 +1,7 @@
 #Include "Protheus.ch"
  
-/*/{Protheus.doc} MDIOk
-MDIOk - P.E. ao abrir rotina do Menu
+/*/{Protheus.doc} CHKEXEC
+CHKEXEC - P.E. ao abrir rotina do Menu
 @Return
 @author Marcos Bispo Abrahão
 @since 24/11/22

@@ -186,6 +186,12 @@ Local aUsers := {"000138","000116","000093"} // Michele,Luis,Fabio
 Return u_aUsrEmail(aUsers,cxEmail)
 
 
+// Emails faturamento
+User Function EmailFat(cxEmail)
+Local aUsers := {"000170","000242","000239","000016"} // João C/Elaine/Juliana V/Diego O/
+Return u_aUsrEmail(aUsers,cxEmail)
+
+
 // Gerente Gestão
 User Function GerGestao
 // Vanderleia

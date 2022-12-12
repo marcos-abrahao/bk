@@ -215,12 +215,51 @@ Local cRevisa 	as Character
 
 			//xRet := MsgYesNo(cMsg)
 			
-		ElseIf (cIdPonto =="BUTTONBAR")
+		ElseIf (cIdPonto == "BUTTONBAR")
 			//MsgInfo("Chamada para inclusão de botão.")
-			//xRet := {{"Botão", "BOTÃO", {|| MsgInfo("Buttonbar","BUTTONBAR")}}}
+			xRet := {{"Anexos Medição", "Anexos da Medição", {|| u_DocSZE()}}}
+
 		EndIf
 	EndIf
 Return (xRet)
+
+
+
+// Anexar Documentos para a Medição (Contrato + Competência)
+User Function DocSZE()
+Local aArea	 := GetArea()
+Local nRecZE := 0
+Local oModel
+Local oModelCND
+Local cContra
+Local cCompet
+Local cCompAM
+
+oModel		:= FwModelActivate()
+oModelCND	:= oModel:GetModel('CNDMASTER')
+
+cContra		:= oModelCND:GetValue("CND_CONTRA")
+cCompet		:= oModelCND:GetValue("CND_COMPET")
+
+If !Empty(cContra) .AND. !EMPTY(cCompet)
+	cCompAM := SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)
+	dbSelectArea("SZE")
+	dbSetOrder(1)
+	If !dbSeek(xFilial("SZE")+cContra+cCompet,.F.)
+		RecLock("SZE", .T.)
+		SZE->ZE_CONTRAT := cContra
+		SZE->ZE_COMPET  := cCompAM
+		MsUnlock()
+	EndIf
+	nRecZE := RecNo()
+	MsDocument("SZE",nRecZE,6)
+Else
+	u_MsgLog("CNTA121_PE","Informe o contrato e a competência","W")
+EndIf
+
+RestArea( aArea )
+
+Return NIL
 
 
 // Carrega o nome do municipio na grid do CXN
