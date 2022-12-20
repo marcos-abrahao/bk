@@ -570,7 +570,7 @@ If !lEsc
 	EndIf
 
 	If !lRet
-		MsgStop("Não é permitido incluir pré-nota ou doc de entrada sem anexar arquivos!","SF1140I - Validação de Anexos")
+		u_MsgLog("SF1140I","Não é permitido incluir pré-nota ou doc de entrada sem anexar arquivos!","E")
 	EndIf
 
 	AC9->(RestArea(aAreaAC9))

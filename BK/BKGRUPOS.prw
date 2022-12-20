@@ -130,13 +130,13 @@ Return lRet
 
 
 // Retorna se o usuário pertence ao grupo informado
-User Function IsGrupo(cId,cIdGrupo)
+User Function InGrupo(cId,cIdGrupo)
 Local nx
 Local aGrp := FWSFUsrGrps(cId)
 Local lRet := .F.
 
 For nx := 1 To Len(aGrp)
-	If cIdGrupo == aGrp[nx]
+	If cIdGrupo $ aGrp[nx]
 		lRet := .T.
 		Exit
 	EndIf
@@ -147,7 +147,7 @@ Return lRet
 
 // É do grupo Fiscal
 User Function IsFiscal(cId)
-Return u_IsGrupo(cId,"000031")
+Return u_InGrupo(cId,"000031")
 
 
 // Retorna se o usuário pertence ao STAF 
@@ -351,3 +351,20 @@ Return lRet
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()
 Return "000011/000012/000000/000016"  // Diego 16 incluido nas ferias do Lau
+
+
+// Retorna IP e Porta do server REST
+User Function BkIpPort()
+Local cIpPort := "10.139.0.30:8080"
+If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
+	cIpPort := "10.139.0.30:8081"
+EndIf
+Return cIpPort
+
+
+// Retorna endereço do REST BK
+User Function BKRest()
+Local cRest := "http://"+u_BkIpPort()+"/rest"
+Return cRest
+
+

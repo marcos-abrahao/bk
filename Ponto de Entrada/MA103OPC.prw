@@ -15,7 +15,7 @@ User Function MA103OPC
 Local aRot := {} 
 Local aGrp := UsrRetGrp()
 
-If LEN(aGrp) > 0
+If LEN(aGrp) > 0 
 	If aGrp[1] $ "000000/000029/000031" 
 		AADD( aRot, {OemToAnsi("Informar Chave NFE"), "U_BKCOMA08", 0, 1 } )
 	EndIf
@@ -48,7 +48,7 @@ Local nRadio4 := 0
 Local nRadio5 := 0
 
 IF EMPTY(SF1->F1_XXAVALI)
-	MsgStop("Fornecedor não possui Avaliação para esta NF!!","MA103OPC - Atenção")
+	u_MsgLog("MA103OPC","Fornecedor não possui Avaliação para esta NF!!","W")
  	Return
 ENDIF
 
@@ -129,5 +129,4 @@ oRadio5:bWhen := {||.F.}
 ACTIVATE MSDIALOG oDlg CENTERED 
 
 Return
-
 

@@ -741,7 +741,7 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 EndIf
 
 
-cQuery += "ORDER BY D1_COD,D1_DTDIGIT,D1_DOC "+CRLF
+cQuery += "ORDER BY D1_DTDIGIT,D1_COD,D1_DOC "+CRLF
 
 u_LogMemo("BKFINR07.SQL",cQuery)
 

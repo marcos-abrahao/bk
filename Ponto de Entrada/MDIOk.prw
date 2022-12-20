@@ -18,22 +18,14 @@ If nModulo = 5 .OR. nModulo = 69
 	If __cUserId $ "000000/000038/000012/000016/000023/000056/000153/000165/000170" 
     	If u_MsgLog(,"Deseja abrir a liberação de pedidos web?","Y")
 			cToken  := u_BKEnCode()
-			If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-				ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPV/v2?userlib="+cToken, "", "", 1)
-			Else
-				ShellExecute("open", "http://10.139.0.30:8080/rest/RestLibPV/v2?userlib="+cToken, "", "", 1)
-			EndIf
+			ShellExecute("open", u_BkRest()+"/RestLibPV/v2?userlib="+cToken, "", "", 1)
 		EndIf
 	EndIf
 ElseIf nModulo = 6 .OR. nModulo = 2  .OR. nModulo = 9
-	If u_IsSuperior(__cUserId) .OR. u_IsGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000")
+	If u_IsSuperior(__cUserId) .OR. u_InGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000")
 		If u_MsgLog(,"Deseja abrir a liberação de Docs de Entrada web?","Y")
 			cToken  := u_BKEnCode()
-			If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-				ShellExecute("open", "http://10.139.0.30:8081/rest/RestLibPN/v2?userlib="+cToken, "", "", 1)
-			Else
-				ShellExecute("open", "http://10.139.0.30:8080/rest/RestLibPN/v2?userlib="+cToken, "", "", 1)
-			EndIf
+			ShellExecute("open", u_BkRest()+"/RestLibPN/v2?userlib="+cToken, "", "", 1)
 		EndIf
 	EndIf
 EndIf

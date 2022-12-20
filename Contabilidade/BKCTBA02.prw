@@ -29,6 +29,7 @@ Return
 User Function BKCTBAP02()
 Local cMesBase := SUBSTR(DTOS(dDataBase),1,6)
 Local aArea1   := GetArea()
+Local nStatus  := 0
 
 Private cPerg     := "BKCTBA02"
 Private cString   := "SZ2"
@@ -94,7 +95,7 @@ QSZ2->(DbCloseArea())
 	
 IF nStatus > 0
    IF u_MsgLog(cPerg,"Confirma a geração de "+STRZERO(nStatus,6)+" lançamentos ?","Y")
-      Processa( {|| RunCtb02() } )
+      u_WaitLog(cPerg, {|| RunCtb02() },"Gerando lançamentos..." )
       Return
    ENDIF
 ELSE
@@ -114,10 +115,8 @@ Local _lLP := .T.
 Local aCab := {},aItens := {},aRecno:={},	aCHAVEZ2:= {}
 //Local aAreaIni := GetArea()
 Local cQuery
-Local nStatus := 0
 Local nI := 0,dUDia
 Local cCHAVEZ2 := ""
-Local cErrLog  := ""
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -146,8 +145,6 @@ TCSETFIELD("QSZ2","Z2_DATAPGT","D",8,0)
 //TcSqlExec(cQuery)
 
 lMsErroAuto := .F.
-
-ProcRegua(nStatus)                                                                                                                    
 
 DbSelectArea("QSZ2")
 DbGoTop()
@@ -202,7 +199,7 @@ Do While !eof()
 	    //ENDIF
 
 		IF _lLP
-			IncProc("Importando lançamentos..."+STR(nLinha))
+			//IncProc("Importando lançamentos..."+STR(nLinha))
 			//aAdd(aItens,{  {'CT2_FILIAL'  ,QSZ2->Z5_FILIAL,     NIL},;
 			cCCD := ""
 			cCCC := ""
@@ -236,23 +233,19 @@ Do While !eof()
 		QSZ2->(DbSkip())
 	Enddo
 		
-	IncProc("Incluindo lançamentos contábeis...")
-	cErrLog := ""
+	//IncProc("Incluindo lançamentos contábeis...")
 
 	Begin Transaction
 		lMsErroAuto := .F.
 	    MSExecAuto( {|X,Y,Z| CTBA102(X,Y,Z)} ,aCab ,aItens, 3)
 		
 		IF lMsErroAuto
- 			cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA02.ERR")
-			u_xxLog("\LOG\BKCTBA02.LOG",cErrLog)
+
+			u_LogMsExec(,IIF(LEN(aCHAVEZ2)>1,"LIQ. FOLHA "+TRIM(aCHAVEZ2[1])+" - LIQ. FOLHA "+TRIM(aCHAVEZ2[LEN(aCHAVEZ2)]),''))
 			DisarmTransaction()
 		ENDIF
 	End Transaction
-	IF !EMPTY(cErrLog)
-	   MsgStop(cErrLog+CRLF+IIF(LEN(aCHAVEZ2)>1,"      LIQ. FOLHA "+TRIM(aCHAVEZ2[1])+CHR(13)+CHR(10)+"      LIQ. FOLHA "+TRIM(aCHAVEZ2[LEN(aCHAVEZ2)]),''))
-	   Exit
-	ENDIF   
+
     IF !lMsErroAuto
 //    	FOR nI := 1 TO LEN(aRecno)
 //       		dbSelectArea("SZ2")
@@ -274,7 +267,7 @@ Do While !eof()
 		Next
 
     ELSE
-	   MsgStop("Não foi possivel gerar todos os lançamentos, contate o setor de T.I.")
+	   u_MsgLog(,"Não foi possivel gerar todos os lançamentos, contate o setor de T.I.","E")
 	   EXIT
 	ENDIF
 	DbSelectArea("QSZ2")

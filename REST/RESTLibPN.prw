@@ -69,7 +69,7 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 END WSRESTFUL
 
 
-
+// v4
 WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento WSREST RestLibPN
     Local cFile  := ""// VALORES RETORNADOS NA LEITURA
 	Local cName  := Decode64(self:documento)
@@ -87,7 +87,7 @@ WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento WSREST RestLibPN
 
         lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
     Else
-        SetRestFault(002, "can't load file") // GERA MENSAGEM DE ERRO CUSTOMIZADA
+        SetRestFault(002, "Nao foi mpossivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
 
         lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
     EndIf
@@ -680,12 +680,22 @@ If !Empty((cQrySF1)->D1_PEDIDO) //.AND. u_IsAvalia(__cUserId)
 EndIf
 
 // Documentos anexos
+aFiles := u_BKDocs(self:empresa,"SF1",(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA),1)
+For nI := 1 To Len(aFiles)
+	aAdd(aAnexos,JsonObject():New())
+	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+Next
+/*
 aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,1]
 	aAnexos[nI]["F1_ENCODE"]	:= aFiles[nI,2]
 Next
+*/
+
+
 oJsonPN['F1_ANEXOS']	:= aAnexos
 
 If !Empty((cQrySF1)->F1_HISTRET)
@@ -1039,7 +1049,7 @@ line-height: 1rem;
 <script>
 
 async function getPNs() {
-	let url = 'http://10.139.0.30:8080/rest/RestLibPN/v0?userlib='+'#userlib#';
+	let url = '#iprest#/RestLibPN/v0?userlib='+'#userlib#';
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -1133,7 +1143,7 @@ loadTable();
 
 
 async function getPN(f1empresa,f1recno,userlib) {
-let url = 'http://10.139.0.30:8080/rest/RestLibPN/v1?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib;
+let url = '#iprest#/RestLibPN/v1?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib;
 	try {
 	let res = await fetch(url);
 		return await res.json();
@@ -1253,7 +1263,7 @@ if (Array.isArray(prenota.D1_ITENS)) {
 
 if (Array.isArray(prenota.F1_ANEXOS)) {
 	prenota.F1_ANEXOS.forEach(object => {
-	anexos += '<a href="http://10.139.0.30:8080/rest/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
   })
 }
 document.getElementById("anexos").innerHTML = anexos;
@@ -1311,7 +1321,7 @@ let dataObject = {	liberacao:'ok',
 					avaliar:avaliar, 
 				 };
 
-fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
+fetch('#iprest#/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -1337,7 +1347,7 @@ fetch('http://10.139.0.30:8080/rest/RestLibPN/v3?empresa='+f1empresa+'&prenota='
 
 
 async function getToken(cDoc) {
-let url = 'http://10.139.0.30:8080/rest/RestLibPN/v5?userlib='+'#userlib#'+'&documento='+cDoc;
+let url = '#iprest#/RestLibPN/v5?userlib='+'#userlib#'+'&documento='+cDoc;
 	try {
 	let res = await fetch(url);
 		return await res.json();
@@ -1375,9 +1385,7 @@ $('#confToken').modal('show');
 
 endcontent
 
-If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-	cHtml := STRTRAN(cHtml,"10.139.0.30:8080","10.139.0.30:8081")
-EndIf
+cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
@@ -1449,7 +1457,8 @@ Next
 
 Return aDados
 
-
+//Substituida por BKDocs
+/*
 Static Function DocsPN(empresa,cChave)
 Local oStatement := nil
 Local cQuery     := ""
@@ -1497,4 +1506,4 @@ EndDo
 (cAliasSQL)->(dbCloseArea())
 
 Return (aFiles)
-
+*/

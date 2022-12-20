@@ -160,10 +160,14 @@ Local cRevisa 	as Character
 			Else
 				cMsg += "É um FORMFIELD" + CRLF
 			EndIf
+
 			xRet := MsgYesNo(cMsg + "Continua?")
 			*/
 			//MsgInfo(cMsg,cIdPonto)			
-			
+
+			xRet := MFormPos()
+
+
 		ElseIf (cIdPonto =="FORMLINEPRE")
 
 			///
@@ -225,6 +229,33 @@ Return (xRet)
 
 
 
+Static Function MFormPos
+Local lRet    := .T.
+Local aAnexos := {}
+Local oModel
+Local oModelCND
+Local cContra
+Local cCompet
+Local cCompAM
+
+oModel		:= FwModelActivate()
+oModelCND	:= oModel:GetModel('CNDMASTER')
+
+cContra		:= oModelCND:GetValue("CND_CONTRA")
+cCompet		:= oModelCND:GetValue("CND_COMPET")
+cCompAM 	:= SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)
+
+aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,2)
+
+If Len(aAnexos) == 0
+	lRet := u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competencia, confirma assim mesmo?","N")
+EndIf
+
+Return lRet
+
+
+
+
 // Anexar Documentos para a Medição (Contrato + Competência)
 User Function DocSZE()
 Local aArea	 := GetArea()
@@ -245,10 +276,11 @@ If !Empty(cContra) .AND. !EMPTY(cCompet)
 	cCompAM := SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)
 	dbSelectArea("SZE")
 	dbSetOrder(1)
-	If !dbSeek(xFilial("SZE")+cContra+cCompet,.F.)
+	If !dbSeek(xFilial("SZE")+cContra+cCompAM,.F.)
 		RecLock("SZE", .T.)
 		SZE->ZE_CONTRAT := cContra
 		SZE->ZE_COMPET  := cCompAM
+		SZE->ZE_ENVEM   := "N" 
 		MsUnlock()
 	EndIf
 	nRecZE := RecNo()
@@ -511,3 +543,4 @@ u_xxLog("\log\cnta121_pe.log","CNTA121_PE" + ": " + cMsg)
 
 Return NIL
  
+

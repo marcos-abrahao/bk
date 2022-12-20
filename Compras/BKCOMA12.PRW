@@ -78,12 +78,12 @@ While !FT_FEOF()
             CTA CONTABIL
             */
             IF !U_IBKCOMA12(aProd)
-                MSGSTOP("Erro na linha "+STR(nLin,8))
+                u_MsgLog(,"Erro na linha "+STR(nLin,8),"E")
                 lOk := .F.
                 RETURN lOk         
             ENDIF
         ELSE
-            MSGSTOP("Erro na leitura da linha "+STR(nLin,8))
+            u_MsgLog(,"Erro na leitura da linha "+STR(nLin,8),"E")
             lOk := .F.
             RETURN lOk         
         ENDIF

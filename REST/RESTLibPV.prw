@@ -43,7 +43,6 @@ WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
-
 	WSMETHOD PUT ;
 		DESCRIPTION "Liberação de Pedido de Venda" ;
 		WSSYNTAX "/RestLibPV/v3";
@@ -368,7 +367,7 @@ line-height: 1rem;
 
 <script>
 async function getPeds() {
-	let url = 'http://10.139.0.30:8080/rest/RestLibPV/?userlib='+'#userlib#';
+	let url = '#iprest#/RestLibPV/?userlib='+'#userlib#';
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -436,7 +435,7 @@ loadTable();
 
 
 function showPed(idPed,canLib) {
-let url = 'http://10.139.0.30:8080/rest/RestLibPV/v1?pedido='+idPed;
+let url = '#iprest#/RestLibPV/v1?pedido='+idPed;
 
 $("#titulo").text(url);
 $("#conteudo").load(url);
@@ -457,7 +456,7 @@ async function libPed(id,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8080/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
+fetch('#iprest#/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -491,9 +490,7 @@ fetch('http://10.139.0.30:8080/rest/RestLibPV/v3?pedido='+id+'&userlib='+userlib
 
 endcontent
 
-If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-	cHtml := STRTRAN(cHtml,"10.139.0.30:8080","10.139.0.30:8081")
-EndIf
+cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
@@ -519,6 +516,9 @@ Static Function fLibPed(cNumPed)
 	SC5->(dbSeek(xFilial("SC5")+cNumPed))
 
 	If Empty(SC5->C5_LIBEROK) .And. Empty(SC5->C5_NOTA) .And. Empty(SC5->C5_BLQ)
+		// ponto de entrada - gravação da liberação do pedido de venda 
+		u_BK440GR(1)
+
 		dbSelectArea("SC6")
 		SC6->(dbSetOrder(1))
 		SC6->(dbSeek(xFilial("SC6")+cNumPed))
@@ -534,8 +534,8 @@ Static Function fLibPed(cNumPed)
 			SC6->(dbSkip())
 		EndDo
 
+		// Executar os pontos de entrada
 		u_MTA410T()
-
 		lOk := .T.
 	Else
 		lOk := .F.

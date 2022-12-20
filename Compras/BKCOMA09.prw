@@ -390,7 +390,7 @@ Static Function SZSVDoc()
 
 		A103NFiscal('SF1', SF1->(RecNo()), 2)
 	Else
-		MsgStop("Documento não encontrado!","Atenção")
+		u_MsgLog(,"Documento não encontrado!","E")
 	EndIf
 
 	RestArea(aArea)

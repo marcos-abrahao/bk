@@ -441,7 +441,7 @@ Next
 oJsonPN['F1_XXPARCE']	:= cParcelas
 
 // Documentos anexos
-aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
+aFiles := DocsAn(self:empresa,"SF1",(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,1]
@@ -987,7 +987,7 @@ line-height: 1rem;
 <script>
 
 async function getDcs() {
-	let url = 'http://10.139.0.30:8080/rest/RestLibDc/v0?userlib='+'#userlib#';
+	let url = '#iprest#/RestLibDc/v0?userlib='+'#userlib#';
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -1061,7 +1061,7 @@ loadTable();
 
 
 async function getDC(f1empresa,f1recno,userlib) {
-let url = 'http://10.139.0.30:8080/rest/RestLibDc/v1?empresa='+f1empresa+'&documento='+f1recno+'&userlib='+userlib;
+let url = '#iprest#/RestLibDc/v1?empresa='+f1empresa+'&documento='+f1recno+'&userlib='+userlib;
 	try {
 	let res = await fetch(url);
 		return await res.json();
@@ -1118,7 +1118,7 @@ if (Array.isArray(documento.D1_ITENS)) {
 
 if (Array.isArray(documento.F1_ANEXOS)) {
 	documento.F1_ANEXOS.forEach(object => {
-	anexos += '<a href="http://10.139.0.30:8080/rest/RestLibDc/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+	anexos += '<a href="#iprest#/RestLibDc/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
   })
 }
 document.getElementById("anexos").innerHTML = anexos;
@@ -1141,7 +1141,7 @@ async function libdoc(f1empresa,f1recno,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8080/rest/RestLibDc/v3?empresa='+f1empresa+'&documento='+f1recno+'&userlib='+userlib, {
+fetch('#iprest#/RestLibDc/v3?empresa='+f1empresa+'&documento='+f1recno+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -1166,7 +1166,7 @@ fetch('http://10.139.0.30:8080/rest/RestLibDc/v3?empresa='+f1empresa+'&documento
 
 
 async function getPC(c7empresa,c7num,userlib) {
-let url = 'http://10.139.0.30:8081/rest/RestLibDc/v5?empresa='+c7empresa+'&documento='+c7num+'&userlib='+userlib;
+let url = '#iprest#/RestLibDc/v5?empresa='+c7empresa+'&documento='+c7num+'&userlib='+userlib;
 try {
 let res = await fetch(url);
   return await res.json();
@@ -1339,7 +1339,7 @@ async function libpc(c7empresa,c7num,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
 
-fetch('http://10.139.0.30:8080/rest/RestLibDc/v6?empresa='+c7empresa+'&documento='+c7num+'&userlib='+userlib, {
+fetch('#iprest#/RestLibDc/v6?empresa='+c7empresa+'&documento='+c7num+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -1372,9 +1372,7 @@ fetch('http://10.139.0.30:8080/rest/RestLibDc/v6?empresa='+c7empresa+'&documento
 
 endcontent
 
-If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-	cHtml := STRTRAN(cHtml,"10.139.0.30:8080","10.139.0.30:8081")
-EndIf
+cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
@@ -1412,15 +1410,14 @@ Next
 Return aDados
 
 
-
-
-Static Function DocsPN(empresa,cChave)
+// Retorna arquivos anexados
+Static Function DocsAn(cEmp,cEntidade,cChave)
 Local oStatement := nil
 Local cQuery     := ""
 Local cAliasSQL  := ""
 Local nSQLParam  := 0
-Local cTabAC9	 := "AC9"+empresa+"0" 
-Local cTabACB	 := "ACB"+empresa+"0"
+Local cTabAC9	 := "AC9"+cEmp+"0" 
+Local cTabACB	 := "ACB"+cEmp+"0"
 Local aFiles	 := {}
 
 cQuery := "SELECT ACB.ACB_OBJETO " + CRLF
@@ -1443,7 +1440,7 @@ nSQLParam++
 oStatement:SetString(nSQLParam, xFilial("AC9"))  // Filial
 
 nSQLParam++
-oStatement:SetString(nSQLParam, "SF1")  // Entidade.
+oStatement:SetString(nSQLParam, cEntidade)  // Entidade.
 
 nSQLParam++
 oStatement:SetString(nSQLParam, cChave) // Chave.

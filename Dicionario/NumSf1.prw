@@ -71,7 +71,6 @@ cQuery1 += " FROM "+RETSQLNAME("SF1")+" SF1"
 cQuery1 += " WHERE SF1.D_E_L_E_T_='' AND SF1.F1_FILIAL='"+xFilial('SF1')+"'  AND SF1.F1_DOC='"+cXDOC+"' "
 cQuery1 += " AND SF1.F1_FORNECE='"+cXFORNECE+"' AND SF1.F1_LOJA='"+cXLoja+"' AND SF1.F1_SERIE<>'"+cXSerie+"'"
         
-        
 TCQUERY cQuery1 NEW ALIAS "TMPSF1"
 
 dbSelectArea("TMPSF1")
@@ -84,11 +83,9 @@ Enddo
 TMPSF1->(DbCloseArea())
 
 IF !lOk
-	IF MSGNOYES("Já existe a NF "+cXDoc+" lançada para o Fornecedor "+cXFORNECE+" com a série: "+cXSerie+"! Incluir assim mesmo?")
+	IF u_MsgLog(,"Já existe a NF "+cXDoc+" lançada para o Fornecedor "+cXFORNECE+" com a série: "+cXSerie+"! Incluir assim mesmo?","Y")
 		lOk := .T.
 	ENDIF
 ENDIF
 
 Return lOk
-
-

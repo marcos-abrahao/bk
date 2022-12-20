@@ -203,6 +203,7 @@ Local nPag      := 1
 Local cLogo     := ""
 Local nI        := 0
 Local cPict     := "@E 99,999,999,999.99"
+Local aFiles    := {}
 
 // Dados da Empresa/Filial
 Local cNomeCom  := ALLTRIM(SM0->M0_NOMECOM)
@@ -228,6 +229,7 @@ Local cVencto   := "" //DTOC(SE1->E1_VENCTO)
 Local cRM       := ALLTRIM(SC5->C5_XXRM)                
                     
 Local cContra   := IIF(!EMPTY(SC5->C5_MDCONTR),SC5->C5_MDCONTR,SC5->C5_ESPECI1)
+Local cCompAM   := SUBSTR(SC5->C5_XXCOMPM,4,4)+SUBSTR(SC5->C5_XXCOMPM,1,2)
 Local cRev      := ""
 Local cPedido	:= SC5->C5_NUM
 Local cMedicao  := SC5->C5_MDNUMED
@@ -931,20 +933,19 @@ AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nTotLiq,cPict))+'</
 AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nRetCtr,cPict))+'</td>')
 AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValFat,cPict))+'</td>')
 AADD(aHtml,'      </tr>')
-
-
-
-/*
-Local nValCpm   := 0    // Valor do ISS CEPOM
-Local cRecIss   := ""   // Recolhe ISS
-Local nValIss   := 0    // Valor do ISS
-*/
-
 AADD(aHtml,'    </table>')
 AADD(aHtml,'   </td>')
 AADD(aHtml,'  </tr>')
 AADD(aHtml,'</table>')
 AADD(aHtml,'<br>')
+
+// Documentos anexos
+
+aFiles := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,1)
+For nI := 1 To Len(aFiles)
+	AADD(aHtml,'<a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a></br>')
+Next
+
 AADD(aHtml,'<br>')
 AADD(aHtml,'</div>')
 
