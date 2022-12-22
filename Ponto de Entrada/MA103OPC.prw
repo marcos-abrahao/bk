@@ -47,8 +47,8 @@ Local nRadio3 := 0
 Local nRadio4 := 0
 Local nRadio5 := 0
 
-IF EMPTY(SF1->F1_XXAVALI)
-	u_MsgLog("MA103OPC","Fornecedor não possui Avaliação para esta NF!!","W")
+IF EMPTY(SF1->F1_XXAVALI) .AND. SF1->F1_XXAVAL <> "S" .AND. !u_IsAvalPN(__cUserId)
+	u_MsgLog("VEWAVALFOR","Fornecedor não possui Avaliação para esta NF!!","W")
  	Return
 ENDIF
 

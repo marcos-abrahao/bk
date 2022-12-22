@@ -33,8 +33,6 @@ If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
 
-u_MsgLog(cPerg)
- 
 dDataI   := mv_par01
 dDataF   := mv_par02
 nComPed	 := mv_par03
@@ -131,7 +129,7 @@ aAdd(aCabs  ,"Média da Avaliação (IQF)")
 aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
-Processa( {|| ProcBKCOR05() })
+u_WaitLog(cPerg, {|| ProcBKCOR05() },"Processando dados...")
 
 aAdd(aPlans,{"TRB",TRIM(cPerg)    ,"",cTitulo,aCampos,aCabs,aImpr, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
 
@@ -219,6 +217,7 @@ cQuery += "  F1_LOJA,"+CRLF
 cQuery += "  F1_EMISSAO,"+CRLF
 cQuery += "  F1_DTDIGIT,"+CRLF
 cQuery += "  F1_XXAVALI,"+CRLF
+cQuery += "  F1_XXAVAL,"+CRLF
 cQuery += "  D1_PEDIDO,"+CRLF
 cQuery += "  SA2.A2_NREDUZ,"+CRLF
 cQuery += "  SA2.A2_NOME,"+CRLF
@@ -228,13 +227,11 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON  SA2.A2_FILIAL='"+xFilial("SA
 cQuery += " LEFT JOIN "+RETSQLNAME("SD1")+" SD1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " WHERE SF1.D_E_L_E_T_='' AND SF1.F1_DTDIGIT >= '"+DTOS(dDataI)+"' AND SF1.F1_DTDIGIT <= '"+DTOS(dDataF)+"' AND SF1.F1_XXAVALI <> ''"+CRLF
 If nComPed == 1
-	cQuery += " AND SD1.D1_PEDIDO <> ''"+CRLF
+	cQuery += " AND (SD1.D1_PEDIDO <> '' OR SF1.F1_XXAVAL = 'S')"+CRLF
 EndIf
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","F1_DTDIGIT","D",8,0)
-
-ProcRegua(QTMP->(LASTREC()))
 
 nReg := 0
 
@@ -242,7 +239,7 @@ dbSelectArea("QTMP")
 QTMP->(dbGoTop())
 DO WHILE QTMP->(!EOF())
     nReg++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	dbSelectArea("TRB")
 	IF dbSeek(QTMP->F1_FORNECE+QTMP->F1_LOJA,.F.)
 		Reclock("TRB",.F.)
@@ -286,8 +283,6 @@ ELSE
 ENDIF
 
 TRB->(dbGoTop())
-
-
 
 Return
 

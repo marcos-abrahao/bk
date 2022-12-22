@@ -48,6 +48,11 @@ ENDIF
 
 If !l140Auto
 	U_SelFPgto(.T.,.F.,@cLibF1)
+	If u_IsAvalPN(__cUserID)
+		If u_MsgLog("SF1140I","Deseja avaliar este fornecedor?","Y")
+			u_AvalForn(.F.)
+		EndIf
+	EndIf
 EndIf
 
 RecLock("SF1",.F.)
@@ -309,24 +314,24 @@ If nRadio <> 1 .AND. nRadio <> 4
 Else
 	If nRadio == 1
 		If Empty(cxBanco)
-			MsgStop("Informe o banco para depósito","SF1140I - Validação de banco")
+			u_MsgLog("SF1140I","Informe o banco para depósito","E")
 			oGetBco:Enable()
 			oGetBco:Setfocus()
 			lRet := .F.
 		ElseIf Empty(cxAgencia)
-			MsgStop("Informe a agência para depósito","SF1140I - Validação de agencia")
+			u_MsgLog("SF1140I","Informe a agência para depósito","E")
 			oGetAge:Enable()
 			oGetAge:Setfocus()
 			lRet := .F. 
 		ElseIf Empty(cxConta)
-			MsgStop("Informe a conta bancária para depósito","SF1140I - Validação de conta")
+			u_MsgLog("SF1140I","Informe a conta bancária para depósito","E")
 			oGetCon:Enable()
 			oGetCon:Setfocus()
 			lRet := .F. 
 		EndIf
 	ElseIf nRadio == 4
 		If Empty(cxNumPa)
-			MsgStop("Informe o número do Pagamento Antecipado (P.A.)","SF1140I - Validação de numero da PA")
+			u_MsgLog("SF1140I","Informe o número do Pagamento Antecipado (P.A.)","E")
 			oGetPA:Enable()
 			oGetPA:Setfocus()
 			lRet := .F.
@@ -387,16 +392,16 @@ Local cCNPJ := ""
 If !Empty(cEspecie)
 	If ("|"+(ALLTRIM(UPPER(cEspecie))+"|")) $ "|SPED|BPE|CTE|CTEOS|NF3E|NFA|"   // MV_CHVESPE
 		If Empty(cChvNfe)
-			MsgStop("Chave da NFe deve ser obrigatoriamente digitada","SF1140I - Validação da Chave NFE")
+			u_MsgLog("SF1140I","Chave da NFe deve ser obrigatoriamente digitada","E")
 			lRet := .F.
 		Else
 			cCNPJ := Posicione("SA2",1,xFilial("SA2") + SF1->F1_FORNECE + SF1->F1_LOJA,"A2_CGC")
 			If !Empty(cCNPJ)
 				If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14))
-					MsgStop("CNPJ da Chave da NFe diferente do CNPJ do fornecedor","SF1140I - Validação da Chave NFE - CNPJ")
+					u_MsgLog("SF1140I","CNPJ da Chave da NFe diferente do CNPJ do fornecedor","E")
 					lRet := .F.
 				ElseIf SUBSTR(STR(YEAR(SF1->F1_EMISSAO),4),3,2)+STRZERO(MONTH(SF1->F1_EMISSAO),2) <> SUBSTR(cChvnfe,3,4)
-					MsgStop("Mês da Chave da NFe diferente do mês de emissão informado","SF1140I - Validação da Chave NFE - Emissão")
+					u_MsgLog("SF1140I","Mês da Chave da NFe diferente do mês de emissão informado","E")
 					lRet := .F.
 				EndIf
 			EndIf

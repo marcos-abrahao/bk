@@ -173,6 +173,14 @@ If cId $ "000000/000138/000153/"
 EndIf
 Return lRet
 
+User Function IsAvalPN(cId)
+Local lRet := .F.
+// Yasmin/Noé
+If cId $ "000000/000246/000247/"
+    lRet := .T.
+EndIf
+Return lRet
+
 
 // Gerente Compras
 User Function GerCompras

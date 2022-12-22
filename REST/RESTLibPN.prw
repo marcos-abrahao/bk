@@ -200,7 +200,7 @@ Else
 					cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
 				EndIf
 			Else
-				cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"',"
+				cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"', "
 				cMsg := "liberada"
 				If !Empty(cMotivo)
 					cMotivo := "Obs liberação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
@@ -208,6 +208,9 @@ Else
 			EndIf
 			If !Empty(cMotivo)
 				cQuery += "      F1_HISTRET = CONVERT(VARBINARY(800),'"+cMotivo+"' + ISNULL(CONVERT(varchar(800),F1_HISTRET),'')),"
+			EndIf
+			If cAvaliar == 'S'
+				cQuery += "      F1_XXAVAL = 'S',"
 			EndIf
 			cQuery += "      F1_XXULIB = '"+__cUserId+"',"
 			cQuery += "      F1_XXDLIB = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
@@ -590,6 +593,7 @@ cQuery += "		SA2.A2_CGC,"+CRLF
 cQuery += "		SA2.A2_EST,"+CRLF
 cQuery += "		SA2.A2_MUN,"+CRLF
 cQuery += "		SF1.F1_XXLIB,"+CRLF
+cQuery += "		SF1.F1_XXAVAL,"+CRLF
 cQuery += "		SF1.F1_XXAVALI,"+CRLF
 cQuery += "		SF1.F1_XXJSPGT,"+CRLF
 cQuery += "		SD1.D1_ITEM,"+CRLF
@@ -670,7 +674,7 @@ oJsonPN['F1AVAL4']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S','S','N')
 
 //If u_IsAvalia(__cUserId) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSER)) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSERS))
 //u_MsgLog("RESTLIBPN",(cQrySF1)->F1_DOC+"-"+(cQrySF1)->D1_PEDIDO)
-If !Empty((cQrySF1)->D1_PEDIDO) //.AND. u_IsAvalia(__cUserId)
+If !Empty((cQrySF1)->D1_PEDIDO) .OR. (cQrySF1)->F1_XXAVAL == 'S' //u_IsAvalPN((cQrySF1)->F1_XXUSER)
 	nAvalIQF :=	IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)=='S',25,0)+;
 				IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)=='S',25,0)+;
 				IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)=='S',25,0)+;

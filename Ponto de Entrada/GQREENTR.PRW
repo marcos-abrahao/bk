@@ -197,8 +197,8 @@ Return( NIL )
 
 // Reavaliação da NF
 User Function RAvalForn()
-If u_IsAvalia(__cUserId)
-	U_AvalForn(.T.)
+If u_IsAvalia(__cUserId) .OR. u_IsAvalPN(__cUserId)
+	u_AvalForn(.T.)
 Else
 	u_MsgLog("GQREENTR","Avaliação de fornecedor não disponível para o seu perfil!!","E")
 EndIf
@@ -307,7 +307,7 @@ Static Function validaSF1(nRadio1,nRadio2,nRadio3,nRadio4,nRadio5)
 LOCAL lOK := .T.
 
 IF nRadio1 == 0 .OR. nRadio2 == 0 .OR. nRadio3 == 0 .OR. nRadio4 == 0
-	MSGSTOP("Avaliação de Fornecedores - preenchimento obrigatório. Favor rever os itens!!")
+	u_MsgLog("VALIDASF1","Avaliação de Fornecedores - preenchimento obrigatório. Favor rever os itens!!","E")
 	lOK := .F.
 ELSE
 	GrvSF1(nRadio1,nRadio2,nRadio3,nRadio4,nRadio5)
@@ -371,7 +371,7 @@ EndIf
 //	UpdSa2(@CA100FOR,@CLOJA,cAvalC)
 //EndIf
 
-cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXAVALI = '"+cAvali+"'"
+cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXAVALI = '"+cAvali+"', F1_XXAVAL = 'S' "
 cQuery  += " WHERE F1_FILIAL='"+xFilial('SF1')+"' AND D_E_L_E_T_='' AND F1_DOC='"+@CNFISCAL +"' AND F1_SERIE='"+ @CSERIE +"'"
 cQuery  += " AND F1_FORNECE='"+ @CA100FOR +"' AND F1_LOJA='"+ @CLOJA +"' AND F1_TIPO='"+ @cTipo +"'"
 

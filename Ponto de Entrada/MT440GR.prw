@@ -59,16 +59,27 @@ Local aEmail 	:= {}
 Local aAnexos   := {}
 Local cMsg		:= ""
 Local cAssunto  := ""
-Local cContrato := ""
+Local cContra   := ""
+Local cPedido	:= SC5->C5_NUM
+Local cMedicao  := SC5->C5_MDNUMED
+Local cPlan     := SC5->C5_MDPLANI
 Local nTotal    := 0
 Local aAreaSC6  := GetArea("SC6")  
+Local cRev      := ""
+Local cCompM    := ""
+Local cParcel	:= ""
+Local cObsMed   := ""
+Local cEmissor  := ""
 
 aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(SC5->C5_MDCONTR,15)+SUBSTR(SC5->C5_XXCOMPM,4,4)+SUBSTR(SC5->C5_XXCOMPM,1,2),2)
 cEmail    := u_EmailFat(__cUserID)
 cAssunto  := "Pedido de venda nº.:"+SC5->C5_NUM+ " - "+ALLTRIM(SA1->A1_NOME)+" liberado em "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
-cContrato := iIf(Empty(SC5->C5_MDCONTR),SC5->C5_ESPECI1,SC5->C5_MDCONTR)
+cContra   := iIf(Empty(SC5->C5_MDCONTR),SC5->C5_ESPECI1,SC5->C5_MDCONTR)
+cEmailCC  += UsrRetMail(__cUserId)+';'
+cEmailCC  += UsrRetMail(SUBSTR(EMBARALHA(SC5->C5_USERLGI,1),3,6))+';'
 
-cEmailCC += UsrRetMail(__cUserId)+';'
+// Dados do Pedido
+U_PMedPed(cPedido,cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
 
 SC6->(DbSeek(xFilial('SC6') + SC5->C5_NUM))
 While !SC6->(EoF()) .And. SC6->C6_NUM == SC5->C5_NUM
@@ -78,10 +89,14 @@ EndDo
 
 aCabs   := {"Pedido nº.:" + TRIM(SC5->C5_NUM)}
 aEmail 	:= {}
-AADD(aEmail,{"Cliente    :"+SA1->A1_COD+"-"+SA1->A1_LOJA+" - "+SA1->A1_NOME})
-AADD(aEmail,{"Contrato   :"+cContrato})
-AADD(aEmail,{"Competencia:"+SC5->C5_XXCOMPM})
-AADD(aEmail,{"Valor      :"+ALLTRIM(TRANSFORM(nTotal,"@E 99,999,999,999.99"))})
+AADD(aEmail,{"Cliente    : "+SA1->A1_COD+"-"+SA1->A1_LOJA+" - "+SA1->A1_NOME})
+AADD(aEmail,{"Contrato   : "+cContra+" - Rev. "+cRev+" - "+Posicione("CTT",1,xFilial("CTT")+cContra,"CTT_DESC01")})
+AADD(aEmail,{"Competencia: "+SC5->C5_XXCOMPM+" - Parcela "+cParcel})
+AADD(aEmail,{"Valor      : "+ALLTRIM(TRANSFORM(nTotal,"@E 99,999,999,999.99"))})
+AADD(aEmail,{"Observações: "+ALLTRIM(cObsMed)})
+If LEN(aAnexos) == 0
+    AADD(aEmail,{"Atenção    : não foram anexados arquivos para este contrato/competência"})
+EndIf
 
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT440GR")
 U_BkSnMail("MT440GR",cAssunto,cEmail,cEmailCC,cMsg,aAnexos)
