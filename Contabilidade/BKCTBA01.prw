@@ -188,14 +188,6 @@ Do While !eof()
 	    MSExecAuto( {|X,Y,Z| CTBA102(X,Y,Z)} ,aCab ,aItens, 3)
 		
 		IF lMsErroAuto
-			//aErro := GetAutoGRLog() 
-			//cErrLog := ""
-			//FOR nX := 1 to Len(aErro)
-			//	 cErrLog += aErro[nX]+CRLF
-		    //NEXT
-		    //Mostraerro()
-			//cErrLog:= CRLF+MostraErro("\TMP\","BKCTBA01.ERR")
-			//cErrLog:= CRLF+MostraErro()
 
 			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento")
 

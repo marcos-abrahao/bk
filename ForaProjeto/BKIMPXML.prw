@@ -44,6 +44,7 @@ User Function BKIMPXML()
 	Private aPos      := {nTopAux, aTamanho[1]+5, aTamanho[4]-15, aTamanho[3]}
 	//Outras variáveis
 	Private nXML      := 0
+
 	u_MsgLog("BKIMPXML")	
 
 	//Adiciona os parametros para a pergunta
@@ -914,8 +915,7 @@ Static Function fGeraNfe(oProc)
 				
 				//Senão, mostra o erro do execauto
 				Else
-					Aviso("Atenção", "Erro #008:"+ CRLF +"Falha ao incluir Documento / Série ('"+cDoc+"/"+cSerie+"')!", {"Ok"}, 2)
-					MostraErro()
+					u_LogMsExec("BKIMPXML","Falha ao incluir Documento / Série ('"+cDoc+"/"+cSerie+"')!")
 				EndIf
 			EndIf
 		EndIf
@@ -982,7 +982,7 @@ Static Function fMarkAll(cMarca)
 	While ! TMP->(EoF())
 		//Atualiza a marca
 		RecLock("TMP", .F.)
-			OK := Iif(cMarca != TMP->OK, cMarca, Space(Len(cMarca)))
+		OK := Iif(cMarca != TMP->OK, cMarca, Space(Len(cMarca)))
 		TMP->(MsUnlock())
 		
 		TMP->(DbSkip())

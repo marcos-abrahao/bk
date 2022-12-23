@@ -26,7 +26,6 @@ Local cLoja		:= ""
 Local cChaveSE1 := ""
 Local cFILORIG	:= ""
 Local aReceber  := {}
-Local cErrLog   := ""
 Default nOPCAO  := 3
 
 u_MsgLog("BKFATA02",STR(nOPCAO))
@@ -76,16 +75,12 @@ IF SF2->F2_XXVFUMD  > 0
 						{"E1_MOEDA",cMOEDA,Nil},;
 						{"E1_FILORIG",cFILORIG,Nil}}
 
-		cErrLog := ""
-
 		Begin Transaction
 			lMsErroAuto := .F.
 			MSExecAuto({|x,y| Fina040(x,y)},aReceber,3) //Inclusao
 
 			IF lMsErroAuto
-				cErrLog:= CRLF+MostraErro("\TMP\","BKFATA02.ERR")
-				u_xxLog("\LOG\BKFATA02.LOG",cErrLog)
-				MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+				u_LogMsExec("BKFATA02")
 				DisarmTransaction()
 			EndIf
 
@@ -116,16 +111,12 @@ IF SF2->F2_XXVFUMD  > 0
 						{"E1_MOEDA",cMOEDA,Nil},;
 						{"E1_FILORIG",cFILORIG,Nil}}
 		
-		cErrLog := ""
-
 		Begin Transaction
 			lMsErroAuto := .F.
 			MSExecAuto({|x,y| Fina040(x,y)},aReceber,5) //Exclusao
 
 			IF lMsErroAuto
-				cErrLog:= CRLF+MostraErro("\TMP\","BKFATA02.ERR")
-				u_xxLog("\LOG\BKFATA02.LOG",cErrLog)
-				MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+				u_LogMsExec("BKFATA02")
 				DisarmTransaction()
 			EndIf
 

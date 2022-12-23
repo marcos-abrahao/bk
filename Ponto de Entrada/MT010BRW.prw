@@ -105,8 +105,6 @@ Local _cFilial   := _aParametros[2]
 Local _aProd     := _aParametros[3]
 //Local _cUsuario  := _aParametros[4]
 //Local _cSuper 	 := _aParametros[5]
-
-Local cErrLog    := ""
 Local cRetorno   := _aProd[2,2]
 //Local aUser		 := {}
 
@@ -120,21 +118,16 @@ lMsErroAuto := .F.
           
 MSExecAuto({|x,y| Mata010(x,y)},_aProd,3) //Inclusão 
 
-u_xxConOut("INFO","BKMATJ10","Empresa: "+_cEmpresa+" - Produto: "+cRetorno)
+u_MsgLog("BKMATJ10","Empresa: "+_cEmpresa+" - Produto: "+cRetorno)
 
 If lMsErroAuto
-
-	cErrLog:= CRLF+MostraErro("\TMP\","BKMATJ10.ERR")
-	u_xxLog("\LOG\BKMATJ10.LOG",cErrLog)
-
-	cRetorno := cErrLog
+	cRetorno := u_LogMsExec("BKMATJ10")
 	lRet := .F.
 Else
 	cRetorno := "OK"
-	u_xxConOut("INFO","BKMATJ10","Produto "+cRetorno)	
+	u_MsgLog("BKMATJ10","Produto "+cRetorno)	
 EndIf
 
 RpcClearEnv()
   
 Return cRetorno
-

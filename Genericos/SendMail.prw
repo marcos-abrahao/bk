@@ -50,8 +50,6 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     Local nPort        := Iif(':' $ cSrvFull, Val(SubStr(cSrvFull, At(':', cSrvFull)+1, Len(cSrvFull))), 587)
     Local nTimeOut     := GetMV("MV_RELTIME")
     Local cLog         := ""
-	Local lMostraLog   := .F.
-    Local lJob         := IsBlind()
     Local cPath        := "\tmp\"
     Local cArqLog      := "\log\bksendmail.log"
 
@@ -178,18 +176,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
  
     //Se tiver log de avisos/erros
     If !Empty(cLog)
-
-        //u_xxConOut("ERROR","BkSnMail",cLog)
-    	u_xxLog(cArqLog,cPrw+" - ERROR: "+ALLTRIM(cLog))
-
-        //Se for para mostrar o log visualmente e for processo com interface com o usuário, mostra uma mensagem na tela
-        If lMostraLog .and. !lJob
-            cLog := "BkSnMail: "+dToC(Date())+ " " + Time() + CRLF + ;
-                "Funcao - " + FunName() + CRLF + CRLF +;
-                "Existem mensagens de aviso: "+ CRLF +;
-                cLog
-            Aviso("Log", cLog, {"Ok"}, 2)
-        EndIf
+    	u_MsgLog(cPrw,"ERROR: "+ALLTRIM(cLog),"E")
     EndIf
  
     RestArea(aArea)
@@ -226,10 +213,7 @@ CONNECT SMTP SERVER cServer ACCOUNT cEmail PASSWORD cPass RESULT lResulConn
 If !lResulConn
 	GET MAIL ERROR cError
 
-    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
-	If !_lJob
-		MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
-	Endif
+    u_MsgLog(cPrw,"ERRO: Falha na conexao "+TRIM(cAssunto)+": "+cError,"E")
 	
 	Do While nTent < 10 .AND. _lJob
 
@@ -243,10 +227,7 @@ If !lResulConn
 			Exit
 		Else
 			GET MAIL ERROR cError
-            u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
-            If !_lJob
-                MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
-            Endif
+            u_MsgLog(cPrw,"ERRO: Falha na conexao "+TRIM(cAssunto)+": "+cError,"E")
 		EndIf
 		
 	    nTent++
@@ -290,17 +271,11 @@ If lResult
 	
 	If !lResulSend
 		GET MAIL ERROR cError
-        u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
-        If !_lJob
-           MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
-        Endif
+        u_MsgLog(cPrw,"ERRO: Falha na conexao "+TRIM(cAssunto)+": "+cError,"E")
 	Endif
 Else
 	lResultSend := .F.
-    u_xxLog(cArqLog,cPrw+"- ERRO: Falha na conexao: "+cError)
-    If !_lJob
-       MsgAlert(cPrw+": Falha na conexao "+TRIM(cAssunto)+"-"+cError)
-    Endif
+    u_MsgLog(cPrw,"ERRO: Falha na conexao: "+cError,"E")
 Endif
 
 DISCONNECT SMTP SERVER

@@ -198,8 +198,7 @@ IF nValor > 0
 		MsExecAuto( { |x,y| FINA040(x,y)} , aArray, 3)  // 3 - Inclusao, 4 - Alteração, 5 - Exclusão
 	
 		If lMsErroAuto		
-			MsgStop("Erro na gravação da NDC.")	
-			MostraErro()
+			u_LogMsExec("FIN040INC","Erro na gravação da NDC "+cProxNum)
 		Else	
 			If !Empty(nRecCND)
 				RecLock("CND")
@@ -220,7 +219,7 @@ IF nValor > 0
 			    ENDIF
 			Next
 			
-	   		IF MsgYesNo("Nota de Débito: "+cProxNum+" incluida com sucesso, deseja Imprimir?")
+	   		IF u_MsgLog(,"Nota de Débito: "+cProxNum+" incluida com sucesso, deseja Imprimir?","Y")
 	        	U_BKFINR24()
 	     	ENDIF
 		EndIf

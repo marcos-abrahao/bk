@@ -189,7 +189,6 @@ Local nY		:= 0
 Local aCab		:= {}
 Local aItem 	:= {}
 Local lSucess	:= .T.
-Local cErrLog	:= ""
 
 Private lMsErroAuto := .F.
 
@@ -218,9 +217,7 @@ BEGIN TRANSACTION
 
 	If lMsErroAuto
 
-		cErrLog:= CRLF+MostraErro("\TMP\","BKCOMA19.ERR")
-		u_xxLog("\LOG\BKCOMA19.LOG",cErrLog)
-		MsgStop("Problemas na inclusao da SC, informe o setor de T.I.:"+cErrLog, "Atenção")
+		u_LogMsExec("BKCOMA19")
 		DisarmTransaction()
 		lSucess := .F.
 	EndIf
@@ -228,11 +225,10 @@ BEGIN TRANSACTION
 END TRANSACTION
 SC1->(dbGoBottom())
 If lSucess
-	Aviso("Sucesso","Solicitação de Compras "+SC1->C1_NUM+" incluida.",{"OK"})
+	u_MsgLog("BKCOMA19","Solicitação de Compras "+SC1->C1_NUM+" incluida.","S")
 Else
-	Aviso("Erro!","Solicitação de Compras não foi incluida",{"OK"})
+	u_MsgLog("BKCOMA19","Solicitação de Compras não foi incluida","E")
 EndIf
-
 
 Return lSucess
 

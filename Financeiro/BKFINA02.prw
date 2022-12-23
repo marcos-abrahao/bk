@@ -335,7 +335,6 @@ Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
 Local lErroT  := .F.
-Local cErrLog := ""
 
 If cEmpAnt <> "01"
    cFornAC := "000084"
@@ -499,17 +498,13 @@ For nI := 1 TO LEN(aTitGer)
 
 	Begin Transaction
 
-    	cErrLog     := ""
 		lMsErroAuto := .F.   
 		MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
 		
 
 		IF lMsErroAuto
 
-			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA02.ERR")
-			u_xxLog("\LOG\BKFINA02.LOG",cErrLog)
-			MsgStop("Problemas na geração do titulo "+cKey2+", informe o setor de T.I.: "+cKey1+cErrLog, "Atenção")
-
+			u_LogMsExec("BKFINA02")
 			DisarmTransaction()
 			lErroT := .T.
 		ENDIF	
@@ -677,7 +672,6 @@ Local lRet 		:= .T.
 Local aVetor,nAcao,cReg,cNReduz
 Local aArea1 	:= GetArea()
 Local aAutoErro := {}
-Local cErrLog   := ""
 Private lMsErroAuto := .F.	
 
 IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
@@ -709,15 +703,13 @@ IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
    
    IF nAcao > 0
       	lMsErroAuto := .F.
-	  	cErrLog     := ""
 	  	Begin Transaction
 
 			MSExecAuto({|x,y| Mata020(x,y)},aVetor,nAcao) //Inclusao ou Alteração
 			
 			IF lMsErroAuto
 
-				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA02.ERR")
-				u_xxLog("\LOG\BKFINA02.LOG",cErrLog)
+				u_LogMsExec("BKFINA02")
 
 				DisarmTransaction()
 				lRet := .F.

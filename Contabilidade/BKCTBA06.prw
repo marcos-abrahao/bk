@@ -24,7 +24,6 @@ Local cContaDe      := "11102001"
 Local cContaPara    := "11102002"
 
 Local cArqLog		:= "\LOG\BKCTBA06-"+cEmpAnt+".LOG"
-Local cErrLog       := ""
 
 Private lMsErroAuto := .F.
 Private lMsHelpAuto := .T.
@@ -83,16 +82,13 @@ Do While !CT2->(Eof())
                         {'CT2_HIST'      ,CT2->CT2_HIST   ,NIL},;
                         {'LINPOS'        ,'CT2_LINHA'     ,cLinha}})  
 
-        cErrLog := ""
-        
+       
         Begin Transaction
             lMsErroAuto := .F.
             MSExecAuto({|x, y,z| CTBA102(x,y,z)}, aCab ,aItens, 4)
 
             IF lMsErroAuto
-                cErrLog:= CRLF+MostraErro("\LOG\","BKCTBA06.ERR")
-                u_xxLog("\LOG\BKCTBA06.LOG",cErrLog)
-                MsgStop("Problemas na execução do MsExecAuto, informe o setor de T.I.:"+cErrLog,"Atenção")
+                u_LogMsExec("BKCTBA06")
                 DisarmTransaction()
             Else
                 u_xxLog(cArqLog,"Recno: "+STRZERO(nRec,9))            

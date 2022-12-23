@@ -226,7 +226,7 @@ BEGIN TRANSACTION
 	MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
 			
 	If lMsErroAuto
-		MostraErro()
+		u_LogMsExec("XCADSZO","Erro na gravação do SE5")
 		DisarmTransaction()
 		lSucess := .F.
 	EndIf
@@ -241,9 +241,9 @@ SZO->ZO_LBANCO := STR(SE5->(Recno()))
 SZO->(MsUnlock())      
 
 If lSucess
-	Aviso("Sucesso","Movimentos bancários realizadas com sucesso.",{"OK"})
+	u_MsgLog("XCADSZO","Movimentos bancários realizadas com sucesso.","S")
 Else
-	Aviso("Erro","Movimentos bancários não foram realizadas.",{"OK"})
+	u_MsgLog("XCADSZO","Movimentos bancários não foram realizadas.","E")
 EndIf	
 
 Return lSucess
@@ -293,7 +293,7 @@ BEGIN TRANSACTION
 	MSExecAuto({|x,y,z| FinA100(x,y,z)},0,aFINA100,nOpc)
 			
 	If lMsErroAuto
-		MostraErro()
+		u_LogMsExec("XCADSZO","Erro na gravação do SE5")
 		DisarmTransaction()
 		lSucess := .F.
 	EndIf
@@ -301,10 +301,10 @@ BEGIN TRANSACTION
 END TRANSACTION
 
 If lSucess
-	Aviso("Sucesso","Movimentos bancários excluidos com sucesso.",{"OK"})
-else
-	Aviso("Erro","Movimentos bancários não foram excluidos.",{"OK"})	
-EndIf
+	u_MsgLog("XCADSZO","Movimentos bancários realizadas com sucesso.","S")
+Else
+	u_MsgLog("XCADSZO","Movimentos bancários não foram realizadas.","E")
+EndIf	
 
 Return lSucess
 

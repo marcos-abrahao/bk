@@ -139,12 +139,11 @@ FOR IX_:=1 TO LEN(aCtrId)
 			nOpc := 3
  			MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc)   
 			IF lMsErroAuto
-		   		MsgStop("Problemas Inclusão da "+cSerie+"-"+cNFiscal+", informe o setor de T.I. ", "Atenção")
-	    		MostraErro()
+				u_LogMsExec("BKFINA25","Problemas na inclusão da "+cSerie+"-"+cNFiscal)
 				DisarmTransaction()
 				lSucess := .f.
 			Else
-				Msginfo("DNF incluido com sucesso! "+cSerie+"-"+cNFiscal)
+				u_MsgLog("BKFINA25","DNF incluido com sucesso! "+cSerie+"-"+cNFiscal,"S")
 			EndIf
 		End Transaction
     ENDIF
@@ -201,17 +200,12 @@ Private cSerie   := "DNF
 // ATENÇÃO:
 
 // FALTA: F1_XTIPOPG = 'DEPOSITO',F1_XBANCO = '237',F1_XAGENC='5988',F1_XNUMCON = '0004424-5' 
-
-
-
 //AADD(aTITULO,{'000796','10/01/2020',2500})
 
 /*
 AADD(aTITULO,{'000796','10/02/2020',2500})
 AADD(aTITULO,{'000796','10/03/2020',2500})
 AADD(aTITULO,{'000796','10/04/2020',2500})
-
-
 AADD(aTITULO,{'000795','10/05/2020',1500})
 */
 
@@ -246,9 +240,6 @@ AADD(aTITULO,{'000795','10/09/2022',1500})
 AADD(aTITULO,{'000795','10/10/2022',1500})
 AADD(aTITULO,{'000795','10/11/2022',1500})
 AADD(aTITULO,{'000795','10/12/2022',1500})
-
-
-
 
 Procregua(LEN(aTITULO)) 
 FOR IX_:=1 TO LEN(aTITULO)
@@ -311,11 +302,10 @@ FOR IX_:=1 TO LEN(aTITULO)
 		nOpc := 3
 		MSExecAuto({|x, y, z| MATA103(x, y, z)}, aCabec, aItens, nOpc) 
 		IF lMsErroAuto
-		   	MsgStop("Problemas Inclusão da "+cSerie+"-"+cNFiscal+", informe o setor de T.I. ", "Atenção")
-	    	MostraErro()
+			u_LogMsExec("BKFINA25","Problemas na inclusão da "+cSerie+"-"+cNFiscal)
 			DisarmTransaction()
 		Else
-			Msginfo(STR(IX_)+" - DNF incluido com sucesso! "+cSerie+"-"+cNFiscal)
+			u_MsgLog(STR(IX_)+" - DNF incluido com sucesso! "+cSerie+"-"+cNFiscal,"S")
 		EndIf
 	End Transaction
 NEXT

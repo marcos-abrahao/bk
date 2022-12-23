@@ -221,7 +221,6 @@ Local cKey,cCtrId,aTitErr:= {}
 Local nI,lOk := .T.
 Local aEmail1 := {}
 Local aEmail2 := {}
-Local cErrLog := ""
 
 dbSelectArea("SE2")
 dbSetOrder(1)
@@ -249,9 +248,7 @@ For nI := 1 TO LEN(aTitGer)
 			Begin Transaction 
 				MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 				IF lMsErroAuto
-					cErrLog:= CRLF+MostraErro("\TMP\","BKFINA03.ERR")
-					u_xxLog("\LOG\BKFINA03.LOG",cErrLog)
-					MsgStop("Problemas na exclusão do titulo "+cKey+", informe o setor de T.I.:"+cErrLog, "Atenção")
+					u_LogMsExec("BKFINA03","Problemas na exclusão do titulo "+cKey)
 					AADD(aTitErr,cKey)
 					DisarmTransaction()
 				EndIf

@@ -393,7 +393,6 @@ Local nY
 //Local aUsuarios := ALLUSERS()
 Local aBaixa    := {}
 Local lSucess	:= .T.
-Local cErrLog	:= ""
 
 Private lMsErroAuto := .F.
 
@@ -412,32 +411,29 @@ BEGIN TRANSACTION
 		If !oMGet22:aCols[nY][nColDel] 	
 
 	
-	                          aBaixa := {}
-	                          AADD(aBaixa, {"E2_FILIAL" , xFILIAL("SE2") , Nil})
-	                          AADD(aBaixa, {"E2_PREFIXO" , oMGet22:aCols[nY][nPosPREFIXO] , Nil})
-	                          AADD(aBaixa, {"E2_NUM" , oMGet22:aCols[nY][nPosNUM] , Nil})
-	                          AADD(aBaixa, {"E2_PARCELA" , oMGet22:aCols[nY][nPosPARCELA] , Nil})
-	                          AADD(aBaixa, {"E2_TIPO" , oMGet22:aCols[nY][nPosTIPO] , Nil})
-	                          AADD(aBaixa, {"E2_FORNECE" , oMGet22:aCols[nY][nPosFORNECE] , Nil})
-	                          AADD(aBaixa, {"E2_LOJA" , oMGet22:aCols[nY][nPosLOJA] , Nil}) 
-	                          AADD(aBaixa, {"AUTMOTBX" , "DEBITO CC" , Nil})
-	                          AADD(aBaixa, {"AUTBANCO" , cBanco , Nil})
-	                          AADD(aBaixa, {"AUTAGENCIA" , cAgencia , Nil})
-	                          AADD(aBaixa, {"AUTCONTA" , cNumCon , Nil})
-	                          AADD(aBaixa, {"AUTDTBAIXA" , dDataMov , Nil}) 
-	                          AADD(aBaixa, {"AUTDTCREDITO", dDataMov , Nil})
- //	                          AADD(aBaixa, {"AUTHIST" , cHistBaixa , Nil})
-	                          AADD(aBaixa, {"AUTVLRPG" , oMGet22:aCols[nY][nPosValor] , Nil})
-
-	                          ACESSAPERG("FIN080", .F.)
+            aBaixa := {}
+            AADD(aBaixa, {"E2_FILIAL" , xFILIAL("SE2") , Nil})
+            AADD(aBaixa, {"E2_PREFIXO" , oMGet22:aCols[nY][nPosPREFIXO] , Nil})
+            AADD(aBaixa, {"E2_NUM" , oMGet22:aCols[nY][nPosNUM] , Nil})
+            AADD(aBaixa, {"E2_PARCELA" , oMGet22:aCols[nY][nPosPARCELA] , Nil})
+            AADD(aBaixa, {"E2_TIPO" , oMGet22:aCols[nY][nPosTIPO] , Nil})
+            AADD(aBaixa, {"E2_FORNECE" , oMGet22:aCols[nY][nPosFORNECE] , Nil})
+            AADD(aBaixa, {"E2_LOJA" , oMGet22:aCols[nY][nPosLOJA] , Nil}) 
+            AADD(aBaixa, {"AUTMOTBX" , "DEBITO CC" , Nil})
+            AADD(aBaixa, {"AUTBANCO" , cBanco , Nil})
+            AADD(aBaixa, {"AUTAGENCIA" , cAgencia , Nil})
+            AADD(aBaixa, {"AUTCONTA" , cNumCon , Nil})
+            AADD(aBaixa, {"AUTDTBAIXA" , dDataMov , Nil}) 
+            AADD(aBaixa, {"AUTDTCREDITO", dDataMov , Nil})
+            AADD(aBaixa, {"AUTVLRPG" , oMGet22:aCols[nY][nPosValor] , Nil})
+//          AADD(aBaixa, {"AUTHIST" , cHistBaixa , Nil})
+            ACESSAPERG("FIN080", .F.)
 
 			lMsErroAuto := .F.
 			MSEXECAUTO({|x,y| FINA080(x,y)}, aBaixa, 3)
 			
 			If lMsErroAuto
-				cErrLog:= CRLF+MostraErro("\TMP\","BKFINA22.ERR")
-				u_xxLog("\LOG\BKFINA22.LOG",cErrLog)
-				MsgStop("Problemas na alteração do contas a pagar, informe o setor de T.I.:"+cErrLog, "Atenção")
+				u_LogMsExec("BKFINA03","Problemas na alteração do titulo "+oMGet22:aCols[nY][nPosNUM])
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf
@@ -446,11 +442,11 @@ BEGIN TRANSACTION
 
 END TRANSACTION
 
-Aviso("Sucesso","Baixa contas a Pagar.",{"OK"})
+//Aviso("Sucesso","Baixa contas a Pagar.",{"OK"})
 If lSucess
-	Aviso("Sucesso!","Baixas de contas a Pagar realizadas com sucesso.",{"OK"})
+	u_MsgLog("BKFINA22","Baixas de contas a Pagar realizadas com sucesso.","S")
 Else
-	Aviso("Erro!","Algumas baixas de contas a Pagar não foram realizadas",{"OK"})
+	u_MsgLog("BKFINA22","Algumas baixas de contas a Pagar não foram realizadas","W")
 EndIf
 
 Return lSucess

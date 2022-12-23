@@ -649,7 +649,7 @@ LOCAL aItem := {}
 Local _nx   := 0
 
 IF nItem > 0 .AND. ALLTRIM(aTitGer[nItem,1]) <> ""
-	IF MsgYesNo("Confirma a exclusão do Titulo: '"+aTitGer[nItem,1]+"' selecionado?")
+	IF u_MsgLog("BKFINA23","Confirma a exclusão do Titulo: '"+aTitGer[nItem,1]+"' selecionado?","N")
 
 		aItem := aClone(aTitGer)
         aTitGer := {}
@@ -752,8 +752,8 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
+				u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
 				DisarmTransaction()
-				Mostraerro()
 				break
 			ENDIF
 	
@@ -801,8 +801,8 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
+				u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
 				DisarmTransaction()
-				Mostraerro()
 				break
 			ENDIF
 	
@@ -852,8 +852,8 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
+				u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
 				DisarmTransaction()
-				Mostraerro()
 				break
 			ENDIF
 	
@@ -903,8 +903,8 @@ For nI:=1 TO LEN(aTitGer)
 			
 		IF lMsErroAuto
 			lOK := .F.
+			u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
 			DisarmTransaction()
-			Mostraerro()
 			break
 		ENDIF
   	End Transaction
@@ -945,13 +945,12 @@ For nI:=1 TO LEN(aTitGer)
 Next nI
 
 IF lOK
-	Msginfo("Titulos Baixado com sucesso!!")
+	u_MsgLog("BKFINA23","Titulos Baixado com sucesso!!")
 ELSE
 	IF !EMPTY(cLOG)
-		cLOG := "Titulo(s) com baixa parcial. Verifique!!"+cCrLf+cLOG
-		Aviso("Atencao",cLOG, {"Ok"})
+		cLOG := "Titulo(s) com baixa parcial. Verifique!! "+cLOG
+		u_MsgLog("BKFINA23",cLOG,"E")
 	ENDIF
 ENDIF
-
 
 RETURN NIL

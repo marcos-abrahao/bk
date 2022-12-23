@@ -43,9 +43,8 @@ If nRecCND > 0 .AND.!Empty(CND->CND_XXNDC)
 	 
 	MsExecAuto( { |x,y| FINA040(x,y)} , aArray, 5)  // 3 - Inclusao, 4 - Alteração, 5 - Exclusão
 	
-	If lMsErroAuto		
-		MsgStop("Erro na exclusão da Nota de Débito "+CND->CND_XXNDC)	
-		MostraErro() 
+	If lMsErroAuto
+		u_LogMsExec("BKFINA27","Erro na exclusão da Nota de Débito "+CND->CND_XXNDC)
 	Else
 
 		If !Empty(CND->CND_XXNDC)
@@ -72,7 +71,7 @@ If nRecCND > 0 .AND.!Empty(CND->CND_XXNDC)
 			(cAliasSZ2)->(DbCloseArea())	 
 		EndIf	
 
-		MsgInfo("Nota de débito "+CND->CND_XXNDC+" excluída.")	
+		u_MsgLog("FINA040","Nota de débito "+CND->CND_XXNDC+" excluída.")
 	EndIf
 EndIf
 

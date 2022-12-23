@@ -155,34 +155,7 @@ TCSETFIELD("QSD1","D1_TOTAL" ,"N",18,2)
 DbSelectArea("QSD1")
 DbGoTop()
 aStruc := dbStruct()
-/*
-aSd1 := {}
-Do While !eof()
-	cKeyF1 := QSD1->D1_FILIAL+QSD1->D1_DOC+QSD1->D1_SERIE+QSD1->D1_FORNECE+QSD1->D1_LOJA
-	AADD(aSd1,{QSD1->D1_FILIAL,QSD1->D1_DOC,QSD1->D1_SERIE,QSD1->D1_ITEM,D1_COD,TRANSFORM(QSD1->D1_TOTAL,"@E 999,999,999.99"),QSD1->D1_XXHIST1,cKeyF1})
-	DbSelectArea("QSD1")
-	DbSkip()
-Enddo
-*/
 
-
-//QSD1->(DbCloseArea())
-
-
-//ASORT(aSd1,,,{|x,y| x[2]<y[2]})
-
-
-/*
-If Empty(aSd1)
-	MsgStop("Nenhum item encontrado", "Atenção")
-	RestArea(aAreaIni)
-	Return
-EndIf
-*/
-
-
-//Private cArqTrb := CriaTrab(NIL,.F.)
-		
 oTmpTb := FWTemporaryTable():New( "QSD11" )	
 oTmpTb:SetFields( aStruc )
 oTmpTb:AddIndex("indice1", {"D1_XXHIST"} )

@@ -59,7 +59,7 @@ If LockByName(cLockBy)
 	EndIf
 	UnLockByName(cLockBy)
 Else
-	Aviso("BKAJUDIRF", "O processamento do ajuste já foi iniciado por outra estação!", {"OK"})		
+	u_MsgLog("BKAJUDIRF", "O processamento do ajuste já foi iniciado por outra estação!", "W")
 EndIf
 Return
 

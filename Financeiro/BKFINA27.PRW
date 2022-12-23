@@ -318,8 +318,7 @@ BEGIN TRANSACTION
 			MSEXECAUTO({|x,y| FINA080(x,y)}, aBaixa, 3)
 			
 			If lMsErroAuto
-				MsgStop("Titulo não baixado: "+oMGet22:aCols[nY][nPosPREFIXO]+oMGet22:aCols[nY][nPosNUM]+oMGet22:aCols[nY][nPosPARCELA],"BKFINA27")
-				MostraErro()
+				u_LogMsExec("BKFINA27","Titulo não baixado: "+oMGet22:aCols[nY][nPosPREFIXO]+oMGet22:aCols[nY][nPosNUM]+oMGet22:aCols[nY][nPosPARCELA])
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf
@@ -329,9 +328,9 @@ BEGIN TRANSACTION
 END TRANSACTION
 
 If lSucess
-	Aviso("Sucesso!","Baixas de contas a Pagar realizadas com sucesso.",{"OK"})
+	u_MsgLog("BKFINA27","Baixas de contas a Pagar realizadas com sucesso.","S")
 Else
-	Aviso("Erro!","Algumas baixas de contas a Pagar não foram realizadas",{"OK"})
+	u_MsgLog("BKFINA27","Algumas baixas de contas a Pagar não foram realizadas","E")
 EndIf
 
 Return lSucess

@@ -504,7 +504,6 @@ LOCAL aBaixa:= {}
 LOCAL lOK 	:= .T.
 Local cCrLf := Chr(13) + Chr(10)
 Local cLog  := ""
-Local cErrLog := ""
 
 Private dDtBaixa  := dDataBase
 Private MsErroAuto := .F.
@@ -558,9 +557,7 @@ For nI:=1 TO LEN(aTitGer)
 		MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 			
 		IF lMsErroAuto
-   			cErrLog:= CRLF+MostraErro("\TMP\","BKFINA16.ERR")
-			u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
-			u_MsgLog(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog,"E")
+			u_LogMsExec("BKFINA16","Problemas na alteração do titulo "+aTitGer[nI,1])
 			lOK := .F.
 			DisarmTransaction()
 			break
@@ -606,9 +603,7 @@ For nI:=1 TO LEN(aTitGer)
 			MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 				
 			IF lMsErroAuto
-				cErrLog:= CRLF+MostraErro("\log\","BKFINA16.ERR")
-				u_xxLog("\LOG\BKFINA16.LOG",cErrLog)
-				u_MsgLog(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1]+", informe o setor de T.I.:"+cErrLog,"E")
+				u_LogMsExec("BKFINA16","Problemas na alteração do titulo "+aTitGer[nI,1])
 				lOK := .F.
 				DisarmTransaction()
 				break

@@ -164,7 +164,8 @@ Default cMens := "Problemas na execução do MSExecAuto:"
 cErrLog := MostraErro("\log\",cArqErr)
 u_MsgLog(cProg,cMens,"E",cErrLog)
 
-Return Nil
+Return cErrLog
+
 
 /*/{Protheus.doc} User Function LogMemo
 	Rotina de Log utilizada basicamente para gravar Queryes
