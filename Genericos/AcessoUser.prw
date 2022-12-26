@@ -70,7 +70,7 @@ EndIf
 
 u_MsgLog("AcessoUser")
 
-Processa({|| aUsers := AllUsers(),;
+Processa({|| aUsers := FWSFALLUSERS(),;  // Era AllUsers
              aModulos := retModName(),;
              aGrups := AllGroups(),;
              aAdd(aModulos,{99,"SIGACFG","Configurador",.T.,"CFGIMG",99}),;

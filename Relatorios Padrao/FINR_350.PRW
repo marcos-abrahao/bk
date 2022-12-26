@@ -36,9 +36,9 @@ Static lFWCodFil := FindFunction("FWCodFil")
 /*/
 User Function FinR350()
 
-u_MsgLog("FinR350")
+//u_MsgLog("FinR350")
 
-AjustaHLP()
+//AjustaHLP() // Desativada 26/12/22 - CodeAnalisys
 
 If FindFunction("TRepInUse") .And. TRepInUse()
 	//⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
@@ -531,7 +531,7 @@ For nInc := 1 To Len( aSM0 )
 		//⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
 		//≥Inicio da impressao do fluxo do relatÛrio                               ≥
 		//¿ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ
-		oReport:SetTitle(STR0005 + " - " + GetMv("MV_MOEDA"+Str(nMoeda,1)))
+		oReport:SetTitle(STR0005 + " - " + cMoeda)
 	
 		oReport:SetMeter((cAliasSE2)->(LastRec()))
 	
@@ -906,6 +906,7 @@ Local cDesc3 :=""
 Local cString:="SE2"
 Local nMoeda
 
+Private cMoeda := ""
 Private aLinha :={}
 Private aReturn:={OemToAnsi(STR0003),1,OemToAnsi(STR0004),1,2,1,"",1}  //"Zebrado"###"Administracao"
 Private cPerg  :="FIN350"
@@ -973,7 +974,8 @@ If nLastKey == 27
 Endif
 
 nMoeda := mv_par10
-Titulo += " - " + GetMv("MV_MOEDA"+Str(nMoeda,1))
+cMoeda := GetMv("MV_MOEDA"+Str(nMoeda,1))
+Titulo += " - " + cMoeda
 
 RptStatus({|lEnd| Fa350Imp(@lEnd,wnRel,cString)},Titulo)
 Return
@@ -1764,6 +1766,7 @@ Return .T.
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
 /*/
+/* Desativada Code Analisys 26/12/22
 Static Function AjustaHLP()
 Local aHelpPor := {}
 Local aHelpEng := {}
@@ -1807,6 +1810,7 @@ If cPaisLoc<>"BRA"
 EndIf	
 
 Return()
+*/
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹

@@ -67,12 +67,12 @@ Static Function ModelDef()
 	Local oModel
 	Local bPre := Nil
 	Local bPos := Nil
-	Local bCommit := Nil
+	//Local bCommit := Nil
 	Local bCancel := Nil
 
 
 	//Cria o modelo de dados para cadastro
-	oModel := MPFormModel():New("MVCSZEM", bPre, bPos, bCommit, bCancel)
+	oModel := MPFormModel():New("MVCSZEM", bPre, bPos, /*bCommit*/, bCancel)
 	oModel:AddFields("SZEMASTER", /*cOwner*/, oStruct)
 	oModel:SetDescription("Modelo de dados - " + cTitulo)
 	oModel:GetModel("SZEMASTER"):SetDescription( "Dados de - " + cTitulo)

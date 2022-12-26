@@ -1115,6 +1115,8 @@ Return .T.
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
+
+/* - Desabilitada em 26/12/22 - CodeAnalisys
 User Function XRetImpost(cFilF3,cNF,cSerie,cCliFor,cLoja,nValTot,lLimpa,cIdentFT)
 
 Local nX      := 0
@@ -1280,3 +1282,5 @@ If len(aArqRet)>0
 EndIf
 
 Return(cNFE)
+*/
+

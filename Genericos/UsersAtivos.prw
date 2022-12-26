@@ -5,7 +5,8 @@
 User Function BkAllUsr()
 If TYPE("_bkAllUsers") == "U"
 	PUBLIC _bkAllUsers := {}
-	_bkAllUsers := AllUsers()
+	//_bkAllUsers := AllUsers()
+	_bkAllUsers := FWSFALLUSERS()
 EndIf
 Return _bkAllUsers
 

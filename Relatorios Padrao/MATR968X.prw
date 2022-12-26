@@ -94,10 +94,14 @@ Local aSays		:= {}, aButtons := {}, nOpca := 0
 Private nomeprog := "MATR968"
 Private nLastKey := 0
 Private cPerg
-
 Private oPrint
-
 Private oMvMatNfSe := yMATSIGANFSE():New()
+
+// Codealalisys 26/12/22
+Private cMVTxPis := SuperGetMv("MV_TXPIS"  )
+Private cMVTxCof := SuperGetMv("MV_TXCOFIN")
+Private cMVTxIrf := SuperGetMV("MV_ALIQIRF")
+Private cMVTxCsl := SuperGetMv("MV_TXCSLL" )
 
 u_MsgLog("MATR968X")
 
@@ -454,6 +458,7 @@ If lSorocaba
 		//³Busca a descricao do codigo de servicos³
 		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 		cDescrServ := ""
+		/* Code Analisys 26/12/22
 		dbSelectArea("SX3")
 		dbSetOrder(2)
 		If dbSeek("BZ_CODISS")
@@ -475,6 +480,12 @@ If lSorocaba
 				cDescrServ := SX5->X5_DESCRI
 			Endif
 		EndIf
+		*/
+		// BK utiliza o CCQ
+		If CCQ->(dbSeek(xFilial("CCQ")+(cAliasSF3)->F3_CODISS))
+			cDescrServ := CCQ->CCQ_DESC
+		Endif
+
 		If lDescrBar
 			SF2->(dbSetOrder(1))
 			SD2->(dbSetOrder(3))
@@ -498,27 +509,33 @@ If lSorocaba
 		//³Busca o pedido para discriminar os servicos prestados no documento³
 		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 		cServ := ""
+
+		//If CCQ->(dbSeek(xFilial("CCQ")+(cAliasSF3)->F3_CODISS))
+		//	cServ := AllTrim(SubStr(CCQ->CCQ_DESC,1,55))
+		//Endif
+		//If Empty(cServ)
+			cServ := cCodServ
+		//Endif
+
 		If lNfeServ
 			SC6->(dbSetOrder(4))
 			SC5->(dbSetOrder(1))
 			If SC6->(dbSeek(xFilial("SC6")+(cAliasSF3)->F3_NFISCAL+(cAliasSF3)->F3_SERIE))
 				dbSelectArea("SX5")
-				SX5->(dbSetOrder(1))
-				If SC5->(dbSeek(xFilial("SC5")+SC6->C6_NUM)) .And. dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
-					cServ := AllTrim(SC5->C5_MENNOTA)+CHR(13)+CHR(10)+" | "+AllTrim(SubStr(SX5->X5_DESCRI,1,55))
-				Endif
+				//SX5->(dbSetOrder(1))
+				//If SC5->(dbSeek(xFilial("SC5")+SC6->C6_NUM)) .And. dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
+				//	cServ := AllTrim(SC5->C5_MENNOTA)+CHR(13)+CHR(10)+" | "+AllTrim(SubStr(SX5->X5_DESCRI,1,55))
+				//Endif
+				cServ := AllTrim(SC5->C5_MENNOTA)+CHR(13)+CHR(10)+" | "+cServ
 			Endif
-		Else
-			dbSelectArea("SX5")
-			SX5->(dbSetOrder(1))
-			If dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
-				cServ := AllTrim(SubStr(SX5->X5_DESCRI,1,55))
-			Endif
+		//Else
+		//	dbSelectArea("SX5")
+		//	SX5->(dbSetOrder(1))
+		//	If dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
+		//		cServ := AllTrim(SubStr(SX5->X5_DESCRI,1,55))
+		//	Endif
 		Endif
 
-		If Empty(cServ)
-			cServ := cCodServ
-		Endif
 
 		//Lei Transparência
 		If !Empty(cTotImp)
@@ -655,17 +672,17 @@ If lSorocaba
 				EndDo
 				SED->(dbSetOrder(1))
 				If SED->(dbSeek(xFilial("SDE")+cNatureza))
-					nAliqPis  := Iif( nValPis  > 0 , Iif( SED->ED_PERCPIS > 0 , SED->ED_PERCPIS , SuperGetMv("MV_TXPIS"  )) , 0 )
-					nAliqCof  := Iif( nValCof  > 0 , Iif( SED->ED_PERCCOF > 0 , SED->ED_PERCCOF , SuperGetMv("MV_TXCOFIN")) , 0 )
+					nAliqPis  := Iif( nValPis  > 0 , Iif( SED->ED_PERCPIS > 0 , SED->ED_PERCPIS , cMVTxPis) , 0 )
+					nAliqCof  := Iif( nValCof  > 0 , Iif( SED->ED_PERCCOF > 0 , SED->ED_PERCCOF , cMVTxCof) , 0 )
 					nALiqINSS := Iif( nValINSS > 0 , SED->ED_PERCINS , 0 )
-					nAliqIR   := Iif( nValIR   > 0 , Iif( SED->ED_PERCIRF > 0 , SED->ED_PERCIRF , SuperGetMV("MV_ALIQIRF")) , 0 )
-					nALiqCSLL := Iif( nValCSLL > 0 , Iif( SED->ED_PERCCSL > 0 , SED->ED_PERCCSL , SuperGetMv("MV_TXCSLL" )) , 0 )
+					nAliqIR   := Iif( nValIR   > 0 , Iif( SED->ED_PERCIRF > 0 , SED->ED_PERCIRF , cMVTxIrf) , 0 )
+					nALiqCSLL := Iif( nValCSLL > 0 , Iif( SED->ED_PERCCSL > 0 , SED->ED_PERCCSL , cMVTxCsl) , 0 )
 				EndIf
 			Else
-				nAliqPis  := Iif( nValPis  > 0 , SuperGetMv("MV_TXPIS"  ) , 0 )
-				nAliqCof  := Iif( nValCof  > 0 , SuperGetMv("MV_TXCOFIN") , 0 )
-				nAliqIR   := Iif( nValIR   > 0 , SuperGetMV("MV_ALIQIRF") , 0 )
-				nALiqCSLL := Iif( nValCSLL > 0 , SuperGetMv("MV_TXCSLL" ) , 0 )
+				nAliqPis  := Iif( nValPis  > 0 , cMVTxPis, 0 )
+				nAliqCof  := Iif( nValCof  > 0 , cMVTxCof, 0 )
+				nAliqIR   := Iif( nValIR   > 0 , cMVTxIrf, 0 )
+				nALiqCSLL := Iif( nValCSLL > 0 , cMVTxCsl, 0 )
 			EndIf
 
 			aItensSD2 := {}
@@ -904,6 +921,7 @@ Else
 		//³Busca a descricao do codigo de servicos³
 		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 		cDescrServ := ""
+		/*
 		dbSelectArea("SX3")
 		dbSetOrder(2)
 		If dbSeek("BZ_CODISS")
@@ -925,6 +943,14 @@ Else
 				cDescrServ := SX5->X5_DESCRI
 			Endif
 		EndIf
+		*/
+
+		// BK usa o CCQ
+		If CCQ->(dbSeek(xFilial("CCQ")+(cAliasSF3)->F3_CODISS))
+			cDescrServ := CCQ->CCQ_DESC
+		Endif		
+
+
 		If lDescrBar
 			SF2->(dbSetOrder(1))
 			SD2->(dbSetOrder(3))
@@ -932,7 +958,7 @@ Else
 			If SF2->(dbSeek(xFilial("SF2")+(cAliasSF3)->F3_NFISCAL+(cAliasSF3)->F3_SERIE))
 				If SD2->(dbSeek(xFilial("SD2")+SF2->F2_DOC+SF2->F2_SERIE+SF2->F2_CLIENTE+SF2->F2_LOJA))
 					If (SB1->(MsSeek(xFilial("SB1")+SD2->D2_COD)))
-						cDescrServ := If (lCampBar,SB1->(AllTrim(&cDescrBar)),cDescrServ)
+						cDescrServ := Iif(lCampBar,SB1->(AllTrim(&cDescrBar)),cDescrServ)
 					Endif
 				Endif
 			Endif
@@ -953,16 +979,16 @@ Else
 				dbSelectArea("SX5")
 				SX5->(dbSetOrder(1))
 				If SC5->(dbSeek(xFilial("SC5")+SC6->C6_NUM)) .And. dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
-					cServ := AllTrim(SC5->C5_MENNOTA)+CHR(13)+CHR(10)+" | "+AllTrim(SubStr(SX5->X5_DESCRI,1,55))
+					cServ := AllTrim(SC5->C5_MENNOTA)+CHR(13)+CHR(10)+" | "+AllTrim(SubStr(cDescrServ,1,55))
 					cNroInsObr := SC5->C5_OBRA
 				Endif
 			Endif
-		Else
-			dbSelectArea("SX5")
-			SX5->(dbSetOrder(1))
-			If dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
-				cServ := AllTrim(SubStr(SX5->X5_DESCRI,1,55))
-			Endif
+		//Else
+		//	dbSelectArea("SX5")
+		//	SX5->(dbSetOrder(1))
+		//	If dbSeek(xFilial("SX5")+"60"+PadR(AllTrim((cAliasSF3)->F3_CODISS),6))
+		//		cServ := AllTrim(SubStr(SX5->X5_DESCRI,1,55))
+		//	Endif
 		Endif
 		If Empty(cServ)
 			cServ := cDescrServ

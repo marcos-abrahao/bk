@@ -9,6 +9,8 @@ User Function SCRNFS(mv_par01,mv_par02,mv_par03,mv_par04,mv_par05,mv_par06,cPerg
 Local _nNotas,_nSeq
 Local _nI,nK,_nY,iAux,iAux1
 
+Private cMVTxIrf := GetMv("MV_ALIQIRF")  // CodeAnalisys 26/12/22
+
 SetPrvt ("WNREL,CNREL,CTITULO,CDESC1,CDESC2,CDESC3,ARETURN")
 SetPrvt ("CIMPNORM,CIMPCOMP,CIMP20CPP,CIMPESP,CIMPON,CIMPOFF,CIMPRESET,NK,NLASTKEY,LCONTINUA,NPOSREG,CKEY")
 SetPrvt ("AITENS,ASERV,CNAT,CCFOP,ANATOPER,ACFO,_CENDENT,CEND,ANUMPED,CNUMPED,ACODCLAS")
@@ -888,9 +890,9 @@ While lImpresso
 			If !Empty(SA1->A1_NATUREZ)
 				dbSelectArea("SED")
 				dbSeek(xFilial("SED")+SA1->A1_NATUREZ)
-				_nPerIrrf := If(SED->ED_CALCIRF == "1",SED->ED_PERCIRF,0)
+				_nPerIrrf := iIf(SED->ED_CALCIRF == "1",SED->ED_PERCIRF,0)
 			Else
-				_nPerIrrf :=  GetMv("MV_ALIQIRF")
+				_nPerIrrf := cMVTxIrf
 			EndIF
 		EndIf
 		

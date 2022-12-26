@@ -842,9 +842,9 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			lNewAlc := .T.
 			If SC7->C7_USER == "000232" // Barbara
 				// Solicitado pela Michele em 30/09/2021
-				cComprador := UsrFullName("000138")
+				cComprador := UsrFName("000138")
 			Else
-				cComprador := UsrFullName(SC7->C7_USER)
+				cComprador := UsrFName(SC7->C7_USER)
 			EndIf
 			If SC7->C7_CONAPRO != "B"
 				lLiber := .T.
@@ -854,7 +854,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			dbSeek(xFilial("SCR")+cTipoSC7+SC7->C7_NUM)
 			While !Eof() .And. SCR->CR_FILIAL+Alltrim(SCR->CR_NUM) == xFilial("SCR")+Alltrim(SC7->C7_NUM) .And. SCR->CR_TIPO == cTipoSC7
 				If SCR->CR_USER <> "000232" // Barbara
-					cAprov += AllTrim(UsrFullName(SCR->CR_USER))+" ["
+					cAprov += AllTrim(UsrFName(SCR->CR_USER))+" ["
 					Do Case
 						Case SCR->CR_STATUS=="03" //Liberado
 							cAprov += "Ok"
@@ -876,7 +876,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 				dbSeek(xFilial("SAJ")+SC7->C7_GRUPCOM)
 				While !Eof() .And. SAJ->AJ_FILIAL+SAJ->AJ_GRCOM == xFilial("SAJ")+SC7->C7_GRUPCOM
 					If SAJ->AJ_USER != SC7->C7_USER
-						cAlter += AllTrim(UsrFullName(SAJ->AJ_USER))+"/"
+						cAlter += AllTrim(UsrFName(SAJ->AJ_USER))+"/"
 					EndIf
 					dbSelectArea("SAJ")
 					dbSkip()
@@ -1176,6 +1176,10 @@ dbSetOrder(1)
 
 Return
 
+// 26/12/22 - Code Analisys - retirar UsrFullName do Loop
+Static Function UsrFName(cId)
+Return UsrFullName(cId)
+
 /*/
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -1378,15 +1382,22 @@ Pergunte("MTR110",.F.)
 //³ se o tamanho do C7_CC no SX3 estiver > que 9 o relatorio sera impresso comprrimido com espaco para o campo ³
 //³ C7_CC centro de custo para ate 20 posicoes,Obs.desabilitando a selecao do modo de impresso retrato/paisagem³
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-dbSelectArea("SX3")
-dbSetOrder(2)
-If dbSeek("C7_CC")
-	If SX3->X3_TAMANHO == 9
-		nDifColCC := 11
-		Tamanho   := "M"
-	Else
-		lComp	  := .F.   // C.Custo c/ tamanho maior que 9, sempre PAISAGEM
-	Endif
+//dbSelectArea("SX3")
+//dbSetOrder(2)
+//If dbSeek("C7_CC")
+//	If SX3->X3_TAMANHO == 9
+//		nDifColCC := 11
+//		Tamanho   := "M"
+//	Else
+//		lComp	  := .F.   // C.Custo c/ tamanho maior que 9, sempre PAISAGEM
+//	Endif
+//Endif
+
+If TamSX3("C7_CC")[1] == 9
+	nDifColCC := 11
+	Tamanho   := "M"
+Else
+	lComp	  := .F.   // C.Custo c/ tamanho maior que 9, sempre PAISAGEM
 Endif
 
 wnrel:=SetPrint(cString,wnrel,If(lAuto,Nil,"MTR110"),@Titulo,cDesc1,cDesc2,cDesc3,.F.,,lComp,Tamanho,,!lAuto)
@@ -1706,8 +1717,8 @@ dbSelectArea("SC7")
 dbClearFilter()
 dbSetOrder(1)
 
-dbSelectArea("SX3")
-dbSetOrder(1)
+//dbSelectArea("SX3")
+//dbSetOrder(1)
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Se em disco, desvia para Spool                               ³
@@ -2004,8 +2015,8 @@ dbSelectArea("SC7")
 dbClearFilter()
 dbSetOrder(1)
 
-dbSelectArea("SX3")
-dbSetOrder(1)
+//dbSelectArea("SX3")
+//dbSetOrder(1)
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 //³ Se em disco, desvia para Spool                               ³
@@ -2444,7 +2455,7 @@ EndIf
 dbSelectArea("SC7")
 If !Empty(C7_APROV)
 	lNewAlc := .T.
-	cComprador := UsrFullName(SC7->C7_USER)
+	cComprador := UsrFName(SC7->C7_USER)
 	If C7_CONAPRO != "B"
 		lLiber := .T.
 	EndIf
@@ -2452,7 +2463,7 @@ If !Empty(C7_APROV)
 	dbSetOrder(1)
 	dbSeek(xFilial("SCR")+"PC"+SC7->C7_NUM)
 	While !Eof() .And. SCR->CR_FILIAL+Alltrim(SCR->CR_NUM)==xFilial("SCR")+Alltrim(SC7->C7_NUM) .And. SCR->CR_TIPO == "PC"
-		cAprov += AllTrim(UsrFullName(SCR->CR_USER))+" ["
+		cAprov += AllTrim(UsrFName(SCR->CR_USER))+" ["
         Do Case
         	Case SCR->CR_STATUS=="03" //Liberado
         		cAprov += "Ok"
@@ -2473,7 +2484,7 @@ If !Empty(C7_APROV)
 		dbSeek(xFilial("SAJ")+SC7->C7_GRUPCOM)
 		While !Eof() .And. SAJ->AJ_FILIAL+SAJ->AJ_GRCOM == xFilial("SAJ")+SC7->C7_GRUPCOM
 			If SAJ->AJ_USER != SC7->C7_USER
-				cAlter += AllTrim(UsrFullName(SAJ->AJ_USER))+"/"
+				cAlter += AllTrim(UsrFName(SAJ->AJ_USER))+"/"
 			EndIf
 			dbSelectArea("SAJ")
 			dbSkip()
@@ -2862,7 +2873,7 @@ dbSelectArea("SC7")
 lNewAlc := .F.
 If !Empty(C7_APROV)   
 	lNewAlc := .T.
-	cComprador := UsrFullName(SC7->C7_USER)
+	cComprador := UsrFName(SC7->C7_USER)
 	If C7_CONAPRO != "B"
 		lLiber := .T.
 	EndIf
@@ -2870,7 +2881,7 @@ If !Empty(C7_APROV)
 	dbSetOrder(1)
 	dbSeek(xFilial("SCR")+"AE"+SC7->C7_NUM)
 	While !Eof() .And. SCR->CR_FILIAL+Alltrim(SCR->CR_NUM)==xFilial("SCR")+Alltrim(SC7->C7_NUM) .And. SCR->CR_TIPO == "AE"
-		cAprov += AllTrim(UsrFullName(SCR->CR_USER))+" ["
+		cAprov += AllTrim(UsrFName(SCR->CR_USER))+" ["
         Do Case
         	Case SCR->CR_STATUS=="03" //Liberado
         		cAprov += "Ok"
@@ -2891,7 +2902,7 @@ If !Empty(C7_APROV)
 		dbSeek(xFilial("SAJ")+SC7->C7_GRUPCOM)
 		While !Eof() .And. SAJ->AJ_FILIAL+SAJ->AJ_GRCOM == xFilial("SAJ")+SC7->C7_GRUPCOM
 			If SAJ->AJ_USER != SC7->C7_USER
-				cAlter += AllTrim(UsrFullName(SAJ->AJ_USER))+"/"
+				cAlter += AllTrim(UsrFName(SAJ->AJ_USER))+"/"
 			EndIf
 			dbSelectArea("SAJ")
 			dbSkip()
@@ -3033,7 +3044,7 @@ Return .T.
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 Static Function ImpCabec(ncw)
-Local nOrden, cCGC
+//Local nOrden, cCGC
 LOCAL cMoeda
 
 cMoeda := Iif(mv_par12<10,Str(mv_par12,1),Str(mv_par12,2))
@@ -3092,13 +3103,13 @@ EndIf
 @ 06,074 PSAY STR0009	//"CEP :"
 @ 06,081 PSAY SA2->A2_CEP    		Picture PesqPict("SA2","A2_CEP")
 
-dbSelectArea("SX3")
-nOrden = IndexOrd()
-dbSetOrder(2)
-dbSeek("A2_CGC")
-cCGC := Alltrim(X3TITULO())
+//dbSelectArea("SX3")
+//nOrden = IndexOrd()
+//dbSetOrder(2)
+//dbSeek("A2_CGC")
+cCGC := "CNPJ" //Alltrim(X3TITULO())
 @ 06,093 PSAY cCGC+":" //"CGC: "
-dbSetOrder(nOrden)
+//dbSetOrder(nOrden)
 
 dbSelectArea("SA2")
 @ 06,103 PSAY SA2->A2_CGC  Picture If(SA2->A2_TIPO=="J",PesqPict("SA2","A2_CGC"),Iif(SA2->A2_TIPO == 'F',Substr(PICPES(SA2->A2_TIPO),1,17),Substr(PICPES(SA2->A2_TIPO),1,21)))
@@ -3188,7 +3199,7 @@ Static Function AjustaSX1()
 Local aHelpPor	:= {}
 Local aHelpEng	:= {}
 Local aHelpSpa	:= {}
-Local nTamSX1   := Len(SX1->X1_GRUPO)
+//Local nTamSX1   := Len(SX1->X1_GRUPO)
 
 Aadd( aHelpPor, "Filtra os itens do PC a serem impressos " )
 Aadd( aHelpPor, "Todos,somente os abertos ou Atendidos.  " )
@@ -3206,6 +3217,7 @@ PutSX1Help("P.MTR11014.",aHelpPor,aHelpEng,aHelpSpa)
 dbSelectArea("SX1")
 dbSetOrder(1)
 
+/* CodeAnalisys 26/12/22
 If dbSeek(PADR("MTR110",nTamSX1)+"07")
 	RecLock("SX1",.F.)
 	X1_DEF03   := "Todos"
@@ -3213,6 +3225,7 @@ If dbSeek(PADR("MTR110",nTamSX1)+"07")
 	X1_DEFENG3 := "All"
 	MsUnLock()
 EndIf
+*/
 
 Return
                                                           
@@ -3276,13 +3289,15 @@ Return(cRet)
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 Static Function R110FIniPC(cPedido,cItem,cSequen,cFiltro)
-
+Local nI		:= 0
+Local aSX3 		:= {}
+Local cCpo		:= ""
 Local aArea		:= GetArea()
 Local aAreaSC7	:= SC7->(GetArea())
-Local cValid		:= ""
-Local nPosRef		:= 0
+Local cValid	:= ""
+Local nPosRef	:= 0
 Local nItem		:= 0
-Local cItemDe		:= IIf(cItem==Nil,'',cItem)
+Local cItemDe	:= IIf(cItem==Nil,'',cItem)
 Local cItemAte	:= IIf(cItem==Nil,Repl('Z',Len(SC7->C7_ITEM)),cItem)
 Local cRefCols	:= ''
 DEFAULT cSequen	:= ""
@@ -3306,6 +3321,8 @@ If dbSeek(xFilial("SC7")+cPedido+cItemDe+Alltrim(cSequen))
 		// Inicia a Carga do item nas funcoes MATXFIS  
 		nItem++
 		MaFisIniLoad(nItem)
+
+		/*
 		dbSelectArea("SX3")
 		dbSetOrder(1)
 		dbSeek('SC7')
@@ -3322,6 +3339,23 @@ If dbSeek(xFilial("SC7")+cPedido+cItemDe+Alltrim(cSequen))
 			EndIf
 			dbSkip()
 		End
+		*/
+		aSx3 := FWSX3Util():GetAllFields( "SC7" , .F. /*lVirtual */)
+		For nI := 1 To Len(aSx3)
+			cCpo 	:= AllTrim(aSx3[nI])
+			cValid	:= StrTran(UPPER(GetSx3Cache(cCpo,"X3_VALID"))," ","")
+			cValid	:= StrTran(cValid,"'",'"')
+			
+			// Excluido o campo C7_OPER em 4/11/19 provisioriamente para não dar erro
+			If "MAFISREF" $ cValid .AND. !(TRIM(cCpo) $ "C7_OPER") 
+				nPosRef  := AT('MAFISREF("',cValid) + 10
+				cRefCols := Substr(cValid,nPosRef,AT('","MT120",',cValid)-nPosRef )
+				// Carrega os valores direto do SC7.           
+				MaFisLoad(cRefCols,&("SC7->"+cCpo),nItem)
+			EndIf
+
+		Next
+
 		MaFisEndLoad(nItem,2)
 		dbSelectArea('SC7')
 		dbSkip()

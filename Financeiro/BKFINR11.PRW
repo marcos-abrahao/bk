@@ -183,6 +183,8 @@ Return( .T. )
 // KFin02ExpSld() - Exportar os saldos Bancarios
 
 Static Function KFin02ExpSld()
+Local nI	:= 0
+Local aSx3	:= {}
 
 AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+TRIM(cTitulo))
 
@@ -191,17 +193,18 @@ AADD(aStruct1,{"A6_DATA","D",8,0})
 AADD(aCampos1,cAliasTmp1+"->A6_DATA")
 AADD(aCabs1  ,"Data")
 
-dbSelectArea("SX3")
-dbSetOrder(1)
-dbSeek ("SA6")
-Do While SX3->(!EOF()) .And. (SX3->x3_arquivo == "SA6")
-	IF Alltrim(SX3->X3_CAMPO) $ "A6_COD#A6_AGENCIA#A6_NUMCON#A6_NREDUZ"
-		AADD(aStruct1,{SX3->X3_CAMPO,SX3->X3_TIPO,SX3->X3_TAMANHO,SX3->X3_DECIMAL})
-		AADD(aCampos1,cAliasTmp1+"->"+SX3->X3_CAMPO)
-		AADD(aCabs1  ,SX3->X3_TITULO)
-	ENDIF
-	SX3->(dbSkip())
-Enddo
+aSx3 := FWSX3Util():GetAllFields( "SA6" , .F. /*lVirtual */)
+For nI := 1 To Len(aSx3)
+	cCpo := AllTrim(aSx3[nI])
+	If cCpo $ "A6_COD#A6_AGENCIA#A6_NUMCON#A6_NREDUZ"
+		AADD(aStruct1,{	GetSx3Cache(cCpo,"X3_CAMPO"),;
+						GetSx3Cache(cCpo,"X3_TIPO"),;
+						GetSx3Cache(cCpo,"X3_TAMANHO"),;
+						GetSx3Cache(cCpo,"X3_DECIMAL")})
+		AADD(aCampos1,cAliasTmp1+"->"+cCpo)
+		AADD(aCabs1  ,GetSx3Cache(cCpo,"X3_TITULO"))
+	EndIf
+Next
 
 // Saldo INICIAL
 AADD(aStruct1,{"A6_SALDO","N",20,2})

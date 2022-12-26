@@ -413,7 +413,6 @@ Local  nY
 Local nOpc      := 0
 Local aFina100  := {}
 Local lSucess	:= .T.
-Local cErrLog	:= ""
 
 Private lMsErroAuto := .F.
 

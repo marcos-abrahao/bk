@@ -2147,8 +2147,10 @@ Return(NIL)
 
 
 Static Function RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)
-Local _nI := 0
-LOCAL cNumBor := "",cNumBor2 := ""
+Local _nI 		:= 0
+Local cNBor 	:= ""
+LOCAL cNumBor	:= ""
+Local cNumBor2	:= ""
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -2234,6 +2236,7 @@ NEXT
 //� Utilize sempre GetMv para posicionar o SX6. N꼘 use SEEK !!! �
 //읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸
 
+/*
 dbSelectArea("SX6")
 GetMv("MV_NUMBORP")
 // Garante que o numero do bordero seja sempre superior ao numero anterior
@@ -2242,5 +2245,13 @@ If SX6->X6_CONTEUD < cNumbor
 	SX6->X6_CONTEUD := cNumbor
 	msUnlock()
 EndIf
+*/
+
+cNBor := GetMv("MV_NUMBORP")
+// Garante que o numero do bordero seja sempre superior ao numero anterior
+If cNBor < cNumbor
+	PutMv("MV_NUMBORP",cNBor)
+EndIf
+
 
 RETURN cNumBor
