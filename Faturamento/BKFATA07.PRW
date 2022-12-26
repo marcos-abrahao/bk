@@ -15,14 +15,13 @@ BK - GERAR XML NOTA FISCAL DO MUNICIPIO DE São Sebastião do Passé-BA
 User Function BKFATA07()
 Local aParam 	:= {}
 Local aRet		:=	{}
-Local cTitulo   :=  "GERAR XML NOTA FISCAL DO MUNICIPIO DE São Sebastião do Passé-BA"
+Local cTitulo   :=  "Gerar XML da nota fiscal do municipio de São Sebastião do Passé-BA"
 
 Private cNotaDe 	:= ""
 Private cNotaAte 	:= ""
 Private cSerie		:= ""
 Private cDir		:= ""
-
-
+Private cProg       := "BKFATA07"
 
 aAdd( aParam, { 1, "Nota Fiscal de?"	, SPACE(TamSx3("F2_DOC")[1])	, ""            , "", "SF2"	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Nota Fiscal até?"	, SPACE(TamSx3("F2_DOC")[1])	, ""            , "", "SF2"	, "" , 70  , .F. })
@@ -38,7 +37,7 @@ If (Parambox(aParam,"BKFATA07 - "+cTitulo,@aRet,,,.T.,,,,"BKFATA07",.T.,.T.))
 	cDir		:= Alltrim(MV_PAR04)
 
 	IF EMPTY(cDir)
-		MSGSTOP("Pasta deve ser preenchida!!","BKFATA07")                
+		u_MsgLog(cProg,"Pasta deve ser preenchida!!","E")
 		Return Nil
 	ENDIF
 
@@ -47,7 +46,7 @@ If (Parambox(aParam,"BKFATA07 - "+cTitulo,@aRet,,,.T.,,,,"BKFATA07",.T.,.T.))
 	ENDIF
 
 	MakeDir(cDir)
-	Processa( {|| U_V2PRPSXML() })
+	u_WaitLog(cPerg,{|| U_V2PRPSXML() })
 Endif
 
 RETURN NIL
@@ -79,7 +78,6 @@ ENDIF
 TcQuery cQuery New Alias "QSF2"
 
 nTotReg := Contar("QSF2","!Eof()")
-ProcRegua(nTotReg)
 
 cLOTE := U_NLoteNFS()
 
@@ -100,7 +98,7 @@ While QSF2->(!EoF())
 
     dbSelectArea ("SF2")           //cabecalho de N.F.
     SF2->(dbgoto(QSF2->_NF2) )
-    IncProc("Consultando o banco de dados...")
+    //IncProc("Consultando o banco de dados...")
 	IF ALLTRIM(SF2->F2_SERIE) == cSerie
 	
 		//Cadastro do Cliente  + Tabela Cabeçalho das NotasFiscaisSaida SF2 //

@@ -936,15 +936,22 @@ AADD(aHtml,'      </tr>')
 AADD(aHtml,'    </table>')
 AADD(aHtml,'   </td>')
 AADD(aHtml,'  </tr>')
+
+// Documentos anexos: Contrato x Competência
+aFiles := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,1)
+If Len(aFiles) > 0
+	AADD(aHtml,'  <tr>')
+	For nI := 1 To Len(aFiles)
+		AADD(aHtml,'  	<td colspan="7" style="text-align:center;">')
+		AADD(aHtml,'       <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a></br>')
+		AADD(aHtml,'    </td>')
+	Next
+	AADD(aHtml,'  </tr>')
+EndIf
+
 AADD(aHtml,'</table>')
 AADD(aHtml,'<br>')
 
-// Documentos anexos
-
-aFiles := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,1)
-For nI := 1 To Len(aFiles)
-	AADD(aHtml,'<a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a></br>')
-Next
 
 AADD(aHtml,'<br>')
 AADD(aHtml,'</div>')
@@ -3370,6 +3377,4 @@ Return cAliq
 #DEFINE UFP_VL_ICM		15 //Valor ICMS de Pauta
 #DEFINE UFP_VL_ANT     16 // Valor de pauta do ICMS antecipacao
 #DEFINE NMAXUFP			16	//Numero maximo da amarracao UF x UF x Produto
-
-
 */

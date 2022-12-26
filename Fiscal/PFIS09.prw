@@ -1058,13 +1058,12 @@ If nHandle > 0
       
    fClose(nHandle)
    IF nOP == 1   
-		MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel","PFIS09")
-		ShellExecute("open", cArqTmp,"","",1)
+		u_WaitLog("PFIS09", {|| ShellExecute("open", cArqTmp,"","",1)},"O arquivo "+cArqTmp+" será aberto no MsExcel")
    ELSE
-		U_SENDMAIL("PFIS09","Backup PIS COFINS","adilson@rkainformatica.com.br;camilaromano@jodola.com.br","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),cArqTmp,.F.)
+		U_SENDMAIL("PFIS09","Backup PIS COFINS","adilson@rkainformatica.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),cArqTmp,.F.)
    ENDIF
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp,"PFIS09")
+   u_MsgLog("PFIS09","Falha na criação do arquivo "+cArqTmp,"E")
 Endif
    
 Return

@@ -1,6 +1,4 @@
 #INCLUDE "PROTHEUS.CH"
-//#INCLUDE "TOPCONN.CH"
-
 
 /*/{Protheus.doc} A440BUT
 BK - Ponto de Entrada para incluir botão na enchoice da liberação do pedido de venda
@@ -94,7 +92,7 @@ If LEN(aCNR) > 0
     //ENDIF
 Else
 	If lBut	
-		MsgInfo("Não há glosas nem bonificações nesta medição ("+TRIM(SC5->C5_MDNUMED)+")")
+		u_MsgLog(,"Não há glosas nem bonificações nesta medição ("+TRIM(SC5->C5_MDNUMED)+")","W")
 	EndIf
 EndIf
 

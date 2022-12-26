@@ -148,7 +148,7 @@ While lImpresso
 	EndDo
 	
 	If Len (aNotas) == 0
-		MsgInfo ("Nao ha Notas Fiscais a imprimir para os parametros informados.","SCRNFS")
+		u_MsgLog("SCRNFS","Não ha Notas Fiscais a imprimir para os parametros informados.","W")
 		Return
 	EndIf
 	
@@ -359,7 +359,7 @@ While lImpresso
 			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 			dbSelectArea ("SB1")
 			if ! dbSeek (xFilial ("SB1") + SD2 -> D2_COD)
-				msginfo ("O produto " + SD2 -> D2_COD + ", informado na NF " + SD2 -> D2_SERIE + "/" + SD2 -> D2_DOC + ", nao existe no cadastro de Produtos!","SCRNFS")
+				u_MsgLog(,"O produto " + SD2 -> D2_COD + ", informado na NF " + SD2 -> D2_SERIE + "/" + SD2 -> D2_DOC + ", nao existe no cadastro de Produtos!","E")
 				dbSelectArea ("SD2")
 				dbSkip ()
 				loop

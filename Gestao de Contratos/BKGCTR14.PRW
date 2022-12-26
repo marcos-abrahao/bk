@@ -370,21 +370,9 @@ IF EMPTY(cContrato)
 			nCompAtual := 3
 		EndIf
 	ELSE
-		IF AVISO("Atenção","Incluir Contrato Consorcios ?",{"Não","Sim"}) == 2
-			lConsorcio := .T.
-		ELSE
-			lConsorcio := .F.
-		ENDIF
-		IF AVISO("Atenção","Incluir Contrato Furnas - Filial 381/391 ?",{"Não","Sim"}) == 2
-			lFurnas := .T.
-		ELSE
-			lFurnas := .F.
-		ENDIF
-		IF AVISO("Atenção","Incluir Contrato Petro - Filial 455 ?",{"Não","Sim"}) == 2
-			lPetro := .T.
-		ELSE
-			lPetro := .F.
-		ENDIF
+		lConsorcio := u_MsgLog("BKGCTR14","Incluir Contrato Consorcios ?","N")
+		lFurnas    := u_MsgLog("BKGCTR14","Incluir Contrato Furnas - Filial 381/391 ?","N")
+		lPetro     := u_MsgLog("BKGCTR14","Incluir Contrato Petro - Filial 455 ?","N")
 	ENDIF
 ELSEIF nConsolida == 0
 	cTipoContra := "" // Se informar o contrato, permitir contratos não vigentes

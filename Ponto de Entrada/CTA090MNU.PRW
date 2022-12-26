@@ -65,7 +65,7 @@ Private nValorResg := 0
 
 If !Empty(CN8->CN8_DTBX)
 	//Aviso( STR0026, STR0032, { STR0028 } ) // "Atencao", "Esta Caução já esta Baixada.", "Ok"
-	Aviso( "Atencao", "Esta Caução já esta Baixada.", { "OK" } )
+	u_MsgLog("CN090Bx_BK", "Esta Caução já esta Baixada.", "E" )
 	
 	lRet := .F.
 EndIf

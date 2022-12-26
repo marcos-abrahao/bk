@@ -282,11 +282,7 @@ DISCONNECT SMTP SERVER
 
 /*
 IF lResulSend
-	If _lJob
-        u_xxConOut("INFO",cPrw,"E-mail enviado com sucesso: "+TRIM(cAssunto)+"-"+cError)
-	Else
-		MsgInfo(cPrw+": E-mail enviado com sucesso: " +TRIM(cAssunto))
-	Endif
+	u_MsgLog(cPrw,"E-mail enviado com sucesso: " +TRIM(cAssunto),"S")
 ENDIF
 */
 

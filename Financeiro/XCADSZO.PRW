@@ -101,8 +101,8 @@ cRet := AxInclui("SZO",,,,,,)
 cZO_TIPO	:=  ""
 
 IF cRet == 1 .AND. EMPTY(SZO->ZO_LBANCO)
-	IF MsgYesNo("Deseja Incluir o Lançamento no Banco ?")
-		MsgRun("Aguarde, gerando movimentação bancária…","",{|| CursorWait(), lRet := U_LBANCO(SZO->(Recno())) ,CursorArrow()})
+	IF u_MsgLog("XCADSZO","Deseja Incluir o Lançamento no Banco ?","Y")
+		u_WaitLog("XCADSZO",{|| lRet := U_LBANCO(SZO->(Recno()))},"Aguarde, gerando movimentação bancária…")
 	ENDIF   
 ENDIF
 
@@ -126,7 +126,7 @@ cZO_RECLAM	:=	SZO->ZO_RECLAM
 IF !EMPTY(cZO_CODIGO) .AND. SZO->ZO_TIPO == "B"
 	cRet := AxInclui("SZO",,,,,,)
 ELSE
-	MSGINFO("Posicionar no processo Judicial que sofreu bloqueio para inclusão do desbloqueio. Verifique!!")
+	u_MsgLog(XCADSZO,"Posicionar no processo Judicial que sofreu bloqueio para inclusão do desbloqueio. Verifique!!","W")
 ENDIF
 
 cZO_TIPO	:=  ""

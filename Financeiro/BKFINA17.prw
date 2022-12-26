@@ -11,8 +11,9 @@ BK - Facilitador de digitação de movimento bancario
 /*/
 
 User Function BKFINA17()
-u_MsgLog("BKFINA17")
+
 AxCadastro("SZK","Facilitador de Movimento Bancário")
+
 Return Nil       
 
 

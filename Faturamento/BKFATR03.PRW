@@ -15,10 +15,7 @@ Local aTitulos,aCampos,aCabs,aPlans,aFormula
 Private cTitulo      := "Relação de Pedidos não Liberados/Faturados"
 Private cPerg        := "BKFATR03"
 
-u_MsgLog(cPerg)
-
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+u_WaitLog(cPerg, {|| ProcQuery() })
 
 aCabs   := {}
 aCampos := {}
@@ -91,8 +88,6 @@ Return
 
 Static Function ProcQuery
 Local cQuery
-
-IncProc("Consultando o banco de dados...")
 
 cQuery := "SELECT C5_NUM,C5_EMISSAO,C5_CLIENTE,C5_LOJACLI,"+ CRLF
 cQuery += "  (CASE WHEN C5_LIBEROK='S' THEN 'Nao faturado' ELSE 'Nao Liberado' END) AS XX_LIBEROK,"

@@ -68,7 +68,6 @@ Return
 Static Function BKAjuSE2()
 Local cQuery    := ''
 Local cAliasQry := ''
-Local nOpc      := 0
 Local lProcessa := .T.
 Local cCodRet   := ""   //Alltrim(&(GetMv("MV_TMSCRET",,''))) //-- Codigo de Retencao da DIRF - TMS
 Local cUniao    := PadR( GetMV("MV_UNIAO",,""), Len(SA2->A2_COD) )		//-- Codigo do fornecedor para pagamento do Imposto de Renda
@@ -82,8 +81,7 @@ Local nHdlArqIR := 0
 If !File("BKRegIR.TXT")
 	nHdlArqIR := MSFCREATE( "BKRegIR.TXT" )
 Else
-	nOpc := Aviso("Atenção", "O ajuste já foi processado anteriormente. Processar novamente?", {"SIM", "NÃO"})
-	If nOpc == 1
+	If u_MsgLog("BKAjuSE2", "O ajuste já foi processado anteriormente. Processar novamente?", "Y")
 		FErase("BKRegIR.TXT")
 		nHdlArqIR := MSFCREATE( "BKRegIR.TXT" )
 	Else
@@ -254,15 +252,6 @@ If !File("BKRegIR.TXT")
 	nHdlArqIR := MSFCREATE( "BKRegIR.TXT" )
 Else
 	nHdlArqIR := fOpen("BKRegIR.TXT",2)
-	/*
-	nOpc := Aviso("Atenção", "O ajuste já foi processado anteriormente. Processar novamente?", {"SIM", "NÃO"})
-	If nOpc == 1
-		FErase("BKRegIR.TXT")
-		nHdlArqIR := MSFCREATE( "BKRegIR.TXT" )
-	Else
-		lProcessa := .F.
-	EndIf
-	*/
 EndIf
 
 If lProcessa

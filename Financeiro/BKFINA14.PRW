@@ -1995,23 +1995,21 @@ If nHandle > 0 .OR. nHandle2 > 0
 	cNumBor := ""
 	Processa ( {|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)})
 	
-	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso, verifique na pasta:    "'+cDirTmp2+'"'
-	MsgInfo(cMsgLog,cPerg)
+	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso, verifique na pasta: "'+cDirTmp2+'"'
+	u_MsgLog(cPerg,cMsgLog,"S")
 
 ELSE
 	IF nHandle <> 0
 		//cArqTmp := cDirTmp2+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+cGrupo+"_"+cBanco+"_"+DTOS(dData)+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+"RELACAO_BANCARIA_"+cGrupo+"_"+cBanco+"_"+DTOS(dData)+".DOC"
 		cMsgLog := "Falha na criação do arquivo "+cArqTmp
-		MsgAlert(cMsgLog)
+		u_MsgLog(cPerg,cMsgLog,"E")
 	ENDIF
 	IF nHandle2 <> 0
 		//cArqTmp := cDirTmp+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+cGrupo+"_"+cBanco+"_"+DTOS(dData)+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+"REMESSA_"+cGrupo+"_"+cBanco+"_"+DTOS(dData)+".TXT"
 		cMsgLog := "Falha na criação do arquivo "+cArqTmp
-		MsgAlert(cMsgLog)
+		u_MsgLog(cPerg,cMsgLog,"E")
 	ENDIF
 ENDIF
-
-u_MsgLog(cPerg,cMsgLog)
 
 Return nil 
 

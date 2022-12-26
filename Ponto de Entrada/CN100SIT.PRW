@@ -24,7 +24,7 @@ If CN9->CN9_FLGCAU == '1' .and. CN9->CN9_SITUAC == '08'
 			RecLock("CN9",.F.)
 			CN9->CN9_SITUAC := '07'
 			msUnlock()
-			Aviso("CN100SIT",OemtoAnsi("Contrato com Caução em Aberto, Situacao não pode ser alterada!"),{"Ok"})
+			u_MsgLog("CN100SIT","Contrato com Caução em Aberto, Situacao não pode ser alterada!","E")
 		EndIf
 	Endif
 Endif
@@ -36,7 +36,7 @@ If CN9->CN9_SITUAC == '05'
 	dbSelectArea("SZG")
 	dbSetOrder(1)
 	IF !dbSeek(xFilial("SZG")+CN9->CN9_NUMERO,.F.) //+CN9->CN9_REVISA,.F.)
-   		MsgStop(OemtoAnsi("Contrato não possui Ficha de Projeção Financeira. Situacao não pode ser alterada!"),"Atenção")
+   		u_MsgLog("CN100SIT","Contrato não possui Ficha de Projeção Financeira. Situacao não pode ser alterada!","W")
 		dbSelectArea("CN9")
 		dbSetOrder(1)
 		//Retorna  a situação para Sol. Finalização

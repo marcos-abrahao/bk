@@ -44,8 +44,6 @@ Private cSim   := "Não"
 Private aFurnas:= U_MVXFURNAS()
 Private cArqTmp
 
-u_MsgLog(cPerg)
-
 AADD(aSIM,"Emergencial")
 AADD(aSIM,"Lote BK")
 AADD(aSIM,"Não")
@@ -130,12 +128,11 @@ nSnd += nTLin
 DEFINE SBUTTON FROM nSnd, 085 TYPE 1 ACTION (oDlg01:End(),nOpcA:=1) ENABLE OF oDlg01
 DEFINE SBUTTON FROM nSnd, 115 TYPE 2 ACTION (oDlg01:End(),,nOpcA:=0) ENABLE OF oDlg01
 
-
 ACTIVATE MSDIALOG oDlg01 CENTER Valid(ValidaBX())
 
 If nOpcA == 1
 	nOpcA:=0
-	Processa( {|| PROCBXBNC()})	
+	u_WaitLog(cPerg, {|| PROCBXBNC()})	
 Endif
 
 oTmpTb:Delete()
@@ -225,16 +222,15 @@ Local cPicV    := ""
 Local _IX
 Local cDtVenc,cCPFFav,cNome,cBcFav,cAgFav,cDvAgFav,cCCFav,cDvCCFav,nValFav,cOcorr,cDesOcorr,nCont,cStatus
 
-
 cPicV 	:= "@E 999,999,999.99"
 
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
-Procregua(FT_FLASTREC())  //quantos registros para ler
+//Procregua(FT_FLASTREC())  //quantos registros para ler
  
 While !FT_FEOF()
 
-	IncProc('Carregando Arquivo')
+	//IncProc('Carregando Arquivo')
  
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha
@@ -479,7 +475,7 @@ ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End(
 
 If ( lOk )
 	lOk:=.F.
-	Processa( {|| U_RBKBXBNCO()})
+	u_WaitLog(cPerg, {|| U_RBKBXBNCO()})
 ENDIF	
 
 
@@ -531,10 +527,6 @@ Local titulo        := ""
 	m_pag   := 01 
 	
 RETURN
-
-
-
-
 
 
 /*/

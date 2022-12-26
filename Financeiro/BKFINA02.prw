@@ -55,7 +55,7 @@ u_MsgLog("BKFINA02")
 dbSelectArea("SZ2")
 dbGoTop()
 IF BOF() .OR. EOF()
-	MsgStop("Não ha lotes gerados", "Atenção")
+	u_MsgLog(,"Não ha lotes gerados", "W")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -79,14 +79,14 @@ nStatusX := QSZ2->Z2STATUSX
 QSZ2->(DbCloseArea())
 
 IF nStatusX > 0
-    MsgStop("Integração já iniciada por outra seção", "Atenção")
+    u_MsgLog(,"Integração já iniciada por outra seção", "W")
 	IF __cUserId <> "000000"
-	   MsgStop("Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "Atenção")
+	   u_MsgLog(,"Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "W")
     ELSE
-       IF MsgYesNo("Sr. Administrador, deseja resetar o campo Z2_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?")
+       IF u_MsgLog(,"Sr. Administrador, deseja resetar o campo Z2_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?","Y")
 		  cQuery := " UPDATE "+RetSqlName("SZ2")+" SET Z2_STATUS = ' ' WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = 'X' AND D_E_L_E_T_ <> '*' AND Z2_VALOR > 0"
     	  TcSqlExec(cQuery)
-    	  MsgInfo("Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa")
+    	  u_MsgLog(,"Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa","I")
        ENDIF  
     ENDIF
    RestArea(aAreaIni)
@@ -151,7 +151,7 @@ QSZ2->(DbCloseArea())
 ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	MsgStop("Não há lotes disponíveis", "Atenção")
+	u_MsgLog(,"Não há lotes disponíveis", "W")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -221,7 +221,7 @@ If ( lOk )
 				ENDIF
 			    //cTitulo := PAD(ALLTRIM(QSZ2->Z2_TIPO),3,"_"+ProxNum()
 			    IF QSZ2->Z2_DATAPGT < dDataBase
-					MsgStop("Lote "+TRIM(QSZ2->Z2_CTRID)+" com data de pgto ("+DTOC(QSZ2->Z2_DATAPGT)+") não permitida ", "Atenção")
+					u_MsgLog(,"Lote "+TRIM(QSZ2->Z2_CTRID)+" com data de pgto ("+DTOC(QSZ2->Z2_DATAPGT)+") não permitida ", "W")
 			    ELSE
 					IF TRIM(cPrf) == "LF" 
 						cTitulo := STRZERO(nProxTit++,6)+QSZ2->Z2_TIPO
@@ -661,7 +661,7 @@ Static Function ValidaMrk(lRet,cPgto)
 IF CTOD(cPgto) >= dDataBase
    lRet := !lRet
 ELSE
-   MsgStop("Data de pgto deste lote é inferior a data base do sistema", "Atenção")
+   u_MsgLog(,"Data de pgto deste lote é inferior a data base do sistema", "W")
    lRet := .F.
 ENDIF   
 Return lRet

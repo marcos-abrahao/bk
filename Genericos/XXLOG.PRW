@@ -69,6 +69,43 @@ EndIf
 Return lRet
 
 
+/*/{Protheus.doc} User Function AvisoLog
+	Grava log de resposta para a função Aviso()
+	@type  Function
+	@author Marcos Bispo Abrahão
+	@since 23/12/2022
+	@param
+		cProg			Caracter	Nome da rotina para gravar no log.
+		cTitulo	        Caracter	Título da janela.	
+		cMsg	        Caracter	Texto a ser apresentado na janela.	
+		aBotoes	        Vetor	    Array com as opções dos botões.	
+		nSize	        Numérico	Tamanho da janela. Pode ser 1, 2 ou 3.	
+		cText	        Caracter	Titulo da Descrição (Dentro da Janela)	cTitulo	
+		nRotAutDefault	Numérico	Opção padrão usada pela rotina automática.	
+		cBitmap	        Caracter	Nome do bitmap a ser apresentado (AVISO: O parâmetro cBitmap foi depreciado, para que a função fique de acordo com o layout do Protheus 12)	
+		lEdit	        Lógico	    Determina se permite a edição do campo memo.	.F.	
+		nTimer	        Numérico	Tempo para exibição da mensagem em segundos.	
+		nOpcPadrao	    Numérico	Opção padrão apresentada na mensagem.	
+	@version 12.1.33
+*/
+
+User Function AvisoLog(cProg,cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
+Local cArqLog  := "\log\msglog.log"
+Local nRet     := 0
+
+Default cProg  := FunName()
+
+nRet := Aviso(cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
+If !Empty(nRet)
+	cMens += ": "+aBotoes[nRet]
+EndIf
+
+u_xxLog(cArqLog,cProg + ": "+cMens)
+
+Return nRet
+
+
+
 /*/{Protheus.doc} User Function xxLog
 	Grava o arquivo de log.
 	@type  Function
@@ -82,17 +119,13 @@ Local nHandle := 0
 Local cBuffer := ""
 
 Default cTxt  := ""
-//DEFAULT lMens:= .T.  //Inicializa cMens com Data e Hora
-//DEFAULT cEnv := ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
-//u_xxConOut("INFO","xxLog",cMens)
 cMens := STRTRAN( cMens, CRLF, " ")
-If Empty(cTxt)
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+cMens+"|" 
-Else
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+cMens+"|"+CRLF+cTxt+CRLF
+cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+cMens+"|" 
+If !Empty(cTxt)
+	cMens += CRLF+cTxt+CRLF
 EndIf
 
 If !File(cArqLog)

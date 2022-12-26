@@ -4417,7 +4417,6 @@ User Function BK2GCTR11(lJob,aAglContr)
 	Local cXXSEMAF		:= "N"
 	Local aRetCons		:= {}
 	Local cLogCons   	:= ""
-	Local cCrLf   		:= Chr(13) + Chr(10)
 	Local _IX			:= 0
 	Local IX			:= 0
 	Local dMaxCompet	:= CTOD("")
@@ -4616,21 +4615,12 @@ User Function BK2GCTR11(lJob,aAglContr)
 					cConsolida := SUBSTR(cConsolida,1,LEN(cConsolida)-1)
 				ENDIF
 				IF !EMPTY(cLogCons)
-					IF !lJob
-						IF !MSGYESNO("- Contratos não encontrados e será desconsiderado da Consolidação -" +cCrLf+cCrLf+cLogCons+cCrLf+cCrLf+"Continua?")
-						ENDIF
-					ELSE
-						u_xxConOut("ERROR","BK2GCTR11","Contratos não encontrados, serão desconsiderados da Consolidação - "+cLogCons)
-					ENDIF
+					u_MsgLog("BK2GCTR11","Contratos não encontrados, serão desconsiderados da Consolidação - "+cLogCons,"E")
 					RETURN NIL
 				ENDIF
 			ENDIF
 		ELSE
-			IF !lJob
-				MSGSTOP("Informações para Consolidar invalida. Verifique!!")
-			ELSE
-				u_xxConOut("ERROR","BK2GCTR11","Informações para Consolidar invalidas. Verifique!!")
-			ENDIF
+			u_MsgLog("BK2GCTR11","Informações para Consolidar invalida. Verifique!!","E")
 			Return Nil
 		ENDIF
 
@@ -4670,11 +4660,7 @@ User Function BK2GCTR11(lJob,aAglContr)
 
 	IF EMPTY(cContrato)
 		IF !lJob
-			IF AVISO("Atenção","Incluir Contrato Consorcios??",{"Não","Sim"}) == 2
-				lConsorcio := .T.
-			ELSE
-				lConsorcio := .F.
-			ENDIF
+			lConsorcio := u_MsgLog("BKGCTR11","Incluir Contrato Consorcios?","N")
 		ELSE
 			lConsorcio := .T.
 		ENDIF

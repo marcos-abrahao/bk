@@ -149,7 +149,7 @@ Else
     oTmpTb:Create()
 EndIf
 
-Processa( {|| ProcBKFR04() })
+u_WaitLog(cPerg, {|| ProcBKFR04() })
 
 BKFR04E()
 
@@ -198,7 +198,6 @@ AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlig
 U_PlanXlsx(aPlans,cTitulo,cPerg,.F.,aParam)
 
 Return 
-
 
 
 Static Function ProcBKFR04
@@ -280,12 +279,10 @@ TCSETFIELD(cAliasQry,"E1_VENCTO","D",8,0)
 TCSETFIELD(cAliasQry,"E1_VENCORI","D",8,0)
 TCSETFIELD(cAliasQry,"E1_BAIXA","D",8,0)
  
-ProcRegua((cAliasQry)->(LastRec()))
-
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	Reclock(cAliasTrb,.T.)
 	For nF := 1 To Len(aFields)
 		If !Empty(aFields[nF,2])

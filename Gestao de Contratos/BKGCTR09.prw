@@ -711,7 +711,7 @@ IF nOpc == 1 // Avisa se diferença valores do cronograma e planilha
 		FOR i := 1 TO LEN(aCroXPla)
 			cCroXPla += aCroXPla[i]+ Chr(13) + Chr(10)+ Chr(13) + Chr(10)
 		NEXT
-		Aviso("Atencao",cCroXPla, {"Ok"})
+		u_MsgLog(cPerg,"Há diferenças de valores entre o cronograma e a planilha","W",cCroXPla)
 	ENDIF
 ENDIF
 
@@ -854,11 +854,10 @@ If nHandle > 0
       
    fClose(nHandle)
       
-   MsgInfo("O arquivo "+cArqTmp+" será aberto no MsExcel",cPerg)
-   ShellExecute("open", cArqTmp,"","",1)
+   u_WaitLog(cPerg,{ || ShellExecute("open", cArqTmp,"","",1)},"O arquivo "+cArqTmp+" será aberto no MsExcel")
 
 Else
-   MsgAlert("Falha na criação do arquivo "+cArqTmp,cPerg)
+   u_MsgLog(cPerg,"Falha na criação do arquivo "+cArqTmp,"E")
 Endif
    
 Return

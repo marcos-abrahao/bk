@@ -11,6 +11,7 @@ BK - Fluxo de Caixa
 /*/
 
 User Function BKFINA12()
-u_MsgLog("BKFINA12")
+
 AxCadastro("SZF","Fluxo de Caixa "+FWEmpName(cEmpAnt))
+
 Return Nil

@@ -47,7 +47,7 @@ cE2CtrID := SE2->E2_XXCTRID
 dbSelectArea("SZ2")
 dbGoTop()
 IF BOF() .OR. EOF()
-	MsgStop("Não ha lotes gerados", "Atenção")
+	u_MsgLog("BKFINA03","Não ha lotes gerados", "W")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -81,7 +81,7 @@ QSZ2->(DbCloseArea())
 ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	MsgStop("Não há lotes disponíveis para excluir", "Atenção")
+	u_MsgLog(,"Não há lotes disponíveis para excluir", "W")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -142,7 +142,7 @@ If ( lOk )
 EndIf
 If !EMPTY(aTitGer)
 	If !lOkEx
-		MsgStop("Há titulos com movimento neste lote, estorne os movimentos as baixas antes de exclui-los.", "Atenção")
+		u_MsgLog(,"Há titulos com movimento neste lote, estorne os movimentos as baixas antes de exclui-los.", "W")
 	Endif
 	ConfTit(aTitGer,aCtrId,lOkEx)
 EndIf
@@ -203,13 +203,12 @@ ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End(
 If ( lOk )
     //lOk := .T.
 	If !lOkEx
-		If !MsgYesNo("Há titulos com movimento neste lote, serão excluidos apenas os sem movimentos, confirma?", "Atenção")
+		If !u_MsgLog(,"Há titulos com movimento neste lote, serão excluidos apenas os sem movimentos, confirma?", "Y")
 		   lOk := .F.
 		Endif
 	EndIf
 	If lOk
 	    ExcluiSe2(aTitGer,aCtrId)
-	   //MsgStop("Problemas na exclusão do lote, informe o setor de T.I.", "Atenção")
 	Endif
 EndIf
 Return Nil
@@ -233,7 +232,7 @@ For nI := 1 TO LEN(aTitGer)
 	If aTitGer[nI,1] = "S"
 	    If !MsSeek(cKey)
 	    	lOk := .F.
-			MsgStop("Titulo "+cKey+" não existe, informe o setor de T.I.", "Atenção")
+			u_MsgLog(,"Titulo "+cKey+" não existe, informe o setor de T.I.", "E")
 	    Else
 		    Processa ( {|| ExcluiBord(cKey)})
 			aVetor:={{"E2_FILIAL"   ,SE2->E2_FILIAL,Nil},;
@@ -313,7 +312,7 @@ IF EMPTY(cMsg)
       cRet := "B"
    ENDIF      
 ELSE
-   MsgStop(cMsg, "Atenção: título não pode ser excluido!")
+   u_MsgLog(,"Título não pode ser excluido! "+cMsg,"E")
    cRet := "B"
 ENDIF   
 Return cRet

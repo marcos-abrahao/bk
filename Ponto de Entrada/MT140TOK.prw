@@ -46,10 +46,10 @@ If !FWIsInCallStack("U_BKFINJ18")
 			
 		// Declaração de variaveis
 		If LEN(aNfs) > 0
-			MsgInfo("Existem Nfs com o mesmo valor para este fornecedor","MT140OK")
+			u_MsgLog("MT140OK","Existem Nfs com o mesmo valor para este fornecedor","W")
 			lRet := BK140OK(aNFs)
 			If lRet
-				If !MsgYesNo("MT140OK","Existem lançamentos para este fornecedor com o mesmo valor, confirma esta Pré-nota assim mesmo?")
+				If !u_MsgLog("MT140OK","Existem lançamentos para este fornecedor com o mesmo valor, confirma esta Pré-nota assim mesmo?","N")
 					lRet := .F.
 				EndIf
 			EndIf

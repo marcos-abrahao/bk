@@ -79,7 +79,7 @@ While SF2->(!EoF()) .AND. SF2->F2_FILIAL == xFilial("SF2") .AND. SF2->F2_SERIE =
 ENDDO
 
 IF !lErro
-	MSGINFO("XML NFS-e Gravado com Sucesso!!")
+	u_MsgLog(,"XML NFS-e Gravado com Sucesso!!","S")
 ENDIF 
  
    	

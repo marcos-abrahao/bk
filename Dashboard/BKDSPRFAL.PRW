@@ -25,9 +25,7 @@ If TCSPExist( "BKFALTAS" )
 
 	If nErro != 0
 		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+		u_MsgLog(cPerg,cErro1,"E")
 	EndIf
 EndIf
 
@@ -190,9 +188,7 @@ nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
 	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	If !IsBlind()
-		MsgStop(cErro2, cPerg)
-	EndIf
+	u_MsgLog(cPerg,cErro2,"E")
 EndIf
 
 u_LogMemo("BKDSPRFAL.SQL",cErro1+cQueryD+cErro2+cQuery)
@@ -214,9 +210,7 @@ If TCSPExist( "BKFALTAS" )
 
 	If nErro != 0
 		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro1, cPerg)
-		EndIf
+		u_MsgLog(cPerg,cErro1,"E")
 	EndIf
 EndIf
 

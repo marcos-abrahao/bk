@@ -376,8 +376,7 @@ If ( lOk )
        dDPEDR == CN9->CN9_XXDTPD .AND.;
        nVlPedR == CN9->CN9_XXVPED .AND.;
        xSREP == CN9->CN9_XXSREP
-       
-		MsgInfo("Não houve alterações", "Atenção")
+       u_MsgLog(,"Não houve alterações","W")
 		
 	ELSE
 		RecLock("CN9",.F.)
@@ -475,7 +474,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há historico de repactuação para este contrato')
+   u_MsgLog(,'Não há historico de repactuação para este contrato',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -559,7 +558,7 @@ If ( lOk )
 	   CN9->CN9_XXREOA == cREOA .AND.;
 	   CN9->CN9_XXDREE == dDREE .AND.;
 	   CN9->CN9_XXSREE == xSREE
-		MsgInfo("Não houve alterações", "Atenção")
+		u_MsgLog(,"Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXREOB := cREOB
@@ -637,7 +636,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há historico de reequilibrio para este contrato')
+   u_MsgLog(,'Não há historico de reequilibrio para este contrato',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -738,7 +737,7 @@ If ( lOk )
 	   CN9->CN9_XXPROB == cPROB .AND.;
 	   CN9->CN9_XXPROA == cPROA .AND.;
 	   CN9->CN9_XXSPRO == xSPRO
-		MsgInfo("Não houve alterações", "Atenção")
+		u_MsgLog(,"Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXDVIG := dDVIG
@@ -816,7 +815,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há historico de prorrogação para este contrato')
+   u_MsgLog(,'Não há historico de prorrogação para este contrato',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -1058,7 +1057,7 @@ If ( lOk )
 		nDespDiv1	== nDespDiv .AND.;
 		nRentab1	== nRentab .AND.;
 		!lAlterad
-		MsgInfo("Não houve alterações", "Atenção")
+		u_MsgLog(,"Não houve alterações","W")
 	ELSE
         cNewSeq := ""
         cQuery  := ""
@@ -1140,7 +1139,7 @@ If ( lOk )
 	  		NEXT
         ENDIF
 
-		MsgInfo("Ateração concluída com sucesso!","Atenção")
+		u_MsgLog(,"Ateração concluída com sucesso!","S")
 	ENDIF
 
 EndIf
@@ -1237,7 +1236,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há histórico de projeção financeira para este contrato')
+   u_MsgLog(,'Não há histórico de projeção financeira para este contrato',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -1508,7 +1507,7 @@ If ( lOk )
 		dXXEQPD == CN9->CN9_XXEQPD .AND.;
 		cXXEQPH == CN9->CN9_XXEQPH
 
-		MsgInfo("Não houve alterações", "Atenção")
+		u_MsgLog(,"Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		//Carrega Valores do Contrato
@@ -1733,7 +1732,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há historico de insumos operacionais')
+   u_MsgLog(,'Não há historico de insumos operacionais',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -1819,7 +1818,7 @@ ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg0
 If ( lOk )
 	lOk:=.F.
 	IF cSTAT == CN9->CN9_XXSTAT .AND. dSTAT == CN9->CN9_XXDSTA .AND. CN9->CN9_XXDSAT == dDSAT
-		MsgInfo("Não houve alterações", "Atenção")
+		u_MsgLog(,"Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXSTAT := cSTAT
@@ -1899,7 +1898,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há historico de Atestado Capacidade Técnica')
+   u_MsgLog(,'Não há historico de Atestado Capacidade Técnica',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -1966,7 +1965,7 @@ ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg0
 If ( lOk )
 	lOk:=.F.
 	IF CN9->CN9_XXPVST == SUBSTR(cPVDST,1,1) .AND. CN9->CN9_XXDVST == dDVST .AND. CN9->CN9_XXHVST == cHVST 
-		MsgInfo("Não houve alterações", "Atenção")
+		u_MsgLog(,"Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXPVST := cPVDST                 
@@ -2040,7 +2039,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   MsgInfo('Não há historico de Atestado Capacidade Técnica')
+   u_MsgLog(,'Não há historico de Atestado Capacidade Técnica',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf

@@ -113,7 +113,7 @@ STATIC FUNCTION BuscaSZL()
     IF nScan > 0
 		oListId2:nAt := nScan
     ELSE
-    	MSGINFO("Não encontrado!!")
+    	u_MsgLog(,"Não encontrado!!","W")
     ENDIF 
 RETURN NIL
 
@@ -202,14 +202,14 @@ Do While lReLoad
 				ENDIF  
 			EndIf
 			lAlterad := .T.
-			MSGINFO("Incluido com Sucesso!!")
+			u_MsgLog(,"Incluido com Sucesso!!","S")
 		
 		ELSEIF nxXOpcao == 4
 			aSZL[nITEM,1]  := IIF(cTipoZG='01',"18-1","W")+ALLTRIM(cCodSB1)
 			aSZL[nITEM,2]  := cDesSB1
 			aSZL[nITEM,3]  := nValSB1
 			lAlterad := .T.
-			MSGINFO("Alterado com Sucesso!!")
+			u_MsgLog(,"Alterado com Sucesso!!","S")
 		ENDIF
 		SomaSZL(aSZL)
 	Endif
@@ -298,7 +298,7 @@ IF nItem > 0
 			oListID2:bLDblClick := {|| EDITSZL(@aSZL) ,SomaSZL(aSZL),oListID2:DrawSelect(), }
 			oListID2:Refresh()
 			lAlterad := .T.
-			MSGINFO("Excluido com Sucesso!!")
+			u_MsgLog(,"Excluido com Sucesso!!","S")
 		ENDIF
 	ENDIF
 ENDIF
@@ -369,7 +369,7 @@ Enddo
 QSZl->(Dbclosearea())
 
 IF  LEN(aSelRent) < 1
-	MsgInfo("Todos os Códigos incluidos.") 
+	u_MsgLog(,"Todos os Códigos incluidos!","S")
 	RETURN NIL
 ENDIF
 
@@ -437,6 +437,6 @@ STATIC FUNCTION BuscSelRent()
     IF nScan > 0
 		oListId3:nAt := nScan
     ELSE
-    	MSGINFO("Não encontrado!!")
+    	u_MsgLog(,"Não encontrado","W")
     ENDIF 
 RETURN NIL

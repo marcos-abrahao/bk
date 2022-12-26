@@ -75,12 +75,12 @@ Return
 User Function REAJUSTSZM()
 
 IF SZM->ZM_STATUS == 'A'
-   MsgInfo("Reajuste Projeção Financeira contrato: "+SZM->ZM_CONTRATO+"     já  aplicado")
+   u_MsgLog(,"Reajuste Projeção Financeira contrato: "+SZM->ZM_CONTRATO+" já  aplicado","W")
    RETURN NIL
 ENDIF
 
-IF MsgNoYes("Reajustar Projeção Financeira contrato: "+SZM->ZM_CONTRATO)
+//IF MsgNoYes("Reajustar Projeção Financeira contrato: "+SZM->ZM_CONTRATO)
 
-ENDIF
+//ENDIF
 
 RETURN NIL

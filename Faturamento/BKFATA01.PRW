@@ -164,14 +164,14 @@ If !EMPTY(dEmisF)
 EndIf
 
 
-MsAguarde({|| nI := ProcQuery(cQuery)},"Aguarde","Selecionando documentos...",.F.)
+u_WaitLog(cPerg,{|| nI := ProcQuery(cQuery)},"Aguarde, selecionando documentos...")
 
 If nI == 0
 	oTmpTb:Delete() 
 	(cAliasTmp2)->( dbCloseArea() )
 
 	RestArea( aAreaAtu )
-	MsgStop("Documentos não encontrados para este usuário")
+	u_MsgLog(cPerg,"Documentos não encontrados para este usuário","W")
 	Return Nil
 EndIf
 	
@@ -360,7 +360,6 @@ TCQUERY _cQuery NEW ALIAS (cAliasTmp2)
 
 dbSelectArea(cAliasTmp2)
 dbGoTop()
-ProcRegua((cAliasTmp2)->(LASTREC()))
 
 While (cAliasTmp2)->(!EoF())
 

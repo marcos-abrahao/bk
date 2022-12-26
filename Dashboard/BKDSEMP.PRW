@@ -27,9 +27,7 @@ nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
 	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	If !IsBlind()
-		MsgStop(cErro1, cPerg)
-	EndIf
+	u_MsgLog(cPerg,cErro1,"E")
 EndIf
 
 cQuery := "CREATE TABLE PowerBk.dbo.EMPRESAS " + CRLF
@@ -42,9 +40,7 @@ cQuery += ") " + CRLF
 nErro   := TcSqlExec(cQuery)
 If nErro != 0
 	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	If !IsBlind()
-		MsgStop(cErro2, cPerg)
-	EndIf
+	u_MsgLog(cPerg,cErro2,"E")
 EndIf
 
 For nX := 1 To Len(aEmpresas)
@@ -63,9 +59,7 @@ For nX := 1 To Len(aEmpresas)
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
 		cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		If !IsBlind()
-			MsgStop(cErro2, cPerg)
-		EndIf
+		u_MsgLog(cPerg,cErro2,"E")
 	EndIf
 Next nX
 
