@@ -40,7 +40,7 @@ Private cHist    := ""
 Private aPrd     := {"21401003","21401004","DARF6912", "DARF5856","INS4982"} 
 Private aPrdDesc := {}
 
-If !FWIsAdmin() .AND. !u_IsFiscal()
+If !FWIsAdmin() .AND. !u_IsFiscal(__cUserId)
 	u_MsgLog(cProg,"Acesso a rotina somente para o grupo FIscal","W")
 	Return Nil
 EndIf

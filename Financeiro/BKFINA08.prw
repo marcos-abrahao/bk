@@ -43,12 +43,12 @@ User Function BKFINA08()
 	nPlan    := mv_par03
 
 	If VAL(cMesComp) < 1 .OR. VAL(cMesComp) > 12
-		MsgStop("Mes incorreto")
+		u_MsgLog(,"Mes incorreto","E")
 		Return
 	EndIf
 
 	If VAL(cAnoComp) < 2009 .OR. VAL(cAnoComp) > 2030
-		MsgStop("Ano incorreto")
+		u_MsgLog(,"Ano incorreto","E")
 		Return
 	EndIf
 

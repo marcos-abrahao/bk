@@ -272,7 +272,7 @@ DO WHILE !EOF()
       LOOP
    ENDIF
    
-MSGINFO(STR(nValD3,14,2),"bkacerto")
+   u_MsgLog(,STR(nValD3,14,2),"bkacerto")
 
    aVetor := {}
    AADD(aVetor,{"D3_FILIAL"  , xFilial('SD3'),Nil} )

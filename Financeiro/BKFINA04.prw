@@ -50,19 +50,19 @@ u_MsgLog("BKFINA04")
 
 dbSelectArea("SE2")
 IF BOF() .OR. EOF()
-	MsgStop("Selecione um titulo!", "Atenção")
+	u_MsgLog(,"Selecione um titulo!", "E")
 	RestArea(aAreaIni)
 	Return
 ENDIF
 
 IF EMPTY(SE2->E2_XXCTRID)
-	MsgStop("Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "Atenção")
+	u_MsgLog(,"Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "E")
 	RestArea(aAreaIni)
 	Return
 ENDIF
 
 IF TRIM(SE2->E2_TIPO) = 'PA'
-	MsgStop("Titulo tipo PA: utilize a opção Excluir liq. "+FWEmpName(cEmpAnt), "Atenção")
+	u_MsgLog(,"Titulo tipo PA: utilize a opção Excluir liq. "+FWEmpName(cEmpAnt), "E")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -123,7 +123,7 @@ QSZ2->(DbCloseArea())
 //ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	MsgStop("Não existem valores liquidos associados", "Atenção")
+	u_MsgLog(,"Não existem valores liquidos associados", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -156,7 +156,7 @@ If !lConsulta
 
 	If ( lOk )
 	    If !lTitOk
-	       MsgStop("Titulo não pode ser alterado"+cMsgEx)
+	       u_MsgLog(,"Titulo não pode ser alterado"+cMsgEx,"E")
 	    Else
 			For nI:=1 To Len(aCtrId)
 		        If aCtrId[nI,1]
@@ -177,7 +177,7 @@ If !lConsulta
 
 		   //Endif   
 		Else
-			MsgStop("Nenhuma alteração foi efetuada")
+			u_MsgLog(,"Nenhuma alteração foi efetuada","W")
 		EndIf
 	
 	Endif
@@ -346,7 +346,7 @@ IF lTitOk
       EndDo   
    ENDIF
 ELSE
-   MsgStop("Titulo não pode ser alterado "+cMsgEx, "Atenção")
+   u_MsgLog(,"Titulo não pode ser alterado "+cMsgEx, "E")
    lRet := .T.
 ENDIF   
 Return lRet

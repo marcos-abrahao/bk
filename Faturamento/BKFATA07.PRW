@@ -217,9 +217,9 @@ IF !lErro .and. nTotReg > 0
 
 	MemoWrite(cArquivo,cXML)
 
-	MSGINFO("XML NFS-e Gerado com Sucesso! "+cCrLf+"Arquivo: "+cArquivo)
+	u_MsgLog(,"XML NFS-e Gerado com Sucesso! Arquivo: "+cArquivo,"S")
 ELSE
-	MSGSTOP("XML NFS-e Erro na Geração. Verifique!")
+	u_MsgLog(,"XML NFS-e Erro na Geração. Verifique!","E")
 ENDIF 
     	
 Return (Nil)

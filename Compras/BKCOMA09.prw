@@ -449,7 +449,7 @@ Static Function SZSProc2(dDataE,dDataP,lTodos)
 	EndDo
 
 	//Mostrando a mensagem de registros marcados
-	MsgInfo('Datas alteradas', "Atenção")
+	u_MsgLog("BKCOMA09",'Datas alteradas', "S")
 
 	//Restaurando área armazenada
 	RestArea(aArea)

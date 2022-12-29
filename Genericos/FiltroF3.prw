@@ -131,7 +131,7 @@ User Function FiltroF3(cTitulo,cQuery,nTamCpo,cAlias,cCodigo,cCpoChave,cTitCampo
 	DbCloseArea()
 	
 	If Len(_aDados) == 0
-		MsgInfo("Não há dados para exibir!","Aviso")
+		u_MsgLog("FiltroF3","Não há dados para exibir!","W")
 		Return
 	Endif
    

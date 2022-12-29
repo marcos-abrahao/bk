@@ -15,8 +15,9 @@ BK - Rotina para Selecionar Títulos e Gerar Baixa - Portal Transparencia
 User Function BKFINA16()
 
 Local lOk      := .F.
-Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Transparencia - "+FWEmpName(cEmpAnt)
+Local cTitulo  := "Selecionar Títulos e Gerar Baixa - Portal Transparencia - "+FWEmpName(cEmpAnt)
 
+Private cPrw	:= "BKFINA16"
 Private oDlg
 Private oListId
 Private oPanelLeft
@@ -51,7 +52,6 @@ Private lCancelou := .F.
 Private cVBanco  := space(3)
 Private cVAgencia := space(5)
 Private cVConta   := space(15)
-Private cPrw	  := "BKFINA16"
 
 u_MsgLog(cPrw)
 
@@ -179,7 +179,7 @@ If ( lOk )
 	lOk := .F.
 	IF  LEN(aTitGer) > 0
 		IF TRIM(aTitGer[1,1]) <> ""
-			IF msgyesno('Confirma Baixa dos Titulos Selecionados?')
+			IF u_MsgLog(cPrw,'Confirma Baixa dos Titulos Selecionados?',"Y")
 				MsAguarde({|| BAIXATAB()},"Aguarde","Efetuando baixas...",.F.)
 			ENDIF
 		ENDIF   
@@ -334,7 +334,7 @@ cKey    := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
 DbSelectArea ("SE1")
 DbSetOrder (1)
 IF !DbSeek(cKey,.F.)
-	MSGSTOP("Dados incorretos. Verifique!!")
+	u_MsgLog(cPrw,"Dados incorretos. Verifique!!","E")
 	lRET := .F.
 	RETURN lRET 
 ENDIF
@@ -342,13 +342,13 @@ ENDIF
 nScan:= 0
 nScan:= aScan(aTitGer,{|x| x[1]==cFatura .AND. x[2]==cPrefix .AND. x[3]==cParc .AND. x[4]==cTipo })
 IF nScan > 0
-	MSGSTOP("Título / Doc já incluido. Verificar!")
+	u_MsgLog(cPrw,"Título / Doc já incluido. Verificar!","E")
 	lRET := .F.
 	RETURN lRET 
 ENDIF
 
 IF EMPTY(cBanco) .OR. EMPTY(cAgencia) .OR. EMPTY(cConta)
-	MSGSTOP("Dados do Banco para baixa não informado. Verificar!")
+	u_MsgLog(cPrw,"Dados do Banco para baixa não informado. Verificar!","E")
 	lRET := .F.
 	RETURN lRET 
 ENDIF
@@ -357,19 +357,19 @@ DbSelectArea("SA6")
 SA6->(DbSetOrder(1))
 IF SA6->(DbSeek(xFilial("SA6")+cBanco+cAgencia+cConta,.F.))
 	IF SA6->A6_BLOCKED == '1'
-		MSGSTOP("Banco informado para baixa bloqueada para movimentações. Verifique!")
+		u_MsgLog(cPrw,"Banco informado para baixa bloqueada para movimentações. Verifique!","E")
 		lRET := .F.
 		RETURN lRET 
 	ENDIF
 ELSE
-	MSGSTOP("Dados do Banco para baixa incorreto. Verifique!")
+	u_MsgLog(cPrw,"Dados do Banco para baixa incorreto. Verifique!","E")
 	lRET := .F.
 	RETURN lRET 
 ENDIF
 
 IF nVlrCVinc > 0
 	IF EMPTY(cVBanco) .OR. EMPTY(cVAgencia) .OR. EMPTY(cVConta)
-		MSGSTOP("Dados do Banco para Baixa conta Vinculada não informado. Verificar!")
+		u_MsgLog(cPrw,"Dados do Banco para Baixa conta Vinculada não informado. Verificar!","E")
 		lRET := .F.
 		RETURN lRET 	
 	ENDIF
@@ -378,12 +378,12 @@ IF nVlrCVinc > 0
 	SA6->(DbSetOrder(1))
 	IF SA6->(DbSeek(xFilial("SA6")+cVBanco+cVAgencia+cVConta,.F.))
 		IF SA6->A6_BLOCKED == '1'
-			MSGSTOP("Banco informado para baixa Vinculada bloqueada para movimentações. Verifique!")
+			u_MsgLog(cPrw,"Banco informado para baixa Vinculada bloqueada para movimentações. Verifique!","E")
 			lRET := .F.
 			RETURN lRET 
 		ENDIF
 	ELSE
-		MSGSTOP("Dados do Banco para baixa Vinculada incorreto. Verifique!")
+		u_MsgLog(cPrw,"Dados do Banco para baixa Vinculada incorreto. Verifique!","E")
 		lRET := .F.
 		RETURN lRET 
 	ENDIF
@@ -557,7 +557,7 @@ For nI:=1 TO LEN(aTitGer)
 		MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 			
 		IF lMsErroAuto
-			u_LogMsExec("BKFINA16","Problemas na alteração do titulo "+aTitGer[nI,1])
+			u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
 			lOK := .F.
 			DisarmTransaction()
 			break
@@ -603,7 +603,7 @@ For nI:=1 TO LEN(aTitGer)
 			MSExecAuto({|x,y| Fina070(x,y)},aBaixa,3) 
 				
 			IF lMsErroAuto
-				u_LogMsExec("BKFINA16","Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
 				lOK := .F.
 				DisarmTransaction()
 				break
@@ -639,6 +639,5 @@ ELSE
 		u_MsgLog(cPrw,cLog,"E")
 	ENDIF
 ENDIF
-
 
 RETURN NIL

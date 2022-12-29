@@ -182,7 +182,7 @@ If lOk
 		dbSelectArea(cAliasTmp)
 		dbSkip()
 	EndDo
-	MsgInfo("Valores copiados com sucesso!","") 
+	u_MsgLog(,"Valores copiados com sucesso!","S") 
 EndIf
 
 ///(cAliasTmp)->(DbCloseArea())

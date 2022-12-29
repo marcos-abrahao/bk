@@ -68,14 +68,14 @@ cBanco   := SUBSTR(cSEE,1,3)
 
 If nTEDItau == 1 
 	IF cBanco <> "341" 
-		MSGSTOP("Para TED Itau, selecione conta do Banco 341 !",cPerg) 
+		u_MsgLog(cPerg,"Para TED Itau, selecione conta do Banco 341 !","E") 
 		Return Nil
 	ELSE
 		//If !(cTedBco $ "104/237/001")
 		//	MSGSTOP("TED Itau diponível apenas para BB, CEF e BRD !",cPerg) 
 		//	Return Nil 
 		//Else
-			IF !MsgYesNo("Confirma a geração de pagamentos do banco "+cTedBco+" no Banco Itau?",cPerg)
+			IF !u_MsgLog(cPerg,"Confirma a geração de pagamentos do banco "+cTedBco+" no Banco Itau?","Y")
 				Return Nil               
 			ENDIF
 		//EndIf
@@ -83,39 +83,39 @@ If nTEDItau == 1
 ENDIF
 
 IF dData < dDatabase
-	MSGSTOP("Data deve ser maior ou igual que a database!!",cPerg)                
+	u_MsgLog(cPerg,"Data deve ser maior ou igual que a database!!","E")
 	Return Nil
 ENDIF
 
 IF EMPTY(cDirTmp)
-	MSGSTOP("Pasta deve ser preenchida!!",cPerg)                
+	u_MsgLog(cPerg,"Pasta deve ser preenchida!!","E")
 	Return Nil
 ENDIF
 
 IF nFurnas == 1
 	IF cBanco == "001"
 		IF ALLTRIM(cSEE) <> "0013340 5561           00"
-			MSGSTOP("Conta Furnas selecionada incorreta!!",cPerg)                
+			u_MsgLog(cPerg,"Conta Furnas selecionada incorreta!!","E")
 			Return Nil
 		ENDIF
 	ELSEIF nTED == 1
-		MSGSTOP("Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas incorreto!!",cPerg)                
+		u_MsgLog(cPerg,"Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas incorreto!!","E")
 		Return Nil
 	ENDIF
 ELSEIF nFurnas == 2
 	IF cBanco == "001"
 		IF ALLTRIM(cSEE) <> "0013340 5562           00"
-			MSGSTOP("Conta Furnas Lote BK selecionada incorreta!!",cPerg)                
+			u_MsgLog(cPerg,"Conta Furnas Lote BK selecionada incorreta!!","E")
 			Return Nil
 		ENDIF
 	ELSEIF nTED == 1
-		MSGSTOP("Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas Lote BK incorreto!!",cPerg)                
+		u_MsgLog(cPerg,"Banco:"+cBanco+" selecionado para este Tipo PGTO Furnas Lote BK incorreto!!","E")
 		Return Nil
 	ENDIF
 ELSE
 	IF cBanco == "001"
 		IF ALLTRIM(cSEE) == "0013340 5561           00"  .OR. ALLTRIM(cSEE)="0013340 5562           00"
-			MSGSTOP("Conta selecionada incorreta!!",cPerg)                
+			u_MsgLog(cPerg,"Conta selecionada incorreta!!","E")
 			Return Nil
 		ENDIF
 	ENDIF
@@ -129,7 +129,7 @@ aCtrId := {}
 Processa ( {|| aCtrId := GeraQueryTit(dData,cBanco)})
 
 If Empty(aCtrId)
-	MsgStop("Não há títulos "+IIF(nFurnas==1," de FURNAS","")+IIF(nFurnas==2," de FURNAS LOTE BK","")+" disponíveis !!", cPerg)
+	u_MsgLog(cPerg,"Não há títulos "+IIF(nFurnas==1," de FURNAS","")+IIF(nFurnas==2," de FURNAS LOTE BK","")+" disponíveis !!","E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -228,9 +228,9 @@ Endif
 If !EMPTY(aErros)
 	For _nI:= 1 To Len(aErros)
 		IF aErros[_nI,1] == 1 
-			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5], cPerg)
+			u_MsgLog(cPerg,"CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5],"E")
 		ELSEIF aErros[_nI,1] == 2 
-			MsgStop("CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ", cPerg)
+			u_MsgLog(cPerg,"CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ","E")
 		ENDIF
 	NEXT
 EndIf
@@ -250,10 +250,10 @@ IF CTOD(cPgto) >= dDataBase  .AND. cBanco $ cBancos
 	lRet := !lRet
 ELSE
 	IF CTOD(cPgto) < dDataBase
-   		MsgStop("Data de pgto deste lote é inferior a data base do sistema", cPerg)
+   		u_MsgLog(cPerg,"Data de pgto deste lote é inferior a data base do sistema","E")
    		lRet := .F.
 	ELSE 
-   		MsgStop("Layout banco ("+cBanco+") indisponível ", cPerg)
+   		u_MsgLog(cPerg,"Layout banco ("+cBanco+") indisponível ","E")
    		lRet := .F.
  	ENDIF
 ENDIF   
@@ -531,7 +531,7 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	cConta    := STRTRAN(SEE->EE_CONTA,"-","")
 	cDVConta  := SEE->EE_DVCTA
 ELSE
-	MSGSTOP("Parâmetro do Banco não cadastrado!!",'Atenção')
+	u_MsgLog(,"Parâmetro do Banco não cadastrado!!",'E')
 	Return nil
 ENDIF
 

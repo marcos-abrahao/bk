@@ -33,7 +33,6 @@ Define MsDialog oDlgEx Title "Exclusão da NF "+SF2->F2_DOC From 000,000 To 140,4
 @ 055,080 Button "&Ok" Size 036,013 Pixel Action (GrvMotEx(cMotEx,cAprEx,cMCanc),oDlgEx:End())
 Activate MsDialog oDlgEx Centered
 
-
 GrvMotEx(cMotEx,cAprEx)
 
 dbSelectArea("SF3")

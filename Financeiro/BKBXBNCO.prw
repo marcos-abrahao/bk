@@ -155,11 +155,11 @@ IF cBanc $ "104/237"
 		cBcoArq := "237"
 	ENDIF
 	IF !cBcoArq $ "104/237"
-		MsgStop("Banco informado layout indisponível!!", "Atenção")
+		u_MsgLog(,"Banco informado layout indisponível: "+cBcoArq,"E")
 		lOk:= .F.
 	ENDIF
 	IF cBcoArq <> cBanc .AND. cbanc <> "237"
-		MsgStop("Banco informado diferente do Arquivo informado!!", "Atenção")
+		u_MsgLog(,"Banco informado diferente do Arquivo informado: "+cBcoArq+"-"+cbanc,"E")
 		lOk:= .F.
 	ELSE
 		IF cBanc == "104"
@@ -170,7 +170,7 @@ IF cBanc $ "104/237"
 				dData  := CTOD(SUBSTR(cBuffer,144,2)+"/"+SUBSTR(cBuffer,146,2)+"/"+SUBSTR(cBuffer,148,4))
 				cHora  := SUBSTR(cBuffer,152,2)+":"+SUBSTR(cBuffer,154,2)+":"+SUBSTR(cBuffer,156,2)
 			ELSE
-				MsgStop("Arquivo selecionado não é retorno. Verifique!!", "Atenção")
+				u_MsgLog(,"Arquivo selecionado não é retorno. Verifique!!", "E")
 				lOk:= .F.
 			ENDIF
 		ENDIF
@@ -194,7 +194,7 @@ ELSEIF cBanc == "033"
 		FT_FSKIP()   //proximo registro no arquivo txt
 	ENDDO
 	IF !lOk 
-		MsgStop("Arquivo selecionado não é retorno. Verifique!!", "Atenção")
+		u_MsgLog(,"Arquivo selecionado não é retorno. Verifique!!", "E")
 	ENDIF
 ENDIF
 
@@ -437,7 +437,7 @@ ENDDO
 ///FErase(cArqTmp+OrdBagExt())
 
 IF LEN(aCtrId) == 0
-	MSGSTOP("Não há dados "+IIF(SUBSTR(cSim,1,1) == "S"," de FURNAS","")+IIF(SUBSTR(cSim,1,1) == "L"," de FURNAS LOTE BK","")+" no arquivo. Verifique!")
+	u_MsgLog(,"Não há dados "+IIF(SUBSTR(cSim,1,1) == "S"," de FURNAS","")+IIF(SUBSTR(cSim,1,1) == "L"," de FURNAS LOTE BK","")+" no arquivo. Verifique!","E")
 	RETURN NIL
 ENDIF
 

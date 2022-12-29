@@ -446,7 +446,7 @@ User Function yTstDB()
 		If !TCIsConnected()
 			nH := TCLink()
 			If nH < 0
-			  MsgStop("DBAccess - Erro de conexao "+cValToChar(nH))
+			  u_MsgLog(,"DBAccess - Erro de conexao "+cValToChar(nH),"E")
 			  QUIT
 			Endif
 		EndIf

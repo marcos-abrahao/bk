@@ -66,7 +66,7 @@ For nI := 1 To Len(aDecode)
     cMensagem += CRLF + "Saida["+Str(nI)+"]: [" + aDeCode[nI]+ "]"
 Next
 
-MsgInfo(cMensagem, "Exemplo BKEnCode")
+u_MsgLog(,"Exemplo BKEnCode "+cMensagem,"S")
 
 Return
 

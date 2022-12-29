@@ -304,7 +304,7 @@ If __CopyFile( cArq, cDirTmp + "\" + _cProg + "-" + cArq)
    //ENDIF	
    Ferase(cArq)
 Else
-	MsgInfo( "Não foi possível copiar o arquivo para a pasta temporária local." )
+	u_MsgLog(,"Não foi possível copiar o arquivo para a pasta temporária local.","E")
 Endif
 
 RestArea(aArea)
@@ -632,7 +632,7 @@ If Empty(_cDirHttp)
 	   ENDIF	
 	   Ferase(cArq)
 	Else
-		MsgInfo( "O Arquivo não foi copiado para a pasta temporária local." )
+		u_MsgLog(,"O Arquivo não foi copiado para a pasta temporária local.","E")
 	Endif
 Else
 	cArq := _cDirHttp+"\"+_cProg+".xml"
