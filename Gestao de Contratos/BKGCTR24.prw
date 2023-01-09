@@ -142,7 +142,7 @@ cTitulo1  := cTitulo + " - Período:"+DTOC(dIni)+" até "+DTOC(dFim)
 
 ProcRegua(1000)
 
-Processa( {|| ProcQuery() })
+u_WaitLog(, {|| ProcQuery() })
 
 Return .T.
 
@@ -251,7 +251,7 @@ Local cQuery
 LimpaBrw (cAliasTrb)
 //LimpaBrw (cAliasTmp)
 
-IncProc("Consultando o banco de dados...")
+//IncProc("Consultando o banco de dados...")
 
 dbSelectArea("SZQ")
 dbSetOrder(1)
@@ -292,7 +292,7 @@ DO WHILE (cAliasTmp)->(!EOF())
 	EndIf
 
 
-	IncProc("Criando arquivo temporario...")
+	//IncProc("Criando arquivo temporario...")
 	//cEfic := " "
 	dbSelectArea(cAliasTrb)
 	Reclock(cAliasTrb,.T.)

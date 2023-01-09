@@ -190,8 +190,8 @@ AADD(aCampos,"TRB->XX_NFORNEC")
 AADD(aCabs  ,"Razão Social")
 AADD(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 
-Processa( {|| ProcBKCOMR04() })
-Processa( {|| MBrwBKCOMR04() })
+u_waiLog(, {|| ProcBKCOMR04() })
+u_waiLog(, {|| MBrwBKCOMR04() })
 
 ///TRB->(Dbclosearea())
 ///FErase(cArqTmp+GetDBExtension())
@@ -289,7 +289,7 @@ cConta  	:= mv_par15
 titulo   := "Movimento Compras - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 cTitulo  := titulo
 
-Processa( {|| ProcBKCOMR04() })
+u_waiLog(, {|| ProcBKCOMR04() })
 
 Return Nil
    
@@ -361,7 +361,7 @@ dbSelectArea("QTMP")
 QTMP->(dbGoTop())
 DO WHILE QTMP->(!EOF())
     nReg++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	Reclock("TRB",.T.)
 	TRB->XX_DOC 	:= QTMP->D1_DOC
 	TRB->XX_SERIE 	:= QTMP->D1_SERIE

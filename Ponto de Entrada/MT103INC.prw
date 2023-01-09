@@ -74,7 +74,7 @@ If lClass
 				If nOper == 1
 					// Avaliação do Fornecedor
 					If u_IsAvalia(__cUserId)
-						MsAguarde({|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
+						u_WaitLog(,{|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
 
 						dbSelectArea("TMPSD1")
 						dbGoTop()

@@ -152,7 +152,7 @@ oTmpTb:SetFields( aDbf )
 oTmpTb:AddIndex("indice1", {"XX_DATA"} )
 oTmpTb:Create()
 
-Processa( {|| ProcBKFR23() })
+u_WaitLog(, {|| ProcBKFR23() })
 
 MBrwBKF23()
 
@@ -258,7 +258,7 @@ If !BkCR12Par()
    Return Nil
 EndIf
 
-Processa( {|| ProcBKFR23() })
+u_WaitLog(, {|| ProcBKFR23() })
 
 Return Nil
    

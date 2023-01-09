@@ -114,8 +114,8 @@ IF Pergunte(cPerg,.T.)
 	ELSE
 		IF nParImpr = 1  // Unico titulo
 		    IF !EMPTY(SE2->E2_XXCTRID)
-				ProcRegua(1)
-				Processa( {|| ProcQuery() })
+				
+				u_WaitLog(, {|| ProcQuery() })
 				DBSELECTAREA("QSZ2")
 				DBGOTOP()
 				
@@ -431,7 +431,7 @@ Begin Sequence
     nLinHis := MLCOUNT(cHist,nMaxObs)
     
     If !EMPTY(SE2->E2_XXCTRID)
-	   Processa( {|| ProcQuery() })
+	   u_WaitLog(, {|| ProcQuery() })
        DBSELECTAREA("QSZ2")
        DBGOTOP()
        cTipoPes := " / "+QSZ2->Z2_TIPOPES

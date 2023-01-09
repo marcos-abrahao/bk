@@ -540,13 +540,15 @@ Return
 Static Function PutSa2(cCod,cLoja)
 Local aArea := GetArea()
 
-dbSelectArea("SA2")
-If dbSeek(xFilial("SA2")+cCod+cLoja) 
-	RecLock("SA2",.F.)
-	SA2->A2_BANCO   := cxBanco
-	SA2->A2_AGENCIA := cxAgencia
-	SA2->A2_NUMCON  := cxConta
-	MSUNLOCK("SA2")
+If !Empty(cxBanco)
+	dbSelectArea("SA2")
+	If dbSeek(xFilial("SA2")+cCod+cLoja) 
+		RecLock("SA2",.F.)
+		SA2->A2_BANCO   := cxBanco
+		SA2->A2_AGENCIA := cxAgencia
+		SA2->A2_NUMCON  := cxConta
+		MSUNLOCK("SA2")
+	EndIf
 EndIf
 
 RestArea(aArea)

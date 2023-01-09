@@ -211,8 +211,8 @@ Static Function F08Taxas
 
 		MsUnlock()
 
-		Processa( {|| RunPrc1() } )
-		Processa( {|| RunPrc2() } )
+		u_waitLog(, {|| RunPrc1() } )
+		u_waitLog(, {|| RunPrc2() } )
 
 	Endif
 
@@ -261,7 +261,7 @@ Static Function RunPrc1()
 	cFilZ8 := xFilial("SZ8")
 	dbSeek(cFilZ8+cAnoComp+cMesComp,.T.)
 	Do While !EOF() .AND. cFilZ8+cAnoComp+cMesComp == SZ8->Z8_FILIAL+SZ8->Z8_ANOMES
-		IncProc("Excluindo resumo anterior - Faturamento")
+		//IncProc("Excluindo resumo anterior - Faturamento")
 		RecLock("SZ8",.F.)
 		dbDelete()
 /*
@@ -469,7 +469,7 @@ cQuery += "      AND  CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' 
 	dbGoTop()
 	Do While !EOF()
 
-		IncProc("Resumo do Faturamento")
+		//IncProc("Resumo do Faturamento")
 
 		//If EMPTY(QTMP->CNF_CONTRA)
 		//	dbSelectArea("QTMP")
@@ -533,7 +533,7 @@ Static Function RunPrc2()
 	cFilZ9 := xFilial("SZ9")
 	dbSeek(cFilZ9+cAnoComp+cMesComp,.T.)
 	Do While !EOF() .AND. cFilZ9+cAnoComp+cMesComp == SZ9->Z9_FILIAL+SZ9->Z9_ANOMES
-		IncProc("Excluindo resumo anterior - Gastos")
+		//IncProc("Excluindo resumo anterior - Gastos")
 		RecLock("SZ9",.F.)
 		dbDelete()
 		MsUnlock()
@@ -558,7 +558,7 @@ Static Function RunPrc2()
 	dbGoTop()
 	Do While !EOF()
 
-		IncProc("Resumo de Gastos")
+		//IncProc("Resumo de Gastos")
 
 		If EMPTY(QTMP->D1_CC)
 			dbSelectArea("QTMP")

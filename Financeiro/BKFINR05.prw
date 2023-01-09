@@ -79,13 +79,13 @@ If nExcel = 2
 	//юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
 	
 	nomeprog := "BKFINR05/"+TRIM(SUBSTR(cUsuario,7,15))
-	ProcRegua(1)
-	Processa( {|| ProcQuery() })
+	
+	u_waitLog(, {|| ProcQuery() })
 	RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
 	
 Else
-	ProcRegua(1)
-	Processa( {|| ProcQuery() })
+
+	u_WaitLog(, {|| ProcQuery() })
 
 	aCabs   := {}
 	aCampos := {}
@@ -138,7 +138,7 @@ Return
 Static Function ProcQuery
 Local cQuery
 
-IncProc("Consultando o banco de dados...")
+//IncProc("Consultando o banco de dados...")
 
 cQuery := "SELECT E2_FILIAL,E2_PREFIXO,E2_NUM,E2_PARCELA,E2_VENCREA,E2_TIPO,E2_FORNECE,E2_LOJA,"
 cQuery += " Z2_CTRID,Z2_NOME,Z2_BANCO,Z2_AGENCIA,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,Z2_TIPOPES,Z2_USUARIO "

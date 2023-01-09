@@ -28,8 +28,7 @@ dDataF := mv_par02
 cUsr3  := mv_par03
 nOrdP  := mv_par04
 
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+u_WaitLog(, {|| ProcQuery() })
 
 aCabs   := {}
 aCampos := {}

@@ -49,10 +49,10 @@ If LockByName(cLockBy)
 	If nOpcA == 1
 
 		// Ajustar o IRRF ***************************
-		Processa( {|lEnd| BKAjuSE2()} )
+		u_WaitLog(, {|lEnd| BKAjuSE2()} )
 
 		// Ajustar o PIS/COFINS**********************
-		Processa( {|lEnd| BKAjuPCC()} )
+		u_WaitLog(, {|lEnd| BKAjuPCC()} )
 
 		//--Exibe log de processamento:
 		ShowLog()
@@ -121,7 +121,7 @@ If lProcessa
 	cAliasQry := GetNextAlias()
 	DbUseArea(.T.,"TOPCONN",TCGENQRY(,,cQuery),cAliasQry,.F.,.T.)
 
-	ProcRegua( (cAliasQry)->(LastRec()) )
+	//ProcRegua( (cAliasQry)->(LastRec()) )
 
 	// LOG DE PROCESSAMENTO
 	fWrite(nHdlArqIR, "Titulos Ajustados:" + Chr(13) + Chr(10)) 
@@ -216,7 +216,7 @@ If lProcessa
 			EndIf
 		EndIf
 		(cAliasQry)->(DbSkip())
-		IncProc()
+		//IncProc()
 	End
 
 	
@@ -286,7 +286,7 @@ If lProcessa
 	cAliasQry := GetNextAlias()
 	DbUseArea(.T.,"TOPCONN",TCGENQRY(,,cQuery),cAliasQry,.F.,.T.)
 
-	ProcRegua( (cAliasQry)->(LastRec()) )
+	//ProcRegua( (cAliasQry)->(LastRec()) )
 
 	// LOG DE PROCESSAMENTO
 	fWrite(nHdlArqIR, "Titulos Ajustados:" + Chr(13) + Chr(10)) 
@@ -435,7 +435,7 @@ If lProcessa
 			//EndIf
 		EndIf
 		(cAliasQry)->(DbSkip())
-		IncProc()
+		//IncProc()
 	End
 
 	
@@ -471,7 +471,7 @@ DEFINE MSDIALOG oDlg TITLE "BKRegIR.TXT" From 3,0 to 340,417 PIXEL
 	oMemo:oFont     := oFont
 
 	DEFINE SBUTTON  FROM 153,175 TYPE 1 ACTION oDlg:End() ENABLE OF oDlg PIXEL
-	DEFINE SBUTTON  FROM 153,145 TYPE 6 ACTION (Processa( {|| PrintLog("BKRegIR.TXT",cMemo)})		,oDlg:End()) ENABLE OF oDlg PIXEL //Imprime e Apaga
+	DEFINE SBUTTON  FROM 153,145 TYPE 6 ACTION (u_WaitLog(, {|| PrintLog("BKRegIR.TXT",cMemo)})		,oDlg:End()) ENABLE OF oDlg PIXEL //Imprime e Apaga
 
 ACTIVATE MSDIALOG oDlg CENTER
 
@@ -488,7 +488,7 @@ Local wnrel     := ''
 
 Private aReturn := {"", 1, "", 1, 2, 1, "",1 }
 
-ProcRegua( Len(cMemo) )
+//ProcRegua( Len(cMemo) )
 
 wnrel := SetPrint(,cArq,,"BK - Ajuste DIRF - Contas a Pagar", cArq,'','',.F.,"",.F.,"M")
 If nLastKey <> 27		
@@ -501,7 +501,7 @@ If nLastKey <> 27
 			@ 00,00 PSAY AvalImp(132)
 		Endif
 		@ nLin,000 PSAY Memoline(cMemo,132,nX)        	
-		IncProc()
+		//IncProc()
 	Next nX
 	MS_FLUSH()   
 

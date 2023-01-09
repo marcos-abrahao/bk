@@ -53,8 +53,8 @@ IF !EMPTY(cBanco)
 	cTitulo   += " - Banco: "+cBanco+" Agencia: "+cAgencia+" Conta: "+cConta
 ENDIF
 
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+//ProcRegua(1)
+u_WaitLog(, {|| ProcQuery() })
 
 aCabs   := {}
 aCampos := {}

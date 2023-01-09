@@ -148,7 +148,7 @@ oTmpTb := FWTemporaryTable():New( cAliasTrb )
 oTmpTb:SetFields( aDbf )
 oTmpTb:Create()
 
-Processa( {|| ProcBKCR12() })
+u_WaitLog(, {|| ProcBKCR12() })
 
 MBrwBKCR12()
 
@@ -252,7 +252,7 @@ If !BkCR12Par()
    Return Nil
 EndIf
 
-Processa( {|| ProcBKCR12() })
+u_WaitLog(, {|| ProcBKCR12() })
 
 Return Nil
    
@@ -367,7 +367,7 @@ dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
     nReg++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	Reclock(cAliasTrb,.T.)
 	For nF := 1 To Len(aFields)
 		If !Empty(aFields[nF,2])

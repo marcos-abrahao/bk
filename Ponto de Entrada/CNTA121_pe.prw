@@ -165,7 +165,9 @@ Local cRevisa 	as Character
 			*/
 			//MsgInfo(cMsg,cIdPonto)			
 
-			xRet := MFormPos()
+			If (cIdModel == "CNDMASTER")
+				xRet := MFormPos()
+			EndIf
 
 
 		ElseIf (cIdPonto =="FORMLINEPRE")
@@ -230,6 +232,7 @@ Return (xRet)
 
 
 Static Function MFormPos
+
 Local lRet    := .T.
 Local aAnexos := {}
 Local oModel
@@ -245,10 +248,14 @@ cContra		:= oModelCND:GetValue("CND_CONTRA")
 cCompet		:= oModelCND:GetValue("CND_COMPET")
 cCompAM 	:= SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)
 
-aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,2)
+If CN9->CN9_XXANEX == 'S' // Somente para contratos que são obrigatorios anexar docs de medição
+	aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,2)
 
-If Len(aAnexos) == 0
-	lRet := u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competencia, confirma assim mesmo?","N")
+	If Len(aAnexos) == 0
+		//lRet := u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competencia, confirma assim mesmo?","N")
+		lRet := .F.
+		u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competencia!","E")
+	EndIf
 EndIf
 
 Return lRet

@@ -39,7 +39,7 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 
 If nOpcA == 1
 	nOpcA:=0
-	Processa( {|| PBKATFA01()})
+	u_WaitLog(, {|| PBKATFA01()})
 Endif
 
 RETURN NIL
@@ -60,7 +60,7 @@ FT_FSKIP()   //proximo registro - pular cabeçalho
 
 While !FT_FEOF()
  
-	IncProc('Carregando Itens da Planilha...')
+	//IncProc('Carregando Itens da Planilha...')
 
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha

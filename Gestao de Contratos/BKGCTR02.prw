@@ -306,8 +306,8 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 		U_PlanXlsx(aPlans,cTitulo1,cProg,.F.,aParam,aGraph)
 	Else
 		// Gráfico Google Charts
-		ProcRegua(TMPC->(LASTREC()))
-		Processa( {|| cGraph := GeraChart1(aTMensal,cProg,aTitulos)})
+		//ProcRegua(TMPC->(LASTREC()))
+		u_WaitLog(, {|| cGraph := GeraChart1(aTMensal,cProg,aTitulos)})
 	EndIf
 
 	oTmpTb1:Delete()
@@ -1025,7 +1025,7 @@ Static Function GeraChart1(aTMensal,cArq,aTitulos)
 	OpenHtml(cArq,aHtml)
 	aCabecH := {"Codigo","Mes","Contratado","Faturado","Contratado/Faturado","%"}
 
-	MsAguarde({|| U_ArrToCsv(aTMensal,aCabecH,aTitulos[1],cProg+"-totais","\http")},"Aguarde","Gerando planilha...",.F.)
+	u_WaitLog(,{|| U_ArrToCsv(aTMensal,aCabecH,aTitulos[1],cProg+"-totais","\http")},"Aguarde","Gerando planilha...")
 
 	FOR _nZ := 1 TO LEN(aHtml)
 		cHtml += aHtml[_nZ]

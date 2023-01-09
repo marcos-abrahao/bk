@@ -212,9 +212,9 @@ FOR _nI := 1 TO 10
 	aAdd(aHeader,{"Valor Total "+STRZERO(_nI,2),"XX_TOTAL"+STRZERO(_nI,2) ,"@E 999,999,999.99",14,02,"","","N","TRB","R"})	
 NEXT
 
-Processa( {|| ProcBKCOMR6() })
+u_WaitLog(, {|| ProcBKCOMR6() })
 
-Processa( {|| MBrwBKCOMR6() })
+u_WaitLog(, {|| MBrwBKCOMR6() })
 
 oTmpTb:Delete()
 ///TRB->(Dbclosearea())
@@ -282,7 +282,7 @@ cContraF  	:= mv_par08
 titulo   := "Pedidos de Compras - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 cTitulo  := titulo
 
-Processa( {|| ProcBKCOMR6() })
+u_WaitLog(, {|| ProcBKCOMR6() })
 
 Return Nil
    
@@ -347,7 +347,7 @@ dbSelectArea("QTMP")
 QTMP->(dbGoTop())
 DO WHILE QTMP->(!EOF())
     nReg++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	
 	aITx_ 		:= {}
 	cForPagto	:=  ""

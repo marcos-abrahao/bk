@@ -53,7 +53,7 @@ QSZ5->(DbCloseArea())
 
 IF nStatus > 0
    IF u_MsgLog(cPrw,"Confirma a importação de "+STRZERO(nStatus,6)+" lançamentos ?","Y")
-      Processa( {|| RunCtb01() } )
+      u_WaitLog(, {|| RunCtb01() } )
       Return
    ENDIF
 ELSE
@@ -147,7 +147,7 @@ Do While !eof()
     aRecno  := {}
 	Do While !eof() .AND. cFil == QSZ5->Z5_FILIAL .AND. cAnoMes == QSZ5->Z5_ANOMES .AND. cEvento == QSZ5->Z5_EVENTO
 	
-		IncProc("Importando lançamentos...")
+		//IncProc("Importando lançamentos...")
 		//aAdd(aItens,{  {'CT2_FILIAL'  ,QSZ5->Z5_FILIAL,     NIL},;
 		cCCD := ""
 		cCCC := ""

@@ -25,12 +25,11 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-u_MsgLog(cPerg)
 
 dDtIni   := MV_PAR01
 
 
-Processa( {|| ProcGer1(@cTitulo) })
+u_WaitLog(, {|| ProcGer1(@cTitulo) },cTitulo)
 
 aCabs   := {}
 aCampos := {}

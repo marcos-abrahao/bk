@@ -38,9 +38,10 @@ Local cMsg		:= ""
 Local cAssunto  := ""
 Local cContra   := ""
 Local nTotal    := 0
+Local cNomeCl   := ALLTRIM(Posicione("SA1",1,xFilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_NOME"))
 
 cEmail    := u_EmailFat(__cUserID)
-cAssunto  := "Exclusão da NF nº.: "+SD2->D2_SERIE+"-"+SD2->D2_DOC+" - Pedido: "+SC5->C5_NUM+ " - "+ALLTRIM(SA1->A1_NOME)
+cAssunto  := "Exclusão da NF nº.: "+SD2->D2_SERIE+"-"+SD2->D2_DOC+" - Pedido: "+SC5->C5_NUM+ " - "+cNomeCl
 cContra   := iIf(Empty(SC5->C5_MDCONTR),SC5->C5_ESPECI1,SC5->C5_MDCONTR)
 cEmailCC  += UsrRetMail(__cUserId)+';'
 cEmailCC  += UsrRetMail(SUBSTR(EMBARALHA(SC5->C5_USERLGI,1),3,6))+';'
@@ -48,11 +49,11 @@ cEmailCC  += UsrRetMail(SUBSTR(EMBARALHA(SC5->C5_USERLGI,1),3,6))+';'
 // Dados do Pedido
 //U_PMedPed(cPedido,cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
 
-nTotal += SF2->F2_VALFAT
+nTotal  := SF2->F2_VALFAT
 
 aCabs   := {"NF nº.: "+SD2->D2_SERIE+"-"+SD2->D2_DOC+" Pedido: "+SC5->C5_NUM}
 aEmail 	:= {}
-AADD(aEmail,{"Cliente    : "+SA1->A1_COD+"-"+SA1->A1_LOJA+" - "+SA1->A1_NOME})
+AADD(aEmail,{"Cliente    : "+SF2->F2_CLIENTE+"-"+SF2->F2_LOJA+" - "+cNomeCl})
 AADD(aEmail,{"Contrato   : "+cContra+" - "+Posicione("CTT",1,xFilial("CTT")+cContra,"CTT_DESC01")})
 AADD(aEmail,{"Competencia: "+SC5->C5_XXCOMPM})
 AADD(aEmail,{"Valor      : "+ALLTRIM(TRANSFORM(nTotal,"@E 99,999,999,999.99"))})

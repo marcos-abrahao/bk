@@ -40,7 +40,7 @@ IF CN9->CN9_CONDPG == '065'
 	M->CND_DATA1 := dVencPGTO
 ENDIF
  
-MsAguarde({|| aSitFunc:= U_BKGCTF01(SM0->M0_CODIGO,SUBSTR(M->CND_CONTRA,7,3),M->CND_CONTRA)},"Aguarde","Calculando número de funcionários...",.F.)
+u_WaitLog(,{|| aSitFunc:= U_BKGCTF01(SM0->M0_CODIGO,SUBSTR(M->CND_CONTRA,7,3),M->CND_CONTRA)},"Aguarde","Calculando número de funcionários...",.F.)
 
 //cSitFunc:= "Cod. Situação                       Total"+cCrLf
 

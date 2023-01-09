@@ -41,7 +41,7 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 
 If nOpcA == 1
 	nOpcA:=0
-	Processa( {|| ProcBKCT04()})
+	u_WaitLog(, {|| ProcBKCT04()})
 Endif
 
 RETURN NIL
@@ -64,7 +64,7 @@ FT_FGOTOP() //vai para o topo
 Procregua(FT_FLASTREC())  //quantos registros para ler
 While !FT_FEOF()
  
-	IncProc('Carregando Itens da Planilha...')
+	//IncProc('Carregando Itens da Planilha...')
 
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha

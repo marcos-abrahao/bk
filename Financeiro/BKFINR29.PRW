@@ -96,7 +96,7 @@ nCont:= 0
 
 // Contas a Receber
 aAdd(aPlanTmp,{.T.,"CLIENTES",""})
-Processa( {|| PrcE1BK29() },"Contas a Receber")
+u_WaitLog(, {|| PrcE1BK29() },"Contas a Receber")
 
 // Contas a Pagar
 aPlan2 := U_BKR25PL2()
@@ -115,7 +115,7 @@ For nI := 1 To Len(aPlan2)-1   //(- 1 para tirar o "Total")
 
     aAdd(aPlanTmp,{aPlan2[nI,1],aPlan2[nI,2],cTipoTmp})
 Next
-Processa( {|| PrcE2BK29() },"Contas a Pagar")
+u_WaitLog(, {|| PrcE2BK29() },"Contas a Pagar")
 
 
 If nCont > 0
@@ -146,7 +146,7 @@ If nCont > 0
     oTmpTb2:SetFields( aDbf2 )
     oTmpTb2:Create()
 
-    Processa( {|| Prc2BKR29() },"Consolidação")
+    u_WaitLog(, {|| Prc2BKR29() },"Consolidação")
 
 EndIf
 

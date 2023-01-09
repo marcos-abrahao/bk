@@ -16,10 +16,8 @@ Private cTitulo      := "Relação de Contratos"
 Private cPerg        := "BKGCTR25"
 Private cCompet      := STRZERO(Month(dDataBase),2)+"/"+STRZERO(YEAR(dDataBase),4)
 
-u_MsgLog(cPerg)
-
 ProcRegua(1)
-Processa( {|| ProcQuery() })
+u_WaitLog(cPerg, {|| ProcQuery() })
 
 aCabs   := {}
 aCampos := {}
@@ -93,7 +91,7 @@ Return
 Static Function ProcQuery
 Local cQuery
 
-IncProc("Consultando o banco de dados...")
+//IncProc("Consultando o banco de dados...")
 
 cQuery := "SELECT CN9_SITUAC,CN9_NUMERO,CN9_REVISA,CN9_XXDESC," + CRLF
 cQuery += "  CN9_XCLIEN,CN9_XLOJA,A1_NOME,A1_CGC," + CRLF

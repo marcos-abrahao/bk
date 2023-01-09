@@ -48,7 +48,7 @@ Define MsDialog oDlgEx Title "Alterar Prazo de Entrega Cotação: "+SC8->C8_NUM Fr
 Activate MsDialog oDlgEx Centered ON INIT EnchoiceBar(oDlgEx,{|| lOk:=.T., oDlgEx:End()},{|| oDlgEx:End()}, , aButtons)
 
 If ( lOk )
-	Processa( {|| GRVPRAZO(cCotacao,nDias)})
+	u_WaitLog(, {|| GRVPRAZO(cCotacao,nDias)})
 ENDIF	
 
 RestArea(aArea)

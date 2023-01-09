@@ -93,7 +93,7 @@ EndIf
 
 dDataB := STOD(cMes+"01") - 1
 
-Processa( {|| ProcBKR28() })
+u_WaitLog(, {|| ProcBKR28() })
 
 If nCont > 0
     AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
@@ -163,7 +163,7 @@ TCSETFIELD("QSD1","C7_XXURGEN","C",1,0)
 Dbselectarea("QSD1")
 QSD1->(Dbgotop())
 
-ProcRegua((cAliasQry)->(LastRec()))
+//ProcRegua((cAliasQry)->(LastRec()))
 	
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
@@ -175,7 +175,7 @@ cMesMax := ""
 
 aMeses := {}
 DO WHILE (cAliasQry)->(!EOF())
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
     nCont++
 
 	dbSelectArea("SE2")
@@ -281,7 +281,7 @@ dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 
 DO WHILE (cAliasQry)->(!EOF())
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 
     Reclock(cAliasTrb,.T.)
 

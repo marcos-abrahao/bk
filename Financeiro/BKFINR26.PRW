@@ -261,7 +261,7 @@ __oTBxCanc	:= FWPreparedStatement():New( '' )
 __oTipoBa	:= FWPreparedStatement():New( '' )
 //__oHash		:= tHashMap():New() //Cria o Objeto do Hash Map
 */
-Processa( {|| ProcBKR26() })
+u_WaitLog(, {|| ProcBKR26() })
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
 U_PlanXlsx(aPlans,cTitulo,cPerg, .F.,aParam)
@@ -320,8 +320,8 @@ Private nMulta 	:= 0
 
 Private xCampo
 
-Procregua(5)
-IncProc("Consultando o banco de dados...")
+//Procregua(5)
+//IncProc("Consultando o banco de dados...")
 
 //cQuery := "SELECT "
 //For nF := 1 To Len(aFields)
@@ -529,7 +529,7 @@ dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
     nCont++
-	IncProc("Processando consulta...")
+	//IncProc("Processando consulta...")
 
 	cBanco   := ""
 	cAgencia := ""

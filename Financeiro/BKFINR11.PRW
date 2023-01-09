@@ -288,11 +288,11 @@ While SA6->A6_FILIAL == xFilial( "SA6" ) .And. SA6->(!Eof())
 EndDo
 */
 
-ProcRegua(SA6->(LASTREC()))
-Processa( {|| KFin02Sld()})
+//ProcRegua(SA6->(LASTREC()))
+u_WaitLog(, {|| KFin02Sld()})
 
 //ProcRegua((cAliasTmp1)->(LASTREC()))
-//Processa( {|| U_GeraCSV(cAliasTmp1,cNomePrg+"-Saldos",aTitulos1,aCampos1,aCabs1)})
+//WaitLog(, {|| U_GeraCSV(cAliasTmp1,cNomePrg+"-Saldos",aTitulos1,aCampos1,aCabs1)})
 
 //Ferase(cArqTmp1 + GetDBExtension())
 
@@ -366,10 +366,10 @@ NEXT
 dbSelectArea( "SA6" )
 dbSetOrder( 1 )
 dbSeek( xFilial("SA6") )
-ProcRegua(LastRec()) // Numero de registros a processar
+//ProcRegua(LastRec()) // Numero de registros a processar
 While SA6->A6_FILIAL == xFilial( "SA6" ) .And. ! Eof()
 
-    IncProc()
+    //IncProc()
     
 	IF lEnd
 		Exit
@@ -451,10 +451,10 @@ While SA6->A6_FILIAL == xFilial( "SA6" ) .And. ! Eof()
 	ELSE
 		bCondWhile := { || !Eof() .And. E5_FILIAL == xFilial('SE5') .And. E5_DTDISPO == dDataI .and. E5_BANCO+E5_AGENCIA+E5_CONTA == cBanco+cAgencia+cConta }
 	ENDIF	
-	ProcRegua(LastRec()) // Numero de registros a processar
+	//ProcRegua(LastRec()) // Numero de registros a processar
 	While Eval(bCondWhile)
 		
-		IncProc()
+		//IncProc()
 		
 		
 		If !Fr530Skip(cBanco,cAgencia,cConta)
@@ -882,30 +882,21 @@ oTmpTb3:Create()
 
 
 // Grava os arquivos temporários
-// ----------------------------------------------------------------------------------
-
-
-ProcRegua(100)
-Processa( {|| KFin02Mov( nSaldoAnt)})
+// -----------------------------------------------------------------------------WaitLog(, {|| KFin02Mov( nSaldoAnt)})
 
 /* removido geracao sintetico
-ProcRegua((cAliasTmp2)->(LASTREC()))
-Processa( {|| U_GeraCSV(cAliasTmp2,cNomePrg+"-Sintetico"+STR(nTpData,1),aTitulos2,aCampos2,aCabs2)})
+ProcRegua((cAliasTmp2)->(LASTWaitLog(, {|| U_GeraCSV(cAliasTmp2,cNomePrg+"-Sintetico"+STR(nTpData,1),aTitulos2,aCampos2,aCabs2)})
 
 
-ProcRegua((cAliasTmp4)->(LASTREC()))
-Processa( {|| U_GeraCSV(cAliasTmp4,cNomePrg+"-Sintetico_CC"+STR(nTpData,1),aTitulos4,aCampos4,aCabs4)})
+ProcRegua((cAliasTmp4)->(LASTWaitLog(, {|| U_GeraCSV(cAliasTmp4,cNomePrg+"-Sintetico_CC"+STR(nTpData,1),aTitulos4,aCampos4,aCabs4)})
 
-ProcRegua((cAliasTmp5)->(LASTREC()))
-Processa( {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sintetico_Fin"+STR(nTpData,1),aTitulos5,aCampos5,aCabs5)})
+ProcRegua((cAliasTmp5)->(LASTWaitLog(, {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sintetico_Fin"+STR(nTpData,1),aTitulos5,aCampos5,aCabs5)})
 */  
 
-//ProcRegua((cAliasTmp3)->(LASTREC()))
-//Processa( {|| U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)})
+//ProcRegua((cAliasTmp3)->(LASTREWaitLog(, {|| U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)})
 
 //If nFormato == 1
-//	ProcRegua((cAliasTmp3)->(LASTREC()))
-//	Processa( {|| U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)})
+//	ProcRegua((cAliasTmp3)->(LASTRECWaitLog(, {|| U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)})
 //Else  
 
 
@@ -1018,9 +1009,9 @@ For j := 1 To nDias
 	MVX_par11 := 1	// Retroativo? 
  	MVX_par17 := 1	// Compoe Saldo por?		(Data da Baixa/  Data de Credito/Data Digitacao)  
  	
-	ProcRegua(LastRec()) // Numero de registros a processar
+	//ProcRegua(LastRec()) // Numero de registros a processar
 	While !Eof() .And. E2_VENCREA == dDataVenc
-		IncProc()
+		//IncProc()
 
 		cProduto  := ""
 		lFiltPrd  := .F.
@@ -1492,9 +1483,9 @@ For j := 1 To nDias
 	dbSelectArea("SE1")
 	dbSetOrder(7)
 	dbseek(xFilial("SE1")+DTOS(dDataVenc),.T.)
-	ProcRegua(LastRec()) // Numero de registros a processar
+	//ProcRegua(LastRec()) // Numero de registros a processar
 	While !Eof() .And. SE1->E1_VENCREA == dDataVenc
-		IncProc()
+		//IncProc()
 //		IF mv_par03 == 1 .and. SE1->E1_FILIAL != cFilial
 //			Exit
 //		EndIF

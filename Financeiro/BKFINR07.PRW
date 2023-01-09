@@ -58,8 +58,7 @@ __oTBxCanc	:= FWPreparedStatement():New( '' )
 FDelQuery(.T.)
 // <-- FINR350
 
-
-Processa( {|| ProcGer1(@cTitulo) })
+u_WaitLog(, {|| ProcGer1(@cTitulo) })
 
 aCabs   := {}
 aCampos := {}

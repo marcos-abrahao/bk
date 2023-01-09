@@ -171,35 +171,35 @@ IF VALTYPE(cRel) == "N"
    cRel := "1"
 ENDIF                            
 IF SUBSTR(cRel,1,2) = "01"
-   Processa( {|| REPBKGCT06() } )
+   u_WaitLog(, {|| REPBKGCT06() } )
 ELSEIF SUBSTR(cRel,1,2) = "02"   
-   Processa( {|| VigBKGct06() } )
+   u_WaitLog(, {|| VigBKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "03"   
-   Processa( {|| Vg2BKGct06() } )
+   u_WaitLog(, {|| Vg2BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "04"   
-   Processa( {|| RepBK06b() } )
+   u_WaitLog(, {|| RepBK06b() } )
 ELSEIF SUBSTR(cRel,1,2) = "05"   
-   Processa( {|| V5BKGct06() } )
+   u_WaitLog(, {|| V5BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "06"   
-   Processa( {|| V6BKGct06() } )
+   u_WaitLog(, {|| V6BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "07"   
-   Processa( {|| V7BKGct06() } )
+   u_WaitLog(, {|| V7BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "08"   
-   Processa( {|| V8BKGct06() } )
+   u_WaitLog(, {|| V8BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "09"   
-   Processa( {|| V9BKGct06() } )
+   u_WaitLog(, {|| V9BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "10"   
-   Processa( {|| V10BKGct06() } )
+   u_WaitLog(, {|| V10BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "11"   
-   Processa( {|| V11BKGct06() } )    
+   u_WaitLog(, {|| V11BKGct06() } )    
 ELSEIF SUBSTR(cRel,1,2) = "12"   
-   Processa( {|| V12BKGct06() } )    
+   u_WaitLog(, {|| V12BKGct06() } )    
 ELSEIF SUBSTR(cRel,1,2) = "13"   
-   Processa( {|| U_BKGCTR23() } )
+   u_WaitLog(, {|| U_BKGCTR23() } )
 ELSEIF SUBSTR(cRel,1,2) = "14"   
-   Processa( {|| U_GRFBKGCT11(.T.) } )
+   u_WaitLog(, {|| U_GRFBKGCT11(.T.) } )
 ELSEIF SUBSTR(cRel,1,2) = "15"   
-   Processa( {|| V15BKGCT06() } )    
+   u_WaitLog(, {|| V15BKGCT06() } )    
 ELSEIF SUBSTR(cRel,1,2) = "16"
    U_BKDASH01()
 ENDIF 

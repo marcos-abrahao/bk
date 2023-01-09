@@ -251,8 +251,8 @@ aAdd(aCabs  ,"Economia R$")
 aAdd(aTotal ,.T.)
 aAdd(aHeader,{"Economia R$","XX_ECONV" ,"@E 999,999,999.99",16,02,"","","N","TRB","R"})
 
-Processa( {|| ProcBKCOMR9() })
-Processa( {|| MBrwBKCOMR9() })
+u_WaitLog(, {|| ProcBKCOMR9() })
+u_WaitLog(, {|| MBrwBKCOMR9() })
 
 oTmpTb:Delete()
 ///TRB->(Dbclosearea())
@@ -326,7 +326,7 @@ EndIf
 titulo   := "Pedidos de Compras - Período: "+DTOC(dDataI)+" até "+DTOC(dDataF)
 cTitulo  := titulo
 
-Processa( {|| ProcBKCOMR9() })
+u_WaitLog(, {|| ProcBKCOMR9() })
 
 Return Nil
    
@@ -402,7 +402,7 @@ dbSelectArea("QTMP")
 QTMP->(dbGoTop())
 DO WHILE QTMP->(!EOF())
     nReg++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	
 	aITx_ := {}
 

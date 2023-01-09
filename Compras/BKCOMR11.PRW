@@ -149,7 +149,7 @@ oTmpTb:SetFields( aDbf )
 //oTmpTb:AddIndex("indice1", {"XX_NUM","XX_ITEM"} )
 oTmpTb:Create()
 
-Processa( {|| ProcBKCOMR11() })
+u_WaitLog(, {|| ProcBKCOMR11() })
 
 MBrwBKCOMR11()
 
@@ -251,7 +251,7 @@ If !BkComR11Par()
    Return Nil
 EndIf
 
-Processa( {|| ProcBKCOMR11() })
+u_WaitLog(, {|| ProcBKCOMR11() })
 
 Return Nil
    
@@ -345,7 +345,7 @@ dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
     nReg++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	Reclock(cAliasTrb,.T.)
 	For nF := 1 To Len(aFields)
 		If !Empty(aFields[nF,2])

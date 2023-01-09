@@ -531,7 +531,7 @@ IF cRet == 1
 	//dbGoBottom()
 	
     //ENVIA EMAIL AO SOLICITADO NA OCORRENCIA
-	MsAguarde({|| U_MAILSZP(1),x:=0},"Aguarde...","Preparando e-mail...",.F.)	 
+	u_WaitLog(,{|| U_MAILSZP(1),x:=0},"Preparando e-mail...")
 
 	RefreshBrw()   
 ENDIF
@@ -629,10 +629,10 @@ If dbSeek(xFilial("SZP")+cZPContrat+cZPSeq,.F.)
 		    
 		    IF SZP->ZP_FINALIZ == 'S'   
 				//ENVIA EMAIL AVISO DE FINALIZADO
-				MsAguarde({|| U_MAILFIMSZP()},"Aguarde...","Preparando e-mail...",.F.)
+				u_WaitLog(,{|| U_MAILFIMSZP()},"Preparando e-mail...")
 			ELSE
 			    //ENVIA EMAIL AO SOLICITADO NA OCORRENCIA
-				MsAguarde({|| U_MAILSZP(2),x:=0},"Aguarde...","Preparando e-mail...",.F.)
+				u_WaitLog(,{|| U_MAILSZP(2),x:=0},"Preparando e-mail...")
 			ENDIF
 			   
 			RefreshBrw()   
@@ -894,7 +894,7 @@ If lOk .AND. lOkOk
 					WKSZP->(MsUnlock())              
 					
 					//ENVIA EMAIL AVISO DE FINALIZADO
-					MsAguarde({|| U_MAILFIMSZP()},"Aguarde...","Preparando e-mail...",.F.)	 
+					u_WaitLog(,{|| U_MAILFIMSZP()},"Preparando e-mail...")
 								
 		    	EndIf
 			EndIf

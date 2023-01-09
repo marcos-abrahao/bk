@@ -291,7 +291,7 @@ Aadd( aCampos,"TRB->XX_CODBCC")
 AADD(aCabs  ,"CODBCC")
 AAdd(aFixeFX,{"CODBCC","XX_CODBCC",'C', 02,00,'@!'})
 
-Processa( {|| ProcPFIS09() })
+u_WaitLog(, {|| ProcPFIS09() })
 
 //Processa ( {|| MBrwPFIS09()})
 If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
@@ -300,7 +300,7 @@ If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
     U_BkSnMail("PFIS09", "Backup PIS COFINS", "microsiga@bkconsultoria.com.br;", "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp})
 
 Else
-	Processa ( {|| U_CSVPFIS09()})
+	u_WaitLog(, {|| U_CSVPFIS09()})
 EndIf
 
 oTmpTb:Delete()
@@ -338,7 +338,7 @@ nTPMOV    	:= mv_par05
 cProd 		:= mv_par06
 cForn   	:= mv_par07
   
-Processa( {|| ProcPFIS09() })
+u_WaitLog(, {|| ProcPFIS09() })
 
 Return Nil
 

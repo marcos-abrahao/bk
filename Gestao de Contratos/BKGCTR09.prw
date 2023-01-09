@@ -202,11 +202,11 @@ FOR _nI := 1 TO nPeriodo
 NEXT
 
 
-ProcRegua(1000)
+//ProcRegua(1000)
 
-Processa( {|| ProcQuery(1) })
+u_WaitLog(, {|| ProcQuery(1) })
 
-Processa ( {|| MBrwBKGCTR09()})
+u_WaitLog(, {|| MBrwBKGCTR09()})
 
 oTmpTb1:Delete()
 oTmpTb2:Delete()
@@ -297,9 +297,9 @@ ELSE
 	cPict := "@E 99,999,999,999"
 ENDIF
 
-ProcRegua(1000)
+//ProcRegua(1000)
 
-Processa( {|| ProcQuery(0) })
+u_WaitLog(, {|| ProcQuery(0) })
 
 Return Nil
 
@@ -325,8 +325,8 @@ Local cAlias := "TRB"
 
 dbSelectArea(cAlias)
 
-ProcRegua(1000)
-Processa( {|| GeraCSVBKGCTR09(cAlias,TRIM(wnrel),aTitulos,aCampos,aCabs)})
+//ProcRegua(1000)
+u_WaitLog(, {|| GeraCSVBKGCTR09(cAlias,TRIM(wnrel),aTitulos,aCampos,aCabs)})
 
 Return Nil
 
@@ -345,7 +345,7 @@ AADD(aTESTE,{&cTESTE})
 
 aCroXPla := {}
 FOR _nI := 1 TO nPeriodo
-	IncProc("Consultando o banco de dados...")
+	//IncProc("Consultando o banco de dados...")
 
 	cQuery := " SELECT CNF_CONTRA,CN9_REVISA,CN9_SITUAC,CN9_XCLIEN,CN9_NOMCLI,CTT_DESC01,CN9_XXDESC,CNF_COMPET,SUM(CNF_VLPREV) AS CNF_FATURA"
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
@@ -369,7 +369,7 @@ FOR _nI := 1 TO nPeriodo
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
 	DO WHILE QTMP->(!EOF())
-		IncProc("Criando arquivo temporario...")
+		//IncProc("Criando arquivo temporario...")
 		
         nIndTC := 0
         IF nIndConsor == 1
@@ -782,7 +782,7 @@ If nHandle > 0
          lSoma := .T.
       ENDIF
    
-      IncProc("Gerando arquivo "+cArqS)   
+      //IncProc("Gerando arquivo "+cArqS)   
 
       For _ni :=1 to LEN(aCampos)
          IF SUBSTR(aCampos[_ni],6,8) <> "XX_LINHA" .AND. SUBSTR(aCampos[_ni],6,9) <> "XX_STATUS"

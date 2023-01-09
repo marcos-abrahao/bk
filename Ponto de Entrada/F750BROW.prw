@@ -202,7 +202,6 @@ If !("DNF" $ SE2->E2_HIST)
   		dDataBase := SE2->E2_VENCREA		
 	    
 		u_WaitLog(,{|| cRetorno := StartJob("U_BKFINJ18",GetEnvServer(),.T.,aParametros) },"Incluindo DNF na empresa BK, aguarde...")
-	   	//MsgRun("incluindo DNF na empresa BK, aguarde...","",{|| CursorWait(), cRetorno := U_BKFINJ18(aParametros) ,CursorArrow()})
 	
 		RestArea( aAreaAtu )
 		dbSelectArea(sAlias)

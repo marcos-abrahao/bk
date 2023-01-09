@@ -90,7 +90,7 @@ If nDtEmis == 1 .AND. !EMPTY(dDataI) .AND. !EMPTY(dDataF)
 EndIf
 
 
-Processa( {|| ProcQuery() })
+u_WaitLog(, {|| ProcQuery() })
   
 Return
 

@@ -133,8 +133,8 @@ aAdd(aCabs  ,"CNPJ")
 aAdd(aTotal,.F.)
 aAdd(aHeader,{"CNPJ","XX_CNPJ" ,"@R 99.999.999/9999-99",14,00,"","","C","TRB","R"})
 
-Processa( {|| PBKCOMR08() })
-Processa( {|| MBKCOMR08() })
+u_WaitLog(, {|| PBKCOMR08() })
+u_WaitLog(, {|| MBKCOMR08() })
 
 oTmpTb:Delete()
 ///TRB->(Dbclosearea())       
@@ -200,7 +200,7 @@ Return (.T.)
 User FUNCTION 1BKCOMR08()
 Local aPlans  := {}
 
-//Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
+//u_WaitLog(, {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
 
 AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
 U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
@@ -462,7 +462,7 @@ titulo  := "Tomada de Preços Compras - Produto: "+TRIM(cProdI)
 
 cTitulo := titulo
 
-Processa( {|| PBKCOMR08() })
+u_WaitLog(, {|| PBKCOMR08() })
 
 Return Nil
 

@@ -178,7 +178,7 @@ oTmpTb:SetFields( aDbf )
 oTmpTb:Create()
 nCont:= 0
 
-Processa( {|| ProcBKR27() })
+u_WaitLog(, {|| ProcBKR27() })
 
 If nCont > 0
     AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })

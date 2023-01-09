@@ -906,19 +906,17 @@ dbSetOrder(1)
 // Grava os arquivos temporários
 // ----------------------------------------------------------------------------------
 
-
-ProcRegua(100)
-Processa( {|| KFin01Mov( nSaldoAnt)})
+u_WaitLog(, {|| KFin01Mov( nSaldoAnt)})
 
 /* removido geração sintetico
 ProcRegua((cAliasTmp2)->(LASTREC()))
-Processa( {|| U_GeraCSV(cAliasTmp2,cNomePrg+"-Sintetico"+STR(nTpData,1),aTitulos2,aCampos2,aCabs2)})
+u_WaitLog(, {|| U_GeraCSV(cAliasTmp2,cNomePrg+"-Sintetico"+STR(nTpData,1),aTitulos2,aCampos2,aCabs2)})
 
 ProcRegua((cAliasTmp4)->(LASTREC()))
-Processa( {|| U_GeraCSV(cAliasTmp4,cNomePrg+"-Sintetico_CC"+STR(nTpData,1),aTitulos4,aCampos4,aCabs4)})
+u_WaitLog(, {|| U_GeraCSV(cAliasTmp4,cNomePrg+"-Sintetico_CC"+STR(nTpData,1),aTitulos4,aCampos4,aCabs4)})
 
 ProcRegua((cAliasTmp5)->(LASTREC()))
-Processa( {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sintetico_Fin"+STR(nTpData,1),aTitulos5,aCampos5,aCabs5)})
+u_WaitLog(, {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sintetico_Fin"+STR(nTpData,1),aTitulos5,aCampos5,aCabs5)})
 */
 
 If nFormato == 1
@@ -1114,7 +1112,7 @@ ENDIF
 ProcRegua(LastRec()) // Numero de registros a processar
 While Eval(bCondWhile)
 
-    IncProc()
+    //IncProc()
 
 	cDigitado := ""
 	cLiberado := ""

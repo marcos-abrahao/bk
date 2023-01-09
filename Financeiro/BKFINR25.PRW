@@ -93,7 +93,6 @@ aAdd( aParam ,{ 2, "Detalhar C.Custo", "Nao"		, {"Nao", "Sim"}, 40,'.T.'  ,.T.})
 If !BkFR25()
    Return
 EndIf
-u_MsgLog(cPerg)
 
 If Substr(cCadGrp,1,1) == "S"
 	U_BKFINA26()
@@ -291,12 +290,14 @@ oTmpTb:Create()
 
 nCont:= 0
 
-Processa( {|| ProcBKR25() })
+//Processa( {|| ProcBKR25() })
+
+u_WaitLog(cPerg, {|| ProcBKR25()}, 'Processando dados...')
 
 If nCont > 0
-	MsAguarde({|| BKFINX25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...",.F.)
+	u_WaitLog(cPerg,{|| BKFINX25(cAliasTrb,TRIM(cPerg),cTitulo,aCampos,aCabs)},"Aguarde","Gerando planilha...")
 Else
-    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
+    u_MsgLog(cPerg,"Não foram encontrados registros para esta seleção", "E")
 EndIf
 
 oTmpTb:Delete()
@@ -388,7 +389,7 @@ dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), 'TMPR25', .F., .T.)
 TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VALOR"  ,"N",18,2)
 	
-ProcRegua((cAliasQry)->(LastRec()))
+//ProcRegua((cAliasQry)->(LastRec()))
 	
 nCont := 0
 dbSelectArea("SD1")  // * Itens da N.F. de Compra
@@ -400,7 +401,7 @@ dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
 DO WHILE (cAliasQry)->(!EOF())
     nCont++
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	dbSelectArea(cAliasTrb)
 	Reclock(cAliasTrb,.T.)
 	SE2->(dbGoTo((cAliasQry)->E2RECNO))

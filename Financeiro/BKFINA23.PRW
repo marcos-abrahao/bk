@@ -270,8 +270,8 @@ If ( lOk )
 	lOk := .F.
 	IF  LEN(aTitGer) > 0
 		IF TRIM(aTitGer[1,1]) <> ""
-			IF msgyesno('Confirma Baixa dos Titulos Selecionados?')
-				MsAguarde({|| BAIXATAB()},"Aguarde","Efetuando baixas...",.F.)
+			IF u_MsgLog(,'Confirma Baixa dos Titulos Selecionados?',"Y")
+				u_WaitLog(,{|| BAIXATAB()},"Efetuando baixas...")
 			ENDIF
 		ENDIF   
 	ENDIF

@@ -18,10 +18,7 @@ Local aTitulos2,aCampos2,aCabs2
 Private cTitulo      := "Relação de Fornecedores e produtos"
 Private cPerg        := "BKCOMR13"
 
-u_MsgLog(cPerg)
-
-ProcRegua(1000)
-Processa( {|| PrcQuery1() })
+u_WaitLog(, {|| PrcQuery1() })
 
 aCabs1   := {}
 aCampos1 := {}
@@ -63,9 +60,7 @@ AADD(aCabs1  ,"Alterado por")
 AADD(aCampos1,"QSA2->(FWLeUserlg('XX_USERLGA',2))")
 AADD(aCabs1  ,"Data Alt.")
 
-
-ProcRegua(1000)
-Processa( {|| PrcQuery2() })
+u_WaitLog(, {|| PrcQuery2() })
 
 aCabs2   := {}
 aCampos2 := {}
@@ -115,7 +110,7 @@ Return
 Static Function PrcQuery1
 Local cQuery
 
-IncProc("Consultando fornecedores...")
+//IncProc("Consultando fornecedores...")
 
 cQuery := "SELECT DISTINCT A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_USERLGI AS XX_USERLGI,A2_USERLGA AS XX_USERLGA,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
 //cQuery := "SELECT TOP 100 A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
@@ -145,7 +140,7 @@ Return Nil
 Static Function PrcQuery2
 Local cQuery
 
-IncProc("Consultando produtos...")
+//IncProc("Consultando produtos...")
 
 cQuery := "SELECT B1_COD,B1_DESC,B1_GRUPO,BM_DESC,B1_XXSGRP,ZI_DESC,B1_USERLGI AS XX_USERLGI,B1_USERLGA AS XX_USERLGA" + CRLF
 //cQuery := "SELECT TOP 100 B1_COD,B1_DESC,B1_GRUPO,BM_DESC,B1_XXSGRP,ZI_DESC,B1_USERLGI AS XX_USERLGI,B1_USERLGA AS XX_USERLGA" + CRLF

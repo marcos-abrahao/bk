@@ -45,7 +45,7 @@ nValor  := mv_par06
 cOrigem := mv_par07
 cChave  := mv_par08
 
-MsAguarde({|| PesqCt2() },"Aguarde","Pesquisando Lançamentos...",.F.)
+u_WaitLog(,{|| PesqCt2() },"Pesquisando Lançamentos...")
 
 Return NIL
 

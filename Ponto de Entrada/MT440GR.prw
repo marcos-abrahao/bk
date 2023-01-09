@@ -70,6 +70,7 @@ Local cCompM    := ""
 Local cParcel	:= ""
 Local cObsMed   := ""
 Local cEmissor  := ""
+Local cNomeCl   := ALLTRIM(Posicione("SA1",1,xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI,"A1_NOME"))
 
 cContra   := iIf(Empty(SC5->C5_MDCONTR),SC5->C5_ESPECI1,SC5->C5_MDCONTR)
 aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+SUBSTR(SC5->C5_XXCOMPM,4,4)+SUBSTR(SC5->C5_XXCOMPM,1,2),2)
@@ -77,7 +78,7 @@ cEmail    := u_EmailFat(__cUserID)
 cEmailCC  += UsrRetMail(__cUserId)+';'
 cEmailCC  += UsrRetMail(SUBSTR(EMBARALHA(SC5->C5_USERLGI,1),3,6))+';'
 
-cAssunto  := "Pedido(s) de venda liberado(s) - Contrato: "+ALLTRIM(cContra)+" - "+ALLTRIM(SA1->A1_NOME)
+cAssunto  := "Pedido(s) de venda liberado(s) - Contrato: "+ALLTRIM(cContra)+" - "+cNomeCl
 
 // Dados do Pedido
 U_PMedPed(cPedido,cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
@@ -91,7 +92,7 @@ EndDo
 aCabs   := {"","","Medição","Valor"}
 aEmail 	:= {}
 AADD(aEmail,{"Emissão:"    ,TRIM(SC5->C5_NUM),DTOC(SC5->C5_EMISSAO),"",""})
-AADD(aEmail,{"Cliente:"    ,SA1->A1_COD+"-"+SA1->A1_LOJA+" - "+SA1->A1_NOME,"",""})
+AADD(aEmail,{"Cliente:"    ,SC5->C5_CLIENTE+"-"+SC5->C5_LOJACLI+" - "+cNomeCl,"",""})
 AADD(aEmail,{"Contrato:"   ,cContra+" - Rev. "+cRev+" - "+Posicione("CTT",1,xFilial("CTT")+cContra,"CTT_DESC01"),"",""})
 AADD(aEmail,{"Competencia:",SC5->C5_XXCOMPM+" - Parcela "+cParcel,"",""})
 AADD(aEmail,{"Valor:"      ,ALLTRIM(TRANSFORM(nTotal,"@E 99,999,999,999.99")),"",""})

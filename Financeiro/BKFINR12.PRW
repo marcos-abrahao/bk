@@ -151,10 +151,7 @@ ElseIf nOpcRel == 3
 	titulo += " - com Iss bitributado indevidamente"
 EndIf
 
-u_MsgLog("BKFINR12")
-
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+u_WaitLog(, {|| ProcQuery() })
 
 aCabs   := {}
 aCampos := {}
@@ -277,7 +274,7 @@ Return
 Static Function ProcQuery
 Local cQuery
 
-IncProc("Consultando o banco de dados...")
+//IncProc("Consultando o banco de dados...")
 
 /*
 cQuery := "SELECT DISTINCT A1_NOME,E1_VENCREA,E1_VENCORI,E1_VALOR,E1_SALDO" + CRLF

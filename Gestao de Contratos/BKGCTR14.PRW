@@ -807,14 +807,14 @@ cRealTbT := oTmpTbT:GetRealName()
 If !lJob
 	If nCompet <> 0
 		ProcRegua(1)
-		Processa( {|| ProcR14(lJob) })
+		u_WaitLog(, {|| ProcR14(lJob) })
 		If !lSintetico
-			//Processa( {|| MBrwR14() })
+			//u_WaitLog(, {|| MBrwR14() })
 
 			DbSelectArea("TRB")
 			dbSetOrder(1)
 
-			Processa( {|| U_CR14(.F.) })
+			u_WaitLog(, {|| U_CR14(.F.) })
 
 		Else
 			U_BKGCTM14()
@@ -901,7 +901,7 @@ nAnoC  		:= mv_par03
 
 ProcRegua(1)
 
-Processa( {|| ProcR14(.F.) })
+u_WaitLog(, {|| ProcR14(.F.) })
 
 Return Nil
    
@@ -930,8 +930,8 @@ dbSelectArea(cAlias)
 If !lJob
 	ProcRegua(1)
 	If lSintetico
-		Processa( {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
-		Processa( {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
+		u_WaitLog(, {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
+		u_WaitLog(, {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
 	Else
 		/*
 		If Empty(cContrato)	
@@ -964,7 +964,7 @@ If !lJob
 		EndIf
 		*/
 
-		Processa( {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
+		u_WaitLog(, {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
 
 	EndIf
 Else

@@ -151,10 +151,7 @@ ELSEIF nEmissao = 6
 
 ENDIF
 
-u_MsgLog(cPerg)
-
-ProcRegua(1)
-Processa( {|| ProcQuery() })
+u_WaitLog(, {|| ProcQuery() })
 
 // Incluir as baixas parciais
 
@@ -493,7 +490,7 @@ Return
 Static Function ProcQuery
 Local cQuery  := ""
 
-IncProc("Consultando o banco de dados...")
+//IncProc("Consultando o banco de dados...")
 
 cQuery := "SELECT DISTINCT A1_NOME,E1_VENCREA,E1_VALOR,E1_SALDO,E1_BAIXA,C5_XXCOMPM,F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,"
 cQuery += " E1_PREFIXO,E1_NUM,E1_PARCELA,E1_TIPO,E1_CLIENTE,E1_LOJA,"

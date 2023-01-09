@@ -180,7 +180,7 @@ If ( lOk )
 	IF  LEN(aTitGer) > 0
 		IF TRIM(aTitGer[1,1]) <> ""
 			IF u_MsgLog(cPrw,'Confirma Baixa dos Titulos Selecionados?',"Y")
-				MsAguarde({|| BAIXATAB()},"Aguarde","Efetuando baixas...",.F.)
+				u_WaitLog(,{|| BAIXATAB()},"Aguarde","Efetuando baixas...")
 			ENDIF
 		ENDIF   
 	ENDIF

@@ -115,8 +115,8 @@ oTmpTb:Create()
 
 AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+" em "+DTOC(dDtSld))
 
-ProcRegua(SM0->(LASTREC()))
-Processa( {|| BKFin15Emp()})
+//ProcRegua(SM0->(LASTREC()))
+u_WaitLog(, {|| BKFin15Emp()})
 
 cFiltro := "" //cAliasTmp1+"->TIPO >= '1'"                                 
 
@@ -137,7 +137,7 @@ Local aSM0Area	:= SM0->(GetArea())
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
-    IncProc()
+    //IncProc()
     
 	IF lEnd
 		Exit
