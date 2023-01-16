@@ -143,7 +143,7 @@ If IsBlind() .AND. Empty(cFiltro)
 	cFiltro := "(F1_STATUS IN (' ','B'))"
 EndIf
 
-//u_xxLog("\LOG\M103FILB.LOG",__cUserId+":"+cFiltro)
+u_MsgLog("M103FILB","Super: "+cSuper+" - Staf:"+iif(lStaf,"S","N")+" - Dire:"+IIF(lMDiretoria,"S","N")+" - Class:"+IIF(lAClas,"S","N")+" - "+cFiltro)
 
 Return cFiltro
 

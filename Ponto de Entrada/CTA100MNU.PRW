@@ -1685,7 +1685,7 @@ Local cCrLf   := Chr(13) + Chr(10)
 		lOk:= .F.
     ENDIF
     IF !lOk
-    	MSGSTOP(cMsg)
+    	u_MsgLog(,cMsg,"E")
     ENDIF
 Return lOk
 

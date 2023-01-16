@@ -16,18 +16,17 @@ Local aRet		:=	{}
 Local cTitulo   := "Baixas de contas a pagar - titulos pagos na BK"
 Local dDataI	:= CTOD("01/11/2018")
 Local dDataF	:= dDataBase
-
-u_MsgLog("BKFINA27")
+Private cPrw    := "BKFINA27"
 
 If cEmpAnt == "01"
-	MsgStop("Esta rotina não pode ser utilizada na empresa BK","FINA027")
+	u_MsgLog(cPrw,"Esta rotina não pode ser utilizada na empresa BK","E")
 	Return Nil
 EndIf
 
 aAdd( aParam, { 1, "Venc. inicial:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Venc. final:"		, dDataBase	, ""    , "", ""	, "" , 70  , .F. })  
 
-If (Parambox(aParam,"BKFINA27 - "+cTitulo,@aRet,,,.T.,,,,"BKFINA27",.T.,.T.))
+If (Parambox(aParam,"BKFINA27 - "+cTitulo,@aRet,,,.T.,,,,cPrw,.T.,.T.))
 	lRet := .T.
 	dDataI  := mv_par01
 	dDataF  := mv_par02
@@ -174,7 +173,7 @@ While ! (cAliasTmp)->(EoF())
 	(cAliasTmp)->(DbSkip())
 EndDo
 
-MsgInfo("Atenção: Use a tecla DEL para desconsiderar titulos desta baixa","BKFINA27")
+MsgInfo("Atenção: Use a tecla DEL para desconsiderar titulos desta baixa",cPrw)
 
 //Montando a tela
 DEFINE MSDIALOG oDlgPvt TITLE "Baixa Contas a Pagar" FROM 000, 000  TO nJanAltu, nJanLarg COLORS 0, 16777215 PIXEL
@@ -318,7 +317,7 @@ BEGIN TRANSACTION
 			MSEXECAUTO({|x,y| FINA080(x,y)}, aBaixa, 3)
 			
 			If lMsErroAuto
-				u_LogMsExec("BKFINA27","Titulo não baixado: "+oMGet22:aCols[nY][nPosPREFIXO]+oMGet22:aCols[nY][nPosNUM]+oMGet22:aCols[nY][nPosPARCELA])
+				u_LogMsExec(cPrw,"Titulo não baixado: "+oMGet22:aCols[nY][nPosPREFIXO]+oMGet22:aCols[nY][nPosNUM]+oMGet22:aCols[nY][nPosPARCELA])
 				DisarmTransaction()
 				lSucess := .F.
 			EndIf
@@ -328,9 +327,9 @@ BEGIN TRANSACTION
 END TRANSACTION
 
 If lSucess
-	u_MsgLog("BKFINA27","Baixas de contas a Pagar realizadas com sucesso.","S")
+	u_MsgLog(cPrw,"Baixas de contas a Pagar realizadas com sucesso.","S")
 Else
-	u_MsgLog("BKFINA27","Algumas baixas de contas a Pagar não foram realizadas","E")
+	u_MsgLog(cPrw,"Algumas baixas de contas a Pagar não foram realizadas","E")
 EndIf
 
 Return lSucess

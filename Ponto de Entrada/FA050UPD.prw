@@ -15,7 +15,7 @@ IF !lF050Auto
 	IF !EMPTY(SE2->E2_XXCTRID)  .AND. (_Opc == 4 .OR. _Opc == 5)
 	    IF __cUserId <> "000000"
 	    	//__cUserId <> "000012" .AND. 
-	    	MsgStop("Este titulo foi gerado pelos Liquidos BK, utilize a rotina adequada", "Atenção")
+	    	u_MsgLog(,"Este titulo foi gerado pelos Liquidos BK, utilize a rotina adequada", "W")
 	    	lRet := .F.
 	    ELSE
 	    	IF Aviso( "Atencao", "Este titulo foi gerado pelos Liquidos BK. Excluir Titulo?",{"Sim","Nao"} ) <> 1

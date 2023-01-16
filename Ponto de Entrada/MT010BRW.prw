@@ -68,7 +68,7 @@ If msgYesNo('Deseja incluir este produto em outras empresas?')
 		MsgRun("incluindo produto na empresa "+TRIM(aEmpr[nI,4])+", aguarde...","",{|| CursorWait(), cRetorno := StartJob("U_BKMATJ10",GetEnvServer(),.T.,aParametros) ,CursorArrow()})
         
 		IF VALTYPE(cRetorno) <> "C"
-			MsgStop("Erro provavelmente ocorrido por se ter excedido o número de licenças, tente novamente mais tarde.", "Atenção")
+			u_MsgLog("BKMAT010","Erro provavelmente ocorrido por se ter excedido o número de licenças, tente novamente mais tarde.","E")
 			u_MsgLog("BKMAT010","Erro1 ao incluir o o produto "+SB1->B1_COD+" na empresa "+TRIM(aEmpr[nI,4]))
 		ELSE
 			IF SUBSTR(cRetorno,1,2) <> "OK"

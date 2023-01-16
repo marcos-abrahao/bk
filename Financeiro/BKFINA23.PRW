@@ -21,6 +21,7 @@ Local cTitulo := "Selecionar Títulos e Gerar Baixa - Portal Petrobras - "+FWEmpN
 Local nLin1   := 10
 Local nLin2   := 10
 
+PRIVATE cPrw  := "BKFINA23"
 PRIVATE oDlg
 PRIVATE oListId
 PRIVATE oPanelLeft
@@ -80,7 +81,7 @@ private cJConta   := PAD("0000000001",LEN(cConta))
 private cJHist    := PAD("DESCONTO JUROS ANTECIPADOS",TamSX3("E5_HISTOR")[1])
 private nJValor   := 0
 
-u_MsgLog("BKFINA23")
+u_MsgLog(cPrw)
 
 AADD(aSaldo,"Zero")
 AADD(aSaldo,"1 Real")
@@ -270,8 +271,8 @@ If ( lOk )
 	lOk := .F.
 	IF  LEN(aTitGer) > 0
 		IF TRIM(aTitGer[1,1]) <> ""
-			IF u_MsgLog(,'Confirma Baixa dos Titulos Selecionados?',"Y")
-				u_WaitLog(,{|| BAIXATAB()},"Efetuando baixas...")
+			IF u_MsgLog(cPrw,'Confirma Baixa dos Titulos Selecionados?',"Y")
+				u_WaitLog(cPrw,{|| BAIXATAB()},"Efetuando baixas...")
 			ENDIF
 		ENDIF   
 	ENDIF
@@ -347,10 +348,11 @@ IF DbSeek (cKey,.F.)
 		nReceb  := nVlrLi + nMulta - nDesc - nRValor
   	ELSE
   		if SE1->E1_SALDO > 0
-			MSGSTOP("Titulo Baixado parcial, favor utilizar rotina padrao de sistema!!")
+			u_MsgLog(cPrw,"Titulo "+SE1->E1_NUM+" baixado parcialmente, favor utilizar rotina padrao de sistema!!","E")
 		ELSE
-			MSGSTOP("Titulo ja foi Baixado !!")
+			u_MsgLog(cPrw,"Titulo "+SE1->E1_NUM+" ja está baixado !!","E")
 		ENDIF
+
 		//LIMPTAB()
 		oFatura:SetFocus()
 		//lRet := .F.
@@ -511,12 +513,12 @@ IF nIValor > 0
 	SA6->(DbSetOrder(1))
 	IF SA6->(DbSeek(xFilial("SA6")+cIBanco+cIAgencia+cIConta,.F.))
 		IF SA6->A6_BLOCKED == '1'
-			MSGSTOP("Banco informado para baixa da Diferença de ISS bloqueada para movimentações. Verifique!")
+			u_MsgLog(,"Banco informado para baixa da Diferença de ISS bloqueada para movimentações. Verifique!","E")
 			lRET := .F.
 			RETURN lRET 
 		ENDIF
 	ELSE
-		MSGSTOP("Dados do Banco para baixa de Diferença de ISS incorretos. Verifique!")
+		u_MsgLog(,"Dados do Banco para baixa de Diferença de ISS incorretos. Verifique!","E")
 		lRET := .F.
 		RETURN lRET 
 	ENDIF
@@ -649,7 +651,7 @@ LOCAL aItem := {}
 Local _nx   := 0
 
 IF nItem > 0 .AND. ALLTRIM(aTitGer[nItem,1]) <> ""
-	IF u_MsgLog("BKFINA23","Confirma a exclusão do Titulo: '"+aTitGer[nItem,1]+"' selecionado?","N")
+	IF u_MsgLog(cPrw,"Confirma a exclusão do Titulo: '"+aTitGer[nItem,1]+"' selecionado?","N")
 
 		aItem := aClone(aTitGer)
         aTitGer := {}
@@ -752,7 +754,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
-				u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
 				DisarmTransaction()
 				break
 			ENDIF
@@ -801,7 +803,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
-				u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
 				DisarmTransaction()
 				break
 			ENDIF
@@ -852,7 +854,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
-				u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
 				DisarmTransaction()
 				break
 			ENDIF
@@ -903,7 +905,7 @@ For nI:=1 TO LEN(aTitGer)
 			
 		IF lMsErroAuto
 			lOK := .F.
-			u_LogMsExec("BKFINA23","Problemas na alteração do titulo "+aTitGer[nI,1])
+			u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
 			DisarmTransaction()
 			break
 		ENDIF
@@ -945,11 +947,11 @@ For nI:=1 TO LEN(aTitGer)
 Next nI
 
 IF lOK
-	u_MsgLog("BKFINA23","Titulos Baixado com sucesso!!")
+	u_MsgLog(cPrw,"Titulos Baixado com sucesso!!","S")
 ELSE
 	IF !EMPTY(cLOG)
 		cLOG := "Titulo(s) com baixa parcial. Verifique!! "+cLOG
-		u_MsgLog("BKFINA23",cLOG,"E")
+		u_MsgLog(cPrw,cLOG,"E")
 	ENDIF
 ENDIF
 

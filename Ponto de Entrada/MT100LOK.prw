@@ -23,17 +23,13 @@ If !Empty(cTESn)
     If SF4->(dbSeek(xFilial("SF4")+cTESn))
         If SA2->A2_TPJ == '3'
             If SF4->F4_CSTPIS == '50'
-                If !IsBlind()
-                    MsgStop("Não utilize TES com crédito PIS/COFINS para MEI","MT100LOK")
-                EndIf
+                u_MsgLog("MT100LOK","Não utilize TES com crédito PIS/COFINS para MEI","E")
                 lExecuta := .F.
             Endif
         Endif
         If SB1->(dbSeek(xFilial("SB1")+cProdn))
             If SB1->B1_TIPO = "AI" .AND. SF4->F4_ATUATF <> "S"
-                If !IsBlind()
-                    MsgStop("Utilize a TES correta para produtos de Ativo Imobilizado","MT100LOK")
-                EndIf
+                u_MsgLog("MT100LOK","Utilize a TES correta para produtos de Ativo Imobilizado","E")
                 lExecuta := .F.
             EndIf
         EndIf

@@ -178,13 +178,13 @@ oTmpTb:SetFields( aDbf )
 oTmpTb:Create()
 nCont:= 0
 
-u_WaitLog(, {|| ProcBKR27() })
+u_WaitLog(cPerg, {|| ProcBKR27() })
 
 If nCont > 0
     AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
     U_PlanXlsx(aPlans,cTitulo,cPerg, .F., aParam)
 else
-    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
+    u_MsgLog(cPerg,"Não foram encontrados registros para esta seleção", "W")
 EndIf
 
 oTmpTb:Delete()
@@ -221,9 +221,7 @@ Local cFilD1     := ""
 Local cD1Prod    := ""
 Local nD1Prod    := 0
 
-
 Private xCampo
-
 
 cQuery := "SELECT "
 For nF := 1 To Len(aFields)
@@ -257,7 +255,6 @@ cAliasQry := "TMPR27" //GetNextAlias()
 dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), cAliasQry, .F., .T.)
 TCSETFIELD(cAliasQry,"E2_EMISSAO","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
-ProcRegua((cAliasQry)->(LastRec()))
 	
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
@@ -265,7 +262,7 @@ dbSelectArea(cAliasQry)
 cFilD1 := xFilial("SD1")
 
 DO WHILE (cAliasQry)->(!EOF())
-	IncProc("Consultando banco de dados...")
+	//IncProc("Consultando banco de dados...")
 	dbSelectArea(cAliasTrb)
 
     cD1Prod := ""

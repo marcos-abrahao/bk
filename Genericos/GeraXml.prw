@@ -287,7 +287,7 @@ cArq := _cProg +"-"+DTOS(Date()) + ".xml"
 If File(cArq)
 	nRet:= FERASE(cArq)
 	If nRet < 0
-		MsgStop("Não será possivel gerar a planilha "+cArq+", feche o arquivo",_cProg)
+		u_MsgLog(_cProg,"Não será possivel gerar a planilha "+cArq+", feche o arquivo","E")
 	EndIf
 EndIf
 

@@ -511,7 +511,7 @@ Private MsErroAuto := .F.
 
 For nI:=1 TO LEN(aTitGer)
 
-	MsProcTxt("Baixando o título " + aTitGer[nI,1] + "...")
+	//MsProcTxt("Baixando o título " + aTitGer[nI,1] + "...")
 
 	//dbSelectArea("SE8")
 	//dbSetOrder(1)

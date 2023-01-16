@@ -142,7 +142,7 @@ ELSE
 				Return
 			EndIf
 		Else
-			MsgStop("Centro de Custos não encontrado")
+			u_MsgLog(,"Centro de Custos não encontrado","E")
 			Return
 		Endif
 	Endif

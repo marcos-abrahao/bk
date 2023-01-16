@@ -140,13 +140,13 @@ cZO_RECLAM	:=	""
 
 IF cRet == 1 .AND. EMPTY(SZO->ZO_LBANCO)
 	IF MsgYesNo("Deseja Incluir o Lançamento no Banco ?")
-		MsgRun("Aguarde, gerando movimentação bancária…","",{|| CursorWait(), lRet := U_LBANCO(SZO->(Recno())) ,CursorArrow()})
+		u_WaitLog("Aguarde, gerando movimentação bancária…","",{|| CursorWait(), lRet := U_LBANCO(SZO->(Recno())) ,CursorArrow()})
 	ENDIF   
 ENDIF
 
 Return Nil 
 
-//ECLUIR Bloqueio e Desbloqueio Judicial
+//EXCLUIR Bloqueio e Desbloqueio Judicial
 USER FUNCTION EXCBLOQ()
 
 Local nRegSE5 	:= VAL(SZO->ZO_LBANCO)

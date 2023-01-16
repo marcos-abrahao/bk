@@ -99,7 +99,7 @@ If nCont > 0
     AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .F. })
     U_PlanXlsx(aPlans,"",cPerg, .F., aParam)
 else
-    MsgStop("Não foram encontrados registros para esta seleção", cPerg)
+    u_MsgLog(cPerg,"Não foram encontrados registros para esta seleção","W")
 EndIf
 
 oTmpTb:Delete()

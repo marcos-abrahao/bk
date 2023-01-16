@@ -216,7 +216,7 @@ IF !lOk
 ENDIF
 
 IF !lOk
-	MSGSTOP("Item não selecionado. Favor verificar!!")
+	u_MsgLog(,"Item não selecionado. Favor verificar!!","E")
 ENDIF
 
 RETURN lOk
@@ -298,11 +298,11 @@ FOR _IX := 1 TO LEN(aCNR2)
 NEXT
 
 IF nMulta2 > nMulta
-	MSGSTOP("Multa atual maior que informada. Favor verificar!!")
+	u_MsgLog(,"Multa atual maior que informada. Favor verificar!!","E")
 ENDIF
 
 IF nBonif2 > nBonif
-	MSGSTOP("Bonificação atual maior que informada. Favor verificar!!")
+	u_MsgLog(,"Bonificação atual maior que informada. Favor verificar!!","E")
 ENDIF
 
 oSay2:refresh()
@@ -316,12 +316,12 @@ LOCAL lJut 	:= .T.
 Local _IX	:= 0
 
 IF ABS(ABS(nMulta2) - ABS(nMulta)) > 0.01
-	MSGSTOP("Multa atual diferente da informada. Favor verificar!!")
+	u_MsgLog(,"Multa atual diferente da informada. Favor verificar!!","E")
 	lOk:=.F.
 ENDIF
 
 IF ABS(ABS(nBonif2) - ABS(nBonif)) > 0.01
-	MSGSTOP("Bonificação atual diferente da informada. Favor verificar!!")
+	u_MsgLog(,"Bonificação atual diferente da informada. Favor verificar!!","E")
 	lOk:=.F.
 ENDIF
 
@@ -333,7 +333,7 @@ FOR _IX := 1 TO LEN(aCNR2)
 NEXT
 
 IF !lJut
-	MSGSTOP("Justificativa não informada. Favor verificar!!")
+	u_MsgLog(,"Justificativa não informada. Favor verificar!!","E")
 	lOk:=.F.
 ENDIF
 

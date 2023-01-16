@@ -17,9 +17,7 @@ Local cNat := PARAMIXB
 
 If SA2->A2_XXBLNAT = "S"
     If cNat <> SA2->A2_NATUREZ
-        If !IsBlind()
-            MsgStop("Natureza não pode ser alterada: "+TRIM(SA2->A2_XXOBNAT),"MT103NAT")
-        EndIf
+        u_MsgLog("MT103NAT","Natureza não pode ser alterada: "+TRIM(SA2->A2_XXOBNAT),"E")
         lRet := .F.
     EndIf
 EndIf

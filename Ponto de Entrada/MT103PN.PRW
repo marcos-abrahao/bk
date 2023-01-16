@@ -57,7 +57,7 @@ IF lAlmox
 ENDIF 
 
 IF !lClass
-	MsgStop("Esse usuário não possui acesso para executar essa operação!!")
+	u_MsgLog(,"Esse usuário não possui acesso para executar essa operação!!","E")
 	lRet := .F.
 ENDIF
 

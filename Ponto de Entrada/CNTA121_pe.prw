@@ -252,9 +252,10 @@ If CN9->CN9_XXANEX == 'S' // Somente para contratos que são obrigatorios anexar 
 	aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,2)
 
 	If Len(aAnexos) == 0
-		//lRet := u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competencia, confirma assim mesmo?","N")
+		//lRet := u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competência, confirma assim mesmo?","N")
+		// Aqui: obrigar anexar arquivos
 		lRet := .F.
-		u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competencia!","E")
+		u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competência!","E")
 	EndIf
 EndIf
 

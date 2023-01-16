@@ -167,8 +167,8 @@ User Function IsAvalia(cId)
 Local lRet := .F.
 // Admin/Fabio/Anderson/Luis/Michele/Caio
 //If cId $ "000000/000093/000005/000116/000138/000126/"
-// Admin/Michele/Bruno
-If cId $ "000000/000138/000153/"
+// Admin/Xavier/Michele/Bruno
+If cId $ "000000/000012/000138/000153/"
     lRet := .T.
 EndIf
 Return lRet
