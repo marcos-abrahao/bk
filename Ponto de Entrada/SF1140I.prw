@@ -352,19 +352,25 @@ If lRet
 		//dPrvPgt := aDados[1,2]
 		dPrvPgt := oLista:aCols[1,2]
 	EndIf
-	If dPrvPgt < dValid
+	If dPrvPgt < dValid 
 		u_MsgLog("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid)+" Justificativa: "+ALLTRIM(cJsPgt))
-		If EMPTY(cJsPgt) .OR. LEN(ALLTRIM(cJsPgt)) < 5
-			If LEN(ALLTRIM(cJsPgt)) < 5
-				cMens2 := " COM CLAREZA"
+		If u_IsGesFin(__cUserId)
+			If EMPTY(cJsPgt) .OR. LEN(ALLTRIM(cJsPgt)) < 5
+				cJsPgt := PAD("FINANCEIRO",LEN(cJsPgt))
 			EndIf
-			u_MsgLog("SF1140I","Data prevista para pagamento inferior a 3 dias uteis."+CRLF+"Justifique"+cMens2+"!!!"+CRLF+"Evite transtornos às outras áreas implantando os documentos com antecedência!!","E")
-			oGetJsPgt:Setfocus()
-			lRet := .F.
-		
-		//Else // Aqui: liberação por Token	31/10/22
-		//	cLibF1 := "T"
-		//	u_MsgLog("SF1140I","Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","E")
+		Else
+			If EMPTY(cJsPgt) .OR. LEN(ALLTRIM(cJsPgt)) < 5
+				If LEN(ALLTRIM(cJsPgt)) < 5
+					cMens2 := " COM CLAREZA"
+				EndIf
+				u_MsgLog("SF1140I","Data prevista para pagamento inferior a 3 dias uteis."+CRLF+"Justifique"+cMens2+"!!!"+CRLF+"Evite transtornos às outras áreas implantando os documentos com antecedência!!","E")
+				oGetJsPgt:Setfocus()
+				lRet := .F.
+			
+			//Else // Aqui: liberação por Token	31/10/22
+			//	cLibF1 := "T"
+			//	u_MsgLog("SF1140I","Data prevista para pagamento inferior a 3 dias uteis, solicite o Token de liberação para a controladoria via e-mail.","E")
+			EndIf
 		EndIf
 	EndIf
 EndIf

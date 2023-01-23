@@ -8,6 +8,8 @@
 P.E. - Verifica se pode-se classificar o documento.
 ===================================================
 Fluxo de liberação de Pré-Notas - BK
+Campo F1_XXLIB: Liberacao   
+L=Liberada;N=Nao Liberada;A=A liberar;C=Classificada;E=Estornada;B=Bloqueada;T=Token;P=A Aprovar;V=Aprovada
 
 ---------------------------------------------------
 Inclusão da Pré Nota: 

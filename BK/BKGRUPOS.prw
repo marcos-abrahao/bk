@@ -154,15 +154,24 @@ Return u_InGrupo(cId,"000031")
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 User Function IsStaf(cId)
 Local lRet := .F.
-// Laudecir/Diego.Oliveira/Edson/Fabio/Leandro/Vanderleia/Nelson/Luis (000116/ removido)
-If cId $ "000011/000016/000076/000093/000194/000056/000165/"
+// Laudecir/Diego.Oliveira/Edson/Fabio/Vanderleia/Nelson/Luis (000116/ removido)
+If cId $ "000011/000016/000076/000093/000056/000165/"
+    lRet := .T.
+EndIf
+Return lRet
+
+
+// Retorna se o usuário é Gestor Financeiro 
+User Function IsGesFin(cId)
+Local lRet := .F.
+//      Laudecir/Xavier/Diego.Oliveira
+If cId $ "000011/000012/000016"
     lRet := .T.
 EndIf
 Return lRet
 
 
 // Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
-
 User Function IsAvalia(cId)
 Local lRet := .F.
 // Admin/Fabio/Anderson/Luis/Michele/Caio
@@ -196,7 +205,7 @@ Return u_aUsrEmail(aUsers,cxEmail)
 
 // Emails faturamento
 User Function EmailFat(cxEmail)
-Local aUsers := {"000170","000242","000239","000016"} // João C/Elaine/Juliana V/Diego O/
+Local aUsers := {"000170","000242","000239","000016","000023"} // João C/Elaine/Juliana V/Diego O/Fabia
 Return u_aUsrEmail(aUsers,cxEmail)
 
 

@@ -1,3 +1,11 @@
+
+==============================================================
+
+17/01/23 - Data  vencimento aniversario SP
+SELECT * FROM SE2150 WHERE E2_VENCTO = '20230125'
+UPDATE SE2010 SET E2_VENCTO = '20230124', E2_VENCREA = '20230124' WHERE E2_VENCTO = '20230125'
+UPDATE SE2140 SET E2_VENCTO = '20230124', E2_VENCREA = '20230124' WHERE E2_VENCTO = '20230125'
+UPDATE SE2150 SET E2_VENCTO = '20230124', E2_VENCREA = '20230124' WHERE E2_VENCTO = '20230125'
 ==============================================================
 
 04/01/23 - EFD na Base Teste

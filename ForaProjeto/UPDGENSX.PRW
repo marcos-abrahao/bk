@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"04/01/2023 CN9 "
+#DEFINE FIN_LAST_UPDATED 		"20/01/2023 LIB "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -1619,12 +1619,17 @@ oProcess:IncRegua2( "Manutenção X31UPDTABLE..." )
 
 dbSelectArea( "SX3" )
 
-cTexto  += "04/01/23 - CN9 " + CRLF 
+cTexto  += "20/01/23 - SF1 " + CRLF 
+dbSetOrder( 2 )
+If SX3->( dbSeek( "F1_XXLIB" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_CBOX  := "L=Liberada;N=Nao Liberada;A=A liberar;C=Classificada;E=Estornada;B=Bloqueada;T=Token;P=A Aprovar;V=Aprovada"
+	dbCommit()
+	MsUnLock()
+EndIf
 
-dbSelectArea( "SX3" )
-APPEND FROM \temp\sx3cn9.dtc
 
-X31UPDTABLE("CN9")
+
 
 //dbSetOrder( 1 )
 
@@ -1632,6 +1637,22 @@ Return
 
 
 /*
+cTexto  += "20/01/23 - SF1 " + CRLF 
+
+dbSelectArea( "SX3" )
+APPEND FROM \temp\sx3sf1.dtc
+
+X31UPDTABLE("SF1")
+
+
+cTexto  += "04/01/23 - CN9 " + CRLF 
+
+dbSelectArea( "SX3" )
+APPEND FROM \temp\sx3cn9.dtc
+
+X31UPDTABLE("CN9")
+
+
 cTexto  += "22/12/22 - SF1 " + CRLF 
 dbSelectArea( "SX3" )
 APPEND FROM \tmp\sx3sf1.dtc

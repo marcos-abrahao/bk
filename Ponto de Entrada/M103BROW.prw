@@ -16,6 +16,7 @@ Local aSup			:= {}
 Local lStaf 		:= .F.
 Local cFiltro		:= ""
 Local cMDiretoria	:= ""
+Local lMDiretoria   := .F.
 Local laClas		:= .F.
 Local lAdmFiscal	:= .F.
 Local cGerGestao	:= u_GerGestao()
