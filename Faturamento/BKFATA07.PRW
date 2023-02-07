@@ -46,7 +46,7 @@ If (Parambox(aParam,"BKFATA07 - "+cTitulo,@aRet,,,.T.,,,,"BKFATA07",.T.,.T.))
 	ENDIF
 
 	MakeDir(cDir)
-	u_WaitLog(cPerg,{|| U_V2PRPSXML() })
+	u_WaitLog(cProg,{|| U_V2PRPSXML() })
 Endif
 
 RETURN NIL

@@ -27,13 +27,12 @@ Local cAlmox		:= ""
 Local i:= 0
 
 Dbselectarea("SF1")
-If __cUserId <> "000000" // .AND. __cUserId <> "000029" // Administrador e Marcio Kogan
-	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
+If __cUserId <> "000000" 
 
 	lStaf  := u_IsStaf(__cUserId)
 	
 	If !IsBlind()
-		lAClas := MsgBox("Filtrar os Doc a Classificar", "M103FILB", "YESNO")
+		lAClas := MsgBox("Filtrar os Docs a Classificar", "M103FILB", "YESNO")
 	Else
 		lAClas := .T.
 	EndIf

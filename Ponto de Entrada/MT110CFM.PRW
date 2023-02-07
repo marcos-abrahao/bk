@@ -219,6 +219,6 @@ IF 	!EMPTY(_cXXENDEN)
 ENDIF
 U_SendMail("MT110CFM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
 
-u_MsgLog("MT110CFM",cAssunto+" "+cEmail)
+u_MsgLog("MT110CFM",cAssunto+" - Opção: "+cValToChar(nOpcSel)+" - "+cEmail)
 
 Return Nil

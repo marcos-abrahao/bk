@@ -114,6 +114,7 @@ IF EMPTY(cDocI) .OR. Val(cDocI) == 0
 	lOk:= .F.
     RETURN lOk 
 Endif
+cDocI := STRZERO(Val(cDocI),9)
 
 /*   
 IF EMPTY(cForn)
