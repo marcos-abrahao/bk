@@ -272,7 +272,7 @@ IF !Empty(cContrato)
 
 	cxCompet := ""
 	cxParcel := ""
-	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596' // VOA-SE
+	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596'  .AND. ALLTRIM(cContrato) <> "305000554" // VOA-SE
 		If !(AllTrim(cCliente) $ cXXCOMPE)
    			cxCompet  := "Competencia: "+cCompet
 		EndIf
@@ -387,6 +387,12 @@ ENDDO
 IF cImpDtV <> "S"
 	cVencto := "Vencimento: conforme contrato"
 ENDIF	
+
+IF ALLTRIM(cContrato) == "305000554" 
+
+	cVencto := "Posto Adicional Poupatempo 4.0 - Modelo"
+
+ENDIF
 
 
 cDescr1 += cVencto+IIF(!EMPTY(cVencto) .AND. !EMPTY(cxCompet)," - ","")+cxCompet+CRLF
@@ -518,7 +524,7 @@ ENDIF
 IF cCliente $ cXXNOISS .OR. STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS //ADICIONA DESCRIÇÃO DA LEI PARA CLIENTE NÃO SAIR RETENÇÃO DE INSS
 	IF !EMPTY(cXXDSISS)
 		IF SUBSTR(cDescr,LEN(cDescr),1) == "|"
-			cDescr += cXXDSISS+"|"
+			cDescr += cXXDSISS+"|"+aBancos
 		ELSE
 			cDescr += "|"+cXXDSISS+"|"
 		ENDIF
@@ -627,7 +633,16 @@ IF cEmpAnt == '14' // Balsa - Solicitado pelo Jalielison em 01/02/2022
 	cDescr += "2,25% pela Trairi Comércio de Derivados de Petroleo Ltda 04.811.052/0001-07"
 ENDIF
 
+IF ALLTRIM(cContrato) == "305000554" 
+	cDescr := Acento( cDescr )
+	cDescr := STRTRAN( cDescr, "PRODESP PRO 00 7647 CONS.BHG INTERIOR L-03", "PRODESP PRO 00 7647 CONS.BHG INTERIOR L-03 - REAJUSTE")
+	cDescr := STRTRAN( cDescr, "PRESTACAO DE SERVICO DE GESTAO  OPERACAO E MANUTENCAO DOS POSTOS DE ATENDIMENTO DO POUPATEMPO DO", "PRESTACAO DE SERVICO DE GESTAO,OPERACAO E MANUTENCAO DOS POSTOS DE ATENDIMENTO DO POUPATEMPO")
+	cDescr := STRTRAN( cDescr, "|LOTE 3 DO PREGAO ELETRONICO Nº 008/2020.|", "|")
+	cDescr := STRTRAN( cDescr, "Banco do Brasil Ag:3320-0 Cc:177676-2", "")
+ENDIF
+
 cDescr := AltCorpo(cDescr,cNF,cSerie)
+
 
 RecLock("SF2",.F.)
 // Aqui 
@@ -659,6 +674,27 @@ If ("."+Replicate("0",nD)) $ cAliq
 EndIf
 Return cAliq
 
+Static Function Acento( cTexto )
+Local cAcentos:= "Ç ç Ä À Â Ã Å à á ã ä å É È Ê Ë è é ê ë Ì Í Î Ï Ò Ó Ô Õ Ö ò ó ô õ ö Ù Ú Û Ü ù ú û ü Ñ ñ , ; "
+Local cAcSubst:= "C c A A A A A a a a a a E E E E e e e e I I I I O O O O O o o o o o U U U U u u u u N n     "
+Local cImpCar := ""
+Local cImpLin := ""
+Local nChar   := 0.00
+Local nChars  := 0.00
+Local nAt     := 0.00     
+
+cTexto := IF( Empty( cTexto ) .or. ValType( cTexto ) != "C", "" , cTexto )
+
+nChars := Len( cTexto )
+For nChar := 1 To nChars
+     cImpCar := SubStr( cTexto , nChar , 1 )
+     IF ( nAt := At( cImpCar , cAcentos ) ) > 0
+          cImpCar := SubStr( cAcSubst , nAt , 1 )
+     EndIF
+     cImpLin += cImpCar
+Next nChar
+
+Return( cImpLin )
 
 
 // Tela para alterar o corpo da NF

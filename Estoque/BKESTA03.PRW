@@ -78,15 +78,15 @@ Local nTLin      := 15
 Local oDlg01     as Object
 Local oButInv    as Object
 Local aButtons   := {}
-Local aItemSD3   := {}
-Local cCusto     := SPACE(9)
-Local cENDSAID   := SPACE(250)
-Local cENDENTR   := SPACE(250)
-Local cRespDecl  := SPACE(80)
-Local cCPFDecl   := SPACE(11)
-Local dDataD	 := dDATABASE
 
+PRIVATE aItemSD3   := {}
+PRIVATE cCusto     := SPACE(9)
 PRIVATE cDESCTT	 := SPACE(80)
+PRIVATE cENDSAID   := SPACE(250)
+PRIVATE cENDENTR   := SPACE(250)
+PRIVATE cRespDecl  := SPACE(80)
+PRIVATE cCPFDecl   := SPACE(11)
+PRIVATE dDataD	 := dDATABASE
 PRIVATE cGestor  := SPACE(80)
 PRIVATE cDCLIENT := SPACE(80)
 
@@ -236,9 +236,9 @@ If (Parambox(aParam,"BKESTA03A - "+cTitulo,@aRet,,,.T.,,,,"BKESTA03A",.T.,.T.))
 	SD1->(DBSETORDER(1))
     IF DbSeek(xFilial("SD1")+cNota+cSerie+cFornec+cLoja)
        DO WHILE !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+cNota+cSerie+cFornec+cLoja  
-			//"Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
-			AADD(aNOTAS,{.F.,SD1->D1_ITEM,SD1->D1_COD,TRIM(Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_DESC")),SD1->D1_QUANT,"","",SD1->D1_TOTAL,SD1->D1_DOC,SD1->D1_SERIE,SD1->D1_FORNECE,SD1->D1_LOJA})
-          SD1->(dbSkip())
+			//"Item","Cod. Produto","Descrição","Quantidade","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
+			AADD(aNOTAS,{.F.,SD1->D1_ITEM,SD1->D1_COD,TRIM(Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_DESC")),SD1->D1_QUANT,SD1->D1_TOTAL,SD1->D1_DOC,SD1->D1_SERIE,SD1->D1_FORNECE,SD1->D1_LOJA,SD1->D1_CC})
+        	SD1->(dbSkip())
        ENDDO
 	ELSE
 		MSGSTOP("Dados da Notas Fisca não Encontrado!")
@@ -250,17 +250,17 @@ Endif
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 
-DEFINE MSDIALOG oDlg TITLE "Confirme itens da Nota Fiscal" FROM 000,000 TO 450,630 PIXEL 
+DEFINE MSDIALOG oDlg TITLE "Confirme os itens da Nota Fiscal" FROM 000,000 TO 450,830 PIXEL 
 
-@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 320,225
+@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 430,825 
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
 lAll := .F.
 @ 005, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
 oAll:bChange := {|| Aeval(aNotas,{|x| x[1]:=lAll}), oListId:Refresh()}
 
-			//"Item","Cod. Produto","Descrição","Quantidade","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
+			//"Item","Cod. Produto","Descrição","Quantidade","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja","C.Custo"
 
-@ 012, 005 LISTBOX oListID FIELDS HEADER "","Item","Produto","Descrição","Quantidade","Total","Nota Fiscal","Serie","Fornecedor","Loja" SIZE 310,200 OF oPanelLeft PIXEL 
+@ 015, 010 LISTBOX oListID FIELDS HEADER "","Item","Produto","Descrição","Quantidade","Total","Nota Fiscal","Serie","Fornecedor","Loja","C.Custo" SIZE 400,180 OF oPanelLeft PIXEL 
 
 oListID:SetArray(aNotas)
 oListID:bLine := {||{If(aNotas[oListId:nAt][1],oOk,oNo),;
@@ -272,9 +272,11 @@ oListID:bLine := {||{If(aNotas[oListId:nAt][1],oOk,oNo),;
 						aNotas[oListId:nAt][7],;
 						aNotas[oListId:nAt][8],;
 						aNotas[oListId:nAt][9],;
-						aNotas[oListId:nAt][10]}}
+						aNotas[oListId:nAt][10],;
+						aNotas[oListId:nAt][11]}}
 
-oListID:bLDblClick := {|| aNotas[oListId:nAt][1] := !aNotas[oListId:nAt][1], oListID:DrawSelect()}
+oListId:bLDblClick := {|| aNotas[oListId:nAt][1] := ValidaMrk(aNotas[oListId:nAt][1],aCtrId[oListId:nAt][11]), oListId:DrawSelect()}
+
 
 ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
 
@@ -282,5 +284,19 @@ If ( lOk )
     //GravaSe2(aTitGer)
 EndIf
 Return lOk
+
+
+Static Function ValidaMrk(lRet,cCCSD1)
+
+IF cCusto <> cCCSD1
+
+If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
+	cCod := ""
+	Return cCod 
+EndIf
+
+
+
+Return lRet
 
 

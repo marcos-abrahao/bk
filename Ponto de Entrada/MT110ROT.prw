@@ -61,10 +61,10 @@ Else
 	
 	lOk := .F.
 	
-	Define MsDialog oDlg01 Title "MT110VLC-Alt. Valor Licitado: "+SC1->C1_NUM+"/"+SC1->C1_ITEM  From 000,000 To 150,300 Of oDlg01 Pixel
+	Define MsDialog oDlg01 Title "MT110VLC-Alt. Valor Estimado: "+SC1->C1_NUM+"/"+SC1->C1_ITEM  From 000,000 To 150,300 Of oDlg01 Pixel
 	
 	nSnd := 30
-	@ nSnd,010 Say "Informe o valor licitado:"  Size 080,008 Pixel Of oDlg01
+	@ nSnd,010 Say "Informe o valor estimado:"  Size 080,008 Pixel Of oDlg01
 	@ nSnd,080 MsGet nXXLCVAL Picture cPict     Size 060,008 Pixel Of oDlg01 HASBUTTON
 	nSnd += nTLin
 	

@@ -353,7 +353,7 @@ Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNum
 	If nPosIt == 0
 	   aItem := {}
 
-	   // Buscar valor licitado na Solicitação de compras
+	   // Buscar valor estimado na Solicitação de compras
 	   SC1->(dbSeek(xFilial("SC1")+SC8->C8_NUMSC+SC8->C8_ITEMSC,.F.))	   
 
 	   AADD(aItem,SC8->C8_ITEM)

@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"20/01/2023 LIB "
+#DEFINE FIN_LAST_UPDATED 		"13/02/2023 SC1 "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -1616,8 +1616,34 @@ Static Function AtuGenX3( cTexto )
 
 
 oProcess:IncRegua2( "Manutenção X31UPDTABLE..." )
+cTexto  += FIN_LAST_UPDATED + CRLF 
 
 dbSelectArea( "SX3" )
+dbSetOrder( 2 )
+If SX3->( dbSeek( "C1_XXLCVAL" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_TITULO := "Val Estimado"
+	SX3->X3_DESCRIC := "Valor Estimado"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+If SX3->( dbSeek( "C1_XXLCTOT" ) )
+	RecLock( "SX3", .F. )
+	SX3->X3_TITULO := "Tot Estimado"
+	SX3->X3_DESCRIC := "Total Estimado"
+	dbCommit()
+	MsUnLock()
+EndIf
+
+
+
+//dbSetOrder( 1 )
+
+Return
+
+
+/*
 
 cTexto  += "20/01/23 - SF1 " + CRLF 
 dbSetOrder( 2 )
@@ -1629,14 +1655,6 @@ If SX3->( dbSeek( "F1_XXLIB" ) )
 EndIf
 
 
-
-
-//dbSetOrder( 1 )
-
-Return
-
-
-/*
 cTexto  += "20/01/23 - SF1 " + CRLF 
 
 dbSelectArea( "SX3" )
