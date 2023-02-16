@@ -12,16 +12,17 @@ BK -Inclusão Termo Transferencia / Responsabilidade / Recebimento controle de Es
 /*/
 
 User Function BKESTA03
-Local 	cFiltra     := "D3_XXCODIG<>''"
+Local cFiltra     := "D3_XXCODIG<>''"
 
 Private cCadastro	:= "Inclusão Termo Transferencia / Responsabilidade / Recebimento"
 Private cDelFunc	:= ".F." // Validacao para a exclusao. Pode-se utilizar ExecBlock
 Private cString 	:= "SD3"
 Private aIndexSz  	:= {}
-PRIVATE aFixeFX     := {}
+Private aFixeFX     := {}
 Private bFiltraBrw	:= { || FilBrowse(cString,@aIndexSz,@cFiltra) } 
 Private aCores  := {}
 Private aRotina	:= {}
+Private oListSD3
 
 //u_MsgLog("BKESTA03")
 
@@ -91,7 +92,7 @@ PRIVATE cGestor  := SPACE(80)
 PRIVATE cDCLIENT := SPACE(80)
 
 
-    AADD(aItemSD3,{"","","","","","",0,"","","",""})
+    AADD(aItemSD3,{"","","","",SPACE(20),CTOD(""),0,"","","",""})
 
 
     Define MsDialog oDlg01 Title "Incluir Termo de Transferencia / Responsabilidade de Uso" From 000,000 To 450,830 Of oDlg01 Pixel
@@ -105,7 +106,6 @@ PRIVATE cDCLIENT := SPACE(80)
 	@ nSnd,130 MsGet cDCLIENT Picture '@!' Size 250,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
 
 	nSnd += nTLin
-
 
 	@ nSnd,010 Say "Custo / Contrato:" Size 080,010 Pixel OF oPanelLeft
 	@ nSnd,060 MsGet cCusto Picture '@!' F3 "CTT" Size 060,010 Pixel OF oPanelLeft WHEN .T. VALID(!Empty(cCusto) .AND. VALIDCONTR(cCusto))
@@ -135,21 +135,22 @@ PRIVATE cDCLIENT := SPACE(80)
     Message "Seleciona Produtos" Of oPanelLeft
 	nSnd += nTLin
 	
-	@ nSnd, 010 LISTBOX oListID FIELDS HEADER "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" SIZE 400,085  OF oPanelLeft PIXEL 
+	@ nSnd, 010 LISTBOX oListSD3 FIELDS HEADER "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" SIZE 400,085  OF oPanelLeft PIXEL 
 	
-	oListID:SetArray(aItemSD3)
-	oListID:bLine := {|| {	aItemSD3[oListId:nAt][1],;
-							aItemSD3[oListId:nAt][2],;
-							aItemSD3[oListId:nAt][3],;
-							aItemSD3[oListId:nAt][4],;
-							aItemSD3[oListId:nAt][5],;   
-							aItemSD3[oListId:nAt][6],;                                                     
-							TRANSFORM(aItemSD3[oListId:nAt][7],"@E 999,999,999.99"),;
-							aItemSD3[oListId:nAt][8],;
-							aItemSD3[oListId:nAt][9],;
-							aItemSD3[oListId:nAt][10],;                                                                                    
-							aItemSD3[oListId:nAt][11]}}
-	
+	oListSD3:SetArray(aItemSD3)
+	oListSD3:bLine := {|| {	aItemSD3[oListSD3:nAt][1],;
+							aItemSD3[oListSD3:nAt][2],;
+							aItemSD3[oListSD3:nAt][3],;
+							aItemSD3[oListSD3:nAt][4],;
+							aItemSD3[oListSD3:nAt][5],;   
+							aItemSD3[oListSD3:nAt][6],;                                                     
+							TRANSFORM(aItemSD3[oListSD3:nAt][7],"@E 999,999,999.99"),;
+							aItemSD3[oListSD3:nAt][8],;
+							aItemSD3[oListSD3:nAt][9],;
+							aItemSD3[oListSD3:nAt][10],;                                                                                    
+							aItemSD3[oListSD3:nAt][11]}}
+
+	oListSD3:bLDblClick := {|| EDITCNR2(@aItemSD3),oListSD3:DrawSelect(), }
 	
 	ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
 
@@ -199,8 +200,14 @@ ELSE
 	lOK := .T.
 ENDIF
 
-
 RETURN lOK
+
+STATIC FUNCTION EDITCNR2(aItemSD3)
+
+lEditCell(aItemSD3,oListSD3,'@!',5)
+lEditCell(aItemSD3,oListSD3,'@!',6)
+
+RETURN NIL
 
 
 STATIC FUNCTION BKESTA03A()
@@ -256,7 +263,7 @@ DEFINE MSDIALOG oDlg TITLE "Confirme os itens da Nota Fiscal" FROM 000,000 TO 45
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
 lAll := .F.
 @ 005, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
-oAll:bChange := {|| Aeval(aNotas,{|x| x[1]:=lAll}), oListId:Refresh()}
+oAll:bChange := {|| Aeval(aNotas,{|x| IIF(x[11]== cCusto,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
 
 			//"Item","Cod. Produto","Descrição","Quantidade","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja","C.Custo"
 
@@ -275,28 +282,70 @@ oListID:bLine := {||{If(aNotas[oListId:nAt][1],oOk,oNo),;
 						aNotas[oListId:nAt][10],;
 						aNotas[oListId:nAt][11]}}
 
-oListId:bLDblClick := {|| aNotas[oListId:nAt][1] := ValidaMrk(aNotas[oListId:nAt][1],aCtrId[oListId:nAt][11]), oListId:DrawSelect()}
+oListId:bLDblClick := {|| aNotas[oListId:nAt][1] := ValidaMrk(aNotas[oListId:nAt][1],aNotas[oListId:nAt][11]), oListId:DrawSelect()}
 
 
 ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
 
 If ( lOk )
-    //GravaSe2(aTitGer)
+    GravaNOTAS(aNOTAS)
 EndIf
 Return lOk
 
 
 Static Function ValidaMrk(lRet,cCCSD1)
+LOCAL lOK := .T.
 
 IF cCusto <> cCCSD1
+	If !u_MsgLog("BKESTA03A","Contrato ou C.Custo diferente da Nota e Termo. Continua ?","N")
+		lOK := .F.
+		Return lOK 
+	EndIf
+ENDIF
 
-If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
-	cCod := ""
-	Return cCod 
-EndIf
-
-
-
-Return lRet
+Return lOK 
 
 
+STATIC FUNCTION GravaNOTAS(aNOTAS)
+Local _ix:=0
+Local nSCAN:=0
+
+IF LEN(aItemSD3) == 1 
+	IF EMPTY(aItemSD3[1,1])
+		aItemSD3:= {}
+	ENDIF
+ENDIF
+
+FOR _ix:=1 TO LEN(aNOTAS)
+
+	IF aNOTAS[_ix,1]
+
+		//                  1        2             3           4           5           6             7            8          9        10       11
+		//aItemSD3//    "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
+		//          1       2        3             4           5                                    6             7            8        9        10       11
+		//aNOTAS//"MRK","Item","Cod. Produto","Descrição","Quantidade"                        ,"Valor Total",'Nota Fiscal',"Serie","Fornece","Loja","C.Custo"
+	
+		nScan:= 0
+		nScan:= aScan(aItemSD3,{|x| x[1] == aNOTAS[_ix,2] .AND. x[8] == aNOTAS[_ix,7] .AND. x[9] == aNOTAS[_ix,8] .AND. x[10] == aNOTAS[_ix,9] .AND. x[11] == aNOTAS[_ix,10] })
+		IF nScan == 0
+			AADD(aItemSD3,{aNOTAS[_ix,2],aNOTAS[_ix,3],aNOTAS[_ix,4],aNOTAS[_ix,5],SPACE(20),CTOD(""),aNOTAS[_ix,6],aNOTAS[_ix,7],aNOTAS[_ix,8],aNOTAS[_ix,9],aNOTAS[_ix,10]})
+		ENDIF
+	ENDIF
+
+NEXT _ix
+
+oListSD3:SetArray(aItemSD3)
+oListSD3:bLine := {|| {	aItemSD3[oListSD3:nAt][1],;
+						aItemSD3[oListSD3:nAt][2],;
+						aItemSD3[oListSD3:nAt][3],;
+						aItemSD3[oListSD3:nAt][4],;
+						aItemSD3[oListSD3:nAt][5],;   
+						aItemSD3[oListSD3:nAt][6],;                                                     
+						TRANSFORM(aItemSD3[oListSD3:nAt][7],"@E 999,999,999.99"),;
+						aItemSD3[oListSD3:nAt][8],;
+						aItemSD3[oListSD3:nAt][9],;
+						aItemSD3[oListSD3:nAt][10],;                                                                                    
+						aItemSD3[oListSD3:nAt][11]}}
+oListSD3:bLDblClick := {|| EDITCNR2(@aItemSD3),oListSD3:DrawSelect(), }
+
+RETURN NIL

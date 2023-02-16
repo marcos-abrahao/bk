@@ -174,8 +174,6 @@ Return lRet
 // Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
 User Function IsAvalia(cId)
 Local lRet := .F.
-// Admin/Fabio/Anderson/Luis/Michele/Caio
-//If cId $ "000000/000093/000005/000116/000138/000126/"
 // Admin/Xavier/Michele/Bruno
 If cId $ "000000/000012/000138/000153/"
     lRet := .T.
@@ -383,5 +381,102 @@ Return cIpPort
 User Function BKRest()
 Local cRest := "http://"+u_BkIpPort()+"/rest"
 Return cRest
+
+
+// Grupos de e-mail abaixa são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
+
+// E-mails do grupo financeiro 1 do google
+User Function BKPgto1()
+Local cRet := ""
+
+cRet += "microsiga@bkconsultoria.com.br;"
+cRet += u_BKEmRH()
+cRet += u_BKEmGCT()
+cRet += u_BKEmFin()
+Return cRet
+
+// E-mails do grupo financeiro 2 do google
+User Function BKPgto2()
+Local cRet := ""
+cRet += "microsiga@bkconsultoria.com.br;"
+//cRet += "jalielison.alves@bkconsultoria.com.br;"
+cRet += u_BKEmFin()
+cRet += u_BKEmRH()
+Return cRet
+
+// E-mails do grupo qualidade do google
+User Function BKEmQld()
+Local cRet := ""
+cRet += "microsiga@bkconsultoria.com.br;"
+cRet += "ulisses.nunes@bkconsultoria.com.br;"
+Return cRet
+
+
+// E-mails do grupo financeiro do google
+User Function BKEmFin()
+Local cRet := ""
+
+cRet += "adalberto.xavier@bkconsultoria.com.br;"
+cRet += "andresa.cunha@bkconsultoria.com.br;"
+cRet += "diego.oliveira@bkconsultoria.com.br;"
+//cRet += "eduardo.oliveira@bkconsultoria.com.br;"
+cRet += "elaine.magalhaes@bkconsultoria.com.br;"
+//cRet += "fernando.vallinari@bkconsultoria.com.br;"
+cRet += "joao.cordeiro@bkconsultoria.com.br;"
+cRet += "juliana.villegas@bkconsultoria.com.br;"
+cRet += "laudecir.carpi@bkconsultoria.com.br;"
+cRet += "sabrina.nogueira@bkconsultoria.com.br;"
+
+Return cRet
+
+// E-mails do grupo financeiro do google
+User Function BKEmRH()
+Local cRet := ""
+
+cRet += "ana.campos@bkconsultoria.com.br;"
+//cRet += "aprendiz.rh@bkconsultoria.com.br;"
+//cRet += "atendimentorh@bkconsultoria.com.br;"
+cRet += "christiane.almeida@bkconsultoria.com.br;"
+cRet += "edson.silva@bkconsultoria.com.br;"
+//cRet += "erick.barros@bkconsultoria.com.br;"
+//cRet += "folhadeponto@bkconsultoria.com.br;"
+cRet += "juliana.magalhaes@bkconsultoria.com.br;"
+cRet += "karolaine.souza@bkconsultoria.com.br;"
+cRet += "kelly.silva@bkconsultoria.com.br;"
+cRet += "luciana.carvalho@bkconsultoria.com.br;"
+cRet += "ludimila.martins@bkconsultoria.com.br;"
+cRet += "marcio.souza@bkconsultoria.com.br;"
+cRet += "rafaela.lima@bkconsultoria.com.br;"
+
+Return cRet
+
+
+// E-mails do grupo financeiro do google
+User Function BKEmGCT()
+Local cRet := ""
+
+cRet += "acsa.souza@bkconsultoria.com.br;"
+cRet += "administrativo.bhg@bkconsultoria.com.br;"
+cRet += "alexandre.teixeira@bkconsultoria.com.br;"
+cRet += "carlos.ferreira@bkconsultoria.com.br;"
+cRet += "christiane.rodrigues@bkconsultoria.com.br;"
+cRet += "erika.almeida@bkconsultoria.com.br;"
+cRet += "fabia.pesaro@bkconsultoria.com.br;"
+cRet += "fernando.sampaio@bkconsultoria.com.br;"
+cRet += "graziele.silva@bkconsultoria.com.br;"
+cRet += "guilherme.moreira@bkconsultoria.com.br;"
+cRet += "joao.gouvea@bkconsultoria.com.br;"
+cRet += "joao.vitor@bkconsultoria.com.br;"
+cRet += "jose.braz@bkconsultoria.com.br;"
+//cRet += "julia.pinhati@bkconsultoria.com.br;"
+cRet += "lincoln.santana@bkconsultoria.com.br;"
+cRet += "marcelo.cavallari@bkconsultoria.com.br;"
+cRet += "marcelo.soares@bkconsultoria.com.br;"
+cRet += "moacyr.dalate@bkconsultoria.com.br;"
+cRet += "nelson.oliveira@bkconsultoria.com.br;"
+cRet += "noe.braga@bkconsultoria.com.br;"
+cRet += "vanderleia.silva@bkconsultoria.com.br;"
+
+Return cRet
 
 

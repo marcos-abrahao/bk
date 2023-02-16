@@ -272,7 +272,7 @@ IF !Empty(cContrato)
 
 	cxCompet := ""
 	cxParcel := ""
-	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596'  .AND. ALLTRIM(cContrato) <> "305000554" // VOA-SE
+	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596' // VOA-SE //.AND. ALLTRIM(cContrato) <> "305000554" //criado para atendimento emergencial - 10/02/2023
 		If !(AllTrim(cCliente) $ cXXCOMPE)
    			cxCompet  := "Competencia: "+cCompet
 		EndIf
@@ -388,11 +388,10 @@ IF cImpDtV <> "S"
 	cVencto := "Vencimento: conforme contrato"
 ENDIF	
 
-IF ALLTRIM(cContrato) == "305000554" 
-
-	cVencto := "Posto Adicional Poupatempo 4.0 - Modelo"
-
-ENDIF
+//criado para atendimento emergencial - 10/02/2023
+//IF ALLTRIM(cContrato) == "305000554" 
+//	cVencto := "Posto Adicional Poupatempo 4.0 - Modelo"
+//ENDIF
 
 
 cDescr1 += cVencto+IIF(!EMPTY(cVencto) .AND. !EMPTY(cxCompet)," - ","")+cxCompet+CRLF
@@ -633,13 +632,14 @@ IF cEmpAnt == '14' // Balsa - Solicitado pelo Jalielison em 01/02/2022
 	cDescr += "2,25% pela Trairi Comércio de Derivados de Petroleo Ltda 04.811.052/0001-07"
 ENDIF
 
-IF ALLTRIM(cContrato) == "305000554" 
-	cDescr := Acento( cDescr )
-	cDescr := STRTRAN( cDescr, "PRODESP PRO 00 7647 CONS.BHG INTERIOR L-03", "PRODESP PRO 00 7647 CONS.BHG INTERIOR L-03 - REAJUSTE")
-	cDescr := STRTRAN( cDescr, "PRESTACAO DE SERVICO DE GESTAO  OPERACAO E MANUTENCAO DOS POSTOS DE ATENDIMENTO DO POUPATEMPO DO", "PRESTACAO DE SERVICO DE GESTAO,OPERACAO E MANUTENCAO DOS POSTOS DE ATENDIMENTO DO POUPATEMPO")
-	cDescr := STRTRAN( cDescr, "|LOTE 3 DO PREGAO ELETRONICO Nº 008/2020.|", "|")
-	cDescr := STRTRAN( cDescr, "Banco do Brasil Ag:3320-0 Cc:177676-2", "")
-ENDIF
+//criado para atendimento emergencial - 10/02/2023
+//IF ALLTRIM(cContrato) == "305000554" 
+//	cDescr := Acento( cDescr )
+//	cDescr := STRTRAN( cDescr, "PRODESP PRO 00 7647 CONS.BHG INTERIOR L-03", "PRODESP PRO 00 7647 CONS.BHG INTERIOR L-03 - REAJUSTE")
+//	cDescr := STRTRAN( cDescr, "PRESTACAO DE SERVICO DE GESTAO  OPERACAO E MANUTENCAO DOS POSTOS DE ATENDIMENTO DO POUPATEMPO DO", "PRESTACAO DE SERVICO DE GESTAO,OPERACAO E MANUTENCAO DOS POSTOS DE ATENDIMENTO DO POUPATEMPO")
+//	cDescr := STRTRAN( cDescr, "|LOTE 3 DO PREGAO ELETRONICO Nº 008/2020.|", "|")
+//	cDescr := STRTRAN( cDescr, "Banco do Brasil Ag:3320-0 Cc:177676-2", "")
+//ENDIF
 
 cDescr := AltCorpo(cDescr,cNF,cSerie)
 

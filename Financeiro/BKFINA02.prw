@@ -830,16 +830,13 @@ Return nil
 
 User Function Fina02E(aEmail,lCLT,cAssunto)
 Local cPrw     := "BKFINA02"
-Local cEmail1  := "sigapgto1@bkconsultoria.com.br"  //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
-Local cEmail2  := "sigapgto2@bkconsultoria.com.br"  //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
+Local cEmail1  := u_BKPgto1()
+Local cEmail2  := u_BKPgto2() //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cCC      := ""
 Local cMsg     := "" 
 Local cAnexo   := ""
 Local _lJob    := .F.
 Local aCabs
-
-cEmail1 += ";microsiga@bkconsultoria.com.br;"
-cEmail2 += ";microsiga@bkconsultoria.com.br;"
 
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 cMsg    := u_GeraHtmA(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw)

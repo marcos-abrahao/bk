@@ -958,14 +958,6 @@ EndIf
 cEmail	+= "controladoria@bkconsultoria.com.br;"
 // Mandar para: Quem, Gestor, Gerente e Controladoria
 
-
-/*
-cEmail	+= "diego@bkconsultoria.com.br;"
-cEmail	+= "gestao@bkconsultoria.com.br;"
-cEmail	+= "william.nunes@bkconsultoria.com.br;"
-*/
-
-
 PswOrder(1)
 PswSeek(SZP->ZP_QUEM) 
 aUser  := PswRet(1)
@@ -1027,12 +1019,6 @@ Local cNomeQuem := ""
 
 // Mandar para: Quem, Gestor, Gerente e Controladoria
 cEmail	+= "controladoria@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
-
-/*
-cEmail	+= "diego@bkconsultoria.com.br;"
-cEmail	+= "gestao@bkconsultoria.com.br;"
-cEmail	+= "william.nunes@bkconsultoria.com.br;"
-*/
 
 PswOrder(1)
 PswSeek(SZP->ZP_QUEM) 
