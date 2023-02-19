@@ -33,7 +33,6 @@ Public cXXDCC	 := Space(TamSX3("C1_XXDCC")[1])
 Public cXXJUST	 := Space(TamSX3("C1_XXJUST")[1]) 
 Public cXXENDEN  := Space(TamSX3("C1_XXENDEN")[1])
 
-
 IF TYPE("lCopia") == "U"
 	lCopia  := .F.
 ENDIF
@@ -61,11 +60,7 @@ IF lCopia
 	NEXT
 ENDIF
 
-//If TYPE("CRELEASERPO") == "U"
-//	nLin := 33	// Protheus 11
-//Else
-	nLin := 63	// Protheus 12
-//EndIf
+nLin := 63	// Protheus 12
 
 @ nLin,aPosGet[1,1] SAY 'Limite Entrega' PIXEL SIZE 50,10 Of oNewDialog
 @ nLin,aPosGet[1,2] MSGET dDATPRF PIXEL SIZE 50,10 Of oNewDialog    
@@ -81,7 +76,7 @@ nLin += 15
 @ nLin,aPosGet[1,3]  SAY 'Centro Custo' PIXEL SIZE 50,10 Of oNewDialog
 @ nLin,aPosGet[1,4]  MSGET cCC PIXEL SIZE 50,10 Of oNewDialog  F3 "CTT" VALID(Vazio(cCC) .Or. Ctb105CC(),cXXDCC:= CTT->CTT_DESC01)  
 
-@ nLin,aPosGet[1,5]  SAY 'Descr C. Custo' PIXEL SIZE 50,10 Of oNewDialog
+@ nLin,aPosGet[1,5]  SAY 'Descr C.Custo' PIXEL SIZE 50,10 Of oNewDialog
 @ nLin,aPosGet[1,6]  MSGET cXXDCC PIXEL SIZE 100,10 Of oNewDialog WHEN .F.  
 
 nLin += 15
@@ -97,13 +92,8 @@ RETURN
 User Function MT110GET() 
 Local aRet:= PARAMIXB[1] 
 
-//If TYPE("CRELEASERPO") == "U"  // Protheus 11
-//	aRet[2,1] := 85
-//	aRet[1,3] := 115 
-//Else   // Protheus 12
-	aRet[2,1] := 115
-	aRet[1,3] := 145 
-//EndIf
+aRet[2,1] := 115
+aRet[1,3] := 145 
 
 Return(aRet)
 

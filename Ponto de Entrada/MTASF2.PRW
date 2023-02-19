@@ -13,7 +13,7 @@ Gravar campos adicionais no SF2
 
 
 User Function MTASF2()
-Local cEmailTO,cEmailCC,cMsg
+//Local cEmailTO,cEmailCC,cMsg
 IF !EMPTY(SC5->C5_XXRETC)
 	// Gravar o percentual e valor da Retenção Contratual
 	SF2->F2_XXRETC  := SC5->C5_XXRETC
@@ -21,7 +21,9 @@ IF !EMPTY(SC5->C5_XXRETC)
 ENDIF
 
 // 09/12/2021 - Marcos/Xavier
+/*
 
+Removido em 17/02/2023
 If SF2->F2_CLIENTE == '000367' //.AND. SF2->F2_VLCPM > 0
 
 	cEmailTO := 'fiscal@conlinecontabil.com.br;financeiro@bkconsultoria.com.br;'
@@ -34,6 +36,6 @@ If SF2->F2_CLIENTE == '000367' //.AND. SF2->F2_VLCPM > 0
 	u_BkSnMail("MTASF2","Nota Fiscal "+SF2->F2_DOC+" emitida para o Ministério Públido do RJ",cEmailTO,cEmailCC,cMsg,)
 
 EndIf
-
+*/
 Return Nil
 

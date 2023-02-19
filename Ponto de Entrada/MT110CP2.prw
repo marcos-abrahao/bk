@@ -13,17 +13,20 @@ Local aItens   := PARAMIXB[1]
 Local oQual    := PARAMIXB[2]
 Local aNItens  := {}
 Local nX       := 0
+Local nTotal   := 0
 
 // Adiciona titulo da coluna que esta sendo incluída
 //AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_FORNECE"))
 PARAMIXB[2]:AHEADERS := {}
+AADD(PARAMIXB[2]:AHEADERS,"Estimado Total SC")
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_EMISSAO"))
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_PRODUTO"))
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_DESCRI"))
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_UM"))
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_QUANT"))
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_CC"))
-AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_XXDCC"))
+AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_XXLCVAL"))
+AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_XXLCTOT"))
 AADD(PARAMIXB[2]:AHEADERS,RetTitle("C1_OBS"))
 
 // Adiciona campo da coluna que esta sendo incluída
@@ -41,20 +44,20 @@ For nX := 1 To Len(PARAMIXB[2]:AARRAY)
           C1_DESCRI == PARAMIXB[2]:AARRAY[nX][6] .And. ;
           C1_FILENT == PARAMIXB[2]:AARRAY[nX][7]
           //AADD(PARAMIXB[2]:AARRAY[nX],SC1->C1_FORNECE)
-          AADD(aNItens,{SC1->C1_EMISSAO,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT,SC1->C1_CC,SC1->C1_XXDCC,SC1->C1_OBS})
-
+          AADD(aNItens,{"",SC1->C1_EMISSAO,TRIM(SC1->C1_PRODUTO),TRIM(SC1->C1_DESCRI),SC1->C1_UM,SC1->C1_QUANT,TRIM(SC1->C1_CC)+"-"+TRIM(SC1->C1_XXDCC),ALLTRIM(TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99")),ALLTRIM(TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99")),TRIM(SC1->C1_OBS)})
+          nTotal += SC1->C1_XXLCTOT
           Exit
         EndIf
         DbSkip()
     EndDo
 Next nX
 
-// Redefine bLine do objeto oQual inlcuindo a coluna nova
+aNItens[LEN(aNItens),1] := ALLTRIM(TRANSFORM(nTotal,"@E 999,999,999.99"))
+// Redefine bLine do objeto oQual incluindo a coluna nova
 //aItens := PARAMIXB[2]:AARRAY
 
 aItens := aClone(aNItens)
-PARAMIXB[2]:bLine := { || {aItens[oQual:nAT][1],aItens[oQual:nAT][2],aItens[oQual:nAT][3],aItens[oQual:nAT][4],aItens[oQual:nAT][5],aItens[oQual:nAT][6],aItens[oQual:nAT][7],aItens[oQual:nAT][8]}}
-// 1-Produto; 2-Unid.Medida; 3-Quantidade; 4-Obs.; 5-Dt.Emissao; 6-Descricao; 7-Fil.Entrega
+PARAMIXB[2]:bLine := { || {aItens[oQual:nAT][1],aItens[oQual:nAT][2],aItens[oQual:nAT][3],aItens[oQual:nAT][4],aItens[oQual:nAT][5],aItens[oQual:nAT][6],aItens[oQual:nAT][7],aItens[oQual:nAT][8],aItens[oQual:nAT][9],aItens[oQual:nAT][10]}}
 
 RestArea(aAreaSC1)
 

@@ -329,3 +329,29 @@ jTest["pedidoS"]:= aPedidos
 //ConOut(jTest:toJson())
 
 return
+
+// SQL ARRAY
+USER FUNCTION TSQLARR()
+Local cQuery := "SELECT R_E_C_N_O_ AS RECNO, A1_NOME FROM SA1010 WHERE A1_FILIAL = ? AND A1_COD = ? AND A1_LOJA = ? ORDER BY 1"
+Local aReturn := {}
+Local aBinds := {}
+Local aSetFields := {}
+
+aadd(aBinds,xFilial("SA1")) // Filial
+aadd(aBinds,"000281") // Codigo
+aadd(aBinds,"01") // Loja
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"RECNO","N",16,0})
+//aadd(aSetFields,{"A1_ULTVIS","D",8,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+  MSgStop(tcsqlerror(),"Falha ao executar a Query")
+Else
+  Alert(VarInfo("aReturn",aReturn))
+  MsgInfo("Verifique os valores retornados no console","Ok")
+Endif
+
+RETURN
