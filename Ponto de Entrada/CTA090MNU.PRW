@@ -79,7 +79,7 @@ If lRet .And. !Empty(CN8->CN8_CONTRA)
 	dbSetOrder(1)
 	If !MsSeek(xFilial("CN9")+CN8->CN8_CONTRA)
 		//Aviso( STR0026 , STR0033, { STR0028 } )  // "Atencao","Contrato não encontrado.", "Ok"
-  		Aviso("Atencao","Contrato não encontrado.", {"Ok"})
+  		u_AvisoLog(,"Atencao","Contrato não encontrado.", {"Ok"})
 		lRet := .F.
 	EndIf
 EndIf

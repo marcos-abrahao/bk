@@ -15,6 +15,7 @@
 */
 User Function FA080OWN() 
 Local lRet := .T.
+Local nOpc := 0
 
 If !lF080Auto
 	IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 //.OR. ASCAN(aUser[1,10],cMDiretoria) > 0        
@@ -25,6 +26,17 @@ If !lF080Auto
 		    lRet := .F.
 		ENDIF
 	ENDIF
+EndIf
+
+// Impede que exclusoes de baixa sejam feitas em data diferente da baixa, para nao causar erros na contabilidade. 
+If lRet
+	If dDatabase <> SE5->E5_DATA
+		nOpc := u_AvisoLog("FA080OWN","Atenção à data",;
+					"A data do estorno está diferente da data base do sistema."+Chr(13)+Chr(10)+;
+					"Antes de cancelar/excluir a baixa, favor alterar a data base do sistema para "+Dtoc(SE5->E5_DATA)+".",;
+					{"Sair","Estornar"}, 2 )
+		lRet := (nOpc == 2)
+	EndIf
 EndIf
 
 Return lRet

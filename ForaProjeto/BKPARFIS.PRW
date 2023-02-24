@@ -107,7 +107,7 @@ USE (cArqTr) INDEX (cArqTr) ALIAS SZZX6 NEW
 SELECT SZZX6
 
 If DBSEEK("  MV_DATAFIS",.F.)
-	nOper := Aviso("BKPARFIS - Data do fechamento Fiscal","Empresa "+TRIM(FWEmpName(cEmpX6))+" - Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+CRLF+"Deseja alterar para "+DTOC(dParF)+"?",{"Alterar","Não Alterar","Sair"})
+	nOper := u_AvisoLog("BKPARFIS","Data do fechamento Fiscal","Empresa "+TRIM(FWEmpName(cEmpX6))+" - Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+CRLF+"Deseja alterar para "+DTOC(dParF)+"?",{"Alterar","Não Alterar","Sair"})
     //MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+" alterar para "+DTOC(dParF)+"?","Data do fechamento Fiscal")
 
     If nOper == 1

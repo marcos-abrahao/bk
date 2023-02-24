@@ -3525,7 +3525,7 @@ Static Function V15BKGCT06()
 
 Local cQuery	:= ""            
 Local aArea     := GetArea()
-Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos"
+Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"
 Local cEmail	:= ""
 Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
 Local cMsg    	:= "Segue planilha anexa."
@@ -3544,6 +3544,7 @@ Local cTabSD1   := ""
 Local cTabSF1   := ""
 Local cTabSB1   := ""
 Local cTabCTT   := ""
+Local dData		:= dDataBase - 60 // Solicitado pela Fábia em 17/02/23
 
 cEmail += u_EmMRepac()
 
@@ -3599,6 +3600,9 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "        "+cTabCNF+" CNF "+CRLF
 	cQuery += "      WHERE "+CRLF
 	cQuery += "        CNF_CONTRA = ISNULL(Z2_CC, D1_CC) "+CRLF
+	If cEmpresa == '01' // Solicitado pela Fábia em 17/02/23
+		cQuery += "    AND ISNULL(Z2_CC, D1_CC) <> '302000508'"+CRLF
+	EndIf
 	cQuery += "        AND CNF_FILIAL = '"+xFilial("CNF")+"' AND CNF.D_E_L_E_T_ = '' "+CRLF
 	cQuery += "      GROUP BY "+CRLF
 	cQuery += "        CNF_CONTRA"+CRLF
@@ -3644,7 +3648,7 @@ cQuery += "  * "+CRLF
 cQuery += "FROM "+CRLF
 cQuery += "  AVISO "+CRLF
 cQuery += "WHERE "+CRLF
-cQuery += "  CNFDVIG <= '"+DTOS(dDataBase)+"' "+CRLF
+cQuery += "  CNFDVIG <= '"+DTOS(dData)+"' "+CRLF
 cQuery += "  OR SUBSTRING(D1_CC,1,1) = 'E' "+CRLF
 cQuery += "ORDER BY "+CRLF
 cQuery += "  E2_VENCREA,E2_NUM"+CRLF

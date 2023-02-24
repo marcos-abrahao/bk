@@ -92,8 +92,9 @@ Return lRet
 User Function AvisoLog(cProg,cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
 Local cArqLog  := "\log\msglog.log"
 Local nRet     := 0
-
+Local cMens    := cMsg
 Default cProg  := FunName()
+Default cText  := cProg
 
 nRet := Aviso(cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
 If !Empty(nRet)

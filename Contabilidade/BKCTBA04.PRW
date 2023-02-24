@@ -94,7 +94,7 @@ fClose(nHandle)
 u_MsgLog(cProg,"Importe o arquivo "+cArq2+" através da rotina Contabilização Txt","I")
 
 //CHAMA ROTINA CONTABILIZA TXT
-//CTBA500() - Retirada a chamada direta na versão 12 pois ocorre erro - 08/11/19 - Marcos
+CTBA500() //- Retirada a chamada direta na versão 12 pois ocorre erro - 08/11/19 - Marcos
 
 RETURN lOk 
 

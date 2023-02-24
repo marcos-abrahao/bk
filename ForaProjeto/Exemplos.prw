@@ -351,7 +351,7 @@ If nRet < 0
   MSgStop(tcsqlerror(),"Falha ao executar a Query")
 Else
   Alert(VarInfo("aReturn",aReturn))
-  MsgInfo("Verifique os valores retornados no console","Ok")
+  //MsgInfo("Verifique os valores retornados no console","Ok")
 Endif
 
 RETURN

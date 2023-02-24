@@ -1109,67 +1109,69 @@ Local cTabCNF := ""
 
 Default cEmpresa := cEmpAnt
 
-cTabCN9 := "CN9"+cEmpresa+"0"
-cTabCNF := "CNF"+cEmpresa+"0"
+If u_CtrVenc(cContrato)
+	cTabCN9 := "CN9"+cEmpresa+"0"
+	cTabCNF := "CNF"+cEmpresa+"0"
 
-cQuery := "WITH VIG AS ( " + CRLF
-cQuery += " SELECT"+CRLF
-cQuery += "  SUBSTRING(CN9_NUMERO,1,9) AS CONTRATO,"+CRLF
-cQuery += "  MIN(CN9_DTOSER) AS CN9DTOSER,"+CRLF
-cQuery += "  MIN(CN9_DTINIC) AS CN9DTINIC,"+CRLF
-cQuery += "  MAX(CN9_XXDVIG) AS CN9XXDVIG,"+CRLF
-cQuery += "  MIN(CNF_DTVENC) AS CNFINICIO,"+CRLF
-cQuery += "  MAX(CNF_DTVENC) AS CNFFIM,"+CRLF
-cQuery += "  MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
-cQuery += " FROM " + CRLF
-cQuery += "  "+cTabCNF+" CNF " + CRLF
+	cQuery := "WITH VIG AS ( " + CRLF
+	cQuery += " SELECT"+CRLF
+	cQuery += "  SUBSTRING(CN9_NUMERO,1,9) AS CONTRATO,"+CRLF
+	cQuery += "  MIN(CN9_DTOSER) AS CN9DTOSER,"+CRLF
+	cQuery += "  MIN(CN9_DTINIC) AS CN9DTINIC,"+CRLF
+	cQuery += "  MAX(CN9_XXDVIG) AS CN9XXDVIG,"+CRLF
+	cQuery += "  MIN(CNF_DTVENC) AS CNFINICIO,"+CRLF
+	cQuery += "  MAX(CNF_DTVENC) AS CNFFIM,"+CRLF
+	cQuery += "  MAX((SUBSTRING(CNF_COMPET,4,4))+SUBSTRING(CNF_COMPET,1,2))+'01' AS MAXCOMPET"+CRLF
+	cQuery += " FROM " + CRLF
+	cQuery += "  "+cTabCNF+" CNF " + CRLF
 
-cQuery += " INNER JOIN "+cTabCN9+" CN9 ON "+ CRLF
-cQuery += "    CN9_NUMERO = CNF_CONTRA" + CRLF
-cQuery += "	   AND CN9_REVISA = CNF_REVISA" + CRLF
-cQuery += "    AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ''" + CRLF
-cQuery += " WHERE CNF.D_E_L_E_T_=''" + CRLF
-cQuery += "      AND CNF_CONTRA = '"+cContrato+"'" + CRLF
-cQuery += "      AND CN9_REVATU = ' '" + CRLF
-cQuery += " GROUP BY " + CRLF
-cQuery += "      CN9_NUMERO " + CRLF
-cQuery += ")"+CRLF
-cQuery += "SELECT " + CRLF
-cQuery += "  CONTRATO,  " + CRLF
-cQuery += "  VIG.CN9DTOSER, " + CRLF
-cQuery += "  VIG.CN9DTINIC, " + CRLF
-cQuery += "  VIG.CNFINICIO, " + CRLF
-cQuery += "  VIG.CNFFIM, " + CRLF
-cQuery += "  VIG.MAXCOMPET, " + CRLF
-cQuery += "  -- Inicio do contrato " + CRLF
-cQuery += "  CASE WHEN VIG.CN9DTOSER > ' ' AND VIG.CN9DTOSER < CN9DTINIC AND VIG.CN9DTOSER < VIG.CNFINICIO THEN VIG.CN9DTOSER " + CRLF
-cQuery += "       WHEN VIG.CN9DTINIC > ' ' AND VIG.CN9DTINIC < VIG.CNFINICIO THEN VIG.CN9DTINIC " + CRLF
-cQuery += "       ELSE VIG.CNFINICIO  " + CRLF
-cQuery += "       END AS VIGINICIO, " + CRLF
-cQuery += "  -- Final do contrato " + CRLF
-//cQuery += "  CASE WHEN VIG.MAXCOMPET > VIG.CNFFIM THEN VIG.MAXCOMPET ELSE VIG.CNFFIM END AS VIGFINAL " + CRLF
-cQuery += "  CASE WHEN VIG.MAXCOMPET > VIG.CNFFIM "+CRLF
-cQuery += "  	   THEN CASE WHEN VIG.CN9XXDVIG > VIG.MAXCOMPET THEN VIG.CN9XXDVIG ELSE VIG.MAXCOMPET END "+CRLF
-cQuery += "  	   ELSE CASE WHEN VIG.CN9XXDVIG > VIG.CNFFIM    THEN VIG.CN9XXDVIG ELSE VIG.CNFFIM END "+CRLF
-cQuery += "  	   END AS VIGFINAL"+CRLF
+	cQuery += " INNER JOIN "+cTabCN9+" CN9 ON "+ CRLF
+	cQuery += "    CN9_NUMERO = CNF_CONTRA" + CRLF
+	cQuery += "	   AND CN9_REVISA = CNF_REVISA" + CRLF
+	cQuery += "    AND CN9_FILIAL = '01' AND  CN9.D_E_L_E_T_ = ''" + CRLF
+	cQuery += " WHERE CNF.D_E_L_E_T_=''" + CRLF
+	cQuery += "      AND CNF_CONTRA = '"+cContrato+"'" + CRLF
+	cQuery += "      AND CN9_REVATU = ' '" + CRLF
+	cQuery += " GROUP BY " + CRLF
+	cQuery += "      CN9_NUMERO " + CRLF
+	cQuery += ")"+CRLF
+	cQuery += "SELECT " + CRLF
+	cQuery += "  CONTRATO,  " + CRLF
+	cQuery += "  VIG.CN9DTOSER, " + CRLF
+	cQuery += "  VIG.CN9DTINIC, " + CRLF
+	cQuery += "  VIG.CNFINICIO, " + CRLF
+	cQuery += "  VIG.CNFFIM, " + CRLF
+	cQuery += "  VIG.MAXCOMPET, " + CRLF
+	cQuery += "  -- Inicio do contrato " + CRLF
+	cQuery += "  CASE WHEN VIG.CN9DTOSER > ' ' AND VIG.CN9DTOSER < CN9DTINIC AND VIG.CN9DTOSER < VIG.CNFINICIO THEN VIG.CN9DTOSER " + CRLF
+	cQuery += "       WHEN VIG.CN9DTINIC > ' ' AND VIG.CN9DTINIC < VIG.CNFINICIO THEN VIG.CN9DTINIC " + CRLF
+	cQuery += "       ELSE VIG.CNFINICIO  " + CRLF
+	cQuery += "       END AS VIGINICIO, " + CRLF
+	cQuery += "  -- Final do contrato " + CRLF
+	//cQuery += "  CASE WHEN VIG.MAXCOMPET > VIG.CNFFIM THEN VIG.MAXCOMPET ELSE VIG.CNFFIM END AS VIGFINAL " + CRLF
+	cQuery += "  CASE WHEN VIG.MAXCOMPET > VIG.CNFFIM "+CRLF
+	cQuery += "  	   THEN CASE WHEN VIG.CN9XXDVIG > VIG.MAXCOMPET THEN VIG.CN9XXDVIG ELSE VIG.MAXCOMPET END "+CRLF
+	cQuery += "  	   ELSE CASE WHEN VIG.CN9XXDVIG > VIG.CNFFIM    THEN VIG.CN9XXDVIG ELSE VIG.CNFFIM END "+CRLF
+	cQuery += "  	   END AS VIGFINAL"+CRLF
 
-cQuery += "  FROM VIG " + CRLF
+	cQuery += "  FROM VIG " + CRLF
 
-u_LogMemo("BKFINR06-VIG.SQL",cQuery)
+	u_LogMemo("BKFINR06-VIG.SQL",cQuery)
 
-TCQUERY cQuery NEW ALIAS "QCNF"
-TCSETFIELD("QCNF","VIGINICIO","D",8,0)
-TCSETFIELD("QCNF","VIGFINAL","D",8,0) 
+	TCQUERY cQuery NEW ALIAS "QCNF"
+	TCSETFIELD("QCNF","VIGINICIO","D",8,0)
+	TCSETFIELD("QCNF","VIGFINAL","D",8,0) 
 
-DBSELECTAREA("QCNF")
-QCNF->(DBGOTOP())
+	DBSELECTAREA("QCNF")
+	QCNF->(DBGOTOP())
 
-IF QCNF->VIGFINAL <= dPgto .AND. !EMPTY(QCNF->VIGFINAL)  
-	cVig := "Vig.: "+DTOC(QCNF->VIGINICIO)+"-"+DTOC(QCNF->VIGFINAL) 
-ENDIF
-QCNF->(Dbclosearea())
+	IF QCNF->VIGFINAL <= dPgto .AND. !EMPTY(QCNF->VIGFINAL)  
+		cVig := "Vig.: "+DTOC(QCNF->VIGINICIO)+"-"+DTOC(QCNF->VIGFINAL) 
+	ENDIF
+	QCNF->(Dbclosearea())
 
-RestArea(aArea)
+	RestArea(aArea)
+EndIf
 
 Return cVig
 

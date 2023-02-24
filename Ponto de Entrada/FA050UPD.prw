@@ -18,7 +18,7 @@ IF !lF050Auto
 	    	u_MsgLog(,"Este titulo foi gerado pelos Liquidos BK, utilize a rotina adequada", "W")
 	    	lRet := .F.
 	    ELSE
-	    	IF Aviso( "Atencao", "Este titulo foi gerado pelos Liquidos BK. Excluir Titulo?",{"Sim","Nao"} ) <> 1
+	    	IF u_AvisoLog(,"Atencao","Este titulo foi gerado pelos Liquidos BK. Excluir Titulo?",{"Sim","Nao"} ) <> 1
 	    		lRet := .F.
 	    	ENDIF
 	    ENDIF

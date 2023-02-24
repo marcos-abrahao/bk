@@ -13,7 +13,7 @@ Local lRet := .T.
 
 If MONTH(SF2->F2_EMISSAO) <> MONTH(dDataBase) .OR. YEAR(SF2->F2_EMISSAO) <> YEAR(dDataBase)
     lRet := .F.
-    Aviso("MS520VLD","Exclusão de NF somente permitida dentro do mes de emissão",{"Ok"})
+    u_AvisoLog(,"MS520VLD","Exclusão de NF somente permitida dentro do mes de emissão: "+SF2->F2_DOC,{"Ok"})
 EndIf
 
 Return lRet

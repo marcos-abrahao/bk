@@ -40,7 +40,7 @@ ENDIF
 IF lAlmox
 	For iX:=1 TO LEN(aCols)
 		IF Empty(aCols[iX,nPosPC]) 
-			Aviso("Atenção","Informe o No. do Pedido de Compras ("+alltrim(STR(iX,0))+")",{"Ok"}, 2 )
+			u_AvisoLog("MT140LOK","Atenção","Informe o No. do Pedido de Compras ("+alltrim(STR(iX,0))+")",{"Ok"}, 2 )
 			lRet := .F.
 			EXIT
 		ENDIF

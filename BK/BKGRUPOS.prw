@@ -180,12 +180,45 @@ If cId $ "000000/000012/000138/000153/"
 EndIf
 Return lRet
 
-User Function IsAvalPN(cId)
+
+User Function IsAvalPN(cId,cCtr,cChaveF1)
 Local lRet := .F.
 // Yasmin/Noé
-If cId $ "000000/000246/000247/"
+If cId $ "000246/000247/"
     lRet := .T.
+Else
+	lRet := u_CtrInD1(cCtr,cChaveF1)
 EndIf
+
+Return lRet
+
+// Contratos que devem ser avaliados na Pré-Nota 24/02/23
+User Function CtrAval()
+cRet := "281000577" // UTGCA
+Return cRet
+
+
+// Retornar se algum centro de custo foi usado na Nota/Prenota
+User Function CtrInD1(cCtr,cChaveF1)
+Local lRet
+Local aAreaSD1   := SD1->(GetArea())
+
+Default cCtr     := u_CtrAval()
+Default cChaveF1 := SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA)
+
+SD1->(dbSetOrder(1))  // * Itens da N.F. de Compra
+If SD1->(DbSeek(xFilial("SD1")+cChaveF1))
+	Do While !EOF() .AND. SD1->(D1_FILIAL+D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA)  == xFilial("SD1")+cChaveF1
+		If ALLTRIM(SD1->D1_CC) $ cCtr
+			lRet := .T.
+			Exit
+		EndIf
+		SD1->(dbSkip())
+	EndDo
+EndIf
+
+SD1->(RestArea(aAreaSD1))
+
 Return lRet
 
 
@@ -478,5 +511,16 @@ cRet += "noe.braga@bkconsultoria.com.br;"
 cRet += "vanderleia.silva@bkconsultoria.com.br;"
 
 Return cRet
+
+
+// Contratos que não devem emitir aviso de contrato vencido
+User Function CtrVenc(cContrato)
+lRet := .T.
+If ALLTRIM(cContrato) $ "302000508" .and. cEmpAnt == "01"
+	lRet := .F.
+EndIf
+
+Return lRet
+
 
 

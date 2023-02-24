@@ -373,6 +373,9 @@ EndIf
 AADD(aCampos,"QSD1->C7_XXURGEN")
 AADD(aCabs  ,"Pedido Urgente")
 
+AADD(aCampos,"QSD1->F1_XXAVALI")
+AADD(aCabs  ,"Avaliação")
+
 AADD(aCampos,"QSD1->D1_XXHIST")
 AADD(aCabs  ,"Historico")
 
@@ -438,6 +441,7 @@ cQuery += " '' AS E2_VENCREA, "+CRLF // E2_VENCREA
 cQuery += " '' AS E2_BAIXA, "+CRLF   // E2_BAIXA
 cQuery += " 0  AS E2_VALOR, "+CRLF   // E2_VALOR
 cQuery += " F1_VALBRUT, "+CRLF
+cQuery += " F1_XXAVALI, "+CRLF
 cQuery += " B1_CONTA, "+CRLF
 
 If nImpostos == 1

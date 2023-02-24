@@ -402,7 +402,7 @@ Local nI
 nTotal := 0
 
 IF lAll
-	nAviso := AVISO("Marcar todos - Atenção:","Alguns destes PGTOs ja estão inclusos no Lote CNAB. Deseja gerar novamente ??",{"Sim","Não"})
+	nAviso := u_AvisoLog("BKFINA14","Marcar todos - Atenção:","Alguns destes PGTOs ja estão inclusos no Lote CNAB. Deseja gerar novamente ??",{"Sim","Não"})
 	FOR nI := 1 TO LEN(aBordero)
 		IF nAviso == 1
 			aBordero[nI,1] := lAll
@@ -413,7 +413,7 @@ IF lAll
 	NEXT
 	oSay:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
 ELSE
-	nAviso := AVISO("Desmarcar todos - Atenção:","Para alguns destes PGTOs NÃO foram gerados lotes ainda.",{"Só os já gerados","Desmarcar todos"})
+	nAviso := u_AvisoLog("BKFINA14","Desmarcar todos - Atenção:","Para alguns destes PGTOs NÃO foram gerados lotes ainda.",{"Só os já gerados","Desmarcar todos"})
 	FOR nI := 1 TO LEN(aBordero)
 		IF EMPTY(ALLTRIM(aBordero[nI,17])) .AND. nAviso == 1
 			aBordero[nI,1] := .T.
@@ -433,7 +433,7 @@ LOCAL lOk := .T.
 
 IF !EMPTY(cBordero)
     IF !lTit
-		IF AVISO(cPerg,"Este PGTO ja incluso no Lote CNAB: "+cBordero+", enviar novamente??",{"Sim","Não"}) <> 1
+		IF u_AvisoLog("BKFINA14",cPerg,"Este PGTO ja incluso no Lote CNAB: "+cBordero+", enviar novamente??",{"Sim","Não"}) <> 1
 			lOk := .F.
 		Endif
 	ELSE
@@ -840,7 +840,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		 		qTot++
 				nSeq++
 	
-				BncoTxtT := cNomeCom+'<BR>RELAÇÃO BANCÁRIA BANCO DO BRASIL '+IIF(nFurnas==1," - FURNAS","")+IIF(nFurnas==2," - FURNAS LOTE BK","")+'<b>Lote: '+STRZERO(nLote,8)+'</b><BR> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=1><i>Emitida em : '+aTitGer[nI,15]+' - pelo usuário : '+aTitGer[nI,13]+'</i><br><br>&nbsp;'
+				BncoTxtT := cNomeCom+'<BR>RELAÇÃO BANCÁRIA BANCO DO BRASIL '+IIF(nFurnas==1," - FURNAS","")+IIF(nFurnas==2," - FURNAS LOTE BK","")+'<b>Lote: '+STRZERO(nLote,8)+'</b><BR> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=1><i>Emitida em : '+aTitGer[nI,15]+' - pelo usuário : '+aTitGer[nI,13]+'</i><<br>&nbsp;'
 			
 	 			Bcn001D := ""
 				Bcn001D += PAD(Acento(ALLTRIM(IIF(aTitGer[nI,6]='PEN',IIF(!EMPTY(aTitGer[nI,20]),aTitGer[nI,20],aTitGer[nI,19]),aTitGer[nI,3]))),25) //044 073
