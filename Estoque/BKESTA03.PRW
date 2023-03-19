@@ -12,30 +12,35 @@ BK -Inclusão Termo Transferencia / Responsabilidade / Recebimento controle de Es
 /*/
 
 User Function BKESTA03
-Local cFiltra     := "D3_XXCODIG<>''"
+Local cFiltra     := ""
 
 Private cCadastro	:= "Inclusão Termo Transferencia / Responsabilidade / Recebimento"
 Private cDelFunc	:= ".F." // Validacao para a exclusao. Pode-se utilizar ExecBlock
-Private cString 	:= "SD3"
+Private cString 	:= "SZV"
 Private aIndexSz  	:= {}
 Private aFixeFX     := {}
 Private bFiltraBrw	:= { || FilBrowse(cString,@aIndexSz,@cFiltra) } 
 Private aCores  := {}
 Private aRotina	:= {}
-Private oListSD3
+Private oListSZV
+Private oListFUN
+Private oListDevFU
 
-//u_MsgLog("BKESTA03")
+u_MsgLog("BKESTA03")
 
-AADD(aCores,{"SD3->D3_XXDOC==''","BR_LARANJA"})
-AADD(aCores,{"SD3->D3_XXDOC<>''","BR_VERDE"})
+AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='01'","BR_VERDE"})
+AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='02'","BR_LARANJA"})
+AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='03'","BR_VERMELHO"})
 
 AADD(aRotina,{"Pesquisa"		        ,"AxPesquisa"   ,0,1})
 AADD(aRotina,{"Visualizar"		        ,"AxVisual"     ,0,2})
-AADD(aRotina,{"Incluir"	                ,"U_INCLSD3"    ,0,3})
-AADD(aRotina,{"Recebimento Uniforme"	,"U_RECBUNISD3" ,0,4})
-AADD(aRotina,{"Devolução Uniforme"		,"U_DEVOUNISD3" ,0,4})
-AADD(aRotina,{"Impressão Termo"		    ,"U_PRINTSD3"   ,0,4})
-AADD(aRotina,{"Legenda"			        ,"U_SD3LEG"     ,0,4})
+AADD(aRotina,{"Incluir Nota Trans."		,"U_INCLSZV"    ,0,3})
+AADD(aRotina,{"Entrega Uniforme"		,"U_RECBUNISZV" ,0,4})
+AADD(aRotina,{"Devolução Uniforme"		,"U_DEVOUNISZV" ,0,4})
+AADD(aRotina,{"Impressão Termos"		,"U_PRINTSZV"   ,0,4})
+AADD(aRotina,{"Excluir Termos"		    ,"U_EXCLUISZV"  ,0,4})
+AADD(aRotina,{"Relatorio de Saldo"		,"U_RELSALDSZV" ,0,4})
+AADD(aRotina,{"Legenda"			        ,"U_SZVLEG"     ,0,4})
 
 
 dbSelectArea(cString)
@@ -58,21 +63,22 @@ EndFilBrw(cString,aIndexSz)
 RETURN NIL
 
 
-User Function SD3LEG()
+User Function SZVLEG()
 Local aCores2 := {}
 Local cLegenda := ""
 
 cLegenda	:= "Legenda de Cores"
 
-AADD(aCores2,{"BR_VERDE"  , "Termo Transferencia"})
-AADD(aCores2,{"BR_LARANJA", "Termo Recebimento"})
+AADD(aCores2,{"BR_VERDE"  , "Transferencia"})
+AADD(aCores2,{"BR_LARANJA", "Recebimento"})
+AADD(aCores2,{"BR_VERMELHO", "DEVOLUCAO"})
 
-BrwLegenda(cLegenda,"Inclusão Termo Transferencia / Responsabilidade / Recebimento",aCores2)
+BrwLegenda(cLegenda,"Inclusão Termo Transferencia / Responsabilidade / Recebimento / Devolução",aCores2)
 
 RETURN NIL
 
 
-USER FUNCTION INCLSD3
+USER FUNCTION INCLSZV
 Local lOk		 := .F.
 Local nSnd       := 15
 Local nTLin      := 15
@@ -80,7 +86,7 @@ Local oDlg01     as Object
 Local oButInv    as Object
 Local aButtons   := {}
 
-PRIVATE aItemSD3   := {}
+PRIVATE aItemSZV   := {}
 PRIVATE cCusto     := SPACE(9)
 PRIVATE cDESCTT	 := SPACE(80)
 PRIVATE cENDSAID   := SPACE(250)
@@ -92,7 +98,7 @@ PRIVATE cGestor  := SPACE(80)
 PRIVATE cDCLIENT := SPACE(80)
 
 
-    AADD(aItemSD3,{"","","","",SPACE(20),CTOD(""),0,"","","",""})
+    AADD(aItemSZV,{"","","",0,0,SPACE(20),CTOD(""),0,"","","",""})
 
 
     Define MsDialog oDlg01 Title "Incluir Termo de Transferencia / Responsabilidade de Uso" From 000,000 To 450,830 Of oDlg01 Pixel
@@ -135,30 +141,32 @@ PRIVATE cDCLIENT := SPACE(80)
     Message "Seleciona Produtos" Of oPanelLeft
 	nSnd += nTLin
 	
-	@ nSnd, 010 LISTBOX oListSD3 FIELDS HEADER "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" SIZE 400,085  OF oPanelLeft PIXEL 
+	@ nSnd, 010 LISTBOX oListSZV FIELDS HEADER "Item","Cod. Produto","Descrição","Quantidade","Saldo","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" SIZE 400,085  OF oPanelLeft PIXEL 
 	
-	oListSD3:SetArray(aItemSD3)
-	oListSD3:bLine := {|| {	aItemSD3[oListSD3:nAt][1],;
-							aItemSD3[oListSD3:nAt][2],;
-							aItemSD3[oListSD3:nAt][3],;
-							aItemSD3[oListSD3:nAt][4],;
-							aItemSD3[oListSD3:nAt][5],;   
-							aItemSD3[oListSD3:nAt][6],;                                                     
-							TRANSFORM(aItemSD3[oListSD3:nAt][7],"@E 999,999,999.99"),;
-							aItemSD3[oListSD3:nAt][8],;
-							aItemSD3[oListSD3:nAt][9],;
-							aItemSD3[oListSD3:nAt][10],;                                                                                    
-							aItemSD3[oListSD3:nAt][11]}}
+	oListSZV:SetArray(aItemSZV)
+	oListSZV:bLine := {|| {	aItemSZV[oListSZV:nAt][1],;
+							aItemSZV[oListSZV:nAt][2],;
+							aItemSZV[oListSZV:nAt][3],;
+							aItemSZV[oListSZV:nAt][4],;
+							aItemSZV[oListSZV:nAt][5],;   
+							aItemSZV[oListSZV:nAt][6],;                                                     
+							aItemSZV[oListSZV:nAt][7],;
+							aItemSZV[oListSZV:nAt][8],;
+							aItemSZV[oListSZV:nAt][9],;
+							aItemSZV[oListSZV:nAt][10],;                                                                                    
+							aItemSZV[oListSZV:nAt][11],;                                                                                    
+							aItemSZV[oListSZV:nAt][12]}}
 
-	oListSD3:bLDblClick := {|| EDITCNR2(@aItemSD3),oListSD3:DrawSelect(), }
+	oListSZV:bLDblClick := {|| EDITCNR2(@aItemSZV),oListSZV:DrawSelect(), }
 	
-	ACTIVATE MSDIALOG oDlg01 CENTERED Valid(ValidaSD3()) ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
+	ACTIVATE MSDIALOG oDlg01 CENTERED Valid(ValidaSZV()) ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
 
 	If ( lOk )
 		lOk:=.F.
-		If u_MsgLog("INCLSD3","Incluir Termo de Transferencia / Responsabilidade de Uso?","Y")
-			//U_TMATA241()
-			U_PRINTSD3()
+		If u_MsgLog("INCLSZV","Confirma a inclusão e geração do Termo de Transferencia / Responsabilidade de Uso?","Y")
+			IF U_GRAVSZV()
+				U_PRINTSZV()
+			ENDIF
 		ENDIF
 	Endif
 
@@ -214,9 +222,10 @@ ENDIF
 
 RETURN lOK
 
-STATIC FUNCTION ValidaSD3()
+STATIC FUNCTION ValidaSZV()
 LOCAL lOK := .T.
 LOCAL cMensag := ""
+LOCAL _IX := 0
 
 IF EMPTY(ALLTRIM(cENDSAID))
 	cMensag += "Endereço de Saida não informado."+CRLF
@@ -239,14 +248,25 @@ ELSE
 		lOK := .F.
 	ENDIF
 ENDIF
-IF LEN(aItemSD3) <= 0
+IF LEN(aItemSZV) <= 0
 	cMensag += "Nota\Produtos não informado."+CRLF
 	lOK := .F.
 ENDIF
-IF LEN(aItemSD3) == 1
-	IF EMPTY(aItemSD3[1,1]) 
+IF LEN(aItemSZV) == 1
+	IF EMPTY(aItemSZV[1,1]) 
 		cMensag += "Nota\Produtos não informado."+CRLF
 		lOK := .F.
+	ENDIF
+ELSEIF lOK
+	FOR _IX := 1 TO LEN(aItemSZV)
+		IF SUBSTR(aItemSZV[_IX,2],1,3)  == 'EPI'
+			IF EMPTY(aItemSZV[_IX,6]) .OR. aItemSZV[_IX,7] == CTOD("")
+				lOK := .F.
+			ENDIF
+		ENDIF
+	NEXT 
+	IF !lOK
+		cMensag += "Produtos EPI informar CA e Validade."+CRLF
 	ENDIF
 ENDIF
 
@@ -299,104 +319,178 @@ Restarea( aArea )
 RETURN NIL
 
 //ALTERA COLUNAS CA E VALIDADE CA
-STATIC FUNCTION EDITCNR2(aItemSD3)
+STATIC FUNCTION EDITCNR2(aItemSZV)
+Local _IX := 0
+Local cMensag := ""
 
-lEditCell(aItemSD3,oListSD3,'@!',5)
-lEditCell(aItemSD3,oListSD3,'@!',6)
+lEditCell(aItemSZV,oListSZV,'@E 999',4)
+lEditCell(aItemSZV,oListSZV,'@!',6)
+lEditCell(aItemSZV,oListSZV,'@!',7)
+
+FOR _IX := 1 TO LEN(aItemSZV)
+	IF aItemSZV[_IX,4]  > aItemSZV[_IX,5]
+		cMensag := " Quantidade maior que o Saldo. Verifique!"
+	ENDIF
+NEXT
+
+IF !EMPTY(cMensag)
+	MSGSTOP(cMensag,"Atenção!")
+ENDIF
 
 RETURN NIL
 
+//GRAVA ENTRADA ENTRADA DA NOTAS
+User Function GRAVSZV()
+LOCAL _lOK	:= .T.
+Local _IX   := 0
+Local _SQL 	:= ""
+Local cCodigo := ""
 
-User Function TMATA241()
-LOCAL _lOK		:= .T.
-Local _aCab1    := {}
-Local _aItem    := {}
-Local _atotitem :={}
-Local _IX       := 0
+	_SQL:= " SELECT TOP 1 ZV_CODIG FROM " + RetSQLName( "SZV" ) + " SZV"
+ 	_SQL+= " WHERE SZV.D_E_L_E_T_='' ORDER BY ZV_CODIG DESC"
+ 	
+	IF SELECT('QSZV') > 0
+		QSZV->(DBCLOSEAREA())
+	ENDIF
+		
+	DBUSEAREA(.T.,"TOPCONN"	,TCGENQRY(,,_SQL),'QSZV',.F.,.T.)
+
+	DBSELECTAREA('QSZV')
+ 	QSZV->(DBGOTOP())
+	IF !EMPTY(QSZV->ZV_CODIG)
+		cCodigo := QSZV->ZV_CODIG
+    ENDIF
+	QSZV->(DBCLOSEAREA())
+	cCodigo := STRZERO(VAL(cCodigo)+1,9)
 
 
-Private lMsHelpAuto := .t. // se .t. direciona as mensagens de help
-Private lMsErroAuto := .f. //necessario a criacao
+	FOR _IX:= 1 TO LEN(aItemSZV)
 
-//Private _acod:={"1","MP1"}
-//PREPARE ENVIRONMENT EMPRESA "99" FILIAL "01" MODULO "EST"
+		RecLock("SZV",.T.)
+		SZV->ZV_FILIAL	:= xFilial("SZV")
+		SZV->ZV_CODIG	:= cCodigo
+		SZV->ZV_EMISSAO	:= dDataD
+		SZV->ZV_PROD	:= aItemSZV[_IX,2]
+		SZV->ZV_DESCRI	:= Posicione("SB1",1,xFilial("SB1")+aItemSZV[_IX,2],"B1_DESC")
+		SZV->ZV_QUANT	:= aItemSZV[_IX,5]
+		SZV->ZV_CUSTO1	:= aItemSZV[_IX,8]
+		SZV->ZV_TM		:= "01" 
+		//SZV->ZV_ORICC	:= 
+		//SZV->ZV_ORIDCC	:= 
+		SZV->ZV_CC		:= cCusto
+		SZV->ZV_DCC		:= cDESCTT
+		SZV->ZV_ENDBK	:= cENDSAID
+		SZV->ZV_ENDCO	:= cENDENTR
+		SZV->ZV_NOMRE	:= cRespDecl
+		SZV->ZV_CPFRE	:= cCPFDecl
+		//SZV->ZV_RECBNOM	:= 
+		//SZV->ZV_RECBCPF	:= 
+		SZV->ZV_GESTO	:= cGestor
+		SZV->ZV_CODCA	:= aItemSZV[_IX,6]
+		SZV->ZV_VALIC	:= aItemSZV[_IX,7]
+		//SZV->ZV_RDEVO	:= 
+		//SZV->ZV_CPFRD	:= 
+		//SZV->ZV_EUSO	:= 
+		//SZV->ZV_PRONT	:= 
+		//SZV->ZV_NOME	:= 
+		//SZV->ZV_FUNCA	:= 
+		SZV->ZV_ITEM	:= aItemSZV[_IX,1]
+		SZV->ZV_DOC		:= aItemSZV[_IX,9]
+		SZV->ZV_SER		:= aItemSZV[_IX,10]
+		SZV->ZV_FOR		:= aItemSZV[_IX,11]
+		SZV->ZV_LOJ		:= aItemSZV[_IX,12]
+		SZV->(MSUNLOCK())																																																																																																				
 
-//"Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja"
-
-_aCab1 := {{"D3_DOC" ,NextNumero("SD3",2,"D3_DOC",.T.), NIL},;
-          {"D3_TM" ,"D01" , NIL},;
-          {"D3_CC" ,cCusto, NIL},;
-          {"D3_EMISSAO" ,dDataD, NIL}}
-
-FOR _IX:= 1 TO LEN(aItemSD3)
-
-
-	_aItem:={	{"D3_COD" 	  ,aItemSD3[_IX,2] ,NIL},;
-				{"D3_UM" 	  , Posicione("SB1",1,xFilial("SB1")+aItemSD3[_IX,2],"B1_UM"),NIL},; 
-				{"D3_QUANT"   ,aItemSD3[_IX,4] ,NIL},;
-				{"D3_CUSTO1"  ,aItemSD3[_IX,7] ,NIL},;
-				{"D3_XXCC" 	  ,cCusto ,NIL},;
-				{"D3_XXENDBK" ,cENDSAID ,NIL},;
-				{"D3_XXENDCO" ,cENDENTR ,NIL},;
-				{"D3_XXNOMRE" ,cRespDecl ,NIL},;
-				{"D3_XXCPFRE" ,cCPFDecl ,NIL},;
-				{"D3_XXGESTO" ,cGestor ,NIL},;
-				{"D3_XXCODCA"  ,aItemSD3[_IX,5] ,NIL},;
-				{"D3_XXVALIC"  ,aItemSD3[_IX,6] ,NIL},;
-				{"D3_XXITEM"  ,aItemSD3[_IX,1] ,NIL},;
-				{"D3_XXDOC"  ,aItemSD3[_IX,8] ,NIL},;
-				{"D3_XXSER"  ,aItemSD3[_IX,9] ,NIL},;
-				{"D3_XXFOR"  ,aItemSD3[_IX,10] ,NIL},;
-				{"D3_XXLOJ"  ,aItemSD3[_IX,11] ,NIL},;
-				{"D3_LOCAL"   ,"01" ,NIL}}
-
-				//{"D3_LOTECTL" ,"",NIL},;
-				//{"D3_LOCALIZ" , cCusto,NIL}}
-/*
-D3_XXRDEVO
-D3_XXCPFRD
-D3_XXEUSO
-D3_XXPRONT
-D3_XXNOME
-D3_XXFUNCA
-D3_XXCODIG
-*/
-																																																																																																					
-	aadd(_atotitem,_aitem) 
-NEXT _IX
-
-Begin Transaction
-	MSExecAuto({|x,y,z| MATA241(x,y,z)},_aCab1,_atotitem,3)
-	If lMsErroAuto 
-		Mostraerro() 
-		DisarmTransaction() 
-		_lOK := .T.
-	EndIf
-End Transaction
+	NEXT _IX
+	MSGINFO("Incluido com sucesso! cod.: "+SZV->ZV_CODIG)
 
 Return _lOK
 
-USER FUNCTION PRINTSD3()
-LOCAL cTermo 	:= 'TESTE0003'
-LOCAL cENDEMPR 	:= cENDSAID
-LOCAL cCLIENT 	:= cDCLIENT
-LOCAL cENDCLI 	:= cENDENTR
-LOCAL cRESPONS 	:= cRespDecl
-LOCAL cCPFRESP 	:= cCPFDecl
-LOCAL cMUNIC	:= "SÃO PAULO" 
-LOCAL dDATA		:= dDataD
-LOCAL aItens 	:= {}
-LOCAL _IX		:= 0
+//EXCLUIR SZV
+USER FUNCTION EXCLUISZV()
+LOCAL cTermo 	:= SZV->ZV_CODIG
+LOCAL _lOK		:= .T.
 
-IF "BARUERI" $ cENDSAID
-	cMUNIC	:= "BARUERI" 
+dbSelectArea("SZV")
+dbSetOrder(1)
+IF dbSeek(xFilial("SZV")+cTermo,.T.)
+	IF u_MsgLog("INCLSZV","Confirma a Exclusão do Termo de Transferencia / Responsabilidade de Uso cod.: "+SZV->ZV_CODIG+"?","Y")
+		Do while !eof() .AND. SZV->ZV_CODIG=cTermo
+			
+			RecLock("SZV",.F.)
+			dbDelete()
+			SZV->(MSUNLOCK())																																																																																																				
+			SZV->(dbSkip())
+		Enddo
+		dbSelectArea("SZV")
+		dbSetOrder(1)
+		IF !dbSeek(xFilial("SZV")+cTermo,.T.)
+			_lOK		:= .T.
+			MSGINFO("Excluido com sucesso! cod.: "+cTermo)
+		ELSE
+			MSGSTOP("Erro na Exclusão. Verifique!")
+			_lOK		:= .F.
+		ENDIF
+
+	ENDIF
+ELSE
+	MSGSTOP("Dados não encontrados. Verifique!")
 ENDIF
 
-FOR _IX:= 1 TO LEN(aItemSD3)
-	AADD(aItens,{TRIM(Posicione("SB1",1,xFilial("SB1")+aItemSD3[_IX,2],"B1_DESC")),Posicione("SB1",1,xFilial("SB1")+aItemSD3[_IX,2],"B1_UM"),aItemSD3[_IX,4]})
-NEXT _IX
+Return _lOK
 
-DTRANSTML(cTermo,dDATA,cMUNIC,cENDEMPR,cCLIENT,cENDCLI,cRESPONS,cCPFRESP,aItens)
+
+USER FUNCTION PRINTSZV()
+LOCAL cTermo 	:= SZV->ZV_CODIG
+LOCAL cCLIENT 	:= ""
+LOCAL cMUNIC	:= "SÃO PAULO" 
+LOCAL aItens 	:= {}
+
+
+dbSelectArea("SZV")
+dbSetOrder(1)
+IF dbSeek(xFilial("SZV")+cTermo,.T.)
+	Do while !eof() .AND. SZV->ZV_CODIG=cTermo
+
+		AADD(aItens,{TRIM(Posicione("SB1",1,xFilial("SB1")+SZV->ZV_PROD,"B1_DESC")),Posicione("SB1",1,xFilial("SB1")+SZV->ZV_PROD,"B1_UM"),SZV->ZV_QUANT,SZV->ZV_CODCA,SZV->ZV_VALIC,SZV->ZV_CUSTO1})
+		SZV->(dbSkip())
+	Enddo
+
+	dbSeek(xFilial("SZV")+cTermo,.T.)
+	IF "BARUERI" $ SZV->ZV_ENDBK
+		cMUNIC	:= "BARUERI" 
+	ENDIF
+
+	DBSELECTAREA("CN9")
+	CN9->(DBSETORDER(1))
+	CN9->(MsSEEK(xFILIAL("CN9")+SZV->ZV_CC))
+	DO WHILE CN9->(!EOF())  .AND. ALLTRIM(CN9->CN9_NUMERO) == ALLTRIM(SZV->ZV_CC)
+		cCLIENT := TRIM(CN9->CN9_NOMCLI)
+		CN9->(dbSkip())
+	ENDDO
+
+
+	IF LEN(aItens) > 0
+		IF ALLTRIM(SZV->ZV_TM) == '01'
+			IF u_MsgLog("DTRANSTML","Gerar impressão da Declaração de Transferência ?","Y")
+				DTRANSTML(SZV->ZV_CODIG,SZV->ZV_EMISSAO,cMUNIC,SZV->ZV_ENDBK,cCLIENT,SZV->ZV_ENDCO,SZV->ZV_NOMRE,SZV->ZV_CPFRE,aItens)
+			ENDIF
+			IF u_MsgLog("RESPUSO","Gerar impressão do Termo de Responsabilidade de Uso ?","Y")
+				RESPUSO(SZV->ZV_CODIG,SZV->ZV_EMISSAO,SZV->ZV_CC,SZV->ZV_GESTO,cMUNIC,SZV->ZV_ENDBK,cCLIENT,SZV->ZV_ENDCO,SZV->ZV_NOMRE,SZV->ZV_CPFRE,aItens)
+			ENDIF
+		ENDIF
+		IF ALLTRIM(SZV->ZV_TM)  == '02'
+			IF u_MsgLog("RECEBUNIFORME","Gerar impressão do Termo de Recebimento Local de Uniforme ?","Y")
+				RECEBUNIFORME(cTermo,SZV->ZV_EMISSAO,SZV->ZV_CC,SZV->ZV_NOME,SZV->ZV_RGFUNC,SZV->ZV_PRONT,SZV->ZV_FUNCA,aItens)
+			ENDIF
+		ENDIF
+		IF ALLTRIM(SZV->ZV_TM)  == '03'
+			IF u_MsgLog("TDEVOLUCAO","Gerar impressão do Termo de Devolução de Uniforme/EPI ?","Y")
+				TDEVOLUCAO(cTermo,SZV->ZV_EMISSA,SZV->ZV_CC,SZV->ZV_DCC,SZV->ZV_GESTO,cMUNIC,aItens)
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
 
 Return NIL
 
@@ -415,6 +509,7 @@ Local aNotas := {}
 Local aParam 	:= {}
 Local aRet		:=	{}
 Local cTitulo   :=  "Selecionar Notas Fiscais"
+Local cQuery	:= ""
 
 
 aAdd( aParam, { 1, "Nota Fiscal ?"	, SPACE(TamSx3("F1_DOC")[1])	, ""            , "", "SF1"	, "" , 70  , .F. })
@@ -430,16 +525,35 @@ If (Parambox(aParam,"BKESTA03A - "+cTitulo,@aRet,,,.T.,,,,"BKESTA03A",.T.,.T.))
 	cFornec	:= MV_PAR03
 	cLoja	:= MV_PAR04
 
-    dbSelectArea("SD1")                   // * Itens da N.F. de Compra
-	SD1->(DBSETORDER(1))
-    IF DbSeek(xFilial("SD1")+cNota+cSerie+cFornec+cLoja)
-       DO WHILE !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+cNota+cSerie+cFornec+cLoja
-  
+	cQuery := "SELECT SD1.* FROM "+RetSqlName("SD1")+" SD1"
+	cQuery += " LEFT JOIN "+RetSqlName("SZV")+" SZV ON SZV.D_E_L_E_T_=''"
+	cQuery += " AND D1_FILIAL=ZV_FILIAL AND D1_DOC=ZV_DOC AND D1_SERIE=ZV_SER"
+	cQuery += " AND D1_FORNECE=ZV_FOR AND D1_LOJA=ZV_LOJ"
+	cQuery += " AND D1_ITEM=ZV_ITEM AND D1_COD=ZV_PROD"
+	cQuery += " WHERE SD1.D_E_L_E_T_='' AND ZV_CODIG IS NULL"
+	cQuery += " AND D1_FILIAL='"+xFilial("SD1")+"'"
+	cQuery += " AND D1_DOC='"+cNota+"'"
+	cQuery += " AND D1_SERIE='"+cSerie+"'"
+	cQuery += " AND D1_FORNECE='"+cFornec+"'"
+	cQuery += " AND D1_LOJA='"+cLoja+"'"
+	cQuery += " ORDER BY D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_ITEM "
+
+	IF SELECT('QSD1') > 0
+		QSD1->(DBCLOSEAREA())
+	ENDIF
+		
+	DBUSEAREA(.T.,"TOPCONN"	,TCGENQRY(,,cQuery),'QSD1',.F.,.T.)
+	DBSELECTAREA('QSD1')
+	IF !EMPTY(QSD1->D1_ITEM)
+		while ! QSD1->( EOF() )
 			//"Item","Cod. Produto","Descrição","Quantidade","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
-			AADD(aNOTAS,{.F.,SD1->D1_ITEM,SD1->D1_COD,TRIM(Posicione("SB1",1,xFilial("SB1")+SD1->D1_COD,"B1_DESC")),SD1->D1_QUANT,SD1->D1_TOTAL,SD1->D1_DOC,SD1->D1_SERIE,SD1->D1_FORNECE,SD1->D1_LOJA,SD1->D1_CC})
-        	SD1->(dbSkip())
+			AADD(aNOTAS,{.F.,QSD1->D1_ITEM,QSD1->D1_COD,TRIM(Posicione("SB1",1,xFilial("SB1")+QSD1->D1_COD,"B1_DESC")),QSD1->D1_QUANT,QSD1->D1_TOTAL,QSD1->D1_DOC,QSD1->D1_SERIE,QSD1->D1_FORNECE,QSD1->D1_LOJA,QSD1->D1_CC})
+        	QSD1->(dbSkip())
        ENDDO
+	   QSD1->(DBCLOSEAREA())
 	ELSE
+		aNotas := {}
+		AADD(aNotas,{.F.,"","","",0,0,"","","","",""})
 		MSGSTOP("Dados da Notas Fiscal não Encontrada!")
 		RETURN aNotas
 	ENDIF
@@ -506,9 +620,9 @@ STATIC FUNCTION GravaNOTAS(aNOTAS)
 Local _ix:=0
 Local nSCAN:=0
 
-IF LEN(aItemSD3) == 1 
-	IF EMPTY(aItemSD3[1,1])
-		aItemSD3:= {}
+IF LEN(aItemSZV) == 1 
+	IF EMPTY(aItemSZV[1,1])
+		aItemSZV:= {}
 	ENDIF
 ENDIF
 
@@ -516,39 +630,711 @@ FOR _ix:=1 TO LEN(aNOTAS)
 
 	IF aNOTAS[_ix,1]
 
-		//                  1        2             3           4           5           6             7            8          9        10       11
-		//aItemSD3//    "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
-		//          1       2        3             4           5                                    6             7            8        9        10       11
+		//                  1        2             3           4          5         6          7            8               9        10       11       12
+		//aItemSZV//    "Item","Cod. Produto","Descrição","Quantidade","Saldo","Cod. CA","Validade CA","Valor Total",'Nota Fiscal',"Serie","Fornece","Loja" 
+		//          1       2        3             4           5                                    6             7           8       9        10     11
 		//aNOTAS//"MRK","Item","Cod. Produto","Descrição","Quantidade"                        ,"Valor Total",'Nota Fiscal',"Serie","Fornece","Loja","C.Custo"
 	
 		nScan:= 0
-		nScan:= aScan(aItemSD3,{|x| x[1] == aNOTAS[_ix,2] .AND. x[8] == aNOTAS[_ix,7] .AND. x[9] == aNOTAS[_ix,8] .AND. x[10] == aNOTAS[_ix,9] .AND. x[11] == aNOTAS[_ix,10] })
+		nScan:= aScan(aItemSZV,{|x| x[1] == aNOTAS[_ix,2] .AND. x[9] == aNOTAS[_ix,7] .AND. x[10] == aNOTAS[_ix,8] .AND. x[11] == aNOTAS[_ix,9] .AND. x[12] == aNOTAS[_ix,10] })
 		IF nScan == 0
-			AADD(aItemSD3,{aNOTAS[_ix,2],aNOTAS[_ix,3],aNOTAS[_ix,4],aNOTAS[_ix,5],SPACE(20),CTOD(""),aNOTAS[_ix,6],aNOTAS[_ix,7],aNOTAS[_ix,8],aNOTAS[_ix,9],aNOTAS[_ix,10]})
+			AADD(aItemSZV,{aNOTAS[_ix,2],aNOTAS[_ix,3],aNOTAS[_ix,4],aNOTAS[_ix,5],aNOTAS[_ix,5],SPACE(20),CTOD(""),aNOTAS[_ix,6],aNOTAS[_ix,7],aNOTAS[_ix,8],aNOTAS[_ix,9],aNOTAS[_ix,10]})
 		ENDIF
 	ENDIF
 
 NEXT _ix
 
-oListSD3:SetArray(aItemSD3)
-oListSD3:bLine := {|| {	aItemSD3[oListSD3:nAt][1],;
-						aItemSD3[oListSD3:nAt][2],;
-						aItemSD3[oListSD3:nAt][3],;
-						aItemSD3[oListSD3:nAt][4],;
-						aItemSD3[oListSD3:nAt][5],;   
-						aItemSD3[oListSD3:nAt][6],;                                                     
-						TRANSFORM(aItemSD3[oListSD3:nAt][7],"@E 999,999,999.99"),;
-						aItemSD3[oListSD3:nAt][8],;
-						aItemSD3[oListSD3:nAt][9],;
-						aItemSD3[oListSD3:nAt][10],;                                                                                    
-						aItemSD3[oListSD3:nAt][11]}}
-oListSD3:bLDblClick := {|| EDITCNR2(@aItemSD3),oListSD3:DrawSelect(), }
+oListSZV:SetArray(aItemSZV)
+oListSZV:bLine := {|| {	aItemSZV[oListSZV:nAt][1],;
+						aItemSZV[oListSZV:nAt][2],;
+						aItemSZV[oListSZV:nAt][3],;
+						aItemSZV[oListSZV:nAt][4],;
+						aItemSZV[oListSZV:nAt][5],;   
+						aItemSZV[oListSZV:nAt][6],;                                                     
+						aItemSZV[oListSZV:nAt][7],;
+						aItemSZV[oListSZV:nAt][8],;
+						aItemSZV[oListSZV:nAt][9],;
+						aItemSZV[oListSZV:nAt][10],;                                                                                    
+						aItemSZV[oListSZV:nAt][11],;                                                                                    
+						aItemSZV[oListSZV:nAt][12]}}
+oListSZV:bLDblClick := {|| EDITCNR2(@aItemSZV),oListSZV:DrawSelect(), }
+
+RETURN NIL
+
+//INCLUSÇÃO RECEBIMENTO DE UNIFORME
+USER FUNCTION RECBUNISZV()
+Local lOk		 := .F.
+Local nSnd       := 15
+Local nTLin      := 15
+Local oDlg01     as Object
+Local oButInv    as Object
+Local aButtons   := {}
+
+PRIVATE aItemFUN 	:= {}
+PRIVATE cCustoFUN	:= SPACE(9)
+PRIVATE cDCLIFUN 	:= SPACE(80)
+PRIVATE cDCTTFUN  	:= SPACE(80)
+PRIVATE dDataDFUN 	:= dDATABASE
+PRIVATE cGestorFUN  := SPACE(80)
+PRIVATE cMatric 	:= SPACE(6)
+PRIVATE cNOMEFUNC	:= SPACE(80)
+PRIVATE cCPFFUN		:= SPACE(11)
+PRIVATE cFUNCAOFUN 	:= SPACE(80)
+
+    AADD(aItemFUN,{"","","","",SPACE(20),CTOD(""),0,"",""})
+
+
+    Define MsDialog oDlg01 Title "Incluir Termo de Recebimento Local de Uniformes" From 000,000 To 450,830 Of oDlg01 Pixel
+	
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 430,825 
+	oPanelLeft:Align := CONTROL_ALIGN_LEFT
+	
+	@ nSnd,010 SAY "Data de Emissão:" SIZE 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet dDataDFUN  Picture "@E"  Size 060,010 Pixel OF oPanelLeft WHEN .T.
+
+	@ nSnd,130 MsGet cDCLIFUN Picture '@!' Size 250,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
+	nSnd += nTLin
+
+	@ nSnd,010 Say "Custo / Contrato:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet cCustoFUN Picture '@!' Size 060,010 Pixel OF oPanelLeft WHEN .F. 
+
+	@ nSnd,130 MsGet cDCTTFUN Picture '@!' Size 150,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
+
+	@ nSnd,285 SAY "Gestor:" SIZE 080,010 Pixel OF oPanelLeft
+	@ nSnd,310 MsGet cGestorFUN SIZE 100,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	nSnd += nTLin
+
+	@ nSnd,010 Say "Matricula:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet cMatric Picture '@!' Size 060,010 Pixel OF oPanelLeft WHEN .T. VALID(!Empty(cMatric) .AND. VALIDMATRIC(cMatric))
+	@ nSnd,130 MsGet cNOMEFUNC Picture '@!' Size 150,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
+	@ nSnd,285 Say "Função:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,310 MsGet cFUNCAOFUN Picture '@!' Size 100,010 Pixel OF oPanelLeft WHEN .F.
+	nSnd += nTLin
+
+	@ nSnd,010 Say "CPF:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet cCPFFUN Picture '@!' Size 060,010 Pixel OF oPanelLeft WHEN .F.
+	nSnd += nTLin
+
+    @ nSnd,010 Button oButInv    Prompt "Seleciona Produtos"  Size 100, 12 Pixel Action ( BKESTA03B() ) ;
+    Message "Seleciona Produtos" Of oPanelLeft
+	nSnd += nTLin
+	
+	@ nSnd, 010 LISTBOX oListFUN FIELDS HEADER "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Unitario","Saldo","ID Movimento" SIZE 400,085  OF oPanelLeft PIXEL 
+	
+	oListFUN:SetArray(aItemFUN)
+	oListFUN:bLine := {|| {	aItemFUN[oListFUN:nAt][1],;
+							aItemFUN[oListFUN:nAt][2],;
+							aItemFUN[oListFUN:nAt][3],;
+							aItemFUN[oListFUN:nAt][4],;
+							aItemFUN[oListFUN:nAt][5],;   
+							aItemFUN[oListFUN:nAt][6],;                                                     
+							aItemFUN[oListFUN:nAt][7],;
+							aItemFUN[oListFUN:nAt][8],;
+							aItemFUN[oListFUN:nAt][9]}}
+
+	oListFUN:bLDblClick := {|| EDITQFUN(@aItemFUN),oListFUN:DrawSelect(), }
+	
+	ACTIVATE MSDIALOG oDlg01 CENTERED Valid(ValidaFUN()) ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
+
+	If ( lOk )
+		lOk:=.F.
+		If u_MsgLog("INCLSZV","Confirma a inclusão e geração do Termo de Recebimento Local de Uniformes ?","Y")
+			IF U_GRAVFUN()
+				U_PRINTSZV()
+			ENDIF
+		ENDIF
+	Endif
+
+RETURN lOk
+
+//ALTERA QUANTIDADE SELECTIONADO DE PRODUTO PARA O FUNCIONNÁRIO
+STATIC FUNCTION EDITQFUN(aItemFUN)
+LOCAL _IX := 0
+LOCAL cMensag := ""
+
+lEditCell(aItemFUN,oListFUN,'@!',4)
+
+FOR _IX := 1 TO LEN(aItemFUN)
+	IF aItemFUN[_IX,4]  > aItemFUN[_IX,8]
+		cMensag := " Quantidade maior que o Saldo. Verifique!"
+	ENDIF
+NEXT
+IF !EMPTY(cMensag)
+	MSGSTOP(cMensag,"Atenção!")
+ENDIF
 
 RETURN NIL
 
 
+STATIC FUNCTION ValidaFUN()
+LOCAL lOK := .T.
+LOCAL cMensag := ""
+LOCAL _IX := 0
+
+IF EMPTY(ALLTRIM(cMatric))
+	cMensag += "Endereço de Saida não informado."+CRLF
+	lOK := .F.
+ENDIF
+
+IF EMPTY(ALLTRIM(cCustoFUN))
+	cMensag += "Centro de Custo / Contrato não informado."+CRLF
+	lOK := .F.
+ENDIF
+IF EMPTY(ALLTRIM(cCPFFUN))
+	cMensag += "CPF do Funcionário não informado."+CRLF
+	lOK := .F.
+ENDIF
+IF LEN(aItemFUN) <= 0
+	cMensag += "Produto não informado."+CRLF
+	lOK := .F.
+ENDIF
+IF LEN(aItemFUN) == 1
+	IF EMPTY(aItemFUN[1,1]) 
+		cMensag += "Produto não informado."+CRLF
+		lOK := .F.
+	ENDIF
+ELSEIF lOK
+	FOR _IX := 1 TO LEN(aItemFUN)
+		IF aItemFUN[_IX,4]  < 1
+			lOK := .F.
+		ENDIF
+	NEXT 
+	IF !lOK
+		cMensag += "Quantidade não informada."+CRLF
+	ELSE
+		FOR _IX := 1 TO LEN(aItemFUN)
+			IF aItemFUN[_IX,4]  > aItemFUN[_IX,8]
+				cMensag += " Quantidade maior que o Saldo Item: "+aItemFUN[_IX,1]+CRLF
+				lOK := .F.
+			ENDIF
+		NEXT 
+	ENDIF
+ENDIF
+IF !lOK
+	MSGSTOP(cMensag,"Atenção!")
+ENDIF
+
+RETURN lOK
+
+
+STATIC FUNCTION VALIDMATRIC(cMatric)
+Local lOK := .T.
+Local cQuery := "" 
+
+	cQuery  := "SELECT TOP 1 bk_senior.bk_senior.r034fun.numcad,bk_senior.bk_senior.r034fun.nomfun,numcpf,"
+	cQuery  += " right('00' + cast(bk_senior.bk_senior.r034fun.numemp as varchar(2)),2) AS cEmp, "
+	cQuery  += " right('000' + cast(bk_senior.bk_senior.R030FIL.CodFil as varchar(3)),3) AS cFil, " 
+	cQuery  += " (SELECT BKIntegraRubi.dbo.fnCCSiga(bk_senior.bk_senior.r034fun.numemp,bk_senior.bk_senior.r034fun.tipcol,bk_senior.bk_senior.r034fun.numcad, 'CLT') AS Expr1) AS CCSiga, "
+	cQuery  += " bk_senior.bk_senior.R030FIL.NomFil,bk_senior.bk_senior.R024CAR.TitCar"
+	cQuery  += " FROM  bk_senior.bk_senior.r034fun "
+	cQuery  += " INNER JOIN bk_senior.bk_senior.R030FIL ON bk_senior.bk_senior.r034fun.numemp = bk_senior.bk_senior.R030FIL.NumEmp "
+	cQuery  += " AND bk_senior.bk_senior.r034fun.codfil = bk_senior.bk_senior.R030FIL.CodFil "
+	cQuery  += " LEFT JOIN bk_senior.bk_senior.R016HIE ON bk_senior.bk_senior.R016HIE.NumLoc =bk_senior.bk_senior.r034fun.numloc "
+ 	cQuery  += " LEFT JOIN bk_senior.bk_senior.R024CAR ON 	bk_senior.bk_senior.r034fun.codcar = bk_senior.bk_senior.R024CAR.CodCar"
+ 	cQuery  += " AND bk_senior.bk_senior.R024CAR.EstCar = 1"
+	cQuery  += " WHERE bk_senior.bk_senior.r034fun.tipcol ='1' AND bk_senior.bk_senior.r034fun.numcad='"+cMatric+"' 
+	cQuery  += " AND bk_senior.bk_senior.r034fun.numemp='"+SM0->M0_CODIGO+"'"
+			
+	TCQUERY cQuery NEW ALIAS "Qr034fun"
+			
+	DbSelectArea("Qr034fun")
+	cNOMEFUNC  := ''
+	cCustoFUN  := ''
+	cCPFFUN    := ''
+	cNOMEFUNC  := Qr034fun->nomfun
+	cCustoFUN  := Qr034fun->CCSiga
+	cCPFFUN    := STRZERO(Qr034fun->numcpf,11)
+	cFUNCAOFUN := Qr034fun->TitCar
+	Qr034fun->(dbCloseArea())
+
+	DBSELECTAREA("CN9")
+	CN9->(DBSETORDER(1))
+	CN9->(MsSEEK(xFILIAL("CN9")+cCustoFUN))
+	DO WHILE CN9->(!EOF())  .AND. ALLTRIM(CN9->CN9_NUMERO) == ALLTRIM(cCustoFUN)
+		cDCLIFUN := TRIM(CN9->CN9_NOMCLI)
+		cDCTTFUN	 := TRIM(CN9->CN9_XXDESC)
+		cGestor  := TRIM(CN9->CN9_XXNRBK)
+		CN9->(dbSkip())
+	ENDDO
+
+	IF EMPTY(cDCLIFUN)
+		DBSELECTAREA("CTT")
+		CTT->(DBSETORDER(1))
+		IF CTT->(MsSEEK(xFILIAL("CTT")+cCustoFUN))
+			cDCLIFUN := "Centro de Custo"
+			cDCTTFUN := CTT->CTT_DESC01
+			cGestor  := SPACE(80)
+			lOK := .T.
+		ELSE
+			cDCLIFUN := SPACE(80)
+			cDCTTFUN := SPACE(80)
+			cGestor  := SPACE(80)
+			lOK := .F.
+			MSGSTOP("Centro de Custo ou Contrato não Encontrado!", "Atenção" )
+		ENDIF
+	ELSE
+		lOK := .T.
+	ENDIF
+
+RETURN lOK
+
+
+STATIC FUNCTION BKESTA03B()
+Local oOk
+Local oNo
+Local oDlg
+Local oListId
+Local oPanelLeft
+Local lAll
+Local oAll
+Local aButtons := {}
+Local lOk      := .F.
+Local aUnifor  := {}
+Local cTitulo   :=  "Selecionar Produtos / Uniformes /EPI"
+Local cQuery	:= ""
+Local nSaldo := 0
+Local nCustoUFOR := 0 
+
+	cQuery := " SELECT ZV_ITEM,ZV_PROD,ZV_QUANT,ZV_CODCA,ZV_VALIC,ZV_CUSTO1,ZV_CODIG,"
+	cQuery += " (SELECT SUM(ZV_QUANT)  FROM "+RetSqlName("SZV")+" SZV2 "
+	cQuery += " WHERE SZV2.D_E_L_E_T_=''  AND SZV2.ZV_TM='02' AND SZV2.ZV_DOC=SZV.ZV_CODIG AND SZV2.ZV_FOR=''"
+	cQuery += " AND SZV2.ZV_CC=SZV.ZV_CC"
+	cQuery += " AND SZV2.ZV_ITEM=SZV.ZV_ITEM) AS QUANT_S,"
+	cQuery += " (SELECT SUM(ZV_QUANT)  FROM "+RetSqlName("SZV")+" SZV3 "
+	cQuery += " WHERE SZV3.D_E_L_E_T_=''  AND SZV3.ZV_TM='03' AND ZV_EUSO<>'R' AND SZV3.ZV_DOC=SZV.ZV_CODIG AND SZV3.ZV_FOR=''" 
+	cQuery += " AND SZV3.ZV_CC=SZV.ZV_CC"
+	cQuery += " AND SZV3.ZV_ITEM=SZV.ZV_ITEM) AS QUANT_D"
+	cQuery += " FROM "+RetSqlName("SZV")+" SZV "
+	cQuery += " WHERE SZV.D_E_L_E_T_=''  AND SZV.ZV_TM='01'"
+	cQuery += " AND SZV.ZV_CC='"+cCustoFUN+"'"
+	cQuery += " ORDER BY ZV_PROD,ZV_VALIC"
+
+
+	IF SELECT('QSZV2') > 0
+		QSZV2->(DBCLOSEAREA())
+	ENDIF
+		
+	DBUSEAREA(.T.,"TOPCONN"	,TCGENQRY(,,cQuery),'QSZV2',.F.,.T.)
+	TCSETFIELD("QSZV2","ZV_VALIC","D",8,0)
+
+	DBSELECTAREA('QSZV2')
+	IF !EMPTY(QSZV2->ZV_ITEM)
+		while ! QSZV2->( EOF() )
+			nSaldo := 0
+			nSaldo := (QSZV2->ZV_QUANT-QSZV2->QUANT_S+QSZV2->QUANT_D)
+			IF nSaldo > 0
+				nCustoUFOR := 0 
+				nCustoUFOR := QSZV2->ZV_CUSTO1/QSZV2->ZV_QUANT
+				//"Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Unit","ID Movimento"
+				AADD(aUnifor,{.F.,QSZV2->ZV_ITEM,QSZV2->ZV_PROD,TRIM(Posicione("SB1",1,xFilial("SB1")+QSZV2->ZV_PROD,"B1_DESC")),nSaldo,QSZV2->ZV_CODCA,QSZV2->ZV_VALIC,nCustoUFOR,QSZV2->ZV_CODIG})
+			ENDIF
+        	QSZV2->(dbSkip())
+       ENDDO
+	   QSZV2->(DBCLOSEAREA())
+	ELSE
+		aUnifor := {}
+		AADD(aUnifor,{.F.,"","","",0,"","","",""})
+		MSGSTOP("Dados da Notas Fiscal não Encontrada!")
+		RETURN aUnifor
+	ENDIF
+
+IF LEN(aUnifor) < 1
+	AADD(aUnifor,{.F.,"","","",0,"","","",""})
+ENDIF
+
+
+oOk := LoadBitmap( GetResources(), "LBTIK" )
+oNo := LoadBitmap( GetResources(), "LBNO" )
+
+DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 450,830 PIXEL 
+
+@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 430,825 
+oPanelLeft:Align := CONTROL_ALIGN_LEFT
+lAll := .F.
+@ 005, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
+oAll:bChange := {|| Aeval(aUnifor,{|x| x[1]:=lAll }), oListId:Refresh()}
+
+			//"Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Total","ID Movimento"
+
+@ 015, 010 LISTBOX oListID FIELDS HEADER "","Item","Produto","Descrição","Saldo","Cod. CA","Validade CA","Valor Total","ID Movimento" SIZE 400,180 OF oPanelLeft PIXEL 
+
+oListID:SetArray(aUnifor)
+oListID:bLine := {||{If(aUnifor[oListId:nAt][1],oOk,oNo),;
+						aUnifor[oListId:nAt][2],;
+						aUnifor[oListId:nAt][3],;
+						aUnifor[oListId:nAt][4],;
+						aUnifor[oListId:nAt][5],;
+						aUnifor[oListId:nAt][6],;
+						aUnifor[oListId:nAt][7],;
+						TRANSFORM(aUnifor[oListId:nAt][8],"@E 999,999,999.99"),;
+						aUnifor[oListId:nAt][9]}}
+
+oListID:bLDblClick := {|| aUnifor[oListId:nAt][1] := IIF(aUnifor[oListId:nAt][1],.F.,.T.), oListID:DrawSelect()}
+
+ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
+
+If ( lOk )
+    GravaUNIF(aUnifor)
+EndIf
+Return lOk
+
+
+
+STATIC FUNCTION GravaUNIF(aUnifor)
+Local _ix:=0
+Local nSCAN:=0
+
+IF LEN(aItemFUN) == 1 
+	IF EMPTY(aItemFUN[1,1])
+		aItemFUN:= {}
+	ENDIF
+ENDIF
+
+FOR _ix:=1 TO LEN(aUnifor)
+
+	IF aUnifor[_ix,1]
+
+	    //			1     2       3          4         5        6         7               8            9	
+		//aUnifor = "","Item","Produto","Descrição","Saldo","Cod. CA","Validade CA","Valor Total","ID Movimento" 
+		//			     1          2              3          4         5        6         7               8            9	
+		//aItemFUN =  "Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Unitario","Saldo","ID Movimento" 
+
+		nScan:= 0
+		nScan:= aScan(aItemFUN,{|x| x[1] == aUnifor[_ix,2] .AND. x[9] == aUnifor[_ix,9] })
+		IF nScan == 0
+			AADD(aItemFUN,{aUnifor[_ix,2],aUnifor[_ix,3],aUnifor[_ix,4],1,aUnifor[_ix,6],aUnifor[_ix,7],aUnifor[_ix,8],aUnifor[_ix,5],aUnifor[_ix,9]})
+		ENDIF
+	ENDIF
+
+NEXT _ix
+
+oListFUN:SetArray(aItemFUN)
+oListFUN:bLine := {|| {	aItemFUN[oListFUN:nAt][1],;
+						aItemFUN[oListFUN:nAt][2],;
+						aItemFUN[oListFUN:nAt][3],;
+						aItemFUN[oListFUN:nAt][4],;
+						aItemFUN[oListFUN:nAt][5],;   
+						aItemFUN[oListFUN:nAt][6],;                                                     
+						TRANSFORM(aItemFUN[oListFUN:nAt][7],"@E 999,999,999.99"),;
+						aItemFUN[oListFUN:nAt][8],;
+						aItemFUN[oListFUN:nAt][9]}}
+
+RETURN NIL
+
+//GRAVA RECEBIMENTO DO UNIFORME FUNCIONARIO
+User Function GRAVFUN()
+LOCAL _lOK	:= .T.
+Local _IX   := 0
+Local _SQL 	:= ""
+Local cCodigo := ""
+
+	_SQL:= " SELECT TOP 1 ZV_CODIG FROM " + RetSQLName( "SZV" ) + " SZV"
+ 	_SQL+= " WHERE SZV.D_E_L_E_T_='' ORDER BY ZV_CODIG DESC"
+ 	
+	IF SELECT('QSZV') > 0
+		QSZV->(DBCLOSEAREA())
+	ENDIF
+		
+	DBUSEAREA(.T.,"TOPCONN"	,TCGENQRY(,,_SQL),'QSZV',.F.,.T.)
+
+	DBSELECTAREA('QSZV')
+ 	QSZV->(DBGOTOP())
+	IF !EMPTY(QSZV->ZV_CODIG)
+		cCodigo := QSZV->ZV_CODIG
+    ENDIF
+	QSZV->(DBCLOSEAREA())
+	cCodigo := STRZERO(VAL(cCodigo)+1,9)
+
+	FOR _IX:= 1 TO LEN(aItemFUN)
+
+		RecLock("SZV",.T.)
+		SZV->ZV_FILIAL	:= xFilial("SZV")
+		SZV->ZV_CODIG	:= cCodigo
+		SZV->ZV_EMISSAO	:= dDataDFUN
+		SZV->ZV_PROD	:= aItemFUN[_IX,2]
+		SZV->ZV_DESCRI	:= Posicione("SB1",1,xFilial("SB1")+aItemFUN[_IX,2],"B1_DESC")
+		SZV->ZV_QUANT	:= aItemFUN[_IX,4]
+		SZV->ZV_CUSTO1	:= aItemFUN[_IX,8]
+		SZV->ZV_TM		:= "02" 
+		//SZV->ZV_ORICC	:= 
+		//SZV->ZV_ORIDCC	:= 
+		SZV->ZV_CC		:= cCustoFUN
+		SZV->ZV_DCC		:= cDCTTFUN 
+		//SZV->ZV_ENDBK	:= 
+		//SZV->ZV_ENDCO	:= 
+		//SZV->ZV_NOMRE	:= 
+		//SZV->ZV_CPFRE	:= 
+		//SZV->ZV_RECBNOM	:= 
+		//SZV->ZV_RECBCPF	:= 
+		SZV->ZV_GESTO	:= cGestorFUN
+		SZV->ZV_CODCA	:= aItemFUN[_IX,5]
+		SZV->ZV_VALIC	:= aItemFUN[_IX,6]
+		//SZV->ZV_RDEVO	:= 
+		//SZV->ZV_CPFRD	:= 
+		//SZV->ZV_EUSO	:= 
+		SZV->ZV_PRONT	:= cMatric
+		SZV->ZV_NOME	:= cNOMEFUNC
+		SZV->ZV_FUNCA	:= cFUNCAOFUN
+		SZV->ZV_RGFUNC  := cCPFFUN
+		SZV->ZV_ITEM	:= aItemFUN[_IX,1]
+		SZV->ZV_DOC		:= aItemFUN[_IX,9]
+		//SZV->ZV_SER		:= aItemFUN[_IX,9]
+		//SZV->ZV_FOR		:= aItemFUN[_IX,10]
+		//SZV->ZV_LOJ		:= aItemFUN[_IX,11]
+		SZV->(MSUNLOCK())																																																																																																				
+
+	NEXT _IX
+	MSGINFO("Incluido com sucesso! cod.: "+SZV->ZV_CODIG)
+
+Return _lOK
+
+
+//INCLUSÇÃO DEVOLUCAO DE UNIFORME
+USER FUNCTION DEVOUNISZV()
+Local lOk		 := .F.
+Local nSnd       := 15
+Local nTLin      := 15
+Local oDlg01     as Object
+Local oButInv    as Object
+Local lAll
+Local oAll
+Local oOk
+Local oNo
+Local aButtons   := {}
+
+PRIVATE aItemDevFUN := {}
+PRIVATE cCustoFUN	:= SPACE(9)
+PRIVATE cDCLIFUN 	:= SPACE(80)
+PRIVATE cDCTTFUN  	:= SPACE(80)
+PRIVATE dDataDFUN 	:= dDATABASE
+PRIVATE cGestorFUN  := SPACE(80)
+PRIVATE cMatric 	:= SPACE(6)
+PRIVATE cNOMEFUNC	:= SPACE(80)
+PRIVATE cCPFFUN		:= SPACE(11)
+PRIVATE cFUNCAOFUN 	:= SPACE(80)
+
+    AADD(aItemFUN,{.F.,"","","","",SPACE(20),CTOD(""),0,"",""})
+	
+	oOk := LoadBitmap( GetResources(), "LBTIK" )
+	oNo := LoadBitmap( GetResources(), "LBNO" )
+
+    Define MsDialog oDlg01 Title "Incluir Termo de Devolução Local de Uniformes" From 000,000 To 450,830 Of oDlg01 Pixel
+	
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 430,825 
+	oPanelLeft:Align := CONTROL_ALIGN_LEFT
+	
+	@ nSnd,010 SAY "Data de Emissão:" SIZE 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet dDataDFUN  Picture "@E"  Size 060,010 Pixel OF oPanelLeft WHEN .T.
+
+	@ nSnd,130 MsGet cDCLIFUN Picture '@!' Size 250,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
+	nSnd += nTLin
+
+	@ nSnd,010 Say "Custo / Contrato:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet cCustoFUN Picture '@!' Size 060,010 Pixel OF oPanelLeft WHEN .F. 
+
+	@ nSnd,130 MsGet cDCTTFUN Picture '@!' Size 150,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
+
+	@ nSnd,285 SAY "Gestor:" SIZE 080,010 Pixel OF oPanelLeft
+	@ nSnd,310 MsGet cGestorFUN SIZE 100,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	nSnd += nTLin
+
+	@ nSnd,010 Say "Matricula:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet cMatric Picture '@!' Size 060,010 Pixel OF oPanelLeft WHEN .T. VALID(!Empty(cMatric) .AND. VALIDMATRIC(cMatric))
+	@ nSnd,130 MsGet cNOMEFUNC Picture '@!' Size 150,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
+	@ nSnd,285 Say "Função:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,310 MsGet cFUNCAOFUN Picture '@!' Size 100,010 Pixel OF oPanelLeft WHEN .F.
+	nSnd += nTLin
+
+	@ nSnd,010 Say "CPF:" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,060 MsGet cCPFFUN Picture '@!' Size 060,010 Pixel OF oPanelLeft WHEN .F.
+	nSnd += nTLin
+
+	lAll := .F.
+	@ 005, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
+	oAll:bChange := {|| Aeval(aItemDevFUN,{|x| x[1]:=lAll }), oListDevFU:Refresh()}
+
+	@ nSnd, 010 LISTBOX oListDevFU FIELDS HEADER "","Item","Cod. Produto","Descrição","Quantidade","Cod. CA","Validade CA","Valor Unitario","Saldo","ID Movimento" SIZE 400,085  OF oPanelLeft PIXEL 
+	
+	oListDevFU:SetArray(aItemDevFUN)
+	oListDevFU:bLine :=  {||{If(aItemDevFUN[oListDevFU:nAt][1],oOk,oNo),;
+							aItemDevFUN[oListDevFU:nAt][2],;
+							aItemDevFUN[oListDevFU:nAt][3],;
+							aItemDevFUN[oListDevFU:nAt][4],;
+							aItemDevFUN[oListDevFU:nAt][5],;   
+							aItemDevFUN[oListDevFU:nAt][6],;                                                     
+							aItemDevFUN[oListDevFU:nAt][7],;
+							aItemDevFUN[oListDevFU:nAt][8],;
+							aItemDevFUN[oListDevFU:nAt][9]}}
+
+	oListDevFU:bLDblClick := {|| EDITQFUN(@aItemDevFUN),oListDevFU:DrawSelect(), }
+	
+	ACTIVATE MSDIALOG oDlg01 CENTERED Valid(ValDevFUN()) ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
+
+	If ( lOk )
+		lOk:=.F.
+		If u_MsgLog("INCLSZV","Confirma a inclusão e geração do Termo de Recebimento Local de Uniformes ?","Y")
+			IF U_GRAVFUN()
+				U_PRINTSZV()
+			ENDIF
+		ENDIF
+	Endif
+
+RETURN lOk
+
+//ALTERA QUANTIDADE SELECTIONADO DE PRODUTO PARA DEVOLUSÃO FUNCIONNÁRIO
+STATIC FUNCTION EDITQDEVFUN(aItemDevFUN)
+LOCAL _IX := 0
+LOCAL cMensag := ""
+
+lEditCell(aItemDevFUN,oListDevFU,'@!',4)
+
+FOR _IX := 1 TO LEN(aItemDevFUN)
+	IF aItemDevFUN[_IX,4]  > aItemDevFUN[_IX,8]
+		cMensag := " Quantidade maior que o Saldo Entregue. Verifique!"
+	ENDIF
+NEXT
+IF !EMPTY(cMensag)
+	MSGSTOP(cMensag,"Atenção!")
+ENDIF
+
+RETURN NIL
+
+
+STATIC FUNCTION ValDevFUN()
+LOCAL lOK := .T.
+LOCAL cMensag := ""
+LOCAL _IX := 0
+
+IF EMPTY(ALLTRIM(cMatric))
+	cMensag += "Endereço de Saida não informado."+CRLF
+	lOK := .F.
+ENDIF
+
+IF EMPTY(ALLTRIM(cCustoFUN))
+	cMensag += "Centro de Custo / Contrato não informado."+CRLF
+	lOK := .F.
+ENDIF
+IF EMPTY(ALLTRIM(cCPFFUN))
+	cMensag += "CPF do Funcionário não informado."+CRLF
+	lOK := .F.
+ENDIF
+IF LEN(aItemFUN) <= 0
+	cMensag += "Produto não informado."+CRLF
+	lOK := .F.
+ENDIF
+IF LEN(aItemFUN) == 1
+	IF EMPTY(aItemFUN[1,1]) 
+		cMensag += "Produto não informado."+CRLF
+		lOK := .F.
+	ENDIF
+ELSEIF lOK
+	FOR _IX := 1 TO LEN(aItemFUN)
+		IF aItemFUN[_IX,4]  < 1
+			lOK := .F.
+		ENDIF
+	NEXT 
+	IF !lOK
+		cMensag += "Quantidade não informada."+CRLF
+	ELSE
+		FOR _IX := 1 TO LEN(aItemFUN)
+			IF aItemFUN[_IX,4]  > aItemFUN[_IX,8]
+				cMensag += " Quantidade maior que o Saldo Item: "+aItemFUN[_IX,1]+CRLF
+				lOK := .F.
+			ENDIF
+		NEXT 
+	ENDIF
+ENDIF
+IF !lOK
+	MSGSTOP(cMensag,"Atenção!")
+ENDIF
+
+RETURN lOK
+
+
+
+
+//IMPRIME A RELAÇÃO DE SALDO DOS UNIFORMES
+USER FUNCTION RELSALDSZV()
+Local aPlans    := {}
+Local aTitulos1,aCampos1,aCabs1
+
+Private cTitulo      := "Relação de Saldo de Uniformes"
+Private cPerg        := "RELSALDSZV"
+
+u_WaitLog(cPerg, {|oSay| PrcQuery1() }, cTitulo)
+
+aCabs1   := {}
+aCampos1 := {}
+aTitulos1:= {}
+
+AADD(aTitulos1,"Uniformes")
+
+AADD(aCampos1,"QSZV3->ZV_CC")
+AADD(aCabs1  ,"C. Custo ou Contrato")
+
+AADD(aCampos1,"QSZV3->CTT_DESC01")
+AADD(aCabs1  ,"Descrição")
+
+AADD(aCampos1,"QSZV3->ZV_EMISSAO")
+AADD(aCabs1  ,"Emissão")
+
+AADD(aCampos1,"QSZV3->ZV_PROD")
+AADD(aCabs1  ,"Produto")
+
+AADD(aCampos1,"QSZV3->ZV_DESCRI")
+AADD(aCabs1  ,"Descrição Prod.")
+
+AADD(aCampos1,"QSZV3->ZV_CODCA")
+AADD(aCabs1  ,"CA")
+
+AADD(aCampos1,"QSZV3->ZV_VALIC")
+AADD(aCabs1  ,"validade CA")
+
+AADD(aCampos1,"QSZV3->ZV_QUANT")
+AADD(aCabs1  ,"Quantidade")
+
+AADD(aCampos1,"QSZV3->SAIDA")
+AADD(aCabs1  ,"Quant. Saida")
+
+AADD(aCampos1,"QSZV3->DEVOLVIDA")
+AADD(aCabs1  ,"Quant. Devolução")
+
+AADD(aCampos1,"QSZV3->ZV_QUANT - QSZV3->SAIDA + QSZV3->DEVOLVIDA")
+AADD(aCabs1  ,"Saldo Atual")
+
+AADD(aPlans,{"QSZV3",cPerg,"",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+
+U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
+
+Return NIL
+
+
+Static Function PrcQuery1
+Local cQuery
+
+cQuery := "SELECT ZV_CC,CTT_DESC01,ZV_EMISSAO,ZV_ITEM,ZV_PROD,ZV_DESCRI,ZV_QUANT,ZV_CODCA,ZV_VALIC,ZV_CUSTO1,ZV_CODIG," + CRLF
+cQuery += "(SELECT SUM(ZV_QUANT)  FROM "+RETSQLNAME("SZV")+ " SZV2 " + CRLF
+cQuery += "WHERE SZV2.D_E_L_E_T_=''  AND SZV2.ZV_TM='02' AND SZV2.ZV_DOC=SZV.ZV_CODIG AND SZV2.ZV_FOR=''" + CRLF
+cQuery += "AND SZV2.ZV_CC=SZV.ZV_CC" + CRLF
+cQuery += "AND SZV2.ZV_ITEM=SZV.ZV_ITEM) AS SAIDA," + CRLF
+cQuery += "(SELECT SUM(ZV_QUANT)  FROM "+RETSQLNAME("SZV")+ " SZV3 " + CRLF
+cQuery += "WHERE SZV3.D_E_L_E_T_=''  AND SZV3.ZV_TM='03' AND ZV_EUSO<>'R' AND SZV3.ZV_DOC=SZV.ZV_CODIG AND SZV3.ZV_FOR=''" + CRLF
+cQuery += "AND SZV3.ZV_CC=SZV.ZV_CC" + CRLF
+cQuery += "AND SZV3.ZV_ITEM=SZV.ZV_ITEM) AS DEVOLVIDA" + CRLF
+cQuery += " FROM "+RETSQLNAME("SZV")+ " SZV" + CRLF
+cQuery += " INNER JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT.D_E_L_E_T_=''" + CRLF
+cQuery += " AND CTT_CUSTO= ZV_CC" + CRLF
+cQuery += " WHERE SZV.D_E_L_E_T_=''  AND SZV.ZV_TM='01'" + CRLF
+
+u_LogMemo("RELSALDSZV.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QSZV3"
+TCSETFIELD("QSZV3","ZV_VALIC","D",8,0)
+
+Return nil
+
 STATIC FUNCTION DTRANSTML(cTermo,dEMISSAO,cMUNIC,cENDEMPR,cCLIENT,cENDCLI,cRESPONS,cCPFRESP,aItens)
-LOCAL cTipoTit :="DECLARAÇÃO DE TRANSFERÊNCIA"
+LOCAL cTipoTit :="DECLARAÇÃO DE TRANSFERÊNCIA - "+cTermo
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
 Local cDirTmp   := "C:\TMP"
@@ -672,5 +1458,519 @@ If nHandle > 0
 	ShellExecute("open", cArqHtml, "", "", 1)
 ENDIF
 
+RETURN NIL
+
+//IMPRIME O TERMO DE RESPONSABILIDADE DE USO EM HTML
+STATIC FUNCTION RESPUSO(cTermo,dEMISSAO,cCONTRATO,cGCONTR,cMUNIC,cENDEMPR,cCLIENT,cENDCLI,cRESPONS,cCPFRESP,aItens)
+LOCAL cTipoTit :="TERMO DE RESPONSABILIDADE DE USO - "+cTermo
+Local nHandle   := 0
+Local cCrLf     := Chr(13) + Chr(10)
+Local cDirTmp   := "C:\TMP"
+Local cArqHtml  := ""
+Local aHtml     := {}
+Local _nI       := 0
+Local nPag 		:= 1
+Local cDtExtso  := ""
+
+cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
+
+If SM0->M0_CODIGO == "01"      // BK
+	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+Endif	
+
+If nPag == 1
+	AADD(aHtml,'<html lang="pt-BR">')
+	AADD(aHtml,'<head>') 
+	AADD(aHtml,'<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' )
+	AADD(aHtml,'<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' )
+	AADD(aHtml,'<title>Declaracao '+TRIM(cTermo)+' - '+DTOC(date())+' '+TIME()+'</title>' )
+	AADD(aHtml,'<style type="text/css">')
+	AADD(aHtml,'.tg  {border-collapse:collapse;border-spacing:0;}')
+	AADD(aHtml,'.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;')
+	AADD(aHtml,'  overflow:hidden;padding:10px 5px;word-break:normal;}')
+	AADD(aHtml,'.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;')
+	AADD(aHtml,'  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}')
+	AADD(aHtml,'.tg .tg-0w9m{font-family:Arial, Helvetica, sans-serif !important;font-weight:bold;text-align:center;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-tcrt{font-family:Arial, Helvetica, sans-serif !important;text-align:center;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-i7zr{font-family:Arial, Helvetica, sans-serif !important;text-align:left;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-sc{font-size:12px;vertical-align:middle;;text-align:left}')
+	AADD(aHtml,'.folha {page-break-after:always;page-break-inside:avoid;}')
+	AADD(aHtml,'</style>')
+EndIf                                 
+
+AADD(aHtml,'<div class="folha">')
+
+AADD(aHtml,'<table class="tg" style="undefined;table-layout: fixed; width: 1257px">')
+
+AADD(aHtml,'<colgroup>')
+AADD(aHtml,'<col style="width: 66.2px">')
+AADD(aHtml,'<col style="width: 80.2px">')
+AADD(aHtml,'<col style="width: 300.2px">')
+AADD(aHtml,'<col style="width: 80.2px">')
+AADD(aHtml,'<col style="width: 80.2px">')
+AADD(aHtml,'<col style="width: 100.2px">')
+AADD(aHtml,'<col style="width: 66.2px">')
+AADD(aHtml,'<col style="width: 80.2px">')
+AADD(aHtml,'<col style="width: 88.2px">')
+AADD(aHtml,'<col style="width: 100.2px">')
+AADD(aHtml,'</colgroup>')
+
+AADD(aHtml,'<thead>')
+AADD(aHtml,'  <tr>')
+
+If EMPTY(cLogo)
+	AADD(aHtml,'    <th class="tg-i7zr" colspan="3">'+FWEmpName(cEmpAnt)+'</th>')
+Else
+	AADD(aHtml,'    <th class="tg-i7zr" colspan="3">'+cLogo+'</th>')
+Endif
+
+AADD(aHtml,'    <th class="tg-0w9m" colspan="7">'+cTipoTit+'</th>')
+AADD(aHtml,'  </tr>')
+AADD(aHtml,'</thead>')
+
+AADD(aHtml,'<tbody>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="3">Cliente/Depto: '+cCLIENT+'</td>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="3">Local: '+cENDCLI+'</td>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="4">Setor:</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="2">Contrato N°: '+cCONTRATO+'</td>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="4">Gestor do Contrato: '+cGCONTR+'</td>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="4">Preposto:</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-0w9m" colspan="6">ENTREGA DO PATRIMÔNIO</td>')
+AADD(aHtml,'    <td class="tg-tcrt" colspan="4">DEVOLUÇÃO DO PATRIMÔNIO</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-tcrt" rowspan="2">Qtde</td>')
+AADD(aHtml,'    <td class="tg-tcrt" rowspan="2">N° Patrimônio</td>')
+AADD(aHtml,'    <td class="tg-i7zr" rowspan="2">Descrição (especificar Marca / Tamanho / Modelo)</td>')
+AADD(aHtml,'    <td class="tg-tcrt" colspan="2">Estado de Uso</td>')
+AADD(aHtml,'    <td class="tg-tcrt" rowspan="2">Data</td>')
+AADD(aHtml,'    <td class="tg-tcrt" rowspan="2">Qtde</td>')
+AADD(aHtml,'    <td class="tg-tcrt" colspan="2">Estado de uso</td>')
+AADD(aHtml,'    <td class="tg-tcrt" rowspan="2">Data</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-tcrt">Bom</td>')
+AADD(aHtml,'    <td class="tg-tcrt">Ruim</td>')
+AADD(aHtml,'    <td class="tg-tcrt">Bom</td>')
+AADD(aHtml,'    <td class="tg-tcrt">Ruim</td>')
+AADD(aHtml,'  </tr>')
+
+For _nI := 1 To Len(aItens)
+	AADD(aHtml,'  <tr>')
+	AADD(aHtml,'    <td class="tg-tcrt">'+TRANSFORM(aItens[_nI,3],"@E 999")+'</td>')
+	AADD(aHtml,'    <td class="tg-tcrt">N.A</td>')
+	AADD(aHtml,'    <td class="tg-i7zr">'+aItens[_nI,1]+'</td>')
+	AADD(aHtml,'    <td class="tg-tcrt">X</td>')
+	AADD(aHtml,'    <td class="tg-tcrt"></td>')
+	AADD(aHtml,'    <td class="tg-tcrt">'+DTOC(dEMISSAO)+'</td>')
+	AADD(aHtml,'    <td class="tg-tcrt"></td>')
+	AADD(aHtml,'    <td class="tg-tcrt"></td>')
+	AADD(aHtml,'    <td class="tg-tcrt"></td>')
+	AADD(aHtml,'    <td class="tg-tcrt"></td>')
+	AADD(aHtml,'  </tr>')
+Next
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="6">Declaro que recebi os itens de patrimônio abaixo relacionados e me responsabilizo pela aplicação e ouso exclusivo na prestação dos serviços para o qual foi contratada a BK Consultoria e Servi os Ltda, bem como em .0.Rnicar ao Gestor do Contrato/Gestor Patrimonial, toda manutenção, alteração e/ou movimentação necessária a qualquer dos bens sob minha responsabilidade.</td>')
+AADD(aHtml,'    <td class="tg-tcrt" colspan="4">Declaro que recebi em devolução os equipamentos relacionados e me responsabilizo pela sua entrega à Área de Patrimônio</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="6">Nome:</td>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="4">Nome:</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="6">CPF:<br></td>')
+AADD(aHtml,'    <td class="tg-i7zr" colspan="4">CPF:</td>')
+AADD(aHtml,'  </tr>')
+AADD(aHtml,'</tbody>')
+AADD(aHtml,'</table>')
+
+AADD(aHtml,'<p class="tg-sc" colspan="3">BK FM_020_ Termo de Responsabilidade de Uso_v2_24/09/2018</p>')
+
+AADD(aHtml,'<br>')
+
+AADD(aHtml,'<br>')
+AADD(aHtml,'</div>')
+
+AADD(aHtml,'</body>')
+AADD(aHtml,'</html>')
+
+IF !EMPTY(cDirTmp)
+   MakeDir(cDirTmp)
+ENDIF   
+
+cArqHtml  := cDirTmp+"\"+"TERMO_RESP_USO_"+ALLTRIM(cTermo)+".HTML"
+
+fErase(cArqHtml)
+nHandle := MsfCreate(cArqHtml,0)
+If nHandle > 0
+	For _nI := 1 TO LEN(aHtml)
+		fWrite(nHandle, aHtml[_nI] + cCrLf )
+	Next
+	fClose(nHandle)
+	ShellExecute("open", cArqHtml, "", "", 1)
+ENDIF
 
 RETURN NIL
+
+// IMPRIME O TERMO DE RECEBIMENTO LOCAL DE UNIFORMES HTML
+STATIC FUNCTION RECEBUNIFORME(cTermo,dEMISSAO,cCONTRATO,cFuncionario,c_CPFFUN,cMATR,cFUNCAO,aItens)
+LOCAL cTipoTit  := "TERMO DE RECEBIMENTO LOCAL DE UNIFORMES - "+cTermo
+Local nHandle   := 0
+Local cCrLf     := Chr(13) + Chr(10)
+Local cDirTmp   := "C:\TMP"
+Local cArqHtml  := ""
+Local aHtml     := {}
+Local _nI       := 0
+Local nPag 		:= 1
+Local cDtExtso  := ""
+Local cEMPRESA  := ALLTRIM(SM0->M0_NOMECOM)
+Local cEndEmpres := SM0->M0_ENDENT+"  "+Rtrim(SM0->M0_CIDENT)+"  - "+SM0->M0_ESTENT+" - CEP "+Trans(Alltrim(SM0->M0_CEPENT),PesqPict("SA2","A2_CEP"))
+
+
+cDtExtso  := Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
+
+If SM0->M0_CODIGO == "01"      // BK
+	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+Endif	
+
+If nPag == 1
+	AADD(aHtml,'<html lang="pt-BR">')
+	AADD(aHtml,'<head>') 
+	AADD(aHtml,'<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' )
+	AADD(aHtml,'<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' )
+	AADD(aHtml,'<title>Declaracao '+TRIM(cTermo)+' - '+DTOC(date())+' '+TIME()+'</title>' )
+	AADD(aHtml,'<style type="text/css">' )
+	AADD(aHtml,'.tg  {border-collapse:collapse;border-color:#aabcfe;border-spacing:0;}' )
+	AADD(aHtml,'.tg td{background-color:#e8edff;border-color:#aabcfe;border-style:solid;border-width:1px;color:#669;' )
+  	AADD(aHtml,'font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}' )
+	AADD(aHtml,'.tg th{background-color:#b9c9fe;border-color:#aabcfe;border-style:solid;border-width:1px;color:#039;' )
+  	AADD(aHtml,'font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}' )
+	AADD(aHtml,'.tg .tg-2amj{background-color:#ffffff;border: none;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;text-align:left;' )
+  	AADD(aHtml,'vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-1kq3{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;text-align:center;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-iejx{background-color:#ffffff;border-color:#ffffff;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-2e78{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:bottom}' )
+	AADD(aHtml,'.tg .tg-u7bl{background-color:#ffffff;border-color:#ffffff;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-dek0{background-color:#ffffff;border-color:#ffffff;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-w959{background-color:#ffffff;border-color:#ffffff;color:#ffffff;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-4aw3{background-color:#ffffff;border-color:#ffffff;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;text-align:center;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-f4uc{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:bottom}' )
+	AADD(aHtml,'.tg .tg-ohsq{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-rfxw{background-color:#FFF;border-color:#ffffff;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-dfok{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;text-align:right;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-fy3d{background-color:#ffffff;border: none;color:#000000;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:left;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-uymm{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-uymc{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:center}' )
+	AADD(aHtml,'.tg .tg-0ep5{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-uuna{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-uunn{background-color:#ffffff;border-color:#000000;color:#000000;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:center;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-3s9g{background-color:#ffffff;border-color:#ffffff;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-9cio{background-color:#ffffff;border-color:#ffffff;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:left;vertical-align:top}' )
+	AADD(aHtml,'.tg .tg-ur1u{background-color:#ffffff;border-color:#ffffff;color:#000000;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;' )
+  	AADD(aHtml,'text-align:center;vertical-align:bottom}' )
+	AADD(aHtml,'.tg .tg-ena9{background-color:#ffffff;border-color:#ffffff;color:#000000;font-family:Arial, Helvetica, sans-serif !important;' )
+  	AADD(aHtml,'font-size:14px;font-weight:bold;text-align:center;vertical-align:top}' )
+	AADD(aHtml,'</style>')
+EndIf                                 
+
+AADD(aHtml,'<div class="folha">')
+
+AADD(aHtml,'<table class="tg" style="undefined;table-layout: fixed; width: 1294px">')
+
+AADD(aHtml,'<colgroup>')
+AADD(aHtml,'<col style="width: 29.2px">')
+AADD(aHtml,'<col style="width: 218.2px">')
+AADD(aHtml,'<col style="width: 55.2px">')
+AADD(aHtml,'<col style="width: 153.2px">')
+AADD(aHtml,'<col style="width: 134.2px">')
+AADD(aHtml,'<col style="width: 201.2px">')
+AADD(aHtml,'<col style="width: 147.2px">')
+AADD(aHtml,'<col style="width: 158.2px">')
+AADD(aHtml,'<col style="width: 169.2px">')
+AADD(aHtml,'<col style="width: 28.2px">')
+AADD(aHtml,'</colgroup>')
+
+AADD(aHtml,'<thead>')
+AADD(aHtml,'  <tr>')
+
+If EMPTY(cLogo)
+	AADD(aHtml,'    <th class="tg-1kq3" colspan="2">'+FWEmpName(cEmpAnt)+'</th>')
+Else
+	AADD(aHtml,'    <th class="tg-1kq3" colspan="2">'+cLogo+'</th>')
+Endif
+
+AADD(aHtml,'    <th class="tg-ohsq" colspan="6">'+cTipoTit+'</th>')
+AADD(aHtml,'    <th class="tg-dfok" colspan="2">BK_FM_016_V6 18/11/2020</th>')
+AADD(aHtml,'  </tr>')
+AADD(aHtml,'</thead>')
+AADD(aHtml,'<tbody>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-fy3d" colspan="8">Contrato n° '+cCONTRATO+'<br>Eu, '+cFuncionario+', portador do CPF n° '+c_CPFFUN+', n° de Registro '+cMATR+', contratado para a funçao de '+cFUNCAO+' declaro ter recebido da empresa '+cEMPRESA+', os uniformes descritos conforme tabela abaixo:</td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-2amj" rowspan="2"></td>')
+AADD(aHtml,'    <td class="tg-2e78" rowspan="2">Uniforme Tipo</td>')
+AADD(aHtml,'    <td class="tg-f4uc" rowspan="2">Qtde.</td>')
+AADD(aHtml,'    <td class="tg-f4uc" rowspan="2">Valor Unitário R$</td>')
+AADD(aHtml,'    <td class="tg-f4uc" rowspan="2">Numero do CA</td>')
+AADD(aHtml,'    <td class="tg-f4uc" rowspan="2">Data Vencimento do CA</td>')
+AADD(aHtml,'    <td class="tg-uymm" colspan="3">DEPRECIAÇÃO</td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-0ep5">Até 6 Meses</td>')
+AADD(aHtml,'    <td class="tg-0ep5">6 Meses a 01 ano</td>')
+AADD(aHtml,'    <td class="tg-0ep5">Acima de 01 Ano</td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+
+For _nI := 1 To Len(aItens)
+	AADD(aHtml,'  <tr>')
+	AADD(aHtml,'    <td class="tg-2amj"></td>')
+	AADD(aHtml,'    <td class="tg-uuna">'+aItens[_nI,1]+'</td>')
+	AADD(aHtml,'    <td class="tg-uunn">'+TRANSFORM(aItens[_nI,3],"@E 999")+'</td>')
+	AADD(aHtml,'    <td class="tg-uunn">'+TRANSFORM(aItens[_nI,6],"@E 9,999.00")+'</td>')
+	AADD(aHtml,'    <td class="tg-uunn">'+aItens[_nI,4]+'</td>')
+	AADD(aHtml,'    <td class="tg-uunn">'+DTOC(aItens[_nI,5])+'</td>')
+	IF _ni == 1 
+		AADD(aHtml,'    <td class="tg-uymc" rowspan="'+TRIM(STR(Len(aItens)))+'">100%</td>')
+		AADD(aHtml,'    <td class="tg-uymc" rowspan="'+TRIM(STR(Len(aItens)))+'">50%</td>')
+		AADD(aHtml,'    <td class="tg-uymc" rowspan="'+TRIM(STR(Len(aItens)))+'">25%</td>')
+	ENDIF
+
+	AADD(aHtml,'    <td class="tg-2amj"></td>')
+	AADD(aHtml,'  </tr>')
+Next
+
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-dek0" colspan="8"><b>DECLARO QUE:</b><br>1. Caso venha a ser desligado devolverei todos os itens acima devidamente higienizados e caso a devolução não ocorra, assumo a responsabilidade e autorizo o desconto do valor referente aos mesmos, de acordo com a depreciação informada na tabela ac?ma. (Ex: 2 meses de uso, 100% do valor, 7 meses de uso 50% do valor)<br><br>2. Estou ciente do uso exclusivo em trabalho e que a manutenção e conservação dos mesmos são de minha inteira e exclusiva responsabilidade.<br><br>3. O mau uso do mesmo será de minha responsabilidade e os custos de reposição serão descontados dos meus vencimentos.<br><br>4. Comparecerei ao local de trabalho devidamente uniformizado e dentro dos padrões adequados:<br>     a. Peças limpas e passadas;<br>     b. Peças sem alteração das características originais<br>     c. Peças ajustadas ao manequim do colaborador.<br>     d. Comprimento das saias com 2 (dois) cm abaixo ou acima do joelho. <br><br>5 Estou ciente que não poderei utilizar itens complementares ao vestuário, pois isto irá comprometer o padrão de atendimento e a apresentação profissional<br><br>   Abaixo seguem os itens complementares que não poderão ser utilizados:<br><br>     a. Chapéu e boné (Salvo quando for parte integrante do uniforme);<br>     b. Peça intima, colorida ou estampada sob a blusa,<br>     c. Tênis tamanco. chinelo e calçado sem fechamento no calcanhar Exceções relacionadas a prescrições médicas, assim como o calçado não for parte integrante do <br>          uniforme, deverá ser tratado junto ao gestor responsável pelo colaborador da '+cEMPRESA+';<br>     d. Acessórios em tamanho e quantidade excessivos (ex: brincos, pulseiras, colares, piercings etc).<br><br>6. Em casos de descumprimento, estou ciente que serei advertido verbalmente e na reincidência, serão aplicadas as disposições pertinentes da CLT.<br></td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-9cio" colspan="4">Data da Retirada '+cDtExtso+'</td>')
+AADD(aHtml,'    <td class="tg-ur1u" colspan="4">____________________________________________________</td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-ena9" colspan="4">'+cFuncionario+'</td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'    <td class="tg-4aw3" colspan="8">'+cEMPRESA+'<br>'+cEndEmpres+'</td>')
+AADD(aHtml,'    <td class="tg-2amj"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'</tbody>')
+AADD(aHtml,'</table>')
+
+AADD(aHtml,'</div>')
+
+AADD(aHtml,'</body>')
+AADD(aHtml,'</html>')
+
+IF !EMPTY(cDirTmp)
+   MakeDir(cDirTmp)
+ENDIF   
+
+cArqHtml  := cDirTmp+"\"+"TERMO_RECEB_UNIFORME_"+ALLTRIM(cTermo)+".HTML"
+
+fErase(cArqHtml)
+nHandle := MsfCreate(cArqHtml,0)
+If nHandle > 0
+	For _nI := 1 TO LEN(aHtml)
+		fWrite(nHandle, aHtml[_nI] + cCrLf )
+	Next
+	fClose(nHandle)
+	ShellExecute("open", cArqHtml, "", "", 1)
+ENDIF
+
+RETURN NIL
+
+
+//IMPRIME O TERMO DE DEVOLUÇÃO DE UNIFORMES EPI EM HTML
+STATIC FUNCTION TDEVOLUCAO(cTermo,dEMISSAO,cCONTRATO,cDescContr,cGCONTR,cMUNIC,aItens)
+LOCAL cTipoTit :="TERMO DE DEVOLUÇÃO DE UNIFORMES EPI - "+cTermo
+Local nHandle   := 0
+Local cCrLf     := Chr(13) + Chr(10)
+Local cDirTmp   := "C:\TMP"
+Local cArqHtml  := ""
+Local aHtml     := {}
+Local _nI       := 0
+Local nPag 		:= 1
+Local cDtExtso  := ""
+
+cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
+
+If SM0->M0_CODIGO == "01"      // BK
+	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+Endif	
+
+If nPag == 1
+	AADD(aHtml,'<html lang="pt-BR">')
+	AADD(aHtml,'<head>') 
+	AADD(aHtml,'<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' )
+	AADD(aHtml,'<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' )
+	AADD(aHtml,'<title>'+cTipoTit+' '+TRIM(cTermo)+' - '+DTOC(date())+' '+TIME()+'</title>' )
+	AADD(aHtml,'<style type="text/css">')
+	AADD(aHtml,'.tg  {border-collapse:collapse;border-spacing:0;}')
+	AADD(aHtml,'.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;')
+	AADD(aHtml,'  overflow:hidden;padding:10px 5px;word-break:normal;}')
+	AADD(aHtml,'.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;')
+	AADD(aHtml,'  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}')
+	AADD(aHtml,'.tg .tg-hsa2{font-family:Arial, Helvetica, sans-serif !important;font-size:16px;font-weight:bold;text-align:center;')
+	AADD(aHtml,'  vertical-align:top}')
+	AADD(aHtml,'v.tg .tg-baqh{text-align:center;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-kvfw{font-family:Arial, Helvetica, sans-serif !important;font-size:14px;font-weight:bold;text-align:center;')
+	AADD(aHtml,'  vertical-align:top}')
+	AADD(aHtml,'.tg .tg-9cfx{font-family:Arial, Helvetica, sans-serif !important;font-size:14px;text-align:center;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-0lax{text-align:left;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-j8vp{font-family:Arial, Helvetica, sans-serif !important;font-size:14px;text-align:left;vertical-align:top}')
+	AADD(aHtml,'.tg .tg-x8fq{font-family:Arial, Helvetica, sans-serif !important;font-size:14px;font-weight:bold;text-align:center;')
+ 	AADD(aHtml,' vertical-align:bottom}')
+	AADD(aHtml,'.tg .tg-k5ic{font-family:Arial, Helvetica, sans-serif !important;font-weight:bold;text-align:center;vertical-align:bottom}')
+	AADD(aHtml,'.tg .tg-72br{color:#333333;font-family:Arial, Helvetica, sans-serif !important;font-size:14px;text-align:center;vertical-align:top}')
+	AADD(aHtml,'</style>')
+
+EndIf                                 
+
+AADD(aHtml,'<div class="folha">')
+
+AADD(aHtml,'<table class="tg" style="undefined;table-layout: fixed; width: 692px">')
+AADD(aHtml,'<colgroup>')
+AADD(aHtml,'<col style="width: 156.2px">')
+AADD(aHtml,'<col style="width: 186.2px">')
+AADD(aHtml,'<col style="width: 104.2px">')
+AADD(aHtml,'<col style="width: 131.2px">')
+AADD(aHtml,'<col style="width: 114.2px">')
+AADD(aHtml,'</colgroup>')
+
+AADD(aHtml,'<thead>')
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <th class="tg-0lax"></th>')
+AADD(aHtml,'    <th class="tg-hsa2" colspan="4">'+cTipoTit+'</th>')
+AADD(aHtml,'  </tr>')
+AADD(aHtml,'</thead>')
+
+AADD(aHtml,'<tbody>')
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-0lax"></td>')
+AADD(aHtml,'    <td class="tg-j8vp" colspan="4"><span style="font-weight:bold">Contrato '+cDescContr+' N°: '+cContrato+'</span></td>')
+AADD(aHtml,'  </tr>')
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-0lax"></td>')
+AADD(aHtml,'    <td class="tg-j8vp" colspan="4">Declaramos que recebemos em devolução, do Sr(a) '+cMatr+' - '+cFuncionario+'as peças de Uniforme abaixo discriminadas:</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-x8fq" colspan="2" rowspan="2">DESCRIÇÃO UNIFORME E EPI</td>')
+AADD(aHtml,'    <td class="tg-x8fq" rowspan="2">QUANT</td>')
+AADD(aHtml,'    <td class="tg-kvfw" colspan="2">ESTADO DE CONSERVAÇÃO</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-k5ic">Em Condições</td>')
+AADD(aHtml,'    <td class="tg-k5ic">Sem Condições</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-j8vp" colspan="2"></td>')
+AADD(aHtml,'    <td class="tg-72br"></td>')
+AADD(aHtml,'    <td class="tg-72br"></td>')
+AADD(aHtml,'    <td class="tg-72br"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-j8vp" colspan="2"></td>')
+AADD(aHtml,'    <td class="tg-9cfx"></td>')
+AADD(aHtml,'    <td class="tg-9cfx"></td>')
+AADD(aHtml,'    <td class="tg-9cfx"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-0lax" colspan="2">'+cDtExtso+'/td>')
+AADD(aHtml,'    <td class="tg-72br" colspan="3">_____________________________________________</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'    <td class="tg-0lax" colspan="2"></td>')
+AADD(aHtml,'    <td class="tg-baqh" colspan="3">Responsavel Recebimento</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'</tbody>')
+
+AADD(aHtml,'</table>')
+
+AADD(aHtml,'</div>')
+
+AADD(aHtml,'</body>')
+AADD(aHtml,'</html>')
+
+IF !EMPTY(cDirTmp)
+   MakeDir(cDirTmp)
+ENDIF   
+
+cArqHtml  := cDirTmp+"\"+"TERMO_RESP_USO_"+ALLTRIM(cTermo)+".HTML"
+
+fErase(cArqHtml)
+nHandle := MsfCreate(cArqHtml,0)
+If nHandle > 0
+	For _nI := 1 TO LEN(aHtml)
+		fWrite(nHandle, aHtml[_nI] + cCrLf )
+	Next
+	fClose(nHandle)
+	ShellExecute("open", cArqHtml, "", "", 1)
+ENDIF
+
+RETURN NIL
+
+

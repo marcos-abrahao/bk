@@ -200,7 +200,7 @@ Return cRet
 
 // Retornar se algum centro de custo foi usado na Nota/Prenota
 User Function CtrInD1(cCtr,cChaveF1)
-Local lRet
+Local lRet := .F.
 Local aAreaSD1   := SD1->(GetArea())
 
 Default cCtr     := u_CtrAval()

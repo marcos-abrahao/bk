@@ -940,13 +940,13 @@ AADD(aHtml,'  </tr>')
 // Documentos anexos: Contrato x Competência
 aFiles := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,1)
 If Len(aFiles) > 0
-	AADD(aHtml,'  <tr>')
 	For nI := 1 To Len(aFiles)
+		AADD(aHtml,'  <tr>')
 		AADD(aHtml,'  	<td colspan="7" style="text-align:center;">')
 		AADD(aHtml,'       <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a></br>')
 		AADD(aHtml,'    </td>')
+		AADD(aHtml,'  </tr>')
 	Next
-	AADD(aHtml,'  </tr>')
 EndIf
 
 AADD(aHtml,'</table>')

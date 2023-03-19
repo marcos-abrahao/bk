@@ -79,7 +79,7 @@ If lRet .And. !Empty(CN8->CN8_CONTRA)
 	dbSetOrder(1)
 	If !MsSeek(xFilial("CN9")+CN8->CN8_CONTRA)
 		//Aviso( STR0026 , STR0033, { STR0028 } )  // "Atencao","Contrato não encontrado.", "Ok"
-  		u_AvisoLog(,"Atencao","Contrato não encontrado.", {"Ok"})
+  		u_AvisoLog(,"Atenção","Contrato não encontrado.", {"Ok"})
 		lRet := .F.
 	EndIf
 EndIf
@@ -93,7 +93,8 @@ If lRet .And. CN3->( MsSeek(xFilial("CN3")+CN8->CN8_TPCAUC) )
 	If !(CN3->CN3_LIGFIN = "1" .and. CN3->CN3_ABATI # "1")
 		nValorResg := CN8->CN8_VLEFET
 //		If Aviso( STR0026, STR0034,{ STR0035, STR0036 } ) <> 1 // "Atencao", "Confirma a Baixa da Caução?","Sim","Nao"
-		If Aviso( "Atencao", "Confirma a Baixa da Caução?",{"Sim","Nao"} ) <> 1
+		//If Aviso( "Atencao", "Confirma a Baixa da Caução?",{"Sim","Nao"} ) 
+		If u_AvisoLog(,"Atenção","Confirma a Baixa da Caução?",{"Sim","Nao"} ) <> 1
 			lRet := .F.
 		EndIf
 		lCaucDinhe := .F.

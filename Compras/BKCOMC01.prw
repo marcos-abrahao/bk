@@ -5,7 +5,7 @@
 /*/{Protheus.doc} BKCOMC01()
 BK - Pesquisa itens de Documentos de entrada
 
-** Chamada efetuada atraves do ponto de entrada MA103OPC
+** Chamada efetuada atraves do ponto de entrada MA103OPC - Pesquisa BK
 
 @author Marcos B. Abrahão
 @since 29/09/2009
@@ -29,6 +29,7 @@ Local cCtC			:= ""
 Local nValIt		:= 0
 Local cForn			:= ""
 Local cNForn		:= ""
+Local cDProd		:= ""
 Local cFiltU 		:= ""
 Local cMDiretoria	:= ""
 Local cMFinanceiro	:= ""
@@ -111,15 +112,17 @@ cCtc   := mv_par03
 nValIt := mv_par04
 cForn  := mv_par05
 cNForn := mv_par06
+cDProd := mv_par07
 
 cQuery  := "SELECT "+CRLF
-cQuery  += " D1_FILIAL,D1_DOC,D1_SERIE,D1_ITEM,D1_FORNECE,D1_LOJA,D1_COD,D1_TOTAL,D1_EMISSAO,D1_DTDIGIT,D1_CC,Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(300)) As D1_XXHIST, " +CRLF
-cQuery  += " F1_XXUSER,F1_XXUSERS, A2_NOME "+CRLF
+cQuery  += " D1_FILIAL,D1_DOC,D1_SERIE,D1_ITEM,D1_FORNECE,A2_NOME,D1_LOJA,D1_COD,B1_DESC,D1_TOTAL,D1_EMISSAO,D1_DTDIGIT,D1_CC,Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(300)) As D1_XXHIST, " +CRLF
+cQuery  += " F1_XXUSER,F1_XXUSERS "+CRLF
 cQuery  += " FROM "+RETSQLNAME("SD1")+" SD1 "+CRLF
 cQuery  += " INNER JOIN "+RETSQLNAME("SF1")+" SF1 ON "+CRLF
 cQuery  += "    F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND F1_TIPO = D1_TIPO "+CRLF
 cQuery  += "    AND SF1.D_E_L_E_T_ <> '*' " +CRLF
 cQuery  += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
+cQuery  += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
 cQuery  += cFiltU+CRLF
 cQuery  += "WHERE SD1.D_E_L_E_T_ <> '*' "+CRLF
 IF !EMPTY(cProd)
@@ -140,6 +143,10 @@ IF !EMPTY(cForn)
 ENDIF
 IF !EMPTY(cNForn)
 	cQuery  += "AND A2_NOME LIKE '%"+ALLTRIM(cNForn)+"%' "+CRLF
+ENDIF
+
+IF !EMPTY(cDProd)
+	cQuery  += "AND B1_DESC LIKE '%"+ALLTRIM(cDProd)+"%' "+CRLF
 ENDIF
 
 cQuery  += "ORDER BY D1_FILIAL,D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_COD,D1_ITEM "+CRLF
@@ -182,8 +189,10 @@ aadd(aHeader, DefAHeader("QSD11","D1_DOC"))
 aadd(aHeader, DefAHeader("QSD11","D1_SERIE"))
 aadd(aHeader, DefAHeader("QSD11","D1_ITEM"))
 aadd(aHeader, DefAHeader("QSD11","D1_FORNECE"))
+aadd(aHeader, DefAHeader("QSD11","A2_NOME"))
 aadd(aHeader, DefAHeader("QSD11","D1_LOJA"))
 aadd(aHeader, DefAHeader("QSD11","D1_COD"))
+aadd(aHeader, DefAHeader("QSD11","B1_DESC"))
 aadd(aHeader, DefAHeader("QSD11","D1_TOTAL"))
 aadd(aHeader, DefAHeader("QSD11","D1_EMISSAO"))
 aadd(aHeader, DefAHeader("QSD11","D1_DTDIGIT"))
@@ -281,6 +290,9 @@ aAdd(aCabs  ,GetSX3Cache("D1_ITEM", "X3_TITULO"))
 aAdd(aCampos,"QSD11->D1_FORNECE")
 aAdd(aCabs  ,GetSX3Cache("D1_FORNECE", "X3_TITULO"))
 
+aAdd(aCampos,"QSD11->A2_NOME")
+aAdd(aCabs  ,GetSX3Cache("A2_NOME", "X3_TITULO"))
+
 aAdd(aCampos,"QSD11->D1_LOJA")
 aAdd(aCabs  ,GetSX3Cache("D1_LOJA", "X3_TITULO"))
 
@@ -289,6 +301,9 @@ aAdd(aCabs  ,GetSX3Cache("A2_NOME", "X3_TITULO"))
 
 aAdd(aCampos,"QSD11->D1_COD")
 aAdd(aCabs  ,GetSX3Cache("D1_COD", "X3_TITULO"))
+
+aAdd(aCampos,"QSD11->B1_DESC")
+aAdd(aCabs  ,GetSX3Cache("B1_DESC", "X3_TITULO"))
 
 aAdd(aCampos,"QSD11->D1_TOTAL")
 aAdd(aCabs  ,GetSX3Cache("D1_TOTAL", "X3_TITULO"))
@@ -332,6 +347,7 @@ AADD(aRegistros,{cPerg,"03","Pesquisar Centro de Custo","Centro de Custo","Centr
 AADD(aRegistros,{cPerg,"04","Pesquisar Valor item"     ,"Valor do item"  ,"Valor do Item"  ,"mv_ch4","N",12,2,0,"G","","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"05","Pesquisar Fornecedor"     ,"Fornecedor"     ,"Fornecedor"     ,"mv_ch5","C",06,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
 AADD(aRegistros,{cPerg,"06","Pesquisar Nome Forn."     ,"Fornecedor"     ,"Fornecedor"     ,"mv_ch6","C",30,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"07","Pesquisar Desc. Produto"  ,"Produto"        ,"Produto"        ,"mv_ch7","C",30,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

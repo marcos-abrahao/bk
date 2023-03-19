@@ -628,6 +628,7 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 	cQuery += " E2_BAIXA,"+CRLF
 	cQuery += " E2_VALOR,"+CRLF
 	cQuery += " 0 			AS F1_VALBRUT, "+CRLF
+	cQuery += " ' '         AS F1_XXAVALI, "+CRLF
 	cQuery += " ' '			AS B1_CONTA, "+CRLF
 
 	If nImpostos == 1
