@@ -65,38 +65,42 @@ If FWCodEmp() == "01"
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '06/14'
 		cBlind2 := "X"
 	EndIf
-	aAdd(aDados,{cBlind2,"U_BKDSDSP1()"   ,"Atualização da tabela PREVDESP1"})
-	aAdd(aDados,{cBlind2,"U_BKDSDSP2()"   ,"Atualização da tabela PREVDESP2"})
-	aAdd(aDados,{cBlind2,"U_BKDSEMP()"    ,"Atualização da tabela EMPRESAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCC()"     ,"Atualização da tabela CCUSTOS"})
-	aAdd(aDados,{cBlind2,"U_BKDSFOL()"    ,"Atualização da tabela FOLHA"})
-	aAdd(aDados,{cBlind2,"U_BKDSFER()"    ,"Atualização da tabela FERIAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSUSR()"    ,"Atualização da tabela USUARIOS"})
-	aAdd(aDados,{cBlind2,"U_BKDSTUR()"    ,"Atualização da tabela FOLHAFIL e FOLHATUR"})
-	aAdd(aDados,{cBlind2,"U_BKDSBKTUR()"  ,"Atualização da tabela FOLHAFILBK"})
-	aAdd(aDados,{cBlind2,"U_BKDSBKFAL()"  ,"Atualização da tabela FOLHAFAL"})
-	aAdd(aDados,{cBlind2,"U_BK040PER()"   ,"Atualização da tabela BK040PER"})
-	aAdd(aDados,{cBlind2,"U_BKDSSC()"     ,"Atualização da tabela SOLCOMPRAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCFAT()"   ,"Atualização da tabela CANCFATURAMENTO"})
+	aAdd(aDados,{cBlind2,"U_BKDSDSP1()"  ,"Atualização da tabela PREVDESP1"})
+	aAdd(aDados,{cBlind2,"U_BKDSDSP2()"  ,"Atualização da tabela PREVDESP2"})
+	aAdd(aDados,{cBlind2,"U_BKDSEMP()"   ,"Atualização da tabela EMPRESAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCC()"    ,"Atualização da tabela CCUSTOS"})
+	aAdd(aDados,{cBlind2,"U_BKDSFOL()"   ,"Atualização da tabela FOLHA"})
+	aAdd(aDados,{cBlind2,"U_BKDSFER()"   ,"Atualização da tabela FERIAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSUSR()"   ,"Atualização da tabela USUARIOS"})
+	aAdd(aDados,{cBlind2,"U_BKDSTUR()"   ,"Atualização da tabela FOLHAFIL e FOLHATUR"})
+	aAdd(aDados,{cBlind2,"U_BKDSBKTUR()" ,"Atualização da tabela FOLHAFILBK"})
+	aAdd(aDados,{cBlind2,"U_BKDSBKFAL()" ,"Atualização da tabela FOLHAFAL"})
+	aAdd(aDados,{cBlind2,"U_BK040PER()"  ,"Atualização da tabela BK040PER"})
+	aAdd(aDados,{cBlind2,"U_BKDSSC()"    ,"Atualização da tabela SOLCOMPRAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCFAT()"  ,"Atualização da tabela CANCFATURAMENTO"})
 
 	cBlind2 := ""
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '07/11/15'
 		cBlind2 := "X"
 	EndIf
 
-	aAdd(aDados,{cBlind2,"U_BKDSGES()"    ,"Atualização da tabela GESTORES"})
-	aAdd(aDados,{cBlind2,"U_BKDSGLO()"    ,"Atualização da tabela GLOSAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCTR()"    ,"Atualização da tabela CONTRATOS"})
-	aAdd(aDados,{cBlind2,"U_BKDSPLA()"    ,"Atualização da tabela PLANILHAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCRO()"    ,"Atualização da tabela CRONOGRAMAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSGG()"     ,"Atualização da tabela GASTOSGERAIS"})
+	aAdd(aDados,{cBlind2,"U_BKDSGES()"   ,"Atualização da tabela GESTORES"})
+	aAdd(aDados,{cBlind2,"U_BKDSGLO()"   ,"Atualização da tabela GLOSAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCTR()"   ,"Atualização da tabela CONTRATOS"})
+	aAdd(aDados,{cBlind2,"U_BKDSPLA()"   ,"Atualização da tabela PLANILHAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSCRO()"   ,"Atualização da tabela CRONOGRAMAS"})
+	aAdd(aDados,{cBlind2,"U_BKDSGG()"    ,"Atualização da tabela GASTOSGERAIS"})
 
-	aAdd(aDados,{cBlind1,"U_BKDSFAT()"    ,"Atualização da tabela FATURAMENTO"})
-	aAdd(aDados,{cBlind1,"U_BKDSGER()"    ,"Atualização da tabela GERAL"})
+	aAdd(aDados,{cBlind1,"U_BKDSFAT()"   ,"Atualização da tabela FATURAMENTO"})
+	aAdd(aDados,{cBlind1,"U_BKDSGER()"   ,"Atualização da tabela GERAL"})
 
-	aAdd(aDados,{"","U_BKDSPRTUR()"  ,"Criação/atualização da Procedure BKTURNOVER"})
-	aAdd(aDados,{"","U_BKPRBKTUR()"  ,"Criação/atualização da Procedure BKTURNOVER1"})
-	aAdd(aDados,{"","U_BKDSPRFAL()"  ,"Criação/atualização da Procedure BKFALTAS"})
+	aAdd(aDados,{"","U_BKDSPRTUR()"      ,"Criação/atualização da Procedure BKTURNOVER"})
+	aAdd(aDados,{"","U_BKPRBKTUR()"      ,"Criação/atualização da Procedure BKTURNOVER1"})
+	aAdd(aDados,{"","U_BKDSPRFAL()"      ,"Criação/atualização da Procedure BKFALTAS"})
+	aAdd(aDados,{"","U_PRODESPC()"       ,"Atualização da Tabela PRODESPCARGA"})
+	aAdd(aDados,{"","U_PRODESPI()"       ,"Atualização da Tabela PRODESPINSERIR"})
+	aAdd(aDados,{"","U_PRODESPA()"       ,"Atualização da Tabela PRODESPATUALIZAR"})
+	aAdd(aDados,{"","U_PRODESPE()"       ,"Atualização da Tabela PRODESPEXCLUIR"})
 
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)

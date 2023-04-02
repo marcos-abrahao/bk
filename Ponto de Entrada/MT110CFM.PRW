@@ -15,7 +15,6 @@ Programa Fonte: mata110.prx
 @version P11/P12
 /*/
 
-
 User Function MT110CFM()
 Local cNumSol	:= Paramixb[1]  // Número da Solicitação de Compras
 Local nOpcSel   := Paramixb[2]  // Contém a opção selecionada: 1 = Aprovar; 2 = Rejeitar; 3 = Bloquear
@@ -24,7 +23,8 @@ Local cOpcSel   := ""
 Local cAssunto	:= ""
 Local cEmail	:= "microsiga@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
 Local cEmailCC  := ""
-Local cMsg 		:= "" 
+Local cMsg 		:= ""
+Local cRodape	:= ""
 Local cAnexo	:= ""
 Local _lJob		:= .F.
 Local aCabs		:= {}
@@ -41,6 +41,9 @@ Local cQuery2 	:= ""
 Local _IX		as Numeric
 Local xi		as Numeric
 Local cUserC1   := ""
+Local aFiles	:= {}
+Local nI 		:= 0
+Local nTotal    := 0
 
 If nOpcSel > 0 .and. nOpcSel < 4
 	cOpcSel := aOpcSel[nOpcSel]
@@ -105,8 +108,8 @@ Do While SC1->(!eof()) .AND. SC1->C1_NUM == cNumSol
 		_cXXENDEN := SC1->C1_XXENDEN
 	ENDIF 
 	IF (SC1->C1_QUANT-SC1->C1_XXQEST) > 0
-    	AADD(aEmail,{SC1->C1_NUM,SC1->C1_SOLICIT,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_DATPRF,SC1->C1_OBS,SC1->C1_CC,SC1->C1_XXDCC,SC1->C1_QUJE}) //aMotivo[val(SC1->C1_XXMTCM)]})
-
+    	AADD(aEmail,{SC1->C1_NUM,SC1->C1_SOLICIT,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_DATPRF,SC1->C1_OBS,SC1->C1_CC,SC1->C1_XXDCC,SC1->C1_QUJE,SC1->C1_XXLCVAL,SC1->C1_XXLCTOT}) //aMotivo[val(SC1->C1_XXMTCM)]})
+		nTotal += SC1->C1_XXLCTOT
 		// Marcos 16/08/22 - Enviar e-mail para o solicitante também
 		If cUserC1 <> SC1->C1_USER
 			PswOrder(1) 
@@ -130,9 +133,25 @@ Do While SC1->(!eof()) .AND. SC1->C1_NUM == cNumSol
 	SC1->C1_XDTAPRV := DATE()
 	MsUnlock()
 
+
+	// Documentos anexos: SC + Item
+	aFiles := u_BKDocs(cEmpAnt,"SC1",SC1->(C1_FILIAL+C1_NUM+C1_ITEM+C1_ITEMGRD),1)
+	If Len(aFiles) > 0
+		For nI := 1 To Len(aFiles)
+			cRodape += '<a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a><br>'+CRLF
+		Next
+	EndIf
+
     SC1->(dbskip())
 Enddo
 
+If Empty(cRodape)
+	cRodape += '<p><b>Nenhum documento foi anexado a esta Solicitação de Compras</b></p><br>'+CRLF
+EndIf
+
+If nTotal > 0
+	cRodape := '<p><b>Total Previsto: '+ALLTRIM(TRANSFORM(nTotal,"@E 999,999,999.99"))+CRLF+'</b></p><br>'+cRodape
+EndIf
 
 IF lAprov
 	//Verifica Saldo em estoque
@@ -208,15 +227,17 @@ IF !EMPTY(_cXXENDEN)
 	FOR xi := 1 TO _nXXEN
 		_cXXEN += MemoLine(_cXXENDEN,80,xi)+" "
 	NEXT    
-	AADD(aEmail,{"<b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"})  
+	//AADD(aEmail,{"<b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"})  
+	cRodape += "<br><b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"
 ENDIF
 
 cAssunto:= "Solicitação de Compra nº.:"+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
-aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue"}//"Motivo"}
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM")
-IF 	!EMPTY(_cXXENDEN)
-	cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
-ENDIF
+aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue","Vl Previsto","Tot Previsto"}//"Motivo"}
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM",cRodape)
+//IF 	!EMPTY(_cXXENDEN)
+//	cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
+//ENDIF
+
 U_SendMail("MT110CFM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
 
 u_MsgLog("MT110CFM",cAssunto+" - Opção: "+cValToChar(nOpcSel)+" - "+cEmail)

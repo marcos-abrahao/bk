@@ -321,7 +321,7 @@ Return aRet
 
 User Function Fina04E(aEmail,lCLT)
 Local cPrw     := "BKFINA04"
-Local cEmail1  := u_BKPgto1()  //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
+Local cEmail1  := u_BKPgto3()  //Alterado para GRUPO AC //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cEmail2  := u_BKPgto2()  //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cCC      := ""
 Local cAssunto := "Pagamentos nao Efetuados "+DTOC(DATE())+"-"+TIME()

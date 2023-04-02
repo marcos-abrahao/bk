@@ -162,6 +162,7 @@ If lClose == NIL
 EndIf
 
 MakeDir(cDirTmp)
+MakeDir(cDirDest)
 
 cFileR 		:= cDirTmp+cFile+".rel"
 cFileX 		:= cDirTmp+cFile+".xlsx"
@@ -992,6 +993,7 @@ If lJob
 EndIf
 
 MakeDir(cDirTmp)
+MakeDir(cDirDest)
 
 cFileR 		:= cDirTmp+cFile+".rel"
 cFileX 		:= cDirTmp+cFile+".xlsx"

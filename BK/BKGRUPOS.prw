@@ -437,6 +437,16 @@ cRet += u_BKEmFin()
 cRet += u_BKEmRH()
 Return cRet
 
+// E-mails do grupo AC
+User Function BKPgto3()
+Local cRet := ""
+cRet += "microsiga@bkconsultoria.com.br;"
+cRet += "adalberto.xavier@bkconsultoria.com.br;"
+cRet += "christiane.almeida@bkconsultoria.com.br;"
+cRet += "bruno.bueno@bkconsultoria.com.br;"
+cRet += "laudecir.carpi@bkconsultoria.com.br;"
+Return cRet
+
 // E-mails do grupo qualidade do google
 User Function BKEmQld()
 Local cRet := ""

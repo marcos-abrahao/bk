@@ -3,13 +3,14 @@
 
 // Funcão para gerar texto Html
 
-User Function GeraHtmA(aDet,cTitulo,aCabs,cPrw)
+User Function GeraHtmA(aDet,cTitulo,aCabs,cPrw,cRodape)
 Local cMsg := ""
 Local _ni,_nJ
 Local lCorNao := .T.
 Local cPicN   := "@E 99999999.99"
 Local cAlign  := ""
 Default cPrw  := ""
+Default cRodape := ""
 
 cMsg += CabHtml(cTitulo)  
 cMsg += Cab1Html(aCabs)
@@ -47,7 +48,7 @@ For _nJ := 1 TO LEN(aDet)
 	
 Next _nJ
 
-cMsg += FimHtml(cPrw)
+cMsg += FimHtml(cPrw,cRodape)
 
 Return cMsg
 
@@ -119,7 +120,6 @@ Static Function Cab1Html(aCabs)
 Local cHtm := ""
 Local nI 
 
-
 cHtm += '<table width="100%" Align="center" border="0" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >' 
 cHtm += '  <tr bgcolor="#dfdfdf">' 
 
@@ -141,7 +141,7 @@ Return cHtm
 
 
 
-Static Function FimHtml(cPrw)
+Static Function FimHtml(cPrw,cRodape)
 Local cHtm   := ""
 Local cUser  := ""
 Default cPrw := ""
@@ -153,8 +153,14 @@ Else
 EndIf
 
 cHtm += '</table>' 
-cHtm += '<br>'
+
+If !EMPTY(cRodape) 
+   cHtm += '<br>'
+	cHtm += TRIM(cRodape)
+EndIf
+
 If !EMPTY(cPrw) 
+   cHtm += '<br>'
 	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+' - '+cUser+'</p>'
 EndIf
 

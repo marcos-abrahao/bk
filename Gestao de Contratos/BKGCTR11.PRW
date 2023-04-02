@@ -123,6 +123,9 @@ User Function BKGCTR11(lJob)
 	IF !lJob
 		cContrato  	:= mv_par01
 		cParAnoMes  := mv_par07
+		If mv_par08 == 1
+			cTipoContra := "A"
+		EndIf
 		If Val(Substr(cParAnoMes,1,4)) < 2008 .OR. VAL(SUBSTR(cParAnoMes,5,2)) < 0 .OR. VAL(SUBSTR(cParAnoMes,5,2)) > 12
 			cParAnoMes  := ""
 		EndIf
@@ -197,7 +200,7 @@ User Function BKGCTR11(lJob)
 		Return Nil
 	ENDIF
 
-	If !Empty(cParAnoMes)
+	If !Empty(cParAnoMes) 
 		dDataI := CTOD('01/'+SUBSTR(cParAnoMes,5,2)+'/'+SUBSTR(cParAnoMes,1,4))
 		dDataFinal := LastDay(dDataI)
 	Else
@@ -273,6 +276,9 @@ User Function BKGCTR11(lJob)
 		If !Empty(QTMP1->CNF_INICIO) .AND. QTMP1->CNF_INICIO < dDataI
 			dDataI	:= QTMP1->CNF_INICIO
 		EndIf
+		//If !Empty(cParAnoMes)
+		//	dDataI := CTOD('01/'+SUBSTR(cParAnoMes,5,2)+'/'+SUBSTR(cParAnoMes,1,4))
+		//EndIf
 
 		dDataFinal	:= QTMP1->CNF_FIM
 		dMaxCompet  := STOD(QTMP1->MAXCOMPET)
@@ -625,7 +631,9 @@ User FUNCTION PBKGCTR11()
 	Endif
 
 	cContrato   := mv_par01
-
+	If mv_par08 == 1
+		cTipoContra := "A"
+	EndIf
 	u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob)}, cContrato)
 
 Return Nil
@@ -4387,6 +4395,7 @@ Static Function ValidPerg
 	AADD(aRegs,{cPerg,"05","%Incidências:","%Incidências:" ,"%Incidências:" ,"mv_ch5","N",10,5,2,"G","NaoVazio()","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H5."})
 	AADD(aRegs,{cPerg,"06","%Taxa de Administração:","%Taxa de Administração:" ,"%Taxa de Administração:" ,"mv_ch6","N",10,5,2,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H6."})
 	AADD(aRegs,{cPerg,"07","Ano/Mes somente (AAAAMM):","Ano/Mes somente (AAAAMM):" ,"Ano/Mes somente (AAAAMM):" ,"mv_ch7","C",06,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","","S","","BKGCTR11H7."})
+	AADD(aRegs,{cPerg,"08","Somente Contratos Ativos?","Somente Contratos Ativos?","Somente Contratos Ativos?","mv_ch8","N",01,0,1,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
 
 	For i:=1 to Len(aRegs)
 		If !MsSeek(cPerg+aRegs[i,2])
@@ -4725,8 +4734,11 @@ User Function BK2GCTR11(lJob,aAglContr)
 		cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+CRLF
 		cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA"+CRLF
 		cQuery += " AND CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = '' WHERE CNF.D_E_L_E_T_=''"+CRLF
-		//cQuery += " AND CN9_SITUAC = '05'"+CRLF   // aqui bruno 01/10/2021 SAIR TODOS OS CONTRATOS
-		cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+		//IF cTipoContra == 'A'
+		//	cQuery += " AND CN9_SITUAC = '05'"+CRLF   // aqui bruno 01/10/2021 SAIR TODOS OS CONTRATOS
+		//ELSE
+			cQuery += " AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"+CRLF
+		//ENDIF
 		IF !lConsorcio
 			IF !EMPTY(cContrCons)
 				cQuery += " AND CNF_CONTRA NOT IN ("+SUBSTRING(ALLTRIM(cContrCons),1,LEN(cContrCons)-1)+") " +CRLF

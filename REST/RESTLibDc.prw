@@ -73,7 +73,7 @@ WSRESTFUL RestLibDc DESCRIPTION "Rest Liberação de Documentos"
 END WSRESTFUL
 
 
-
+// v4
 WSMETHOD GET DOWNLDC QUERYPARAM empresa,documento WSREST RestLibDc
     Local cFile  := ""// VALORES RETORNADOS NA LEITURA
 	Local cName  := Decode64(self:documento)
