@@ -171,7 +171,7 @@ and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ',
 --order by fun.nomfun
 )
 SELECT
-
+'#MESATUAL#' AS COMPETAM,
 [Nome Completo do Funcionario],
 [Matrícula],
 [PIS NIT],

@@ -180,10 +180,14 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := "003148"
 			cProd := "11301027"
 			cCCus := "302000508"
-		ElseIf SM0->M0_CODIGO == "15"  // BHG Interior 3
+		ElseIf SM0->M0_CODIGO == "15"  // BHG INTERIOR 3
 			cForn := "004491"
 			cProd := "11301031"
 			cCCus := "305000554"
+		ElseIf SM0->M0_CODIGO == "16"  // CONSORCIO MOOVE
+			cForn := "000084"
+			cProd := "11301032"  // CRIAR NO PLANO DE CONTAS E NO CADASTRO DE PRODUTOS
+			cCCus := "386000609"
 		Endif	
 	
 		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)

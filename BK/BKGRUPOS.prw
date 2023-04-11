@@ -18,7 +18,8 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"02","MMDK"},;
                         {"12","BK CORRETORA"},;
                         {"14","BALSA NOVA"},;
-                        {"15","BHG INT 3"} }
+                        {"15","BHG INT 3"},;
+						{"16","MOOVE-SP"} }
 Return aEmpresas
 
 
@@ -35,7 +36,8 @@ User Function BKGrpDsp()
 Local aEmpresas	:= {    {"01","BK"},;
                         {"02","MMDK"},;
                         {"14","BALSA NOVA"},;
-                        {"15","BHG INT 3"} }   // Empresa 15 possui despesas
+                        {"15","BHG INT 3"} ,; // Empresa 15 possui despesas
+						{"16","MOOVE-SP"} }   
 Return aEmpresas
 
 
@@ -53,6 +55,7 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"12","BK CORRETORA"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"},;
+						{"16","MOOVE-SP"},;  
                         {"97","CMOG"},;
                         {"98","TERO"} }
 Return aEmpresas
@@ -143,6 +146,12 @@ For nx := 1 To Len(aGrp)
 Next
 
 Return lRet
+
+
+// Libera pedido de venda pela WEB
+User Function IsLibPv(cId)
+//            Admin  /Teste/Vanderleia/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari
+Return cId $ "000000/000038/000012/000016/000056/000023/000153/000170/000165/000252"
 
 
 // É do grupo Fiscal
@@ -477,7 +486,7 @@ User Function BKEmRH()
 Local cRet := ""
 
 cRet += "ana.campos@bkconsultoria.com.br;"
-//cRet += "aprendiz.rh@bkconsultoria.com.br;"
+cRet += "paloma.ferreira@bkconsultoria.com.br;"
 //cRet += "atendimentorh@bkconsultoria.com.br;"
 cRet += "christiane.almeida@bkconsultoria.com.br;"
 cRet += "edson.silva@bkconsultoria.com.br;"

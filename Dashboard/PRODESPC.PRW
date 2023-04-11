@@ -19,6 +19,9 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
+Local lExistTbl := .F.
+
+lExistTbl := u_ExitTbl("PowerBk.dbo.PRODESPCARGA")
 
 Private cMesAtu := STR(YEAR(dMesAtu),4)+STRZERO(Month(dMesAtu),2)
 Private cMesAnt := STR(YEAR(dMesAnt),4)+STRZERO(Month(dMesAnt),2)
@@ -63,6 +66,7 @@ Convert(varchar(10), fun.datadm, 103) as [Data de Inicio de Serviço],
     END AS [Data de Termino de contrato], 
 
 'Empregado' as [Classificação],
+'(A)ADMISSÃO NA EMPRESA' as [Motivo Entrada],
 (SELECT TOP 1  NumLoc
     FROM [bk_senior].[bk_senior].[r038HLO] hlo WHERE hlo.NumCad = fun.numcad and hlo.numemp = 15
 	and ( YEAR(hlo.DatAlt) <> 2023 or MONTH(hlo.DatAlt) < 3)
@@ -125,6 +129,7 @@ SELECT
 --sitafa,
 --sitafafun,
 --demitido,
+'#MESATUAL#' AS COMPETAM
 [Nome Completo do Funcionario],
 [Matrícula],
 [PIS NIT],
@@ -141,6 +146,7 @@ SELECT
 [Data de Inicio de Serviço],
 [Data de Termino de contrato],
 [Classificação],
+[Motivo Entrada],
 CASE 
 	WHEN NumLoc = 2924 THEN 'Campinas Digital - 4.0'
 	WHEN NumLoc = 2700 THEN 'Aguaí'
@@ -223,8 +229,10 @@ If !TCIsConnected()
   Return( Nil )
 Endif  
 
-cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPCARGA', N'U') IS NOT NULL"  
-cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPCARGA "+CRLF
+cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPCARGA', N'U') IS NOT NULL" 
+cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPCARGA WHERE COMPETAM = '#MESATUAL#'" 
+//cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPCARGA "+CRLF
+cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
@@ -242,3 +250,43 @@ EndIf
 u_LogMemo("PRODESPCARGA.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+
+// SQL ARRAY
+User Function ExitTbl(cTabela)
+Local cQuery := "SELECT ISNULL(OBJECT_ID(N'"+cTabela+"xx', N'U'),-1) AS EXIST"
+Local aReturn := {}
+Local aBinds := {}
+Local aSetFields := {}
+Local lRet := .F.
+
+//aadd(aBinds,xFilial("SA1")) // Filial
+//aadd(aBinds,"000281") // Codigo
+//aadd(aBinds,"01") // Loja
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"EXIST","N",5,0})
+//aadd(aSetFields,{"A1_ULTVIS","D",8,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+  MSgStop(tcsqlerror(),"Falha ao executar a Query")
+Else
+  Alert(VarInfo("aReturn",aReturn))
+  //MsgInfo("Verifique os valores retornados no console","Ok")
+Endif
+
+Return lRet
+
+/*
+
+Inserir dados em uma tabela existente
+INSERT INTO historico_vendas (data, produto, quantidade)
+SELECT data_venda, produto, quantidade_vendida
+FROM vendas
+WHERE data_venda >= '2022-01-01';
+*/
+
+
+

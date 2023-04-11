@@ -22,6 +22,9 @@ Local nPosLCVal := aScan(aHeader, {|x| AllTrim(x[2]) == "C1_XXLCVAL"})
 Local nPosProd  := aScan(aHeader, {|x| AllTrim(x[2]) == "C1_PRODUTO"})
 Local nPosDesc	 := aScan(aHeader, {|x| AllTrim(x[2]) == 'C1_DESCRI'})
 
+If Empty(cCC)
+   u_MsgLog("BKGATSC1","Centro de custos não informado!! (preço estimado sugerido pode estar incorreto)","E")
+EndIf
 
 If Empty( aCols[n][nPosDesc] )
    aCols[n][nPosDesc] := Posicione("SB1",1,xFilial("SB1")+aCols[n][nPosProd],"B1_DESC")
@@ -34,7 +37,9 @@ nRet := aCols[n,nPosLCVal]
 cQuery  := "SELECT TOP 1 C7_PRECO " 
 cQuery  += "FROM "+RETSQLNAME("SC7")+" SC7 "
 cQuery  += "WHERE C7_FILIAL = '"+xFilial("SC7")+"' "
-cQuery  += "AND C7_CC = '"+TRIM(cCC)+"' "
+If !Empty(cCC)
+   cQuery  += "AND C7_CC = '"+TRIM(cCC)+"' "
+EndIf
 cQuery  += "AND C7_PRODUTO = '"+TRIM(aCols[n,nPosProd])+"' "
 cQuery  += "AND SC7.D_E_L_E_T_ = '' "
 cQuery  += "ORDER BY C7_EMISSAO DESC "
@@ -52,7 +57,9 @@ If Empty(nRet)
    cQuery  := "SELECT TOP 1 D1_VUNIT " 
    cQuery  += "FROM "+RETSQLNAME("SD1")+" SD1 "
    cQuery  += "WHERE D1_FILIAL = '"+xFilial("SD1")+"' "
-   cQuery  += "AND D1_CC = '"+TRIM(cCC)+"' "
+   If !Empty(cCC)
+      cQuery  += "AND D1_CC = '"+TRIM(cCC)+"' "
+   EndIf
    cQuery  += "AND D1_COD = '"+TRIM(aCols[n,nPosProd])+"' "
    cQuery  += "AND SD1.D_E_L_E_T_ = '' "
    cQuery  += "ORDER BY D1_DTDIGIT DESC "
@@ -71,7 +78,9 @@ If Empty(nRet)
    cQuery  := "SELECT TOP 1 C1_XXLCVAL " 
    cQuery  += "FROM "+RETSQLNAME("SC1")+" SC1 "
    cQuery  += "WHERE C1_FILIAL = '"+xFilial("SC1")+"' "
-   cQuery  += "AND C1_CC = '"+TRIM(cCC)+"' "
+   If !Empty(cCC)
+      cQuery  += "AND C1_CC = '"+TRIM(cCC)+"' "
+   EndIf
    cQuery  += "AND C1_PRODUTO = '"+TRIM(aCols[n,nPosProd])+"' "
    cQuery  += "AND SC1.D_E_L_E_T_ <> '*' "
    cQuery  += "ORDER BY C1_EMISSAO DESC "

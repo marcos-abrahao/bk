@@ -202,7 +202,7 @@ If ( lOk )
 					Else
 						cTpPes := QSZ2->Z2_TIPOPES
 					EndIf
- 					AADD(aTit1Ger,{IIF(EMPTY(QSZ2->Z2_BORDERO),.T.,.F.),QSZ2->Z2_CTRID,QSZ2->Z2_PRONT,QSZ2->Z2_NOME,QSZ2->Z2_VALOR,QSZ2->Z2_DATAPGT,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_AGENCIA,QSZ2->Z2_DIGAGEN,QSZ2->Z2_CONTA,QSZ2->Z2_DIGCONT,QSZ2->Z2_CPF,QSZ2->Z2_USUARIO,QSZ2->Z2_E2TIPO,QSZ2->Z2_HORALIB,QSZ2->Z2_BORDERO,aCtrId[nI,9],QSZ2->REC,QSZ2->Z2_NOMDEP,QSZ2->Z2_NOMMAE,cTpPes})
+ 					AADD(aTit1Ger,{IIF(EMPTY(QSZ2->Z2_BORDERO),.T.,.F.),QSZ2->Z2_CTRID,QSZ2->Z2_PRONT,QSZ2->Z2_NOME,Round(QSZ2->Z2_VALOR,2),QSZ2->Z2_DATAPGT,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_AGENCIA,QSZ2->Z2_DIGAGEN,QSZ2->Z2_CONTA,QSZ2->Z2_DIGCONT,QSZ2->Z2_CPF,QSZ2->Z2_USUARIO,QSZ2->Z2_E2TIPO,QSZ2->Z2_HORALIB,QSZ2->Z2_BORDERO,aCtrId[nI,9],QSZ2->REC,QSZ2->Z2_NOMDEP,QSZ2->Z2_NOMMAE,cTpPes})
  				    //                            1                           2               3            4               5              6              7              8                  9              10              11              12             13               14             15               16                17           18          19            20            21         22
 				ELSEIF QSZ2->Z2_DATAPGT <> dData 
 					nErros := 0
@@ -1867,7 +1867,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		For nI:=1 To Len(aTitGer)
 			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
-			qValTot += aTitGer[nI,4]
+			qValTot += INT(aTitGer[nI,4]*100)//aTitGer[nI,4]
 			qTot++
 			nSeq++
 		
@@ -1951,7 +1951,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 
 		NEXT
 				
-		BncoTxtT+= BncoTxt+'<tr><td colspan="6">&nbsp;</td></tr><tr><td colspan="5" align="right">TOTAL DE <b>'+ STR(qTot,6) +'</b> PAGAMENTOS NO VALOR TOTAL DE R$</td><td align="center"><b>'+TRANSFORM(qValTot,"@E 999,999,999.99")+'</b></td></tr></table>'
+		BncoTxtT+= BncoTxt+'<tr><td colspan="6">&nbsp;</td></tr><tr><td colspan="5" align="right">TOTAL DE <b>'+ STR(qTot,6) +'</b> PAGAMENTOS NO VALOR TOTAL DE R$</td><td align="center"><b>'+TRANSFORM((qValTot/100),"@E 999,999,999.99")+'</b></td></tr></table>'
 
 		nSeq++
 		nSeq++
@@ -1961,7 +1961,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341TD += "5"      //008 008
 		Bcn341TD += SPACE(9) //009 017
 		Bcn341TD += STRZERO(nSeq,6)  //018 023
-		Bcn341TD += STRZERO(INT(qValTot*100),18) //024 041
+		Bcn341TD += STRZERO(qValTot,18)//STRZERO(INT(qValTot*100),18) //024 041
 
 		Bcn341TD += STRZERO(0,18)     //042 059
 		Bcn341TD += SPACE(181)        //060 240

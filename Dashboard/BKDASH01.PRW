@@ -130,33 +130,3 @@ EndiF
 
 Return
 
-
-/*
-Static Function fQueryf()
-Local cQueryF := ""
-
-BEGINCONTENT VAR cQueryF
-CREATE FUNCTION bkccusto (
-	@empresa CHAR(2),
-	@ccusto CHAR(10)
-)
-RETURNS CHAR(9) AS
-BEGIN
-	DECLARE @contrato CHAR(9);
-	SET @contrato = 
-		CASE
-			WHEN @empresa = '14' AND SUBSTRING(@ccusto,1,3) = '000'
-				THEN '302000508'
-			WHEN @empresa = '15' AND SUBSTRING(@ccusto,1,3) = '000'
-				THEN '305000554'
-			ELSE
-				SUBSTRING(@ccusto,1,9)
-		END
- 
-    RETURN @contrato
-END;
-ENDCONTENT
-Return cQueryF
-*/
-
-

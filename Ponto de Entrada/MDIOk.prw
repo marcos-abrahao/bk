@@ -14,8 +14,7 @@ Local cToken
 //Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
 
 If nModulo = 5 .OR. nModulo = 69
-	//              Admin /Teste /Xavier/Diego.o/Fabia/Vanderle/Bruno/Nelson/João Cordeiro/Marcelo Cavalari Alves
-	If __cUserId $ "000000/000038/000012/000016/000023/000056/000153/000165/000170/00252" 
+	If u_IsLibPv(__cUserId)
     	If u_MsgLog("MDIOk","Deseja abrir a Liberação de Pedidos de Venda web?","Y")
 			cToken  := u_BKEnCode()
 			ShellExecute("open", u_BkRest()+"/RestLibPV/v2?userlib="+cToken, "", "", 1)

@@ -355,3 +355,13 @@ Else
 Endif
 
 RETURN
+
+
+/*
+
+Inserir dados em uma tabela existente
+INSERT INTO historico_vendas (data, produto, quantidade)
+SELECT data_venda, produto, quantidade_vendida
+FROM vendas
+WHERE data_venda >= '2022-01-01';
+*/

@@ -66,6 +66,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '302000508' ELSE SUBSTRING(D1_CC,1,9) END) AS CONTRATO,"+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '305000554' ELSE SUBSTRING(D1_CC,1,9) END) AS CONTRATO,"+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '386000609' ELSE SUBSTRING(D1_CC,1,9) END) AS CONTRATO,"+CRLF	
 	Else
 		cQuery += "  SUBSTRING(D1_CC,1,9) AS CONTRATO, " + CRLF
 	EndIf
@@ -80,6 +82,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '302000508' ELSE SUBSTRING(D1_CC,1,9) END) + "+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '305000554' ELSE SUBSTRING(D1_CC,1,9) END) + "+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '386000609' ELSE SUBSTRING(D1_CC,1,9) END) + "+CRLF	
 	Else
 		cQuery += "  SUBSTRING(D1_CC,1,9) + " + CRLF
 	EndIf
@@ -162,6 +166,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '302000508' ELSE D1_CC END)"+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '305000554' ELSE D1_CC END)"+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(D1_CC,1,3) = '000' THEN '386000609' ELSE D1_CC END)"+CRLF	
 	Else
 		cQuery += "  D1_CC " + CRLF
 	EndIf
@@ -201,6 +207,11 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
 		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
 		cQuery += "   END) AS CONTRATO, " + CRLF
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '386000609' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
 	Else
 		cQuery += "  (CASE "+CRLF
 		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
@@ -223,6 +234,11 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "   END) + " + CRLF
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END) + " + CRLF
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '386000609' "+CRLF
 		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
 		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
 		cQuery += "   END) + " + CRLF
@@ -296,6 +312,11 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
 		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
 		cQuery += "   END)  " + CRLF
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(E5_CCD,1,3) = '000' OR SUBSTRING(E5_CCC,1,3) = '000' THEN '386000609' "+CRLF
+		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
+		cQuery += "        WHEN E5_CCC = ' ' THEN E5_CCD "+CRLF
+		cQuery += "   END)  " + CRLF
 	Else
 		cQuery += "  (CASE "+CRLF
 		cQuery += "        WHEN E5_CCD = ' ' THEN E5_CCC "+CRLF
@@ -336,6 +357,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '386000609' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
 	Else
 		cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
 	EndIf
@@ -351,6 +374,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '386000609' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
 	Else
 		cQuery += "  SUBSTRING(Z2_CC,1,9) + " + CRLF
 	EndIf
@@ -418,6 +443,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE Z2_CC END)"+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE Z2_CC END)"+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '386000609' ELSE Z2_CC END)"+CRLF	
 	Else
 		cQuery += "  Z2_CC " + CRLF
 	EndIf
@@ -449,6 +476,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '386000609' ELSE SUBSTRING(Z2_CC,1,9) END) AS CONTRATO,"+CRLF	
 	Else
 		cQuery += "  SUBSTRING(Z2_CC,1,9) AS CONTRATO, " + CRLF
 	EndIf	
@@ -463,6 +492,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '386000609' ELSE SUBSTRING(Z2_CC,1,9) END) + "+CRLF	
 	Else
 		cQuery += "  SUBSTRING(Z2_CC,1,9) + " + CRLF
 	EndIf
@@ -513,6 +544,8 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '302000508' ELSE Z2_CC END)"+CRLF	
 	ElseIf cEmpresa == '15'
 		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '305000554' ELSE Z2_CC END)"+CRLF	
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(Z2_CC,1,3) = '000' OR SUBSTRING(Z2_CC,1,3) = 'Er:' THEN '386000609' ELSE Z2_CC END)"+CRLF	
 	Else
 		cQuery += "  Z2_CC " + CRLF
 	EndIf

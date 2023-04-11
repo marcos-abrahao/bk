@@ -29,6 +29,7 @@ BEGINCONTENT VAR cQuery
 -- Para o Mes #MESATUAL#
 SELECT
 --fun.numemp as [Empresa],
+'#MESATUAL#' AS COMPETAM,
 fun.nomfun as [Nome Completo do Funcionario],
 fun.numcad as [Matrícula],
 fun.numpis as [PIS NIT],
@@ -46,7 +47,7 @@ LEFT JOIN  bk_senior.bk_senior.R042CAU cau
 	ON fun.caudem  = cau.caudem
 where  fun.tipcol = 1  and fun.numemp in (15) --and sitafa = 7
 --and YEAR(fun.datafa) = 2023 and MONTH(fun.datafa) = 2
-AND CAST(YEAR(fun.datafa) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datafa),2),' ','0') = '#MESANTERIOR#'
+AND CAST(YEAR(fun.datafa) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datafa),2),' ','0') = '#MESATUAL#'
 
 --and fun.numloc = 2711
 --and fun.numcad = 1007

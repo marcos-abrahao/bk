@@ -17,8 +17,7 @@ User Function BKLIBPV()
    
 Local cToken  := u_BKEnCode()
     
-    	//          Teste/Vanderleia/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson
-If __cUserId $ "000000/000038/000012/000016/000056/000023/000153/000170/000165"
+If u_IsLibPv(__cUserId)
 	ShellExecute("open", u_BkRest()+"/RestLibPV/v2?userlib="+cToken, "", "", 1)
 Else
     u_MsgLog("BKLIBPV","Acesso não concedido.","E")

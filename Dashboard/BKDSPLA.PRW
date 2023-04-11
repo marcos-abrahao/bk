@@ -80,7 +80,16 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  B1_TS,"+CRLF
 	cQuery += "  A1_NOME,"+CRLF
 	cQuery += "  A1_CGC,"+CRLF
-	cQuery += "  A1_PESSOA"+CRLF
+	cQuery += "  A1_PESSOA,"+CRLF
+	cQuery += "  A1_END,"+CRLF
+	cQuery += "  A1_BAIRRO,"+CRLF
+	cQuery += "  A1_EST,"+CRLF
+	cQuery += "  A1_COD_MUN,"+CRLF
+	cQuery += "  A1_MUN,"+CRLF
+	cQuery += "  A1_CEP,"+CRLF
+	cQuery += "  A1_DDD,"+CRLF
+	cQuery += "  A1_TEL"+CRLF
+
 
 	cQuery += " FROM "+cTabCNB+ " CNB " + CRLF
 
