@@ -179,7 +179,7 @@ If !(cQrySF1)->(Eof())
 	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 
-If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07'
+If !u_IsLibDPH(__cUserId) .AND. (SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07')
 	cMsg:= "Não é permitido liberar pré-notas entre 18h e 7h"
 Else
 	Do Case

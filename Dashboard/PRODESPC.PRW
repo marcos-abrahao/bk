@@ -34,7 +34,7 @@ BEGINCONTENT VAR cQuery
 WITH CARGA AS (
 SELECT
 --fun.numemp as [Empresa],
-fun.nomfun as [Nome Completo do Funcionario],
+fun.nomfun as [Nome],
 fun.numcad as [Matrícula],
 fun.numpis as [PIS NIT],
 
@@ -95,7 +95,7 @@ END as [Estrangeiro],
 	   WHERE afa.numemp = 15 AND tipcol = 1 AND afa.numcad = fun.numcad
        and CAST(YEAR(afa.DatAfa) AS VARCHAR(4)) + REPLACE(STR(MONTH(afa.DatAfa),2),' ','0') < '#MESATUAL#'
 	   order by DatAfa desc) as sitafa,
-' ' as [Email],
+LOWER(cpl.emapar) as [Email],
 fun.sitafa as sitafafun
 
 from bk_senior.bk_senior.r034fun fun
@@ -125,12 +125,13 @@ where  fun.tipcol = 1  and fun.numemp in (15) --and fun.sitafa <> 7
 and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') < '#MESATUAL#'
 --order by fun.numemp, fun.numcad
 )
+#TABELAEXISTE# INSERT INTO PowerBk.dbo.PRODESPCARGA
 SELECT 
 --sitafa,
 --sitafafun,
 --demitido,
-'#MESATUAL#' AS COMPETAM
-[Nome Completo do Funcionario],
+'#MESATUAL#' AS COMPETAM,
+[Nome],
 [Matrícula],
 [PIS NIT],
 [CPF],
@@ -161,6 +162,7 @@ CASE
 	WHEN NumLoc = 2711 THEN 'Campinas Shopping'
 	WHEN NumLoc = 3002 THEN 'Campo Limpo Paulista - 4.0'
 	WHEN NumLoc = 2925 THEN 'Capivari - 4.0'
+	WHEN NumLoc = 3061 THEN 'Conchal - 4.0'
 	WHEN NumLoc = 2951 THEN 'Cordeirópolis - 4.0'
 	WHEN NumLoc = 2984 THEN 'Cosmópolis - 4.0'
 	WHEN NumLoc = 2926 THEN 'Espírito Santo do Pinhal - 4.0'
@@ -209,18 +211,25 @@ END AS [Local de Serviços],
 [observação],
 [Estrangeiro],
 [Email]
-INTO PowerBk.dbo.PRODESPCARGA
+#TABELANAOEXISTE# INTO PowerBk.dbo.PRODESPCARGA
 FROM CARGA
 WHERE 
 (sitafa is null or sitafa <> 7)
 -- and NumLoc = 2711
 --and [Matrícula] = 1007
-ORDER BY [Nome Completo do Funcionario],[Matrícula]
+ORDER BY [Nome],[Matrícula]
 
 ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#MESATUAL#",cMesAtu)
 cQuery := STRTRAN(cQuery,"#MESANTERIOR#",cMesAnt)
+If lExistTbl
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","--")
+Else
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","--")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","")
+EndIf
 
 u_LogMemo("PRODESPCARGA.SQL",cQuery)
 
@@ -230,13 +239,13 @@ If !TCIsConnected()
 Endif  
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPCARGA', N'U') IS NOT NULL" 
-cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPCARGA WHERE COMPETAM = '#MESATUAL#'" 
+cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPCARGA WHERE COMPETAM = '#MESATUAL#'" + CRLF
 //cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPCARGA "+CRLF
 cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
+	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" + CRLF
 	u_MsgLog(cPerg,cErro1,"E")
 EndIf
 
@@ -254,7 +263,7 @@ Return
 
 // SQL ARRAY
 User Function ExitTbl(cTabela)
-Local cQuery := "SELECT ISNULL(OBJECT_ID(N'"+cTabela+"xx', N'U'),-1) AS EXIST"
+Local cQuery := "SELECT ISNULL(OBJECT_ID(N'"+cTabela+"', N'U'),-1) AS EXIST"
 Local aReturn := {}
 Local aBinds := {}
 Local aSetFields := {}
@@ -271,22 +280,20 @@ aadd(aSetFields,{"EXIST","N",5,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-  MSgStop(tcsqlerror(),"Falha ao executar a Query")
+  u_MsgLog("ExitTbl",(tcsqlerror(),"Falha ao executar a Query: "+cQuery))
 Else
-  Alert(VarInfo("aReturn",aReturn))
+  //Alert(VarInfo("aReturn",aReturn))
   //MsgInfo("Verifique os valores retornados no console","Ok")
+  If Len(aReturn) > 0
+	If aReturn[1][1] > 0
+		lRet := .T.
+	EndIf
+  EndIf
 Endif
 
 Return lRet
 
-/*
 
-Inserir dados em uma tabela existente
-INSERT INTO historico_vendas (data, produto, quantidade)
-SELECT data_venda, produto, quantidade_vendida
-FROM vendas
-WHERE data_venda >= '2022-01-01';
-*/
 
 
 

@@ -31,7 +31,8 @@ PUBLIC _cCCSZW := ""
 u_MsgLog("BKESTA03")
 
 AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='01'","BR_VERDE"})
-AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='02'","BR_LARANJA"})
+AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='02' .AND. SZV->ZV_RECEBEU<>'S'","BR_LARANJA"})
+AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='02' .AND. SZV->ZV_RECEBEU=='S'","BR_PRETO"})
 AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='03'","BR_VERMELHO"})
 
 AADD(aRotina,{"Pesquisa"		        ,"AxPesquisa"   ,0,1})
@@ -42,7 +43,8 @@ AADD(aRotina,{"Devolução Uniforme"		,"U_DEVOUNISZV" ,0,4})
 AADD(aRotina,{"Impressão Termos"		,"U_PRINTSZV"   ,0,4})
 AADD(aRotina,{"Excluir Termos"		    ,"U_EXCLUISZV"  ,0,4})
 AADD(aRotina,{"Relatorio de Saldo"		,"U_RELSALDSZV" ,0,4})
-AADD(aRotina,{"Baixa Resp. Recebimento"	,"U_BXRESDEV" ,0,4})
+AADD(aRotina,{"Confirma Receb. Funcionário"		,"U_BXRECEBEU" 	,0,4})
+AADD(aRotina,{"Baixa Resp. Recebimento"	,"U_BXRESDEV" 	,0,4})
 AADD(aRotina,{"Legenda"			        ,"U_SZVLEG"     ,0,4})
 
 
@@ -72,9 +74,10 @@ Local cLegenda := ""
 
 cLegenda	:= "Legenda de Cores"
 
-AADD(aCores2,{"BR_VERDE"  , "Transferencia"})
-AADD(aCores2,{"BR_LARANJA", "Recebimento"})
-AADD(aCores2,{"BR_VERMELHO", "DEVOLUCAO"})
+AADD(aCores2,{"BR_VERDE"  	, "Entrada NF Estoque"})
+AADD(aCores2,{"BR_LARANJA"	, "Envio para o Funcionário"})
+AADD(aCores2,{"BR_PRETO"	, "Confirmado a Entrega para o Funcionário"})
+AADD(aCores2,{"BR_VERMELHO"	, "Devolução do Funcionário"})
 
 BrwLegenda(cLegenda,"Inclusão Termo Transferencia / Responsabilidade / Recebimento / Devolução",aCores2)
 
@@ -416,7 +419,7 @@ Local cCodigo := ""
 		SZV->ZV_PROD	:= aItemSZV[_IX,2]
 		SZV->ZV_DESCRI	:= Posicione("SB1",1,xFilial("SB1")+aItemSZV[_IX,2],"B1_DESC")
 		SZV->ZV_QUANT	:= aItemSZV[_IX,4]
-		SZV->ZV_CUSTO1	:= aItemSZV[_IX,7]*aItemSZV[_IX,4]
+		SZV->ZV_CUSTO1	:= (aItemSZV[_IX,8]/aItemSZV[_IX,5])*aItemSZV[_IX,4]
 		SZV->ZV_TM		:= "01" 
 		SZV->ZV_CC		:= cCusto
 		SZV->ZV_CCDESC	:= cDESCTT
@@ -841,7 +844,7 @@ STATIC FUNCTION EDITQFUN(aItemFUN)
 LOCAL _IX := 0
 LOCAL cMensag := ""
 
-lEditCell(aItemFUN,oListSZV,'@E 999',4)
+lEditCell(aItemFUN,oListFUN,'@E 999',4)
 
 FOR _IX := 1 TO LEN(aItemFUN)
 	IF aItemFUN[_IX,4]  > aItemFUN[_IX,8]
@@ -1845,6 +1848,58 @@ TCSETFIELD("QSZV3","ZV_VALIC","D",8,0)
 
 Return nil
 
+USER FUNCTION BXRECEBEU
+Local lOk		 := .F.
+Local nSnd       := 15
+Local nTLin      := 15
+Local oDlg01     as Object
+Local aButtons   := {}
+Local cCODTERMO  := SZV->ZV_CODIG
+Local cFuncion   := SZV->ZV_NOME
+Local cCPFFUN    := SZV->ZV_RGFUNC
+
+	IF ALLTRIM(SZV->ZV_TM) <> '02'
+		MSGINFO("Terno não é de funcionário. Verifique!")
+		RETURN lOk
+	ENDIF
+
+
+    Define MsDialog oDlg01 Title "Confirmea o Recebimento TERMO pelo funcionário:"+cCODTERMO From 000,000 To 150,480 Of oDlg01 Pixel
+	
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 200,460
+	oPanelLeft:Align := CONTROL_ALIGN_LEFT
+	
+	@ nSnd,010 Say "Funcionário: " Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,080 MsGet cFuncion Picture '@!' Size 180,010 Pixel OF oPanelLeft WHEN .F.
+	nSnd += nTLin
+
+	@ nSnd,010 Say "CPF Funcionario :" Size 080,010 Pixel OF oPanelLeft
+	@ nSnd,080 MsGet cCPFFUN SIZE 180,010 OF oPanelLeft PIXEL PICTURE '@!' WHEN .F.
+	nSnd += nTLin
+	
+	ACTIVATE MSDIALOG oDlg01 CENTERED  ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
+
+	If ( lOk )
+		lOk:=.F.
+		If u_MsgLog("BXRESDEV","Confirmea Recebimento pelo funcionário do TERMO:"+cCODTERMO+" ?","Y")
+
+			dbSelectArea("SZV")
+			SZV->(dbSetOrder(1))
+			dbSeek(xFilial("SZV")+cCODTERMO,.T.)
+			Do while !eof() .AND. SZV->ZV_CODIG=cCODTERMO
+
+				RecLock("SZV",.F.)
+				SZV->ZV_RECEBEU:=  'S'
+				SZV->(MSUNLOCK())
+
+				SZV->(dbSkip())
+			Enddo
+
+		ENDIF
+	Endif
+
+RETURN lOk
+
 USER FUNCTION BXRESDEV
 Local lOk		 := .F.
 Local nSnd       := 15
@@ -1853,14 +1908,15 @@ Local oDlg01     as Object
 Local aButtons   := {}
 Local cResReceb  := ""
 Local cCPFReceb  := ""
+Local cCODTERMO  := SZV->ZV_CODIG
 
 
 cResReceb := IIF(!EMPTY(SZV->ZV_RECBNOM),SZV->ZV_RECBNOM,SPACE(80))
 cCPFReceb := IIF(!EMPTY(SZV->ZV_RECBCPF),SZV->ZV_RECBCPF,SPACE(11))
 
-    Define MsDialog oDlg01 Title "Incluir Responsável pelo Recebimento TERMO:"+SZV->ZV_CODIG From 000,000 To 150,480 Of oDlg01 Pixel
+    Define MsDialog oDlg01 Title "Incluir Responsável pelo Recebimento TERMO:"+cCODTERMO From 000,000 To 150,480 Of oDlg01 Pixel
 	
-	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 140,460
+	@ 000,000 MSPANEL oPanelLeft OF oDlg01 SIZE 200,460
 	oPanelLeft:Align := CONTROL_ALIGN_LEFT
 	
 	@ nSnd,010 Say "Resp. Recebimento" Size 080,010 Pixel OF oPanelLeft
@@ -1875,18 +1931,26 @@ cCPFReceb := IIF(!EMPTY(SZV->ZV_RECBCPF),SZV->ZV_RECBCPF,SPACE(11))
 
 	If ( lOk )
 		lOk:=.F.
-		If u_MsgLog("BXRESDEV","Confirma a inclusão/Alteração do Resp. Recebimento TERMO:"+SZV->ZV_CODIG+" ?","Y")
-			RecLock("SZV",.T.)
-			SZV->ZV_RECBNOM	:=  cResReceb
-			SZV->ZV_RECBCPF	:=  cCPFReceb
-			SZV->(MSUNLOCK())
+		If u_MsgLog("BXRESDEV","Confirma a inclusão/Alteração do Resp. Recebimento TERMO:"+cCODTERMO+" ?","Y")
+
+			dbSelectArea("SZV")
+			SZV->(dbSetOrder(1))
+			dbSeek(xFilial("SZV")+cCODTERMO,.T.)
+			Do while !eof() .AND. SZV->ZV_CODIG=cCODTERMO
+
+				RecLock("SZV",.F.)
+				SZV->ZV_RECBNOM	:=  cResReceb
+				SZV->ZV_RECBCPF	:=  cCPFReceb
+				SZV->(MSUNLOCK())
+
+				SZV->(dbSkip())
+			Enddo
+
 		ENDIF
 	Endif
 
 RETURN lOk
 
-
-Return nil
 
 
 STATIC FUNCTION DTRANSTML(cTermo,dEMISSAO,cMUNIC,cENDEMPR,cCLIENT,cENDCLI,cRESPONS,cCPFRESP,aItens)

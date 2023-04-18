@@ -19,6 +19,9 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
+Local lExistTbl := .F.
+
+lExistTbl := u_ExitTbl("PowerBk.dbo.PRODESPEXCLUIR")
 
 Private cMesAtu := STR(YEAR(dMesAtu),4)+STRZERO(Month(dMesAtu),2)
 Private cMesAnt := STR(YEAR(dMesAnt),4)+STRZERO(Month(dMesAnt),2)
@@ -27,6 +30,8 @@ BEGINCONTENT VAR cQuery
 
 -- Planilha importarColaboradorExcluir.xlsx
 -- Para o Mes #MESATUAL#
+
+#TABELAEXISTE# INSERT INTO PowerBk.dbo.PRODESPEXCLUIR
 SELECT
 --fun.numemp as [Empresa],
 '#MESATUAL#' AS COMPETAM,
@@ -40,12 +45,12 @@ Convert(varchar(10), fun.datafa, 103) as [Data de Saída],
 cau.DesDem as [Motivo da Saída], --fun.caudem,fun.sitafa
 ' ' as [OBSERVAÇÕES]
 
-INTO PowerBk.dbo.PRODESPEXCLUIR
+#TABELANAOEXISTE# INTO PowerBk.dbo.PRODESPEXCLUIR
 
 from bk_senior.bk_senior.r034fun fun
 LEFT JOIN  bk_senior.bk_senior.R042CAU cau 
 	ON fun.caudem  = cau.caudem
-where  fun.tipcol = 1  and fun.numemp in (15) --and sitafa = 7
+where  fun.tipcol = 1  and fun.numemp in (15) and sitafa = 7
 --and YEAR(fun.datafa) = 2023 and MONTH(fun.datafa) = 2
 AND CAST(YEAR(fun.datafa) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datafa),2),' ','0') = '#MESATUAL#'
 
@@ -58,6 +63,13 @@ ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#MESATUAL#",cMesAtu)
 cQuery := STRTRAN(cQuery,"#MESANTERIOR#",cMesAnt)
+If lExistTbl
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","--")
+Else
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","--")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","")
+EndIf
 
 u_LogMemo("PRODESPEXCLUIR.SQL",cQuery)
 
@@ -67,7 +79,11 @@ If !TCIsConnected()
 Endif  
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPEXCLUIR', N'U') IS NOT NULL"  
-cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPEXCLUIR "+CRLF
+cQueryD += "   --DROP TABLE PowerBk.dbo.PRODESPEXCLUIR "+CRLF
+cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPEXCLUIR WHERE COMPETAM = '#MESATUAL#'"+CRLF
+
+cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
+
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0

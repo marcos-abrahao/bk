@@ -19,6 +19,9 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
+Local lExistTbl := .F.
+
+lExistTbl := u_ExitTbl("PowerBk.dbo.PRODESPINSERIR")
 
 Private cMesAtu := STR(YEAR(dMesAtu),4)+STRZERO(Month(dMesAtu),2)
 Private cMesAnt := STR(YEAR(dMesAnt),4)+STRZERO(Month(dMesAnt),2)
@@ -75,6 +78,7 @@ CASE
 	WHEN fun.numloc = 2711 THEN 'Campinas Shopping'
 	WHEN fun.numloc = 3002 THEN 'Campo Limpo Paulista - 4.0'
 	WHEN fun.numloc = 2925 THEN 'Capivari - 4.0'
+	WHEN fun.numloc = 3061 THEN 'Conchal - 4.0'
 	WHEN fun.numloc = 2951 THEN 'Cordeirópolis - 4.0'
 	WHEN fun.numloc = 2984 THEN 'Cosmópolis - 4.0'
 	WHEN fun.numloc = 2926 THEN 'Espírito Santo do Pinhal - 4.0'
@@ -117,7 +121,7 @@ CASE
 	WHEN fun.numloc = 3004 THEN 'Vinhedo - 4.0'
 	WHEN fun.numloc = 2686 THEN 'Poupatempo_Lote 3'
 	WHEN fun.numloc = 1888 THEN 'São João da Boa Vista'
-	ELSE ''
+	ELSE CAST(YEAR(fun.numloc) AS VARCHAR(4))
 END AS [Local de Serviços],
 
 CASE
@@ -132,8 +136,7 @@ CASE
                
     ELSE 'SIM'
 END as [Estrangeiro],
-' ' as [Email],
-
+LOWER(cpl.emapar) as [Email],
 
 (SELECT TOP 1 sitafa FROM [bk_senior].[bk_senior].[R038AFA] afa
 	   WHERE afa.numemp = 15 AND tipcol = 1 AND afa.numcad = fun.numcad
@@ -166,10 +169,11 @@ where  fun.tipcol = 1  and fun.numemp in (15)
 
 --and fun.numloc = 2711
 --and YEAR(fun.datadm) = 2023 and MONTH(fun.datadm) = 2
-and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') = '#MESANTERIOR#'
+and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') = '#MESATUAL#'
 --and sitafa <> 7
 --order by fun.nomfun
 )
+#TABELAEXISTE# INSERT INTO PowerBk.dbo.PRODESPINSERIR
 SELECT
 '#MESATUAL#' AS COMPETAM,
 [Nome Completo do Funcionario],
@@ -194,13 +198,21 @@ SELECT
 [observação],
 [Estrangeiro],
 [Email]
-INTO PowerBk.dbo.PRODESPINSERIR
+#TABELANAOEXISTE# INTO PowerBk.dbo.PRODESPINSERIR
 FROM INSERIR
 
 ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#MESATUAL#",cMesAtu)
 cQuery := STRTRAN(cQuery,"#MESANTERIOR#",cMesAnt)
+If lExistTbl
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","--")
+Else
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","--")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","")
+EndIf
+
 
 u_LogMemo("PRODESPINSERIR.SQL",cQuery)
 
@@ -210,7 +222,11 @@ If !TCIsConnected()
 Endif  
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPINSERIR', N'U') IS NOT NULL"  
-cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPINSERIR "+CRLF
+cQueryD += "   --DROP TABLE PowerBk.dbo.PRODESPINSERIR "+CRLF
+cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPINSERIR WHERE COMPETAM = '#MESATUAL#'"+CRLF
+//cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPCARGA "+CRLF
+cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
+
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0

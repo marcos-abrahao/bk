@@ -42,39 +42,43 @@ cFilPar := aParam[2]
 
 WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 
+u_MsgLog("BKGCT06: Inicio Processo - "+cEmpPar+" - "+cFilPar)
+
 //WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
 //TABLES "SA1" "SC5" "SC6" 
 
-u_WaitLog(, {|| RepBKGCT06()},"Processando avisos de repactuação")
-u_WaitLog(, {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
+///u_WaitLog("RepBKGCT06", {|| RepBKGCT06()},"Processando avisos de repactuação")
+///u_WaitLog("RepBK06b", {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
 
-IF DOW(dDataEnv) = 1 .OR. DOW(dDataEnv) = 4
-	u_WaitLog(, {|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
-	u_WaitLog(, {|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
+IF DOW(dDataEnv) = 4
+	u_WaitLog("VigBKGCT06", {|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
+	u_WaitLog("Vg2BKGct06", {|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
 ENDIF
 
 // Desabilitado em 18/08/22 - Solicitado por Bruno Bueno e Vanderleia
 //u_WaitLog(, {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
 
-u_WaitLog(, {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
-u_WaitLog(, {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
-u_WaitLog(, {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
+///u_WaitLog("V6BKGct06", {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
+///u_WaitLog("V7BKGct06", {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
+///u_WaitLog("V8BKGct06", {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
 
-cFWEmp := SUBSTR(FWCodEmp(),1,2)
+cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
  
 //u_xxConOut("INFO","BKGCT06","Empresa:"+FWCodEmp()+".")
 
-If cFWEmp $ "01" 
-	u_WaitLog(, {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
-	u_WaitLog(, {|| V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
-	u_WaitLog(, {|| V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
-	u_WaitLog(, {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
+If cEmpAnt == "01" 
+	u_WaitLog("V9BKGct06",  {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
+	u_WaitLog("V10BKGct06", {|| V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
+	u_WaitLog("V11BKGct06", {|| V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
+	u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf
 
 If cFWEmp $ "01/02/14" 
-	u_WaitLog(, {|| U_GRFBKGCT11(.T.)} ,"Processando Grafico Rentabilidade dos Contratos")
-	u_WaitLog(, {|| U_BKGCTR23()} ,"Processando Dados do Dashboard - Funcionários e Glosas")
+	///u_WaitLog("GRFBKGCT11", {|| U_GRFBKGCT11(.T.)} ,"Processando Grafico Rentabilidade dos Contratos")
+	///u_WaitLog("BKGCTR23", {|| U_BKGCTR23()} ,"Processando Dados do Dashboard - Funcionários e Glosas")
 ENDIF
+
+u_MsgLog("BKGCT06: Final Processo - "+cEmpPar+" - "+cFilPar)
 
 Reset Environment
 
@@ -493,9 +497,9 @@ AADD(aCabs  ,"Obs Repactuação")
 AADD(aCampos,"cStatus")
 AADD(aCabs  ,"Status")
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_SITUAC,CTT_DESC01,CN9_XXDREP,CN9_XXOREP,CN9_XXSREP,CN9_XXDVIG,CN9_XXDAVI,CN9_XXNAVI,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
@@ -556,9 +560,9 @@ If nHandle > 0
    Do while (_cAlias)->(!eof())
 
 
-		If !lJobV2
-			IncProc("Gerando arquivo "+_cArqS)   
-		EndIf
+		//If !lJobV2
+		//	IncProc("Gerando arquivo "+_cArqS)   
+		//EndIf
 		
 		lEnv   := .F.
 		cAviso := ""
@@ -834,9 +838,9 @@ AADD(aCampos,"cVigencia")
 AADD(aCabs  ,"Vigencia")
 
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XCLIEN,CN9_XLOJA,A1_NREDUZ,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
@@ -1145,9 +1149,9 @@ AADD(aCabs  ,"Dias")
 AADD(aCampos,"QCN9->CN9_XXPROA")
 AADD(aCabs  ,"Andamento")
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
@@ -1622,9 +1626,9 @@ AADD(aCabs  ,"Obs Repactuação")
 AADD(aCampos,"cStatus")
 AADD(aCabs  ,"Status")
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_SITUAC,CTT_DESC01,CN9_XXDREP,CN9_XXOREP,CN9_XXSREP,CN9_XXDVIG,CN9_XXDAVI,CN9_XXNAVI,CN9_XXDTPD,CN9_XXVPED,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
@@ -1697,9 +1701,9 @@ If nHandle > 0
    
    Do while (_cAlias)->(!eof())
    
-		If !lJobV2
-			IncProc("Gerando arquivo "+_cArqS)   
-		EndIf
+		//If !lJobV2
+		//	IncProc("Gerando arquivo "+_cArqS)   
+		//EndIf
 		
 		lEnv   := .F.
 		cAviso := ""
@@ -2097,9 +2101,9 @@ AADD(aCampos,"cEQP")
 AADD(aCabs  ,"Insumos Operacionais - Equipamentos")
 
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO,"
@@ -2495,9 +2499,9 @@ Local aEmail	:= {}
 Local dDiaStat  := 5
 Local lEnvia 	:= .T.
 
-If !lJobV2
-	IncProc()
-EndIf 
+//If !lJobV2
+//	IncProc()
+//EndIf 
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -2856,9 +2860,9 @@ Local aEmail	:= {}
 Local nDiasVig  := 0
 Local cAviso    := ""
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -2941,9 +2945,9 @@ Local aEmail	:= {}
 Local nDiasVig  := 0
 Local cAviso    := ""
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3039,16 +3043,16 @@ Local cPrw		:= "V9BKGct06"
 Local cGerGestao := u_GerGestao()
 Local nRegSM0 := SM0->(Recno()) 
 
-If FWCodEmp() <> "01"
-	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
-	Return Nil
-EndIf
+u_MsgLog("V9BKGct06: Inicio Processo - Aviso de pedido de compras aguardando aprovação")
 
-//CONOUT("V9BKGct06: Inicio Processo - Aviso de pedido de compras aguardando aprovação")
+//If FWCodEmp() <> "01"
+//	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
+//	Return Nil
+//EndIf
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3068,9 +3072,9 @@ cEmail := u_EmpPcAprv()
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
- 	If !lJobV2
-		IncProc()
-	EndIf   
+ 	//If !lJobV2
+	//	IncProc()
+	//EndIf   
 
 	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
@@ -3146,13 +3150,13 @@ Local cPrw		:= "V10BKGct06"
 
 
 If FWCodEmp() <> "01"
-	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
+	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3174,9 +3178,9 @@ Enddo
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
- 	If !lJobV2
-		IncProc()
-	EndIf   
+ 	//If !lJobV2
+	//	IncProc()
+	//EndIf   
 
 	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
@@ -3257,13 +3261,13 @@ Local _ni
 Local cPrw		:= "V11BKGct06"
 
 If FWCodEmp() <> "01"
-	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
+	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3285,9 +3289,9 @@ Enddo
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
- 	If !lJobV2
-		IncProc()
-	EndIf   
+ 	//If !lJobV2
+	//	IncProc()
+	//EndIf   
 
 	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
@@ -3428,13 +3432,13 @@ Local nRegSM0 	:= SM0->(Recno())
 Local cPrw 		:= "V12BKGCT06"
 
 If FWCodEmp() <> "01"
-	u_xxConOut("ERROR",cPrw,"Esta Funcao Rodar somente na empresa 01")
+	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
 EndIf
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3443,9 +3447,9 @@ ENDIF
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
- 	If !lJobV2
-		IncProc()
-	EndIf   
+ 	//If !lJobV2
+	//	IncProc()
+	//EndIf   
 
 	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
@@ -3553,17 +3557,17 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-If !lJobV2
-	IncProc()
-EndIf
+//If !lJobV2
+//	IncProc()
+//EndIf
 
 cQuery := "WITH AVISO AS ( "+CRLF
 
 For nE := 1 TO Len(aEmpresas)
 
- 	If !lJobV2
-		IncProc()
-	EndIf   
+ 	//If !lJobV2
+	//	IncProc()
+	//EndIf   
 
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]

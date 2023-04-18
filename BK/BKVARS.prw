@@ -101,7 +101,11 @@ Return Formatin(SUBSTRING(cVar,2,LEN(cVar)-2),"|")
 
 // Parametro Proventos calculo Rentabilidade dos Contratos
 User Function MVXPROVE()
-Local cVar := "|1|2|11|34|35|36|37|56|60|62|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|695|696|700|720|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|897|"
+/*  18/04/23 - inclusão de novos proventos 935/936 - solicitado por Bruno Bueno
+935 - Salário substituição: será devido quando o funcionário substitui outro profissional com salário mais elevado que o seu, consiste no recebimento da diferença de salário pelo período em que o profissional exercer a mesma função que o funcionário afastado. O salário substituição será pago nas seguintes situações; cobertura de férias, licença médica, licença maternidade e licença paternidade.
+936 - Salário treinamento: será devido quando o funcionário estiver em período probatório de promoção para um cargo com salário superior ao seu; consiste no recebimento da diferença de salário pelo período em que o profissional exercer a função que contenha o salário superior. O período probatório deverá ser de no máximo 60 dias.
+*/
+Local cVar := "|1|2|11|34|35|36|37|56|60|62|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|695|696|700|720|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|897|935|936"
 Return cVar
 
 // Descontos calculo Rentabilidade dos Contratos 

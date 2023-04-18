@@ -19,6 +19,9 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
+Local lExistTbl := .F.
+
+lExistTbl := u_ExitTbl("PowerBk.dbo.PRODESPATUALIZAR")
 
 Private cMesAtu := STR(YEAR(dMesAtu),4)+STRZERO(Month(dMesAtu),2)
 Private cMesAnt := STR(YEAR(dMesAnt),4)+STRZERO(Month(dMesAnt),2)
@@ -92,8 +95,9 @@ END as [Estrangeiro],
 	   WHERE afa.numemp = 15 AND tipcol = 1 AND afa.numcad = fun.numcad
        and CAST(YEAR(afa.DatAfa) AS VARCHAR(4)) + REPLACE(STR(MONTH(afa.DatAfa),2),' ','0') < '#MESATUAL#'
 	   order by DatAfa desc) as sitafa,
-fun.sitafa as sitafafun
- 
+fun.sitafa as sitafafun,
+LOWER(cpl.emapar) as [Email]
+
 from bk_senior.bk_senior.r034fun fun
 left join bk_senior.bk_senior.r034cpl cpl
 on fun.numemp = cpl.numemp and fun.tipcol = cpl.tipcol and fun.numcad = cpl.numcad
@@ -119,14 +123,16 @@ on fun.numemp = mat.numemp and fun.tipcol = mat.tipcol and fun.numcad = mat.numc
 
 where  fun.tipcol = 1  and fun.numemp in (15) --and fun.sitafa <> 7
 --and (YEAR(fun.datadm) <> 2023 or MONTH(fun.datadm) < 2)
-and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') < '#MESANTERIOR#'
+and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') < '#MESATUAL#'
 
 --order by fun.numemp, fun.numcad
 )
+#TABELAEXISTE# INSERT INTO PowerBk.dbo.PRODESPATUALIZAR
 SELECT 
 --sitafa,
 --sitafafun,
 --demitido,
+'#MESATUAL#' AS COMPETAM,
 [Nome Completo do Funcionario],
 [Matrícula],
 [PIS NIT],
@@ -157,6 +163,7 @@ CASE
 	WHEN [NumLoc] = 2711 THEN 'Campinas Shopping'
 	WHEN [NumLoc] = 3002 THEN 'Campo Limpo Paulista - 4.0'
 	WHEN [NumLoc] = 2925 THEN 'Capivari - 4.0'
+	WHEN [NumLoc] = 3061 THEN 'Conchal - 4.0'
 	WHEN [NumLoc] = 2951 THEN 'Cordeirópolis - 4.0'
 	WHEN [NumLoc] = 2984 THEN 'Cosmópolis - 4.0'
 	WHEN [NumLoc] = 2926 THEN 'Espírito Santo do Pinhal - 4.0'
@@ -205,8 +212,9 @@ END AS [Local de Serviços],
 [observação],
 [Estrangeiro],
 CASE 
- WHEN sitafa =  2 THEN 'SIM' ELSE 'NÃO' END AS [Férias]
-INTO PowerBk.dbo.PRODESPATUALIZAR
+ WHEN sitafa =  2 THEN 'SIM' ELSE 'NÃO' END AS [Férias],
+[Email]
+#TABELANAOEXISTE# INTO PowerBk.dbo.PRODESPATUALIZAR
 FROM ATUALIZAR
 WHERE 
 (sitafa is null or sitafa <> 7)
@@ -218,6 +226,13 @@ ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#MESATUAL#",cMesAtu)
 cQuery := STRTRAN(cQuery,"#MESANTERIOR#",cMesAnt)
+If lExistTbl
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","--")
+Else
+	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","--")
+	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","")
+EndIf
 
 u_LogMemo("PRODESPATUALIZAR.SQL",cQuery)
 
@@ -227,7 +242,11 @@ If !TCIsConnected()
 Endif  
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPATUALIZAR', N'U') IS NOT NULL"  
-cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPATUALIZAR "+CRLF
+cQueryD += "   --DROP TABLE PowerBk.dbo.PRODESPATUALIZAR "+CRLF
+cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPATUALIZAR WHERE COMPETAM = '#MESATUAL#'"+CRLF
+
+cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
+
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0

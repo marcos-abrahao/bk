@@ -54,7 +54,7 @@ Local cEmail	:= ""
 Local cLogDoc	:= SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE
 
 If lClass
-	If !IsBlind() .AND. __cUserId <> "000000" .AND. __cUserId <> "000012" ;
+	If !IsBlind() .AND. !u_IsLibDPH(__cUserId);
     		.AND. (SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '07')
 		
 		u_MsgLog("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 18h e 7h: "+cLogDoc,"E")

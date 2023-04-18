@@ -80,7 +80,7 @@ ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
 ElseIf FWCodEmp() == "12"  // SEGUROS
 	cLogo := '<img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0>'
 ElseIf FWCodEmp() == "14"  // CONSORCIO BALSA NOVA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSORCIO BALSA NOVA</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSÓRCIO BALSA NOVA</span></b>'
 ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b>'
 ElseIf FWCodEmp() == "16"  // Consorcio Moove

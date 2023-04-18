@@ -148,6 +148,13 @@ Next
 Return lRet
 
 
+
+// Libera doc de entrada após o horário 
+User Function IsLibDPH(cId)
+//            Admin /Lau   /Tiago /Bruno
+Return cId $ "000000/000012/000112/000153"
+
+
 // Libera pedido de venda pela WEB
 User Function IsLibPv(cId)
 //            Admin  /Teste/Vanderleia/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari
