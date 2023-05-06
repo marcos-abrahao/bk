@@ -27,7 +27,7 @@ If lMT100TOK
 		If dDEmissao <= dDataFis 
 			//If !((ALLTRIM(cEspecie)+"/") $ "SPED/CTE/CTEOS/NF3E/NFCE/") .OR. EMPTY(cEspecie)
 			If !(ALLTRIM(cEspecie)+"/" $ "SPED/CTE/CTEOS/NF3E/NFCE/") .OR. EMPTY(cEspecie)
-				MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT100OK "+cEspecie)
+				u_MsgLog("MT100OK "+cEspecie,"A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis))
 				lRet := .F.
 			EndIf
 		EndIf
@@ -75,7 +75,7 @@ If lMT100TOK
 			If nTelTot > nValTot
 				lRet := !U_BlqDoc(nTelTot,.T.)	
 				If !lRet 
-					Alert("Este Doc já foi liberado no valor de "+ALLTRIM(STR(nValTot,2))+", exclua este documento.")
+					u_MsgLog("MT100OK","Este Doc já foi liberado no valor de "+ALLTRIM(STR(nValTot,2))+", exclua este documento.")
 					lMT100TOK := .T.
 				EndIf 
 

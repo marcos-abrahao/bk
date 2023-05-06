@@ -143,7 +143,10 @@ IF Pergunte(cPerg,.T.)
     
 				DBSELECTAREA("QSZ2")
                 DBGOTOP()
-                
+
+				AADD(aCampos,"QSZ2->Z2_PRONT")
+				AADD(aCabs  ,"Prontuario")
+
 				AADD(aCampos,"QSZ2->Z2_NOME")
 				AADD(aCabs  ,"Nome")
 

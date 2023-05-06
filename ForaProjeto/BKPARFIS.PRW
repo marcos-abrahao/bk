@@ -59,10 +59,11 @@ cTexto += Replicate( "-", 70 ) + CRLF
 cTexto += " Data / Hora Inicial.: " + DtoC( Date() ) + " / " + Time()  + " - "+cUserName+ CRLF
 cTexto += Replicate( "-", 70 ) + CRLF
 
-aAllCompany := FWAllGrpCompany()
+//aAllCompany := FWAllGrpCompany()
+aAllCompany := u_BKGrupo()
 For nI := 1 TO LEN(aAllCompany)
-    cTexto += "Empresa: "+aAllCompany[nI]+" - "+FWEmpName(aAllCompany[nI])+ CRLF
-    If !AltX6(aAllCompany[nI])
+    cTexto += "Empresa: "+aAllCompany[nI,1]+" - "+FWEmpName(aAllCompany[nI,1])+ CRLF
+    If !AltX6(aAllCompany[nI,1])
         Exit
     EndIf
 Next

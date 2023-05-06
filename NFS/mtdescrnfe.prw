@@ -479,8 +479,10 @@ ENDIF
 IF SF2->F2_VALINSS > 0
    nTOTIMP += SF2->F2_VALINSS
    ++nQTDIMP
-   IF cCliente = "000044"  // CPOS
+   IF cCliente == "000044"  // CPOS
       cImpost += "Retencao para a previdencia social: "
+   ELSEIF cCliente == '000142'
+      cImpost += "BASE INSS: "+ALLTRIM(TRANSFORM(SF2->F2_BASEINS,"@E 9,999,999.99")+ " INSS: ")
    ELSE
       cImpost += "INSS: "
    ENDIF
@@ -554,13 +556,14 @@ ELSE
 	//IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
 	
 	// 07/02/2022 - Filtrar somente os clientes abaixo para pedir conta vinculada (Pedido pelo João Cordeiro) provisoriamente.
-	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014801/00023001/00016401/")
+	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014202/00014801/00023001/00016401/")
 
 		/*
 		000142	01	MINISTERIO DA FAZENDA                   
 		000148	01	MINISTERIO DA FAZENDA 
 		000230	01	MINISTERIO DA FAZENDA                   
 		000164	01	TRIBUNAL REGIONAL FEDERAL DA 3A REGIAO
+
 		*/
 
 		IF ContVinc()

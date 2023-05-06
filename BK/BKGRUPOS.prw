@@ -246,13 +246,13 @@ Return "000138/000093"
 
 // Emails dos gerenciadores de compras
 User Function EmGerCom(cxEmail)
-Local aUsers := {"000138","000116","000093"} // Michele,Luis,Fabio
+Local aUsers := {"000138","000093"} // Michele,Luis (removido),Fabio
 Return u_aUsrEmail(aUsers,cxEmail)
 
 
 // Emails faturamento
 User Function EmailFat(cxEmail)
-Local aUsers := {"000170","000242","000239","000016","000023"} // João C/Elaine/Juliana V/Diego O/Fabia
+Local aUsers := {"000170","000242","000239","000016","000023","000249"} // João C/Elaine/Juliana V/Diego O/Fabia/Sabrina
 Return u_aUsrEmail(aUsers,cxEmail)
 
 
@@ -282,17 +282,17 @@ Return "000005/000007/000008/000010/000029/000031/"
 
 // Usuarios Almoxarifado (para queries)
 User Function UsrAlmox()
-Return "'000093','000126','000216','000225','000226','000227'"
+Return "'000093','000216','000225','000226'"
 
 
 // Usuarios Master Almoxarifado (grupo 27)
 User Function UsrMAlmox()
-Return "000093/000216/000126/000232/000225/000227"  
+Return "000093/000216/000232/000225"  
 
 
-// Email para Grupo do (Fabio,Caio,Barbara,Jose Amauri,Andre Leitao)
+// Email para Grupo do (Fabio,Barbara,Jose Amauri)
 User Function EmEstAlm(cId,lAll,cxEmail)
-Local aUsers := {"000093","000126","000232","000216","000227"}
+Local aUsers := {"000093","000232","000216"}
 Local cEmails:= ""
 
 Default cxEmail := "-"
@@ -458,7 +458,7 @@ User Function BKPgto3()
 Local cRet := ""
 cRet += "microsiga@bkconsultoria.com.br;"
 cRet += "adalberto.xavier@bkconsultoria.com.br;"
-cRet += "christiane.almeida@bkconsultoria.com.br;"
+//cRet += "christiane.almeida@bkconsultoria.com.br;"
 cRet += "bruno.bueno@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
 Return cRet
@@ -485,6 +485,7 @@ cRet += "joao.cordeiro@bkconsultoria.com.br;"
 cRet += "juliana.villegas@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "sabrina.nogueira@bkconsultoria.com.br;"
+cRet += "tamires.silva@bkconsultoria.com.br;"
 
 Return cRet
 
@@ -495,18 +496,18 @@ Local cRet := ""
 cRet += "ana.campos@bkconsultoria.com.br;"
 cRet += "paloma.ferreira@bkconsultoria.com.br;"
 //cRet += "atendimentorh@bkconsultoria.com.br;"
-cRet += "christiane.almeida@bkconsultoria.com.br;"
+cRet += "paula.botaro@bkconsultoria.com.br;"
 cRet += "edson.silva@bkconsultoria.com.br;"
 //cRet += "erick.barros@bkconsultoria.com.br;"
 //cRet += "folhadeponto@bkconsultoria.com.br;"
 cRet += "juliana.magalhaes@bkconsultoria.com.br;"
 cRet += "karolaine.souza@bkconsultoria.com.br;"
 cRet += "kelly.silva@bkconsultoria.com.br;"
-cRet += "luciana.carvalho@bkconsultoria.com.br;"
+//cRet += "luciana.carvalho@bkconsultoria.com.br;"
 cRet += "ludimila.martins@bkconsultoria.com.br;"
 cRet += "marcio.souza@bkconsultoria.com.br;"
 cRet += "rafaela.lima@bkconsultoria.com.br;"
-
+cRet += "acsa.souza@bkconsultoria.com.br;"
 Return cRet
 
 
@@ -514,7 +515,6 @@ Return cRet
 User Function BKEmGCT()
 Local cRet := ""
 
-cRet += "acsa.souza@bkconsultoria.com.br;"
 cRet += "administrativo.bhg@bkconsultoria.com.br;"
 cRet += "alexandre.teixeira@bkconsultoria.com.br;"
 cRet += "carlos.ferreira@bkconsultoria.com.br;"
