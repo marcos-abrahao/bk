@@ -1275,7 +1275,7 @@ For j := 1 To nDias
 	    IF LEN(aTot) == 0  .AND. (ALLTRIM(SE2->E2_TIPO) == "DP"  .OR. (ALLTRIM(SE2->E2_TIPO) == "PA" .AND. ALLTRIM(SE2-> E2_PREFIXO) $ "LF/DV/CX"))
 			nFin   := 2
 			cQuery := ""
-			cQuery += "SELECT Z2_E2NUM,Z2_E2PRF,Z2_CC,SUM(Z2_VALOR) AS Z2_VALOR"
+			cQuery += "SELECT Z2_E2NUM,Z2_E2PRF,Z2_CC,) AS Z2_VALOR"
 			cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
 			cQuery += " WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_E2NUM='"+SE2->E2_NUM+"'"
 			cQuery += " AND Z2_E2PRF='"+SE2->E2_PREFIXO+"' AND Z2_E2PARC='"+SE2->E2_PARCELA+"' AND Z2_STATUS='S'"

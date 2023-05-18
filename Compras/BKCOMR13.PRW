@@ -48,16 +48,22 @@ AADD(aCabs1  ,"S.Grupo")
 AADD(aCampos1,"QSA2->ZI_DESC")
 AADD(aCabs1  ,"Desc.Sub.Grupo")
 
+AADD(aCampos1,"QSA2->D1_COD")
+AADD(aCabs1  ,"Ultimo Produto")
+
+AADD(aCampos1,"QSA2->B1_DESC")
+AADD(aCabs1  ,"Descrição")
+
 AADD(aCampos1,"Capital(QSA2->(FWLeUserlg('XX_USERLGI',1)))")
 AADD(aCabs1  ,"Cadastrado por")
 
-AADD(aCampos1,"QSA2->(FWLeUserlg('XX_USERLGI',2))")
+AADD(aCampos1,"CTOD(QSA2->(FWLeUserlg('XX_USERLGI',2)))")
 AADD(aCabs1  ,"Data Cad.")
 
 AADD(aCampos1,"Capital(QSA2->(FWLeUserlg('XX_USERLGA',1)))")
 AADD(aCabs1  ,"Alterado por")
 
-AADD(aCampos1,"QSA2->(FWLeUserlg('XX_USERLGA',2))")
+AADD(aCampos1,"CTOD(QSA2->(FWLeUserlg('XX_USERLGA',2)))")
 AADD(aCabs1  ,"Data Alt.")
 
 u_WaitLog(, {|| PrcQuery2() })
@@ -89,13 +95,13 @@ AADD(aCabs2  ,"Desc.Sub.Grupo")
 AADD(aCampos2,"Capital(QSB1->(FWLeUserlg('XX_USERLGI',1)))")
 AADD(aCabs2  ,"Cadastrado por")
 
-AADD(aCampos2,"QSB1->(FWLeUserlg('XX_USERLGI',2))")
+AADD(aCampos2,"CTOD(QSB1->(FWLeUserlg('XX_USERLGI',2)))")
 AADD(aCabs2  ,"Data Cad.")
 
 AADD(aCampos2,"Capital(QSB1->(FWLeUserlg('XX_USERLGA',1)))")
 AADD(aCabs2  ,"Alterado por")
 
-AADD(aCampos2,"QSB1->(FWLeUserlg('XX_USERLGA',2))")
+AADD(aCampos2,"CTOD(QSB1->(FWLeUserlg('XX_USERLGA',2)))")
 AADD(aCabs2  ,"Data Alt.")
 
 AADD(aPlans,{"QSA2",cPerg+"F","",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
@@ -112,17 +118,53 @@ Local cQuery
 
 //IncProc("Consultando fornecedores...")
 
+cQuery := "WITH FORN AS (" + CRLF
+cQuery += "SELECT DISTINCT " + CRLF
+cQuery += "   A2_COD," + CRLF
+cQuery += "   A2_LOJA," + CRLF
+cQuery += "   A2_NOME," + CRLF
+cQuery += "   A2_PRICOM," + CRLF
+cQuery += "   A2_USERLGI AS XX_USERLGI," + CRLF
+cQuery += "   A2_USERLGA AS XX_USERLGA," + CRLF
+cQuery += "   A2_ULTCOM," + CRLF
+cQuery += "   A5_PRODUTO," + CRLF
+cQuery += "   (SELECT TOP 1 D1_COD FROM "+RETSQLNAME("SD1")+ " WHERE D1_FORNECE = SA2.A2_COD AND D1_LOJA = SA2.A2_LOJA ORDER BY D1_DTDIGIT DESC) AS D1_COD" + CRLF
+
+cQuery += " FROM "+RETSQLNAME("SA2")+ " SA2 " + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SA5")+ " SA5 ON A2_COD = A5_FORNECE AND A2_LOJA = A5_LOJA "+ CRLF
+cQuery += "      AND  A5_FILIAL = '"+xFilial("SA5")+"' AND  SA5.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " WHERE A2_FILIAL = '"+xFilial("SA2")+"' AND SA2.D_E_L_E_T_='' "+ CRLF
+cQuery += ")" + CRLF
+
+cQuery += "SELECT " + CRLF
+cQuery += "   A2_COD," + CRLF
+cQuery += "   A2_LOJA," + CRLF
+cQuery += "   A2_NOME," + CRLF
+cQuery += "   A2_PRICOM," + CRLF
+cQuery += "   XX_USERLGI," + CRLF
+cQuery += "   XX_USERLGA," + CRLF
+cQuery += "   A2_ULTCOM," + CRLF
+cQuery += "   B1_XXSGRP," + CRLF
+cQuery += "   ZI_DESC," + CRLF
+cQuery += "   ISNULL(A5_PRODUTO,D1_COD) AS D1_COD," + CRLF
+cQuery += "   B1_DESC" + CRLF
+cQuery += "FROM FORN" + CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_COD = ISNULL(A5_PRODUTO,D1_COD) "+ CRLF
+cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SZI")+" SZI ON SZI.ZI_FILIAL='"+xFilial("SZI")+"' AND SB1.B1_XXSGRP = SZI.ZI_COD AND SZI.D_E_L_E_T_=''"+ CRLF
+cQuery += "ORDER BY A2_NOME,A2_COD,A2_LOJA,B1_XXSGRP" + CRLF
+
+/*
 cQuery := "SELECT DISTINCT A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_USERLGI AS XX_USERLGI,A2_USERLGA AS XX_USERLGA,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
-//cQuery := "SELECT TOP 100 A2_COD,A2_LOJA,A2_NOME,A2_PRICOM,A2_ULTCOM,B1_XXSGRP,ZI_DESC" + CRLF
 cQuery += " FROM "+RETSQLNAME("SA2")+ " SA2 " + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SA5")+ " SA5 ON A2_COD = A5_FORNECE AND A2_LOJA = A5_LOJA "+ CRLF
 cQuery += "      AND  A5_FILIAL = '"+xFilial("SA5")+"' AND  SA5.D_E_L_E_T_ = ' '"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_COD = A5_PRODUTO "+ CRLF
 cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
-//cQuery += " LEFT JOIN "+RETSQLNAME("SBM")+" SBM ON SBM.BM_FILIAL='"+xFilial("SBM")+"' AND SB1.B1_GRUPO=SBM.BM_GRUPO AND SBM.D_E_L_E_T_=''"+ CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SZI")+" SZI ON SZI.ZI_FILIAL='"+xFilial("SZI")+"' AND SB1.B1_XXSGRP = SZI.ZI_COD AND SZI.D_E_L_E_T_=''"+ CRLF
 cQuery += " WHERE A2_FILIAL = '"+xFilial("SA2")+"' AND SA2.D_E_L_E_T_='' "+ CRLF
 cQuery += "ORDER BY A2_NOME,A2_COD,A2_LOJA,B1_XXSGRP" + CRLF
+*/
 
 u_LogMemo("BKCOMR13-SA2.SQL",cQuery)
 

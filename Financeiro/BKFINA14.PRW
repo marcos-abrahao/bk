@@ -296,14 +296,19 @@ FOR nI := 1 TO LEN(aTit1Ger)
 	IF aTit1Ger[nI,1]
 		nTotal += aTit1Ger[nI,5] 
 	ENDIF
-	//  1        2             3         4       5          6        7      8        9       10       11      12     13     14       15        16               17            18      19    20       21
-	// "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NOMDEP","Z2_NOMMAE"
-	nScan:= 0
-	nScan:= aScan(aBordero,{|x| x[3]==aTit1Ger[nI,3] .AND. x[6]==aTit1Ger[nI,6] .AND. x[8]==aTit1Ger[nI,8] .AND. x[9]==aTit1Ger[nI,9] .AND. x[11]==aTit1Ger[nI,11] .AND. x[13]==aTit1Ger[nI,13]})
-	IF nScan == 0
+	//PARA EMPRESA 16 MOOVE-SP FOI RETIRADO A AGLUTINAÇÃO DE TITULOS - SOLICITADO PELO LAUDECIR FINANCEIRO - 10/05/2023
+	IF FWCodEmp() == "16"
 		AADD(aBordero,aTit1Ger[nI])
 	ELSE
-		aBordero[nScan,5] += aTit1Ger[nI,5]
+		//  1        2             3         4       5          6        7      8        9       10       11      12     13     14       15        16               17            18      19    20       21
+		// "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NOMDEP","Z2_NOMMAE"
+		nScan:= 0
+		nScan:= aScan(aBordero,{|x| x[3]==aTit1Ger[nI,3] .AND. x[6]==aTit1Ger[nI,6] .AND. x[8]==aTit1Ger[nI,8] .AND. x[9]==aTit1Ger[nI,9] .AND. x[11]==aTit1Ger[nI,11] .AND. x[13]==aTit1Ger[nI,13]})
+		IF nScan == 0
+			AADD(aBordero,aTit1Ger[nI])
+		ELSE
+			aBordero[nScan,5] += aTit1Ger[nI,5]
+		ENDIF
 	ENDIF
 
 NEXT

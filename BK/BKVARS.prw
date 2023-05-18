@@ -21,8 +21,6 @@ ElseIf cEmpAnt == '16'
 	cCC := '386000609'
 EndIf
 
-
-
 Return cCC
 
 

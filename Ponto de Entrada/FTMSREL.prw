@@ -33,7 +33,7 @@ bMostra := { || SZE->ZE_CONTRAT + SZE->ZE_COMPET }
 //Array com os campos que identificam os campos utilizados na descrição
 aFields := {'ZE_CONTRAT','ZE_COMPET'}                                
 // funcoes do sistema para identificar o registro
-AAdd( aRet, { cTabela, aChave, bMostra,aFields } )
+AAdd( aRet, { cTabela, aChave, bMostra, aFields } )
  
  
 Return aRet

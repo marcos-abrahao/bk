@@ -292,7 +292,7 @@ If !Empty(cContra) .AND. !EMPTY(cCompet)
 		MsUnlock()
 	EndIf
 	nRecZE := RecNo()
-	MsDocument("SZE",nRecZE,6)
+	MsDocument("SZE",nRecZE,4) //6
 Else
 	u_MsgLog("CNTA121_PE","Informe o contrato e a competência","W")
 EndIf
