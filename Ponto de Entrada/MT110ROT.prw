@@ -29,6 +29,7 @@ User Function MT110ROT()
 //AAdd( aRotina, { 'Documento', 'MsDocument('SC1', SC1->(recno()), 4)', 0, 4 } )
 
 AADD( aRotina, {OemToAnsi("Alt. Valor Lic."), "U_MT110VLC", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Solicitações em Aberto"), "U_BKCOMR17", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Incluir via Copia e Cola"), "U_BKCOMA19", 0, 4 } )
 
 Return aRotina

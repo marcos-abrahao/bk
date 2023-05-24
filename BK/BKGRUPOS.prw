@@ -432,7 +432,7 @@ Local cRest := "http://"+u_BkIpPort()+"/rest"
 Return cRest
 
 
-// Grupos de e-mail abaixa são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
+// Grupos de e-mail abaixo são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
 
 // E-mails do grupo financeiro 1 do google
 User Function BKPgto1()
@@ -482,7 +482,7 @@ cRet += "diego.oliveira@bkconsultoria.com.br;"
 cRet += "elaine.magalhaes@bkconsultoria.com.br;"
 //cRet += "fernando.vallinari@bkconsultoria.com.br;"
 cRet += "joao.cordeiro@bkconsultoria.com.br;"
-cRet += "juliana.villegas@bkconsultoria.com.br;"
+//cRet += "juliana.villegas@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "sabrina.nogueira@bkconsultoria.com.br;"
 cRet += "tamires.silva@bkconsultoria.com.br;"

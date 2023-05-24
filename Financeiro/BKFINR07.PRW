@@ -25,7 +25,7 @@ Local aPlans         := {}
 Private cPerg        := "FINR07"
 Private fGFrota      := fFrota
 
-Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin
+Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin,cForn
 Private nPagto
 Private aPgtos 		 := {}
 
@@ -44,6 +44,7 @@ cCustoAte:= MV_PAR06
 nUsers   := MV_PAR07
 nImpostos:= MV_PAR08
 nPaFin	 := MV_PAR09
+cForn	 := MV_PAR10
 
 fGFrota  := fFrota
 
@@ -591,6 +592,13 @@ IF !EMPTY(cCustoAte)
 		ctitulo += " - Contrato até: "+ALLTRIM(cCustoAte)
 	ENDIF
 ENDIF
+IF !Empty(cForn)
+	cQuery += " AND SD1.D1_FORNECE = '"+ALLTRIM(cForn)+"' "+CRLF
+	IF EMPTY(cCustoDe)
+		ctitulo += " - Fornecedor: "+ALLTRIM(cForn)
+	ENDIF
+EndIf
+
 
 If nPaFin == 1 .AND. EMPTY(cProduto)
 
@@ -742,6 +750,9 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 		cQuery += " AND SE2.E2_CCUSTO <= '"+ALLTRIM(cCustoAte)+"' "+CRLF
 	ENDIF
 
+	IF !Empty(cForn)
+		cQuery += " AND SE2.E2_FORNECE = '"+ALLTRIM(cForn)+"' "+CRLF
+	EndIf
 EndIf
 
 
@@ -967,6 +978,7 @@ AADD(aRegistros,{cPerg,"06","Contrato até?"    ,"Contrato até?","Contrato até?",
 AADD(aRegistros,{cPerg,"07","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 AADD(aRegistros,{cPerg,"08","Listar impostos?" ,"Impostos"     ,"Impostos"     ,"mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 AADD(aRegistros,{cPerg,"09","Listar PA (fin)?" ,"Listar PA"    ,"Listar PA"    ,"mv_ch9","N",01,0,2,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"10","Fornecedor:"      ,"Fornecedor:"  ,"Fornecedor:"  ,"mv_cha","C",06,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

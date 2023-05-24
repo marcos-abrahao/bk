@@ -66,7 +66,7 @@ nStatusX := QSZB->ZBSTATUSX
 QSZB->(DbCloseArea())
 
 IF nStatusX > 0
-   u_MsgLog(cPrw,"Integração já iniciada por outra seção", "W")
+   (cPrw,"Integração já iniciada por outra seção", "W")
 	IF __cUserId <> "000000"
 	   u_MsgLog(cPrw,"Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "E")
     ELSE

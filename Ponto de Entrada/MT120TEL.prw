@@ -90,7 +90,8 @@ Return
 
 User Function MT120BRW()
 
-aAdd( aRotina, { "Pedido Urgente?", "U_BKALTSC7", 4, 0, 4 } )
+aAdd( aRotina, { "Pedido Urgente?",   "U_BKALTSC7", 4, 0, 4 } )
+aAdd( aRotina, { "Pedidos em Aberto", "U_BKCOMR16", 4, 0, 4 } )
 
 Return Nil
 
