@@ -91,6 +91,9 @@ AADD(aCabs  ,GetSX3Cache("F4_TEXTO", "X3_TITULO"))
 AADD(aCampos,"QSD1->F4_CF")
 AADD(aCabs  ,GetSX3Cache("F4_CF", "X3_TITULO"))
 
+AADD(aCampos,"QSD1->F4_CSTPIS")
+AADD(aCabs  ,GetSX3Cache("F4_CSTPIS", "X3_TITULO"))
+
 AADD(aCampos,"QSD1->D1_CC")
 AADD(aCabs  ,"Centro de Custos")
 
@@ -437,6 +440,7 @@ cQuery += " ZI_DESC, "+CRLF
 cQuery += " D1_TES, "+CRLF
 cQuery += " F4_TEXTO, "+CRLF
 cQuery += " F4_CF, "+CRLF
+cQuery += " F4_CSTPIS, "+CRLF
 
 cQuery += " '' AS E2_VENCREA, "+CRLF // E2_VENCREA
 cQuery += " '' AS E2_BAIXA, "+CRLF   // E2_BAIXA
@@ -631,6 +635,7 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 	cQuery += " ' '			AS D1_TES,"+CRLF
 	cQuery += " ' '			AS F4_TEXTO,"+CRLF
 	cQuery += " ' '			AS F4_CF, "+CRLF
+	cQuery += " ' '			AS F4_CSTPIS, "+CRLF
 
 	cQuery += " E2_VENCREA,"+CRLF
 	cQuery += " E2_BAIXA,"+CRLF

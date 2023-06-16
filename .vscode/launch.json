@@ -71,5 +71,6 @@
 			"label": "U_UPDSZV"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "<cancel>",
+	"lastProgramArguments": []
 }

@@ -27,11 +27,12 @@ AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"),  "U_BKF750A", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Conhecimento"),  "MSDOCUMENT", 0, 4 } )
 //AADD( aRotina, {OemToAnsi("Anexar Arq. "+cEmpName),   "U_BKANXA01('1','SE2')", 0, 4 } )
 //AADD( aRotina, {OemToAnsi("Abrir Anexos "+cEmpName),  "U_BKANXA02('1','SE2')", 0, 4 } )
-AADD( aRotina, {OemToAnsi("Alt Emissão/Bco"),  "U_BKFINA10", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Alt Emissão/Bco"),  "U_BKF750B", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Alt Centro de Custos"), "U_BKF750C", 0, 4 } )
 IF SM0->M0_CODIGO <> "01"
 	AADD( aRotina, {OemToAnsi("Incluir DNF na BK"),"U_BKFINA18", 0, 4 } )
 ENDIF
-AADD( aRotina, {OemToAnsi("Baixa BK - RET BANCO"),  "U_BKFINA22", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Baixa BK - RET BANCO"), "U_BKFINA22", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Empréstimos BK"),  "U_BKFINA31", 0, 4 } )
 
 //aRotx := aClone(aRotina)
@@ -57,7 +58,7 @@ Return Nil
 
 
 // Alteração de data de emissao de titulo e Portador
-User Function BKFINA10()
+User Function BKF750B()
 Local _sAlias	:= Alias()
 Local oDlg01,aButtons := {},lOk := .F.
 Local aAreaAtu	:= GetArea()
@@ -67,18 +68,18 @@ Local dEmis  := SE2->E2_EMISSAO
 Local cPort  := SE2->E2_PORTADO
 
 IF EMPTY(SE2->E2_XXCTRID)
-	MsgStop("Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "Atenção")
+	u_MsgLog("BKF750B","Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt),"E")
 	RestArea(aAreaAtu)
 	Return
 ENDIF
 
 IF SE2->E2_SALDO <> SE2->E2_VALOR
-	MsgStop("Titulo já sofreu baixas", "Atenção")
+	u_MsgLog("BKF750B","Titulo já sofreu baixas","E")
 	RestArea(aAreaAtu)
 	Return
 ENDIF
 
-Define MsDialog oDlg01 Title "BKFINA10-Alt. dados Tit. a Pagar: "+SE2->E2_NUM  From 000,000 To 280,600 Of oDlg01 Pixel
+Define MsDialog oDlg01 Title "BKF750B - Alt. dados Tit. a Pagar: "+SE2->E2_NUM  From 000,000 To 280,600 Of oDlg01 Pixel
 
 nSnd := 35
 @ nSnd,010 Say "Data de emissão do titulo:" Size 080,009 Pixel Of oDlg01
@@ -96,6 +97,45 @@ If ( lOk )
 		SE2->E2_EMISSAO := dEmis
 		SE2->E2_EMIS1   := dEmis
 		SE2->E2_PORTADO := cPort
+		msUnlock()
+	ENDIF
+EndIf
+
+RestArea( aAreaAtu )
+dbSelectArea(_sAlias)
+
+Return lOk
+
+
+
+// Alteração de Centro de Custos - E2_CCUSTO (Usado nas PAs de Reforma de Balsa)
+User Function BKF750C()
+Local _sAlias	:= Alias()
+Local oDlg01,aButtons := {},lOk := .F.
+Local aAreaAtu	:= GetArea()
+Local nSnd,nTLin := 15
+
+Private cCusto := SE2->E2_CCUSTO
+Private cHist  := SE2->E2_HIST
+
+Define MsDialog oDlg01 Title "BKF750C - Alt. dados Tit. a Pagar: "+SE2->E2_NUM  From 000,000 To 280,600 Of oDlg01 Pixel
+
+nSnd := 35
+@ nSnd,010 Say "Centro de Custo:" Size 080,009 Pixel Of oDlg01
+@ nSnd,100 MsGet cCusto Picture "999999999"  Size 040,009 HASBUTTON F3 "CTT" VALID ExistCpo("CTT",cCusto) Pixel Of oDlg01
+
+nSnd += nTLin
+@ nSnd,010 Say "Histórico:" Size 080,008 Pixel Of oDlg01
+@ nSnd,100 MsGet cHist Picture "@!"  Size 100,009 Pixel Of oDlg01
+
+
+ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| oDlg01:End()}, , aButtons)
+If ( lOk )
+	IF cCusto <> SE2->E2_CCUSTO .OR. cHist <> SE2->E2_HIST
+		RecLock("SE2",.F.)
+		SE2->E2_CCUSTO := cCusto
+		SE2->E2_HIST   := ALLTRIM(cHist)
+		u_MsgLog("BKF750C","Centro de Custo do título "+SE2->E2_NUM+" alterado para "+cCusto)
 		msUnlock()
 	ENDIF
 EndIf

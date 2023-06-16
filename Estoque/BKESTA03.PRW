@@ -11,7 +11,7 @@ BK -Inclusão Termo Transferencia / Responsabilidade / Recebimento controle de Es
 @return Nil
 /*/
 
-User Function BKESTA03
+User Function BKESTA03()
 Local cFiltra     := ""
 
 Private cCadastro	:= "Inclusão Termo Transferencia / Responsabilidade / Recebimento"
@@ -35,17 +35,18 @@ AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='02' .AND. SZV->ZV_RECEBEU<>'S'","BR_LARANJA
 AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='02' .AND. SZV->ZV_RECEBEU=='S'","BR_PRETO"})
 AADD(aCores,{"ALLTRIM(SZV->ZV_TM) =='03'","BR_VERMELHO"})
 
-AADD(aRotina,{"Pesquisa"		        ,"AxPesquisa"   ,0,1})
-AADD(aRotina,{"Visualizar"		        ,"AxVisual"     ,0,2})
-AADD(aRotina,{"Incluir Nota Trans."		,"U_INCLSZV"    ,0,3})
-AADD(aRotina,{"Entrega Uniforme"		,"U_RECBUNISZV" ,0,4})
-AADD(aRotina,{"Devolução Uniforme"		,"U_DEVOUNISZV" ,0,4})
-AADD(aRotina,{"Impressão Termos"		,"U_PRINTSZV"   ,0,4})
-AADD(aRotina,{"Excluir Termos"		    ,"U_EXCLUISZV"  ,0,4})
-AADD(aRotina,{"Relatorio de Saldo"		,"U_RELSALDSZV" ,0,4})
+AADD(aRotina,{"Pesquisa"		       	 		,"AxPesquisa"   ,0,1})
+AADD(aRotina,{"Visualizar"		        		,"AxVisual"     ,0,2})
+AADD(aRotina,{"Incluir Nota Trans."				,"U_INCLSZV"    ,0,3})
+AADD(aRotina,{"Entrega Uniforme"				,"U_RECBUNISZV" ,0,4})
+AADD(aRotina,{"Devolução Uniforme"				,"U_DEVOUNISZV" ,0,4})
+AADD(aRotina,{"Impressão Termos"				,"U_PRINTSZV"   ,0,4})
+AADD(aRotina,{"Excluir Termos"		    		,"U_EXCLUISZV"  ,0,4})
+AADD(aRotina,{"Relatorio de Saldo"				,"U_RELSALDSZV" ,0,4})
 AADD(aRotina,{"Confirma Receb. Funcionário"		,"U_BXRECEBEU" 	,0,4})
-AADD(aRotina,{"Baixa Resp. Recebimento"	,"U_BXRESDEV" 	,0,4})
-AADD(aRotina,{"Legenda"			        ,"U_SZVLEG"     ,0,4})
+AADD(aRotina,{"Baixa Resp. Recebimento"			,"U_BXRESDEV" 	,0,4})
+AADD(aRotina,{"Planilha Excel Entrega Uniforme"	,"U_BKESTA04" ,0,4})
+AADD(aRotina,{"Legenda"			        		,"U_SZVLEG"     ,0,4})
 
 
 dbSelectArea(cString)

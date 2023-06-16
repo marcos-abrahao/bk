@@ -983,7 +983,7 @@ Static Function ProcBKGCTR11(lJob)
 				nScan:= 0
 				nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 				IF nScan > 0
-					nIndTC := VAL(aConsorcio[nScan,6])
+					nIndTC := VAL(aConsorcio[nScan,6]) 
 				ENDIF
 			ENDIF
 

@@ -252,7 +252,7 @@ Return u_aUsrEmail(aUsers,cxEmail)
 
 // Emails faturamento
 User Function EmailFat(cxEmail)
-Local aUsers := {"000170","000242","000239","000016","000023","000249"} // João C/Elaine/Juliana V/Diego O/Fabia/Sabrina
+Local aUsers := {"000170","000242","000016","000023","000249"} // João C/Elaine/Diego O/Fabia/Sabrina
 Return u_aUsrEmail(aUsers,cxEmail)
 
 
@@ -414,7 +414,8 @@ Return lRet
 // Financeiro
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()
-Return "000011/000012/000000/000016"  // Diego 16 incluido nas ferias do Lau
+//      Admin  Lau    Xavier Diego  Andresa
+Return "000000/000011/000012/000016/000197"
 
 
 // Retorna IP e Porta do server REST
@@ -494,7 +495,7 @@ User Function BKEmRH()
 Local cRet := ""
 
 cRet += "ana.campos@bkconsultoria.com.br;"
-cRet += "paloma.ferreira@bkconsultoria.com.br;"
+//cRet += "paloma.ferreira@bkconsultoria.com.br;"
 //cRet += "atendimentorh@bkconsultoria.com.br;"
 cRet += "paula.botaro@bkconsultoria.com.br;"
 cRet += "edson.silva@bkconsultoria.com.br;"
@@ -508,6 +509,8 @@ cRet += "ludimila.martins@bkconsultoria.com.br;"
 cRet += "marcio.souza@bkconsultoria.com.br;"
 cRet += "rafaela.lima@bkconsultoria.com.br;"
 cRet += "acsa.souza@bkconsultoria.com.br;"
+cRet += "deize.silva@bkconsultoria.com.br;"
+cRet += "tany.sousa@bkconsultoria.com.br;"
 Return cRet
 
 

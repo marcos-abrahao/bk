@@ -6,7 +6,7 @@
 
 // Define tamanho de 8 posicoes para os campos de Lote Financeiro
 #DEFINE N_TAM_LOTE		8
-#DEFINE FIN_LAST_UPDATED 		"13/02/2023 SC1 "
+#DEFINE FIN_LAST_UPDATED 		"05/06/2023 CTT "
 #DEFINE X3_USADO_EMUSO 			"€€€€€€€€€€€€€€ "
 #DEFINE X3_USADO_NAOUSADO 		"€€€€€€€€€€€€€€€" 
 #DEFINE X3_USADO_OBRIGATO 		"€€€€€€€€€€€€€€°"   
@@ -1619,6 +1619,20 @@ oProcess:IncRegua2( "Manutenção X31UPDTABLE..." )
 cTexto  += FIN_LAST_UPDATED + CRLF 
 
 dbSelectArea( "SX3" )
+APPEND FROM \tmp\sx3ctt.dtc
+
+X31UPDTABLE("CTT")
+
+
+
+//dbSetOrder( 1 )
+
+Return
+
+
+/*
+
+dbSelectArea( "SX3" )
 dbSetOrder( 2 )
 If SX3->( dbSeek( "C1_XXLCVAL" ) )
 	RecLock( "SX3", .F. )
@@ -1636,14 +1650,6 @@ If SX3->( dbSeek( "C1_XXLCTOT" ) )
 	MsUnLock()
 EndIf
 
-
-
-//dbSetOrder( 1 )
-
-Return
-
-
-/*
 
 cTexto  += "20/01/23 - SF1 " + CRLF 
 dbSetOrder( 2 )

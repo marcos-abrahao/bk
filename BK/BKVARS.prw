@@ -157,7 +157,7 @@ User Function MVXVRVAP()
 Local cVar := "|31201045|31201047|"
 Return cVar
 
-// Codigo contrato e empresa Consorcio calculo Rentabilidade
+// Codigo contrato e empresa Consorcio calGENX3culo Rentabilidade
 User Function MVXCONS()
 Local cVar := " "
 Local aVar := {}
