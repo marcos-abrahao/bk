@@ -33,6 +33,7 @@ Local cTabCNF   := ""
 Local cTabCNA   := ""
 Local cTabSE5   := ""
 Local cTabSE1   := ""
+Local cTabSD2   := ""
 
 //u_MsgLog("BKDSFAT","Inicio: Faturamento")
 
@@ -55,6 +56,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabCNA := "CNA"+cEmpresa+"0"
 	cTabSE5 := "SE5"+cEmpresa+"0"
 	cTabSE1 := "SE1"+cEmpresa+"0"
+	cTabSD2 := "SD2"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -234,12 +236,37 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "FROM " + CRLF
 	cQuery += "  "+cTabSF2+" SF2 " + CRLF
 
+	// -->  27/06/2023 Marcos
+	//cQuery += " LEFT JOIN "+cTabSC5+" SC5" + CRLF
+	//cQuery += "     ON (C5_NOTA = F2_DOC " + CRLF
+	//cQuery += "         AND C5_SERIE = F2_SERIE " + CRLF
+	//cQuery += "         AND C5_FILIAL = F2_FILIAL " + CRLF
+	//cQuery += "         AND SC5.D_E_L_E_T_ = ''" + CRLF
+	//cQuery += " ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSD2+" SD2" + CRLF
+	cQuery += "     ON (D2_SERIE = F2_SERIE " + CRLF
+	cQuery += "         AND D2_DOC = F2_DOC " + CRLF
+	cQuery += "         AND D2_FILIAL = F2_FILIAL " + CRLF
+    cQuery += "         AND SD2.D_E_L_E_T_ = '' " + CRLF
+    cQuery += "         AND SD2.R_E_C_N_O_ = (" + CRLF
+    cQuery += "              SELECT " + CRLF
+    cQuery += "                 MIN(R_E_C_N_O_) " + CRLF
+    cQuery += "              FROM " + CRLF
+    cQuery += "                "+cTabSD2+" SD21 " + CRLF
+    cQuery += "              WHERE " + CRLF
+    cQuery += "                 SD21.D2_SERIE = F2_SERIE " + CRLF
+    cQuery += "              AND SD21.D2_DOC = F2_DOC " + CRLF
+	cQuery += "         	 AND SD21.D2_FILIAL = F2_FILIAL " + CRLF
+    cQuery += "              AND SD21.D_E_L_E_T_ = '' ) " + CRLF
+    cQuery += "         ) " + CRLF
+
 	cQuery += " LEFT JOIN "+cTabSC5+" SC5" + CRLF
-	cQuery += "     ON (C5_NOTA = F2_DOC " + CRLF
-	cQuery += "         AND C5_SERIE = F2_SERIE " + CRLF
-	cQuery += "         AND C5_FILIAL = F2_FILIAL " + CRLF
+	cQuery += "     ON (C5_NUM = D2_PEDIDO " + CRLF
+	cQuery += "         AND C5_FILIAL = D2_FILIAL " + CRLF
 	cQuery += "         AND SC5.D_E_L_E_T_ = ''" + CRLF
 	cQuery += " ) " + CRLF
+	// <--  27/06/2023 Marcos
 
 	cQuery += " LEFT JOIN "+cTabCND+" CND" + CRLF
 	cQuery += "     ON (CND_NUMMED = C5_MDNUMED " + CRLF
