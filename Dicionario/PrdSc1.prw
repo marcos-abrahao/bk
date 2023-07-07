@@ -31,6 +31,7 @@ IF EMPTY(M->C1_XXLCVAL) // .AND. nOpcx = 1
    IF !EOF()
       nXXLCVAL := C1_XXLCVAL
       M->C1_XXLCVAL := nXXLCVAL
+      M->C1_XXLCTOT := nXXLCVAL * M->C1_QUANT
    ENDIF   
    dbCloseArea()
    RestArea(aArea1)

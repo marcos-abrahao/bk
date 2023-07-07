@@ -252,7 +252,7 @@ Return u_aUsrEmail(aUsers,cxEmail)
 
 // Emails faturamento
 User Function EmailFat(cxEmail)
-Local aUsers := {"000170","000242","000016","000023","000249"} // João C/Elaine/Diego O/Fabia/Sabrina
+Local aUsers := {"000170","000242","000016","000023","000249","000273"} // João C/Elaine/Diego O/Fabia/Sabrina/Leandro
 Return u_aUsrEmail(aUsers,cxEmail)
 
 

@@ -189,6 +189,7 @@ Do While !eof()
 		
 		IF lMsErroAuto
 
+			//aerro := Mostraerro() 
 			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento")
 
 			DisarmTransaction()

@@ -13,6 +13,8 @@ User Function MT110LOK()
 	
 	// Busca posição do campos
 	Local _nPosLcV	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXLCVAL'})
+	Local _nPosQtd	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_QUANT'})
+	Local _nPosLcT	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXLCTOT'})
 	Local _nPosPrd	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_PRODUTO'})
 	Local _nPosDesc	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DESCRI'})
 	//Local _nPosRec	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_REC_WT'})
@@ -65,6 +67,9 @@ User Function MT110LOK()
 		//	_lRet := .F. // Quando false o sistema não permitirá que o usuário prossiga para a proxima linha
 		//EndIf
 	EndIf
+	
+	// Total estimado
+	aCols[n][_nPosLcT] := aCols[n][_nPosLcV] * aCols[n][_nPosQtd]
 
 	SC1->(RestArea(aAreaSC1))
 Return _lRet

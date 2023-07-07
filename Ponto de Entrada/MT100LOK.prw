@@ -14,10 +14,14 @@ User Function MT100LOK()
 Local lExecuta  := ParamIxb[1] // Validações do usuário para inclusão ou alteração do item na NF de Despesas de Importação
 Local nPosTES   := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_TES"})
 Local nPosPrd   := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_COD"})
+Local nPosCC    := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_CC"})
+
 Local aAreaSF4	:= SF4->(GetArea())
 Local aAreaSB1	:= SB1->(GetArea())
 Local cTESn     := aCols[n][nPosTES]
 Local cProdn    := aCols[n][nPosPrd]
+Local cCC       := aCols[n][nPosCC]
+Local cCCCum    := u_BKCCCum()
 
 If !Empty(cTESn)
     If SF4->(dbSeek(xFilial("SF4")+cTESn))
@@ -33,6 +37,12 @@ If !Empty(cTESn)
                 lExecuta := .F.
             EndIf
         EndIf
+
+        // Regime Cumulativo
+        If ALLTRIM(cCC) $ cCCCum .AND. SF4->F4_CSTPIS == '50'
+            u_MsgLog("MT100LOK","Utilize a TES correta para contratos do regime cumulativo: 104->101/105->126/107->102/109->127/117->128/122->129","E")
+        EndIf
+
     EndIf
 
 EndIf

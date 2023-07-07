@@ -40,12 +40,12 @@ AADD(aRotina,{"Visualizar"		        		,"AxVisual"     ,0,2})
 AADD(aRotina,{"Incluir Nota Trans."				,"U_INCLSZV"    ,0,3})
 AADD(aRotina,{"Entrega Uniforme"				,"U_RECBUNISZV" ,0,4})
 AADD(aRotina,{"Devolução Uniforme"				,"U_DEVOUNISZV" ,0,4})
-AADD(aRotina,{"Impressão Termos"				,"U_PRINTSZV"   ,0,4})
+AADD(aRotina,{"Impressão Termos"				,"U_BUSCSZV"    ,0,4})
 AADD(aRotina,{"Excluir Termos"		    		,"U_EXCLUISZV"  ,0,4})
 AADD(aRotina,{"Relatorio de Saldo"				,"U_RELSALDSZV" ,0,4})
 AADD(aRotina,{"Confirma Receb. Funcionário"		,"U_BXRECEBEU" 	,0,4})
 AADD(aRotina,{"Baixa Resp. Recebimento"			,"U_BXRESDEV" 	,0,4})
-AADD(aRotina,{"Planilha Excel Entrega Uniforme"	,"U_BKESTA04" ,0,4})
+AADD(aRotina,{"Planilha Excel Entrega Uniforme"	,"U_BKESTA04"   ,0,4})
 AADD(aRotina,{"Legenda"			        		,"U_SZVLEG"     ,0,4})
 
 
@@ -119,7 +119,6 @@ PRIVATE cDCLIENT := SPACE(80)
 	@ nSnd,060 MsGet dDataD Picture "@E"  Size 060,010 Pixel OF oPanelLeft WHEN .T.
 
 	@ nSnd,130 MsGet cDCLIENT Picture '@!' Size 280,010 Pixel OF oPanelLeft PIXEL WHEN .F. 
-
 	nSnd += nTLin
 
 	@ nSnd,010 Say "Custo / Contrato:" Size 080,010 Pixel OF oPanelLeft
@@ -515,11 +514,13 @@ ENDIF
 Return _lOK
 
 
-USER FUNCTION PRINTSZV()
+USER FUNCTION PRINTSZV(lTipo)
 LOCAL cTermo 	:= SZV->ZV_CODIG
 LOCAL cCLIENT 	:= ""
 LOCAL cMUNIC	:= "SÃO PAULO" 
 LOCAL aItens 	:= {}
+
+DEFAULT lTipo := .T.
 
 
 dbSelectArea("SZV")
@@ -547,27 +548,91 @@ IF dbSeek(xFilial("SZV")+cTermo,.T.)
 
 	IF LEN(aItens) > 0
 		IF ALLTRIM(SZV->ZV_TM) == '01'
-			IF u_MsgLog("DTRANSTML","Gerar impressão da Declaração de Transferência ?","Y")
+			//IF u_MsgLog("DTRANSTML","Gerar impressão da Declaração de Transferência ?","Y")
 				DTRANSTML(SZV->ZV_CODIG,SZV->ZV_EMISSAO,cMUNIC,SZV->ZV_ENDBK,cCLIENT,SZV->ZV_ENDCO,SZV->ZV_NOMRE,SZV->ZV_CPFRE,aItens)
-			ENDIF
-			IF u_MsgLog("RESPUSO","Gerar impressão do Termo de Responsabilidade de Uso ?","Y")
+			//ENDIF
+			//IF u_MsgLog("RESPUSO","Gerar impressão do Termo de Responsabilidade de Uso ?","Y")
 				RESPUSO(SZV->ZV_CODIG,SZV->ZV_EMISSAO,SZV->ZV_CC,SZV->ZV_GESTO,cMUNIC,SZV->ZV_ENDBK,cCLIENT,SZV->ZV_ENDCO,SZV->ZV_NOMRE,SZV->ZV_CPFRE,aItens)
-			ENDIF
+			//ENDIF
 		ENDIF
 		IF ALLTRIM(SZV->ZV_TM)  == '02'
-			IF u_MsgLog("RECEBUNIFORME","Gerar impressão do Termo de Recebimento Local de Uniforme ?","Y")
+			//IF u_MsgLog("RECEBUNIFORME","Gerar impressão do Termo de Recebimento Local de Uniforme ?","Y")
 				RECEBUNIFORME(cTermo,SZV->ZV_EMISSAO,SZV->ZV_CC,SZV->ZV_NOME,SZV->ZV_RGFUNC,SZV->ZV_PRONT,SZV->ZV_FUNCA,aItens)
-			ENDIF
+			//ENDIF
 		ENDIF
 		IF ALLTRIM(SZV->ZV_TM)  == '03'
-			IF u_MsgLog("TDEVOLUCAO","Gerar impressão do Termo de Devolução de Uniforme/EPI ?","Y")
+			//IF u_MsgLog("TDEVOLUCAO","Gerar impressão do Termo de Devolução de Uniforme/EPI ?","Y")
 				TDEVOLUCAO(cTermo,SZV->ZV_EMISSAO,cMUNIC,SZV->ZV_CC,SZV->ZV_CCDESC,SZV->ZV_NOME,SZV->ZV_RGFUNC,SZV->ZV_PRONT,SZV->ZV_FUNCA,SZV->ZV_RDEVO,SZV->ZV_CPFRD,aItens)
-			ENDIF
+			//ENDIF
 		ENDIF
 	ENDIF
 ENDIF
 
 Return NIL
+
+USER FUNCTION BUSCSZV()
+LOCAL cPerg  := "BUSCSZV"
+LOCAL cQuery := ""
+
+ValidPerg(cPerg)
+	
+IF !Pergunte(cPerg,.T.)
+	RestArea(aAreaIni)
+	Return
+ENDIF
+cQuery += " SELECT ZV_CODIG"
+cQuery += " FROM "+RETSQLNAME("SZV")+ " SZV" + CRLF
+cQuery += " WHERE SZV.D_E_L_E_T_='' "
+cQuery += " AND SZV.ZV_CODIG>='"+mv_par01+"'"
+cQuery += " AND SZV.ZV_CODIG<='"+mv_par02+"'"
+cQuery += " GROUP BY ZV_CODIG"
+cQuery += " ORDER BY ZV_CODIG"
+
+IF SELECT('QYZV2') > 0
+	QYZV2->(DBCLOSEAREA())
+ENDIF
+					
+DBUSEAREA(.T.,"TOPCONN"	,TCGENQRY(,,cQuery),'QYZV2',.F.,.T.)
+
+DBSELECTAREA('QYZV2')
+while QYZV2->(!EOF())
+	dbSelectArea("SZV")
+	dbSetOrder(1)
+	IF dbSeek(xFilial("SZV")+QYZV2->ZV_CODIG,.T.)
+		U_PRINTSZV(.F.)
+	ENDIF
+	QYZV2->(dbSkip())
+ENDDO
+QYZV2->(DBCLOSEAREA())
+Return NIL
+
+
+Static Function  ValidPerg(cPerg)
+Local i,j
+Local aArea      := GetArea()
+Local aRegistros := {}
+dbSelectArea("SX1")
+dbSetOrder(1)
+cPerg := PADR(cPerg,10)
+
+AADD(aRegistros,{cPerg,"01","Termo de ?"       ,"Termo de ?"       ,"Termo de ?"       ,"mv_ch1","C",09,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"02","Termo até ?"      ,"Termo até ?"      ,"Termo até ?"      ,"mv_ch2","C",09,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+
+For i:=1 to Len(aRegistros)
+	If !dbSeek(cPerg+aRegistros[i,2])
+		RecLock("SX1",.T.)
+		For j:=1 to FCount()
+			If j <= Len(aRegistros[i])
+				FieldPut(j,aRegistros[i,j])
+			Endif
+		Next
+		MsUnlock()
+	Endif
+Next
+
+RestArea(aArea)
+
+Return(NIL)
 
 
 STATIC FUNCTION BKESTA03A()
@@ -2652,5 +2717,3 @@ If nHandle > 0
 ENDIF
 
 RETURN NIL
-
-
