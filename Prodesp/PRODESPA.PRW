@@ -10,95 +10,117 @@ BK - Atualização da tabela PRODESPA (Atualizar) no Banco de dados PowerBk
 @version 1.0
 /*/
 
+
 User Function PRODESPA()
 
-Local dMesAnt := MonthSub(dDataBase,2)
-Local dMesAtu := MonthSub(dDataBase,1)
-Local cQuery	:= ""
-Local cQueryD	:= ""
-Local nErro 	:= 0
-Local cErro1 	:= ""
-Local cErro2 	:= ""
-Local lExistTbl := .F.
+Local dAux      := dDataBase
 
-lExistTbl := u_ExitTbl("PowerBk.dbo.PRODESPATUALIZAR")
+Private cPerg	:= "PRODESPA"
+Private cTitulo := "Tabela Prodesp - Atualizar"
+Private aParam	:=	{}
+Private aRet	:=	{}
 
-Private cMesAtu := STR(YEAR(dMesAtu),4)+STRZERO(Month(dMesAtu),2)
-Private cMesAnt := STR(YEAR(dMesAnt),4)+STRZERO(Month(dMesAnt),2)
+Private cMesAtu := ""
+Private cMesAnt := ""
+Private nMes    := Month(dDataBase)
+Private nAno    := Year(dDataBase)
+
+aAdd(aParam, {1,"Mes da Competência",nMes,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"  ,"","",20,.F.})
+aAdd(aRet, nMes)
+
+aAdd(aParam, {1,"Ano da Competência",nAno,"9999","mv_par02 >= 2023 .AND. mv_par02 <= 2040","","",20,.F.})
+aAdd(aRet, nAno)
+
+If !MyParam()
+    Return
+EndIf
+
+cTitulo := cTitulo + " - Competência: "+STRZERO(nMes,2)+"/"+STRZERO(nAno,4)
+dAux := STOD(STR(nAno,4)+STRZERO(nMes,2)+"01")
+cMesAtu := STR(YEAR(dAux),4)+STRZERO(Month(dAux),2)
+
+dAux := MonthSub(dAux,1)
+cMesAnt := STR(YEAR(dAux),4)+STRZERO(Month(dAux),2)
+
+u_WaitLog(cPerg, {|| ProcQuery() },"Processando dados...")
+
+GeraPlan(cPerg,cTitulo)
+
+Return Nil
+
+
+Static Function ProcQuery()
+Local cQuery := ""
 
 BEGINCONTENT VAR cQuery
+
+WITH ATUALIZAR AS (
 
 -- Planilha importarColaboradorAtualizar.xlsx
 -- Para o Mes #MESATUAL#
 
-WITH ATUALIZAR AS (
 SELECT
---fun.numemp as [Empresa],
-fun.nomfun as [Nome Completo do Funcionario],
-fun.numcad as [Matrícula],
-fun.numpis as [PIS NIT],
 
-STUFF(STUFF(STUFF(CONVERT(VARCHAR(11), right('00000' + cast(fun.numcpf as varchar(11)), 11)), 10, 0, '-'), 7, 0, '.'), 4, 0, '.') as [CPF],
+fun.nomfun AS [Nome],
+fun.numcad AS [Matricula],
+fun.numpis AS [PIS],
 
-' ' as [Nada],
-fun.numpsp as [PASSAPORTE],
-Convert(varchar(10), fun.datnas, 103) as [Nascimento],
+STUFF(STUFF(STUFF(CONVERT(VARCHAR(11), right('00000' + cast(fun.numcpf AS varchar(11)), 11)), 10, 0, '-'), 7, 0, '.'), 4, 0, '.') AS [CPF],
+
+' ' AS [Nada],
+fun.numpsp AS [Passaporte],
+Convert(varchar(10), fun.datnas, 103) AS [Nascimento],
 CASE
     WHEN fun.tipsex = 'M' THEN 'MASCULINO'
     WHEN fun.tipsex = 'F' THEN 'FEMININO'
-               
     ELSE ''
-END as [Sexo],
-REPLACE(fun.valsal, '.', ',') AS [Salario Base] ,
+END AS [Sexo],
+--REPLACE(fun.valsal, '.', ',') AS [Salario] ,
+fun.valsal AS [Salario] ,
 CASE
     WHEN car.TitCar = 'Atendente I' THEN 'NÃO'
     WHEN car.TitCar = 'Atendente IV' THEN 'NÃO'
     WHEN car.TitCar = 'Atendente V' THEN 'NÃO' 
     ELSE 'SIM'
-	end as [refeição custeada],
-'FIXO' as [Tipo de Prestador],
-car.TitCar as [Cargo],
-Convert(varchar(10), fun.datadm, 103) as [Data Admissão],
-Convert(varchar(10), fun.datadm, 103) as [Data de Inicio de Serviço],
+END AS [Refeicao],
+'FIXO' AS [Prestador],
+car.TitCar AS [Cargo],
+Convert(varchar(10), fun.datadm, 103) AS [Admissao],
+Convert(varchar(10), fun.datadm, 103) AS [Inicio],
  CASE 
     WHEN DATEPART(year,fun.datafa) < 1980 THEN 'Ativo' 
     ELSE Convert(varchar(10), fun.datafa, 103) 
-    END AS [Data de Termino de contrato], 
+    END AS [Termino], 
 
-'Empregado' as [Classificação],
+'Empregado' AS [Classif],
 (SELECT TOP 1 NumLoc
     FROM [bk_senior].[bk_senior].[r038HLO] hlo WHERE hlo.NumCad = fun.numcad and hlo.numemp = 15
 	and ( YEAR(hlo.DatAlt) <> 2023 or MONTH(hlo.DatAlt) < 3)
 	order by DatAlt desc) AS [NumLoc],
 	
--- fun.numloc as numloc1,
- fun.numloc as numloc1,
+-- fun.numloc AS numloc1,
+ fun.numloc AS numloc1,
  orn.NomLoc AS NomLoc,
 
 CASE
     WHEN car.TitCar = 'Auxiliar de Limpeza' THEN 'INSALUBRILIDADE'
     WHEN car.TitCar = 'MANTENEDOR MANUTENCISTA' THEN 'PERICULOSIDADE'
     ELSE 'NÃO'
-	end as [Exposição de Riscos],
-'' as [observação],
+END AS [Riscos],
+'' AS [Obs],
 CASE
     WHEN nac.DesNac = 'Brasileiro' THEN 'NÃO'
     WHEN nac.DesNac = 'Brasileira' THEN 'NÃO'
                
     ELSE 'SIM'
-END as [Estrangeiro],
-
---(SELECT TOP 1 sitafa FROM [bk_senior].[bk_senior].[R038AFA] afa
---	   WHERE afa.numemp = 15 AND tipcol = 1 AND afa.numcad = fun.numcad AND SitAfa = 7
---       and CAST(YEAR(afa.DatAfa) AS VARCHAR(4)) + REPLACE(STR(MONTH(afa.DatAfa),2),' ','0') < '#MESATUAL#'
---	   order by DatAfa desc) as demitido,
+END AS [Estrangeiro],
 
 (SELECT TOP 1 sitafa FROM [bk_senior].[bk_senior].[R038AFA] afa
 	   WHERE afa.numemp = 15 AND tipcol = 1 AND afa.numcad = fun.numcad
        and CAST(YEAR(afa.DatAfa) AS VARCHAR(4)) + REPLACE(STR(MONTH(afa.DatAfa),2),' ','0') < '#MESATUAL#'
-	   order by DatAfa desc) as sitafa,
-fun.sitafa as sitafafun,
-LOWER(cpl.emapar) as [Email]
+	   order by DatAfa desc) AS Sitafa,
+fun.sitafa AS Sitafafun,
+LOWER(cpl.emapar) AS [Email]
 
 from bk_senior.bk_senior.r034fun fun
 left join bk_senior.bk_senior.r034cpl cpl
@@ -123,34 +145,27 @@ on cpl.ccinas = cid.CodCid
 left join bk_senior.bk_senior.r034mat mat
 on fun.numemp = mat.numemp and fun.tipcol = mat.tipcol and fun.numcad = mat.numcad
 
-where  fun.tipcol = 1  and fun.numemp in (15) --and fun.sitafa <> 7
---and (YEAR(fun.datadm) <> 2023 or MONTH(fun.datadm) < 2)
-and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') < '#MESATUAL#'
-
---order by fun.numemp, fun.numcad
+where 	fun.tipcol = 1  
+		and fun.numemp in (15) 
+		and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') < '#MESATUAL#'
 )
-#TABELAEXISTE# INSERT INTO PowerBk.dbo.PRODESPATUALIZAR
 SELECT 
---sitafa,
---sitafafun,
---demitido,
-'#MESATUAL#' AS COMPETAM,
-[Nome Completo do Funcionario],
-[Matrícula],
-[PIS NIT],
+[Nome],
+[Matricula],
+[PIS],
 [CPF],
 [Nada],
-[PASSAPORTE],
+[Passaporte],
 [Nascimento],
 [Sexo],
-[Salario Base],
-[refeição custeada],
-[Tipo de Prestador],
+[Salario],
+[Refeicao],
+[Prestador],
 [Cargo],
-[Data Admissão],
-[Data de Inicio de Serviço],
-[Data de Termino de contrato],
-[Classificação],
+[Admissao],
+[Inicio],
+[Termino],
+[Classif],
 CASE 
 	WHEN [NumLoc] = 2924 OR [numloc1] = 2924 THEN 'Campinas Digital - 4.0'
 	WHEN [NumLoc] = 2700 OR [numloc1] = 2700 THEN 'Aguaí'
@@ -209,60 +224,137 @@ CASE
 	WHEN [NumLoc] = 2686 OR [numloc1] = 2686 THEN 'Poupatempo_Lote 3'
 	WHEN [NumLoc] = 1888 OR [numloc1] = 1888 THEN 'São João da Boa Vista'
 	ELSE [NomLoc]
-END AS [Local de Serviços],
-[Exposição de Riscos],
-[observação],
+END AS [LocalS],
+[Riscos],
+[Obs],
 [Estrangeiro],
 CASE 
- WHEN sitafa =  2 THEN 'SIM' ELSE 'NÃO' END AS [Férias],
+ WHEN Sitafa =  2 THEN 'SIM' ELSE 'NÃO' END AS [Ferias],
 [Email]
-#TABELANAOEXISTE# INTO PowerBk.dbo.PRODESPATUALIZAR
+
 FROM ATUALIZAR
 WHERE 
-(sitafa is null or sitafa <> 7)
--- and Numloc = 2711
---and [Matrícula] = 1007
-ORDER BY [Nome Completo do Funcionario],[Matrícula]
+(Sitafa is null or Sitafa <> 7)
+ORDER BY [Nome],[Matricula]
 
 ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#MESATUAL#",cMesAtu)
 cQuery := STRTRAN(cQuery,"#MESANTERIOR#",cMesAnt)
-If lExistTbl
-	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","")
-	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","--")
-Else
-	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","--")
-	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","")
-EndIf
 
-u_LogMemo("PRODESPATUALIZAR.SQL",cQuery)
+//cQuery := ChangeQuery(cQuery)
 
-If !TCIsConnected() 
-  MsgAlert( "Sem conexão com o banco de dados", cPerg )
-  Return( Nil )
-Endif  
+u_LogMemo("PRODESPA.SQL",cQuery)
 
-cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPATUALIZAR', N'U') IS NOT NULL"  
-cQueryD += "   --DROP TABLE PowerBk.dbo.PRODESPATUALIZAR "+CRLF
-cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPATUALIZAR WHERE COMPETAM = '#MESATUAL#'"+CRLF
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"TMP",.T.,.T.)
 
-cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
+u_LogMemo("PRODESPA.SQL",cQuery)
 
-nErro   := TcSqlExec(cQueryD)
+//tcSetField("TMP","D1_DTDIGIT","D",8,0)
+//tcSetField("TMP","D1_XXHIST","M",10,0)
 
-If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
-EndIf
+Return NIL
 
-nErro   := TcSqlExec(cQuery)
 
-If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
-EndIf
+/*/{Protheus.doc} GeraPlan
+	Exportar consulta para o Excel
+	@type  Static Function
+	@author Marcos Bispo Abrahão
+	@since 17/07/23
+	@version 12.1.33
+/*/
+Static Function GeraPlan(cPerg,cTitulo)
+Local aCabs   := {}
+Local aCampos := {}
+Local aTitulos:= {}
+Local aPlans  := {}
+Local aFormula:= {}
 
-u_LogMemo("PRODESPATUALIZAR.SQL",cErro1+cQueryD+cErro2+cQuery)
+AADD(aTitulos,cTitulo)
 
-Return
+aAdd(aCampos,"TMP->Nome")
+aAdd(aCabs  ,"Nome")
+
+aAdd(aCampos,"STR(TMP->Matricula)")
+aAdd(aCabs  ,"Matrícula")
+
+aAdd(aCampos,"STR(TMP->PIS)")
+aAdd(aCabs  ,"PIS")
+
+aAdd(aCampos,"TMP->CPF")
+aAdd(aCabs  ,"CPF")
+
+aAdd(aCampos,"TMP->Nada")
+aAdd(aCabs  ,"")
+
+aAdd(aCampos,"TMP->Passaporte")
+aAdd(aCabs  ,"Passaporte")
+
+aAdd(aCampos,"TMP->Nascimento")
+aAdd(aCabs  ,"Nascimento")
+
+aAdd(aCampos,"TMP->Sexo")
+aAdd(aCabs  ,"Sexo")
+
+aAdd(aCampos,"TMP->Salario")
+aAdd(aCabs  ,"Salario")
+
+aAdd(aCampos,"TMP->Refeicao")
+aAdd(aCabs  ,"Refeicao")
+
+aAdd(aCampos,"TMP->Prestador")
+aAdd(aCabs  ,"Prestador")
+
+aAdd(aCampos,"TMP->Cargo")
+aAdd(aCabs  ,"Cargo")
+
+aAdd(aCampos,"TMP->Admissao")
+aAdd(aCabs  ,"Admissao")
+
+aAdd(aCampos,"TMP->Inicio")
+aAdd(aCabs  ,"Inicio")
+
+aAdd(aCampos,"TMP->Termino")
+aAdd(aCabs  ,"Termino")
+
+aAdd(aCampos,"TMP->Classif")
+aAdd(aCabs  ,"Classificação")
+
+aAdd(aCampos,"TMP->LocalS")
+aAdd(aCabs  ,"Local de Serviços")
+
+aAdd(aCampos,"TMP->Riscos")
+aAdd(aCabs  ,"Riscos")
+
+aAdd(aCampos,"TMP->Obs")
+aAdd(aCabs  ,"Observação")
+
+aAdd(aCampos,"TMP->Estrangeiro")
+aAdd(aCabs  ,"Estrangeiro")
+
+aAdd(aCampos,"TMP->Ferias")
+aAdd(aCabs  ,"Férias")
+
+aAdd(aCampos,"TMP->Email")
+aAdd(aCabs  ,"Email")
+ 
+AADD(aPlans,{"TMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, aFormula,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+
+U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
+	
+Return .T.
+
+
+
+// Parametros da tela
+Static Function MyParam
+	Local lRet := .F.
+//   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
+	If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
+		lRet    := .T.
+		nMes 	:= mv_par01
+		nAno  	:= mv_par02
+	Endif
+Return lRet
+
+

@@ -190,8 +190,8 @@ AADD(aCampos,"TRB->XX_NFORNEC")
 AADD(aCabs  ,"Razão Social")
 AADD(aHeader,{"Razão Social","XX_NFORNEC" ,"@!",80,00,"","","C","TRB","R"})
 
-u_waiLog(, {|| ProcBKCOMR04() })
-u_waiLog(, {|| MBrwBKCOMR04() })
+u_WaitLog(, {|| ProcBKCOMR04() })
+u_WaitLog(, {|| MBrwBKCOMR04() })
 
 ///TRB->(Dbclosearea())
 ///FErase(cArqTmp+GetDBExtension())

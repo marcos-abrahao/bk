@@ -557,14 +557,14 @@ ELSE
 	//IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
 	
 	// 07/02/2022 - Filtrar somente os clientes abaixo para pedir conta vinculada (Pedido pelo João Cordeiro) provisoriamente.
-	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014202/00014801/00023001/00016401/")
+	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014202/00014801/00023001/00016401/00038701/")
 
 		/*
 		000142	01	MINISTERIO DA FAZENDA                   
 		000148	01	MINISTERIO DA FAZENDA 
 		000230	01	MINISTERIO DA FAZENDA                   
 		000164	01	TRIBUNAL REGIONAL FEDERAL DA 3A REGIAO
-
+		000387	01	AMAZONIA AZUL TECNOLOGIAS DE DEFESA S.A - AMAZUL                                
 		*/
 
 		IF ContVinc()
@@ -958,22 +958,15 @@ RestArea(aAreaTmp)
 
 Return aRet 
 
+/*/{Protheus.doc} ContVinc
+	Inclusao Informação conta vinculada emissão da NF 
+	@type  Function
+	@author Adilson do Prado 
+	@since 23/03/14
+	@version 12.1.33
+	/*/
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ BKFATDNFº      Adilson do Prado              Data ³23/03/14º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDescricao ³ Inclusao Informação conta vinculada emissão da NF 	      º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK Consultoria                                             º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
-
-STATIC Function ContVinc()
+Static Function ContVinc()
 Local cCONTA := SF2->F2_XXCVINC
 Local nVALOR := SF2->F2_XXVCVIN
 Local oTELA01
@@ -1021,10 +1014,8 @@ SE1->(RestArea(aAreaSE1))
 Return
 
 
-
-
 //BUSCAR CONTA VINCULADA
-USER FUNCTION  BCTAVINC(cCTAVINC)
+USER FUNCTION BCTAVINC(cCTAVINC)
 LOCAL cBcVC := ""
 LOCAL cAgVC := ""
 LOCAL cCtVC := ""

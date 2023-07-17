@@ -19,7 +19,8 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"12","BK CORRETORA"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"},;
-						{"16","MOOVE-SP"} }
+						{"16","MOOVE-SP"},;
+						{"17","DMAF"} }
 Return aEmpresas
 
 
@@ -55,7 +56,8 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"12","BK CORRETORA"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"},;
-						{"16","MOOVE-SP"},;  
+						{"16","MOOVE-SP"},; 
+						{"17","DMAF"},; 
                         {"97","CMOG"},;
                         {"98","TERO"} }
 Return aEmpresas

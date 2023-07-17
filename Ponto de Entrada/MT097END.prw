@@ -139,7 +139,7 @@ Do While QSCR->(!eof())
 			ENDIF                                                                                                
 			AADD(aSCR,{QSCR->CR_USER,QSCR->CR_APROV,SAL->AL_TPLIBER,cEmUSER})
 		ENDIF
-	SAL->(dbskip())
+		SAL->(dbskip())
 	Enddo
 QSCR->(dbskip())
 ENDDO

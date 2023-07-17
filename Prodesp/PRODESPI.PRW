@@ -12,57 +12,84 @@ BK - Atualização da tabela PRODESPI (Inserir) no Banco de dados PowerBk
 
 User Function PRODESPI()
 
-Local dMesAnt := MonthSub(dDataBase,2)
-Local dMesAtu := MonthSub(dDataBase,1)
-Local cQuery	:= ""
-Local cQueryD	:= ""
-Local nErro 	:= 0
-Local cErro1 	:= ""
-Local cErro2 	:= ""
-Local lExistTbl := .F.
+Local dAux      := dDataBase
 
-lExistTbl := u_ExitTbl("PowerBk.dbo.PRODESPINSERIR")
+Private cPerg	:= "PRODESPI"
+Private cTitulo := "Tabela Prodesp - Inserir"
+Private aParam	:=	{}
+Private aRet	:=	{}
 
-Private cMesAtu := STR(YEAR(dMesAtu),4)+STRZERO(Month(dMesAtu),2)
-Private cMesAnt := STR(YEAR(dMesAnt),4)+STRZERO(Month(dMesAnt),2)
+Private cMesAtu := ""
+Private cMesAnt := ""
+Private nMes    := Month(dDataBase)
+Private nAno    := Year(dDataBase)
+
+aAdd(aParam, {1,"Mes da Competência",nMes,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"  ,"","",20,.F.})
+aAdd(aRet, nMes)
+
+aAdd(aParam, {1,"Ano da Competência",nAno,"9999","mv_par02 >= 2023 .AND. mv_par02 <= 2040","","",20,.F.})
+aAdd(aRet, nAno)
+
+If !MyParam()
+    Return
+EndIf
+
+cTitulo := cTitulo + " - Competência: "+STRZERO(nMes,2)+"/"+STRZERO(nAno,4)
+dAux := STOD(STR(nAno,4)+STRZERO(nMes,2)+"01")
+cMesAtu := STR(YEAR(dAux),4)+STRZERO(Month(dAux),2)
+
+dAux := MonthSub(dAux,1)
+cMesAnt := STR(YEAR(dAux),4)+STRZERO(Month(dAux),2)
+
+u_WaitLog(cPerg, {|| ProcQuery() },"Processando dados...")
+
+GeraPlan(cPerg,cTitulo)
+
+Return NIL
+
+
+Static Function ProcQuery()
+Local cQuery := ""
 
 BEGINCONTENT VAR cQuery
 
+WITH INSERIR AS (
+
 -- Planilha importarColaboradorInserir.xlsx
 -- Para o Mes #MESATUAL#
-WITH INSERIR as (
-select
---fun.numemp as [Empresa],
-fun.nomfun as [Nome Completo do Funcionario],
-fun.numcad as [Matrícula],
-fun.numpis as [PIS NIT],
-STUFF(STUFF(STUFF(CONVERT(VARCHAR(11), right('00000' + cast(fun.numcpf as varchar(11)), 11)), 10, 0, '-'), 7, 0, '.'), 4, 0, '.') as [CPF],
-' ' as [Nada],
-fun.numpsp as [PASSAPORTE],
-Convert(varchar(10), fun.datnas, 103) as [Nascimento],
+
+SELECT
+fun.nomfun AS [Nome],
+fun.numcad AS [Matricula],
+fun.numpis AS [PIS],
+STUFF(STUFF(STUFF(CONVERT(VARCHAR(11), right('00000' + cast(fun.numcpf AS varchar(11)), 11)), 10, 0, '-'), 7, 0, '.'), 4, 0, '.') AS [CPF],
+' ' AS [Nada],
+fun.numpsp AS [Passaporte],
+Convert(varchar(10), fun.datnas, 103) AS [Nascimento],
 CASE
     WHEN fun.tipsex = 'M' THEN 'MASCULINO'
     WHEN fun.tipsex = 'F' THEN 'FEMININO'
                
     ELSE ''
-END as [Sexo],
-REPLACE(fun.valsal, '.', ',') AS [Salario Base] ,
+END AS [Sexo],
+--REPLACE(fun.valsal, '.', ',') AS [Salario],
+fun.valsal AS [Salario],
 CASE
     WHEN car.TitCar = 'Atendente I' THEN 'NÃO'
     WHEN car.TitCar = 'Atendente IV' THEN 'NÃO'
     WHEN car.TitCar = 'Atendente V' THEN 'NÃO' 
     ELSE 'SIM'
-	end as [refeição custeada],
-'FIXO' as [Tipo de Prestador],
-car.TitCar as [Cargo],
-Convert(varchar(10), fun.datadm, 103) as [Data Admissão],
-Convert(varchar(10), fun.datadm, 103) as [Data de Inicio de Serviço],
- CASE 
-        WHEN DATEPART(year,fun.datafa) < 1980 THEN 'Ativo' 
-        ELSE Convert(varchar(10), fun.datafa, 103) 
-    END AS [Data de Termino de contrato], 
-'Empregado' as [Classificação],
-'(A)ADMISSÃO NA EMPRESA' as [Motivo Entrada],
+END AS [Refeicao],
+'FIXO' AS [Prestador],
+car.TitCar AS [Cargo],
+Convert(varchar(10), fun.datadm, 103) AS [Admissao],
+Convert(varchar(10), fun.datadm, 103) AS [Inicio],
+CASE 
+    WHEN DATEPART(year,fun.datafa) < 1980 THEN 'Ativo' 
+    ELSE Convert(varchar(10), fun.datafa, 103) 
+END AS [Termino], 
+'Empregado' AS [Classif],
+'(A)ADMISSÃO NA EMPRESA' AS [Motivo],
 
 CASE 
 	WHEN fun.numloc = 2924 THEN 'Campinas Digital - 4.0'
@@ -122,26 +149,25 @@ CASE
 	WHEN fun.numloc = 2686 THEN 'Poupatempo_Lote 3'
 	WHEN fun.numloc = 1888 THEN 'São João da Boa Vista'
 	ELSE CAST(YEAR(fun.numloc) AS VARCHAR(4))
-END AS [Local de Serviços],
+END AS [LocalS],
 
 CASE
     WHEN car.TitCar = 'Auxiliar de Limpeza' THEN 'INSALUBRILIDADE'
     WHEN car.TitCar = 'MANTENEDOR MANUTENCISTA' THEN 'PERICULOSIDADE'
     ELSE 'NÃO'
-	end as [Exposição de Riscos],
-'' as [observação],
+	end AS [Riscos],
+'' AS [Obs],
 CASE
     WHEN nac.DesNac = 'Brasileiro' THEN 'NÃO'
     WHEN nac.DesNac = 'Brasileira' THEN 'NÃO'
-               
     ELSE 'SIM'
-END as [Estrangeiro],
-LOWER(cpl.emapar) as [Email],
+END AS [Estrangeiro],
+LOWER(cpl.emapar) AS [Email],
 
 (SELECT TOP 1 sitafa FROM [bk_senior].[bk_senior].[R038AFA] afa
 	   WHERE afa.numemp = 15 AND tipcol = 1 AND afa.numcad = fun.numcad
        and CAST(YEAR(afa.DatAfa) AS VARCHAR(4)) + REPLACE(STR(MONTH(afa.DatAfa),2),' ','0') < '#MESATUAL#'
-	   order by DatAfa desc) as sitafa
+	   order by DatAfa desc) AS Sitafa
 
 from bk_senior.bk_senior.r034fun fun
 left join bk_senior.bk_senior.r034cpl cpl
@@ -165,82 +191,151 @@ left join bk_senior.bk_senior.r074cid cid
 on cpl.ccinas = cid.CodCid
 left join bk_senior.bk_senior.r034mat mat
 on fun.numemp = mat.numemp and fun.tipcol = mat.tipcol and fun.numcad = mat.numcad
-where  fun.tipcol = 1  and fun.numemp in (15)
-
---and fun.numloc = 2711
---and YEAR(fun.datadm) = 2023 and MONTH(fun.datadm) = 2
-and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') = '#MESATUAL#'
---and sitafa <> 7
---order by fun.nomfun
+WHERE	fun.tipcol = 1  and fun.numemp in (15)
+		and CAST(YEAR(fun.datadm) AS VARCHAR(4)) + REPLACE(STR(MONTH(fun.datadm),2),' ','0') = '#MESATUAL#'
 )
-#TABELAEXISTE# INSERT INTO PowerBk.dbo.PRODESPINSERIR
 SELECT
-'#MESATUAL#' AS COMPETAM,
-[Nome Completo do Funcionario],
-[Matrícula],
-[PIS NIT],
+[Nome],
+[Matricula],
+[PIS],
 [CPF],
 [Nada],
-[PASSAPORTE],
+[Passaporte],
 [Nascimento],
 [Sexo],
-[Salario Base] ,
-[refeição custeada],
-[Tipo de Prestador],
+[Salario] ,
+[Refeicao],
+[Prestador],
 [Cargo],
-[Data Admissão],
-[Data de Inicio de Serviço],
-[Data de Termino de contrato], 
-[Classificação],
-[Motivo Entrada],
-[Local de Serviços],
-[Exposição de Riscos],
-[observação],
+[Admissao],
+[Inicio],
+[Termino], 
+[Classif],
+[Motivo],
+[LocalS],
+[Riscos],
+[Obs],
 [Estrangeiro],
 [Email]
-#TABELANAOEXISTE# INTO PowerBk.dbo.PRODESPINSERIR
 FROM INSERIR
 
 ENDCONTENT
 
 cQuery := STRTRAN(cQuery,"#MESATUAL#",cMesAtu)
 cQuery := STRTRAN(cQuery,"#MESANTERIOR#",cMesAnt)
-If lExistTbl
-	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","")
-	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","--")
-Else
-	cQuery := STRTRAN(cQuery,"#TABELAEXISTE#","--")
-	cQuery := STRTRAN(cQuery,"#TABELANAOEXISTE#","")
-EndIf
 
 
-u_LogMemo("PRODESPINSERIR.SQL",cQuery)
+//cQuery := ChangeQuery(cQuery)
 
-If !TCIsConnected() 
-  MsgAlert( "Sem conexão com o banco de dados", cPerg )
-  Return( Nil )
-Endif  
+u_LogMemo("PRODESPI.SQL",cQuery)
 
-cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.PRODESPINSERIR', N'U') IS NOT NULL"  
-cQueryD += "   --DROP TABLE PowerBk.dbo.PRODESPINSERIR "+CRLF
-cQueryD += "   DELETE FROM PowerBk.dbo.PRODESPINSERIR WHERE COMPETAM = '#MESATUAL#'"+CRLF
-//cQueryD += "   DROP TABLE PowerBk.dbo.PRODESPCARGA "+CRLF
-cQueryd := STRTRAN(cQueryD,"#MESATUAL#",cMesAtu)
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"TMP",.T.,.T.)
 
-nErro   := TcSqlExec(cQueryD)
+u_LogMemo("PRODESPI.SQL",cQuery)
 
-If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
-EndIf
-
-nErro   := TcSqlExec(cQuery)
-
-If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
-EndIf
-
-u_LogMemo("PRODESPINSERIR.SQL",cErro1+cQueryD+cErro2+cQuery)
 
 Return
+
+
+/*/{Protheus.doc} GeraPlan
+	Exportar consulta para o Excel
+	@type  Static Function
+	@author Marcos Bispo Abrahão
+	@since 17/07/23
+	@version 12.1.33
+/*/
+Static Function GeraPlan(cPerg,cTitulo)
+Local aCabs   := {}
+Local aCampos := {}
+Local aTitulos:= {}
+Local aPlans  := {}
+Local aFormula:= {}
+
+AADD(aTitulos,cTitulo)
+
+aAdd(aCampos,"TMP->Nome")
+aAdd(aCabs  ,"Nome")
+
+aAdd(aCampos,"STR(TMP->Matricula)")
+aAdd(aCabs  ,"Matrícula")
+
+aAdd(aCampos,"STR(TMP->PIS)")
+aAdd(aCabs  ,"PIS")
+
+aAdd(aCampos,"TMP->CPF")
+aAdd(aCabs  ,"CPF")
+
+aAdd(aCampos,"TMP->Nada")
+aAdd(aCabs  ,"")
+
+aAdd(aCampos,"TMP->Passaporte")
+aAdd(aCabs  ,"Passaporte")
+
+aAdd(aCampos,"TMP->Nascimento")
+aAdd(aCabs  ,"Nascimento")
+
+aAdd(aCampos,"TMP->Sexo")
+aAdd(aCabs  ,"Sexo")
+
+aAdd(aCampos,"TMP->Salario")
+aAdd(aCabs  ,"Salario")
+
+aAdd(aCampos,"TMP->Refeicao")
+aAdd(aCabs  ,"Refeicao")
+
+aAdd(aCampos,"TMP->Prestador")
+aAdd(aCabs  ,"Prestador")
+
+aAdd(aCampos,"TMP->Cargo")
+aAdd(aCabs  ,"Cargo")
+
+aAdd(aCampos,"TMP->Admissao")
+aAdd(aCabs  ,"Admissao")
+
+aAdd(aCampos,"TMP->Inicio")
+aAdd(aCabs  ,"Inicio")
+
+aAdd(aCampos,"TMP->Termino")
+aAdd(aCabs  ,"Termino")
+
+aAdd(aCampos,"TMP->Classif")
+aAdd(aCabs  ,"Classificação")
+
+aAdd(aCampos,"TMP->Motivo")
+aAdd(aCabs  ,"Motivo")
+
+aAdd(aCampos,"TMP->LocalS")
+aAdd(aCabs  ,"Local de Serviços")
+
+aAdd(aCampos,"TMP->Riscos")
+aAdd(aCabs  ,"Riscos")
+
+aAdd(aCampos,"TMP->Obs")
+aAdd(aCabs  ,"Observação")
+
+aAdd(aCampos,"TMP->Estrangeiro")
+aAdd(aCabs  ,"Estrangeiro")
+
+aAdd(aCampos,"TMP->Email")
+aAdd(aCabs  ,"Email")
+ 
+AADD(aPlans,{"TMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, aFormula,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+
+U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
+	
+Return .T.
+
+
+
+// Parametros da tela
+Static Function MyParam
+	Local lRet := .F.
+//   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
+	If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
+		lRet    := .T.
+		nMes 	:= mv_par01
+		nAno  	:= mv_par02
+	Endif
+Return lRet
+
+

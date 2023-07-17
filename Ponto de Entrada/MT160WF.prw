@@ -173,10 +173,11 @@ FOR IX_ := 1 TO LEN(aPedido)
 		IF lContrato
 			IF SCR->CR_USER $ cGerGestao
 				AADD(aSC1USER,SC1->C1_USER)
-			ELSEIF SCR->CR_USER $ cGerCompras
-				RecLock("SCR",.F.)
-				SCR->(dbDelete())
-				SCR->(MsUnlock())
+			// 13/07/23 - Remover Trecho para Michele Liberar
+			//ELSEIF SCR->CR_USER $ cGerCompras
+			//	RecLock("SCR",.F.)
+			//	SCR->(dbDelete())
+			//	SCR->(MsUnlock())
 			ENDIF
 		ELSE
 			IF SCR->CR_USER $ cGerCompras

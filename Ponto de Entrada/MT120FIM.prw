@@ -183,10 +183,11 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 					IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
 						cEmail += ALLTRIM(aUser[1,14])+';'
 					ENDIF
-				ELSEIF SCR->CR_USER $ cGerCompras
-					RecLock("SCR",.F.)
-					SCR->(dbDelete())
-					SCR->(MsUnlock())
+				// 13/07/23 - Remover Trecho para Michele Liberar
+				//ELSEIF SCR->CR_USER $ cGerCompras
+				//	RecLock("SCR",.F.)
+				//	SCR->(dbDelete())
+				//	SCR->(MsUnlock())
 				ENDIF
 			ELSE
 				IF SCR->CR_USER $ cGerCompras
