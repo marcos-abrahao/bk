@@ -15,6 +15,8 @@ Private cxConta  := SF1->F1_XNUMCON
 Private cChvNfe  := SF1->F1_CHVNFE
 Private dPrvPgt  := SF1->F1_XXPVPGT
 Private cJsPgt	 := SF1->F1_XXJSPGT
+Private cxTpPix  := SF1->F1_XXTPPIX
+Private cxChPix  := SF1->F1_XXCHPIX
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
@@ -59,6 +61,13 @@ If Inclui .AND. !l103Auto
 		SF1->F1_XXJSPGT := cJsPgt
 		SF1->F1_COND	:= cxCond
 		SF1->F1_XXPARCE := mParcel
+		If ALLTRIM(cxTipoPg) == "PIX"
+			SF1->F1_XXTPPIX := cxTpPix
+			SF1->F1_XXCHPIX := cxChPix
+		Else
+			SF1->F1_XXTPPIX := ""
+			SF1->F1_XXCHPIX := ""
+		EndIf
 		MsUnLock("SF1")
 	EndIf
 EndIf

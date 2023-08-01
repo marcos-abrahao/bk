@@ -23,7 +23,7 @@ FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 */
 
 User Function MsgLog(cProg,cMens,cAlert,cTxt)
-Local cArqLog  := "\log\msglog.log"
+Local cArqLog  := "\system\msglog.log"
 Local lRet     := .T.
 
 Default cProg  := FunName()
@@ -61,7 +61,7 @@ EndIf
 
 u_xxLog(cArqLog,cProg + ": "+cMens)
 If !Empty(cTxt)
-	u_xxLog("\log\"+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
+	u_xxLog("\system\"+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
 	If !IsBlind()
 		FWAlertHelp(AllTrim(cTxt),cProg)
 	EndIf
@@ -90,7 +90,7 @@ Return lRet
 */
 
 User Function AvisoLog(cProg,cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
-Local cArqLog  := "\log\msglog.log"
+Local cArqLog  := "\system\msglog.log"
 Local nRet     := 0
 Local cMens    := cMsg
 Default cProg  := FunName()
@@ -195,7 +195,7 @@ Local cErrLog := ""
 Default cProg := FunName()
 Default cMens := "Problemas na execução do MSExecAuto:"
 
-cErrLog := MostraErro("\log\",cArqErr)
+cErrLog := MostraErro("\system\",cArqErr)
 u_MsgLog(cProg,cMens,"E",cErrLog)
 
 Return cErrLog
@@ -214,7 +214,7 @@ Local cDir  := "C:\TMP"
 Local cMens := ""
 IF __cUserId == "000000" //.OR. __cUserId == "000012"
 	If IsBlind()
-		cDir:= "\tmp"
+		cDir:= "\system"
 	ENDIF
 	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
 	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+CRLF
@@ -253,7 +253,7 @@ If __cUserId == "000000" .OR. IsBlind()
 	EndIf
 
 	If IsBlind()
-		cDir:= "\tmp"
+		cDir:= "\system"
 	ENDIF
 
 	cFile := cDir+"\"+cArqLog

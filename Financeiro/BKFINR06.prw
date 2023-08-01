@@ -274,6 +274,8 @@ Local cDtHoraLib := ""
 Local cDadosBanc := ""
 Local cxTipoPg   := ""
 Local cxNumPa    := ""
+Local cxTpPix    := ""
+Local cxChPix	 := ""
 Local cFormaPgto := ""
 Local nIniBox    := 0
 Local cLinObs    := ""
@@ -333,6 +335,8 @@ Begin Sequence
        cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
 		cxTipoPg := SF1->F1_XTIPOPG
 		cxNumPa  := SF1->F1_XNUMPA
+		cxTpPix  := ""
+		cxChPix  := ""
 		If !Empty(cxTipoPg)
 			cFormaPgto := TRIM(cxTipoPg)
 			If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
@@ -344,6 +348,14 @@ Begin Sequence
 				cFormaPgto += ": "+cDadosBanc
 			ElseIf TRIM(cxTipoPg) == "P.A."
 				cFormaPgto += " "+cxNumPa
+			ElseIf TRIM(cxTipoPg) == "PIX"
+				cxTpPix  := SF1->F1_XXTPPIX
+				cxChPix  := AllTrim(SF1->F1_XXCHPIX)
+				cFormaPgto += " - "+X3COMBO('F72_TPCHV',cxTpPix)
+				If Len(cxChPix) <= 50
+					cFormaPgto += ": "+cxChPix
+					cxChPix := ""
+				EndIf
 			EndIf
 		EndIf
 
@@ -594,6 +606,10 @@ Begin Sequence
   	If !Empty(cFormaPgto)
 		oPrn:Say(nLin,1300,"Forma pgto:",oFont12N)
 		oPrn:Say(nLin,1700,cFormaPgto,oFont14N)
+		If !Empty(cxChPix)
+			nLin    += 50
+			oPrn:Say(nLin,1700,AllTrim(cxChPix),oFont14N)
+		EndIf
 		nLin    += 50
 //		nIniBox += 60
 	EndIf

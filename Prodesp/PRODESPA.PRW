@@ -95,7 +95,7 @@ Convert(varchar(10), fun.datadm, 103) AS [Inicio],
 'Empregado' AS [Classif],
 (SELECT TOP 1 NumLoc
     FROM [bk_senior].[bk_senior].[r038HLO] hlo WHERE hlo.NumCad = fun.numcad and hlo.numemp = 15
-	and ( YEAR(hlo.DatAlt) <> 2023 or MONTH(hlo.DatAlt) < 3)
+	and CAST(YEAR(hlo.DatAlt) AS VARCHAR(4)) + REPLACE(STR(MONTH(hlo.DatAlt),2),' ','0') <= '#MESATUAL#'
 	order by DatAlt desc) AS [NumLoc],
 	
 -- fun.numloc AS numloc1,

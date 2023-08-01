@@ -22,6 +22,8 @@ Private cxConta  := SF1->F1_XNUMCON
 Private cChvNfe  := SF1->F1_CHVNFE
 Private dPrvPgt  := SF1->F1_XXPVPGT
 Private cJsPgt	 := SF1->F1_XXJSPGT
+Private cxTpPix  := SF1->F1_XXTPPIX
+Private cxChPix  := SF1->F1_XXCHPIX
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
@@ -72,6 +74,13 @@ SF1->F1_XXPVPGT := dPrvPgt
 SF1->F1_XXJSPGT := cJsPgt
 SF1->F1_COND	:= cxCond
 SF1->F1_XXPARCE := mParcel
+If ALLTRIM(cxTipoPg) == "PIX"
+	SF1->F1_XXTPPIX := cxTpPix
+	SF1->F1_XXCHPIX := cxChPix
+Else
+	SF1->F1_XXTPPIX := ""
+	SF1->F1_XXCHPIX := ""
+EndIf
 
 // Limpar dados de Liberação
 SF1->F1_XXLIB   := cLibF1
@@ -81,8 +90,12 @@ SF1->F1_XXDINC  := DtoC(Date())+"-"+Time()
 
 MsUnLock("SF1")
 
-If nTipoPg == 1 .AND. SF1->F1_FORNECE <> "000084"
-	PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
+If nTipoPg == 1 
+	If SF1->F1_FORNECE <> "000084"
+		PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
+	EndIf
+ElseIf nTipoPg == 7
+	PutF72(SF1->F1_FORNECE,SF1->F1_LOJA,cxTpPix,cxChPix)
 EndIf
 
 u_MsgLog("SF1140I",iIf(Inclui,"Doc incluido: ","Doc alterado: ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
@@ -100,11 +113,15 @@ Private cxConta  := SF1->F1_XNUMCON
 Private cChvNfe  := SF1->F1_CHVNFE
 Private dPrvPgt  := SF1->F1_XXPVPGT
 Private cJsPgt	 := SF1->F1_XXJSPGT
+Private cxTpPix  := SF1->F1_XXTPPIX
+Private cxChPix  := SF1->F1_XXCHPIX
 Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
 Private cLibF1   := "A"
+Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
+
 
 If SF1->F1_XXLIB $ "AEP" .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
@@ -124,11 +141,29 @@ If U_SelFPgto(lAlt,.T.,@cLibF1)
 	SF1->F1_XXJSPGT := cJsPgt
 	SF1->F1_COND	:= cxCond
 	SF1->F1_XXPARCE := mParcel
+	If ALLTRIM(cxTipoPg) == "PIX"
+		SF1->F1_XXTPPIX := cxTpPix
+		SF1->F1_XXCHPIX := cxChPix
+	Else
+		SF1->F1_XXTPPIX := ""
+		SF1->F1_XXCHPIX := ""
+	EndIf
+
 	If Empty(SF1->F1_XXLIB) .AND. Empty(SF1->F1_STATUS)
 		SF1->F1_XXLIB := cLibF1
 	EndIf
+
 	MsUnLock("SF1")
+
+	If nTipoPg == 1 
+		If SF1->F1_FORNECE <> "000084"
+			PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
+		EndIf
+	ElseIf nTipoPg == 7
+		PutF72(SF1->F1_FORNECE,SF1->F1_LOJA,cxTpPix,cxChPix)
+	EndIf
 EndIf
+
 
 Return Nil
 
@@ -144,6 +179,7 @@ Local aCabecalho:= {}
 Local aaCampos	:= {"PARC","VENCTO","VALOR"} //Variável contendo o campo editável no Grid
 Local nValTot	:= 0
 Local aGrp 		:= UsrRetGrp()
+Local aTpPix    := U_StringToArray(GetSx3Cache("F72_TPCHV", "X3_CBOX"),";") 
 
 Static oDlg3
 
@@ -153,6 +189,7 @@ Default lEsc 		:= .F.
 Private nRadMenu1	:= 1
 Private dValid 		:= dDataBase
 Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv,oGetCond,oSaySE4,oGetPvPgt,oGetJsPgt,oLista
+Private oCmbTpPix,oGetChPix
 Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
 
@@ -177,6 +214,7 @@ aadd(aOpcoes,"BOLETO")     //03
 aadd(aOpcoes,"P.A.")       //04
 aadd(aOpcoes,"FUNDO FIXO") //05
 aadd(aOpcoes,"CHEQUE")     //06
+aadd(aOpcoes,"PIX")        //07
 
 nRadMenu1 := ASCAN(aOpcoes,ALLTRIM(cxTipoPg))
 If nRadMenu1 = 0
@@ -187,47 +225,77 @@ aCabecalho	:= u_a103Cab()
 nColDel 	:= Len(aCabecalho)+1
 u_a103Load()
 
-DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000,000 TO 470,470 COLORS 0, 16777215 PIXEL
+DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000,000 TO 490,550 COLORS 0, 16777215 PIXEL
 oDlg3:lEscClose := .F.
 
-bClickP	:= { || Habilita(nRadMenu1) }	
+bClickP	:= { || ChangePgt(nRadMenu1) }
 oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu1)}, oDlg3,,bClickP,,,,,,70,130,,,,.T.)
 
-@ 010,010 SAY oSay1 PROMPT "Selecione a forma de pagamento :" SIZE 091, 007 OF oDlg3 COLORS 0, 16777215 PIXEL
+@ 010,010 SAY oSay1 PROMPT "Forma de pagamento :" SIZE 091, 007 OF oDlg3 COLORS 0, 16777215 PIXEL
 
-@ 087,010 SAY "Banco" 	 OF oDlg3 PIXEL
-@ 085,040 MSGET oGetBco VAR cxBanco   OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxBanco),.T.)
-@ 087,065 SAY "Agência"  OF oDlg3 PIXEL
-@ 085,090 MSGET oGetAge VAR cxAgencia OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxAgencia),.T.)
-@ 087,125 SAY "Conta"  	 OF oDlg3 PIXEL
-@ 085,145 MSGET oGetCon VAR cxConta   OF oDlg3 PICTURE "@!" SIZE 60,10 PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxConta),.T.)
+@ 022,055 SAY "Banco" 	 OF oDlg3 PIXEL
+@ 020,085 MSGET oGetBco VAR cxBanco   OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxBanco),.T.)
+@ 022,110 SAY "Agência"  OF oDlg3 PIXEL
+@ 020,135 MSGET oGetAge VAR cxAgencia OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxAgencia),.T.)
+@ 022,170 SAY "Conta"  	 OF oDlg3 PIXEL
+@ 020,190 MSGET oGetCon VAR cxConta   OF oDlg3 PICTURE "@!" SIZE 60,10 PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxConta),.T.)
 
-@ 102,010 SAY "P.A."     OF oDlg3 PIXEL
-@ 100,040 MSGET oGetPA VAR cxNumPa	  OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==4 .AND. lAlt) Valid IIf(nRadMenu1==4,!Empty(cxNumPa),.T.)
+//@ 047,010 SAY "P.A."     OF oDlg3 PIXEL
+@ 045,055 MSGET oGetPA VAR cxNumPa	  OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==4 .AND. lAlt) Valid IIf(nRadMenu1==4,!Empty(cxNumPa),.T.)
 
-@ 117,010 SAY 'Cond. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
-@ 115,040 MSGET oGetCond VAR cxCond OF oDlg3 WHEN lAlt VALID (!EMPTY(cxCond) .AND. AltCond(nValTot)) F3 "SE4" SIZE 20,10 PIXEL HASBUTTON
 
-@ 117,110 SAY oSaySE4 PROMPT cDescrSE4 OF oDlg3 PIXEL COLOR CLR_RED
+@ 077,065 SAY "Tipo PIX"  OF oDlg3 PIXEL
+@ 075,055 MSCOMBOBOX oCmbTpPix VAR cxTpPix  ITEMS aTpPix SIZE 60,10 Pixel OF oDlg3
+ oCmbTpPix:bChange 		:= { || ChangePix() }
 
-//@ 132,010 SAY 'Prev. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
-//@ 130,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 WHEN .F. /*lAlt*/ VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
+// oCmbTpPix := TCOMBOBOX():Create(oDlg3)
+// oCmbTpPix:cName 		:= "oCmbTpPix"
+// oCmbTpPix:cCaption 		:= "Tipo Chave"
+// oCmbTpPix:nLeft 		:= 100
+// oCmbTpPix:nTop 			:= 125
+// oCmbTpPix:nWidth 		:= 050
+// oCmbTpPix:nHeight 		:= 040
+// oCmbTpPix:lShowHint 	:= .T.
+// oCmbTpPix:lReadOnly 	:= .F.
+// oCmbTpPix:Align 		:= 0
+// oCmbTpPix:cVariable 	:= "cxTpPix"
+// oCmbTpPix:bSetGet 		:= {|u| If(PCount()>0,cxTpPix:=u,cxTpPix) }
+// oCmbTpPix:aItems 		:= aTpPix
+// oCmbTpPix:nAt 			:= 1                                                 
+// oCmbTpPix:bChange 		:= { || ChangePgt(nRadMenu1) }
+// oCmbTpPix:lVisibleControl := .T.
 
-@ 132,010 SAY "Justificativa:"  OF oDlg3 PIXEL
-@ 130,040 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 60,10 PIXEL
+If nRadMenu1 <> 7
+	oCmbTpPix:Disable()
+EndIf
 
-@ 147,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
-@ 145,040 MSGET oGetChv VAR cChvNfe   OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 140,10 PIXEL 
+@ 077,117 SAY "Chave" OF oDlg3 PIXEL
+@ 075,135 MSGET oGetChPix VAR cxChPix   OF oDlg3 PICTURE "@!" SIZE 130,10 PIXEL WHEN (nRadMenu1==7 .AND. lAlt) Valid IIf(nRadMenu1==7,!Empty(cxChPix),.T.)
 
-@ 160,010 SAY 'Parcelas:' OF oDlg3 PIXEL COLOR CLR_RED 
-oLista := MsNewGetDados():New(160, 040, 210, 180, GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,, 99, "U_VldV140()", "", "", oDlg3, aCabecalho, aDados,"U_VldV140()")
+
+@ 097,010 SAY 'Cond. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 095,040 MSGET oGetCond VAR cxCond OF oDlg3 WHEN lAlt VALID (!EMPTY(cxCond) .AND. AltCond(nValTot)) F3 "SE4" SIZE 20,10 PIXEL HASBUTTON
+
+@ 097,075 SAY oSaySE4 PROMPT cDescrSE4 OF oDlg3 PIXEL COLOR CLR_RED
+
+//@ 142,010 SAY 'Prev. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
+//@ 140,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 WHEN .F. /*lAlt*/ VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
+
+@ 112,010 SAY "Justificativa:"  OF oDlg3 PIXEL
+@ 110,040 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 70,10 PIXEL
+
+@ 127,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 125,040 MSGET oGetChv VAR cChvNfe   OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 140,10 PIXEL 
+
+@ 140,010 SAY 'Parcelas:' OF oDlg3 PIXEL COLOR CLR_RED 
+oLista := MsNewGetDados():New(140, 040, 225, 205, GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,, 99, "U_VldV140()", "", "", oDlg3, aCabecalho, aDados,"U_VldV140()")
 
 If lAlt
-	@ 215,040 BUTTON "Ok" SIZE 040, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1,@cLibF1),oDlg3:End(),AllwaysTrue()))
-	@ 215,090 BUTTON "Anexos" SIZE 040, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
+	@ 230,070 BUTTON "Ok"SIZE 040, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1,@cLibF1),oDlg3:End(),AllwaysTrue()))
+	@ 230,120 BUTTON "Anexos" SIZE 040, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
 EndIf
 If lEsc .OR. !lAlt
-	@ 215,140 BUTTON "Sair" SIZE 040, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
+	@ 230,170 BUTTON "Sair" SIZE 040, 012 PIXEL OF oDlg3 Action(oDlg3:End(),lRet:= .F.)
 EndIf
 
 ACTIVATE MSDIALOG oDlg3 CENTERED VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL),lEsc)  //cNFiscal+cSerie+cA100For+cLoja+cTipo
@@ -336,6 +404,13 @@ Else
 			oGetPA:Setfocus()
 			lRet := .F.
 		EndIf
+	ElseIf nRadio == 7
+		If Empty(cxChPix)
+			u_MsgLog("SF1140I","Informe a chave do PIX","E")
+			oGetChPix:Enable()
+			oGetChPix:Setfocus()
+			lRet := .F.
+		EndIf
 	EndIf
 EndIf
 
@@ -419,27 +494,56 @@ SA2->(RestArea(aAreaSA2))
 Return lRet
 
 
+Static Function ChangePix()
 
-Static Function Habilita(nRadio)
+//u_MsgLog("CHANGEPIX",cxTpPix,"I")
+cxChPix := SPACE(LEN(F72->F72_CHVPIX))
+If F72->(dbSeek(xFilial("F72")+SF1->F1_FORNECE+SF1->F1_LOJA+cxTpPix,.T.))
+	If SF1->F1_FORNECE+SF1->F1_LOJA+cxTpPix == F72->(F72_COD+F72_LOJA+F72_TPCHV)
+		cxChPix := F72->F72_CHVPIX
+	EndIf
+EndIf
+If Empty(cxChPix) .AND. cxTpPix == "03"
+	cxChPix := cCNPJ
+EndIf
+oGetChPix:Refresh()
 
-If nRadio <> 1 .AND. nRadio <> 4
+Return Nil 
+
+
+
+Static Function ChangePgt(nRadio)
+
+If nRadio == 1
+	oGetBco:Enable()
+	oGetAge:Enable()
+	oGetCon:Enable()
+	//oGetBco:Setfocus()
+Else
 	oGetBco:Disable()
 	oGetAge:Disable()
 	OGetCon:Disable()
+EndIf 
+
+If nRadio == 4
+	oGetPA:Enable()
+	//oGetPA:Setfocus()
+Else
 	cxNumPa := SPACE(9)
 	oGetPA:Refresh()
 	oGetPA:Disable()
-Else
-	If nRadio == 1
-		oGetBco:Enable()
-		oGetAge:Enable()
-		oGetCon:Enable()
-		//oGetBco:Setfocus()
-	ElseIf nRadio == 4
-		oGetPA:Enable()
-		//oGetPA:Setfocus()
-	EndIf
 EndIf
+
+If nRadio == 7
+	oGetChPix:Enable()
+	oCmbTpPix:Enable()
+Else
+	oGetChPix:Disable()
+	oCmbTpPix:Disable()
+	cxChPix := SPACE(100)
+	oGetChPix:Refresh()
+EndIf
+
 Return Nil
 
 
@@ -553,13 +657,46 @@ If !Empty(cxBanco)
 		SA2->A2_BANCO   := cxBanco
 		SA2->A2_AGENCIA := cxAgencia
 		SA2->A2_NUMCON  := cxConta
-		MSUNLOCK("SA2")
+		MsUnLock("SA2")
 	EndIf
 EndIf
 
 RestArea(aArea)
 Return
 
+// Gravar dados do PIX na tabela padrão do sistema
+Static Function PutF72(cCod,cLoja,cxTpPix,cxChPix)
+Local aArea := GetArea()
+Local lInc  := .F.
+
+If !Empty(cxChPix)
+	dbSelectArea("F72")
+	If dbSeek(xFilial("F72")+cCod+cLoja+cxTpPix,.T.)
+		If cCod+cLoja+cxTpPix == F72->(F72_COD+F72_LOJA+F72_TPCHV)
+			RecLock("F72",.F.)
+			F72->F72_CHVPIX := AllTrim(cxChPix)
+			MsUnLock("F72")
+		Else 
+			lInc := .T.
+		EndIf
+	Else
+		lInc := .T.
+	EndIf
+	If lInc
+		RecLock("F72",.T.)
+		F72->F72_FILIAL := xFilial("F72")
+		F72->F72_COD    := cCod
+		F72->F72_LOJA   := cLoja
+		F72->F72_TPCHV  := cxTpPix
+		F72->F72_CHVPIX := AllTrim(cxChPix)
+		F72->F72_ACTIVE := "2"
+		F72->F72_NOME   := "*"
+		MsUnLock("F72")
+	EndIf
+EndIf
+
+RestArea(aArea)
+Return
 
 
 // Verifica a existência de anexos no SF1
@@ -596,3 +733,5 @@ If lRet
 EndIf
 
 Return lRet
+
+
