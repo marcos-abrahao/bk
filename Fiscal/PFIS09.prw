@@ -500,7 +500,7 @@ ENDIF
 
 cQuery+= " ORDER BY FT_FILIAL+FT_TIPOMOV+FT_SERIE+FT_NFISCAL+FT_CLIEFOR+FT_LOJA+FT_ITEM+FT_PRODUTO"
 
-
+u_LogMemo("PFIS09.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP1"
 
@@ -598,7 +598,7 @@ Do While (ALIAS_TMP)->(!eof())
 				nDescto  := 0
 				IF cMV_DEDBPIS == 'I'
 					nDescto  := (ALIAS_TMP)->FT_ICMSRET
-				ELSEIF cMV_DEDBPIS == 'P'
+				ELSEIF cMV_DEDBPIS == 'P' .OR. cMV_DEDBPIS == 'N' // OR N = BK 04/08/23
 					nDescto  := (ALIAS_TMP)->FT_VALIPI
 				ELSEIF cMV_DEDBPIS == 'S'
 					nDescto  := (ALIAS_TMP)->FT_VALIPI  + (ALIAS_TMP)->FT_ICMSRET
@@ -625,7 +625,7 @@ Do While (ALIAS_TMP)->(!eof())
 				nDescto  := 0
 				IF cMV_DEDBCOF == 'I'
 					nDescto  := (ALIAS_TMP)->FT_ICMSRET
-				ELSEIF cMV_DEDBCOF == 'P'
+				ELSEIF cMV_DEDBCOF == 'P' .OR. cMV_DEDBCOF == "N"  // .OR. 'N' incluido na BK 04/08/2023
 					nDescto  := (ALIAS_TMP)->FT_VALIPI
 				ELSEIF cMV_DEDBCOF == 'S'
 					nDescto  := (ALIAS_TMP)->FT_VALIPI  + (ALIAS_TMP)->FT_ICMSRET

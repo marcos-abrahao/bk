@@ -98,7 +98,7 @@ WSMETHOD GET DOWNLDC QUERYPARAM empresa,documento WSREST RestLibDc
 Return (lSuccess)
 
 
-
+// v3
 WSMETHOD PUT LIBDOC QUERYPARAM empresa,documento,userlib,liberacao WSREST RestLibDc
 
 Local cJson        := Self:GetContent()   
@@ -218,6 +218,7 @@ Local cEmpresa		:= ""
 Local cNomeEmp		:= 0
 Local cTabSCR		:= ""
 Local cTabSA2		:= ""
+Local cTabSC1		:= ""
 Local cQuery		:= ""
 Local cStatus		:= ""
 
@@ -257,11 +258,12 @@ EndIf
 
 For nE := 1 To Len(aEmpresas)
 
-	cTabSCR := "SCR"+aEmpresas[nE,1]+"0"
-	cTabSA2 := "SA2"+aEmpresas[nE,1]+"0"
-
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]
+
+	cTabSCR := "SCR"+cEmpresa+"0"
+	cTabSA2 := "SA2"+cEmpresa+"0"
+	cTabSC1 := "SC1"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -270,20 +272,20 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "SELECT "+CRLF
 	cQuery += "		'"+cEmpresa+"' AS CREMPRESA,"+CRLF
 	cQuery += "		'"+cNomeEmp+"' AS CRNOMEEMP,"+CRLF
-	cQuery += "		SCR.CR_FILIAL,"+CRLF
+	cQuery += "		CR_FILIAL,"+CRLF
 	cQuery += "		SCR.R_E_C_N_O_ AS CRRECNO,"+CRLF
-	cQuery += "		SCR.CR_NUM,"+CRLF
-	cQuery += "		SCR.CR_TIPO,"+CRLF
-	cQuery += "		SCR.CR_USER,"+CRLF
-	cQuery += "		SCR.CR_APROV,"+CRLF
-	cQuery += "		SCR.CR_STATUS,"+CRLF
-	cQuery += "		SCR.CR_DATALIB,"+CRLF
-	//cQuery += "		SCR.CR_OBS,"+CRLF
-	cQuery += "		SCR.CR_TOTAL,"+CRLF
-	cQuery += "		SCR.CR_EMISSAO,"+CRLF
-	cQuery += "		SCR.CR_GRUPO"+CRLF
-	//cQuery += "		SCR.CR_PRAZO,"+CRLF
-	//cQuery += "		SCR.CR_AVISO"+CRLF
+	cQuery += "		CR_NUM,"+CRLF
+	cQuery += "		CR_TIPO,"+CRLF
+	cQuery += "		CR_USER,"+CRLF
+	cQuery += "		CR_APROV,"+CRLF
+	cQuery += "		CR_STATUS,"+CRLF
+	cQuery += "		CR_DATALIB,"+CRLF
+	//cQuery += "	CR_OBS,"+CRLF
+	cQuery += "		CR_TOTAL,"+CRLF
+	cQuery += "		CR_EMISSAO,"+CRLF
+	cQuery += "		CR_GRUPO"+CRLF
+	//cQuery += "	CR_PRAZO,"+CRLF
+	//cQuery += "	CR_AVISO"+CRLF
 				
 	cQuery += "FROM "+cTabSCR+" SCR"+CRLF
 
@@ -296,6 +298,36 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "		 AND SCR.CR_FILIAL = '"+xFilial('SCR')+"' "+CRLF
 	cQuery += "  AND CR_STATUS = '02'"+CRLF
 	cQuery += "  AND CR_USER   = '"+__cUserId+"'"+CRLF
+	
+	// Solicitações de Compras
+	cQuery += "UNION ALL "+CRLF
+	
+	cQuery += "SELECT "+CRLF
+	cQuery += "		'"+cEmpresa+"'  AS CREMPRESA,"+CRLF
+	cQuery += "		'"+cNomeEmp+"'  AS CRNOMEEMP,"+CRLF
+	cQuery += "		C1_FILIAL       AS CR_FILIAL,"+CRLF
+	cQuery += "		MIN(SC1.R_E_C_N_O_)  AS CRRECNO,"+CRLF
+	cQuery += "		C1_NUM          AS CR_NUM,"+CRLF
+	cQuery += "		'SC'            AS CR_TIPO,"+CRLF
+	cQuery += "		MIN(C1_USER)    AS CR_USER,"+CRLF
+	cQuery += "		MIN(C1_NOMAPRO) AS CR_APROV,"+CRLF
+	cQuery += "		MIN(C1_APROV)   AS CRSTATUS,"+CRLF
+	cQuery += "		MIN(C1_XDTAPRV) AS CR_DATALIB,"+CRLF
+	cQuery += "		SUM(C1_XXLCTOT) AS CR_TOTAL,"+CRLF
+	cQuery += "		MIN(C1_EMISSAO) AS CR_EMISSAO,"+CRLF
+	cQuery += "		''              AS CR_GRUPO"+CRLF
+
+	cQuery += " FROM "+cTabSC1+" SC1"+CRLF
+	cQuery += " WHERE SC1.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += "		 AND SC1.C1_FILIAL = '"+xFilial('SC1')+"' "+CRLF
+	// Filtro Advpl: C1_QUJE == 0 .And. (C1_COTACAO == Space(Len(C1_COTACAO)) .Or. C1_COTACAO == "IMPORT") .And. C1_APROV == "B" .AND. Empty(C1_RESIDUO)
+	cQuery += "  AND C1_QUJE    = 0"	+CRLF
+	cQuery += "  AND C1_COTACAO = ' '"	+CRLF
+	cQuery += "  AND C1_APROV   = 'B'"	+CRLF
+	cQuery += "  AND C1_RESIDUO = ' '"	+CRLF
+	cQuery += " GROUP BY  "		+CRLF
+	cQuery += "  C1_FILIAL,"	+CRLF
+	cQuery += "  C1_NUM"		+CRLF
 
 Next
 
@@ -653,8 +685,9 @@ Do While (cQrySC7)->(!EOF())
 	"Obs: "+TRIM(SC1->C1_OBS),"Contrato: "+SC1->C1_CC,"Desc.Contr: "+SC1->C1_XXDCC,"Objeto: "+SC1->C1_XXOBJ})
 	"Validade da Proposta: "+DTOC(SC8->C8_VALIDA)+"      "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM,IIF(ALLTRIM(SC8->C8_MOTIVO) == "ENCERRADO AUTOMATICAMENTE","X - Vencedor Indicado Pelo Sistema","* - Fornecedor Selecionado Pelo Usuário"),"")+IIF(!EMPTY(SC8->C8_OBS),"   OBS:"+SC8->C8_OBS,"")})
 */
-
-	nGeral += (cQrySC7)->C8_TOTAL
+	If (cQrySC7)->(C8_NUMPED == C7_NUM) .AND. (cQrySC7)->(C8_ITEMPED == C7_ITEM)
+		nGeral += (cQrySC7)->C8_TOTAL
+	EndIf
 	dbSkip()
 EndDo
 
@@ -876,7 +909,7 @@ line-height: 1rem;
         <!-- Rodapé do modal-->
        <div class="modal-footer">
          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
-         <div id="btnlib"></div>
+         <div id="btnlibNF"></div>
        </div>
      </div>
    </div>
@@ -957,7 +990,7 @@ line-height: 1rem;
     <div class="modal-footer">
         <div id="c7Geral"></div>
         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
-        <div id="btnlib"></div>
+        <div id="btnlibPC"></div>
     </div>
     </div>
   </div>
@@ -1094,7 +1127,7 @@ document.getElementById('SF1XXParce').value = documento['F1_XXPARCE'];
 
 if (canLib === 1){
 	let btn = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\')">Liberar</button>';
-	document.getElementById("btnlib").innerHTML = btn;
+	document.getElementById("btnlibNF").innerHTML = btn;
 }
 if (Array.isArray(documento.D1_ITENS)) {
    documento.D1_ITENS.forEach(object => {
@@ -1208,10 +1241,10 @@ document.getElementById('pcEmissao').value = documento['C7_EMISSAO'];
 document.getElementById('pcComprador').value = documento['C7_XXUSER'];
 document.getElementById('pcForn').value = documento['C7_XFORN'];
 
-if (canLib === 1){
+//if (canLib === 1){
 	let btn = '<button type="button" class="btn btn-outline-success" onclick="libpc(\''+c7empresa+'\',\''+c7num+'\',\'#userlib#\')">Liberar</button>';
-	document.getElementById("btnlib").innerHTML = btn;
-}
+	document.getElementById("btnlibPC").innerHTML = btn;
+//}
 
 
 const xarray = [];

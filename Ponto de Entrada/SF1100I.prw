@@ -22,6 +22,7 @@ Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
 Private cLibF1   := ""
+Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
 IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	PswOrder(1) 

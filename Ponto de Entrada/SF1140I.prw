@@ -29,6 +29,7 @@ Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel  := SF1->F1_XXPARCE
 Private cLibF1   := "A"
+Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
 If Empty(cxBanco)
 	u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)

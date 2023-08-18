@@ -238,12 +238,14 @@ DO WHILE !SE2->(EOF()) .AND. SE2->E2_FILIAL == xFilial("SE2") .AND. SE2->E2_VENC
 		RecLock("SE2",.F.)
         SE2->E2_XXPRINT := "S"
 		MsUnlock()
+		u_MsgLog(cPerg,cTitulo+" Impressão marcada: "+SE2->E2_NUM)
 	ENDIF
 	
 	IF nImpSel = 4  // Desmarcar os impressos
 		RecLock("SE2",.F.)
         SE2->E2_XXPRINT := "N"
 		MsUnlock()
+		u_MsgLog(cPerg,cTitulo+" Impressão desmarcada: "+SE2->E2_NUM)
 	ENDIF
     
 	SE2->(dbSkip())
