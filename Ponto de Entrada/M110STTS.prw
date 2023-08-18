@@ -2,18 +2,12 @@
 #INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ M110STTS ºAutor  ³Adilso do Prado   º Data ³  14/02/13     º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºPonto de Entrada para envio Solicitação de Compra aos compradores      º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/{Protheus.doc} M110STTS
+BK - Ponto de Entrada para envio Solicitação de Compra aos compradores
+@Return
+@author Adilson do Prado
+@since 14/02/13
+@version P12
 /*/
  
 User Function M110STTS()
@@ -95,7 +89,7 @@ Next
 
 aCabs   := {}
 IF _lProc 
-	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS")
 	U_SendMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
@@ -112,11 +106,13 @@ ELSE
 			EndIf
 	    NEXT
 	    IF LEN(aSaldos) > 0
-	    	IF MsgYesNo("Produtos da solicitação em estoque. Deseja utilizalos??")
-	    	   //U_BKSADO(aSaldos)
+	    	/*
+			IF MsgYesNo("Produtos da solicitação em estoque. Deseja utilizalos??")
+	    	   U_BKSADO(aSaldos)
 	    	ENDIF
+			*/
 	    ENDIF            
-		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS")
 		U_SendMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
