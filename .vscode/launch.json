@@ -7,69 +7,9 @@
 			"name": "TOTVS Language Debug",
 			"program": "${command:AskForProgramName}",
 			"cwb": "${workspaceFolder}",
-			"smartclientBin": "E:\\Protheus12\\BK\\Protheus\\bin\\smartclient\\smartclient.exe",
+			"smartclientBin": "E:\\Protheus12\\BK\\Protheus\\bin\\SMARTCLIENT_X64\\smartclient.exe",
 			"isMultiSession": true,
-			"enableTableSync": true,
-			"enableMultiThread": true
+			"enableTableSync": true
 		}
-	],
-	"lastPrograms": [
-		{
-			"label": "SIGAMDI",
-			"description": "<nil>"
-		},
-		{
-			"label": "loo"
-		},
-		{
-			"label": "sigafin"
-		},
-		{
-			"label": "sigacom"
-		},
-		{
-			"label": "U_UPDGENSX"
-		},
-		{
-			"label": "SIGACFG"
-		},
-		{
-			"label": "upddistr"
-		},
-		{
-			"label": "U_UPDGENPAR"
-		},
-		{
-			"label": "xxxx"
-		},
-		{
-			"label": "u_bkteste"
-		},
-		{
-			"label": "sigagct"
-		},
-		{
-			"label": "sigafat"
-		},
-		{
-			"label": "sigactb"
-		},
-		{
-			"label": "sigafis"
-		},
-		{
-			"label": "sigfis"
-		},
-		{
-			"label": "SIGAATF"
-		},
-		{
-			"label": "BKESTC02"
-		},
-		{
-			"args": [],
-			"label": "U_UPDSZV"
-		}
-	],
-	"lastProgramExecuted": "xxxx"
+	]
 }
