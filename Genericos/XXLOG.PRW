@@ -55,7 +55,9 @@ If !IsBlind() .AND. !Empty(cAlert)
 			cMens += ": Nao"
 		EndIf
 	Else
-		FWAlertHelp(cMens,cProg)
+		If Empty(cTxt)
+			FWAlertHelp(cMens,cProg)
+		EndIf
 	EndIf
 EndIf
 

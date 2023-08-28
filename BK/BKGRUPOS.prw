@@ -107,22 +107,24 @@ Return lRet
 User Function ListSup()
 Local nx		:= 0
 Local ny		:= 0
-Local aAllusers := FWSFALLUSERS(,,,,.T.)
+Local aAllUsers 
 Local aSup		:= {}
 Local lRet 		:= .F.
 Local aUsSup 	:= {}
 Local aCabec	:= {"Usuários","Superiores"}
 
-For nx := 1 To Len(aAllusers)
-	If aAllUsers[nx,9] == '2' //usuário ativo
-		aSup := FWSFUsrSup(aAllusers[nx][2])
+u_WaitLog(,{ || aAllUsers := FWSFALLUSERS(,,,,.T.)} )
+
+For nx := 1 To Len(aAllUsers)
+	If aAllUsers[nx,8] == '2' //usuário ativo
+		aSup := FWSFUsrSup(aAllUsers[nx][2])
 		If Len(aSup) > 0
 			For ny := 1 To Len(aSup)
-				//u_MsgLog("ListSup",aAllusers[nx][2]+"-"+aAllusers[nx][4]+" : "+aSup[ny]+"-"+UsrRetName(aSup[ny]))
-				aAdd(aUsSup,{aAllusers[nx][2]+"-"+aAllusers[nx][3],aSup[ny]+"-"+UsrRetName(aSup[ny])})
+				//u_MsgLog("ListSup",aAllUsers[nx][2]+"-"+aAllUsers[nx][4]+" : "+aSup[ny]+"-"+UsrRetName(aSup[ny]))
+				aAdd(aUsSup,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],aSup[ny]+"-"+UsrRetName(aSup[ny])})
 			Next
 		Else
-			aAdd(aUsSup,{aAllusers[nx][2]+"-"+aAllusers[nx][3],""})
+			aAdd(aUsSup,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],""})
 		EndIf	
 	EndIf
 Next

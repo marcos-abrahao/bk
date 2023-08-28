@@ -124,7 +124,7 @@ User Function TTMARKB(aCampos, aDados, lMarcado)
 	oBrowse:DisableConfig()
 	oBrowse:DisableFilter()
 	oBrowse:SetFieldMark( "MARK" )
-	oBrowse:SetAllMark( { || FMarkAll( oBrowse, aDados ) } )
+	oBrowse:SetAllMark( { || FMarkAll( oBrowse, aDados, .T. ) } )
 	oBrowse:bMark := {|| FMArkOne(oBrowse, aDados )}
 
 	oBrowse:Activate()
@@ -134,9 +134,9 @@ User Function TTMARKB(aCampos, aDados, lMarcado)
 	//@ oPanelUp:nTop + 10, oPanelUp:nLeft + 10	MSGET oQtdSel Var nQtdSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
 
 	//Verifica se já traz o MarkBrowse Selecionado
-	If lMarcado
-		FMarkAll( oBrowse, aDados )
-	EndIf
+	//If lMarcado
+		FMarkAll( oBrowse, aDados, lMarcado )
+	//EndIf
 
 	//ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||FwMsgRun(Nil,{||ExecBlock("TTMARKEX",.F.,.F.,{cAliasBrw}) },Nil,"Aguarde, Atualizando Dados"),oDlgBrw:End()},{||oDlgBrw:End()},,))
 
@@ -199,7 +199,7 @@ Inverte a seleção
 @version 1.0
 @type Function
 /*/
-Static Function FMarkAll( oBrowse, aDados )
+Static Function FMarkAll( oBrowse, aDados, lMarcado )
 
 	Local cAlias as character
 	Local cMark	as character
@@ -214,12 +214,26 @@ Static Function FMarkAll( oBrowse, aDados )
 	While ( cAlias )->( !Eof() )
 
 		If RecLock( cAlias, .F. )
-			( cAlias )->MARK := Iif( ( cAlias )->MARK == cMark, "  ", cMark )
 
-			// Marca/Desmarca o aDados
-			aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
+			If lMarcado  // Marca/Desmarca Todos
 
-			( cAlias )->( MsUnlock() )
+				( cAlias )->MARK := Iif( ( cAlias )->MARK == cMark, "  ", cMark )
+
+				// Marca/Desmarca o aDados
+				aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
+
+				( cAlias )->( MsUnlock() )
+
+			Else // Marca os que vierem marcados na inicialização
+			
+				( cAlias )->MARK := Iif( Empty(aDados[(cAlias)->(RECNO()),1]), "  ", cMark )
+
+				// Marca/Desmarca o aDados
+				aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
+
+				( cAlias )->( MsUnlock() )
+
+			EndIf
 
 			If ( cAlias )->MARK == cMark
 				nQtdSel++

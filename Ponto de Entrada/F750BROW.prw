@@ -388,13 +388,7 @@ Else
 	u_MsgLog("BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
 EndIf
 
-//dDataBase := dDataAt
-
-//RESET ENVIRONMENT 
-
 RpcClearEnv()
-
-//RpcSetEnv( cEmpAnt, cFilAnt )
-   
+  
 Return cRetorno
 

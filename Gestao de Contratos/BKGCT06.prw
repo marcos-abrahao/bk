@@ -3644,6 +3644,8 @@ For nE := 1 TO Len(aEmpresas)
 	
 	cQuery += "  WHERE "+CRLF
 	cQuery += "    E2_VENCREA > '"+DTOS(dDataBase)+"' "+CRLF
+	// 21/08/23 - Remover UNIAO - Bruno Bueno
+	cQuery += "    AND SUBSTRING(E2_FORNECE,1,5) <> 'UNIAO' "+CRLF
 	cQuery += "    AND E2_FILIAL = '"+xFilial("SE2")+"' AND SE2.D_E_L_E_T_ = ''"+CRLF
 Next
 cQuery += ") "+CRLF

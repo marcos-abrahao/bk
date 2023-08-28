@@ -21,7 +21,7 @@ If nModulo = 5 .OR. nModulo = 69
 		EndIf
 	EndIf
 ElseIf nModulo = 6 .OR. nModulo = 2  .OR. nModulo = 9
-	If u_IsSuperior(__cUserId) .OR. u_InGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000")
+	If u_InGrupo(__cUserId,"000031") .OR. u_IsStaf(__cUserId) .OR. (__cUserId == "000000") //u_IsSuperior(__cUserId) .OR.
 		If u_MsgLog("MDIOk","Deseja abrir a Liberação de Docs de Entrada Web?","Y")
 			cToken  := u_BKEnCode()
 			ShellExecute("open", u_BkRest()+"/RestLibPN/v2?userlib="+cToken, "", "", 1)

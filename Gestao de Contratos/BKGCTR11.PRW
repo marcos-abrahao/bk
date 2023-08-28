@@ -1587,6 +1587,10 @@ ENDIF
 cQuery2 += " [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve=bk_senior.bk_senior.R046VER.CodEve AND "+CRLF
 cQuery2 += " SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
 cQuery2 += "  ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) as VALASSOD "+CRLF
+
+  //CASE WHEN R046VER.CodEve IN (1,2,11,34,35,36,37,56,60,62,64,65,68,100,102,104,108,110,126,266,268,270,274,483,600,640,656,664,674,675,685,695,696,700,720,725,726,727,728,729,745,747,749,750,754,755,756,757,758,760,761,762,763,764,765,778,779,787,789,790,791,792,824,897,935,936) THEN 'PROVENTO' ELSE '' END AS PROVENTO,
+  //PerRef,
+
 cQuery2 += " FROM bk_senior.bk_senior.R046VER "+CRLF
 cQuery2 += " INNER JOIN bk_senior.bk_senior.R044cal ON bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp" +CRLF
 cQuery2 += " AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"+CRLF
@@ -1606,7 +1610,9 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 IF nScan > 0
 	cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
 	cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
-	cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
+	If cEmpAnt <> '14'
+		cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
+	EndIf
 ELSE
 	cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
 	cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
@@ -2262,8 +2268,10 @@ IF nScan > 0
 		cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 	ENDIF
 	IF ALLTRIM(aConsorcio[nScan,2]) == "140"
-		cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" +CRLF
+		//cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
+		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
+	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "160"
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
 	ELSE
 		cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF

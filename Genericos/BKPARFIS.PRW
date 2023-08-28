@@ -9,14 +9,19 @@ BK - Atualização do Parâmetro MV_DATAFIS
 /*/
 
 User Function BKPARFIS()
-Local odParF as Object
-Local oDlg1 as Object
-Local aGrp := UsrRetGrp()
-Local lOk  := .F.
-Local nI
+Local odParF As Object
+Local oDlg1  As Object
+Local aGrp   := UsrRetGrp()
+Local lOk    := .F.
+Local nI     := 0
+Local aDatas := {}
 
+Private cMvPar := "MV_DATAFIS"
 Private dParF
-Private cTexto:=""
+Private cTexto :=""
+Private cProg  := "BKPARFIS"
+Private cEmpAtual := cEmpAnt
+Private cFilAtual := cFilAnt
 
 For nI := 1 TO Len(aGrp)
     //             Admin /Contab/Fiscal
@@ -26,21 +31,21 @@ For nI := 1 TO Len(aGrp)
 	EndIf
 Next
 
-
-//If PswAdmin(,,__cUserId) > 0
 If !lOk
-    MsgStop("Acesso não permitido para este usuário!","BKPARFIS - Data do Fechamento Fiscal")
+    u_MsgLog(cProg,"Acesso não permitido para este usuário!","E")
     Return Nil 
 EndIf
 
-dParF  := GETMV("MV_DATAFIS")
+aDatas := ListaPar()
+
+dParF  := STOD(aDatas[1,3])  //GETMV(cMvPar)
 
 DEFINE MSDIALOG oDlg1 TITLE "BKPARFIS - Data limite Fiscal" FROM 200,001 TO 330,470 PIXEL
 
 @ 12,040 SAY "Data limite (MV_DATAFIS):" Size 080,010 Pixel OF oDlg1
 @ 10,120 MSGET odParF VAR dParF Size 60,010 HASBUTTON Pixel OF oDlg1
 
-SButton():New( 40, 080,  1, {|| OkPar1(),oDlg1:End() },oDlg1,.T.,"Atualiza os parâmetros")
+SButton():New( 40, 080,  1, {|| oDlg1:End(),BrwEmp(aDatas,dParF) },oDlg1,.T.,"Atualiza os parâmetros")
 SButton():New( 40, 120,  2, {|| oDlg1:End() },oDlg1,.T.,"Cancela")
 
 ACTIVATE DIALOG oDlg1 CENTER
@@ -48,23 +53,53 @@ ACTIVATE DIALOG oDlg1 CENTER
 Return Nil
 
 
-Static Function OkPar1()
-Local oDlg as Object
+Static Function BrwEmp(aDatas,dParF)
+Local nI      := 0
+Local aDados  := {}
+Local aCampos := {{ "MARCA"     , "C", 02, 0, "Marca"           ,"@!", .F., "" },;
+				  { "EMPRESA"   , "C", 02, 0, "Empresa"         ,"@!", .T., "" },;
+				  { "NOMEMPRESA", "C", 20, 0, "Nome"            ,"@!", .T., "" },;
+				  { "DATAFECH"  , "D", 08, 0, "Data Fechamento" ,"@E", .T., "" },;
+				  { "DATANOVA"  , "D", 08, 0, "Alterar para:"   ,"@E", .T., "" } }
+
+For nI := 1 To Len(aDatas)
+    aAdd(aDados,{"X ",aDatas[nI,1],aDatas[nI,2],STOD(aDatas[nI,3]),dParF})
+Next
+
+u_TTMARKB(aCampos, aDados, .F.)
+
+//OkPar1(aDados)
+
+u_WaitLog(cProg, {|| OkPar1(aDados)})
+
+Return Nil
+
+
+
+Static Function OkPar1(aDados)
+//Local oDlg as Object
 Local nI          := 0
-Local aAllCompany := {}
-Local cMask       := "Arquivos Texto" + "(*.TXT)|*.txt|"
-Local cFile       := ""
+//Local cMask       := "Arquivos Texto" + "(*.TXT)|*.txt|"
+//Local cFile       := ""
+Local cTabela     := ""
+Local cQuery      := ""
 
 cTexto += Replicate( "-", 70 ) + CRLF
 cTexto += " Data / Hora Inicial.: " + DtoC( Date() ) + " / " + Time()  + " - "+cUserName+ CRLF
 cTexto += Replicate( "-", 70 ) + CRLF
 
-//aAllCompany := FWAllGrpCompany()
-aAllCompany := u_BKGrupo()
-For nI := 1 TO LEN(aAllCompany)
-    cTexto += "Empresa: "+aAllCompany[nI,1]+" - "+FWEmpName(aAllCompany[nI,1])+ CRLF
-    If !AltX6(aAllCompany[nI,1])
-        Exit
+For nI := 1 TO LEN(aDados)
+    If !Empty(aDados[nI,1]) .AND. aDados[nI,4] <> aDados[nI,5]
+        
+        cTabela := "SX6"+aDados[nI,2]+"0"
+
+        cQuery := " UPDATE "+cTabela+" SET X6_CONTEUD = '"+DTOS(aDados[nI,5])+"'"+CRLF
+        cQuery += "  WHERE X6_VAR = 'MV_DATAFIS' AND D_E_L_E_T_ = ' ' "+CRLF
+        TcSqlExec(cQuery)
+
+        cTexto  += "Empresa: "+aDados[nI,2]+" - "+aDados[nI,3] + ": " 
+        cTexto  += "MV_DATAFIS alterada de "+DTOC(aDados[nI,4])+" para "+DTOC(aDados[nI,5]) + CRLF
+
     EndIf
 Next
 
@@ -72,7 +107,7 @@ cTexto += Replicate( "-", 70 ) + CRLF
 cTexto += " Data / Hora Final.: " + DtoC( Date() ) + " / " + Time()  + CRLF
 cTexto += Replicate( "-", 70 ) + CRLF
 
-
+/*
 Define Font oFont Name "Mono AS" Size 5, 12
 
 Define MsDialog oDlg Title "Atualizacao concluida." From 3, 0 to 340, 417 Pixel
@@ -86,50 +121,54 @@ Define SButton From 153, 145 Type 13 Action ( cFile := cGetFile( cMask, "" ), If
 MemoWrite( cFile, cTexto ) ) ) Enable Of oDlg Pixel
 
 Activate MsDialog oDlg Center
+*/
 
-u_BkSnMail("BKPARFIS","Alteração de Data de Fechamento Fiscal","microsiga@bkconsultoria.com.br","",STRTRAN(cTexto,CRLF,"<br>"),)
-u_MsgLog("BKPARFIS")
+//u_BkSnMail("BKPARFIS","Alteração de Data de Fechamento Fiscal","microsiga@bkconsultoria.com.br","",STRTRAN(cTexto,CRLF,"<br>"),)
+u_MsgLog("BKPARFIS",DTOC(dParF),"",cTexto)
 
 Return Nil
 
 
 
-Static Function AltX6(cEmpX6)
-Local cArqTr := "SX6"+cEmpX6+"0"
-Local nOper  := 0
-Local lOk    := .T.
+// SQL ARRAY
+Static Function ListaPar()
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+Local nI            := 0
+Local aBkGrupo      := u_BKGrupo()
+Local cTabela       := ""
 
-// Abre tabela de outra empresa
-IF SELECT("SZZX6") > 0
-   SELECT SZZX6
-   USE
-ENDIF
-USE (cArqTr) INDEX (cArqTr) ALIAS SZZX6 NEW
-SELECT SZZX6
+For nI := 1 TO LEN(aBkGrupo)
 
-If DBSEEK("  MV_DATAFIS",.F.)
-	nOper := u_AvisoLog("BKPARFIS","Data do fechamento Fiscal","Empresa "+TRIM(FWEmpName(cEmpX6))+" - Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+CRLF+"Deseja alterar para "+DTOC(dParF)+"?",{"Alterar","Não Alterar","Sair"})
-    //MsgYesNo("Empresa "+FWEmpName(cEmpX6)+CRLF+"Conteudo atual: "+DTOC(STOD(ALLTRIM(SZZX6->X6_CONTEUD)))+CRLF+" alterar para "+DTOC(dParF)+"?","Data do fechamento Fiscal")
-
-    If nOper == 1
-    	cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo anterior: " + SZZX6->X6_CONTEUD + CRLF
-
-        RecLock("SZZX6",.F.)
-        SZZX6->X6_CONTEUD := DTOS(dParF)
-
-        cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo alterado: " + SZZX6->X6_CONTEUD + CRLF
-        MsUnlock()
-    ElseIf nOper == 2
-        cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
-    ElseIf nOper == 3
-        cTexto += "Parametro " + SZZX6->X6_VAR + " conteudo mantido:  " + SZZX6->X6_CONTEUD + CRLF
-        lOk := .F.
+    cTabela := "SX6"+aBkGrupo[nI,1]+"0"
+    If nI <> 1
+        cQuery += "UNION ALL "+CRLF
     EndIf
-Else
-    cTexto += "Parametro não encontrado" + CRLF
-EndIf
+    cQuery += "SELECT '"+aBkGrupo[nI,1]+"' AS EMPRESA,"+CRLF 
+    cQuery += "  '"+aBkGrupo[nI,2]+"' AS NOMEMPRESA,"+CRLF
+    cQuery += "  SUBSTRING(X6_CONTEUD,1,8) AS DATAFIS "+CRLF
+    cQuery += " FROM "+cTabela+CRLF
+    cQuery += " WHERE X6_VAR = 'MV_DATAFIS' AND D_E_L_E_T_ = ' ' "+CRLF
 
-SELECT SZZX6
-USE
+Next 
 
-Return lOk
+//aadd(aBinds,xFilial("SA1")) // Filial
+//aadd(aBinds,"000281") // Codigo
+//aadd(aBinds,"01") // Loja
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"EMPRESA"   ,"C",2,0})
+aadd(aSetFields,{"NOMEMPRESA","C",20,0})
+aadd(aSetFields,{"DATAFIS"   ,"C",8,0})
+//aadd(aSetFields,{"A1_ULTVIS","D",8,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+  u_MsgLog("ListaPar",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+Endif
+
+Return aReturn

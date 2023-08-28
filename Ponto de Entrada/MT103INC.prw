@@ -57,7 +57,7 @@ If lClass
 	If !IsBlind() .AND. !u_IsLibDPH(__cUserId);
     		.AND. (SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '03')
 		
-		u_MsgLog("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 18h e 7h: "+cLogDoc,"E")
+		u_MsgLog("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 23h e 7h: "+cLogDoc,"E")
         lRet := .F.
 	Else
 		If SF1->F1_XXLIB == 'A'

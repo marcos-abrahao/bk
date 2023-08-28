@@ -2288,13 +2288,17 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " 	AND Tipcal In(11)"+CRLF 
 			cQuery2 += " 	AND Sitcal = 'T' "+CRLF
  			cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
-			cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga  IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
+			If cEmpAnt <> '14' 
+				cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
+			EndIf
 		ELSE
 			cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp = '"+cEmpAnt+"' "+CRLF
 			cQuery2 += " 	AND Tipcal In(11) "+CRLF
 			cQuery2 += " 	AND Sitcal = 'T' "+CRLF
 	 		cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
- 			cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+			If cEmpAnt <> '14' 
+	 			cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+			EndIf
  		ENDIF
 
 		cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve"+CRLF
@@ -3219,8 +3223,10 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " AND D1_FORNECE<>'000604'"
 			ENDIF 
 			IF ALLTRIM(aConsorcio[nScan,2]) == "140"
-				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" 
+				//cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" 
 			ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
+				//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
+			ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "160"
 				//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
             ELSE
 				cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" 

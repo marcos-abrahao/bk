@@ -263,11 +263,10 @@ Return
 
 // SQL ARRAY
 User Function ExitTbl(cTabela)
-Local cQuery := "SELECT ISNULL(OBJECT_ID(N'"+cTabela+"', N'U'),-1) AS EXIST"
-Local aReturn := {}
-Local aBinds := {}
+Local cQuery 	 := "SELECT ISNULL(OBJECT_ID(N'"+cTabela+"', N'U'),-1) AS EXIST"
+Local aReturn 	 := {}
+Local aBinds 	 := {}
 Local aSetFields := {}
-Local lRet := .F.
 
 //aadd(aBinds,xFilial("SA1")) // Filial
 //aadd(aBinds,"000281") // Codigo
@@ -280,7 +279,7 @@ aadd(aSetFields,{"EXIST","N",5,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-  u_MsgLog("ExitTbl",(tcsqlerror(),"Falha ao executar a Query: "+cQuery))
+	u_MsgLog("ExitTbl",tcsqlerror()+" Falha ao executar a Query: "+cQuery)
 Else
   //Alert(VarInfo("aReturn",aReturn))
   //MsgInfo("Verifique os valores retornados no console","Ok")
