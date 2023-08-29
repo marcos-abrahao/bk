@@ -845,7 +845,7 @@ Return cArqXls
 
 
 // Listagem de array simples - 28/10/22
-User Function ArrXls(aArrXls,cTitulo,aCabec)
+User Function ArrXls(cProg,aArrXls,cTitulo,aCabec)
 Local aPlans    := {}
 Local nI        := 0
 
@@ -856,8 +856,8 @@ If Empty(aCabec) .AND. Len(aArrXls) > 0
 	Next
 EndIf
 
-AADD(aPlans,{aArrXls,"ARRXLS",cTitulo,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ }) 
-U_ArrToXlsx(aPlans,cTitulo,"ARRXLS")
+AADD(aPlans,{aArrXls,cProg,cTitulo,aCabec,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */ }) 
+U_ArrToXlsx(aPlans,cTitulo,cProg)
 
 Return Nil
 // Marcos - v29/06/20

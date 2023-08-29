@@ -129,7 +129,7 @@ For nx := 1 To Len(aAllUsers)
 	EndIf
 Next
 
-u_ArrXls(aUsSup,"Usuários x Superiores",aCabec)
+u_ArrXls("LISTSUP",aUsSup,"Usuários x Superiores",aCabec)
 
 Return lRet
 
