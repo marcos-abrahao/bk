@@ -18,7 +18,13 @@
 		},
 		{
 			"label": "SIGAMDI"
+		},
+		{
+			"label": "SIGACTB"
+		},
+		{
+			"label": "SIGACFG"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "SIGACFG"
 }

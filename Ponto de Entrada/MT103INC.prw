@@ -170,11 +170,11 @@ If lClass
 		EndIf
 	EndIf
 Else
-	// Inclusão permitida apenas para administradores e master financeiro
+	// Inclusão permitida apenas para administradores, master financeiro e user controladoria
 	PswOrder(1) 
 	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
-	If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0
+	If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000037") <> 0
 		lRet := .T.
 	Else
 		u_MsgLog("MT103INC","Usuário sem permissão para incluir Documentos de Entrada: "+cLogDoc,"E")

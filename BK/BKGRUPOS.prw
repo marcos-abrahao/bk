@@ -184,8 +184,8 @@ Return lRet
 // Retorna se o usuário é Gestor Financeiro 
 User Function IsGesFin(cId)
 Local lRet := .F.
-//      Laudecir/Xavier/Diego.Oliveira
-If cId $ "000011/000012/000016"
+//      Laudecir/Xavier/Diego.Oliveira/Katia
+If cId $ "000011/000012/000016/000276"
     lRet := .T.
 EndIf
 Return lRet

@@ -44,6 +44,24 @@ AADD(aCabs1  ,"1a Compra")
 AADD(aCampos1,"QSA1->A1_ULTCOM")
 AADD(aCabs1  ,"Ult. Compra")
 
+// Teste de ajuste de endereço na emissão da NF, função FisGetEnd
+If __cUserId == '000000'
+    AADD(aCampos1,"FisGetEnd(QSA1->A1_END)[1]")
+    AADD(aCabs1  ,"Endereço")
+
+    AADD(aCampos1,"FisGetEnd(QSA1->A1_END)[2]")
+    AADD(aCabs1  ,"Numero")
+
+    AADD(aCampos1,"FisGetEnd(QSA1->A1_END)[3]")
+    AADD(aCabs1  ,"Numero")
+
+    AADD(aCampos1,"FisGetEnd(QSA1->A1_END)[4]")
+    AADD(aCabs1  ,"Complemento")
+
+    AADD(aCampos1,"QSA1->A1_COMPLEM")
+    AADD(aCabs1  ,"Complemento")
+EndIf
+
 AADD(aPlans,{"QSA1",cPerg,"",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
 U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
@@ -54,7 +72,7 @@ Return
 Static Function PrcQuery1
 Local cQuery
 
-cQuery := "SELECT A1_COD,A1_LOJA,A1_CGC,A1_NOME,A1_PESSOA,A1_PRICOM,A1_ULTCOM" + CRLF
+cQuery := "SELECT A1_COD,A1_LOJA,A1_CGC,A1_NOME,A1_PESSOA,A1_PRICOM,A1_ULTCOM,A1_END,A1_COMPLEM" + CRLF
 cQuery += " FROM "+RETSQLNAME("SA1")+ " SA1 " + CRLF
 cQuery += " WHERE A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_='' AND A1_PRICOM <> ''"+ CRLF
 cQuery += "ORDER BY A1_NOME,A1_COD,A1_LOJA" + CRLF
