@@ -27,13 +27,13 @@ If nOK == 1
     DbSelectArea("SZE")
     If DbSeek(xFilial("SZE")+cContra+cCompAM)
         If SZE->ZE_ENVEM  <> "S"  // Email não enviado para este contrato+competencia
-            u_SC5Email()
+            SC5Email(.F.)
             RecLock("SZE", .F.)
             SZE->ZE_ENVEM := "S" 
             MsUnlock()
         EndIf
     ElseIf !Empty(cContra) .AND. !Empty(cCompAM)
-        u_SC5Email()
+        SC5Email(.F.)
 		RecLock("SZE", .T.)
 		SZE->ZE_CONTRAT := cContra
 		SZE->ZE_COMPET  := cCompAM
@@ -51,10 +51,10 @@ Return (lRet)
 
 // Enviar e-mail com anexos do contrato/competência
 User Function PC5Email()
-u_WaitLog("PC5Email", {|| SC5Email()},"Enviando e-mail com anexos da competência deste contrato...")
+u_WaitLog("PC5Email", {|| SC5Email(.T.)},"Reenviando e-mail com anexos da competência deste contrato...")
 Return Nil
 
-User Function SC5Email()
+Static Function SC5Email(lReenvio)
 Local cEmail    := ""
 Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
 Local aCabs   	:= {}
@@ -82,6 +82,9 @@ cEmailCC  += UsrRetMail(__cUserId)+';'
 cEmailCC  += UsrRetMail(SUBSTR(EMBARALHA(SC5->C5_USERLGI,1),3,6))+';'
 
 cAssunto  := "Pedido(s) de venda liberado(s) - Contrato: "+ALLTRIM(cContra)+" - "+cNomeCl
+If lReenvio
+    cAssunto := "(REENVIO) "+cAssunto
+EndIf
 
 // Dados do Pedido
 U_PMedPed(cPedido,cContra,cMedicao,cPlan,@cRev,@cCompM,@cParcel,@cObsMed,@cEmissor)
