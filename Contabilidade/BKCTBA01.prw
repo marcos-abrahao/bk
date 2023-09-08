@@ -191,7 +191,7 @@ Do While !eof()
 		IF lMsErroAuto
 
 			//aerro := Mostraerro() 
-			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento")
+			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento - Evento "+cEvento)
 			// O sistema não mostra erro de conta debito = credito e periodo fechado
 			
 			DisarmTransaction()

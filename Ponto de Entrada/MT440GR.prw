@@ -27,13 +27,13 @@ If nOK == 1
     DbSelectArea("SZE")
     If DbSeek(xFilial("SZE")+cContra+cCompAM)
         If SZE->ZE_ENVEM  <> "S"  // Email não enviado para este contrato+competencia
-            SC5Email()
+            u_SC5Email()
             RecLock("SZE", .F.)
             SZE->ZE_ENVEM := "S" 
             MsUnlock()
         EndIf
     ElseIf !Empty(cContra) .AND. !Empty(cCompAM)
-        SC5Email()
+        u_SC5Email()
 		RecLock("SZE", .T.)
 		SZE->ZE_CONTRAT := cContra
 		SZE->ZE_COMPET  := cCompAM
@@ -49,9 +49,12 @@ Return (lRet)
 
 
 
+// Enviar e-mail com anexos do contrato/competência
+User Function PC5Email()
+u_WaitLog("PC5Email", {|| SC5Email()},"Enviando e-mail com anexos da competência deste contrato...")
+Return Nil
 
-
-Static Function SC5Email()
+User Function SC5Email()
 Local cEmail    := ""
 Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
 Local aCabs   	:= {}

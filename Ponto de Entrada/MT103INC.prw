@@ -39,6 +39,7 @@ Se F1_XXLIB
 	B: Nenhuma operação pode ser feita aqui
 	
 ---------------------------------------------------
+
 @author Marcos Bispo Abrahão
 @since 24/11/2020
 @version 1.0
@@ -60,12 +61,22 @@ If lClass
 		u_MsgLog("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 23h e 7h: "+cLogDoc,"E")
         lRet := .F.
 	Else
-		If SF1->F1_XXLIB == 'A'
-			nOper := Aviso("MT103INC","Liberação para classificação fiscal:",{"Liberar","Não Liberar","Cancelar"})
+		If SF1->F1_XXLIB $ 'A9'
+			If SF1->F1_XXLIB == 'A'
+				nOper := Aviso("MT103INC","Liberação para classificação fiscal:",{"Liberar","Não Liberar","Cancelar"})
+			Else
+				nOper := Aviso("MT103INC","Aprovação para liberação:",{"Aprovar","Não Aprovar","Cancelar"})
+			EndIf
 			If nOper <> 3
 				RecLock("SF1",.F.)
 				If nOper == 1
-					SF1->F1_XXLIB  := "L"
+					If SF1->F1_XXLIB == 'A'
+						SF1->F1_XXLIB  := "L"
+					Else
+						SF1->F1_XXLIB   := "A"
+						SF1->F1_XXUAPRV := __cUserId
+						SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
+					EndIf
 				Else
 					SF1->F1_XXLIB  := "N"
 				EndIf
@@ -111,7 +122,7 @@ If lClass
 			aUser  := PswRet(1)
 			If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000007") <> 0//.OR. lMDiretoria 
 				If .F. //ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXULIB // REMOVIDO EM 03/09/21
-					MessageBox("Usuário sem permissão para classificar este Doc.","MT103INC",MB_ICONEXCLAMATION)
+					u_MsgLog("MT103INC","Usuário sem permissão para classificar este Doc.","E")
 				Else
 					If SF1->F1_XXLIB == 'L'
 						nOper := Aviso("MT103INC","Classificação fiscal:",{"Classifica","Estorna Lib.","Cancelar"})
@@ -134,9 +145,11 @@ If lClass
 				EndIf
 			Else
 				If SF1->F1_XXLIB == 'E'
-					MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+					//MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+					u_MsgLog("MT103INC","Documento estornado pelo classificador: "+SF1->F1_XXUCLAS+" - "+cLogDoc,"I")
 				Else
-					MessageBox("Documento já foi liberado, aguarde a classificação pelo Depto Fiscal.","MT103INC",MB_ICONEXCLAMATION)
+					//MessageBox("Documento já foi liberado, aguarde a classificação pelo Depto Fiscal.","MT103INC",MB_ICONEXCLAMATION)
+					u_MsgLog("MT103INC","Documento já foi liberado, aguarde a classificação pelo Depto Fiscal: "+cLogDoc,"I")
 				EndIf
 			EndIf
 		ElseIf SF1->F1_XXLIB == 'N'
@@ -157,23 +170,24 @@ If lClass
 					u_MsgLog("MT103INC","Doc liberado: "+cLogDoc)
 				EndIf
 			Else
-				MessageBox("Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+				u_MsgLog("MT103INC","Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"I")
+				
 			EndIf
 		//ElseIf SF1->F1_XXLIB == 'E'
-		//	MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+		//	u_MsgLog("MT103INC","Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"I")
 		ElseIf SF1->F1_XXLIB == 'T'
-			MessageBox("Documento pendente de liberação por token: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+			u_MsgLog("MT103INC","Documento pendente de liberação por token: "+SF1->F1_XXUCLAS,"I")
 		ElseIf SF1->F1_XXLIB == 'B'
-			MessageBox("Documento bloqueado, aguarde liberação da diretoria: "+SF1->F1_XXULIB,"MT103INC",MB_ICONEXCLAMATION)
+			u_MsgLog("MT103INC","Documento bloqueado, aguarde liberação da diretoria: "+SF1->F1_XXULIB,"I")
 		ElseIf SF1->F1_XXLIB == 'C'
-			MessageBox("Documento já foi classificado: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
+			u_MsgLog("MT103INC","Documento já foi classificado: "+SF1->F1_XXUCLAS,"I")
 		EndIf
 	EndIf
 Else
-	// Inclusão permitida apenas para administradores, master financeiro e user controladoria
 	PswOrder(1) 
 	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
+	// Inclusão permitida apenas para administradores, master financeiro e user controladoria
 	If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000037") <> 0
 		lRet := .T.
 	Else
@@ -221,6 +235,9 @@ If !Empty(SF1->F1_XXUSER)
 EndIf
 If !Empty(SF1->F1_XXUSERS)
 	cEmail += UsrRetMail(SF1->F1_XXUSERS)+';'
+EndIf
+If !Empty(SF1->F1_XXUAPRV) .AND. SF1->F1_XXUAPRV <> SF1->F1_XXUSERS
+	cEmail += UsrRetMail(SF1->F1_XXUAPRV)+';'
 EndIf
 
 cEmailCC += UsrRetMail(__cUserId)+';'

@@ -24,7 +24,10 @@
 		},
 		{
 			"label": "SIGACFG"
+		},
+		{
+			"label": "sigacom"
 		}
 	],
-	"lastProgramExecuted": "SIGACFG"
+	"lastProgramExecuted": "SIGACTB"
 }

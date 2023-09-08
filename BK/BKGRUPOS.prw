@@ -83,6 +83,7 @@ Return cNEmp
     @return lRet
     /*/
 User Function IsSuperior(cId)
+/*
 Local nx,ny
 Local aAllusers := FWSFALLUSERS()
 Local aSup		:= {}
@@ -100,6 +101,69 @@ For nx := 1 To Len(aAllusers)
 		Exit
 	Endif
 Next
+*/
+lRet := ( Len(u_ArSubord(cId)) > 0 )
+
+¬Return lRet
+
+
+/*/{Protheus.doc} ArSubord
+    Retorna array com os subordinados de um usuário
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 04/09/2023
+    @version version
+    @param cId (Id do usuário)
+    @return lRet
+    /*/
+
+User Function ArSubord(cId)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+
+cQuery += "SELECT USR_ID"+CRLF 
+cQuery += " FROM SYS_USR_SUPER"+CRLF
+cQuery += " WHERE USR_SUPER = '"+cId+"' AND D_E_L_E_T_ = ' ' "+CRLF
+
+//aadd(aBinds,xFilial("SA1")) // Filial
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"USR_ID"   ,"C",6,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+  u_MsgLog("ListaPar",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+Endif
+
+Return aReturn
+
+
+/*
+FUncão Antiga
+
+Local nx,ny
+Local aAllusers := FWSFALLUSERS()
+Local aSup		:= {}
+Local lRet := .F.
+
+For nx := 1 To Len(aAllusers)
+	aSup := FWSFUsrSup(aAllusers[nx][2])
+	For ny := 1 To Len(aSup)
+		If cId == aSup[ny]
+			lRet := .T.
+			Exit
+		EndIf
+	Next
+	If lRet
+		Exit
+	Endif
+Next
+*/
+
 Return lRet
 
 
@@ -505,11 +569,11 @@ cRet += "paula.botaro@bkconsultoria.com.br;"
 cRet += "edson.silva@bkconsultoria.com.br;"
 //cRet += "erick.barros@bkconsultoria.com.br;"
 //cRet += "folhadeponto@bkconsultoria.com.br;"
-cRet += "juliana.magalhaes@bkconsultoria.com.br;"
+//cRet += "juliana.magalhaes@bkconsultoria.com.br;"
 cRet += "karolaine.souza@bkconsultoria.com.br;"
-cRet += "kelly.silva@bkconsultoria.com.br;"
+//cRet += "kelly.silva@bkconsultoria.com.br;"
 //cRet += "luciana.carvalho@bkconsultoria.com.br;"
-cRet += "ludimila.martins@bkconsultoria.com.br;"
+//cRet += "ludimila.martins@bkconsultoria.com.br;"
 cRet += "marcio.souza@bkconsultoria.com.br;"
 cRet += "rafaela.lima@bkconsultoria.com.br;"
 cRet += "acsa.souza@bkconsultoria.com.br;"

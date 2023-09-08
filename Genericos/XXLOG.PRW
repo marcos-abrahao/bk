@@ -23,6 +23,7 @@ FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 */
 
 User Function MsgLog(cProg,cMens,cAlert,cTxt)
+//Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
 Local cArqLog  := "\log\msglog.log"
 Local lRet     := .T.
 
@@ -92,6 +93,7 @@ Return lRet
 */
 
 User Function AvisoLog(cProg,cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
+//Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
 Local cArqLog  := "\log\msglog.log"
 Local nRet     := 0
 Local cMens    := cMsg

@@ -12,6 +12,7 @@ BK - Chamada Impressão de pedido de venda
 User Function MA410MNU() 
 
 aadd(aRotina,{'Consulta Pedido','U_BKFATR05' , 0 , 2,0,NIL})   
+aadd(aRotina,{'Email Anexos','U_PC5EMAIL' , 0 , 2,0,NIL})   
 
 /*/ONDE:Parametros do array a Rotina:
 1. Nome a aparecer no cabecalho
