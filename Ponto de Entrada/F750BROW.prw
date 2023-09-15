@@ -177,7 +177,7 @@ If !("DNF" $ SE2->E2_HIST)
     If u_MsgLog("BKFINA18",'Confirma a inclusão de DNF para este título na Empresa BK?',"Y")
     
 		If SM0->M0_CODIGO == "01"      // BK
-			cForn := "000084"
+			cForn := u_cFornBK()
 			cProd := U_MVXCUSBK()
 			cCCus := "000000001"
 		ElseIf SM0->M0_CODIGO == "02"  // MMDK
@@ -225,9 +225,13 @@ If !("DNF" $ SE2->E2_HIST)
 			cProd := "11301031"
 			cCCus := "305000554"
 		ElseIf SM0->M0_CODIGO == "16"  // CONSORCIO MOOVE
-			cForn := "000084"
+			cForn := u_cFornBK()
 			cProd := "11301032"  // CRIAR NO PLANO DE CONTAS E NO CADASTRO DE PRODUTOS
 			cCCus := "386000609"
+		ElseIf SM0->M0_CODIGO == "17"  // DMAF
+			cForn := u_cFornBK()
+			cProd := "11301033"  // CRIAR NO PLANO DE CONTAS E NO CADASTRO DE PRODUTOS
+			cCCus := "000000001"
 		Endif	
 	
 		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)
@@ -301,9 +305,7 @@ Local aCabec     := {}
 Local aItem      := {}
 Local aItens     := {}
 Local cRetorno   := ""
-Local _nX 		 := 0
 
-Private cErro    := ""
 Private cNFiscal := ""
 Private cSerie   := "DNF
 Private lMsErroAuto := .F.
@@ -373,15 +375,9 @@ lMsErroAuto := .F.
 MSExecAuto({|x,y,z| Mata140(x,y,z)},aCabec,aItens,3,2) //Inclusao
 
 If lMsErroAuto
- 	// Função que retorna o evento de erro na forma de um array
-	aAutoErro := GETAUTOGRLOG()
-	
-	cErro := ""
-	For _nX := 1 To Len(aAutoErro) 
-		cErro += aAutoErro[_nX]+"|"
-	NEXT
-	u_MsgLog("BKFINJ18","Erro: "+cErro)
-	cRetorno := cErro
+
+	cRetorno := u_LogMsExec("BKFINJ18","Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie)
+
 	lRet := .F.
 Else
 	cRetorno := "DNF"+cNFiscal

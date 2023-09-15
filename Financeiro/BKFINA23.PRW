@@ -754,7 +754,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
-				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo (retenção contratual) "+aTitGer[nI,1])
 				DisarmTransaction()
 				break
 			ENDIF
@@ -803,7 +803,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
-				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo (dif. ISS) "+aTitGer[nI,1])
 				DisarmTransaction()
 				break
 			ENDIF
@@ -854,7 +854,7 @@ For nI:=1 TO LEN(aTitGer)
 				
 			IF lMsErroAuto
 				lOK := .F.
-				u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
+				u_LogMsExec(cPrw,"Problemas na alteração do titulo (juros antecipado) "+aTitGer[nI,1])
 				DisarmTransaction()
 				break
 			ENDIF
@@ -905,7 +905,7 @@ For nI:=1 TO LEN(aTitGer)
 			
 		IF lMsErroAuto
 			lOK := .F.
-			u_LogMsExec(cPrw,"Problemas na alteração do titulo "+aTitGer[nI,1])
+			u_LogMsExec(cPrw,"Problemas na alteração do titulo (principal) "+aTitGer[nI,1])
 			DisarmTransaction()
 			break
 		ENDIF

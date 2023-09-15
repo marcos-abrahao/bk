@@ -107,44 +107,6 @@ Local nEmp        := 0
 Local cTabSF1		:= ""
 Local cTabSA2		:= ""
 
-/*
-Local i
-Local lStaf,cSuper,aUser,cMDiretoria,cFiltro := ""
-
-// Filtro do usuario
-IF __cUserId <> "000000" // Administrador
-
-   lStaf  := u_IsStaf(__cUserId)
-  
-   DBCLEARFILTER() 
-   PswOrder(1) 
-   PswSeek(__cUserId) 
-   aUser  := PswRet(1)
-   IF !EMPTY(aUser[1,11])
-      cSuper := SUBSTR(aUser[1,11],1,6)
-   ENDIF   
-
-   cMDiretoria := u_GrpMDir()
-   lMDiretoria := .F.
-   aGRUPO := {}
-	aGRUPO := UsrRetGrp(cUserName)
-	IF LEN(aGRUPO) > 0
-		FOR i:=1 TO LEN(aGRUPO)
-			lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
-		NEXT
-	ENDIF
-
-   // Se o usuario pertence ao grupo Administradores ou Master Diretoria : não filtrar
-    IF ASCAN(aUser[1,10],"000000") = 0 .AND. !lMDiretoria
-       IF !lStaf .OR. EMPTY(cSuper)
-          	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
-       ELSE
-          	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR "
-          	cFiltro += "      F1_XXUSER = '"+  cSuper +"' OR F1_XXUSERS = '"+  cSuper +"') "             
-       ENDIF
-    ENDIF    
-ENDIF
-*/
 For nEmp := 1 To Len(aEmpresas)
 
 	cTabSF1 := "SF1"+aEmpresas[nEmp,1]+"0"

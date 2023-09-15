@@ -402,7 +402,7 @@ IF nTOTAL <= 50
 	TMPSF1->(DbCloseArea())
 ENDIF
 	        
-u_MsgLog("GQREENTR","Avaliação gravada com sucesso!! - "+@CNFISCAL,"I")
+u_MsgLog("GQREENTR","Avaliação do fornecedor "+TRIM(cNome)+" gravada com sucesso!! - "+@CNFISCAL,"I")
 
 RETURN lOK
 

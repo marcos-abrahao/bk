@@ -214,7 +214,7 @@ AADD(aCampos,"QTMP->F2_VALIRRF")
 AADD(aCabs  ,"IRRF Retido")
 
 AADD(aCampos,"QTMP->D2_ALIQINS")
-AADD(aCabs  ,"IRRF%")
+AADD(aCabs  ,"INSS%")
 
 AADD(aCampos,"QTMP->F2_VALINSS")
 AADD(aCabs  ,"INSS Retido")

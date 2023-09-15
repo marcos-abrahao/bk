@@ -2,8 +2,6 @@
 #Include "totvs.ch"
 #Include "topconn.cH"
 
-#define MB_ICONEXCLAMATION          48
-
 /*/{Protheus.doc} MT103INC
 P.E. - Verifica se pode-se classificar o documento.
 ===================================================
@@ -29,14 +27,20 @@ Classificação do Doc de Entrada: MT103INC
 Se F1_XXLIB
 
 	A: Libera ou Não Libera (L ou N)
-		Se não Libera-> enviar e-mail para quem incluiu (e quem liberou)
+		Se não Liberar -> enviar e-mail para quem incluiu (e quem não liberou)
+
+	9: Aprova ou Não Aprova (A ou D)
+		Se não aprovar -> enviar e-mail para quem incluiu (e quem desaprovou)
 
 	L ou E: Somente Grupo User Fiscal ou Administradores podem classificar
 		Opções: Classifica
 				Estorna (F1_XXLIB := "E") e envia e-mail a quem incluiu e quem liberou
 
-	N: Permite aprovador Liberar novamente
+	N: Permite liberador Liberar novamente
+
 	B: Nenhuma operação pode ser feita aqui
+
+	D: Permite aprovador aprovar novamente
 	
 ---------------------------------------------------
 
@@ -49,118 +53,150 @@ User Function MT103INC()
 Local lClass    := Paramixb
 Local lRet      := .F.
 Local nOper     := 0
-Local aUser     := {}
 Local aArea		:= GetArea()
-Local cEmail	:= ""
 Local cLogDoc	:= SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE
+//              					    Admins/Fin   /Dire  /Fiscal/Lib Docs
+Local lMaster   := u_InGrupo(__cUserId,"000000/000005/000007/000031/000038")
 
 If lClass
 	If !IsBlind() .AND. !u_IsLibDPH(__cUserId);
-    		.AND. (SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '03')
+    		.AND. (SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '07')
 		
 		u_MsgLog("MT103INC","Não é permitido incluir, classificar ou liberar documentos entre 23h e 7h: "+cLogDoc,"E")
         lRet := .F.
 	Else
-		If SF1->F1_XXLIB $ 'A9'
-			If SF1->F1_XXLIB == 'A'
-				nOper := Aviso("MT103INC","Liberação para classificação fiscal:",{"Liberar","Não Liberar","Cancelar"})
-			Else
-				nOper := Aviso("MT103INC","Aprovação para liberação:",{"Aprovar","Não Aprovar","Cancelar"})
-			EndIf
-			If nOper <> 3
-				RecLock("SF1",.F.)
-				If nOper == 1
-					If SF1->F1_XXLIB == 'A'
+		If SF1->F1_XXLIB == 'A'
+			
+			If lMaster
+				nOper := u_AvisoLog("MT103INC","MT103INC","Liberação para classificação fiscal:",{"Liberar","Não Liberar","Cancelar"})
+				If nOper <> 3
+					RecLock("SF1",.F.)
+					If nOper == 1
 						SF1->F1_XXLIB  := "L"
 					Else
+						SF1->F1_XXLIB  := "N"
+					EndIf
+					SF1->F1_XXULIB := __cUserId
+					SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+					MsUnLock("SF1")
+
+					If nOper == 1
+						// Avaliação do Fornecedor
+						If u_IsAvalia(__cUserId)
+							u_WaitLog(,{|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
+
+							dbSelectArea("TMPSD1")
+							dbGoTop()
+							If !TMPSD1->(EOF())
+								// Somente avaliar NF com pedido de compra atrelado
+								If !Empty(TMPSD1->D1_PEDIDO)
+									U_AvalForn(.F.)
+								EndIf
+							EndIf
+							TMPSD1->(DbCloseArea())
+						EndIf
+
+						u_MsgLog("MT103INC","Doc liberado: "+cLogDoc)
+
+					ElseIf nOper == 2
+
+						// Caso não libere, enviar e-mail para quem incluiu o Documento
+						//cEmail += UsrRetMail(SF1->F1_XXUSER)
+
+						u_SF1Email("Pré-Nota não liberada pelo aprovador")
+
+						u_MsgLog("MT103INC","Doc não foi liberado: "+cLogDoc)
+					EndIf
+				Else
+					u_MsgLog("MT103INC","Usuário sem permissão para liberar documentos: "+cLogDoc,"E")
+				EndIf
+			EndIf
+
+		// Nova aprovação em duas etapas
+		ElseIf SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'D'
+
+			If u_IsSuperior(__cUserId) .OR. lMaster
+				If SF1->F1_XXLIB == '9'
+					nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Não Aprovar","Cancelar"})
+				Else
+					nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Manter não aprovada","Cancelar"})
+				EndIf
+				If nOper <> 3
+					RecLock("SF1",.F.)
+					If nOper == 1
+						// Aprovação
 						SF1->F1_XXLIB   := "A"
 						SF1->F1_XXUAPRV := __cUserId
 						SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
-					EndIf
-				Else
-					SF1->F1_XXLIB  := "N"
-				EndIf
-				SF1->F1_XXULIB := __cUserId
-				SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
-				MsUnLock("SF1")
-
-				If nOper == 1
-					// Avaliação do Fornecedor
-					If u_IsAvalia(__cUserId)
-						u_WaitLog(,{|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
-
-						dbSelectArea("TMPSD1")
-						dbGoTop()
-						If !TMPSD1->(EOF())
-							// Somente avaliar NF com pedido de compra atrelado
-							If !Empty(TMPSD1->D1_PEDIDO)
-								U_AvalForn(.F.)
-							EndIf
-						EndIf
-						TMPSD1->(DbCloseArea())
-					EndIf
-
-					u_MsgLog("MT103INC","Doc liberado: "+cLogDoc)
-
-				ElseIf nOper == 2
-
-					// Caso não libere, enviar e-mail para quem incluiu o Documento
-					PswOrder(1)
-					PswSeek(SF1->F1_XXUSER) 
-					aUser  := PswRet(1)
-					IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-						cEmail += ALLTRIM(aUser[1,14])+';'
-					ENDIF
-					u_SF1Email("Pré-Nota não liberada pelo aprovador")
-
-					u_MsgLog("MT103INC","Doc não liberado: "+cLogDoc)
-				EndIf
-			EndIf
-		ElseIf SF1->F1_XXLIB == 'L' .OR. SF1->F1_XXLIB == 'E'
-			PswOrder(1) 
-			PswSeek(__cUserId) 
-			aUser  := PswRet(1)
-			If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000031") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000007") <> 0//.OR. lMDiretoria 
-				If .F. //ASCAN(aUser[1,10],"000031") <> 0 .AND. __cUserId == SF1->F1_XXULIB // REMOVIDO EM 03/09/21
-					u_MsgLog("MT103INC","Usuário sem permissão para classificar este Doc.","E")
-				Else
-					If SF1->F1_XXLIB == 'L'
-						nOper := Aviso("MT103INC","Classificação fiscal:",{"Classifica","Estorna Lib.","Cancelar"})
 					Else
-						nOper := Aviso("MT103INC","Classificação fiscal (documento estornado):",{"Classifica","Cancelar"})
+						SF1->F1_XXLIB  := "D"
 					EndIf
-					If nOper == 1
-						// Segue a classificação
-						lRet := .T.
-					ElseIf nOper == 2 .AND. SF1->F1_XXLIB == 'L'
-						RecLock("SF1",.F.)
-						SF1->F1_XXLIB   := "E"
-						SF1->F1_XXUCLAS := __cUserId
-						SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
-						MsUnLock("SF1")
-						u_SF1Email("Pré-Nota Estornada pelo Fiscal")
-						u_MsgLog("MT103INC","Doc estornado: "+cLogDoc)
+					MsUnLock("SF1")
 
+					If nOper == 1
+						// Avaliação do Fornecedor
+						If u_IsAvalia(__cUserId)
+							u_WaitLog(,{|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
+
+							dbSelectArea("TMPSD1")
+							dbGoTop()
+							If !TMPSD1->(EOF())
+								// Somente avaliar NF com pedido de compra atrelado
+								If !Empty(TMPSD1->D1_PEDIDO)
+									U_AvalForn(.F.)
+								EndIf
+							EndIf
+							TMPSD1->(DbCloseArea())
+						EndIf
+
+						u_MsgLog("MT103INC","Doc aprovado: "+cLogDoc)
+
+					ElseIf nOper == 2
+
+						// Caso não libere, enviar e-mail para quem incluiu o Documento
+						//cEmail += UsrRetMail(SF1->F1_XXUSER)
+
+						u_SF1Email("Pré-Nota não aprovada")
+
+						u_MsgLog("MT103INC","Doc não aprovado: "+cLogDoc)
 					EndIf
 				EndIf
 			Else
+				u_MsgLog("MT103INC","Usuário sem permissão para aprovar documentos: "+cLogDoc,"E")
+			EndIf
+
+		ElseIf SF1->F1_XXLIB == 'L' .OR. SF1->F1_XXLIB == 'E'
+
+			If lMaster
+			
+				If SF1->F1_XXLIB == 'L'
+					nOper := u_AvisoLog("MT103INC","MT103INC","Classificação fiscal:",{"Classificar","Estornar Lib.","Cancelar"})
+				Else
+					nOper := u_AvisoLog("MT103INC","MT103INC","Classificação fiscal (documento estornado):",{"Classificar","Cancelar"})
+				EndIf
+				If nOper == 1
+					// Segue a classificação
+					lRet := .T.
+				ElseIf nOper == 2 .AND. SF1->F1_XXLIB == 'L'
+					RecLock("SF1",.F.)
+					SF1->F1_XXLIB   := "E"
+					SF1->F1_XXUCLAS := __cUserId
+					SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
+					MsUnLock("SF1")
+					u_SF1Email("Pré-Nota Estornada pelo Fiscal")
+					u_MsgLog("MT103INC","Doc estornado: "+cLogDoc)
+				EndIf
+			Else
 				If SF1->F1_XXLIB == 'E'
-					//MessageBox("Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"MT103INC",MB_ICONEXCLAMATION)
 					u_MsgLog("MT103INC","Documento estornado pelo classificador: "+SF1->F1_XXUCLAS+" - "+cLogDoc,"I")
 				Else
-					//MessageBox("Documento já foi liberado, aguarde a classificação pelo Depto Fiscal.","MT103INC",MB_ICONEXCLAMATION)
 					u_MsgLog("MT103INC","Documento já foi liberado, aguarde a classificação pelo Depto Fiscal: "+cLogDoc,"I")
 				EndIf
 			EndIf
 		ElseIf SF1->F1_XXLIB == 'N'
-			PswOrder(1) 
-			PswSeek(__cUserId) 
-			aUser  := PswRet(1)
-			//If !EMPTY(aUser[1,11])
-			//    cSuper := SUBSTR(aUser[1,11],1,6)
-			//EndIf
-			If SF1->F1_XXULIB == __cUserId .OR. ASCAN(aUser[1,10],"000000") <> 0
-				nOper := Aviso("MT103INC - Não Liberado","Liberação para classificação fiscal:",{"Liberar","Cancelar"})
+
+			If SF1->F1_XXULIB == __cUserId .OR. lMaster
+				nOper := u_AvisoLog("MT103INC","MT103INC","Liberação para classificação fiscal:",{"Liberar","Cancelar"})
 				If nOper == 1
 					RecLock("SF1",.F.)
 					SF1->F1_XXLIB  := "L"
@@ -173,8 +209,6 @@ If lClass
 				u_MsgLog("MT103INC","Documento bloqueado para classificação: "+SF1->F1_XXUCLAS,"I")
 				
 			EndIf
-		//ElseIf SF1->F1_XXLIB == 'E'
-		//	u_MsgLog("MT103INC","Documento estornado pelo classificador: "+SF1->F1_XXUCLAS,"I")
 		ElseIf SF1->F1_XXLIB == 'T'
 			u_MsgLog("MT103INC","Documento pendente de liberação por token: "+SF1->F1_XXUCLAS,"I")
 		ElseIf SF1->F1_XXLIB == 'B'
@@ -184,11 +218,7 @@ If lClass
 		EndIf
 	EndIf
 Else
-	PswOrder(1) 
-	PswSeek(__cUserId) 
-	aUser  := PswRet(1)
-	// Inclusão permitida apenas para administradores, master financeiro e user controladoria
-	If ASCAN(aUser[1,10],"000000") <> 0 .OR. ASCAN(aUser[1,10],"000005") <> 0 .OR. ASCAN(aUser[1,10],"000037") <> 0
+	If lMaster
 		lRet := .T.
 	Else
 		u_MsgLog("MT103INC","Usuário sem permissão para incluir Documentos de Entrada: "+cLogDoc,"E")

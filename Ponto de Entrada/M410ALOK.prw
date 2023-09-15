@@ -18,15 +18,15 @@ User Function M410ALOK()
 Local _lRet := .T.
 
 If !Empty(SC5->C5_NOTA) .and. ALTERA
-	MsgBox("Nota Fiscal já gerada, pedido não pode ser Alterado!","M410ALOK","ALERT")
+	u_MsgLog("M410ALOK","Nota Fiscal "+SC5->C5_NOTA+" já gerada, pedido "+SC5->C5_NUM+" não pode ser Alterado!","E")
 	_lRet := .F.
 Else
 	If !Empty(SC5->C5_MDCONTR) .and. ALTERA
-		MsgBox("Pedido de Origem na Gestão de Contratos nao pode ser Alterado no Faturamento!","M410ALOK","ALERT")
 		If __cUserId <> "000000"
 			_lRet := .F.
+			u_MsgLog("M410ALOK","Pedido "+SC5->C5_NUM+" de Origem na Gestão de Contratos nao pode ser Alterado no Faturamento!","E")
 		Else
-			MsgBox("Pedido de Origem na Gestão de Contratos - Alteração permitida para o Adm!","M410ALOK","ALERT")
+			u_MsgLog("M410ALOK","Pedido "+SC5->C5_NUM+" de Origem na Gestão de Contratos - Alteração permitida para o Adm!","W")
 		Endif
 	Endif
 Endif

@@ -26,7 +26,7 @@ If nOK == 1
 
     DbSelectArea("SZE")
     If DbSeek(xFilial("SZE")+cContra+cCompAM)
-        If SZE->ZE_ENVEM  <> "S"  // Email não enviado para este contrato+competencia
+        If SZE->ZE_ENVEM <> "S"  // Email não enviado para este contrato+competencia
             SC5Email(.F.)
             RecLock("SZE", .F.)
             SZE->ZE_ENVEM := "S" 

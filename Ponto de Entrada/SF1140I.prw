@@ -12,7 +12,6 @@ BK - Ponto de entrada para gravar UserId e Superior
 /*/
 
 User Function SF1140I()
-Local aUser,cSuper
 
 Private cxTipoPg := SF1->F1_XTIPOPG
 Private cxNumPa  := SF1->F1_XNUMPA
@@ -35,19 +34,14 @@ If Empty(cxBanco)
 	u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 EndIf
 
-IF VAL(__cUserId) > 0  // EMPTY(SF1->F1_XXUSER) .AND. //Não Gravar Administrador
-	PswOrder(1) 
-	PswSeek(__CUSERID) 
-	aUser  := PswRet(1)
-	cSuper := aUser[1,11]
-
-	If Empty(SF1->F1_XXUSER) .OR. !(ASCAN(aUser[1,10],"000031") == 0)
-		RecLock("SF1",.F.)
-		SF1->F1_XXUSER  := __cUserId
-		SF1->F1_XXUSERS := cSuper
-		MsUnLock("SF1")
+If Empty(SF1->F1_XXUSER) //.OR. !u_InGrupo(__cUserID,"000000/000031")
+	RecLock("SF1",.F.)
+	SF1->F1_XXUSER  := __cUserId
+	If Empty(SF1->F1_XXUSERS)
+		SF1->F1_XXUSERS := u_cSuper1(__cUserID)
 	EndIf
-ENDIF
+	MsUnLock("SF1")
+EndIf
 
 If !l140Auto
 	U_SelFPgto(.T.,.F.,@cLibF1)
@@ -92,7 +86,7 @@ SF1->F1_XXDINC  := DtoC(Date())+"-"+Time()
 MsUnLock("SF1")
 
 If nTipoPg == 1 
-	If SF1->F1_FORNECE <> "000084"
+	If !u_IsFornBK(SF1->F1_FORNECE)
 		PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 	EndIf
 ElseIf nTipoPg == 7
@@ -122,7 +116,6 @@ Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
 Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
-
 
 If SF1->F1_XXLIB $ "AEP" .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
@@ -157,7 +150,7 @@ If U_SelFPgto(lAlt,.T.,@cLibF1)
 	MsUnLock("SF1")
 
 	If nTipoPg == 1 
-		If SF1->F1_FORNECE <> "000084"
+		If SF1->F1_FORNECE <> u_cFornBK()
 			PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 		EndIf
 	ElseIf nTipoPg == 7

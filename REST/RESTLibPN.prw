@@ -179,8 +179,8 @@ If !(cQrySF1)->(Eof())
 	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 
-If !u_IsLibDPH(__cUserId) .AND. (SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '03')
-	cMsg:= "Não é permitido liberar pré-notas entre 18h e 7h"
+If !u_IsLibDPH(__cUserId) .AND. (SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '07')
+	cMsg:= "Não é permitido liberar ou aprovar pré-notas entre 18h e 7h"
 Else
 	Do Case
 		Case (cQrySF1)->(Eof()) 
@@ -191,13 +191,14 @@ Else
 			cMsg:= "está bloqueada"
 		Case (cQrySF1)->F1_STATUS <> " "
 			cMsg:= "não pode ser liberada"
-		Case (cQrySF1)->F1_XXLIB $ "AN "
+		Case (cQrySF1)->F1_XXLIB $ "AN"
+			// Liberar
 			cQuery := "UPDATE "+cTabSF1
 			If acao == 'E'
 				cQuery += "  SET F1_XXLIB = 'N',"
-				cMsg := "Recusada"
+				cMsg := "Restringida"
 				If !Empty(cMotivo)
-					cMotivo := "Motivo do estorno "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+					cMotivo := "Motivo da restrição "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
 				EndIf
 			Else
 				cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"', "
@@ -222,8 +223,41 @@ Else
 			Else
 				lRet := .T.
 			EndIf
+		Case (cQrySF1)->F1_XXLIB $ "9D "
+			// Aprovar para liberação
+			cQuery := "UPDATE "+cTabSF1
+			If acao == 'E'
+				cQuery += "  SET F1_XXLIB = 'D',"
+				cMsg := "Reprovada"
+				If !Empty(cMotivo)
+					cMotivo := "Motivo reprovação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+				EndIf
+			Else
+				cQuery += "  SET F1_XXLIB = 'A', F1_XXAVALI = '"+cAvali+"', "
+				cMsg := "aprovada"
+				If !Empty(cMotivo)
+					cMotivo := "Obs aprovação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+				EndIf
+			EndIf
+			If !Empty(cMotivo)
+				cQuery += "      F1_HISTRET = CONVERT(VARBINARY(800),'"+cMotivo+"' + ISNULL(CONVERT(varchar(800),F1_HISTRET),'')),"
+			EndIf
+			If cAvaliar == 'S'
+				cQuery += "      F1_XXAVAL = 'S',"
+			EndIf
+			cQuery += "      F1_XXUAPRV = '"+__cUserId+"',"
+			cQuery += "      F1_XXDAPRV = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
+			cQuery += " FROM "+cTabSF1+" SF1"+CRLF
+			cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
+
+			If TCSQLExec(cQuery) < 0 
+				cMsg := "Erro: "+TCSQLERROR()
+			Else
+				lRet := .T.
+			EndIf
+
 		OtherWise 
-			cMsg:= "não liberada por motivo indeterminado"
+			cMsg:= "ação não efetuada por motivo indeterminado"
 	EndCase
 EndIf
 
@@ -327,9 +361,9 @@ Local cJsonCli      := ''
 //Local cWhereSA2   := "%AND SA2.A2_FILIAL = '"+xFilial('SA2')+"'%"
 Local cFilSF1		:= ""
 Local lRet 			:= .T.
-Local nCount 		:= 0
-Local nStart 		:= 1
-Local nReg 			:= 0
+//Local nCount 		:= 0
+//Local nStart 		:= 1
+//Local nReg		:= 0
 //Local nTamPag 	:= 0
 Local oJsonSales 	:= JsonObject():New()
 
@@ -344,13 +378,14 @@ Local cTabSA2		:= ""
 Local cQuery		:= ""
 Local cLiberOk		:= "N"
 Local cStatus		:= ""
-Local aGroups 		:= {}
 Local lFiscal		:= .F.
+Local lMaster		:= .F.
+Local lSuper		:= .F.
 
 //Default self:page 	:= 1
 //Default self:pageSize := 500
-Local page := 1
-Local pagesize := 500
+//Local page := 1
+//Local pagesize := 500
 
 aEmpresas := u_BKGrupo()
 //nStart := INT(self:pageSize * (self:page - 1))
@@ -375,8 +410,9 @@ EndIf
 
 cFilSF1 := U_M103FILB()
 
-aGroups := FWSFUsrGrps(__cUserId)
-lFiscal	:= ASCAN(aGroups,"000031")
+lFiscal	:= u_InGrupo(__cUserId,"000031")
+lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+lSuper  := u_IsSuperior(__cUserId)
 
 For nE := 1 To Len(aEmpresas)
 
@@ -427,103 +463,72 @@ cQuery += "ORDER BY SF1.F1_XXPVPGT,SF1.F1_DTDIGIT,SF1.F1_DOC"+CRLF
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 
-If (cQrySF1)->( ! Eof() )
-
-	//-------------------------------------------------------------------
-	// Identifica a quantidade de registro no alias temporário
-	//-------------------------------------------------------------------
-	COUNT TO nRecord
-
-	//-------------------------------------------------------------------
-	// nStart -> primeiro registro da pagina
-	// nReg -> numero de registros do inicio da pagina ao fim do arquivo
-	//-------------------------------------------------------------------
-	If page > 1
-		nStart := ( ( page - 1 ) * pageSize ) + 1
-		nReg := nRecord - nStart + 1
-	Else
-		nReg := nRecord
-	EndIf
-
-	//-------------------------------------------------------------------
-	// Posiciona no primeiro registro.
-	//-------------------------------------------------------------------
-	( cQrySF1 )->( DBGoTop() )
-
-	//-------------------------------------------------------------------
-	// Valida a exitencia de mais paginas
-	//-------------------------------------------------------------------
-	If nReg > pageSize
-		//oJsonSales['hasNext'] := .T.
-	Else
-		//oJsonSales['hasNext'] := .F.
-	EndIf
-Else
-	//-------------------------------------------------------------------
-	// Nao encontrou registros
-	//-------------------------------------------------------------------
-	//oJsonSales['hasNext'] := .F.
-EndIf
-
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
 //-------------------------------------------------------------------
 Do While ( cQrySF1 )->( ! Eof() )
 
-	nCount++
+	cLiberOk := (cQrySF1)->F1_XXLIB
+	cStatus  := Alltrim("Indefinida "+cLiberOk)
 
-	If nCount >= nStart
-
-		cLiberOk := (cQrySF1)->F1_XXLIB
-		cStatus  := Alltrim("Indefinida "+cLiberOk)
-
-		Do Case
-		Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
-			If lFiscal .AND. (cQrySF1)->F1_XXUSERS <> __cUserId
-				cLiberOk := "X"
-				cStatus  := "A Liberar"
-			Else
+	Do Case
+	Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
+		If lFiscal .AND. (cQrySF1)->F1_XXUSERS <> __cUserId
+			cLiberOk := "X"
+			cStatus  := "A Liberar"
+		Else
+			If lFiscal .OR. lMaster
 				If cLiberOk == "A"
 					cStatus  := "Liberar"
 				Else
 					cStatus  := "Nao Liberada"
 				EndIf
 				cLiberOk := "A"
+			Else
+				cLiberOk := "X"
+				cStatus  := "A Liberar"
 			EndIf
-		Case cLiberOk == "T"
-			cStatus  := "Token"
-		Case cLiberOk == "B"
-			cStatus  := "Bloqueada"
-		Case cLiberOk == "C"
-			cStatus  := "Classificada"
-		Case cLiberOk == "E"
-			cStatus  := "Estornada"
-		Case cLiberOk == "L"
-			cStatus  := "Liberada"
-		EndCase
-
-
-		aAdd( aListSales , JsonObject():New() )
-		nPos := Len(aListSales)
-		aListSales[nPos]['DOC']        := (cQrySF1)->F1_DOC
-		aListSales[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
-		aListSales[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
-		aListSales[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
-		aListSales[nPos]['PGTO']  	   := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
-		aListSales[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
-		aListSales[nPos]['LIBEROK']    := cLiberOk
-		aListSales[nPos]['STATUS']     := cStatus
-		aListSales[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
-		aListSales[nPos]['F1NOMEEMP']  := (cQrySF1)->F1NOMEEMP
-		aListSales[nPos]['F1RECNO']    := STRZERO((cQrySF1)->F1RECNO,7)
-		(cQrySF1)->(DBSkip())
-
-		If Len(aListSales) >= pageSize
-			Exit
 		EndIf
-	Else
-		(cQrySF1)->(DBSkip())
-	EndIf
+	Case cLiberOk $ "9 "
+		If lSuper .OR. lMaster
+			cStatus  := "Aprovar"
+		Else
+			cStatus  := "A Aprovar"
+			cLiberOk := "X"
+		EndIf
+	Case cLiberOk == "T"
+		cStatus  := "Token"
+	Case cLiberOk == "B"
+		cStatus  := "Bloqueada"
+	Case cLiberOk == "C"
+		cStatus  := "Classificada"
+	Case cLiberOk == "E"
+		cStatus  := "Estornada"
+	Case cLiberOk == "D"
+		cStatus  := "Reprovada"
+		If lSuper .OR. lMaster
+			cStatus  := "Reprovada"
+		Else
+			cLiberOk := "X"
+		EndIf
+	Case cLiberOk == "L"
+		cStatus  := "Liberada"
+	EndCase
+
+	aAdd( aListSales , JsonObject():New() )
+	nPos := Len(aListSales)
+	aListSales[nPos]['DOC']        := (cQrySF1)->F1_DOC
+	aListSales[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
+	aListSales[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
+	aListSales[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
+	aListSales[nPos]['PGTO']  	   := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
+	aListSales[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
+	aListSales[nPos]['LIBEROK']    := cLiberOk
+	aListSales[nPos]['STATUS']     := cStatus
+	aListSales[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
+	aListSales[nPos]['F1NOMEEMP']  := (cQrySF1)->F1NOMEEMP
+	aListSales[nPos]['F1RECNO']    := STRZERO((cQrySF1)->F1RECNO,7)
+	(cQrySF1)->(DBSkip())
 
 EndDo
 
@@ -1089,7 +1094,7 @@ if (Array.isArray(prenotas)) {
    if (cLiberOk == 'A' ){
     cbtn = 'btn-outline-success';
     ccanl = '1';
- 	} else if (cLiberOk == 'T'){
+ 	} else if (cLiberOk == '9' || cLiberOk == 'T'){
     cbtn = 'btn-outline-warning';
     ccanl = '1';
  	} else if (cLiberOk == 'B'){
@@ -1101,9 +1106,15 @@ if (Array.isArray(prenotas)) {
  	} else if (cLiberOk == 'E'){
     cbtn = 'btn-outline-secondary';
     ccanl = '2';
+ 	} else if (cLiberOk == 'D'){
+    cbtn = 'btn-outline-secondary';
+    ccanl = '1';
  	} else if (cLiberOk == ' '){
     cbtn = 'btn-outline-secondary';
     ccanl = '1';
+	} else if (cLiberOk == 'X'){
+    cbtn = 'btn-outline-dark';
+    ccanl = '2';
   }
 
 cbtnid = 'btnac'+nlin;
@@ -1225,18 +1236,30 @@ if (canLib === 1){
 		cClick = 'libdoc';
 	}
 
-	if (prenota['F1_XXLIB'] !== ' '){
-		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' ' || prenota['F1_XXLIB'] == 'D'){
+		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'A\')">Aprovar</button>';
 		document.getElementById("btnlib").innerHTML = btnL;
+	} else {
+		if (prenota['F1_XXLIB'] !== ' '){
+			let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+			document.getElementById("btnlib").innerHTML = btnL;
+		}
 	}
 
 	inpE  += '<input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="" placeholder="Obs ou Motivo do Estorno">';
 	document.getElementById("inpest").innerHTML = inpE;
 
-	if (prenota['F1_XXLIB'] === 'A' || prenota['F1_XXLIB'] == ' '){
-		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\')">Estornar</button>';
+	if (prenota['F1_XXLIB'] === 'A'){
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\')">Restringir</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
+
+	if (prenota['F1_XXLIB'] === '9'){
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\')">Reprovar</button>';
+		document.getElementById("btnest").innerHTML = btnE;
+	}
+
+
 } 
 if (prenota['F1_XXLIB'] === 'T'){
 	let btnE = '<button type="button" class="btn btn-outline-warning" onclick="token(2)">Token</button>';

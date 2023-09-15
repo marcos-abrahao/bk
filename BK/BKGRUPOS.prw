@@ -73,6 +73,15 @@ EndIf
 Return cNEmp
 
 
+
+// Retorna se o fornecedor é a própria BK
+User Function IsFornBK(cForn)
+Return (cForn == "000084")
+
+User Function cFornBK()
+Return "000084"
+
+
 /*/{Protheus.doc} IsSuperior
     Retorna se o usuario informado é superior de algum outro
     @type  Function
@@ -104,7 +113,36 @@ Next
 */
 lRet := ( Len(u_ArSubord(cId)) > 0 )
 
-¬Return lRet
+Return lRet
+
+
+/*/{Protheus.doc} cSubord
+    Retorna string com a lista dos subordinados de um usuário em formato de query para filtro
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 12/09/2023
+    @version version
+    @param cId (Id do usuário)
+    @return lRet
+    /*/
+User Function cSubord(cId)
+Local cUsers	:= ""
+Local aUsers	:= u_ArSubord(cId)
+Local nI		:= 0
+Local cRet 		:= ""
+
+For nI := 1 To Len(aUsers)
+	If nI > 1
+		cUsers += "|"
+	EndIf
+	cUsers += aUsers[nI,1]
+Next
+
+If Len(cUsers) > 0
+	cRet := FormatIn(cUsers,"|")
+EndIf
+
+Return cRet
 
 
 /*/{Protheus.doc} ArSubord
@@ -136,35 +174,123 @@ aadd(aSetFields,{"USR_ID"   ,"C",6,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-  u_MsgLog("ListaPar",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+  u_MsgLog("ArSubord",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
 Endif
 
 Return aReturn
 
 
-/*
-FUncão Antiga
+/*/{Protheus.doc} cSuper
+    Retorna string com a lista dos superiores de um usuário em formato de query para filtro
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 13/09/2023
+    @version version
+    @param cId (Id do usuário)
+    @return lRet
+    /*/
+User Function cSuper(cId)
+Local cUsers	:= ""
+Local aUsers	:= u_ArSuper(cId)
+Local nI		:= 0
+Local cRet 		:= ""
 
-Local nx,ny
-Local aAllusers := FWSFALLUSERS()
-Local aSup		:= {}
-Local lRet := .F.
-
-For nx := 1 To Len(aAllusers)
-	aSup := FWSFUsrSup(aAllusers[nx][2])
-	For ny := 1 To Len(aSup)
-		If cId == aSup[ny]
-			lRet := .T.
-			Exit
-		EndIf
-	Next
-	If lRet
-		Exit
-	Endif
+For nI := 1 To Len(aUsers)
+	If nI > 1
+		cUsers += "|"
+	EndIf
+	cUsers += aUsers[nI,1]
 Next
-*/
 
-Return lRet
+If Len(cUser) > 0
+	cRet := FormatIn(cUsers,"|")
+EndIf
+
+Return cRet
+
+
+// Retorna o primeiro Superior do usuario
+User Function cSuper1(cId)
+Local aUsers	:= u_ArSuper(cId)
+Local cRet 		:= ""
+
+If Len(aUsers) > 0
+	cRet := aUsers[1,1]
+EndIf
+
+Return cRet
+
+
+
+/*/{Protheus.doc} ArSuper
+    Retorna array com os superiores de um usuário
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 13/09/2023
+    @version version
+    @param cId (Id do usuário)
+    @return lRet
+    /*/
+
+User Function ArSuper(cId)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+
+cQuery += "SELECT USR_SUPER"+CRLF 
+cQuery += " FROM SYS_USR_SUPER"+CRLF
+cQuery += " WHERE USR_ID = '"+cId+"' AND D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " ORDER BY R_E_C_N_O_ "+CRLF
+
+//aadd(aBinds,xFilial("SA1")) // Filial
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"USR_SUPER"   ,"C",6,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+  u_MsgLog("ArSuper",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+Endif
+
+Return aReturn
+
+
+/*/{Protheus.doc} cStaf
+    Retorna array com os seus subordinados e dos seus superiores de um usuário
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 13/09/2023
+    @version version
+    @param cId (Id do usuário)
+    @return lRet
+    /*/
+User Function cStaf(cId)
+Local cUsers	:= ""
+Local aSupers	:= u_ArSuper(cId)
+Local aSubs		:= {}
+Local nI		:= 0
+Local nJ		:= 0
+Local cRet 		:= ""
+
+// Subordinados do Staf
+aAdd(aSupers,cId)
+
+// + Subordinados dos seus superiores
+For nI := 1 To Len(aSupers)
+	aSubs := u_ArSubord(aSupers[nI])
+	For nJ := 1 To Len(aSubs)
+		cUsers += aSubs[nJ]+"|"
+	Next
+Next
+
+If Len(cUser) > 0
+	cRet := FormatIn(cUsers,"|")
+EndIf
+
+Return c
 
 
 // Listagem de usuarios x superiores
@@ -200,14 +326,14 @@ Return lRet
 
 
 
-// Retorna se o usuário pertence ao grupo informado
-User Function InGrupo(cId,cIdGrupo)
+// Retorna se o usuário pertence ao grupo ou grupos informados
+User Function InGrupo(cId,cGrupos)
 Local nx
 Local aGrp := FWSFUsrGrps(cId)
 Local lRet := .F.
 
 For nx := 1 To Len(aGrp)
-	If cIdGrupo $ aGrp[nx]
+	If aGrp[nx] $ cGrupos
 		lRet := .T.
 		Exit
 	EndIf
@@ -219,14 +345,14 @@ Return lRet
 
 // Libera doc de entrada após o horário 
 User Function IsLibDPH(cId)
-//            Admin /Lau   /Tiago /Bruno
-Return cId $ "000000/000012/000112/000153"
+//            Admin /Lau   /Bruno
+Return cId $ "000000/000012/000153"
 
 
 // Libera pedido de venda pela WEB
 User Function IsLibPv(cId)
-//            Admin  /Teste/Vanderleia/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari
-Return cId $ "000000/000038/000012/000016/000056/000023/000153/000170/000165/000252"
+//            Admin  /Teste/Vanderleia/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa
+Return cId $ "000000/000038/000012/000016/000056/000023/000153/000170/000165/000252/000288/"
 
 
 // É do grupo Fiscal
@@ -234,14 +360,20 @@ User Function IsFiscal(cId)
 Return u_InGrupo(cId,"000031")
 
 
+// É do grupo Master Financeiro
+User Function IsMasFin(cId)
+Return u_InGrupo(cId,"000005")
+
+
 // Retorna se o usuário pertence ao STAF 
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 User Function IsStaf(cId)
 Local lRet := .F.
 // Laudecir/Diego.Oliveira/Edson/Fabio/Vanderleia/Nelson/Luis (000116/ removido)
-If cId $ "000011/000016/000076/000093/000056/000165/"
-    lRet := .T.
-EndIf
+//If cId $ "000011/000016/000076/000093/000056/000165/"
+//    lRet := .T.
+//EndIf
+Return u_InGrupo(cId,"000039")
 Return lRet
 
 
@@ -345,7 +477,7 @@ Return "000021/000032"
 User Function GrpMDir
 // Master Fin-5/Master Dir-7/Master Repac-8/Master Ctb-10/Master Almox-27/Master ctb todas-29/User Fiscal-31
 //Return "000005/000007/000008/000010/000027/000029/000031/"
-Return "000005/000007/000008/000010/000029/000031/"
+Return "000005/000007/000008/000031/"
 
 
 // Usuarios Almoxarifado (para queries)
@@ -554,7 +686,8 @@ cRet += "joao.cordeiro@bkconsultoria.com.br;"
 //cRet += "juliana.villegas@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "sabrina.nogueira@bkconsultoria.com.br;"
-cRet += "tamires.silva@bkconsultoria.com.br;"
+//cRet += "tamires.silva@bkconsultoria.com.br;"
+cRet += "kelly.neto@bkconsultoria.com.br;"
 
 Return cRet
 
@@ -582,7 +715,7 @@ cRet += "tany.sousa@bkconsultoria.com.br;"
 Return cRet
 
 
-// E-mails do grupo financeiro do google
+// E-mails do grupo Gestão do google
 User Function BKEmGCT()
 Local cRet := ""
 
@@ -590,7 +723,7 @@ cRet += "administrativo.bhg@bkconsultoria.com.br;"
 cRet += "alexandre.teixeira@bkconsultoria.com.br;"
 cRet += "carlos.ferreira@bkconsultoria.com.br;"
 cRet += "christiane.rodrigues@bkconsultoria.com.br;"
-cRet += "erika.almeida@bkconsultoria.com.br;"
+//cRet += "erika.almeida@bkconsultoria.com.br;"
 cRet += "fabia.pesaro@bkconsultoria.com.br;"
 cRet += "fernando.sampaio@bkconsultoria.com.br;"
 cRet += "graziele.silva@bkconsultoria.com.br;"
@@ -606,6 +739,7 @@ cRet += "moacyr.dalate@bkconsultoria.com.br;"
 cRet += "nelson.oliveira@bkconsultoria.com.br;"
 cRet += "noe.braga@bkconsultoria.com.br;"
 cRet += "vanderleia.silva@bkconsultoria.com.br;"
+cRet += "wiliam.lisboa@bkconsultoria.com.br;"
 
 Return cRet
 

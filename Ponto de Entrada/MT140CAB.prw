@@ -15,7 +15,7 @@ Local lRet := .T.
 Local cMsg := ""
 
 If !u_IsLibDPH(__cUserId)
-    If SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '03'
+    If SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '07'
         cMsg := "Não é permitido incluir pré-notas entre 18h e 7h"
         u_MsgLog("MT140CAB",cMsg)
         MsgStop(cMsg,"MT140CAB")

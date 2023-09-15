@@ -343,7 +343,7 @@ DO WHILE (cAliasQry)->(!EOF())
                     If !Empty(cxTipoPg)
                         cFormaPgto := TRIM(cxTipoPg)
                         If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> u_cFornBK()
                                 cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
                             Else
                                 cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
@@ -401,7 +401,7 @@ DO WHILE (cAliasQry)->(!EOF())
                     If !Empty(cxTipoPg)
                         cFormaPgto := TRIM(cxTipoPg)
                         If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> u_cFornBK()
                                 cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
                             Else
                                 cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)
@@ -459,7 +459,7 @@ DO WHILE (cAliasQry)->(!EOF())
                     If !Empty(cxTipoPg)
                         cFormaPgto := TRIM(cxTipoPg)
                         If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> "000084"
+                            If Empty(SF1->F1_XBANCO) .AND. SF1->F1_FORNECE <> u_cFornBK()
                                 cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
                             Else
                                 cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)

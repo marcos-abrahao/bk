@@ -330,14 +330,14 @@ Local cKey1,cKey2
 Local nI      := 0
 //Local lOk     := .T.
 Local cNatBK  := "0000000013"
-Local cFornBK := "000084"
+Local cFornBK := u_cFornBK()
 Local cLojaBK := "01"
 Local cFornAC := "000071"
 Local cLojaAC := "01"
 Local lErroT  := .F.
 
 If cEmpAnt <> "01"
-   cFornAC := "000084"
+   cFornAC := cFornBK
 ENDIF
 
 dbSelectArea("SE2")
