@@ -352,7 +352,7 @@ Retorna a lista de prenotas.
 /*/
 
 
-WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN
+WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN   //v0
 Local aEmpresas		:= {}
 Local aListSales 	:= {}
 Local cQrySF1       := GetNextAlias()
@@ -406,6 +406,7 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
   ::SetResponse(cRet)
 
   Return lRet:= .t.
+
 EndIf
 
 cFilSF1 := U_M103FILB()
@@ -535,6 +536,7 @@ EndDo
 ( cQrySF1 )->( DBCloseArea() )
 
 oJsonSales := aListSales
+//oJsonSales['liberacao'] := "ok"
 
 //-------------------------------------------------------------------
 // Serializa objeto Json
@@ -546,12 +548,15 @@ cJsonCli:= FwJsonSerialize( oJsonSales )
 //-------------------------------------------------------------------
 FreeObj(oJsonSales)
 
+//Self:SetHeader("Access-Control-Allow-Origin", "http://"+u_BkIpPort())
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+
 Self:SetResponse( cJsonCli ) //-- Seta resposta
 
 Return( lRet )
 
 
-WSMETHOD GET CONSPN QUERYPARAM empresa,prenota,userlib WSREST RestLibPN
+WSMETHOD GET CONSPN QUERYPARAM empresa,prenota,userlib WSREST RestLibPN  //v1
 
 Local oJsonPN	:= JsonObject():New()
 Local cRet		:= ""
@@ -766,7 +771,8 @@ cRet := oJsonPN:ToJson()
 FreeObj(oJsonPN)
 
 //Retorno do servico
-::SetResponse(cRet)
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetResponse(cRet)
 
 return .T.
 
@@ -785,8 +791,9 @@ begincontent var cHTML
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Bootstrap CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <title>Liberação de Pré-notas</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
@@ -1051,9 +1058,23 @@ line-height: 1rem;
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+<!-- https://datatables.net/examples/styling/bootstrap5.html -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- JavaScript Bundle with Popper -->
+<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+
+<!-- https://datatables.net/ -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 
 <script>
 
@@ -1133,6 +1154,13 @@ trHTML += '</tr>';
 document.getElementById("mytable").innerHTML = trHTML;
 
 $('#tableSF1').DataTable({
+  dom: 'Bfrtip',
+  buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'
+        ],
   "pageLength": 100,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
@@ -1401,15 +1429,10 @@ document.getElementById("txtToken").value = TokenRet['TOKEN'];
 $('#confToken').modal('show');
 }
 
-
 </script>
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
 
 </body>
 </html>
-
 endcontent
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
@@ -1427,6 +1450,7 @@ If __cUserId == '000000'
 	Memowrite("\tmp\pn.html",cHtml)
 EndIf
 
+Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
 self:setStatus(200)
 
@@ -1461,7 +1485,8 @@ cRet := oJsonPN:ToJson()
 FreeObj(oJsonPN)
 
 //Retorno do servico
-::SetResponse(cRet)
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetResponse(cRet)
 
 Return lRet
 

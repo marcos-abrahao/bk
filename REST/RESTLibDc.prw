@@ -726,9 +726,12 @@ begincontent var cHTML
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Bootstrap CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
 
 <title>Liberação de Documentos</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
@@ -1013,9 +1016,16 @@ line-height: 1rem;
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap5.min.js"></script>
+<!-- https://datatables.net/examples/styling/bootstrap5.html -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- JavaScript Bundle with Popper -->
+<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+
+<!-- https://datatables.net/ -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
 

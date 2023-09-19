@@ -111,6 +111,7 @@ Local cMsg         As Char
 
   	FreeObj(oJson)
 
+	Self:SetHeader("Access-Control-Allow-Origin", "*")
  	Self:SetResponse(cRet)
   //Else 
   //  SetRestFault(404, EncodeUTF8(cMsg), .T.)
@@ -143,34 +144,29 @@ Local cWhereSC5     := "%AND SC5.C5_FILIAL = '"+xFilial('SC5')+"'%"
 Local cWhereSA1     := "%AND SA1.A1_FILIAL = '"+xFilial('SA1')+"'%"
 Local lRet 			:= .T.
 Local nCount 		:= 0
-//Local nStart 		:= 1
-//Local nReg 			:= 0
-//Local nTamPag 	:= 0
 Local oJsonSales 	:= JsonObject():New()
 
 Local aParams      	As Array
 Local cMsg         	As Character
 
-Default self:page 	:= 1
-Default self:pageSize := 500
-
-//nStart := INT(self:pageSize * (self:page - 1))
-//nTamPag := self:pageSize := 100
+//Default self:page 	:= 1
+//Default self:pageSize := 500
 
 //-------------------------------------------------------------------
 // Query para selecionar pedidos
 //-------------------------------------------------------------------
 
-	If !u_BkAvPar(::userlib,@aParams,@cMsg)
-		oJsonSales['liberacao'] := cMsg
-		cRet := oJsonSales:ToJson()
-		FreeObj(oJsonSales)
-		//Retorno do servico
-		::SetResponse(cRet)
-		Return lRet:= .t.
-	EndIf
+If !u_BkAvPar(::userlib,@aParams,@cMsg)
+	oJsonSales['liberacao'] := cMsg
+	cRet := oJsonSales:ToJson()
+	FreeObj(oJsonSales)
+	//Retorno do servico
+	Self:SetHeader("Access-Control-Allow-Origin", "*")
+	Self:SetResponse(cRet)
+	Return lRet:= .t.
+EndIf
 
-	BeginSQL Alias cQrySC5
+BeginSQL Alias cQrySC5
     SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,
             SC5.C5_EMISSAO,SC5.C5_LIBEROK,C5_MDCONTR,C5_XXCOMPM,
             (SELECT SUM(C6_VALOR) FROM %Table:SC6% SC6 
@@ -189,7 +185,7 @@ Default self:pageSize := 500
             %exp:cWhereSC5%
     ORDER BY C5_LIBEROK,SC5.C5_NUM DESC 
     
-	EndSQL
+EndSQL
 
 //Syntax abaixo somente para o SQL 2012 em diante
 //ORDER BY SC5.C5_NUM OFFSET %exp:nStart% ROWS FETCH NEXT %exp:nTamPag% ROWS ONLY
@@ -197,42 +193,44 @@ Default self:pageSize := 500
 //-------------------------------------------------------------------
 // Alimenta array de pedidos
 //-------------------------------------------------------------------
-	Do While ( cQrySC5 )->( ! Eof() )
+Do While ( cQrySC5 )->( ! Eof() )
 
-		nCount++
+	nCount++
 
-		aAdd( aListSales , JsonObject():New() )
-		nPos := Len(aListSales)
-		aListSales[nPos]['NUM']       := (cQrySC5)->C5_NUM
-		aListSales[nPos]['EMISSAO']   := DTOC(STOD((cQrySC5)->C5_EMISSAO))
-		aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
-		aListSales[nPos]['CONTRATO']  := TRIM((cQrySC5)->C5_MDCONTR)
-		aListSales[nPos]['COMPET']    := TRIM((cQrySC5)->C5_XXCOMPM)
-		aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
-		aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
-		(cQrySC5)->(DBSkip())
+	aAdd( aListSales , JsonObject():New() )
+	nPos := Len(aListSales)
+	aListSales[nPos]['NUM']       := (cQrySC5)->C5_NUM
+	aListSales[nPos]['EMISSAO']   := DTOC(STOD((cQrySC5)->C5_EMISSAO))
+	aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
+	aListSales[nPos]['CONTRATO']  := TRIM((cQrySC5)->C5_MDCONTR)
+	aListSales[nPos]['COMPET']    := TRIM((cQrySC5)->C5_XXCOMPM)
+	aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
+	aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
+	(cQrySC5)->(DBSkip())
 
-		If Len(aListSales) >= self:pageSize
-			Exit
-		EndIf
+	If Len(aListSales) >= self:pageSize
+		Exit
+	EndIf
 
-	EndDo
+EndDo
 
-	( cQrySC5 )->( DBCloseArea() )
+( cQrySC5 )->( DBCloseArea() )
 
-	oJsonSales := aListSales
+oJsonSales := aListSales
 
 //-------------------------------------------------------------------
 // Serializa objeto Json
 //-------------------------------------------------------------------
-	cJsonCli:= FwJsonSerialize( oJsonSales )
+cJsonCli:= FwJsonSerialize( oJsonSales )
 //cJsonCli := oJsonSales:toJson() 
+
 //-------------------------------------------------------------------
 // Elimina objeto da memoria
 //-------------------------------------------------------------------
-	FreeObj(oJsonSales)
+FreeObj(oJsonSales)
 
-	Self:SetResponse( cJsonCli ) //-- Seta resposta
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetResponse( cJsonCli ) //-- Seta resposta
 
 Return( lRet )
 
@@ -245,6 +243,7 @@ Local cPed  as char
 cPed  := self:pedido
 cHtml := StrIConv(u_BKFATR5H(cPed), "CP1252", "UTF-8")
 
+Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
 self:setStatus(200)
 
@@ -266,8 +265,9 @@ begincontent var cHTML
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Bootstrap CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.11.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <title>Liberação de Pedidos</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
@@ -360,9 +360,16 @@ line-height: 1rem;
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap5.min.js"></script>
+<!-- https://datatables.net/examples/styling/bootstrap5.html -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- JavaScript Bundle with Popper -->
+<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+
+<!-- https://datatables.net/ -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 
 <script>
@@ -499,8 +506,11 @@ EndIf
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-//Memowrite("\tmp\PV.html",cHtml)
+If __cUserId == '000000'
+	Memowrite("\tmp\pv.html",cHtml)
+EndIf
 
+Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
 self:setStatus(200)
 

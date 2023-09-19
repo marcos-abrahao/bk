@@ -218,7 +218,7 @@ If lClass
 		EndIf
 	EndIf
 Else
-	If lMaster
+	If lMaster .OR. u_InGrupo(__cUserId,"000037") // User Controladoria
 		lRet := .T.
 	Else
 		u_MsgLog("MT103INC","Usuário sem permissão para incluir Documentos de Entrada: "+cLogDoc,"E")

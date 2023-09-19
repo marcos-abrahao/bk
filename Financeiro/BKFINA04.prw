@@ -306,7 +306,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 	dbSelectArea("SE2")   
 Endif
 
-If LEN(aEmail) > 0 .AND. __cUserId <> "000000"
+If LEN(aEmail) > 0
 	U_Fina04E(aEmail,lCLT)
 EndIf
 
@@ -321,10 +321,10 @@ Return aRet
 
 User Function Fina04E(aEmail,lCLT)
 Local cPrw     := "BKFINA04"
-Local cEmail1  := u_BKPgto3()  //Alterado para GRUPO AC //"anderson.oliveira@bkconsultoria.com.br;alexandre.teixeira@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
-Local cEmail2  := u_BKPgto2()  //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
+Local cEmail1  := u_BKPgto3() 
+Local cEmail2  := u_BKPgto2()
 Local cCC      := ""
-Local cAssunto := "Pagamentos nao Efetuados "+DTOC(DATE())+"-"+TIME()
+Local cAssunto := "Pagamentos não Efetuados "+DTOC(DATE())+"-"+TIME()
 Local aCabs    := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw)
 
