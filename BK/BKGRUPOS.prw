@@ -624,6 +624,7 @@ Local cIpPort := "10.139.0.30:8080"
 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 	cIpPort := "10.139.0.30:8081"
 EndIf
+//u_MsgLog(,GetEnvServer()+" - "+cIpPort,"I")
 Return cIpPort
 
 

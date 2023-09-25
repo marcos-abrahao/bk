@@ -28,7 +28,7 @@ User Function BKTestes(cRotTest)
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Default cRotTest := "PApvSC1"
+Default cRotTest := "LogCN9"
 
 Private cRot := PAD("U_"+cRotTest,20)
 Private lEnd := .F.
@@ -175,10 +175,6 @@ Local cUserLga := ""
    End
 
 Return lEnd
-
-
-
-
 
 
 /*

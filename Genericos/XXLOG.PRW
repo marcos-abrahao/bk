@@ -23,8 +23,8 @@ FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 */
 
 User Function MsgLog(cProg,cMens,cAlert,cTxt)
-//Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
-Local cArqLog  := "\log\msglog.log"
+Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
+//Local cArqLog  := "\log\msglog.log"
 Local lRet     := .T.
 
 Default cProg  := FunName()
@@ -93,8 +93,8 @@ Return lRet
 */
 
 User Function AvisoLog(cProg,cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
-//Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
-Local cArqLog  := "\log\msglog.log"
+Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
+//Local cArqLog  := "\log\msglog.log"
 Local nRet     := 0
 Local cMens    := cMsg
 Default cProg  := FunName()
@@ -128,7 +128,7 @@ Default cTxt  := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cMens := STRTRAN( cMens, CRLF, " ")
-cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+cMens+"|" 
+cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+cMens+"|" 
 If !Empty(cTxt)
 	cMens += CRLF+cTxt+CRLF
 EndIf
@@ -221,7 +221,7 @@ IF __cUserId == "000000" .OR. IsBlind() //.OR. __cUserId == "000012"
 		cDir:= "\log"
 	ENDIF
 	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
-	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+CRLF
+	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+CRLF
 
 	cMens += cTexto
 	If !("\" $ cProg)
