@@ -241,7 +241,7 @@ Do While !eof()
 		
 		IF lMsErroAuto
 
-			u_LogMsExec(,IIF(LEN(aCHAVEZ2)>1,"LIQ. FOLHA "+TRIM(aCHAVEZ2[1])+" - LIQ. FOLHA "+TRIM(aCHAVEZ2[LEN(aCHAVEZ2)]),''))
+			u_LogMsExec("RunCtb02",IIF(LEN(aCHAVEZ2)>1,"LIQ. FOLHA "+TRIM(aCHAVEZ2[1])+" - LIQ. FOLHA "+TRIM(aCHAVEZ2[LEN(aCHAVEZ2)]),''))
 			DisarmTransaction()
 		ENDIF
 	End Transaction
@@ -267,7 +267,7 @@ Do While !eof()
 		Next
 
     ELSE
-	   u_MsgLog(,"Não foi possivel gerar todos os lançamentos, contate o setor de T.I.","E")
+	   u_MsgLog("RunCtb02","Não foi possivel gerar todos os lançamentos, contate o setor de T.I.","E")
 	   EXIT
 	ENDIF
 	DbSelectArea("QSZ2")
