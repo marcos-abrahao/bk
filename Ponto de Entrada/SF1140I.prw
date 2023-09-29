@@ -30,6 +30,15 @@ Private mParcel  := SF1->F1_XXPARCE
 Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
+// 2 Etapas
+If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
+	cLibF1   := "A"
+Else 
+	cLibF1   := "9"
+EndIf
+cLibF1   := "A" // Remover
+
+
 If Empty(cxBanco)
 	u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 EndIf
@@ -117,7 +126,15 @@ Private mParcel	 := SF1->F1_XXPARCE
 Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
-If SF1->F1_XXLIB $ "AEP" .AND. Empty(SF1->F1_STATUS)
+// 2 Etapas
+If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
+	cLibF1   := "A"
+Else 
+	cLibF1   := "9"
+EndIf
+cLibF1   := "A" // Remover
+
+If SF1->F1_XXLIB $ "9AE" .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
 Else
 	lAlt := .F.
@@ -172,7 +189,7 @@ Local lRet 		:= .T.
 Local aCabecalho:= {}
 Local aaCampos	:= {"PARC","VENCTO","VALOR"} //Variável contendo o campo editável no Grid
 Local nValTot	:= 0
-Local aGrp 		:= UsrRetGrp()
+//Local aGrp 		:= UsrRetGrp()
 Local aTpPix    := U_StringToArray(GetSx3Cache("F72_TPCHV", "X3_CBOX"),";") 
 
 Static oDlg3
@@ -187,14 +204,17 @@ Private oCmbTpPix,oGetChPix
 Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
 
-cLibF1 := "A"
-
-If LEN(aGrp) > 0
-	If aGrp[1] $ "000000/000031" 
-		lAlt := .T.
-		lEsc := .T.
+// 2 Etapas
+If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
+	cLibF1  := "A"
+	If u_InGrupo(__cUserId,"000000/000031")
+		lAlt 	:= .T.
+		lEsc 	:= .T.
 	EndIf
+Else 
+	cLibF1  := "9"
 EndIf
+cLibF1   := "A" // Remover
 
 nValTot := CalcTot()
 
@@ -367,7 +387,7 @@ Static Function ValidFP(nRadio,cLibF1)
 Local lRet   := .T.
 Local cMens2 := ""
 
-cLibF1 := "A"
+//cLibF1 := "A"
 If nRadio <> 1 .AND. nRadio <> 4
 	cxNumPa   := SPACE(9)
 	cxBanco   := ""

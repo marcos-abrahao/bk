@@ -312,13 +312,13 @@ Compras e Almoxarifado
 */
 
 If !lGrupo
-	If lAClas .AND. !lRPC
-		cFiltro1 := "((F1_XXUSER <> '"+__cUserId+"' "
-		cAndOr := " AND "
-	Else
+	//If lAClas .AND. !lRPC
+	//	cFiltro1 := "((F1_XXUSER <> '"+__cUserId+"' "
+	//	cAndOr := " AND "
+	//Else
 		cFiltro1 := "((F1_XXUSER = '"+__cUserId+"'  "
 		cAndOr := " OR "
-	EndIf
+	//EndIf
 
 	// Incluir os subordinados
 	If lStaf

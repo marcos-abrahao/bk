@@ -267,6 +267,8 @@ Local cQuery 	 := "SELECT ISNULL(OBJECT_ID(N'"+cTabela+"', N'U'),-1) AS EXIST"
 Local aReturn 	 := {}
 Local aBinds 	 := {}
 Local aSetFields := {}
+Local nRet		 := 0
+Local lRet       := .F.
 
 //aadd(aBinds,xFilial("SA1")) // Filial
 //aadd(aBinds,"000281") // Codigo

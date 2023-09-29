@@ -13,20 +13,17 @@ BK - Ponto de Entrada para criar opções na tela de Documento de Entrada
 
 User Function MA103OPC
 Local aRot := {} 
-Local aGrp := UsrRetGrp()
-
-If LEN(aGrp) > 0 
-	If aGrp[1] $ "000000/000029/000031" 
-		AADD( aRot, {OemToAnsi("Informar Chave NFE"), "U_BKCOMA08", 0, 1 } )
-	EndIf
-EndIf
 
 AADD( aRot, {OemToAnsi("Pesquisa BK"), "U_BKCOMC01", 0, 1 } )
 AADD( aRot, {OemToAnsi("Pesquisa NF"), "U_BKCOMC02", 0, 1 } )
 AADD( aRot, {OemToAnsi("Aval. Fornecedor"), "U_VEWAVALFOR", 0, 4 } )
 AADD( aRot, {OemToAnsi("Reavaliar Fornecedor"), "U_RAvalForn", 0, 4 } )
 AADD( aRot, {OemToAnsi("Dados Pgto"), "U_AltFPgto", 0, 4 } )
-AADD( aRot, {OemToAnsi("Inc Doc PIS/COF/IRPJ"), "U_BKCOMA13", 0, 1 } )
+If u_InGrupo(__cUserId,"000000/000005/000007/000029/000031/000038")
+	AADD( aRot, {OemToAnsi("Informar Chave NFE"), "U_BKCOMA08", 0, 1 } )
+	AADD( aRot, {OemToAnsi("Inc Doc PIS/COF/IRPJ"), "U_BKCOMA13", 0, 1 } )
+	AADD( aRot, {OemToAnsi("Rateio PIS/COF/IRPJ"), "U_BKCOMA14", 0, 1 } )
+EndIf
 
 Return( aRot )
               

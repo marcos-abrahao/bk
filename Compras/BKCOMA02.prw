@@ -118,7 +118,7 @@ QSZB->(DbCloseArea())
 //ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	u_MsgLog(,"Não há NFs disponíveis", "W")
+	u_MsgLog("BKCOMA02","Não há NFs disponíveis", "W")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -399,7 +399,7 @@ Static Function ValidaMrk(lRet,cPgto)
 IF CTOD(cPgto) >= dDataBase
    lRet := !lRet
 ELSE
-   u_MsgLog(,"Data de pgto deste lote é inferior a data base do sistema", "W")
+   u_MsgLog("BKCOMA02","Data de pgto deste lote é inferior a data base do sistema", "W")
    lRet := .F.
 ENDIF   
 Return lRet

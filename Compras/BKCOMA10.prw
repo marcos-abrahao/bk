@@ -51,7 +51,7 @@ If lOk
             lOk := .F.
             If SF1->F1_XXLIB == "T" .OR. SF1->F1_XXLIB == " "
                 RecLock("SF1",.F.)
-                SF1->F1_XXLIB := "A"
+                SF1->F1_XXLIB := "9"
                 MsUnlock()
                 u_MsgLog("BKCOMA10","Token validado - Doc: "+SF1->F1_DOC,"S")
                 lOk := .T.

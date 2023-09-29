@@ -223,11 +223,11 @@ Else
 			Else
 				lRet := .T.
 			EndIf
-		Case (cQrySF1)->F1_XXLIB $ "9D "
+		Case (cQrySF1)->F1_XXLIB $ "9R "
 			// Aprovar para liberação
 			cQuery := "UPDATE "+cTabSF1
 			If acao == 'E'
-				cQuery += "  SET F1_XXLIB = 'D',"
+				cQuery += "  SET F1_XXLIB = 'R',"
 				cMsg := "Reprovada"
 				If !Empty(cMotivo)
 					cMotivo := "Motivo reprovação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
@@ -474,7 +474,7 @@ Do While ( cQrySF1 )->( ! Eof() )
 
 	Do Case
 	Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
-		If lFiscal .AND. (cQrySF1)->F1_XXUSERS <> __cUserId
+		If lFiscal .AND. (cQrySF1)->F1_XXUSER == __cUserId
 			cLiberOk := "X"
 			cStatus  := "A Liberar"
 		Else
@@ -490,9 +490,14 @@ Do While ( cQrySF1 )->( ! Eof() )
 				cStatus  := "A Liberar"
 			EndIf
 		EndIf
-	Case cLiberOk $ "9 "
-		If lSuper .OR. lMaster
-			cStatus  := "Aprovar"
+	Case cLiberOk $ "9 " .AND. (cQrySF1)->F1_STATUS == " "
+		If lSuper .OR. lMaster 
+			If lMaster .OR. (cQrySF1)->F1_XXUSER <> __cUserId
+				cStatus  := "Aprovar"
+			Else
+				cStatus  := "A Aprovar"
+				cLiberOk := "X"
+			EndIf
 		Else
 			cStatus  := "A Aprovar"
 			cLiberOk := "X"
@@ -505,7 +510,7 @@ Do While ( cQrySF1 )->( ! Eof() )
 		cStatus  := "Classificada"
 	Case cLiberOk == "E"
 		cStatus  := "Estornada"
-	Case cLiberOk == "D"
+	Case cLiberOk == "R"
 		cStatus  := "Reprovada"
 		If lSuper .OR. lMaster
 			cStatus  := "Reprovada"
@@ -1127,7 +1132,7 @@ if (Array.isArray(prenotas)) {
  	} else if (cLiberOk == 'E'){
     cbtn = 'btn-outline-secondary';
     ccanl = '2';
- 	} else if (cLiberOk == 'D'){
+ 	} else if (cLiberOk == 'R'){
     cbtn = 'btn-outline-secondary';
     ccanl = '1';
  	} else if (cLiberOk == ' '){
@@ -1264,7 +1269,7 @@ if (canLib === 1){
 		cClick = 'libdoc';
 	}
 
-	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' ' || prenota['F1_XXLIB'] == 'D'){
+	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' ' || prenota['F1_XXLIB'] == 'R'){
 		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'A\')">Aprovar</button>';
 		document.getElementById("btnlib").innerHTML = btnL;
 	} else {

@@ -24,13 +24,16 @@ Liberação do Bloqueio do Doc de entrada:
 MT094END: Gravar F1_XXLIB := "L" (e avaliar fornecedor) ou "B" caso o doc tenha sido bloqueado
 ---------------------------------------------------
 Classificação do Doc de Entrada: MT103INC
+X3_CBOX: F1_XXLIB -> L=Liberada;N=Nao Liberada;A=A liberar;C=Classificada;E=Estornada;B=Bloqueada;T=Token;9=A Aprovar;D=Reprovada                    	
+
+
 Se F1_XXLIB
 
 	A: Libera ou Não Libera (L ou N)
 		Se não Liberar -> enviar e-mail para quem incluiu (e quem não liberou)
 
-	9: Aprova ou Não Aprova (A ou D)
-		Se não aprovar -> enviar e-mail para quem incluiu (e quem desaprovou)
+	9: Aprova ou Reprova (A ou R)
+		Se não aprovar -> enviar e-mail para quem incluiu (e quem reprovou)
 
 	L ou E: Somente Grupo User Fiscal ou Administradores podem classificar
 		Opções: Classifica
@@ -41,7 +44,7 @@ Se F1_XXLIB
 	B: Nenhuma operação pode ser feita aqui
 
 	D: Permite aprovador aprovar novamente
-	
+
 ---------------------------------------------------
 
 @author Marcos Bispo Abrahão
@@ -107,59 +110,63 @@ If lClass
 
 						u_MsgLog("MT103INC","Doc não foi liberado: "+cLogDoc)
 					EndIf
-				Else
-					u_MsgLog("MT103INC","Usuário sem permissão para liberar documentos: "+cLogDoc,"E")
 				EndIf
+			Else
+				u_MsgLog("MT103INC","Usuário sem permissão para liberar documentos: "+cLogDoc,"E")
 			EndIf
 
 		// Nova aprovação em duas etapas
-		ElseIf SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'D'
+		ElseIf SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'R'
 
 			If u_IsSuperior(__cUserId) .OR. lMaster
-				If SF1->F1_XXLIB == '9'
-					nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Não Aprovar","Cancelar"})
-				Else
-					nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Manter não aprovada","Cancelar"})
-				EndIf
-				If nOper <> 3
-					RecLock("SF1",.F.)
-					If nOper == 1
-						// Aprovação
-						SF1->F1_XXLIB   := "A"
-						SF1->F1_XXUAPRV := __cUserId
-						SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
+				If __cUserId <> SF1->F1_XXUSER .OR. lMaster
+					If SF1->F1_XXLIB == '9'
+						nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Reprovar","Cancelar"})
 					Else
-						SF1->F1_XXLIB  := "D"
+						nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Manter Reprovada","Cancelar"})
 					EndIf
-					MsUnLock("SF1")
-
-					If nOper == 1
-						// Avaliação do Fornecedor
-						If u_IsAvalia(__cUserId)
-							u_WaitLog(,{|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
-
-							dbSelectArea("TMPSD1")
-							dbGoTop()
-							If !TMPSD1->(EOF())
-								// Somente avaliar NF com pedido de compra atrelado
-								If !Empty(TMPSD1->D1_PEDIDO)
-									U_AvalForn(.F.)
-								EndIf
-							EndIf
-							TMPSD1->(DbCloseArea())
+					If nOper <> 3
+						RecLock("SF1",.F.)
+						If nOper == 1
+							// Aprovação
+							SF1->F1_XXLIB   := "A"
+							SF1->F1_XXUAPRV := __cUserId
+							SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
+						Else
+							SF1->F1_XXLIB  := "R"
 						EndIf
+						MsUnLock("SF1")
 
-						u_MsgLog("MT103INC","Doc aprovado: "+cLogDoc)
+						If nOper == 1
+							// Avaliação do Fornecedor
+							If u_IsAvalia(__cUserId)
+								u_WaitLog(,{|| prcD1Aval() },"Aguarde","Pesquisando pedidos para avaliação...",.F.)
 
-					ElseIf nOper == 2
+								dbSelectArea("TMPSD1")
+								dbGoTop()
+								If !TMPSD1->(EOF())
+									// Somente avaliar NF com pedido de compra atrelado
+									If !Empty(TMPSD1->D1_PEDIDO)
+										U_AvalForn(.F.)
+									EndIf
+								EndIf
+								TMPSD1->(DbCloseArea())
+							EndIf
 
-						// Caso não libere, enviar e-mail para quem incluiu o Documento
-						//cEmail += UsrRetMail(SF1->F1_XXUSER)
+							u_MsgLog("MT103INC","Doc aprovado: "+cLogDoc)
 
-						u_SF1Email("Pré-Nota não aprovada")
+						ElseIf nOper == 2
 
-						u_MsgLog("MT103INC","Doc não aprovado: "+cLogDoc)
+							// Caso não libere, enviar e-mail para quem incluiu o Documento
+							//cEmail += UsrRetMail(SF1->F1_XXUSER)
+
+							u_SF1Email("Pré-Nota não aprovada")
+
+							u_MsgLog("MT103INC","Doc não aprovado: "+cLogDoc)
+						EndIf
 					EndIf
+				Else
+					u_MsgLog("MT103INC","Usuário sem permissão para aprovar próprios documentos: "+cLogDoc,"E")
 				EndIf
 			Else
 				u_MsgLog("MT103INC","Usuário sem permissão para aprovar documentos: "+cLogDoc,"E")

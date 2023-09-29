@@ -56,7 +56,7 @@ aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par02 > 0 .AND. mv_par02 
 aAdd(aParam, { 1,"Ano ref inicial",nAnoI   ,"9999","mv_par03 >= 2010 .AND. mv_par03 <= 2040",""   ,"",20,.T.})
 aAdd(aParam, { 1,"Mes ref final"  ,nMesF   ,"99"  ,"mv_par04 > 0 .AND. mv_par04 <= 12"      ,""   ,"",20,.T.})
 aAdd(aParam, { 1,"Ano ref final"  ,nAnoF   ,"9999","mv_par05 >= 2010 .AND. mv_par05 <= 2040",""   ,"",20,.T.})
-aAdd(aParam, { 3,"Produto"        ,1,aPrdDesc,70,"",.T.})
+aAdd(aParam, { 3,"Produto"        ,1,aPrdDesc,200,"",.T.})
 aAdd(aParam, { 1,"Valor"          ,nValor  ,"@E 999,999,999.99"  ,"mv_par07 > 0"            ,""   ,"",70,.T.})
 // Tipo 11 -> MultiGet (Memo)
 //            [2] = Descrição
@@ -271,9 +271,11 @@ EndIf
 If lRet
 	If SF1->F1_DOC == cDocI .AND. SF1->F1_SERIE == cSerie
 		RecLock("SF1",.F.)
-		SF1->F1_XXLIB  := "L"
-		SF1->F1_XXULIB := __cUserId
-		SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+		SF1->F1_XXLIB   := "L"
+		SF1->F1_XXULIB  := __cUserId
+		SF1->F1_XXDLIB  := DtoC(Date())+"-"+Time()
+		//SF1->F1_XXUAPRV := __cUserId
+		//SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
 		MsUnLock("SF1")
 	EndIf
 EndIf

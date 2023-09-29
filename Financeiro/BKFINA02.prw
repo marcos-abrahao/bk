@@ -55,7 +55,7 @@ u_MsgLog("BKFINA02")
 dbSelectArea("SZ2")
 dbGoTop()
 IF BOF() .OR. EOF()
-	u_MsgLog(,"Não ha lotes gerados", "W")
+	u_MsgLog("BKFINA02","Não ha lotes gerados", "W")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -79,14 +79,14 @@ nStatusX := QSZ2->Z2STATUSX
 QSZ2->(DbCloseArea())
 
 IF nStatusX > 0
-    u_MsgLog(,"Integração já iniciada por outra seção", "W")
+    u_MsgLog("BKFINA02","Integração já iniciada por outra seção", "W")
 	IF __cUserId <> "000000"
-	   u_MsgLog(,"Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "W")
+	   u_MsgLog("BKFINA02","Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "W")
     ELSE
-       IF u_MsgLog(,"Sr. Administrador, deseja resetar o campo Z2_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?","Y")
+       IF u_MsgLog("BKFINA02","Sr. Administrador, deseja resetar o campo Z2_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?","Y")
 		  cQuery := " UPDATE "+RetSqlName("SZ2")+" SET Z2_STATUS = ' ' WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = 'X' AND D_E_L_E_T_ <> '*' AND Z2_VALOR > 0"
     	  TcSqlExec(cQuery)
-    	  u_MsgLog(,"Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa","I")
+    	  u_MsgLog("BKFINA02","Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa","I")
        ENDIF  
     ENDIF
    RestArea(aAreaIni)
@@ -151,7 +151,7 @@ QSZ2->(DbCloseArea())
 ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	u_MsgLog(,"Não há lotes disponíveis", "W")
+	u_MsgLog("BKFINA02","Não há lotes disponíveis", "W")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -221,7 +221,7 @@ If ( lOk )
 				ENDIF
 			    //cTitulo := PAD(ALLTRIM(QSZ2->Z2_TIPO),3,"_"+ProxNum()
 			    IF QSZ2->Z2_DATAPGT < dDataBase
-					u_MsgLog(,"Lote "+TRIM(QSZ2->Z2_CTRID)+" com data de pgto ("+DTOC(QSZ2->Z2_DATAPGT)+") não permitida ", "W")
+					u_MsgLog("BKFINA02","Lote "+TRIM(QSZ2->Z2_CTRID)+" com data de pgto ("+DTOC(QSZ2->Z2_DATAPGT)+") não permitida ", "W")
 			    ELSE
 					IF TRIM(cPrf) == "LF" 
 						cTitulo := STRZERO(nProxTit++,6)+QSZ2->Z2_TIPO
@@ -319,6 +319,7 @@ ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End(
 
 If ( lOk )
     GravaSe2(aTitGer)
+	u_MsgLog("BKFINA02","Titulos integrados: "+STR(LEN(aTitGer)))
 EndIf
 Return lOk
 
@@ -364,7 +365,7 @@ Next
 //AADD(aTitGer,{cPrf,cTitulo,QSZ2->Z2_CTRID,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_DATAPGT,TRANSFORM(QSZ2->XX_TOTAL,"@E 999,999,999.99")})
 
 If !lOk
-	u_MsgLog(,"Titulo "+cKey1+" já existente, informe o setor de T.I.", "E")
+	u_MsgLog("BKFINA02","Titulo "+cKey1+" já existente, informe o setor de T.I.", "E")
 	Return
 EndIf
 */
@@ -661,7 +662,7 @@ Static Function ValidaMrk(lRet,cPgto)
 IF CTOD(cPgto) >= dDataBase
    lRet := !lRet
 ELSE
-   u_MsgLog(,"Data de pgto deste lote é inferior a data base do sistema", "W")
+   u_MsgLog("BKFINA02","Data de pgto deste lote é inferior a data base do sistema", "W")
    lRet := .F.
 ENDIF   
 Return lRet
@@ -830,7 +831,7 @@ Return nil
 
 User Function Fina02E(aEmail,lCLT,cAssunto)
 Local cPrw     := "BKFINA02"
-Local cEmail1  := u_BKPgto3()  // sumente cgrupo AC
+Local cEmail1  := u_BKPgto3()  // somente cgrupo AC
 Local cEmail2  := u_BKPgto2() //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cCC      := ""
 Local cMsg     := "" 
