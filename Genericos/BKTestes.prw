@@ -19,7 +19,7 @@ User Function BKTESTE()
 Local aTeste := {}
 //u_IsPetro("000112")
 //u_IsPetro("000281")
-aTeste := u_FinS600(6,2022,'000006332')
+aTeste := u_FinS600(8,2023,'FC0000052')
 x := 0
 Return Nil
 

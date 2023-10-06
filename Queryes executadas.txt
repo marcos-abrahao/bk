@@ -1,5 +1,195 @@
 
 ==============================================================
+--Tabelas do SIGCT que devem ter a mesma configuração de Compartilhamento
+
+-- https://tdn.totvs.com/display/public/PROT/GCT0010+-+Compartilhamento+Tabelas+SIGAGCT
+
+
+CN1 - Tipo contrato
+CNL - Tipo planilha
+CN8 - Cauções
+CN9 - Contrato
+CNA - Planilha
+CNB - Itens planilha
+CNC - Fornecedor x contrato
+CNF - Cronograma financeiro
+CNG - Histórico do Contrato
+CNH - Vinc. Multas vs. Contrato
+CNI - Notas Fiscais de Caução
+CNK - Documentos Contratuais
+CNM - Avaliação Contrato x Fornecedor
+CNN - Amarração Usuário x Contrato
+CNS - Cronograma Físico
+CNT - Cauções Retidas
+CNU - Contratos x Vendedores
+CNV - Cabeçalho Cronograma Contábil
+CNW - Parcelas Cronograma Contábil
+CNX - Adiantamentos de Contrato
+CNY - Baixas Retenção
+CNZ - Rateio itens do contrato
+CPD - Filial x contrato
+CXI - Partes Envolvidas do Contrato
+CXK - Cabeçalho do Reajuste
+CXL - Itens do Reajuste Automático
+CXM - Agrupadores Estoque por Planilha
+CXO - Múltiplas Naturezas
+CXP - Distrib de Naturezas em CC
+
+Tabelas Medição
+
+CND - Cabeçalho Medição de Contratos
+CNE - Itens da Medição de Contratos
+CXN - Planilha Med. de Contratos
+CNQ - Amarração Med x Descontos
+CNR - Amarração Medição x Multas
+CZY - Medição x Adiantamento
+CXJ - Amar Ped x Med x Pla x Part
+
+SELECT * FROM SX2010 WHERE X2_CHAVE IN ('CN1','CNL','CN8','CN9','CNA','CNB','CNC','CNF','CNG','CNH','CNI','CNK','CNM','CNN','CNS','CNT','CNU','CNV','CNW','CNX','CNY','CNZ','CPD','CXI','CXK','CXL','CXM','CXO','CXP','CND','CNE','CXN','CNQ','CNR','CZY','CXJ')
+
+SELECT X2_MODO,X2_MODOUN,X2_MODOEMP FROM SX2010 WHERE X2_CHAVE = 'CZY'
+UPDATE SX2010 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' FROM SX2010 WHERE X2_CHAVE = 'CZY'
+UPDATE SX2020 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2040 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2060 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2070 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2080 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2090 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2100 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2110 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2120 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2140 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2150 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2160 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2170 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2970 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+UPDATE SX2980 SET X2_MODO = 'E',X2_MODOUN= 'E',X2_MODOEMP= 'E' WHERE X2_CHAVE = 'CZY'
+
+==============================================================
+-- 03/10/2023 Base do INSS Patronal 
+SELECT 
+	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,
+	bk_senior.bk_senior.R046VER.CodEve AS CodEve,
+	bk_senior.bk_senior.R008EVC.DesEve,
+	COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,
+	SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,
+	bk_senior.bk_senior.R008EVC.TipEve,
+	bk_senior.bk_senior.R008INC.IncInm,
+	bk_senior.bk_senior.R008INC.IncInd,
+	bk_senior.bk_senior.R008INC.IncIna
+FROM bk_senior.bk_senior.R046VER 
+	INNER JOIN bk_senior.bk_senior.R044cal ON 
+		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp
+		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal
+	INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON 
+		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
+		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+	INNER JOIN bk_senior.bk_senior.R008EVC ON 
+		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve
+	INNER JOIN bk_senior.bk_senior.R008INC ON 
+		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008INC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008INC.CodEve
+ WHERE 
+	bk_senior.bk_senior.R046VER.NumEmp='01' 
+	AND (bk_senior.bk_senior.R008INC.IncInm = '+' OR bk_senior.bk_senior.R008INC.IncInd = '+' OR bk_senior.bk_senior.R008INC.incina = '+')
+	AND Tipcal In(11) And Sitcal = 'T' 
+	AND PerRef ='20230701'
+	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '333000521'
+
+ GROUP BY 
+	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,
+	bk_senior.bk_senior.R046VER.CodEve,
+	bk_senior.bk_senior.R008EVC.DesEve,
+	bk_senior.bk_senior.R008EVC.TipEve,
+	bk_senior.bk_senior.R008INC.IncInm,
+	bk_senior.bk_senior.R008INC.IncInd,
+	bk_senior.bk_senior.R008INC.IncIna
+ ORDER BY 
+	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,
+	bk_senior.bk_senior.R046VER.CodEve,
+	bk_senior.bk_senior.R008EVC.DesEve,
+	bk_senior.bk_senior.R008EVC.TipEve,
+	bk_senior.bk_senior.R008INC.IncInm,
+	bk_senior.bk_senior.R008INC.IncInd,
+	bk_senior.bk_senior.R008INC.IncIna
+
+ --select * from bk_senior.bk_senior.R008EVC WHERE CodEve in (1,126,222,935,28) order by CodEve
+ --select IncInm,IncInd,IncIna,* from bk_senior.bk_senior.R008INC
+
+--select 6789.65+2669.83+2992.05+978.17
+--select 13429.70 * .2
+
+
+-- Total por CC
+SELECT 
+	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,
+	SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent
+FROM bk_senior.bk_senior.R046VER 
+	INNER JOIN bk_senior.bk_senior.R044cal ON 
+		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp
+		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal
+	INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON 
+		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
+		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+	INNER JOIN bk_senior.bk_senior.R008EVC ON 
+		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve
+	INNER JOIN bk_senior.bk_senior.R008INC ON 
+		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008INC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008INC.CodEve
+ WHERE 
+	bk_senior.bk_senior.R046VER.NumEmp='01' 
+	AND (bk_senior.bk_senior.R008INC.IncInm = '+' OR bk_senior.bk_senior.R008INC.IncInd = '+' OR bk_senior.bk_senior.R008INC.incina = '+')
+	AND Tipcal In(11) And Sitcal = 'T' 
+	AND MONTH(PerRef) = 5 AND YEAR(PerRef) = 2023
+
+ GROUP BY 
+	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga
+ ORDER BY 
+	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga
+
+-- Total
+SELECT 
+	SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent
+FROM bk_senior.bk_senior.R046VER 
+	INNER JOIN bk_senior.bk_senior.R044cal ON 
+		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp
+		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal
+	INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON 
+		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
+		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+	INNER JOIN bk_senior.bk_senior.R008EVC ON 
+		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve
+	INNER JOIN bk_senior.bk_senior.R008INC ON 
+		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008INC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008INC.CodEve
+ WHERE 
+	bk_senior.bk_senior.R046VER.NumEmp='01' 
+	AND (bk_senior.bk_senior.R008INC.IncInm = '+' OR bk_senior.bk_senior.R008INC.IncInd = '+' OR bk_senior.bk_senior.R008INC.incina = '+')
+	AND Tipcal In(11) And Sitcal = 'T' 
+	AND MONTH(PerRef) = 5 AND YEAR(PerRef) = 2023 
+
+==============================================================
+03/10/23 - Alteração de contas na solicitação de compras (conta bloqueada)
+
+UPDATE SC1010 SET C1_CONTA ='12601002' WHERE C1_CONTA ='12601006' AND C1_EMISSAO > '20230101'
+
+==============================================================
+02/10/23 - CORREÇÃO DICIONÁRIO DE DADOS - LOG REVISÃO DE CONTRATOS - TOTVS
+
+UPDATE SX3010 SET X3_RELACAO = 'DDATABASE' WHERE X3_CAMPO = 'CN9_LOGDAT'
+UPDATE SX3010 SET X3_RELACAO = 'TIME()' WHERE X3_CAMPO = 'CN9_LOGHOR'
+UPDATE SX3010 SET X3_RELACAO = 'ALLTRIM(RETCODUSR())' WHERE X3_CAMPO = 'CN9_LOGUSR'
+
+==============================================================
 25/09/23 - 2 Rateio Centro de Custos - Impostos
 
 -- PARCELAMENTO DE COFINS 12.2019. fev/23 - DOC 003658945

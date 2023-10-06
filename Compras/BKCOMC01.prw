@@ -31,12 +31,10 @@ Local cForn			:= ""
 Local cNForn		:= ""
 Local cDProd		:= ""
 Local cFiltU 		:= ""
-Local cMDiretoria	:= ""
-Local cMFinanceiro	:= ""
-Local cGerGestao 	:= u_GerGestao()
-Local cGerCompras	:= u_GerCompras()
+Local cAndOr		:= ""
+Local cSubs			:= ""
 Local oTmpTb
-Local i,j
+Local j
 
 Private aSize   := MsAdvSize(,.F.,400)
 Private aObjects:= { { 450, 450, .T., .T. } }
@@ -47,56 +45,45 @@ Private aHeader	    := {}
 
 u_MsgLog("BKCOMC01")
 
-IF __cUserId <> "000000"  // Administrador
+// Se o usuario pertence ao grupo Administradores ou Master Financeiro ou Master Diretoria: não filtrar
+IF !u_IsMasFin(__cUserId) .AND. !u_IsMDir(__cUserId)
 
 	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
 	lStaf  := u_IsStaf(__cUserId)
 
-	cMDiretoria := u_GrpMDir()
-	cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
+	cFiltU := "((F1_XXUSER = '"+__cUserId+"'  "
+	cAndOr := " OR "
 
-	//DBCLEARFILTER() 
-	PswOrder(1) 
-	PswSeek(__cUserId) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,11])
-	   cSuper := SUBSTR(aUser[1,11],1,6)
-	ENDIF   
+	// Incluir os subordinados
+	If lStaf
+		cSubs := U_cStaf(__cUserId)
+	Else
+		cSubs := U_cSubord(__cUserId)
+	EndIf
 
-    lMDiretoria := .F.
-    aGRUPO := {}
-//    AADD(aGRUPO,aUser[1,10])
-//    FOR i:=1 TO LEN(aGRUPO[1])
-//		lMDiretoria := (aGRUPO[1,i] $ cMDiretoria)
-//	NEXT
-//Ajuste nova rotina a antiga não funciona na nova lib MDI
-	aGRUPO := UsrRetGrp(aUser[1][2])
-	IF LEN(aGRUPO) > 0
-		FOR i:=1 TO LEN(aGRUPO)
-			lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
-		NEXT
-	ENDIF
-    
-	//cSuper := aUser[1,11]
-	// Se o usuario pertence ao grupo Administradores ou Master Financeiro ou Master Diretoria: não filtrar
-    IF ASCAN(aUser[1,10],"000000") = 0 .AND. ASCAN(aUser[1,10],cMFinanceiro) = 0  .AND. !lMDiretoria
-       IF !lStaf .OR. EMPTY(cSuper)
-       		IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-    			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "
-       		ELSE
-    			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
-    		ENDIF
-    	ELSE
-    		//cFiltU := "AND ( F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' ) "
-    		IF lStaf .AND. cSuper $ cGerGestao
-  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "  
-    		ELSEIF lStaf .AND. __cUserId $ cGerCompras
-  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+")"  
-    		ELSE 
-  	      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ') "  
-    		ENDIF
-    	ENDIF
+	If !Empty(cSubs)
+	   cFiltU += cAndOr+" (F1_XXUSER IN "+cSubs+") "
+	EndIf
+	cFiltU += ")"
+
+/*
+	cSuper := u_cSuper1(__cUserId)
+	IF !lStaf .OR. EMPTY(cSuper)
+ 		IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
+   			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "
+   		ELSE
+  			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
+   		ENDIF
+   	ELSE
+   		IF lStaf .AND. cSuper $ cGerGestao
+      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "  
+   		ELSEIF lStaf .AND. __cUserId $ cGerCompras
+      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+")"  
+   		ELSE 
+      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ') "  
+   		ENDIF
     ENDIF   
+*/
 ENDIF
 
 ValidPerg(cPerg)
@@ -123,8 +110,10 @@ cQuery  += "    F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERI
 cQuery  += "    AND SF1.D_E_L_E_T_ <> '*' " +CRLF
 cQuery  += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
 cQuery  += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
-cQuery  += cFiltU+CRLF
 cQuery  += "WHERE SD1.D_E_L_E_T_ <> '*' "+CRLF
+IF !EMPTY(cFiltU)
+	cQuery  += "AND "+cFiltU+CRLF
+ENDIF
 IF !EMPTY(cProd)
 	cQuery  += "AND D1_COD LIKE '%"+ALLTRIM(cProd)+"%' "+CRLF
 ENDIF

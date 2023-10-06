@@ -64,7 +64,11 @@ cMesI := STRZERO(nAnoI,4)+STRZERO(nMesI,2)
 cMesF := STRZERO(nAnoF,4)+STRZERO(nMesF,2)
 
 If lRet
-	u_WaitLog(cProg, {|oSay| PGCTR07(cMesI,cMesF)}, 'Processando faturamento...')
+	If cBase == "Faturamento"
+		u_WaitLog(cProg, {|oSay| PGCTR07(cMesI,cMesF)}, 'Processando faturamento...')
+	Else
+		u_WaitLog(cProg, {|oSay| PINSSCC(cMesI,cMesF)}, 'Processando INSS folha...')
+	EndIf
 	u_WaitLog(cProg, {|oSay| AltDoc()}, 'Alterando Documento de Entrada...')
 EndIf
 
@@ -81,7 +85,7 @@ If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.     
 	nAnoI	:= mv_par02
 	nMesF	:= mv_par03
 	nAnoF	:= mv_par04
-    cProd	:= aBase[mv_par05]
+    cBase	:= aBase[mv_par05]
 Endif
 Return lRet
 
@@ -92,6 +96,9 @@ Local lOk	:=.T.
 //If !lOk
 //	u_MsgLog(cProg,"Documento deve conter apens um item!","E")
 //EndIf
+
+lOk := u_MsgLog(cProg,"Confirma o Rateio do Doc "+SF1->F1_DOC+", total: "+STR(SumD1(),12,2),"Y")
+
 RETURN lOk 
 
 
@@ -164,13 +171,13 @@ Do WHile !QTMP->(EOF())
 	aadd(aLinha,{"D1_FILIAL ",xFilial("SD1")})
 	aadd(aLinha,{"D1_COD"    ,"",Nil})
 	aadd(aLinha,{"D1_QUANT"  ,1,Nil})
-	aadd(aLinha,{"D1_VUNIT"  ,QTMP->F2_VALFAT,Nil})
-	aadd(aLinha,{"D1_TOTAL"  ,QTMP->F2_VALFAT,Nil})
-	aadd(aLinha,{"D1_CC"     ,QTMP->CNF_CONTRA,Nil})
+	aadd(aLinha,{"D1_VUNIT"  ,QTMP->VALCC,Nil})
+	aadd(aLinha,{"D1_TOTAL"  ,QTMP->VALCC,Nil})
+	aadd(aLinha,{"D1_CC"     ,QTMP->CC,Nil})
 	aadd(aLinha,{"D1_XXHIST" ,ALLTRIM(cHist),Nil})
 	aadd(aItens,aLinha)
 	cHist := ""
-	nTotal += QTMP->F2_VALFAT
+	nTotal += QTMP->VALCC
 	QTMP->(dbSkip())
 EndDo
 QTMP->(DbCloseArea())
@@ -266,7 +273,7 @@ IF Len(aItens) > 0 .AND. nValor > 0
 	End Transaction
 EndIf
 
-u_MsgLog(cProg,"Rateio do Doc "+SF1->F1_DOC+" realizado com sucesso","I")
+u_MsgLog(cProg,"Rateio do Doc "+SF1->F1_DOC+" realizado com sucesso, total: "+STR((SumD1()),12,2),"I")
 
 Return lRet
 
@@ -279,13 +286,87 @@ Local cQuery := ""
 cQuery := "WITH BKGCTR07 AS ("+CRLF
 cQuery += u_QGctR07(iIf(cMesI == cMesF,1,3),cMesI,cMesF)
 cQuery += ")"+CRLF
-cQuery += "SELECT CNF_CONTRA,SUM(F2_VALFAT) AS F2_VALFAT FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
+cQuery += "SELECT CNF_CONTRA AS CC,SUM(F2_VALFAT) AS VALCC FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
 cQuery += "ORDER BY CNF_CONTRA"+CRLF
 
-u_LogMemo("BKCOMA14.SQL",cQuery)
+u_LogMemo("BKCOMA14-FAT.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 
 Return NIL
 
 
+
+Static Function SumD1()
+Local cQuery 	 := "SELECT SUM(D1_TOTAL) AS TOTALD1 FROM "+RETSQLNAME("SD1") + ;
+					" WHERE D1_FILIAL  = '"+SF1->F1_FILIAL+"' "+;
+					"   AND D1_DOC     = '"+SF1->F1_DOC+"' "+;
+					"   AND D1_SERIE   = '"+SF1->F1_SERIE+"' "+;
+					"   AND D1_FORNECE = '"+SF1->F1_FORNECE+"' "+;
+					"   AND D1_LOJA    = '"+SF1->F1_LOJA+"' "+;
+					"   AND D_E_L_E_T_ = '' "
+
+Local aReturn 	 := {}
+Local aBinds 	 := {}
+Local aSetFields := {}
+Local nRet		 := 0
+Local nTotal     := 0
+
+//aadd(aBinds,xFilial("SA1")) // Filial
+//aadd(aBinds,"000281") // Codigo
+//aadd(aBinds,"01") // Loja
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"TOTALD1","N",12,2})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+	u_MsgLog("SumD1",tcsqlerror()+" Falha ao executar a Query: "+cQuery)
+Else
+  If Len(aReturn) > 0
+	nTOTAL := aReturn[1][1]
+  EndIf
+Endif
+
+Return nTotal
+
+
+// Valor do INSS patronal - Folha
+Static Function PINSSCC(nMesI,nAnoI)
+Local cQuery := ""
+
+cQuery += "SELECT "+CRLF
+cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga AS CC,"+CRLF
+cQuery += "	SUM(bk_senior.bk_senior.R046VER.ValEve) AS VALCC "+CRLF
+cQuery += "FROM bk_senior.bk_senior.R046VER "+CRLF
+cQuery += "	INNER JOIN bk_senior.bk_senior.R044cal ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"+CRLF
+cQuery += "	INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal"+CRLF
+cQuery += "	INNER JOIN bk_senior.bk_senior.R008EVC ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve"+CRLF
+cQuery += "	INNER JOIN bk_senior.bk_senior.R008INC ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008INC.CodTab"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008INC.CodEve"+CRLF
+cQuery += " WHERE "+CRLF
+cQuery += "	bk_senior.bk_senior.R046VER.NumEmp='01' "+CRLF
+cQuery += "	AND (bk_senior.bk_senior.R008INC.IncInm = '+' OR bk_senior.bk_senior.R008INC.IncInd = '+' OR bk_senior.bk_senior.R008INC.incina = '+')"+CRLF
+cQuery += "	AND Tipcal In(11) And Sitcal = 'T' "+CRLF
+cQuery += "	AND MONTH(PerRef) = "+STR(nMesI,0)+" AND YEAR(PerRef) = "+STR(nAnoI,0)+CRLF
+cQuery += ""+CRLF
+cQuery += " GROUP BY "+CRLF
+cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga"+CRLF
+cQuery += " ORDER BY "+CRLF
+cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga"+CRLF
+
+u_LogMemo("BKCOMA14-FOL.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QTMP"
+
+Return NIL

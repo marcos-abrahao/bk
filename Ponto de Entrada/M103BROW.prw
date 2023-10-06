@@ -34,8 +34,9 @@ Local lGrupo   		:= .F.
 Local cSubs	 		:= ""
 Local cAndOr		:= ""
 
-
 Dbselectarea("SF1")
+DBCLEARFILTER() 
+
 If __cUserId <> "000000" 
 
 	lStaf  := u_IsStaf(__cUserId)
@@ -47,28 +48,12 @@ If __cUserId <> "000000"
 		lAClas := .T.
 	EndIf
 
-	DBCLEARFILTER() 
-
 	aSup := FWSFUsrSup(__cUserId)
 	If Len(aSup) > 0
 		cSuper := aSup[1]
 	EndIf
 
-	//PswOrder(1) 
-	//PswSeek(__cUserId) 
-	//aUser  := PswRet(1)
-
- 	cMDiretoria := u_GrpMDir()
-    lMDiretoria := .F.
-    aGrupo := {}
-	aGrupo := UsrRetGrp(cUserName)
-	If LEN(aGrupo) > 0
-		For i:=1 To LEN(aGrupo)
-			If !lMDiretoria
-				lMDiretoria := (ALLTRIM(aGrupo[i]) $ cMDiretoria)
-			EndIf
-		Next
-	EndIf	
+	lMDiretoria := u_IsMDir(__cUserId)
 
 	If __cUserId $ cGerCompras
 		cAlmox := u_UsrAlmox() 
@@ -76,7 +61,7 @@ If __cUserId <> "000000"
 	
 	cFiltro := ""
 	// Se o usuario pertence ao grupo Administradores, User Fiscal ou Master Diretoria : não filtrar                     
-    If ASCAN(aGrupo,"000000") == 0 .AND. ASCAN(aGrupo,"000031") == 0 .AND. !lMDiretoria .AND. !(__cUserId $ cGerGestao) // luis.souza removido: .AND. !(__cUserId $ '000116')
+    If !FWIsAdmin(__cUserId) .AND. !u_IsFiscal(__cUserId) .AND. !lMDiretoria .AND. !(__cUserId $ cGerGestao)
        If !lStaf .OR. EMPTY(cSuper)
           If lAClas
           	 If EMPTY(cSuper)  .AND. __cUserId $ cGerGestao 
@@ -125,7 +110,7 @@ If __cUserId <> "000000"
     ElseIf lAClas
        //SET FILTER TO (SF1->F1_STATUS = ' ')
        // Filtro 8
-	   If ASCAN(aGrupo,"000000") <> 0
+	   If FWIsAdmin(__cUserId)
 	   		If !lRPC
 				//lAdmFiscal := MsgBox("Filtrar os Doc a liberar", "M103FILB", "YESNO")
 				lAdmFiscal := u_MsgLog("M103FILB","Filtrar os Doc a liberar?","Y")
@@ -134,13 +119,13 @@ If __cUserId <> "000000"
 			EndIf
 	   EndIf
 
-	   If ASCAN(aGrupo,"000031") <> 0 .OR. lAdmFiscal
+	   If u_IsFiscal(__cUserId) .OR. lAdmFiscal
 			If !lRPC
       	   		cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
 			Else // Mostrar as Notas a Liberar também
 	       		cFiltro := "(F1_STATUS IN (' ','B'))"
 			EndIf
-	   ElseIf ASCAN(aGrupo,"000005") <> 0 .OR. ASCAN(aGrupo,"000007") <> 0
+	   ElseIf lMDiretoria
        	   cFiltro := "(F1_STATUS IN (' ','B'))"
 	   Else
        	   cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB <> 'L')"

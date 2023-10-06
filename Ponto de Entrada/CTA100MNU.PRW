@@ -12,45 +12,15 @@ BK - Ponto de Entrada para criar opções na tela de Contratos
 /*/
 
 User Function CTA100MNU() 
-Local aUser
-Local cMDiretoria,cMRepac,cMRepac2
 Local aRotY := {}
 Local aRotZ := {}
-Local i
 
 AADD(aRotina,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
 AADD(aRotina,{OemToAnsi("Exportar Planilhas BK"), "U_BKGCTR27", 0, 2 })
 
-cMDiretoria := u_GrpMDir()
+IF u_IsMDir(__cUserId)
 
-cMRepac     := SUBSTR(SuperGetMV("MV_XXGRPRP",.F.,"000008"),1,6)
-cMRepac2    := SUBSTR(SuperGetMV("MV_XXGRPR2",.F.,"000039"),1,6)
-
-PswOrder(1) 
-PswSeek(__CUSERID) 
-aUser  := PswRet(1)
-
-//Memowrite("c:\cta100.sql",aUser[1,10])
-
-lMDiretoria := .F.
-lMRepac := .F.
-
-aGRUPO := {}
-//AADD(aGRUPO,aUser[1,10])
-//FOR i:=1 TO LEN(aGRUPO[1])
-//	lMDiretoria := (aGRUPO[1,i] $ cMDiretoria)
-//NEXT
-//Ajuste nova rotina a antiga não funciona na nova lib MDI
-aGRUPO := UsrRetGrp(aUser[1][2])
-IF LEN(aGRUPO) > 0
-	FOR i:=1 TO LEN(aGRUPO)
-		lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
-		lMRepac := (ALLTRIM(aGRUPO[i]) $ cMRepac )
-	NEXT
-ENDIF	
-IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMDiretoria .OR. ASCAN(aUser[1,10],cMRepac) > 0 .OR. __CUSERID $ cMRepac2
-
-	IF VAL(__CUSERID) == 0 .OR. VAL(__CUSERID) == 12 .OR. lMRepac //ASCAN(aUser[1,10],cMRepac) > 0       
+	IF FWIsAdmin(__cUserId) .OR. u_IsMRepac(__cUserId)    
 	   AADD(aRotY,{OemToAnsi("Alt Sit Vigente"), "U_BKGCTA03", 0, 2 })
 	   AADD(aRotY,{OemToAnsi("Alt Modo Filial"), "U_BKGCTA21", 0, 2 })
 	   AADD(aRotY,{OemToAnsi("Remove % Caução"), "U_BKGCTA23", 0, 2 })
@@ -81,8 +51,6 @@ AADD(aRotZ,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Exportar Planilhas BK"), "U_BKGCTR27", 0, 2 })
 
 AADD( aRotina, {OemToAnsi("Gestão "+FWEmpName(cEmpAnt)), aRotZ, 0, 4 } )
-
-
 
 Return Nil
 

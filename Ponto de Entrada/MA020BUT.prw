@@ -17,7 +17,8 @@ Return _aMyBtn
 
 User Function xConsCNPJ( cCNPJ )
 
-Local cURL := GetNewPar( "MV_TMKURLR", "http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao2.asp" )
+//Local cURL := GetNewPar( "MV_TMKURLR", "https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp")
+Local cURL := "https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp"
 
 ShellExecute("open", cURL+"?cnpj="+Alltrim(cCNPJ), "", "", 1)
 

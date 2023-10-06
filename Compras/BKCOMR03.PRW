@@ -97,7 +97,7 @@ Return
 
 Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
 Local nCount
-Local lStaf,cSuper,aUser,cMDiretoria,cFiltro := ""
+Local lStaf,cSuper,cFiltro := ""
 Local cGerGestao := u_GerGestao()
 Local cUniao   := ""
 Local cINSS    := ""
@@ -105,7 +105,6 @@ Local cMunic   := ""
 Local cTxUniao := "TX "  // PadR(MVTAXA,Len(SE2->E2_TIPO))
 Local cTxINSS  := "INS"  // PadR(MVINSS,Len(SE2->E2_TIPO))
 Local cTxMunic := "ISS"  //PadR(MVISS,Len(SE2->E2_TIPO))
-Local i
 
 dbSelectArea("SE2")
 cUniao   := PadR(GetMv('MV_UNIAO') ,Len(SE2->E2_FORNECE)) + PadR('00',Len(SE2->E2_LOJA))
@@ -113,56 +112,30 @@ cINSS    := PadR(GetMv('MV_FORINSS'),Len(SE2->E2_FORNECE))+ PadR('00',Len(SE2->E
 cMunic   := PadR(GetMv('MV_MUNIC'),Len(SE2->E2_FORNECE))  + PadR('00',Len(SE2->E2_LOJA))
 
 // Filtro do usuario
-IF __cUserId <> "000000" // Administrador
+lStaf    := u_IsStaf(__cUserId)
+cSuper   := u_cSuper1(__cUserId)
+lMDiretoria := u_IsMDir(__cUserId)
 
-	//__cUserId := "000067"
+DBCLEARFILTER() 
 
-   //cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
-   //                                     Luis          Bruno Santiago
-   lStaf  := u_IsStaf(__cUserId)
-
-   //lAClas := MsgBox("Filtra os Doc a Classificar", "M103BROW", "YESNO")
-   
-   DBCLEARFILTER() 
-   PswOrder(1) 
-   PswSeek(__CUSERID) 
-   aUser  := PswRet(1)
-   IF !EMPTY(aUser[1,11])
-      cSuper := SUBSTR(aUser[1,11],1,6)
-   ENDIF   
-   
-
-   //cSuper := Substr(FWSFUser(__cUserId,"DATASUPER","USR_SUPER",.T.),1,6)
-
-   cMDiretoria := u_GrpMDir()
-   lMDiretoria := .F.
-   aGRUPO := {}
-	aGRUPO := UsrRetGrp(cUserName)
-	IF LEN(aGRUPO) > 0
-		FOR i:=1 TO LEN(aGRUPO)
-			lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
-		NEXT
-	ENDIF
-
-   // Se o usuario pertence ao grupo Administradores ou Master Diretoria : não filtrar
-    IF ASCAN(aUser[1,10],"000000") = 0 .AND. !lMDiretoria
-       IF !lStaf .OR. EMPTY(cSuper)
-       	  IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-          	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "
-       	  ELSE 
-          	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
-          ENDIF
-       ELSE
-       	  IF Staf .AND. cSuper $ cGerGestao
-          	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"' OR "
-          	cFiltro += "      F1_XXUSER = '"+  cSuper +"' OR F1_XXUSERS = '"+  cSuper +"') "             
-       	  ELSE
-          	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR "
-          	cFiltro += "      F1_XXUSER = '"+  cSuper +"' OR F1_XXUSERS = '"+  cSuper +"') "             
-          ENDIF
-       ENDIF
-    ENDIF    
-ENDIF
+// Se o usuario pertence ao grupo Administradores ou Master Diretoria : não filtrar
+IF !lMDiretoria
+   IF !lStaf .OR. EMPTY(cSuper)
+      IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
+        	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "
+      ELSE 
+       	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
+      ENDIF
+   ELSE
+      IF Staf .AND. cSuper $ cGerGestao
+        	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"' OR "
+        	cFiltro += "      F1_XXUSER = '"+  cSuper +"' OR F1_XXUSERS = '"+  cSuper +"') "             
+      ELSE
+        	cFiltro := " AND (F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR "
+       	cFiltro += "      F1_XXUSER = '"+  cSuper +"' OR F1_XXUSERS = '"+  cSuper +"') "             
+      ENDIF
+   ENDIF
+ENDIF    
 
 titulo   := "Protocolo NE de "+dtoc(dDataI)+" ate "+dtoc(dDataF)
 nomeprog := "BKCOMR03/"+TRIM(SUBSTR(cUsuario,7,15))

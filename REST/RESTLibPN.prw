@@ -179,8 +179,8 @@ If !(cQrySF1)->(Eof())
 	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 
-If !u_IsLibDPH(__cUserId) .AND. (SUBSTR(TIME(),1,2) > '23' .OR. SUBSTR(TIME(),1,2) < '07')
-	cMsg:= "Não é permitido liberar ou aprovar pré-notas entre 18h e 7h"
+If !u_IsLibDPH("RESTLIBPN",__cUserId)
+	cMsg:= "Não é permitido liberar ou aprovar pré-notas neste horário"
 Else
 	Do Case
 		Case (cQrySF1)->(Eof()) 

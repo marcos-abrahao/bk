@@ -15,7 +15,6 @@ Local oDlg
 Local oListId
 Local oPanelLeft
 Local aButtons := {}
-Local I		:= 0
 Local Ix_	:= 0
 Local _IX	:= 0
 Local lOk      := .F.
@@ -24,14 +23,10 @@ Local cNUser:= ""
 Local cUser := ""
 Local cNumPC:= ""
 Local cForPagto := ""
-Local aUser := {}
-Local aGRUPO := {}
+//Local aUser := {}
 Local aItems:= {}
 Local aMotivo:= {}
-//Local nReg1 := SCR->(RecNo())
-Local cMDiretoria := u_GrpMDir()
 Local lMDiretoria := .F.
-Local cMFinanceiro:= SUBSTR(SuperGetMV("MV_XXGRPMF",.F.,"000005"),1,6)
 Local cXXJUST := ""
 
 u_MsgLog("BKCOMA04")
@@ -41,37 +36,22 @@ AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual")
 
 //DBCLEARFILTER() 
-PswOrder(1) 
-PswSeek(__CUSERID) 
-aUser  := PswRet(1)
-IF !EMPTY(aUser[1,11])
-   cSuper := SUBSTR(aUser[1,11],1,6)
-ENDIF   
 
-lMDiretoria := .F.
-aGRUPO := {}
-//AADD(aGRUPO,aUser[1,10])
-//FOR i:=1 TO LEN(aGRUPO[1])
-//	lMDiretoria := (aGRUPO[1,i] $ cMDiretoria)
-//NEXT
-//Ajuste nova rotina a antiga não funciona na nova lib MDI
-aGRUPO := UsrRetGrp(aUser[1][2])
-IF LEN(aGRUPO) > 0
-	FOR i:=1 TO LEN(aGRUPO)
-		lMDiretoria := (ALLTRIM(aGRUPO[i]) $ cMDiretoria )
-	NEXT
-ENDIF
+//cSuper := u_cSuper1(__cUserId)
+
+lMDiretoria := u_IsMDir(__cUserId)
 
 If !Empty(SCR->CR_DATALIB) .And. SCR->CR_STATUS $ "03#05"
-	Help(" ",1,"A097LIB")
-	  //Aviso(STR0038,STR0039,{STR0037},2) //"Atencao!"###"Este pedido ja foi liberado anteriormente. Somente os pedidos que estao aguardando liberacao (destacado em vermelho no Browse) poderao ser liberados."###"Voltar"
+	//Help(" ",1,"A097LIB")
+	//Aviso(STR0038,STR0039,{STR0037},2) //"Atencao!"###"Este pedido ja foi liberado anteriormente. Somente os pedidos que estao aguardando liberacao (destacado em vermelho no Browse) poderao ser liberados."###"Voltar"
+	u_MsgLog("A097BLQ","Este pedido ja foi liberado anteriormente. Somente os pedidos que estao aguardando liberacao poderão ser liberados","w") 
 	Return NIL
 ElseIf  SCR->CR_STATUS $ "01"
 	u_MsgLog("A097BLQ","Esta operação não poderá ser realizada pois este registro se encontra bloqueado pelo sistema (aguardando outros niveis)","w") 
 	Return NIL
 EndIf
 
-IF ASCAN(aUser[1,10],"000000") = 0 .AND. ASCAN(aUser[1,10],cMFinanceiro) = 0  .AND. !lMDiretoria
+IF !u_IsMasFin(__cUserId) .AND. !lMDiretoria
 	DbSelectArea("SC7")
 	SC7->(Dbsetorder(1))
 	IF DbSeek(xFilial("SC7")+ALLTRIM(SCR->CR_NUM),.T.)
@@ -146,12 +126,16 @@ Do While SC7->(!eof()) .AND. cNumPC == SC7->C7_NUM
 	SC7->(DbSkip())
 ENDDO
 
-PswOrder(1) 
-PswSeek(cUser) 
-aUser  := PswRet(1)
-IF !EMPTY(aUser)
-	cNUser := aUser[1,2]
-ENDIF
+
+IF !EMPTY(cUser)
+	cNUser := UsrRetName(cUser)
+EndIf
+//PswOrder(1) 
+//PswSeek(cUser) 
+//aUser  := PswRet(1)
+//IF !EMPTY(aUser)
+//	cNUser := aUser[1,2]
+//ENDIF
 
 IF !lPedido
 	lOk:=.T.

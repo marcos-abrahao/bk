@@ -34,8 +34,9 @@ If !Inclui
 	Else 																	//Se for CPF
 		cJust += "CPF: " +Transform(SA2->A2_CGC,"@R 999.999.999-99")+CRLF
 	EndIf
+    cJust += "Total: "+TRANSFORM(SF1->F1_VALBRUT,"@E 999,999,999.99")+CRLF
+    cJust += SF1->F1_HISTRET
 
-    cJust   += SF1->F1_HISTRET
     cHist   := HistD1()
     mParcel := SF1->F1_XXPARCE
 

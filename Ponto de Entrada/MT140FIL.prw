@@ -11,61 +11,60 @@
 User Function MT140FIL()
 
 Local cFilt  		:= ""
-Local aUser			:= {}
+Local cFiltro1 		:= ""
 Local cSuper 		:= ""
-Local cMDiretoria 	:= ""
 Local cGerGestao 	:= u_GerGestao()
 Local cGerCompras 	:= u_GerCompras()
-Local i				:= 0
-Local aGrupo 		:= {}
 Local lStaf			:= .F.
 Local lMDiretoria	:= .F.
 
 Dbselectarea("SF1")
 
-IF __cUserId <> "000000"  // Administrador: não filtrar
+lStaf  := u_IsStaf(__cUserId)
+cSuper := u_cSuper(__cUserId)
 
-	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
+lMDiretoria := u_IsMDir(__cUserId)
 
-	lStaf  := u_IsStaf(__cUserId)
+// Se o usuario pertence ao grupo Administradores: não filtrar
+IF !lMDiretoria
+   IF !lStaf .OR. EMPTY(cSuper)
+      IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
+     	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro()+"') "
+      ELSE
+      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"') "
+      ENDIF
+   ELSE
+		IF lStaf .AND. cSuper $ cGerGestao
+			cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS = '"+u_GerPetro+"') "
+		ELSEIF lStaf .AND. __cUserId $ cGerCompras
+			cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+" ) "
+		ELSE
+			cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') "
+		ENDIF
+	ENDIF
+ENDIF   
 
-	DBCLEARFILTER() 
-	PswOrder(1) 
-	PswSeek(__cUserId) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,11])
-	   cSuper := SUBSTR(aUser[1,11],1,6)
-	ENDIF   
+u_MsgLog("MT140FIL","Super: "+cSuper+" - Staf:"+iif(lStaf,"S","N")+" - Dire:"+IIF(lMDiretoria,"S","N")+" - "+cFilt)
 
- 	cMDiretoria := u_GrpMDir()
-    lMDiretoria := .F.
-    aGrupo := {}
-	aGrupo := UsrRetGrp(cUserName)
-	IF LEN(aGrupo) > 0
-		FOR i:=1 TO LEN(aGrupo)
-			lMDiretoria := (ALLTRIM(aGrupo[i]) $ cMDiretoria )
-		NEXT
-	ENDIF	
+If !lMDiretoria
+	cFiltro1 := "(F1_XXUSER = '"+__cUserId+"'  "
+	cAndOr := " OR "
 
- 	// Se o usuario pertence ao grupo Administradores: não filtrar
-    IF ASCAN(aUser[1,10],"000000") = 0 .AND. !lMDiretoria
-       IF !lStaf .OR. EMPTY(cSuper)
-          IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro()+"') "
-	      ELSE
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"') "
-	      ENDIF
-	   ELSE
-	      IF lStaf .AND. cSuper $ cGerGestao
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS = '"+u_GerPetro+"') "
-	      ELSEIF lStaf .AND. __cUserId $ cGerCompras
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+" ) "
-          ELSE
-	      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') "
-          ENDIF
-       ENDIF
-	ENDIF   
-ENDIF
-	
-Return(cFilt)
+	// Incluir os subordinados
+	If lStaf
+		cSubs := U_cStaf(__cUserId)
+	Else
+		cSubs := U_cSubord(__cUserId)
+	EndIf
+
+	If !Empty(cSubs)
+	   cFiltro1 += cAndOr+" (F1_XXUSER IN "+cSubs+") "
+	EndIf
+
+	cFiltro1 += ")"
+EndIf
+
+u_MsgLog("MT140FIL1","Super: "+cSuper+" - Staf:"+iif(lStaf,"S","N")+" - Dire:"+IIF(lMDiretoria,"S","N")+" - "+cFiltro1)
+
+Return(cFiltro1)
                                  

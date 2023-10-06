@@ -191,7 +191,7 @@ Return aReturn
     /*/
 User Function cSuper(cId)
 Local cUsers	:= ""
-Local aUsers	:= u_ArSuper(cId)
+Local aUsers	:= FWSFUsrSup(cId)
 Local nI		:= 0
 Local cRet 		:= ""
 
@@ -199,10 +199,10 @@ For nI := 1 To Len(aUsers)
 	If nI > 1
 		cUsers += "|"
 	EndIf
-	cUsers += aUsers[nI,1]
+	cUsers += aUsers[nI]
 Next
 
-If Len(cUser) > 0
+If Len(cUsers) > 0
 	cRet := FormatIn(cUsers,"|")
 EndIf
 
@@ -211,11 +211,11 @@ Return cRet
 
 // Retorna o primeiro Superior do usuario
 User Function cSuper1(cId)
-Local aUsers	:= u_ArSuper(cId)
+Local aUsers	:= FWSFUsrSup(cId)
 Local cRet 		:= ""
 
 If Len(aUsers) > 0
-	cRet := aUsers[1,1]
+	cRet := aUsers[1]
 EndIf
 
 Return cRet
@@ -269,7 +269,7 @@ Return aReturn
     /*/
 User Function cStaf(cId)
 Local cUsers	:= ""
-Local aSupers	:= u_ArSuper(cId)
+Local aSupers	:= FWSFUsrSup(cId)
 Local aSubs		:= {}
 Local nI		:= 0
 Local nJ		:= 0
@@ -282,15 +282,17 @@ aAdd(aSupers,cId)
 For nI := 1 To Len(aSupers)
 	aSubs := u_ArSubord(aSupers[nI])
 	For nJ := 1 To Len(aSubs)
-		cUsers += aSubs[nJ]+"|"
+		If !Empty(aSubs[nJ,1])
+			cUsers += aSubs[nJ,1]+"|"
+		EndIf
 	Next
 Next
 
-If Len(cUser) > 0
+If Len(cUsers) > 0
 	cRet := FormatIn(cUsers,"|")
 EndIf
 
-Return c
+Return cRet
 
 
 // Listagem de usuarios x superiores
@@ -344,9 +346,17 @@ Return lRet
 
 
 // Libera doc de entrada após o horário 
-User Function IsLibDPH(cId)
-//            Admin /Lau   /Bruno
-Return cId $ "000000/000012/000153"
+User Function IsLibDPH(cPrw,cId)
+Local lRet := .T.
+//           Admin/Lau   /Diego /Bruno
+If !(cId $ "000000/000012/000016/000153")
+    If SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07'
+        u_MsgLog(cPrw,"Não é permitido incluir, classificar ou liberar documentos entre 19h e 7h","E")
+        lRet := .F.
+    EndIf
+EndIf
+
+Return lRet
 
 
 // Libera pedido de venda pela WEB
@@ -359,10 +369,17 @@ Return cId $ "000000/000038/000012/000016/000056/000023/000153/000170/000165/000
 User Function IsFiscal(cId)
 Return u_InGrupo(cId,"000031")
 
-
-// É do grupo Master Financeiro
+// É do grupo Administrador ou Master Financeiro
 User Function IsMasFin(cId)
-Return u_InGrupo(cId,"000005")
+Return u_InGrupo(cId,"000000/000005")
+
+// Pertence a um dos grupos: Admin, Master Fin, Diretoria, Master Repac, Fiscal
+User Function IsMDir(cId)
+Return u_InGrupo(cId,"000000/000005/000007/000008/000031")
+
+// Pertence a um dos grupos: Master Repac
+User Function IsMRepac(cId)
+Return u_InGrupo(cId,"000008")
 
 
 // Retorna se o usuário pertence ao STAF 
@@ -471,13 +488,6 @@ Return "000056"
 // Grupo Almoxarifado
 User Function GrpAlmox
 Return "000021/000032"
-
-
-// Grupos Master Diretoria
-User Function GrpMDir
-// Master Fin-5/Master Dir-7/Master Repac-8/Master Ctb-10/Master Almox-27/Master ctb todas-29/User Fiscal-31
-//Return "000005/000007/000008/000010/000027/000029/000031/"
-Return "000005/000007/000008/000031/"
 
 
 // Usuarios Almoxarifado (para queries)
@@ -739,7 +749,7 @@ cRet += "marcelo.soares@bkconsultoria.com.br;"
 cRet += "moacyr.dalate@bkconsultoria.com.br;"
 cRet += "nelson.oliveira@bkconsultoria.com.br;"
 cRet += "noe.braga@bkconsultoria.com.br;"
-cRet += "vanderleia.silva@bkconsultoria.com.br;"
+//cRet += "vanderleia.silva@bkconsultoria.com.br;"
 cRet += "wiliam.lisboa@bkconsultoria.com.br;"
 
 Return cRet
