@@ -1020,7 +1020,8 @@ cQuery := "SELECT ""
 cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
 cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU,Z2_NOMDEP,Z2_NOMMAE "
 cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2"
-cQuery += " WHERE Z2_CODEMP = '"+cEmpAnt+"' "
+cQuery += " WHERE Z2_FILIAL = '"+xFilial("SZ2")+"' " 
+cQuery += " AND Z2_CODEMP = '"+cEmpAnt+"' "
 cQuery += " AND Z2_E2PRF  = '"+cPrefixo+"' "
 cQuery += " AND Z2_E2NUM  = '"+cNum+"' "
 cQuery += " AND Z2_E2PARC = '"+cParcela+"' "
@@ -1034,7 +1035,6 @@ cQuery += " ORDER BY Z2_NOME"
 TCQUERY cQuery NEW ALIAS "QSZ2"
 TCSETFIELD("QSZ2","Z2_DATAEMI","D",8,0)
 TCSETFIELD("QSZ2","Z2_DATAPGT","D",8,0)
-
 
 Return
 

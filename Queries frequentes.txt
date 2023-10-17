@@ -1,3 +1,10 @@
+set statistics io,time on
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+SELECT * FROM SED010 WHERE ED_CODIGO = '0000000047' OR ED_PERCIRF = 1
+
 -- 12/09/23 Listagem dos usuarios e grupos
 
 SELECT USRGRP.[USR_ID]

@@ -20,8 +20,9 @@ Generico - Gera planilha excel
 //	    AADD(aFormula,NIL)
 //	    AADD(aFormat,NIL)
 //	    AADD(aTotal,NIL)
+//		AADD(aResumo,{nColUnq1,nColVal1,{}})  // Coluna com chaves a unificar, coluna de valores, array com chaves e valores iniciais
 
-//AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,_cQuebra,_lClose})
+//AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aFormula,aFormat,aTotal,aResumo,_lClose})
 //U_BKXlsx(aPlansX,_cTitulo,_cAlias,.F.) 
 
 User Function PlanXlsx( _aPlans,_cTitulo,_cProg, lClose, _aParam, _aGraph, lOpen, lJob )
@@ -77,8 +78,14 @@ Local lFormula		:= .F.
 Local nI 	  		:= 0
 Local nJ	  		:= 0
 Local nF	  		:= 0
+
+Local nR	  		:= 0
+Local nS 			:= 0
+Local aLinha		:= {}
+
 Local nLin    		:= 1
 Local nTop    		:= 1
+Local nLast 		:= 0
 Local cColExcel 	:= ""
 Local cLinTop   	:= ""
 Local cLinExcel 	:= ""
@@ -104,7 +111,8 @@ Local _aImpr   		:= {}
 Local _aFormula		:= {}
 Local _aFormat 		:= {}
 Local _aTotal  		:= {}
-Local _cQuebra 		:= ""
+Local _aResumo 		:= {}
+Local _aTResumo		:= {}
 Local _lClose  		:= .F.
 
 Local cFont 		:= ""
@@ -183,7 +191,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	_aFormula:= _aPlans[nPl,08]
 	_aFormat := _aPlans[nPl,09]
 	_aTotal  := _aPlans[nPl,10]
-	_cQuebra := _aPlans[nPl,11]
+	_aResumo := aClone(_aPlans[nPl,11])
 	_lClose  := _aPlans[nPl,12]
 
 	If Empty(_aFormat)
@@ -272,12 +280,12 @@ FOR nPl := 1 TO LEN(_aPlans)
 	aTamCol := {}
 	aTotal  := {}
 
-	(_cAlias)->(dbgotop())
 	aStruct := (_cAlias)->(dbStruct())
 
 	If !Empty(_cFiltra)
 		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
 	Endif
+	(_cAlias)->(dbgotop())
 
 	lFirst := .T.
 	cCustomAnt := ""
@@ -290,6 +298,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 		nLin++
 		nCont++
+		aLinha := {}
 
 		For nI := 1 to LEN(_aCampos)
 
@@ -301,7 +310,6 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 			xCampo := &(_aCampos[nI])
 			// Obs: esta macro não pode ser executada mais de uma vez
-
 			If lFirst
 				// Calcular o tamanho das colunas
 				nTamCol := 0
@@ -485,6 +493,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 				xCampo  := ""
 			ElseIf cTipo == "C"
 				xCampo  := TRIM(xCampo)
+				If SUBSTR(xCampo,1,1) == "="
+					If "(" $ xCampo
+						cTipo := "F"  // Formula
+					EndIf
+				EndIf
 			EndIf
             
 			If cEstilo == "S"   // Estilo Cab
@@ -511,14 +524,37 @@ FOR nPl := 1 TO LEN(_aPlans)
 				cCustomAnt := cFormat
 				cCorAntes  := (cCorFonte+cCorFundo)
 			EndIf
-            oPrtXlsx:SetValue(nLin,nI,xCampo)
+			//If cTipo == "F"
+			//	oPrtXlsx:SetFormula(nLin,nI,xCampo)
+			//Else
+            	oPrtXlsx:SetValue(nLin,nI,xCampo)
+			//EndIf
+			aAdd(aLinha,xCampo)
 
 		Next
+
+		// Monta os resumos
+		If !Empty(_aResumo)
+			For nR := 1 To Len(_aResumo)
+				If Len(_aResumo[nR,3]) > 0
+					nS := Ascan(_aResumo[nR,3],{|x| x[1] == aLinha[_aResumo[nR,1]]})
+					If nS == 0
+						aAdd(_aResumo[nR,3],{aLinha[_aResumo[nR,1]],aLinha[_aResumo[nR,2]]})
+					Else
+						_aResumo[nR,3,nS,2] += aLinha[_aResumo[nR,2]]
+					EndIf
+				Else
+					aAdd(_aResumo[nR,3],{aLinha[_aResumo[nR,1]],aLinha[_aResumo[nR,2]]})
+				EndIf
+			Next
+		EndIf
+
 
 		(_cAlias)->(dbskip())
 
 		lFirst := .F.
 	EndDo
+	nLast := nLin
 
 	If !lFirst
 
@@ -539,13 +575,86 @@ FOR nPl := 1 TO LEN(_aPlans)
 				If aTotal[nI]
 					cColExcel := NumToString(nI)
 					cLinTop   := ALLTRIM(STR(nTop))
-					cLinExcel := ALLTRIM(STR(nLin-1))
+					cLinExcel := ALLTRIM(STR(nLast))
 					oPrtXlsx:SetFormula(nLin,nI, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
 
 				EndIf
 			Next
 		EndIf
 		oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+
+
+		// Mostrar o Resumo
+		If !Empty(_aResumo)
+
+			For nI := 1 To Len(_aResumo)
+				nLin+=3
+				// Formatação do cabeçalho
+				oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+				oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+
+				OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
+
+				// Cabeçalho do resumo
+
+				oPrtXlsx:SetValue(nLin,2,_aCabs[_aResumo[nI,1]])
+				oPrtXlsx:SetValue(nLin,3,_aCabs[_aResumo[nI,2]])
+
+				oPrtXlsx:ResetCellsFormat()
+				// Formatação das linhas normais
+				oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+				oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+				// Resumo
+				nLin++
+
+				// Via formula, não funcionou no excel 365
+				//cColExcel := NumToString(_aResumo[nI,1])
+				//cLinTop   := ALLTRIM(STR(nTop))
+				//cLinExcel := ALLTRIM(STR(nLast))
+				//oPrtXlsx:SetFormula(nLin,2, "ÚNICO("+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+				//oPrtXlsx:SetFormula(nLin,2, "SOMASES( .... "+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+
+				nLinR := nLin
+				cFormat := "#,##0.00;[Red]-#,##0.00"
+				For nR := 1 To Len(_aResumo[nI,3])
+
+					oPrtXlsx:ResetCellsFormat()
+
+					// Formatação das linhas normais
+					oPrtXlsx:SetFont(cFont, nLSize, lLItalic, .T., lLUnderl)
+					oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+					oPrtXlsx:SetValue(nLin,2,_aResumo[nI,3,nR,1])
+
+					// Formatação de totais
+					oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+					oPrtXlsx:SetValue(nLin,3,_aResumo[nI,3,nR,2])
+
+					// Total do Resumo
+
+					nS := Ascan(_aTResumo,{ |x| x[1] == _aResumo[nI,1] .AND. x[2] == _aResumo[nI,2] })
+
+					If nS == 0
+						aAdd(_aTResumo,{_aResumo[nI,1],_aResumo[nI,2],{{_aResumo[nI,3,nR,1],_aResumo[nI,3,nR,2]}}})
+					Else
+						aAdd(_aTResumo[nS,3],{_aResumo[nI,3,nR,1],_aResumo[nI,3,nR,2]})
+					EndIf
+					nLin++
+				Next
+
+
+				cColExcel := NumToString(3)
+				cLinTop   := ALLTRIM(STR(nLinR))
+				cLinExcel := ALLTRIM(STR(nLin-1))
+				oPrtXlsx:SetFormula(nLin,3, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+				
+				// Total do Resumo
+				//aAdd(_aTResumo,_aResumo[nI])
+			Next
+
+		EndIf
+
 	EndIf
 
 	If _lClose   
@@ -553,6 +662,52 @@ FOR nPl := 1 TO LEN(_aPlans)
 	EndIf
 
 Next
+
+// Mostrar o Resumo
+If Len(_aTResumo) > 0 .AND. Len(_aPlans) > 1
+	nLin := 1
+	oPrtXlsx:AddSheet("Resumo")    //Adiciona a planilha de Resumo
+	For nI := 1 To Len(_aTResumo)
+		nLin+=3
+		// Formatação do cabeçalho
+		oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+		oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+		OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
+		// Cabeçalho do resumo
+		oPrtXlsx:SetValue(nLin,2,_aCabs[_aTResumo[nI,1]])
+		oPrtXlsx:SetValue(nLin,3,_aCabs[_aTResumo[nI,2]])
+		oPrtXlsx:ResetCellsFormat()
+		// Formatação das linhas normais
+		oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+		oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+		// Resumo
+		nLin++
+		// Via formula, não funcionou no excel 365
+		//cColExcel := NumToString(_aTResumo[nI,1])
+		//cLinTop   := ALLTRIM(STR(nTop))
+		//cLinExcel := ALLTRIM(STR(nLast))
+		//oPrtXlsx:SetFormula(nLin,2, "ÚNICO("+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+		//oPrtXlsx:SetFormula(nLin,2, "SOMASES( .... "+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+		nLinR := nLin
+		cFormat := "#,##0.00;[Red]-#,##0.00"
+		For nR := 1 To Len(_aTResumo[nI,3])
+			oPrtXlsx:ResetCellsFormat()
+			// Formatação das linhas normais
+			oPrtXlsx:SetFont(cFont, nLSize, lLItalic, .T., lLUnderl)
+			oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+			oPrtXlsx:SetValue(nLin,2,_aTResumo[nI,3,nR,1])
+			// Formatação de totais
+			oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+			oPrtXlsx:SetValue(nLin,3,_aTResumo[nI,3,nR,2])
+			nLin++
+		Next
+		// Total do Resumo
+		cColExcel := NumToString(3)
+		cLinTop   := ALLTRIM(STR(nLinR))
+		cLinExcel := ALLTRIM(STR(nLin-1))
+		oPrtXlsx:SetFormula(nLin,3, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+	Next
+EndIf
 
 
 // --> Planilha de Parâmetros
@@ -747,7 +902,7 @@ Return cRet
 
 
 // Converte uma query simples para um planilha excel
-User Function QryToXlsx(_cAlias,_cPlan,_cTitulo,_aDefs,_cQuebra,_lClose)
+User Function QryToXlsx(_cAlias,_cPlan,_cTitulo,_aDefs,_aResumo,_lClose)
 // _Adefs: {Campo,Formula,Titulo,Impr,Align,Format,Total}
 Local nI       := 0
 Local aCabsX   := {}
@@ -764,7 +919,7 @@ Default _cPlan   := _cAlias
 Default _cTitulo := _cAlias
 Default _lClose  := .F.
 Default _aDefs   := {}
-Default _cQuebra := ""
+Default _aResumo := {}
 
 dbSelectArea(_cAlias)
 FOR nI := 1 TO FCOUNT() 
@@ -838,7 +993,7 @@ FOR nI := 1 TO FCOUNT()
     EndIf
 NEXT
 
-AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_cQuebra,_lClose})
+AADD(aPlansX,{_cAlias,_cPlan,"",_cTitulo,aCamposX,aCabsX,aImpr,aAlign,aFormat,aTotal,_aResumo,_lClose})
 cArqXls := U_PlanXlsx(aPlansX,_cTitulo,_cAlias,.F.)
 
 Return cArqXls

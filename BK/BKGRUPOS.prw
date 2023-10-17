@@ -274,6 +274,7 @@ Local aSubs		:= {}
 Local nI		:= 0
 Local nJ		:= 0
 Local cRet 		:= ""
+Local cBarra	:= ""
 
 // Subordinados do Staf
 aAdd(aSupers,cId)
@@ -283,7 +284,8 @@ For nI := 1 To Len(aSupers)
 	aSubs := u_ArSubord(aSupers[nI])
 	For nJ := 1 To Len(aSubs)
 		If !Empty(aSubs[nJ,1])
-			cUsers += aSubs[nJ,1]+"|"
+			cUsers += cBarra+aSubs[nJ,1]
+			cBarra := "|"
 		EndIf
 	Next
 Next

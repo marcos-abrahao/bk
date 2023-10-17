@@ -30,7 +30,10 @@
 		},
 		{
 			"label": "SIGAgct"
+		},
+		{
+			"label": "SIGAFIN"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "SIGAFIN"
 }

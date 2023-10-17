@@ -678,7 +678,6 @@ Static Function ProcBKGCTR11(lJob)
 	Local _IXFUR	:= 0
 	Local XI_		:= 0
 	Local _IX		:= 0
-	Local i
 	Local Yi_
 	Local _nj
 	Local cContraA	:= ""
@@ -3251,29 +3250,12 @@ NEXT
 
 
 //Verifica o Grupo do usuario - visualização do relatorio
-PswOrder(1)
-PswSeek(__CUSERID)
-aUser  := PswRet(1)
 
 cCodView := ""
 cCodView := SuperGetMV("MV_XXRENTA")
 
 IF !lJob
-	cMaster := ""
-	cMaster := SuperGetMV("MV_XXGRREN",.F.,"000000/000003/000004/000005/000007/000008/000010/000020")
-	lMaster := .F.
-	aGRUPO := {}
-//	AADD(aGRUPO,aUser[1,10])
-//	FOR i:=1 TO LEN(aGRUPO[1])
-//		lMaster := (aGRUPO[1,i] $ cMaster)
-//	NEXT
-//Ajuste nova rotina a antiga não funciona na nova lib MDI
-	aGRUPO := UsrRetGrp(aUser[1][2])
-	IF LEN(aGRUPO) > 0
-		FOR i:=1 TO LEN(aGRUPO)
-			lMaster := (ALLTRIM(aGRUPO[i]) $ cMaster )
-		NEXT
-	ENDIF
+	lMaster := u_InGrupo(__cUserId,"000000/000003/000004/000005/000007/000008/000010/000020")
 ELSE
 	lMaster := .T.
 ENDIF

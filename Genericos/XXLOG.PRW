@@ -216,7 +216,7 @@ Return cErrLog
 User Function LogMemo(cProg,cTexto)
 Local cDir  := "C:\TMP"
 Local cMens := ""
-IF __cUserId == "000000" .OR. IsBlind() //.OR. __cUserId == "000012"
+IF __cUserId $ "000000/000038" .OR. IsBlind() //Usuários admin e teste
 	If IsBlind()
 		cDir:= "\log"
 	ENDIF

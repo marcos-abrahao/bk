@@ -51,7 +51,7 @@ IF !u_IsMasFin(__cUserId) .AND. !u_IsMDir(__cUserId)
 	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
 	lStaf  := u_IsStaf(__cUserId)
 
-	cFiltU := "((F1_XXUSER = '"+__cUserId+"'  "
+	cFiltU := "(F1_XXUSER = '"+__cUserId+"'  "
 	cAndOr := " OR "
 
 	// Incluir os subordinados
@@ -317,7 +317,6 @@ aAdd(aCabs  ,GetSX3Cache("F1_XXUSERS", "X3_TITULO"))
 
 AADD(aPlans,{"QSD11",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, aFormula,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
- 
 	
 Return .T.
 

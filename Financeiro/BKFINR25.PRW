@@ -678,8 +678,16 @@ Local nLin   := 1
 Local cFile  := cArqXlsx+"-"+DTOS(dDataI)
 Local nRet   := 0
 Local aAports:= {}
+Local aEmprs := u_BKGrupo()
 Local xCelApo:= ""
 Local nCelStl:= 0
+
+// Preencher nomes das Empresas
+For nI := 1 To Len(aEmprs)
+	aAdd(aAports,aEmprs[nI,2])
+Next
+aAdd(aAports,"")
+aAdd(aAports,"")
 
 oExcel:new(cFile)
 
@@ -798,7 +806,6 @@ Do While (cAliasTrb)->(!eof())
 EndDo
 
 If !lDetCC
-	aAports := {"BALSA NOVA","LIMEIRA","OSASCO","CAMPINAS","TABOÃO","MMDK","CORRETORA","BHG INTERIOR 3","",""}
 	For nI := 1 To Len(aAports)
 		nLin++
 		For nJ := 1 To nColDiv - 1

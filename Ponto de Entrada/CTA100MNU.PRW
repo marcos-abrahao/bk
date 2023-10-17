@@ -1928,7 +1928,6 @@ nSnd += nTLin
 @ nSnd,150 MsGet cSVST When .F. SIZE 120,008 OF oPanelLeft PIXEL
 nSnd += nTLin
 
-
 ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
 If ( lOk )
 	lOk:=.F.

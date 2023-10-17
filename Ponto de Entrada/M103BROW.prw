@@ -16,16 +16,16 @@ User Function M103FILB()
 Local aSup			:= {}
 Local lStaf 		:= .F.
 Local cFiltro		:= ""
-Local cMDiretoria	:= ""
+//Local cMDiretoria	:= ""
 Local lMDiretoria   := .F.
 Local laClas		:= .F.
 Local lAdmFiscal	:= .F.
 Local cGerGestao	:= u_GerGestao()
 Local cGerCompras	:= u_GerCompras()
-Local aGrupo		:= {}
+//Local aGrupo		:= {}
 Local cSuper		:= ""
 Local cAlmox		:= ""
-Local i:= 0
+//Local i:= 0
 Local lRPC 			:= IsBlind()
 
 // Variaveis novo filtro

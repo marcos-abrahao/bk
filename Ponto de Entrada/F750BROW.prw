@@ -23,6 +23,7 @@ aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
            
 AADD( aRotina, {OemToAnsi("Liquidos "+cEmpName), aRotY, 0, 4 } )
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Resumo Diário"), "U_BKFINR33", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"),  "U_BKF750A", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Conhecimento"),  "MSDOCUMENT", 0, 4 } )
 //AADD( aRotina, {OemToAnsi("Anexar Arq. "+cEmpName),   "U_BKANXA01('1','SE2')", 0, 4 } )

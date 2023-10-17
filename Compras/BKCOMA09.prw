@@ -11,13 +11,12 @@ BK- MarkBrow em MVC da tabela SZS-Facilitador p/ Doc de Entrada
 /*/
 
 User Function BKCOMA09()
-	Local aGrp := UsrRetGrp()
 
 	Private oMark
 	Private cCadastro := 'Facilitador p/ Doc de Entrada'
 
-	If aScan(aGrp,"000000") == 0
-		u_MsgLog(,"Usuário sem permissão de acesso a esta rotina","E")
+	If !FWIsAdmin()
+		u_MsgLog("BKCOMA09","Usuário sem permissão de acesso a esta rotina","E")
 		Return
 	EndIf
 

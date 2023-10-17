@@ -2,22 +2,22 @@
 #INCLUDE "topconn.ch"
 #INCLUDE "PROTHEUS.CH"
 
-/*/{Protheus.doc} BKCOMA14()
-Rateio de impostos em titulos de impostos já existentes
+/*/{Protheus.doc} BKCOMA15()
+Rateio de impostos - FGTS
 
 @author Marcos Bispo Abrahão
-@since 26/09/2023
+@since 10/10/2023
 @version P2210
 @return .T.
 /*/
 
-User Function BKCOMA14()
+User Function BKCOMA15()
 Local lRet 		:= .F.
 Local cMesI		:= ""
 Local cMesF		:= ""
 
-Private cProg   := "BKCOMA14"
-Private cTitulo := "Rateios de Impostos"
+Private cProg   := "BKCOMA15"
+Private cTitulo := "Rateio FGTS"
 Private nMesI	:= Month(MonthSub(dDataBase,1))
 Private nAnoI	:= Year(MonthSub(dDataBase,1))
 Private nMesF	:= Month(MonthSub(dDataBase,1))
@@ -50,7 +50,7 @@ aAdd(aParam, { 3,"Base"           ,1,aBase,200,"",.T.})
 //            [6] = Campo com preenchimento obrigatório .T.=Sim .F.=Não (incluir a validação na função ParamOk)
 
 Do While .T.
-	If !PrCom14()
+	If !PrCom15()
 		lRet := .F.
    		Exit
 	Endif
@@ -67,7 +67,7 @@ If lRet
 	If cBase == "Faturamento"
 		u_WaitLog(cProg, {|oSay| PGCTR07(cMesI,cMesF)}, 'Processando faturamento...')
 	Else
-		u_WaitLog(cProg, {|oSay| PINSSCC(nMesI,nAnoI)}, 'Processando INSS folha...')
+		u_WaitLog(cProg, {|oSay| PINSSCC(cMesI,cMesF)}, 'Processando INSS folha...')
 	EndIf
 	u_WaitLog(cProg, {|oSay| AltDoc()}, 'Alterando Documento de Entrada...')
 EndIf
@@ -76,7 +76,7 @@ Return Nil
 
 
 
-Static Function PrCom14
+Static Function PrCom15
 Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
 If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cProg,.T.         ,.T.))
@@ -289,7 +289,7 @@ cQuery += ")"+CRLF
 cQuery += "SELECT CNF_CONTRA AS CC,SUM(F2_VALFAT) AS VALCC FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
 cQuery += "ORDER BY CNF_CONTRA"+CRLF
 
-u_LogMemo("BKCOMA14-FAT.SQL",cQuery)
+u_LogMemo("BKCOMA15-FAT.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 
@@ -365,7 +365,7 @@ cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga"+CRLF
 cQuery += " ORDER BY "+CRLF
 cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga"+CRLF
 
-u_LogMemo("BKCOMA14-FOL.SQL",cQuery)
+u_LogMemo("BKCOMA15-FOL.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 
