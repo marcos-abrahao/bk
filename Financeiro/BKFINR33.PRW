@@ -23,6 +23,7 @@ Local cHtml 		:= ""
 Local nAbas			:= 0
 Local aOpçoes		:= {"1-Completo Web","2-Simples Web", "3-Completo Excel","4-Simples Excel","5-Resumo Excel"} 
 Local aImpSel		:= {"Todos","Impressos","Não impressos","Desmarcar Impressão"} 
+Local nI 			:= 0
 
 Private aParam		:= {}
 Private cTitulo		:= "Contas a Pagar - Resumo Diário"
@@ -31,6 +32,7 @@ Private dDtIni		:= dDataBase
 Private dDtFim		:= dDataBase
 Private nFormato	:= 1
 Private nImpSel		:= 1
+Private aAnexos 	:= {}
 
 
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .T. })
@@ -167,8 +169,14 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	AADD(aCabs  ,"Histórico")
 
 	If nFormato <> 5
-		AADD(aCampos,"QSE2->(u_AnexosCP(E2_NUM,E2_PREFIXO,E2_FORNECE,E2_LOJA,E2_PARCELA,E2_TIPO))")
-		AADD(aCabs  ,"Anexos")
+		AADD(aCampos,"QSE2->(u_AnexosCP(@aAnexos,E2_NUM,E2_PREFIXO,E2_FORNECE,E2_LOJA,E2_PARCELA,E2_TIPO))")
+		AADD(aCabs  ,"Anexo 1")
+
+		For nI := 1 To 10
+			AADD(aCampos,"IIF(LEN(aAnexos) > "+STR(nI,2,0)+",aAnexos["+STR(nI+1,2,0)+"],'')")
+			AADD(aCabs  ,"Anexo "+STR(nI+1,2,0))
+		Next
+
 	EndIf
 
 	If nFormato == 3 .OR. (nFormato == 4 .AND. nImpSel == 1)
@@ -176,20 +184,10 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 		AADD(aCabs  ,"Impressão")
 	EndIf
 
+	//AADD(aCampos,"QSE2->REGSE2")
+	//AADD(aCabs  ,"Impressão")
 
-	//AADD(aCampos,"Capital(QSE2->(FWLeUserlg(IIF(EMPTY(F1_USERLGI),'F1_USERLGI','E2_USERLGI'),1)))")
-	//AADD(aCabs  ,"Cadastrado por")
 
-	/*
-	AADD(aCampos,"UsrRetName(QSA2->F1_XXUSER)")
-	AADD(aCabs  ,"Responsável")
-
-	AADD(aCampos,"UsrRetName(QSA2->F1_XXULIB)")
-	AADD(aCabs  ,"Liberado por")
-
-	AADD(aCampos,"QSA2->D1_XXHIST")
-	AADD(aCabs  ,"Historico")
-	*/
 	AADD(aResumo,{nColUnq1,nColVal1,{}})  // Resumo por forma de pagto
 
 	u_WaitLog("BKFINR33", {|oSay| aFiltros := Abas() }, "Determinando Abas")
@@ -223,7 +221,10 @@ Return
 
 // Marcar ou desmarcar Titulos como impressos
 Static Function MarcarTit(nImpSel)
+
+QSE2->(dbClearFilter())
 QSE2->(dbGoTop())
+
 Do While QSE2->(!Eof())
 
 	SE2->(dbGoTo(QSE2->REGSE2))
@@ -867,12 +868,21 @@ Return(cHtml)
 
 
 // Retorna os Anexos do Documento de Entrada
-User Function AnexosCP(cNum,cPrefixo,cFornece,cLoja,cParcela,cTipo)
+User Function AnexosCP(aAnexos,cNum,cPrefixo,cFornece,cLoja,cParcela,cTipo)
 Local cFiles	:= ""
+Local cFile		:= ""
 Local aFilesF1	:= {}
 Local nI 		:= 0
+
+aAnexos := {}
 aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 For nI := 1 To Len(aFilesF1)
-	cFiles += '=Hiperlink("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'";"'+aFilesF1[nI,2]+'") '+CRLF
+	cFiles := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'","'+aFilesF1[nI,2]+'") '+CRLF
+	If nI == 1
+		cFile := cFiles
+	EndIf
+	aAdd(aAnexos,cFiles)
 Next
-Return cFiles
+
+//cFiles := '=HYPERLINK("https://www.totvs.com.br","TOTVS")'
+Return cFile

@@ -310,6 +310,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 			xCampo := &(_aCampos[nI])
 			// Obs: esta macro não pode ser executada mais de uma vez
+
 			If lFirst
 				// Calcular o tamanho das colunas
 				nTamCol := 0
@@ -524,11 +525,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 				cCustomAnt := cFormat
 				cCorAntes  := (cCorFonte+cCorFundo)
 			EndIf
-			//If cTipo == "F"
-			//	oPrtXlsx:SetFormula(nLin,nI,xCampo)
-			//Else
+			If cTipo == "F"
+				oPrtXlsx:SetFormula(nLin,nI,xCampo)
+			Else
             	oPrtXlsx:SetValue(nLin,nI,xCampo)
-			//EndIf
+			EndIf
 			aAdd(aLinha,xCampo)
 
 		Next
