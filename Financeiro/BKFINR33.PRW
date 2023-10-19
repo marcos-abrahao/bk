@@ -13,12 +13,19 @@ User Function BKFINR33
 
 Local aCabs			:= {}
 Local aCampos		:= {}
-Local aTitulos		:= {}
-Local aPlans		:= {}
 Local aResumo 		:= {}
 Local aFiltros		:= {}
 Local nColVal1		:= 0
 Local nColUnq1		:= 0
+
+Local aCabsC		:= {}
+Local aCamposC		:= {}
+Local aResumoC 		:= {}
+Local nColValC		:= 0
+Local nColUnqC		:= 0
+
+
+Local aPlans		:= {}
 Local cHtml 		:= ""
 Local nAbas			:= 0
 Local aOpçoes		:= {"1-Completo Web","2-Simples Web", "3-Completo Excel","4-Simples Excel","5-Resumo Excel"} 
@@ -59,74 +66,102 @@ If nFormato == 1 .OR. nFormato == 2
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
 
-	// 3-Completo Excel
-	// 4-Simples Excel
-	// 5-Resumo Excel
+	// Aba Resumo ou Consolidaddo
+	aCabsC   := {}
+	aCamposC := {}
+	aResumoC := {}
 
-	aCabs   := {}
-	aCampos := {}
-	aTitulos:= {}
+	AADD(aCamposC,"QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA")
+	AADD(aCabsC  ,"Título")
 
-	AADD(aTitulos,ctitulo)
+	AADD(aCamposC,"QSE2->A2_NOME")
+	AADD(aCabsC  ,"Razão Social")
 
-	//AADD(aCampos,"QSE2->EMPRESA")
-	//AADD(aCabs  ,"Código")
+	AADD(aCamposC,"QSE2->E2_VALOR")
+	AADD(aCabsC  ,"Valor")
+	nColValC := LEN(aCabsC)
 
-	AADD(aCampos,"QSE2->NOMEEMP")
-	AADD(aCabs  ,"Empresa")
+	AADD(aCamposC,"QSE2->FORMPGT")
+	AADD(aCabsC  ,"Forma pgto")
+	nColUnqC := LEN(aCabsC)
 
-	AADD(aCampos,"QSE2->FORMPGT")
-	AADD(aCabs  ,"Forma pgto")
-	nColUnq1 := LEN(aCabs)
+	AADD(aCamposC,"QSE2->E2_PORTADO")
+	AADD(aCabsC  ,"Portador")
 
-	If nFormato <> 3
+	AADD(aResumoC,{nColUnqC,nColValC,{}})  // Resumo por forma de pagto
+
+	AADD(aPlans,{"QSE2","Consolidado","",cTitulo,aCamposC,aCabsC,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, aResumoC, lClose:= .F. })
+
+	If nFormato <> 5
+		// 3-Completo Excel
+		// 4-Simples Excel
+		// 5-Resumo Excel
+
+		aCabs   := {}
+		aCampos := {}
+		aResumo := {}
+
+		//AADD(aCampos,"QSE2->EMPRESA")
+		//AADD(aCabs  ,"Código")
+
+		AADD(aCampos,"QSE2->NOMEEMP")
+		AADD(aCabs  ,"Empresa")
+
+		AADD(aCampos,"QSE2->FORMPGT")
+		AADD(aCabs  ,"Forma pgto")
+		nColUnq1 := LEN(aCabs)
+
 		AADD(aCampos,"QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA")
 		AADD(aCabs  ,"Título")
-	Else 
+
 		AADD(aCampos,"QSE2->E2_TIPO")
 		AADD(aCabs  ,"Tipo")
 
-		AADD(aCampos,"QSE2->E2_PREFIXO")
-		AADD(aCabs  ,"Prefixo")
+		If nFormato == 3
 
-		AADD(aCampos,"QSE2->E2_NUM")
-		AADD(aCabs  ,"Título")
+			//AADD(aCampos,"QSE2->E2_PREFIXO")
+			//AADD(aCabs  ,"Prefixo")
 
-		AADD(aCampos,"QSE2->E2_PARCELA")
-		AADD(aCabs  ,"Parcela")
+			//AADD(aCampos,"QSE2->E2_NUM")
+			//AADD(aCabs  ,"Título")
 
-		AADD(aCampos,"QSE2->E2_VENCREA")
-		AADD(aCabs  ,"Vencimento")
+			//AADD(aCampos,"QSE2->E2_PARCELA")
+			//AADD(aCabs  ,"Parcela")
 
-		AADD(aCampos,"QSE2->E2_FORNECE")
-		AADD(aCabs  ,"Fornecedor")
+			AADD(aCampos,"QSE2->E2_VENCREA")
+			AADD(aCabs  ,"Vencimento")
 
-		AADD(aCampos,"QSE2->E2_LOJA")
-		AADD(aCabs  ,"Loja")
-	EndIf
+			AADD(aCampos,"QSE2->E2_FORNECE")
+			AADD(aCabs  ,"Fornecedor")
 
-	AADD(aCampos,"QSE2->A2_NOME")
-	AADD(aCabs  ,"Razão Social")
+			AADD(aCampos,"QSE2->E2_LOJA")
+			AADD(aCabs  ,"Loja")
+		EndIf
 
-	If nFormato <> 5
+		AADD(aCampos,"QSE2->A2_NOME")
+		AADD(aCabs  ,"Razão Social")
+
 		AADD(aCampos,"TRANSFORM(QSE2->A2_CGC,IIF(QSE2->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
 		AADD(aCabs  ,"CNPJ/CPF")
 
+		AADD(aCampos,"QSE2->E2_NATUREZ")
+		AADD(aCabs  ,"Natureza")
+
 		AADD(aCampos,"QSE2->E2_PORTADO")
 		AADD(aCabs  ,"Portador")
-	EndIf
 
-	AADD(aCampos,"QSE2->E2_VALOR")
-	AADD(aCabs  ,"Valor")
-	nColVal1 := LEN(aCabs)
+		AADD(aCampos,"QSE2->E2_VALOR")
+		AADD(aCabs  ,"Valor")
+		nColVal1 := LEN(aCabs)
 
-	If nFormato == 3
-		AADD(aCampos,"QSE2->SALDO")
-		AADD(aCabs  ,"Saldo")
-	EndIf
+		If nFormato == 3
+			AADD(aCampos,"QSE2->SALDO")
+			AADD(aCabs  ,"Saldo")
+		EndIf
 
+		AADD(aCampos,"QSE2->HIST")
+		AADD(aCabs  ,"Histórico")
 
-	If nFormato <> 5
 		AADD(aCampos,"QSE2->F1_XNUMPA")
 		AADD(aCabs  ,"PA")
 
@@ -147,56 +182,46 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 
 		AADD(aCampos,"UsrRetName(QSE2->F1_XXUSER)")
 		AADD(aCabs  ,"Responsável")
-	EndIf
 
-	If nFormato == 3
+		If nFormato == 3
 
-		AADD(aCampos,"QSE2->D1_COD")
-		AADD(aCabs  ,"Código")
+			AADD(aCampos,"QSE2->D1_COD")
+			AADD(aCabs  ,"Código")
 
-		AADD(aCampos,"QSE2->B1_DESC")
-		AADD(aCabs  ,"Produto")
+			AADD(aCampos,"QSE2->B1_DESC")
+			AADD(aCabs  ,"Produto")
 
-		AADD(aCampos,"QSE2->D1_CC")
-		AADD(aCabs  ,"Centro de Custo")
+			AADD(aCampos,"QSE2->D1_CC")
+			AADD(aCabs  ,"Centro de Custo")
 
-		AADD(aCampos,"QSE2->CTT_DESC01")
-		AADD(aCabs  ,"Descrição CC")
-	EndIf
+			AADD(aCampos,"QSE2->CTT_DESC01")
+			AADD(aCabs  ,"Descrição CC")
+		EndIf
 
-
-	AADD(aCampos,"QSE2->HIST")
-	AADD(aCabs  ,"Histórico")
-
-	If nFormato <> 5
-		AADD(aCampos,"QSE2->(u_AnexosCP(@aAnexos,E2_NUM,E2_PREFIXO,E2_FORNECE,E2_LOJA,E2_PARCELA,E2_TIPO))")
-		AADD(aCabs  ,"Anexo 1")
+		AADD(aCampos,"QSE2->(u_AnexosCP(@aAnexos))")
+		AADD(aCabs  ,"Anexos")
 
 		For nI := 1 To 10
-			AADD(aCampos,"IIF(LEN(aAnexos) > "+STR(nI,2,0)+",aAnexos["+STR(nI+1,2,0)+"],'')")
-			AADD(aCabs  ,"Anexo "+STR(nI+1,2,0))
+			AADD(aCampos,"IIF(LEN(aAnexos) >= "+STR(nI,2,0)+",aAnexos["+STR(nI,2,0)+"],'')")
+			AADD(aCabs  ,"Anexo "+STR(nI,2,0))
 		Next
 
+		If nImpSel == 1
+			AADD(aCampos,"IIF(QSE2->E2_XXPRINT=='S','Sim','Não')")
+			AADD(aCabs  ,"Impressão")
+		EndIf
+
+		//AADD(aCampos,"QSE2->REGSE2")
+		//AADD(aCabs  ,"Registro E2")
+
+		AADD(aResumo,{nColUnq1,nColVal1,{}})  // Resumo por forma de pagto
+
+		u_WaitLog("BKFINR33", {|oSay| aFiltros := Abas() }, "Determinando Abas")
+
+		For nAbas := 1 To Len(aFiltros)
+			AADD(aPlans,{"QSE2",aFiltros[nAbas],"QSE2->FORMPGT == '"+aFiltros[nAbas]+"'",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, aResumo, lClose:= .F. })
+		Next
 	EndIf
-
-	If nFormato == 3 .OR. (nFormato == 4 .AND. nImpSel == 1)
-		AADD(aCampos,"IIF(QSE2->E2_XXPRINT=='S','Sim','Não')")
-		AADD(aCabs  ,"Impressão")
-	EndIf
-
-	//AADD(aCampos,"QSE2->REGSE2")
-	//AADD(aCabs  ,"Impressão")
-
-
-	AADD(aResumo,{nColUnq1,nColVal1,{}})  // Resumo por forma de pagto
-
-	u_WaitLog("BKFINR33", {|oSay| aFiltros := Abas() }, "Determinando Abas")
-
-	For nAbas := 1 To Len(aFiltros)
-
-		AADD(aPlans,{"QSE2",aFiltros[nAbas],"QSE2->FORMPGT == '"+aFiltros[nAbas]+"'",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, aResumo, lClose:= .F. })
-
-	Next
 
 	U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
 
@@ -301,10 +326,10 @@ cQuery += "	 ,E2_TIPO"+CRLF
 cQuery += "	 ,E2_PREFIXO"+CRLF
 cQuery += "	 ,E2_NUM"+CRLF
 cQuery += "	 ,E2_PARCELA"+CRLF
-cQuery += "	 ,F1_DOC"+CRLF
 cQuery += "	 ,E2_FORNECE"+CRLF
 cQuery += "	 ,E2_PORTADO"+CRLF
 cQuery += "	 ,E2_LOJA"+CRLF
+cQuery += "	 ,E2_NATUREZ"+CRLF
 cQuery += "	 ,E2_HIST"+CRLF
 cQuery += "	 ,E2_USERLGI"+CRLF 
 cQuery += "	 ,E2_BAIXA"+CRLF
@@ -325,6 +350,7 @@ cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) THEN E2_TIP
 cQuery += "	 			WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO"+CRLF
 cQuery += "	 			ELSE F1_XTIPOPG END) AS FORMPGT"+CRLF
 
+cQuery += "	 ,F1_DOC"+CRLF
 cQuery += "	 ,F1_XTIPOPG"+CRLF
 cQuery += "	 ,F1_XNUMPA"+CRLF
 cQuery += "	 ,F1_XBANCO"+CRLF
@@ -868,21 +894,24 @@ Return(cHtml)
 
 
 // Retorna os Anexos do Documento de Entrada
-User Function AnexosCP(aAnexos,cNum,cPrefixo,cFornece,cLoja,cParcela,cTipo)
-Local cFiles	:= ""
+User Function AnexosCP(aAnexos)
 Local cFile		:= ""
 Local aFilesF1	:= {}
+Local aFilesE2	:= {}
 Local nI 		:= 0
 
 aAnexos := {}
 aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 For nI := 1 To Len(aFilesF1)
-	cFiles := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'","'+aFilesF1[nI,2]+'") '+CRLF
-	If nI == 1
-		cFile := cFiles
-	EndIf
-	aAdd(aAnexos,cFiles)
+	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'","'+aFilesF1[nI,2]+'") '+CRLF
+	aAdd(aAnexos,cFile)
+Next
+aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
+For nI := 1 To Len(aFilesE2)
+	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'","'+aFilesE2[nI,2]+'") '+CRLF
+	aAdd(aAnexos,cFile)
 Next
 
+
 //cFiles := '=HYPERLINK("https://www.totvs.com.br","TOTVS")'
-Return cFile
+Return Len(aAnexos)

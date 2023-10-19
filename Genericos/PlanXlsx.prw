@@ -112,7 +112,7 @@ Local _aFormula		:= {}
 Local _aFormat 		:= {}
 Local _aTotal  		:= {}
 Local _aResumo 		:= {}
-Local _aTResumo		:= {}
+//Local _aTResumo		:= {}
 Local _lClose  		:= .F.
 
 Local cFont 		:= ""
@@ -283,9 +283,11 @@ FOR nPl := 1 TO LEN(_aPlans)
 	aStruct := (_cAlias)->(dbStruct())
 
 	If !Empty(_cFiltra)
-		(_cAlias)->(dbsetfilter({|| &_cFiltra} , _cFiltra))
+		(_cAlias)->(dbSetFilter({|| &_cFiltra} , _cFiltra))
+	Else
+		(_cAlias)->(dbClearFilter())
 	Endif
-	(_cAlias)->(dbgotop())
+	(_cAlias)->(dbGoTop())
 
 	lFirst := .T.
 	cCustomAnt := ""
@@ -633,7 +635,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 					oPrtXlsx:SetValue(nLin,3,_aResumo[nI,3,nR,2])
 
 					// Total do Resumo
-
+					/*
 					nS := Ascan(_aTResumo,{ |x| x[1] == _aResumo[nI,1] .AND. x[2] == _aResumo[nI,2] })
 
 					If nS == 0
@@ -641,6 +643,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 					Else
 						aAdd(_aTResumo[nS,3],{_aResumo[nI,3,nR,1],_aResumo[nI,3,nR,2]})
 					EndIf
+					*/
 					nLin++
 				Next
 
@@ -663,7 +666,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 	EndIf
 
 Next
-
+/*
 // Mostrar o Resumo
 If Len(_aTResumo) > 0 .AND. Len(_aPlans) > 1
 	nLin := 1
@@ -709,7 +712,7 @@ If Len(_aTResumo) > 0 .AND. Len(_aPlans) > 1
 		oPrtXlsx:SetFormula(nLin,3, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
 	Next
 EndIf
-
+*/
 
 // --> Planilha de Parâmetros
 If ValType(_aParam) == "A"
