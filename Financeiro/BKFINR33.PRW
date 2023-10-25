@@ -16,12 +16,14 @@ Local aCampos		:= {}
 Local aResumo 		:= {}
 Local aFiltros		:= {}
 Local nColVal1		:= 0
+Local nColVal2		:= 0
 Local nColUnq1		:= 0
 
 Local aCabsC		:= {}
 Local aCamposC		:= {}
 Local aResumoC 		:= {}
-Local nColValC		:= 0
+Local nColValC1		:= 0
+Local nColValC2		:= 0
 Local nColUnqC		:= 0
 
 
@@ -74,12 +76,21 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	AADD(aCamposC,"QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA")
 	AADD(aCabsC  ,"Título")
 
+	If dDtIni <> dDtFim
+		AADD(aCampos,"QSE2->E2_VENCREA")
+		AADD(aCabs  ,"Vencimento")
+	EndIf
+
 	AADD(aCamposC,"QSE2->A2_NOME")
 	AADD(aCabsC  ,"Razão Social")
 
 	AADD(aCamposC,"QSE2->E2_VALOR")
 	AADD(aCabsC  ,"Valor")
-	nColValC := LEN(aCabsC)
+	nColValC1 := LEN(aCabsC)
+
+	AADD(aCamposC,"QSE2->SALDO")
+	AADD(aCabsC  ,"Saldo")
+	nColValC2 := LEN(aCabsC)
 
 	AADD(aCamposC,"QSE2->FORMPGT")
 	AADD(aCabsC  ,"Forma pgto")
@@ -88,7 +99,8 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	AADD(aCamposC,"QSE2->E2_PORTADO")
 	AADD(aCabsC  ,"Portador")
 
-	AADD(aResumoC,{nColUnqC,nColValC,{}})  // Resumo por forma de pagto
+	AADD(aResumoC,{nColUnqC,nColValC1,{}})  // Resumo por forma de pagto - Valor
+	AADD(aResumoC,{nColUnqC,nColValC2,{}})  // Resumo por forma de pagto - Saldo
 
 	AADD(aPlans,{"QSE2","Consolidado","",cTitulo,aCamposC,aCabsC,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, aResumoC, lClose:= .F. })
 
@@ -117,6 +129,11 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 		AADD(aCampos,"QSE2->E2_TIPO")
 		AADD(aCabs  ,"Tipo")
 
+		If dDtIni <> dDtFim
+			AADD(aCampos,"QSE2->E2_VENCREA")
+			AADD(aCabs  ,"Vencimento")
+		EndIf
+
 		If nFormato == 3
 
 			//AADD(aCampos,"QSE2->E2_PREFIXO")
@@ -127,9 +144,6 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 
 			//AADD(aCampos,"QSE2->E2_PARCELA")
 			//AADD(aCabs  ,"Parcela")
-
-			AADD(aCampos,"QSE2->E2_VENCREA")
-			AADD(aCabs  ,"Vencimento")
 
 			AADD(aCampos,"QSE2->E2_FORNECE")
 			AADD(aCabs  ,"Fornecedor")
@@ -154,10 +168,9 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 		AADD(aCabs  ,"Valor")
 		nColVal1 := LEN(aCabs)
 
-		If nFormato == 3
-			AADD(aCampos,"QSE2->SALDO")
-			AADD(aCabs  ,"Saldo")
-		EndIf
+		AADD(aCampos,"QSE2->SALDO")
+		AADD(aCabs  ,"Saldo")
+		nColVal2 := LEN(aCabs)
 
 		AADD(aCampos,"QSE2->HIST")
 		AADD(aCabs  ,"Histórico")
@@ -180,6 +193,9 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 		AADD(aCampos,"QSE2->F1_XXCHPIX")
 		AADD(aCabs  ,"Chave Pix")
 
+		AADD(aCampos,"QSE2->(u_AnexosCP(@aAnexos))")
+		AADD(aCabs  ,"Anexos")
+
 		AADD(aCampos,"UsrRetName(QSE2->F1_XXUSER)")
 		AADD(aCabs  ,"Responsável")
 
@@ -198,9 +214,6 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 			AADD(aCabs  ,"Descrição CC")
 		EndIf
 
-		AADD(aCampos,"QSE2->(u_AnexosCP(@aAnexos))")
-		AADD(aCabs  ,"Anexos")
-
 		For nI := 1 To 10
 			AADD(aCampos,"IIF(LEN(aAnexos) >= "+STR(nI,2,0)+",aAnexos["+STR(nI,2,0)+"],'')")
 			AADD(aCabs  ,"Anexo "+STR(nI,2,0))
@@ -214,7 +227,8 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 		//AADD(aCampos,"QSE2->REGSE2")
 		//AADD(aCabs  ,"Registro E2")
 
-		AADD(aResumo,{nColUnq1,nColVal1,{}})  // Resumo por forma de pagto
+		AADD(aResumo,{nColUnq1,nColVal1,{}})  // Resumo por forma de pagto - Valor
+		AADD(aResumo,{nColUnq1,nColVal2,{}})  // Resumo por forma de pagto - Saldo
 
 		u_WaitLog("BKFINR33", {|oSay| aFiltros := Abas() }, "Determinando Abas")
 
@@ -346,9 +360,11 @@ cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
 cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
 
-cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) THEN E2_TIPO+' '+E2_PORTADO"+CRLF
-cQuery += "	 			WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO"+CRLF
-cQuery += "	 			ELSE F1_XTIPOPG END) AS FORMPGT"+CRLF
+//cQuery += "	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ "
+cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
+cQuery += "	 			THEN E2_TIPO+' '+E2_PORTADO"+CRLF
+cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
+cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
 
 cQuery += "	 ,F1_DOC"+CRLF
 cQuery += "	 ,F1_XTIPOPG"+CRLF
@@ -464,9 +480,8 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
-cQuery += " ORDER BY" + CRLF
-cQuery += "    EMPRESA,E2_VENCREA,FORMPGT " + CRLF
-
+cQuery += " ORDER BY FORMPGT" + CRLF
+//cQuery += "    EMPRESA,E2_VENCREA,FORMPGT " + CRLF
 
 u_LogMemo("BKFINR33.SQL",cQuery)
 

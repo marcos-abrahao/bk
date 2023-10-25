@@ -15,6 +15,7 @@ Private cCadastro := "Contabilização - Folha "+FWEmpName(cEmpAnt)
 Private cPrw      := "BKCTBA01"
 
 Private aRotina
+private lMsErroAuto := .F.      
 
 u_MsgLog(cPrw)
 
@@ -190,11 +191,13 @@ Do While !eof()
 		
 		IF lMsErroAuto
 
+            DisarmTransaction()
+            //MostraErro()
+
 			//aerro := Mostraerro() 
 			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento - Evento "+cEvento)
 			// O sistema não mostra erro de conta debito = credito e periodo fechado
-			
-			DisarmTransaction()
+
 		ENDIF
 		
 	End Transaction

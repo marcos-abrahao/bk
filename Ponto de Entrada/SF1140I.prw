@@ -248,7 +248,7 @@ oRadMenu1:= tRadMenu():New(20,10,aOpcoes,{|u|if(PCount()>0,nRadMenu1:=u,nRadMenu
 @ 010,010 SAY oSay1 PROMPT "Forma de pagamento :" SIZE 091, 007 OF oDlg3 COLORS 0, 16777215 PIXEL
 
 @ 022,055 SAY "Banco" 	 OF oDlg3 PIXEL
-@ 020,085 MSGET oGetBco VAR cxBanco   OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxBanco),.T.)
+@ 020,085 MSGET oGetBco VAR cxBanco   OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,VAL(cxBanco) > 0,.T.)
 @ 022,110 SAY "Agência"  OF oDlg3 PIXEL
 @ 020,135 MSGET oGetAge VAR cxAgencia OF oDlg3 PICTURE "@!" PIXEL WHEN (nRadMenu1==1 .AND. lAlt) Valid IIf(nRadMenu1==1,!Empty(cxAgencia),.T.)
 @ 022,170 SAY "Conta"  	 OF oDlg3 PIXEL
@@ -395,8 +395,8 @@ If nRadio <> 1 .AND. nRadio <> 4
 	cxConta   := ""
 Else
 	If nRadio == 1
-		If Empty(cxBanco)
-			u_MsgLog("SF1140I","Informe o banco para depósito","E")
+		If VAL(cxBanco) = 0 .OR. LEN(ALLTRIM(cxBanco)) < 3
+			u_MsgLog("SF1140I","Informe o banco para depósito (numerico, 3 dígitos)","E")
 			oGetBco:Enable()
 			oGetBco:Setfocus()
 			lRet := .F.

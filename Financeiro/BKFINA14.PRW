@@ -54,7 +54,6 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return Nil
 Endif
-u_MsgLog(cPerg,"Venc: "+DTOC(mv_par01) + " - Banco "+mv_par02)
 
 dData  	 := mv_par01
 cSEE	 := ALLTRIM(mv_par02) //aBancos[mv_par02]
@@ -126,7 +125,8 @@ IF (nFurnas==1 .AND. nTED == 1 )  .OR. (nFurnas==2 .AND. nTED == 1 )
 ENDIF
 
 aCtrId := {}
-Processa ( {|| aCtrId := GeraQueryTit(dData,cBanco)})
+
+u_WaitLog(cPerg, {|| aCtrId := GeraQueryTit(dData,cBanco)},cTitulo)
 
 If Empty(aCtrId)
 	u_MsgLog(cPerg,"Não há títulos "+IIF(nFurnas==1," de FURNAS","")+IIF(nFurnas==2," de FURNAS LOTE BK","")+" disponíveis !!","E")
@@ -178,7 +178,7 @@ If ( lOk )
 			cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
 //			cQuery  += "LEFT JOIN bk_senior.bk_senior.r034fun ON SZ2.Z2_CODEMP = bk_senior.bk_senior.r034fun.numemp AND SZ2.Z2_PRONT=bk_senior.bk_senior.r034fun.numcad "
 //			cQuery  += " AND bk_senior.bk_senior.r034fun.nomfun like Z2_NOME+'%' COLLATE SQL_Latin1_General_CP1_CI_AS "
-			cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
+			cQuery  += " WHERE Z2_CODEMP = '"+cEmpAnt+"' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
 			cQuery  += " AND Z2_E2PRF='"+aCtrId[nI,4]+"' AND Z2_E2NUM='"+aCtrId[nI,5]+"' AND Z2_E2PARC='"+aCtrId[nI,6]+"' AND Z2_TIPOPES NOT IN ('CLA','AC') AND Z2_E2TIPO='"+aCtrId[nI,7]+"'"
 			If nTEDItau == 1
 				cQuery  += " AND Z2_BANCO = '"+cTedBco+"' "
@@ -193,9 +193,9 @@ If ( lOk )
 
 			DbSelectArea("QSZ2")
 			DbGoTop()
-			ProcRegua(LastRec())
+			//ProcRegua(LastRec())
 			Do While !eof()
-				IncProc("Carregando titulos para Borderôs "+FWEmpName(cEmpAnt)+"...")
+				//IncProc("Carregando titulos para Borderôs "+FWEmpName(cEmpAnt)+"...")
  				IF QSZ2->Z2_DATAPGT == dData .AND. QSZ2->Z2_BANCO $ cBancos
 					If QSZ2->Z2_CODEMP = "01" .AND. QSZ2->Z2_PRONT = "000296"
 						cTpPes := "CLT"
@@ -237,7 +237,8 @@ EndIf
 
 If !EMPTY(aTit1Ger)
 	ASORT(aTit1Ger,,,{|x,y| x[4]<y[4]})
- 	Processa ( {|| lOk := ConfTit(aCtrid,dData,cBanco)})
+ 	//Processa ( {|| lOk := ConfTit(aCtrid,dData,cBanco)})
+	u_WaitLog(cPerg, {|| lOk := ConfTit(aCtrid,dData,cBanco)})
 EndIf
 
 RestArea(aAreaIni)
@@ -285,13 +286,10 @@ AADD(aTPCNAB,{"PEN","PENSAO"})
 AADD(aTPCNAB,{"LD1/LD2","13SAL"})
 AADD(aTPCNAB,{"LAD/LAS","ADIANT"})
 AADD(aTPCNAB,{"LDV/RMB/NDB/CXA/PCT/DCH/SOL/HOS/EXM/LFG/MFG/VA/VR/VT/REE/ADF/DSA/GRA/HEX/DIN","PGTO_OUTROS"})
-
 	
 nTotal := 0
 
-ProcRegua(Len(aTit1Ger))
 FOR nI := 1 TO LEN(aTit1Ger)
-	IncProc("Gerando Confirmação dos Borderôs "+FWEmpName(cEmpAnt)+"...")
 
 	IF aTit1Ger[nI,1]
 		nTotal += aTit1Ger[nI,5] 
@@ -388,7 +386,8 @@ If ( lOk )
 				ENDIF
 			NEXT nI 
 			IF lTit
-				Processa ( {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[nTPCNAB,2],cTipoPes)})
+				//Processa ( {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[nTPCNAB,2],cTipoPes)})
+				u_WaitLog(cPerg, {|| GravaBordero(aTit,aCtrid,dData,cBanco,aTPCNAB[nTPCNAB,2],cTipoPes)},"Gravando Borderô")
 			ENDIF
 			IF nBordero == LEN(aBordero)
 				nTPCNAB := LEN(aTPCNAB) 
@@ -486,8 +485,8 @@ Local cMsgLog   := ""
 
 DbSelectArea("SM0")
 
-//BKDAHER BHG USAR LOTE BK
-IF SM0->M0_CODIGO $ "06/08/09/10/11/14/15"
+//CONSORCIOS USAR LOTE BK
+IF cEmpAnt $ "06/08/09/10/11/14/15"
 	cQuery  := "SELECT EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
 	cQuery  += " FROM SEE010 "
 	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
@@ -521,13 +520,17 @@ ENDIF
 DbSelectArea("SEE")
 DbSetOrder(1)
 IF DbSeek(xFilial("SEE")+cSEE,.F.)
-	//BKDAHER USAR CNPJ BK
-	cCGC      := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"03022122000177",SM0->M0_CGC)
-    cNomeCom  := IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
-    //***************** 
-    IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15" .AND. nLote >0 ,MSGINFO("Borderô BKDAHER / BHG CAMPINAS / BHG OSASCO / BHG Taboão / BK DAHER Limeira / BHG INT 3 - Considerando CNPJ BK / Consorcio Nova Balsa !!",cPerg),"")
+	//CONSORCIOS: USAR CNPJ BK
+	cCGC      := IIF(cEmpAnt $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"03022122000177",SM0->M0_CGC)
+    cNomeCom  := IIF(cEmpAnt $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
+
+    IF (cEmpAnt $ "06/08/09/10/11/14/15") .AND. nLote > 0 
+		u_MsgLog(cPerg,"Borderô dos consorcios considerando CNPJ da BK!","W")
+	EndIf
+
+
 	RecLock("SEE",.F.)                             
-	Replace SEE->EE_LOTECP With IIF(SM0->M0_CODIGO $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
+	Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
 	SEE->( MsUnlock() )
 	nLote := VAL(SEE->EE_LOTECP)
  
@@ -542,15 +545,15 @@ ENDIF
 
 MakeDir(cDirTmp2)
 /*
-IF SM0->M0_CODIGO = "06"
+IF cEmpAnt = "06"
 	cDirTmp2 := "\BKDAHER"
-ELSEIF SM0->M0_CODIGO = "08"
+ELSEIF cEmpAnt = "08"
 	cDirTmp2 := "\CAMPINAS" 
-ELSEIF SM0->M0_CODIGO = "09"
+ELSEIF cEmpAnt = "09"
 	cDirTmp2 := "\OSASCO" 
-ELSEIF SM0->M0_CODIGO = "10"
+ELSEIF cEmpAnt = "10"
 	cDirTmp2 := "\TABOAO"
-ELSEIF SM0->M0_CODIGO = "11"
+ELSEIF cEmpAnt = "11"
 	cDirTmp2 := "\LIMEIRA"
 ELSE
 	cDirTmp2 := "\BK"
@@ -698,7 +701,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn001HD += SPACE(1)     //017 017
 			Bcn001HD += "2"          //018 018
 			Bcn001HD += STRZERO(VAL(cCGC),14) //019 032
-			//If SM0->M0_CODIGO <> "15"
+			//If cEmpAnt <> "15"
 				Bcn001HD += "0008539930126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
 			//Else
 			//	Bcn001HD += "0002732690126       " //SUBSTRING(SEE->EE_CODEMP,1,6) 033 052 - Código do Convênio
@@ -716,9 +719,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 			//Grava Bordero - Descrição do Registro DETALHE - “A”
 			fWrite(nHandle2,Bcn001HD)
 			nSeq := 0
-			ProcRegua(Len(aTitGer))
+			//ProcRegua(Len(aTitGer))
 			For nI:=1 To Len(aTitGer)
-				IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
+				//IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 						
 				qValTot += aTitGer[nI,4]
 				qTot++
@@ -1061,9 +1064,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 		//Grava Bordero Header
 		fWrite(nHandle2,Bcn033HD)
 		nSeq := 0
-		ProcRegua(Len(aTitGer))
+		//ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
+			//IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1311,9 +1314,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 		//Grava Bordero - Descrição do Registro DETALHE - “A”
 		fWrite(nHandle2,Bcn104HD)
 		nSeq := 0
-		ProcRegua(Len(aTitGer))
+		//ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
+			//IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1524,9 +1527,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 		//Grava Bordero Header
 		fWrite(nHandle2,Bcn151HD)
 	
-		ProcRegua(Len(aTitGer))
+		//ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
+			//IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1639,9 +1642,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 		//Grava Bordero Header
 		fWrite(nHandle2,Bcn237H)
 	
-		ProcRegua(Len(aTitGer))
+		//ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
+			//IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
  					
 			qValTot += aTitGer[nI,4]
 			qTot++
@@ -1772,19 +1775,19 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341H += SPACE(1)   //058 058
 		Bcn341H += "0000000"  //059 065
 		/*
-		IF SM0->M0_CODIGO == "01" 
+		IF cEmpAnt == "01" 
 			Bcn341H += "56105"    //066 070 conta 
 			Bcn341H += SPACE(1)   //071 071
 			Bcn341H += "8"		  //072 072 DV CONTA
-		ELSEIF SM0->M0_CODIGO == "02"
+		ELSEIF cEmpAnt == "02"
 			Bcn341H += "29090"    //066 070 conta 
 			Bcn341H += SPACE(1)   //071 071
 			Bcn341H += "0"		  //072 072 DV CONTA
-		ELSEIF SM0->M0_CODIGO == "04"
+		ELSEIF cEmpAnt == "04"
 			Bcn341H += "29099"    //066 070 conta 
 			Bcn341H += SPACE(1)   //071 071
 			Bcn341H += "1"		  //072 072 DV CONTA
-        ELSEIF SM0->M0_CODIGO == "06" 
+        ELSEIF cEmpAnt == "06" 
 			Bcn341H += "56105"    //066 070 conta 
 			Bcn341H += SPACE(1)   //071 071
 			Bcn341H += "8"		  //072 072 DV CONTA
@@ -1831,19 +1834,19 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341HD += SPACE(1)     //058 058
 		Bcn341HD += "0000000"    //059 065
 		/*     D
-		IF SM0->M0_CODIGO == "01" 
+		IF cEmpAnt == "01" 
 			Bcn341HD += "56105"      //066 070 CONTA
 			Bcn341HD += SPACE(1)     //071 071 
 			Bcn341HD += "8"          //072 072 DV CONTA
-		ELSEIF SM0->M0_CODIGO == "02"
+		ELSEIF cEmpAnt == "02"
 			Bcn341HD += "29090"      //066 070 CONTA
 			Bcn341HD += SPACE(1)     //071 071 
 			Bcn341HD += "0"          //072 072 DV CONTA
-		ELSEIF SM0->M0_CODIGO == "04"
+		ELSEIF cEmpAnt == "04"
 			Bcn341HD += "29099"      //066 070 CONTA
 			Bcn341HD += SPACE(1)     //071 071 
 			Bcn341HD += "1"          //072 072 DV CONTA
-        ELSEIF SM0->M0_CODIGO == "06" 
+        ELSEIF cEmpAnt == "06" 
 			Bcn341HD += "56105"      //066 070 CONTA
 			Bcn341HD += SPACE(1)     //071 071 
 			Bcn341HD += "8"          //072 072 DV CONTA
@@ -1868,9 +1871,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 		//Grava Bordero Header
 		fWrite(nHandle2,Bcn341HD)
 		nSeq := 0
-		ProcRegua(Len(aTitGer))
+		//ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
-			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
+			//IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 					
 			qValTot += INT(aTitGer[nI,4]*100)//aTitGer[nI,4]
 			qTot++
@@ -1998,12 +2001,13 @@ If nHandle > 0 .OR. nHandle2 > 0
 	fWrite(nHandle,BncoTxtT)
 	fClose(nHandle)
 	cNumBor := ""
-	Processa ( {|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)})
+
+	u_WaitLog(cPerg,{|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)},"Associando Títulos ao Borderô")
 	
-	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso, verifique na pasta: "'+cDirTmp2+'"'
+	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso na pasta: "'+cDirTmp2+'"'
 	u_MsgLog(cPerg,cMsgLog,"S")
 
-ELSE
+ELSE 
 	IF nHandle <> 0
 		//cArqTmp := cDirTmp2+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+cGrupo+"_"+cBanco+"_"+DTOS(dData)+"\"+IIF(nFurnas==1,"FURNAS_","")+IIF(nFurnas==2,"FURNAS_LBK_","")+"RELACAO_BANCARIA_"+cGrupo+"_"+cBanco+"_"+DTOS(dData)+".DOC"
 		cMsgLog := "Falha na criação do arquivo "+cArqTmp
@@ -2031,17 +2035,15 @@ ENDIF
 DbSelectArea("SE2")
 DbSetOrder(3)
 DbGoTop()
-ProcRegua(LastRec())
 dbSeek(xFilial("SE2")+DTOS(dData),.T.)
 Do While !eof() .AND. SE2->E2_VENCREAL == dData 
-	IncProc("Localizando titulos para Borderôs "+FWEmpName(cEmpAnt)+"...") 
     IF !EMPTY(SE2->E2_XXCTRID) .AND. SE2->E2_VENCREAL == dData  .AND. SE2->E2_VALOR == SE2->E2_SALDO .AND. ALLTRIM(SE2->E2_XXTIPBK) <> 'MFG' .AND.;
 		  IIF(cBcoBor=='001' .AND. (nFurnas == 1 .OR. nFurnas == 2) .AND. nTED == 1, ALLTRIM(SE2->E2_PORTADO) $ cBCOTED, SE2->E2_PORTADO == cBcoBor) 
 		  // Filtro abaixo removido em 09/12/2019, desta forma, serão incluídos os pagamentos a PJ.
 		  //.AND. ( ALLTRIM(SE2->E2_TIPO) <> 'PA' .OR. ( ALLTRIM(SE2->E2_TIPO) == 'PA' .AND. (ALLTRIM(SE2->E2_XXTIPBK) == 'CXA' .OR. ALLTRIM(SE2->E2_XXTIPBK) == 'SOL' .OR. ALLTRIM(SE2->E2_XXTIPBK) == 'HOS')))
 		DbSelectArea("SZ2")
 		DbSetOrder(3)
-		dbSeek(xFilial("SZ2")+SM0->M0_CODIGO+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
+		dbSeek(xFilial("SZ2")+cEmpAnt+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO,.T.)
 		IF ALLTRIM(SZ2->Z2_TIPOPES) $ "CLT/RPA/PJ"
 
 			If SZ2->Z2_CODEMP = "01" .AND. SZ2->Z2_PRONT = "000296"
@@ -2179,10 +2181,10 @@ IF EMPTY(cNumBor)
 	EndDo                                           
 ENDIF      
 
-ProcRegua(Len(aCtrId))
+//ProcRegua(Len(aCtrId))
 For _nI:=1 To Len(aCtrId)
 	IF aCtrId[_nI,1]
-		IncProc("Associando Título ao Borderô "+FWEmpName(cEmpAnt)+"...")
+		//IncProc("Associando Título ao Borderô "+FWEmpName(cEmpAnt)+"...")
 		
 		dbSelectArea("SE2")
 		dbSetOrder(1)
