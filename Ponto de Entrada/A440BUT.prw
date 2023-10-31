@@ -11,19 +11,24 @@ BK - Ponto de Entrada para incluir botão na enchoice da liberação do pedido de v
 User Function A440BUT()
 Local aBotao := {}
 
-//aBotao := {{"",U_VerGlosa(),”Glosas e Bonificações”}}
 aBotao := {{"GLOSA",{|| U_VerGlosa(.T.)},"Glosas e Bonificações"}}
 
 Return aBotao
 
 
 User Function VerGlosa(lBut)
+
+Local oDlg
+Local aSize	   	:= FWGetDialogSize( oMainWnd )
+Local nTop		:= 200
+Local nLeft		:= 200
+
 Local aAreaIni  := GetArea()
 Local aCNR      := {}
-Local oDlg,oListID,oPanelLeft 
+Local oListID
+Local oPanelLeft 
 Local lOk       := .T.
 Local aButtons 	:= {}
-
 
 aCNR := U_BKGlosas(SC5->C5_MDNUMED,SC5->C5_MDPLANI)
 
@@ -77,8 +82,8 @@ If LEN(aCNR) > 0
     	lOk:=.F.
     ELSE
 	*/
-		DEFINE MSDIALOG oDlg TITLE "Glosas e Bonificações" FROM 000,000 TO 420,630 PIXEL 
-	
+		oDlg := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],"Glosas e Bonificações",,,,,,,,, .T.,,,, .F. )
+
 		@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 315,210 COLORS CLR_BLACK,CLR_HGRAY LOWERED RAISED
 		oPanelLeft:Align := CONTROL_ALIGN_ALLCLIENT
 	

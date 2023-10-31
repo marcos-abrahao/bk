@@ -14,14 +14,21 @@ BK - Borderô - Folha
 
 User Function BKFINA14()
 
-Local oOk
-Local oNo
 Local oDlg
+Local aSize	   	:= FWGetDialogSize( oMainWnd )
+Local nTop		:= 0
+Local nLeft		:= 0
+
+Local oOk 		:= LoadBitmap( GetResources(), "LBTIK" )
+Local oNo 		:= LoadBitmap( GetResources(), "LBNO" )
+Local oLayer
 Local oListId
-Local oPanelLeft
+Local oPanelUp
+Local oPanelDown
+
 Local lAll
 Local oAll
-Local aButtons := {}
+//Local aButtons := {}
 
 Local aCtrId   := {}
 Local lOk      := .F.
@@ -136,18 +143,33 @@ EndIf
 
 MsgAlert("Verifique a DATA do Bordero!!",cPerg)
 
-oOk := LoadBitmap( GetResources(), "LBTIK" )
-oNo := LoadBitmap( GetResources(), "LBNO" )
 
-DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 450,650 PIXEL 
+oDlg := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],cTitulo,,,,,,,,, .T.,,,, .F. )
 
-@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 330,225
-oPanelLeft:Align := CONTROL_ALIGN_LEFT
+oDlg:nClientHeight  := aSize[3]
+oDlg:nClientWidth   := aSize[4]
+
+oDlg:Refresh()
+
+EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End() })
+
+oLayer := FWLayer():new()
+oLayer:init(oDlg,.F.)
+
+oLayer:addCollumn ('Col1',100,.F.)
+
+oLayer:addWindow('Col1', 'WinTop' ,'Seleção' ,15,.F.,.F.,,,)
+oLayer:addWindow('Col1', 'WinGrid','Títulos' ,85,.F.,.F.,,,)
+
+oPanelUp := oLayer:getWinPanel('Col1','WinTop')
+oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
+
+
 lAll := .F.
-@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 050, 010 PIXEL 
+@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelUp SIZE 050, 010 PIXEL 
 oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[10]) >= dDatabase .AND. x[3] $ cBancos,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","Lote (CTRID)","Banco","Prefixo","Número","Parcela","Tipo","Pgto","Emissão","Vencimento","Total R$","Ref.","Tipo" SIZE 320,180 OF oPanelLeft PIXEL 
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","Lote (CTRID)","Banco","Prefixo","Número","Parcela","Tipo","Pgto","Emissão","Vencimento","Total R$","Ref.","Tipo" SIZE 320,180 OF oPanelDown PIXEL 
 oListID:SetArray(aCtrId)
 oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
 						aCtrId[oListId:nAt][2],;
@@ -164,9 +186,11 @@ oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
 						aCtrId[oListId:nAt][15]}}
 
 oListId:bLDblClick := {|| aCtrId[oListId:nAt][1] := ValidaMrk(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][10],aCtrId[oListId:nAt][3],cBancos), oListId:DrawSelect()}
+oListId:Align := CONTROL_ALIGN_ALLCLIENT
 
-ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
- 
+//ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
+oDlg:Activate()
+
 If ( lOk )
 	aTit1Ger := {}
 	aErros  := {}
@@ -262,12 +286,21 @@ Return lRet
 
 
 STATIC FUNCTION ConfTit(aCtrid,dData,cBanco)
-Local oOk
-Local oNo
+
 Local oDlg2
+Local aSize	   	:= FWGetDialogSize( oMainWnd )
+Local nTop		:= 0
+Local nLeft		:= 0
+
+Local oOk := LoadBitmap( GetResources(), "LBTIK" )
+Local oNo := LoadBitmap( GetResources(), "LBNO" )
 Local oListId2
-Local oPanelLeft2
-Local aButtons 	:= {}
+
+Local oLayer2
+Local oPanelU2
+Local oPanelD2
+
+//Local aButtons 	:= {}
 Local aTPCNAB 	:= {}
 Local nTPCNAB 	:= 0
 Local lOk      	:= .F.
@@ -311,21 +344,33 @@ FOR nI := 1 TO LEN(aTit1Ger)
 
 NEXT
 
-oOk := LoadBitmap( GetResources(), "LBTIK" )
-oNo := LoadBitmap( GetResources(), "LBNO" )
+oDlg2 := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],"Confirme os Borderôs a gerar (consolidados)",,,,,,,,, .T.,,,, .F. )
 
-DEFINE MSDIALOG oDlg2 TITLE "Confirme os Borderôs a gerar (consolidados)" FROM 000,000 TO 450,650 PIXEL 
+oDlg2:nClientHeight  := aSize[3]
+oDlg2:nClientWidth   := aSize[4]
 
-@ 000,000 MSPANEL oPanelLeft2 OF oDlg2 SIZE 330,225
-oPanelLeft2:Align := CONTROL_ALIGN_LEFT 
+oDlg2:Refresh()
+
+EnchoiceBar(oDlg2,{|| lOk:=.T., oDlg2:End()},{|| oDlg2:End() })
+
+oLayer2 := FWLayer():new()
+oLayer2:init(oDlg2,.F.)
+
+oLayer2:addCollumn ('Col1',100,.F.)
+
+oLayer2:addWindow('Col1', 'WinTop' ,'Seleção' ,15,.F.,.F.,,,)
+oLayer2:addWindow('Col1', 'WinGrid','Títulos' ,85,.F.,.F.,,,)
+
+oPanelU2 := oLayer2:getWinPanel('Col1','WinTop')
+oPanelD2 := oLayer2:getWinPanel('Col1','WinGrid')
 
 lAll:= .F. 
-@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft2 SIZE 050, 010 PIXEL 
+@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelU2 SIZE 050, 010 PIXEL 
 oAll:bChange := {|| MudaCell(lAll) , oListId2:Refresh()}
 
-oSay := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelLeft2,,,,,,.T.,,,200,20)
+oSay := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelU2,,,,,,.T.,,,200,20)
 
-@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NomeDep","NomeMae","Tipo Pes" SIZE 320,180 OF oPanelLeft2 PIXEL 
+@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NomeDep","NomeMae","Tipo Pes" SIZE 320,180 OF oPanelD2 PIXEL 
 
 oListID2:SetArray(aBordero)
 oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
@@ -352,9 +397,10 @@ oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
 						aBordero[oListId2:nAt][22]}}
 
 oListID2:bLDblClick := {|| aBordero[oListId2:nAt][1] := MrkTit(aBordero[oListId2:nAt][17],aBordero[oListId2:nAt][1],aBordero[oListId2:nAt][5]), oListID2:DrawSelect()}
+oListID2:Align := CONTROL_ALIGN_ALLCLIENT
 
-ACTIVATE MSDIALOG oDlg2 CENTERED ON INIT EnchoiceBar(oDlg2,{|| lOk:=.T., oDlg2:End()},{|| oDlg2:End()}, , aButtons)
-
+//ACTIVATE MSDIALOG oDlg2 CENTERED ON INIT EnchoiceBar(oDlg2,{|| lOk:=.T., oDlg2:End()},{|| oDlg2:End()}, , aButtons)
+oDlg2:Activate()
 
 If ( lOk )
 	lOk  := .F.
@@ -444,8 +490,6 @@ IF !EMPTY(cBordero)
 		lOk := .F.
 	ENDIF
 ELSE
-
-
 	IF lTit
   		lOk := .F.
 	ENDIF

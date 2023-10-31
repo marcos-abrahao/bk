@@ -142,14 +142,14 @@ Private cDescCBK	:= ""
 
 Private aHeader	    := {}
 Private aDbf1 	    := {}
-Private aTitulos1,aCampos1,aCabs1,aFormat1,aFormula1,aImpr1,aPict1
+Private aTitulos1,aCampos1,aCabs1,aFormat1,aFormula1,aPict1
 Private cRealTb1	:= ""
 
 Private aDbf2       := {}
-Private aTitulos2,aCampos2,aCabs2,aFormat2,aFormula2,aImpr2,aPict2
+Private aTitulos2,aCampos2,aCabs2,aFormat2,aFormula2,aPict2
 
 Private aDbf3	    := {}
-Private aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aImpr3,aPict3
+Private aTitulos3,aCampos3,aCabs3,aFormat3,aFormula3,aPict3
 
 Private aDbfT		:= {}
 
@@ -519,7 +519,6 @@ aDbf1		:= {}
 aCabs1   	:= {}
 aCampos1 	:= {}
 aTitulos1	:= {}
-aImpr1		:= {}
 aFormat1 	:= {}
 aFormula1	:= {}
 aPict1		:= {}
@@ -530,21 +529,18 @@ aAdd(aDbf1, { 'XX_COMPET','C', 07,00 } )
 aAdd(aCampos1,"TRB->XX_COMPET")
 aAdd(aCabs1  ,"Competência")
 aAdd(aHeader,{"Competência","XX_COMPET" ,"@!",7,00,"","","C","TRB","R"})
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_LINHA' ,'N', 10,00 } )
 aAdd(aCampos1,"TRB->XX_LINHA")
 aAdd(aCabs1  ,"Linha")
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_CODGCT','C', 09,00 } )
 aAdd(aCampos1,"TRB->XX_CODGCT")
 aAdd(aCabs1  ,"Contrato")
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
@@ -553,7 +549,6 @@ aAdd(aDbf1, { 'XX_DESC'  ,'C', 50,00 } )
 aAdd(aCampos1,"TRB->XX_DESC")
 aAdd(aCabs1  ,"Descrição")
 aAdd(aHeader,{"Descrição","XX_DESC" ,"@!",10,00,"","","C","TRB","R"})
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"@!")
 
@@ -561,7 +556,6 @@ aAdd(aDbf1, { 'XX_PROJ'  ,'C', 200,00 } )
 aAdd(aCampos1,"TRB->XX_PROJ")
 aAdd(aCabs1  ,"Previsão Financeira")
 aAdd(aHeader,{"Previsão Financeira","XX_PROJ" ,"@!",20,00,"","","C","TRB","R"})
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"N")
 aAdd(aPict1,"")
 
@@ -569,7 +563,6 @@ aAdd(aDbf1, { 'XX_REAL'  ,'C', 200,00 } )
 aAdd(aCampos1,"TRB->XX_REAL")
 aAdd(aCabs1  ,"Realizado")
 aAdd(aHeader,{"Realizado","XX_REAL" ,"@!",20,00,"","","C","TRB","R"})
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"N")
 aAdd(aPict1,"")
 
@@ -577,7 +570,6 @@ aAdd(aDbf1, { 'XX_DIF'   ,'C', 200,00 } )
 aAdd(aCampos1,"TRB->XX_DIF")
 aAdd(aCabs1  ,"Diferença %")
 aAdd(aHeader,{"Diferença %","XX_DIF" ,"@!",10,00,"","","C","TRB","R"})
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"N")
 aAdd(aPict1,"@E 99999.99999")
 
@@ -586,28 +578,24 @@ aAdd(aPict1,"@E 99999.99999")
 aAdd(aDbf1, { 'XX_PROJN'  ,'N', 18,02 } )
 aAdd(aCampos1,"TRB->XX_PROJN")
 aAdd(aCabs1  ,"Previsão Financeira N")
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_REALN'  ,'N', 18,02 } )
 aAdd(aCampos1,"TRB->XX_REALN")
 aAdd(aCabs1  ,"Realizado N")
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_DIFN'   ,'N', 18,05 } )
 aAdd(aCampos1,"TRB->XX_DIFN")
 aAdd(aCabs1  ,"Diferença % N")
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
 aAdd(aDbf1, { 'XX_POWERBK','C',  1,00 } )
 aAdd(aCampos1,"TRB->XX_POWERBK")
 aAdd(aCabs1  ,"Power BK")
-aAdd(aImpr1,.T.)
 aAdd(aFormat1,"")
 aAdd(aPict1,"")
 
@@ -624,7 +612,6 @@ If lSintetico .OR. lJob
 	aCabs2   	:= {}
 	aCampos2 	:= {}
 	aTitulos2	:= {}
-	aImpr2		:= {}
 	aFormat2 	:= {}
 	aFormula2	:= {}
 	aPict2		:= {}
@@ -634,42 +621,36 @@ If lSintetico .OR. lJob
 	aAdd(aDbf2, { 'XX_LINHA' ,'N', 10,00 } )
 	aAdd(aCampos2,"TRB2->XX_LINHA")
 	aAdd(aCabs2  ,"Linha")
-	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"")
 	aAdd(aPict2,"")
 
 	aAdd(aDbf2, { 'XX_CODGCT','C', 09,00 } )
 	aAdd(aCampos2,"TRB2->XX_CODGCT")
 	aAdd(aCabs2  ,"Contrato")
-	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"")
 	aAdd(aPict2,"")
 
 	aAdd(aDbf2, { 'XX_DESC'  ,'C', 50,00 } )
 	aAdd(aCampos2,"TRB2->XX_DESC")
 	aAdd(aCabs2  ,"Descrição")
-	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"")
 	aAdd(aPict2,"@!")
 
 	aAdd(aDbf2, { 'XX_PROJ'  ,'C', 200,00 } )
 	aAdd(aCampos2,"TRB2->XX_PROJ")
 	aAdd(aCabs2  ,"Previsão Financeira")
-	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"N")
 	aAdd(aPict2,"")
 
 	aAdd(aDbf2, { 'XX_REAL'  ,'C', 200,00 } )
 	aAdd(aCampos2,"TRB2->XX_REAL")
 	aAdd(aCabs2  ,"Realizado")
-	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"N")
 	aAdd(aPict2,"")
 
 	aAdd(aDbf2, { 'XX_DIF'   ,'C', 200,00 } )
 	aAdd(aCampos2,"TRB2->XX_DIF")
 	aAdd(aCabs2  ,"Diferença %")
-	aAdd(aImpr2,.T.)
 	aAdd(aFormat2,"N")
 	aAdd(aPict2,"@E 99999.99999")
 
@@ -685,7 +666,6 @@ If lSintetico .OR. lJob
 	aCabs3    := {}
 	aCampos3  := {}
 	aTitulos3 := {}
-	aImpr3	  := {}
 	aFormat3  := {}
 	aFormula3 := {}
 	aPict3	  := {}
@@ -695,56 +675,48 @@ If lSintetico .OR. lJob
 	aAdd(aDbf3		,{ 'XX_CODGCT' ,'C', 09,00 } )
 	aAdd(aCampos3	,"TRB3->XX_CODGCT")
 	aAdd(aCabs3		,"Contrato")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"")
 
 	aAdd(aDbf3		,{ 'XX_DESC'   ,'C', 50,00 } )
 	aAdd(aCampos3	,"TRB3->XX_DESC")
 	aAdd(aCabs3  	,"Descrição")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@!")
 
 	aAdd(aDbf3		,{ 'XX_OBJETO' ,'C', 50,00 } )
 	aAdd(aCampos3	,"TRB3->XX_OBJETO")
 	aAdd(aCabs3 	,"Objeto")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@!")
 
 	aAdd(aDbf3		,{ 'XX_FATRM'  ,'N', 18,02 } )
 	aAdd(aCampos3	,"TRB3->XX_FATRM")
 	aAdd(aCabs3 	,"Fat Real Mês")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99,999,999,999.99")
 
 	aAdd(aDbf3		,{ 'XX_RENTM'  ,'N', 18,02 } )
 	aAdd(aCampos3	,"TRB3->XX_RENTM")
 	aAdd(aCabs3 	,"Rent. Mes")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99,999,999,999.99")
 
 	aAdd(aDbf3		,{ 'XX_RENTMP' ,'N', 11,02 } )
 	aAdd(aCampos3	,"TRB3->XX_RENTMP")
 	aAdd(aCabs3 	,"Rent. Mes %")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99999.99999")
 
 	aAdd(aDbf3		,{ 'XX_RENTAC' ,'N', 18,02 } )
 	aAdd(aCampos3	,"TRB3->XX_RENTAC")
 	aAdd(aCabs3 	,"Rent. Acum.")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99,999,999,999.99")
 
 	aAdd(aDbf3		,{ 'XX_RENTACP','N', 11,02 } )
 	aAdd(aCampos3	,"TRB3->XX_RENTACP")
 	aAdd(aCabs3 	,"Rent. Acum. %")
-	aAdd(aImpr3		,.T.)
 	aAdd(aFormat3	,"")
 	aAdd(aPict3		,"@E 99999.99999")
 
@@ -930,8 +902,8 @@ dbSelectArea(cAlias)
 If !lJob
 	ProcRegua(1)
 	If lSintetico
-		u_WaitLog(, {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)})
-		u_WaitLog(, {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)})
+		u_WaitLog(, {|| GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aFormula2,aFormat2)})
+		u_WaitLog(, {|| GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aFormula3,aFormat3)})
 	Else
 		/*
 		If Empty(cContrato)	
@@ -964,7 +936,7 @@ If !lJob
 		EndIf
 		*/
 
-		u_WaitLog(, {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)})
+		u_WaitLog(, {|| GeraCR14(lJob,cAlias,TRIM(cPerg),aTitulos1,aCampos1,aCabs1,aFormula1,aFormat1)})
 
 	EndIf
 Else
@@ -976,9 +948,9 @@ Else
 	EndIf
 
 	// Gerar o analitico e os sintéticos no Schedule
-	GeraCR14(lJob,cAlias,TRIM(cPerg),    aTitulos1,aCampos1,aCabs1,aImpr1,aFormula1,aFormat1)
-	GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aImpr2,aFormula2,aFormat2)
-	GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aImpr3,aFormula3,aFormat3)
+	GeraCR14(lJob,cAlias,TRIM(cPerg),    aTitulos1,aCampos1,aCabs1,aFormula1,aFormat1)
+	GeraCR14(lJob,"TRB2",TRIM(cPerg)+"S",aTitulos2,aCampos2,aCabs2,aFormula2,aFormat2)
+	GeraCR14(lJob,"TRB3",TRIM(cPerg)+"D",aTitulos3,aCampos3,aCabs3,aFormula3,aFormat3)
 
 EndIf
 
@@ -6076,7 +6048,7 @@ Return NIL
 
 
 
-STATIC Function GeraCR14(lJob,_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat)
+STATIC Function GeraCR14(lJob,_cAlias,cArqS,aTitulos,aCampos,aCabs,aFormula,aFormat)
 Local nHandle
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni,_nj
@@ -6115,12 +6087,12 @@ cArqTmp := cDirTmp+"\"+cArqE+".CSV"
 
 If !lJob
 	If u_MsgLog(cPerg,aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?","Y")
-		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,/*aImpr*/,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 		cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		Return Nil
 	EndIf
 Else
-	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,aImpr,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
+	aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,/*aImpr*/,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 	cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,,,.F.,lJob)
 EndIf
 

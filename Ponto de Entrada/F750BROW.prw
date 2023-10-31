@@ -163,6 +163,7 @@ Local cRetorno    := ""
 Local dData       := dDataBase
 Local cUsuario    := __cUserId
 Local cSuper	  := "" 
+Local cErrTxt	  := ""
 
 If !EMPTY(cUsuario)
 	PswOrder(1) 
@@ -251,7 +252,7 @@ If !("DNF" $ SE2->E2_HIST)
 	    nRecNo    := RECNO()
   		dDataBase := SE2->E2_VENCREA		
 	    
-		u_WaitLog(,{|| cRetorno := StartJob("U_BKFINJ18",GetEnvServer(),.T.,aParametros) },"Incluindo DNF na empresa BK, aguarde...")
+		u_WaitLog('BKFINA18',{|| cRetorno := StartJob("U_BKFINJ18",GetEnvServer(),.T.,aParametros) },"Incluindo DNF na empresa BK, aguarde...")
 	
 		RestArea( aAreaAtu )
 		dbSelectArea(sAlias)
@@ -261,10 +262,11 @@ If !("DNF" $ SE2->E2_HIST)
 		IF EMPTY(cRetorno) .OR. SUBSTR(cRetorno,1,3) <> "DNF" 
 			IF EMPTY(cRetorno)
 				cRetorno := "Erro ao incluir a DNF, contate o desenvolvimento"
+				cErrTxt  += VarInfo("aParametros",aParametros)
 			ENDIF
-		    u_MsgLog(,cRetorno, "E")
+		    u_MsgLog("BKFINA18",cRetorno, "E",cErrTxt)
 		ELSE
-		    u_MsgLog(,cRetorno+" incluída na empresa BK", "W")
+		    u_MsgLog("BKFINA18",cRetorno+" incluída na empresa BK", "I")
 			RecLock("SE2",.F.)
 			IF UPPER(TRIM(SE2->E2_HIST)) == "DEPTO PESSOAL"
 				SE2->E2_HIST := cRetorno+" D. Pessoal"  
@@ -276,7 +278,7 @@ If !("DNF" $ SE2->E2_HIST)
 		ENDIF
 	EndIf    
 ELSE
-   u_MsgLog(,"Esta DNF já foi incluída na empresa BK: "+TRIM(SE2->E2_HIST), "W")
+   u_MsgLog("BKFINA18","Esta DNF já foi incluída na empresa BK: "+TRIM(SE2->E2_HIST), "W")
 ENDIF	
 
 
@@ -317,73 +319,79 @@ Private lMsErroAuto := .F.
 
 // Prepara a empresa BK
 //PREPARE ENVIRONMENT EMPRESA _cEmpresa FILIAL _cFilial TABLES "SF1","SD1"
-RpcSetEnv( _cEmpresa, _cFilial )
+If RpcSetEnv( _cEmpresa, _cFilial )
 
-//dDataBase := _dData
+	//dDataBase := _dData
 
-dbSelectArea("SX6")                      
-U_NumSf1()  
+	dbSelectArea("SX6")                      
+	U_NumSf1()  
 
 
-//#INCLUDE "RWMAKE.CH" #INCLUDE "TBICONN.CH"User Function tMata140()Local nOpc := 0 private aCabec:= {}private aItens:= {}private aLinha:= {}Private lMsErroAuto := .F.  
-//aCabec := 	{	{'F1_TIPO'	,'N'		,NIL},;		{'F1_FORMUL','S'		,NIL},;		{'F1_DOC'	,"999999"    	,NIL},;		{'F1_SERIE','   '		,NIL},;		{'F1_EMISSAO',dDataBase	,NIL},;		{'F1_FORNECE','000002'	,NIL},;		{'F1_LOJA'	,'01'		,NIL},;		{'F1_COND','001'		,NIL} }				
-//aItens :=	{	{'D1_COD'	,"PA02"			,NIL},;		{'D1_UM'	,'UN'			,NIL},;				{'D1_QUANT',1			,NIL},;		{'D1_VUNIT',10000			,NIL},;		{'D1_TOTAL',10000			,NIL},;		{'D1_PEDIDO','000009'			,NIL},;		{'D1_ITEMPC','0001'			,NIL},;		{'D1_LOCAL','01'			,NIL}	}AAdd(aLinha,aItens)nOpc := 3 MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc)     If lMsErroAuto      mostraerro()Else   Alert("Ponto de entrada MATA140 executado com sucesso!")		EndIfReturn
+	//#INCLUDE "RWMAKE.CH" #INCLUDE "TBICONN.CH"User Function tMata140()Local nOpc := 0 private aCabec:= {}private aItens:= {}private aLinha:= {}Private lMsErroAuto := .F.  
+	//aCabec := 	{	{'F1_TIPO'	,'N'		,NIL},;		{'F1_FORMUL','S'		,NIL},;		{'F1_DOC'	,"999999"    	,NIL},;		{'F1_SERIE','   '		,NIL},;		{'F1_EMISSAO',dDataBase	,NIL},;		{'F1_FORNECE','000002'	,NIL},;		{'F1_LOJA'	,'01'		,NIL},;		{'F1_COND','001'		,NIL} }				
+	//aItens :=	{	{'D1_COD'	,"PA02"			,NIL},;		{'D1_UM'	,'UN'			,NIL},;				{'D1_QUANT',1			,NIL},;		{'D1_VUNIT',10000			,NIL},;		{'D1_TOTAL',10000			,NIL},;		{'D1_PEDIDO','000009'			,NIL},;		{'D1_ITEMPC','0001'			,NIL},;		{'D1_LOCAL','01'			,NIL}	}AAdd(aLinha,aItens)nOpc := 3 MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc)     If lMsErroAuto      mostraerro()Else   Alert("Ponto de entrada MATA140 executado com sucesso!")		EndIfReturn
 
-           
-// {"F1_FILIAL"    , xFilial("SF1") },;
-aCabec := {{"F1_TIPO"      , "N" , NIL},;
-           {"F1_FORMUL"    , "N" , NIL },;
-           {"F1_DOC"       , cNFiscal, NIL },;
-           {"F1_SERIE"     , cSerie, NIL },;
-           {"F1_EMISSAO"   , _dDtEmis , NIL },;
-           {"F1_DTDIGIT"   , _dDtEmis , NIL },;
-           {"F1_FORNECE"   , _cForn, NIL },;
-           {"F1_LOJA"      , _cLoja, NIL },;
-           {"F1_EST"       , "SP", NIL },;
-           {"F1_ESPECIE"   , "", NIL },;
-           {"F1_XXUSER"    , _cUsuario, NIL },;
-           {"F1_XXUSERS"   , _cSuper, NIL }}          
+			
+	// {"F1_FILIAL"    , xFilial("SF1") },;
+	aCabec := {{"F1_TIPO"      , "N" , NIL},;
+			{"F1_FORMUL"    , "N" , NIL },;
+			{"F1_DOC"       , cNFiscal, NIL },;
+			{"F1_SERIE"     , cSerie, NIL },;
+			{"F1_EMISSAO"   , _dDtEmis , NIL },;
+			{"F1_DTDIGIT"   , _dDtEmis , NIL },;
+			{"F1_FORNECE"   , _cForn, NIL },;
+			{"F1_LOJA"      , _cLoja, NIL },;
+			{"F1_EST"       , "SP", NIL },;
+			{"F1_ESPECIE"   , "", NIL },;
+			{"F1_XXUSER"    , _cUsuario, NIL },;
+			{"F1_XXUSERS"   , _cSuper, NIL }}          
 
-//           {"F1_COND"      , "000" } }
-     
-           
-aItem  := {{"D1_COD"    , _cProd, NIL },;
-           {"D1_UM"     , "PC", NIL },;
-           {"D1_QUANT"  , 1, NIL },;
-           {"D1_VUNIT"  , _nValor, NIL },;
-           {"D1_TOTAL"  , _nValor, NIL },;
-           {"D1_XXHIST" , _cHist, NIL },; 
-           {"D1_CC"     , _cCCus, NIL },; 
-           {"D1_EMISSAO", _dDtEmis , NIL },; 
-           {"D1_DTDIGIT", _dDtEmis , NIL },;
-           {"D1_LOCAL"  , "01", NIL } } 
+	//           {"F1_COND"      , "000" } }
+		
+			
+	aItem  := {{"D1_COD"    , _cProd, NIL },;
+			{"D1_UM"     , "PC", NIL },;
+			{"D1_QUANT"  , 1, NIL },;
+			{"D1_VUNIT"  , _nValor, NIL },;
+			{"D1_TOTAL"  , _nValor, NIL },;
+			{"D1_XXHIST" , _cHist, NIL },; 
+			{"D1_CC"     , _cCCus, NIL },; 
+			{"D1_EMISSAO", _dDtEmis , NIL },; 
+			{"D1_DTDIGIT", _dDtEmis , NIL },;
+			{"D1_LOCAL"  , "01", NIL } } 
 
-//           {"D1_CF"     , "999" },; 
-//           {"D1_TP"     , "GG" },; 
-//           {"D1_RATEIO" , "2" },; 
+	//           {"D1_CF"     , "999" },; 
+	//           {"D1_TP"     , "GG" },; 
+	//           {"D1_RATEIO" , "2" },; 
 
-/*
-		   {"D1_TIPO"   , "N" },;
-           {"D1_SERIE"  , cSerie },;
-           {"D1_DOC"    , cNFiscal },;
-           {"D1_FORNECE", _cForn },;
-           {"D1_LOJA"   , _cLoja },;
-*/
-  
-AADD(aItens,aItem)
+	/*
+			{"D1_TIPO"   , "N" },;
+			{"D1_SERIE"  , cSerie },;
+			{"D1_DOC"    , cNFiscal },;
+			{"D1_FORNECE", _cForn },;
+			{"D1_LOJA"   , _cLoja },;
+	*/
+	
+	AADD(aItens,aItem)
 
-lMsErroAuto := .F.    
-          
-MSExecAuto({|x,y,z| Mata140(x,y,z)},aCabec,aItens,3,2) //Inclusao
+	lMsErroAuto := .F.    
+			
+	MSExecAuto({|x,y,z| Mata140(x,y,z)},aCabec,aItens,3,2) //Inclusao
 
-If lMsErroAuto
+	If lMsErroAuto
 
-	cRetorno := u_LogMsExec("BKFINJ18","Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie)
+		cRetorno := u_LogMsExec("BKFINJ18","Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie)
 
-	lRet := .F.
+		u_MsgLog("BKFINJ18","aCabec","E",VarInfo("aCabec",aCabec))
+		u_MsgLog("BKFINJ18","aItens","E",VarInfo("aItens",aItens))
+
+		lRet := .F.
+	Else
+		cRetorno := "DNF"+cNFiscal
+		u_MsgLog("BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
+	EndIf
 Else
-	cRetorno := "DNF"+cNFiscal
-	u_MsgLog("BKFINJ18","Pré-nota "+cNFiscal+ " incluída - Retorno da função: "+cRetorno)
+	u_MsgLog("BKFINJ18","Erro ao abrir novo ambiente na empresa "+_cEmpresa+" filial "+_cFilial,"E")
 EndIf
 
 RpcClearEnv()

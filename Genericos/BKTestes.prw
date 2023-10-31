@@ -28,7 +28,7 @@ User Function BKTestes(cRotTest)
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Default cRotTest := "LogCN9"
+Default cRotTest := "test3dlg"
 
 Private cRot := PAD("U_"+cRotTest,20)
 Private lEnd := .F.
@@ -57,6 +57,317 @@ ACTIVATE MSDIALOG oDlg1  CENTERED
 //ACTIVATE DIALOG oDlg1 CENTER
 
 RETURN
+
+
+User Function TestDlg
+
+Local nI
+
+Local nTop		:= 200
+Local nLeft		:= 200
+Local aButtons 	:= {}
+aSize	   	:= FWGetDialogSize( oMainWnd )
+Private oDlg2
+
+nTotal := 99999.77
+oOk := LoadBitmap( GetResources(), "LBTIK" )
+oNo := LoadBitmap( GetResources(), "LBNO" )
+
+
+//DEFINE MSDIALOG oDlg2 TITLE "Confirme os Borderôs a gerar (consolidados)" FROM 000,000 TO 450,650 PIXEL 
+oDlg2 := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],"Confirme os Borderôs a gerar (consolidados)",,,,,,,,, .T.,,,, .F. )
+
+//@ 000,000 MSPANEL oPanel OF oDlg SIZE 330,225
+
+
+
+oPanel2:= TPanel():New(0,0,"",oDlg2,,,,,,100,100)
+oPanel2:Align := CONTROL_ALIGN_ALLCLIENT   //CONTROL_ALIGN_TOP
+
+//@ 000,000 MSPANEL oPanel2 OF oDlg2 SIZE 330,225
+//oPanel2:Align := CONTROL_ALIGN_LEFT 
+
+
+//oAll:bChange := {|| MudaCell(lAll) , oListId2:Refresh()}
+
+lAll:= .F. 
+@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanel2 SIZE 050, 010 PIXEL 
+
+oSay := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanel2,,,,,,.T.,,,200,20)
+
+
+@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario" SIZE aSize[3]-100, aSize[4]-100 OF oPanel2 PIXEL 
+aBordero := {}
+For nI := 1 to 50
+	aAdd(aBordero,{.F.,"xxxxxxxxxxxxxxx",STR(nI)})
+Next
+oListID2:SetArray(aBordero)
+oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
+							aBordero[oListId2:nAt][2]}}
+
+oListID2:bLDblClick := {|| aBordero[oListId2:nAt][1] := MrkTit(aBordero[oListId2:nAt][1]), oListID2:DrawSelect()}
+//oListID2:Align := CONTROL_ALIGN_BOTTOM
+
+ACTIVATE MSDIALOG oDlg2 CENTERED ON INIT (EnchoiceBar(oDlg2,{|| lOk:=.T., oDlg2:End()},{|| oDlg2:End()}, , aButtons),Ajuste(@oListID2,@oPanel2))
+
+Return Nil
+
+
+Static Function Ajuste(oListA,oPanelA)
+oListA:nRight := oPanelA:nRight - 10 //right
+oListA:nBottom := oPanelA:nHeight - oListA:nTop - oPanelA:nTop  //botttom
+
+//OLISTID2:NBOTTOM := Opanel2:NCLIENTHEIGHT - 10
+
+Return Nil
+
+
+User Function test2dlg
+	Local nI 
+	Local aBordero
+	Local aSize as array
+	Local oDlgBrw as object
+	Local nTop		:= 200
+	Local nLeft		:= 200
+
+	Private oTotSel as Object
+	Private nTotSel as numeric
+	Private oQtdSel as Object
+	Private nQtdSel as numeric
+
+	//aSize := MsAdvSize( .T. ) //Parametros verifica se exist enchoice
+	aSize := FWGetDialogSize( oMainWnd )
+
+	Define MsDialog oDlgBrw FROM nTop,nLeft To aSize[3],aSize[4] Title "MarkBrowse" Pixel
+
+	// Cria o conteiner onde serão colocados os paineis
+	oTela     := FWFormContainer():New( oDlgBrw )
+	cIdTela	  := oTela:CreateHorizontalBox( 08 )
+	cIdRod	  := oTela:CreateHorizontalBox( 75 )
+
+	oTela:Activate( oDlgBrw, .F. )
+
+	//Cria os paineis onde serao colocados os browses
+	oPanelUp  	:= oTela:GeTPanel( cIdTela )
+	oPanelDown  := oTela:GeTPanel( cIdRod )
+
+	//Quantidade Selecionado
+	@ oPanelUp:nTop + 04, oPanelUp:nLeft + 10 	SAY   "Marcados:" SIZE 038,007 OF oPanelUp PIXEL
+	@ oPanelUp:nTop + 02, oPanelUp:nLeft + 50	MSGET oQtdSel Var nQtdSel SIZE 080,010	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
+
+	oOk := LoadBitmap( GetResources(), "LBTIK" )
+	oNo := LoadBitmap( GetResources(), "LBNO" )
+
+	@ 0,0 LISTBOX oListID2 FIELDS HEADER "","Teste","Linha" SIZE aSize[3], aSize[4] OF oPanelDown PIXEL 
+	aBordero := {}
+	For nI := 1 to 50
+		aAdd(aBordero,{.F.,"xxxxxxxxxxxxxxx",STR(nI)})
+	Next
+	oListID2:SetArray(aBordero)
+	oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
+								aBordero[oListId2:nAt][2],;
+								aBordero[oListId2:nAt][3]}}
+
+	oListID2:bLDblClick := {|| aBordero[oListId2:nAt][1] := MrkTit(aBordero[oListId2:nAt][1]), oListID2:DrawSelect()}
+	oListID2:Align := CONTROL_ALIGN_ALLCLIENT
+
+	ACTIVATE MSDIALOG oDlgBrw CENTERED ON INIT (EnchoiceBar(oDlgBrw,{||oDlgBrw:End()},{||oDlgBrw:End()},,))	
+
+Return Nil
+
+
+User Function test3dlg
+	Local nI 
+	Local aBordero
+	Local aSize as array
+	Local oDlg  as object
+	Local nTop		:= 200
+	Local nLeft		:= 200
+
+	Private oTotSel as Object
+	Private nTotSel as numeric
+	Private oQtdSel as Object
+	Private nQtdSel as numeric
+
+	aSize := FWGetDialogSize( oMainWnd )
+
+	oDlg := TDialog():New(nTop,nLeft,aSize[3],aSize[4],'Teste de tela com FWLayer',,,,,CLR_BLACK,CLR_WHITE,,,.T.,,,,,,)
+
+    oDlg:nClientHeight  := aSize[3]
+    oDlg:nClientWidth   := aSize[4]
+
+	oDlg:Refresh()
+
+	EnchoiceBar(oDlg,{|| oDlg:End() },{|| oDlg:End() })
+
+   	oLayer := FWLayer():new()
+    oLayer:init(oDlg,.F.)
+
+    oLayer:addCollumn ('Col1',100,.F.)
+
+    oLayer:addWindow('Col1', 'WinTop' ,'Seleção' ,20,.F.,.F.,,,)
+    oLayer:addWindow('Col1', 'WinGrid','Títulos' ,80,.F.,.F.,,,)
+
+	oPanelUp := oLayer:getWinPanel('Col1','WinTop')
+	oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
+   
+	// Painel Top
+	@ 04, 10 SAY   "Marcados:" SIZE 038,007 OF oPanelUp PIXEL
+	@ 04, 50 MSGET oQtdSel Var nQtdSel SIZE 080,010	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
+
+	oOk := LoadBitmap( GetResources(), "LBTIK" )
+	oNo := LoadBitmap( GetResources(), "LBNO" )
+
+	@ 0,0 LISTBOX oListID2 FIELDS HEADER "","Teste","Linha" SIZE aSize[3], aSize[4] OF oPanelDown PIXEL 
+	aBordero := {}
+	For nI := 1 to 50
+		aAdd(aBordero,{.F.,"xxxxxxxxxxxxxxx",STR(nI)})
+	Next
+	oListID2:SetArray(aBordero)
+	oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
+								aBordero[oListId2:nAt][2],;
+								aBordero[oListId2:nAt][3]}}
+
+	oListID2:bLDblClick := {|| aBordero[oListId2:nAt][1] := MrkTit(aBordero[oListId2:nAt][1]), oListID2:DrawSelect()}
+	oListID2:Align := CONTROL_ALIGN_ALLCLIENT
+
+	oDlg:Activate()
+
+Return Nil
+
+
+Static Function MrkTit(lTit)
+LOCAL lOk := .T.
+lOk := .T.
+Return lOk 
+
+
+
+
+
+
+//#include "TOTVS.CH"
+
+// Alinhamento do método addInLayout
+#define LAYOUT_ALIGN_LEFT     1
+#define LAYOUT_ALIGN_RIGHT    2
+#define LAYOUT_ALIGN_HCENTER  4
+#define LAYOUT_ALIGN_TOP      32
+#define LAYOUT_ALIGN_BOTTOM   64
+#define LAYOUT_ALIGN_VCENTER  128
+
+// Alinhamento para preenchimento dos componentes no TLinearLayout
+#define LAYOUT_LINEAR_L2R 0 // LEFT TO RIGHT
+#define LAYOUT_LINEAR_R2L 1 // RIGHT TO LEFT
+#define LAYOUT_LINEAR_T2B 2 // TOP TO BOTTOM
+#define LAYOUT_LINEAR_B2T 3 // BOTTOM TO TOP
+
+function u_fEstAlias()
+    local oDlg as object
+    local oSQL as object
+    local aTam as array
+    local oTBar as object
+    local oBBrNovo as object
+    local oBBrAbrir as object
+    local oBBrPlay as object
+    local oLyrSQL as object
+
+    oDlg := TDialog():New(,,600,1000,'Consulta SQL',,,,,CLR_BLACK,CLR_WHITE,,,.T.,,,,,,)
+
+    aTam  := FwGetDialogSize(oDlg)
+    oDlg:lCentered  := .T.
+    //oDlg:lMaximized := .T.
+
+    oDlg:nTop       := 200 //aTam[1]
+    oDlg:nLeft      := 200 //aTam[2]
+    oDlg:nBottom    := aTam[3]
+    oDlg:nRight     := aTam[4]
+
+    oDlg:nClientHeight  := aTam[3]
+    oDlg:nClientWidth   := aTam[4]
+
+    oDlg:Refresh()
+
+    //Componentes do cabeçalho
+    oTBar       := TBar():New( oDlg, 25, 32, .T.,,,, .T.)
+    oBBrNovo    := TBtnBmp2():New( 00, 00, 35, 25, 'TK_NOVO',,,, { || Alert( 'Novo' ) }     , oTBar, 'Nova Consulta'    ,, .F., .F. )
+    oBBrAbrir   := TBtnBmp2():New( 00, 00, 35, 25, 'OPEN'   ,,,, { || Alert( 'Abrir' ) }    , oTBar, 'Abrir Consulta'   ,, .F., .F. )
+    oBBrSalvar  := TBtnBmp2():New( 00, 00, 35, 25, 'SALVAR' ,,,, { || Alert( 'Salvar' ) }   , oTBar, 'Salvar Consulta'  ,, .F., .F. )
+    oBBrPlay    := TBtnBmp2():New( 00, 00, 35, 25, 'NEXT'   ,,,, { || Alert( 'Executar' ) } , oTBar, 'Executar Consulta',, .F., .F. )
+
+    oLyrSQL := FWLayer():new()
+    oLyrSQL:init(oDlg,.F.)
+
+    oLyrSQL:addLine('lCONSULTA',100,.F.)
+
+    oLyrSQL:addCollumn ('cCONSULTA',100,.F.,'lCONSULTA')
+
+    oLyrSQL:addWindow('cCONSULTA', 'wCONSULTA' ,'SQL'        ,60,.F.,.F.,,'lCONSULTA',)
+    oLyrSQL:addWindow('cCONSULTA', 'wRESULTADO','Resultado'  ,40,.T.,.T.,{||sizePnlSQL(oSQL)},'lCONSULTA',)
+
+    oSQL := FPanelSQL(@(oLyrSQL:GetWinPane('cCONSULTA','wCONSULTA','lCONSULTA')))
+
+    oDlg:Activate()
+Return
+
+Static Function fPanelSQL(oPanel)
+    Local oTSEditSql as object
+
+    oTSEditSql := TSimpleEditor():New(,,oPanel,,)
+    oTSEditSql:lAutoIndent := .T.
+    oTSEditSql:nWidth   := oPanel:nWidth
+    oTSEditSql:nHeight  := oPanel:nHeight
+
+Return oTSEditSql
+
+static function sizePnlSQL(oSQL)
+    oSQL:nHeight := oSQL:oParent:nHeight
+return nil
+
+
+
+
+User Function BKBanner()
+	Local	nLin	as	numeric
+	Local	ncol	as	numeric
+	Local	oDlg	as	object
+	Local	oLayer	as	object
+	Local	oSay	as	object
+	Local	oFont 	as	object
+	Local	cTxt	as	char
+	Local   cMargiPri as Character
+	Local   cMargiSec as Character
+
+	cTxt			:=	''
+	oFont 			:= 	TFont():New('Arial',,-12,.T.)
+	oLayer 			:= 	FWLayer():New()
+	nLin			:=	0
+	nCol			:=	610
+	nLin			:=	435
+	cMargiPri		:= "margin-top:40px;"
+	cMargiSec		:= "margin-top:20px;"
+	
+	cTxt	:= '<h1><strong>'+"Smartclient Incompatível"+'</strong></h1><br>'//
+	cTxt	+= '<h2><strong>'+"Ocorrencia:"+'</strong></h2>'//
+	cTxt	+= '<p style="'+cMargiSec+'">'+"O SmartClient utilizado esta na versao 64 bits"+'</p>'//
+	cTxt	+= '<h2 style="'+cMargiPri+'"><strong>'+"Solucao:"+'</strong></h2>'//
+	cTxt	+= '<p style="'+cMargiSec+'">'+"Para o correto funcionamento dessa rotina, sera necessario alterar a versao do"+'</p>'//
+	cTxt	+= '<p>'+"SmartClient para Lobo Guara 32 bits."+'</p>'//
+	cTxt    += '<p style="'+cMargiSec+'">'+"Obs. Os arquivos estao disponiveis no Portal do Cliente"+'</p>'//
+
+	oDlg := MsDialog():New( 0, 0, nLin, nCol, "",,,, nOr( WS_VISIBLE, WS_POPUP ),,,,, .T.,,,, .F. )
+	oLayer:Init( oDlg, .T. )
+	oLayer:AddLine( "LINE01", 100 )
+	oLayer:AddCollumn( "BOX01", 100,, "LINE01" )
+	oLayer:AddWindow( "BOX01", "PANEL01", 'FINR460 - Cheques Especiais.', 100, .F.,,, "LINE01" )
+
+	oSay	:=	TSay():New(10,10,{|| cTxt },oLayer:GetWinPanel ( 'BOX01' , 'PANEL01', 'LINE01' ),,oFont,,,,.T.,,,380,nLin,,,,,,.T.)
+	oSay:lWordWrap = .T.
+
+	oDlg:Activate(,,,.T.)
+
+Return
+
 
 User Function PisCof()
 Local aRet := {}

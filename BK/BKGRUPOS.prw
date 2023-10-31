@@ -76,7 +76,7 @@ Return cNEmp
 
 // Retorna se o fornecedor é a própria BK
 User Function IsFornBK(cForn)
-Return (cForn == "000084")
+Return (cForn == u_cFornBK())
 
 User Function cFornBK()
 Return "000084"
@@ -393,6 +393,18 @@ Local lRet := .F.
 //    lRet := .T.
 //EndIf
 Return u_InGrupo(cId,"000039")
+Return lRet
+
+
+// Retorna se o usuário é o usuário Teste
+User Function IsTeste(cId)
+Local lRet := .F.
+If Empty(cId)
+	cId := __cUserID
+EndIf
+If cId $ "000038"
+    lRet := .T.
+EndIf
 Return lRet
 
 

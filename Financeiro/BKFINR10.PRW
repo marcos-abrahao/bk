@@ -45,7 +45,6 @@ PRIVATE aCabs1      := {}
 PRIVATE aCampos1    := {}
 PRIVATE aTitulos1   := {}
 PRIVATE aStruct1    := {}
-PRIVATE aImpr1      := {}
 
 PRIVATE cAliasTmp2  := "TMP2"
 PRIVATE oTmpTb2
@@ -53,7 +52,6 @@ PRIVATE aCabs2      := {}
 PRIVATE aCampos2    := {}
 PRIVATE aTitulos2   := {}
 PRIVATE aStruct2    := {}
-PRIVATE aImpr2      := {}
 
 PRIVATE cAliasTmp3  := "TMP3"
 PRIVATE oTmpTb3
@@ -61,7 +59,6 @@ PRIVATE aCabs3      := {}
 PRIVATE aCampos3    := {}
 PRIVATE aTitulos3   := {}
 PRIVATE aStruct3    := {}
-PRIVATE aImpr3      := {}
 
 PRIVATE cAliasTmp4  := "TMP4"
 PRIVATE oTmpTb4
@@ -69,7 +66,6 @@ PRIVATE aCabs4      := {}
 PRIVATE aCampos4    := {}
 PRIVATE aTitulos4   := {}
 PRIVATE aStruct4    := {}
-PRIVATE aImpr4      := {}
                          
 PRIVATE cAliasTmp5  := "TMP5"
 PRIVATE oTmpTb5
@@ -77,7 +73,6 @@ PRIVATE aCabs5      := {}
 PRIVATE aCampos5    := {}
 PRIVATE aTitulos5   := {}
 PRIVATE aStruct5    := {}
-PRIVATE aImpr5      := {}
 
 PRIVATE cAliasTmp6  := "TMP6"
 PRIVATE oTmpTb6
@@ -85,7 +80,6 @@ PRIVATE aCabs6      := {}
 PRIVATE aCampos6    := {}
 PRIVATE aTitulos6   := {}
 PRIVATE aStruct6    := {}
-PRIVATE aImpr6      := {}
 
 
 PRIVATE aResumo     := ARRAY(12)
@@ -346,7 +340,7 @@ If nSaldos == 1
   	EndIf
 	//Else	
 	//	aPlans := {}
-	//	AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo+OemToAnsi(" - Saldos bancários"),aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+	//	AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo+OemToAnsi(" - Saldos bancários"),aCampos1,aCabs1,/* aImpr */, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 	//	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
 	//EndIf
 EndIf
@@ -935,11 +929,11 @@ Else
 		cFiltro := "B1_COD = '"+cFiltPrd+"'"
 	EndIf
 	
-	AADD(aPlans,{cAliasTmp3,cNomePrg+"-Analitico",cFiltro,cTitulo+OemToAnsi(" - Analitico"),aCampos3,aCabs3,aImpr3, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+	AADD(aPlans,{cAliasTmp3,cNomePrg+"-Analitico",cFiltro,cTitulo+OemToAnsi(" - Analitico"),aCampos3,aCabs3,/*aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 	If nSaldos == 1                                              
-		AADD(aPlans,{cAliasTmp1,cNomePrg+"-Saldos Bancários","!EMPTY("+cAliasTmp1+"->A6_OK)",OemToAnsi("Fluxo de Caixa Realizado - Saldos bancários"),aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+		AADD(aPlans,{cAliasTmp1,cNomePrg+"-Saldos Bancários","!EMPTY("+cAliasTmp1+"->A6_OK)",OemToAnsi("Fluxo de Caixa Realizado - Saldos bancários"),aCampos1,aCabs1,/* aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 		If nAplic == 1
-			AADD(aPlans,{cAliasTmp6,cNomePrg+"-Aplicações","",OemToAnsi("Fluxo de Caixa Realizado - Aplicações"),aCampos6,aCabs6,aImpr6, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
+			AADD(aPlans,{cAliasTmp6,cNomePrg+"-Aplicações","",OemToAnsi("Fluxo de Caixa Realizado - Aplicações"),aCampos6,aCabs6,/* aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 		EndIf
 	EndIf
 

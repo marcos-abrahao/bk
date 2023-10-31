@@ -646,7 +646,7 @@ User Function GetSa2(cCod,cLoja)
 Local aArea := GetArea()
 
 dbSelectArea("SA2")
-If dbSeek(xFilial("SA2")+cCod+cLoja) 
+If !u_IsFornBK(cCod) .AND. dbSeek(xFilial("SA2")+cCod+cLoja)
 	cxBanco   := SA2->A2_BANCO
 	cxAgencia := SA2->A2_AGENCIA
 	cxConta   := SA2->A2_NUMCON
@@ -664,7 +664,7 @@ Return
 Static Function PutSa2(cCod,cLoja)
 Local aArea := GetArea()
 
-If !Empty(cxBanco)
+If !Empty(cxBanco) .AND. !u_IsFornBK(cCod)
 	dbSelectArea("SA2")
 	If dbSeek(xFilial("SA2")+cCod+cLoja) 
 		RecLock("SA2",.F.)

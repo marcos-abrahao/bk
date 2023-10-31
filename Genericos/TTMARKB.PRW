@@ -24,7 +24,7 @@ Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 				  { "ROTINA"   , "C", 15, 0, "Rotina"   ,"@!", .T., "" },;
 				  { "DESCRICAO", "C", 50, 0, "Descrição","@!", .T., "" } }
 
-Local aDados  := {{"","Rotina1","Rotina11"},{"","Rotina2","Rotina22"}}
+Local aDados  := {{"","Rotina1","Rotina11"},{"X","Rotina2","Rotina22"}}
 
 u_TTMARKB(aCampos, aDados, .F.)
 
@@ -71,7 +71,7 @@ User Function TTMARKB(aCampos, aDados, lMarcado)
 	aField := {}
 
 	//Definição do campo MARK
-	aAdd( aField, { "MARK"		, "C", 002, 0, "Mark",, .F., "" } )
+	aAdd( aField, { "MARK"	, "C", 2, 0, "Mark",, .F., "" } )
 
 	//Definição dos campos conforme parâmetro
 	For nX:=1 To Len(aCampos)
@@ -129,10 +129,7 @@ User Function TTMARKB(aCampos, aDados, lMarcado)
 
 	oBrowse:Activate()
 
-	//Quantidade Selecionado
-	//@ oPanelUp:nTop + 02, oPanelUp:nLeft + 10 	SAY   "Marcados:" SIZE 038,007 OF oPanelUp PIXEL
-	//@ oPanelUp:nTop + 10, oPanelUp:nLeft + 10	MSGET oQtdSel Var nQtdSel SIZE 080,015	OF oPanelUp PIXEL WHEN .F. PICTURE "@E 999,999,999" HASBUTTON
-
+¬
 	//Verifica se já traz o MarkBrowse Selecionado
 	//If lMarcado
 		FMarkAll( oBrowse, aDados, lMarcado )
@@ -219,21 +216,17 @@ Static Function FMarkAll( oBrowse, aDados, lMarcado )
 
 				( cAlias )->MARK := Iif( ( cAlias )->MARK == cMark, "  ", cMark )
 
-				// Marca/Desmarca o aDados
-				aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
-
-				( cAlias )->( MsUnlock() )
-
 			Else // Marca os que vierem marcados na inicialização
 			
 				( cAlias )->MARK := Iif( Empty(aDados[(cAlias)->(RECNO()),1]), "  ", cMark )
 
-				// Marca/Desmarca o aDados
-				aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
-
-				( cAlias )->( MsUnlock() )
-
 			EndIf
+
+			// Marca/Desmarca o aDados
+			aDados[(cAlias)->(RECNO()),1] := (cAlias)->MARK
+
+			( cAlias )->( MsUnlock() )
+
 
 			If ( cAlias )->MARK == cMark
 				nQtdSel++
@@ -276,12 +269,13 @@ Static Function FMarkOne( oBrowse, aDados )
 	lMarkAll	:= .T.
 
 	// Marca/Desmarca o aDados
-	aDados[(cAlias)->(RECNO()),1] := cMark
 
 	If ( cAlias )->MARK == cMark
-		nQtdSel ++
+		aDados[(cAlias)->(RECNO()),1] := cMark
+		nQtdSel++
 	Else
-		nQtdSel --
+		aDados[(cAlias)->(RECNO()),1] := ""
+		nQtdSel--
 	EndIf
 
 	//Atualiza o Browse
@@ -313,9 +307,9 @@ Static Function CrgMarkB(cAliasBrw, aCampos, aDados)
 	For nX:=1 To Len(aDados)
 
 		Reclock(cAliasBrw,.T.)
-			For nY:=1 To Len(aCampos)
-				(cAliasBrw)->&(aCampos[nY][1]) := aDados[nX][nY]
-			Next nY
+		For nY:=1 To Len(aCampos)
+			(cAliasBrw)->&(aCampos[nY][1]) := aDados[nX][nY]
+		Next nY
 		(cAliasBrw)->(MsUnlock())
 
 	Next nX

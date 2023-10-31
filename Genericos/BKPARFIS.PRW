@@ -63,12 +63,10 @@ Local aCampos := {{ "MARCA"     , "C", 02, 0, "Marca"           ,"@!", .F., "" }
 				  { "DATANOVA"  , "D", 08, 0, "Alterar para:"   ,"@E", .T., "" } }
 
 For nI := 1 To Len(aDatas)
-    aAdd(aDados,{"X ",aDatas[nI,1],aDatas[nI,2],STOD(aDatas[nI,3]),dParF})
+    aAdd(aDados,{"X",aDatas[nI,1],aDatas[nI,2],STOD(aDatas[nI,3]),dParF})
 Next
 
 u_TTMARKB(aCampos, aDados, .F.)
-
-//OkPar1(aDados)
 
 u_WaitLog(cProg, {|| OkPar1(aDados)})
 

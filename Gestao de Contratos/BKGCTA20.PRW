@@ -18,7 +18,7 @@ Local cVig  := ""
 Local aArea := {}
 Local cProg	:= "BKGCTA20"
 
-If FWIsInCallStack("U_BKCOMA13") .OR. ALLTRIM(FUNNAME()) == 'RPC'  // GERA APORT BK
+If FWIsInCallStack("U_BKCOMA13") .OR. ALLTRIM(FUNNAME()) == 'RPC'
 	Return lRet
 ENDIF
 
@@ -26,10 +26,8 @@ aArea := GetArea()
 cVig  := U_Vig2Contrat(cContrato,Date(),cEmpAnt)
 
 IF !EMPTY(cVig)
-   IF !u_MsgLog(cProg,"Contrato "+TRIM(cContrato)+" - "+cVig+" !! Confirma Inclusão neste C.Custo ?","Y")
+   IF !u_MsgLog(cProg,"Contrato "+TRIM(cContrato)+" - "+cVig+"! Confirma a inclusão desta despesa neste C.Custo ?","N")
 		lRet := .F.
-   ELSE
-		u_MsgLog(cProg,"Entrada em contrato vencido "+cContrato)
    ENDIF
 ENDIF
 

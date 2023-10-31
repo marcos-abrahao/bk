@@ -39,32 +39,34 @@ BK - Borderô - Depósito Itau
 
 User Function BKFINA32()
 
-Local oDlg
-Local aSize	   	:= FWGetDialogSize( oMainWnd )
-Local nTop		:= 200
-Local nLeft		:= 200
+Local oDlg			as Object
+Local aSize	   		:= FWGetDialogSize( oMainWnd )
+Local nTop			:= 0
+Local nLeft			:= 0
 
-Local oOk
-Local oNo
-Local oListId
-Local oPanel
-Local lAll
-Local oAll
-Local aButtons := {}
+Local oLayer		as Object
+Local oPanelUp		as Object
+Local oPanelDown	as Object
 
-Local aTitBor   := {}
-Local lOk		:= .F.
-Local aAreaIni  := GetArea()
-Local cTitulo   := "Depósito Itaú - Borderô "+FWEmpName(cEmpAnt)
+Local oOk			:= LoadBitmap( GetResources(), "LBTIK" )
+Local oNo 			:= LoadBitmap( GetResources(), "LBNO" )
 
-Private cPictVal:= PesqPict("SE2","E2_VALOR")
-Private cPerg   := "BKFINA32"
-Private dData	:= dDataBase
-Private cSEE    := ""
-Private cDirTmp := ""
-Private cBanco 	:= ""
+Local oListId		as Object
+Local lAll			:= .F.
+Local oAll			as Object
 
-u_MsgLog(cPerg,"Programa em testes (número de borderô não será gerado)","W")
+Local aTitBor   	:= {}
+Local lOk			:= .F.
+Local aAreaIni  	:= GetArea()
+Local cTitulo   	:= "Depósito Itaú - Borderô "+FWEmpName(cEmpAnt)
+
+Private cPictVal	:= PesqPict("SE2","E2_VALOR")
+Private cPerg   	:= "BKFINA32"
+Private dData		:= dDataBase
+Private cSEE    	:= ""
+Private cDirTmp 	:= ""
+Private cBanco 		:= ""
+Private nTotal 		:= 0
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
@@ -93,7 +95,6 @@ IF EMPTY(cDirTmp)
 	Return Nil
 ENDIF
 
-
 aTitBor := {}
 
 u_WaitLog(cPerg, {|| aTitBor := ProcGer1() },"Selecionando títulos")
@@ -104,24 +105,32 @@ If Empty(aTitBor)
 	Return
 EndIf
 
-oOk := LoadBitmap( GetResources(), "LBTIK" )
-oNo := LoadBitmap( GetResources(), "LBNO" )
-
-//DEFINE MSDIALOG oDlg TITLE cTitulo FROM 000,000 TO 450,650 PIXEL 
 
 oDlg := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],cTitulo,,,,,,,,, .T.,,,, .F. )
+oDlg:nClientHeight  := aSize[3]
+oDlg:nClientWidth   := aSize[4]
+oDlg:Refresh()
 
-//@ 000,000 MSPANEL oPanel OF oDlg SIZE 330,225
+EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End() },{|| oDlg:End() })
 
-oPanel:= TPanel():New(10,10,"",oDlg,,,,,,20,20)
-oPanel:Align := CONTROL_ALIGN_ALLCLIENT	       
+oLayer := FWLayer():new()
+oLayer:init(oDlg,.F.)
+
+oLayer:addCollumn ('Col1',100,.F.)
+oLayer:addWindow('Col1', 'WinTop' ,'Seleção' ,15,.F.,.F.,,,)
+oLayer:addWindow('Col1', 'WinGrid','Títulos' ,85,.F.,.F.,,,)
+
+oPanelUp := oLayer:getWinPanel('Col1','WinTop')
+oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
 
 
 lAll := .F.
-@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanel SIZE 050, 010 PIXEL 
-oAll:bChange := {|| Aeval(aTitBor,{|x| IIF(Empty(x[2]),x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
+@ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelUp SIZE 050, 010 PIXEL 
+oAll:bChange := {|| MarkAll(lAll,aTitBor,oSayTot), oListId:Refresh()}
+oSayTot := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelUp,,,,,,.T.,,,200,20)
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","Borderô","Banco","Prefixo","Número","Parcela","Tipo","Nome","Emissão","Vencimento","Total R$","Agência","Conta","Digito","Tipo" SIZE 320,180 OF oPanel PIXEL 
+
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","Borderô","Banco","Prefixo","Número","Parcela","Tipo","Nome","Emissão","Vencimento","Total R$","Agência","Conta","Digito","Tipo" SIZE 320,180 OF oPanelDown PIXEL 
 oListID:SetArray(aTitBor)
 oListID:bLine := {|| {If(aTitBor[oListId:nAt][CP_MARK],oOk,oNo),;
 						aTitBor[oListId:nAt][CP_NUMBOR],;
@@ -139,10 +148,10 @@ oListID:bLine := {|| {If(aTitBor[oListId:nAt][CP_MARK],oOk,oNo),;
 						aTitBor[oListId:nAt][CP_DIGITO],;
 						aTitBor[oListId:nAt][CP_TIPOP]}}
 
-oListId:bLDblClick := {|| aTitBor[oListId:nAt][1] := ValidaMrk(aTitBor[oListId:nAt][CP_MARK],aTitBor[oListId:nAt][CP_NUMBOR],aTitBor[oListId:nAt][CP_SALDO]), oListId:DrawSelect()}
+oListId:bLDblClick := {|| aTitBor[oListId:nAt][1] := MarkOne(aTitBor[oListId:nAt][CP_MARK],aTitBor[oListId:nAt][CP_NUMBOR],aTitBor[oListId:nAt][CP_SALDO],oSayTot), oListId:DrawSelect()}
 oListId:Align := CONTROL_ALIGN_ALLCLIENT
 
-ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
+oDlg:Activate()
  
 If ( lOk )
 	u_WaitLog(cPerg, {|| GravaBordero(aTitBor)},"Gerando borderô")
@@ -152,14 +161,43 @@ RestArea(aAreaIni)
 Return
       
 
-Static Function ValidaMrk(lRet,cNumBor,nSaldo)
+Static Function MarkOne(lMrk,cNumBor,nSaldo,oSayTot)
+Local lRet := .F.
 If Empty(cNumBor) .AND. nSaldo > 0
-	lRet := !lRet
-Else
-	lRet := .F.
+	lRet := !lMrk
 EndIf
+
+IF lMrk <> lRet
+	IF lRet
+		nTotal += nSaldo
+	ELSE
+		nTotal -= nSaldo
+	ENDIF
+ENDIF
+
+oSayTot:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
+
 Return lRet
 
+
+
+Static Function MarkAll(lAll,aTitBor,oSayTot)
+Local nI
+
+nTotal := 0
+
+For nI := 1 TO LEN(aTitBor)
+
+	If lAll .AND. Empty(aTitBor[nI,CP_NUMBOR]) .AND. aTitBor[nI,CP_SALDO] > 0
+		aTitBor[nI,CP_MARK] := .T.
+		nTotal += aTitBor[nI,CP_SALDO] 
+	Else
+		aTitBor[nI,CP_MARK] := .F.
+	EndIf
+Next
+oSayTot:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
+
+Return
 
 
 Static Function GravaBordero(aTitBor)
@@ -217,12 +255,12 @@ IF cEmpAnt $ "06/08/09/10/11/14/15"
 		nLote := VAL(Soma1(STR(nLote),8))
 
 		// Descomentar para Ativar
-
-    	cQuery 	:= " UPDATE SEE010 SET EE_LOTECP = '"+STRZERO(nLote,8)+"' "
-		cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
-		cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
-    	TcSqlExec(cQuery)
-
+		If !u_IsTeste()
+			cQuery 	:= " UPDATE SEE010 SET EE_LOTECP = '"+STRZERO(nLote,8)+"' "
+			cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
+			cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
+			TcSqlExec(cQuery)
+		EndIf
 
 	ENDIF
 
@@ -239,13 +277,11 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	EndIf
 
 	// Descomentar para Ativar
-
-	
-	RecLock("SEE",.F.)                             
-	Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
-	SEE->( MsUnlock() )
-	
-
+	If !u_IsTeste()
+		RecLock("SEE",.F.)                             
+		Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
+		SEE->( MsUnlock() )
+	EndIf
 
 	nLote := VAL(SEE->EE_LOTECP)
  
@@ -504,7 +540,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 	cNumBor := ""
 
 	// Descomentar para Ativar
-	u_WaitLog(cPerg,{|| cNumBor := RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)})
+	If !u_IsTeste()
+		u_WaitLog(cPerg,{|| cNumBor := RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)})
+	EndIf
 	
 	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso na pasta: "'+cDirTmp2+'"'
 	u_MsgLog(cPerg,cMsgLog,"S")
@@ -611,11 +649,16 @@ TCQUERY cQuery NEW ALIAS "QSE2"
 TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
 TCSETFIELD("QSE2","E2_EMISSAO","D",8,0)
 
+// Valor total mostrado na tela
+nTotal := 0
+
 // Populando array
 Dbselectarea("QSE2")
 QSE2->(Dbgotop())
+
 Do While !eof()
 	aTitTmp := Array(CP_CAMPOS)
+	nTotal  += IIF(EMPTY(QSE2->E2_NUMBOR) .AND. QSE2->SALDO > 0,QSE2->SALDO,0)
 
 	aTitTmp[CP_MARK] 	:= IIF(EMPTY(QSE2->E2_NUMBOR) .AND. QSE2->SALDO > 0,.T.,.F.)
 	aTitTmp[CP_NUMBOR]	:= QSE2->E2_NUMBOR
@@ -625,8 +668,8 @@ Do While !eof()
 	aTitTmp[CP_PARCELA]	:= QSE2->E2_PARCELA
 	aTitTmp[CP_TIPO]	:= QSE2->E2_TIPO
 	aTitTmp[CP_PGTO]	:= QSE2->E2_XXTIPBK
-	aTitTmp[CP_EMISSAO]	:= DTOC(QSE2->E2_EMISSAO)
-	aTitTmp[CP_VENC]	:= DTOC(QSE2->E2_VENCREAL)
+	aTitTmp[CP_EMISSAO]	:= QSE2->E2_EMISSAO
+	aTitTmp[CP_VENC]	:= QSE2->E2_VENCREA
 	aTitTmp[CP_CSALDO]	:= TRANS(QSE2->SALDO,cPictVal)
 	aTitTmp[CP_NOME]	:= QSE2->A2_NOME
 	aTitTmp[CP_FORNECE]	:= QSE2->E2_FORNECE
@@ -745,9 +788,7 @@ For _nI:=1 To Len(aTitBor)
 NEXT
 
 IF EMPTY(cNumBor)
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Verifica numero do ultimo Bordero Gerado                     ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	// Verifica numero do ultimo Bordero Gerado
 	cNumBor := Soma1(Pad(GetMV("MV_NUMBORP"),Len(SE2->E2_NUMBOR)),Len(SE2->E2_NUMBOR))
 	While !MayIUseCode( "E2_NUMBOR"+xFilial("SE2")+cNumBor)  //verifica se esta na memoria, sendo usado
 		cNumBor := Soma1(cNumBor)							 // busca o proximo numero disponivel 
@@ -811,10 +852,8 @@ For _nI:=1 To Len(aTitBor)
 	ENDIF
 NEXT
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Grava o numero do bordero atualizado                         ³
-//³ Utilize sempre GetMv para posicionar o SX6. N„o use SEEK !!! ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Grava o numero do bordero atualizado
+// Utilize sempre GetMv para posicionar o SX6. N„o use SEEK !!!
 
 cNBor := GetMv("MV_NUMBORP")
 // Garante que o numero do bordero seja sempre superior ao numero anterior
@@ -823,4 +862,4 @@ If cNBor < cNumbor
 EndIf
 
 
-RETURN cNumBor
+Return cNumBor

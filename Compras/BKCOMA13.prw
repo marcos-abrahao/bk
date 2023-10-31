@@ -27,6 +27,7 @@ Private nMesF	:= Month(MonthSub(dDataBase,1))
 Private nAnoF	:= Year(MonthSub(dDataBase,1))
 
 Private cProd   := "21301004       "
+Private nProd	:= 1
 Private nValor  := 0.00
 
 Private cForn 	 := "UNIAO "
@@ -37,13 +38,38 @@ Private cUF      := "SP"
 Private aParam	 :=	{}
 Private aRet	 :=	{}
 Private cHist    := ""
-Private aPrd     := {"21401003","21401004","DARF6912", "DARF5856","INS4982"} 
+Private aPrd     := {}
 Private aPrdDesc := {}
 
-If !FWIsAdmin() .AND. !u_IsFiscal(__cUserId)
-	u_MsgLog(cProg,"Acesso a rotina somente para o grupo FIscal","W")
-	Return Nil
-EndIf
+aAdd(aPrd,"21401003")	// 1-PIS A RECOLHER 
+aAdd(aPrd,"21401004")	// 2-COFINS A RECOLHER  
+aAdd(aPrd,"DARF6912")	// 3-PARCELAMENTO PIS 60X 
+aAdd(aPrd,"DARF5856")	// 4-PARCELAMENTO COFINS 60X         
+aAdd(aPrd,"INS4982")	// 5-IRPJ A RECOLHER  X 60
+aAdd(aPrd,"21301005")	// 6-FGTS  A RECOLHER
+aAdd(aPrd,"21301004")	// 7-INSS A RECOLHER 
+
+
+/*
+-- 26/10/2023
+SELECT B1_COD,B1_DESC FROM SB1010 WHERE B1_COD IN ('21401003','21401004','DARF6912', 'DARF5856','INS4982','21301005','21301004') AND D_E_L_E_T_ = ''
+
+21401003       	PIS A RECOLHER                
+21401004       	COFINS A RECOLHER             
+DARF5856       	PARCELAMENTO COFINS  60X                                    
+DARF6912       	PARCELAMENTO PIS 60X                                        
+INS4982        	IRPJ A RECOLHER  X 60                                       
+21301005       	FGTS  A RECOLHER              
+21301004       	INSS A RECOLHER               
+
+*/
+
+
+
+//If !FWIsAdmin() .AND. !u_IsFiscal(__cUserId)
+//	u_MsgLog(cProg,"Acesso a rotina somente para o grupo Fiscal","W")
+//	Return Nil
+//EndIf
 
 // Descrição dos produtos
 For nX := 1 To Len(aPrd)
@@ -81,7 +107,13 @@ cMesI := STRZERO(nAnoI,4)+STRZERO(nMesI,2)
 cMesF := STRZERO(nAnoF,4)+STRZERO(nMesF,2)
 
 If lRet
-	u_WaitLog(cProg, {|oSay| PGCTR07(cMesI,cMesF)}, 'Processando faturamento...')
+	If nProd < 6
+		u_WaitLog(cProg, {|oSay| u_PGCTR07(cMesI,cMesF)}, 'Processando faturamento...')
+	ElseIf nProd == 6
+		u_WaitLog(cProg, {|oSay| u_PFGTSCC(cMesI,cMesF)}, 'Processando FGTS...')
+	ElseIf nProd == 7
+		u_WaitLog(cProg, {|oSay| u_PINSSCC(cMesI,cMesF)}, 'Processando INSS Empresa e Terceiros...')
+	EndIf
 	u_WaitLog(cProg, {|oSay| IncDoc()}, 'Incluindo Documento de Entrada...')
 EndIf
 
@@ -100,6 +132,7 @@ If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.     
 	nMesF	:= mv_par04
 	nAnoF	:= mv_par05
     cProd	:= aPrd[mv_par06]
+    nProd	:= mv_par06
 	nValor  := mv_par07
 	cHist   := mv_par08
 Endif
@@ -224,13 +257,13 @@ Do WHile !QTMP->(EOF())
 	aadd(aLinha,{"D1_FILIAL ",xFilial("SD1")})
 	aadd(aLinha,{"D1_COD"    ,cProd,Nil})
 	aadd(aLinha,{"D1_QUANT"  ,1,Nil})
-	aadd(aLinha,{"D1_VUNIT"  ,QTMP->F2_VALFAT,Nil})
-	aadd(aLinha,{"D1_TOTAL"  ,QTMP->F2_VALFAT,Nil})
-	aadd(aLinha,{"D1_CC"     ,QTMP->CNF_CONTRA,Nil})
+	aadd(aLinha,{"D1_VUNIT"  ,QTMP->VALCC,Nil})
+	aadd(aLinha,{"D1_TOTAL"  ,QTMP->VALCC,Nil})
+	aadd(aLinha,{"D1_CC"     ,QTMP->CC,Nil})
 	aadd(aLinha,{"D1_XXHIST" ,ALLTRIM(cHist),Nil})
 	aadd(aItens,aLinha)
 	cHist := ""
-	nTotal += QTMP->F2_VALFAT
+	nTotal += QTMP->CC
 	QTMP->(dbSkip())
 EndDo
 QTMP->(DbCloseArea())
@@ -283,16 +316,91 @@ EndIf
 Return lRet
 
 
-Static Function PGCTR07(cMesI,cMesF)
+// Funções para geração de base de rateio via SQL
+
+// Pelo Faturamento: PIS/COFINS/IRPJ
+User Function PGCTR07(cMesI,cMesF)
 Local cQuery := ""
 
 cQuery := "WITH BKGCTR07 AS ("+CRLF
 cQuery += u_QGctR07(iIf(cMesI == cMesF,1,3),cMesI,cMesF)
 cQuery += ")"+CRLF
-cQuery += "SELECT CNF_CONTRA,SUM(F2_VALFAT) AS F2_VALFAT FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
+cQuery += "SELECT CNF_CONTRA AS CC,SUM(F2_VALFAT) AS VALCC FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
 cQuery += "ORDER BY CNF_CONTRA"+CRLF
 
-u_LogMemo("BKCOMA13.SQL",cQuery)
+u_LogMemo("BKCOMA14-FAT.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QTMP"
+
+Return NIL
+
+
+// FGTS
+User Function PFGTSCC(cMesI,cMesF)
+Local cQuery := ""
+cQuery += "SELECT Z5_CC AS CC,SUM(Z5_VALOR) AS VALCC "+CRLF
+cQuery += " FROM "+RetSqlName("SZ5")+" SZ5 "+CRLF
+//cQuery += " LEFT JOIN "+RetSqlName("CTT")+" CTT ON CTT_CUSTO = Z5_CC AND CTT.D_E_L_E_T_ = ''
+cQuery += " WHERE Z5_EVDESCR LIKE '%FGTS%' "+CRLF
+cQuery += "		AND Z5_ANOMES >= '"+cMesI+"' "+CRLF
+cQuery += "		AND Z5_ANOMES <= '"+cMesF+"' "+CRLF
+cQuery += "		AND SZ5.D_E_L_E_T_ = '' "+CRLF
+cQuery += " GROUP BY Z5_CC"+CRLF
+cQuery += " ORDER BY Z5_CC"+CRLF
+
+u_LogMemo("BKCOMA14-FGTS.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QTMP"
+
+Return NIL
+
+
+// Valor do INSS patronal - Via integração Contábil
+User Function PINSSCC(cMesI,cMesF)
+Local cQuery := ""
+
+/*
+cQuery += "SELECT "+CRLF
+cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga AS CC,"+CRLF
+cQuery += "	SUM(bk_senior.bk_senior.R046VER.ValEve) AS VALCC "+CRLF
+cQuery += "FROM bk_senior.bk_senior.R046VER "+CRLF
+cQuery += "	INNER JOIN bk_senior.bk_senior.R044cal ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"+CRLF
+cQuery += "	INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal"+CRLF
+cQuery += "	INNER JOIN bk_senior.bk_senior.R008EVC ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve"+CRLF
+cQuery += "	INNER JOIN bk_senior.bk_senior.R008INC ON "+CRLF
+cQuery += "		bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008INC.CodTab"+CRLF
+cQuery += "		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008INC.CodEve"+CRLF
+cQuery += " WHERE "+CRLF
+cQuery += "	bk_senior.bk_senior.R046VER.NumEmp='01' "+CRLF
+cQuery += "	AND (bk_senior.bk_senior.R008INC.IncInm = '+' OR bk_senior.bk_senior.R008INC.IncInd = '+' OR bk_senior.bk_senior.R008INC.incina = '+')"+CRLF
+cQuery += "	AND Tipcal In(11) And Sitcal = 'T' "+CRLF
+cQuery += "	AND MONTH(PerRef) = "+STR(nMesI,0)+" AND YEAR(PerRef) = "+STR(nAnoI,0)+CRLF
+cQuery += ""+CRLF
+cQuery += " GROUP BY "+CRLF
+cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga"+CRLF
+cQuery += " ORDER BY "+CRLF
+cQuery += "	BKIntegraRubi.dbo.CUSTOSIGA.ccSiga"+CRLF
+*/
+
+cQuery += "SELECT Z5_CC AS CC,SUM(Z5_VALOR) AS VALCC "+CRLF
+cQuery += " FROM "+RetSqlName("SZ5")+" SZ5 "+CRLF
+//cQuery += " LEFT JOIN "+RetSqlName("CTT")+" CTT ON CTT_CUSTO = Z5_CC AND CTT.D_E_L_E_T_ = ''
+cQuery += " WHERE Z5_EVENTO LIKE '%INS-%' "+CRLF
+cQuery += "		AND Z5_ANOMES >= '"+cMesI+"' "+CRLF
+cQuery += "		AND Z5_ANOMES <= '"+cMesF+"' "+CRLF
+cQuery += "		AND SZ5.D_E_L_E_T_ = '' "+CRLF
+cQuery += " GROUP BY Z5_CC"+CRLF
+cQuery += " ORDER BY Z5_CC"+CRLF
+
+u_LogMemo("BKCOMA14-INSS.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 

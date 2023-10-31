@@ -18,9 +18,7 @@ AADD( aRotina, {OemToAnsi("Copiar p/ outras empresas"), "U_BKMAT010", 0, 4 } )
 Return aRotY
 
 
-
-
-// Incluir DNF na BK
+// Incluir Produto em outras empresas
 User Function BKMAT010()
 Local sAlias	  
 Local aAreaAtu	  
@@ -31,7 +29,8 @@ Local cUsuario    := __cUserId
 Local cSuper	  := "" 
 Local aEmpr       := {}
 Local nI
-If msgYesNo('Deseja incluir este produto em outras empresas?')
+
+If u_MsgLog('BKMAT010','Deseja incluir este produto em outras empresas?','Y')
 	
     aProd := {{"B1_TIPO"    ,SB1->B1_TIPO        ,Nil},;
 	          {"B1_COD"     ,SB1->B1_COD         ,Nil},;

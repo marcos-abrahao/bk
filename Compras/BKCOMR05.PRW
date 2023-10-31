@@ -20,8 +20,8 @@ Local aPlans  		:= {}
 Private cTitulo     := "Avaliação dos Fornecedores"
 Private cTitulo2    := "Avaliação dos Fornecedores"
 Private cPerg       := "BKCOR05"
-Private aTitulos,aCampos,aCabs,aTotal,aImpr
-Private aTitulos2,aCampos2,aCabs2,aTotal2,aImpr2
+Private aTitulos,aCampos,aCabs,aTotal
+Private aTitulos2,aCampos2,aCabs2,aTotal2
 Private aImprD		:= {}
 Private dDataI		:= dDatabase
 Private dDataF  	:= dDatabase
@@ -61,7 +61,6 @@ oTmpTb:Create()
 
 aCabs   := {}
 aCampos := {}
-aImpr	:= {}
 aTitulos:= {}
 aTotal  := {}
 
@@ -69,75 +68,62 @@ aAdd(aTitulos,cTitulo)
 
 aAdd(aCampos,"TRB->XX_FORNEC")
 aAdd(aCabs  ,"Cod. Fornecedor")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
 aAdd(aCampos,"TRB->XX_LOJA")
 aAdd(aCabs  ,"Loja Fornecedor")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
 aAdd(aCampos,"TRB->XX_FANTASI")
 aAdd(aCabs  ,"Nome Fantasia")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
 aAdd(aCampos,"TRB->XX_NFORNEC")
 aAdd(aCabs  ,"Razão Social")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
 aAdd(aCampos,"TRB->XX_AVALC")
 aAdd(aCabs  ,"Avaliação Crítica")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
 aAdd(aCampos,"TRB->XX_QNTNF")
 aAdd(aCabs  ,"Qtde NF's entregues")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.T.)
 
 If nDet == 1
 	aAdd(aCampos,"TRB->XX_AVAL1")
 	aAdd(aCabs  ,"Preço")
-	aAdd(aImpr  ,.T.)
 	aAdd(aTotal,.T.)
 
 	aAdd(aCampos,"TRB->XX_AVAL2")
 	aAdd(aCabs  ,"Prazo")
-	aAdd(aImpr  ,.T.)
 	aAdd(aTotal,.T.)
 
 	aAdd(aCampos,"TRB->XX_AVAL3")
 	aAdd(aCabs  ,"Quantidade/Atendimento")
-	aAdd(aImpr  ,.T.)
 	aAdd(aTotal,.T.)
 
 	aAdd(aCampos,"TRB->XX_AVAL4")
 	aAdd(aCabs  ,"Qualidade/Integridade")
-	aAdd(aImpr  ,.T.)
 	aAdd(aTotal,.T.)
 
 	aAdd(aCampos,"TRB->XX_TAVAL")
 	aAdd(aCabs  ,"Total da Avaliação")
-	aAdd(aImpr  ,.T.)
 	aAdd(aTotal,.T.)
 EndIf
 
 aAdd(aCampos,"TRB->XX_MDAVAL")
 aAdd(aCabs  ,"Média da Avaliação (IQF)")
-aAdd(aImpr  ,.T.)
 aAdd(aTotal,.F.)
 
 u_WaitLog(cPerg, {|| ProcBKCOR05() },"Processando dados...")
 
-aAdd(aPlans,{"TRB",TRIM(cPerg)    ,"",cTitulo,aCampos,aCabs,aImpr, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
+aAdd(aPlans,{"TRB",TRIM(cPerg)    ,"",cTitulo,aCampos,aCabs,/* aImpr */, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
 
 If nDet == 1
 
 	aCabs2   := {}
 	aCampos2 := {}
-	aImpr2   := {}
 	aTitulos2:= {}
 	aTotal2  := {}
 
@@ -145,55 +131,45 @@ If nDet == 1
 
 	aAdd(aCampos2,"QTMP->F1_DOC")
 	aAdd(aCabs2  ,"Documento")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->F1_SERIE")
 	aAdd(aCabs2  ,"Série")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->D1_PEDIDO")
 	aAdd(aCabs2  ,"Pedido")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->F1_FORNECE")
 	aAdd(aCabs2  ,"Fornecedor")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->F1_LOJA")
 	aAdd(aCabs2  ,"Loja")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->A2_NOME")
 	aAdd(aCabs2  ,"Nome")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->F1_EMISSAO")
 	aAdd(aCabs2  ,"Emissão")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->F1_DTDIGIT")
 	aAdd(aCabs2  ,"Entrada")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->F1_XXAVALI")
 	aAdd(aCabs2  ,"Avaliação")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
 	aAdd(aCampos2,"QTMP->A2_XXAVALC")
 	aAdd(aCabs2  ,"Av. crítica")
-	aAdd(aImpr2  ,.T.)
 	aAdd(aTotal2 ,.F.)
 
-	aAdd(aPlans,{"QTMP",TRIM(cPerg)+"-Det" ,"",cTitulo2,aCampos2,aCabs2,aImpr2, /* aAlign */,/* aFormat */, aTotal2/*aTotal */, /*cQuebra*/, lClose:= .T. })
+	aAdd(aPlans,{"QTMP",TRIM(cPerg)+"-Det" ,"",cTitulo2,aCampos2,aCabs2,/*aImpr*/, /* aAlign */,/* aFormat */, aTotal2/*aTotal */, /*cQuebra*/, lClose:= .T. })
 EndIf
 
 U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)

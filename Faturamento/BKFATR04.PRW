@@ -191,7 +191,6 @@ aAdd(aParamBox,{11,"Informe o motivo","",".T.",".T.",.T.})
 //            [5] = When
 //            [6] = Campo com preenchimento obrigatório .T.=Sim .F.=Não (incluir a validação na função ParamOk)
 
-
 */
 
 If !BkFR04Par()

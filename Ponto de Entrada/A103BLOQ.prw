@@ -78,7 +78,7 @@ If !lRet
 	Else
 		lRet := .T. 
 		// Se tiver aprovador, é porque já foi aprovado ou é titulo de imposto
-		If !EMPTY(SF1->F1_APROV) .OR. TRIM(SF1->F1_FORNECE) == "UNIAO"   //FWIsInCallStack("U_BKCOMA13")
+		If !EMPTY(SF1->F1_APROV) .OR. "UNIAO" $ SF1->F1_FORNECE   //FWIsInCallStack("U_BKCOMA13")
 			lRet := .F.
 		Else
 		    // Aqui, verificar valores

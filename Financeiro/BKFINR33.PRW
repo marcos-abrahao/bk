@@ -411,14 +411,14 @@ cQuery += "	 	AND SE2.E2_FORNECE = SA2.A2_COD"+CRLF
 cQuery += "	 	AND SE2.E2_LOJA    = SA2.A2_LOJA"+CRLF
 cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
 
-cQuery += " LEFT JOIN "+RETSQLNAME("SD1")+" SD1 ON SD1.D_E_L_E_T_=''"+ CRLF
+cQuery += " LEFT JOIN "+RetSqlName("SD1")+" SD1 ON SD1.D_E_L_E_T_=''"+ CRLF
 cQuery += "   AND D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF
 cQuery += "   AND D1_DOC     = F1_DOC"+ CRLF
 cQuery += "   AND D1_SERIE   = F1_SERIE"+ CRLF
 cQuery += "   AND D1_FORNECE = F1_FORNECE"+ CRLF
 cQuery += "   AND D1_LOJA    = F1_LOJA"+ CRLF
 cQuery += "   AND SD1.R_E_C_N_O_ = "+ CRLF
-cQuery += "   	(SELECT TOP 1 R_E_C_N_O_ FROM SD1010 SD1T "+ CRLF
+cQuery += "   	(SELECT TOP 1 R_E_C_N_O_ FROM "+RetSqlName("SD1")+" SD1T "+ CRLF
 cQuery += "   	  WHERE SD1T.D_E_L_E_T_     = '' "+ CRLF
 cQuery += "   	        AND SD1T.D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF
 cQuery += "   			AND SD1T.D1_DOC     = F1_DOC"+ CRLF
@@ -427,8 +427,8 @@ cQuery += "   			AND SD1T.D1_FORNECE = F1_FORNECE"+ CRLF
 cQuery += "   			AND SD1T.D1_LOJA    = F1_LOJA"+ CRLF
 cQuery += "		 ORDER BY D1_ITEM)"+ CRLF
 
-cQuery += "	 LEFT JOIN "+RETSQLNAME("SZ2")+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF
-cQuery += "	 			AND SZ2.Z2_FILIAL = ' '"+CRLF
+cQuery += "	 LEFT JOIN "+RetSqlName("SZ2")+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF
+cQuery += "	 			AND SZ2.Z2_FILIAL  = ' '"+CRLF
 cQuery += "	 	 		AND SZ2.Z2_CODEMP  = '01' "+CRLF
 cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF
 cQuery += "	 	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF
@@ -438,10 +438,10 @@ cQuery += "	 	 		AND SE2.E2_FORNECE = SZ2.Z2_E2FORN"+CRLF
 cQuery += "	 	 		AND SE2.E2_LOJA    = SZ2.Z2_E2LOJA"+CRLF
 cQuery += "	 	 		AND SZ2.Z2_STATUS  = 'S'"+CRLF
 cQuery += "	 		    AND SZ2.R_E_C_N_O_ = "+CRLF
-cQuery += "	    	(SELECT TOP 1 R_E_C_N_O_ FROM "+RETSQLNAME("SZ2")+" SZ2T "+CRLF
+cQuery += "	    	(SELECT TOP 1 R_E_C_N_O_ FROM "+RetSqlName("SZ2")+" SZ2T "+CRLF
 cQuery += "	    	  WHERE SZ2T.D_E_L_E_T_     = ''"+CRLF
 cQuery += "	 			AND SZ2T.Z2_FILIAL = ' '"+CRLF
-cQuery += "	 	 		AND SZ2T.Z2_CODEMP  = '01' "+CRLF
+cQuery += "	 	 		AND SZ2T.Z2_CODEMP = '01' "+CRLF
 cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF
 cQuery += "	 	 		AND SE2.E2_NUM     = SZ2T.Z2_E2NUM "+CRLF
 cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF
@@ -451,11 +451,11 @@ cQuery += "	 	 		AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA"+CRLF
 cQuery += "	 	 		AND SZ2T.Z2_STATUS  = 'S'"+CRLF
 cQuery += "	 		 ORDER BY SZ2T.R_E_C_N_O_)"+CRLF
 
-cQuery += "  LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON CTT.D_E_L_E_T_=''"+CRLF
+cQuery += "  LEFT JOIN "+RetSqlName("CTT")+" CTT ON CTT.D_E_L_E_T_=''"+CRLF
 cQuery += "    AND CTT.CTT_FILIAL = '"+xFilial("CTT")+"' "+CRLF
 cQuery += "    AND CTT.CTT_CUSTO  = SD1.D1_CC"+CRLF
 
-cQuery += "  LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON SB1.D_E_L_E_T_=''"+CRLF
+cQuery += "  LEFT JOIN "+RetSqlName("SB1")+" SB1 ON SB1.D_E_L_E_T_=''"+CRLF
 cQuery += "    AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF
 cQuery += "    AND SB1.B1_COD    = SD1.D1_COD"+CRLF
 

@@ -17,7 +17,6 @@ PRIVATE cPerg		:= cNomePrg
 PRIVATE cAliasTmp1  := "TMP1"
 PRIVATE aCabs1      := {}
 PRIVATE aCampos1    := {}
-PRIVATE aImpr1      := {}
 PRIVATE aTitulos1   := {}
 PRIVATE aStruct1    := {}
 PRIVATE aPlans      := {}
@@ -40,73 +39,55 @@ cTitulo += " em "+DTOC(dDtSld)
 AADD(aStruct1,{"TIPO","C",20,0})
 AADD(aCampos1,cAliasTmp1+"->TIPO")
 AADD(aCabs1  ,"Tipo")
-AADD(aImpr1  ,.T.)
 
 AADD(aStruct1,{"EMPRESA","C",15,0})
 AADD(aCampos1,cAliasTmp1+"->EMPRESA")
 AADD(aCabs1  ,"Empresa")
-AADD(aImpr1  ,.T.)
 
 AADD(aStruct1,{"BANCO","C",3,0})
 AADD(aCampos1,cAliasTmp1+"->BANCO")
 AADD(aCabs1  ,"Banco")
-AADD(aImpr1  ,.T.)
 
 AADD(aStruct1,{"NOME","C",30,0})
 AADD(aCampos1,cAliasTmp1+"->NOME")
 AADD(aCabs1  ,"Nome")
-AADD(aImpr1  ,.T.)
 
 AADD(aStruct1,{"AGENCIA","C",5,0})
 AADD(aCampos1,cAliasTmp1+"->AGENCIA")
 AADD(aCabs1  ,"Agencia")
-AADD(aImpr1  ,.T.)
 
 AADD(aStruct1,{"CONTA","C",10,0})
 AADD(aCampos1,cAliasTmp1+"->CONTA")
 AADD(aCabs1  ,"Conta")
-AADD(aImpr1  ,.T.)
 
 AADD(aStruct1,{"SALDO","N",15,2})
 AADD(aCampos1,cAliasTmp1+"->SALDO")
 AADD(aCabs1  ,"Saldo")
-AADD(aImpr1  ,.T.)
 
 // Valor das aplicações
 AADD(aStruct1,{"EH_VALOR","N",15,2})
 AADD(aCampos1,cAliasTmp1+"->EH_VALOR")
 AADD(aCabs1  ,"Valor aplicado")
-AADD(aImpr1  ,.T.)
 
 // Saldo das aplicações
 AADD(aStruct1,{"EH_VALREG","N",15,2})
 AADD(aCampos1,cAliasTmp1+"->EH_VALREG")
 AADD(aCabs1  ,"Saldo das aplicações")
-AADD(aImpr1  ,.T.)
 	
 // Saldo liquido das aplicações
 AADD(aStruct1,{"EH_VALLIQ","N",15,2})
 AADD(aCampos1,cAliasTmp1+"->EH_VALLIQ")
 AADD(aCabs1  ,"Saldo liquido das aplicações")
-AADD(aImpr1  ,.T.)
 
 // IR
-	AADD(aStruct1,{"EH_VALIRF","N",GetSx3Cache("EH_VALIRF", "X3_TAMANHO"),GetSx3Cache("EH_VALIRF", "X3_DECIMAL")})
-	AADD(aCampos1,cAliasTmp1+"->EH_VALIRF")
-	AADD(aCabs1  ,RetTitle("EH_VALIRF"))
-AADD(aImpr1  ,.T.)
+AADD(aStruct1,{"EH_VALIRF","N",GetSx3Cache("EH_VALIRF", "X3_TAMANHO"),GetSx3Cache("EH_VALIRF", "X3_DECIMAL")})
+AADD(aCampos1,cAliasTmp1+"->EH_VALIRF")
+AADD(aCabs1  ,RetTitle("EH_VALIRF"))
 
 // IOF
-	AADD(aStruct1,{"EH_VALIOF","N",GetSx3Cache("EH_VALIOF", "X3_TAMANHO"),GetSx3Cache("EH_VALIOF", "X3_DECIMAL")})
-	AADD(aCampos1,cAliasTmp1+"->EH_VALIOF")
-	AADD(aCabs1  ,RetTitle("EH_VALIOF"))
-AADD(aImpr1  ,.T.)
-
-
-///cArqTmp1 := CriaTrab(aStruct1)
-///dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-///IndRegua (cAliasTmp1,cArqTmp1,"TIPO+EMPRESA+BANCO+AGENCIA+CONTA",,,OemToAnsi("Selecionando Registros...") )  //
-///dbSetOrder(1)
+AADD(aStruct1,{"EH_VALIOF","N",GetSx3Cache("EH_VALIOF", "X3_TAMANHO"),GetSx3Cache("EH_VALIOF", "X3_DECIMAL")})
+AADD(aCampos1,cAliasTmp1+"->EH_VALIOF")
+AADD(aCabs1  ,RetTitle("EH_VALIOF"))
 
 oTmpTb := FWTemporaryTable():New(cAliasTmp1)
 oTmpTb:SetFields( aStruct1 )
@@ -115,17 +96,15 @@ oTmpTb:Create()
 
 AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+" em "+DTOC(dDtSld))
 
-//ProcRegua(SM0->(LASTREC()))
 u_WaitLog(, {|| BKFin15Emp()})
 
 cFiltro := "" //cAliasTmp1+"->TIPO >= '1'"                                 
 
-AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo,aCampos1,aCabs1,aImpr1, /* aAlign */,/* aFormat */, /*aTotal */, cAliasTmp1+"->TIPO", lClose:= .F. })
+AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo,aCampos1,aCabs1,/*aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, cAliasTmp1+"->TIPO", lClose:= .F. })
    
 U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
 
 oTmpTb:Delete()
-//Ferase(cArqTmp1 + GetDBExtension())
 
 Return (Nil)
 
@@ -137,8 +116,6 @@ Local aSM0Area	:= SM0->(GetArea())
 SM0->(DbGoTop())
 While SM0->(!EoF())
 
-    //IncProc()
-    
 	IF lEnd
 		Exit
 	End
