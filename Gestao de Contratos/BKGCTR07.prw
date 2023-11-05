@@ -146,6 +146,9 @@ AADD(aCabs  ,"Série NF")
 AADD(aCampos,"QTMP->F2_DOC")
 AADD(aCabs  ,"Nota Fiscal")
 
+AADD(aCampos,"QTMP->D2_TES")
+AADD(aCabs  ,"TES")
+
 AADD(aCampos,"QTMP->F2_EMISSAO")
 AADD(aCabs  ,"Emissao")
    
@@ -312,6 +315,7 @@ cQuery += "   D2_CLIENTE AS XX_CLIENTE," + CRLF
 cQuery += "   D2_LOJA XX_LOJA," + CRLF 
 cQuery += "   D2_ALIQINS," + CRLF 
 cQuery += "   D2_ALQIRRF," + CRLF 
+cQuery += "   D2_TES," + CRLF 
 cQuery += "   C6_PRODUTO AS XX_PROD," + CRLF 
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 
@@ -452,6 +456,7 @@ cQuery += "   F2_CLIENTE AS XX_CLIENTE," + CRLF
 cQuery += "   F2_LOJA AS XX_LOJA," + CRLF 
 cQuery += "   D2_ALIQINS," + CRLF 
 cQuery += "   D2_ALQIRRF," + CRLF 
+cQuery += "   D2_TES," + CRLF 
 cQuery += "   D2_COD AS XX_PROD," + CRLF 
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 

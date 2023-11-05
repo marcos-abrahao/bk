@@ -1,5 +1,25 @@
 ==============================================================
 ==============================================================
+==============================================================
+04/11/23 - Acerto descrição do produto na tabela CNB
+
+SELECT CNB_CONTRA,CNB_PRODUT,CNB_DESCRI,B1_COD,B1_DESC FROM CNB010
+--UPDATE CNB010 SET CNB_DESCRI = B1_DESC FROM CNB010
+LEFT JOIN SB1010 ON CNB_PRODUT = B1_COD AND SB1010.D_E_L_E_T_ = ''
+WHERE CNB010.D_E_L_E_T_='' 
+AND B1_DESC <> CNB_DESCRI  
+
+==============================================================
+03/11/23 - Produtos x Contas
+
+SELECT CT1_CONTA,CT1_DESC01 FROM CT1010 ORDER BY CT1_CONTA
+
+SELECT B1_COD,B1_DESC,B1_CONTA,CT1_DESC01 FROM SB1010 
+LEFT JOIN CT1010 ON CT1_CONTA = B1_CONTA AND CT1010.D_E_L_E_T_ = ''
+WHERE SUBSTRING(B1_CONTA,1,1) = '1' AND SB1010.D_E_L_E_T_ = ''
+ORDER BY CT1_CONTA
+
+==============================================================
 
 SELECT Z5_CC,CTT.CTT_DESC01,Z5_EVENTO,SUM(Z5_VALOR) FROM SZ5010 SZ5
 LEFT JOIN CTT010 CTT ON CTT_CUSTO = Z5_CC AND CTT.D_E_L_E_T_ = ''

@@ -116,13 +116,20 @@ EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End() },{|| oDlg:End() })
 oLayer := FWLayer():new()
 oLayer:init(oDlg,.F.)
 
+/*
 oLayer:addCollumn ('Col1',100,.F.)
 oLayer:addWindow('Col1', 'WinTop' ,'Seleção' ,15,.F.,.F.,,,)
 oLayer:addWindow('Col1', 'WinGrid','Títulos' ,85,.F.,.F.,,,)
 
 oPanelUp := oLayer:getWinPanel('Col1','WinTop')
 oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
+*/
 
+oLayer:addLine('Line1',005,.F.)
+oLayer:addLine('Line2',095,.F.)
+
+oPanelUp := oLayer:getLinePanel('Line1')
+oPanelDown := oLayer:getLinePanel('Line2')
 
 lAll := .F.
 @ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelUp SIZE 050, 010 PIXEL 
@@ -295,7 +302,6 @@ ELSE
 ENDIF
 
 MakeDir(cDirTmp2)
-
 
 cDirTmp2 += "\ITAU"
 

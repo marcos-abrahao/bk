@@ -180,7 +180,8 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      AND SD1.D_E_L_E_T_ = '' " + CRLF
 	cQuery += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
 	cQuery += "      	OR B1_CONTA IN ('"+cCusBK+"') " + CRLF
-	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105')) " + CRLF
+	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') " + CRLF
+	cQuery += "      	OR SUBSTRING(B1_CONTA,1,3) IN ('124','126')) " + CRLF  // Ativo Imobilizado
 
 	IF cEmpresa == "01" // Despesas médicas 
 		cQuery += "AND 1 = CASE WHEN D1_CC = '313000504' AND D1_FORNECE = '002918' THEN 0 ELSE 1 END"+CRLF

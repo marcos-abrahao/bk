@@ -58,7 +58,7 @@ Local nI        As Numeric
 
 __cUserId := "000000"
 
-cEncode := u_BKEnCode({"A","b","c"})
+cEncode := u_BKEnCode({"A","b","c",","})
 aDeCode := u_BKDeCode(cEnCode)
 
 cMensagem := "Entrada : [" + cEncode + "]"
