@@ -19,7 +19,9 @@ User Function BKTESTE()
 Local aTeste := {}
 //u_IsPetro("000112")
 //u_IsPetro("000281")
-aTeste := u_FinS600(8,2023,'FC0000052')
+
+// Teste do calculo da EFD - usado para DEBUG
+aTeste := u_FinS600(9,2023,'000010757')
 x := 0
 Return Nil
 

@@ -1,0 +1,132 @@
+
+-- Correçao CUSTOSIGA dos corrigidos depois da integração
+WITH CC AS( 
+
+SELECT [NumEmp]
+      ,[TipCol]
+      ,[CodCal]
+      ,[NumCad]
+      ,[ccSIGA]
+      ,[Codfil]
+      ,[NumLoc]
+	  ,BKIntegraRubi.dbo.fnCCSiga([NumEmp],[TipCol],[NumCad],'CLT') as AcertoCC
+
+	  FROM [BKIntegraRubi].[dbo].[CUSTOSIGA]
+  WHERE SUBSTRING([ccSIGA],1,3) = 'Er:'
+
+)
+SELECT * FROM CC 
+WHERE SUBSTRING(AcertoCC,1,3) <> 'Er:'
+
+
+SELECT [NumEmp]
+      ,[TipCol]
+      ,[CodCal]
+      ,[NumCad]
+      ,[ccSIGA]
+      ,[Codfil]
+      ,[NumLoc]
+	  ,BKIntegraRubi.dbo.fnCCSiga([NumEmp],[TipCol],[NumCad],'CLT') as AcertoCC
+
+	--UPDATE [BKIntegraRubi].[dbo].[CUSTOSIGA] SET ccSiga = BKIntegraRubi.dbo.fnCCSiga([NumEmp],[TipCol],[NumCad],'CLT')
+
+  FROM [BKIntegraRubi].[dbo].[CUSTOSIGA]
+  WHERE [ccSIGA] IS NULL
+
+
+--------------------------------------------------------------
+SELECT [NumEmp]
+      ,[TipCol]
+      ,[CodCal]
+      ,[NumCad]
+      ,[ccSIGA]
+      ,[Codfil]
+      ,[NumLoc]
+	  ,BKIntegraRubi.dbo.fnCCSiga([NumEmp],[TipCol],[NumCad],'CLT') as AcertoCC
+	  ,CN9_NUMERO COLLATE Latin1_General_CI_AS
+
+
+	--UPDATE [BKIntegraRubi].[dbo].[CUSTOSIGA] SET ccSiga = CN9_NUMERO COLLATE Latin1_General_CI_AS
+
+
+  FROM [BKIntegraRubi].[dbo].[CUSTOSIGA]
+
+--	LEFT JOIN dataP10.dbo.CTT010 CTT ON CTT.D_E_L_E_T_=''  AND SUBSTRING(CTT_CUSTO,7,3)= SUBSTRING([ccSIGA],7,3)
+	INNER JOIN dataP10.dbo.CN9010 CN9 ON CN9.D_E_L_E_T_=''  AND SUBSTRING(CN9_NUMERO COLLATE Latin1_General_CI_AS,7,3)= SUBSTRING([ccSIGA],7,3) AND CN9_REVATU='' 
+
+  WHERE SUBSTRING([ccSIGA],1,3) = 'Er:'
+
+--------------------------------------------------------------
+ 
+ -- Corrigir SZ2 com CUSTOSIGA
+ 
+ SELECT  
+SZ2.R_E_C_N_O_,Z2_CC,CN9.CN9_NUMERO,CTT_CUSTO,Z2_DORIPGT,CN9.CN9_DTINIC
+,BKIntegraRubi.dbo.fnCCSiga(Z2_CODEMP,Z2_TIPCOL,Z2_PRONT,'CLT') AS CCSIGA
+,Z2_CODEMP
+,[BKIntegraRubi].[dbo].[CUSTOSIGA].NumEmp 
+,Z2_CALC
+,[BKIntegraRubi].[dbo].[CUSTOSIGA].CodCal 
+,Z2_PRONT
+,[BKIntegraRubi].[dbo].[CUSTOSIGA].NumCad --COLLATE Latin1_General_BIN
+
+ --UPDATE SZ2010 SET Z2_CC = [BKIntegraRubi].[dbo].[CUSTOSIGA].ccSIGA
+ fROM SZ2010 SZ2
+ INNER JOIN [BKIntegraRubi].[dbo].[CUSTOSIGA] ON 
+	 Z2_CODEMP COLLATE Latin1_General_CI_AS = right('00' + cast([BKIntegraRubi].[dbo].[CUSTOSIGA].NumEmp as varchar(2)),2)
+	 AND cast(Z2_TIPCOL as int) = [BKIntegraRubi].[dbo].[CUSTOSIGA].TipCol
+	 AND Z2_CALC COLLATE Latin1_General_CI_AS = [BKIntegraRubi].[dbo].[CUSTOSIGA].CodCal
+	 AND Z2_PRONT COLLATE Latin1_General_CI_AS = right('000000' + cast([BKIntegraRubi].[dbo].[CUSTOSIGA].NumCad as varchar(6)),6)
+
+LEFT JOIN CTT010 CTT ON CTT.D_E_L_E_T_=''  AND SUBSTRING(CTT_CUSTO,7,3)= SUBSTRING(Z2_CC,7,3)
+LEFT JOIN CN9010 CN9 ON CN9.D_E_L_E_T_=''  AND SUBSTRING(CN9_NUMERO,7,3)= SUBSTRING(Z2_CC,7,3) AND CN9_REVATU='' AND Z2_DORIPGT >= CN9_DTINIC
+ 
+ WHERE SZ2.D_E_L_E_T_='' 
+  AND Z2_CC LIKE 'Er%'
+  ORDER BY Z2_DORIPGT
+
+--------------------------------------------------------------
+ 
+ -- Corrigir SZ2 com CUSTOSIGA fnCCSiga e CN9
+
+SELECT --TOP 100
+SZ2.R_E_C_N_O_,Z2_CC
+,CN9.CN9_NUMERO
+,Z2_DORIPGT
+,BKIntegraRubi.dbo.fnCCSiga(Z2_CODEMP,Z2_TIPCOL,Z2_PRONT,'CLT') AS CCSIGA
+,Z2_CODEMP
+,Z2_CALC
+,Z2_PRONT
+--,[BKIntegraRubi].[dbo].[CUSTOSIGA].NumCad --COLLATE Latin1_General_BIN
+,ISNULL(BKIntegraRubi.dbo.fnCCSiga(Z2_CODEMP,Z2_TIPCOL,Z2_PRONT,'CLT'),ISNULL(CN9.CN9_NUMERO,Z2_CC))
+
+ --UPDATE SZ2010 SET Z2_CC = ISNULL(BKIntegraRubi.dbo.fnCCSiga(Z2_CODEMP,Z2_TIPCOL,Z2_PRONT,'CLT'),ISNULL(CN9.CN9_NUMERO,Z2_CC))
+ fROM SZ2010 SZ2
+
+LEFT JOIN CN9010 CN9 ON CN9.D_E_L_E_T_=''  AND SUBSTRING(CN9_NUMERO,7,3)= SUBSTRING(Z2_CC,7,3) AND CN9_REVATU='' AND Z2_DORIPGT >= CN9_DTINIC
+ 
+ WHERE SZ2.D_E_L_E_T_='' 
+  AND Z2_CC LIKE 'Er%'
+  ORDER BY Z2_DORIPGT
+
+--------------------------------------------------------------
+ 
+ -- Corrigir SZ2 com CN9
+  
+SELECT 
+SZ2.R_E_C_N_O_,Z2_CC
+,CN9.CN9_NUMERO
+,Z2_DORIPGT
+,Z2_CODEMP
+,Z2_CALC
+,Z2_PRONT
+
+ --UPDATE SZ2010 SET Z2_CC = CN9.CN9_NUMERO
+ fROM SZ2010 SZ2
+
+INNER JOIN CN9010 CN9 ON CN9.D_E_L_E_T_=''  AND SUBSTRING(CN9_NUMERO,7,3)= SUBSTRING(Z2_CC,7,3) AND CN9_REVATU='' AND Z2_DORIPGT >= CN9_DTINIC
+ 
+ WHERE SZ2.D_E_L_E_T_='' 
+  AND Z2_CC LIKE 'Er%'
+  ORDER BY Z2_DORIPGT
+

@@ -25,7 +25,7 @@ If Select(cAlias) > 0
    	dbCloseArea()
 EndIf
 
-u_LogMemo(cProg,cQuery)
+u_LogMemo(cProg+".sql",cQuery)
 
 cQuery := ChangeQuery(cQuery)
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAlias,.T.,.T.)

@@ -128,4 +128,82 @@ UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('FC0000050')
 -- Ago 23
 UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('FC0000051','FC0000052')
 
+
+- Set/23
+UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('000010757') AND C5_SERIE = '001'
+UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('FC0000053')
+
+
+
 -----------------------------------------------------------------------------------------------------------------------------------
+-- Funcionários Ativos - Camila SMS
+
+select
+emp.numemp as [Cod Empresa],
+emp.nomemp as [Empresa],
+fil.codfil as [Cod Filial],
+hie.CodLoc as [Cod Local],
+orn.NomLoc as [Local],
+fun.numcad as [Matrícula],
+fun.nomfun as [Nome],
+cpl.numcid as [RG],
+cpl.emicid as [Emissor RG],
+cpl.estcid as [UF RG],
+Convert(varchar(10), cpl.dexcid, 103) as [Dt Expedição RG],
+fun.numcpf as [CPF],
+Convert(varchar(10), fun.datnas, 103) as [Nascimento],
+car.TitCar as [Cargo],
+Convert(varchar(10), fun.datadm, 103) as [Admissão],
+fun.tipsex as [Sexo],
+fun.numctp as [CTPS],
+fun.serctp as [Série CTPS],
+fun.estctp as [UF CTPS],
+Convert(varchar(10), fun.dexctp, 103) as [Dt Expedição CTPS],
+fun.numpis as [PIS NIT],
+cb2.DesCbo as [CBO],
+cb2.CodCbo as [Cod CBO],
+nac.DesNac as [Nacionalidade],
+cid.NomCid as [Naturalidade],
+mat.mateso as [Matrícula eSocial],
+CASE
+    WHEN fun.estciv = 1 THEN 'Solteiro'
+    WHEN fun.estciv = 2 THEN 'Casado'
+    WHEN fun.estciv = 3 THEN 'Divorciado'
+    WHEN fun.estciv = 4 THEN 'Viúvo'
+    WHEN fun.estciv = 5 THEN 'Concubinato'
+    WHEN fun.estciv = 6 THEN 'Separado'
+    WHEN fun.estciv = 7 THEN 'União Estável'
+    WHEN fun.estciv = 9 THEN 'Outros'
+    ELSE ''
+END as [Estado Civil]
+from bk_senior.bk_senior.r034fun fun
+left join bk_senior.bk_senior.r034cpl cpl
+on fun.numemp = cpl.numemp and fun.tipcol = cpl.tipcol and fun.numcad = cpl.numcad
+left join bk_senior.bk_senior.r030emp emp
+on fun.numemp = emp.numemp
+left join bk_senior.bk_senior.r030fil fil
+on fun.numemp = fil.numemp and fun.codfil = fil.codfil
+left join bk_senior.bk_senior.r016orn orn
+on fun.taborg = orn.TabOrg and fun.numloc = orn.NumLoc
+left join bk_senior.bk_senior.r016hie hie
+on fun.taborg = hie.TabOrg and fun.numloc = hie.NumLoc
+and hie.DatIni = (select top 1 hie2.DatIni from bk_senior.bk_senior.r016hie hie2 where hie.taborg = hie2.TabOrg and hie.numloc = hie2.NumLoc order by hie2.DatIni desc)
+left join bk_senior.bk_senior.r024car car
+on fun.estcar = car.estcar and fun.codcar = car.codcar
+left join bk_senior.bk_senior.r024cb2 cb2
+on car.CodCb2 = cb2.CodCbo
+left join bk_senior.bk_senior.r023nac nac
+on fun.codnac = nac.CodNac
+left join bk_senior.bk_senior.r074cid cid
+on cpl.ccinas = cid.CodCid
+left join bk_senior.bk_senior.r034mat mat
+on fun.numemp = mat.numemp and fun.tipcol = mat.tipcol and fun.numcad = mat.numcad
+where fun.tipcol = 1 and fun.sitafa <> 7 and fun.numemp in (1,2,6,8,9,10,11,12,14,15,16,17)
+order by fun.numemp, fun.numcad
+
+ 
+
+select count(numcad) from bk_senior.bk_senior.r034fun fun
+where fun.tipcol = 1 and fun.sitafa <> 7 and fun.numemp in (1,2,6,8,9,10,11,12,14,15,16,17)
+
+ 

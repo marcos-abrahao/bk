@@ -597,6 +597,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 
 		lFirst := .F.
 	EndDo
+	
 	nLast := nLin
 
 	If !lFirst

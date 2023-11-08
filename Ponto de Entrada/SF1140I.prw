@@ -134,7 +134,7 @@ Else
 EndIf
 cLibF1   := "A" // Remover
 
-If SF1->F1_XXLIB $ "9AE" .AND. Empty(SF1->F1_STATUS)
+If SF1->F1_XXLIB $ "9AE " .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
 Else
 	lAlt := .F.
@@ -239,7 +239,7 @@ aCabecalho	:= u_a103Cab()
 nColDel 	:= Len(aCabecalho)+1
 u_a103Load()
 
-DEFINE MSDIALOG oDlg3 TITLE "Forma de pagamento, chave NFE e Anexos" STYLE DS_MODALFRAME FROM 000,000 TO 490,550 COLORS 0, 16777215 PIXEL
+DEFINE MSDIALOG oDlg3 TITLE "Dados Fiscais e Financeiros: "+SF1->F1_SERIE+" "+SF1->F1_DOC STYLE DS_MODALFRAME FROM 000,000 TO 490,550 COLORS 0, 16777215 PIXEL
 oDlg3:lEscClose := .F.
 
 bClickP	:= { || ChangePgt(nRadMenu1) }

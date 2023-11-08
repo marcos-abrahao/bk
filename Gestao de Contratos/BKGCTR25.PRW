@@ -91,8 +91,6 @@ Return
 Static Function ProcQuery
 Local cQuery
 
-//IncProc("Consultando o banco de dados...")
-
 cQuery := "SELECT CN9_SITUAC,CN9_NUMERO,CN9_REVISA,CN9_XXDESC," + CRLF
 cQuery += "  CN9_XCLIEN,CN9_XLOJA,A1_NOME,A1_CGC," + CRLF
 cQuery += "  A1_END,A1_BAIRRO,A1_MUN,A1_EST,A1_CEP," + CRLF

@@ -12,6 +12,7 @@ Local cProg 	:= "BKCOMR18"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 Local cQuery 	:= ""
+Local cAlias 	:= "TMP"
 Local cCusBK	:= U_MVXCUSBK()
 Local aTcFields := {}
 
@@ -43,16 +44,15 @@ aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_UREV" ))
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_ALIQISS" ))
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_UPRC" ))
 
+u_RunQuery(cProg,cQuery,cAlias,aTcFields)
+
 
 // Definição do Arq Excel
 oRExcel := RExcel():New(cProg)
-oRExcel:SetAlias("TMP")
 oRExcel:SetTitulo("Produtos x Rentabilidade")
-oRExcel:SetQuery(cQuery)
-oRExcel:SetTcFields(aTcFields)
 
 // Definição da Planilha 1
-oPExcel:= PExcel():New(cProg)
+oPExcel:= PExcel():New(cProg,cAlias)
 oPExcel:SetTitulo("Usado para conferência da Rentabilidade")
 
 // Colunas da Planilha 1
@@ -61,38 +61,59 @@ oCExcel:SetSX3("B1_COD")
 oPExcel:AddCol(oCExcel)
 
 oCExcel:= CExcel():New("Descriçao Produto","TMP->B1_DESC")
+oCExcel:SetSX3("B1_DESC")
 oPExcel:AddCol(oCExcel)
 
 oCExcel:= CExcel():New("Conta Contábil","TMP->B1_CONTA")
+oCExcel:SetSX3("B1_CONTA")
 oPExcel:AddCol(oCExcel)
 
 oCExcel:= CExcel():New("Descriçao Conta","TMP->CT1_DESC01")
+oCExcel:SetSX3("CT1_DESC01")
 oPExcel:AddCol(oCExcel)
 
 oCExcel:= CExcel():New("Rentabilidade","TMP->RENTAB")
+oCExcel:SetSX3("RENTAB")
 oPExcel:AddCol(oCExcel)
 
 oCExcel:= CExcel():New("Usuário","Capital(TMP->(FWLeUserlg('B1_USERLGA',1)))")
+oCExcel:SetTipo("C")
+oCExcel:SetTamCol(30)
 oPExcel:AddCol(oCExcel)
 
-oCExcel:= CExcel():New("Data rev.","TMP->B1_UREV")
+oCExcel:= CExcel():New("","TMP->B1_UREV")
+oCExcel:SetSX3("B1_UREV")
 oPExcel:AddCol(oCExcel)
 
-oCExcel:= CExcel():New("Aliq. Iss","TMP->B1_ALIQISS")
+oCExcel:= CExcel():New("","TMP->B1_ALIQISS")
+oCExcel:SetSX3("B1_ALIQISS")
+oCExcel:SetFormat("#,##0.0000")
+
 oPExcel:AddCol(oCExcel)
 
-oCExcel:= CExcel():New("Ultimo Preço","TMP->B1_UPRC")
+oCExcel:= CExcel():New("","TMP->B1_UPRC")
+oCExcel:SetSX3("B1_UPRC")
+oCExcel:SetTotal(.T.)
 oPExcel:AddCol(oCExcel)
 
 oRExcel:AddPlan(oPExcel)
 
 
-// Definição da Planilha 1
-oPExcel:= PExcel():New("PTESTE2")
-oPExcel:SetTitulo("Titulo Planilha 2")
+// Definição da Planilha 2
+oPExcel:= PExcel():New("PTESTE2",cAlias)
+oPExcel:SetTitulo("Teste Planilha 2")
 oRExcel:AddPlan(oPExcel)
 
+// Colunas da Planilha 2
+oCExcel:= CExcel():New("Código Produto","TMP->B1_COD")
+oCExcel:SetSX3("B1_COD")
+oPExcel:AddCol(oCExcel)
 
+oCExcel:= CExcel():New("Descriçao Produto","TMP->B1_DESC")
+oCExcel:SetSX3("B1_DESC")
+oPExcel:AddCol(oCExcel)
+
+// Cria arquivo Excel
 oRExcel:Create()
 
 Return Nil
@@ -109,7 +130,6 @@ CLASS RExcel
 	// Declaracao das propriedades da Classe
 	DATA cPrw
 	DATA cAlias
-	DATA cQuery
 	DATA cTitulo
 	DATA cFile
 	DATA cDirDest
@@ -119,22 +139,17 @@ CLASS RExcel
 	DATA oFileW		AS Object
 	DATA oPrtXlsx	AS Object
 	DATA aPlans		AS Array
-	DATA aTcFields	AS Array
 
 	// Declaração dos Métodos da Classe
 	METHOD New(cProg) CONSTRUCTOR
-	METHOD GetAlias()
-	METHOD SetAlias(cAlias)
-
-	METHOD GetQuery()
-	METHOD SetQuery(cQuery)
-
-	METHOD SetTcFields(aTcFields)
 
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
 
 	METHOD Create()
+
+	METHOD RunCreate()
+
 
 	METHOD Fill_Records()
 	METHOD AddPlan(oPlan)
@@ -143,29 +158,9 @@ ENDCLASS
 
 
 // Getters/Seters
-METHOD GetAlias() CLASS RExcel
-Return Self:cAlias
-
-
-METHOD SetAlias(cAlias) CLASS RExcel
-Self:cAlias := Alltrim(cAlias)
-Return 
-
 METHOD SetTitulo(cTitulo) CLASS RExcel
 Self:cTitulo := Alltrim(cTitulo)
 Return
-
-METHOD GetQuery() CLASS RExcel
-Return Self:cQuery
-
-METHOD SetQuery(cQuery) CLASS RExcel
-Self:cQuery := AllTrim(cQuery)
-Return
-
-METHOD SetTcFields(aTcFields) CLASS RExcel
-Self:aTcFields := aTcFields
-Return
-
 
 
 // Criação do construtor, onde atribuimos os valores default 
@@ -173,9 +168,6 @@ Return
 METHOD New(cProg) CLASS RExcel
 
 Self:cPrw 		:= cProg
-Self:cAlias 	:= "TMP"
-Self:cQuery 	:= ""
-Self:aTcFields	:= {}
 Self:cDirDest	:= "c:\tmp\"
 Self:cDirTmp 	:= "\tmp\"
 Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())
@@ -192,8 +184,13 @@ Self:aPlans 	:= {}
 Return Self
 
 
-
 METHOD Create() CLASS RExcel
+
+u_WaitLog(Self:cPrw,{ || Self:RunCreate()},"Criando a planilha...")
+Return
+
+
+METHOD RunCreate() CLASS RExcel
 
 Local cFileL		:= ""
 Local nRet			:= 0
@@ -202,12 +199,11 @@ Local nP			:= 0
 Local nC 			:= 0
 Local nS 			:= 0
 Local oPlan			AS Object
-Local oLinha 		AS Object
 Local cFont			:= FwPrinterFont():Calibri()
 Local nLin 			:= 1
 Local nTop			:= 1
 Local oCellHorAlign := FwXlsxCellAlignment():Horizontal()
-Local oCellVertAlign := FwXlsxCellAlignment():Vertical()
+Local oCellVertAlign:= FwXlsxCellAlignment():Vertical()
 
 Local nLSize 		:= 9
 Local lLItalic 		:= .F.
@@ -255,32 +251,35 @@ Local cFundoN		:= "FFFFFF" // Fundo Branco
 
 Local cCorS			:= "FFFFFF" // Cor Branca
 Local cFundoS		:= "9E0000" // Fundo Vermelho BK
-
+/*
 Local cCorS1		:= "000000" // Cor Preta
 Local cFundoS1		:= "E9967A" // Fundo DarkSalmon
 
 Local cCorS2		:= "000000" // Cor Preta
 Local cFundoS2		:= "9ACD32" // Fundo YellowGreen
+*/
+
+// Atributos da Planilha
+Local cFiltro 		:= ""
+Local cAlias 		:= ""
 
 // Atributos da Linha
 Local aStruct 		:= {}
 Local aX3Stru 		:= {}
 Local cTipo   		:= ""
 Local cCampo 		:= ""
+Local cDefCpo 		:= ""
+Local nField 		:= 0
 Local nTamanho		:= 0
 Local nDecimal		:= 0
 Local nTamCol		:= 0
 Local cFormat 		:= ""
-Local cAlias 		:= ""
 Local cCorFonte 	:= cCorN
 Local cCorFundo 	:= cFundoN
 Local cCorAntes 	:= ""
 
-
-
 // Campo para Macro
 Private xCampo
-
 
 // Inicialização do Logo
 nHndImagem := fOpen(cImgDir, FO_READ)
@@ -293,19 +292,26 @@ Else
 EndIf
 fClose(nHndImagem)
 
-
-cAlias := Self:cAlias
-If !Empty(Self:cQuery)
-	u_RunQuery(Self:cPrw,Self:cQuery,cAlias,Self:aTcFields)
-	aStruct := (cAlias)->(dbStruct())
-EndIf
-
-
+// Percorre as Planilhas
 For nP := 1 To Len(Self:aPlans)
 	
-	oPlan := Self:aPlans[nP]
+	oPlan	:= Self:aPlans[nP]
+
+	cAlias	:= oPlan:cAlias
+	cFiltro	:= oPlan:cFiltro
+
+	aStruct := (cAlias)->(dbStruct())
+
+	If !Empty(cFiltro)
+		(cAlias)->(dbSetFilter({|| &cFiltro} , cFiltro))
+	Else
+		(cAlias)->(dbClearFilter())
+	Endif
+	(cAlias)->(dbGoTop())
 
 	Self:oPrtXlsx:AddSheet(oPlan:GetPlan())    //Adiciona nova planilha
+    cFont   := FwPrinterFont():Calibri()
+	Self:OPrtXlsx:SetBorder(.F.,.F.,.F.,.F.,FwXlsxBorderStyle():Thin(),"000000")
 
 	// Formatação do cabeçalho
     Self:oPrtXlsx:SetFont(cFont, nTSize1, lTItalic, lTBold, lTUnderl)
@@ -362,6 +368,15 @@ For nP := 1 To Len(Self:aPlans)
 
 	// Montagem do Cabeçalho
 	For nC := 1 To Len(oPlan:aColunas)
+
+		// Titulo informado em branco, pegar do dicionário SX3
+		If Empty(oPlan:aColunas[nC]:cTitulo)
+			cDefCpo := oPlan:aColunas[nC]:GetSx3()
+			
+			//oPlan:aColunas[nC]:cTitulo := FWSX3Util():GetDescription( cDefCpo ) 
+			oPlan:aColunas[nC]:cTitulo := GetSX3Cache( cDefCpo , "X3_TITULO")
+		EndIf
+
         Self:oPrtXlsx:SetValue(nLin,nC,oPlan:aColunas[nC]:cTitulo)
 	Next
 
@@ -374,74 +389,89 @@ For nP := 1 To Len(Self:aPlans)
 	cCorAntes	:= ""
 	lFirst		:= .T.
 
+	dbSelectArea(cAlias)
 	Do While (cAlias)->(!Eof()) 
 		nLin++
 		For nC := 1 To Len(oPlan:aColunas)
-			oLinha := oPlan:aColunas[nC]
-			cCampo := oLinha:cCampo
+			//oLinha := oPlan:aColunas[nC]
+			cCampo := oPlan:aColunas[nC]:cCampo
 			xCampo := &(cCampo)
 
 			//aqui montar formato com aStruc
 			If lFirst
 
 				// Pega os atributos da Coluna
-				cTipo 	:= oLinha:GetTipo()
-				nTamanho:= oLinha:GetTamanho()
-				nDecimal:= oLinha:GetDecimal()
-				nTamCol	:= oLinha:GetTamCol()
-				lTotal	:= oLinha:GetTotal()
-				cFormat	:= oLinha:GetFormat()
+				cTipo 	:= oPlan:aColunas[nC]:GetTipo()
+				nTamanho:= oPlan:aColunas[nC]:GetTamanho()
+				nDecimal:= oPlan:aColunas[nC]:GetDecimal()
+				nTamCol	:= oPlan:aColunas[nC]:GetTamCol()
+				lTotal	:= oPlan:aColunas[nC]:GetTotal()
+				cFormat	:= oPlan:aColunas[nC]:GetFormat()
+				nField	:= oPlan:aColunas[nC]:GetField()
+				cDefCpo := oPlan:aColunas[nC]:GetSx3()
 
 				// Se informado X3
-				If !Empty(oLinha:GetSx3())
-					aX3Stru		:= FWSX3Util():GetFieldStruct( oLinha:GetSx3() )
-					cTipo		:= aX3Stru[nS,2]
-					nTamanho	:= aX3Stru[nS,3]
-					nDecimal	:= aX3Stru[nS,4]
-					If Empty(oLinha:cTitulo)
-						oLinha:cTitulo := FWSX3Util():GetDescription( oLinha:GetSx3() ) 
-					EndIf
-				Else
-					// Pega informações da Coluna
-					nS := aScan(aStruct,{ |x| x[1] == cCampo })
-					If nS > 0
-						cTipo		:= aStruct[nS,2]
-						nTamanho	:= aStruct[nS,3]
-						nDecimal	:= aStruct[nS,4]
+				If !Empty(cDefCpo)
+					aX3Stru	:= FWSX3Util():GetFieldStruct( cDefCpo )
+					If !Empty(aX3Stru)
+						cTipo		:= aX3Stru[2]
+						nTamanho	:= aX3Stru[3]
+						nDecimal	:= aX3Stru[4]
+					Else
+						// Pega informações da Estrutura da Query
+						nS := aScan(aStruct,{ |x| x[1] == cDefCpo })
+						If nS > 0
+							cTipo		:= iIf(Empty(cTipo),aStruct[nS,2],cTipo)
+							nTamanho	:= aStruct[nS,3]
+							nDecimal	:= aStruct[nS,4]
+						EndIf
 					EndIf
 				EndIf
 
+				// Pega informações da Coluna
+				If Empty(cTipo)
+					cTipo 		:= ValType(xCampo)
+				EndIf
+				If Empty(nTamanho)
+					If Substr(cTipo,1,1) == "N"
+						nTamanho := 15
+						nDecimal := 2
+					ElseIf Substr(cTipo,1,1) == "D"
+						nTamanho := 8
+					ElseIf Substr(cTipo,1,1) $ "CM"
+						nTamanho := Len(xCampo)
+					EndIf
+				EndIf
+	
+
 				//Calcula o tamanho da coluna excel
 				If Empty(nTamCol)
-					If cTipo == "N"
+					nTamCol := 8
+					If Substr(cTipo,1,1) == "N"
 						nTamCol := 15
-					ElseIf cTipo == "D"
+					ElseIf Substr(cTipo,1,1) == "D"
 						nTamCol := 10
-					Else
+					ElseIf Substr(cTipo,1,1) $ "CM"
 						If Len(xCampo) > 8
 							If Len(xCampo) < 150
 								nTamCol := Len(xCampo) + 1
 							Else
 								nTamCol := 150
 							EndIf
-						Else
-							nTamCol := 8
 						EndIf
 					EndIf
 				EndIf
-				oLinha:SetTamCol(nTamCol)
-				Self:oPrtXlsx:SetColumnsWidth(nC,nC,nTamCol)
 
 				If Empty(cFormat)
 					//Numerico
-					If SUBSTR(cTipo,1,1) == "N"
+					If Substr(cTipo,1,1) == "N"
 						cFormat := "#,##0"
 						If nDecimal > 0
 							cFormat += "."+REPLICATE("0",nDecimal)
 						EndIf
 						cFormat := cFormat+";[Red]-"+cFormat
 					// Numerico %
-					ElseIf SUBSTR(cTipo,1,1) == "P"
+					ElseIf Substr(cTipo,1,1) == "P"
 						cFormat  := "0"
 						If nDecimal > 0
 							cFormat += "."+REPLICATE("0",nDecimal)+"%"
@@ -450,26 +480,31 @@ For nP := 1 To Len(Self:aPlans)
 						EndIf
 						cFormat := cFormat+";[Red]-"+cFormat
 					// Data
-					ElseIf SUBSTR(cTipo,1,1) == "D"
+					ElseIf Substr(cTipo,1,1) == "D"
 						cFormat := "dd/mm/yyyy"
 						// Se o campo vier em branco, setar cFormat para "" no momento de gerar a celula
 					EndIf
 
-					// Salva os atributos
-					oLinha:SetTipo(cTipo)
-					oLinha:SetTamanho(nTamanho)
-					oLinha:SetDecimal(nDecimal)
-					oLinha:SetTamCol(nTamCol)
-					oLinha:SetTotal(lTotal)
-					oLinha:SetFormat(cFormat)
 				EndIf
+
+				// Salva os atributos
+				oPlan:aColunas[nC]:SetTipo(cTipo)
+				oPlan:aColunas[nC]:SetTamanho(nTamanho)
+				oPlan:aColunas[nC]:SetDecimal(nDecimal)
+				oPlan:aColunas[nC]:SetTamCol(nTamCol)
+				oPlan:aColunas[nC]:SetTotal(lTotal)
+				oPlan:aColunas[nC]:SetFormat(cFormat)
+
+				// Aplica o tamanho da coluna
+				Self:oPrtXlsx:SetColumnsWidth(nC,nC,nTamCol)
+
 			Else
-				cTipo 	:= oLinha:GetTipo()
-				nTamanho:= oLinha:GetTamanho()
-				nDecimal:= oLinha:GetDecimal()
-				nTamCol	:= oLinha:GetTamCol()
-				lTotal	:= oLinha:GetTotal()
-				cFormat	:= oLinha:GetFormat()
+				cTipo 	:= oPlan:aColunas[nC]:GetTipo()
+				nTamanho:= oPlan:aColunas[nC]:GetTamanho()
+				nDecimal:= oPlan:aColunas[nC]:GetDecimal()
+				nTamCol	:= oPlan:aColunas[nC]:GetTamCol()
+				lTotal	:= oPlan:aColunas[nC]:GetTotal()
+				cFormat	:= oPlan:aColunas[nC]:GetFormat()
 			EndIf
 
 			Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
@@ -529,23 +564,23 @@ CLASS PExcel
 	// Declaracao das propriedades da Classe
 	DATA cAlias
 	DATA cTitulo
-	DATA aTitulos
 	DATA cPlan
+	DATA cFiltro
 	DATA aColunas	AS Array
 
 	// Declaração dos Métodos da Classe
-	METHOD New(cPlan) CONSTRUCTOR
+	METHOD New(cPlan,cAlias) CONSTRUCTOR
 
 	METHOD GetPlan()
 
 	METHOD GetAlias()
 	METHOD SetAlias(cAlias)
 
+	METHOD GetFiltro()
+	METHOD SetFiltro(cFiltro)
+
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
-
-	METHOD GetQuery()
-	METHOD SetQuery(cQuery)
 
 	METHOD AddCol(oCExcel)
 
@@ -561,6 +596,15 @@ METHOD SetAlias(cAlias) CLASS PExcel
 Self:cAlias := Alltrim(cAlias)
 Return 
 
+
+METHOD GetFiltro() CLASS PExcel
+Return Self:cFiltro
+
+METHOD SetFiltro(cFiltro) CLASS PExcel
+Self:cFiltro := Alltrim(cFiltro)
+Return 
+
+
 METHOD GetTitulo() CLASS PExcel
 Return Self:cTitulo
 
@@ -568,26 +612,22 @@ METHOD SetTitulo(cTitulo) CLASS PExcel
 Self:cTitulo := Alltrim(cTitulo)
 Return 
 
-METHOD GetQuery() CLASS PExcel
-Return Self:cQuery
-
-METHOD SetQuery(cQuery) CLASS PExcel
-Self:cQuery := AllTrim(cQuery)
-Return
-
 
 // Criação do construtor, onde atribuimos os valores default 
 // para as propriedades e retornamos Self
-METHOD New(cNPlan) CLASS PExcel
+METHOD New(cNPlan,cAlias) CLASS PExcel
 Self:cPlan		:= cNPlan
-Self:cAlias		:= ""
 Self:cTitulo	:= ""
 Self:aColunas	:= {}
+Self:cAlias 	:= cAlias
+Self:cFiltro	:= ""
 Return Self
+
 
 // Adiciona nova coluna
 METHOD AddCol(oCExcel) CLASS PExcel
 
+oCExcel:SetField(Len(Self:aColunas)+1) // Guarda numero da coluna
 aAdd(Self:aColunas,oCExcel)    //Adiciona nova coluna
 
 Return
@@ -676,54 +716,54 @@ METHOD GetSX3() CLASS CExcel
 Return Self:cSX3
 
 METHOD SetSX3(cSX3) CLASS CExcel
-Self:cSX3 := Alltrim(cSX3)
+Self:cSX3 := cSX3
 Return 
 
 METHOD GetField() CLASS CExcel
 Return Self:nField
 
 METHOD SetField(nField) CLASS CExcel
-Self:nField := Alltrim(nField)
+Self:nField := nField
 Return 
 
 METHOD GetTipo() CLASS CExcel
 Return Self:cTipo
 
 METHOD SetTipo(cTipo) CLASS CExcel
-Self:cTipo := Alltrim(cTipo)
+Self:cTipo := cTipo
 Return 
 
 METHOD GetTamanho() CLASS CExcel
 Return Self:nTamanho
 
 METHOD SetTamanho(nTamanho) CLASS CExcel
-Self:nTamanho := Alltrim(nTamanho)
+Self:nTamanho := nTamanho
 Return 
 
 METHOD GetDecimal() CLASS CExcel
 Return Self:nDecimal
 
 METHOD SetDecimal(nDecimal) CLASS CExcel
-Self:nDecimal := Alltrim(nDecimal)
+Self:nDecimal := nDecimal
 Return 
 
 METHOD GetTamCol() CLASS CExcel
 Return Self:nTamCol
 
 METHOD SetTamCol(nTamCol) CLASS CExcel
-Self:nTamCol := Alltrim(nTamCol)
+Self:nTamCol := nTamCol
 Return 
 
 METHOD GetTotal() CLASS CExcel
 Return Self:lTotal
 
 METHOD SetTotal(lTotal) CLASS CExcel
-Self:lTotal := Alltrim(lTotal)
+Self:lTotal := lTotal
 Return 
 
 METHOD GetFormat() CLASS CExcel
 Return Self:cFormat
 
 METHOD SetFormat(cFormat) CLASS CExcel
-Self:cFormat := Alltrim(cFormat)
+Self:cFormat := cFormat
 Return 
