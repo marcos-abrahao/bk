@@ -40,6 +40,11 @@ Private aRet	 :=	{}
 Private cHist    := ""
 Private aPrd     := {}
 Private aPrdDesc := {}
+Private cNFiscal := '000000000'
+
+// Proximo numeor de DNF
+U_NumSf1() 
+cDocI := cNFiscal
 
 aAdd(aPrd,"21401003")	// 1-PIS A RECOLHER 
 aAdd(aPrd,"21401004")	// 2-COFINS A RECOLHER  
@@ -77,13 +82,13 @@ For nX := 1 To Len(aPrd)
 	aAdd(aPrdDesc,aPrd[nX]+"-"+cDesc)
 Next
 
-aAdd(aParam, { 1,"Documento"      ,cDocI   ,""    ,""                                       ,""   ,"",70,.T.})
-aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par02 > 0 .AND. mv_par02 <= 12"      ,""   ,"",20,.T.})
-aAdd(aParam, { 1,"Ano ref inicial",nAnoI   ,"9999","mv_par03 >= 2010 .AND. mv_par03 <= 2040",""   ,"",20,.T.})
-aAdd(aParam, { 1,"Mes ref final"  ,nMesF   ,"99"  ,"mv_par04 > 0 .AND. mv_par04 <= 12"      ,""   ,"",20,.T.})
-aAdd(aParam, { 1,"Ano ref final"  ,nAnoF   ,"9999","mv_par05 >= 2010 .AND. mv_par05 <= 2040",""   ,"",20,.T.})
+//aAdd(aParam, { 1,"Documento"      ,cDocI   ,""    ,""                                       ,""   ,"",70,.T.})
+aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano ref inicial",nAnoI   ,"9999","mv_par02 >= 2015 .AND. mv_par02 <= 2040",""   ,"",20,.T.})
+aAdd(aParam, { 1,"Mes ref final"  ,nMesF   ,"99"  ,"mv_par03 > 0 .AND. mv_par03 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano ref final"  ,nAnoF   ,"9999","mv_par04 >= 2015 .AND. mv_par04 <= 2040",""   ,"",20,.T.})
 aAdd(aParam, { 3,"Produto"        ,1,aPrdDesc,200,"",.T.})
-aAdd(aParam, { 1,"Valor"          ,nValor  ,"@E 999,999,999.99"  ,"mv_par07 > 0"            ,""   ,"",70,.T.})
+aAdd(aParam, { 1,"Valor"          ,nValor  ,"@E 999,999,999.99"  ,"mv_par06 > 0"            ,""   ,"",70,.T.})
 // Tipo 11 -> MultiGet (Memo)
 //            [2] = Descrição
 //            [3] = Inicializador padrão
@@ -97,7 +102,7 @@ Do While .T.
 		lRet := .F.
    		Exit
 	Endif
-	If ValidaDoc()
+	If ValidaDoc() .AND. u_MsgLog(cProg,"Confirma a inclusão do DNF "+cDocI,"Y")
 		lRet := .T.
    		Exit
 	Endif
@@ -126,15 +131,15 @@ Local lRet := .F.
 //   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
 If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cProg,.T.         ,.T.))
 	lRet	:= .T.
-	cDocI	:= mv_par01
-	nMesI	:= mv_par02
-	nAnoI	:= mv_par03
-	nMesF	:= mv_par04
-	nAnoF	:= mv_par05
-    cProd	:= aPrd[mv_par06]
-    nProd	:= mv_par06
-	nValor  := mv_par07
-	cHist   := mv_par08
+	//cDocI	:= mv_par01
+	nMesI	:= mv_par01
+	nAnoI	:= mv_par02
+	nMesF	:= mv_par03
+	nAnoF	:= mv_par04
+    cProd	:= aPrd[mv_par05]
+    nProd	:= mv_par05
+	nValor  := mv_par06
+	cHist   := mv_par07
 Endif
 Return lRet
 
@@ -263,7 +268,7 @@ Do WHile !QTMP->(EOF())
 	aadd(aLinha,{"D1_XXHIST" ,ALLTRIM(cHist),Nil})
 	aadd(aItens,aLinha)
 	cHist := ""
-	nTotal += QTMP->CC
+	nTotal += QTMP->VALCC
 	QTMP->(dbSkip())
 EndDo
 QTMP->(DbCloseArea())
@@ -303,6 +308,9 @@ EndIf
 
 If lRet
 	If SF1->F1_DOC == cDocI .AND. SF1->F1_SERIE == cSerie
+		u_AltFPgto()
+		
+		/* Removida liberação automática
 		RecLock("SF1",.F.)
 		SF1->F1_XXLIB   := "L"
 		SF1->F1_XXULIB  := __cUserId
@@ -310,6 +318,7 @@ If lRet
 		//SF1->F1_XXUAPRV := __cUserId
 		//SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
 		MsUnLock("SF1")
+		*/
 	EndIf
 EndIf
 
@@ -405,5 +414,8 @@ u_LogMemo("BKCOMA14-INSS.SQL",cQuery)
 TCQUERY cQuery NEW ALIAS "QTMP"
 
 Return NIL
+
+
+
 
 
