@@ -316,12 +316,12 @@ Private lMsErroAuto := .F.
 
 //RpcSetType(3)
 
-
 // Prepara a empresa BK
 //PREPARE ENVIRONMENT EMPRESA _cEmpresa FILIAL _cFilial TABLES "SF1","SD1"
 If RpcSetEnv( _cEmpresa, _cFilial )
 
-	//dDataBase := _dData
+	// Para não dar erro A103DATAM 
+	dDataBase := _dDtEmis
 
 	dbSelectArea("SX6")                      
 	U_NumSf1()  
@@ -380,7 +380,7 @@ If RpcSetEnv( _cEmpresa, _cFilial )
 
 	If lMsErroAuto
 
-		cRetorno := u_LogMsExec("BKFINJ18","Problemas no Pré-Documento de Entrada "+cDoc+" "+cSerie)
+		cRetorno := u_LogMsExec("BKFINJ18","Problemas no Pré-Documento de Entrada "+cNFiscal+" "+cSerie)
 
 		u_MsgLog("BKFINJ18","aCabec","E",VarInfo("aCabec",aCabec))
 		u_MsgLog("BKFINJ18","aItens","E",VarInfo("aItens",aItens))

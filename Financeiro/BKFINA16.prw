@@ -127,7 +127,7 @@ oPanelLeft:Align := CONTROL_ALIGN_LEFT
 @ 070, 310 MSGET nMulta Picture "@E 999,999,999.99" When .T. SIZE 50, 11 OF oPanelLeft PIXEL VALID(POSITIVO(nMulta),SOMATAB())
 
 @ 060, 370 SAY "A Receber" SIZE 35, 7 OF oPanelLeft PIXEL
-@ 070, 370 MSGET nReceb Picture "@E 999,999,999.99" When .F. SIZE 50, 11 OF oPanelLeft PIXEL
+@ 070, 370 MSGET nReceb Picture "@E 999,999,999.99" When .T. SIZE 50, 11 OF oPanelLeft PIXEL
 
 @ 085, 010 SAY "Histórico" SIZE 50, 7 OF oPanelLeft PIXEL 
 @ 095, 010 MSGET cHist	Picture "@!"  When .T.  SIZE 200, 11 OF oPanelLeft PIXEL
@@ -547,7 +547,11 @@ For nI:=1 TO LEN(aTitGer)
 
 	AADD( aBaixa, { "AUTDESCONT" 	, aTitGer[nI,15]	, Nil } )	// 13
 	AADD( aBaixa, { "AUTMULTA"	 	, aTitGer[nI,16]	, Nil } )	// 14
-	AADD( aBaixa, { "AUTVALREC"  	, aTitGer[nI,13] - aTitGer[nI,14]- aTitGer[nI,15] + aTitGer[nI,16]					, Nil } )	// 20
+	AADD( aBaixa, { "AUTVALREC"  	, aTitGer[nI,17]	, Nil }  )	// 20 aceitar baixa Parcial
+
+	//AADD( aBaixa, { "AUTVALREC"  	, aTitGer[nI,13] - aTitGer[nI,14]- aTitGer[nI,15] + aTitGer[nI,16]					, Nil } )	// 20
+
+
 	//AADD( aBaixa, { "AUTTXMOEDA"  	, 1 				, Nil } )	// 21
 
 	lMsErroAuto := .F.

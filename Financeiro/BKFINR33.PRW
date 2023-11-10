@@ -919,11 +919,13 @@ aAnexos := {}
 aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 For nI := 1 To Len(aFilesF1)
 	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'","'+aFilesF1[nI,2]+'") '+CRLF
+	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'")'+CRLF
 	aAdd(aAnexos,cFile)
 Next
 aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
 For nI := 1 To Len(aFilesE2)
 	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'","'+aFilesE2[nI,2]+'") '+CRLF
+	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'")'+CRLF
 	aAdd(aAnexos,cFile)
 Next
 

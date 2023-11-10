@@ -628,7 +628,7 @@ FOR nPl := 1 TO LEN(_aPlans)
 		oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
 
 
-		// Mostrar o Resumo
+		// Mostrar os Resumos
 		If !Empty(_aResumo)
 
 			For nI := 1 To Len(_aResumo)

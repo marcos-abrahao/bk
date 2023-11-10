@@ -528,7 +528,28 @@ FOR nPl := 1 TO LEN(_aPlans)
 				cCorAntes  := (cCorFonte+cCorFundo)
 			EndIf
 			If cTipo == "F"
+				/*
+				If "HYPERLINK" $ UPPER(xCampo)
+					xCampo := STRTRAN(xCampo,'=HYPERLINK("','')
+					xCampo := STRTRAN(xCampo,'")','')
+
+					oPrtXlsx:SetHyperlink(nLin,nI,xCampo)
+				Else
+					oPrtXlsx:SetFormula(nLin,nI,xCampo)
+				EndIf
+				*/
+				If "HYPERLINK" $ UPPER(xCampo)
+				    oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
+			    	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, "0000FF", cCorFundo, cFormat )
+				EndIf
+
 				oPrtXlsx:SetFormula(nLin,nI,xCampo)
+
+				If "HYPERLINK" $ UPPER(xCampo)
+				    oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+			    	oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
+				EndIf
+
 			Else
             	oPrtXlsx:SetValue(nLin,nI,xCampo)
 			EndIf
