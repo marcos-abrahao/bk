@@ -65,7 +65,7 @@ EndIf
 u_xxLog(cArqLog,cProg + ": "+cMens)
 If !Empty(cTxt)
 	u_xxLog("\log\"+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
-	If !IsBlind()
+	If !IsBlind() .AND. !Empty(cAlert)
 		FWAlertHelp(AllTrim(cTxt),cProg)
 	EndIf
 EndIf

@@ -738,9 +738,23 @@ EndIf
 // --> Planilha de Parâmetros
 If ValType(_aParam) == "A"
 	For nI := 1 TO LEN(_aParam)
-		xCampo := "MV_PAR"+STRZERO(nI,2)
-		aAdd(aLocPar,{_aParam[nI,2],cValToChar(&xCampo)})
+		//xCampo := "MV_PAR"+STRZERO(nI,2)
+		//aAdd(aLocPar,{_aParam[nI,2],cValToChar(&xCampo)})
+
+		xCampo := &("MV_PAR"+STRZERO(nI,2))
+		yCampo := cValToChar(xCampo)
+		// Se for combo ou radio, pega a posição do array
+		If _aParam[nI,1] == 2 .OR. _aParam[nI,1] == 3
+			If ValType(xCampo) == "N"
+				If  xCampo > 0 .AND. xCampo <= Len(_aParam[nI,4])
+					yCampo := _aParam[nI,4,xCampo]
+				EndIf
+			EndIf
+		EndIf
+		aAdd(aLocPar,{_aParam[nI,2],yCampo})
+
 	Next
+
 Else
 	oObjPerg := FWSX1Util():New()
 	oObjPerg:AddGroup(_cProg)

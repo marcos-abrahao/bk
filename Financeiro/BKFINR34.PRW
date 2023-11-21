@@ -1,44 +1,35 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOPCONN.CH"
 
-/*/{Protheus.doc} BKFINR33
-BK - RESUMO DIÁRIO
+/*/{Protheus.doc} BKFINR34
+BK - RESUMO DIÁRIO - NOVO
 @Return
 @author Marcos Bispo Abrahão
-@since 11/10/2023
+@since 13/11/2023
 @version P12
 /*/
 
-User Function BKFINR33
+User Function BKFINR34
 
-Local aCabs			:= {}
-Local aCampos		:= {}
-Local aResumo 		:= {}
+Local cDescricao	:= "Objetivo deste relatório é facilitar a operação diária do contas a pagar."
+Local oRExcel		AS Object
+Local oPExcel		AS Object
+
+Local cAlias 		:= "QSE2"
 Local aFiltros		:= {}
-Local nColVal1		:= 0
-Local nColVal2		:= 0
-Local nColUnq1		:= 0
-
-Local aCabsC		:= {}
-Local aCamposC		:= {}
-Local aResumoC 		:= {}
-Local nColValC1		:= 0
-Local nColValC2		:= 0
-Local nColUnqC		:= 0
-
-
-Local aPlans		:= {}
 Local cHtml 		:= ""
 Local nAbas			:= 0
 Local aOpçoes		:= {"1-Completo Web","2-Simples Web", "3-Completo Excel","4-Simples Excel","5-Resumo Excel"} 
-Local aImpSel		:= {"Todos","Impressos","Não impressos","Desmarcar Impressão"} 
+Local aImpSel		:= {"Todos","Impressos","Não impressos","Desmarcar Impressão"}
+Local aQuebra		:= {"Banco","Forma Pagamento"}
 Local nI 			:= 0
 
 Private aParam		:= {}
 Private cTitulo		:= "Contas a Pagar - Resumo Diário"
-Private cPerg		:= "BKFINR33"
+Private cProg		:= "BKFINR34"
 Private dDtIni		:= dDataBase
 Private dDtFim		:= dDataBase
+Private nQuebra		:= 1
 Private nFormato	:= 1
 Private nImpSel		:= 1
 Private aAnexos 	:= {}
@@ -46,6 +37,7 @@ Private aAnexos 	:= {}
 
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .T. })
 aAdd( aParam, { 1, "Data FInal:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .F. })
+aAdd( aParam ,{ 3, "Abas por:"		, 1              , aQuebra               , 100,'.T.',.T.})
 aAdd( aParam ,{ 3, "Formato"		, 1              , aOpçoes               , 100,'.T.',.T.})
 aAdd( aParam ,{ 3, "Impressão"		, 1              , aImpSel               , 100,'.T.',.T.})
 
@@ -53,205 +45,172 @@ If !BkPar()
 	Return Nil
 EndIf
 
-u_WaitLog(cPerg, {|| ProcGer1() },cTitulo)
+u_WaitLog(cProg, {|| ProcGer1() },cTitulo)
 
 QSE2->(dbGoTop())
 If QSE2->(EOF())
-	u_MsgLog(cPerg,"Não foram encontrados titulos a imprimir para esta seleção","I")
+	u_MsgLog(cProg,"Não foram encontrados titulos a imprimir para esta seleção","I")
 	Return Nil
 EndIf
 
 If nFormato == 1 .OR. nFormato == 2
 	// Completo Web
-	u_WaitLog("BKFINR33", {|oSay| cHtml := CPHtml(nFormato) }, "Listando Títulos a Pagar")	
-	u_WaitLog("BKFINR33", {|oSay| RelHtml(cHtml) }, "Gerando html")	
+	u_WaitLog("BKFINR34", {|oSay| cHtml := CPHtml(nFormato) }, "Listando Títulos a Pagar")	
+	u_WaitLog("BKFINR34", {|oSay| RelHtml(cHtml) }, "Gerando html")	
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
 
 	// Aba Resumo ou Consolidaddo
-	aCabsC   := {}
-	aCamposC := {}
-	aResumoC := {}
 
-	AADD(aCamposC,"QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA")
-	AADD(aCabsC  ,"Título")
+	// Definição do Arq Excel
+	oRExcel := RExcel():New(cProg)
+	oRExcel:SetTitulo(cTitulo)
+	oRExcel:SetDescr(cDescricao)
+	oRExcel:SetParam(aParam)
+
+	// Definição da Planilha 1
+	oPExcel:= PExcel():New("CONSOLIDADO",cAlias)
+	oPExcel:SetTitulo("CONSOLIDADO")
+	If nQuebra = 1
+		oPExcel:AddResumos("Valor x Portador","E2_PORTADO","E2_VALOR")
+		oPExcel:AddResumos("Saldo x Portador","E2_PORTADO","SALDO")
+	Else
+		oPExcel:AddResumos("Valor x Forma de Pagamento","FORMPGT","E2_VALOR")
+		oPExcel:AddResumos("Saldo x Forma de Pagamento","FORMPGT","SALDO")
+	EndIf
+	// Colunas da Planilha
+	oPExcel:AddCol("TITULO","QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA","Título","")
+	oPExcel:GetCol("TITULO"):SetTamCol(15)
 
 	If dDtIni <> dDtFim
-		AADD(aCampos,"QSE2->E2_VENCREA")
-		AADD(aCabs  ,"Vencimento")
+		oPExcel:AddColX3("E2_VENCREA")
 	EndIf
 
-	AADD(aCamposC,"QSE2->A2_NOME")
-	AADD(aCabsC  ,"Razão Social")
+	oPExcel:AddColX3("A2_NOME")
 
-	AADD(aCamposC,"QSE2->E2_VALOR")
-	AADD(aCabsC  ,"Valor")
-	nColValC1 := LEN(aCabsC)
+	oPExcel:AddColX3("E2_VALOR")
 
-	AADD(aCamposC,"QSE2->SALDO")
-	AADD(aCabsC  ,"Saldo")
-	nColValC2 := LEN(aCabsC)
+	oPExcel:AddCol("SALDO","SALDO","Saldo","E2_SALDO")
 
-	AADD(aCamposC,"QSE2->FORMPGT")
-	AADD(aCabsC  ,"Forma pgto")
-	nColUnqC := LEN(aCabsC)
+	oPExcel:AddCol("FORMPGT","QSE2->FORMPGT","Forma Pgto","")
 
-	AADD(aCamposC,"QSE2->E2_PORTADO")
-	AADD(aCabsC  ,"Portador")
+	oPExcel:AddColX3("E2_PORTADO")
 
-	AADD(aCamposC,"QSE2->HIST")
-	AADD(aCabsC  ,"Histórico")
+	oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
+	oPExcel:GetCol("HIST"):SetWrap(.T.)
 
-	AADD(aResumoC,{nColUnqC,nColValC1,{}})  // Resumo por forma de pagto - Valor
-	AADD(aResumoC,{nColUnqC,nColValC2,{}})  // Resumo por forma de pagto - Saldo
-
-	AADD(aPlans,{"QSE2","Consolidado","",cTitulo,aCamposC,aCabsC,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, aResumoC, lClose:= .F. })
+	// Adiciona a planilha consolidada
+	oRExcel:AddPlan(oPExcel)
 
 	If nFormato <> 5
 		// 3-Completo Excel
 		// 4-Simples Excel
 		// 5-Resumo Excel
 
-		aCabs   := {}
-		aCampos := {}
-		aResumo := {}
-
-		//AADD(aCampos,"QSE2->EMPRESA")
-		//AADD(aCabs  ,"Código")
-
-		AADD(aCampos,"QSE2->NOMEEMP")
-		AADD(aCabs  ,"Empresa")
-
-		AADD(aCampos,"QSE2->FORMPGT")
-		AADD(aCabs  ,"Forma pgto")
-		nColUnq1 := LEN(aCabs)
-
-		AADD(aCampos,"QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA")
-		AADD(aCabs  ,"Título")
-
-		AADD(aCampos,"QSE2->E2_TIPO")
-		AADD(aCabs  ,"Tipo")
-
-		If dDtIni <> dDtFim
-			AADD(aCampos,"QSE2->E2_VENCREA")
-			AADD(aCabs  ,"Vencimento")
-		EndIf
-
-		If nFormato == 3
-
-			//AADD(aCampos,"QSE2->E2_PREFIXO")
-			//AADD(aCabs  ,"Prefixo")
-
-			//AADD(aCampos,"QSE2->E2_NUM")
-			//AADD(aCabs  ,"Título")
-
-			//AADD(aCampos,"QSE2->E2_PARCELA")
-			//AADD(aCabs  ,"Parcela")
-
-			AADD(aCampos,"QSE2->E2_FORNECE")
-			AADD(aCabs  ,"Fornecedor")
-
-			AADD(aCampos,"QSE2->E2_LOJA")
-			AADD(aCabs  ,"Loja")
-		EndIf
-
-		AADD(aCampos,"QSE2->A2_NOME")
-		AADD(aCabs  ,"Razão Social")
-
-		AADD(aCampos,"TRANSFORM(QSE2->A2_CGC,IIF(QSE2->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
-		AADD(aCabs  ,"CNPJ/CPF")
-
-		AADD(aCampos,"QSE2->E2_NATUREZ")
-		AADD(aCabs  ,"Natureza")
-
-		AADD(aCampos,"QSE2->E2_PORTADO")
-		AADD(aCabs  ,"Portador")
-
-		AADD(aCampos,"QSE2->E2_VALOR")
-		AADD(aCabs  ,"Valor")
-		nColVal1 := LEN(aCabs)
-
-		AADD(aCampos,"QSE2->SALDO")
-		AADD(aCabs  ,"Saldo")
-		nColVal2 := LEN(aCabs)
-
-		AADD(aCampos,"QSE2->HIST")
-		AADD(aCabs  ,"Histórico")
-
-		AADD(aCampos,"QSE2->F1_XNUMPA")
-		AADD(aCabs  ,"PA")
-
-		AADD(aCampos,"QSE2->F1_XBANCO")
-		AADD(aCabs  ,"Banco")
-
-		AADD(aCampos,"QSE2->F1_XAGENC")
-		AADD(aCabs  ,"Agência")
-
-		AADD(aCampos,"QSE2->F1_XNUMCON")
-		AADD(aCabs  ,"Conta")
-
-		AADD(aCampos,"QSE2->F1_XXTPPIX")
-		AADD(aCabs  ,"Pix")
-
-		AADD(aCampos,"QSE2->F1_XXCHPIX")
-		AADD(aCabs  ,"Chave Pix")
-
-		AADD(aCampos,"QSE2->(u_AnexosCP(@aAnexos))")
-		AADD(aCabs  ,"Anexos")
-
-		AADD(aCampos,"UsrRetName(QSE2->F1_XXUSER)")
-		AADD(aCabs  ,"Responsável")
-
-		If nFormato == 3
-
-			AADD(aCampos,"QSE2->D1_COD")
-			AADD(aCabs  ,"Código")
-
-			AADD(aCampos,"QSE2->B1_DESC")
-			AADD(aCabs  ,"Produto")
-
-			AADD(aCampos,"QSE2->D1_CC")
-			AADD(aCabs  ,"Centro de Custo")
-
-			AADD(aCampos,"QSE2->CTT_DESC01")
-			AADD(aCabs  ,"Descrição CC")
-		EndIf
-
-		For nI := 1 To 10
-			AADD(aCampos,"IIF(LEN(aAnexos) >= "+STR(nI,2,0)+",aAnexos["+STR(nI,2,0)+"],'')")
-			AADD(aCabs  ,"Anexo "+STR(nI,2,0))
-		Next
-
-		If nImpSel == 1
-			AADD(aCampos,"IIF(QSE2->E2_XXPRINT=='S','Sim','Não')")
-			AADD(aCabs  ,"Impressão")
-		EndIf
-
-		//AADD(aCampos,"QSE2->REGSE2")
-		//AADD(aCabs  ,"Registro E2")
-
-		AADD(aResumo,{nColUnq1,nColVal1,{}})  // Resumo por forma de pagto - Valor
-		AADD(aResumo,{nColUnq1,nColVal2,{}})  // Resumo por forma de pagto - Saldo
-
-		u_WaitLog("BKFINR33", {|oSay| aFiltros := Abas() }, "Determinando Abas")
+		u_WaitLog("BKFINR34", {|oSay| aFiltros := Abas() }, "Determinando Abas")
 
 		For nAbas := 1 To Len(aFiltros)
-			AADD(aPlans,{"QSE2",aFiltros[nAbas],"QSE2->FORMPGT == '"+aFiltros[nAbas]+"'",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, aResumo, lClose:= .F. })
+
+			oPExcel:= PExcel():New(aFiltros[nAbas],cAlias)
+
+			If nQuebra == 1 // Se for Banco, quebra por Forma de Pgto nas abas detalhadas, cuidado com a inversão
+				oPExcel:AddResumos("Valor x Forma de Pagamento","FORMPGT","E2_VALOR")
+				oPExcel:AddResumos("Saldo x Forma de Pagamento","FORMPGT","SALDO")
+				oPExcel:SetFiltro("QSE2->E2_PORTADO == '"+aFiltros[nAbas]+"'")
+				oPExcel:SetTitulo("Portador: "+aFiltros[nAbas])
+			Else
+				oPExcel:AddResumos("Valor x Portador","E2_PORTADO","E2_VALOR")
+				oPExcel:AddResumos("Saldo x Portador","E2_PORTADO","SALDO")
+				oPExcel:SetFiltro("QSE2->FORMPGT == '"+aFiltros[nAbas]+"'")
+				oPExcel:SetTitulo("Forma de Pagamento: "+aFiltros[nAbas])
+			EndIf
+
+
+			oPExcel:AddCol("NOMEEMP","QSE2->NOMEEMP","Empresa","")
+			oPExcel:GetCol("NOMEEMP"):SetTamCol(30)
+
+			oPExcel:AddCol("FORMPGT","QSE2->FORMPGT","Forma Pgto","")
+
+			oPExcel:AddCol("TITULO","QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA","Título","")
+			oPExcel:GetCol("TITULO"):SetTamCol(15)
+
+			oPExcel:AddColX3("E2_TIPO")
+
+			If dDtIni <> dDtFim
+				oPExcel:AddColX3("E2_VENCREA")
+			EndIf
+
+			If nFormato == 3
+				oPExcel:AddColX3("E2_FORNECE")
+				oPExcel:AddColX3("E2_LOJA")
+			EndIf
+
+			oPExcel:AddColX3("A2_NOME")
+
+			oPExcel:AddCol("CNPJ","QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA","CNPJ/CPF","")
+			oPExcel:GetCol("CNPJ"):SetTamCol(21)
+			
+			oPExcel:AddColX3("E2_NATUREZ")
+
+			oPExcel:AddColX3("E2_PORTADO")
+
+			oPExcel:AddColX3("E2_VALOR")
+
+			oPExcel:AddCol("SALDO","QSE2->SALDO","Saldo","E2_SALDO")
+
+			oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
+			oPExcel:GetCol("HIST"):SetWrap(.T.)
+
+			oPExcel:AddColX3("F1_XNUMPA")
+			oPExcel:AddColX3("F1_XBANCO")
+			oPExcel:AddColX3("F1_XAGENC")
+			oPExcel:AddColX3("F1_XNUMCON")
+			oPExcel:AddColX3("F1_XXTPPIX")
+			oPExcel:AddColX3("F1_XXCHPIX")
+
+			oPExcel:AddCol("RESPONSAVEL","UsrRetName(QSE2->F1_XXUSER)","Responsável","")
+			oPExcel:GetCol("RESPONSAVEL"):SetTamCol(20)
+
+			If nFormato == 3
+				oPExcel:AddColX3("D1_COD")
+				oPExcel:AddColX3("B1_DESC")
+				oPExcel:AddColX3("D1_CC")
+				oPExcel:AddColX3("CTT_DESC01")
+			EndIf
+
+			oPExcel:AddCol("ANEXOS","QSE2->(u_AnexosCP(@aAnexos))","Anexos","")
+			oPExcel:GetCol("ANEXOS"):SetTamCol(10)
+
+			For nI := 1 To 10
+				oPExcel:AddCol("ANEXO"+STRZERO(nI,2),"IIF(LEN(aAnexos) >= "+STR(nI,2,0)+",aAnexos["+STR(nI,2,0)+"],'')","Anexo "+STRZERO(nI,2),"")
+				oPExcel:GetCol("ANEXO"+STRZERO(nI,2)):SetTamCol(30)
+				oPExcel:GetCol("ANEXO"+STRZERO(nI,2)):SetTipo("F")
+			Next
+
+			If nImpSel == 1
+				oPExcel:AddCol("IMPRESSAO","IIF(QSE2->E2_XXPRINT=='S','Sim','Não')","Impressão","")
+				oPExcel:GetCol("IMPRESSAO"):SetTamCol(10)
+			EndIf
+
+			oRExcel:AddPlan(oPExcel)
 		Next
 	EndIf
 
-	U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
+	//U_PlanXlsx(aPlans,cTitulo,cProg,.F.)
+
+	// Cria arquivo Excel
+	oRExcel:Create()
 
 EndIf
 
 If nFormato > 2
 	If nImpSel == 3  // Marcar como impresso
-		If u_MsgLog(cPerg,"Deseja MARCAR estes tílos como impressos?","Y")
-			u_WaitLog("BKFINR33", {|oSay| MarcarTit(nImpSel) }, "Marcando títulos")
+		If u_MsgLog(cProg,"Deseja MARCAR estes tílos como impressos?","Y")
+			u_WaitLog("BKFINR34", {|oSay| MarcarTit(nImpSel) }, "Marcando títulos")
 		EndIf
 	ElseIf nImpSel == 4  // Desmarcar os impressos
-		If u_MsgLog(cPerg,"Deseja DESMARCAR estes tílos como impressos?","Y")
-			u_WaitLog("BKFINR33", {|oSay| MarcarTit(nImpSel) }, "Desmarcando títulos")
+		If u_MsgLog(cProg,"Deseja DESMARCAR estes tílos como impressos?","Y")
+			u_WaitLog("BKFINR34", {|oSay| MarcarTit(nImpSel) }, "Desmarcando títulos")
 		EndIf
 	EndIf
 EndIf
@@ -274,10 +233,10 @@ Do While QSE2->(!Eof())
 	RecLock("SE2",.F.)
 	If nImpSel == 3
         SE2->E2_XXPRINT := "S"
-		u_MsgLog(cPerg,cTitulo+" Impressão marcada: "+SE2->E2_NUM)
+		u_MsgLog(cProg,cTitulo+" Impressão marcada: "+SE2->E2_NUM)
 	Else
         SE2->E2_XXPRINT := "N"
-		u_MsgLog(cPerg,cTitulo+" Impressão desmarcada: "+SE2->E2_NUM)
+		u_MsgLog(cProg,cTitulo+" Impressão desmarcada: "+SE2->E2_NUM)
 	EndIF
 	MsUnlock()
 
@@ -293,12 +252,14 @@ Local aAbas := {}
 cAba := ""
 QSE2->(dbGoTop())
 Do While QSE2->(!Eof())
-	//If Len(aAbas) = 0
-	//	cAbas := QSE2->FORMPGT
-	//	aAdd(aAbas,QSE2->FORMPGT)
-	//EndIf
-	If aScan(aAbas,QSE2->FORMPGT) == 0
-		aAdd(aAbas,QSE2->FORMPGT)
+	If nQuebra == 1
+		If aScan(aAbas,QSE2->E2_PORTADO) == 0
+			aAdd(aAbas,QSE2->E2_PORTADO)
+		EndIf
+	Else
+		If aScan(aAbas,QSE2->FORMPGT) == 0
+			aAdd(aAbas,QSE2->FORMPGT)
+		EndIf
 	EndIf
 	QSE2->(dbSkip())
 EndDo
@@ -312,12 +273,13 @@ Local aRet		:=	{}
 Local lRet := .F.
 
 //   Parambox(aParametros,@cTitle          ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
-If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg,.T.         ,.T.))
+If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cProg,.T.         ,.T.))
 	lRet := .T.
 	dDtIni  := mv_par01
 	dDtFim  := mv_par02
-	nFormato:= mv_par03
-	nImpSel	:= mv_par04
+	nQuebra := mv_par03
+	nFormato:= mv_par04
+	nImpSel	:= mv_par05
 
 	cTitulo := cTitulo +" - "+DTOC(dDtIni)+iIf(dDtFim <> dDtIni," até "+DTOC(dDtFim),"")
 Endif
@@ -484,10 +446,14 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
-cQuery += " ORDER BY FORMPGT" + CRLF
+If nQuebra == 1
+	cQuery += " ORDER BY E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
+Else
+	cQuery += " ORDER BY FORMPGT,E2_PORTADO,E2_FORNECE" + CRLF
+EndIf
 //cQuery += "    EMPRESA,E2_VENCREA,FORMPGT " + CRLF
 
-u_LogMemo("BKFINR33.SQL",cQuery)
+u_LogMemo("BKFINR34.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QSE2"
 
@@ -541,6 +507,7 @@ Local aFilesF1  := {}
 Local aFilesE2  := {}
 Local cTipoTit  := cTitulo
 Local cFormPgto := ""
+Local cPortado 	:= ""
 Local dVencto	:= CTOD("")
 Local aTotais	:= {}
 Local nTValor	:= 0
@@ -673,33 +640,20 @@ DO while QSE2->(!Eof())
 	If nPag == 1
 		nPag++
 
-		cFormPgto := QSE2->FORMPGT
+		If nQuebra == 1
+			cPortado := QSE2->E2_PORTADO
+			// Cabeçalho Portador
+			cHtml += '    <tr>'+CRLF
+			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Portador: "+QSE2->E2_PORTADO+'</td>'+CRLF
+			cHtml += '    </tr>'+CRLF
+		Else
+			cFormPgto := QSE2->FORMPGT
+			// Cabeçalho forma de pgto
+			cHtml += '    <tr>'+CRLF
+			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
+			cHtml += '    </tr>'+CRLF
+		EndIf
 		dVencto   := QSE2->E2_VENCREA
-
-		// Cabeçalho forma de pgto
-
-		/*
-		cHtml += '</table>'+CRLF
-		cHtml += '</br>'+CRLF
-		//cHtml += '</div>'+CRLF
-		//cHtml += '<div class="folha">'+CRLF
-
-		cHtml += '<table class="tg">'+CRLF
-
-		cHtml += '<colgroup>'+CRLF
-		cHtml += '<col style="width: 100px">'+CRLF
-		cHtml += '<col style="width: 300px">'+CRLF
-		cHtml += '<col style="width: 060px">'+CRLF
-		cHtml += '<col style="width: 060px">'+CRLF
-		cHtml += '<col style="width: 100px">'+CRLF
-		cHtml += '<col style="width: 100px">'+CRLF
-		cHtml += '<col style="width: 120px">'+CRLF
-		cHtml += '</colgroup>'+CRLF
-		*/
-
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
-		cHtml += '    </tr>'+CRLF
 
 	EndIF
 
@@ -810,8 +764,6 @@ DO while QSE2->(!Eof())
 		cHtml += '  </tr>'+CRLF
 	EndIf
 
-
-
 	cHtml += '    </table>'+CRLF
 	cHtml += '    <br>'+CRLF
 	cHtml += '   </td>'+CRLF
@@ -820,53 +772,98 @@ DO while QSE2->(!Eof())
 	nTValor	  += QSE2->E2_VALOR
 	nTSaldo   += QSE2->SALDO
 
-
 	QSE2->(dbSkip())
 
-	If cFormPgto <> QSE2->FORMPGT .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
+	If nQuebra == 1
+		If cPortado <> QSE2->E2_PORTADO .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
 
-		// Total Parcial		
-		cHtml += '<table class="tg">'+CRLF
-		cHtml += ' <tr>'+CRLF
-		cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cFormPgto)+' em '+DTOC(dVencto)+'</td>'+CRLF
-		cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTValor,cPict))+'</td>'+CRLF
-		cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
-		cHtml += ' <tr>'+CRLF
-		cHtml += '</table>'+CRLF
-		aAdd(aTotais,{TRIM(cFormPgto)+' em '+DTOC(dVencto),nTValor,nTSaldo})
-
-		If !QSE2->(EOF())
-
-			// Cabeçalho forma de pgto
-			cHtml += '</table>'+CRLF
-			cHtml += '</br>'+CRLF
-			cHtml += '</div>'+CRLF
-			
-			cHtml += '<div class="folha">'+CRLF
+			// Total Parcial		
 			cHtml += '<table class="tg">'+CRLF
+			cHtml += ' <tr>'+CRLF
+			cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cPortado)+' em '+DTOC(dVencto)+'</td>'+CRLF
+			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTValor,cPict))+'</td>'+CRLF
+			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
+			cHtml += ' <tr>'+CRLF
+			cHtml += '</table>'+CRLF
+			aAdd(aTotais,{TRIM(cPortado)+' em '+DTOC(dVencto),nTValor,nTSaldo})
 
-			cHtml += '<colgroup>'+CRLF
-			cHtml += '<col style="width: 100px">'+CRLF
-			cHtml += '<col style="width: 300px">'+CRLF
-			cHtml += '<col style="width: 060px">'+CRLF
-			cHtml += '<col style="width: 060px">'+CRLF
-			cHtml += '<col style="width: 100px">'+CRLF
-			cHtml += '<col style="width: 100px">'+CRLF
-			cHtml += '<col style="width: 120px">'+CRLF
-			cHtml += '</colgroup>'+CRLF
+			If !QSE2->(EOF())
 
-			cHtml += '    <tr>'+CRLF
-			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
-			cHtml += '    </tr>'+CRLF
+				// Cabeçalho forma de pgto
+				cHtml += '</table>'+CRLF
+				cHtml += '</br>'+CRLF
+				cHtml += '</div>'+CRLF
+				
+				cHtml += '<div class="folha">'+CRLF
+				cHtml += '<table class="tg">'+CRLF
 
+				cHtml += '<colgroup>'+CRLF
+				cHtml += '<col style="width: 100px">'+CRLF
+				cHtml += '<col style="width: 300px">'+CRLF
+				cHtml += '<col style="width: 060px">'+CRLF
+				cHtml += '<col style="width: 060px">'+CRLF
+				cHtml += '<col style="width: 100px">'+CRLF
+				cHtml += '<col style="width: 100px">'+CRLF
+				cHtml += '<col style="width: 120px">'+CRLF
+				cHtml += '</colgroup>'+CRLF
+
+				cHtml += '    <tr>'+CRLF
+				cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Portador: "+QSE2->E2_PORTADO+'</td>'+CRLF
+				cHtml += '    </tr>'+CRLF
+
+			EndIf
+
+			cPortado  := QSE2->E2_PORTADO
+			dVencto   := QSE2->E2_VENCREA
+
+			nTValor	  := 0
+			nTSaldo   := 0
 		EndIf
+	Else
+		If cFormPgto <> QSE2->FORMPGT .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
 
-		cFormPgto := QSE2->FORMPGT
-		dVencto   := QSE2->E2_VENCREA
+			// Total Parcial		
+			cHtml += '<table class="tg">'+CRLF
+			cHtml += ' <tr>'+CRLF
+			cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cFormPgto)+' em '+DTOC(dVencto)+'</td>'+CRLF
+			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTValor,cPict))+'</td>'+CRLF
+			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
+			cHtml += ' <tr>'+CRLF
+			cHtml += '</table>'+CRLF
+			aAdd(aTotais,{TRIM(cFormPgto)+' em '+DTOC(dVencto),nTValor,nTSaldo})
 
-		nTValor	  := 0
-		nTSaldo   := 0
+			If !QSE2->(EOF())
 
+				// Cabeçalho forma de pgto
+				cHtml += '</table>'+CRLF
+				cHtml += '</br>'+CRLF
+				cHtml += '</div>'+CRLF
+				
+				cHtml += '<div class="folha">'+CRLF
+				cHtml += '<table class="tg">'+CRLF
+
+				cHtml += '<colgroup>'+CRLF
+				cHtml += '<col style="width: 100px">'+CRLF
+				cHtml += '<col style="width: 300px">'+CRLF
+				cHtml += '<col style="width: 060px">'+CRLF
+				cHtml += '<col style="width: 060px">'+CRLF
+				cHtml += '<col style="width: 100px">'+CRLF
+				cHtml += '<col style="width: 100px">'+CRLF
+				cHtml += '<col style="width: 120px">'+CRLF
+				cHtml += '</colgroup>'+CRLF
+
+				cHtml += '    <tr>'+CRLF
+				cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
+				cHtml += '    </tr>'+CRLF
+
+			EndIf
+
+			cFormPgto := QSE2->FORMPGT
+			dVencto   := QSE2->E2_VENCREA
+
+			nTValor	  := 0
+			nTSaldo   := 0
+		EndIf
 	EndIF
 
 EndDo
@@ -911,7 +908,7 @@ cHtml += '</html>'+CRLF
 
 Return(cHtml)
 
-
+/*
 // Retorna os Anexos do Documento de Entrada
 User Function AnexosCP(aAnexos)
 Local cFile		:= ""
@@ -933,5 +930,7 @@ For nI := 1 To Len(aFilesE2)
 	aAdd(aAnexos,cFile)
 Next
 
+
 //cFiles := '=HYPERLINK("https://www.totvs.com.br","TOTVS")'
 Return Len(aAnexos)
+*/

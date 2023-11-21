@@ -30,7 +30,7 @@ User Function BKTestes(cRotTest)
 Local oDlg1 as Object
 Local oSay,oSay1,oSay2,oRot
 
-Default cRotTest := "TestEx"
+Default cRotTest := "test4dlg"
 
 Private cRot := PAD("U_"+cRotTest,20)
 Private lEnd := .F.
@@ -244,6 +244,113 @@ lOk := .T.
 Return lOk 
 
 
+User Function test4dlg
+	Local lRet 		:= .T.
+	Local aSize 	as Array
+	Local oDlg  	as Object
+	Local nTop		:= 200
+	Local nLeft		:= 600
+	Local cMot		:= ""
+	Local cMun 		:= ""
+	Local cCli 		:= ""
+
+	Local oCliente 	as Object
+	Local oPlanilha as Object
+	Local oMotivo	as Object
+
+// Teste
+dbSelectArea("SF2")
+dbGoTo(60120)
+cContrato :="387000608"
+cPlanilha := "000003"
+cRevisa   := "003"
+MotCNA(cContrato,cPlanilha,cRevisa,@cMot,@cMun)
+
+cCli := SF2->F2_CLIENTE+"-"+SF2->F2_LOJA+" "+Posicione("SA1",1,xFilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_NOME")
+cCONTA := SF2->F2_XXCVINC
+nVALOR := SF2->F2_XXVCVIN
+
+	aSize := FWGetDialogSize( oMainWnd )
+
+	oDlg := TDialog():New(nTop,nLeft,aSize[3],aSize[4],"Dados conta vinculada NF:"+TRIM(SF2->F2_SERIE)+'-'+TRIM(SF2->F2_DOC),,,,,CLR_BLACK,CLR_WHITE,,,.T.,,,,,,)
+
+    oDlg:nClientHeight  := aSize[3]
+    oDlg:nClientWidth   := aSize[4]
+
+	oDlg:Refresh()
+
+	EnchoiceBar(oDlg,{|| lRet:= .T.,oDlg:End() },{|| lRet:= .F.,oDlg:End() })
+
+   	oLayer := FWLayer():new()
+    oLayer:init(oDlg,.F.)
+
+    oLayer:addCollumn ('Col1',100,.F.)
+
+    oLayer:addWindow('Col1', 'WinTop' ,'Dados da Medição' ,30,.F.,.F.,,,)
+    oLayer:addWindow('Col1', 'WinGrid','Dados conta vinculada' ,70,.F.,.F.,,,)
+
+	oPanelUp := oLayer:getWinPanel('Col1','WinTop')
+	oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
+   
+	// Painel Top
+	@ 04, 010 SAY   "Cliente:" SIZE 050,007 OF oPanelUp PIXEL
+	@ 04, 075 MSGET oCliente Var cCli SIZE 300,010	OF oPanelUp PIXEL WHEN .F. 
+
+	@ 14, 010 SAY   "Planilha "+cPlanilha SIZE 050,007 OF oPanelUp PIXEL
+	@ 14, 075 MSGET oPlanilha Var cMun SIZE 300,010	OF oPanelUp PIXEL WHEN .F. 
+
+	@ 24, 010 SAY   "Motivo:" SIZE 050,007 OF oPanelUp PIXEL
+	@ 24, 075 MSGET oMotivo Var cMot SIZE 300,010	OF oPanelUp PIXEL WHEN .F. 
+
+	@ 010,010 Say "Conta Vinculada :" Size 060,025 Pixel Of oPanelDown
+	@ 010,075 MSGET cCONTA SIZE 080,010 OF oPanelDown PIXEL PICTURE "@!" HASBUTTON  F3 "SA6_2"
+
+	@ 025,010 Say "Valor Conta Vinculada:" Size 080,008 Pixel Of oPanelDown
+	@ 025,075 MsGet nVALOR  Size 060,008 Pixel Of oPanelDown Picture "@E 999,999,999,999.99" HASBUTTON
+
+	oDlg:Activate()
+
+	If lRet
+		u_MsgLog(,"OK","I")
+	EndIf
+
+Return lRet
+
+
+Static Function MotCNA(cContrato,cPlanilha,cRevisa,cMot,cMun)
+Local cQuery 	 := "SELECT CNA_XXMUN,CNA_XXMOT FROM "+RETSQLNAME("CNA") + ;
+					" WHERE CNA_FILIAL = '"+xFilial("CNA")+"' "+;
+					"   AND CNA_CONTRA = '"+cContrato+"' "+;
+					"   AND CNA_NUMERO = '"+cPlanilha+"' "+;
+					"   AND CNA_REVISA = '"+cRevisa+"' "+;
+					"   AND D_E_L_E_T_ = '' "
+
+Local aReturn 	 := {}
+Local aBinds 	 := {}
+Local aSetFields := {}
+Local nRet		 := 0
+Local lRet       := .F.
+Default cMot	:= ""
+Default cMun	:= ""
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,FWSX3Util():GetFieldStruct( "CNA_XXMUN" ))
+aadd(aSetFields,FWSX3Util():GetFieldStruct( "CNA_XXMOT" ))
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+	u_MsgLog("MotCNA",tcsqlerror()+" Falha ao executar a Query: "+cQuery)
+Else
+  //Alert(VarInfo("aReturn",aReturn))
+  //MsgInfo("Verifique os valores retornados no console","Ok")
+  If Len(aReturn) > 0
+	cMun := aReturn[1][1]
+	cMot := aReturn[1][2]
+  EndIf
+Endif
+
+Return lRet
 
 
 

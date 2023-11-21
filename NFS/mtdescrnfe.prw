@@ -537,7 +537,7 @@ cDescr1 := ""
 
 //INFORMACAO CONTA VINCULADA 
 IF !EMPTY(SF2->F2_XXCVINC) .OR. SF2->F2_XXVCVIN > 0 
-	IF ContVinc()
+	IF ContVinc(cContrato,cRevisa,cPlanilha)
 		nScan:= 0
 		nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
 		aBCVINC := {}
@@ -567,7 +567,7 @@ ELSE
 		000387	01	AMAZONIA AZUL TECNOLOGIAS DE DEFESA S.A - AMAZUL                                
 		*/
 
-		IF ContVinc()
+		IF ContVinc(cContrato,cRevisa,cPlanilha)
 			nScan:= 0
 			nScan:= aScan(aBancos,{|x| x[1]==SUBSTR(SF2->F2_XXCVINC,1,3) })
 			aBCVINC := U_BCTAVINC(SF2->F2_XXCVINC)
@@ -965,37 +965,150 @@ Return aRet
 	@since 23/03/14
 	@version 12.1.33
 	/*/
-
-Static Function ContVinc()
-Local cCONTA := SF2->F2_XXCVINC
-Local nVALOR := SF2->F2_XXVCVIN
+/*
+Static Function xContVinc()
+Local cConta := SF2->F2_XXCVINC
+Local nValor := SF2->F2_XXVCVIN
 Local oTELA01
 Local lRet := .T.
 
 Define MsDialog oTELA01 Title "Dados conta vinculada NF N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE) From 000,000 To 110,320 Of oTELA01 Pixel Style DS_MODALFRAME
 @ 010,010 Say "Conta Vinculada :" Size 060,025 Pixel Of oTELA01
-@ 010,075 MSGET cCONTA SIZE 080,010 OF oTELA01 PIXEL PICTURE "@!" HASBUTTON  F3 "SA6_2" //VALID NaoVazio(cCONTA)
+@ 010,075 MSGET cConta SIZE 080,010 OF oTELA01 PIXEL PICTURE "@!" HASBUTTON  F3 "SA6_2" //VALID NaoVazio(cConta)
 
 @ 025,010 Say "Valor Conta Vinculada:" Size 080,008 Pixel Of oTELA01
-@ 025,075 MsGet nVALOR  Size 060,008 Pixel Of oTELA01 Picture "@E 999,999,999,999.99" //VALID nVALOR > 0
+@ 025,075 MsGet nValor  Size 060,008 Pixel Of oTELA01 Picture "@E 999,999,999,999.99" //VALID nValor > 0
 
-@ 040,010 Button "&Ok" Size 036,013 Pixel Action (GrvSF2(cCONTA,nVALOR),oTELA01:End())
+@ 040,010 Button "&Ok" Size 036,013 Pixel Action (GrvSF2(cConta,nValor),oTELA01:End())
 @ 040,060 Button "&Cancelar" Size 036,013 Pixel Action (lRet := .F.,oTELA01:End())
 Activate MsDialog oTELA01 Centered
 If nValor == 0
 	lRet := .F.
 Endif
 Return lRet
+*/
+
+Static Function ContVinc(cContrato,cRevisa,cPlanilha)
+	Local lRet 		:= .T.
+	Local aSize 	as Array
+	Local oDlg  	as Object
+	Local nTop		:= 200
+	Local nLeft		:= 600
+	Local cMot		:= ""
+	Local cMun 		:= ""
+	Local cCli 		:= ""
+
+	Local oCliente 	as Object
+	Local oPlanilha as Object
+	Local oMotivo	as Object
+
+	/* Teste
+	dbSelectArea("SF2")
+	dbGoTo(60120)
+	cContrato :="387000608"
+	cPlanilha := "000003"
+	cRevisa   := "003"
+	*/
+
+	MotCNA(cContrato,cRevisa,cPlanilha,@cMot,@cMun)
+
+	cCli := SF2->F2_CLIENTE+"-"+SF2->F2_LOJA+" "+Posicione("SA1",1,xFilial("SA1")+SF2->F2_CLIENTE+SF2->F2_LOJA,"A1_NOME")
+	cConta := SF2->F2_XXCVINC
+	nValor := SF2->F2_XXVCVIN
+
+	aSize := FWGetDialogSize( oMainWnd )
+
+	oDlg := TDialog():New(nTop,nLeft,aSize[3],aSize[4],"Dados conta vinculada NF:"+TRIM(SF2->F2_SERIE)+'-'+TRIM(SF2->F2_DOC),,,,,CLR_BLACK,CLR_WHITE,,,.T.,,,,,,)
+
+    oDlg:nClientHeight  := aSize[3]
+    oDlg:nClientWidth   := aSize[4]
+
+	oDlg:Refresh()
+
+	EnchoiceBar(oDlg,{|| lRet:= .T.,oDlg:End() },{|| lRet:= .F.,oDlg:End() })
+
+   	oLayer := FWLayer():new()
+    oLayer:init(oDlg,.F.)
+
+    oLayer:addCollumn ('Col1',100,.F.)
+
+    oLayer:addWindow('Col1', 'WinTop' ,'Dados da Medição' ,30,.F.,.F.,,,)
+    oLayer:addWindow('Col1', 'WinGrid','Dados conta vinculada' ,70,.F.,.F.,,,)
+
+	oPanelUp := oLayer:getWinPanel('Col1','WinTop')
+	oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
+   
+	// Painel Top
+	@ 04, 010 SAY   "Cliente:" SIZE 050,007 OF oPanelUp PIXEL
+	@ 04, 075 MSGET oCliente Var cCli SIZE 300,010	OF oPanelUp PIXEL WHEN .F. 
+
+	@ 14, 010 SAY   "Planilha "+cPlanilha SIZE 050,007 OF oPanelUp PIXEL
+	@ 14, 075 MSGET oPlanilha Var cMun SIZE 300,010	OF oPanelUp PIXEL WHEN .F. 
+
+	@ 24, 010 SAY   "Motivo:" SIZE 050,007 OF oPanelUp PIXEL
+	@ 24, 075 MSGET oMotivo Var cMot SIZE 300,010	OF oPanelUp PIXEL WHEN .F. 
+
+	@ 010,010 SAY   "Conta Vinculada :" SIZE 060,025 Pixel Of oPanelDown
+	@ 010,075 MSGET cConta SIZE 080,010 OF oPanelDown PIXEL PICTURE "@!" HASBUTTON  F3 "SA6_2"
+
+	@ 025,010 SAY   "Valor Conta Vinculada:" SIZE 080,008 Pixel Of oPanelDown
+	@ 025,075 MSGET nValor  SIZE 060,008 Pixel Of oPanelDown Picture "@E 999,999,999,999.99" HASBUTTON
+
+	oDlg:Activate()
+
+	If lRet
+		GrvSF2(cConta,nValor)
+		//u_MsgLog(,"OK","I")
+	EndIf
+
+Return lRet
 
 
-Static Function GrvSF2(cCONTA,nVALOR)
+Static Function MotCNA(cContrato,cRevisa,cPlanilha,cMot,cMun)
+Local cQuery 	 := "SELECT CNA_XXMUN,CNA_XXMOT FROM "+RETSQLNAME("CNA") + ;
+					" WHERE CNA_FILIAL = '"+xFilial("CNA")+"' "+;
+					"   AND CNA_CONTRA = '"+cContrato+"' "+;
+					"   AND CNA_NUMERO = '"+cPlanilha+"' "+;
+					"   AND CNA_REVISA = '"+cRevisa+"' "+;
+					"   AND D_E_L_E_T_ = '' "
+
+Local aReturn 	 := {}
+Local aBinds 	 := {}
+Local aSetFields := {}
+Local nRet		 := 0
+Local lRet       := .F.
+
+Default cMot	:= ""
+Default cMun	:= ""
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,FWSX3Util():GetFieldStruct( "CNA_XXMUN" ))
+aadd(aSetFields,FWSX3Util():GetFieldStruct( "CNA_XXMOT" ))
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+	u_MsgLog("MotCNA",tcsqlerror()+" Falha ao executar a Query: "+cQuery)
+Else
+  //Alert(VarInfo("aReturn",aReturn))
+  If Len(aReturn) > 0
+	cMun := aReturn[1][1]
+	cMot := aReturn[1][2]
+  EndIf
+Endif
+
+Return lRet
+
+
+
+Static Function GrvSF2(cConta,nValor)
 Local aAreaSE1
 Local cE1Tipo
 
 // Grava conta no cabecalho da nota
 RecLock("SF2",.F.)
-SF2->F2_XXCVINC := cCONTA
-SF2->F2_XXVCVIN := nVALOR
+SF2->F2_XXCVINC := cConta
+SF2->F2_XXVCVIN := nValor
 MsUnlock("SF2")
 
 // Grava SE1
@@ -1003,7 +1116,7 @@ aAreaSE1  := SE1->(GetArea())
 cE1Tipo   := Left(MVNOTAFIS, TamSX3("E1_TIPO")[1]) 
 			
 SE1->(dbSetOrder(2)) // SE1->(dbSetOrder(RETORDEM("SE1","E1_FILIAL+E1_CLIENTE+E1_LOJA+E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO")))             
-	
+
 If SE1->(MsSeek(xFilial("SE1") + SF2->(F2_CLIENTE) + SF2->(F2_LOJA) + SF2->(F2_SERIE) + SF2->(F2_DOC) + SPACE(LEN(SE1->E1_PARCELA))+cE1Tipo,.T.))     
 	SE1->(RECLOCK("SE1",.F.))
 	SE1->E1_XXVCVIN := SF2->F2_XXVCVIN

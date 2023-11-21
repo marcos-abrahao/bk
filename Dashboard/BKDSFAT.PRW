@@ -320,6 +320,7 @@ For nE := 1 TO Len(aEmpresas)
 
 	cQuery += "WHERE " + CRLF
 	cQuery += "  SF2.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "  AND SF2.F2_FILIAL = '"+xFilial("SF2")+"'" + CRLF
 
 	cQuery += "UNION ALL " + CRLF
 

@@ -3,7 +3,7 @@
 
 /*/{Protheus.doc} BKDSGG
 BK - Atualização da tabela GASTOSGERAIS do banco de dados PowerBk
-
+GASTOS GERAIS
 @Return
 @author Marcos Bispo Abrahão
 @since 27/09/2022
@@ -35,8 +35,6 @@ Local cCusBK	:= U_MVXCUSBK()
 Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
 Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
 Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
-
-//u_MsgLog("BKDSGG","Inicio: Gastos Gerais")
 
 cQuery := "WITH DESPESAS AS ("+CRLF
 

@@ -1,4 +1,4 @@
-¬#INCLUDE "PROTHEUS.CH"
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "FILEIO.CH"
 
 #define XALIAS_ 1
@@ -20,20 +20,20 @@ Local aRet		:= {}
 Local aParam 	:= {}
 
 Private cB1Blq := {}
-aAdd( aParam ,{ 2, "Lista bloqueados", cB1Blq  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
+aAdd( aParam ,{ 2, "Listar bloqueados", cB1Blq  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
 
 If !ParCom18(cProg,cTitulo,@aRet,aParam)
    Return
 EndIf
 
-cQuery := "SELECT top 100"+CRLF
+cQuery := "SELECT "+CRLF
 cQuery += "  B1_COD "+CRLF
 cQuery += " ,B1_DESC "+CRLF
 cQuery += " ,B1_CONTA "+CRLF
 cQuery += " ,B1_USERLGA "+CRLF
 cQuery += " ,B1_UREV "+CRLF
+cQuery += " ,B1_CODISS "+CRLF
 cQuery += " ,B1_ALIQISS "+CRLF
-cQuery += " ,B1_UPRC "+CRLF
 cQuery += " ,CT1_DESC01 "+CRLF
 cQuery += " ,CASE WHEN "+CRLF
 cQuery += "      (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
@@ -45,10 +45,10 @@ cQuery += " FROM "+RetSqlName("SB1")+" SB1 "+CRLF
 cQuery += " LEFT JOIN "+RetSqlName("CT1")+" CT1 ON "+CRLF
 cQuery += "  	CT1_CONTA = B1_CONTA "+CRLF
 cQuery += "  	AND CT1.D_E_L_E_T_ = '' "+CRLF
-cQuery += " WHERE "+CRLF
-cQuery += "     SB1.D_E_L_E_T_ = '' "+CRLF
+cQuery += " WHERE SB1.D_E_L_E_T_ = '' "+CRLF
+cQuery += "     AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF
 If SUBSTR(cB1Blq,1,1) == 'S'
-	cQuery += "     AND B1_MSBLQL != '1' "+CRLF
+	cQuery += "     AND SB1.B1_MSBLQL != '1' "+CRLF
 EndIf
 
 //cQuery += " 	SUBSTRING(B1_CONTA,1,1) = '1' "+CRLF
@@ -56,7 +56,6 @@ cQuery += " ORDER BY CT1_CONTA "+CRLF
 
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_UREV" ))
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_ALIQISS" ))
-aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_UPRC" ))
 
 u_RunQuery(cProg,cQuery,cAlias,aTcFields)
 
@@ -69,72 +68,48 @@ oRExcel:SetParam(aParam)
 
 // Definição da Planilha 1
 oPExcel:= PExcel():New(cProg,cAlias)
-oPExcel:SetTitulo("Usado para conferência da Rentabilidade")
-oPExcel:AddResumos("CONTA","ALIQISS")
+oPExcel:SetTitulo("Utilização: conferência da Rentabilidade")
+If __cUserId == "000000"  // Para teste do resumo
+	oPExcel:AddResumos("Contagem de Contas","B1_CONTA","B1_CONTA")
+EndIf
 
 // Colunas da Planilha 1
-oCExcel:= CExcel():New("Código Produto","TMP->B1_COD")
-oCExcel:SetSX3("B1_COD")
-oPExcel:AddCol(oCExcel)
+oPExcel:AddColX3("B1_COD")
+oPExcel:AddColX3("B1_DESC")
+oPExcel:AddColX3("B1_CONTA")
+oPExcel:AddColX3("CT1_DESC01")
+oPExcel:AddCol("RENTAB","RENTAB","Rentabilidade","")
 
-oCExcel:= CExcel():New("Descriçao Produto","TMP->B1_DESC")
-oCExcel:SetSX3("B1_DESC")
-oPExcel:AddCol(oCExcel)
+oPExcel:AddCol("USUARIO","Capital(TMP->(FWLeUserlg('B1_USERLGA',1)))","Usuário","")
+oPExcel:GetCol("USUARIO"):SetTamCol(30)
 
-oCExcel:= CExcel():New("Conta Contábil","TMP->B1_CONTA")
-oCExcel:SetSX3("B1_CONTA")
-oCExcel:SetName("CONTA")
-oPExcel:AddCol(oCExcel)
+oPExcel:AddColX3("B1_UREV")
 
-oCExcel:= CExcel():New("Descriçao Conta","TMP->CT1_DESC01")
-oCExcel:SetSX3("CT1_DESC01")
-oPExcel:AddCol(oCExcel)
-
-oCExcel:= CExcel():New("Rentabilidade","TMP->RENTAB")
-oCExcel:SetSX3("RENTAB")
-oPExcel:AddCol(oCExcel)
-
-oCExcel:= CExcel():New("Usuário","Capital(TMP->(FWLeUserlg('B1_USERLGA',1)))")
-oCExcel:SetTipo("C")
-oCExcel:SetTamCol(30)
-oPExcel:AddCol(oCExcel)
-
-oCExcel:= CExcel():New("","TMP->B1_UREV")
-oCExcel:SetSX3("B1_UREV")
-oPExcel:AddCol(oCExcel)
-
-oCExcel:= CExcel():New("","TMP->B1_ALIQISS")
-oCExcel:SetSX3("B1_ALIQISS")
-oCExcel:SetFormat("#,##0.0000")
-oCExcel:SetName("ALIQISS")
-oCExcel:SetTotal(.T.)
-
-oPExcel:AddCol(oCExcel)
-
-oCExcel:= CExcel():New("","TMP->B1_UPRC")
-oCExcel:SetSX3("B1_UPRC")
-oCExcel:SetTotal(.T.)
-oPExcel:AddCol(oCExcel)
-
+// Adiciona a planilha 1
 oRExcel:AddPlan(oPExcel)
 
 
 // Definição da Planilha 2
-oPExcel:= PExcel():New("PTESTE2",cAlias)
-oPExcel:SetTitulo("Teste Planilha 2")
+oPExcel:= PExcel():New("ISS",cAlias)
+oPExcel:SetTitulo("Produtos x Alíquota de ISS")
+If __cUserId == "000000"  // Para teste do resumo
+	oPExcel:AddResumos("Cod. Iss X Aliq ISS","B1_CODISS","B1_ALIQISS")
+EndIf
 oRExcel:AddPlan(oPExcel)
 
 // Colunas da Planilha 2
-oCExcel:= CExcel():New("Código Produto","TMP->B1_COD")
-oCExcel:SetSX3("B1_COD")
-oPExcel:AddCol(oCExcel)
+oPExcel:AddColX3("B1_COD")
+oPExcel:AddColX3("B1_DESC")
+oPExcel:AddColX3("B1_CODISS")
 
-oCExcel:= CExcel():New("Descriçao Produto","TMP->B1_DESC")
-oCExcel:SetSX3("B1_DESC")
-oPExcel:AddCol(oCExcel)
+oPExcel:AddColX3("B1_ALIQISS")
+oPExcel:GetCol("B1_ALIQISS"):SetFormat("#,##0.0000")
+oPExcel:GetCol("B1_ALIQISS"):SetTotal(.T.)
 
 // Cria arquivo Excel
 oRExcel:Create()
+
+(cAlias)->(dbCloseArea())
 
 Return Nil
 
@@ -214,7 +189,6 @@ METHOD SetDescr(cDescr) CLASS RExcel
 Self:cDescr := Alltrim(cDescr)
 Return
 
-
 METHOD GetPerg() CLASS RExcel
 Return Self:cPerg
 
@@ -256,11 +230,11 @@ Return Self
 
 METHOD Create() CLASS RExcel
 
-u_WaitLog(Self:cPrw,{ || Self:RunCreate()},"Criando a planilha...")
+u_WaitLog(Self:cPrw,{ |oSay| Self:RunCreate(oSay)},"Criando a planilha...")
 Return
 
 
-METHOD RunCreate() CLASS RExcel
+METHOD RunCreate(oSayMsg) CLASS RExcel
 
 Local cFileL		:= ""
 Local nRet			:= 0
@@ -275,6 +249,7 @@ Local nLin 			:= 1
 Local nTop			:= 1
 Local nLast 		:= 1
 Local nCont 		:= 0
+Local nOpcFile		:= 1
 
 // Variáveis para uso na formatação de celulas
 Local oCellHorAlign := FwXlsxCellAlignment():Horizontal()
@@ -333,7 +308,7 @@ Local lTBold 		:= .T.
 Local lTUnderl		:= .F.
 Local cTHorAlig		:= oCellHorAlign:Default()
 Local cTVertAlig	:= oCellVertAlign:Center()
-Local lTWrapText 	:= .T.
+Local lTWrapText 	:= .F.
 Local nTRotation 	:= 0
 
 // Cores
@@ -342,9 +317,12 @@ Local cFundoN		:= "FFFFFF" // Fundo Branco
 
 Local cCorS			:= "FFFFFF" // Cor Branca
 Local cFundoS		:= "9E0000" // Fundo Vermelho BK
-/*
+
 Local cCorS1		:= "000000" // Cor Preta
-Local cFundoS1		:= "E9967A" // Fundo DarkSalmon
+Local cFundoS1		:= "FFB3B3" // Sundown
+
+Local cCorLink 		:= "0000FF" // Azul
+/*
 
 Local cCorS2		:= "000000" // Cor Preta
 Local cFundoS2		:= "9ACD32" // Fundo YellowGreen
@@ -362,7 +340,6 @@ Local aStruct 		:= {}
 Local aX3Stru 		:= {}
 Local cTipo   		:= ""
 Local cCampo 		:= ""
-Local cDefCpo 		:= ""
 Local nField 		:= 0
 Local nTamanho		:= 0
 Local nDecimal		:= 0
@@ -377,15 +354,16 @@ Local cOHAlign		:= ""
 Local aLinha 		:= {}
 Local cName 		:= ""
 
+// Variaveis usadas no resumo
+Local cTipoVal 		:= ""
+
 // Campo para Macro
 Private xCampo
 Private yCampo
 
 // Inicialização do Logo
 nHndImagem := fOpen(cImgDir, FO_READ)
-if nHndImagem < 0
-    //MsgStop("Não foi possível abrir " + cImgDir)
-Else
+if nHndImagem >= 0
 	nLenImagem := fSeek( nHndImagem, 0, FS_END)
 	fSeek( nHndImagem, 0, FS_SET)
 	fRead( nHndImagem, @cBuffer, nLenImagem)
@@ -399,24 +377,20 @@ For nP := 1 To Len(Self:aPlans)
 
 	cAlias		:= oPlan:cAlias
 	cFiltro		:= oPlan:cFiltro
-	aResumos	:= oPlan:aResumos
+	aResumos	:= aClone(oPlan:aResumos)
 
 	// Monta array temporário para armazenar numero das colunas e valores
 	aNResumos 	:= {}
 	For nR := 1 To Len(aResumos)
-		aAdd(aNResumos,{0,0,{}})
+		aAdd(aNResumos,{aResumos[nR,1],0,0,{}})
 	Next
 
+	// Estrutura da Query
 	aStruct 	:= (cAlias)->(dbStruct())
 
-	If !Empty(cFiltro)
-		(cAlias)->(dbSetFilter({|| &cFiltro} , cFiltro))
-	Else
-		(cAlias)->(dbClearFilter())
-	Endif
-	(cAlias)->(dbGoTop())
+	// Adiciona nova planilha
+	Self:oPrtXlsx:AddSheet(oPlan:GetPlan())
 
-	Self:oPrtXlsx:AddSheet(oPlan:GetPlan())    //Adiciona nova planilha
     cFont   := FwPrinterFont():Calibri()
 	Self:OPrtXlsx:SetBorder(.F.,.F.,.F.,.F.,FwXlsxBorderStyle():Thin(),"000000")
 
@@ -427,7 +401,6 @@ For nP := 1 To Len(Self:aPlans)
 	nLin := 1
 
 	// Logo
-    nHndImagem := fOpen(cImgDir, FO_READ)
     if nHndImagem >= 0
 		Self:oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 42, 40)
 	EndIf
@@ -451,19 +424,7 @@ For nP := 1 To Len(Self:aPlans)
 	Self:oPrtXlsx:SetValue(nLin,2,Self:cPrw+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
 	nLin++
 
-
-	// Logo
-    nHndImagem := fOpen(cImgDir, FO_READ)
-    if nHndImagem < 0
-        //MsgStop("Não foi possível abrir " + cImgDir)
-    Else
-		nLenImagem := fSeek( nHndImagem, 0, FS_END)
-		fSeek( nHndImagem, 0, FS_SET)
-		fRead( nHndImagem, @cBuffer, nLenImagem)
-	
-		Self:oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 42, 40)
-	EndIf
-
+	// Salva a primeira linha de dados (subtotal)
 	nTop := nLin + 1
 
 	// Formatação do cabeçalho
@@ -473,17 +434,8 @@ For nP := 1 To Len(Self:aPlans)
 	Self:OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
 
 
-	// Montagem do Cabeçalho
+	// Montagem da linha de titulos das colunas
 	For nC := 1 To Len(oPlan:aColunas)
-
-		// Titulo informado em branco, pegar do dicionário SX3
-		If Empty(oPlan:aColunas[nC]:cTitulo)
-			cDefCpo := oPlan:aColunas[nC]:GetSx3()
-			
-			//oPlan:aColunas[nC]:cTitulo := FWSX3Util():GetDescription( cDefCpo ) 
-			oPlan:aColunas[nC]:cTitulo := GetSX3Cache( cDefCpo , "X3_TITULO")
-		EndIf
-
         Self:oPrtXlsx:SetValue(nLin,nC,oPlan:aColunas[nC]:cTitulo)
 	Next
 
@@ -498,18 +450,21 @@ For nP := 1 To Len(Self:aPlans)
 	nCont 		:= 0
 
 	dbSelectArea(cAlias)
+	If !Empty(cFiltro)
+		(cAlias)->(dbSetFilter({|| &cFiltro} , cFiltro))
+	Else
+		(cAlias)->(dbClearFilter())
+	Endif
+	(cAlias)->(dbGoTop())
+	
+	//u_MsgLog("REXCEL",cFiltro,"")
+
 	Do While (cAlias)->(!Eof()) 
 		nLin++
 		nCont++
 		aLinha := {}
 
 		For nC := 1 To Len(oPlan:aColunas)
-			//oLinha := oPlan:aColunas[nC]
-			cCampo := oPlan:aColunas[nC]:cCampo
-			xCampo := &(cCampo)
-
-			//aqui montar formato com aStruc
-
 
 			// Pega os atributos da Coluna
 			cTipo 	:= oPlan:aColunas[nC]:GetTipo()
@@ -519,31 +474,39 @@ For nP := 1 To Len(Self:aPlans)
 			lTotal	:= oPlan:aColunas[nC]:GetTotal()
 			cFormat	:= oPlan:aColunas[nC]:GetFormat()
 			cHAlign := oPlan:aColunas[nC]:GetHAlign()
+			nField	:= oPlan:aColunas[nC]:GetField()
 
 			// Atributos que não precisam ser atualizados
-			nField	:= oPlan:aColunas[nC]:GetField()
-			cDefCpo := oPlan:aColunas[nC]:GetSx3()
 			lWrap   := oPlan:aColunas[nC]:GetWrap()
 			cName   := oPlan:aColunas[nC]:GetName()
+
+			// Pega o conteúdo do campo
+			cCampo	:= oPlan:aColunas[nC]:cCampo
+			If nField > 0
+				xCampo := FieldGet(nField)
+			Else
+				xCampo	:= &(cCampo)
+			EndIf
 
 			If lFirst
 				// Ajusta os atributos informados ou default
 
-				// Se informado SX3
-				If !Empty(cDefCpo)
-					aX3Stru	:= FWSX3Util():GetFieldStruct( cDefCpo )
-					If !Empty(aX3Stru)
-						cTipo		:= aX3Stru[2]
-						nTamanho	:= aX3Stru[3]
-						nDecimal	:= aX3Stru[4]
-					Else
-						// Pega informações da Estrutura da Query
-						nS := aScan(aStruct,{ |x| x[1] == cDefCpo })
-						If nS > 0
-							cTipo		:= iIf(Empty(cTipo),aStruct[nS,2],cTipo)
-							nTamanho	:= aStruct[nS,3]
-							nDecimal	:= aStruct[nS,4]
-						EndIf
+				// Pega posição do campo (salvar em nField)
+				nS := aScan(aStruct,{ |x| x[1] == cCampo })
+				If nS > 0
+					nField := nS
+				EndIf
+
+				// Pega informações da Estrutura da Query
+				If nS > 0
+					If Empty(cTipo)
+						cTipo		:= aStruct[nS,2]
+					EndIf
+					If Empty(nTamanho)
+						nTamanho	:= aStruct[nS,3]
+					EndIf
+					If Empty(nDecimal)
+						nDecimal	:= aStruct[nS,4]
 					EndIf
 				EndIf
 
@@ -562,7 +525,6 @@ For nP := 1 To Len(Self:aPlans)
 					EndIf
 				EndIf
 	
-
 				//Calcula o tamanho da coluna excel
 				If Empty(nTamCol)
 					nTamCol := 8
@@ -607,13 +569,13 @@ For nP := 1 To Len(Self:aPlans)
 				EndIf
 
 				// Converter nome da coluna em numero da coluna
-				If !Empty(cName)
+				If Len(aNResumos) > 0 .AND. !Empty(cName)
 					For nR := 1 To Len(aNResumos)
-						If aResumos[nR,1] == cName
-							aNResumos[nR,1] := nC
-						EndIf
 						If aResumos[nR,2] == cName
 							aNResumos[nR,2] := nC
+						EndIf
+						If aResumos[nR,3] == cName
+							aNResumos[nR,3] := nC
 						EndIf
 					Next
 				EndIf
@@ -631,6 +593,7 @@ For nP := 1 To Len(Self:aPlans)
 				oPlan:aColunas[nC]:SetTotal(lTotal)
 				oPlan:aColunas[nC]:SetFormat(cFormat)
 				oPlan:aColunas[nC]:SetHAlign(cHAlign)
+				oPlan:aColunas[nC]:SetField(nField)
 
 				// Aplica o tamanho da coluna
 				Self:oPrtXlsx:SetColumnsWidth(nC,nC,nTamCol)
@@ -653,10 +616,23 @@ For nP := 1 To Len(Self:aPlans)
 			Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
 			If cTipo == "F"
-				Self:oPrtXlsx:SetFormula(nLin,nC,xCampo)
+				If "HYPERLINK" $ UPPER(xCampo)
+				    Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
+			    	Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
+				EndIf
+
+				If !Empty(xCampo)
+					Self:oPrtXlsx:SetFormula(nLin,nC,xCampo)
+				Else
+					Self:oPrtXlsx:SetValue(nLin,nC,"")
+				EndIf
+			    Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+				
 			ElseIf cTipo == "D"
 				If !Empty(xCampo)
 					Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
+				Else
+					Self:oPrtXlsx:SetValue(nLin,nC,"")
 				EndIf
 			Else
 				Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
@@ -667,19 +643,26 @@ For nP := 1 To Len(Self:aPlans)
 
 		Next
 
+		//u_MsgLog("REXCEL","aLinha","",VarInfo("aLinha",aLinha))
+		//u_MsgLog("REXCEL","aNResumos","",VarInfo("aNResumos",aNResumos))
 
 		// Monta os resumos
-		If !Empty(aNResumos)
+		If !Empty(aNResumos) 
 			For nR := 1 To Len(aNResumos)
-				If Len(aNResumos[nR,3]) > 0
-					nS := Ascan(aNResumos[nR,3],{|x| x[1] == aLinha[aNResumos[nR,1]]})
+				cTipoVal := ValType(aLinha[aNResumos[nR,3]])
+				If Len(aNResumos[nR,4]) > 0
+					nS := Ascan(aNResumos[nR,4],{|x| x[1] == aLinha[aNResumos[nR,2]]})
 					If nS == 0
-						aAdd(aNResumos[nR,3],{aLinha[aNResumos[nR,1]],aLinha[aNResumos[nR,2]]})
+						aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
 					Else
-						aNResumos[nR,3,nS,2] += aLinha[aNResumos[nR,2]]
+						If cTipoVal == "N"
+							aNResumos[nR,4,nS,2] += aLinha[aNResumos[nR,3]]
+						Else
+							aNResumos[nR,4,nS,2]++
+						EndIf
 					EndIf
 				Else
-					aAdd(aNResumos[nR,3],{aLinha[aNResumos[nR,1]],aLinha[aNResumos[nR,2]]})
+					aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
 				EndIf
 			Next
 		EndIf
@@ -697,14 +680,16 @@ For nP := 1 To Len(Self:aPlans)
 
 		nLin++
 	    Self:oPrtXlsx:SetFont(cFont, nTSize3, lTItalic, lTBold, lTUnderl)
+		Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorS1, cFundoS1, "")
         Self:oPrtXlsx:SetValue(nLin,1,"Total ("+ALLTRIM(STR(nCont))+")")
         
 		If nCont > 0
 			// Formatação dos totais		
+
 			For nC := 1 To Len(oPlan:aColunas)
 				If oPlan:aColunas[nC]:GetTotal()
 					cFormat	:= oPlan:aColunas[nC]:GetFormat()
-					Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+					Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorS1, cFundoS1, cFormat )
 					cColExcel := NumToString(nC)
 					cLinTop   := ALLTRIM(STR(nTop))
 					cLinExcel := ALLTRIM(STR(nLast))
@@ -713,81 +698,78 @@ For nP := 1 To Len(Self:aPlans)
 			Next
 		EndIf
 		Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-	EndIf
 
-	// Mostrar os Resumos
-	If !Empty(aNResumos)
+		// Mostrar os Resumos
+		If !Empty(aNResumos)
 
-		For nI := 1 To Len(aNResumos)
-			nLin+=3
-			// Formatação do cabeçalho
-			Self:oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
-			Self:oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
+			For nI := 1 To Len(aNResumos)
+				nLin+=3
+				// Formatação do cabeçalho
+				Self:oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
+				Self:oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 
-			Self:OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
+				Self:OPrtXlsx:SetBorder(.T.,.T.,.T.,.T.,FwXlsxBorderStyle():Thin(),"000000")
 
-			// Cabeçalho do resumo
-
-			Self:oPrtXlsx:SetValue(nLin,2,oPlan:aColunas[aNResumos[nI,1]]:cTitulo)
-			Self:oPrtXlsx:SetValue(nLin,3,oPlan:aColunas[aNResumos[nI,2]]:cTitulo)
-
-			Self:oPrtXlsx:ResetCellsFormat()
-			// Formatação das linhas normais
-			Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-			Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
-
-			// Resumo
-			nLin++
-
-			// Via formula, não funcionou no excel 365
-			//cColExcel := NumToString(aNResumos[nI,1])
-			//cLinTop   := ALLTRIM(STR(nTop))
-			//cLinExcel := ALLTRIM(STR(nLast))
-			//Self:oPrtXlsx:SetFormula(nLin,2, "ÚNICO("+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
-			//Self:oPrtXlsx:SetFormula(nLin,2, "SOMASES( .... "+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
-
-			nLinR := nLin
-			cFormat := "#,##0.00;[Red]-#,##0.00"
-			For nR := 1 To Len(aNResumos[nI,3])
+				cFormat := "#,##0.00;[Red]-#,##0.00"
+				// Cabeçalho do resumo
+				If aNResumos[nI,2] > 0
+					Self:oPrtXlsx:SetValue(nLin,2,oPlan:aColunas[aNResumos[nI,2]]:cTitulo)
+				EndIf
+				If aNResumos[nI,3] > 0
+					Self:oPrtXlsx:SetValue(nLin,3,oPlan:aColunas[aNResumos[nI,3]]:cTitulo)
+					cFormat	:= oPlan:aColunas[aNResumos[nI,3]]:GetFormat()
+				EndIf
 
 				Self:oPrtXlsx:ResetCellsFormat()
-
 				// Formatação das linhas normais
-				Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, .T., lLUnderl)
+				Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
 				Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
-				Self:oPrtXlsx:SetValue(nLin,2,aNResumos[nI,3,nR,1])
-
-				// Formatação de totais
-				Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
-				Self:oPrtXlsx:SetValue(nLin,3,aNResumos[nI,3,nR,2])
-
-				// Total do Resumo
-				/*
-				nS := Ascan(_aTResumo,{ |x| x[1] == aNResumos[nI,1] .AND. x[2] == aNResumos[nI,2] })
-
-				If nS == 0
-					aAdd(_aTResumo,{aNResumos[nI,1],aNResumos[nI,2],{{aNResumos[nI,3,nR,1],aNResumos[nI,3,nR,2]}}})
-				Else
-					aAdd(_aTResumo[nS,3],{aNResumos[nI,3,nR,1],aNResumos[nI,3,nR,2]})
-				EndIf
-				*/
+				// Resumo
 				nLin++
-			Next
 
-			cColExcel := NumToString(3)
-			cLinTop   := ALLTRIM(STR(nLinR))
-			cLinExcel := ALLTRIM(STR(nLin-1))
-			Self:oPrtXlsx:SetFormula(nLin,3, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
-				
-		Next
+				// Via formula, não funcionou no excel 365
+				//cColExcel := NumToString(aNResumos[nI,1])
+				//cLinTop   := ALLTRIM(STR(nTop))
+				//cLinExcel := ALLTRIM(STR(nLast))
+				//Self:oPrtXlsx:SetFormula(nLin,2, "ÚNICO("+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+				//Self:oPrtXlsx:SetFormula(nLin,2, "SOMASES( .... "+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+
+				nLinR := nLin
+
+				Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+
+				For nR := 1 To Len(aNResumos[nI,4])
+
+					Self:oPrtXlsx:ResetCellsFormat()
+
+					// Formatação das linhas normais
+					Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
+
+					Self:oPrtXlsx:SetValue(nLin,2,aNResumos[nI,4,nR,1])
+
+					// Formatação de totais
+					Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, cFormat )
+					Self:oPrtXlsx:SetValue(nLin,3,aNResumos[nI,4,nR,2])
+
+					nLin++
+				Next
+
+				cColExcel := NumToString(3)
+				cLinTop   := ALLTRIM(STR(nLinR))
+				cLinExcel := ALLTRIM(STR(nLin-1))
+				Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, .T., lLUnderl)
+				Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorS1, cFundoS1, cFormat )
+
+				Self:oPrtXlsx:SetValue(nLin,2, aNResumos[nI,1])
+				Self:oPrtXlsx:SetFormula(nLin,3, "=SUBTOTAL(9,"+cColExcel+cLinTop+":"+cColExcel+cLinExcel+")")
+					
+			Next
+		EndIf
 
 	EndIf
 
-
-
 Next
-
 
 
 // --> Planilha de Parâmetros
@@ -795,8 +777,17 @@ aParam := Self:aParam
 cPerg  := Self:cPerg
 If Len(aParam) > 0
 	For nI := 1 TO LEN(aParam)
-		xCampo := "MV_PAR"+STRZERO(nI,2)
-		aAdd(aLocPar,{aParam[nI,2],cValToChar(&xCampo)})
+		xCampo := &("MV_PAR"+STRZERO(nI,2))
+		yCampo := cValToChar(xCampo)
+		// Se for combo ou radio, pega a posição do array
+		If aParam[nI,1] == 2 .OR. aParam[nI,1] == 3
+			If ValType(xCampo) == "N"
+				If  xCampo > 0 .AND. xCampo <= Len(aParam[nI,4])
+					yCampo := aParam[nI,4,xCampo]
+				EndIf
+			EndIf
+		EndIf
+		aAdd(aLocPar,{aParam[nI,2],yCampo})
 	Next
 ElseIf !Empty(cPerg)
 	oObjPerg := FWSX1Util():New()
@@ -835,16 +826,15 @@ nLin++
 
 // Formatação das linhas normais
 Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, .T. /*lLWrapText*/, nLRotation, cCorN, cFundoN, "" )
 
 If !Empty(Self:cDescr)
 	Self:oPrtXlsx:SetValue(nLin,1,"Descrição: ")
-	Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, .T. /*lLWrapText*/, nLRotation, cCorN, cFundoN, "" )
 	Self:oPrtXlsx:SetValue(nLin,2,Self:cDescr)
 	nLin++
 EndIf
 
-Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
-
+//Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 Self:oPrtXlsx:SetValue(nLin,1,"Emitido por: ")
 Self:oPrtXlsx:SetValue(nLin,2,Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
@@ -865,8 +855,8 @@ If Len(aLocPar) > 0
     Self:oPrtXlsx:SetFont(cFont, nHSize, lHItalic, lHBold, lHUnderl)
     Self:oPrtXlsx:SetCellsFormat(cHHorAlig, cHVertAlig, lHWrapText, nHRotation, cCorS, cFundoS, "" )
 
-	Self:oPrtXlsx:SetValue(nLin,1,"Parâmetros - "+Self:cPrw)
-	Self:oPrtXlsx:SetValue(nLin,2,"Conteúdo")
+	Self:oPrtXlsx:SetValue(nLin,1,"Parâmetros")
+	Self:oPrtXlsx:SetValue(nLin,2,"Conteúdos")
 
 	// Formatação das linhas normais
     Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
@@ -885,19 +875,35 @@ EndIf
 // Grava a Planilha
 cFileL  := Self:cDirDest+Self:cFile+".xlsx"
 
+nOpcFile := 1
 If File(cFileL)
-	nRet:= FERASE(cFileL)
-	If nRet < 0
-		u_MsgLog("REXCEL","Não será possivel gerar a planilha "+cFileL+", feche o arquivo","W")
-	EndIf
+	Do While .T.
+		nRet:= FERASE(cFileL)
+		If nRet < 0
+			//u_MsgLog("REXCEL","Não será possivel gerar a planilha "+cFileL+", feche o arquivo","W")
+			nOpcFile := u_AvisoLog("REXCEL","Arquivo aberto em outro aplicativo","O arquivo "+cFileL+", já está aberto por outro aplicativo, feche-o e clique em ok",{"Ok","Cancelar"},/*nSize*/,/*cText*/,/*nRotAutDefault*/,/*cBitmap*/,/*lEdit*/,5000,1)
+			If nOpcFile <> 1
+				Exit
+			EndIf
+  		Else 
+			Exit
+		EndIf
+	EndDo
 EndIf
 
-Self:oPrtXlsx:toXlsx()
-If !IsBlind()
-	If file(Self:cFileR)
-		CpyS2T(Self:cFileX, Self:cDirDest)
-		ShellExecute("open",cFileL,"",Self:cDirDest+"\", 1 )
+If nOpcFile == 1
+	oSayMsg:SetText("Abrindo o arquivo, aguarde...")
+	ProcessMessages()
+	Self:oPrtXlsx:toXlsx()
+	If !IsBlind()
+		If file(Self:cFileR)
+			CpyS2T(Self:cFileX, Self:cDirDest)
+			ShellExecute("open",cFileL,"",Self:cDirDest+"\", 1 )
+		EndIf
 	EndIf
+Else
+	oSayMsg:SetText("Cancelada a abertura do arquivo")
+	ProcessMessages()
 EndIf
 
 Self:oPrtXlsx:EraseBaseFile()
@@ -941,9 +947,12 @@ CLASS PExcel
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
 
-	METHOD AddCol(oCExcel)
+	METHOD AddCol(cName,cCampo,cDescr,cSx3)
+	METHOD AddColX3(cCampo)
 
-	METHOD AddResumos(cColUnq,cColVal)
+	METHOD GetCol(cName)
+
+	METHOD AddResumos(cResumo,cColUnq,cColVal)
 
 ENDCLASS
 
@@ -982,18 +991,64 @@ Self:cTitulo	:= ""
 Self:aColunas	:= {}
 Self:cAlias 	:= cAlias
 Self:cFiltro	:= ""
+Self:aResumos 	:= {}
 Return Self
 
 
 // Adiciona nova coluna
-METHOD AddCol(oCExcel) CLASS PExcel
-oCExcel:SetField(Len(Self:aColunas)+1) // Guarda numero da coluna
+METHOD AddCol(cName,cCampo,cDescr,cSX3) CLASS PExcel
+//oCExcel:SetField(Len(Self:aColunas)+1) // Guarda numero da coluna
+
+Local oCExcel	:= CExcel():New("",cCampo)
+Local aX3Stru	:= {}
+
+If !Empty(cSX3)
+	aX3Stru	:= FWSX3Util():GetFieldStruct( cSX3 )
+	If Empty(cDescr)
+		oCExcel:SetTitulo(GetSX3Cache( cSX3 , "X3_TITULO"))
+	EndIf
+	oCExcel:SetTipo(aX3Stru[2])
+	oCExcel:SetTamanho(aX3Stru[3])
+	oCExcel:SetDecimal(aX3Stru[4])
+EndIf
+If !Empty(cDescr)
+	oCExcel:SetTitulo(cDescr)
+EndIf
+
+oCExcel:SetName(cName)
 aAdd(Self:aColunas,oCExcel)    //Adiciona nova coluna
 Return
 
+
+// Adiciona nova coluna, usando os padrões do SX3
+METHOD AddColX3(cCampo) CLASS PExcel
+Local oCExcel	:= CExcel():New("",cCampo)
+Local aX3Stru	:= FWSX3Util():GetFieldStruct( cCampo )
+
+oCExcel:SetTitulo(GetSX3Cache( cCampo , "X3_TITULO"))
+oCExcel:SetTipo(aX3Stru[2])
+oCExcel:SetTamanho(aX3Stru[3])
+oCExcel:SetDecimal(aX3Stru[4])
+oCExcel:SetName(cCampo)
+
+//oCExcel:SetField(Len(Self:aColunas)+1) // Guarda numero da coluna
+aAdd(Self:aColunas,oCExcel)    //Adiciona nova coluna
+Return
+
+// Retorna o objeto da Coluna pelo cName
+METHOD GetCol(cName) CLASS PExcel
+Local aColunas 	:= Self:aColunas
+Local oCExcel	as Object
+Local nS 		:= 0
+nS := Ascan(aColunas,{ |x| x:GetName() == cName }) 
+If nS > 0
+	oCExcel := aColunas[nS]
+EndIf
+Return oCExcel
+
 // Adiciona novo Resumo
-METHOD AddResumos(cColUnq,cColVal) CLASS PExcel
-aAdd(Self:aResumos,{cColUnq,cColVal})    //Adiciona novo Resumo
+METHOD AddResumos(cResumo,cColUnq,cColVal) CLASS PExcel
+aAdd(Self:aResumos,{cResumo,cColUnq,cColVal})    //Adiciona novo Resumo
 Return
 
 
@@ -1026,9 +1081,6 @@ CLASS CExcel
 	METHOD SetTitulo(cSX3)
 	
 	METHOD GetCampo()
-
-	METHOD GetSX3()
-	METHOD SetSX3(cSX3)
 
 	METHOD GetField()
 	METHOD SetField(nField)
@@ -1091,12 +1143,6 @@ Return
 METHOD GetCampo() CLASS CExcel
 Return Self:cCampo
 
-METHOD GetSX3() CLASS CExcel
-Return Self:cSX3
-
-METHOD SetSX3(cSX3) CLASS CExcel
-Self:cSX3 := cSX3
-Return 
 
 METHOD GetField() CLASS CExcel
 Return Self:nField

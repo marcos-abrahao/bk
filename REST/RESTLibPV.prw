@@ -235,7 +235,7 @@ Self:SetResponse( cJsonCli ) //-- Seta resposta
 Return( lRet )
 
 
-WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV
+WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV   // V1
 
 Local cHTML as char
 Local cPed  as char
@@ -447,7 +447,7 @@ let url = '#iprest#/RestLibPV/v1?pedido='+idPed;
 $("#titulo").text(url);
 $("#conteudo").load(url);
 if (canLib === 1){
-	let btn = '<button type="button" class="btn btn-outline-success" onclick="libPed(\''+idPed+'\',\'#userlib#\')">Liberar</button>';
+	let btn = '<button type="button" id="btnlp" class="btn btn-outline-success" onclick="libPed(\''+idPed+'\',\'#userlib#\')">Liberar</button>';
 	document.getElementById("btnlib").innerHTML = btn;
 }
 
@@ -459,9 +459,11 @@ $('#meuModal').on('hidden.bs.modal', function () {
 }
 
 
-async function libPed(id,userlib){
+async function libPed(id,userlib,btnlp){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
+
+document.getElementById("btnlp").innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
 
 fetch('#iprest#/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 	method: 'PUT',

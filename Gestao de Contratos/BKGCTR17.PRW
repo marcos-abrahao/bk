@@ -139,7 +139,8 @@ cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' 
 cQuery += " WHERE CN9.D_E_L_E_T_=''" + CRLF
 cQuery += "      AND (CN9_REVATU = ' ' OR CN9_SITUAC = '05') " + CRLF
 If Substr(cVigentes,1,1) == "S"
-	cQuery += "      AND CN9_XXDVIG >= '"+DTOS(dDataBase)+"'" + CRLF
+	cQuery += "      AND CN9_SITUAC = '05'" + CRLF
+	//cQuery += "      AND CN9_XXDVIG >= '"+DTOS(dDataBase)+"'" + CRLF
 EndIf
 
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "CN9_DTINIC" ))
