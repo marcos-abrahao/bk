@@ -3,7 +3,7 @@
 #INCLUDE "topconn.ch"
 
 /*/{Protheus.doc} BKGCTR23
-BK - Relatório Dados do Dashboard  Funcionários e Glosas
+BK - Relatório Dados do Dashboard (antigo) Funcionários e Glosas
 
 @Return
 @author Adilson do Prado

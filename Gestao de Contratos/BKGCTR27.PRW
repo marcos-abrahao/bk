@@ -7,6 +7,8 @@ BK - Relação de Planilhas e Cronogramas de Contratos
 @author Marcos Bispo Abrahão
 @since 14/01/22
 @version P12.1.33
+
+Falta fazer tela para chamar do menu e posicionar no CN9
 /*/
 
 User Function BKGCTR27()
@@ -20,7 +22,7 @@ Local aTitulos2 := {}
 Local aCampos2  := {}
 Local aCabs2    := {}
 
-Private cTitulo := "Planilhas de Contratos"
+Private cTitulo := "Planilhas e Cronogramas do Contrato"
 Private cPerg   := "BKGCTR27"
 
 u_WaitLog(cPerg, {|oSay| PrcQuery1() }, ALLTRIM(CN9->CN9_NUMERO)+" - Consultando planilhas...")

@@ -2,7 +2,7 @@
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKFINR34
-BK - RESUMO DIÁRIO - NOVO
+BK - Resumo Diário Contas a Pagar
 @Return
 @author Marcos Bispo Abrahão
 @since 13/11/2023
@@ -11,7 +11,8 @@ BK - RESUMO DIÁRIO - NOVO
 
 User Function BKFINR34
 
-Local cDescricao	:= "Objetivo deste relatório é facilitar a operação diária do contas a pagar."
+Local cDescricao	:= "Objetivo deste relatório é facilitar a operação diária do contas a pagar. "+CRLF+"Solicitado pelo depto Financeiro em novembro de 2023."
+Local cVersao 		:= "21/11/2023 - Quebra por Banco"
 Local oRExcel		AS Object
 Local oPExcel		AS Object
 
@@ -55,7 +56,7 @@ EndIf
 
 If nFormato == 1 .OR. nFormato == 2
 	// Completo Web
-	u_WaitLog("BKFINR34", {|oSay| cHtml := CPHtml(nFormato) }, "Listando Títulos a Pagar")	
+	u_WaitLog("BKFINR34", {|oSay| cHtml := CPHtml(nFormato) }, "Listando os Títulos a Pagar")	
 	u_WaitLog("BKFINR34", {|oSay| RelHtml(cHtml) }, "Gerando html")	
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
@@ -66,6 +67,7 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oRExcel := RExcel():New(cProg)
 	oRExcel:SetTitulo(cTitulo)
 	oRExcel:SetDescr(cDescricao)
+	oRExcel:SetVersao(cVersao)
 	oRExcel:SetParam(aParam)
 
 	// Definição da Planilha 1

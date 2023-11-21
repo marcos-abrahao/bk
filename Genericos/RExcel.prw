@@ -10,6 +10,8 @@
 User Function BKCOMR18
 Local cProg 	:= "BKCOMR18"
 Local cTitulo	:= "Produtos x Rentabilidade"
+Local cDescr 	:= "O objetivo deste relatório é para análise de produtos contemplados nos relatórios de rentabilidade da BK."
+Local cVersao	:= "21/11/2023"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 Local cQuery 	:= ""
@@ -63,7 +65,8 @@ u_RunQuery(cProg,cQuery,cAlias,aTcFields)
 // Definição do Arq Excel
 oRExcel := RExcel():New(cProg)
 oRExcel:SetTitulo(cTitulo)
-oRExcel:SetDescr("O objetivo deste relatório é para análise de produtos contemplados nos relatórios de rentabilidade da BK.")
+oRExcel:SetVersao(cVersao)
+oRExcel:SetDescr(cDescr)
 oRExcel:SetParam(aParam)
 
 // Definição da Planilha 1
@@ -140,6 +143,7 @@ CLASS RExcel
 	DATA cAlias
 	DATA cTitulo
 	DATA cDescr
+	DATA cVersao
 	DATA cFile
 	DATA cDirDest
 	DATA cDirTmp
@@ -158,6 +162,9 @@ CLASS RExcel
 
 	METHOD GetDescr()
 	METHOD SetDescr(cDescr)
+
+	METHOD GetVersao()
+	METHOD SetVersao(cVersao)
 
 	METHOD GetPerg()
 	METHOD SetPerg(cPerg)
@@ -187,6 +194,13 @@ Return Self:cDescr
 
 METHOD SetDescr(cDescr) CLASS RExcel
 Self:cDescr := Alltrim(cDescr)
+Return
+
+METHOD GetVersao() CLASS RExcel
+Return Self:cVersao
+
+METHOD SetVersao(cVersao) CLASS RExcel
+Self:cVersao := Alltrim(cVersao)
 Return
 
 METHOD GetPerg() CLASS RExcel
@@ -834,6 +848,11 @@ If !Empty(Self:cDescr)
 	nLin++
 EndIf
 
+If !Empty(Self:cVersao)
+	Self:oPrtXlsx:SetValue(nLin,1,"Versões: ")
+	Self:oPrtXlsx:SetValue(nLin,2,Self:cVersao)
+	nLin++
+EndIf
 //Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cFundoN, "" )
 
 Self:oPrtXlsx:SetValue(nLin,1,"Emitido por: ")

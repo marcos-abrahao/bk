@@ -2,7 +2,7 @@
 #Include 'FWMVCDef.ch'
 
 //Variáveis Estáticas
-Static cTitulo := "Facilitador Doc Entrada"
+Static cTitulo := "Facilitador Doc Entrada (PJs)"
 
 /*/{Protheus.doc} BkModSZS
 Modelo 1 - Facilitador Doc Entrada 

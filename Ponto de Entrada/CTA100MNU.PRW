@@ -20,7 +20,7 @@ AADD(aRotina,{OemToAnsi("Exportar Planilhas BK"), "U_BKGCTR27", 0, 2 })
 
 IF u_IsMDir(__cUserId)
 
-	IF FWIsAdmin(__cUserId) .OR. u_IsMRepac(__cUserId)    
+	IF u_IsMDir(__cUserId)
 	   AADD(aRotY,{OemToAnsi("Alt Sit Vigente"), "U_BKGCTA03", 0, 2 })
 	   AADD(aRotY,{OemToAnsi("Alt Modo Filial"), "U_BKGCTA21", 0, 2 })
 	   AADD(aRotY,{OemToAnsi("Remove % Caução"), "U_BKGCTA23", 0, 2 })

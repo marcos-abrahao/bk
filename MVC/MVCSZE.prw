@@ -7,7 +7,7 @@ Static cTitulo := "Anexos de Contratos por Competência"
 Static cAliasMVC := "SZE"
 
 /*/{Protheus.doc} User Function MVCSZE
-Cadastro de AAnexos de Contratos por Competência
+Cadastro de Anexos de Contratos por Competência
 @author Marcos Bispo Abrahao
 @since 12/12/2022
 @version 1.0

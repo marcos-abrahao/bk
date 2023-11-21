@@ -1,0 +1,103 @@
+#INCLUDE 'PROTHEUS.CH'
+#INCLUDE "TOTVS.CH"
+
+/*/{Protheus.doc} BKTODOS
+BK - Tela para executar todos os relatorios e rotinas específicas da BK
+@Return
+@author Marcos Bispo Abrahão
+@since 21/11/2023
+@version P12
+/*/
+
+
+User Function BKTODOS()
+Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
+				  { "ROTINA"   , "C", 15, 0, "Rotina"   ,"@!", .T., "" },;
+				  { "MODULO"   , "C", 10, 0, "Módulo"   ,"@!", .T., "" },;
+				  { "DESCRICAO", "C", 70, 0, "Descrição","@!", .T., "" } }
+
+Local aDados  := {}
+Local nX 	  := 0
+Local bProg
+Local cPerg   := "BKTODOS"
+
+If !u_IsMDir(__cUserID)
+	u_MsgLog(cPerg,"Usuário sem permissão para executar esta rotina","E")
+	Return Nil
+EndIf
+
+aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
+aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})
+aAdd(aDados,{"","U_BKGCTR01()",		"GESTÃO",		"Mapa de Mediçoes"})
+aAdd(aDados,{"","U_BKGCTR1A()",		"GESTÃO",		"Mapa de Mediçoes - Com motivos e multa e bonificação"})
+aAdd(aDados,{"","U_BKGCTR02()",		"GESTÃO",		"Previsto x Faturado - Todas empresas do Grupo BK"})
+aAdd(aDados,{"","U_BKGCTR2B()",		"GESTÃO",		"Gestão do Recebimento - empresas: 01,02 e 14"})
+aAdd(aDados,{"","U_BKGCTR07()",		"GESTÃO",		"Mapa de INSS retido"})
+aAdd(aDados,{"","U_BKGCTR08()",		"GESTÃO",		"Mapa de Multas e Bonificações"})
+aAdd(aDados,{"","U_BKGCTR09()",		"GESTÃO",		"Projeção Financeira dos Contratos"})
+aAdd(aDados,{"","U_BKGCTR10()",		"GESTÃO",		"Histórico de Multa e Bonificações"})
+aAdd(aDados,{"","U_BKGCTR11()",		"GESTÃO",		"Rentabilidade dos Contratos"})
+aAdd(aDados,{"","U_BK2GCTR11()",	"GESTÃO",		"Rentabilidade dos Contratos - Consorcios"})
+aAdd(aDados,{"","U_BKGCTR14()",		"GESTÃO",		"Rentabilidade dos Contratos - Projeção X Realizado"})
+aAdd(aDados,{"","U_BKGCTR_14()",	"GESTÃO",		"Rentabilidade dos Contratos - Projeção X Realizado - Sintético"})
+aAdd(aDados,{"","U_BKGCTR15()",		"GESTÃO",		"Informações de Contratos para Licitação"})
+aAdd(aDados,{"","U_BKGCTR16()",		"GESTÃO",		"Relação de Contratos Vigentes no mes"})
+aAdd(aDados,{"","U_BKGCTR17()",		"GESTÃO",		"Situação dos Contratos"})
+aAdd(aDados,{"","U_BKGCTR18()",		"GESTÃO",		"Informações de Contratos Vigentes e encerrados por ano - Licitação Mod. 2"})
+aAdd(aDados,{"","U_BKGCTR21()",		"GESTÃO",		"Relatório faturamento de reajustes, repactuação e retroativo"})
+aAdd(aDados,{"","U_BKGCTR23()",		"GESTÃO",		"Relatório Dados do Dashboard (antigo) Funcionários e Glosas"})
+aAdd(aDados,{"","U_BKGCTR24()",		"GESTÃO",		"Consulta Planos de Ação (obsoleto)"})
+aAdd(aDados,{"","U_BKGCTR25()",		"GESTÃO",		"Relação de Contratos"})
+aAdd(aDados,{"","U_BKGCTR26()",		"GESTÃO",		"Fluxo de Caixa Por Contrato"})
+aAdd(aDados,{"","U_BKGCTR27()",		"GESTÃO",		"Planilhas de Contratos"})
+aAdd(aDados,{"","U_BKGCTR28()",		"GESTÃO",		"Pagamentos x Responsáveis"})
+aAdd(aDados,{"","U_BKGCTV22()",		"GESTÃO",		"Visualização de Ocorrências e Planos de ação - Contratos (obsoleto)"})
+aAdd(aDados,{"","U_XCADSE1()",		"GESTÃO",		"Notas de Debito - Contratos"})
+aAdd(aDados,{"","U_XCADSZM()",		"GESTÃO",		"Cadastro Reajuste Projecao Financeira"})
+aAdd(aDados,{"","U_MVCSZE()",		"GESTÃO",		"Cadastro de Anexos de Contratos por Competência"})
+
+aAdd(aDados,{"","U_BKCOMA09()",		"COMPRAS",		"Facilitador Doc Entrada (PJs)"})
+aAdd(aDados,{"","U_BKCOMA12()",		"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
+aAdd(aDados,{"","U_BKCOMA13()",		"COMPRAS",		"Inclusão de Doc de Impostos com Rateio por CC"})
+aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de impostos já existentes"})
+aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de entrada"})
+
+aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})
+
+aAdd(aDados,{"","U_BKDSDSP1()",		"DASHBOARD",	"Atualização da tabela PREVDESP1"})
+aAdd(aDados,{"","U_BKDSDSP2()",		"DASHBOARD",	"Atualização da tabela PREVDESP2"})
+aAdd(aDados,{"","U_BKDSEMP()",		"DASHBOARD",	"Atualização da tabela EMPRESAS"})
+aAdd(aDados,{"","U_BKDSCC()",		"DASHBOARD",	"Atualização da tabela CCUSTOS"})
+aAdd(aDados,{"","U_BKDSFOL()",		"DASHBOARD",	"Atualização da tabela FOLHA"})
+aAdd(aDados,{"","U_BKDSFER()",		"DASHBOARD",	"Atualização da tabela FERIAS"})
+aAdd(aDados,{"","U_BKDSUSR()",		"DASHBOARD",	"Atualização da tabela USUARIOS"})
+aAdd(aDados,{"","U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
+aAdd(aDados,{"","U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
+aAdd(aDados,{"","U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
+aAdd(aDados,{"","U_BK040PER()",		"DASHBOARD",	"Atualização da tabela BK040PER"})
+aAdd(aDados,{"","U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
+aAdd(aDados,{"","U_BKDSCFAT()",		"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
+aAdd(aDados,{"","U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
+aAdd(aDados,{"","U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
+aAdd(aDados,{"","U_BKDSCTR()",		"DASHBOARD",	"Atualização da tabela CONTRATOS"})
+aAdd(aDados,{"","U_BKDSPLA()",		"DASHBOARD",	"Atualização da tabela PLANILHAS"})
+aAdd(aDados,{"","U_BKDSCRO()",		"DASHBOARD",	"Atualização da tabela CRONOGRAMAS"})
+aAdd(aDados,{"","U_BKDSGG()",		"DASHBOARD",	"Atualização da tabela GASTOSGERAIS"})
+aAdd(aDados,{"","U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
+aAdd(aDados,{"","U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
+
+aAdd(aDados,{"","U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
+aAdd(aDados,{"","U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
+aAdd(aDados,{"","U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
+
+u_TTMARKB(aCampos, aDados, .F.)
+
+For nX := 1 To Len(aDados) 
+	If !Empty(aDados[nX,1])
+		bProg := {|oSay| x:= &(aDados[nX,2]) }
+		u_WaitLog(cPerg, bProg, aDados[nX,2]+": "+aDados[nX,3])
+	EndIf
+Next nX
+
+Return
+

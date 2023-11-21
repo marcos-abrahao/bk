@@ -12,7 +12,7 @@ BK - Faturamento x Previsão de Faturamento
 
 User Function BKGCTR02()
 
-	Local cTitulo   := "Previsto x Faturado - Empresas do Grupo BK"
+	Local cTitulo   := "Previsto x Faturado - Todas empresas do Grupo BK"
 	Local aTitulos  := {}
 	Local aCampos1  := {}
 	Local aCabs1    := {}

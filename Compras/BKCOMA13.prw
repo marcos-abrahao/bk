@@ -3,7 +3,7 @@
 #INCLUDE "PROTHEUS.CH"
 
 /*/{Protheus.doc} BKCOMA13()
-Rateio de impostos na implantação de Doc. de Entrada referentes a impostos
+Inclusão de Doc de Impostos com Rateio por CC
 
 @author Marcos Bispo Abrahão
 @since 21/11/2022
@@ -19,7 +19,7 @@ Local nX   		:= 0
 Local cDesc		:= ""
 
 Private cProg   := "BKCOMA13"
-Private cTitulo := "Inclusão de Doc de Impostos"
+Private cTitulo := "Inclusão de Doc de Impostos com Rateio por CC"
 Private cDocI	:= "000000000"
 Private nMesI	:= Month(MonthSub(dDataBase,1))
 Private nAnoI	:= Year(MonthSub(dDataBase,1))

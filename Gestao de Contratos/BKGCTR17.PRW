@@ -2,10 +2,10 @@
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKGCTR17()
-BK - Informações de Contratos 
+BK - Situação dos Contratos
 
-@author Adilson do Prado
-@since 02/12/14 Rev 26/05/20
+@author Marcos Bispo Abrahão
+@since 07/11/2023
 @version P12
 @return Nil
 /*/
