@@ -3,16 +3,16 @@
 #Include "Protheus.ch"
 #Include "TBICONN.CH"
 
-/*/{Protheus.doc} RestLibPN
-    REST para Liberação de Pré-notas de Entrada
+/*/{Protheus.doc} RestTitCP
+    REST Titulos do Contas a Pagar
 	https://datatables.net/examples/api/row_details.html
     @type  REST
     @author Marcos B. Abrahão
-    @since 16/08/2021 rev 07/06/22
-    @version 12.1.33
+    @since 23/11/2023
+    @version 12.2210
 /*/
 
-WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
+WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
@@ -25,80 +25,48 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 	WSDATA page         AS INTEGER OPTIONAL
 	WSDATA pageSize     AS INTEGER OPTIONAL
 
-	WSMETHOD GET LISTPN;
-		DESCRIPTION "Listar Pré-notas de Entrada em aberto";
-		WSSYNTAX "/RestLibPN/v0";
-		PATH  "/RestLibPN/v0";
+	WSMETHOD GET LISTCP;
+		DESCRIPTION "Listar Títulos a Pagar";
+		WSSYNTAX "/RestTitCP/v0";
+		PATH  "/RestTitCP/v0";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
-	WSMETHOD GET CONSPN;
+	WSMETHOD GET CONSCP;
 		DESCRIPTION "Retorna dados Pré-nota";
-		WSSYNTAX "/RestLibPN/v1";
-		PATH "/RestLibPN/v1";
+		WSSYNTAX "/RestTitCP/v1";
+		PATH "/RestTitCP/v1";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
-	WSMETHOD GET BROWPN;
+	WSMETHOD GET BROWCP;
 		DESCRIPTION "Browse Pré-notas de Entrada a Liberar como página HTML";
-		WSSYNTAX "/RestLibPN/v2";
-		PATH "/RestLibPN/v2";
+		WSSYNTAX "/RestTitCP/v2";
+		PATH "/RestTitCP/v2";
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
-	WSMETHOD GET DOWNLPN;
-		DESCRIPTION "Retorna um arquivo por meio do método FwFileReader().";
-		WSSYNTAX "/RestLibPN/v4";
-		PATH "/RestLibPN/v4";
-		TTALK "v1"
 
 	WSMETHOD PUT LIBDOC;
 		DESCRIPTION "Liberação de Pré-notas de Entrada" ;
-		WSSYNTAX "/RestLibPN/v3";
-		PATH "/RestLibPN/v3";
+		WSSYNTAX "/RestTitCP/v3";
+		PATH "/RestTitCP/v3";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
-	WSMETHOD GET TOKEN;
+	WSMETHOD GET TOKEN1;
 		DESCRIPTION "Token para Liberação de digitação de Pré-notas de Entrada" ;
-		WSSYNTAX "/RestLibPN/v5";
-		PATH "/RestLibPN/v5";
+		WSSYNTAX "/RestTitCP/v5";
+		PATH "/RestTitCP/v5";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 END WSRESTFUL
 
 
-// v4
-WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento WSREST RestLibPN
-    Local cFile  := ""// VALORES RETORNADOS NA LEITURA
-	Local cName  := Decode64(self:documento)
-	Local cFName := "/dirdoc/co"+self:empresa+"/shared/"+cName
-    Local oFile  := FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
-
-    // SE FOR POSSÍVEL ABRIR O ARQUIVO, LEIA-O
-    // SE NÃO, EXIBA O ERRO DE ABERTURA
-    If (oFile:Open())
-        cFile := oFile:FullRead() // EFETUA A LEITURA DO ARQUIVO
-
-        // RETORNA O ARQUIVO PARA DOWNLOAD
-
-        //Self:SetHeader("Content-Disposition", '"inline; filename='+cName+'"') não funciona
-        Self:SetHeader("Content-Disposition", "attachment; filename="+cName)
-
-        Self:SetResponse(cFile)
-
-        lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
-    Else
-        SetRestFault(002, "Nao foi mpossivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
-
-        lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
-    EndIf
-Return (lSuccess)
 
 
-
-WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN  //v3
+WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestTitCP  //v3
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -182,7 +150,7 @@ If !(cQrySF1)->(Eof())
 	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 
-If !u_IsLibDPH("RESTLIBPN",__cUserId)
+If !u_IsLibDPH("RESTTitCP",__cUserId)
 	cMsg:= "Não é permitido liberar ou aprovar pré-notas neste horário"
 Else
 	Do Case
@@ -294,7 +262,7 @@ EndIf
 
 cMsg := cDoc+" "+cMsg
 
-u_MsgLog("RESTLIBPN",cMsg+" "+cMotivo)
+u_MsgLog("RESTTitCP",cMsg+" "+cMotivo)
 
 (cQrySF1)->(dbCloseArea())
 
@@ -337,9 +305,9 @@ aEmail 	:= {}
 AADD(aEmail,{"Reprovador:"+UsrFullName(__cUserId)})
 AADD(aEmail,{cMotivo})
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"RESTLIBPN")
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"RESTTitCP")
 
-U_BkSnMail("RESTLIBPN",cAssunto,cEmail,cEmailCC,cMsg)
+U_BkSnMail("RESTTitCP",cAssunto,cEmail,cEmailCC,cMsg)
 
 Return Nil
 
@@ -354,41 +322,29 @@ Retorna a lista de prenotas.
 @return cResponse , caracter, JSON contendo a lista de Pré-notas
 /*/
 
-
-WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN   //v0
+// v0
+WSMETHOD GET LISTCP QUERYPARAM userlib WSREST RestTitCP
 Local aEmpresas		:= {}
-Local aListSales 	:= {}
-Local cQrySF1       := GetNextAlias()
+Local aListCP 		:= {}
+Local cQrySE2       := GetNextAlias()
 Local cJsonCli      := ''
-//Local cWhereSF1   := ""
-//Local cWhereSA2   := "%AND SA2.A2_FILIAL = '"+xFilial('SA2')+"'%"
-Local cFilSF1		:= ""
 Local lRet 			:= .T.
-//Local nCount 		:= 0
-//Local nStart 		:= 1
-//Local nReg		:= 0
-//Local nTamPag 	:= 0
-Local oJsonSales 	:= JsonObject():New()
+Local oJsonTmp	 	:= JsonObject():New()
 
 Local aParams      	As Array
 Local cMsg         	As Character
 Local nE			:= 0
 Local cEmpresa		:= ""
-Local cNomeEmp		:= 0
+Local cNomeEmp		:= ""
+Local cTabSE2		:= ""
 Local cTabSF1		:= ""
 Local cTabSD1		:= ""
+Local cTabCTT		:= ""
 Local cTabSA2		:= ""
+Local cTabSB1		:= ""
+Local cTabSZ2		:= "SZ2010"
 Local cQuery		:= ""
-Local cLiberOk		:= "N"
-Local cStatus		:= ""
-Local lFiscal		:= .F.
-Local lMaster		:= .F.
-Local lSuper		:= .F.
-
-//Default self:page 	:= 1
-//Default self:pageSize := 500
-//Local page := 1
-//Local pagesize := 500
+Local lPerm			:= .T.
 
 aEmpresas := u_BKGrupo()
 //nStart := INT(self:pageSize * (self:page - 1))
@@ -399,11 +355,11 @@ aEmpresas := u_BKGrupo()
 //-------------------------------------------------------------------
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
-  oJsonSales['liberacao'] := cMsg
+  oJsonTmp	['liberacao'] := cMsg
 
-  cRet := oJsonSales:ToJson()
+  cRet := oJsonTmp	:ToJson()
 
-  FreeObj(oJsonSales)
+  FreeObj(oJsonTmp	)
 
   //Retorno do servico
   ::SetResponse(cRet)
@@ -412,17 +368,19 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
 
 EndIf
 
-cFilSF1 := U_M103FILB()
+// Usuários que podem executar alguma ação
+lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
 
-lFiscal	:= u_InGrupo(__cUserId,"000031")
-lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
-lSuper  := u_IsSuperior(__cUserId)
+cQuery := "WITH RESUMO AS ( " + CRLF
 
 For nE := 1 To Len(aEmpresas)
 
-	cTabSF1 := "SF1"+aEmpresas[nE,1]+"0"
-	cTabSD1 := "SD1"+aEmpresas[nE,1]+"0"
+	cTabSE2 := "SE2"+aEmpresas[nE,1]+"0"
 	cTabSA2 := "SA2"+aEmpresas[nE,1]+"0"
+	cTabSF1 := "SF1"+aEmpresas[nE,1]+"0"
+	cTabCTT := "CTT"+aEmpresas[nE,1]+"0"
+	cTabSD1 := "SD1"+aEmpresas[nE,1]+"0"
+	cTabSB1 := "SB1"+aEmpresas[nE,1]+"0"
 
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]
@@ -431,140 +389,204 @@ For nE := 1 To Len(aEmpresas)
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
-	cQuery += "SELECT "+CRLF
-	cQuery += "		'"+cEmpresa+"' AS F1EMPRESA,"+CRLF
-	cQuery += "		'"+cNomeEmp+"' AS F1NOMEEMP,"+CRLF
-	cQuery += "		SF1.F1_FILIAL,"+CRLF
-	cQuery += "		SF1.R_E_C_N_O_ F1RECNO,"+CRLF
-	cQuery += "		SF1.F1_DOC,"+CRLF
-	cQuery += "		SF1.F1_FORNECE,"+CRLF
-	cQuery += "		SF1.F1_LOJA,"+CRLF
-	cQuery += "		SF1.F1_XXLIB,"+CRLF
-	cQuery += "		SF1.F1_STATUS,"+CRLF
-	cQuery += "		SF1.F1_XXUSER,"+CRLF
-	cQuery += "		SF1.F1_XXUSERS,"+CRLF
-	cQuery += "		SF1.F1_DTDIGIT,"+CRLF
-	cQuery += "		SF1.F1_XXPVPGT,"+CRLF
-	//cQuery += "		SF1.F1_XXAVALI,"+CRLF
-	cQuery += "		(SELECT SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) FROM "+cTabSD1+" SD1 "+CRLF
-	cQuery += "				WHERE D1_FILIAL = F1_FILIAL	AND D1_DOC=F1_DOC AND D1_SERIE=F1_SERIE AND D1_FORNECE=F1_FORNECE AND D1_LOJA=F1_LOJA AND SD1.D_E_L_E_T_ = ' ')"+CRLF
-	cQuery += "			AS D1_TOTAL,"+CRLF
-	cQuery += "		SA2.A2_NOME"+CRLF
-	cQuery += "FROM "+cTabSF1+" SF1"+CRLF
-	cQuery += "		INNER JOIN "+cTabSA2+" SA2 "+CRLF
-	cQuery += "			ON SF1.F1_FORNECE = SA2.A2_COD AND SF1.F1_LOJA = SA2.A2_LOJA"+CRLF
-	cQuery += "			AND SA2.A2_FILIAL = '"+xFilial('SA2')+"' "+CRLF
-	cQuery += "			AND SA2.D_E_L_E_T_ = ' '"+CRLF
+	cQuery += " SELECT "+CRLF
+	cQuery += "	  '"+cEmpresa+"' AS EMPRESA"+CRLF
+	cQuery += "	 ,'"+FWEmpName(cEmpresa)+"' AS NOMEEMP"+CRLF
+	cQuery += "	 ,E2_TIPO"+CRLF
+	cQuery += "	 ,E2_PREFIXO"+CRLF
+	cQuery += "	 ,E2_NUM"+CRLF
+	cQuery += "	 ,E2_PARCELA"+CRLF
+	cQuery += "	 ,E2_FORNECE"+CRLF
+	cQuery += "	 ,E2_PORTADO"+CRLF
+	cQuery += "	 ,E2_NUMBOR"+CRLF   ///
+	cQuery += "	 ,E2_LOJA"+CRLF
+	cQuery += "	 ,E2_NATUREZ"+CRLF
+	cQuery += "	 ,E2_HIST"+CRLF
+	cQuery += "	 ,E2_USERLGI"+CRLF 
+	cQuery += "	 ,E2_BAIXA"+CRLF
+	cQuery += "	 ,E2_VENCREA"+CRLF
+	cQuery += "	 ,E2_VALOR"+CRLF
+	cQuery += "	 ,E2_XXPRINT"+CRLF
+	cQuery += "	 ,SE2.R_E_C_N_O_ AS REGSE2"+CRLF
+	cQuery += "	 ,A2_NOME"+CRLF
+	cQuery += "	 ,A2_TIPO"+CRLF
+	cQuery += "	 ,A2_CGC"+CRLF
 
-	cQuery += "WHERE SF1.D_E_L_E_T_ = ' '"+CRLF
-	cQuery += "		 AND SF1.F1_FILIAL = '"+xFilial('SF1')+"' "+CRLF
-	If !Empty(cFilSF1)
-		cQuery += "  AND "+cFilSF1+CRLF
-	EndIf
+	cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
+	cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
+	cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
+
+
+	//cQuery += "	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ "
+	cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
+	cQuery += "	 			THEN E2_TIPO+' '+E2_PORTADO"+CRLF
+	cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
+	cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
+
+	cQuery += "	 ,F1_DOC"+CRLF
+	cQuery += "	 ,F1_XTIPOPG"+CRLF
+	cQuery += "	 ,F1_XNUMPA"+CRLF
+	cQuery += "	 ,F1_XBANCO"+CRLF
+	cQuery += "	 ,F1_XAGENC"+CRLF
+	cQuery += "	 ,F1_XNUMCON"+CRLF
+	cQuery += "	 ,F1_XXTPPIX"+CRLF
+	cQuery += "	 ,F1_XXCHPIX "+CRLF
+	cQuery += "	 ,F1_USERLGI"+CRLF 
+	cQuery += "	 ,F1_XXUSER"+CRLF
+	cQuery += "	 ,D1_COD"+CRLF
+	cQuery += "	 ,B1_DESC"+CRLF
+	cQuery += "	 ,D1_CC"+CRLF
+	cQuery += "	 ,CTT_DESC01"+CRLF
+	cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),D1_XXHIST)) AS D1_XXHIST "+CRLF
+
+	//cQuery += "	 ,(SELECT TOP 1 Z2_BANCO "+CRLF
+	//cQuery += "	 	FROM "+RetSqlName("SZ2")+" SZ2"+CRLF
+	//cQuery += "	 	WHERE SZ2.Z2_FILIAL    = '  '"+CRLF
+	//cQuery += "	 		AND SZ2.Z2_CODEMP  = '"+cEmpAnt+"' "+CRLF
+	//cQuery += "	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF
+	//cQuery += "	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF
+	//cQuery += "	 		AND SE2.E2_PARCELA = SZ2.Z2_E2PARC"+CRLF
+	//cQuery += "	 		AND SE2.E2_TIPO    = SZ2.Z2_E2TIPO"+CRLF
+	//cQuery += "	 		AND SE2.E2_FORNECE = SZ2.Z2_E2FORN"+CRLF
+	//cQuery += "	 		AND SE2.E2_LOJA    = SZ2.Z2_E2LOJA"+CRLF
+	//cQuery += "	 		AND SZ2.Z2_STATUS  = 'S'"+CRLF
+	//cQuery += "	 		AND SZ2.D_E_L_E_T_ = '') AS Z2_BANCO"+CRLF
+
+	cQuery += "	 FROM "+cTabSE2+" SE2 "+CRLF
+
+	cQuery += "	 LEFT JOIN "+cTabSF1+" SF1 ON"+CRLF
+	cQuery += "	 	SE2.E2_FILIAL      = SF1.F1_FILIAL"+CRLF
+	cQuery += "	 	AND SE2.E2_NUM     = SF1.F1_DOC "+CRLF
+	cQuery += "	 	AND SE2.E2_PREFIXO = SF1.F1_SERIE"+CRLF
+	cQuery += "	 	AND SE2.E2_FORNECE = SF1.F1_FORNECE"+CRLF
+	cQuery += "	 	AND SE2.E2_LOJA    = SF1.F1_LOJA"+CRLF
+	cQuery += "	 	AND SF1.D_E_L_E_T_ = ''"+CRLF
+
+	cQuery += "	 LEFT JOIN "+cTabSA2+"  SA2 ON"+CRLF
+	cQuery += "	 	SA2.A2_FILIAL      = '  '"+CRLF
+	cQuery += "	 	AND SE2.E2_FORNECE = SA2.A2_COD"+CRLF
+	cQuery += "	 	AND SE2.E2_LOJA    = SA2.A2_LOJA"+CRLF
+	cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
+
+	cQuery += " LEFT JOIN "+cTabSD1+" SD1 ON SD1.D_E_L_E_T_=''"+ CRLF
+	cQuery += "   AND D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF
+	cQuery += "   AND D1_DOC     = F1_DOC"+ CRLF
+	cQuery += "   AND D1_SERIE   = F1_SERIE"+ CRLF
+	cQuery += "   AND D1_FORNECE = F1_FORNECE"+ CRLF
+	cQuery += "   AND D1_LOJA    = F1_LOJA"+ CRLF
+	cQuery += "   AND SD1.R_E_C_N_O_ = "+ CRLF
+	cQuery += "   	(SELECT TOP 1 R_E_C_N_O_ FROM "+cTabSD1+" SD1T "+ CRLF
+	cQuery += "   	  WHERE SD1T.D_E_L_E_T_     = '' "+ CRLF
+	cQuery += "   	        AND SD1T.D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF
+	cQuery += "   			AND SD1T.D1_DOC     = F1_DOC"+ CRLF
+	cQuery += "   			AND SD1T.D1_SERIE   = F1_SERIE"+ CRLF
+	cQuery += "   			AND SD1T.D1_FORNECE = F1_FORNECE"+ CRLF
+	cQuery += "   			AND SD1T.D1_LOJA    = F1_LOJA"+ CRLF
+	cQuery += "		 ORDER BY D1_ITEM)"+ CRLF
+
+	cQuery += "	 LEFT JOIN "+cTabSZ2+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF
+	cQuery += "	 			AND SZ2.Z2_FILIAL  = ' '"+CRLF
+	cQuery += "	 	 		AND SZ2.Z2_CODEMP  = '01' "+CRLF
+	cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF
+	cQuery += "	 	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF
+	cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2.Z2_E2PARC"+CRLF
+	cQuery += "	 	 		AND SE2.E2_TIPO    = SZ2.Z2_E2TIPO"+CRLF
+	cQuery += "	 	 		AND SE2.E2_FORNECE = SZ2.Z2_E2FORN"+CRLF
+	cQuery += "	 	 		AND SE2.E2_LOJA    = SZ2.Z2_E2LOJA"+CRLF
+	cQuery += "	 	 		AND SZ2.Z2_STATUS  = 'S'"+CRLF
+	cQuery += "	 		    AND SZ2.R_E_C_N_O_ = "+CRLF
+	cQuery += "	    	(SELECT TOP 1 R_E_C_N_O_ FROM "+cTabSZ2+" SZ2T "+CRLF
+	cQuery += "	    	  WHERE SZ2T.D_E_L_E_T_     = ''"+CRLF
+	cQuery += "	 			AND SZ2T.Z2_FILIAL = ' '"+CRLF
+	cQuery += "	 	 		AND SZ2T.Z2_CODEMP = '01' "+CRLF
+	cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF
+	cQuery += "	 	 		AND SE2.E2_NUM     = SZ2T.Z2_E2NUM "+CRLF
+	cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF
+	cQuery += "	 	 		AND SE2.E2_TIPO    = SZ2T.Z2_E2TIPO"+CRLF
+	cQuery += "	 	 		AND SE2.E2_FORNECE = SZ2T.Z2_E2FORN"+CRLF
+	cQuery += "	 	 		AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA"+CRLF
+	cQuery += "	 	 		AND SZ2T.Z2_STATUS  = 'S'"+CRLF
+	cQuery += "	 		 ORDER BY SZ2T.R_E_C_N_O_)"+CRLF
+
+	cQuery += "  LEFT JOIN "+cTabCTT+" CTT ON CTT.D_E_L_E_T_=''"+CRLF
+	cQuery += "    AND CTT.CTT_FILIAL = '"+xFilial("CTT")+"' "+CRLF
+	cQuery += "    AND CTT.CTT_CUSTO  = SD1.D1_CC"+CRLF
+
+	cQuery += "  LEFT JOIN "+cTabSB1+" SB1 ON SB1.D_E_L_E_T_=''"+CRLF
+	cQuery += "    AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF
+	cQuery += "    AND SB1.B1_COD    = SD1.D1_COD"+CRLF
+
+
+	cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
+	cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
+
+	//Para testar
+	//cQuery +=  "  AND E2_VENCREA = '"+DTOS(dDtIni)+"' "+CRLF
+
+	cQuery +=  "  AND E2_VENCREA = '"+DTOS(DATE()+1)+"' "+CRLF
+
 Next
 
-cQuery += "ORDER BY SF1.F1_XXPVPGT,SF1.F1_DTDIGIT,SF1.F1_DOC"+CRLF
+cQuery += ")"+CRLF
+cQuery += "SELECT " + CRLF
+cQuery += "  * " + CRLF
+cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
+cQuery += "  FROM RESUMO " + CRLF
+cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF ///
 
-dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
+//TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
+//TCSETFIELD("QSE2","HIST","M",10,0)
 
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
 //-------------------------------------------------------------------
-Do While ( cQrySF1 )->( ! Eof() )
+Do While ( cQrySE2 )->( ! Eof() )
 
-	cLiberOk := (cQrySF1)->F1_XXLIB
-	cStatus  := Alltrim("Indefinida "+cLiberOk)
+	aAdd( aListCP , JsonObject():New() )
 
-	Do Case
-	Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
-		If lFiscal .AND. (cQrySF1)->F1_XXUSER == __cUserId
-			cLiberOk := "X"
-			cStatus  := "A Liberar"
-		Else
-			If lFiscal .OR. lMaster
-				If cLiberOk == "A"
-					cStatus  := "Liberar"
-				Else
-					cStatus  := "Nao Liberada"
-				EndIf
-				cLiberOk := "A"
-			Else
-				cLiberOk := "X"
-				cStatus  := "A Liberar"
-			EndIf
-		EndIf
-	Case cLiberOk $ "9 " .AND. (cQrySF1)->F1_STATUS == " "
-		If lSuper .OR. lMaster 
-			If lMaster .OR. (cQrySF1)->F1_XXUSER <> __cUserId
-				cStatus  := "Aprovar"
-			Else
-				cStatus  := "A Aprovar"
-				cLiberOk := "X"
-			EndIf
-		Else
-			cStatus  := "A Aprovar"
-			cLiberOk := "X"
-		EndIf
-	Case cLiberOk == "T"
-		cStatus  := "Token"
-	Case cLiberOk == "B"
-		cStatus  := "Bloqueada"
-	Case cLiberOk == "C"
-		cStatus  := "Classificada"
-	Case cLiberOk == "E"
-		cStatus  := "Estornada"
-	Case cLiberOk == "R"
-		cStatus  := "Reprovada"
-		If lSuper .OR. lMaster
-			cStatus  := "Reprovada"
-		Else
-			cLiberOk := "X"
-		EndIf
-	Case cLiberOk == "L"
-		cStatus  := "Liberada"
-	EndCase
+	nPos := Len(aListCP)
+	aListCP[nPos]['EMPRESA']	:= (cQrySE2)->EMPRESA
+	aListCP[nPos]['NOMEEMP']	:= (cQrySE2)->NOMEEMP
+	aListCP[nPos]['TITULO']     := (cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA)
+	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
+	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
+	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
+	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
+	aListCP[nPos]['BORDERO']	:= TRIM((cQrySE2)->E2_NUMBOR)
+	aListCP[nPos]['SALDO'] 	    := TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
+	aListCP[nPos]['VALOR']      := TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
 
-	aAdd( aListSales , JsonObject():New() )
-	nPos := Len(aListSales)
-	aListSales[nPos]['DOC']        := (cQrySF1)->F1_DOC
-	aListSales[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
-	aListSales[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
-	aListSales[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
-	aListSales[nPos]['PGTO']  	   := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
-	aListSales[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
-	aListSales[nPos]['LIBEROK']    := cLiberOk
-	aListSales[nPos]['STATUS']     := cStatus
-	aListSales[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
-	aListSales[nPos]['F1NOMEEMP']  := (cQrySF1)->F1NOMEEMP
-	aListSales[nPos]['F1RECNO']    := STRZERO((cQrySF1)->F1RECNO,7)
-	(cQrySF1)->(DBSkip())
+	aListCP[nPos]['HIST']		:= TRIM((cQrySE2)->HIST)
+	aListCP[nPos]['REGSE2']		:= STRZERO((cQrySE2)->REGSE2,7)
+
+	(cQrySE2)->(DBSkip())
 
 EndDo
 
-( cQrySF1 )->( DBCloseArea() )
+( cQrySE2 )->( DBCloseArea() )
 
-oJsonSales := aListSales
-//oJsonSales['liberacao'] := "ok"
+oJsonTmp	 := aListCP
 
 //-------------------------------------------------------------------
 // Serializa objeto Json
 //-------------------------------------------------------------------
-cJsonCli:= FwJsonSerialize( oJsonSales )
-//cJsonCli := oJsonSales:toJson() 
+cJsonCli:= FwJsonSerialize( oJsonTmp )
+
 //-------------------------------------------------------------------
 // Elimina objeto da memoria
 //-------------------------------------------------------------------
-FreeObj(oJsonSales)
+FreeObj(oJsonTmp)
 
-//Self:SetHeader("Access-Control-Allow-Origin", "http://"+u_BkIpPort())
+// CORS
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 
 Self:SetResponse( cJsonCli ) //-- Seta resposta
 
 Return( lRet )
 
-
-WSMETHOD GET CONSPN QUERYPARAM empresa,prenota,userlib WSREST RestLibPN  //v1
+// v1
+WSMETHOD GET CONSCP QUERYPARAM empresa,prenota,userlib WSREST RestTitCP  //v1
 
 Local oJsonPN	:= JsonObject():New()
 Local cRet		:= ""
@@ -644,7 +666,7 @@ cQuery += " 	INNER JOIN "+cTabSB1+" SB1 ON  SB1.B1_FILIAL='"+xFilial("SB1")+"' A
 cQuery += "WHERE SF1.R_E_C_N_O_ = "+self:prenota+CRLF
 
 //	cQuery += "ORDER BY SF1.F1_DTDIGIT"+CRLF
-//u_MsgLog("RESTLIBPN",cQuery)
+//u_MsgLog("RESTTitCP",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 
@@ -691,7 +713,7 @@ oJsonPN['F1AVAL3']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,3,1)='S','S','N')
 oJsonPN['F1AVAL4']	:= IIF(SUBSTR((cQrySF1)->F1_XXAVALI,4,1)='S','S','N')
 
 //If u_IsAvalia(__cUserId) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSER)) .OR. u_IsAvalia((cQrySF1)->(F1_XXUSERS))
-//u_MsgLog("RESTLIBPN",(cQrySF1)->F1_DOC+"-"+(cQrySF1)->D1_PEDIDO)
+//u_MsgLog("RESTTitCP",(cQrySF1)->F1_DOC+"-"+(cQrySF1)->D1_PEDIDO)
 If !Empty((cQrySF1)->D1_PEDIDO) .OR. (cQrySF1)->F1_XXAVAL == 'S' //u_IsAvalPN((cQrySF1)->F1_XXUSER)
 	nAvalIQF :=	IIF(SUBSTR((cQrySF1)->F1_XXAVALI,1,1)=='S',25,0)+;
 				IIF(SUBSTR((cQrySF1)->F1_XXAVALI,2,1)=='S',25,0)+;
@@ -784,8 +806,8 @@ Self:SetResponse(cRet)
 
 return .T.
 
-
-WSMETHOD GET BROWPN QUERYPARAM userlib WSREST RestLibPN
+// v2
+WSMETHOD GET BROWCP QUERYPARAM userlib WSREST RestTitCP
 
 local cHTML as char
 
@@ -831,15 +853,32 @@ line-height: 1rem;
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Liberação de Pré-notas de Entradas - #cUserName#</a> 
+    <a class="navbar-brand" href="#">Títulos a Pagar - #cUserName#</a> 
+
+    <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Empresa
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
     <form class="d-flex">
-      <input class="form-control me-2" type="search" placeholder="Num. Documento" id="TokenDoc" value="" aria-label="TokenDoc">
+      <input class="form-control me-2" type="search" placeholder="Empresa" id="TokenDoc" value="" aria-label="TokenDoc">
       <button type="button" class="btn btn-dark" aria-label="Token" onclick="token(1);">Token</button>
     </form>
     <button type="button" 
        class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
        Atualizar
     </button>
+
   </div>
 </nav>
 <br>
@@ -847,27 +886,31 @@ line-height: 1rem;
 <br>
 <div class="container">
 <div class="table-responsive-sm">
-<table id="tableSF1" class="table">
+<table id="tableSE2" class="table">
 <thead>
 <tr>
 <th scope="col">Empresa</th>
-<th scope="col">Pré-nota</th>
-<th scope="col">Entrada</th>
+<th scope="col">Título</th>
 <th scope="col">Fornecedor</th>
-<th scope="col">Responsável</th>
-<th scope="col">Vencimento</th>
-<th scope="col" style="text-align:center;">Total</th>
+<th scope="col">Forma Pgto</th>
+<th scope="col">Vencto</th>
+<th scope="col">Portador</th>
+<th scope="col">Borderô</th>
+<th scope="col" style="text-align:center;">Saldo</th>
+<th scope="col" style="text-align:center;">Valor</th>
 <th scope="col" style="text-align:center;">Ação</th>
 </tr>
 </thead>
 <tbody id="mytable">
 <tr>
-  <th scope="col">Carregando Pré-notas...</th>
+  <th scope="col">Carregando Títulos...</th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col" style="text-align:center;"></th>
   <th scope="col" style="text-align:center;"></th>
   <th scope="col" style="text-align:center;"></th>
 </tr>
@@ -1086,8 +1129,8 @@ line-height: 1rem;
 
 <script>
 
-async function getPNs() {
-	let url = '#iprest#/RestLibPN/v0?userlib='+'#userlib#';
+async function getCPs() {
+	let url = '#iprest#/RestTitCP/v0?userlib='+'#userlib#';
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -1098,7 +1141,7 @@ async function getPNs() {
 
 
 async function loadTable() {
-let prenotas = await getPNs();
+let prenotas = await getCPs();
 let trHTML = '';
 let nlin = 0;
 let cbtn = '';
@@ -1107,18 +1150,19 @@ let cbtnid = ''
 
 if (Array.isArray(prenotas)) {
    prenotas.forEach(object => {
-   let cprenota = object['DOC']
-   let cLiberOk = object['LIBEROK']
-   let cStatus  = object['STATUS']
+   let cLiberOk = 'A'
+   let cStatus  = 'X'
    nlin += 1;
    trHTML += '<tr>';
-   trHTML += '<td>'+object['F1NOMEEMP']+'</td>';
-   trHTML += '<td>'+cprenota+'</td>';
-   trHTML += '<td>'+object['DTDIGIT']+'</td>';
+   trHTML += '<td>'+object['NOMEEMP']+'</td>';
+   trHTML += '<td>'+object['TITULO']+'</td>';
    trHTML += '<td>'+object['FORNECEDOR']+'</td>';
-   trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
-   trHTML += '<td>'+object['PGTO']+'</td>';
-   trHTML += '<td align="right">'+object['TOTAL']+'</td>';
+   trHTML += '<td>'+object['FORMPGT']+'</td>';
+   trHTML += '<td>'+object['VENC']+'</td>';
+   trHTML += '<td>'+object['PORTADO']+'</td>';
+   trHTML += '<td>'+object['BORDERO']+'</td>';
+   trHTML += '<td align="right">'+object['SALDO']+'</td>';
+   trHTML += '<td align="right">'+object['VALOR']+'</td>';
 
    if (cLiberOk == 'A' ){
     cbtn = 'btn-outline-success';
@@ -1153,15 +1197,15 @@ trHTML += '</tr>';
    });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+prenotas['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="10" style="text-align:center;">'+prenotas['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="10" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
 
-$('#tableSF1').DataTable({
+$('#tableSE2').DataTable({
   dom: 'Bfrtip',
   buttons: [
             'copyHtml5',
@@ -1194,7 +1238,7 @@ loadTable();
 
 
 async function getPN(f1empresa,f1recno,userlib) {
-let url = '#iprest#/RestLibPN/v1?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib;
+let url = '#iprest#/RestTitCP/v1?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib;
 	try {
 	let res = await fetch(url);
 		return await res.json();
@@ -1326,7 +1370,7 @@ if (Array.isArray(prenota.D1_ITENS)) {
 
 if (Array.isArray(prenota.F1_ANEXOS)) {
 	prenota.F1_ANEXOS.forEach(object => {
-	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+	anexos += '<a href="#iprest#/RestTitCP/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
   })
 }
 document.getElementById("anexos").innerHTML = anexos;
@@ -1384,7 +1428,7 @@ let dataObject = {	liberacao:'ok',
 					avaliar:avaliar, 
 				 };
 
-fetch('#iprest#/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
+fetch('#iprest#/RestTitCP/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -1410,7 +1454,7 @@ fetch('#iprest#/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='
 
 
 async function getToken(cDoc) {
-let url = '#iprest#/RestLibPN/v5?userlib='+'#userlib#'+'&documento='+cDoc;
+let url = '#iprest#/RestTitCP/v5?userlib='+'#userlib#'+'&documento='+cDoc;
 	try {
 	let res = await fetch(url);
 		return await res.json();
@@ -1445,7 +1489,7 @@ endcontent
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
 
-iF !Empty(::userlib)
+If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 EndIf
@@ -1454,9 +1498,10 @@ EndIf
 //DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-If __cUserId == '000000'
-	Memowrite("\tmp\pn.html",cHtml)
-EndIf
+//If ::userlib == '000000'
+	Memowrite("\tmp\cp.html",cHtml)
+//EndIf
+u_MsgLog("RESTTITCP",__cUserId)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
@@ -1466,7 +1511,7 @@ return .T.
 
 
 
-WSMETHOD GET TOKEN QUERYPARAM userlib,documento WSREST RestLibPN
+WSMETHOD GET TOKEN1 QUERYPARAM userlib,documento WSREST RestTitCP
 Local oJsonPN	:= JsonObject():New()
 Local lRet		:= .T.
 Local cRet		:= ""
@@ -1483,7 +1528,7 @@ If u_BkAvPar(::userlib,@aParams,@cMsg)
 	EndIf
 EndIf
 
-u_MsgLog("RESTLIBPN","Doc: "+cDoc+" Token: "+cMsg)
+u_MsgLog("RESTTitCP","Doc: "+cDoc+" Token: "+cMsg)
 
 oJsonPN['TOKEN'] := cMsg
 oJsonPN['DOC']   := cDoc
@@ -1517,53 +1562,3 @@ Next
 
 Return aDados
 
-//Substituida por BKDocs
-/*
-Static Function DocsPN(empresa,cChave)
-Local oStatement := nil
-Local cQuery     := ""
-Local cAliasSQL  := ""
-Local nSQLParam  := 0
-Local cTabAC9	 := "AC9"+empresa+"0" 
-Local cTabACB	 := "ACB"+empresa+"0"
-Local aFiles	 := {}
-
-cQuery := "SELECT ACB.ACB_OBJETO " + CRLF
-cQuery += " FROM " + cTabAC9 + " AC9 " + CRLF // Entidade x objeto.
-cQuery += "LEFT JOIN " + cTabACB + " ACB ON ACB.D_E_L_E_T_ = ' ' " + CRLF // Objeto.
-cQuery += " AND ACB.ACB_FILIAL = AC9.AC9_FILIAL " + CRLF
-cQuery += " AND ACB.ACB_CODOBJ = AC9.AC9_CODOBJ " + CRLF
-cQuery += "WHERE AC9.D_E_L_E_T_ = '' " + CRLF
-cQuery += " AND AC9.AC9_FILIAL = ? " + CRLF
-cQuery += " AND AC9.AC9_ENTIDA = ? " + CRLF
-cQuery += " AND AC9.AC9_CODENT = ? " + CRLF
-
-//cQuery += "ORDER BY AC9.AC9_FILIAL, AC9.AC9_ENTIDA, AC9.AC9_CODENT, AC9.AC9_CODOBJ "
-
-// Trata SQL para proteger de SQL injection.
-oStatement := FWPreparedStatement():New()
-oStatement:SetQuery(cQuery)
-
-nSQLParam++
-oStatement:SetString(nSQLParam, xFilial("AC9"))  // Filial
-
-nSQLParam++
-oStatement:SetString(nSQLParam, "SF1")  // Entidade.
-
-nSQLParam++
-oStatement:SetString(nSQLParam, cChave) // Chave.
-
-cQuery := oStatement:GetFixQuery()
-oStatement:Destroy()
-oStatement := nil
-
-cAliasSQL := MPSysOpenQuery(cQuery)
-
-Do While (cAliasSQL)->(!eof())
-	aAdd(aFiles,{AllTrim((cAliasSQL)->ACB_OBJETO),Encode64(Alltrim((cAliasSQL)->ACB_OBJETO))})
-	(cAliasSQL)->(dbSkip())
-EndDo
-(cAliasSQL)->(dbCloseArea())
-
-Return (aFiles)
-*/

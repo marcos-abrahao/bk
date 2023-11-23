@@ -228,7 +228,7 @@ Self:cDescr 	:= ""
 Self:aParam		:= {}
 Self:cDirDest	:= "c:\tmp\"
 Self:cDirTmp 	:= "\tmp\"
-Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())
+Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())+"-"+__cUserId
 Self:cFileR 	:= Self:cDirTmp+Self:cFile+".rel"
 Self:cFileX 	:= Self:cDirTmp+Self:cFile+".xlsx"
 
@@ -911,9 +911,13 @@ If File(cFileL)
 EndIf
 
 If nOpcFile == 1
-	oSayMsg:SetText("Abrindo o arquivo, aguarde...")
-	ProcessMessages()
+	If !IsBlind()
+		oSayMsg:SetText("Abrindo o arquivo, aguarde...")
+		ProcessMessages()
+	EndIf
+
 	Self:oPrtXlsx:toXlsx()
+
 	If !IsBlind()
 		If file(Self:cFileR)
 			CpyS2T(Self:cFileX, Self:cDirDest)
@@ -921,8 +925,10 @@ If nOpcFile == 1
 		EndIf
 	EndIf
 Else
-	oSayMsg:SetText("Cancelada a abertura do arquivo")
-	ProcessMessages()
+	If !IsBlind()
+		oSayMsg:SetText("Cancelada a abertura do arquivo")
+		ProcessMessages()
+	EndIf
 EndIf
 
 Self:oPrtXlsx:EraseBaseFile()

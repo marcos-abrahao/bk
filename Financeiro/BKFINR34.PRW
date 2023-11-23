@@ -91,8 +91,10 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddColX3("A2_NOME")
 
 	oPExcel:AddColX3("E2_VALOR")
+	oPExcel:GetCol("E2_VALOR"):SetTotal(.T.)
 
 	oPExcel:AddCol("SALDO","SALDO","Saldo","E2_SALDO")
+	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
 	oPExcel:AddCol("FORMPGT","QSE2->FORMPGT","Forma Pgto","")
 
@@ -149,7 +151,8 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 
 			oPExcel:AddColX3("A2_NOME")
 
-			oPExcel:AddCol("CNPJ","QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA","CNPJ/CPF","")
+			oPExcel:AddCol("CNPJ","TRANSFORM(QSE2->A2_CGC,IIF(QSE2->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))","CNPJ/CPF","")
+			oPExcel:GetCol("CNPJ"):SetHAlign("C")
 			oPExcel:GetCol("CNPJ"):SetTamCol(21)
 			
 			oPExcel:AddColX3("E2_NATUREZ")
@@ -157,8 +160,10 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 			oPExcel:AddColX3("E2_PORTADO")
 
 			oPExcel:AddColX3("E2_VALOR")
+			oPExcel:GetCol("E2_VALOR"):SetTotal(.T.)
 
 			oPExcel:AddCol("SALDO","QSE2->SALDO","Saldo","E2_SALDO")
+			oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
 			oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
 			oPExcel:GetCol("HIST"):SetWrap(.T.)
