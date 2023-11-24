@@ -33,7 +33,10 @@
 		},
 		{
 			"label": "SIGAFIN"
+		},
+		{
+			"label": "xxxx"
 		}
 	],
-	"lastProgramExecuted": "SIGAFIN"
+	"lastProgramExecuted": "xxxx"
 }

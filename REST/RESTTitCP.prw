@@ -17,6 +17,7 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
 	WSDATA filial       AS STRING
+	WSDATA vencreal     AS STRING
 	WSDATA prenota 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
 	WSDATA documento	AS STRING
@@ -323,8 +324,9 @@ Retorna a lista de prenotas.
 /*/
 
 // v0
-WSMETHOD GET LISTCP QUERYPARAM userlib WSREST RestTitCP
+WSMETHOD GET LISTCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
 Local aEmpresas		:= {}
+Local aGrupoBK 		:= {}
 Local aListCP 		:= {}
 Local cQrySE2       := GetNextAlias()
 Local cJsonCli      := ''
@@ -346,30 +348,29 @@ Local cTabSZ2		:= "SZ2010"
 Local cQuery		:= ""
 Local lPerm			:= .T.
 
-aEmpresas := u_BKGrupo()
-//nStart := INT(self:pageSize * (self:page - 1))
-//nTamPag := self:pageSize := 100
-
-//-------------------------------------------------------------------
-// Query para selecionar Pré-notas
-//-------------------------------------------------------------------
+//u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
   oJsonTmp	['liberacao'] := cMsg
-
   cRet := oJsonTmp	:ToJson()
-
   FreeObj(oJsonTmp	)
-
   //Retorno do servico
   ::SetResponse(cRet)
-
-  Return lRet:= .t.
-
+  Return lRet:= .T.
 EndIf
 
 // Usuários que podem executar alguma ação
 lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+
+aGrupoBK := u_BKGrupo()
+nE := aScan(aGrupoBK,{|x| x[1] == SUBSTR(self:empresa,1,2) })
+If nE > 0
+	aEmpresas := {aGrupoBK[nE]}
+Else
+	aEmpresas := aGrupoBK
+EndIf
+
+// Query para selecionar os Títulos a Pagar
 
 cQuery := "WITH RESUMO AS ( " + CRLF
 
@@ -383,15 +384,14 @@ For nE := 1 To Len(aEmpresas)
 	cTabSB1 := "SB1"+aEmpresas[nE,1]+"0"
 
 	cEmpresa := aEmpresas[nE,1]
-	cNomeEmp := aEmpresas[nE,2]
+	cNomeEmp := aEmpresas[nE,3]
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
 	cQuery += " SELECT "+CRLF
-	cQuery += "	  '"+cEmpresa+"' AS EMPRESA"+CRLF
-	cQuery += "	 ,'"+FWEmpName(cEmpresa)+"' AS NOMEEMP"+CRLF
+	cQuery += "	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF
 	cQuery += "	 ,E2_TIPO"+CRLF
 	cQuery += "	 ,E2_PREFIXO"+CRLF
 	cQuery += "	 ,E2_NUM"+CRLF
@@ -520,10 +520,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
 	cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
 
-	//Para testar
-	//cQuery +=  "  AND E2_VENCREA = '"+DTOS(dDtIni)+"' "+CRLF
-
-	cQuery +=  "  AND E2_VENCREA = '"+DTOS(DATE()+1)+"' "+CRLF
+	cQuery +=  "  AND E2_VENCREA = '"+self:vencreal+"' "+CRLF
 
 Next
 
@@ -533,6 +530,8 @@ cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF ///
+
+u_LogMemo("RESTTITCP.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 //TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
@@ -547,7 +546,6 @@ Do While ( cQrySE2 )->( ! Eof() )
 
 	nPos := Len(aListCP)
 	aListCP[nPos]['EMPRESA']	:= (cQrySE2)->EMPRESA
-	aListCP[nPos]['NOMEEMP']	:= (cQrySE2)->NOMEEMP
 	aListCP[nPos]['TITULO']     := (cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA)
 	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
 	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
@@ -807,9 +805,12 @@ Self:SetResponse(cRet)
 return .T.
 
 // v2
-WSMETHOD GET BROWCP QUERYPARAM userlib WSREST RestTitCP
+WSMETHOD GET BROWCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
 
-local cHTML as char
+Local cHTML		as char
+Local cDropEmp	as char
+Local aEmpresas := u_BKGrupo()
+Local nE 		:= 0
 
 begincontent var cHTML
 
@@ -825,7 +826,7 @@ begincontent var cHTML
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
-<title>Liberação de Pré-notas</title>
+<title>Títulos Contas a Pagar #datavenc# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
 .bk-colors{
@@ -855,24 +856,18 @@ line-height: 1rem;
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Títulos a Pagar - #cUserName#</a> 
 
-    <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
-      <ul class="navbar-nav">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Empresa
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+	<div class="btn-group">
+	<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+		#NomeEmpresa#
+	</button>
+		<ul class="dropdown-menu">
+		#DropEmpresas#
+	</ul>
+	</div>
 
     <form class="d-flex">
-      <input class="form-control me-2" type="search" placeholder="Empresa" id="TokenDoc" value="" aria-label="TokenDoc">
-      <button type="button" class="btn btn-dark" aria-label="Token" onclick="token(1);">Token</button>
+	  <input class="form-control me-2" type="date" id="DataVenc" value="#datavenc#" />
+      <button type="button" class="btn btn-dark" aria-label="Vencimento" onclick="AltVenc()">Vencimento</button>
     </form>
     <button type="button" 
        class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
@@ -1060,25 +1055,6 @@ line-height: 1rem;
 </div>
 
 
-<div id="confToken" class="modal" tabindex="-1">
-   <div class="modal-dialog">
-     <div class="modal-content">
-       <div class="modal-header">
-         <h5 id="titToken" class="modal-title">Token gerado:</h5>
-         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-       </div>
-      <div class="modal-body">
-	  	 <!-- <label for="txtToken" class="form-label">Token gerado:</label> -->
-		<input type="text" class="form-control form-control-sm" id="txtToken" size="100" value="">
-      </div>
-       <div class="modal-footer">
-         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
-       </div>
-     </div>
-   </div>
-</div>
-
-
 <div id="avalModal" class="modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -1130,7 +1106,7 @@ line-height: 1rem;
 <script>
 
 async function getCPs() {
-	let url = '#iprest#/RestTitCP/v0?userlib='+'#userlib#';
+	let url = '#iprest#/RestTitCP/v0?empresa=#empresa#&vencreal=#vencreal#&userlib=#userlib#'
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -1141,20 +1117,20 @@ async function getCPs() {
 
 
 async function loadTable() {
-let prenotas = await getCPs();
+let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
 let cbtn = '';
 let ccanl = '';
 let cbtnid = ''
 
-if (Array.isArray(prenotas)) {
-   prenotas.forEach(object => {
+if (Array.isArray(titulos)) {
+   titulos.forEach(object => {
    let cLiberOk = 'A'
    let cStatus  = 'X'
    nlin += 1;
    trHTML += '<tr>';
-   trHTML += '<td>'+object['NOMEEMP']+'</td>';
+   trHTML += '<td>'+object['EMPRESA']+'</td>';
    trHTML += '<td>'+object['TITULO']+'</td>';
    trHTML += '<td>'+object['FORNECEDOR']+'</td>';
    trHTML += '<td>'+object['FORMPGT']+'</td>';
@@ -1197,7 +1173,7 @@ trHTML += '</tr>';
    });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="10" style="text-align:center;">'+prenotas['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="10" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
     trHTML += ' <th scope="row" colspan="10" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
@@ -1463,29 +1439,17 @@ let url = '#iprest#/RestTitCP/v5?userlib='+'#userlib#'+'&documento='+cDoc;
 	}
 }
 
-
-async function token(nOrigem){
-
-let TokenDoc = '';
-
-if (nOrigem === 1) {
-	TokenDoc = document.getElementById("TokenDoc").value;
-} else {
-	TokenDoc = document.getElementById('SF1Doc').value;
-}
-
-let TokenRet = await getToken(TokenDoc);
-
-document.getElementById("titToken").innerHTML = 'Token gerado para o documento: '+TokenRet['DOC'];
-document.getElementById("txtToken").value = TokenRet['TOKEN'];
-$('#confToken').modal('show');
+async function AltVenc(){
+let newvenc = document.getElementById("DataVenc").value;
+let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
+window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
 }
 
 </script>
 
 </body>
 </html>
-endcontent
+ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
 
@@ -1493,6 +1457,30 @@ If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 EndIf
+
+cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
+cHtml := STRTRAN(cHtml,"#vencreal#",::vencreal)
+cHtml := STRTRAN(cHtml,"#datavenc#",SUBSTR(::vencreal,1,4)+"-"+SUBSTR(::vencreal,5,2)+"-"+SUBSTR(::vencreal,7,2))   // Formato: 2023-10-24 input date
+
+
+// --> Seleção de Empresas
+nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
+If nE > 0
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,2])
+Else
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#","Todas")
+EndIf
+
+cDropEmp := ""
+For nE := 1 To Len(aEmpresas)
+//	<li><a class="dropdown-item" href="#">BK</a></li>
+	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencreal='+self:vencreal+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+Next
+cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
+cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencreal='+self:vencreal+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+
+cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
+// <-- Seleção de Empresas
 
 //StrIConv( cHtml, "UTF-8", "CP1252")
 //DecodeUtf8(cHtml)

@@ -26,6 +26,10 @@ If !u_IsMDir(__cUserID)
 	Return Nil
 EndIf
 
+If __cUserId == '000000'
+	aAdd(aDados,{"","u_ExBKCode()",		"TESTES",		"Teste da rotina de codificação web"})
+EndIf
+
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})
 aAdd(aDados,{"","U_BKGCTR01()",		"GESTÃO",		"Mapa de Mediçoes"})
@@ -63,6 +67,7 @@ aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de i
 aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de entrada"})
 
 aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})
+aAdd(aDados,{"","U_BKFINA05()",		"FINANCEIRO",	"Títulos a Pagar WEB"})
 
 aAdd(aDados,{"","U_BKDSDSP1()",		"DASHBOARD",	"Atualização da tabela PREVDESP1"})
 aAdd(aDados,{"","U_BKDSDSP2()",		"DASHBOARD",	"Atualização da tabela PREVDESP2"})
@@ -89,6 +94,8 @@ aAdd(aDados,{"","U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
 aAdd(aDados,{"","U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
 aAdd(aDados,{"","U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
 aAdd(aDados,{"","U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
+
+
 
 u_TTMARKB(aCampos, aDados, .F.)
 

@@ -14,13 +14,13 @@ BK - Array com as empresas do grupo BK
 
 User Function BKGrupo()
 // Empresas ativas
-Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","MMDK"},;
-                        {"12","BK CORRETORA"},;
-                        {"14","BALSA NOVA"},;
-                        {"15","BHG INT 3"},;
-						{"16","MOOVE-SP"},;
-						{"17","DMAF"} }
+Local aEmpresas	:= {    {"01","BK","BK"},;
+                        {"02","MMDK","MMDK"},;
+                        {"12","BK CORRETORA","CORRETORA"},;
+                        {"14","BALSA NOVA","BALSA"},;
+                        {"15","BHG INT 3","BHG"},;
+						{"16","MOOVE-SP","MOOVE"},;
+						{"17","DMAF","DMAF"} }
 Return aEmpresas
 
 
