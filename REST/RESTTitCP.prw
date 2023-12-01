@@ -1,7 +1,7 @@
 #INCLUDE "TOTVS.CH"
 #INCLUDE "RESTFUL.CH"
-#Include "Protheus.ch"
-#Include "TBICONN.CH"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TBICONN.CH"
 
 /*/{Protheus.doc} RestTitCP
     REST Titulos do Contas a Pagar
@@ -19,6 +19,7 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 	WSDATA filial       AS STRING
 	WSDATA vencreal     AS STRING
 	WSDATA e2recno 		AS STRING
+	WSDATA banco 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
 	WSDATA documento	AS STRING
 	WSDATA acao 		AS STRING
@@ -53,10 +54,10 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
-	WSMETHOD GET TOKEN1;
-		DESCRIPTION "Token para Liberação de digitação de Pré-notas de Entrada" ;
-		WSSYNTAX "/RestTitCP/v5";
-		PATH "/RestTitCP/v5";
+	WSMETHOD PUT BANCO;
+		DESCRIPTION "Alterar o portador do titulo a pagar" ;
+		WSSYNTAX "/RestTitCP/v4";
+		PATH "/RestTitCP/v4";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -97,6 +98,7 @@ Self:SetResponse(cRet)
 Return lRet
 
 
+
 Static Function fStatus(empresa,e2recno,acao,cMsg)
 Local lRet 		:= .F.
 Local cQuery	:= ""
@@ -128,7 +130,8 @@ Do Case
 		// Alterar o Status
 		cMsg 	:= acao
 		cQuery := "UPDATE "+cTabSE2+CRLF
-		cQuery += "  SET E2_XXPGTO = '"+SUBSTR(acao,1,1)+"'"+CRLF
+		cQuery += "  SET E2_XXPGTO = '"+SUBSTR(acao,1,1)+"',"+CRLF
+		cQuery += "      E2_XXOPER = '"+__cUserId+"'"+CRLF
 		cQuery += " FROM "+cTabSE2+" SE2"+CRLF
 		cQuery += " WHERE SE2.R_E_C_N_O_ = "+e2recno+CRLF
 
@@ -148,7 +151,91 @@ u_MsgLog("RESTTitCP",cMsg)
 Return lRet
 
 
-/*/{Protheus.doc} GET / salesorder
+//v4
+WSMETHOD PUT BANCO QUERYPARAM empresa,e2recno,userlib,banco WSREST RestTitCP 
+
+Local cJson			:= Self:GetContent()   
+Local lRet			:= .T.
+Local oJson			As Object
+Local aParams		As Array
+Local cMsg			As Char
+
+::setContentType('application/json')
+
+oJson := JsonObject():New()
+oJson:FromJSON(cJson)
+
+If u_BkAvPar(::userlib,@aParams,@cMsg)
+
+	lRet := fBanco(::empresa,::e2recno,::banco,@cMsg)
+
+EndIf
+
+oJson['liberacao'] := StrIConv(cMsg, "CP1252", "UTF-8")
+
+cRet := oJson:ToJson()
+
+FreeObj(oJson)
+// CORS
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+
+Self:SetResponse(cRet)
+  
+Return lRet
+
+
+Static Function fBanco(empresa,e2recno,banco,cMsg)
+Local lRet 		:= .F.
+Local cQuery	:= ""
+Local cTabSE2	:= "SE2"+empresa+"0"
+Local cQrySE2	:= GetNextAlias()
+Local cNum		:= ""
+
+Default cMsg	:= ""
+Default cMotivo := ""
+
+Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
+
+cQuery := "SELECT "
+cQuery += "  SE2.E2_NUM,"
+cQuery += "  SE2.D_E_L_E_T_ AS E2DELET,"
+cQuery += "  SE2.E2_NUM "
+cQuery += " FROM "+cTabSE2+" SE2 "
+cQuery += " WHERE SE2.R_E_C_N_O_ = "+e2recno
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
+
+cNum := (cQrySE2)->E2_NUM
+Do Case
+	Case (cQrySE2)->(Eof()) 
+		cMsg:= "não encontrado"
+	Case (cQrySE2)->E2DELET = '*'
+		cMsg:= "foi excluído"
+	OtherWise 
+		// Alterar o Status
+		cMsg 	:= banco
+		cQuery := "UPDATE "+cTabSE2+CRLF
+		cQuery += "  SET E2_PORTADO = '"+banco+"',"+CRLF
+		cQuery += "      E2_XXOPER = '"+__cUserId+"'"+CRLF
+		cQuery += " FROM "+cTabSE2+" SE2"+CRLF
+		cQuery += " WHERE SE2.R_E_C_N_O_ = "+e2recno+CRLF
+		//u_LogMemo("RESTTitCP.SQL",cQuery)
+		If TCSQLExec(cQuery) < 0
+			cMsg := "Erro: "+TCSQLERROR()
+		Else
+			lRet := .T.
+		EndIf
+EndCase
+
+cMsg := cNum+" Banco -"+cMsg+" - "+e2recno
+
+u_MsgLog("RESTTitCP",cMsg)
+
+(cQrySE2)->(dbCloseArea())
+
+Return lRet
+
+/*/{Protheus.doc} GET 
 Retorna a lista de titulos.
  
 @param 
@@ -183,6 +270,7 @@ Local cTabSZ2		:= "SZ2010"
 Local cQuery		:= ""
 Local lPerm			:= .T.
 Local cStatus		:= ""
+Local cNumTit 		:= ""
 
 //u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
 
@@ -244,6 +332,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E2_VALOR"+CRLF
 	cQuery += "	 ,E2_XXPRINT"+CRLF
 	cQuery += "	 ,E2_XXPGTO"+CRLF
+	cQuery += "	 ,E2_XXOPER"+CRLF
 	cQuery += "	 ,SE2.R_E_C_N_O_ AS E2RECNO"+CRLF
 	cQuery += "	 ,A2_NOME"+CRLF
 	cQuery += "	 ,A2_TIPO"+CRLF
@@ -368,11 +457,9 @@ cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF ///
 
-u_LogMemo("RESTTITCP.SQL",cQuery)
+//u_LogMemo("RESTTITCP.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
-//TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
-//TCSETFIELD("QSE2","HIST","M",10,0)
 
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
@@ -381,9 +468,12 @@ Do While ( cQrySE2 )->( ! Eof() )
 
 	aAdd( aListCP , JsonObject():New() )
 
-	nPos := Len(aListCP)
+	nPos	:= Len(aListCP)
+	cNumTit	:= (cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA)
+	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
+
 	aListCP[nPos]['EMPRESA']	:= (cQrySE2)->EMPRESA
-	aListCP[nPos]['TITULO']     := (cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA)
+	aListCP[nPos]['TITULO']     := cNumTit
 	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
 	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
 	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
@@ -402,8 +492,8 @@ Do While ( cQrySE2 )->( ! Eof() )
 	EndIf
 	aListCP[nPos]['STATUS']		:= cStatus
 	aListCP[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE2)->HIST), "CP1252", "UTF-8") 
-	aListCP[nPos]['OPER']		:= (cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
-	aListCP[nPos]['E2RECNO']		:= STRZERO((cQrySE2)->E2RECNO,7)
+	aListCP[nPos]['OPER']		:= (cQrySE2)->(UsrRetName(E2_XXOPER)) //(cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
+	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
 
 	(cQrySE2)->(DBSkip())
 
@@ -487,14 +577,14 @@ line-height: 1rem;
 	<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 		#NomeEmpresa#
 	</button>
-		<ul class="dropdown-menu">
+	<ul class="dropdown-menu">
 		#DropEmpresas#
 	</ul>
 	</div>
 
     <form class="d-flex">
 	  <input class="form-control me-2" type="date" id="DataVenc" value="#datavenc#" />
-      <button type="button" class="btn btn-dark" aria-label="Vencimento" onclick="AltVenc()">Vencimento</button>
+      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
     </form>
 
   </div>
@@ -579,41 +669,55 @@ let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
 let cbtn = '';
-let ccanl = '1';
 let cbtnidp = ''
 let cbtnids = ''
 
 if (Array.isArray(titulos)) {
-   titulos.forEach(object => {
-   let cStatus  = object['XSTATUS']
-   let cEmpresa = object['EMPRESA'].substring(0,2)
-   nlin += 1;
-   trHTML += '<tr>';
-   trHTML += '<td>'+object['EMPRESA']+'</td>';
-   trHTML += '<td>'+object['TITULO']+'</td>';
-   trHTML += '<td>'+object['FORNECEDOR']+'</td>';
-   trHTML += '<td>'+object['FORMPGT']+'</td>';
-   trHTML += '<td>'+object['VENC']+'</td>';
+	titulos.forEach(object => {
+	let cStatus  = object['XSTATUS']
+	let cEmpresa = object['EMPRESA'].substring(0,2)
+	nlin += 1;
+	trHTML += '<tr>';
+	trHTML += '<td>'+object['EMPRESA']+'</td>';
+	trHTML += '<td>'+object['TITULO']+'</td>';
+	trHTML += '<td>'+object['FORNECEDOR']+'</td>';
+	trHTML += '<td>'+object['FORMPGT']+'</td>';
+	trHTML += '<td>'+object['VENC']+'</td>';
 
-   // Botão para troca do portador
-   trHTML += '<td>'+object['PORTADO']+'</td>';
+	// Botão para troca do portador
+	cbtnidp = 'btnpor'+nlin;
+	trHTML += '<td>'
+	trHTML += '<div class="btn-group">'
+	trHTML += '<button type="button" id="'+cbtnidp+'" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	trHTML += object['PORTADO']
+	trHTML += '</button>'
 
-   trHTML += '<td>'+object['BORDERO']+'</td>';
-   trHTML += '<td align="right">'+object['VALOR']+'</td>';
-   trHTML += '<td align="right">'+object['SALDO']+'</td>';
+	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\')">001 BB</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'004\','+'\''+cbtnidp+'\')">004 CEF</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'033\','+'\''+cbtnidp+'\')">033 Santander</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'237\','+'\''+cbtnidp+'\')">237 Bradesco</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\')">341 Itau</button>';
+	trHTML += '</div>'
+	trHTML += '</td>'
 
-   if (cStatus == 'C' ){
-    cbtn = 'btn-outline-success';
-    } else if (cStatus == ' ' || cStatus == 'A'){
-    cbtn = 'btn-outline-warning';
- 	} else if (cStatus == 'P'){
-    cbtn = 'btn-outline-danger';
-  	}
+	trHTML += '<td>'+object['BORDERO']+'</td>';
+	trHTML += '<td align="right">'+object['VALOR']+'</td>';
+	trHTML += '<td align="right">'+object['SALDO']+'</td>';
+
+	if (cStatus == 'C' ){
+	 cbtn = 'btn-outline-success';
+	 } else if (cStatus == ' ' || cStatus == 'A'){
+	 cbtn = 'btn-outline-warning';
+	} else if (cStatus == 'P'){
+	 cbtn = 'btn-outline-danger';
+	}
 
 	cbtnids = 'btnac'+nlin;
 
 	trHTML += '<td>'
 
+	// Botão para mudança de status
 	trHTML += '<div class="btn-group">'
 	trHTML += '<button type="button" id="'+cbtnids+'" class="btn '+cbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
 	trHTML += object['STATUS']
@@ -674,6 +778,29 @@ $('#tableSE2').DataTable({
 
 loadTable();
 
+
+async function ChgBanco(empresa,e2recno,userlib,banco,btnidp){
+let resposta = ''
+let dataObject = {	liberacao:'ok' };
+let cbtn = '';
+	
+fetch('#iprest#/RestTitCP/v4?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&banco='+banco, {
+	method: 'PUT',
+	headers: {
+	'Content-Type': 'application/json'
+	},
+	body: JSON.stringify(dataObject)})
+	.then(response=>{
+		console.log(response);
+		return response.json();
+	})
+	.then(data=> {
+		// this is the data we get after putting our data,
+		console.log(data);
+		document.getElementById(btnidp).textContent = banco;
+	})
+}
+
 async function ChgStatus(empresa,e2recno,userlib,acao,btnids){
 let resposta = ''
 let dataObject = {	liberacao:'ok' };
@@ -699,10 +826,7 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 		} else {
 			cbtn = 'Em Aberto';
 		}
-		document.getElementById(btnids).textContent  = cbtn;
-		$('#confModal').on('hidden.bs.modal', function () {
-		$('#meuModal').modal('toggle');
-	  })
+		document.getElementById(btnids).textContent = cbtn;
 	})
 }
 
@@ -754,9 +878,9 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 //If ::userlib == '000000'
-	Memowrite("\tmp\cp.html",cHtml)
+	//Memowrite("\tmp\cp.html",cHtml)
 //EndIf
-u_MsgLog("RESTTITCP",__cUserId)
+//u_MsgLog("RESTTITCP",__cUserId)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
@@ -766,37 +890,6 @@ return .T.
 
 
 
-WSMETHOD GET TOKEN1 QUERYPARAM userlib,documento WSREST RestTitCP
-Local oJsonPN	:= JsonObject():New()
-Local lRet		:= .T.
-Local cRet		:= ""
-Local aParams	As Array
-Local cMsg		:= ""
-Local cDoc      := ::documento
-
-If u_BkAvPar(::userlib,@aParams,@cMsg)
-	If Val(::documento) > 0
-		cDoc := STRZERO(Val(::documento),9)
-		cMsg := U_BKEnCode({cDoc})
-	Else
-		cMsg := "Erro: Informe um valor numerico"
-	EndIf
-EndIf
-
-u_MsgLog("RESTTitCP","Doc: "+cDoc+" Token: "+cMsg)
-
-oJsonPN['TOKEN'] := cMsg
-oJsonPN['DOC']   := cDoc
-
-cRet := oJsonPN:ToJson()
-
-FreeObj(oJsonPN)
-
-//Retorno do servico
-Self:SetHeader("Access-Control-Allow-Origin", "*")
-Self:SetResponse(cRet)
-
-Return lRet
 
 
 

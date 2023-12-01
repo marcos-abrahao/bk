@@ -103,6 +103,9 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
 	oPExcel:GetCol("HIST"):SetWrap(.T.)
 
+	oPExcel:AddCol("XXOPER","UsrRetName(QSE2->E2_XXOPER)","Operador","")
+	oPExcel:GetCol("XXOPER"):SetTamCol(20)
+
 	// Adiciona a planilha consolidada
 	oRExcel:AddPlan(oPExcel)
 
@@ -174,6 +177,9 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 			oPExcel:AddColX3("F1_XNUMCON")
 			oPExcel:AddColX3("F1_XXTPPIX")
 			oPExcel:AddColX3("F1_XXCHPIX")
+
+			oPExcel:AddCol("XXOPER","UsrRetName(QSE2->E2_XXOPER)","Operador","")
+			oPExcel:GetCol("XXOPER"):SetTamCol(20)
 
 			oPExcel:AddCol("RESPONSAVEL","UsrRetName(QSE2->F1_XXUSER)","Responsável","")
 			oPExcel:GetCol("RESPONSAVEL"):SetTamCol(20)
@@ -346,6 +352,8 @@ cQuery += "	 ,F1_XAGENC"+CRLF
 cQuery += "	 ,F1_XNUMCON"+CRLF
 cQuery += "	 ,F1_XXTPPIX"+CRLF
 cQuery += "	 ,F1_XXCHPIX "+CRLF
+cQuery += "	 ,E2_XXPGTO"+CRLF
+cQuery += "	 ,E2_XXOPER"+CRLF
 cQuery += "	 ,F1_USERLGI"+CRLF 
 cQuery += "	 ,F1_XXUSER"+CRLF
 cQuery += "	 ,D1_COD"+CRLF

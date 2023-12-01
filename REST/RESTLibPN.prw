@@ -985,7 +985,6 @@ line-height: 1rem;
 
             <div class="col-12" id="anexos">
 				<!-- <button type="submit" class="btn btn-primary">Sign in</button> -->
-
             </div>
 
           </form>

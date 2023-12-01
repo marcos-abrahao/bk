@@ -64,8 +64,6 @@ Local lMaster   := u_InGrupo(__cUserId,"000000/000005/000007/000031/000038")
 If lClass
 	If !IsBlind() .AND. !u_IsLibDPH("MT103INC",__cUserId);
     		.AND. (SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07')
-		
-		
         lRet := .F.
 	Else
 		If SF1->F1_XXLIB == 'A'

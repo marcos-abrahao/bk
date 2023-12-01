@@ -625,6 +625,7 @@ Do While (ALIAS_TMP)->(!eof())
 				nDescto  := 0
 				IF cMV_DEDBCOF == 'I'
 					nDescto  := (ALIAS_TMP)->FT_ICMSRET
+					// Comentar após .OR. cMV_DEDBCOF para deixar o IPI errado 
 				ELSEIF cMV_DEDBCOF == 'P' .OR. cMV_DEDBCOF == "N"  // .OR. 'N' incluido na BK 04/08/2023
 					nDescto  := (ALIAS_TMP)->FT_VALIPI
 				ELSEIF cMV_DEDBCOF == 'S'

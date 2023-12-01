@@ -17,15 +17,17 @@ ELSE
 ENDIF
 SC9->C9_XXRM := SC5->C5_XXRM
 
-// 23/11/23 - Gravar motivo da planilha
+// 23/11/23 - Gravar motivo e municipio da planilha
 IF !EMPTY(SC5->C5_MDCONTR)
    dbSelectArea("CNA")
    dbSetOrder(1)
    IF dbSeek(xFilial("CNA")+SC5->C5_MDCONTR+SC5->C5_XXREV+SC5->C5_MDPLANI)
       SC9->C9_XXMOT := CNA_XXMOT
+      SC9->C9_XXMUN := CNA_XXMUN
    ENDIF
 ELSE
    SC9->C9_XXMOT := PAD("PEDIDO AVULSO "+SC5->C5_ESPECI1+" "+TRIM(SC5->C5_DESCMUN),60)
+   SC9->C9_XXMUN := PAD(TRIM(Posicione("CC2",1,xFilial("CC2")+SC5->C5_ESTPRES+SC5->C5_MUNPRES,"CC2_MUN"))+"-"+SC5->C5_ESTPRES,50)
 ENDIF
 
 SC9->(MsUnlock())
