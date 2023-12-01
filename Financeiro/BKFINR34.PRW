@@ -20,7 +20,7 @@ Local cAlias 		:= "QSE2"
 Local aFiltros		:= {}
 Local cHtml 		:= ""
 Local nAbas			:= 0
-Local aOpçoes		:= {"1-Completo Web","2-Simples Web", "3-Completo Excel","4-Simples Excel","5-Resumo Excel"} 
+Local aOpçoes		:= {"1-Completo Web c/ PDF","2-Simples Web", "3-Completo Excel","4-Simples Excel","5-Resumo Excel"} 
 Local aImpSel		:= {"Todos","Impressos","Não impressos","Desmarcar Impressão"}
 Local aQuebra		:= {"Banco","Forma Pagamento"}
 Local nI 			:= 0
@@ -485,28 +485,22 @@ Return nil
 Static Function RelHtml(cHtml) 
 Local aArea     := GetArea()
 Local aAreaSE2  := GetArea("SE2")
-//Local nHandle   := 0
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := "\http\tmp"
 Local cArqHtml  := ""
-//Local _nI       := 0
+Local cUrl 		:= ""
 
-cArqHtml  := cDirTmp+"\"+"CP"+DTOS(dDataBase)+".HTML"
+cArqHtml  	:= cDirTmp+"\"+"cp"+DTOS(dDataBase)+"-"+__cUserID+".html"
+cUrl 		:= u_BkIpServer()+"\tmp\"+"cp"+DTOS(dDataBase)+"-"+__cUserID+".html"
 
 IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
 ENDIF   
 
 fErase(cArqHtml)
-//nHandle := MsfCreate(cArqHtml,0)
-//If nHandle > 0
-	//cHtml := CPHtml()
-	//For _nI := 1 TO LEN(aHtml)
-	//	fWrite(nHandle, aHtml[_nI] + cCrLf )
-	//Next
-	//fClose(nHandle)
-	Memowrite(cArqHtml,cHtml)
-	ShellExecute("open", cArqHtml, "", "", 1)
-//EndIf
+
+Memowrite(cArqHtml,cHtml)
+ShellExecute("open", cUrl, "", "", 1)
+
 SE2->(RestArea(aAreaSE2))
 RestArea(aArea)
 Return
@@ -520,6 +514,7 @@ Local nI        := 0
 Local cPict     := "@E 99,999,999,999.99"
 Local aFilesF1  := {}
 Local aFilesE2  := {}
+Local cRefFile	:= ""
 Local cTipoTit  := cTitulo
 Local cFormPgto := ""
 Local cPortado 	:= ""
@@ -538,6 +533,11 @@ Local cCnpj     := "CNPJ: "+TRANSFORM(SM0->M0_CGC,"@R 99.999.999/9999-99")
 Local cIE       := "I.E.: "+ALLTRIM(SM0->M0_INSC)
 Local cSite     := IIF(cEmpAnt == "01","WWW.BKCONSULTORIA.COM.BR","")
 
+// Variaveis pdf
+Local aPdfs 	:= {} // Urls dos PDFs
+Local cCanvas	:= ""
+Local cScriptPdf:= ""
+
 If cEmpAnt == "01"      // BK
 	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
 Endif	
@@ -552,7 +552,7 @@ If nPag == 1
 	cHtml += '<style type="text/css">'+CRLF
 
 	cHtml += '.tg  {border-collapse:collapse;border-spacing:0;margin:auto;}'+CRLF
-	cHtml += ''+CRLF
+
 	cHtml += '.tg td{font-family:Arial, sans-serif;font-size:12px;padding:2px 3px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}'+CRLF
 	cHtml += '.tg th{font-family:Arial, sans-serif;font-size:12px;font-weight:normal;padding:2px 3px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}'+CRLF
 
@@ -601,8 +601,16 @@ If nPag == 1
 	
 	cHtml += '.folha {page-break-after:always;page-break-inside:avoid;}'+CRLF
 	
+	// Css para uso com pdfs
+	cHtml += u_CssCanvas()
+
 	cHtml += '</style>' +CRLF
+
 	cHtml += '</head>' +CRLF
+
+	// Script para ler pdfs
+	cHtml += "#scriptpdf#"
+
 	cHtml += '<body lang=PT-BR>' +CRLF
 EndIf                                 
 
@@ -765,24 +773,54 @@ DO while QSE2->(!Eof())
 	// Documentos anexos no Contas a Pagar
 	aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
 
+	cCanvas := ""
+
 	If Len(aFilesF1) > 0 .OR. Len(aFilesE2) > 0 
+
 		cHtml += '  <tr>'+CRLF
 		cHtml += '    <td class="ti-hvalor">Anexos</td>'+CRLF
 		cHtml += '    <td colspan="5" style="text-align:center;">'+CRLF
 		For nI := 1 To Len(aFilesF1)
-			cHtml += '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
+			If ".PDF" $ UPPER(aFilesF1[nI,2])
+				aAdd(aPdfs,aFilesF1[nI,2])
+				cCanvas += "<p>"+cRefFile+"</p>"+CRLF
+				cCanvas += '<canvas id="the-canvas'+ALLTRIM(STR(Len(aPdfs)))+'"></canvas>'+CRLF
+			Else
+				cHtml 	 += cRefFile
+			EndIf
 		Next
 		For nI := 1 To Len(aFilesE2)
-			cHtml += '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
+			If ".PDF" $ UPPER(aFilesE2[nI,2])
+				aAdd(aPdfs,aFilesE2[nI,2])
+				cCanvas += "<p>"+cRefFile+"</p>"+CRLF
+				cCanvas += '<canvas id="the-canvas'+ALLTRIM(STR(Len(aPdfs)))+'"></canvas>'+CRLF
+			Else
+				cHtml 	 += cRefFile
+			EndIf
 		Next
 		cHtml += '    </td>'+CRLF
 		cHtml += '  </tr>'+CRLF
+
+		// Embutir PDFs
+		If !Empty(cCanvas)
+			cHtml += '  <tr>'+CRLF
+			cHtml += '   <td colspan="6" style="text-align:center;">'+CRLF
+			cHtml += cCanvas+CRLF
+			cHtml += '   </td>'+CRLF
+			cHtml += '  </tr>'+CRLF
+		EndIf
+
 	EndIf
 
 	cHtml += '    </table>'+CRLF
 	cHtml += '    <br>'+CRLF
+
+
 	cHtml += '   </td>'+CRLF
 	cHtml += '  </tr>'+CRLF
+
 
 	nTValor	  += QSE2->E2_VALOR
 	nTSaldo   += QSE2->SALDO
@@ -920,6 +958,12 @@ cHtml += '</div>'+CRLF
 
 cHtml += '</body>'+CRLF
 cHtml += '</html>'+CRLF
+
+cScriptPdf := ""
+If Len(aPdfs) > 0
+	cScriptPdf := u_PdfHtml(cEmpAnt,aPdfs)
+	cHtml := STRTRAN(cHtml,"#scriptpdf#",cScriptPdf)
+EndIf
 
 Return(cHtml)
 

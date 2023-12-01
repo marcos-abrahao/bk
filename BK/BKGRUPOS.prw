@@ -658,6 +658,11 @@ Local cRest := "http://"+u_BkIpPort()+"/rest"
 Return cRest
 
 
+// Retorna endereço do Servidor BK
+User Function BKIpServer()
+Local cRest := "http://10.139.0.30"
+Return cRest
+
 // Grupos de e-mail abaixo são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
 
 // E-mails do grupo financeiro 1 do google

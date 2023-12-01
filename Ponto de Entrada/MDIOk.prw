@@ -28,5 +28,14 @@ ElseIf nModulo = 6 .OR. nModulo = 2  .OR. nModulo = 9
 		EndIf
 	EndIf
 EndIf
-
+/*
+If nModulo = 6
+	If u_InGrupo(__cUserId,'000024') .OR. (__cUserId == "000000") 
+		If u_MsgLog("MDIOk","Deseja abrir a tela Web de ações do Contas a Pagar?","Y")
+			cToken  := u_BKEnCode()
+			ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencreal='+DTOS(DATAVALIDA(dDataBase+1))+'&userlib='+cToken, "", "", 1)
+		EndIf
+	EndIf
+EndIf
+*/
 Return .T.
