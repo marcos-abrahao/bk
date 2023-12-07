@@ -119,7 +119,17 @@ If lRet
 	ElseIf nProd == 7
 		u_WaitLog(cProg, {|oSay| u_PINSSCC(cMesI,cMesF)}, 'Processando INSS Empresa e Terceiros...')
 	EndIf
-	u_WaitLog(cProg, {|oSay| IncDoc()}, 'Incluindo Documento de Entrada...')
+
+	QTMP->(dbGoTop())
+	If QTMP->(EOF())
+		If nProd < 6
+			u_MsgLog(cProg,"Não houve faturamento neste período","E")
+		Else
+			u_MsgLog(cProg,"Dados de rateio não encontrados, processe a GPS no sistema Senior e solicite a integração contábil.","E")
+		EndIf
+	Else
+		u_WaitLog(cProg, {|oSay| IncDoc()}, 'Incluindo Documento de Entrada...')
+	EndIf
 EndIf
 
 Return Nil
@@ -249,10 +259,13 @@ aadd(aCabec,{"F1_FORNECE",cForn})
 aadd(aCabec,{"F1_LOJA"   ,cLoja})
 aadd(aCabec,{"F1_ESPECIE",cEspec})
 aadd(aCabec,{"F1_EST"    ,cUF})
+// Usuário e Superior
+aadd(aCabec,{"F1_XXUSER" ,__cUserId})
+aadd(aCabec,{"F1_XXUSER" ,u_cSuper1(__cUserID)})
 // Criar a NF Liberada
-aadd(aCabec,{"F1_XXLIB"  ,"L"})
-aadd(aCabec,{"F1_XXULIB" ,__cUserId})
-aadd(aCabec,{"F1_XXDLIB" ,DtoC(Date())+"-"+Time()})
+//aadd(aCabec,{"F1_XXLIB"  ,"L"})
+//aadd(aCabec,{"F1_XXULIB" ,__cUserId})
+//aadd(aCabec,{"F1_XXDLIB" ,DtoC(Date())+"-"+Time()})
 
 dbSelectArea("QTMP")
 dbGoTop()
@@ -414,8 +427,3 @@ u_LogMemo("BKCOMA14-INSS.SQL",cQuery)
 TCQUERY cQuery NEW ALIAS "QTMP"
 
 Return NIL
-
-
-
-
-

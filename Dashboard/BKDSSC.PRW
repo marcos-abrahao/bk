@@ -20,6 +20,7 @@ Local aEmpresas := u_BKGrpDsp()
 Local nE 		:= 0
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
+Local cPerg		:= "BKDSSC"
 
 Local cTabSC1   := ""
 Local cTabSC7   := ""

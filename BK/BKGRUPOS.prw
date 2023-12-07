@@ -20,7 +20,8 @@ Local aEmpresas	:= {    {"01","BK","BK"},;
                         {"14","BALSA NOVA","BALSA"},;
                         {"15","BHG INT 3","BHG"},;
 						{"16","MOOVE-SP","MOOVE"},;
-						{"17","DMAF","DMAF"} }
+						{"17","DMAF","DMAF"},;
+						{"18","BKVIA","BKVIA"} }
 Return aEmpresas
 
 
@@ -28,7 +29,8 @@ User Function BKGrpGct()
 // Empresas que utilizam Gestão de Contratos
 Local aEmpresas	:= {    {"01","BK"},;
                         {"02","MMDK"},;
-                        {"14","BALSA NOVA"}}
+                        {"14","BALSA NOVA"},;
+                        {"18","BKVIA"}}
 Return aEmpresas
 
 
@@ -38,7 +40,8 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"02","MMDK"},;
                         {"14","BALSA NOVA"},;
                         {"15","BHG INT 3"} ,; // Empresa 15 possui despesas
-						{"16","MOOVE-SP"} }   
+						{"16","MOOVE-SP"},;
+                        {"18","BKVIA"}}
 Return aEmpresas
 
 
@@ -58,6 +61,7 @@ Local aEmpresas	:= {    {"01","BK"},;
                         {"15","BHG INT 3"},;
 						{"16","MOOVE-SP"},; 
 						{"17","DMAF"},; 
+                        {"18","BKVIA"},;
                         {"97","CMOG"},;
                         {"98","TERO"} }
 Return aEmpresas
@@ -363,8 +367,8 @@ Return lRet
 
 // Libera pedido de venda pela WEB
 User Function IsLibPv(cId)
-//            Admin  /Teste/Vanderleia/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa
-Return cId $ "000000/000038/000012/000016/000056/000023/000153/000170/000165/000252/000288/"
+//            Admin  /Teste/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa
+Return cId $ "000000/000038/000012/000016/000023/000153/000170/000165/000252/000288/"
 
 
 // É do grupo Fiscal
@@ -489,14 +493,14 @@ Return u_aUsrEmail(aUsers,cxEmail)
 
 // Gerente Gestão
 User Function GerGestao
-// Vanderleia
-Return "000056"
+// Fabia
+Return "000023"
 
 
 // Gerente Gestão Petrobrás
 User Function GerPetro
-// Vanderleia
-Return "000056"
+// Marcelo Cavalari
+Return "000252"
 
 
 // Grupo Almoxarifado
@@ -528,18 +532,10 @@ EndIf
 Return cEmails
 
 
-
-// Email para Grupo Master Repac (Fabia, Bruno e Fernando Sampaio)
-User Function EmMRepac()
-Local aUsers := {"000023","000153","000241"}
+// Email para Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M e Wiliam Lisboa)
+User Function EmMGestao()
+Local aUsers := {"000000","000023","000153","000240","000241","000288"}
 Return u_aUsrEmail(aUsers)
-
-
-// Email para Grupo Master Repac (Vanderleia, Bruno e Marcio M)
-User Function EmpPcAprv()
-Local aUsers := {"000056","000153","000240"}
-Return u_aUsrEmail(aUsers)
-
 
 
 // Retorna emails de diversos usuarios (array de codigos)
@@ -709,14 +705,10 @@ Local cRet := ""
 cRet += "adalberto.xavier@bkconsultoria.com.br;"
 cRet += "andresa.cunha@bkconsultoria.com.br;"
 cRet += "diego.oliveira@bkconsultoria.com.br;"
-//cRet += "eduardo.oliveira@bkconsultoria.com.br;"
 cRet += "elaine.magalhaes@bkconsultoria.com.br;"
-//cRet += "fernando.vallinari@bkconsultoria.com.br;"
 cRet += "joao.cordeiro@bkconsultoria.com.br;"
-//cRet += "juliana.villegas@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "sabrina.nogueira@bkconsultoria.com.br;"
-//cRet += "tamires.silva@bkconsultoria.com.br;"
 cRet += "kelly.neto@bkconsultoria.com.br;"
 
 Return cRet
@@ -726,17 +718,9 @@ User Function BKEmRH()
 Local cRet := ""
 
 cRet += "ana.campos@bkconsultoria.com.br;"
-//cRet += "paloma.ferreira@bkconsultoria.com.br;"
-//cRet += "atendimentorh@bkconsultoria.com.br;"
 cRet += "paula.botaro@bkconsultoria.com.br;"
 cRet += "edson.silva@bkconsultoria.com.br;"
-//cRet += "erick.barros@bkconsultoria.com.br;"
-//cRet += "folhadeponto@bkconsultoria.com.br;"
-//cRet += "juliana.magalhaes@bkconsultoria.com.br;"
 cRet += "karolaine.souza@bkconsultoria.com.br;"
-//cRet += "kelly.silva@bkconsultoria.com.br;"
-//cRet += "luciana.carvalho@bkconsultoria.com.br;"
-//cRet += "ludimila.martins@bkconsultoria.com.br;"
 cRet += "marcio.souza@bkconsultoria.com.br;"
 cRet += "rafaela.lima@bkconsultoria.com.br;"
 cRet += "acsa.souza@bkconsultoria.com.br;"
@@ -753,7 +737,6 @@ cRet += "administrativo.bhg@bkconsultoria.com.br;"
 cRet += "alexandre.teixeira@bkconsultoria.com.br;"
 cRet += "carlos.ferreira@bkconsultoria.com.br;"
 cRet += "christiane.rodrigues@bkconsultoria.com.br;"
-//cRet += "erika.almeida@bkconsultoria.com.br;"
 cRet += "fabia.pesaro@bkconsultoria.com.br;"
 cRet += "fernando.sampaio@bkconsultoria.com.br;"
 cRet += "graziele.silva@bkconsultoria.com.br;"
@@ -761,14 +744,12 @@ cRet += "guilherme.moreira@bkconsultoria.com.br;"
 cRet += "joao.gouvea@bkconsultoria.com.br;"
 cRet += "joao.vitor@bkconsultoria.com.br;"
 cRet += "jose.braz@bkconsultoria.com.br;"
-//cRet += "julia.pinhati@bkconsultoria.com.br;"
 cRet += "lincoln.santana@bkconsultoria.com.br;"
 cRet += "marcelo.cavallari@bkconsultoria.com.br;"
 cRet += "marcelo.soares@bkconsultoria.com.br;"
 cRet += "moacyr.dalate@bkconsultoria.com.br;"
 cRet += "nelson.oliveira@bkconsultoria.com.br;"
 cRet += "noe.braga@bkconsultoria.com.br;"
-//cRet += "vanderleia.silva@bkconsultoria.com.br;"
 cRet += "wiliam.lisboa@bkconsultoria.com.br;"
 
 Return cRet

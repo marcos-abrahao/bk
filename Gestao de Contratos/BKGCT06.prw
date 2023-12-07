@@ -42,25 +42,27 @@ cFilPar := aParam[2]
 
 WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 
-u_MsgLog("BKGCT06: Inicio Processo - "+cEmpPar+" - "+cFilPar)
+u_MsgLog("BKGCT06","Inicio Processo - "+cEmpPar+" - "+cFilPar)
 
 //WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
 //TABLES "SA1" "SC5" "SC6" 
 
-///u_WaitLog("RepBKGCT06", {|| RepBKGCT06()},"Processando avisos de repactuação")
-///u_WaitLog("RepBK06b", {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
 
-IF DOW(dDataEnv) = 4
+IF DOW(dDataEnv) = 3 .OR. DOW(dDataEnv) = 5
 	u_WaitLog("VigBKGCT06", {|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
 	u_WaitLog("Vg2BKGct06", {|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
+
+	// HAbilitado em 05/12/23
+	u_WaitLog(, {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
+	u_WaitLog("V6BKGct06", {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
+	u_WaitLog("V7BKGct06", {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
+	u_WaitLog("V8BKGct06", {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
+
+	u_WaitLog("RepBKGCT06", {|| RepBKGCT06()},"Processando avisos de repactuação")
+	u_WaitLog("RepBK06b", {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
+
 ENDIF
 
-// Desabilitado em 18/08/22 - Solicitado por Bruno Bueno e Vanderleia
-//u_WaitLog(, {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
-
-///u_WaitLog("V6BKGct06", {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
-///u_WaitLog("V7BKGct06", {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
-///u_WaitLog("V8BKGct06", {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
 
 cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
  
@@ -73,12 +75,14 @@ If cEmpAnt == "01"
 	u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf
 
+/*
 If cFWEmp $ "01/02/14" 
-	///u_WaitLog("GRFBKGCT11", {|| U_GRFBKGCT11(.T.)} ,"Processando Grafico Rentabilidade dos Contratos")
-	///u_WaitLog("BKGCTR23", {|| U_BKGCTR23()} ,"Processando Dados do Dashboard - Funcionários e Glosas")
+	u_WaitLog("GRFBKGCT11", {|| U_GRFBKGCT11(.T.)} ,"Processando Grafico Rentabilidade dos Contratos")
+	u_WaitLog("BKGCTR23", {|| U_BKGCTR23()} ,"Processando Dados do Dashboard - Funcionários e Glosas")
 ENDIF
+*/
 
-u_MsgLog("BKGCT06: Final Processo - "+cEmpPar+" - "+cFilPar)
+u_MsgLog("BKGCT06","Final Processo - "+cEmpPar+" - "+cFilPar)
 
 Reset Environment
 
@@ -214,217 +218,13 @@ Return
 
 Static FUNCTION P1BKGCT06()
 // Emails para o aviso de Repactuação de Contatos - MODELO 1
-Local nI := 0
-Local aEmail :={"sigarepac1@bkconsultoria.com.br",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				""}
 
-cEmailTo := "" 
-
-For nI := 1 TO LEN(aEmail)
-	cEmailTO += IIF(!EMPTY(aEmail[nI]),ALLTRIM(aEmail[nI])+";","")
-Next
-
-cEmailCC := "microsiga@bkconsultoria.com.br;"
-
+cEmailTO := u_EmMGestao()
+cEmailCC := ""
 // Email quando a rotina é chamada pela tela
 IF !EMPTY(cEmailS)
    cEmailTO := ALLTRIM(cEmailS)+";"
 ENDIF
-
-RETURN
-
-
-
-Static FUNCTION P2BKGCT06()
-// Emails para aviso de Vigencia de Contatos - MODELO 1
-Local nI := 0
-Local aEmail :={"sigavigencia1@bkconsultoria.com.br",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				""}
-
-cEmailTo := "" 
-
-For nI := 1 TO LEN(aEmail)
-	cEmailTO += IIF(!EMPTY(aEmail[nI]),ALLTRIM(aEmail[nI])+";","")
-Next
-
-cEmailCC := "microsiga@bkconsultoria.com.br;"
-
-// Email quando a rotina é chamada pela tela
-IF !EMPTY(cEmailS)
-   cEmailTO := ALLTRIM(cEmailS)+";"
-ENDIF
-
-RETURN
-
-
-Static FUNCTION P3BKGCT06()
-// Emails para aviso de Vigencia de Contatos - MODELO 2
-Local aEmail :={"sigavigencia2@bkconsultoria.com.br",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				""}
-
-Local nI
-
-cEmailTo := "" 
-
-SELECT SX6
-For nI := 1 TO LEN(aEmail)
-	cEmailTO += IIF(!EMPTY(aEmail[nI]),ALLTRIM(aEmail[nI])+";","")
-Next
-
-cEmailCC := "microsiga@bkconsultoria.com.br;"
-
-// Para testes
-//cEmailTO := cEmailCC
-
-// Email quando a rotina é chamada pela tela
-IF !EMPTY(cEmailS)
-   cEmailTO := ALLTRIM(cEmailS)+";"
-ENDIF
-
-RETURN
-
-
-
-Static FUNCTION P4BKGCT06()
-// Emails para aviso de Repactuação de Contatos - MODELO 2
-Local aEmail :={"sigarepac2@bkconsultoria.com.br",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				""}
-
-Local nI
-
-cEmailTo := "" 
-
-For nI := 1 TO LEN(aEmail)
-	cEmailTO += IIF(!EMPTY(aEmail[nI]),ALLTRIM(aEmail[nI])+";","")
-Next
-
-cEmailCC := "microsiga@bkconsultoria.com.br;"
-
-// Para testes
-//cEmailTO := cEmailCC
-
-// Email quando a rotina é chamada pela tela
-IF !EMPTY(cEmailS)
-   cEmailTO := ALLTRIM(cEmailS)+";"
-ENDIF
-RETURN
-
-
-
-Static FUNCTION P5BKGCT06()
-// Emails para aviso Insumos Operacionais - MODELO 1
-Local aEmail :={"sigaisop1@bkconsultoria.com.br",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				"",;
-				""}
-
-Local nI
-
-cEmailTo := "" 
-
-SELECT SX6
-For nI := 1 TO LEN(aEmail)
-	cEmailTO += IIF(!EMPTY(aEmail[nI]),ALLTRIM(aEmail[nI])+";","")
-Next
-
-cEmailCC := "microsiga@bkconsultoria.com.br;"
-
-// Para testes
-//cEmailTO := cEmailCC
-
-// Email quando a rotina é chamada pela tela
-IF !EMPTY(cEmailS)
-   cEmailTO := ALLTRIM(cEmailS)+";"
-ENDIF
-
 RETURN
 
 
@@ -801,6 +601,8 @@ Private cEmailCC := ""
 
 Public cVigencia := ""
 
+u_MsgLog("VigBKGCT06","Aviso de termino de vigência de contratos")
+
 aCabs   := {}
 aCampos := {}
     
@@ -838,11 +640,7 @@ AADD(aCampos,"cVigencia")
 AADD(aCabs  ,"Vigencia")
 
 
-//If !lJobV2
-//	IncProc()
-//EndIf
-
-cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XCLIEN,CN9_XLOJA,A1_NREDUZ,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
+cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_XXDVIG,CN9_SITUAC,CTT_DESC01,CN9_XCLIEN,CN9_XLOJA,A1_NREDUZ,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CN9_NUMERO"
@@ -855,6 +653,7 @@ cQuery += " ORDER BY A1_NREDUZ,CTT_DESC01"
 
 TCQUERY cQuery NEW ALIAS "QCN9"
 TCSETFIELD("QCN9","CN9_DTINIC","D",8,0)
+TCSETFIELD("QCN9","CN9_XXDVIG","D",8,0)
 
 
 (_cAlias)->(dbgotop())
@@ -863,8 +662,9 @@ Do While (_cAlias)->(!eof())
 
 	// Buscar o periodo de vigencia dos contratos
 	dVigI   := QCN9->CN9_DTINIC
-	dVigF   := QCN9->CN9_DTINIC
+	dVigF   := QCN9->CN9_XXDVIG
 
+	/*
 	dbSelectArea("CNF")
 	dbSetOrder(3)
 	cContRev := xFilial("CNF")+QCN9->CN9_NUMERO+QCN9->CN9_REVISA
@@ -877,7 +677,8 @@ Do While (_cAlias)->(!eof())
 
 	   dbSkip()
 	EndDo
-		
+	*/
+
 	nDiasVig  := dVigF - DATE()
 
     nEnv:= 0
@@ -1076,7 +877,7 @@ cAssunto := "Aviso de termino de vigência de contratos - "+FWEmpName(cEmpAnt)
 If lEmail
 
 	// Carrega as variaveis cEmailTO e cEmailCC
-	P2BKGCT06()     
+	P1BKGCT06()     
 	
 	// Envia o email
 	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
@@ -1115,6 +916,8 @@ Private cEmailCC := ""
 
 Public cVigencia := ""
 Public nDiasVig  := 0
+
+u_MsgLog("Vg2BKGct06","Alerta de término de vigencia de contratos")
 
 aCabs   := {}
 aCampos := {}
@@ -1363,7 +1166,7 @@ QCN9->(Dbclosearea())
 cAssunto := "Alerta de término de vigencia de contratos - "+FWEmpName(cEmpAnt)
   
 // -- Carrega as variaveis cEmailTO e cEmailCC
-P3BKGCT06()
+P1BKGCT06()
 
 U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
 
@@ -1590,6 +1393,8 @@ Public cAviso  := ""
 Public cStatus := ""
 Public nValFat := 0
 
+u_MsgLog("RepBK06b","Contratos a Repactuar - Detalhado")
+
 aCabs   := {}
 aCampos := {}
  
@@ -1625,10 +1430,6 @@ AADD(aCabs  ,"Obs Repactuação")
 
 AADD(aCampos,"cStatus")
 AADD(aCabs  ,"Status")
-
-//If !lJobV2
-//	IncProc()
-//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_SITUAC,CTT_DESC01,CN9_XXDREP,CN9_XXOREP,CN9_XXSREP,CN9_XXDVIG,CN9_XXDAVI,CN9_XXNAVI,CN9_XXDTPD,CN9_XXVPED,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
@@ -1739,9 +1540,6 @@ If nHandle > 0
                //Se houver status = 5 entre a drepac - 30 e hoje
                //   não sair nesta seção
                //Se não Mudar o Status para Atrasado.
-               
-                  
-            
             EndIf
 
 			// Enviar quando a data de repactuação for diferente da data de controle
@@ -2022,7 +1820,7 @@ cAssunto := "Aviso de repactuação - Detalhado - "+FWEmpName(cEmpAnt)
 
 IF lEmail
 	// Carrega as variaveis cEmailTO e cEmailCC
-	P4BKGCT06()
+	P1BKGCT06()
 	
 	// Envia o email
 	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
@@ -2063,6 +1861,9 @@ Private cEmailCC := ""
 Public cVigencia := ""
 Public nDiasVig  := 0
 
+u_MsgLog("V5BKGct06","Aviso de Insumos Operacionais")
+
+
 aCabs   := {}
 aCampos := {}
     
@@ -2099,11 +1900,6 @@ AADD(aCabs  ,"Insumos Operacionais - Materiais")
 
 AADD(aCampos,"cEQP")
 AADD(aCabs  ,"Insumos Operacionais - Equipamentos")
-
-
-//If !lJobV2
-//	IncProc()
-//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO,"
@@ -2469,7 +2265,7 @@ QCN9->(Dbclosearea())
 cAssunto := "Aviso de Insumos Operacionais - "+FWEmpName(cEmpAnt)
 
 // -- Carrega as variaveis cEmailTO e cEmailCC
-P5BKGCT06()
+P1BKGCT06()
 
 U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
 
@@ -2483,7 +2279,7 @@ Local cQuery
 Local _cAlias 	:= "QCN9"
 
 Local cAssunto	:= "Aviso Atestado de Capacidade Técnica"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;sigaisop1@bkconsultoria.com.br;licita@bkconsultoria.com.br"
+Local cEmail	:= u_EmMGestao()+";licita@bkconsultoria.com.br"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
@@ -2499,15 +2295,11 @@ Local aEmail	:= {}
 Local dDiaStat  := 5
 Local lEnvia 	:= .T.
 
-//If !lJobV2
-//	IncProc()
-//EndIf 
+u_MsgLog("V6BKGct06",cAssunto)
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
 ENDIF
-
-//cEmail := "microsiga@bkconsultoria.com.br;"
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDSAT,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_DTINIC,(SELECT TOP 1 CNF_DTVENC FROM "+RETSQLNAME("CNF")+ " CNF "
@@ -2527,8 +2319,6 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON A1_COD = CN9_XCLIEN AND A1_L
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
 
 cQuery += " WHERE CN9.D_E_L_E_T_ = ' ' AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09'"
-
-//cQuery += " AND CN9_NUMERO='230000355'" 
 
 cQuery += " ORDER BY CN9_XXNRBK,A1_NOME"  
 
@@ -2550,17 +2340,11 @@ lFirst := .T.
 lEnviar:= .F.   
 Do While (_cAlias)->(!eof())
 
-	//IF (_cAlias)->CN9_DTINIC < (_cAlias)->CNF_DTVEN1 .AND. !EMPTY((_cAlias)->CN9_DTINIC)
-	//	dVigI := (_cAlias)->CN9_DTINIC
-	//ELSE
-		dVigI := (_cAlias)->CNF_DTVEN1
-	//ENDIF	 
+	//	dVigI := (_cAlias)->CNF_DTVEN1
+	//	dVigF := (_cAlias)->CNF_DTVEN2
 
-	//IF (_cAlias)->CN9_XXDVIG > (_cAlias)->CNF_DTVEN2 
-	//	dVigF := (_cAlias)->CN9_XXDVIG
-	//ELSE
-		dVigF := (_cAlias)->CNF_DTVEN2
-	//ENDIF
+	dVigI   := QCN9->CN9_DTINIC
+	dVigF   := QCN9->CN9_XXDVIG
 
 
 	cTPAT := ""
@@ -2850,7 +2634,7 @@ Local cQuery
 Local _cAlias 	:= "QCN9"
 
 Local cAssunto	:= "Aviso Vigência da Caução"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;gestao@bkconsultoria.com.br"
+Local cEmail	:= u_EmMGestao()
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
@@ -2860,9 +2644,7 @@ Local aEmail	:= {}
 Local nDiasVig  := 0
 Local cAviso    := ""
 
-//If !lJobV2
-//	IncProc()
-//EndIf
+u_MsgLog("V7BKGct06",cAssunto)
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -2936,7 +2718,7 @@ Local cQuery
 Local _cAlias 	:= "QCN9"
 
 Local cAssunto	:= "Aviso Venc. Documento de Segurança do Trabalho"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;gestao@bkconsultoria.com.br"
+Local cEmail	:= u_EmMGestao()
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
@@ -2945,9 +2727,7 @@ Local aEmail	:= {}
 Local nDiasVig  := 0
 Local cAviso    := ""
 
-//If !lJobV2
-//	IncProc()
-//EndIf
+u_MsgLog("V8BKGct06",cAssunto)
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3043,15 +2823,11 @@ Local cPrw		:= "V9BKGct06"
 Local cGerGestao := u_GerGestao()
 Local nRegSM0 := SM0->(Recno()) 
 
-u_MsgLog("V9BKGct06: Inicio Processo - Aviso de pedido de compras aguardando aprovação")
+u_MsgLog("V9BKGct06",cAssunto)
 
 //If FWCodEmp() <> "01"
 //	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
 //	Return Nil
-//EndIf
-
-//If !lJobV2
-//	IncProc()
 //EndIf
 
 IF !EMPTY(cEmailS)
@@ -3067,7 +2843,7 @@ IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 ENDIF                                                                                                
 */
 
-cEmail := u_EmpPcAprv()
+cEmail := u_EmMGestao()
 
 SM0->(DbGoTop())
 While SM0->(!EoF())
@@ -3136,7 +2912,7 @@ Static Function V10BKGct06()
 
 Local cQuery            
 Local _cAlias 	:= "QSC7"
-Local aArea      := GetArea()
+Local aArea     := GetArea()
 Local cAssunto	:= "Aviso de pedido de compras não entregue"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
@@ -3154,9 +2930,7 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-//If !lJobV2
-//	IncProc()
-//EndIf
+u_MsgLog("V10BKGct06",cAssunto)
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3265,9 +3039,7 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-//If !lJobV2
-//	IncProc()
-//EndIf
+u_MsgLog("V11BKGct06",cAssunto)
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3345,8 +3117,6 @@ While SM0->(!EoF())
 	SM0->(dbSkip())
 ENDDO
 SM0->(dbGoTo(nRegSM0))
-
-//CONOUT("V11BKGct06: Emails: "+cEmail)
 
 IF LEN(aEmail) > 0
 
@@ -3436,9 +3206,7 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-//If !lJobV2
-//	IncProc()
-//EndIf
+u_MsgLog("V12BKGCT06",cAssunto)
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
@@ -3446,10 +3214,6 @@ ENDIF
 
 SM0->(DbGoTop())
 While SM0->(!EoF())
-
- 	//If !lJobV2
-	//	IncProc()
-	//EndIf   
 
 	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
@@ -3493,7 +3257,6 @@ While SM0->(!EoF())
 ENDDO
 SM0->(dbGoTo(nRegSM0))
 
-
 IF LEN(aEmail) > 0
 
 	aCabs   := {"Empresa","N° Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
@@ -3531,7 +3294,7 @@ Local cQuery	:= ""
 Local aArea     := GetArea()
 Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"
 Local cEmail	:= ""
-Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
+Local cEmailCC	:= u_EmMGestao()
 Local cMsg    	:= "Segue planilha anexa."
 Local cPrw 		:= "V15BKGCT06"
 Local nE		:= 0
@@ -3550,24 +3313,18 @@ Local cTabSB1   := ""
 Local cTabCTT   := ""
 Local dData		:= dDataBase - 60 // Solicitado pela Fábia em 17/02/23
 
-cEmail += u_EmMRepac()
+cEmail += u_EmMGestao()
 
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Executar somente na empresa 01","E")
 	Return Nil
 EndIf
 
-//If !lJobV2
-//	IncProc()
-//EndIf
+u_MsgLog("V15BKGCT06",cAssunto)
 
 cQuery := "WITH AVISO AS ( "+CRLF
 
 For nE := 1 TO Len(aEmpresas)
-
- 	//If !lJobV2
-	//	IncProc()
-	//EndIf   
 
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]
@@ -3659,7 +3416,7 @@ cQuery += "  OR SUBSTRING(D1_CC,1,1) = 'E' "+CRLF
 cQuery += "ORDER BY "+CRLF
 cQuery += "  E2_VENCREA,E2_NUM"+CRLF
 
-u_LogMemo("V15BKGCT06.SQL",cQuery)
+//u_LogMemo("V15BKGCT06.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 tcSetField("QTMP","E2_EMIS1","D",8,0)

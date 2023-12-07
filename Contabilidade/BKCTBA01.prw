@@ -38,8 +38,7 @@ Return
 
 User Function BKCTB01()
 Local aAreaIni	:= GetArea()
-
-Private nStatus
+Local nStatus	:= 0
 
 // Verificar se há Lançamentos a importar
 cQuery  := "SELECT COUNT(*) AS Z5STATUS " 
@@ -71,13 +70,13 @@ Local aItens 	:= {}
 Local aRecno	:= {}
 Local aAreaIni	:= GetArea()
 Local cQuery	:= ""
-Local nStatus 	:= 0
 Local nI 		:= 0
 Local dUDia
 Local nMes
 Local nAno
 Local cDoc 		:= ""
 Local cEvento 	:= ""
+Local cErros 	:= ""
 
 Private lMSHelpAuto := .F.
 Private lAutoErrNoFile := .T.
@@ -107,8 +106,47 @@ TCQUERY cQuery NEW ALIAS "QSZ5"
 //TcSqlExec(cQuery)
 
 lMsErroAuto := .F.
+dbSelectArea("CT1")
+dbSetOrder(1)
 
-ProcRegua(nStatus)
+dbSelectArea("CTT")
+dbSetOrder(1)
+
+DbSelectArea("QSZ5")
+DbGoTop()
+Do While !eof()
+
+	dbSelectArea("CT1")
+	If !dbSeek(xFilial("CT1")+QSZ5->Z5_DEBITO)
+		cErros += "Conta debito "+QSZ5->Z5_DEBITO+" não cadastrada"+CRLF
+	ElseIf CT1->CT1_BLOQ = '1'
+		cErros += "Conta debito "+QSZ5->Z5_DEBITO+" bloqueada"+CRLF
+	EndIf
+
+	If !dbSeek(xFilial("CT1")+QSZ5->Z5_CREDITO)
+		cErros += "Conta crédito "+QSZ5->Z5_CREDITO+" não cadastrada"+CRLF
+	ElseIf CT1->CT1_BLOQ = '1'
+		cErros += "Conta credito "+QSZ5->Z5_CREDITO+" bloqueada"+CRLF
+	EndIf
+
+	If QSZ5->Z5_DEBITO == QSZ5->Z5_CREDITO
+		cErros += "Conta crédito "+QSZ5->Z5_CREDITO+" igual a conta débito "+QSZ5->Z5_DEBITO+CRLF
+	EndIf
+
+	If !Empty(QSZ5->Z5_CC)
+		dbSelectArea("CTT")
+		If !dbSeek(xFilial("CTT")+QSZ5->Z5_CC)
+			cErros += "Centro de custo "+QSZ5->Z5_CC+" não cadastrao"+CRLF
+		EndIf
+	EndIf
+
+	DbSelectArea("QSZ5")
+	dbSkip()
+EndDo
+
+If !Empty(cErros)
+   u_MsgLog(cPrw,cErros,"E")
+EndIf
 
 DbSelectArea("QSZ5")
 DbGoTop()
@@ -148,7 +186,6 @@ Do While !eof()
     aRecno  := {}
 	Do While !eof() .AND. cFil == QSZ5->Z5_FILIAL .AND. cAnoMes == QSZ5->Z5_ANOMES .AND. cEvento == QSZ5->Z5_EVENTO
 	
-		//IncProc("Importando lançamentos...")
 		//aAdd(aItens,{  {'CT2_FILIAL'  ,QSZ5->Z5_FILIAL,     NIL},;
 		cCCD := ""
 		cCCC := ""
@@ -196,7 +233,7 @@ Do While !eof()
 
 			//aerro := Mostraerro() 
 			u_LogMsExec(cPrw,"Problemas na inclusão de lançamento - Evento "+cEvento)
-			// O sistema não mostra erro de conta debito = credito e periodo fechado
+			// O sistema não mostra erro de conta debito = credito, periodo fechado, centro de custo não cadastrado
 
 		ENDIF
 		
@@ -211,13 +248,11 @@ Do While !eof()
 	   		MsUnlock()
 	   	NEXT	
     ELSE
-	   u_MsgLog(cPrw,"Não foi possivel importar todos os lançamentos, contate o setor de T.I.","E")
+	   u_MsgLog(cPrw,"Não foi possivel importar todos os lançamentos, erros possíveis: conta debito = credito, periodo fechado e centro de custo não cadastrado.","E")
 	   EXIT
 	ENDIF
 	DbSelectArea("QSZ5")
 EndDo
-
-// Cancelamento 
 
 QSZ5->(DbCloseArea())
 

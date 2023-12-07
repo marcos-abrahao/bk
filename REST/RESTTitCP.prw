@@ -21,10 +21,7 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 	WSDATA e2recno 		AS STRING
 	WSDATA banco 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
-	WSDATA documento	AS STRING
 	WSDATA acao 		AS STRING
-	WSDATA page         AS INTEGER OPTIONAL
-	WSDATA pageSize     AS INTEGER OPTIONAL
 
 	WSMETHOD GET LISTCP;
 		DESCRIPTION "Listar Títulos a Pagar";
@@ -47,6 +44,12 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
+	WSMETHOD GET PLANCP;
+		DESCRIPTION "Retorna planilha excel da tela por meio do método FwFileReader().";
+		WSSYNTAX "/RestTitCP/v5";
+		PATH "/RestTitCP/v5";
+		TTALK "v1"
+
 	WSMETHOD PUT STATUS;
 		DESCRIPTION "Alterar o status do titulo a pagar" ;
 		WSSYNTAX "/RestTitCP/v3";
@@ -60,6 +63,7 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		PATH "/RestTitCP/v4";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
+
 
 END WSRESTFUL
 
@@ -235,20 +239,102 @@ u_MsgLog("RESTTitCP",cMsg)
 
 Return lRet
 
+
+
+// v5
+WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
+	Local cProg 	:= "RestTitCP"
+	Local cTitulo	:= "Contas a Pagar WEB"
+	Local cDescr 	:= "Exportação de tela do C.Pagar Web"
+	Local cVersao	:= "07/12/2023"
+	Local oRExcel	AS Object
+	Local oPExcel	AS Object
+
+    Local cFile  	:= ""
+	Local cName  	:= "" //Decode64(self:documento)
+	Local cFName 	:= ""
+    Local oFile  	AS Object
+
+	Local cQrySE2	:= GetNextAlias()
+
+	// Query para selecionar os Títulos a Pagar
+	TmpQuery(cQrySE2,self:empresa,self:vencreal)
+
+
+	// Definição do Arq Excel
+	oRExcel := RExcel():New(cProg)
+	oRExcel:SetTitulo(cTitulo)
+	oRExcel:SetVersao(cVersao)
+	oRExcel:SetDescr(cDescr)
+
+	// Definição da Planilha 1
+	oPExcel:= PExcel():New(cProg,cQrySE2)
+	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+self:vencreal)
+
+	oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
+	oPExcel:AddCol("TITULO" ,"(E2_PREFIXO+E2_NUM+E2_PARCELA)","Título","")
+	oPExcel:AddCol("FORNECEDOR","A2_NOME","Fornecedor","A2_NOME")
+	oPExcel:AddCol("FORMPGT","FORMPGT","Forma Pgto","")
+	oPExcel:AddCol("VENC","STOD(E2_VENCREA)","Vencto","E2_VENCREA")
+	oPExcel:AddCol("PORTADO","E2_PORTADO","Portador","")
+	oPExcel:AddCol("BORDERO","E2_NUMBOR","Bordero","")
+	oPExcel:AddCol("VALOR","VALOR","Valor","")
+	oPExcel:AddCol("SALDO","SALDO","Saldo","")
+	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
+	oPExcel:AddCol("HIST","HIST","Histórico","D1_XXHIST")
+	oPExcel:AddCol("OPER","UsrRetName(E2_XXOPER)","Operador","")
+
+	oPExcel:GetCol("FORMPGT"):SetHAlign("C")
+	oPExcel:GetCol("PORTADO"):SetHAlign("C")
+	oPExcel:GetCol("BORDERO"):SetHAlign("C")
+	oPExcel:GetCol("STATUS"):SetHAlign("C")
+	oPExcel:GetCol("HIST"):SetWrap(.T.)
+	oPExcel:GetCol("VALOR"):SetTotal(.T.)
+	oPExcel:GetCol("SALDO"):SetDecimal(2)
+	oPExcel:GetCol("SALDO"):SetTotal(.T.)
+
+	// Adiciona a planilha
+	oRExcel:AddPlan(oPExcel)
+
+	// Cria arquivo Excel
+	cFName:= oRExcel:RunCreate()
+
+	// Remove pastas do nome do arquivo
+	cName:= SubStr(cFName,Rat("\",cFName)+1)
+
+	(cQrySE2)->(dbCloseArea())
+
+	// Abrir arquino na Web
+	//cName  	:= cFName //Decode64(self:documento)
+    oFile  	:= FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
+
+    If (oFile:Open())
+        cFile := oFile:FullRead() // EFETUA A LEITURA DO ARQUIVO
+
+        // RETORNA O ARQUIVO PARA DOWNLOAD
+
+        //Self:SetHeader("Content-Disposition", '"inline; filename='+cName+'"') não funciona
+        Self:SetHeader("Content-Disposition", "attachment; filename="+cName)
+
+        Self:SetResponse(cFile)
+
+        lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+    Else
+        SetRestFault(002, "Nao foi possivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
+
+        lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+    EndIf
+
+Return (lSuccess)
+
+
+
 /*/{Protheus.doc} GET 
 Retorna a lista de titulos.
- 
-@param 
- Page , numerico, numero da pagina 
- PageSize , numerico, quantidade de registros por pagina
- 
-@return cResponse , caracter, JSON contendo a lista de Pré-notas
 /*/
 
 // v0
 WSMETHOD GET LISTCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
-Local aEmpresas		:= {}
-Local aGrupoBK 		:= {}
 Local aListCP 		:= {}
 Local cQrySE2       := GetNextAlias()
 Local cJsonCli      := ''
@@ -257,18 +343,7 @@ Local oJsonTmp	 	:= JsonObject():New()
 
 Local aParams      	As Array
 Local cMsg         	As Character
-Local nE			:= 0
-Local cEmpresa		:= ""
-Local cNomeEmp		:= ""
-Local cTabSE2		:= ""
-Local cTabSF1		:= ""
-Local cTabSD1		:= ""
-Local cTabCTT		:= ""
-Local cTabSA2		:= ""
-Local cTabSB1		:= ""
-Local cTabSZ2		:= "SZ2010"
-Local cQuery		:= ""
-Local lPerm			:= .T.
+//Local lPerm			:= .T.
 Local cStatus		:= ""
 Local cNumTit 		:= ""
 
@@ -284,17 +359,468 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
 EndIf
 
 // Usuários que podem executar alguma ação
-lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+//lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+
+// Query para selecionar os Títulos a Pagar
+TmpQuery(cQrySE2,self:empresa,self:vencreal)
+
+//-------------------------------------------------------------------
+// Alimenta array de Pré-notas
+//-------------------------------------------------------------------
+Do While ( cQrySE2 )->( ! Eof() )
+
+	aAdd( aListCP , JsonObject():New() )
+
+	nPos	:= Len(aListCP)
+	cNumTit	:= (cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA)
+	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
+
+	aListCP[nPos]['EMPRESA']	:= (cQrySE2)->EMPRESA
+	aListCP[nPos]['TITULO']     := cNumTit
+	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
+	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
+	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
+	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
+	aListCP[nPos]['BORDERO']	:= TRIM((cQrySE2)->E2_NUMBOR)
+	aListCP[nPos]['VALOR']      := TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
+	aListCP[nPos]['SALDO'] 	    := TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
+
+	aListCP[nPos]['XSTATUS']	:= (cQrySE2)->(E2_XXPGTO)
+	If (cQrySE2)->(E2_XXPGTO) == "P"
+		cStatus := "Pendente"
+	ElseIf (cQrySE2)->(E2_XXPGTO) == "C"
+		cStatus := "Concluido"
+	Else
+		cStatus := "Em Aberto"
+	EndIf
+	aListCP[nPos]['STATUS']		:= cStatus
+	aListCP[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE2)->HIST), "CP1252", "UTF-8") 
+	aListCP[nPos]['OPER']		:= (cQrySE2)->(UsrRetName(E2_XXOPER)) //(cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
+	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
+
+	(cQrySE2)->(DBSkip())
+
+EndDo
+
+( cQrySE2 )->( DBCloseArea() )
+
+oJsonTmp	 := aListCP
+
+//-------------------------------------------------------------------
+// Serializa objeto Json
+//-------------------------------------------------------------------
+cJsonCli:= FwJsonSerialize( oJsonTmp )
+
+//-------------------------------------------------------------------
+// Elimina objeto da memoria
+//-------------------------------------------------------------------
+FreeObj(oJsonTmp)
+
+// CORS
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+
+Self:SetResponse( cJsonCli ) //-- Seta resposta
+
+Return( lRet )
+
+
+// v2
+WSMETHOD GET BROWCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
+
+Local cHTML		as char
+Local cDropEmp	as char
+Local aEmpresas := u_BKGrupo()
+Local nE 		:= 0
+
+begincontent var cHTML
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<!-- Required meta tags -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+<title>Títulos Contas a Pagar #datavenc# #NomeEmpresa#</title>
+<!-- <link href="index.css" rel="stylesheet"> -->
+<style type="text/css">
+.bk-colors{
+ background-color: #9E0000;
+ color: white;
+}
+.bg-mynav {
+  background-color: #9E0000;
+  padding-left:5px;
+  padding-right:5px;
+}
+.font-condensed{
+  font-size: 0.7em;
+}
+body {
+font-size: 0.8rem;
+	background-color: #f6f8fa;
+	}
+td {
+line-height: 1rem;
+	vertical-align: middle;
+	}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Títulos a Pagar - #cUserName#</a> 
+
+	<div class="btn-group">
+		<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+			#NomeEmpresa#
+		</button>
+		<ul class="dropdown-menu">
+			#DropEmpresas#
+		</ul>
+	</div>
+
+	<div class="btn-group">
+		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+	</div>
+
+    <form class="d-flex">
+	  <input class="form-control me-2" type="date" id="DataVenc" value="#datavenc#" />
+      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
+    </form>
+
+  </div>
+</nav>
+<br>
+<br>
+<br>
+<div class="container-fluid">
+<div class="table-responsive-sm">
+<table id="tableSE2" class="table">
+<thead>
+<tr>
+<th scope="col">Empresa</th>
+<th scope="col">Título</th>
+<th scope="col">Fornecedor</th>
+<th scope="col">Forma Pgto</th>
+<th scope="col">Vencto</th>
+<th scope="col" style="text-align:center;">Portador</th>
+<th scope="col">Borderô</th>
+<th scope="col" style="text-align:center;">Valor</th>
+<th scope="col" style="text-align:center;">Saldo</th>
+<th scope="col" style="text-align:center;">Status</th>
+<th scope="col">Histórico</th>
+<th scope="col">Operador</th>
+</tr>
+</thead>
+<tbody id="mytable">
+<tr>
+  <th scope="col">Carregando Títulos...</th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!-- https://datatables.net/examples/styling/bootstrap5.html -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- JavaScript Bundle with Popper -->
+<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+
+<!-- https://datatables.net/ -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<script>
+
+async function getCPs() {
+	let url = '#iprest#/RestTitCP/v0?empresa=#empresa#&vencreal=#vencreal#&userlib=#userlib#'
+		try {
+		let res = await fetch(url);
+			return await res.json();
+			} catch (error) {
+		console.log(error);
+			}
+		}
+
+
+async function loadTable() {
+let titulos = await getCPs();
+let trHTML = '';
+let nlin = 0;
+let cbtn = '';
+let cbtnidp = ''
+let cbtnids = ''
+
+if (Array.isArray(titulos)) {
+	titulos.forEach(object => {
+	let cStatus  = object['XSTATUS']
+	let cEmpresa = object['EMPRESA'].substring(0,2)
+	nlin += 1;
+	trHTML += '<tr>';
+	trHTML += '<td>'+object['EMPRESA']+'</td>';
+	trHTML += '<td>'+object['TITULO']+'</td>';
+	trHTML += '<td>'+object['FORNECEDOR']+'</td>';
+	trHTML += '<td>'+object['FORMPGT']+'</td>';
+	trHTML += '<td>'+object['VENC']+'</td>';
+
+	// Botão para troca do portador
+	cbtnidp = 'btnpor'+nlin;
+	trHTML += '<td>'
+	trHTML += '<div class="btn-group">'
+	trHTML += '<button type="button" id="'+cbtnidp+'" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	trHTML += object['PORTADO']
+	trHTML += '</button>'
+
+	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\')">001 BB</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'033\','+'\''+cbtnidp+'\')">033 Santander</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'104\','+'\''+cbtnidp+'\')">104 CEF</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'237\','+'\''+cbtnidp+'\')">237 Bradesco</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\')">341 Itau</button>';
+	trHTML += '</div>'
+	trHTML += '</td>'
+
+	trHTML += '<td>'+object['BORDERO']+'</td>';
+	trHTML += '<td align="right">'+object['VALOR']+'</td>';
+	trHTML += '<td align="right">'+object['SALDO']+'</td>';
+
+	if (cStatus == 'C' ){
+	 cbtn = 'btn-outline-success';
+	 } else if (cStatus == ' ' || cStatus == 'A'){
+	 cbtn = 'btn-outline-warning';
+	} else if (cStatus == 'P'){
+	 cbtn = 'btn-outline-danger';
+	}
+
+	cbtnids = 'btnac'+nlin;
+
+	trHTML += '<td>'
+
+	// Botão para mudança de status
+	trHTML += '<div class="btn-group">'
+	trHTML += '<button type="button" id="'+cbtnids+'" class="btn '+cbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	trHTML += object['STATUS']
+	trHTML += '</button>'
+
+	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'A\','+'\''+cbtnids+'\')">Em Aberto</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'C\','+'\''+cbtnids+'\')">Concluido</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'P\','+'\''+cbtnids+'\')">Pendente</button>';
+
+	trHTML += '</div>'
+
+	trHTML += '</td>'
+
+	trHTML += '<td>'+object['HIST']+'</td>';
+	trHTML += '<td>'+object['OPER']+'</td>';
+
+	trHTML += '</tr>';
+	});
+} else {
+    trHTML += '<tr>';
+    trHTML += ' <th scope="row" colspan="11" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += '</tr>';   
+    trHTML += '<tr>';
+    trHTML += ' <th scope="row" colspan="11" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += '</tr>';   
+}
+document.getElementById("mytable").innerHTML = trHTML;
+
+$('#tableSE2').DataTable({
+  "pageLength": 100,
+  "language": {
+  "lengthMenu": "Registros por página: _MENU_ ",
+  "zeroRecords": "Nada encontrado",
+  "info": "Página _PAGE_ de _PAGES_",
+  "infoEmpty": "Nenhum registro disponível",
+  "infoFiltered": "(filtrado de _MAX_ registros no total)",
+  "search": "Filtrar:",
+  "decimal": ",",
+  "thousands": ".",
+  "paginate": {
+    "first":  "Primeira",
+    "last":   "Ultima",
+    "next":   "Próxima",
+    "previous": "Anterior"
+    }
+   }
+ });
+
+}
+
+loadTable();
+
+
+async function ChgBanco(empresa,e2recno,userlib,banco,btnidp){
+let resposta = ''
+let dataObject = {	liberacao:'ok' };
+let cbtn = '';
+	
+fetch('#iprest#/RestTitCP/v4?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&banco='+banco, {
+	method: 'PUT',
+	headers: {
+	'Content-Type': 'application/json'
+	},
+	body: JSON.stringify(dataObject)})
+	.then(response=>{
+		console.log(response);
+		return response.json();
+	})
+	.then(data=> {
+		// this is the data we get after putting our data,
+		console.log(data);
+		document.getElementById(btnidp).textContent = banco;
+	})
+}
+
+async function ChgStatus(empresa,e2recno,userlib,acao,btnids){
+let resposta = ''
+let dataObject = {	liberacao:'ok' };
+let cbtn = '';
+	
+fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&acao='+acao, {
+	method: 'PUT',
+	headers: {
+	'Content-Type': 'application/json'
+	},
+	body: JSON.stringify(dataObject)})
+	.then(response=>{
+		console.log(response);
+		return response.json();
+	})
+	.then(data=> {
+		// this is the data we get after putting our data,
+		console.log(data);
+		if (acao == 'C' ){
+			cbtn = 'Concluido';
+		} else if (acao == 'P'){
+			cbtn = 'Pendente';
+		} else {
+			cbtn = 'Em Aberto';
+		}
+		document.getElementById(btnids).textContent = cbtn;
+	})
+}
+
+async function Excel(){
+let newvenc = document.getElementById("DataVenc").value;
+let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
+window.open("#iprest#/RestTitCP/v5?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
+}
+
+
+async function AltVenc(){
+let newvenc = document.getElementById("DataVenc").value;
+let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
+window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
+}
+
+</script>
+
+</body>
+</html>
+ENDCONTENT
+
+cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
+
+If !Empty(::userlib)
+	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
+	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
+EndIf
+
+cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
+cHtml := STRTRAN(cHtml,"#vencreal#",::vencreal)
+cHtml := STRTRAN(cHtml,"#datavenc#",SUBSTR(::vencreal,1,4)+"-"+SUBSTR(::vencreal,5,2)+"-"+SUBSTR(::vencreal,7,2))   // Formato: 2023-10-24 input date
+
+
+// --> Seleção de Empresas
+nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
+If nE > 0
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,2])
+Else
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#","Todas")
+EndIf
+
+cDropEmp := ""
+For nE := 1 To Len(aEmpresas)
+//	<li><a class="dropdown-item" href="#">BK</a></li>
+	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencreal='+self:vencreal+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+Next
+cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
+cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencreal='+self:vencreal+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+
+cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
+// <-- Seleção de Empresas
+
+//StrIConv( cHtml, "UTF-8", "CP1252")
+//DecodeUtf8(cHtml)
+cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+
+//If ::userlib == '000000'
+	//Memowrite("\tmp\cp.html",cHtml)
+//EndIf
+//u_MsgLog("RESTTITCP",__cUserId)
+
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+self:setResponse(cHTML)
+self:setStatus(200)
+
+return .T.
+
+
+// Montagem da Query
+Static Function TmpQuery(cQrySE2,xEmpresa,xVencreal)
+
+Local aEmpresas		:= {}
+Local aGrupoBK 		:= {}
+Local cEmpresa		:= ""
+Local cNomeEmp		:= ""
+Local cTabSE2		:= ""
+Local cTabSF1		:= ""
+Local cTabSD1		:= ""
+Local cTabCTT		:= ""
+Local cTabSA2		:= ""
+Local cTabSB1		:= ""
+Local cTabSZ2		:= "SZ2010"
+Local cQuery		:= ""
+Local nE			:= 0
 
 aGrupoBK := u_BKGrupo()
-nE := aScan(aGrupoBK,{|x| x[1] == SUBSTR(self:empresa,1,2) })
+nE := aScan(aGrupoBK,{|x| x[1] == SUBSTR(xEmpresa,1,2) })
 If nE > 0
 	aEmpresas := {aGrupoBK[nE]}
 Else
 	aEmpresas := aGrupoBK
 EndIf
 
-// Query para selecionar os Títulos a Pagar
 
 cQuery := "WITH RESUMO AS ( " + CRLF
 
@@ -446,7 +972,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
 	cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
 
-	cQuery +=  "  AND E2_VENCREA = '"+self:vencreal+"' "+CRLF
+	cQuery +=  "  AND E2_VENCREA = '"+xVencreal+"' "+CRLF
 
 Next
 
@@ -455,457 +981,10 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
-cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF ///
+cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
 //u_LogMemo("RESTTITCP.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 
-//-------------------------------------------------------------------
-// Alimenta array de Pré-notas
-//-------------------------------------------------------------------
-Do While ( cQrySE2 )->( ! Eof() )
-
-	aAdd( aListCP , JsonObject():New() )
-
-	nPos	:= Len(aListCP)
-	cNumTit	:= (cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA)
-	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
-
-	aListCP[nPos]['EMPRESA']	:= (cQrySE2)->EMPRESA
-	aListCP[nPos]['TITULO']     := cNumTit
-	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
-	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
-	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
-	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
-	aListCP[nPos]['BORDERO']	:= TRIM((cQrySE2)->E2_NUMBOR)
-	aListCP[nPos]['VALOR']      := TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
-	aListCP[nPos]['SALDO'] 	    := TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
-
-	aListCP[nPos]['XSTATUS']	:= (cQrySE2)->(E2_XXPGTO)
-	If (cQrySE2)->(E2_XXPGTO) == "P"
-		cStatus := "Pendente"
-	ElseIf (cQrySE2)->(E2_XXPGTO) == "C"
-		cStatus := "Concluido"
-	Else
-		cStatus := "Em Aberto"
-	EndIf
-	aListCP[nPos]['STATUS']		:= cStatus
-	aListCP[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE2)->HIST), "CP1252", "UTF-8") 
-	aListCP[nPos]['OPER']		:= (cQrySE2)->(UsrRetName(E2_XXOPER)) //(cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
-	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
-
-	(cQrySE2)->(DBSkip())
-
-EndDo
-
-( cQrySE2 )->( DBCloseArea() )
-
-oJsonTmp	 := aListCP
-
-//-------------------------------------------------------------------
-// Serializa objeto Json
-//-------------------------------------------------------------------
-cJsonCli:= FwJsonSerialize( oJsonTmp )
-
-//-------------------------------------------------------------------
-// Elimina objeto da memoria
-//-------------------------------------------------------------------
-FreeObj(oJsonTmp)
-
-// CORS
-Self:SetHeader("Access-Control-Allow-Origin", "*")
-
-Self:SetResponse( cJsonCli ) //-- Seta resposta
-
-Return( lRet )
-
-
-// v2
-WSMETHOD GET BROWCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
-
-Local cHTML		as char
-Local cDropEmp	as char
-Local aEmpresas := u_BKGrupo()
-Local nE 		:= 0
-
-begincontent var cHTML
-
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<!-- Required meta tags -->
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Bootstrap CSS -->
-<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
-<title>Títulos Contas a Pagar #datavenc# #NomeEmpresa#</title>
-<!-- <link href="index.css" rel="stylesheet"> -->
-<style type="text/css">
-.bk-colors{
- background-color: #9E0000;
- color: white;
-}
-.bg-mynav {
-  background-color: #9E0000;
-  padding-left:5px;
-  padding-right:5px;
-}
-.font-condensed{
-  font-size: 0.7em;
-}
-body {
-font-size: 0.8rem;
-	background-color: #f6f8fa;
-	}
-td {
-line-height: 1rem;
-	vertical-align: middle;
-	}
-</style>
-</head>
-<body>
-<nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Títulos a Pagar - #cUserName#</a> 
-
-	<div class="btn-group">
-	<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-		#NomeEmpresa#
-	</button>
-	<ul class="dropdown-menu">
-		#DropEmpresas#
-	</ul>
-	</div>
-
-    <form class="d-flex">
-	  <input class="form-control me-2" type="date" id="DataVenc" value="#datavenc#" />
-      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
-    </form>
-
-  </div>
-</nav>
-<br>
-<br>
-<br>
-<div class="container-fluid">
-<div class="table-responsive-sm">
-<table id="tableSE2" class="table">
-<thead>
-<tr>
-<th scope="col">Empresa</th>
-<th scope="col">Título</th>
-<th scope="col">Fornecedor</th>
-<th scope="col">Forma Pgto</th>
-<th scope="col">Vencto</th>
-<th scope="col" style="text-align:center;">Portador</th>
-<th scope="col">Borderô</th>
-<th scope="col" style="text-align:center;">Valor</th>
-<th scope="col" style="text-align:center;">Saldo</th>
-<th scope="col" style="text-align:center;">Status</th>
-<th scope="col">Histórico</th>
-<th scope="col">Operador</th>
-</tr>
-</thead>
-<tbody id="mytable">
-<tr>
-  <th scope="col">Carregando Títulos...</th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-<!-- JavaScript Bundle with Popper -->
-<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
-
-<!-- https://datatables.net/ -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-<!-- Buttons -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-
-<script>
-
-async function getCPs() {
-	let url = '#iprest#/RestTitCP/v0?empresa=#empresa#&vencreal=#vencreal#&userlib=#userlib#'
-		try {
-		let res = await fetch(url);
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
-
-
-async function loadTable() {
-let titulos = await getCPs();
-let trHTML = '';
-let nlin = 0;
-let cbtn = '';
-let cbtnidp = ''
-let cbtnids = ''
-
-if (Array.isArray(titulos)) {
-	titulos.forEach(object => {
-	let cStatus  = object['XSTATUS']
-	let cEmpresa = object['EMPRESA'].substring(0,2)
-	nlin += 1;
-	trHTML += '<tr>';
-	trHTML += '<td>'+object['EMPRESA']+'</td>';
-	trHTML += '<td>'+object['TITULO']+'</td>';
-	trHTML += '<td>'+object['FORNECEDOR']+'</td>';
-	trHTML += '<td>'+object['FORMPGT']+'</td>';
-	trHTML += '<td>'+object['VENC']+'</td>';
-
-	// Botão para troca do portador
-	cbtnidp = 'btnpor'+nlin;
-	trHTML += '<td>'
-	trHTML += '<div class="btn-group">'
-	trHTML += '<button type="button" id="'+cbtnidp+'" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
-	trHTML += object['PORTADO']
-	trHTML += '</button>'
-
-	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\')">001 BB</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'004\','+'\''+cbtnidp+'\')">004 CEF</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'033\','+'\''+cbtnidp+'\')">033 Santander</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'237\','+'\''+cbtnidp+'\')">237 Bradesco</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\')">341 Itau</button>';
-	trHTML += '</div>'
-	trHTML += '</td>'
-
-	trHTML += '<td>'+object['BORDERO']+'</td>';
-	trHTML += '<td align="right">'+object['VALOR']+'</td>';
-	trHTML += '<td align="right">'+object['SALDO']+'</td>';
-
-	if (cStatus == 'C' ){
-	 cbtn = 'btn-outline-success';
-	 } else if (cStatus == ' ' || cStatus == 'A'){
-	 cbtn = 'btn-outline-warning';
-	} else if (cStatus == 'P'){
-	 cbtn = 'btn-outline-danger';
-	}
-
-	cbtnids = 'btnac'+nlin;
-
-	trHTML += '<td>'
-
-	// Botão para mudança de status
-	trHTML += '<div class="btn-group">'
-	trHTML += '<button type="button" id="'+cbtnids+'" class="btn '+cbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
-	trHTML += object['STATUS']
-	trHTML += '</button>'
-
-	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'A\','+'\''+cbtnids+'\')">Em Aberto</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'C\','+'\''+cbtnids+'\')">Concluido</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'P\','+'\''+cbtnids+'\')">Pendente</button>';
-
-	trHTML += '</div>'
-
-	trHTML += '</td>'
-
-	trHTML += '<td>'+object['HIST']+'</td>';
-	trHTML += '<td>'+object['OPER']+'</td>';
-
-	trHTML += '</tr>';
-	});
-} else {
-    trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="11" style="text-align:center;">'+titulos['liberacao']+'</th>';
-    trHTML += '</tr>';   
-    trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="11" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
-    trHTML += '</tr>';   
-}
-document.getElementById("mytable").innerHTML = trHTML;
-
-$('#tableSE2').DataTable({
-  dom: 'Bfrtip',
-  buttons: [
-            'copyHtml5',
-            'excelHtml5',
-            'csvHtml5',
-            'pdfHtml5'
-        ],
-  "pageLength": 100,
-  "language": {
-  "lengthMenu": "Registros por página: _MENU_ ",
-  "zeroRecords": "Nada encontrado",
-  "info": "Página _PAGE_ de _PAGES_",
-  "infoEmpty": "Nenhum registro disponível",
-  "infoFiltered": "(filtrado de _MAX_ registros no total)",
-  "search": "Filtrar:",
-  "decimal": ",",
-  "thousands": ".",
-  "paginate": {
-    "first":  "Primeira",
-    "last":   "Ultima",
-    "next":   "Próxima",
-    "previous": "Anterior"
-    }
-   }
- });
-
-}
-
-loadTable();
-
-
-async function ChgBanco(empresa,e2recno,userlib,banco,btnidp){
-let resposta = ''
-let dataObject = {	liberacao:'ok' };
-let cbtn = '';
-	
-fetch('#iprest#/RestTitCP/v4?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&banco='+banco, {
-	method: 'PUT',
-	headers: {
-	'Content-Type': 'application/json'
-	},
-	body: JSON.stringify(dataObject)})
-	.then(response=>{
-		console.log(response);
-		return response.json();
-	})
-	.then(data=> {
-		// this is the data we get after putting our data,
-		console.log(data);
-		document.getElementById(btnidp).textContent = banco;
-	})
-}
-
-async function ChgStatus(empresa,e2recno,userlib,acao,btnids){
-let resposta = ''
-let dataObject = {	liberacao:'ok' };
-let cbtn = '';
-	
-fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&acao='+acao, {
-	method: 'PUT',
-	headers: {
-	'Content-Type': 'application/json'
-	},
-	body: JSON.stringify(dataObject)})
-	.then(response=>{
-		console.log(response);
-		return response.json();
-	})
-	.then(data=> {
-		// this is the data we get after putting our data,
-		console.log(data);
-		if (acao == 'C' ){
-			cbtn = 'Concluido';
-		} else if (acao == 'P'){
-			cbtn = 'Pendente';
-		} else {
-			cbtn = 'Em Aberto';
-		}
-		document.getElementById(btnids).textContent = cbtn;
-	})
-}
-
-async function AltVenc(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
-}
-
-</script>
-
-</body>
-</html>
-ENDCONTENT
-
-cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
-
-If !Empty(::userlib)
-	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
-	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
-EndIf
-
-cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
-cHtml := STRTRAN(cHtml,"#vencreal#",::vencreal)
-cHtml := STRTRAN(cHtml,"#datavenc#",SUBSTR(::vencreal,1,4)+"-"+SUBSTR(::vencreal,5,2)+"-"+SUBSTR(::vencreal,7,2))   // Formato: 2023-10-24 input date
-
-
-// --> Seleção de Empresas
-nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
-If nE > 0
-	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,2])
-Else
-	cHtml := STRTRAN(cHtml,"#NomeEmpresa#","Todas")
-EndIf
-
-cDropEmp := ""
-For nE := 1 To Len(aEmpresas)
-//	<li><a class="dropdown-item" href="#">BK</a></li>
-	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencreal='+self:vencreal+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
-Next
-cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencreal='+self:vencreal+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
-
-cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
-// <-- Seleção de Empresas
-
-//StrIConv( cHtml, "UTF-8", "CP1252")
-//DecodeUtf8(cHtml)
-cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
-
-//If ::userlib == '000000'
-	//Memowrite("\tmp\cp.html",cHtml)
-//EndIf
-//u_MsgLog("RESTTITCP",__cUserId)
-
-Self:SetHeader("Access-Control-Allow-Origin", "*")
-self:setResponse(cHTML)
-self:setStatus(200)
-
-return .T.
-
-
-
-
-
-
-// Tranformar F1_XXPARCE em array
-Static Function LoadVenc(mParcel)
-Local aTmp		:= {}
-Local nX 		:= 0
-Local nTamTex	:= 0
-Local aDados	:= {}
-
-nTamTex := mlCount(mParcel, 200)
-For nX := 1 To nTamTex	
-	aTmp := StrTokArr(memoline(mParcel, 200, nX),";")
-	If !Empty(aTmp[1])
-		aAdd(aDados,{aTmp[1],CTOD(aTmp[2]),VAL(aTmp[3]),.F.})
-	EndIf
-Next
-
-Return aDados
+Return Nil

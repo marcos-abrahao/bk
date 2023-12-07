@@ -5,7 +5,7 @@
 BK - Mapa de INSS retido
 
 @author Marcos B. Abrahão
-@since 05/05/11 rev 17/06/20
+@since 05/05/11 rev 06/12/23
 @version P12
 @return Nil
 /*/
@@ -22,51 +22,39 @@ Local aTitulos,aCampos,aCabs
 //Local aPlans		:= {}
 
 Private cPerg       := "BKGCTR07"
-Private cString     := "CN9"
 
 Private cMesEmis    := "01"
-Private cAnoEmis    := "2011"
+Private cAnoEmis    := "2023"
 Private nPlan       := 1
 
 Private _cTXPIS  	:= STR(GetMv("MV_TXPIS"))
 Private _cTXCOF  	:= STR(GetMv("MV_TXCOFINS"))
 
-Public XX_PESSOA    := ""
-Public cMotMulta    := "N"
+Private cMotMulta   := "N"
 Private nValPrev	:= 0
 
 dbSelectArea('SZR')
 
 dbSelectArea('SA1')
-dbSelectArea(cString)
 dbSetOrder(1)
 
 ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
-//u_MsgLog(cPerg) 
 
 cMesEmis := mv_par01
 cAnoEmis := mv_par02
-//cCompet  := cMesEmis+"/"+cAnoEmis
 nPlan    := mv_par03
 nTipo    := mv_par04
 
-//nMes := VAL(cMesEmis) + 1
-//nAno := VAL(cAnoEmis)
-//IF nMes = 13
-//   nMes := 1
-//   nAno := nAno + 1
-//ENDIF
-//cMes := STR(nAno,4)+STRZERO(nMes,2)   
 IF nTipo == 1
 	cMes := cAnoEmis+cMesEmis
 ELSE
 	cMes := cAnoEmis
 ENDIF
 
-titulo   := "Mapa de INSS Retido :"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
+titulo   := "Mapa de INSS Retido:"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
 
 u_WaitLog(cPerg,{|oSay| PrcGct07(nTipo,cMes) }, titulo)
 
@@ -79,20 +67,19 @@ AADD(aTitulos,titulo)
 AADD(aCampos,"QTMP->F2_FILIAL")
 AADD(aCabs  ,"Filial")
 
-AADD(aCampos,"QTMP->XX_CLIENTE")
+AADD(aCampos,"QTMP->F2_CLIENTE")
 AADD(aCabs  ,"Cliente")
 
-AADD(aCampos,"QTMP->XX_LOJA")
+AADD(aCampos,"QTMP->F2_LOJA")
 AADD(aCabs  ,"Loja")
 
-AADD(aCampos,"Posicione('SA1',1,xFilial('SA1')+QTMP->XX_CLIENTE+QTMP->XX_LOJA,'A1_NOME')")
+AADD(aCampos,"QTMP->A1_NOME")
 AADD(aCabs  ,"Nome")
 
-AADD(aCampos,"M->XX_PESSOA := Posicione('SA1',1,xFilial('SA1')+QTMP->XX_CLIENTE+QTMP->XX_LOJA,'A1_PESSOA')")
+AADD(aCampos,"QTMP->A1_PESSOA")
 AADD(aCabs  ,"Tipo Pes.")
 
-AADD(aCampos,"Transform(Posicione('SA1',1,xFilial('SA1')+QTMP->XX_CLIENTE+QTMP->XX_LOJA,'A1_CGC'),IIF(M->XX_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
-//AADD(aCampos,"Transform(  Posicione('SA1',1,xFilial('SA1')+QTMP->XX_CLIENTE+QTMP->XX_LOJA,'A1_CGC'),PicPes(M->XX_PESSOA) )")
+AADD(aCampos,"Transform(QTMP->A1_CGC,IIF(QTMP->A1_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
 AADD(aCabs  ,"CNPJ/CPF")
 
 AADD(aCampos,"QTMP->CNF_CONTRA")
@@ -164,11 +151,9 @@ AADD(aCabs  ,"Recebimento")
 //AADD(aCampos,"QTMP->CNF_VLPREV")
 //AADD(aCabs  ,"Valor Previsto")
 
-//AADD(aCampos,"nValPrev := U_GCTR7VP(QTMP->CNFRECNO,QTMP->CNF_VLPREV)")
 AADD(aCampos,"nValPrev := U_GCTR7VPn(QTMP->(CNF_CONTRA+CNF_REVISA+CNA_NUMERO+CNF_COMPET+CXN_PARCEL),QTMP->CNF_VLPREV)")
 AADD(aCabs  ,"Valor Previsto")
 
-//AADD(aCampos,"QTMP->CNF_SALDO")
 AADD(aCampos,"iIf(nValPrev>0,QTMP->CNF_SALDO,0)")
 AADD(aCabs  ,"Saldo Previsto")
 
@@ -311,11 +296,14 @@ A chave do LEFT JOIN seria entre os campos abaixo: CXN.CXN_FILIAL = CND.CND_FILI
 
 cQuery := " SELECT DISTINCT" + CRLF
 cQuery += "   F2_FILIAL," + CRLF 
-cQuery += "   D2_CLIENTE AS XX_CLIENTE," + CRLF 
-cQuery += "   D2_LOJA XX_LOJA," + CRLF 
+cQuery += "   F2_CLIENTE," + CRLF 
+cQuery += "   F2_LOJA," + CRLF 
 cQuery += "   D2_ALIQINS," + CRLF 
 cQuery += "   D2_ALQIRRF," + CRLF 
 cQuery += "   D2_TES," + CRLF 
+cQuery += "   A1_NOME," + CRLF 
+cQuery += "   A1_CGC," + CRLF 
+cQuery += "   A1_PESSOA," + CRLF 
 cQuery += "   C6_PRODUTO AS XX_PROD," + CRLF 
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 
@@ -431,6 +419,9 @@ cQuery += " INNER JOIN "+RETSQLNAME("SF2")+" SF2" + CRLF
 cQuery += " 	ON (C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND F2_CLIENTE = C6_CLI AND F2_LOJA = C6_LOJA AND F2_TIPO = 'N' AND F2_FORMUL = ' '" + CRLF
 cQuery += " 		AND "+cJSF2SC6+" AND SF2.D_E_L_E_T_='')" + CRLF
 
+cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA" + CRLF
+cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = ' '" + CRLF
+
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1" + CRLF
 cQuery += " 	ON (C6_PRODUTO = B1_COD" +CRLF
 cQuery += " 		AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_='')"+CRLF
@@ -452,31 +443,34 @@ cQuery += " UNION ALL "+ CRLF
 
 cQuery += " SELECT DISTINCT" + CRLF 
 cQuery += "   F2_FILIAL," + CRLF 
-cQuery += "   F2_CLIENTE AS XX_CLIENTE," + CRLF 
-cQuery += "   F2_LOJA AS XX_LOJA," + CRLF 
+cQuery += "   F2_CLIENTE," + CRLF 
+cQuery += "   F2_LOJA," + CRLF 
 cQuery += "   D2_ALIQINS," + CRLF 
 cQuery += "   D2_ALQIRRF," + CRLF 
 cQuery += "   D2_TES," + CRLF 
+cQuery += "   A1_NOME," + CRLF 
+cQuery += "   A1_CGC," + CRLF 
+cQuery += "   A1_PESSOA," + CRLF 
 cQuery += "   D2_COD AS XX_PROD," + CRLF 
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 
 cQuery += "   B1_ALIQISS," + CRLF 
 cQuery += "   CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END AS CNF_CONTRA," + CRLF 
-cQuery += "   ' '," + CRLF // CNF_REVISA
+cQuery += "   ' ' AS CNF_REVISA," + CRLF // CNF_REVISA
 cQuery += "   SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET," + CRLF //CNF_COMPET 
-cQuery += "   0," + CRLF  // CNF_VLPREV
-cQuery += "   0," + CRLF  // CNF_SALDO
-cQuery += "   A1_NOME," + CRLF // CTT_DESC01
-cQuery += "   ' '," + CRLF // CNA_NUMERO
+cQuery += "   0 AS CNF_VLPREV," + CRLF  // CNF_VLPREV
+cQuery += "   0 AS CNF_SALDO," + CRLF  // CNF_SALDO
+cQuery += "   A1_NOME AS CTT_DESC01," + CRLF // CTT_DESC01
+cQuery += "   ' ' AS CNA_NUMERO," + CRLF // CNA_NUMERO
 cQuery += "   CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF  // CNA_XXMUN
-cQuery += "   ' '," + CRLF // CNA_FLREAJ
-cQuery += "   ' '," + CRLF // CND_NUMMED
+cQuery += "   ' ' AS CNA_FLREAJ," + CRLF // CNA_FLREAJ
+cQuery += "   ' ' AS CND_NUMMED," + CRLF // CND_NUMMED
 //cQuery += "   0 AS CNFRECNO," + CRLF // CNF.R_E_C_N_O_
-cQuery += "   ' '," + CRLF // CXN_PARCEL
+cQuery += "   ' ' AS CXN_PARCEL," + CRLF // CXN_PARCEL
 cQuery += "   C5_XXRM," + CRLF 
 cQuery += "   C5_NUM AS C6_NUM," + CRLF 
-cQuery += "   0," + CRLF // XX_BONIF
-cQuery += "   0," + CRLF // XX_MULTA
+cQuery += "   0 AS XX_BONIF," + CRLF // XX_BONIF
+cQuery += "   0 AS XX_MULTA," + CRLF // XX_MULTA
 cQuery += "   F2_SERIE," + CRLF 
 cQuery += "   F2_DOC," + CRLF 
 cQuery += "   F2_EMISSAO," + CRLF 
@@ -674,7 +668,7 @@ cPerg := PADR(cPerg,10)
 AADD(aRegistros,{cPerg,"01","Mes de Emissao  "  ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"02","Ano de Emissao  "  ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"03","Gerar Planilha? "  ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"04","Tipo? "  ,"" ,"" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Mensal","Mensal","Mensal","","","Anual","Anual","Anual","","","","","","","","","","","","","","","","",""})
+AADD(aRegistros,{cPerg,"04","Tipo? "  			,"" ,"" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Mensal","Mensal","Mensal","","","Anual","Anual","Anual","","","","","","","","","","","","","","","","",""})
 
 For i:=1 to Len(aRegistros)
 	If !MsSeek(cPerg+aRegistros[i,2])
@@ -719,22 +713,7 @@ QTMP1->(Dbclosearea())
 Return cMotivo
 
 
-//cQuery += "        (SELECT SUM(CNR_VALOR) FROM CNR010 CNR WHERE CND_NUMMED = CNR_NUMMED
-//cQuery += "             AND  CNR_FILIAL = '"+xFilial("CNR")+"' AND  CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_MULTA,
-//cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC"  
-
-// Evitar previsões duplicadas                        
-User Function GCTR7VP(nRec,nVlPrev)
-If nRec > 0
-	If AsCan(aRecNo,nRec) == 0
-		aAdd(aRecno,nRec)
-	Else
-		nVlPrev := 0
-	EndIf
-EndIf
-Return nVlPrev
-
-// Evitar previsões duplicadas - nova
+// Evitar previsões duplicadas - nova medição
 User Function GCTR7VPn(cChave,nVlPrev)
 If !Empty(cChave)
 	If AsCan(aChave,cChave) == 0

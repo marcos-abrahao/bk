@@ -14,7 +14,7 @@ BK - Gestão do Recebimento
 //-------------------------------------------------------------------
 User Function BKGCTR2B()
 
-	Local cTitulo   := "Gestão do Recebimento - empresas: 01,02 e 14"
+	Local cTitulo   := "Gestão do Recebimento - empresas: 01,02,14 e 18"
 	Local aTitulos  := {}
 	Local aCampos   := {}
 	Local aCabs     := {}
@@ -198,6 +198,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 	u_WaitLog(, {|oSay| ProcQuery("01") }, "Empresa 01 - Consultando o banco de dados...")
 	u_WaitLog(, {|oSay| ProcQuery("02") }, "Empresa 02 - Consultando o banco de dados...")
 	u_WaitLog(, {|oSay| ProcQuery("14") }, "Empresa 14 - Consultando o banco de dados...")
+	u_WaitLog(, {|oSay| ProcQuery("18") }, "Empresa 18 - Consultando o banco de dados...")
 
 	AADD(aTitulos,cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo1)
 

@@ -19,7 +19,8 @@ Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 Local aDados  := {}
 Local nX 	  := 0
 Local bProg
-Local cPerg   := "BKTODOS"
+
+Private cPerg   := "BKTODOS"
 
 If !u_IsMDir(__cUserID)
 	u_MsgLog(cPerg,"Usuário sem permissão para executar esta rotina","E")
@@ -28,14 +29,18 @@ EndIf
 
 If __cUserId == '000000'
 	aAdd(aDados,{"","u_ExBKCode()",		"TESTES",		"Teste da rotina de codificação web"})
+	aAdd(aDados,{"","u_TabsBk()",		"GERAL",		"Criação de tabelas especificas - empresa nova"})
 EndIf
+
+aAdd(aDados,{"","U_LISTSUP()",		"GERAL",		"Relação de usuários e superiores"})
+
 
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})
 aAdd(aDados,{"","U_BKGCTR01()",		"GESTÃO",		"Mapa de Mediçoes"})
 aAdd(aDados,{"","U_BKGCTR1A()",		"GESTÃO",		"Mapa de Mediçoes - Com motivos e multa e bonificação"})
 aAdd(aDados,{"","U_BKGCTR02()",		"GESTÃO",		"Previsto x Faturado - Todas empresas do Grupo BK"})
-aAdd(aDados,{"","U_BKGCTR2B()",		"GESTÃO",		"Gestão do Recebimento - empresas: 01,02 e 14"})
+aAdd(aDados,{"","U_BKGCTR2B()",		"GESTÃO",		"Gestão do Recebimento - empresas: 01,02,14 e 18"})
 aAdd(aDados,{"","U_BKGCTR07()",		"GESTÃO",		"Mapa de INSS retido"})
 aAdd(aDados,{"","U_BKGCTR08()",		"GESTÃO",		"Mapa de Multas e Bonificações"})
 aAdd(aDados,{"","U_BKGCTR09()",		"GESTÃO",		"Projeção Financeira dos Contratos"})
@@ -96,7 +101,6 @@ aAdd(aDados,{"","U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure 
 aAdd(aDados,{"","U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
 
 
-
 u_TTMARKB(aCampos, aDados, .F.)
 
 For nX := 1 To Len(aDados) 
@@ -108,3 +112,45 @@ Next nX
 
 Return
 
+// Criar Tabelas
+User Function TabsBk()
+
+dbSelectArea("CN9")
+dbSelectArea("CNA")
+dbSelectArea("CNB")
+dbSelectArea("CND")
+dbSelectArea("CNR")
+dbSelectArea("CXN")
+dbSelectArea("CNE")
+dbSelectArea("CNF")
+dbSelectArea("SA1")
+dbSelectArea("SA2")
+dbSelectArea("SC1")
+dbSelectArea("SC5")
+dbSelectArea("SC6")
+dbSelectArea("SC7")
+dbSelectArea("SC8")
+dbSelectArea("SD1")
+dbSelectArea("SD2")
+dbSelectArea("SE1")
+dbSelectArea("SE2")
+dbSelectArea("SE5")
+dbSelectArea("SF1")
+dbSelectArea("SF2")
+dbSelectArea("SZ4")
+dbSelectArea("SZ5")
+dbSelectArea("SZ7")
+dbSelectArea("SZA")
+dbSelectArea("SZB")
+dbSelectArea("SZC")
+dbSelectArea("SZD")
+dbSelectArea("SZE")
+dbSelectArea("SZG")
+dbSelectArea("SZH")
+dbSelectArea("SZK")
+dbSelectArea("SZL")
+dbSelectArea("SZM")
+dbSelectArea("SZU")
+dbSelectArea("SYP")
+
+Return Nil

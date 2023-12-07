@@ -6,7 +6,7 @@
 #define XKEY_ 3
 #define XRECNO_ 4
 
-
+// Exemplo do uso da classe RExcel
 User Function BKCOMR18
 Local cProg 	:= "BKCOMR18"
 Local cTitulo	:= "Produtos x Rentabilidade"
@@ -226,11 +226,14 @@ Self:cPrw 		:= cProg
 Self:cPerg 		:= cProg
 Self:cDescr 	:= ""
 Self:aParam		:= {}
-Self:cDirDest	:= "c:\tmp\"
+Self:cDirDest	:= IIf(!IsBlind(),"c:\tmp\","\tmp\")
 Self:cDirTmp 	:= "\tmp\"
 Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())+"-"+__cUserId
 Self:cFileR 	:= Self:cDirTmp+Self:cFile+".rel"
 Self:cFileX 	:= Self:cDirTmp+Self:cFile+".xlsx"
+
+MakeDir(Self:cDirTmp)
+MakeDir(Self:cDirDest)
 
 Self:oFileW		:= FwFileWriter():New(Self:cFileR)
 Self:oPrtXlsx	:= FwPrinterXlsx():New()
@@ -244,7 +247,7 @@ Return Self
 
 METHOD Create() CLASS RExcel
 
-u_WaitLog(Self:cPrw,{ |oSay| Self:RunCreate(oSay)},"Criando a planilha...")
+u_WaitLog(Self:cPrw,{ |oSay| Self:RunCreate(oSay)},"Construindo arquivo .xlsx...")
 Return
 
 
@@ -316,7 +319,7 @@ Local cBuffer		:= ""
 // Formatação do Cabeçalho 
 Local nTSize1 		:= 18
 Local nTSize2 		:= 14
-Local nTSize3 		:= 10
+Local nTSize3 		:= 9
 Local lTItalic 		:= .F.
 Local lTBold 		:= .T.
 Local lTUnderl		:= .F.
@@ -371,6 +374,7 @@ Local cName 		:= ""
 // Variaveis usadas no resumo
 Local cTipoVal 		:= ""
 
+Default oSayMsg		:= Nil
 // Campo para Macro
 Private xCampo
 Private yCampo
@@ -416,7 +420,7 @@ For nP := 1 To Len(Self:aPlans)
 
 	// Logo
     if nHndImagem >= 0
-		Self:oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 42, 40)
+		Self:oPrtXlsx:AddImageFromBuffer(1, 1, cImgRel, cBuffer, 39, 39)
 	EndIf
 
 
@@ -431,12 +435,12 @@ For nP := 1 To Len(Self:aPlans)
 		Self:oPrtXlsx:SetFont(cFont, nTSize2, lTItalic, lTBold, lTUnderl)
 		Self:oPrtXlsx:SetValue(nLin,2,oPlan:GetTitulo())
 		nLin++
+	Else
+		// Titulo padrão
+		//Self:oPrtXlsx:SetFont(cFont, nTSize3, lTItalic, lTBold, lTUnderl)
+		//Self:oPrtXlsx:SetValue(nLin,2,Self:cPrw+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
+		nLin++
 	EndIf
-
-	// Titulo padrão
-	Self:oPrtXlsx:SetFont(cFont, nTSize3, lTItalic, lTBold, lTUnderl)
-	Self:oPrtXlsx:SetValue(nLin,2,Self:cPrw+" - Data base: "+DTOC(dDataBase) +" - Emitido em: "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+cUserName)
-	nLin++
 
 	// Salva a primeira linha de dados (subtotal)
 	nTop := nLin + 1
@@ -653,7 +657,9 @@ For nP := 1 To Len(Self:aPlans)
 			EndIf
 
 			// Quarda elementos da linha para montagem dos resumos
-			aAdd(aLinha,xCampo)
+			If !Empty(aNResumos)
+				aAdd(aLinha,xCampo)
+			EndIf
 
 		Next
 
@@ -661,7 +667,7 @@ For nP := 1 To Len(Self:aPlans)
 		//u_MsgLog("REXCEL","aNResumos","",VarInfo("aNResumos",aNResumos))
 
 		// Monta os resumos
-		If !Empty(aNResumos) 
+		If !Empty(aNResumos)
 			For nR := 1 To Len(aNResumos)
 				cTipoVal := ValType(aLinha[aNResumos[nR,3]])
 				If Len(aNResumos[nR,4]) > 0
@@ -890,51 +896,63 @@ EndIf
 // <-- Parâmetros
 
 
-
 // Grava a Planilha
-cFileL  := Self:cDirDest+Self:cFile+".xlsx"
 
 nOpcFile := 1
-If File(cFileL)
-	Do While .T.
-		nRet:= FERASE(cFileL)
-		If nRet < 0
-			//u_MsgLog("REXCEL","Não será possivel gerar a planilha "+cFileL+", feche o arquivo","W")
-			nOpcFile := u_AvisoLog("REXCEL","Arquivo aberto em outro aplicativo","O arquivo "+cFileL+", já está aberto por outro aplicativo, feche-o e clique em ok",{"Ok","Cancelar"},/*nSize*/,/*cText*/,/*nRotAutDefault*/,/*cBitmap*/,/*lEdit*/,5000,1)
-			If nOpcFile <> 1
+
+If !IsBlind()
+	cFileL  := Self:cDirDest+Self:cFile+".xlsx"
+	If File(cFileL)
+		Do While .T.
+			nRet:= FERASE(cFileL)
+			If nRet < 0
+				//u_MsgLog("REXCEL","Não será possivel gerar a planilha "+cFileL+", feche o arquivo","W")
+				nOpcFile := u_AvisoLog("REXCEL","Arquivo aberto em outro aplicativo","O arquivo "+cFileL+", já está aberto por outro aplicativo, feche-o e clique em ok",{"Ok","Cancelar"},/*nSize*/,/*cText*/,/*nRotAutDefault*/,/*cBitmap*/,/*lEdit*/,5000,1)
+				If nOpcFile <> 1
+					Exit
+				EndIf
+			Else 
 				Exit
 			EndIf
-  		Else 
-			Exit
-		EndIf
-	EndDo
-EndIf
-
-If nOpcFile == 1
-	If !IsBlind()
-		oSayMsg:SetText("Abrindo o arquivo, aguarde...")
-		ProcessMessages()
+		EndDo
 	EndIf
 
-	Self:oPrtXlsx:toXlsx()
+	If nOpcFile == 1
+		oSayMsg:SetText("Abrindo o arquivo, aguarde...")
+		ProcessMessages()
 
-	If !IsBlind()
+		Self:oPrtXlsx:toXlsx()
+
 		If file(Self:cFileR)
 			CpyS2T(Self:cFileX, Self:cDirDest)
 			ShellExecute("open",cFileL,"",Self:cDirDest+"\", 1 )
 		EndIf
-	EndIf
-Else
-	If !IsBlind()
-		oSayMsg:SetText("Cancelada a abertura do arquivo")
+	Else
+		oSayMsg:SetText("Você cancelou a abertura do arquivo.")
 		ProcessMessages()
 	EndIf
+Else
+	cFileL := Self:cFileX
+	If file(Self:cFileX)
+		FERASE(self:cFileX)
+	EndIf
+	Self:oPrtXlsx:toXlsx()
+	//u_MsgLog("REXCEL","TOXLSX")
 EndIf
 
 Self:oPrtXlsx:EraseBaseFile()
 Self:oPrtXlsx:DeActivate()
 
-Return
+If !IsBlind()
+	FErase(self:cFileX)
+EndIf
+
+FErase(self:cFileR)
+
+//u_MsgLog("CFILER",self:cFileR)
+//u_MsgLog("CFILEX",self:cFileX)
+
+Return cFileL
 
 
 

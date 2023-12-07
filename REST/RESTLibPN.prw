@@ -22,9 +22,6 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 	WSDATA documento	AS STRING
 	WSDATA acao 		AS STRING
 
-	WSDATA page         AS INTEGER OPTIONAL
-	WSDATA pageSize     AS INTEGER OPTIONAL
-
 	WSMETHOD GET LISTPN;
 		DESCRIPTION "Listar Pré-notas de Entrada em aberto";
 		WSSYNTAX "/RestLibPN/v0";
@@ -346,11 +343,7 @@ Return Nil
 
 /*/{Protheus.doc} GET / salesorder
 Retorna a lista de prenotas.
- 
-@param 
- Page , numerico, numero da pagina 
- PageSize , numerico, quantidade de registros por pagina
- 
+
 @return cResponse , caracter, JSON contendo a lista de Pré-notas
 /*/
 
@@ -385,15 +378,7 @@ Local lFiscal		:= .F.
 Local lMaster		:= .F.
 Local lSuper		:= .F.
 
-//Default self:page 	:= 1
-//Default self:pageSize := 500
-//Local page := 1
-//Local pagesize := 500
-
 aEmpresas := u_BKGrupo()
-//nStart := INT(self:pageSize * (self:page - 1))
-//nTamPag := self:pageSize := 100
-
 //-------------------------------------------------------------------
 // Query para selecionar Pré-notas
 //-------------------------------------------------------------------
@@ -1453,9 +1438,10 @@ EndIf
 //DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-If __cUserId == '000000'
-	Memowrite("\tmp\pn.html",cHtml)
-EndIf
+// Desabilitar para testar o html
+//If __cUserId == '000000'
+//	Memowrite("\tmp\pn.html",cHtml)
+//EndIf
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)

@@ -508,9 +508,10 @@ EndIf
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-If __cUserId == '000000'
-	Memowrite("\tmp\pv.html",cHtml)
-EndIf
+// Desabilitar para testar o html
+//If __cUserId == '000000'
+//	Memowrite("\tmp\pv.html",cHtml)
+//EndIf
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)

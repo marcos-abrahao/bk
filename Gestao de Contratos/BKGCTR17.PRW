@@ -15,65 +15,132 @@ User Function BKGCTR17()
 Local nI 			:= 0
 Local cCampo 		:= ""
 
-Local aTitulos		:= {}
-Local aCampos		:= {}
-Local aCabs			:= {}
-Local aPlans 		:= {}
+//Local aTitulos	:= {}
+//Local aCampos		:= {}
+//Local aCabs		:= {}
+//Local aPlans 		:= {}
 Local aStruct		:= {}
+Local cAlias		:= "TMP"
 
-Private aParam		:=	{}
-Private aRet		:=	{}
+// Excel
+Local cDescricao	:= "Objetivo deste relatório é demonstrar a situação dos contratos, considerando a data de vigência pelo campo CN9_XXDVIG (informado pelo usuário) "+CRLF+"Solicitado pela Gerência da Gestão em novembro de 2023."
+Local cVersao 		:= "05/12/2023 - Incluído campo 'Dias para finalizar'"
+Local oRExcel		AS Object
+Local oPExcel		AS Object
+
+// Parâmetros
 Private cTitulo     := "Situação dos Contratos"
 Private cProg    	:= "BKGCTR17"
+Private aParam		:=	{}
+Private aRet		:=	{}
 Private cVigentes	:= "Sim"
 
-aAdd( aParam ,{ 2, "Somente vigêntes?", cVigentes  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
+aAdd( aParam ,{ 2, "Somente vigêntes", cVigentes  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
 
 If !BkGC17()
    Return
 EndIf
 
-cQuery := ProcQuery("TMP")
+cQuery := ProcQuery(cAlias)
    
-AADD(aTitulos,cTitulo)
+// Definição do Arq Excel
+oRExcel := RExcel():New(cProg)
+oRExcel:SetTitulo(cTitulo)
+oRExcel:SetDescr(cDescricao)
+oRExcel:SetVersao(cVersao)
+oRExcel:SetParam(aParam)
 
-dbSelectArea("TMP")
+// Definição da Planilha 1
+oPExcel:= PExcel():New(cProg,cAlias)
+oPExcel:SetTitulo(IIf(Substr(cVigentes,1,1)=="S","Somente Contratos Vigentes","Todos os Contratos"))
+
+//AADD(aTitulos,cTitulo)
+
+dbSelectArea(cAlias)
 aStruct := dbStruct()
 For nI := 1 To Len(aStruct)
-	cCampo := +aStruct[nI,1]
+	cCampo := aStruct[nI,1]
 	If cCampo == "OBJETO"
-		aAdd(aCampos,"U_CN9OBJ(TMP->OBJETO)")
-		aAdd(aCabs  ,"Objeto")
+		//aAdd(aCampos,"U_CN9OBJ(TMP->OBJETO)")
+		//aAdd(aCabs  ,"Objeto")
+
+		oPExcel:AddCol(cCampo,"U_CN9OBJ(TMP->OBJETO)","Objeto","")
+		oPExcel:GetCol(cCampo):SetWrap(.T.)
+
 	ElseIf cCampo == "CTT_DESC01"
-		aAdd(aCampos,"TMP->"+cCampo)
-		aAdd(aCabs  ,"Descrição Centro de Custo")
+		//aAdd(aCampos,"TMP->"+cCampo)
+		//aAdd(aCabs  ,"Descrição Centro de Custo")
+
+		oPExcel:AddCol(cCampo,"TMP->CTT_DESC01","Descrição Centro de Custo","CTT_DESC01")
+
 	ElseIf cCampo == "SITUACAO"
-		aAdd(aCampos,"TMP->"+cCampo)
-		aAdd(aCabs  ,"Situação")
+		//aAdd(aCampos,"TMP->"+cCampo)
+		//aAdd(aCabs  ,"Situação")
+
+		oPExcel:AddCol(cCampo,"TMP->SITUACAO","Situação","")
+
 	ElseIf cCampo == "JUSTIF"
-		aAdd(aCampos,"TMP->"+cCampo)
-		aAdd(aCabs  ,"Justificativa")
+		//aAdd(aCampos,"TMP->"+cCampo)
+		//aAdd(aCabs  ,"Justificativa")
+
+		oPExcel:AddCol(cCampo,"TMP->JUSTIF","Justificativa","")
+
 	ElseIf cCampo == "CND_DTINIC"
 		// Meses executados
-		aAdd(aCampos,"TMP->CND_DTINIC")
-		aAdd(aCabs  ,"Última Medição")
+		//aAdd(aCampos,"TMP->CND_DTINIC")
+		//aAdd(aCabs  ,"Última Medição")
 
-		aAdd(aCampos,"TMP->(IIF(!Empty(CND_DTINIC),DateDiffMonth(CN9_DTINIC,CND_DTINIC),0))")
-		aAdd(aCabs  ,"Meses executados (início até ultima medição)")
+		//aAdd(aCampos,"TMP->(IIF(!Empty(CND_DTINIC),DateDiffMonth(CN9_DTINIC,CND_DTINIC),0))")
+		//aAdd(aCabs  ,"Meses executados (início até ultima medição)")
+
+		oPExcel:AddCol(cCampo,"TMP->CND_DTINIC","Última Medição","CND_DTINIC")
+
+		oPExcel:AddCol("MESESEXEC","TMP->(IIF(!Empty(CND_DTINIC),DateDiffMonth(CN9_DTINIC,CND_DTINIC),0))","Meses executados (início até ultima medição)","")
+		oPExcel:GetCol("MESESEXEC"):SetTamanho(5)
+
 	ElseIf cCampo == "LIMITE60"
 		// Data limite 60 meses
-		aAdd(aCampos,"TMP->(MonthSum(CN9_DTINIC,60)-1)")
-		aAdd(aCabs  ,"Data limite (60 meses)")
+		//aAdd(aCampos,"TMP->(MonthSum(CN9_DTINIC,60)-1)")
+		//aAdd(aCabs  ,"Data limite (60 meses)")
+
+		oPExcel:AddCol(cCampo,"TMP->(MonthSum(CN9_DTINIC,60)-1)","Data limite (60 meses)","")
+
+	ElseIf cCampo == "DIASFINAL"
+		// Dias para finalizar
+		//aAdd(aCampos,"IIF(dDataBase > TMP->(MonthSum(CN9_DTINIC,60)-1),0,TMP->(MonthSum(CN9_DTINIC,60)-1) - dDataBase)")
+		//aAdd(aCabs  ,"Dias para Finalizar")
+
+		oPExcel:AddCol(cCampo,"IIF(dDataBase > TMP->(MonthSum(CN9_DTINIC,60)-1),0,TMP->(MonthSum(CN9_DTINIC,60)-1) - dDataBase)","Dias para Finalizar","")
+		oPExcel:GetCol(cCampo):SetTamanho(5)
 	Else
-		aAdd(aCampos,"TMP->"+cCampo)
-		aAdd(aCabs  ,GetSX3Cache( cCampo , "X3_TITULO"))
+		//aAdd(aCampos,"TMP->"+cCampo)
+		//aAdd(aCabs  ,GetSX3Cache( cCampo , "X3_TITULO"))
+
+		oPExcel:AddColX3(cCampo)
+		//If cCampo $ "CN9_VLINI,CN9_VLATU,CN9_SALDO"
+		//	oPExcel:GetCol(cCampo):SetTotal(.T.)
+		//EndIf
 	EndIf
 Next
 
+// Sets de propriedades opcionais
+oPExcel:GetCol("CN9_NUMERO"):SetHAlign("C")
+oPExcel:GetCol("CN9_SITUAC"):SetHAlign("C")
+oPExcel:GetCol("SITUACAO"):SetHAlign("C")
+oPExcel:GetCol("MESESEXEC"):SetHAlign("C")
+oPExcel:GetCol("DIASFINAL"):SetHAlign("C")
+oPExcel:GetCol("CN9_VLINI"):SetTotal(.T.)
+oPExcel:GetCol("CN9_VLATU"):SetTotal(.T.)
+oPExcel:GetCol("CN9_SALDO"):SetTotal(.T.)
 
-AADD(aPlans,{"TMP",cProg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+// Adiciona a planilha
+oRExcel:AddPlan(oPExcel)
 
-U_PlanXlsx(aPlans,cTitulo,cProg,.T.,aParam)
+// Cria arquivo Excel
+oRExcel:Create()
+
+//AADD(aPlans,{"TMP",cProg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+//U_PlanXlsx(aPlans,cTitulo,cProg,.T.,aParam)
 
 
 Return
@@ -121,6 +188,7 @@ cQuery += "  (SELECT MAX(CND_DTINIC) FROM "+cTabCND+" CND WHERE CND_CONTRA = CN9
 
 // Data limite 60 meses
 cQuery += "  'X' AS LIMITE60,"+CRLF
+cQuery += "   0  AS DIASFINAL,"+CRLF
 
 cQuery += "  CN9_VLINI, "+CRLF
 cQuery += "  CN9_VLATU, "+CRLF
@@ -149,7 +217,6 @@ aAdd(aTcFields,FWSX3Util():GetFieldStruct( "CN9_DTOSER" ))
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "CN9_XXDVIG" ))
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "CND_DTINIC" ))
 //aAdd(aTcFields,{"MAXCOMPET",D,8,0})
-
 
 u_RunQuery(cProg,cQuery,cAlias,aTcFields)
 
