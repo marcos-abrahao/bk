@@ -269,7 +269,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 
 	// Definição da Planilha 1
 	oPExcel:= PExcel():New(cProg,cQrySE2)
-	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+self:vencreal)
+	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+DTOC(STOD(self:vencreal)))
 
 	oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
 	oPExcel:AddCol("TITULO" ,"(E2_PREFIXO+E2_NUM+E2_PARCELA)","Título","")
@@ -278,7 +278,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:AddCol("VENC","STOD(E2_VENCREA)","Vencto","E2_VENCREA")
 	oPExcel:AddCol("PORTADO","E2_PORTADO","Portador","")
 	oPExcel:AddCol("BORDERO","E2_NUMBOR","Bordero","")
-	oPExcel:AddCol("VALOR","VALOR","Valor","")
+	oPExcel:AddCol("VALOR","E2_VALOR","Valor","E2_VALOR")
 	oPExcel:AddCol("SALDO","SALDO","Saldo","")
 	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
 	oPExcel:AddCol("HIST","HIST","Histórico","D1_XXHIST")
@@ -287,11 +287,16 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:GetCol("FORMPGT"):SetHAlign("C")
 	oPExcel:GetCol("PORTADO"):SetHAlign("C")
 	oPExcel:GetCol("BORDERO"):SetHAlign("C")
-	oPExcel:GetCol("STATUS"):SetHAlign("C")
 	oPExcel:GetCol("HIST"):SetWrap(.T.)
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
+
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
+
+	oPExcel:GetCol("STATUS"):SetHAlign("C")
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'},"FF0000","") // Vermelho
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","") // Verde
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'},"FFA500","",,,.T.) // Laranja
 
 	// Adiciona a planilha
 	oRExcel:AddPlan(oPExcel)

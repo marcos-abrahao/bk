@@ -106,6 +106,11 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddCol("XXOPER","UsrRetName(QSE2->E2_XXOPER)","Operador","")
 	oPExcel:GetCol("XXOPER"):SetTamCol(20)
 
+	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'},"FF0000","",10,,.T.) // Vermelho
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","",10,,.T.) // Verde
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'},"E26B0A","",10,,.T.) // Laranja Escuro/ Bold
+
 	// Adiciona a planilha consolidada
 	oRExcel:AddPlan(oPExcel)
 
@@ -775,7 +780,7 @@ DO while QSE2->(!Eof())
 
 	cCanvas := ""
 
-	If Len(aFilesF1) > 0 .OR. Len(aFilesE2) > 0 
+	If Len(aFilesF1) > 0 .OR. Len(aFilesE2) > 0
 
 		cHtml += '  <tr>'+CRLF
 		cHtml += '    <td class="ti-hvalor">Anexos</td>'+CRLF

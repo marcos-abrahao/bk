@@ -100,6 +100,3 @@ Else
 EndIf
 Return lRet
 
-
-
-

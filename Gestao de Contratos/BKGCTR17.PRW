@@ -128,7 +128,13 @@ oPExcel:GetCol("CN9_NUMERO"):SetHAlign("C")
 oPExcel:GetCol("CN9_SITUAC"):SetHAlign("C")
 oPExcel:GetCol("SITUACAO"):SetHAlign("C")
 oPExcel:GetCol("MESESEXEC"):SetHAlign("C")
+
 oPExcel:GetCol("DIASFINAL"):SetHAlign("C")
+oPExcel:GetCol("DIASFINAL"):AddCor({|x| x <= 60}				,"FF0000","",11,,.T.) // Vermelho
+oPExcel:GetCol("DIASFINAL"):AddCor({|x| x >  60 .and. x <= 120}	,"E26B0A","",11,,.T.) // Laranja escuro
+oPExcel:GetCol("DIASFINAL"):AddCor({|x| X > 120 .and. x <= 180}	,"0000FF","",11,,.T.) // Azul
+oPExcel:GetCol("DIASFINAL"):AddCor({|x| X > 180}				,"008000","",10,,.T.) // Verde
+
 oPExcel:GetCol("CN9_VLINI"):SetTotal(.T.)
 oPExcel:GetCol("CN9_VLATU"):SetTotal(.T.)
 oPExcel:GetCol("CN9_SALDO"):SetTotal(.T.)

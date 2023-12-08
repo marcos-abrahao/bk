@@ -6,6 +6,15 @@
 #define XKEY_ 3
 #define XRECNO_ 4
 
+#define XCONDICAO 1
+#define XCORFONTE 2
+#define XCORFUNDO 3
+#define XSIZE	  4
+#define XITALIC	  5
+#define XBOLD 	  6
+#define XUNDER	  7
+
+
 // Exemplo do uso da classe RExcel
 User Function BKCOMR18
 Local cProg 	:= "BKCOMR18"
@@ -261,6 +270,7 @@ Local nI 			:= 0
 Local nP			:= 0
 Local nR 			:= 0
 Local nS 			:= 0
+Local nX 			:= 0
 Local cFont			:= FwPrinterFont():Calibri()
 Local nLin 			:= 1
 Local nTop			:= 1
@@ -290,6 +300,14 @@ Local cLHorAlig		:= cHorAligD
 Local cLVertAlig	:= cVerAligC
 Local lLWrapText	:= .F.
 Local nLRotation	:= 0
+
+// Estilo trocado
+Local lChange 		:= .F.
+Local nCSize 		:= 9
+Local lCItalic 		:= .F.
+Local lCBold 		:= .F.
+Local lCUnderl		:= .F.
+
 
 // Formatação das células do cabeçalho
 Local nHSize 		:= 9
@@ -328,7 +346,15 @@ Local cTVertAlig	:= oCellVertAlign:Center()
 Local lTWrapText 	:= .F.
 Local nTRotation 	:= 0
 
-// Cores
+// Cores Básicas
+// Vermelho		FF0000 
+// Azul			0000FF
+// Verde		008000
+// Amarelo		FFFF00
+// Laranja 		FFA500
+// Laranja2		E26B0A
+
+
 Local cCorN			:= "000000" // Cor Preta
 Local cFundoN		:= "FFFFFF" // Fundo Branco
 
@@ -365,11 +391,13 @@ Local cFormat 		:= ""
 Local cCorFonte 	:= cCorN
 Local cCorFundo 	:= cFundoN
 Local cCorAntes 	:= ""
+Local aCor 			:= {}
 Local cHAlign 		:= "D"
 Local lWrap 		:= .F.
 Local cOHAlign		:= ""
 Local aLinha 		:= {}
 Local cName 		:= ""
+Local lEstilo		:= .F.
 
 // Variaveis usadas no resumo
 Local cTipoVal 		:= ""
@@ -493,6 +521,8 @@ For nP := 1 To Len(Self:aPlans)
 			cFormat	:= oPlan:aColunas[nC]:GetFormat()
 			cHAlign := oPlan:aColunas[nC]:GetHAlign()
 			nField	:= oPlan:aColunas[nC]:GetField()
+			aCor	:= oPlan:aColunas[nC]:GetCor()
+
 
 			// Atributos que não precisam ser atualizados
 			lWrap   := oPlan:aColunas[nC]:GetWrap()
@@ -630,6 +660,55 @@ For nP := 1 To Len(Self:aPlans)
 			Else
 				cOHAlign := cHorAligD
 			EndIf
+/*
+#define XCONDICAO 1
+#define XCORFONTE 2
+#define XCORFUNDO 3
+#define XSIZE	  4
+#define XITALIC	  5
+#define XBOLD 	  6
+#define XUNDER	  7
+*/
+
+			cCorFonte	:= cCorN
+			cCorFundo	:= cFundoN
+			nCSize		:= nLSize
+			lCItalic	:= lLItalic
+			lCBold		:= lLBold
+			lCUnderl	:= lLUnderl
+
+			lChange 	:= .F.
+			If Len(aCor) > 0
+				For nX := 1 To Len(aCor)
+					If Eval(aCor[nX,XCONDICAO],xCampo)
+						If !Empty(aCor[nX,XCORFONTE])
+							cCorFonte := aCor[nX,XCORFONTE]
+						EndIf
+						If !Empty(aCor[nX,XCORFUNDO])
+							cCorFundo := aCor[nX,XCORFUNDO]
+						EndIf
+						If !Empty(aCor[nX,XSIZE])
+							nCSize := aCor[nX,XSIZE]
+							lChange	 := .T.
+						EndIf
+						If !Empty(aCor[nX,XITALIC])
+							lCItalic := aCor[nX,XITALIC]
+							lChange	 := .T.
+						EndIf
+						If !Empty(aCor[nX,XBOLD])
+							lCBold := aCor[nX,XBOLD]
+							lChange	 := .T.
+						EndIf
+						If !Empty(aCor[nX,XUNDER])
+							lCUnderl := aCor[nX,XUNDER]
+							lChange	 := .T.
+						EndIf
+					EndIf
+				Next
+			EndIf
+			If lChange
+	    		Self:oPrtXlsx:SetFont(cFont, nCSize, lCItalic, lCBold, lCUnderl)
+			EndIf
 
 			Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
@@ -644,7 +723,7 @@ For nP := 1 To Len(Self:aPlans)
 				Else
 					Self:oPrtXlsx:SetValue(nLin,nC,"")
 				EndIf
-			    Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+				lChange := .T.
 				
 			ElseIf cTipo == "D"
 				If !Empty(xCampo)
@@ -660,6 +739,12 @@ For nP := 1 To Len(Self:aPlans)
 			If !Empty(aNResumos)
 				aAdd(aLinha,xCampo)
 			EndIf
+
+			// Voltar estilo padrão
+			If lChange
+	    		Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+			EndIf
+
 
 		Next
 
@@ -990,6 +1075,7 @@ CLASS PExcel
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
 
+
 	METHOD AddCol(cName,cCampo,cDescr,cSx3)
 	METHOD AddColX3(cCampo)
 
@@ -1116,6 +1202,7 @@ CLASS CExcel
 	DATA cHAlign
 	DATA lWrap
 	DATA cName
+	DATA aCor		AS Array
 
 	// Declaração dos Métodos da Classe
 	METHOD New(cNTitulo,cNCampo) CONSTRUCTOR
@@ -1155,6 +1242,9 @@ CLASS CExcel
 	METHOD GetName()
 	METHOD SetName(cName)
 
+	METHOD GetCor()
+	METHOD AddCor(bCondicao,cCor,cFundo,nSize,lItalic,lBold,lUnder)
+
 ENDCLASS
 
 
@@ -1173,6 +1263,7 @@ Self:cFormat 	:= ""
 Self:cHAlign 	:= "D"
 Self:lWrap 		:= .F.
 Self:cName 		:= ""
+Self:aCor 		:= {}
 Return
 
 
@@ -1256,6 +1347,21 @@ Return Self:cName
 METHOD SetName(cName) CLASS CExcel
 Self:cName := cName
 Return 
+
+METHOD GetCor() CLASS CExcel
+Return Self:aCor
+
+// Adiciona novo codblock para determinar a cor
+METHOD AddCor(bCondicao,cCor,cFundo,nSize,lItalic,lBold,lUnder) CLASS CExcel
+
+Default nSize	:= NIL
+Default lItalic	:= NIL
+Default lBold	:= NIL
+Default lUnder	:= NIL
+
+aAdd(Self:aCor,{bCondicao,cCor,cFundo,nSize,lItalic,lBold,lUnder}) 
+Return
+
 
 //-----------------------------------------------------------
 //ALGORITIMO PARA CONVERTER COLUNAS DA PLANILHA

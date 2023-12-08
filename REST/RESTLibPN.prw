@@ -702,7 +702,6 @@ For nI := 1 To Len(aFiles)
 Next
 */
 
-
 oJsonPN['F1_ANEXOS']	:= aAnexos
 
 If !Empty((cQrySF1)->F1_HISTRET)
@@ -769,12 +768,13 @@ Self:SetResponse(cRet)
 
 return .T.
 
-
+// v2
 WSMETHOD GET BROWPN QUERYPARAM userlib WSREST RestLibPN
+Local aParams	As Array
+Local cMsg		As Char
+Local cHTML 	AS Char
 
-local cHTML as char
-
-begincontent var cHTML
+BeginContent var cHTML
 
 <!doctype html>
 <html lang="pt-BR">
@@ -1425,13 +1425,16 @@ $('#confToken').modal('show');
 
 </body>
 </html>
-endcontent
+EndContent
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
 
-iF !Empty(::userlib)
-	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
+If !Empty(self:userlib)
+	u_BkAvPar(self:userlib,@aParams,@cMsg)
+	//u_MsgLog("RESTLIBPN",self:userlib)
+	cHtml := STRTRAN(cHtml,"#userlib#",self:userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
+	//u_MsgLog("RESTLIBPN",cUserName)
 EndIf
 
 //StrIConv( cHtml, "UTF-8", "CP1252")

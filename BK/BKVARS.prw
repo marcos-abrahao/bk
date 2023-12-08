@@ -223,7 +223,7 @@ Return cVar
 
 // Verba sem incidencias no calculo de rentabilidade
 User Function MVXNINCI()
-Local cVar := "|875|910|"
+Local cVar := "|875|910|938|"
 Return cVar
 
 // Cod. Prod. para rateio no calculo de rentabilidade

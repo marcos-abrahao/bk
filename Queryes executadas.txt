@@ -1,7 +1,13 @@
 ==============================================================
--- XX/11/23  
+-- XX/12/23  
 ==============================================================
--- XX/11/23  
+-- 08/12/23  - Correção nomenclatura dos produtos da BK VIA
+
+SELECT B1_COD,B1_DESC,REPLACE(B1_DESC,'BALSA NOVA','BK VIA') FROM SB1180
+WHERE B1_DESC LIKE '%BALSA NOVA%'
+UPDATE SB1180 SET B1_DESC = REPLACE(B1_DESC,'BALSA NOVA','BK VIA') WHERE B1_DESC LIKE '%BALSA NOVA%'
+
+SELECT B1_COD,B1_DESC,REPLACE(B1_DESC,'BALSA','BK VIA') FROM SB1180
 ==============================================================
 -- 23/11/23  Preencher C9_XXMOT COM CNA_XXMOT
 SELECT C9_PEDIDO,C5_NUM,C5_MDCONTR,C5_MDPLANI,C5_XXREV,CNA_NUMERO,CNA_CONTRA,CNA_REVISA,CNA_XXMOT,C9_XXMOT 
