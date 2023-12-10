@@ -328,6 +328,7 @@ cQuery += "	 ,E2_PORTADO"+CRLF
 cQuery += "	 ,E2_LOJA"+CRLF
 cQuery += "	 ,E2_NATUREZ"+CRLF
 cQuery += "	 ,E2_HIST"+CRLF
+cQuery += "	 ,E2_XXCTRID"+CRLF
 cQuery += "	 ,E2_USERLGI"+CRLF 
 cQuery += "	 ,E2_BAIXA"+CRLF
 cQuery += "	 ,E2_VENCREA"+CRLF
@@ -538,6 +539,14 @@ Local cCnpj     := "CNPJ: "+TRANSFORM(SM0->M0_CGC,"@R 99.999.999/9999-99")
 Local cIE       := "I.E.: "+ALLTRIM(SM0->M0_INSC)
 Local cSite     := IIF(cEmpAnt == "01","WWW.BKCONSULTORIA.COM.BR","")
 
+// Variaveis SZ2 - Colaboradores
+Local nTot 		:= 0
+Local nCont 	:= 0
+Local cDescCC	:= ""
+Local cAgConta 	:= ""
+Local cLinObs 	:= ""
+Local cDesVig 	:= ""
+
 // Variaveis pdf
 Local aPdfs 	:= {} // Urls dos PDFs
 Local cCanvas	:= ""
@@ -600,9 +609,9 @@ If nPag == 1
 
 	cHtml += '.t1 tr { line-height: 18px; }'+CRLF
 
-	cHtml += '.ti .ti-hvalor{font-weight:bold;background-color:#c0c0c0;font-size:12px;vertical-align:middle;min-width:40px;text-align:center}'+CRLF
+	cHtml += '.ti .ti-hvalor{font-weight:bold;background-color:#c0c0c0;font-size:11px;vertical-align:middle;min-width:40px;text-align:center}'+CRLF
 	cHtml += '.ti .ti-valor{font-size:10px;vertical-align:middle;min-width:100px;text-align:center;padding-right:10px}'+CRLF
-	cHtml += '.tg .ti-str{font-size:10px;vertical-align:middle;;text-align:center}'+CRLF
+	cHtml += '.ti .ti-str{font-size:9px;vertical-align:middle;line-height=5px;text-align:center}'+CRLF
 	
 	cHtml += '.folha {page-break-after:always;page-break-inside:avoid;}'+CRLF
 	
@@ -619,51 +628,53 @@ If nPag == 1
 	cHtml += '<body lang=PT-BR>' +CRLF
 EndIf                                 
 
-cHtml += '<div class="folha">'+CRLF
 
-cHtml += '<table class="tg">'+CRLF
-
-cHtml += '<colgroup>'+CRLF
-cHtml += '<col style="width: 100px">'+CRLF
-cHtml += '<col style="width: 300px">'+CRLF
-cHtml += '<col style="width: 060px">'+CRLF
-cHtml += '<col style="width: 060px">'+CRLF
-cHtml += '<col style="width: 100px">'+CRLF
-cHtml += '<col style="width: 100px">'+CRLF
-cHtml += '<col style="width: 120px">'+CRLF
-cHtml += '</colgroup>'+CRLF
-
-cHtml += '  <tr>'+CRLF
-cHtml += '  	<td colspan="7">'+CRLF
-cHtml += '  </tr>'+CRLF
-
-cHtml += '    <tr>'+CRLF
-
-If EMPTY(cLogo)
-	cHtml += '    <td class="tg-empr" colspan="3">'+FWEmpName(cEmpAnt)+'</td>'+CRLF
-Else
-	cHtml += '    <td class="tg-empr" colspan="3">'+cLogo+'</td>'+CRLF
-Endif
-
-cHtml += '      <td class="tg-data" colspan="3" >'+CRLF
-cHtml += '      '+cNomeCom+'<br>'+CRLF
-cHtml += '      '+cEndereco+'<br>'+CRLF
-cHtml += '      '+cCep+" - "+cCidade+'<br>'+CRLF
-cHtml += '      '+cSite+'</td>'+CRLF
-cHtml += '      <td class="tg-data">'+CRLF
-cHtml += '      '+cTel+'<br>'+CRLF
-cHtml += '      '+cCnpj+'<br>'+CRLF
-cHtml += '      '+cIE+'<br>'+CRLF
-cHtml += '      </td>'+CRLF
-cHtml += '    </tr>'+CRLF
-  
-cHtml += '    <tr>'+CRLF
-cHtml += '      <td class="tg-empr" colspan="7">'+cTipoTit+'</td>'+CRLF
-cHtml += '    </tr>'+CRLF
-
-//aqui
 QSE2->(dbGoTop())
 DO while QSE2->(!Eof())
+
+
+	cHtml += '<div class="folha">'+CRLF
+
+	cHtml += '<table class="tg">'+CRLF
+
+	cHtml += '<colgroup>'+CRLF
+	cHtml += '<col style="width: 100px">'+CRLF
+	cHtml += '<col style="width: 300px">'+CRLF
+	cHtml += '<col style="width: 060px">'+CRLF
+	cHtml += '<col style="width: 060px">'+CRLF
+	cHtml += '<col style="width: 100px">'+CRLF
+	cHtml += '<col style="width: 100px">'+CRLF
+	cHtml += '<col style="width: 120px">'+CRLF
+	cHtml += '</colgroup>'+CRLF
+
+	cHtml += '  <tr>'+CRLF
+	cHtml += '  	<td colspan="7">'+CRLF
+	cHtml += '  </tr>'+CRLF
+
+	cHtml += '    <tr>'+CRLF
+
+	If EMPTY(cLogo)
+		cHtml += '    <td class="tg-empr" colspan="3">'+FWEmpName(cEmpAnt)+'</td>'+CRLF
+	Else
+		cHtml += '    <td class="tg-empr" colspan="3">'+cLogo+'</td>'+CRLF
+	Endif
+
+	cHtml += '      <td class="tg-data" colspan="3" >'+CRLF
+	cHtml += '      '+cNomeCom+'<br>'+CRLF
+	cHtml += '      '+cEndereco+'<br>'+CRLF
+	cHtml += '      '+cCep+" - "+cCidade+'<br>'+CRLF
+	cHtml += '      '+cSite+'</td>'+CRLF
+	cHtml += '      <td class="tg-data">'+CRLF
+	cHtml += '      '+cTel+'<br>'+CRLF
+	cHtml += '      '+cCnpj+'<br>'+CRLF
+	cHtml += '      '+cIE+'<br>'+CRLF
+	cHtml += '      </td>'+CRLF
+	cHtml += '    </tr>'+CRLF
+	
+	cHtml += '    <tr>'+CRLF
+	//cHtml += '      <td class="tg-empr" colspan="7">'+cTipoTit+'</td>'+CRLF
+	cHtml += '      <td class="tg-empr" colspan="7"> Título: '+ALLTRIM(QSE2->E2_PREFIXO)+' '+ALLTRIM(QSE2->E2_NUM)+' '+ALLTRIM(QSE2->E2_PARCELA)+'</td>'+CRLF
+	cHtml += '    </tr>'+CRLF
 
 	If nPag == 1
 		nPag++
@@ -671,15 +682,19 @@ DO while QSE2->(!Eof())
 		If nQuebra == 1
 			cPortado := QSE2->E2_PORTADO
 			// Cabeçalho Portador
+			/*
 			cHtml += '    <tr>'+CRLF
 			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Portador: "+QSE2->E2_PORTADO+'</td>'+CRLF
 			cHtml += '    </tr>'+CRLF
+			*/
 		Else
 			cFormPgto := QSE2->FORMPGT
 			// Cabeçalho forma de pgto
+			/*
 			cHtml += '    <tr>'+CRLF
 			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
 			cHtml += '    </tr>'+CRLF
+			*/
 		EndIf
 		dVencto   := QSE2->E2_VENCREA
 
@@ -703,7 +718,8 @@ DO while QSE2->(!Eof())
 	//cHtml += '    </tr>'+CRLF
 
 	cHtml += '    <tr>'+CRLF
-	cHtml += '      <td class="ti-hvalor">Título</td>'+CRLF
+	//cHtml += '      <td class="ti-hvalor">Título</td>'+CRLF
+	cHtml += '      <td class="ti-hvalor">Vencimento</td>'+CRLF
 	cHtml += '      <td class="ti-hvalor" colspan="2">Fornecedor</td>'+CRLF
 	cHtml += '      <td class="ti-hvalor">CNPJ/CPF</td>'+CRLF
 	cHtml += '      <td class="ti-hvalor">Valor</td>'+CRLF
@@ -711,7 +727,8 @@ DO while QSE2->(!Eof())
 	cHtml += '    <tr>'+CRLF
 
 	cHtml += '    <tr>'+CRLF
-	cHtml += '      <td class="ti-valor">'+ALLTRIM(QSE2->E2_PREFIXO)+' '+ALLTRIM(QSE2->E2_NUM)+' '+ALLTRIM(QSE2->E2_PARCELA)+'</td>'+CRLF
+	//cHtml += '      <td class="ti-valor">'+ALLTRIM(QSE2->E2_PREFIXO)+' '+ALLTRIM(QSE2->E2_NUM)+' '+ALLTRIM(QSE2->E2_PARCELA)+'</td>'+CRLF
+	cHtml += '      <td class="ti-valor">'+DTOC(QSE2->E2_VENCREA)+'</td>'+CRLF
 	cHtml += '      <td class="ti-valor" colspan="2"> '+ALLTRIM(QSE2->E2_FORNECE)+'-'+ALLTRIM(QSE2->E2_LOJA)+" "+TRIM(QSE2->A2_NOME)+'</td>'+CRLF
 	cHtml += '      <td class="ti-valor">'+TRANSFORM(QSE2->A2_CGC,IIF(QSE2->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))+'</td>'+CRLF
 	cHtml += '      <td class="ti-valor">R$ '+ALLTRIM(TRANSFORM(QSE2->E2_VALOR,cPict))+'</td>'+CRLF
@@ -758,6 +775,108 @@ DO while QSE2->(!Eof())
 		cHtml += '      <td class="ti-valor" colspan="5">'+TRIM(QSE2->HIST)+'</td>'+CRLF
 		cHtml += '    </tr>'+CRLF
 	EndIf
+
+    If !EMPTY(QSE2->E2_XXCTRID)
+
+		//cHtml += '    <tr>'+CRLF
+		//cHtml += '      <td class="ti-hvalor" colspan="6">Colaboradores</td>'+CRLF
+		//cHtml += '    </tr>'+CRLF
+		cHtml += '    <table class="ti">'+CRLF
+
+		cHtml += '    <tr>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Prontuário</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Nome</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Conta</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Centro de Custo</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Usuário</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Observações</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Vigência</td>'+CRLF
+		cHtml += '      <td class="ti-hvalor">Valor</td>'+CRLF
+		cHtml += '    </tr>'+CRLF
+
+		ProcSZ2()
+		DBSELECTAREA("QSZ2")
+		QSZ2->(DBGOTOP())
+		nCont := 0
+		nTot := 0
+
+		Do While QSZ2->(!EOF())
+       
+			nCont++
+
+			cHtml += '    <tr>'+CRLF
+			cHtml += '      <td class="ti-str">'+TRIM(QSZ2->Z2_PRONT)+'</td>'+CRLF
+			cHtml += '      <td class="ti-str">'+TRIM(QSZ2->Z2_NOME)+'</td>'+CRLF
+
+			If TRIM(QSZ2->Z2_TIPO) <> "MFG" // Não sair agencia e conta para tipobk = MFG
+				cAgConta := TRIM(QSZ2->Z2_AGENCIA)+iIf(!Empty(QSZ2->Z2_DIGAGEN),'/'+TRIM(QSZ2->Z2_DIGAGEN),'')
+				cAgConta += " - "
+				cAgConta += TRIM(QSZ2->Z2_CONTA)+iIf(!Empty(QSZ2->Z2_DIGCONTA),'/'+TRIM(QSZ2->Z2_DIGCONTA),'')
+				cHtml += '      <td class="ti-str">'+cAgConta+'</td>'+CRLF
+			Else
+				cHtml += '      <td class="ti-str">'+'</td>'+CRLF
+			EndIf
+
+			cDescCC := ALLTRIM(Posicione("CTT",1,xFilial("CTT")+QSZ2->Z2_CC,"CTT_DESC01"))
+			/*
+			IF EMPTY(cDescCC)
+				cDescCC := FWEmpName(cEmpAnt)+" ("+TRIM(QSZ2->Z2_CC)+")"
+			ENDIF
+			*/
+			cHtml += '      <td class="ti-str">'+cDescCC+'</td>'+CRLF
+			
+			/*
+			If nUsrRub == 1
+				cLin  := PAD(Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
+			Else
+				cLin  := PAD(Capital(QSZ2->Z2_USUARIO),20)
+			EndIf	
+			*/
+			cHtml += '      <td class="ti-str">'+Capital(QSZ2->Z2_USUARIO)+'</td>'+CRLF
+
+			cLinObs := ""
+
+			IF TRIM(QSZ2->Z2_TIPO) == "PEN"
+				cLinObs += ALLTRIM(IIF(!EMPTY(QSZ2->Z2_NOMMAE),QSZ2->Z2_NOMMAE,QSZ2->Z2_NOMDEP))
+			ENDIF
+			IF !EMPTY(cLinObs) .and. !EMPTY(QSZ2->Z2_OBSTITU)
+				cLinObs += " - "
+			ENDIF
+
+			cLinObs += ALLTRIM(QSZ2->Z2_OBSTITU)
+
+			IF QSZ2->Z2_DATAPGT <= QSZ2->Z2_DATAEMI
+				cLinObs += " - Aprovado Integração após Horário"
+			ENDIF
+
+			cHtml += '      <td class="ti-str">'+cLinObs+'</td>'+CRLF
+
+			cDesVig := U_Vig2Contrat(TRIM(QSZ2->Z2_CC),QSZ2->Z2_DATAPGT,cEmpAnt)
+	          
+			cHtml += '      <td class="ti-str">'+cDesVig+'</td>'+CRLF
+
+			cHtml += '      <td class="ti-valor">'+TRANSFORM(QSZ2->Z2_VALOR,"@ZE 999,999,999.99")+'</td>'+CRLF
+
+			cHtml += '    </tr>'+CRLF
+
+			QSZ2->(DBSKIP())
+
+		EndDo
+
+		cHtml += '    </table>'+CRLF
+
+	   /*
+       IF nTot > 0
+          cLin := "Total de "+ALLTRIM(TRANSFORM(nCont,"999999"))+" registros"
+          oPrn:Say(nLin,50,cLin,oFont08N)
+
+          cLin := TRANSFORM(nTot,"@e 999,999,999.99")
+          oPrn:Say(nLin,nPos1,cLin,oFont08N)
+          nLin += 40
+       ENDIF
+	   */
+       QSZ2->(Dbclosearea())
+    EndIf   
 
 
 	/*
@@ -829,6 +948,11 @@ DO while QSE2->(!Eof())
 
 	nTValor	  += QSE2->E2_VALOR
 	nTSaldo   += QSE2->SALDO
+
+
+	cHtml += '</table>'+CRLF
+	cHtml += '</br>'+CRLF
+	cHtml += '</div>'+CRLF
 
 	QSE2->(dbSkip())
 
@@ -998,3 +1122,36 @@ Next
 //cFiles := '=HYPERLINK("https://www.totvs.com.br","TOTVS")'
 Return Len(aAnexos)
 */
+
+
+Static Function ProcSZ2
+Local cQuery
+Local cPrefixo := QSE2->E2_PREFIXO
+Local cNum     := QSE2->E2_NUM
+Local cParcela := QSE2->E2_PARCELA
+Local cTipo    := QSE2->E2_TIPO
+Local cFornece := QSE2->E2_FORNECE
+Local cLoja    := QSE2->E2_LOJA
+
+
+cQuery := "SELECT ""
+cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
+cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU,Z2_NOMDEP,Z2_NOMMAE "
+cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2"
+cQuery += " WHERE Z2_FILIAL = '"+xFilial("SZ2")+"' " 
+cQuery += " AND Z2_CODEMP = '"+cEmpAnt+"' "
+cQuery += " AND Z2_E2PRF  = '"+cPrefixo+"' "
+cQuery += " AND Z2_E2NUM  = '"+cNum+"' "
+cQuery += " AND Z2_E2PARC = '"+cParcela+"' "
+cQuery += " AND Z2_E2TIPO = '"+cTipo+"' "
+cQuery += " AND Z2_E2FORN = '"+cFornece+"' "
+cQuery += " AND Z2_E2LOJA = '"+cLoja+"' "
+cQuery += " AND Z2_STATUS = 'S'"
+cQuery += " AND SZ2.D_E_L_E_T_ = ' '"
+cQuery += " ORDER BY Z2_NOME"  
+
+TCQUERY cQuery NEW ALIAS "QSZ2"
+TCSETFIELD("QSZ2","Z2_DATAEMI","D",8,0)
+TCSETFIELD("QSZ2","Z2_DATAPGT","D",8,0)
+
+Return
