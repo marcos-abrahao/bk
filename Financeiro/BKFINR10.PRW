@@ -88,41 +88,20 @@ PRIVATE nSaldoAnt   := 0
 PRIVATE nMoeda      := 1
 PRIVATE nMoedaBco   := 1
 PRIVATE nDecs       := 2
-PRIVATE lLands  := .T.
-PRIVATE aDESCRH := {}
-PRIVATE aSitFin := {}
-
-AADD(aDESCRH,{"LDV","DIVERSOS"})
-AADD(aDESCRH,{"VA","VALE ALIMENTAÇÃO"})
-AADD(aDESCRH,{"LFE","FÉRIAS"})
-AADD(aDESCRH,{"COM","COMISSÃO"})
-AADD(aDESCRH,{"VR","VALE REFEIÇÃO"})
-AADD(aDESCRH,{"LAD" ,"ADTO"})
-AADD(aDESCRH,{"LRC","RESCISÃO"})
-AADD(aDESCRH,{"MFG","MULTA FGTS"})
-AADD(aDESCRH,{"LFG","FGTS"})
-AADD(aDESCRH,{"LPM","MENSAL"})
-AADD(aDESCRH,{"VT","VALE TRANSPORTE"})
-AADD(aDESCRH,{"LAS","ADTO SALARIAL"})
-AADD(aDESCRH,{"LD1" ,"13.o PARC 1"})
-AADD(aDESCRH,{"LD2","13.o PARC 2"})
-AADD(aDESCRH,{"SOL","Despesas de Viagem - Prest. Contas"})
-AADD(aDESCRH,{"CXA","Caixa - Prest. Contas"})
-AADD(aDESCRH,{"HOS","HOSPEDAGEM"})
-AADD(aDESCRH,{"DCH","Diaria de campo"})
-AADD(aDESCRH,{"EXM","EXAME MÉDICO ADMISSÃO"})
-AADD(aDESCRH,{"PEN","PENSÃO"})
+PRIVATE lLands  	:= .T.
+PRIVATE aDescrRH 	:= u_BkCodRH()
+PRIVATE aSitFin 	:= {}
 
 AADD(aSitFin,"Total Clientes")
-AADD(aSitFin,"A – RH")
-AADD(aSitFin,"B – Fornecedores")
-AADD(aSitFin,"C – Bancos")
-AADD(aSitFin,"D – Rateio")
-AADD(aSitFin,"E – Diretoria")
-AADD(aSitFin,"F – Despesas com Veículos")
-AADD(aSitFin,"G – Impostos")
-AADD(aSitFin,"H – MMDK / ESA / Just / Consórcio")
-AADD(aSitFin,"J – Outros")
+AADD(aSitFin,"A - RH")
+AADD(aSitFin,"B - Fornecedores")
+AADD(aSitFin,"C - Bancos")
+AADD(aSitFin,"D - Rateio")
+AADD(aSitFin,"E - Diretoria")
+AADD(aSitFin,"F - Despesas com Veículos")
+AADD(aSitFin,"G - Impostos")
+AADD(aSitFin,"H - MMDK / ESA / Just / Consórcio")
+AADD(aSitFin,"J - Outros")
 
 
 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿

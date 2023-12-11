@@ -113,26 +113,12 @@ PRIVATE nSaldoAnt   := 0
 PRIVATE nMoeda      := 1
 PRIVATE nMoedaBco   := 1
 PRIVATE nDecs       := 2
-PRIVATE aDESCRH := {}
-PRIVATE aSitFin := {}
+PRIVATE aDescrRH 	:= u_BkCodRH()
+PRIVATE aSitFin 	:= {}
 
 PRIVATE aPlans      := {}
 PRIVATE cFiltro     := ""
 
-AADD(aDESCRH,{"LDV","DIVERSOS"})
-AADD(aDESCRH,{"VA","VALE ALIMENTAÇÃO"})
-AADD(aDESCRH,{"LFE","FÉRIAS"})
-AADD(aDESCRH,{"COM","COMISSÃO"})
-AADD(aDESCRH,{"VR","VALE REFEIÇÃO"})
-AADD(aDESCRH,{"LAD" ,"ADTO"})
-AADD(aDESCRH,{"LRC","RESCISÃO"})
-AADD(aDESCRH,{"MFG","MULTA FGTS"})
-AADD(aDESCRH,{"LFG","FGTS"})
-AADD(aDESCRH,{"LPM","MENSAL"})
-AADD(aDESCRH,{"VT","VALE TRANSPORTE"})
-AADD(aDESCRH,{"LAS","ADTO SALARIAL"})
-AADD(aDESCRH,{"LD1" ,"13.o PARC 1"})
-AADD(aDESCRH,{"LD2","13.o PARC 2"})
 
 AADD(aSitFin,"Total Clientes")
 AADD(aSitFin,"A - RH")

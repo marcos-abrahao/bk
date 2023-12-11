@@ -283,6 +283,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
 	oPExcel:AddCol("HIST","HIST","Histórico","D1_XXHIST")
 	oPExcel:AddCol("OPER","UsrRetName(E2_XXOPER)","Operador","")
+	oPExcel:AddCol("DADOSPGT","u_CPDadosPgt('"+cQrySE2+"')","Dados Pagamento","")
 
 	oPExcel:GetCol("FORMPGT"):SetHAlign("C")
 	oPExcel:GetCol("PORTADO"):SetHAlign("C")
@@ -298,6 +299,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","") // Verde
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'},"FFA500","",,,.T.) // Laranja
 
+	oPExcel:GetCol("DADOSPGT"):SetTamCol(40)
 	// Adiciona a planilha
 	oRExcel:AddPlan(oPExcel)
 
@@ -352,11 +354,6 @@ Local cMsg         	As Character
 Local cStatus		:= ""
 Local cNumTit 		:= ""
 
-Local cxTipoPg		:= ""
-Local cxNumPa		:= ""
-Local cxTpPix		:= ""
-Local cxChPix		:= ""
-Local cDadosBanc	:= ""
 Local cFormaPgto	:= ""
 
 
@@ -394,7 +391,7 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
 	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
 	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
-	aListCP[nPos]['BORDERO']	:= TRIM((cQrySE2)->E2_NUMBOR)
+	//aListCP[nPos]['BORDERO']	:= TRIM((cQrySE2)->E2_NUMBOR)
 	aListCP[nPos]['VALOR']      := TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
 	aListCP[nPos]['SALDO'] 	    := TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
 
@@ -411,35 +408,7 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['OPER']		:= (cQrySE2)->(UsrRetName(E2_XXOPER)) //(cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
 	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
 
-
-	// FOrma de Pagamento = BKFINR06
-	cxTipoPg	:= (cQrySE2)->F1_XTIPOPG
-	cxNumPa		:= (cQrySE2)->F1_XNUMPA
-	cxTpPix		:= ""
-	cxChPix		:= ""
-	cFormaPgto	:= ""
-
-	If !Empty(cxTipoPg)
-		cFormaPgto := TRIM(cxTipoPg)
-		If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
-			If Empty((cQrySE2)->F1_XBANCO) .AND. (cQrySE2)->F1_FORNECE <> "000084"
-		 		cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
-			Else
-				cDadosBanc := "Bco: "+ALLTRIM((cQrySE2)->F1_XBANCO)+" Ag: "+ALLTRIM((cQrySE2)->F1_XAGENC)+" C/C: "+ALLTRIM((cQrySE2)->F1_XNUMCON)
-		 	EndIf
-			cFormaPgto += ": "+cDadosBanc
-		ElseIf TRIM(cxTipoPg) == "P.A."
-			cFormaPgto += " "+cxNumPa
-		ElseIf TRIM(cxTipoPg) == "PIX"
-			cxTpPix  := (cQrySE2)->F1_XXTPPIX
-			cxChPix  := AllTrim((cQrySE2)->F1_XXCHPIX)
-			cFormaPgto += " - "+X3COMBO('F72_TPCHV',cxTpPix)
-			If Len(cxChPix) <= 50
-				cFormaPgto += ": "+cxChPix
-				cxChPix := ""
-			EndIf
-		EndIf
-	EndIf
+	cFormaPgto := u_CPDadosPgt(cQrySE2)
 	aListCP[nPos]['DADOSPGT']	:= cFormaPgto
 
 	(cQrySE2)->(DBSkip())
@@ -554,7 +523,6 @@ line-height: 1rem;
 <th scope="col">Forma Pgto</th>
 <th scope="col">Vencto</th>
 <th scope="col" style="text-align:center;">Portador</th>
-<th scope="col">Borderô</th>
 <th scope="col" style="text-align:center;">Valor</th>
 <th scope="col" style="text-align:center;">Saldo</th>
 <th scope="col" style="text-align:center;">Status</th>
@@ -566,7 +534,6 @@ line-height: 1rem;
 <tbody id="mytable">
 <tr>
   <th scope="col">Carregando Títulos...</th>
-  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -654,7 +621,6 @@ if (Array.isArray(titulos)) {
 	trHTML += '</div>'
 	trHTML += '</td>'
 
-	trHTML += '<td>'+object['BORDERO']+'</td>';
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
@@ -895,7 +861,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E2_PARCELA"+CRLF
 	cQuery += "	 ,E2_FORNECE"+CRLF
 	cQuery += "	 ,E2_PORTADO"+CRLF
-	cQuery += "	 ,E2_NUMBOR"+CRLF   ///
+	cQuery += "	 ,E2_NUMBOR"+CRLF
 	cQuery += "	 ,E2_LOJA"+CRLF
 	cQuery += "	 ,E2_NATUREZ"+CRLF
 	cQuery += "	 ,E2_HIST"+CRLF
@@ -910,7 +876,9 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,A2_NOME"+CRLF
 	cQuery += "	 ,A2_TIPO"+CRLF
 	cQuery += "	 ,A2_CGC"+CRLF
-
+	cQuery += "	 ,A2_BANCO"+CRLF
+	cQuery += "	 ,A2_AGENCIA"+CRLF
+	cQuery += "	 ,A2_NUMCON"+CRLF
 	cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
 	cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
 	cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
@@ -1035,3 +1003,42 @@ cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 
 Return Nil
+
+
+User Function CPDadosPgt(cQrySE2)
+// Forma de Pagamento = BKFINR06
+Local cxTipoPg	:= (cQrySE2)->F1_XTIPOPG
+Local cxNumPa	:= (cQrySE2)->F1_XNUMPA
+Local cxTpPix	:= ""
+Local cxChPix	:= ""
+Local cFormaPgto:= ""
+
+If !Empty(cxTipoPg)
+	cFormaPgto := TRIM(cxTipoPg)
+	If TRIM(cxTipoPg) == "DEPOSITO"
+		If Empty((cQrySE2)->F1_XBANCO) .AND. !IsFornBK((cQrySE2)->F1_FORNECE)
+	 		cDadosBanc := "Bco: "+ALLTRIM((cQrySE2)->A2_BANCO)+" Ag: "+ALLTRIM((cQrySE2)->A2_AGENCIA)+" C/C: "+ALLTRIM((cQrySE2)->A2_NUMCON)
+		Else
+			cDadosBanc := "Bco: "+ALLTRIM((cQrySE2)->F1_XBANCO)+" Ag: "+ALLTRIM((cQrySE2)->F1_XAGENC)+" C/C: "+ALLTRIM((cQrySE2)->F1_XNUMCON)
+	 	EndIf
+		cFormaPgto += ": "+cDadosBanc
+	ElseIf TRIM(cxTipoPg) == "P.A."
+		cFormaPgto += " "+cxNumPa
+	ElseIf TRIM(cxTipoPg) == "PIX"
+		cxTpPix  := (cQrySE2)->F1_XXTPPIX
+		cxChPix  := AllTrim((cQrySE2)->F1_XXCHPIX)
+		cFormaPgto += " - "+X3COMBO('F72_TPCHV',cxTpPix)
+		If Len(cxChPix) <= 50
+			cFormaPgto += ": "+cxChPix
+			cxChPix := ""
+		EndIf
+	EndIf
+EndIf
+If !Empty((cQrySE2)->E2_NUMBOR)
+	If !Empty(cFormaPgto)
+		cFormaPgto += " - "
+	EndIf
+	cFormaPgto += "Bordero "+(cQrySE2)->E2_NUMBOR
+EndIf
+
+Return cFormaPgto

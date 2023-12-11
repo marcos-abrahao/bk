@@ -77,6 +77,43 @@ EndIf
 Return cNEmp
 
 
+// Tabela de Mneumônicos do RH
+User Function BKCodRH()
+Local aDescrRH := {}
+aAdd(aDescrRH,{"LDV","LIQUIDOS DIVERSOS"})
+aAdd(aDescrRH,{"VA" ,"VALE ALIMENTAÇÃO"})
+aAdd(aDescrRH,{"LFE","FÉRIAS"})
+aAdd(aDescrRH,{"COM","COMISSÃO"})
+aAdd(aDescrRH,{"VR" ,"VALE REFEIÇÃO"})
+aAdd(aDescrRH,{"LAD","ADIANTAMENTO"})
+aAdd(aDescrRH,{"LRC","RESCISÃO"})
+aAdd(aDescrRH,{"MFG","MULTA FGTS"})
+aAdd(aDescrRH,{"LFG","FGTS"})
+aAdd(aDescrRH,{"LPM","PGTO MENSAL"})
+aAdd(aDescrRH,{"VT" ,"VALE TRANSPORTE"})
+aAdd(aDescrRH,{"LAS","ADTO SALARIAL"})
+aAdd(aDescrRH,{"LD1","13.o PARC 1"})
+aAdd(aDescrRH,{"LD2","13.o PARC 2"})
+aAdd(aDescrRH,{"SOL","DESPESAS DE VIAGEM"})
+aAdd(aDescrRH,{"CXA","CAIXA - PREST. CONTAS"})
+aAdd(aDescrRH,{"HOS","HOSPEDAGEM"})
+aAdd(aDescrRH,{"DCH","DIARIA DE CAMPO"})
+aAdd(aDescrRH,{"EXM","EXAME MÉDICO ADMISSÃO"})
+aAdd(aDescrRH,{"PEN","PENSÃO"})
+Return aDescrRH
+
+
+// Retorna a descrição do codigo do RH
+User Function BKDescRH(cTipBK)
+Local aDescrRH	:= u_BKCodRH()
+Local nS 		:= 0
+Local cDescr 	:= ""
+nS := aScan(aDescrRH,{ |x| x[1] == AllTrim(cTipBK)})
+If nS > 0
+	cDescr := aDescrRH[nS,2]
+EndIf
+Return cDescr
+
 
 // Retorna se o fornecedor é a própria BK
 User Function IsFornBK(cForn)

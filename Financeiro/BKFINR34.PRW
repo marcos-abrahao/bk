@@ -103,6 +103,9 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
 	oPExcel:GetCol("HIST"):SetWrap(.T.)
 
+	oPExcel:AddCol("DADOSPGT","u_CPDadosPgt('QSE2')","Dados Pagamento","")
+	oPExcel:GetCol("DADOSPGT"):SetTamCol(40)
+
 	oPExcel:AddCol("XXOPER","UsrRetName(QSE2->E2_XXOPER)","Operador","")
 	oPExcel:GetCol("XXOPER"):SetTamCol(20)
 
@@ -176,12 +179,15 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 			oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
 			oPExcel:GetCol("HIST"):SetWrap(.T.)
 
-			oPExcel:AddColX3("F1_XNUMPA")
-			oPExcel:AddColX3("F1_XBANCO")
-			oPExcel:AddColX3("F1_XAGENC")
-			oPExcel:AddColX3("F1_XNUMCON")
-			oPExcel:AddColX3("F1_XXTPPIX")
-			oPExcel:AddColX3("F1_XXCHPIX")
+			oPExcel:AddCol("DADOSPGT","u_CPDadosPgt('QSE2')","Dados Pagamento","")
+			oPExcel:GetCol("DADOSPGT"):SetTamCol(40)
+
+			//oPExcel:AddColX3("F1_XNUMPA")
+			//oPExcel:AddColX3("F1_XBANCO")
+			//oPExcel:AddColX3("F1_XAGENC")
+			//oPExcel:AddColX3("F1_XNUMCON")
+			//oPExcel:AddColX3("F1_XXTPPIX")
+			//oPExcel:AddColX3("F1_XXCHPIX")
 
 			oPExcel:AddCol("XXOPER","UsrRetName(QSE2->E2_XXOPER)","Operador","")
 			oPExcel:GetCol("XXOPER"):SetTamCol(20)
@@ -324,10 +330,12 @@ cQuery += "	 ,E2_PREFIXO"+CRLF
 cQuery += "	 ,E2_NUM"+CRLF
 cQuery += "	 ,E2_PARCELA"+CRLF
 cQuery += "	 ,E2_FORNECE"+CRLF
-cQuery += "	 ,E2_PORTADO"+CRLF
 cQuery += "	 ,E2_LOJA"+CRLF
+cQuery += "	 ,E2_PORTADO"+CRLF
+cQuery += "	 ,E2_NUMBOR"+CRLF
 cQuery += "	 ,E2_NATUREZ"+CRLF
 cQuery += "	 ,E2_HIST"+CRLF
+cQuery += "	 ,E2_XXTIPBK"+CRLF
 cQuery += "	 ,E2_XXCTRID"+CRLF
 cQuery += "	 ,E2_USERLGI"+CRLF 
 cQuery += "	 ,E2_BAIXA"+CRLF
@@ -736,9 +744,10 @@ DO while QSE2->(!Eof())
 
 	cHtml += '    <tr>'+CRLF
 	cHtml += '      <td class="ti-hvalor">Portador</td>'+CRLF
-	cHtml += '      <td class="ti-str" colspan="2">'+QSE2->E2_PORTADO+'</td>'+CRLF
-	cHtml += '      <td class="ti-hvalor">Forma de Pgto</td>'+CRLF
-	cHtml += '      <td class="ti-str" colspan="2">'+QSE2->FORMPGT+'</td>'+CRLF
+	cHtml += '      <td class="ti-valor">'+QSE2->E2_PORTADO+'</td>'+CRLF
+	cHtml += '      <td class="ti-valor">'+iIf(!EMPTY(QSE2->E2_XXTIPBK),QSE2->FORMPGT,QSE2->E2_TIPO)+'</td>'+CRLF
+	cHtml += '      <td class="ti-hvalor">Dados Pgto</td>'+CRLF
+	cHtml += '      <td class="ti-valor" colspan="2">'+u_CPDadosPgt('QSE2')+'</td>'+CRLF
 	cHtml += '    </tr>'+CRLF
 
 	If !Empty(QSE2->D1_COD) .OR. !Empty(QSE2->D1_CC)
@@ -760,6 +769,9 @@ DO while QSE2->(!Eof())
     If !EMPTY(QSE2->E2_XXCTRID)
 
 		cHtml += '    <table class="ti">'+CRLF
+		cHtml += '    <tr>'+CRLF
+		cHtml += '      <td class="ti-hvalor" colspan="7">Tipo de Pagamento: '+u_BKDescRH(QSE2->E2_XXTIPBK)+'</td>'+CRLF
+		cHtml += '    </tr>'+CRLF
 		cHtml += '    <tr>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Prontuário</td>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Nome</td>'+CRLF
