@@ -521,7 +521,6 @@ Local cPict     := "@E 99,999,999,999.99"
 Local aFilesF1  := {}
 Local aFilesE2  := {}
 Local cRefFile	:= ""
-Local cTipoTit  := cTitulo
 Local cFormPgto := ""
 Local cPortado 	:= ""
 Local dVencto	:= CTOD("")
@@ -545,7 +544,7 @@ Local nCont 	:= 0
 Local cDescCC	:= ""
 Local cAgConta 	:= ""
 Local cLinObs 	:= ""
-Local cDesVig 	:= ""
+//Local cDesVig 	:= ""
 
 // Variaveis pdf
 Local aPdfs 	:= {} // Urls dos PDFs
@@ -611,7 +610,7 @@ If nPag == 1
 
 	cHtml += '.ti .ti-hvalor{font-weight:bold;background-color:#c0c0c0;font-size:11px;vertical-align:middle;min-width:40px;text-align:center}'+CRLF
 	cHtml += '.ti .ti-valor{font-size:10px;vertical-align:middle;min-width:100px;text-align:center;padding-right:10px}'+CRLF
-	cHtml += '.ti .ti-str{font-size:9px;vertical-align:middle;line-height=5px;text-align:center}'+CRLF
+	cHtml += '.ti .ti-str{font-size:8px;vertical-align:middle;line-height:8px;text-align:center}'+CRLF
 	
 	cHtml += '.folha {page-break-after:always;page-break-inside:avoid;}'+CRLF
 	
@@ -644,7 +643,7 @@ DO while QSE2->(!Eof())
 	cHtml += '<col style="width: 060px">'+CRLF
 	cHtml += '<col style="width: 100px">'+CRLF
 	cHtml += '<col style="width: 100px">'+CRLF
-	cHtml += '<col style="width: 120px">'+CRLF
+	cHtml += '<col style="width: 130px">'+CRLF
 	cHtml += '</colgroup>'+CRLF
 
 	cHtml += '  <tr>'+CRLF
@@ -672,7 +671,7 @@ DO while QSE2->(!Eof())
 	cHtml += '    </tr>'+CRLF
 	
 	cHtml += '    <tr>'+CRLF
-	//cHtml += '      <td class="tg-empr" colspan="7">'+cTipoTit+'</td>'+CRLF
+	//cHtml += '      <td class="tg-empr" colspan="7">'+cTitulo+'</td>'+CRLF
 	cHtml += '      <td class="tg-empr" colspan="7"> Título: '+ALLTRIM(QSE2->E2_PREFIXO)+' '+ALLTRIM(QSE2->E2_NUM)+' '+ALLTRIM(QSE2->E2_PARCELA)+'</td>'+CRLF
 	cHtml += '    </tr>'+CRLF
 
@@ -735,6 +734,13 @@ DO while QSE2->(!Eof())
 	cHtml += '      <td class="ti-valor">R$ '+ALLTRIM(TRANSFORM(QSE2->SALDO,cPict))+'</td>'+CRLF
 	cHtml += '    <tr>'+CRLF
 
+	cHtml += '    <tr>'+CRLF
+	cHtml += '      <td class="ti-hvalor">Portador</td>'+CRLF
+	cHtml += '      <td class="ti-str" colspan="2">'+QSE2->E2_PORTADO+'</td>'+CRLF
+	cHtml += '      <td class="ti-hvalor">Forma de Pgto</td>'+CRLF
+	cHtml += '      <td class="ti-str" colspan="2">'+QSE2->FORMPGT+'</td>'+CRLF
+	cHtml += '    </tr>'+CRLF
+
 	If !Empty(QSE2->D1_COD) .OR. !Empty(QSE2->D1_CC)
 		cHtml += '    <tr>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Produto</td>'+CRLF
@@ -743,31 +749,6 @@ DO while QSE2->(!Eof())
 		cHtml += '      <td class="ti-valor" colspan="2">'+TRIM(QSE2->D1_CC)+"-"+TRIM(QSE2->CTT_DESC01)+'</td>'+CRLF
 		cHtml += '    </tr>'+CRLF
 	EndIf
-
-	/*
-	If !Empty(QSE2->D1_COD)
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-hvalor colspan="2">Produto<td>'+CRLF
-		cHtml += '      <td class="ti-hvalor" colspan="5">Descrição</td>'+CRLF
-		cHtml += '    <tr>'+CRLF
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-valor colspan="2">'+TRIM(QSE2->D1_COD)+'</td>'+CRLF
-		cHtml += '      <td class="ti-valor" colspan="5">'+TRIM(QSE2->B1_DESC)+'</td>'+CRLF
-		cHtml += '    <tr>'+CRLF
-	EndIF
-
-
-	If !Empty(QSE2->D1_CC)
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-hvalor colspan="2">Centro de Custo</td>'+CRLF
-		cHtml += '      <td class="ti-hvalor" colspan="5">Descrição</td>'+CRLF
-		cHtml += '    <tr>'+CRLF
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-valor colspan="2">'+TRIM(QSE2->D1_CC)+'</td>'+CRLF
-		cHtml += '      <td class="ti-valor" colspan="5">'+TRIM(QSE2->CTT_DESC01)+'</td>'+CRLF
-		cHtml += '    <tr>'+CRLF
-	EndIF
-	*/
 
 	If !Empty(QSE2->HIST)
 		cHtml += '    <tr>'+CRLF
@@ -778,11 +759,7 @@ DO while QSE2->(!Eof())
 
     If !EMPTY(QSE2->E2_XXCTRID)
 
-		//cHtml += '    <tr>'+CRLF
-		//cHtml += '      <td class="ti-hvalor" colspan="6">Colaboradores</td>'+CRLF
-		//cHtml += '    </tr>'+CRLF
 		cHtml += '    <table class="ti">'+CRLF
-
 		cHtml += '    <tr>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Prontuário</td>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Nome</td>'+CRLF
@@ -790,13 +767,12 @@ DO while QSE2->(!Eof())
 		cHtml += '      <td class="ti-hvalor">Centro de Custo</td>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Usuário</td>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Observações</td>'+CRLF
-		cHtml += '      <td class="ti-hvalor">Vigência</td>'+CRLF
 		cHtml += '      <td class="ti-hvalor">Valor</td>'+CRLF
 		cHtml += '    </tr>'+CRLF
 
 		ProcSZ2()
-		DBSELECTAREA("QSZ2")
-		QSZ2->(DBGOTOP())
+		dbSelectArea("QSZ2")
+		QSZ2->(dbGoTop())
 		nCont := 0
 		nTot := 0
 
@@ -809,8 +785,10 @@ DO while QSE2->(!Eof())
 			cHtml += '      <td class="ti-str">'+TRIM(QSZ2->Z2_NOME)+'</td>'+CRLF
 
 			If TRIM(QSZ2->Z2_TIPO) <> "MFG" // Não sair agencia e conta para tipobk = MFG
-				cAgConta := TRIM(QSZ2->Z2_AGENCIA)+iIf(!Empty(QSZ2->Z2_DIGAGEN),'/'+TRIM(QSZ2->Z2_DIGAGEN),'')
-				cAgConta += " - "
+				cAgConta := TRIM(QSZ2->Z2_BANCO)
+				cAgConta += " "
+				cAgConta += TRIM(QSZ2->Z2_AGENCIA)+iIf(!Empty(QSZ2->Z2_DIGAGEN),'/'+TRIM(QSZ2->Z2_DIGAGEN),'')
+				cAgConta += " "
 				cAgConta += TRIM(QSZ2->Z2_CONTA)+iIf(!Empty(QSZ2->Z2_DIGCONTA),'/'+TRIM(QSZ2->Z2_DIGCONTA),'')
 				cHtml += '      <td class="ti-str">'+cAgConta+'</td>'+CRLF
 			Else
@@ -818,20 +796,8 @@ DO while QSE2->(!Eof())
 			EndIf
 
 			cDescCC := ALLTRIM(Posicione("CTT",1,xFilial("CTT")+QSZ2->Z2_CC,"CTT_DESC01"))
-			/*
-			IF EMPTY(cDescCC)
-				cDescCC := FWEmpName(cEmpAnt)+" ("+TRIM(QSZ2->Z2_CC)+")"
-			ENDIF
-			*/
 			cHtml += '      <td class="ti-str">'+cDescCC+'</td>'+CRLF
 			
-			/*
-			If nUsrRub == 1
-				cLin  := PAD(Capital(U_BUSERRUBI(QSZ2->Z2_TIPO,QSZ2->Z2_PRONT,QSZ2->Z2_DATAPGT,QSZ2->Z2_USUARIO)),20)
-			Else
-				cLin  := PAD(Capital(QSZ2->Z2_USUARIO),20)
-			EndIf	
-			*/
 			cHtml += '      <td class="ti-str">'+Capital(QSZ2->Z2_USUARIO)+'</td>'+CRLF
 
 			cLinObs := ""
@@ -846,14 +812,14 @@ DO while QSE2->(!Eof())
 			cLinObs += ALLTRIM(QSZ2->Z2_OBSTITU)
 
 			IF QSZ2->Z2_DATAPGT <= QSZ2->Z2_DATAEMI
-				cLinObs += " - Aprovado Integração após Horário"
+				cLinObs += " - Aprovado após Horário"
 			ENDIF
 
 			cHtml += '      <td class="ti-str">'+cLinObs+'</td>'+CRLF
 
-			cDesVig := U_Vig2Contrat(TRIM(QSZ2->Z2_CC),QSZ2->Z2_DATAPGT,cEmpAnt)
+			//cDesVig := U_Vig2Contrat(TRIM(QSZ2->Z2_CC),QSZ2->Z2_DATAPGT,cEmpAnt)
 	          
-			cHtml += '      <td class="ti-str">'+cDesVig+'</td>'+CRLF
+			//cHtml += '      <td class="ti-str">'+cDesVig+'</td>'+CRLF
 
 			cHtml += '      <td class="ti-valor">'+TRANSFORM(QSZ2->Z2_VALOR,"@ZE 999,999,999.99")+'</td>'+CRLF
 
@@ -865,32 +831,9 @@ DO while QSE2->(!Eof())
 
 		cHtml += '    </table>'+CRLF
 
-	   /*
-       IF nTot > 0
-          cLin := "Total de "+ALLTRIM(TRANSFORM(nCont,"999999"))+" registros"
-          oPrn:Say(nLin,50,cLin,oFont08N)
-
-          cLin := TRANSFORM(nTot,"@e 999,999,999.99")
-          oPrn:Say(nLin,nPos1,cLin,oFont08N)
-          nLin += 40
-       ENDIF
-	   */
-       QSZ2->(Dbclosearea())
+		QSZ2->(Dbclosearea())
     EndIf   
 
-
-	/*
-	If !Empty(QSE2->HIST)
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-hvalor" colspan="6">Histórico</td>'+CRLF
-		cHtml += '    </tr>'+CRLF
-
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-valor" colspan="6">'+QSE2->HIST+CRLF
-		cHtml += '      </td>'+CRLF
-		cHtml += '    </tr>'+CRLF
-	EndIf
-	*/
 
 	// Documentos anexos na Pré-Nota
 	aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
@@ -959,7 +902,8 @@ DO while QSE2->(!Eof())
 	If nQuebra == 1
 		If cPortado <> QSE2->E2_PORTADO .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
 
-			// Total Parcial		
+			// Total Parcial
+			/*		
 			cHtml += '<table class="tg">'+CRLF
 			cHtml += ' <tr>'+CRLF
 			cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cPortado)+' em '+DTOC(dVencto)+'</td>'+CRLF
@@ -967,11 +911,14 @@ DO while QSE2->(!Eof())
 			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
 			cHtml += ' <tr>'+CRLF
 			cHtml += '</table>'+CRLF
+			*/
 			aAdd(aTotais,{TRIM(cPortado)+' em '+DTOC(dVencto),nTValor,nTSaldo})
 
+			/*
 			If !QSE2->(EOF())
 
 				// Cabeçalho forma de pgto
+				
 				cHtml += '</table>'+CRLF
 				cHtml += '</br>'+CRLF
 				cHtml += '</div>'+CRLF
@@ -994,6 +941,7 @@ DO while QSE2->(!Eof())
 				cHtml += '    </tr>'+CRLF
 
 			EndIf
+			*/
 
 			cPortado  := QSE2->E2_PORTADO
 			dVencto   := QSE2->E2_VENCREA
@@ -1004,7 +952,8 @@ DO while QSE2->(!Eof())
 	Else
 		If cFormPgto <> QSE2->FORMPGT .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
 
-			// Total Parcial		
+			// Total Parcial
+			/*		
 			cHtml += '<table class="tg">'+CRLF
 			cHtml += ' <tr>'+CRLF
 			cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cFormPgto)+' em '+DTOC(dVencto)+'</td>'+CRLF
@@ -1012,8 +961,9 @@ DO while QSE2->(!Eof())
 			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
 			cHtml += ' <tr>'+CRLF
 			cHtml += '</table>'+CRLF
+			*/
 			aAdd(aTotais,{TRIM(cFormPgto)+' em '+DTOC(dVencto),nTValor,nTSaldo})
-
+			/*
 			If !QSE2->(EOF())
 
 				// Cabeçalho forma de pgto
@@ -1039,7 +989,7 @@ DO while QSE2->(!Eof())
 				cHtml += '    </tr>'+CRLF
 
 			EndIf
-
+			*/
 			cFormPgto := QSE2->FORMPGT
 			dVencto   := QSE2->E2_VENCREA
 

@@ -734,6 +734,10 @@ Begin Sequence
           nPos += 680
 
           IF TRIM(QSZ2->Z2_TIPO) <> "MFG" // Não sair agencia e conta para tipobk = MFG
+	         cLin := QSZ2->Z2_BANCO
+             oPrn:Say(nLin,nPos,cLin,oFont07)
+             nPos += 100
+
 	         cLin := PAD(TRIM(QSZ2->Z2_AGENCIA)+'-'+TRIM(QSZ2->Z2_DIGAGEN),LEN(QSZ2->Z2_AGENCIA)+LEN(QSZ2->Z2_DIGAGEN)+1)
              oPrn:Say(nLin,nPos,cLin,oFont07)
              nPos += 110
@@ -742,7 +746,7 @@ Begin Sequence
              oPrn:Say(nLin,nPos,cLin,oFont07)
              nPos += 190
           ELSE
-             nPos += 300
+             nPos += 400
           ENDIF
 
           cDescCC := ALLTRIM(Posicione("CTT",1,xFilial("CTT")+QSZ2->Z2_CC,"CTT_DESC01"))
@@ -753,7 +757,7 @@ Begin Sequence
 	      cLin := SUBSTR(cDescCC,1,40)
           oPrn:Say(nLin,nPos,cLin,oFont07)
 	      
-          nPos += (640)
+          nPos += 540
           
 	      //cLin := QSZ2->Z2_TIPO
           //oPrn:Say(nLin,nPos,cLin,oFont07)
@@ -1049,7 +1053,11 @@ nPos += 110
 cLin := "Nome"
 oPrn:Say(nLin,nPos,cLin,oFont08N)
 nPos += 680
-       
+
+cLin := "Bco"
+oPrn:Say(nLin,nPos,cLin,oFont08N)
+nPos += 100
+
 cLin := "Ag."
 oPrn:Say(nLin,nPos,cLin,oFont08N)
 nPos += 110
@@ -1060,7 +1068,7 @@ nPos += 190
 
 cLin := "Centro de Custo"
 oPrn:Say(nLin,nPos,cLin,oFont08N)
-nPos += (640)
+nPos += 540
 
 //cLin := "Tipo"
 //oPrn:Say(nLin,nPos,cLin,oFont12N)

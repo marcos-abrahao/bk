@@ -352,6 +352,14 @@ Local cMsg         	As Character
 Local cStatus		:= ""
 Local cNumTit 		:= ""
 
+Local cxTipoPg		:= ""
+Local cxNumPa		:= ""
+Local cxTpPix		:= ""
+Local cxChPix		:= ""
+Local cDadosBanc	:= ""
+Local cFormaPgto	:= ""
+
+
 //u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
@@ -402,6 +410,37 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE2)->HIST), "CP1252", "UTF-8") 
 	aListCP[nPos]['OPER']		:= (cQrySE2)->(UsrRetName(E2_XXOPER)) //(cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
 	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
+
+
+	// FOrma de Pagamento = BKFINR06
+	cxTipoPg	:= (cQrySE2)->F1_XTIPOPG
+	cxNumPa		:= (cQrySE2)->F1_XNUMPA
+	cxTpPix		:= ""
+	cxChPix		:= ""
+	cFormaPgto	:= ""
+
+	If !Empty(cxTipoPg)
+		cFormaPgto := TRIM(cxTipoPg)
+		If TRIM(cxTipoPg) == "DEPOSITO" //.AND. SF1->F1_FORNECE <> "000084"
+			If Empty((cQrySE2)->F1_XBANCO) .AND. (cQrySE2)->F1_FORNECE <> "000084"
+		 		cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
+			Else
+				cDadosBanc := "Bco: "+ALLTRIM((cQrySE2)->F1_XBANCO)+" Ag: "+ALLTRIM((cQrySE2)->F1_XAGENC)+" C/C: "+ALLTRIM((cQrySE2)->F1_XNUMCON)
+		 	EndIf
+			cFormaPgto += ": "+cDadosBanc
+		ElseIf TRIM(cxTipoPg) == "P.A."
+			cFormaPgto += " "+cxNumPa
+		ElseIf TRIM(cxTipoPg) == "PIX"
+			cxTpPix  := (cQrySE2)->F1_XXTPPIX
+			cxChPix  := AllTrim((cQrySE2)->F1_XXCHPIX)
+			cFormaPgto += " - "+X3COMBO('F72_TPCHV',cxTpPix)
+			If Len(cxChPix) <= 50
+				cFormaPgto += ": "+cxChPix
+				cxChPix := ""
+			EndIf
+		EndIf
+	EndIf
+	aListCP[nPos]['DADOSPGT']	:= cFormaPgto
 
 	(cQrySE2)->(DBSkip())
 
@@ -520,6 +559,7 @@ line-height: 1rem;
 <th scope="col" style="text-align:center;">Saldo</th>
 <th scope="col" style="text-align:center;">Status</th>
 <th scope="col">Histórico</th>
+<th scope="col">Dados Pgto</th>
 <th scope="col">Operador</th>
 </tr>
 </thead>
@@ -535,6 +575,7 @@ line-height: 1rem;
   <th scope="col" style="text-align:center;"></th>
   <th scope="col" style="text-align:center;"></th>
   <th scope="col" style="text-align:center;"></th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
 </tr>
@@ -645,16 +686,17 @@ if (Array.isArray(titulos)) {
 	trHTML += '</td>'
 
 	trHTML += '<td>'+object['HIST']+'</td>';
+	trHTML += '<td>'+object['DADOSPGT']+'</td>';
 	trHTML += '<td>'+object['OPER']+'</td>';
 
 	trHTML += '</tr>';
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="11" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="12" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="11" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="12" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
