@@ -230,12 +230,16 @@ If !("DNF" $ SE2->E2_HIST)
 			cCCus := "305000554"
 		ElseIf SM0->M0_CODIGO == "16"  // CONSORCIO MOOVE
 			cForn := u_cFornBK()
-			cProd := "11301032"  // CRIAR NO PLANO DE CONTAS E NO CADASTRO DE PRODUTOS
+			cProd := "11301032"
 			cCCus := "386000609"
 		ElseIf SM0->M0_CODIGO == "17"  // DMAF
 			cForn := u_cFornBK()
-			cProd := "11301033"  // CRIAR NO PLANO DE CONTAS E NO CADASTRO DE PRODUTOS
+			cProd := "11301033"
 			cCCus := "000000001"
+		ElseIf SM0->M0_CODIGO == "18"  // BK VIA
+			cForn := u_cFornBK()
+			cProd := "11301034"
+			cCCus := "303000623"
 		Endif	
 	
 		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)

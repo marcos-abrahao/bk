@@ -21,7 +21,7 @@ Local aEmpresas	:= {    {"01","BK"			,"BK"},;
                         {"15","BHG INT 3"	,"BHG"},;
 						{"16","MOOVE-SP"	,"MOOVE"},;
 						{"17","DMAF"		,"DMAF"},;
-						{"18","BKVIA"		,"BKVIA"} }
+						{"18","BK VIA"		,"BK VIA"} }
 Return aEmpresas
 
 

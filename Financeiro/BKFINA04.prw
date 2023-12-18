@@ -45,24 +45,25 @@ Local cMsgEx   := SPACE(50)
 
 PRIVATE cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,nValTit
 PRIVATE cObs
+PRIVATE cPerg  := "BKFINA04"
 
-u_MsgLog("BKFINA04")
+u_MsgLog(cPerg)
 
 dbSelectArea("SE2")
 IF BOF() .OR. EOF()
-	u_MsgLog(,"Selecione um titulo!", "E")
+	u_MsgLog(cPerg,"Selecione um titulo!", "E")
 	RestArea(aAreaIni)
 	Return
 ENDIF
 
 IF EMPTY(SE2->E2_XXCTRID)
-	u_MsgLog(,"Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "E")
+	u_MsgLog(cPerg,"Selecione um titulo de integração liq. "+FWEmpName(cEmpAnt), "E")
 	RestArea(aAreaIni)
 	Return
 ENDIF
 
 IF TRIM(SE2->E2_TIPO) = 'PA'
-	u_MsgLog(,"Titulo tipo PA: utilize a opção Excluir liq. "+FWEmpName(cEmpAnt), "E")
+	u_MsgLog(cPerg,"Titulo tipo PA: utilize a opção Excluir liq. "+FWEmpName(cEmpAnt), "E")
 	RestArea(aAreaIni)
 	Return
 ENDIF
@@ -123,7 +124,7 @@ QSZ2->(DbCloseArea())
 //ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
 
 If Empty(aCtrId)
-	u_MsgLog(,"Não existem valores liquidos associados", "E")
+	u_MsgLog(cPerg,"Não existem valores liquidos associados", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -156,7 +157,7 @@ If !lConsulta
 
 	If ( lOk )
 	    If !lTitOk
-	       u_MsgLog(,"Titulo não pode ser alterado"+cMsgEx,"E")
+	       u_MsgLog(cPerg,"Titulo não pode ser alterado"+cMsgEx,"E")
 	    Else
 			For nI:=1 To Len(aCtrId)
 		        If aCtrId[nI,1]
@@ -172,12 +173,12 @@ If !lConsulta
 		   		aRet := {}
 		      	aRet := ConfAltTit(aTitGer,aCtrId)
 		      	IF LEN(aRet) > 0 .AND. !EMPTY(aRet[1,1])
-	    			Processa ( {|| ExcluiBord(aRet[1,2],"3",aRet[1,1])})
+	    			u_WaitLog(cPerg, {|| ExcluiBord(aRet[1,2],"3",aRet[1,1])},"Excluindo borderô...")
    				ENDIF
 
 		   //Endif   
 		Else
-			u_MsgLog(,"Nenhuma alteração foi efetuada","W")
+			u_MsgLog(cPerg,"Nenhuma alteração foi efetuada","W")
 		EndIf
 	
 	Endif
@@ -232,7 +233,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 
 	If nValor > 0
 	    cChave := cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja
-	    Processa ( {|| cBorde := ExcluiBord(cChave,"2","")})
+	    u_WaitLog(cPerg, {|| cBorde := ExcluiBord(cChave,"2","")},"Excluindo borderô...")
 	    
 		aVetor :={{"E2_FILIAL"  ,cxFilial,Nil},;
 	             {"E2_PREFIXO"  ,cPrefixo,Nil},;
@@ -262,7 +263,7 @@ If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 		cBorde := ""
 		cChave := ""
 
-	    Processa ( {|| ExcluiBord(cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja,"1","")})
+	    u_WaitLog(cPerg, {|| ExcluiBord(cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja,"1","")},"Excluindo borderô...")
 	    
 		aVetor :={{"E2_FILIAL"  ,cxFilial,Nil},;
 	             {"E2_PREFIXO"  ,cPrefixo,Nil},;
@@ -346,7 +347,7 @@ IF lTitOk
       EndDo   
    ENDIF
 ELSE
-   u_MsgLog(,"Titulo não pode ser alterado "+cMsgEx, "E")
+   u_MsgLog(cPerg,"Titulo não pode ser alterado "+cMsgEx, "E")
    lRet := .T.
 ENDIF   
 Return lRet
@@ -438,7 +439,7 @@ Return lRet
 
 Static Function ExcluiBord(cChave,cAlt,cNumBor)
 
-IncProc("Excluindo Borderô "+cNumBor+" da empresa "+FWEmpName(cEmpAnt)+"...")
+//IncProc("Excluindo Borderô "+cNumBor+" da empresa "+FWEmpName(cEmpAnt)+"...")
 
 dbSelectArea("SE2")
 dbSetOrder(1)

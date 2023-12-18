@@ -35,7 +35,6 @@ Private nFormato	:= 1
 Private nImpSel		:= 1
 Private aAnexos 	:= {}
 
-
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .T. })
 aAdd( aParam, { 1, "Data FInal:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .F. })
 aAdd( aParam ,{ 3, "Abas por:"		, 1              , aQuebra               , 100,'.T.',.T.})
@@ -229,11 +228,11 @@ EndIf
 
 If nFormato > 2
 	If nImpSel == 3  // Marcar como impresso
-		If u_MsgLog(cProg,"Deseja MARCAR estes tílos como impressos?","Y")
+		If u_MsgLog(cProg,"Deseja MARCAR estes títulos como impressos?","Y")
 			u_WaitLog("BKFINR34", {|oSay| MarcarTit(nImpSel) }, "Marcando títulos")
 		EndIf
 	ElseIf nImpSel == 4  // Desmarcar os impressos
-		If u_MsgLog(cProg,"Deseja DESMARCAR estes tílos como impressos?","Y")
+		If u_MsgLog(cProg,"Deseja DESMARCAR estes títulos como impressos?","Y")
 			u_WaitLog("BKFINR34", {|oSay| MarcarTit(nImpSel) }, "Desmarcando títulos")
 		EndIf
 	EndIf
@@ -332,7 +331,7 @@ cQuery += "	 ,E2_PARCELA"+CRLF
 cQuery += "	 ,E2_FORNECE"+CRLF
 cQuery += "	 ,E2_LOJA"+CRLF
 cQuery += "	 ,E2_PORTADO"+CRLF
-cQuery += "	 ,E2_NUMBOR"+CRLF
+cQuery += "	 ,E2_LOTE"+CRLF
 cQuery += "	 ,E2_NATUREZ"+CRLF
 cQuery += "	 ,E2_HIST"+CRLF
 cQuery += "	 ,E2_XXTIPBK"+CRLF

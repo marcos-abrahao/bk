@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} BKFINA32
-BK - Borderô - Depósito Itau
+BK - Borderô - Depósito/Pix Itau
 @Return
 @author Marcos B. Abrahão
 @since 23/10/23
@@ -16,26 +16,29 @@ BK - Borderô - Depósito Itau
 #DEFINE CP_MARK			01	// Marcação
 #DEFINE CP_NUMBOR		02	// Numero do Borderô
 #DEFINE CP_BANCO		03 
-#DEFINE CP_PREFIXO		04
-#DEFINE CP_NUMERO		05
-#DEFINE CP_PARCELA		06
-#DEFINE CP_TIPO			07
-#DEFINE CP_PGTO			08
-#DEFINE CP_EMISSAO		09
-#DEFINE CP_VENC			10
-#DEFINE CP_CSALDO		11
-#DEFINE CP_NOME			12
-#DEFINE CP_FORNECE		13
-#DEFINE CP_LOJA			14
-#DEFINE CP_TIPOP		15
-#DEFINE CP_SALDO		16
-#DEFINE CP_AGENCIA		17
-#DEFINE CP_CONTA		18
-#DEFINE CP_DIGITO		19
-#DEFINE CP_CNPJ			20
-#DEFINE CP_REGSE2		21
+#DEFINE CP_FORMA		04  // DEPOSITO / PIX
+#DEFINE CP_PREFIXO		05
+#DEFINE CP_NUMERO		06
+#DEFINE CP_PARCELA		07
+#DEFINE CP_TIPO			08
+#DEFINE CP_PGTO			09
+#DEFINE CP_EMISSAO		10
+#DEFINE CP_VENC			11
+#DEFINE CP_CSALDO		12
+#DEFINE CP_NOME			13
+#DEFINE CP_FORNECE		14
+#DEFINE CP_LOJA			15
+#DEFINE CP_TIPOP		16
+#DEFINE CP_SALDO		17
+#DEFINE CP_AGENCIA		18
+#DEFINE CP_CONTA		19
+#DEFINE CP_DIGITO		20
+#DEFINE CP_CNPJ			21
+#DEFINE CP_TPPIX		22
+#DEFINE CP_CHPIX		23
+#DEFINE CP_REGSE2		24
 
-#DEFINE CP_CAMPOS		21
+#DEFINE CP_CAMPOS		24
 
 User Function BKFINA32()
 
@@ -58,7 +61,7 @@ Local oAll			as Object
 Local aTitBor   	:= {}
 Local lOk			:= .F.
 Local aAreaIni  	:= GetArea()
-Local cTitulo   	:= "Depósito Itaú - Borderô "+FWEmpName(cEmpAnt)
+Local cTitulo   	:= "Depósito/Pix Itaú - Borderô "+FWEmpName(cEmpAnt)
 
 Private cPictVal	:= PesqPict("SE2","E2_VALOR")
 Private cPerg   	:= "BKFINA32"
@@ -87,7 +90,7 @@ ENDIF
 
 IF dData < dDatabase
 	u_MsgLog(cPerg,"Data deve ser maior ou igual que a database!!","E")
-	//Return Nil
+	Return Nil
 ENDIF
 
 IF EMPTY(cDirTmp)
@@ -137,11 +140,12 @@ oAll:bChange := {|| MarkAll(lAll,aTitBor,oSayTot), oListId:Refresh()}
 oSayTot := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelUp,,,,,,.T.,,,200,20)
 
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","Borderô","Banco","Prefixo","Número","Parcela","Tipo","Nome","Emissão","Vencimento","Total R$","Agência","Conta","Digito","Tipo" SIZE 320,180 OF oPanelDown PIXEL 
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","Borderô","Banco","Forma","Prefixo","Número","Parcela","Tipo","Nome","Emissão","Vencimento","Total R$","Agência","Conta","Digito","Tipo","Tp","Chave PIX" SIZE 320,180 OF oPanelDown PIXEL 
 oListID:SetArray(aTitBor)
 oListID:bLine := {|| {If(aTitBor[oListId:nAt][CP_MARK],oOk,oNo),;
 						aTitBor[oListId:nAt][CP_NUMBOR],;
 						aTitBor[oListId:nAt][CP_BANCO],;
+						aTitBor[oListId:nAt][CP_FORMA],;
 						aTitBor[oListId:nAt][CP_PREFIXO],;
 						aTitBor[oListId:nAt][CP_NUMERO],;
 						aTitBor[oListId:nAt][CP_PARCELA],;
@@ -153,24 +157,27 @@ oListID:bLine := {|| {If(aTitBor[oListId:nAt][CP_MARK],oOk,oNo),;
 						aTitBor[oListId:nAt][CP_AGENCIA],;
 						aTitBor[oListId:nAt][CP_CONTA],;
 						aTitBor[oListId:nAt][CP_DIGITO],;
+						aTitBor[oListId:nAt][CP_TPPIX],;
+						aTitBor[oListId:nAt][CP_CHPIX],;
 						aTitBor[oListId:nAt][CP_TIPOP]}}
 
-oListId:bLDblClick := {|| aTitBor[oListId:nAt][1] := MarkOne(aTitBor[oListId:nAt][CP_MARK],aTitBor[oListId:nAt][CP_NUMBOR],aTitBor[oListId:nAt][CP_SALDO],oSayTot), oListId:DrawSelect()}
+oListId:bLDblClick := {|| aTitBor[oListId:nAt][1] := MarkOne(aTitBor[oListId:nAt][CP_MARK],aTitBor[oListId:nAt][CP_NUMBOR],aTitBor[oListId:nAt][CP_SALDO],aTitBor[oListId:nAt][CP_CHPIX],oSayTot), oListId:DrawSelect()}
 oListId:Align := CONTROL_ALIGN_ALLCLIENT
 
 oDlg:Activate()
  
 If ( lOk )
-	u_WaitLog(cPerg, {|| GravaBordero(aTitBor)},"Gerando borderô")
+	u_WaitLog(cPerg, {|| GravaBordero(aTitBor,"DEPOSITO")},"Gerando borderô DEPOSITO")
+	u_WaitLog(cPerg, {|| GravaBordero(aTitBor,"PIX")},"Gerando borderô PIX")
 EndIf
 
 RestArea(aAreaIni)
 Return
       
 
-Static Function MarkOne(lMrk,cNumBor,nSaldo,oSayTot)
+Static Function MarkOne(lMrk,cNumBor,nSaldo,cChPix,oSayTot)
 Local lRet := .F.
-If Empty(cNumBor) .AND. nSaldo > 0
+If Empty(cNumBor) .AND. nSaldo > 0 .AND. !("Erro" $ cChPix)
 	lRet := !lMrk
 EndIf
 
@@ -207,7 +214,7 @@ oSayTot:cCaption := "Total Selecionado: "+TRANSFORM(nTotal,"@E 999,999,999.99")
 Return
 
 
-Static Function GravaBordero(aTitBor)
+Static Function GravaBordero(aTitBor,cFormaPgto)
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local cQuery    := ""
 Local cArqTmp 	:= ""
@@ -227,18 +234,18 @@ Local nQTot		:= 0
 Local nValTot	:= 0
 
 For nI := 1 To Len(aTitBor)
-	If aTitBor[nI,CP_MARK]
+	If aTitBor[nI,CP_MARK] .AND. ALLTRIM(aTitBor[nI,CP_FORMA]) == cFormaPgto
 		aAdd(aTitGer,aTitBor[nI])
 	EndIf
 Next
 
 If Len(aTitGer) == 0
-	u_MsgLog(cPerg,"Não foram selecionados títulos para geração de borderô","E")
+	u_MsgLog(cPerg,"Não foram selecionados títulos para geração de borderô "+cFormaPgto,"W")
 	Return Nil
 EndIf
 
-//BKDAHER BHG USAR LOTE BK
-IF cEmpAnt $ "06/08/09/10/11/14/15"
+//CONSORCIOS USAR LOTE BK
+IF cEmpAnt $ "06/08/09/10/11/14/15/18"
 	cQuery  := "SELECT EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
 	cQuery  += " FROM SEE010 "
 	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
@@ -277,16 +284,16 @@ DbSelectArea("SEE")
 DbSetOrder(1)
 IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	//CONSORCIOS: USAR CNPJ BK
-	cCGC      := IIF(cEmpAnt $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"03022122000177",cCGC)
-    cNomeCom  := IIF(cEmpAnt $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",cNomeCom)
-    IF (cEmpAnt $ "06/08/09/10/11/14/15") .AND. nLote > 0 
+	cCGC      := IIF(cEmpAnt $ "06/08/09/10/11/14/15/18".AND. nLote > 0 ,"03022122000177",cCGC)
+    cNomeCom  := IIF(cEmpAnt $ "06/08/09/10/11/14/15/18".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",cNomeCom)
+    IF (cEmpAnt $ "06/08/09/10/11/14/15/18") .AND. nLote > 0 
 		u_MsgLog(cPerg,"Borderô dos consorcios considerando CNPJ da BK!","W")
 	EndIf
 
 	// Descomentar para Ativar
 	If !u_IsTeste()
 		RecLock("SEE",.F.)                             
-		Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
+		Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15/18" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
 		SEE->( MsUnlock() )
 	EndIf
 
@@ -297,7 +304,7 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	cConta    := STRTRAN(SEE->EE_CONTA,"-","")
 	cDVConta  := SEE->EE_DVCTA
 ELSE
-	u_MsgLog(,"Parâmetro do Banco "+cSEE+" não foi cadastrado!!",'E')
+	u_MsgLog(cPerg,"Parâmetro do Banco "+cSEE+" não foi cadastrado!!",'E')
 	Return nil
 ENDIF
 
@@ -394,7 +401,11 @@ If nHandle > 0 .OR. nHandle2 > 0
 		Bcn341HD += "1"          				//008 008 REGISTRO HEADER DE LOTE
 		Bcn341HD += "C"          				//009 009 TIPO DA OPERAÇÃO C=CRÉDITO
 		Bcn341HD += "20"         				//010 011 TIPO DE PAGTO 20-FORNECEDORES 30-SALARIOS // IIf(cTipoPes == "CLT" .AND. nTEDItau == 2,"30","20")
-		Bcn341HD += "01"         				//012 013 FORMA DE PAGAMENTO  01-CRÉDITO EM CONTA CORRENTE NO ITAÚ //IIF(nTEDItau == 1,"41","01") //IIF(cBanco=='341' .AND. cTipoPes == "CLT","01","41")  
+		If cFormaPgto == "DEPOSITO"
+			Bcn341HD += "01"       				//012 013 FORMA DE PAGAMENTO  01-CRÉDITO EM CONTA CORRENTE NO ITAÚ //IIF(nTEDItau == 1,"41","01") //IIF(cBanco=='341' .AND. cTipoPes == "CLT","01","41")  
+		Else
+			Bcn341HD += "45"       				//012 013 FORMA DE PAGAMENTO  45-PIX TRANSFERÊNCIA
+		EndIf
 		Bcn341HD += "040"        				//014 016 NUMERO DA VERSÃO DO LAYOUT DO LOTE
 		Bcn341HD += SPACE(1)     				//017 017 COMPLEMENTO DE REGISTRO
 		Bcn341HD += "2"          				//018 018 TIPO INSCRIÇÃO EMPRESA DEBITADA 1 = CPF 2 = CNPJ
@@ -433,7 +444,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 		
 			BncoTxtT := cNomeCom+'<BR>RELAÇÃO BANCÁRIA BANCO ITAU - <b> Lote: '+STRZERO(nLote,8)+'</b><BR> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=1><i>Emitida em : '+DTOC(dDataBase)+' - pelo usuário : '+cUserName+'</i><br><br>&nbsp;'
 
-			// REGISTRO DETALHE
+			// REGISTRO DETALHE - SEGMENTO A - OBRIGATÓRIO
+
 		    Bcn341D := ""
 			Bcn341D += "341"     					  	//001 003 CÓDIGO BANCO NA COMPENSAÇÃO
 			Bcn341D += "0001"   					  	//004 007 LOTE DE SERVIÇO
@@ -442,17 +454,26 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn341D += "A"              			  	//014 014 CÓDIGO SEGMENTO REG. DETALHE
 			Bcn341D += IIF(aTitGer[nI,CP_TIPOP]='F',"001","002")     
 									       		      	//015 017 TIPO DE MOVIMENTO - Verificação de dados - CPF 001 verifica, 000 Não verifica,CNPJ 002 verifica
-			Bcn341D += "000"            			  	//018 020 CÓDIGO DA CÂMARA CENTRALIZADORA
+			If cFormaPgto == "PIX"
+				Bcn341D += "009"           			  	//018 020 CÓDIGO DA CÂMARA CENTRALIZADORA - NOTA 35
+			Else
+				Bcn341D += "000"           			  	//018 020 CÓDIGO DA CÂMARA CENTRALIZADORA
+			EndIf
+
 			Bcn341D += "341"							//021 023 CÓDIGO BANCO FAVORECIDO
-			Bcn341D += "0"              			  	//024 024 COMPLEMENTO DE REGISTRO (NOTA 11)
+			If cFormaPgto == "PIX"
+				Bcn341D += SPACE(20)                   	//029 029 COMPLEMENTO DE REGISTRO
+			Else
+				Bcn341D += "0"             			  	//024 024 COMPLEMENTO DE REGISTRO (NOTA 11)
 														//025 028 NÚMERO AGÊNCIA CREDITADA
-			Bcn341D += STRZERO(VAL(aTitGer[nI,CP_AGENCIA]),4)  	
-			Bcn341D += SPACE(1)                       	//029 029 COMPLEMENTO DE REGISTRO
-			Bcn341D += "000000"							//030 035 COMPLEMENTO DE REGISTRO
+				Bcn341D += STRZERO(VAL(aTitGer[nI,CP_AGENCIA]),4)  	
+				Bcn341D += SPACE(1)                    	//029 029 COMPLEMENTO DE REGISTRO
+				Bcn341D += "000000"						//030 035 COMPLEMENTO DE REGISTRO
 														//036 041 NÚMERO DE C/C CREDITADA 
-			Bcn341D += STRZERO(VAL(aTitGer[nI,CP_CONTA]),6) 
-			Bcn341D += SPACE(1) 						//042 042 COMPLEMENTO DE REGISTRO
-			 											//043 043 DAC DA AGÊNCIA/CONTA CREDITADA
+				Bcn341D += STRZERO(VAL(aTitGer[nI,CP_CONTA]),6) 
+				Bcn341D += SPACE(1) 					//042 042 COMPLEMENTO DE REGISTRO
+														//043 043 DAC DA AGÊNCIA/CONTA CREDITADA
+			EndIf
 			Bcn341D += STRZERO(VAL(aTitGer[nI,CP_DIGITO]),1)
 														//044 073 NOME DO FAVORECIDO
 			Bcn341D += PAD(Acento(aTitGer[nI,CP_NOME]),30) 
@@ -461,7 +482,11 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn341D += Day2Str(aTitGer[nI,CP_VENC])+Month2Str(aTitGer[nI,CP_VENC])+Year2Str(aTitGer[nI,CP_VENC]) 
 			Bcn341D += "REA"  							//102 104 TIPO DA MOEDA
 			Bcn341D += SPACE(8)							//105 112 IDENTIFICAÇÃO DA INSTITUIÇÃO PARA O SPB
-			Bcn341D += SPACE(2)							//113 114 CONTA PAGAMENTO / PIX
+			If cFormaPgto == "PIX"
+				Bcn341D += "04"							//113 114 CONTA PAGAMENTO / PIX: 01 - Conta corrente, PG - Conta Pagamento, 03 – Conta Poupança, 04 – Chave Pix
+			Else
+				Bcn341D += SPACE(2)						//113 114 CONTA PAGAMENTO / PIX
+			EndIf
 			Bcn341D += "00000"							//115 119 COMPLEMENTO DE REGISTRO
 														//120 134 VALOR PREVISTO DO PAGTO
 		    Bcn341D += STRZERO(INT(aTitGer[nI,CP_SALDO]*100),15) 
@@ -480,9 +505,39 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn341D += SPACE(10)						//231 240 CÓDIGO OCORRÊNCIAS NO RETORNO
 			Bcn341D += cCrLf
 
-			//Grava Bordero Detalhe
+			//Grava Bordero Detalhe - Segmento A
 			fWrite(nHandle2,Bcn341D)
 		 					 						    
+
+			// REGISTRO DETALHE - SEGMENTO B - OBRIGATÓRIO PARA PIX
+			If cFormaPgto == "PIX"
+				nQTot++
+				nSeq++
+
+				Bcn341D := ""
+				Bcn341D += "341"     					  	//001 003 CÓDIGO BANCO NA COMPENSAÇÃO
+				Bcn341D += "0001"   					  	//004 007 LOTE DE SERVIÇO
+				Bcn341D += "3"       					  	//008 008 REGISTRO DETALHE DE LOTE
+				Bcn341D += STRZERO(nSeq,5)  			  	//009 013 NUMERO SEQUENCIAL REGISTRO NO LOTE
+				Bcn341D += "B"              			  	//014 014 CÓDIGO SEGMENTO REG. DETALHE
+				Bcn341D += aTitGer[nI,CP_TPPIX]				//015 016 TIPO IDENTIFICAÇÃO DE CHAVE PIX NOTA 37
+				Bcn341D += SPACE(1)							//017 017 COMPLEMENTO DE REGISTRO
+															//018 018 TIPO INSCRIÇÃO DO FAVORECIDO 1=CPF 2=CNPJ
+				Bcn341D += IIF(aTitGer[nI,CP_TIPOP]='F',"1","2") 
+															//019 032 Nº DE INSCRIÇÃO DO FAVORECIDO (CPF/CNPJ) NOTA 15
+				Bcn341D += STRZERO(VAL(aTitGer[nI,CP_CNPJ]),14)
+				Bcn341D += SPACE(30)						//033 062 COMPLEMENTO DE REGISTRO
+
+				Bcn341D += SPACE(65)						//063 127 INFORMAÇÃO ENTRE USUÁRIOS NOTA 39
+
+				Bcn341D += PAD(aTitGer[nI,CP_CHPIX],100)	//128 227 CHAVE DE ENDEREÇAMENTO NOTA 40
+				Bcn341D += SPACE(3)							//228 230 COMPLEMENTO DE REGISTRO
+				Bcn341D += SPACE(10)						//231 240 CÓDIGO DE OCORRÊNCIAS NO RETORNO NOTA 8
+
+				//Grava Bordero Detalhe - Segmento B
+				fWrite(nHandle2,Bcn341D)
+			EndIf
+
 			BncoTxt += '<tr>'
 			BncoTxt += '<td align="center">'+aTitGer[nI,CP_PREFIXO]+aTitGer[nI,CP_NUMERO]+aTitGer[nI,CP_PARCELA]+'</td>'
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,CP_CNPJ],IIF(aTitGer[nI,CP_TIPOP]=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))+'</td>'
@@ -546,9 +601,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 	cNumBor := ""
 
 	// Descomentar para Ativar
-	If !u_IsTeste()
+	//If !u_IsTeste()
 		u_WaitLog(cPerg,{|| cNumBor := RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)})
-	EndIf
+	//EndIf
 	
 	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso na pasta: "'+cDirTmp2+'"'
 	u_MsgLog(cPerg,cMsgLog,"S")
@@ -618,6 +673,8 @@ cQuery += "	 ,F1_XNUMPA"+CRLF
 cQuery += "	 ,F1_XBANCO"+CRLF
 cQuery += "	 ,F1_XAGENC"+CRLF
 cQuery += "	 ,F1_XNUMCON"+CRLF
+cQuery += "	 ,F1_XXTPPIX"+CRLF
+cQuery += "	 ,F1_XXCHPIX"+CRLF
 cQuery += "	 ,F1_USERLGI"+CRLF 
 cQuery += "	 ,F1_XXUSER"+CRLF
 
@@ -639,14 +696,14 @@ cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
 cQuery +=  "  AND E2_VENCREA = '"+DTOS(dData)+"' "+CRLF
-cQuery +=  "  AND F1_XTIPOPG = 'DEPOSITO' "+CRLF
+cQuery +=  "  AND (F1_XTIPOPG = 'DEPOSITO' OR F1_XTIPOPG = 'PIX') "+CRLF
 cQuery +=  "  AND E2_PORTADO = '"+cBanco+"' "+CRLF
 
 cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  FROM BORDERO " + CRLF
-cQuery += " ORDER BY FORMPGT" + CRLF
+cQuery += " ORDER BY FORMPGT,A2_NOME" + CRLF
 
 u_LogMemo("BKFINR32.SQL",cQuery)
 
@@ -669,6 +726,7 @@ Do While !eof()
 	aTitTmp[CP_MARK] 	:= IIF(EMPTY(QSE2->E2_NUMBOR) .AND. QSE2->SALDO > 0,.T.,.F.)
 	aTitTmp[CP_NUMBOR]	:= QSE2->E2_NUMBOR
 	aTitTmp[CP_BANCO]	:= QSE2->E2_PORTADO
+	aTitTmp[CP_FORMA]	:= QSE2->FORMPGT
 	aTitTmp[CP_PREFIXO]	:= QSE2->E2_PREFIXO
 	aTitTmp[CP_NUMERO]	:= QSE2->E2_NUM
 	aTitTmp[CP_PARCELA]	:= QSE2->E2_PARCELA
@@ -686,6 +744,8 @@ Do While !eof()
 	aTitTmp[CP_CONTA]	:= Conta341(QSE2->F1_XNUMCON)
 	aTitTmp[CP_DIGITO]	:= Digito341(QSE2->F1_XNUMCON) 
 	aTitTmp[CP_CNPJ]	:= TRIM(QSE2->A2_CGC)
+	aTitTmp[CP_TPPIX]	:= QSE2->F1_XXTPPIX
+	aTitTmp[CP_CHPIX]	:= Pix341(QSE2->F1_XXTPPIX,QSE2->F1_XXCHPIX)
 	aTitTmp[CP_REGSE2]	:= QSE2->REGSE2
 
 	AADD(aTitBor, aTitTmp)
@@ -717,6 +777,72 @@ If !Empty(cConta)
 	cDig := SUBSTRING(cConta,LEN(ALLTRIM(cConta)),1)
 EndIf
 Return cDig
+
+
+/* Tratamento das chaves Pix
+
+01 – Telefone
+02 – E-mail
+03 – CPF/CNPJ
+04 – Chave Aleatória
+
+Número de telefone +XXXXXXXXXXXXX 					inicia com "+", seguido do código do país, DDD, e número de celular com nove dígitos.
+Endereço de e-mail xxxxxxxx@xxxxxxx.xxx(.xx) 		contém "@", e o tamanho máximo é de 77 caracteres.
+CPF XXXXXXXXXXX 									contém 11 números, incluindo os dígitos verificadores.
+													Deve ser informado sem pontos ou traços.
+CNPJ XXXXXXXXXXXXXX 								contém 14 números, incluindo os dígitos verificadores.
+													Deve ser informado sem pontos ou traços.
+Chave aleatória XXXXXXXX-XXXX-XXXXXXXX-XXXXXXXXXXXX	número hexadecimal de 32 posições, divido em 5
+													blocos separados por um “-“. Deve ser informado com
+													os traços, ou seja com as 36 posições totais.
+*/
+Static Function Pix341(cTipo,cChave)
+Local cOldChave := ALLTRIM(cChave)
+Local cNewChave := ""
+Local cxChave 	:= ""
+Local nI		:= 0
+
+If cTipo == '01' // Telefone
+	For nI := 1 To LEN(cOldChave)
+		If Substr(cOldChave,nI,1) $ "0123456789"
+			cxChave += Substr(cOldChave,nI,1)
+		EndIf
+	Next
+	If LEN(cxChave) == 13 .AND. Substr(cxChave,1,2) == '55'
+		// Exemplo: 5513981014636
+		cNewChave := "+"+cxChave
+	ElseIf LEN(cxChave) == 11
+		// Exemplo: 31945426802
+		cNewChave := "+55"+cxChave
+	Else
+		cNewChave := "Erro: "+cxChave
+	EndIf
+ElseIf cTipo = '02' // E-mail
+	cxChave := cOldChave
+	If !"@" $ cxChave
+		cNewChave := "Erro: @ "+cxChave
+	ElseIf Len(cxChave) > 77
+		cNewChave := "Erro: 77 "+cxChave 
+	Else 
+		cNewChave := Lower(cxChave)
+	EndIf
+
+ElseIf cTipo = '03' // CPF/CNPJ
+	For nI := 1 To LEN(cOldChave)
+		If Substr(cOldChave,nI,1) $ "0123456789"
+			cxChave += Substr(cOldChave,nI,1)
+		EndIf
+	Next
+	If LEN(cxChave) < 11
+		cxChave := STRZERO(VAL(cxChave),11)
+	ElseIf LEN(cxChave) < 14
+		cxChave := STRZERO(VAL(cxChave),14)
+	EndIf
+	cNewChave := cxChave
+ElseIf cTipo = '04' // Chave Aleatória
+	cNewChave := cOldChave
+EndIf
+Return cNewChave
 
 
 Static Function Acento( cTexto )
@@ -775,41 +901,22 @@ Return(NIL)
 
 
 
-Static Function RunBordero(aTitBor,cBanco,cAgencia,cConta,dData)
+Static Function RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)
 Local _nI 		:= 0
 Local cNBor 	:= ""
-LOCAL cNumBor	:= ""
-Local cNumBor2	:= ""
+Local cNumBor	:= ""
 
-Private lMSHelpAuto := .F.
-Private lAutoErrNoFile := .T.
+// Verificar o numero do ultimo Bordero gerado
+cNumBor := Soma1(Pad(GetMV("MV_NUMBORP"),Len(SE2->E2_NUMBOR)),Len(SE2->E2_NUMBOR))
+While !MayIUseCode( "E2_NUMBOR"+xFilial("SE2")+cNumBor)  //verifica se esta na memoria, sendo usado
+	cNumBor := Soma1(cNumBor)							 // busca o proximo numero disponivel 
+EndDo                                           
 
-For _nI:=1 To Len(aTitBor)
-	dbSelectArea("SE2")
-	dbSetOrder(1)
-	DBSEEK(xFilial("SE2")+aTitBor[_nI,4]+aTitBor[_nI,5]+aTitBor[_nI,6]+aTitBor[_nI,7]+aTitBor[_nI,13]+aTitBor[_nI,14])
-	IF !EMPTY(SE2->E2_NUMBOR) .AND. EMPTY(cNumBor)
-		cNumBor := ALLTRIM(SE2->E2_NUMBOR)
-	ENDIF
-NEXT
-
-IF EMPTY(cNumBor)
-	// Verifica numero do ultimo Bordero Gerado
-	cNumBor := Soma1(Pad(GetMV("MV_NUMBORP"),Len(SE2->E2_NUMBOR)),Len(SE2->E2_NUMBOR))
-	While !MayIUseCode( "E2_NUMBOR"+xFilial("SE2")+cNumBor)  //verifica se esta na memoria, sendo usado
-		cNumBor := Soma1(cNumBor)							 // busca o proximo numero disponivel 
-	EndDo                                           
-ENDIF      
-
-ProcRegua(Len(aTitBor))
-For _nI:=1 To Len(aTitBor)
-	IF aTitBor[_nI,1]
-		IncProc("Associando Título ao Borderô "+FWEmpName(cEmpAnt)+"...")
-		
+For _nI:=1 To Len(aTitGer)
+	IF !EMPTY(aTitGer[_nI,CP_REGSE2])
 		dbSelectArea("SE2")
-		dbSetOrder(1)
-		DBSEEK(xFilial("SE2")+aTitBor[_nI,4]+aTitBor[_nI,5]+aTitBor[_nI,6]+aTitBor[_nI,7]+aTitBor[_nI,13]+aTitBor[_nI,14])
-   		IF EMPTY(SE2->E2_NUMBOR)
+		dbGoTo(aTitGer[_nI,CP_REGSE2])
+		IF EMPTY(SE2->E2_NUMBOR)
 			dbSelectArea("SEA")
 			RecLock("SEA",.T. )
 			Replace	SEA->EA_FILIAL  With xFilial("SEA"),;
@@ -831,41 +938,22 @@ For _nI:=1 To Len(aTitBor)
 					SEA->EA_FILORIG With SE2->E2_FILIAL
 			MsUnlock()
 			FKCOMMIT()
-	
+		
 			RecLock("SE2")
 			Replace SE2->E2_NUMBOR  With cNumBor
-			MsUnlock( )
-			FKCOMMIT()
-		ENDIF
-	ELSE
-		dbSelectArea("SE2")
-		dbSetOrder(1)
-		DBSEEK(xFilial("SE2")+aTitBor[_nI,4]+aTitBor[_nI,5]+aTitBor[_nI,6]+aTitBor[_nI,7]+aTitBor[_nI,13]+aTitBor[_nI,14])
-		IF !EMPTY(SE2->E2_NUMBOR)
-			cNumBor2 := ALLTRIM(SE2->E2_NUMBOR)
-			RecLock("SE2")
-			Replace SE2->E2_NUMBOR  With ""
-			MsUnlock( )
-			FKCOMMIT()
-			dbSelectArea("SEA")
-			dbSetOrder(1)
-			DBSEEK(xFilial("SE2")+cNumBor2+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO+SE2->E2_FORNECE+SE2->E2_LOJA)
-			RecLock("SEA",.F.,.T.)
-			dbDelete()
 			MsUnlock( )
 			FKCOMMIT()
 		ENDIF
 	ENDIF
 NEXT
 
-// Grava o numero do bordero atualizado
-// Utilize sempre GetMv para posicionar o SX6. N„o use SEEK !!!
+// Gravar o numero do bordero atualizado
+// Utilizar sempre GetMv para posicionar o SX6. não use SEEK !!!
 
 cNBor := GetMv("MV_NUMBORP")
-// Garante que o numero do bordero seja sempre superior ao numero anterior
+// Garantir que o numero do bordero seja sempre superior ao numero anterior
 If cNBor < cNumbor
-	PutMv("MV_NUMBORP",cNBor)
+	PutMv("MV_NUMBORP",cNumbor)
 EndIf
-
 
 Return cNumBor

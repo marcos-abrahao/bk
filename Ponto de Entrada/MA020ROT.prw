@@ -24,6 +24,6 @@ Local aRotUser := {}
 //    5 - Remove o registro corrente do Banco de Dados         
 //    6 - Altera determinados campos sem incluir novos Regs     
 
-AAdd( aRotUser, { "Copiar Fornecedor", "U_BKCOMA07()", 0, 3 } ) 
+AAdd( aRotUser, { "Copiar Fornecedor de outras Empresas", "U_BKCOMA07()", 0, 3 } ) 
 
 Return (aRotUser)

@@ -530,7 +530,7 @@ Local cMsgLog   := ""
 DbSelectArea("SM0")
 
 //CONSORCIOS USAR LOTE BK
-IF cEmpAnt $ "06/08/09/10/11/14/15"
+IF cEmpAnt $ "06/08/09/10/11/14/15/18"
 	cQuery  := "SELECT EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
 	cQuery  += " FROM SEE010 "
 	cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
@@ -565,16 +565,16 @@ DbSelectArea("SEE")
 DbSetOrder(1)
 IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	//CONSORCIOS: USAR CNPJ BK
-	cCGC      := IIF(cEmpAnt $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"03022122000177",SM0->M0_CGC)
-    cNomeCom  := IIF(cEmpAnt $ "06/08/09/10/11/14/15".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
+	cCGC      := IIF(cEmpAnt $ "06/08/09/10/11/14/15/18".AND. nLote > 0 ,"03022122000177",SM0->M0_CGC)
+    cNomeCom  := IIF(cEmpAnt $ "06/08/09/10/11/14/15/18".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",Acento(ALLTRIM(SM0->M0_NOMECOM)))
 
-    IF (cEmpAnt $ "06/08/09/10/11/14/15") .AND. nLote > 0 
+    IF (cEmpAnt $ "06/08/09/10/11/14/15/18") .AND. nLote > 0 
 		u_MsgLog(cPerg,"Borderô dos consorcios considerando CNPJ da BK!","W")
 	EndIf
 
 
 	RecLock("SEE",.F.)                             
-	Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
+	Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15/18" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
 	SEE->( MsUnlock() )
 	nLote := VAL(SEE->EE_LOTECP)
  
@@ -2225,7 +2225,6 @@ IF EMPTY(cNumBor)
 	EndDo                                           
 ENDIF      
 
-//ProcRegua(Len(aCtrId))
 For _nI:=1 To Len(aCtrId)
 	IF aCtrId[_nI,1]
 		//IncProc("Associando Título ao Borderô "+FWEmpName(cEmpAnt)+"...")
@@ -2301,7 +2300,7 @@ EndIf
 cNBor := GetMv("MV_NUMBORP")
 // Garante que o numero do bordero seja sempre superior ao numero anterior
 If cNBor < cNumbor
-	PutMv("MV_NUMBORP",cNBor)
+	PutMv("MV_NUMBORP",cNumbor)
 EndIf
 
 

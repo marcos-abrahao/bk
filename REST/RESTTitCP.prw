@@ -277,7 +277,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:AddCol("FORMPGT","FORMPGT","Forma Pgto","")
 	oPExcel:AddCol("VENC","STOD(E2_VENCREA)","Vencto","E2_VENCREA")
 	oPExcel:AddCol("PORTADO","E2_PORTADO","Portador","")
-	oPExcel:AddCol("BORDERO","E2_NUMBOR","Bordero","")
+	oPExcel:AddCol("LOTE","E2_LOTE","Lote","")
 	oPExcel:AddCol("VALOR","E2_VALOR","Valor","E2_VALOR")
 	oPExcel:AddCol("SALDO","SALDO","Saldo","")
 	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
@@ -287,7 +287,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 
 	oPExcel:GetCol("FORMPGT"):SetHAlign("C")
 	oPExcel:GetCol("PORTADO"):SetHAlign("C")
-	oPExcel:GetCol("BORDERO"):SetHAlign("C")
+	oPExcel:GetCol("LOTE"):SetHAlign("C")
 	oPExcel:GetCol("HIST"):SetWrap(.T.)
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
@@ -326,6 +326,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
         Self:SetResponse(cFile)
 
         lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+		oFile:Close()
     Else
         SetRestFault(002, "Nao foi possivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
 
@@ -861,7 +862,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E2_PARCELA"+CRLF
 	cQuery += "	 ,E2_FORNECE"+CRLF
 	cQuery += "	 ,E2_PORTADO"+CRLF
-	cQuery += "	 ,E2_NUMBOR"+CRLF
+	cQuery += "	 ,E2_LOTE"+CRLF
 	cQuery += "	 ,E2_LOJA"+CRLF
 	cQuery += "	 ,E2_NATUREZ"+CRLF
 	cQuery += "	 ,E2_HIST"+CRLF
@@ -1034,11 +1035,11 @@ If !Empty(cxTipoPg)
 		EndIf
 	EndIf
 EndIf
-If !Empty((cQrySE2)->E2_NUMBOR)
+If !Empty((cQrySE2)->E2_LOTE)
 	If !Empty(cFormaPgto)
 		cFormaPgto += " - "
 	EndIf
-	cFormaPgto += "Bordero "+(cQrySE2)->E2_NUMBOR
+	cFormaPgto += "Lote "+(cQrySE2)->E2_LOTE
 EndIf
 
 Return cFormaPgto

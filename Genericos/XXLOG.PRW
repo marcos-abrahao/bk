@@ -188,6 +188,10 @@ Else
 EndIf
 u_MsgLog(cProg,cMens + " ("+elapTime(cTimeI,Time())+")")
 
+// Para atualizar a mensagem
+//		oSay:SetText("Aguarde...")
+//		ProcessMessages()
+
 Return Nil
 
 

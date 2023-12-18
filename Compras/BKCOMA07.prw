@@ -49,7 +49,7 @@ ENDIF
 SM0->(DbGoTop())
 While SM0->(!EoF()) .AND. cA2COD == ""  
 
- 	If SM0->M0_CODIGO $ "07/99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
+ 	If SM0->M0_CODIGO $ "04/07/08/09/09/10/11/99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
 		SM0->(DbSKip())
 		Loop
 	EndIf
@@ -79,12 +79,13 @@ While SM0->(!EoF()) .AND. cA2COD == ""
 	TcQuery cQry1 New Alias "XSA2"
 	dbSelectArea("XSA2")
 
-	If ALLTRIM(XSA2->A2_COD) <> "" .AND. cA2COD == ""
+	If !EOF() //.AND. ALLTRIM(XSA2->A2_COD) <> "" .AND. cA2COD == ""
 		cEmpOR  := SM0->M0_CODIGO
 		cA2ARQ 	:= cArqSx2  //Alltrim(SX2DBF->X2_ARQUIVO)
 		cA2COD 	:= XSA2->A2_COD
 		cA2LOJA := XSA2->A2_LOJA
 		cA2NOME := XSA2->A2_NOME 
+		Exit
 	EndIf
 
 	//SX2DBF->(DbCloseArea())
@@ -99,9 +100,9 @@ RestArea(aSM0Area)
 
 IF !EMPTY(cA2COD)
 	IF cEmpAT==cEmpOR
-		u_MsgLog(cPerg,"Fornecedor já cadastrado código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,"W")
+		u_MsgLog(cPerg,"Abra o sistema na empresa destino, esta já tem este fornecedor cadastrado","E")
 	ELSE
-		IF u_MsgLog(cPerg,"Confirma a Inclusão do Fornecedor?? código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,"Y")
+		IF u_MsgLog(cPerg,"Confirma a Inclusão do Fornecedor: código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,"Y")
 	       CopySA2(cA2ARQ,cA2COD,cA2LOJA)
 		Endif
 	ENDIF

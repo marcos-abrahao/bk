@@ -6,70 +6,45 @@ BK - Impressao de Titulo a Pagar
 @Return
 @author Marcos Bispo Abrahão
 @since 05/01/2010
-@version P11/p12
+@version P12
 /*/
 
 User Function BKFINR06()
 
-LOCAL aArea     := GetArea()
+Local aArea     := GetArea()
 
-PRIVATE nParImpr:= 1
-PRIVATE dParVenc:= DATE()
-PRIVATE nParPlan:= 1
-PRIVATE nImpPCT := 1
-PRIVATE nImpNDF := 1
-PRIVATE nImpSel := 1
-PRIVATE nParForm:= 1
-PRIVATE cTipoBk := "   "
-PRIVATE nUsrRub := 2
+Private nParImpr:= 1
+Private dParVenc:= DATE()
+Private nParPlan:= 1
+Private nImpPCT := 1
+Private nImpNDF := 1
+Private nImpSel := 1
+Private nParForm:= 1
+Private cTipoBk := "   "
+Private nUsrRub := 2
 
-PRIVATE titulo 	:= ""
-PRIVATE wnrel   := FunName()            //Nome Default do relatorio em Disco
-PRIVATE cTitulo := "Impressão de Titulo a Pagar"
+Private titulo 	:= ""
+Private wnrel   := FunName()            //Nome Default do relatorio em Disco
+Private cTitulo := "Impressão de Titulo a Pagar"
 Private cPerg   := "BKFINR06"
 
 Private nLin    := 1650 // Linha de inicio da impressao
-PRIVATE oPrn    := NIL
-PRIVATE oFont1  := NIL
-PRIVATE oFont2  := NIL
-PRIVATE oFont3  := NIL
-PRIVATE oFont4  := NIL
-PRIVATE oFont5  := NIL
-PRIVATE oFont6  := NIL
-PRIVATE oFont8  := NIL
-PRIVATE lLands  := .T.
-PRIVATE cDescCC := ""
+Private oPrn    := NIL
+Private oFont1  := NIL
+Private lLands  := .T.
+Private cDescCC := ""
 Private aFurnas	:= U_MVXFURNAS()
 
-DEFINE FONT oFont1 NAME "Times New Roman" SIZE 0,20 BOLD  OF oPrn
-DEFINE FONT oFont2 NAME "Times New Roman" SIZE 0,14 BOLD OF oPrn
-DEFINE FONT oFont3 NAME "Times New Roman" SIZE 0,14 OF oPrn
-DEFINE FONT oFont4 NAME "Times New Roman" SIZE 0,14 ITALIC OF oPrn
-DEFINE FONT oFont5 NAME "Times New Roman" SIZE 0,14 OF oPrn
-DEFINE FONT oFont6 NAME "Courier New" BOLD
+DEFINE FONT oFont1 NAME "Courier New" SIZE 0,20 BOLD OF oPrn
 
-oFont06	 := TFont():New("Courier New",06,06,,.F.,,,,.T.,.F.)
-oFont06N := TFont():New("Courier New",06,06,,.T.,,,,.T.,.F.)
 oFont07	 := TFont():New("Courier New",07,07,,.F.,,,,.T.,.F.)
-oFont07N := TFont():New("Courier New",07,07,,.T.,,,,.T.,.F.)
-
 oFont08	 := TFont():New("Courier New",08,08,,.F.,,,,.T.,.F.)
 oFont08N := TFont():New("Courier New",08,08,,.T.,,,,.T.,.F.)
-oFont10	 := TFont():New("Courier New",10,10,,.F.,,,,.T.,.F.)
-oFont11  := TFont():New("Courier New",11,11,,.F.,,,,.T.,.F.)
 oFont14	 := TFont():New("Courier New",14,14,,.F.,,,,.T.,.F.)
-oFont16	 := TFont():New("Courier New",16,16,,.F.,,,,.T.,.F.)
-oFont10N := TFont():New("Courier New",10,10,,.T.,,,,.T.,.F.)
 oFont12  := TFont():New("Courier New",10,10,,.F.,,,,.T.,.F.)
 oFont12N := TFont():New("Courier New",10,10,,.T.,,,,.T.,.F.)
-oFont13N := TFont():New("Courier New",12,12,,.T.,,,,.T.,.F.)
 oFont14N := TFont():New("Courier New",14,14,,.T.,,,,.T.,.F.)
 oFont16N := TFont():New("Courier New",16,16,,.T.,,,,.T.,.F.)
-
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Inicio do lay-out / impressao                                ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 ValidPerg(cPerg)
 	
@@ -115,7 +90,7 @@ IF Pergunte(cPerg,.T.)
 		IF nParImpr = 1  // Unico titulo
 		    IF !EMPTY(SE2->E2_XXCTRID)
 				
-				u_WaitLog(, {|| ProcQuery() })
+				u_WaitLog(cPerg, {|| ProcQuery() }, "Consultando integração RH...")
 				DBSELECTAREA("QSZ2")
 				DBGOTOP()
 				
@@ -299,7 +274,6 @@ oPrn:SayBitmap(0030,0050,cBitMap,300,150)			// Imprime logo da Empresa: comprime
 
 oPrn:Say(0030,0400,SM0->M0_NOMECOM,oFont14N)
 
-
 dbSelectArea("SE2")
 
 Begin Sequence
@@ -448,11 +422,10 @@ Begin Sequence
     nLinHis := MLCOUNT(cHist,nMaxObs)
     
     If !EMPTY(SE2->E2_XXCTRID)
-	   u_WaitLog(, {|| ProcQuery() })
+	   u_WaitLog(cPerg, {|| ProcQuery() }, "Consultando integração RH...")
        DBSELECTAREA("QSZ2")
        DBGOTOP()
        cTipoPes := " / "+QSZ2->Z2_TIPOPES
-	   
     Endif
 
     // Inicio da Impressao
@@ -499,7 +472,7 @@ Begin Sequence
 	oPrn:Say(nLin,0400,OemToAnsi(SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME),oFont12N)
 
 	If lLands
-		//oPrn:Say(nLin,2500, "Impostos Retidos:",oFont13N)
+		//oPrn:Say(nLin,2500, "Impostos Retidos:",oFont12N)
 	Endif	
 
     nLin += 50
@@ -660,9 +633,9 @@ Begin Sequence
 
     oPrn:Box(IIF(lquebra,0100,nIniBox),0050,nLin,IIf(lLands,3140,2350))
 
-	If !lLands .AND. (SE2->E2_VRETINS <> 0 .OR.;  // Era E2_INSSRET  - 25-09-14
+	If !lLands .AND. (SE2->E2_VRETINS <> 0 .OR.;
 	                  SE2->E2_VRETIRF <> 0 .OR.;
-	                  SE2->E2_ISS <> 0 .OR.;      // Era E2_VRETISS  - 25-09-14
+	                  SE2->E2_ISS <> 0 .OR.;
 	                  SE2->E2_VRETPIS <> 0 .OR.;
 	                  SE2->E2_VRETCOF <> 0 .OR.;
 	                  SE2->E2_VRETCSL <> 0)
@@ -695,13 +668,9 @@ Begin Sequence
 		oPrn:Say(nLin,1700,TRANSFORM(SE2->E2_VRETCSL,"@ze 999,999,999.99"),oFont12N)
 
 		nLin+=100
-
     Else
-
 		nLin+=50
-    
 	EndIf
-		
 
     If !EMPTY(SE2->E2_XXCTRID)
        DBSELECTAREA("QSZ2")
@@ -1017,8 +986,7 @@ Local cTipo    := SE2->E2_TIPO
 Local cFornece := SE2->E2_FORNECE
 Local cLoja    := SE2->E2_LOJA
 
-
-//IncProc("Consultando o banco de dados...")
+// Consultando integração RH...
 
 cQuery := "SELECT ""
 cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
