@@ -100,10 +100,10 @@ ExcVZero()
 ExcDuplic()
 
 cQuery  := "SELECT Z2_CTRID,MAX(Z2_DATAPGT) AS XX_DATAPGT,SUM(Z2_VALOR) AS XX_TOTAL, MAX(Z2_NOME) AS XX_NOME " 
-cQuery  += "FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = ' ' AND SZ2.D_E_L_E_T_ <> '*' AND Z2_VALOR > 0 "
+cQuery  += "FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = ' ' AND SZ2.D_E_L_E_T_ = '' AND Z2_VALOR > 0 "
 //cQuery  += "AND Z2_TIPO NOT IN ('SOL ','PCT ','RMB ','NDB ') "  // PARA TESTES
 // 04/02/20 - Não integrar PJ/AC caso o usuário não seja o Laudecir ou Xavier
-IF !(__cUserId $ MV_XXUSRPJ)  // Laudecir, Xavier e Admin
+IF !(__cUserId $ MV_XXUSRPJ)  // Podem integrar PJ
 	cQuery  += "AND Z2_TIPOPES NOT IN ('PJ','AC') "
 ENDIF
 cQuery  += "GROUP BY Z2_FILIAL,Z2_CTRID "
@@ -485,7 +485,7 @@ For nI := 1 TO LEN(aTitGer)
              {"AUTCHEQUE"   ,""      ,NIL},;
              {"E2_XXTIPBK"  ,cTipBk,Nil},;
              {"E2_XXCTRID"  ,cCtrId,Nil},;
-             {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal",IIF(cPrefixo="CX","Caixa","Despesas de Viagem")),NIL},;
+             {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal - "+u_BKDescRH(cTipBK),IIF(cPrefixo="CX","Caixa","Despesas de Viagem")),NIL},;
              {"E2_EMISSAO"  ,dtEmi,NIL},;
              {"E2_VENCTO"   ,dVencto,NIL},;                
              {"E2_EMIS1"    ,dtEmi,NIL},;              

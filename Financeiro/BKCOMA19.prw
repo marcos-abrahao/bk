@@ -189,6 +189,7 @@ Local nY		:= 0
 Local aCab		:= {}
 Local aItem 	:= {}
 Local lSucess	:= .T.
+Local nXXLCVAL  := 0
 
 Private lMsErroAuto := .F.
 
@@ -203,10 +204,14 @@ Do While !EOF()
 	SB1->(dbsetorder(1))
 	SB1->(DbSeek(xFilial("SB1")+(cAliasTmp)->XX_COD,.F.))
 
+	nXXLCVAL := PrdSc1(cCC)
+
 	AADD(aItem,{ {"C1_ITEM"   	,STRZERO(++nY,4) 			,Nil },;
 				 {"C1_PRODUTO"	,TRIM((cAliasTmp)->XX_COD)	,Nil },;
 				 {"C1_DATPRF"	,dDatPrf					,Nil },;
 				 {"C1_QUANT"   	,(cAliasTmp)->XX_QUANT		,Nil },;
+				 {"C1_XXLCVAL"  ,nXXLCVAL					,Nil },;
+				 {"C1_XXLCTOT" 	,(cAliasTmp)->XX_QUANT * nXXLCVAL,Nil },;
 				 {"C1_CC" 		,cCC						,Nil }})
 	dbSkip()
 EndDo
@@ -368,3 +373,44 @@ Static Function fMontaHead()
         aAdd(aColunas, oColumn)
     Next
 Return
+
+
+
+Static Function PrdSc1(cCC)
+Local cQuery	:= ""
+Local nXXLCVAL	:= 1
+Local aArea1	:= GetArea()
+
+cQuery  := "SELECT TOP 1 C1_PRODUTO,C1_XXLCVAL " 
+cQuery  += " FROM "+RETSQLNAME("SC1")+" SC1 "
+cQuery  += " WHERE C1_FILIAL = '"+xFilial("SC1")+"' "
+cQuery  += "   AND C1_CC = '"+TRIM(cCC)+"' "
+cQuery  += "   AND SC1.D_E_L_E_T_ = '' "
+cQuery  += " ORDER BY C1_EMISSAO DESC "
+TCQUERY cQuery NEW ALIAS "TMPC1"
+dbSelectArea("TMPC1")
+dbGoTop() 
+If !EOF()
+    nXXLCVAL := TMPC1->C1_XXLCVAL
+EndIf
+dbCloseArea()
+
+// Procura em outros centros de custos
+If nXXLCVAL == 1
+	cQuery  := "SELECT TOP 1 C1_PRODUTO,C1_XXLCVAL " 
+	cQuery  += " FROM "+RETSQLNAME("SC1")+" SC1 "
+	cQuery  += " WHERE C1_FILIAL = '"+xFilial("SC1")+"' "
+	cQuery  += "   AND SC1.D_E_L_E_T_ = '' "
+	cQuery  += " ORDER BY C1_EMISSAO DESC "
+	TCQUERY cQuery NEW ALIAS "TMPC1"
+	dbSelectArea("TMPC1")
+	dbGoTop() 
+	If !EOF()
+		nXXLCVAL := TMPC1->C1_XXLCVAL
+	EndIf
+EndIf
+dbCloseArea()
+
+RestArea(aArea1)
+
+Return nXXLCVAL

@@ -1333,8 +1333,6 @@ Local nSnd       := 15
 Local nTLin      := 15
 Local oDlg01     as Object
 Local oButInv    as Object
-Local lAll
-Local oAll
 Local aButtons   := {}
 Local oOk
 Local oNo

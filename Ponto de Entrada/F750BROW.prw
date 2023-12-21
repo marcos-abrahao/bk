@@ -273,7 +273,7 @@ If !("DNF" $ SE2->E2_HIST)
 		ELSE
 		    u_MsgLog("BKFINA18",cRetorno+" incluída na empresa BK", "I")
 			RecLock("SE2",.F.)
-			IF UPPER(TRIM(SE2->E2_HIST)) == "DEPTO PESSOAL"
+			IF "DEPTO PESSOAL" $ UPPER(SE2->E2_HIST)
 				SE2->E2_HIST := cRetorno+" D. Pessoal"  
 			ELSE
 				SE2->E2_HIST := cRetorno+" "+SE2->E2_HIST   

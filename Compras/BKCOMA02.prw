@@ -341,13 +341,13 @@ For nI := 1 TO LEN(aTitGer)
              {"E2_NUM"      ,cNum,Nil},;
              {"E2_PARCELA"  ,cParcela,Nil},;
              {"E2_TIPO"     ,cTipo,Nil},;        
-             {"E2_FORNECE"  ,cFornece,Nil},; 
+             {"E2_FORNECE"  ,cFornece,Nil},;
              {"E2_LOJA"     ,cLoja,Nil},;      
              {"E2_NATUREZ"  ,cNaturez,Nil},;
              {"E2_PORTADO"  ,cPortado,Nil},;
              {"E2_XXTIPBK"  ,cTipBk,Nil},;
              {"E2_XXCTRID"  ,cCtrId,Nil},;
-             {"E2_HIST"     ,"Depto Pessoal",NIL},;
+             {"E2_HIST"     ,"Depto Pessoal - "+u_BKDescRH(cTipBK),NIL},;
              {"E2_EMISSAO"  ,dDataBase,NIL},;
              {"E2_VENCTO"   ,dVencto,NIL},;                
              {"E2_EMIS1"    ,dDataBase,NIL},;              

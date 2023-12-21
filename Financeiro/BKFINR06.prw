@@ -988,21 +988,36 @@ Local cLoja    := SE2->E2_LOJA
 
 // Consultando integração RH...
 
-cQuery := "SELECT ""
-cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
-cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU,Z2_NOMDEP,Z2_NOMMAE "
-cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2"
-cQuery += " WHERE Z2_FILIAL = '"+xFilial("SZ2")+"' " 
-cQuery += " AND Z2_CODEMP = '"+cEmpAnt+"' "
-cQuery += " AND Z2_E2PRF  = '"+cPrefixo+"' "
-cQuery += " AND Z2_E2NUM  = '"+cNum+"' "
-cQuery += " AND Z2_E2PARC = '"+cParcela+"' "
-cQuery += " AND Z2_E2TIPO = '"+cTipo+"' "
-cQuery += " AND Z2_E2FORN = '"+cFornece+"' "
-cQuery += " AND Z2_E2LOJA = '"+cLoja+"' "
-cQuery += " AND Z2_STATUS = 'S'"
-cQuery += " AND SZ2.D_E_L_E_T_ = ' '"
-cQuery += " ORDER BY Z2_NOME"  
+cQuery := "SELECT " + CRLF
+cQuery += "		Z2_NOME" + CRLF
+cQuery += "		,Z2_PRONT" + CRLF
+cQuery += "		,Z2_BANCO" + CRLF
+cQuery += "		,Z2_AGENCIA" + CRLF
+cQuery += "		,Z2_DATAEMI" + CRLF
+cQuery += "		,Z2_DATAPGT" + CRLF
+cQuery += "		,Z2_DIGAGEN" + CRLF
+cQuery += "		,Z2_CONTA" + CRLF
+cQuery += "		,Z2_DIGCONT" + CRLF
+cQuery += "		,Z2_TIPO" + CRLF
+cQuery += "		,Z2_VALOR" + CRLF
+cQuery += " 	,Z2_TIPOPES" + CRLF
+cQuery += "		,Z2_CC" + CRLF
+cQuery += "		,Z2_USUARIO" + CRLF
+cQuery += "		,Z2_OBSTITU" + CRLF
+cQuery += "		,Z2_NOMDEP" + CRLF
+cQuery += "		,Z2_NOMMAE " + CRLF
+cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2" + CRLF
+cQuery += " WHERE Z2_FILIAL = '"+xFilial("SZ2")+"' " + CRLF
+cQuery += " 	AND Z2_CODEMP = '"+cEmpAnt+"' " + CRLF
+cQuery += " 	AND Z2_E2PRF  = '"+cPrefixo+"' " + CRLF
+cQuery += " 	AND Z2_E2NUM  = '"+cNum+"' " + CRLF
+cQuery += " 	AND Z2_E2PARC = '"+cParcela+"' " + CRLF
+cQuery += " 	AND Z2_E2TIPO = '"+cTipo+"' " + CRLF
+cQuery += " 	AND Z2_E2FORN = '"+cFornece+"' " + CRLF
+cQuery += " 	AND Z2_E2LOJA = '"+cLoja+"' " + CRLF
+cQuery += " 	AND Z2_STATUS = 'S'" + CRLF
+cQuery += " 	AND SZ2.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " ORDER BY Z2_NOME" + CRLF
 
 TCQUERY cQuery NEW ALIAS "QSZ2"
 TCSETFIELD("QSZ2","Z2_DATAEMI","D",8,0)

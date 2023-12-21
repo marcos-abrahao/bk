@@ -98,6 +98,10 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddCol("FORMPGT","QSE2->FORMPGT","Forma Pgto","")
 
 	oPExcel:AddColX3("E2_PORTADO")
+	oPExcel:GetCol("E2_PORTADO"):SetHAlign("C")
+
+	oPExcel:AddCol("LOTE","QSE2->LOTE","Lote","")
+	oPExcel:GetCol("LOTE"):SetHAlign("C")
 
 	oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
 	oPExcel:GetCol("HIST"):SetWrap(.T.)
@@ -166,8 +170,13 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 			oPExcel:GetCol("CNPJ"):SetTamCol(21)
 			
 			oPExcel:AddColX3("E2_NATUREZ")
+			oPExcel:GetCol("E2_NATUREZ"):SetHAlign("C")
 
 			oPExcel:AddColX3("E2_PORTADO")
+			oPExcel:GetCol("E2_PORTADO"):SetHAlign("C")
+
+			oPExcel:AddCol("LOTE","QSE2->LOTE","Lote","")
+			oPExcel:GetCol("LOTE"):SetHAlign("C")
 
 			oPExcel:AddColX3("E2_VALOR")
 			oPExcel:GetCol("E2_VALOR"):SetTotal(.T.)
@@ -313,7 +322,7 @@ Return lRet
 
 Static Function ProcGer1()
 Local cQuery
-
+Local cEmpr := cEmpAnt
 If SELECT("QSE2") > 0 
 	dbSelectArea("QSE2")
    	dbCloseArea()
@@ -353,9 +362,27 @@ cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
 //cQuery += "	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ "
 cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
-cQuery += "	 			THEN E2_TIPO+' '+E2_PORTADO"+CRLF
+cQuery += "	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF
 cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
 cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
+
+cQuery += "	 ,Z2_NOME"+CRLF
+cQuery += "	 ,Z2_NOMMAE"+CRLF
+cQuery += "	 ,Z2_NOMDEP"+CRLF
+cQuery += "	 ,Z2_BORDERO"+CRLF
+cQuery += "	 ,(CASE WHEN (Z2_BANCO IS NOT NULL) AND "+CRLF
+cQuery += "	 					(SELECT COUNT(Z2_E2NUM) FROM "+RetSqlName("SZ2")+" SZ2T"+CRLF
+cQuery += "	 			    		WHERE SZ2T.D_E_L_E_T_ = ''"+CRLF
+cQuery += "	  						AND SZ2T.Z2_FILIAL = ' '"+CRLF
+cQuery += "	  	 					AND SZ2T.Z2_CODEMP = '"+cEmpr+"'"+CRLF
+cQuery += "	 						AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF
+cQuery += "	 						AND SE2.E2_NUM     = SZ2T.Z2_E2NUM"+CRLF
+cQuery += "	 	 					AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF
+cQuery += "	 	 					AND SE2.E2_TIPO    = SZ2T.Z2_E2TIPO"+CRLF
+cQuery += "	 	 					AND SE2.E2_FORNECE = SZ2T.Z2_E2FORN"+CRLF
+cQuery += "	 	 					AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA) = 1"+CRLF
+cQuery += "	 		THEN 'Bco: '+Z2_BANCO+' Ag: '+Z2_AGENCIA+'-'+Z2_DIGAGEN+' C/C: '+Z2_CONTA+'-'+Z2_DIGCONT"+CRLF
+cQuery += "	 		ELSE '' END)"+" AS Z2CONTA"+CRLF
 
 cQuery += "	 ,F1_DOC"+CRLF
 cQuery += "	 ,F1_XTIPOPG"+CRLF
@@ -473,6 +500,7 @@ cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
+cQuery += "  ,ISNULL(Z2_BORDERO,E2_LOTE) AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 If nQuebra == 1
 	cQuery += " ORDER BY E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF

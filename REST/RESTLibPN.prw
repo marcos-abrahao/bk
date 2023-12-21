@@ -549,8 +549,8 @@ Self:SetResponse( cJsonCli ) //-- Seta resposta
 
 Return( lRet )
 
-
-WSMETHOD GET CONSPN QUERYPARAM empresa,prenota,userlib WSREST RestLibPN  //v1
+// v1
+WSMETHOD GET CONSPN QUERYPARAM empresa,prenota,userlib WSREST RestLibPN
 
 Local oJsonPN	:= JsonObject():New()
 Local cRet		:= ""

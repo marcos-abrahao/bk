@@ -261,7 +261,7 @@ aadd(aCabec,{"F1_ESPECIE",cEspec})
 aadd(aCabec,{"F1_EST"    ,cUF})
 // Usuário e Superior
 aadd(aCabec,{"F1_XXUSER" ,__cUserId})
-aadd(aCabec,{"F1_XXUSER" ,u_cSuper1(__cUserID)})
+aadd(aCabec,{"F1_XXUSERS",u_cSuper1(__cUserID)})
 // Criar a NF Liberada
 //aadd(aCabec,{"F1_XXLIB"  ,"L"})
 //aadd(aCabec,{"F1_XXULIB" ,__cUserId})
