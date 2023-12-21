@@ -80,26 +80,43 @@ Return cNEmp
 // Tabela de Mneumônicos do RH
 User Function BKCodRH()
 Local aDescrRH := {}
+
+// Depto Pessoal
 aAdd(aDescrRH,{"LDV","LIQUIDOS DIVERSOS"})
-aAdd(aDescrRH,{"VA" ,"VALE ALIMENTAÇÃO"})
-aAdd(aDescrRH,{"LFE","FÉRIAS"})
-aAdd(aDescrRH,{"COM","COMISSÃO"})
-aAdd(aDescrRH,{"VR" ,"VALE REFEIÇÃO"})
+aAdd(aDescrRH,{"VA" ,"VALE ALIMENTACAO"})
+aAdd(aDescrRH,{"LFE","FERIAS"})
+aAdd(aDescrRH,{"COM","COMISSAO"})
+aAdd(aDescrRH,{"VR" ,"VALE REFEICAO"})
 aAdd(aDescrRH,{"LAD","ADIANTAMENTO"})
-aAdd(aDescrRH,{"LRC","RESCISÃO"})
+aAdd(aDescrRH,{"LRC","RESCISAO"})
 aAdd(aDescrRH,{"MFG","MULTA FGTS"})
 aAdd(aDescrRH,{"LFG","FGTS"})
 aAdd(aDescrRH,{"LPM","PGTO MENSAL"})
+aAdd(aDescrRH,{"LPMA","PGTO MENSAL"})
 aAdd(aDescrRH,{"VT" ,"VALE TRANSPORTE"})
 aAdd(aDescrRH,{"LAS","ADTO SALARIAL"})
 aAdd(aDescrRH,{"LD1","13.o PARC 1"})
 aAdd(aDescrRH,{"LD2","13.o PARC 2"})
-aAdd(aDescrRH,{"SOL","DESPESAS DE VIAGEM"})
-aAdd(aDescrRH,{"CXA","CAIXA - PREST. CONTAS"})
-aAdd(aDescrRH,{"HOS","HOSPEDAGEM"})
+aAdd(aDescrRH,{"EXM","EXAME MEDICO"})
+aAdd(aDescrRH,{"PEN","PENSAO"})
+aAdd(aDescrRH,{"REE","REEMBOLSO"})
 aAdd(aDescrRH,{"DCH","DIARIA DE CAMPO"})
-aAdd(aDescrRH,{"EXM","EXAME MÉDICO ADMISSÃO"})
-aAdd(aDescrRH,{"PEN","PENSÃO"})
+aAdd(aDescrRH,{"HEX","HORAS EXTRAS"})
+aAdd(aDescrRH,{"GRA","GRATIFICACAO"})
+aAdd(aDescrRH,{"DIN","DIN"})
+aAdd(aDescrRH,{"ADF","ADF"})
+aAdd(aDescrRH,{"LAC","LAC"})
+
+// Despesas de Viagem
+aAdd(aDescrRH,{"SOL","SOLICITACAO"})
+aAdd(aDescrRH,{"HOS","HOSPEDAGEM"})
+aAdd(aDescrRH,{"RMB","REEMBOLSO"})
+aAdd(aDescrRH,{"NDB","NDB"})
+aAdd(aDescrRH,{"PCT","PCT"})
+
+// Caixa
+aAdd(aDescrRH,{"CXA","PREST. CONTAS"})
+
 Return aDescrRH
 
 
@@ -800,6 +817,7 @@ If ALLTRIM(cContrato) $ "302000508" .and. cEmpAnt == "01"
 EndIf
 
 Return lRet
+
 
 
 

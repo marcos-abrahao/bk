@@ -1183,7 +1183,6 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E2_PARCELA"+CRLF
 	cQuery += "	 ,E2_FORNECE"+CRLF
 	cQuery += "	 ,E2_PORTADO"+CRLF
-	cQuery += "	 ,E2_LOTE"+CRLF
 	cQuery += "	 ,E2_LOJA"+CRLF
 	cQuery += "	 ,E2_NATUREZ"+CRLF
 	cQuery += "	 ,E2_HIST"+CRLF
@@ -1336,7 +1335,7 @@ cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
-cQuery += "  ,ISNULL(Z2_BORDERO,E2_LOTE) AS LOTE"+CRLF
+cQuery += "  ,ISNULL(Z2_BORDERO,' ') AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
@@ -1391,12 +1390,4 @@ ElseIf !Empty((cQrySE2)->E2_XXTIPBK)
 	cFormaPgto += '#RH#'
 EndIf
 
-/*
-If !Empty((cQrySE2)->E2_LOTE)
-	If !Empty(cFormaPgto)
-		cFormaPgto += " - "
-	EndIf
-	cFormaPgto += "Lote "+(cQrySE2)->E2_LOTE
-EndIf
-*/
 Return cFormaPgto

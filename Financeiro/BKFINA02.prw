@@ -485,7 +485,7 @@ For nI := 1 TO LEN(aTitGer)
              {"AUTCHEQUE"   ,""      ,NIL},;
              {"E2_XXTIPBK"  ,cTipBk,Nil},;
              {"E2_XXCTRID"  ,cCtrId,Nil},;
-             {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal - "+u_BKDescRH(cTipBK),IIF(cPrefixo="CX","Caixa","Despesas de Viagem")),NIL},;
+             {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal - ",IIF(cPrefixo="CX","Caixa - ","Despesas de Viagem - "))+u_BKDescRH(cTipBK),NIL},;
              {"E2_EMISSAO"  ,dtEmi,NIL},;
              {"E2_VENCTO"   ,dVencto,NIL},;                
              {"E2_EMIS1"    ,dtEmi,NIL},;              

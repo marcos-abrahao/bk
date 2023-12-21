@@ -2048,7 +2048,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 
 	u_WaitLog(cPerg,{|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)},"Associando Títulos ao Borderô")
 	
-	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso na pasta: "'+cDirTmp2+'"'
+	cMsgLog := 'Borderô Nº: '+cNumBor+' gerado com sucesso: "'+cArqTmp+'"'
 	u_MsgLog(cPerg,cMsgLog,"S")
 
 ELSE 

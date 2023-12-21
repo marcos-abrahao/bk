@@ -244,7 +244,7 @@ If Len(aTitGer) == 0
 	Return Nil
 EndIf
 
-//CONSORCIOS USAR LOTE BK
+// CONSORCIOS: USAR LOTE BK
 IF cEmpAnt $ "06/08/09/10/11/14/15/18"
 	cQuery  := "SELECT EE_CODIGO,EE_AGENCIA,EE_CONTA,EE_LOTECP "
 	cQuery  += " FROM SEE010 "
@@ -269,12 +269,12 @@ IF cEmpAnt $ "06/08/09/10/11/14/15/18"
 		nLote := VAL(Soma1(STR(nLote),8))
 
 		// Descomentar para Ativar
-		If !u_IsTeste()
+		//If !u_IsTeste()
 			cQuery 	:= " UPDATE SEE010 SET EE_LOTECP = '"+STRZERO(nLote,8)+"' "
 			cQuery  += " WHERE EE_FILIAL='"+xFILIAL("SEE")+"' AND EE_CODIGO='"+SUBSTR(cSEE,1,3)+"' AND D_E_L_E_T_ = '' "  
 			cQuery  += " AND EE_AGENCIA='"+SUBSTR(cSEE,4,5)+"' AND EE_CONTA='"+SUBSTR(cSEE,9,10)+"' AND EE_SUBCTA='"+SUBSTR(cSEE,19,3)+"'"
 			TcSqlExec(cQuery)
-		EndIf
+		//EndIf
 
 	ENDIF
 
@@ -283,7 +283,7 @@ ENDIF
 DbSelectArea("SEE")
 DbSetOrder(1)
 IF DbSeek(xFilial("SEE")+cSEE,.F.)
-	//CONSORCIOS: USAR CNPJ BK
+	// CONSORCIOS: USAR CNPJ BK
 	cCGC      := IIF(cEmpAnt $ "06/08/09/10/11/14/15/18".AND. nLote > 0 ,"03022122000177",cCGC)
     cNomeCom  := IIF(cEmpAnt $ "06/08/09/10/11/14/15/18".AND. nLote > 0 ,"BK CONSULTORIA E SERVICOS LTDA",cNomeCom)
     IF (cEmpAnt $ "06/08/09/10/11/14/15/18") .AND. nLote > 0 
@@ -291,11 +291,11 @@ IF DbSeek(xFilial("SEE")+cSEE,.F.)
 	EndIf
 
 	// Descomentar para Ativar
-	If !u_IsTeste()
+	//If !u_IsTeste()
 		RecLock("SEE",.F.)                             
 		Replace SEE->EE_LOTECP With IIF(cEmpAnt $ "06/08/09/10/11/14/15/18" .AND. nLote > 0 ,STRZERO(nLote,8),Soma1(SEE->EE_LOTECP,8))
 		SEE->( MsUnlock() )
-	EndIf
+	//EndIf
 
 	nLote := VAL(SEE->EE_LOTECP)
  
@@ -605,7 +605,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 		u_WaitLog(cPerg,{|| cNumBor := RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)})
 	//EndIf
 	
-	cMsgLog := 'Borderô Nº: '+cNumBor+ ' gerado com sucesso na pasta: "'+cDirTmp2+'"'
+	cMsgLog := 'Borderô Nº: '+cNumBor+' gerado com sucesso: "'+cArqTmp+'"'
 	u_MsgLog(cPerg,cMsgLog,"S")
 
 ELSE

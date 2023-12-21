@@ -96,6 +96,7 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
 	oPExcel:AddCol("FORMPGT","QSE2->FORMPGT","Forma Pgto","")
+	oPExcel:GetCol("FORMPGT"):SetHAlign("C")
 
 	oPExcel:AddColX3("E2_PORTADO")
 	oPExcel:GetCol("E2_PORTADO"):SetHAlign("C")
@@ -340,7 +341,6 @@ cQuery += "	 ,E2_PARCELA"+CRLF
 cQuery += "	 ,E2_FORNECE"+CRLF
 cQuery += "	 ,E2_LOJA"+CRLF
 cQuery += "	 ,E2_PORTADO"+CRLF
-cQuery += "	 ,E2_LOTE"+CRLF
 cQuery += "	 ,E2_NATUREZ"+CRLF
 cQuery += "	 ,E2_HIST"+CRLF
 cQuery += "	 ,E2_XXTIPBK"+CRLF
@@ -500,7 +500,7 @@ cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
-cQuery += "  ,ISNULL(Z2_BORDERO,E2_LOTE) AS LOTE"+CRLF
+cQuery += "  ,ISNULL(Z2_BORDERO,' ') AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 If nQuebra == 1
 	cQuery += " ORDER BY E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
