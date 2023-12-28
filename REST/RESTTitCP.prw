@@ -644,7 +644,7 @@ line-height: 1rem;
 		<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 			#NomeEmpresa#
 		</button>
-		<ul class="dropdown-menu">
+		<ul class="dropdown-menu dropdown-menu-dark">
 			#DropEmpresas#
 		</ul>
 	</div>
@@ -1094,6 +1094,8 @@ cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := STRTRAN(cHtml,"#vencreal#",::vencreal)
 cHtml := STRTRAN(cHtml,"#datavenc#",SUBSTR(::vencreal,1,4)+"-"+SUBSTR(::vencreal,5,2)+"-"+SUBSTR(::vencreal,7,2))   // Formato: 2023-10-24 input date
 
+// Empresas com integração pendente
+IntegEmp(@aEmpresas)
 
 // --> Seleção de Empresas
 nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
@@ -1194,6 +1196,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E2_XXPGTO"+CRLF
 	cQuery += "	 ,E2_XXOPER"+CRLF
 	cQuery += "	 ,E2_XXTIPBK"+CRLF
+	cQuery += "	 ,E2_XXLOTEB"+CRLF
 	cQuery += "	 ,SE2.R_E_C_N_O_ AS E2RECNO"+CRLF
 	cQuery += "	 ,A2_NOME"+CRLF
 	cQuery += "	 ,A2_TIPO"+CRLF
@@ -1335,7 +1338,7 @@ cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
-cQuery += "  ,ISNULL(Z2_BORDERO,' ') AS LOTE"+CRLF
+cQuery += "  ,ISNULL(Z2_BORDERO,E2_XXLOTEB) AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
@@ -1391,3 +1394,41 @@ ElseIf !Empty((cQrySE2)->E2_XXTIPBK)
 EndIf
 
 Return cFormaPgto
+
+
+// Marca empresa que tem integração RH Pendente
+Static Function IntegEmp(aEmpresas)
+Local cQuery 	 := "SELECT Z2_CODEMP FROM SZ2010 SZ2 "+ ;
+					" WHERE SZ2.Z2_STATUS = ' ' "+;
+					"   AND SZ2.D_E_L_E_T_ = '' "+;
+					" GROUP BY Z2_CODEMP"
+
+Local aReturn 	:= {}
+Local aBinds 	:= {}
+Local aSetFields:= {}
+Local nRet		:= 0
+Local lRet      := .F.
+Local nQ 		:= 0
+Local nE 		:= 0
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,FWSX3Util():GetFieldStruct( "Z2_CODEMP" ))
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+	u_MsgLog("IntegEmp",tcsqlerror()+" Falha ao executar a Query: "+cQuery)
+Else
+	//u_MsgLog("IntegEmp",VarInfo("aReturn",aReturn))
+	If Len(aReturn) > 0
+		For nQ := 1 To Len(aReturn)
+			nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(aReturn[nQ,1],1,2) })
+			If nE > 0
+				aEmpresas[nE,2] += " - integração pendente"			
+			EndIf
+		Next
+		lRet := .T.
+	EndIf
+Endif
+
+Return lRet

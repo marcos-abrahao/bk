@@ -2046,7 +2046,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 	fClose(nHandle)
 	cNumBor := ""
 
-	u_WaitLog(cPerg,{|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)},"Associando Títulos ao Borderô")
+	u_WaitLog(cPerg,{|| cNumBor := RunBordero(aCtrId,cBanco,cAgencia,cConta,dData,nLote)},"Associando Títulos ao Borderô")
 	
 	cMsgLog := 'Borderô Nº: '+cNumBor+' gerado com sucesso: "'+cArqTmp+'"'
 	u_MsgLog(cPerg,cMsgLog,"S")
@@ -2197,7 +2197,7 @@ Return(NIL)
 
 
 
-Static Function RunBordero(aCtrId,cBanco,cAgencia,cConta,dData)
+Static Function RunBordero(aCtrId,cBanco,cAgencia,cConta,dData,nLote)
 Local _nI 		:= 0
 Local cNBor 	:= ""
 LOCAL cNumBor	:= ""
@@ -2256,7 +2256,8 @@ For _nI:=1 To Len(aCtrId)
 			FKCOMMIT()
 	
 			RecLock("SE2")
-			Replace SE2->E2_NUMBOR  With cNumBor
+			SE2->E2_NUMBOR  := cNumBor
+			SE2->E2_XXLOTEB := STRZERO(nLote,6)
 			MsUnlock( )
 			FKCOMMIT()
 		ENDIF

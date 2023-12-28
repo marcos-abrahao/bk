@@ -350,6 +350,7 @@ cQuery += "	 ,E2_BAIXA"+CRLF
 cQuery += "	 ,E2_VENCREA"+CRLF
 cQuery += "	 ,E2_VALOR"+CRLF
 cQuery += "	 ,E2_XXPRINT"+CRLF
+cQuery += "	 ,E2_XXLOTEB"+CRLF
 cQuery += "	 ,SE2.R_E_C_N_O_ AS REGSE2"+CRLF
 cQuery += "	 ,A2_NOME"+CRLF
 cQuery += "	 ,A2_TIPO"+CRLF
@@ -500,7 +501,7 @@ cQuery += ")"+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
-cQuery += "  ,ISNULL(Z2_BORDERO,' ') AS LOTE"+CRLF
+cQuery += "  ,ISNULL(Z2_BORDERO,E2_XXLOTEB) AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 If nQuebra == 1
 	cQuery += " ORDER BY E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF

@@ -93,7 +93,7 @@ IF nStatusX > 0
    Return
 ENDIF
 
-//Verifica se a titulos zerado e devolve automatico para RH
+//Verifica se a titulos zerados e devolve automatico para RH
 ExcVZero()
 
 //Verifica se a titulos duplicado e devolve automatico para RH

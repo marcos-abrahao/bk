@@ -547,8 +547,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,CP_SALDO],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-			//cQuery 	:= ""
-    		//cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_NUMBOR = '"+STRZERO(nLote,8)+"' "
+    		//cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
 			//cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,CP_REGSE2],10)  
     		//TcSqlExec(cQuery)
 
@@ -602,7 +601,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 
 	// Descomentar para Ativar
 	//If !u_IsTeste()
-		u_WaitLog(cPerg,{|| cNumBor := RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)})
+		u_WaitLog(cPerg,{|| cNumBor := RunBordero(aTitGer,cBanco,cAgencia,cConta,dData,nLote)})
 	//EndIf
 	
 	cMsgLog := 'Borderô Nº: '+cNumBor+' gerado com sucesso: "'+cArqTmp+'"'
@@ -901,7 +900,7 @@ Return(NIL)
 
 
 
-Static Function RunBordero(aTitGer,cBanco,cAgencia,cConta,dData)
+Static Function RunBordero(aTitGer,cBanco,cAgencia,cConta,dData,nLote)
 Local _nI 		:= 0
 Local cNBor 	:= ""
 Local cNumBor	:= ""
@@ -940,7 +939,8 @@ For _nI:=1 To Len(aTitGer)
 			FKCOMMIT()
 		
 			RecLock("SE2")
-			Replace SE2->E2_NUMBOR  With cNumBor
+			SE2->E2_NUMBOR  := cNumBor
+			SE2->E2_XXLOTEB := STRZERO(nLote,6)
 			MsUnlock( )
 			FKCOMMIT()
 		ENDIF
