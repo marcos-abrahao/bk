@@ -164,7 +164,6 @@ oLayer:addWindow('Col1', 'WinGrid','Títulos' ,85,.F.,.F.,,,)
 oPanelUp := oLayer:getWinPanel('Col1','WinTop')
 oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
 
-
 lAll := .F.
 @ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelUp SIZE 050, 010 PIXEL 
 oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[10]) >= dDatabase .AND. x[3] $ cBancos,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
@@ -252,9 +251,9 @@ Endif
 If !EMPTY(aErros)
 	For _nI:= 1 To Len(aErros)
 		IF aErros[_nI,1] == 1 
-			u_MsgLog(cPerg,"CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5],"E")
+			u_MsgLog(cPerg,"CtrId "+FWEmpName(cEmpAnt)+'-'+TRIM(aErros[_nI,2])+" data de pgto diferente ("+aErros[_nI,4]+"), registro não gerado."+CHR(13)+CHR(10)+"Prontuário: "+aErros[_nI,3]+" - "+aErros[_nI,5],"E")
 		ELSEIF aErros[_nI,1] == 2 
-			u_MsgLog(cPerg,"CtrId "+FWEmpName(cEmpAnt)+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ","E")
+			u_MsgLog(cPerg,"CtrId "+FWEmpName(cEmpAnt)+'-'+TRIM(aErros[_nI,2])+" com layout banco ("+aErros[_nI,3]+") indisponível ","E")
 		ENDIF
 	NEXT
 EndIf

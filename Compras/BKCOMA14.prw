@@ -50,14 +50,14 @@ Private nValor  := 0.00
 Private aParam	 :=	{}
 Private aRet	 :=	{}
 Private cHist    := ""
-Private aBase    := {"PIS/COF/IRPJ","FGTS","INSS"} 
+Private aBase    := {"PIS/COF/IRPJ","FGTS","INSS","IRRF"} 
 Private nBase    := 1
 
 If !"UNIAO" $ SF1->F1_FORNECE
 	u_MsgLog(cProg,"Posicione em algum título de imposto para prosseguir com o rateio","E")
 	Return Nil
 Else
-	u_MsgLog(cProg,"Esta rotina efetua o rateio de títulos de impostos (PIS/COF/IRPJ/FGTS/INSS), subdividindo os itens por centros de custos no título posicionado","I")
+	u_MsgLog(cProg,"Esta rotina efetua o rateio de títulos de impostos (PIS/COF/IRPJ/FGTS/INSS/IRRF), subdividindo os itens por centros de custos no título posicionado","I")
 EndIf
 
 aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"      ,""   ,"",20,.T.})
@@ -87,6 +87,8 @@ If lRet
 		u_WaitLog(cProg, {|oSay| u_PFGTSCC(cMesI,cMesF)}, 'Processando FGTS...')
 	ElseIf nBase == 3
 		u_WaitLog(cProg, {|oSay| u_PINSSCC(cMesI,cMesF)}, 'Processando INSS Empresa e Terceiros...')
+	ElseIf nBase == 4
+		u_WaitLog(cProg, {|oSay| u_PIRRFCC(cMesI,cMesF)}, 'Processando IRRF...')
 	EndIf
 	u_WaitLog(cProg, {|oSay| AltDoc()}, 'Alterando Documento de Entrada...')
 EndIf
@@ -178,6 +180,7 @@ Local nPosCC    := 0
 Local nPosvunit := 0
 Local nPosCusto := 0
 Local nPosTotal := 0
+Local nPosDCC	:= 0
 Local nPosxxHist:= 0
 Local nPosNumSeq:= 0
 Local cxxHist   := ""
@@ -193,6 +196,7 @@ Do WHile !QTMP->(EOF())
 	aadd(aLinha,{"D1_VUNIT"  ,QTMP->VALCC,Nil})
 	aadd(aLinha,{"D1_TOTAL"  ,QTMP->VALCC,Nil})
 	aadd(aLinha,{"D1_CC"     ,QTMP->CC,Nil})
+	aadd(aLinha,{"D1_XXDCC"  ,Posicione("CTT",1,xFilial("CTT")+QTMP->CC,"CTT_DESC01"),Nil})
 	aadd(aLinha,{"D1_XXHIST" ,ALLTRIM(cHist),Nil})
 	aadd(aItens,aLinha)
 	cHist := ""
@@ -219,6 +223,8 @@ IF Len(aItens) > 0 .AND. nTotal > 0
 						nPosCusto := nX
 					ElseIf SD1->(FieldName(nX)) == "D1_TOTAL"
 						nPosTotal := nX
+					ElseIf SD1->(FieldName(nX)) == "D1_XXDCC"
+						nPosDCC := nX
 					ElseIf SD1->(FieldName(nX)) == "D1_XXHIST"
 						nPosxxHist:= nX
 					ElseIf SD1->(FieldName(nX)) == "D1_NUMSEQ"
@@ -269,6 +275,8 @@ IF Len(aItens) > 0 .AND. nTotal > 0
 						SD1->(FieldPut(nY,STRZERO(nX,4)))
 					ElseIf nY == nPosCC    
 						SD1->(FieldPut(nY,aItens[nX,6,2]))
+					ElseIf nY == nPosDCC    
+						SD1->(FieldPut(nY,aItens[nX,7,2]))
 					ElseIf nY == nPosvunit 
 						SD1->(FieldPut(nY,aItens[nX,4,2]))
 					ElseIf nY == nPosCusto 

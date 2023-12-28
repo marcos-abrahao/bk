@@ -1,5 +1,73 @@
 ==============================================================
--- XX/12/23  
+-- 28/12/23  - Acerto D1_XXDCC
+
+SELECT D1_CC,D1_XXDCC,CTT_DESC01
+--UPDATE SD1010 SET D1_XXDCC = CTT_DESC01
+FROM SD1010 SD1
+INNER JOIN CTT010 CTT ON D1_CC = CTT_CUSTO
+ORDER BY SD1.R_E_C_N_O_
+
+==============================================================
+-- 28/12/23  - IRRF retido na Fonte - bk_senior
+
+-- IRRF Lançado: 1.472.597,20
+-- Query        -1.471.875.30
+
+
+
+WITH FOLHA AS (
+SELECT
+SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0'),1,2) COLLATE Latin1_General_BIN AS EMPRESA,
+   (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND 
+			SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508'
+         WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND 
+	        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
+         WHEN bk_senior.bk_senior.R046VER.NumEmp = 16 AND 
+	        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '386000609'
+	  ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO,
+SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS COMPETAM,
+bk_senior.bk_senior.R046VER.CodEve AS EVENTO,
+UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN AS DESCREVENTO,
+bk_senior.bk_senior.R008EVC.TipEve AS TIPOEVENTO,
+(CASE WHEN bk_senior.bk_senior.R008EVC.TipEve = 3
+		   THEN -bk_senior.bk_senior.R046VER.ValEve 
+      ELSE bk_senior.bk_senior.R046VER.ValEve END) AS VALOR
+FROM bk_senior.bk_senior.R046VER 
+INNER JOIN bk_senior.bk_senior.R044cal  
+           ON  bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R044cal.NumEmp
+           AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal
+INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA 
+		ON bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp
+		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad
+		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol
+		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal
+INNER JOIN bk_senior.bk_senior.R008EVC 
+		ON bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab
+		AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve
+LEFT JOIN bk_senior.bk_senior.R034FUN 
+	ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R034FUN.numemp
+	AND bk_senior.bk_senior.R046VER.NumCad = bk_senior.bk_senior.R034FUN.numcad
+	AND bk_senior.bk_senior.R046VER.TipCol = bk_senior.bk_senior.R034FUN.tipcol
+LEFT JOIN bk_senior.bk_senior.R024CAR 
+	ON 	bk_senior.bk_senior.R034FUN.codcar = bk_senior.bk_senior.R024CAR.CodCar
+	AND	bk_senior.bk_senior.R024CAR.EstCar = 1
+WHERE 
+Tipcal IN(11) AND Sitcal = 'T'
+AND bk_senior.bk_senior.R046VER.NumEmp = '01'
+AND SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN = '202310'
+AND UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN LIKE '%IRRF%'
+--AND (bk_senior.bk_senior.R046VER.CodEve = 304 OR bk_senior.bk_senior.R046VER.CodEve = 308)
+), FOLHA2 AS (
+SELECT EMPRESA,CONTRATO,COMPETAM,EVENTO,DESCREVENTO,TIPOEVENTO,SUM(VALOR) AS VALOR FROM FOLHA
+GROUP BY EMPRESA,CONTRATO,COMPETAM,EVENTO,DESCREVENTO,TIPOEVENTO
+)
+SELECT CONTRATO,SUM(VALOR) FROM FOLHA2 
+GROUP BY CONTRATO
+ORDER BY CONTRATO
+
+--SELECT SUM(VALOR) FROM FOLHA2
+
+
 ==============================================================
 -- XX/12/23  
 
