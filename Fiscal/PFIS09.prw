@@ -291,23 +291,18 @@ Aadd( aCampos,"TRB->XX_CODBCC")
 AADD(aCabs  ,"CODBCC")
 AAdd(aFixeFX,{"CODBCC","XX_CODBCC",'C', 02,00,'@!'})
 
-u_WaitLog(, {|| ProcPFIS09() })
+u_WaitLog("PFIS09", {|| ProcPFIS09() })
 
-//Processa ( {|| MBrwPFIS09()})
-If MsgYesNo("Corrige?","Ajuste PIS/COFINS")
+If u_MsgLog("PFIS09","Corrige os ajustes de PIS/COFINS","Y")
 	cArqTmp := U_CORPFIS09()
-	//U_SENDMAIL("PFIS09","Backup PIS COFINS","microsiga@bkconsultoria.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp,cArqTmp,.F.)
     U_BkSnMail("PFIS09", "Backup PIS COFINS", "microsiga@bkconsultoria.com.br;", "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp})
-
 Else
 	u_WaitLog(, {|| U_CSVPFIS09()})
 EndIf
 
 oTmpTb:Delete()
-///TRB->(Dbclosearea())
  
 Return
-
 
 
 

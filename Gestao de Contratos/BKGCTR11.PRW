@@ -4211,8 +4211,7 @@ Static Function GeraXGCT11(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFo
 
 	Private xQuebra,xCampo
 
-
-	If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+	If u_MsgLog("BKGCTR11","Deseja gerar no formato Excel (.xlsx)","Y")
 		AADD(aPlans,{_cAlias,TRIM(cArqS),"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. })
 		U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		Return Nil

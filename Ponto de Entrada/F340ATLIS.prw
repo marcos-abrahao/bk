@@ -11,7 +11,7 @@ F340ATLIS - Manipulação de Array na tela de compensação
 User Function F340ATLIS()
 Local aTitulos := PARAMIXB[1]   // Opção Escolhida pelo usuario 
 
-If MsgYesNo("Deseja filtrar e marcar títulos?","BK - F340ATLIS")
+If u_MsgLog("F340ATLIS","Deseja filtrar e marcar títulos?","Y")
     BK340Filt(aTitulos)
 EndIf
 

@@ -650,7 +650,8 @@ A1_COD	A1_NOME
 000345	PETROBRAS EDUCACAO AMBIENTAL                                                    
 000346	PETROBRAS CARAGUATATUBA - BOMBEIROS                                             
 000347	PETROBRAS EDICIN - U.P.                                                         
-000372	PETROBRAS TRANSPORTE S.A. - TRANSPETRO                                          
+000372	PETROBRAS TRANSPORTE S.A. - TRANSPETRO
+000389  PETROLEO BRASILEIRO S A PETROBRAS                                                                                        
 */
 User Function IsPetro(cCliente)
 Local lRet		:= .F.
@@ -677,6 +678,7 @@ If cEmpAnt == "01" .AND. !Empty(cCliente)
 	aAdd(aPetro,"000346")
 	aAdd(aPetro,"000347")
 	aAdd(aPetro,"000372")
+	aAdd(aPetro,"000389")
 	If Ascan(aPetro,cCliente) > 0
 		lRet := .T.
 	EndIf

@@ -57,11 +57,11 @@ Return Nil
 
 User Function BKGCTA03()
 If CN9->CN9_SITUAC == "02"
-	If MsgYesNo("Deseja retornar este contrato para vigente?")
+	If u_MsgLog("BKGCTA03","Deseja retornar este contrato para vigente","Y")
 		dbSelectArea("SZG")
 		dbSetOrder(1)
 		IF !dbSeek(xFilial("SZG")+CN9->CN9_NUMERO,.F.) //+CN9->CN9_REVISA,.F.)
-			MsgAlert("Contrato não possui Ficha de Projeção Financeira!!")
+			u_MsgLog("BKGCTA03","Contrato não possui Ficha de Projeção Financeira!!","W")
 		ENDIF
 		dbSelectArea("CN9")
 		RecLock("CN9",.F.)
@@ -69,21 +69,21 @@ If CN9->CN9_SITUAC == "02"
 	  	msUnlock()
 	EndIf
 ElseIf CN9->CN9_SITUAC == "05"
-   If MsgYesNo("Deseja retornar este contrato para em elaboração?")
+   If u_MsgLog("BKGCTA03","Deseja retornar este contrato para em elaboração?","N")
 	  dbSelectArea("CN9")
 	  RecLock("CN9",.F.)
 	  CN9->CN9_SITUAC := "02"
       msUnlock()
    EndIf
 ElseIf CN9->CN9_SITUAC == "07"
-   If MsgYesNo("Deseja retornar este contrato para vigente?")
+   If u_MsgLog("BKGCTA03","Deseja retornar este contrato para vigente","Y")
 	  dbSelectArea("CN9")
 	  RecLock("CN9",.F.)
 	  CN9->CN9_SITUAC := "05"
       msUnlock()
    EndIf
 ElseIf CN9->CN9_SITUAC == "08"
-   If MsgYesNo("Deseja retornar este contrato para vigente?")
+   If u_MsgLog("BKGCTA03","Deseja retornar este contrato para vigente","Y")
 	  dbSelectArea("CN9")
 	  RecLock("CN9",.F.)
 	  CN9->CN9_SITUAC := "05"
@@ -96,7 +96,7 @@ Return Nil
 // Remover percentual de Caução - 15/11/2020 - Marcos
 User Function BKGCTA23()
 If ALLTRIM(CN9->CN9_SITUAC) $ "05/09/A"
-	If MsgYesNo("Deseja remover o % de caução deste contrato?")
+	If u_MsgLog("BKGCTA23","Deseja remover o % de caução deste contrato?","Y")
 		dbSelectArea("CN9")
 		RecLock("CN9",.F.)
 	  	CN9->CN9_FLGCAU := "2"
@@ -131,7 +131,7 @@ Local cContRev
 Local dDAPR,dDPRO,dDSN1,dDSN2,dDSN3,dDSN4,dDSN5,cOREP,cOBSA,dDREP,dDPEDR,nVlPedR,nSREP
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA04","Posicione na revisão atual do contrato","E")
 	Return .F.
 ENDIF
 
@@ -820,12 +820,12 @@ PRIVATE dDtProj   := CTOD("")
 PRIVATE cSeqProj := ""
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA11","Posicione na revisão atual do contrato","E")
 	Return .F.
 ENDIF
 
 IF CN9->CN9_SITUAC $ "01/06/07/08"
-	MSGSTOP("A Condição do Contrato não permite inclusão de Planejamento", "Atenção")
+	u_MsgLog("BKGCTA11","A Condição do Contrato não permite inclusão de Planejamento","E")
 	Return .F.
 ENDIF 
 
@@ -906,7 +906,7 @@ EndDo
 IF nFatPrev == 0
 // .AND. nFatPrevUltimo <> 0
 //   nFatPrev := nFatPrevUltimo
-	MSGSTOP("Competência não encontrada para data informada", "Atenção")
+	u_MsgLog("BKGCTA11","Competência não encontrada para data informada", "E")
 ENDIF 
 
 dbSelectArea("CN9")
@@ -1025,7 +1025,7 @@ If ( lOk )
 		nDespDiv1	== nDespDiv .AND.;
 		nRentab1	== nRentab .AND.;
 		!lAlterad
-		u_MsgLog(,"Não houve alterações","W")
+		u_MsgLog("BKGCTA11","Não houve alterações","W")
 	ELSE
         cNewSeq := ""
         cQuery  := ""
@@ -1127,7 +1127,7 @@ IF cTipo == "01"
 	IF nTotDet > 0 
 		IF nTotDet <> nBenef
 			IF nBenef > 0
-		   		IF MsgNoYes( "Total do Detalhamento dos Benefícios, diferente do valor atual do Benefício. Assumir valor total do detalhamento?  "+STR(nTotDet,10,2), "Atenção" )
+		   		IF u_MsgLog("BKGCTA11","Total do Detalhamento dos Benefícios, diferente do valor atual do Benefício. Assumir valor total do detalhamento"+STR(nTotDet,10,2), "Y" )
 					nBenef := nTotDet 
 		   		ENDIF
 		    ELSE
@@ -1141,7 +1141,7 @@ IF cTipo == "02"
 	IF nTotDet > 0 
 		IF nTotDet <> (nDespDiv + nMaterial + nEquip + nUnif)
 			IF (nDespDiv + nMaterial + nEquip + nUnif) > 0
-		   		IF MsgNoYes( "Total do Detalhamento dos gastor gerais, diferente da soma dos Materiais,Equipamentos, Uniformes e Desp. Diversas. Assumir valor total do detalhamento? "+STR(nTotDet,10,2), "Atenção" )
+		   		IF u_MsgLog("BKGCTA11","Total do Detalhamento dos gastor gerais, diferente da soma dos Materiais,Equipamentos, Uniformes e Desp. Diversas. Assumir valor total do detalhamento"+STR(nTotDet,10,2), "Y")
 		   			nDespDiv := nTotDet
 		   			nMaterial:= 0
 		   			nEquip   := 0
@@ -1293,24 +1293,24 @@ Static Function  validaSZG()
 LOCAL lOk:=.T.
 
     IF dDVigPrFin < dtInicio
-		MsgStop("Data Projeção Financeira menor que a vigência do Cronograma!", "Atenção")
+		u_MsgLog("BKGCTA11","Data Projeção Financeira menor que a vigência do Cronograma!", "E")
 		lOk:= .F.
     ENDIF
     IF dDVigPrFin > dDVig
-		MsgStop("Data Projeção Financeira maior que a vigência do Contrato!", "Atenção")
+		u_MsgLog("BKGCTA11","Data Projeção Financeira maior que a vigência do Contrato!", "E")
 		lOk:= .F.
     ENDIF
     IF nFatPrev == 0
-		MSGSTOP("Competência não encontrada para data informada", "Atenção")
+		u_MsgLog("BKGCTA11","Competência não encontrada para data informada", "E")
 		lOk:= .F.
 	ENDIF 
 	If TRANSFORM(nTotFat,"@E 999,999,999,999.99") <> TRANSFORM(nTotGeral,"@E 999,999,999,999.99")
-		IF !MsgYesNo("Valor Total Mensal informado diferente do Total Geral!"+Chr(13) + Chr(10)+"Valor Total Mensal="+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Total Geral=            "+TRANSFORM(nTotGeral,"@E 999,999,999,999.99"), "Atenção")
+		IF !u_MsgLog("BKGCTA11","Valor Total Mensal informado diferente do Total Geral!"+Chr(13) + Chr(10)+"Valor Total Mensal="+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Total Geral=            "+TRANSFORM(nTotGeral,"@E 999,999,999,999.99"), "Y")
 			lOk:= .F.
 		ENDIF
 	Endif                                                                                                                                                                                                                                    
 	If TRANSFORM(nTotFat,"@E 999,999,999,999.99") <> TRANSFORM(nFatPrev,"@E 999,999,999,999.99") 
-		MsgStop("Valor Total Mensal informado diferente do Fat. Previsto no Cronograma!"+Chr(13) + Chr(10)+"Valor Total Mensal=                 "+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Fat. Previsto no Cronograma="+TRANSFORM(nFatPrev,"@E 999,999,999,999.99"), "Atenção")
+		u_MsgLog("BKGCTA11","Valor Total Mensal informado diferente do Fat. Previsto no Cronograma!"+Chr(13) + Chr(10)+"Valor Total Mensal=                 "+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Fat. Previsto no Cronograma="+TRANSFORM(nFatPrev,"@E 999,999,999,999.99"), "E")
 		lOk:= .F.
 	Endif
 	
@@ -1337,7 +1337,7 @@ PRIVATE cXXEQP:="",dXXEQPD:=CTOD(""),cXXEQPH:=""
 
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA13","Posicione na revisão atual do contrato", "E")
 	Return .F.
 ENDIF
 
@@ -1475,7 +1475,7 @@ If ( lOk )
 		dXXEQPD == CN9->CN9_XXEQPD .AND.;
 		cXXEQPH == CN9->CN9_XXEQPH
 
-		u_MsgLog(,"Não houve alterações","W")
+		u_MsgLog("BKGCTA13","Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		//Carrega Valores do Contrato
@@ -1700,7 +1700,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   u_MsgLog(,'Não há historico de insumos operacionais',"W")
+   u_MsgLog("BKGCTA14",'Não há historico de insumos operacionais',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -1736,13 +1736,13 @@ Local cTPAT   := ""
 Local cSTAT   := ""
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA15","Posicione na revisão atual do contrato", "E")
 	Return .F.
 ENDIF
 
 
 IF EMPTY(CN9->CN9_XXTPAT)
-	MsgStop("Contrato não possui aviso de Atestado de Capacidade Técnica", "Atenção")
+	u_MsgLog("BKGCTA15","Contrato não possui aviso de Atestado de Capacidade Técnica", "E")
    	Return .F.
 ENDIF
 
@@ -1786,7 +1786,7 @@ ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg0
 If ( lOk )
 	lOk:=.F.
 	IF cSTAT == CN9->CN9_XXSTAT .AND. dSTAT == CN9->CN9_XXDSTA .AND. CN9->CN9_XXDSAT == dDSAT
-		u_MsgLog(,"Não houve alterações","W")
+		u_MsgLog("BKGCTA15","Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXSTAT := cSTAT
@@ -1851,8 +1851,6 @@ BR_PINK
 BR_PRETO
 */
 
- 
-
 AADD(aCores,{"Z4_DSTA >= Z4_DAAT " ,"BR_VERDE" })
 AADD(aCores,{"Z4_DSTA < Z4_DAAT ","BR_VERMELHO" })
 
@@ -1866,7 +1864,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   u_MsgLog(,'Não há historico de Atestado Capacidade Técnica',"W")
+   u_MsgLog("BKGCTA16",'Não há historico de Atestado Capacidade Técnica',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -1892,7 +1890,7 @@ Local cHVST  := CN9->CN9_XXHVST
 
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA18","Posicione na revisão atual do contrato", "E")
 	Return .F.
 ENDIF
 
@@ -1932,7 +1930,7 @@ ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:=.T., oDlg0
 If ( lOk )
 	lOk:=.F.
 	IF CN9->CN9_XXPVST == SUBSTR(cPVDST,1,1) .AND. CN9->CN9_XXDVST == dDVST .AND. CN9->CN9_XXHVST == cHVST 
-		u_MsgLog(,"Não houve alterações","W")
+		u_MsgLog("BKGCTA18","Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXPVST := cPVDST                 
@@ -1971,7 +1969,7 @@ Local cAlias    := "SZN"
 Local aCores    := {}
 Local cFiltra   := "ZN_FILIAL == '"+xFilial('SZN')+"' .And. TRIM(ZN_CONTRAT) == '"+cContrato+"'"
 
-Private cCadastro := "Histórico - Documento de Segurança do Trabalho""
+Private cCadastro := "Histórico - Documento de Segurança do Trabalho"
 Private aRotina   := {}
 Private aIndexSz  := {}
 Private bFiltraBrw:= { || FilBrowse(cAlias,@aIndexSz,@cFiltra) }
@@ -2006,7 +2004,7 @@ Eval(bFiltraBrw)
 dbSelectArea(cAlias)
 dbGoTop()
 If EOF()
-   u_MsgLog(,'Não há historico de Atestado Capacidade Técnica',"W")
+   u_MsgLog("BKGCTA19",'Não há historico de Documento de Segurança do Trabalho',"W")
 Else
    mBrowse(6,1,22,75,cAlias,,,,,,aCores)
 EndIf
@@ -2034,7 +2032,7 @@ Local aAreaCNN	:= CNN->( GetArea() )
 Local lGrupos	:= .F.
 
 If CN9->CN9_VLDCTR <> "1"
-	If MsgYesNo("Deseja alterar o modo de acesso por filial desse contrato?")
+	If u_MsgLog("BKGCTA21","Deseja alterar o modo de acesso por filial desse contrato","Y")
 		dbSelectArea("CN9")
 		RecLock("CN9",.F.)
 	  	CN9->CN9_VLDCTR := "1"
@@ -2042,7 +2040,7 @@ If CN9->CN9_VLDCTR <> "1"
 		lGrupos := .T.
 	EndIf
 Else
-	lGrupos := MsgYesNo("Deseja liberar os grupos de gestão para esse contrato?")
+	lGrupos := u_MsgLog("BKGCTA21","Deseja liberar os grupos de gestão para esse contrato","Y")
 Endif
 
 If lGrupos

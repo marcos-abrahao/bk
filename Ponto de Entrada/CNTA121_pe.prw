@@ -408,12 +408,14 @@ Local cSql		as Character
 Local nMesComp	as Numeric
 Local nAnoComp	as Numeric
 Local cAliasSZ2 as Character
+Local aArea		as Array
 
 If nOpc == 3
 	// Inclusão
 
 	// Não emitir NDC para a Petrobrás 10/05/22 
 	If !u_IsPetro(CXN->CXN_CLIENT)
+		aArea := GetArea()
 		cAliasSZ2:= GetNextAlias()
 
 		// Buscar solicitações de até 3 meses atras
@@ -426,25 +428,25 @@ If nOpc == 3
 			nAnoComp--
 		EndIf
 			
-		cSql := "SELECT Z2_CC,SUM(Z2_VALOR)AS TOTAL,"
-		cSql += " (SELECT TOP 1 CND_XXDV FROM CND010 CND WHERE CND.D_E_L_E_T_='' "
-		cSql += "  AND CND_CONTRA='"+M->CND_CONTRA+"' AND CND_COMPET='"+M->CND_COMPET+"' AND CND_XXDV<>'' ) AS CND_XXDV " 
+		cSql := "SELECT SUM(Z2_VALOR) AS TOTAL"
+		//cSql += " ,Z2_CC"
+		//cSql += " ,(SELECT TOP 1 CND_XXDV FROM CND010 CND WHERE CND.D_E_L_E_T_='' "
+		//cSql += "  AND CND_CONTRA='"+M->CND_CONTRA+"' AND CND_COMPET='"+M->CND_COMPET+"' AND CND_XXDV<>'' ) AS CND_XXDV " 
 		cSql += "FROM SZ2010 SZ2 "
-		cSql += "WHERE SZ2.D_E_L_E_T_='' AND Z2_CODEMP='"+cEmpAnt+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
+		cSql += "WHERE SZ2.D_E_L_E_T_='' " //AND SZ2.Z2_FILIAL = '"+xFilial("SZ2")+"' "
+		cSql += "  AND Z2_CODEMP='"+cEmpAnt+"' AND Z2_TIPO='SOL' AND Z2_STATUS <> 'D' AND Z2_NDC = ' ' "
 		//cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)='"+SUBSTR(M->CND_COMPET,4,4)+SUBSTR(M->CND_COMPET,1,2)+"'"
 		cSql += " AND SUBSTRING(Z2_DATAEMI,1,6)>='"+STRZERO(nAnoComp,4)+STRZERO(nMesComp,2)+"'"
 		cSql += " AND Z2_CC='"+M->CND_CONTRA+"' "
-		cSql += "GROUP BY Z2_CC "
+		//cSql += "GROUP BY Z2_CC "
 
 		cSql := ChangeQuery(cSql)
 		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cSql),cAliasSZ2,.T.,.T.)
 
-		//TCQUERY cSql NEW ALIAS (cAliasSZ2)
-			
 		dbSelectArea(cAliasSZ2)
 		(cAliasSZ2)->(DbGotop()) 
 		If (cAliasSZ2)->TOTAL > 0 
-			If MsgYesNo("Faturado solicitação de viagens contrato: "+TRIM(M->CND_CONTRA)+" - Valor R$ "+ALLTRIM(TRANSFORM((cAliasSZ2)->TOTAL,"@E 999,999,999.99")))
+			If u_MsgLog("CNTA121_PE","Faturado solicitação de viagens contrato: "+TRIM(M->CND_CONTRA)+" - Valor R$ "+ALLTRIM(TRANSFORM((cAliasSZ2)->TOTAL,"@E 999,999,999.99")),"Y")
 				M->CND_XXDV   := "S"
 				M->CND_XXVLND := (cAliasSZ2)->TOTAL
 				//Inclui a NDC
@@ -453,6 +455,10 @@ If nOpc == 3
 				M->CND_XXDV   := "N"
 			EndIf
 		EndIf
+		(cAliasSZ2)->(DbCloseArea())
+		RestArea(aArea)
+	Else
+		M->CND_XXDV   := "N"
 	EndIf
 ElseIf nOpc == 5 .AND. !EMPTY(CND->CND_XXNDC)
 	// Exclui a NDC
@@ -551,4 +557,3 @@ u_xxLog("\log\cnta121_pe.log","CNTA121_PE" + ": " + cMsg)
 
 Return NIL
  
-

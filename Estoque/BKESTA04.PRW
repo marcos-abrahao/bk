@@ -141,11 +141,11 @@ STATIC FUNCTION PBKESTA04()
 	ENDDO
 
 	IF LEN(aPlanLida) > 0
-		IF MsgYesNo("Gerar "+STR(LEN(aPlanLida),3)+" Termo de Responsabilidade de Uso de Uniformes", "Atenção")
+		IF u_MsgLog("BKEST04","Gerar "+STR(LEN(aPlanLida),3)+" Termo de Responsabilidade de Uso de Uniformes", "Y")
 			GRAVUNIF()
 		ENDIF
 	ELSE
-		MSGINFO( "Dados não encontrado", "Atenção" )
+		u_MsgLog("BKEST04","Dados não encontrados","W")
 	ENDIF
 
  Return

@@ -216,13 +216,13 @@ ELSEIF nValor > 0
 		cValor := SUBSTR(cStr,10,10)
 		nValPg := VAL(cValor)/100
 		IF nValPg <> nValor
-			lRet := MsgYesNo("Valor do boleto (R$ "+ALLTRIM(STR(nValPG,11,2))+") difere do saldo do título, aceitar assim mesmo?","CodBarTVl")
+			lRet := u_MsgLog("CodBarTVl","Valor do boleto (R$ "+ALLTRIM(STR(nValPG,11,2))+") difere do saldo do título, aceitar assim mesmo?","Y")
 		ENDIF
 	ELSEIF cTipo == "C"
 		cValor := SUBSTR(cStr,5,11)   // Aqui o cStr está sem os digitos verificadores
 		nValPg := VAL(cValor)/100
 		IF nValPg <> nValor
-			lRet := MsgYesNo("Valor da fatura (R$ "+ALLTRIM(STR(nValPG,11,2))+") difere do saldo do título, aceitar assim mesmo?","CodBarTVl")
+			lRet := u_MsgLog("CodBarTVl","Valor da fatura (R$ "+ALLTRIM(STR(nValPG,11,2))+") difere do saldo do título, aceitar assim mesmo?","Y")
 		ENDIF
 	ENDIF	
 ENDIF

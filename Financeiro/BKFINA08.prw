@@ -68,7 +68,7 @@ User Function BKFINA08()
 	QSZ8->(dbCloseArea())
 
 	IF nCount > 0
-		IF MsgYesNo("Competência já foi processada, deseja reprocessar?")
+		IF u_MsgLog("BKFINA08","Competência já foi processada, deseja reprocessar","N")
 			lProc := .T.
 		Else
 			lProc := .F.

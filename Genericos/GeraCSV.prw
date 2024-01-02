@@ -50,7 +50,7 @@ If Len(aTitulos) > 0
 EndIf
 
 If !lJob
-   If MsgYesNo("Deseja gerar no formato Excel (.xlsx) ?")
+   If u_MsgLog("GeraCsv","Deseja gerar no formato Excel (.xlsx)","Y")
       AADD(aPlans,{_cAlias,TRIM(cArqS),dbFilter(),aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose })
       cFile := U_PlanXlsx(aPlans,cTitulo,cArqS, lClose,)
       lImpr := .T.
