@@ -12,6 +12,7 @@ Tratamento do campo campo Z2_STATUS pelos sistemas:
 "X"- Em seleção, na tela do financeiro: RH não pode manipular
 "S"- Titulos gerados no financeiro: financeiro pode excluir,RH não pode manipular
 "D"- Titulos excluídos no financeiro: RH pode manipular
+"B"- Bloqueado - aguardando aprovação na intranet
 
     Gerar PA (pagamento antecipado) quanto Z2_TIPOPES = PJ,AC ou CLA
         Quando Z2_TIPOPES = PJ, utilizar fornecedor Z2_CODFOR / Z2_LOJFOR
@@ -186,7 +187,7 @@ If ( lOk )
 			cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' AND Z2_STATUS = 'X' AND Z2_CTRID = '"+aCtrId[nI,2]+"' "
 			cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'  AND Z2_VALOR > 0 "
 			//cQuery  += "AND Z2_TIPO NOT IN ('SOL ','PCT ','RMB ','NDB ') "  // PARA TESTES
-			// 04/02/20 - Não integrar PJ/AC caso o usuário não seja o Laudecir ou Xavier
+			// 04/02/20 - Não integrar PJ/AC caso o usuário não seja o Laudecir,Diego ou Xavier (Andresa Provisória)
 			IF !(__cUserId $ MV_XXUSRPJ)  // Laudecir, Xavier e Admin
 				cQuery  += "AND Z2_TIPOPES NOT IN ('PJ','AC') "
 			ENDIF

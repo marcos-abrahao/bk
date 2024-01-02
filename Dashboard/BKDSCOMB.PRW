@@ -14,13 +14,13 @@ BK - Atualização da tabela COMBUSTIVEIS do banco de dados PowerBk
 User Function BKDSCOMB(aParams)
 
 Local nNumMsg 	 		:= 0
-Local nTam    			:= 0
+//Local nTam    			:= 0
 Local nI     			:= 0
-Local oXml    			:= Nil
+//Local oXml    			:= Nil
 Local cXml    			:= ""
-Local nTpXML  			:= 0
-Local aNFe    	 		:= {}
-Local aXml   	  		:= {}
+//Local nTpXML  			:= 0
+//Local aNFe    	 		:= {}
+//Local aXml   	  		:= {}
 Local cServer	  		:= ""
 Local cConta  	  		:= ""
 Local cPass    			:= ""

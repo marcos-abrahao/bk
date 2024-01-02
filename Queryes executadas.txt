@@ -1,4 +1,18 @@
 ==============================================================
+-- xx/12/23  - Acerto
+
+UPDATE SZ5010 SET D_E_L_E_T_='*'
+ WHERE D_E_L_E_T_='' 
+
+ AND Z5_ANOMES='202001'
+ AND Z5_EVENTO in ('300','393','INS-E','INS-T')
+==============================================================
+-- 29/12/23  - Exclusão de integração - Ana do RH
+
+DELETE FROM SZ2010 WHERE Z2_DATAPGT = '20240104'  AND Z2_STATUS = 'B' AND D_E_L_E_T_ = ' '
+DELETE FROM SZ2010 WHERE Z2_DATAPGT = '20240105'  AND Z2_STATUS = 'B' AND D_E_L_E_T_ = ' '
+
+==============================================================
 -- 28/12/23  - Acerto D1_XXDCC
 
 SELECT D1_CC,D1_XXDCC,CTT_DESC01

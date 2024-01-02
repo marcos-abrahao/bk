@@ -89,7 +89,7 @@ PRIVATE nMoeda      := 1
 PRIVATE nMoedaBco   := 1
 PRIVATE nDecs       := 2
 PRIVATE lLands  	:= .T.
-PRIVATE aDescrRH 	:= u_BkCodRH()
+PRIVATE aDescRH 	:= u_BkCodRH()
 PRIVATE aSitFin 	:= {}
 
 AADD(aSitFin,"Total Clientes")
@@ -103,10 +103,7 @@ AADD(aSitFin,"G - Impostos")
 AADD(aSitFin,"H - MMDK / ESA / Just / Consórcio")
 AADD(aSitFin,"J - Outros")
 
-
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Verifica as perguntas selecionadas ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Verifica as perguntas selecionadas
 
 VldPerg(cPerg)
 IF !Pergunte(cPerg,.T.)
@@ -114,9 +111,7 @@ IF !Pergunte(cPerg,.T.)
 ENDIF
 u_MsgLog(cPerg)
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Variaveis utilizadas para parametros						 ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Variaveis utilizadas para parametros
 
 dDataI   := MV_PAR01	// Data Inicial
 dDataF   := MV_PAR02	// Data Final
@@ -256,24 +251,12 @@ If nAplic == 1
 EndIf
 
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Cria o arquivo temporario de bancos           ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Cria o arquivo temporario da tebela bancos
 
 oTmpTb1 := FWTemporaryTable():New( cAliasTmp1 ) 
 oTmpTb1:SetFields( aStruct1 )
 oTmpTb1:AddIndex("indice1", {"A6_COD","A6_AGENCIA","A6_NUMCON"} )
 oTmpTb1:Create()
-
-///cArqTmp1	:= CriaTrab(aStruct1)
-
-///IF SELECT(cAliasTmp1) > 0
-///   dbSelectArea(cAliasTmp1)
-///   dbCloseArea()
-///ENDIF
-
-//dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-//IndRegua (cAliasTmp1,cArqTmp1,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi("Selecionando Registros...") ) 
 
 dbSelectArea(cAliasTmp1)
 dbSetOrder(1)
@@ -281,25 +264,12 @@ dbSetOrder(1)
 IF nSaldos == 1 .OR. nBancos == 1
 
 	If nAplic == 1
-		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-		//³ Cria o arquivo temporario de aplicações       ³
-		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		// Cria o arquivo temporario de aplicações
 
 		oTmpTb6 := FWTemporaryTable():New( cAliasTmp6 ) 
 		oTmpTb6:SetFields( aStruct6 )
 		oTmpTb6:AddIndex("indice6", {"EH_BANCO","EH_AGENCIA","EH_CONTA"} )
 		oTmpTb6:Create()
-
-
-		///cArqTmp6	:= CriaTrab(aStruct6)
-		
-		///IF SELECT(cAliasTmp6) > 0
-		///   dbSelectArea(cAliasTmp6)
-		///   dbCloseArea()
-		///ENDIF
-		
-		///dbUseArea(.T.,,cArqTmp6,cAliasTmp6,if(.F. .OR. .F.,!.F., NIL),.F.)
-		///IndRegua(cAliasTmp6,cArqTmp6,"EH_BANCO+EH_AGENCIA+EH_CONTA",,,"Indexando Aplicações")
 	
 	EndIf
 	
@@ -327,15 +297,10 @@ EndIf
 If Select(cAliasTmp1) > 0
 	oTmpTb1:Delete() 
 EndIf
-///dbSelectArea(cAliasTmp1)
-///dbCloseArea()
-///Ferase(cArqTmp1 + GetDBExtension())
 
 Return( .T. )
 
    
-
-
 
 // KFin01ExpSld() - Exportar os saldos Bancarios
 
@@ -622,7 +587,6 @@ aResumo[12] := 0
          
 
 // Temporário Sintético - Natureza Financeira
-// ----------------------------------------------------------------------------------
 
 AADD(aTitulos2,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Natureza Financeira"))
 
@@ -662,7 +626,6 @@ dbSetOrder(1)
 
 
 // Temporário Sintético - Centro de Custo
-// ----------------------------------------------------------------------------------
 
 AADD(aTitulos4,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Centro de Custo"))
 
@@ -691,18 +654,11 @@ oTmpTb4:SetFields( aStruct4 )
 oTmpTb4:AddIndex("indice4", {"CC"} )
 oTmpTb4:Create()
 
-
-///cArqTmp4 := CriaTrab(aStruct4)
-///dbUseArea(.T.,,cArqTmp4,cAliasTmp4,if(.F. .OR. .F.,!.F., NIL),.F.)
-
-///IndRegua (cAliasTmp4,cArqTmp4,"CC",,,OemToAnsi("Selecionando Registros...") ) 
-
 dbSelectArea(cAliasTmp4)
 dbSetOrder(1)
 
 
 // Temporário Sintético - Desc Financeiro
-// ----------------------------------------------------------------------------------
 
 AADD(aTitulos5,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Financeiro"))
 
@@ -868,16 +824,10 @@ oTmpTb3:SetFields( aStruct3 )
 oTmpTb3:AddIndex("indice3", {"XXCC"} )
 oTmpTb3:Create()
 
-///cArqTmp3 := CriaTrab(aStruct3)
-///dbUseArea(.T.,,cArqTmp3,cAliasTmp3,if(.F. .OR. .F.,!.F., NIL),.F.)
-///IndRegua (cAliasTmp3,cArqTmp3,"XXCC",,,OemToAnsi("Selecionando Registros...") )  //
-
 dbSelectArea(cAliasTmp3)
 dbSetOrder(1)
 
-
 // Grava os arquivos temporários
-// ----------------------------------------------------------------------------------
 
 u_WaitLog(, {|| KFin01Mov( nSaldoAnt)})
 
@@ -920,32 +870,17 @@ Else
 EndIf
 
 oTmpTb2:Delete() 
-///(cAliasTmp2)->(dbCloseArea())
-///fErase( cArqTmp2 + OrdBagExt() )
-///fErase( cArqTmp2 + GetDBExtension() )
 
 If SELECT(cAliasTmp3) > 0
 	oTmpTb3:Delete() 
-	//(cArqTmp3)->(dbCloseArea())
-	///fErase( cArqTmp3 + OrdBagExt() )
-	///fErase( cArqTmp3 + GetDBExtension() )
 EndIf
 
 oTmpTb4:Delete() 
-///(cAliasTmp4)->(dbCloseArea())
-///fErase( cArqTmp4 + OrdBagExt() )
-///fErase( cArqTmp4 + GetDBExtension() )
 
 oTmpTb5:Delete() 
-///(cAliasTmp5)->(dbCloseArea())
-///fErase( cArqTmp5 + OrdBagExt() )
-///fErase( cArqTmp5 + GetDBExtension() )
 
 If SELECT(cAliasTmp6) > 0
 	oTmpTb6:Delete() 
-	///(cAliasTmp6)->(dbCloseArea())
-	///fErase( cArqTmp6 + OrdBagExt() )
-	///fErase( cArqTmp6 + GetDBExtension() )
 EndIf
 
 dbSelectArea("SE5")
@@ -961,52 +896,50 @@ Return
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
 ±±³Fun‡„o	 ³ FrK01Grav³ Autor ³ Alessandro B. Freire  ³ Data ³ 07/04/97 ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡„o ³ Filtra os registros do SE5 e Cria um arquivo Tempor rio		  ³±±
+±±³Descri‡„o ³ Filtra os registros do SE5 e Cria um arquivo Tempor rio	  ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Sintaxe e ³ FrK01Grava(nSaldoAnt, cArqTmp1)						  ³±±
+±±³Sintaxe e ³ FrK01Grava(nSaldoAnt, cArqTmp1)						  	  ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Parametros³ nSaldoAnt - Saldo Anterior dos bancos							  ³±±
+±±³Parametros³ nSaldoAnt - Saldo Anterior dos bancos					  ³±±
 ±±³			 ³ cArqTmp1	 - Nome do Arquivo tempor rio. Deve ser passado   ³±±
-±±³			 ³ 				por parƒmetro. 										  ³±±
+±±³			 ³ 				por parƒmetro. 								  ³±±
 ±±³			 ³ aResumo	 - Resumo financeiro, por tipo de aplica‡Æo. Deve ³±±
-±±³			 ³ 				ser passado por parƒmetro. 						  ³±±
+±±³			 ³ 				ser passado por parƒmetro. 					  ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³ Uso		 ³ BKFINR10																	  ³±±
+±±³ Uso		 ³ BKFINR10													  ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 STATIC FUNCTION KFin01Mov( nSaldoAnt )
 
-LOCAL dDataAnt
-LOCAL nPagos     := 0
-LOCAL nRecebidos := 0
+Local dDataAnt
+Local nPagos     := 0
+Local nRecebidos := 0
 
-LOCAL nPagar     := 0
-LOCAL nReceber   := 0
+Local nPagar     := 0
+Local nReceber   := 0
 
-LOCAL aStru 	 := SE5->(dbStruct())
-LOCAL nI         := 0
+Local aStru 	 := SE5->(dbStruct())
+Local nI         := 0
 Local IX,xi,_IY
-LOCAL cOrder
+Local cOrder
 
-LOCAL cCtaFin    := SPACE(12)
-LOCAL cDescrCt   := ""
-LOCAL cTHist 	 := ""
+Local cCtaFin    := SPACE(12)
+Local cDescrCt   := ""
+Local cTHist 	 := ""
 
-LOCAL cDigitado  := ""
-LOCAL cLiberado  := ""
-LOCAL cProduto   := ""
-LOCAL lFiltPrd   := .F.
-
+Local cDigitado  := ""
+Local cLiberado  := ""
+Local cProduto   := ""
+Local lFiltPrd   := .F.
+Local nDescRH 	 := 0
 
 dbSelectArea("SE2")
 dbSetOrder(1)
 
 dbSelectArea("SE5")
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Cria o indice para o SE5 por E5_DATA		  ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Cria o indice para o SE5 por E5_DATA
 
 dDataAnt 	:= MV_PAR01 - 1
 
@@ -1045,8 +978,8 @@ ELSE
 	cQuery += "  ) AS CANC "
 	cQuery += " FROM " + RetSqlName("SE5")+" SE5"
 	cQuery += " WHERE E5_FILIAL = '" + xFilial("SE5") + "'"
-	cQuery += " AND E5_DTDISPO    >= '" + DTOS(dDataI) + "'"   
-	cQuery += " AND E5_DTDISPO    <= '" + DTOS(dDataF) + "'" 
+	cQuery += " AND E5_DTDISPO >= '" + DTOS(dDataI) + "'"   
+	cQuery += " AND E5_DTDISPO <= '" + DTOS(dDataF) + "'" 
 	cQuery += " AND E5_TIPODOC NOT IN  ('BA','MT','CM','DC','JR','CP','M2','C2','D2','J2','V2')"
 	cQuery += " AND E5_MOTBX   <> 'CMP'"
 	cQuery += " AND E5_SITUACA <> 'C'"
@@ -1066,10 +999,7 @@ For nI := 1 to Len(aStru)
 	Endif
 Next
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Procura pela 1a. Movim. na data indicada.	  ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
+// Procura pela 1a. Movim. na data indicada
 IF nTpData == 1
 	dDataAnt 	:= SE5->E5_DATA
 	bCondWhile := { || !SE5->(Eof()) .And. SE5->E5_DATA <= dDataF .And. xFilial("SE5") == SE5->E5_FILIAL }
@@ -1078,9 +1008,7 @@ ELSE
 	bCondWhile := { || !SE5->(Eof()) .And. SE5->E5_DTDISPO <= dDataF .And. xFilial("SE5") == SE5->E5_FILIAL }
 ENDIF	
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Grava as movimenta‡äes do E5 no tempor rio.   ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+// Grava as movimentacoes do E5 no temporario.
 //While ! SE5->( eof()) .And. SE5->E5_DATA <= dDataF .And. xFilial("SE5") == SE5->E5_FILIAL
 ProcRegua(LastRec()) // Numero de registros a processar
 While Eval(bCondWhile)
@@ -1093,9 +1021,8 @@ While Eval(bCondWhile)
 	lFiltPrd  := .F.
 
 	dbSelectArea("SE5")
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Grava as movimenta‡äes do E5 no tempor rio.   ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+	// Grava as movimenta‡äes do E5 no temporario.
 	If SA6->(dbSeek(xFilial()+SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA))
 		If SA6->A6_FLUXCAI == "N"
 			SE5->( dbSkip() )
@@ -1696,10 +1623,10 @@ While Eval(bCondWhile)
 	   						cLiberado := aLIB[2]
 					    ENDIF
 						cHist := "PGTO RH "
-	 					nDESCRH:= 0
-						nDESCRH:= aScan(aDESCRH,{|x| x[1] $ QSZ2->Z2_E2NUM })
-	    				IF nDESCRH > 0
-	    					cHist += aDESCRH[nDESCRH,2]
+
+						nDescRH:= aScan(aDescRH,{|x| x[1] $ QSZ2->Z2_E2NUM })
+	    				IF nDescRH > 0
+	    					cHist += aDescRH[nDescRH,2]
 	    				ENDIF
 	  
 						nTot:= 0
@@ -2739,4 +2666,3 @@ Next
 RestArea(aArea)
 
 Return(NIL) 
-
