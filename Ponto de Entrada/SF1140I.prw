@@ -31,12 +31,13 @@ Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
 // 2 Etapas
+
 If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
 	cLibF1   := "A"
 Else 
 	cLibF1   := "9"
 EndIf
-cLibF1   := "A" // Remover
+//cLibF1   := "A" // Remover
 
 
 If Empty(cxBanco)
@@ -132,7 +133,7 @@ If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
 Else 
 	cLibF1   := "9"
 EndIf
-cLibF1   := "A" // Remover
+//cLibF1   := "A" // Remover
 
 If SF1->F1_XXLIB $ "9AE " .AND. Empty(SF1->F1_STATUS)
 	lAlt := .T.
@@ -214,7 +215,7 @@ If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
 Else 
 	cLibF1  := "9"
 EndIf
-cLibF1   := "A" // Remover
+//cLibF1   := "A" // Remover
 
 nValTot := CalcTot()
 

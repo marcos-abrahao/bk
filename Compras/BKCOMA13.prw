@@ -346,6 +346,9 @@ Return lRet
 // Pelo Faturamento: PIS/COFINS/IRPJ
 User Function PGCTR07(cMesI,cMesF)
 Local cQuery := ""
+If Select("QTMP") > 0
+	QTMP->(DbCloseArea())
+EndIf
 
 cQuery := "WITH BKGCTR07 AS ("+CRLF
 cQuery += u_QGctR07(iIf(cMesI == cMesF,1,3),cMesI,cMesF)
@@ -363,6 +366,11 @@ Return NIL
 // FGTS
 User Function PFGTSCC(cMesI,cMesF)
 Local cQuery := ""
+
+If Select("QTMP") > 0
+	QTMP->(DbCloseArea())
+EndIf
+
 cQuery += "SELECT Z5_CC AS CC,SUM(Z5_VALOR) AS VALCC "+CRLF
 cQuery += " FROM "+RetSqlName("SZ5")+" SZ5 "+CRLF
 //cQuery += " LEFT JOIN "+RetSqlName("CTT")+" CTT ON CTT_CUSTO = Z5_CC AND CTT.D_E_L_E_T_ = ''
@@ -383,6 +391,9 @@ Return NIL
 // Valor do INSS patronal - Via integração Contábil
 User Function PINSSCC(cMesI,cMesF)
 Local cQuery := ""
+If Select("QTMP") > 0
+	QTMP->(DbCloseArea())
+EndIf
 
 cQuery += "SELECT Z5_CC AS CC,SUM(Z5_VALOR) AS VALCC "+CRLF
 cQuery += " FROM "+RetSqlName("SZ5")+" SZ5 "+CRLF
@@ -404,6 +415,9 @@ Return NIL
 // Valor do IRRF - Via Bacno de dados do Senior
 User Function PIRRFCC(cMesI,cMesF)
 Local cQuery := ""
+If Select("QTMP") > 0
+	QTMP->(DbCloseArea())
+EndIf
 
 cQuery += " WITH FOLHA AS ( "+CRLF
 cQuery += " SELECT "+CRLF

@@ -149,9 +149,12 @@ Local cxUsers	:= ""
 Local cFornece	:= ""
 Local nTAval    := 0
 Local nAv		:= 0
+Local lMaster	:= .F.
 
 Default cMsg	:= ""
 Default cMotivo := ""
+
+lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
@@ -192,7 +195,7 @@ Else
 			cMsg:= "está bloqueada"
 		Case (cQrySF1)->F1_STATUS <> " "
 			cMsg:= "não pode ser liberada"
-		Case (cQrySF1)->F1_XXLIB $ "AN"
+		Case (cQrySF1)->F1_XXLIB $ "AN" .OR. (lMaster .AND. acao == "L" .AND. (cQrySF1)->F1_XXLIB $ "9R ")
 			// Liberar
 			cQuery := "UPDATE "+cTabSF1
 			If acao == 'E'
@@ -216,6 +219,13 @@ Else
 			EndIf
 			cQuery += "      F1_XXULIB = '"+__cUserId+"',"
 			cQuery += "      F1_XXDLIB = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
+
+			// Se Aprovar e Liberar
+			If (cQrySF1)->F1_XXLIB $ "9R "
+				cQuery += "      F1_XXUAPRV = '"+__cUserId+"',"
+				cQuery += "      F1_XXDAPRV = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
+			EndIf
+
 			cQuery += " FROM "+cTabSF1+" SF1"+CRLF
 			cQuery += " WHERE SF1.R_E_C_N_O_ = "+prenota+CRLF
 
@@ -263,7 +273,7 @@ Else
 EndIf
 
 // Enviar e-mail de aviso do estorno
-If lRet .AND. (!Empty(cMotivo) .OR. acao == 'E')
+If lRet .AND. (!Empty(cMotivo) .OR. acao $ 'RE')
 	LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
 EndIf
 
@@ -309,9 +319,13 @@ Local cMsg		:= ""
 Local cAssunto	:= ""
 
 If acao == "E"
-	cAssunto := "Não liberação"
+	cAssunto := "Não liberação (estorno)"
 ElseIf acao == "L"
 	cAssunto := "Liberação"
+ElseIf acao == "A"
+	cAssunto := "Aprovação"
+ElseIf acao == "R"
+	cAssunto := "Reprovação"
 ElseIf acao == "I"
 	cAssunto := "Índice Negativo da Avaliação"
 EndIF
@@ -351,7 +365,7 @@ Retorna a lista de prenotas.
 
 WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN   //v0
 Local aEmpresas		:= {}
-Local aListSales 	:= {}
+Local aListWeb 	:= {}
 Local cQrySF1       := GetNextAlias()
 Local cJsonCli      := ''
 //Local cWhereSF1   := ""
@@ -402,7 +416,7 @@ cFilSF1 := U_M103FILB()
 
 lFiscal	:= u_InGrupo(__cUserId,"000031")
 lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
-lSuper  := u_IsSuperior(__cUserId)
+lSuper  := (u_IsSuperior(__cUserId) .OR. u_IsStaf(__cUserId))
 
 For nE := 1 To Len(aEmpresas)
 
@@ -429,6 +443,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "		SF1.F1_STATUS,"+CRLF
 	cQuery += "		SF1.F1_XXUSER,"+CRLF
 	cQuery += "		SF1.F1_XXUSERS,"+CRLF
+	cQuery += "		SF1.F1_XXUAPRV,"+CRLF
 	cQuery += "		SF1.F1_DTDIGIT,"+CRLF
 	cQuery += "		SF1.F1_XXPVPGT,"+CRLF
 	//cQuery += "		SF1.F1_XXAVALI,"+CRLF
@@ -465,30 +480,30 @@ Do While ( cQrySF1 )->( ! Eof() )
 	Case cLiberOk $ "AN" .AND. (cQrySF1)->F1_STATUS == " "
 		If lFiscal .AND. (cQrySF1)->F1_XXUSER == __cUserId
 			cLiberOk := "X"
-			cStatus  := "A Liberar"
+			cStatus  := "A_Liberar"
 		Else
 			If lFiscal .OR. lMaster
 				If cLiberOk == "A"
 					cStatus  := "Liberar"
 				Else
-					cStatus  := "Nao Liberada"
+					cStatus  := "Nao_Liberada"
 				EndIf
 				cLiberOk := "A"
 			Else
 				cLiberOk := "X"
-				cStatus  := "A Liberar"
+				cStatus  := "A_Liberar"
 			EndIf
 		EndIf
 	Case cLiberOk $ "9 " .AND. (cQrySF1)->F1_STATUS == " "
 		If lSuper .OR. lMaster 
 			If lMaster .OR. (cQrySF1)->F1_XXUSER <> __cUserId
-				cStatus  := "Aprovar"
+				cStatus  := "Aprovar"+iIf(lMaster,"/Liberar","")
 			Else
-				cStatus  := "A Aprovar"
+				cStatus  := "A_Aprovar"
 				cLiberOk := "X"
 			EndIf
 		Else
-			cStatus  := "A Aprovar"
+			cStatus  := "A_Aprovar"
 			cLiberOk := "X"
 		EndIf
 	Case cLiberOk == "T"
@@ -510,26 +525,33 @@ Do While ( cQrySF1 )->( ! Eof() )
 		cStatus  := "Liberada"
 	EndCase
 
-	aAdd( aListSales , JsonObject():New() )
-	nPos := Len(aListSales)
-	aListSales[nPos]['DOC']        := (cQrySF1)->F1_DOC
-	aListSales[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
-	aListSales[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
-	aListSales[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
-	aListSales[nPos]['PGTO']  	   := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
-	aListSales[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
-	aListSales[nPos]['LIBEROK']    := cLiberOk
-	aListSales[nPos]['STATUS']     := cStatus
-	aListSales[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
-	aListSales[nPos]['F1NOMEEMP']  := (cQrySF1)->F1NOMEEMP
-	aListSales[nPos]['F1RECNO']    := STRZERO((cQrySF1)->F1RECNO,7)
+	aAdd( aListWeb , JsonObject():New() )
+	nPos := Len(aListWeb)
+	aListWeb[nPos]['DOC']        := (cQrySF1)->F1_DOC
+	aListWeb[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
+	aListWeb[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
+	aListWeb[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
+
+	If Empty((cQrySF1)->F1_XXUAPRV)
+		aListWeb[nPos]['APROVADOR']:= UsrRetName((cQrySF1)->F1_XXUSERS)
+	Else
+		aListWeb[nPos]['APROVADOR']:= UsrRetName((cQrySF1)->F1_XXUAPRV)
+	EndIf
+
+	aListWeb[nPos]['PGTO']  	 := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
+	aListWeb[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
+	aListWeb[nPos]['LIBEROK']    := cLiberOk
+	aListWeb[nPos]['STATUS']     := cStatus
+	aListWeb[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
+	aListWeb[nPos]['F1NOMEEMP']  := (cQrySF1)->F1NOMEEMP
+	aListWeb[nPos]['F1RECNO']    := STRZERO((cQrySF1)->F1RECNO,7)
 	(cQrySF1)->(DBSkip())
 
 EndDo
 
 ( cQrySF1 )->( DBCloseArea() )
 
-oJsonSales := aListSales
+oJsonSales := aListWeb
 //oJsonSales['liberacao'] := "ok"
 
 //-------------------------------------------------------------------
@@ -577,9 +599,12 @@ Local cAvalIQF	:= ""
 Local cF1Avali  := ""
 Local cPedidos  := ""
 Local dUltPag   := DATE()
+Local lLibera	:= .F.
 
 aEmpresas := u_BKGrupo()
 u_BkAvPar(::userlib,@aParams,@cMsg)
+
+lLibera := u_InGrupo(__cUserId,"000000/000005/000007/000031/000038")
 
 cQuery := "SELECT "+CRLF
 cQuery += "		SF1.F1_DOC,"+CRLF
@@ -656,6 +681,7 @@ EndIf
 oJsonPN['A2_ESTMUN']	:= (cQrySF1)->A2_EST+"-"+TRIM((cQrySF1)->A2_MUN)
 
 oJsonPN['F1_XXLIB']		:= (cQrySF1)->F1_XXLIB
+oJsonPN['LIBERA']		:= iIf(lLibera,"S","N")
 
 aParcelas := LoadVenc((cQrySF1)->F1_XXPARCE)
 For nI := 1 TO LEN(aParcelas)
@@ -802,7 +828,7 @@ BeginContent var cHTML
   padding-right:30px;
 }
 .font-condensed{
-  font-size: 0.8em;
+  font-size: 0.7em;
 }
 body {
 font-size: 1rem;
@@ -833,7 +859,7 @@ line-height: 1rem;
 <br>
 <div class="container">
 <div class="table-responsive-sm">
-<table id="tableSF1" class="table">
+<table width="100%" id="tableSF1" class="table">
 <thead>
 <tr>
 <th scope="col">Empresa</th>
@@ -841,6 +867,7 @@ line-height: 1rem;
 <th scope="col">Entrada</th>
 <th scope="col">Fornecedor</th>
 <th scope="col">Responsável</th>
+<th scope="col">Aprovador</th>
 <th scope="col">Vencimento</th>
 <th scope="col" style="text-align:center;">Total</th>
 <th scope="col" style="text-align:center;">Ação</th>
@@ -849,6 +876,7 @@ line-height: 1rem;
 <tbody id="mytable">
 <tr>
   <th scope="col">Carregando Pré-notas...</th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -981,6 +1009,7 @@ line-height: 1rem;
          <div id="inpest"></div>
          <div id="btnest"></div>
          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+         <div id="btnapr"></div>
          <div id="btnlib"></div>
        </div>
      </div>
@@ -1102,6 +1131,7 @@ if (Array.isArray(prenotas)) {
    trHTML += '<td>'+object['DTDIGIT']+'</td>';
    trHTML += '<td>'+object['FORNECEDOR']+'</td>';
    trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
+   trHTML += '<td>'+object['APROVADOR']+'</td>';
    trHTML += '<td>'+object['PGTO']+'</td>';
    trHTML += '<td align="right">'+object['TOTAL']+'</td>';
 
@@ -1132,16 +1162,16 @@ if (Array.isArray(prenotas)) {
   }
 
 cbtnid = 'btnac'+nlin;
-trHTML += '<td align="right"><button type="button" id="'+cbtnid+'" class="btn '+cbtn+' btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\','+ccanl+','+'\''+cbtnid+'\')">'+cStatus+'</button></td>';
+trHTML += '<td align="center"><button type="button" id="'+cbtnid+'" class="btn '+cbtn+' btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\','+ccanl+','+'\''+cbtnid+'\')">'+cStatus+'</button></td>';
 
 trHTML += '</tr>';
    });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+prenotas['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">'+prenotas['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -1259,12 +1289,12 @@ if (canLib === 1){
 
 	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' ' || prenota['F1_XXLIB'] == 'R'){
 		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'A\')">Aprovar</button>';
+		document.getElementById("btnapr").innerHTML = btnL;
+	} 
+	
+	if (prenota['LIBERA'] == 'S'){
+		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
 		document.getElementById("btnlib").innerHTML = btnL;
-	} else {
-		if (prenota['F1_XXLIB'] !== ' '){
-			let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
-			document.getElementById("btnlib").innerHTML = btnL;
-		}
 	}
 
 	inpE  += '<input type="text" class="form-control form-control-sm" id="SF1Motivo" size="50" value="" placeholder="Obs ou Motivo do Estorno">';
@@ -1275,8 +1305,8 @@ if (canLib === 1){
 		document.getElementById("btnest").innerHTML = btnE;
 	}
 
-	if (prenota['F1_XXLIB'] === '9'){
-		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\')">Reprovar</button>';
+	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' '){
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'R\',\'N\')">Reprovar</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
 

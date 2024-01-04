@@ -66,12 +66,22 @@ If lClass
     		.AND. (SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07')
         lRet := .F.
 	Else
-		If SF1->F1_XXLIB == 'A'
+		If SF1->F1_XXLIB == 'A' .OR. (lMaster .AND. (SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'R'))
 			
 			If lMaster
-				nOper := u_AvisoLog("MT103INC","MT103INC","Liberação para classificação fiscal:",{"Liberar","Não Liberar","Cancelar"})
+				If (SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'R')
+					nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação e Liberação para classificação fiscal:",{"Aprovar e Liberar","Não Liberar","Cancelar"})
+				Else
+					nOper := u_AvisoLog("MT103INC","MT103INC","Liberação para classificação fiscal:",{"Liberar","Não Liberar","Cancelar"})
+				EndIf
 				If nOper <> 3
 					RecLock("SF1",.F.)
+					// Liberação e Aprovação pelo mesmo usuário
+					If (SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'R')
+						SF1->F1_XXUAPRV := __cUserId
+						SF1->F1_XXDAPRV := DtoC(Date())+"-"+Time()
+					EndIf
+
 					If nOper == 1
 						SF1->F1_XXLIB  := "L"
 					Else
@@ -79,6 +89,7 @@ If lClass
 					EndIf
 					SF1->F1_XXULIB := __cUserId
 					SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
+
 					MsUnLock("SF1")
 
 					If nOper == 1
@@ -116,7 +127,7 @@ If lClass
 		// Nova aprovação em duas etapas
 		ElseIf SF1->F1_XXLIB == '9' .OR. SF1->F1_XXLIB == 'R'
 
-			If u_IsSuperior(__cUserId) .OR. lMaster
+			If u_IsSuperior(__cUserId) .OR. u_IsStaf(__cUserId) .OR. lMaster
 				If __cUserId <> SF1->F1_XXUSER .OR. lMaster
 					If SF1->F1_XXLIB == '9'
 						nOper := u_AvisoLog("MT103INC","MT103INC","Aprovação para liberação:",{"Aprovar","Reprovar","Cancelar"})

@@ -1,9 +1,19 @@
+
+==============================================================
+--04/01/24  - Alterar Docs não Liberados para A Aprovar
+
+SELECT * FROM SF1010 WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D_E_L_E_T_ = '' AND F1_STATUS = ' '
+UPDATE SF1010 SET F1_XXLIB = '9' WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D_E_L_E_T_ = '' AND F1_STATUS = ' '
+UPDATE SF1160 SET F1_XXLIB = '9' WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D_E_L_E_T_ = '' AND F1_STATUS = ' '
+UPDATE SF1020 SET F1_XXLIB = '9' WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D_E_L_E_T_ = '' AND F1_STATUS = ' '
+UPDATE SF1180 SET F1_XXLIB = '9' WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D_E_L_E_T_ = '' AND F1_STATUS = ' '
+UPDATE SF1150 SET F1_XXLIB = '9' WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D_E_L_E_T_ = '' AND F1_STATUS = ' '
+
 ==============================================================
 -- xx/12/23  - Acerto
 
 UPDATE SZ5010 SET D_E_L_E_T_='*'
  WHERE D_E_L_E_T_='' 
-
  AND Z5_ANOMES='202001'
  AND Z5_EVENTO in ('300','393','INS-E','INS-T')
 ==============================================================
