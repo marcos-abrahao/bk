@@ -280,7 +280,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:AddCol("LOTE","LOTE","Lote","")
 	oPExcel:AddCol("VALOR","E2_VALOR","Valor","E2_VALOR")
 	oPExcel:AddCol("SALDO","SALDO","Saldo","")
-	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
+	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído',IIF(E2_XXPGTO=='O','Compensar PA','Em Aberto')))","Status","")
 	oPExcel:AddCol("HIST","HIST","Histórico","D1_XXHIST")
 	oPExcel:AddCol("OPER","UsrRetName(E2_XXOPER)","Operador","")
 	oPExcel:AddCol("DADOSPGT","u_CPDadosPgt('"+cQrySE2+"')","Dados Pagamento","")
@@ -295,9 +295,11 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
 	oPExcel:GetCol("STATUS"):SetHAlign("C")
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'},"FF0000","") // Vermelho
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","") // Verde
+	oPExcel:GetCol("STATUS"):SetTamCol(12)
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'},"FF0000","",,,.T.) // Vermelho
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","",,,.T.) // Verde
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'},"FFA500","",,,.T.) // Laranja
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'O'},"0000FF","",,,.T.) // Azul
 
 	oPExcel:GetCol("DADOSPGT"):SetTamCol(40)
 	// Adiciona a planilha
@@ -401,6 +403,8 @@ Do While ( cQrySE2 )->( ! Eof() )
 		cStatus := "Pendente"
 	ElseIf (cQrySE2)->(E2_XXPGTO) == "C"
 		cStatus := "Concluido"
+	ElseIf (cQrySE2)->(E2_XXPGTO) == "O"
+		cStatus := "Compensar PA"
 	Else
 		cStatus := "Em Aberto"
 	EndIf
@@ -883,6 +887,8 @@ if (Array.isArray(titulos)) {
 	 cbtn = 'btn-outline-warning';
 	} else if (cStatus == 'P'){
 	 cbtn = 'btn-outline-danger';
+	} else if (cStatus == 'O'){
+	 cbtn = 'btn-outline-primary';
 	}
 
 	cbtnids = 'btnac'+nlin;
@@ -899,6 +905,7 @@ if (Array.isArray(titulos)) {
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'A\','+'\''+cbtnids+'\')">Em Aberto</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'C\','+'\''+cbtnids+'\')">Concluido</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'P\','+'\''+cbtnids+'\')">Pendente</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'O\','+'\''+cbtnids+'\')">Compensar PA</button>';
 
 	trHTML += '</div>'
 
@@ -1057,6 +1064,8 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 			cbtn = 'Concluido';
 		} else if (acao == 'P'){
 			cbtn = 'Pendente';
+		} else if (acao == 'O'){
+			cbtn = 'Compensar PA';
 		} else {
 			cbtn = 'Em Aberto';
 		}

@@ -14,8 +14,8 @@ BK - Ponto de Entrada para criar opções na tela de Documento de Entrada
 User Function MA103OPC
 Local aRot := {} 
 
-AADD( aRot, {OemToAnsi("Pesquisa BK"), "U_BKCOMC01", 0, 1 } )
-AADD( aRot, {OemToAnsi("Pesquisa NF"), "U_BKCOMC02", 0, 1 } )
+AADD( aRot, {OemToAnsi("Pesquisar Itens/NF"), "U_BKCOMC01", 0, 1 } )
+AADD( aRot, {OemToAnsi("Localizar NF"), "U_BKCOMC02", 0, 1 } )
 AADD( aRot, {OemToAnsi("Aval. Fornecedor"), "U_VEWAVALFOR", 0, 4 } )
 AADD( aRot, {OemToAnsi("Reavaliar Fornecedor"), "U_RAvalForn", 0, 4 } )
 AADD( aRot, {OemToAnsi("Dados Pgto"), "U_AltFPgto", 0, 4 } )

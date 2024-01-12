@@ -222,7 +222,7 @@ Else
 
 			// Se Aprovar e Liberar
 			If (cQrySF1)->F1_XXLIB $ "9R "
-				cQuery += "      F1_XXUAPRV = '"+__cUserId+"',"
+				cQuery += "      ,F1_XXUAPRV = '"+__cUserId+"',"
 				cQuery += "      F1_XXDAPRV = '"+DtoC(Date())+"-"+SUBSTR(Time(),1,5)+"'"
 			EndIf
 

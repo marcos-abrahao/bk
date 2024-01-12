@@ -69,6 +69,7 @@ aAdd(aDados,{"","U_BKCOMA09()",		"COMPRAS",		"Facilitador Doc Entrada (PJs)"})
 aAdd(aDados,{"","U_BKCOMA12()",		"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
 aAdd(aDados,{"","U_BKCOMA13()",		"COMPRAS",		"Inclusão de Doc de Impostos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de impostos já existentes"})
+aAdd(aDados,{"","U_BKCOMA15()",		"COMPRAS",		"Inclusão de Doc de Sindicatos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de entrada"})
 
 aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})

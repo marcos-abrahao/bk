@@ -42,10 +42,6 @@ Private aPrd     := {}
 Private aPrdDesc := {}
 Private cNFiscal := '000000000'
 
-// Proximo numeor de DNF
-U_NumSf1() 
-cDocI := cNFiscal
-
 aAdd(aPrd,"21401003")	// 1-PIS A RECOLHER 
 aAdd(aPrd,"21401004")	// 2-COFINS A RECOLHER  
 aAdd(aPrd,"DARF6912")	// 3-PARCELAMENTO PIS 60X 
@@ -69,8 +65,6 @@ INS4982        	IRPJ A RECOLHER  X 60
 21401005		IRRF ASSALARIADOS
 */
 
-
-
 //If !FWIsAdmin() .AND. !u_IsFiscal(__cUserId)
 //	u_MsgLog(cProg,"Acesso a rotina somente para o grupo Fiscal","W")
 //	Return Nil
@@ -82,20 +76,13 @@ For nX := 1 To Len(aPrd)
 	aAdd(aPrdDesc,aPrd[nX]+"-"+cDesc)
 Next
 
-//aAdd(aParam, { 1,"Documento"      ,cDocI   ,""    ,""                                       ,""   ,"",70,.T.})
 aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"      ,""   ,"",20,.T.})
 aAdd(aParam, { 1,"Ano ref inicial",nAnoI   ,"9999","mv_par02 >= 2015 .AND. mv_par02 <= 2040",""   ,"",20,.T.})
 aAdd(aParam, { 1,"Mes ref final"  ,nMesF   ,"99"  ,"mv_par03 > 0 .AND. mv_par03 <= 12"      ,""   ,"",20,.T.})
 aAdd(aParam, { 1,"Ano ref final"  ,nAnoF   ,"9999","mv_par04 >= 2015 .AND. mv_par04 <= 2040",""   ,"",20,.T.})
 aAdd(aParam, { 3,"Produto"        ,1,aPrdDesc,200,"",.T.})
 aAdd(aParam, { 1,"Valor"          ,nValor  ,"@E 999,999,999.99"  ,"mv_par06 > 0"            ,""   ,"",70,.T.})
-// Tipo 11 -> MultiGet (Memo)
-//            [2] = Descrição
-//            [3] = Inicializador padrão
-//            [4] = Validação
-//            [5] = When
-//            [6] = Campo com preenchimento obrigatório .T.=Sim .F.=Não (incluir a validação na função ParamOk)
-aAdd(aParam, {11,"Histórico"     ,cHist   , ""   , ""                                      ,.T.})
+aAdd(aParam, {11,"Histórico"      ,cHist   , ""   , ""                                      ,.T.})
 
 Do While .T.
 	If !PrCom13()
@@ -108,6 +95,10 @@ Do While .T.
 	Endif
 EndDo
 
+// Proximo numero de DNF
+U_NumSf1() 
+
+cDocI := cNFiscal
 cMesI := STRZERO(nAnoI,4)+STRZERO(nMesI,2)
 cMesF := STRZERO(nAnoF,4)+STRZERO(nMesF,2)
 

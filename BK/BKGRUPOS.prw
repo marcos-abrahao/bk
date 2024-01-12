@@ -1,5 +1,5 @@
-#include "totvs.ch"
-#include "protheus.ch"
+#include "TOTVS.CH"
+#include "PROTHEUS.CH"
 
 // Funcoes com códigos embutidos no fonte
 

@@ -1,38 +1,114 @@
-#INCLUDE "TOPCONN.CH"
-#INCLUDE "PROTHEUS.CH"
-
+#include "PROTHEUS.CH"
+#include "TOPCONN.CH"
 
 /*/{Protheus.doc} BKCOMC01()
-BK - Pesquisa itens de Documentos de entrada
+BK - Pesquisa itens/NF de Documentos de entrada
 
-** Chamada efetuada atraves do ponto de entrada MA103OPC - Pesquisa BK
+** Chamada efetuada atraves dos pontos de entrada MA103OPC e MT140ROT
 
 @author Marcos B. Abrahão
 @since 29/09/2009
 @version P12
 @return Nil
 /*/
-            
 
 User Function BKCOMC01()
 
+Private aParam 	:= {}
+Private cTitulo	:= "Pesquisar itens/NF de Documentos de entrada"
+Private cPerg	:= "MT103PBK"
+Private cProd	:= SPACE(15)
+Private cHist	:= SPACE(30)
+Private cCtC	:= SPACE(15)
+Private nValIt	:= 0
+Private cForn	:= SPACE(6)
+Private cNForn	:= SPACE(30)
+Private cDProd	:= SPACE(40)
+Private cFiltU 	:= ""
+Private cAndOr	:= ""
+Private cSubs	:= ""
+Private cDoc 	:= SPACE(9)
+Private nValDoc	:= 0
+Private cHelp1  := ""
+Private cHelp2  := ""
+Private cHelp3  := ""
+Private cHelp4  := ""
+
+cHelp1 := "Preeencha SOMENTE os campos que deseja na pesquisa, os outros, deixe em branco ou zero." 
+cHelp2 := "A pesquisa é feita por parte do campo:"
+cHelp3 := "Exemplo: Descrição do produdo = 'BOTA' irá retornar todas NFs que possuam a palavra BOTA na descrição dos produtos."
+cHelp4 := "Após a pesquisa, posicione na linha e clique em OK para posicionar na NF."
+
+// Tipo 11 -> MultiGet (Memo)
+//            [2] = Descrição
+//            [3] = Inicializador padrão
+//            [4] = Validação
+//            [5] = When
+//            [6] = Campo com preenchimento obrigatório .T.=Sim .F.=Não (incluir a validação na função ParamOk)
+
+// Tipo 1 -> MsGet()
+//           [2]-Descricao
+//           [3]-String contendo o inicializador do campo
+//           [4]-String contendo a Picture do campo
+//           [5]-String contendo a validacao
+//           [6]-Consulta F3
+//           [7]-String contendo a validacao When
+//           [8]-Tamanho do MsGet
+//           [9]-Flag .T./.F. Parametro Obrigatorio ?
+
+
+// Tipo 9 -> Somente uma mensagem, formato de um título
+//           [2]-Texto descritivo
+//           [3]-Largura do texto
+//           [4]-Altura do texto
+//           [5]-Valor lógico sendo: .T. => fonte tipo VERDANA e .F. => fonte tipo ARIAL
+
+//aAdd( aParam, {11, "Instruções:"			, cHelp		, ""   , ".F."	, .F.})
+aAdd( aParam, { 9, cHelp1					, 190		, 30	, .T.})
+aAdd( aParam, { 9, cHelp2					, 190		, 20	, .T.})
+aAdd( aParam, { 9, cHelp3					, 190		, 30	, .T.})
+aAdd( aParam, { 9, cHelp4					, 190		, 40	, .T.})
+aAdd( aParam, { 1, "Código do produto:"		, cProd		, ""	, ""	, "SB1"	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Descrição do produto:"	, cDProd	, ""	, ""	, ""	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Código do Fornecedor:"	, cForn		, ""	, ""	, "SA2"	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Nome do Fornecedor:"	, cNForn	, ""	, ""	, ""	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Centro de Custo:"		, cCtc		, ""	, ""	, "CTT"	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Histórico:"				, cHist		, ""	, ""	, ""	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Numero NF:"				, cDoc		, ""	, ""	, ""	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Valor do Item:"			, nValIt	, ""	, ""	, ""	, ""	, 70	, .F. })
+aAdd( aParam, { 1, "Valor da NF:"			, nValDoc	, ""	, ""	, ""	, ""	, 70	, .F. })
+
+If BKPar()
+	u_WaitLog(cPerg, {|| PRCOMC01()},"Aguarde o resultado da pesquisa...")
+ENDIF
+Return Nil
+
+Static Function BKPar()
+Local lRet := .F.
+Local aRet := {}
+//   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
+	If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
+		cProd	:= mv_par05
+		cDProd	:= mv_par06
+		cForn	:= mv_par07
+		cNForn	:= mv_par08
+		cCtc	:= mv_par09
+		cHist	:= mv_par10
+		cDoc	:= mv_par11
+		nValIt	:= mv_par12
+		nValDoc	:= mv_par13
+		lRet	:= .T.
+	Endif
+Return lRet
+
+
+Static Function PRCOMC01()
 Local oDlg			as Object
 Local oPanel		as Object
 Local aButtons		:= {}
 Local lOk			:= .F.
 Local aAreaIni		:= GetArea()
 Local cQuery		:= ""
-Local cPerg 		:= "MT103PBK"
-Local cProd			:= ""
-Local cHist			:= ""
-Local cCtC			:= ""
-Local nValIt		:= 0
-Local cForn			:= ""
-Local cNForn		:= ""
-Local cDProd		:= ""
-Local cFiltU 		:= ""
-Local cAndOr		:= ""
-Local cSubs			:= ""
 Local oTmpTb
 Local j
 
@@ -86,31 +162,17 @@ IF !u_IsMasFin(__cUserId) .AND. !u_IsMDir(__cUserId)
 */
 ENDIF
 
-ValidPerg(cPerg)
-	
-IF !Pergunte(cPerg,.T.)
-	RestArea(aAreaIni)
-	Return
-ENDIF
-
-cProd  := mv_par01
-cHist  := mv_par02
-cCtc   := mv_par03
-nValIt := mv_par04
-cForn  := mv_par05
-cNForn := mv_par06
-cDProd := mv_par07
 
 cQuery  := "SELECT "+CRLF
 cQuery  += " D1_FILIAL,D1_DOC,D1_SERIE,D1_ITEM,D1_FORNECE,A2_NOME,D1_LOJA,D1_COD,B1_DESC,D1_TOTAL,D1_EMISSAO,D1_DTDIGIT,D1_CC,Cast(Cast(D1_XXHIST As varbinary(max)) As varchar(300)) As D1_XXHIST, " +CRLF
-cQuery  += " F1_XXUSER,F1_XXUSERS "+CRLF
+cQuery  += " F1_VALBRUT,F1_XXUSER,F1_XXUSERS "+CRLF
 cQuery  += " FROM "+RETSQLNAME("SD1")+" SD1 "+CRLF
 cQuery  += " INNER JOIN "+RETSQLNAME("SF1")+" SF1 ON "+CRLF
 cQuery  += "    F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND F1_TIPO = D1_TIPO "+CRLF
-cQuery  += "    AND SF1.D_E_L_E_T_ <> '*' " +CRLF
+cQuery  += "    AND SF1.D_E_L_E_T_ = '' " +CRLF
 cQuery  += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
 cQuery  += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
-cQuery  += "WHERE SD1.D_E_L_E_T_ <> '*' "+CRLF
+cQuery  += "WHERE SD1.D_E_L_E_T_ = '' "+CRLF
 IF !EMPTY(cFiltU)
 	cQuery  += "AND "+cFiltU+CRLF
 ENDIF
@@ -131,14 +193,24 @@ IF !EMPTY(cForn)
 	cQuery  += "AND D1_FORNECE LIKE '%"+ALLTRIM(cForn)+"%' "+CRLF
 ENDIF
 IF !EMPTY(cNForn)
-	cQuery  += "AND A2_NOME LIKE '%"+ALLTRIM(cNForn)+"%' "+CRLF
+	cQuery  += "AND UPPER(A2_NOME) LIKE '%"+ALLTRIM(UPPER(cNForn))+"%' "+CRLF
 ENDIF
 
 IF !EMPTY(cDProd)
-	cQuery  += "AND B1_DESC LIKE '%"+ALLTRIM(cDProd)+"%' "+CRLF
+	cQuery  += "AND UPPER(B1_DESC) LIKE '%"+ALLTRIM(UPPER(cDProd))+"%' "+CRLF
 ENDIF
 
-cQuery  += "ORDER BY D1_FILIAL,D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_COD,D1_ITEM "+CRLF
+IF !EMPTY(cDoc)
+	cQuery  += "AND F1_DOC LIKE '%"+ALLTRIM(cDoc)+"%' "+CRLF
+ENDIF
+
+IF nValDoc > 0
+	nValDoc := INT(nValDoc)
+	cQuery  += "AND ( F1_VALBRUT >= "+ALLTRIM(STR(nValDoc - 1))+" AND  F1_VALBRUT <= "+ALLTRIM(STR(nValDoc + 1))+" ) "+CRLF
+ENDIF
+
+//cQuery  += "ORDER BY D1_FILIAL,D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_COD,D1_ITEM "+CRLF
+cQuery  += "ORDER BY D1_DTDIGIT DESC ,D1_DOC,D1_SERIE,D1_FORNECE,D1_LOJA,D1_COD,D1_ITEM "+CRLF
 
 u_LogMemo("BKCOMC01.SQL",cQuery)
 
@@ -146,7 +218,8 @@ TCQUERY cQuery NEW ALIAS "QSD1"
 TCSETFIELD("QSD1","D1_EMISSAO","D",8,0)
 TCSETFIELD("QSD1","D1_DTDIGIT","D",8,0)
 TCSETFIELD("QSD1","D1_XXHIST1","C",300,0)
-TCSETFIELD("QSD1","D1_TOTAL" ,"N",18,2)
+TCSETFIELD("QSD1","D1_TOTAL"  ,"N",18,2)
+TCSETFIELD("QSD1","F1_VALBRUT","N",18,2)
 
 DbSelectArea("QSD1")
 DbGoTop()
@@ -154,7 +227,7 @@ aStruc := dbStruct()
 
 oTmpTb := FWTemporaryTable():New( "QSD11" )	
 oTmpTb:SetFields( aStruc )
-oTmpTb:AddIndex("indice1", {"D1_XXHIST"} )
+//oTmpTb:AddIndex("indice1", {"D1_DTDIGIT"} )
 oTmpTb:Create()
 
 //dbcreate(cArqTrb,aStruc)
@@ -173,6 +246,9 @@ Do While !eof()
 	dbSkip()
 EndDo
 
+DbSelectArea("QSD11")
+dbGoTop()
+
 aadd(aHeader, DefAHeader("QSD11","D1_FILIAL"))
 aadd(aHeader, DefAHeader("QSD11","D1_DOC"))
 aadd(aHeader, DefAHeader("QSD11","D1_SERIE"))
@@ -189,6 +265,7 @@ aadd(aHeader, DefAHeader("QSD11","D1_CC"))
 aadd(aHeader, DefAHeader("QSD11","D1_XXHIST"))
 aadd(aHeader, DefAHeader("QSD11","F1_XXUSER"))
 aadd(aHeader, DefAHeader("QSD11","F1_XXUSERS"))
+aadd(aHeader, DefAHeader("QSD11","F1_VALBRUT"))
 
 //oOk := LoadBitmap( GetResources(), "LBTIK" )
 //oNo := LoadBitmap( GetResources(), "LBNO" )
@@ -309,6 +386,9 @@ aAdd(aCabs  ,GetSX3Cache("D1_CC", "X3_TITULO"))
 aAdd(aCampos,"QSD11->D1_XXHIST")
 aAdd(aCabs  ,GetSX3Cache("D1_XXHIST", "X3_TITULO"))
 
+aAdd(aCampos,"QSD11->F1_VALBRUT")
+aAdd(aCabs  ,GetSX3Cache("F1_VALBRUT", "X3_TITULO"))
+
 aAdd(aCampos,"UsrRetName(QSD11->F1_XXUSER)")
 aAdd(aCabs  ,GetSX3Cache("F1_XXUSER", "X3_TITULO"))
 
@@ -319,36 +399,3 @@ AADD(aPlans,{"QSD11",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, aFormula,/* aFo
 U_PlanXlsx(aPlans,cTitulo,cPerg,.F.)
 	
 Return .T.
-
-
-Static Function  ValidPerg(cPerg)
-Local i,j
-Local aArea      := GetArea()
-Local aRegistros := {}
-dbSelectArea("SX1")
-dbSetOrder(1)
-cPerg := PADR(cPerg,10)
-
-AADD(aRegistros,{cPerg,"01","Pesquisar produto"        ,"Produto"        ,"Produto"        ,"mv_ch1","C",15,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
-AADD(aRegistros,{cPerg,"02","Pesquisar histórico"      ,"Historico"      ,"Historico"      ,"mv_ch2","C",20,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Pesquisar Centro de Custo","Centro de Custo","Centro de Custo","mv_ch3","C",09,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
-AADD(aRegistros,{cPerg,"04","Pesquisar Valor item"     ,"Valor do item"  ,"Valor do Item"  ,"mv_ch4","N",12,2,0,"G","","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"05","Pesquisar Fornecedor"     ,"Fornecedor"     ,"Fornecedor"     ,"mv_ch5","C",06,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
-AADD(aRegistros,{cPerg,"06","Pesquisar Nome Forn."     ,"Fornecedor"     ,"Fornecedor"     ,"mv_ch6","C",30,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"07","Pesquisar Desc. Produto"  ,"Produto"        ,"Produto"        ,"mv_ch7","C",30,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-
-For i:=1 to Len(aRegistros)
-	If !dbSeek(cPerg+aRegistros[i,2])
-		RecLock("SX1",.T.)
-		For j:=1 to FCount()
-			If j <= Len(aRegistros[i])
-				FieldPut(j,aRegistros[i,j])
-			Endif
-		Next
-		MsUnlock()
-	Endif
-Next
-
-RestArea(aArea)
-
-Return(NIL)
