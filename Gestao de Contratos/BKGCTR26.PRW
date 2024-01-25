@@ -762,6 +762,10 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 			If SUBSTR(aRelat[nI,ID_CC],1,3) $ '000/Er:'
 				aRelat[nI,ID_CC] := '386000609'
 			EndIf
+		ElseIf cEmpAnt == '18'
+			If SUBSTR(aRelat[nI,ID_CC],1,3) $ '000/Er:'
+				aRelat[nI,ID_CC] := '303000623'
+			EndIf
 		EndIf
 
 	Next
@@ -780,6 +784,10 @@ Static Function GCT26CC(oSay,aRelat,aRelat2)
 			ElseIf cEmpAnt == '16'
 				If SUBSTR(aRelat2[nI,ID_CC],1,3) $ '000/Er:'
 					aRelat2[nI,ID_CC] := '386000609'
+				EndIf
+			ElseIf cEmpAnt == '18'
+				If SUBSTR(aRelat2[nI,ID_CC],1,3) $ '000/Er:'
+					aRelat2[nI,ID_CC] := '303000623'
 				EndIf
 			EndIf
 		Next

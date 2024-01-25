@@ -71,7 +71,7 @@ oListID2:bLine := {|| {       aSZL[oListId2:nAt][1],;
 oListID2:bLDblClick := {|| EDITSZL(@aSZL) ,SomaSZL(aSZL),oListID2:DrawSelect(), }
 
 
-@ 180,005 SAY oSay2 PROMPT "Total: "+TRANSFORM(nTotInt,"@E 999,999,999.99") SIZE 250, 10 OF oPanelLeft2 PIXEL
+@ 190, 007 SAY oSay2 PROMPT "Total: "+TRANSFORM(nTotInt,"@E 999,999,999.99") SIZE 150, 10 OF oPanelLeft2 PIXEL
 
 //TButton():New(185,100,'&Alterar',oDlg2,{|| AltInclSZL(oListID2:nAt,4) },40,10,,,,.T.)
 
@@ -113,7 +113,7 @@ STATIC FUNCTION BuscaSZL()
     IF nScan > 0
 		oListId2:nAt := nScan
     ELSE
-    	u_MsgLog(,"Não encontrado!!","W")
+    	u_MsgLog("BKGCTA17","Não encontrado!!","W")
     ENDIF 
 RETURN NIL
 
@@ -171,7 +171,7 @@ Do While lReLoad
 	@ 000,000 MSPANEL oPanelLeft3 OF oDlg03 SIZE 473,578
 	oPanelLeft3:Align := CONTROL_ALIGN_LEFT
 	
-	@ 010, 010 SAY "Codigo:" SIZE 60, 7 OF oPanelLeft3 PIXEL 
+	@ 010, 010 SAY "Código:" SIZE 60, 7 OF oPanelLeft3 PIXEL 
 	@ 020, 010 MSGET oCodSB1 VAR cCodSB1 PICTURE "@!" VALID ExistCpo("SB1",cCodSB1) .and. MostraDesc(@cDesSB1,oDesSB1,cCodSB1 ) HASBUTTON F3 "SB1" SIZE 65, 11 OF oPanelLeft3 PIXEL
 	                                                                           
 	@ 010, 080 SAY "Descrição:" SIZE 60, 7 OF oPanelLeft3 PIXEL 
@@ -198,18 +198,18 @@ Do While lReLoad
 								cDesSB1	,;   
 								nValSB1})
 				ELSE
-					MsgStop("Codigo já incluido!! Cod.: "+IIF(cTipoZG='01',"18-1","W")+cCodSB1+" - "+cDesSB1)
+					u_MsgLog("BKGCTA17","Código já incluido!! Cod.: "+IIF(cTipoZG='01',"18-1","W")+cCodSB1+" - "+cDesSB1,"E")
 				ENDIF  
 			EndIf
 			lAlterad := .T.
-			u_MsgLog(,"Incluido com Sucesso!!","S")
+			u_MsgLog("BKGCTA17","Incluido com Sucesso!!","S")
 		
 		ELSEIF nxXOpcao == 4
 			aSZL[nITEM,1]  := IIF(cTipoZG='01',"18-1","W")+ALLTRIM(cCodSB1)
 			aSZL[nITEM,2]  := cDesSB1
 			aSZL[nITEM,3]  := nValSB1
 			lAlterad := .T.
-			u_MsgLog(,"Alterado com Sucesso!!","S")
+			u_MsgLog("BKGCTA17","Alterado com Sucesso!!","S")
 		ENDIF
 		SomaSZL(aSZL)
 	Endif
@@ -232,20 +232,19 @@ Local lRet:= .T.
 Local nScan:= 0
 
 IF EMPTY(cCodSB1)
-	MsgStop("Código não informado!", "Atenção")
+	u_MsgLog("BKGCTA17","Código não informado!", "E")
 	lRet:= .F.
 ENDIF
 
 dbSelectArea("SB1")
 dbSetOrder(1)
 IF !MsSeek(xFilial("SB1")+cCodSB1,.F.)
-	MsgStop("Código Inválido!", "Atenção")
+	u_MsgLog("BKGCTA17","Código Inválido!", "E")
 	lRet:= .F.
 ENDIF
 
-
 IF nValSB1 <= 0
-	IF !MsgYesNo("Valor não informado. Continua?")
+	IF !u_MsgLog("BKGCTA17","Valor não informado. Continua","Y")
 		lRet:= .F.
 	ENDIF
 ENDIF
@@ -254,7 +253,7 @@ nScan:= 0
 nScan:= aScan(aSZL,{|x| ALLTRIM(x[1]) == IIF(cTipoZG='01',"18-1","W")+ALLTRIM(cCodSB1) })
 IF nScan > 0
 	IF nScan <> nITEM
-		MsgStop("Código já incluido. Favor Verificar!!", "Atenção")
+		u_MsgLog("BKGCTA17","Código já incluido. Favor Verificar!!", "E")
 		lRet:= .F.
 	ENDIF
 ENDIF
@@ -269,7 +268,7 @@ Local _nx
 
 IF nItem > 0
 	IF !EMPTY(aSZL[nITEM,1])
-		IF MsgYesNo("Confirma exclusão Item: "+aSZL[nITEM,1]+"-"+aSZL[nITEM,2]+"  Valor: "+TRANSFORM(aSZL[nITEM,3],"@E 999,999,999.99") )
+		IF u_MsgLog("BKGCTA17","Confirma exclusão Item: "+aSZL[nITEM,1]+"-"+aSZL[nITEM,2]+"  Valor: "+TRANSFORM(aSZL[nITEM,3],"@E 999,999,999.99") ,"Y")
 	        	
 			aItem := aClone(aSZL)
 	        aSZL := {}
@@ -298,7 +297,7 @@ IF nItem > 0
 			oListID2:bLDblClick := {|| EDITSZL(@aSZL) ,SomaSZL(aSZL),oListID2:DrawSelect(), }
 			oListID2:Refresh()
 			lAlterad := .T.
-			u_MsgLog(,"Excluido com Sucesso!!","S")
+			u_MsgLog("BKGCTA17","Excluido com Sucesso!!","S")
 		ENDIF
 	ENDIF
 ENDIF
@@ -329,7 +328,7 @@ Return .T.
 User Function SelcSZL(cTipo)
 
 Local cQuery   := ""
-Local cTitulo2 := "Seleção de Codigos Projeção Financeira"
+Local cTitulo2 := "Seleção de Códigos Projeção Financeira"
 Local nScan    := 0
 Local lOk      := .F.
 Local _IX
@@ -369,7 +368,7 @@ Enddo
 QSZl->(Dbclosearea())
 
 IF  LEN(aSelRent) < 1
-	u_MsgLog(,"Todos os Códigos incluidos!","S")
+	u_MsgLog("BKGCTA17","Todos os Códigos incluidos!","S")
 	RETURN NIL
 ENDIF
 
@@ -420,7 +419,7 @@ If ( lOk )
 	//ORDENAR POR DESCRIÇÃO	
 	Asort(aSZL,,,{|x,y| x[2]<y[2]})
 	oListId2:SetArray(aSZL)
-	oListID2:bLine := {|| {       aSZL[oListId2:nAt][1],;
+	oListID2:bLine := {|| {   aSZL[oListId2:nAt][1],;
 					          aSZL[oListId2:nAt][2],;
 					Transform(aSZL[oListId2:nAt][3],'@E 99,999,999,999.99')}}  
 
@@ -437,6 +436,6 @@ STATIC FUNCTION BuscSelRent()
     IF nScan > 0
 		oListId3:nAt := nScan
     ELSE
-    	u_MsgLog(,"Não encontrado","W")
+    	u_MsgLog("BKGCTA17","Não encontrado","W")
     ENDIF 
 RETURN NIL

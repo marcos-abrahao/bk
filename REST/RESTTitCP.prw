@@ -245,8 +245,8 @@ Return lRet
 WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	Local cProg 	:= "RestTitCP"
 	Local cTitulo	:= "Contas a Pagar WEB"
-	Local cDescr 	:= "Exportação de tela do C.Pagar Web"
-	Local cVersao	:= "07/12/2023"
+	Local cDescr 	:= "Exportação Excel do C.Pagar Web"
+	Local cVersao	:= "13/01/2024"
 	Local oRExcel	AS Object
 	Local oPExcel	AS Object
 
@@ -256,6 +256,8 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
     Local oFile  	AS Object
 
 	Local cQrySE2	:= GetNextAlias()
+
+	u_MsgLog(cProg,cTitulo+" "+self:vencreal)
 
 	// Query para selecionar os Títulos a Pagar
 	TmpQuery(cQrySE2,self:empresa,self:vencreal)
@@ -280,7 +282,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 	oPExcel:AddCol("LOTE","LOTE","Lote","")
 	oPExcel:AddCol("VALOR","E2_VALOR","Valor","E2_VALOR")
 	oPExcel:AddCol("SALDO","SALDO","Saldo","")
-	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído',IIF(E2_XXPGTO=='O','Compensar PA','Em Aberto')))","Status","")
+	oPExcel:AddCol("STATUS","u_DE2XXPgto(E2_XXPGTO)")
 	oPExcel:AddCol("HIST","HIST","Histórico","D1_XXHIST")
 	oPExcel:AddCol("OPER","UsrRetName(E2_XXOPER)","Operador","")
 	oPExcel:AddCol("DADOSPGT","u_CPDadosPgt('"+cQrySE2+"')","Dados Pagamento","")
@@ -296,10 +298,11 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 
 	oPExcel:GetCol("STATUS"):SetHAlign("C")
 	oPExcel:GetCol("STATUS"):SetTamCol(12)
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'},"FF0000","",,,.T.) // Vermelho
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","",,,.T.) // Verde
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'},"FFA500","",,,.T.) // Laranja
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'O'},"0000FF","",,,.T.) // Azul
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'}	,"FF0000","",,,.T.)	// Vermelho
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Con'},"008000","",,,.T.)	// Verde
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FFA500","",,,.T.)	// Laranja
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Com'},"0000FF","",,,.T.)	// Azul
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'D'}	,"000000","",,,.T.)	// Preto
 
 	oPExcel:GetCol("DADOSPGT"):SetTamCol(40)
 	// Adiciona a planilha
@@ -350,15 +353,10 @@ Local cQrySE2       := GetNextAlias()
 Local cJsonCli      := ''
 Local lRet 			:= .T.
 Local oJsonTmp	 	:= JsonObject():New()
-
 Local aParams      	As Array
 Local cMsg         	As Character
-//Local lPerm			:= .T.
-Local cStatus		:= ""
 Local cNumTit 		:= ""
-
 Local cFormaPgto	:= ""
-
 
 //u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
 
@@ -399,16 +397,7 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['SALDO'] 	    := TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
 
 	aListCP[nPos]['XSTATUS']	:= (cQrySE2)->(E2_XXPGTO)
-	If (cQrySE2)->(E2_XXPGTO) == "P"
-		cStatus := "Pendente"
-	ElseIf (cQrySE2)->(E2_XXPGTO) == "C"
-		cStatus := "Concluido"
-	ElseIf (cQrySE2)->(E2_XXPGTO) == "O"
-		cStatus := "Compensar PA"
-	Else
-		cStatus := "Em Aberto"
-	EndIf
-	aListCP[nPos]['STATUS']		:= cStatus
+	aListCP[nPos]['STATUS']		:= u_DE2XXPgto((cQrySE2)->(E2_XXPGTO))
 	aListCP[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE2)->HIST), "CP1252", "UTF-8") 
 	aListCP[nPos]['OPER']		:= (cQrySE2)->(UsrRetName(E2_XXOPER)) //(cQrySE2)->(FwLeUserLg('E2_USERLGA',1))
 	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
@@ -889,6 +878,8 @@ if (Array.isArray(titulos)) {
 	 cbtn = 'btn-outline-danger';
 	} else if (cStatus == 'O'){
 	 cbtn = 'btn-outline-primary';
+	} else if (cStatus == 'D'){
+	 cbtn = 'btn btn-dark';
 	}
 
 	cbtnids = 'btnac'+nlin;
@@ -906,6 +897,7 @@ if (Array.isArray(titulos)) {
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'C\','+'\''+cbtnids+'\')">Concluido</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'P\','+'\''+cbtnids+'\')">Pendente</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'O\','+'\''+cbtnids+'\')">Compensar PA</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'D\','+'\''+cbtnids+'\')">Deb Automatico</button>';
 
 	trHTML += '</div>'
 
@@ -1066,6 +1058,8 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 			cbtn = 'Pendente';
 		} else if (acao == 'O'){
 			cbtn = 'Compensar PA';
+		} else if (acao == 'D'){
+			cbtn = 'Deb Automatico';
 		} else {
 			cbtn = 'Em Aberto';
 		}

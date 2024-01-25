@@ -5,6 +5,10 @@ SET STATISTICS IO,TIME ON
 EXEC sp_help SZ2010;
 
 
+--Deletar SZ5 provisão de Ferias e 13
+SELECT * FROM SZ5010 WHERE Z5_ANOMES = '202312' AND (Z5_EVENTO = 'PRVF' OR Z5_EVENTO = 'PRVD' OR Z5_EVENTO = 'AJTF' OR Z5_EVENTO = 'AJTD')
+DELETE FROM SZ5010 WHERE Z5_ANOMES = '202312' AND (Z5_EVENTO = 'PRVF' OR Z5_EVENTO = 'PRVD' OR Z5_EVENTO = 'AJTF' OR Z5_EVENTO = 'AJTD')
+
 -----------------------------------------------------------------------------------------------------------------------------------
 
 SELECT * FROM SED010 WHERE ED_CODIGO = '0000000047' OR ED_PERCIRF = 1

@@ -31,6 +31,12 @@ If lMT100TOK
 				lRet := .F.
 			EndIf
 		EndIf
+
+		If lRet .AND. dDEmissao <= dDataFis
+			If !u_MsgLog("MT100OK","Data de emissão menor que a data de fechamento fiscal: "+DTOC(dDataFis)+", confirma","N")
+				lRet := .F.
+			EndIf
+		EndIf
 	EndIf
 
 	/*

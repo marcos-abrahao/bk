@@ -81,6 +81,7 @@ Local nI          := 0
 //Local cFile       := ""
 Local cTabela     := ""
 Local cQuery      := ""
+Local cTexto1     := ""
 
 cTexto += Replicate( "-", 70 ) + CRLF
 cTexto += " Data / Hora Inicial.: " + DtoC( Date() ) + " / " + Time()  + " - "+cUserName+ CRLF
@@ -95,8 +96,11 @@ For nI := 1 TO LEN(aDados)
         cQuery += "  WHERE X6_VAR = 'MV_DATAFIS' AND D_E_L_E_T_ = ' ' "+CRLF
         TcSqlExec(cQuery)
 
-        cTexto  += "Empresa: "+aDados[nI,2]+" - "+aDados[nI,3] + ": " 
-        cTexto  += "MV_DATAFIS alterada de "+DTOC(aDados[nI,4])+" para "+DTOC(aDados[nI,5]) + CRLF
+        cTexto1 := "Empresa: "+aDados[nI,2]+" - "+aDados[nI,3] + ": " 
+        cTexto1 += "MV_DATAFIS alterada de "+DTOC(aDados[nI,4])+" para "+DTOC(aDados[nI,5]) 
+        cTexto  += cTexto1 + CRLF
+
+        u_MsgLog("BKPARFIS",cTexto1)
 
     EndIf
 Next

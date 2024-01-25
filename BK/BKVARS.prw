@@ -10,11 +10,43 @@ BK - Funcoes com parâmetros embutidos no fonte
 /*/
 
 
+// Retorna IP e Porta do server REST
+User Function BkIpPort()
+Local cIpPort := "10.139.0.30:8080"
+If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
+	cIpPort := "10.139.0.30:8081"
+EndIf
+//u_MsgLog(,GetEnvServer()+" - "+cIpPort,"I")
+Return cIpPort
+
+
+// Retorna endereço do REST BK
+User Function BKRest()
+Local cRest := "http://"+u_BkIpPort()+"/rest"
+Return cRest
+
+
+// Retorna endereço do Servidor BK
+User Function BKIpServer()
+Local cRest := "http://10.139.0.30"
+Return cRest
+
+
 // Contratos do Regime Cumulativo
 User Function BKCCCum()
 Return('290000471/300000482')
 
 
+// Contratos que não devem emitir aviso de contrato vencido
+User Function CtrVenc(cContrato)
+lRet := .T.
+If ALLTRIM(cContrato) $ "302000508" .and. cEmpAnt == "01"
+	lRet := .F.
+EndIf
+Return lRet
+
+
+// Centro de Custo padrão por empresa
 User Function CCPadrao()
 Local cCC := SPACE(9)
 
@@ -24,6 +56,8 @@ ElseIf cEmpAnt == '15'
 	cCC := '305000554'
 ElseIf cEmpAnt == '16'
 	cCC := '386000609'
+ElseIf cEmpAnt == '18'
+	cCC := '303000623'
 EndIf
 
 Return cCC
@@ -193,6 +227,8 @@ ElseIf cEmpAnt == '14'
     cVar := "302000508;140;000000001;000000002;1;0 ;302000508;010"
 ElseIf cEmpAnt == '16'
     cVar := "386000609;160;000000001;386000609;1;50;386000609;010"
+ElseIf cEmpAnt == '18'
+    cVar := "303000623;180;000000001;303000623;1;0 ;303000623;010"
 EndIf
 aVar := StrTokArr(cVar,"/")
 Return aVar
@@ -257,5 +293,161 @@ Return aVar
 User Function MVYFURNAS()
 Local cVar := "|381|391|"
 Return cVar
+
+
+
+// Gestão de Contratos
+
+/* Clientes Petrobras
+A1_COD	A1_NOME
+000153	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000249	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000255	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000256	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000281	PETROLEO BRASILEIRO S A PETROBRAS                                               
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CATU                                      
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-210                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-277                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-344                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-346                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-411                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-413                         
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-657_R15                     
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - CONSORCIO C-M-709_R15                     
+000281	PETROLEO BRASILEIRO S/A - PETROBRAS - JAPARATUBA                                
+000291	PETROLEO BRASILEIRO S/A PETROBRAS                                               
+000310	PETROLEO BRASILEIRO S/A - PETROBRAS                                             
+000313	PETROBRAS DISTRIBUIDORA SA                                                      
+000316	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL SAO CAETANO DO SUL             
+000317	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL BARUERI                        
+000318	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL GUARULHOS                      
+000319	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL GUARAREMA                      
+000320	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL CUBATAO                        
+000321	PETROBRAS TRANSPORTE S/A - TRANSPETRO - TERMINAL SAO SEBASTIAO                  
+000333	PETROLEO BRAS S/A PETROBRAS - UIRAPURU                                          
+000334	PETROLEO BRAS S/A PETROBRAS - TRES MARIAS                                       
+000335	PETROLEO BRASILEIRO S/A  CABO FRIO CENTRAL                                      
+000336	PETROLEO BRASILEIRO S/A - DOIS IRMAOS                                           
+000345	PETROBRAS EDUCACAO AMBIENTAL                                                    
+000346	PETROBRAS CARAGUATATUBA - BOMBEIROS                                             
+000347	PETROBRAS EDICIN - U.P.                                                         
+000372	PETROBRAS TRANSPORTE S.A. - TRANSPETRO
+000389  PETROLEO BRASILEIRO S A PETROBRAS                                                                                        
+*/
+User Function IsPetro(cCliente)
+Local lRet		:= .F.
+Local aPetro 	:= {}
+If cEmpAnt == "01" .AND. !Empty(cCliente)
+	aAdd(aPetro,"000153")
+	aAdd(aPetro,"000249")
+	aAdd(aPetro,"000255")
+	aAdd(aPetro,"000256")
+	aAdd(aPetro,"000281")
+	aAdd(aPetro,"000291")
+	aAdd(aPetro,"000310")
+	aAdd(aPetro,"000316")
+	aAdd(aPetro,"000317")
+	aAdd(aPetro,"000318")
+	aAdd(aPetro,"000319")
+	aAdd(aPetro,"000320")
+	aAdd(aPetro,"000321")
+	aAdd(aPetro,"000333")
+	aAdd(aPetro,"000334")
+	aAdd(aPetro,"000335")
+	aAdd(aPetro,"000336")
+	aAdd(aPetro,"000345")
+	aAdd(aPetro,"000346")
+	aAdd(aPetro,"000347")
+	aAdd(aPetro,"000372")
+	aAdd(aPetro,"000389")
+	If Ascan(aPetro,cCliente) > 0
+		lRet := .T.
+	EndIf
+EndIf
+Return lRet
+
+
+// Tabela de Mneumônicos do RH
+User Function BKCodRH()
+Local aDescrRH := {}
+
+// Depto Pessoal
+aAdd(aDescrRH,{"LDV","LIQUIDOS DIVERSOS"})
+aAdd(aDescrRH,{"VA" ,"VALE ALIMENTACAO"})
+aAdd(aDescrRH,{"LFE","FERIAS"})
+aAdd(aDescrRH,{"COM","COMISSAO"})
+aAdd(aDescrRH,{"VR" ,"VALE REFEICAO"})
+aAdd(aDescrRH,{"LAD","ADIANTAMENTO"})
+aAdd(aDescrRH,{"LRC","RESCISAO"})
+aAdd(aDescrRH,{"MFG","MULTA FGTS"})
+aAdd(aDescrRH,{"LFG","FGTS"})
+aAdd(aDescrRH,{"LPM","PGTO MENSAL"})
+aAdd(aDescrRH,{"LPMA","PGTO MENSAL"})
+aAdd(aDescrRH,{"VT" ,"VALE TRANSPORTE"})
+aAdd(aDescrRH,{"LAS","ADTO SALARIAL"})
+aAdd(aDescrRH,{"LD1","13.o PARC 1"})
+aAdd(aDescrRH,{"LD2","13.o PARC 2"})
+aAdd(aDescrRH,{"EXM","EXAME MEDICO"})
+aAdd(aDescrRH,{"PEN","PENSAO"})
+aAdd(aDescrRH,{"REE","REEMBOLSO"})
+aAdd(aDescrRH,{"DCH","DIARIA DE CAMPO"})
+aAdd(aDescrRH,{"HEX","HORAS EXTRAS"})
+aAdd(aDescrRH,{"GRA","GRATIFICACAO"})
+aAdd(aDescrRH,{"DIN","DIN"})
+aAdd(aDescrRH,{"ADF","ADF"})
+aAdd(aDescrRH,{"LAC","LAC"})
+
+// Despesas de Viagem
+aAdd(aDescrRH,{"SOL","SOLICITACAO"})
+aAdd(aDescrRH,{"HOS","HOSPEDAGEM"})
+aAdd(aDescrRH,{"RMB","REEMBOLSO"})
+aAdd(aDescrRH,{"NDB","NDB"})
+aAdd(aDescrRH,{"PCT","PCT"})
+
+// Caixa
+aAdd(aDescrRH,{"CXA","PREST. CONTAS"})
+
+Return aDescrRH
+
+
+// Retorna a descrição do codigo do RH
+User Function BKDescRH(cTipBK)
+Local aDescrRH	:= u_BKCodRH()
+Local nS 		:= 0
+Local cDescr 	:= ""
+nS := aScan(aDescrRH,{ |x| x[1] == AllTrim(cTipBK)})
+If nS > 0
+	cDescr := aDescrRH[nS,2]
+EndIf
+Return cDescr
+
+
+// Retorna se o fornecedor é a própria BK
+User Function IsFornBK(cForn)
+Return (cForn == u_cFornBK())
+
+User Function cFornBK()
+Return "000084"
+
+
+
+// Enum E2_XXPGTO - usado no RESTITCP
+User Function DE2XXPgto(cE2XXPgto)
+Local cStatus := "Em Aberto"
+If cE2XXPgto == "P"
+	cStatus := "Pendente"
+ElseIf cE2XXPgto == "C"
+	cStatus := "Concluido"
+ElseIf cE2XXPgto == "O"
+	cStatus := "Compensar PA"
+ElseIf cE2XXPgto == "D"
+	cStatus := "Deb Automatico"
+EndIf
+Return cStatus
+
+
+
+
 
 

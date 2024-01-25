@@ -15,13 +15,22 @@ Local aArea     := GetArea()
 Local oTmpTb
 Local aStrut    := {}
 Local cTx       := ""
-Private cProg   := "BKCOMA19"
-Private cAliasTmp := GetNextAlias()
+
+Private cProg   	:= "BKCOMA19"
+Private cAliasTmp 	:= GetNextAlias()
+Private cCC		 	:= TamSX3("C1_CC")[1]
+Private nTotGeral	:= 0
+Private cPict   	:= "@E 999,999,999.99"
+Private oFontTot	:= TFont():New("Tahoma",,-14,,.T.)
+
+cCC	:= PAD(u_CCPadrao(),TamSX3("C1_CC")[1])
 
 //              Campo          Tipo    Tamanho                Decimal
-aAdd( aStrut, { "XX_COD",      "C",    TamSX3("B1_COD")[1],   0                     } )
-aAdd( aStrut, { "XX_DESC",     "C",    TamSX3("B1_DESC")[1],  0                     } )
-aAdd( aStrut, { "XX_QUANT",    "N",    TamSX3("C1_QUANT")[1], TamSX3("C1_QUANT")[2] } )
+aAdd( aStrut, { "XX_COD",      "C",    TamSX3("B1_COD")[1]		, 0                     } )
+aAdd( aStrut, { "XX_DESC",     "C",    TamSX3("B1_DESC")[1]		, 0                     } )
+aAdd( aStrut, { "XX_QUANT",    "N",    TamSX3("C1_QUANT")[1]	, TamSX3("C1_QUANT")[2] } )
+aAdd( aStrut, { "XX_VALOR",    "N",    TamSX3("C1_XXLCVAL")[1]	, TamSX3("C1_XXLCVAL")[2] } )
+aAdd( aStrut, { "XX_TOTAL",    "N",    TamSX3("C1_XXLCTOT")[1]	, TamSX3("C1_XXLCTOT")[2] } )
  
 //Excluindo dados da tabela temporária, se tiver aberta, fecha a tabela
 If Select(cAliasTmp)>0
@@ -75,7 +84,6 @@ Private nColMeio := (nJanLarg)/4
 
 Private dDatPrf  := CTOD("")	
 Private cXXMTCM  := "1"
-Private cCC		 := TamSX3("C1_CC")[1]
 Private cXXJUST  := ""
 Private cXXDCC   := TamSX3("CTT_CUSTO")[1]
 Private cXXENDEN := SC1->C1_XXENDENT
@@ -95,7 +103,6 @@ fMontaHead()
 // Variaveis do cabeçalho
 dDatPrf := dDataBase+30 //CTOD("")	
 cXXMTCM := "1"
-cCC		:= PAD(u_CCPadrao(),TamSX3("C1_CC")[1])
 cXXJUST := ""
 cXXDCC  := SPACE(TamSX3("CTT_CUSTO")[1])
 
@@ -126,6 +133,7 @@ DEFINE MSDIALOG oDlgPvt TITLE "Inclusão de Itens Sol. de Compras" FROM 000, 000 
 
     oPanGrid := tPanel():New(nLin+7, 006, "", oDlgPvt, , , , RGB(000,000,000), RGB(254,254,254), (nJanLarg/2 - 13), ((nJanAltu/2) - nLin - 40))
 	oGetGrid := FWBrowse():New()
+	oGetGrid:SetOwner(oPanGrid)
 	oGetGrid:DisableFilter()
 	oGetGrid:DisableConfig()
 	oGetGrid:DisableReport()
@@ -135,19 +143,21 @@ DEFINE MSDIALOG oDlgPvt TITLE "Inclusão de Itens Sol. de Compras" FROM 000, 000 
 	oGetGrid:SetAlias(cAliasTmp)
 	oGetGrid:SetDataTable()
 	oGetGrid:SetInsert(.F.)
-	oGetGrid:SetDelete(.F., { || .F. })
+	oGetGrid:SetEditCell(.F.)
+	oGetGrid:SetDelete(.F.)
 	oGetGrid:lHeaderClick := .F.
 	oGetGrid:AddLegend( "Empty("+cAliasTmp + "->XX_DESC)", "RED",  "Erro: produto incorreto ou quantidade zerada")
-	oGetGrid:AddLegend("!Empty("+cAliasTmp + "->XX_DESC)", "GREEN",  "Ok")
+	oGetGrid:AddLegend("!Empty("+cAliasTmp + "->XX_DESC)", "GREEN","Ok")
 	oGetGrid:SetColumns(aColunas)
-	oGetGrid:SetOwner(oPanGrid)
 	oGetGrid:Activate()
 			
 	//Ações
-	@ (nJanAltu/2)-25, 03 GROUP oGrpAco TO (nJanAltu/2)-003, (nJanLarg/2)-003  PROMPT "Ações: "  OF oDlgPvt PIXEL
+	@ (nJanAltu/2)-25, 03 GROUP oGrpAco TO (nJanAltu/2)-003, (nJanLarg/2)-003 PROMPT "Ações: "  OF oDlgPvt PIXEL
 
-	@ (nJanAltu/2)-19  , (nJanLarg/2)-((nTamBtn*1)+06) BUTTON oBtnConf PROMPT "Cancelar"   SIZE nTamBtn, 013 OF oDlgPvt ACTION(oDlgPvt:End())            PIXEL
-	@ (nJanAltu/2)-19  , (nJanLarg/2)-((nTamBtn*2)+09) BUTTON oBtnLimp PROMPT "Salvar"     SIZE nTamBtn, 013 OF oDlgPvt ACTION(If(fValid(),fSalvar(),))  PIXEL
+	@ (nJanAltu/2)-17, 10 SAY "Total Estimado: "+TRANSFORM(nTotGeral,cPict )  SIZE 200, 14 FONT oFontTot OF oDlgPvt PIXEL COLOR CLR_BLUE
+
+	@ (nJanAltu/2)-19, (nJanLarg/2)-((nTamBtn*1)+06) BUTTON oBtnConf PROMPT "Cancelar"   SIZE nTamBtn, 013 OF oDlgPvt ACTION(oDlgPvt:End())            PIXEL
+	@ (nJanAltu/2)-19, (nJanLarg/2)-((nTamBtn*2)+09) BUTTON oBtnLimp PROMPT "Salvar"     SIZE nTamBtn, 013 OF oDlgPvt ACTION(If(fValid(),fSalvar(),))  PIXEL
 
 
 ACTIVATE MSDIALOG oDlgPvt CENTERED //VALID(fValid())
@@ -204,7 +214,10 @@ Do While !EOF()
 	SB1->(dbsetorder(1))
 	SB1->(DbSeek(xFilial("SB1")+(cAliasTmp)->XX_COD,.F.))
 
-	nXXLCVAL := PrdSc1(cCC)
+	nXXLCVAL := (cAliasTmp)->XX_VALOR //u_GPrdSc1((cAliasTmp)->XX_COD,cCC,1)
+	If nXXLCVAL == 0
+		nXXLCVAL := 1
+	EndIf
 
 	AADD(aItem,{ {"C1_ITEM"   	,STRZERO(++nY,4) 			,Nil },;
 				 {"C1_PRODUTO"	,TRIM((cAliasTmp)->XX_COD)	,Nil },;
@@ -230,7 +243,7 @@ BEGIN TRANSACTION
 END TRANSACTION
 SC1->(dbGoBottom())
 If lSucess
-	u_MsgLog("BKCOMA19","Solicitação de Compras "+SC1->C1_NUM+" incluida.","S")
+	u_MsgLog("BKCOMA19","Solicitação de Compras "+SC1->C1_NUM+" incluida","S")
 Else
 	u_MsgLog("BKCOMA19","Solicitação de Compras não foi incluida","E")
 EndIf
@@ -282,11 +295,13 @@ Local cLinha	:= ""
 Local cDesc 	:= ""
 Local cCod  	:= ""
 Local cQuant	:= ""
+Local nValor 	:= 0
 Local nTamTex	:= 0
 Local cErro 	:= ""
 
-cTexto  := FwNoAccent(cTexto) 
-nTamTex := mlCount(cTexto, 200)
+nTotGeral 	:= 0
+cTexto  	:= FwNoAccent(cTexto) 
+nTamTex 	:= mlCount(cTexto, 200)
 	
 For nI := 1 To nTamTex
 	cLinha := TRIM(memoline(cTexto, 200, nI))
@@ -328,11 +343,15 @@ For nI := 1 To nTamTex
 		EndIf
 
 		If lGrava		
+			nValor := u_GPrdSc1(cCod,cCC,0)		
 			dbSelectArea(cAliasTmp)
 			Reclock(cAliasTmp,.T.)
 			(cAliasTmp)->XX_COD   := cCod
 			(cAliasTmp)->XX_DESC  := cDesc
 			(cAliasTmp)->XX_QUANT := VAL(ALLTRIM(cQuant))
+			(cAliasTmp)->XX_VALOR := nValor
+			(cAliasTmp)->XX_TOTAL := nValor * (cAliasTmp)->XX_QUANT
+			nTotGeral += (cAliasTmp)->XX_TOTAL
 		EndIf
 	EndIf
 Next
@@ -357,9 +376,11 @@ Static Function fMontaHead()
     //[4] - Tamanho
     //[5] - Decimais
     //[6] - Máscara
-    aAdd(aHeadAux, {"XX_COD"  , "Produto",     "C", TamSX3('B1_COD')[01]  , 0						, ""						})
-    aAdd(aHeadAux, {"XX_DESC" , "Descricao",   "C", TamSX3('B1_DESC')[01] , 0						, ""						})
-    aAdd(aHeadAux, {"XX_QUANT", "Quantidade",  "N", TamSX3("C1_QUANT")[1] ,	TamSX3("C1_QUANT")[2]	, PesqPict("SC1","C1_QUANT")})
+    aAdd(aHeadAux, {"XX_COD"  , "Produto",       "C", TamSX3('B1_COD')[01]  	, 0							, ""						})
+    aAdd(aHeadAux, {"XX_DESC" , "Descricao",     "C", TamSX3('B1_DESC')[01] 	, 0							, ""						})
+    aAdd(aHeadAux, {"XX_QUANT", "Quantidade",  	 "N", TamSX3("C1_QUANT")[1] 	,	TamSX3("C1_QUANT")[2]	, PesqPict("SC1","C1_QUANT")})
+    aAdd(aHeadAux, {"XX_VALOR", "Valor Estimado","N", TamSX3("C1_XXLCVAL")[1] 	,	TamSX3("C1_XXLCVAL")[2]	, PesqPict("SC1","C1_XXLCVAL")})
+	aAdd(aHeadAux, {"XX_TOTAL", "Total Estimado","N", TamSX3("C1_XXLCTOT")[1] 	,	TamSX3("C1_XXLCTOT")[2]	, PesqPict("SC1","C1_XXLCTOT")})
 
     //Percorrendo e criando as colunas
     For nAtual := 1 To Len(aHeadAux)
@@ -374,43 +395,3 @@ Static Function fMontaHead()
     Next
 Return
 
-
-
-Static Function PrdSc1(cCC)
-Local cQuery	:= ""
-Local nXXLCVAL	:= 1
-Local aArea1	:= GetArea()
-
-cQuery  := "SELECT TOP 1 C1_PRODUTO,C1_XXLCVAL " 
-cQuery  += " FROM "+RETSQLNAME("SC1")+" SC1 "
-cQuery  += " WHERE C1_FILIAL = '"+xFilial("SC1")+"' "
-cQuery  += "   AND C1_CC = '"+TRIM(cCC)+"' "
-cQuery  += "   AND SC1.D_E_L_E_T_ = '' "
-cQuery  += " ORDER BY C1_EMISSAO DESC "
-TCQUERY cQuery NEW ALIAS "TMPC1"
-dbSelectArea("TMPC1")
-dbGoTop() 
-If !EOF()
-    nXXLCVAL := TMPC1->C1_XXLCVAL
-EndIf
-dbCloseArea()
-
-// Procura em outros centros de custos
-If nXXLCVAL == 1
-	cQuery  := "SELECT TOP 1 C1_PRODUTO,C1_XXLCVAL " 
-	cQuery  += " FROM "+RETSQLNAME("SC1")+" SC1 "
-	cQuery  += " WHERE C1_FILIAL = '"+xFilial("SC1")+"' "
-	cQuery  += "   AND SC1.D_E_L_E_T_ = '' "
-	cQuery  += " ORDER BY C1_EMISSAO DESC "
-	TCQUERY cQuery NEW ALIAS "TMPC1"
-	dbSelectArea("TMPC1")
-	dbGoTop() 
-	If !EOF()
-		nXXLCVAL := TMPC1->C1_XXLCVAL
-	EndIf
-EndIf
-dbCloseArea()
-
-RestArea(aArea1)
-
-Return nXXLCVAL

@@ -419,6 +419,8 @@ cQuery += " SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0')
 	        cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554' "+CRLF
          cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 16 AND  "+CRLF
 	        cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '386000609' "+CRLF
+         cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 18 AND  "+CRLF
+	        cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '303000623' "+CRLF
 	  cQuery += " ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO, "+CRLF
 cQuery += " SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS COMPETAM, "+CRLF
 cQuery += " bk_senior.bk_senior.R046VER.CodEve AS EVENTO, "+CRLF

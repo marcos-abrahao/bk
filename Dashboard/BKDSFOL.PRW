@@ -47,6 +47,8 @@ BEGINCONTENT VAR cQuery
 		        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
           WHEN bk_senior.bk_senior.R046VER.NumEmp = 16 AND 
 		        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '386000609'
+          WHEN bk_senior.bk_senior.R046VER.NumEmp = 18 AND 
+		        SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '303000623'
 		  ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO,
 
 	SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS COMPETAM,
@@ -57,6 +59,8 @@ BEGINCONTENT VAR cQuery
 		          SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554'
              WHEN bk_senior.bk_senior.R046VER.NumEmp = 16 AND 
 		          SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '386000609'
+             WHEN bk_senior.bk_senior.R046VER.NumEmp = 18 AND 
+		          SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '303000623'
 		     ELSE BKIntegraRubi.dbo.CUSTOSIGA.ccSiga END) +
 	    SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS CHAVE,
 	bk_senior.bk_senior.R044CAL.PerRef AS COMPETD,
