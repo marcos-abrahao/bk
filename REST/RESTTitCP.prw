@@ -1200,6 +1200,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E2_XXOPER"+CRLF
 	cQuery += "	 ,E2_XXTIPBK"+CRLF
 	cQuery += "	 ,E2_XXLOTEB"+CRLF
+	cQuery += "	 ,E2_NUMBOR"+CRLF
 	cQuery += "	 ,SE2.R_E_C_N_O_ AS E2RECNO"+CRLF
 	cQuery += "	 ,A2_NOME"+CRLF
 	cQuery += "	 ,A2_TIPO"+CRLF
@@ -1342,6 +1343,7 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  ,ISNULL(Z2_BORDERO,E2_XXLOTEB) AS LOTE"+CRLF
+//cQuery += "  ,(CASE WHEN E2_XXLOTEB = ' ' THEN ISNULL(Z2_BORDERO,E2_NUMBOR) ELSE E2_XXLOTEB END) AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 

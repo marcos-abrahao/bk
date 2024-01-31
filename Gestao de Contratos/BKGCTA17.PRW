@@ -71,7 +71,7 @@ oListID2:bLine := {|| {       aSZL[oListId2:nAt][1],;
 oListID2:bLDblClick := {|| EDITSZL(@aSZL) ,SomaSZL(aSZL),oListID2:DrawSelect(), }
 
 
-@ 190, 007 SAY oSay2 PROMPT "Total: "+TRANSFORM(nTotInt,"@E 999,999,999.99") SIZE 150, 10 OF oPanelLeft2 PIXEL
+@ 190, 005 SAY oSay2 PROMPT "Total: "+TRANSFORM(nTotInt,"@E 999,999,999.99") SIZE 150, 10 OF oPanelLeft2 PIXEL
 
 //TButton():New(185,100,'&Alterar',oDlg2,{|| AltInclSZL(oListID2:nAt,4) },40,10,,,,.T.)
 

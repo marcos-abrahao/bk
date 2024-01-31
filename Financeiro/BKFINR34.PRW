@@ -113,10 +113,13 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddCol("XXOPER","UsrRetName(QSE2->E2_XXOPER)","Operador","")
 	oPExcel:GetCol("XXOPER"):SetTamCol(20)
 
-	oPExcel:AddCol("STATUS","IIF(E2_XXPGTO=='P','Pendente',IIF(E2_XXPGTO=='C','Concluído','Em Aberto'))","Status","")
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'},"FF0000","",10,,.T.) // Vermelho
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'},"008000","",10,,.T.) // Verde
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'},"E26B0A","",10,,.T.) // Laranja Escuro/ Bold
+	oPExcel:AddCol("STATUS","u_DE2XXPgto(E2_XXPGTO)")
+	oPExcel:GetCol("STATUS"):SetTamCol(12)
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'}	,"FF0000","",,,.T.)	// Vermelho
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Con'},"008000","",,,.T.)	// Verde
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FFA500","",,,.T.)	// Laranja
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Com'},"0000FF","",,,.T.)	// Azul
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'D'}	,"000000","",,,.T.)	// Preto
 
 	// Adiciona a planilha consolidada
 	oRExcel:AddPlan(oPExcel)
@@ -351,6 +354,7 @@ cQuery += "	 ,E2_VENCREA"+CRLF
 cQuery += "	 ,E2_VALOR"+CRLF
 cQuery += "	 ,E2_XXPRINT"+CRLF
 cQuery += "	 ,E2_XXLOTEB"+CRLF
+cQuery += "	 ,E2_NUMBOR"+CRLF
 cQuery += "	 ,SE2.R_E_C_N_O_ AS REGSE2"+CRLF
 cQuery += "	 ,A2_NOME"+CRLF
 cQuery += "	 ,A2_TIPO"+CRLF
@@ -450,7 +454,7 @@ cQuery += "		 ORDER BY D1_ITEM)"+ CRLF
 
 cQuery += "	 LEFT JOIN "+RetSqlName("SZ2")+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF
 cQuery += "	 			AND SZ2.Z2_FILIAL  = ' '"+CRLF
-cQuery += "	 	 		AND SZ2.Z2_CODEMP  = '01' "+CRLF
+cQuery += "	 	 		AND SZ2.Z2_CODEMP  = '"+cEmpr+"'"+CRLF
 cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF
 cQuery += "	 	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF
 cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2.Z2_E2PARC"+CRLF
@@ -462,7 +466,7 @@ cQuery += "	 		    AND SZ2.R_E_C_N_O_ = "+CRLF
 cQuery += "	    	(SELECT TOP 1 R_E_C_N_O_ FROM "+RetSqlName("SZ2")+" SZ2T "+CRLF
 cQuery += "	    	  WHERE SZ2T.D_E_L_E_T_     = ''"+CRLF
 cQuery += "	 			AND SZ2T.Z2_FILIAL = ' '"+CRLF
-cQuery += "	 	 		AND SZ2T.Z2_CODEMP = '01' "+CRLF
+cQuery += "	 	 		AND SZ2T.Z2_CODEMP = '"+cEmpr+"'"+CRLF
 cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF
 cQuery += "	 	 		AND SE2.E2_NUM     = SZ2T.Z2_E2NUM "+CRLF
 cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF
@@ -502,6 +506,8 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 cQuery += "  ,ISNULL(Z2_BORDERO,E2_XXLOTEB) AS LOTE"+CRLF
+//cQuery += "  ,(CASE WHEN E2_XXLOTEB = ' ' THEN ISNULL(Z2_BORDERO,E2_NUMBOR) ELSE E2_XXLOTEB END) AS LOTE"+CRLF
+
 cQuery += "  FROM RESUMO " + CRLF
 If nQuebra == 1
 	cQuery += " ORDER BY E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF

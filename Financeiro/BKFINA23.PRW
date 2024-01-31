@@ -37,6 +37,7 @@ PRIVATE cTipo	:= SPACE(TamSX3("E1_TIPO")[1])
 PRIVATE cCli	:= SPACE(TamSX3("E1_CLIENTE")[1])
 PRIVATE cLoja	:= SPACE(TamSX3("E1_LOJA")[1])
 PRIVATE cNCli   := SPACE(TamSX3("A1_NOME")[1])
+PRIVATE cContra := SPACE(TamSX3("C5_MDCONTR")[1])
 PRIVATE dVencto := CTOD("") 
 
 PRIVATE nVlrTit := 0
@@ -312,6 +313,7 @@ Static Function BuscaSE1()
 Local lRet := .T.
 Local cKey := ""
 
+
 IF EMPTY(cPrefix)
 	cPrefix := "001"
 ENDIF
@@ -328,7 +330,8 @@ cKey := xFilial ("SE1") + cPrefix  + cFatura + cParc + cTipo
 
 DbSelectArea ("SE1")
 DbSetOrder(1)
-IF DbSeek (cKey,.F.)
+IF DbSeek(cKey,.F.)
+
    	IF SE1->E1_VALOR == SE1->E1_SALDO
 		cCli	:= SE1->E1_CLIENTE
 		cLoja	:= SE1->E1_LOJA
@@ -346,6 +349,19 @@ IF DbSeek (cKey,.F.)
 		nDesc   := 0
 		nMulta  := 0
 		nReceb  := nVlrLi + nMulta - nDesc - nRValor
+		
+		// Conta de retenção contratual - Buscar o numero do contrato no pedido
+		If !Empty(SE1->E1_PEDIDO)
+			cContra := Posicione("SC5",1,xFilial("SC5")+SE1->E1_PEDIDO,"C5_MDCONTR")
+		EndIf
+		If SUBSTR(cContra,7,3) == '610'
+			cRConta   := PAD("99998",LEN(cConta))
+		ElseIf SUBSTR(cContra,7,3) == '629'
+			cRConta   := PAD("99997",LEN(cConta))
+		Else
+			cRConta   := PAD("99999",LEN(cConta))
+		EndIf
+		cRHist := PAD("RETENCAO CONTRATUAL "+ALLTRIM(cContra),TamSX3("E5_HISTOR")[1])
   	ELSE
   		if SE1->E1_SALDO > 0
 			u_MsgLog(cPrw,"Titulo "+SE1->E1_NUM+" baixado parcialmente, favor utilizar rotina padrao de sistema!!","E")
@@ -358,7 +374,7 @@ IF DbSeek (cKey,.F.)
 		//lRet := .F.
  	ENDIF
 ELSE
-	MSGSTOP("Titulo não Encontrado")
+	u_MsgLog(cPrw,"Titulo não Encontrado","E")
 	//LIMPTAB()
 	//lRet := .F.
 	oFatura:SetFocus()

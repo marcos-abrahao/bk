@@ -628,6 +628,10 @@ IF cEmpAnt == '14' // Balsa - Solicitado pelo Jalielison em 01/02/2022
 	cDescr += "O serviço desta Nota Fiscal foi prestado na seguinte proporção:|"
 	cDescr += "97,75% pela BK Consultoria e Serviços Ltda 03.022.122/0001-77|"
 	cDescr += "2,25% pela Trairi Comércio de Derivados de Petroleo Ltda 04.811.052/0001-07"
+ELSEIF cEmpAnt == '18' // BK VIA
+	cDescr += "O serviço desta Nota Fiscal foi prestado na seguinte proporção:|"
+	cDescr += "xx,xx% pela BK Consultoria e Serviços Ltda 03.022.122/0001-77|"
+	cDescr += "x,xx% pela XXXXXXXXXXXXXXXXXXXXX 04.811.052/0001-07"
 ENDIF
 
 //criado para atendimento emergencial - 10/02/2023

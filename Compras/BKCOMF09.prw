@@ -18,6 +18,8 @@ Local cSubPdt:= ""
 Local cCod	 := ""
 Local nCod	 := 0
 Local cPerg  := "BKCOMF09" 
+Local aGrpBK := u_BKGrupo()
+Local nI 	 := 0
 
 If l010Auto
 	cCod := ""
@@ -46,15 +48,14 @@ EndIf
 
 nReg := 0
 
-SM0->(DbGoTop())
-While SM0->(!EoF())
+For nI := 1 To Len(aGrpBK)
 
 	//cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,LEN(B1_COD)) AS B1_COD1 from SB1"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' " 
 	//cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,LEN(B1_COD)) AS INT) DESC "
 	//TCQUERY cQuery NEW ALIAS "QSB1"
 
 
-	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 from SB1"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
+	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 from SB1"+aGrp[nI,1]+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
 	cQuery += " 	AND SUBSTRING(B1_COD,11,1) = ' ' "   // para não estourar a quantidade de casas do INT
 	cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,6) AS INT) DESC "
 	TCQUERY cQuery NEW ALIAS "QSB1"
@@ -68,8 +69,8 @@ While SM0->(!EoF())
 	ENDIF
 	
 	QSB1->(Dbclosearea())
-	SM0->(dbSkip())
-ENDDO
+Next
+
 nCod++
 cCod := cSubPdt+STRZERO(nCod,IIF(nCod>999,4,3))
 

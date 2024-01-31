@@ -45,8 +45,8 @@ AADD(aRotZ,{OemToAnsi("Dados Atestado Capacidade Técnica"),"U_BKGCTA15", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Hist. Atestado Capacidade Técnica"),"U_BKGCTA16", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Dados Venc. Doc. Segurança Trab."),"U_BKGCTA18", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Hist. Venc. Doc. Segurança Trab."),"U_BKGCTA19", 0, 2 })
-AADD(aRotZ,{OemToAnsi("Planos de Ação"),"U_BKGCTA22(.F.)", 0, 2 })
-AADD(aRotZ,{OemToAnsi("Consultar Planos de Ação"),"U_BKGCTV22", 0, 2 })
+//AADD(aRotZ,{OemToAnsi("Planos de Ação"),"U_BKGCTA22(.F.)", 0, 2 })
+//AADD(aRotZ,{OemToAnsi("Consultar Planos de Ação"),"U_BKGCTV22", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Exportar Contrato BK"),  "U_XCNTR010(.T.)", 0, 2 })
 AADD(aRotZ,{OemToAnsi("Exportar Planilhas BK"), "U_BKGCTR27", 0, 2 })
 
@@ -799,25 +799,29 @@ Return Nil
 // Alteração de dados referentes a Projeção Financeira
 User Function BKGCTA11()
 Local _sAlias	:= Alias()
-Local oDlg01,aButtons := {},lOk := .F.
-Local nSnd  := 0,nTLin := 12
+Local oDlg01
+Local aButtons	:= {}
+Local lOk 		:= .F.
+Local nSnd  	:= 0
+Local nTLin		:= 12
 Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
-Local cContRev:="",cContSZG:=""
-Local nTotFat1:=nTotCLT1:=nEncSoc1:=nAJCuto1:=nEncAC1:=0
-Local nMaterial1:=nEquip1:=nBenef1:=nUnif1:=nTributos1:=nDespDiv1:=nRentab1:=0
-Local cNewSeq := ""
-Local cQuery  := ""
-Local _nx
+Local cContRev	:= ""
+Local cContSZG	:=""
+Local nTotFat1	:= nTotCLT1:=nEncSoc1:=nAJCuto1:=nEncAC1:=0
+Local nMaterial1:= nEquip1:=nBenef1:=nUnif1:=nTributos1:=nDespDiv1:=nRentab1:=0
+Local cNewSeq 	:= ""
+Local cQuery  	:= ""
+Local _nx		:= 0
 
-PRIVATE dDVigPrFin := date()
-PRIVATE nTotFat:=nTotCLT:=nEncSoc:=nVlEncSoc:=nAJCuto:=nEncAC:=nVLEncAC:=nInsumos:=nBenef:=nUnif:=nDespDiv:=0
-PRIVATE nMaterial:=nEquip:=nTributos:=nVLTributos:=nRentab:=nVLRentab:=nTotGeral:=nFatPrev:=0
-PRIVATE lAlterad:= .F.
-PRIVATE aSZL01:= {}
-PRIVATE aSZL02:= {}
-PRIVATE dDtProj   := CTOD("")
-PRIVATE cSeqProj := ""
+PRIVATE dDVigPrFin	:= dDataBase  //date() alterado em 29/01/2024
+PRIVATE nTotFat		:= nTotCLT:=nEncSoc:=nVlEncSoc:=nAJCuto:=nEncAC:=nVLEncAC:=nInsumos:=nBenef:=nUnif:=nDespDiv:=0
+PRIVATE nMaterial	:= nEquip:=nTributos:=nVLTributos:=nRentab:=nVLRentab:=nTotGeral:=nFatPrev:=0
+PRIVATE lAlterad	:= .F.
+PRIVATE aSZL01		:= {}
+PRIVATE aSZL02		:= {}
+PRIVATE dDtProj   	:= CTOD("")
+PRIVATE cSeqProj	:= ""
 
 IF CN9->CN9_SITUAC = "10"
 	u_MsgLog("BKGCTA11","Posicione na revisão atual do contrato","E")
@@ -834,7 +838,10 @@ dbSetOrder(1)
 cContSZG := CN9->CN9_NUMERO //+CN9->CN9_REVISA
 dbSeek(xFilial("SZG")+cContSZG,.T.)
 Do While SZG->(!EOF()) .AND. ALLTRIM(SZG->ZG_CONTRAT)==ALLTRIM(cContSZG) //+SZG->ZG_REVISAO
-	IF SZG->ZG_DATA <= dDVigPrFin
+	//IF SZG->ZG_DATA <= dDVigPrFin
+		// 30/01/2024 - Pegar o último
+		dDVigPrFin	:=  SZG->ZG_DATA
+
 		dDtProj     :=  SZG->ZG_DATA
 		cSeqProj	:=  SZG->ZG_SEQ
 		nTotFat1	:=	nTotFat		:=	SZG->ZG_FATURAD
@@ -855,7 +862,7 @@ Do While SZG->(!EOF()) .AND. ALLTRIM(SZG->ZG_CONTRAT)==ALLTRIM(cContSZG) //+SZG-
 		nRentab1	:=	nRentab		:=	SZG->ZG_RENTABI
 		nVLRentab	:=	SZG->ZG_VLRENTA
 		nTotGeral 	:=	SZG->ZG_TOTAL
-	ENDIF
+	//ENDIF
 	dbSelectArea("SZG")
     dbSkip()
 EndDo
@@ -915,10 +922,7 @@ IF dDVIG < dDVIG2
 	dDVIG := dDVIG2
 ENDIF
 
-////////////
-//MONTA TELA PROJEÇÃO FINANCEIRA
-////////////
-
+// MONTAR TELA PROJEÇÃO FINANCEIRA
   
 Define MsDialog oDlg01 Title "Informações Projeção Financeira - Contrato:"+ALLTRIM(CN9->CN9_NUMERO)+" Revisão:"+CN9->CN9_REVISA From 000,000 To 410,680 Of oDlg01 Pixel 
 
@@ -995,7 +999,7 @@ nSnd += nTLin
 nSnd += nTLin
 
 @ nSnd,028 Say "Rentabilidade (%):"                Size 080,008 Pixel Of oPanelLeft 
-@ nSnd,075 MsGet nRentab Picture "@E 999.999999"    Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
+@ nSnd,075 MsGet nRentab Picture "@E 999.999999"    Size 040,008 Pixel Of oPanelLeft WHEN .F. ON CHANGE(SomaSZG())
 
 @ nSnd,178 Say "Valor Rentabilidade:"                Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nVLRentab Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F. 
@@ -1107,7 +1111,7 @@ If ( lOk )
 	  		NEXT
         ENDIF
 
-		u_MsgLog(,"Ateração concluída com sucesso!","S")
+		u_MsgLog("BKGCTA11","Ateração concluída com sucesso: "+TRIM(CN9->CN9_NUMERO)+" - "+DTOC(dDVigPrFin),"S")
 	ENDIF
 
 EndIf
@@ -1127,7 +1131,7 @@ IF cTipo == "01"
 	IF nTotDet > 0 
 		IF nTotDet <> nBenef
 			IF nBenef > 0
-		   		IF u_MsgLog("BKGCTA11","Total do Detalhamento dos Benefícios, diferente do valor atual do Benefício. Assumir valor total do detalhamento"+STR(nTotDet,10,2), "Y" )
+		   		IF u_MsgLog("BKGCTA11","Total do Detalhamento dos Benefícios, diferente do valor atual do Benefício. Assumir valor total do detalhamento "+ALLTRIM(STR(nTotDet,10,2)), "Y" )
 					nBenef := nTotDet 
 		   		ENDIF
 		    ELSE
@@ -1216,13 +1220,20 @@ Return Nil
           
 
 Static Function SomaSZG()
+Local nTotParc := 0
 
-nVlEncSoc 	:=	nTotCLT * (nEncSoc *0.01) 
-nVLEncAC	:=	nAJCuto * (nEncAC * 0.01)                                                                                                
-nInsumos 	:=  nBenef+nUnif+nDespDiv                                        
-nVLTributos := 	nTotFat * (nTributos * 0.01)
-nVLRentab 	:= 	nTotFat * (nRentab * 0.01) 
-nTotGeral	:=  nTotCLT+ nVlEncSoc + nAJCuto + nVLEncAC + nInsumos + nMaterial + nEquip + nVLTributos + nVLRentab
+nVlEncSoc 	:= nTotCLT * (nEncSoc * 0.01) 
+nVLEncAC	:= nAJCuto * (nEncAC * 0.01)                                                                                                
+nInsumos 	:= nBenef + nUnif + nDespDiv                                        
+nVLTributos := nTotFat * (nTributos * 0.01)
+
+// Calcular automaticamente a rentabilidade: 29/01/2024
+//nVLRentab 	:= 	nTotFat * (nRentab * 0.01) 
+nTotParc	:= nTotCLT + nVlEncSoc + nAJCuto + nVLEncAC + nInsumos + nMaterial + nEquip + nVLTributos
+nVLRentab	:= nTotFat - nTotParc
+nRentab		:= nVLRentab / nTotFat / 0.01
+
+nTotGeral	:= nTotCLT + nVlEncSoc + nAJCuto + nVLEncAC + nInsumos + nMaterial + nEquip + nVLTributos + nVLRentab
 
 Return 
 
@@ -1283,9 +1294,6 @@ DO WHILE SZL->(!EOF()) .AND. SZL->ZL_CONTRAT==ALLTRIM(cContSZG) .AND. SZL->ZL_TI
 
 	SZL->(dbskip())
 ENDDO
-
-
- 
 RETURN
 
 
@@ -1293,24 +1301,24 @@ Static Function  validaSZG()
 LOCAL lOk:=.T.
 
     IF dDVigPrFin < dtInicio
-		u_MsgLog("BKGCTA11","Data Projeção Financeira menor que a vigência do Cronograma!", "E")
+		u_MsgLog("BKGCTA11","Data Projeção Financeira menor que a vigência do Cronograma!","E")
 		lOk:= .F.
     ENDIF
     IF dDVigPrFin > dDVig
-		u_MsgLog("BKGCTA11","Data Projeção Financeira maior que a vigência do Contrato!", "E")
+		u_MsgLog("BKGCTA11","Data Projeção Financeira maior que a vigência do Contrato!","E")
 		lOk:= .F.
     ENDIF
     IF nFatPrev == 0
-		u_MsgLog("BKGCTA11","Competência não encontrada para data informada", "E")
+		u_MsgLog("BKGCTA11","Competência não encontrada para data informada","E")
 		lOk:= .F.
 	ENDIF 
 	If TRANSFORM(nTotFat,"@E 999,999,999,999.99") <> TRANSFORM(nTotGeral,"@E 999,999,999,999.99")
-		IF !u_MsgLog("BKGCTA11","Valor Total Mensal informado diferente do Total Geral!"+Chr(13) + Chr(10)+"Valor Total Mensal="+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Total Geral=            "+TRANSFORM(nTotGeral,"@E 999,999,999,999.99"), "Y")
+		IF !u_MsgLog("BKGCTA11","Valor Total Mensal informado diferente do Total Geral!"+Chr(13) + Chr(10)+"Valor Total Mensal= "+ALLTRIM(TRANSFORM(nTotFat,"@E 999,999,999,999.99"))+Chr(13) + Chr(10)+"Total Geral = "+ALLTRIM(TRANSFORM(nTotGeral,"@E 999,999,999,999.99")),"Y")
 			lOk:= .F.
 		ENDIF
 	Endif                                                                                                                                                                                                                                    
 	If TRANSFORM(nTotFat,"@E 999,999,999,999.99") <> TRANSFORM(nFatPrev,"@E 999,999,999,999.99") 
-		u_MsgLog("BKGCTA11","Valor Total Mensal informado diferente do Fat. Previsto no Cronograma!"+Chr(13) + Chr(10)+"Valor Total Mensal=                 "+TRANSFORM(nTotFat,"@E 999,999,999,999.99")+Chr(13) + Chr(10)+"Fat. Previsto no Cronograma="+TRANSFORM(nFatPrev,"@E 999,999,999,999.99"), "E")
+		u_MsgLog("BKGCTA11","Valor Total Mensal informado diferente do Fat. Previsto no Cronograma!"+Chr(13) + Chr(10)+"Valor Total Mensal= "+ALLTRIM(TRANSFORM(nTotFat,"@E 999,999,999,999.99"))+Chr(13) + Chr(10)+"Fat. Previsto no Cronograma = "+ALLTRIM(TRANSFORM(nFatPrev,"@E 999,999,999,999.99")),"E")
 		lOk:= .F.
 	Endif
 	

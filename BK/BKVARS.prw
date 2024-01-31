@@ -346,6 +346,7 @@ If cEmpAnt == "01" .AND. !Empty(cCliente)
 	aAdd(aPetro,"000281")
 	aAdd(aPetro,"000291")
 	aAdd(aPetro,"000310")
+	aAdd(aPetro,"000313")
 	aAdd(aPetro,"000316")
 	aAdd(aPetro,"000317")
 	aAdd(aPetro,"000318")
@@ -359,8 +360,11 @@ If cEmpAnt == "01" .AND. !Empty(cCliente)
 	aAdd(aPetro,"000345")
 	aAdd(aPetro,"000346")
 	aAdd(aPetro,"000347")
+	aAdd(aPetro,"000368")
 	aAdd(aPetro,"000372")
+	aAdd(aPetro,"000383")
 	aAdd(aPetro,"000389")
+	aAdd(aPetro,"000404")
 	If Ascan(aPetro,cCliente) > 0
 		lRet := .T.
 	EndIf
@@ -445,9 +449,3 @@ ElseIf cE2XXPgto == "D"
 	cStatus := "Deb Automatico"
 EndIf
 Return cStatus
-
-
-
-
-
-

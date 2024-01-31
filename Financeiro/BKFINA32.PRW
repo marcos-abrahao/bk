@@ -547,9 +547,9 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,CP_SALDO],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-    		//cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-			//cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,CP_REGSE2],10)  
-    		//TcSqlExec(cQuery)
+    		cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
+			cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,CP_REGSE2],10)  
+    		TcSqlExec(cQuery)
 
 		NEXT
 				
@@ -940,7 +940,7 @@ For _nI:=1 To Len(aTitGer)
 		
 			RecLock("SE2")
 			SE2->E2_NUMBOR  := cNumBor
-			SE2->E2_XXLOTEB := STRZERO(nLote,6)
+			//SE2->E2_XXLOTEB := STRZERO(nLote,6)
 			MsUnlock( )
 			FKCOMMIT()
 		ENDIF
