@@ -2,7 +2,7 @@
 #INCLUDE "topconn.ch"
 
 /*/{Protheus.doc} BKFINR21()
-BK - Mapa de INSS retido
+BK - Bloqueio ou Desbloqueio judicial
 
 @author Adilson Prado
 @since 01/08/17

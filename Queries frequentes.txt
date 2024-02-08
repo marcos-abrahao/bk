@@ -1,3 +1,9 @@
+
+
+
+
+
+
 SET STATISTICS IO,TIME ON
 
 
@@ -10,6 +16,24 @@ SELECT * FROM SZ5010 WHERE Z5_ANOMES = '202312' AND (Z5_EVENTO = 'PRVF' OR Z5_EV
 DELETE FROM SZ5010 WHERE Z5_ANOMES = '202312' AND (Z5_EVENTO = 'PRVF' OR Z5_EVENTO = 'PRVD' OR Z5_EVENTO = 'AJTF' OR Z5_EVENTO = 'AJTD')
 
 -----------------------------------------------------------------------------------------------------------------------------------
+-- Localizar menus com uma função
+
+SELECT * FROM MPMENU_FUNCTION WHERE F_FUNCTION LIKE '%BKGCTR07%'  -- 48604407A63E4E11A115000C29790B6A
+
+SELECT * FROM MPMENU_ITEM 
+INNER JOIN MPMENU_MENU ON I_ID_MENU = M_ID
+WHERE I_ID_FUNC = '48604407A63E4E11A115000C29790B6A' AND SUBSTRING(M_NAME,1,1) <> '#'
+
+
+GCTMGESTAO                                        
+FINMREPAC                                         
+SIGAFIS                                           
+FINMGESTAO                                        
+SIGAFIN                                           
+SIGAGCT                                           
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
 
 SELECT * FROM SED010 WHERE ED_CODIGO = '0000000047' OR ED_PERCIRF = 1
 

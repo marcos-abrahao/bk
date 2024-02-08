@@ -10,11 +10,11 @@
 
 User Function MT140FIL()
 
-Local cFilt  		:= ""
+//Local cFilt  		:= ""
 Local cFiltro1 		:= ""
 Local cSuper 		:= ""
-Local cGerGestao 	:= u_GerGestao()
-Local cGerCompras 	:= u_GerCompras()
+//Local cGerGestao 	:= u_GerGestao()
+//Local cGerCompras 	:= u_GerCompras()
 Local lStaf			:= .F.
 Local lMDiretoria	:= .F.
 
@@ -26,6 +26,7 @@ cSuper := u_cSuper(__cUserId)
 lMDiretoria := u_IsMDir(__cUserId)
 
 // Se o usuario pertence ao grupo Administradores: não filtrar
+/*
 IF !lMDiretoria
    IF !lStaf .OR. EMPTY(cSuper)
       IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
@@ -45,6 +46,8 @@ IF !lMDiretoria
 ENDIF   
 
 u_MsgLog("MT140FIL","Super: "+cSuper+" - Staf:"+iif(lStaf,"S","N")+" - Dire:"+IIF(lMDiretoria,"S","N")+" - "+cFilt)
+*/
+
 
 If !lMDiretoria
 	cFiltro1 := "(F1_XXUSER = '"+__cUserId+"'  "

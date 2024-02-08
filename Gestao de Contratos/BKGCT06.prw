@@ -36,44 +36,36 @@ cEmpPar := aParam[1]
 cFilPar := aParam[2]
 
 //-- Evita que se consuma licenca
-//RpcSetType ( 3 )
-
-//PREPARE ENVIRONMENT EMPRESA cEmp FILIAL cFil MODULO "FAT" 
+RpcSetType ( 3 )
 
 WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 
 u_MsgLog("BKGCT06","Inicio Processo - "+cEmpPar+" - "+cFilPar)
 
-//WFPrepEnv( <cEmpresa>, <cFilial>, <cFunname>, <aTabelas>, <cModulo>)
-//TABLES "SA1" "SC5" "SC6" 
-
-
-IF DOW(dDataEnv) = 3 .OR. DOW(dDataEnv) = 5
-	u_WaitLog("VigBKGCT06", {|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
-	u_WaitLog("Vg2BKGct06", {|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
-
-	// HAbilitado em 05/12/23
-	u_WaitLog(, {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
-	u_WaitLog("V6BKGct06", {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
-	u_WaitLog("V7BKGct06", {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
-	u_WaitLog("V8BKGct06", {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
-
-	u_WaitLog("RepBKGCT06", {|| RepBKGCT06()},"Processando avisos de repactuação")
-	u_WaitLog("RepBK06b", {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
-
-ENDIF
-
-
 cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
- 
-//u_xxConOut("INFO","BKGCT06","Empresa:"+FWCodEmp()+".")
 
-If cEmpAnt == "01" 
+If cEmpAnt == "01" .OR. cEmpPar = "01"
 	u_WaitLog("V9BKGct06",  {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
 	u_WaitLog("V10BKGct06", {|| V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
 	u_WaitLog("V11BKGct06", {|| V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
 	u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf
+
+IF DOW(dDataEnv) = 3 .OR. DOW(dDataEnv) = 5
+	u_WaitLog("VigBKGCT06",{|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
+	u_WaitLog("Vg2BKGct06",{|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
+
+	// HAbilitado em 05/12/23
+	u_WaitLog("V5BKGct06", {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
+	u_WaitLog("V6BKGct06", {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
+	u_WaitLog("V7BKGct06", {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
+	u_WaitLog("V8BKGct06", {|| V8BKGct06()}  ,"Processando avisos de Doc. Segurança do Trabalho")
+
+	u_WaitLog("RepBKGCT06",{|| RepBKGCT06()},"Processando avisos de repactuação")
+	u_WaitLog("RepBK06b",  {|| RepBK06b()}  ,"Processando avisos de repactuação - Detalhado")
+
+ENDIF
+
 
 /*
 If cFWEmp $ "01/02/14" 

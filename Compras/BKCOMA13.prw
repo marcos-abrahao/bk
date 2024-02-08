@@ -88,17 +88,14 @@ Do While .T.
 	If !PrCom13()
 		lRet := .F.
    		Exit
-	Endif
-	If ValidaDoc() .AND. u_MsgLog(cProg,"Confirma a inclusão do DNF "+cDocI,"Y")
-		lRet := .T.
-   		Exit
-	Endif
+	ELSE
+		If ValidaDoc() .AND. u_MsgLog(cProg,"Confirma a inclusão do DNF "+cDocI,"Y")
+			lRet := .T.
+			Exit
+		Endif
+	ENDIF
 EndDo
 
-// Proximo numero de DNF
-U_NumSf1() 
-
-cDocI := cNFiscal
 cMesI := STRZERO(nAnoI,4)+STRZERO(nMesI,2)
 cMesF := STRZERO(nAnoF,4)+STRZERO(nMesF,2)
 
@@ -143,6 +140,8 @@ If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.     
     nProd	:= mv_par05
 	nValor  := mv_par06
 	cHist   := mv_par07
+	U_NumSf1() 
+	cDocI := cNFiscal	
 Endif
 Return lRet
 

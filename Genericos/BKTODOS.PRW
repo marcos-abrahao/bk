@@ -32,6 +32,8 @@ If __cUserId == '000000'
 	aAdd(aDados,{"","u_TabsBk()",		"GERAL",		"Criação de tabelas especificas - empresa nova"})
 EndIf
 
+aAdd(aDados,{"","U_BKBATIDAS()",	"GERAL",		"Envio de e-mails via CSV"})
+aAdd(aDados,{"","U_LISTUSR()",		"GERAL",		"Relação de usuários com E-Mail"})
 aAdd(aDados,{"","U_LISTSUP()",		"GERAL",		"Relação de usuários e superiores"})
 
 
@@ -41,7 +43,7 @@ aAdd(aDados,{"","U_BKGCTR01()",		"GESTÃO",		"Mapa de Mediçoes"})
 aAdd(aDados,{"","U_BKGCTR1A()",		"GESTÃO",		"Mapa de Mediçoes - Com motivos e multa e bonificação"})
 aAdd(aDados,{"","U_BKGCTR02()",		"GESTÃO",		"Previsto x Faturado - Todas empresas do Grupo BK"})
 aAdd(aDados,{"","U_BKGCTR2B()",		"GESTÃO",		"Gestão do Recebimento - empresas: 01,02,14 e 18"})
-aAdd(aDados,{"","U_BKGCTR07()",		"GESTÃO",		"Mapa de INSS retido"})
+aAdd(aDados,{"","U_BKGCTR07()",		"GESTÃO",		"Mapa de Faturamento"})
 aAdd(aDados,{"","U_BKGCTR08()",		"GESTÃO",		"Mapa de Multas e Bonificações"})
 aAdd(aDados,{"","U_BKGCTR09()",		"GESTÃO",		"Projeção Financeira dos Contratos"})
 aAdd(aDados,{"","U_BKGCTR10()",		"GESTÃO",		"Histórico de Multa e Bonificações"})
@@ -133,6 +135,7 @@ dbSelectArea("SC5")
 dbSelectArea("SC6")
 dbSelectArea("SC7")
 dbSelectArea("SC8")
+dbSelectArea("SCR")
 dbSelectArea("SD1")
 dbSelectArea("SD2")
 dbSelectArea("SE1")

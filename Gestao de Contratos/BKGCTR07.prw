@@ -2,7 +2,7 @@
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKGCTR07()
-BK - Mapa de INSS retido
+BK - Mapa de Faturamento
 
 @author Marcos B. Abrahão
 @since 05/05/11 rev 06/12/23
@@ -54,7 +54,7 @@ ELSE
 	cMes := cAnoEmis
 ENDIF
 
-titulo   := "Mapa de INSS Retido:"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
+titulo   := "Mapa de Faturamento:"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
 
 u_WaitLog(cPerg,{|oSay| PrcGct07(nTipo,cMes) }, titulo)
 

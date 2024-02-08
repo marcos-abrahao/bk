@@ -324,6 +324,27 @@ Return lRet
 
 
 
+// Listagem de usuarios
+User Function ListUsr()
+Local nx		:= 0
+Local aAllUsers := {}
+Local aUsers    := {}
+Local lRet 		:= .F.
+Local aCabec	:= {"Usuário","E-Mail"}
+
+u_WaitLog(,{ || aAllUsers := FWSFALLUSERS(,,,,.T.)} )
+
+For nx := 1 To Len(aAllUsers)
+	If aAllUsers[nx,8] == '2' //usuário ativo
+		aAdd(aUsers,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],ALLTRIM(UsrRetMail(aAllUsers[nX,2]))})
+    EndIf
+Next
+
+u_ArrXls("LISTUSR",aUsers,"Usuários Ativos",aCabec)
+
+Return lRet
+
+
 
 // Retorna se o usuário pertence ao grupo ou grupos informados
 User Function InGrupo(cId,cGrupos)
@@ -655,3 +676,4 @@ cRet += "noe.braga@bkconsultoria.com.br;"
 cRet += "wiliam.lisboa@bkconsultoria.com.br;"
 
 Return cRet
+

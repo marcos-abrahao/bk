@@ -85,6 +85,10 @@ ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b>'
 ElseIf FWCodEmp() == "16"  // Consorcio Moove
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSÓRCIO MOOVE</span></b>'
+ElseIf FWCodEmp() == "17"  // DMAF
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">DMAF</span></b>'
+ElseIf FWCodEmp() == "18"  // BK VIA
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b>'
 Endif	
 
 cHtm += '<html>' 
