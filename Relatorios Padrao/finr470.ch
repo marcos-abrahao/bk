@@ -122,5 +122,15 @@
 		#define STR0038 If( cPaisLoc $ "ANG|PTG", "DATA        OPERAÇÃO                                                        DOCUMENTO         PREFIXO/TÍTULO                              ENTRADAS              SAÍDAS       SALDO ACTUAL", "DATA        OPERACAO                                                        DOCUMENTO         PREFIXO/TITULO                              ENTRADAS              SAIDAS       SALDO ATUAL" )
 		#define STR0039 "  EM  "
 		#define STR0040 " e "
+		#define STR0041 "Saldo Inicial p/ ?"
+		#define STR0042 "Filial"
+		#define STR0043 "Banco"
+		#define STR0044 "Considerado para compôr o Saldo Inicial. 1- Filial: mov. bancários da filial; 2- Banco: todos os mov. do Banco selecionado."
+		#define STR0045 "Selecione se o saldo sera composto"
+		#define STR0046 "pela movimentação bancaria da filial"
+		#define STR0047 "Ou pela movimentação total do banco selecionado"
+		#define STR0048 "CANCELADO"
+		#define STR0049 "SR. INC."
+		#define STR0050 "USR. ALT."
 	#endif
 #endif
