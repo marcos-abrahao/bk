@@ -135,11 +135,13 @@ If nHandle > 0
 		Next
 	Else
 		u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedido "+SC5->C5_NUM)
+		//u_WaitLog(, {|oSay| _nI:= 1 }, "BKFATR05 - Gravando arquivo html "+SC5->C5_NUM)
 		For _nI := 1 TO LEN(aHtml)
 			fWrite(nHandle, aHtml[_nI] + cCrLf )
 		Next
 	EndIf
 	fClose(nHandle)
+	//u_WaitLog(, {|oSay| _nI:= 1 }, "BKFATR05 - Abrindo arquivo html "+SC5->C5_NUM)
 	ShellExecute("open", cArqHtml, "", "", 1)
 EndIf
 SC5->(RestArea(aAreaSC5))

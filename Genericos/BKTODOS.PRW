@@ -76,7 +76,7 @@ aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de en
 
 aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})
 aAdd(aDados,{"","U_BKFINA05()",		"FINANCEIRO",	"Títulos a Pagar WEB"})
-aAdd(aDados,{"","U_FINR_470()",		"FINANCEIRO",	"Extrato Bancário BK"})
+aAdd(aDados,{"","U_FINR_470()",		"FINANCEIRO",	"Extrato Bancário BK - com CC"})  
 
 aAdd(aDados,{"","U_BKDSDSP1()",		"DASHBOARD",	"Atualização da tabela PREVDESP1"})
 aAdd(aDados,{"","U_BKDSDSP2()",		"DASHBOARD",	"Atualização da tabela PREVDESP2"})

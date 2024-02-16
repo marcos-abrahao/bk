@@ -11,6 +11,7 @@ MDIOk - P.E. ao abrir o módulo SIGAMDI
 User Function MDIOk()
     
 Local cToken
+Local dUtil := dDatabase
 //Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
 
 If nModulo = 5 .OR. nModulo = 69
@@ -30,9 +31,16 @@ ElseIf nModulo = 6 .OR. nModulo = 2  .OR. nModulo = 9
 EndIf
 
 If nModulo = 6 .AND. (u_InGrupo(__cUserId,"000024") .OR. __cUserId == "000000")
-	If u_MsgLog("MDIOk","Deseja abrir a tela Títulos a Pagar Web??","Y")
+	If u_MsgLog("MDIOk","Deseja abrir a tela Títulos a Pagar Web?","Y")
+		dUtil := dDataBase + 1
+		If DOW(dUtil) == 7
+			dUtil++
+		EndIf
+		If DOW(dUtil) == 1
+			dUtil++
+		EndIf
 		cToken  := u_BKEnCode()
-		ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencreal='+DTOS(dDataBase+1)+'&userlib='+cToken, "", "", 1)
+		ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencreal='+DTOS(dUtil)+'&userlib='+cToken, "", "", 1)
 		//ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencreal='+DTOS(DATAVALIDA(dDataBase+1))+'&userlib='+cToken, "", "", 1)
 	EndIf
 EndIf

@@ -7,7 +7,7 @@
 BK - Borderô - Folha
 @Return
 @author Adilson do Prado
-@since 13/03/2012 Rev 02/06/20
+@since 13/03/2012 Rev 15/02/2024
 @version P12
 /*/
 //-------------------------------------------------------------------
@@ -141,10 +141,12 @@ If Empty(aCtrId)
 	Return
 EndIf
 
-MsgAlert("Verifique a DATA do Bordero!!",cPerg)
+If !u_MsgLog(cPerg,"Confirme a data do borderô: "+DTOC(dData),"Y")
+	Return
+EndIf
+//MsgAlert("Verifique a DATA do Bordero: "+DTOC(dData),cPerg)
 
-
-oDlg := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],cTitulo,,,,,,,,, .T.,,,, .F. )
+oDlg := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],cTitulo+": "+DTOC(dData),,,,,,,,, .T.,,,, .F. )
 
 oDlg:nClientHeight  := aSize[3]
 oDlg:nClientWidth   := aSize[4]
@@ -166,9 +168,9 @@ oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
 
 lAll := .F.
 @ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelUp SIZE 050, 010 PIXEL 
-oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[10]) >= dDatabase .AND. x[3] $ cBancos,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
+oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[10]) >= dDatabase .AND. x[3] $ cBancos .AND. Empty(x[17]),x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","Lote (CTRID)","Banco","Prefixo","Número","Parcela","Tipo","Pgto","Emissão","Vencimento","Total R$","Ref.","Tipo","Reg E2" SIZE 320,180 OF oPanelDown PIXEL 
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","Lote (CTRID)","Banco","Prefixo","Número","Parcela","Tipo","Pgto","Emissão","Vencimento","Total R$","Ref.","Tipo","Reg E2","Lote" SIZE 320,180 OF oPanelDown PIXEL 
 oListID:SetArray(aCtrId)
 oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
 						aCtrId[oListId:nAt][2],;
@@ -183,9 +185,10 @@ oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
 						aCtrId[oListId:nAt][11],;
 						aCtrId[oListId:nAt][12],;
 						aCtrId[oListId:nAt][15],;
-						aCtrId[oListId:nAt][16]}}
+						aCtrId[oListId:nAt][16],;
+						aCtrId[oListId:nAt][17]}}
 
-oListId:bLDblClick := {|| aCtrId[oListId:nAt][1] := ValidaMrk(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][10],aCtrId[oListId:nAt][3],cBancos), oListId:DrawSelect()}
+oListId:bLDblClick := {|| aCtrId[oListId:nAt][1] := ValidaMrk(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][10],aCtrId[oListId:nAt][3],cBancos,aCtrId[oListId:nAt][17]), oListId:DrawSelect()}
 oListId:Align := CONTROL_ALIGN_ALLCLIENT
 
 //ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
@@ -226,8 +229,8 @@ If ( lOk )
 					Else
 						cTpPes := QSZ2->Z2_TIPOPES
 					EndIf
- 					AADD(aTit1Ger,{IIF(EMPTY(QSZ2->Z2_BORDERO),.T.,.F.),QSZ2->Z2_CTRID,QSZ2->Z2_PRONT,QSZ2->Z2_NOME,Round(QSZ2->Z2_VALOR,2),QSZ2->Z2_DATAPGT,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_AGENCIA,QSZ2->Z2_DIGAGEN,QSZ2->Z2_CONTA,QSZ2->Z2_DIGCONT,QSZ2->Z2_CPF,QSZ2->Z2_USUARIO,QSZ2->Z2_E2TIPO,QSZ2->Z2_HORALIB,QSZ2->Z2_BORDERO,aCtrId[nI,9],QSZ2->REC,QSZ2->Z2_NOMDEP,QSZ2->Z2_NOMMAE,cTpPes,aCtrId[nI,16]})
- 				    //                            1                           2               3            4               5                    6              7              8                  9              10              11              12             13               14             15               16                17           18          19            20            21           22       23
+ 					AADD(aTit1Ger,{IIF(EMPTY(QSZ2->Z2_BORDERO),.T.,.F.),QSZ2->Z2_CTRID,QSZ2->Z2_PRONT,QSZ2->Z2_NOME,Round(QSZ2->Z2_VALOR,2),QSZ2->Z2_DATAPGT,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_AGENCIA,QSZ2->Z2_DIGAGEN,QSZ2->Z2_CONTA,QSZ2->Z2_DIGCONT,QSZ2->Z2_CPF,QSZ2->Z2_USUARIO,QSZ2->Z2_E2TIPO,QSZ2->Z2_HORALIB,QSZ2->Z2_BORDERO,aCtrId[nI,9],{QSZ2->REC},QSZ2->Z2_NOMDEP,QSZ2->Z2_NOMMAE,cTpPes,{aCtrId[nI,16]}})
+ 				    //                            1                           2               3            4               5                    6              7              8                  9              10              11              12             13               14             15               16                17           18            19            20            21           22       23
 				ELSEIF QSZ2->Z2_DATAPGT <> dData 
 					nErros := 0
 					nErros := aScan(aErros,{|x| x[1]==1 .AND. x[2]==QSZ2->Z2_CTRID .AND. x[3]=QSZ2->Z2_PRONT })
@@ -246,7 +249,7 @@ If ( lOk )
 			QSZ2->(DbCloseArea())
 		ENDIF
 	NEXT
-	MsgAlert("Verifique a DATA do Bordero!!",cPerg)
+	//MsgAlert("Verifique a DATA do Bordero!!",cPerg)
 Endif
 
 If !EMPTY(aErros)
@@ -268,10 +271,18 @@ RestArea(aAreaIni)
 Return
       
 
-Static Function ValidaMrk(lRet,cPgto,cBanco,cBancos)
+Static Function ValidaMrk(lRet,cPgto,cBanco,cBancos,cLote)
 
 IF CTOD(cPgto) >= dDataBase  .AND. cBanco $ cBancos
-	lRet := !lRet
+	IF EMPTY(cLote)
+		lRet := !lRet
+	Else
+		If u_MsgLog(cPerg,"Lote bancário "+cLote+" já foi gerado para este título, confirma","N")
+			lRet := !lRet
+		Else
+			lRet := .F.
+		EndIf
+	EndIf
 ELSE
 	IF CTOD(cPgto) < dDataBase
    		u_MsgLog(cPerg,"Data de pgto deste lote é inferior a data base do sistema","E")
@@ -330,20 +341,22 @@ FOR nI := 1 TO LEN(aTit1Ger)
 	IF FWCodEmp() == "16"
 		AADD(aBordero,aTit1Ger[nI])
 	ELSE
-		//  1        2             3         4       5          6        7      8        9       10       11      12     13     14       15        16               17            18      19    20       21
-		// "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NOMDEP","Z2_NOMMAE"
+		//  1        2             3         4       5          6        7      8        9       10       11      12     13     14       15        16               17            18      19    20       21          22        23
+		// "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NOMDEP","Z2_NOMMAE",TIPOPES,REG E2
 		nScan:= 0
 		nScan:= aScan(aBordero,{|x| x[3]==aTit1Ger[nI,3] .AND. x[6]==aTit1Ger[nI,6] .AND. x[8]==aTit1Ger[nI,8] .AND. x[9]==aTit1Ger[nI,9] .AND. x[11]==aTit1Ger[nI,11] .AND. x[13]==aTit1Ger[nI,13]})
 		IF nScan == 0
 			AADD(aBordero,aTit1Ger[nI])
 		ELSE
 			aBordero[nScan,5] += aTit1Ger[nI,5]
+			AADD(aBordero[nScan,19],aTit1Ger[nI,19,1])
+			AADD(aBordero[nScan,23],aTit1Ger[nI,23,1])
 		ENDIF
 	ENDIF
 
 NEXT
 
-oDlg2 := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],"Confirme os Borderôs a gerar (consolidados)",,,,,,,,, .T.,,,, .F. )
+oDlg2 := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],"Confirme os Borderôs a gerar (consolidados) para "+DTOC(dData),,,,,,,,, .T.,,,, .F. )
 
 oDlg2:nClientHeight  := aSize[3]
 oDlg2:nClientWidth   := aSize[4]
@@ -369,7 +382,7 @@ oAll:bChange := {|| MudaCell(lAll) , oListId2:Refresh()}
 
 oSay := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelU2,,,,,,.T.,,,200,20)
 
-@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","Reg.","NomeDep","NomeMae","Tipo Pes","Reg E2" SIZE 320,180 OF oPanelD2 PIXEL 
+@ 012, 005 LISTBOX oListID2 FIELDS HEADER "","Lote (CTRID)","Prontuario","Nome","Valor R$","Dt.PGTO","Tipo","Banco","Agencia","Dg.Ag","Conta","Dg.CC","Cpf","Usuário","Tipo","Data Hora Lib","No. Lote CNAB","Emissão","NomeDep","NomeMae","Tipo Pes" SIZE 320,180 OF oPanelD2 PIXEL 
 
 oListID2:SetArray(aBordero)
 oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
@@ -390,11 +403,13 @@ oListID2:bLine := {|| {If(aBordero[oListId2:nAt][1],oOk,oNo),;
 						aBordero[oListId2:nAt][16],;
 						aBordero[oListId2:nAt][17],;
 						aBordero[oListId2:nAt][18],;
-						aBordero[oListId2:nAt][19],;
 						aBordero[oListId2:nAt][20],;
 						aBordero[oListId2:nAt][21],;
-						aBordero[oListId2:nAt][22],;
-						aBordero[oListId2:nAt][23]}}
+						aBordero[oListId2:nAt][22]}}
+
+//						aBordero[oListId2:nAt][19],;
+//						aBordero[oListId2:nAt][23]
+
 
 oListID2:bLDblClick := {|| aBordero[oListId2:nAt][1] := MrkTit(aBordero[oListId2:nAt][17],aBordero[oListId2:nAt][1],aBordero[oListId2:nAt][5]), oListID2:DrawSelect()}
 oListID2:Align := CONTROL_ALIGN_ALLCLIENT
@@ -449,7 +464,7 @@ Local nI
 nTotal := 0
 
 IF lAll
-	nAviso := u_AvisoLog("BKFINA14","Marcar todos - Atenção:","Alguns destes PGTOs ja estão inclusos no Lote CNAB. Deseja gerar novamente ??",{"Sim","Não"})
+	nAviso := u_AvisoLog("BKFINA14","Marcar todos - Atenção:","Alguns destes PGTOs já estão inclusos no Lote CNAB. Deseja gerar novamente?",{"Sim","Não"})
 	FOR nI := 1 TO LEN(aBordero)
 		IF nAviso == 1
 			aBordero[nI,1] := lAll
@@ -840,15 +855,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 				BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 				BncoTxt += '</tr>'
 	
-	    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-	    		TcSqlExec(cQuery)
-
-				If !Empty(aTitGer[nI,22])
-					cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-					cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-					TcSqlExec(cQuery)
-				EndIf
+				GravaNLote(nLote,aTitGer,nI)
 	
 			NEXT
 					
@@ -934,15 +941,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 				BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 				BncoTxt += '</tr>'
 	            
-	    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-	    		TcSqlExec(cQuery)
-	
-				If !Empty(aTitGer[nI,22])
-					cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-					cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-					TcSqlExec(cQuery)
-				EndIf
+				GravaNLote(nLote,aTitGer,nI)
 
 			NEXT
 			BncoTxtT+= BncoTxt+'<tr><td colspan="6">&nbsp;</td></tr><tr><td colspan="5" align="right">TOTAL DE <b>'+ STR(qTot,6) +'</b> PAGAMENTOS NO VALOR TOTAL DE R$</td><td align="center"><b>'+TRANSFORM(qValTot,"@E 999,999,999.99")+'</b></td></tr></table>'
@@ -1226,14 +1225,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-			cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-    		TcSqlExec(cQuery)
-			If !Empty(aTitGer[nI,22])
-				cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-				TcSqlExec(cQuery)
-			EndIf
+			GravaNLote(nLote,aTitGer,nI)
 
 		NEXT
 				
@@ -1483,14 +1475,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-			cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-    		TcSqlExec(cQuery)
-			If !Empty(aTitGer[nI,22])
-				cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-				TcSqlExec(cQuery)
-			EndIf
+			GravaNLote(nLote,aTitGer,nI)
+
 
 		NEXT
 				
@@ -1633,15 +1619,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-			cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-    		TcSqlExec(cQuery)
-
-			If !Empty(aTitGer[nI,22])
-				cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-				TcSqlExec(cQuery)
-			EndIf
+			GravaNLote(nLote,aTitGer,nI)
 
 		NEXT
 				
@@ -1797,14 +1775,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-			cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-    		TcSqlExec(cQuery)
-			If !Empty(aTitGer[nI,22])
-				cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-				TcSqlExec(cQuery)
-			EndIf
+			GravaNLote(nLote,aTitGer,nI)
 
 		NEXT
 				
@@ -2019,14 +1990,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 			BncoTxt += '<td align="center">'+TRANSFORM(aTitGer[nI,4],"@E 999,999,999.99")+'</td>'
 			BncoTxt += '</tr>'
 
-    		cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
-			cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18],10)  
-    		TcSqlExec(cQuery)
-			If !Empty(aTitGer[nI,22])
-				cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
-				cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22],10)  
-				TcSqlExec(cQuery)
-			EndIf
+			GravaNLote(nLote,aTitGer,nI)
 
 		NEXT
 				
@@ -2094,6 +2058,27 @@ ENDIF
 Return nil 
 
 
+// Gravar numero do Lote na tabela SZ2 e na SE2 - 15/02/2024
+Static Function GravaNLote(nLote,aTitGer,nI)
+Local cQuery	:= ""
+Local nL 		:= 0
+
+For nL := 1 TO LEN(aTitGer[nI,18])
+	cQuery 	:= " UPDATE "+RETSQLNAME("SZ2")+" SET Z2_BORDERO = '"+STRZERO(nLote,8)+"' "
+	cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,18,nL],10)  
+	TcSqlExec(cQuery)
+Next
+
+For nL := 1 TO LEN(aTitGer[nI,22])
+	cQuery 	:= " UPDATE "+RETSQLNAME("SE2")+" SET E2_XXLOTEB = '"+STRZERO(nLote,6)+"' "
+	cQuery  += " WHERE R_E_C_N_O_="+STR(aTitGer[nI,22,nL],10)  
+	TcSqlExec(cQuery)
+Next
+
+Return NIL
+
+
+
 Static Function GeraQueryTit(dData,cBanco)
 Local aCtrId 	:= {}
 Local cBcoBor 	:= cBanco
@@ -2131,20 +2116,20 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[1]
 					IF cBanco=='104'
 				   		IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098" .OR. SUBSTR(SZ2->Z2_CONTA,1,2) == "98"
-							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2}) 
+							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2,SE2->E2_XXLOTEB}) 
 						ENDIF	
 					ELSE
-						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2})
+						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2,SE2->E2_XXLOTEB})
 					ENDIF
 				ENDIF
 			ELSEIF nFurnas == 2
 				IF ALLTRIM(SZ2->Z2_CC) == aFURNAS[2]
 					IF cBanco=='104'
 				   		IF SUBSTR(SZ2->Z2_CONTA,1,2) == "37" .OR. SUBSTR(SZ2->Z2_CONTA,1,3) == "098" .OR. SUBSTR(SZ2->Z2_CONTA,1,2) == "98"
-							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2}) 
+							AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2,SE2->E2_XXLOTEB}) 
 						ENDIF	
 					ELSE
-						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2})
+						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2,SE2->E2_XXLOTEB})
 					ENDIF
 				ENDIF
 			ELSE
@@ -2154,7 +2139,7 @@ Do While !eof() .AND. SE2->E2_VENCREAL == dData
 					//		AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes}) 
 					//	ENDIF	
 					//ELSE
-						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2})
+						AADD(aCtrId,{.F.,SE2->E2_XXCTRID,SE2->E2_PORTADO,SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_XXTIPBK,DTOC(SE2->E2_EMISSAO),DTOC(SE2->E2_VENCREAL),TRANSFORM(SE2->E2_VALOR,"@E 999,999,999.99"),SE2->E2_NOMFOR,SE2->E2_FORNECE,SE2->E2_LOJA,cTpPes,nRecE2,SE2->E2_XXLOTEB})
 					//ENDIF
 				ENDIF
 	    	ENDIF
@@ -2335,5 +2320,7 @@ If cNBor < cNumbor
 	PutMv("MV_NUMBORP",cNumbor)
 EndIf
 
-
 RETURN cNumBor
+
+
+

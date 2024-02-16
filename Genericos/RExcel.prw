@@ -237,7 +237,7 @@ Self:cDescr 	:= ""
 Self:aParam		:= {}
 Self:cDirDest	:= IIf(!IsBlind(),"c:\tmp\","\tmp\")
 Self:cDirTmp 	:= "\tmp\"
-Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())+"-"+__cUserId
+Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")
 Self:cFileR 	:= Self:cDirTmp+Self:cFile+".rel"
 Self:cFileX 	:= Self:cDirTmp+Self:cFile+".xlsx"
 
@@ -246,6 +246,11 @@ MakeDir(Self:cDirDest)
 
 Self:oFileW		:= FwFileWriter():New(Self:cFileR)
 Self:oPrtXlsx	:= FwPrinterXlsx():New()
+
+// Apagar arquivo .rel (não deveria existir neste ponto)
+If file(Self:cFileR)
+	FErase(self:cFileR)
+EndIf
 
 Self:oPrtXlsx:Activate(Self:cFileR, Self:oFileW)
 
@@ -257,6 +262,7 @@ Return Self
 METHOD Create() CLASS RExcel
 
 u_WaitLog(Self:cPrw,{ |oSay| Self:RunCreate(oSay)},"Construindo arquivo .xlsx...")
+
 Return
 
 
@@ -660,15 +666,6 @@ For nP := 1 To Len(Self:aPlans)
 			Else
 				cOHAlign := cHorAligD
 			EndIf
-/*
-#define XCONDICAO 1
-#define XCORFONTE 2
-#define XCORFUNDO 3
-#define XSIZE	  4
-#define XITALIC	  5
-#define XBOLD 	  6
-#define XUNDER	  7
-*/
 
 			cCorFonte	:= cCorN
 			cCorFundo	:= cFundoN
@@ -1061,7 +1058,7 @@ CLASS PExcel
 	DATA aColunas	AS Array
 	DATA aResumos 	AS Array
 
-	// Declaração dos Métodos da Classe
+	// Declaração dos Métodos da Classe PExcel
 	METHOD New(cPlan,cAlias) CONSTRUCTOR
 
 	METHOD GetPlan()
@@ -1095,14 +1092,12 @@ METHOD SetAlias(cAlias) CLASS PExcel
 Self:cAlias := Alltrim(cAlias)
 Return 
 
-
 METHOD GetFiltro() CLASS PExcel
 Return Self:cFiltro
 
 METHOD SetFiltro(cFiltro) CLASS PExcel
 Self:cFiltro := Alltrim(cFiltro)
 Return 
-
 
 METHOD GetTitulo() CLASS PExcel
 Return Self:cTitulo
@@ -1204,7 +1199,7 @@ CLASS CExcel
 	DATA cName
 	DATA aCor		AS Array
 
-	// Declaração dos Métodos da Classe
+	// Declaração dos Métodos da Classe CExcel
 	METHOD New(cNTitulo,cNCampo) CONSTRUCTOR
 
 	METHOD GetTitulo()
@@ -1248,7 +1243,7 @@ CLASS CExcel
 ENDCLASS
 
 
-// Declaração dos Métodos da Classe
+// Declaração dos Métodos da Classe CExcel
 METHOD New(cNTitulo,cNCampo) CLASS CExcel
 Self:cTitulo 	:= cNTitulo
 Self:cCampo  	:= cNCampo
@@ -1266,7 +1261,6 @@ Self:cName 		:= ""
 Self:aCor 		:= {}
 Return
 
-
 METHOD GetTitulo() CLASS CExcel
 Return Self:cTitulo
 
@@ -1276,7 +1270,6 @@ Return
 
 METHOD GetCampo() CLASS CExcel
 Return Self:cCampo
-
 
 METHOD GetField() CLASS CExcel
 Return Self:nField
@@ -1364,7 +1357,8 @@ Return
 
 
 //-----------------------------------------------------------
-//ALGORITIMO PARA CONVERTER COLUNAS DA PLANILHA
+// ALGORITIMO PARA CONVERTER COLUNAS DA PLANILHA
+//-----------------------------------------------------------
 Static Function NumToString(nNum)
 	Local cRet	:= ""
 	If nNum<=26
@@ -1426,6 +1420,7 @@ Static aColIdx	:= {{1,"A"},;
 					{26,"Z"},;
 					{0,"Z"},;
 					}
+
 Static Function ColunasIndex(xNum,nIdx)
 	Local cRet		:= ""
 	Default nIdx	:= 1

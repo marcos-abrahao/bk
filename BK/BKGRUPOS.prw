@@ -366,7 +366,7 @@ Return lRet
 // Libera doc de entrada após o horário 
 User Function IsLibDPH(cPrw,cId)
 Local lRet := .T.
-//           Admin/Lau   /Diego /Bruno
+//           Admin/Lau   /Diego /Bruno /Luisinho 116 (provisório/removido)
 If !(cId $ "000000/000012/000016/000153")
     If SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07'
         u_MsgLog(cPrw,"Não é permitido incluir, classificar ou liberar documentos entre 19h e 7h","E")

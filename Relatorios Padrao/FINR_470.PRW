@@ -19,7 +19,7 @@ Static __lMVPAR12  := .F.
 Extrato Bancário - Com CC - BK	
 
 @author Marcos Abrahão
-@since  02/08/2024
+@since  08/02/2024
 
 @author Adrianne Furtado 
 @since  10/08/06
@@ -185,7 +185,8 @@ Static Function ReportPrint(oReport)
 	Local cMAFilSA6  := ""
 	Local lTemPar11  := .F.
 	Local lFieldLGI := Ascan(oMovBanc:ACell,{|a|a:CNAME == "E5_USERLGI"}) > 0	
-	Local lFieldLGA := Ascan(oMovBanc:ACell,{|a|a:CNAME == "E5_USERLGA"}) > 0	
+	Local lFieldLGA := Ascan(oMovBanc:ACell,{|a|a:CNAME == "E5_USERLGA"}) > 0
+	Local cChave    := ""	// BK
 	Private nTxMoedBc := 0
 	Private nMoedaBco := 1
 	
@@ -324,6 +325,8 @@ Static Function ReportPrint(oReport)
 	cCampos := "E5_FILIAL,E5_DTDISPO,E5_HISTOR,E5_NUMCHEQ,E5_DOCUMEN,E5_PREFIXO,E5_NUMERO,E5_PARCELA,E5_TIPODOC,E5_FILORIG,E5_DATA,"
 	cCampos += "E5_RECPAG,E5_VALOR,E5_MOEDA,E5_VLMOED2,E5_CLIFOR,E5_LOJA,E5_RECONC,E5_TIPO,E5_SEQ,E5_BANCO,E5_AGENCIA,E5_CONTA,"
 	cCampos += "A6_FILIAL,A6_COD,A6_NREDUZ,A6_AGENCIA,A6_NUMCON,A6_LIMCRED,E5_TXMOEDA,E5_ORIGEM,E5_MOTBX"
+	
+	cCampos += ",E5_CCD,E5_CCC" // BK
 	
 	If lFieldLGI
 		cCampos += ",E5_USERLGI"
@@ -490,6 +493,7 @@ Static Function ReportPrint(oReport)
 			cHistSE5  := ""
 			cPref_Tit := ""
 			cCCusto   := "" // BK
+			lTitulo   := .F. // BK
 			
 			If oReport:Cancel()
 				Exit
@@ -536,7 +540,33 @@ Static Function ReportPrint(oReport)
 						//EndIf
 					EndIf
 				EndIf
+			Else
+				(cTbl)->(DbSetOrder(1))
+				lTitulo := (cTbl)->(MsSeek(xFilial(cTbl, (cAliasSE5)->E5_FILORIG) + (cAliasSE5)->(E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO+E5_CLIFOR+E5_LOJA)))
+				If lTitulo
+					SD1->(dbSetOrder(1))
+					cChave := (cAliasSE5)->(E5_NUMERO+E5_PREFIXO+E5_CLIFOR+E5_LOJA)
+					If SD1->(MsSeek(xFilial("SD1")+cChave,.T.))
+				    	Do While SD1->(!EOF()) .AND. xFilial("SD1")+SD1->D1_DOC+SD1->D1_SERIE+SD1->D1_FORNECE+SD1->D1_LOJA == xFilial("SD1")+cChave
+							If Empty(cCCusto)
+								cCCusto := SD1->D1_CC
+							ElseIf cCCusto <> SD1->D1_CC
+								cCCusto := "DIVERSOS"
+							EndIf
+							SD1->(dbSkip())
+						EndDo
+					EndIf
+				EndIf
 			EndIf
+
+			If !lTitulo .OR. Empty(cCCusto)
+				If !Empty((cAliasSE5)->E5_CCD)
+					cCCusto := (cAliasSE5)->E5_CCD
+				Else
+					cCCusto := (cAliasSE5)->E5_CCC
+				EndIf
+			EndIf
+
 			//<---- BK
 
 			//Converte o valor quando o relatorio for parametrizado c/ uma moeda dIferente a da movimentacao bancaria

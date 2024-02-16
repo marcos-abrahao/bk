@@ -924,12 +924,12 @@ For _nI:=1 To Len(aTitGer)
 					SEA->EA_NUMCON  With SEE->EE_CONTA,;//cConta,;
 					SEA->EA_NUMBOR  With cNumBor,;
 					SEA->EA_DATABOR With dData,;
-					SEA->EA_PREFIXO With aTitBor[_nI,4],;
-					SEA->EA_NUM     With aTitBor[_nI,5],;
-					SEA->EA_PARCELA With aTitBor[_nI,6],;
-					SEA->EA_TIPO    With aTitBor[_nI,7],;
-					SEA->EA_FORNECE With aTitBor[_nI,13],;
-					SEA->EA_LOJA	With aTitBor[_nI,14],;
+					SEA->EA_PREFIXO With aTitGer[_nI,CP_PREFIXO],;
+					SEA->EA_NUM     With aTitGer[_nI,CP_NUMERO],;
+					SEA->EA_PARCELA With aTitGer[_nI,CP_PARCELA],;
+					SEA->EA_TIPO    With aTitGer[_nI,CP_TIPO],;
+					SEA->EA_FORNECE With aTitGer[_nI,CP_FORNECE],;
+					SEA->EA_LOJA	With aTitGer[_nI,CP_LOJA],;
 					SEA->EA_CART    With "P",;
 					SEA->EA_MODELO  With "01",;
 					SEA->EA_TIPOPAG With "98",;

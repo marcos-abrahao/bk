@@ -13,6 +13,7 @@ Tratamento do campo campo Z2_STATUS pelos sistemas:
 "S"- Titulos gerados no financeiro: financeiro pode excluir,RH não pode manipular
 "D"- Titulos excluídos no financeiro: RH pode manipular
 "B"- Bloqueado - aguardando aprovação na intranet
+"I"- Ignorar - ignorar pagamento (não efetuar)
 
     Gerar PA (pagamento antecipado) quanto Z2_TIPOPES = PJ,AC ou CLA
         Quando Z2_TIPOPES = PJ, utilizar fornecedor Z2_CODFOR / Z2_LOJFOR
@@ -97,7 +98,7 @@ ENDIF
 //Verifica se a titulos zerados e devolve automatico para RH
 ExcVZero()
 
-//Verifica se a titulos duplicado e devolve automatico para RH
+//Verifica se a titulos duplicados e devolve automatico para RH
 ExcDuplic()
 
 cQuery  := "SELECT Z2_CTRID,MAX(Z2_DATAPGT) AS XX_DATAPGT,SUM(Z2_VALOR) AS XX_TOTAL, MAX(Z2_NOME) AS XX_NOME " 
@@ -730,12 +731,12 @@ STATIC FUNCTION ExcVZero()
 Local cQuery  := ""
 Local aEmail1 := {}
 Local aEmail2 := {}
-Local cAssunto:= "Pagamentos nao Efetuados valores zerado ou negativo devolvido ao RH "
+Local cAssunto:= "Pagamentos nao Efetuados valores zerados ou negativos devolvido ao RH "
 
 // Verificar se há titulos com valores zerado ou negativo
 cQuery  := "SELECT R_E_C_N_O_ AS nREGSZ2" 
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
-cQuery  += " AND Z2_VALOR <= 0 AND SZ2.D_E_L_E_T_ <> '*' AND Z2_STATUS <> 'D'"
+cQuery  += " AND Z2_VALOR <= 0 AND SZ2.D_E_L_E_T_ <> '*' AND Z2_STATUS <> 'D' AND Z2_STATUS <> 'I'"
 
 TCQUERY cQuery NEW ALIAS "QSZ2"
 
@@ -744,7 +745,7 @@ QSZ2->(DbGoTop())
 Do While QSZ2->(!eof())
 	dbSelectArea("SZ2")
 	SZ2->(dbGoto(QSZ2->nREGSZ2))
-	IF SZ2->(RecNo()) == QSZ2->nREGSZ2 .AND. SZ2->Z2_VALOR <= 0 .AND. SZ2->Z2_STATUS <> 'D'
+	IF SZ2->(RecNo()) == QSZ2->nREGSZ2 .AND. SZ2->Z2_VALOR <= 0 .AND. SZ2->Z2_STATUS <> 'D' .AND. SZ2->Z2_STATUS <> 'I'
 		RecLock("SZ2",.F.)
       	SZ2->Z2_STATUS := "D"
       	SZ2->Z2_OBS    := "Titulo valor "+IIF(SZ2->Z2_VALOR < 0,"negativo","zerado")+" excluido: "+DTOC(DATE())+"-"+TIME()
@@ -787,6 +788,7 @@ cQuery  += " AND SZ2Y.Z2_PRONT   = SZ2X.Z2_PRONT "
 cQuery  += " AND SZ2Y.Z2_DATAPGT = SZ2X.Z2_DATAPGT "
 cQuery  += " AND SZ2Y.Z2_VALOR   = SZ2X.Z2_VALOR "
 cQuery  += " AND SZ2Y.Z2_STATUS <> 'D' "
+cQuery  += " AND SZ2Y.Z2_STATUS <> 'I' "
 cQuery  += " AND SZ2Y.Z2_TIPOPES=SZ2X.Z2_TIPOPES "
 cQuery  += " AND SZ2Y.R_E_C_N_O_ <> SZ2X.R_E_C_N_O_) AS EXISTE  "
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2X WHERE SZ2X.D_E_L_E_T_ = '' "
@@ -800,7 +802,7 @@ Do While QSZ2->(!eof())
 	IF !EMPTY(QSZ2->EXISTE)
 		dbSelectArea("SZ2")
 		SZ2->(dbGoto(QSZ2->nREGSZ2))
-		IF SZ2->(RecNo()) == QSZ2->nREGSZ2 .AND. SZ2->Z2_STATUS <> 'D' 
+		IF SZ2->(RecNo()) == QSZ2->nREGSZ2 .AND. SZ2->Z2_STATUS <> 'D' .AND. SZ2->Z2_STATUS <> 'I'
 
 			RecLock("SZ2",.F.)
    			SZ2->Z2_STATUS := "D"
