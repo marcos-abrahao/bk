@@ -12,7 +12,7 @@ BK - Ponto de Entrada para criar opções na tela de Funcões Contas a Pagar
 
 User Function F750BROW() 
 Local aRotY
-Local cEmpName := FWEmpName(cEmpAnt)
+Local cEmpName := u_BKNEmpr(cEmpAnt,3) //FWEmpName(cEmpAnt)
 aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
            {OemToAnsi("Alterar Liq. "+cEmpName),    "U_BKFINA04(.F.)", 0, 2 },;
            {OemToAnsi("Excluir Liq. "+cEmpName),    "U_BKFINA03",  0, 2 },;
@@ -240,6 +240,10 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := u_cFornBK()
 			cProd := "11301034"
 			cCCus := "303000623"
+		ElseIf SM0->M0_CODIGO == "19"  // BK SOLUCOES TECNOLOGICAS
+			cForn := u_cFornBK()
+			cProd := "11301035"
+			cCCus := "000000001"
 		Endif	
 	
 		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)

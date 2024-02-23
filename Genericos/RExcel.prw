@@ -185,7 +185,6 @@ CLASS RExcel
 
 	METHOD RunCreate()
 
-	METHOD Fill_Records()
 	METHOD AddPlan(oPlan)
 
 ENDCLASS

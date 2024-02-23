@@ -89,6 +89,8 @@ ElseIf FWCodEmp() == "17"  // DMAF
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">DMAF</span></b>'
 ElseIf FWCodEmp() == "18"  // BK VIA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b>'
+ElseIf FWCodEmp() == "19"  // BK SOLUÇÕES TECNOLOGICAS
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK SOL. TECNOLOGICAS</span></b>'
 Endif	
 
 cHtm += '<html>' 

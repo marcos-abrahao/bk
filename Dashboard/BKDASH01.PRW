@@ -90,6 +90,7 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cBlind2,"U_BKDSPLA()"   ,"Atualização da tabela PLANILHAS"})
 	aAdd(aDados,{cBlind2,"U_BKDSCRO()"   ,"Atualização da tabela CRONOGRAMAS"})
 	aAdd(aDados,{cBlind2,"U_BKDSGG()"    ,"Atualização da tabela GASTOSGERAIS"})
+	aAdd(aDados,{cBlind2,"U_BKDSGCO()"   ,"Atualização da tabela GASTOSCONSORCIOS"})
 
 	aAdd(aDados,{cBlind1,"U_BKDSFAT()"   ,"Atualização da tabela FATURAMENTO"})
 	aAdd(aDados,{cBlind1,"U_BKDSGER()"   ,"Atualização da tabela GERAL"})

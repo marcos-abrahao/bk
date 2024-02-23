@@ -302,6 +302,7 @@ Local nValIns   := 0    // Valor do INSS do item
 Local aImpostos	:= {}	// Array contendo todos os impostos calculados na funcao Fiscal com quebra por impostos+aliquotas
 Local nPInss	:= 0
 Local nPIrrf	:= 0
+Local cRetIr 	:= ""
 
 //Calculo dos Impostos
 MaFisIni(SC5->C5_CLIENTE,;                      // 01 – Codigo Cliente/Fornecedor
@@ -569,6 +570,11 @@ If SA1->(dbSeek(xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI))
 	//cEmailCli	:= SA1->A1_EMAIL
 	If Empty(cNatureza)
 		cNatureza := SA1->A1_NATUREZ
+	EndIf
+	If SA1->A1_RECIRRF = '2'
+		cRetIr := "Emissor"
+	Else 
+		cRetIr := ""
 	EndIf
 EndIf
 
@@ -895,8 +901,8 @@ AADD(aHtml,'      <tr>')
 AADD(aHtml,'        <td class="ti-hvalor">PIS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">COFINS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">CSLL</td>')
-AADD(aHtml,'        <td class="ti-hvalor">IRRF'+IIF(nPIrrf>0,' '+ALLTRIM(STR(nPIrrf))+'%','')+'</td>')
-AADD(aHtml,'        <td class="ti-hvalor">INSS'+IIF(nPInss>0,' '+ALLTRIM(STR(nPinss))+'%','')+'</td>')
+AADD(aHtml,'        <td class="ti-hvalor">IRRF'+IIF(nPIrrf>0,' '+ALLTRIM(STR(nPIrrf))+'% '+cRetIr,'')+'</td>')
+AADD(aHtml,'        <td class="ti-hvalor">INSS'+IIF(nPInss>0,' '+ALLTRIM(STR(nPinss))+'% ','')+'</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS RETIDO</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS CPOM</td>')

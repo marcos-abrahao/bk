@@ -25,8 +25,9 @@ If !FWIsInCallStack("U_BKFINJ18")
 	If Inclui .OR. Altera //.OR. lClas
 		If dDEmissao <= dDataFis 
 			If !(ALLTRIM(cEspecie)+"/" $ "SPED/CTE/CTEOS/NF3E/NFCE/") .OR. EMPTY(cEspecie)
-				MsgStop("A data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis),"MT140OK "+cEspecie)
-				lRet := .F.
+				If !u_MsgLog("MT140TOK","(Doc "+CSERIE+"-"+CNFISCAL+") "+ cEspecie + ": a data de emissão deve ser maior que a data de fechamento fiscal: "+DTOC(dDataFis)+", confirma","Y")
+					lRet := .F.
+				EndIf
 			EndIf
 		EndIf
 

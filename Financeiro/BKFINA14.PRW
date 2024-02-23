@@ -684,6 +684,7 @@ IF File(cArqTmp)
 	EndIf
 EndIf
 
+u_MsgLog(cPerg,"Geração do lote "+STRZERO(nLote,8)+": "+cArqTmp)
 
 BncoTxt := ''
 BncoTxt += '<table width="100%" align="CENTER" cellpadding="2" cellspacing="2" style="border-style:outset; border-width:1; padding-left:4px; padding-right:4px; padding-top:1px; padding-bottom:1px">'

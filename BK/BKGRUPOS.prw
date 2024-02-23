@@ -21,7 +21,8 @@ Local aEmpresas	:= {    {"01","BK"			,"BK"},;
                         {"15","BHG INT 3"	,"BHG"},;
 						{"16","MOOVE-SP"	,"MOOVE"},;
 						{"17","DMAF"		,"DMAF"},;
-						{"18","BK VIA"		,"BK VIA"} }
+						{"18","BK VIA"		,"BK VIA"},;
+						{"19","BK SOLUÇÕES"	,"BK S.TEC."} }
 Return aEmpresas
 
 
@@ -47,32 +48,33 @@ Return aEmpresas
 
 User Function BKEmpr()
 // Todas Empresas
-Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","MMDK"},;
-                        {"04","ESA"},;
-                        {"06","BKDAHER SUZANO"},;
-                        {"07","JUST SOFTWARE"},;
-                        {"08","BHG CAMPINAS"},;
-                        {"09","BHG OSASCO"},;
-                        {"10","BKDAHER TABOAO"},;
-                        {"11","BKDAHER LIMEIRA"},;
-                        {"12","BK CORRETORA"},;
-                        {"14","BALSA NOVA"},;
-                        {"15","BHG INT 3"},;
-						{"16","MOOVE-SP"},; 
-						{"17","DMAF"},; 
-                        {"18","BKVIA"},;
-                        {"97","CMOG"},;
-                        {"98","TERO"} }
+Local aEmpresas	:= {    {"01","BK"              ,"BK"},;
+                        {"02","MMDK"            ,"MMKD"},;
+                        {"04","ESA"             ,"ESA"},;
+                        {"06","BKDAHER SUZANO"  ,"BKDAHER S"},;
+                        {"07","JUST SOFTWARE"   ,"JUST"},;
+                        {"08","BHG CAMPINAS"    ,"BHG CAMP"},;
+                        {"09","BHG OSASCO"      ,"BHG OSAS"},;
+                        {"10","BKDAHER TABOAO"  ,"BKDAHER T"},;
+                        {"11","BKDAHER LIMEIRA" ,"BKDAHER L"},;
+                        {"12","BK CORRETORA"    ,"CORRETORA"},;
+                        {"14","BALSA NOVA"      ,"BALSA"},;
+                        {"15","BHG INT 3"       ,"BHG"},;
+						{"16","MOOVE-SP"        ,"MOOVE"},; 
+						{"17","DMAF",           ,"DMAF"},; 
+                        {"18","BK VIA"          ,"BK VIA"},;
+                        {"19","BK S. TECNOL."   ,"BK S.TEC."},;
+                        {"97","CMOG"            ,"CMOG"},;
+                        {"98","TERO"            ,"TERO"} }
 Return aEmpresas
 
 
-User Function BKNEmpr(cEmpr)
+User Function BKNEmpr(cEmpr,nI)
 Local aEmpr := u_BKEmpr()
 Local nEmpr := Ascan(aEmpr,{|x| x[1] == cEmpr})
 Local cNEmp := ""
 If nEmpr > 0
-	cNEmp := aEmpr[nEmpr,2]
+	cNEmp := aEmpr[nEmpr,nI]
 EndIf
 Return cNEmp
 
@@ -630,6 +632,7 @@ cRet += "joao.cordeiro@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "sabrina.nogueira@bkconsultoria.com.br;"
 cRet += "kelly.neto@bkconsultoria.com.br;"
+cRet += "isabela.silva@bkconsultoria.com.br;"
 
 Return cRet
 

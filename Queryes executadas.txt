@@ -1,10 +1,24 @@
 
-==============================================================
-
 
 ==============================================================
+-- 20/02/2024 
 
+DROP TABLE SZ2BAK
+DROP TABLE SZ2BAK2
+DROP TABLE SZ2NOVO
+DROP TABLE SZ2_X01
+DROP TABLE SE2BKP
+DROP TABLE SD1BAK
+==============================================================
+-- 19/02/2024 - Ajuste SX2 da empresa 19
 
+UPDATE SX2190 SET SX2190.X2_ARQUIVO = SX2180.X2_ARQUIVO FROM SX2180
+inner join SX2190 ON SX2190.X2_CHAVE = SX2180.X2_CHAVE
+WHERE SUBSTRING(SX2180.X2_ARQUIVO,4,3) = '010'
+
+==============================================================
+-- 16/02/2024 - Acerto DMAF Lucro Presumido 
+update SF4170 SET F4_TPREG = '2'
 ==============================================================
 
 -- 07/02/24 - Postergar pagamentos que vencem dia 10 11 12 13/02/24 para  pagarmos dia 14/02/24 - Kelly
@@ -18583,7 +18597,3 @@ WHERE ZL_CONTRAT = '346000530'
 AND ZL_DATA = '20200128'
 AND ZL_SEQ = '02'
 AND ZL_TIPO = '02'
-
-
-
-

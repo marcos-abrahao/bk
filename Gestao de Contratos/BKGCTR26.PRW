@@ -2946,7 +2946,7 @@ Local cQuery	:= ""
 Local nErro 	:= 0
 Local cErro2 	:= ""
 Local nX 		:= 0
-Local cNEmpr	:= u_BKNEmpr(cEmpAnt)
+Local cNEmpr	:= u_BKNEmpr(cEmpAnt,2)
 Local lOk 		:= .F.
 
 //u_MsgLog(cPerg,"PowerBk - Caixa")
