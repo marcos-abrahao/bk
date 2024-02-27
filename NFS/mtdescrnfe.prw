@@ -65,6 +65,7 @@ Local nScan		:= 0
 Local aBCVINC 	:= {}
 Local cAgVinc 	:= ""
 Local cCCVinc 	:= ""
+Local cRetCli	:= "1"
 /*
 Conforme falamos há alguns dias,das notas do ministerio deverão constar as informações abaixo:
 1 - Nº do contrato (dispensando objeto,se for o caso)
@@ -309,7 +310,8 @@ IF !Empty(cContrato)
 	IF dbSeek(xFilial("SA1")+cCliente+cLoja)
 	   IF !EMPTY(SA1->A1_XXCTABC)
 	      cConta := TRIM(SA1->A1_XXCTABC)
-	   ENDIF   
+	   ENDIF
+	   	cRetCli := IIf(Empty(SA1->A1_ABATIMP),"1",SA1->A1_ABATIMP)
 	   // cMun := "Municipio: "+TRIM(Posicione("CC2",1,xFilial("CC2")+SA1->A1_EST+SA1->A1_COD_MUN,"CC2_MUN"))+" - "+SA1->A1_EST
 	ENDIF
 	// Se tiver conta no CNC, usar - 31/01/2021.
@@ -368,7 +370,8 @@ ELSE
 	IF dbSeek(xFilial("SA1")+cCliente+cLoja)
 	   IF !EMPTY(SA1->A1_XXCTABC)
 	      cConta := TRIM(SA1->A1_XXCTABC)
-	   ENDIF   
+	   ENDIF
+	   	cRetCli := IIf(Empty(SA1->A1_ABATIMP),"1",SA1->A1_ABATIMP)
 	ENDIF
 ENDIF 
   
@@ -426,7 +429,7 @@ ENDIF
 lImp := .F.
 nQTDIMP := 0
 nTOTIMP := 0
-IF SF2->F2_VALIRRF > 0
+IF SF2->F2_VALIRRF > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALIRRF
    IF nPIrrf = 0
       nPIrrf := GETMV("MV_ALIQIRF")
@@ -438,7 +441,7 @@ IF SF2->F2_VALIRRF > 0
    		nQTDIMP := 0
    ENDIF
 ENDIF
-IF SF2->F2_VALPIS > 0
+IF SF2->F2_VALPIS > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALPIS
    ++nQTDIMP
    cImpost += "PIS: "+PicPer(nPPis,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
@@ -447,7 +450,7 @@ IF SF2->F2_VALPIS > 0
    		nQTDIMP := 0
    ENDIF
 ENDIF
-IF SF2->F2_VALCOFI > 0
+IF SF2->F2_VALCOFI > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALCOFI
    ++nQTDIMP
    cImpost += "COFINS: "+PicPer(nPCofins,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99"))+CRLF  //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
@@ -456,7 +459,7 @@ IF SF2->F2_VALCOFI > 0
    		nQTDIMP := 0
    ENDIF
 ENDIF
-IF SF2->F2_VALCSLL > 0
+IF SF2->F2_VALCSLL > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALCSLL
    ++nQTDIMP
    cImpost += "CSLL: "+PicPer(nPCsll,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))

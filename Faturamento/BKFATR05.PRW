@@ -303,6 +303,38 @@ Local aImpostos	:= {}	// Array contendo todos os impostos calculados na funcao F
 Local nPInss	:= 0
 Local nPIrrf	:= 0
 Local cRetIr 	:= ""
+Local cRetCli	:= "1"
+
+// Dados do Cliente
+SA1->(dbSetOrder(1))
+If SA1->(dbSeek(xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI))
+	If RetPessoa(SA1->A1_CGC) == "F"
+		cCNPJCli := Transform(SA1->A1_CGC,"@R 999.999.999-99")
+	Else
+		cCNPJCli := Transform(SA1->A1_CGC,"@R 99.999.999/9999-99")
+	Endif
+	cNomeCli	:= AllTrim(SA1->A1_NOME)
+	//cIMCli		:= SA1->A1_INSCRM
+	cEndCli		:= AllTrim(SA1->A1_END)+IIF(!EMPTY(SA1->A1_BAIRRO)," - "+AllTrim(SA1->A1_BAIRRO),"")
+	//cBairrCli	:= SA1->A1_BAIRRO
+	cCepCli		:= AllTrim(SA1->A1_CEP)
+	cMunCli		:= AllTrim(SA1->A1_MUN)
+	//cCodMun		:= SA1->A1_COD_MUN
+	cUFCli		:= AllTrim(SA1->A1_EST)
+	//cEmailCli	:= SA1->A1_EMAIL
+	If Empty(cNatureza)
+		cNatureza := SA1->A1_NATUREZ
+	EndIf
+	If SA1->A1_RECIRRF = '2'
+		cRetIr := "Emissor"
+	Else 
+		cRetIr := ""
+	EndIf
+
+	cRetCli := IIf(Empty(SA1->A1_ABATIMP),"1",SA1->A1_ABATIMP)
+
+EndIf
+
 
 //Calculo dos Impostos
 MaFisIni(SC5->C5_CLIENTE,;                      // 01 – Codigo Cliente/Fornecedor
@@ -470,10 +502,17 @@ If !EMPTY(SC5->C5_NOTA)
    If dbSeek(xFilial("SF2")+cNota+cSerie+cCliente+cLoja)
 		cObsNF	:= SF2->F2_XXCORPO
 		nTotVal := SF2->F2_VALFAT
-		nValPis := SF2->F2_VALPIS
-		nValCof := SF2->F2_VALCOFI
-		nValCsl := SF2->F2_VALCSLL
-		nValIRR := SF2->F2_VALIRRF
+		If cRetCli <> "3"
+			nValPis := SF2->F2_VALPIS
+			nValCof := SF2->F2_VALCOFI
+			nValCsl := SF2->F2_VALCSLL
+			nValIRR := SF2->F2_VALIRRF
+		Else
+			nValPis := 0
+			nValCof := 0
+			nValCsl := 0
+			nValIRR := 0
+		EndIf
 		nValIns := SF2->F2_VALINSS
 		nValCpm := SF2->F2_VLCPM
 		If SF2->F2_RECISS == "1"
@@ -518,9 +557,15 @@ If !EMPTY(SC5->C5_NOTA)
 
    EndIf
 Else
-   nTotLiq := nTotVal - nValPis - nValCof - nValCsl - nValIRR - nValIns - nValIssR - nValCpm
-   nRetCtr := ROUND(SC5->C5_XXRETC * nTotVal / 100,2) 
-   nValFat := nTotLiq - nRetCtr
+	If cRetCli == "3"
+		nValPis := 0
+		nValCof := 0
+		nValCsl := 0
+		nValIRR := 0
+	EndIf
+	nTotLiq := nTotVal - nValPis - nValCof - nValCsl - nValIRR - nValIns - nValIssR - nValCpm
+	nRetCtr := ROUND(SC5->C5_XXRETC * nTotVal / 100,2) 
+	nValFat := nTotLiq - nRetCtr
 EndIf
 
 // Tipo da NF
@@ -551,32 +596,6 @@ If !Empty(cContra)
 		cDescCtr := ALLTRIM(CN9->CN9_XXDESC)
 	EndIf
 EndIf	
-
-SA1->(dbSetOrder(1))
-If SA1->(dbSeek(xFilial("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI))
-	If RetPessoa(SA1->A1_CGC) == "F"
-		cCNPJCli := Transform(SA1->A1_CGC,"@R 999.999.999-99")
-	Else
-		cCNPJCli := Transform(SA1->A1_CGC,"@R 99.999.999/9999-99")
-	Endif
-	cNomeCli	:= AllTrim(SA1->A1_NOME)
-	//cIMCli		:= SA1->A1_INSCRM
-	cEndCli		:= AllTrim(SA1->A1_END)+IIF(!EMPTY(SA1->A1_BAIRRO)," - "+AllTrim(SA1->A1_BAIRRO),"")
-	//cBairrCli	:= SA1->A1_BAIRRO
-	cCepCli		:= AllTrim(SA1->A1_CEP)
-	cMunCli		:= AllTrim(SA1->A1_MUN)
-	//cCodMun		:= SA1->A1_COD_MUN
-	cUFCli		:= AllTrim(SA1->A1_EST)
-	//cEmailCli	:= SA1->A1_EMAIL
-	If Empty(cNatureza)
-		cNatureza := SA1->A1_NATUREZ
-	EndIf
-	If SA1->A1_RECIRRF = '2'
-		cRetIr := "Emissor"
-	Else 
-		cRetIr := ""
-	EndIf
-EndIf
 
 
 If SM0->M0_CODIGO == "01"      // BK
@@ -907,17 +926,26 @@ AADD(aHtml,'        <td class="ti-hvalor">ISS</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS RETIDO</td>')
 AADD(aHtml,'        <td class="ti-hvalor">ISS CPOM</td>')
 AADD(aHtml,'      </tr>')
-
-AADD(aHtml,'      <tr>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValPis,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCof,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCsl,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIRR,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIns,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIss,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIssR,cPict))+'</td>')
-AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCpm,cPict))+'</td>')
-AADD(aHtml,'      </tr>')
+If cRetCli == '3'
+	AADD(aHtml,'      <tr>')
+	AADD(aHtml,'        <td class="ti-valor" colspan="4">Cliente configurado para não reter</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIns,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIss,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIssR,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCpm,cPict))+'</td>')
+	AADD(aHtml,'      </tr>')
+Else
+	AADD(aHtml,'      <tr>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValPis,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCof,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCsl,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIRR,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIns,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIss,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValIssR,cPict))+'</td>')
+	AADD(aHtml,'        <td class="ti-valor">'+ALLTRIM(TRANSFORM(nValCpm,cPict))+'</td>')
+	AADD(aHtml,'      </tr>')
+EndIf
 
 AADD(aHtml,'      <tr>')
 AADD(aHtml,'        <td class="ti-hvalor">NF</td>')

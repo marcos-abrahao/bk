@@ -144,6 +144,9 @@ If lPedido
 	*/
 Else
 	// Titulo a Receber
+	// MV_CNTPTMD TIPO DE TITULO GERADO = BOL 
+	cPlanilha	:= ExpA1[aScan(ExpA1, {|x| x[1]=="E1_MDPLANI"}),2]
+	cNumMed		:= ExpA1[aScan(ExpA1, {|x| x[1]=="E1_MEDNUME"}),2]
 
 	nPosBIRF := aScan(ExpA1, {|x| x[1]=="E1_BASEIRF"})
 	If nPosBIRF > 0
@@ -152,6 +155,19 @@ Else
 			ExpA1[nPosBIRF,2] := ExpA1[nPosVal,2] 
 		EndIf
 	EndIf
+
+	dbSelectArea("CXN")
+	CXN->(dbSetOrder(3))
+	CXN->(dbSeek(xFilial("CXN",cFilCtr)+cContrato+CND->CND_NUMMED+cPlanilha)) 
+
+	AADD(ExpA1,{"E1_XXNDDES",CXN->CXN_XXOBS, Nil})
+	AADD(ExpA1,{"E1_XXCUSTO",cContrato, Nil})
+	AADD(ExpA1,{"E1_XXCOMPE",SUBSTR(CND->CND_COMPET,4,4)+SUBSTR(CND->CND_COMPET,1,2), Nil})
+	AADD(ExpA1,{"E1_XXMED",CND->CND_NUMMED, Nil})
+	AADD(ExpA1,{"E1_XXREV",cRevisa, Nil})
+
+	// Obs:  CN121AFN - PE que permite alterar o Array do titulo financeiro ao encerrar 
+
 EndIf
 
 u_MsgLog("CN120PED","Medição "+cNumMed+" - "+TRIM(cContrato)+" - "+TRIM(CNA->CNA_XXMUN))
