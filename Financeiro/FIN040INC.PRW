@@ -220,7 +220,7 @@ IF nValor > 0
 			Next
 			
 	   		IF u_MsgLog(,"Nota de Débito: "+cProxNum+" incluida com sucesso, deseja Imprimir?","Y")
-	        	U_BKFINR24()
+	        	u_WaitLog(,{|| U_BKFINR24(),"Gerando página web..."})
 	     	ENDIF
 		EndIf
 	ENDIF

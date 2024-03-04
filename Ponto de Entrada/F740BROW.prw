@@ -16,7 +16,7 @@ AADD( aRotina, {OemToAnsi("Baixa Portal Petrobras"),       "U_BKFINA23", 0, 4 } 
 AADD( aRotina, {OemToAnsi("Alterar data de Antecipação"),  "U_BKFINA24", 0, 4 } )
 AADD( aRotina, {OemToAnsi("ISS Bitrib. indevidamente"),    "U_BKFINA28", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Incluir NDC - Nota de Debito"), "U_FN40INCMNU", 0, 4 } )
-AADD( aRotina, {OemToAnsi("Imprimir NDC - Nota de Debito"),"U_BKFINR24", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Imprimir Nota de Debito/Fatura"),"U_BKSELR24", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexar Arq."),   "U_BKANXA01('1','SE1')", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Abrir Anexos"),  "U_BKANXA02('1','SE1')", 0, 4 } )
 

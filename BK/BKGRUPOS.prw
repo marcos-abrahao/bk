@@ -61,7 +61,7 @@ Local aEmpresas	:= {    {"01","BK"              ,"BK"},;
                         {"14","BALSA NOVA"      ,"BALSA"},;
                         {"15","BHG INT 3"       ,"BHG"},;
 						{"16","MOOVE-SP"        ,"MOOVE"},; 
-						{"17","DMAF",           ,"DMAF"},; 
+						{"17","DMAF"            ,"DMAF"},; 
                         {"18","BK VIA"          ,"BK VIA"},;
                         {"19","BK S. TECNOL."   ,"BK S.TEC."},;
                         {"97","CMOG"            ,"CMOG"},;

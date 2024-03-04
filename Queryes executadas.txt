@@ -1,7 +1,26 @@
 
+==============================================================
 
+==============================================================
+-- 29/02/2024 - Copiar os eventos da empresa 14 para a 18
 
+SELECT [NumEmpr]
+      ,[CodTab]
+      ,[CodEve]
+      ,[DesEve]
+      ,[usu_microsigac]
+      ,[usu_microsigad]
+      ,[usu_mesatr]
+      ,[usu_profve]
+      ,[usu_encben]
+	  --INTO EVENTOS14
+  FROM [BKIntegraRubi].[dbo].[FINANCE_EVENTOS_INTEGRA_CONTABIL] WHERE [NumEmpr] = 18
 
+  UPDATE EVENTOS14 SET NumEmpr = 18 FROM EVENTOS14
+
+  SELECT * FROM EVENTOS14
+
+  INSERT INTO [FINANCE_EVENTOS_INTEGRA_CONTABIL] SELECT * FROM EVENTOS14
 
 ==============================================================
 

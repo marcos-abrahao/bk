@@ -1,6 +1,6 @@
 #include "rwmake.ch"
 
-/*/{Protheus.doc} CN120PED
+/*/{Protheus.doc} CN121PED
 BK - Ponto de Entrada para carregar campos Estado e Cod. Munic. IBGE e RECISS no pedido de VENDA
 
 @Return
@@ -9,11 +9,11 @@ BK - Ponto de Entrada para carregar campos Estado e Cod. Munic. IBGE e RECISS no
 @version P11/P12
 /*/
 
-User Function CN121PED()  //executado na nova medição
-Return U_CN120PED()
+User Function CN120PED()  //executado na medição antiga
+Return U_CN121PED()
 
 
-User Function CN120PED()
+User Function CN121PED()
 
 Local ExpA1 	:= PARAMIXB[1]
 Local ExpA2 	:= PARAMIXB[2]
@@ -167,10 +167,10 @@ Else
 	AADD(ExpA1,{"E1_XXREV",cRevisa, Nil})
 
 	// Obs:  CN121AFN - PE que permite alterar o Array do titulo financeiro ao encerrar 
-
+	// Parametro: MV_NMEDTIT numero do titulos 1=Sequencial E1 e 2=Numero da Medição
 EndIf
 
-u_MsgLog("CN120PED","Medição "+cNumMed+" - "+TRIM(cContrato)+" - "+TRIM(CNA->CNA_XXMUN))
+u_MsgLog("CN121PED","Medição "+cNumMed+" - "+TRIM(cContrato)+" - "+TRIM(CNA->CNA_XXMUN))
 
 CNA->(RestArea(aAreaCNA))
 CXN->(RestArea(aAreaCXN))

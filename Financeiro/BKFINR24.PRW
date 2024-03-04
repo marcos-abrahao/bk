@@ -11,6 +11,14 @@ BK - Impressão da Nota de Débito - HTML
 @version P11
 /*/
 //-------------------------------------------------------------------
+User Function BKSELR24() 
+IF SE1->E1_PREFIXO == "MED"
+	u_WaitLog(,{|| U_BKFINR35(),"Gerando pagína web..."})
+Else
+	u_WaitLog(,{|| U_BKFINR24(),"Gerando pagína web..."})
+ENDIF
+Return Nil
+
 
 User Function BKFINR24() 
 Local aArea     := GetArea()
@@ -21,6 +29,7 @@ Local cArqHtml  := cDirTmp+"\"+"NDC"+ALLTRIM(SE1->E1_NUM)+".HTML"
 Local aHtml     := {}
 Local _nI       := 0
 Private cProg   := "BKFINR24"
+
 
 IF SE1->E1_TIPO <> "NDC"
  	u_MsgLog(cProg,"Titulo selecionado não é Tipo NDC!","W")

@@ -2,7 +2,7 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} BKDSGCO
-BK - Atualização da tabela GASTOSCONS do banco de dados PowerBk
+BK - Atualização da tabela GASTOSCONSORCIOS do banco de dados PowerBk
 GASTOS CONSORCIOS PARA RATEIO DE CUSTOS COM SÓCIOS
 @Return
 @author Marcos Bispo Abrahão
@@ -38,7 +38,7 @@ Local cTabCT1	:= ""
 
 cQuery := "WITH DESPESAS AS ("+CRLF
 
-//For nE := 1 TO Len(aEmpresas)
+For nE := 1 TO Len(aEmpresas)
 
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]
@@ -182,10 +182,13 @@ cQuery := "WITH DESPESAS AS ("+CRLF
 
 	cQuery += "WHERE SD1.D1_FILIAL = '01' " + CRLF
 	cQuery += "      AND SD1.D_E_L_E_T_ = '' " + CRLF
-	cQuery += "      AND D1_FORNECE IN ('000102','004386','501334' ,'500256','501586'  ,'000124')" + CRLF
-	cQuery += "         --               TOTVS  , SAMA   , DOCUSIGN, PSEVEN , INOVACOMM, RKA" + CRLF
 
-//Next
+	cQuery += "      AND (A2_NOME LIKE 'TOTVS%' OR A2_NOME LIKE 'SAMA M%' OR A2_NOME LIKE 'DOCUSIGN%' OR A2_NOME LIKE 'INOVACOMM%' OR A2_NOME LIKE 'RKA%' OR A2_NOME LIKE 'AHGORA%')"
+//	cQuery += "      AND D1_FORNECE IN ('000102','004386','501334' ,'500256','501586'  ,'000124')" + CRLF
+//	cQuery += "         --               TOTVS  , SAMA   , DOCUSIGN, PSEVEN , INOVACOMM, RKA" + CRLF
+
+
+Next
 
 cQuery += ")"+CRLF
 cQuery += " SELECT *,"+CRLF

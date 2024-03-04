@@ -11,7 +11,7 @@ BK - Impressão notas de Debito
 /*/
 
 User Function XCADSE1
-Local 	cFiltra     := 'SE1->E1_TIPO == "NDC"'
+Local 	cFiltra     := 'SE1->E1_TIPO == "NDC" .OR. E1_PREFIXO == "MED" '
 
 Private cCadastro	:= "Notas de Debito - Contratos"
 Private cDelFunc	:= ".F." // Validacao para a exclusao. Pode-se utilizar ExecBlock
@@ -31,7 +31,7 @@ AADD(aCores,{"SE1->E1_SALDO==0","BR_VERMELHO"})
 AADD(aRotina,{"Pesquisa"		,"AxPesqui",0,1})
 AADD(aRotina,{"Visualizar"		,"AxVisual",0,2})
 AADD(aRotina,{OemToAnsi("Incluir NDC-Nota de Debito"), "U_FN40INCND", 0, 3 } )
-AADD(aRotina,{OemToAnsi("Imprimir NDC-Nota de Debito"),"U_BKFINR24" , 0, 4 } )
+AADD(aRotina,{OemToAnsi("Imprimir Nota de Debito"),"U_BKSELR24" , 0, 4 } )
 AADD(aRotina,{"Legenda"			,"U_SE1LEG",0,6})
 
 
@@ -65,7 +65,7 @@ AADD(aCores2,{"BR_VERDE"   , "Titulo em Aberto"})
 AADD(aCores2,{"BR_AZUL"	   , "Baixado Parcialmente"})
 AADD(aCores2,{"BR_VERMELHO", "Titulo Baixado"})
              		
-BrwLegenda(cLegenda,"Status - Notas de Debito",aCores2)
+BrwLegenda(cLegenda,"Status - Notas de Debito / Recibo Fatura",aCores2)
 
 Return NIL
 

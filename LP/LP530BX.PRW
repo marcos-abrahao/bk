@@ -50,7 +50,7 @@ Else
             cCta := "21301010"
         Case cTipBk == "LD1" // adto 13 salario
             cCta := "11301004"
-        Case cTipBk == "MGF" // Multa 40% FGTS
+        Case cTipBk == "MFG" // Multa 40% FGTS
             cCta := "31201053"
         Case cTipBk == "VA" // Vale Alimentação
             cCta := "31201101"
