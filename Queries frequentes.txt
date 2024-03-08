@@ -233,11 +233,11 @@ left join bk_senior.bk_senior.r074cid cid
 on cpl.ccinas = cid.CodCid
 left join bk_senior.bk_senior.r034mat mat
 on fun.numemp = mat.numemp and fun.tipcol = mat.tipcol and fun.numcad = mat.numcad
-where fun.tipcol = 1 and fun.sitafa <> 7 and fun.numemp in (1,2,6,8,9,10,11,12,14,15,16,17,18)
+where fun.tipcol = 1 and fun.sitafa <> 7 and fun.numemp in (1,2,6,8,9,10,11,12,14,15,16,17,18,19)
 order by fun.numemp, fun.numcad
 
 
 select count(numcad) from bk_senior.bk_senior.r034fun fun
-where fun.tipcol = 1 and fun.sitafa <> 7 and fun.numemp in (1,2,6,8,9,10,11,12,14,15,16,17,18)
+where fun.tipcol = 1 and fun.sitafa <> 7 and fun.numemp in (1,2,6,8,9,10,11,12,14,15,16,17,18,19)
 
  

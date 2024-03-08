@@ -387,7 +387,7 @@ aAdd(aDescrRH,{"EXM","EXAME MEDICO"})
 aAdd(aDescrRH,{"GRA","GRATIFICACAO"})
 aAdd(aDescrRH,{"HEX","HORAS EXTRAS"})
 aAdd(aDescrRH,{"HOS","HOSPEDAGEM"}) // Despesas de Viagem
-aAdd(aDescrRH,{"LAC","LAC"})
+aAdd(aDescrRH,{"LAC","LIQUIDO AC"})
 aAdd(aDescrRH,{"LAD","ADIANTAMENTO"})
 aAdd(aDescrRH,{"LAS","ADTO SALARIAL"})
 aAdd(aDescrRH,{"LD1","13.o PARC 1"})
@@ -428,7 +428,7 @@ Return cDescr
 User Function ListRH()
 Local aCabec	:= {"Tipo","Descrição"}
 
-u_ArrXls("LISTRH",U_BKCodRH(),"Tipo RH",aCabec)
+u_ArrXls("LISTRH",U_BKCodRH(),"Mneumônicos dos titulos do RH",aCabec)
 
 Return Nil
 

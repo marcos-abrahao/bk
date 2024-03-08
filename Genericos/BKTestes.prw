@@ -21,7 +21,7 @@ Local aTeste := {}
 //u_IsPetro("000281")
 
 // Teste do calculo da EFD - usado para DEBUG
-aTeste := u_FinS600(9,2023,'000010757')
+aTeste := u_FinS600(1,2024,'FC0000057')
 x := 0
 Return Nil
 
