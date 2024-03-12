@@ -279,6 +279,11 @@ User Function MVXCUSBK()
 Local cVar := "29104004"
 Return cVar
 
+// Código do produto ASSISTENCIA MEDICA / ODONTOLOG
+User Function MVASSMED()
+Local cVar := "34101013"
+Return cVar
+
 
 // Codigo de evento PLR paa a rentabilidade
 User Function MVXPLR()

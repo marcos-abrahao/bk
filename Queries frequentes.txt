@@ -1,9 +1,4 @@
 
-
-
-
-
-
 SET STATISTICS IO,TIME ON
 
 

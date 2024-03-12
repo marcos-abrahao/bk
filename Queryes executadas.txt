@@ -462,7 +462,7 @@ UPDATE SF1150 SET F1_XXLIB = '9' WHERE F1_XXLIB = 'A' AND F1_XXUAPRV = ' ' AND D
 ==============================================================
 -- xx/12/23  - Acerto
 
-UPDATE SZ5010 SET D_E_L_E_T_='*'
+UPDATE SZ5010 SET D_E_L_E_T_='*', R_E_C_D_E_L_ = R_E_C_N_O_
  WHERE D_E_L_E_T_='' 
  AND Z5_ANOMES='202001'
  AND Z5_EVENTO in ('300','393','INS-E','INS-T')

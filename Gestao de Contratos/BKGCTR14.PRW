@@ -2736,13 +2736,17 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA IN ('"+cCusBK+"') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 		EndIf
 
+		// Despesas médicas 12/03/24
+		cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+		/*
 		IF cEmpAnt == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 		ENDIF 
 		IF cEmpAnt == "14"   // Despesas médicas
 			cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 		ENDIF 
-		
+		*/
+
 		//// Para teste de alugueis: 
 		//cQuery2 += " AND (D1_COD = '000000000000102' OR D1_COD = '320200301')  "+CRLF // AND D1_FORNECE = '004190'
 
@@ -3188,12 +3192,18 @@ FOR _nI := 1 TO nPeriodo
 			EndIf
 			//cQuery2 += " AND D1_CC = '000000001'"
 			cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
+
+			// Despesas médicas 12/03/24
+			cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+			/*
 			IF cEmpAnt == "01" .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 				cQuery2 += " AND D1_FORNECE<>'002918'"
 			ENDIF 
 			IF cEmpAnt == "14"   // Despesas médicas
 				cQuery2 += " AND D1_FORNECE<>'000604'"
 			ENDIF 
+			*/
+
 			IF ALLTRIM(aConsorcio[nScan,2]) == "140"
 				//cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" 
 			ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
@@ -3686,12 +3696,17 @@ FOR _nI := 1 TO nPeriodo
 				// 19/11/2021 - Contas alteradas de 113 para 121
 				cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 
+				// Despesas médicas 12/03/24
+				cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+				/*
 				IF cEmpAnt == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 					cQuery2 += " AND D1_FORNECE<>'002918'"
 				ENDIF 
 				IF cEmpAnt == "14"   // Despesas médicas
 					cQuery2 += " AND D1_FORNECE<>'000604'"
 				ENDIF 
+				*/
+
 				IF nCompras == 1
 					cQuery2 += " AND D1_PEDIDO <> ''"
 				ENDIF 

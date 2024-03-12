@@ -2,6 +2,7 @@
 #INCLUDE "RESTFUL.CH"
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TBICONN.CH"
+#INCLUDE "FILEIO.CH"
 
 /*/{Protheus.doc} RestTitCP
     REST Titulos do Contas a Pagar
@@ -330,8 +331,13 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 
         Self:SetResponse(cFile)
 
-        lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
 		oFile:Close()
+
+		// Apagar o arquivo após o fechamento
+		Ferase(cFName)
+
+        lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+
     Else
         SetRestFault(002, "Nao foi possivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
 

@@ -1941,12 +1941,18 @@ cQuery2 += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1
 cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
+
+// Despesas médicas 12/03/24
+cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+/*
 IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas
-	cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
+	cQuery2 += " AND D1_FORNECE <> '002918'"+CRLF
 ENDIF
 IF SM0->M0_CODIGO == "14"  // Despesas médicas
-	cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
+	cQuery2 += " AND D1_FORNECE <> '000604'"+CRLF
 ENDIF
+*/
+
 
 // 12105 - Alugueis 06/07/2021
 // 19/11/2021 - Contas alteradas de 113 para 121
@@ -2260,12 +2266,18 @@ IF nScan > 0
 	//cQuery2 += " INNER JOIN CTT"+ALLTRIM(aConsorcio[nScan,2])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"+CRLF
 	cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 	//cQuery2 += " AND D1_CC = '000000001'"
+
+	// Despesas médicas 12/03/24
+	cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+	/*
 	IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas
 		cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 	ENDIF
 	IF SM0->M0_CODIGO == "14"   // Despesas médicas
 		cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 	ENDIF
+	*/
+
 	IF ALLTRIM(aConsorcio[nScan,2]) == "140"
 		//cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
@@ -2605,12 +2617,18 @@ IF nScan > 0
 		cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,8])+" SD1"+CRLF
 		cQuery2 += " LEFT JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
 		cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
+
+		// Despesas médicas 12/03/24
+		cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+		/*
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504"+CRLF // Despesas médicas
 			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
 		ENDIF
 		IF SM0->M0_CODIGO == "14"
 			cQuery2 += " AND D1_FORNECE<>'000604'"+CRLF
 		ENDIF
+		*/
+
 		cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 		cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' "+CRLF
 		// 19/11/2021 - Contas alteradas de 113 para 121

@@ -1014,11 +1014,12 @@ If !IsBlind()
 	EndIf
 Else
 	cFileL := Self:cFileX
-	If file(Self:cFileX)
-		FERASE(self:cFileX)
+	If File(Self:cFileX)
+		Ferase(self:cFileX)
 	EndIf
 	Self:oPrtXlsx:toXlsx()
 	//u_MsgLog("REXCEL","TOXLSX")
+	// Obs: o arquivo .xlsx deverá ser apagado na função que chamou, exemplo: no REST, após a leitura do arquivo
 EndIf
 
 Self:oPrtXlsx:EraseBaseFile()

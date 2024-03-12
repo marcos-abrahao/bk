@@ -32,6 +32,7 @@ Local cTabSE5	:= ""
 Local cTabCT1	:= ""
 Local cTabSZ2   := "SZ2010"
 Local cCusBK	:= U_MVXCUSBK()
+Local cAssMed   := U_MVASSMED()
 Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
 Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
 Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
@@ -187,12 +188,20 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') " + CRLF
 	cQuery += "      	OR SUBSTRING(B1_CONTA,1,3) IN ('124','126')) " + CRLF  // Ativo Imobilizado
 
+      
+	// Despesas médicas 12/03/24
+	cQuery += "      AND D1_COD <> '"+cAssMed+"'"+CRLF
+
+	/*
 	IF cEmpresa == "01" // Despesas médicas 
 		cQuery += "AND 1 = CASE WHEN D1_CC = '313000504' AND D1_FORNECE = '002918' THEN 0 ELSE 1 END"+CRLF
 	ENDIF 
 	IF cEmpresa == "14" // Despesas médicas
 		cQuery += "      AND D1_FORNECE <> '000604'"+CRLF
 	ENDIF 
+	*/
+
+
 
 	// Movimento Bancário
 	cQuery += "UNION ALL "+CRLF
