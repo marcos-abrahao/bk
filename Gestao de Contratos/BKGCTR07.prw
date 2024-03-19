@@ -5,27 +5,29 @@
 BK - Mapa de Faturamento
 
 @author Marcos B. Abrahão
-@since 05/05/11 rev 06/12/23
+@since 05/05/11 rev 18/03/24
 @version P12
 @return Nil
 /*/
 
-Static aRecNo := {}
 Static aChave := {}
 
 User Function BKGCTR07()
 
-Local cMes			:= ""
-Local nTipo 		:= 1
-Local titulo        := ""
-Local aTitulos,aCampos,aCabs
-//Local aPlans		:= {}
-
 Private cPerg       := "BKGCTR07"
+Private cTitulo		:= "Mapa de Faturamento"
+Private aParam	 	:=	{}
+Private aRet	 	:=	{}
 
-Private cMesEmis    := "01"
-Private cAnoEmis    := "2023"
-Private nPlan       := 1
+Private nMesI		:= Month(MonthSub(dDataBase,1))
+Private nAnoI		:= Year(MonthSub(dDataBase,1))
+Private nMesF		:= Month(MonthSub(dDataBase,1))
+Private nAnoF		:= Year(MonthSub(dDataBase,1))
+
+Private cMesIni		:= STRZERO(nMesI,2)
+Private cAnoIni		:= STRZERO(nAnoI,4)
+Private cMesFim		:= STRZERO(nMesF,2)
+Private cAnoFim		:= STRZERO(nAnoF,4)
 
 Private _cTXPIS  	:= STR(GetMv("MV_TXPIS"))
 Private _cTXCOF  	:= STR(GetMv("MV_TXCOFINS"))
@@ -33,211 +35,232 @@ Private _cTXCOF  	:= STR(GetMv("MV_TXCOFINS"))
 Private cMotMulta   := "N"
 Private nValPrev	:= 0
 
-dbSelectArea('SZR')
 
-dbSelectArea('SA1')
-dbSetOrder(1)
+aAdd(aParam, { 1,"Mes inicial",nMesI   ,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano inicial",nAnoI   ,"9999","mv_par02 >= 2009 .AND. mv_par02 <= 2040",""   ,"",20,.T.})
+aAdd(aParam, { 1,"Mes final"  ,nMesF   ,"99"  ,"mv_par03 > 0 .AND. mv_par03 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano final"  ,nAnoF   ,"9999","mv_par04 >= 2009 .AND. mv_par04 <= 2040",""   ,"",20,.T.})
 
-ValidPerg(cPerg)
-If !Pergunte(cPerg,.T.)
-	Return
-Endif
+If ParBk()
+	dbSelectArea('SZR')
+	dbSelectArea('SA1')
+	dbSetOrder(1)
 
-cMesEmis := mv_par01
-cAnoEmis := mv_par02
-nPlan    := mv_par03
-nTipo    := mv_par04
+	cTitulo   := "Mapa de Faturamento: "+cMesIni+"/"+cAnoIni+iIf(cMesIni+cAnoIni <> cMesFim+cAnoFim," até "+cMesFim+"/"+cAnoFim,"")
 
-IF nTipo == 1
-	cMes := cAnoEmis+cMesEmis
-ELSE
-	cMes := cAnoEmis
-ENDIF
+	u_WaitLog(cPerg,{|oSay| PrcGct07(cAnoIni+cMesIni,cAnoFim+cMesFim) }, "Processando faturamento...")
 
-titulo   := "Mapa de Faturamento:"+IIF(nTipo=1," Emissão "+cMesEmis+"/"+cAnoEmis," Anual "+cAnoEmis)
+	u_WaitLog(cPerg,{|oSay| QGctR7A(cAnoIni+cMesIni,cAnoFim+cMesFim) }, "Processando notas de débito...")
 
-u_WaitLog(cPerg,{|oSay| PrcGct07(nTipo,cMes) }, titulo)
+	u_WaitLog(cPerg,{|oSay| GeraExcel() }, "Gerando Arquivo Excel...")
 
-aCabs   := {}
-aCampos := {}
-aTitulos:= {}
-   
-AADD(aTitulos,titulo)
+EndIf
+Return Nil
 
-AADD(aCampos,"QTMP->F2_FILIAL")
-AADD(aCabs  ,"Filial")
 
-AADD(aCampos,"QTMP->F2_CLIENTE")
-AADD(aCabs  ,"Cliente")
+Static Function GeraExcel()
 
-AADD(aCampos,"QTMP->F2_LOJA")
-AADD(aCabs  ,"Loja")
+Local cDescricao	:= "Objetivo deste relatório é demonstrar o faturamento detalhado."
+Local cVersao 		:= "05/05/2011: Mapa de INSS Retido"
+Local cAlias 		:= "QTMP"
+Local cAliasD 		:= "QTMP2"
+Local oRExcel		AS Object
+Local oPExcel		AS Object
 
-AADD(aCampos,"QTMP->A1_NOME")
-AADD(aCabs  ,"Nome")
+cVersao += CRLF+"18/03/2024: Reformulação com RExcel"
+cVersao += CRLF+"18/03/2024: Inclusão da aba Notas de Débito"
 
-AADD(aCampos,"QTMP->A1_PESSOA")
-AADD(aCabs  ,"Tipo Pes.")
+// Definição do Arq Excel
+oRExcel := RExcel():New(cPerg)
+oRExcel:SetTitulo(cTitulo)
+oRExcel:SetDescr(cDescricao)
+oRExcel:SetVersao(cVersao)
+oRExcel:SetParam(aParam)
 
-AADD(aCampos,"Transform(QTMP->A1_CGC,IIF(QTMP->A1_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
-AADD(aCabs  ,"CNPJ/CPF")
+// Aba Faturamento
+oPExcel:= PExcel():New("Faturamento",cAlias)
+oPExcel:SetTitulo("Faturamento")
 
-AADD(aCampos,"QTMP->CNF_CONTRA")
-AADD(aCabs  ,"Contrato")
+oPExcel:AddColX3("F2_FILIAL")
+oPExcel:GetCol("F2_FILIAL"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CNF_REVISA")
-AADD(aCabs  ,"Revisão")
+oPExcel:AddColX3("F2_CLIENTE")
+oPExcel:GetCol("F2_CLIENTE"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CTT_DESC01")
-AADD(aCabs  ,"Centro de Custos")
+oPExcel:AddColX3("F2_LOJA")
+oPExcel:GetCol("F2_LOJA"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CNA_NUMERO")
-AADD(aCabs  ,"Planilha")
+oPExcel:AddColX3("A1_NOME")
 
-AADD(aCampos,"QTMP->CNA_XXMUN")
-AADD(aCabs  ,"Municipio")
+oPExcel:AddColX3("A1_PESSOA")
+oPExcel:GetCol("A1_PESSOA"):SetHAlign("C")
 
-AADD(aCampos,"X3COMBO('CNA_FLREAJ',QTMP->CNA_FLREAJ)")
-AADD(aCabs  ,"Reajuste")
+oPExcel:AddCol("A1_CGC","Transform(QTMP->A1_CGC,IIF(QTMP->A1_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))","CNPJ","")
+oPExcel:GetCol("A1_CGC"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CNF_COMPET")
-AADD(aCabs  ,"Competencia")
+oPExcel:AddColX3("CNE_CONTRA")
+oPExcel:GetCol("CNE_CONTRA"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CXN_PARCEL")
-AADD(aCabs  ,"Parcela")
+oPExcel:AddColX3("CNE_REVISA")
+oPExcel:GetCol("CNE_REVISA"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CND_XXRM")
-AADD(aCabs  ,"RM")
+oPExcel:AddColX3("CTT_DESC01")
 
-AADD(aCampos,"QTMP->XX_PROD")
-AADD(aCabs  ,"Produto")
+oPExcel:AddColX3("CNA_NUMERO")
+oPExcel:GetCol("CNA_NUMERO"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->B1_DESC")
-AADD(aCabs  ,"Desc.Produto")
+oPExcel:AddColX3("CNA_XXMUN")
 
-AADD(aCampos,"QTMP->B1_CODISS")
-AADD(aCabs  ,"Cod Iss")
+oPExcel:AddCol("CNA_FLREAJ","X3COMBO('CNA_FLREAJ',QTMP->CNA_FLREAJ)","Reajuste","")
+oPExcel:GetCol("CNA_FLREAJ"):SetHAlign("C")
+oPExcel:GetCol("CNA_FLREAJ"):SetTamCol(15)
 
-AADD(aCampos,"QTMP->B1_ALIQISS")
-AADD(aCabs  ,"% Iss")
+oPExcel:AddColX3("CND_COMPET")
+oPExcel:GetCol("CND_COMPET"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->CND_NUMMED")
-AADD(aCabs  ,"Medição")
+oPExcel:AddColX3("CXN_PARCEL")
+oPExcel:GetCol("CXN_PARCEL"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->C6_NUM")
-AADD(aCabs  ,"Pedido")
+oPExcel:AddColX3("CND_XXRM")
+oPExcel:GetCol("CND_XXRM"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->F2_SERIE")
-AADD(aCabs  ,"Série NF")
+oPExcel:AddCol("XX_PROD","QTMP->XX_PROD","Produto","C6_PRODUTO")
 
-AADD(aCampos,"QTMP->F2_DOC")
-AADD(aCabs  ,"Nota Fiscal")
+oPExcel:AddColX3("B1_DESC")
 
-AADD(aCampos,"QTMP->D2_TES")
-AADD(aCabs  ,"TES")
+oPExcel:AddColX3("B1_CODISS")
+oPExcel:GetCol("B1_CODISS"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->F2_EMISSAO")
-AADD(aCabs  ,"Emissao")
-   
-AADD(aCampos,"QTMP->XX_VENCTO")
-AADD(aCabs  ,"Vencimento")
+oPExcel:AddColX3("B1_ALIQISS")
+oPExcel:GetCol("B1_ALIQISS"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->XX_VENCORI")
-AADD(aCabs  ,"Venc. Original")
+oPExcel:AddColX3("CND_NUMMED")
+oPExcel:GetCol("CND_NUMMED"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->XX_BAIXA")
-AADD(aCabs  ,"Recebimento")
+oPExcel:AddColX3("C6_NUM")
+oPExcel:GetCol("C6_NUM"):SetHAlign("C")
 
-//AADD(aCampos,"QTMP->CNF_VLPREV")
-//AADD(aCabs  ,"Valor Previsto")
+oPExcel:AddColX3("F2_SERIE")
+oPExcel:GetCol("F2_SERIE"):SetHAlign("C")
 
-AADD(aCampos,"nValPrev := U_GCTR7VPn(QTMP->(CNF_CONTRA+CNF_REVISA+CNA_NUMERO+CNF_COMPET+CXN_PARCEL),QTMP->CNF_VLPREV)")
-AADD(aCabs  ,"Valor Previsto")
+oPExcel:AddColX3("F2_DOC")
+oPExcel:GetCol("F2_DOC"):SetTitulo("Nota Fiscal")
+oPExcel:GetCol("F2_DOC"):SetHAlign("C")
 
-AADD(aCampos,"iIf(nValPrev>0,QTMP->CNF_SALDO,0)")
-AADD(aCabs  ,"Saldo Previsto")
+oPExcel:AddColX3("D2_TES")
+oPExcel:GetCol("D2_TES"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->F2_VALFAT")
-AADD(aCabs  ,"Valor faturado")
+oPExcel:AddColX3("F2_EMISSAO")
 
-AADD(aCampos,"nValPrev - QTMP->F2_VALFAT")
-AADD(aCabs  ,"Previsto - Faturado")
+oPExcel:AddCol("E1_VENCTO","QTMP->XX_VENCTO","Vencimento","E1_VENCTO")
 
-AADD(aCampos,"QTMP->XX_BONIF")
-AADD(aCabs  ,"Bonificações")
+oPExcel:AddCol("E1_VENCORI","QTMP->XX_VENCORI","Venc. Original","E1_VENCORI")
 
-AADD(aCampos,"QTMP->XX_MULTA")
-AADD(aCabs  ,"Multas")
+oPExcel:AddCol("E1_BAIXA","QTMP->XX_BAIXA","Recebimento","E1_BAIXA")
 
-AADD(aCampos,"QTMP->XX_E5DESC")
-AADD(aCabs  ,"Desconto na NF")
+oPExcel:AddCol("CNF_VLPREV","nValPrev := U_GCTR7VPn(QTMP->(CNE_CONTRA+CNE_REVISA+CNA_NUMERO+CND_COMPET+CXN_PARCEL),QTMP->CNF_VLPREV)","Valor Previsto","F2_VALFAT")
+oPExcel:GetCol("CNF_VLPREV"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->XX_E5MULTA")
-AADD(aCabs  ,"Cliente não Reteve")
+oPExcel:AddCol("CNF_SALDO","iIf(nValPrev>0,QTMP->CNF_SALDO,0)","Saldo Previsto","F2_VALFAT")
+oPExcel:GetCol("CNF_SALDO"):SetTotal(.T.)
+
+oPExcel:AddColX3("F2_VALFAT")
+oPExcel:GetCol("F2_VALFAT"):SetTotal(.T.)
+
+oPExcel:AddCol("PREVFAT","nValPrev - QTMP->F2_VALFAT","Previsto - Faturado","F2_VALFAT")
+oPExcel:GetCol("PREVFAT"):SetTotal(.T.)
+
+oPExcel:AddCol("XX_BONIF","QTMP->XX_BONIF","Bonificações","CNR_VALOR")
+oPExcel:GetCol("XX_BONIF"):SetTotal(.T.)
+
+oPExcel:AddCol("XX_MULTA","QTMP->XX_MULTA","Multas","CNR_VALOR")
+oPExcel:GetCol("XX_MULTA"):SetTotal(.T.)
+
+oPExcel:AddCol("XX_E5DESC","QTMP->XX_E5DESC","Desconto na NF","E5_VALOR")
+oPExcel:GetCol("XX_E5DESC"):SetTotal(.T.)
+
+oPExcel:AddCol("XX_E5MULTA","QTMP->XX_E5MULTA","Cliente não Reteve","E5_VALOR")
+oPExcel:GetCol("XX_E5MULTA"):SetTotal(.T.)
+
 
 IF FWCodEmp() == "12"  .OR. FWCodEmp() == "02"
-	AADD(aCampos,"VAL(STR(((QTMP->F2_VALFAT*0.32)*0.15),14,02))")
-	AADD(aCabs  ,"IRPJ Apuração")
+
+	oPExcel:AddCol("XX_IRPJ","VAL(STR(((QTMP->F2_VALFAT*0.32)*0.15),14,02))","IRPJ Apuração","F2_VALFAT")
+	oPExcel:GetCol("XX_IRPJ"):SetTotal(.T.)
+
+	oPExcel:AddCol("XX_PISAP","VAL(STR(QTMP->F2_VALFAT*("+ALLTRIM(_cTXPIS)+"/100),14,02))","PIS Apuração","F2_VALFAT")
+	oPExcel:GetCol("XX_PISAP"):SetTotal(.T.)
+
+	oPExcel:AddCol("XX_COFAP","VAL(STR(QTMP->F2_VALFAT*("+ALLTRIM(_cTXCOF)+"/100),14,02))","COFINS Apuração","F2_VALFAT")
+	oPExcel:GetCol("XX_COFAP"):SetTotal(.T.)
 	
-	AADD(aCampos,"VAL(STR(QTMP->F2_VALFAT*("+ALLTRIM(_cTXPIS)+"/100),14,02))")
-	AADD(aCabs  ,"PIS Apuração")
+	oPExcel:AddCol("XX_CSLLAP","VAL(STR(((QTMP->F2_VALFAT*0.32)*0.09),14,02))","CSLL Apuração","F2_VALFAT")
+	oPExcel:GetCol("XX_CSLLAP"):SetTotal(.T.)
 	
-	AADD(aCampos,"VAL(STR(QTMP->F2_VALFAT*("+ALLTRIM(_cTXCOF)+"/100),14,02))")
-	AADD(aCabs  ,"COFINS Apuração")
-	
-	AADD(aCampos,"VAL(STR(((QTMP->F2_VALFAT*0.32)*0.09),14,02))")
-	AADD(aCabs  ,"CSLL Apuração")
 ELSE
-	AADD(aCampos,"F2_VALIMP6")
-	AADD(aCabs  ,"PIS Apuração")
-	
-	AADD(aCampos,"F2_VALIMP5")
-	AADD(aCabs  ,"COFINS Apuração")
+	oPExcel:AddColX3("F2_VALIMP6")
+	oPExcel:GetCol("F2_VALIMP6"):SetTitulo("PIS Apuração")
+	oPExcel:GetCol("F2_VALIMP6"):SetTotal(.T.)
+
+	oPExcel:AddColX3("F2_VALIMP5")
+	oPExcel:GetCol("F2_VALIMP5"):SetTitulo("COFINS Apuração")
+	oPExcel:GetCol("F2_VALIMP5"):SetTotal(.T.)
 ENDIF
 
-AADD(aCampos,"QTMP->D2_ALQIRRF")
-AADD(aCabs  ,"IRRF%")
+oPExcel:AddColX3("D2_ALQIRRF")
+oPExcel:GetCol("D2_ALQIRRF"):SetTitulo("IRRF%")
+oPExcel:GetCol("D2_ALQIRRF"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->F2_VALIRRF")
-AADD(aCabs  ,"IRRF Retido")
+oPExcel:AddColX3("F2_VALIRRF")
+oPExcel:GetCol("F2_VALIRRF"):SetTitulo("IRRF Retido")
+oPExcel:GetCol("F2_VALIRRF"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->D2_ALIQINS")
-AADD(aCabs  ,"INSS%")
+oPExcel:AddColX3("D2_ALIQINS")
+oPExcel:GetCol("D2_ALIQINS"):SetTitulo("INSS%")
+oPExcel:GetCol("D2_ALIQINS"):SetHAlign("C")
 
-AADD(aCampos,"QTMP->F2_VALINSS")
-AADD(aCabs  ,"INSS Retido")
+oPExcel:AddColX3("F2_VALINSS")
+oPExcel:GetCol("F2_VALINSS"):SetTitulo("INSS Retido")
+oPExcel:GetCol("F2_VALINSS"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_VALPIS")
-AADD(aCabs  ,"PIS Retido")
+oPExcel:AddColX3("F2_VALPIS")
+oPExcel:GetCol("F2_VALPIS"):SetTitulo("PIS Retido")
+oPExcel:GetCol("F2_VALPIS"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_VALCOFI")
-AADD(aCabs  ,"COFINS Retido")
+oPExcel:AddColX3("F2_VALCOFI")
+oPExcel:GetCol("F2_VALCOFI"):SetTitulo("COFINS Retido")
+oPExcel:GetCol("F2_VALCOFI"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_VALCSLL")
-AADD(aCabs  ,"CSLL Retido")
+oPExcel:AddColX3("F2_VALCSLL")
+oPExcel:GetCol("F2_VALCSLL"):SetTitulo("CSLL Retido")
+oPExcel:GetCol("F2_VALCSLL"):SetTotal(.T.)
 
-AADD(aCampos,"IIF(QTMP->F2_RECISS <> '1',QTMP->F2_VALISS,0)")
-AADD(aCabs  ,"ISS Apurado")
+oPExcel:AddCol("XX_ISSAP","IIF(QTMP->F2_RECISS <> '1',QTMP->F2_VALISS,0)","ISS Apuração","F2_VALISS")
+oPExcel:GetCol("XX_ISSAP"):SetTotal(.T.)
 
-AADD(aCampos,"IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)")
-AADD(aCabs  ,"ISS Retido")
+oPExcel:AddCol("XX_ISSRET","IIF(QTMP->F2_RECISS == '1',QTMP->F2_VALISS,0)","ISS Retido","F2_VALISS")
+oPExcel:GetCol("XX_ISSRET"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_VLCPM")
-AADD(aCabs  ,"ISS Bitrib")
+oPExcel:AddColX3("F2_VLCPM")
+oPExcel:GetCol("F2_VLCPM"):SetTitulo("ISS Bitrib")
+oPExcel:GetCol("F2_VLCPM"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->XX_ISSBI")
-AADD(aCabs  ,"ISS Bitrib Indevidamente")
+oPExcel:AddColX3("E1_XXISSBI")
+oPExcel:GetCol("E1_XXISSBI"):SetTitulo("ISS Bitrib Indevidamente")
+oPExcel:GetCol("E1_XXISSBI"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_XXVCVIN")
-AADD(aCabs  ,"Cta. Vinculada")
+oPExcel:AddColX3("F2_XXVCVIN")
+oPExcel:GetCol("F2_XXVCVIN"):SetTitulo("Cta. Vinculada")
+oPExcel:GetCol("F2_XXVCVIN"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_XXVRETC")
-AADD(aCabs  ,"Ret. Contratual")
+oPExcel:AddColX3("F2_XXVRETC")
+oPExcel:GetCol("F2_XXVRETC"):SetTitulo("Ret. Contratual")
+oPExcel:GetCol("F2_XXVRETC"):SetTotal(.T.)
 
-AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0) - QTMP->F2_VLCPM - QTMP->XX_E5DESC + QTMP->XX_E5MULTA - QTMP->F2_XXVRETC - QTMP->F2_XXVCVIN")
+oPExcel:AddCol("XX_VALLIQ","QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0) - QTMP->F2_VLCPM - QTMP->XX_E5DESC + QTMP->XX_E5MULTA - QTMP->F2_XXVRETC - QTMP->F2_XXVCVIN","Valor liquido","F2_VALFAT")
+oPExcel:GetCol("XX_VALLIQ"):SetTotal(.T.)
 
-AADD(aCabs  ,"Valor liquido")
-
+/*
 IF cMotMulta = "S"
 	AADD(aCampos,"U_BKCNR07(QTMP->CND_NUMMED,'2')")
 	AADD(aCabs  ,"Motivo Bonificação")
@@ -245,20 +268,107 @@ IF cMotMulta = "S"
 	AADD(aCampos,"U_BKCNR07(QTMP->CND_NUMMED,'1')")
 	AADD(aCabs  ,"Motivo Multa")
 ENDIF
+*/
 
-U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)
+// Resumo por Cliente
+oPExcel:AddResumos("Faturamento por Cliente","A1_NOME","F2_VALFAT")
 
-//AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, .T. })
-//U_PlanXlsx(aPlans,"",cPerg, .T.,)
+
+// Adiciona a planilha notas de débito
+oRExcel:AddPlan(oPExcel)
+
+// Aba Notas de Débito
+oPExcel:= PExcel():New("Notas de Débito",cAliasD)
+oPExcel:SetTitulo("Notas de Débito")
+
+oPExcel:AddColX3("E1_FILIAL")
+oPExcel:GetCol("E1_FILIAL"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_CLIENTE")
+oPExcel:GetCol("E1_CLIENTE"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_LOJA")
+oPExcel:GetCol("E1_LOJA"):SetHAlign("C")
+
+oPExcel:AddColX3("A1_NOME")
+
+oPExcel:AddColX3("A1_PESSOA")
+oPExcel:GetCol("A1_PESSOA"):SetHAlign("C")
+
+oPExcel:AddCol("A1_CGC","Transform(QTMP2->A1_CGC,IIF(QTMP2->A1_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))","CNPJ","")
+oPExcel:GetCol("A1_CGC"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_XXCUSTO")
+oPExcel:GetCol("E1_XXCUSTO"):SetHAlign("C")
+oPExcel:GetCol("E1_XXCUSTO"):SetTitulo("Contrato")
+
+oPExcel:AddColX3("CTT_DESC01")
+
+oPExcel:AddColX3("E1_XXREV")
+oPExcel:GetCol("E1_XXREV"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_XXMED")
+oPExcel:GetCol("E1_XXMED"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_XXCOMPE")
+oPExcel:GetCol("E1_XXCOMPE"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_PREFIXO")
+oPExcel:GetCol("E1_PREFIXO"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_NUM")
+oPExcel:GetCol("E1_NUM"):SetHAlign("C")
+
+oPExcel:AddColX3("E1_EMISSAO")
+
+oPExcel:AddColX3("E1_VENCREA")
+
+oPExcel:AddColX3("E1_BAIXA")
+
+oPExcel:AddColX3("E1_VALOR")
+oPExcel:GetCol("E1_VALOR"):SetTotal(.T.)
+
+oPExcel:AddColX3("E1_SALDO")
+oPExcel:GetCol("E1_SALDO"):SetTotal(.T.)
+
+
+// Resumo por Cliente
+oPExcel:AddResumos("Notas de Débito por Cliente","A1_NOME","E1_VALOR")
+
+// Adiciona a planilha notas de débito
+oRExcel:AddPlan(oPExcel)
+
+// Cria arquivo Excel
+oRExcel:Create()
 
 Return
 
 
-Static Function PrcGct07(nTipo,cMes)
+Static Function ParBk()
+Local lRet := .F.
+//   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
+If (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg,.T.         ,.T.))
+	lRet	:= .T.
+	//cDocI	:= mv_par01
+	nMesI	:= mv_par01
+	nAnoI	:= mv_par02
+	nMesF	:= mv_par03
+	nAnoF	:= mv_par04
+
+	cMesIni := STRZERO(nMesI,2)
+	cAnoIni := STRZERO(nAnoI,4)
+	cMesFim := STRZERO(nMesF,2)
+	cAnoFim := STRZERO(nAnoF,4)
+
+Endif
+Return lRet
+
+
+Static Function PrcGct07(cMesI,cMesF)
 Local cQuery := ""
 
-cQuery := u_QGctR07(nTipo,cMes,cMes)
-cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_SERIE,F2_DOC" + CRLF
+cQuery := u_QGctR07(cMesI,cMesF)
+cQuery += " ORDER BY CNE_CONTRA,CNE_REVISA,CND_COMPET,F2_SERIE,F2_DOC" + CRLF
 
 u_LogMemo("BKGCTR07.SQL",cQuery)
 
@@ -272,7 +382,7 @@ Return Nil
 
 
 // Usada nas rotinas BKGCTR07 e BKCOMA13
-User Function QGctR07(nTipo,cMes,cMesF)
+User Function QGctR07(cMesI,cMesF)
 Local cQuery as Character
 //Local cRevAtu := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 
@@ -308,9 +418,9 @@ cQuery += "   C6_PRODUTO AS XX_PROD," + CRLF
 cQuery += "   B1_DESC," + CRLF 
 cQuery += "   B1_CODISS," + CRLF 
 cQuery += "   B1_ALIQISS," + CRLF 
-cQuery += "   CNF_CONTRA," + CRLF 
-cQuery += "   CNF_REVISA," + CRLF 
-cQuery += "   CNF_COMPET," + CRLF 
+cQuery += "   CNE_CONTRA," + CRLF 
+cQuery += "   CNE_REVISA," + CRLF 
+cQuery += "   CND_COMPET," + CRLF 
 cQuery += "   (CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END) AS CNF_VLPREV," + CRLF 
 cQuery += "   (CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END) AS CNF_SALDO," + CRLF 
 cQuery += "   CTT_DESC01," + CRLF 
@@ -344,7 +454,7 @@ cQuery += "   F2_XXVRETC," + CRLF
 cQuery += "   F2_XXVCVIN," + CRLF 
 
 cQuery += "   (SELECT TOP 1 E1_XXISSBI FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'"+ CRLF
-cQuery += "   	  AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS XX_ISSBI, " + CRLF
+cQuery += "   	  AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS E1_XXISSBI, " + CRLF
 cQuery += "   (SELECT TOP 1 E1_VENCTO  FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'" + CRLF
 cQuery += "       AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS XX_VENCTO, " + CRLF
 cQuery += "   (SELECT TOP 1 E1_VENCORI FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'" + CRLF
@@ -430,14 +540,12 @@ cQuery += " WHERE CNE.D_E_L_E_T_ = ' '"+ CRLF
 //cQuery += "     AND CNE_FILIAL = '"+xFilial("CNE")+"'" Removido para co
 ///cQuery += " 	AND CN9.CN9_REVATU = '"+cRevAtu+"'"+ CRLF
 // CN9->CN9_SITUAC <> '10' .AND. CN9->CN9_SITUAC <> '09'
-IF nTipo == 1
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF
-ELSEIF nTipo == 2
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
-ELSE
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMes+"' "+ CRLF
+If cMesI == cMesF
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMesI+"' "+ CRLF
+Else
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMesI+"' "+ CRLF
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) <= '"+cMesF+"' "+ CRLF
-ENDIF
+EndIf
 
 cQuery += " UNION ALL "+ CRLF
 
@@ -489,7 +597,7 @@ cQuery += "   F2_XXVRETC," + CRLF
 cQuery += "   F2_XXVCVIN," + CRLF 
 
 cQuery += "   (SELECT TOP 1 E1_XXISSBI FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'"+ CRLF
-cQuery += "   	  AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS XX_ISSBI, " + CRLF
+cQuery += "   	  AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS E1_XXISSBI, " + CRLF
 cQuery += "   (SELECT TOP 1 E1_VENCTO  FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'" + CRLF
 cQuery += "       AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"   + xFilial("SE1")+"') AS XX_VENCTO, " + CRLF
 cQuery += "   (SELECT TOP 1 E1_VENCORI FROM "+RETSQLNAME("SE1") + " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC AND E1_TIPO = 'NF'" + CRLF
@@ -513,186 +621,70 @@ cQuery += "      AND  B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = ' '"
 cQuery += " WHERE (C5_MDCONTR = ' ' OR C5_MDCONTR IS NULL)"+ CRLF
 cQuery += "      AND C5_NUM IS NOT NULL"+ CRLF
 
-IF nTipo == 1
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF
-ELSEIF nTipo == 2
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
-ELSE
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMes+"' "+ CRLF
+If cMesI == cMesF
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMesI+"' "+ CRLF
+Else
+	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) >= '"+cMesI+"' "+ CRLF
 	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) <= '"+cMesF+"' "+ CRLF
-ENDIF
+EndIf
 cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
 
 Return cQuery
 
 
-/*
-Static Function ProcQuery
-Local cQuery
 
-cQuery := " SELECT DISTINCT F2_FILIAL,CNA_CLIENT AS XX_CLIENTE,CNA_LOJACL AS XX_LOJA,C6_PRODUTO AS XX_PROD,B1_DESC,B1_CODISS,B1_ALIQISS,CNF_CONTRA,CNF_REVISA,CNF_COMPET,"+ CRLF
-cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_VLPREV ELSE CNF_VLREAL END AS CNF_VLPREV,"+ CRLF
-cQuery += "    CASE WHEN CN9_SITUAC = '05' THEN CNF_SALDO  ELSE 0 END AS CNF_SALDO, "+ CRLF
-cQuery += "    CTT_DESC01, "+ CRLF
-cQuery += "    CNA_NUMERO,CNA_XXMUN, "+ CRLF
-cQuery += "    CND_NUMMED, CNF.R_E_C_N_O_ AS CNFRECNO,"+ CRLF
-cQuery += "    CND_XXRM, "+ CRLF
-cQuery += "    C6_NUM, "+ CRLF
+Static Function QGctR7A(cMesI,cMesF)
+Local cQuery as Character
 
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
-cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '2') AS XX_BONIF,"+ CRLF
+cQuery := " SELECT " + CRLF
+cQuery += "   E1_FILIAL," + CRLF 
+cQuery += "   E1_CLIENTE," + CRLF 
+cQuery += "   E1_LOJA," + CRLF 
+cQuery += "   A1_NOME," + CRLF 
+cQuery += "   A1_CGC," + CRLF 
+cQuery += "   A1_PESSOA," + CRLF 
+cQuery += "   E1_XXCUSTO," + CRLF 
+cQuery += "   E1_XXREV," + CRLF 
+cQuery += "   E1_XXCOMPE," + CRLF 
+cQuery += "   E1_XXMED," + CRLF 
+cQuery += "   CTT_DESC01," + CRLF 
+cQuery += "   E1_PREFIXO," + CRLF 
+cQuery += "   E1_NUM," + CRLF 
+cQuery += "   E1_EMISSAO," + CRLF 
+cQuery += "   E1_VENCREA," + CRLF 
+cQuery += "   E1_BAIXA," + CRLF 
+cQuery += "   E1_VALOR," + CRLF 
+cQuery += "   E1_SALDO" + CRLF 
 
-cQuery += "    (SELECT SUM(CNR_VALOR) FROM "+RETSQLNAME("CNR")+" CNR WHERE CND_NUMMED = CNR_NUMMED"+ CRLF
-cQuery += "         AND  CNR_FILIAL = CND_FILIAL AND CNR.D_E_L_E_T_ = ' ' AND CNR_TIPO = '1') AS XX_MULTA,"+ CRLF
+cQuery += " FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
 
-cQuery += "    F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS,F2_VLCPM,F2_XXVRETC, " + CRLF
+cQuery += " INNER JOIN "+RETSQLNAME("CTT")+" CTT" + CRLF
+cQuery += " 	ON (CTT_CUSTO = E1_XXCUSTO" + CRLF
+cQuery += " 		AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_='')" + CRLF
 
-cQuery += "    (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO, "+ CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON E1_CLIENTE = A1_COD AND E1_LOJA = A1_LOJA" + CRLF
+cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = ' '" + CRLF
 
-cQuery += "    (SELECT TOP 1 E1_VENCORI FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCORI, "+ CRLF
+cQuery += " WHERE SE1.D_E_L_E_T_ = ' '"+ CRLF
 
-cQuery += "    (SELECT TOP 1 E1_BAIXA FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC"+ CRLF
-cQuery += "        AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_BAIXA, "+ CRLF
+If cMesI == cMesF
+	cQuery += " AND SUBSTRING(E1_XXCOMPE,1,6) = '"+cMesI+"' "+ CRLF
+Else
+	cQuery += " AND SUBSTRING(E1_XXCOMPE,1,6) >= '"+cMesI+"' "+ CRLF
+	cQuery += " AND SUBSTRING(E1_XXCOMPE,1,6) <= '"+cMesF+"' "+ CRLF
+EndIf
 
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
-cQuery += "      AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC, "+ CRLF
-cQuery += "    (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
-cQuery += "      AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA"+ CRLF
+cQuery += " ORDER BY E1_XXCUSTO,E1_XXREV,E1_XXCOMPE,E1_SERIE,E1_NUM" + CRLF
 
-cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"+ CRLF
+u_LogMemo("BKGCTR7A.SQL",cQuery)
 
-cQuery += " INNER JOIN "+RETSQLNAME("CN9")+ " CN9 ON CN9_NUMERO = CNF_CONTRA AND CN9_REVISA = CNF_REVISA AND CN9_SITUAC <> '10' AND CN9_SITUAC <> '09' "+ CRLF
-cQuery += "      AND  CN9_FILIAL = '"+xFilial("CN9")+"' AND  CN9.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CNF_CONTRA"+ CRLF
-cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("CNA")+ " CNA ON CNA_CRONOG = CNF_NUMERO AND CNA_REVISA = CNF_REVISA"+ CRLF
-cQuery += "      AND  CNA_FILIAL = '"+xFilial("CNA")+"' AND  CNA.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("CND")+ " CND ON CND_CONTRA = CNF_CONTRA AND CND_COMPET = CNF_COMPET AND CND_PARCEL = CNF_PARCEL AND CNA_NUMERO = CND_NUMERO AND CND_REVISA = CNF_REVISA"+ CRLF
-cQuery += "      AND  CND.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SC6")+ " SC6 ON CND_PEDIDO = C6_NUM"+ CRLF
-cQuery += "      AND  C6_FILIAL = CND_FILIAL AND SC6.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND C6_PRODUTO = B1_COD"+ CRLF
-cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SF2")+ " SF2 ON C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC"+ CRLF
-cQuery += "      AND  F2_FILIAL = CND_FILIAL AND SF2.D_E_L_E_T_ = ' '"+ CRLF
-//cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON CNA_CLIENT = A1_COD AND CNA_LOJACL = A1_LOJA" + CRLF
-//cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
-//cQuery += " WHERE CNF_COMPET = '"+cCompet+"'"
+TCQUERY cQuery NEW ALIAS "QTMP2"
+TCSETFIELD("QTMP2","E1_EMISSAO","D",8,0)
+TCSETFIELD("QTMP2","E1_VENCREA","D",8,0)
+TCSETFIELD("QTMP2","E1_BAIXA","D",8,0)
 
-cQuery += " WHERE CNF_FILIAL = '"+xFilial("CNF")+"' AND  CNF.D_E_L_E_T_ = ' '"+ CRLF
+Return cQuery
 
-IF nTipo == 1
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' "+ CRLF
-ELSE
-	cQuery += " AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' "+ CRLF
-ENDIF
-
-//cqContr:= "(SELECT TOP 1 C5_MDCONTR FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
-//cqEspec:= "(SELECT TOP 1 C5_ESPECI1 FROM "+RETSQLNAME("SC6")+ " SC6 INNER JOIN "+RETSQLNAME("SC5")+" SC5 ON C5_FILIAL = C6_FILIAL AND C6_NUM = C5_NUM AND C6_SERIE = F2_SERIE AND C6_NOTA = F2_DOC AND SC6.D_E_L_E_T_ = ' ' AND SC5.D_E_L_E_T_ = ' ') "
-
-cQuery += " UNION ALL "+ CRLF
-
-cQuery += " SELECT DISTINCT F2_FILIAL,F2_CLIENTE AS XX_CLIENTE,F2_LOJA AS XX_LOJA,   D2_COD AS XX_PROD,    B1_DESC,B1_CODISS,B1_ALIQISS,"+ CRLF
-//cQuery += "        CASE WHEN "+cqEspec+" = ' ' THEN 'XXXXXXXXXX' ELSE "+cqEspec+" END,"+ CRLF  // CNF_CONTRA,
-cQuery += "        CASE WHEN (C5_ESPECI1 = ' ' OR C5_ESPECI1 IS NULL) THEN 'XXXXXXXXXX' ELSE C5_ESPECI1 END AS CNF_CONTRA,"+ CRLF
-cQuery += "        ' ',SUBSTRING(C5_XXCOMPT,1,2)+'/'+SUBSTRING(C5_XXCOMPT,3,4) AS CNF_COMPET,0,0, " + CRLF  // CNF_REVISA,CNF_COMPET,CNF_VLPREV,CNF_SALDO
-cQuery += "        A1_NOME, "  + CRLF // CTT_DESC01
-cQuery += "        ' ', CASE WHEN (C5_DESCMUN = ' ' OR C5_DESCMUN IS NULL) THEN SA1.A1_MUN ELSE C5_DESCMUN END AS CNA_XXMUN, " + CRLF  // CNA_NUMERO,CNA_XXMUN
-cQuery += "        ' ', 0 AS CNFRECNO, "  + CRLF     // CND_NUMMED, CNF.R_E_C_N_O_
-cQuery += "        C5_XXRM, "  + CRLF     // CND_XXRM
-cQuery += "        D2_PEDIDO AS C6_NUM, " + CRLF   // C6_NUM
-cQuery += "        0,0, "  + CRLF   // XX_BONIF,XX_MULTA
-cQuery += "        F2_DOC,F2_EMISSAO,F2_VALFAT,F2_VALIRRF,F2_VALINSS,F2_VALPIS,F2_VALCOFI,F2_VALCSLL,F2_RECISS,F2_VALISS,F2_VLCPM,F2_XXVRETC, " + CRLF
-cQuery += "        (SELECT TOP 1 E1_VENCTO FROM "+RETSQLNAME("SE1")+" SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
-cQuery += "            AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCTO, " + CRLF
-cQuery += "        (SELECT TOP 1 E1_VENCORI FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
-cQuery += "            AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_VENCORI, " + CRLF
-cQuery += "        (SELECT TOP 1 E1_BAIXA FROM "+RETSQLNAME("SE1")+ " SE1 WHERE E1_PREFIXO = F2_SERIE AND E1_NUM = F2_DOC" + CRLF
-cQuery += "            AND SE1.D_E_L_E_T_ = ' ' AND E1_FILIAL = '"+xFilial("SE1")+"') AS XX_BAIXA, " + CRLF
-cQuery += "        (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' "  + CRLF
-cQuery += "            AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC, " + CRLF
-cQuery += "        (SELECT SUM(E5_VALOR) FROM "+RETSQLNAME("SE5")+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
-cQuery += "            AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA "+ CRLF
-
-cQuery += " FROM "+RETSQLNAME("SF2")+" SF2" + CRLF
-//cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = "+cqContr
-//cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '""
-cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_LOJA = A1_LOJA" + CRLF
-cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE = F2_SERIE AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA" + CRLF
-cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"' AND  SD2.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NUM = D2_PEDIDO " + CRLF
-cQuery += "      AND  C5_FILIAL = D2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
-cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D2_COD = B1_COD"+ CRLF
-cQuery += "      AND  SB1.D_E_L_E_T_ = ' '"+ CRLF
-//cQuery += " LEFT JOIN "+RETSQLNAME("CC2")+ " CC2 ON SF2.F2_ESTPRES = CC2_EST AND SF2.F2_MUNPRES = CC2_CODMUN AND CC2.D_E_L_E_T_ = '' "+ CRLF
-
-//cQuery += " WHERE ("+cqContr+" = ' ' OR " + CRLF
-//cQuery +=           cqContr+" IS NULL ) " + CRLF
-cQuery += " WHERE (C5_MDCONTR = ' ' OR "+ CRLF
-cQuery +=         "C5_MDCONTR IS NULL ) "+ CRLF
-IF nTipo == 1
-	cQuery += "      AND SUBSTRING(F2_EMISSAO,1,6) = '"+cMes+"' " 
-ELSE
-	cQuery += "      AND SUBSTRING(F2_EMISSAO,1,4) = '"+cMes+"' " 
-ENDIF
-
-//cQuery += "      AND F2_FILIAL = '"+xFilial("SF2")+"' AND SF2.D_E_L_E_T_ = ' '" + CRLF
-cQuery += "      AND SF2.D_E_L_E_T_ = ' '" + CRLF
-
-cQuery += " ORDER BY CNF_CONTRA,CNF_REVISA,CNF_COMPET,F2_DOC" + CRLF
-
-u_LogMemo("BKGCTR07.SQL",cQuery)
-
-TCQUERY cQuery NEW ALIAS "QTMP"
-TCSETFIELD("QTMP","F2_EMISSAO","D",8,0)
-TCSETFIELD("QTMP","XX_VENCTO","D",8,0)
-TCSETFIELD("QTMP","XX_VENCORI","D",8,0)
-TCSETFIELD("QTMP","XX_BAIXA","D",8,0)
-Return
-*/
-
-
-Static Function  ValidPerg(cPerg)
-
-Local aArea      := GetArea()
-Local aRegistros := {}
-Local i,j
-
-dbSelectArea("SX1")
-dbSetOrder(1)
-cPerg := PADR(cPerg,10)
-
-AADD(aRegistros,{cPerg,"01","Mes de Emissao  "  ,"" ,"" ,"mv_ch1","C",02,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"02","Ano de Emissao  "  ,"" ,"" ,"mv_ch2","C",04,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Gerar Planilha? "  ,"" ,"" ,"mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","",""})
-AADD(aRegistros,{cPerg,"04","Tipo? "  			,"" ,"" ,"mv_ch4","N",01,0,2,"C","","mv_par04","Mensal","Mensal","Mensal","","","Anual","Anual","Anual","","","","","","","","","","","","","","","","",""})
-
-For i:=1 to Len(aRegistros)
-	If !MsSeek(cPerg+aRegistros[i,2])
-		RecLock("SX1",.T.)
-		For j:=1 to FCount()
-			If j <= Len(aRegistros[i])
-				FieldPut(j,aRegistros[i,j])
-			Endif
-		Next
-		MsUnlock()
-	//Else	
-	//	RecLock("SX1",.F.)
-	//	For j:=1 to FCount()
-	//		If j <= Len(aRegistros[i])
-	//			FieldPut(j,aRegistros[i,j])
-	//		Endif
-	//	Next
-	//	MsUnlock()
-	Endif
-Next
-
-RestArea(aArea)
-
-Return(NIL)
 
 
 USER FUNCTION BKCNR07(cNumMed,cTipo)

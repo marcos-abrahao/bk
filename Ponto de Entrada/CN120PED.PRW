@@ -35,8 +35,8 @@ Local cTpNf		:= "N"
 Local lRec		:= .F.
 Local lPedido	:= .T.
 //Local nI		:= 0
-Local nPosBIRF  := 0
-Local nPosVal   := 0
+//Local nPosBIRF  := 0
+//Local nPosVal   := 0
 
 If aScan(ExpA1, {|x| x[1]=="C5_CLIENTE"}) > 0
 	lPedido := .T.
@@ -148,6 +148,7 @@ Else
 	cPlanilha	:= ExpA1[aScan(ExpA1, {|x| x[1]=="E1_MDPLANI"}),2]
 	cNumMed		:= ExpA1[aScan(ExpA1, {|x| x[1]=="E1_MEDNUME"}),2]
 
+	/* Ajuste quando a base do IRRF estava vindo zerada - 
 	nPosBIRF := aScan(ExpA1, {|x| x[1]=="E1_BASEIRF"})
 	If nPosBIRF > 0
 		nPosVal := aScan(ExpA1, {|x| x[1]=="E1_VALOR"})
@@ -155,6 +156,7 @@ Else
 			ExpA1[nPosBIRF,2] := ExpA1[nPosVal,2] 
 		EndIf
 	EndIf
+	*/
 
 	dbSelectArea("CXN")
 	CXN->(dbSetOrder(3))

@@ -1203,7 +1203,7 @@ CLASS CExcel
 	METHOD New(cNTitulo,cNCampo) CONSTRUCTOR
 
 	METHOD GetTitulo()
-	METHOD SetTitulo(cSX3)
+	METHOD SetTitulo(cTitulo)
 	
 	METHOD GetCampo()
 

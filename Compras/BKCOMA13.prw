@@ -341,7 +341,7 @@ If Select("QTMP") > 0
 EndIf
 
 cQuery := "WITH BKGCTR07 AS ("+CRLF
-cQuery += u_QGctR07(iIf(cMesI == cMesF,1,3),cMesI,cMesF)
+cQuery += u_QGctR07(cMesI,cMesF)
 cQuery += ")"+CRLF
 cQuery += "SELECT CNF_CONTRA AS CC,SUM(F2_VALFAT) AS VALCC FROM BKGCTR07 GROUP BY CNF_CONTRA"+CRLF
 cQuery += "ORDER BY CNF_CONTRA"+CRLF

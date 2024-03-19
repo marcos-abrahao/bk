@@ -60,7 +60,7 @@ If nFormato == 1 .OR. nFormato == 2
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
 
-	// Aba Resumo ou Consolidaddo
+	// Aba Resumo ou Consolidado
 
 	// Definição do Arq Excel
 	oRExcel := RExcel():New(cProg)

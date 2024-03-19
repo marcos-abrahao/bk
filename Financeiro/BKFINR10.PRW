@@ -251,7 +251,7 @@ If nAplic == 1
 EndIf
 
 
-// Cria o arquivo temporario da tebela bancos
+// Cria o arquivo temporario da tabela bancos
 
 oTmpTb1 := FWTemporaryTable():New( cAliasTmp1 ) 
 oTmpTb1:SetFields( aStruct1 )
@@ -1419,7 +1419,6 @@ While Eval(bCondWhile)
 	   			ENDIF
 	   			nVALBRUT := 0
 	    		IF lEntrada
-	    		 
                     
 		    		dbSelectArea("SD1")        
 		    		SD1->(dbSetOrder(1))
@@ -1441,6 +1440,7 @@ While Eval(bCondWhile)
 	   						cLiberado := aLIB[2]
                         ENDIF
 		   			ENDIF
+
 		   			cProduto := ""
 		   			lFiltPrd := .F.
 		    		DO WHILE SD1->(!EOF()) .AND. xFilial("SD1")+SD1->D1_DOC+SD1->D1_SERIE+SD1->D1_FORNECE+SD1->D1_LOJA == ;
@@ -1457,7 +1457,6 @@ While Eval(bCondWhile)
 						ELSEIF !lFiltPrd 
 							cProduto := "DIVERSOS"
 						ENDIF
-						
 						
 					    cHist  := ALLTRIM(SD1->D1_XXHIST)   //IIF(ALLTRIM(SD1->D1_XXHIST) $ cHist,"",cHist) 
 		    			nLinHis:= MLCOUNT(cHist,nMaxObs)
@@ -1489,8 +1488,7 @@ While Eval(bCondWhile)
 			                	IF nTot > 0
 			       					//MSGINFO(aTot[nTot,1]+"     \"+STR(aTot[nTot,2],14,2))
 			                	ENDIF
-	
-	
+		
 			       			//FGTS
 			       			ELSEIF ALLTRIM(SD1->D1_COD) $ "21301005" .AND. SD1->D1_CC='000000001'  .AND. SD1->D1_TOTAL > 100000
 			       				cRef := ""
@@ -1525,9 +1523,8 @@ While Eval(bCondWhile)
 									AADD(aTot,{SD1->D1_CC,SD1->D1_TOTAL,SD1->D1_COD})
 								ENDIF
 							ENDIF
-	                    ENDIF
-	                    
-						IF LEN(aTot) == 0
+	                    ELSE
+							//IF LEN(aTot) == 0 // Removi este If para gerar rateio em todos os itens - Marcos 19/03/2024
 							nTot:= 0
 							nTot:= aScan(aTot,{|x| x[1]==SD1->D1_CC .AND. x[3]==SD1->D1_COD })
 		                	IF nTot > 0
