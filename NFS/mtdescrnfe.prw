@@ -560,14 +560,15 @@ ELSE
 	//IF MsgYesNo("Nota Fiscal N°:"+TRIM(SF2->F2_DOC)+"/"+TRIM(SF2->F2_SERIE)+" possui dados conta vinculada?" )
 	
 	// 07/02/2022 - Filtrar somente os clientes abaixo para pedir conta vinculada (Pedido pelo João Cordeiro) provisoriamente.
-	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014202/00014801/00023001/00016401/00038701/")
+	If cEmpAnt == '01' .AND. (SF2->F2_CLIENTE + SF2->F2_LOJA + "/" $ "00014201/00014202/00014801/00023001/00016401/00038701/00040201/")
 
 		/*
 		000142	01	MINISTERIO DA FAZENDA                   
 		000148	01	MINISTERIO DA FAZENDA 
 		000230	01	MINISTERIO DA FAZENDA                   
 		000164	01	TRIBUNAL REGIONAL FEDERAL DA 3A REGIAO
-		000387	01	AMAZONIA AZUL TECNOLOGIAS DE DEFESA S.A - AMAZUL                                
+		000387	01	AMAZONIA AZUL TECNOLOGIAS DE DEFESA S.A - AMAZUL 
+		000402  01  INSTITUTO NACIONAL DE METROLOGIA, QUALIDADE E TECNOLOGIA - INMETRO.
 		*/
 
 		IF ContVinc(cContrato,cRevisa,cPlanilha)

@@ -893,14 +893,6 @@ For nI := 1 To Len(aFiles)
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
 	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
 Next
-/*
-aFiles := DocsPN(self:empresa,(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA))
-For nI := 1 To Len(aFiles)
-	aAdd(aAnexos,JsonObject():New())
-	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,1]
-	aAnexos[nI]["F1_ENCODE"]	:= aFiles[nI,2]
-Next
-*/
 
 oJsonPN['F1_ANEXOS']	:= aAnexos
 
@@ -1254,11 +1246,12 @@ line-height: 1rem;
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <!-- JavaScript Bundle with Popper -->
-<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+<!-- https://getbootstrap.com/docs/5.3/getting-started/download/ -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
 <!-- https://datatables.net/ -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

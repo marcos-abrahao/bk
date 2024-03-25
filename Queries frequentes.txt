@@ -164,6 +164,7 @@ UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('FC0000055')
 
 -- Dez 23
 UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('FC0000056')
+UPDATE SC5010 SET C5_RECISS = '1' FROM SC5010 WHERE C5_NOTA IN ('FC0000057')
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -- Funcionários Ativos - Camila SMS

@@ -38,6 +38,13 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
+	WSMETHOD GET CONSE2;
+		DESCRIPTION "Retorna dados do Título";
+		WSSYNTAX "/RestTitCP/v6";
+		PATH "/RestTitCP/v6";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
 	WSMETHOD GET BROWCP;
 		DESCRIPTION "Browse Contas a Pagar como página HTML";
 		WSSYNTAX "/RestTitCP/v2";
@@ -363,6 +370,9 @@ Local aParams      	As Array
 Local cMsg         	As Character
 Local cNumTit 		:= ""
 Local cFormaPgto	:= ""
+Local aFiles 		:= {}
+Local aAnexos		:= {}
+Local nI 			:= 0
 
 //u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
 
@@ -395,7 +405,7 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['EMPRESA']	:= (cQrySE2)->EMPRESA
 	aListCP[nPos]['TITULO']     := cNumTit
 	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
-	aListCP[nPos]['FORMPGT']	:= TRIM((cQrySE2)->FORMPGT)
+	aListCP[nPos]['FORMPGT']	:= iIf(!Empty((cQrySE2)->FORMPGT),TRIM((cQrySE2)->FORMPGT),"#CP#")
 	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
 	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
 	aListCP[nPos]['LOTE']		:= TRIM((cQrySE2)->LOTE)
@@ -410,6 +420,18 @@ Do While ( cQrySE2 )->( ! Eof() )
 
 	cFormaPgto := u_CPDadosPgt(cQrySE2)
 	aListCP[nPos]['DADOSPGT']	:= cFormaPgto
+
+
+	// Documentos anexos
+	aAnexos := {}
+	aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+	For nI := 1 To Len(aFiles)
+		aAdd(aAnexos,JsonObject():New())
+		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+		aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+	Next
+
+	aListCP[nPos]['F1_ANEXOS']	:= aAnexos
 
 	(cQrySE2)->(DBSkip())
 
@@ -436,7 +458,7 @@ Self:SetResponse( cJsonCli ) //-- Seta resposta
 
 Return( lRet )
 
-// v1
+// /v1
 WSMETHOD GET CONSZ2 QUERYPARAM empresa,e2recno,userlib WSREST RestTitCP
 
 Local oJsonPN	:= JsonObject():New()
@@ -444,6 +466,7 @@ Local cRet		:= ""
 Local cQuery	:= ""
 Local cTabSE2	:= "SE2"+self:empresa+"0"
 Local cTabSZ2	:= "SZ2010"
+Local cTabCTT	:= "CTT"+self:empresa+"0"
 Local cQrySE2	:= GetNextAlias()
 Local cQrySZ2	:= GetNextAlias()
 Local aItens	:= {}
@@ -458,6 +481,7 @@ Local cParcela	:= ""
 Local cTipo		:= ""
 Local cFornece	:= ""
 Local cLoja		:= ""
+Local cLote		:= ""
 
 Local nTotal	:= 0
 Local cTipBk 	:= ""
@@ -477,10 +501,11 @@ cQuery += "		,SE2.E2_NOMFOR" + CRLF
 cQuery += "		,SE2.E2_EMISSAO" + CRLF
 cQuery += "		,SE2.E2_VENCREA" + CRLF
 cQuery += "		,SE2.E2_HIST" + CRLF
+cQuery += "		,SE2.E2_XXLOTEB" + CRLF
 cQuery += "FROM "+cTabSE2+" SE2" + CRLF
 cQuery += "WHERE SE2.R_E_C_N_O_ = "+self:e2recno + CRLF
 
-//u_MsgLog("RESTLIBCP",cQuery)
+//u_MsgLog("RESTTITCP",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 
@@ -493,6 +518,7 @@ cTipo		:= (cQrySE2)->E2_TIPO
 cFornece	:= (cQrySE2)->E2_FORNECE
 cLoja		:= (cQrySE2)->E2_LOJA
 cTipBK 		:= (cQrySE2)->E2_XXTIPBK
+cLote 		:= (cQrySE2)->E2_XXLOTEB
 
 oJsonPN['USERNAME']		:= cUserName
 oJsonPN['EMPRESA']		:= aEmpresas[aScan(aEmpresas,{|x| x[1] == self:empresa }),2]
@@ -517,14 +543,18 @@ cQuery += "		,Z2_CONTA" + CRLF
 cQuery += "		,Z2_DIGCONT" + CRLF
 cQuery += "		,Z2_TIPO" + CRLF
 cQuery += "		,Z2_VALOR" + CRLF
-cQuery += " 	,Z2_TIPOPES" + CRLF
+cQuery += "		,Z2_TIPOPES" + CRLF
 cQuery += "		,Z2_CC" + CRLF
+cQuery += "		,CTT_DESC01" + CRLF
 cQuery += "		,Z2_USUARIO" + CRLF
 cQuery += "		,Z2_OBSTITU" + CRLF
 cQuery += "		,Z2_NOMDEP" + CRLF
-cQuery += "		,Z2_NOMMAE " + CRLF
+cQuery += "		,Z2_NOMMAE" + CRLF
+cQuery += "		,Z2_CPF " + CRLF
 cQuery += "		,Z2_BORDERO " + CRLF
 cQuery += " FROM "+cTabSZ2+" SZ2" + CRLF
+cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+cQuery += "     ON CTT.CTT_FILIAL='"+xFilial("CTT")+"' AND SZ2.Z2_CC = CTT.CTT_CUSTO AND CTT.D_E_L_E_T_=''" + CRLF
 cQuery += " WHERE Z2_FILIAL = '"+xFilial("SZ2")+"' " + CRLF
 cQuery += " 	AND Z2_CODEMP = '"+self:empresa+"' " + CRLF
 cQuery += " 	AND Z2_E2PRF  = '"+cPrefixo+"' " + CRLF
@@ -537,14 +567,14 @@ cQuery += " 	AND Z2_STATUS = 'S'" + CRLF
 cQuery += " 	AND SZ2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " ORDER BY Z2_NOME" + CRLF
 
-//u_MsgLog("RESTLIBCP",cQuery)
+u_LogMemo("RESTTITCP.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZ2,.T.,.T.)
 
 dbSelectArea(cQrySZ2)
 dbGoTop()
 
-oJsonPN['LOTE']			:= (cQrySZ2)->Z2_BORDERO  // Numero do Bordero
+oJsonPN['LOTE']			:= iIf(Empty((cQrySZ2)->Z2_BORDERO),cLote,(cQrySZ2)->Z2_BORDERO)  // Numero do Bordero
 oJsonPN['Z2_USUARIO']	:= (cQrySZ2)->Z2_USUARIO
 
 nI := 0
@@ -552,17 +582,11 @@ Do While (cQrySZ2)->(!EOF())
 	aAdd(aItens,JsonObject():New())
 	nI++
 	aItens[nI]["Z2_PRONT"]	:= (cQrySZ2)->Z2_PRONT
-	If cTipBK == "PEN"
-		aItens[nI]["Z2_NOME"]	:= ALLTRIM(IIF(!EMPTY((cQrySZ2)->Z2_NOMMAE),(cQrySZ2)->Z2_NOMMAE,(cQrySZ2)->Z2_NOMDEP))
-	Else
-		aItens[nI]["Z2_NOME"]	:= (cQrySZ2)->Z2_NOME
-	EndIf
-
+	aItens[nI]["Z2_NOMDEP"]	:= StrIConv(ALLTRIM(IIF(!EMPTY((cQrySZ2)->Z2_NOMMAE),(cQrySZ2)->Z2_NOMMAE,(cQrySZ2)->Z2_NOMDEP)), "CP1252", "UTF-8")
 	aItens[nI]["Z2_NOME"]	:= StrIConv((cQrySZ2)->Z2_NOME, "CP1252", "UTF-8")
-
-
+	aItens[nI]["Z2_CPF"]	:= (cQrySZ2)->Z2_CPF
 	aItens[nI]["DADOSBC"]	:= (cQrySZ2)->('Bco: '+Z2_BANCO+' Ag: '+Z2_AGENCIA+'-'+Z2_DIGAGEN+' C/C: '+Z2_CONTA+'-'+Z2_DIGCONT)
-	aItens[nI]["Z2_CC"]		:= (cQrySZ2)->Z2_CC
+	aItens[nI]["Z2_CC"]		:= StrIConv(TRIM((cQrySZ2)->Z2_CC)+": "+ALLTRIM((cQrySZ2)->CTT_DESC01), "CP1252", "UTF-8")
 	aItens[nI]["Z2_OBSTITU"]:= StrIConv(TRIM((cQrySZ2)->Z2_OBSTITU), "CP1252", "UTF-8")
 	aItens[nI]["Z2_VALOR"]	:= TRANSFORM((cQrySZ2)->Z2_VALOR,"@E 99999999.99")
 
@@ -587,7 +611,219 @@ Self:SetResponse(cRet)
 return .T.
 
 
-// v2
+// /v6
+WSMETHOD GET CONSE2 QUERYPARAM empresa,e2recno,userlib WSREST RestTitCP
+
+Local oJsonPN	:= JsonObject():New()
+Local cRet		:= ""
+Local cQuery	:= ""
+Local cTabSE2	:= "SE2"+self:empresa+"0"
+Local cTabSA2	:= "SA2"+self:empresa+"0"
+Local cTabSF1	:= "SF1"+self:empresa+"0"
+Local cTabSD1	:= "SD1"+self:empresa+"0"
+Local cTabSB1	:= "SB1"+self:empresa+"0"
+Local cTabCTT	:= "CTT"+self:empresa+"0"
+Local cQrySE2	:= GetNextAlias()
+Local cQrySD1	:= GetNextAlias()
+Local aItens	:= {}
+Local nI		:= 0
+Local aEmpresas	As Array
+Local aParams	As Array
+Local cMsg		As Character
+// Chave Z2
+Local cPrefixo	:= ""
+Local cNum		:= ""
+Local cParcela	:= ""
+Local cTipo		:= ""
+Local cFornece	:= ""
+Local cLoja		:= ""
+Local cLote		:= ""
+Local cHist		:= ""
+Local aFiles	:= {}
+Local aAnexos	:= {}
+
+Local nTotal	:= 0
+Local cTipBk 	:= ""
+
+aEmpresas := u_BKGrupo()
+u_BkAvPar(::userlib,@aParams,@cMsg)
+
+cQuery := "SELECT " + CRLF
+cQuery += "	  E2_TIPO"+CRLF
+cQuery += "	 ,E2_PREFIXO"+CRLF
+cQuery += "	 ,E2_NUM"+CRLF
+cQuery += "	 ,E2_PARCELA"+CRLF
+cQuery += "	 ,E2_FORNECE"+CRLF
+cQuery += "	 ,E2_PORTADO"+CRLF
+cQuery += "	 ,E2_LOJA"+CRLF
+cQuery += "	 ,E2_NATUREZ"+CRLF
+cQuery += "	 ,E2_HIST"+CRLF
+cQuery += "	 ,E2_USERLGA"+CRLF 
+cQuery += "	 ,E2_EMISSAO"+CRLF
+cQuery += "	 ,E2_BAIXA"+CRLF
+cQuery += "	 ,E2_VENCREA"+CRLF
+cQuery += "	 ,E2_VALOR"+CRLF
+cQuery += "	 ,E2_XXPRINT"+CRLF
+cQuery += "	 ,E2_XXPGTO"+CRLF
+cQuery += "	 ,E2_XXOPER"+CRLF
+cQuery += "	 ,E2_XXTIPBK"+CRLF
+cQuery += "	 ,E2_XXLOTEB"+CRLF
+cQuery += "	 ,E2_NUMBOR"+CRLF
+cQuery += "	 ,SE2.R_E_C_N_O_ AS E2RECNO"+CRLF
+cQuery += "	 ,A2_NOME"+CRLF
+cQuery += "	 ,A2_TIPO"+CRLF
+cQuery += "	 ,A2_CGC"+CRLF
+cQuery += "	 ,A2_BANCO"+CRLF
+cQuery += "	 ,A2_AGENCIA"+CRLF
+cQuery += "	 ,A2_NUMCON"+CRLF
+cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
+cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
+cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
+
+cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) "+CRLF
+cQuery += "	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF
+cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
+cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
+
+cQuery += "	 ,F1_DOC"+CRLF
+cQuery += "	 ,F1_XTIPOPG"+CRLF
+cQuery += "	 ,F1_XNUMPA"+CRLF
+cQuery += "	 ,F1_XBANCO"+CRLF
+cQuery += "	 ,F1_XAGENC"+CRLF
+cQuery += "	 ,F1_XNUMCON"+CRLF
+cQuery += "	 ,F1_XXTPPIX"+CRLF
+cQuery += "	 ,F1_XXCHPIX "+CRLF
+cQuery += "	 ,F1_USERLGI"+CRLF 
+cQuery += "	 ,F1_XXUSER"+CRLF
+
+cQuery += "	 FROM "+cTabSE2+" SE2 "+CRLF
+
+cQuery += "	 LEFT JOIN "+cTabSF1+" SF1 ON"+CRLF
+cQuery += "	 	SE2.E2_FILIAL      = SF1.F1_FILIAL"+CRLF
+cQuery += "	 	AND SE2.E2_NUM     = SF1.F1_DOC "+CRLF
+cQuery += "	 	AND SE2.E2_PREFIXO = SF1.F1_SERIE"+CRLF
+cQuery += "	 	AND SE2.E2_FORNECE = SF1.F1_FORNECE"+CRLF
+cQuery += "	 	AND SE2.E2_LOJA    = SF1.F1_LOJA"+CRLF
+cQuery += "	 	AND SF1.D_E_L_E_T_ = ''"+CRLF
+
+cQuery += "	 LEFT JOIN "+cTabSA2+"  SA2 ON"+CRLF
+cQuery += "	 	SA2.A2_FILIAL      = '  '"+CRLF
+cQuery += "	 	AND SE2.E2_FORNECE = SA2.A2_COD"+CRLF
+cQuery += "	 	AND SE2.E2_LOJA    = SA2.A2_LOJA"+CRLF
+cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
+
+cQuery += "WHERE SE2.R_E_C_N_O_ = "+self:e2recno + CRLF
+
+u_LogMemo("RESTTITCP-E2.SQL",cQuery)
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
+
+dbSelectArea(cQrySE2)
+dbGoTop()
+cPrefixo	:= (cQrySE2)->E2_PREFIXO
+cNum		:= (cQrySE2)->E2_NUM
+cParcela	:= (cQrySE2)->E2_PARCELA
+cTipo		:= (cQrySE2)->E2_TIPO
+cFornece	:= (cQrySE2)->E2_FORNECE
+cLoja		:= (cQrySE2)->E2_LOJA
+cTipBK 		:= (cQrySE2)->E2_XXTIPBK
+cLote 		:= (cQrySE2)->E2_XXLOTEB
+
+oJsonPN['USERNAME']		:= cUserName
+oJsonPN['EMPRESA']		:= aEmpresas[aScan(aEmpresas,{|x| x[1] == self:empresa }),2]
+oJsonPN['E2_PREFIXO']	:= (cQrySE2)->E2_PREFIXO
+oJsonPN['E2_NUM']		:= (cQrySE2)->E2_NUM
+oJsonPN['A2_NOME']		:= (cQrySE2)->A2_NOME
+oJsonPN['E2_EMISSAO']	:= DTOC(STOD((cQrySE2)->E2_EMISSAO))
+oJsonPN['E2_VENCREA']	:= DTOC(STOD((cQrySE2)->E2_VENCREA))
+oJsonPN['F1_XXUSER']	:= UsrRetName((cQrySE2)->F1_XXUSER)
+oJsonPN['E2_HIST']		:= (cQrySE2)->E2_HIST
+oJsonPN['LOTE']			:= (cQrySE2)->E2_XXLOTEB
+
+// Documentos anexos
+aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+For nI := 1 To Len(aFiles)
+	aAdd(aAnexos,JsonObject():New())
+	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+Next
+
+oJsonPN['F1_ANEXOS']	:= aAnexos
+
+(cQrySE2)->(dbCloseArea())
+
+cQuery := "SELECT " + CRLF
+cQuery += "	  D1_COD"+CRLF
+cQuery += "	 ,B1_DESC"+CRLF
+cQuery += "	 ,D1_CC"+CRLF
+cQuery += "	 ,CTT_DESC01"+CRLF
+cQuery += "	 ,(D1_TOTAL - D1_VALDESC + D1_DESPESA) AS D1_TOTAL"+CRLF
+cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),D1_XXHIST)) AS D1_XXHIST "+CRLF
+
+cQuery += " FROM "+cTabSD1+" SD1" + CRLF
+
+cQuery += " LEFT JOIN "+cTabCTT+" CTT" + CRLF
+cQuery += "     ON CTT.CTT_FILIAL='"+xFilial("CTT")+"' AND SD1.D1_CC = CTT.CTT_CUSTO AND CTT.D_E_L_E_T_=''" + CRLF
+
+cQuery += " LEFT JOIN "+cTabSB1+" SB1" + CRLF
+cQuery += "     ON SB1.B1_FILIAL='"+xFilial("SB1")+"' AND SD1.D1_COD = SB1.B1_COD AND SB1.D_E_L_E_T_=''" + CRLF
+
+cQuery += " WHERE D1_FILIAL = '"+xFilial("SD1")+"' " + CRLF
+cQuery += " 	AND SD1.D1_DOC = '"+cNum+"' " + CRLF
+cQuery += " 	AND SD1.D1_SERIE  = '"+cPrefixo+"' " + CRLF
+cQuery += " 	AND SD1.D1_FORNECE  = '"+cFornece+"' " + CRLF
+cQuery += " 	AND SD1.D1_LOJA = '"+cLoja+"' " + CRLF
+cQuery += " 	AND SD1.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " ORDER BY D1_ITEM" + CRLF
+
+u_MsgLog(,"Aqui3")
+
+u_LogMemo("RESTTITCP-D1.SQL",cQuery)
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySD1,.T.,.T.)
+
+dbSelectArea(cQrySD1)
+dbGoTop()
+
+nI := 0
+Do While (cQrySD1)->(!EOF())
+	aAdd(aItens,JsonObject():New())
+	nI++
+
+	aItens[nI]["D1_COD"]	:= (cQrySD1)->D1_COD
+	aItens[nI]["B1_DESC"]	:= StrIConv((cQrySD1)->B1_DESC, "CP1252", "UTF-8")
+	aItens[nI]["D1_CC"]		:= StrIConv(TRIM((cQrySD1)->D1_CC)+": "+ALLTRIM((cQrySD1)->CTT_DESC01), "CP1252", "UTF-8")
+	aItens[nI]["D1_VALOR"]	:= TRANSFORM((cQrySD1)->D1_TOTAL,"@E 99999999.99")
+
+	nTotal += (cQrySD1)->D1_TOTAL
+
+	If !ALLTRIM((cQrySD1)->D1_XXHIST) $ cHist                   
+		cHist += ALLTRIM((cQrySD1)->D1_XXHIST)+" "
+	EndIf
+
+	dbSkip()
+EndDo
+
+oJsonPN['D1_XXHIST']	:= cHist
+
+oJsonPN['DADOSD1']		:= aItens
+oJsonPN['D1_TOTAL']		:= TRANSFORM(nTotal,"@E 999,999,999.99")
+
+(cQrySD1)->(dbCloseArea())
+
+cRet := oJsonPN:ToJson()
+
+FreeObj(oJsonPN)
+
+//Retorno do servico
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetResponse(cRet)
+
+return .T.
+
+
+
+// /v2
 WSMETHOD GET BROWCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
 
 Local cHTML		as char
@@ -607,7 +843,7 @@ begincontent var cHTML
 <!-- Bootstrap CSS -->
 <!-- https://datatables.net/manual/styling/bootstrap5   examples-->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/2.0.2/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <title>Títulos Contas a Pagar #datavenc# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
@@ -667,6 +903,7 @@ line-height: 1rem;
 <table id="tableSE2" class="table">
 <thead>
 <tr>
+<th scope="col"></th>
 <th scope="col">Empresa</th>
 <th scope="col">Título</th>
 <th scope="col">Fornecedor</th>
@@ -685,6 +922,7 @@ line-height: 1rem;
 <tbody id="mytable">
 <tr>
   <th scope="col">Carregando Títulos...</th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -762,7 +1000,9 @@ line-height: 1rem;
 					<thead>
 						<tr>
 							<th scope="col">Prontuário</th>
-							<th scope="col">Beneficiário</th>
+							<th scope="col">Nome</th>
+							<th scope="col">Dependente</th>
+							<th scope="col">CPF</th>
 							<th scope="col">Dados Bancários</th>
 							<th scope="col">Centro de Custo</th>
 							<th scope="col">Obs</th>
@@ -798,25 +1038,133 @@ line-height: 1rem;
    </div>
 </div>
 
+
+<!-- Modal -->
+<div id="E2Modal" class="modal fade" role="dialog">
+   <div class="modal-dialog modal-fullscreen">
+     <!-- Conteúdo do modal-->
+     <div class="modal-content">
+       <!-- Cabeçalho do modal -->
+       <div class="modal-header bk-colors">
+         <h4 id="titE2Modal" class="modal-title">Título do modal</h4>
+         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <!-- Corpo do modal -->
+       <div class="modal-body">
+
+          <form class="row g-3 font-condensed">
+            
+           <div class="col-md-1">
+             <label for="E2Prefixo" class="form-label">Prefixo</label>
+             <input type="text" class="form-control form-control-sm" id="E2Prefixo" value="#E2Prefixo#" readonly="">
+           </div>
+          <div class="col-md-2">
+             <label for="E2Num" class="form-label">Título</label>
+             <input type="text" class="form-control form-control-sm" id="E2Num" value="#E2Num#" readonly="">
+           </div>
+           <div class="col-md-2">
+             <label for="E2NomFor" class="form-label">Fornecedor</label>
+             <input type="text" class="form-control form-control-sm" id="E2NomFor" value="#E2NomFor#" readonly="">
+           </div>
+           <div class="col-md-1">
+             <label for="E2Emissao" class="form-label">Emissão</label>
+             <input type="text" class="form-control form-control-sm" id="E2Emissao" value="#E2Emissao#" readonly="">
+           </div>
+           <div class="col-md-1">
+             <label for="E2VencRea" class="form-label">Vencimento</label>
+             <input type="text" class="form-control form-control-sm" id="E2VencRea" value="#E2VencRea#" readonly="">
+           </div>
+
+           <div class="col-md-2">
+             <label for="F1User" class="form-label">Usuário</label>
+             <input type="text" class="form-control form-control-sm" id="F1User" value="#F1User#" readonly="">
+           </div>
+
+           <div class="col-md-1">
+             <label for="E2Lote" class="form-label">Lote</label>
+             <input type="text" class="form-control form-control-sm" id="E2Lote" value="#E2Lote#" readonly="">
+           </div>
+
+           <div class="col-md-8">
+             <label for="E2Hist" class="form-label">Histórico CP</label>
+			 <textarea class="form-control form-control-sm" id="E2Hist" rows="1" value="#E2Hist#" readonly=""></textarea>
+           </div>
+
+           <div class="col-md-8">
+             <label for="D1Hist" class="form-label">Histórico Doc de Entrada</label>
+			 <textarea class="form-control form-control-sm" id="D1Hist" rows="4" value="#D1Hist#" readonly=""></textarea>
+           </div>
+
+			<div class="container">
+				<div class="table-responsive-sm">
+				<table class="table ">
+					<thead>
+						<tr>
+							<th scope="col">Produto</th>
+							<th scope="col">Descrição</th>
+							<th scope="col">Centro de Custo</th>
+							<th scope="col" style="text-align:right;">Valor</th>
+						</tr>
+					</thead>
+					<tbody id="E2Table">
+						<tr>
+							<th scope="row" colspan="4" style="text-align:center;">Carregando itens...</th>
+						</tr>
+					</tbody>
+
+					<tfoot id="E2Foot">
+						<th scope="row" colspan="4" style="text-align:right;">Total Geral</th>
+					</tfoot>
+
+				</table>
+				</div>
+			</div>
+
+            <div class="col-12" id="anexosE2">
+				<!-- <button type="submit" class="btn btn-primary">Sign in</button> -->
+            </div>
+
+          </form>
+
+       </div>
+        <!-- Rodapé do modal-->
+        <div class="modal-footer">
+         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+       </div>
+     </div>
+   </div>
+</div>
+
+
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <!-- JavaScript Bundle with Popper -->
-<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+<!-- https://getbootstrap.com/docs/5.3/getting-started/download/ -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
 <!-- https://datatables.net/ -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.2/js/dataTables.bootstrap5.min.js"></script>
 
 <!-- Buttons -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<!-- https://cdn.datatables.net/buttons/ -->
+<script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
+
+<!-- https://cdnjs.com/libraries/jszip -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<!-- https://cdnjs.com/libraries/pdfmake -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+
+<!-- https://cdn.datatables.net/buttons -->
+<script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.html5.min.js"></script>
 
 <script>
 
@@ -835,10 +1183,11 @@ async function loadTable() {
 let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
-let cbtn = '';
-let cbtnidp = ''
-let cbtnids = ''
-let cbtnz2 = ''
+let ccbtn = '';
+let cbtnidp = '';
+let cbtnids = '';
+let cbtnz2 = '';
+let anexos = '';
 
 if (Array.isArray(titulos)) {
 	titulos.forEach(object => {
@@ -847,11 +1196,31 @@ if (Array.isArray(titulos)) {
 	let cDadosPgt = object['DADOSPGT']
 
 	nlin += 1;
+	cbtnz2 = 'btnz2'+nlin;
+
+	if (cStatus == 'C' ){
+	 ccbtn = 'success';
+	} else if (cStatus == ' ' || cStatus == 'A'){
+	 ccbtn = 'warning';
+	} else if (cStatus == 'P'){
+	 ccbtn = 'danger';
+	} else if (cStatus == 'O'){
+	 ccbtn = 'primary';
+	} else if (cStatus == 'D'){
+	 ccbtn = 'dark';
+	}
+
 	trHTML += '<tr>';
+	trHTML += '<td></td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['TITULO']+'</td>';
 	trHTML += '<td>'+object['FORNECEDOR']+'</td>';
-	trHTML += '<td>'+object['FORMPGT']+'</td>';
+
+	//trHTML += '<td>'+object['FORMPGT']+'</td>';
+	trHTML += '<td>';
+	trHTML += '<button type="button" id="'+cbtnz2+'" class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+object['FORMPGT']+'</button>';
+	trHTML += '</td>';
+
 	trHTML += '<td>'+object['VENC']+'</td>';
 
 	// Botão para troca do portador
@@ -876,25 +1245,13 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
-	if (cStatus == 'C' ){
-	 cbtn = 'btn-outline-success';
-	 } else if (cStatus == ' ' || cStatus == 'A'){
-	 cbtn = 'btn-outline-warning';
-	} else if (cStatus == 'P'){
-	 cbtn = 'btn-outline-danger';
-	} else if (cStatus == 'O'){
-	 cbtn = 'btn-outline-primary';
-	} else if (cStatus == 'D'){
-	 cbtn = 'btn btn-dark';
-	}
-
 	cbtnids = 'btnac'+nlin;
 
 	trHTML += '<td>'
 
 	// Botão para mudança de status
 	trHTML += '<div class="btn-group">'
-	trHTML += '<button type="button" id="'+cbtnids+'" class="btn '+cbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
 	trHTML += object['STATUS']
 	trHTML += '</button>'
 
@@ -912,15 +1269,25 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td>'+object['HIST']+'</td>';
 
 	trHTML += '<td>';
-		if (cDadosPgt.indexOf('#RH#') !== -1){
-			cbtnz2 = 'btnz2'+nlin;
-			trHTML += '<button type="button" id="'+cbtnz2+'" class="btn '+cbtn+' btn-sm" onclick="showZ2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+cDadosPgt+'</button>';
-		} else {
-			trHTML += object['DADOSPGT'];
-		}
+
+	if (cDadosPgt.indexOf('#RH#') !== -1){
+		cbtnz2 = 'btnz2'+nlin;
+		trHTML += '<button type="button" id="'+cbtnz2+'" class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showZ2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+cDadosPgt+'</button>';
+	} else {
+		trHTML += cDadosPgt;
+	}
+
 	trHTML += '</td>'
 
 	trHTML += '<td>'+object['OPER']+'</td>';
+
+	anexos = '';
+	if (Array.isArray(object['F1_ANEXOS'])) {
+		object['F1_ANEXOS'].forEach(object => {
+		anexos += '<a href="http://10.139.0.30:8081/rest/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+	})
+	}
+	trHTML += '<td>'+anexos+'</td>';
 
 	trHTML += '</tr>';
 	});
@@ -934,7 +1301,8 @@ if (Array.isArray(titulos)) {
 }
 document.getElementById("mytable").innerHTML = trHTML;
 
-$('#tableSE2').DataTable({
+
+tableSE2 = $('#tableSE2').DataTable({
   "pageLength": 100,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
@@ -951,13 +1319,72 @@ $('#tableSE2').DataTable({
     "next":   "Próxima",
     "previous": "Anterior"
     }
-   }
+   },
+  "columns": [
+		{
+            className: 'dt-control',
+            orderable: false,
+            data: null,
+            defaultContent: ''
+        },
+        { data: 'Empresa' },
+        { data: 'Título' },
+        { data: 'Fornecedor' },
+        { data: 'Forma Pgto' },
+        { data: 'Vencto' },
+        { data: 'Portador' },
+        { data: 'Lote' },
+        { data: 'Valor' },
+        { data: 'Saldo' },
+        { data: 'Status' },
+        { data: 'Histórico' },
+        { data: 'Dados Pgto' },
+        { data: 'Operador' },
+        { data: 'Anexos' }
+  ],
+  "columnDefs": [
+        {
+            target: 14,
+            visible: false,
+            searchable: false
+        }
+  ],
+  "order": [[1,'asc']]
  });
 
 }
 
-loadTable();
+// Formatting function for row details - modify as you need
+function format(d) {
+	var anexos = '';
+    // `d` is the original data object for the row
+    return (
+        '<dl>' +
+        '<dt>Anexos: '+d.Anexos+'</dt>' +
+        '<dd>' +
+        '</dd>' +
+        '</dl>'
+    );
+}
+ 
+ 
+// Add event listener for opening and closing details
+$('#tableSE2 tbody').on('click', 'td.dt-control', function () {
+    var tr = $(this).closest('tr');
+    var row = tableSE2.row(tr);
+ 
+    if (row.child.isShown()) {
+        // This row is already open - close it
+        row.child.hide();
+    }
+    else {
+        // Open this row
+        row.child(format(row.data())).show();
+    }
+});
 
+
+loadTable();
 
 async function getZ2(empresa,e2recno,userlib) {
 let url = '#iprest#/RestTitCP/v1?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
@@ -978,7 +1405,6 @@ let dadosE2 = await getZ2(empresa,e2recno,userlib);
 let itens = '';
 let i = 0;
 let foot = '';
-let anexos = '';
 let inpE = '';
 let iCheck = '';
 let cClick = 'libdoc';
@@ -998,6 +1424,8 @@ if (Array.isArray(dadosE2.DADOSZ2)) {
 	itens += '<tr>';
 	itens += '<td>'+object['Z2_PRONT']+'</td>';	
 	itens += '<td>'+object['Z2_NOME']+'</td>';
+	itens += '<td>'+object['Z2_NOMDEP']+'</td>';
+	itens += '<td>'+object['Z2_CPF']+'</td>';
    	itens += '<td>'+object['DADOSBC']+'</td>';
 	itens += '<td>'+object['Z2_CC']+'</td>';
 	itens += '<td>'+object['Z2_OBSTITU']+'</td>';
@@ -1006,6 +1434,7 @@ if (Array.isArray(dadosE2.DADOSZ2)) {
   })
 }
 
+
 document.getElementById("z2Table").innerHTML = itens;
 foot = '<th scope="row" colspan="8" style="text-align:right;">'+dadosE2['Z2_TOTAL']+'</th>'
 document.getElementById("z2Foot").innerHTML = foot;
@@ -1013,6 +1442,70 @@ document.getElementById("z2Foot").innerHTML = foot;
 $("#titZ2Modal").text('Integração RH - Empresa: '+dadosE2['EMPRESA'] + ' - Usuário: '+dadosE2['USERNAME']);
 $('#Z2Modal').modal('show');
 $('#Z2Modal').on('hidden.bs.modal', function () {
+	location.reload();
+	})
+}
+
+async function getE2(empresa,e2recno,userlib) {
+let url = '#iprest#/RestTitCP/v6?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
+	try {
+	let res = await fetch(url);
+		return await res.json();
+		} catch (error) {
+	console.log(error);
+		}
+	}
+
+async function showE2(empresa,e2recno,userlib,cbtnz2) {
+
+document.getElementById(cbtnz2).disabled = true;
+document.getElementById(cbtnz2).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+
+let dadosE2 = await getE2(empresa,e2recno,userlib);
+let itens = '';
+let i = 0;
+let foot = '';
+let anexos = '';
+let inpE = '';
+let iCheck = '';
+let cClick = 'libdoc';
+
+document.getElementById('E2Prefixo').value = dadosE2['E2_PREFIXO'];
+document.getElementById('E2Num').value = dadosE2['E2_NUM'];
+document.getElementById('E2NomFor').value = dadosE2['A2_NOME'];
+document.getElementById('E2Emissao').value = dadosE2['E2_EMISSAO'];
+document.getElementById('E2VencRea').value = dadosE2['E2_VENCREA'];
+document.getElementById('F1User').value = dadosE2['F1_XXUSER'];
+document.getElementById('E2Hist').value = dadosE2['E2_HIST'];
+document.getElementById('D1Hist').value = dadosE2['D1_XXHIST'];
+document.getElementById('E2Lote').value = dadosE2['LOTE'];
+
+if (Array.isArray(dadosE2.DADOSD1)) {
+   dadosE2.DADOSD1.forEach(object => {
+    i++
+	itens += '<tr>';
+	itens += '<td>'+object['D1_COD']+'</td>';	
+	itens += '<td>'+object['B1_DESC']+'</td>';
+	itens += '<td>'+object['D1_CC']+'</td>';
+	itens += '<td align="right">'+object['D1_VALOR']+'</td>';
+	itens += '</tr>';
+  })
+}
+
+if (Array.isArray(dadosE2.F1_ANEXOS)) {
+	dadosE2.F1_ANEXOS.forEach(object => {
+	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+  })
+}
+document.getElementById("anexosE2").innerHTML = anexos;
+
+document.getElementById("E2Table").innerHTML = itens;
+foot = '<th scope="row" colspan="8" style="text-align:right;">'+dadosE2['D1_TOTAL']+'</th>'
+document.getElementById("E2Foot").innerHTML = foot;
+
+$("#titE2Modal").text('Título do Contas a Pagar - Empresa: '+dadosE2['EMPRESA'] + ' - Usuário: '+dadosE2['USERNAME']);
+$('#E2Modal').modal('show');
+$('#E2Modal').on('hidden.bs.modal', function () {
 	location.reload();
 	})
 }
@@ -1130,7 +1623,7 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 //If ::userlib == '000000'
-	//Memowrite("\tmp\cp.html",cHtml)
+	Memowrite("\tmp\cp.html",cHtml)
 //EndIf
 //u_MsgLog("RESTTITCP",__cUserId)
 

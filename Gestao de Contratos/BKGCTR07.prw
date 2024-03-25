@@ -166,6 +166,7 @@ oPExcel:GetCol("CNF_SALDO"):SetTotal(.T.)
 
 oPExcel:AddColX3("F2_VALFAT")
 oPExcel:GetCol("F2_VALFAT"):SetTotal(.T.)
+oPExcel:GetCol("F2_VALFAT"):SetTitulo("Valor Faturado")
 
 oPExcel:AddCol("PREVFAT","nValPrev - QTMP->F2_VALFAT","Previsto - Faturado","F2_VALFAT")
 oPExcel:GetCol("PREVFAT"):SetTotal(.T.)

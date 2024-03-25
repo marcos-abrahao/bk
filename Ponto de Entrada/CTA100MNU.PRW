@@ -941,71 +941,71 @@ nSnd += nTLin
 @ nSnd,028 Say "Valor Total Mensal:" Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nTotFat Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 
-@ nSnd,157 Say "Fat. Previsto no Cronograma:"      Size 080,008 Pixel Of oPanelLeft
+@ nSnd,157 Say "Fat. Previsto no Cronograma:"             Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nFatPrev Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F.
 nSnd += nTLin
 
-@ nSnd,011 Say "Total Remuneração (CLT):"                  Size 080,008 Pixel Of oPanelLeft
+@ nSnd,011 Say "Total Remuneração (CLT):"                Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nTotCLT Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 nSnd += nTLin
 
 @ nSnd,020 Say "Encargos Sociais (%):"                Size 080,008 Pixel Of oPanelLeft
-@ nSnd,075 MsGet nEncSoc  Picture "@E 99.9999"           Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
+@ nSnd,075 MsGet nEncSoc  Picture "@E 99.9999"        Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 
-@ nSnd,169 Say "Valor Encargos Sociais:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,169 Say "Valor Encargos Sociais:"                   Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nVlEncSoc Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F.
 nSnd += nTLin
 
-@ nSnd,034 Say "Ajuda de Custo:"                  Size 080,008 Pixel Of oPanelLeft
+@ nSnd,034 Say "Ajuda de Custo:"                         Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nAJCuto Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 nSnd += nTLin
 
-@ nSnd,030 Say "Encagos A.C (%):"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,030 Say "Encagos A.C (%):"                  Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nEncAC  Picture "@E 99.9999"      Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 
-@ nSnd,179 Say "Valor Encargos A.C:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,179 Say "Valor Encargos A.C:"                      Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nVLEncAC Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F.
 nSnd += nTLin
 
-@ nSnd,048 Say "Materiais:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,048 Say "Materiais:"                                Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nMaterial Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN ON CHANGE(SomaSZG())
 
-@ nSnd,205 Say "Insumos:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,205 Say "Insumos:"                                 Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nInsumos Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F.
 nSnd += nTLin
 
-@ nSnd,038 Say "Equipamentos:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,038 Say "Equipamentos:"                          Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nEquip Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN ON CHANGE(SomaSZG())
 
-@ nSnd,200 Say "Benefícios:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,200 Say "Benefícios:"                            Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nBenef Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN ON CHANGE(SomaSZG())
 @ nSnd,283 BUTTON oBtnBenf PROMPT "Detalhar" SIZE 050,10 ACTION {|| ValidaDet("01")} OF oPanelLeft PIXEL  
 nSnd += nTLin
 
-@ nSnd,202 Say "Uniformes:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,202 Say "Uniformes:"                            Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nUnif Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN  ON CHANGE(SomaSZG())
 nSnd += nTLin
 
-@ nSnd,190 Say "Desp. Diversas:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,190 Say "Desp. Diversas:"                          Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nDespDiv Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN ON CHANGE(SomaSZG())
 @ nSnd,283 BUTTON oBtnDpDiv PROMPT "Detalhar" SIZE 050,10 ACTION {|| ValidaDet("02") } OF oPanelLeft PIXEL  
 nSnd += nTLin 
 
-@ nSnd,041 Say "Tributos (%):"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,041 Say "Tributos (%):"                  Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nTributos Picture "@E 99.9999" Size 040,008 Pixel Of oPanelLeft ON CHANGE(SomaSZG())
 
-@ nSnd,192 Say "Valor Tributos:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,192 Say "Valor Tributos:"                             Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nVLTributos Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F.
 nSnd += nTLin
 
-@ nSnd,028 Say "Rentabilidade (%):"                Size 080,008 Pixel Of oPanelLeft 
+@ nSnd,028 Say "Rentabilidade (%):"                 Size 080,008 Pixel Of oPanelLeft 
 @ nSnd,075 MsGet nRentab Picture "@E 999.999999"    Size 040,008 Pixel Of oPanelLeft WHEN .F. ON CHANGE(SomaSZG())
 
-@ nSnd,178 Say "Valor Rentabilidade:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,178 Say "Valor Rentabilidade:"                      Size 080,008 Pixel Of oPanelLeft
 @ nSnd,230 MsGet nVLRentab Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F. 
 nSnd += nTLin
 
-@ nSnd,045 Say "Total Geral:"                Size 080,008 Pixel Of oPanelLeft
+@ nSnd,045 Say "Total Geral:"                              Size 080,008 Pixel Of oPanelLeft
 @ nSnd,075 MsGet nTotGeral Picture "@E 999,999,999,999.99" Size 060,008 Pixel Of oPanelLeft WHEN .F.
 
 @ nSnd+5,230 BUTTON oBtnAnx PROMPT "Anexar Planilha" SIZE 60,12 ACTION {|| MsDocument("CN9",CN9->(Recno()),3) } OF oPanelLeft PIXEL  

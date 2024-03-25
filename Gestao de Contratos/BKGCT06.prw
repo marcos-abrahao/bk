@@ -1215,6 +1215,14 @@ ElseIf FWCodEmp() == "14"  // CONSORCIO NOVA BALSA
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">CONSORCIO NOVA BALSA</span></b></p>')
 ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b></p>')
+ElseIf FWCodEmp() == "16"  // MOOVE
+	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">MOOVE</span></b></p>')
+ElseIf FWCodEmp() == "17"  // DMAF
+	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">DMAF</span></b></p>')
+ElseIf FWCodEmp() == "18"  // BK VIA
+	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b></p>')
+ElseIf FWCodEmp() == "19"  // BK SOL TEC
+	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK SOL TEC</span></b></p>')
 Endif	
 
 AADD(aHtm,'  </td>')
@@ -2364,6 +2372,9 @@ Do While (_cAlias)->(!eof())
  		IF !((_cAlias)->CN9_XXDSAT - DATE()) <= dDiaStat
    			lEnvia := .F.
      	ENDIF
+
+ 	ELSEIF DATE() > (dVigF+90) .AND. (_cAlias)->CN9_SITUAC == "08"
+		lEnvia := .F.
 	ENDIF
 	     
 	IF lEnvia
@@ -3517,3 +3528,6 @@ Reset Environment
 
 RETURN
 */
+
+
+//UPDATE SX3010 SET X3_BROWSE = ' ' WHERE X3_CAMPO IN ('CN9_DTASSI','CN9_XXDASS','CN9_VIGE  ','CN9_DTOSER','CN9_UNVIGE','CN9_DTFIM ','CN9_MOEDA ','CN9_CONDPG','CN9_TPCTO ','CN9_VLINI ','CN9_VLATU ','CN9_INDICE','CN9_FLGREJ','CN9_FLGCAU','CN9_MINCAU','CN9_DTENCE','CN9_TIPREV','CN9_REVATU','CN9_MOTPAR','CN9_DTFIMP','CN9_DTREIN','CN9_OBJCTO','CN9_DTREV ','CN9_XNOMRV','CN9_DTREAJ','CN9_VLREAJ','CN9_VLADIT','CN9_NUMTIT','CN9_ALTCLA','CN9_JUSTIF','CN9_VLMEAC','CN9_TXADM ','CN9_FORMA ','CN9_DTENTR','CN9_LOCENT','CN9_DESLOC','CN9_DESFIN','CN9_CONTFI','CN9_DTINPR','CN9_PERPRO','CN9_UNIPRO','CN9_VLRPRO','CN9_DTPROP','CN9_DTULST','CN9_DTINCP','CN9_END   ','CN9_MUN   ','CN9_BAIRRO','CN9_DESCRI','CN9_EST   ','CN9_ALCISS','CN9_INSSMO','CN9_INSSME','CN9_XXEGC ','CN9_XXIDTV','CN9_XXDREP','CN9_XXPOST','CN9_XXFUNC','CN9_XXDSAT','CN9_ASSINA','CN9_DREFRJ','CN9_ESPCTR','CN9_DEPART','CN9_APROV ','CN9_PROXAV','CN9_VLDCTR','CN9_USUAVA','CN9_PROGRA','CN9_ULTAVA','CN9_DTVIGE','CN9_DESC  ','CN9_GRPAPR','CN9_NUMATA','CN9_LOGDAT','CN9_LOGHOR','CN9_LOGUSR','CN9_PERI  ','CN9_UNPERI','CN9_MODORJ','CN9_PRORAT','CN9_PROREV','CN9_PROPOS','CN9_PROXRJ','CN9_XREGP ')
