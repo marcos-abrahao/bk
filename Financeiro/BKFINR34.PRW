@@ -55,7 +55,7 @@ EndIf
 
 If nFormato == 1 .OR. nFormato == 2
 	// Completo Web
-	u_WaitLog("BKFINR34", {|oSay| cHtml := CPHtml(nFormato) }, "Listando os Títulos a Pagar")	
+	u_WaitLog("BKFINR34", {|oSay| cHtml := U_BKFINH34(nFormato,.F.,cEmpAnt,cFilAnt) }, "Listando os Títulos a Pagar")	
 	u_WaitLog("BKFINR34", {|oSay| RelHtml(cHtml) }, "Gerando html")	
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
@@ -251,7 +251,7 @@ If nFormato > 2
 	EndIf
 EndIf
 
-QSE2->(DBCLOSEAREA())
+QSE2->(dbCloseArea())
 
 Return
 
@@ -484,7 +484,6 @@ cQuery += "  LEFT JOIN "+RetSqlName("SB1")+" SB1 ON SB1.D_E_L_E_T_=''"+CRLF
 cQuery += "    AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF
 cQuery += "    AND SB1.B1_COD    = SD1.D1_COD"+CRLF
 
-
 cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
 cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
 If dDtIni == dDtFim
@@ -554,7 +553,8 @@ RestArea(aArea)
 Return
 
 
-Static Function CPHtml(nFormato)
+User Function BKFINH34(nFormato,lWeb,cEmpresa,cFil)
+
 Local cHtml     := ""
 Local nPag      := 1
 Local cLogo     := ""
@@ -565,20 +565,36 @@ Local aFilesE2  := {}
 Local cRefFile	:= ""
 Local cFormPgto := ""
 Local cPortado 	:= ""
-Local dVencto	:= CTOD("")
+Local dVencto	
 Local aTotais	:= {}
 Local nTValor	:= 0
 Local nTSaldo	:= 0
+Local aSM0Data	:= {}
 
-// Dados da Empresa/Filial
-Local cNomeCom  := ALLTRIM(SM0->M0_NOMECOM)
-Local cEndereco := ALLTRIM(SM0->M0_ENDENT) + IIF(!EMPTY(SM0->M0_COMPENT)," - "+ALLTRIM(SM0->M0_COMPENT),"")
-Local cCep      := "CEP: "+TRANSFORM(SM0->M0_CEPENT,"@R 99999-999")
-Local cCidade   := ALLTRIM(SM0->M0_CIDENT)+" - "+SM0->M0_ESTENT
-Local cTel      := "TEL: "+ALLTRIM(SM0->M0_TEL)
-Local cCnpj     := "CNPJ: "+TRANSFORM(SM0->M0_CGC,"@R 99.999.999/9999-99")
-Local cIE       := "I.E.: "+ALLTRIM(SM0->M0_INSC)
-Local cSite     := IIF(cEmpAnt == "01","WWW.BKCONSULTORIA.COM.BR","")
+Local aFieldSM0 := { ;
+	"M0_CODIGO",;    //Posição [1]
+    "M0_CODFIL",;    //Posição [2]
+    "M0_NOMECOM",;   //Posição [3]
+    "M0_CGC",;       //Posição [4]
+    "M0_INSCM",;     //Posição [5]
+    "M0_CIDENT",;    //Posição [6]
+    "M0_ESTENT",;    //Posição [7]
+    "M0_ENDENT",;    //Posição [8]
+    "M0_BAIRENT",;   //Posição [9]
+    "M0_CEPENT",;    //Posição [10]
+    "M0_COMPENT",;   //Posição [11]
+    "M0_TEL",;       //Posição [12]
+    "M0_NOME";       //Posição [13]
+	}
+Local cNomeCom  := ""
+Local cEndereco := ""
+Local cCep      := ""
+Local cCidade   := ""
+Local cTel      := ""
+Local cCnpj     := ""
+Local cIE       := ""
+Local cSite     := ""
+Local cNome 	:= ""
 
 // Variaveis SZ2 - Colaboradores
 Local nTot 		:= 0
@@ -593,7 +609,21 @@ Local aPdfs 	:= {} // Urls dos PDFs
 Local cCanvas	:= ""
 Local cScriptPdf:= ""
 
-If cEmpAnt == "01"      // BK
+Default lWeb 	:= .F.
+
+// Dados da Empresa/Filial
+aSM0Data  := FWSM0Util():GetSM0Data(cEmpresa, cFil, aFieldSM0)
+cNomeCom  := ALLTRIM(aSM0Data[3][2])
+cNome	  := ALLTRIM(aSM0Data[13][2])
+cEndereco := ALLTRIM(aSM0Data[8][2]) + IIF(!EMPTY(aSM0Data[11][2])," - "+ALLTRIM(aSM0Data[11][2]),"")
+cCep      := "CEP: "+TRANSFORM(aSM0Data[10][2],"@R 99999-999")
+cCidade   := ALLTRIM(aSM0Data[6][2])+" - "+aSM0Data[7][2]
+cTel      := "TEL: "+ALLTRIM(aSM0Data[12][2])
+cCnpj     := "CNPJ: "+TRANSFORM(aSM0Data[4][2],"@R 99.999.999/9999-99")
+cIE       := "I.E.: "+ALLTRIM(aSM0Data[5][2])
+cSite     := IIF(cEmpresa == "01","WWW.BKCONSULTORIA.COM.BR","")
+
+If cEmpresa == "01"      // BK
 	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
 Endif	
 
@@ -673,7 +703,6 @@ EndIf
 QSE2->(dbGoTop())
 DO while QSE2->(!Eof())
 
-
 	cHtml += '<div class="folha">'+CRLF
 
 	cHtml += '<table class="tg">'+CRLF
@@ -695,7 +724,7 @@ DO while QSE2->(!Eof())
 	cHtml += '    <tr>'+CRLF
 
 	If EMPTY(cLogo)
-		cHtml += '    <td class="tg-empr" colspan="3">'+FWEmpName(cEmpAnt)+'</td>'+CRLF
+		cHtml += '    <td class="tg-empr" colspan="3">'+cNome+'</td>'+CRLF
 	Else
 		cHtml += '    <td class="tg-empr" colspan="3">'+cLogo+'</td>'+CRLF
 	Endif
@@ -722,25 +751,12 @@ DO while QSE2->(!Eof())
 
 		If nQuebra == 1
 			cPortado := QSE2->E2_PORTADO
-			// Cabeçalho Portador
-			/*
-			cHtml += '    <tr>'+CRLF
-			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Portador: "+QSE2->E2_PORTADO+'</td>'+CRLF
-			cHtml += '    </tr>'+CRLF
-			*/
 		Else
 			cFormPgto := QSE2->FORMPGT
-			// Cabeçalho forma de pgto
-			/*
-			cHtml += '    <tr>'+CRLF
-			cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
-			cHtml += '    </tr>'+CRLF
-			*/
 		EndIf
 		dVencto   := QSE2->E2_VENCREA
 
 	EndIF
-
 
 	cHtml += ' <tr>'+CRLF
 	cHtml += '	<td colspan="7">'+CRLF
@@ -754,12 +770,7 @@ DO while QSE2->(!Eof())
 	cHtml += '       <col style="width: 230px">'+CRLF
 	cHtml += '      </colgroup>'+CRLF
 
-	//cHtml += '    <tr>'+CRLF
-	//cHtml += '      <td class="ti-hvalor" colspan="7">Título: '+ALLTRIM(QSE2->E2_PREFIXO)+' '+ALLTRIM(QSE2->E2_NUM)+' - '+TRIM(QSE2->A2_NOME)+'</td>'+CRLF
-	//cHtml += '    </tr>'+CRLF
-
 	cHtml += '    <tr>'+CRLF
-	//cHtml += '      <td class="ti-hvalor">Título</td>'+CRLF
 	cHtml += '      <td class="ti-hvalor">Vencimento</td>'+CRLF
 	cHtml += '      <td class="ti-hvalor" colspan="2">Fornecedor</td>'+CRLF
 	cHtml += '      <td class="ti-hvalor">CNPJ/CPF</td>'+CRLF
@@ -768,8 +779,12 @@ DO while QSE2->(!Eof())
 	cHtml += '    <tr>'+CRLF
 
 	cHtml += '    <tr>'+CRLF
-	//cHtml += '      <td class="ti-valor">'+ALLTRIM(QSE2->E2_PREFIXO)+' '+ALLTRIM(QSE2->E2_NUM)+' '+ALLTRIM(QSE2->E2_PARCELA)+'</td>'+CRLF
-	cHtml += '      <td class="ti-valor">'+DTOC(QSE2->E2_VENCREA)+'</td>'+CRLF
+	If ValType(QSE2->E2_VENCREA) == "D"
+		cHtml += '      <td class="ti-valor">'+DTOC(QSE2->E2_VENCREA)+'</td>'+CRLF
+	Else
+		cHtml += '      <td class="ti-valor">'+DTOC(STOD(QSE2->E2_VENCREA))+'</td>'+CRLF
+	EndIf
+
 	cHtml += '      <td class="ti-valor" colspan="2"> '+ALLTRIM(QSE2->E2_FORNECE)+'-'+ALLTRIM(QSE2->E2_LOJA)+" "+TRIM(QSE2->A2_NOME)+'</td>'+CRLF
 	cHtml += '      <td class="ti-valor">'+TRANSFORM(QSE2->A2_CGC,IIF(QSE2->A2_TIPO=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))+'</td>'+CRLF
 	cHtml += '      <td class="ti-valor">R$ '+ALLTRIM(TRANSFORM(QSE2->E2_VALOR,cPict))+'</td>'+CRLF
@@ -784,13 +799,15 @@ DO while QSE2->(!Eof())
 	cHtml += '      <td class="ti-valor" colspan="2">'+u_CPDadosPgt('QSE2')+'</td>'+CRLF
 	cHtml += '    </tr>'+CRLF
 
-	If !Empty(QSE2->D1_COD) .OR. !Empty(QSE2->D1_CC)
-		cHtml += '    <tr>'+CRLF
-		cHtml += '      <td class="ti-hvalor">Produto</td>'+CRLF
-		cHtml += '      <td class="ti-valor" colspan="2">'+TRIM(QSE2->D1_COD)+"-"+TRIM(QSE2->B1_DESC)+'</td>'+CRLF
-		cHtml += '      <td class="ti-hvalor">C.Custo</td>'+CRLF
-		cHtml += '      <td class="ti-valor" colspan="2">'+TRIM(QSE2->D1_CC)+"-"+TRIM(QSE2->CTT_DESC01)+'</td>'+CRLF
-		cHtml += '    </tr>'+CRLF
+	If !lWeb
+		If !Empty(QSE2->D1_COD) .OR. !Empty(QSE2->D1_CC)
+			cHtml += '    <tr>'+CRLF
+			cHtml += '      <td class="ti-hvalor">Produto</td>'+CRLF
+			cHtml += '      <td class="ti-valor" colspan="2">'+TRIM(QSE2->D1_COD)+"-"+TRIM(QSE2->B1_DESC)+'</td>'+CRLF
+			cHtml += '      <td class="ti-hvalor">C.Custo</td>'+CRLF
+			cHtml += '      <td class="ti-valor" colspan="2">'+TRIM(QSE2->D1_CC)+"-"+TRIM(QSE2->CTT_DESC01)+'</td>'+CRLF
+			cHtml += '    </tr>'+CRLF
+		EndIf
 	EndIf
 
 	If !Empty(QSE2->HIST)
@@ -800,7 +817,7 @@ DO while QSE2->(!Eof())
 		cHtml += '    </tr>'+CRLF
 	EndIf
 
-    If !EMPTY(QSE2->E2_XXCTRID)
+    If !EMPTY(QSE2->E2_XXTIPBK) .AND. !lWeb
 
 		cHtml += '    <table class="ti">'+CRLF
 		cHtml += '    <tr>'+CRLF
@@ -835,7 +852,11 @@ DO while QSE2->(!Eof())
 				cAgConta += " "
 				cAgConta += TRIM(QSZ2->Z2_AGENCIA)+iIf(!Empty(QSZ2->Z2_DIGAGEN),'/'+TRIM(QSZ2->Z2_DIGAGEN),'')
 				cAgConta += " "
-				cAgConta += TRIM(QSZ2->Z2_CONTA)+iIf(!Empty(QSZ2->Z2_DIGCONTA),'/'+TRIM(QSZ2->Z2_DIGCONTA),'')
+				If lWeb
+					cAgConta += TRIM(QSZ2->Z2CONTA)
+				Else
+					cAgConta += TRIM(QSZ2->Z2_CONTA)+iIf(!Empty(QSZ2->Z2_DIGCONTA),'/'+TRIM(QSZ2->Z2_DIGCONTA),'')
+				EndIf
 				cHtml += '      <td class="ti-str">'+cAgConta+'</td>'+CRLF
 			Else
 				cHtml += '      <td class="ti-str">'+'</td>'+CRLF
@@ -882,9 +903,9 @@ DO while QSE2->(!Eof())
 
 
 	// Documentos anexos na Pré-Nota
-	aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+	aFilesF1 := u_BKDocs(cEmpresa,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 	// Documentos anexos no Contas a Pagar
-	aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
+	aFilesE2 := u_BKDocs(cEmpresa,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
 
 	cCanvas := ""
 
@@ -894,8 +915,8 @@ DO while QSE2->(!Eof())
 		cHtml += '    <td class="ti-hvalor">Anexos</td>'+CRLF
 		cHtml += '    <td colspan="5" style="text-align:center;">'+CRLF
 		For nI := 1 To Len(aFilesF1)
-			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
-			If ".PDF" $ UPPER(aFilesF1[nI,2])
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesF1[nI,2])+'" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
+			If ".PDF" $ UPPER(aFilesF1[nI,2]) // eRRO AQUI
 				aAdd(aPdfs,aFilesF1[nI,2])
 				cCanvas += "<p>"+cRefFile+"</p>"+CRLF
 				cCanvas += '<canvas id="the-canvas'+ALLTRIM(STR(Len(aPdfs)))+'"></canvas>'+CRLF
@@ -904,7 +925,7 @@ DO while QSE2->(!Eof())
 			EndIf
 		Next
 		For nI := 1 To Len(aFilesE2)
-			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesE2[nI,2])+'" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
 			If ".PDF" $ UPPER(aFilesE2[nI,2])
 				aAdd(aPdfs,aFilesE2[nI,2])
 				cCanvas += "<p>"+cRefFile+"</p>"+CRLF
@@ -948,47 +969,11 @@ DO while QSE2->(!Eof())
 	If nQuebra == 1
 		If cPortado <> QSE2->E2_PORTADO .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
 
-			// Total Parcial
-			/*		
-			cHtml += '<table class="tg">'+CRLF
-			cHtml += ' <tr>'+CRLF
-			cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cPortado)+' em '+DTOC(dVencto)+'</td>'+CRLF
-			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTValor,cPict))+'</td>'+CRLF
-			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
-			cHtml += ' <tr>'+CRLF
-			cHtml += '</table>'+CRLF
-			*/
-			aAdd(aTotais,{TRIM(cPortado)+' em '+DTOC(dVencto),nTValor,nTSaldo})
-
-			/*
-			If !QSE2->(EOF())
-
-				// Cabeçalho forma de pgto
-				
-				cHtml += '</table>'+CRLF
-				cHtml += '</br>'+CRLF
-				cHtml += '</div>'+CRLF
-				
-				cHtml += '<div class="folha">'+CRLF
-				cHtml += '<table class="tg">'+CRLF
-
-				cHtml += '<colgroup>'+CRLF
-				cHtml += '<col style="width: 100px">'+CRLF
-				cHtml += '<col style="width: 300px">'+CRLF
-				cHtml += '<col style="width: 060px">'+CRLF
-				cHtml += '<col style="width: 060px">'+CRLF
-				cHtml += '<col style="width: 100px">'+CRLF
-				cHtml += '<col style="width: 100px">'+CRLF
-				cHtml += '<col style="width: 120px">'+CRLF
-				cHtml += '</colgroup>'+CRLF
-
-				cHtml += '    <tr>'+CRLF
-				cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Portador: "+QSE2->E2_PORTADO+'</td>'+CRLF
-				cHtml += '    </tr>'+CRLF
-
+			If ValType(dVencto) == "D"
+				aAdd(aTotais,{TRIM(cPortado)+' em '+DTOC(dVencto),nTValor,nTSaldo})
+			Else'
+				aAdd(aTotais,{TRIM(cPortado)+' em '+DTOC(STOD(dVencto)),nTValor,nTSaldo})
 			EndIf
-			*/
-
 			cPortado  := QSE2->E2_PORTADO
 			dVencto   := QSE2->E2_VENCREA
 
@@ -998,44 +983,12 @@ DO while QSE2->(!Eof())
 	Else
 		If cFormPgto <> QSE2->FORMPGT .OR. dVencto <> QSE2->E2_VENCREA .OR. QSE2->(EOF())
 
-			// Total Parcial
-			/*		
-			cHtml += '<table class="tg">'+CRLF
-			cHtml += ' <tr>'+CRLF
-			cHtml += '   <td class="tg-hvalor colspan="5">Totais '+TRIM(cFormPgto)+' em '+DTOC(dVencto)+'</td>'+CRLF
-			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTValor,cPict))+'</td>'+CRLF
-			cHtml += '   <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(nTSaldo,cPict))+'</td>'+CRLF
-			cHtml += ' <tr>'+CRLF
-			cHtml += '</table>'+CRLF
-			*/
-			aAdd(aTotais,{TRIM(cFormPgto)+' em '+DTOC(dVencto),nTValor,nTSaldo})
-			/*
-			If !QSE2->(EOF())
+			If ValType(dVencto) == "D"
+				aAdd(aTotais,{TRIM(cFormPgto)+' em '+DTOC(dVencto),nTValor,nTSaldo})
+			Else
+				aAdd(aTotais,{TRIM(cFormPgto)+' em '+DTOC(STOD(dVencto)),nTValor,nTSaldo})
+			EndIF
 
-				// Cabeçalho forma de pgto
-				cHtml += '</table>'+CRLF
-				cHtml += '</br>'+CRLF
-				cHtml += '</div>'+CRLF
-				
-				cHtml += '<div class="folha">'+CRLF
-				cHtml += '<table class="tg">'+CRLF
-
-				cHtml += '<colgroup>'+CRLF
-				cHtml += '<col style="width: 100px">'+CRLF
-				cHtml += '<col style="width: 300px">'+CRLF
-				cHtml += '<col style="width: 060px">'+CRLF
-				cHtml += '<col style="width: 060px">'+CRLF
-				cHtml += '<col style="width: 100px">'+CRLF
-				cHtml += '<col style="width: 100px">'+CRLF
-				cHtml += '<col style="width: 120px">'+CRLF
-				cHtml += '</colgroup>'+CRLF
-
-				cHtml += '    <tr>'+CRLF
-				cHtml += '      <td class="tg-empr" colspan="7"> Vencimento: '+DTOC(QSE2->E2_VENCREA)+" - Forma de Pgto: "+QSE2->FORMPGT+'</td>'+CRLF
-				cHtml += '    </tr>'+CRLF
-
-			EndIf
-			*/
 			cFormPgto := QSE2->FORMPGT
 			dVencto   := QSE2->E2_VENCREA
 
@@ -1054,7 +1007,7 @@ nTValor	  := 0
 nTSaldo   := 0
 
 cHtml += ' <tr>'+CRLF
-cHtml += '   <td class="tg-hvalor colspan="5">TOTAIS '+FWEmpName(cEmpAnt)+'</td>'+CRLF
+cHtml += '   <td class="tg-hvalor colspan="5">TOTAIS '+cNome+'</td>'+CRLF
 cHtml += '   <td class="tg-hvalor">VALOR DO TÍTULO</td>'+CRLF
 cHtml += '   <td class="tg-hvalor">SALDO ATUAL</td>'+CRLF
 cHtml += ' <tr>'+CRLF
@@ -1086,38 +1039,11 @@ cHtml += '</html>'+CRLF
 
 cScriptPdf := ""
 If Len(aPdfs) > 0
-	cScriptPdf := u_PdfHtml(cEmpAnt,aPdfs)
+	cScriptPdf := u_PdfHtml(cEmpresa,aPdfs)
 	cHtml := STRTRAN(cHtml,"#scriptpdf#",cScriptPdf)
 EndIf
 
 Return(cHtml)
-
-/*
-// Retorna os Anexos do Documento de Entrada
-User Function AnexosCP(aAnexos)
-Local cFile		:= ""
-Local aFilesF1	:= {}
-Local aFilesE2	:= {}
-Local nI 		:= 0
-
-aAnexos := {}
-aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
-For nI := 1 To Len(aFilesF1)
-	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'","'+aFilesF1[nI,2]+'") '+CRLF
-	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'")'+CRLF
-	aAdd(aAnexos,cFile)
-Next
-aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
-For nI := 1 To Len(aFilesE2)
-	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'","'+aFilesE2[nI,2]+'") '+CRLF
-	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'")'+CRLF
-	aAdd(aAnexos,cFile)
-Next
-
-
-//cFiles := '=HYPERLINK("https://www.totvs.com.br","TOTVS")'
-Return Len(aAnexos)
-*/
 
 
 Static Function ProcSZ2

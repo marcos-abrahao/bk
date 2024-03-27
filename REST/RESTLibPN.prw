@@ -119,7 +119,7 @@ WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento WSREST RestLibPN
         lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
 		oFile:Close()
     Else
-        SetRestFault(002, "Nao foi mpossivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
+        SetRestFault(002, "Nao foi possivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
 
         lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
     EndIf

@@ -9,7 +9,8 @@
 			"cwb": "${workspaceFolder}",
 			"smartclientBin": "E:\\Protheus12\\BK\\Protheus\\bin\\SMARTCLIENT\\smartclient.exe",
 			"isMultiSession": true,
-			"enableTableSync": true
+			"enableTableSync": true,
+			"enableMultiThread": true
 		}
 	],
 	"lastPrograms": [
@@ -41,6 +42,6 @@
 			"label": "SIGAGPE"
 		}
 	],
-	"lastProgramExecuted": "SIGAgct",
+	"lastProgramExecuted": "xxxx",
 	"lastProgramArguments": []
 }

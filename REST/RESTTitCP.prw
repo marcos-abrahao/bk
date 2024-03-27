@@ -58,6 +58,13 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		PATH "/RestTitCP/v5";
 		TTALK "v1"
 
+	WSMETHOD GET HPDFCP;
+		DESCRIPTION "Retorna relatório Html com PDF";
+		WSSYNTAX "/RestTitCP/v7";
+		PATH "/RestTitCP/v7";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
 	WSMETHOD PUT STATUS;
 		DESCRIPTION "Alterar o status do titulo a pagar" ;
 		WSSYNTAX "/RestTitCP/v3";
@@ -71,7 +78,6 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		PATH "/RestTitCP/v4";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
-
 
 END WSRESTFUL
 
@@ -354,6 +360,71 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 Return (lSuccess)
 
 
+///v7
+WSMETHOD GET HPDFCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
+
+Local cHtml		as char
+Local cDirTmp   := "\http\tmp"
+Local cArqHtml  := ""
+Local cUrl 		:= ""
+//Local oFile		AS Object
+//Local cFile		:= ""
+Local lSuccess  := .T.
+Local cQrySE2	:= "QSE2"
+//Local cLink 	:= ""
+Local oJsonTmp	:= JsonObject():New()
+Local cRet 		:= ""
+Local aRet 		:= {}
+
+Private nQuebra := 1
+
+//u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
+
+If Val(SUBSTR(self:empresa,1,2)) > 0
+	// Query para selecionar os Títulos a Pagar
+	TmpQuery(cQrySE2,self:empresa,self:vencreal)
+
+	cHtml := u_BKFINH34(1,.T.,SUBSTR(self:empresa,1,2),"01")
+
+	(cQrySE2)->(dbCloseArea())
+Else
+
+	SetRestFault(002, "Não é permitido emitir o relatório para todas as empresas") // GERA MENSAGEM DE ERRO CUSTOMIZADA
+
+    lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+
+EndIf
+
+//cHtml := StrIConv( cHtml, "CP1252", "UTF-8") aqui arrumar
+
+cArqHtml  	:= cDirTmp+"\"+"cp"+SUBSTR(self:empresa,1,2)+DTOS(dDataBase)+"-"+__cUserID+".html"
+cUrl 		:= u_BkIpServer()+"\tmp\"+"cp"+SUBSTR(self:empresa,1,2)+DTOS(dDataBase)+"-"+__cUserID+".html"
+
+u_MsgLog("RestTitCP-PDF",cArqHtml)
+
+IF !EMPTY(cDirTmp)
+   MakeDir(cDirTmp)
+ENDIF   
+
+fErase(cArqHtml)
+
+Memowrite(cArqHtml,cHtml)
+
+aAdd( aRet , JsonObject():New() )
+aRet[1]['URLTMP']	:= cUrl
+
+oJsonTmp := aRet
+cRet	 := FwJsonSerialize( oJsonTmp )
+
+FreeObj(oJsonTmp)
+
+//Retorno do servico
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetResponse(cRet)
+
+Return (lSuccess)
+
+
 
 /*/{Protheus.doc} GET 
 Retorna a lista de titulos.
@@ -377,9 +448,9 @@ Local nI 			:= 0
 //u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
-  oJsonTmp	['liberacao'] := cMsg
-  cRet := oJsonTmp	:ToJson()
-  FreeObj(oJsonTmp	)
+  oJsonTmp['liberacao'] := cMsg
+  cRet := oJsonTmp:ToJson()
+  FreeObj(oJsonTmp)
   //Retorno do servico
   ::SetResponse(cRet)
   Return lRet:= .T.
@@ -421,10 +492,19 @@ Do While ( cQrySE2 )->( ! Eof() )
 	cFormaPgto := u_CPDadosPgt(cQrySE2)
 	aListCP[nPos]['DADOSPGT']	:= cFormaPgto
 
-
 	// Documentos anexos
 	aAnexos := {}
-	aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+
+	// Documentos anexos na Pré-Nota
+	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+	For nI := 1 To Len(aFiles)
+		aAdd(aAnexos,JsonObject():New())
+		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+		aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+	Next
+
+	// Documentos anexos no Contas a Pagar
+	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SE2",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
 	For nI := 1 To Len(aFiles)
 		aAdd(aAnexos,JsonObject():New())
 		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
@@ -567,7 +647,7 @@ cQuery += " 	AND Z2_STATUS = 'S'" + CRLF
 cQuery += " 	AND SZ2.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " ORDER BY Z2_NOME" + CRLF
 
-u_LogMemo("RESTTITCP.SQL",cQuery)
+//u_LogMemo("RESTTITCP.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZ2,.T.,.T.)
 
@@ -714,7 +794,7 @@ cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "WHERE SE2.R_E_C_N_O_ = "+self:e2recno + CRLF
 
-u_LogMemo("RESTTITCP-E2.SQL",cQuery)
+//u_LogMemo("RESTTITCP-E2.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 
@@ -742,6 +822,13 @@ oJsonPN['LOTE']			:= (cQrySE2)->E2_XXLOTEB
 
 // Documentos anexos
 aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+For nI := 1 To Len(aFiles)
+	aAdd(aAnexos,JsonObject():New())
+	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+Next
+
+aFiles := u_BKDocs(self:empresa,"SE2",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
@@ -776,9 +863,9 @@ cQuery += " 	AND SD1.D1_LOJA = '"+cLoja+"' " + CRLF
 cQuery += " 	AND SD1.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " ORDER BY D1_ITEM" + CRLF
 
-u_MsgLog(,"Aqui3")
+//u_MsgLog(,"Aqui3")
 
-u_LogMemo("RESTTITCP-D1.SQL",cQuery)
+//u_LogMemo("RESTTITCP-D1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySD1,.T.,.T.)
 
@@ -822,7 +909,6 @@ Self:SetResponse(cRet)
 return .T.
 
 
-
 // /v2
 WSMETHOD GET BROWCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
 
@@ -831,7 +917,7 @@ Local cDropEmp	as char
 Local aEmpresas := u_BKGrupo()
 Local nE 		:= 0
 
-begincontent var cHTML
+BEGINCONTENT var cHTML
 
 <!doctype html>
 <html lang="pt-BR">
@@ -886,6 +972,7 @@ line-height: 1rem;
 
 	<div class="btn-group">
 		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+		<button type="button" class="btn btn-dark" aria-label="PDF" onclick="HtmlPdf()">PDF</button>
 	</div>
 
     <form class="d-flex">
@@ -1284,7 +1371,7 @@ if (Array.isArray(titulos)) {
 	anexos = '';
 	if (Array.isArray(object['F1_ANEXOS'])) {
 		object['F1_ANEXOS'].forEach(object => {
-		anexos += '<a href="http://10.139.0.30:8081/rest/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+		anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a>&nbsp;&nbsp;';
 	})
 	}
 	trHTML += '<td>'+anexos+'</td>';
@@ -1360,7 +1447,7 @@ function format(d) {
     // `d` is the original data object for the row
     return (
         '<dl>' +
-        '<dt>Anexos: '+d.Anexos+'</dt>' +
+        '<dt>Anexos:&nbsp;&nbsp;'+d.Anexos+'</dt>' +
         '<dd>' +
         '</dd>' +
         '</dl>'
@@ -1573,6 +1660,25 @@ window.open("#iprest#/RestTitCP/v5?empresa=#empresa#&vencreal="+newvamd+'&userli
 }
 
 
+async function getUrlTmp(url1) {
+	try {
+	let res = await fetch(url1);
+		return await res.json();
+		} catch (error) {
+	console.log(error);
+		}
+	}
+
+async function HtmlPdf(){
+let newvenc = document.getElementById("DataVenc").value;
+let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
+let url1 = '#iprest#/RestTitCP/v7?empresa=#empresa#&vencreal='+newvamd+'&userlib=#userlib#';
+let urlT = await getUrlTmp(url1);
+let curlT = urlT[0].URLTMP;
+window.open(curlT,"_self");
+
+}
+
 async function AltVenc(){
 let newvenc = document.getElementById("DataVenc").value;
 let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
@@ -1679,161 +1785,148 @@ For nE := 1 To Len(aEmpresas)
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
-	cQuery += " SELECT "+CRLF
-	cQuery += "	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF
-	cQuery += "	 ,E2_TIPO"+CRLF
-	cQuery += "	 ,E2_PREFIXO"+CRLF
-	cQuery += "	 ,E2_NUM"+CRLF
-	cQuery += "	 ,E2_PARCELA"+CRLF
-	cQuery += "	 ,E2_FORNECE"+CRLF
-	cQuery += "	 ,E2_PORTADO"+CRLF
-	cQuery += "	 ,E2_LOJA"+CRLF
-	cQuery += "	 ,E2_NATUREZ"+CRLF
-	cQuery += "	 ,E2_HIST"+CRLF
-	cQuery += "	 ,E2_USERLGA"+CRLF 
-	cQuery += "	 ,E2_BAIXA"+CRLF
-	cQuery += "	 ,E2_VENCREA"+CRLF
-	cQuery += "	 ,E2_VALOR"+CRLF
-	cQuery += "	 ,E2_XXPRINT"+CRLF
-	cQuery += "	 ,E2_XXPGTO"+CRLF
-	cQuery += "	 ,E2_XXOPER"+CRLF
-	cQuery += "	 ,E2_XXTIPBK"+CRLF
-	cQuery += "	 ,E2_XXLOTEB"+CRLF
-	cQuery += "	 ,E2_NUMBOR"+CRLF
-	cQuery += "	 ,SE2.R_E_C_N_O_ AS E2RECNO"+CRLF
-	cQuery += "	 ,A2_NOME"+CRLF
-	cQuery += "	 ,A2_TIPO"+CRLF
-	cQuery += "	 ,A2_CGC"+CRLF
-	cQuery += "	 ,A2_BANCO"+CRLF
-	cQuery += "	 ,A2_AGENCIA"+CRLF
-	cQuery += "	 ,A2_NUMCON"+CRLF
-	cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
-	cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
-	cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
+	cQuery += AllTrim(" SELECT "+CRLF)
+	cQuery += AllTrim("	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF)
+	cQuery += AllTrim("	 ,E2_TIPO"+CRLF)
+	cQuery += AllTrim("	 ,E2_PREFIXO"+CRLF)
+	cQuery += AllTrim("	 ,E2_NUM"+CRLF)
+	cQuery += AllTrim("	 ,E2_PARCELA"+CRLF)
+	cQuery += AllTrim("	 ,E2_FORNECE"+CRLF)
+	cQuery += AllTrim("	 ,E2_PORTADO"+CRLF)
+	cQuery += AllTrim("	 ,E2_LOJA"+CRLF)
+	//cQuery += AllTrim("	 ,E2_NATUREZ"+CRLF)
+	cQuery += AllTrim("	 ,E2_HIST"+CRLF)
+	//cQuery += AllTrim("	 ,E2_USERLGA"+CRLF )
+	//cQuery += AllTrim("	 ,E2_BAIXA"+CRLF)
+	cQuery += AllTrim("	 ,E2_VENCREA"+CRLF)
+	cQuery += AllTrim("	 ,E2_VALOR"+CRLF)
+	//cQuery += AllTrim("	 ,E2_XXPRINT"+CRLF)
+	cQuery += AllTrim("	 ,E2_XXPGTO"+CRLF)
+	cQuery += AllTrim("	 ,E2_XXOPER"+CRLF)
+	cQuery += AllTrim("	 ,E2_XXTIPBK"+CRLF)
+	cQuery += AllTrim("	 ,E2_XXLOTEB"+CRLF)
+	//cQuery += AllTrim("	 ,E2_NUMBOR"+CRLF)
+	cQuery += AllTrim("	 ,SE2.R_E_C_N_O_ AS E2RECNO"+CRLF)
+	cQuery += AllTrim("	 ,A2_NOME"+CRLF)
+	cQuery += AllTrim("	 ,A2_TIPO"+CRLF)
+	cQuery += AllTrim("	 ,A2_CGC"+CRLF) //x
+	cQuery += AllTrim("	 ,A2_BANCO"+CRLF)
+	cQuery += AllTrim("	 ,A2_AGENCIA"+CRLF)
+	cQuery += AllTrim("	 ,A2_NUMCON"+CRLF)
+	cQuery += AllTrim("	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF)
+	cQuery += AllTrim("	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF)
+	cQuery += AllTrim("	 		ELSE E2_SALDO END) AS SALDO"+CRLF)
 
+	//cQuery += AllTrim("	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ ")
+	cQuery += AllTrim("	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF)
+	cQuery += AllTrim("	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF)
+	cQuery += AllTrim("	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF)
+	cQuery += AllTrim("	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF)
 
-	//cQuery += "	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ "
-	cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
-	cQuery += "	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF
-	cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
-	cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
+	cQuery += AllTrim("	 ,Z2_NOME"+CRLF)
+	cQuery += AllTrim("	 ,Z2_NOMMAE"+CRLF)
+	cQuery += AllTrim("	 ,Z2_NOMDEP"+CRLF)
+	cQuery += AllTrim("	 ,Z2_BORDERO"+CRLF)
+	cQuery += AllTrim("	 ,(CASE WHEN (Z2_BANCO IS NOT NULL) AND "+CRLF)
+	cQuery += AllTrim("	 					(SELECT COUNT(Z2_E2NUM) FROM "+cTabSZ2+" SZ2T"+CRLF)
+	cQuery += AllTrim("	 			    		WHERE SZ2T.D_E_L_E_T_ = ''"+CRLF)
+	cQuery += AllTrim("	  						AND SZ2T.Z2_FILIAL = ' '"+CRLF)
+	cQuery += AllTrim("	  	 					AND SZ2T.Z2_CODEMP = '"+cEmpr+"'"+CRLF)
+	cQuery += AllTrim("	 						AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF)
+	cQuery += AllTrim("	 						AND SE2.E2_NUM     = SZ2T.Z2_E2NUM"+CRLF)
+	cQuery += AllTrim("	 	 					AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF)
+	cQuery += AllTrim("	 	 					AND SE2.E2_TIPO    = SZ2T.Z2_E2TIPO"+CRLF)
+	cQuery += AllTrim("	 	 					AND SE2.E2_FORNECE = SZ2T.Z2_E2FORN"+CRLF)
+	cQuery += AllTrim("	 	 					AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA) = 1"+CRLF)
+	cQuery += AllTrim("	 		THEN 'Bco: '+Z2_BANCO+' Ag: '+Z2_AGENCIA+'-'+Z2_DIGAGEN+' C/C: '+Z2_CONTA+'-'+Z2_DIGCONT"+CRLF)
+	cQuery += AllTrim("	 		ELSE '' END)"+" AS Z2CONTA"+CRLF)
 
-	cQuery += "	 ,Z2_NOME"+CRLF
-	cQuery += "	 ,Z2_NOMMAE"+CRLF
-	cQuery += "	 ,Z2_NOMDEP"+CRLF
-	cQuery += "	 ,Z2_BORDERO"+CRLF
-	cQuery += "	 ,(CASE WHEN (Z2_BANCO IS NOT NULL) AND "+CRLF
-	cQuery += "	 					(SELECT COUNT(Z2_E2NUM) FROM "+cTabSZ2+" SZ2T"+CRLF
-	cQuery += "	 			    		WHERE SZ2T.D_E_L_E_T_ = ''"+CRLF
-	cQuery += "	  						AND SZ2T.Z2_FILIAL = ' '"+CRLF
-	cQuery += "	  	 					AND SZ2T.Z2_CODEMP = '"+cEmpr+"'"+CRLF
-	cQuery += "	 						AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF
-	cQuery += "	 						AND SE2.E2_NUM     = SZ2T.Z2_E2NUM"+CRLF
-	cQuery += "	 	 					AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF
-	cQuery += "	 	 					AND SE2.E2_TIPO    = SZ2T.Z2_E2TIPO"+CRLF
-	cQuery += "	 	 					AND SE2.E2_FORNECE = SZ2T.Z2_E2FORN"+CRLF
-	cQuery += "	 	 					AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA) = 1"+CRLF
-	cQuery += "	 		THEN 'Bco: '+Z2_BANCO+' Ag: '+Z2_AGENCIA+'-'+Z2_DIGAGEN+' C/C: '+Z2_CONTA+'-'+Z2_DIGCONT"+CRLF
-	cQuery += "	 		ELSE '' END)"+" AS Z2CONTA"+CRLF
+	cQuery += AllTrim("	 ,F1_DOC"+CRLF)
+	cQuery += AllTrim("	 ,F1_XTIPOPG"+CRLF)
+	cQuery += AllTrim("	 ,F1_XNUMPA"+CRLF)
+	cQuery += AllTrim("	 ,F1_XBANCO"+CRLF)
+	cQuery += AllTrim("	 ,F1_XAGENC"+CRLF)
+	cQuery += AllTrim("	 ,F1_XNUMCON"+CRLF)
+	cQuery += AllTrim("	 ,F1_XXTPPIX"+CRLF)
+	cQuery += AllTrim("	 ,F1_XXCHPIX "+CRLF)
+	//cQuery += AllTrim("	 ,F1_USERLGI"+CRLF )
+	cQuery += AllTrim("	 ,F1_XXUSER"+CRLF)
+	//cQuery += AllTrim("	 ,D1_COD"+CRLF)
+	//cQuery += AllTrim("	 ,B1_DESC"+CRLF)
+	//cQuery += AllTrim("	 ,D1_CC"+CRLF)
+	//cQuery += AllTrim("	 ,CTT_DESC01"+CRLF)
+	cQuery += AllTrim("  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),D1_XXHIST)) AS D1_XXHIST "+CRLF)
 
-	cQuery += "	 ,F1_DOC"+CRLF
-	cQuery += "	 ,F1_XTIPOPG"+CRLF
-	cQuery += "	 ,F1_XNUMPA"+CRLF
-	cQuery += "	 ,F1_XBANCO"+CRLF
-	cQuery += "	 ,F1_XAGENC"+CRLF
-	cQuery += "	 ,F1_XNUMCON"+CRLF
-	cQuery += "	 ,F1_XXTPPIX"+CRLF
-	cQuery += "	 ,F1_XXCHPIX "+CRLF
-	cQuery += "	 ,F1_USERLGI"+CRLF 
-	cQuery += "	 ,F1_XXUSER"+CRLF
-	cQuery += "	 ,D1_COD"+CRLF
-	cQuery += "	 ,B1_DESC"+CRLF
-	cQuery += "	 ,D1_CC"+CRLF
-	cQuery += "	 ,CTT_DESC01"+CRLF
-	cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),D1_XXHIST)) AS D1_XXHIST "+CRLF
+	cQuery += AllTrim("	 FROM "+cTabSE2+" SE2 "+CRLF)
 
-	//cQuery += "	 ,(SELECT TOP 1 Z2_BANCO "+CRLF
-	//cQuery += "	 	FROM "+RetSqlName("SZ2")+" SZ2"+CRLF
-	//cQuery += "	 	WHERE SZ2.Z2_FILIAL    = '  '"+CRLF
-	//cQuery += "	 		AND SZ2.Z2_CODEMP  = '"+cEmpAnt+"' "+CRLF
-	//cQuery += "	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF
-	//cQuery += "	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF
-	//cQuery += "	 		AND SE2.E2_PARCELA = SZ2.Z2_E2PARC"+CRLF
-	//cQuery += "	 		AND SE2.E2_TIPO    = SZ2.Z2_E2TIPO"+CRLF
-	//cQuery += "	 		AND SE2.E2_FORNECE = SZ2.Z2_E2FORN"+CRLF
-	//cQuery += "	 		AND SE2.E2_LOJA    = SZ2.Z2_E2LOJA"+CRLF
-	//cQuery += "	 		AND SZ2.Z2_STATUS  = 'S'"+CRLF
-	//cQuery += "	 		AND SZ2.D_E_L_E_T_ = '') AS Z2_BANCO"+CRLF
+	cQuery += AllTrim("	 LEFT JOIN "+cTabSF1+" SF1 ON"+CRLF)
+	cQuery += AllTrim("	 	SE2.E2_FILIAL      = SF1.F1_FILIAL"+CRLF)
+	cQuery += AllTrim("	 	AND SE2.E2_NUM     = SF1.F1_DOC "+CRLF)
+	cQuery += AllTrim("	 	AND SE2.E2_PREFIXO = SF1.F1_SERIE"+CRLF)
+	cQuery += AllTrim("	 	AND SE2.E2_FORNECE = SF1.F1_FORNECE"+CRLF)
+	cQuery += AllTrim("	 	AND SE2.E2_LOJA    = SF1.F1_LOJA"+CRLF)
+	cQuery += AllTrim("	 	AND SF1.D_E_L_E_T_ = ''"+CRLF)
 
-	cQuery += "	 FROM "+cTabSE2+" SE2 "+CRLF
+	cQuery += AllTrim("	 LEFT JOIN "+cTabSA2+"  SA2 ON"+CRLF)
+	cQuery += AllTrim("	 	SA2.A2_FILIAL      = '  '"+CRLF)
+	cQuery += AllTrim("	 	AND SE2.E2_FORNECE = SA2.A2_COD"+CRLF)
+	cQuery += AllTrim("	 	AND SE2.E2_LOJA    = SA2.A2_LOJA"+CRLF)
+	cQuery += AllTrim("	 	AND SA2.D_E_L_E_T_ = ''"+CRLF)
 
-	cQuery += "	 LEFT JOIN "+cTabSF1+" SF1 ON"+CRLF
-	cQuery += "	 	SE2.E2_FILIAL      = SF1.F1_FILIAL"+CRLF
-	cQuery += "	 	AND SE2.E2_NUM     = SF1.F1_DOC "+CRLF
-	cQuery += "	 	AND SE2.E2_PREFIXO = SF1.F1_SERIE"+CRLF
-	cQuery += "	 	AND SE2.E2_FORNECE = SF1.F1_FORNECE"+CRLF
-	cQuery += "	 	AND SE2.E2_LOJA    = SF1.F1_LOJA"+CRLF
-	cQuery += "	 	AND SF1.D_E_L_E_T_ = ''"+CRLF
+	cQuery += AllTrim(" LEFT JOIN "+cTabSD1+" SD1 ON SD1.D_E_L_E_T_=''"+ CRLF)
+	cQuery += AllTrim("   AND D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF)
+	cQuery += AllTrim("   AND D1_DOC     = F1_DOC"+ CRLF)
+	cQuery += AllTrim("   AND D1_SERIE   = F1_SERIE"+ CRLF)
+	cQuery += AllTrim("   AND D1_FORNECE = F1_FORNECE"+ CRLF)
+	cQuery += AllTrim("   AND D1_LOJA    = F1_LOJA"+ CRLF)
+	cQuery += AllTrim("   AND SD1.R_E_C_N_O_ = "+ CRLF)
+	cQuery += AllTrim("   	(SELECT TOP 1 R_E_C_N_O_ FROM "+cTabSD1+" SD1T "+ CRLF)
+	cQuery += AllTrim("   	  WHERE SD1T.D_E_L_E_T_     = '' "+ CRLF)
+	cQuery += AllTrim("   	        AND SD1T.D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF)
+	cQuery += AllTrim("   			AND SD1T.D1_DOC     = F1_DOC"+ CRLF)
+	cQuery += AllTrim("   			AND SD1T.D1_SERIE   = F1_SERIE"+ CRLF)
+	cQuery += AllTrim("   			AND SD1T.D1_FORNECE = F1_FORNECE"+ CRLF)
+	cQuery += AllTrim("   			AND SD1T.D1_LOJA    = F1_LOJA"+ CRLF)
+	cQuery += AllTrim("		 ORDER BY D1_ITEM)"+ CRLF)
 
-	cQuery += "	 LEFT JOIN "+cTabSA2+"  SA2 ON"+CRLF
-	cQuery += "	 	SA2.A2_FILIAL      = '  '"+CRLF
-	cQuery += "	 	AND SE2.E2_FORNECE = SA2.A2_COD"+CRLF
-	cQuery += "	 	AND SE2.E2_LOJA    = SA2.A2_LOJA"+CRLF
-	cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
+	cQuery += AllTrim("	 LEFT JOIN "+cTabSZ2+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF)
+	cQuery += AllTrim("	 			AND SZ2.Z2_FILIAL  = ' '"+CRLF)
+	cQuery += AllTrim("	 	 		AND SZ2.Z2_CODEMP  = '"+cEmpr+"' "+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_PARCELA = SZ2.Z2_E2PARC"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_TIPO    = SZ2.Z2_E2TIPO"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_FORNECE = SZ2.Z2_E2FORN"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_LOJA    = SZ2.Z2_E2LOJA"+CRLF)
+	cQuery += AllTrim("	 	 		AND SZ2.Z2_STATUS  = 'S'"+CRLF)
+	cQuery += AllTrim("	 		    AND SZ2.R_E_C_N_O_ = "+CRLF)
+	cQuery += AllTrim("	    	(SELECT TOP 1 R_E_C_N_O_ FROM "+cTabSZ2+" SZ2T "+CRLF)
+	cQuery += AllTrim("	    	  WHERE SZ2T.D_E_L_E_T_   = ''"+CRLF)
+	cQuery += AllTrim("	 			AND SZ2T.Z2_FILIAL = ' '")+CRLF
+	cQuery += AllTrim("	 	 		AND SZ2T.Z2_CODEMP = '"+cEmpr+"'"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_NUM     = SZ2T.Z2_E2NUM "+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_TIPO    = SZ2T.Z2_E2TIPO"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_FORNECE = SZ2T.Z2_E2FORN"+CRLF)
+	cQuery += AllTrim("	 	 		AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA"+CRLF)
+	cQuery += AllTrim("	 	 		AND SZ2T.Z2_STATUS = 'S'"+CRLF)
+	cQuery += AllTrim("	 		 ORDER BY SZ2T.R_E_C_N_O_)"+CRLF)
 
-	cQuery += " LEFT JOIN "+cTabSD1+" SD1 ON SD1.D_E_L_E_T_=''"+ CRLF
-	cQuery += "   AND D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF
-	cQuery += "   AND D1_DOC     = F1_DOC"+ CRLF
-	cQuery += "   AND D1_SERIE   = F1_SERIE"+ CRLF
-	cQuery += "   AND D1_FORNECE = F1_FORNECE"+ CRLF
-	cQuery += "   AND D1_LOJA    = F1_LOJA"+ CRLF
-	cQuery += "   AND SD1.R_E_C_N_O_ = "+ CRLF
-	cQuery += "   	(SELECT TOP 1 R_E_C_N_O_ FROM "+cTabSD1+" SD1T "+ CRLF
-	cQuery += "   	  WHERE SD1T.D_E_L_E_T_     = '' "+ CRLF
-	cQuery += "   	        AND SD1T.D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF
-	cQuery += "   			AND SD1T.D1_DOC     = F1_DOC"+ CRLF
-	cQuery += "   			AND SD1T.D1_SERIE   = F1_SERIE"+ CRLF
-	cQuery += "   			AND SD1T.D1_FORNECE = F1_FORNECE"+ CRLF
-	cQuery += "   			AND SD1T.D1_LOJA    = F1_LOJA"+ CRLF
-	cQuery += "		 ORDER BY D1_ITEM)"+ CRLF
+	/*
+	cQuery += AllTrim("  LEFT JOIN "+cTabCTT+" CTT ON CTT.D_E_L_E_T_=''"+CRLF)
+	cQuery += AllTrim("    AND CTT.CTT_FILIAL = '"+xFilial("CTT")+"' "+CRLF)
+	cQuery += AllTrim("    AND CTT.CTT_CUSTO  = SD1.D1_CC"+CRLF)
 
-	cQuery += "	 LEFT JOIN "+cTabSZ2+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF
-	cQuery += "	 			AND SZ2.Z2_FILIAL  = ' '"+CRLF
-	cQuery += "	 	 		AND SZ2.Z2_CODEMP  = '"+cEmpr+"' "+CRLF
-	cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2.Z2_E2PRF"+CRLF
-	cQuery += "	 	 		AND SE2.E2_NUM     = SZ2.Z2_E2NUM "+CRLF
-	cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2.Z2_E2PARC"+CRLF
-	cQuery += "	 	 		AND SE2.E2_TIPO    = SZ2.Z2_E2TIPO"+CRLF
-	cQuery += "	 	 		AND SE2.E2_FORNECE = SZ2.Z2_E2FORN"+CRLF
-	cQuery += "	 	 		AND SE2.E2_LOJA    = SZ2.Z2_E2LOJA"+CRLF
-	cQuery += "	 	 		AND SZ2.Z2_STATUS  = 'S'"+CRLF
-	cQuery += "	 		    AND SZ2.R_E_C_N_O_ = "+CRLF
-	cQuery += "	    	(SELECT TOP 1 R_E_C_N_O_ FROM "+cTabSZ2+" SZ2T "+CRLF
-	cQuery += "	    	  WHERE SZ2T.D_E_L_E_T_     = ''"+CRLF
-	cQuery += "	 			AND SZ2T.Z2_FILIAL = ' '"+CRLF
-	cQuery += "	 	 		AND SZ2T.Z2_CODEMP = '"+cEmpr+"'"+CRLF
-	cQuery += "	 	 		AND SE2.E2_PREFIXO = SZ2T.Z2_E2PRF"+CRLF
-	cQuery += "	 	 		AND SE2.E2_NUM     = SZ2T.Z2_E2NUM "+CRLF
-	cQuery += "	 	 		AND SE2.E2_PARCELA = SZ2T.Z2_E2PARC"+CRLF
-	cQuery += "	 	 		AND SE2.E2_TIPO    = SZ2T.Z2_E2TIPO"+CRLF
-	cQuery += "	 	 		AND SE2.E2_FORNECE = SZ2T.Z2_E2FORN"+CRLF
-	cQuery += "	 	 		AND SE2.E2_LOJA    = SZ2T.Z2_E2LOJA"+CRLF
-	cQuery += "	 	 		AND SZ2T.Z2_STATUS  = 'S'"+CRLF
-	cQuery += "	 		 ORDER BY SZ2T.R_E_C_N_O_)"+CRLF
+	cQuery += AllTrim("  LEFT JOIN "+cTabSB1+" SB1 ON SB1.D_E_L_E_T_=''"+CRLF)
+	cQuery += AllTrim("    AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF)
+	cQuery += AllTrim("    AND SB1.B1_COD    = SD1.D1_COD"+CRLF)
+	*/
 
-	cQuery += "  LEFT JOIN "+cTabCTT+" CTT ON CTT.D_E_L_E_T_=''"+CRLF
-	cQuery += "    AND CTT.CTT_FILIAL = '"+xFilial("CTT")+"' "+CRLF
-	cQuery += "    AND CTT.CTT_CUSTO  = SD1.D1_CC"+CRLF
+	cQuery += AllTrim("	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF)
+	cQuery += AllTrim("  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF)
 
-	cQuery += "  LEFT JOIN "+cTabSB1+" SB1 ON SB1.D_E_L_E_T_=''"+CRLF
-	cQuery += "    AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF
-	cQuery += "    AND SB1.B1_COD    = SD1.D1_COD"+CRLF
-
-
-	cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
-	cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
-
-	cQuery +=  "  AND E2_VENCREA = '"+xVencreal+"' "+CRLF
+	cQuery += AllTrim("  AND E2_VENCREA = '"+xVencreal+"' "+CRLF)
 
 Next
 
@@ -1846,7 +1939,9 @@ cQuery += "  ,(CASE WHEN ISNULL(Z2_BORDERO,E2_XXLOTEB) = ' ' THEN E2_XXLOTEB ELS
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
-//u_LogMemo("RESTTITCP.SQL",cQuery)
+cQuery := STRTRAN(cQuery,CHR(9),"")
+cQuery := STRTRAN(cQuery,"  "," ")
+u_LogMemo("RESTTITCP1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 

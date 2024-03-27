@@ -22,7 +22,6 @@ Local cDir       := "/dirdoc/co"+cEmp+"/shared/"
 
 DEFAULT nOpc     := 1
 
-
 cQuery := "SELECT ACB.ACB_OBJETO " + CRLF
 cQuery += " FROM " + cTabAC9 + " AC9 " + CRLF // Entidade x objeto.
 cQuery += "LEFT JOIN " + cTabACB + " ACB ON ACB.D_E_L_E_T_ = ' ' " + CRLF // Objeto.
