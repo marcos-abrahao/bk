@@ -246,11 +246,11 @@ EndIf
 
 If nFormato > 2
 	If nImpSel == 3  // Marcar como impresso
-		If u_MsgLog(cPerg,"Deseja MARCAR estes tílos como impressos?","Y")
+		If u_MsgLog(cPerg,"Deseja MARCAR estes títulos como impressos?","Y")
 			u_WaitLog("BKFINR33", {|oSay| MarcarTit(nImpSel) }, "Marcando títulos")
 		EndIf
 	ElseIf nImpSel == 4  // Desmarcar os impressos
-		If u_MsgLog(cPerg,"Deseja DESMARCAR estes tílos como impressos?","Y")
+		If u_MsgLog(cPerg,"Deseja DESMARCAR estes títulos como impressos?","Y")
 			u_WaitLog("BKFINR33", {|oSay| MarcarTit(nImpSel) }, "Desmarcando títulos")
 		EndIf
 	EndIf
@@ -362,10 +362,10 @@ cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
 cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
 cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
-
-//cQuery += "	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ "
-cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
-cQuery += "	 			THEN E2_TIPO+' '+E2_PORTADO"+CRLF
+cQuery += "	 ,(CASE WHEN E2_XTIPOPG <> ' ' "+CRLF
+cQuery += "			THEN E2_XTIPOPG "+CRLF
+cQuery += "			WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
+cQuery += "			THEN E2_TIPO+' '+E2_PORTADO"+CRLF
 cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
 cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
 

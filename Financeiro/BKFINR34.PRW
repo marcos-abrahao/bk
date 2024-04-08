@@ -366,7 +366,9 @@ cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
 
 //cQuery += "	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ "
-cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
+cQuery += "	 ,(CASE WHEN E2_XTIPOPG <> ' ' "+CRLF
+cQuery += "			THEN E2_XTIPOPG "+CRLF
+cQuery += "			WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF
 cQuery += "	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF
 cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
 cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
@@ -390,7 +392,7 @@ cQuery += "	 		THEN 'Bco: '+Z2_BANCO+' Ag: '+Z2_AGENCIA+'-'+Z2_DIGAGEN+' C/C: '+
 cQuery += "	 		ELSE '' END)"+" AS Z2CONTA"+CRLF
 
 cQuery += "	 ,F1_DOC"+CRLF
-cQuery += "	 ,F1_XTIPOPG"+CRLF
+cQuery += "	 ,(CASE WHEN E2_XTIPOPG <> ' ' THEN E2_XTIPOPG ELSE F1_XTIPOPG END) AS F1_XTIPOPG"+CRLF
 cQuery += "	 ,F1_XNUMPA"+CRLF
 cQuery += "	 ,F1_XBANCO"+CRLF
 cQuery += "	 ,F1_XAGENC"+CRLF
@@ -817,7 +819,7 @@ DO while QSE2->(!Eof())
 		cHtml += '    </tr>'+CRLF
 	EndIf
 
-    If !EMPTY(QSE2->E2_XXTIPBK) .AND. !lWeb
+    If !EMPTY(QSE2->E2_XXTIPBK)
 
 		cHtml += '    <table class="ti">'+CRLF
 		cHtml += '    <tr>'+CRLF
@@ -852,11 +854,11 @@ DO while QSE2->(!Eof())
 				cAgConta += " "
 				cAgConta += TRIM(QSZ2->Z2_AGENCIA)+iIf(!Empty(QSZ2->Z2_DIGAGEN),'/'+TRIM(QSZ2->Z2_DIGAGEN),'')
 				cAgConta += " "
-				If lWeb
-					cAgConta += TRIM(QSZ2->Z2CONTA)
-				Else
-					cAgConta += TRIM(QSZ2->Z2_CONTA)+iIf(!Empty(QSZ2->Z2_DIGCONTA),'/'+TRIM(QSZ2->Z2_DIGCONTA),'')
-				EndIf
+				//If lWeb
+				//	cAgConta += TRIM(QSZ2->Z2_CONTA)
+				//Else
+					cAgConta += TRIM(QSZ2->Z2_CONTA)+iIf(!Empty(QSZ2->Z2_DIGCONT),'/'+TRIM(QSZ2->Z2_DIGCONT),'')
+				//EndIf
 				cHtml += '      <td class="ti-str">'+cAgConta+'</td>'+CRLF
 			Else
 				cHtml += '      <td class="ti-str">'+'</td>'+CRLF
@@ -1046,7 +1048,7 @@ EndIf
 Return(cHtml)
 
 
-Static Function ProcSZ2
+Static Function ProcSZ2()
 Local cQuery
 Local cPrefixo := QSE2->E2_PREFIXO
 Local cNum     := QSE2->E2_NUM
@@ -1059,7 +1061,7 @@ Local cLoja    := QSE2->E2_LOJA
 cQuery := "SELECT ""
 cQuery += " Z2_NOME,Z2_PRONT,Z2_BANCO,Z2_AGENCIA,Z2_DATAEMI,Z2_DATAPGT,Z2_DIGAGEN,Z2_CONTA,Z2_DIGCONT,Z2_TIPO,Z2_VALOR,"
 cQuery += " Z2_TIPOPES,Z2_CC,Z2_USUARIO,Z2_OBSTITU,Z2_NOMDEP,Z2_NOMMAE "
-cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2"
+cQuery += " FROM SZ2010 SZ2"
 cQuery += " WHERE Z2_FILIAL = '"+xFilial("SZ2")+"' " 
 cQuery += " AND Z2_CODEMP = '"+cEmpAnt+"' "
 cQuery += " AND Z2_E2PRF  = '"+cPrefixo+"' "

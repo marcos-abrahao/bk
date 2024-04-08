@@ -28,14 +28,15 @@ If !u_IsMDir(__cUserID)
 EndIf
 
 If __cUserId == '000000'
-	aAdd(aDados,{"","u_ExBKCode()",		"TESTES",		"Teste da rotina de codificação web"})
-	aAdd(aDados,{"","u_TabsBk()",		"GERAL",		"Criação de tabelas especificas - empresa nova"})
+	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
+	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 EndIf
 
 aAdd(aDados,{"","U_BKBATIDAS()",	"GERAL",		"Envio de e-mails via CSV"})
 aAdd(aDados,{"","U_LISTUSR()",		"GERAL",		"Relação de usuários com E-Mail"})
 aAdd(aDados,{"","U_LISTSUP()",		"GERAL",		"Relação de usuários e superiores"})
 aAdd(aDados,{"","U_LISTRH()",		"GERAL",		"Relação de Tipos do RH"})
+aAdd(aDados,{"","U_TESTEPOUI()",	"GERAL",		"Teste desenvolvimento PO-UI"})
 
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})

@@ -428,7 +428,7 @@ DO WHILE (cAliasQry)->(!EOF())
             dbSelectArea("SF1")                   // * Cabeçalho da N.F. de Compra
             dbSetOrder(1)
             If dbSeek(cFilF1+SE2->E2_NUM+SE2->E2_PREFIXO+SE2->E2_FORNECE+SE2->E2_LOJA+"N")
-                cxTipoPg := SF1->F1_XTIPOPG
+                cxTipoPg := IIF(EMPTY(SE2->E2_XTIPOPG),SF1->F1_XTIPOPG,SE2->E2_XTIPOPG)
                 cxNumPa  := SF1->F1_XNUMPA
 				cJust	 := SF1->F1_XXJSPGT
                 If !Empty(cxTipoPg)

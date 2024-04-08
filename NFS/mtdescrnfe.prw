@@ -22,6 +22,7 @@ Local nPPis    := 0
 Local nPCofins := 0
 Local nPCsll   := 0
 Local nPIss    := 0
+Local nValIRD2 := 0
 Local cNF,cSerie,cCliente,cLoja
 Local cKeyD2
 Local cProduto  := ""
@@ -149,10 +150,10 @@ aAreaCNC   := GetArea("CNC")
    
 dbSelectArea ("SD2")             //itens de venda da NF
 dbSetOrder (3)                 //filial,doc,serie,cliente,loja,cod
-
 cKeyD2 := xFilial("SD2") + SF2->F2_DOC + SF2->F2_SERIE
 dbSelectArea("SD2")
 dbSeek(cKeyD2)
+nValIRD2 := 0
 DO WHILE !EOF() .and. SD2->D2_FILIAL + SD2->D2_DOC + SD2->D2_SERIE == cKeyD2
 	IF EMPTY(cProduto)
 		cProduto := SD2->D2_COD
@@ -167,6 +168,8 @@ DO WHILE !EOF() .and. SD2->D2_FILIAL + SD2->D2_DOC + SD2->D2_SERIE == cKeyD2
 			cPlanilha := SC5->C5_MDPLANI
 		ENDIF   
 	ENDIF
+	// Quando o IRRF for menor que 10,00, fica gravado só no D2
+	nValIRD2 += SD2->D2_VALIRRF
 	dbSelectArea("SD2")
 	dbSkip()
 ENDDO

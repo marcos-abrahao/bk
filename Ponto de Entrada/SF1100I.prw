@@ -6,10 +6,12 @@
 User Function SF1100I()
 Local aUser,cSuper
 Local aAreaE2 	 := SE2->(GetArea())
+Local lAltPgt	 := .F.
 
 Private cxTipoPg := SF1->F1_XTIPOPG
 Private cxNumPa  := SF1->F1_XNUMPA
 Private cxBanco  := SF1->F1_XBANCO
+Private lxP1PA   := IIF(SF1->F1_XXP1PA=='S',.T.,.F.)
 Private cxAgencia:= SF1->F1_XAGENC
 Private cxConta  := SF1->F1_XNUMCON
 Private cChvNfe  := SF1->F1_CHVNFE
@@ -36,7 +38,7 @@ IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 ENDIF
 
 If Inclui .AND. !l103Auto
-	//If !__cUserId $ "000011/000012/000016"
+
 	If Empty(dPrvPgt) 
 		dPrvPgt := SE2->E2_VENCREA
 	EndIf
@@ -44,9 +46,12 @@ If Inclui .AND. !l103Auto
 		u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 	EndIf
 
-	If U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170",@cLibF1) // 170-João Cordeiro
+	lAltPgt := U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170/000276",@cLibF1) // 170-João Cordeiro 276-Katia Galdino
+
+	If lAltPgt
 		RecLock("SF1",.F.)
 		SF1->F1_XTIPOPG := cxTipoPg
+		SF1->F1_XXP1PA  := IIF(lxP1PA,'S','N')
 		SF1->F1_XNUMPA  := cxNumPa
 		If ALLTRIM(cxTipoPg) == "DEPOSITO"
 			SF1->F1_XBANCO  := cxBanco
@@ -70,8 +75,10 @@ If Inclui .AND. !l103Auto
 			SF1->F1_XXCHPIX := ""
 		EndIf
 		MsUnLock("SF1")
+
 	EndIf
 EndIf
+
 
 If l103Class .OR. Inclui
 	If SF1->F1_STATUS $ "AB"
@@ -94,30 +101,38 @@ If l103Class .OR. Inclui
 		SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 		MsUnLock("SF1")
 
-		// Se for Beneficiamento ou Devolucao, será Título a Receber, senão será Título a Pagar
-		If !(SF1->F1_TIPO $ "B;D;") .AND. !Empty(SF1->F1_XBANCO)
-			DbSelectArea("SE2")
-			SE2->(DbSetOrder(6))  //E2_FILIAL + E2_FORNECE + E2_LOJA + E2_PREFIXO + E2_NUM
-			
-			//Se conseguir posicionar, altera o banco
-			SE2->(DbSeek(xFilial("SE2")+SF1->F1_FORNECE+SF1->F1_LOJA+SF1->F1_SERIE+SF1->F1_DOC))
-			Do While SF1->F1_FORNECE+SF1->F1_LOJA+SF1->F1_SERIE+SF1->F1_DOC == ;
-					 SE2->E2_FORNECE+SE2->E2_LOJA+SE2->E2_PREFIXO+SE2->E2_NUM .AND. !SE2->(EOF())
-				RecLock("SE2",.F.)
-				If Empty(SE2->E2_PORTADO)
-					SE2->E2_PORTADO  := SF1->F1_XBANCO
-					SE2->(MsUnLock())
-				EndIf
-				SE2->(dbSkip())
-			EndDo
-		EndIf
-     
-		RestArea(aAreaE2)
-
 		u_MsgLog("SF1100I",iIf(l103Class,"Doc classificado: ","Doc incluido    : ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
 
 	EndIf
 EndIf
+
+
+// Gravar os campo  E2_XTIPOPG e E2_PORTADO
+If l103Class .OR. Inclui .OR. lAltPgt
+	// Se for Beneficiamento ou Devolucao, será Título a Receber, senão será Título a Pagar
+	If !(SF1->F1_TIPO $ "B;D;") //.AND. !Empty(SF1->F1_XBANCO)
+		DbSelectArea("SE2")
+		SE2->(DbSetOrder(6))  //E2_FILIAL + E2_FORNECE + E2_LOJA + E2_PREFIXO + E2_NUM			
+		//Se conseguir posicionar, altera o banco
+		SE2->(DbSeek(xFilial("SE2")+SF1->F1_FORNECE+SF1->F1_LOJA+SF1->F1_SERIE+SF1->F1_DOC))
+		Do While SF1->F1_FORNECE+SF1->F1_LOJA+SF1->F1_SERIE+SF1->F1_DOC == ;
+					SE2->E2_FORNECE+SE2->E2_LOJA+SE2->E2_PREFIXO+SE2->E2_NUM .AND. !SE2->(EOF())
+			If Empty(SE2->E2_BAIXA)
+				RecLock("SE2",.F.)
+				If Empty(SE2->E2_PORTADO)
+					SE2->E2_PORTADO  := SF1->F1_XBANCO
+				EndIf
+				SE2->E2_XTIPOPG := SF1->F1_XTIPOPG
+				If SF1->F1_XXP1PA == 'S' .AND. SE2->E2_PARCELA = '01'
+					SE2->E2_XTIPOPG := "P.A."
+				EndIf
+				SE2->(MsUnLock())
+			Endif
+			SE2->(dbSkip())
+		EndDo
+	EndIf     
+	RestArea(aAreaE2)
+EndIF
 
 Return
 

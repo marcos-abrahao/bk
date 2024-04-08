@@ -12,7 +12,7 @@ BK - Ponto de Entrada para criar opções na tela de Documento de Entrada
 /*/
 
 User Function MA103OPC
-Local aRot := {} 
+Local aRot	:= {} 
 
 AADD( aRot, {OemToAnsi("Pesquisar Itens/NF"), "U_BKCOMC01", 0, 1 } )
 AADD( aRot, {OemToAnsi("Localizar NF"), "U_BKCOMC02", 0, 1 } )
@@ -24,6 +24,7 @@ AADD( aRot, {OemToAnsi("Dados Pgto"), "U_AltFPgto", 0, 4 } )
 	AADD( aRot, {OemToAnsi("Doc PIS/COF/IRPJ/FGTS/INSS/IRRF"), "U_BKCOMA13", 0, 1 } )
 	AADD( aRot, {OemToAnsi("Rateio PIS/COF/IRPJ/FGTS/INSS/IRRF") , "U_BKCOMA14", 0, 1 } )
 //EndIf
+
 
 Return( aRot )
               

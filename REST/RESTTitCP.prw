@@ -490,6 +490,7 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['E2RECNO']	:= STRZERO((cQrySE2)->E2RECNO,7)
 
 	cFormaPgto := u_CPDadosPgt(cQrySE2)
+	aListCP[nPos]['TIPOBK']		:= TRIM((cQrySE2)->(E2_XXTIPBK))
 	aListCP[nPos]['DADOSPGT']	:= cFormaPgto
 
 	// Documentos anexos
@@ -760,13 +761,15 @@ cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
 cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
 cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
-cQuery += "	 ,(CASE WHEN (F1_XTIPOPG IS NULL) "+CRLF
+cQuery += "	 ,(CASE WHEN E2_XTIPOPG <> ' ' "+CRLF
+cQuery += "			THEN E2_XTIPOPG "+CRLF
+cQuery += "			WHEN (F1_XTIPOPG IS NULL)"+CRLF
 cQuery += "	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF
 cQuery += "	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF
 cQuery += "	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF
 
 cQuery += "	 ,F1_DOC"+CRLF
-cQuery += "	 ,F1_XTIPOPG"+CRLF
+cQuery += "	 ,E2_XTIPOPG AS F1_XTIPOPG"+CRLF
 cQuery += "	 ,F1_XNUMPA"+CRLF
 cQuery += "	 ,F1_XBANCO"+CRLF
 cQuery += "	 ,F1_XAGENC"+CRLF
@@ -891,7 +894,7 @@ Do While (cQrySD1)->(!EOF())
 	dbSkip()
 EndDo
 
-oJsonPN['D1_XXHIST']	:= cHist
+oJsonPN['D1_XXHIST']	:= StrIConv(cHist, "CP1252", "UTF-8")
 
 oJsonPN['DADOSD1']		:= aItens
 oJsonPN['D1_TOTAL']		:= TRANSFORM(nTotal,"@E 999,999,999.99")
@@ -1278,11 +1281,13 @@ let anexos = '';
 
 if (Array.isArray(titulos)) {
 	titulos.forEach(object => {
-	let cStatus  = object['XSTATUS']
-	let cEmpresa = object['EMPRESA'].substring(0,2)
-	let cDadosPgt = object['DADOSPGT']
+	let cStatus  = object['XSTATUS'];
+	let cEmpresa = object['EMPRESA'].substring(0,2);
+	let cDadosPgt = object['DADOSPGT'];
+	let cTipoBk = object['TIPOBK'];
 
 	nlin += 1;
+	cbtnz2 = 'btnz2'+nlin;
 	cbtnz2 = 'btnz2'+nlin;
 
 	if (cStatus == 'C' ){
@@ -1303,9 +1308,12 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td>'+object['TITULO']+'</td>';
 	trHTML += '<td>'+object['FORNECEDOR']+'</td>';
 
-	//trHTML += '<td>'+object['FORMPGT']+'</td>';
 	trHTML += '<td>';
-	trHTML += '<button type="button" id="'+cbtnz2+'" class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+object['FORMPGT']+'</button>';
+	if (cTipoBk === ''){
+		trHTML += '<button type="button" id="'+cbtnz2+'" class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+object['FORMPGT']+'</button>';
+	} else {
+		trHTML += '<button type="button" id="'+cbtnz2+'" class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showZ2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+object['FORMPGT']+'</button>';
+	}
 	trHTML += '</td>';
 
 	trHTML += '<td>'+object['VENC']+'</td>';
@@ -1358,7 +1366,6 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td>';
 
 	if (cDadosPgt.indexOf('#RH#') !== -1){
-		cbtnz2 = 'btnz2'+nlin;
 		trHTML += '<button type="button" id="'+cbtnz2+'" class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showZ2(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\','+'\''+cbtnz2+'\')">'+cDadosPgt+'</button>';
 	} else {
 		trHTML += cDadosPgt;
@@ -1474,9 +1481,9 @@ $('#tableSE2 tbody').on('click', 'td.dt-control', function () {
 loadTable();
 
 async function getZ2(empresa,e2recno,userlib) {
-let url = '#iprest#/RestTitCP/v1?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
+let urlZ2 = '#iprest#/RestTitCP/v1?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
 	try {
-	let res = await fetch(url);
+	let res = await fetch(urlZ2);
 		return await res.json();
 		} catch (error) {
 	console.log(error);
@@ -1534,9 +1541,9 @@ $('#Z2Modal').on('hidden.bs.modal', function () {
 }
 
 async function getE2(empresa,e2recno,userlib) {
-let url = '#iprest#/RestTitCP/v6?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
+let urlE2 = '#iprest#/RestTitCP/v6?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
 	try {
-	let res = await fetch(url);
+	let res = await fetch(urlE2);
 		return await res.json();
 		} catch (error) {
 	console.log(error);
@@ -1818,7 +1825,10 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += AllTrim("	 		ELSE E2_SALDO END) AS SALDO"+CRLF)
 
 	//cQuery += AllTrim("	 ,"+IIF(dDtIni <> dDtFim,"+' '+E2_VENCREA",'')+"+ ")
-	cQuery += AllTrim("	 ,(CASE WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) "+CRLF)
+
+	cQuery += AllTrim("	 ,(CASE WHEN E2_XTIPOPG <> ' ' ")+CRLF
+	cQuery += AllTrim("			THEN E2_XTIPOPG ")+CRLF
+	cQuery += AllTrim("			WHEN (F1_XTIPOPG IS NULL) AND (Z2_BANCO IS NULL) ")+CRLF
 	cQuery += AllTrim("	 		THEN E2_TIPO+' '+E2_PORTADO"+CRLF)
 	cQuery += AllTrim("	 		WHEN F1_XTIPOPG IS NULL AND (E2_PORTADO IS NOT NULL) THEN 'LF '+E2_PORTADO+' '+E2_TIPO"+CRLF)
 	cQuery += AllTrim("	 		ELSE F1_XTIPOPG END)"+" AS FORMPGT"+CRLF)
@@ -1842,7 +1852,8 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += AllTrim("	 		ELSE '' END)"+" AS Z2CONTA"+CRLF)
 
 	cQuery += AllTrim("	 ,F1_DOC"+CRLF)
-	cQuery += AllTrim("	 ,F1_XTIPOPG"+CRLF)
+	cQuery += AllTrim("	 ,E2_XTIPOPG AS F1_XTIPOPG"+CRLF)
+
 	cQuery += AllTrim("	 ,F1_XNUMPA"+CRLF)
 	cQuery += AllTrim("	 ,F1_XBANCO"+CRLF)
 	cQuery += AllTrim("	 ,F1_XAGENC"+CRLF)
@@ -1872,7 +1883,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += AllTrim("	 	AND SE2.E2_FORNECE = SA2.A2_COD"+CRLF)
 	cQuery += AllTrim("	 	AND SE2.E2_LOJA    = SA2.A2_LOJA"+CRLF)
 	cQuery += AllTrim("	 	AND SA2.D_E_L_E_T_ = ''"+CRLF)
-
+	
 	cQuery += AllTrim(" LEFT JOIN "+cTabSD1+" SD1 ON SD1.D_E_L_E_T_=''"+ CRLF)
 	cQuery += AllTrim("   AND D1_FILIAL  = '"+xFilial("SD1")+"' "+ CRLF)
 	cQuery += AllTrim("   AND D1_DOC     = F1_DOC"+ CRLF)
@@ -1888,7 +1899,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += AllTrim("   			AND SD1T.D1_FORNECE = F1_FORNECE"+ CRLF)
 	cQuery += AllTrim("   			AND SD1T.D1_LOJA    = F1_LOJA"+ CRLF)
 	cQuery += AllTrim("		 ORDER BY D1_ITEM)"+ CRLF)
-
+	
 	cQuery += AllTrim("	 LEFT JOIN "+cTabSZ2+" SZ2 ON SZ2.D_E_L_E_T_=''"+CRLF)
 	cQuery += AllTrim("	 			AND SZ2.Z2_FILIAL  = ' '"+CRLF)
 	cQuery += AllTrim("	 	 		AND SZ2.Z2_CODEMP  = '"+cEmpr+"' "+CRLF)

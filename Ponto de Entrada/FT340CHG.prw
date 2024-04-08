@@ -46,6 +46,9 @@ cName := cName1
 Do While "__" $ cName
     cName := STRTRAN(cName,"__","_")
 EndDo
+
+cName := NoAcento(cName)
+
 u_MsgLog("FT340CHG",cName)
 Return cName
 

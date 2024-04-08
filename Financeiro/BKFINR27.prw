@@ -454,7 +454,7 @@ DO WHILE (cAliasQry)->(!EOF())
                         cDigUser := aUser[1,2]
                     ENDIF
                     cDtHoraLib := FWLeUserlg("F1_USERLGA", 2)+TRIM(" "+SF1->F1_HORA)
-                    cxTipoPg := SF1->F1_XTIPOPG
+                    cxTipoPg := IIF(EMPTY(SE2->E2_XTIPOPG),SF1->F1_XTIPOPG,SE2->E2_XTIPOPG)
                     cxNumPa  := SF1->F1_XNUMPA
                     If !Empty(cxTipoPg)
                         cFormaPgto := TRIM(cxTipoPg)

@@ -665,7 +665,7 @@ cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
 cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
 cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
-cQuery += "	 ,F1_XTIPOPG AS FORMPGT"+CRLF
+cQuery += "	 ,(CASE WHEN E2_XTIPOPG = ' ' THEN F1_XTIPOPG ELSE E2_XTIPOPG) AS FORMPGT"+CRLF
 
 cQuery += "	 ,F1_DOC"+CRLF
 cQuery += "	 ,F1_XNUMPA"+CRLF
@@ -695,7 +695,7 @@ cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
 cQuery +=  "  AND E2_VENCREA = '"+DTOS(dData)+"' "+CRLF
-cQuery +=  "  AND (F1_XTIPOPG = 'DEPOSITO' OR F1_XTIPOPG = 'PIX') "+CRLF
+cQuery +=  "  AND (E2_XTIPOPG = 'DEPOSITO' OR E2_XTIPOPG = 'PIX' OR F1_XTIPOPG = 'DEPOSITO' OR F1_XTIPOPG = 'PIX') "+CRLF
 cQuery +=  "  AND E2_PORTADO = '"+cBanco+"' "+CRLF
 
 cQuery += ")"+CRLF
