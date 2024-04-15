@@ -12,6 +12,7 @@ BK - Ponto de Entrada para criar opções na tela de Funcões Contas a Pagar
 
 User Function F750BROW() 
 Local aRotY
+Local aRotZ
 Local cEmpName := u_BKNEmpr(cEmpAnt,3) //FWEmpName(cEmpAnt)
 aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
            {OemToAnsi("Alterar Liq. "+cEmpName),    "U_BKFINA04(.F.)", 0, 2 },;
@@ -24,6 +25,10 @@ aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
 AADD( aRotina, {OemToAnsi("Liquidos "+cEmpName), aRotY, 0, 4 } )
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Resumo Diário"), "U_BKFINR34", 0, 4 } )
+
+aRotZ := { {OemToAnsi("Prazo Lançamento"), "U_BKFINR36",  0, 2 } }
+AADD( aRotina, {OemToAnsi("Relatórios"), aRotZ, 0, 4 } )
+
 AADD( aRotina, {OemToAnsi("C.Pagar Web"), "U_BKFINA05", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Txt Sispag Itau"), "U_BKFINA32", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"), "U_BKF750A", 0, 4 } )

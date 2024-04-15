@@ -36,7 +36,7 @@ Private nImpSel		:= 1
 Private aAnexos 	:= {}
 
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .T. })
-aAdd( aParam, { 1, "Data FInal:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .F. })
+aAdd( aParam, { 1, "Data Final:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .F. })
 aAdd( aParam ,{ 3, "Abas por:"		, 1              , aQuebra               , 100,'.T.',.T.})
 aAdd( aParam ,{ 3, "Formato"		, 1              , aOpçoes               , 100,'.T.',.T.})
 aAdd( aParam ,{ 3, "Impressão"		, 1              , aImpSel               , 100,'.T.',.T.})

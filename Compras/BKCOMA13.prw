@@ -115,7 +115,7 @@ If lRet
 		If nProd < 6
 			u_MsgLog(cProg,"Não houve faturamento neste período","E")
 		Else
-			u_MsgLog(cProg,"Dados de rateio não encontrados, processe a GPS no sistema Senior e solicite a integração contábil.","E")
+			u_MsgLog(cProg,"Dados de rateio não encontrados, verifique se a situação do cálculao esta como 'T', reprocesse a GPS no sistema Senior e solicite a integração contábil.","E")
 		EndIf
 	Else
 		u_WaitLog(cProg, {|oSay| IncDoc()}, 'Incluindo Documento de Entrada...')
@@ -463,7 +463,7 @@ cQuery += " ORDER BY CONTRATO "+CRLF
 cQuery += "  "+CRLF
 cQuery += " --SELECT SUM(VALOR) FROM FOLHA2 "+CRLF
 
-u_LogMemo("BKCOMA14-IRRF.SQL",cQuery)
+u_LogMemo("BKCOMA13-IRRF.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 
