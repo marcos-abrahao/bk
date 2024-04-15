@@ -28,8 +28,6 @@ AADD( aRotina, {OemToAnsi("C.Pagar Web"), "U_BKFINA05", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Txt Sispag Itau"), "U_BKFINA32", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"), "U_BKF750A", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Conhecimento"),  "MSDOCUMENT", 0, 4 } )
-//AADD( aRotina, {OemToAnsi("Anexar Arq. "+cEmpName),   "U_BKANXA01('1','SE2')", 0, 4 } )
-//AADD( aRotina, {OemToAnsi("Abrir Anexos "+cEmpName),  "U_BKANXA02('1','SE2')", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Alt Emissão/Bco"),  "U_BKF750B", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Alt Centro de Custos"), "U_BKF750C", 0, 4 } )
 IF SM0->M0_CODIGO <> "01"

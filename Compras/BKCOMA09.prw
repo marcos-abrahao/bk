@@ -15,7 +15,7 @@ User Function BKCOMA09()
 	Private oMark
 	Private cCadastro := 'Facilitador p/ Doc de Entrada'
 
-	If !FWIsAdmin()
+	If !FWIsAdmin() .AND. !IsGesFin(__cUserId)
 		u_MsgLog("BKCOMA09","Usuário sem permissão de acesso a esta rotina","E")
 		Return
 	EndIf

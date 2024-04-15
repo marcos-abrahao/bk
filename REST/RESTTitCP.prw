@@ -1736,7 +1736,7 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 //If ::userlib == '000000'
-	Memowrite("\tmp\cp.html",cHtml)
+	//Memowrite("\tmp\cp.html",cHtml)
 //EndIf
 //u_MsgLog("RESTTITCP",__cUserId)
 

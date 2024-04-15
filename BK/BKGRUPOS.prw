@@ -324,6 +324,37 @@ u_ArrXls("LISTSUP",aUsSup,"Usuários x Superiores",aCabec)
 
 Return lRet
 
+/*
+Usuários por depto
+
+	SELECT USR_ID,USR_CODIGO,USR_DEPTO,USR_CARGO FROM SYS_USR USR
+		WHERE USR.D_E_L_E_T_ = '' AND USR.USR_MSBLQL = '2'
+		ORDER BY USR_DEPTO,USR_ID
+
+
+Usuários vs Grupo
+
+SELECT USRGRP.[USR_ID]
+      ,USR.USR_CODIGO
+	  ,USR_GRUPO
+	  ,GRP.GR__NOME
+	  ,USRGRP.USR_ID
+	  ,[USR_PRIORIZA]
+	  ,USR_DEPTO
+	  
+  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP
+  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO
+  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR ON USRGRP.USR_ID = USR.USR_ID
+  WHERE GRP.D_E_L_E_T_ = '' 
+		AND USRGRP.D_E_L_E_T_ = ''
+		AND USR.D_E_L_E_T_ = ''
+		AND USR.USR_MSBLQL = '2'
+
+		--AND USRGRP.USR_GRUPO = '000029'
+		--AND USRGRP.USR_ID = '000029'
+	ORDER BY USRGRP.USR_ID
+
+*/
 
 
 // Listagem de usuarios
@@ -680,3 +711,48 @@ cRet += "wiliam.lisboa@bkconsultoria.com.br;"
 
 Return cRet
 
+
+/*/{Protheus.doc} USRCPO
+BK - Retorna campo do cadastro de usuarios
+@Return cCampo
+@author  Marcos Bispo Abrahão
+@since 12/04/24
+@version P12
+/*/
+
+User Function UsrCpo(cUser,cCampo)
+Local oStatement := nil
+Local cQuery     := ""
+Local cAliasSQL  := ""
+Local nSQLParam  := 0
+Local cRet       := ""
+Local aArea      := GetArea()
+
+cQuery := "SELECT "+cCampo + CRLF
+cQuery += " FROM SYS_USR" + CRLF
+cQuery += "   WHERE D_E_L_E_T_ = '' AND USR_MSBLQL = '2' " + CRLF
+cQuery += "   AND USR_ID = ? " + CRLF
+
+//cQuery += "ORDER BY AC9.AC9_FILIAL, AC9.AC9_ENTIDA, AC9.AC9_CODENT, AC9.AC9_CODOBJ "
+
+// Trata SQL para proteger de SQL injection.
+oStatement := FWPreparedStatement():New()
+oStatement:SetQuery(cQuery)
+
+nSQLParam++
+oStatement:SetString(nSQLParam, cUser)
+
+cQuery := oStatement:GetFixQuery()
+oStatement:Destroy()
+oStatement := nil
+
+cAliasSQL := MPSysOpenQuery(cQuery)
+
+Do While (cAliasSQL)->(!eof())
+    cRet := (cAliasSQL)->(&cCampo)
+	(cAliasSQL)->(dbSkip())
+EndDo
+(cAliasSQL)->(dbCloseArea())
+
+RestArea(aArea)
+Return (cRet)

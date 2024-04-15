@@ -12,8 +12,6 @@ Por exemplo, a chave primária de relacionamento do cadastro de clientes é: FILIA
 @version P12
 /*/
 
-
-
 User Function FtMsRel
  
 Local aRet    As Array
@@ -24,7 +22,7 @@ Local aFields As Array
  
 //Array
 aRet := {}
-// Tabela do usuario
+// Tabela do usuario SZE->Contrato x Competência para guardar os Anexos via MsDocument
 cTabela := 'SZE'
 // Campos que compoe a chave na ordem. Nao  passar filial (automatico)
 aChave  := { 'ZE_CONTRAT','ZE_COMPET'}
@@ -34,6 +32,5 @@ bMostra := { || SZE->ZE_CONTRAT + SZE->ZE_COMPET }
 aFields := {'ZE_CONTRAT','ZE_COMPET'}                                
 // funcoes do sistema para identificar o registro
 AAdd( aRet, { cTabela, aChave, bMostra, aFields } )
- 
  
 Return aRet

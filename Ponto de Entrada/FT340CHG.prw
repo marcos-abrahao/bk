@@ -47,10 +47,25 @@ Do While "__" $ cName
     cName := STRTRAN(cName,"__","_")
 EndDo
 
-cName := NoAcento(cName)
+cName := FwNoAccent(cName)
 
 u_MsgLog("FT340CHG",cName)
 Return cName
 
+// Acertar nome na base
+/*
+SELECT ACB.ACB_OBJETO ,*
+FROM AC9010 AC9 
+LEFT JOIN ACB010 ACB ON ACB.D_E_L_E_T_ = ' '
+ AND ACB.ACB_FILIAL = AC9.AC9_FILIAL
+ AND ACB.ACB_CODOBJ = AC9.AC9_CODOBJ 
+WHERE AC9.D_E_L_E_T_ = '' 
+ AND AC9.AC9_FILIAL = '  '
+ AND ACB.ACB_OBJETO LIKE 'RIDIMAR%'
+ --AND AC9.AC9_ENTIDA = 
+ --AND AC9.AC9_CODENT = 
+
+ UPDATE ACB010 SET ACB_OBJETO = 'RIDIMAR1.PDF' WHERE ACB_OBJETO = 'RIDIMAR                                        ,.PDF                                                                                                                                                    '
 
 
+*/

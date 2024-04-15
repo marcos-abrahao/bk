@@ -163,6 +163,7 @@ dbSelectArea("SZK")
 dbSelectArea("SZL")
 dbSelectArea("SZM")
 dbSelectArea("SZU")
+dbSelectArea("SZT")
 dbSelectArea("SYP")
 
 Return Nil

@@ -93,7 +93,7 @@ User Function TTMARKB(aCampos, aDados, lMarcado)
 	oTempTable:Create()
 
 	//Ajusta as colunas para o FWMarkBrowse
-	aColumn := FGetColumn( aField )
+	aColumn := FGetColumn( cAliasBrw, aField )
 
 	//Alimenta a tabela temporária do FWMarkBrose
 	CrgMarkB(@cAliasBrw, aCampos, aDados)
@@ -129,7 +129,6 @@ User Function TTMARKB(aCampos, aDados, lMarcado)
 
 	oBrowse:Activate()
 
-¬
 	//Verifica se já traz o MarkBrowse Selecionado
 	//If lMarcado
 		FMarkAll( oBrowse, aDados, lMarcado )
@@ -154,7 +153,7 @@ Alteração das colunas do FWMARKBROWSE
 @version 1.0
 @type Function
 /*/
-Static Function FGetColumn( aStruct )
+Static Function FGetColumn( cAliasBrw, aStruct )
 
 	Local cCombo		as character
 	Local nPos			as numeric
@@ -176,7 +175,7 @@ Static Function FGetColumn( aStruct )
 
 			aAdd( aColumns, FWBrwColumn():New() )
 
-			aColumns[nPos]:SetData( &( "{ || " + aStruct[nI,1] + " }" ) )
+			aColumns[nPos]:SetData( &( "{ || " + cAliasBrw+"->"+aStruct[nI,1] + " }" ) )
 			aColumns[nPos]:SetTitle( aStruct[nI,5] )
 			aColumns[nPos]:SetSize( aStruct[nI,3] )
 			aColumns[nPos]:SetDecimal( aStruct[nI,4] )

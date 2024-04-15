@@ -163,6 +163,7 @@ Local aTcFields	:= {}
 
 cQuery += " SELECT"+CRLF
 cQuery += "  CN9_NUMERO,"+CRLF
+cQuery += "  CN9_NOMCLI,"+CRLF
 cQuery += "  CTT_DESC01,"+CRLF
 cQuery += "  CN9_CODOBJ AS OBJETO,"+CRLF
 cQuery += "  CN9_NOMCLI,"+CRLF
