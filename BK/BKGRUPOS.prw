@@ -731,7 +731,11 @@ Local aArea      := GetArea()
 cQuery := "SELECT "+cCampo + CRLF
 cQuery += " FROM SYS_USR" + CRLF
 cQuery += "   WHERE D_E_L_E_T_ = '' AND USR_MSBLQL = '2' " + CRLF
-cQuery += "   AND USR_ID = ? " + CRLF
+IF VAL(cUser) > 0
+    cQuery += "   AND USR_ID = ? " + CRLF
+ELSE
+    cQuery += "   AND UPPER(USR_CODIGO) = ? " + CRLF
+ENDIF
 
 //cQuery += "ORDER BY AC9.AC9_FILIAL, AC9.AC9_ENTIDA, AC9.AC9_CODENT, AC9.AC9_CODOBJ "
 
@@ -740,7 +744,7 @@ oStatement := FWPreparedStatement():New()
 oStatement:SetQuery(cQuery)
 
 nSQLParam++
-oStatement:SetString(nSQLParam, cUser)
+oStatement:SetString(nSQLParam, UPPER(cUser))
 
 cQuery := oStatement:GetFixQuery()
 oStatement:Destroy()

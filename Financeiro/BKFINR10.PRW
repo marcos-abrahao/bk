@@ -2507,6 +2507,9 @@ IF ALLTRIM(cCHAVESD1) == "LFRH"
 				cSQL+= " AND MsgLog like '%NumCad: "+ALLTRIM(STR(VAL(QSZ2_2->Z2_PRONT)))+"%'"
 				cSQL+= " AND MsgLog like '%Data Pagamento: "+Day2Str(QSZ2_2->Z2_DATAPGT)+"/"+Month2Str(QSZ2_2->Z2_DATAPGT)+"/"+Year2Str(QSZ2_2->Z2_DATAPGT)+"%'"     
 
+				// CAST(DTHLOG -2 AS DATETIME)  : Converter campo DTHLOG em DATETIME
+				// SELECT top 100 SUBSTRING(CONVERT(VARCHAR,CAST(DTHLOG -2 AS DATEtime),112),1,8),* FROM bk_senior.bk_senior.R067LPR WHERE MsgLog like '%Data Pagamento%' and MsgLog like '%Tipo Féria%'  order by DTHLOG desc
+				
 				TCQUERY cSQL NEW ALIAS "QLSenior" 
 
 				dbSelectArea("QLSenior")

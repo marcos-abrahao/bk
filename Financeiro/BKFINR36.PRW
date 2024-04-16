@@ -53,13 +53,12 @@ oRExcel:SetParam(aParam)
 oPExcel:= PExcel():New("TITULOS",cAlias)
 oPExcel:SetTitulo("TITULOS")
 
-oPExcel:AddResumos("Tipo Pgto","F1_XTIPOPG","E2_VALOR")
-
 // Colunas da Planilha
 
 oPExcel:AddCol("NOMEEMP","QSE2->NOMEEMP","Empresa","")
 oPExcel:GetCol("NOMEEMP"):SetTamCol(15)
 
+oPExcel:AddColX3("E2_TIPO")
 
 oPExcel:AddCol("TITULO","QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA","Título","")
 oPExcel:GetCol("TITULO"):SetTamCol(15)
@@ -75,8 +74,11 @@ oPExcel:AddColX3("E2_VALOR")
 oPExcel:GetCol("E2_VALOR"):SetTotal(.T.)
 
 // Usuário
-oPExcel:AddCol("XXUSER","UsrRetName(QSE2->F1_XXUSER)","Cadastrado por","")
+oPExcel:AddCol("XXUSER","IIF(!EMPTY(QSE2->F1_XXUSER),UsrRetName(QSE2->F1_XXUSER),IIF(EMPTY(QSE2->E2_XXRHUSR),QSE2->(FwLeUserLg('E2_USERLGI',1)),QSE2->E2_XXRHUSR))","Cadastrado por","")
 oPExcel:GetCol("XXUSER"):SetTamCol(20)
+
+oPExcel:AddCol("XXDEPTO","u_UsrCPO(IIF(!EMPTY(QSE2->F1_XXUSER),QSE2->F1_XXUSER,QSE2->(FwLeUserLg('E2_USERLGI',1))),'USR_DEPTO')","Departamento","")
+oPExcel:GetCol("XXDEPTO"):SetTamCol(20)
 
 oPExcel:AddColX3("F1_XXDINC")
 
@@ -87,8 +89,8 @@ oPExcel:GetCol("XXUAPRV"):SetTamCol(20)
 oPExcel:AddColX3("F1_XXDAPRV")
 
 // Liberado por
-oPExcel:AddCol("XXULIB","UsrRetName(QSE2->F1_XXULIB)","Liberado por","")
-oPExcel:GetCol("XXULIB"):SetTamCol(20)
+oPExcel:AddCol("XXULIB","IIF(!EMPTY(QSE2->F1_XXULIB),UsrRetName(QSE2->F1_XXULIB),QSE2->E2_XXRHLIB)","Liberado por","")
+oPExcel:GetCol("XXULIB"):SetTamCol(20) 
 
 oPExcel:AddColX3("F1_XXDLIB")
 
@@ -99,13 +101,14 @@ oPExcel:GetCol("XXUCLAS"):SetTamCol(20)
 oPExcel:AddColX3("F1_XXDCLAS")
 
 // Prazo
-oPExcel:AddCol("PRAZO1","u_R36Prazo(QSE2->F1_XXDINC,QSE2->E2_VENCREA,1)","Prazo","")
+oPExcel:AddCol("PRAZO1","u_R36Prazo(QSE2->E2_TIPO,QSE2->F1_XXDINC,QSE2->E2_VENCREA,QSE2->F1_XXUSER,QSE2->(FwLeUserLg('E2_USERLGI',1)),1)","Prazo","")
 oPExcel:GetCol("PRAZO1"):SetTamCol(20)
+oPExcel:GetCol("PRAZO1"):AddCor({|x| SUBSTR(x,1,1) == 'F'}	,"FF0000","",,,.T.)	// Vermelho
 
-oPExcel:AddCol("PRAZO2","u_R36Prazo(QSE2->F1_XXDINC,QSE2->E2_VENCREA,2)","Tempo","")
+oPExcel:AddCol("PRAZO2","u_R36Prazo(QSE2->E2_TIPO,QSE2->F1_XXDINC,QSE2->E2_VENCREA,QSE2->F1_XXUSER,QSE2->(FwLeUserLg('E2_USERLGI',1)),2)","Dias","")
 oPExcel:GetCol("PRAZO2"):SetTamCol(20)
 
-
+oPExcel:AddResumos("Total","PRAZO1","PRAZO1")
 
 /*
 oPExcel:AddCol("STATUS","u_DE2XXPgto(E2_XXPGTO)")
@@ -138,7 +141,7 @@ If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.     
 	lRet := .T.
 	dDtIni  := mv_par01
 	dDtFim  := mv_par02
-	nOpcao := mv_par03
+	nOpcao	:= mv_par03
 
 	cTitulo := cTitulo +" - "+DTOC(dDtIni)+iIf(dDtFim <> dDtIni," até "+DTOC(dDtFim),"")
 Endif
@@ -159,6 +162,7 @@ cQuery := "WITH RESUMO AS ( " + CRLF
 cQuery += " SELECT "+CRLF
 cQuery += "	  '"+cEmpAnt+"' AS EMPRESA"+CRLF
 cQuery += "	 ,'"+u_BKNEmpr(cEmpAnt,3)+"' AS NOMEEMP"+CRLF
+cQuery += "	 ,E2_TIPO"+CRLF
 cQuery += "	 ,E2_PREFIXO"+CRLF
 cQuery += "	 ,E2_NUM"+CRLF
 cQuery += "	 ,E2_PARCELA"+CRLF
@@ -172,9 +176,11 @@ cQuery += "	 ,E2_EMIS1"+CRLF
 cQuery += "	 ,E2_VALOR"+CRLF
 cQuery += "	 ,A2_NOME"+CRLF
 cQuery += "	 ,(CASE WHEN E2_XTIPOPG <> ' ' THEN E2_XTIPOPG ELSE F1_XTIPOPG END) AS F1_XTIPOPG"+CRLF
-cQuery += "	 ,E2_XXPGTO"+CRLF
+cQuery += "	 ,(CASE WHEN E2_XXRHLIB <> ' ' THEN E2_XXRHLIB ELSE Z2_APROV   END) AS E2_XXRHLIB"+CRLF
+cQuery += "	 ,E2_XXRHUSR"+CRLF
+cQuery += "	 ,E2_XXRHTDE"+CRLF
 cQuery += "	 ,F1_XXUSER"+CRLF
-cQuery += "	 ,ISNULL(F1_XXDINC,Z2_DATAEMI) AS F1_XXDINC"+CRLF
+cQuery += "	 ,ISNULL(F1_XXDINC,SUBSTRING(Z2_DATAEMI,7,2)+'/'+SUBSTRING(Z2_DATAEMI,5,2)+'/'+SUBSTRING(Z2_DATAEMI,1,4)) AS F1_XXDINC"+CRLF
 cQuery += "	 ,F1_XXUAPRV"+CRLF
 cQuery += "	 ,F1_XXDAPRV"+CRLF
 cQuery += "	 ,F1_XXULIB"+CRLF
@@ -289,6 +295,7 @@ TCQUERY cQuery NEW ALIAS "QSE2"
 TCSETFIELD("QSE2","E2_VENCREA","D",8,0)
 TCSETFIELD("QSE2","E2_EMISSAO","D",8,0)
 TCSETFIELD("QSE2","E2_EMIS1","D",8,0)
+TCSETFIELD("QSE2","E2_XXRHTDE","D",8,0)
 TCSETFIELD("QSE2","HIST","M",10,0)
 
 Dbselectarea("QSE2")
@@ -297,32 +304,45 @@ QSE2->(Dbgotop())
 Return nil
 
 
-
-
-User Function R36Prazo(cIni,dFim,nTpRet)
-Local cRet := ""
-Local nDias := 0
+User Function R36Prazo(cTipo,cIni,dFim,cF1User,cLgiUser,nTpRet)
+Local cRet	:= ""
+Local nDias	:= 0
 Local dIni
 Local dDtP
+Local cDepto:= ""
 
 dIni := CTOD(SUBSTR(cIni,1,10))
 dDtP := dIni
 
-If !Empty(dIni) .AND. !Empty(dFim)
-	Do While dDtP < dFim
-		dDtP++
-		dDtP := DataValida(dDtP,.T.)
-		nDias++
-	EndDo
+If !Empty(dIni) .AND. !Empty(dFim) .AND. !(TRIM(cTipo) $ "DP/PA")
 
-	If nTpRet == 1
-		If nDias >= 3
-			cRet := "Dentro do Prazo"
+	cDepto := ALLTRIM(UPPER(u_UsrCPO(IIF(!EMPTY(cF1User),cF1User,cLgiUser),'USR_DEPTO')))
+
+	If !(cDepto $ "FINANCEIRO/RH/JURICO")
+
+		Do While dDtP < dFim
+			dDtP++
+			dDtP := DataValida(dDtP,.T.)
+			nDias++
+		EndDo
+
+		If nTpRet == 1
+			If nDias >= 3
+				cRet := "Dentro do Prazo"
+			Else
+				cRet := "Fora do Prazo"
+			EndIf
 		Else
-			cRet := "Fora do Prazo"
+			cRet := ALLTRIM(STR(nDias,5))
 		EndIf
 	Else
-		cRet := ALLTRIM(STR(nDias,5))+ " dias"
+		If nTpRet == 1
+			cRet := "Não se Aplica"
+		EndIf
+	EndIf
+Else
+	If nTpRet == 1
+		cRet := "Não se Aplica"
 	EndIf
 EndIf
 
