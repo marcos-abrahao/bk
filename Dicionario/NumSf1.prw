@@ -33,7 +33,7 @@ If !FWIsInCallStack("MSEXECAUTO")   //ALLTRIM(ProcName(9)) <> "MSEXECAUTO" // MS
 ENDIF
 */
 
-If !FWIsInCallStack("MSEXECAUTO")   // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
+If !FWIsInCallStack("MSEXECAUTO") .AND. !FWIsInCallStack("GERADOCE")  // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
 	If VAL(cNFiscal) == 0 
 		If cSerie == "DNF"
 			nPar := GetMv("MV_XXNUMF1",.F.,STRZERO(0,9))

@@ -13,7 +13,7 @@ Local aRotY	:= {}
 
 // Menu Facilitador de digitação de Pré-Notas
 AADD(aRotY,{("Incluir Doc via Modelo"), "U_BKCOMA16('P')", 0, 3 })
-AADD(aRotY,{("Marcar Doc como Modelo"), "U_BKCOMP16", 0, 2 })
+AADD(aRotY,{("Marcar Doc como Modelo"), "U_BKCOMP16('P')", 0, 2 })
 AADD( aRotina, {("Facilitador"), aRotY, 0, 4 } )
 
 AADD( aRotina, {("Pesquisar Itens/NF"), "U_BKCOMC01", 0, 1 } )

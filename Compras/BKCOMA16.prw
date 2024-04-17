@@ -9,7 +9,7 @@ BK- MVC da tabela SZT-Facilitador p/ Doc de Entrada
 @version 1.0
 @obs Criar a coluna ZT_OK com o tamanho 2 no Configurador e deixar como não usado
 /*/
-User Function BKCOMP16()
+User Function BKCOMP16(cTipoDoc)
 Local aArea 	:= GetArea()
 
 Private aParam 	:= {}
@@ -25,15 +25,18 @@ Private cModelZT := SPACE(70)
 Private cDepto 	:=  u_UsrCpo(__cUserId,"USR_DEPTO")
 
 cHelp1 := "Informe um descritivo para o Modelo:"
-cHelp2 := "Exemplo: CONTA DE LUZ AV IPIRANGA"
-cHelp3 := "Série: "+SF1->F1_SERIE+" Doc: "+SF1->F1_DOC 
-cHelp4 := TRIM(Posicione("SA2",1,xFilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_NREDUZ"))
+cHelp2 := "Exemplo: "+TRIM(Posicione("SA2",1,xFilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_NREDUZ"))
 
 If BKPar1()
 	u_WaitLog(cPerg, {|| IncSZT()},"Incluindo modelo "+cModelZT)
-ENDIF
 
-RestArea(aArea)
+	RestArea(aArea)
+
+	u_BKCOMA16(cTipoDoc)
+Else
+	RestArea(aArea)
+EndIF
+
 Return Nil
 
 
@@ -44,21 +47,19 @@ Local aRet := {}
 Do While .T.
 
 	aParam := {}
-	aAdd( aParam, { 1, "Modelo:"	, cModelZT	, ""	, ""	, ""	, ""	, 100	, .F. })
 	aAdd( aParam, { 9, cHelp1		, 190		, 10	, .T.})
 	aAdd( aParam, { 9, cHelp2		, 190		, 10	, .T.})
-	aAdd( aParam, { 9, cHelp3		, 190		, 10	, .T.})
-	aAdd( aParam, { 9, cHelp4		, 190		, 10	, .T.})
+	aAdd( aParam, { 1, "Modelo:"	, cModelZT	, ""	, ""	, ""	, ""	, 100	, .T. })
 
 	lRet := (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
 	If !lRet
 		Exit
 	Else
-		cModelZT	:= SemAcento(UPPER(mv_par01))
+		cModelZT	:= SemAcento(UPPER(mv_par03))
 		If Empty(cModelZT)
-			u_MsgLog(cPerg,"Informe o descritivo do modelo: somente letras e numeros","E")
+			u_MsgLog(cPerg,"Informe o descritivo do modelo: somente letras e números","E")
 		Else
-			If u_MsgLog(cPerg,"Confirma o modelo "+TRIM(cModelZT),"Y")
+			If u_MsgLog(cPerg,"Confirma inclusão do modelo "+TRIM(cModelZT),"Y")
 				dbSelectArea("SZT")
 				dbSetOrder(1)
 				If dbSeek(xFilial("SZT")+cModelZT)
@@ -125,10 +126,10 @@ User Function BKCOMA16(cTipoDoc)
 	Private cTpDoc  := cTipoDoc  // d=Doc, P=Pré-Nota
 	Private cPerg	:= "BKCOMA16"
 
-	If !FWIsAdmin() .AND. !IsGesFin(__cUserId)
-		u_MsgLog("BKCOMA16","Usuário sem permissão de acesso a esta rotina","E")
-		Return
-	EndIf
+	//If !FWIsAdmin() .AND. !IsGesFin(__cUserId)
+	//	u_MsgLog("BKCOMA16","Usuário sem permissão de acesso a esta rotina","E")
+	//	Return
+	//EndIf
 
 	u_MsgLog("BKCOMA16")
 
@@ -145,8 +146,8 @@ User Function BKCOMA16(cTipoDoc)
 	
 	oMark:SetFieldMark( 'ZT_OK' )
 
-	// Exemplo de filtro
-	//oMark:SetFilterDefault("SZT->ZS_STATUS == '1'")
+	// filtro
+	oMark:SetFilterDefault("SZT->ZT_DEPTO == '"+cDepto+"' .OR.  SZT->ZT_USER == '"+__cUserId+"'")
 
 	// Setando Legenda cores disponíveis: GREEN, RED, YELLOW, ORANGE, BLUE, GRAY, BROWNS, BLACK, PINK e WHITE
 	// São criados filtros automáticos para as legendas
@@ -230,8 +231,23 @@ Static Function SZTProc1()
 		//Caso esteja marcado, aumenta o contador
 		If oMark:IsMark(cMarca) //If !Empty(SZT->ZS_OK)
 			nCt++
-			//Limpando a marca
-			GeraDocE(.F.)
+			If GeraDocE(.F.)
+				If SF1->(!EOF())
+					dbSelectArea("SZT")
+					RecLock("SZT",.F.)
+					// Grava a nova NF como modelo
+					SZT->ZT_SERIE	:= SF1->F1_SERIE
+					SZT->ZT_DOC		:= SF1->F1_DOC
+					SZT->ZT_FORNEC	:= SF1->F1_FORNECE
+					SZT->ZT_LOJA	:= SF1->F1_LOJA
+					//Limpando a marca
+					SZT->ZT_OK		:= "  "
+					SZT->(MsUnLock())
+					u_MsgLog(cPerg,"Documento "+SF1->F1_DOC+" incluído via modelo "+TRIM(SZT->ZT_MODELO),"S")
+				Else
+					u_MsgLog(cPerg,"Documento não foi incluído.","E")
+				EndIf
+			EndIf
 		EndIf
 
 		//Pulando registro
@@ -251,7 +267,10 @@ Static Function GeraDocE(lTela)
 	Local aCabec    := {}
 	Local aLinha    := {}
 	Local aItens    := {}
-	Local nItem     := 1
+	Local nTotal 	:= 0
+	Local nTotalR	:= 0
+	Local nFator	:= 0
+	Local nItem     := 0
 	Local lRet 		:= .T.
 	Local cDoc 		:= SZT->ZT_DOC
 	Local cSerie	:= SZT->ZT_SERIE
@@ -262,32 +281,78 @@ Static Function GeraDocE(lTela)
 	Local dEmissao  := DATE()
 	Local dVenc 	:= DATE()
 	Local aParc 	:= {}
-
-	//Local mParcel	:= ""
-	//Local cErrLog	:= ""
+	Local nX 		:= 0
 	Local nValor 	:= 0
+
+	//Variaveis utilizadas no P.E. SF1140i
+	Private ycxTipoPg := SF1->F1_XTIPOPG
+	Private ycxNumPa  := SF1->F1_XNUMPA
+	Private ycxBanco  := SF1->F1_XBANCO
+	Private ylxP1PA   := IIF(SF1->F1_XXP1PA=='S',.T.,.F.)
+	Private ycxAgencia:= SF1->F1_XAGENC
+	Private ycxConta  := SF1->F1_XNUMCON
+	Private ycChvNfe  := SF1->F1_CHVNFE
+	Private ydPrvPgt  := dVenc
+	Private ycJsPgt	  := SF1->F1_XXJSPGT
+	Private ycxTpPix  := SF1->F1_XXTPPIX
+	Private ycxChPix  := SF1->F1_XXCHPIX
+	Private ynTipoPg  := 0
+	Private ycEspecie := SF1->F1_ESPECIE
+	Private ycxCond	  := SF1->F1_COND
+	Private ymParcel  := SF1->F1_XXPARCE
 
 	SF1->(dbSetOrder(1))
 	If !SF1->(DbSeek(FWxFilial("SF1") + cDoc + cSerie + cCodigo + cLoja + cTipo))
-		u_MsgLog(cPerg,"Documento referenciado no modelo não encontrado!","E")
+		u_MsgLog(cPerg,"Documento referenciado no modelo não foi encontrado, exclua este modelo!","E")
 		Return .F.
+	Else
+		If cTpDoc == "D" .AND. SF1->F1_STATUS <> "A"
+			u_MsgLog(cPerg,"Documento referenciado no modelo não foi classificado!","E")
+			Return .F.
+		EndIf
 	EndIF
 
 	SD1->(dbSetOrder(1))
 	If SD1->(DbSeek(xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA))
 		Do While !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA  
-			If !Empty(SD1->D1_XXHIST)
-				cHist := SD1->D1_XXHIST
-				Exit
+
+			aLinha := {}
+			nItem++
+
+			aAdd(aLinha,  {"D1_ITEM",    StrZero(nItem, 3),	Nil})
+			aAdd(aLinha,  {"D1_FILIAL",  FWxFilial('SD1'),	Nil})
+			aAdd(aLinha,  {"D1_COD",     SD1->D1_COD,		Nil})
+			aAdd(aLinha,  {"D1_QUANT",   SD1->D1_QUANT,		Nil})
+			aAdd(aLinha,  {"D1_VUNIT",   SD1->D1_VUNIT,		Nil})
+			aAdd(aLinha,  {"D1_TOTAL",   SD1->D1_TOTAL,		Nil})
+			If !Empty(SD1->D1_TES)
+				aAdd(aLinha,  {"D1_TES", SD1->D1_TES,		Nil})
 			EndIf
+			aAdd(aLinha,  {"D1_CC",      SD1->D1_CC,		Nil})
+			If nItem == 1
+				aAdd(aLinha,  {"D1_XXHIST",  cHist,			Nil})
+			Else
+				aAdd(aLinha,  {"D1_XXHIST",  "",			Nil})
+			EndIf
+			aAdd(aLinha,  {"D1_LOCAL",   SD1->D1_LOCAL,		Nil})
+			aAdd(aLinha,  {"AUTDELETA",  "N",				Nil})
+			aAdd(aItens, aLinha)
+
+			If !Empty(SD1->D1_XXHIST) .AND. Empty(cHist)
+				cHist := SD1->D1_XXHIST
+			EndIf
+
+			nTotal += SD1->D1_TOTAL
 			SD1->(dbSkip())
 		EndDo
 	EndIf
+	nValor := nTotal
 
 	If ExistCpo("SE4", SF1->F1_COND)
-		aParc := Condicao(100,SF1->F1_COND,,dDataBase)
+		aParc := Condicao(nTotal,SF1->F1_COND,,dDataBase)
 		If Len(aParc) > 0
 			dVenc 	:= aParc[1,1]
+			ydPrvPgt:= dVenc
 		EndIf
 	EndIf
 
@@ -317,14 +382,16 @@ Static Function GeraDocE(lTela)
 	aAdd(aCabec, {"F1_DESPESA", SF1->F1_DESPESA,	Nil})
 
 	//01;29/03/2021;397.90;
-	//mParcel := "01;"+DTOC(SF1->F1_XXPVPGT)+";"+ALLTRIM(STR(SF1->F1_TOTAL-SF1->F1_VALDESC+SF1->F1_DESPESA,14,2))+";"+CRLF
+	//mParcel := "01;"+DTOC(dVenc)+";"+ALLTRIM(STR(nValor,14,2))+";"+CRLF
 	//aAdd(aCabec, {"F1_XXPARCE", mParcel,			Nil})
 	
 
 	// Liberar automaticamente o Doc
-	//aAdd(aCabec, {"F1_XXLIB",	"L",			      Nil})
-	//aAdd(aCabec, {"F1_XXULIB",	__cUserId,		      Nil})
-	//aAdd(aCabec, {"F1_XXDLIB",	DtoC(Date())+"-"+Time(), Nil})
+	If cTpDoc == 'D'
+		aAdd(aCabec, {"F1_XXLIB",	"L",			      Nil})
+		aAdd(aCabec, {"F1_XXULIB",	__cUserId,		      Nil})
+		aAdd(aCabec, {"F1_XXDLIB",	DtoC(Date())+"-"+Time(), Nil})
+	Endif
 
 	//aAdd(aCabec, {"F1_SEGURO",  nSeguro,                                   Nil})
 	//aAdd(aCabec, {"F1_FRETE",   nFrete,                                    Nil})
@@ -332,130 +399,34 @@ Static Function GeraDocE(lTela)
 	//aAdd(aCabec, {"F1_VALBRUT", nTotalMerc + nSeguro + nFrete + nIcmsSubs, Nil})
 	//aAdd(aCabec, {"F1_CHVNFE",  cChaveNFE,                                 Nil})
 
-	SD1->(dbSetOrder(1))
-	If SD1->(DbSeek(xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA))
-		Do While !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA  
-			aLinha := {}
-			aAdd(aLinha,  {"D1_ITEM",    StrZero(nItem, 3),	Nil})
-			aAdd(aLinha,  {"D1_FILIAL",  FWxFilial('SD1'),	Nil})
-			aAdd(aLinha,  {"D1_COD",     SD1->D1_COD,		Nil})
-			aAdd(aLinha,  {"D1_QUANT",   SD1->D1_QUANT,		Nil})
-			aAdd(aLinha,  {"D1_VUNIT",   SD1->D1_VUNIT,		Nil})
-			aAdd(aLinha,  {"D1_TOTAL",   SD1->D1_TOTAL,		Nil})
-			aAdd(aLinha,  {"D1_VALDESC", SD1->D1_VALDESC, 	Nil})
-			aAdd(aLinha,  {"D1_DESPESA", SD1->D1_DESPESA, 	Nil})
-			aAdd(aLinha,  {"D1_TES",     SD1->D1_TES,		Nil})
-			aAdd(aLinha,  {"D1_CC",      SD1->D1_CC,		Nil})
-			If nItem == 1
-				aAdd(aLinha,  {"D1_XXHIST",  cHist,			Nil})
-			EndIf
-			aAdd(aLinha,  {"D1_LOCAL",   SD1->D1_LOCAL,		Nil})
-			//aAdd(aLinha,  {"D1_X_TPCUS", SD1->D1_X_TPCUS,	Nil})
-			//aAdd(aLinha,  {"D1_LOTEFOR", cLote,      		Nil})
+	// Rateio com o valor novo
 
-			aAdd(aLinha,  {"AUTDELETA",  "N",				Nil})
-			aAdd(aItens, aLinha)
-			SD1->(dbSkip())
-		EndDo
+	nFator  := nValor / nTotal
+	nTotalR := 0 
+	For nX := 1 To Len(aItens)
+		nValIt := ROUND(aItens[nX,6,2] * nFator,2)
+		aItens[nX,6,2] := nValIt  // Total
+		aItens[nX,5,2] := nValIt / aItens[nX,4,2]
+
+		nTotalR += nValIt
+	Next
+	
+	// Acertar a diferença no primeiro item
+	If nTotalR <> nValor
+		aItens[1,6,2] += (nValor - nTotalR)
+		aItens[1,5,2] += (nValor - nTotalR) / aItens[1,4,2]
 	EndIf
+
+	// Gravar o histórico no item 1
+	aItens[1,9,2] := cHist
+
 
 	If cTpDoc == "D"  // Documento de Entrada
 		MATA103(aCabec, aItens, 3, .T.) // inclusão Tela
 	Else // Pré-Nota
-		MATA140(aCabec, aItens, 3, .F., 1)
+		MATA140(aCabec, aItens, 3, .F., 5)
 	EndIf
-
-	/*
-
-	//Chama a inclusão da pré nota
-	SB1->(DbSetOrder(1))
-	lMsErroAuto := .F.
-
-	//MATA140(aCabec, aItens, 3)
-    Begin Transaction	                                                            
-
-        MSExecAuto({|x,y,z| Mata103(x,y,z)}, aCabec, aItens, 3, lTela)
-            
-		If lMsErroAuto 
-			u_LogMsExec(,,)
-            DisarmTransaction()
-            break
-        EndIf                            
-
-    End Transaction
-
-	//Se não houve erros
-	If !lMsErroAuto
-		cErrLog := "Documento "+cDoc+" Série "+cSerie+" incluido com sucesso em "+DtoC(Date())+"-"+Time()
-
-*/
-		//Posiciona na SF1
-		/*
-		SF1->(DbSeek(FWxFilial("SF1") + cDoc + cSerie + cCodigo + cLoja))
-
-		RecLock("SF1",.F.)
-		SF1->F1_XXLIB  := "L"
-		SF1->F1_XXULIB := __cUserId
-		SF1->F1_XXDLIB := DtoC(Date())+"-"+Time()
-		MsUnLock("SF1")
-
-		//Se for apenas inclusão de pré nota, abre como alteração
-		If cTipoImp == "1"
-			aRotina	:= {;
-				{ "Pesquisar",             "AxPesqui",    0, 1,0, .F.},;
-				{ "Visualizar",            "A140NFiscal", 0, 2,0, .F.},;
-				{ "Incluir",               "A140NFiscal", 0, 3,0, Nil},;
-				{ "Alterar",               "A140NFiscal", 0, 4,0, Nil},;
-				{ "Excluir",               "A140NFiscal", 0, 5,0, Nil},;
-				{ "Imprimir",              "A140Impri",   0, 4,0, Nil},;
-				{ "Estorna Classificacao", "A140EstCla",  0, 5,0, Nil},;
-				{ "Legenda",               "A103Legenda", 0, 2,0, .F.}}
-
-			//Chama a pré nota, como alteração
-			aHeadSD1 := {}
-			ALTERA   := .T.
-			A140NFiscal('SF1', SF1->(RecNo()), 4)
-
-			//Senão, se for classificação, abre o documento de Entrada
-		ElseIf cTipoImp == "2" //Classifica
-			aRotina := {;
-				{ "Pesquisar",   "AxPesqui",    0, 1}, ;
-				{ "Visualizar",  "A103NFiscal", 0, 2}, ;
-				{ "Incluir",     "A103NFiscal", 0, 3}, ;
-				{ "Classificar", "A103NFiscal", 0, 4}, ;
-				{ "Retornar",    "A103Devol",   0, 3}, ;
-				{ "Excluir",     "A103NFiscal", 3, 5}, ;
-				{ "Imprimir",    "A103Impri",   0, 4}, ;
-				{ "Legenda",     "A103Legenda", 0, 2} }
-
-			//Abre a tela de documento de entrada
-
-			A103NFiscal('SF1', SF1->(RecNo()), 4)
-		EndIf
-		*/
-
-/*
-
-	Else 		//Senão, mostra o erro do execauto
-		u_MsgLog("BKCOMA16", "Falha ao incluir Documento / Série ('"+cDoc+"/"+cSerie+"')!", "E")
-		lRet :=.F.
-	EndIf
-
-	If lRet
-		RecLock('SZT', .F.)
-		SZT->ZS_OK		:= ''
-		SZT->ZS_STATUS	:= '1'
-		SZT->ZS_DULT	:= dDataBase
-		SZT->ZS_ERRO	:= cErrLog
-		SZT->(MsUnlock())
-	Else
-		RecLock('SZT', .F.)
-		SZT->ZS_STATUS	:= '2'
-		SZT->ZS_ERRO	:= cErrLog
-		SZT->(MsUnlock())
-	EndIf
-*/
-
+	
 return lRet
 
 
@@ -470,17 +441,17 @@ Local oDlg		as Object
 Local oFont		as Object
 Local oPanel01	as Object
 
-Local oSerie	as Object
-Local oDoc		as Object
-Local oEmis		as Object
-Local oVenc		as Object
-Local oMemo		as Object
-
 Local aButtons	:= {}
 Local lOk		:= .F.
 Local cPict		:= "@E 99,999,999,999.99"
 Local cTitulo2	:= "Dados para o novo Documento: "+TRIM(SUBSTR(SZT->ZT_MODELO,1,20))
 Local nPar 		:= 0
+
+Private oSerie	as Object
+Private oDoc	as Object
+Private oEmis	as Object
+Private oVenc	as Object
+Private oMemo	as Object
 
 If cSerie == "DNF"
 	nPar := GetMv("MV_XXNUMF1",.F.,STRZERO(0,9))
@@ -489,7 +460,7 @@ If cSerie == "DNF"
 	PutMv("MV_XXNUMF1",cDoc)
 EndIf
 
-DO WHILE .T.	
+//DO WHILE .T.	
 
     DEFINE MSDIALOG oDlg TITLE cTitulo2 FROM 000,000  TO 520,700  PIXEL
     
@@ -517,12 +488,7 @@ DO WHILE .T.
 		
 	ACTIVATE MSDIALOG oDlg CENTERED Valid(ValidaDoc(cSerie,@cDoc,cCodigo,cLoja,dEmissao,dVenc,nValor,cHist)) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , @aButtons)
 		
-	If ( lOk )
-		EXIT
-	EndIf
-	lOk := .F.
-	
-ENDDO
+
 		                   
 Restarea( aArea )
 
@@ -536,6 +502,7 @@ Local cTipo	:= "N"
 
 If Val(cDoc) > 0
 	cDoc := STRZERO(VAL(ALLTRIM(cDoc)),9)
+	oDoc:Refresh()
 Else
 	u_MsgLog(cPerg,"Número do documento incorreto","E")
 	lRet := .F.

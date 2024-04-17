@@ -220,8 +220,31 @@ Else
 	cLibF1  := "9"
 EndIf
 //cLibF1   := "A" // Remover
-
 nValTot := CalcTot()
+
+If FWIsInCallStack("GERADOCE")
+	// Pegar os campos das varivei private, pois via autocab não vem
+	cxTipoPg := ycxTipoPg 
+	cxNumPa  := ycxNumPa  
+	cxBanco  := ycxBanco  
+	lxP1PA   := ylxP1PA   
+	cxAgencia:= ycxAgencia
+	cxConta  := ycxConta  
+	cChvNfe  := ycChvNfe  
+	dPrvPgt  := ydPrvPgt  
+	cJsPgt	 := ycJsPgt
+	cxTpPix  := ycxTpPix  
+	cxChPix  := ycxChPix  
+	nTipoPg  := ynTipoPg  
+	cEspecie := ycEspecie 
+	cxCond	 := ycxCond
+	//mParcel  := ymParcel 
+	//AltCond(nValTot)
+EndIf
+
+If Empty(cxCond)
+	cxCond := "092" // 2 dias
+EndIf
 
 dValid := DataValida(dValid+1,.T.)
 dValid := DataValida(dValid+1,.T.)
@@ -292,7 +315,7 @@ EndIf
 @ 075,135 MSGET oGetChPix VAR cxChPix   OF oDlg3 PICTURE "@!" SIZE 130,10 PIXEL WHEN (nRadMenu1==7 .AND. lAlt) Valid IIf(nRadMenu1==7,!Empty(cxChPix),.T.)
 
 @ 097,010 SAY 'Cond. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
-@ 095,045 MSGET oGetCond VAR cxCond OF oDlg3 WHEN lAlt VALID (!EMPTY(cxCond) .AND. AltCond(nValTot)) F3 "SE4" SIZE 20,10 PIXEL HASBUTTON
+@ 095,045 MSGET oGetCond VAR cxCond OF oDlg3 WHEN lAlt VALID (!EMPTY(cxCond) .AND. AltCond(nValTot,.F.)) F3 "SE4" SIZE 20,10 PIXEL HASBUTTON
 
 @ 097,080 SAY oSaySE4 PROMPT cDescrSE4 OF oDlg3 PIXEL COLOR CLR_RED
 
@@ -316,7 +339,7 @@ If lEsc .OR. !lAlt
 	@ 230,170 BUTTON "Sair" SIZE 040, 012 PIXEL OF oDlg3 Action(lRet:= .F.,oDlg3:End())
 EndIf
 
-ACTIVATE MSDIALOG oDlg3 CENTERED VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL),lEsc)  //cNFiscal+cSerie+cA100For+cLoja+cTipo
+ACTIVATE MSDIALOG oDlg3 CENTERED ON INIT AltCond(nValTot,.T.) VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL),lEsc)  //cNFiscal+cSerie+cA100For+cLoja+cTipo
 If nRadMenu1 > 0
 	cxTipoPg := aOpcoes[nRadMenu1]
 	If nRadMenu1 <> 4 .AND. !lxP1PA
@@ -588,7 +611,7 @@ EndIf
 Return Nil
 
 
-Static Function AltCond(nValTot)
+Static Function AltCond(nValTot,lIni)
 Local aParc
 Local lRet	:= .T.
 Local nX	:= 0
@@ -596,6 +619,15 @@ Local nX	:= 0
 If ExistCpo("SE4", cxCond)
 	aParc := Condicao(nValTot,cxCond,,dDataBase)
 	If Len(aParc) > 0
+
+		If lIni 
+			If !Empty(dPrvPgt)
+				aParc[1,1] := dPrvPgt
+			ElseIf aParc[1,1] < dValid
+				aParc[1,1] := dValid
+			EndIf
+		EndIf
+
 		dPrvPgt 	:= aParc[1,1]
 		cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 

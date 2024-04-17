@@ -318,7 +318,7 @@ If !Empty(dIni) .AND. !Empty(dFim) .AND. !(TRIM(cTipo) $ "DP/PA")
 
 	cDepto := ALLTRIM(UPPER(u_UsrCPO(IIF(!EMPTY(cF1User),cF1User,cLgiUser),'USR_DEPTO')))
 
-	If !(cDepto $ "FINANCEIRO/RH/JURICO")
+	If !(cDepto $ "FINANCEIRO/RH/JURIDICO/FISCAL")
 
 		Do While dDtP < dFim
 			dDtP++

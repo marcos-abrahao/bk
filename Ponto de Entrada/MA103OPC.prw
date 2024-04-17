@@ -20,7 +20,7 @@ Local lMaster   := u_InGrupo(__cUserId,"000000/000005/000007/000031/000037/00003
 If lMaster
 	// Menu Facilitador de digitação de Pré-Notas
 	AADD(aRotY, {("Incluir Doc via Modelo"), "U_BKCOMA16('D')", 0, 3 })
-	AADD(aRotY, {("Marcar Doc como Modelo"), "U_BKCOMP16", 0, 2 })
+	AADD(aRotY, {("Marcar Doc como Modelo"), "U_BKCOMP16('D')", 0, 2 })
 	AADD( aRot, {("Facilitador"), aRotY, 0, 4 } )
 EndIf
 
