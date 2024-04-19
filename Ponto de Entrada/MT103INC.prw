@@ -186,7 +186,7 @@ If lClass
 			If lMaster
 			
 				If SF1->F1_XXLIB == 'L'
-					nOper := u_AvisoLog("MT103INC","MT103INC","Classificação fiscal:",{"Classificar","Estornar Lib.","Cancelar"})
+					nOper := u_AvisoLog("MT103INC","MT103INC","Classificação fiscal:",{"Classificar","Estornar Lib","Cancelar"})
 				Else
 					nOper := u_AvisoLog("MT103INC","MT103INC","Classificação fiscal (documento estornado):",{"Classificar","Cancelar"})
 				EndIf

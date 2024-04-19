@@ -239,11 +239,10 @@ If FWIsInCallStack("GERADOCE")
 	cEspecie := ycEspecie 
 	cxCond	 := ycxCond
 	//mParcel  := ymParcel 
-	//AltCond(nValTot)
 EndIf
 
 If Empty(cxCond)
-	cxCond := "092" // 2 dias
+	cxCond := "092" // 3 dias
 EndIf
 
 dValid := DataValida(dValid+1,.T.)
@@ -431,7 +430,7 @@ EndIf
 
 If nRadio == 1
 	If VAL(cxBanco) = 0 .OR. LEN(ALLTRIM(cxBanco)) < 3
-		u_MsgLog("SF1140I","Informe o banco para depósito (numerico, 3 dígitos)","E")
+		u_MsgLog("SF1140I","Informe o banco para depósito (numérico, 3 dígitos)","E")
 		oGetBco:Enable()
 		oGetBco:Setfocus()
 		lRet := .F.
@@ -511,7 +510,7 @@ If lRet
 
 	// Validação da Chave NFE
 	If !Empty(cEspecie)
-		If !u_ConsNfe(cChvNfe,cEspecie) 
+		If !u_ConsNfe(cChvNfe,cEspecie,SF1->F1_SERIE) 
 			oGetChv:Setfocus()
 			lRet := .F.
 		EndIf
@@ -521,7 +520,7 @@ EndIf
 Return lRet
 
 
-User Function ConsNfe(cChvNfe,cEspecie)
+User Function ConsNfe(cChvNfe,cEspecie,cSerie)
 Local lRet := .T.
 Local aAreaSA2 := SA2->(GetArea())
 Local cCNPJ := ""
@@ -534,7 +533,7 @@ If !Empty(cEspecie)
 		Else
 			cCNPJ := Posicione("SA2",1,xFilial("SA2") + SF1->F1_FORNECE + SF1->F1_LOJA,"A2_CGC")
 			If !Empty(cCNPJ)
-				If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14))
+				If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14)) .AND. cSerie <> "890"
 					u_MsgLog("SF1140I","CNPJ da Chave da NFe diferente do CNPJ do fornecedor","E")
 					lRet := .F.
 				ElseIf SUBSTR(STR(YEAR(SF1->F1_EMISSAO),4),3,2)+STRZERO(MONTH(SF1->F1_EMISSAO),2) <> SUBSTR(cChvnfe,3,4)
@@ -620,13 +619,11 @@ If ExistCpo("SE4", cxCond)
 	aParc := Condicao(nValTot,cxCond,,dDataBase)
 	If Len(aParc) > 0
 
-		If lIni 
-			If !Empty(dPrvPgt)
-				aParc[1,1] := dPrvPgt
-			ElseIf aParc[1,1] < dValid
-				aParc[1,1] := dValid
-			EndIf
+		If lIni .AND. !Empty(dPrvPgt)
+			aParc[1,1] := dPrvPgt
 		EndIf
+
+		aParc[1,1]	:= DataValida(aParc[1,1],.T.)
 
 		dPrvPgt 	:= aParc[1,1]
 		cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")

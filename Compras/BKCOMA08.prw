@@ -41,14 +41,10 @@ oPanelLeft:Align := CONTROL_ALIGN_LEFT
 nLin += 25
 
 @ nLin,010 SAY 'Chave NFE:' PIXEL SIZE 50,10 OF oPanelLeft
-//@ nLin,070 MSGET oGetChv VAR cChvNfe VALID u_ConsNfe(cChvNfe,cEspecie) OF oPanelLeft PICTURE "@!" SIZE 130,10 PIXEL 
 @ nLin,070 MSGET oGetChv VAR cChvNfe OF oPanelLeft PICTURE "@!" SIZE 130,10 PIXEL 
 nLin += 25
 
-//@ nLin,070 BUTTON "Ok"   SIZE 040, 012 PIXEL OF oDlg Action(IIf(lOk:=u_ConsNfe(cChvNfe,cEspecie),oDlg:End(),AllwaysTrue()))
-//@ nLin,140 BUTTON "Sair" SIZE 040, 012 PIXEL OF oDlg Action(oDlg:End(),lOk:= .F.)
-
-ACTIVATE MSDIALOG oDlg CENTERED Valid(u_ConsNfe(cChvNfe,cEspecie)) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F.,oDlg:End()}, , @aButtons)
+ACTIVATE MSDIALOG oDlg CENTERED Valid(u_ConsNfe(cChvNfe,cEspecie,SF1->F1_SERIE)) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F.,oDlg:End()}, , @aButtons)
 
 If ( lOk )
 

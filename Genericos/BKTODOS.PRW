@@ -38,6 +38,8 @@ aAdd(aDados,{"","U_LISTSUP()",		"GERAL",		"Relação de usuários e superiores"})
 aAdd(aDados,{"","U_LISTRH()",		"GERAL",		"Relação de Tipos do RH"})
 aAdd(aDados,{"","U_TESTEPOUI()",	"GERAL",		"Teste desenvolvimento PO-UI"})
 
+aAdd(aDados,{"","U_BKMSG001()",		"AVISOS",		"Aviso de Documentos pendentes de aprovação"})
+
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})
 aAdd(aDados,{"","U_BKGCTR01()",		"GESTÃO",		"Mapa de Mediçoes"})
@@ -105,7 +107,6 @@ aAdd(aDados,{"","U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
 aAdd(aDados,{"","U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
 aAdd(aDados,{"","U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
 aAdd(aDados,{"","U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
-
 
 u_TTMARKB(aCampos, aDados, .F.)
 

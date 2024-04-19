@@ -38,7 +38,7 @@ Local cBlind1 := ""
 Local cBlind2 := ""
 Local lOk     := .F.
 
-Private cTitulo     := "Atualizar Dashboard PowerBk"
+Private cTitulo     := "Dashboard PowerBk e Avisos"
 Private cPerg       := "BKDASH01"
 
 If FWCodEmp() == "01"
@@ -80,7 +80,7 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cBlind2,"U_BKDSCFAT()"  ,"Atualização da tabela CANCFATURAMENTO"})
 
 	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '07/11/15'
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '07/11/14/17'
 		cBlind2 := "X"
 	EndIf
 
@@ -102,6 +102,9 @@ If FWCodEmp() == "01"
 	//aAdd(aDados,{"","U_PRODESPI()"       ,"Atualização da Tabela PRODESPINSERIR"})
 	//aAdd(aDados,{"","U_PRODESPA()"       ,"Atualização da Tabela PRODESPATUALIZAR"})
 	//aAdd(aDados,{"","U_PRODESPE()"       ,"Atualização da Tabela PRODESPEXCLUIR"})
+
+	// Avisos
+	aAdd(aDados,{cBlind2,"U_BKMSG001()"   ,"Aviso de documentos pendentes de aprovação"})
 
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)

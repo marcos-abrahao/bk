@@ -36,6 +36,10 @@ Local lGrupo   		:= .F.
 Local cSubs	 		:= ""
 Local cAndOr		:= ""
 
+If FWIsInCallStack("GERADOCE")
+	Return cFiltro1
+EndIf
+
 Dbselectarea("SF1")
 DBCLEARFILTER() 
 

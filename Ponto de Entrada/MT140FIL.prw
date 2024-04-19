@@ -18,6 +18,10 @@ Local cSuper 		:= ""
 Local lStaf			:= .F.
 Local lMDiretoria	:= .F.
 
+If FWIsInCallStack("GERADOCE")
+	Return cFiltro1
+EndIf
+
 Dbselectarea("SF1")
 
 lStaf  := u_IsStaf(__cUserId)

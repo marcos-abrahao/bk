@@ -7,31 +7,6 @@ Local nPar := 0
 Local cPar := ""
 
 // Numero sequencial DNF - BK (doc de entrada)
-/*
-If !FWIsInCallStack("MSEXECAUTO")   //ALLTRIM(ProcName(9)) <> "MSEXECAUTO" // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
-	If VAL(cNFiscal) == 0 
-		If cSerie == "DNF"
-			If !SX6->(DBSEEK("  MV_XXNUMF1",.F.))
-				RecLock("SX6",.T.)
-				SX6->X6_VAR     := "MV_XXNUMF1"
-				SX6->X6_TIPO    := "N"
-				SX6->X6_DESCRIC := "Numero sequencial DNF - "+ALLTRIM(FWEmpName(cEmpAnt))+" (doc de entrada)"
-				SX6->X6_CONTEUD := STRZERO(_nI,9)
-				SX6->(MsUnlock())
-			Else
-				RecLock("SX6",.F.)
-				nI := VAL(SX6->X6_CONTEUD)+1
-				SX6->X6_CONTEUD := STRZERO(nI,9)
-				SX6->(MsUnlock())
-			EndIf
-			cNFiscal := STRZERO(nI,9)
-		Else
-			_lRet := .F.
-			MsgStop("Número do Documento não pode ser zero","NumSf1")
-		EndIf
-	EndIf
-ENDIF
-*/
 
 If !FWIsInCallStack("MSEXECAUTO") .AND. !FWIsInCallStack("GERADOCE")  // MSEXECAUTO da funcao BKCOMA03 - Inclusao Benefícios VT/VR/VA Pré-Documento de Entrada e Assistência Médica
 	If VAL(cNFiscal) == 0 

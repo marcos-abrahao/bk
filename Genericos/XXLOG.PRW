@@ -99,6 +99,7 @@ Local nRet     := 0
 Local cMens    := cMsg
 Default cProg  := FunName()
 Default cText  := cProg
+Default nSize  := 2
 
 nRet := Aviso(cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
 If !Empty(nRet)

@@ -147,12 +147,12 @@ User Function BKCOMA16(cTipoDoc)
 	oMark:SetFieldMark( 'ZT_OK' )
 
 	// filtro
-	oMark:SetFilterDefault("SZT->ZT_DEPTO == '"+cDepto+"' .OR.  SZT->ZT_USER == '"+__cUserId+"'")
+	oMark:SetFilterDefault("SZT->ZT_DEPTO == '"+cDepto+"' .OR. EMPTY(SZT->ZT_DEPTO)")
 
 	// Setando Legenda cores disponíveis: GREEN, RED, YELLOW, ORANGE, BLUE, GRAY, BROWNS, BLACK, PINK e WHITE
 	// São criados filtros automáticos para as legendas
-	oMark:AddLegend( "SZT->ZT_DEPTO == '"+cDepto+"' .OR.  SZT->ZT_USER == '"+__cUserId+"'", "GREEN",  "Uso permitido" )
-	oMark:AddLegend( "SZT->ZT_DEPTO <> '"+cDepto+"' .AND. SZT->ZT_USER <> '"+__cUserId+"'", "RED",    "Uso não permitido" )
+	oMark:AddLegend( "SZT->ZT_DEPTO == '"+cDepto+"' .OR.   EMPTY(SZT->ZT_DEPTO)", "GREEN",  "Uso permitido" )
+	oMark:AddLegend( "SZT->ZT_DEPTO <> '"+cDepto+"' .AND. !EMPTY(SZT->ZT_DEPTO)", "RED",    "Uso não permitido" )
 
 	//Ativando a janela
 	oMark:Activate()
@@ -284,6 +284,22 @@ Static Function GeraDocE(lTela)
 	Local nX 		:= 0
 	Local nValor 	:= 0
 
+	Local nPosQtd	:= 0
+	Local nPosVUn	:= 0
+	Local nPosTot	:= 0
+	Local nPosHis	:= 0
+
+	SF1->(dbSetOrder(1))
+	If !SF1->(DbSeek(FWxFilial("SF1") + cDoc + cSerie + cCodigo + cLoja + cTipo))
+		u_MsgLog(cPerg,"Documento referenciado no modelo não foi encontrado, exclua este modelo!","E")
+		Return .F.
+	Else
+		If cTpDoc == "D" .AND. SF1->F1_STATUS <> "A"
+			u_MsgLog(cPerg,"Documento referenciado no modelo não foi classificado!","E")
+			Return .F.
+		EndIf
+	EndIF
+
 	//Variaveis utilizadas no P.E. SF1140i
 	Private ycxTipoPg := SF1->F1_XTIPOPG
 	Private ycxNumPa  := SF1->F1_XNUMPA
@@ -298,44 +314,52 @@ Static Function GeraDocE(lTela)
 	Private ycxChPix  := SF1->F1_XXCHPIX
 	Private ynTipoPg  := 0
 	Private ycEspecie := SF1->F1_ESPECIE
-	Private ycxCond	  := SF1->F1_COND
-	Private ymParcel  := SF1->F1_XXPARCE
+	Private ycxCond	  := IIF(EMPTY(SF1->F1_COND),"092",SF1->F1_COND)
+	//Private ymParcel  := SF1->F1_XXPARCE
 
-	SF1->(dbSetOrder(1))
-	If !SF1->(DbSeek(FWxFilial("SF1") + cDoc + cSerie + cCodigo + cLoja + cTipo))
-		u_MsgLog(cPerg,"Documento referenciado no modelo não foi encontrado, exclua este modelo!","E")
-		Return .F.
-	Else
-		If cTpDoc == "D" .AND. SF1->F1_STATUS <> "A"
-			u_MsgLog(cPerg,"Documento referenciado no modelo não foi classificado!","E")
-			Return .F.
-		EndIf
-	EndIF
+	Private lMSErroAuto	:= .F.
 
 	SD1->(dbSetOrder(1))
 	If SD1->(DbSeek(xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA))
+
+		nItem := 0
 		Do While !EOF() .AND. SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA  == 	xFilial("SD1")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA  
 
 			aLinha := {}
 			nItem++
 
 			aAdd(aLinha,  {"D1_ITEM",    StrZero(nItem, 3),	Nil})
+
 			aAdd(aLinha,  {"D1_FILIAL",  FWxFilial('SD1'),	Nil})
+
 			aAdd(aLinha,  {"D1_COD",     SD1->D1_COD,		Nil})
+
 			aAdd(aLinha,  {"D1_QUANT",   SD1->D1_QUANT,		Nil})
+			nPosQtd	:= Len(aLinha)
+
 			aAdd(aLinha,  {"D1_VUNIT",   SD1->D1_VUNIT,		Nil})
+			nPosVUn	:= Len(aLinha)
+
 			aAdd(aLinha,  {"D1_TOTAL",   SD1->D1_TOTAL,		Nil})
-			If !Empty(SD1->D1_TES)
+			nPosTot	:= Len(aLinha)
+
+			//If !Empty(SD1->D1_TES) .AND. cTpDoc == 'D'
 				aAdd(aLinha,  {"D1_TES", SD1->D1_TES,		Nil})
-			EndIf
+			//EndIf
+			
 			aAdd(aLinha,  {"D1_CC",      SD1->D1_CC,		Nil})
+
 			If nItem == 1
 				aAdd(aLinha,  {"D1_XXHIST",  cHist,			Nil})
 			Else
 				aAdd(aLinha,  {"D1_XXHIST",  "",			Nil})
 			EndIf
+			nPosHis	:= Len(aLinha)
+
 			aAdd(aLinha,  {"D1_LOCAL",   SD1->D1_LOCAL,		Nil})
+
 			aAdd(aLinha,  {"AUTDELETA",  "N",				Nil})
+
 			aAdd(aItens, aLinha)
 
 			If !Empty(SD1->D1_XXHIST) .AND. Empty(cHist)
@@ -348,13 +372,14 @@ Static Function GeraDocE(lTela)
 	EndIf
 	nValor := nTotal
 
-	If ExistCpo("SE4", SF1->F1_COND)
-		aParc := Condicao(nTotal,SF1->F1_COND,,dDataBase)
+	dVenc := DataValida(dVenc,.T.)
+	If ExistCpo("SE4", ycxCond)
+		aParc := Condicao(nTotal,ycxCond,,dDataBase)
 		If Len(aParc) > 0
-			dVenc 	:= aParc[1,1]
-			ydPrvPgt:= dVenc
+			dVenc 	:= DataValida(aParc[1,1],.T.)
 		EndIf
 	EndIf
+	ydPrvPgt:= dVenc
 
 	// Pegar os dados para o novo documento
 	If !GetDoc(@cSerie,@cDoc,cCodigo,cLoja,@dEmissao,@dVenc,@nValor,@cHist)
@@ -369,7 +394,11 @@ Static Function GeraDocE(lTela)
 	aAdd(aCabec, {"F1_FORNECE", cCodigo,			Nil})
 	aAdd(aCabec, {"F1_LOJA",    cLoja,				Nil})
 	aAdd(aCabec, {"F1_ESPECIE", SF1->F1_ESPECIE,	Nil})
-	aAdd(aCabec, {"F1_COND",	SF1->F1_COND,		Nil})
+	aAdd(aCabec, {"F1_EST", 	SF1->F1_EST,		Nil})
+	aAdd(aCabec, {"F1_TPFRETE", SF1->F1_TPFRETE,	Nil})
+	aAdd(aCabec, {"F1_COND",	ycxCond,			Nil})
+
+/*
 	aAdd(aCabec, {"F1_XXPVPGT",	dVenc,				Nil})
 	aAdd(aCabec, {"F1_XTIPOPG",	SF1->F1_XTIPOPG,	Nil})
 	aAdd(aCabec, {"F1_XAGENC",	SF1->F1_XAGENC,		Nil})
@@ -380,6 +409,7 @@ Static Function GeraDocE(lTela)
 	aAdd(aCabec, {"F1_XXP1PA",	SF1->F1_XXP1PA,		Nil})
 	aAdd(aCabec, {"F1_DESCONT", SF1->F1_DESCONT,	Nil})
 	aAdd(aCabec, {"F1_DESPESA", SF1->F1_DESPESA,	Nil})
+*/
 
 	//01;29/03/2021;397.90;
 	//mParcel := "01;"+DTOC(dVenc)+";"+ALLTRIM(STR(nValor,14,2))+";"+CRLF
@@ -404,39 +434,40 @@ Static Function GeraDocE(lTela)
 	nFator  := nValor / nTotal
 	nTotalR := 0 
 	For nX := 1 To Len(aItens)
-		nValIt := ROUND(aItens[nX,6,2] * nFator,2)
-		aItens[nX,6,2] := nValIt  // Total
-		aItens[nX,5,2] := nValIt / aItens[nX,4,2]
+		nValIt := ROUND(aItens[nX,nPosTot,2] * nFator,2)
+		aItens[nX,nPosTot,2] := nValIt  // Total
+		aItens[nX,nPosVUn,2] := nValIt / aItens[nX,nPosQtd,2]
 
 		nTotalR += nValIt
 	Next
 	
 	// Acertar a diferença no primeiro item
 	If nTotalR <> nValor
-		aItens[1,6,2] += (nValor - nTotalR)
-		aItens[1,5,2] += (nValor - nTotalR) / aItens[1,4,2]
+		aItens[1,nPosTot,2] += (nValor - nTotalR)
+		aItens[1,nPosVUn,2] += (nValor - nTotalR) / aItens[1,4,2]
 	EndIf
 
 	// Gravar o histórico no item 1
-	aItens[1,9,2] := cHist
-
+	aItens[1,nPosHis,2] := cHist
 
 	If cTpDoc == "D"  // Documento de Entrada
 		MATA103(aCabec, aItens, 3, .T.) // inclusão Tela
 	Else // Pré-Nota
 		MATA140(aCabec, aItens, 3, .F., 5)
 	EndIf
-	
+
+	If lMsErroAuto      
+		MostraErro()					 												
+	EndIf 
+
 return lRet
 
 
 
 
 Static Function GetDoc(cSerie,cDoc,cCodigo,cLoja,dEmissao,dVenc,nValor,cHist)
-Local aArea := Getarea()             
-
-//Local oOk		:= LoadBitmap( GetResources(), "LBTIK" )
-//Local oNo		:= LoadBitmap( GetResources(), "LBNO" )
+Local aArea		:= Getarea()
+Local aAreaF1	:= SF1->(Getarea())
 Local oDlg		as Object
 Local oFont		as Object
 Local oPanel01	as Object
@@ -487,10 +518,9 @@ EndIf
 		oMemo:oFont     := oFont
 		
 	ACTIVATE MSDIALOG oDlg CENTERED Valid(ValidaDoc(cSerie,@cDoc,cCodigo,cLoja,dEmissao,dVenc,nValor,cHist)) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , @aButtons)
-		
-
-		                   
+	                   
 Restarea( aArea )
+SF1->(RestArea(aAreaF1))
 
 RETURN lOk
 

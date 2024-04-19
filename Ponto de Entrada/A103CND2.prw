@@ -68,6 +68,11 @@ Else
 			PARAMIXB[nV,1] := dDtUtil
 		EndIf
 	Next
+
+	//If Len(PARAMIXB) > 0
+	//	PARAMIXB[1,1] := DataValida(PARAMIXB[1,1],.T.)
+	//EndIf
+
 EndIf
 
 RestArea(aArea)
