@@ -941,7 +941,7 @@ Return xCampo
 USER Function MAILSZP(nOpc)
 
 Local cAssunto	:= "Ocorrência Incluida"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
+Local cEmail	:= "microsiga@bkconsultoria.com.br;wiliam.lisboa@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
@@ -1018,7 +1018,7 @@ Local aArea     := GetArea()
 Local cNomeQuem := ""
 
 // Mandar para: Quem, Gestor, Gerente e Controladoria
-cEmail	+= "controladoria@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
+cEmail	+= "controladoria@bkconsultoria.com.br;wiliam.lisboa@bkconsultoria.com.br;"
 
 PswOrder(1)
 PswSeek(SZP->ZP_QUEM) 
