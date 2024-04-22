@@ -294,6 +294,58 @@ EndIf
 Return cRet
 
 
+/*/{Protheus.doc} ArStaf
+    Retorna array com os stafs de um usuário
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 24/04/24
+    @version version
+    @param cId (Id do usuário)
+    @return lRet
+    /*/
+
+User Function ArStaf(cIdSup)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+Local cGrpStaf      := u_GrpStaf()
+
+//cQuery += "SELECT USR_ID"+CRLF 
+//cQuery += " FROM SYS_USR_SUPER"+CRLF
+//cQuery += " WHERE USR_SUPER = '"+cIdSup+"' AND D_E_L_E_T_ = ' ' "+CRLF
+
+cQuery := "SELECT " + CRLF
+cQuery += "     USRSUP.USR_ID AS USRID" + CRLF
+//cQuery += "     ,USR1.USR_CODIGO" + CRLF
+cQuery += "     ,USR1.USR_EMAIL AS USREMAIL" + CRLF
+//cQuery += "     ,USRSUP.USR_SUPER" + CRLF
+//cQuery += "     ,USR2.USR_CODIGO" + CRLF
+cQuery += " FROM SYS_USR_SUPER USRSUP" + CRLF
+cQuery += "     LEFT JOIN [dataP10].[dbo].[SYS_USR] USR1 ON USRSUP.USR_ID = USR1.USR_ID AND USR1.D_E_L_E_T_ = ' ' " + CRLF
+cQuery += "     LEFT JOIN [dataP10].[dbo].[SYS_USR] USR2 ON USRSUP.USR_SUPER = USR2.USR_ID AND USR2.D_E_L_E_T_ = ' ' " + CRLF
+cQuery += "     INNER JOIN [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP ON USRSUP.USR_ID = USRGRP.USR_ID AND USRGRP.USR_GRUPO = '"+cGrpStaf+"' AND USRGRP.D_E_L_E_T_ = ' ' " + CRLF
+cQuery += " WHERE  USRSUP.D_E_L_E_T_ = ' ' " + CRLF
+cQuery += "     AND USR1.USR_MSBLQL = '2'" + CRLF
+cQuery += "     AND USRSUP.USR_SUPER = ? " + CRLF
+cQuery += " ORDER BY USRSUP.USR_ID,USRSUP.R_E_C_N_O_" + CRLF
+
+aadd(aBinds,cIdSup) // Usuário Superior
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"USRID"    ,"C",  6,0})
+aadd(aSetFields,{"USREMAIL" ,"C",150,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+    u_MsgLog("ArSubord",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+Endif
+
+Return aReturn
+
+
 // Listagem de usuarios x superiores
 User Function ListSup()
 Local nx		:= 0
@@ -399,8 +451,8 @@ Return lRet
 // Libera doc de entrada após o horário 
 User Function IsLibDPH(cPrw,cId)
 Local lRet := .T.
-//           Admin/Lau   /Diego /Bruno /Luisinho 116 (provisório/removido)
-If !(cId $ "000000/000012/000016/000153")
+//           Admin/Lau   /Diego /Bruno /Katia
+If !(cId $ "000000/000012/000016/000153/000276")
     If SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07'
         u_MsgLog(cPrw,"Não é permitido incluir, classificar ou liberar documentos entre 19h e 7h","E")
         lRet := .F.
@@ -435,14 +487,14 @@ Return u_InGrupo(cId,"000008")
 
 // Retorna se o usuário pertence ao STAF 
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
+
 User Function IsStaf(cId)
 Local lRet := .F.
-// Laudecir/Diego.Oliveira/Edson/Fabio/Vanderleia/Nelson/Luis (000116/ removido)
-//If cId $ "000011/000016/000076/000093/000056/000165/"
-//    lRet := .T.
-//EndIf
-Return u_InGrupo(cId,"000039")
-Return lRet
+Return u_InGrupo(cId,u_GrpStaf())
+
+
+User Function GrpStaf()
+Return "000039"
 
 
 // Retorna se o usuário é o usuário Teste

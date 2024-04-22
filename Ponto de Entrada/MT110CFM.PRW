@@ -21,7 +21,7 @@ Local nOpcSel   := Paramixb[2]  // Contém a opção selecionada: 1 = Aprovar; 2 = 
 Local aOpcSel   := {"Aprovada","Rejeitada","Bloqueada"}
 Local cOpcSel   := ""
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;vanderleia.silva@bkconsultoria.com.br;"
+Local cEmail	:= "microsiga@bkconsultoria.com.br;wiliam.lisboa@bkconsultoria.com.br;"
 Local cEmailCC  := ""
 Local cMsg 		:= ""
 Local cRodape	:= ""

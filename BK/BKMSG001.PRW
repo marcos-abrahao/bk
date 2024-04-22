@@ -19,11 +19,21 @@ Local cTabSF1	:= ""
 Local cTabSA2   := ""
 
 Local cEmail 	:= ""
+Local cIdSup	:= ""
 Local cAssunto  := "Aviso de Documentos pendentes de aprovação - "+DTOC(DATE())+" "+Time()
 Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailMs  := "microsiga@bkconsultoria.com.br;" 
 Local aCabs   	:= {"Empresa","Documento","Fornecedor","Digitação","Pagamento","Responsável","Departamento"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
+Local dUtil3	:= DATE()
+Local lDtInf	:= .F.
+Local aStaf 	:= {}
+
+dUtil3 := DataValida(dUtil3+1,.T.)
+dUtil3 := DataValida(dUtil3+1,.T.)
+dUtil3 := DataValida(dUtil3+1,.T.)
+
 
 Private cProg := "BKMSG001" 
 
@@ -52,6 +62,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ,USR1.USR_CODIGO AS USUARIO" + CRLF
 	cQuery += "  ,USR1.USR_DEPTO  AS DEPTO" + CRLF
 	cQuery += "  ,F1_XXUSERS" + CRLF
+	cQuery += "  ,USR2.USR_ID 	  AS IDAPROV" + CRLF
 	cQuery += "  ,USR2.USR_CODIGO AS APROVADOR" + CRLF
 	cQuery += "  ,USR2.USR_EMAIL  AS EMAIL " + CRLF
 
@@ -89,19 +100,33 @@ dbSelectArea("QTMP")
 dbGoTop()
 Do While !Eof()
 	cEmail := QTMP->EMAIL
+	cIdSup := QTMP->IDAPROV
 	aEmail := {}
 
-	Do While !EOF() .AND. cEmail == QTMP->EMAIL
-
+	lDtInf	:= .F.
+	Do While !EOF() .AND. cIdSup == QTMP->IDAPROV
 		AADD(aEmail,{QTMP->NOMEEMP,QTMP->F1_DOC,QTMP->A2_NOME,DTOC(QTMP->F1_DTDIGIT),DTOC(QTMP->F1_XXPVPGT),QTMP->USUARIO,QTMP->DEPTO})
+
+		If QTMP->F1_XXPVPGT <= dUtil3
+			lDtInf	:= .T.
+		EndIf
 
 		dbSkip()
 	EndDo
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+	// Somente enviar o e-mail se tiver pagamentos vencendo em até 3 dias úteis
+	If lDtInf
 
-	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+		// Incluir os stafs na cópia do e-mail
+		aStaf 	 := u_ArStaf(cIdSup)
+		cEmailCC := cEmailMs
+		For nE := 1 To Len(aStaf)
+			cEmailCC += ALLTRIM(aStaf[nE,2])+";"
+		Next
 
+		cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+	EndIf
 EndDo
 
 QTMP->(dbCloseArea())
