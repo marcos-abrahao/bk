@@ -106,6 +106,12 @@ If FWCodEmp() == "01"
 	// Avisos
 	aAdd(aDados,{cBlind2,"U_BKMSG001()"   ,"Aviso de documentos pendentes de aprovação"})
 
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '12'
+		cBlind2 := "X"
+	EndIf	
+	aAdd(aDados,{cBlind2,"U_BKMSG002()"   ,"Aviso de entidades com Conta Contábil Bloqueada"})
+	aAdd(aDados,{cBlind2,"U_BKMSG003()"   ,"Aviso de Clientes sem virgula no endereço"})
+
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)
 	EndIf

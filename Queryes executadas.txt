@@ -1,5 +1,15 @@
 
 
+
+
+SELECT A1_COD,A1_LOJA,A1_NOME,A1_CONTA,CT1_DESC01 FROM SA1010 SA1
+LEFT JOIN CT1010 CT1 ON A1_CONTA = CT1_CONTA AND CT1.D_E_L_E_T_ = ' ' 
+WHERE A1_MSBLQL = '2' AND SA1.D_E_L_E_T_ = ' ' 
+
+
+SELECT TOP 1 * FROM CT1010
+SELECT TOP 1 * FROM SA1010 ORDER BY R_E_C_N_O_ DESC
+
 ==============================================================
 -- 24/04/2024 Relação de produtos em uso desde 01/01/2021
 

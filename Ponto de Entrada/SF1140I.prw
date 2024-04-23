@@ -533,7 +533,7 @@ If !Empty(cEspecie)
 		Else
 			cCNPJ := Posicione("SA2",1,xFilial("SA2") + SF1->F1_FORNECE + SF1->F1_LOJA,"A2_CGC")
 			If !Empty(cCNPJ)
-				If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14)) .AND. cSerie <> "890"
+				If Val(cCNPJ) <> Val(SUBSTR(cChvNfe,7,14)) //.AND. cSerie <> "890" NFA
 					u_MsgLog("SF1140I","CNPJ da Chave da NFe diferente do CNPJ do fornecedor","E")
 					lRet := .F.
 				ElseIf SUBSTR(STR(YEAR(SF1->F1_EMISSAO),4),3,2)+STRZERO(MONTH(SF1->F1_EMISSAO),2) <> SUBSTR(cChvnfe,3,4)

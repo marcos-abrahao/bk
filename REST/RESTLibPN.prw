@@ -587,7 +587,7 @@ EndIf
 
 cFilSF1 := U_M103FILB()
 
-lFiscal	:= u_InGrupo(__cUserId,"000031")
+lFiscal	:= u_IsFiscal(__cUserId)
 lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
 lSuper  := (u_IsSuperior(__cUserId) .OR. u_IsStaf(__cUserId))
 

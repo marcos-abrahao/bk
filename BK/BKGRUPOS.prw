@@ -79,6 +79,15 @@ EndIf
 Return cNEmp
 
 
+// Empresas em Barueri
+User Function BkBarueri()
+Local aEmpresas	:= {    {"01","BK"              ,"BK"},;
+                        {"15","BHG INT 3"       ,"BHG"},;
+                        {"18","BK VIA"          ,"BK VIA"},;
+                        {"19","BK S. TECNOL."   ,"BK S.TEC."} }
+Return aEmpresas
+
+
 /*/{Protheus.doc} IsSuperior
     Retorna se o usuario informado é superior de algum outro
     @type  Function
@@ -293,17 +302,70 @@ EndIf
 
 Return cRet
 
+/*/{Protheus.doc} ArGrupo
+    Retorna array com os usuários de um grupo
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 23/04/24
+    @version version
+    @param cGrupo (Id do grupo)
+    @return lRet
+/*/
+User Function ArGrupo(cGrupo)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+
+cQuery := "SELECT " + CRLF
+cQuery += "    USRGRP.USR_ID  AS USRID" + CRLF
+cQuery += "   ,USR.USR_CODIGO AS USRCODIGO" + CRLF
+cQuery += "   ,USR.USR_EMAIL  AS USREMAIL" + CRLF
+cQuery += "   ,USR.USR_DEPTO  AS USRDEPTO" + CRLF
+
+//cQuery += "	  ,USR_GRUPO" + CRLF
+//cQuery += "	  ,GRP.GR__NOME" + CRLF
+//cQuery += "	  ,USRGRP.USR_ID" + CRLF
+//cQuery += "	  ,USR_PRIORIZA" + CRLF
+//cQuery += "	  ,USR_DEPTO" + CRLF
+
+cQuery += "  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP" + CRLF
+cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO" + CRLF
+cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR ON USRGRP.USR_ID = USR.USR_ID" + CRLF
+cQuery += "  WHERE GRP.D_E_L_E_T_ = '' " + CRLF
+cQuery += "		AND USRGRP.D_E_L_E_T_ = ''" + CRLF
+cQuery += "		AND USR.D_E_L_E_T_ = ''" + CRLF
+cQuery += "		AND USR.USR_MSBLQL = '2'" + CRLF
+cQuery += "		AND USRGRP.USR_GRUPO = ? " + CRLF
+cQuery += "	ORDER BY USRGRP.USR_ID" + CRLF
+
+aadd(aBinds,cGrupo)
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"USRID"    ,"C",  6,0})
+aadd(aSetFields,{"USRCODIGO","C", 25,0})
+aadd(aSetFields,{"USREMAIL" ,"C",150,0})
+aadd(aSetFields,{"USRDEPTO" ,"C", 40,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+    u_MsgLog("ArGrupo",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+Endif
+
+Return aReturn
+
 
 /*/{Protheus.doc} ArStaf
     Retorna array com os stafs de um usuário
     @type  Function
     @author Marcos Bispo Abrahão
-    @since 24/04/24
+    @since 22/04/24
     @version version
-    @param cId (Id do usuário)
+    @param cIdSup (Id do usuário Superior)
     @return lRet
-    /*/
-
+/*/
 User Function ArStaf(cIdSup)
 Local cQuery        := ""
 Local aReturn       := {}
@@ -311,10 +373,6 @@ Local aBinds        := {}
 Local aSetFields    := {}
 Local nRet          := 0
 Local cGrpStaf      := u_GrpStaf()
-
-//cQuery += "SELECT USR_ID"+CRLF 
-//cQuery += " FROM SYS_USR_SUPER"+CRLF
-//cQuery += " WHERE USR_SUPER = '"+cIdSup+"' AND D_E_L_E_T_ = ' ' "+CRLF
 
 cQuery := "SELECT " + CRLF
 cQuery += "     USRSUP.USR_ID AS USRID" + CRLF
@@ -470,7 +528,7 @@ Return cId $ "000000/000038/000012/000016/000023/000153/000170/000165/000252/000
 
 // É do grupo Fiscal
 User Function IsFiscal(cId)
-Return u_InGrupo(cId,"000031")
+Return u_InGrupo(cId,u_GrpFisc())
 
 // É do grupo Administrador ou Master Financeiro
 User Function IsMasFin(cId)
@@ -488,14 +546,18 @@ Return u_InGrupo(cId,"000008")
 // Retorna se o usuário pertence ao STAF 
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 
-User Function IsStaf(cId)
-Local lRet := .F.
-Return u_InGrupo(cId,u_GrpStaf())
-
-
+// Grupos
 User Function GrpStaf()
 Return "000039"
 
+User Function IsStaf(cId)
+Return u_InGrupo(cId,u_GrpStaf())
+
+User Function GrpFisc()
+Return "000031"
+
+User Function UsrTeste()
+Return "000038"
 
 // Retorna se o usuário é o usuário Teste
 User Function IsTeste(cId)
@@ -503,7 +565,7 @@ Local lRet := .F.
 If Empty(cId)
 	cId := __cUserID
 EndIf
-If cId $ "000038"
+If cId $ u_UsrTeste()
     lRet := .T.
 EndIf
 Return lRet
