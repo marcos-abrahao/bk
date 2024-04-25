@@ -41,6 +41,7 @@ aAdd(aDados,{"","U_TESTEPOUI()",	"GERAL",		"Teste desenvolvimento PO-UI"})
 aAdd(aDados,{"","U_BKMSG001()",		"AVISOS",		"Aviso de Documentos pendentes de aprovação"})
 aAdd(aDados,{"","U_BKMSG002()",     "AVISOS",		"Aviso de entidades com Conta Contábil Bloqueada"})
 aAdd(aDados,{"","U_BKMSG003()",     "AVISOS",		"Aviso de Clientes sem virgula no endereço"})
+aAdd(aDados,{"","U_BKMSG004()",		"AVISOS",		"Aviso de Clientes sem Conta Bancária para Depósito"})
 
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})

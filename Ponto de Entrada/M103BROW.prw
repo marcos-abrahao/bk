@@ -11,20 +11,6 @@ BK - Ponto de entrada para filtrar UserId e Superior
 
 
 User Function M103FILB()
-
-//Local aUser			:= {}
-//Local aSup			:= {}
-//Local cMDiretoria	:= ""
-//Local lMDiretoria   := .F.
-//Local cGerGestao	:= u_GerGestao()
-//Local cGerCompras	:= u_GerCompras()
-//Local aGrupo		:= {}
-//Local cSuper		:= ""
-//Local cAlmox		:= ""
-//Local i:= 0
-//Local cFiltro		:= ""
-
-
 Local laClas		:= .F.
 Local lAdmLib		:= .F.
 Local lRPC 			:= IsBlind()
@@ -56,103 +42,6 @@ If !lRPC
 Else
 	lAClas := .T.
 EndIf
-
-
-/*
-	aSup := FWSFUsrSup(__cUserId)
-	If Len(aSup) > 0
-		cSuper := aSup[1]
-	EndIf
-
-	lMDiretoria := u_IsMDir(__cUserId)
-
-	If __cUserId $ cGerCompras
-		cAlmox := u_UsrAlmox() 
-	EndIf
-	
-	cFiltro := ""
-	// Se o usuario pertence ao grupo Administradores, User Fiscal ou Master Diretoria : não filtrar                     
-    If !FWIsAdmin(__cUserId) .AND. !u_IsFiscal(__cUserId) .AND. !lMDiretoria .AND. !(__cUserId $ cGerGestao)
-       If !lStaf .OR. EMPTY(cSuper)
-          If lAClas
-          	 If EMPTY(cSuper)  .AND. __cUserId $ cGerGestao 
-             	// Filtro 1
-             	cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro()+"') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L') " 
-             Else
-             	// Filtro 2 
-				 If !lRPC
-             		cFiltro := "(F1_XXUSER <> '"+__cUserId+"' AND (F1_XXUSERS = '"+__cUserId+"') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
-				 Else
-					cFiltro := "((F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"') AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
-				 EndIf
-             EndIf
-          Else   
-          	 If EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-             	// Filtro 3
-             	cFiltro := "(F1_XXUSER = '"+__cUserId+"' AND F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro()+"')"
-             Else
-             	If __cUserId $ cGerCompras
-             		// Filtro 4
-             		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(!empty(cAlmox)," OR F1_XXUSER IN ("+cAlmox+")","")+")"
-             	Else
-             		// Filtro 5
-             		cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"')"
-             	EndIf
-             EndIf  
-          EndIf
-       Else
-		  // Staf
-
-          If lAClas
-
-       		// Filtro 6
-            cFiltro := "("+IIF(lStaf .AND. __cUserId $ cGerCompras,""," F1_XXUSER <> '"+__cUserId+"' AND")+" (F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '"+u_GerPetro()+"'","")+" OR "
-          	cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/"),"")+") AND F1_STATUS = ' ' AND F1_XXLIB <> 'L')"
-			//u_xxLog("\LOG\M103BROW.LOG","f6 "+__cUserId+":"+cFiltro)
-          Else
-              				 
-       		// Filtro 7
-            cFiltro := "(F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"'"+IIF(lStaf .AND. cSuper $ cGerGestao," OR F1_XXUSERS = '"+u_GerPetro()+"'","")+" OR "
-          	cFiltro += " F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+cSuper+"'"+IIF(lStaf .AND. __cUserId $ cGerCompras," OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/"),"")+")"          	 
-			//u_xxLog("\LOG\M103BROW.LOG","f7 "+__cUserId+":"+cFiltro)
-          	 
-          EndIf
-       EndIf
-    ElseIf lAClas
-       //SET FILTER TO (SF1->F1_STATUS = ' ')
-       // Filtro 8
-	   If FWIsAdmin(__cUserId)
-	   		If !lRPC
-				lAdmLib := u_MsgLog("M103FILB","Filtrar os Doc a liberar?","Y")
-			Else
-				lAdmLib := .F.
-			EndIf
-	   EndIf
-
-	   If u_IsFiscal(__cUserId) .OR. lAdmLib
-			If !lRPC
-      	   		cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
-			Else // Mostrar as Notas a Liberar também
-	       		cFiltro := "(F1_STATUS IN (' ','B'))"
-			EndIf
-	   ElseIf lMDiretoria
-       	   cFiltro := "(F1_STATUS IN (' ','B'))"
-	   Else
-       	   cFiltro := "(F1_STATUS IN (' ','B') AND F1_XXLIB <> 'L')"
-       EndIf
-    EndIf
-    //If !Empty(cFiltro)
-    //    cFiltro := " F1_FILIAL='"+xFilial("SF1")+"' AND "+cFiltro
-    //EndIf
-EndIf
-If lRPC .AND. Empty(cFiltro)
-	cFiltro := "(F1_STATUS IN (' ','B'))"
-EndIf
-
-u_MsgLog("M103FILB","Super: "+cSuper+" - Staf:"+iif(lStaf,"S","N")+" - Dire:"+IIF(lMDiretoria,"S","N")+" - Class:"+IIF(lAClas,"S","N")+" - Filtra a liberar:"+IIF(lAdmLib,"S","N")+" - "+cFiltro)
-
-*/
-
 
 // Novo Filtro - Aprovação em duas etapas
 

@@ -302,8 +302,8 @@ EndIf
 
 Return cRet
 
-/*/{Protheus.doc} ArGrupo
-    Retorna array com os usuários de um grupo
+/*/{Protheus.doc} GrpUsers
+    Retorna array com os usuários de um grupo e/ou departamento
     @type  Function
     @author Marcos Bispo Abrahão
     @since 23/04/24
@@ -311,7 +311,7 @@ Return cRet
     @param cGrupo (Id do grupo)
     @return lRet
 /*/
-User Function ArGrupo(cGrupo)
+User Function GrpUsers(cGrupo,cDepto)
 Local cQuery        := ""
 Local aReturn       := {}
 Local aBinds        := {}
@@ -324,23 +324,22 @@ cQuery += "   ,USR.USR_CODIGO AS USRCODIGO" + CRLF
 cQuery += "   ,USR.USR_EMAIL  AS USREMAIL" + CRLF
 cQuery += "   ,USR.USR_DEPTO  AS USRDEPTO" + CRLF
 
-//cQuery += "	  ,USR_GRUPO" + CRLF
-//cQuery += "	  ,GRP.GR__NOME" + CRLF
-//cQuery += "	  ,USRGRP.USR_ID" + CRLF
-//cQuery += "	  ,USR_PRIORIZA" + CRLF
-//cQuery += "	  ,USR_DEPTO" + CRLF
-
 cQuery += "  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP" + CRLF
 cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO" + CRLF
 cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR ON USRGRP.USR_ID = USR.USR_ID" + CRLF
 cQuery += "  WHERE GRP.D_E_L_E_T_ = '' " + CRLF
 cQuery += "		AND USRGRP.D_E_L_E_T_ = ''" + CRLF
 cQuery += "		AND USR.D_E_L_E_T_ = ''" + CRLF
-cQuery += "		AND USR.USR_MSBLQL = '2'" + CRLF
-cQuery += "		AND USRGRP.USR_GRUPO = ? " + CRLF
+cQuery += "		AND USR.USR_MSBLQD = ' '" + CRLF   // Data de Bloqueio em branco
+If !Empty(cGrupo)
+    cQuery += "		AND USRGRP.USR_GRUPO = ? " + CRLF
+    aAdd(aBinds,cGrupo)
+EndIf
+If !Empty(cDepto)
+    cQuery += "		AND UPPER(USR.USR_DEPTO) = ? "+CRLF  //'"+UPPER(cDepto)+"' " + CRLF
+    aAdd(aBinds,UPPER(cDepto))
+EndIf
 cQuery += "	ORDER BY USRGRP.USR_ID" + CRLF
-
-aadd(aBinds,cGrupo)
 
 // Ajustes de tratamento de retorno
 aadd(aSetFields,{"USRID"    ,"C",  6,0})
@@ -351,10 +350,37 @@ aadd(aSetFields,{"USRDEPTO" ,"C", 40,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-    u_MsgLog("ArGrupo",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+    u_MsgLog("GrpUsers",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
 Endif
 
 Return aReturn
+
+
+/*/{Protheus.doc} GprEmail
+    Retorna string com todos emails de um grupo
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 25/04/24
+    @version version
+    @param cEmails (stringo com e-mails já montados, para não repetir,Grupo (opcional),cDepto (Opcional))
+    @return lRet
+/*/
+User Function GprEmail(cEmails,cGrupo,cDepto)
+
+Local nE        := 0
+Local aUsers    := {}
+Default cEmails := ""
+Default cGrupo  := ""
+Default cDepto  := ""
+
+aUsers  := u_GrpUsers(cGrupo,cDepto)
+
+For nE := 1 To Len(aUsers)
+    If !(ALLTRIM(aUsers[nE,3])+";" $ cEmails)
+	    cEmails += ALLTRIM(aUsers[nE,3])+";"
+    EndIf
+Next
+Return cEmails
 
 
 /*/{Protheus.doc} ArStaf
@@ -385,7 +411,7 @@ cQuery += "     LEFT JOIN [dataP10].[dbo].[SYS_USR] USR1 ON USRSUP.USR_ID = USR1
 cQuery += "     LEFT JOIN [dataP10].[dbo].[SYS_USR] USR2 ON USRSUP.USR_SUPER = USR2.USR_ID AND USR2.D_E_L_E_T_ = ' ' " + CRLF
 cQuery += "     INNER JOIN [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP ON USRSUP.USR_ID = USRGRP.USR_ID AND USRGRP.USR_GRUPO = '"+cGrpStaf+"' AND USRGRP.D_E_L_E_T_ = ' ' " + CRLF
 cQuery += " WHERE  USRSUP.D_E_L_E_T_ = ' ' " + CRLF
-cQuery += "     AND USR1.USR_MSBLQL = '2'" + CRLF
+cQuery += "     AND USR1.USR_MSBLQD = ' '" + CRLF
 cQuery += "     AND USRSUP.USR_SUPER = ? " + CRLF
 cQuery += " ORDER BY USRSUP.USR_ID,USRSUP.R_E_C_N_O_" + CRLF
 
@@ -556,6 +582,13 @@ Return u_InGrupo(cId,u_GrpStaf())
 User Function GrpFisc()
 Return "000031"
 
+User Function GrpMRH()
+Return "000041"
+
+User Function IsMRH(cId)
+Return u_InGrupo(cId,u_GrpMRH())
+
+
 User Function UsrTeste()
 Return "000038"
 
@@ -691,9 +724,9 @@ EndIf
 Return cEmails
 
 
-// Email para Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M e Wiliam Lisboa)
+// Email para Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M, Wiliam Lisboa, Edelcio)
 User Function EmMGestao()
-Local aUsers := {"000000","000023","000153","000240","000241","000288"}
+Local aUsers := {"000000","000023","000153","000240","000241","000288","000309"}
 Return u_aUsrEmail(aUsers)
 
 
@@ -781,22 +814,27 @@ cRet += "isabela.silva@bkconsultoria.com.br;"
 
 Return cRet
 
-// E-mails do grupo financeiro do google
+// E-mails do grupo RH do google
 User Function BKEmRH()
 Local cRet := ""
 
-cRet += "ana.campos@bkconsultoria.com.br;"
+cRet := u_GprEmail("","000041","RH")
+
+/*
+cRet += "ana.campos@bkconsultoria.com.br;" 41
 cRet += "paula.botaro@bkconsultoria.com.br;"
 cRet += "edson.silva@bkconsultoria.com.br;"
-cRet += "karolaine.souza@bkconsultoria.com.br;"
+cRet += "karolaine.souza@bkconsultoria.com.br;" 41
 cRet += "marcio.souza@bkconsultoria.com.br;"
 cRet += "rafaela.lima@bkconsultoria.com.br;"
 cRet += "acsa.souza@bkconsultoria.com.br;"
 cRet += "deize.silva@bkconsultoria.com.br;"
+*/
 cRet += "tany.sousa@bkconsultoria.com.br;"
 cRet += "paloma.souza@bkconsultoria.com.br;"
 cRet += "patricia.perin@bkconsultoria.com.br;"
 cRet += "victor.silva@bkconsultoria.com.br;"
+
 Return cRet
 
 
@@ -822,6 +860,7 @@ cRet += "moacyr.dalate@bkconsultoria.com.br;"
 cRet += "nelson.oliveira@bkconsultoria.com.br;"
 cRet += "noe.braga@bkconsultoria.com.br;"
 cRet += "wiliam.lisboa@bkconsultoria.com.br;"
+cRet += "edelcio.meggiolaro@bkconsultoria.com.br;"
 
 Return cRet
 

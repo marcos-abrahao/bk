@@ -28,7 +28,6 @@ Local cEmailCC  := "microsiga@bkconsultoria.com.br;"
 Local aCabs   	:= {"Empresa","Origem","Código","Identificação","Conta Contábil","Descrição"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
-Local aUsers 	:= {}
 
 Private cProg := "BKMSG002"
 
@@ -155,12 +154,7 @@ EndDo
 
 If Len(aEmail) > 0
 
-	// Incluir os stafs na cópia do e-mail
-	aUsers 	 := u_ArGrupo(u_GrpFisc())
-	cEmail	 := ""
-	For nE := 1 To Len(aUsers)
-		cEmail += ALLTRIM(aUsers[nE,3])+";"
-	Next
+	cEmail	 := u_GprEmail(cEmail,u_GrpFisc(),"")
 
 	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)

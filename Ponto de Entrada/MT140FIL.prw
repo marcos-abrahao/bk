@@ -26,32 +26,7 @@ Dbselectarea("SF1")
 
 lStaf  := u_IsStaf(__cUserId)
 cSuper := u_cSuper(__cUserId)
-
 lMDiretoria := u_IsMDir(__cUserId)
-
-// Se o usuario pertence ao grupo Administradores: não filtrar
-/*
-IF !lMDiretoria
-   IF !lStaf .OR. EMPTY(cSuper)
-      IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-     	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSERS = '"+u_GerPetro()+"') "
-      ELSE
-      	cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSERS = '"+__cUserId+"') "
-      ENDIF
-   ELSE
-		IF lStaf .AND. cSuper $ cGerGestao
-			cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS = '"+u_GerPetro+"') "
-		ELSEIF lStaf .AND. __cUserId $ cGerCompras
-			cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+" ) "
-		ELSE
-			cFilt  := "(F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"') "
-		ENDIF
-	ENDIF
-ENDIF   
-
-u_MsgLog("MT140FIL","Super: "+cSuper+" - Staf:"+iif(lStaf,"S","N")+" - Dire:"+IIF(lMDiretoria,"S","N")+" - "+cFilt)
-*/
-
 
 If !lMDiretoria
 	cFiltro1 := "(F1_XXUSER = '"+__cUserId+"'  "

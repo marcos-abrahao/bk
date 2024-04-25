@@ -142,24 +142,6 @@ IF !u_IsMasFin(__cUserId) .AND. !u_IsMDir(__cUserId)
 	EndIf
 	cFiltU += ")"
 
-/*
-	cSuper := u_cSuper1(__cUserId)
-	IF !lStaf .OR. EMPTY(cSuper)
- 		IF EMPTY(cSuper) .AND. __cUserId $ cGerGestao
-   			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "
-   		ELSE
-  			cFiltU := "AND ( F1_XXUSER = '"+__cUserId+"' OR F1_XXUSERS = '"+__cUserId+"' OR F1_XXUSER = '      ') "
-   		ENDIF
-   	ELSE
-   		IF lStaf .AND. cSuper $ cGerGestao
-      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS = '"+u_GerPetro()+"') "  
-   		ELSEIF lStaf .AND. __cUserId $ cGerCompras
-      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ' OR F1_XXUSERS IN "+FormatIn(cGerCompras,"/")+")"  
-   		ELSE 
-      		cFiltU := "AND (F1_XXUSER = '"+__cUserId + "' OR F1_XXUSER = '"+cSuper+"' OR F1_XXUSERS = '"+__cUserId + "' OR F1_XXUSERS = '"+cSuper+"' OR F1_XXUSER = '      ') "  
-   		ENDIF
-    ENDIF   
-*/
 ENDIF
 
 
