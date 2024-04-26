@@ -101,7 +101,10 @@ User Function ITEM()
 
         ElseIf cIdPonto == "BUTTONBAR"
             xRet := {}
-            //aAdd(xRet, {"* Titulo 1", "", {|| Alert("Botão 1")}, "Tooltip 1"})
+            If __cUserID == "000000"
+                aAdd(xRet, {"Substituição de Produto", "", {|| u_BKCOMA01()}, "Somente produtos de compras"})
+            EndIf
+
             //aAdd(xRet, {"* Titulo 2", "", {|| Alert("Botão 2")}, "Tooltip 2"})
             //aAdd(xRet, {"* Titulo 3", "", {|| Alert("Botão 3")}, "Tooltip 3"})
  

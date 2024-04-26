@@ -13,8 +13,10 @@ Ponto de Entrada para criar opções na tela de Funcões no cadastro de produtos
 User Function MT010BRW() 
 Local aRotY
 
-AADD( aRotina, {OemToAnsi("Copiar p/ outras empresas"), "U_BKMAT010", 0, 4 } )
-
+AADD( aRotina, {OemToAnsi("Copiar p/ outras empresas")	, "U_BKMAT010", 0, 4 } )
+If __cUserID = "000000"
+	AADD( aRotina, {OemToAnsi("Substituição de Produto")	, "U_BKCOMA01", 0, 4 } )
+EndIf
 Return aRotY
 
 

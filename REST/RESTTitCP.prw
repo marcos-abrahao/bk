@@ -1952,7 +1952,7 @@ cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
 cQuery := STRTRAN(cQuery,CHR(9),"")
 cQuery := STRTRAN(cQuery,"  "," ")
-u_LogMemo("RESTTITCP1.SQL",cQuery)
+//u_LogMemo("RESTTITCP1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 
