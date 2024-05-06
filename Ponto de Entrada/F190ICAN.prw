@@ -1,19 +1,12 @@
-#include "Protheus.ch"
+#INCLUDE "PROTHEUS.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma ณF190ICAN บAutor ณ Marcos B. Abrahใo บ Data ณ 08/09/15        บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc. ณ Impede cancelamentos de cheques      sejam feitos em data      บฑฑ
-ฑฑบ      ณ diferente da original, para nao causar erros na contabilidade. บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso ณ Kloeckner                                                        บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
+/*/{Protheus.doc} F190ICAN
+    Ponto de entrada para controlar permissao de cancelamento do cheque
+    @type  Ponto de Entrada: Cheques Emitidos FINA190
+    @author Marcos B. Abrahใo
+    @since 08/09/2015
+    @version Kloeckner
+/*/
 
 User Function F190ICAN()
 Local lRet := .T.
@@ -23,7 +16,8 @@ If dDatabase <> SEF->EF_DATA
 	nOpc := u_AvisoLog("F190ICAN","Aten็ใo เ data",;
 	               "A data do estorno do cheque estแ diferente da data base do sistema."+Chr(13)+Chr(10)+;
 	               "Antes de cancelar o cheque, altere a data base do sistema para "+Dtoc(SEF->EF_DATA)+".",;
-	               {"Sair","Estornar"}, 2 )
+	               {"Sair"}, 1 )
+//	               {"Sair","Estornar"}, 2 )
 	lRet := (nOpc == 2)
 EndIf
 

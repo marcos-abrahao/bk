@@ -61,7 +61,7 @@ nHandle := MsfCreate(cArq2,0)
 
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
-Procregua(FT_FLASTREC())  //quantos registros para ler
+//Procregua(FT_FLASTREC())  //quantos registros para ler
 While !FT_FEOF()
  
 	//IncProc('Carregando Itens da Planilha...')

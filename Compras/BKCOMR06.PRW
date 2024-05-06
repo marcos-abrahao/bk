@@ -337,7 +337,7 @@ cQuery += " AND SC7.C7_CC >='"+ALLTRIM(cContraI)+"' AND SC7.C7_CC <='"+ALLTRIM(c
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","C7_EMISSAO","D",8,0)
 
-ProcRegua(QTMP->(LASTREC()))
+//ProcRegua(QTMP->(LASTREC()))
 
 nReg := 0
 

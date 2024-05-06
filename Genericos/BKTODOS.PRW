@@ -79,6 +79,7 @@ aAdd(aDados,{"","U_BKCOMA13()",		"COMPRAS",		"Inclusão de Doc de Impostos com Ra
 aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de impostos já existentes"})
 aAdd(aDados,{"","U_BKCOMA15()",		"COMPRAS",		"Inclusão de Doc de Sindicatos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de entrada"})
+aAdd(aDados,{"","U_BKCOMR19()",		"COMPRAS",		"Relação de Produtos x Grupos x Subgrupos"})
 
 aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})
 aAdd(aDados,{"","U_BKFINA05()",		"FINANCEIRO",	"Títulos a Pagar WEB"})

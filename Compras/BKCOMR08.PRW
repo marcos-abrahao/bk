@@ -245,13 +245,13 @@ While SM0->(!EoF())
 		TCQUERY cQuery NEW ALIAS "QSC7"
 		TCSETFIELD("QSC7","C7_EMISSAO","D",8,0)
 
-		ProcRegua(QSC7->(LASTREC()))
+		//ProcRegua(QSC7->(LASTREC()))
 
 		dbSelectArea("QSC7")
 		QSC7->(dbGoTop())
 		DO WHILE QSC7->(!EOF())
 	    	nReg++
-			IncProc("Consultando banco de dados...")
+			//IncProc("Consultando banco de dados...")
 			Reclock("TRB",.T.)
 			TRB->XX_EMPRES 	:= ALLTRIM(FWEmpName(cEmpAnt))
 			TRB->XX_PRODT 	:= QSC7->C7_PRODUTO

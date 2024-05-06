@@ -99,7 +99,7 @@ User Function BKALTFOR()
 Local nQUJE := 0
 Private cPerg := "BKALTFOR"
 
-If !(__cUserID $ ("000000/"+u_GerCompras()+"/000232")) // códigos dos UserId permitidos na rotina 232-Barbara
+If !(__cUserID $ ("000000/"+u_GerCompras()+"/000232/000310")) // códigos dos UserId permitidos na rotina 232-Barbara
 	u_MsgLog(cPerg,"Você não tem permissão para usar essa rotina !!!","W")
 	Return Nil
 EndIf

@@ -1,18 +1,12 @@
-#include "rwmake.ch"
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ FA080CHK ºAutor  ³Marcos B. Abrahao   º Data ³  02/10/09   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Ponto de Entrada para evitar que titulos incluidos pelo    º±±
-±±º          ³ liquidos BK sejam excluidos por esta rotina                º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+#INCLUDE "PROTHEUS.CH"
+
+/*/{Protheus.doc} FA080OWN
+    Ponto de entrada: Ponto de Entrada para evitar que titulos incluidos pelo liquidos BK sejam excluidos por esta rotina
+    @type  Ponto de Entrada - Permissão de Cancelamento FINA080 - Baixas a Pagar
+    @author Marcos B. Abrahão
+    @since 02/10/2009
+    @version BK
+/*/
 User Function FA080OWN() 
 Local lRet := .T.
 Local nOpc := 0
@@ -22,7 +16,7 @@ If !lF080Auto
 	   lRet := .T.
 	ELSE   
 		IF TRIM(SE2->E2_XXTIPBK) = "NDB"
-		    MsgStop("O cancelamento titulo tipobk = NDB somente está disponível para o Administrador do sistema", "Atenção")
+		    u_MsgLog("FA080OWN","O cancelamento titulo tipobk = NDB somente está disponível para o Administrador do sistema", "E")
 		    lRet := .F.
 		ENDIF
 	ENDIF
@@ -32,9 +26,10 @@ EndIf
 If lRet
 	If dDatabase <> SE5->E5_DATA
 		nOpc := u_AvisoLog("FA080OWN","Atenção à data",;
-					"A data do estorno está diferente da data base do sistema."+Chr(13)+Chr(10)+;
+					"A data do estorno da baixa (CP) está diferente da data base do sistema."+Chr(13)+Chr(10)+;
 					"Antes de cancelar/excluir a baixa, favor alterar a data base do sistema para "+Dtoc(SE5->E5_DATA)+".",;
-					{"Sair","Estornar"}, 2 )
+	               {"Sair"}, 1 )
+//	               {"Sair","Estornar"}, 2 )
 		lRet := (nOpc == 2)
 	EndIf
 EndIf

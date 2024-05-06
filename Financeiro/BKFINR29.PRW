@@ -224,8 +224,6 @@ dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), 'TMPR29', .F., .T.)
 //TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VALOR"  ,"N",18,2)
 	
-ProcRegua((cAliasQry)->(LastRec()))
-
 nCont := 0
 dbSelectArea("SD1")  // * Itens da N.F. de Compra
 dbSetOrder(1)
@@ -237,10 +235,10 @@ dbSetOrder(1)
 
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
-Procregua(LastRec())
+//Procregua(LastRec())
 Do While (cAliasQry)->(!EOF())
     nCont++
-    IncProc("Consultando Contas a Pagar...")
+    //IncProc("Consultando Contas a Pagar...")
 
 	SE2->(dbGoTo((cAliasQry)->E2RECNO))
 
@@ -344,16 +342,15 @@ dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), 'TMPE129', .F., .T.)
 //TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_VALOR"  ,"N",18,2)
 	
-ProcRegua((cAliasQry)->(LastRec()))
 dbSelectArea(cAliasTrb)
 dbSetOrder(2)
 
 dbSelectArea(cAliasQry)
 (cAliasQry)->(dbGoTop())
-Procregua(LastRec())
+//Procregua(LastRec())
 Do While (cAliasQry)->(!EOF())
     nCont++
-    IncProc("Consultando Contas a Receber...")
+    //IncProc("Consultando Contas a Receber...")
 
 	SE1->(dbGoTo((cAliasQry)->E1RECNO))
 

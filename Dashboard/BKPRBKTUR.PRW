@@ -144,4 +144,3 @@ u_LogMemo("BKDSBKTUR.SQL",cErro1+cQuery)
 //u_MsgLog("BKPRBKTUR","Final: TurnoverBK")
 
 Return
-

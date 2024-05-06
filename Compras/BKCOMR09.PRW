@@ -390,7 +390,7 @@ cQuery := ChangeQuery(cQuery)
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 tcSetField("QTMP","C7_EMISSAO","D",8,0)
 
-ProcRegua(QTMP->(LASTREC()))
+//ProcRegua(QTMP->(LASTREC()))
 
 nReg := 0
 

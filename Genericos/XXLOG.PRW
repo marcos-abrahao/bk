@@ -246,21 +246,32 @@ Return Nil
 	@since 20/06/22
 	@version 12.1.33
 /*/
-User Function LogTxt(cArqLog,cTxt)
-Local nPosFim := 0
-Local nHandle := 0
-Local cDir    := "C:\TMP"
-Local cFile   := ""
-Local cTexto  := ""
-Default cTxt  := ""
+User Function LogTxt(cArqLog,cTxt,aBinds)
+Local nPosFim 	:= 0
+Local nHandle 	:= 0
+Local cDir    	:= "C:\TMP"
+Local cFile   	:= ""
+Local cTexto  	:= ""
+Local nI 		:= 0
+
+Default cTxt  	:= ""
+Default aBinds	:= {}
 
 If __cUserId == "000000" .OR. IsBlind()
 
 	cTexto := "--"+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
+	
+	If Len(aBinds) > 0
+		cTexto += "-- Parametros:"
+		For nI := 1 To Len(aBinds)
+			cTexto += " "+cValToChar(aBinds[nI])
+		Next
+		cTexto += CRLF
+	EndIf
 	If !Empty(cTxt)
 		cTexto += cTxt + CRLF
 	EndIf
-
+	
 	If IsBlind()
 		cDir:= "\log"
 	ENDIF

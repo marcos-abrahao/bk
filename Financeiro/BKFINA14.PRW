@@ -978,7 +978,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 				
 		//Grava Bordero Header
 		fWrite(nHandle2,Bcn033H)
-		ProcRegua(Len(aTitGer))
+		//ProcRegua(Len(aTitGer))
 		For nI:=1 To Len(aTitGer)
 			IncProc("Criando Borderô "+FWEmpName(cEmpAnt)+"...")
 			qValTot += aTitGer[nI,4]

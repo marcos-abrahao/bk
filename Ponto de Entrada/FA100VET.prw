@@ -1,19 +1,13 @@
-#include "Protheus.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma ณFA100VET บAutor ณ Marcos B. Abrahใo บ Data ณ 14/06/15        บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc. ณ Impede que exclusoes de mov bancario sejam feitas em data      บฑฑ
-ฑฑบ      ณ diferente da original, para nao causar erros na contabilidade. บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso ณ Kloeckner                                                        บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
+#INCLUDE "PROTHEUS.CH"
+
+/*/{Protheus.doc} FA100TRF
+    Ponto de entrada: Impede que exclusoes de transfer๊ncias bancแrias sejam feitas em data diferente da original, para nao causar erros na contabilidade.
+    @type  Ponto de Entrada - Movimentos bancแrios FINA100 - Valida estorno da transferencia
+    @author Marcos B. Abrahใo
+    @since 14/06/2015
+    @version Kloeckner
+/*/
 
 User Function FA100VET()
 Local lRet := .T.
@@ -21,9 +15,10 @@ Local nOpc := 0
 
 If dDatabase <> SE5->E5_DATA
 	nOpc := u_AvisoLog("FA100VET","Aten็ใo เ data",;
-	               "A data do estorno estแ diferente da data base do sistema."+Chr(13)+Chr(10)+;
+	               "A data do estorno da transferencia estแ diferente da data base do sistema."+Chr(13)+Chr(10)+;
 	               "Antes de cancelar/excluir a baixa, favor alterar a data base do sistema para "+Dtoc(SE5->E5_DATA)+".",;
-	               {"Sair","Estornar"}, 2 )
+	               {"Sair"}, 1 )
+//	               {"Sair","Estornar"}, 2 )
 	lRet := (nOpc == 2)
 EndIf
 

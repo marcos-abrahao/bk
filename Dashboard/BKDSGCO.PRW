@@ -30,6 +30,8 @@ Local cTabSF1	:= ""
 Local cTabCTT	:= ""
 Local cTabSE5	:= ""
 Local cTabCT1	:= ""
+Local cTabSBM	:= "SBM010" // Tabela de grupos de produtos compartilhada
+
 //Local cTabSZ2   := "SZ2010"
 //Local cCusBK	:= U_MVXCUSBK()
 //Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
@@ -103,6 +105,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CONVERT(VARCHAR(600),CONVERT(Binary(600),D1_XXHIST)) D1_XXHIST,"+CRLF
  	cQuery += "  B1_DESC,"+CRLF
  	cQuery += "  B1_GRUPO,"+CRLF
+ 	cQuery += "  BM_DESC,"+CRLF
  	cQuery += "  F1_VALBRUT,"+CRLF
  	cQuery += "  F1_XXUSER,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXUSER = USUARIOS.CODIGO) AS F1RESPON,"+CRLF
@@ -136,10 +139,16 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
-	cQuery += " INNER JOIN "+cTabSB1+" SB1" + CRLF
+	cQuery += " LEFT JOIN "+cTabSB1+" SB1" + CRLF
 	cQuery += "     ON (B1_COD = D1_COD " + CRLF
 	cQuery += "         AND B1_FILIAL = '"+xFilial("SB1")+"' "  + CRLF
 	cQuery += "         AND SB1.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSBM+" SBM" + CRLF
+	cQuery += "     ON (B1_GRUPO = BM_GRUPO " + CRLF
+	cQuery += "         AND BM_FILIAL = '"+xFilial("SBM")+"' "  + CRLF
+	cQuery += "         AND SBM.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
  	cQuery += " INNER JOIN "+cTabSE2+" SE2" + CRLF
@@ -213,9 +222,10 @@ cQuery += "       (E2ACDEC  / F1_VALBRUT * D1TOTAL) + (E2VALTIT / F1_VALBRUT * D
 cQuery += "    (CASE "+CRLF
 cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVTPRD())+" THEN '12' "+CRLF
 cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVRVAP())+" THEN '14' "+CRLF
-cQuery += "    	WHEN B1_GRUPO = '0008' THEN 'WUNIFORME' "+CRLF
-cQuery += "    	WHEN B1_GRUPO = '0009' THEN 'WMATERIAL DE SEG' "+CRLF
-cQuery += "    	WHEN B1_GRUPO = '0010' THEN 'WINSUMOS' "+CRLF
+//cQuery += "    	WHEN B1_GRUPO = '0008' THEN 'WUNIFORME' "+CRLF
+//cQuery += "    	WHEN B1_GRUPO = '0009' THEN 'WMATERIAL DE SEG' "+CRLF
+//cQuery += "    	WHEN B1_GRUPO = '0010' THEN 'WINSUMOS' "+CRLF
+cQuery += "    	WHEN B1_GRUPO <> ' ' THEN 'W'+BM_DESC "+CRLF
 cQuery += "     ELSE 'W'+D1_COD "+CRLF
 cQuery += "     END"+CRLF
 cQuery += "    ) AS PREVPROD,"+CRLF
@@ -223,9 +233,9 @@ cQuery += "    ) AS PREVPROD,"+CRLF
 cQuery += "    (CASE "+CRLF
 cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVTPRD())+" THEN 'VT' "+CRLF
 cQuery += "    	WHEN D1_COD IN "+U_FBkVars(U_MVXVRVAP())+" THEN 'VR/VA' "+CRLF
-cQuery += "    	WHEN B1_GRUPO = '0008' THEN 'UNIFORME' "+CRLF
-cQuery += "    	WHEN B1_GRUPO = '0009' THEN 'MATERIAL DE SEGURANCA' "+CRLF
-cQuery += "    	WHEN B1_GRUPO = '0010' THEN 'INSUMOS' "+CRLF
+cQuery += "    	WHEN B1_GRUPO <> ' ' THEN BM_DESC "+CRLF
+//cQuery += "    	WHEN B1_GRUPO = '0009' THEN 'MATERIAL DE SEGURANCA' "+CRLF
+//cQuery += "    	WHEN B1_GRUPO = '0010' THEN 'INSUMOS' "+CRLF
 cQuery += "     ELSE B1_DESC "+CRLF
 cQuery += "     END"+CRLF
 cQuery += "    ) AS PREVDESC"+CRLF

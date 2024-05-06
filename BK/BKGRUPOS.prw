@@ -707,12 +707,12 @@ Return "'000093','000216','000225','000226'"
 
 // Usuarios Master Almoxarifado (grupo 27)
 User Function UsrMAlmox()
-Return "000093/000216/000232/000225"  
+Return "000093/000216/000232/000225/000310"  
 
 
-// Email para Grupo do (Fabio,Barbara,Jose Amauri)
+// Email para Grupo do (Fabio,Barbara,Jose Amauri,Bianca)
 User Function EmEstAlm(cId,lAll,cxEmail)
-Local aUsers := {"000093","000232","000216"}
+Local aUsers := {"000093","000232","000216","000310"}
 Local cEmails:= ""
 
 Default cxEmail := "-"

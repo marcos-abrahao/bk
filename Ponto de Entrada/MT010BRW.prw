@@ -1,4 +1,4 @@
-#include "protheus.ch"
+#INCLUDE "PROTHEUS.CH"
 
 /*/{Protheus.doc} MT010BRW
 BK - Copiar produtos p/ outras empresas
@@ -7,7 +7,7 @@ Ponto de Entrada para criar opções na tela de Funcões no cadastro de produtos
 @Return
 @author Marcos Bispo Abrahão
 @since 23/03/17
-@version P12-25
+@version P12
 /*/ 
 
 User Function MT010BRW() 
@@ -15,8 +15,10 @@ Local aRotY
 
 AADD( aRotina, {OemToAnsi("Copiar p/ outras empresas")	, "U_BKMAT010", 0, 4 } )
 If __cUserID = "000000"
-	AADD( aRotina, {OemToAnsi("Substituição de Produto")	, "U_BKCOMA01", 0, 4 } )
+	AADD( aRotina, {OemToAnsi("Substituição de Produto"), "U_BKCOMA01", 0, 4 } )
+	AADD( aRotina, {OemToAnsi("Exclusão de Produtos")	, "U_BKCOMA1E", 0, 4 } )
 EndIf
+AADD( aRotina, {OemToAnsi("Relação de Produtos x Grupos x Subgrupos")	, "U_BKCOMR19", 0, 4 } )
 Return aRotY
 
 

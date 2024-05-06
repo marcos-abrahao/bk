@@ -16,13 +16,15 @@ Local cRet     := ""
 
 Private aParam 	:= {}
 Private cTitulo	:= "Substituição de Produtos"
-Private cPerg	   := "BKCOMA01"
-Private cProd     := SB1->B1_COD
-Private cProdA    := SB1->B1_COD
+Private cPerg	:= "BKCOMA01"
+Private cProd	:= SB1->B1_COD
+Private cProdA	:= SB1->B1_COD
+Private cNProd	:= SB1->B1_DESC	
+Private cNProdA	:= TRIM(SB1->B1_DESC)
 
 If BKPar1()
 	u_WaitLog(cPerg, {|| cRet := AltPrd()},"Alterando o produto "+TRIM(cProdA)+" para "+TRIM(cProd))
-   u_MsgLog(cPerg,"Retorno: "+cRet,"I")
+	u_MsgLog(cPerg,"Retorno: "+cRet,"I")
 EndIF
 
 RestArea(aArea)
@@ -37,17 +39,18 @@ Local aRet := {}
 Do While .T.
 
 	aParam := {}
-   aAdd( aParam, { 1, "Produto novo:", cProd	, ""	, ""	, "SB1"	, ""	, 70	, .F. })
+   aAdd( aParam, { 1, "Produto destino:", cProd	, ""	, ""	, "SB1"	, ""	, 70	, .F. })
 
 	lRet := (Parambox(aParam     ,cPerg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cPerg      ,.T.         ,.T.))
 	If !lRet
 		Exit
 	Else
-      cProd := MV_PAR01
+      cProd	 := MV_PAR01
+	  cNProd := TRIM(Posicione("SB1",1,xFilial("SB1")+cProd,"B1_DESC"))
       If !Empty(cProd) .AND. ExistCPO("SB1",cProd)
-			If u_MsgLog(cPerg,"Confirma substituição do produto "+TRIM(cProdA)+" por "+TRIM(cProd),"Y")
+			If u_MsgLog(cPerg,"Confirma substituição do produto "+TRIM(cProdA)+"-"+cNProdA+" por "+TRIM(cProd)+"-"+cNProd,"Y")
 				lRet := .T.
-   			Exit
+   				Exit
 			EndIf
 		EndIf
 	Endif
@@ -86,15 +89,16 @@ aAdd(aTabs,{"SCE","CE_PRODUTO"})
 aAdd(aTabs,{"CD2","CD2_CODPRO"})
 aAdd(aTabs,{"SFT","FT_PRODUTO"})
 aAdd(aTabs,{"SCY","CY_PRODUTO"})
+aAdd(aTabs,{"SD3","D3_COD"})
 
 For nI := 1 To Len(aTabs)
    cQuery := "UPDATE "+RetSqlName(aTabs[nI,1]) + " SET "+aTabs[nI,2] +" = '"+TRIM(cProd)+"' WHERE "+aTabs[nI,2] +" = '"+cProdA+"'"
    cRet += aTabs[nI,1]
 
    If TCSQLExec(cQuery) < 0 
-   	cRet += " Erro: "+TCSQLERROR()+", "
+		cRet += " Erro: "+TCSQLERROR()+", "
    Else
-	   cRet += " OK, "
+		cRet += " OK, "
    EndIf
 
    u_MsgLog(cPerg,cQuery)
@@ -104,7 +108,7 @@ dbSelectArea("SB1")
 dbSetOrder(1)
 If dbSeek(xFilial("SB1")+cProdA)
 	RecLock('SB1', .F.)
-   SB1->(dbDelete())
+	SB1->(dbDelete())
 	SB1->(MsUnlock())
 EndIf
 

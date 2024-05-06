@@ -352,8 +352,7 @@ EndIf
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","D1_DTDIGIT","D",8,0)
 
-
-ProcRegua(QTMP->(LASTREC()))
+//ProcRegua(QTMP->(LASTREC()))
 
 nReg := 0
 

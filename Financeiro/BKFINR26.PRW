@@ -518,7 +518,7 @@ TCSETFIELD(cAliasQry,"E1_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_XXDTADT","D", 8,0)
 TCSETFIELD(cAliasQry,"E1_BAIXA","D", 8,0)
 TCSETFIELD(cAliasQry,"C5_XXDLIB","D", 8,0)
-ProcRegua((cAliasQry)->(LastRec()))
+//ProcRegua((cAliasQry)->(LastRec()))
 
 nCont := 0
 
