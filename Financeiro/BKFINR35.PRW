@@ -186,7 +186,7 @@ If nPag == 1
 	AADD(aHtml,'.tg .tg-hobs{font-weight:bold;font-size:12px;background-color:#c0c0c0;text-align:center;vertical-align:top}')
 	AADD(aHtml,'.tg .tg-obs{font-weight:bold;font-size:12px;vertical-align:middle;max-width:200px;text-align:center;}')
 
-	AADD(aHtml,'.tg .tg-pag2{font-size:12px;vertical-align:middle;max-width:200px;text-align:justify;line-height: 16px;}')
+	AADD(aHtml,'.tg .tg-pag2{font-size:9px;vertical-align:middle;max-width:200px;text-align:justify;line-height: 16px;}')
 
 	AADD(aHtml,'.tg .tg-vtotal{font-weight:bold;font-size:14px;vertical-align:middle;min-width:100px;text-align:right;padding-right:10px}')
 
@@ -315,11 +315,19 @@ EndIf
 
 AADD(aHtml,'    <tr>')
 AADD(aHtml,'      <td class="tg-mens" colspan="12">')
-AADD(aHtml,         '<p>Prezado(s) Senhor(es). Comunicamos que levamos a débito de sua conta o valor abaixo discriminado(s), cuja liquidação aguardamos na data do vencimento. ')
-AADD(aHtml,         'Dados bancários para pagamento: <b>'+cConta+'</b></p>')
+
+AADD(aHtml,         '<p>Prezado(s) Senhor(es). Comunicamos que levamos a débito de sua conta o valor abaixo discriminado(s), cuja liquidação aguardamos na data do vencimento.</p>')
+
+//AADD(aHtml,         '<p>Prezado(s) Senhor(es). Comunicamos que levamos a débito de sua conta o valor abaixo discriminado(s), cuja liquidação aguardamos na data do vencimento. ')
+//AADD(aHtml,         'Dados bancários para pagamento: <b>'+cConta+'</b></p>')
 AADD(aHtml,'      </td>')
 AADD(aHtml,'    </tr>')
 
+If !Empty(cConta) .AND. !("DADOS BANC" $ UPPER(cTexUn))
+	AADD(aHtml,'  <tr>')
+	AADD(aHtml,'  	<td class="tg-obs" colspan="12">DADOS BANCÁRIOS PARA PAGAMENTO: '+ALLTRIM(cConta)+'</td>')
+	AADD(aHtml,'  </tr>')
+EndIf
 
 AADD(aHtml,' <tr>')
 AADD(aHtml,'    <td class="tg-hsc">Item</td>')
@@ -358,27 +366,14 @@ AADD(aHtml,'    <td class="tg-vtotal" colspan="2">R$ '+ALLTRIM(TRANSFORM(SE1->E1
 AADD(aHtml,'  </tr>')
 */
 
-If !Empty(cConta) .AND. !("DADOS BANC" $ UPPER(cTexUn))
-	AADD(aHtml,'  <tr>')
-	AADD(aHtml,'  	<td class="tg-obs" colspan="12">DADOS BANCÁRIOS: '+ALLTRIM(cConta)+'</td>')
-	AADD(aHtml,'  </tr>')
-EndIf
-
 AADD(aHtml,'  <tr>')
-AADD(aHtml,'  	<td colspan="12"></td>')
+AADD(aHtml,'    <td class="tg-hsr" colspan="12">OBSERVAÇÕES</td>')
 AADD(aHtml,'  </tr>')
 
-
-AADD(aHtml,'</table>')
-AADD(aHtml,'<br>')
-AADD(aHtml,'<br>')
-AADD(aHtml,'</div>')
-
-// Pagina 2
+// Observações
 BEGINCONTENT VAR cPag2
 
-<p><b>OBSERVAÇÕES:</b></p>
-
+<br>
 <p>INEXISTÊNCIA DE FATO GERADOR DE ISS</p>
 <p>OBS 1: O RAMO DE LOCAÇÃO DE BENS MÓVEIS EMITE NOTA DE DÉBITO POR ESTAR IMPOSSIBILITADO DE EMISSÃO DE NOTA FISCAL COM BASE NOS TERMOS DO ARTIGO 7° DA LC N° 116/2003 E NA JURISPRUDÊNCIA DA SÚMULA 31 DO SUPREMO TRIBUNAL FEDERAL.</p>
 <p>O ARTIGO 1º DA LEI COMPLEMENTAR 116/2003 DISPÕE QUE O ISS TEM COMO FATO GERADOR A PRESTAÇÃO DE SERVIÇOS CONSTANTE NA LISTA ANEXA.</p>
@@ -388,12 +383,26 @@ ADIANTE, A TRANSCRIÇÃO DA RAZÃO AO VETO PELA PRESIDÊNCIA:</p>
 <p>"3.01 - LOCAÇÃO DE BENS MÓVEIS."</p>
 
 <p>- ADMINISTRAÇÃO, LOCAÇÃO OU CESSÃO DE BENS IMÓVEIS, MÓVEIS E DIREITOS DE QUALQUER NATUREZA;</p>
-<p>RETENÇÃO DE IRRF #PERCIRF#% - CONFORME A IN RFB Nº 1.234/12, SUBSTITUÍDA PELA IN RFB Nº 2.145/23.</p>
+<p>RETENÇÃO DE IRRF <b>#PERCIRF#%</b> - CONFORME A IN RFB Nº 1.234/12, SUBSTITUÍDA PELA IN RFB Nº 2.145/23.</p>
 <br>
 ENDCONTENT
 
 cPag2 := STRTRAN(cPag2,"#PERCIRF#",PicPer(nPRetIrf,5,2))
 
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'  	<td colspan="12" class="tg-pag2">'+cPag2+'</td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'  <tr>')
+AADD(aHtml,'  	<td colspan="12"></td>')
+AADD(aHtml,'  </tr>')
+
+AADD(aHtml,'</table>')
+AADD(aHtml,'<br>')
+AADD(aHtml,'<br>')
+AADD(aHtml,'</div>')
+
+/*
 AADD(aHtml,'<div class="folha">')
 AADD(aHtml,'<table class="tg">')
 
@@ -417,7 +426,7 @@ AADD(aHtml,'</table>')
 AADD(aHtml,'<br>')
 AADD(aHtml,'<br>')
 AADD(aHtml,'</div>')
-
+*/
 
 // Final do Html
 AADD(aHtml,'</body>')

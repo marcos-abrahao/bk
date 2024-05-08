@@ -148,7 +148,7 @@ Else
 	cPlanilha	:= ExpA1[aScan(ExpA1, {|x| x[1]=="E1_MDPLANI"}),2]
 	cNumMed		:= ExpA1[aScan(ExpA1, {|x| x[1]=="E1_MEDNUME"}),2]
 
-	/* Ajuste quando a base do IRRF estava vindo zerada - 
+	/* Ajuste quando a base do IRRF estava vindo zerada - Foi corrigida pela Totvs
 	nPosBIRF := aScan(ExpA1, {|x| x[1]=="E1_BASEIRF"})
 	If nPosBIRF > 0
 		nPosVal := aScan(ExpA1, {|x| x[1]=="E1_VALOR"})

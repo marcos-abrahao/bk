@@ -2824,48 +2824,25 @@ Local aEmail	:= {}
 Local cPrw		:= "V9BKGct06"
 
 Local cGerGestao := u_GerGestao()
-Local nRegSM0 := SM0->(Recno()) 
+Local aBKGrupo  := u_BKGrupo()
+Local nE 		:= 0
 
 u_MsgLog("V9BKGct06",cAssunto)
-
-//If FWCodEmp() <> "01"
-//	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
-//	Return Nil
-//EndIf
 
 IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
 ENDIF
 
-/*
-PswOrder(1) 
-PswSeek(SUBSTR(cGerGestao,1,6)) 
-aUser  := PswRet(1)
-IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-	cEmail += ALLTRIM(aUser[1,14])+';'
-ENDIF                                                                                                
-*/
-
 cEmail := u_EmMGestao()
 
-SM0->(DbGoTop())
-While SM0->(!EoF())
-
- 	//If !lJobV2
-	//	IncProc()
-	//EndIf   
-
-	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
-		SM0->(DbSKip())
-		Loop
-	EndIf
+For nE := 1 To Len(aBKGrupo)
 
 	cQuery := "SELECT CR_NUM,CTT_CUSTO,CTT_DESC01,CR_TOTAL,C1_SOLICIT,C7_FORNECE,A2_NOME "
-	cQuery += " FROM SCR"+SM0->M0_CODIGO+"0 SCR"
-	cQuery += " INNER JOIN SC7"+SM0->M0_CODIGO+"0 SC7 ON SC7.D_E_L_E_T_='' AND C7_NUM = CR_NUM"
-	cQuery += " INNER JOIN SC1"+SM0->M0_CODIGO+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC = C1_NUM"
-	cQuery += " INNER JOIN SA2"+SM0->M0_CODIGO+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
-	cQuery += " INNER JOIN CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO
+	cQuery += " FROM SCR"+aBKGrupo[nE,1]+"0 SCR"
+	cQuery += " INNER JOIN SC7"+aBKGrupo[nE,1]+"0 SC7 ON SC7.D_E_L_E_T_='' AND C7_NUM = CR_NUM"
+	cQuery += " INNER JOIN SC1"+aBKGrupo[nE,1]+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC = C1_NUM"
+	cQuery += " INNER JOIN SA2"+aBKGrupo[nE,1]+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
+	cQuery += " INNER JOIN CTT"+aBKGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO
 	cQuery += "  WHERE SCR.D_E_L_E_T_='' AND CR_USER='"+SUBSTR(cGerGestao,1,6)+"' AND CR_USERLIB='' AND CR_TIPO = 'PC'"
 	cQuery += " GROUP BY CR_NUM,CTT_CUSTO,CTT_DESC01,CR_TOTAL,C1_SOLICIT,C7_FORNECE,A2_NOME"
 
@@ -2875,7 +2852,7 @@ While SM0->(!EoF())
 
 	Do While (_cAlias)->(!eof())
     
-  			AADD(aEmail,{FWEmpName(cEmpAnt),;
+  			AADD(aEmail,{aBKGrupo[nE,3],;
   						(_cAlias)->CR_NUM,;
 		   				(_cAlias)->CTT_CUSTO,;
     	   				(_cAlias)->CTT_DESC01,;
@@ -2889,11 +2866,7 @@ While SM0->(!EoF())
 
 	(_cAlias)->(Dbclosearea())
 
-	SM0->(dbSkip())
-ENDDO
-
-SM0->(dbGoTo(nRegSM0))
-
+Next
 
 IF LEN(aEmail) > 0
 
@@ -2924,8 +2897,9 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nRegSM0 	:= SM0->(Recno()) 
 Local cPrw		:= "V10BKGct06"
+Local aBKGrupo	:= u_BKGrupo()
+Local nE		:= 0
 
 
 If FWCodEmp() <> "01"
@@ -2951,24 +2925,13 @@ Do While SY1->(!eof())
 	SY1->(dbskip())
 Enddo
 
-
-SM0->(DbGoTop())
-While SM0->(!EoF())
-
- 	//If !lJobV2
-	//	IncProc()
-	//EndIf   
-
-	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
-		SM0->(DbSKip())
-		Loop
-	EndIf
+For nE := 1 To Len(aBKGrupo)  
 
 	cQuery := "SELECT C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
-	cQuery += " FROM SC7"+SM0->M0_CODIGO+"0 SC7"
-	cQuery += " INNER JOIN SC1"+SM0->M0_CODIGO+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC = C1_NUM"
-	cQuery += " INNER JOIN SA2"+SM0->M0_CODIGO+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
-	cQuery += " INNER JOIN CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO"
+	cQuery += " FROM SC7"+aBkGrupo[nE,1]+"0 SC7"
+	cQuery += " INNER JOIN SC1"+aBkGrupo[nE,1]+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC = C1_NUM"
+	cQuery += " INNER JOIN SA2"+aBkGrupo[nE,1]+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
+	cQuery += " INNER JOIN CTT"+aBkGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO"
 	cQuery += "  WHERE SC7.D_E_L_E_T_='' AND C7_RESIDUO='' AND C7_QUJE < C7_QUANT"
 	cQuery += "   AND C7_QTDACLA < C7_QUANT"  // Não lista pedidos em pré-nota (02/07/2021)
 	cQuery += " GROUP BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
@@ -2983,7 +2946,7 @@ While SM0->(!EoF())
 	
 		IF DATE() - QSC7->C7_DATPRF > 0 // Era 2, alterada para zero - Solicitado pela Michele em 26/07/21 
     
-  			AADD(aEmail,{FWEmpName(cEmpAnt),;
+  			AADD(aEmail,{aBkGrupo[nE,3],;
    	   					(_cAlias)->C7_NUM,;
    	   					(_cAlias)->C7_DATPRF,;
    	   					(_cAlias)->C7_FORNECE,;
@@ -2998,10 +2961,7 @@ While SM0->(!EoF())
 
 	(_cAlias)->(Dbclosearea())
 
-	SM0->(dbSkip())
-ENDDO
-SM0->(dbGoTo(nRegSM0))
-
+Next
 
 IF LEN(aEmail) > 0
 
@@ -3031,11 +2991,12 @@ Local cMsg    	:= ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local nRegSM0 	:= SM0->(Recno()) 
 Local cPath     := "\tmp\"
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni
 Local cPrw		:= "V11BKGct06"
+Local aBKGrupo  := {}
+Local nE		:= 0
 
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -3061,23 +3022,13 @@ Do While SY1->(!eof())
 Enddo
 
 
-SM0->(DbGoTop())
-While SM0->(!EoF())
-
- 	//If !lJobV2
-	//	IncProc()
-	//EndIf   
-
-	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
-		SM0->(DbSKip())
-		Loop
-	EndIf
+For nE := 1 To Len(aBKGrupo)
 
 	cQuery := "SELECT C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV"
-	cQuery += " FROM SC1"+SM0->M0_CODIGO+"0 SC1"
-	cQuery += " LEFT JOIN SB1"+SM0->M0_CODIGO+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD =C1_PRODUTO"
-	cQuery += " LEFT JOIN CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC =CTT_CUSTO"
-	cQuery += " LEFT JOIN SC8"+SM0->M0_CODIGO+"0 SC8 ON SC8.D_E_L_E_T_='' AND C8_NUM=C1_COTACAO AND C8_ITEMSC=C1_ITEM"
+	cQuery += " FROM SC1"+aBKGrupo[nE,1]+"0 SC1"
+	cQuery += " LEFT JOIN SB1"+aBKGrupo[nE,1]+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD =C1_PRODUTO"
+	cQuery += " LEFT JOIN CTT"+aBKGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC =CTT_CUSTO"
+	cQuery += " LEFT JOIN SC8"+aBKGrupo[nE,1]+"0 SC8 ON SC8.D_E_L_E_T_='' AND C8_NUM=C1_COTACAO AND C8_ITEMSC=C1_ITEM"
 	cQuery += " WHERE SC1.D_E_L_E_T_=''"  
 	cQuery += " AND C1_RESIDUO='' AND C1_APROV<>'B'"
 	cQuery += " AND C1_QUJE<C1_QUANT "
@@ -3096,7 +3047,7 @@ While SM0->(!EoF())
 	Do While (_cAlias)->(!eof())
 	
  		IF DATE() - QSC1->C1_EMISSAO > 7 // Alterado de 2 para 7, a pedido da Sra. Michele Moraes em 31/01/2019 
-  			AADD(aEmail,{FWEmpName(cEmpAnt),;
+  			AADD(aEmail,{aBKGrupo[nE,3],;
    	   					(_cAlias)->C1_SOLICIT,;
    	   					(_cAlias)->C1_EMISSAO,;
    	   					(_cAlias)->C1_DATPRF,;
@@ -3117,9 +3068,7 @@ While SM0->(!EoF())
 
 	(_cAlias)->(Dbclosearea())
 
-	SM0->(dbSkip())
-ENDDO
-SM0->(dbGoTo(nRegSM0))
+Next
 
 IF LEN(aEmail) > 0
 
@@ -3201,8 +3150,9 @@ Local cMsg    	:= ""
 Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
-Local nRegSM0 	:= SM0->(Recno()) 
 Local cPrw 		:= "V12BKGCT06"
+Local aBKGrupo  := {}
+Local nE 		:= 0
 
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -3215,19 +3165,13 @@ IF !EMPTY(cEmailS)
    cEmail := ALLTRIM(cEmailS)+";"
 ENDIF
 
-SM0->(DbGoTop())
-While SM0->(!EoF())
-
-	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
-		SM0->(DbSKip())
-		Loop
-	EndIf
+For nE := 1 To Len(aBKGrupo)
 
 	cQuery := "Select C5_NUM,C7_DATPRF,C5_CLIENTEFORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
-	cQuery += " From SC7"+SM0->M0_CODIGO+"0 SC7"
-	cQuery += " INNER join SC1"+SM0->M0_CODIGO+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC =C1_NUM"
-	cQuery += " INNER join SA2"+SM0->M0_CODIGO+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE =A2_COD"
-	cQuery += " INNER join CTT"+SM0->M0_CODIGO+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC =CTT_CUSTO
+	cQuery += " From SC7"+aBKGrupo[nE,1]+"0 SC7"
+	cQuery += " INNER join SC1"+aBKGrupo[nE,1]+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC =C1_NUM"
+	cQuery += " INNER join SA2"+aBKGrupo[nE,1]+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE =A2_COD"
+	cQuery += " INNER join CTT"+aBKGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC =CTT_CUSTO
 	cQuery += "  WHERE SC7.D_E_L_E_T_=''  AND C7_RESIDUO='' AND C7_QUJE<C7_QUANT "
 	cQuery += " GROUP BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
 	cQuery += " ORDER BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
@@ -3241,7 +3185,7 @@ While SM0->(!EoF())
 	
 		IF DATE() - QSC7->C7_DATPRF > 2 
     
-  			AADD(aEmail,{FWEmpName(cEmpAnt),;
+  			AADD(aEmail,{aBKGrupo[nE,3],;
    	   					(_cAlias)->C7_NUM,;
    	   					(_cAlias)->C7_DATPRF,;
    	   					(_cAlias)->C7_FORNECE,;
@@ -3256,9 +3200,7 @@ While SM0->(!EoF())
 
 	(_cAlias)->(Dbclosearea())
 
-	SM0->(dbSkip())
-ENDDO
-SM0->(dbGoTo(nRegSM0))
+Next
 
 IF LEN(aEmail) > 0
 

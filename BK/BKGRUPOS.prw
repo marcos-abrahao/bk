@@ -438,7 +438,7 @@ Local aAllUsers
 Local aSup		:= {}
 Local lRet 		:= .F.
 Local aUsSup 	:= {}
-Local aCabec	:= {"Usuários","Superiores"}
+Local aCabec	:= {"Usuários","Superiores","E-Mail","Depto","Cargo"}
 
 u_WaitLog(,{ || aAllUsers := FWSFALLUSERS(,,,,.T.)} )
 
@@ -448,10 +448,10 @@ For nx := 1 To Len(aAllUsers)
 		If Len(aSup) > 0
 			For ny := 1 To Len(aSup)
 				//u_MsgLog("ListSup",aAllUsers[nx][2]+"-"+aAllUsers[nx][4]+" : "+aSup[ny]+"-"+UsrRetName(aSup[ny]))
-				aAdd(aUsSup,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],aSup[ny]+"-"+UsrRetName(aSup[ny])})
+				aAdd(aUsSup,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],aSup[ny]+"-"+UsrRetName(aSup[ny]),aAllUsers[nx][5],aAllUsers[nx][6],aAllUsers[nx][7]})
 			Next
 		Else
-			aAdd(aUsSup,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],""})
+			aAdd(aUsSup,{aAllUsers[nx][2]+"-"+aAllUsers[nx][3],"",aAllUsers[nx][5],aAllUsers[nx][6],aAllUsers[nx][7]})
 		EndIf	
 	EndIf
 Next
@@ -488,6 +488,7 @@ SELECT USRGRP.[USR_ID]
 
 		--AND USRGRP.USR_GRUPO = '000029'
 		--AND USRGRP.USR_ID = '000029'
+        --AND USR_DEPTO = 'RH'
 	ORDER BY USRGRP.USR_ID
 
 */

@@ -26,7 +26,8 @@ AADD( aRotina, {OemToAnsi("Liquidos "+cEmpName), aRotY, 0, 4 } )
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Resumo Diário"), "U_BKFINR34", 0, 4 } )
 
-aRotZ := { {OemToAnsi("Prazo Lançamento"), "U_BKFINR36",  0, 2 } }
+aRotZ := { {OemToAnsi("Prazo Lançamento"),		 "U_BKFINR36",  0, 2 } ,;
+		   {OemToAnsi("Pagamentos Antecipados"), "U_BKFINR37",  0, 2 } }
 AADD( aRotina, {OemToAnsi("Relatórios"), aRotZ, 0, 4 } )
 
 AADD( aRotina, {OemToAnsi("C.Pagar Web"), "U_BKFINA05", 0, 4 } )

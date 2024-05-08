@@ -82,6 +82,7 @@ aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de en
 aAdd(aDados,{"","U_BKCOMR19()",		"COMPRAS",		"Relação de Produtos x Grupos x Subgrupos"})
 
 aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})
+aAdd(aDados,{"","U_BKFINR37()",		"FINANCEIRO",	"Indicador Pagamentos Antecipados"})
 aAdd(aDados,{"","U_BKFINA05()",		"FINANCEIRO",	"Títulos a Pagar WEB"})
 aAdd(aDados,{"","U_FINR_470()",		"FINANCEIRO",	"Extrato Bancário BK - com CC"})  
 
