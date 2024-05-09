@@ -803,6 +803,9 @@ Return cRet
 User Function BKEmFin()
 Local cRet := ""
 
+cRet := u_GprEmail("","","Financeiro")
+
+/*
 cRet += "adalberto.xavier@bkconsultoria.com.br;"
 cRet += "andresa.cunha@bkconsultoria.com.br;"
 cRet += "diego.oliveira@bkconsultoria.com.br;"
@@ -812,6 +815,7 @@ cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "sabrina.nogueira@bkconsultoria.com.br;"
 cRet += "kelly.neto@bkconsultoria.com.br;"
 cRet += "isabela.silva@bkconsultoria.com.br;"
+*/
 
 Return cRet
 
