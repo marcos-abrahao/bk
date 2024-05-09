@@ -388,6 +388,7 @@ cAliasQry := "TMPR25" //GetNextAlias()
 dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), 'TMPR25', .F., .T.)
 TCSETFIELD(cAliasQry,"E2_VENCREA","D", 8,0)
 TCSETFIELD(cAliasQry,"E2_VALOR"  ,"N",18,2)
+TCSETFIELD(cAliasQry,"E2_SALDO"  ,"N",18,2)
 	
 //ProcRegua((cAliasQry)->(LastRec()))
 	

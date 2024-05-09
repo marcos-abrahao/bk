@@ -667,13 +667,22 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON E1_CLIENTE = A1_COD AND E1_L
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND SA1.D_E_L_E_T_ = ' '" + CRLF
 
 cQuery += " WHERE SE1.D_E_L_E_T_ = ' '"+ CRLF
-
+cQuery += "     AND SE1.E1_TIPO IN('NDC','BOL') "+ CRLF
+/*
 If cMesI == cMesF
 	cQuery += " AND SUBSTRING(E1_XXCOMPE,1,6) = '"+cMesI+"' "+ CRLF
 Else
 	cQuery += " AND SUBSTRING(E1_XXCOMPE,1,6) >= '"+cMesI+"' "+ CRLF
 	cQuery += " AND SUBSTRING(E1_XXCOMPE,1,6) <= '"+cMesF+"' "+ CRLF
 EndIf
+*/
+If cMesI == cMesF
+	cQuery += " AND SUBSTRING(E1_EMISSAO,1,6) = '"+cMesI+"' "+ CRLF
+Else
+	cQuery += " AND SUBSTRING(E1_EMISSAO,1,6) >= '"+cMesI+"' "+ CRLF
+	cQuery += " AND SUBSTRING(E1_EMISSAO,1,6) <= '"+cMesF+"' "+ CRLF
+EndIf
+
 
 cQuery += " ORDER BY E1_XXCUSTO,E1_XXREV,E1_XXCOMPE,E1_SERIE,E1_NUM" + CRLF
 

@@ -3,6 +3,8 @@
 #Include "PROTHEUS.CH"
 #Include "TBICONN.CH"
 
+// Obs: Não está concluído
+
 /*/{Protheus.doc} RestLibDc
     REST para Liberação de Documentos / PC - MATA094
     @type  REST

@@ -12,7 +12,7 @@ BK - Resumo Diário Contas a Pagar
 User Function BKFINR37
 
 Local cDescricao	:= "Objetivo: Indicador de Pagamentos Antecipados"+CRLF+"Solicitado pelo depto Financeiro em abril de 2024."
-Local cVersao 		:= "07/05/24 - Versão inicial"
+Local cVersao 		:= "07/05/24 - Versão inicial "
 Local oRExcel		AS Object
 Local oPExcel		AS Object
 
@@ -25,6 +25,10 @@ Private cProg		:= "BKFINR37"
 Private dDtIni		:= dDataBase
 Private dDtFim		:= dDataBase
 Private nOpcao		:= 1
+
+// Log de Versões
+cVersao := CRLF + "09/05/24 - Filtrar LF, Saques e incluir coluna Mês - Kelly Neto"
+
 
 aAdd( aParam ,{ 3, "Opção:"			, 1              , aOpcoes               , 100,'.T.',.T.})
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .T. })
@@ -70,8 +74,8 @@ oPExcel:GetCol("NOMEEMP"):SetHAlign("C")
 oPExcel:AddColX3("E2_TIPO")
 oPExcel:GetCol("E2_TIPO"):SetHAlign("C")
 
-oPExcel:AddColX3("E2_XXTIPBK")
-oPExcel:GetCol("E2_XXTIPBK"):SetHAlign("C")
+//oPExcel:AddColX3("E2_XXTIPBK")
+//oPExcel:GetCol("E2_XXTIPBK"):SetHAlign("C")
 
 oPExcel:AddCol("TITULO","QSE2->E2_PREFIXO+QSE2->E2_NUM+QSE2->E2_PARCELA","Título","")
 oPExcel:GetCol("TITULO"):SetTamCol(15)
@@ -89,6 +93,11 @@ oPExcel:GetCol("CNPJ"):SetTamCol(21)
 
 oPExcel:AddColX3("E2_EMISSAO")
 oPExcel:AddColX3("E2_VENCREA")
+
+oPExcel:AddCol("MESEXT","MesExtenso(Month(QSE2->E2_VENCREA)) + ' ' + Str(Year(QSE2->E2_VENCREA), 4)","Mês","")
+oPExcel:GetCol("MESEXT"):SetHAlign("C")
+oPExcel:GetCol("MESEXT"):SetTamCol(21)
+
 oPExcel:AddColX3("E2_BAIXA")
 
 oPExcel:AddColX3("E5_DOCUMEN")
@@ -97,10 +106,10 @@ oPExcel:AddCol("STATUS","IIF(EMPTY(QSE2->E2_BAIXA),'Em atraso',IIF(QSE2->SALDO >
 oPExcel:GetCol("STATUS"):SetTamCol(12)
 oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FF0000","",,,.T.)	// Vermelho
 oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'C'}	,"008000","",,,.T.)	// Verde
-oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'}	,"FFA500","",,,.T.)	// Laranja
+oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'}	,"0000FF","",,,.T.)	// Azul
 oPExcel:GetCol("STATUS"):SetHAlign("C")
 
-oPExcel:AddCol("ATRASO","IIF(EMPTY(QSE2->E2_BAIXA),DATE(),QSE2->E2_BAIXA) - QSE2->E2_EMISSAO + 1","Status P.A.")
+oPExcel:AddCol("ATRASO","IIF(EMPTY(QSE2->E2_BAIXA),DATE(),QSE2->E2_BAIXA) - QSE2->E2_EMISSAO + 1","Atraso")
 oPExcel:GetCol("ATRASO"):SetTamCol(12)
 oPExcel:GetCol("ATRASO"):SetTipo("N")
 oPExcel:GetCol("ATRASO"):SetTamanho(6)
@@ -292,6 +301,8 @@ For nE := 1 To Len(aBKGrupo)
 	cQuery += "	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF
 	cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
 	cQuery +=  "  AND E2_TIPO = 'PA' "+CRLF
+	cQuery +=  "  AND E2_FORNECE <> '"+u_cFornBK()+"' "+CRLF  // Filtrar saques
+	cQuery +=  "  AND E2_XXTIPBK = ' ' "+CRLF  // Filtrar integração LF
 	If dDtIni == dDtFim
 		cQuery +=  "  AND E2_VENCREA = '"+DTOS(dDtIni)+"' "+CRLF
 	Else
