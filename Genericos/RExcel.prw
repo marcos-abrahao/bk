@@ -276,6 +276,7 @@ Local nP			:= 0
 Local nR 			:= 0
 Local nS 			:= 0
 Local nX 			:= 0
+Local nM 			:= 0
 Local cFont			:= FwPrinterFont():Calibri()
 Local nLin 			:= 1
 Local nTop			:= 1
@@ -382,6 +383,7 @@ Local cFiltro 		:= ""
 Local cAlias 		:= ""
 Local aResumos		:= {}
 Local aNResumos		:= {}
+Local aMatriz 		:= []
 
 // Atributos da Linha
 Local aStruct 		:= {}
@@ -425,19 +427,6 @@ fClose(nHndImagem)
 For nP := 1 To Len(Self:aPlans)
 	
 	oPlan		:= Self:aPlans[nP]
-
-	cAlias		:= oPlan:cAlias
-	cFiltro		:= oPlan:cFiltro
-	aResumos	:= aClone(oPlan:aResumos)
-
-	// Monta array temporário para armazenar numero das colunas e valores
-	aNResumos 	:= {}
-	For nR := 1 To Len(aResumos)
-		aAdd(aNResumos,{aResumos[nR,1],0,0,{}})
-	Next
-
-	// Estrutura da Query
-	aStruct 	:= (cAlias)->(dbStruct())
 
 	// Adiciona nova planilha
 	Self:oPrtXlsx:AddSheet(oPlan:GetPlan())
@@ -500,277 +489,568 @@ For nP := 1 To Len(Self:aPlans)
 	lFirst		:= .T.
 	nCont 		:= 0
 
-	dbSelectArea(cAlias)
-	If !Empty(cFiltro)
-		(cAlias)->(dbSetFilter({|| &cFiltro} , cFiltro))
-	Else
-		(cAlias)->(dbClearFilter())
-	Endif
-	(cAlias)->(dbGoTop())
-	
-	//u_MsgLog("REXCEL",cFiltro,"")
+	// Planilha com Alias informado
+	If !Empty(oPlan:cAlias)
+		cAlias		:= oPlan:cAlias
+		cFiltro		:= oPlan:cFiltro
+		aResumos	:= aClone(oPlan:aResumos)
 
-	Do While (cAlias)->(!Eof()) 
-		nLin++
-		nCont++
-		aLinha := {}
+		// Monta array temporário para armazenar numero das colunas e valores
+		aNResumos 	:= {}
+		For nR := 1 To Len(aResumos)
+			aAdd(aNResumos,{aResumos[nR,1],0,0,{}})
+		Next
 
-		For nC := 1 To Len(oPlan:aColunas)
+		// Estrutura da Query
+		aStruct 	:= (cAlias)->(dbStruct())
 
-			// Pega os atributos da Coluna
-			cTipo 	:= oPlan:aColunas[nC]:GetTipo()
-			nTamanho:= oPlan:aColunas[nC]:GetTamanho()
-			nDecimal:= oPlan:aColunas[nC]:GetDecimal()
-			nTamCol	:= oPlan:aColunas[nC]:GetTamCol()
-			lTotal	:= oPlan:aColunas[nC]:GetTotal()
-			cFormat	:= oPlan:aColunas[nC]:GetFormat()
-			cHAlign := oPlan:aColunas[nC]:GetHAlign()
-			nField	:= oPlan:aColunas[nC]:GetField()
-			aCor	:= oPlan:aColunas[nC]:GetCor()
+		dbSelectArea(cAlias)
+		If !Empty(cFiltro)
+			(cAlias)->(dbSetFilter({|| &cFiltro} , cFiltro))
+		Else
+			(cAlias)->(dbClearFilter())
+		Endif
+		(cAlias)->(dbGoTop())
+		
+		//u_MsgLog("REXCEL",cFiltro,"")
+
+		Do While (cAlias)->(!Eof()) 
+			nLin++
+			nCont++
+			aLinha := {}
+
+			For nC := 1 To Len(oPlan:aColunas)
+
+				// Pega os atributos da Coluna
+				cTipo 	:= oPlan:aColunas[nC]:GetTipo()
+				nTamanho:= oPlan:aColunas[nC]:GetTamanho()
+				nDecimal:= oPlan:aColunas[nC]:GetDecimal()
+				nTamCol	:= oPlan:aColunas[nC]:GetTamCol()
+				lTotal	:= oPlan:aColunas[nC]:GetTotal()
+				cFormat	:= oPlan:aColunas[nC]:GetFormat()
+				cHAlign := oPlan:aColunas[nC]:GetHAlign()
+				nField	:= oPlan:aColunas[nC]:GetField()
+				aCor	:= oPlan:aColunas[nC]:GetCor()
 
 
-			// Atributos que não precisam ser atualizados
-			lWrap   := oPlan:aColunas[nC]:GetWrap()
-			cName   := oPlan:aColunas[nC]:GetName()
+				// Atributos que não precisam ser atualizados
+				lWrap   := oPlan:aColunas[nC]:GetWrap()
+				cName   := oPlan:aColunas[nC]:GetName()
 
-			// Pega o conteúdo do campo
-			cCampo	:= oPlan:aColunas[nC]:cCampo
-			If nField > 0
-				xCampo := FieldGet(nField)
-			Else
-				xCampo	:= &(cCampo)
-			EndIf
-
-			If lFirst
-				// Ajusta os atributos informados ou default
-
-				// Pega posição do campo (salvar em nField)
-				nS := aScan(aStruct,{ |x| x[1] == cCampo })
-				If nS > 0
-					nField := nS
+				// Pega o conteúdo do campo
+				cCampo	:= oPlan:aColunas[nC]:cCampo
+				If nField > 0
+					xCampo := FieldGet(nField)
+				Else
+					xCampo	:= &(cCampo)
 				EndIf
 
-				// Pega informações da Estrutura da Query
-				If nS > 0
+				If lFirst
+					// Ajusta os atributos informados ou default
+
+					// Pega posição do campo (salvar em nField)
+					nS := aScan(aStruct,{ |x| x[1] == cCampo })
+					If nS > 0
+						nField := nS
+					EndIf
+
+					// Pega informações da Estrutura da Query
+					If nS > 0
+						If Empty(cTipo)
+							cTipo		:= aStruct[nS,2]
+						EndIf
+						If Empty(nTamanho)
+							nTamanho	:= aStruct[nS,3]
+						EndIf
+						If Empty(nDecimal)
+							nDecimal	:= aStruct[nS,4]
+						EndIf
+					EndIf
+
+					// Pega informações da Coluna
 					If Empty(cTipo)
-						cTipo		:= aStruct[nS,2]
+						cTipo 		:= ValType(xCampo)
 					EndIf
 					If Empty(nTamanho)
-						nTamanho	:= aStruct[nS,3]
+						If Substr(cTipo,1,1) == "N"
+							nTamanho := 15
+							nDecimal := 2
+						ElseIf Substr(cTipo,1,1) == "D"
+							nTamanho := 8
+						ElseIf Substr(cTipo,1,1) $ "CM"
+							nTamanho := Len(xCampo)
+						EndIf
 					EndIf
-					If Empty(nDecimal)
-						nDecimal	:= aStruct[nS,4]
-					EndIf
-				EndIf
-
-				// Pega informações da Coluna
-				If Empty(cTipo)
-					cTipo 		:= ValType(xCampo)
-				EndIf
-				If Empty(nTamanho)
-					If Substr(cTipo,1,1) == "N"
-						nTamanho := 15
-						nDecimal := 2
-					ElseIf Substr(cTipo,1,1) == "D"
-						nTamanho := 8
-					ElseIf Substr(cTipo,1,1) $ "CM"
-						nTamanho := Len(xCampo)
-					EndIf
-				EndIf
-	
-				//Calcula o tamanho da coluna excel
-				If Empty(nTamCol)
-					nTamCol := 8
-					If Substr(cTipo,1,1) == "N"
-						nTamCol := 15
-					ElseIf Substr(cTipo,1,1) == "D"
-						nTamCol := 10
-					ElseIf Substr(cTipo,1,1) $ "CM"
-						If Len(xCampo) > 8
-							If Len(xCampo) < 150
-								nTamCol := Len(xCampo) + 1
-							Else
-								nTamCol := 150
+		
+					//Calcula o tamanho da coluna excel
+					If Empty(nTamCol)
+						nTamCol := 8
+						If Substr(cTipo,1,1) == "N"
+							nTamCol := 15
+						ElseIf Substr(cTipo,1,1) == "D"
+							nTamCol := 10
+						ElseIf Substr(cTipo,1,1) $ "CM"
+							If Len(xCampo) > 8
+								If Len(xCampo) < 150
+									nTamCol := Len(xCampo) + 1
+								Else
+									nTamCol := 150
+								EndIf
 							EndIf
 						EndIf
 					EndIf
-				EndIf
 
-				If Empty(cFormat)
-					//Numerico
-					If Substr(cTipo,1,1) == "N"
-						cFormat := "#,##0"
-						If nDecimal > 0
-							cFormat += "."+REPLICATE("0",nDecimal)
+					If Empty(cFormat)
+						//Numerico
+						If Substr(cTipo,1,1) == "N"
+							cFormat := "#,##0"
+							If nDecimal > 0
+								cFormat += "."+REPLICATE("0",nDecimal)
+							EndIf
+							cFormat := cFormat+";[Red]-"+cFormat
+						// Numerico %
+						ElseIf Substr(cTipo,1,1) == "P"
+							cFormat  := "0"
+							If nDecimal > 0
+								cFormat += "."+REPLICATE("0",nDecimal)+"%"
+							Else
+								cFormat += "%"
+							EndIf
+							cFormat := cFormat+";[Red]-"+cFormat
+						// Data
+						ElseIf Substr(cTipo,1,1) == "D"
+							cFormat := "dd/mm/yyyy"
+							// Se o campo vier em branco, setar cFormat para "" no momento de gerar a celula
 						EndIf
-						cFormat := cFormat+";[Red]-"+cFormat
-					// Numerico %
-					ElseIf Substr(cTipo,1,1) == "P"
-						cFormat  := "0"
-						If nDecimal > 0
-							cFormat += "."+REPLICATE("0",nDecimal)+"%"
-						Else
-							cFormat += "%"
-						EndIf
-						cFormat := cFormat+";[Red]-"+cFormat
-					// Data
-					ElseIf Substr(cTipo,1,1) == "D"
-						cFormat := "dd/mm/yyyy"
-						// Se o campo vier em branco, setar cFormat para "" no momento de gerar a celula
+
 					EndIf
 
+					// Converter nome da coluna em numero da coluna
+					If Len(aNResumos) > 0 .AND. !Empty(cName)
+						For nR := 1 To Len(aNResumos)
+							If aResumos[nR,2] == cName
+								aNResumos[nR,2] := nC
+							EndIf
+							If aResumos[nR,3] == cName
+								aNResumos[nR,3] := nC
+							EndIf
+						Next
+					EndIf
+
+					// Sempre centralizar campo tipo Data
+					If Substr(cTipo,1,1) == "D"
+						cHAlign := "C"
+					EndIf
+
+					// Salva os atributos
+					oPlan:aColunas[nC]:SetTipo(cTipo)
+					oPlan:aColunas[nC]:SetTamanho(nTamanho)
+					oPlan:aColunas[nC]:SetDecimal(nDecimal)
+					oPlan:aColunas[nC]:SetTamCol(nTamCol)
+					oPlan:aColunas[nC]:SetTotal(lTotal)
+					oPlan:aColunas[nC]:SetFormat(cFormat)
+					oPlan:aColunas[nC]:SetHAlign(cHAlign)
+					oPlan:aColunas[nC]:SetField(nField)
+
+					// Aplica o tamanho da coluna
+					Self:oPrtXlsx:SetColumnsWidth(nC,nC,nTamCol)
+
 				EndIf
 
-				// Converter nome da coluna em numero da coluna
-				If Len(aNResumos) > 0 .AND. !Empty(cName)
-					For nR := 1 To Len(aNResumos)
-						If aResumos[nR,2] == cName
-							aNResumos[nR,2] := nC
-						EndIf
-						If aResumos[nR,3] == cName
-							aNResumos[nR,3] := nC
+				// Padrão anterior
+				//Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
+
+				If cHAlign == "C"
+					cOHAlign := cHorAligC
+				ElseIf cHAlign == "L"
+					cOHAlign := cHorAligL
+				ElseIf cHAlign == "R"
+					cOHAlign := cHorAligR
+				Else
+					cOHAlign := cHorAligD
+				EndIf
+
+				cCorFonte	:= cCorN
+				cCorFundo	:= cFundoN
+				nCSize		:= nLSize
+				lCItalic	:= lLItalic
+				lCBold		:= lLBold
+				lCUnderl	:= lLUnderl
+
+				lChange 	:= .F.
+				If Len(aCor) > 0
+					For nX := 1 To Len(aCor)
+						If Eval(aCor[nX,XCONDICAO],xCampo)
+							If !Empty(aCor[nX,XCORFONTE])
+								cCorFonte := aCor[nX,XCORFONTE]
+							EndIf
+							If !Empty(aCor[nX,XCORFUNDO])
+								cCorFundo := aCor[nX,XCORFUNDO]
+							EndIf
+							If !Empty(aCor[nX,XSIZE])
+								nCSize := aCor[nX,XSIZE]
+								lChange	 := .T.
+							EndIf
+							If !Empty(aCor[nX,XITALIC])
+								lCItalic := aCor[nX,XITALIC]
+								lChange	 := .T.
+							EndIf
+							If !Empty(aCor[nX,XBOLD])
+								lCBold := aCor[nX,XBOLD]
+								lChange	 := .T.
+							EndIf
+							If !Empty(aCor[nX,XUNDER])
+								lCUnderl := aCor[nX,XUNDER]
+								lChange	 := .T.
+							EndIf
 						EndIf
 					Next
 				EndIf
-
-				// Sempre centralizar campo tipo Data
-				If Substr(cTipo,1,1) == "D"
-					cHAlign := "C"
+				If lChange
+					Self:oPrtXlsx:SetFont(cFont, nCSize, lCItalic, lCBold, lCUnderl)
 				EndIf
 
-				// Salva os atributos
-				oPlan:aColunas[nC]:SetTipo(cTipo)
-				oPlan:aColunas[nC]:SetTamanho(nTamanho)
-				oPlan:aColunas[nC]:SetDecimal(nDecimal)
-				oPlan:aColunas[nC]:SetTamCol(nTamCol)
-				oPlan:aColunas[nC]:SetTotal(lTotal)
-				oPlan:aColunas[nC]:SetFormat(cFormat)
-				oPlan:aColunas[nC]:SetHAlign(cHAlign)
-				oPlan:aColunas[nC]:SetField(nField)
+				Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
-				// Aplica o tamanho da coluna
-				Self:oPrtXlsx:SetColumnsWidth(nC,nC,nTamCol)
+				If cTipo == "F"
+					If "HYPERLINK" $ UPPER(xCampo)
+						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
+						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
+					EndIf
 
-			EndIf
+					If !Empty(xCampo)
+						Self:oPrtXlsx:SetFormula(nLin,nC,xCampo)
+					Else
+						Self:oPrtXlsx:SetValue(nLin,nC,"")
+					EndIf
+					lChange := .T.
+					
+				ElseIf cTipo == "D"
+					If !Empty(xCampo)
+						Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
+					Else
+						Self:oPrtXlsx:SetValue(nLin,nC,"")
+					EndIf
+				Else
+					Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
+				EndIf
 
-			// Padrão anterior
-			//Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
+				// Quarda elementos da linha para montagem dos resumos
+				If !Empty(aNResumos)
+					aAdd(aLinha,xCampo)
+				EndIf
 
-			If cHAlign == "C"
-				cOHAlign := cHorAligC
-			ElseIf cHAlign == "L"
-				cOHAlign := cHorAligL
-			ElseIf cHAlign == "R"
-				cOHAlign := cHorAligR
-			Else
-				cOHAlign := cHorAligD
-			EndIf
+				// Voltar estilo padrão
+				If lChange
+					Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+				EndIf
 
-			cCorFonte	:= cCorN
-			cCorFundo	:= cFundoN
-			nCSize		:= nLSize
-			lCItalic	:= lLItalic
-			lCBold		:= lLBold
-			lCUnderl	:= lLUnderl
+			Next
 
-			lChange 	:= .F.
-			If Len(aCor) > 0
-				For nX := 1 To Len(aCor)
-					If Eval(aCor[nX,XCONDICAO],xCampo)
-						If !Empty(aCor[nX,XCORFONTE])
-							cCorFonte := aCor[nX,XCORFONTE]
+			//u_MsgLog("REXCEL","aLinha","",VarInfo("aLinha",aLinha))
+			//u_MsgLog("REXCEL","aNResumos","",VarInfo("aNResumos",aNResumos))
+
+			// Monta os resumos
+			If !Empty(aNResumos)
+				For nR := 1 To Len(aNResumos)
+					cTipoVal := ValType(aLinha[aNResumos[nR,3]])
+					If Len(aNResumos[nR,4]) > 0
+						nS := Ascan(aNResumos[nR,4],{|x| x[1] == aLinha[aNResumos[nR,2]]})
+						If nS == 0
+							aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
+						Else
+							If cTipoVal == "N"
+								aNResumos[nR,4,nS,2] += aLinha[aNResumos[nR,3]]
+							Else
+								aNResumos[nR,4,nS,2]++
+							EndIf
 						EndIf
-						If !Empty(aCor[nX,XCORFUNDO])
-							cCorFundo := aCor[nX,XCORFUNDO]
-						EndIf
-						If !Empty(aCor[nX,XSIZE])
-							nCSize := aCor[nX,XSIZE]
-							lChange	 := .T.
-						EndIf
-						If !Empty(aCor[nX,XITALIC])
-							lCItalic := aCor[nX,XITALIC]
-							lChange	 := .T.
-						EndIf
-						If !Empty(aCor[nX,XBOLD])
-							lCBold := aCor[nX,XBOLD]
-							lChange	 := .T.
-						EndIf
-						If !Empty(aCor[nX,XUNDER])
-							lCUnderl := aCor[nX,XUNDER]
-							lChange	 := .T.
-						EndIf
+					Else
+						aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
 					EndIf
 				Next
 			EndIf
-			If lChange
-	    		Self:oPrtXlsx:SetFont(cFont, nCSize, lCItalic, lCBold, lCUnderl)
-			EndIf
 
-			Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
+			lFirst := .F.
+			(cAlias)->(dbSkip())
+		EndDo
 
-			If cTipo == "F"
-				If "HYPERLINK" $ UPPER(xCampo)
-				    Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
-			    	Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
+	Else  
+		// Matriz informada
+
+		aMatriz 	:= oPlan:aMatriz
+		aResumos	:= aClone(oPlan:aResumos)
+
+		// Monta array temporário para armazenar numero das colunas e valores
+		aNResumos 	:= {}
+		For nR := 1 To Len(aResumos)
+			aAdd(aNResumos,{aResumos[nR,1],0,0,{}})
+		Next
+
+		// Estrutura da Matriz
+		// ???
+
+		For nM := 1 To Len(aMatriz)
+			nLin++
+			nCont++
+			aLinha := {}
+
+			For nC := 1 To Len(oPlan:aColunas)
+
+				// Pega os atributos da Coluna
+				cTipo 	:= oPlan:aColunas[nC]:GetTipo()
+				nTamanho:= oPlan:aColunas[nC]:GetTamanho()
+				nDecimal:= oPlan:aColunas[nC]:GetDecimal()
+				nTamCol	:= oPlan:aColunas[nC]:GetTamCol()
+				lTotal	:= oPlan:aColunas[nC]:GetTotal()
+				cFormat	:= oPlan:aColunas[nC]:GetFormat()
+				cHAlign := oPlan:aColunas[nC]:GetHAlign()
+				nField	:= oPlan:aColunas[nC]:GetField()
+				aCor	:= oPlan:aColunas[nC]:GetCor()
+
+
+				// Atributos que não precisam ser atualizados
+				lWrap   := oPlan:aColunas[nC]:GetWrap()
+				cName   := oPlan:aColunas[nC]:GetName()
+
+				// Pega o conteúdo do campo
+				cCampo	:= oPlan:aColunas[nC]:cCampo
+
+				xCampo	:= aMatriz[nM,nC]
+
+				If lFirst
+					// Ajusta os atributos informados ou default
+
+					// Pega posição do campo (salvar em nField)
+					/*
+					nS := aScan(aStruct,{ |x| x[1] == cCampo })
+					If nS > 0
+						nField := nS
+					EndIf
+
+					// Pega informações da Estrutura da Query
+					If nS > 0
+						If Empty(cTipo)
+							cTipo		:= aStruct[nS,2]
+						EndIf
+						If Empty(nTamanho)
+							nTamanho	:= aStruct[nS,3]
+						EndIf
+						If Empty(nDecimal)
+							nDecimal	:= aStruct[nS,4]
+						EndIf
+					EndIf
+					*/
+
+					// Pega informações da Coluna
+					If Empty(cTipo)
+						cTipo 		:= ValType(xCampo)
+					EndIf
+					If Empty(nTamanho)
+						If Substr(cTipo,1,1) == "N"
+							nTamanho := 15
+							nDecimal := 2
+						ElseIf Substr(cTipo,1,1) == "D"
+							nTamanho := 8
+						ElseIf Substr(cTipo,1,1) $ "CM"
+							nTamanho := Len(xCampo)
+						EndIf
+					EndIf
+		
+					//Calcula o tamanho da coluna excel
+					If Empty(nTamCol)
+						nTamCol := 8
+						If Substr(cTipo,1,1) == "N"
+							nTamCol := 15
+						ElseIf Substr(cTipo,1,1) == "D"
+							nTamCol := 10
+						ElseIf Substr(cTipo,1,1) $ "CM"
+							If Len(xCampo) > 8
+								If Len(xCampo) < 150
+									nTamCol := Len(xCampo) + 1
+								Else
+									nTamCol := 150
+								EndIf
+							EndIf
+						EndIf
+					EndIf
+
+					If Empty(cFormat)
+						//Numerico
+						If Substr(cTipo,1,1) == "N"
+							cFormat := "#,##0"
+							If nDecimal > 0
+								cFormat += "."+REPLICATE("0",nDecimal)
+							EndIf
+							cFormat := cFormat+";[Red]-"+cFormat
+						// Numerico %
+						ElseIf Substr(cTipo,1,1) == "P"
+							cFormat  := "0"
+							If nDecimal > 0
+								cFormat += "."+REPLICATE("0",nDecimal)+"%"
+							Else
+								cFormat += "%"
+							EndIf
+							cFormat := cFormat+";[Red]-"+cFormat
+						// Data
+						ElseIf Substr(cTipo,1,1) == "D"
+							cFormat := "dd/mm/yyyy"
+							// Se o campo vier em branco, setar cFormat para "" no momento de gerar a celula
+						EndIf
+
+					EndIf
+
+					// Converter nome da coluna em numero da coluna
+					If Len(aNResumos) > 0 .AND. !Empty(cName)
+						For nR := 1 To Len(aNResumos)
+							If aResumos[nR,2] == cName
+								aNResumos[nR,2] := nC
+							EndIf
+							If aResumos[nR,3] == cName
+								aNResumos[nR,3] := nC
+							EndIf
+						Next
+					EndIf
+
+					// Sempre centralizar campo tipo Data
+					If Substr(cTipo,1,1) == "D"
+						cHAlign := "C"
+					EndIf
+
+					// Salva os atributos
+					oPlan:aColunas[nC]:SetTipo(cTipo)
+					oPlan:aColunas[nC]:SetTamanho(nTamanho)
+					oPlan:aColunas[nC]:SetDecimal(nDecimal)
+					oPlan:aColunas[nC]:SetTamCol(nTamCol)
+					oPlan:aColunas[nC]:SetTotal(lTotal)
+					oPlan:aColunas[nC]:SetFormat(cFormat)
+					oPlan:aColunas[nC]:SetHAlign(cHAlign)
+					oPlan:aColunas[nC]:SetField(nField)
+
+					// Aplica o tamanho da coluna
+					Self:oPrtXlsx:SetColumnsWidth(nC,nC,nTamCol)
+
 				EndIf
 
-				If !Empty(xCampo)
-					Self:oPrtXlsx:SetFormula(nLin,nC,xCampo)
+				// Padrão anterior
+				//Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorFonte, cCorFundo, cFormat )
+
+				If cHAlign == "C"
+					cOHAlign := cHorAligC
+				ElseIf cHAlign == "L"
+					cOHAlign := cHorAligL
+				ElseIf cHAlign == "R"
+					cOHAlign := cHorAligR
 				Else
-					Self:oPrtXlsx:SetValue(nLin,nC,"")
+					cOHAlign := cHorAligD
 				EndIf
-				lChange := .T.
-				
-			ElseIf cTipo == "D"
-				If !Empty(xCampo)
+
+				cCorFonte	:= cCorN
+				cCorFundo	:= cFundoN
+				nCSize		:= nLSize
+				lCItalic	:= lLItalic
+				lCBold		:= lLBold
+				lCUnderl	:= lLUnderl
+
+				lChange 	:= .F.
+				If Len(aCor) > 0
+					For nX := 1 To Len(aCor)
+						If Eval(aCor[nX,XCONDICAO],xCampo)
+							If !Empty(aCor[nX,XCORFONTE])
+								cCorFonte := aCor[nX,XCORFONTE]
+							EndIf
+							If !Empty(aCor[nX,XCORFUNDO])
+								cCorFundo := aCor[nX,XCORFUNDO]
+							EndIf
+							If !Empty(aCor[nX,XSIZE])
+								nCSize := aCor[nX,XSIZE]
+								lChange	 := .T.
+							EndIf
+							If !Empty(aCor[nX,XITALIC])
+								lCItalic := aCor[nX,XITALIC]
+								lChange	 := .T.
+							EndIf
+							If !Empty(aCor[nX,XBOLD])
+								lCBold := aCor[nX,XBOLD]
+								lChange	 := .T.
+							EndIf
+							If !Empty(aCor[nX,XUNDER])
+								lCUnderl := aCor[nX,XUNDER]
+								lChange	 := .T.
+							EndIf
+						EndIf
+					Next
+				EndIf
+				If lChange
+					Self:oPrtXlsx:SetFont(cFont, nCSize, lCItalic, lCBold, lCUnderl)
+				EndIf
+
+				Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
+
+				If cTipo == "F"
+					If "HYPERLINK" $ UPPER(xCampo)
+						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
+						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
+					EndIf
+
+					If !Empty(xCampo)
+						Self:oPrtXlsx:SetFormula(nLin,nC,xCampo)
+					Else
+						Self:oPrtXlsx:SetValue(nLin,nC,"")
+					EndIf
+					lChange := .T.
+					
+				ElseIf cTipo == "D"
+					If !Empty(xCampo)
+						Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
+					Else
+						Self:oPrtXlsx:SetValue(nLin,nC,"")
+					EndIf
+				Else
 					Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
-				Else
-					Self:oPrtXlsx:SetValue(nLin,nC,"")
 				EndIf
-			Else
-				Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
-			EndIf
 
-			// Quarda elementos da linha para montagem dos resumos
+				// Quarda elementos da linha para montagem dos resumos
+				If !Empty(aNResumos)
+					aAdd(aLinha,xCampo)
+				EndIf
+
+				// Voltar estilo padrão
+				If lChange
+					Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
+				EndIf
+
+			Next
+
+			//u_MsgLog("REXCEL","aLinha","",VarInfo("aLinha",aLinha))
+			//u_MsgLog("REXCEL","aNResumos","",VarInfo("aNResumos",aNResumos))
+
+			// Monta os resumos
 			If !Empty(aNResumos)
-				aAdd(aLinha,xCampo)
+				For nR := 1 To Len(aNResumos)
+					cTipoVal := ValType(aLinha[aNResumos[nR,3]])
+					If Len(aNResumos[nR,4]) > 0
+						nS := Ascan(aNResumos[nR,4],{|x| x[1] == aLinha[aNResumos[nR,2]]})
+						If nS == 0
+							aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
+						Else
+							If cTipoVal == "N"
+								aNResumos[nR,4,nS,2] += aLinha[aNResumos[nR,3]]
+							Else
+								aNResumos[nR,4,nS,2]++
+							EndIf
+						EndIf
+					Else
+						aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
+					EndIf
+				Next
 			EndIf
 
-			// Voltar estilo padrão
-			If lChange
-	    		Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, lLUnderl)
-			EndIf
-
+			lFirst := .F.
 
 		Next
 
-		//u_MsgLog("REXCEL","aLinha","",VarInfo("aLinha",aLinha))
-		//u_MsgLog("REXCEL","aNResumos","",VarInfo("aNResumos",aNResumos))
-
-		// Monta os resumos
-		If !Empty(aNResumos)
-			For nR := 1 To Len(aNResumos)
-				cTipoVal := ValType(aLinha[aNResumos[nR,3]])
-				If Len(aNResumos[nR,4]) > 0
-					nS := Ascan(aNResumos[nR,4],{|x| x[1] == aLinha[aNResumos[nR,2]]})
-					If nS == 0
-						aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
-					Else
-						If cTipoVal == "N"
-							aNResumos[nR,4,nS,2] += aLinha[aNResumos[nR,3]]
-						Else
-							aNResumos[nR,4,nS,2]++
-						EndIf
-					EndIf
-				Else
-					aAdd(aNResumos[nR,4],{aLinha[aNResumos[nR,2]],iIf(cTipoVal=='N',aLinha[aNResumos[nR,3]],1)})
-				EndIf
-			Next
-		EndIf
-
-		lFirst := .F.
-		(cAlias)->(dbSkip())
-	EndDo
+	EndIf
 
 	nLast := nLin
 
@@ -1052,6 +1332,7 @@ CLASS PExcel
 
 	// Declaracao das propriedades da Classe
 	DATA cAlias
+	DATA aMatriz	AS Array
 	DATA cTitulo
 	DATA cPlan
 	DATA cFiltro
@@ -1065,6 +1346,9 @@ CLASS PExcel
 
 	METHOD GetAlias()
 	METHOD SetAlias(cAlias)
+
+	METHOD GetMatriz()
+	METHOD SetMatriz(aMatriz)
 
 	METHOD GetFiltro()
 	METHOD SetFiltro(cFiltro)
@@ -1092,6 +1376,13 @@ METHOD SetAlias(cAlias) CLASS PExcel
 Self:cAlias := Alltrim(cAlias)
 Return 
 
+METHOD GetMatriz() CLASS PExcel
+Return Self:aMatriz
+
+METHOD SetMatriz(aMatriz) CLASS PExcel
+Self:aMatriz := aMatriz
+Return 
+
 METHOD GetFiltro() CLASS PExcel
 Return Self:cFiltro
 
@@ -1109,13 +1400,21 @@ Return
 
 // Criação do construtor, onde atribuimos os valores default 
 // para as propriedades e retornamos Self
-METHOD New(cNPlan,cAlias) CLASS PExcel
+METHOD New(cNPlan,xAlias) CLASS PExcel
 Self:cPlan		:= cNPlan
 Self:cTitulo	:= ""
 Self:aColunas	:= {}
-Self:cAlias 	:= cAlias
 Self:cFiltro	:= ""
 Self:aResumos 	:= {}
+If ValType(xAlias) == "C"
+	// Alias da tabela a percorrer
+	Self:cAlias 	:= xAlias
+	Self:aMatriz	:= {}
+Else
+	// Matriz de dados a percorrer
+	Self:cAlias 	:= ""
+	Self:aMatriz	:= xAlias
+EndIf
 Return Self
 
 
