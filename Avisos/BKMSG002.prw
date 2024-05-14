@@ -2,7 +2,7 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} BKMSG002
-BK - Aviso de Documentos pendentes de aprovação
+BK - Aviso de Entidades com Conta Contábil Bloqueada
 
 @Return
 @author Marcos Bispo Abrahão

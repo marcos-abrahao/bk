@@ -2,7 +2,7 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} BKMSG003
-BK - Aviso de Clientes sem , no endereço (Barueri)
+BK - Aviso de Clientes sem virgula (,) no endereço (Barueri)
 @Return
 @author Marcos Bispo Abrahão
 @since 23/04/24

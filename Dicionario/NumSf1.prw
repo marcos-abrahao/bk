@@ -28,13 +28,17 @@ Return lRet
 
 
 User Function ExistNF()
-Local lOk     := .T.
-Local cQuery1 := ""
+Local lOk      := .T.
+Local cQuery1  := ""
 Local cXDOC    := ""
 Local cXSerie  := ""
 Local cXFORNECE:= ""
 Local cXLoja   := ""
 
+If FWIsInCallStack("GERADOCE")
+	// Veio pelo Facilitador de Docs de Entrada BKCOMA16
+	Return lOk
+EndIf
 
 cXDOC     := CNFISCAL
 cXSerie   := CSERIE
@@ -58,7 +62,7 @@ Enddo
 TMPSF1->(DbCloseArea())
 
 IF !lOk
-	IF u_MsgLog(,"Já existe a NF "+cXDoc+" lançada para o Fornecedor "+cXFORNECE+" com a série: "+cXSerie+"! Incluir assim mesmo?","Y")
+	IF u_MsgLog("ExistNF","Já existe a NF "+cXDoc+" lançada para o Fornecedor "+cXFORNECE+" com a série: "+cXSerie+"! Incluir assim mesmo?","Y")
 		lOk := .T.
 	ENDIF
 ENDIF

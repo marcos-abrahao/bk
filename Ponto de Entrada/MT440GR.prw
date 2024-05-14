@@ -20,13 +20,15 @@ Local aArea := GetArea()
 Local lRet  := .T.
 Local cContra := PAD(SC5->C5_MDCONTR,15)
 Local cCompAM := SUBSTR(SC5->C5_XXCOMPM,4,4)+SUBSTR(SC5->C5_XXCOMPM,1,2)
+//Local dDataE := DATE()
 If nOK == 1
 
     // Aqui: posicionar no SZE e ver se o email já foi enviado, senão, envia e grava que foi    
 
     DbSelectArea("SZE")
     If DbSeek(xFilial("SZE")+cContra+cCompAM)
-        If SZE->ZE_ENVEM <> "S"  // Email não enviado para este contrato+competencia
+
+        If SZE->ZE_ENVEM <> "S" // Email não enviado para este contrato+competencia
             SC5Email(.F.)
             RecLock("SZE", .F.)
             SZE->ZE_ENVEM := "S" 

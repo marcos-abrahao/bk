@@ -1,11 +1,26 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
 
+#DEFINE XEMPRESA	01
+#DEFINE XANOMES		02
+#DEFINE XCCC		03
+#DEFINE XDESCCC		04
+#DEFINE XDEBITO		05
+#DEFINE XDESCDB		06
+#DEFINE XCREDITO	07
+#DEFINE XDESCCR		08
+#DEFINE XEVENTO		09
+#DEFINE XEVDESCR	10
+#DEFINE XVALOR		11
+//#DEFINE XDATARQ		12
+#DEFINE XERROS		12
+
+
 /*/{Protheus.doc} BKCTBA01
-BK - Integração Contabilização - Folha Rubi
+BK - Integração Contabilização - Folha Senior/ADP
 @Return
 @author Adilson do Prado / Marcos Bispo Abrahão
-@since 2010 Rev 06/07/20
+@since 2010 Rev 13/05/2024
 @version P12
 /*/
 
@@ -23,10 +38,11 @@ dbSelectArea("SZ5")
 dbSetOrder(1)
 DbGoTop()
 
-aRotina := {{"Pesquisar" ,"AxPesqui"	,0, 1},;
-			{"Visualizar","AxVisual"	,0, 2},;
-            {"Importar",  "U_BKCTB01()" ,0, 3},;
-            {"Alterar"	,"AxAltera"		,0,	4}}
+aRotina := {{"Pesquisar"				,"AxPesqui"		,0, 1},;
+			{"Visualizar"				,"AxVisual"		,0, 2},;
+            {"Importar TXT Folha ADP"	,"U_BKCTB1A()"	,0, 3},;
+            {"Integrar Lançamentos"		,"U_BKCTB01()"	,0, 3},;
+            {"Alterar"					,"AxAltera"		,0,	4}}
 
 //	{"Excluir"   ,"AxDeleta"	,0, 5},;
 
@@ -258,3 +274,295 @@ QSZ5->(DbCloseArea())
 
 Return  
 
+
+
+
+/*/{Protheus.doc} BKCTB1A
+BK - Importar txt lançamentos da Folha ADP
+
+@Return
+@author Marcos Bispo Abrahão
+@since 13/05/2024
+@version P12
+/*/
+
+User Function BKCTB1A()
+
+Local cTipoArq	:= "Arquivos no formato TXT (*.TXT) | *.TXT | "
+Local cTitulo	:= "Importar arquivo TXT de Lançamentos da Folha ADP"
+Local oDlg01
+Local oButSel
+Local nOpcA		:= 0
+Local nSnd		:= 15
+Local nTLin		:= 15
+Local lValid 	:= .T.
+Local aLinha 	:= {}
+
+Private cArq	:= ""
+Private cProg	:= "BKCTB1A"
+
+u_MsgLog(cProg)
+
+DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,420 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
+
+@ nSnd,010  SAY "Arquivo TXT ADP: " of oDlg01 PIXEL 
+@ nSnd -3,057  MSGET cArq SIZE 80,010 of oDlg01 PIXEL READONLY
+@ nSnd -3,142 BUTTON oButSel PROMPT 'Selecionar' SIZE 40, 12 OF oDlg01 ACTION ( cArq := cGetFile(cTipoArq,"Selecione o arquivo TXT da ADP",,cArq,.T.,GETF_NETWORKDRIVE+GETF_LOCALHARD+GETF_LOCALFLOPPY,.F.,.T.)  ) PIXEL  // "Selecionar" 
+nSnd += nTLin
+nSnd += nTLin
+
+DEFINE SBUTTON FROM nSnd, 125 TYPE 1 ACTION (oDlg01:End(),nOpcA:=1) ENABLE OF oDlg01
+DEFINE SBUTTON FROM nSnd, 155 TYPE 2 ACTION (oDlg01:End(),,nOpcA:=0) ENABLE OF oDlg01
+
+ACTIVATE MSDIALOG oDlg01 CENTER
+
+If nOpcA == 1
+	nOpcA:=0
+	u_WaitLog(cProg, {|| aLinha := PCTB1A()}, "Carregando arquivo TXT...")
+	If !Empty(aLinha)
+		u_WaitLog(cProg, {|| lValid := PCTB1V(aLinha)}, "Validando dados...")
+		If lValid
+			If u_MsgLog(cProg,"Lançamentos validados com sucesso, deseja imprimir o lote?","Y")
+				PCTB1I(aLinha)
+			EndIf
+			If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
+				u_WaitLog(cProg, {|| lValid := PCTB1P(aLinha)}, "Importando dados...")
+			EndIf
+		Else
+			If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
+				PCTB1I(aLinha)
+			EndIf
+		EndIf
+	Else
+		u_MsgLog(cProg,"Lançamentos não importados, verifique o conteudo do arquivo "+cArq,"E")
+	EndIf
+Endif
+
+RETURN NIL
+
+
+
+Static FUNCTION PCTB1A()
+Local cBuffer   := ""
+Local nPos		:= 0
+Local aLinha	:= {}
+
+Local cEmpresa	:= ""
+Local cAnoMes	:= ""
+Local cCC 		:= ""
+Local cDebito	:= ""
+Local cCredito 	:= ""
+Local cEvento	:= ""
+Local cEvDescr	:= ""
+Local cValor 	:= ""
+Local nValor 	:= 0
+//Local cDataArq	:= ""
+//Local dDataArq	:= CTOD("")
+
+dbSelectArea("SZ5")
+
+FT_FUSE(cArq)  //abrir
+FT_FGOTOP() //vai para o topo
+
+While !FT_FEOF()
+ 
+	//Capturar dados
+	cBuffer := FT_FREADLN()  //lendo a linha
+	//u_xxLog("\LOG\BKCTBA04.LOG","1-"+cBuffer)
+
+	If ( !Empty(cBuffer) )
+		nPos := 1
+
+		cEmpresa := SUBSTR(cBuffer,nPos,2)
+		nPos += 2
+
+		cAnoMes	:= SUBSTR(cBuffer,nPos,6)
+		nPos += 6
+
+		cCC	:= SUBSTR(cBuffer,nPos,9)
+		nPos += 9
+
+		cDebito	:= SUBSTR(cBuffer,nPos,20)
+		nPos += 20
+
+		cCredito := SUBSTR(cBuffer,nPos,20)
+		nPos += 20
+
+		cEvento := SUBSTR(cBuffer,nPos,5)
+		nPos += 5
+
+		cEvDescr := SUBSTR(cBuffer,nPos,25)
+		nPos += 25
+
+		cValor := SUBSTR(cBuffer,nPos,12)
+		nValor := VAL(cValor) / 100
+		nPos += 12
+
+		//cDataArq := SUBSTR(cBuffer,nPos,8)
+		//dDataArq := STOD(cDataArq)
+		//nPos += 8
+
+		//aAdd(aLinha,{cEmpresa,cAnoMes,cCC,"",cDebito,"",cCredito,"",cEvento,cEvDescr,nValor,dDataArq,""})
+		aAdd(aLinha,{cEmpresa,cAnoMes,cCC,"",cDebito,"",cCredito,"",cEvento,cEvDescr,nValor,""})
+
+    ENDIF
+	FT_FSKIP()   //proximo registro no arquivo txt
+Enddo
+FT_FUSE()  //fecha o arquivo txt
+
+RETURN aLinha
+
+
+// Validação dos dados
+Static Function PCTB1V(aLinha)
+Local nI	:= 0
+Local cErros:= ""
+Local lOk 	:= .T.
+
+CT1->(dbSetOrder(1))
+CTT->(dbSetOrder(1))
+
+For nI := 1 To Len(aLinha)
+
+	cErros := ""
+
+	If aLinha[nI,XEMPRESA] <> cEmpAnt
+		cErros += "Empresa não correspondente "+TRIM(aLinha[nI,XEMPRESA])+"; "+CRLF
+	EndIf
+
+	If !CT1->(dbSeek(xFilial("CT1")+TRIM(aLinha[nI,XDEBITO])))
+		cErros += "Conta debito "+TRIM(aLinha[nI,XDEBITO])+" não cadastrada; "+CRLF
+	ElseIf CT1->CT1_BLOQ = '1'
+		cErros += "Conta debito "+TRIM(aLinha[nI,XDEBITO])+" bloqueada; "+CRLF
+	EndIf
+	aLinha[nI,XDESCDB] := CT1->CT1_DESC01
+
+	If !CT1->(dbSeek(xFilial("CT1")+TRIM(aLinha[nI,XCREDITO])))
+		cErros += "Conta crédito "+TRIM(aLinha[nI,XCREDITO])+" não cadastrada; "+CRLF
+	ElseIf CT1->CT1_BLOQ = '1'
+		cErros += "Conta credito "+TRIM(aLinha[nI,XCREDITO])+" bloqueada; "+CRLF
+	EndIf
+	aLinha[nI,XDESCCR] := CT1->CT1_DESC01
+
+	If aLinha[nI,XDEBITO] == aLinha[nI,XCREDITO]
+		cErros += "Conta crédito igual a conta débito; "
+	EndIf
+
+	If !Empty(aLinha[nI,XCCC])
+		If !CTT->(dbSeek(xFilial("CTT")+TRIM(aLinha[nI,XCCC])))
+			cErros += "Centro de custo "+TRIM(aLinha[nI,XCCC])+" não cadastrado; "+CRLF
+		EndIf
+		aLinha[nI,XDESCCC] := CTT->CTT_DESC01
+	EndIf
+
+	aLinha[nI,XERROS] := cErros
+	If !Empty(cErros)
+		lOk := .F.
+	EndIf
+Next
+
+Return lOk
+
+
+
+Static Function PCTB1I(aLinha)
+Local cTitulo	:= "Relação de Lote Contábil - ADP"
+Local cDescr 	:= "O objetivo deste relatório é a impressão de lote via arquivo TXT fornecido pela ADP."
+Local cVersao	:= "13/05/2024"
+Local oRExcel	AS Object
+Local oPExcel	AS Object
+
+// Definição do Arq Excel
+oRExcel := RExcel():New(cProg)
+oRExcel:SetTitulo(cTitulo)
+oRExcel:SetVersao(cVersao)
+oRExcel:SetDescr(cDescr)
+oRExcel:SetParam({})
+
+// Definição da Planilha 1
+oPExcel:= PExcel():New(cProg,aLinha)
+oPExcel:SetTitulo("Arquivo: "+cArq)
+
+// Colunas da Planilha 1
+oPExcel:AddCol("EMPRESA","u_BKNEmpr(xCampo,3)","Empresa","")
+oPExcel:GetCol("EMPRESA"):SetTamanho(9)
+
+oPExcel:AddColX3("Z5_ANOMES")
+oPExcel:AddColX3("Z5_CC")
+
+oPExcel:AddColX3("CTT_DESC01")
+oPExcel:GetCol("CTT_DESC01"):SetTitulo("Descrição do Centro de Custos")
+
+oPExcel:AddColX3("Z5_DEBITO")
+
+oPExcel:AddCol("DESCDB","","Descrição da Conta Débito","")
+
+oPExcel:AddColX3("Z5_CREDITO")
+
+oPExcel:AddCol("DESCCR","","Descrição da Conta Crédito","")
+
+oPExcel:AddColX3("Z5_EVENTO")
+oPExcel:AddColX3("Z5_EVDESCR")
+
+oPExcel:AddColX3("Z5_VALOR")
+oPExcel:GetCol("Z5_VALOR"):SetTotal(.T.)
+
+//oPExcel:AddColX3("Z5_DATAARQ")
+
+oPExcel:AddCol("ERROS","","Erros","")
+oPExcel:GetCol("ERROS"):SetTamanho(200)
+
+// Adiciona a planilha 1
+oRExcel:AddPlan(oPExcel)
+
+// Cria arquivo Excel
+oRExcel:Create()
+
+Return Nil
+
+
+
+// Importando Dados para a Tabela SZ5
+Static Function PCTB1P(aLinha)
+Local nI	:= 0
+Local lOk 	:= .T.
+
+Local cEmpresa	:= ""
+Local cAnoMes	:= ""
+Local cCC 		:= ""
+Local cDebito	:= ""
+Local cCredito 	:= ""
+Local cEvento	:= ""
+Local cEvDescr	:= ""
+Local nValor 	:= 0
+//Local dDataArq	:= CTOD("")
+
+dbSelectArea("SZ5")
+
+For nI := 1 To Len(aLinha)
+
+	cEmpresa	:= aLinha[nI,XEMPRESA]
+	cAnoMes		:= aLinha[nI,XANOMES]
+	cCC 		:= aLinha[nI,XCCC]
+	cDebito		:= aLinha[nI,XDEBITO]
+	cCredito	:= aLinha[nI,XCREDITO]
+	cEvento		:= aLinha[nI,XEVENTO]
+	cEvDescr	:= aLinha[nI,XEVDESCR]
+	nValor 		:= aLinha[nI,XVALOR]
+	//dDataArq	:= aLinha[nI,XDATARQ]
+
+	RecLock("SZ5",.T.)
+	SZ5->Z5_FILIAL	:= xFilial("SZ5")
+	SZ5->Z5_ANOMES	:= cAnoMes
+	SZ5->Z5_CC		:= cCC
+	SZ5->Z5_DEBITO	:= cDebito
+	SZ5->Z5_CREDITO	:= cCredito
+	SZ5->Z5_EVENTO	:= cEvento
+	SZ5->Z5_EVDESCR	:= cEvDescr
+	SZ5->Z5_VALOR	:= nValor
+	//SZ5->Z5_DATAARQ	:= dDataArq
+	MsUnlock()
+
+Next
+
+Return lOk

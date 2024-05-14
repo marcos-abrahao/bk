@@ -117,8 +117,9 @@ If FWCodEmp() == "01"
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '11' .AND. DOW(DATE()) == 2
 		cBlind2 := "X"
 	EndIf	
-
 	aAdd(aDados,{cBlind2,"U_BKMSG004()"   ,"Aviso de Clientes sem Conta Bancária para Depósito"})
+	
+	aAdd(aDados,{cBlind1,"U_BKMSG005()"   ,"Aviso de Pedidos de Venda Liberados"})
 
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)

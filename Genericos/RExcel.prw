@@ -818,6 +818,11 @@ For nP := 1 To Len(Self:aPlans)
 
 				xCampo	:= aMatriz[nM,nC]
 
+				// Se alguma formula ADVPL for informada
+				If !Empty(cCampo) .AND. "(" $ cCampo 
+					xCampo	:= &(cCampo)
+				EndIf
+
 				If lFirst
 					// Ajusta os atributos informados ou default
 
@@ -1355,7 +1360,6 @@ CLASS PExcel
 
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
-
 
 	METHOD AddCol(cName,cCampo,cDescr,cSx3)
 	METHOD AddColX3(cCampo)

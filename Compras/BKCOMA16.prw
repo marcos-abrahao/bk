@@ -23,6 +23,7 @@ Private cHelp3  := ""
 Private cHelp4  := ""
 Private cModelZT := SPACE(70)
 Private cDepto 	:=  u_UsrCpo(__cUserId,"USR_DEPTO")
+Private xTpDoc  := cTipoDoc  // D=Doc, P=Pré-Nota
 
 cHelp1 := "Informe um descritivo para o Modelo:"
 cHelp2 := "Exemplo: "+TRIM(Posicione("SA2",1,xFilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_NREDUZ"))
@@ -123,7 +124,7 @@ User Function BKCOMA16(cTipoDoc)
 	Private oMark
 	Private cCadastro := 'Facilitador p/ Doc de Entrada'
 	Private cDepto 	:=  u_UsrCpo(__cUserId,"USR_DEPTO")
-	Private cTpDoc  := cTipoDoc  // d=Doc, P=Pré-Nota
+	Private xTpDoc  := cTipoDoc  // D=Doc, P=Pré-Nota
 	Private cPerg	:= "BKCOMA16"
 
 	//If !FWIsAdmin() .AND. !IsGesFin(__cUserId)
@@ -147,7 +148,9 @@ User Function BKCOMA16(cTipoDoc)
 	oMark:SetFieldMark( 'ZT_OK' )
 
 	// filtro
-	oMark:SetFilterDefault("SZT->ZT_DEPTO == '"+cDepto+"' .OR. EMPTY(SZT->ZT_DEPTO)")
+	If __cUserID <> "000000" .AND. __cUserID <> "000038"
+		oMark:SetFilterDefault("SZT->ZT_DEPTO == '"+cDepto+"' .OR. EMPTY(SZT->ZT_DEPTO)")
+	EndIf
 
 	// Setando Legenda cores disponíveis: GREEN, RED, YELLOW, ORANGE, BLUE, GRAY, BROWNS, BLACK, PINK e WHITE
 	// São criados filtros automáticos para as legendas
@@ -192,7 +195,7 @@ Static Function ModelDef()
 Local oModel:= FWLoadModel('MVCSZT')
 
 Return oModel
- 
+ ¬
 /*---------------------------------------------------------------------*
  | Func:  ViewDef                                                      |
  | Autor: Marcos Bispo Abrahão                                         |
@@ -231,7 +234,7 @@ Static Function SZTProc1()
 		//Caso esteja marcado, aumenta o contador
 		If oMark:IsMark(cMarca) //If !Empty(SZT->ZS_OK)
 			nCt++
-			If GeraDocE(.F.)
+			If GeraDocE()
 				If SF1->(!EOF())
 					dbSelectArea("SZT")
 					RecLock("SZT",.F.)
@@ -245,8 +248,10 @@ Static Function SZTProc1()
 					SZT->(MsUnLock())
 					u_MsgLog(cPerg,"Documento "+SF1->F1_DOC+" incluído via modelo "+TRIM(SZT->ZT_MODELO),"S")
 				Else
-					u_MsgLog(cPerg,"Documento não foi incluído.","E")
+					u_MsgLog(cPerg,"Documento não foi incluído (*)","E")
 				EndIf
+			Else
+				u_MsgLog(cPerg,"Documento não foi incluído (**)","E")
 			EndIf
 		EndIf
 
@@ -263,7 +268,7 @@ Static Function SZTProc1()
 Return NIL
 
 
-Static Function GeraDocE(lTela)
+Static Function GeraDocE()
 	Local aCabec    := {}
 	Local aLinha    := {}
 	Local aItens    := {}
@@ -294,7 +299,7 @@ Static Function GeraDocE(lTela)
 		u_MsgLog(cPerg,"Documento referenciado no modelo não foi encontrado, exclua este modelo!","E")
 		Return .F.
 	Else
-		If cTpDoc == "D" .AND. SF1->F1_STATUS <> "A"
+		If xTpDoc == "D" .AND. SF1->F1_STATUS <> "A"
 			u_MsgLog(cPerg,"Documento referenciado no modelo não foi classificado!","E")
 			Return .F.
 		EndIf
@@ -343,7 +348,7 @@ Static Function GeraDocE(lTela)
 			aAdd(aLinha,  {"D1_TOTAL",   SD1->D1_TOTAL,		Nil})
 			nPosTot	:= Len(aLinha)
 
-			//If !Empty(SD1->D1_TES) .AND. cTpDoc == 'D'
+			//If !Empty(SD1->D1_TES) .AND. xTpDoc == 'D'
 				aAdd(aLinha,  {"D1_TES", SD1->D1_TES,		Nil})
 			//EndIf
 			
@@ -386,7 +391,7 @@ Static Function GeraDocE(lTela)
 		Return .F.
 	EndIf
 
-	aAdd(aCabec, {"F1_TIPO",    'N',				Nil})
+	aAdd(aCabec, {"F1_TIPO",    cTipo,				Nil})
 	aAdd(aCabec, {"F1_FORMUL",  "N",				Nil})
 	aAdd(aCabec, {"F1_DOC",     cDoc,				Nil})
 	aAdd(aCabec, {"F1_SERIE",   cSerie,				Nil})
@@ -417,7 +422,7 @@ Static Function GeraDocE(lTela)
 	
 
 	// Liberar automaticamente o Doc
-	If cTpDoc == 'D'
+	If xTpDoc == 'D'
 		aAdd(aCabec, {"F1_XXLIB",	"L",			      Nil})
 		aAdd(aCabec, {"F1_XXULIB",	__cUserId,		      Nil})
 		aAdd(aCabec, {"F1_XXDLIB",	DtoC(Date())+"-"+Time(), Nil})
@@ -450,14 +455,21 @@ Static Function GeraDocE(lTela)
 	// Gravar o histórico no item 1
 	aItens[1,nPosHis,2] := cHist
 
-	If cTpDoc == "D"  // Documento de Entrada
+	If xTpDoc == "D"  // Documento de Entrada
 		MATA103(aCabec, aItens, 3, .T.) // inclusão Tela
 	Else // Pré-Nota
 		MATA140(aCabec, aItens, 3, .F., 5)
 	EndIf
 
 	If lMsErroAuto      
-		MostraErro()					 												
+		MostraErro()
+		lRet := .F.	
+	Else
+		SF1->(dbSetOrder(1))
+		If !SF1->(DbSeek(FWxFilial("SF1") + cDoc + cSerie + cCodigo + cLoja + cTipo))
+			// Documento não foi incluído
+			lRet := .F.
+		EndIf
 	EndIf 
 
 return lRet
