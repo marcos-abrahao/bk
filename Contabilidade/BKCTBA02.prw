@@ -123,7 +123,7 @@ Private lAutoErrNoFile := .T.
 
 cQuery  := "SELECT Z2_CODEMP,Z2_FILIAL,Z2_DATAEMI,Z2_DATAPGT,Z2_E2PRF,Z2_E2NUM,Z2_E2PARC,Z2_TIPO,Z2_TIPOPES,Z2_E2TIPO,Z2_PRODUTO,SUM(Z2_VALOR) as Z2_VALOR,Z2_CC" //--,Z2_NOME,R_E_C_N_O_ AS Z2RECNO " 
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2 "
-cQuery  += " WHERE Z2_CODEMP = '"+SM0->M0_CODIGO+"' "
+cQuery  += " WHERE Z2_CODEMP = '"+cEmpAnt+"' "
 cQuery  += " AND SUBSTRING(Z2_DATAEMI,1,6) = '"+cPerComp+"' "
 cQuery  += " AND Z2_VALOR > 0 "
 cQuery  += " AND Z2_CONTAB = ' ' "

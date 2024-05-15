@@ -200,29 +200,27 @@ Return (.T.)
 User FUNCTION 1BKCOMR08()
 Local aPlans  := {}
 
-//u_WaitLog(, {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
-
 AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
-
+U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 Return 
 
 
 Static Function PBKCOMR08
 Local cQuery := ""
 Local nReg := 0
+Local aBkGrupo := u_BKGrupo()
+Local nE := 0
 
 LimpaBrw("TRB")
 
 nReg := 0
 
-SM0->(DbGoTop())
-While SM0->(!EoF())
+For nE := 1 To Len(aBkGrupo)
 	If !Empty(cProdI)
-		cQuery := "SELECT DISTINCT TOP 10 C7_FORNECE,C7_LOJA FROM SC7"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_=''"
+		cQuery := "SELECT DISTINCT TOP 10 C7_FORNECE,C7_LOJA FROM SC7"+TRIM(aBkGrupo[nE,1])+"0 WHERE D_E_L_E_T_=''"
 		cQuery += " AND C7_PRODUTO = '"+cProdI+"'"
 	Else
-		cQuery := "SELECT TOP 10 C7_FORNECE,C7_LOJA,C7_EMISSAO FROM SC7"+TRIM(SM0->M0_CODIGO)+"0 WHERE D_E_L_E_T_=''"
+		cQuery := "SELECT TOP 10 C7_FORNECE,C7_LOJA,C7_EMISSAO FROM SC7"+TRIM(aBkGrupo[nE,1])+"0 WHERE D_E_L_E_T_=''"
 		cQuery += " ORDER BY C7_EMISSAO,C7_FORNECE,C7_LOJA DESC"
 	EndIf
  
@@ -233,9 +231,9 @@ While SM0->(!EoF())
 	DO WHILE QTMP->(!EOF())
     
 		cQuery := "SELECT TOP 1 C7_PRODUTO,B1_DESC,C7_PRECO,C7_EMISSAO,C7_FORNECE,C7_LOJA,A2_NREDUZ,A2_NOME,A2_CGC"
-		cQuery += " FROM SC7"+TRIM(SM0->M0_CODIGO)+"0 SC7"
-		cQuery += " INNER JOIN SB1"+TRIM(SM0->M0_CODIGO)+"0 SB1 ON SC7.C7_PRODUTO=SB1.B1_COD AND SB1.D_E_L_E_T_=''"
-		cQuery += " INNER JOIN SA2"+TRIM(SM0->M0_CODIGO)+"0 SA2 ON SC7.C7_FORNECE=SA2.A2_COD AND SC7.C7_LOJA=SA2.A2_LOJA AND SA2.D_E_L_E_T_=''"
+		cQuery += " FROM SC7"+TRIM(aBkGrupo[nE,1])+"0 SC7"
+		cQuery += " INNER JOIN SB1"+TRIM(aBkGrupo[nE,1])+"0 SB1 ON SC7.C7_PRODUTO=SB1.B1_COD AND SB1.D_E_L_E_T_=''"
+		cQuery += " INNER JOIN SA2"+TRIM(aBkGrupo[nE,1])+"0 SA2 ON SC7.C7_FORNECE=SA2.A2_COD AND SC7.C7_LOJA=SA2.A2_LOJA AND SA2.D_E_L_E_T_=''"
  		cQuery += " WHERE SC7.D_E_L_E_T_='' and SC7.C7_FORNECE='"+QTMP->C7_FORNECE+"' and SC7.C7_LOJA='"+QTMP->C7_LOJA+"'"
 		If !Empty(cProdI)
 			cQuery += " AND SC7.C7_PRODUTO = '"+cProdI+"'"
@@ -273,8 +271,7 @@ While SM0->(!EoF())
 	ENDDO
 	QTMP->(dbCloseArea())
 
-	SM0->(dbSkip())
-ENDDO
+Next
 
 
 IF nReg < 1

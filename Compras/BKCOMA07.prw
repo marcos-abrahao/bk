@@ -100,7 +100,7 @@ RestArea(aSM0Area)
 
 IF !EMPTY(cA2COD)
 	IF cEmpAT==cEmpOR
-		u_MsgLog(cPerg,"Abra o sistema na empresa destino, esta já tem este fornecedor cadastrado","E")
+		u_MsgLog(cPerg,"Empresa destino já tem este fornecedor cadastrado","E")
 	ELSE
 		IF u_MsgLog(cPerg,"Confirma a Inclusão do Fornecedor: código: "+cA2COD+"  Loja: "+cA2LOJA+" - "+cA2NOME,"Y")
 	       CopySA2(cA2ARQ,cA2COD,cA2LOJA)

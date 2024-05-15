@@ -884,8 +884,6 @@ ProcRegua((cAliasTmp5)->(LASTWaitLog(, {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sinte
 //If nFormato == 1
 //	ProcRegua((cAliasTmp3)->(LASTRECWaitLog(, {|| U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)})
 //Else  
-
-
 	aPlans := {}
 	If !EMPTY(cFiltPrd)
 		cFiltro := "B1_COD = '"+cFiltPrd+"'"
@@ -896,7 +894,7 @@ ProcRegua((cAliasTmp5)->(LASTWaitLog(, {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sinte
 	If nSaldos == 1                                              
 		AADD(aPlans,{cAliasTmp1,cNomePrg+"-Saldos Bancários","",OemToAnsi("Projeção de Caixa - Saldos bancários"),aCampos1,aCabs1, /* aImpr1 */ , /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 	EndIf
-	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
+	U_PlanXlsx(aPlans,cTitulo,TRIM(cNomePrg),.F.)
 //EndIf
 
 If nSaldos == 1  

@@ -102,8 +102,7 @@ cFiltro := "" //cAliasTmp1+"->TIPO >= '1'"
 
 AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo,aCampos1,aCabs1,/*aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, cAliasTmp1+"->TIPO", lClose:= .F. })
    
-U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
-
+U_PlanXlsx(aPlans,cTitulo,TRIM(cNomePrg),.F.)
 oTmpTb:Delete()
 
 Return (Nil)
@@ -111,32 +110,16 @@ Return (Nil)
 
 Static Function BKFin15Emp()
 Local cQry1     := ""
-Local aSM0Area	:= SM0->(GetArea())
+Local aBkGrupo  := u_BkGrupo()
+Local nE 		:= 0
 
-SM0->(DbGoTop())
-While SM0->(!EoF())
+For nE := 1 To Len(aBkGrupo)
 
 	IF lEnd
 		Exit
 	End
 
-	If SM0->M0_CODIGO == "99" //.OR. SM0->M0_CODIGO $ getmv("MV_XNSLDS") 
-		SM0->(DbSKip())
-		Loop
-	EndIf
-
-	///cArquivo1 := "SX2"+SM0->M0_CODIGO+"0"+GetDBExtension()
-	//If Select("SX2DBF") > 0
-	///	SX2DBF->(DbCloseArea())
-	///EndIf
-		
-	///dbUseArea(.T.,NIL,cArquivo1,"SX2DBF",.T.,.F.)
-	///IndRegua("SX2DBF","SX2DBF_A", "X2_CHAVE",,, 	"Criando Indice..." )
-
-	///dbSelectArea("SX2DBF")
-	///SX2DBF->(DbSeek("SA6"))
-
-	cQry1 := "SELECT * FROM SA6"+SM0->M0_CODIGO+"0 XSA6"  //SA6"+SM0->M0_CODIGO+"0 SA6"		
+	cQry1 := "SELECT * FROM SA6"+aBkGrupo[nE,1]+"0 XSA6"
 	cQry1 += " WHERE XSA6.D_E_L_E_T_ = ' ' AND XSA6.A6_BLOCKED <> '1' "
 	cQry1 += " ORDER BY A6_COD,A6_AGENCIA,A6_NUMCON"
 	//cQry1 += " AND SA6.A6_FLUXCAI = 'S' ORDER BY A6_COD"
@@ -158,10 +141,8 @@ While SM0->(!EoF())
 		XSA6->(DbCloseArea())
 	EndIf
 	
-	SM0->(DbSkip())
-EndDo
+Next
 
-RestArea(aSM0Area)
 
 Return Nil
 
@@ -266,10 +247,7 @@ If Select("XSE8") > 0
 	XSE8->(DbCloseArea())
 EndIf
 
-
 Return Nil
-
-
 
 
 Static Function SldApl(_dDtProc,_cBanco,_cAgencia,_cConta)

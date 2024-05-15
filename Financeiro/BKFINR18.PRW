@@ -321,9 +321,7 @@ Do While QSF2->(!EOF())
 EndDo
 
 AADD(aPlans,{"TRB",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXml(aPlans,cTitulo,cPerg,.F.)
-
-//TRB->(dbCloseArea())
+U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
     
 dbSelectArea("SE1") 
 dbSetOrder(1)
@@ -331,8 +329,6 @@ dbSetOrder(1)
 QSF2->(dbCloseArea())
 
 oTmpTb:Delete()
-//Ferase(cArqTmp + GetDBExtension())
-//FErase(cArqTmp + OrdBagExt())
 
 Return
 
@@ -365,8 +361,6 @@ cQuery += " AND E1_TIPO    = 'NF'"
 TCQUERY cQuery NEW ALIAS "QSE1"
 TCSETFIELD("QSE1","E1_VENCREA","D", 8,0)
 TCSETFIELD("QSE1","E1_VALOR"  ,"N",TamSX3("E1_VALOR")[1],TamSX3("E1_VALOR")[2])
-
-//U_QryToXml("QSE1")
 
 Return
 

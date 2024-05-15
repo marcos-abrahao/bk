@@ -306,7 +306,7 @@ User FUNCTION CBKCOMR6()
 Local aPlans  := {}
 
 AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, aTotal/*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.)
+U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 
 Return 
 

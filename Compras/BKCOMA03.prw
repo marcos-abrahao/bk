@@ -683,7 +683,7 @@ LOCAL aItemAS:={}
 
 cQuery1  := "SELECT * from bk_senior.dbo.BK_vw_MicrosigaBSTitular " 
 cQuery1  += "WHERE CodOem='"+ALLTRIM(STR(VAL(SUBSTR(cPlano,1,6)),6))+"' "
-cQuery1  += "AND cEmp='"+SM0->M0_CODIGO+"' "
+cQuery1  += "AND cEmp='"+cEmpAnt+"' "
 cQuery1  += "ORDER BY nomfun"
 
 TCQUERY cQuery1 NEW ALIAS "QTPA"

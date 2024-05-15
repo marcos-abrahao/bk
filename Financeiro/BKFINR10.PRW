@@ -285,13 +285,7 @@ dbSetOrder(1)
 If nSaldos == 1                                              
 	If nFormato == 1
 		U_GeraCSV(cAliasTmp1,cNomePrg+"-Saldos",aTitulos1,aCampos1,aCabs1,,,,.F.)
-        //                        cAlias,    cArqS             ,aTitulos, aCampos, aCabs,cTpQuebra,cQuebra,aQuebra,lClose)
   	EndIf
-	//Else	
-	//	aPlans := {}
-	//	AADD(aPlans,{cAliasTmp1,cNomePrg,cFiltro,cTitulo+OemToAnsi(" - Saldos bancários"),aCampos1,aCabs1,/* aImpr */, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-	//	U_GeraXml(aPlans,cTitulo,cNomePrg,.F.)
-	//EndIf
 EndIf
 
 If Select(cAliasTmp1) > 0
@@ -866,7 +860,7 @@ Else
 		EndIf
 	EndIf
 
-	U_GeraXml(aPlans,cTitulo,cPerg,.F.)
+	U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 EndIf
 
 oTmpTb2:Delete() 

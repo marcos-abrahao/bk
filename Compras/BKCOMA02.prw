@@ -334,7 +334,7 @@ For nI := 1 TO LEN(aTitGer)
        ENDIF
     ENDIF
     cKey1  := cxFilial+cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja
-	cKey2  := xFilial("SZ2")+SM0->M0_CODIGO+cCtrId+cTipBk+cPortado  //+DTOS(dVencto) 
+	cKey2  := xFilial("SZ2")+cEmpAnt+cCtrId+cTipBk+cPortado  //+DTOS(dVencto) 
 
 	aVetor :={{"E2_FILIAL"  ,cxFilial,Nil},;
              {"E2_PREFIXO"  ,cPrefixo,Nil},;
@@ -369,7 +369,7 @@ For nI := 1 TO LEN(aTitGer)
       dbSetorder(2)   // Z2_FILIAL+ Z2_CODEMP+Z2_CTRID+Z2_TIPO+Z2_BANCO+Z2_DATAPGT     
       dbSeek(cKey2,.T.)
       
-      Do While !EOF() .AND. SZ2->Z2_FILIAL == xFilial("SZ2") .AND. SZ2->Z2_CODEMP = SM0->M0_CODIGO .AND. SZ2->Z2_CTRID == cCtrId .AND. ;
+      Do While !EOF() .AND. SZ2->Z2_FILIAL == xFilial("SZ2") .AND. SZ2->Z2_CODEMP = cEmpAnt .AND. SZ2->Z2_CTRID == cCtrId .AND. ;
                            SZ2->Z2_TIPO == cTipBk .AND. STRZERO(VAL(SZ2->Z2_BANCO),3) == cPortado
             
          IF SZ2->Z2_DATAPGT == dPgto .AND. SZ2->Z2_CODFOR = cCodFor .AND. SZ2->Z2_LOJFOR = cLojFor .AND. SZ2->Z2_TIPOPES = cTipoPes

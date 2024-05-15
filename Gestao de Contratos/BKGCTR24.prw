@@ -98,13 +98,9 @@ AADD(aCabs  ,"Ocorrencia")
 AADD(aHeader,{"Ocorrência","XX_OCORR" ,"@!",TamSX3("ZP_OCORR")[1],00,"","","C",cAliasTrb,"R"})
 aAdd(aTbCpos,{"XX_OCORR",,"Ocorrência" ,""} )
 
-///cArqTmp := CriaTrab( aStruct, .t. )
-///dbUseArea( .t.,NIL,cArqTmp,cAliasTrb,.f.,.f. )
-
 oTmpTb := FWTemporaryTable():New(cAliasTrb)
 oTmpTb:SetFields( aStruct )
 oTmpTb:Create()
-
 
 AADD(aTitulos,cPerg+"/"+TRIM(SUBSTR(cUsuario,7,15)+" - "+cTitulo))
 
@@ -113,9 +109,7 @@ If U_PrcBKR24()
 EndIf
 	
 oTmpTb:Delete()
-///(cAliasTrb)->(Dbclosearea())
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())                     
+                 
  
 Return
 
@@ -238,8 +232,8 @@ Local aPlans := {}
 dbSelectArea(cAliasTrb)
 
 AADD(aPlans,{cAliasTrb,cPerg,"",cTitulo1,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo1,cPerg,.F.)
 
+U_PlanXlsx(aPlans,cTitulo1,TRIM(cPerg),.F.)
 Return Nil
 
    

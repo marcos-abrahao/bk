@@ -284,8 +284,8 @@ User FUNCTION CBKFR23()
 Local aPlans  := {}
 
 AADD(aPlans,{cAliasTrb,TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)
 
+U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.,aParam)
 Return 
 
 Static Function ProcBKFR23

@@ -394,8 +394,6 @@ EndDo
 dbSelectArea("SE5")
 dbSetOrder(1)
 
-//U_QryToXml("QTMP")
-
 QTMP1->(dbCloseArea())
 
 aCabs   := {}
@@ -473,16 +471,9 @@ AADD(aCabs  ,"Valor liquido")
 AADD(aCampos,"IIF(QTMP->E1_SALDO > 0,(QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - QTMP->F2_XXVCVIN - QTMP->F2_XXVFUMD - QTMP->F2_VLCPM - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0)) - (QTMP->F2_VALFAT - QTMP->E1_SALDO),0)")
 AADD(aCabs  ,"Saldo a Receber")
 
-
-//ProcRegua(QTMP->(LASTREC()))
-//Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
-
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
-U_GeraXml(aPlans,cTitulo,cPerg,.F.)
-
+U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 oTmpTb:Delete()
-
-//Ferase(cTbl + GetDBExtension())
   
 Return
 

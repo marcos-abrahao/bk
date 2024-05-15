@@ -10,7 +10,6 @@ BK - Relatório de Notas Fiscais por contrato
 @return Nil
 /*/
 
-
 User Function BKFINR19()
 
 Private cTitulo     := "Notas fiscais por contrato/competencia:"
@@ -292,11 +291,10 @@ AADD(aCampos,"Capital(QTMP->(FWLeUserlg('QTMP_USERLGI',1)))")
 AADD(aCabs  ,"Faturista")
 
 AADD(aPlans,{"QTMP",cPerg,"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
-U_GeraXml(aPlans,cTitulo,cPerg,.F.)
+
+U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg),.F.)
 
 Return
-
-
 
 
 

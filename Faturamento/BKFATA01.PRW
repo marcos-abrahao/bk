@@ -121,11 +121,6 @@ AADD(aStruct1, {"F2_XXOBSFA","C" ,GetSx3Cache("F2_XXOBSFA", "X3_TAMANHO"),0})
 
 AADD(aStruct1, {"F2_XXRECNO","N" ,12,0})
 
-//cArqTmp1 := CriaTrab(aStruct1)
-//dbUseArea(.T.,,cArqTmp1,cAliasTmp1,if(.F. .OR. .F.,!.F., NIL),.F.)
-//IndRegua (cAliasTmp1,cArqTmp1,"F2_DOC",,,OemToAnsi("Selecionando Registros...") )  //
-//dbSetOrder(1)
-
 oTmpTb := FWTemporaryTable():New( cAliasTmp1 ) 
 oTmpTb:SetFields( aStruct1 )
 oTmpTb:AddIndex("indice1", {"F2_DOC"} )
@@ -175,8 +170,6 @@ If nI == 0
 	Return Nil
 EndIf
 	
-//U_QryToXml(cAliasTmp1,cPerg,cTitulo,.F.)
-
 (cAliasTmp1)->( dbGotop() )
 
 ////////////
@@ -345,7 +338,7 @@ AADD(aDefs,{"F2_XXRECNO",,,.F.,,,.F.})
 AADD(aDefs,{"F2_XXDESCR",,"Contrato",,,,})
 AADD(aDefs,{"F2_XXCONTR",,"C.Custo",,,,})
 
-U_QryToXml(cAliasTmp1,cPerg,cTitulo,aDefs,,.F.)
+//U_QryToXml(cAliasTmp1,cPerg,cTitulo,aDefs,,.F.)
 
 Return (Nil)
 
