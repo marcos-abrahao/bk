@@ -34,6 +34,7 @@ ValidPerg(cPerg)
 If !Pergunte(cPerg,.T.)
 	Return
 Endif
+u_LogMsg(cPerg,"Acesso")
 
 dEMISI  := mv_par01
 dEMISF  := mv_par02
@@ -180,9 +181,6 @@ AADD(aCabs  ,"Conta Vinculada")
 
 AADD(aCampos,"QTMP->F2_VALFAT - QTMP->F2_VALIRRF - QTMP->F2_VALINSS - QTMP->F2_XXVCVIN - QTMP->F2_VALPIS - QTMP->F2_VALCOFI - QTMP->F2_VALCSLL - IIF(QTMP->F2_RECISS = '1',QTMP->F2_VALISS,0) - QTMP->F2_VLCPM")
 AADD(aCabs  ,"Valor liquido")
-
-//ProcRegua(QTMP->(LASTREC()))
-//Processa( {|| U_GeraCSV("QTMP",cPerg,aTitulos,aCampos,aCabs)})
 
 AADD(aPlans,{"QTMP",cPerg,"",aTitulos,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 U_PlanXlsx(aPlans,Titulo,cPerg,.T.)

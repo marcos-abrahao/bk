@@ -84,6 +84,7 @@ aAdd(aDados,{"","U_BKCOMA13()",		"COMPRAS",		"Inclusão de Doc de Impostos com Ra
 aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de impostos já existentes"})
 aAdd(aDados,{"","U_BKCOMA15()",		"COMPRAS",		"Inclusão de Doc de Sindicatos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de entrada"})
+aAdd(aDados,{"","U_BKCOMR15()",		"COMPRAS",		"Relação de Fornecedores - (se já foi avaliado ou não)"})
 aAdd(aDados,{"","U_BKCOMR19()",		"COMPRAS",		"Relação de Produtos x Grupos x Subgrupos"})
 
 aAdd(aDados,{"","U_BKFATA1A()",		"FATURAMENTO",	"Funcao gravar Informações do Faturamento na NF de saida"})
@@ -94,6 +95,9 @@ aAdd(aDados,{"","U_BKFINR15()",		"FINANCEIRO",	"Saldos Bco Empresas"})
 aAdd(aDados,{"","U_BKFINR17()",		"FINANCEIRO",	"Contas Recebidas"})
 aAdd(aDados,{"","U_BKFINR18()",		"FINANCEIRO",	"Relatório de Notas Fiscais Canceladas"})
 aAdd(aDados,{"","U_BKFINR19()",		"FINANCEIRO",	"Relatório de Notas Fiscais por contrato"})
+aAdd(aDados,{"","U_BKFINR20()",		"FINANCEIRO",	"Mapa INSS retido Financeiro"})
+aAdd(aDados,{"","U_BKFINR21()",		"FINANCEIRO",	"Bloqueio ou Desbloqueio judicial"})
+
 aAdd(aDados,{"","U_BKFINR23()",		"FINANCEIRO",	"Saldos bancários consolidados"})
 aAdd(aDados,{"","U_BKFINR24()",		"FINANCEIRO",	"Consulta Planos de Ação"})
 aAdd(aDados,{"","U_BKFINR34()",		"FINANCEIRO",	"Resumo Diário Contas a Pagar"})

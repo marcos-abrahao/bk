@@ -124,3 +124,46 @@ EndIf
 
 RestArea(aAreas)
 Return NIL
+
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} DATAUTIL
+BK - VERIFICA SE A DATA é UTIL
+@Return
+@author Marcos B. Abrahao
+@since 29/01/2011
+@version P12
+/*/
+//-------------------------------------------------------------------
+
+USER FUNCTION DATAUTIL(dData)
+Local lRet := .F.
+Local dData2 := CTOD("")
+
+dData2 := LastDay(dData, 3)
+IF dData2  == dData
+	lRet := .T.
+ENDIF
+
+RETURN lRet 
+
+
+
+USER FUNCTION DIASUTIL(dData,nDIAS)
+Local dData2 := CTOD("")
+Local nSoma  := 1
+
+dData2 := dData
+
+DO WHILE nDIAS > nSoma
+
+	IF U_DATAUTIL(dData2)
+		++nSoma
+	ENDIF
+	dData2 := DaySum(dData2,1)
+ENDDO
+
+DO WHILE !U_DATAUTIL(dData2)
+	dData2 := DaySum(dData2,1)
+ENDDO
+RETURN dData2 

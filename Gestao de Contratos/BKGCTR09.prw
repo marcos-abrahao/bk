@@ -201,23 +201,12 @@ FOR _nI := 1 TO nPeriodo
 	dDataInicio := MonthSum(dDataInicio,1)
 NEXT
 
-
-//ProcRegua(1000)
-
 u_WaitLog(, {|| ProcQuery(1) })
 
 u_WaitLog(, {|| MBrwBKGCTR09()})
 
 oTmpTb1:Delete()
 oTmpTb2:Delete()
-
-///(ALIAS_TMP)->(Dbclosearea())
-///FErase(cArqTmp2+GetDBExtension())
-///FErase(cArqTmp2+OrdBagExt())                     
-
-///TRB->(Dbclosearea())
-///FErase(cArqTmp+GetDBExtension())
-///FErase(cArqTmp+OrdBagExt())                     
  
 Return
 
@@ -297,8 +286,6 @@ ELSE
 	cPict := "@E 99,999,999,999"
 ENDIF
 
-//ProcRegua(1000)
-
 u_WaitLog(, {|| ProcQuery(0) })
 
 Return Nil
@@ -325,7 +312,6 @@ Local cAlias := "TRB"
 
 dbSelectArea(cAlias)
 
-//ProcRegua(1000)
 u_WaitLog(, {|| GeraCSVBKGCTR09(cAlias,TRIM(wnrel),aTitulos,aCampos,aCabs)})
 
 Return Nil
@@ -345,7 +331,6 @@ AADD(aTESTE,{&cTESTE})
 
 aCroXPla := {}
 FOR _nI := 1 TO nPeriodo
-	//IncProc("Consultando o banco de dados...")
 
 	cQuery := " SELECT CNF_CONTRA,CN9_REVISA,CN9_SITUAC,CN9_XCLIEN,CN9_NOMCLI,CTT_DESC01,CN9_XXDESC,CNF_COMPET,SUM(CNF_VLPREV) AS CNF_FATURA"
 	cQuery += " FROM "+RETSQLNAME("CNF")+" CNF"
@@ -369,7 +354,6 @@ FOR _nI := 1 TO nPeriodo
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
 	DO WHILE QTMP->(!EOF())
-		//IncProc("Criando arquivo temporario...")
 		
         nIndTC := 0
         IF nIndConsor == 1

@@ -416,11 +416,6 @@ Local cFile := ""
 
 dbSelectArea(cAlias)
 
-///ProcRegua(10)
-///Processa( {|| GCSVPFIS09(cAlias,"PFIS09",aTitulos,aCampos,aCabs,1)})
-
-//Processa( {|| U_GeraCSV("TRB",TRIM(cPerg),aTitulos,aCampos,aCabs,"","",aQuebra,.F.)})
-
 AADD(aPlans,{"TRB",TRIM(cPerg),"",cTitulo,aCampos,aCabs,/*aImpr1*/, /* aAlign */,/* aFormat */,/*aTotal */, /*cQuebra*/, lClose:= .F. })
 cFile := U_PlanXlsx(aPlans,cTitulo,TRIM(cPerg))
 

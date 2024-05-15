@@ -228,29 +228,10 @@ ENDIF
 Return cArqTmp
 
 
-// Converte query ou dbf em arquivo .csv
-// Exemplo: 	U_QryToCsv("QSC2",cPerg,{Titulo})
-
-User Function QryToCsv(_cAlias,cArqS,aTitulos,lClose)
-Local _nI
-Local aCabs   := {}
-Local aCampos := {}                 
-
-dbSelectArea(_cAlias)
-FOR _nI := 1 TO FCOUNT()
-    AADD(aCabs,FIELDNAME(_ni))
-    AADD(aCampos,_cAlias+"->"+FIELDNAME(_ni))
-NEXT
-
-U_GeraCSV(_cAlias,TRIM(cArqS),aTitulos,aCampos,aCabs,,,,lClose)
-
-Return nil
-
 
 USER FUNCTION Letra(nValor)
 Local cLETRA := ''
 Local lOk := .T.
-
 
 WHILE lOk
 
