@@ -17,7 +17,7 @@ Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
 Local nX 		:= 0
-Local aEmpresas := U_BKEmpr()
+Local aEmpresas := u_BKGrupo(1)
 
 //u_MsgLog("BKDSEMP","Inicio: Empresas")
 

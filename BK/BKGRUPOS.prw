@@ -12,65 +12,55 @@ BK - Array com as empresas do grupo BK
 @version P12
 /*/
 
-User Function BKGrupo()
-// Empresas ativas
-Local aEmpresas	:= {    {"01","BK"			,"BK"},;
-                        {"02","MMDK"		,"MMDK"},;
-                        {"12","BK CORRETORA","CORRETORA"},;
-                        {"14","BALSA NOVA"	,"BALSA"},;
-                        {"15","BHG INT 3"	,"BHG"},;
-						{"16","MOOVE-SP"	,"MOOVE"},;
-						{"17","DMAF"		,"DMAF"},;
-						{"18","BK VIA"		,"BK VIA"},;
-						{"19","BK SOLUÇÕES"	,"BK S.TEC."} }
-Return aEmpresas
+User Function BKGrupo(nOpc)
+Local aReturn   := {}
+Local nE        := 0
+Default nOpc    := 2 // Ativas
 
-
-User Function BKGrpGct()
-// Empresas que utilizam Gestão de Contratos
-Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","MMDK"},;
-                        {"14","BALSA NOVA"},;
-                        {"18","BKVIA"}}
-Return aEmpresas
-
-
-User Function BKGrpDsp()
-// Empresas que utilizam possuem despesas em contratos
-Local aEmpresas	:= {    {"01","BK"},;
-                        {"02","MMDK"},;
-                        {"14","BALSA NOVA"},;
-                        {"15","BHG INT 3"} ,; // Empresa 15 possui despesas
-						{"16","MOOVE-SP"},;
-                        {"18","BKVIA"}}
-Return aEmpresas
-
-
-User Function BKEmpr()
+/*
+nOpc = 1  // Retorna todas empresas
+nOpc = 2  // Empresas Ativas
+nOpc = 3  // Empresas que usam Gestão de Contratos
+nOpc = 4  // Empresas que possuem despesas em contratos
+nOpc = 5  // Empresas que efetuam Faturamento
+nOpc = 6  // Empresas em Barueri - SP
+*/
 // Todas Empresas
-Local aEmpresas	:= {    {"01","BK"              ,"BK"},;
-                        {"02","MMDK"            ,"MMKD"},;
-                        {"04","ESA"             ,"ESA"},;
-                        {"06","BKDAHER SUZANO"  ,"BKDAHER S"},;
-                        {"07","JUST SOFTWARE"   ,"JUST"},;
-                        {"08","BHG CAMPINAS"    ,"BHG CAMP"},;
-                        {"09","BHG OSASCO"      ,"BHG OSAS"},;
-                        {"10","BKDAHER TABOAO"  ,"BKDAHER T"},;
-                        {"11","BKDAHER LIMEIRA" ,"BKDAHER L"},;
-                        {"12","BK CORRETORA"    ,"CORRETORA"},;
-                        {"14","BALSA NOVA"      ,"BALSA"},;
-                        {"15","BHG INT 3"       ,"BHG"},;
-						{"16","MOOVE-SP"        ,"MOOVE"},; 
-						{"17","DMAF"            ,"DMAF"},; 
-                        {"18","BK VIA"          ,"BK VIA"},;
-                        {"19","BK S. TECNOL."   ,"BK S.TEC."},;
-                        {"97","CMOG"            ,"CMOG"},;
-                        {"98","TERO"            ,"TERO"} }
-Return aEmpresas
+//                                                              Ativa - 4
+//                                                                  GCT - 5
+//                                                                      Desp - 6
+//                                                                          Fat - 7
+//                                                                               Barueri - 8
+Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S","S"},;
+                        {"02","MMDK"            ,"MMKD"         ,"S","S","S","S","N"},;
+                        {"04","ESA"             ,"ESA"          ,"N","N","N","N","N"},;
+                        {"06","BKDAHER SUZANO"  ,"BKDAHER S"    ,"N","N","N","N","N"},;
+                        {"07","JUST SOFTWARE"   ,"JUST"         ,"N","N","N","N","N"},;
+                        {"08","BHG CAMPINAS"    ,"BHG CAMP"     ,"N","N","N","N","N"},;
+                        {"09","BHG OSASCO"      ,"BHG OSAS"     ,"N","N","N","N","N"},;
+                        {"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N"},;
+                        {"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N"},;
+                        {"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N"},;
+                        {"14","BALSA NOVA"      ,"BALSA"        ,"S","S","S","S","N"},;
+                        {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","N","S"},;
+						{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N"},;
+						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N"},;
+                        {"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S"},;
+                        {"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S"},;
+                        {"97","CMOG"            ,"CMOG"         ,"S","N","N","N","N"},;
+                        {"98","TERO"            ,"TERO"         ,"S","N","N","N","N"} }
+
+For nE := 1 To Len(aEmpresas)
+    If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S"
+        aAdd(aReturn,aEmpresas[nE])
+    EndIf
+Next
+Return aReturn
 
 
+// Retorna Campo do Array de empresas - Geralmente Nome(2) ou Nome reduzido(3)
 User Function BKNEmpr(cEmpr,nI)
-Local aEmpr := u_BKEmpr()
+Local aEmpr := u_BKGrupo(1)
 Local nEmpr := Ascan(aEmpr,{|x| x[1] == cEmpr})
 Local cNEmp := ""
 If nEmpr > 0
@@ -78,14 +68,22 @@ If nEmpr > 0
 EndIf
 Return cNEmp
 
+// Empresas que utilizam Gestão de Contratos
+User Function BKGrpGct()
+Return u_BKGrupo(3)
+
+// Empresas que utilizam possuem despesas em contratos
+User Function BKGrpDsp()
+Return u_BKGrupo(4)
+
+// Empresas que utilizam possuem faturamento
+User Function BKGrpFat()
+Return u_BKGrupo(5)
 
 // Empresas em Barueri
 User Function BkBarueri()
-Local aEmpresas	:= {    {"01","BK"              ,"BK"},;
-                        {"15","BHG INT 3"       ,"BHG"},;
-                        {"18","BK VIA"          ,"BK VIA"},;
-                        {"19","BK S. TECNOL."   ,"BK S.TEC."} }
-Return aEmpresas
+Return u_BKGrupo(6)
+
 
 
 /*/{Protheus.doc} IsSuperior
@@ -247,10 +245,10 @@ Local nRet          := 0
 
 cQuery += "SELECT USR_SUPER"+CRLF 
 cQuery += " FROM SYS_USR_SUPER"+CRLF
-cQuery += " WHERE USR_ID = '"+cId+"' AND D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " WHERE USR_ID = ? AND D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " ORDER BY R_E_C_N_O_ "+CRLF
 
-//aadd(aBinds,xFilial("SA1")) // Filial
+aadd(aBinds,cId)
 
 // Ajustes de tratamento de retorno
 aadd(aSetFields,{"USR_SUPER"   ,"C",6,0})

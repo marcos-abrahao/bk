@@ -12,7 +12,7 @@ BK - Aviso de Pedidos de Venda Liberados
 
 User Function BKMSG005
 Local cQuery	:= ""
-Local aEmpresas := u_BKGrupo()
+Local aEmpresas := u_BKGrpFat()
 Local nE 		:= 0
 
 Local cTabSC5	:= ""
@@ -25,7 +25,6 @@ Local cEmailCC  := "microsiga@bkconsultoria.com.br;"
 Local aCabs   	:= {"Empresa","Pedido","Cliente","Emissao","Contrato","Liberado por","Liberado em","Valor"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
-
 
 Private cProg := "BKMSG005" 
 
@@ -100,6 +99,8 @@ If Len(aEmail) > 0
 EndIf
 
 QTMP->(dbCloseArea())
+
+u_MsgLog(cProg,"Pedidos em aberto: "+ALLTRIM(STR(LEN(aEmail))))
 
 Return
 

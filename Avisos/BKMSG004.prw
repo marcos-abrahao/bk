@@ -11,7 +11,7 @@ BK - Aviso de Clientes sem Conta Bancária para Depósito
 
 User Function BKMSG004
 Local cQuery	:= ""
-Local aEmpresas := u_BKGrupo()
+Local aEmpresas := u_BKGrpFat()
 Local nE 		:= 0
 Local cTabSA1	:= ""
 Local cEmail 	:= ""
@@ -78,6 +78,8 @@ If Len(aEmail) > 0
 	cMsg   := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 EndIf
+
+u_MsgLog(cProg,"Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))))
 
 QTMP->(dbCloseArea())
 

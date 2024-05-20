@@ -153,14 +153,14 @@ Do While !Eof()
 EndDo
 
 If Len(aEmail) > 0
-
 	cEmail	 := u_GprEmail(cEmail,u_GrpFisc(),"")
-
 	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 EndIf
 
 QTMP->(dbCloseArea())
+
+u_MsgLog(cProg,"Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))))
 
 Return
 

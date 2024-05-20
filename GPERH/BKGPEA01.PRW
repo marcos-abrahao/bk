@@ -109,7 +109,8 @@ STATIC FUNCTION PBKGPEA01()
                                 oExcel:CellRead(nLinha,32),;
                                 oExcel:CellRead(nLinha,33),;
                                 oExcel:CellRead(nLinha,34),;
-                                oExcel:CellRead(nLinha,35)})
+                                oExcel:CellRead(nLinha,35),;
+                                oExcel:CellRead(nLinha,36)})
                 ENDIF
 			NEXT nLinha
 		ENDIF
@@ -153,15 +154,15 @@ STATIC FUNCTION PBKGPEA01()
 						{"RA_NATURAL",CONVCOL(aSRA[nLinha,24],"C",2),nil},;
 						{"RA_ADMISSA",CONVCOL(aSRA[nLinha,25],"D",10),nil},;
 						{"RA_HRSMES",CONVCOL(aSRA[nLinha,26],"N",3),nil},;
-						{"RA_CODFUNC",CONVCOL(aSRA[nLinha,27],"CZ",6),nil},;
+						{"RA_CODFUNC",CONVCOL(aSRA[nLinha,27],"CZ",5),nil},;
 						{"RA_SALARIO",CONVCOL(aSRA[nLinha,28],"N",14),nil},;
 						{"RA_PERCADT",CONVCOL(aSRA[nLinha,29],"N",14),nil},;
 						{"RA_OPCAO",CONVCOL(aSRA[nLinha,25],"D",10),nil},;
 						{"RA_ESTCIVI",CONVCOL(aSRA[nLinha,30],"C",1),nil},;
 						{"RA_TNOTRAB",CONVCOL(aSRA[nLinha,31],"CZ",3),nil},;
-                        {"RA_CC",CONVCOL(aSRA[nLinha,32],"C",9),nil},;
+                        {"RA_CC",CONVCOL(aSRA[nLinha,32],"CZ",9),nil},;
 						{"RA_BCDEPSA",CONVCOL(aSRA[nLinha,33],"CZ",3)+CONVCOL(aSRA[nLinha,34],"CZ",5),nil},;
-                        {"RA_CTDEPSA",CONVCOL(aSRA[nLinha,35],"C",12),nil},;
+                        {"RA_CTDEPSA",CONVCOL(aSRA[nLinha,35],"C",11)+CONVCOL(aSRA[nLinha,36],"C",1),nil},;
 						{"RA_BCDPFGT","999",nil},;
 						{"RA_CTDPFGT","000000000000",nil},;
 						{"RA_NACIONA","10",nil},;

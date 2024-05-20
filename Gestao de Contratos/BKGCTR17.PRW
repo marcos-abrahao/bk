@@ -112,6 +112,15 @@ For nI := 1 To Len(aStruct)
 
 		oPExcel:AddCol(cCampo,"IIF(dDataBase > TMP->(MonthSum(CN9_DTINIC,60)-1),0,TMP->(MonthSum(CN9_DTINIC,60)-1) - dDataBase)","Dias para Finalizar","")
 		oPExcel:GetCol(cCampo):SetTamanho(5)
+
+
+	ElseIf cCampo == "A1_PESSOA"
+	
+	ElseIf cCampo == "A1_CGC"
+
+		oPExcel:AddCol("A1_CGC","Transform(TMP->A1_CGC,IIF(TMP->A1_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))","CNPJ","")
+		oPExcel:GetCol("A1_CGC"):SetHAlign("C")
+
 	Else
 		//aAdd(aCampos,"TMP->"+cCampo)
 		//aAdd(aCabs  ,GetSX3Cache( cCampo , "X3_TITULO"))
@@ -156,6 +165,7 @@ Static Function ProcQuery(cAlias)
 
 Local cQuery	:= ""
 Local cTabCN9	:= RetSqlName("CN9")
+Local cTabSA1	:= RetSqlName("SA1")
 Local cTabCND	:= RetSqlName("CND")
 Local cTabCTT	:= RetSqlName("CTT")
 //Local cTabCNF	:= RetSqlName("CNF")
@@ -164,9 +174,12 @@ Local aTcFields	:= {}
 cQuery += " SELECT"+CRLF
 cQuery += "  CN9_NUMERO,"+CRLF
 cQuery += "  CN9_NOMCLI,"+CRLF
+cQuery += "  A1_PESSOA,"+CRLF
+cQuery += "  A1_CGC,"+CRLF
+
 cQuery += "  CTT_DESC01,"+CRLF
 cQuery += "  CN9_CODOBJ AS OBJETO,"+CRLF
-cQuery += "  CN9_NOMCLI,"+CRLF
+//cQuery += "  CN9_NOMCLI,"+CRLF
 cQuery += "  CN9_SITUAC,"+CRLF
 
 cQuery += "  CASE CN9_SITUAC WHEN '01' THEN 'CANCELADO' "+CRLF
@@ -210,6 +223,9 @@ cQuery += " FROM " + CRLF
 cQuery += "  "+cTabCN9+" CN9 " + CRLF
 cQuery += " LEFT JOIN "+cTabCTT+ " CTT ON CTT_CUSTO = CN9_NUMERO"
 cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '"
+
+cQuery += " LEFT JOIN "+cTabSA1+ " SA1 ON A1_COD = CN9_XCLIEN AND A1_LOJA = CN9_XLOJA"
+cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '"
 
 cQuery += " WHERE CN9.D_E_L_E_T_=''" + CRLF
 cQuery += "      AND (CN9_REVATU = ' ' OR CN9_SITUAC = '05') " + CRLF

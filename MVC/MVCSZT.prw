@@ -102,3 +102,12 @@ Static Function ViewDef()
 Return oView
 
 
+User Function SZTLeg()
+	Local aLegenda := {}
+	
+	//Monta as cores
+	AADD(aLegenda,{"BR_VERDE",		"Uso permitido"  })
+	AADD(aLegenda,{"BR_VERMELHO",	"Uso não permitido"})
+	
+	BrwLegenda(cTitulo, "Status", aLegenda)
+Return

@@ -1288,7 +1288,6 @@ if (Array.isArray(titulos)) {
 
 	nlin += 1;
 	cbtnz2 = 'btnz2'+nlin;
-	cbtnz2 = 'btnz2'+nlin;
 
 	if (cStatus == 'C' ){
 	 ccbtn = 'success';

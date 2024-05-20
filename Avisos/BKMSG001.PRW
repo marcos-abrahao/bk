@@ -131,6 +131,7 @@ EndDo
 
 QTMP->(dbCloseArea())
 
+u_MsgLog(cProg,"Documentos pendentes de aprovação: "+ALLTRIM(STR(LEN(aEmail))))
 Return
 
 

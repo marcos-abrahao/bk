@@ -76,12 +76,13 @@ Do While !Eof()
 EndDo
 
 If Len(aEmail) > 0
-
 	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 EndIf
 
 QTMP->(dbCloseArea())
+
+u_MsgLog(cProg,"Clientes sem virgula no endereço: "+ALLTRIM(STR(LEN(aEmail))))
 
 Return
 
