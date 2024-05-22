@@ -43,6 +43,8 @@ aAdd(aDados,{"","U_BKMSG002()",     "AVISOS",		"Aviso de entidades com Conta Con
 aAdd(aDados,{"","U_BKMSG003()",     "AVISOS",		"Aviso de Clientes sem virgula no endereço"})
 aAdd(aDados,{"","U_BKMSG004()",		"AVISOS",		"Aviso de Clientes sem Conta Bancária para Depósito"})
 aAdd(aDados,{"","U_BKMSG005()",		"AVISOS",		"Aviso de Pedidos de Venda Liberados"})
+aAdd(aDados,{"","U_BKMSG006()",		"AVISOS",		"Aviso de Aviso de lançamentos de despesas"})
+aAdd(aDados,{"","U_BKMSG007()",		"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
 
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})

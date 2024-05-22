@@ -162,7 +162,7 @@ STATIC FUNCTION PBKGPEA01()
 						{"RA_TNOTRAB",CONVCOL(aSRA[nLinha,31],"CZ",3),nil},;
                         {"RA_CC",CONVCOL(aSRA[nLinha,32],"CZ",9),nil},;
 						{"RA_BCDEPSA",CONVCOL(aSRA[nLinha,33],"CZ",3)+CONVCOL(aSRA[nLinha,34],"CZ",5),nil},;
-                        {"RA_CTDEPSA",CONVCOL(aSRA[nLinha,35],"C",11)+CONVCOL(aSRA[nLinha,36],"C",1),nil},;
+                        {"RA_CTDEPSA",CONVCOL(aSRA[nLinha,35],"CZ",11)+CONVCOL(aSRA[nLinha,36],"C",1),nil},;
 						{"RA_BCDPFGT","999",nil},;
 						{"RA_CTDPFGT","000000000000",nil},;
 						{"RA_NACIONA","10",nil},;

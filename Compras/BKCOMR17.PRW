@@ -11,94 +11,84 @@ BK - Relatório Solicitações de Compra em Aberto
 /*/
 
 User Function BKCOMR17()
+Local cDescr 	:= "O objetivo deste relatório é demonstrar as solicitações de compras em aberto."
+Local cVersao	:= "18/05/2023 - Versão inicial"
+Local oRExcel	AS Object
+Local oPExcel	AS Object
+Local aParam 	:= {}
+Local cTitulo   := "Solicitações de Compras em Aberto"
+Local cAlias    := "QTMP"
+Private cProg 	:= "BKCOMR17"
 
-Private cTitulo     := "Solicitações de Compras em Aberto"
-Private cPerg 		:= "BKCOMR17"
-Private	cPict       := "@E 99,999,999,999.99"
-Private aTitulos,aCampos,aCabs,aTotal,aPlans := {}
+cVersao += CRLF+"22/05/24 - REXCEL"
 
-u_MsgLog(cPerg)
+// Execução da Query
+u_WaitLog(cProg, {|| PRCCOMR17() })
 
-aCabs   := {}
-aCampos := {}
-aTitulos:= {}
-aTotal  := {}
+// Definição do Arq Excel
+oRExcel := RExcel():New(cProg)
+oRExcel:SetTitulo(cTitulo)
+oRExcel:SetVersao(cVersao)
+oRExcel:SetDescr(cDescr)
+oRExcel:SetParam(aParam)
 
-aAdd(aTitulos,cTitulo)
+// Definição da Planilha 1
+oPExcel:= PExcel():New(cProg,cAlias)
+oPExcel:SetTitulo("")
 
-aAdd(aCampos,"QTMP->C1_NUM")
-aAdd(aCabs  ,"Solicitação")
-aAdd(aTotal,.F.)
+// Colunas da Planilha 1
 
-aAdd(aCampos,"QTMP->C1_ITEM")
-aAdd(aCabs  ,"Item")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_NUM")
 
-aAdd(aCampos,"QTMP->C1_EMISSAO")
-aAdd(aCabs  ,"Emissão")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_ITEM")
 
-aAdd(aCampos,"QTMP->C1_DATPRF")
-aAdd(aCabs  ,"Dt.Prevista")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_EMISSAO")
 
-aAdd(aCampos,"QTMP->C1_XDTAPRV")
-aAdd(aCabs  ,"Aprovação")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_DATPRF")
+oPExcel:GetCol("C1_DATPRF"):SetTitulo("Dt.Prevista")
 
-aAdd(aCampos,"UsrRetName(QTMP->C1_USER)")
-aAdd(aCabs  ,"Solicitante")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_XDTAPRV")
 
-aAdd(aCampos,"QTMP->C1_PRODUTO")
-aAdd(aCabs  ,"Produto")
-aAdd(aTotal,.F.)
+oPExcel:AddCol("USUARIO","UsrRetName(QTMP->C1_USER)","Solicitante","")
+oPExcel:GetCol("USUARIO"):SetTamCol(20)
 
-aAdd(aCampos,"QTMP->B1_DESC")
-aAdd(aCabs  ,"Desc. Produto")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_PRODUTO")
 
-aAdd(aCampos,"QTMP->C1_UM")
-aAdd(aCabs  ,"UM")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("B1_DESC")
 
-aAdd(aCampos,"QTMP->C1_QUANT")
-aAdd(aCabs  ,"Qtde")
-aAdd(aTotal,.T.)
+oPExcel:AddColX3("C1_UM")
 
-aAdd(aCampos,"QTMP->C1_XXLCVAL")
-aAdd(aCabs  ,"Valor Un. Estimado")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_QUANT")
+oPExcel:GetCol("C1_QUANT"):SetTotal(.T.)
 
-aAdd(aCampos,"QTMP->C1_XXLCTOT")
-aAdd(aCabs  ,"Valor Total")
-aAdd(aTotal,.T.)
+oPExcel:AddColX3("C1_XXLCVAL")
 
-aAdd(aCampos,"QTMP->C1_CC")
-aAdd(aCabs  ,"Contrato")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_XXLCTOT")
+oPExcel:GetCol("C1_XXLCTOT"):SetTotal(.T.)
 
-aAdd(aCampos,"QTMP->CTT_DESC01")
-aAdd(aCabs  ,"Descrição Contrato")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_CC")
 
-aAdd(aCampos,"IIF(QTMP->C1_APROV == 'L','Sim','Não')")
-aAdd(aCabs  ,"Aprovado")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("CTT_DESC01")
+oPExcel:GetCol("CTT_DESC01"):SetTitulo("Descrição do Centro de Custos")
 
-aAdd(aCampos,"QTMP->C1_QUJE")
-aAdd(aCabs  ,"Qtde Entregue")
-aAdd(aTotal,.T.)
+oPExcel:AddCol("APROVADO","IIF(QTMP->C1_APROV == 'L','Sim','Não')","Aprovado","")
+oPExcel:GetCol("APROVADO"):SetTamCol(12)
+oPExcel:GetCol("APROVADO"):SetHAlign("C")
+oPExcel:GetCol("APROVADO"):AddCor({|x| SUBSTR(x,1,1) == 'N'},"FF0000","",,,.T.)	// Vermelho
+oPExcel:GetCol("APROVADO"):AddCor({|x| SUBSTR(x,1,1) == 'S'},"008000","",,,.T.)	// Verde
 
-aAdd(aCampos,"QTMP->C1_OBS")
-aAdd(aCabs  ,"Observações")
-aAdd(aTotal,.F.)
+oPExcel:AddColX3("C1_QUJE")
+oPExcel:GetCol("C1_QUJE"):SetTotal(.T.)
 
-u_WaitLog(, {|| PRCCOMR17() })
+oPExcel:AddColX3("C1_OBS")
 
-aAdd(aPlans,{"QTMP",cPerg ,"",cTitulo,aCampos,aCabs,/*aImpr*/, /* aAlign */,/* aFormat */, aTotal, /*cQuebra*/, lClose:= .T. })
+// Adiciona a planilha 1
+oRExcel:AddPlan(oPExcel)
 
-U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
+// Cria arquivo Excel
+oRExcel:Create()
+
+QTMP->(dbCloseArea())
 
 Return
 
@@ -140,7 +130,7 @@ cQuery += " ORDER BY C1_NUM,C1_ITEM" + CRLF
 //,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" + CRLF
 //cQuery += " ORDER BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" + CRLF
 
-u_LogMemo(cPerg+".SQL",cQuery)
+u_LogMemo(cProg+".SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
 TCSETFIELD("QTMP","C1_EMISSAO","D",8,0)

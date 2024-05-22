@@ -321,7 +321,7 @@ ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End(
 
 If ( lOk )
     GravaSe2(aTitGer)
-	u_MsgLog("BKFINA02","Titulos integrados: "+STR(LEN(aTitGer)))
+	u_MsgLog("BKFINA02","Titulos integrados: "+ALLTRIM(STR(LEN(aTitGer))))
 EndIf
 Return lOk
 

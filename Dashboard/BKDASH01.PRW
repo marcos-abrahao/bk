@@ -55,12 +55,13 @@ If FWCodEmp() == "01"
 		cBlind1 := "X"
 	EndIf
 
-
+	// 19h
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) == '19'
 		cBlind2 := "X"
 	EndIf
 	aAdd(aDados,{cBlind2,"U_BKGCTR26(.T.)","Tabelas de Fluxo de Caixa Por Contrato"})
 
+	// 6h e 14h
 	cBlind2 := ""
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '06/14'
 		cBlind2 := "X"
@@ -79,6 +80,7 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cBlind2,"U_BKDSSC()"    ,"Atualização da tabela SOLCOMPRAS"})
 	aAdd(aDados,{cBlind2,"U_BKDSCFAT()"  ,"Atualização da tabela CANCFATURAMENTO"})
 
+	// 7,11,14 e 17h
 	cBlind2 := ""
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '07/11/14/17'
 		cBlind2 := "X"
@@ -106,6 +108,7 @@ If FWCodEmp() == "01"
 	// Avisos
 	aAdd(aDados,{cBlind2,"U_BKMSG001()"   ,"Aviso de documentos pendentes de aprovação"})
 
+	// 11h
 	cBlind2 := ""
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '11'
 		cBlind2 := "X"
@@ -113,6 +116,7 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cBlind2,"U_BKMSG002()"   ,"Aviso de entidades com Conta Contábil Bloqueada"})
 	aAdd(aDados,{cBlind2,"U_BKMSG003()"   ,"Aviso de Clientes sem virgula no endereço"})
 
+	// 11h segunda-feira
 	cBlind2 := ""
 	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '11' .AND. DOW(DATE()) == 2
 		cBlind2 := "X"
@@ -120,6 +124,22 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cBlind2,"U_BKMSG004()"   ,"Aviso de Clientes sem Conta Bancária para Depósito"})
 	
 	aAdd(aDados,{cBlind1,"U_BKMSG005()"   ,"Aviso de Pedidos de Venda Liberados"})
+
+	// 12h
+	cBlind2 := ""
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '12'
+		cBlind2 := "X"
+	EndIf
+	aAdd(aDados,{cBlind2,"U_BKMSG006()"   ,"Aviso de lançamentos de despesas"})
+
+
+	// 21h
+	cBlind2 := ""
+	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '21'
+		cBlind2 := "X"
+	EndIf
+	aAdd(aDados,{cBlind2,"U_BKMSG007()"   ,"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
+
 
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)

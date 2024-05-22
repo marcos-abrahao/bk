@@ -259,10 +259,11 @@ Return Self
 
 
 METHOD Create() CLASS RExcel
+Local cArqXls
 
-u_WaitLog(Self:cPrw,{ |oSay| Self:RunCreate(oSay)},"Construindo arquivo .xlsx...")
+u_WaitLog(Self:cPrw,{ |oSay| cArqXls := Self:RunCreate(oSay)},"Construindo arquivo .xlsx...")
 
-Return
+Return cArqXls
 
 
 METHOD RunCreate(oSayMsg) CLASS RExcel

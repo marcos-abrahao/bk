@@ -48,14 +48,15 @@ If cEmpAnt == "01" .OR. cEmpPar = "01"
 	u_WaitLog("V9BKGct06",  {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
 	u_WaitLog("V10BKGct06", {|| V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
 	u_WaitLog("V11BKGct06", {|| V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
-	u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
+	// Desabilitado em 22/05/2024 - substituido por BKMSG007
+	//u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf
 
 IF DOW(dDataEnv) = 3 .OR. DOW(dDataEnv) = 5
 	u_WaitLog("VigBKGCT06",{|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
 	u_WaitLog("Vg2BKGct06",{|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
 
-	// HAbilitado em 05/12/23
+	// Habilitado em 05/12/23
 	u_WaitLog("V5BKGct06", {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
 	u_WaitLog("V6BKGct06", {|| V6BKGct06()}  ,"Processando avisos de Atestado de Capacidade Técnica")
 	u_WaitLog("V7BKGct06", {|| V7BKGct06()}  ,"Processando avisos de Vigência da Caução")
@@ -199,7 +200,8 @@ ELSEIF SUBSTR(cRel,1,2) = "13"
 ELSEIF SUBSTR(cRel,1,2) = "14"   
    u_WaitLog(, {|| U_GRFBKGCT11(.T.) } )
 ELSEIF SUBSTR(cRel,1,2) = "15"   
-   u_WaitLog(, {|| V15BKGCT06() } )    
+   //u_WaitLog(, {|| V15BKGCT06() } )    
+   u_WaitLog(, {|| U_BKMSG007() } )    
 ELSEIF SUBSTR(cRel,1,2) = "16"
    U_BKDASH01()
 ENDIF 
@@ -564,12 +566,10 @@ EndIf
 Return Nil
 
 
-//=================================================================================
+//=============================================
+//  "Aviso de termino de vigência de contratos"
 
 Static Function VigBKGct06()
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//  "Aviso de termino de vigência de contratos"
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 Local cPath     := "\tmp\"
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
@@ -3233,13 +3233,14 @@ Return aHtm
 
 //Aviso de lançamentos de despesas em contratos vencidos
 // Marcos - 22/04/2022
+// Substituido pelo BKMSG007 em 22/05/2024
 Static Function V15BKGCT06()
 
 Local cQuery	:= ""            
 Local aArea     := GetArea()
 Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"
 Local cEmail	:= ""
-Local cEmailCC	:= u_EmMGestao()
+Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
 Local cMsg    	:= "Segue planilha anexa."
 Local cPrw 		:= "V15BKGCT06"
 Local nE		:= 0
@@ -3298,6 +3299,15 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "    ISNULL(D1_COD, 'RH') AS D1_COD, "+CRLF
 	cQuery += "    ISNULL(Z2_NOME, B1_DESC) AS B1_DESC, "+CRLF
 	cQuery += "    ISNULL(D1_TOTAL, Z2_VALOR) AS D1_TOTAL, "+CRLF
+
+	cQuery += "    (SELECT SUM(D1_TOTAL) FROM "+cTabSD1+" SD1 WHERE D1_DOC = E2_NUM "+CRLF
+	cQuery += "    		AND D1_SERIE = E2_PREFIXO "+CRLF
+	cQuery += "    		AND D1_FORNECE = E2_FORNECE "+CRLF
+	cQuery += "    		AND D1_LOJA = E2_LOJA "+CRLF
+	cQuery += "    		AND D1_FILIAL = '"+xFilial("SD1")+"' AND SD1.D_E_L_E_T_ = '' ) AS D1TOTAL,"+CRLF
+
+	cQuery += "    Z2_VALOR, "+CRLF
+	cQuery += "    E2_VALOR, "+CRLF
 	cQuery += "    F1_XXUSER, "+CRLF
 	cQuery += "    ("+CRLF
 	cQuery += "      SELECT "+CRLF
@@ -3352,7 +3362,8 @@ For nE := 1 TO Len(aEmpresas)
 Next
 cQuery += ") "+CRLF
 cQuery += "SELECT "+CRLF
-cQuery += "  * "+CRLF
+cQuery += "  *"+CRLF
+cQuery += " ,ISNULL(Z2_VALOR,((D1_TOTAL / D1TOTAL) * 100 * (E2_VALOR / 100))) AS DESPESA "+CRLF
 cQuery += "FROM "+CRLF
 cQuery += "  AVISO "+CRLF
 cQuery += "WHERE "+CRLF
@@ -3367,6 +3378,7 @@ dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 tcSetField("QTMP","E2_EMIS1","D",8,0)
 tcSetField("QTMP","E2_VENCREA","D",8,0)
 tcSetField("QTMP","CNFDVIG","D",8,0)
+tcSetField("QTMP","DESPESA","N",12,2)
 
 AADD(aTitulos,cAssunto)
 
@@ -3406,8 +3418,17 @@ aAdd(aCabs  ,GetSX3Cache("D1_COD", "X3_TITULO"))
 aAdd(aCampos,"QTMP->B1_DESC")
 aAdd(aCabs  ,GetSX3Cache("B1_DESC", "X3_TITULO"))
 
+aAdd(aCampos,"QTMP->DESPESA")
+aAdd(aCabs  ,"Despesa rateada")
+
 aAdd(aCampos,"QTMP->D1_TOTAL")
-aAdd(aCabs  ,GetSX3Cache("D1_TOTAL", "X3_TITULO"))
+aAdd(aCabs  ,"Total do item da NF")
+
+aAdd(aCampos,"QTMP->D1TOTAL")
+aAdd(aCabs  ,"Total geral da NF")
+
+aAdd(aCampos,"QTMP->E2_VALOR")
+aAdd(aCabs  ,GetSX3Cache("E2_VALOR", "X3_TITULO"))
 
 aAdd(aCampos,"UsrRetName(QTMP->F1_XXUSER)")
 aAdd(aCabs  ,GetSX3Cache("F1_XXUSER", "X3_TITULO"))

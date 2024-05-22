@@ -190,7 +190,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencreal WSREST RestTitCR
 	oPExcel:AddCol("SALDO","SALDO","Saldo","E1_SALDO")
 	//oPExcel:AddCol("STATUS","u_DE2XXPgto(E1_XXTPPRV)")
 	oPExcel:AddCol("HIST","HIST","Histórico","E1_XXHIST")
-	//oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
+	oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
 
 	oPExcel:GetCol("PEDIDO"):SetHAlign("C")
 	oPExcel:GetCol("HIST"):SetWrap(.T.)
@@ -303,8 +303,8 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
 	aListCR[nPos]['SALDO'] 	    := TRANSFORM((cQrySE1)->SALDO,"@E 999,999,999.99")
 	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
-	aListCR[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE1)->XXHIST), "CP1252", "UTF-8") 
-	aListCR[nPos]['OPER']		:= "OPER" //(cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
+	aListCR[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHIST), "CP1252", "UTF-8") 
+	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 
 	(cQrySE1)->(DBSkip())
@@ -354,7 +354,7 @@ Local cTipo		:= ""
 Local cCliente	:= ""
 Local cLoja		:= ""
 
-aEmpresas := u_BKGrupo()
+aEmpresas := u_BKGrpFat()
 u_BkAvPar(::userlib,@aParams,@cMsg)
 
 cQuery := "SELECT " + CRLF
@@ -441,7 +441,7 @@ WSMETHOD GET BROWCR QUERYPARAM empresa,vencreal,userlib WSREST RestTitCR
 
 Local cHTML		as char
 Local cDropEmp	as char
-Local aEmpresas := u_BKGrupo()
+Local aEmpresas := u_BKGrpFat()
 Local nE 		:= 0
 
 //u_MsgLog(,"BROWCR/1")
@@ -716,7 +716,9 @@ if (Array.isArray(titulos)) {
 	nlin += 1;
 	cbtne1 = 'btnz2'+nlin;
 
-	if (cStatus == ' ' || cStatus == '0'){
+	if (cStatus == ' '){
+	 ccbtn = 'dark';
+	} else if (cStatus == '0'){
 	 ccbtn = 'danger';
 	} else if (cStatus == '1'){
 	 ccbtn = 'warning';
@@ -732,6 +734,7 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td>'+object['CLIENTE']+'</td>';
 	trHTML += '<td>'+object['VENC']+'</td>';
 	trHTML += '<td>'+object['EMISSAO']+'</td>';
+	trHTML += '<td>'+object['PEDIDO']+'</td>';
 	trHTML += '<td>'+object['COMPET']+'</td>';
 
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
@@ -747,6 +750,7 @@ if (Array.isArray(titulos)) {
 			trHTML += '</button>'
 
 			trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\')">Aguardando Recebimento</button>';
 			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\')">Sem Previsao</button>';
 			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\')">Aguardando Previsao</button>';
 			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\')">Previsao Informada</button>';
@@ -929,7 +933,9 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 	.then(data=> {
 		// this is the data we get after putting our data,
 		console.log(data);
-		if (acao == '0' || acao == ' '){
+		if (acao == ' '){
+			cbtn = 'Aguardando Recebimento';
+		} else if (acao == '0'){
 			cbtn = 'Sem Previsao';
 		} else if (acao == '1'){
 			cbtn = 'Aguardando Previsao';
@@ -1040,6 +1046,8 @@ Local cQuery		:= ""
 Local nE			:= 0
 Local cEmpr 		:= ""
 Local bBlock
+Local aBinds		:= {}
+Local lRet 			:= .T.
 
 aGrupoBK := u_BKGrpFat()
 nE := aScan(aGrupoBK,{|x| x[1] == SUBSTR(xEmpresa,1,2) })
@@ -1054,12 +1062,12 @@ EndIf
 
 For nE := 1 To Len(aEmpresas)
 	cEmpr 	:= aEmpresas[nE,1]
-	cTabSE1 := "SE1"+aEmpresas[nE,1]+"0"
-	cTabSA1 := "SA1"+aEmpresas[nE,1]+"0"
-	cTabSF2 := "SF2"+aEmpresas[nE,1]+"0"
-	cTabSC5 := "SC5"+aEmpresas[nE,1]+"0"
+	cTabSE1 := "SE1"+cEmpr+"0"
+	cTabSA1 := "SA1"+cEmpr+"0"
+	cTabSF2 := "SF2"+cEmpr+"0"
+	cTabSC5 := "SC5"+cEmpr+"0"
 
-	cEmpresa := aEmpresas[nE,1]
+	cEmpresa := cEmpr
 	cNomeEmp := aEmpresas[nE,3]
 
 	If nE > 1
@@ -1076,10 +1084,11 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E1_LOJA"+CRLF
 	cQuery += "	 ,E1_XXHIST"+CRLF
 	cQuery += "	 ,E1_VENCREA"+CRLF
+	cQuery += "	 ,E1_EMISSAO"+CRLF
 	cQuery += "	 ,E1_VALOR"+CRLF
 	cQuery += "	 ,E1_PEDIDO"+CRLF
 	cQuery += "	 ,E1_XXTPPRV"+CRLF
-	//cQuery += "	 ,SE1.E1_XXOPER"+CRLF
+	cQuery += "	 ,E1_XXOPER"+CRLF
 	cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 	cQuery += "	 ,A1_NOME"+CRLF
 	//cQuery += "	 ,A1_PESSOA"+CRLF
@@ -1115,8 +1124,9 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "  AND E1_FILIAL = '"+xFilial("SE1")+"' "+CRLF
 	cQuery += "  AND E1_STATUS = 'A' "+CRLF
 	cQuery += "  AND E1_TIPO IN ('BOL','NF','NDC') "+CRLF
-	cQuery += "  AND E1_VENCREA >= '"+xVencreal+"' "+CRLF
-
+	//cQuery += "  AND E1_VENCREA >= '"+xVencreal+"' "+CRLF
+	cQuery += "  AND E1_VENCREA >= ? --"+xVencreal+CRLF
+	aAdd(aBinds,xVencreal)
 Next
 /*
 cQuery += ") "+CRLF
@@ -1130,13 +1140,11 @@ u_LogMemo("RESTTITCR1.SQL",cQuery)
 
 bBlock := ErrorBlock( { |e| u_LogMemo("RESTTITCR1.SQL",e:Description) } )
 BEGIN SEQUENCE
-	dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
+	//dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
+	dbUseArea(.T.,"TOPCONN",TCGenQry2(,,cQuery,aBinds),cQrySE1,.T.,.T.)
 RECOVER
 	lRet := .F.
 END SEQUENCE
 ErrorBlock(bBlock)
 
-Return Nil
-
-
-
+Return lRet

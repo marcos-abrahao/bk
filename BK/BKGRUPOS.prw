@@ -31,24 +31,26 @@ nOpc = 6  // Empresas em Barueri - SP
 //                                                                      Desp - 6
 //                                                                          Fat - 7
 //                                                                               Barueri - 8
-Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S","S"},;
-                        {"02","MMDK"            ,"MMKD"         ,"S","S","S","S","N"},;
-                        {"04","ESA"             ,"ESA"          ,"N","N","N","N","N"},;
-                        {"06","BKDAHER SUZANO"  ,"BKDAHER S"    ,"N","N","N","N","N"},;
-                        {"07","JUST SOFTWARE"   ,"JUST"         ,"N","N","N","N","N"},;
-                        {"08","BHG CAMPINAS"    ,"BHG CAMP"     ,"N","N","N","N","N"},;
-                        {"09","BHG OSASCO"      ,"BHG OSAS"     ,"N","N","N","N","N"},;
-                        {"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N"},;
-                        {"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N"},;
-                        {"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N"},;
-                        {"14","BALSA NOVA"      ,"BALSA"        ,"S","S","S","S","N"},;
-                        {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","N","S"},;
-						{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N"},;
-						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N"},;
-                        {"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S"},;
-                        {"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S"},;
-                        {"97","CMOG"            ,"CMOG"         ,"S","N","N","N","N"},;
-                        {"98","TERO"            ,"TERO"         ,"S","N","N","N","N"} }
+//                                                                                  CC Consorcio - 9
+Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S","S",""         },;
+                        {"02","MMDK"            ,"MMKD"         ,"S","S","S","S","N",""         },;
+                        {"04","ESA"             ,"ESA"          ,"N","N","N","N","N",""         },;
+                        {"06","BKDAHER SUZANO"  ,"BKDAHER S"    ,"N","N","N","N","N",""         },;
+                        {"07","JUST SOFTWARE"   ,"JUST"         ,"N","N","N","N","N",""         },;
+                        {"08","BHG CAMPINAS"    ,"BHG CAMP"     ,"N","N","N","N","N",""         },;
+                        {"09","BHG OSASCO"      ,"BHG OSAS"     ,"N","N","N","N","N",""         },;
+                        {"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N",""         },;
+                        {"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N",""         },;
+                        {"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N",""         },;
+                        {"14","BALSA NOVA"      ,"BALSA"        ,"S","S","S","S","N","302000508"},;
+                        {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","N","S","305000554"},;
+						{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386000609"},;
+						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         },;
+                        {"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623"},;
+                        {"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         },;
+                        {"97","CMOG"            ,"CMOG"         ,"S","N","N","N","N",""         },;
+                        {"98","TERO"            ,"TERO"         ,"S","N","N","N","N",""         } }
+
 
 For nE := 1 To Len(aEmpresas)
     If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S"
@@ -242,6 +244,8 @@ Local aReturn       := {}
 Local aBinds        := {}
 Local aSetFields    := {}
 Local nRet          := 0
+Local nI            := 0
+Local aSup          := {}
 
 cQuery += "SELECT USR_SUPER"+CRLF 
 cQuery += " FROM SYS_USR_SUPER"+CRLF
@@ -256,10 +260,13 @@ aadd(aSetFields,{"USR_SUPER"   ,"C",6,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-  u_MsgLog("ArSuper",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+    u_MsgLog("ArSuper",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+Else
+    For nI := 1 To Len(aReturn)
+        aAdd(aSup,aReturn[nI,1])
+    Next
 Endif
-
-Return aReturn
+Return aSup
 
 
 /*/{Protheus.doc} cStaf
