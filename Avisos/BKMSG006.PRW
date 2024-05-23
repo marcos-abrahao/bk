@@ -158,7 +158,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  WHERE "+CRLF
 	cQuery += "    E2_FILIAL = '"+xFilial("SE2")+"' AND SE2.D_E_L_E_T_ = ''"+CRLF
 	cQuery += "    AND E2_EMIS1 >= '"+DTOS(dData)+"' "+CRLF
-	cQuery += "    AND E2_PREFIXO <> 'LF' "+CRLF // Não incluir Lançamentos de Folha
+	cQuery += "    AND E2_PREFIXO <> 'LF ' "+CRLF // Não incluir Lançamentos de Folha
 	// 21/08/23 - Remover UNIAO - Bruno Bueno
 	cQuery += "    AND SUBSTRING(E2_FORNECE,1,5) <> 'UNIAO' "+CRLF
 	If Empty(cCCCons)

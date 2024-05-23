@@ -18,7 +18,8 @@ WSRESTFUL RestTitCR DESCRIPTION "Rest Titulos do Contas a Receber"
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
 	WSDATA filial       AS STRING
-	WSDATA vencreal     AS STRING
+	WSDATA vencini      AS STRING
+	WSDATA vencfim      AS STRING
 	WSDATA e1recno 		AS STRING
 	WSDATA banco 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
@@ -150,10 +151,10 @@ Return lRet
 
 
 // v5
-WSMETHOD GET PLANCR QUERYPARAM empresa,vencreal WSREST RestTitCR
+WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	Local cProg 	:= "RestTitCR"
 	Local cTitulo	:= "Contas a Receber WEB"
-	Local cDescr 	:= "Exportação Excel do C.Receber Web"
+	Local cDescr 	:= "Exportação Excel do Contas a Receber Web"
 	Local cVersao	:= "15/05/2024"
 	Local oRExcel	AS Object
 	Local oPExcel	AS Object
@@ -165,10 +166,10 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencreal WSREST RestTitCR
 
 	Local cQrySE1	:= GetNextAlias()
 
-	u_MsgLog(cProg,cTitulo+" "+self:vencreal)
+	u_MsgLog(cProg,cTitulo+" "+self:vencini+" "+self:vencfim)
 
 	// Query para selecionar os Títulos a Receber
-	TmpQuery(cQrySE1,self:empresa,self:vencreal)
+	TmpQuery(cQrySE1,self:empresa,self:vencini,self:vencfim)
 
 
 	// Definição do Arq Excel
@@ -179,7 +180,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencreal WSREST RestTitCR
 
 	// Definição da Planilha 1
 	oPExcel:= PExcel():New(cProg,cQrySE1)
-	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+DTOC(STOD(self:vencreal)))
+	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+DTOC(STOD(self:vencini)) +" a "+DTOC(STOD(self:vencfim)))
 
 	oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
 	oPExcel:AddCol("TITULO" ,"(E1_PREFIXO+E1_NUM+E1_PARCELA)","Título","")
@@ -188,12 +189,12 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencreal WSREST RestTitCR
 	oPExcel:AddCol("PEDIDO","E1_PEDIDO","Pedido","")
 	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
 	oPExcel:AddCol("SALDO","SALDO","Saldo","E1_SALDO")
-	//oPExcel:AddCol("STATUS","u_DE2XXPgto(E1_XXTPPRV)")
-	oPExcel:AddCol("HIST","HIST","Histórico","E1_XXHIST")
+	oPExcel:AddCol("PREVISAO","E1_XXDTPRV","Previsão","E1_XXDTPRV")
+	oPExcel:AddCol("HISTM","HISTM","Histórico","E1_XXHISTM")
 	oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
 
 	oPExcel:GetCol("PEDIDO"):SetHAlign("C")
-	oPExcel:GetCol("HIST"):SetWrap(.T.)
+	oPExcel:GetCol("HISTM"):SetWrap(.T.)
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
@@ -254,7 +255,7 @@ Retorna a lista de titulos.
 /*/
 
 // v0
-WSMETHOD GET LISTCR QUERYPARAM empresa,vencreal,userlib WSREST RestTitCR
+WSMETHOD GET LISTCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCR
 Local aListCR 		:= {}
 Local cQrySE1       := GetNextAlias()
 Local cJsonCli      := ''
@@ -264,7 +265,7 @@ Local aParams      	As Array
 Local cMsg         	As Character
 Local cNumTit 		:= ""
 
-//u_MsgLog("RESTTITCR",VarInfo("vencreal",self:vencreal))
+//u_MsgLog("RESTTITCR",VarInfo("vencini",self:vencini))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
   oJsonTmp['liberacao'] := cMsg
@@ -279,7 +280,7 @@ EndIf
 //lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
 
 // Query para selecionar os Títulos a Receber
-TmpQuery(cQrySE1,self:empresa,self:vencreal)
+TmpQuery(cQrySE1,self:empresa,self:vencini,self:vencfim)
 
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
@@ -294,7 +295,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 
 	aListCR[nPos]['EMPRESA']	:= (cQrySE1)->EMPRESA
 	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
-	aListCR[nPos]['TITULO']     := cNumTit
+	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
 	aListCR[nPos]['CLIENTE'] 	:= TRIM((cQrySE1)->A1_NOME)
 	aListCR[nPos]['VENC'] 		:= DTOC(STOD((cQrySE1)->E1_VENCREA))
 	aListCR[nPos]['EMISSAO'] 	:= DTOC(STOD((cQrySE1)->E1_EMISSAO))
@@ -303,8 +304,11 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
 	aListCR[nPos]['SALDO'] 	    := TRANSFORM((cQrySE1)->SALDO,"@E 999,999,999.99")
 	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
-	aListCR[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHIST), "CP1252", "UTF-8") 
+	aListCR[nPos]['PREVISAO']	:= (cQrySE1)->(E1_XXDTPRV)
+	//aListCR[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHIST), "CP1252", "UTF-8") 
+	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
 	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
+	aListCR[nPos]['CONTRATO']	:= ALLTRIM((cQrySE1)->C5_MDCONTR)
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 
 	(cQrySE1)->(DBSkip())
@@ -419,8 +423,8 @@ oJsonPN['A1_NOME']		:= (cQrySE1)->A1_NOME
 oJsonPN['E1_EMISSAO']	:= DTOC(STOD((cQrySE1)->E1_EMISSAO))
 oJsonPN['E1_VENCREA']	:= DTOC(STOD((cQrySE1)->E1_VENCREA))
 //oJsonPN['E1_XXUSER']	:= UsrRetName((cQrySE1)->E1_XXUSER)
-oJsonPN['E1_XXHIST']		:= (cQrySE1)->E1_XXHIST
-oJsonPN['LOTE']			:= (cQrySE1)->E1_XXLOTEB
+oJsonPN['E1_XXHIST']	:= (cQrySE1)->E1_XXHIST
+oJsonPN['E1_XXHISTM']	:= (cQrySE1)->E1_XXHISTM
 
 
 (cQrySE1)->(dbCloseArea())
@@ -437,7 +441,7 @@ return .T.
 
 
 // /v2
-WSMETHOD GET BROWCR QUERYPARAM empresa,vencreal,userlib WSREST RestTitCR
+WSMETHOD GET BROWCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCR
 
 Local cHTML		as char
 Local cDropEmp	as char
@@ -460,7 +464,7 @@ BEGINCONTENT var cHTML
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.0.2/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
-<title>Títulos Contas a Receber #datavenc# #NomeEmpresa#</title>
+<title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
 .bk-colors{
@@ -501,11 +505,11 @@ line-height: 1rem;
 
 	<div class="btn-group">
 		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
-		<button type="button" class="btn btn-dark" aria-label="PDF" onclick="HtmlPdf()">PDF</button>
 	</div>
 
     <form class="d-flex">
-	  <input class="form-control me-2" type="date" id="DataVenc" value="#datavenc#" />
+	  <input class="form-control me-2" type="date" id="DataVencI" value="#datavencI#" />
+	  <input class="form-control me-2" type="date" id="DataVencF" value="#datavencF#" />
       <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
     </form>
 
@@ -526,13 +530,14 @@ line-height: 1rem;
 <th scope="col">Cliente</th>
 <th scope="col">Vencto</th>
 <th scope="col">Emissão</th>
-<th scope="col">Pedido</th>
+<th scope="col" style="text-align:center;">Pedido</th>
 <th scope="col" style="text-align:center;">Compet</th>
 <th scope="col" style="text-align:center;">Valor</th>
 <th scope="col" style="text-align:center;">Saldo</th>
 <th scope="col" style="text-align:center;">Status</th>
-<th scope="col">Histórico</th>
+<th scope="col">Previsão</th>
 <th scope="col">Operador</th>
+<th scope="col">Histórico</th>
 </tr>
 </thead>
 <tbody id="mytable">
@@ -545,11 +550,12 @@ line-height: 1rem;
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
+  <th scope="col" style="text-align:center;"></th>
   <th scope="col"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
   <th scope="col"></th>
   <th scope="col"></th>
 </tr>
@@ -689,7 +695,7 @@ line-height: 1rem;
 <script>
 
 async function getCRs() {
-	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencreal=#vencreal#&userlib=#userlib#'
+	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -707,6 +713,7 @@ let ccbtn = '';
 let cbtnids = '';
 let cbtne1 = '';
 let anexos = '';
+let cStatus = ''
 
 if (Array.isArray(titulos)) {
 	titulos.forEach(object => {
@@ -718,12 +725,16 @@ if (Array.isArray(titulos)) {
 
 	if (cStatus == ' '){
 	 ccbtn = 'dark';
+	 cStatus = 'A Receber';
 	} else if (cStatus == '0'){
 	 ccbtn = 'danger';
+	 cStatus = 'Sem Previsao';
 	} else if (cStatus == '1'){
 	 ccbtn = 'warning';
+	 cStatus = 'Aguardando Previsao';
 	} else if (cStatus == '2'){
 	 ccbtn = 'primary';
+	 cStatus = 'Previsao Informada';
 	}
 
 	trHTML += '<tr>';
@@ -746,29 +757,33 @@ if (Array.isArray(titulos)) {
 		// Botão para mudança de status
 		trHTML += '<div class="btn-group">'
 			trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
-			trHTML += object['STATUS']
+			trHTML += cStatus
 			trHTML += '</button>'
 
 			trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\')">Aguardando Recebimento</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\')">A Receber</button>';
 			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\')">Sem Previsao</button>';
 			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\')">Aguardando Previsao</button>';
 			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\')">Previsao Informada</button>';
 		trHTML += '</div>'
 	trHTML += '</td>'
 
-	trHTML += '<td>'+object['HIST']+'</td>';
+	trHTML += '<td>'+object['PREVISAO']+'</td>';
 
 	trHTML += '<td>'+object['OPER']+'</td>';
+
+	trHTML += '<td>'+object['HISTM']+'</td>';
+
+	trHTML += '<td>'+object['CONTRATO']+'</td>';
 
 	trHTML += '</tr>';
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="13" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="14" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="13" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="14" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -810,12 +825,14 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Valor' },
         { data: 'Saldo' },
         { data: 'Status' },
-        { data: 'Histórico' },
+        { data: 'Previsão' },
         { data: 'Operador' },
+        { data: 'Histórico' },
+        { data: 'Contrato' },
   ],
   "columnDefs": [
         {
-            target: 14,
+            target: 15,
             visible: false,
             searchable: false
         }
@@ -831,7 +848,7 @@ function format(d) {
     // `d` is the original data object for the row
     return (
         '<dl>' +
-        '<dt>Anexos:&nbsp;&nbsp;'+d.Anexos+'</dt>' +
+        '<dt>Contrato:&nbsp;&nbsp;'+d.Contrato+'</dt>' +
         '<dd>' +
         '</dd>' +
         '</dl>'
@@ -934,7 +951,7 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 		// this is the data we get after putting our data,
 		console.log(data);
 		if (acao == ' '){
-			cbtn = 'Aguardando Recebimento';
+			cbtn = 'A Receber';
 		} else if (acao == '0'){
 			cbtn = 'Sem Previsao';
 		} else if (acao == '1'){
@@ -947,9 +964,12 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 }
 
 async function Excel(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-window.open("#iprest#/RestTitCR/v5?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
+let newvenci  = document.getElementById("DataVencI").value;
+let newvamdi  = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf  = document.getElementById("DataVencF").value;
+let newvamdf  = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+
+window.open("#iprest#/RestTitCR/v5?empresa=#empresa#&vencini="+newvamdi+"&vencfim="+newvamdf+"&userlib=#userlib#","_self");
 }
 
 
@@ -962,20 +982,13 @@ async function getUrlTmp(url1) {
 		}
 	}
 
-async function HtmlPdf(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-let url1 = '#iprest#/RestTitCR/v7?empresa=#empresa#&vencreal='+newvamd+'&userlib=#userlib#';
-let urlT = await getUrlTmp(url1);
-let curlT = urlT[0].URLTMP;
-window.open(curlT,"_self");
-
-}
-
 async function AltVenc(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-window.open("#iprest#/RestTitCR/v2?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
+let newvenci = document.getElementById("DataVencI").value;
+let newvamdi  = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf = document.getElementById("DataVencF").value;
+let newvamdf  = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+
+window.open("#iprest#/RestTitCR/v2?empresa=#empresa#&vencini="+newvamdi+"&vencfim="+newvamdf+"&userlib=#userlib#","_self");
 }
 
 </script>
@@ -992,8 +1005,10 @@ If !Empty(::userlib)
 EndIf
 
 cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
-cHtml := STRTRAN(cHtml,"#vencreal#",::vencreal)
-cHtml := STRTRAN(cHtml,"#datavenc#",SUBSTR(::vencreal,1,4)+"-"+SUBSTR(::vencreal,5,2)+"-"+SUBSTR(::vencreal,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
+cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
+cHtml := STRTRAN(cHtml,"#datavencI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#datavencF#",SUBSTR(::vencfim,1,4)+"-"+SUBSTR(::vencfim,5,2)+"-"+SUBSTR(::vencfim,7,2))   // Formato: 2023-10-24 input date
 
 // --> Seleção de Empresas
 nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
@@ -1006,10 +1021,10 @@ EndIf
 cDropEmp := ""
 For nE := 1 To Len(aEmpresas)
 //	<li><a class="dropdown-item" href="#">BK</a></li>
-	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa='+aEmpresas[nE,1]+'&vencreal='+self:vencreal+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
 cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa=Todas&vencreal='+self:vencreal+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
 
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 // <-- Seleção de Empresas
@@ -1032,7 +1047,7 @@ return .T.
 
 
 // Montagem da Query
-Static Function TmpQuery(cQrySE1,xEmpresa,xVencreal)
+Static Function TmpQuery(cQrySE1,xEmpresa,xVencIni,xVencFim)
 
 Local aEmpresas		:= {}
 Local aGrupoBK 		:= {}
@@ -1083,11 +1098,13 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E1_CLIENTE"+CRLF
 	cQuery += "	 ,E1_LOJA"+CRLF
 	cQuery += "	 ,E1_XXHIST"+CRLF
+	cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),E1_XXHISTM)) AS E1_XXHISTM "+CRLF
 	cQuery += "	 ,E1_VENCREA"+CRLF
 	cQuery += "	 ,E1_EMISSAO"+CRLF
 	cQuery += "	 ,E1_VALOR"+CRLF
 	cQuery += "	 ,E1_PEDIDO"+CRLF
 	cQuery += "	 ,E1_XXTPPRV"+CRLF
+	cQuery += "	 ,E1_XXDTPRV"+CRLF
 	cQuery += "	 ,E1_XXOPER"+CRLF
 	cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 	cQuery += "	 ,A1_NOME"+CRLF
@@ -1098,7 +1115,9 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
 
 	//cQuery += "	 ,F2_USERLGI"+CRLF
-	cQuery += "	 ,C5_XXCOMPM"+CRLF
+	cQuery += "	 ,ISNULL(C5_XXCOMPM,E1_XXCOMPE) AS C5_XXCOMPM"+CRLF
+
+	cQuery += "	 ,SUBSTRING(CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END,1,9) AS C5_MDCONTR " + CRLF
 
 	cQuery += "	 FROM "+cTabSE1+" SE1 "+CRLF
 	/*
@@ -1124,17 +1143,23 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "  AND E1_FILIAL = '"+xFilial("SE1")+"' "+CRLF
 	cQuery += "  AND E1_STATUS = 'A' "+CRLF
 	cQuery += "  AND E1_TIPO IN ('BOL','NF','NDC') "+CRLF
-	//cQuery += "  AND E1_VENCREA >= '"+xVencreal+"' "+CRLF
-	cQuery += "  AND E1_VENCREA >= ? --"+xVencreal+CRLF
-	aAdd(aBinds,xVencreal)
+
+	//cQuery += "  AND E1_VENCREA >= '"+xVencIni+"' "+CRLF
+	//cQuery += "  AND E1_VENCREA <= '"+xVencFim+"' "+CRLF
+
+	cQuery += "  AND E1_VENCREA >= ? --"+xVencIni+CRLF
+	cQuery += "  AND E1_VENCREA <= ? --"+xVencFim+CRLF
+	aAdd(aBinds,xVencIni)
+	aAdd(aBinds,xVencFim)
 Next
 /*
 cQuery += ") "+CRLF
 cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  FROM RESUMO " + CRLF
-cQuery += " ORDER BY EMPRESA,E1_VENCREA,A1_NOME " + CRLF
 */
+cQuery += " ORDER BY EMPRESA,E1_VENCREA,A1_NOME " + CRLF
+
 
 u_LogMemo("RESTTITCR1.SQL",cQuery)
 

@@ -21,6 +21,14 @@ If nModulo == 5 .OR. nModulo == 69
 			ShellExecute("open", u_BkRest()+"/RestLibPV/v2?userlib="+cToken, "", "", 1)
 		EndIf
 	EndIf
+
+	If nModulo == 5
+    	If u_MsgLog("MDIOk","Deseja abrir os Títulos a Receber web?","Y")
+			cToken  := u_BKEnCode()
+			ShellExecute("open", u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-3650)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken, "", "", 1)
+		EndIf
+	EndIf
+
 ElseIf nModulo == 6 .OR. nModulo == 2  .OR. nModulo == 9
 	If u_IsFiscal(__cUserId) .OR. u_IsStaf(__cUserId) .OR. u_IsSuperior(__cUserId)
 		If u_MsgLog("MDIOk","Deseja abrir a Liberação de Docs de Entrada Web?","Y")
@@ -28,7 +36,6 @@ ElseIf nModulo == 6 .OR. nModulo == 2  .OR. nModulo == 9
 			ShellExecute("open", u_BkRest()+"/RestLibPN/v2?userlib="+cToken, "", "", 1)
 		EndIf
 	EndIf
-	If nModulo == 6
 EndIf
 
 If nModulo == 6 .AND. (u_InGrupo(__cUserId,"000024") .OR. __cUserId == "000000")
@@ -41,8 +48,7 @@ If nModulo == 6 .AND. (u_InGrupo(__cUserId,"000024") .OR. __cUserId == "000000")
 			dUtil++
 		EndIf
 		cToken  := u_BKEnCode()
-		ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencreal='+DTOS(dUtil)+'&userlib='+cToken, "", "", 1)
-		//ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencreal='+DTOS(DATAVALIDA(dDataBase+1))+'&userlib='+cToken, "", "", 1)
+		ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil)+'&vencfim='+DTOS(dUtil)+'&userlib='+cToken, "", "", 1)
 	EndIf
 EndIf
 

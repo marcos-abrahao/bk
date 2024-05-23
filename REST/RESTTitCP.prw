@@ -18,7 +18,8 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
 	WSDATA filial       AS STRING
-	WSDATA vencreal     AS STRING
+	WSDATA vencini      AS STRING
+	WSDATA vencfim      AS STRING
 	WSDATA e2recno 		AS STRING
 	WSDATA banco 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
@@ -256,7 +257,7 @@ Return lRet
 
 
 // v5
-WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
+WSMETHOD GET PLANCP QUERYPARAM empresa,vencini,vencfim WSREST RestTitCP
 	Local cProg 	:= "RestTitCP"
 	Local cTitulo	:= "Contas a Pagar WEB"
 	Local cDescr 	:= "Exportação Excel do C.Pagar Web"
@@ -271,10 +272,10 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 
 	Local cQrySE2	:= GetNextAlias()
 
-	u_MsgLog(cProg,cTitulo+" "+self:vencreal)
+	u_MsgLog(cProg,cTitulo+" "+self:vencini+" "+self:vencfim)
 
 	// Query para selecionar os Títulos a Pagar
-	TmpQuery(cQrySE2,self:empresa,self:vencreal)
+	TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)
 
 
 	// Definição do Arq Excel
@@ -285,7 +286,7 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencreal WSREST RestTitCP
 
 	// Definição da Planilha 1
 	oPExcel:= PExcel():New(cProg,cQrySE2)
-	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+DTOC(STOD(self:vencreal)))
+	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+DTOC(STOD(self:vencfim))+" a "+DTOC(STOD(self:vencfim)))
 
 	oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
 	oPExcel:AddCol("TITULO" ,"(E2_PREFIXO+E2_NUM+E2_PARCELA)","Título","")
@@ -361,7 +362,7 @@ Return (lSuccess)
 
 
 ///v7
-WSMETHOD GET HPDFCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
+WSMETHOD GET HPDFCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 
 Local cHtml		as char
 Local cDirTmp   := "\http\tmp"
@@ -378,11 +379,11 @@ Local aRet 		:= {}
 
 Private nQuebra := 1
 
-//u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
+//u_MsgLog("RESTTITCP",VarInfo("vencini",self:vencini))
 
 If Val(SUBSTR(self:empresa,1,2)) > 0
 	// Query para selecionar os Títulos a Pagar
-	TmpQuery(cQrySE2,self:empresa,self:vencreal)
+	TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)
 
 	cHtml := u_BKFINH34(1,.T.,SUBSTR(self:empresa,1,2),"01")
 
@@ -431,7 +432,7 @@ Retorna a lista de titulos.
 /*/
 
 // v0
-WSMETHOD GET LISTCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
+WSMETHOD GET LISTCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 Local aListCP 		:= {}
 Local cQrySE2       := GetNextAlias()
 Local cJsonCli      := ''
@@ -445,7 +446,7 @@ Local aFiles 		:= {}
 Local aAnexos		:= {}
 Local nI 			:= 0
 
-//u_MsgLog("RESTTITCP",VarInfo("vencreal",self:vencreal))
+//u_MsgLog("RESTTITCP",VarInfo("vencini",self:vencini))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
   oJsonTmp['liberacao'] := cMsg
@@ -460,7 +461,7 @@ EndIf
 //lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
 
 // Query para selecionar os Títulos a Pagar
-TmpQuery(cQrySE2,self:empresa,self:vencreal)
+TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)
 
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
@@ -913,7 +914,7 @@ return .T.
 
 
 // /v2
-WSMETHOD GET BROWCP QUERYPARAM empresa,vencreal,userlib WSREST RestTitCP
+WSMETHOD GET BROWCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 
 Local cHTML		as char
 Local cDropEmp	as char
@@ -934,7 +935,7 @@ BEGINCONTENT var cHTML
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.0.2/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
-<title>Títulos Contas a Pagar #datavenc# #NomeEmpresa#</title>
+<title>Títulos Contas a Pagar #datavencI# #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
 .bk-colors{
@@ -979,7 +980,8 @@ line-height: 1rem;
 	</div>
 
     <form class="d-flex">
-	  <input class="form-control me-2" type="date" id="DataVenc" value="#datavenc#" />
+	  <input class="form-control me-2" type="date" id="DataVencI" value="#datavencI#" />
+	  <input class="form-control me-2" type="date" id="DataVencF" value="#datavencF#" />
       <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
     </form>
 
@@ -1259,7 +1261,7 @@ line-height: 1rem;
 <script>
 
 async function getCPs() {
-	let url = '#iprest#/RestTitCP/v0?empresa=#empresa#&vencreal=#vencreal#&userlib=#userlib#'
+	let url = '#iprest#/RestTitCP/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -1660,9 +1662,12 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 }
 
 async function Excel(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-window.open("#iprest#/RestTitCP/v5?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
+let newvenci = document.getElementById("DataVencI").value;
+let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf = document.getElementById("DataVencF").value;
+let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+
+window.open("#iprest#/RestTitCP/v5?empresa=#empresa#&vencini="+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#',"_self");
 }
 
 
@@ -1676,9 +1681,11 @@ async function getUrlTmp(url1) {
 	}
 
 async function HtmlPdf(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-let url1 = '#iprest#/RestTitCP/v7?empresa=#empresa#&vencreal='+newvamd+'&userlib=#userlib#';
+let newvenci = document.getElementById("DataVencI").value;
+let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf = document.getElementById("DataVencF").value;
+let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+let url1 = '#iprest#/RestTitCP/v7?empresa=#empresa#&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#';
 let urlT = await getUrlTmp(url1);
 let curlT = urlT[0].URLTMP;
 window.open(curlT,"_self");
@@ -1686,9 +1693,11 @@ window.open(curlT,"_self");
 }
 
 async function AltVenc(){
-let newvenc = document.getElementById("DataVenc").value;
-let newvamd  = newvenc.substring(0, 4)+newvenc.substring(5, 7)+newvenc.substring(8, 10)
-window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencreal="+newvamd+'&userlib=#userlib#',"_self");
+let newvenci = document.getElementById("DataVencI").value;
+let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf = document.getElementById("DataVencF").value;
+let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencini="+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#',"_self");
 }
 
 </script>
@@ -1705,8 +1714,10 @@ If !Empty(::userlib)
 EndIf
 
 cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
-cHtml := STRTRAN(cHtml,"#vencreal#",::vencreal)
-cHtml := STRTRAN(cHtml,"#datavenc#",SUBSTR(::vencreal,1,4)+"-"+SUBSTR(::vencreal,5,2)+"-"+SUBSTR(::vencreal,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
+cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
+cHtml := STRTRAN(cHtml,"#datavencI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#datavencF#",SUBSTR(::vencfim,1,4)+"-"+SUBSTR(::vencfim,5,2)+"-"+SUBSTR(::vencfim,7,2))   // Formato: 2023-10-24 input date
 
 // Empresas com integração pendente
 IntegEmp(@aEmpresas)
@@ -1722,10 +1733,10 @@ EndIf
 cDropEmp := ""
 For nE := 1 To Len(aEmpresas)
 //	<li><a class="dropdown-item" href="#">BK</a></li>
-	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencreal='+self:vencreal+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
 cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencreal='+self:vencreal+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
 
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 // <-- Seleção de Empresas
@@ -1747,7 +1758,7 @@ return .T.
 
 
 // Montagem da Query
-Static Function TmpQuery(cQrySE2,xEmpresa,xVencreal)
+Static Function TmpQuery(cQrySE2,xEmpresa,xVencIni,xVencFim)
 
 Local aEmpresas		:= {}
 Local aGrupoBK 		:= {}
@@ -1936,7 +1947,8 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += AllTrim("	 WHERE SE2.D_E_L_E_T_ = '' "+ CRLF)
 	cQuery += AllTrim("  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF)
 
-	cQuery += AllTrim("  AND E2_VENCREA = '"+xVencreal+"' "+CRLF)
+	cQuery += AllTrim("  AND E2_VENCREA >= '"+xVencIni+"' "+CRLF)
+	cQuery += AllTrim("  AND E2_VENCREA <= '"+xVencFim+"' "+CRLF)
 
 Next
 
@@ -1947,7 +1959,7 @@ cQuery += "  ,ISNULL(D1_XXHIST,E2_HIST) AS HIST"+CRLF
 //cQuery += "  ,ISNULL(Z2_BORDERO,E2_XXLOTEB) AS LOTE"+CRLF
 cQuery += "  ,(CASE WHEN ISNULL(Z2_BORDERO,E2_XXLOTEB) = ' ' THEN E2_XXLOTEB ELSE ISNULL(Z2_BORDERO,E2_XXLOTEB) END) AS LOTE"+CRLF
 cQuery += "  FROM RESUMO " + CRLF
-cQuery += " ORDER BY EMPRESA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
+cQuery += " ORDER BY EMPRESA,E2_VENCREA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
 cQuery := STRTRAN(cQuery,CHR(9),"")
 cQuery := STRTRAN(cQuery,"  "," ")
