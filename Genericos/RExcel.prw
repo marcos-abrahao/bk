@@ -372,6 +372,7 @@ Local cCorS1		:= "000000" // Cor Preta
 Local cFundoS1		:= "FFB3B3" // Sundown
 
 Local cCorLink 		:= "0000FF" // Azul
+
 /*
 
 Local cCorS2		:= "000000" // Cor Preta
@@ -406,6 +407,16 @@ Local cOHAlign		:= ""
 Local aLinha 		:= {}
 Local cName 		:= ""
 Local lEstilo		:= .F.
+Local cColuna 		:= ""
+
+// Variaveis usadas para Formulas
+Local cColLin 		:= ""
+
+// Variaveis usadas no totalizador
+Local cColExcel		:= ""
+Local cLinExcel		:= ""
+Local cLinTop		:= ""
+Local nLinR 		:= 0
 
 // Variaveis usadas no resumo
 Local cTipoVal 		:= ""
@@ -533,10 +544,10 @@ For nP := 1 To Len(Self:aPlans)
 				nField	:= oPlan:aColunas[nC]:GetField()
 				aCor	:= oPlan:aColunas[nC]:GetCor()
 
-
 				// Atributos que não precisam ser atualizados
 				lWrap   := oPlan:aColunas[nC]:GetWrap()
 				cName   := oPlan:aColunas[nC]:GetName()
+				cColuna := oPlan:aColunas[nC]:GetColuna()
 
 				// Pega o conteúdo do campo
 				cCampo	:= oPlan:aColunas[nC]:cCampo
@@ -570,15 +581,15 @@ For nP := 1 To Len(Self:aPlans)
 
 					// Pega informações da Coluna
 					If Empty(cTipo)
-						cTipo 		:= ValType(xCampo)
+						cTipo 	:= ValType(xCampo)
 					EndIf
 					If Empty(nTamanho)
-						If Substr(cTipo,1,1) == "N"
+						If "N" $ cTipo
 							nTamanho := 15
 							nDecimal := 2
-						ElseIf Substr(cTipo,1,1) == "D"
+						ElseIf "D" $ cTipo
 							nTamanho := 8
-						ElseIf Substr(cTipo,1,1) $ "CM"
+						ElseIf "C" $ cTipo .OR. "M" $ cTipo
 							nTamanho := Len(xCampo)
 						EndIf
 					EndIf
@@ -586,11 +597,11 @@ For nP := 1 To Len(Self:aPlans)
 					//Calcula o tamanho da coluna excel
 					If Empty(nTamCol)
 						nTamCol := 8
-						If Substr(cTipo,1,1) == "N"
+						If "N" $ cTipo
 							nTamCol := 15
-						ElseIf Substr(cTipo,1,1) == "D"
+						ElseIf "D" $ cTipo
 							nTamCol := 10
-						ElseIf Substr(cTipo,1,1) $ "CM"
+						ElseIf "C" $ cTipo .OR. "M" $ cTipo
 							If Len(xCampo) > 8
 								If Len(xCampo) < 150
 									nTamCol := Len(xCampo) + 1
@@ -603,14 +614,14 @@ For nP := 1 To Len(Self:aPlans)
 
 					If Empty(cFormat)
 						//Numerico
-						If Substr(cTipo,1,1) == "N"
+						If "N" $ cTipo
 							cFormat := "#,##0"
 							If nDecimal > 0
 								cFormat += "."+REPLICATE("0",nDecimal)
 							EndIf
 							cFormat := cFormat+";[Red]-"+cFormat
 						// Numerico %
-						ElseIf Substr(cTipo,1,1) == "P"
+						ElseIf "P" $ cTipo
 							cFormat  := "0"
 							If nDecimal > 0
 								cFormat += "."+REPLICATE("0",nDecimal)+"%"
@@ -619,7 +630,7 @@ For nP := 1 To Len(Self:aPlans)
 							EndIf
 							cFormat := cFormat+";[Red]-"+cFormat
 						// Data
-						ElseIf Substr(cTipo,1,1) == "D"
+						ElseIf "D" $ cTipo
 							cFormat := "dd/mm/yyyy"
 							// Se o campo vier em branco, setar cFormat para "" no momento de gerar a celula
 						EndIf
@@ -639,7 +650,7 @@ For nP := 1 To Len(Self:aPlans)
 					EndIf
 
 					// Sempre centralizar campo tipo Data
-					If Substr(cTipo,1,1) == "D"
+					If "D" $ cTipo
 						cHAlign := "C"
 					EndIf
 
@@ -713,10 +724,24 @@ For nP := 1 To Len(Self:aPlans)
 
 				Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
-				If cTipo == "F"
+				If "F" $ cTipo
 					If "HYPERLINK" $ UPPER(xCampo)
 						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
 						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
+					ElseIf "##" $ cCampo
+						// Exemplo: 
+						//	oPExcel:AddCol("TOTAL","'=##C1_QUANT##*##C1_XXLCVAL##'","Total","")
+						//	oPExcel:GetCol("TOTAL"):SetTipo("FN")
+						//	oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+						nx := 1
+						Do While nX <= Len(oPlan:aColunas) .AND. "##" $ cCampo
+							cColLin := oPlan:aColunas[nX]:GetColuna()+ALLTRIM(STR(nLin))
+							cFCampo := "##"+oPlan:aColunas[nX]:GetName()+"##"
+							If cFCampo $ xCampo
+								xCampo := STRTRAN(xCampo,cFCampo,cColLin)
+							EndIf
+							nX++
+						EndDo
 					EndIf
 
 					If !Empty(xCampo)
@@ -726,7 +751,7 @@ For nP := 1 To Len(Self:aPlans)
 					EndIf
 					lChange := .T.
 					
-				ElseIf cTipo == "D"
+				ElseIf "D" $ cTipo
 					If !Empty(xCampo)
 						Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
 					Else
@@ -809,10 +834,10 @@ For nP := 1 To Len(Self:aPlans)
 				nField	:= oPlan:aColunas[nC]:GetField()
 				aCor	:= oPlan:aColunas[nC]:GetCor()
 
-
 				// Atributos que não precisam ser atualizados
 				lWrap   := oPlan:aColunas[nC]:GetWrap()
 				cName   := oPlan:aColunas[nC]:GetName()
+				cColuna := oPlan:aColunas[nC]:GetColuna()
 
 				// Pega o conteúdo do campo
 				cCampo	:= oPlan:aColunas[nC]:cCampo
@@ -850,15 +875,15 @@ For nP := 1 To Len(Self:aPlans)
 
 					// Pega informações da Coluna
 					If Empty(cTipo)
-						cTipo 		:= ValType(xCampo)
+						cTipo 	:= ValType(xCampo)
 					EndIf
 					If Empty(nTamanho)
-						If Substr(cTipo,1,1) == "N"
+						If "N" $ cTipo
 							nTamanho := 15
 							nDecimal := 2
-						ElseIf Substr(cTipo,1,1) == "D"
+						ElseIf "D" $ cTipo
 							nTamanho := 8
-						ElseIf Substr(cTipo,1,1) $ "CM"
+						ElseIf "C" $ cTipo .OR. "M" $ cTipo
 							nTamanho := Len(xCampo)
 						EndIf
 					EndIf
@@ -866,11 +891,11 @@ For nP := 1 To Len(Self:aPlans)
 					//Calcula o tamanho da coluna excel
 					If Empty(nTamCol)
 						nTamCol := 8
-						If Substr(cTipo,1,1) == "N"
+						If "N" $ cTipo
 							nTamCol := 15
-						ElseIf Substr(cTipo,1,1) == "D"
+						ElseIf "D" $ cTipo
 							nTamCol := 10
-						ElseIf Substr(cTipo,1,1) $ "CM"
+						ElseIf "C" $ cTipo .OR. "M" $ cTipo
 							If Len(xCampo) > 8
 								If Len(xCampo) < 150
 									nTamCol := Len(xCampo) + 1
@@ -883,14 +908,14 @@ For nP := 1 To Len(Self:aPlans)
 
 					If Empty(cFormat)
 						//Numerico
-						If Substr(cTipo,1,1) == "N"
+						If "N" $ cTipo
 							cFormat := "#,##0"
 							If nDecimal > 0
 								cFormat += "."+REPLICATE("0",nDecimal)
 							EndIf
 							cFormat := cFormat+";[Red]-"+cFormat
 						// Numerico %
-						ElseIf Substr(cTipo,1,1) == "P"
+						ElseIf "P" $ cTipo
 							cFormat  := "0"
 							If nDecimal > 0
 								cFormat += "."+REPLICATE("0",nDecimal)+"%"
@@ -899,7 +924,7 @@ For nP := 1 To Len(Self:aPlans)
 							EndIf
 							cFormat := cFormat+";[Red]-"+cFormat
 						// Data
-						ElseIf Substr(cTipo,1,1) == "D"
+						ElseIf "D" $ cTipo
 							cFormat := "dd/mm/yyyy"
 							// Se o campo vier em branco, setar cFormat para "" no momento de gerar a celula
 						EndIf
@@ -919,7 +944,7 @@ For nP := 1 To Len(Self:aPlans)
 					EndIf
 
 					// Sempre centralizar campo tipo Data
-					If Substr(cTipo,1,1) == "D"
+					If "D" $ cTipo
 						cHAlign := "C"
 					EndIf
 
@@ -993,10 +1018,25 @@ For nP := 1 To Len(Self:aPlans)
 
 				Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
-				If cTipo == "F"
+				If "F" $ cTipo
 					If "HYPERLINK" $ UPPER(xCampo)
 						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
 						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
+					ElseIf "##" $ cCampo
+						// Exemplo: 
+						//	oPExcel:AddCol("TOTAL","'=##C1_QUANT##*##C1_XXLCVAL##'","Total","")
+						//	oPExcel:GetCol("TOTAL"):SetTipo("FN")
+						//	oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+
+						nx := 1
+						Do While nX <= Len(oPlan:aColunas) .AND. "##" $ cCampo
+							cColLin := oPlan:aColunas[nX]:GetColuna()+ALLTRIM(STR(nLin))
+							cFCampo := "##"+oPlan:aColunas[nX]:GetName()+"##"
+							If cFCampo $ xCampo
+								xCampo := STRTRAN(xCampo,cFCampo,cColLin)
+							EndIf
+							nX++
+						EndDo
 					EndIf
 
 					If !Empty(xCampo)
@@ -1006,7 +1046,7 @@ For nP := 1 To Len(Self:aPlans)
 					EndIf
 					lChange := .T.
 					
-				ElseIf cTipo == "D"
+				ElseIf "D" $ cTipo
 					If !Empty(xCampo)
 						Self:oPrtXlsx:SetValue(nLin,nC,xCampo)
 					Else
@@ -1115,7 +1155,7 @@ For nP := 1 To Len(Self:aPlans)
 				// Resumo
 				nLin++
 
-				// Via formula, não funcionou no excel 365
+				// Via formula, não funcionou no excel 365 (OBS: porque tem que ser em INGLES)
 				//cColExcel := NumToString(aNResumos[nI,1])
 				//cLinTop   := ALLTRIM(STR(nTop))
 				//cLinExcel := ALLTRIM(STR(nLast))
@@ -1425,8 +1465,6 @@ Return Self
 
 // Adiciona nova coluna
 METHOD AddCol(cName,cCampo,cDescr,cSX3) CLASS PExcel
-//oCExcel:SetField(Len(Self:aColunas)+1) // Guarda numero da coluna
-
 Local oCExcel	:= CExcel():New("",cCampo)
 Local aX3Stru	:= {}
 
@@ -1444,7 +1482,13 @@ If !Empty(cDescr)
 EndIf
 
 oCExcel:SetName(cName)
-aAdd(Self:aColunas,oCExcel)    //Adiciona nova coluna
+
+//Adiciona nova coluna
+aAdd(Self:aColunas,oCExcel)    
+
+// Guarda coluna do Excel (letra(s))
+oCExcel:SetColuna(NumToString(Len(Self:aColunas)))
+
 Return
 
 
@@ -1459,8 +1503,12 @@ oCExcel:SetTamanho(aX3Stru[3])
 oCExcel:SetDecimal(aX3Stru[4])
 oCExcel:SetName(cCampo)
 
-//oCExcel:SetField(Len(Self:aColunas)+1) // Guarda numero da coluna
-aAdd(Self:aColunas,oCExcel)    //Adiciona nova coluna
+//Adiciona nova coluna
+aAdd(Self:aColunas,oCExcel)
+
+// Guarda coluna do Excel (letra(s))
+oCExcel:SetColuna(NumToString(Len(Self:aColunas)))
+
 Return
 
 // Retorna o objeto da Coluna pelo cName
@@ -1502,6 +1550,7 @@ CLASS CExcel
 	DATA lWrap
 	DATA cName
 	DATA aCor		AS Array
+	DATA cColuna
 
 	// Declaração dos Métodos da Classe CExcel
 	METHOD New(cNTitulo,cNCampo) CONSTRUCTOR
@@ -1513,6 +1562,9 @@ CLASS CExcel
 
 	METHOD GetField()
 	METHOD SetField(nField)
+
+	METHOD GetColuna()
+	METHOD SetColuna(cColuna)
 
 	METHOD GetTipo()
 	METHOD SetTipo(cTipo)
@@ -1578,9 +1630,19 @@ Return Self:cCampo
 METHOD GetField() CLASS CExcel
 Return Self:nField
 
+//Posição do campo na estrutura da tabela (evitar macro)
 METHOD SetField(nField) CLASS CExcel
 Self:nField := nField
 Return 
+
+METHOD GetColuna() CLASS CExcel
+Return Self:cColuna
+
+//Letra da Coluna Excel
+METHOD SetColuna(cColuna) CLASS CExcel
+Self:cColuna := cColuna
+Return 
+
 
 METHOD GetTipo() CLASS CExcel
 Return Self:cTipo

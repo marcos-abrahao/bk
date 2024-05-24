@@ -63,8 +63,13 @@ oPExcel:GetCol("C1_QUANT"):SetTotal(.T.)
 
 oPExcel:AddColX3("C1_XXLCVAL")
 
-oPExcel:AddColX3("C1_XXLCTOT")
-oPExcel:GetCol("C1_XXLCTOT"):SetTotal(.T.)
+//oPExcel:AddColX3("C1_XXLCTOT")
+//oPExcel:GetCol("C1_XXLCTOT"):SetTotal(.T.)
+
+oPExcel:AddCol("TOTAL","'=##C1_QUANT##*##C1_XXLCVAL##'","Total","")
+oPExcel:GetCol("TOTAL"):SetTipo("FN")
+oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+//oPExcel:GetCol("TOTAL"):SetFormat("###,##0.00")
 
 oPExcel:AddColX3("C1_CC")
 
