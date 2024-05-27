@@ -23,7 +23,7 @@ Local cTexto	:= ""
 
 Private cPerg   := "BKBATIDAS"
 
-Define MsDialog oDlg01 Title "Importação de dados: Excel --> Sol. Compra" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
+Define MsDialog oDlg01 Title "Importação de dados: Excel --> Array" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
 nSnd := 35
 @ nSnd,010 Say 'Cole o CSV: Nome;E-Mail;Chave'  Size 240,010 Pixel Of oDlg01

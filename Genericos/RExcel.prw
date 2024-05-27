@@ -424,6 +424,7 @@ Local cTipoVal 		:= ""
 Default oSayMsg		:= Nil
 // Campo para Macro
 Private xCampo
+Private axCampo
 Private yCampo
 
 // Inicialização do Logo
@@ -819,7 +820,8 @@ For nP := 1 To Len(Self:aPlans)
 		For nM := 1 To Len(aMatriz)
 			nLin++
 			nCont++
-			aLinha := {}
+			aLinha  := {}
+			axCampo := {}
 
 			For nC := 1 To Len(oPlan:aColunas)
 
@@ -845,9 +847,12 @@ For nP := 1 To Len(Self:aPlans)
 				xCampo	:= aMatriz[nM,nC]
 
 				// Se alguma formula ADVPL for informada
-				If !Empty(cCampo) .AND. "(" $ cCampo 
+				If (!Empty(cCampo) .AND. "(" $ cCampo) .OR. "F" $ cTipo
 					xCampo	:= &(cCampo)
 				EndIf
+
+				// Guarda o resultado em um arrqy Private para acesso externo
+				aAdd(axCampo,xCampo)
 
 				If lFirst
 					// Ajusta os atributos informados ou default

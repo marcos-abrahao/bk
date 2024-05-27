@@ -87,7 +87,7 @@ aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de i
 aAdd(aDados,{"","U_BKCOMA15()",		"COMPRAS",		"Inclusão de Doc de Sindicatos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMC01()",		"COMPRAS",		"Pesquisa itens de Documentos de entrada"})
 aAdd(aDados,{"","U_BKCOMR15()",		"COMPRAS",		"Relação de Fornecedores - (se já foi avaliado ou não)"})
-aAdd(aDados,{"","U_BKCOMR19()",		"COMPRAS",		"Relação de Produtos x Grupos x Subgrupos"})
+aAdd(aDados,{"","U_BKCOMR19()",		"COMPRAS",		"Relação de Prod. Grupos Subgrp Valor"})
 
 aAdd(aDados,{"","U_BKFATA1A()",		"FATURAMENTO",	"Funcao gravar Informações do Faturamento na NF de saida"})
 

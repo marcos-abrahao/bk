@@ -462,7 +462,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 
 			Bcn341D += "341"							//021 023 CÓDIGO BANCO FAVORECIDO
 			If cFormaPgto == "PIX"
-				Bcn341D += SPACE(20)                   	//029 029 COMPLEMENTO DE REGISTRO
+				Bcn341D += SPACE(20)                   	//024 043 COMPLEMENTO DE REGISTRO
 			Else
 				Bcn341D += "0"             			  	//024 024 COMPLEMENTO DE REGISTRO (NOTA 11)
 														//025 028 NÚMERO AGÊNCIA CREDITADA
@@ -473,8 +473,8 @@ If nHandle > 0 .OR. nHandle2 > 0
 				Bcn341D += STRZERO(VAL(aTitGer[nI,CP_CONTA]),6) 
 				Bcn341D += SPACE(1) 					//042 042 COMPLEMENTO DE REGISTRO
 														//043 043 DAC DA AGÊNCIA/CONTA CREDITADA
+				Bcn341D += STRZERO(VAL(aTitGer[nI,CP_DIGITO]),1)
 			EndIf
-			Bcn341D += STRZERO(VAL(aTitGer[nI,CP_DIGITO]),1)
 														//044 073 NOME DO FAVORECIDO
 			Bcn341D += PAD(Acento(aTitGer[nI,CP_NOME]),30) 
 			Bcn341D += SPACE(20) 						//074 088 NUMERO DOCTO ATRIBUÍDO PELA EMPRESA

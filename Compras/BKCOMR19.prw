@@ -12,8 +12,8 @@
 
 User Function BKCOMR19
 Local cProg 	:= "BKCOMR19"
-Local cTitulo	:= "Produtos x Grupos x Subgrupos"
-Local cDescr 	:= "O objetivo deste relatório é listar os produtos x grupos x subgrupos"
+Local cTitulo	:= "Produtos x Grupos x Subgrupos x Valor Estimado"
+Local cDescr 	:= "O objetivo deste relatório é listar os produtos x grupos x subgrupos e Valor Estimado"
 Local cVersao	:= "29/04/2023"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
@@ -23,8 +23,13 @@ Local aTcFields := {}
 Local aRet		:= {}
 Local aParam 	:= {}
 
-Private cB1Blq := {}
-aAdd( aParam ,{ 2, "Listar bloqueados", cB1Blq  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
+cVersao	+= CRLF+"27/05/2024 - Valor Estimado"
+
+Private cB1Blq  := "N"
+Private cUltPrc := "N"
+
+aAdd( aParam ,{ 2, "Listar bloqueados",     cB1Blq  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
+aAdd( aParam ,{ 2, "Listar Ultimo preço",   cUltPrc ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
 
 If !ParCom19(cProg,@cTitulo,@aRet,aParam)
    Return
@@ -35,8 +40,9 @@ EndIf
 cQuery := "SELECT "+CRLF
 cQuery += "  B1_COD "+CRLF
 cQuery += " ,B1_DESC "+CRLF
+cQuery += " ,B1_UM "+CRLF
 cQuery += " ,B1_CONTA "+CRLF
-cQuery += " ,B1_USERLGA "+CRLF
+cQuery += " ,(CASE WHEN B1_USERLGA = '' THEN B1_USERLGI ELSE B1_USERLGA END) AS B1_USERLGA "+CRLF
 cQuery += " ,B1_UREV "+CRLF
 cQuery += " ,B1_XXSGRP "+CRLF
 cQuery += " ,ZI_DESC "+CRLF
@@ -79,6 +85,7 @@ oPExcel:SetTitulo("Utilização: conferência grupos e subgrupos")
 // Colunas da Planilha 1
 oPExcel:AddColX3("B1_COD")
 oPExcel:AddColX3("B1_DESC")
+oPExcel:AddColX3("B1_UM")
 
 oPExcel:AddCol("BLOQUEIO","TMP->BLOQUEIO","Bloqueio","")
 oPExcel:GetCol("BLOQUEIO"):SetTamCol(20)
@@ -93,6 +100,10 @@ oPExcel:AddColX3("B1_XXSGRP")
 oPExcel:AddColX3("ZI_DESC")
 oPExcel:AddColX3("B1_CONTA")
 oPExcel:AddColX3("CT1_DESC01")
+
+If Substr(cUltPrc,1,1) == "S"
+    oPExcel:AddCol("ULTPRC","U_GPrdSc1(TMP->B1_COD,'',0)","Último preço estimado","")
+EndIf
 
 // Adiciona a planilha 1
 oRExcel:AddPlan(oPExcel)
@@ -111,6 +122,7 @@ Local lRet := .F.
 If (Parambox(aParam     ,cProg+" - "+cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,cProg      ,.T.         ,.T.))
 	lRet	:= .T.
 	cB1Blq	:= mv_par01
+    cUltPrc := mv_par02
 Endif
 Return lRet
 

@@ -377,56 +377,56 @@ EndIf
 Return lRet
 
 
-// Tabela de Mneumônicos do RH
+// Tabela de Mnemônicos do RH
 User Function BKCodRH()
 Local aDescrRH := {}
 
 // Depto Pessoal
-aAdd(aDescrRH,{"ADF" ,"ADIC DE FUNCAO",					"21301001",	"LF"})
-aAdd(aDescrRH,{"COM" ,"COMISSAO",						"21301001",	"LF"})
-aAdd(aDescrRH,{"CXA" ,"PREST. CONTAS",					"11301002",	"CX"})
-aAdd(aDescrRH,{"DCH" ,"DIARIA DE CAMPO",				"21301001",	"LF"})
-aAdd(aDescrRH,{"DIN" ,"DESCONTO INDEVIDO",				"",			"LF"})
-aAdd(aDescrRH,{"DSA" ,"DIF SALARIO",					"21301001",	"LF"})
-aAdd(aDescrRH,{"EXM" ,"EXAME MEDICO",					"34202090",	"LF"})
-aAdd(aDescrRH,{"GRA" ,"GRATIFICACAO",					"21301001",	"LF"})
-aAdd(aDescrRH,{"HEX" ,"HORAS EXTRAS",					"21301001",	"LF"})
-aAdd(aDescrRH,{"HOS" ,"HOSPEDAGEM",						"11301002",	"DV"})
-aAdd(aDescrRH,{"LAC" ,"LIQUIDO AC",						"21301001",	"LF"})
-aAdd(aDescrRH,{"LAD" ,"ADIANTAMENTO",					"11301003",	"LF"})
-aAdd(aDescrRH,{"LAS" ,"ADTO SALARIAL",					"11301001",	"LF"})
-aAdd(aDescrRH,{"LD1" ,"13.o PARC 1",					"11301004",	"LF"})
-aAdd(aDescrRH,{"LD2" ,"13.o PARC 2",					"11301004",	"LF"})
-aAdd(aDescrRH,{"LDV" ,"LIQUIDOS DIVERSOS",				"21301001",	"LF"})
-aAdd(aDescrRH,{"LFE" ,"FERIAS",							"11301005",	"LF"})
-aAdd(aDescrRH,{"LFG" ,"FERIAS TRAB.",					"11301005",	"LF"})
-aAdd(aDescrRH,{"LPM" ,"PGTO MENSAL",					"21301001",	"LF"})
-aAdd(aDescrRH,{"LPMA","PGTO MENSAL",					"21301001",	"LF"})
-aAdd(aDescrRH,{"LRC" ,"RESCISAO",						"21301007",	"LF"})
-aAdd(aDescrRH,{"MFG" ,"MULTA FGTS",						"31201053",	"LF"})
-aAdd(aDescrRH,{"NDB" ,"NOTA DE DEBITO",					"11301002",	"CX"})
-aAdd(aDescrRH,{"PCT" ,"PCT VIAGEM",						"11301002",	"CX"})
-aAdd(aDescrRH,{"PEN" ,"PENSAO",							"21301010",	"LF"})
-aAdd(aDescrRH,{"REE" ,"REEMBOLSO",						"31201092",	"LF"})
-aAdd(aDescrRH,{"RMB" ,"REEMBOLSO VIAGEM",				"11301002",	"DV"})
-aAdd(aDescrRH,{"SOL" ,"SOLICITACAO",					"11301002",	"DV"})
-aAdd(aDescrRH,{"VA"  ,"VALE ALIMENTACAO",				"31201101",	"LF"})
-aAdd(aDescrRH,{"VR"  ,"VALE REFEICAO",					"31201045",	"LF"})
-aAdd(aDescrRH,{"VT"  ,"VALE TRANSPORTE",				"31201046",	"LF"})
+aAdd(aDescrRH,{"ADF" ,"ADIC DE FUNCAO",					"21301001",,	"LF"})
+aAdd(aDescrRH,{"COM" ,"COMISSAO",						"21301001",,	"LF"})
+aAdd(aDescrRH,{"CXA" ,"PREST. CONTAS",					"11301002",,	"CX"})
+aAdd(aDescrRH,{"DCH" ,"DIARIA DE CAMPO",				"21301001",,	"LF"})
+aAdd(aDescrRH,{"DIN" ,"DESCONTO INDEVIDO",				""		  ,,	"LF"})
+aAdd(aDescrRH,{"DSA" ,"DIF SALARIO",					"21301001",,	"LF"})
+aAdd(aDescrRH,{"EXM" ,"EXAME MEDICO",					"34202090",,	"LF"})
+aAdd(aDescrRH,{"GRA" ,"GRATIFICACAO",					"21301001",,	"LF"})
+aAdd(aDescrRH,{"HEX" ,"HORAS EXTRAS",					"21301001",,	"LF"})
+aAdd(aDescrRH,{"HOS" ,"HOSPEDAGEM",						"11301002",,	"DV"})
+aAdd(aDescrRH,{"LAC" ,"LIQUIDO AC",						"21301001",,	"LF"})
+aAdd(aDescrRH,{"LAD" ,"ADIANTAMENTO",					"11301003",,	"LF"})
+aAdd(aDescrRH,{"LAS" ,"ADTO SALARIAL",					"11301001",,	"LF"})
+aAdd(aDescrRH,{"LD1" ,"13.o PARC 1",					"11301004",,	"LF"})
+aAdd(aDescrRH,{"LD2" ,"13.o PARC 2",					"11301004",,	"LF"})
+aAdd(aDescrRH,{"LDV" ,"LIQUIDOS DIVERSOS",				"21301001",,	"LF"})
+aAdd(aDescrRH,{"LFE" ,"FERIAS",							"11301005",,	"LF"})
+aAdd(aDescrRH,{"LFG" ,"FERIAS TRAB.",					"11301005",,	"LF"})
+aAdd(aDescrRH,{"LPM" ,"PGTO MENSAL",					"21301001",,	"LF"})
+aAdd(aDescrRH,{"LPMA","PGTO MENSAL",					"21301001",,	"LF"})
+aAdd(aDescrRH,{"LRC" ,"RESCISAO",						"21301007",,	"LF"})
+aAdd(aDescrRH,{"MFG" ,"MULTA FGTS",						"31201053",,	"LF"})
+aAdd(aDescrRH,{"NDB" ,"NOTA DE DEBITO",					"11301002",,	"CX"})
+aAdd(aDescrRH,{"PCT" ,"PCT VIAGEM",						"11301002",,	"CX"})
+aAdd(aDescrRH,{"PEN" ,"PENSAO",							"21301010",,	"LF"})
+aAdd(aDescrRH,{"REE" ,"REEMBOLSO",						"31201092",,	"LF"})
+aAdd(aDescrRH,{"RMB" ,"REEMBOLSO VIAGEM",				"11301002",,	"DV"})
+aAdd(aDescrRH,{"SOL" ,"SOLICITACAO",					"11301002",,	"DV"})
+aAdd(aDescrRH,{"VA"  ,"VALE ALIMENTACAO",				"31201101",,	"LF"})
+aAdd(aDescrRH,{"VR"  ,"VALE REFEICAO",					"31201045",,	"LF"})
+aAdd(aDescrRH,{"VT"  ,"VALE TRANSPORTE",				"31201046",,	"LF"})
 
 // Novos para ADP
-aAdd(aDescrRH,{"LPL" ,"LIQUIDO PARTICIPAÇÃO LUCROS",	"21503002",	"LF"})
-aAdd(aDescrRH,{"EP1" ,"EMPRESTIMO CONSIGNADO BV",		"21301015",	"LF"})
-aAdd(aDescrRH,{"EP2" ,"EMPRESTIMO CONSIGNADO PORTOCRED","21301016",	"LF"})
-aAdd(aDescrRH,{"EP3" ,"EMPRESTIMO CONSIGNADO ITAÚ",		"21301018",	"LF"})
-aAdd(aDescrRH,{"MSIN","MENSALIDADE SINDICAL",			"21301014",	"LF"})
-aAdd(aDescrRH,{"FGTS","FGTS",							"21301005",	"LF"})
-aAdd(aDescrRH,{"INSS","INSS",							"21301004",	"LF"})
-aAdd(aDescrRH,{"IRRF","IRRF",							"21401005",	"LF"})
-aAdd(aDescrRH,{"RPA" ,"RPA" ,							"21301012",	"LF"})
-aAdd(aDescrRH,{"ISS" ,"ISS" ,							"21401012",	"LF"})
-aAdd(aDescrRH,{"PJ"  ,"PJ" ,							"21101001",	"LF"})
-aAdd(aDescrRH,{"FORN","FORNECEDORES",					"21101001",	"CP"})
+aAdd(aDescrRH,{"LPL" ,"LIQUIDO PARTICIPAÇÃO LUCROS",	"21503002",,	"LF"})
+aAdd(aDescrRH,{"EP1" ,"EMPRESTIMO CONSIGNADO BV",		"21301015",,	"LF"})
+aAdd(aDescrRH,{"EP2" ,"EMPRESTIMO CONSIGNADO PORTOCRED","21301016",,	"LF"})
+aAdd(aDescrRH,{"EP3" ,"EMPRESTIMO CONSIGNADO ITAÚ",		"21301018",,	"LF"})
+aAdd(aDescrRH,{"MSIN","MENSALIDADE SINDICAL",			"21301014",,	"LF"})
+aAdd(aDescrRH,{"FGTS","FGTS",							"21301005",,	"LF"})
+aAdd(aDescrRH,{"INSS","INSS",							"21301004",,	"LF"})
+aAdd(aDescrRH,{"IRRF","IRRF",							"21401005",,	"LF"})
+aAdd(aDescrRH,{"RPA" ,"RPA" ,							"21301012",,	"LF"})
+aAdd(aDescrRH,{"ISS" ,"ISS" ,							"21401012",,	"LF"})
+aAdd(aDescrRH,{"PJ"  ,"PJ" ,							"21101001",,	"LF"})
+aAdd(aDescrRH,{"FORN","FORNECEDORES",					"21101001",,	"CP"})
 
 Return aDescrRH
 
@@ -445,9 +445,45 @@ Return cDescr
 
 // Listagem de Tipos do RH
 User Function ListRH()
-Local aCabec	:= {"Tipo","Descrição","Conta Contábil","Origem"}
+Local cProg 	:= "LISTRH"
+Local cTitulo 	:= "Mnemônicos - RH"
+Local cVersao	:= "27/05/24 - RExcel"
+Local aDados	:= U_BKCodRH()
+Local cDescr	:= "Relação de mnemônicos do RH"
 
-u_ArrXls("LISTRH",U_BKCodRH(),"Mnemônicos dos titulos do RH",aCabec)
+// Definição do Arq Excel
+oRExcel := RExcel():New(cProg)
+oRExcel:SetTitulo(cTitulo)
+oRExcel:SetVersao(cVersao)
+oRExcel:SetDescr(cDescr)
+oRExcel:SetParam({})
+
+// Definição da Planilha 1
+oPExcel:= PExcel():New(cProg,aDados)
+
+// Colunas da Planilha 1
+oPExcel:AddColX3("E2_XXTIPBK")
+
+oPExcel:AddCol("TPDESCR","","Descrição","")
+oPExcel:GetCol("TPDESCR"):SetTamCol(35)
+
+oPExcel:AddColX3("CT1_CONTA")
+oPExcel:GetCol("CT1_CONTA"):SetHAlign("C")
+
+oPExcel:AddCol("CTADESCR","Posicione('CT1',1,xFilial('CT1')+axCampo[3],'CT1_DESC01')","Conta Contábil","")
+oPExcel:GetCol("CTADESCR"):SetTamCol(40)
+
+oPExcel:AddCol("ORIGEM","","Origem","")
+oPExcel:GetCol("ORIGEM"):SetTamanho(10)
+oPExcel:GetCol("ORIGEM"):SetHAlign("C")
+
+
+
+// Adiciona a planilha 1
+oRExcel:AddPlan(oPExcel)
+
+// Cria arquivo Excel
+oRExcel:Create()
 
 Return Nil
 

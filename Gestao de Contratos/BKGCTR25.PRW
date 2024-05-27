@@ -66,8 +66,9 @@ AADD(aCabs  ,"E-Mail")
 AADD(aCampos,"QCN9->CN9_DTINIC")
 AADD(aCabs  ,"Dt. Inicio")
 
-AADD(aCampos,"u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)")
-AADD(aCabs  ,"Vigencia")
+//AADD(aCampos,"u_VigContrat(QCN9->CN9_NUMERO+QCN9->CN9_REVISA,QCN9->CN9_XXDVIG)")
+AADD(aCampos,"QCN9->CN9_XXDVIG")
+AADD(aCabs  ,"Vigência")
 
 AADD(aCampos,"QCN9->CN9_XXNRBK")
 AADD(aCabs  ,"Gestor "+FWEmpName(cEmpAnt))

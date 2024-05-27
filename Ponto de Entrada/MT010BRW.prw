@@ -18,7 +18,7 @@ If __cUserID = "000000"
 	AADD( aRotina, {OemToAnsi("Substituição de Produto"), "U_BKCOMA01", 0, 4 } )
 	AADD( aRotina, {OemToAnsi("Exclusão de Produtos")	, "U_BKCOMA1E", 0, 4 } )
 EndIf
-AADD( aRotina, {OemToAnsi("Relação de Produtos x Grupos x Subgrupos")	, "U_BKCOMR19", 0, 4 } )
+AADD( aRotina, {OemToAnsi("Relação de Prod. Grupos Subgrp Valor"), "U_BKCOMR19", 0, 4 } )
 Return aRotY
 
 
