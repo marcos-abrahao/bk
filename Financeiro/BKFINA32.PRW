@@ -140,7 +140,7 @@ oAll:bChange := {|| MarkAll(lAll,aTitBor,oSayTot), oListId:Refresh()}
 oSayTot := tSay():New(003,100,{||'Total Selecionado: '+ TransForm(nTotal,"@E 99,999,999.99")},oPanelUp,,,,,,.T.,,,200,20)
 
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","Borderô","Banco","Forma","Prefixo","Número","Parcela","Tipo","Nome","Emissão","Vencimento","Total R$","Agência","Conta","Digito","Tipo","Tp","Chave PIX" SIZE 320,180 OF oPanelDown PIXEL 
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","Borderô","Banco","Forma","Prefixo","Número","Parcela","Tipo","Nome","Emissão","Vencimento","Total R$","Agência","Conta","Digito","Tipo","Chave PIX","Tp" SIZE 320,180 OF oPanelDown PIXEL 
 oListID:SetArray(aTitBor)
 oListID:bLine := {|| {If(aTitBor[oListId:nAt][CP_MARK],oOk,oNo),;
 						aTitBor[oListId:nAt][CP_NUMBOR],;
@@ -533,6 +533,7 @@ If nHandle > 0 .OR. nHandle2 > 0
 				Bcn341D += PAD(aTitGer[nI,CP_CHPIX],100)	//128 227 CHAVE DE ENDEREÇAMENTO NOTA 40
 				Bcn341D += SPACE(3)							//228 230 COMPLEMENTO DE REGISTRO
 				Bcn341D += SPACE(10)						//231 240 CÓDIGO DE OCORRÊNCIAS NO RETORNO NOTA 8
+				Bcn341D += cCrLf
 
 				//Grava Bordero Detalhe - Segmento B
 				fWrite(nHandle2,Bcn341D)
@@ -665,7 +666,7 @@ cQuery += "	 ,(CASE WHEN E2_SALDO = E2_VALOR "+CRLF
 cQuery += "	 		THEN E2_VALOR + E2_ACRESC - E2_DECRESC"+CRLF
 cQuery += "	 		ELSE E2_SALDO END) AS SALDO"+CRLF
 
-cQuery += "	 ,(CASE WHEN E2_XTIPOPG = ' ' THEN F1_XTIPOPG ELSE E2_XTIPOPG) AS FORMPGT"+CRLF
+cQuery += "	 ,(CASE WHEN E2_XTIPOPG = ' ' THEN F1_XTIPOPG ELSE E2_XTIPOPG END) AS FORMPGT"+CRLF
 
 cQuery += "	 ,F1_DOC"+CRLF
 cQuery += "	 ,F1_XNUMPA"+CRLF

@@ -637,7 +637,9 @@ For nE := 1 To Len(aEmpresas)
 	EndIf
 Next
 
-cQuery += "ORDER BY SF1.F1_XXPVPGT,SF1.F1_DTDIGIT,SF1.F1_DOC"+CRLF
+cQuery += "ORDER BY F1_XXLIB,F1_XXUAPRV,SF1.F1_XXPVPGT,SF1.F1_DTDIGIT,SF1.F1_DOC"+CRLF
+
+u_LogMemo("RESTLIBPN-2.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
 
@@ -1387,7 +1389,7 @@ let url = '#iprest#/RestLibPN/v1?empresa='+f1empresa+'&prenota='+f1recno+'&userl
 async function showPN(f1empresa,f1recno,userlib,canLib,cbtnac) {
 
 document.getElementById(cbtnac).disabled = true;
-document.getElementById(cbtnac).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+//document.getElementById(cbtnac).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
 
 let prenota = await getPN(f1empresa,f1recno,userlib);
 let itens = '';
@@ -1454,12 +1456,12 @@ if (canLib === 1){
 	}
 
 	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' ' || prenota['F1_XXLIB'] == 'R'){
-		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'A\')">Aprovar</button>';
+		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'A\',\'N\',\''+cbtnac+'\')">Aprovar</button>';
 		document.getElementById("btnapr").innerHTML = btnL;
 	} 
 	
 	if (prenota['LIBERA'] == 'S'){
-		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\')">Liberar</button>';
+		let btnL = '<button type="button" class="btn btn-outline-success" onclick="'+cClick+'(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\',\'N\',\''+cbtnac+'\')">Liberar</button>';
 		document.getElementById("btnlib").innerHTML = btnL;
 	}
 
@@ -1467,12 +1469,12 @@ if (canLib === 1){
 	document.getElementById("inpest").innerHTML = inpE;
 
 	if (prenota['F1_XXLIB'] === 'A'){
-		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\')">Restringir</button>';
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'E\',\'N\',\''+cbtnac+'\')">Restringir</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
 
 	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] == ' '){
-		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'R\',\'N\')">Reprovar</button>';
+		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'R\',\'N\',\''+cbtnac+'\')">Reprovar</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
 
@@ -1517,20 +1519,22 @@ foot = '<th scope="row" colspan="8" style="text-align:right;">'+prenota['F1_GERA
 document.getElementById("d1Foot").innerHTML = foot;
 
 $("#titLib").text('Liberação de Pré-Nota - Empresa: '+prenota['EMPRESA'] + ' - Usuário: '+prenota['USERNAME']);
-$('#meuModal').modal('show');
-$('#meuModal').on('hidden.bs.modal', function () {
-	location.reload();
-	})
+$('#meuModal').modal('show'); 
+
+<!-- $('#meuModal').on('hidden.bs.modal', function () {-->
+<!-- location.reload();-->
+<!-- })-->
+
 }
 
-async function avalForn(f1empresa,f1recno,userlib,acao){
+async function avalForn(f1empresa,f1recno,userlib,acao,avaliar,cbtnac){
 
-let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\',\'S\')">Liberar</button>';
+let btnL = '<button type="button" class="btn btn-outline-success" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'L\',\'S\',\''+cbtnac+'\')">Liberar</button>';
 document.getElementById("btnlib2").innerHTML = btnL;
 $('#avalModal').modal('show');
 }
 
-async function libdoc(f1empresa,f1recno,userlib,acao,avaliar){
+async function libdoc(f1empresa,f1recno,userlib,acao,avaliar,cbtnac){
 let resposta = ''
 let SF1Motivo = document.getElementById("SF1Motivo").value;
 let SF1Avali = ''
@@ -1579,12 +1583,14 @@ fetch('#iprest#/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='
 		// this is the data we get after putting our data,
 		console.log(data);
 
-	  //document.getElementById("titConf").innerHTML = data["liberacao"];
 	  $('#avalModal').modal('hide');
 	  $("#titConf").text(data.liberacao);
+
+	  $('#'+cbtnac).text(data.liberacao);
+
 	  $('#confModal').modal('show');
 	  $('#confModal').on('hidden.bs.modal', function () {
-	  $('#meuModal').modal('toggle');
+	  	$('#meuModal').modal('toggle');
 	  })
 	})
 }

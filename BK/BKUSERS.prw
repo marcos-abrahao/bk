@@ -566,35 +566,6 @@ EndIf
 
 Return lRet
 
-// Contratos que devem ser avaliados na Pré-Nota 24/02/23
-User Function CtrAval()
-cRet := "281000577" // UTGCA
-Return cRet
-
-
-// Retornar se algum centro de custo foi usado na Nota/Prenota
-User Function CtrInD1(cCtr,cChaveF1)
-Local lRet := .F.
-Local aAreaSD1   := SD1->(GetArea())
-
-Default cCtr     := u_CtrAval()
-Default cChaveF1 := SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA)
-
-SD1->(dbSetOrder(1))  // * Itens da N.F. de Compra
-If SD1->(DbSeek(xFilial("SD1")+cChaveF1))
-	Do While !EOF() .AND. SD1->(D1_FILIAL+D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA)  == xFilial("SD1")+cChaveF1
-		If ALLTRIM(SD1->D1_CC) $ cCtr
-			lRet := .T.
-			Exit
-		EndIf
-		SD1->(dbSkip())
-	EndDo
-EndIf
-
-SD1->(RestArea(aAreaSD1))
-
-Return lRet
-
 
 // Gerente Compras
 User Function GerCompras
