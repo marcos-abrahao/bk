@@ -316,7 +316,7 @@ Begin Sequence
 		If !Empty(cxTipoPg)
 			cFormaPgto := TRIM(cxTipoPg)
 			If TRIM(cxTipoPg) == "DEPOSITO"
-				If Empty(SF1->F1_XBANCO) .AND. !IsFornBK(SF1->F1_FORNECE)
+				If Empty(SF1->F1_XBANCO) .AND. !u_IsFornBK(SF1->F1_FORNECE)
 			 		cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
                 Else
 					cDadosBanc := "Bco: "+ALLTRIM(SF1->F1_XBANCO)+" Ag: "+ALLTRIM(SF1->F1_XAGENC)+" C/C: "+ALLTRIM(SF1->F1_XNUMCON)

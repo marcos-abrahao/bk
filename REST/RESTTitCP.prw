@@ -1799,6 +1799,10 @@ For nE := 1 To Len(aEmpresas)
 	cNomeEmp := aEmpresas[nE,3]
 
 	If nE > 1
+		// Remover Tero e Cmog para a query não ficar muito grande
+		If Substr(cEmpr,1,1) == "9"
+			Loop
+		EndIf
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
@@ -1961,7 +1965,7 @@ cQuery += "  ,(CASE WHEN ISNULL(Z2_BORDERO,E2_XXLOTEB) = ' ' THEN E2_XXLOTEB ELS
 cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E2_VENCREA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
-cQuery := STRTRAN(cQuery,CHR(9),"")
+cQuery := STRTRAN(cQuery,CHR(9)," ")
 cQuery := STRTRAN(cQuery,"  "," ")
 //u_LogMemo("RESTTITCP1.SQL",cQuery)
 
@@ -1981,7 +1985,7 @@ Local cFormaPgto:= ""
 If !Empty(cxTipoPg)
 	cFormaPgto := TRIM(cxTipoPg)
 	If TRIM(cxTipoPg) == "DEPOSITO"
-		If Empty((cQrySE2)->F1_XBANCO) .AND. !IsFornBK((cQrySE2)->F1_FORNECE)
+		If Empty((cQrySE2)->F1_XBANCO) .AND. !u_IsFornBK((cQrySE2)->E2_FORNECE)
 	 		cDadosBanc := "Bco: "+ALLTRIM((cQrySE2)->A2_BANCO)+" Ag: "+ALLTRIM((cQrySE2)->A2_AGENCIA)+" C/C: "+ALLTRIM((cQrySE2)->A2_NUMCON)
 		Else
 			cDadosBanc := "Bco: "+ALLTRIM((cQrySE2)->F1_XBANCO)+" Ag: "+ALLTRIM((cQrySE2)->F1_XAGENC)+" C/C: "+ALLTRIM((cQrySE2)->F1_XNUMCON)
@@ -2053,4 +2057,3 @@ Else
 Endif
 
 Return lRet
-

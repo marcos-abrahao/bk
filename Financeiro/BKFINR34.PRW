@@ -357,6 +357,9 @@ cQuery += "	 ,E2_XXLOTEB"+CRLF
 cQuery += "	 ,E2_NUMBOR"+CRLF
 cQuery += "	 ,SE2.R_E_C_N_O_ AS REGSE2"+CRLF
 cQuery += "	 ,A2_NOME"+CRLF
+cQuery += "	 ,A2_BANCO"+CRLF
+cQuery += "	 ,A2_AGENCIA"+CRLF
+cQuery += "	 ,A2_NUMCON"+CRLF
 cQuery += "	 ,A2_TIPO"+CRLF
 cQuery += "	 ,A2_CGC"+CRLF
 
