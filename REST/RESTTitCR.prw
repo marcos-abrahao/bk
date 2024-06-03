@@ -520,14 +520,14 @@ line-height: 1rem;
 <br>
 <div class="container-fluid">
 <div class="table-responsive-sm">
-<table id="tableSE1" class="table">
+<table id="tableSE1" class="table" style="width:100%">
 <thead>
 <tr>
 <th scope="col"></th>
 <th scope="col">Empresa</th>
 <th scope="col">Tipo</th>
-<th scope="col">Título</th>
-<th scope="col">Cliente</th>
+<th scope="col" width="7%" >Título</th>
+<th scope="col" width="20%" >Cliente</th>
 <th scope="col">Vencto</th>
 <th scope="col">Emissão</th>
 <th scope="col" style="text-align:center;">Pedido</th>
@@ -542,22 +542,22 @@ line-height: 1rem;
 </thead>
 <tbody id="mytable">
 <tr>
-  <th scope="col">Carregando Títulos...</th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
+  <td scope="col">Carregando Títulos...</td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
 </tr>
 </tbody>
 </table>
@@ -657,6 +657,24 @@ line-height: 1rem;
        </div>
         <!-- Rodapé do modal-->
         <div class="modal-footer">
+         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+       </div>
+     </div>
+   </div>
+</div>
+
+<div id="altStatus" class="modal" tabindex="-1">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 id="titToken" class="modal-title">Token gerado:</h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+       </div>
+      <div class="modal-body">
+	  	 <!-- <label for="txtToken" class="form-label">Token gerado:</label> -->
+		<input type="text" class="form-control form-control-sm" id="txtToken" size="100" value="">
+      </div>
+       <div class="modal-footer">
          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
        </div>
      </div>
@@ -931,6 +949,7 @@ $('#E2Modal').on('hidden.bs.modal', function () {
 	})
 }
 
+/// aqui criar a função altStatus
 
 async function ChgStatus(empresa,e1recno,userlib,acao,btnids){
 let resposta = ''
