@@ -1238,7 +1238,7 @@ line-height: 1rem;
    </div>
 </div>
 
- <div id="confModal" class="modal" tabindex="-1">
+<div id="confModal" class="modal" tabindex="-1">
    <div class="modal-dialog">
      <div class="modal-content">
        <div class="modal-header">
