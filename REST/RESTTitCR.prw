@@ -78,7 +78,7 @@ oJson:FromJSON(cJson)
 
 If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-	lRet := fStatus(::empresa,::e1recno,::acao,@cMsg)
+	lRet := fStatus(::empresa,::e1recno,::acao,@cMsg,oJson)
 
 EndIf
 
@@ -96,12 +96,20 @@ Return lRet
 
 
 
-Static Function fStatus(empresa,e1recno,acao,cMsg)
+Static Function fStatus(empresa,e1recno,acao,cMsg,oJson)
 Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSE1	:= "SE1"+empresa+"0"
 Local cQrySE1	:= GetNextAlias()
 Local cNum		:= ""
+Local cTipo		:= ""
+
+// Dados para gravar
+Local cZyPrev	:= STRTRAN(AllTrim(oJson['zyprev']),"-","")
+Local cZYObs	:= AllTrim(oJson['zyobs'])
+Local aAreaSZY
+Local cNewAls
+Local cModo
 
 Default cMsg	:= ""
 Default cMotivo := ""
@@ -109,9 +117,12 @@ Default cMotivo := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cQuery := "SELECT "
-cQuery += "  SE1.E1_XXTPPRV,"
-cQuery += "  SE1.D_E_L_E_T_ AS E1DELET,"
-cQuery += "  SE1.E1_NUM "
+cQuery += "   SE1.E1_TIPO"
+cQuery += "  ,SE1.E1_PREFIXO"
+cQuery += "  ,SE1.E1_NUM"
+cQuery += "  ,SE1.E1_PARCELA"
+cQuery += "  ,SE1.E1_XXTPPRV"
+cQuery += "  ,SE1.D_E_L_E_T_ AS E1DELET"
 cQuery += " FROM "+cTabSE1+" SE1 "
 cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno
 
@@ -120,6 +131,7 @@ dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 // E1_XXTPPRV: 0=Sem Previsao;1=Aguardando Previsao;2=Previsao Informada
 
 cNum := (cQrySE1)->E1_NUM
+cTipo := (cQrySE1)->E1_TIPO
 Do Case
 	Case (cQrySE1)->(Eof()) 
 		cMsg:= "não encontrado"
@@ -129,8 +141,10 @@ Do Case
 		// Alterar o Status
 		cMsg   := acao
 		cQuery := "UPDATE "+cTabSE1+CRLF
-		cQuery += "  SET E1_XXTPPRV = '"+SUBSTR(acao,1,1)+"',"+CRLF
-		cQuery += "      E1_XXOPER = '"+__cUserId+"'"+CRLF
+		cQuery += "  SET  E1_XXTPPRV = '"+SUBSTR(acao,1,1)+"'"+CRLF
+		cQuery += "      ,E1_XXDTPRV = '"+cZyPrev+"'"+CRLF
+		cQuery += "      ,E1_XXOPER  = '"+__cUserId+"'"+CRLF
+		cQuery += "      ,E1_XXHISTM = CONVERT(VARBINARY(MAX),'"+cZYObs+"')"+CRLF
 		cQuery += " FROM "+cTabSE1+" SE1"+CRLF
 		cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno+CRLF
 
@@ -139,6 +153,40 @@ Do Case
 		Else
 			lRet := .T.
 		EndIf
+
+
+		// Gravar Log de alterações na tabela SZY
+		dbSelectArea("SZY")
+		aAreaSZY	:= SZY->( GetArea() )
+		cModo		:= FWModeAccess("SZY")
+		cNewAls		:= GetNextAlias() //Obtem novo Alias
+
+		IF EmpOpenFile(cNewAls,"SZY",1,.T.,empresa,@cModo)
+
+			bBlock := ErrorBlock( { |e| u_LogMemo("RESTTITCR.LOG",e:Description) } )
+			BEGIN SEQUENCE
+				RecLock(cNewAls,.T.)
+				(cNewAls)->ZY_FILIAL	:= xFilial("SZY")
+				(cNewAls)->ZY_TIPO		:= cTipo
+				(cNewAls)->ZY_NUM		:= cNum
+				(cNewAls)->ZY_PREFIXO	:= (cQrySE1)->E1_PREFIXO
+				(cNewAls)->ZY_PARCELA	:= (cQrySE1)->E1_PARCELA
+				(cNewAls)->ZY_DATA		:= DATE()
+				(cNewAls)->ZY_HORA		:= SUBSTR(TIME(),1,5)
+				(cNewAls)->ZY_OBS		:= cZYObs
+				(cNewAls)->ZY_STATUS	:= SUBSTR(acao,1,1)
+				(cNewAls)->ZY_OPER		:= __cUserId
+				// falta campo ZY_DTPREV
+				(cNewAls)->(MsUnlock())
+				(cNewAls)->(dbCloseArea())
+			RECOVER
+				lRet := .F.
+			END SEQUENCE
+			ErrorBlock(bBlock)
+		EndIF
+
+		RestArea( aAreaSZY )
+
 EndCase
 
 cMsg := cNum+" "+cMsg
@@ -304,8 +352,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
 	aListCR[nPos]['SALDO'] 	    := TRANSFORM((cQrySE1)->SALDO,"@E 999,999,999.99")
 	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
-	aListCR[nPos]['PREVISAO']	:= (cQrySE1)->(E1_XXDTPRV)
-	//aListCR[nPos]['HIST']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHIST), "CP1252", "UTF-8") 
+	aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
 	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
 	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
 	aListCR[nPos]['CONTRATO']	:= ALLTRIM((cQrySE1)->C5_MDCONTR)
@@ -667,15 +714,20 @@ line-height: 1rem;
    <div class="modal-dialog">
      <div class="modal-content">
        <div class="modal-header">
-         <h5 id="titToken" class="modal-title">Token gerado:</h5>
+         <h5 id="AltTitulo" class="modal-title">Título:</h5>
          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
        </div>
       <div class="modal-body">
-	  	 <!-- <label for="txtToken" class="form-label">Token gerado:</label> -->
-		<input type="text" class="form-control form-control-sm" id="txtToken" size="100" value="">
+
+        <label for="ZYPrev" class="form-label">Previsão de Recebimento:</label>
+		<input class="form-control me-2" type="date" id="ZYPrev" value="#ZYPrev#" />
+
+        <label for="ZYObs" class="form-label">Histórico:</label>
+	    <textarea class="form-control form-control-sm" id="ZYObs" rows="4" value="#ZYObs#"></textarea>
       </div>
        <div class="modal-footer">
          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+		 <div id="btnAlt"></div>
        </div>
      </div>
    </div>
@@ -779,10 +831,10 @@ if (Array.isArray(titulos)) {
 			trHTML += '</button>'
 
 			trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\')">A Receber</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\')">Sem Previsao</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\')">Aguardando Previsao</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\')">Previsao Informada</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\')">A Receber</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\')">Sem Previsao</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\')">Aguardando Previsao</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\')">Previsao Informada</button>';
 		trHTML += '</div>'
 	trHTML += '</td>'
 
@@ -864,6 +916,7 @@ tableSE1 = $('#tableSE1').DataTable({
 function format(d) {
 	var anexos = '';
     // `d` is the original data object for the row
+	
     return (
         '<dl>' +
         '<dt>Contrato:&nbsp;&nbsp;'+d.Contrato+'</dt>' +
@@ -949,13 +1002,28 @@ $('#E2Modal').on('hidden.bs.modal', function () {
 	})
 }
 
-/// aqui criar a função altStatus
+
+async function AltStatus(empresa,e1recno,userlib,acao,btnids){
+let btnAlt = '<button type="button" class="btn btn-outline-success" onclick="ChgStatus(\''+empresa+'\',\''+e1recno+'\',\'#userlib#\',\''+acao+'\','+'\''+btnids+'\')">Salvar</button>';
+document.getElementById("btnAlt").innerHTML = btnAlt;
+$('#altStatus').modal('show');
+}
+
 
 async function ChgStatus(empresa,e1recno,userlib,acao,btnids){
 let resposta = ''
-let dataObject = {	liberacao:'ok' };
 let cbtn = '';
-	
+
+let ZYPrev = document.getElementById("ZYPrev").value;
+let ZYObs  = document.getElementById("ZYObs").value;
+
+let dataObject = {	liberacao:'ok',
+					zyprev:ZYPrev,
+					zyobs:ZYObs,
+				 };
+
+$('#altStatus').modal('hide');
+
 fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
@@ -979,6 +1047,13 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 			cbtn = 'Previsao Informada ';
 		}
 		document.getElementById(btnids).textContent = cbtn;
+
+   		//var tr = $(this).closest('tr');
+    	//var row = tableSE1.row(tr);
+ 
+		//tableSE1.row(tr).data().Histórico = ZYObs
+ 	    //tableSE1.row(tr).invalidate().draw();
+
 	})
 }
 
@@ -1028,6 +1103,7 @@ cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
 cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
 cHtml := STRTRAN(cHtml,"#datavencI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
 cHtml := STRTRAN(cHtml,"#datavencF#",SUBSTR(::vencfim,1,4)+"-"+SUBSTR(::vencfim,5,2)+"-"+SUBSTR(::vencfim,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#ZYPrev#",STR(YEAR(DATE()),4)+"-"+STRZERO(MONTH(DATE()),2)+"-"+STRZERO(DAY(DATE()),2))   // Formato: 2023-10-24 input date
 
 // --> Seleção de Empresas
 nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })

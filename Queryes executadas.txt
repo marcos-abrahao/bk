@@ -3,9 +3,12 @@
 
 
 ==============================================================
--- 
-
-
+-- 04/06/24 - Acerto descrição de produtos da CNB
+SELECT CNB_CONTRA,CNB_PRODUT,CNB_DESCRI,B1_COD,B1_DESC FROM CNB010
+--UPDATE CNB010 SET CNB_DESCRI = B1_DESC FROM CNB010
+LEFT JOIN SB1010 ON CNB_PRODUT = B1_COD AND SB1010.D_E_L_E_T_ = ''
+WHERE CNB010.D_E_L_E_T_='' 
+AND B1_DESC <> CNB_DESCRI  
 
 ==============================================================
 -- 14/05/2024
