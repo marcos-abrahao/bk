@@ -176,7 +176,7 @@ Do Case
 				(cNewAls)->ZY_OBS		:= cZYObs
 				(cNewAls)->ZY_STATUS	:= SUBSTR(acao,1,1)
 				(cNewAls)->ZY_OPER		:= __cUserId
-				// falta campo ZY_DTPREV
+				(cNewAls)->ZY_DTPREV	:= STOD(cZyPrev)
 				(cNewAls)->(MsUnlock())
 				(cNewAls)->(dbCloseArea())
 			RECOVER
@@ -509,10 +509,14 @@ BEGINCONTENT var cHTML
 <!-- Bootstrap CSS -->
 <!-- https://datatables.net/manual/styling/bootstrap5   examples-->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/2.0.2/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
+
+<!-- Favicon -->
+#BKFavIco#
+
 <style type="text/css">
 .bk-colors{
  background-color: #9E0000;
@@ -589,8 +593,8 @@ line-height: 1rem;
 </thead>
 <tbody id="mytable">
 <tr>
-  <td scope="col">Carregando Títulos...</td>
   <td scope="col"></td>
+  <td scope="col"><b>Carregando Títulos...</b></td>
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
@@ -737,7 +741,7 @@ line-height: 1rem;
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
 <!-- JavaScript Bundle with Popper -->
 <!-- https://getbootstrap.com/docs/5.3/getting-started/download/ -->
@@ -745,12 +749,12 @@ line-height: 1rem;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
 <!-- https://datatables.net/ -->
-<script src="https://cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.2/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
 
 <!-- Buttons -->
 <!-- https://cdn.datatables.net/buttons/ -->
-<script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
 
 <!-- https://cdnjs.com/libraries/jszip -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -760,7 +764,7 @@ line-height: 1rem;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
 
 <!-- https://cdn.datatables.net/buttons -->
-<script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
 
 <script>
 
@@ -778,20 +782,22 @@ async function getCRs() {
 async function loadTable() {
 let titulos = await getCRs();
 let trHTML = '';
-let nlin = 0;
 let ccbtn = '';
-let cbtnids = '';
-let cbtne1 = '';
 let anexos = '';
-let cStatus = ''
+let cbtne1  = '';
+let cbtnids = '';
+let nlin = 0;
+let clin = '';
 
 if (Array.isArray(titulos)) {
 	titulos.forEach(object => {
 	let cStatus  = object['STATUS'];
 	let cEmpresa = object['EMPRESA'].substring(0,2);
 
-	nlin += 1;
-	cbtne1 = 'btnz2'+nlin;
+	clin = nlin.toString()
+
+	cbtne1  = 'btne1'+nlin;
+	cbtnids = 'btnac'+nlin;
 
 	if (cStatus == ' '){
 	 ccbtn = 'dark';
@@ -811,8 +817,8 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td></td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['TIPO']+'</td>';
-	trHTML += '<td>'+object['TITULO']+'</td>';
-	trHTML += '<td>'+object['CLIENTE']+'</td>';
+	trHTML += '<td id=titulo'+clin+'>'+object['TITULO']+'</td>';
+	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
 	trHTML += '<td>'+object['VENC']+'</td>';
 	trHTML += '<td>'+object['EMISSAO']+'</td>';
 	trHTML += '<td>'+object['PEDIDO']+'</td>';
@@ -821,32 +827,36 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
-	cbtnids = 'btnac'+nlin;
-
 	trHTML += '<td>'
 		// Botão para mudança de status
+
+		
 		trHTML += '<div class="btn-group">'
 			trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
 			trHTML += cStatus
 			trHTML += '</button>'
 
 			trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\')">A Receber</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\')">Sem Previsao</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\')">Aguardando Previsao</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\')">Previsao Informada</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\','+'\''+clin+'\')">A Receber</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
+			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
 		trHTML += '</div>'
+		
 	trHTML += '</td>'
 
-	trHTML += '<td>'+object['PREVISAO']+'</td>';
+	trHTML += '<td id=prev'+clin+'>'+object['PREVISAO']+'</td>';
 
-	trHTML += '<td>'+object['OPER']+'</td>';
+	trHTML += '<td id=oper'+clin+'>'+object['OPER']+'</td>';
 
-	trHTML += '<td>'+object['HISTM']+'</td>';
+	trHTML += '<td id=hist'+clin+'>'+object['HISTM']+'</td>';
 
 	trHTML += '<td>'+object['CONTRATO']+'</td>';
 
 	trHTML += '</tr>';
+
+	nlin += 1;
+
 	});
 } else {
     trHTML += '<tr>';
@@ -1003,14 +1013,17 @@ $('#E2Modal').on('hidden.bs.modal', function () {
 }
 
 
-async function AltStatus(empresa,e1recno,userlib,acao,btnids){
-let btnAlt = '<button type="button" class="btn btn-outline-success" onclick="ChgStatus(\''+empresa+'\',\''+e1recno+'\',\'#userlib#\',\''+acao+'\','+'\''+btnids+'\')">Salvar</button>';
+async function AltStatus(empresa,e1recno,userlib,acao,btnids,clin){
+let btnAlt = '<button type="button" class="btn btn-outline-success" onclick="ChgStatus(\''+empresa+'\',\''+e1recno+'\',\'#userlib#\',\''+acao+'\','+'\''+btnids+'\','+'\''+clin+'\')">Salvar</button>';
 document.getElementById("btnAlt").innerHTML = btnAlt;
+document.getElementById("AltTitulo").textContent = "Título "+document.getElementById("titulo"+clin).textContent + ' - '+document.getElementById("cliente"+clin).textContent;
+document.getElementById("ZYObs").value = '';
+
 $('#altStatus').modal('show');
 }
 
 
-async function ChgStatus(empresa,e1recno,userlib,acao,btnids){
+async function ChgStatus(empresa,e1recno,userlib,acao,btnids,clin){
 let resposta = ''
 let cbtn = '';
 
@@ -1021,6 +1034,8 @@ let dataObject = {	liberacao:'ok',
 					zyprev:ZYPrev,
 					zyobs:ZYObs,
 				 };
+
+let nlin = parseInt(clin,10)
 
 $('#altStatus').modal('hide');
 
@@ -1047,12 +1062,14 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 			cbtn = 'Previsao Informada ';
 		}
 		document.getElementById(btnids).textContent = cbtn;
-
+		document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(2,4)
+		document.getElementById('oper'+clin).textContent = '#cUserName#';
+		document.getElementById('hist'+clin).textContent = ZYObs;
    		//var tr = $(this).closest('tr');
     	//var row = tableSE1.row(tr);
  
-		//tableSE1.row(tr).data().Histórico = ZYObs
- 	    //tableSE1.row(tr).invalidate().draw();
+		//tableSE1.row(nlin).data().Histórico = ZYObs
+ 	    //tableSE1.row(nlin).invalidate().draw();
 
 	})
 }
@@ -1092,6 +1109,7 @@ window.open("#iprest#/RestTitCR/v2?empresa=#empresa#&vencini="+newvamdi+"&vencfi
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
 
 If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
@@ -1201,6 +1219,8 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E1_XXTPPRV"+CRLF
 	cQuery += "	 ,E1_XXDTPRV"+CRLF
 	cQuery += "	 ,E1_XXOPER"+CRLF
+	cQuery += "	 ,SUBSTRING(CASE E1_MDCONTR WHEN '' THEN E1_XXCUSTO ELSE E1_MDCONTR END,1,9) AS E1_MDCONTR " + CRLF
+
 	cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 	cQuery += "	 ,A1_NOME"+CRLF
 	//cQuery += "	 ,A1_PESSOA"+CRLF

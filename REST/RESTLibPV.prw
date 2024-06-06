@@ -271,6 +271,9 @@ begincontent var cHTML
 
 <title>Liberação de Pedidos</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
+<!-- Favicon -->
+#BKFavIco#
+
 <style type="text/css">
 .bg-mynav {
   background-color: #9E0000;
@@ -500,6 +503,7 @@ fetch('#iprest#/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 endcontent
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)

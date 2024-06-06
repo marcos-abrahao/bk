@@ -937,6 +937,9 @@ BEGINCONTENT var cHTML
 
 <title>Títulos Contas a Pagar #datavencI# #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
+<!-- Favicon -->
+#BKFavIco#
+
 <style type="text/css">
 .bk-colors{
  background-color: #9E0000;
@@ -1707,6 +1710,7 @@ window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencini="+newvamdi+'&vencfi
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
 
 If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)

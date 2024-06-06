@@ -1037,6 +1037,10 @@ BeginContent var cHTML
 <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <title>Liberação de Pré-notas</title>
+
+<!-- Favicon -->
+#BKFavIco#
+
 <!-- <link href="index.css" rel="stylesheet"> -->
 <style type="text/css">
 .bk-colors{
@@ -1348,6 +1352,7 @@ if (Array.isArray(prenotas)) {
    let cLiberOk = object['LIBEROK']
    let cStatus  = object['STATUS']
    nlin += 1;
+
    trHTML += '<tr>';
    trHTML += '<td>'+object['F1NOMEEMP']+'</td>';
    trHTML += '<td>'+cprenota+'</td>';
@@ -1718,6 +1723,7 @@ $('#confToken').modal('show');
 EndContent
 
 cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
 
 If !Empty(self:userlib)
 	u_BkAvPar(self:userlib,@aParams,@cMsg)
