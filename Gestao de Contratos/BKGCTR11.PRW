@@ -2786,7 +2786,7 @@ cCodView := ""
 cCodView := SuperGetMV("MV_XXRENTA")
 
 IF !lJob
-	lMaster := u_InGrupo(__cUserId,"000000/000003/000004/000005/000007/000008/000010/000020")
+	lMaster := u_InGrupo(__cUserId,"000000/000003/000004/000005/000007/000008/000010/000020/000037")
 ELSE
 	lMaster := .T.
 ENDIF

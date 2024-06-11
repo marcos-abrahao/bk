@@ -33,7 +33,7 @@ Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJ
 
 // 2 Etapas
 
-If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
+If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031/000037")
 	cLibF1   := "A"
 Else 
 	cLibF1   := "9"
@@ -131,7 +131,7 @@ Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
 // 2 Etapas
-If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
+If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031/000037")
 	cLibF1   := "A"
 Else 
 	cLibF1   := "9"
@@ -210,7 +210,7 @@ Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
 
 // 2 Etapas
-If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031")
+If u_InGrupo(__cUserId,"000000/000007/000038/000005/000031/000037")
 	cLibF1  := "A"
 	If u_InGrupo(__cUserId,"000000/000031")
 		lAlt 	:= .T.
