@@ -287,7 +287,7 @@ User Function BKGCTR11(lJob)
 		QTMP1->(Dbclosearea())
 
 		IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
-			MSGSTOP("Contrato não encontrado!!")
+			u_MsgLog("BKGCTR11","Contrato não encontrado!!","E")
 			RETURN NIL
 		ENDIF
 
@@ -297,8 +297,7 @@ User Function BKGCTR11(lJob)
  
 	EndIf
 
-
-//Determina quantos Meses utilizar no calculo
+	//Determina quantos Meses utilizar no calculo
 	nPeriodo += DateDiffMonth( dDataI , dDataFinal )
 
 	titulo   := titulo+IIf(!Empty(cContrato)," - "+TRIM(cContrato),"")+" - "+DTOC(dDataI)+" a "+DTOC(dDataFinal)
@@ -699,17 +698,16 @@ Static Function ProcBKGCTR11(lJob,oSay)
 	LimpaBrw ("TRB")
 	LimpaBrw (ALIAS_TMP)
 
-	//ProcRegua(nPeriodo)
 	FOR _nI := 1 TO nPeriodo
 
-		//IncProc("Processando competência "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
-
-		//IncProc("Consultando faturamento dos contratos...")
+		// Consultando faturamento dos contratos...
 
 		cAnoMes := aAnoMes[_nI]
 		If !IsBlind()
 			oSay:SetText("Competência "+aPeriodo[_nI,1])
 		EndIf
+
+		u_MsgLogAdm("BKGCTR11","Query do Faturamento "+aPeriodo[_nI,1])
 
 		//*********Faturamento do Contrato
 
@@ -939,6 +937,8 @@ Static Function ProcBKGCTR11(lJob,oSay)
 		EndIf
 
 		TCQUERY cQuery NEW ALIAS "QTMP"
+
+		u_MsgLogAdm("BKGCTR11","Percorre Faturamento "+aPeriodo[_nI,1])
 
 		dbSelectArea("QTMP")
 		QTMP->(dbGoTop())
@@ -1302,6 +1302,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 ========================================================================*/
 
+	u_MsgLogAdm("BKGCTR11","Percorre Faturamento 2 "+aPeriodo[_nI,1])
 
 	dbSelectArea("QTMP")
 	QTMP->(dbGoTop())
@@ -1322,6 +1323,9 @@ Static Function ProcBKGCTR11(lJob,oSay)
 		cVarLog := STRZERO(nVarLog,3)+"-"+cAnoMes+"-"+ALLTRIM(cContraA)
 
 		//Calcula LF Avulso SZ2 - CLT
+
+		u_MsgLogAdm("BKGCTR11","Query SZ2 "+aPeriodo[_nI,1])
+
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"+CRLF
 		cQuery1 += " WHERE  D_E_L_E_T_='' AND Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA')"+CRLF  //REMOVIDO MULTA FGTS POR ENTENDER QUE ESTA EM INCIDENCIAS - TIPO = MFG
 		cQuery1 += " AND Z2_TIPOPES='CLT' AND Z2_STATUS='S'"+CRLF
@@ -1342,6 +1346,8 @@ Static Function ProcBKGCTR11(lJob,oSay)
 		u_LogTxt("BKGCTR11-SZ2.SQL",cQuery1)
 
 		TCQUERY cQuery1 NEW ALIAS "TMPX2"
+
+		u_MsgLogAdm("BKGCTR11","Percorre SZ2 "+aPeriodo[_nI,1])
 
 		dbSelectArea("TMPX2")
 		dbGoTop()
@@ -1504,6 +1510,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 ENDDO
 TMPX2->(dbCloseArea())
 
+u_MsgLogAdm("BKGCTR11","Query SZ2 2 "+aPeriodo[_nI,1])
 
 //Calcula LF Avulso SZ2 - AC e CLA CUSTO BK - produto 29104004 - Data emissão apartir de 01/01/2015
 cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"
@@ -1525,6 +1532,7 @@ cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR
 
 TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
+u_MsgLogAdm("BKGCTR11","Percorre SZ2 2 "+aPeriodo[_nI,1])
 dbSelectArea("TMPX2")
 dbGoTop()
 DO While !TMPX2->(EOF())
@@ -1569,7 +1577,7 @@ FOR _IXFUR:= 1 TO LEN(aFurnas)
 	ENDIF
 NEXT _IXFUR
 
-
+u_MsgLogAdm("BKGCTR11","Query Folha "+aPeriodo[_nI,1])
 //IncProc("Consultando Folha Pagamento...")
 //*********Folha Pagamento
 cQuery2 := "SELECT bk_senior.bk_senior.R046VER.CodEve AS CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,"+CRLF
@@ -1634,7 +1642,7 @@ nXXPLR	   := 0
 dbSelectArea("TMPX2")
 dbGoTop()
 
-
+u_MsgLogAdm("BKGCTR11","Percorre Folha "+aPeriodo[_nI,1])
 //If SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2) = '202205'
 //	x:= 0
 //EndIf
@@ -1842,7 +1850,7 @@ ENDIF
 
 TMPX2->(dbCloseArea())
 
-
+u_MsgLogAdm("BKGCTR11","Query Folha Autonomos "+aPeriodo[_nI,1])
 //IncProc("Consultando Folha Pagamento - Autonomos...")
 //*********Folha Pagamento - Autonomos IPT
 cQuery2 := "SELECT SUM(ValorRPA) AS ValorRPA,SUM(Refeicao) AS Refeicao"
@@ -1861,7 +1869,7 @@ ELSE
 	cQuery2 += " AND centroCusto='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
 ENDIF
 
-
+u_MsgLogAdm("BKGCTR11","Percorre Query Folha Autonomos "+aPeriodo[_nI,1])
 TCQUERY cQuery2 NEW ALIAS "TMPX2"
 dbSelectArea("TMPX2")
 dbGoTop()
@@ -1905,7 +1913,7 @@ DO While !TMPX2->(EOF())
 ENDDO
 TMPX2->(dbCloseArea())
 
-
+u_MsgLogAdm("BKGCTR11","Query Calcula vigencia do contrato "+aPeriodo[_nI,1])
 //Calcula vigencia do contrato - PARA GASTOS GERAIS
 dDataVenc := CTOD("")
 cQuery3 := " SELECT MIN(CNF_DTVENC) AS CNF_INICIO,MAX(CNF_DTVENC) AS CNF_FIM,"
@@ -1933,7 +1941,7 @@ nScan:= 0
 nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 //*********  GASTOS GERAIS  **********
-
+u_MsgLogAdm("BKGCTR11","Query gastos gerais "+aPeriodo[_nI,1])
 cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" +CRLF
 cQuery2 += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
@@ -1993,6 +2001,7 @@ dbGoTop()
 cLastE2 := "-"
 aAcrDcr := {}
 
+u_MsgLogAdm("BKGCTR11","Percorre gastos gerais "+aPeriodo[_nI,1])
 DO While !TMPX2->(EOF())
 
 	//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
@@ -2088,6 +2097,7 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 IF nScan > 0
 
+	u_MsgLogAdm("BKGCTR11","Query gastos gerais consorcios "+aPeriodo[_nI,1])
 	//IncProc("Consultando gastos gerais consorcios: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 
 	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
@@ -2110,12 +2120,16 @@ IF nScan > 0
 	ENDIF
 	*/
 
-	IF ALLTRIM(aConsorcio[nScan,2]) == "140"
-		//cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"')" +CRLF
+	IF ALLTRIM(aConsorcio[nScan,2]) == "140" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
+		// Aqui: 11/06/24 - Estava duplicando na empresa 14 quando emitido na empresa 14
+		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "160"
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
+	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "180" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
+		// Aqui: 11/06/24 - Estava duplicando na empresa 18 quando emitido na empresa 18
+		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
 	ELSE
 		cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 	ENDIF
@@ -2138,6 +2152,8 @@ IF nScan > 0
 
 	cLastE2 := "-"
 	aAcrDcr := {}
+
+	u_MsgLogAdm("BKGCTR11","Percorre gastos gerais consorcios "+aPeriodo[_nI,1])
 
 	DO While !TMPX2->(EOF())
 
@@ -2235,7 +2251,7 @@ IF nScan > 0
 	ENDDO
 	TMPX2->(dbCloseArea())
 
-	//IncProc("Consultando movimento bancário ..."+STRZERO(_nI,3))
+	u_MsgLogAdm("BKGCTR11","Query movimento bancario consorcios "+aPeriodo[_nI,1])
 
 	cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
 	cQuery2 += " FROM SE5"+ALLTRIM(aConsorcio[nScan,2])+" SE5" +CRLF
@@ -2246,6 +2262,8 @@ IF nScan > 0
 
 	u_LogTxt("BKGCTR11-E5-1.SQL",cQuery2)
 
+
+	u_MsgLogAdm("BKGCTR11","Percorre movimento bancario consorcios "+aPeriodo[_nI,1])
 
 	TCQUERY cQuery2 NEW ALIAS "TMPX2"
 	dbSelectArea("TMPX2")
@@ -2280,8 +2298,11 @@ IF nScan > 0
 	ENDDO
 	TMPX2->(dbCloseArea())
 
-	//Consorcio balsa nova
+	//Consorcio Balsa Nova, BK Via, Moove
 	IF LEN(aConsorcio[nScan]) > 7
+
+		u_MsgLogAdm("BKGCTR11","Query despesas gerais consorcios Especiais "+aPeriodo[_nI,1])
+
 		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL"+CRLF
 		cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,8])+" SD1"+CRLF
 		cQuery2 += " LEFT JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
@@ -2316,6 +2337,9 @@ IF nScan > 0
 		cOUTROS := 'S'
 		dbSelectArea("TMPX2")
 		dbGoTop()
+
+		u_MsgLogAdm("BKGCTR11","Percorre despesas gerais consorcios Especiais "+aPeriodo[_nI,1])
+
 		DO While !TMPX2->(EOF())
 
 			//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
@@ -2365,7 +2389,6 @@ IF nScan > 0
 					nNumRat := 1
 				ENDIF
 
-
 				IF nNumRat > 1
 					nValRat := TMPX2->D1_TOTAL / nNumRat
 				ELSE
@@ -2413,6 +2436,7 @@ IF nScan > 0
 		ENDDO
 		TMPX2->(dbCloseArea())
 
+		u_MsgLogAdm("BKGCTR11","Query movimento bancário consorcios Especiais "+aPeriodo[_nI,1])
 
 		cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
 		cQuery2 += " FROM SE5"+ALLTRIM(aConsorcio[nScan,8])+" SE5" +CRLF
@@ -2425,6 +2449,9 @@ IF nScan > 0
 		u_LogTxt("BKGCTR11-E5-2.SQL",cQuery2)
 
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
+
+		u_MsgLogAdm("BKGCTR11","Percorre movimento bancário consorcios Especiais "+aPeriodo[_nI,1])
+
 		dbSelectArea("TMPX2")
 		dbGoTop()
 		DO While !TMPX2->(EOF())
@@ -2455,6 +2482,7 @@ IF nScan > 0
 
 	ENDIF
 ELSE
+	u_MsgLogAdm("BKGCTR11","Query movimento bancário "+aPeriodo[_nI,1])
 
 	cQuery2 := "SELECT E5_CREDITO,E5_DEBITO,CT1_DESC01,E5_VALOR,E5_RECPAG,E5_CCC,E5_CCD,E5_VENCTO"+CRLF
 	cQuery2 += " FROM "+RETSQLNAME("SE5")+" SE5"  +CRLF
@@ -2467,6 +2495,8 @@ ELSE
 	u_LogTxt("BKGCTR11-E5-3.SQL",cQuery2)
 
 	TCQUERY cQuery2 NEW ALIAS "TMPX2"
+
+	u_MsgLogAdm("BKGCTR11","Percorre movimento bancário "+aPeriodo[_nI,1])
 
 	dbSelectArea("TMPX2")
 	dbGoTop()
@@ -2498,6 +2528,8 @@ ELSE
 ENDIF
 
 //IncProc("Consultando faturamento das medições avulsas...")
+u_MsgLogAdm("BKGCTR11","Query faturamento das medições avulsas "+aPeriodo[_nI,1])
+
 //********* FATURAMENTO - Inclusão para medição avulso
 cQuery2 := "SELECT C5_ESPECI1,A1_NOME,CTT_DESC01,SUM(D2_TOTAL) AS D2_TOTAL,SUM(D2_VALISS) AS D2_VALISS,SUM(D2_VALCPM) AS D2_VALCPM,SUM(E1_XXISSBI) AS E1_XXISSBI,SUM(E5_VALOR) AS E5DESC"+CRLF
 cQuery2 += " FROM "+RETSQLNAME("SC5")+" SC5" +CRLF
@@ -2534,6 +2566,7 @@ u_LogTxt("BKGCTR11-SC5-1.SQL",cQuery2)
 
 TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
+u_MsgLogAdm("BKGCTR11","Percorre faturamento das medições avulsas "+aPeriodo[_nI,1])
 dbSelectArea("TMPX2")
 dbGoTop()
 DO While !TMPX2->(EOF())
@@ -2635,6 +2668,7 @@ QTMP->(dbCloseArea())
 
 NEXT
 
+u_MsgLogAdm("BKGCTR11","Calculo dos resultados ")
 
 //CALCULA RESULTADOS
 For Yi_ := 1 TO LEN(aContratos)
@@ -2792,6 +2826,8 @@ ELSE
 ENDIF
 
 
+u_MsgLogAdm("BKGCTR11","Calculo dos totais ")
+
 nLINHA := 1
 aLINHA := {}
 DbSelectArea(ALIAS_TMP)
@@ -2940,7 +2976,7 @@ IF lJob
 		ENDDO
 	ENDIF
 
-	u_xxConOut("INFO","BKGCTR11","Gravando dados Rentabilidade dos contratos")
+	u_MsgLogAdm("BKGCTR11","Gravando dados Rentabilidade dos contratos")
 
 	nSCAN1 := 0
 	nSCAN2 := 0
@@ -5090,7 +5126,7 @@ User Function fAcrDcr(cEmpC,aLAcrDcr)
 		aadd(aSetFields,{"E2_VRETIRF" 	,"N", 14,2})
 		aadd(aSetFields,{"E2_VRETISS" 	,"N", 14,2})
 
-		u_LogTxt("BKGCTR11-E2.SQL")
+		//u_LogTxt("BKGCTR11-E2.SQL")
 		nRet := TCSqlToArr(cQuery3,@aReturn,aBinds,aSetFields)
 		u_LogTxt("BKGCTR11-E2.SQL",cQuery3,aBinds)
 
@@ -5102,7 +5138,12 @@ User Function fAcrDcr(cEmpC,aLAcrDcr)
 			nTotE2  := 0
 		EndIf
 
+		// Debug NF
+		//If TMPX2->D1_DOC == '000010610'
+		//	nX := 0
+		//EndIF
 		nTotE2  := 0
+
 		For nX := 1 TO LEN(aReturn)
 			nACrDcr := 0
 			If aReturn[nX,XE2_DECRESC] > 0
@@ -5249,7 +5290,7 @@ USER FUNCTION VALNDCE(cNumContr,cCompt,_nI,aNDC)
 		cQuery += "    AND E1_XXCOMPE = '"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
 		cQuery += "    AND E1_XXCUSTO = '"+cNumContr+"'" + CRLF
 
-		u_LogTxt("BKGCTR11-NDC.SQL")
+		//u_LogTxt("BKGCTR11-NDC.SQL")
 		TCQUERY cQuery NEW ALIAS "QTMPXE1"
 		u_LogTxt("BKGCTR11-NDC.SQL",cQuery)
 
@@ -5320,7 +5361,7 @@ USER FUNCTION BUSCAEMPR(cCUSTO)
 		cCODEMP := SUBSTR(aConsorcio[nScan,2],1,2)
 	ELSE
 
-		_SQL := "SELECT TOP 1 [NumEmp]  FROM [BKIntegraRubi].[dbo].[CUSTOSIGA]"
+		_SQL := "SELECT TOP 1 [NumEmp] FROM [BKIntegraRubi].[dbo].[CUSTOSIGA]"
 		_SQL += " WHERE ccSIGA='"+cCUSTO+"'"
 
 		TCQUERY _SQL NEW ALIAS "QCDEMP"
@@ -5340,5 +5381,4 @@ USER FUNCTION BUSCAEMPR(cCUSTO)
 	ENDIF
 
 RETURN cCODEMP
-
 

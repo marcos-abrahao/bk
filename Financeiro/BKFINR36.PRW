@@ -12,7 +12,8 @@ BK - Resumo Diário Contas a Pagar
 User Function BKFINR36
 
 Local cDescricao	:= "Objetivo deste relatório é indicar o se o prazo de implantação de documentos está de acordo com as 48 horas estipuladas "+CRLF+"Solicitado pelo depto Financeiro em 12/04/2024."
-Local cVersao 		:= "15/04/2024 - Versão inicial"
+Local cSolicit 		:= "15/04/24 - kelly.neto"
+Local cVersao 		:= "15/04/24 - Versão inicial"
 Local oRExcel		AS Object
 Local oPExcel		AS Object
 
@@ -25,6 +26,8 @@ Private cProg		:= "BKFINR36"
 Private dDtIni		:= dDataBase
 Private dDtFim		:= dDataBase
 Private nOpcao		:= 1
+
+cVersao += CRLF+"12/06/24 - Inclusão do campo mês"
 
 aAdd( aParam, { 1, "Data Inicial:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .T. })
 aAdd( aParam, { 1, "Data Final:" 	, dDataBase		 , ""    , "", ""	, "" , 70  , .F. })
@@ -45,6 +48,7 @@ EndIf
 // Definição do Arq Excel
 oRExcel := RExcel():New(cProg)
 oRExcel:SetTitulo(cTitulo)
+oRExcel:SetSolicit(cSolicit)
 oRExcel:SetDescr(cDescricao)
 oRExcel:SetVersao(cVersao)
 oRExcel:SetParam(aParam)
@@ -69,6 +73,10 @@ oPExcel:AddColX3("F1_XTIPOPG")
 oPExcel:AddColX3("E2_EMISSAO")
 oPExcel:AddColX3("E2_EMIS1")
 oPExcel:AddColX3("E2_VENCREA")
+
+oPExcel:AddCol("MESEXT","MesExtenso(Month(QSE2->E2_VENCREA)) + ' ' + Str(Year(QSE2->E2_VENCREA), 4)","Mês","")
+oPExcel:GetCol("MESEXT"):SetHAlign("C")
+oPExcel:GetCol("MESEXT"):SetTamCol(21)
 
 oPExcel:AddColX3("E2_VALOR")
 oPExcel:GetCol("E2_VALOR"):SetTotal(.T.)

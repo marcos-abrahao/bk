@@ -22,6 +22,15 @@ FWAlertWarning: Mostra uma mensagem com um triângulo amarelo e uma exclamação no
 FWAlertYesNo: Mensagem que tem 2 opções (Sim e Não)
 */
 
+// Gerar log Somente para o Admin
+User Function MsgLogAdm(cProg,cMens,cAlert,cTxt)
+Local lRet := .F.
+If __cUserId == "000000"
+	lRet := u_MsgLog(cProg,cMens,cAlert,cTxt)
+EndIf
+Return lRet
+
+
 User Function MsgLog(cProg,cMens,cAlert,cTxt)
 Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
 //Local cArqLog  := "\log\msglog.log"

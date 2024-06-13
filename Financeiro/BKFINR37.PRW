@@ -11,8 +11,9 @@ BK - Resumo Diário Contas a Pagar
 
 User Function BKFINR37
 
-Local cDescricao	:= "Objetivo: Indicador de Pagamentos Antecipados"+CRLF+"Solicitado pelo depto Financeiro em abril de 2024."
-Local cVersao 		:= "07/05/24 - Versão inicial "
+Local cDescricao	:= "Objetivo: Indicador de Pagamentos Antecipados"
+Local cSolicit 		:= "22/04/24 - kelly.neto"
+Local cVersao 		:= "07/05/24 - Versão inicial"
 Local oRExcel		AS Object
 Local oPExcel		AS Object
 
@@ -27,7 +28,7 @@ Private dDtFim		:= dDataBase
 Private nOpcao		:= 1
 
 // Log de Versões
-cVersao := CRLF + "09/05/24 - Filtrar LF, Saques e incluir coluna Mês - Kelly Neto"
+cVersao += CRLF + "09/05/24 - Filtrar LF, Saques e incluir coluna Mês - Kelly Neto"
 
 
 aAdd( aParam ,{ 3, "Opção:"			, 1              , aOpcoes               , 100,'.T.',.T.})
@@ -52,6 +53,7 @@ EndIf
 // Definição do Arq Excel
 oRExcel := RExcel():New(cProg)
 oRExcel:SetTitulo(cTitulo)
+oRExcel:SetSolicit(cSolicit)
 oRExcel:SetDescr(cDescricao)
 oRExcel:SetVersao(cVersao)
 oRExcel:SetParam(aParam)

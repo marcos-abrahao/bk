@@ -151,6 +151,7 @@ CLASS RExcel
 	DATA cPerg
 	DATA cAlias
 	DATA cTitulo
+	DATA cSolicit
 	DATA cDescr
 	DATA cVersao
 	DATA cFile
@@ -168,6 +169,9 @@ CLASS RExcel
 
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
+
+	METHOD GetSolicit()
+	METHOD SetSolicit(cSolicit)
 
 	METHOD GetDescr()
 	METHOD SetDescr(cDescr)
@@ -195,6 +199,13 @@ Return Self:cTitulo
 
 METHOD SetTitulo(cTitulo) CLASS RExcel
 Self:cTitulo := Alltrim(cTitulo)
+Return
+
+METHOD GetSolicit() CLASS RExcel
+Return Self:cSolicit
+
+METHOD SetSolicit(cSolicit) CLASS RExcel
+Self:cSolicit := Alltrim(cSolicit)
 Return
 
 METHOD GetDescr() CLASS RExcel
@@ -1263,6 +1274,12 @@ Self:oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, .T. /*lLWrapText*/, nLRotati
 If !Empty(Self:cDescr)
 	Self:oPrtXlsx:SetValue(nLin,1,"Descrição: ")
 	Self:oPrtXlsx:SetValue(nLin,2,Self:cDescr)
+	nLin++
+EndIf
+
+If !Empty(Self:cSolicit)
+	Self:oPrtXlsx:SetValue(nLin,1,"Solicitante: ")
+	Self:oPrtXlsx:SetValue(nLin,2,Self:cSolicit)
 	nLin++
 EndIf
 

@@ -148,6 +148,7 @@ Return
 // Criar Tabelas
 User Function TabsBk()
 
+dbSelectArea("CD2")
 dbSelectArea("CN9")
 dbSelectArea("CNA")
 dbSelectArea("CNB")
@@ -175,7 +176,9 @@ dbSelectArea("SE2")
 dbSelectArea("SE5")
 dbSelectArea("SF1")
 dbSelectArea("SF2")
+dbSelectArea("SF3")
 dbSelectArea("SF4")
+dbSelectArea("SFT")
 dbSelectArea("SZ4")
 dbSelectArea("SZ5")
 dbSelectArea("SZ7")
