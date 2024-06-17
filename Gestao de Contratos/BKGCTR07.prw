@@ -73,6 +73,7 @@ cVersao += CRLF+"18/03/2024: Inclusão da aba Notas de Débito"
 // Definição do Arq Excel
 oRExcel := RExcel():New(cPerg)
 oRExcel:SetTitulo(cTitulo)
+oRExcel:SetSolicit("05/05/2011: Adalberto Xavier")
 oRExcel:SetDescr(cDescricao)
 oRExcel:SetVersao(cVersao)
 oRExcel:SetParam(aParam)

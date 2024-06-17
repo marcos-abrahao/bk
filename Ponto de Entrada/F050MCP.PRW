@@ -2,7 +2,7 @@
 #INCLUDE "RWMAKE.CH"
 
 /*/{Protheus.doc} F050MCP
-BK - Ponto de Entrada para liberar alteração de campos nos títulos apagar
+BK - Ponto de Entrada para liberar alteração de campos nos títulos a pagar
 
 @Return
 @author Marcos Bispo Abrahão
@@ -14,7 +14,7 @@ User Function F050MCP()
 Local aCampos := PARAMIXB
 
 //If Alltrim(SE2->E2_TIPO) = "NF"
-IF __cUserId $ "000000/000012" // Administrador / Xavier
+IF __cUserId $ "000000/000012/000016" // Administrador / Xavier / Diego Oliveira
     AADD(aCampos,"E2_VENCTO")
     AADD(aCampos,"E2_VENCREA")     
 Endif

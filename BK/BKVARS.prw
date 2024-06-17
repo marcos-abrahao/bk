@@ -154,6 +154,13 @@ User Function MVXASSMP()
 Local cVar := "|605|689|709|711|712|719|733|734|742|743|770|771|773|794|796|810|832|833|854|856|857|"
 Return cVar
 
+// Novo!
+// Provento Sindicato (Considerar a partir de uma data de corte)
+// Criar uma linha proximo da 18 na rentabilidade
+User Function MVXSINDP()
+Local cVar := "|280|282|"
+Return cVar
+
 
 // Cod. Prod. desc. sind. odonto  calculo Rentabilidade
 User Function MVXSINOP()

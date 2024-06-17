@@ -479,8 +479,8 @@ Return lRet
 
 // Libera pedido de venda pela WEB
 User Function IsLibPv(cId)
-//            Admin  /Teste/Xavier/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa
-Return cId $ "000000/000038/000012/000016/000023/000153/000170/000165/000252/000288/"
+//            Admin  /Teste/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa
+Return cId $ "000000/000038/000016/000023/000153/000170/000165/000252/000288/"
 
 
 // É do grupo Fiscal
@@ -538,8 +538,8 @@ Return lRet
 // Retorna se o usuário é Gestor Financeiro 
 User Function IsGesFin(cId)
 Local lRet := .F.
-//      Laudecir/Xavier/Diego.Oliveira/Katia
-If cId $ "000011/000012/000016/000276"
+//      Laudecir/Diego.Oliveira/Katia
+If cId $ "000011/000016/000276"
     lRet := .T.
 EndIf
 Return lRet
@@ -548,8 +548,8 @@ Return lRet
 // Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
 User Function IsAvalia(cId)
 Local lRet := .F.
-// Admin/Xavier/Michele/Bruno
-If cId $ "000000/000012/000138/000153/"
+// Admin/Michele/Bruno
+If cId $ "000000/000138/000153/"
     lRet := .T.
 EndIf
 Return lRet
@@ -657,8 +657,8 @@ Return cEmails
 // Financeiro
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()
-//      Admin  Lau    Xavier Diego  Andresa
-Return "000000/000011/000012/000016/000197"
+//      Admin  Lau    Diego  Andresa
+Return "000000/000011/000016/000197"
 
 
 // Grupos de e-mail abaixo são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
@@ -686,10 +686,11 @@ Return cRet
 User Function BKPgto3()
 Local cRet := ""
 cRet += "microsiga@bkconsultoria.com.br;"
-cRet += "adalberto.xavier@bkconsultoria.com.br;"
+//cRet += "adalberto.xavier@bkconsultoria.com.br;"
 //cRet += "christiane.almeida@bkconsultoria.com.br;"
 cRet += "bruno.bueno@bkconsultoria.com.br;"
 cRet += "laudecir.carpi@bkconsultoria.com.br;"
+cRet += "diego.oliveira@bkconsultoria.com.br;"
 Return cRet
 
 // E-mails do grupo qualidade do google
@@ -707,7 +708,6 @@ Local cRet := ""
 cRet := u_GprEmail("","","Financeiro")
 
 /*
-cRet += "adalberto.xavier@bkconsultoria.com.br;"
 cRet += "andresa.cunha@bkconsultoria.com.br;"
 cRet += "diego.oliveira@bkconsultoria.com.br;"
 cRet += "elaine.magalhaes@bkconsultoria.com.br;"
@@ -751,7 +751,7 @@ Local cRet := ""
 cRet += "administrativo.bhg@bkconsultoria.com.br;"
 cRet += "alexandre.teixeira@bkconsultoria.com.br;"
 cRet += "carlos.ferreira@bkconsultoria.com.br;"
-cRet += "christiane.rodrigues@bkconsultoria.com.br;"
+//cRet += "christiane.rodrigues@bkconsultoria.com.br;"
 cRet += "fabia.pesaro@bkconsultoria.com.br;"
 cRet += "fernando.sampaio@bkconsultoria.com.br;"
 cRet += "graziele.silva@bkconsultoria.com.br;"

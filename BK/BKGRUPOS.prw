@@ -46,8 +46,8 @@ Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S"
 						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         },;
                         {"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623"},;
                         {"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         },;
-                        {"97","CMOG"            ,"CMOG"         ,"S","N","N","N","N",""         },;
-                        {"98","TERO"            ,"TERO"         ,"S","N","N","N","N",""         } }
+                        {"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""         },;
+                        {"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         } }
 
 
 For nE := 1 To Len(aEmpresas)
