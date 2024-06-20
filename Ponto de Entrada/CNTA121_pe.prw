@@ -240,6 +240,7 @@ Local oModelCND
 Local cContra
 Local cCompet
 Local cCompAM
+Local dDia 	:= Date()
 
 oModel		:= FwModelActivate()
 oModelCND	:= oModel:GetModel('CNDMASTER')
@@ -248,7 +249,8 @@ cContra		:= oModelCND:GetValue("CND_CONTRA")
 cCompet		:= oModelCND:GetValue("CND_COMPET")
 cCompAM 	:= SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)
 
-If CN9->CN9_XXANEX == 'S' // Somente para contratos que são obrigatorios anexar docs de medição
+// contratos que são obrigatorios anexar docs de medição
+If CN9->CN9_XXANEX == 'S'
 	aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,2)
 
 	If Len(aAnexos) == 0
@@ -256,6 +258,19 @@ If CN9->CN9_XXANEX == 'S' // Somente para contratos que são obrigatorios anexar 
 		// Aqui: obrigar anexar arquivos
 		lRet := .F.
 		u_MsgLog("CNTA121_PE","Não foram anexados documentos para este contrato/competência!","E")
+	EndIf
+EndIf
+
+// Contratos que devem ser faturados até o quinto dia util do mes subsequente a competencia
+If CN9->CN9_XX5DIA == 'S'
+	dDia := STOD(cCompAM+"01")
+	dDia := MonthSum(dDia,1)
+	dDia := DataValida(dDia+1)
+	dDia := DataValida(dDia+1)
+	dDia := DataValida(dDia+1)
+	dDia := DataValida(dDia+1)
+	If dDia > dDataBase
+		u_MsgLog("CNTA121_PE","Contrato sendo faturado após o quinto dia útil! "+DTOC(dDia),"E")
 	EndIf
 EndIf
 

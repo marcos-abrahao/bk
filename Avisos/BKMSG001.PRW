@@ -22,7 +22,7 @@ Local cEmail 	:= ""
 Local cIdSup	:= ""
 Local cAssunto  := "Aviso de Documentos pendentes de aprovação - "+DTOC(DATE())+" "+Time()
 Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
-Local cEmailMs  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailMs  := "microsiga@bkconsultoria.com.br;glaciana.oliveira@bkconsultoria.com.br" 
 Local aCabs   	:= {"Empresa","Documento","Fornecedor","Digitação","Pagamento","Responsável","Departamento"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
@@ -114,7 +114,7 @@ Do While !Eof()
 		dbSkip()
 	EndDo
 
-	// Somente enviar o e-mail se tiver pagamentos vencendo em até 3 dias úteis
+	// Somente enviar o e-mail se houver pagamentos vencendo em até 3 dias úteis
 	If lDtInf
 
 		// Incluir os stafs na cópia do e-mail

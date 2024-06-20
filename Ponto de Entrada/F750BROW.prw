@@ -30,7 +30,7 @@ aRotZ := { {OemToAnsi("Prazo Lançamento"),		 "U_BKFINR36",  0, 2 } ,;
 		   {OemToAnsi("Pagamentos Antecipados"), "U_BKFINR37",  0, 2 } }
 AADD( aRotina, {OemToAnsi("Relatórios"), aRotZ, 0, 4 } )
 
-AADD( aRotina, {OemToAnsi("C.Pagar Web"), "U_BKFINA05", 0, 4 } )
+AADD( aRotina, {OemToAnsi("C.Pagar Web"), "U_BKTITCP()", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Txt Sispag Itau"), "U_BKFINA32", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Anexos Pré-Nota"), "U_BKF750A", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Conhecimento"),  "MSDOCUMENT", 0, 4 } )

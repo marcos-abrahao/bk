@@ -1,4 +1,8 @@
 
+==============================================================
+-- 19/06/24 - Ajuste cadastros Petrobras
+
+UPDATE SA1010 SET A1_NOME = 'PETROLEO BRASILEIRO S A PETROBRAS', A1_NREDUZ = 'PETROBRAS' WHERE SUBSTRING(A1_CGC,1,8) = '33000167'
 
 ==============================================================
 -- 12/06/24 - Relação de Centros de Custo

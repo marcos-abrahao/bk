@@ -73,6 +73,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  CONVERT(DATE,CN9_XXDVIG,112) AS CN9_XXDVIG,"+CRLF
 	cQuery += "  CONVERT(DATE,CN9_XXDREP,112) AS CN9_XXDREP,"+CRLF
 	cQuery += "  CN9_XXOREP,"+CRLF
+	cQuery += "  CN9_XX5DIA,"+CRLF
 
 	cQuery += "  UPPER(REPLACE ("+CRLF
 	cQuery += "    ("+CRLF

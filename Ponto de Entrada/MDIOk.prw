@@ -10,30 +10,24 @@ MDIOk - P.E. ao abrir o módulo SIGAMDI
 
 User Function MDIOk()
     
-Local cToken
 Local dUtil := dDatabase
 //Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
 
 If nModulo == 5 .OR. nModulo == 69
-	If u_IsLibPv(__cUserId) .AND. cEmpAnt == '01'
-    	If u_MsgLog("MDIOk","Deseja abrir a Liberação de Pedidos de Venda web?","Y")
-			cToken  := u_BKEnCode()
-			ShellExecute("open", u_BkRest()+"/RestLibPV/v2?userlib="+cToken, "", "", 1)
-		EndIf
+   	If u_MsgLog("MDIOk","Deseja abrir a Liberação de Pedidos de Venda web?","Y")
+		u_BKLibPV()
 	EndIf
 
 	If nModulo == 5
     	If u_MsgLog("MDIOk","Deseja abrir os Títulos a Receber web?","Y")
-			cToken  := u_BKEnCode()
-			ShellExecute("open", u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-3650)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken, "", "", 1)
+			u_BKTitCR()
 		EndIf
 	EndIf
 
 ElseIf nModulo == 6 .OR. nModulo == 2  .OR. nModulo == 9
 	If u_IsFiscal(__cUserId) .OR. u_IsStaf(__cUserId) .OR. u_IsSuperior(__cUserId)
 		If u_MsgLog("MDIOk","Deseja abrir a Liberação de Docs de Entrada Web?","Y")
-			cToken  := u_BKEnCode()
-			ShellExecute("open", u_BkRest()+"/RestLibPN/v2?userlib="+cToken, "", "", 1)
+			u_BKLibPN()
 		EndIf
 	EndIf
 EndIf
@@ -47,8 +41,7 @@ If nModulo == 6 .AND. (u_InGrupo(__cUserId,"000024") .OR. __cUserId == "000000")
 		If DOW(dUtil) == 1
 			dUtil++
 		EndIf
-		cToken  := u_BKEnCode()
-		ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil)+'&vencfim='+DTOS(dUtil)+'&userlib='+cToken, "", "", 1)
+		u_BKTitCP(dUtil)
 	EndIf
 EndIf
 

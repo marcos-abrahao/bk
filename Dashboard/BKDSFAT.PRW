@@ -103,6 +103,8 @@ For nE := 1 TO Len(aEmpresas)
 	EndIf
 
 	cQuery += "  CND_USUAR, " + CRLF
+	cQuery += "  CND_XX5DIA, " + CRLF
+	cQuery += "  CND_XX5JUS, " + CRLF
 	cQuery += "  (" + CRLF
 	cQuery += "    CASE WHEN CND_NUMERO = '' THEN 'NOVA' ELSE 'ANTIGA' END" + CRLF
 	cQuery += "  ) AS FORMAMED, " + CRLF
@@ -363,6 +365,9 @@ For nE := 1 TO Len(aEmpresas)
 	EndIf
 
 	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
+	cQuery += "  ' '		AS CND_XX5DIA, " + CRLF
+	cQuery += "  ' '		AS CND_XX5JUS, " + CRLF
+
 	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
 	cQuery += "  CNA_XXMUN  AS CNA_XXMUN,"+ CRLF	
 	cQuery += "  CNA_XXTIPO AS CNA_XXTIPO,"+ CRLF	
