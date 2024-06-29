@@ -495,6 +495,20 @@ EndIf
 Return cStatus
 
 
+// Enum E1_XXTPPRV - usado no RESTITCR
+User Function DE1XXTPPrv(cE1XXTPPrv)
+Local cStatus := "A Receber"
+If cE1XXTPPrv == "0"
+	cStatus := "Sem Previsao"
+ElseIf cE1XXTPPrv == "1"
+	cStatus := "Aguardando Previsao"
+ElseIf cE1XXTPPrv == "2"
+	cStatus := "Previsao Informada"
+EndIf
+Return cStatus
+
+
+
 // Contratos que devem ser avaliados na Pré-Nota 24/02/23
 User Function CtrAval()
 cRet := "281000577" // UTGCA

@@ -270,8 +270,16 @@ For nX := 1 To LEN(aItemLinha)
 	cQuery  += "INNER JOIN bk_senior.bk_senior.R030FIL ON bk_senior.bk_senior.r034fun.numemp = bk_senior.bk_senior.R030FIL.NumEmp "
 	cQuery  += "AND bk_senior.bk_senior.r034fun.codfil = bk_senior.bk_senior.R030FIL.CodFil "
 	cQuery  += "LEFT JOIN bk_senior.bk_senior.R016HIE ON bk_senior.bk_senior.R016HIE.NumLoc =bk_senior.bk_senior.r034fun.numloc "
-	cQuery  += "WHERE bk_senior.bk_senior.r034fun.tipcol ='1' AND bk_senior.bk_senior.r034fun.numcad='"+aItemLinha[nX,1]+"' 
-	cQuery  += "AND bk_senior.bk_senior.r034fun.numemp='"+SM0->M0_CODIGO+"'"
+	cQuery  += "WHERE bk_senior.bk_senior.r034fun.tipcol ='1' "
+	cQuery  += "AND bk_senior.bk_senior.r034fun.numemp='"+SM0->M0_CODIGO+"' "
+	//VERIFICA CONSIGNADO
+	IF SUBSTR(cTipoNF,1,2) == "CS"
+		cQuery  += "AND bk_senior.bk_senior.r034fun.numcpf='"+aItemLinha[nX,1]+"'" 
+	ELSE
+		cQuery  += "AND bk_senior.bk_senior.r034fun.numcad='"+aItemLinha[nX,1]+"'" 
+	ENDIF
+
+
 			
 	TCQUERY cQuery NEW ALIAS "QTB"
 			
@@ -507,7 +515,7 @@ IF !EMPTY(cProduto)
 		u_MsgLog(cProg,"Produto do Pré-Documento de Entrada incorreto", "E")
 		lOk:= .F.
 		RETURN lOk 
-    ELSEIF ALLTRIM(aValida[nScan,3]) $ ALLTRIM(cProduto)
+    ELSEIF ALLTRIM(cProduto) $ ALLTRIM(aValida[nScan,3])
 		lOk:= .T.
     ELSE
 		u_MsgLog(cProg,"Produto do Pré-Documento de Entrada incorreto", "E")

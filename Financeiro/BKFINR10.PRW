@@ -14,83 +14,83 @@ User Function BKFINR10()
 Local nI 	:= 0
 Local Asx3	:= {}
 
-PRIVATE cASSM_Prod	:= U_MVXASSMP()
-PRIVATE cSINO_Prod	:= U_MVXSINOP()
-PRIVATE cTitulo	    := OemToAnsi("Fluxo de Caixa Realizado ")
-PRIVATE cPerg		:= "BKFINR10"
-PRIVATE nLastKey	:= 0
-PRIVATE cNomePrg	:= "BKFINR10"
-PRIVATE cIndiceSE5  := ""
-PRIVATE aCtaFin     := {}
-PRIVATE dDataI      := DATE()  			// Data Inicial
-PRIVATE dDataF      := DATE()  			// Data Final
-PRIVATE nSaldos     := 1
-PRIVATE nTpData     := 1
-PRIVATE nCaixinha   := 1
-PRIVATE nFormato    := 1
-PRIVATE nBancos     := 1 
-PRIVATE nAplic      := 1 
-PRIVATE nUsuario	:= 1
-PRIVATE cFiltPrd    := ""
-PRIVATE nImpostos	:= 2
-PRIVATE cTitBanco   := ""
-PRIVATE aCamposB2   := {}
+Private cASSM_Prod	:= U_MVXASSMP()
+Private cSINO_Prod	:= U_MVXSINOP()
+Private cTitulo	    := "Fluxo de Caixa Realizado "
+Private cPerg		:= "BKFINR10"
+Private nLastKey	:= 0
+Private cNomePrg	:= "BKFINR10"
+Private cIndiceSE5  := ""
+Private aCtaFin     := {}
+Private dDataI      := DATE()  	// Data Inicial
+Private dDataF      := DATE()  	// Data Final
+Private nSaldos     := 1
+Private nTpData     := 1
+Private nCaixinha   := 1
+Private nFormato    := 1
+Private nBancos     := 1 
+Private nAplic      := 1 
+Private nUsuario	:= 1
+Private cFiltPrd    := ""
+Private cFiltCC     := ""
+Private nImpostos	:= 2
+Private cTitBanco   := ""
+Private aCamposB2   := {}
 
-PRIVATE aPlans      := {}
-PRIVATE cFiltro     := ""
+Private aPlans      := {}
+Private cFiltro     := ""
 
-PRIVATE cAliasTmp1  := "TMP1"
-PRIVATE oTmpTb1
-PRIVATE aCabs1      := {}
-PRIVATE aCampos1    := {}
-PRIVATE aTitulos1   := {}
-PRIVATE aStruct1    := {}
+Private cAliasTmp1  := "TMP1"
+Private oTmpTb1
+Private aCabs1      := {}
+Private aCampos1    := {}
+Private aTitulos1   := {}
+Private aStruct1    := {}
 
-PRIVATE cAliasTmp2  := "TMP2"
-PRIVATE oTmpTb2
-PRIVATE aCabs2      := {}
-PRIVATE aCampos2    := {}
-PRIVATE aTitulos2   := {}
-PRIVATE aStruct2    := {}
+Private cAliasTmp2  := "TMP2"
+Private oTmpTb2
+Private aCabs2      := {}
+Private aCampos2    := {}
+Private aTitulos2   := {}
+Private aStruct2    := {}
 
-PRIVATE cAliasTmp3  := "TMP3"
-PRIVATE oTmpTb3
-PRIVATE aCabs3      := {}
-PRIVATE aCampos3    := {}
-PRIVATE aTitulos3   := {}
-PRIVATE aStruct3    := {}
+Private cAliasTmp3  := "TMP3"
+Private oTmpTb3
+Private aCabs3      := {}
+Private aCampos3    := {}
+Private aTitulos3   := {}
+Private aStruct3    := {}
 
-PRIVATE cAliasTmp4  := "TMP4"
-PRIVATE oTmpTb4
-PRIVATE aCabs4      := {}
-PRIVATE aCampos4    := {}
-PRIVATE aTitulos4   := {}
-PRIVATE aStruct4    := {}
+Private cAliasTmp4  := "TMP4"
+Private oTmpTb4
+Private aCabs4      := {}
+Private aCampos4    := {}
+Private aTitulos4   := {}
+Private aStruct4    := {}
                          
-PRIVATE cAliasTmp5  := "TMP5"
-PRIVATE oTmpTb5
-PRIVATE aCabs5      := {}
-PRIVATE aCampos5    := {}
-PRIVATE aTitulos5   := {}
-PRIVATE aStruct5    := {}
+Private cAliasTmp5  := "TMP5"
+Private oTmpTb5
+Private aCabs5      := {}
+Private aCampos5    := {}
+Private aTitulos5   := {}
+Private aStruct5    := {}
 
-PRIVATE cAliasTmp6  := "TMP6"
-PRIVATE oTmpTb6
-PRIVATE aCabs6      := {}
-PRIVATE aCampos6    := {}
-PRIVATE aTitulos6   := {}
-PRIVATE aStruct6    := {}
+Private cAliasTmp6  := "TMP6"
+Private oTmpTb6
+Private aCabs6      := {}
+Private aCampos6    := {}
+Private aTitulos6   := {}
+Private aStruct6    := {}
 
+Private aResumo     := ARRAY(12)
+Private nSaldoAnt   := 0
 
-PRIVATE aResumo     := ARRAY(12)
-PRIVATE nSaldoAnt   := 0
-
-PRIVATE nMoeda      := 1
-PRIVATE nMoedaBco   := 1
-PRIVATE nDecs       := 2
-PRIVATE lLands  	:= .T.
-PRIVATE aDescRH 	:= u_BkCodRH()
-PRIVATE aSitFin 	:= {}
+Private nMoeda      := 1
+Private nMoedaBco   := 1
+Private nDecs       := 2
+Private lLands  	:= .T.
+Private aDescRH 	:= u_BkCodRH()
+Private aSitFin 	:= {}
 
 AADD(aSitFin,"Total Clientes")
 AADD(aSitFin,"A - RH")
@@ -124,10 +124,14 @@ nAplic   := MV_PAR08    // Incluir aplicações (S/N)
 nUsuario := MV_PAR09    // Incluir Usuário digitou ou Liberou
 cFiltPrd := MV_PAR10    // Filtrar produto
 nImpostos:= MV_PAR11    // Incluir Impostos (S/N)
+cFiltCC  := MV_PAR12    // Filtrar Centro de Custos
 
 cTitulo  := OemToAnsi(cTitulo+" de "+DTOC(MV_PAR01)+" até "+DTOC(MV_PAR02))+" - "+IIF(nTpData==1,"Data do Movimento","Data do Extrato")
 If !EMPTY(cFiltPrd)
 	cTitulo += " - Produto: "+TRIM(cFiltPrd)  
+EndIf
+If !EMPTY(cFiltCC)
+	cTitulo += " - Centro de Custos: "+TRIM(cFiltCC)  
 EndIf
 
 aCamposB2 := {	{"A6_OK"      ,,"  ",""},;
@@ -137,7 +141,6 @@ aCamposB2 := {	{"A6_OK"      ,,"  ",""},;
 				{"A6_NREDUZ"  ,,"Nome","@X"}    ,;
 				{"A6_SALDOA"  ,,"Saldo Anterior","@E 9,999,999,999.99"},;
 				{"A6_SALDOF"  ,,"Saldo Final","@E 9,999,999,999.99"} }
-
 
 If nAplic == 1
 	AADD(aCamposB2,{"EH_VALREG"  ,,"Saldo Aplic.","@E 9,999,999,999.99"})
@@ -153,7 +156,6 @@ AADD(aCabs1  ,"Ok")
 AADD(aStruct1,{"A6_DATA","D",8,0})
 AADD(aCampos1,cAliasTmp1+"->A6_DATA")
 AADD(aCabs1  ,"Data")
-
 
 aSx3 := FWSX3Util():GetAllFields( "SA6" , .F. /*lVirtual */)
 For nI := 1 To Len(aSx3)
@@ -318,9 +320,9 @@ Local nValI2     := 0
 Local nValVL     := 0				
 Local cAplCotas  := GetMv("MV_APLCAL4")
 
-PRIVATE nDecs	:= 2 		  // MsDecimais
-PRIVATE dDtProc	:= dDataF 	  // Data do saldo final		
-PRIVATE dDtAnt  := dDataI - 1 // Data do saldo anterior
+Private nDecs	:= 2 		  // MsDecimais
+Private dDtProc	:= dDataF 	  // Data do saldo final		
+Private dDtAnt  := dDataI - 1 // Data do saldo anterior
 
 dbSelectArea( "SA6" )
 dbSetOrder( 1 )
@@ -826,32 +828,35 @@ dbSetOrder(1)
 u_WaitLog(, {|| KFin01Mov( nSaldoAnt)})
 
 /* removido geração sintetico
-ProcRegua((cAliasTmp2)->(LASTREC()))
 u_WaitLog(, {|| U_GeraCSV(cAliasTmp2,cNomePrg+"-Sintetico"+STR(nTpData,1),aTitulos2,aCampos2,aCabs2)})
 
-ProcRegua((cAliasTmp4)->(LASTREC()))
 u_WaitLog(, {|| U_GeraCSV(cAliasTmp4,cNomePrg+"-Sintetico_CC"+STR(nTpData,1),aTitulos4,aCampos4,aCabs4)})
 
-ProcRegua((cAliasTmp5)->(LASTREC()))
 u_WaitLog(, {|| U_GeraCSV(cAliasTmp5,cNomePrg+"-Sintetico_Fin"+STR(nTpData,1),aTitulos5,aCampos5,aCabs5)})
 */
 
+cFiltro := ""
+If !EMPTY(cFiltPrd)
+	cFiltro := "B1_COD = '"+cFiltPrd+"'"
+EndIf
+
+If !EMPTY(cFiltCC)
+	If !Empty(cFiltro)
+		cFiltro += ' .AND. '
+	EndIf
+	cFiltro += "XXCC = '"+cFiltCC+"'"
+EndIf
+
 If nFormato == 1
-	ProcRegua((cAliasTmp3)->(LASTREC()))
-	If !EMPTY(cFiltPrd)
+
+	If !Empty(cFiltro)
 		dbSelectArea(cAliasTmp3)
-		cFiltro := "B1_COD = '"+cFiltPrd+"'"
 		(cAliasTmp3)->(dbsetfilter({|| &cFiltro} , cFiltro))
 	EndIf
-	
+
 	U_GeraCSV(cAliasTmp3,cNomePrg+"-Analitico"+STR(nTpData,1),aTitulos3,aCampos3,aCabs3)
 Else
-	//aPlans := {}
-	
-	If !EMPTY(cFiltPrd)
-		cFiltro := "B1_COD = '"+cFiltPrd+"'"
-	EndIf
-	
+
 	AADD(aPlans,{cAliasTmp3,cNomePrg+"-Analitico",cFiltro,cTitulo+OemToAnsi(" - Analitico"),aCampos3,aCabs3,/*aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 	If nSaldos == 1                                              
 		AADD(aPlans,{cAliasTmp1,cNomePrg+"-Saldos Bancários","!EMPTY("+cAliasTmp1+"->A6_OK)",OemToAnsi("Fluxo de Caixa Realizado - Saldos bancários"),aCampos1,aCabs1,/* aImpr*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .F. })
@@ -1004,10 +1009,8 @@ ENDIF
 
 // Grava as movimentacoes do E5 no temporario.
 //While ! SE5->( eof()) .And. SE5->E5_DATA <= dDataF .And. xFilial("SE5") == SE5->E5_FILIAL
-ProcRegua(LastRec()) // Numero de registros a processar
-While Eval(bCondWhile)
 
-    //IncProc()
+While Eval(bCondWhile)
 
 	cDigitado := ""
 	cLiberado := ""
@@ -1072,13 +1075,11 @@ While Eval(bCondWhile)
 	Endif
 	
 	If EMPTY(cCtaFin)
-		cCtaFin :=  SE5->E5_NATUREZ //SE5->E5_XXCTFIN
+		cCtaFin := SE5->E5_NATUREZ //SE5->E5_XXCTFIN
 	EndIf
-	
 
 	nReceber := 0
 	nPagar   := 0
-	
 		
 	If SE5->E5_RECPAG == "R"
 	   nReceber    := SE5->E5_VALOR //xMoeda(SE5->E5_VALOR - SE5->E5_VLJUROS - SE5->E5_VLMULTA,nMoedaBco,nMoeda,SE5->E5_DATA,nDecs+1)
@@ -2624,7 +2625,6 @@ RestArea(aAreaIni)
 Return aRest
 
 
-
 STATIC FUNCTION VldPerg(cPerg)
 Local i,j
 Local aArea      := GetArea()
@@ -2643,7 +2643,8 @@ AADD(aRegistros,{cPerg,"07","Bancos:"      ,"Bancos:"      ,"Bancos:"       ,"mv
 AADD(aRegistros,{cPerg,"08","Aplicações  :","Aplicações  :","Aplicações  :" ,"mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"09","Usuário Dig/Liberou:","Usuário Dig/Liberou","Usuário Dig/Liberou" ,"mv_ch9","N",01,0,2,"C","","mv_par09","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
 AADD(aRegistros,{cPerg,"10","Filtrar produto","Produto"    ,"Produto"       ,"mv_cha","C",15,0,0,"G",'Vazio() .or. ExistCpo("SB1")',"mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
-AADD(aRegistros,{cPerg,"11","Impostos :","Impostos :","Impostos :" ,"mv_chB","N",01,0,2,"C","","mv_par11","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"11","Impostos :","Impostos :","Impostos :"          ,"mv_chb","N",01,0,2,"C","","mv_par11","Sim","Sim","Sim","","","Não","Não","Não","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"12","Filtrar Centro de Custos","CC","CC"            ,"mv_chc","C",09,0,0,"G",'Vazio() .or. ExistCpo("CTT")',"mv_par12","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

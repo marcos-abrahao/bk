@@ -26,7 +26,6 @@ Local oModelCND as Object
 Local cContra	as Character
 Local cRevisa 	as Character
 
-
 	If (aParam <> NIL)
 		oObj     := aParam[1]
 		cIdPonto := aParam[2]
@@ -139,6 +138,7 @@ Local cRevisa 	as Character
             oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XXVLND", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
             oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XXTPNF", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
             oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_OBS"   , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".F."))
+			oObj:GetModel("CNDMASTER"):GetStruct():SetProperty("CND_XX5JUS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
 			oObj:GetModel("CXNDETAIL"):GetStruct():SetProperty("CXN_XXOBS" , MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 
@@ -233,23 +233,25 @@ Return (xRet)
 
 Static Function MFormPos
 
-Local lRet    := .T.
-Local aAnexos := {}
+Local lRet		:= .T.
+Local aAnexos	:= {}
 Local oModel
 Local oModelCND
 Local cContra
 Local cCompet
 Local cCompAM
-Local dDia 	:= Date()
+Local dDia		:= Date()
+Local cXX5Jus	:= ""
 
 oModel		:= FwModelActivate()
 oModelCND	:= oModel:GetModel('CNDMASTER')
 
 cContra		:= oModelCND:GetValue("CND_CONTRA")
 cCompet		:= oModelCND:GetValue("CND_COMPET")
+cXX5Jus		:= oModelCND:GetValue("CND_XX5JUS")
 cCompAM 	:= SUBSTR(cCompet,4,4)+SUBSTR(cCompet,1,2)
 
-// contratos que são obrigatorios anexar docs de medição
+// Contratos que são obrigatorios anexar docs de medição
 If CN9->CN9_XXANEX == 'S'
 	aAnexos   := u_BKDocs(cEmpAnt,"SZE",PAD(cContra,15)+cCompAM,2)
 
@@ -269,9 +271,17 @@ If CN9->CN9_XX5DIA == 'S'
 	dDia := DataValida(dDia+1)
 	dDia := DataValida(dDia+1)
 	dDia := DataValida(dDia+1)
-	If dDia > dDataBase
+	If dDataBase > dDia
 		u_MsgLog("CNTA121_PE","Contrato sendo faturado após o quinto dia útil! "+DTOC(dDia),"E")
+		If LEN(ALLTRIM(cXX5Jus)) < 5
+			lRet := .F.
+			//oModelCND:GetStruct():SetProperty("CND_XX5JUS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
+			u_MsgLog("CNTA121_PE","Justifique corretamente no campo 'Just 5 dia util', no cabeçalho da medição","E")
+		EndIf
 	EndIf
+	oModelCND:LoadValue("CND_XX5DIA","S")
+Else
+	oModelCND:LoadValue("CND_XX5DIA","N")
 EndIf
 
 Return lRet

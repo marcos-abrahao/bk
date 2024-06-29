@@ -214,7 +214,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 
 	Local cQrySE1	:= GetNextAlias()
 
-	u_MsgLog(cProg,cTitulo+" "+self:vencini+" "+self:vencfim)
+	u_MsgLog(cProg,cTitulo+" - Excel "+self:vencini+" "+self:vencfim)
 
 	// Query para selecionar os Títulos a Receber
 	TmpQuery(cQrySE1,self:empresa,self:vencini,self:vencfim)
@@ -231,30 +231,44 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:SetTitulo("Empresa: "+self:empresa+" - Vencimento: "+DTOC(STOD(self:vencini)) +" a "+DTOC(STOD(self:vencfim)))
 
 	oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
-	oPExcel:AddCol("TITULO" ,"(E1_PREFIXO+E1_NUM+E1_PARCELA)","Título","")
-	oPExcel:AddCol("Cliente","A1_NOME","Cliente","A1_NOME")
-	oPExcel:AddCol("VENC","STOD(E1_VENCREA)","Vencto","E1_VENCREA")
-	oPExcel:AddCol("PEDIDO","E1_PEDIDO","Pedido","")
-	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
-	oPExcel:AddCol("SALDO","SALDO","Saldo","E1_SALDO")
-	oPExcel:AddCol("PREVISAO","E1_XXDTPRV","Previsão","E1_XXDTPRV")
-	oPExcel:AddCol("HISTM","HISTM","Histórico","E1_XXHISTM")
-	oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
 
+	oPExcel:AddCol("TIPO"   ,"E1_TIPO","Tipo","E1_TIPO")
+
+	oPExcel:AddCol("TITULO" ,"(E1_PREFIXO+E1_NUM+E1_PARCELA)","Título","")
+
+	oPExcel:AddCol("Cliente","A1_NOME","Cliente","A1_NOME")
+
+	oPExcel:AddCol("VENC","STOD(E1_VENCREA)","Vencto","E1_VENCREA")
+
+	oPExcel:AddCol("EMISSAO","STOD(E1_EMISSAO)","Emissao","E1_EMISSAO")
+
+	oPExcel:AddCol("PEDIDO","E1_PEDIDO","Pedido","E1_PEDIDO")
 	oPExcel:GetCol("PEDIDO"):SetHAlign("C")
-	oPExcel:GetCol("HISTM"):SetWrap(.T.)
+
+	oPExcel:AddCol("COMPET","C5_XXCOMPM","Competência","C5_XXCOMPM")
+	oPExcel:GetCol("COMPET"):SetHAlign("C")
+
+	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
+	oPExcel:AddCol("SALDO","SALDO","Saldo","E1_SALDO")
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
+	oPExcel:AddCol("PREVISAO","STOD(E1_XXDTPRV)","Previsão","E1_XXDTPRV")
+
+	oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
+
+	oPExcel:AddCol("STATUS","u_DE1XXTPPrv(E1_XXTPPRV)","Status","")
 	oPExcel:GetCol("STATUS"):SetHAlign("C")
-	oPExcel:GetCol("STATUS"):SetTamCol(12)
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'}	,"FF0000","",,,.T.)	// Vermelho
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Con'},"008000","",,,.T.)	// Verde
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FFA500","",,,.T.)	// Laranja
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Com'},"0000FF","",,,.T.)	// Azul
-	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'D'}	,"000000","",,,.T.)	// Preto
+	oPExcel:GetCol("STATUS"):SetTamCol(18)
+	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'A Receber'}			,"000000","",,,.T.)	// Preto
+	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Sem Previsao'}			,"FF0000","",,,.T.)	// Vermelho
+	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Aguardando Previsao'}	,"FFA500","",,,.T.)	// Laranja
+	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Previsao Informada'}	,"0000FF","",,,.T.)	// Azul
+
+	oPExcel:AddCol("HISTM","E1_XXHISTM","Histórico","E1_XXHISTM")
+	oPExcel:GetCol("HISTM"):SetWrap(.T.)
 
 	// Adiciona a planilha
 	oRExcel:AddPlan(oPExcel)
@@ -391,19 +405,22 @@ Local oJsonPN	:= JsonObject():New()
 Local cRet		:= ""
 Local cQuery	:= ""
 Local cTabSE1	:= "SE1"+self:empresa+"0"
-Local cTabSA2	:= "SA2"+self:empresa+"0"
-Local cTabSF2	:= "SF2"+self:empresa+"0"
+Local cTabSA1	:= "SA1"+self:empresa+"0"
+//Local cTabSF2	:= "SF2"+self:empresa+"0"
+Local cTabSZY	:= "SZY"+self:empresa+"0"
 Local cQrySE1	:= GetNextAlias()
+Local cQrySZY	:= GetNextAlias()
 Local aEmpresas	As Array
 Local aParams	As Array
 Local cMsg		As Character
-// Chave Z2
+Local nI 		:= 0
+Local aItens 	As Array
+
+// Chave ZY
+Local cTipo		:= ""
 Local cPrefixo	:= ""
 Local cNum		:= ""
 Local cParcela	:= ""
-Local cTipo		:= ""
-Local cCliente	:= ""
-Local cLoja		:= ""
 
 aEmpresas := u_BKGrpFat()
 u_BkAvPar(::userlib,@aParams,@cMsg)
@@ -417,13 +434,14 @@ cQuery += "	 ,E1_CLIENTE"+CRLF
 cQuery += "	 ,E1_PEDIDO"+CRLF
 cQuery += "	 ,E1_LOJA"+CRLF
 cQuery += "	 ,E1_XXHIST"+CRLF
-cQuery += "	 ,E1_USERLGA"+CRLF 
+//cQuery += "	 ,E1_USERLGI"+CRLF 
 cQuery += "	 ,E1_EMISSAO"+CRLF
 cQuery += "	 ,E1_BAIXA"+CRLF
 cQuery += "	 ,E1_VENCREA"+CRLF
 cQuery += "	 ,E1_VALOR"+CRLF
 cQuery += "	 ,E1_XXOPER"+CRLF
 cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
+cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),E1_XXHISTM)) AS E1_XXHISTM "+CRLF
 cQuery += "	 ,A1_NOME"+CRLF
 cQuery += "	 ,A1_PESSOA"+CRLF
 cQuery += "	 ,A1_CGC"+CRLF
@@ -433,15 +451,16 @@ cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
 
 cQuery += "	 FROM "+cTabSE1+" SE1 "+CRLF
 
+/*
 cQuery += "	 LEFT JOIN "+cTabSF2+" SF2 ON"+CRLF
 cQuery += "	 	SE1.E1_FILIAL      = SF2.F2_FILIAL"+CRLF
 cQuery += "	 	AND SE1.E1_NUM     = SF2.F2_DOC "+CRLF
 cQuery += "	 	AND SE1.E1_PREFIXO = SF2.F2_SERIE"+CRLF
 cQuery += "	 	AND SE1.E1_CLIENTE = SF2.F2_CLIENTE"+CRLF
 cQuery += "	 	AND SE1.E1_LOJA    = SF2.F2_LOJA"+CRLF
-cQuery += "	 	AND SF1.D_E_L_E_T_ = ''"+CRLF
-
-cQuery += "	 LEFT JOIN "+cTabSA2+"  SA2 ON"+CRLF
+cQuery += "	 	AND SE1.D_E_L_E_T_ = ''"+CRLF
+*/
+cQuery += "	 LEFT JOIN "+cTabSA1+" SA1 ON"+CRLF
 cQuery += "	 	SA1.A1_FILIAL      = '  '"+CRLF
 cQuery += "	 	AND SE1.E1_CLIENTE = SA1.A1_COD"+CRLF
 cQuery += "	 	AND SE1.E1_LOJA    = SA1.A1_LOJA"+CRLF
@@ -455,12 +474,10 @@ dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 
 dbSelectArea(cQrySE1)
 dbGoTop()
+cTipo		:= (cQrySE1)->E1_TIPO
 cPrefixo	:= (cQrySE1)->E1_PREFIXO
 cNum		:= (cQrySE1)->E1_NUM
 cParcela	:= (cQrySE1)->E1_PARCELA
-cTipo		:= (cQrySE1)->E1_TIPO
-cCliente	:= (cQrySE1)->E1_CLIENTE
-cLoja		:= (cQrySE1)->E1_LOJA
 
 oJsonPN['USERNAME']		:= cUserName
 oJsonPN['EMPRESA']		:= aEmpresas[aScan(aEmpresas,{|x| x[1] == self:empresa }),2]
@@ -469,12 +486,60 @@ oJsonPN['E1_NUM']		:= (cQrySE1)->E1_NUM
 oJsonPN['A1_NOME']		:= (cQrySE1)->A1_NOME
 oJsonPN['E1_EMISSAO']	:= DTOC(STOD((cQrySE1)->E1_EMISSAO))
 oJsonPN['E1_VENCREA']	:= DTOC(STOD((cQrySE1)->E1_VENCREA))
-//oJsonPN['E1_XXUSER']	:= UsrRetName((cQrySE1)->E1_XXUSER)
-oJsonPN['E1_XXHIST']	:= (cQrySE1)->E1_XXHIST
+oJsonPN['E1_XXOPER']	:= UsrRetName((cQrySE1)->E1_XXOPER)
+oJsonPN['E1_PEDIDO']	:= (cQrySE1)->E1_PEDIDO
 oJsonPN['E1_XXHISTM']	:= (cQrySE1)->E1_XXHISTM
 
-
 (cQrySE1)->(dbCloseArea())
+
+cQuery := "SELECT " + CRLF
+cQuery += "	  ZY_DATA"+CRLF
+cQuery += "	 ,ZY_HORA"+CRLF
+cQuery += "	 ,ZY_STATUS"+CRLF
+cQuery += "	 ,ZY_OPER"+CRLF
+cQuery += "	 ,ZY_DTPREV"+CRLF
+cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),ZY_OBS)) AS ZY_OBS "+CRLF
+cQuery += "	 ,USR_CODIGO"+CRLF
+
+cQuery += " FROM "+cTabSZY+" SZY" + CRLF
+
+cQuery += " LEFT JOIN SYS_USR USR ON ZY_OPER  = USR.USR_ID AND USR.D_E_L_E_T_ = ''" + CRLF
+
+cQuery += " WHERE ZY_FILIAL = '"+xFilial("SZY")+"' " + CRLF
+cQuery += " 	AND SZY.ZY_TIPO = '"+cTipo+"' " + CRLF
+cQuery += " 	AND SZY.ZY_NUM = '"+cNum+"' " + CRLF
+cQuery += " 	AND SZY.ZY_PREFIXO  = '"+cPrefixo+"' " + CRLF
+cQuery += " 	AND SZY.ZY_PARCELA  = '"+cParcela+"' " + CRLF
+cQuery += " 	AND SZY.D_E_L_E_T_ = ' '" + CRLF
+cQuery += " ORDER BY ZY_DATA DESC,ZY_HORA DESC" + CRLF
+
+//u_MsgLog(,"Aqui3")
+
+u_LogMemo("RESTTITCR-E1.SQL",cQuery)
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZY,.T.,.T.)
+
+dbSelectArea(cQrySZY)
+dbGoTop()
+
+aItens := {}
+nI := 0
+
+Do While (cQrySZY)->(!EOF())
+	aAdd(aItens,JsonObject():New())
+	nI++
+
+	aItens[nI]["ZY_DATA"]	:= DTOC(STOD((cQrySZY)->ZY_DATA))
+	aItens[nI]["ZY_HORA"]	:= (cQrySZY)->ZY_HORA
+	aItens[nI]["ZY_STATUS"]	:= u_DE1XXTPPrv((cQrySZY)->ZY_STATUS)
+	aItens[nI]["ZY_OPER"]	:= (cQrySZY)->USR_CODIGO
+	aItens[nI]["ZY_DTPREV"]	:= DTOC(STOD((cQrySZY)->ZY_DTPREV))
+	aItens[nI]["ZY_OBS"]	:= StrIConv(TRIM((cQrySZY)->ZY_OBS), "CP1252", "UTF-8")
+
+	dbSkip()
+EndDo
+
+oJsonPN['DADOSZY']	:= aItens
 
 cRet := oJsonPN:ToJson()
 
@@ -511,6 +576,11 @@ BEGINCONTENT var cHTML
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
+<-- Column filtering CSS -->
+<link href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.css" rel="stylesheet">
+
+
 <title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 
@@ -528,7 +598,7 @@ BEGINCONTENT var cHTML
   padding-right:5px;
 }
 .font-condensed{
-  font-size: 0.8em;
+  font-size: 1.0em;
 }
 body {
 font-size: 0.8rem;
@@ -611,19 +681,38 @@ line-height: 1rem;
   <td scope="col"></td>
 </tr>
 </tbody>
+<tfoot>
+<tr>
+<th scope="col"></th>
+<th scope="col">Empresa</th>
+<th scope="col">Tipo</th>
+<th scope="col" width="7%" >Título</th>
+<th scope="col" width="20%" >Cliente</th>
+<th scope="col">Vencto</th>
+<th scope="col">Emissão</th>
+<th scope="col" style="text-align:center;">Pedido</th>
+<th scope="col" style="text-align:center;">Compet</th>
+<th scope="col" style="text-align:center;">Valor</th>
+<th scope="col" style="text-align:center;">Saldo</th>
+<th scope="col" style="text-align:center;">Status</th>
+<th scope="col">Previsão</th>
+<th scope="col">Operador</th>
+<th scope="col">Histórico</th>
+</tr>
+</tfoot>
 </table>
 </div>
 </div>
 
 
 <!-- Modal -->
-<div id="E2Modal" class="modal fade" role="dialog">
+<div id="E1Modal" class="modal fade" role="dialog">
    <div class="modal-dialog modal-fullscreen">
      <!-- Conteúdo do modal-->
      <div class="modal-content">
        <!-- Cabeçalho do modal -->
        <div class="modal-header bk-colors">
-         <h4 id="titE2Modal" class="modal-title">Título do modal</h4>
+         <h4 id="titE1Modal" class="modal-title">Título do modal</h4>
          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                  <span aria-hidden="true">&times;</span>
          </button>
@@ -655,23 +744,18 @@ line-height: 1rem;
            </div>
 
            <div class="col-md-2">
-             <label for="E1User" class="form-label">Usuário</label>
-             <input type="text" class="form-control form-control-sm" id="E1User" value="#E1User#" readonly="">
+             <label for="E1Oper" class="form-label">Operador</label>
+             <input type="text" class="form-control form-control-sm" id="E1Oper" value="#E1Oper#" readonly="">
            </div>
 
            <div class="col-md-1">
-             <label for="E1Pedido" class="form-label">Lote<E1_PEDIDOel>
-             <input type="text" class="form-control form-control-sm" id="E1Pedido" value="#E1Pedido#" readoE1_PEDIDO"">
+             <label for="E1Pedido" class="form-label">Pedido</label>
+             <input type="text" class="form-control form-control-sm" id="E1Pedido" value="#E1Pedido#" readonly="">
            </div>
 
            <div class="col-md-8">
-             <label for="E1Hist" class="form-label">Histórico CR</label>
-			 <textarea class="form-control form-control-sm" id="E1Hist" rows="1" value="#E1Hist#" readonly=""></textarea>
-           </div>
-
-           <div class="col-md-8">
-             <label for="D1Hist" class="form-label">Histórico Doc de Entrada</label>
-			 <textarea class="form-control form-control-sm" id="D1Hist" rows="4" value="#D1Hist#" readonly=""></textarea>
+             <label for="E1HistM" class="form-label">Histórico CR</label>
+			 <textarea class="form-control form-control-sm" id="E1HistM" rows="3" value="#E1HistM#" readonly=""></textarea>
            </div>
 
 			<div class="container">
@@ -679,20 +763,22 @@ line-height: 1rem;
 				<table class="table ">
 					<thead>
 						<tr>
-							<th scope="col">Produto</th>
-							<th scope="col">Descrição</th>
-							<th scope="col">Centro de Custo</th>
-							<th scope="col" style="text-align:right;">Valor</th>
+							<th scope="col">Data</th>
+							<th scope="col">Hora</th>
+							<th scope="col">Status</th>
+							<th scope="col">Operador</th>
+							<th scope="col">Previsão</th>
+							<th scope="col">Observações</th>
 						</tr>
 					</thead>
-					<tbody id="E2Table">
+					<tbody id="E1Table">
 						<tr>
-							<th scope="row" colspan="4" style="text-align:center;">Carregando itens...</th>
+							<th scope="row" colspan="6" style="text-align:center;">Carregando itens...</th>
 						</tr>
 					</tbody>
 
-					<tfoot id="E2Foot">
-						<th scope="row" colspan="4" style="text-align:right;">Total Geral</th>
+					<tfoot id="E1Foot">
+						<th scope="row" colspan="6" style="text-align:right;"></th>
 					</tfoot>
 
 				</table>
@@ -751,6 +837,10 @@ line-height: 1rem;
 <!-- https://datatables.net/ -->
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Column filtering -->
+<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/fixedHeader.dataTables.min.js"></script>
 
 <!-- Buttons -->
 <!-- https://cdn.datatables.net/buttons/ -->
@@ -817,7 +907,12 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td></td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['TIPO']+'</td>';
-	trHTML += '<td id=titulo'+clin+'>'+object['TITULO']+'</td>';
+
+	//trHTML += '<td id=titulo'+clin+'>'+object['TITULO']+'</td>';
+	trHTML += '<td>';
+		trHTML += '<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
+	trHTML += '</td>';
+	
 	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
 	trHTML += '<td>'+object['VENC']+'</td>';
 	trHTML += '<td>'+object['EMISSAO']+'</td>';
@@ -828,19 +923,19 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
 	trHTML += '<td>'
-		// Botão para mudança de status
+	// Botão para mudança de status
 
 		
-		trHTML += '<div class="btn-group">'
-			trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
-			trHTML += cStatus
-			trHTML += '</button>'
+	trHTML += '<div class="btn-group">'
+		trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+		trHTML += cStatus
+		trHTML += '</button>'
 
-			trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\','+'\''+clin+'\')">A Receber</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
-			trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
+		trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\','+'\''+clin+'\')">A Receber</button>';
+		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
+		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
+		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
 		trHTML += '</div>'
 		
 	trHTML += '</td>'
@@ -910,14 +1005,35 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Histórico' },
         { data: 'Contrato' },
   ],
-  "columnDefs": [
-        {
+  "order": [[1,'asc']],
+
+initComplete: function () {
+        this.api()
+            .columns()
+            .every(function () {
+                var column = this;
+                var title = column.header().textContent;
+ 
+                // Create input element and add event listener
+                $('<input type="text" placeholder="' + title + '" />')
+                    .appendTo($(column.header()).empty())
+                    .on('keyup change clear', function () {
+                        if (column.search() !== this.value) {
+                            column.search(this.value).draw();
+                        }
+                    });
+            });
+    },
+    fixedHeader: {
+        footer: true
+    },
+	columnDefs: [
+    	{
             target: 15,
             visible: false,
             searchable: false
         }
-  ],
-  "order": [[1,'asc']]
+    ]
  });
 
 }
@@ -968,8 +1084,8 @@ let urlE1 = '#iprest#/RestTitCR/v6?empresa='+empresa+'&e1recno='+e1recno+'&userl
 
 async function showE1(empresa,e1recno,userlib,cbtne1) {
 
-document.getElementById(cbtne1).disabled = true;
-document.getElementById(cbtne1).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+//document.getElementById(cbtne1).disabled = true;
+//document.getElementById(cbtne1).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
 
 let dadosE1 = await getE1(empresa,e1recno,userlib);
 let itens = '';
@@ -985,38 +1101,41 @@ document.getElementById('E1Num').value = dadosE1['E1_NUM'];
 document.getElementById('E1NomCLI').value = dadosE1['A1_NOME'];
 document.getElementById('E1Emissao').value = dadosE1['E1_EMISSAO'];
 document.getElementById('E1VencRea').value = dadosE1['E1_VENCREA'];
-document.getElementById('E1User').value = dadosE1['E1_XXUSER'];
-document.getElementById('E1Hist').value = dadosE1['E1_XXHIST'];
+document.getElementById('E1Oper').value = dadosE1['E1_XXOPER'];
+document.getElementById('E1HistM').value = dadosE1['E1_XXHISTM'];
 document.getElementById('E1Pedido').value = dadosE1['E1_PEDIDO'];
 
-if (Array.isArray(dadosE1.DADOSD1)) {
-   dadosE1.DADOSD1.forEach(object => {
+if (Array.isArray(dadosE1.DADOSZY)) {
+   dadosE1.DADOSZY.forEach(object => {
     i++
 	itens += '<tr>';
-	itens += '<td>'+object['D1_COD']+'</td>';	
-	itens += '<td>'+object['B1_DESC']+'</td>';
-	itens += '<td>'+object['D1_CC']+'</td>';
-	itens += '<td align="right">'+object['D1_VALOR']+'</td>';
+	itens += '<td>'+object['ZY_DATA']+'</td>';	
+	itens += '<td>'+object['ZY_HORA']+'</td>';
+	itens += '<td>'+object['ZY_STATUS']+'</td>';
+	itens += '<td>'+object['ZY_OPER']+'</td>';
+	itens += '<td>'+object['ZY_DTPREV']+'</td>';
+	itens += '<td>'+object['ZY_OBS']+'</td>';
+
 	itens += '</tr>';
+
   })
 }
 
-document.getElementById("E2Table").innerHTML = itens;
-foot = '<th scope="row" colspan="8" style="text-align:right;">'+dadosE1['D1_TOTAL']+'</th>'
-document.getElementById("E2Foot").innerHTML = foot;
+document.getElementById("E1Table").innerHTML = itens;
 
-$("#titE2Modal").text('Título do Contas a Receber - Empresa: '+dadosE1['EMPRESA'] + ' - Usuário: '+dadosE1['USERNAME']);
-$('#E2Modal').modal('show');
-$('#E2Modal').on('hidden.bs.modal', function () {
-	location.reload();
-	})
+$("#titE1Modal").text('Título do Contas a Receber - Empresa: '+dadosE1['EMPRESA'] + ' - Usuário: '+dadosE1['USERNAME']);
+$('#E1Modal').modal('show');
+//$('#E1Modal').on('hidden.bs.modal', function () {
+//	location.reload();
+//	})
 }
 
 
 async function AltStatus(empresa,e1recno,userlib,acao,btnids,clin){
 let btnAlt = '<button type="button" class="btn btn-outline-success" onclick="ChgStatus(\''+empresa+'\',\''+e1recno+'\',\'#userlib#\',\''+acao+'\','+'\''+btnids+'\','+'\''+clin+'\')">Salvar</button>';
 document.getElementById("btnAlt").innerHTML = btnAlt;
-document.getElementById("AltTitulo").textContent = "Título "+document.getElementById("titulo"+clin).textContent + ' - '+document.getElementById("cliente"+clin).textContent;
+document.getElementById("AltTitulo").textContent = "Título "+document.getElementById("btne1"+clin).textContent + ' - '+document.getElementById("cliente"+clin).textContent;
+//document.getElementById("AltTitulo").textContent = ' - '+document.getElementById("cliente"+clin).textContent;
 document.getElementById("ZYObs").value = '';
 
 $('#altStatus').modal('show');
@@ -1230,7 +1349,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
 
 	//cQuery += "	 ,F2_USERLGI"+CRLF
-	cQuery += "	 ,ISNULL(C5_XXCOMPM,E1_XXCOMPE) AS C5_XXCOMPM"+CRLF
+	cQuery += "	 ,ISNULL(C5_XXCOMPM,SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4)) AS C5_XXCOMPM"+CRLF
 
 	cQuery += "	 ,SUBSTRING(CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END,1,9) AS C5_MDCONTR " + CRLF
 
