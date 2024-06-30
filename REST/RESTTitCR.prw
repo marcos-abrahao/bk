@@ -577,9 +577,7 @@ BEGINCONTENT var cHTML
 <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
 <-- Column filtering CSS -->
-<link href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.css" rel="stylesheet">
-
+<link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.css" rel="stylesheet">
 
 <title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
@@ -604,10 +602,19 @@ body {
 font-size: 0.8rem;
 	background-color: #f6f8fa;
 	}
+
 td {
 line-height: 1rem;
 	vertical-align: middle;
 	}
+
+tfoot input {
+	width: 100%;
+	font-weight: bold;
+	background-color: #F3F3F3
+}
+
+
 </style>
 </head>
 <body>
@@ -641,20 +648,20 @@ line-height: 1rem;
 <br>
 <div class="container-fluid">
 <div class="table-responsive-sm">
-<table id="tableSE1" class="table" style="width:100%">
+<table id="tableSE1" class="display" style="width:100%">
 <thead>
 <tr>
 <th scope="col"></th>
 <th scope="col">Empresa</th>
 <th scope="col">Tipo</th>
 <th scope="col" width="7%" >Título</th>
-<th scope="col" width="20%" >Cliente</th>
-<th scope="col">Vencto</th>
-<th scope="col">Emissão</th>
-<th scope="col" style="text-align:center;">Pedido</th>
-<th scope="col" style="text-align:center;">Compet</th>
-<th scope="col" style="text-align:center;">Valor</th>
-<th scope="col" style="text-align:center;">Saldo</th>
+<th scope="col" width="20%">Cliente</th>
+<th scope="col" width="5%" >Vencto</th>
+<th scope="col" width="5%" >Emissão</th>
+<th scope="col" width="5%" >Pedido</th>
+<th scope="col" width="5%" >Compet</th>
+<th scope="col" style="text-align:right;">Valor</th>
+<th scope="col" style="text-align:right;">Saldo</th>
 <th scope="col" style="text-align:center;">Status</th>
 <th scope="col">Previsão</th>
 <th scope="col">Operador</th>
@@ -671,8 +678,8 @@ line-height: 1rem;
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:center;"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
   <td scope="col" style="text-align:center;"></td>
   <td scope="col" style="text-align:center;"></td>
   <td scope="col" style="text-align:center;"></td>
@@ -687,13 +694,13 @@ line-height: 1rem;
 <th scope="col">Empresa</th>
 <th scope="col">Tipo</th>
 <th scope="col" width="7%" >Título</th>
-<th scope="col" width="20%" >Cliente</th>
-<th scope="col">Vencto</th>
-<th scope="col">Emissão</th>
-<th scope="col" style="text-align:center;">Pedido</th>
-<th scope="col" style="text-align:center;">Compet</th>
-<th scope="col" style="text-align:center;">Valor</th>
-<th scope="col" style="text-align:center;">Saldo</th>
+<th scope="col" width="20%">Cliente</th>
+<th scope="col" width="5%" >Vencto</th>
+<th scope="col" width="5%" >Emissão</th>
+<th scope="col" width="5%" >Pedido</th>
+<th scope="col" width="5%" >Compet</th>
+<th scope="col" style="text-align:right;">Valor</th>
+<th scope="col" style="text-align:right;">Saldo</th>
 <th scope="col" style="text-align:center;">Status</th>
 <th scope="col">Previsão</th>
 <th scope="col">Operador</th>
@@ -838,9 +845,10 @@ line-height: 1rem;
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
 
-<!-- Column filtering -->
+<!-- Column filtering https://datatables.net/extensions/fixedheader/examples/integration/columnFiltering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
-<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/fixedHeader.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/fixedHeader.bootstrap5.min.js"></script>
 
 <!-- Buttons -->
 <!-- https://cdn.datatables.net/buttons/ -->
@@ -1007,16 +1015,17 @@ tableSE1 = $('#tableSE1').DataTable({
   ],
   "order": [[1,'asc']],
 
-initComplete: function () {
+	initComplete: function () {
         this.api()
             .columns()
             .every(function () {
                 var column = this;
-                var title = column.header().textContent;
+                var title = column.footer().textContent;
  
                 // Create input element and add event listener
-                $('<input type="text" placeholder="' + title + '" />')
-                    .appendTo($(column.header()).empty())
+                //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
+				$('<input type="text" placeholder="' + title + '" />')
+				    .appendTo($(column.footer()).empty())
                     .on('keyup change clear', function () {
                         if (column.search() !== this.value) {
                             column.search(this.value).draw();
@@ -1024,9 +1033,7 @@ initComplete: function () {
                     });
             });
     },
-    fixedHeader: {
-        footer: true
-    },
+
 	columnDefs: [
     	{
             target: 15,
