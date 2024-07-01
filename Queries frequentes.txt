@@ -50,27 +50,10 @@ SELECT * FROM SED010 WHERE ED_CODIGO = '0000000047' OR ED_PERCIRF = 1
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -- 24/04/2024 Listagem dos usuario Staf e seus superiores
-SELECT 
-	 USRSUP.USR_ID
-	 ,USR1.USR_CODIGO
-	 ,USR1.USR_EMAIL
-	 ,USRSUP.USR_SUPER
-	 ,USR2.USR_CODIGO
- FROM SYS_USR_SUPER USRSUP
- LEFT JOIN [dataP10].[dbo].[SYS_USR] USR1 ON USRSUP.USR_ID = USR1.USR_ID AND USR1.D_E_L_E_T_ = ' ' 
- LEFT JOIN [dataP10].[dbo].[SYS_USR] USR2 ON USRSUP.USR_SUPER = USR2.USR_ID AND USR2.D_E_L_E_T_ = ' ' 
- INNER JOIN [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP ON USRSUP.USR_ID = USRGRP.USR_ID AND USRGRP.USR_GRUPO = '000039'
- WHERE  USRSUP.D_E_L_E_T_ = ' ' 
-		AND USR1.USR_MSBLQL = '2'
-ORDER BY USRSUP.USR_ID,USRSUP.R_E_C_N_O_
-
-
-
--- 12/09/23 Listagem dos usuarios e grupos
-
 SELECT USRGRP.[USR_ID]
       ,USR.USR_CODIGO
 	  ,USR_GRUPO
+	  ,USR_DEPTO
 	  ,GRP.GR__NOME
 	  ,USRGRP.USR_ID
 	  ,[USR_PRIORIZA]
@@ -86,8 +69,9 @@ SELECT USRGRP.[USR_ID]
 		--AND USR.USR_MSBLQL = '2'
 		--AND USRGRP.USR_GRUPO = '000029'
 		--AND USRGRP.USR_ID = '000029'
+		--AND USR_DEPTO LIKE '%Ju%'
+	ORDER BY USR.USR_CODIGO
 	ORDER BY USRGRP.USR_ID
-
 
 
 -- 13/09/23 Listagem com Usuarios e superiores

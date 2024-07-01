@@ -613,8 +613,6 @@ tfoot input {
 	font-weight: bold;
 	background-color: #F3F3F3
 }
-
-
 </style>
 </head>
 <body>
@@ -1011,7 +1009,7 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Previsão' },
         { data: 'Operador' },
         { data: 'Histórico' },
-        { data: 'Contrato' },
+        { data: 'Contrato' }
   ],
   "order": [[1,'asc']],
 
