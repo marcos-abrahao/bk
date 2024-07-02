@@ -571,14 +571,18 @@ BEGINCONTENT var cHTML
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Bootstrap CSS -->
-<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
+<!-- Styling https://datatables.net/download/ -->
+<!-- CSS Bootstrap 5 -->
+<!-- Packages: Jquery3, Bootstrap5, DataTables -->
+<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
-<-- Column filtering CSS -->
-<link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.css" rel="stylesheet">
-
+<link href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/datetime/1.5.2/css/dataTables.dateTime.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.min.css" rel="stylesheet">
+ 
 <title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
 <!-- <link href="index.css" rel="stylesheet"> -->
 
@@ -634,7 +638,9 @@ tfoot input {
 	</div>
 
     <form class="d-flex">
+	  <label class="sr-only" for="DataVencI"></label>
 	  <input class="form-control me-2" type="date" id="DataVencI" value="#datavencI#" />
+	  <label class="sr-only" for="DataVencF"></label>
 	  <input class="form-control me-2" type="date" id="DataVencF" value="#datavencF#" />
       <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
     </form>
@@ -646,7 +652,7 @@ tfoot input {
 <br>
 <div class="container-fluid">
 <div class="table-responsive-sm">
-<table id="tableSE1" class="display" style="width:100%">
+<table id="tableSE1" class="table table-sm table-hover" style="width:100%">
 <thead>
 <tr>
 <th scope="col"></th>
@@ -677,9 +683,8 @@ tfoot input {
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:right;"></td>
+  <td scope="col" style="text-align:right;"></td>
   <td scope="col" style="text-align:center;"></td>
   <td scope="col"></td>
   <td scope="col"></td>
@@ -829,39 +834,18 @@ tfoot input {
 </div>
 
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
-<!-- JavaScript Bundle with Popper -->
-<!-- https://getbootstrap.com/docs/5.3/getting-started/download/ -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-
-<!-- https://datatables.net/ -->
+<!-- JavaScript https://datatables.net/download/-->
+<!-- Packages: Jquery3, Bootstrap5, DataTables -->
+<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-
-<!-- Column filtering https://datatables.net/extensions/fixedheader/examples/integration/columnFiltering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
-<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/fixedHeader.bootstrap5.min.js"></script>
-
-<!-- Buttons -->
-<!-- https://cdn.datatables.net/buttons/ -->
 <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
-
-<!-- https://cdnjs.com/libraries/jszip -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-<!-- https://cdnjs.com/libraries/pdfmake -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
-
-<!-- https://cdn.datatables.net/buttons -->
-<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
-
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.5.2/js/dataTables.dateTime.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/5.0.1/js/dataTables.fixedColumns.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
 <script>
 
 async function getCRs() {
@@ -1038,7 +1022,11 @@ tableSE1 = $('#tableSE1').DataTable({
             visible: false,
             searchable: false
         }
-    ]
+    ],
+
+	fixedHeader: true,
+    responsive: true
+
  });
 
 }
