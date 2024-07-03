@@ -571,20 +571,10 @@ BEGINCONTENT var cHTML
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Styling https://datatables.net/download/ -->
-<!-- CSS Bootstrap 5 -->
-<!-- Packages: Jquery3, Bootstrap5, DataTables -->
-<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/datetime/1.5.2/css/dataTables.dateTime.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.min.css" rel="stylesheet">
+<!-- Styling CSS -->
+#BKDTStyle#
  
 <title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
-<!-- <link href="index.css" rel="stylesheet"> -->
 
 <!-- Favicon -->
 #BKFavIco#
@@ -612,8 +602,8 @@ line-height: 1rem;
 	vertical-align: middle;
 	}
 
-tfoot input {
-	width: 100%;
+thead input {
+	width: 105%;
 	font-weight: bold;
 	background-color: #F3F3F3
 }
@@ -691,25 +681,6 @@ tfoot input {
   <td scope="col"></td>
 </tr>
 </tbody>
-<tfoot>
-<tr>
-<th scope="col"></th>
-<th scope="col">Empresa</th>
-<th scope="col">Tipo</th>
-<th scope="col" width="7%" >Título</th>
-<th scope="col" width="20%">Cliente</th>
-<th scope="col" width="5%" >Vencto</th>
-<th scope="col" width="5%" >Emissão</th>
-<th scope="col" width="5%" >Pedido</th>
-<th scope="col" width="5%" >Compet</th>
-<th scope="col" style="text-align:right;">Valor</th>
-<th scope="col" style="text-align:right;">Saldo</th>
-<th scope="col" style="text-align:center;">Status</th>
-<th scope="col">Previsão</th>
-<th scope="col">Operador</th>
-<th scope="col">Histórico</th>
-</tr>
-</tfoot>
 </table>
 </div>
 </div>
@@ -833,19 +804,9 @@ tfoot input {
    </div>
 </div>
 
+<!-- JavaScript -->
+#BKDTScript#
 
-<!-- JavaScript https://datatables.net/download/-->
-<!-- Packages: Jquery3, Bootstrap5, DataTables -->
-<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/datetime/1.5.2/js/dataTables.dateTime.min.js"></script>
-<script src="https://cdn.datatables.net/fixedcolumns/5.0.1/js/dataTables.fixedColumns.min.js"></script>
-<script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
 <script>
 
 async function getCRs() {
@@ -1002,12 +963,12 @@ tableSE1 = $('#tableSE1').DataTable({
             .columns()
             .every(function () {
                 var column = this;
-                var title = column.footer().textContent;
+                var title = column.header().textContent;
  
                 // Create input element and add event listener
                 //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
 				$('<input type="text" placeholder="' + title + '" />')
-				    .appendTo($(column.footer()).empty())
+				    .appendTo($(column.header()).empty())
                     .on('keyup change clear', function () {
                         if (column.search() !== this.value) {
                             column.search(this.value).draw();
@@ -1022,10 +983,7 @@ tableSE1 = $('#tableSE1').DataTable({
             visible: false,
             searchable: false
         }
-    ],
-
-	fixedHeader: true,
-    responsive: true
+    ]
 
  });
 
@@ -1215,13 +1173,14 @@ window.open("#iprest#/RestTitCR/v2?empresa=#empresa#&vencini="+newvamdi+"&vencfi
 }
 
 </script>
-
 </body>
 </html>
 ENDCONTENT
 
-cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
-cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
+cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
+cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
+cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)

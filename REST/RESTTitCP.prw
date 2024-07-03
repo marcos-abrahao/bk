@@ -318,6 +318,8 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencini,vencfim WSREST RestTitCP
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FFA500","",,,.T.)	// Laranja
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Com'},"0000FF","",,,.T.)	// Azul
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'D'}	,"000000","",,,.T.)	// Preto
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'L'}	,"8B008B","",,,.T.)	// Dark Magenta
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'T'}	,"4B0082","",,,.T.)	// Indigo
 
 	oPExcel:GetCol("DADOSPGT"):SetTamCol(40)
 	// Adiciona a planilha
@@ -930,13 +932,11 @@ BEGINCONTENT var cHTML
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Bootstrap CSS -->
-<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/2.0.2/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- Styling CSS -->
+#BKDTStyle#
 
 <title>Títulos Contas a Pagar #datavencI# #datavencF# #NomeEmpresa#</title>
-<!-- <link href="index.css" rel="stylesheet"> -->
+
 <!-- Favicon -->
 #BKFavIco#
 
@@ -961,6 +961,13 @@ td {
 line-height: 1rem;
 	vertical-align: middle;
 	}
+
+thead input {
+	width: 105%;
+	font-weight: bold;
+	background-color: #F3F3F3
+}
+
 </style>
 </head>
 <body>
@@ -995,7 +1002,7 @@ line-height: 1rem;
 <br>
 <div class="container-fluid">
 <div class="table-responsive-sm">
-<table id="tableSE2" class="table">
+<table id="tableSE2" class="table table-sm table-hover" style="width:100%">
 <thead>
 <tr>
 <th scope="col"></th>
@@ -1232,34 +1239,8 @@ line-height: 1rem;
    </div>
 </div>
 
-
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<!-- JavaScript Bundle with Popper -->
-<!-- https://getbootstrap.com/docs/5.3/getting-started/download/ -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-
-<!-- https://datatables.net/ -->
-<script src="https://cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.2/js/dataTables.bootstrap5.min.js"></script>
-
-<!-- Buttons -->
-<!-- https://cdn.datatables.net/buttons/ -->
-<script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
-
-<!-- https://cdnjs.com/libraries/jszip -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-<!-- https://cdnjs.com/libraries/pdfmake -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
-
-<!-- https://cdn.datatables.net/buttons -->
-<script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.html5.min.js"></script>
+<!-- JavaScript -->
+#BKDTScript#
 
 <script>
 
@@ -1278,7 +1259,7 @@ async function loadTable() {
 let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
-let ccbtn = '';
+let ccbtn = 'light';
 let cbtnidp = '';
 let cbtnids = '';
 let cbtnz2 = '';
@@ -1304,6 +1285,10 @@ if (Array.isArray(titulos)) {
 	 ccbtn = 'primary';
 	} else if (cStatus == 'D'){
 	 ccbtn = 'dark';
+	} else if (cStatus == 'L'){
+	 ccbtn = 'info';
+	} else if (cStatus == 'T'){
+	 ccbtn = 'secondary';
 	}
 
 	trHTML += '<tr>';
@@ -1360,6 +1345,8 @@ if (Array.isArray(titulos)) {
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'P\','+'\''+cbtnids+'\')">Pendente</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'O\','+'\''+cbtnids+'\')">Compensar PA</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'D\','+'\''+cbtnids+'\')">Deb Automatico</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'L\','+'\''+cbtnids+'\')">Parcelamento</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgStatus(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'T\','+'\''+cbtnids+'\')">Cartao</button>';
 
 	trHTML += '</div>'
 
@@ -1447,7 +1434,26 @@ tableSE2 = $('#tableSE2').DataTable({
             searchable: false
         }
   ],
-  "order": [[1,'asc']]
+  "order": [[1,'asc']],
+   initComplete: function () {
+        this.api()
+            .columns()
+            .every(function () {
+                var column = this;
+                var title = column.header().textContent;
+ 
+                // Create input element and add event listener
+                //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
+				$('<input type="text" placeholder="' + title + '" />')
+				    .appendTo($(column.header()).empty())
+                    .on('keyup change clear', function () {
+                        if (column.search() !== this.value) {
+                            column.search(this.value).draw();
+                        }
+                    });
+            });
+    }
+
  });
 
 }
@@ -1657,6 +1663,10 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 			cbtn = 'Compensar PA';
 		} else if (acao == 'D'){
 			cbtn = 'Deb Automatico';
+		} else if (acao == 'L'){
+			cbtn = 'Parcelamento';
+		} else if (acao == 'D'){
+			cbtn = 'Cartao';
 		} else {
 			cbtn = 'Em Aberto';
 		}
@@ -1704,13 +1714,14 @@ window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencini="+newvamdi+'&vencfi
 }
 
 </script>
-
 </body>
 </html>
 ENDCONTENT
 
-cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
-cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
+cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
+cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
+cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)

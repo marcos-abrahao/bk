@@ -43,6 +43,12 @@ WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
+	WSMETHOD GET PLANPV;
+		DESCRIPTION "Retorna planilha excel da tela por meio do método FwFileReader().";
+		WSSYNTAX "/RestLibPV/v5";
+		PATH "/RestLibPV/v5";
+		TTALK "v1"
+
 	WSMETHOD PUT ;
 		DESCRIPTION "Liberação de Pedido de Venda" ;
 		WSSYNTAX "/RestLibPV/v3";
@@ -138,10 +144,8 @@ Retorna a lista de pedidos.
 WSMETHOD GET LISTPV QUERYPARAM userlib, page, pageSize WSREST RestLibPV
 
 Local aListSales := {}
-Local cQrySC5       := GetNextAlias()
+Local cQrySC5       := ''
 Local cJsonCli      := ''
-Local cWhereSC5     := "%AND SC5.C5_FILIAL = '"+xFilial('SC5')+"'%"
-Local cWhereSA1     := "%AND SA1.A1_FILIAL = '"+xFilial('SA1')+"'%"
 Local lRet 			:= .T.
 Local nCount 		:= 0
 Local oJsonSales 	:= JsonObject():New()
@@ -166,29 +170,7 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
 	Return lRet:= .t.
 EndIf
 
-BeginSQL Alias cQrySC5
-    SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,
-            SC5.C5_EMISSAO,SC5.C5_LIBEROK,C5_MDCONTR,C5_XXCOMPM,
-            (SELECT SUM(C6_VALOR) FROM %Table:SC6% SC6 
-                WHERE SC6.%NotDel% AND SC6.C6_FILIAL = SC5.C5_FILIAL AND SC6.C6_NUM = SC5.C5_NUM)
-                AS C6_TOTAL,
-            SA1.A1_NOME
-            
-    FROM %Table:SC5% SC5
-            INNER JOIN %Table:SA1% SA1 
-                ON SC5.C5_CLIENTE = SA1.A1_COD AND SC5.C5_LOJACLI = SA1.A1_LOJA
-                %exp:cWhereSA1%
-                AND SA1.%NotDel%
-
-    WHERE   SC5.%NotDel%
-            AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
-            %exp:cWhereSC5%
-    ORDER BY C5_LIBEROK,SC5.C5_NUM DESC 
-    
-EndSQL
-
-//Syntax abaixo somente para o SQL 2012 em diante
-//ORDER BY SC5.C5_NUM OFFSET %exp:nStart% ROWS FETCH NEXT %exp:nTamPag% ROWS ONLY
+cQrySC5 := TmpQuery()
 
 //-------------------------------------------------------------------
 // Alimenta array de pedidos
@@ -199,11 +181,11 @@ Do While ( cQrySC5 )->( ! Eof() )
 
 	aAdd( aListSales , JsonObject():New() )
 	nPos := Len(aListSales)
-	aListSales[nPos]['NUM']       := (cQrySC5)->C5_NUM
-	aListSales[nPos]['EMISSAO']   := DTOC(STOD((cQrySC5)->C5_EMISSAO))
+	aListSales[nPos]['NUM']       := "&nbsp"+ALLTRIM((cQrySC5)->C5_NUM)
+	aListSales[nPos]['EMISSAO']   := "&nbsp"+DTOC(STOD((cQrySC5)->C5_EMISSAO))
 	aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
-	aListSales[nPos]['CONTRATO']  := TRIM((cQrySC5)->C5_MDCONTR)
-	aListSales[nPos]['COMPET']    := TRIM((cQrySC5)->C5_XXCOMPM)
+	aListSales[nPos]['CONTRATO']  := "&nbsp"+ALLTRIM((cQrySC5)->C5_MDCONTR)
+	aListSales[nPos]['COMPET']    := "&nbsp"+TRIM((cQrySC5)->C5_XXCOMPM)
 	aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
 	aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
 	(cQrySC5)->(DBSkip())
@@ -235,6 +217,135 @@ Self:SetResponse( cJsonCli ) //-- Seta resposta
 Return( lRet )
 
 
+Static Function TmpQuery()
+Local cQrySC5       := GetNextAlias()
+Local cWhereSC5     := "%AND SC5.C5_FILIAL = '"+xFilial('SC5')+"'%"
+Local cWhereSA1     := "%AND SA1.A1_FILIAL = '"+xFilial('SA1')+"'%"
+
+BeginSQL Alias cQrySC5
+    SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,
+            SC5.C5_EMISSAO,SC5.C5_LIBEROK,C5_MDCONTR,C5_XXCOMPM,
+            (SELECT SUM(C6_VALOR) FROM %Table:SC6% SC6 
+                WHERE SC6.%NotDel% AND SC6.C6_FILIAL = SC5.C5_FILIAL AND SC6.C6_NUM = SC5.C5_NUM)
+                AS C6_TOTAL,
+            SA1.A1_NOME
+            
+    FROM %Table:SC5% SC5
+            INNER JOIN %Table:SA1% SA1 
+                ON SC5.C5_CLIENTE = SA1.A1_COD AND SC5.C5_LOJACLI = SA1.A1_LOJA
+                %exp:cWhereSA1%
+                AND SA1.%NotDel%
+
+    WHERE   SC5.%NotDel%
+            AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
+            %exp:cWhereSC5%
+    ORDER BY C5_LIBEROK,SC5.C5_NUM DESC 
+    
+EndSQL
+
+//Syntax abaixo somente para o SQL 2012 em diante
+//ORDER BY SC5.C5_NUM OFFSET %exp:nStart% ROWS FETCH NEXT %exp:nTamPag% ROWS ONLY
+
+Return (cQrySC5)
+
+
+
+// v5
+WSMETHOD GET PLANPV QUERYPARAM empresa WSREST RestLibPV
+	Local cProg 	:= "RestLibPV"
+	Local cTitulo	:= "Liberação de Pedidos de Venda WEB"
+	Local cDescr 	:= "Exportação Excel de Pedidos de Venda WEB"
+	Local cVersao	:= "03/07/2024"
+	Local cSolicit  := "26/06/2024 - joao.cordeiro"
+	Local oRExcel	AS Object
+	Local oPExcel	AS Object
+	Local lSuccess  := .T.
+
+    Local cFile  	:= ""
+	Local cName  	:= ""
+	Local cFName 	:= ""
+    Local oFile  	AS Object
+
+	Local cQrySC5	:= ""
+
+	u_MsgLog(cProg,cTitulo)
+
+	// Query para selecionar os Títulos a Pagar
+	cQrySC5 := TmpQuery()
+
+	// Definição do Arq Excel
+	oRExcel := RExcel():New(cProg)
+	oRExcel:SetTitulo(cTitulo)
+	oRExcel:SetVersao(cVersao)
+	oRExcel:SetSolicit(cSolicit)
+	oRExcel:SetDescr(cDescr)
+
+	// Definição da Planilha 1
+	oPExcel:= PExcel():New(cProg,cQrySC5)
+	oPExcel:SetTitulo("Pedidos de Venda em liberação")
+
+	oPExcel:AddCol("PEDIDO" ,"C5_NUM","Pedido","C5_NUM")
+	oPExcel:GetCol("PEDIDO"):SetHAlign("C")
+
+	oPExcel:AddCol("EMISSAO","C5_EMISSAO","Emissão","C5_EMISSAO")
+
+	oPExcel:AddCol("CLIENTE","A1_NOME","Cliente","A1_NOME")
+
+	oPExcel:AddCol("CONTRATO","C5_MDCONTR","Contrato","C5_MDCONTR")
+	oPExcel:GetCol("CONTRATO"):SetHAlign("C")
+
+	oPExcel:AddCol("COMPET","C5_XXCOMPM","Competência","C5_XXCOMPM")
+	oPExcel:GetCol("COMPET"):SetHAlign("C")
+
+	oPExcel:AddCol("TOTAL","C6_TOTAL","Total","")
+	oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+	oPExcel:GetCol("TOTAL"):SetDecimal(2)
+	oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+
+	oPExcel:AddCol("LIBEROK","C5_LIBEROK","Liberação","")
+
+	// Adiciona a planilha
+	oRExcel:AddPlan(oPExcel)
+
+	// Cria arquivo Excel
+	cFName:= oRExcel:RunCreate()
+
+	// Remove pastas do nome do arquivo
+	cName:= SubStr(cFName,Rat("\",cFName)+1)
+
+	(cQrySC5)->(dbCloseArea())
+
+	// Abrir arquino na Web
+	//cName  	:= cFName //Decode64(self:documento)
+    oFile  	:= FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
+
+    If (oFile:Open())
+        cFile := oFile:FullRead() // EFETUA A LEITURA DO ARQUIVO
+
+        // RETORNA O ARQUIVO PARA DOWNLOAD
+
+        //Self:SetHeader("Content-Disposition", '"inline; filename='+cName+'"') não funciona
+        Self:SetHeader("Content-Disposition", "attachment; filename="+cName)
+
+        Self:SetResponse(cFile)
+
+		oFile:Close()
+
+		// Apagar o arquivo após o fechamento
+		Ferase(cFName)
+
+        lSuccess := .T. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+
+    Else
+        SetRestFault(002, "Nao foi possivel carregar o arquivo "+cFName) // GERA MENSAGEM DE ERRO CUSTOMIZADA
+
+        lSuccess := .F. // CONTROLE DE SUCESSO DA REQUISIÇÃO
+    EndIf
+
+Return (lSuccess)
+
+
+
 WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV   // V1
 
 Local cHTML as char
@@ -254,7 +365,7 @@ WSMETHOD GET BROWPV QUERYPARAM userlib WSRECEIVE userlib WSREST RestLibPV
 
 local cHTML as char
 
-begincontent var cHTML
+BEGINCONTENT var cHTML
 
 <!doctype html>
 <html lang="pt-BR">
@@ -264,13 +375,11 @@ begincontent var cHTML
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Bootstrap CSS -->
-<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- Styling CSS -->
+#BKDTStyle#
 
 <title>Liberação de Pedidos</title>
-<!-- <link href="index.css" rel="stylesheet"> -->
+
 <!-- Favicon -->
 #BKFavIco#
 
@@ -289,11 +398,21 @@ td {
 line-height: 1rem;
 	vertical-align: middle;
 	}
+thead input {
+	width: 100%;
+	font-weight: bold;
+	background-color: #F3F3F3
+}
 </style>
 </head>
 <body>
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
 	<a class="navbar-brand" href="#">BK - Liberação de Pedidos de Vendas - #cUserName#</a>
+
+	<div class="btn-group">
+		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+	</div>
+
     <button type="button" 
         class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
         Atualizar
@@ -304,16 +423,16 @@ line-height: 1rem;
 <br>
 <div class="container">
 <div class="table-responsive-sm">
-<table id="tableSC5" class="table">
+<table id="tableSC5" class="table table-sm table-hover" style="width:100%">
 <thead>
 <tr>
 <th scope="col">Pedido</th>
 <th scope="col">Emissão</th>
 <th scope="col">Cliente</th>
 <th scope="col">Contrato</th>
-<th scope="col" style="text-align:center;">Competência</th>
-<th scope="col" style="text-align:center;">Total</th>
-<th scope="col" style="text-align:center;">Ação</th>
+<th scope="col">Competência</th>
+<th scope="col">Total</th>
+<th scope="col">Ação</th>
 </tr>
 </thead>
 <tbody id="mytable">
@@ -322,9 +441,9 @@ line-height: 1rem;
 <th scope="col"></th>
 <th scope="col"></th>
 <th scope="col"></th>
-<th scope="col" style="text-align:center;"></th>
-<th scope="col" style="text-align:center;"></th>
-<th scope="col" style="text-align:center;"></th>
+<th scope="col"></th>
+<th scope="col"></th>
+<th scope="col"></th>
 </tr>
 </tbody>
 </table>
@@ -361,19 +480,8 @@ line-height: 1rem;
    </div>
 </div>
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-<!-- JavaScript Bundle with Popper -->
-<!-- https://www.jsdelivr.com/package/npm/bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
-
-<!-- https://datatables.net/ -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
+<!-- JavaScript -->
+#BKDTScript#
 
 <script>
 async function getPeds() {
@@ -385,7 +493,6 @@ async function getPeds() {
 		console.log(error);
 			}
 		}
-
 
 async function loadTable() {
 let pedidos = await getPeds();
@@ -418,7 +525,7 @@ if (Array.isArray(pedidos)) {
 }
 document.getElementById("mytable").innerHTML = trHTML;
 
-$('#tableSC5').DataTable({
+tableSC5 = $('#tableSC5').DataTable({
  "pageLength": 100,
  "order": [],
  "language": {
@@ -435,8 +542,34 @@ $('#tableSC5').DataTable({
    "last":   "Ultima",
    "next":   "Próxima",
    "previous": "Anterior"
-   }
-  }
+   },
+
+	columnDefs: [
+    	{
+            targets: [0,1,3],
+            className: 'dt-left dt-head-left'
+        }
+    ],   
+
+  },
+  	initComplete: function () {
+        this.api()
+            .columns()
+            .every(function () {
+                var column = this;
+                var title = column.header().textContent;
+ 
+                // Create input element and add event listener
+                //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
+				$('<input type="text" placeholder="' + title + '" />')
+				    .appendTo($(column.header()).empty())
+                    .on('keyup change clear', function () {
+                        if (column.search() !== this.value) {
+                            column.search(this.value).draw();
+                        }
+                    });
+            });
+    }
 });
 
 }
@@ -458,9 +591,7 @@ $('#meuModal').modal('show');
 $('#meuModal').on('hidden.bs.modal', function () {
 	location.reload();
 	})
-//loadTable();
 }
-
 
 async function libPed(id,userlib,btnlp){
 let dataObject = {liberacao:'ok'};
@@ -488,22 +619,26 @@ fetch('#iprest#/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 	  $('#confModal').on('hidden.bs.modal', function () {
 	  $('#meuModal').modal('toggle');
 	  })
-
 	})
+}
+
+function Excel(){
+
+window.open("#iprest#/RestLibPV/v5?empresa=#empresa#","_self");
 
 }
 
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
 </body>
 </html>
 
-endcontent
+ENDCONTENT
 
-cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
-cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
+cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
+cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
+cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
+
 
 iF !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)

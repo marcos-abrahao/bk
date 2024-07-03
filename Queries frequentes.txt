@@ -81,13 +81,16 @@ SELECT
 	 ,USR1.USR_CODIGO
 	 ,USRSUP.USR_SUPER
 	 ,USR2.USR_CODIGO
+	 ,USR1.USR_MSBLQD
+	 ,USR1.USR_MSBLQL
  FROM SYS_USR_SUPER USRSUP
  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR1 ON USRSUP.USR_ID = USR1.USR_ID AND USR1.D_E_L_E_T_ = ' ' 
  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR2 ON USRSUP.USR_SUPER = USR2.USR_ID AND USR2.D_E_L_E_T_ = ' ' 
 
  WHERE  USRSUP.D_E_L_E_T_ = ' ' 
-		AND USR1.USR_MSBLQL = '2'
-ORDER BY USRSUP.USR_ID,USRSUP.R_E_C_N_O_
+		AND USR1.USR_MSBLQD = ''
+		--AND USR1.USR_MSBLQL = '2'
+ORDER BY USR2.USR_CODIGO,USRSUP.R_E_C_N_O_
 
 
 -----------------------------------------------------------------------------------------------------------------------------------

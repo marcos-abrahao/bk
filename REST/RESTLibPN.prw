@@ -580,8 +580,8 @@ Retorna a lista de prenotas.
 @return cResponse , caracter, JSON contendo a lista de Pré-notas
 /*/
 
-
-WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN   //v0
+// v0
+WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN
 Local aEmpresas		:= {}
 Local aListWeb 	:= {}
 Local cQrySF1       := GetNextAlias()
@@ -643,7 +643,7 @@ For nE := 1 To Len(aEmpresas)
 	cTabSA2 := "SA2"+aEmpresas[nE,1]+"0"
 
 	cEmpresa := aEmpresas[nE,1]
-	cNomeEmp := aEmpresas[nE,2]
+	cNomeEmp := aEmpresas[nE,3]
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -651,7 +651,8 @@ For nE := 1 To Len(aEmpresas)
 
 	cQuery += "SELECT "+CRLF
 	cQuery += "		'"+cEmpresa+"' AS F1EMPRESA,"+CRLF
-	cQuery += "		'"+cNomeEmp+"' AS F1NOMEEMP,"+CRLF
+	cQuery += "	    '"+cEmpresa+"-"+cNomeEmp+"' AS F1NOMEEMP,"+CRLF
+	//cQuery += "		'"+cNomeEmp+"' AS F1NOMEEMP,"+CRLF
 	cQuery += "		SF1.F1_FILIAL,"+CRLF
 	cQuery += "		SF1.R_E_C_N_O_ F1RECNO,"+CRLF
 	cQuery += "		SF1.F1_DOC,"+CRLF
@@ -698,7 +699,7 @@ Do While ( cQrySF1 )->( ! Eof() )
 
 	aAdd( aListWeb , JsonObject():New() )
 	nPos := Len(aListWeb)
-	aListWeb[nPos]['DOC']        := (cQrySF1)->F1_DOC
+	aListWeb[nPos]['DOC']        := "&nbsp"+ALLTRIM((cQrySF1)->F1_DOC)
 	aListWeb[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
 	aListWeb[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
 	aListWeb[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
@@ -1031,10 +1032,8 @@ BeginContent var cHTML
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Bootstrap CSS -->
-<!-- https://datatables.net/manual/styling/bootstrap5   examples-->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- Styling CSS -->
+#BKDTStyle#
 
 <title>Liberação de Pré-notas</title>
 
@@ -1058,11 +1057,17 @@ BeginContent var cHTML
 body {
 font-size: 1rem;
 	background-color: #f6f8fa;
-	}
+}
 td {
 line-height: 1rem;
 	vertical-align: middle;
-	}
+}
+thead input {
+	width: 105%;
+	font-weight: bold;
+	background-color: #F3F3F3
+}
+
 </style>
 </head>
 <body>
@@ -1084,11 +1089,11 @@ line-height: 1rem;
 <br>
 <div class="container">
 <div class="table-responsive-sm">
-<table width="100%" id="tableSF1" class="table">
+<table width="100%" id="tableSF1" class="table table-sm table-hover">
 <thead>
 <tr>
-<th scope="col">Empresa</th>
-<th scope="col">Pré-nota</th>
+<th scope="col" width="8%">Empresa</th>
+<th scope="col" width="10%" style="text-align:center;">Pré-nota</th>
 <th scope="col">Entrada</th>
 <th scope="col">Fornecedor</th>
 <th scope="col">Responsável</th>
@@ -1101,7 +1106,7 @@ line-height: 1rem;
 <tbody id="mytable">
 <tr>
   <th scope="col">Carregando Pré-notas...</th>
-  <th scope="col"></th>
+  <th scope="col" style="text-align:center;"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -1303,27 +1308,8 @@ line-height: 1rem;
   </div>
 </div>
 
-
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<!-- https://datatables.net/examples/styling/bootstrap5.html -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<!-- JavaScript Bundle with Popper -->
-<!-- https://getbootstrap.com/docs/5.3/getting-started/download/ -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-
-<!-- https://datatables.net/ -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-<!-- Buttons -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<!-- JavaScript -->
+#BKDTScript#
 
 <script>
 
@@ -1336,7 +1322,6 @@ async function getPNs() {
 		console.log(error);
 			}
 		}
-
 
 async function loadTable() {
 let prenotas = await getPNs();
@@ -1355,7 +1340,7 @@ if (Array.isArray(prenotas)) {
 
    trHTML += '<tr>';
    trHTML += '<td>'+object['F1NOMEEMP']+'</td>';
-   trHTML += '<td>'+cprenota+'</td>';
+   trHTML += '<td align="center">'+cprenota+'</td>';
    trHTML += '<td>'+object['DTDIGIT']+'</td>';
    trHTML += '<td>'+object['FORNECEDOR']+'</td>';
    trHTML += '<td>'+object['RESPONSAVEL']+'</td>';
@@ -1404,14 +1389,7 @@ trHTML += '</tr>';
 }
 document.getElementById("mytable").innerHTML = trHTML;
 
-$('#tableSF1').DataTable({
-  dom: 'Bfrtip',
-  buttons: [
-            'copyHtml5',
-            'excelHtml5',
-            'csvHtml5',
-            'pdfHtml5'
-        ],
+tableSF1 = $('#tableSF1').DataTable({
   "pageLength": 100,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
@@ -1428,7 +1406,34 @@ $('#tableSF1').DataTable({
     "next":   "Próxima",
     "previous": "Anterior"
     }
-   }
+   },
+
+	columnDefs: [
+    	{
+            target: 1,
+            className: 'dt-left dt-head-left'
+        }
+    ],   
+	initComplete: function () {
+        this.api()
+            .columns()
+            .every(function () {
+                var column = this;
+                var title = column.header().textContent;
+ 
+                // Create input element and add event listener
+                //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
+				$('<input type="text" placeholder="' + title + '" />')
+				    .appendTo($(column.header()).empty())
+                    .on('keyup change clear', function () {
+                        if (column.search() !== this.value) {
+                            column.search(this.value).draw();
+                        }
+                    });
+            });
+    }
+
+
  });
 
 }
@@ -1722,8 +1727,10 @@ $('#confToken').modal('show');
 </html>
 EndContent
 
-cHtml := STRTRAN(cHtml,"#iprest#",u_BkRest())
-cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
+cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
+cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
+cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(self:userlib)
 	u_BkAvPar(self:userlib,@aParams,@cMsg)

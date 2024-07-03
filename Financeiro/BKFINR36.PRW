@@ -118,17 +118,6 @@ oPExcel:GetCol("PRAZO2"):SetTamCol(20)
 
 oPExcel:AddResumos("Total","PRAZO1","PRAZO1")
 
-/*
-oPExcel:AddCol("STATUS","u_DE2XXPgto(E2_XXPGTO)")
-oPExcel:GetCol("STATUS"):SetTamCol(12)
-oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'P'}	,"FF0000","",,,.T.)	// Vermelho
-oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Con'},"008000","",,,.T.)	// Verde
-oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FFA500","",,,.T.)	// Laranja
-oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Com'},"0000FF","",,,.T.)	// Azul
-oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'D'}	,"000000","",,,.T.)	// Preto
-*/
-
-
 // Adiciona a planilha 
 oRExcel:AddPlan(oPExcel)
 

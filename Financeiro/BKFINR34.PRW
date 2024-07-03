@@ -120,6 +120,8 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'E'}	,"FFA500","",,,.T.)	// Laranja
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,3) == 'Com'},"0000FF","",,,.T.)	// Azul
 	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'D'}	,"000000","",,,.T.)	// Preto
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'L'}	,"8B008B","",,,.T.)	// Dark Magenta
+	oPExcel:GetCol("STATUS"):AddCor({|x| SUBSTR(x,1,1) == 'T'}	,"4B0082","",,,.T.)	// Indigo
 
 	// Adiciona a planilha consolidada
 	oRExcel:AddPlan(oPExcel)
