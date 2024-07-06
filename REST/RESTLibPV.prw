@@ -58,7 +58,7 @@ WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
 
 END WSRESTFUL
 
-
+// v3
 WSMETHOD PUT QUERYPARAM empresa,filial,pedido,userlib,liberacao WSREST RestLibPV
 
 Local cJson        := Self:GetContent()   
@@ -181,7 +181,8 @@ Do While ( cQrySC5 )->( ! Eof() )
 
 	aAdd( aListSales , JsonObject():New() )
 	nPos := Len(aListSales)
-	aListSales[nPos]['NUM']       := "&nbsp"+ALLTRIM((cQrySC5)->C5_NUM)
+	aListSales[nPos]['CPEDIDO']   := "&nbsp"+ALLTRIM((cQrySC5)->C5_NUM)
+	aListSales[nPos]['PEDIDO']    := ALLTRIM((cQrySC5)->C5_NUM)
 	aListSales[nPos]['EMISSAO']   := "&nbsp"+DTOC(STOD((cQrySC5)->C5_EMISSAO))
 	aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
 	aListSales[nPos]['CONTRATO']  := "&nbsp"+ALLTRIM((cQrySC5)->C5_MDCONTR)
@@ -499,19 +500,18 @@ let pedidos = await getPeds();
 let trHTML = '';
 if (Array.isArray(pedidos)) {
     pedidos.forEach(object => {
-    let cPedido = object['NUM']
     let cLiberOk = object['LIBEROK']
     trHTML += '<tr>';
-    trHTML += '<td>'+cPedido+'</td>';
+    trHTML += '<td>'+object['CPEDIDO']+'</td>';
     trHTML += '<td>'+object['EMISSAO']+'</td>';
     trHTML += '<td>'+object['CLIENTE']+'</td>';
     trHTML += '<td>'+object['CONTRATO']+'</td>';
     trHTML += '<td align="center">'+object['COMPET']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
     if (cLiberOk == 'S'){
-      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPed(\''+object['NUM']+'\',2)">Liberado</button></td>';
+      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPed(\''+object['PEDIDO']+'\',2)">Liberado</button></td>';
    	} else {
-      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPed(\''+object['NUM']+'\',1)">Liberar</button></td>';
+      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPed(\''+object['PEDIDO']+'\',1)">Liberar</button></td>';
     }
    	trHTML += '</tr>';
     });
