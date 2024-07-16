@@ -834,7 +834,7 @@ Return nil
 
 User Function Fina02E(aEmail,lCLT,cAssunto)
 Local cPrw     := "BKFINA02"
-Local cEmail1  := u_BKPgto3()  // somente cgrupo AC
+Local cEmail1  := u_BKPgto3() // somente cgrupo AC
 Local cEmail2  := u_BKPgto2() //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
 Local cCC      := ""
 Local cMsg     := "" 

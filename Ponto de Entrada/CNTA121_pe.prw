@@ -272,14 +272,18 @@ If CN9->CN9_XX5DIA == 'S'
 	dDia := DataValida(dDia+1)
 	dDia := DataValida(dDia+1)
 	If dDataBase > dDia
+		/*
 		u_MsgLog("CNTA121_PE","Contrato sendo faturado após o quinto dia útil! "+DTOC(dDia),"E")
 		If LEN(ALLTRIM(cXX5Jus)) < 5
 			lRet := .F.
 			//oModelCND:GetStruct():SetProperty("CND_XX5JUS", MODEL_FIELD_WHEN, FwBuildFeature(STRUCT_FEATURE_WHEN , ".T."))
 			u_MsgLog("CNTA121_PE","Justifique corretamente no campo 'Just 5 dia util', no cabeçalho da medição","E")
 		EndIf
+		*/
+		oModelCND:LoadValue("CND_XX5DIA","S")
+	Else
+		oModelCND:LoadValue("CND_XX5DIA","N")
 	EndIf
-	oModelCND:LoadValue("CND_XX5DIA","S")
 Else
 	oModelCND:LoadValue("CND_XX5DIA","N")
 EndIf

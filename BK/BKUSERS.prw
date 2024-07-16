@@ -538,8 +538,8 @@ Return lRet
 // Retorna se o usuário é Gestor Financeiro 
 User Function IsGesFin(cId)
 Local lRet := .F.
-//      Laudecir/Diego.Oliveira/Katia
-If cId $ "000011/000016/000276"
+//        Diego.Oliveira/Katia
+If cId $ "000016/000276"
     lRet := .T.
 EndIf
 Return lRet
@@ -548,7 +548,7 @@ Return lRet
 // Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
 User Function IsAvalia(cId)
 Local lRet := .F.
-// Admin/Michele/Bruno
+//        Admin/Michele/Bruno
 If cId $ "000000/000138/000153/"
     lRet := .T.
 EndIf
@@ -657,8 +657,8 @@ Return cEmails
 // Financeiro
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()
-//      Admin  Lau    Diego  Andresa
-Return "000000/000011/000016/000197"
+//      Admin  Diego  Andresa
+Return "000000/000016/000197"
 
 
 // Grupos de e-mail abaixo são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
@@ -687,9 +687,8 @@ User Function BKPgto3()
 Local cRet := ""
 cRet += "microsiga@bkconsultoria.com.br;"
 //cRet += "adalberto.xavier@bkconsultoria.com.br;"
-//cRet += "christiane.almeida@bkconsultoria.com.br;"
 cRet += "bruno.bueno@bkconsultoria.com.br;"
-cRet += "laudecir.carpi@bkconsultoria.com.br;"
+//cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "diego.oliveira@bkconsultoria.com.br;"
 Return cRet
 
@@ -701,7 +700,7 @@ cRet += "ulisses.nunes@bkconsultoria.com.br;"
 Return cRet
 
 
-// E-mails do grupo financeiro do google
+// E-mails do Depto financeiro
 User Function BKEmFin()
 Local cRet := ""
 

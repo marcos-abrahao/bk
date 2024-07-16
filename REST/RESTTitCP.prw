@@ -962,8 +962,12 @@ line-height: 1rem;
 	vertical-align: middle;
 	}
 
+table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>thead>tr th.dt-orderable-desc,table.dataTable.table-sm>thead>tr th.dt-ordering-asc,table.dataTable.table-sm>thead>tr th.dt-ordering-desc,table.dataTable.table-sm>thead>tr td.dt-orderable-asc,table.dataTable.table-sm>thead>tr td.dt-orderable-desc,table.dataTable.table-sm>thead>tr td.dt-ordering-asc,table.dataTable.table-sm>thead>tr td.dt-ordering-desc {
+    padding-right: 5px;
+}
+
 thead input {
-	width: 105%;
+	width: 100%;
 	font-weight: bold;
 	background-color: #F3F3F3
 }
@@ -1665,7 +1669,7 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 			cbtn = 'Deb Automatico';
 		} else if (acao == 'L'){
 			cbtn = 'Parcelamento';
-		} else if (acao == 'D'){
+		} else if (acao == 'T'){
 			cbtn = 'Cartao';
 		} else {
 			cbtn = 'Em Aberto';

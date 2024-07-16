@@ -493,7 +493,7 @@ ElseIf cE2XXPgto == "D"
 	cStatus := "Deb Automatico"
 ElseIf cE2XXPgto == "L"
 	cStatus := "Parcelamento"
-ElseIf cE2XXPgto == "D"
+ElseIf cE2XXPgto == "T"
 	cStatus := "Cartao"
 EndIf
 Return cStatus

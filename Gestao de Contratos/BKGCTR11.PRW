@@ -3971,7 +3971,7 @@ Return(NIL)
 
 
 
-//********************VERSAO CONSOLIDA E RATEIA OU NAO AS DESPESAS ********************//
+//********************VERSAO CONSOLIDADA E RATEIA OU NAO AS DESPESAS ********************//
 User Function BK2GCTR11(lJob,aAglContr)
 
 	Local _nI           := 0
