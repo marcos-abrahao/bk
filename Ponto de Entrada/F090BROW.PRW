@@ -10,6 +10,7 @@
     @example
     (examples)
     @see (links_or_references)
+    @since 12/01/2021
     /*/
 User Function F090BROW()
 
@@ -17,10 +18,30 @@ SE2->(DBORDERNICKNAME("E2_VALOR"))
   
 Return Nil
 
-//@since 12/01/2021
+// Não filtrar titulos em bordero quando selecionar portador - Andresa 17/07/2024
 User Function F090QFIL()
-Local cFiltro := ParamIxb[1]
 
-SE2->(DBORDERNICKNAME("E2_VALOR"))
+    Local cFiltro    := ParamIXB[1] //Filtro padrão
+    Local nTipoBx    := ParamIXB[2] //Tipo de Baixa
+    Local cRetFiltro := cFiltro //Novo Filtro
+ 
+    If (nTipoBx == 1) //Títulos
+        cRetFiltro := STRTRAN(cFiltro,"E2_NUMBOR = '" + Space(TamSx3("E2_NUMBOR")[1]) + "' AND ","")
+    //Else //Borderôs
+    EndIf
 
-Return cFiltro 
+    SE2->(DBORDERNICKNAME("E2_VALOR"))
+
+Return cRetFiltro 
+
+
+
+
+
+// Remover tipo PA das baixas - Andresa 17/07/2024
+User Function F090TIPO()
+
+Local cTipo    := ParamIXB[1] //Filtro padrão
+Local cTipoRet := cTipo += "/PA "
+
+Return cTipoRet

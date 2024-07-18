@@ -11,19 +11,146 @@ BK - Ponto de Entrada para incluir botão na enchoice da Pré-Nota
 User Function MA140BUT()
 Local aBotao := {}
 
-aBotao := {{"BK Incluir Itens",{|| U_I140Itens()},"Incluir Itens via copia e cola"}}
+aBotao := {{"BK Copia e Cola Itens",{|| U_CA140Dlg()},"Incluir Itens via copia e cola"}}
 
 Return aBotao
 
 
-User Function I140Itens()
-Local yCol := {}
+User Function CA140Dlg()
+Local aAreaAtu	:= GetArea()
+Local oDlg01	As Object
+Local aButtons 	:= {}
+Local lOk 		:= .F.
+Local nSnd    	:= 0
+Local nTLin 	:= 15
+Local nSin    	:= 5
+Local cTexto	:= "" 
 
-u_MsgLog("I140Itens","Incluir Itens","I")
+Define MsDialog oDlg01 Title "Importação de dados: Excel --> Pré-Nota" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
-yCol := aClone(aCols[1])
-yCol[1] := STRZERO(Len(aCols)+1,4)
+nSnd := 35
+@ nSnd,010 Say 'Cole as colunas do excel: Codigo do Produto,Valor,Centro de Custos'  Size 240,010 Pixel Of oDlg01
+nSnd += nTLin
+oMemo:= tMultiget():New(nSnd,10,{|u|if(Pcount()>0,cTexto :=u,cTexto )},oDlg01,280,100,,,,,,.T.)
+nSnd += nTLin
 
-aAdd(aCols,yCol)
+ACTIVATE MSDIALOG oDlg01 CENTERED ON INIT EnchoiceBar(oDlg01,{|| lOk:= .T.,oDlg01:End()},{|| lOk:=.F., oDlg01:End()}, , aButtons)
 
-Return Nil
+If ( lOk )
+	lOk := VldGrvD1(cTexto)
+EndIf
+
+RestArea( aAreaAtu )
+
+Return lOk
+
+
+Static Function VldGrvD1(cTexto)
+Local nI 		:= 0
+Local lOk 		:= .T.
+Local cLinha	:= ""
+Local cDesc 	:= ""
+Local cCod  	:= ""
+Local cValor	:= ""
+Local nValor 	:= 0
+Local cCC1      := ""
+Local cDescCC   := ""
+Local nTamTex	:= 0
+Local cErro 	:= ""
+Local aLinha    := {}
+Local lErro		:= .F.
+Local nPItem    := aScan(aHeader,{|x| AllTrim(x[2])=="D1_ITEM"})
+Local nPCod     := aScan(aHeader,{|x| AllTrim(x[2])=="D1_COD"})
+Local nPQuant   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_QUANT"})
+Local nPVUnit   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_VUNIT"})
+Local nPTotal   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_TOTAL"})
+Local nPCC      := aScan(aHeader,{|x| AllTrim(x[2])=="D1_CC"})
+Local nPXXDescP := aScan(aHeader,{|x| AllTrim(x[2])=="D1_XXDESCP"})
+Local nPUM      := aScan(aHeader,{|x| AllTrim(x[2])=="D1_UM"})
+Local nPCONTA   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_CONTA"})
+//Local nPTP      := aScan(aHeader,{|x| AllTrim(x[2])=="D1_TP"})
+//Local nPCodIss  := aScan(aHeader,{|x| AllTrim(x[2])=="D1_CODISS"})
+Local nPXXDCC   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_XXDCC"})
+Local nPLocal   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_LOCAL"})
+//Local nPClasFis := aScan(aHeader,{|x| AllTrim(x[2])=="D1_CLASFIS"})
+
+nTotGeral 	:= 0
+cTexto  	:= FwNoAccent(cTexto) 
+nTamTex 	:= mlCount(cTexto, 200)
+	
+For nI := 1 To nTamTex
+	cLinha := TRIM(memoline(cTexto, 200, nI))
+	If !Empty(cLinha)
+		lErro	:= .F.
+        cLinha  := STRTRAN(cLinha,CHR(9)," ")
+        Do While ("  " $ cLinha)
+            cLinha := STRTRAN(cLinha,"  "," ")
+        EndDo
+
+		aLinha  := StrToKArr(cLinha," ")
+		cCod    := PAD(ALLTRIM(aLinha[1]),Len(SB1->B1_COD))
+		cValor  := ALLTRIM(aLinha[2])
+        cCC1    := PAD(ALLTRIM(aLinha[3]),Len(SD1->D1_CC))
+			
+		// Valor
+		cValor  := STRTRAN(cValor,".","")
+		cValor  := STRTRAN(cValor,",",".")
+		nValor  := VAL(cValor)
+		cDesc 	:= ""
+		If !EMPTY(cCod)
+			If SB1->(DbSeek(xFilial("SB1")+cCod))
+				cDesc := SB1->B1_DESC
+			EndIf
+		EndIf	
+
+		If Empty(cCod) .OR. Empty(cDesc)
+			cErro += STRZERO(nI,4)+" Produto: "+cCod+" não encontrado"+CRLF
+			lErro := .T.
+		EndIf
+		If nValor == 0
+			cErro += STRZERO(nI,4)+" Produto: "+cCod+" sem valor informado"+CRLF
+			lErro := .T.
+		EndIf
+
+        cDescCC := ""
+		If !EMPTY(cCC1)
+			cDescCC := Posicione("CTT",1,xFilial("CTT")+cCC1,"CTT_DESC01")
+		EndIf	
+
+		If Empty(cCC1) .OR. Empty(cDescCC)
+			cErro += STRZERO(nI,4)+" Produto: "+cCod+" Centro de Custos "+cCC1+" não encontrado"+CRLF
+			lErro := .T.
+		EndIf
+
+        If !lErro
+            yCol := aClone(aCols[1])
+            yCol[nPItem]    := STRZERO(Len(aCols)+1,4)
+            yCol[nPCod]     := cCod
+            yCol[nPQuant]   := 1
+            yCol[nPVUnit]   := nValor
+            yCol[nPTotal]   := nValor
+            yCol[nPXXDescP] := cDesc
+            yCol[nPUM]      := SB1->B1_UM
+            yCol[nPCONTA]   := SB1->B1_CONTA
+            //yCol[nPTP]      := SB1->B1_TIPO
+            //yCol[nPCodIss]  := SB1->B1_CODISS
+            yCol[nPCC]      := cCC1
+            yCol[nPXXDCC]   := cDescCC
+			yCol[nPLocal] 	:= SB1->B1_LOCPAD
+			//yCol[nPClasFis] := SUBS(SB1->B1_ORIGEM,1,1)+SF4->F4_SITTRIB                                                            
+            //If nI := 1
+            //    aCopy(yCol,aCols[1])
+            //Else
+                aAdd(aCols,yCol)
+            //EndIf
+        EndIf
+	EndIf
+Next
+
+If !Empty(cErro)
+	u_MsgLog("VldGrvD1",cErro,"E")
+	//lOk := .F.
+EndIf
+
+Return lOk
+

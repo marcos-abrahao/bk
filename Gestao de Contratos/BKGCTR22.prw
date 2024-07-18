@@ -69,7 +69,7 @@ Return Nil
 
 
 Static Function PrcGct22()
-
+Local nI := 0
 u_WaitLog(cProg, {|| ProcGer1() },cTitulo)
 
 QSE2->(dbGoTop())
