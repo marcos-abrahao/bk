@@ -59,6 +59,8 @@ Local nTamTex	:= 0
 Local cErro 	:= ""
 Local aLinha    := {}
 Local lErro		:= .F.
+Local yCol		:= {}
+Local xCol		:= {}
 Local nPItem    := aScan(aHeader,{|x| AllTrim(x[2])=="D1_ITEM"})
 Local nPCod     := aScan(aHeader,{|x| AllTrim(x[2])=="D1_COD"})
 Local nPQuant   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_QUANT"})
@@ -77,7 +79,8 @@ Local nPLocal   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_LOCAL"})
 nTotGeral 	:= 0
 cTexto  	:= FwNoAccent(cTexto) 
 nTamTex 	:= mlCount(cTexto, 200)
-	
+xCol 		:= aClone(aCols[1])
+
 For nI := 1 To nTamTex
 	cLinha := TRIM(memoline(cTexto, 200, nI))
 	If !Empty(cLinha)
@@ -91,6 +94,9 @@ For nI := 1 To nTamTex
 		cCod    := PAD(ALLTRIM(aLinha[1]),Len(SB1->B1_COD))
 		cValor  := ALLTRIM(aLinha[2])
         cCC1    := PAD(ALLTRIM(aLinha[3]),Len(SD1->D1_CC))
+		If Len(ALLTRIM(cCC1)) < 9
+			cCC1 := PAD(STRZERO(VAL(ALLTRIM(cCC1)),9),Len(SD1->D1_CC))
+		EndIf
 			
 		// Valor
 		cValor  := STRTRAN(cValor,".","")
@@ -123,26 +129,33 @@ For nI := 1 To nTamTex
 		EndIf
 
         If !lErro
-            yCol := aClone(aCols[1])
-            yCol[nPItem]    := STRZERO(Len(aCols)+1,4)
-            yCol[nPCod]     := cCod
-            yCol[nPQuant]   := 1
-            yCol[nPVUnit]   := nValor
-            yCol[nPTotal]   := nValor
-            yCol[nPXXDescP] := cDesc
-            yCol[nPUM]      := SB1->B1_UM
-            yCol[nPCONTA]   := SB1->B1_CONTA
-            //yCol[nPTP]      := SB1->B1_TIPO
-            //yCol[nPCodIss]  := SB1->B1_CODISS
-            yCol[nPCC]      := cCC1
-            yCol[nPXXDCC]   := cDescCC
-			yCol[nPLocal] 	:= SB1->B1_LOCPAD
-			//yCol[nPClasFis] := SUBS(SB1->B1_ORIGEM,1,1)+SF4->F4_SITTRIB                                                            
-            //If nI := 1
-            //    aCopy(yCol,aCols[1])
-            //Else
+		    If nI == 1
+				aCols[1,nPCod]		:= cCod
+				aCols[1,nPQuant]	:= 1
+				aCols[1,nPVUnit]	:= nValor
+				aCols[1,nPTotal]	:= nValor
+				aCols[1,nPXXDescP]	:= cDesc
+				aCols[1,nPUM]		:= SB1->B1_UM
+				aCols[1,nPCONTA]	:= SB1->B1_CONTA
+				aCols[1,nPCC]		:= cCC1
+				aCols[1,nPXXDCC]	:= cDescCC
+				aCols[1,nPLocal] 	:= SB1->B1_LOCPAD
+			Else
+				yCol := aClone(xCol)
+				yCol[nPItem]    := STRZERO(Len(aCols)+1,4)
+				yCol[nPCod]     := cCod
+				yCol[nPQuant]   := 1
+				yCol[nPVUnit]   := nValor
+				yCol[nPTotal]   := nValor
+				yCol[nPXXDescP] := cDesc
+				yCol[nPUM]      := SB1->B1_UM
+				yCol[nPCONTA]   := SB1->B1_CONTA
+				yCol[nPCC]      := cCC1
+				yCol[nPXXDCC]   := cDescCC
+				yCol[nPLocal] 	:= SB1->B1_LOCPAD
+				//yCol[nPClasFis] := SUBS(SB1->B1_ORIGEM,1,1)+SF4->F4_SITTRIB                                                            
                 aAdd(aCols,yCol)
-            //EndIf
+            EndIf
         EndIf
 	EndIf
 Next

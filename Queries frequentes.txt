@@ -34,17 +34,8 @@ INNER JOIN MPMENU_MENU ON I_ID_MENU = M_ID
 INNER JOIN MPMENU_FUNCTION ON F_FUNCTION LIKE '%FISA092%' AND I_ID_FUNC = F_ID
 INNER JOIN MPMENU_I18N ON N_PAREN_ID = I_ID AND N_LANG = '1'
 WHERE  SUBSTRING(M_NAME,1,1) <> '#'
-
-
-GCTMGESTAO                                        
-FINMREPAC                                         
-SIGAFIS                                           
-FINMGESTAO                                        
-SIGAFIN                                           
-SIGAGCT                                           
+                                         
 -----------------------------------------------------------------------------------------------------------------------------------
-
-
 
 SELECT * FROM SED010 WHERE ED_CODIGO = '0000000047' OR ED_PERCIRF = 1
 

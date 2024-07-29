@@ -569,13 +569,13 @@ Return lRet
 
 // Gerente Compras
 User Function GerCompras
-// Michele,Luis /000116 (removido),Fabio
-Return "000138/000093"
+// Michele,Luis /000116 (removido),/000093 Fabio Quirino (removido)
+Return "000138"
 
 
 // Emails dos gerenciadores de compras
 User Function EmGerCom(cxEmail)
-Local aUsers := {"000138","000093"} // Michele,Luis (removido),Fabio
+Local aUsers := {"000138"} // Michele,Luis (removido),/000093 Fabio Quirino (removido)
 Return u_aUsrEmail(aUsers,cxEmail)
 
 
@@ -604,17 +604,19 @@ Return "000021/000032"
 
 // Usuarios Almoxarifado (para queries)
 User Function UsrAlmox()
-Return "'000093','000216','000225','000226'"
+// 000093 - Fabio Quirino Removido
+Return "'000216','000225','000226'"
 
 
 // Usuarios Master Almoxarifado (grupo 27)
 User Function UsrMAlmox()
-Return "000093/000216/000232/000225/000310"  
+// 000093 - Fabio Quirino Removido
+Return "000216/000232/000225/000310"  
 
 
-// Email para Grupo do (Fabio,Barbara,Jose Amauri,Bianca)
+// Email para Grupo do (Fabio (removido),Barbara,Jose Amauri,Bianca)
 User Function EmEstAlm(cId,lAll,cxEmail)
-Local aUsers := {"000093","000232","000216","000310"}
+Local aUsers := {"000232","000216","000310"}
 Local cEmails:= ""
 
 Default cxEmail := "-"

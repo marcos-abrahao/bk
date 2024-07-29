@@ -325,6 +325,7 @@ Local cRetorno   := ""
 
 Private cNFiscal := ""
 Private cSerie   := "DNF
+Private cFormul  := "N"
 Private lMsErroAuto := .F.
 
 //RpcSetType(3)
@@ -347,7 +348,7 @@ If RpcSetEnv( _cEmpresa, _cFilial )
 			
 	// {"F1_FILIAL"    , xFilial("SF1") },;
 	aCabec := {{"F1_TIPO"      , "N" , NIL},;
-			{"F1_FORMUL"    , "N" , NIL },;
+			{"F1_FORMUL"    , cFormul , NIL },;
 			{"F1_DOC"       , cNFiscal, NIL },;
 			{"F1_SERIE"     , cSerie, NIL },;
 			{"F1_EMISSAO"   , _dDtEmis , NIL },;
