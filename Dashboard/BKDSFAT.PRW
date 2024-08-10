@@ -365,7 +365,7 @@ For nE := 1 TO Len(aEmpresas)
 	EndIf
 
 	cQuery += "  ' ' 		AS CND_USUAR, " + CRLF
-	cQuery += "  ' '		AS CND_XX5DIA, " + CRLF
+	cQuery += "  'P'		AS CND_XX5DIA, " + CRLF
 	cQuery += "  ' '		AS CND_XX5JUS, " + CRLF
 
 	cQuery += "  ' ' 		AS FORMAMED, " + CRLF
@@ -440,7 +440,7 @@ cQuery += "    EMPRESA,CONTRATO,COMPETAM,F2_DOC" + CRLF
 If !TCIsConnected() 
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
-Endif  
+Endif
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.FATURAMENTO', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.FATURAMENTO "+CRLF

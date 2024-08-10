@@ -169,39 +169,39 @@ Static FUNCTION ProcAvi(cRel)
 u_MsgLog("BKGCT06","Avisos automaticos. (Dialogo)")
 
 IF VALTYPE(cRel) == "N"
-   cRel := "1"
-ENDIF                            
+   cRel := STRZERO(cRel,2)
+ENDIF                        
 IF SUBSTR(cRel,1,2) = "01"
-   u_WaitLog(, {|| REPBKGCT06() } )
+   u_WaitLog("REPBKGCT06", {|| REPBKGCT06() } )
 ELSEIF SUBSTR(cRel,1,2) = "02"   
-   u_WaitLog(, {|| VigBKGct06() } )
+   u_WaitLog("VigBKGct06", {|| VigBKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "03"   
-   u_WaitLog(, {|| Vg2BKGct06() } )
+   u_WaitLog("Vg2BKGct06", {|| Vg2BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "04"   
-   u_WaitLog(, {|| RepBK06b() } )
+   u_WaitLog("RepBK06b", {|| RepBK06b() } )
 ELSEIF SUBSTR(cRel,1,2) = "05"   
-   u_WaitLog(, {|| V5BKGct06() } )
+   u_WaitLog("V5BKGct06", {|| V5BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "06"   
-   u_WaitLog(, {|| V6BKGct06() } )
+   u_WaitLog("V6BKGct06", {|| V6BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "07"   
-   u_WaitLog(, {|| V7BKGct06() } )
+   u_WaitLog("V7BKGct06", {|| V7BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "08"   
-   u_WaitLog(, {|| V8BKGct06() } )
+   u_WaitLog("V8BKGct06", {|| V8BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "09"   
-   u_WaitLog(, {|| V9BKGct06() } )
+   u_WaitLog("V9BKGct06", {|| V9BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "10"   
-   u_WaitLog(, {|| V10BKGct06() } )
-ELSEIF SUBSTR(cRel,1,2) = "11"   
-   u_WaitLog(, {|| V11BKGct06() } )    
-ELSEIF SUBSTR(cRel,1,2) = "12"   
-   u_WaitLog(, {|| V12BKGct06() } )    
-ELSEIF SUBSTR(cRel,1,2) = "13"   
-   u_WaitLog(, {|| U_BKGCTR23() } )
-ELSEIF SUBSTR(cRel,1,2) = "14"   
-   u_WaitLog(, {|| U_GRFBKGCT11(.T.) } )
-ELSEIF SUBSTR(cRel,1,2) = "15"   
+   u_WaitLog("V10BKGct06", {|| V10BKGct06() } )
+ELSEIF SUBSTR(cRel,1,2) = "11"
+   u_WaitLog("V11BKGct06", {|| V11BKGct06() } )
+ELSEIF SUBSTR(cRel,1,2) = "12"
+   u_WaitLog("V12BKGct06", {|| V12BKGct06() } )    
+ELSEIF SUBSTR(cRel,1,2) = "13"
+   u_WaitLog("BKGCTR23", {|| U_BKGCTR23() } )
+ELSEIF SUBSTR(cRel,1,2) = "14"
+   u_WaitLog("GRFBKGCT11", {|| U_GRFBKGCT11(.T.) } )
+ELSEIF SUBSTR(cRel,1,2) = "15"
    //u_WaitLog(, {|| V15BKGCT06() } )    
-   u_WaitLog(, {|| U_BKMSG007() } )    
+   u_WaitLog("BKMSG007", {|| U_BKMSG007() } )
 ELSEIF SUBSTR(cRel,1,2) = "16"
    U_BKDASH01()
 ENDIF 
@@ -223,10 +223,35 @@ RETURN
 
 
 
+// Contratos a Repactuar
+/*
+Base de dados: contratos ativos e em elaboração
+1- Se o campo "Data Repac" (CN9_XXDREP) estiver em branco, mostra o status "Data de repactuação não definida".
+2- Enviar sempre email 30 dias antes, independente do status.
+3- Enviar sempre email 27 dias antes, independente do status.
+4- Enviar sempre email 10 dias antes, independente do status.
+5- Enviar sempre quando faltar menos de 10 dias (e após) quando o status for = 1-Atrasado.
+6- Enviar quando a data de repactuação for diferente da data de controle "Data Aviso" e antes de 30 dias da "Data de Repactuação" ou depois da "Data de Repactuação".
+7- Enviar quando o status for diferente de 1 (Atrasado) e a quantidade de dias faltantes for múltipla de 10.
+8- Enviar sempre quando o status for = 5-Pedido enviado o aviso "Redefinir a data da Repactuação".
+9- Se ocorrer qualquer uma das situações de envio anteriores e a data de controle for diferente da data de repactuação:
+    Gravar a data de controle = a data de repactuação e mudar o status para 1-Atrasado.
+
+
+Tabela de Status:
+1-Atrasado
+2-Em análise
+3-Aguardando retorno do cliente
+4-Em analise cliente
+5-Pedido enviado
+6-Finalizado
+7-Aguardando decisão diretoria
+8-Contrato encerrado
+9-Em analise gestão
+*/
+
 Static Function REPBKGCT06()
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Contratos a Repactuar
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
 Local cPath     := "\tmp\"
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
@@ -308,6 +333,8 @@ TCSETFIELD("QCN9","CN9_XXDREP","D",8,0)
 TCSETFIELD("QCN9","CN9_XXDVIG","D",8,0)
 TCSETFIELD("QCN9","CN9_XXDAVI","D",8,0)
 
+u_LogTxt("REPBKGCT06.SQL",cQuery)
+
 // Cabeçalho do Email
 aHtm := CabHtml("Contratos a Repactuar")   
 FOR _ni := 1 TO LEN(aHtm)
@@ -352,18 +379,13 @@ If nHandle > 0
    (_cAlias)->(dbgotop())
    
    Do while (_cAlias)->(!eof())
-
-
-		//If !lJobV2
-		//	IncProc("Gerando arquivo "+_cArqS)   
-		//EndIf
 		
 		lEnv   := .F.
 		cAviso := ""
 		cStatus:= ""
 		nDias  := 0 
-
         
+		// 1- Se o campo "Data Repac" (CN9_XXDREP) estiver em branco, mostra o status "Data de repactuação não definida".
 		If QCN9->CN9_XXSREP > 0 .AND. QCN9->CN9_XXSREP <= LEN(aStatus) 
           cStatus := aStatus[QCN9->CN9_XXSREP]
         EndIf
@@ -374,34 +396,35 @@ If nHandle > 0
 		Else
 			nDias  := QCN9->CN9_XXDREP - DATE()
 			
-			// Enviar sempre email 30 dias antes independente do status
+			// 2- Enviar sempre email 30 dias antes, independente do status.
 			If nDias = 30
 				lEnv := .T.
 			EndIf
 
-			// Enviar sempre email 27 dias antes independente do status
+			// 3- Enviar sempre email 27 dias antes, independente do status.
 			If nDias = 27
 				lEnv := .T.
 			EndIf
 
-			// Enviar sempre email 10 dias antes independente do status
+			// 4- Enviar sempre email 10 dias antes, independente do status.
 			If nDias = 10
 				lEnv := .T.
 			EndIf
 			
-			// Enviar sempre quando faltar menos de 10 dias (e após) quando o status for = 1
+			// 5- Enviar sempre quando faltar menos de 10 dias (e após) quando o status for = 1-Atrasado.
             If nDias < 10 .AND. QCN9->CN9_XXSREP = 1
                lEnv := .T.
             EndIf
             
 
-			// Enviar quando a data de repactuação for diferente da data de controle
+			// 6- Enviar quando a data de repactuação for diferente da data de controle "Data Aviso" e antes de 30 dias da "Data de Repactuação" ou depois da "Data de Repactuação".
             If !lEnv .AND. QCN9->CN9_XXDREP <> QCN9->CN9_XXDAVI
                If nDias <= 30 .AND. nDias > 0
                   lEnv := .T.
                EndIf
             EndIf
 
+			// 7- Enviar quando o status for diferente de 1 (Atrasado) e a quantidade de dias for múltipla de 10.
 			If nDias < 0 .AND. QCN9->CN9_XXSREP <> 1
 				If MOD(ABS(nDias),10) = 0
 					lEnv := .T.
@@ -412,6 +435,7 @@ If nHandle > 0
 		    	cAviso:= "Repactuação em "+ALLTRIM(STR(nDias,4))+" dias"
             EndIf
 
+			// 8- Enviar sempre quando o status for = 5-Pedido enviado o aviso "Redefinir a data da Repactuação"
             If QCN9->CN9_XXSREP = 5
             	lEnv := .T.
 		    	cAviso:= "Redefinir a data da Repactuação"
@@ -424,6 +448,8 @@ If nHandle > 0
 		If lEnv
 	   		lEmail := .T.
 			RecLock("CN9",.F.)
+			// 9- Se ocorrer qualquer uma das situações de envio anteriores e a data de controle for diferente da data de repactuação:
+    		//	Gravar a data de controle = a data de repactuação e mudar o status para 1-Atrasado.
 			IF CN9->CN9_XXDREP <> CN9->CN9_XXDAVI
 			   CN9->CN9_XXDAVI := CN9->CN9_XXDREP
 			   CN9->CN9_XXNAVI := 1
@@ -1502,19 +1528,16 @@ If nHandle > 0
    
    Do while (_cAlias)->(!eof())
    
-		//If !lJobV2
-		//	IncProc("Gerando arquivo "+_cArqS)   
-		//EndIf
-		
 		lEnv   := .F.
 		cAviso := ""
 		cStatus:= ""
 		nDias  := 0
         
 		If QCN9->CN9_XXSREP > 0 .AND. QCN9->CN9_XXSREP <= LEN(aStatus) 
-          cStatus := aStatus[QCN9->CN9_XXSREP]
+           cStatus := aStatus[QCN9->CN9_XXSREP]
         EndIf
 
+		// 1- Se o campo "Data Repac" (CN9_XXDREP) estiver em branco, mostra o status "Data de repactuação não definida".
 		If EMPTY(QCN9->CN9_XXDREP)
 		    cAviso:= "Data de repactuação nao definida"
 			lEnv := .T.
@@ -1524,31 +1547,20 @@ If nHandle > 0
 			lSolicitar := .F.
 			lAtrasado  := .F.  // Dedo duro
 			
-			// Enviar sempre email 30 dias antes independente do status
+			// 2- Enviar sempre email 30 dias antes independente do status
 			If nDias <= 30 .AND. nDias >= 0  
 				lEnv := .T.
 				lSolicitar := .T.
 			EndIf
-
-			
-			// Enviar sempre quando faltar menos de 10 dias (e após) quando o status for = 1
-            //If nDias < 10 .AND. QCN9->CN9_XXSREP = 1
-            //   lEnv := .T.
-            //EndIf
             
-            If nDias < 0
-               //Se houver status = 5 entre a drepac - 30 e hoje
-               //   não sair nesta seção
-               //Se não Mudar o Status para Atrasado.
-            EndIf
-
-			// Enviar quando a data de repactuação for diferente da data de controle
+			// 3- Enviar quando a data de repactuação for diferente da data de controle "Data Aviso" e antes de 30 dias da "Data de Repactuação" ou depois da "Data de Repactuação".
             If !lEnv .AND. QCN9->CN9_XXDREP <> QCN9->CN9_XXDAVI
                If nDias <= 30 .AND. nDias > 0
                   lEnv := .T.
                EndIf
             EndIf
 
+			// 4- Enviar quando a quantidade de dias faltantes for múltipla de 10.
 			If nDias < 0 .AND. QCN9->CN9_XXSREP <> 1
 				If MOD(ABS(nDias),10) = 0
 					lEnv := .T.
@@ -1577,6 +1589,8 @@ If nHandle > 0
 		If lEnv
         	lEmail := .T.
 			RecLock("CN9",.F.)
+			// 5- Se ocorrer qualquer uma das situações de envio anteriores e a data de controle for diferente da data de repactuação:
+            //    Gravar a data de controle = a data de repactuação e mudar o status para 1-Atrasado.
 			IF CN9->CN9_XXDREP <> CN9->CN9_XXDAVI
 			   CN9->CN9_XXDAVI := CN9->CN9_XXDREP
 			   CN9->CN9_XXNAVI := 1
@@ -1589,7 +1603,6 @@ If nHandle > 0
 			ENDIF   
 			MsUnlock()
 	    EndIf
-
 
 		dDVIG   := CN9->CN9_XXDVIG
 		/*

@@ -13,11 +13,15 @@
     @see (links_or_references)
     /*/
 
-User Function BKTITCR()
+User Function BKTITCR(lShell)
    
 Local cToken  := u_BKEnCode()
 Local dUtil   := dDatabase
-    
-ShellExecute("open", u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-3650)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken, "", "", 1)
+Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-3650)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
 
-Return .T.
+If lShell
+    ShellExecute("open",cUrl, "", "", 1)
+    Return .T.
+EndIf
+
+Return cUrl

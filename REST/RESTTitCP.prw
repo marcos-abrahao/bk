@@ -21,6 +21,7 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 	WSDATA vencini      AS STRING
 	WSDATA vencfim      AS STRING
 	WSDATA e2recno 		AS STRING
+	WSDATA f1recno 		AS STRING
 	WSDATA banco 		AS STRING
 	WSDATA userlib 		AS STRING OPTIONAL
 	WSDATA acao 		AS STRING
@@ -77,6 +78,13 @@ WSRESTFUL RestTitCP DESCRIPTION "Rest Titulos do Contas a Pagar"
 		DESCRIPTION "Alterar o portador do titulo a pagar" ;
 		WSSYNTAX "/RestTitCP/v4";
 		PATH "/RestTitCP/v4";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
+	WSMETHOD PUT MOTIVO;
+		DESCRIPTION "Enviar motivo de dados incorretos de pagamento" ;
+		WSSYNTAX "/RestTitCP/v8";
+		PATH "/RestTitCP/v8";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -255,6 +263,126 @@ u_MsgLog("RESTTitCP",cMsg)
 Return lRet
 
 
+// v8
+WSMETHOD PUT MOTIVO QUERYPARAM empresa,f1recno,userlib WSREST RestTitCP 
+
+Local cJson			:= Self:GetContent()   
+Local lRet			:= .T.
+Local oJson			As Object
+Local aParams		As Array
+Local cMsg			As Char
+Local cMsFin		As Char
+
+::setContentType('application/json')
+
+oJson := JsonObject():New()
+oJson:FromJSON(cJson)
+
+If u_BkAvPar(::userlib,@aParams,@cMsg)
+
+	cMsFin  := AllTrim(oJson['msfin'])
+	lRet := fMsgFin(::empresa,::f1recno,@cMsg,cMsFin)
+
+EndIf
+
+oJson['liberacao'] := StrIConv(cMsg, "CP1252", "UTF-8")
+
+cRet := oJson:ToJson()
+
+FreeObj(oJson)
+// CORS
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+
+Self:SetResponse(cRet)
+  
+Return lRet
+
+
+Static Function fMsgFin(empresa,f1recno,cMsg,cMsFin)
+Local lRet 		:= .F.
+Local cQuery	:= ""
+Local cTabSF1	:= "SF1"+empresa+"0"
+Local cTabSA2	:= "SA2"+empresa+"0"
+Local cQrySF1	:= GetNextAlias()
+Local cDoc		:= ""
+
+Local cEmail 	:= ""
+Local cAssunto  := "Informações insufIcientes para efetuar pagamento - "+DTOC(DATE())+" "+Time()
+Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local aCabs   	:= {"Empresa","Série","Documento","Fornecedor","Valor"}
+Local aEmail 	:= {}
+Local cCorpo	:= ""
+Local cProg		:= "RESTTITCP"
+
+Default cMsg	:= ""
+Default cMotivo := ""
+
+Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
+
+cQuery := "SELECT "
+cQuery += "   SF1.F1_SERIE"
+cQuery += "  ,SF1.F1_DOC"
+cQuery += "  ,SF1.F1_FORNECE"
+cQuery += "  ,SF1.F1_LOJA"
+cQuery += "  ,SF1.F1_XXUSER"
+cQuery += "  ,SF1.F1_XXUSERS"
+cQuery += "  ,SF1.F1_VALBRUT"
+cQuery += "  ,SF1.D_E_L_E_T_ AS F1DELET"
+cQuery += "  ,SA2.A2_NOME"
+cQuery += " FROM "+cTabSF1+" SF1 "
+cQuery += "	 LEFT JOIN "+cTabSA2+"  SA2 ON"+CRLF
+cQuery += "	 	SA2.A2_FILIAL      = '  '"+CRLF
+cQuery += "	 	AND F1_FORNECE     = SA2.A2_COD"+CRLF
+cQuery += "	 	AND F1_LOJA        = SA2.A2_LOJA"+CRLF
+cQuery += "	 	AND SA2.D_E_L_E_T_ = ''"+CRLF
+cQuery += " WHERE SF1.R_E_C_N_O_ = "+f1recno
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySF1,.T.,.T.)
+
+cDoc := (cQrySF1)->F1_DOC
+Do Case
+	Case (cQrySF1)->(Eof()) 
+		cMsg:= "não encontrado"
+	Case (cQrySF1)->F1DELET = '*'
+		cMsg:= "foi excluído"
+	OtherWise 
+		// Alterar o Status
+		cMsg   := PAD(cMsFin,50)
+		cQuery := "UPDATE "+cTabSF1+CRLF
+		cQuery += "  SET F1_XXMSFIN = '"+ALLTRIM(cMsFin)+"'"+CRLF
+		cQuery += " FROM "+cTabSF1+" SF1"+CRLF
+		cQuery += " WHERE SF1.R_E_C_N_O_ = "+f1recno+CRLF
+		//u_LogMemo("RESTTitCP.SQL",cQuery)
+		If TCSQLExec(cQuery) < 0
+			cMsg := "Erro: "+TCSQLERROR()
+		Else
+			lRet := .T.
+		EndIf
+EndCase
+
+
+If lRet
+
+	aEmail := {}
+	AADD(aEmail,{u_BKNEmpr(empresa,2),(cQrySF1)->F1_SERIE,(cQrySF1)->F1_DOC,(cQrySF1)->A2_NOME,(cQrySF1)->F1_VALBRUT})
+	AADD(aEmail,{"","","","",""})
+	AADD(aEmail,{"","","<b>Pendência:</b>","<b>"+cMsFin+"</b>"})
+	If Len(aEmail) > 0
+		cEmail := UsrRetMail((cQrySF1)->F1_XXUSER)+";"+UsrRetMail((cQrySF1)->F1_XXUSERS)+";"+UsrRetMail(__cUserID)
+		cCorpo := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cCorpo)
+	EndIf
+
+EndIF
+
+
+cMsg := cDoc+" - Mensagem: "+TRIM(cMsg)+" - "+f1recno
+
+u_MsgLog("RESTTitCP",cMsg)
+
+(cQrySF1)->(dbCloseArea())
+
+Return lRet
 
 // v5
 WSMETHOD GET PLANCP QUERYPARAM empresa,vencini,vencfim WSREST RestTitCP
@@ -695,7 +823,7 @@ Self:SetResponse(cRet)
 return .T.
 
 
-// /v6
+// v6
 WSMETHOD GET CONSE2 QUERYPARAM empresa,e2recno,userlib WSREST RestTitCP
 
 Local oJsonPN	:= JsonObject():New()
@@ -781,6 +909,8 @@ cQuery += "	 ,F1_XXTPPIX"+CRLF
 cQuery += "	 ,F1_XXCHPIX "+CRLF
 cQuery += "	 ,F1_USERLGI"+CRLF 
 cQuery += "	 ,F1_XXUSER"+CRLF
+cQuery += "	 ,F1_XXMSFIN"+CRLF
+cQuery += "	 ,SF1.R_E_C_N_O_ AS F1RECNO"+CRLF
 
 cQuery += "	 FROM "+cTabSE2+" SE2 "+CRLF
 
@@ -825,6 +955,8 @@ oJsonPN['E2_VENCREA']	:= DTOC(STOD((cQrySE2)->E2_VENCREA))
 oJsonPN['F1_XXUSER']	:= UsrRetName((cQrySE2)->F1_XXUSER)
 oJsonPN['E2_HIST']		:= (cQrySE2)->E2_HIST
 oJsonPN['LOTE']			:= (cQrySE2)->E2_XXLOTEB
+oJsonPN['F1_XXMSFIN']	:= (cQrySE2)->F1_XXMSFIN
+oJsonPN['F1RECNO']		:= STRZERO((cQrySE2)->F1RECNO,7)
 
 // Documentos anexos
 aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
@@ -963,7 +1095,7 @@ line-height: 1rem;
 	}
 
 table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>thead>tr th.dt-orderable-desc,table.dataTable.table-sm>thead>tr th.dt-ordering-asc,table.dataTable.table-sm>thead>tr th.dt-ordering-desc,table.dataTable.table-sm>thead>tr td.dt-orderable-asc,table.dataTable.table-sm>thead>tr td.dt-orderable-desc,table.dataTable.table-sm>thead>tr td.dt-ordering-asc,table.dataTable.table-sm>thead>tr td.dt-ordering-desc {
-    padding-right: 5px;
+    padding-right: 3px;
 }
 
 thead input {
@@ -1237,8 +1369,17 @@ thead input {
        </div>
         <!-- Rodapé do modal-->
         <div class="modal-footer">
-         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
-       </div>
+
+			<div class="input-group mb-3 col-sm-6">
+				<span class="input-group-text" id="basic-addon3">Aviso ao usuário:</span>
+				<input type="text" class="form-control" id="F1MsFin" value="#F1MsFin#" aria-describedby="basic-addon3">
+
+				<div id="btnMsFin"></div>
+
+				<button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+			</div>
+
+        </div>
      </div>
    </div>
 </div>
@@ -1276,7 +1417,7 @@ if (Array.isArray(titulos)) {
 	let cDadosPgt = object['DADOSPGT'];
 	let cTipoBk = object['TIPOBK'];
 
-	nlin += 1;
+	nlin += 1; 
 	cbtnz2 = 'btnz2'+nlin;
 
 	if (cStatus == 'C' ){
@@ -1513,9 +1654,6 @@ let dadosE2 = await getZ2(empresa,e2recno,userlib);
 let itens = '';
 let i = 0;
 let foot = '';
-let inpE = '';
-let iCheck = '';
-let cClick = 'libdoc';
 
 document.getElementById('SE2Prefixo').value = dadosE2['E2_PREFIXO'];
 document.getElementById('SE2Num').value = dadosE2['E2_NUM'];
@@ -1574,9 +1712,8 @@ let itens = '';
 let i = 0;
 let foot = '';
 let anexos = '';
-let inpE = '';
-let iCheck = '';
-let cClick = 'libdoc';
+let f1recno = dadosE2['F1RECNO'];
+let btnM = '';
 
 document.getElementById('E2Prefixo').value = dadosE2['E2_PREFIXO'];
 document.getElementById('E2Num').value = dadosE2['E2_NUM'];
@@ -1587,6 +1724,7 @@ document.getElementById('F1User').value = dadosE2['F1_XXUSER'];
 document.getElementById('E2Hist').value = dadosE2['E2_HIST'];
 document.getElementById('D1Hist').value = dadosE2['D1_XXHIST'];
 document.getElementById('E2Lote').value = dadosE2['LOTE'];
+document.getElementById('F1MsFin').value = dadosE2['F1_XXMSFIN'];
 
 if (Array.isArray(dadosE2.DADOSD1)) {
    dadosE2.DADOSD1.forEach(object => {
@@ -1611,6 +1749,9 @@ document.getElementById("E2Table").innerHTML = itens;
 foot = '<th scope="row" colspan="8" style="text-align:right;">'+dadosE2['D1_TOTAL']+'</th>'
 document.getElementById("E2Foot").innerHTML = foot;
 
+btnM = '<button type="button" class="btn btn-outline-secondary" onclick="envmot(\''+empresa+'\',\''+f1recno+'\',\'#userlib#\')">Enviar aviso</button>';
+document.getElementById("btnMsFin").innerHTML = btnM;
+
 $("#titE2Modal").text('Título do Contas a Pagar - Empresa: '+dadosE2['EMPRESA'] + ' - Usuário: '+dadosE2['USERNAME']);
 $('#E2Modal').modal('show');
 $('#E2Modal').on('hidden.bs.modal', function () {
@@ -1618,6 +1759,32 @@ $('#E2Modal').on('hidden.bs.modal', function () {
 	})
 }
 
+
+async function envmot(empresa,f1recno,userlib){
+let resposta = ''
+let F1MsFin  = document.getElementById("F1MsFin").value;
+
+let dataObject = { msfin:F1MsFin, };
+
+fetch('#iprest#/RestTitCP/v8?empresa='+empresa+'&f1recno='+f1recno+'&userlib='+userlib, {
+	method: 'PUT',
+	headers: {
+	'Content-Type': 'application/json'
+	},
+	body: JSON.stringify(dataObject)})
+	.then(response=>{
+		console.log(response);
+		return response.json();
+	})
+	.then(data=> {
+		// this is the data we get after putting our data,
+		console.log(data);
+
+	  //$('#avalModal').modal('hide');
+	  $('#E2Modal').modal('toggle');
+	  
+	})
+}
 
 async function ChgBanco(empresa,e2recno,userlib,banco,btnidp){
 let resposta = ''
@@ -1764,10 +1931,11 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 //DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-//If ::userlib == '000000'
-	//Memowrite("\tmp\cp.html",cHtml)
-//EndIf
-//u_MsgLog("RESTTITCP",__cUserId)
+// Desabilitar para testar o html
+If __cUserId == '000000'
+	Memowrite("\tmp\cp.html",cHtml)
+EndIf
+u_MsgLog("RESTTITCP",__cUserId+' - '+::userlib)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
@@ -1801,7 +1969,6 @@ If nE > 0
 Else
 	aEmpresas := aGrupoBK
 EndIf
-
 
 cQuery := "WITH RESUMO AS ( " + CRLF
 

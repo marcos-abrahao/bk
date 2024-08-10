@@ -13,14 +13,18 @@
     @see (links_or_references)
     /*/
 
-User Function BKLIBPV()
-   
+User Function BKLIBPV(lShell)
 Local cToken  := u_BKEnCode()
-    
+Local cUrl    := ""
+
 If u_IsLibPv(__cUserId)
-	ShellExecute("open", u_BkRest()+"/RestLibPV/v2?userlib="+cToken, "", "", 1)
+    cUrl := u_BkRest()+"/RestLibPV/v2?userlib="+cToken
+    If lShell 
+	    ShellExecute("open", cUrl, "", "", 1)
+        Return .T.
+    EndIf
 Else
     u_MsgLog("BKLIBPV","Acesso não concedido.","E")
 EndIf
 
-Return .T.
+Return cUrl

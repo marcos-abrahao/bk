@@ -13,10 +13,13 @@
     @see (links_or_references)
     /*/
 
-User Function BKLIBPN()
-   
+User Function BKLIBPN(lShell)
 Local cToken  := u_BKEnCode()
-    
-ShellExecute("open", u_BkRest()+"/RestLibPN/v2?userlib="+cToken, "", "", 1)
+Local cUrl  := u_BkRest()+"/RestLibPN/v2?userlib="+cToken
 
-Return .T.
+If lShell
+    ShellExecute("open", cUrl , "", "", 1)
+    Return .T.
+EndIf
+
+Return cUrl

@@ -41,6 +41,7 @@ Private cHist    := ""
 Private aPrd     := {}
 Private aPrdDesc := {}
 Private cNFiscal := '000000000'
+Private cFormul  := "N"
 
 aAdd(aPrd,"21401003")	// 1-PIS A RECOLHER 
 aAdd(aPrd,"21401004")	// 2-COFINS A RECOLHER  

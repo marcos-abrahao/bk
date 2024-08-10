@@ -8,14 +8,26 @@ BKTITCP - Abrir tela REST - Titulos a Pagar
 @version P12
 /*/
 
-User Function BKTITCP(dUtil)
-    
+User Function BKTITCP(lShell)
+Local dUtil   := dDataBase + 1
 Local cToken  := u_BKEnCode()
+Local cUrl 	  := ""
 
-If ValType(dUtil) <> 'D'
+If Select("SX2")==0
+	If DOW(dUtil) == 7
+		dUtil++
+	EndIf
+	If DOW(dUtil) == 1
+		dUtil++
+	EndIf
+Else
 	dUtil := DATAVALIDA(dDataBase+1)
 EndIf
 
-ShellExecute("open", u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil)+'&vencfim='+DTOS(dUtil)+'&userlib='+cToken, "", "", 1)
+cUrl := u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil)+'&vencfim='+DTOS(dUtil)+'&userlib='+cToken
+If lShel
+	ShellExecute("open", cUrl , "", "", 1)
+	Return .T.
+EndIf
+Return cUrl
 
-Return .T.
