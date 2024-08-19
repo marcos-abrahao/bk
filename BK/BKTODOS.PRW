@@ -30,6 +30,7 @@ EndIf
 If __cUserId == '000000'
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
+	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})
 EndIf
 
 aAdd(aDados,{"","U_BKBATIDAS()",	"GERAL",		"Envio de e-mails via CSV"})

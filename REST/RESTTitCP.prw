@@ -1112,7 +1112,7 @@ thead input {
     <a class="navbar-brand" href="#">Títulos a Pagar - #cUserName#</a> 
 
 	<div class="btn-group">
-		<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+		<button type="button" title="Seleção de empresa" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 			#NomeEmpresa#
 		</button>
 		<ul class="dropdown-menu dropdown-menu-dark">
@@ -1456,11 +1456,11 @@ if (Array.isArray(titulos)) {
 	cbtnidp = 'btnpor'+nlin;
 	trHTML += '<td>'
 	trHTML += '<div class="btn-group">'
-	trHTML += '<button type="button" id="'+cbtnidp+'" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	trHTML += '<button type="button" title="Portador" id="'+cbtnidp+'" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
 	trHTML += object['PORTADO']
 	trHTML += '</button>'
 
-	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+	trHTML += '<div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenu2">'
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\')">001 BB</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'033\','+'\''+cbtnidp+'\')">033 Santander</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E2RECNO']+'\',\'#userlib#\',\'104\','+'\''+cbtnidp+'\')">104 CEF</button>';

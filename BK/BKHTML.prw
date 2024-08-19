@@ -39,15 +39,14 @@ Return cRest
 
 User Function BKDTStyle()
 Local cHtml := ""
-//<!-- Styling https://datatables.net/download/ -->
-//<!-- CSS Bootstrap 5 -->
+//<!-- Download: https://datatables.net/download/ -->
+//<!-- Styling: Bootstrap 5 -->
 //<!-- Packages: Jquery3, Bootstrap5, DataTables -->
 //<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
 
 BEGINCONTENT var cHTML
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-
-<link href="https://cdn.datatables.net/2.1.3/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/2.1.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/buttons/3.1.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/datetime/1.5.3/css/dataTables.dateTime.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.bootstrap5.min.css" rel="stylesheet">
@@ -60,13 +59,15 @@ Return cHtml
 User Function BKDTScript()
 Local cHtml := ""
 
-//<!-- JavaScript https://datatables.net/download/-->
+//<!-- Download: https://datatables.net/download/ -->
+//<!-- Styling: Bootstrap 5 -->
 //<!-- Packages: Jquery3, Bootstrap5, DataTables -->
 //<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
 BEGINCONTENT var cHTML
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/2.1.3/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/2.1.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.4/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/3.1.1/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/datetime/1.5.3/js/dataTables.dateTime.min.js"></script>

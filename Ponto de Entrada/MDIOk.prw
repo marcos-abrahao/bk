@@ -10,7 +10,7 @@ MDIOk - P.E. ao abrir o módulo SIGAMDI
 
 User Function MDIOk()
     
-Local dUtil := dDatabase
+//Local dUtil := dDatabase
 //Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
 
 /*
@@ -33,7 +33,7 @@ If nModulo == 5 .OR. nModulo == 69
 ElseIf nModulo == 6 .OR. nModulo == 2  .OR. nModulo == 9
 	If u_IsFiscal(__cUserId) .OR. u_IsStaf(__cUserId) .OR. u_IsSuperior(__cUserId)
 		If u_MsgLog("MDIOk","Deseja abrir a Liberação de Docs de Entrada Web?","Y")
-			u_BKLibPN()
+			u_BKLibPN(.T.)
 		EndIf
 	EndIf
 EndIf

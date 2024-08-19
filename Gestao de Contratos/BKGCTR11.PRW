@@ -694,6 +694,8 @@ Static Function ProcBKGCTR11(lJob,oSay)
 	Local cRevAtu   := Space(GetSx3Cache("CN9_REVATU","X3_TAMANHO"))
 	Local cCodEve   := ""
 	Local cPCodEve  := ""
+	Local nValFat   := 0
+	Local nValNDCM  := 0
 
 	LimpaBrw ("TRB")
 	LimpaBrw (ALIAS_TMP)
@@ -1006,12 +1008,20 @@ Static Function ProcBKGCTR11(lJob,oSay)
 			NEXT _IXFUR
 
 			aRentab  := {}
+			nValFat  := QTMP->D2_TOTAL // Valor Faturado
+
+			// NDC Gerada por medição
+			If ALLTRIM(QTMP->CNF_CONTRA) == '368000630'  // NO FUTURO, FAZER QUERY CNB_PEDTIT = '2' PARA PEGAR OS CONTRATOS QUE GERAM TITULO
+				nValNDCM := U_VALNDCM(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1])
+				nValFat  += nValNDCM
+			EndIf
+
 			AADD(aRentab,{"00","CLIENTE: ","S",QTMP->A1_NOME})
 			AADD(aRentab,{"01","CONTRATO: ","S",QTMP->CTT_DESC01})
 			AADD(aRentab,{"02","NUMERO-SIGA: ","S",ALLTRIM(QTMP->CNF_CONTRA)})
-			AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
+			AADD(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,nValFat/(nIndTC/100),nValFat)})
 			AADD(aRentab,{"03-2","","S",0})
-			AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})
+			AADD(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((nValFat*nMImpContr)/100)/(nIndTC/100),(nValFat*nMImpContr)/100)})
 			IF lISSFURNAS
 				AADD(aRentab,{"05","(-) ISS","S",nISSFURNAS})
 			ELSE
@@ -1020,15 +1030,15 @@ Static Function ProcBKGCTR11(lJob,oSay)
 			AADD(aRentab,{"05-1","(-) ISS Bitributado","S",IIF(nIndTC>0,QTMP->D2_VALCPM/(nIndTC/100),QTMP->D2_VALCPM)})
 			AADD(aRentab,{"05-2","(-) ISS Bitributado Indev.","S",IIF(nIndTC>0,QTMP->E1_XXISSBI/(nIndTC/100),QTMP->E1_XXISSBI)})
 			IF lISSFURNAS
-				AADD(aRentab,{"06","Total dos Impostos + ISS","S",((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI})
+				AADD(aRentab,{"06","Total dos Impostos + ISS","S",((nValFat*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI})
 			ELSE
-				AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)/(nIndTC/100),((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)})
+				AADD(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)/(nIndTC/100),((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)})
 			ENDIF
 			AADD(aRentab,{"06-1","","S",0})
 			IF lISSFURNAS
-				AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))})
+				AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(nValFat-(((nValFat*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))/(nIndTC/100),nValFat-(((nValFat*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))})
 			ELSE
-				AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))})
+				AADD(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(nValFat-(((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))/(nIndTC/100),nValFat-(((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))})
 			ENDIF
 			AADD(aRentab,{"07-1","","S",0})
 			AADD(aRentab,{"08","CUSTO","S",0})
@@ -5307,6 +5317,38 @@ USER FUNCTION VALNDCE(cNumContr,cCompt,_nI,aNDC)
 
 RETURN nTotSE1
 
+
+
+//NOTAS DE DEBITO DO CLIENTE - NDC POR MEDIÇÃO
+USER FUNCTION VALNDCM(cNumContr,cCompt)
+	LOCAL nTotSE1	:= 0
+	LOCAL cQuery	:= ""
+
+	cQuery += " SELECT
+	cQuery += "    E1_VALOR," + CRLF
+	cQuery += "    E1_NUM AS XX_NDC" + CRLF
+	cQuery += "  FROM "+RETSQLNAME("SE1")+" SE1" + CRLF
+	cQuery += " WHERE
+	cQuery += "    SE1.D_E_L_E_T_ = ' ' AND " + CRLF
+	cQuery += "    SE1.E1_FILIAL = '"+xFilial("SE1")+"' AND " + CRLF
+	cQuery += "    SE1.E1_TIPO = 'BOL'" + CRLF
+	cQuery += "    AND E1_XXCOMPE = '"+SUBSTR(cCompt,4,4)+SUBSTR(cCompt,1,2)+"'"
+	cQuery += "    AND E1_XXCUSTO = '"+cNumContr+"'" + CRLF
+
+	TCQUERY cQuery NEW ALIAS "QTMPXE1"
+	u_LogTxt("BKGCTR11-NDCM.SQL",cQuery)
+
+	dbSelectArea("QTMPXE1")
+	dbGoTop()
+
+	nTotSE1  := 0
+	Do While !QTMPXE1->(EOF())
+		nTotSE1 += QTMPXE1->E1_VALOR
+		QTMPXE1->(dbSkip())
+	Enddo
+	QTMPXE1->(Dbclosearea())
+
+RETURN nTotSE1
 
 
 //NOTAS DE DEBITO DO CLIENTE - NDC - Pagamento

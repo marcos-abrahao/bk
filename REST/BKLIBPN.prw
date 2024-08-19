@@ -17,6 +17,8 @@ User Function BKLIBPN(lShell)
 Local cToken  := u_BKEnCode()
 Local cUrl  := u_BkRest()+"/RestLibPN/v2?userlib="+cToken
 
+Default lShell := .T.
+
 If lShell
     ShellExecute("open", cUrl , "", "", 1)
     Return .T.

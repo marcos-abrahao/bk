@@ -17,6 +17,8 @@ User Function BKLIBPV(lShell)
 Local cToken  := u_BKEnCode()
 Local cUrl    := ""
 
+Default lShell := .T.
+
 If u_IsLibPv(__cUserId)
     cUrl := u_BkRest()+"/RestLibPV/v2?userlib="+cToken
     If lShell 

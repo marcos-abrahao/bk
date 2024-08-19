@@ -4,7 +4,7 @@
 #INCLUDE "TBICONN.CH"
 #INCLUDE "FILEIO.CH"
 
-/*/{Protheus.doc} RestAvisos
+/*/{Protheus.doc} RestMsgUs
     REST Avisos BK
 	https://datatables.net/examples/api/row_details.html
     @type  REST
@@ -13,7 +13,7 @@
     @version 12.2310
 /*/
 
-WSRESTFUL RestAvisos DESCRIPTION "Rest Avisos BK"
+WSRESTFUL RestMsgUs DESCRIPTION "Rest Avisos BK"
 
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
@@ -24,23 +24,23 @@ WSRESTFUL RestAvisos DESCRIPTION "Rest Avisos BK"
 
 	WSMETHOD GET LISTAV1;
 		DESCRIPTION "Listar avisos recebidos";
-		WSSYNTAX "/RestAvisos/v0";
-		PATH  "/RestAvisos/v0";
+		WSSYNTAX "/RestMsgUs/v0";
+		PATH  "/RestMsgUs/v0";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 	WSMETHOD GET BROWAV1;
 		DESCRIPTION "Browse avisos recebidos";
-		WSSYNTAX "/RestAvisos/v2";
-		PATH "/RestAvisos/v2";
+		WSSYNTAX "/RestMsgUs/v2";
+		PATH "/RestMsgUs/v2";
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
 
 	WSMETHOD PUT STATUS;
 		DESCRIPTION "Alterar o status do aviso" ;
-		WSSYNTAX "/RestAvisos/v4";
-		PATH "/RestAvisos/v4";
+		WSSYNTAX "/RestMsgUs/v4";
+		PATH "/RestMsgUs/v4";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -49,7 +49,7 @@ END WSRESTFUL
 
 
 //v4
-WSMETHOD PUT STATUS QUERYPARAM empresa,z0recno,userlib,acao WSREST RestAvisos 
+WSMETHOD PUT STATUS QUERYPARAM empresa,z0recno,userlib,acao WSREST RestMsgUs 
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -127,7 +127,7 @@ EndCase
 
 cMsg := cNum+" "+cMsg
 
-u_MsgLog("RESTAvisos",cMsg)
+u_MsgLog("RESTMsgUs",cMsg)
 
 (cQrySZ0)->(dbCloseArea())
 
@@ -141,7 +141,7 @@ Retorna a lista de avisos recebidos.
 /*/
 
 // v0
-WSMETHOD GET LISTAV1 QUERYPARAM userlib WSREST RestAvisos
+WSMETHOD GET LISTAV1 QUERYPARAM userlib WSREST RestMsgUs
 Local aListAV1 		:= {}
 Local cQrySZ0       := GetNextAlias()
 Local cJsonCli      := ''
@@ -150,7 +150,7 @@ Local oJsonTmp	 	:= JsonObject():New()
 Local aParams      	As Array
 Local cMsg         	As Character
 
-//u_MsgLog("RESTAvisos",VarInfo("vencini",self:vencini))
+//u_MsgLog("RESTMsgUs",VarInfo("vencini",self:vencini))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
   oJsonTmp['liberacao'] := cMsg
@@ -161,8 +161,6 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
   Return lRet:= .T.
 EndIf
 
-// Usuários que podem executar alguma ação
-//lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
 
 // Query para selecionar os Títulos a Pagar
 TmpQuery(cQrySZ0,"R")
@@ -212,7 +210,7 @@ Return( lRet )
 
 
 // /v2
-WSMETHOD GET BROWAV1 QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestAvisos
+WSMETHOD GET BROWAV1 QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestMsgUs
 
 Local cHTML		as char
 Local cDropEmp	as char
@@ -319,7 +317,7 @@ thead input {
 <script>
 
 async function getAv1() {
-	let url = '#iprest#/RestAvisos/v0?userlib=#userlib#'
+	let url = '#iprest#/RestMsgUs/v0?userlib=#userlib#'
 		try {
 		let res = await fetch(url);
 			return await res.json();
@@ -484,7 +482,7 @@ let F1MsFin  = document.getElementById("F1MsFin").value;
 
 let dataObject = { msfin:F1MsFin, };
 
-fetch('#iprest#/RestAvisos/v8?empresa='+empresa+'&f1recno='+f1recno+'&userlib='+userlib, {
+fetch('#iprest#/RestMsgUs/v8?empresa='+empresa+'&f1recno='+f1recno+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -509,7 +507,7 @@ let resposta = ''
 let dataObject = {	liberacao:'ok' };
 let cbtn = '';
 	
-fetch('#iprest#/RestAvisos/v4?empresa='+empresa+'&z0recno='+z0recno+'&userlib='+userlib+'&banco='+banco, {
+fetch('#iprest#/RestMsgUs/v4?empresa='+empresa+'&z0recno='+z0recno+'&userlib='+userlib+'&banco='+banco, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -531,7 +529,7 @@ let resposta = ''
 let dataObject = {	liberacao:'ok' };
 let cbtn = '';
 	
-fetch('#iprest#/RestAvisos/v3?empresa='+empresa+'&z0recno='+z0recno+'&userlib='+userlib+'&acao='+acao, {
+fetch('#iprest#/RestMsgUs/v3?empresa='+empresa+'&z0recno='+z0recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -587,7 +585,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 If __cUserId == '000000'
 	Memowrite("\tmp\Avisos.html",cHtml)
 EndIf
-u_MsgLog("RESTAvisos",__cUserId+' - '+::userlib)
+u_MsgLog("RESTMsgUs",__cUserId+' - '+::userlib)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
@@ -640,7 +638,7 @@ EndIf
 
 cQuery += " ORDER BY Z0_EMPRESA,Z0_DTENV" + CRLF
 
-u_LogMemo("RESTAvisos1.SQL",cQuery)
+u_LogMemo("RESTMsgUs1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZ0,.T.,.T.)
 

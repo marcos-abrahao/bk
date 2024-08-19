@@ -1,7 +1,7 @@
 #Include "Protheus.ch"
  
-/*/{Protheus.doc} BKLIBPN
-    Abre Liberação de Documentos de Entrada Web
+/*/{Protheus.doc} BKLIBCR
+    Abre Titulos a Receber Web
     @type  Function
     @author user Marcos Abrahão
     @since 18/06/2024
@@ -18,6 +18,8 @@ User Function BKTITCR(lShell)
 Local cToken  := u_BKEnCode()
 Local dUtil   := dDatabase
 Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-3650)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
+
+Default lShell := .T.
 
 If lShell
     ShellExecute("open",cUrl, "", "", 1)
