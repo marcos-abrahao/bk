@@ -119,7 +119,7 @@ User Function MVXPROVE()
 935 - Salário substituição: será devido quando o funcionário substitui outro profissional com salário mais elevado que o seu, consiste no recebimento da diferença de salário pelo período em que o profissional exercer a mesma função que o funcionário afastado. O salário substituição será pago nas seguintes situações; cobertura de férias, licença médica, licença maternidade e licença paternidade.
 936 - Salário treinamento: será devido quando o funcionário estiver em período probatório de promoção para um cargo com salário superior ao seu; consiste no recebimento da diferença de salário pelo período em que o profissional exercer a função que contenha o salário superior. O período probatório deverá ser de no máximo 60 dias.
 */
-Local cVar := "|1|2|11|34|35|36|37|56|60|62|64|65|68|100|102|104|108|110|126|266|268|270|274|483|600|640|656|664|674|675|685|695|696|700|720|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|897|935|936"
+Local cVar := "|1|2|11|34|35|36|37|56|60|62|64|65|68|100|102|104|108|110|126|266|268|270|274|483|574|600|640|656|664|674|675|685|695|696|700|720|725|726|727|728|729|745|747|749|750|754|755|756|757|758|760|761|762|763|764|765|778|779|787|789|790|791|792|824|897|935|936|953|960|"
 Return cVar
 
 
@@ -131,7 +131,7 @@ Return cVar
 
 // PROVENTO DE VT - Conforme verificado com Sr. Anderson esta verba é so pára funcionario que tem vt em dinheiro
 User Function MVXVTPRO()
-Local cVar := "|671|"
+Local cVar := "|671|975|"
 Return cVar
 
 //Verba desconto de VT custos calculo Rentabilidade
@@ -162,12 +162,12 @@ Local cVar := "|280|282|"
 Return cVar
 
 
-// Cod. Prod. desc. sind. odonto  calculo Rentabilidade
+// Cod. Prod. desc. sind. odonto calculo Rentabilidade
 User Function MVXSINOP()
 Local cVar := "|510|607|665|679|724|732|739|825|900|"
 Return cVar
 
-// Verba desc. sind. odonto  calculo Rentabilidade 
+// Verba desc. sind. odonto calculo Rentabilidade 
 User Function MVXSINOV()
 Local cVar := "|510|607|665|679|724|739|825|900|"
 Return cVar
@@ -182,7 +182,7 @@ User Function MVXVRVAP()
 Local cVar := "|31201045|31201047|"
 Return cVar
 
-// Codigo contrato e empresa Consorcio calGENX3culo Rentabilidade
+// Codigo contrato e empresa Consorcio calculo Rentabilidade
 User Function MVXCONS()
 Local cVar := " "
 Local aVar := {}

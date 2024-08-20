@@ -373,6 +373,9 @@ If lRet
 		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cCorpo)
 	EndIf
 
+	// Gravar no SZ0 - Avisos Web
+	u_BKMsgUs("I",0,empresa,"RESTTITCP",(cQrySF1)->F1_XXUSER,"",PAD((cQrySF1)->F1_SERIE+(cQrySF1)->F1_DOC+'-'+TRIM((cQrySF1)->A2_NOME)+": "+cMsFin,100))
+
 EndIF
 
 
@@ -1932,10 +1935,12 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 // Desabilitar para testar o html
+/*
 If __cUserId == '000000'
 	Memowrite("\tmp\cp.html",cHtml)
 EndIf
 u_MsgLog("RESTTITCP",__cUserId+' - '+::userlib)
+*/
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)

@@ -36,7 +36,7 @@ User Function BKDANFE(cNota, cSerie, cPasta)
     Private oRetNF
     Private nColAux
 
-    Default cNota   := "000000017"
+    Default cNota   := "000000018"
     Default cSerie  := "2  "
     Default cPasta  := "C:\TMP\"  //GetTempPath()
        

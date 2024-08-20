@@ -17,7 +17,7 @@
 #DEFINE MAXITEMP2  049					// Máximo de produtos para a pagina 2 em diante
 #DEFINE MAXITEMP2F 069					// Máximo de produtos para a página 2 em diante quando a página não possui informações complementares
 #DEFINE MAXITEMP3  025					// Máximo de produtos para a pagina 2 em diante (caso utilize a opção de impressao em verso) - Tratamento implementado para atender a legislacao que determina que a segunda pagina de ocupar 50%.
-// DMAF MAXITEMC 035 --> 050
+// DMAF MAXITEMC 035 --> 060
 #DEFINE MAXITEMC   060					// Máxima de caracteres por linha de produtos/serviços
 #DEFINE MAXMENLIN  080					// Máximo de caracteres por linha de dados adicionais
 #DEFINE MAXMSG     013					// Máximo de dados adicionais por página
@@ -3014,10 +3014,10 @@ If lMv_Logod
 	EndIf
 EndIf
 
-u_MsgLog("DANFE",cLogo,"I")
 
 If nfolha==1
 	If lMv_Logod
+		u_MsgLog("DANFE",cLogoD)
 		oDanfe:SayBitmap(045,003,cLogoD,090,090)
 	Else
 		oDanfe:SayBitmap(045,003,cLogo,090,090)
