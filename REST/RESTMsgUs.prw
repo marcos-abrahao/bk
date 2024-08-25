@@ -23,14 +23,14 @@ WSRESTFUL RestMsgUs DESCRIPTION "Rest Avisos BK"
 	WSDATA acao 		AS STRING
 
 	WSMETHOD GET LISTAV1;
-		DESCRIPTION "Listar avisos recebidos";
+		DESCRIPTION "Listar avisos";
 		WSSYNTAX "/RestMsgUs/v0";
 		PATH  "/RestMsgUs/v0";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 	WSMETHOD GET BROWAV1;
-		DESCRIPTION "Browse avisos recebidos";
+		DESCRIPTION "Browse avisos";
 		WSSYNTAX "/RestMsgUs/v2";
 		PATH "/RestMsgUs/v2";
 		TTALK "v1";
@@ -163,7 +163,7 @@ EndIf
 
 
 // Query para selecionar os Títulos a Pagar
-TmpQuery(cQrySZ0,"R")
+TmpQuery(cQrySZ0)
 
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
@@ -224,7 +224,9 @@ BEGINCONTENT var cHTML
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Styling CSS -->
+
 #BKDTStyle#
+#BKAwesome#
 
 <title>Avisos BK</title>
 
@@ -266,7 +268,8 @@ thead input {
 </style>
 </head>
 <body>
-<nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
+<header>
+<nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav1">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Avisos - #cUserName#</a> 
 
@@ -276,15 +279,24 @@ thead input {
 
   </div>
 </nav>
-<br>
-<br>
-<br>
+
+<!-- <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2"> -->
+<!--   <div class="container-fluid"> -->
+<!-- 	<span class="navbar-text"> -->
+<!-- 		Navbar text with an inline element -->
+<!-- 	</span> -->
+<!--   </div> -->
+<!-- </nav> -->
+
+</header>
+
 <div class="container-fluid">
 <div class="table-responsive-sm">
 <table id="tableAV1" class="table table-sm table-hover" style="width:100%">
 <thead>
 <tr>
 <th scope="col"></th>
+<th scope="col">Status</th>
 <th scope="col">Empresa</th>
 <th scope="col">Remetente</th>
 <th scope="col">Destinatário</th>
@@ -298,36 +310,6 @@ thead input {
 <tr>
   <th scope="col">Carregando Mensagens recebidas...</th>
   <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<div class="container-fluid">
-<div class="table-responsive-sm">
-<table id="tableAV2" class="table table-sm table-hover" style="width:100%">
-<thead>
-<tr>
-<th scope="col"></th>
-<th scope="col">Empresa</th>
-<th scope="col">Remetente</th>
-<th scope="col">Destinatário</th>
-<th scope="col">Assunto</th>
-<th scope="col">Mensagem</th>
-<th scope="col">Data</th>
-<th scope="col">Hora</th>
-</tr>
-</thead>
-<tbody id="mytable2">
-<tr>
-  <th scope="col">Carregando Mensagens enviadas...</th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -357,20 +339,10 @@ async function getAv1() {
 			}
 		}
 
-async function getAv2() {
-	let url = '#iprest#/RestMsgUs/v0?userlib=#userlib#'
-		try {
-		let res = await fetch(url);
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
 
 
 async function loadTable() {
 let av1 = await getAv1();
-let av2 = await getAv2();
 let trHTML = '';
 let nlin = 0;
 let ccbtn = 'light';
@@ -386,6 +358,7 @@ if (Array.isArray(av1)) {
 
 	trHTML += '<tr>';
 	trHTML += '<td></td>';
+	trHTML += '<td><button type="button" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['USRREM']+'</td>';
 	trHTML += '<td>'+object['USRDEST']+'</td>';
@@ -397,16 +370,17 @@ if (Array.isArray(av1)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+av1['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">'+av1['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable1").innerHTML = trHTML;
 
 
 tableAV1 = $('#tableAV1').DataTable({
+  "processing": true,
   "pageLength": 100,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
@@ -431,6 +405,7 @@ tableAV1 = $('#tableAV1').DataTable({
             data: null,
             defaultContent: ''
         },
+        { data: 'Status' },
         { data: 'Empresa' },
         { data: 'Remetente' },
         { data: 'Destinatario' },
@@ -441,9 +416,14 @@ tableAV1 = $('#tableAV1').DataTable({
   ],
   "columnDefs": [
         {
-            target: 6,
-            render: DataTable.render.date()
-        }
+            target: 7, render: DataTable.render.date()
+        },
+		{
+			targets: 0, width: 30, 
+		},
+		{
+			targets: 1, width: 55, 
+		}
   ],
   "order": [[1,'asc']],
    initComplete: function () {
@@ -595,6 +575,7 @@ ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
+cHtml := STRTRAN(cHtml,"#BKAwesome#" ,u_BKAwesome())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
@@ -621,11 +602,11 @@ return .T.
 
 
 // Montagem da Query
-Static Function TmpQuery(cQrySZ0,cOpc)
+Static Function TmpQuery(cQrySZ0)
 
 Local cTabSZ0		:= "SZ0010"
 Local cQuery		:= ""
-
+Local cGrupos		:= u_cUserGrps(__cUserID)
 //cQuery := "WITH RESUMO AS ( " + CRLF
 
 cQuery += " SELECT "+CRLF
@@ -636,8 +617,13 @@ cQuery += "	 ,Z0_USERD"+CRLF
 cQuery += "  ,USRD.USR_CODIGO AS USRDEST" + CRLF
 cQuery += "	 ,Z0_ASSUNTO"+CRLF
 cQuery += "	 ,Z0_MSG"+CRLF
+cQuery += "	 ,Z0_STATUS"+CRLF
+cQuery += "	 ,Z0_ANEXO"+CRLF
 cQuery += "	 ,Z0_DTENV"+CRLF
 cQuery += "	 ,Z0_HRENV"+CRLF
+cQuery += "	 ,Z0_DTLIDA"+CRLF
+cQuery += "	 ,Z0_HRLIDA"+CRLF
+cQuery += "	 ,Z0_DTFINAL"+CRLF
 cQuery += "	 ,SZ0.R_E_C_N_O_ AS Z0RECNO"+CRLF
 
 cQuery += " FROM " + CRLF
@@ -647,9 +633,12 @@ cQuery += "  LEFT JOIN SYS_USR USRO ON Z0_USERO = USRO.USR_ID AND USRO.D_E_L_E_T
 cQuery += "  LEFT JOIN SYS_USR USRD ON Z0_USERD = USRD.USR_ID AND USRD.D_E_L_E_T_ = ''" + CRLF
 
 cQuery += "	 WHERE SZ0.D_E_L_E_T_ = '' "+ CRLF
-
-If cOpc == "R" // Recebidas
-	//cQuery += "  AND Z0_USERD = '"+__cUserId+"'"+CRLF
+cQuery += "	 AND (Z0_DTFINAL >= '"+DTOS(DATE())+"' OR Z0_STATUS = 'F') "+CRLF
+cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"'"
+If !Empty(cGrupos)
+	cQuery += "  OR Z0_GRUPOD IN ("+cGrupos+")" +CRLF
+Else
+	cQuery += ")"
 EndIf
 
 cQuery += " ORDER BY Z0_DTENV,Z0_HRENV" + CRLF
@@ -662,17 +651,21 @@ Return Nil
 
 
 // Inclui/Altera/Exclui Mensagem para usuário ou grupo (Tabela SZ0)
-User Function BKMsgUs(cAcao,nRecno,cEmpresa,cOrigem,cUsDest,cGrpDest,cMsg,cTipo,cAnexo)
+User Function BKMsgUs(cAcao,nRecno,cEmpresa,cOrigem,cUsDest,cGrpDest,cAssunto,cMsg,cStatus,cAnexo,dFinal)
 Local lRet 	:= .T.
 Local lInc  := .T.
 
-Default cTipo	:= "N"  // Normal
+Default cStatus	:= "N"  // Não Lida
 Default cAnexo	:= ""
+Default dFinal  := DATE()+5
 
 If cAcao == 'I'
 	dbSelectArea("SZ0")
-	If cTipo == "F"  // Fixa
+	If cStatus == "F"  // Fixa
 		// Verificar se a origem já está cadastrada, se tiver, alterar
+		If dbseek(cOrigem,.F.)
+			lInc := .F.
+		EndIf
 	EndIf
 
 	RecLock("SZ0",lInc)
@@ -681,11 +674,13 @@ If cAcao == 'I'
 	SZ0->Z0_USERO	:= __cUserID
 	SZ0->Z0_USERD	:= cUsDest
 	SZ0->Z0_GRUPOD	:= cGrpDest
+	SZ0->Z0_ASSUNTO	:= cAssunto
 	SZ0->Z0_MSG		:= cMsg
 	SZ0->Z0_DTENV 	:= DATE()
 	SZ0->Z0_HRENV	:= SUBSTR(TIME(),1,5)
 	SZ0->Z0_ANEXO 	:= cAnexo
-	SZ0->Z0_TIPO	:= cTipo
+	SZ0->Z0_STATUS	:= cStatus
+	SZ0->Z0_DTFINAL	:= dFinal
 	SZ0->(MsUnLock())
 EndIf
 

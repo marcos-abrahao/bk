@@ -369,6 +369,7 @@ Return Nil
 User Function LogMvc(cPrw,cAlias,nOper,oModelMVC,cID,aNoFields)
 Local aFields   := {}
 Local nX        := 0
+Local nY 		:= 0
 Local cAntes    := ""
 Local cDepois   := ""
 
@@ -407,15 +408,21 @@ ElseIF nOper == 4 // Alteração
                             IF Empty((cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD]))
                                 cAntes := (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD])
                             Else
-                                cValorAnt := aCombo[ Ascan( aCombo , (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD]) + "=" ) ]
-                                cAntes := cValorAnt
+								nY := Ascan( aCombo , (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD]) + "=" )
+								If nY > 0
+                                	cValorAnt := aCombo[ nY ]
+                                	cAntes := cValorAnt
+								EndIf
                             EndIF
 
                             IF Empty(FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD	]))
                                 cDepois := FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD])
                             Else
-                                cValorAtu := aCombo[ Ascan( aCombo , FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD]) + "=" ) ]
-                                cDepois := cValorAtu
+								nY := Ascan( aCombo , FwFldGet( aFields[nX][MODEL_FIELD_IDFIELD]) + "=" )
+								If nY > 0
+                                	cValorAtu := aCombo[nY]
+                                	cDepois := cValorAtu
+								EndIf
                             EndIF
                         Else
                             cAntes := (cAlias)->&(aFields[nX][MODEL_FIELD_IDFIELD])

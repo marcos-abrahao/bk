@@ -286,6 +286,76 @@ Endif
 Return aReturn
 
 
+/*/{Protheus.doc} UserGrps
+    Retorna array com os grupos de um usuario ou de todos usuarios
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 22/08/24
+    @version version
+    @param cUser (Id do Usuario)
+    @return lRet
+/*/
+User Function aUserGrps(cUser)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+
+cQuery := "SELECT " + CRLF
+cQuery += "    USRGRP.USR_ID  AS USRID" + CRLF
+cQuery += "   ,USR.USR_CODIGO AS USRCODIGO" + CRLF
+cQuery += "   ,USR_GRUPO      AS USRGRUPO" + CRLF
+cQuery += "   ,GRP.GR__NOME   AS GRPNOME" + CRLF
+
+cQuery += "  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP" + CRLF
+cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO" + CRLF
+cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR ON USRGRP.USR_ID = USR.USR_ID" + CRLF
+cQuery += "  WHERE GRP.D_E_L_E_T_ = '' " + CRLF
+cQuery += "		AND USRGRP.D_E_L_E_T_ = ''" + CRLF
+cQuery += "		AND USR.D_E_L_E_T_ = ''" + CRLF
+cQuery += "		AND USR.USR_MSBLQD = ' '" + CRLF   // Data de Bloqueio em branco
+If !Empty(cUser)
+    cQuery += "		AND USRGRP.USR_ID = ? " + CRLF
+    aAdd(aBinds,cUser)
+EndIf
+cQuery += "	ORDER BY USRGRP.USR_ID" + CRLF
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"USRID"     ,"C",  6,0})
+aadd(aSetFields,{"USRCODIGO" ,"C", 25,0})
+aadd(aSetFields,{"USUSRGRUPO","C",  6,0})
+aadd(aSetFields,{"GRPNOME"   ,"C", 30,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+    u_MsgLog("GrpUsers",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+Endif
+
+Return aReturn
+
+
+User Function cUserGrps(cId)
+Local cGrps	    := ""
+Local aUsers	:= u_aUserGrps(cId)
+Local nI		:= 0
+Local cRet 		:= ""
+
+For nI := 1 To Len(aUsers)
+	If nI > 1
+		cGrps += "|"
+	EndIf
+	cGrps += aUsers[nI,3]
+Next
+
+If Len(cGrps) > 0
+	cRet := FormatIn(cUsers,"|")
+EndIf
+
+Return cRet
+
+
 /*/{Protheus.doc} GprEmail
     Retorna string com todos emails de um grupo
     @type  Function
@@ -591,7 +661,7 @@ User Function GerGestao
 Return "000023"
 
 
-// Gerente Gestão Petrobrás
+// Gerente Gestão Petrobras
 User Function GerPetro
 // Marcelo Cavalari
 Return "000252"

@@ -363,6 +363,7 @@ EndCase
 
 If lRet
 
+/*
 	aEmail := {}
 	AADD(aEmail,{u_BKNEmpr(empresa,2),(cQrySF1)->F1_SERIE,(cQrySF1)->F1_DOC,(cQrySF1)->A2_NOME,(cQrySF1)->F1_VALBRUT})
 	AADD(aEmail,{"","","","",""})
@@ -372,9 +373,9 @@ If lRet
 		cCorpo := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cCorpo)
 	EndIf
-
+*/
 	// Gravar no SZ0 - Avisos Web
-	u_BKMsgUs("I",0,empresa,"RESTTITCP",(cQrySF1)->F1_XXUSER,"",PAD((cQrySF1)->F1_SERIE+(cQrySF1)->F1_DOC+'-'+TRIM((cQrySF1)->A2_NOME)+": "+cMsFin,100))
+	u_BKMsgUs("I",0,empresa,"RESTTITCP",(cQrySF1)->F1_XXUSER,"","Titulo a Pagar "+(cQrySF1)->F1_SERIE+(cQrySF1)->F1_DOC+'-'+TRIM((cQrySF1)->A2_NOME),cMsFin,"N","")
 
 EndIF
 
@@ -1125,6 +1126,7 @@ thead input {
 
 	<div class="btn-group">
 		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+		<span class="navbar-text">&nbsp;&nbsp;&nbsp;</span> 
 		<button type="button" class="btn btn-dark" aria-label="PDF" onclick="HtmlPdf()">PDF</button>
 	</div>
 
