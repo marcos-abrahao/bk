@@ -131,12 +131,13 @@ DEFINE SBUTTON FROM nSnd, 253 TYPE 2 ACTION (oDlg01:End(),,nOpcA:=0) ENABLE OF o
 
 ACTIVATE MSDIALOG oDlg01 CENTER Valid(ValidaNF())
 
+
 If nOpcA == 1
 	nOpcA:=0
 	IF SUBSTR(cTipoNF,1,2) == "AS"
-		MontaPlaAS()
+		MsgRun("Gerando os Itens. Aguarde!","",{|| MontaPlaAS()})
 	ELSE
-		MontaItemNF()
+		MsgRun("Gerando os Itens. Aguarde!","",{|| MontaItemNF()})
 	ENDIF
 Endif
 

@@ -36,7 +36,6 @@ WSRESTFUL RestMsgUs DESCRIPTION "Rest Avisos BK"
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
-
 	WSMETHOD PUT STATUS;
 		DESCRIPTION "Alterar o status do aviso" ;
 		WSSYNTAX "/RestMsgUs/v4";
@@ -49,7 +48,7 @@ END WSRESTFUL
 
 
 //v4
-WSMETHOD PUT STATUS QUERYPARAM empresa,z0recno,userlib,acao WSREST RestMsgUs 
+WSMETHOD PUT STATUS QUERYPARAM z0recno,userlib,acao WSREST RestMsgUs 
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -64,7 +63,7 @@ oJson:FromJSON(cJson)
 
 If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-	lRet := fStatus(::empresa,::z0recno,::acao,@cMsg)
+	lRet := fStatus(::z0recno,::acao,@cMsg)
 
 EndIf
 
@@ -82,12 +81,11 @@ Return lRet
 
 
 
-Static Function fStatus(empresa,z0recno,acao,cMsg)
+Static Function fStatus(z0recno,acao,cMsg)
 Local lRet 		:= .F.
 Local cQuery	:= ""
-Local cTabSE2	:= "SE2"+empresa+"0"
+Local cTabSZ0	:= "SZ0010"
 Local cQrySZ0	:= GetNextAlias()
-Local cNum		:= ""
 
 Default cMsg	:= ""
 Default cMotivo := ""
@@ -95,28 +93,27 @@ Default cMotivo := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cQuery := "SELECT "
-cQuery += "  SE2.E2_XXPGTO,"
-cQuery += "  SE2.D_E_L_E_T_ AS E2DELET,"
-cQuery += "  SE2.E2_NUM "
-cQuery += " FROM "+cTabSE2+" SE2 "
-cQuery += " WHERE SE2.R_E_C_N_O_ = "+z0recno
+cQuery += "  SZ0.Z0_STATUS,"
+cQuery += "  SZ0.D_E_L_E_T_ AS Z0DELET,"
+cQuery += " FROM "+cTabSZ0+" SZ0 "
+cQuery += " WHERE SZ0.R_E_C_N_O_ = "+z0recno
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZ0,.T.,.T.)
 
-cNum := (cQrySZ0)->E2_NUM
 Do Case
 	Case (cQrySZ0)->(Eof()) 
 		cMsg:= "não encontrado"
-	Case (cQrySZ0)->E2DELET = '*'
+	Case (cQrySZ0)->Z0DELET = '*'
 		cMsg:= "foi excluído"
 	OtherWise 
 		// Alterar o Status
 		cMsg 	:= acao
-		cQuery := "UPDATE "+cTabSE2+CRLF
-		cQuery += "  SET E2_XXPGTO = '"+SUBSTR(acao,1,1)+"',"+CRLF
-		cQuery += "      E2_XXOPER = '"+__cUserId+"'"+CRLF
-		cQuery += " FROM "+cTabSE2+" SE2"+CRLF
-		cQuery += " WHERE SE2.R_E_C_N_O_ = "+z0recno+CRLF
+		cQuery := "UPDATE "+cTabSZ0+CRLF
+		cQuery += "  SET Z0_STATUS = '"+SUBSTR(acao,1,1)+"',"+CRLF
+		cQuery += "      Z0_DTLIDA = '"+DTOS(DATE())+"',"+CRLF
+		cQuery += "      Z0_HRLIDA = '"+SUBSTR(TIME(),1,5)+"'"+CRLF
+		cQuery += " FROM "+cTabSZ0+" SZ0"+CRLF
+		cQuery += " WHERE SZ0.R_E_C_N_O_ = "+z0recno+CRLF
 
 		If TCSQLExec(cQuery) < 0 
 			cMsg := "Erro: "+TCSQLERROR()
@@ -124,8 +121,6 @@ Do Case
 			lRet := .T.
 		EndIf
 EndCase
-
-cMsg := cNum+" "+cMsg
 
 u_MsgLog("RESTMsgUs",cMsg)
 
@@ -161,12 +156,11 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
   Return lRet:= .T.
 EndIf
 
-
-// Query para selecionar os Títulos a Pagar
+// Query para selecionar os avisos
 TmpQuery(cQrySZ0)
 
 //-------------------------------------------------------------------
-// Alimenta array de Pré-notas
+// Alimenta array do Datatables
 //-------------------------------------------------------------------
 Do While ( cQrySZ0 )->( ! Eof() )
 
@@ -175,12 +169,18 @@ Do While ( cQrySZ0 )->( ! Eof() )
 	nPos	:= Len(aListAV1)
 
 	aListAV1[nPos]['EMPRESA']	:= u_BKNEmpr((cQrySZ0)->Z0_EMPRESA,3)
-	aListAV1[nPos]['USRREM']    := TRIM((cQrySZ0)->USRREM)
+	aListAV1[nPos]['STATUS']    := (cQrySZ0)->Z0_STATUS
+	aListAV1[nPos]['USRREM']    := TRIM((cQrySZ0)->USRREM)	
 	aListAV1[nPos]['USRDEST']	:= TRIM((cQrySZ0)->USRDEST)
 	aListAV1[nPos]['ASSUNTO']	:= TRIM((cQrySZ0)->Z0_ASSUNTO)
 	aListAV1[nPos]['MSG']		:= TRIM((cQrySZ0)->Z0_MSG)
 	aListAV1[nPos]['DTENV'] 	:= (cQrySZ0)->(SUBSTR(Z0_DTENV,1,4)+"-"+SUBSTR(Z0_DTENV,5,2)+"-"+SUBSTR(Z0_DTENV,7,2))
 	aListAV1[nPos]['HRENV'] 	:= TRIM((cQrySZ0)->Z0_HRENV)
+
+	aListAV1[nPos]['DTLIDA'] 	:= (cQrySZ0)->(DTOC(STOD(Z0_DTLIDA)))
+	aListAV1[nPos]['HRLIDA'] 	:= TRIM((cQrySZ0)->Z0_HRLIDA)
+	aListAV1[nPos]['ANEXO'] 	:= TRIM((cQrySZ0)->Z0_ANEXO)
+
 	aListAV1[nPos]['Z0RECNO']	:= STRZERO((cQrySZ0)->Z0RECNO,7)
 
 	(cQrySZ0)->(DBSkip())
@@ -213,6 +213,10 @@ Return( lRet )
 // /v2
 WSMETHOD GET BROWAV1 QUERYPARAM userlib WSREST RestMsgUs
 Local cHTML		as char
+Local aParams      	As Array
+Local cMsg         	As Character
+
+u_BkAvPar(::userlib,@aParams,@cMsg)
 
 BEGINCONTENT var cHTML
 
@@ -280,13 +284,13 @@ thead input {
   </div>
 </nav>
 
-<!-- <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2"> -->
-<!--   <div class="container-fluid"> -->
-<!-- 	<span class="navbar-text"> -->
-<!-- 		Navbar text with an inline element -->
-<!-- 	</span> -->
-<!--   </div> -->
-<!-- </nav> -->
+<nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2">
+<div class="container-fluid">
+<span class="navbar-text">
+	Olá! Por esta tela serão enviados os avisos do sistema. (Tela ainda em fase de homologação)
+</span>
+</div>
+</nav>
 
 </header>
 
@@ -339,8 +343,6 @@ async function getAv1() {
 			}
 		}
 
-
-
 async function loadTable() {
 let av1 = await getAv1();
 let trHTML = '';
@@ -350,6 +352,7 @@ let cbtnidp = '';
 let cbtnids = '';
 let cbtnz2 = '';
 let anexos = '';
+let cStatus = '';
 
 if (Array.isArray(av1)) {
 	av1.forEach(object => {
@@ -358,7 +361,15 @@ if (Array.isArray(av1)) {
 
 	trHTML += '<tr>';
 	trHTML += '<td></td>';
-	trHTML += '<td><button type="button" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></td>';
+
+	cStatus = object['STATUS']
+	if (cStatus == 'L'){
+		trHTML += '<td><button type="button" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></td>';
+	} else if (cStatus == 'F'){
+		trHTML += '<td><button type="button" class="btn btn-outline-primary"><i class="fa fa-thumbtack"></i></button></td>';
+	} else {
+		trHTML += '<td><button type="button" class="btn btn-outline-primary" onclick="lida(\''+z0recno+'\',\'#userlib#\'><i class="fa fa-envelope"></i></button></td>';
+	} 
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['USRREM']+'</td>';
 	trHTML += '<td>'+object['USRDEST']+'</td>';
@@ -366,6 +377,11 @@ if (Array.isArray(av1)) {
 	trHTML += '<td>'+object['MSG']+'</td>';
 	trHTML += '<td>'+object['DTENV']+'</td>';
 	trHTML += '<td>'+object['HRENV']+'</td>';
+
+	trHTML += '<td>'+object['DTLIDA']+'</td>';
+	trHTML += '<td>'+object['HRLIDA']+'</td>';
+	trHTML += '<td>'+object['ANEXO']+'</td>';
+
 	trHTML += '</tr>';
 	});
 } else {
@@ -382,6 +398,9 @@ document.getElementById("mytable1").innerHTML = trHTML;
 tableAV1 = $('#tableAV1').DataTable({
   "processing": true,
   "pageLength": 100,
+  "oLanguage": {
+      "sEmptyTable": "Sem avisos no momento"
+  		},
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
   "zeroRecords": "Nada encontrado",
@@ -412,18 +431,27 @@ tableAV1 = $('#tableAV1').DataTable({
         { data: 'Assunto' },
         { data: 'Mensagem' },
         { data: 'Data' },
-        { data: 'Hora' }
+        { data: 'Hora' },
+        { data: 'DataLida' },
+        { data: 'HoraLida' },
+        { data: 'Anexo' }
   ],
   "columnDefs": [
-        {
-            target: 7, render: DataTable.render.date()
-        },
 		{
 			targets: 0, width: 30, 
 		},
 		{
 			targets: 1, width: 55, 
-		}
+		},
+		{
+			targets: 6, width: '40%', 
+		},
+        {
+            targets: 7, render: DataTable.render.date()
+        },
+        {
+            targets: [9,10,11], visible: false, searchable: false
+        }
   ],
   "order": [[1,'asc']],
    initComplete: function () {
@@ -455,7 +483,7 @@ function format(d) {
     // `d` is the original data object for the row
     return (
         '<dl>' +
-        '<dt>Datas e horários:&nbsp;&nbsp;'+d.Anexos+'</dt>' +
+        '<dt>Lida em:&nbsp;&nbsp;'+d.DataLida+'&nbsp;'+d.HoraLida+'</dt>' +
         '<dd>' +
         '</dd>' +
         '</dl>'
@@ -478,17 +506,15 @@ $('#tableAV1 tbody').on('click', 'td.dt-control', function () {
     }
 });
 
-
 loadTable();
 
-
-async function envmot(empresa,f1recno,userlib){
+async function lida(zorecno,userlib){
 let resposta = ''
-let F1MsFin  = document.getElementById("F1MsFin").value;
+//let F1MsFin  = document.getElementById("F1MsFin").value;
 
-let dataObject = { msfin:F1MsFin, };
+//let dataObject = { msfin:F1MsFin, };
 
-fetch('#iprest#/RestMsgUs/v8?empresa='+empresa+'&f1recno='+f1recno+'&userlib='+userlib, {
+fetch('#iprest#/RestMsgUs/v4?z0recno='+z0recno+'&userlib='+userlib+'&acao=L', {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -507,67 +533,6 @@ fetch('#iprest#/RestMsgUs/v8?empresa='+empresa+'&f1recno='+f1recno+'&userlib='+u
 	  
 	})
 }
-
-async function ChgBanco(empresa,z0recno,userlib,banco,btnidp){
-let resposta = ''
-let dataObject = {	liberacao:'ok' };
-let cbtn = '';
-	
-fetch('#iprest#/RestMsgUs/v4?empresa='+empresa+'&z0recno='+z0recno+'&userlib='+userlib+'&banco='+banco, {
-	method: 'PUT',
-	headers: {
-	'Content-Type': 'application/json'
-	},
-	body: JSON.stringify(dataObject)})
-	.then(response=>{
-		console.log(response);
-		return response.json();
-	})
-	.then(data=> {
-		// this is the data we get after putting our data,
-		console.log(data);
-		document.getElementById(btnidp).textContent = banco;
-	})
-}
-
-async function ChgStatus(empresa,z0recno,userlib,acao,btnids){
-let resposta = ''
-let dataObject = {	liberacao:'ok' };
-let cbtn = '';
-	
-fetch('#iprest#/RestMsgUs/v3?empresa='+empresa+'&z0recno='+z0recno+'&userlib='+userlib+'&acao='+acao, {
-	method: 'PUT',
-	headers: {
-	'Content-Type': 'application/json'
-	},
-	body: JSON.stringify(dataObject)})
-	.then(response=>{
-		console.log(response);
-		return response.json();
-	})
-	.then(data=> {
-		// this is the data we get after putting our data,
-		console.log(data);
-		if (acao == 'C' ){
-			cbtn = 'Concluido';
-		} else if (acao == 'P'){
-			cbtn = 'Pendente';
-		} else if (acao == 'O'){
-			cbtn = 'Compensar PA';
-		} else if (acao == 'D'){
-			cbtn = 'Deb Automatico';
-		} else if (acao == 'L'){
-			cbtn = 'Parcelamento';
-		} else if (acao == 'T'){
-			cbtn = 'Cartao';
-		} else {
-			cbtn = 'Em Aberto';
-		}
-		document.getElementById(btnids).textContent = cbtn;
-	})
-}
-
-
 </script>
 </body>
 </html>
@@ -636,7 +601,7 @@ cQuery += "	 WHERE SZ0.D_E_L_E_T_ = '' "+ CRLF
 cQuery += "	 AND (Z0_DTFINAL >= '"+DTOS(DATE())+"' OR Z0_STATUS = 'F') "+CRLF
 cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"'"
 If !Empty(cGrupos)
-	cQuery += "  OR Z0_GRUPOD IN ("+cGrupos+")" +CRLF
+	cQuery += "  OR Z0_GRUPOD IN "+cGrupos+")" +CRLF
 Else
 	cQuery += ")"
 EndIf

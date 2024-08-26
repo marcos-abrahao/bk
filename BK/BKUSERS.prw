@@ -350,7 +350,7 @@ For nI := 1 To Len(aUsers)
 Next
 
 If Len(cGrps) > 0
-	cRet := FormatIn(cUsers,"|")
+	cRet := FormatIn(cGrps,"|")
 EndIf
 
 Return cRet
