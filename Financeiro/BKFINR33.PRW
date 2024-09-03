@@ -801,10 +801,10 @@ DO while QSE2->(!Eof())
 		cHtml += '    <td class="ti-hvalor">Anexos</td>'+CRLF
 		cHtml += '    <td colspan="5" style="text-align:center;">'+CRLF
 		For nI := 1 To Len(aFilesF1)
-			cHtml += '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
+			cHtml += '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'&tpanexo=P" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
 		Next
 		For nI := 1 To Len(aFilesE2)
-			cHtml += '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
+			cHtml += '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'&tpanexo=P" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
 		Next
 		cHtml += '    </td>'+CRLF
 		cHtml += '  </tr>'+CRLF
@@ -922,13 +922,13 @@ Local nI 		:= 0
 aAnexos := {}
 aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 For nI := 1 To Len(aFilesF1)
-	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'","'+aFilesF1[nI,2]+'") '+CRLF
+	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'&tpanexo=P","'+aFilesF1[nI,2]+'") '+CRLF
 	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'")'+CRLF
 	aAdd(aAnexos,cFile)
 Next
 aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
 For nI := 1 To Len(aFilesE2)
-	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'","'+aFilesE2[nI,2]+'") '+CRLF
+	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'&tpanexo=P","'+aFilesE2[nI,2]+'") '+CRLF
 	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'")'+CRLF
 	aAdd(aAnexos,cFile)
 Next

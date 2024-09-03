@@ -21,6 +21,7 @@ WSRESTFUL RestLibPN DESCRIPTION "Rest Liberação de Pré-notas de Entrada"
 	WSDATA userlib 		AS STRING OPTIONAL
 	WSDATA documento	AS STRING
 	WSDATA acao 		AS STRING
+	WSDATA tpanexo		AS STRING
 
 	WSMETHOD GET LISTPN;
 		DESCRIPTION "Listar Pré-notas de Entrada em aberto";
@@ -67,13 +68,21 @@ END WSRESTFUL
 
 
 // v4
-WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento WSREST RestLibPN
+WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento,tpanexo WSREST RestLibPN
 
     Local cFile		:= ""// VALORES RETORNADOS NA LEITURA
 	Local cName		:= Decode64(self:documento)
-	Local cFName	:= "/dirdoc/co"+self:empresa+"/shared/"+cName
-    Local oFile		:= FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
+	Local cFName	:= ""
+    Local oFile		AS Object // CAMINHO ABAIXO DO ROOTPATH
 	Local cContent	:= ""
+	
+	If self:tpanexo <> 'A' 
+		// Padrão Protheus
+		cFName	:= "/dirdoc/co"+self:empresa+"/shared/"+cName
+	Else
+		cFName	:= "/http/anexos/"+cName
+	EndIf
+	oFile	:= FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
 
     // SE FOR POSSÍVEL ABRIR O ARQUIVO, LEIA-O
     // SE NÃO, EXIBA O ERRO DE ABERTURA
@@ -1596,7 +1605,7 @@ if (Array.isArray(prenota.D1_ITENS)) {
 
 if (Array.isArray(prenota.F1_ANEXOS)) {
 	prenota.F1_ANEXOS.forEach(object => {
-	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
   })
 }
 document.getElementById("anexos").innerHTML = anexos;

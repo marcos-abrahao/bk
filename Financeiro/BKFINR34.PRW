@@ -922,7 +922,7 @@ DO while QSE2->(!Eof())
 		cHtml += '    <td class="ti-hvalor">Anexos</td>'+CRLF
 		cHtml += '    <td colspan="5" style="text-align:center;">'+CRLF
 		For nI := 1 To Len(aFilesF1)
-			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesF1[nI,2])+'" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesF1[nI,2])+'&tpanexo=P" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
 			If ".PDF" $ UPPER(aFilesF1[nI,2]) // eRRO AQUI
 				aAdd(aPdfs,aFilesF1[nI,2])
 				cCanvas += "<p>"+cRefFile+"</p>"+CRLF
@@ -932,7 +932,7 @@ DO while QSE2->(!Eof())
 			EndIf
 		Next
 		For nI := 1 To Len(aFilesE2)
-			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesE2[nI,2])+'" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesE2[nI,2])+'&tpanexo=P" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
 			If ".PDF" $ UPPER(aFilesE2[nI,2])
 				aAdd(aPdfs,aFilesE2[nI,2])
 				cCanvas += "<p>"+cRefFile+"</p>"+CRLF

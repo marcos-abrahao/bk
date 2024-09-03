@@ -363,7 +363,7 @@ EndCase
 
 If lRet
 
-/*
+
 	aEmail := {}
 	AADD(aEmail,{u_BKNEmpr(empresa,2),(cQrySF1)->F1_SERIE,(cQrySF1)->F1_DOC,(cQrySF1)->A2_NOME,(cQrySF1)->F1_VALBRUT})
 	AADD(aEmail,{"","","","",""})
@@ -373,9 +373,9 @@ If lRet
 		cCorpo := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cCorpo)
 	EndIf
-*/
+
 	// Gravar no SZ0 - Avisos Web
-	u_BKMsgUs("I",0,empresa,"RESTTITCP",(cQrySF1)->F1_XXUSER,"","Titulo a Pagar "+(cQrySF1)->F1_SERIE+(cQrySF1)->F1_DOC+'-'+TRIM((cQrySF1)->A2_NOME),cMsFin,"N","")
+	u_BKMsgUs(empresa,"RESTTITCP",{(cQrySF1)->F1_XXUSER},"","Titulo a Pagar "+(cQrySF1)->F1_SERIE+(cQrySF1)->F1_DOC+'-'+TRIM((cQrySF1)->A2_NOME),cMsFin,"N","")
 
 EndIF
 
@@ -1519,7 +1519,7 @@ if (Array.isArray(titulos)) {
 	anexos = '';
 	if (Array.isArray(object['F1_ANEXOS'])) {
 		object['F1_ANEXOS'].forEach(object => {
-		anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a>&nbsp;&nbsp;';
+		anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a>&nbsp;&nbsp;';
 	})
 	}
 	trHTML += '<td>'+anexos+'</td>';
@@ -1745,7 +1745,7 @@ if (Array.isArray(dadosE2.DADOSD1)) {
 
 if (Array.isArray(dadosE2.F1_ANEXOS)) {
 	dadosE2.F1_ANEXOS.forEach(object => {
-	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+empresa+'&documento='+object['F1_ENCODE']+'" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+empresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
   })
 }
 document.getElementById("anexosE2").innerHTML = anexos;

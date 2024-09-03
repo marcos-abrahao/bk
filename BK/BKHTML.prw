@@ -53,7 +53,11 @@ BEGINCONTENT var cHTML
 <link href="https://cdn.datatables.net/datetime/1.5.3/css/dataTables.dateTime.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.min.css" rel="stylesheet">
+
 ENDCONTENT
+/* Select
+<link href="https://cdn.datatables.net/select/2.0.5/css/select.bootstrap5.css" rel="stylesheet">
+*/
 
 Return cHtml
 
@@ -89,4 +93,11 @@ BEGINCONTENT var cHTML
 
 ENDCONTENT
 
+/* Select
+<script src="https://cdn.datatables.net/select/2.0.5/js/dataTables.select.js"></script>
+<script src="https://cdn.datatables.net/select/2.0.5/js/select.bootstrap5.js"></script>
+*/
+
 Return cHtml
+
+

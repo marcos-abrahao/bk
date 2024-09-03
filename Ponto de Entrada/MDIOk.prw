@@ -60,8 +60,8 @@ Local nPort     := 0
 Local nTop		:= 0
 Local nLeft		:= 0
 Local nPosBt 	:= 0
-Local nTamBt 	:= 100
-Local nEsps		:= 20
+Local nTamBt 	:= 95
+Local nEsps		:= 15
 Local lCR 		:= .F.
 Local lCP 		:= .F.
 Local lLPV 		:= .F.
@@ -122,7 +122,6 @@ If AMIIn(6) .OR. nModulo == 6
 	EndIf
 EndIf
 
-
 nPosBt := 12
 @ 010,nPosBt BUTTON "Titulos a Pagar" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKTitCP(.T.)) WHEN lCP
 nPosbt += nTamBt + nEsps
@@ -132,18 +131,18 @@ nPosbt += nTamBt + nEsps
 nPosbt += nTamBt + nEsps
 @ 010,nPosBt BUTTON "Liberação de Docs de Entrada" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Avisos" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
+@ 010,nPosBt BUTTON "Avisos" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (ShellExecute("open", cUrl, "", "", 1))
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Entrar no Protheus"    SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
+@ 010,nPosBt BUTTON "Entrar no Protheus" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
 
 //Prepara o conector
 nPort := oWebChannel::connect()
  
 //Cria o componente que irá carregar a url
 oWebEngine := TWebEngine():New(oPanelDown, 100, 100, 100, 100,/*cUrl*/, nPort)
-oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
+//oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
 oWebEngine:navigate(cUrl)
 oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT
 oDlg:Activate()
-  
+
 Return

@@ -2910,6 +2910,7 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
+Local aUsers	:= {}
 Local cPrw		:= "V10BKGct06"
 Local aBKGrupo	:= u_BKGrupo()
 Local nE		:= 0
@@ -2935,6 +2936,7 @@ Do While SY1->(!eof())
 	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 		cEmail += ALLTRIM(aUser[1,14])+';'
 	ENDIF
+	aAdd(aUsers,SY1->Y1_USER)
 	SY1->(dbskip())
 Enddo
 
@@ -2981,6 +2983,11 @@ IF LEN(aEmail) > 0
 	aCabs   := {"Empresa","N°Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
+
+	u_GrvAnexo(cPrw+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+
+	// Gravar no SZ0 - Avisos Web
+	u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,"Relatório anexo","F",cPrw+".html")
 
 	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 

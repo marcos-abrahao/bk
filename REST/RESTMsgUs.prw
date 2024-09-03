@@ -93,8 +93,8 @@ Default cMotivo := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cQuery := "SELECT "
-cQuery += "  SZ0.Z0_STATUS,"
-cQuery += "  SZ0.D_E_L_E_T_ AS Z0DELET,"
+cQuery += "   SZ0.Z0_STATUS"
+cQuery += "  ,SZ0.D_E_L_E_T_ AS Z0DELET"
 cQuery += " FROM "+cTabSZ0+" SZ0 "
 cQuery += " WHERE SZ0.R_E_C_N_O_ = "+z0recno
 
@@ -172,16 +172,18 @@ Do While ( cQrySZ0 )->( ! Eof() )
 	aListAV1[nPos]['STATUS']    := (cQrySZ0)->Z0_STATUS
 	aListAV1[nPos]['USRREM']    := TRIM((cQrySZ0)->USRREM)	
 	aListAV1[nPos]['USRDEST']	:= TRIM((cQrySZ0)->USRDEST)
-	aListAV1[nPos]['ASSUNTO']	:= TRIM((cQrySZ0)->Z0_ASSUNTO)
-	aListAV1[nPos]['MSG']		:= TRIM((cQrySZ0)->Z0_MSG)
+	aListAV1[nPos]['ASSUNTO']	:= StrIConv(TRIM((cQrySZ0)->Z0_ASSUNTO), "CP1252", "UTF-8")
+	aListAV1[nPos]['MSG']		:= StrIConv(TRIM((cQrySZ0)->Z0_MSG), "CP1252", "UTF-8")
 	aListAV1[nPos]['DTENV'] 	:= (cQrySZ0)->(SUBSTR(Z0_DTENV,1,4)+"-"+SUBSTR(Z0_DTENV,5,2)+"-"+SUBSTR(Z0_DTENV,7,2))
 	aListAV1[nPos]['HRENV'] 	:= TRIM((cQrySZ0)->Z0_HRENV)
 
 	aListAV1[nPos]['DTLIDA'] 	:= (cQrySZ0)->(DTOC(STOD(Z0_DTLIDA)))
 	aListAV1[nPos]['HRLIDA'] 	:= TRIM((cQrySZ0)->Z0_HRLIDA)
 	aListAV1[nPos]['ANEXO'] 	:= TRIM((cQrySZ0)->Z0_ANEXO)
+	aListAV1[nPos]['ENCODE'] 	:= Encode64(TRIM((cQrySZ0)->Z0_ANEXO))
 
 	aListAV1[nPos]['Z0RECNO']	:= STRZERO((cQrySZ0)->Z0RECNO,7)
+	aListAV1[nPos]['ORIGEM']	:= IIF(TRIM((cQrySZ0)->Z0_USERO) == TRIM(__cUserID),"R","D")
 
 	(cQrySZ0)->(DBSkip())
 
@@ -296,11 +298,11 @@ thead input {
 
 <div class="container-fluid">
 <div class="table-responsive-sm">
-<table id="tableAV1" class="table table-sm table-hover" style="width:100%">
+<table id="tableAV1" class="table table-sm" style="width:100%">
 <thead>
 <tr>
 <th scope="col"></th>
-<th scope="col">Status</th>
+<th scope="col">St</th>
 <th scope="col">Empresa</th>
 <th scope="col">Remetente</th>
 <th scope="col">Destinatário</th>
@@ -347,40 +349,79 @@ async function loadTable() {
 let av1 = await getAv1();
 let trHTML = '';
 let nlin = 0;
-let ccbtn = 'light';
-let cbtnidp = '';
-let cbtnids = '';
-let cbtnz2 = '';
+let cbtnid = '';
 let anexos = '';
 let cStatus = '';
+let z0recno = ''
+let cOrigem = ''
+let cbtn = ''
+let ctitbt = ''
+let canexo = ''
+let canexo1 = ''
 
 if (Array.isArray(av1)) {
 	av1.forEach(object => {
 
 	nlin += 1; 
+	cbtnid = 'btnenv'+nlin;
 
 	trHTML += '<tr>';
 	trHTML += '<td></td>';
 
 	cStatus = object['STATUS']
+	cOrigem = object['ORIGEM']
+	
+	/*
+	z0recno = object['Z0RECNO']
 	if (cStatus == 'L'){
-		trHTML += '<td><button type="button" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></td>';
+		trHTML += '<td><button type="button" title="Aviso lido" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></td>';
 	} else if (cStatus == 'F'){
-		trHTML += '<td><button type="button" class="btn btn-outline-primary"><i class="fa fa-thumbtack"></i></button></td>';
+		trHTML += '<td><button type="button" title="Aviso fixo" class="btn btn-outline-primary"><i class="fa fa-thumbtack"></i></button></td>';
 	} else {
-		trHTML += '<td><button type="button" class="btn btn-outline-primary" onclick="lida(\''+z0recno+'\',\'#userlib#\'><i class="fa fa-envelope"></i></button></td>';
+		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="Marcar como lido"  class="btn btn-outline-primary" onclick="lida(\''+z0recno+'\',\'#userlib#\',\'L\','+'\''+cbtnid+'\')"><i class="fa fa-envelope"></i></button></div></td>';
 	} 
+	*/
+
+   if (cOrigem == "R") {
+      cbtn = 'btn-outline-success';
+	  ctitbt = 'Você é o remetente deste aviso';
+ 	} else {
+	  cbtn = 'btn-outline-primary';
+	  ctitbt = 'Clique para marcar como lido';
+	}
+
+	if (cStatus == 'L'){
+		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="Aviso lido" class="btn '+cbtn+'"><i class="fa fa-envelope-open"></i></button></div></td>';
+	} else if (cStatus == 'F'){
+		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="Aviso Fixo" class="btn '+cbtn+'"><i class="fa fa-thumbtack"></i></button></div></td>';
+	} else {
+		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="'+ctitbt+'" class="btn '+cbtn+'"><i class="fa fa-envelope"></i></button></div></td>';
+	} 
+
+	canexo  = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
+	canexo1 = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
+
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['USRREM']+'</td>';
 	trHTML += '<td>'+object['USRDEST']+'</td>';
-	trHTML += '<td>'+object['ASSUNTO']+'</td>';
+	if (object['ANEXO'].trim().length === 0) {
+		trHTML += '<td>'+object['ASSUNTO']+'</td>';
+		canexo1 = '';
+	} else {
+		trHTML += '<td>'+canexo+'</td>';
+	}
 	trHTML += '<td>'+object['MSG']+'</td>';
 	trHTML += '<td>'+object['DTENV']+'</td>';
 	trHTML += '<td>'+object['HRENV']+'</td>';
 
 	trHTML += '<td>'+object['DTLIDA']+'</td>';
 	trHTML += '<td>'+object['HRLIDA']+'</td>';
-	trHTML += '<td>'+object['ANEXO']+'</td>';
+
+	trHTML += '<td>'+canexo1+'</td>';
+
+	trHTML += '<td>'+object['Z0RECNO']+'</td>';
+	trHTML += '<td>'+object['STATUS']+'</td>';
+	trHTML += '<td>'+object['ORIGEM']+'</td>';
 
 	trHTML += '</tr>';
 	});
@@ -396,7 +437,6 @@ document.getElementById("mytable1").innerHTML = trHTML;
 
 
 tableAV1 = $('#tableAV1').DataTable({
-  "processing": true,
   "pageLength": 100,
   "oLanguage": {
       "sEmptyTable": "Sem avisos no momento"
@@ -417,6 +457,8 @@ tableAV1 = $('#tableAV1').DataTable({
     "previous": "Anterior"
     }
    },
+
+  "rowId": 12,
   "columns": [
 		{
             className: 'dt-control',
@@ -424,7 +466,7 @@ tableAV1 = $('#tableAV1').DataTable({
             data: null,
             defaultContent: ''
         },
-        { data: 'Status' },
+        { data: 'St', className: 'dt-st' },
         { data: 'Empresa' },
         { data: 'Remetente' },
         { data: 'Destinatario' },
@@ -434,26 +476,30 @@ tableAV1 = $('#tableAV1').DataTable({
         { data: 'Hora' },
         { data: 'DataLida' },
         { data: 'HoraLida' },
-        { data: 'Anexo' }
+    	{ data: 'Anexo' },
+		{ data: 'Recno' },
+		{ data: 'Status' },
+		{ data: 'Origem' }
   ],
   "columnDefs": [
 		{
-			targets: 0, width: 30, 
+			targets: 0, width: 30 
 		},
 		{
-			targets: 1, width: 55, 
-		},
+			targets: 1, width: 55,
+		},	
 		{
-			targets: 6, width: '40%', 
+			targets: 6, width: '40%'
 		},
         {
             targets: 7, render: DataTable.render.date()
         },
         {
-            targets: [9,10,11], visible: false, searchable: false
+            targets: [9,10,11,12,13,14], visible: false, searchable: false
         }
   ],
-  "order": [[1,'asc']],
+  "order": [[2,'asc']],
+  
    initComplete: function () {
         this.api()
             .columns()
@@ -483,14 +529,34 @@ function format(d) {
     // `d` is the original data object for the row
     return (
         '<dl>' +
-        '<dt>Lida em:&nbsp;&nbsp;'+d.DataLida+'&nbsp;'+d.HoraLida+'</dt>' +
+        '<dt>Aviso lido em:&nbsp;&nbsp;'+d.DataLida+'&nbsp;'+d.HoraLida+'</dt>' +
         '<dd>' +
         '</dd>' +
+
+        '<dl>' +
+        '<dt>Anexo:&nbsp;&nbsp;'+d.Anexo+'</dt>' +
+        '<dd>' +
+        '</dd>' +
+
         '</dl>'
     );
 }
  
- 
+// Add event listener for click in status
+$('#tableAV1 tbody').on('click', 'td.dt-st', function () {
+   var tr = $(this).closest('tr');
+   var row = tableAV1.row(tr);
+   var data1 = tableAV1.row(tr).data();
+   var cStatus = data1.Status
+   var cOrigem = data1.Origem
+
+	if (cStatus == '' && cOrigem == 'D') {
+   		data1.St = '<td><div><button type="button" title="Aviso lido" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></div></td>';
+   		lida(data1.Recno)
+   		tableAV1.row(tr).data(data1).draw()
+	}
+});
+
 // Add event listener for opening and closing details
 $('#tableAV1 tbody').on('click', 'td.dt-control', function () {
     var tr = $(this).closest('tr');
@@ -508,31 +574,28 @@ $('#tableAV1 tbody').on('click', 'td.dt-control', function () {
 
 loadTable();
 
-async function lida(zorecno,userlib){
-let resposta = ''
+async function lida(z0recno){
+//let resposta = ''
 //let F1MsFin  = document.getElementById("F1MsFin").value;
+let dataObject = { acao:'L', };
 
-//let dataObject = { msfin:F1MsFin, };
-
-fetch('#iprest#/RestMsgUs/v4?z0recno='+z0recno+'&userlib='+userlib+'&acao=L', {
-	method: 'PUT',
-	headers: {
-	'Content-Type': 'application/json'
-	},
-	body: JSON.stringify(dataObject)})
-	.then(response=>{
-		console.log(response);
-		return response.json();
-	})
-	.then(data=> {
-		// this is the data we get after putting our data,
-		console.log(data);
-
-	  //$('#avalModal').modal('hide');
-	  $('#E2Modal').modal('toggle');
-	  
-	})
+fetch('#iprest#/RestMsgUs/v4?z0recno='+z0recno+'&userlib=#userlib#&acao=L', {
+method: 'PUT',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(dataObject)})
+.then(response=>{
+	console.log(response);
+	return response.json();
+})
+.then(data=> {
+	// this is the data we get after putting our data,
+	console.log(data);
+})
 }
+
+
 </script>
 </body>
 </html>
@@ -599,7 +662,8 @@ cQuery += "  LEFT JOIN SYS_USR USRD ON Z0_USERD = USRD.USR_ID AND USRD.D_E_L_E_T
 
 cQuery += "	 WHERE SZ0.D_E_L_E_T_ = '' "+ CRLF
 cQuery += "	 AND (Z0_DTFINAL >= '"+DTOS(DATE())+"' OR Z0_STATUS = 'F') "+CRLF
-cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"'"
+// Se o usuario for o destinatario ou o rementente ou se o destinatario for branco -> todos
+cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"' OR Z0_USERD = ''"
 If !Empty(cGrupos)
 	cQuery += "  OR Z0_GRUPOD IN "+cGrupos+")" +CRLF
 Else
@@ -616,19 +680,22 @@ Return Nil
 
 
 // Inclui/Altera/Exclui Mensagem para usuário ou grupo (Tabela SZ0)
-User Function BKMsgUs(cAcao,nRecno,cEmpresa,cOrigem,cUsDest,cGrpDest,cAssunto,cMsg,cStatus,cAnexo,dFinal)
+User Function BKMsgUs(cEmpresa,cOrigem,aUsDest,cGrpDest,cAssunto,cMsg,cStatus,cAnexo,dFinal)
 Local lRet 	:= .T.
 Local lInc  := .T.
+Local nI 	:= 0
 
 Default cStatus	:= "N"  // Não Lida
 Default cAnexo	:= ""
 Default dFinal  := DATE()+5
 
-If cAcao == 'I'
-	dbSelectArea("SZ0")
+dbSelectArea("SZ0")
+dbSetOrder(4)
+
+For nI := 1 To Len(aUsDest)
 	If cStatus == "F"  // Fixa
 		// Verificar se a origem já está cadastrada, se tiver, alterar
-		If dbseek(cOrigem,.F.)
+		If dbseek(PAD(cOrigem,LEN(SZ0->Z0_ORIGEM))+aUsDest[nI]+cGrpDest,.F.)
 			lInc := .F.
 		EndIf
 	EndIf
@@ -637,7 +704,7 @@ If cAcao == 'I'
 	SZ0->Z0_EMPRESA := cEmpresa
 	SZ0->Z0_ORIGEM	:= cOrigem
 	SZ0->Z0_USERO	:= __cUserID
-	SZ0->Z0_USERD	:= cUsDest
+	SZ0->Z0_USERD	:= aUsDest[nI]
 	SZ0->Z0_GRUPOD	:= cGrpDest
 	SZ0->Z0_ASSUNTO	:= cAssunto
 	SZ0->Z0_MSG		:= cMsg
@@ -647,6 +714,18 @@ If cAcao == 'I'
 	SZ0->Z0_STATUS	:= cStatus
 	SZ0->Z0_DTFINAL	:= dFinal
 	SZ0->(MsUnLock())
-EndIf
+Next
 
 Return lRet
+
+// Grava anexo dos avisos
+User Function GrvAnexo(cArq,cTexto)
+Local cDir  := "\http\anexos"
+
+If !("\" $ cArq)
+	MakeDir(cDir)
+	MemoWrite(cDir+"\"+cArq,cTexto)
+Else
+	MemoWrite(cArq,cTexto)
+EndIf
+Return Nil

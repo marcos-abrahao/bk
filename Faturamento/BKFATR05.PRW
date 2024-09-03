@@ -979,7 +979,7 @@ If Len(aFiles) > 0
 	For nI := 1 To Len(aFiles)
 		AADD(aHtml,'  <tr>')
 		AADD(aHtml,'  	<td colspan="7" style="text-align:center;">')
-		AADD(aHtml,'       <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a></br>')
+		AADD(aHtml,'       <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a></br>')
 		AADD(aHtml,'    </td>')
 		AADD(aHtml,'  </tr>')
 	Next

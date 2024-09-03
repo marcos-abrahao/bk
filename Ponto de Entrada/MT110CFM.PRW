@@ -138,7 +138,7 @@ Do While SC1->(!eof()) .AND. SC1->C1_NUM == cNumSol
 	aFiles := u_BKDocs(cEmpAnt,"SC1",SC1->(C1_FILIAL+C1_NUM+C1_ITEM+C1_ITEMGRD),1)
 	If Len(aFiles) > 0
 		For nI := 1 To Len(aFiles)
-			cRodape += '<a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'" class="link-primary">'+aFiles[nI,2]+'</a><br>'+CRLF
+			cRodape += '<a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a><br>'+CRLF
 		Next
 	EndIf
 

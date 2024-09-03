@@ -247,7 +247,6 @@ IF __cUserId $ "000000/000038" .OR. IsBlind() //Usuários admin e teste
 EndIf
 Return Nil
 
-
 /*/{Protheus.doc} User Function LogTxt
 	Rotina de Log utilizada basicamente para gravar Queryes (append em arquivo já existente)
 	@type  Function
