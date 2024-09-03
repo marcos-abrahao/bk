@@ -170,6 +170,7 @@ EndIf
 If !EMPTY(cPrw) 
    cHtm += '<br>'
 	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+' - '+cUser+'</p>'
+   cHtm += '<a class="F10A" href="javascript:history.back()">Voltar</a>'
 EndIf
 
 /*

@@ -60,7 +60,7 @@ Local nPort     := 0
 Local nTop		:= 0
 Local nLeft		:= 0
 Local nPosBt 	:= 0
-Local nTamBt 	:= 95
+Local nTamBt 	:= 75
 Local nEsps		:= 15
 Local lCR 		:= .F.
 Local lCP 		:= .F.
@@ -127,13 +127,15 @@ nPosBt := 12
 nPosbt += nTamBt + nEsps
 @ 010,nPosBt BUTTON "Titulos a Receber" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKTitCR(.T.)) WHEN lCR
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Liberação de Pedidos de Venda" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPV(.T.)) WHEN lLPV
+@ 010,nPosBt BUTTON "Lib. de Pedidos de Venda" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPV(.T.)) WHEN lLPV
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Liberação de Docs de Entrada" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
+@ 010,nPosBt BUTTON "Lib. de Docs de Entrada" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
 nPosbt += nTamBt + nEsps
 @ 010,nPosBt BUTTON "Avisos" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (ShellExecute("open", cUrl, "", "", 1))
 nPosbt += nTamBt + nEsps
 @ 010,nPosBt BUTTON "Entrar no Protheus" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
+//nPosbt += nTamBt + nEsps
+//TButton():New( 010, nPosbt, "GoHome", oPanelUp,{|| oWebEngine:GoHome() },nTamBt,015,,,.F.,.T.,.F.,,.F.,,,.F. )
 
 //Prepara o conector
 nPort := oWebChannel::connect()
