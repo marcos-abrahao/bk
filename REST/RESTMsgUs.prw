@@ -171,7 +171,7 @@ Do While ( cQrySZ0 )->( ! Eof() )
 	aListAV1[nPos]['EMPRESA']	:= u_BKNEmpr((cQrySZ0)->Z0_EMPRESA,3)
 	aListAV1[nPos]['STATUS']    := (cQrySZ0)->Z0_STATUS
 	aListAV1[nPos]['USRREM']    := TRIM((cQrySZ0)->USRREM)	
-	aListAV1[nPos]['USRDEST']	:= TRIM((cQrySZ0)->USRDEST)
+	aListAV1[nPos]['USRDEST']	:= IIF(!EMPTY((cQrySZ0)->USRDEST),TRIM((cQrySZ0)->USRDEST),TRIM((cQrySZ0)->GR__NOME))
 	aListAV1[nPos]['ASSUNTO']	:= StrIConv(TRIM((cQrySZ0)->Z0_ASSUNTO), "CP1252", "UTF-8")
 	aListAV1[nPos]['MSG']		:= StrIConv(TRIM((cQrySZ0)->Z0_MSG), "CP1252", "UTF-8")
 	aListAV1[nPos]['DTENV'] 	:= (cQrySZ0)->(SUBSTR(Z0_DTENV,1,4)+"-"+SUBSTR(Z0_DTENV,5,2)+"-"+SUBSTR(Z0_DTENV,7,2))
@@ -643,6 +643,7 @@ cQuery += "	 ,Z0_USERO"+CRLF
 cQuery += "  ,USRO.USR_CODIGO AS USRREM" + CRLF
 cQuery += "	 ,Z0_USERD"+CRLF
 cQuery += "  ,USRD.USR_CODIGO AS USRDEST" + CRLF
+cQuery += "  ,GRP.GR__NOME" + CRLF
 cQuery += "	 ,Z0_ASSUNTO"+CRLF
 cQuery += "	 ,Z0_MSG"+CRLF
 cQuery += "	 ,Z0_STATUS"+CRLF
@@ -659,11 +660,12 @@ cQuery += "  "+cTabSZ0+" SZ0 " + CRLF
 
 cQuery += "  LEFT JOIN SYS_USR USRO ON Z0_USERO = USRO.USR_ID AND USRO.D_E_L_E_T_ = ''" + CRLF
 cQuery += "  LEFT JOIN SYS_USR USRD ON Z0_USERD = USRD.USR_ID AND USRD.D_E_L_E_T_ = ''" + CRLF
+cQuery += "  LEFT JOIN SYS_GRP_GROUP GRP ON GR__ID = Z0_GRUPOD" + CRLF
 
 cQuery += "	 WHERE SZ0.D_E_L_E_T_ = '' "+ CRLF
 cQuery += "	 AND (Z0_DTFINAL >= '"+DTOS(DATE())+"' OR Z0_STATUS = 'F') "+CRLF
 // Se o usuario for o destinatario ou o rementente ou se o destinatario for branco -> todos
-cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"' OR Z0_USERD = ''"
+cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"' OR Z0_USERD = 'TODOS'"
 If !Empty(cGrupos)
 	cQuery += "  OR Z0_GRUPOD IN "+cGrupos+")" +CRLF
 Else
@@ -692,6 +694,11 @@ Default dFinal  := DATE()+5
 dbSelectArea("SZ0")
 dbSetOrder(4)
 
+// Quando somente o grupo for informado
+If Len(aUsDest) == 0 .AND. !Empty(cGrpDest)
+	aAdd(aUsDest,SPACE(LEN(SZ0->Z0_USERD)))
+EndIf
+
 For nI := 1 To Len(aUsDest)
 	If cStatus == "F"  // Fixa
 		// Verificar se a origem já está cadastrada, se tiver, alterar
@@ -703,7 +710,7 @@ For nI := 1 To Len(aUsDest)
 	RecLock("SZ0",lInc)
 	SZ0->Z0_EMPRESA := cEmpresa
 	SZ0->Z0_ORIGEM	:= cOrigem
-	SZ0->Z0_USERO	:= __cUserID
+	SZ0->Z0_USERO	:= IIF(!EMPTY(__cUserID),__cUserID,"000000")
 	SZ0->Z0_USERD	:= aUsDest[nI]
 	SZ0->Z0_GRUPOD	:= cGrpDest
 	SZ0->Z0_ASSUNTO	:= cAssunto
@@ -721,11 +728,14 @@ Return lRet
 // Grava anexo dos avisos
 User Function GrvAnexo(cArq,cTexto)
 Local cDir  := "\http\anexos"
-
+Local cRet  := ""
 If !("\" $ cArq)
 	MakeDir(cDir)
-	MemoWrite(cDir+"\"+cArq,cTexto)
+	cRet := cDir+"\"+cArq
+	MemoWrite(cRet,cTexto)
 Else
-	MemoWrite(cArq,cTexto)
+	cRet := cArq
+	MemoWrite(cRet,cTexto)
 EndIf
-Return Nil
+Return cRet
+

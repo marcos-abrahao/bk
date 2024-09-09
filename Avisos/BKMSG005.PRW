@@ -20,11 +20,12 @@ Local cTabSC6   := ""
 Local cTabSA1   := ""
 
 Local cEmail 	:= u_GprEmail("","000043","") // Grupo Faturamento
-Local cAssunto  := "Aviso de Pedidos de Venda Liberados - "+DTOC(DATE())+" "+Time()
+Local cAssunto  := "Pedidos de Venda Liberados - "+DTOC(DATE())+" "+Time()
 Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
 Local aCabs   	:= {"Empresa","Pedido","Cliente","Emissao","Contrato","Liberado por","Liberado em","Valor"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
+Local aUsers 	:= {}
 
 Private cProg := "BKMSG005" 
 
@@ -92,15 +93,21 @@ Do While !EOF()
 
 	dbSkip()
 EndDo
+QTMP->(dbCloseArea())
+
 
 If Len(aEmail) > 0
 	cMsg := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 EndIf
 
-QTMP->(dbCloseArea())
 
-u_MsgLog(cProg,"Pedidos em aberto: "+ALLTRIM(STR(LEN(aEmail))))
+u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+
+// Gravar no SZ0 - Avisos Web
+u_BKMsgUs(cEmpAnt,cProg,aUsers,"000043","Pedidos de Venda Liberados","Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+
+u_MsgLog(cProg,"Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))))
 
 Return
 

@@ -194,13 +194,12 @@ ELSEIF SUBSTR(cRel,1,2) = "10"
 ELSEIF SUBSTR(cRel,1,2) = "11"
    u_WaitLog("V11BKGct06", {|| V11BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "12"
-   u_WaitLog("V12BKGct06", {|| V12BKGct06() } )    
+   // Não Existe
 ELSEIF SUBSTR(cRel,1,2) = "13"
    u_WaitLog("BKGCTR23", {|| U_BKGCTR23() } )
 ELSEIF SUBSTR(cRel,1,2) = "14"
    u_WaitLog("GRFBKGCT11", {|| U_GRFBKGCT11(.T.) } )
 ELSEIF SUBSTR(cRel,1,2) = "15"
-   //u_WaitLog(, {|| V15BKGCT06() } )    
    u_WaitLog("BKMSG007", {|| U_BKMSG007() } )
 ELSEIF SUBSTR(cRel,1,2) = "16"
    U_BKDASH01()
@@ -2902,7 +2901,7 @@ Static Function V10BKGct06()
 Local cQuery            
 Local _cAlias 	:= "QSC7"
 Local aArea     := GetArea()
-Local cAssunto	:= "Aviso de pedido de compras não entregue"
+Local cAssunto	:= "Pedidos de compras não entregues"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
@@ -2987,7 +2986,7 @@ IF LEN(aEmail) > 0
 	u_GrvAnexo(cPrw+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
 
 	// Gravar no SZ0 - Avisos Web
-	u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,"Relatório anexo","F",cPrw+".html")
+	u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,"Itens não entregues: "+ALLTRIM(STR(LEN(aEmail))),"F",cPrw+".html")
 
 	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 
@@ -3004,19 +3003,22 @@ Static Function V11BKGct06()
 Local cQuery            
 Local _cAlias 	:= "QSC1"
 Local aArea     := GetArea()
-Local cAssunto	:= "Aviso de solicitação de compras em aberto"
+Local cAssunto	:= "Solicitações de compras em aberto"
 Local cEmail	:= "microsiga@bkconsultoria.com.br;"
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
-Local cPath     := "\tmp\"
+Local aUsers	:= {}
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni
 Local cPrw		:= "V11BKGct06"
 Local aBKGrupo  := {}
 Local nE		:= 0
+Local mCSV 		:= ""
+Local cAnexo 	:= ""
+Local cRodape   := ""
 
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -3038,6 +3040,7 @@ Do While SY1->(!eof())
 	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 		cEmail += ALLTRIM(aUser[1,14])+';'
 	ENDIF
+	aAdd(aUsers,SY1->Y1_USER)
 	SY1->(dbskip())
 Enddo
 
@@ -3092,145 +3095,37 @@ Next
 
 IF LEN(aEmail) > 0
 
-	cArqS := "V11BKGct06"+STRTRAN(FWEmpName(cEmpAnt)," ","")
+	aCabs   := {"Empresa","Solicitante","Emissao","Limite Entrega","Solicitação N°","Item","Cod. Produto","Desc. Produto","Un.","Quant.","Qtd. Entregue","Contrato","Descrição Contrato","Aprov."}
+	FOR _ni := 1 TO LEN(aCabs)
+		mCSV += aCabs[_ni] + IIF(_ni < LEN(aCabs),";","")
+	NEXT
 
-	_cArqSv  := cPath+cArqS+".csv"
+	FOR _ni := 1 TO LEN(aEmail)
+    	cLinha := aEmail[_ni,01]+";"+aEmail[_ni,02]+";"+DTOC(aEmail[_ni,03])+";"+DTOC(aEmail[_ni,04])+";"+aEmail[_ni,05]+;
+        	      ";"+aEmail[_ni,06]+";"+aEmail[_ni,07]+";"+aEmail[_ni,08]+";"+aEmail[_ni,09]+";"+STR(aEmail[_ni,10],6)+;
+           		  ";"+STR(aEmail[_ni,11],6)+";"+aEmail[_ni,12]+";"+aEmail[_ni,13]+";"+DTOC(aEmail[_ni,14])
+		mCSV += cLinha+cCrLf
+	NEXT
 
-	IF lJobV2
-		cDirTmp   := ""
-		_cArqS    := cPath+cArqS+".csv"
-	ELSE
-		cDirTmp   := "C:\TMP"
-		_cArqS    := cDirTmp+"\"+cArqS+".csv"
-	ENDIF
-
-	IF !EMPTY(cDirTmp)
-   		MakeDir(cDirTmp)
-	ENDIF   
- 
-	fErase(_cArqS)
-
-	nHandle := MsfCreate(_cArqS,0)
-   
-	If nHandle > 0
-      
-		aCabs   := {"Empresa","Solicitante","Emissao","Limite Entrega","Solicitação N°","Item","Cod. Produto","Desc. Produto","Un.","Quant.","Qtd. Entregue","Contrato","Descrição Contrato","Aprov."}
-  		FOR _ni := 1 TO LEN(aCabs)
-       		fWrite(nHandle, aCabs[_ni] + IIF(_ni < LEN(aCabs),";",""))
-   		NEXT
-   		fWrite(nHandle, cCrLf ) // Pula linha
-   		FOR _ni := 1 TO LEN(aEmail)
-   	    	cLinha := aEmail[_ni,01]+";"+aEmail[_ni,02]+";"+DTOC(aEmail[_ni,03])+";"+DTOC(aEmail[_ni,04])+";"+aEmail[_ni,05]+;
-   	        	      ";"+aEmail[_ni,06]+";"+aEmail[_ni,07]+";"+aEmail[_ni,08]+";"+aEmail[_ni,09]+";"+STR(aEmail[_ni,10],6)+;
-   	           		  ";"+STR(aEmail[_ni,11],6)+";"+aEmail[_ni,12]+";"+aEmail[_ni,13]+";"+DTOC(aEmail[_ni,14])
-  			fWrite(nHandle, cLinha+cCrLf ) // Pula linha
-   		NEXT
-
-		If nHandle > 0
-			fClose(nHandle)
-			If lJobV2
-				u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
-			Else   
-				lOk := CpyT2S( _cArqs , cPath, .T. )
-			EndIf
-
-			aCabs   := {"Arquivo"}
-			aEmail  := {}
-			AADD(aEmail,{"Segue arquivo anexo"})
-	   		cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs ,cPrw)
-       	
-			U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,_cArqSv,lJobV2)
-
-		Else
-			fClose(nHandle)
-			If lJobV2
-				u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)			
-			Else	
-				MsgAlert("Falha na criação do arquivo "+_cArqS)
-   	 		Endif    
-		Endif
-	ENDIF
 ENDIF
 
-RestArea(aArea)
+cAnexo := u_GrvAnexo(cPrw+".csv",StrIConv(mCSV, "CP1252", "UTF-8"))
 
-Return Nil
+aCabs   := {"Arquivo"}
+aEmail  := {}
 
-
-//Aviso de pedido de venda em aberto
-Static Function V12BKGCT06()
-
-Local cQuery            
-Local _cAlias 	:= "QSC5"
-Local aArea      := GetArea()
-Local cAssunto	:= "Aviso de pedido de venda em aberto"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
-Local cEmailCC	:= ""
-Local cMsg    	:= ""
-Local cAnexo    := ""
-Local aCabs		:= {}
-Local aEmail	:= {}
-Local cPrw 		:= "V12BKGCT06"
-Local aBKGrupo  := {}
-Local nE 		:= 0
-
-If FWCodEmp() <> "01"
-	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
-	Return Nil
+If LEN(aEmail) > 0
+	cRodape := "Segue arquivo anexo"
+Else
+	cRodape := "Não há solicitações de compras em aberto"
 EndIf
 
-u_MsgLog("V12BKGCT06",cAssunto)
+cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,cRodape)
+       	
+U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
 
-IF !EMPTY(cEmailS)
-   cEmail := ALLTRIM(cEmailS)+";"
-ENDIF
-
-For nE := 1 To Len(aBKGrupo)
-
-	cQuery := "Select C5_NUM,C7_DATPRF,C5_CLIENTEFORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
-	cQuery += " From SC7"+aBKGrupo[nE,1]+"0 SC7"
-	cQuery += " INNER join SC1"+aBKGrupo[nE,1]+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC =C1_NUM"
-	cQuery += " INNER join SA2"+aBKGrupo[nE,1]+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE =A2_COD"
-	cQuery += " INNER join CTT"+aBKGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC =CTT_CUSTO
-	cQuery += "  WHERE SC7.D_E_L_E_T_=''  AND C7_RESIDUO='' AND C7_QUJE<C7_QUANT "
-	cQuery += " GROUP BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
-	cQuery += " ORDER BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01 "
-	
-	TCQUERY cQuery NEW ALIAS "QSC7"
-	TCSETFIELD("QSC7","C7_DATPRF","D",8,0)
-
-	(_cAlias)->(dbgotop())
-
-	Do While (_cAlias)->(!eof())
-	
-		IF DATE() - QSC7->C7_DATPRF > 2 
-    
-  			AADD(aEmail,{aBKGrupo[nE,3],;
-   	   					(_cAlias)->C7_NUM,;
-   	   					(_cAlias)->C7_DATPRF,;
-   	   					(_cAlias)->C7_FORNECE,;
-   	   					(_cAlias)->A2_NOME,;
-   	   					(_cAlias)->C1_SOLICIT,;
-   	   					(_cAlias)->CTT_CUSTO,;
-   	   					(_cAlias)->CTT_DESC01})
-   	   	ENDIF
-
-		(_cAlias)->(dbskip())
-	EndDo
-
-	(_cAlias)->(Dbclosearea())
-
-Next
-
-IF LEN(aEmail) > 0
-
-	aCabs   := {"Empresa","N° Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
-
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
-
-	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
-
-ENDIF
+// Gravar no SZ0 - Avisos Web
+u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,"Solicitações de compras em aberto: "+ALLTRIM(STR(LEN(aEmail))),"F",cPrw+".csv")
 
 RestArea(aArea)
 
