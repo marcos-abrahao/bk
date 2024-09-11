@@ -43,6 +43,13 @@ WSRESTFUL RestMsgUs DESCRIPTION "Rest Avisos BK"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
+	WSMETHOD PUT EXEC;
+		DESCRIPTION "Executar rotina do aviso" ;
+		WSSYNTAX "/RestMsgUs/v5";
+		PATH "/RestMsgUs/v5";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
 END WSRESTFUL
 
 
@@ -79,6 +86,41 @@ Self:SetResponse(cRet)
   
 Return lRet
 
+
+
+//v5
+WSMETHOD PUT EXEC QUERYPARAM userlib,acao WSREST RestMsgUs 
+
+Local cJson			:= Self:GetContent()   
+Local lRet			:= .T.
+Local oJson			As Object
+Local aParams		As Array
+Local cMsg			As Char
+Local cRotina		As Char
+
+::setContentType('application/json')
+
+oJson := JsonObject():New()
+oJson:FromJSON(cJson)
+
+If u_BkAvPar(::userlib,@aParams,@cMsg)
+
+	cRotina := "U_"+::acao+"()"
+	lRet := &(cRotina)
+
+EndIf
+
+oJson['liberacao'] := StrIConv(cMsg, "CP1252", "UTF-8")
+
+cRet := oJson:ToJson()
+
+FreeObj(oJson)
+// CORS
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+
+Self:SetResponse(cRet)
+  
+Return lRet
 
 
 Static Function fStatus(z0recno,acao,cMsg)
@@ -174,7 +216,7 @@ Do While ( cQrySZ0 )->( ! Eof() )
 	aListAV1[nPos]['USRDEST']	:= IIF(!EMPTY((cQrySZ0)->USRDEST),TRIM((cQrySZ0)->USRDEST),TRIM((cQrySZ0)->GR__NOME))
 	aListAV1[nPos]['ASSUNTO']	:= StrIConv(TRIM((cQrySZ0)->Z0_ASSUNTO), "CP1252", "UTF-8")
 	aListAV1[nPos]['MSG']		:= StrIConv(TRIM((cQrySZ0)->Z0_MSG), "CP1252", "UTF-8")
-	aListAV1[nPos]['DTENV'] 	:= (cQrySZ0)->(SUBSTR(Z0_DTENV,1,4)+"-"+SUBSTR(Z0_DTENV,5,2)+"-"+SUBSTR(Z0_DTENV,7,2))
+	aListAV1[nPos]['DTENV'] 	:= (cQrySZ0)->(SUBSTR(Z0_DTENV,1,4)+"-"+SUBSTR(Z0_DTENV,5,2)+"-"+SUBSTR(Z0_DTENV,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListAV1[nPos]['HRENV'] 	:= TRIM((cQrySZ0)->Z0_HRENV)
 
 	aListAV1[nPos]['DTLIDA'] 	:= (cQrySZ0)->(DTOC(STOD(Z0_DTLIDA)))
@@ -183,7 +225,8 @@ Do While ( cQrySZ0 )->( ! Eof() )
 	aListAV1[nPos]['ENCODE'] 	:= Encode64(TRIM((cQrySZ0)->Z0_ANEXO))
 
 	aListAV1[nPos]['Z0RECNO']	:= STRZERO((cQrySZ0)->Z0RECNO,7)
-	aListAV1[nPos]['ORIGEM']	:= IIF(TRIM((cQrySZ0)->Z0_USERO) == TRIM(__cUserID),"R","D")
+	aListAV1[nPos]['TIPO']		:= IIF(TRIM((cQrySZ0)->Z0_USERO) == TRIM(__cUserID),"R","D")
+	aListAV1[nPos]['ORIGEM']	:= TRIM((cQrySZ0)->Z0_ORIGEM)
 
 	(cQrySZ0)->(DBSkip())
 
@@ -289,7 +332,7 @@ thead input {
 <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2">
 <div class="container-fluid">
 <span class="navbar-text">
-	Olá! Por esta tela serão enviados os avisos do sistema. (Tela ainda em fase de homologação)
+	Olá! Por esta tela serão enviados os avisos do sistema (novos avisos estão em desenvolvimento).
 </span>
 </div>
 </nav>
@@ -353,11 +396,12 @@ let cbtnid = '';
 let anexos = '';
 let cStatus = '';
 let z0recno = ''
-let cOrigem = ''
+let cTipo = ''
 let cbtn = ''
 let ctitbt = ''
 let canexo = ''
 let canexo1 = ''
+let crotina = ''
 
 if (Array.isArray(av1)) {
 	av1.forEach(object => {
@@ -369,7 +413,7 @@ if (Array.isArray(av1)) {
 	trHTML += '<td></td>';
 
 	cStatus = object['STATUS']
-	cOrigem = object['ORIGEM']
+	cTipo = object['TIPO']
 	
 	/*
 	z0recno = object['Z0RECNO']
@@ -382,7 +426,7 @@ if (Array.isArray(av1)) {
 	} 
 	*/
 
-   if (cOrigem == "R") {
+   if (cTipo == "R") {
       cbtn = 'btn-outline-success';
 	  ctitbt = 'Você é o remetente deste aviso';
  	} else {
@@ -421,7 +465,14 @@ if (Array.isArray(av1)) {
 
 	trHTML += '<td>'+object['Z0RECNO']+'</td>';
 	trHTML += '<td>'+object['STATUS']+'</td>';
-	trHTML += '<td>'+object['ORIGEM']+'</td>';
+	trHTML += '<td>'+object['TIPO']+'</td>';
+	trHTML += '<td>';
+	if (cStatus == 'F'){
+		trHTML += '<a href="#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+object['ORIGEM']+'" class="link-primary">'+object['ORIGEM']+'</a>';
+	} else {
+		trHTML += 'Somente para aviso fixo';
+	}
+	trHTML += '</td>';
 
 	trHTML += '</tr>';
 	});
@@ -479,6 +530,7 @@ tableAV1 = $('#tableAV1').DataTable({
     	{ data: 'Anexo' },
 		{ data: 'Recno' },
 		{ data: 'Status' },
+		{ data: 'Tipo' },
 		{ data: 'Origem' }
   ],
   "columnDefs": [
@@ -495,7 +547,7 @@ tableAV1 = $('#tableAV1').DataTable({
             targets: 7, render: DataTable.render.date()
         },
         {
-            targets: [9,10,11,12,13,14], visible: false, searchable: false
+            targets: [9,10,11,12,13,14,15], visible: false, searchable: false
         }
   ],
   "order": [[2,'asc']],
@@ -525,11 +577,16 @@ tableAV1 = $('#tableAV1').DataTable({
 
 // Formatting function for row details - modify as you need
 function format(d) {
-	var anexos = '';
     // `d` is the original data object for the row
+
     return (
         '<dl>' +
         '<dt>Aviso lido em:&nbsp;&nbsp;'+d.DataLida+'&nbsp;'+d.HoraLida+'</dt>' +
+        '<dd>' +
+        '</dd>' +
+
+        '<dl>' +
+        '<dt>Atualizar este aviso:&nbsp;'+d.Origem+'</dt>' +
         '<dd>' +
         '</dd>' +
 
@@ -548,9 +605,9 @@ $('#tableAV1 tbody').on('click', 'td.dt-st', function () {
    var row = tableAV1.row(tr);
    var data1 = tableAV1.row(tr).data();
    var cStatus = data1.Status
-   var cOrigem = data1.Origem
+   var cTipo = data1.Tipo
 
-	if (cStatus == '' && cOrigem == 'D') {
+	if (cStatus == '' && cTipo == 'D') {
    		data1.St = '<td><div><button type="button" title="Aviso lido" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></div></td>';
    		lida(data1.Recno)
    		tableAV1.row(tr).data(data1).draw()
@@ -648,6 +705,7 @@ cQuery += "	 ,Z0_ASSUNTO"+CRLF
 cQuery += "	 ,Z0_MSG"+CRLF
 cQuery += "	 ,Z0_STATUS"+CRLF
 cQuery += "	 ,Z0_ANEXO"+CRLF
+cQuery += "	 ,Z0_ORIGEM"+CRLF
 cQuery += "	 ,Z0_DTENV"+CRLF
 cQuery += "	 ,Z0_HRENV"+CRLF
 cQuery += "	 ,Z0_DTLIDA"+CRLF

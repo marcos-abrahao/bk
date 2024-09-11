@@ -55,10 +55,12 @@ Página HTML da Web
 /*/
  
 User Function BKWEB()
-Local aSize     := FWGetDialogSize( oMainWnd ) //MsAdvSize()
+Local aSize     := GetScreenRes() //FWGetDialogSize( oMainWnd ) //MsAdvSize() // GetScreenRes()
 Local nPort     := 0
 Local nTop		:= 0
 Local nLeft		:= 0
+Local nJanLarg	:= 0
+Local nJanAltu	:= 0
 Local nPosBt 	:= 0
 Local nTamBt 	:= 75
 Local nEsps		:= 15
@@ -79,16 +81,38 @@ Local oPanelDown
 Private oWebChannel := TWebChannel():New()
 
 // Para teste
-If __cUserId $ "000000/000038"
-	ShellExecute("open", u_BkRest()+"/RestMsgUs/v2?userlib="+cToken, "", "", 1)
-EndIf
+//If __cUserId $ "000000/000038"
+//	ShellExecute("open", u_BkRest()+"/RestMsgUs/v2?userlib="+cToken, "", "", 1)
+//EndIf
+
+// FWGetDialogSize( oMainWnd )
+/*
+nJanLarg	:= aSize[4]
+nJanAltu	:= aSize[3]
+nTop		:= 0
+nLeft		:= 0
+*/
+
+// GetScreenRes()
+nJanLarg	:= aSize[1]
+nJanAltu	:= aSize[2]
+nTop		:= 0
+nLeft		:= -10
+
+// MsAdvSize()
+/*
+nJanLarg	:= aSize[5]
+nJanAltu	:= aSize[6]
+nTop		:= 0
+nLeft		:= 0
+*/
 
 nRemote := GetRemoteType(@cLib)
 
-oDlg := MsDialog():New( nTop, nLeft, aSize[3], aSize[4],"Avisos do Sistema ("+TRIM(cLib)+")",,,,,,,,, .T.,,,, .F. )
+oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,"Avisos do Sistema ("+TRIM(cLib)+")",,,,,,,,, .T.,,,, .F. )
 
-oDlg:nClientHeight  := aSize[3]
-oDlg:nClientWidth   := aSize[4]
+oDlg:nClientHeight  := nJanAltu
+oDlg:nClientWidth   := nJanLarg
 
 oDlg:Refresh()
 

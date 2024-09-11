@@ -40,8 +40,11 @@
 		},
 		{
 			"label": "SIGAGPE"
+		},
+		{
+			"label": "SIGAFAT"
 		}
 	],
-	"lastProgramExecuted": "SIGAgct",
+	"lastProgramExecuted": "SIGAFAT",
 	"lastProgramArguments": []
 }
