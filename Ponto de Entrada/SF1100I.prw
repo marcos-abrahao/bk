@@ -23,10 +23,11 @@ Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
+Private dCompet  := IIF(EMPTY(SF1->F1_XXCOMPD),SF1->F1_DTDIGIT,SF1->F1_XXCOMPD)
 Private cLibF1   := ""
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
-IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
+If EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	PswOrder(1) 
 	PswSeek(__cUserId) 
 	aUser  := PswRet(1)
@@ -35,7 +36,13 @@ IF EMPTY(SF1->F1_XXUSER) .AND. VAL(__cUserId) > 0  // Não Gravar Administrador
 	SF1->F1_XXUSER  := __cUserId
 	SF1->F1_XXUSERS := cSuper
 	MsUnLock("SF1")
-ENDIF
+EndIf
+
+If Empty(SF1->F1_XXCOMPD)
+	RecLock("SF1",.F.)
+	SF1->F1_XXCOMPD := dCompet
+	MsUnLock("SF1")
+EndIf
 
 If Inclui .AND. !l103Auto
 
@@ -74,6 +81,7 @@ If Inclui .AND. !l103Auto
 			SF1->F1_XXTPPIX := ""
 			SF1->F1_XXCHPIX := ""
 		EndIf
+		SF1->F1_XXCOMPD := dCompet
 		MsUnLock("SF1")
 
 	EndIf
@@ -101,7 +109,7 @@ If l103Class .OR. Inclui
 		SF1->F1_XXDCLAS := DtoC(Date())+"-"+Time()
 		MsUnLock("SF1")
 
-		u_MsgLog("SF1100I",iIf(l103Class,"Doc classificado: ","Doc incluido    : ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
+		u_MsgLog("SF1100I",iIf(l103Class,"Doc classificado: ","Doc incluido: ")+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE)
 
 	EndIf
 EndIf

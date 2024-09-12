@@ -28,6 +28,7 @@ Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel  := SF1->F1_XXPARCE
+Private dCompet  := IIF(EMPTY(SF1->F1_XXCOMPD),SF1->F1_DTDIGIT,SF1->F1_XXCOMPD)
 Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
@@ -51,6 +52,12 @@ If Empty(SF1->F1_XXUSER) //.OR. !u_InGrupo(__cUserID,"000000/000031")
 	If Empty(SF1->F1_XXUSERS)
 		SF1->F1_XXUSERS := u_cSuper1(__cUserID)
 	EndIf
+	MsUnLock("SF1")
+EndIf
+
+If Empty(SF1->F1_XXCOMPD)
+	RecLock("SF1",.F.)
+	SF1->F1_XXCOMPD := dCompet
 	MsUnLock("SF1")
 EndIf
 
@@ -88,6 +95,7 @@ Else
 	SF1->F1_XXTPPIX := ""
 	SF1->F1_XXCHPIX := ""
 EndIf
+SF1->F1_XXCOMPD := dCompet
 
 // Limpar dados de Liberação
 SF1->F1_XXLIB   := cLibF1
@@ -127,6 +135,7 @@ Private nTipoPg  := 0
 Private cEspecie := SF1->F1_ESPECIE
 Private cxCond	 := SF1->F1_COND
 Private mParcel	 := SF1->F1_XXPARCE
+Private dCompet  := IIF(EMPTY(SF1->F1_XXCOMPD),SF1->F1_DTDIGIT,SF1->F1_XXCOMPD)
 Private cLibF1   := "A"
 Private cCnpj    := Posicione("SA2",1,Xfilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA,"A2_CGC")
 
@@ -165,6 +174,8 @@ If U_SelFPgto(lAlt,.T.,@cLibF1)
 		SF1->F1_XXCHPIX := ""
 	EndIf
 
+	SF1->F1_XXCOMPD := dCompet
+
 	If Empty(SF1->F1_XXLIB) .AND. Empty(SF1->F1_STATUS)
 		SF1->F1_XXLIB := cLibF1
 	EndIf
@@ -196,6 +207,7 @@ Local aaCampos	:= {"PARC","VENCTO","VALOR"} //Variável contendo o campo editável
 Local nValTot	:= 0
 //Local aGrp 		:= UsrRetGrp()
 Local aTpPix    := U_StringToArray(GetSx3Cache("F72_TPCHV", "X3_CBOX"),";") 
+Local dDigit 	:= SF1->F1_DTDIGIT
 
 Static oDlg3
 
@@ -204,7 +216,7 @@ Default lEsc 		:= .F.
 
 Private nRadMenu1	:= 1
 Private dValid 		:= dDataBase
-Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv,oGetCond,oSaySE4,oGetPvPgt,oGetJsPgt,oLista,oP1PA
+Private oGetBco,oGetAge,oGetCon,oGetPA,oGetChv,oGetCond,oSaySE4,oGetCompet,oGetDigit,oGetJsPgt,oLista,oP1PA
 Private oCmbTpPix,oGetChPix
 Private cDescrSE4	:= Posicione("SE4",1,xFilial("SE4")+cxCond,"E4_DESCRI")
 Private aDados		:= {}
@@ -241,6 +253,10 @@ If FWIsInCallStack("GERADOCE")
 	//mParcel  := ymParcel 
 EndIf
 
+If Empty(dCompet)
+	dCompet := dDataBase
+EndIf
+
 If Empty(cxCond)
 	cxCond := "092" // 3 dias
 EndIf
@@ -266,7 +282,7 @@ aCabecalho	:= u_a103Cab()
 nColDel 	:= Len(aCabecalho)+1
 u_a103Load()
 
-DEFINE MSDIALOG oDlg3 TITLE "Dados Fiscais e Financeiros: "+SF1->F1_SERIE+" "+SF1->F1_DOC STYLE DS_MODALFRAME FROM 000,000 TO 490,550 COLORS 0, 16777215 PIXEL
+DEFINE MSDIALOG oDlg3 TITLE "Dados Fiscais e Financeiros: "+SF1->F1_SERIE+" "+SF1->F1_DOC STYLE DS_MODALFRAME FROM 000,000 TO 520,550 COLORS 0, 16777215 PIXEL
 oDlg3:lEscClose := .F.
 
 bClickP	:= { || ChangePgt(nRadMenu1) }
@@ -291,19 +307,19 @@ oP1PA:bChange := { || ChangePgt(nRadMenu1) }
 
 // oCmbTpPix := TCOMBOBOX():Create(oDlg3)
 // oCmbTpPix:cName 		:= "oCmbTpPix"
-// oCmbTpPix:cCaption 		:= "Tipo Chave"
+// oCmbTpPix:cCaption 	:= "Tipo Chave"
 // oCmbTpPix:nLeft 		:= 100
-// oCmbTpPix:nTop 			:= 125
-// oCmbTpPix:nWidth 		:= 050
-// oCmbTpPix:nHeight 		:= 040
+// oCmbTpPix:nTop 		:= 125
+// oCmbTpPix:nWidth 	:= 050
+// oCmbTpPix:nHeight 	:= 040
 // oCmbTpPix:lShowHint 	:= .T.
 // oCmbTpPix:lReadOnly 	:= .F.
 // oCmbTpPix:Align 		:= 0
 // oCmbTpPix:cVariable 	:= "cxTpPix"
-// oCmbTpPix:bSetGet 		:= {|u| If(PCount()>0,cxTpPix:=u,cxTpPix) }
-// oCmbTpPix:aItems 		:= aTpPix
-// oCmbTpPix:nAt 			:= 1                                                 
-// oCmbTpPix:bChange 		:= { || ChangePgt(nRadMenu1) }
+// oCmbTpPix:bSetGet 	:= {|u| If(PCount()>0,cxTpPix:=u,cxTpPix) }
+// oCmbTpPix:aItems 	:= aTpPix
+// oCmbTpPix:nAt 		:= 1                                                 
+// oCmbTpPix:bChange 	:= { || ChangePgt(nRadMenu1) }
 // oCmbTpPix:lVisibleControl := .T.
 
 If nRadMenu1 <> 7
@@ -318,24 +334,27 @@ EndIf
 
 @ 097,080 SAY oSaySE4 PROMPT cDescrSE4 OF oDlg3 PIXEL COLOR CLR_RED
 
-//@ 142,010 SAY 'Prev. Pgto:' OF oDlg3 PIXEL COLOR CLR_RED 
-//@ 140,040 MSGET oGetPvPgt VAR dPrvPgt OF oDlg3 WHEN .F. /*lAlt*/ VALID !EMPTY(dPrvPgt) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
-
 @ 112,010 SAY "Justificativa:"  OF oDlg3 PIXEL
 @ 110,045 MSGET oGetJsPgt VAR cJsPgt  OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 70,10 PIXEL
 
-@ 127,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
-@ 125,045 MSGET oGetChv VAR cChvNfe   OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 140,10 PIXEL 
+@ 127,010 SAY 'Competência:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 125,045 MSGET oGetCompet VAR dCompet OF oDlg3 VALID !EMPTY(dCompet) PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
 
-@ 140,010 SAY 'Parcelas:' OF oDlg3 PIXEL COLOR CLR_RED
-oLista := MsNewGetDados():New(140, 045, 225, 210, GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,, 99, "U_VldV140()", "", "", oDlg3, aCabecalho, aDados,"U_VldV140()")
+@ 127,117 SAY 'Entrada:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 125,145 MSGET oGetDigit VAR dDigit OF oDlg3 WHEN .F. PICTURE "@E" SIZE 55,10 PIXEL HASBUTTON 
+
+@ 142,010 SAY 'Chave Nfe:' OF oDlg3 PIXEL COLOR CLR_RED 
+@ 140,045 MSGET oGetChv VAR cChvNfe   OF oDlg3 WHEN lAlt PICTURE "@!" SIZE 140,10 PIXEL 
+
+@ 155,010 SAY 'Parcelas:' OF oDlg3 PIXEL COLOR CLR_RED
+oLista := MsNewGetDados():New(155, 045, 240, 210, GD_UPDATE, "AllwaysTrue", "AllwaysTrue", "AllwaysTrue", aACampos,, 99, "U_VldV140()", "", "", oDlg3, aCabecalho, aDados,"U_VldV140()")
 
 If lAlt
-	@ 230,070 BUTTON "Ok" SIZE 040, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1,@cLibF1),oDlg3:End(),AllwaysTrue()))
-	@ 230,120 BUTTON "Anexos" SIZE 040, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
+	@ 245,070 BUTTON "Ok" SIZE 040, 012 PIXEL OF oDlg3 Action(IIf(ValidFP(nRadMenu1,@cLibF1),oDlg3:End(),AllwaysTrue()))
+	@ 245,120 BUTTON "Anexos" SIZE 040, 012 PIXEL OF oDlg3 Action(MsDocument("SF1",SF1->(RECNO()),4),lAnexo:= .T.)
 EndIf
 If lEsc .OR. !lAlt
-	@ 230,170 BUTTON "Sair" SIZE 040, 012 PIXEL OF oDlg3 Action(lRet:= .F.,oDlg3:End())
+	@ 245,170 BUTTON "Sair" SIZE 040, 012 PIXEL OF oDlg3 Action(lRet:= .F.,oDlg3:End())
 EndIf
 
 ACTIVATE MSDIALOG oDlg3 CENTERED ON INIT AltCond(nValTot,.T.) VALID BKVerDoc("SF1",xFilial("SF1"),SF1->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA+F1_FORMUL),lEsc)  //cNFiscal+cSerie+cA100For+cLoja+cTipo
@@ -636,7 +655,7 @@ If ExistCpo("SE4", cxCond)
 		oLista:SetArray(aDados,.T.)
 		oLista:Refresh()
 
-		//oGetPvPgt:Refresh()
+		oGetCompet:Refresh()
 		oSaySE4:Refresh()
 	EndIf
 Else

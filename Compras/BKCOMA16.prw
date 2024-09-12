@@ -320,6 +320,7 @@ Static Function GeraDocE()
 	Private ynTipoPg  := 0
 	Private ycEspecie := SF1->F1_ESPECIE
 	Private ycxCond	  := IIF(EMPTY(SF1->F1_COND),"092",SF1->F1_COND)
+
 	//Private ymParcel  := SF1->F1_XXPARCE
 
 	Private lMSErroAuto	:= .F.
