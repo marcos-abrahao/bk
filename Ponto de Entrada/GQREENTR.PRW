@@ -34,10 +34,10 @@ Local lBkCla 	:= .F.
 Local lAtFixo 	:= .F.
 Local _X1,_X2
  
-//GRAVA USUARIO CLASSIFICOU O DOCUMENTO
-cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXUSERS = '"+__cUserId+"', F1_HORA = '"+SUBSTR(TIME(),1,5)+"'"
-cQuery  += " WHERE F1_FILIAL='"+xFilial('SF1')+"' AND D_E_L_E_T_='' AND F1_DOC='"+@CNFISCAL +"' AND F1_SERIE='"+ @CSERIE +"'"
-cQuery  += " AND F1_FORNECE='"+ @CA100FOR +"' AND F1_LOJA='"+ @CLOJA +"' AND F1_TIPO='"+ @cTipo +"'"
+//GRAVA USUARIO QUE CLASSIFICOU O DOCUMENTO
+cQuery := " UPDATE "+RetSqlName("SF1")+" SET F1_XXUSERS = (CASE WHEN F1_XXUSERS = ' ' THEN '"+__cUserId+"' ELSE F1_XXUSERS), F1_HORA = '"+SUBSTR(TIME(),1,5)+"'"
+cQuery += " WHERE F1_FILIAL='"+xFilial('SF1')+"' AND D_E_L_E_T_='' AND F1_DOC='"+@CNFISCAL +"' AND F1_SERIE='"+ @CSERIE +"'"
+cQuery += " AND F1_FORNECE='"+ @CA100FOR +"' AND F1_LOJA='"+ @CLOJA +"' AND F1_TIPO='"+ @cTipo +"'"
 
 TcSqlExec(cQuery)
 

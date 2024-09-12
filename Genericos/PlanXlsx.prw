@@ -795,6 +795,9 @@ oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cF
 oPrtXlsx:SetValue(nLin,1,"Emitido por: ")
 oPrtXlsx:SetValue(nLin,2,Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
 nLin++
+oPrtXlsx:SetValue(nLin,1,"Serviço/Porta: ")
+oPrtXlsx:SetValue(nLin,2,TRIM(GetPvProfString("Service", "Name", "", GetAdv97())+"/"+GetPvProfString("TCP", "Port", "", GetAdv97())) )
+nLin++
 oPrtXlsx:SetValue(nLin,1,"Data Base: ")
 oPrtXlsx:SetValue(nLin,2,+DTOC(dDataBase))
 nLin++
@@ -1467,6 +1470,9 @@ oPrtXlsx:SetCellsFormat(cLHorAlig, cLVertAlig, lLWrapText, nLRotation, cCorN, cF
 
 oPrtXlsx:SetValue(nLin,1,"Emitido por: ")
 oPrtXlsx:SetValue(nLin,2,Trim(cUserName)+" em "+DTOC(DATE())+"-"+SUBSTR(TIME(),1,5)+" - "+ComputerName())
+nLin++
+oPrtXlsx:SetValue(nLin,1,"Serviço/Porta: ")
+oPrtXlsx:SetValue(nLin,2,TRIM(GetPvProfString("Service", "Name", "", GetAdv97())+"/"+GetPvProfString("TCP", "Port", "", GetAdv97())) )
 nLin++
 oPrtXlsx:SetValue(nLin,1,"Data Base: ")
 oPrtXlsx:SetValue(nLin,2,+DTOC(dDataBase))

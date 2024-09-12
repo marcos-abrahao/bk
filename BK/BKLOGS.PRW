@@ -128,6 +128,7 @@ Return nRet
 	@since 10/06/18
 	@version 12.1.25
 /*/
+Static cPorta := GetPvProfString("TCP", "Port", "", GetAdv97())
 User Function xxLog(cArqLog,cMens,cTxt)
 Local nPosFim := 0
 Local nHandle := 0
@@ -138,7 +139,7 @@ Default cTxt  := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cMens := STRTRAN( cMens, CRLF, " ")
-cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+cMens+"|" 
+cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
 If !Empty(cTxt)
 	cMens += CRLF+cTxt+CRLF
 EndIf

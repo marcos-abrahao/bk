@@ -22,11 +22,10 @@ Local aCampos        := {}
 Local aTitulos       := {}
 Local aPlans         := {}
 
-Private cPerg        := "FINR07"
+Private cPerg        := "BKFINR07"
 Private fGFrota      := fFrota
 
-Private dDtIni,dDtFim,dDtPgIni,dDtPgFin,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin,cForn
-Private nPagto
+Private nData,dDtIni,dDtFim,nPagto,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin,cForn
 Private aPgtos 		 := {}
 
 ValidPerg(cPerg)
@@ -35,16 +34,17 @@ If !Pergunte(cPerg,.T.)
 Endif
 u_MsgLog(cPerg)
 
-dDtIni   := MV_PAR01
-dDtFim   := MV_PAR02
-nPagto   := MV_PAR03
-cProduto := MV_PAR04
-cCustoDe := MV_PAR05
-cCustoAte:= MV_PAR06
-nUsers   := MV_PAR07
-nImpostos:= MV_PAR08
-nPaFin	 := MV_PAR09
-cForn	 := MV_PAR10
+nData 	 := MV_PAR01
+dDtIni   := MV_PAR02
+dDtFim   := MV_PAR03
+nPagto   := MV_PAR04
+cProduto := MV_PAR05
+cForn	 := MV_PAR06
+cCustoDe := MV_PAR07
+cCustoAte:= MV_PAR08
+nUsers   := MV_PAR09
+nImpostos:= MV_PAR10
+nPaFin	 := MV_PAR11
 
 fGFrota  := fFrota
 
@@ -128,6 +128,9 @@ EndIf
 
 AADD(aCampos,"QSD1->D1_DTDIGIT")
 AADD(aCabs  ,"Data Entrada")
+
+AADD(aCampos,"QSD1->F1_XXCOMPD")
+AADD(aCabs  ,"Competência")
 
 If nPagto == 1
 
@@ -435,6 +438,8 @@ cQuery += " D1_DTDIGIT, "+CRLF
 cQuery += " D1_EMISSAO, "+CRLF
 cQuery += " C7_XXURGEN, "+CRLF
 
+cQuery += " F1_XXCOMPD, "+CRLF
+
 cQuery += " ZI_COD, "+CRLF
 cQuery += " ZI_DESC, "+CRLF
 cQuery += " D1_TES, "+CRLF
@@ -561,25 +566,48 @@ If nImpostos == 1
 EndIf
 cQuery += "WHERE SD1.D_E_L_E_T_ = ' ' "+CRLF
 
-IF !EMPTY(dDtIni)
-	IF fGFrota
-		cQuery += "AND (D1_EMISSAO >= '"+DTOS(dDtIni)+"' OR D1_DTDIGIT >= '"+DTOS(dDtIni)+"') "+CRLF
-   		ctitulo += " de "+DTOC(dDtIni)
-  	ELSE
-		cQuery += "AND D1_DTDIGIT >= '"+DTOS(dDtIni)+"' "+CRLF
-   		ctitulo += " de "+DTOC(dDtIni)
-  	ENDIF
-ENDIF
-IF !EMPTY(dDtFim)
-	IF fGFrota
-   		cQuery += "AND (D1_EMISSAO <= '"+DTOS(dDtFim)+"' OR D1_DTDIGIT <= '"+DTOS(dDtFim)+"') " +CRLF
-   		ctitulo += " ate "+DTOC(dDtFim)
-	ELSE
-   		cQuery += "AND D1_DTDIGIT <= '"+DTOS(dDtFim)+"' "+CRLF
-   		ctitulo += " ate "+DTOC(dDtFim)
+IF nData == 1
+	ctitulo += " Competência"
+	IF !EMPTY(dDtIni)
+		IF fGFrota
+			cQuery += "AND (D1_EMISSAO >= '"+DTOS(dDtIni)+"' OR F1_XXCOMPD >= '"+DTOS(dDtIni)+"') "+CRLF
+			ctitulo += " de "+DTOC(dDtIni)
+		ELSE
+			cQuery += "AND F1_XXCOMPD >= '"+DTOS(dDtIni)+"' "+CRLF
+			ctitulo += " de "+DTOC(dDtIni)
+		ENDIF
+	ENDIF
+	IF !EMPTY(dDtFim)
+		IF fGFrota
+			cQuery += "AND (D1_EMISSAO <= '"+DTOS(dDtFim)+"' OR F1_XXCOMPD <= '"+DTOS(dDtFim)+"') " +CRLF
+			ctitulo += " ate "+DTOC(dDtFim)
+		ELSE
+			cQuery += "AND F1_XXCOMPD <= '"+DTOS(dDtFim)+"' "+CRLF
+			ctitulo += " ate "+DTOC(dDtFim)
+		ENDIF
+	ENDIF
+ELSE
+	ctitulo += " Digitação"
+
+	IF !EMPTY(dDtIni)
+		IF fGFrota
+			cQuery += "AND (D1_EMISSAO >= '"+DTOS(dDtIni)+"' OR D1_DTDIGIT >= '"+DTOS(dDtIni)+"') "+CRLF
+			ctitulo += " de "+DTOC(dDtIni)
+		ELSE
+			cQuery += "AND D1_DTDIGIT >= '"+DTOS(dDtIni)+"' "+CRLF
+			ctitulo += " de "+DTOC(dDtIni)
+		ENDIF
+	ENDIF
+	IF !EMPTY(dDtFim)
+		IF fGFrota
+			cQuery += "AND (D1_EMISSAO <= '"+DTOS(dDtFim)+"' OR D1_DTDIGIT <= '"+DTOS(dDtFim)+"') " +CRLF
+			ctitulo += " ate "+DTOC(dDtFim)
+		ELSE
+			cQuery += "AND D1_DTDIGIT <= '"+DTOS(dDtFim)+"' "+CRLF
+			ctitulo += " ate "+DTOC(dDtFim)
+		ENDIF
 	ENDIF
 ENDIF
-
 IF fGFrota
 	cQuery += " AND SD1.D1_COD IN ('320200505','320200507','320200527','320200607','41205021') "+CRLF
 ELSEIF !EMPTY(cProduto) .AND. ExistCpo("SB1",cProduto) 
@@ -772,6 +800,7 @@ TCSETFIELD("QSD1","D1_EMISSAO","D",8,0)
 TCSETFIELD("QSD1","D1_XXHIST","M",10,0)
 TCSETFIELD("QSD1","E2_VENCREA","D",8,0)
 TCSETFIELD("QSD1","E2_BAIXA","D",8,0)
+TCSETFIELD("QSD1","F1_XXCOMPD","D",8,0)
 
 Dbselectarea("QSD1")
 QSD1->(Dbgotop())
@@ -974,16 +1003,17 @@ dbSelectArea("SX1")
 dbSetOrder(1)
 cPerg := PADR(cPerg,10)
 
-AADD(aRegistros,{cPerg,"01","Data inicial:"    ,"Data I:"      ,"Data I:"      ,"mv_ch1","D",08,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"02","Data Final:"      ,"Data F:"      ,"Data F:"      ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
-AADD(aRegistros,{cPerg,"03","Mostrar Pgto?"    ,"Mostrar Pgto?","Mostrar Pgto?","mv_ch3","N",01,0,2,"C","","mv_par03","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
-AADD(aRegistros,{cPerg,"04","Pesquisar produto","Produto"      ,"Produto"      ,"mv_ch4","C",15,0,0,"G",'Vazio() .or. ExistCpo("SB1")',"mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
-AADD(aRegistros,{cPerg,"05","Contrato de?"     ,"Contrato de?" ,"Contrato de?" ,"mv_ch5","C",09,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
-AADD(aRegistros,{cPerg,"06","Contrato até?"    ,"Contrato até?","Contrato até?","mv_ch6","C",09,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
-AADD(aRegistros,{cPerg,"07","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch7","N",01,0,2,"C","","mv_par07","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
-AADD(aRegistros,{cPerg,"08","Listar impostos?" ,"Impostos"     ,"Impostos"     ,"mv_ch8","N",01,0,2,"C","","mv_par08","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
-AADD(aRegistros,{cPerg,"09","Listar PA (fin)?" ,"Listar PA"    ,"Listar PA"    ,"mv_ch9","N",01,0,2,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
-AADD(aRegistros,{cPerg,"10","Fornecedor:"      ,"Fornecedor:"  ,"Fornecedor:"  ,"mv_cha","C",06,0,0,"G","","mv_par10","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
+AADD(aRegistros,{cPerg,"01","Data de:"         ,"Data de:     ","Data de:     ","mv_ch1","N",01,0,2,"C","","mv_par01","Competencia","Competencia","Competencia","","","Digitação","Digitação","Digitação","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"02","Data inicial:"    ,"Data I:"      ,"Data I:"      ,"mv_ch2","D",08,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"03","Data Final:"      ,"Data F:"      ,"Data F:"      ,"mv_ch3","D",08,0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","S","",""})
+AADD(aRegistros,{cPerg,"04","Mostrar Pgto?"    ,"Mostrar Pgto?","Mostrar Pgto?","mv_ch4","N",01,0,2,"C","","mv_par04","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"05","Pesquisar produto","Produto"      ,"Produto"      ,"mv_ch5","C",15,0,0,"G",'Vazio() .or. ExistCpo("SB1")',"mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","SB1","S","",""})
+AADD(aRegistros,{cPerg,"06","Fornecedor:"      ,"Fornecedor:"  ,"Fornecedor:"  ,"mv_ch6","C",06,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","SA2","S","",""})
+AADD(aRegistros,{cPerg,"07","Contrato de?"     ,"Contrato de?" ,"Contrato de?" ,"mv_ch7","C",09,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
+AADD(aRegistros,{cPerg,"08","Contrato até?"    ,"Contrato até?","Contrato até?","mv_ch8","C",09,0,0,"G","NaoVazio()","mv_par08","","","","","","","","","","","","","","","","","","","","","","","","","CTT","S","",""})
+AADD(aRegistros,{cPerg,"09","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch9","N",01,0,2,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"10","Listar impostos?" ,"Impostos"     ,"Impostos"     ,"mv_cha","N",01,0,2,"C","","mv_par10","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"11","Listar PA (fin)?" ,"Listar PA"    ,"Listar PA"    ,"mv_chb","N",01,0,2,"C","","mv_par11","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

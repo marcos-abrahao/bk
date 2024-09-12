@@ -152,7 +152,7 @@ Do While !eof()
 	If !Empty(QSZ5->Z5_CC)
 		dbSelectArea("CTT")
 		If !dbSeek(xFilial("CTT")+QSZ5->Z5_CC)
-			cErros += "Centro de custo "+QSZ5->Z5_CC+" não cadastrao"+CRLF
+			cErros += "Centro de custo "+QSZ5->Z5_CC+" não cadastrado"+CRLF
 		EndIf
 	EndIf
 

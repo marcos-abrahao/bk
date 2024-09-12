@@ -681,12 +681,12 @@ Return "'000216','000225','000226'"
 // Usuarios Master Almoxarifado (grupo 27)
 User Function UsrMAlmox()
 // 000093 - Fabio Quirino Removido
-Return "000216/000232/000225/000310"  
+Return "000216/000232/000225/000310/000321"
 
 
-// Email para Grupo do (Fabio (removido),Barbara,Jose Amauri,Bianca)
+// Email para Grupo do (Fabio (removido),Barbara,Jose Amauri,Bianca,Wendell)
 User Function EmEstAlm(cId,lAll,cxEmail)
-Local aUsers := {"000232","000216","000310"}
+Local aUsers := {"000232","000216","000310","000321"}
 Local cEmails:= ""
 
 Default cxEmail := "-"
