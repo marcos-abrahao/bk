@@ -46,8 +46,8 @@ cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
 
 If cEmpAnt == "01" .OR. cEmpPar = "01"
 	u_WaitLog("V9BKGct06",  {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
-	u_WaitLog("V10BKGct06", {|| V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
-	u_WaitLog("V11BKGct06", {|| V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
+	u_WaitLog("V10BKGct06", {|| u_V10BKGct06()} ,"Processando avisos de pedidos de compras não entregues")
+	u_WaitLog("V11BKGct06", {|| u_V11BKGct06()} ,"Processando aviso de Solicitação de compras em aberto")
 	// Desabilitado em 22/05/2024 - substituido por BKMSG007
 	//u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf
@@ -190,9 +190,9 @@ ELSEIF SUBSTR(cRel,1,2) = "08"
 ELSEIF SUBSTR(cRel,1,2) = "09"   
    u_WaitLog("V9BKGct06", {|| V9BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "10"   
-   u_WaitLog("V10BKGct06", {|| V10BKGct06() } )
+   u_WaitLog("V10BKGct06", {|| u_V10BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "11"
-   u_WaitLog("V11BKGct06", {|| V11BKGct06() } )
+   u_WaitLog("V11BKGct06", {|| u_V11BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "12"
    // Não Existe
 ELSEIF SUBSTR(cRel,1,2) = "13"
@@ -314,10 +314,6 @@ AADD(aCabs  ,"Obs Repactuação")
 
 AADD(aCampos,"cStatus")
 AADD(aCabs  ,"Status")
-
-//If !lJobV2
-//	IncProc()
-//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_SITUAC,CTT_DESC01,CN9_XXDREP,CN9_XXOREP,CN9_XXSREP,CN9_XXDVIG,CN9_XXDAVI,CN9_XXNAVI,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
@@ -968,10 +964,6 @@ AADD(aCabs  ,"Dias")
 
 AADD(aCampos,"QCN9->CN9_XXPROA")
 AADD(aCabs  ,"Andamento")
-
-//If !lJobV2
-//	IncProc()
-//EndIf
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
@@ -2896,7 +2888,7 @@ Return Nil
 
 
 //Aviso de pedido de compras não entregue
-Static Function V10BKGct06()
+User Function V10BKGct06()
 
 Local cQuery            
 Local _cAlias 	:= "QSC7"
@@ -2914,6 +2906,7 @@ Local cPrw		:= "V10BKGct06"
 Local aBKGrupo	:= u_BKGrupo()
 Local nE		:= 0
 
+lJobV2 := IsBlind()
 
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
@@ -2922,9 +2915,9 @@ EndIf
 
 u_MsgLog("V10BKGct06",cAssunto)
 
-IF !EMPTY(cEmailS)
-   cEmail := ALLTRIM(cEmailS)+";"
-ENDIF
+//IF !EMPTY(cEmailS)
+//   cEmail := ALLTRIM(cEmailS)+";"
+//ENDIF
 
 //EMAIL - GRUPO DE COMPRAS
 SY1->(dbgotop())
@@ -2998,7 +2991,7 @@ Return Nil
 
 
 //Aviso de Solicitacao de compra em aberto
-Static Function V11BKGct06()
+User Function V11BKGct06()
 
 Local cQuery            
 Local _cAlias 	:= "QSC1"
@@ -3020,6 +3013,8 @@ Local mCSV 		:= ""
 Local cAnexo 	:= ""
 Local cRodape   := ""
 
+lJobV2 := IsBlind()
+
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
 	Return Nil
@@ -3027,9 +3022,9 @@ EndIf
 
 u_MsgLog("V11BKGct06",cAssunto)
 
-IF !EMPTY(cEmailS)
-   cEmail := ALLTRIM(cEmailS)+";"
-ENDIF
+//IF !EMPTY(cEmailS)
+//   cEmail := ALLTRIM(cEmailS)+";"
+//ENDIF
 
 //EMAIL - GRUPO DE COMPRAS
 SY1->(dbgotop())

@@ -43,7 +43,7 @@ WSRESTFUL RestMsgUs DESCRIPTION "Rest Avisos BK"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
-	WSMETHOD PUT EXEC;
+	WSMETHOD GET EXEC;
 		DESCRIPTION "Executar rotina do aviso" ;
 		WSSYNTAX "/RestMsgUs/v5";
 		PATH "/RestMsgUs/v5";
@@ -89,37 +89,41 @@ Return lRet
 
 
 //v5
-WSMETHOD PUT EXEC QUERYPARAM userlib,acao WSREST RestMsgUs 
+WSMETHOD GET EXEC QUERYPARAM userlib,acao WSREST RestMsgUs 
 
-Local cJson			:= Self:GetContent()   
-Local lRet			:= .T.
-Local oJson			As Object
-Local aParams		As Array
-Local cMsg			As Char
-Local cRotina		As Char
-
-::setContentType('application/json')
-
-oJson := JsonObject():New()
-oJson:FromJSON(cJson)
+Local lRet		:= .T.
+Local aParams	As Array
+Local cMsg		As Char
+Local cRotina	As Char
+Local cError	:= ""
+Local bError	:= ErrorBlock({ |oError| cError := oError:Description})
+Local cHtml 	:= "Rotina processada!"
 
 If u_BkAvPar(::userlib,@aParams,@cMsg)
-
 	cRotina := "U_"+::acao+"()"
-	lRet := &(cRotina)
+
+	BEGIN SEQUENCE
+		lRet := &(cRotina)
+	RECOVER
+		//-> Recupera e apresenta o erro.
+		lRet := .F.
+	END SEQUENCE
+
+    //Restaurando bloco de erro do sistema
+    ErrorBlock(bError)
+     
+    //Se houve erro, será mostrado ao usuário
+    If !Empty(cError)
+        u_MsgLog("RESTMsgUs-v5",cError)
+		cHtml := cError
+    EndIf
 
 EndIf
 
-oJson['liberacao'] := StrIConv(cMsg, "CP1252", "UTF-8")
-
-cRet := oJson:ToJson()
-
-FreeObj(oJson)
-// CORS
 Self:SetHeader("Access-Control-Allow-Origin", "*")
+self:setResponse(cHtml)
+self:setStatus(200)
 
-Self:SetResponse(cRet)
-  
 Return lRet
 
 
@@ -372,6 +376,19 @@ thead input {
 </div>
 </div>
 
+<div id="confModal" class="modal" tabindex="-1">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 id="titConf" class="modal-title">Aguarde o resultado da rotina</h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+       </div>
+     </div>
+   </div>
+</div>
 
 <!-- JavaScript -->
 #BKDTScript#
@@ -468,7 +485,8 @@ if (Array.isArray(av1)) {
 	trHTML += '<td>'+object['TIPO']+'</td>';
 	trHTML += '<td>';
 	if (cStatus == 'F'){
-		trHTML += '<a href="#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+object['ORIGEM']+'" class="link-primary">'+object['ORIGEM']+'</a>';
+		//trHTML += '<a href="#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+object['ORIGEM']+'" class="link-primary">'+object['ORIGEM']+'</a>';
+		trHTML += '<button type="button" class="btn btn-outline-success btn-sm" onclick="rotexec(\''+object['ORIGEM']+'\',1)">Atualizar: '+object['ASSUNTO']+'('+object['ORIGEM']+')</button>';
 	} else {
 		trHTML += 'Somente para aviso fixo';
 	}
@@ -589,12 +607,7 @@ function format(d) {
         '<dt>Atualizar este aviso:&nbsp;'+d.Origem+'</dt>' +
         '<dd>' +
         '</dd>' +
-
-        '<dl>' +
-        '<dt>Anexo:&nbsp;&nbsp;'+d.Anexo+'</dt>' +
-        '<dd>' +
-        '</dd>' +
-
+      
         '</dl>'
     );
 }
@@ -652,6 +665,15 @@ body: JSON.stringify(dataObject)})
 })
 }
 
+function rotexec(corigem,canLib) {
+let url = '#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+corigem;
+
+$("#titConf").load(url);
+$('#confModal').modal('show');
+$('#confModal').on('hidden.bs.modal', function () {
+	location.reload();
+	})
+}
 
 </script>
 </body>
@@ -744,10 +766,16 @@ User Function BKMsgUs(cEmpresa,cOrigem,aUsDest,cGrpDest,cAssunto,cMsg,cStatus,cA
 Local lRet 	:= .T.
 Local lInc  := .T.
 Local nI 	:= 0
+Local cArqDest	:= ""
+Local cExt		:= ""
 
 Default cStatus	:= "N"  // Não Lida
 Default cAnexo	:= ""
 Default dFinal  := DATE()+5
+
+// Remover diretorio
+SplitPath(cAnexo,,,@cArqDest,@cExt)
+cAnexo := Alltrim(cArqDest+cExt)
 
 dbSelectArea("SZ0")
 dbSetOrder(4)

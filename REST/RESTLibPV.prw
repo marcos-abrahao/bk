@@ -346,7 +346,7 @@ WSMETHOD GET PLANPV QUERYPARAM empresa WSREST RestLibPV
 Return (lSuccess)
 
 
-
+// v1
 WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV   // V1
 
 Local cHTML as char
@@ -356,7 +356,7 @@ cPed  := self:pedido
 cHtml := StrIConv(u_BKFATR5H(cPed), "CP1252", "UTF-8")
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
-self:setResponse(cHTML)
+self:setResponse(cHtml)
 self:setStatus(200)
 
 return .T.
@@ -472,7 +472,7 @@ thead input {
      </div>
    </div>
 </div>
- <div id="confModal" class="modal" tabindex="-1">
+<div id="confModal" class="modal" tabindex="-1">
    <div class="modal-dialog">
      <div class="modal-content">
        <div class="modal-header">

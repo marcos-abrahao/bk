@@ -697,10 +697,14 @@ EndIf
 
 Return cEmails
 
-
-// Email para Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M, Wiliam Lisboa, Edelcio)
-User Function EmMGestao()
+// Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M, Wiliam Lisboa, Edelcio)
+User Function aUsrGestao()
 Local aUsers := {"000000","000023","000153","000240","000241","000288","000309"}
+Return aUsers
+
+// Email para Grupo Master Gestão
+User Function EmMGestao()
+Local aUsers := u_aUsrGestao()
 Return u_aUsrEmail(aUsers)
 
 

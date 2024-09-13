@@ -156,6 +156,8 @@ CLASS RExcel
 	DATA cVersao
 	DATA cFile
 	DATA cDirDest
+	DATA cSrvDir
+	DATA cSrvFile
 	DATA cDirTmp
 	DATA cFileR
 	DATA cFileX
@@ -165,7 +167,7 @@ CLASS RExcel
 	DATA aParam 	AS Array
 
 	// Declaração dos Métodos da Classe
-	METHOD New(cProg) CONSTRUCTOR
+	METHOD New(cProg,cSrvDir,cSrvFile) CONSTRUCTOR
 
 	METHOD GetTitulo()
 	METHOD SetTitulo(cTitulo)
@@ -236,18 +238,27 @@ METHOD SetParam(aParam) CLASS RExcel
 Self:aParam := aParam
 Return
 
-
 // Criação do construtor, onde atribuimos os valores default 
 // para as propriedades e retornamos Self
-METHOD New(cProg) CLASS RExcel
+METHOD New(cProg,cSrvDir,cSrvFile) CLASS RExcel
 
 Self:cPrw 		:= cProg
 Self:cPerg 		:= cProg
 Self:cDescr 	:= ""
 Self:aParam		:= {}
-Self:cDirDest	:= IIf(!IsBlind(),"c:\tmp\","\tmp\")
-Self:cDirTmp 	:= "\tmp\"
-Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")
+If Empty(cSrvDir)
+	Self:cDirDest	:= IIf(!IsBlind(),"c:\tmp\","\tmp\")
+	Self:cDirTmp 	:= "\tmp\"
+Else
+	Self:cDirDest	:= cSrvDir
+	Self:cDirTmp 	:= cSrvDir
+EndIf
+If Empty(cSrvFile)
+	Self:cFile 		:= TRIM(cProg)+"-"+cEmpAnt+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")
+Else
+	Self:cFile 		:= TRIM(cSrvFile)
+EndIf
+
 Self:cFileR 	:= Self:cDirTmp+Self:cFile+".rel"
 Self:cFileX 	:= Self:cDirTmp+Self:cFile+".xlsx"
 
@@ -1332,7 +1343,7 @@ EndIf
 
 nOpcFile := 1
 
-If !IsBlind()
+If (":" $ Self:cDirDest)
 	cFileL  := Self:cDirDest+Self:cFile+".xlsx"
 	If File(cFileL)
 		Do While .T.
@@ -1376,7 +1387,7 @@ EndIf
 Self:oPrtXlsx:EraseBaseFile()
 Self:oPrtXlsx:DeActivate()
 
-If !IsBlind()
+If (":" $ self:cDirDest)
 	FErase(self:cFileX)
 EndIf
 

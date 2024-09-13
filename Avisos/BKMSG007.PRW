@@ -15,7 +15,7 @@ User Function BKMSG007
 Local nE 		:= 0
 Local aEmpresas := u_BKGrpDsp()
 Local cQuery	:= ""            
-Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"
+Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias: "
 Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
 Local cEmail	:= ""
 Local cMsg		:= "Segue planilha anexa."
@@ -30,6 +30,7 @@ Local cTabCTT   := ""
 Local dData		:= dDataBase - 60 // Solicitado pela Fábia em 17/02/23
 Local cCCCons	:= ""
 Local cFat 		:= ""
+Local nCont		:= 0
 
 Private cProg := "BKMSG007" 
 
@@ -183,16 +184,24 @@ tcSetField("QTMP","DESPESA","N",12,2)
 
 dbSelectArea("QTMP")
 dbGoTop()
+Do While !Eof()
+	nCont++
+	dbSkip()
+EndDo
+dbGoTop()
+
+cAssunto += ALLTRIM(STR(nCont))
 
 cArqXls := Excel(cAssunto,"QTMP")
 
-u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls})
-
 QTMP->(dbCloseArea())
 
-If IsBlind()
-	Ferase(cArqXls)
+If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
+	u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls})
 EndIf
+
+// Gravar no SZ0 - Avisos Web
+u_BKMsgUs(cEmpAnt,cProg,u_aUsrGestao(),"","Lançamentos em Contratos vencidos","Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"F",cArqXls)
 
 Return
 
@@ -206,7 +215,7 @@ Local aParam 	:= {}
 Local cArqXls	:= ""
 
 // Definição do Arq Excel
-oRExcel := RExcel():New(cProg)
+oRExcel := RExcel():New(cProg,"\http\anexos\",cProg)
 oRExcel:SetTitulo(cTitulo)
 oRExcel:SetVersao(cVersao)
 oRExcel:SetDescr(cDescr)
