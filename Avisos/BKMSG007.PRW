@@ -16,8 +16,8 @@ Local nE 		:= 0
 Local aEmpresas := u_BKGrpDsp()
 Local cQuery	:= ""            
 Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias: "
-Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
 Local cEmail	:= ""
+Local cEmailCC	:= u_EmailAdm()
 Local cMsg		:= "Segue planilha anexa."
 Local cArqXls   := ""
 Local cTabSZ2	:= "SZ2010"
@@ -31,6 +31,9 @@ Local dData		:= dDataBase - 60 // Solicitado pela Fábia em 17/02/23
 Local cCCCons	:= ""
 Local cFat 		:= ""
 Local nCont		:= 0
+Local aUsers 	:= {}
+Local aGrupos	:= {u_GrpRepac()}
+Local aDeptos	:= {}
 
 Private cProg := "BKMSG007" 
 
@@ -39,7 +42,7 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-cEmail += u_EmMGestao()
+cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
 
 u_MsgLog(cProg,cAssunto)
 
@@ -201,7 +204,7 @@ If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
 EndIf
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,u_aUsrGestao(),"","Lançamentos em Contratos vencidos","Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"F",cArqXls)
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpRepac(),"Lançamentos em Contratos vencidos","Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"F",cArqXls)
 
 Return
 

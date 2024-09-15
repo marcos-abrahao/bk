@@ -23,11 +23,14 @@ Local cTabSED   := ""
 Local cTabCT1   := ""
 
 Local cEmail 	:= ""
+Local cEmailCC  := u_EmailAdm()
 Local cAssunto  := "Aviso de Entidades com Conta Contábil Bloqueada - "+DTOC(DATE())+" "+Time()
-Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
 Local aCabs   	:= {"Empresa","Origem","Código","Identificação","Conta Contábil","Descrição"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
+Local aUsers 	:= {}
+Local aGrupos	:= {u_GrpFisc()}
+Local aDeptos	:= {}
 
 Private cProg := "BKMSG002"
 
@@ -127,7 +130,6 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "WHERE SED.D_E_L_E_T_ = ' '" + CRLF
 	cQuery += "	AND ED_MSBLQL = '2' " + CRLF
 	cQuery += "	AND CT1_BLOQ = '1'" + CRLF
-
 Next
 
 cQuery += ")"+CRLF
@@ -152,11 +154,18 @@ Do While !Eof()
 	dbSkip()
 EndDo
 
-If Len(aEmail) > 0
-	cEmail	 := u_GprEmail(cEmail,u_GrpFisc(),"")
-	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
+cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+
+If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 EndIf
+
+u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+
+// Gravar no SZ0 - Avisos Web
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFisc(),"Entidades com conta contábil bloqueada","Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpStaf(),"Entidades com conta contábil bloqueada","Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
 
 QTMP->(dbCloseArea())
 

@@ -16,13 +16,17 @@ Local nE 		:= 0
 Local cTabSA1	:= ""
 Local cEmail 	:= ""
 Local cAssunto  := "Aviso de Clientes sem Conta Bancária para Depósito - "+DTOC(DATE())+" "+Time()
-Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {"Empresa","Código","Identificação","Endereço","Bairro","Municipio","UF"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
+Local aUsers 	:= {}
+Local aGrupos 	:= {}
+Local aDeptos 	:= {"Financeiro"}
 
 Private cProg := "BKMSG004"
 
+cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
 
 cQuery := "WITH MSG AS ( " + CRLF
 
@@ -73,11 +77,14 @@ Do While !Eof()
 	dbSkip()
 EndDo
 
-If Len(aEmail) > 0
-	cEmail := u_GprEmail(cEmail,"000005","FINANCEIRO")
-	cMsg   := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
-	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
-EndIf
+cMsg   := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+
+// Grava o anexo html
+u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+
+// Gravar no SZ0 - Avisos Web
+u_BKMsgUs(cEmpAnt,cProg,{},aGrupos,"Clientes sem Conta bancaria","Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
 
 u_MsgLog(cProg,"Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))))
 

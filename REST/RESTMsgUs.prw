@@ -486,7 +486,7 @@ if (Array.isArray(av1)) {
 	trHTML += '<td>';
 	if (cStatus == 'F'){
 		//trHTML += '<a href="#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+object['ORIGEM']+'" class="link-primary">'+object['ORIGEM']+'</a>';
-		trHTML += '<button type="button" class="btn btn-outline-success btn-sm" onclick="rotexec(\''+object['ORIGEM']+'\',1)">Atualizar: '+object['ASSUNTO']+'('+object['ORIGEM']+')</button>';
+		trHTML += '<button type="button" class="btn btn-outline-success btn-sm" onclick="rotexec(\''+object['ORIGEM']+'\',1)">Atualizar: '+object['ASSUNTO']+' ('+object['ORIGEM']+')</button>';
 	} else {
 		trHTML += 'Somente para aviso fixo';
 	}

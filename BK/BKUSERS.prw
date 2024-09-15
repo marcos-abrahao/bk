@@ -232,6 +232,85 @@ EndIf
 
 Return cRet
 
+/*/{Protheus.doc} GprEmail
+    Retorna string com todos emails de um grupo
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 25/04/24
+    @version version
+    @param cEmails (string com e-mails já montados, para não repetir,aUsers, aGrupo (opcional),cDepto (Opcional))
+    @return lRet
+/*/
+User Function GprEmail(cEmails,aUsers,aGrupos,aDeptos)
+Local nG        := 0
+Local nE        := 0
+Local aGUsers   := {}
+Local aGGrupos  := {}
+Local aGDeptos  := {}
+
+Default cEmails := ""
+Default aUsers  := {}
+Default aGrupos := {}
+Default aDeptos := {}
+
+// Agrega Usuarios
+For nG := 1 To Len(aUsers)
+    aGUsers  := u_GrpUsers(aUsers[nG],"","")
+Next
+
+// Agrega Grupos
+For nG := 1 To Len(aGrupos)
+    aGGrupos  := u_GrpUsers("",aGrupos[nG],"")
+Next
+
+// Agrega Deptos
+For nG := 1 To Len(aDeptos)
+    aGDeptos  := u_GrpUsers("","",aDeptos[nG])
+Next
+
+// Usuarios
+¬For nE := 1 To Len(aGUsers)
+    If !(ALLTRIM(aGUsers[nE,3])+";" $ cEmails)
+        cEmails += ALLTRIM(aGUsers[nE,3])+";"
+    EndIf
+    If Ascan(aGrupos,aGUsers[nE,4]) == 0
+        aAdd(aGrupos,aGUsers[nE,4])
+    EndIf
+    If Ascan(aDeptos,{|x| TRIM(UPPER(x)) == TRIM(UPPER(aGUsers[nE,6]))}) == 0
+        aAdd(aDeptos,Trim(aGUsers[nE,6]))
+    EndIf
+Next
+
+// Grupos
+For nE := 1 To Len(aGGrupos)
+    If !(ALLTRIM(aGGrupos[nE,3])+";" $ cEmails)
+        cEmails += ALLTRIM(aGGrupos[nE,3])+";"
+    EndIf
+    If Ascan(aUsers,aGGrupos[nE,1]) == 0
+        aAdd(aUsers,aGGrupos[nE,1])
+    EndIf
+    If Ascan(aDeptos,{|x| TRIM(UPPER(x)) == TRIM(UPPER(aGGrupos[nE,6]))}) == 0
+        aAdd(aDeptos,Trim(aGGrupos[nE,6]))
+    EndIf
+Next
+
+
+// Deptos
+For nE := 1 To Len(aGDeptos)
+    If !(ALLTRIM(aGDeptos[nE,3])+";" $ cEmails)
+        cEmails += ALLTRIM(aGDeptos[nE,3])+";"
+    EndIf
+    If Ascan(aUsers,aGDeptos[nE,1]) == 0
+        aAdd(aUsers,aGDeptos[nE,1])
+    EndIf
+    If Ascan(aGrupos,aGDeptos[nE,4]) == 0
+        aAdd(aGrupos,aGDeptos[nE,4])
+    EndIf
+Next
+
+
+Return cEmails
+
 /*/{Protheus.doc} GrpUsers
     Retorna array com os usuários de um grupo e/ou departamento
     @type  Function
@@ -241,7 +320,7 @@ Return cRet
     @param cGrupo (Id do grupo)
     @return lRet
 /*/
-User Function GrpUsers(cGrupo,cDepto)
+User Function GrpUsers(cUser,cGrupo,cDepto)
 Local cQuery        := ""
 Local aReturn       := {}
 Local aBinds        := {}
@@ -252,7 +331,10 @@ cQuery := "SELECT " + CRLF
 cQuery += "    USRGRP.USR_ID  AS USRID" + CRLF
 cQuery += "   ,USR.USR_CODIGO AS USRCODIGO" + CRLF
 cQuery += "   ,USR.USR_EMAIL  AS USREMAIL" + CRLF
+cQuery += "   ,USRGRP.USR_GRUPO  AS USRGRUPO" + CRLF
+cQuery += "   ,GRP.GR__NOME   AS GRPNOME" + CRLF
 cQuery += "   ,USR.USR_DEPTO  AS USRDEPTO" + CRLF
+//cQuery += "   ,USR.USR_DATABLQ  AS DATABLQ" + CRLF
 
 cQuery += "  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP" + CRLF
 cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO" + CRLF
@@ -261,6 +343,10 @@ cQuery += "  WHERE GRP.D_E_L_E_T_ = '' " + CRLF
 cQuery += "		AND USRGRP.D_E_L_E_T_ = ''" + CRLF
 cQuery += "		AND USR.D_E_L_E_T_ = ''" + CRLF
 cQuery += "		AND USR.USR_MSBLQD = ' '" + CRLF   // Data de Bloqueio em branco
+If !Empty(cUser)
+    cQuery += "		AND USRGRP.USR_ID = ? " + CRLF
+    aAdd(aBinds,cUser)
+EndIf
 If !Empty(cGrupo)
     cQuery += "		AND USRGRP.USR_GRUPO = ? " + CRLF
     aAdd(aBinds,cGrupo)
@@ -275,6 +361,8 @@ cQuery += "	ORDER BY USRGRP.USR_ID" + CRLF
 aadd(aSetFields,{"USRID"    ,"C",  6,0})
 aadd(aSetFields,{"USRCODIGO","C", 25,0})
 aadd(aSetFields,{"USREMAIL" ,"C",150,0})
+aadd(aSetFields,{"USRGRUPO" ,"C",  6,0})
+aadd(aSetFields,{"GRPNOME"  ,"C", 30,0})
 aadd(aSetFields,{"USRDEPTO" ,"C", 40,0})
 
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
@@ -356,31 +444,7 @@ EndIf
 Return cRet
 
 
-/*/{Protheus.doc} GprEmail
-    Retorna string com todos emails de um grupo
-    @type  Function
-    @author Marcos Bispo Abrahão
-    @since 25/04/24
-    @version version
-    @param cEmails (stringo com e-mails já montados, para não repetir,Grupo (opcional),cDepto (Opcional))
-    @return lRet
-/*/
-User Function GprEmail(cEmails,cGrupo,cDepto)
 
-Local nE        := 0
-Local aUsers    := {}
-Default cEmails := ""
-Default cGrupo  := ""
-Default cDepto  := ""
-
-aUsers  := u_GrpUsers(cGrupo,cDepto)
-
-For nE := 1 To Len(aUsers)
-    If !(ALLTRIM(aUsers[nE,3])+";" $ cEmails)
-	    cEmails += ALLTRIM(aUsers[nE,3])+";"
-    EndIf
-Next
-Return cEmails
 
 
 /*/{Protheus.doc} ArStaf
@@ -567,15 +631,28 @@ Return u_InGrupo(cId,"000000/000005/000007/000008/000031")
 
 // Pertence a um dos grupos: Master Repac
 User Function IsMRepac(cId)
-Return u_InGrupo(cId,"000008")
+Return u_InGrupo(cId,u_GrpRepac())
 
 
 // Retorna se o usuário pertence ao STAF 
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
 
 // Grupos
+
+User Function GrpRepac()
+Return "000008"
+
 User Function GrpStaf()
 Return "000039"
+
+User Function GrpFat()
+Return "000043"
+
+User Function GrpMCompras()
+Return "000015"
+
+User Function GrpUCompras()
+Return "000016"
 
 User Function IsStaf(cId)
 Return u_InGrupo(cId,u_GrpStaf())
@@ -737,13 +814,16 @@ User Function FinUsrPj()
 Return "000000/000016/000197"
 
 
+User Function EmailAdm()
+Return "microsiga@bkconsultoria.com.br;"
+
 // Grupos de e-mail abaixo são paliativos enquanto não se resolve o problema do protheus não enviar para grupos do google
 
 // E-mails do grupo financeiro 1 do google
 User Function BKPgto1()
 Local cRet := ""
 
-cRet += "microsiga@bkconsultoria.com.br;"
+cRet += u_EmailAdm()
 cRet += u_BKEmRH()
 cRet += u_BKEmGCT()
 cRet += u_BKEmFin()
@@ -752,7 +832,7 @@ Return cRet
 // E-mails do grupo financeiro 2 do google
 User Function BKPgto2()
 Local cRet := ""
-cRet += "microsiga@bkconsultoria.com.br;"
+cRet += u_EmailAdm()
 //cRet += "jalielison.alves@bkconsultoria.com.br;"
 cRet += u_BKEmFin()
 cRet += u_BKEmRH()
@@ -761,7 +841,7 @@ Return cRet
 // E-mails do grupo AC
 User Function BKPgto3()
 Local cRet := ""
-cRet += "microsiga@bkconsultoria.com.br;"
+cRet += u_EmailAdm()
 //cRet += "adalberto.xavier@bkconsultoria.com.br;"
 cRet += "bruno.bueno@bkconsultoria.com.br;"
 //cRet += "laudecir.carpi@bkconsultoria.com.br;"
@@ -771,7 +851,7 @@ Return cRet
 // E-mails do grupo qualidade do google
 User Function BKEmQld()
 Local cRet := ""
-cRet += "microsiga@bkconsultoria.com.br;"
+cRet += u_EmailAdm()
 cRet += "ulisses.nunes@bkconsultoria.com.br;"
 Return cRet
 
@@ -780,7 +860,7 @@ Return cRet
 User Function BKEmFin()
 Local cRet := ""
 
-cRet := u_GprEmail("","","Financeiro")
+cRet := u_GprEmail("",{},{},"Financeiro")
 
 /*
 cRet += "andresa.cunha@bkconsultoria.com.br;"
@@ -798,7 +878,7 @@ Return cRet
 User Function BKEmRH()
 Local cRet := ""
 
-cRet := u_GprEmail("","000041","RH")
+cRet := u_GprEmail("",{},{"000041"},{"RH"})
 
 /*
 cRet += "ana.campos@bkconsultoria.com.br;" 41
@@ -825,7 +905,6 @@ Local cRet := ""
 cRet += "administrativo.bhg@bkconsultoria.com.br;"
 cRet += "alexandre.teixeira@bkconsultoria.com.br;"
 cRet += "carlos.ferreira@bkconsultoria.com.br;"
-//cRet += "christiane.rodrigues@bkconsultoria.com.br;"
 cRet += "fabia.pesaro@bkconsultoria.com.br;"
 cRet += "fernando.sampaio@bkconsultoria.com.br;"
 cRet += "graziele.silva@bkconsultoria.com.br;"

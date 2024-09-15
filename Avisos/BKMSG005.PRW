@@ -19,15 +19,19 @@ Local cTabSC5	:= ""
 Local cTabSC6   := ""
 Local cTabSA1   := ""
 
-Local cEmail 	:= u_GprEmail("","000043","") // Grupo Faturamento
+Local cEmail 	:= ""
 Local cAssunto  := "Pedidos de Venda Liberados - "+DTOC(DATE())+" "+Time()
 Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
 Local aCabs   	:= {"Empresa","Pedido","Cliente","Emissao","Contrato","Liberado por","Liberado em","Valor"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
 Local aUsers 	:= {}
+Local aGrupos 	:= {u_GrpFat()} // Grupo Faturamento
+Local aDeptos 	:= {}
 
 Private cProg := "BKMSG005" 
+
+cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
 
 cQuery := "WITH MSG AS ( " + CRLF
 
@@ -101,13 +105,12 @@ If Len(aEmail) > 0
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 EndIf
 
-
+// Grava o anexo html
 u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,aUsers,"000043","Pedidos de Venda Liberados","Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFat(),"Pedidos de Venda Liberados","Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
 
 u_MsgLog(cProg,"Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))))
 
 Return
-
