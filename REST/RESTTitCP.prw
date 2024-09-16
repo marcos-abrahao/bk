@@ -592,7 +592,7 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
 EndIf
 
 // Usuários que podem executar alguma ação
-//lPerm := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+//lPerm := u_InGrupo(__cUserId,"000000/")
 
 // Query para selecionar os Títulos a Pagar
 TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)

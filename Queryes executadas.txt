@@ -1,4 +1,9 @@
 
+==============================================================
+-- 16/09/2024
+
+SELECT * FROM FINANCE_GRADE_CONSOLIDADA WHERE DATAPGT = '20240913' and Z2_CTRID IS NULL
+UPDATE FINANCE_GRADE_CONSOLIDADA SET DATAPGT = '20240917' WHERE DATAPGT = '20240913' and Z2_CTRID IS NULL
 
 ==============================================================
 -- 12/09/2024

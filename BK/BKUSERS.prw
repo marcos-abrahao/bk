@@ -627,48 +627,19 @@ Return u_InGrupo(cId,"000000/000005")
 
 // Pertence a um dos grupos: Admin, Master Fin, Diretoria, Master Repac, Fiscal
 User Function IsMDir(cId)
-Return u_InGrupo(cId,"000000/000005/000007/000008/000031")
+Return u_InGrupo(cId,u_cGrpMD1())
 
 // Pertence a um dos grupos: Master Repac
 User Function IsMRepac(cId)
 Return u_InGrupo(cId,u_GrpRepac())
 
-
 // Retorna se o usuário pertence ao STAF 
 // MV_XXUSER - Parametro especifico BK - Usuarios que visualizam doc de entrada de seus superiores e do depto todo
-
-// Grupos
-
-User Function GrpRepac()
-Return "000008"
-
-User Function GrpStaf()
-Return "000039"
-
-User Function GrpFat()
-Return "000043"
-
-User Function GrpMCompras()
-Return "000015"
-
-User Function GrpUCompras()
-Return "000016"
-
 User Function IsStaf(cId)
 Return u_InGrupo(cId,u_GrpStaf())
 
-User Function GrpFisc()
-Return "000031"
-
-User Function GrpMRH()
-Return "000041"
-
 User Function IsMRH(cId)
 Return u_InGrupo(cId,u_GrpMRH())
-
-
-User Function UsrTeste()
-Return "000038"
 
 // Retorna se o usuário é o usuário Teste
 User Function IsTeste(cId)
@@ -713,52 +684,153 @@ EndIf
 
 Return lRet
 
+// Grupos ----------------------------------------
 
-// Gerente Compras
-User Function GerCompras
-// Michele,Luis /000116 (removido),/000093 Fabio Quirino (removido)
+
+// Administradores
+User Function GrpAdmin()
+Return "000000"
+
+// Master Gestão
+User Function GrpMGct()
+Return "000003"
+
+// User Gestão
+User Function GrpUGct()
+Return "000004"
+
+// Master Financeiro
+User Function GrpMFin()
+Return "000005"
+
+// Master Diretoria
+User Function GrpMDir()
+Return "000007"
+
+// Master Repac
+User Function GrpRepac()
+Return "000008"
+
+// Basic Gestão
+User Function GrpBGct()
+Return "000033"
+
+// Staf Docs
+User Function GrpStaf()
+Return "000039"
+
+// Faturamento
+User Function GrpFat()
+Return "000043"
+
+// Master Compras
+User Function GrpMCompras()
+Return "000015"
+
+// User Compras
+User Function GrpUCompras()
+Return "000016"
+
+// Fiscal
+User Function GrpFisc()
+Return "000031"
+
+// RH
+User Function GrpMRH()
+Return "000041"
+
+// Grupo Almoxarifado
+User Function GrpAlmox()
+Return u_GrpUAlm()+'/'+u_GrpUAAlm()+"/"+u_GrpMAlm()
+
+// User Almoxarifado
+User Function GrpUAlm()
+Return "000021"
+
+// Master Almoxarifado
+User Function GrpMAlm()
+Return "000027"
+
+// User Almoxarifado / Ativo Fixo
+User Function GrpUAAlm()
+Return "000032"
+
+
+// User User Controladoria
+User Function GrpUCtrl()
+Return "000037"
+
+
+// User Master Lib Docs
+User Function GrpMLibDc()
+Return "000038"
+
+// Grupos de Grupos (caracter) -----------------------
+
+// Master Dir 1
+User Function cGrpMD1()
+Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpRepac()+"/"+u_GrpFisc()
+
+// Master Dir 2
+User Function cGrpMD2()
+//000000/000005/000007/000038
+Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpMLibDc()
+
+
+
+
+// Usuários ----------------------------------------
+
+User Function UsrTeste()
+Return "000038"
+
+User Function GerFin()
+// Diego Oliveira
+Return "000016"
+
+// Usuário Gerente Compras
+User Function GerCompras()
+// Michele
 Return "000138"
 
 
-// Emails dos gerenciadores de compras
-User Function EmGerCom(cxEmail)
-Local aUsers := {"000138"} // Michele,Luis (removido),/000093 Fabio Quirino (removido)
-Return u_aUsrEmail(aUsers,cxEmail)
-
-
-// Emails faturamento
-User Function EmailFat(cxEmail)
-Local aUsers := {"000170","000242","000016","000023","000249","000273","000306"} // João C/Elaine/Diego O/Fabia/Sabrina/Leandro/Isabela
-Return u_aUsrEmail(aUsers,cxEmail)
-
-
-// Gerente Gestão
-User Function GerGestao
+// Usuário Gerente Gestão
+User Function GerGestao()
 // Fabia
 Return "000023"
 
 
-// Gerente Gestão Petrobras
-User Function GerPetro
+// Usuário Gerente Gestão Petrobras
+User Function GerPetro()
 // Marcelo Cavalari
 Return "000252"
 
-
-// Grupo Almoxarifado
-User Function GrpAlmox
-Return "000021/000032"
-
-
-// Usuarios Almoxarifado (para queries)
-User Function UsrAlmox()
-// 000093 - Fabio Quirino Removido
-Return "'000216','000225','000226'"
+// Financeiro
+// Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
+User Function FinUsrPj()
+//      Admin  Diego  Andresa
+Return "000000/000016/000197"
 
 
-// Usuarios Master Almoxarifado (grupo 27)
-User Function UsrMAlmox()
-// 000093 - Fabio Quirino Removido
-Return "000216/000232/000225/000310/000321"
+//--------------------------------------
+
+// Emails dos gerenciadores de compras
+User Function EmGerCom(cxEmail)
+Local aUsers := {u_GerCompras()}
+Return u_aUsrEmail(aUsers,cxEmail)
+
+
+// Emails faturamento
+User Function EmailFat(cUEmail)
+Local aUsers 	:= {cUEmail,u_GerFin(),u_GerGestao()}
+Local aGrupos 	:= {u_GrpFat()} // Grupo Faturamento
+Local aDeptos 	:= {}
+Local cEmail    := ""
+//Local aUsers := {"000170","000242","000016","000023","000249","000273","000306"} // João C/Elaine/Diego O/Fabia/Sabrina/Leandro/Isabela
+
+cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
+
+Return cEMail
 
 
 // Email para Grupo do (Fabio (removido),Barbara,Jose Amauri,Bianca,Wendell)
@@ -805,15 +877,6 @@ Next
 
 Return cEmails
 
-
-
-// Financeiro
-// Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
-User Function FinUsrPj()
-//      Admin  Diego  Andresa
-Return "000000/000016/000197"
-
-
 User Function EmailAdm()
 Return "microsiga@bkconsultoria.com.br;"
 
@@ -833,7 +896,6 @@ Return cRet
 User Function BKPgto2()
 Local cRet := ""
 cRet += u_EmailAdm()
-//cRet += "jalielison.alves@bkconsultoria.com.br;"
 cRet += u_BKEmFin()
 cRet += u_BKEmRH()
 Return cRet
@@ -842,9 +904,7 @@ Return cRet
 User Function BKPgto3()
 Local cRet := ""
 cRet += u_EmailAdm()
-//cRet += "adalberto.xavier@bkconsultoria.com.br;"
 cRet += "bruno.bueno@bkconsultoria.com.br;"
-//cRet += "laudecir.carpi@bkconsultoria.com.br;"
 cRet += "diego.oliveira@bkconsultoria.com.br;"
 Return cRet
 
@@ -878,7 +938,7 @@ Return cRet
 User Function BKEmRH()
 Local cRet := ""
 
-cRet := u_GprEmail("",{},{"000041"},{"RH"})
+cRet := u_GprEmail("",{},{u_GrpMRH()},{"RH"})
 
 /*
 cRet += "ana.campos@bkconsultoria.com.br;" 41
@@ -893,14 +953,16 @@ cRet += "deize.silva@bkconsultoria.com.br;"
 cRet += "tany.sousa@bkconsultoria.com.br;"
 cRet += "paloma.souza@bkconsultoria.com.br;"
 cRet += "patricia.perin@bkconsultoria.com.br;"
-cRet += "victor.silva@bkconsultoria.com.br;"
 
 Return cRet
 
 
-// E-mails do grupo Gestão do google
+// E-mails do Gestão de Contratos / Petrobras
 User Function BKEmGCT()
 Local cRet := ""
+
+cRet := u_GprEmail("",{},{u_GrpMGct(),u_GrpUGct(),u_GrpRepa(),u_GrpBGct()},{})
+/*
 
 cRet += "administrativo.bhg@bkconsultoria.com.br;"
 cRet += "alexandre.teixeira@bkconsultoria.com.br;"
@@ -920,6 +982,7 @@ cRet += "nelson.oliveira@bkconsultoria.com.br;"
 cRet += "noe.braga@bkconsultoria.com.br;"
 cRet += "wiliam.lisboa@bkconsultoria.com.br;"
 cRet += "edelcio.meggiolaro@bkconsultoria.com.br;"
+*/
 
 Return cRet
 

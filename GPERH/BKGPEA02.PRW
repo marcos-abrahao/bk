@@ -1,124 +1,132 @@
-#INCLUDE "TOPCONN.CH"
-#INCLUDE "PROTHEUS.CH"
+#Include "Protheus.ch"
+#include "rwmake.ch"
+#include "TBICONN.CH"
+#include "TopConn.ch"
+#include "report.ch"
 
-/*/{Protheus.doc} BKCOMA02()
-BK - Seleção de NF - Integração VT/VR 
-
-Integrado com o aplicativo : http://intranet.bkinformatica.com/WebIntegraRubi/
-
-Tratamento do campo campo Z2_STATUS pelos sistemas:
-
-" "- Gerado ou alterado pelo RH: financeiro pode importar ou RH pode manipular
-"X"- Em seleção, na tela do financeiro: RH não pode manipular
-"S"- Titulos gerados no financeiro: financeiro pode excluir,RH não pode manipular
-"D"- Titulos excluídos no financeiro: RH pode manipular
-
-    Gerar PA (pagamento antecipado) quanto Z2_TIPOPES = PJ,AC ou CLA
-        Quando Z2_TIPOPES = PJ, utilizar fornecedor Z2_CODFOR / Z2_LOJFOR
-        Quando Z2_TIPOPES = AC, utilizar fornecedor 000071
-        Quando Z2_TIPOPES = CLA, utilizar fornecedor 000071
-        Quando Z2_TIPOPES = CLT, utilizar fornecedor 000084
-
-@author Marcos B. Abrahão
-@since 29/09/2009
-@version P10
-@return Nil
+//-------------------------------------------------------------------
+/*/{Protheus.doc} BKGPEA02
+OSESP - Rotina Gerar pgto no financeiro PJ90
+@Return
+@author Adilson do Prado
+@since 16/08/2024
+@version P12
 /*/
+//-------------------------------------------------------------------
 
-User Function BKCOMA02()
 
+USER FUNCTION BKGPEA02()
+Local aAreaIni  := GetArea()
+Local cTitulo2  := ""
+Local _SQL 	 	:= ""
+Local lOk2   	:= .F.
+Local lSZ2EXIST := .F.
+Local oDlg02
+Local aButtons2
 Local oOk
 Local oNo
-Local oDlg
-Local oListId
 Local oPanelLeft
-Local lAll
-Local oAll
-Local aButtons := {}
+Local aCONTA:= {}
+Local _CONTA := ""
+Local _DIGCONT := ""
+Local _XI := 0
+Local cPerg := "BKGPEA02"
+Local _nFALTAS := 0
+Local aCtrId 	:= {}
 
-Local aCtrId,aNfGer
-Local lOk      := .F.
-Local aAreaIni := GetArea()
-Local cQuery
-Local nI,cPrf,cTitulo,nProxTit
-Local nStatusX
-Local cPrw     := "BKCOMA02"
+PRIVATE aParam := {}
+PRIVATE cMatI := ""
+PRIVATE cMatF := ""
+PRIVATE dDatRef  := CTOD("")
+PRIVATE dDatPGTO := CTOD("")
 
-dbSelectArea("SZB")
-dbGoTop()
-IF BOF() .OR. EOF()
-	u_MsgLog(cPrw,"Não há VT/VR gerados", "W")
-	RestArea(aAreaIni)
-	Return
-ENDIF
+aAdd( aParam, { 1, "Data de Referencia:" , CTOD("")					, ""            , ""   , ""	  , "" , 70  , .F. })
+aAdd( aParam, { 1, "Matricula de:"	     , SPACE(06)	                , ""            , ""   , "SRA", "" , 70  , .F. })
+aAdd( aParam, { 1, "Matricula até:"	     , SPACE(06)             	, ""            , ""   , "SRA", "" , 70  , .F. })
+aAdd( aParam, { 1, "Data do Pagamento:" 		  , CTOD("")					, ""            , ""   , ""	  , "" , 70  , .F. })  
 
-u_MsgLog(cPrw)
-
-// Verificar se há processos de integração em andamento
-cQuery  := "SELECT COUNT(*) AS ZBSTATUSX " 
-cQuery  += "FROM "+RETSQLNAME("SZB")+" SZB WHERE ZB_STATUS = 'X' AND SZB.D_E_L_E_T_ <> '*'"
-
-TCQUERY cQuery NEW ALIAS "QSZB"
-
-DbSelectArea("QSZB")
-DbGoTop()
-nStatusX := QSZB->ZBSTATUSX
-QSZB->(DbCloseArea())
-
-IF nStatusX > 0
-   (cPrw,"Integração já iniciada por outra seção", "W")
-	IF __cUserId <> "000000"
-	   u_MsgLog(cPrw,"Verifique se há algum usuario processando a integração, caso contrário comunique o administrador do sistema", "E")
-    ELSE
-       IF u_MsgLog(cPrw,"Sr. Administrador, deseja resetar o campo ZB_STATUS=X de "+STRZERO(nStatusX,6)+" registros ?","Y")
-		  cQuery := " UPDATE "+RetSqlName("SZB")+" SET ZB_STATUS = ' ' WHERE ZB_STATUS = 'X' AND D_E_L_E_T_ <> '*'"
-    	  TcSqlExec(cQuery)
-    	  u_MsgLog(cPrw,"Registros resetados: "+STRZERO(nStatusX,6)+", reinicie o programa","S")
-       ENDIF  
-    ENDIF
-   RestArea(aAreaIni)
+If !BKF02Par()
    Return
-ENDIF
+EndIf
 
-cQuery  := "SELECT ZB_FILIAL,ZB_SERIE,ZB_DOC,ZB_FORN,ZB_LOJA,MAX(ZB_COMPET) AS XX_COMPET,SUM(ZB_VUNIT) AS XX_VALOR " 
-cQuery  += "FROM "+RETSQLNAME("SZB")+" SZB WHERE ZB_STATUS = ' ' AND SZB.D_E_L_E_T_ <> '*'"
-cQuery  += "GROUP BY ZB_FILIAL,ZB_SERIE,ZB_DOC,ZB_FORN,ZB_LOJA "
-cQuery  += "ORDER BY ZB_FILIAL,ZB_SERIE,ZB_DOC,ZB_FORN,ZB_LOJA "
-
-TCQUERY cQuery NEW ALIAS "QSZB"
-
-dbSelectArea("SZB")
-dbSetOrder(1)
-
-DbSelectArea("QSZB")
-DbGoTop()
+u_MsgLog(cPerg)
 
 aCtrId := {}
-Do While !eof()
-	AADD(aCtrId,{.F.,QSZB->ZB_FILIAL,QSZB->ZB_SERIE,QSZB->ZB_DOC,QSZB->ZB_FORN,QSZB->ZB_LOJA,QSZB->XX_COMPET,TRANSFORM(QSZB->XX_TOTAL,"@E 999,999,999.99")})
-	xCtrId := QSZ2->Z2_CTRID
-	// Marcar os registros do SZB com X, selecionados
-	
-    cQuery := " UPDATE "+RetSqlName("SZB")+" SET ZB_STATUS = 'X' "
-    cQuery += " WHERE ZB_FILIAL = '"+QSZB->ZB_FILIAL+"' "
-    cQuery += "   AND ZB_SERIE  = '"+QSZB->ZB_SERIE+"' "
-    cQuery += "   AND ZB_DOC    = '"+QSZB->ZB_DOC+"' "
-    cQuery += "   AND ZB_FORN   = '"+QSZB->ZB_FORN+"' "
-    cQuery += "   AND ZB_LOJA   = '"+QSZB->ZB_LOJA+"' "
-    cQuery += "   AND ZB_STATUS = ' ' "
-    cQuery += "   AND D_E_L_E_T_ <> '*'"
-    
-    TcSqlExec(cQuery)
 
-	DbSelectArea("QSZB")
-	DbSkip()
-Enddo
-QSZB->(DbCloseArea())
+_SQL:= "SELECT ZK_CODIGO,ZK_CPF,ZK_NOME,ZK_RG,ZK_CODSUP,ZK_NOMSUP,ZK_XXNMG,ZK_MAT,"
+_SQL+= "ZK_SRANOME,ZK_MOTIVO,ZK_PERDE,ZK_PERATE,ZK_SITUAC,ZK_ADIANT,ZK_TOTAL"
+_SQL+= " FROM " +RETSQLNAME('SZK')+" SZK"
+_SQL+= " WHERE SZK.D_E_L_E_T_='' AND ZK_FILIAL ='"+XFILIAL('SZK')+"'"
 
-//ASORT(aCtrId,,,{|x,y| x[2]<y[2]})
+IF !EMPTY( MV_PAR02 ) .AND.  !EMPTY( MV_PAR03 )
+	_SQL+= " AND ZK_DATA>='"+DTOS(MV_PAR02)+"' "
+	_SQL+= " AND ZK_DATA<='"+DTOS(MV_PAR03)+"' "
+ENDIF
+
+IF !EMPTY( MV_PAR04 ) .AND.  !EMPTY( MV_PAR05 )
+	_SQL+= " AND ZK_CODIGO>='"+MV_PAR04+"' "
+	_SQL+= " AND ZK_CODIGO<='"+MV_PAR05+"' "
+ENDIF
+
+IF !EMPTY( MV_PAR06 ) .AND.  !EMPTY( MV_PAR07 )
+	_SQL+= " AND ZK_CODSUP>='"+MV_PAR06+"' "
+	_SQL+= " AND ZK_CODSUP<='"+MV_PAR07+"' "
+ENDIF
+
+		
+IF SELECT('QSZK')> 0
+	QSZK->(DBCLOSEAREA())
+ENDIF
+		
+DBUSEAREA(.T.,"TOPCONN"	,TCGENQRY(,,_SQL),'QSZK',.F.,.T.)
+TCSETFIELD("QSZK","ZK_PERDE","D",8,0)
+TCSETFIELD("QSZK","ZK_PERATE","D",8,0)
+
+DBSELECTAREA('QSZK')
+QSZK->(DBGOTOP())
+while QSZK->(!EOF())
+	nMotivo :=  Ascan(aMotivo,{|X| SUBSTR(X,1,2) == QSZK->ZK_MOTIVO }) 
+	cMotivo := IIF(nMotivo>0,aMotivo[nMotivo],"")
+	lSZMEXIST := .F.
+	IF cOPC=='2' // GERA ADIANTAMENTO VT
+		DBSELECTAREA("SZM")
+		SZM->(DBSETORDER(2))   
+		IF SZM->(DBSEEK(xFILIAL("SZM")+SM0->M0_CODIGO+QSZK->ZK_CODIGO+"AVT",.F.)) //ZM_FILIAL+ZM_CODEMP+ZM_IDSZK+ZM_TIPO 
+        	lSZMEXIST := .T.
+        ENDIF
+    ENDIF
+	IF cOPC=='3' .OR. cOPC=='-1'  //GERA PGTO OU DEVOLVE AO OPERACIONAL
+		DBSELECTAREA("SZM")
+		SZM->(DBSETORDER(2))   
+		IF SZM->(DBSEEK(xFILIAL("SZM")+SM0->M0_CODIGO+QSZK->ZK_CODIGO+"LPM",.F.)) //ZM_FILIAL+ZM_CODEMP+ZM_IDSZK+ZM_TIPO 
+        	lSZMEXIST := .T.
+        ENDIF
+    ENDIF
+    IF !lSZMEXIST
+	    AADD(aCtrId,{.T.,;
+	    			 QSZK->ZK_CODIGO,;
+					 QSZK->ZK_CPF,;
+					 QSZK->ZK_NOME,;
+					 IIF(cOPC=='2',QSZK->ZK_ADIANT,QSZK->ZK_TOTAL),;
+					 QSZK->ZK_RG,;
+					 QSZK->ZK_CODSUP,;
+					 QSZK->ZK_NOMSUP,;
+					 QSZK->ZK_MAT,;
+					 QSZK->ZK_SRANOME,;
+					 cMotivo,;
+					 QSZK->ZK_PERDE,;
+					 QSZK->ZK_PERATE,;
+					 QSZK->ZK_SITUAC})
+	ENDIF
+	    
+	QSZK->(DBSKIP())
+ENDDO
+QSZK->(DBCLOSEAREA())
+
+
 
 If Empty(aCtrId)
-	u_MsgLog("BKCOMA02","Não há NFs disponíveis", "W")
+	MsgStop("Nenhum funcionario nesta seleção, verifique os filtros !!", "Atenção")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -126,280 +134,251 @@ EndIf
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 
-DEFINE MSDIALOG oDlg TITLE "Seleção de NF - Integração VT/VR" FROM 000,000 TO 400,630 PIXEL 
+DEFINE MSDIALOG oDlg02 TITLE cTitulo2 FROM 000,000 TO 650,1050 PIXEL 
 
-@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 320,225
+@ 000,000 MSPANEL oPanelLeft OF oDlg02 SIZE 1050,500
+
 oPanelLeft:Align := CONTROL_ALIGN_LEFT
-lAll := .F.
+
+lAll := .T.
 @ 003, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
-oAll:bChange := {|| Aeval(aCtrId,{|x| IIF(CTOD(x[3]) >= dDatabase,x[1]:=lAll,x[1]:=.F.) }), oListId:Refresh()}
+oAll:bChange := {|| Aeval(aCtrId,{|x| x[1]:=lAll }), oListId:Refresh()}
 
-@ 015, 005 LISTBOX oListID FIELDS HEADER "","Série","NF","Fornecedor","Loja","Mes","Total R$" SIZE 310,170 OF oPanelLeft PIXEL 
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","Codigo Solic.","CPF","Nome","Valor","RG","Cod.Sup","Supervisor","Mat. Ausente:","Nome Func. Ausente:","Motivo da Ausencia","Periodo de","Periodo Até","Status Ausente" SIZE 520,245 OF oPanelLeft PIXEL 
 oListID:SetArray(aCtrId)
-oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),aCtrId[oListId:nAt][3],aCtrId[oListId:nAt][4],aCtrId[oListId:nAt][5],aCtrId[oListId:nAt][6],aCtrId[oListId:nAt][7],aCtrId[oListId:nAt][8]}}
-oListID:bLDblClick := {|| aCtrId[oListId:nAt][1] := ValidaMrk(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][3]), oListID:DrawSelect()}
+oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
+						 aCtrId[oListId:nAt][2],;
+						 aCtrId[oListId:nAt][3],;
+						 aCtrId[oListId:nAt][4],;
+						 TransForm(aCtrId[oListId:nAt][5],'@E 999,999.99'),;
+						 aCtrId[oListId:nAt][6],;
+						 aCtrId[oListId:nAt][7],;
+						 aCtrId[oListId:nAt][8],;
+						 aCtrId[oListId:nAt][9],;
+						 aCtrId[oListId:nAt][10],;
+						 aCtrId[oListId:nAt][11],;
+						 aCtrId[oListId:nAt][12],;
+						 aCtrId[oListId:nAt][13],;
+						 aCtrId[oListId:nAt][14]}}
+						                                                      
+oListID:bLDblClick := {|| aCtrId[oListId:nAt][1] := MrkTit(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][10]), oListID:DrawSelect()}
 
-ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
+ACTIVATE MSDIALOG oDlg02 CENTERED ON INIT EnchoiceBar(oDlg02,{|| lOk2:=.T., oDlg02:End()},{|| oDlg02:End()}, , aButtons2)
+ 
+If ( lOk2 )
+	lOk2:=.F.
+	Begin Transaction
+		FOR  _XI:=1 TO LEN(aCtrId)
+			IF aCtrId[_XI,1] 
 
-If ( lOk )
-	aNfGer  := {}
-	nProxTit := VAL(ProxNum(.F.))
-	For nI:=1 To Len(aCtrId)
-        If aCtrId[nI,1]
+				IF cOPC=='-1'
+					DBSELECTAREA("SZM")
+					SZM->(DBSETORDER(2))   
+					IF SZM->(DBSEEK(xFILIAL("SZM")+SM0->M0_CODIGO+aCtrId[_XI,2]+"LPM",.F.)) //ZM_FILIAL+ZM_CODEMP+ZM_IDSZK 
+						MSGSTOP("Ezitem titulos no Financeiro para essa Solicitação: "+aCtrId[_XI,2]+", deve excluir o Titulo. Verifique!!")
+						Return nil
+					ENDIF
+				ENDIF
 
-			cQuery := "SELECT ZB_FILIAL,ZB_SERIE,ZB_DOC,ZB_FORN,ZB_LOJA,MAX(ZB_COMPET) AS XX_COMPET,SUM(ZB_VUNIT) AS XX_VALOR " 
-			cQuery += "FROM "+RETSQLNAME("SZB")+" "
-		    cQuery += " WHERE ZB_FILIAL = '"+aCtrId[nI,2]+"' "
-		    cQuery += "   AND ZB_SERIE  = '"+aCtrId[nI,3]+"' "
-		    cQuery += "   AND ZB_DOC    = '"+aCtrId[nI,4]+"' "
-		    cQuery += "   AND ZB_FORN   = '"+aCtrId[nI,5]+"' "
-		    cQuery += "   AND ZB_LOJA   = '"+aCtrId[nI,6]+"' "
-		    cQuery += "   AND ZB_STATUS = ' ' "
-		    cQuery += "   AND D_E_L_E_T_ <> '*'"
-			cQuery += "GROUP BY ZB_FILIAL,ZB_SERIE,ZB_DOC,ZB_FORN,ZB_LOJA "
-			cQuery += "ORDER BY ZB_FILIAL,ZB_SERIE,ZB_DOC,ZB_FORN,ZB_LOJA "
-			
-			TCQUERY cQuery NEW ALIAS "QSZB"
-			
-			//TCSETFIELD("QSZB","Z2_DATAPGT","D",8,0)
+				IF cOPC=='1' .OR. cOPC=='2'
 
-			DbSelectArea("QSZB")
-			DbGoTop()
-			Do While !eof()
-				AADD(aNfGer,{cPrf,cTitulo,QSZ2->Z2_CTRID,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_CODFOR,QSZ2->Z2_LOJFOR,QSZ2->Z2_TIPOPES,QSZ2->Z2_DATAPGT,QSZ2->XX_TOTAL})
-				DbSkip()
-			Enddo
-			QSZB->(DbCloseArea())
+					IF cOPC=='2'
+						DBSELECTAREA("SZK")
+						SZK->(DBSETORDER(1))
+						SZK->(DBSEEK(xFILIAL("SZK")+aCtrId[_XI,2],.F.))
+						RecLock("SZK",.F.)
+						SZK->ZK_SOLADIA := "S"
+						SZK->(MsUnlock( ))
+					ENDIF
+
+					_REFPGTO:= ""
+ 					nDIASZK := 0
+					nDIASZK := DateDiffDay(SZK->ZK_PERDE,SZK->ZK_PERATE)+1
+					IF SZK->ZK_TIPO == '05'
+						nCalcSal:= SZK->ZK_SALARIO+SZK->ZK_ADICION
+					ELSE
+						nCalcSal:= ((SZK->ZK_SALARIO+SZK->ZK_ADICION)/30)*nDIASZK
+					ENDIF
+					_REFPGTO:= ""+"|"+TRIM(MesExtenso(SZK->ZK_PERDE))+"|"+STR(nDIASZK,2)+"|"+STR(nCalcSal,14,2)+"|0#"
+                    IF SZK->ZK_SOLADIA == "S"
+						_REFPGTO += ""+"|Adiantamento VT|0|0|"+STR(SZK->ZK_ADIANT,14,2)+"#"
+                    ENDIF
+                    IF SZK->ZK_CESTA == "S"
+						_REFPGTO += ""+"|Cesta Basica|0|"+STR(SZK->ZK_CESTAVA,14,2)+"|0#"
+                    ENDIF
+                    IF SZK->ZK_VR == "S"
+						_REFPGTO += ""+"|Vale Refeição|0|"+STR(SZK->ZK_VRVALORA,14,2)+"|0#"
+                    ENDIF
+                    IF SZK->ZK_VT == "S"
+						_REFPGTO += ""+"|Vale Transporte|0|"+STR(SZK->ZK_TOTALVT,14,2)+"|0#"
+						_REFPGTO += ""+"|Desc. Vale Transporte|0|0|"+STR(nCalcSal*0.06,14,2)+"#"
+                    ENDIF
+                    IF SZK->ZK_VALMATE > 0
+                        _REFPGTO += ""+"|Material|0|"+STR(SZK->ZK_VALMATE,14,2)+"|0#"
+                    ENDIF
+                    _nFALTAS := 0 
+                    IF SZK->ZK_FALTAS > 0
+						IF SZK->ZK_TIPO == '05'
+                    		_nFALTAS := (nCalcSal/30) * SZK->ZK_FALTAS
+						ELSE
+                    		_nFALTAS := (nCalcSal/nDIASZK) * SZK->ZK_FALTAS
+						ENDIF
+                        _REFPGTO += ""+"|Faltas|"+TRIM(STR(SZK->ZK_FALTAS))+"|0|"+STR(_nFALTAS,14,2)+"#"
+                    ENDIF
+
+		        ENDIF
+
+				DBSELECTAREA("SZK")
+				SZK->(DBSETORDER(1))
+				SZK->(DBSEEK(xFILIAL("SZK")+aCtrId[_XI,2],.F.))
+				RecLock("SZK",.F.)
+				IF cOPC=='-1'
+					SZK->ZK_STATUS:= "02"
+					SZK->ZK_LOG := SZK->ZK_LOG+"DEVOLVIDO - USUARIO = "+cUSERN+" Data= "+DTOC(DATE())+" Hora="+time()+cCrLf
+				ELSEIF cOPC=='-2'
+					SZK->ZK_BAIXA:= "S"
+					SZK->ZK_LOG := SZK->ZK_LOG+"BAIXADO - USUARIO = "+cUSERN+" Data= "+DTOC(DATE())+" Hora="+time()+cCrLf
+				ELSEIF cOPC=='1'
+					SZK->ZK_STATUS := IIF(SZK->ZK_STPENDE,"04",IIF(SZK->ZK_STATUS="02","10","03"))
+					IF EMPTY(SZK->ZK_REFPGTO)
+						SZK->ZK_REFPGTO := _REFPGTO
+					ENDIF
+					SZK->ZK_LOG := SZK->ZK_LOG+"ENVIADO A SOLIC ANALISE - USUARIO = "+cUSERN+" Data= "+DTOC(DATE())+" Hora="+time()+cCrLf
+				ELSEIF cOPC=='2'
+					SZK->ZK_STATUS := "05"
+					SZK->ZK_SOLADIA := "S"
+					IF EMPTY(SZK->ZK_REFPGTO)
+						SZK->ZK_REFPGTO := _REFPGTO
+					ENDIF
+					SZK->ZK_LOG := SZK->ZK_LOG+"ENVIADO AO FINANCEIRO SOLIC ADTO VT - USUARIO = "+cUSERN+" Data= "+DTOC(DATE())+" Hora="+time()+cCrLf
+					SZK->ZK_DTADIAN := DataValida(DaySum(DATE(),3),.T.) 
+				ELSEIF cOPC=='3'
+					SZK->ZK_STATUS := "07"
+					SZK->ZK_LOG := SZK->ZK_LOG+"ENVIADO AO FINANCEIRO SOLIC PGTO - USUARIO = "+cUSERN+" Data= "+DTOC(DATE())+" Hora="+time()+cCrLf
+					SZK->ZK_DTPGTO  := DataValida(DaySum(DATE(),3),.T.) 
+				ENDIF
+				SZK->(MsUnlock())
+				
+				IF cOPC=='2' .OR. cOPC=='3' 
+					DBSELECTAREA("SZM")
+					SZM->(DBSETORDER(2))   
+					IF !SZM->(DBSEEK(xFILIAL("SZM")+SM0->M0_CODIGO+aCtrId[_XI,2]+IIF(cOPC=='2',"AVT","LPM"),.F.)) //ZM_FILIAL+ZM_CODEMP+ZM_IDSZK+ZM_TIPO 
 					
-        Endif
-	Next nI
+						nFormPGTO :=  Ascan(aFormPGTO,{|X| SUBSTR(X,1,2) == SUBSTR(SZK->ZK_FORPGTO,1,2)}) 
+				   		_FORPGTO := IIF(nFormPGTO>0,aFormPGTO[nFormPGTO],"")
+						nTCBCO :=  Ascan(aTCBCO,{|X| SUBSTR(X,1,2) == SUBSTR(SZK->ZK_TCBCO,1,2)}) 
+				   		_TCBCO := IIF(nTCBCO>0,aTCBCO[nTCBCO],"") 
+
+						aCONTA := {}
+						_CONTA := ""
+						_DIGCONT := ""
+						aCONTA := U_StringToArray(ALLTRIM(SZK->ZK_CTDEPSA),"-")
+						IF LEN(aCONTA) > 1
+							_CONTA := ALLTRIM(aCONTA[1])
+							_DIGCONT := ALLTRIM(aCONTA[2])
+						ELSE
+							_CONTA := ALLTRIM(SZK->ZK_CTDEPSA)
+						ENDIF
+						IF LEN(_CONTA)==10
+							_DIGCONT := SUBSTR(_CONTA,10,1)
+							_CONTA   := SUBSTR(_CONTA,1,9)
+						ENDIF
+
+						RecLock("SZM",.T.)
+						SZM->ZM_FILIAL 	:= xFilial("SZM")
+						SZM->ZM_IDSZK 	:= SZK->ZK_CODIGO
+						SZM->ZM_CODEMP	:= SM0->M0_CODIGO
+						SZM->ZM_CPF	 	:= SZK->ZK_CPF
+						SZM->ZM_NOME 	:= SZK->ZK_NOME
+						SZM->ZM_VALOR 	:= IIF(SZK->ZK_TIPO == "05" .AND. cOPC<>'2',SZK->ZK_TOTAL-SZK->ZK_VALMATE,IIF(cOPC=='2',SZK->ZK_ADIANT,SZK->ZK_TOTAL))
+						SZM->ZM_TIPO 	:= IIF(cOPC=='2',"AVT","LPM")
+						SZM->ZM_BANCO 	:= SZK->ZK_BCDEPSA
+						SZM->ZM_AGENCIA := SUBSTR(SZK->ZK_AGDEPSA,1,4)
+						SZM->ZM_DIGAGEN := SUBSTR(SZK->ZK_AGDEPSA,5,1)
+						SZM->ZM_CONTA 	:= _CONTA
+						SZM->ZM_DIGCONT := _DIGCONT
+						SZM->ZM_DATAEMI := DATE()
+						SZM->ZM_DATAPGT := IIF(SZK->ZK_TIPO == "05".AND. !EMPTY(MV_PAR08),MV_PAR08,DataValida(DaySum(DATE(),3),.T.)) 
+						SZM->ZM_USUARIO := __CUSERID
+						SZM->ZM_TIPOPES := SZK->ZK_TIPO
+						SZM->ZM_CC 		:= Posicione("SRA",1,xFilial("SRA")+SZK->ZK_MAT,"RA_CC")
+						SZM->ZM_MAT 	:= SZK->ZK_MAT
+						SZM->ZM_HORALIB := TIME()
+						SZM->ZM_OBSTITU	:= IIF(cOPC=='2',"Adiantamento,","Pagamento,")+","+TRIM(_TCBCO)+","+TRIM(_FORPGTO)
+						SZM->ZM_APROV 	:= cUSERN
+						SZM->(MsUnlock( ))
+
+						IF SZK->ZK_TIPO == "05" .AND. SZK->ZK_VALMATE > 0
+							RecLock("SZM",.T.)
+							SZM->ZM_FILIAL 	:= xFilial("SZM")
+							SZM->ZM_IDSZK 	:= SZK->ZK_CODIGO
+							SZM->ZM_CODEMP	:= SM0->M0_CODIGO
+							SZM->ZM_CPF	 	:= SZK->ZK_CPF
+							SZM->ZM_NOME 	:= SZK->ZK_NOME
+							SZM->ZM_VALOR 	:= SZK->ZK_VALMATE
+							SZM->ZM_TIPO 	:= "MAT"
+							SZM->ZM_BANCO 	:= SZK->ZK_BCDEPSA
+							SZM->ZM_AGENCIA := SUBSTR(SZK->ZK_AGDEPSA,1,4)
+							SZM->ZM_DIGAGEN := SUBSTR(SZK->ZK_AGDEPSA,5,1)
+							SZM->ZM_CONTA 	:= _CONTA
+							SZM->ZM_DIGCONT := _DIGCONT
+							SZM->ZM_DATAEMI := DATE()
+							SZM->ZM_DATAPGT := IIF(SZK->ZK_TIPO == "05".AND. !EMPTY(MV_PAR08),MV_PAR08,DataValida(DaySum(DATE(),3),.T.))
+							SZM->ZM_USUARIO := __CUSERID
+							SZM->ZM_TIPOPES := SZK->ZK_TIPO
+							SZM->ZM_CC 		:= Posicione("SRA",1,xFilial("SRA")+SZK->ZK_MAT,"RA_CC")
+							SZM->ZM_MAT 	:= SZK->ZK_MAT
+							SZM->ZM_HORALIB := TIME()
+							SZM->ZM_OBSTITU	:= "Material, "+TRIM(_TCBCO)+","+TRIM(_FORPGTO)
+							SZM->ZM_APROV 	:= cUSERN
+							SZM->(MsUnlock( ))
+						ENDIF
+
+					ENDIF    
+				ENDIF
+	 		ENDIF
+		NEXT
+		IF cOPC=='1'
+			IF LEN(aCtrId) > 0
+				IF MsgYesNo("Gerar Protocolo da Solicitação- 6019")
+					U_SZKR02(aCtrId) 
+				ENDIF
+			ENDIF
+		ENDIF
+		IF cOPC=='2' .OR. cOPC=='3'
+			IF LEN(aCtrId) > 0
+				IF MsgYesNo("Gerar Protocolo do Financeiro - 6019")
+					U_SZKR03(aCtrId,cOPC)
+				ENDIF
+			ENDIF
+		ENDIF
+	End Transaction
 Endif
-If !EMPTY(aTitGer)
-   lOk := ConfTit(aTitGer)
-EndIf
 
-// Desmarcar os registros do SZ2 com X, dos nao selecionados
-dbSelectArea("SZB")
-dbSetOrder(1)
-
-For nI := 1 TO LEN(aCtrId)
-    cQuery := " UPDATE "+RetSqlName("SZB")+" SET ZB_STATUS = ' ' "
-    cQuery += " WHERE ZB_FILIAL = '"+aCtrId[nI,2]+"' "
-    cQuery += "   AND ZB_SERIE  = '"+aCtrId[nI,3]+"' "
-    cQuery += "   AND ZB_DOC    = '"+aCtrId[nI,4]+"' "
-    cQuery += "   AND ZB_FORN   = '"+aCtrId[nI,5]+"' "
-    cQuery += "   AND ZB_LOJA   = '"+aCtrId[nI,6]+"' "
-    cQuery += "   AND ZB_STATUS = 'X' "
-    cQuery += "   AND D_E_L_E_T_ <> '*'"
-    TcSqlExec(cQuery)
-Next
 RestArea(aAreaIni)
 Return
 
+Static Function BKF02Par()
+Local lRet := .F.
+//   Parambox(aParametros,@cTitle ,@aRet,[ bOk ],[ aButtons ],[ lCentered ],[ nPosX ],[ nPosy ],[ oDlgWizard ],[ cLoad ] ,[ lCanSave ],[ lUserSave ] ) --> aRet
+If (Parambox(aParam     ,@cTitulo,@aRet,       ,            ,.T.          ,         ,         ,              ,"BKFATR04" ,.T.         ,.T.))
+	lRet       := .T.
+	dDataI     := mv_par01
+	dDataF     := mv_par02
+    cPrefixos  := mv_par03
+    cSufixos   := mv_par04
+    cContratos := mv_par05
 
-STATIC FUNCTION ConfTit(aTitGer)
-Local oOk
-Local oNo
-Local oDlg
-Local oListId
-Local oPanelLeft
-Local aButtons := {}
-Local lOk      := .F.
-Local nI,nTotal := 0
+	cPrefixos  := STRTRAN(cPrefixos,CRLF,"")
+	cPrefixos  := STRTRAN(cPrefixos,",",";")
+	cPrefixos  := STRTRAN(cPrefixos," ","")
 
-FOR nI := 1 TO LEN(aTitGer)
-	nTotal += aTitGer[nI,10]
-NEXT
+	cSufixos   := STRTRAN(cSufixos,CRLF,"")
+	cSufixos   := STRTRAN(cSufixos,",",";")
+	cSufixos   := STRTRAN(cSufixos," ","")
 
-oOk := LoadBitmap( GetResources(), "LBTIK" )
-oNo := LoadBitmap( GetResources(), "LBNO" )
-
-DEFINE MSDIALOG oDlg TITLE "Confirme os Titulos a gerar" FROM 000,000 TO 450,630 PIXEL 
-
-@ 000,000 MSPANEL oPanelLeft OF oDlg SIZE 320,225
-oPanelLeft:Align := CONTROL_ALIGN_LEFT
-//lAll := .F.
-//@ 005, 005 CHECKBOX oAll VAR lAll PROMPT "Marcar todos" OF oPanelLeft SIZE 080, 010 PIXEL 
-//oAll:bChange := {|| Aeval(aCtrId,{|x| x[1]:=lAll}), oListId:Refresh()}
-@ 005, 005 SAY "Total: "+TRANSFORM(nTotal,"@E 999,999,999.99") OF oPanelLeft SIZE 100,10 PIXEL
-
-@ 012, 005 LISTBOX oListID FIELDS HEADER "Pref","Titulo","Lote (CTRID)","Tipo","Banco","Data Pgt","Valor R$" SIZE 310,200 OF oPanelLeft PIXEL 
-
-//cPrf,cTitulo,QSZ2->Z2_CTRID,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_DATAPGT,TRANSFORM(QSZ2->XX_TOTAL,"@E 999,999,999.99")
-
-oListID:SetArray(aTitGer)
-oListID:bLine := {|| {	aTitGer[oListId:nAt][1],;
-						aTitGer[oListId:nAt][2],;
-						aTitGer[oListId:nAt][3],;
-						aTitGer[oListId:nAt][4],;
-						aTitGer[oListId:nAt][5],;
-						aTitGer[oListId:nAt][9],;
-						TRANSFORM(aTitGer[oListId:nAt][10],"@E 999,999,999.99")}}
-
-//oListID:bLDblClick := {|| aCtrId[oListId:nAt][1] := !aCtrId[oListId:nAt][1], oListID:DrawSelect()}
-
-ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| oDlg:End()}, , aButtons)
-
-If ( lOk )
-    GravaSe2(aTitGer)
-EndIf
-Return lOk
-
-
-
-Static Function GravaSe2(aTitGer)
-Local cxFilial,cPrefixo,cNum,cParcela,cTipo,cFornece,cLoja,cNaturez,nValor,dVencto,dPgto
-Local cKey1,cKey2
-Local nI
-Local cNatBK  := "0000000013"
-Local cFornBK := u_cFornBK()
-Local cLojaBK := "01"
-Local cFornAC := "000071"
-Local cLojaAC := "01"
-Local lErro   := .F.
-
-If cEmpAnt <> "01"
-   cFornAC := cFornBK
-ENDIF
-
-dbSelectArea("SE2")
-dbSetOrder(1)
-// E2_FILIAL+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA
-
-dbGoTop()
-
-/*
-For nI := 1 TO LEN(aTitGer)
-    cxFilial := xFilial("SE2")
-    cPrefixo := PAD(aTitGer[nI,1],LEN(SE2->E2_PREFIXO))
-    cNum     := PAD(aTitGer[nI,2],LEN(SE2->E2_NUM))
-    cParcela := SPACE(LEN(SE2->E2_PARCELA))
-    cTipo    := PAD("DP",LEN(SE2->E2_TIPO))
-    cFornece := PAD(cFornBk,LEN(SE2->E2_FORNECE))
-    cLoja    := PAD(cLojaBk,LEN(SE2->E2_LOJA))
-    cKey1    := cxFilial+cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja
-    If MsSeek(cKey1)
-    	lOk := .F.
-    	Exit
-    Endif	
-Next
-//AADD(aTitGer,{cPrf,cTitulo,QSZ2->Z2_CTRID,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_DATAPGT,TRANSFORM(QSZ2->XX_TOTAL,"@E 999,999,999.99")})
-
-If !lOk
-	MsgStop("Titulo "+cKey1+" já existente, informe o setor de T.I.", "Atenção")
-	Return
-EndIf
-*/
-
-For nI := 1 TO LEN(aTitGer)
-
-	dbSelectArea("SE2")
-
-    cxFilial := xFilial("SE2")
-    cPrefixo := PAD(aTitGer[nI,1],LEN(SE2->E2_PREFIXO))
-    cNum     := PAD(STRZERO(VAL(TRIM(ProxNum(.T.))),5)+aTitGer[nI,4],LEN(SE2->E2_NUM))
-    cParcela := SPACE(LEN(SE2->E2_PARCELA))
-    cTipo    := PAD("DP",LEN(SE2->E2_TIPO))
-
-	cNaturez := PAD(cNatBk,LEN(SE2->E2_NATUREZ))
-	cCtrId   := PAD(aTitGer[nI,3],LEN(SE2->E2_XXCTRID))
-	cTipBk   := PAD(aTitGer[nI,4],LEN(SE2->E2_XXTIPBK))
-	cPortado := PAD(STRZERO(VAL(aTitGer[nI,5]),3),LEN(SE2->E2_PORTADO))
-
-   cFornece := PAD(IIF(EMPTY(aTitGer[nI,6]),cFornBk,aTitGer[nI,6]),LEN(SE2->E2_FORNECE))
-   cLoja    := PAD(IIF(EMPTY(aTitGer[nI,7]),cLojaBk,aTitGer[nI,7]),LEN(SE2->E2_LOJA))
-
-   cCodFor  := aTitGer[nI,6]
-   cLojFor  := aTitGer[nI,7]
-   cTipoPes := aTitGer[nI,8]
-
-	dPgto    := dVencto  := aTitGer[nI,9]
-	nValor   := aTitGer[nI,10]
-	
-    //IF dVencto < (dDataBase + 2)
-    //   dVencto := dDataBase + 2
-    //ENDIF
-
-    IF cTipoPes $ "PJ /AC /CLA"
-       cTipo := PAD("PA",LEN(SE2->E2_TIPO))
-    ENDIF
-    
-    IF EMPTY(cCodFor)
-       IF cTipoPes $ "AC /CLA"
-          cFornece := cFornAC
-          cLoja    := cLojaAC
-       ELSE
-          cFornece := cFornBK
-          cLoja    := cLojaBK
-       ENDIF
-    ENDIF
-    cKey1  := cxFilial+cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja
-	cKey2  := xFilial("SZ2")+cEmpAnt+cCtrId+cTipBk+cPortado  //+DTOS(dVencto) 
-
-	aVetor :={{"E2_FILIAL"  ,cxFilial,Nil},;
-             {"E2_PREFIXO"  ,cPrefixo,Nil},;
-             {"E2_NUM"      ,cNum,Nil},;
-             {"E2_PARCELA"  ,cParcela,Nil},;
-             {"E2_TIPO"     ,cTipo,Nil},;        
-             {"E2_FORNECE"  ,cFornece,Nil},;
-             {"E2_LOJA"     ,cLoja,Nil},;      
-             {"E2_NATUREZ"  ,cNaturez,Nil},;
-             {"E2_PORTADO"  ,cPortado,Nil},;
-             {"E2_XXTIPBK"  ,cTipBk,Nil},;
-             {"E2_XXCTRID"  ,cCtrId,Nil},;
-             {"E2_HIST"     ,"Depto Pessoal - "+u_BKDescRH(cTipBK),NIL},;
-             {"E2_EMISSAO"  ,dDataBase,NIL},;
-             {"E2_VENCTO"   ,dVencto,NIL},;                
-             {"E2_EMIS1"    ,dDataBase,NIL},;              
-             {"E2_VALOR"    ,nValor,Nil}}
-
-	lMsErroAuto := .F.
-   lErro := .F.
-   Begin Transaction
-      MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
-      If lMsErroAuto
-         u_LogMsExec(,"Problemas na geração do titulo "+cKey2)
-         DisarmTransaction()
-         lErro := .T.
-      EndIf
-   End Transaction
-
-   If !lErro
-      dbSelectArea("SZ2")   
-      dbSetorder(2)   // Z2_FILIAL+ Z2_CODEMP+Z2_CTRID+Z2_TIPO+Z2_BANCO+Z2_DATAPGT     
-      dbSeek(cKey2,.T.)
-      
-      Do While !EOF() .AND. SZ2->Z2_FILIAL == xFilial("SZ2") .AND. SZ2->Z2_CODEMP = cEmpAnt .AND. SZ2->Z2_CTRID == cCtrId .AND. ;
-                           SZ2->Z2_TIPO == cTipBk .AND. STRZERO(VAL(SZ2->Z2_BANCO),3) == cPortado
-            
-         IF SZ2->Z2_DATAPGT == dPgto .AND. SZ2->Z2_CODFOR = cCodFor .AND. SZ2->Z2_LOJFOR = cLojFor .AND. SZ2->Z2_TIPOPES = cTipoPes
-               IF SZ2->Z2_STATUS == "X"
-               RecLock("SZ2",.F.)
-               SZ2->Z2_STATUS := "S"
-               SZ2->Z2_TITULO := cKey1
-               SZ2->Z2_E2Prf  := cPrefixo
-               SZ2->Z2_E2Num  := cNum
-               SZ2->Z2_E2Parc := cParcela
-               SZ2->Z2_E2Tipo := cTipo
-               SZ2->Z2_E2Forn := cFornece
-               SZ2->Z2_E2Loja := cLoja
-
-               MsUnlock()
-            ENDIF    
-         ENDIF
-            
-         dbSkip()
-      EndDo
-   EndIf
-Next	
-Return Nil
-
-
-Static Function ValidaMrk(lRet,cPgto)
-IF CTOD(cPgto) >= dDataBase
-   lRet := !lRet
-ELSE
-   u_MsgLog("BKCOMA02","Data de pgto deste lote é inferior a data base do sistema", "W")
-   lRet := .F.
-ENDIF   
+	cContratos := STRTRAN(cContratos,CRLF,"")
+	cContratos := STRTRAN(cContratos,",",";")
+	cContratos := STRTRAN(cContratos," ","")
+Endif
 Return lRet

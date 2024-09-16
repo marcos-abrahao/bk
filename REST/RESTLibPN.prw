@@ -336,7 +336,7 @@ Local lMaster	:= .F.
 Default cMsg	:= ""
 Default cMotivo := ""
 
-lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+lMaster := u_InGrupo(__cUserId,u_cGrpMD2())
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
@@ -642,7 +642,7 @@ EndIf
 cFilSF1 := U_M103FILB()
 
 lFiscal	:= u_IsFiscal(__cUserId)
-lMaster := u_InGrupo(__cUserId,"000000/000005/000007/000038")
+lMaster := u_InGrupo(__cUserId,u_cGrpMD2())
 lSuper  := (u_IsSuperior(__cUserId) .OR. u_IsStaf(__cUserId))
 
 For nE := 1 To Len(aEmpresas)

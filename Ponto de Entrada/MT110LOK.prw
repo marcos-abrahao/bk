@@ -17,13 +17,10 @@ User Function MT110LOK()
 	Local _nPosLcT	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXLCTOT'})
 	Local _nPosPrd	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_PRODUTO'})
 	Local _nPosDesc	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DESCRI'})
-	//Local _nPosRec	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_REC_WT'})
 	Local _nPosFor	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_FORNECE'})
 	Local _nPosCC	:= aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
 
 	Local dDataInc
-	//Local cAlmox	:= u_UsrMAlmox()
-	//Local nQuje		:= 0
 	Local aAreaSC1	:= SC1->(GetArea())
 	
 	If Empty(cCC) .AND. !Empty(aCols[n][_nPosCC])

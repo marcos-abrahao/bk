@@ -11,10 +11,12 @@ BK - Rentabilidade Contratos
 
 User Function BKGCTR22
 
+/*
 Local cDescricao	:= "Objetivo deste relatório é a emissão de relatório de acompanhamento das rentabilidades dos contratos "+CRLF+"Solicitado pelo Planejamento em junho de 2024."
 Local cVersao 		:= "10/07/24 - Versão inicial"
 Local oRExcel		AS Object
 Local oPExcel		AS Object
+*/
 
 Private aParam		:= {}
 Private cTitulo		:= "Rentabilidade Contratos"

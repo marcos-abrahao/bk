@@ -13,8 +13,7 @@ BK - Ponto de Entrada para liberar alteração de campos nos títulos a pagar
 User Function F050MCP()
 Local aCampos := PARAMIXB
 
-//If Alltrim(SE2->E2_TIPO) = "NF"
-IF __cUserId $ "000000/000012/000016" // Administrador / Xavier / Diego Oliveira
+IF __cUserId $ ("000000/"+u_GerFin()) // Administrador / Gerente Financeiro
     AADD(aCampos,"E2_VENCTO")
     AADD(aCampos,"E2_VENCREA")     
 Endif

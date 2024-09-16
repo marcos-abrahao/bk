@@ -496,10 +496,10 @@ if (Array.isArray(av1)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">'+av1['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+av1['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable1").innerHTML = trHTML;
@@ -598,16 +598,15 @@ function format(d) {
     // `d` is the original data object for the row
 
     return (
-        '<dl>' +
-        '<dt>Aviso lido em:&nbsp;&nbsp;'+d.DataLida+'&nbsp;'+d.HoraLida+'</dt>' +
-        '<dd>' +
-        '</dd>' +
+        //'<dl>' +
+        //'<dt>Aviso lido em:&nbsp;&nbsp;'+d.DataLida+'&nbsp;'+d.HoraLida+'</dt>' +
+        //'<dd>' +
+        //'</dd>' +
 
         '<dl>' +
-        '<dt>Atualizar este aviso:&nbsp;'+d.Origem+'</dt>' +
+        '<dt>'+d.Origem+'</dt>' +
         '<dd>' +
         '</dd>' +
-      
         '</dl>'
     );
 }

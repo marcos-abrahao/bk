@@ -608,7 +608,7 @@ cCodView := ""
 cCodView := "0-FATURAMENTO/1-DESPESAS/1.1-Remuneração CLT/1.3-Ajuda de Custo/1.4-Encargos Ajuda de Custo/1.5-Insumos/1.5.1-Benefícios/1.5.2-Uniformes/1.5.3-Despesas Diversas/1.6-Materiais/1.7-Equipamentos/"
 
 cMaster := ""
-cMaster := SuperGetMV("MV_XXGRREN",.F.,"000000/000003/000007/000008/000010/000020")
+cMaster := SuperGetMV("MV_XXGRREN",.F.,"000000/000003/000007/000008")
 lMaster := .F.
 aGRUPO := {}
 //AADD(aGRUPO,aUser[1,10])

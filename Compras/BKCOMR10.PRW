@@ -86,18 +86,13 @@ Local nTotPc := 0
 Local cCampo := ""
 Local oTmpTb
 
-//Local cAlmox := u_UsrAlmox()
-
 cQuery := "SELECT"
 cQuery += " SF1.F1_DOC, SF1.F1_SERIE, SF1.F1_DTDIGIT, SF1.F1_DUPL, SF1.F1_FORNECE, SF1.F1_LOJA , SF1.F1_VALBRUT, SA2.A2_NREDUZ, SA2.A2_NOME, "
 cQuery += " SF1.F1_VALIRF, SF1.F1_ISS, SF1.F1_INSS, SF1.F1_VALPIS, SF1.F1_VALCOFI, SF1.F1_VALCSLL, SF1.F1_XXUSER "
 cQuery += " FROM "+RETSQLNAME("SF1")+" SF1"
 cQuery += " INNER JOIN "+RETSQLNAME("SA2")+" SA2 ON  SA2.A2_FILIAL='"+xFilial("SA2")+"' AND SF1.F1_FORNECE = SA2.A2_COD AND SF1.F1_LOJA = SA2.A2_LOJA AND SA2.D_E_L_E_T_ = ''" 
- 
 cQuery += " WHERE SF1.D_E_L_E_T_ = '' AND SF1.F1_DTDIGIT >= '"+DTOS(dDataI)+"' AND SF1.F1_DTDIGIT <= '"+DTOS(dDataF)+"' "
-//If !EMPTY(cAlmox)
-//   cQuery += " AND SF1.F1_XXUSER IN ("+cAlmox+")"
-//EndIf
+
 
 TCQUERY cQuery NEW ALIAS "QSF1"
 TCSETFIELD("QSF1","F1_DTDIGIT","D",8,0)

@@ -2831,7 +2831,7 @@ NEXT
 
 
 //Verifica o Grupo do usuario - visualização do relatorio
-
+/*
 cCodView := ""
 cCodView := SuperGetMV("MV_XXRENTA")
 
@@ -2840,7 +2840,7 @@ IF !lJob
 ELSE
 	lMaster := .T.
 ENDIF
-
+*/
 
 u_MsgLogAdm("BKGCTR11","Calculo dos totais ")
 
@@ -2855,6 +2855,7 @@ nTotCUSTO 	:=0
 
 Do While (ALIAS_TMP)->(!eof())
 
+	/*  Removido em 16/09/24
 	IF !lMaster
 		IF ALLTRIM((ALIAS_TMP)->XX_CODIGO) $ cCodView
 
@@ -2863,6 +2864,8 @@ Do While (ALIAS_TMP)->(!eof())
 			LOOP
 		ENDIF
 	ENDIF
+	*/
+
 
 	IF cCodigo <> (ALIAS_TMP)->XX_CODGCT
 		nTotFat :=0
