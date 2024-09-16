@@ -188,7 +188,7 @@ Return nValTot
 // Envia email avisando do bloqueio
 Static Function EnvAvBlq(_aAKUser,_nValDoc,_nValBlq,_lCanc)
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""

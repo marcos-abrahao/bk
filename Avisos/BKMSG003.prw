@@ -16,9 +16,9 @@ Local nE 		:= 0
 
 Local cTabSA1	:= ""
 
-Local cEmail 	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail 	:= ""
 Local cAssunto  := "Aviso de Clientes sem virgula no endereço - "+DTOC(DATE())+" "+Time()
-Local cEmailCC  := "" 
+Local cEmailCC  := u_EmailAdm() 
 Local aCabs   	:= {"Empresa","Código","Identificação","Endereço","Bairro","Municipio","UF"}
 Local aEmail 	:= {}
 Local cMsg		:= ""

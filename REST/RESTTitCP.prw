@@ -308,7 +308,7 @@ Local cDoc		:= ""
 
 Local cEmail 	:= ""
 Local cAssunto  := "Informações insufIcientes para efetuar pagamento - "+DTOC(DATE())+" "+Time()
-Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {"Empresa","Série","Documento","Fornecedor","Valor"}
 Local aEmail 	:= {}
 Local cCorpo	:= ""

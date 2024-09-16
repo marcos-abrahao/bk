@@ -61,7 +61,7 @@ Local cAssunto:= "Nova Batida de Ponto Online"
 Local cMsg 	  := ""
 Local cMsg1	  := ""
 Local cFile   := "\anexos\PASSO A PASSO - BATIDA PONTO AHGORA.pdf"
-Local cEmailCC:= "microsiga@bkconsultoria.com.br"
+Local cEmailCC:= u_EmailAdm()
 
 BeginContent var cMsg
 

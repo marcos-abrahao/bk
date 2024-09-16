@@ -129,10 +129,10 @@ DO While !TMPSF1->(EOF())
    				ENDIF
    			NEXT
         	IF EMPTY(cEmail)
-   				cEmail := "microsiga@bkconsultoria.com.br;"+cAlEmail
+   				cEmail := u_EmailAdm()+cAlEmail
    				cAssunto:=  cSolici+" - "+cAssunto
         	ELSE
-   				cEmail += "microsiga@bkconsultoria.com.br;"+cAlEmail
+   				cEmail += u_EmailAdm()+cAlEmail
         	ENDIF
 	  		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"GQREENTR")
 		  	U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 
@@ -144,7 +144,7 @@ DO While !TMPSF1->(EOF())
 			aCabs   := {}
 			aCabs   := {"Nº Pedido","Nº Solict.","Item SC.","Cod. Produto","Descr. Produto","UM","Quant. Solicitada","Quant. Atendida","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo"}
 			aEmail := {}
-			cEmail := "microsiga@bkconsultoria.com.br;"+cAlEmail
+			cEmail := u_EmailAdm()+cAlEmail
 
   			cMsg    := u_GeraHtmA(aSD1,cAssunto,aCabs,"GQREENTR")
 	  		U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 
@@ -176,7 +176,7 @@ DO While !TMPSF1->(EOF())
 				aCabs    := {}
 				aCabs    := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo",}
 				aEmail   := {}
-				cEmail   := "microsiga@bkconsultoria.com.br;"+cAlEmail
+				cEmail   := u_EmailAdm()+cAlEmail
 
   				cMsg     := u_GeraHtmA(aSD1,cAssunto,aCabs,"GQREENTR")
 	  			U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 

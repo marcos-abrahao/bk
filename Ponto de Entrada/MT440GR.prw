@@ -58,7 +58,7 @@ Return Nil
 
 Static Function SC5Email(lReenvio)
 Local cEmail    := ""
-Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {}
 Local aEmail 	:= {}
 Local aAnexos   := {}

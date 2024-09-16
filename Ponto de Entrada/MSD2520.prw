@@ -30,7 +30,7 @@ Return Nil
 
 Static Function SD2Email()
 Local cEmail    := ""
-Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {}
 Local aEmail 	:= {}
 Local aAnexos   := {}

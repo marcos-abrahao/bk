@@ -259,7 +259,7 @@ Return Nil
 
 
 User Function SF1Email(cAssunto)
-Local cEmail    := "microsiga@bkconsultoria.com.br;"
+Local cEmail    := u_EmailAdm()
 Local cEmailCC  := "" 
 Local aCabs   	:= {}
 Local aEmail 	:= {}

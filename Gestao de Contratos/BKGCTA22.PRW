@@ -941,8 +941,8 @@ Return xCampo
 USER Function MAILSZP(nOpc)
 
 Local cAssunto	:= "Ocorrência Incluida"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;wiliam.lisboa@bkconsultoria.com.br;"
-Local cEmailCC	:= ""
+Local cEmail	:= "wiliam.lisboa@bkconsultoria.com.br;"
+Local cEmailCC	:= u_EmailAdm()
 Local cMsg    	:= ""
 Local cAnexo    := ""
 Local aCabs		:= {}
@@ -1007,7 +1007,7 @@ Return Nil
 USER Function MAILFIMSZP()
 
 Local cAssunto	:= "Aviso Plano de Ação - Ocorrência Finalizada"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail	:= u_EmailAdm()
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""

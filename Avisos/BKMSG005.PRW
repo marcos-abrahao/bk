@@ -21,7 +21,7 @@ Local cTabSA1   := ""
 
 Local cEmail 	:= ""
 Local cAssunto  := "Pedidos de Venda Liberados - "+DTOC(DATE())+" "+Time()
-Local cEmailCC  := "microsiga@bkconsultoria.com.br;" 
+Local cEmailCC  := u_EmailAdm() 
 Local aCabs   	:= {"Empresa","Pedido","Cliente","Emissao","Contrato","Liberado por","Liberado em","Valor"}
 Local aEmail 	:= {}
 Local cMsg		:= ""

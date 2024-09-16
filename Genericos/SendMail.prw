@@ -68,7 +68,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
 
 	// Para testes
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-		cPara := cCc := "microsiga@bkconsultoria.com.br"
+		cPara := cCc := u_EmailAdm()
 		//If lJob
         //    FWLogMsg("INFO", /*cTransactionId*/, cPrw /*cGroup*/, FunName() /*cCategory*/, /*cStep*/, /*cMsgId*/, "E-mail simulado: "+TRIM(cAssunto), /*nMensure*/, /*nElapseTime*/, /*aMessage*/)
 		//Endif
@@ -204,7 +204,7 @@ u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "
 
 // Para testes
 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
-	cPara := cCc := "microsiga@bkconsultoria.com.br"
+	cPara := cCc := u_EmailAdm()
     u_MsgLog(cPrw,"E-mail simulado em ambiente de teste: "+TRIM(cAssunto))
 EndIf
 // Fim testes

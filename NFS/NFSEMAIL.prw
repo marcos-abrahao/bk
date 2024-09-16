@@ -68,7 +68,7 @@ If !Empty(cContrato)
 EndIf
 
 If Empty(cEmail)
-    cEmail := "microsiga@bkconsultoria.com.br"
+    cEmail := u_EmailAdm()
 EndIf
 cEmail := STRTRAN(cEmail,";","|")
 

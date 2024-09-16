@@ -106,7 +106,7 @@ Return .T.
 
 User Function EMAILSOL(cNumSol,cPrw)
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := ""
 Local cEmailU   := ""
 Local cMsg 		:= "" 

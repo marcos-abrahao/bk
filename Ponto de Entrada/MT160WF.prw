@@ -18,7 +18,7 @@ User Function MT161WF()
 Local nCotacao  := PARAMIXB[1]
 Local cAssunto	:= ""
 Local cEmail	:= ""
-Local cEmailCC  := "" //microsiga@bkconsultoria.com.br;"
+Local cEmailCC  := "" //u_EmailAdm()
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
 Local _lJob		:= .F.
@@ -47,7 +47,7 @@ AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual") 
 
 //cAlmox := u_GrpAlmox()
-cAlEmail := "microsiga@bkconsultoria.com.br;"
+cAlEmail := u_EmailAdm()
 
 cAlEmail += u_EmEstAlm(__cUserId,.T.,cAlEmail)
 
@@ -193,7 +193,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 	Enddo
 
  	//EMAIL SOLICITANTE
- 	cEmail := "microsiga@bkconsultoria.com.br;"
+ 	cEmail := u_EmailAdm()
 	cEmail += u_aUsrEmail(aSC1USER)
 
 	IF !EMPTY(cXXJUST)

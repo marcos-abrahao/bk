@@ -108,7 +108,7 @@ User Function BKGCTR26(lDashBoard)
 	Default lDashBoard  := .F.
 	Private dDataJob	:= dDataBase
 	Private cEmailTO	:= Pad("bruno.bueno@bkconsultoria.com.br",70)
-	Private cEmailCC	:= "microsiga@bkconsultoria.com.br"
+	Private cEmailCC	:= u_EmailAdm()
 	Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
 
 	Private dDataI  	:= CTOD("")

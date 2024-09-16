@@ -113,7 +113,7 @@ User Function BKGCTR28()
 	Private lAgendar	:= .F.
 	Private dDataJob	:= dDataBase
 	Private cEmailTO	:= Pad("bruno.bueno@bkconsultoria.com.br",70)
-	Private cEmailCC	:= "microsiga@bkconsultoria.com.br"
+	Private cEmailCC	:= u_EmailAdm()
 	Private cStart		:= "Início: "+DtoC(Date())+" "+Time()
 
 	Private lFiltDt		:= .F.

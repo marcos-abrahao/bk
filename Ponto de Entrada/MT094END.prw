@@ -34,7 +34,7 @@ cFilDoc == Filial do Documento
 //Local cFilDoc   := PARAMIXB[4]
 Local nCotacao  := ""
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;fabio.quirino@bkconsultoria.com.br;"
+Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := "" 
 Local cMsg 		:= "" 
 Local cAnexo	:= ""

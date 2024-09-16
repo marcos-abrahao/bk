@@ -295,7 +295,7 @@ u_WaitLog("PFIS09", {|| ProcPFIS09() })
 
 If u_MsgLog("PFIS09","Corrige os ajustes de PIS/COFINS","Y")
 	cArqTmp := U_CORPFIS09()
-    U_BkSnMail("PFIS09", "Backup PIS COFINS", "microsiga@bkconsultoria.com.br;", "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp})
+    U_BkSnMail("PFIS09", "Backup PIS COFINS", u_EmailAdm(), "", "Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME()+" - "+cArqTmp, {cArqTmp})
 Else
 	u_WaitLog(, {|| U_CSVPFIS09()})
 EndIf

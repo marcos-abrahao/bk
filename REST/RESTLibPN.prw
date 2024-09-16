@@ -496,7 +496,7 @@ Return lRet
 
 
 Static Function LibEmail(acao,empresa,cMotivo,cDoc,cSerie,cFornece,cxUser,cxUsers)
-Local cEmail    := "microsiga@bkconsultoria.com.br;"
+Local cEmail    := u_EmailAdm()
 Local cEmailCC  := "" 
 Local aCabs   	:= {}
 Local aEmail 	:= {}

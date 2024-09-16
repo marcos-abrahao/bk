@@ -4,7 +4,7 @@
 User Function TesteEm()
 Private cPrw     := "TesteEm"
 Private cAssunto := "Teste"
-Private cEmail   := PAD("microsiga@bkconsultoria.com.br",100)
+Private cEmail   := PAD(u_EmailAdm(),100)
 Private cCC      := ""
 Private cMsg     := "Teste "+DTOC(DATE())+"-"+TIME() 
 Private cAnexo   := ""

@@ -27,7 +27,7 @@ Removido em 17/02/2023
 If SF2->F2_CLIENTE == '000367' //.AND. SF2->F2_VLCPM > 0
 
 	cEmailTO := 'fiscal@conlinecontabil.com.br;financeiro@bkconsultoria.com.br;'
-	cEmailCC := 'microsiga@bkconsultoria.com.br'
+	cEmailCC := u_EmailAdm()
 	
 	cMsg := 'Sr(a) responsável pelo Depto Fiscal'+CRLF+CRLF
 	cMsg += 'Será necessária a geração de guia de recolhimento do ISS para esta NF na Prefeitura do Rio de Janeiro no valor de R$ '+ ALLTRIM(TRANSFORM(SF2->F2_VLCPM,"@E 999,999,999.99"))+"."+CRLF+CRLF

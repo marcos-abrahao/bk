@@ -16,7 +16,7 @@ Local nOpcA  := PARAMIXB[3]   // Indica se a ação foi Cancelada = 0  ou Confirma
 Local lAprov := .T.
 Local cAssunto	:= ""
 Local cEmail	:= ""
-Local cEmailCC  := "" //microsiga@bkconsultoria.com.br;"
+Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
 Local _lJob		:= .F.
@@ -42,7 +42,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	AADD(aMotivo,"Reposição Programada")
 	AADD(aMotivo,"Reposição Eventual") 
 	
-	cAlEmail := "microsiga@bkconsultoria.com.br;"
+	cAlEmail := u_EmailAdm()
 	
 	/*
 	//aUsers:=AllUsers()
@@ -170,7 +170,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 			SC7->(DbSkip())
 		ENDDO
 		
-	 	cEmail := "microsiga@bkconsultoria.com.br;"
+	 	cEmail := u_EmailAdm()
 		DbSelectArea("SCR")
 		SCR->(DbSetOrder(1))
 		DbSeek(xFilial("SCR")+'PC'+cNumPC,.T.)

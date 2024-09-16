@@ -16,7 +16,7 @@
 USER FUNCTION MT140SAI()
 Local nOrdem := SF1->( IndexOrd() )
 Local cAssunto	:= ""
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := "" 
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
@@ -75,7 +75,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
        		SD1->(dbSkip())
     	ENDDO
 
-		cEmail := "microsiga@bkconsultoria.com.br;"  
+		cEmail := u_EmailAdm()
     	
 		DbSelectArea("SCR")
 		SCR->(DbSetOrder(1))

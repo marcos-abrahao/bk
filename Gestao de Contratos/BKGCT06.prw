@@ -2816,9 +2816,9 @@ Static Function V9BKGct06()
 
 Local cQuery            
 Local _cAlias 	:= "QSCR"
-Local aArea      := GetArea()
+Local aArea     := GetArea()
 Local cAssunto	:= "Aviso de pedido de compras aguardando aprovação"
-Local cEmail	:= "microsiga@bkconsultoria.com.br;"
+Local cEmail	:= u_EmailAdm()
 Local cEmailCC	:= ""
 Local cMsg    	:= ""
 Local cAnexo    := ""
@@ -2910,7 +2910,7 @@ Local cQuery	:= ""
 Local aArea     := GetArea()
 Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"
 Local cEmail	:= ""
-Local cEmailCC	:= "microsiga@bkconsultoria.com.br;"
+Local cEmailCC	:= u_EmailAdm()
 Local cMsg    	:= "Segue planilha anexa."
 Local cPrw 		:= "V15BKGCT06"
 Local nE		:= 0

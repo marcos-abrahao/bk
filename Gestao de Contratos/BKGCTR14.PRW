@@ -6080,7 +6080,7 @@ Local aPlans 	:= {}
 
 Local cMsg		:= ""
 Local cEmailTO	:= ""
-Local cEmailCC	:= "microsiga@bkconsultoria.com.br"
+Local cEmailCC	:= u_EmailAdm()
 Local cArqE		:= cArqS+"-"+cEmpAnt
 
 Private xQuebra,xCampo
