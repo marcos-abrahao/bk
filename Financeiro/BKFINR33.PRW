@@ -505,11 +505,11 @@ Static Function RelHtml(cHtml)
 Local aArea     := GetArea()
 Local aAreaSE2  := GetArea("SE2")
 //Local nHandle   := 0
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := u_LTmpDir()
 Local cArqHtml  := ""
 //Local _nI       := 0
 
-cArqHtml  := cDirTmp+"\"+"CP"+DTOS(dDataBase)+".HTML"
+cArqHtml  := cDirTmp+"CP"+DTOS(dDataBase)+".HTML"
 
 IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)

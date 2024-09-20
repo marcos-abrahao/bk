@@ -247,8 +247,8 @@ Self:cPerg 		:= cProg
 Self:cDescr 	:= ""
 Self:aParam		:= {}
 If Empty(cSrvDir)
-	Self:cDirDest	:= IIf(!IsBlind(),"c:\tmp\","\tmp\")
-	Self:cDirTmp 	:= "\tmp\"
+	Self:cDirDest	:= IIf(!IsBlind(),u_LTmpDir(),u_STmpDir())
+	Self:cDirTmp 	:= u_STmpDir()
 Else
 	Self:cDirDest	:= cSrvDir
 	Self:cDirTmp 	:= cSrvDir

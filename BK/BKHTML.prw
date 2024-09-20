@@ -1,14 +1,13 @@
 #include "totvs.ch"
 #include "protheus.ch"
 
-/*/{Protheus.doc} BKVARS
+/*/{Protheus.doc} BKHTML
 BK - Funcoes com parâmetros embutidos no fonte
 @Return
 @author Marcos B. Abrahão
 @since 03/05/22
 @version P12
 /*/
-
 
 // Retorna IP e Porta do server REST
 User Function BkIpPort()

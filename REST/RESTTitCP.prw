@@ -499,7 +499,7 @@ Return (lSuccess)
 WSMETHOD GET HPDFCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 
 Local cHtml		as char
-Local cDirTmp   := "\http\tmp"
+Local cDirTmp   := u_STmpDir()
 Local cArqHtml  := ""
 Local cUrl 		:= ""
 //Local oFile		AS Object
@@ -532,8 +532,8 @@ EndIf
 
 //cHtml := StrIConv( cHtml, "CP1252", "UTF-8") aqui arrumar
 
-cArqHtml  	:= cDirTmp+"\"+"cp"+SUBSTR(self:empresa,1,2)+DTOS(dDataBase)+"-"+__cUserID+".html"
-cUrl 		:= u_BkIpServer()+"\tmp\"+"cp"+SUBSTR(self:empresa,1,2)+DTOS(dDataBase)+"-"+__cUserID+".html"
+cArqHtml  	:= cDirTmp+"cp"+SUBSTR(self:empresa,1,2)+DTOS(dDataBase)+"-"+__cUserID+".html"
+cUrl 		:= u_BkIpServer()+u_STmpDir()+"cp"+SUBSTR(self:empresa,1,2)+DTOS(dDataBase)+"-"+__cUserID+".html"
 
 u_MsgLog("RestTitCP-PDF",cArqHtml)
 
@@ -1939,7 +1939,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 // Desabilitar para testar o html
 /*
 If __cUserId == '000000'
-	Memowrite("\tmp\cp.html",cHtml)
+	Memowrite(u_STmpDir()+"cp.html",cHtml)
 EndIf
 u_MsgLog("RESTTITCP",__cUserId+' - '+::userlib)
 */

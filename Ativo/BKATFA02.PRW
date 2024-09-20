@@ -26,7 +26,7 @@ DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,392 TITLE OemToAnsi(cProg+" - "+cTitulo
 
 @ nSnd,010 SAY "Arquivo: " of oDlg01 PIXEL 
 @ nSnd,035 MSGET cArq SIZE 100,010 of oDlg01 PIXEL READONLY
-@ nSnd,142 BUTTON oButSel PROMPT 'Salvar como:' SIZE 40, 12 OF oDlg01 ACTION ( cArq := tFileDialog(cTipoArq,"Selecione o diretório",0,"C:\TMP\",.T.,GETF_RETDIRECTORY) ) PIXEL  // "Selecionar" 
+@ nSnd,142 BUTTON oButSel PROMPT 'Salvar como:' SIZE 40, 12 OF oDlg01 ACTION ( cArq := tFileDialog(cTipoArq,"Selecione o diretório",0,u_LTmpDir(),.T.,GETF_RETDIRECTORY) ) PIXEL  // "Selecionar" 
 nSnd += nTLin
 nSnd += nTLin
 

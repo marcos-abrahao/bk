@@ -390,7 +390,7 @@ If oMdlCXN:Length() > 0
 
 	EndIf
 
-	u_xxLog("\log\cnta121_pe.log","CNTA121_PE" + ": cnamun" )
+	u_xxLog(u_SLogDir()+"cnta121_pe.log","CNTA121_PE" + ": cnamun" )
 
 EndIf
 
@@ -582,7 +582,7 @@ For nInd := 1 to Len(aParam)
  
 Next nInd
  
-u_xxLog("\log\cnta121_pe.log","CNTA121_PE" + ": " + cMsg)
+//u_xxLog(u_SLogDir()+"cnta121_pe.log","CNTA121_PE" + ": " + cMsg)
 
 Return NIL
  

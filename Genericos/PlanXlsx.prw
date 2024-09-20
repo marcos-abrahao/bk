@@ -93,8 +93,8 @@ Local cFile   		:= TRIM(_cProg)+"-"+cEmpAnt+"-"+DTOS(Date())
 Local cFileL  		:= ""
 Local cFileR  		:= ""
 Local cFileX  		:= ""
-Local cDirDest		:= "C:\TMP\"
-Local cDirTmp 		:= "\tmp\"
+Local cDirDest		:= u_LTmpDir()
+Local cDirTmp 		:= u_STmpDir()
 Local nCont	  		:= 0
 Local nRet    		:= 0
 
@@ -1125,8 +1125,8 @@ Local nRet    		:= 0
 Local cFileL  		:= ""
 Local cFileR  		:= ""
 Local cFileX  		:= ""
-Local cDirDest		:= "C:\TMP\"
-Local cDirTmp 		:= "\tmp\"
+Local cDirDest		:= u_LTmpDir()
+Local cDirTmp 		:= u_STmpDir()
 Local nCont	  		:= 0
 
 Local cFont			:= ""

@@ -66,11 +66,6 @@ INS4982        	IRPJ A RECOLHER  X 60
 21401005		IRRF ASSALARIADOS
 */
 
-//If !FWIsAdmin() .AND. !u_IsFiscal(__cUserId)
-//	u_MsgLog(cProg,"Acesso a rotina somente para o grupo Fiscal","W")
-//	Return Nil
-//EndIf
-
 // Descrição dos produtos
 For nX := 1 To Len(aPrd)
 	cDesc := TRIM(Posicione("SB1",1,xFilial("SB1")+aPrd[nX],"B1_DESC"))

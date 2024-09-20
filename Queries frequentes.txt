@@ -40,7 +40,7 @@ WHERE  SUBSTRING(M_NAME,1,1) <> '#'
 SELECT * FROM SED010 WHERE ED_CODIGO = '0000000047' OR ED_PERCIRF = 1
 
 -----------------------------------------------------------------------------------------------------------------------------------
--- 24/04/2024 Listagem dos usuario Staf e seus superiores
+-- 24/04/2024 Listagem dos usuarios Grupos Staf e seus superiores
 SELECT USRGRP.[USR_ID]
       ,USR.USR_CODIGO
 	  ,USR_GRUPO
@@ -61,11 +61,11 @@ SELECT USRGRP.[USR_ID]
 		--AND USRGRP.USR_GRUPO = '000029'
 		--AND USRGRP.USR_ID = '000029'
 		--AND USR_DEPTO LIKE '%Ju%'
-	ORDER BY USR.USR_CODIGO
+	ORDER BY USR.USR_CODIGO¬
 	--ORDER BY USRGRP.USR_ID
 
 
--- 13/09/23 Listagem com Usuarios e superiores
+-- 13/09/23 Listagem Usuarios e superiores
 
 SELECT 
 	 USRSUP.USR_ID
@@ -83,7 +83,29 @@ SELECT
 		--AND USR1.USR_MSBLQL = '2'
 ORDER BY USR2.USR_CODIGO,USRSUP.R_E_C_N_O_
 
+-- 19/09/24 Usuarios por e-mail
 
+SELECT USR_ID
+      ,USR.USR_CODIGO
+	  ,USR_DEPTO
+	  ,USR_EMAIL
+	  
+  FROM [dataP10].[dbo].[SYS_USR] USR
+  WHERE USR.D_E_L_E_T_ = ''
+		AND USR_MSBLQD = ' '
+		AND USR_EMAIL IN ('acsa.souza@bkconsultoria.com.br                                                                                                                       ',
+'adalmir.santos@bkconsultoria.com.br                                                                                                                   ',
+'ademar.silva@rkainformatica.com.br                                                                                                                    ',
+'adriana.pereira@bkconsultoria.com.br                                                                                                                  ',
+'adriana.pereira@bkconsultoria.com.br                                                                                                                  ',
+'aguinaldo.goncalves@bkconsultoria.com.br                                                                                                              '
+)
+		--AND USR.USR_MSBLQL = '2'
+		--AND USRGRP.USR_GRUPO = '000029'
+		--AND USRGRP.USR_ID = '000029'
+		--AND USR_DEPTO LIKE '%Ju%'
+	ORDER BY USR.USR_CODIGO
+	--ORDER BY USRGRP.USR_ID
 -----------------------------------------------------------------------------------------------------------------------------------
 11/05/23 - EFD na Base Teste
 

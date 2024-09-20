@@ -232,6 +232,55 @@ EndIf
 
 Return cRet
 
+/*/{Protheus.doc} EmailUsr
+    Retorna array de usuarios atraves de string de e-mails
+    @type  Function
+    @author Marcos Bispo Abrahão
+    @since 19/09/2024
+    @version version
+    @param cEmails (string com e-mails já montados, separados por ";")
+    @return lRet
+/*/
+User Function EmailUsr(cEmails)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+Local cFEmails      := FormatIn(cEmails,";")
+Local aUsers        := {}
+Local nU            := 0
+
+// Remover brancos
+cFEmails := STRTRAN(cFEmails,",''","")
+
+cQuery := "SELECT " + CRLF
+cQuery += "    USR_ID  AS USRID" + CRLF
+
+cQuery += "  FROM [dataP10].[dbo].[SYS_USR] USR" + CRLF
+cQuery += "  WHERE USR.D_E_L_E_T_ = '' " + CRLF
+cQuery += "		AND USR.USR_MSBLQD = ' '" + CRLF   // Data de Bloqueio em branco
+cQuery += "		AND USR.USR_EMAIL IN "+cFEmails + CRLF
+cQuery += "	ORDER BY USR_ID" + CRLF
+// Parametros
+//aAdd(aBinds,cFEmails)
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"USRID"    ,"C",  6,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+    u_MsgLog("GrpUsers",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+Else
+    For nU := 1 To Len(aReturn)
+        aAdd(aUsers,aReturn[nU,1])
+    Next
+Endif
+
+Return aUsers
+
+//-------------------------------
+
 /*/{Protheus.doc} GprEmail
     Retorna string com todos emails de um grupo
     @type  Function
@@ -269,7 +318,7 @@ For nG := 1 To Len(aDeptos)
 Next
 
 // Usuarios
-¬For nE := 1 To Len(aGUsers)
+For nE := 1 To Len(aGUsers)
     If !(ALLTRIM(aGUsers[nE,3])+";" $ cEmails)
         cEmails += ALLTRIM(aGUsers[nE,3])+";"
     EndIf
@@ -307,7 +356,6 @@ For nE := 1 To Len(aGDeptos)
         aAdd(aGrupos,aGDeptos[nE,4])
     EndIf
 Next
-
 
 Return cEmails
 
@@ -583,15 +631,20 @@ Return lRet
 // Retorna se o usuário pertence ao grupo ou grupos informados
 User Function InGrupo(cId,cGrupos)
 Local nx
-Local aGrp := FWSFUsrGrps(cId)
+Local aGrp := {}
 Local lRet := .F.
 
-For nx := 1 To Len(aGrp)
-	If aGrp[nx] $ cGrupos
-		lRet := .T.
-		Exit
-	EndIf
-Next
+If FWIsAdmin(cId)
+    lRet := .T.
+Else
+    aGrp := FWSFUsrGrps(cId)
+    For nx := 1 To Len(aGrp)
+        If aGrp[nx] $ cGrupos
+            lRet := .T.
+            Exit
+        EndIf
+    Next
+EndIf
 
 Return lRet
 
@@ -623,7 +676,7 @@ Return u_InGrupo(cId,u_GrpFisc())
 
 // É do grupo Administrador ou Master Financeiro
 User Function IsMasFin(cId)
-Return u_InGrupo(cId,"000000/000005")
+Return u_InGrupo(cId,u_GrpMFin())
 
 // Pertence a um dos grupos: Admin, Master Fin, Diretoria, Master Repac, Fiscal
 User Function IsMDir(cId)
@@ -663,7 +716,7 @@ EndIf
 Return lRet
 
 
-// Retorna se o usuário deve avaliar Fornecedores (Compras e Almox)
+// Retorna se o usuário deve avaliar Fornecedores
 User Function IsAvalia(cId)
 Local lRet := .F.
 //        Admin/Michele/Bruno
@@ -775,9 +828,6 @@ Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpRepac()+"/"+u_GrpFi
 User Function cGrpMD2()
 //000000/000005/000007/000038
 Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpMLibDc()
-
-
-
 
 // Usuários ----------------------------------------
 
@@ -920,7 +970,7 @@ Return cRet
 User Function BKEmFin()
 Local cRet := ""
 
-cRet := u_GprEmail("",{},{},"Financeiro")
+cRet := u_GprEmail("",{},{},{"Financeiro"})
 
 /*
 cRet += "andresa.cunha@bkconsultoria.com.br;"

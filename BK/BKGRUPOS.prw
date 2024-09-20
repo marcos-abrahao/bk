@@ -31,7 +31,7 @@ nOpc = 6  // Empresas em Barueri - SP
 //                                                                               Barueri - 8
 //                                                                                  CC Consorcio - 9
 Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S","S",""         },;
-                        {"02","MMDK"            ,"MMKD"         ,"S","S","S","S","N",""         },;
+                        {"02","MMDK"            ,"MMDK"         ,"S","S","S","S","N",""         },;
                         {"04","ESA"             ,"ESA"          ,"N","N","N","N","N",""         },;
                         {"06","BKDAHER SUZANO"  ,"BKDAHER S"    ,"N","N","N","N","N",""         },;
                         {"07","JUST SOFTWARE"   ,"JUST"         ,"N","N","N","N","N",""         },;

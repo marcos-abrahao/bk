@@ -842,7 +842,7 @@ While !oReport:Cancel() .And. !SC7->(Eof()) .And. SC7->C7_FILIAL == xFilial("SC7
 			lNewAlc := .T.
 			If SC7->C7_USER == "000232" // Barbara
 				// Solicitado pela Michele em 30/09/2021
-				cComprador := UsrFName("000138")
+				cComprador := UsrFName(u_GerCompras())
 			Else
 				cComprador := UsrFName(SC7->C7_USER)
 			EndIf

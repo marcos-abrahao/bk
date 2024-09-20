@@ -24,8 +24,8 @@ User Function BKFINR24()
 Local aArea     := GetArea()
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
-Local cArqHtml  := cDirTmp+"\"+"NDC"+ALLTRIM(SE1->E1_NUM)+".HTML"
+Local cDirTmp   := u_LTmpDir()
+Local cArqHtml  := cDirTmp+"NDC"+ALLTRIM(SE1->E1_NUM)+".HTML"
 Local aHtml     := {}
 Local _nI       := 0
 Private cProg   := "BKFINR24"

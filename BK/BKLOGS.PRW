@@ -32,8 +32,7 @@ Return lRet
 
 
 User Function MsgLog(cProg,cMens,cAlert,cTxt)
-Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
-//Local cArqLog  := "\log\msglog.log"
+Local cArqLog  := u_SlogDir()+"msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
 Local lRet     := .T.
 
 Default cProg  := FunName()
@@ -73,7 +72,7 @@ EndIf
 
 u_xxLog(cArqLog,cProg + ": "+cMens)
 If !Empty(cTxt)
-	u_xxLog("\log\"+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
+	u_xxLog(u_SlogDir()+AllTrim(cProg)+".log",cProg + ": "+cMens,cTxt)
 	If !IsBlind() .AND. !Empty(cAlert)
 		FWAlertHelp(AllTrim(cTxt),cProg)
 	EndIf
@@ -102,8 +101,7 @@ Return lRet
 */
 
 User Function AvisoLog(cProg,cTitulo,cMsg,aBotoes,nSize,cText,nRotAutDefault,cBitmap,lEdit,nTimer,nOpcPadrao)
-Local cArqLog  := "\log\msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
-//Local cArqLog  := "\log\msglog.log"
+Local cArqLog  := u_SlogDir()+"msglog-"+SUBSTR(DTOS(DATE()),1,6)+".log"
 Local nRet     := 0
 Local cMens    := cMsg
 Default cProg  := FunName()
@@ -214,7 +212,7 @@ Local cErrLog := ""
 Default cProg := FunName()
 Default cMens := "Problemas na execução do MSExecAuto:"
 
-cErrLog := MostraErro("\log\",cArqErr)
+cErrLog := MostraErro(u_SLogDir(),cArqErr)
 u_MsgLog(cProg,cMens,"E",cErrLog)
 
 Return cErrLog
@@ -229,11 +227,11 @@ Return cErrLog
 /*/
 
 User Function LogMemo(cProg,cTexto)
-Local cDir  := "C:\TMP"
+Local cDir  := u_LTmpDir()
 Local cMens := ""
 IF __cUserId $ "000000/000038" .OR. IsBlind() //Usuários admin e teste
 	If IsBlind()
-		cDir:= "\log"
+		cDir:= u_SLogDir()
 	ENDIF
 	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
 	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+CRLF
@@ -241,7 +239,7 @@ IF __cUserId $ "000000/000038" .OR. IsBlind() //Usuários admin e teste
 	cMens += cTexto
 	If !("\" $ cProg)
 		MakeDir(cDir)
-		MemoWrite(cDir+"\"+cProg,cMens)
+		MemoWrite(cDir+cProg,cMens)
 	Else
 		MemoWrite(cProg,cMens)
 	EndIf
@@ -258,7 +256,7 @@ Return Nil
 User Function LogTxt(cArqLog,cTxt,aBinds)
 Local nPosFim 	:= 0
 Local nHandle 	:= 0
-Local cDir    	:= "C:\TMP"
+Local cDir    	:= u_LTmpDir()
 Local cFile   	:= ""
 Local cTexto  	:= ""
 Local nI 		:= 0
@@ -282,10 +280,10 @@ If __cUserId == "000000" .OR. IsBlind()
 	EndIf
 	
 	If IsBlind()
-		cDir:= "\log"
+		cDir:= u_SLogDir()
 	ENDIF
 
-	cFile := cDir+"\"+cArqLog
+	cFile := cDir+cArqLog
 	If !File(cFile)
 		nHandle := fCreate(cFile,0)
 		If nHandle == -1

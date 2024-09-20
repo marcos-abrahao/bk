@@ -654,7 +654,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 // Desabilitar para testar o html
 //If __cUserId == '000000'
-//	Memowrite("\tmp\pv.html",cHtml)
+//	Memowrite(u_STmpDir()+"pv.html",cHtml)
 //EndIf
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")

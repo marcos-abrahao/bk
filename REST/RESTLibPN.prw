@@ -80,7 +80,7 @@ WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento,tpanexo WSREST RestLibPN
 		// Padrão Protheus
 		cFName	:= "/dirdoc/co"+self:empresa+"/shared/"+cName
 	Else
-		cFName	:= "/http/anexos/"+cName
+		cFName	:= u_STmpAnexos()+cName
 	EndIf
 	oFile	:= FwFileReader():New(cFName) // CAMINHO ABAIXO DO ROOTPATH
 
@@ -1757,7 +1757,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 // Desabilitar para testar o html
 //If __cUserId == '000000'
-//	Memowrite("\tmp\pn.html",cHtml)
+//	Memowrite(u_TmpDir()+"pn.html",cHtml)
 //EndIf
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")

@@ -201,11 +201,11 @@ Return Nil
 // Espelho da cotação (Gera HTML e abre browse)
 User Function ESPELCOT() 
 Local aArea     := GetArea()
-//Local cPath     := "\tmp\"
+//Local cPath     := u_STmpDir()
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
-Local cArqHtml  := cDirTmp+"\"+"COTACAO.HTML"
+Local cDirTmp   := u_LTmpDir()
+Local cArqHtml  := cDirTmp+"COTACAO.HTML"
 //Local cTxt      := ""
 Local aHtml     := ""
 Local _nI       := 0
@@ -995,8 +995,8 @@ Local cFile   		:= "Cotação-"+TRIM(SC8->C8_NUM)+"-"+cEmpAnt
 Local cFileL  		:= ""
 Local cFileR  		:= ""
 Local cFileX  		:= ""
-Local cDirDest		:= "C:\TMP\"
-Local cDirTmp 		:= "\tmp\"
+Local cDirDest		:= u_LTmpDir()
+Local cDirTmp 		:= u_STmpDir()
 Local nRet    		:= 0
 
 Local aArea   		:= GetArea()

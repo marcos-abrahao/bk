@@ -35,7 +35,7 @@ Função para disparo do e-mail utilizando TMailMessage e tMailManager com opção d
 /*/
                 
 
-User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
+User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
     Local aArea        := GetArea()
     Local nAtual       := 0
     Local lRet         := .T.
@@ -50,19 +50,23 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
     Local nPort        := Iif(':' $ cSrvFull, Val(SubStr(cSrvFull, At(':', cSrvFull)+1, Len(cSrvFull))), 587)
     Local nTimeOut     := GetMV("MV_RELTIME")
     Local cLog         := ""
-    Local cPath        := "\tmp\"
-    Local cArqLog      := "\log\bksendmail.log"
+    Local cPath        := u_STmpDir()
+    //Local cPathH       := U_STmpDir()
+    Local cArqLog      := u_SLogDir()+"bksendmail.log"
+    Local cArqAviso    := ""
 
     Local cDrive       := ""
     Local cDir         := ""
     Local cNome        := ""
     Local cExt         := ""
+    Local lUsaTLS      := .T.
+    Local aUsers       := {}
 
     Default cPara      := ""
     Default cAssunto   := ""
     Default cCorpo     := ""
     Default aAnexos    := {}
-    Default lUsaTLS    := .T.
+    Default lAviso     := .T.
  
 	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 
@@ -75,6 +79,26 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lUsaTLS)
         u_MsgLog(cPrw,"E-mail simulado: "+TRIM(cAssunto))
 	EndIf
 	// Fim testes
+
+    If lAviso
+        aUsers := u_EmailUsr(cPara)
+        If LEN(aAnexos) > 0
+            cArqAviso := aAnexos[1]
+            /*
+            SplitPath( aAnexos[1], @cDrive, @cDir, @cNome, @cExt )
+            cArqAviso := cPathH+cNome+cExt
+
+            If ":" $ aAnexos[1]
+                CpyT2S( cArqAviso , cPathH, .T. )
+            Else
+                If aAnexos[1] <> cArqAviso
+                    __CopyFile( aAnexos[1], cArqAviso )
+                EndIf
+            EndIf
+            */
+        EndIf
+        u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cArqAviso,DATE())
+    EndIf
 
     //Se tiver em branco o destinatário, o assunto ou o corpo do email
     If Empty(cPara) .Or. Empty(cAssunto) .Or. Empty(cCorpo)
@@ -195,7 +219,8 @@ Local cPass      := AllTrim(GetMV("MV_RELPSW"))
 Local lRelauth   := GetMv("MV_RELAUTH")
 Local cDe        := cEmail
 Local nTent      := 0
-Local cArqLog    := "\log\sendmail.log"
+Local cArqLog    := u_SLogDir()+"sendmail.log"
+Local aUsers     := {}
 
 Default _lJob    := IsBlind()
 Private lResult  := .T.
@@ -208,6 +233,9 @@ If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
     u_MsgLog(cPrw,"E-mail simulado em ambiente de teste: "+TRIM(cAssunto))
 EndIf
 // Fim testes
+
+aUsers := u_EmailUsr(cPara)
+u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cAnexo,DATE())
 
 CONNECT SMTP SERVER cServer ACCOUNT cEmail PASSWORD cPass RESULT lResulConn
 If !lResulConn

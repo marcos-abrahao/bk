@@ -125,7 +125,11 @@ Do While !Eof()
 		Next
 
 		cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
-		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+		
+		// Grava o anexo html
+		u_GrvAnexo(cProg+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")+".html",cMsg,.T.)
+
+		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cProg+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")+".html"})
 	EndIf
 EndDo
 

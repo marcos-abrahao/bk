@@ -3786,8 +3786,8 @@ Static Function GeraXGCT11(_cAlias,cArqS,aTitulos,aCampos,aCabs,aImpr,aAlign,aFo
 	Local cCrLf   	:= Chr(13) + Chr(10)
 	Local _ni,_nj
 	Local cPicN   	:= "@E 99999999.99999"
-	Local cDirTmp 	:= "C:\TMP"
-	Local cArqTmp 	:= cDirTmp+"\"+cArqS+".CSV"
+	Local cDirTmp 	:= u_LTmpDir()
+	Local cArqTmp 	:= cDirTmp+cArqS+".CSV"
 	Local lSoma,aSoma,nCab
 	Local cLetra	:= ""
 	Local cTpQuebra	:= ""

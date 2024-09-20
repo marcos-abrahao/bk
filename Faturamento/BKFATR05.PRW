@@ -102,7 +102,7 @@ Local aArea     := GetArea()
 Local aAreaSC5  := GetArea("SC5")
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := u_LTmpDir()
 Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
@@ -111,9 +111,9 @@ Local cPed		:= ""
 
 
 If ValType(aPeds) <> "A"
-	cArqHtml  := cDirTmp+"\"+"PED"+ALLTRIM(SC5->C5_NUM)+".HTML"
+	cArqHtml  := cDirTmp+"PED"+ALLTRIM(SC5->C5_NUM)+".HTML"
 Else
-	cArqHtml  := cDirTmp+"\"+"PED"+DTOS(dDataBase)+".HTML"
+	cArqHtml  := cDirTmp+"PED"+DTOS(dDataBase)+".HTML"
 EndIf
 
 IF !EMPTY(cDirTmp)

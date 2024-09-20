@@ -200,7 +200,7 @@ cArqXls := Excel(cAssunto,"QTMP")
 QTMP->(dbCloseArea())
 
 If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
-	u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls})
+	u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls},.F.)
 EndIf
 
 // Gravar no SZ0 - Avisos Web
@@ -218,7 +218,7 @@ Local aParam 	:= {}
 Local cArqXls	:= ""
 
 // Definição do Arq Excel
-oRExcel := RExcel():New(cProg,"\http\anexos\",cProg)
+oRExcel := RExcel():New(cProg,u_STmpDir(),cProg)
 oRExcel:SetTitulo(cTitulo)
 oRExcel:SetVersao(cVersao)
 oRExcel:SetDescr(cDescr)

@@ -2021,7 +2021,7 @@ STATIC FUNCTION DTRANSTML(cTermo,dEMISSAO,cMUNIC,cENDEMPR,cCLIENT,cENDCLI,cRESPO
 LOCAL cTipoTit :="DECLARAÇÃO DE TRANSFERÊNCIA - "+cTermo
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := u_LTmpDir()
 Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
@@ -2133,7 +2133,7 @@ IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
 ENDIF   
 
-cArqHtml  := cDirTmp+"\"+"DECLARACAO_TRANS_"+ALLTRIM(cTermo)+".HTML"
+cArqHtml  := cDirTmp+"DECLARACAO_TRANS_"+ALLTRIM(cTermo)+".HTML"
 
 fErase(cArqHtml)
 nHandle := MsfCreate(cArqHtml,0)
@@ -2152,7 +2152,7 @@ STATIC FUNCTION RESPUSO(cTermo,dEMISSAO,cCONTRATO,cGCONTR,cMUNIC,cENDEMPR,cCLIEN
 LOCAL cTipoTit :="TERMO DE RESPONSABILIDADE DE USO - "+cTermo
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := u_LTmpDir()
 Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
@@ -2305,7 +2305,7 @@ IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
 ENDIF   
 
-cArqHtml  := cDirTmp+"\"+"TERMO_RESP_USO_"+ALLTRIM(cTermo)+".HTML"
+cArqHtml  := cDirTmp+"TERMO_RESP_USO_"+ALLTRIM(cTermo)+".HTML"
 
 fErase(cArqHtml)
 nHandle := MsfCreate(cArqHtml,0)
@@ -2324,7 +2324,7 @@ STATIC FUNCTION RECEBUNIFORME(cTermo,dEMISSAO,cCONTRATO,cFuncionario,c_CPFFUN,cM
 LOCAL cTipoTit  := "TERMO DE RECEBIMENTO LOCAL DE UNIFORMES - "+cTermo
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := u_LTmpDir()
 Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
@@ -2516,7 +2516,7 @@ IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
 ENDIF   
 
-cArqHtml  := cDirTmp+"\"+"TERMO_RECEB_UNIFORME_"+ALLTRIM(cTermo)+".HTML"
+cArqHtml  := cDirTmp+"TERMO_RECEB_UNIFORME_"+ALLTRIM(cTermo)+".HTML"
 
 fErase(cArqHtml)
 nHandle := MsfCreate(cArqHtml,0)
@@ -2536,7 +2536,7 @@ STATIC FUNCTION TDEVOLUCAO(cTermo,dEMISSAO,cMUNIC,cCONTRATO,cDescContr,cFunciona
 LOCAL cTipoTit :="TERMO DE DEVOLUÇÃO DE UNIFORMES EPI - "+cTermo
 Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := "C:\TMP"
+Local cDirTmp   := u_LTmpDir()
 Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
@@ -2702,7 +2702,7 @@ IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)
 ENDIF   
 
-cArqHtml  := cDirTmp+"\"+"TERMO_DEVOLUCAO_"+ALLTRIM(cTermo)+".HTML"
+cArqHtml  := cDirTmp+"TERMO_DEVOLUCAO_"+ALLTRIM(cTermo)+".HTML"
 
 fErase(cArqHtml)
 nHandle := MsfCreate(cArqHtml,0)

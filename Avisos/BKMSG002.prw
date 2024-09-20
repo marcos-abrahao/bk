@@ -158,10 +158,10 @@ cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
 cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 
 If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
-	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,,.F.)
 EndIf
 
-u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
 u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFisc(),"Entidades com conta contábil bloqueada","Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")

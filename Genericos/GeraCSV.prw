@@ -70,8 +70,8 @@ Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
 Local cPicN   := "@E 9999999999.999999"
-Local cDirTmp := "C:\TMP"
-Local cArqTmp := cDirTmp+"\"+cArqS+"-"+DTOS(Date())+".CSV"
+Local cDirTmp := u_LTmpDir()
+Local cArqTmp := cDirTmp+cArqS+"-"+DTOS(Date())+".CSV"
 Local lSoma,aSoma,nCab
 Local lFirst  := .T.
 

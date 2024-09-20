@@ -50,7 +50,7 @@ Private cContrato   := ""
 If Len(aParam) == 2
 	lSintet  	:= aParam[1]
 	lJob 		:= aParam[2]
-	cArqLog		:= "\LOG\BKGCTR14-"+cEmpAnt+".LOG"
+	cArqLog		:= u_SLogDir()+"BKGCTR14-"+cEmpAnt+".LOG"
 Else
 
 	lSintet  	:= aParam[1]
@@ -60,7 +60,7 @@ Else
 
 	WFPrepEnv(cEmpPar,cFilPar,cPerg,{"CN9","SZX"},"GCT")
 
-	cArqLog		:= "\LOG\BKGCTR14-"+cEmpPar+".LOG"
+	cArqLog		:= u_SLogDir()+"BKGCTR14-"+cEmpPar+".LOG"
 
 	// Data de Agendamento do Job
 	dAgJob		:= U_BKGetMv("BKGCTR1410",.F.,CTOD(""))
@@ -6068,7 +6068,7 @@ Local nHandle
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni,_nj
 Local cPicN  	:= "@E 99999999.99999"
-Local cDirTmp	:= "c:\tmp"
+Local cDirTmp	:= u_LTmpDir()
 Local cArqTmp	:= ""
 Local lSoma,aSoma,nCab
 Local cLetra	:= ""
@@ -6096,9 +6096,9 @@ Else
 EndIf
 
 If lJob
-	cDirTmp := "\tmp"
+	cDirTmp := u_STmpDir()
 EndIf
-cArqTmp := cDirTmp+"\"+cArqE+".CSV"
+cArqTmp := cDirTmp+cArqE+".CSV"
 
 If !lJob
 	If u_MsgLog(cPerg,aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?","Y")

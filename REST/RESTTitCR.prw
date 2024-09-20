@@ -1223,7 +1223,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 u_MsgLog(,"BROWCR/2")
 //If ::userlib == '000000'
-	Memowrite("\tmp\cr.html",cHtml)
+//	Memowrite(u_STmpDir()+"cr.html",cHtml)
 //EndIf
 //u_MsgLog("RESTTITCR",__cUserId)
 

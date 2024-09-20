@@ -1429,7 +1429,7 @@ cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 //cPre  := StrIConv( "Pré", "CP1252", "UTF-8")
 //cHtml := STRTRAN(cHtml,"Pré",cPre)
 
-Memowrite("\tmp\dc.html",cHtml)
+//Memowrite(u_STmpDir()+"dc.html",cHtml)
 
 self:setResponse(cHTML)
 self:setStatus(200)

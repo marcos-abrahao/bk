@@ -127,11 +127,6 @@ User Function BKCOMA16(cTipoDoc)
 	Private xTpDoc  := cTipoDoc  // D=Doc, P=Pré-Nota
 	Private cPerg	:= "BKCOMA16"
 
-	//If !FWIsAdmin() .AND. !IsGesFin(__cUserId)
-	//	u_MsgLog("BKCOMA16","Usuário sem permissão de acesso a esta rotina","E")
-	//	Return
-	//EndIf
-
 	u_MsgLog("BKCOMA16")
 
 	//Criando o MarkBrow

@@ -368,7 +368,7 @@ While !FT_FEOF()
  
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha
-	//u_xxLog("\LOG\BKCTBA04.LOG","1-"+cBuffer)
+	//u_xxLog(u_SLogDir()+"BKCTBA04.LOG","1-"+cBuffer)
 
 	If ( !Empty(cBuffer) )
 		nPos := 1

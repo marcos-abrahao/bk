@@ -60,7 +60,7 @@ Local cChave  := ""
 Local cAssunto:= "Nova Batida de Ponto Online"
 Local cMsg 	  := ""
 Local cMsg1	  := ""
-Local cFile   := "\anexos\PASSO A PASSO - BATIDA PONTO AHGORA.pdf"
+Local cFile   := STmpDir()+"PASSO A PASSO - BATIDA PONTO AHGORA.pdf"
 Local cEmailCC:= u_EmailAdm()
 
 BeginContent var cMsg

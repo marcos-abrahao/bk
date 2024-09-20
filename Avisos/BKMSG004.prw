@@ -81,7 +81,7 @@ cMsg   := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 
 // Grava o anexo html
-u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
 u_BKMsgUs(cEmpAnt,cProg,{},aGrupos,"Clientes sem Conta bancaria","Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")

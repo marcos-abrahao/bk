@@ -38,7 +38,7 @@ User Function BKDANFE(cNota, cSerie, cPasta)
 
     Default cNota   := "000000018"
     Default cSerie  := "2  "
-    Default cPasta  := "C:\TMP\"  //GetTempPath()
+    Default cPasta  := u_LTmpDir()
        
     //Se existir nota
     If ! Empty(cNota)

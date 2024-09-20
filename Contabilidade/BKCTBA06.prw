@@ -23,7 +23,7 @@ Local cCredito      := ""
 Local cContaDe      := "11102001"
 Local cContaPara    := "11102002"
 
-Local cArqLog		:= "\LOG\BKCTBA06-"+cEmpAnt+".LOG"
+Local cArqLog		:= u_SLogDir()+"BKCTBA06-"+cEmpAnt+".LOG"
 
 Private lMsErroAuto := .F.
 Private lMsHelpAuto := .T.

@@ -1038,8 +1038,8 @@ Return cHtml
 
 // Abre o Gráfico no navegador Web
 Static Function OpenHtml(cArq,aHtml)
-	Local cDirHtml  := "c:\tmp"  //"http"
-	Local cArqHtml  := cDirHtml+"\"+cArq+".html"
+	Local cDirHtml  := u_LTmpDir()
+	Local cArqHtml  := cDirHtml+cArq+".html"
 	Local aArea     := GetArea()
 	Local nHandle   := 0
 	Local cCrLf     := Chr(13) + Chr(10)
@@ -1081,7 +1081,7 @@ User Function ArrToCsv( _aPlan,_aCabs,_cTitulo,_cProg, _cDirHttp )
 
 	Local cArq       := ""
 //Local cDir       := GetSrvProfString("Startpath","")
-	Local cDirTmp    := "C:\TMP"  //GetTempPath()
+	Local cDirTmp    := u_LTmpDir()
 
 	If !Empty(_cDirHttp)
 		cDirTmp := _cDirHttp
@@ -1089,7 +1089,7 @@ User Function ArrToCsv( _aPlan,_aCabs,_cTitulo,_cProg, _cDirHttp )
 
 	MakeDir(cDirTmp)
 
-	cArq := cDirTmp+"\"+_cProg+".csv"
+	cArq := cDirTmp+_cProg+".csv"
 	fErase(cArq)
 
 	nHandle := MsfCreate(cArq,0)
@@ -1160,7 +1160,7 @@ Dim sTit As String
 
  sFileName = Application.ThisWorkbook.Name
 
- sFileName = "c:\tmp\" + Replace(sFileName, "xlsm", "xlsx")
+ sFileName = u_LTmpDir()+ Replace(sFileName, "xlsm", "xlsx")
  
  MsgBox "Criando o gráfico! " + sFileName
  

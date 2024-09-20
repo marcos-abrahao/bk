@@ -68,7 +68,7 @@ While !FT_FEOF()
 
 	//Capturar dados
 	cBuffer := FT_FREADLN()  //lendo a linha
-	//u_xxLog("\LOG\BKCTBA04.LOG","1-"+cBuffer)
+	//u_xxLog(u_SLogDir()+"BKCTBA04.LOG","1-"+cBuffer)
 	If ( !Empty(cBuffer) )
 		aLINHA := {}
 		aLINHA := U_StringToArray(cBuffer,";") //Retorna Array sem colunas com valores em branco
@@ -81,7 +81,7 @@ While !FT_FEOF()
 			cLinha := ""
 			IF VAL(aLINHA[1]) == 1
 				cLinha := STRZERO(VAL(aLINHA[1]),3)+PAD(ALLTRIM(aLINHA[2]),1)+PAD(ALLTRIM(aLINHA[3]),20)+PAD(ALLTRIM(aLINHA[4]),20)+aLINHA[5]+PAD(ACENTO(ALLTRIM(aLINHA[6])),100)+PAD(aLINHA[7],8)+SPACE(342)+cCrLf
-				//u_xxLog("\LOG\BKCTBA04.LOG","2-"+cLinha)
+				//u_xxLog(u_SLogDir()+"BKCTBA04.LOG","2-"+cLinha)
 				fWrite(nHandle,cLinha)
 			ENDIF
  		ENDIF

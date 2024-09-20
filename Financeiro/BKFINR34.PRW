@@ -539,12 +539,12 @@ Return nil
 Static Function RelHtml(cHtml) 
 Local aArea     := GetArea()
 Local aAreaSE2  := GetArea("SE2")
-Local cDirTmp   := "\http\tmp"
+Local cDirTmp   := "\http\tmp\"
 Local cArqHtml  := ""
 Local cUrl 		:= ""
 
-cArqHtml  	:= cDirTmp+"\"+"cp"+DTOS(dDataBase)+"-"+__cUserID+".html"
-cUrl 		:= u_BkIpServer()+"\tmp\"+"cp"+DTOS(dDataBase)+"-"+__cUserID+".html"
+cArqHtml  	:= cDirTmp+"cp"+cEmpAnt+"-"+DTOS(dDataBase)+"-"+__cUserID+".html"
+cUrl 		:= u_BkIpServer()+"\tmp\"+"cp"+cEmpAnt+"-"+DTOS(dDataBase)+"-"+__cUserID+".html"
 
 IF !EMPTY(cDirTmp)
    MakeDir(cDirTmp)

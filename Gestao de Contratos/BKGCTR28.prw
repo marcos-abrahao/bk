@@ -96,7 +96,7 @@ User Function BKGCTR28()
 
 	Private cTitulo     := "Pagamentos x Responsáveis"
 	Private cPerg       := "BKGCTR28"
-	Private cArqLog		:= "\LOG\BKGCTR28-"+cEmpAnt+".LOG"
+	Private cArqLog		:= u_SLogDir()+"BKGCTR28-"+cEmpAnt+".LOG"
 
 	Private cTTipos 	:= ""
 	Private cXTipos 	:= ""

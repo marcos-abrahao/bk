@@ -326,7 +326,7 @@ NEXT
 /*
 IF LEN(aLINHAxx) > 0
 
-	nHandle := MsfCreate("C:\TMP\VTOUTU.CSV",0)
+	nHandle := MsfCreate(u_LTmpDir()+"VTOUTU.CSV",0)
    
 	If nHandle > 0
       

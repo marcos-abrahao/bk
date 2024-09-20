@@ -9,10 +9,25 @@ BK - Funcoes com parâmetros embutidos no fonte
 @version P12
 /*/
 
+// Pasta de do Servidor (http)
+User Function STmpAnexos()
+Return "\http\anexos\"
+
+// Pasta temporaria Server
+User Function STmpDir()
+Return "\tmp\"
+
+// Pasta log do Servidor
+User Function SLogDir()
+Return "\log\"
+
+// Pasta temporaria Local
+User Function LTmpDir()
+Return "c:\tmp\"
+
 // Contratos do Regime Cumulativo
 User Function BKCCCum()
 Return('290000471/300000482')
-
 
 // Contratos que não devem emitir aviso de contrato vencido
 User Function CtrVenc(cContrato)

@@ -23,7 +23,7 @@ PRIVATE cForn       := ""
 PRIVATE cProd       := ""
 PRIVATE cCODTES    	:= ""
 PRIVATE nTPMOV    	:= 1
-PRIVATE cArqS		:= "\tmp\PFIS09"
+PRIVATE cArqS		:= u_STmpDir()+"PFIS09"
 PRIVATE aFixeFX     := {}
 PRIVATE aTitulos,aCampos,aCabs,aTotais
 PRIVATE ALIAS_TMP   := "QTMP1"
@@ -106,10 +106,6 @@ Aadd( aDbf, { 'XX_VALIPI','N',14,02 } )
 Aadd( aDbf, { 'XX_ERROS','C',250,00 } )
 Aadd( aDbf, { 'XX_STATUS','C',1,00 } )
 Aadd( aDbf, { 'XX_CODBCC','C',02,00 } )
-
-///cArqTmp := CriaTrab( aDbf, .t. )
-///dbUseArea( .t.,NIL,cArqTmp,'TRB',.f.,.f. )
-///IndRegua("TRB",cArqTmp,"XX_LINHA",,,"Indexando Arquivo de Trabalho") 
 
 oTmpTb := FWTemporaryTable():New( "TRB")
 oTmpTb:SetFields( aDbf )
@@ -924,8 +920,8 @@ Local nHandle
 Local cCrLf   := Chr(13) + Chr(10)
 Local _ni,_nj
 Local cPicN   := "@E 99999999.99999"
-Local cDirTmp := IIF(nOP == 1,"C:\TMP","\tmp") 
-Local cArqTmp := cDirTmp+"\"+cArqS+".CSV"
+Local cDirTmp := IIF(nOP == 1,u_LTmpDir(),u_STmpDir()) 
+Local cArqTmp := cDirTmp+cArqS+".CSV"
 Local lSoma,aSoma,nCab
 Local cLetra
 

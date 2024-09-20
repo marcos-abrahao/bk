@@ -604,7 +604,7 @@ function format(d) {
         //'</dd>' +
 
         '<dl>' +
-        '<dt>'+d.Origem+'</dt>' +
+        '<dt>' + d.Origem + '</dt>' +
         '<dd>' +
         '</dd>' +
         '</dl>'
@@ -695,9 +695,11 @@ cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 // Desabilitar para testar o html
+/*
 If __cUserId == '000000'
-	Memowrite("\tmp\RESTMSGUS.html",cHtml)
+	Memowrite(u_STmpDir()+"RESTMSGUS.html",cHtml)
 EndIf
+*/
 u_MsgLog("RESTMsgUs",__cUserId+' - '+::userlib)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
@@ -753,7 +755,7 @@ EndIf
 
 cQuery += " ORDER BY Z0_DTENV,Z0_HRENV" + CRLF
 
-u_LogMemo("RESTMsgUs1.SQL",cQuery)
+//u_LogMemo("RESTMsgUs1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZ0,.T.,.T.)
 
@@ -775,6 +777,9 @@ Default dFinal  := DATE()+5
 // Remover diretorio
 SplitPath(cAnexo,,,@cArqDest,@cExt)
 cAnexo := Alltrim(cArqDest+cExt)
+
+// Copia o arquivo da pasta tmp para a pasta anexos (http)
+__CopyFile(u_STmpDir() + cAnexo, u_STmpAnexos() + cAnexo)
 
 dbSelectArea("SZ0")
 dbSetOrder(4)
@@ -811,12 +816,19 @@ Next
 Return lRet
 
 // Grava anexo dos avisos
-User Function GrvAnexo(cArq,cTexto)
-Local cDir  := "\http\anexos"
+User Function GrvAnexo(cArq,cTexto,lConv)
+Local cDir  := u_STmpDir()
 Local cRet  := ""
+Default lConv := .T.
+
+// Converto para UTF-8
+If lConv
+	cTexto := StrIConv(cTexto, "CP1252", "UTF-8")
+EndIf
+
 If !("\" $ cArq)
 	MakeDir(cDir)
-	cRet := cDir+"\"+cArq
+	cRet := cDir+cArq
 	MemoWrite(cRet,cTexto)
 Else
 	cRet := cArq

@@ -125,7 +125,7 @@ IF LEN(aEmail) > 0
 
 ENDIF
 
-cAnexo := u_GrvAnexo(cPrw+".csv",StrIConv(mCSV, "CP1252", "UTF-8"))
+cAnexo := u_GrvAnexo(cPrw+".csv",mCSV, .T.)
 
 aCabs  := {"Arquivo"}
 aEmail := {}

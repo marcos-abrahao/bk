@@ -251,7 +251,7 @@ Tabela de Status:
 
 Static Function REPBKGCT06()
 
-Local cPath     := "\tmp\"
+Local cPath     := u_STmpDir()
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
@@ -352,8 +352,8 @@ IF lJobV2
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
-	cDirTmp   := "C:\TMP"
-	_cArqS    := cDirTmp+"\"+cArqS+".csv"
+	cDirTmp   := u_LTmpDir()
+	_cArqS    := cDirTmp+cArqS+".csv"
 ENDIF
 
 IF !EMPTY(cDirTmp)
@@ -591,7 +591,7 @@ Return Nil
 //  "Aviso de termino de vigЙncia de contratos"
 
 Static Function VigBKGct06()
-Local cPath     := "\tmp\"
+Local cPath     := u_STmpDir()
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni,_nj
@@ -802,8 +802,8 @@ IF lJobV2
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
-	cDirTmp   := "C:\TMP"
-	_cArqS    := cDirTmp+"\"+cArqS+".csv"
+	cDirTmp   := u_LTmpDir()
+	_cArqS    := cDirTmp+cArqS+".csv"
 ENDIF
 
 IF !EMPTY(cDirTmp)
@@ -905,7 +905,7 @@ Static Function Vg2BKGct06()
 //зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
 //  "Alerta de tИrmino de vigencia de contratos"
 //юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
-Local cPath     := "\tmp\"
+Local cPath     := u_STmpDir()
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
@@ -1091,8 +1091,8 @@ IF lJobV2
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
-	cDirTmp   := "C:\TMP"
-	_cArqS    := cDirTmp+"\"+cArqS+".csv"
+	cDirTmp   := u_LTmpDir()
+	_cArqS    := cDirTmp+cArqS+".csv"
 ENDIF
 
 IF !EMPTY(cDirTmp)
@@ -1373,7 +1373,7 @@ Static Function RepBK06b()
 //зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
 //Ё Contratos a Repactuar - Detalhado
 //юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
-Local cPath     := "\tmp\"
+Local cPath     := u_STmpDir()
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni
@@ -1496,8 +1496,8 @@ IF lJobV2
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
-	cDirTmp   := "C:\TMP"
-	_cArqS    := cDirTmp+"\"+cArqS+".csv"
+	cDirTmp   := u_LTmpDir()
+	_cArqS    := cDirTmp+cArqS+".csv"
 ENDIF
 
 IF !EMPTY(cDirTmp)
@@ -1840,7 +1840,7 @@ Static Function V5BKGct06()
 //зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
 //  "Aviso de Insumos Operacionais"
 //юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
-Local cPath     := "\tmp\"
+Local cPath     := u_STmpDir()
 Local nHandle
 Local cCrLf     := Chr(13) + Chr(10)
 Local _ni,_X,_nj
@@ -2198,8 +2198,8 @@ IF lJobV2
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
-	cDirTmp   := "C:\TMP"
-	_cArqS    := cDirTmp+"\"+cArqS+".csv"
+	cDirTmp   := u_LTmpDir()
+	_cArqS    := cDirTmp+cArqS+".csv"
 ENDIF
 
 IF !EMPTY(cDirTmp)

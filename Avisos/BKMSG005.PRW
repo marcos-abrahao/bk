@@ -106,7 +106,7 @@ If Len(aEmail) > 0
 EndIf
 
 // Grava o anexo html
-u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
 u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFat(),"Pedidos de Venda Liberados","Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")

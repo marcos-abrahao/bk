@@ -97,7 +97,7 @@ aCabs := {"Empresa","N°Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Soli
 
 cMsg  := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg)
 
-u_GrvAnexo(cProg+".html",StrIConv(cMsg, "CP1252", "UTF-8"))
+u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
 u_BKMsgUs(cEmpAnt,cProg,{},u_GrpMCompras(),cAssunto,"Itens não entregues: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")

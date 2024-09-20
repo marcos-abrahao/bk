@@ -94,7 +94,7 @@ User Function BKGCTR26(lDashBoard)
 
 	Private cTitulo     := "Fluxo de Caixa Por Contrato"
 	Private cPerg       := "BKGCTR26"
-	Private cArqLog		:= "\LOG\BKGCTR26-"+cEmpAnt+".LOG"
+	Private cArqLog		:= u_SLogDir()+"BKGCTR26-"+cEmpAnt+".LOG"
 
 	Private cTTipos 	:= ""
 	Private cXTipos 	:= ""
