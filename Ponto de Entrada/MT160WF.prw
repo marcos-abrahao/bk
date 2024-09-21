@@ -21,7 +21,6 @@ Local cEmail	:= ""
 Local cEmailCC  := "" //u_EmailAdm()
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aPedAlmx	:= {}
@@ -210,8 +209,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT160WF")
 	cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 	
-	U_SendMail("MT160WF",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
-	_lJob		:= .T.
+	U_SendMail("MT160WF",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 	//Pedido de Compras para Almoxarifado    
 

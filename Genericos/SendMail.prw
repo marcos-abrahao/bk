@@ -73,9 +73,6 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
 	// Para testes
 	If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 		cPara := cCc := u_EmailAdm()
-		//If lJob
-        //    FWLogMsg("INFO", /*cTransactionId*/, cPrw /*cGroup*/, FunName() /*cCategory*/, /*cStep*/, /*cMsgId*/, "E-mail simulado: "+TRIM(cAssunto), /*nMensure*/, /*nElapseTime*/, /*aMessage*/)
-		//Endif
         u_MsgLog(cPrw,"E-mail simulado: "+TRIM(cAssunto))
 	EndIf
 	// Fim testes
@@ -97,7 +94,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
             EndIf
             */
         EndIf
-        u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cArqAviso,DATE())
+        u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cArqAviso,DataValida(DATE()+1))
     EndIf
 
     //Se tiver em branco o destinatário, o assunto ou o corpo do email
@@ -209,7 +206,7 @@ Return lRet
 
 
 
-USER FUNCTION SendMail(cPrw,cAssunto,cPara,cCc,cMsg,cAnexo,_lJob)
+USER FUNCTION SendMail(cPrw,cAssunto,cPara,cCc,cMsg,cAnexo,lAviso)
 Local lResulConn := .F.
 Local lResulSend := .F.
 Local cError     := ""
@@ -221,8 +218,10 @@ Local cDe        := cEmail
 Local nTent      := 0
 Local cArqLog    := u_SLogDir()+"sendmail.log"
 Local aUsers     := {}
+Local lJob       := IsBlind()
 
-Default _lJob    := IsBlind()
+Default lAviso     := .T.
+
 Private lResult  := .T.
 
 u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
@@ -234,8 +233,10 @@ If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer())
 EndIf
 // Fim testes
 
-aUsers := u_EmailUsr(cPara)
-u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cAnexo,DATE())
+If lAviso
+    aUsers := u_EmailUsr(cPara)
+    u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cAnexo,DataValida(DATE()+1))
+EndIf
 
 CONNECT SMTP SERVER cServer ACCOUNT cEmail PASSWORD cPass RESULT lResulConn
 If !lResulConn
@@ -243,7 +244,7 @@ If !lResulConn
 
     u_MsgLog(cPrw,"ERRO: Falha na conexao "+TRIM(cAssunto)+": "+cError,"E")
 	
-	Do While nTent < 10 .AND. _lJob
+	Do While nTent < 10 .AND. lJob 
 
 		Sleep( 900 * 1000 )  // Aguarda 15 minutos e tenta conectar novamente
 		

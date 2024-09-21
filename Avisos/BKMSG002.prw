@@ -164,8 +164,8 @@ EndIf
 u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFisc(),"Entidades com conta contábil bloqueada","Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpStaf(),"Entidades com conta contábil bloqueada","Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFisc(),"Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpStaf(),"Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"Entidades com conta contábil bloqueada: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
 
 QTMP->(dbCloseArea())
 

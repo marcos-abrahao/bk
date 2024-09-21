@@ -16,7 +16,7 @@ User Function BKMSG009
 Local cQuery            
 Local _cAlias 	:= "QSC1"
 Local aArea     := GetArea()
-Local cAssunto	:= "Solicitações de compras em aberto"
+Local cAssunto	:= "Solicitações de compras em aberto: "
 Local cEmail	:= ""
 Local cEmailCC	:= u_EmailAdm()
 Local cMsg    	:= ""
@@ -38,7 +38,7 @@ Local aDeptos 	:= {}
 lJobV2 := IsBlind()
 
 If FWCodEmp() <> "01"
-	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01")
+	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01","I")
 	Return Nil
 EndIf
 
@@ -136,13 +136,15 @@ Else
 	cRodape := "Não há solicitações de compras em aberto"
 EndIf
 
+cAssunto += ALLTRIM(STR(LEN(aEmail)))
+
 cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,cRodape)
        	
-U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.F.)
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpMCompras(),cAssunto,"Solicitações de compras em aberto: "+ALLTRIM(STR(LEN(aEmail))),"F",cPrw+".csv")
-u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpUCompras(),cAssunto,"Solicitações de compras em aberto: "+ALLTRIM(STR(LEN(aEmail))),"F",cPrw+".csv")
+u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpMCompras(),cAssunto,cAssunto,"F",cPrw+".csv")
+u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpUCompras(),cAssunto,cAssunto,"F",cPrw+".csv")
 
 RestArea(aArea)
 

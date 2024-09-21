@@ -20,7 +20,6 @@ Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := "" 
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 
@@ -163,7 +162,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 		//cMsg    := "Solicitação de Liberação divergência com o pedido de compras Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+" Cod.For.:"+SF1->F1_FORNECE+" Loja:"+SF1->F1_LOJA+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT140SAI")
 		cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
-		U_SendMail("MT140SAI",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+		U_SendMail("MT140SAI",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
    
    ENDIF
    IF ParamIxb[1] == 5

@@ -204,7 +204,7 @@ If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
 EndIf
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpRepac(),"Lançamentos em Contratos vencidos","Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"F",cArqXls)
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpRepac(),"Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"F",cArqXls)
 
 Return
 

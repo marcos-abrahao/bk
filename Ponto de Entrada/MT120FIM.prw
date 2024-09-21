@@ -19,7 +19,6 @@ Local cEmail	:= ""
 Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aPedAlmx	:= {}
@@ -233,9 +232,8 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 
 		cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 		
-		U_SendMail("MT120FIM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
-		_lJob		:= .T.
-	
+		U_SendMail("MT120FIM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+
 	
 		//Pedido de Compras para Almoxarifado    
 	

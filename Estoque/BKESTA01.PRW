@@ -111,20 +111,13 @@ Local cEmailCC  := ""
 Local cEmailU   := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .T.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aMotivo	:= {} 
 Local lAprov	:= .T.
-//Local lAlmox	:= .F.
-//Local aGrupo	:= {}
-//Local cAlEmail	:= ""
-//Local aUsers 	:= {}
-//Local cAlmox 	:= ALLTRIM(SuperGetMV("MV_XXGRALX",.F.,"000021"))+"/"+ALLTRIM(SuperGetMV("MV_XXMSALX",.F.,"000027"))
 Local _cXXENDEN := ""
 Local _cXXEN 	:= ""
 Local _nXXEN 	:= 0
-//Local nX_		as Numeric
 Local i			as Numeric
 
 AADD(aMotivo,"Início de Contrato")
@@ -185,9 +178,9 @@ IF lAprov
 	IF 	!EMPTY(_cXXENDEN)
 		cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
     ENDIF
-	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 	u_MsgLog(cPrw,cAssunto+" "+cEmail)
 ENDIF
 
 Return Nil
-             
+         

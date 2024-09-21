@@ -192,7 +192,6 @@ Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local nI        := 0
@@ -243,7 +242,7 @@ EndIf
 
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"A103BLOQ")
 cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
-U_SendMail("A103BLOQ",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+U_SendMail("A103BLOQ",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 u_MsgLog("A103BLOQ",cAssunto)
 

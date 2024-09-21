@@ -22,7 +22,6 @@ Local cAnexo	:= ""
 Local cSolici   := ""
 //Local cAlmox	:= ""
 Local cAlEmail  := ""
-Local _lJob		:= .F.
 //Local nX_		:= 0
 Local aCabs		:= {}
 Local aEmail	:= {}
@@ -117,7 +116,7 @@ DO While !TMPSF1->(EOF())
 				cEmail := ALLTRIM(aUser[1,14])+';'
 			ENDIF
 
-	  		cAssunto:= "Solicitação de Compras Atendida - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	  		cAssunto:= "Solicitação de Compras Atendida - NF nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 			aCabs   := {}
 			aCabs   := {"Nº Pedido","Nº Solict.","Item SC.","Cod. Produto","Descr. Produto","UM","Quant. Solicitada","Quant. Atendida","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo"}
 		
@@ -135,19 +134,18 @@ DO While !TMPSF1->(EOF())
    				cEmail += u_EmailAdm()+cAlEmail
         	ENDIF
 	  		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"GQREENTR")
-		  	U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 
-			_lJob		:= .T.
+		  	U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
 		NEXT
 
 		IF lAtFixo
-  			cAssunto:= "Ativo Imobilizado - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+  			cAssunto:= "Ativo Imobilizado - NF nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 			aCabs   := {}
 			aCabs   := {"Nº Pedido","Nº Solict.","Item SC.","Cod. Produto","Descr. Produto","UM","Quant. Solicitada","Quant. Atendida","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo"}
 			aEmail := {}
 			cEmail := u_EmailAdm()+cAlEmail
 
   			cMsg    := u_GeraHtmA(aSD1,cAssunto,aCabs,"GQREENTR")
-	  		U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 
+	  		U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
 		ELSE
 	
 	    	cQuery2 := "SELECT D1_ITEM,D1_COD,D1_XXDESCP,D1_UM,D1_QUANT,D1_VUNIT,D1_TOTAL,D1_CC,D1_XXDCC,D1_TP "
@@ -172,14 +170,14 @@ DO While !TMPSF1->(EOF())
 			TMPSD1->(DbCloseArea())
 
 			IF lAtFixo
-  				cAssunto := "ATIVO IMOBILIZADO - Usuário: "+ALLTRIM(UsrRetName(TMPSF1->F1_XXUSERS))+" - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+  				cAssunto := "ATIVO IMOBILIZADO - Usuário: "+ALLTRIM(UsrRetName(TMPSF1->F1_XXUSERS))+" - NF nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 				aCabs    := {}
 				aCabs    := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","Centro de Custo","Descr. Centro de Custo",}
 				aEmail   := {}
 				cEmail   := u_EmailAdm()+cAlEmail
 
   				cMsg     := u_GeraHtmA(aSD1,cAssunto,aCabs,"GQREENTR")
-	  			U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob) 
+	  			U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
             ENDIF
 		ENDIF
 	ENDIF
@@ -390,7 +388,7 @@ IF nTOTAL <= 50
 
 	dbSelectArea("TMPSF1")
 
-	cAssunto:= "Avaliação de Fornecedores - Nota Fiscal nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Avaliação de Fornecedores - NF nº.:"+TMPSF1->F1_DOC+" Série:"+TMPSF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs  := {}
 	aCabs  := {"Cod.Fornecedor","Loja","Nome","CNPJ","Nota Fiscal nº","Série","Emissão","Índice Negativo da Avaliação"}
 	aEmail := {}

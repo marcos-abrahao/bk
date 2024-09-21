@@ -20,7 +20,6 @@ Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aUser     := {}
@@ -55,7 +54,7 @@ IF DBSEEK(xFilial("SCP")+cSOLALMOX+"01",.T.)
 	Enddo
 	
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT105FIM")
-	U_SendMail("MT105FIM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+	U_SendMail("MT105FIM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 ENDIF
 
 IF nOpcap  == 3

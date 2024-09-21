@@ -16,7 +16,7 @@ User Function BKMSG008
 Local cQuery            
 Local cAlias 	:= "QSC7"
 Local aArea     := GetArea()
-Local cAssunto	:= "Pedidos de compras não entregues"
+Local cAssunto	:= "Pedidos de compras não entregues: "
 Local cEmail	:= ""
 Local cEmailCC	:= u_EmailAdm()
 Local cMsg    	:= ""
@@ -93,6 +93,8 @@ For nE := 1 To Len(aBKGrupo)
 
 Next
 
+cAssunto += ALLTRIM(STR(LEN(aEmail)))
+
 aCabs := {"Empresa","N°Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
 
 cMsg  := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg)
@@ -100,9 +102,9 @@ cMsg  := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg)
 u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpMCompras(),cAssunto,"Itens não entregues: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpUCompras(),cAssunto,"Itens não entregues: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpMCompras(),cAssunto,cAssunto,"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpUCompras(),cAssunto,cAssunto,"F",cProg+".html")
 
-U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.F.)
 
 RestArea(aArea)

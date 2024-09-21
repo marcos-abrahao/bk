@@ -109,7 +109,7 @@ EndIf
 u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFat(),"Pedidos de Venda Liberados","Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpFat(),"Pedidos de Venda liberados: "+ALLTRIM(STR(LEN(aEmail))),"Pedidos de Venda liberados: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
 
 u_MsgLog(cProg,"Pedidos liberados: "+ALLTRIM(STR(LEN(aEmail))))
 

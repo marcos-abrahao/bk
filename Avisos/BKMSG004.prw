@@ -84,7 +84,7 @@ U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 u_GrvAnexo(cProg+".html",cMsg,.T.)
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,{},aGrupos,"Clientes sem Conta bancaria","Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
+u_BKMsgUs(cEmpAnt,cProg,{},aGrupos,"Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))),"Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))),"F",cProg+".html")
 
 u_MsgLog(cProg,"Clientes sem Conta bancaria: "+ALLTRIM(STR(LEN(aEmail))))
 

@@ -354,7 +354,6 @@ thead input {
 <th scope="col">Remetente</th>
 <th scope="col">Destinatário</th>
 <th scope="col">Assunto</th>
-<th scope="col">Mensagem</th>
 <th scope="col">Data</th>
 <th scope="col">Hora</th>
 </tr>
@@ -362,7 +361,6 @@ thead input {
 <tbody id="mytable1">
 <tr>
   <th scope="col">Carregando Mensagens recebidas...</th>
-  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -431,15 +429,15 @@ if (Array.isArray(av1)) {
 
 	cStatus = object['STATUS']
 	cTipo = object['TIPO']
+	z0recno = object['Z0RECNO']
 	
 	/*
-	z0recno = object['Z0RECNO']
 	if (cStatus == 'L'){
 		trHTML += '<td><button type="button" title="Aviso lido" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></td>';
 	} else if (cStatus == 'F'){
 		trHTML += '<td><button type="button" title="Aviso fixo" class="btn btn-outline-primary"><i class="fa fa-thumbtack"></i></button></td>';
 	} else {
-		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="Marcar como lido"  class="btn btn-outline-primary" onclick="lida(\''+z0recno+'\',\'#userlib#\',\'L\','+'\''+cbtnid+'\')"><i class="fa fa-envelope"></i></button></div></td>';
+		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="'+ctitbt+'" class="btn '+cbtn+'" onclick="lida(\''+z0recno+'\')"><i class="fa fa-envelope"></i></button></div></td>';
 	} 
 	*/
 
@@ -471,7 +469,7 @@ if (Array.isArray(av1)) {
 	} else {
 		trHTML += '<td>'+canexo+'</td>';
 	}
-	trHTML += '<td>'+object['MSG']+'</td>';
+	//trHTML += '<td>'+object['MSG']+'</td>';
 	trHTML += '<td>'+object['DTENV']+'</td>';
 	trHTML += '<td>'+object['HRENV']+'</td>';
 
@@ -526,8 +524,7 @@ tableAV1 = $('#tableAV1').DataTable({
     "previous": "Anterior"
     }
    },
-
-  "rowId": 12,
+  "rowId": 11,
   "columns": [
 		{
             className: 'dt-control',
@@ -535,12 +532,11 @@ tableAV1 = $('#tableAV1').DataTable({
             data: null,
             defaultContent: ''
         },
-        { data: 'St', className: 'dt-st' },
+        { data: 'St', className: 'dt-st', orderable: false },
         { data: 'Empresa' },
         { data: 'Remetente' },
         { data: 'Destinatario' },
         { data: 'Assunto' },
-        { data: 'Mensagem' },
         { data: 'Data' },
         { data: 'Hora' },
         { data: 'DataLida' },
@@ -559,16 +555,15 @@ tableAV1 = $('#tableAV1').DataTable({
 			targets: 1, width: 55,
 		},	
 		{
-			targets: 6, width: '40%'
+			targets: 5, width: '50%'
 		},
         {
-            targets: 7, render: DataTable.render.date()
+            targets: 6, render: DataTable.render.date()
         },
         {
-            targets: [9,10,11,12,13,14,15], visible: false, searchable: false
+            targets: [8,9,10,11,12,13,14], visible: false, searchable: false
         }
   ],
-  "order": [[2,'asc']],
   
    initComplete: function () {
         this.api()
@@ -619,7 +614,7 @@ $('#tableAV1 tbody').on('click', 'td.dt-st', function () {
    var cStatus = data1.Status
    var cTipo = data1.Tipo
 
-	if (cStatus == '' && cTipo == 'D') {
+	if (cStatus == 'N' && cTipo == 'D') {
    		data1.St = '<td><div><button type="button" title="Aviso lido" class="btn btn-outline-primary"><i class="fa fa-envelope-open"></i></button></div></td>';
    		lida(data1.Recno)
    		tableAV1.row(tr).data(data1).draw()
@@ -753,7 +748,7 @@ Else
 	cQuery += ")"
 EndIf
 
-cQuery += " ORDER BY Z0_DTENV,Z0_HRENV" + CRLF
+cQuery += " ORDER BY Z0_DTENV DESC,Z0_HRENV DESC" + CRLF
 
 //u_LogMemo("RESTMsgUs1.SQL",cQuery)
 

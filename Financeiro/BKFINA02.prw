@@ -839,13 +839,12 @@ Local cEmail2  := u_BKPgto2() //"rh@bkconsultoria.com.br;gestao@bkconsultoria.co
 Local cCC      := ""
 Local cMsg     := "" 
 Local cAnexo   := ""
-Local _lJob    := .F.
 Local aCabs
 
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 cMsg    := u_GeraHtmA(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw)
 
-U_SendMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,cAnexo,_lJob)
+U_SendMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,cAnexo,.T.)
 
 Return Nil
 

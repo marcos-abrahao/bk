@@ -37,7 +37,6 @@ Local cEmail	:= u_EmailAdm()
 Local cEmailCC  := "" 
 Local cMsg 		:= "" 
 Local cAnexo	:= ""
-Local _lJob		:= .F.
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local aMotivo	:= {}
@@ -90,7 +89,7 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT097END")
-	U_SendMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+	U_SendMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 	Return Nil
 ENDIF
@@ -314,7 +313,7 @@ cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT097END")
 
 cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 
-U_SendMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,_lJob)
+U_SendMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 
 Return nil

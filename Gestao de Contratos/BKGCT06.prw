@@ -18,7 +18,6 @@ User Function BKGCT06(aParam)
 
 Local cFwEmp := ""
 
-Public lJobV2    := .T.
 Public cPrw      := "BKGCT06"
 Public cEmailS   := ""
 Public cContrRep := SPACE(15)
@@ -108,7 +107,6 @@ Local aRel       := {"01-Aviso de contratos pendentes de repactuação",;
 Private lExp     := .F.
 Private dDataEnv := DATE()
 
-Public lJobV2    := .F.
 Public cEmailS   := ""
 Public cContrRep := SPACE(15)
 Public dtIni     := CTOD("")
@@ -348,7 +346,7 @@ cArqS := "BKGCT06_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
-IF lJobV2
+IF IsBlind()
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
@@ -549,18 +547,14 @@ If nHandle > 0
 	fClose(nHandle)
 
     
-	If lJobV2
-		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
+	If IsBlind()
+		u_MsgLog(cPrw,"Exito ao criar "+_cArqs,"E")
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
 
 Else
-	If lJobV2
-		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
-	Else	
-        MsgAlert("Falha na criação do arquivo "+_cArqS)
-    Endif    
+	u_MsgLog(cPrw,"Falha na criação do arquivo "+_cArqs,"E")
 Endif
    
 QCN9->(Dbclosearea())
@@ -580,7 +574,7 @@ If lEmail
 	P1BKGCT06()
 	
 	// Envia o Email
-	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
+	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
 	
 EndIf
 
@@ -798,7 +792,7 @@ cArqS := "BKGCT06V_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
-IF lJobV2
+IF IsBlind()
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
@@ -865,19 +859,15 @@ Next
     
 If nHandle > 0
 	fClose(nHandle)
-	If lJobV2
-		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
+	If IsBlind()
+		u_MsgLog(cPrw,"Exito ao criar "+_cArqs,"E")
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
 
 Else
 	fClose(nHandle)
-	If lJobV2
-		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
-	Else	
-        MsgAlert("Falha na criação do arquivo "+_cArqS)
-    Endif    
+	u_MsgLog(cPrw,"Falha na criação do arquivo "+_cArqs,"E")
 Endif
    
 QCN9->(Dbclosearea())
@@ -893,7 +883,7 @@ If lEmail
 	P1BKGCT06()     
 	
 	// Envia o email
-	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
+	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
 EndIf
 	
 Return Nil
@@ -1087,7 +1077,7 @@ cArqS := "BKGCT6V2_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
-IF lJobV2
+IF IsBlind()
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
@@ -1152,19 +1142,15 @@ EndIf
     
 If nHandle > 0
 	fClose(nHandle)
-	If lJobV2
-		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
+	If IsBlind()
+		u_MsgLog(cPrw,"Exito ao criar "+_cArqs,"E")
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
 
 Else
 	fClose(nHandle)
-	If lJobV2
-		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
-	Else	
-        MsgAlert("Falha na criação do arquivo "+_cArqS)
-    Endif    
+	u_MsgLog(cPrw,"Falha na criação do arquivo "+_cArqs,"E")
 Endif
    
 QCN9->(Dbclosearea())
@@ -1177,7 +1163,7 @@ cAssunto := "Alerta de término de vigencia de contratos - "+FWEmpName(cEmpAnt)
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P1BKGCT06()
 
-U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
+U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
 
 Return Nil
 
@@ -1492,7 +1478,7 @@ cArqS := "BKGCT06_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
-IF lJobV2
+IF IsBlind()
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
@@ -1796,18 +1782,14 @@ If nHandle > 0
 	fClose(nHandle)
 
     
-	If lJobV2
-		u_xxConOut("INFO",cPrw,"Exito ao criar "+_cArqs)
+	If IsBlind()
+		u_MsgLog(cPrw,"Exito ao criar "+_cArqs,"E")
 	Else   
 		lOk := CpyT2S( _cArqs , cPath, .T. )
 	EndIf
 
 Else
-	If lJobV2
-		u_xxConOut("ERROR",cPrw,"Falha na criação do arquivo "+_cArqs)
-	Else	
-        MsgAlert("Falha na criação do arquivo "+_cArqS)
-    Endif    
+	u_MsgLog(cPrw,"Falha na criação do arquivo "+_cArqs,"E")
 Endif
    
 QCN9->(Dbclosearea())
@@ -1827,7 +1809,7 @@ IF lEmail
 	P1BKGCT06()
 	
 	// Envia o email
-	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
+	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
 ENDIF   
 
 Return Nil
@@ -2194,7 +2176,7 @@ cArqS := "BKGCT6V5_"+STRTRAN(FWEmpName(cEmpAnt)," ","")
 
 _cArqSv  := cPath+cArqS+".csv"
 
-IF lJobV2
+IF IsBlind()
 	cDirTmp   := ""
 	_cArqS    := cPath+cArqS+".csv"
 ELSE
@@ -2271,7 +2253,7 @@ cAssunto := "Aviso de Insumos Operacionais - "+FWEmpName(cEmpAnt)
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P1BKGCT06()
 
-U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,lJobV2)
+U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
 
 Return Nil
 
@@ -2623,7 +2605,7 @@ IF LEN(aEmail) > 0
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V6BKGct06")
 
-	U_SendMail("V6BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail("V6BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 ENDIF
 
@@ -2709,7 +2691,7 @@ IF LEN(aEmail) > 0
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V7BKGct06")
 
-	U_SendMail("V7BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail("V7BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 ENDIF
 
@@ -2803,7 +2785,7 @@ IF LEN(aEmail) > 0
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V8BKGct06")
 
-	U_SendMail("V8BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail("V8BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 ENDIF
 
@@ -2878,7 +2860,7 @@ IF LEN(aEmail) > 0
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
 
-	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,lJobV2)
+	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 
 ENDIF
 
@@ -3120,7 +3102,6 @@ User Function BKGCT062(aParam)
 
 Local cFwEmp := ""
 
-Public lJobV2    := .T.
 Public cPrw      := "BKGCT062"
 Public cEmailS   := ""
 Public cContrRep := SPACE(15)
