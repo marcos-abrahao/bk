@@ -70,7 +70,7 @@ aRet := {}
 Return aRet
 
 
-// % Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
+// Array da Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos 
 User Function MVXMIMPC()
 Local cPar := "1900/01;8.15|2015/07;10.7000|2019/01;9.50"
 If cEmpAnt == '02'
@@ -81,6 +81,36 @@ ElseIf cEmpAnt == '15'
     cPar := "1900/01;8.15|2015/07;10.8877"
 EndIf
 Return cPar
+
+// Valor da Média de Impostos e Contribuições
+// Parametros: empresa e competencia AAAAMM
+User Function MVNMIMPC(cEmp,cCompet)
+Local nPImp	:= 0
+
+If cEmp == '02'
+	nPImp := 16.98
+ElseIf cEmp == "12"
+	If cCompet <= "201507"
+		nPImp := 8.15
+	Else
+		nPImp := 10.7
+	EndIf
+ElseIf cEmp == "15"
+	If cCompet <= "201507"
+		nPImp := 8.15
+	Else
+		nPImp := 10.8877
+	EndIf
+Else
+	If cCompet <= "201507"
+		nPImp := 8.15
+	ElseIf cCompet <= "201901"
+		nPImp := 10.7
+	Else
+		nPImp := 9.5
+	EndIf
+EndIf
+Return nPImp
 
 
 // Parametro Encargos calculo Rentabilidade dos Contratos

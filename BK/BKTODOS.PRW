@@ -28,6 +28,7 @@ If !u_IsMDir(__cUserID)
 EndIf
 
 If __cUserId == '000000'
+	aAdd(aDados,{"","U_BKGCTR22()",		"GESTÃO",		"Nova Rentabilidade dos Contratos"})
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})

@@ -283,7 +283,6 @@ User Function BKGCTR11(lJob)
 			dDataFinal := LastDay(dMaxCompet)
 		EndIf
 
-
 		QTMP1->(Dbclosearea())
 
 		IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
@@ -1952,7 +1951,7 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 //*********  GASTOS GERAIS  **********
 u_MsgLogAdm("BKGCTR11","Query gastos gerais "+aPeriodo[_nI,1])
-cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD"+CRLF
+cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 cQuery2 += " FROM "+RETSQLNAME("SD1")+" SD1" +CRLF
 cQuery2 += " LEFT JOIN "+RETSQLNAME("SF1")+" SF1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
 cQuery2 += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' " +CRLF
@@ -1981,10 +1980,10 @@ If nScan > 0
 Else
 	cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA IN ('"+cCusBK+"') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126') )" +CRLF
 EndIf
-cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,F1_XXCOMPD"+CRLF
+cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 
 cQuery2 += " UNION ALL"+CRLF
-cQuery2 += " SELECT D3_FILIAL,MAX(' '),MAX(' '),MAX(' '),MAX(' '),D3_COD,B1_DESC,B1_GRUPO,BM_DESC,D3_CC,SUM(D3_CUSTO1),D3_EMISSAO FROM "+RETSQLNAME("SD3")+" SD3"+CRLF
+cQuery2 += " SELECT D3_FILIAL,MAX(' '),MAX(' '),MAX(' '),MAX(' '),D3_COD,B1_DESC,B1_GRUPO,BM_DESC,D3_CC,SUM(D3_CUSTO1),MAX(' '),MAX(' ') FROM "+RETSQLNAME("SD3")+" SD3"+CRLF
 cQuery2 += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D3_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
 cQuery2 += " LEFT JOIN "+RETSQLNAME("SBM")+" SBM ON BM_FILIAL = '"+xFilial("SBM")+"' AND B1_GRUPO = BM_GRUPO  AND SBM.D_E_L_E_T_ = '' " +CRLF
 cQuery2 += " WHERE SD3.D_E_L_E_T_='' AND D3_TM='5"+cEmpAnt+"' AND SUBSTRING(D3_EMISSAO,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
@@ -1999,7 +1998,7 @@ Else
 	cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA IN ('"+cCusBK+"') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 EndIf
 
-cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,BM_DESC,D3_CC,D3_EMISSAO"+CRLF
+cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,BM_DESC,D3_CC"+CRLF
 
 //cQuery2 += " ORDER BY B1_DESC"+CRLF
 
@@ -2113,7 +2112,7 @@ IF nScan > 0
 	u_MsgLogAdm("BKGCTR11","Query gastos gerais consorcios "+aPeriodo[_nI,1])
 	//IncProc("Consultando gastos gerais consorcios: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 
-	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD"+CRLF
+	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 	cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1"+CRLF
 	//cQuery2 += " INNER JOIN SA2"+ALLTRIM(aConsorcio[nScan,2])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''"+CRLF
 	cQuery2 += " LEFT JOIN SF1"+ALLTRIM(aConsorcio[nScan,2])+" SF1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
@@ -2155,7 +2154,7 @@ IF nScan > 0
 
 	cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 	//cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
-	cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,F1_XXCOMPD"+CRLF
+	cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 	//cQuery2 += " ORDER BY B1_DESC"+CRLF
 
 	u_LogTxt("BKGCTR11-D1-2.SQL",cQuery2)
@@ -2318,7 +2317,7 @@ IF nScan > 0
 
 		u_MsgLogAdm("BKGCTR11","Query despesas gerais consorcios Especiais "+aPeriodo[_nI,1])
 
-		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD"+CRLF
+		cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 		cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,8])+" SD1"+CRLF
 		cQuery2 += " LEFT JOIN SF1"+ALLTRIM(aConsorcio[nScan,8])+" SF1 ON F1_FILIAL = D1_FILIAL AND F1_DOC = D1_DOC AND F1_SERIE = D1_SERIE AND F1_FORNECE = D1_FORNECE AND F1_LOJA = D1_LOJA AND SF1.D_E_L_E_T_ = ' ' "+CRLF
 		cQuery2 += " LEFT JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = '' "+CRLF
@@ -2341,7 +2340,7 @@ IF nScan > 0
 		// 19/11/2021 - Contas alteradas de 113 para 121
 		cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 		cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
-		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,F1_XXCOMPD"+CRLF
+		cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 		//cQuery2 += " ORDER BY B1_DESC"+CRLF
 
 		u_LogTxt("BKGCTR11-D1-3.SQL",cQuery2)
@@ -4998,87 +4997,6 @@ Return lRet
 
 // Buscar Titulos do contas a pagar por itens dos Documentos de Entrada
 // 20/07/2020
-User Function XXfAcrDcr(cEmpC,aLAcrDcr)
-
-	Local cQuery3 := ""
-	Local nTotE2  := 0
-	Local nACrDcr := 0
-	Local _nY	  := 0
-	Local nValTit := 0
-
-	Default cEmpC := ""
-	Default aLAcrDcr := {}
-
-	If Len(aLAcrDcr) = 0
-		cQuery3 := " SELECT E2_VENCREA,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS"+CRLF
-		If EMPTY(cEmpC)
-			cQuery3 += " FROM "+RETSQLNAME("SE2")+" SE2"+CRLF
-		Else
-			cQuery3 += " FROM SE2"+cEmpC+" SE2"+CRLF
-		EndIf
-		cQuery3 += " WHERE SE2.D_E_L_E_T_='' AND SE2.E2_FILIAL = '"+xFilial("SE2")+"' AND E2_TIPO ='NF' "+CRLF
-		cQuery3 += "   AND E2_PREFIXO = '"+TMPX2->D1_SERIE+"'" +CRLF
-		cQuery3 += "   AND E2_NUM = '"+TMPX2->D1_DOC+"'" +CRLF
-		cQuery3 += "   AND E2_FORNECE = '"+TMPX2->D1_FORNECE+"'" +CRLF
-		cQuery3 += "   AND E2_LOJA = '"+TMPX2->D1_LOJA+"'" +CRLF
-
-		u_LogTxt("BKGCTR11-E2.SQL")
-		TCQUERY cQuery3 NEW ALIAS "QTMPXE2"
-		u_LogTxt("BKGCTR11-E2.SQL",cQuery3)
-
-		dbSelectArea("QTMPXE2")
-		dbGoTop()
-
-		If TMPX2->D1_DOC == "100330299"
-			nTotE2  := 0
-		EndIf
-
-		nTotE2  := 0
-		Do While !QTMPXE2->(EOF())
-			nACrDcr := 0
-			If QTMPXE2->E2_DECRESC > 0
-				nACrDcr -= QTMPXE2->E2_DECRESC
-			Else
-				nACrDcr -= QTMPXE2->E2_DESCONT
-			EndIf
-			If QTMPXE2->E2_ACRESC > 0
-				nACrDcr += QTMPXE2->E2_ACRESC
-			Else
-				nACrDcr += QTMPXE2->E2_MULTA + QTMPXE2->E2_JUROS
-			EndIf
-			// Guardar no Array o valor proporcional do decrescimo ou acrescimo no mes de referencia
-			nValTit := QTMPXE2->(E2_VALOR+E2_VRETPIS+E2_VRETCOF+E2_VRETCSL+E2_VRETINS+E2_VRETIRF+E2_VRETISS)
-			nTotE2  += nValTit
-
-			aAdd(aLAcrDcr,{SUBSTR(QTMPXE2->E2_VENCREA,1,6),nACrDcr,0,nValTit,0,nTotE2})
-
-			dbSkip()
-		Enddo
-
-		For _nY := 1 To Len(aLAcrDcr)
-			//                        Val desc/Acr  / Tot Geral * Valor do Item
-			//aLAcrDcr[_nY,3] := Round((aLAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
-			//                        Val titulo    / Tot Geral * Valor do Item
-			//aLAcrDcr[_nY,5] := Round((aLAcrDcr[_nY,4] / nTotE2) * TMPX2->D1_TOTAL,2)
-			aLAcrDcr[_nY,6] := nTotE2
-		Next
-
-		QTMPXE2->(Dbclosearea())
-	EndIf
-
-	For _nY := 1 To Len(aLAcrDcr)
-		//                        Val desc/Acr  / Tot Geral * Valor do Item
-		nTotE2 := aLAcrDcr[_nY,6]
-
-		aLAcrDcr[_nY,3] := Round((aLAcrDcr[_nY,2] / nTotE2) * TMPX2->D1_TOTAL,2)
-		//                        Val titulo    / Tot Geral * Valor do Item
-		aLAcrDcr[_nY,5] := Round((aLAcrDcr[_nY,4] / nTotE2) * TMPX2->D1_TOTAL,2)
-	Next
-
-Return aLAcrDcr
-
-
-// Aqui1
 
 #DEFINE XE2_VENCREA		1
 #DEFINE XE2_VALOR		2
@@ -5188,7 +5106,7 @@ User Function fAcrDcr(cEmpC,aLAcrDcr)
 
 			nTotE2  += nValTit
 
-			If Empty(aReturn[nX,XE2_PARCELA]) // Parcela Unica, usar competencia da NF
+			If TMPX2->F1_XXCOMPD <> TMPX2->D1_DTDIGIT //Empty(aReturn[nX,XE2_PARCELA]) // Competência alterada, usar competencia da NF
 				xCompet := TMPX2->F1_XXCOMPD
 			Else
 				xCompet := aReturn[nX,XE2_VENCREA]
@@ -5217,7 +5135,6 @@ User Function fAcrDcr(cEmpC,aLAcrDcr)
 	Next
 
 Return aLAcrDcr
-
 
 
 
@@ -5335,7 +5252,7 @@ RETURN nTotSE1
 
 
 
-//NOTAS DE DEBITO DO CLIENTE - NDC POR MEDIÇÃO
+//NOTAS DE DEBITO DO CLIENTE - NDC POR MEDIÇÃO DE CONTRATO
 USER FUNCTION VALNDCM(cNumContr,cCompt)
 	LOCAL nTotSE1	:= 0
 	LOCAL cQuery	:= ""

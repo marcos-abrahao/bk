@@ -229,7 +229,7 @@ Do While !Eof()
 
 	If Len(aEmail) > 0
 		cMsg     := u_GeraHtmA(aEmail,cAssunto + " - "+cGestor,aCabs,cProg)
-		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,.F.)
 	EndIf
 EndDo
 

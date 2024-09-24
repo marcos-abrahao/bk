@@ -1,5 +1,8 @@
 INDICES CRIADOS===========================================
 
+CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]
+ON [dbo].[SZ2010] ([Z2_CODEMP],[Z2_STATUS],[Z2_TIPOPES],[D_E_L_E_T_],[Z2_TIPO],[Z2_CC])
+INCLUDE ([Z2_VALOR],[Z2_DATAPGT])
 
 --02/04/2024
 DROP INDEX SZ2010W02 ON [SZ2010]

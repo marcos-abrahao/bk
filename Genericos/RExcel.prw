@@ -433,6 +433,7 @@ Local cColuna 		:= ""
 
 // Variaveis usadas para Formulas
 Local cColLin 		:= ""
+Local lFormula		:= .F.
 
 // Variaveis usadas no totalizador
 Local cColExcel		:= ""
@@ -747,7 +748,7 @@ For nP := 1 To Len(Self:aPlans)
 
 				Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
-				If "F" $ cTipo
+				If "F" $ cTipo //.and. ValType(xCampo) == "C"
 					If "HYPERLINK" $ UPPER(xCampo)
 						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
 						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
@@ -868,9 +869,23 @@ For nP := 1 To Len(Self:aPlans)
 
 				xCampo	:= aMatriz[nM,nC]
 
-				// Se alguma formula ADVPL for informada
-				If (!Empty(cCampo) .AND. "(" $ cCampo) .OR. "F" $ cTipo
+				// Se alguma formula ADVPL for informada 
+				lFormula := .F.
+				If !Empty(cCampo) .AND. ("(" $ cCampo .OR. "F" $ cTipo)
 					xCampo	:= &(cCampo)
+					If "F" $ cTipo .AND. ValType(xCampo) == "C"
+						lFormula := .T.
+					EndIf
+				ElseIf "F" $ cTipo
+					If ValType(xCampo) == "C"   // Formula pode ter sido informada na celula
+						xCampo	:= &(xCampo)
+						lFormula := .T.
+					Else
+						lFormula := .F.
+					EndIf
+				EndIf
+				If ValType(xCampo) == "U" 
+					xCampo := ""
 				EndIf
 
 				// Guarda o resultado em um arrqy Private para acesso externo
@@ -1045,7 +1060,7 @@ For nP := 1 To Len(Self:aPlans)
 
 				Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorFonte, cCorFundo, cFormat )
 
-				If "F" $ cTipo
+				If lFormula //"F" $ cTipo .and. ValType(xCampo) == "C"
 					If "HYPERLINK" $ UPPER(xCampo)
 						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
 						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
