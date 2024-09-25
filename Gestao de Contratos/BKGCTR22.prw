@@ -186,10 +186,12 @@ aAdd(aLinha,cContrato)
 // Chave
 aAdd(aLinha,"03")
 // Descrição
-aAdd(aLinha,"FATURAMENTO OFICIAL")
+aAdd(aLinha,"FATURAMENTO BRUTO")
 // Total Previsto
 aAdd(aLinha,0)
 // Total Realizado
+aAdd(aLinha,0)
+// Total Realizado / Previsto
 aAdd(aLinha,0)
 
 // Campos de Previsto e relizado por mês
@@ -209,16 +211,16 @@ aAdd(aLinha,"(-) Impostos e Contribuições")
 aAdd(aLinha,0)
 // Total Realizado
 aAdd(aLinha,0)
+// Total Realizado / Previsto
+aAdd(aLinha,0)
 
 // Campos de Previsto e relizado por mês
 IncPer(aLinha)
 aAdd(aMatriz,aLinha)
 nLinImp := Len(aMatriz)
 
-
-
-
 Return .T.
+
 
 // Montar os valores iniciais das linhas
 Static Function IncPer(aLinha)
@@ -232,11 +234,11 @@ Next
 Return
 
 
-
-#DEFINE FAT_CONTRATO		1
-#DEFINE FAT_COMPETAM		2
-#DEFINE FAT_VALPREV			3
-#DEFINE FAT_VALFAT			4
+#DEFINE FAT_EMPRESA			1
+#DEFINE FAT_CONTRATO		2
+#DEFINE FAT_COMPETAM		3
+#DEFINE FAT_VALPREV			4
+#DEFINE FAT_VALFAT			5
 
 Static Function PrcFat
 
@@ -245,27 +247,30 @@ Local nX 			:= 0
 Local cQuery 		:= ""
 Local nCol 			:= 0
 Local cAnoMes 		:= ""
-
+Local nMImp			:= 0
 Local aReturn       := {}
 Local aBinds        := {}
 Local aSetFields    := {}
 Local nRet          := 0
+Local cFormula 		:= ""
 
 //SELECT CONTRATO,COMPETAM,SUM(VALFAT),SUM(CXN_VLPREV) FROM FATURAMENTO WHERE CONTRATO = 386000609 GROUP BY CONTRATO,COMPETAM ORDER BY CONTRATO,COMPETAM
 
 cQuery := " SELECT " + CRLF
-cQuery += "   CONTRATO" + CRLF
+cQuery += "   EMPRESA" + CRLF
+cQuery += "  ,CONTRATO" + CRLF
 cQuery += "  ,COMPETAM" + CRLF
 cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
 cQuery += "  ,SUM(VALFAT) AS VALFAT" + CRLF
 cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
-cQuery += " GROUP BY CONTRATO,COMPETAM" + CRLF
-cQuery += " ORDER BY CONTRATO,COMPETAM" + CRLF
+cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
+cQuery += " ORDER BY EMPRESA,CONTRATO,COMPETAM" + CRLF
 
 aAdd(aBinds,cContrato)
 
 // Ajustes de tratamento de retorno
+aadd(aSetFields,{"EMPRESA"	,"C",  2,0})
 aadd(aSetFields,{"CONTRATO"	,"C",  9,0})
 aadd(aSetFields,{"COMPETAM"	,"C",  6,0})
 aadd(aSetFields,{"VALPREV"	,"N", 14,2})
@@ -283,17 +288,25 @@ Else
 	For nX := 1 TO LEN(aReturn)
 		cAnoMes := aReturn[nX,FAT_COMPETAM]
 		nCol    := Ascan(aColMes,"P"+cAnoMes)
+		nMImp	:= u_MVNMIMPC(aReturn[nX,FAT_EMPRESA],cAnoMes)
+
 		If nCol > 0
+			// Valor Previsto
 			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
-			aMatriz[nLinImp,nCol+nColIni] := "'= 8 * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			// Impostos
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			aMatriz[nLinImp,nCol+nColIni] := cFormula
 		Else
 			lRet := .F.
 		EndIf
 
 		nCol    := Ascan(aColMes,"R"+cAnoMes)
 		If nCol > 0
+			// Valor Realizado
 			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALFAT]
-			aMatriz[nLinImp,nCol+nColIni] := "'= 8 * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			// Impostos
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			aMatriz[nLinImp,nCol+nColIni] := cFormula
 		Else
 			lRet := .F.
 		EndIf
