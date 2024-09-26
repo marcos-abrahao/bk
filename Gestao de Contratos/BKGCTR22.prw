@@ -187,13 +187,6 @@ aAdd(aLinha,cContrato)
 aAdd(aLinha,"03")
 // Descrição
 aAdd(aLinha,"FATURAMENTO BRUTO")
-// Total Previsto
-aAdd(aLinha,0)
-// Total Realizado
-aAdd(aLinha,0)
-// Total Realizado / Previsto
-aAdd(aLinha,0)
-
 // Campos de Previsto e relizado por mês
 IncPer(aLinha)
 aAdd(aMatriz,aLinha)
@@ -207,13 +200,6 @@ aAdd(aLinha,cContrato)
 aAdd(aLinha,"04")
 // Descrição
 aAdd(aLinha,"(-) Impostos e Contribuições")
-// Total Previsto
-aAdd(aLinha,0)
-// Total Realizado
-aAdd(aLinha,0)
-// Total Realizado / Previsto
-aAdd(aLinha,0)
-
 // Campos de Previsto e relizado por mês
 IncPer(aLinha)
 aAdd(aMatriz,aLinha)
@@ -225,6 +211,21 @@ Return .T.
 // Montar os valores iniciais das linhas
 Static Function IncPer(aLinha)
 Local nI := 0
+
+// Previsto Mes
+aAdd(aLinha,0)
+// Realizado Mes
+aAdd(aLinha,0)
+// Realizado / Previsto Mes
+aAdd(aLinha,0)
+
+// Total Previsto
+aAdd(aLinha,0)
+// Total Realizado
+aAdd(aLinha,0)
+// Total Realizado / Previsto
+aAdd(aLinha,0)
+
 For nI := 1 To nPeriodo
 	// Previsto
 	aAdd(aLinha,0)
@@ -294,7 +295,7 @@ Else
 			// Valor Previsto
 			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
 			// Impostos
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"  
 			aMatriz[nLinImp,nCol+nColIni] := cFormula
 		Else
 			lRet := .F.
@@ -305,7 +306,8 @@ Else
 			// Valor Realizado
 			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALFAT]
 			// Impostos
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			//cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"    //+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
 			aMatriz[nLinImp,nCol+nColIni] := cFormula
 		Else
 			lRet := .F.
@@ -323,6 +325,8 @@ Local nI 		:= 0
 Local cCol 		:= ""
 Local cColsP	:= ""
 Local cColsR	:= ""
+Local cColAP	:= ""
+Local cColAR	:= ""
 Local cCab		:= ""
 
 // Definição do Arq Excel
@@ -350,6 +354,17 @@ cColsP := cColsR:= "'="
 For nI := 1 To Len(aColMes)
 	cCol := aColMes[nI]
 	If SUBSTR(cCol,2,6) <= cAMesRef
+
+		// Mes Atual
+		If SUBSTR(cCol,2,6) == cAMesRef
+			If "P" $ cCol
+				cColAP := "'=##"+cCol+"##'"
+			Else
+				cColAR := "'=##"+cCol+"##'"
+			EndIf
+		EndIf
+
+		// Soma dos mesese
 		If "P" $ cCol
 			If "##" $ cColsP
 				cColsP += "+"
@@ -366,6 +381,19 @@ Next
 cColsP += "'"
 cColsR += "'"
 
+oPExcel:AddCol("PREVMES",cColAP,"Previsto em "+cMAnoRef,"")
+oPExcel:GetCol("PREVMES"):SetTipo("FN")
+oPExcel:GetCol("PREVMES"):SetTotal(.T.)
+
+oPExcel:AddCol("REALMES",cColAR,"Realizado em "+cMAnoRef,"")
+oPExcel:GetCol("REALMES"):SetTipo("FN")
+oPExcel:GetCol("REALMES"):SetTotal(.T.)
+
+oPExcel:AddCol("MPREVREAL","'=#!-1,0#! / #!-2,0#!'","Previsto / Realizado em "+cMAnoRef,"")
+oPExcel:GetCol("MPREVREAL"):SetTipo("FP")
+oPExcel:GetCol("MPREVREAL"):SetTotal(.F.)
+
+
 oPExcel:AddCol("TOTPREV",cColsP,"Total Previsto até "+cMAnoRef,"")
 oPExcel:GetCol("TOTPREV"):SetTipo("FN")
 oPExcel:GetCol("TOTPREV"):SetTotal(.T.)
@@ -373,6 +401,10 @@ oPExcel:GetCol("TOTPREV"):SetTotal(.T.)
 oPExcel:AddCol("TOTREAL",cColsR,"Total Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("TOTREAL"):SetTipo("FN")
 oPExcel:GetCol("TOTREAL"):SetTotal(.T.)
+
+oPExcel:AddCol("PPREVREAL","'=#!-1,0#! / #!-2,0#!'","Previsto / Realizado até "+cMAnoRef,"")
+oPExcel:GetCol("PPREVREAL"):SetTipo("FP")
+oPExcel:GetCol("PPREVREAL"):SetTotal(.F.)
 
 For nI := 1 To Len(aColMes)
 	cCol := aColMes[nI]

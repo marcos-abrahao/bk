@@ -871,14 +871,17 @@ For nP := 1 To Len(Self:aPlans)
 
 				// Se alguma formula ADVPL for informada 
 				lFormula := .F.
-				If !Empty(cCampo) .AND. ("(" $ cCampo .OR. "F" $ cTipo)
+				If !Empty(cCampo) .AND. ("(" $ cCampo) .AND. !("F" $ cTipo)
 					xCampo	:= &(cCampo)
-					If "F" $ cTipo .AND. ValType(xCampo) == "C"
-						lFormula := .T.
-					EndIf
+					///If "F" $ cTipo .AND. ValType(xCampo) == "C"
+					///	lFormula := .T.
+					///EndIf
 				ElseIf "F" $ cTipo
-					If ValType(xCampo) == "C"   // Formula pode ter sido informada na celula
-						xCampo	:= &(xCampo)
+					If !Empty(cCampo) // Formula informada na coluna
+						xCampo	:= cCampo
+						lFormula := .T.
+					ElseIf ValType(xCampo) == "C"   // Formula informada na celula
+						cCampo	:= xCampo
 						lFormula := .T.
 					Else
 						lFormula := .F.
@@ -1064,7 +1067,7 @@ For nP := 1 To Len(Self:aPlans)
 					If "HYPERLINK" $ UPPER(xCampo)
 						Self:oPrtXlsx:SetFont(cFont, nLSize, lLItalic, lLBold, .T.)
 						Self:oPrtXlsx:SetCellsFormat(cOHAlign, cLVertAlig, lWrap, nLRotation, cCorLink, cCorFundo, cFormat )
-					ElseIf "##" $ cCampo
+					ElseIf "##" $ cCampo .OR. "#!" $ cCampo
 						// Exemplo: 
 						//	oPExcel:AddCol("TOTAL","'=##C1_QUANT##*##C1_XXLCVAL##'","Total","")
 						//	oPExcel:GetCol("TOTAL"):SetTipo("FN")
@@ -1074,11 +1077,40 @@ For nP := 1 To Len(Self:aPlans)
 						Do While nX <= Len(oPlan:aColunas) .AND. "##" $ cCampo
 							cColLin := oPlan:aColunas[nX]:GetColuna()+ALLTRIM(STR(nLin))
 							cFCampo := "##"+oPlan:aColunas[nX]:GetName()+"##"
-							If cFCampo $ xCampo
-								xCampo := STRTRAN(xCampo,cFCampo,cColLin)
+							If cFCampo $ cCampo
+								cCampo := STRTRAN(cCampo,cFCampo,cColLin)
 							EndIf
 							nX++
 						EndDo
+
+						// Exemplo:  multiplicar a celula de cima por 5%   (col,lin)
+
+						//	oPExcel:AddCol("TOTAL","'=#!-1,0#!*5%'","Total","")
+						//	oPExcel:GetCol("TOTAL"):SetTipo("FN")
+						//	oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+						Do While "#!" $ cCampo
+
+							//Exemplo: cCampo = "'=#!-1,0#!*5%'+#!1,0#!"
+							
+							cStr1 := SuBSTR(cCampo,at("#!",cCampo,2))
+							// "#!-1,0#!*5%'+#!1,0#!"
+							cStrT := SuBSTR(cStr1,1,at("#!",cStr1,3)+1)
+							// "#!-1,0#!"
+							cStr3 := STRTRAN(cStrT,"#!","")
+							// "-1,0"
+							aCxLx := StrToKaRr(cStr3,",")
+							If Len(aCxLx) = 2
+								cColLin := NumToString(nC+Val(aCxLx[1]))+ALLTRIM(STR(nLin+Val(aCxLx[2])))
+								cCampo := STRTRAN(cCampo,cStrT,cColLin)
+							Else
+								nX := 0
+								Exit
+							EndIf
+							nX++
+						EndDo
+						If nX > 0 
+							xCampo := &(cCampo)
+						EndIf
 					EndIf
 
 					If !Empty(xCampo)
@@ -1086,6 +1118,7 @@ For nP := 1 To Len(Self:aPlans)
 					Else
 						Self:oPrtXlsx:SetValue(nLin,nC,"")
 					EndIf
+					// para teste	Self:oPrtXlsx:SetValue(nLin,nC,cCampo)
 					lChange := .T.
 					
 				ElseIf "D" $ cTipo
