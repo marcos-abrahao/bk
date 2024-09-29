@@ -444,6 +444,15 @@ Local nLinR 		:= 0
 // Variaveis usadas no resumo
 Local cTipoVal 		:= ""
 
+// Variaveis  para referenciamento 							
+Local cStr1 := ""
+Local cStrT := ""
+Local cStr3 := ""
+Local aCxLx := {}
+Local cColVal := 0
+Local nColName := 0
+Local nLinVal := 0
+
 Default oSayMsg		:= Nil
 // Campo para Macro
 Private xCampo
@@ -1100,8 +1109,31 @@ For nP := 1 To Len(Self:aPlans)
 							// "-1,0"
 							aCxLx := StrToKaRr(cStr3,",")
 							If Len(aCxLx) = 2
-								cColLin := NumToString(nC+Val(aCxLx[1]))+ALLTRIM(STR(nLin+Val(aCxLx[2])))
-								cCampo := STRTRAN(cCampo,cStrT,cColLin)
+								// Pegar a coluna
+								If IsAlpha(aCxLx[1])
+									// Por nome de coluna
+									nColName := Ascan(oPExcel:aColunas,{|x| x:cName == aCxLx[1]})
+									If nColName > 0
+										cColVal := oPExcel:aColunas[nColName]:cColuna
+									Else
+										// Por variavel private
+										cColVal := NumToString(&(aCxLx[1]))
+									EndIf
+								Else
+									// Por referencia
+									cColVal := NumToString(nC + Val(aCxLx[1]))
+								Endif
+
+								If IsAlpha(aCxLx[2])
+									// Linha por variavel private
+									nLinVal := &(aCxLx[2]) + nTop - 1
+								Else
+									// Linha Por referencia
+									nLinVal := nLin + Val(aCxLx[2])
+								Endif
+
+								cColLin := cColVal+ALLTRIM(STR(nLinVal))
+								cCampo  := STRTRAN(cCampo,cStrT,cColLin)
 							Else
 								nX := 0
 								Exit

@@ -32,7 +32,7 @@ Private dDataF		:= dDataBase
 Private nPeriodo    := 0
 Private aAnoMes 	:= {}
 Private aColMes		:= {}
-Private nColIni		:= 3 // Quantidade de Colunas Iniciais antes dos valores
+Private nColIni		:= 9 // Quantidade de Colunas Iniciais antes dos valores
 Private aMatriz 	:= {}
 Private nMesRef		:= Month(Date())
 Private nAnoRef		:= Year(Date())
@@ -42,6 +42,8 @@ Private cMAnoRef	:= StrZero(nMesRef,2)+"/"+StrZero(nAnoRef,4)
 // Linhas do relatorio
 Private nLinFat		:= 0
 Private nLinImp		:= 0
+Private nLinIss		:= 0
+
 
 aAdd( aParam, { 1, "Contrato:" 	, cContrato	, ""    , ""                                       , "CTT", "", 70, .T. })
 aAdd( aParam, { 1, "Mes ref."   , nMesRef   ,"99"   , "mv_par02 > 0 .AND. mv_par02 <= 12"      , ""   , "", 20, .T. })
@@ -205,6 +207,19 @@ IncPer(aLinha)
 aAdd(aMatriz,aLinha)
 nLinImp := Len(aMatriz)
 
+
+// ISS
+aLinha	:= {}
+aAdd(aLinha,cContrato)
+// Chave
+aAdd(aLinha,"05")
+// Descrição
+aAdd(aLinha,"(-) ISS")
+// Campos de Previsto e relizado por mês
+IncPer(aLinha)
+aAdd(aMatriz,aLinha)
+nLinIss := Len(aMatriz)
+
 Return .T.
 
 
@@ -240,6 +255,7 @@ Return
 #DEFINE FAT_COMPETAM		3
 #DEFINE FAT_VALPREV			4
 #DEFINE FAT_VALFAT			5
+#DEFINE FAT_VALISS			6
 
 Static Function PrcFat
 
@@ -262,7 +278,8 @@ cQuery += "   EMPRESA" + CRLF
 cQuery += "  ,CONTRATO" + CRLF
 cQuery += "  ,COMPETAM" + CRLF
 cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
-cQuery += "  ,SUM(VALFAT) AS VALFAT" + CRLF
+cQuery += "  ,SUM(VALFAT)     AS VALFAT" + CRLF
+cQuery += "  ,SUM(F2_VALISS)  AS VALISS" + CRLF
 cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
 cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
@@ -276,6 +293,7 @@ aadd(aSetFields,{"CONTRATO"	,"C",  9,0})
 aadd(aSetFields,{"COMPETAM"	,"C",  6,0})
 aadd(aSetFields,{"VALPREV"	,"N", 14,2})
 aadd(aSetFields,{"VALFAT"	,"N", 14,2})
+aadd(aSetFields,{"VALISS"	,"N", 14,2})
 
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
@@ -295,8 +313,14 @@ Else
 			// Valor Previsto
 			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
 			// Impostos
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"  
+			//cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"  
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFat#!'"  
 			aMatriz[nLinImp,nCol+nColIni] := cFormula
+
+			// ISS
+			cFormula:= "'=-IFERROR(#!1,0#! / #!1,nLinFat#! * #!0,nLinFat#!,0)'"  //=+K6/K4*J4
+			aMatriz[nLinIss,nCol+nColIni] := cFormula
+
 		Else
 			lRet := .F.
 		EndIf
@@ -309,6 +333,10 @@ Else
 			//cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
 			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"    //+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
 			aMatriz[nLinImp,nCol+nColIni] := cFormula
+
+			// ISS
+			aMatriz[nLinIss,nCol+nColIni] := aReturn[nX,FAT_VALISS]
+
 		Else
 			lRet := .F.
 		EndIf
@@ -389,7 +417,7 @@ oPExcel:AddCol("REALMES",cColAR,"Realizado em "+cMAnoRef,"")
 oPExcel:GetCol("REALMES"):SetTipo("FN")
 oPExcel:GetCol("REALMES"):SetTotal(.T.)
 
-oPExcel:AddCol("MPREVREAL","'=#!-1,0#! / #!-2,0#!'","Previsto / Realizado em "+cMAnoRef,"")
+oPExcel:AddCol("MPREVREAL","'=IFERROR(#!REALMES,0#! / #!PREVMES,0#!,0)'","Previsto / Realizado em "+cMAnoRef,"")
 oPExcel:GetCol("MPREVREAL"):SetTipo("FP")
 oPExcel:GetCol("MPREVREAL"):SetTotal(.F.)
 
@@ -402,7 +430,7 @@ oPExcel:AddCol("TOTREAL",cColsR,"Total Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("TOTREAL"):SetTipo("FN")
 oPExcel:GetCol("TOTREAL"):SetTotal(.T.)
 
-oPExcel:AddCol("PPREVREAL","'=#!-1,0#! / #!-2,0#!'","Previsto / Realizado até "+cMAnoRef,"")
+oPExcel:AddCol("PPREVREAL","'=#!TOTREAL,0#! / #!TOTPREV,0#!'","Previsto / Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("PPREVREAL"):SetTipo("FP")
 oPExcel:GetCol("PPREVREAL"):SetTotal(.F.)
 
