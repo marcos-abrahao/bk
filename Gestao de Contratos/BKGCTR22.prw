@@ -32,7 +32,7 @@ Private dDataF		:= dDataBase
 Private nPeriodo    := 0
 Private aAnoMes 	:= {}
 Private aColMes		:= {}
-Private nColIni		:= 9 // Quantidade de Colunas Iniciais antes dos valores
+Private nColIni		:= 8 // Quantidade de Colunas Iniciais antes dos valores
 Private aMatriz 	:= {}
 Private nMesRef		:= Month(Date())
 Private nAnoRef		:= Year(Date())
@@ -40,10 +40,13 @@ Private cAMesRef	:= StrZero(nAnoRef,4)+StrZero(nMesRef,2)
 Private cMAnoRef	:= StrZero(nMesRef,2)+"/"+StrZero(nAnoRef,4)
 
 // Linhas do relatorio
-Private nLinFat		:= 0
+Private nLinFatB	:= 0
 Private nLinImp		:= 0
 Private nLinIss		:= 0
+Private nLinNDC 	:= 0
+Private nLinFatL	:= 0
 
+u_MsgLog(cProg,"Nova Rentabilidade Contrato está em fase de desenvolvimento, envie Sugestões!!","S")
 
 aAdd( aParam, { 1, "Contrato:" 	, cContrato	, ""    , ""                                       , "CTT", "", 70, .T. })
 aAdd( aParam, { 1, "Mes ref."   , nMesRef   ,"99"   , "mv_par02 > 0 .AND. mv_par02 <= 12"      , ""   , "", 20, .T. })
@@ -179,53 +182,39 @@ Return lRet
 
 // Cria a Matriz geral do Relatório
 Static Function PrcMatriz
-Local aLinha	:= {}
 
+// Linha vazia
+IncVazia()
 
-////// Linha de Faturamento----------------- 
-aLinha	:= {}
-aAdd(aLinha,cContrato)
-// Chave
-aAdd(aLinha,"03")
-// Descrição
-aAdd(aLinha,"FATURAMENTO BRUTO")
-// Campos de Previsto e relizado por mês
-IncPer(aLinha)
-aAdd(aMatriz,aLinha)
-nLinFat := Len(aMatriz)
-////// -------------------------------------
+// Linha de Faturamento Bruto
+nLinFatB := IncLin("FATURAMENTO BRUTO")
+
+// Linha vazia
+IncVazia()
 
 // Impostos e Contribuições
-aLinha	:= {}
-aAdd(aLinha,cContrato)
-// Chave
-aAdd(aLinha,"04")
-// Descrição
-aAdd(aLinha,"(-) Impostos e Contribuições")
-// Campos de Previsto e relizado por mês
-IncPer(aLinha)
-aAdd(aMatriz,aLinha)
-nLinImp := Len(aMatriz)
-
-
+nLinImp := IncLin("(-) Impostos e Contribuições")
 // ISS
-aLinha	:= {}
-aAdd(aLinha,cContrato)
-// Chave
-aAdd(aLinha,"05")
-// Descrição
-aAdd(aLinha,"(-) ISS")
-// Campos de Previsto e relizado por mês
-IncPer(aLinha)
-aAdd(aMatriz,aLinha)
-nLinIss := Len(aMatriz)
+nLinIss := IncLin("(-) ISS")
+
+// Linha vazia
+IncVazia()
+
+// Linha de Faturamento Liquido
+//nLinFatL := IncLin("FATURAMENTO LIQUIDO")
+
 
 Return .T.
 
 
 // Montar os valores iniciais das linhas
-Static Function IncPer(aLinha)
+Static Function IncLin(cDescr)
 Local nI := 0
+Local aLinha := {}
+
+aAdd(aLinha,cContrato)
+// Descrição
+aAdd(aLinha,cDescr)
 
 // Previsto Mes
 aAdd(aLinha,0)
@@ -241,13 +230,57 @@ aAdd(aLinha,0)
 // Total Realizado / Previsto
 aAdd(aLinha,0)
 
+/// Campos de Previsto e relizado por mês
 For nI := 1 To nPeriodo
 	// Previsto
 	aAdd(aLinha,0)
 	// Realizado
 	aAdd(aLinha,0)
 Next
+
+aAdd(aMatriz,aLinha)
+
+Return Len(aMatriz)
+
+
+// Montar os valores iniciais das linhas
+Static Function IncVazia(cDescr)
+Local nI := 0
+Local aLinha	:= {}
+Default cDescr := ""
+
+aAdd(aLinha,cContrato)
+// Descrição
+aAdd(aLinha,cDescr)
+
+// Previsto Mes
+aAdd(aLinha,"")
+// Realizado Mes
+aAdd(aLinha,"")
+// Realizado / Previsto Mes
+aAdd(aLinha,"")
+
+// Total Previsto
+aAdd(aLinha,"")
+// Total Realizado
+aAdd(aLinha,"")
+// Total Realizado / Previsto
+aAdd(aLinha,"")
+
+
+// Campos de Previsto e relizado por mês
+For nI := 1 To nPeriodo
+	// Previsto
+	aAdd(aLinha,"")
+	// Realizado
+	aAdd(aLinha,"")
+Next
+
+aAdd(aMatriz,aLinha)
+
 Return
+
+
 
 
 #DEFINE FAT_EMPRESA			1
@@ -279,7 +312,7 @@ cQuery += "  ,CONTRATO" + CRLF
 cQuery += "  ,COMPETAM" + CRLF
 cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
 cQuery += "  ,SUM(VALFAT)     AS VALFAT" + CRLF
-cQuery += "  ,SUM(F2_VALISS)  AS VALISS" + CRLF
+cQuery += "  ,SUM(F2_VALISS+E1_XXISSBI)  AS VALISS" + CRLF
 cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
 cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
@@ -311,14 +344,14 @@ Else
 
 		If nCol > 0
 			// Valor Previsto
-			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
+			aMatriz[nLinFatB,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
 			// Impostos
 			//cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"  
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFat#!'"  
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFatB#!'"  
 			aMatriz[nLinImp,nCol+nColIni] := cFormula
 
 			// ISS
-			cFormula:= "'=-IFERROR(#!1,0#! / #!1,nLinFat#! * #!0,nLinFat#!,0)'"  //=+K6/K4*J4
+			cFormula:= "'=IFERROR(#!1,0#! / #!1,nLinFatB#! * #!0,nLinFatB#!,0)'"  //=+K6/K4*J4
 			aMatriz[nLinIss,nCol+nColIni] := cFormula
 
 		Else
@@ -328,14 +361,14 @@ Else
 		nCol    := Ascan(aColMes,"R"+cAnoMes)
 		If nCol > 0
 			// Valor Realizado
-			aMatriz[nLinFat,nCol+nColIni] += aReturn[nX,FAT_VALFAT]
+			aMatriz[nLinFatB,nCol+nColIni] += aReturn[nX,FAT_VALFAT]
 			// Impostos
-			//cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"    //+ cValToChar(aMatriz[nLinFat,nCol+nColIni])+"'"
+			//cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFatB,nCol+nColIni])+"'"
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFatB#!'"    //+ cValToChar(aMatriz[nLinFatB,nCol+nColIni])+"'"
 			aMatriz[nLinImp,nCol+nColIni] := cFormula
 
 			// ISS
-			aMatriz[nLinIss,nCol+nColIni] := aReturn[nX,FAT_VALISS]
+			aMatriz[nLinIss,nCol+nColIni] -= aReturn[nX,FAT_VALISS]
 
 		Else
 			lRet := .F.
@@ -356,6 +389,7 @@ Local cColsR	:= ""
 Local cColAP	:= ""
 Local cColAR	:= ""
 Local cCab		:= ""
+Local cTitPlan  := ""
 
 // Definição do Arq Excel
 oRExcel := RExcel():New(cProg)
@@ -370,9 +404,6 @@ oPExcel:= PExcel():New(cProg,aMatriz)
 // Colunas da Planilha 1
 oPExcel:AddCol("CONTRATO","","Contrato","")
 oPExcel:GetCol("CONTRATO"):SetTamCol(10)
-
-oPExcel:AddCol("CHAVE","","Chave","")
-oPExcel:GetCol("CHAVE"):SetTamCol(20)
 
 oPExcel:AddCol("DESCRICAO","","Descricao","")
 oPExcel:GetCol("DESCRICAO"):SetTamCol(50)
@@ -392,7 +423,7 @@ For nI := 1 To Len(aColMes)
 			EndIf
 		EndIf
 
-		// Soma dos mesese
+		// Soma dos meses
 		If "P" $ cCol
 			If "##" $ cColsP
 				cColsP += "+"
@@ -421,7 +452,6 @@ oPExcel:AddCol("MPREVREAL","'=IFERROR(#!REALMES,0#! / #!PREVMES,0#!,0)'","Previs
 oPExcel:GetCol("MPREVREAL"):SetTipo("FP")
 oPExcel:GetCol("MPREVREAL"):SetTotal(.F.)
 
-
 oPExcel:AddCol("TOTPREV",cColsP,"Total Previsto até "+cMAnoRef,"")
 oPExcel:GetCol("TOTPREV"):SetTipo("FN")
 oPExcel:GetCol("TOTPREV"):SetTotal(.T.)
@@ -430,7 +460,7 @@ oPExcel:AddCol("TOTREAL",cColsR,"Total Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("TOTREAL"):SetTipo("FN")
 oPExcel:GetCol("TOTREAL"):SetTotal(.T.)
 
-oPExcel:AddCol("PPREVREAL","'=#!TOTREAL,0#! / #!TOTPREV,0#!'","Previsto / Realizado até "+cMAnoRef,"")
+oPExcel:AddCol("PPREVREAL","'=IFERROR(#!TOTREAL,0#! / #!TOTPREV,0#!,0)'","Previsto / Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("PPREVREAL"):SetTipo("FP")
 oPExcel:GetCol("PPREVREAL"):SetTotal(.F.)
 
@@ -449,10 +479,15 @@ Next
 
 // Adiciona a planilha 1
 oRExcel:AddPlan(oPExcel)
-oPExcel:SetTitulo("Contrato: "+cContrato+" - "+Posicione("CTT",1,xFilial("CTT")+cContrato,"CTT_DESC01"))
+
+cTitPlan := "Contrato: "+cContrato+" - "+Posicione("CTT",1,xFilial("CTT")+cContrato,"CTT_DESC01")+CRLF
+cTitPlan += "Cliente : "+Posicione("CN9",8,xFilial("CN9")+Pad(cContrato,TamSx3("CN9_NUMERO")[1])+"   ","CN9_NOMCLI") // cn9_numer+cn9_revatu
+
+oPExcel:SetTitulo(cTitPlan)
 
 // Cria arquivo Excel
 oRExcel:Create()
 
 Return Nil
+
 
