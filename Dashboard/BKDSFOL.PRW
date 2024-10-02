@@ -132,7 +132,7 @@ BEGINCONTENT VAR cQuery
 		  ELSE 28.860 END) AS PINCIDENCIAS,
 
 	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] 
-	  WHERE [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = '01' AND 
+	  WHERE [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = bk_senior.bk_senior.R046VER.NumEmp AND 
 	        CodTab = 1 AND 
 		    [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve = bk_senior.bk_senior.R046VER.CodEve AND 
             SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) 

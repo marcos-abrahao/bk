@@ -151,7 +151,7 @@ User Function BKGCTR11(lJob)
 	cCCRE_Verb	:= "" //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
 	cCCRE_Prod	:= "" //GetMv("MV_XXCCREP") //INUTILIZADO //"|34202016|"
 	cCDPR_Prod	:= U_MVXCDPRP()
-	cCDPR_GRUP	:= U_MVXCDPRG()
+	cCDPR_GRUP	:= "" //U_MVXCDPRG()
 	cNINC_Verb	:= U_MVXNINCI()
 
 	aContrCons	:= {}
@@ -4224,7 +4224,7 @@ User Function BK2GCTR11(lJob,aAglContr)
 	cCCRE_Verb	:= "" //GetMv("MV_XXCCREV") //"|774|775|776|812|814|"
 	cCCRE_Prod	:= "" //GetMv("MV_XXCCREP") //"|34202016|"
 	cCDPR_Prod	:= GetMv("MV_XXCDPRP") //"|320200111|34202034|000000000000112|34202057|34202086|"    cod produtos rateio no contrato
-	cCDPR_GRUP	:= GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********                               cod grupo de produto rateio no contrato
+	cCDPR_GRUP	:= "" //GetMv("MV_XXCDPRG") //'|0008|0009|0010|'  *********                               cod grupo de produto rateio no contrato
 	cNINC_Verb	:= U_MVXNINCI()
 
 	aContrCons	:= {}

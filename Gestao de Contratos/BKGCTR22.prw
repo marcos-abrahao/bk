@@ -40,11 +40,27 @@ Private cAMesRef	:= StrZero(nAnoRef,4)+StrZero(nMesRef,2)
 Private cMAnoRef	:= StrZero(nMesRef,2)+"/"+StrZero(nAnoRef,4)
 
 // Linhas do relatorio
+// Linhas do Faturamento
 Private nLinFatB	:= 0
 Private nLinImp		:= 0
 Private nLinIss		:= 0
 Private nLinNDC 	:= 0
 Private nLinFatL	:= 0
+// Linhas da FOlha
+Private nLinProv	:= 0
+Private nLinDesc	:= 0
+Private nLinEnc		:= 0
+Private nLinInc		:= 0
+Private nLinPLR		:= 0
+Private nLinSInc	:= 0
+Private nLinVTP		:= 0
+Private nLinVTV		:= 0
+Private nLinVRVA	:= 0
+Private nLinVRVAV	:= 0
+Private nLinAsMed	:= 0
+Private nLinAsMedV	:= 0
+Private nLinSinoP	:= 0
+Private nLinSinoV 	:=0
 
 u_MsgLog(cProg,"Nova Rentabilidade Contrato está em fase de desenvolvimento, envie Sugestões!!","S")
 
@@ -62,6 +78,7 @@ u_WaitLog(cProg, {|| lRet := PrcPer() },"Definindo período...")
 If lRet
 	u_WaitLog(cProg, {|| lRet := PrcMatriz() }	,"Inicializando a matriz...")
 	u_WaitLog(cProg, {|| lRet := PrcFat() }		,"Dados de Faturamento...")
+	u_WaitLog(cProg, {|| lRet := PrcFol() }		,"Dados de Folha...")
 EndIf
 
 If lRet
@@ -182,33 +199,98 @@ Return lRet
 
 // Cria a Matriz geral do Relatório
 Static Function PrcMatriz
+Local nI 		:= 0
+Local cColsP	:= ""
+Local cColsR	:= ""
+Local cColAP	:= ""
+Local cColAR	:= ""
+Local cColPR 	:= ""
+Local cColsPR	:= ""
+Local cFormula	:= ""
+
+// Criação das fórmulas de soma do previsto e realizado até o mes de ref
+cColsP := cColsR:= "'="
+For nI := 1 To Len(aColMes)
+	cCol := aColMes[nI]
+	If SUBSTR(cCol,2,6) <= cAMesRef
+
+		// Mes Atual
+		If SUBSTR(cCol,2,6) == cAMesRef
+			If "P" $ cCol
+				cColAP := "'=##"+cCol+"##'"
+			Else
+				cColAR := "'=##"+cCol+"##'"
+			EndIf
+		EndIf
+
+		// Soma dos meses
+		If "P" $ cCol
+			If "##" $ cColsP
+				cColsP += "+"
+			EndIf
+			cColsP += "##"+cCol+"##"
+		Else
+			If "##" $ cColsR
+				cColsR += "+"
+			EndIf
+			cColsR += "##"+cCol+"##"
+		EndIf
+	EndIf
+Next
+cColsP += "'"
+cColsR += "'"
+
+cColPR  := "'=IFERROR(#!REALMES,0#! / #!PREVMES,0#!,0)'"
+cColsPR := "'=IFERROR(#!TOTREAL,0#! / #!TOTPREV,0#!,0)'"
 
 // Linha vazia
 IncVazia()
 
 // Linha de Faturamento Bruto
-nLinFatB := IncLin("FATURAMENTO BRUTO")
+nLinFatB := IncLin("FATURAMENTO BRUTO",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 // Linha vazia
 IncVazia()
 
 // Impostos e Contribuições
-nLinImp := IncLin("(-) Impostos e Contribuições")
+nLinImp := IncLin("(-) Impostos e Contribuições",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 // ISS
-nLinIss := IncLin("(-) ISS")
+nLinIss := IncLin("(-) ISS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 // Linha vazia
 IncVazia()
 
 // Linha de Faturamento Liquido
-//nLinFatL := IncLin("FATURAMENTO LIQUIDO")
+cFormula := "'= #!0,nLinFatB#! + #!0,nLinImp#! + #!0,nLinISS#!'"
+nLinFatL := IncLin("FATURAMENTO LIQUIDO",cFormula,cFormula,cColPR,cFormula,cFormula,cColsPR,cFormula,cFormula)
+
+// Linha vazia
+IncVazia()
+
+// Linha vazia
+IncVazia("FOLHA")
+
+nLinProv	:= IncLin("PROVENTOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinDesc	:= IncLin("DESCONTOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinEnc	 	:= IncLin("ENCARGOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinInc	 	:= IncLin("INCIDENCIAS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinPLR	 	:= IncLin("PLR",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinSInc 	:= IncLin("VERBAS SEM ENCARGOS/INCIDENCIAS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVTP 	:= IncLin("VT",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVTV 	:= IncLin("(-) Recuperação de VT",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVRVA 	:= IncLin("VR/VA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVRVAV 	:= IncLin("(-) Recuperação de VR/VA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinAsMed 	:= IncLin("ASSISTENCIA MEDICA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinAsMedV 	:= IncLin("(-) Recuperação de ASSISTENCIA MEDICA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinSinoP 	:= IncLin("Sindicato (Odonto)",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinSinoV 	:= IncLin("(-) Recuperação de Sindicato (Odonto)",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 
 Return .T.
 
 
 // Montar os valores iniciais das linhas
-Static Function IncLin(cDescr)
+Static Function IncLin(cDescr,cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,xColPPer,xColRPer)
 Local nI := 0
 Local aLinha := {}
 
@@ -217,25 +299,25 @@ aAdd(aLinha,cContrato)
 aAdd(aLinha,cDescr)
 
 // Previsto Mes
-aAdd(aLinha,0)
+aAdd(aLinha,cColAP)
 // Realizado Mes
-aAdd(aLinha,0)
+aAdd(aLinha,cColAR)
 // Realizado / Previsto Mes
-aAdd(aLinha,0)
+aAdd(aLinha,cColPR)
 
 // Total Previsto
-aAdd(aLinha,0)
+aAdd(aLinha,cColsP)
 // Total Realizado
-aAdd(aLinha,0)
+aAdd(aLinha,cColsR)
 // Total Realizado / Previsto
-aAdd(aLinha,0)
+aAdd(aLinha,cColsPR)
 
 /// Campos de Previsto e relizado por mês
 For nI := 1 To nPeriodo
 	// Previsto
-	aAdd(aLinha,0)
+	aAdd(aLinha,xColPPer)
 	// Realizado
-	aAdd(aLinha,0)
+	aAdd(aLinha,xColRPer)
 Next
 
 aAdd(aMatriz,aLinha)
@@ -290,6 +372,7 @@ Return
 #DEFINE FAT_VALFAT			5
 #DEFINE FAT_VALISS			6
 
+// Faturamento
 Static Function PrcFat
 
 Local lRet 			:= .T.
@@ -311,8 +394,8 @@ cQuery += "   EMPRESA" + CRLF
 cQuery += "  ,CONTRATO" + CRLF
 cQuery += "  ,COMPETAM" + CRLF
 cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
-cQuery += "  ,SUM(VALFAT)     AS VALFAT" + CRLF
-cQuery += "  ,SUM(F2_VALISS+E1_XXISSBI)  AS VALISS" + CRLF
+cQuery += "  ,SUM(F2_VALFAT)  AS VALFAT" + CRLF
+cQuery += "  ,SUM(F2_VALISS+E1_XXISSBI+F2_VLCPM) AS VALISS" + CRLF
 cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
 cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
@@ -381,13 +464,130 @@ Return lRet
 
 
 
+#DEFINE FOL_COMPETAM		1
+#DEFINE FOL_CHAVEZG			2
+#DEFINE FOL_PROVENTOS		3
+#DEFINE FOL_DESCONTOS		4
+#DEFINE FOL_PLR				5
+#DEFINE FOL_VTPROV			6
+#DEFINE FOL_VTVER 			7
+#DEFINE FOL_VRVAV 			8
+#DEFINE FOL_ASSMP 			9
+#DEFINE FOL_ASSMV 			10
+#DEFINE FOL_SINOP 			11
+#DEFINE FOL_SINOV 			12
+#DEFINE FOL_SEMINC			13
+#DEFINE FOL_PENCARGOS		14
+#DEFINE FOL_PINCIDENCIAS	15	
+#DEFINE FOL_VALASSOD		16
+#DEFINE FOL_ENCARGOS		17
+#DEFINE FOL_INCIDENCIAS		18
+#DEFINE FOL_CUSTO 			19
+#DEFINE FOL_CUSTOSE			20
+
+// Folha
+Static Function PrcFol
+
+Local lRet 			:= .T.
+Local nX 			:= 0
+Local cQuery 		:= ""
+Local nCol 			:= 0
+Local cAnoMes 		:= ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+//Local cFormula 		:= ""
+
+cQuery := " SELECT " + CRLF
+cQuery += "   COMPETAM" + CRLF
+cQuery += "  ,CHAVEZG" + CRLF
+cQuery += "  ,SUM(PROVENTOS) AS PROVENTOS" + CRLF
+cQuery += "  ,SUM(DESCONTOS) AS DESCONTOS" + CRLF
+cQuery += "  ,SUM(PLR) AS PLR" + CRLF
+cQuery += "  ,SUM(VTPROV) AS VTPROV" + CRLF
+cQuery += "  ,SUM(VTVER) AS VTVER" + CRLF
+cQuery += "  ,SUM(VRVAV) AS VRVAV" + CRLF
+cQuery += "  ,SUM(ASSMP) AS ASSMP" + CRLF
+cQuery += "  ,SUM(ASSMV) AS ASSMV" + CRLF
+cQuery += "  ,SUM(SINOP) AS SINOP" + CRLF
+cQuery += "  ,SUM(SINOV) AS SINOV" + CRLF
+cQuery += "  ,SUM(SEMINC) AS SEMINC" + CRLF
+cQuery += "  ,SUM(PENCARGOS) AS PENCARGOS" + CRLF
+cQuery += "  ,SUM(PINCIDENCIAS) AS PINCIDENCIAS" + CRLF
+cQuery += "  ,SUM(VALASSOD) AS VALASSOD" + CRLF
+cQuery += "  ,SUM(ENCARGOS) AS ENCARGOS" + CRLF
+cQuery += "  ,SUM(INCIDENCIAS) AS INCIDENCIAS" + CRLF
+cQuery += "  ,SUM(CUSTO) AS CUSTO" + CRLF
+cQuery += "  ,SUM(CUSTOSE) AS CUSTOSE" + CRLF
+
+cQuery += " FROM PowerBk.dbo.FOLHA" + CRLF
+cQuery += " WHERE CONTRATO = ? " + CRLF
+cQuery += " GROUP BY COMPETAM,CHAVEZG" + CRLF
+cQuery += " ORDER BY COMPETAM,CHAVEZG" + CRLF
+
+aAdd(aBinds,cContrato)
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"EMPRESA"	,"C",  2,0})
+aadd(aSetFields,{"CONTRATO"	,"C",  9,0})
+aadd(aSetFields,{"COMPETAM"	,"C",  6,0})
+aadd(aSetFields,{"VALPREV"	,"N", 14,2})
+aadd(aSetFields,{"VALFAT"	,"N", 14,2})
+aadd(aSetFields,{"VALISS"	,"N", 14,2})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+u_LogTxt(cProg+".SQL",cQuery,aBinds)
+
+If nRet < 0
+	lRet := .F.
+	u_MsgLog(cProg,TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+Else
+
+	For nX := 1 TO LEN(aReturn)
+		cAnoMes := aReturn[nX,FOL_COMPETAM]
+		nCol    := Ascan(aColMes,"P"+cAnoMes)
+
+		If nCol > 0
+			// Valor Previsto
+			//aMatriz[nLinProv,nCol+nColIni] += aReturn[nX,FOL_PROVENTOS]
+
+		Else
+			lRet := .F.
+		EndIf
+
+		nCol    := Ascan(aColMes,"R"+cAnoMes)
+		If nCol > 0
+			// Valor Realizado
+			aMatriz[nLinProv  ,nCol+nColIni] += aReturn[nX,FOL_PROVENTOS]
+			aMatriz[nLinDesc  ,nCol+nColIni] += aReturn[nX,FOL_DESCONTOS]
+			aMatriz[nLinEnc   ,nCol+nColIni] += aReturn[nX,FOL_ENCARGOS]
+			aMatriz[nLinInc   ,nCol+nColIni] += aReturn[nX,FOL_INCIDENCIAS]
+			aMatriz[nLinPLR   ,nCol+nColIni] += aReturn[nX,FOL_PLR]
+			aMatriz[nLinSInc  ,nCol+nColIni] += aReturn[nX,FOL_SEMINC]
+			aMatriz[nLinVTP   ,nCol+nColIni] += aReturn[nX,FOL_VTPROV]
+			aMatriz[nLinVTV   ,nCol+nColIni] += aReturn[nX,FOL_VTVER]
+				// VA/VR - está em Despesas
+			aMatriz[nLinVRVAV ,nCol+nColIni] += aReturn[nX,FOL_VRVAV]
+				// ASSMED - está em Despesas
+			aMatriz[nLinAsMedV,nCol+nColIni] += aReturn[nX,FOL_ASSMV]
+			aMatriz[nLinSinoP ,nCol+nColIni] += aReturn[nX,FOL_SINOP]
+			aMatriz[nLinSinoV ,nCol+nColIni] += aReturn[nX,FOL_SINOV]
+
+		Else
+			lRet := .F.
+		EndIf
+	Next
+
+Endif
+
+Return lRet
+
+
 Static Function PrcPlan()
 Local nI 		:= 0
 Local cCol 		:= ""
-Local cColsP	:= ""
-Local cColsR	:= ""
-Local cColAP	:= ""
-Local cColAR	:= ""
 Local cCab		:= ""
 Local cTitPlan  := ""
 
@@ -408,61 +608,29 @@ oPExcel:GetCol("CONTRATO"):SetTamCol(10)
 oPExcel:AddCol("DESCRICAO","","Descricao","")
 oPExcel:GetCol("DESCRICAO"):SetTamCol(50)
 
-// Criação das fórmulas de soma do previsto e realizado até o mes de ref
-cColsP := cColsR:= "'="
-For nI := 1 To Len(aColMes)
-	cCol := aColMes[nI]
-	If SUBSTR(cCol,2,6) <= cAMesRef
-
-		// Mes Atual
-		If SUBSTR(cCol,2,6) == cAMesRef
-			If "P" $ cCol
-				cColAP := "'=##"+cCol+"##'"
-			Else
-				cColAR := "'=##"+cCol+"##'"
-			EndIf
-		EndIf
-
-		// Soma dos meses
-		If "P" $ cCol
-			If "##" $ cColsP
-				cColsP += "+"
-			EndIf
-			cColsP += "##"+cCol+"##"
-		Else
-			If "##" $ cColsR
-				cColsR += "+"
-			EndIf
-			cColsR += "##"+cCol+"##"
-		EndIf
-	EndIf
-Next
-cColsP += "'"
-cColsR += "'"
-
-oPExcel:AddCol("PREVMES",cColAP,"Previsto em "+cMAnoRef,"")
+oPExcel:AddCol("PREVMES","","Previsto em "+cMAnoRef,"")
 oPExcel:GetCol("PREVMES"):SetTipo("FN")
-oPExcel:GetCol("PREVMES"):SetTotal(.T.)
+//oPExcel:GetCol("PREVMES"):SetTotal(.T.)
 
-oPExcel:AddCol("REALMES",cColAR,"Realizado em "+cMAnoRef,"")
+oPExcel:AddCol("REALMES","","Realizado em "+cMAnoRef,"")
 oPExcel:GetCol("REALMES"):SetTipo("FN")
-oPExcel:GetCol("REALMES"):SetTotal(.T.)
+//oPExcel:GetCol("REALMES"):SetTotal(.T.)
 
-oPExcel:AddCol("MPREVREAL","'=IFERROR(#!REALMES,0#! / #!PREVMES,0#!,0)'","Previsto / Realizado em "+cMAnoRef,"")
+oPExcel:AddCol("MPREVREAL","","Previsto / Realizado em "+cMAnoRef,"")
 oPExcel:GetCol("MPREVREAL"):SetTipo("FP")
-oPExcel:GetCol("MPREVREAL"):SetTotal(.F.)
+//oPExcel:GetCol("MPREVREAL"):SetTotal(.F.)
 
-oPExcel:AddCol("TOTPREV",cColsP,"Total Previsto até "+cMAnoRef,"")
+oPExcel:AddCol("TOTPREV","","Total Previsto até "+cMAnoRef,"")
 oPExcel:GetCol("TOTPREV"):SetTipo("FN")
-oPExcel:GetCol("TOTPREV"):SetTotal(.T.)
+//oPExcel:GetCol("TOTPREV"):SetTotal(.T.)
 
-oPExcel:AddCol("TOTREAL",cColsR,"Total Realizado até "+cMAnoRef,"")
+oPExcel:AddCol("TOTREAL","","Total Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("TOTREAL"):SetTipo("FN")
-oPExcel:GetCol("TOTREAL"):SetTotal(.T.)
+//oPExcel:GetCol("TOTREAL"):SetTotal(.T.)
 
-oPExcel:AddCol("PPREVREAL","'=IFERROR(#!TOTREAL,0#! / #!TOTPREV,0#!,0)'","Previsto / Realizado até "+cMAnoRef,"")
+oPExcel:AddCol("PPREVREAL","","Previsto / Realizado até "+cMAnoRef,"")
 oPExcel:GetCol("PPREVREAL"):SetTipo("FP")
-oPExcel:GetCol("PPREVREAL"):SetTotal(.F.)
+//oPExcel:GetCol("PPREVREAL"):SetTotal(.F.)
 
 For nI := 1 To Len(aColMes)
 	cCol := aColMes[nI]
@@ -473,7 +641,7 @@ For nI := 1 To Len(aColMes)
 	EndIf
 	oPExcel:AddCol(cCol,"",cCab,"")
 	oPExcel:GetCol(cCol):SetTipo("FN")	
-	oPExcel:GetCol(cCol):SetTotal(.T.)
+	//oPExcel:GetCol(cCol):SetTotal(.T.)
 	oPExcel:GetCol(cCol):SetDecimal(2)
 Next
 
@@ -489,5 +657,9 @@ oPExcel:SetTitulo(cTitPlan)
 oRExcel:Create()
 
 Return Nil
+
+
+
+
 
 
