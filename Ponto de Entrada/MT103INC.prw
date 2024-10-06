@@ -265,6 +265,7 @@ Local aCabs   	:= {}
 Local aEmail 	:= {}
 Local cMsg		:= ""
 Local cJust		:= ""
+Local cPrw 		:= "SF1Email"
 
 If !IsBlind()
 	cJust := "("+DTOC(DATE())+"-"+TIME()+") "+JustBlq(cAssunto)
@@ -298,7 +299,10 @@ AADD(aEmail,{"Reprovador:"+UsrFullName(RetCodUsr())})
 AADD(aEmail,{"Motivo    :"+cJust})
 
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT103INC")
-U_BkSnMail("MT103INC",cAssunto,cEmail,cEmailCC,cMsg)
+
+u_GrvAnexo(cPrw+".html",cMsg,.T.)
+
+U_BkSnMail("MT103INC",cAssunto,cEmail,cEmailCC,cMsg,{cPrw+".html"})
 
 Return Nil
 

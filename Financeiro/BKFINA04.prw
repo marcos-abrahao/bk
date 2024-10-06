@@ -217,7 +217,9 @@ ELSE
 ENDIF
 
 
-If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
+//If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
+
+If u_MsgLog(cPerg,cMens, "Y")
 
 //  IF TRIM(cTipo) = "PA" 
 //		dbSelectArea("SE5")
@@ -324,12 +326,15 @@ User Function Fina04E(aEmail,lCLT)
 Local cPrw     := "BKFINA04"
 Local cEmail1  := u_BKPgto3() 
 Local cEmail2  := u_BKPgto2()
-Local cCC      := ""
+Local cCC      := u_EmailAdm()
 Local cAssunto := "Pagamentos não Efetuados "+DTOC(DATE())+"-"+TIME()
 Local aCabs    := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw)
 
-U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg)
+// Grava o anexo html
+u_GrvAnexo(cPrw+".html",cMsg,.T.)
+
+U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,{cPrw+".html"})
 
 Return Nil
 

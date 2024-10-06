@@ -488,7 +488,6 @@ User Function BKGCTR11(lJob)
 Return
 
 
-
 Static Function MBrwBKGCTR11()
 	Local 	cAlias 		:= "TRB"
 

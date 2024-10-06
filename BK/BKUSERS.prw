@@ -270,7 +270,7 @@ aadd(aSetFields,{"USRID"    ,"C",  6,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-    u_MsgLog("GrpUsers",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+    u_MsgLog("EmailUsr",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
 Else
     For nU := 1 To Len(aReturn)
         aAdd(aUsers,aReturn[nU,1])

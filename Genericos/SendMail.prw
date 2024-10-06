@@ -78,7 +78,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
 	// Fim testes
 
     If lAviso
-        aUsers := u_EmailUsr(cPara)
+        aUsers := u_EmailUsr(cPara+";"+cCC)
         If LEN(aAnexos) > 0
             cArqAviso := aAnexos[1]
             /*
@@ -234,7 +234,7 @@ EndIf
 // Fim testes
 
 If lAviso
-    aUsers := u_EmailUsr(cPara)
+    aUsers := u_EmailUsr(cPara+";"+cCC)
     u_BKMsgUs(cEmpAnt,cPrw,aUsers,"",cAssunto,cAssunto,"N",cAnexo,DataValida(DATE()+1))
 EndIf
 

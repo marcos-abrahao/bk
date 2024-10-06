@@ -299,7 +299,7 @@ If __cUserId == "000000" .OR. IsBlind()
 
 	If fError()<>0
 		If !IsBlind()
-			FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel abrir "+cFile)
+			FWAlertError("LOG ERROR: "+STR(fError()),"Nao foi possivel abrir "+cFile)
 		EndIf
 		Return(.F.)
 	EndIf
@@ -310,7 +310,7 @@ If __cUserId == "000000" .OR. IsBlind()
 
 	If fError() <> 0
 		If !IsBlind()
-			FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel gravar "+cFile)
+			FWAlertError("LOG ERROR: "+STR(fError()),"Nao foi possivel gravar "+cFile)
 		EndIf
 		fClose(nHandle)
 		Return(.F.)

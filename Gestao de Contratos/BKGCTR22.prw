@@ -247,22 +247,22 @@ cColsPR := "'=IFERROR(#!TOTREAL,0#! / #!TOTPREV,0#!,0)'"
 IncVazia()
 
 // Linha de Faturamento Bruto
-nLinFatB := IncLin("FATURAMENTO BRUTO",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinFatB := IncLin("03" ,"FATURAMENTO BRUTO",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 // Linha vazia
 IncVazia()
 
 // Impostos e Contribuições
-nLinImp := IncLin("(-) Impostos e Contribuições",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinImp := IncLin("04" ,"(-) Impostos e Contribuições",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 // ISS
-nLinIss := IncLin("(-) ISS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinIss := IncLin("05" ,"(-) ISS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 // Linha vazia
 IncVazia()
 
 // Linha de Faturamento Liquido
 cFormula := "'= #!0,nLinFatB#! + #!0,nLinImp#! + #!0,nLinISS#!'"
-nLinFatL := IncLin("FATURAMENTO LIQUIDO",cFormula,cFormula,cColPR,cFormula,cFormula,cColsPR,cFormula,cFormula)
+nLinFatL := IncLin("07" ,"FATURAMENTO LIQUIDO",cFormula,cFormula,cColPR,cFormula,cFormula,cColsPR,cFormula,cFormula)
 
 // Linha vazia
 IncVazia()
@@ -270,31 +270,42 @@ IncVazia()
 // Linha vazia
 IncVazia("FOLHA")
 
-nLinProv	:= IncLin("PROVENTOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinDesc	:= IncLin("DESCONTOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinEnc	 	:= IncLin("ENCARGOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinInc	 	:= IncLin("INCIDENCIAS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinPLR	 	:= IncLin("PLR",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinSInc 	:= IncLin("VERBAS SEM ENCARGOS/INCIDENCIAS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinVTP 	:= IncLin("VT",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinVTV 	:= IncLin("(-) Recuperação de VT",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinVRVA 	:= IncLin("VR/VA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinVRVAV 	:= IncLin("(-) Recuperação de VR/VA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinAsMed 	:= IncLin("ASSISTENCIA MEDICA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinAsMedV 	:= IncLin("(-) Recuperação de ASSISTENCIA MEDICA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinSinoP 	:= IncLin("Sindicato (Odonto)",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
-nLinSinoV 	:= IncLin("(-) Recuperação de Sindicato (Odonto)",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinProv	:= IncLin("09" ,"PROVENTOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinDesc	:= IncLin(""   ,"DESCONTOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinEnc	 	:= IncLin("10" ,"ENCARGOS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinInc	 	:= IncLin("11" ,"INCIDENCIAS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinPLR	 	:= IncLin("110","PLR",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinSInc 	:= IncLin("111","VERBAS SEM ENCARGOS/INCIDENCIAS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVTP 	:= IncLin("12" ,"VT",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVTV 	:= IncLin("13" ,"(-) Recuperação de VT",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVRVA 	:= IncLin("14" ,"VR/VA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinVRVAV 	:= IncLin("15" ,"(-) Recuperação de VR/VA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinAsMed 	:= IncLin("16" ,"ASSISTENCIA MEDICA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinAsMedV 	:= IncLin("17" ,"(-) Recuperação de ASSISTENCIA MEDICA",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinSinoP 	:= IncLin("18" , "Sindicato (Odonto)",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinSinoV 	:= IncLin("19" ,"(-) Recuperação de Sindicato (Odonto)",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
+
+// Linha vazia
+IncVazia()
+
+// Linha vazia
+IncVazia("GASTOS GERAIS")
+
+nLinDescNF	:= IncLin("30-2" ,"DESCONTOS NA NF",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+nLinNDC		:= IncLin("30-3" ,"NDC",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 Return .T.
 
 
+
 // Montar os valores iniciais das linhas
-Static Function IncLin(cDescr,cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,xColPPer,xColRPer)
+Static Function IncLin(cChave,cDescr,cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,xColPPer,xColRPer)
 Local nI := 0
 Local aLinha := {}
 
-aAdd(aLinha,cContrato)
+// Chave
+aAdd(aLinha,cChave)
 // Descrição
 aAdd(aLinha,cDescr)
 
@@ -329,9 +340,10 @@ Return Len(aMatriz)
 Static Function IncVazia(cDescr)
 Local nI := 0
 Local aLinha	:= {}
-Default cDescr := ""
+Default cDescr	:= ""
 
-aAdd(aLinha,cContrato)
+// Chave
+aAdd(aLinha,"")
 // Descrição
 aAdd(aLinha,cDescr)
 
@@ -501,7 +513,7 @@ Local nRet          := 0
 
 cQuery := " SELECT " + CRLF
 cQuery += "   COMPETAM" + CRLF
-cQuery += "  ,CHAVEZG" + CRLF
+cQuery += "  ,MAX(CHAVEZG) AS CHAVEZG" + CRLF
 cQuery += "  ,SUM(PROVENTOS) AS PROVENTOS" + CRLF
 cQuery += "  ,SUM(DESCONTOS) AS DESCONTOS" + CRLF
 cQuery += "  ,SUM(PLR) AS PLR" + CRLF
@@ -523,8 +535,8 @@ cQuery += "  ,SUM(CUSTOSE) AS CUSTOSE" + CRLF
 
 cQuery += " FROM PowerBk.dbo.FOLHA" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
-cQuery += " GROUP BY COMPETAM,CHAVEZG" + CRLF
-cQuery += " ORDER BY COMPETAM,CHAVEZG" + CRLF
+cQuery += " GROUP BY COMPETAM" + CRLF
+cQuery += " ORDER BY COMPETAM" + CRLF
 
 aAdd(aBinds,cContrato)
 
@@ -602,8 +614,8 @@ oRExcel:SetParam(aParam)
 oPExcel:= PExcel():New(cProg,aMatriz)
 
 // Colunas da Planilha 1
-oPExcel:AddCol("CONTRATO","","Contrato","")
-oPExcel:GetCol("CONTRATO"):SetTamCol(10)
+oPExcel:AddCol("CHAVE","","Chave","")
+oPExcel:GetCol("CHAVE"):SetTamCol(10)
 
 oPExcel:AddCol("DESCRICAO","","Descricao","")
 oPExcel:GetCol("DESCRICAO"):SetTamCol(50)
@@ -648,7 +660,7 @@ Next
 // Adiciona a planilha 1
 oRExcel:AddPlan(oPExcel)
 
-cTitPlan := "Contrato: "+cContrato+" - "+Posicione("CTT",1,xFilial("CTT")+cContrato,"CTT_DESC01")+CRLF
+cTitPlan := "Contrato: "+cContrato+" - "+Posicione("CTT",1,xFilial("CTT")+cContrato,"CTT_DESC01")+" "+CRLF
 cTitPlan += "Cliente : "+Posicione("CN9",8,xFilial("CN9")+Pad(cContrato,TamSx3("CN9_NUMERO")[1])+"   ","CN9_NOMCLI") // cn9_numer+cn9_revatu
 
 oPExcel:SetTitulo(cTitPlan)
