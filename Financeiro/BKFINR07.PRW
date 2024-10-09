@@ -658,6 +658,7 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 	cQuery += " E2_EMISSAO	AS D1_EMISSAO,"+CRLF
 	cQuery += " ' '			AS C7_XXURGEN, "+CRLF
 
+	cQuery += " E2_EMIS1    AS F1_XXCOMPD,"+CRLF
 	cQuery += " ' '			AS ZI_COD,"+CRLF
 	cQuery += " ' '			AS ZI_DESC,"+CRLF
 	cQuery += " ' '			AS D1_TES,"+CRLF

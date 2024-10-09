@@ -162,9 +162,79 @@ ENDIF
 If mv_par10 > "1"			
 	Titulo += " (" + Tabela("SL", mv_par10, .F.) + ")"
 Endif
-MsgRun(STR0017,"",{|| CursorWait(), Ctr041Cfg(titulo) ,CursorArrow()}) //"Gerando relatorio, aguarde..."
+MsgRun(STR0017,"",{|| CursorWait(), xCtr041Cfg(titulo) ,CursorArrow()}) //"Gerando relatorio, aguarde..."
 
 Return
+
+
+/*/
+‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±⁄ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒø±±
+±±≥Program   ≥Ctr041Cfg ≥ Autor ≥ Simone Mie Sato       ≥ Data ≥ 27.06.01 ≥±±
+±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¥±±
+±±≥DescriáÖo ≥ Cria os objetos para relat. grafico.                       ≥±±
+±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¥±±
+±±≥Retorno   ≥ Nenhum                                                     ≥±±
+±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¥±±
+±±≥Parametros≥                                                            ≥±±
+±±¿ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
+/*/
+
+STATIC Function XCtr041Cfg(titulo)
+
+Local oPrint
+Local i 	:= 1
+Local lin 	:= 0                        
+ //Define se a folha de parametros sera impressa no inicio
+Local lImpSX1	:= IF(GetMv("MV_IMPSX1")=="S",.T.,.F.)
+Local cTitSX1:= ""
+Local cStartPath		:= GetSrvProfString("Startpath","")
+Local cNameFile		:= ""
+
+Private oFont16, oFont08, oFont10 , oFont14
+
+
+oFont08	:= TFont():New("Courier New",08,08,,.F.,,,,.T.,.F.)
+oFont10	:= TFont():New("Arial",10,10,,.F.,,,,.T.,.F.)
+oFont14	:= TFont():New("Arial",14,14,,.F.,,,,.T.,.F.)
+oFont16	:= TFont():New("Arial",16,16,,.F.,,,,.T.,.F.)
+
+oPrint:= TMSPrinter():New( titulo )
+oPrint:SetLandscape()
+
+If lImpSX1          
+	cTitSX1 := STR0016 + titulo  // "Parametros - "
+	CtbCbcPad(oPrint,i,cTitSX1) 	// Funcao que monta o cabecalho padrao 
+	ImpCTBSX1(oPrint)					// Funcao que imprime os parametros
+Endif
+                             
+lin := Ctr041Det(oPrint,i,titulo)  		   
+
+cStartPath := AjuBarPath(cStartPath)
+cNameFile  := cStartPath+"lgrl"+cEmpAnt+cFilAnt+".bmp"
+If !File(cNameFile)
+	cNameFile := cStartPath+"lgrl"+cEmpAnt+".bmp"
+Endif
+
+If lin > 1810				// Espaco minimo para colocacao do rodape	
+	i++
+	oPrint:EndPage() 		// Finaliza a pagina
+	oPrint:StartPage() 		// Inicia uma nova pagina		
+	oPrint:SayBitmap(05,05,cNameFile,474,112) // Tem que estar abaixo do RootPath
+	lin := 150
+Endif
+
+lin:= 2000
+
+CtbRodape(oPrint,lin)			// Funcao que monta o rodape
+
+oPrint:Preview()  				// Visualiza antes de imprimir
+
+Return Nil
+
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
@@ -560,74 +630,6 @@ Return lin
 */
 
 
-/*/
-‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±⁄ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒø±±
-±±≥Program   ≥Ctr041Cfg ≥ Autor ≥ Simone Mie Sato       ≥ Data ≥ 27.06.01 ≥±±
-±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¥±±
-±±≥DescriáÖo ≥ Cria os objetos para relat. grafico.                       ≥±±
-±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¥±±
-±±≥Retorno   ≥ Nenhum                                                     ≥±±
-±±√ƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¥±±
-±±≥Parametros≥                                                            ≥±±
-±±¿ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
-/*/
-/*
-STATIC Function XCtr041Cfg(titulo)
-
-Local oPrint
-Local i 	:= 1
-Local lin 	:= 0                        
- //Define se a folha de parametros sera impressa no inicio
-Local lImpSX1	:= IF(GetMv("MV_IMPSX1")=="S",.T.,.F.)
-Local cTitSX1:= ""
-Local cStartPath		:= GetSrvProfString("Startpath","")
-Local cNameFile		:= ""
-
-Private oFont16, oFont08, oFont10 , oFont14
-
-
-oFont08	:= TFont():New("Courier New",08,08,,.F.,,,,.T.,.F.)
-oFont10	:= TFont():New("Arial",10,10,,.F.,,,,.T.,.F.)
-oFont14	:= TFont():New("Arial",14,14,,.F.,,,,.T.,.F.)
-oFont16	:= TFont():New("Arial",16,16,,.F.,,,,.T.,.F.)
-
-oPrint:= TMSPrinter():New( titulo )
-oPrint:SetLandscape()
-
-If lImpSX1          
-	cTitSX1 := STR0016 + titulo  // "Parametros - "
-	CtbCbcPad(oPrint,i,cTitSX1) 	// Funcao que monta o cabecalho padrao 
-	ImpCTBSX1(oPrint)					// Funcao que imprime os parametros
-Endif
-                             
-lin := Ctr041Det(oPrint,i,titulo)  		   
-
-cStartPath := AjuBarPath(cStartPath)
-cNameFile  := cStartPath+"lgrl"+cEmpAnt+cFilAnt+".bmp"
-If !File(cNameFile)
-	cNameFile := cStartPath+"lgrl"+cEmpAnt+".bmp"
-Endif
-
-If lin > 1810				// Espaco minimo para colocacao do rodape	
-	i++
-	oPrint:EndPage() 		// Finaliza a pagina
-	oPrint:StartPage() 		// Inicia uma nova pagina		
-	oPrint:SayBitmap(05,05,cNameFile,474,112) // Tem que estar abaixo do RootPath
-	lin := 150
-Endif
-
-lin:= 2000
-
-CtbRodape(oPrint,lin)			// Funcao que monta o rodape
-
-oPrint:Preview()  				// Visualiza antes de imprimir
-
-Return Nil
-*/
 
 /*/
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹

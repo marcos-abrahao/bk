@@ -29,9 +29,12 @@ Local cTabSA2	:= ""
 Local cTabSF1	:= ""
 Local cTabCTT	:= ""
 Local cTabSE5	:= ""
+Local cTabSE1	:= ""
+Local cTabSA1	:= ""
 Local cTabCT1	:= ""
 Local cTabSZ2   := "SZ2010"
 Local cTabSBM	:= "SBM010" // Tabela de grupos de produtos compartilhada
+Local cTabSZI	:= "SZI010" // Tabela de subgrupos de produtos compartilhada
 
 Local cCusBK	:= U_MVXCUSBK()
 Local cAssMed   := U_MVASSMED()
@@ -54,6 +57,8 @@ For nE := 1 TO Len(aEmpresas)
 	cTabCT1 := "CT1"+cEmpresa+"0"
 	cTabCTT := "CTT"+cEmpresa+"0"
 	cTabSE5 := "SE5"+cEmpresa+"0"
+	cTabSE1 := "SE1"+cEmpresa+"0"
+	cTabSA1 := "SA1"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -113,6 +118,8 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  B1_DESC,"+CRLF
  	cQuery += "  B1_GRUPO,"+CRLF
  	cQuery += "  BM_DESC,"+CRLF
+ 	cQuery += "  ZI_COD,"+CRLF
+ 	cQuery += "  ZI_DESC,"+CRLF
  	cQuery += "  F1_VALBRUT,"+CRLF
  	cQuery += "  F1_XXUSER,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXUSER = USUARIOS.CODIGO) AS F1RESPON,"+CRLF
@@ -156,6 +163,12 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "     ON (B1_GRUPO = BM_GRUPO " + CRLF
 	cQuery += "         AND BM_FILIAL = '"+xFilial("SBM")+"' "  + CRLF
 	cQuery += "         AND SBM.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSZI+" SZI" + CRLF
+	cQuery += "     ON (B1_XXSGRP = ZI_COD " + CRLF
+	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
+	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
  	cQuery += " INNER JOIN "+cTabSE2+" SE2" + CRLF
@@ -215,8 +228,6 @@ For nE := 1 TO Len(aEmpresas)
 		cQuery += "      AND D1_FORNECE <> '000604'"+CRLF
 	ENDIF 
 	*/
-
-
 
 	// Movimento Bancário
 	cQuery += "UNION ALL "+CRLF
@@ -305,8 +316,10 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, " + CRLF
 	cQuery += "     E5_HISTOR  AS D1_XXHIST, " + CRLF
   	cQuery += "     CT1_DESC01 AS B1_DESC, " + CRLF
-  	cQuery += "     ' '        AS B1_GRUPO, " + CRLF
-  	cQuery += "     ' '        AS BM_DESC, " + CRLF
+  	cQuery += "     '0003'     AS B1_GRUPO, " + CRLF
+  	cQuery += "     'FINANCEIRO' AS BM_DESC, " + CRLF
+ 	cQuery += "     'MBC'      AS ZI_COD,"+CRLF
+ 	cQuery += "     'MOVIMENTO BANCARIO' AS ZI_DESC,"+CRLF	
   	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, " + CRLF
 	cQuery += "     ' '        AS F1_XXUSER, " + CRLF
 	cQuery += "     ' '        AS F1RESPON, " + CRLF
@@ -460,8 +473,10 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "   END"+CRLF
 	cQuery += "  ) AS B1_DESC,"+CRLF
 
-	cQuery += "  ' '         AS B1_GRUPO, "+CRLF
-  	cQuery += "  ' '         AS BM_DESC, " + CRLF
+	cQuery += "  '0004'      AS B1_GRUPO, "+CRLF
+  	cQuery += "  'FOLHA'     AS BM_DESC, " + CRLF
+ 	cQuery += "  ZI_COD,"+CRLF
+ 	cQuery += "  ZI_DESC,"+CRLF
 	cQuery += "  Z2_VALOR    AS F1_VALBRUT,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, "+CRLF
 	cQuery += "  UPPER(Z2_USUARIO)  AS F1_RESPON,"+CRLF
@@ -509,6 +524,12 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND A2_LOJA = Z2_E2LOJA " + CRLF
 	cQuery += "         AND A2_FILIAL = '"+xFilial("SA2")+"' " + CRLF
 	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += " LEFT JOIN "+cTabSZI+" SZI" + CRLF
+	cQuery += "     ON (Z2_TIPO = ZI_COD " + CRLF
+	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
+	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
 	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
@@ -568,8 +589,10 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  '"+cCusBK+"' AS D1_COD,"+CRLF
 	cQuery += "  RTRIM(Z2_NOME)+': '+RTRIM(Z2_OBSTITU)  AS D1_XXHIST,"+CRLF
 	cQuery += "  '"+cDescCBK+"' AS B1_DESC,"+CRLF
-	cQuery += "  ' '         AS B1_GRUPO, "+CRLF
-  	cQuery += "  ' '         AS BM_DESC, " + CRLF
+	cQuery += "  '0004'      AS B1_GRUPO, "+CRLF
+  	cQuery += "  'FOLHA'     AS BM_DESC, " + CRLF
+ 	cQuery += "  ZI_COD,"+CRLF
+ 	cQuery += "  ZI_DESC,"+CRLF
 	cQuery += "  Z2_VALOR    AS F1_VALBRUT,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, "+CRLF
 	cQuery += "  UPPER(Z2_USUARIO)  AS F1_RESPON,"+CRLF
@@ -619,11 +642,158 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND SA2.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
+	cQuery += " LEFT JOIN "+cTabSZI+" SZI" + CRLF
+	cQuery += "     ON (Z2_TIPO = ZI_COD " + CRLF
+	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
+	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+	
 	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
 	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
 	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
 	cQuery += "      AND SZ2.Z2_TIPOPES IN ('AC','CLA') " + CRLF
 	cQuery += "      AND SZ2.Z2_STATUS = 'S' " + CRLF
+
+	// NDC
+	cQuery += "UNION ALL "+CRLF
+
+	cQuery += " SELECT "+CRLF
+	cQuery += "  '"+cEmpresa+"' AS EMPRESA,"+CRLF
+	cQuery += "  '"+cNomeEmp+"' AS NOMEEMP,"+CRLF
+	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
+
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '302000508' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO"+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO"+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+	ElseIf cEmpresa == '16' 
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '386000609' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO"+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+	ElseIf cEmpresa == '18'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '303000623' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO"+CRLF
+		cQuery += "   END) AS CONTRATO, " + CRLF
+
+	Else
+		cQuery += "  E1_XXCUSTO AS CONTRATO, " + CRLF
+	EndIf
+
+	cQuery += "  CTT_DESC01 AS DESCRICAO, " + CRLF
+ 	cQuery += "  SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4) AS COMPET,"+CRLF
+ 	cQuery += "  SUBSTRING(E1_XXCOMPE,1,6) AS COMPETAM,"+CRLF
+ 	cQuery += "  CONVERT(DATE,SUBSTRING(E1_XXCOMPE,1,6)+'01',112) AS COMPETD,"+CRLF
+
+	// Chave
+	cQuery += "  '"+cEmpresa+"' + "+CRLF
+
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '302000508' "+CRLF
+		cQuery += "        ELSE SUBSTRING(E1_XXCUSTO,1,9) "+CRLF
+		cQuery += "   END) + " + CRLF
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        ELSE SUBSTRING(E1_XXCUSTO,1,9) "+CRLF
+		cQuery += "   END) + " + CRLF
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '386000609' "+CRLF
+		cQuery += "        ELSE SUBSTRING(E1_XXCUSTO,1,9) "+CRLF
+		cQuery += "   END) + " + CRLF
+	ElseIf cEmpresa == '18'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '303000623' "+CRLF
+		cQuery += "        ELSE SUBSTRING(E1_XXCUSTO,1,9) "+CRLF
+		cQuery += "   END) + " + CRLF
+	Else
+		cQuery += "  SUBSTRING(E1_XXCUSTO,1,9) + "+CRLF
+	EndIf
+	cQuery += "   SUBSTRING(E1_XXCOMPE,1,6) AS CHAVE, " + CRLF
+	cQuery += "     'SE1' AS ORIGEM, " + CRLF
+  	cQuery += "     E1_FILIAL  AS D1_FILIAL, " + CRLF
+  	cQuery += "     E1_PREFIXO AS D1_SERIE, " + CRLF
+  	cQuery += "     E1_NUM	   AS D1_DOC, " + CRLF
+  	cQuery += "     E1_CLIENTE AS D1_FORNECE, " + CRLF
+  	cQuery += "     E1_LOJA    AS D1_LOJA, " + CRLF
+ 	cQuery += "     A1_NOME,"+CRLF
+  	cQuery += "     '0001'     AS D1_ITEM, " + CRLF
+  	cQuery += "     SUBSTRING(CT1_DESC01,1,15) AS D1_COD, " + CRLF
+	cQuery += "     E1_HIST    AS D1_XXHIST, " + CRLF
+  	cQuery += "     CT1_DESC01 AS B1_DESC, " + CRLF
+  	cQuery += "     '0003'     AS B1_GRUPO, " + CRLF
+  	cQuery += "     'FINANCEIRO' AS BM_DESC, " + CRLF
+ 	cQuery += "     'NDC'      AS ZI_COD,"+CRLF
+ 	cQuery += "     'NOTA DEBITO AO CLIENTE'  AS ZI_DESC,"+CRLF	
+  	cQuery += "     E1_VALOR * -1 AS F1_VALBRUT, " + CRLF
+	cQuery += "     E1_XXOPER  AS F1_XXUSER, " + CRLF
+	cQuery += "     ' '        AS F1RESPON, " + CRLF
+	cQuery += "     ' '        AS F1_XXULIB, " + CRLF
+	cQuery += "     ' '        AS F1APROV, " + CRLF
+  	cQuery += "     E1_PARCELA AS E2_PARCELA, " + CRLF
+  	cQuery += "     E1_VALOR * -1 AS E2_VALOR, " + CRLF
+  	cQuery += "     E1_DESCONT AS E2_DESCONT, " + CRLF
+  	cQuery += "     E1_MULTA   AS E2_MULTA, " + CRLF
+  	cQuery += "     E1_JUROS   AS E2_JUROS, " + CRLF
+  	cQuery += "     E1_ACRESC  AS E2_ACRESC, " + CRLF
+  	cQuery += "     E1_DECRESC AS E2_DECRESC, " + CRLF
+  	cQuery += "     E1_PIS     AS E2_VRETPIS, " + CRLF
+  	cQuery += "     E1_COFINS  AS E2_VRETCOF, " + CRLF
+  	cQuery += "     E1_CSLL    AS E2_VRETCSL, " + CRLF
+  	cQuery += "     E1_INSS    AS E2_VRETINS, " + CRLF
+  	cQuery += "     E1_IRRF    AS E2_VRETIRF, " + CRLF
+  	cQuery += "     E1_ISS     AS E2_VRETISS, " + CRLF
+  	cQuery += "     E1_VALOR * -1 AS E2VALTIT, " + CRLF
+  	cQuery += "     E1_VALOR * -1 AS D1TOTAL, " + CRLF
+  	cQuery += "     CASE WHEN E1_ACRESC > 0 THEN -E1_ACRESC ELSE -E1_MULTA-E1_JUROS END +  " + CRLF
+  	cQuery += "     	CASE WHEN E1_DECRESC > 0 THEN E1_DECRESC ELSE E1_DESCONT END AS E2ACDEC " + CRLF
+
+	cQuery += "FROM " + CRLF
+	cQuery += " "+cTabSE1+" SE1 " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabSA1+" SA1" + CRLF
+	cQuery += "     ON (A1_COD = E1_CLIENTE " + CRLF
+	cQuery += "         AND A1_LOJA = E1_LOJA " + CRLF
+	cQuery += "         AND A1_FILIAL = '"+xFilial("SA1")+"' " + CRLF
+	cQuery += "         AND SA1.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
+	cQuery += "     ON ( CTT_CUSTO = "+ CRLF
+	If cEmpresa == '14'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '302000508' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO "+CRLF
+		cQuery += "   END)  " + CRLF
+	ElseIf cEmpresa == '15'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '305000554' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO "+CRLF
+		cQuery += "   END)  " + CRLF
+	ElseIf cEmpresa == '16'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '386000609' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO "+CRLF
+		cQuery += "   END)  " + CRLF
+	ElseIf cEmpresa == '18'
+		cQuery += "  (CASE WHEN SUBSTRING(E1_XXCUSTO,1,3) = '000' THEN '303000623' "+CRLF
+		cQuery += "        ELSE E1_XXCUSTO "+CRLF
+		cQuery += "   END)  " + CRLF
+	Else
+		cQuery += "  E1_XXCUSTO "+CRLF
+	EndIf
+	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
+	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCT1+" CT1" + CRLF
+	cQuery += "     ON ( "+ CRLF
+	cQuery += "        CT1_CONTA = A1_CONTA" + CRLF
+	cQuery += " 	   AND CT1_FILIAL = '  '" + CRLF
+	cQuery += "        AND CT1.D_E_L_E_T_=''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "WHERE SE1.E1_FILIAL = '01' " + CRLF
+	cQuery += "      AND SE1.D_E_L_E_T_ = '' " + CRLF
+	cQuery += "      AND E1_TIPO = 'NDC' " + CRLF
 
 Next
 

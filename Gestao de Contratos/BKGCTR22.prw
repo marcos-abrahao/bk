@@ -46,6 +46,7 @@ Private nLinImp		:= 0
 Private nLinIss		:= 0
 Private nLinNDC 	:= 0
 Private nLinFatL	:= 0
+Private nLinDeAc	:= 0
 // Linhas da FOlha
 Private nLinProv	:= 0
 Private nLinDesc	:= 0
@@ -257,11 +258,14 @@ nLinImp := IncLin("04" ,"(-) Impostos e Contribuições",cColAP,cColAR,cColPR,cCol
 // ISS
 nLinIss := IncLin("05" ,"(-) ISS",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
+// Descontos / Acrescimos
+nLinDeAc := IncLin("06" ,"(-) Descontos (+) Acrescimos",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+
 // Linha vazia
 IncVazia()
 
 // Linha de Faturamento Liquido
-cFormula := "'= #!0,nLinFatB#! + #!0,nLinImp#! + #!0,nLinISS#!'"
+cFormula := "'= #!0,nLinFatB#! + #!0,nLinImp#! + #!0,nLinISS#! + #!0,nLinDeAc#!'"
 nLinFatL := IncLin("07" ,"FATURAMENTO LIQUIDO",cFormula,cFormula,cColPR,cFormula,cFormula,cColsPR,cFormula,cFormula)
 
 // Linha vazia
@@ -292,7 +296,6 @@ IncVazia()
 // Linha vazia
 IncVazia("GASTOS GERAIS")
 
-nLinDescNF	:= IncLin("30-2" ,"DESCONTOS NA NF",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 nLinNDC		:= IncLin("30-3" ,"NDC",cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
 
 Return .T.
@@ -383,6 +386,9 @@ Return
 #DEFINE FAT_VALPREV			4
 #DEFINE FAT_VALFAT			5
 #DEFINE FAT_VALISS			6
+#DEFINE FAT_DESC			7
+#DEFINE FAT_ACRES			8
+
 
 // Faturamento
 Static Function PrcFat
@@ -408,6 +414,8 @@ cQuery += "  ,COMPETAM" + CRLF
 cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
 cQuery += "  ,SUM(F2_VALFAT)  AS VALFAT" + CRLF
 cQuery += "  ,SUM(F2_VALISS+E1_XXISSBI+F2_VLCPM) AS VALISS" + CRLF
+cQuery += "  ,SUM(XX_E5DESC)  AS E5DESC" + CRLF
+cQuery += "  ,SUM(XX_E5MULTA) AS E5MULTA" + CRLF
 cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
 cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
@@ -422,6 +430,8 @@ aadd(aSetFields,{"COMPETAM"	,"C",  6,0})
 aadd(aSetFields,{"VALPREV"	,"N", 14,2})
 aadd(aSetFields,{"VALFAT"	,"N", 14,2})
 aadd(aSetFields,{"VALISS"	,"N", 14,2})
+aadd(aSetFields,{"E5DESC"	,"N", 14,2})
+aadd(aSetFields,{"E5MULTA"	,"N", 14,2})
 
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
@@ -464,6 +474,107 @@ Else
 
 			// ISS
 			aMatriz[nLinIss,nCol+nColIni] -= aReturn[nX,FAT_VALISS]
+
+			// Descontos / Acrescimos
+			aMatriz[nLinDeAc,nCol+nColIni] += aReturn[nX,FAT_ACRES] - aReturn[nX,FAT_DESC]
+
+		Else
+			lRet := .F.
+		EndIf
+	Next
+
+Endif
+
+Return lRet
+
+
+// Gastos Gerais
+Static Function PrcGastos
+
+Local lRet 			:= .T.
+Local nX 			:= 0
+Local cQuery 		:= ""
+Local nCol 			:= 0
+Local cAnoMes 		:= ""
+Local nMImp			:= 0
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+Local cFormula 		:= ""
+
+//SELECT CONTRATO,COMPETAM,SUM(VALFAT),SUM(CXN_VLPREV) FROM FATURAMENTO WHERE CONTRATO = 386000609 GROUP BY CONTRATO,COMPETAM ORDER BY CONTRATO,COMPETAM
+
+cQuery := " SELECT " + CRLF
+cQuery += "   EMPRESA" + CRLF
+cQuery += "  ,CONTRATO" + CRLF
+cQuery += "  ,COMPETAM" + CRLF
+cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
+cQuery += "  ,SUM(F2_VALFAT)  AS VALFAT" + CRLF
+cQuery += "  ,SUM(F2_VALISS+E1_XXISSBI+F2_VLCPM) AS VALISS" + CRLF
+cQuery += "  ,SUM(XX_E5DESC)  AS E5DESC" + CRLF
+cQuery += "  ,SUM(XX_E5MULTA) AS E5MULTA" + CRLF
+cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
+cQuery += " WHERE CONTRATO = ? " + CRLF
+cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
+cQuery += " ORDER BY EMPRESA,CONTRATO,COMPETAM" + CRLF
+
+aAdd(aBinds,cContrato)
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"EMPRESA"	,"C",  2,0})
+aadd(aSetFields,{"CONTRATO"	,"C",  9,0})
+aadd(aSetFields,{"COMPETAM"	,"C",  6,0})
+aadd(aSetFields,{"VALPREV"	,"N", 14,2})
+aadd(aSetFields,{"VALFAT"	,"N", 14,2})
+aadd(aSetFields,{"VALISS"	,"N", 14,2})
+aadd(aSetFields,{"E5DESC"	,"N", 14,2})
+aadd(aSetFields,{"E5MULTA"	,"N", 14,2})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+u_LogTxt(cProg+".SQL",cQuery,aBinds)
+
+If nRet < 0
+	lRet := .F.
+	u_MsgLog(cProg,TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+Else
+
+	For nX := 1 TO LEN(aReturn)
+		cAnoMes := aReturn[nX,FAT_COMPETAM]
+		nCol    := Ascan(aColMes,"P"+cAnoMes)
+		nMImp	:= u_MVNMIMPC(aReturn[nX,FAT_EMPRESA],cAnoMes)
+
+		If nCol > 0
+			// Valor Previsto
+			aMatriz[nLinFatB,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
+			// Impostos
+			//cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"  
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFatB#!'"  
+			aMatriz[nLinImp,nCol+nColIni] := cFormula
+
+			// ISS
+			cFormula:= "'=IFERROR(#!1,0#! / #!1,nLinFatB#! * #!0,nLinFatB#!,0)'"  //=+K6/K4*J4
+			aMatriz[nLinIss,nCol+nColIni] := cFormula
+
+		Else
+			lRet := .F.
+		EndIf
+
+		nCol    := Ascan(aColMes,"R"+cAnoMes)
+		If nCol > 0
+			// Valor Realizado
+			aMatriz[nLinFatB,nCol+nColIni] += aReturn[nX,FAT_VALFAT]
+			// Impostos
+			//cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFatB,nCol+nColIni])+"'"
+			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFatB#!'"    //+ cValToChar(aMatriz[nLinFatB,nCol+nColIni])+"'"
+			aMatriz[nLinImp,nCol+nColIni] := cFormula
+
+			// ISS
+			aMatriz[nLinIss,nCol+nColIni] -= aReturn[nX,FAT_VALISS]
+
+			// Descontos / Acrescimos
+			aMatriz[nLinDeAc,nCol+nColIni] += aReturn[nX,FAT_ACRES] - aReturn[nX,FAT_DESC]
 
 		Else
 			lRet := .F.
@@ -669,9 +780,3 @@ oPExcel:SetTitulo(cTitPlan)
 oRExcel:Create()
 
 Return Nil
-
-
-
-
-
-

@@ -361,7 +361,7 @@ If !(cQrySF1)->(Eof())
 	cDoc    := (cQrySF1)->F1_DOC
 	cSerie  := (cQrySF1)->F1_SERIE
 	cxUser  := (cQrySF1)->F1_XXUSER
-	cxUsers := (cQrySF1)->F1_XXUSER
+	cxUsers := (cQrySF1)->F1_XXUSERS
 	cFornece:= (cQrySF1)->(A2_COD+"-"+A2_LOJA+" - "+A2_NOME)
 EndIf
 

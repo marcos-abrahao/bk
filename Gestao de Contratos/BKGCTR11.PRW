@@ -2109,7 +2109,6 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 IF nScan > 0
 
 	u_MsgLogAdm("BKGCTR11","Query gastos gerais consorcios "+aPeriodo[_nI,1])
-	//IncProc("Consultando gastos gerais consorcios: "+SUBSTR(aPeriodo[_nI,1],1,2)+"/"+SUBSTR(aPeriodo[_nI,1],4,4))
 
 	cQuery2 := "SELECT D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,D1_CC,SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 	cQuery2 += " FROM SD1"+ALLTRIM(aConsorcio[nScan,2])+" SD1"+CRLF
