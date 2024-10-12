@@ -14,6 +14,7 @@ User Function BKMSG001
 Local cQuery	:= ""
 Local aEmpresas := u_BKGrupo()
 Local nE 		:= 0
+Local nI 		:= 1
 
 Local cTabSF1	:= ""
 Local cTabSA2   := ""
@@ -29,6 +30,7 @@ Local cMsg		:= ""
 Local dUtil3	:= DATE()
 Local lDtInf	:= .F.
 Local aStaf 	:= {}
+Local cFile		:= ""
 
 dUtil3 := DataValida(dUtil3+1,.T.)
 dUtil3 := DataValida(dUtil3+1,.T.)
@@ -127,9 +129,11 @@ Do While !Eof()
 		cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 		
 		// Grava o anexo html
-		u_GrvAnexo(cProg+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")+".html",cMsg,.T.)
+		cFile := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(nI++,3)+".html"
 
-		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cProg+"-"+DTOS(Date())+"-"+STRTRAN(TIME(),":","")+".html"})
+		u_GrvAnexo(cFile,cMsg,.T.)
+
+		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cFile})
 	EndIf
 EndDo
 

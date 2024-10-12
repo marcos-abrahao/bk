@@ -27,6 +27,9 @@ If !u_IsMDir(__cUserID)
 	Return Nil
 EndIf
 
+
+aAdd(aDados,{"","U_BKGCTR29()",		"GESTÃO",		"Despesas por Contrato"})
+
 If __cUserId == '000000'
 	aAdd(aDados,{"","U_BKGCTR22()",		"GESTÃO",		"Nova Rentabilidade dos Contratos"})
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})

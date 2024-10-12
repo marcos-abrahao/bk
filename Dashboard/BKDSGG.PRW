@@ -127,6 +127,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXULIB = USUARIOS.CODIGO) AS F1APROV,"+CRLF
  	cQuery += "  E2_PARCELA,"+CRLF
  	cQuery += "  E2_VALOR,"+CRLF
+
+ 	cQuery += "  E2_BAIXA,"+CRLF
+ 	cQuery += "  E2_VENCREA,"+CRLF
+
+ 	//cQuery += "  convert(varchar(10), cast(E2_BAIXA AS date),103) AS E2_BAIXA,"+CRLF
+ 	//cQuery += "  convert(varchar(10), cast(E2_VENCREA AS date),103) AS E2_VENCREA,"+CRLF
+
  	cQuery += "  E2_DESCONT,"+CRLF
  	cQuery += "  E2_MULTA,"+CRLF
  	cQuery += "  E2_JUROS,"+CRLF
@@ -327,6 +334,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "     ' '        AS F1APROV, " + CRLF
   	cQuery += "     E5_PARCELA AS E2_PARCELA, " + CRLF
   	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS E2_VALOR, " + CRLF
+
+	cQuery += "  	E5_DTDISPO AS E2_BAIXA,"+CRLF
+ 	cQuery += "  	E5_DATA    AS E2_VENCREA,"+CRLF
+
+	//cQuery += "  	convert(varchar(10), cast(E5_DTDISPO AS date),103) AS E2_BAIXA,"+CRLF
+ 	//cQuery += "  	convert(varchar(10), cast(E5_DATA AS date),103) AS E2_VENCREA,"+CRLF
+
   	cQuery += "     E5_VLDESCO AS E2_DESCONT, " + CRLF
   	cQuery += "     E5_VLMULTA AS E2_MULTA, " + CRLF
   	cQuery += "     E5_VLJUROS AS E2_JUROS, " + CRLF
@@ -484,6 +498,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  UPPER(Z2_USUARIO)  AS F1_APROV,"+CRLF
 	cQuery += "  '  '        AS E2_PARCELA,"+CRLF
 	cQuery += "  Z2_VALOR    AS E2_VALOR,"+CRLF
+
+	cQuery += "  Z2_DATAPGT  AS E2_BAIXA,"+CRLF
+ 	cQuery += "  Z2_DATAPGT  AS E2_VENCREA,"+CRLF
+
+	//cQuery += "  convert(varchar(10), cast(Z2_DATAPGT AS date),103) AS E2_BAIXA,"+CRLF
+ 	//cQuery += "  convert(varchar(10), cast(Z2_DATAPGT AS date),103) AS E2_VENCREA,"+CRLF
+
 	cQuery += "  0           AS E2_DESCONT,"+CRLF
 	cQuery += "  0           AS E2_MULTA,"+CRLF
 	cQuery += "  0           AS E2_JUROS,"+CRLF
@@ -600,6 +621,13 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  UPPER(Z2_USUARIO)  AS F1_APROV,"+CRLF
 	cQuery += "  '  '        AS E2_PARCELA,"+CRLF
 	cQuery += "  Z2_VALOR    AS E2_VALOR,"+CRLF
+
+	cQuery += "  Z2_DATAPGT  AS E2_BAIXA,"+CRLF
+ 	cQuery += "  Z2_DATAPGT  AS E2_VENCREA,"+CRLF
+
+	//cQuery += "  convert(varchar(10), cast(Z2_DATAPGT AS date),103) AS E2_BAIXA,"+CRLF
+ 	//cQuery += "  convert(varchar(10), cast(Z2_DATAPGT AS date),103) AS E2_VENCREA,"+CRLF
+
 	cQuery += "  0           AS E2_DESCONT,"+CRLF
 	cQuery += "  0           AS E2_MULTA,"+CRLF
 	cQuery += "  0           AS E2_JUROS,"+CRLF
@@ -733,6 +761,14 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "     ' '        AS F1APROV, " + CRLF
   	cQuery += "     E1_PARCELA AS E2_PARCELA, " + CRLF
   	cQuery += "     E1_VALOR * -1 AS E2_VALOR, " + CRLF
+
+	cQuery += "     E1_BAIXA   AS E2_BAIXA,"+CRLF
+ 	cQuery += "     E1_VENCREA AS E2_VENCREA,"+CRLF
+
+	//cQuery += "     convert(varchar(10), cast(E1_BAIXA AS date),103) AS E2_BAIXA,"+CRLF
+ 	//cQuery += "     convert(varchar(10), cast(E1_VENCREA AS date),103) AS E2_VENCREA,"+CRLF
+
+
   	cQuery += "     E1_DESCONT AS E2_DESCONT, " + CRLF
   	cQuery += "     E1_MULTA   AS E2_MULTA, " + CRLF
   	cQuery += "     E1_JUROS   AS E2_JUROS, " + CRLF
