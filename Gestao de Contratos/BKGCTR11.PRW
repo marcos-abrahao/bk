@@ -23,6 +23,8 @@ User Function BKGCTR11(lJob)
 	Local cXXSEMAF		:= "N"
 	Local dMaxCompet	:= CTOD("")
 
+	Private cRealTb3	:= ""
+	Private lSqlLite 	:= .T.
 	Private titulo      := "Rentabilidade dos Contratos"
 	Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 	Private aContratos 	:= {}
@@ -455,20 +457,26 @@ User Function BKGCTR11(lJob)
 		///IndRegua(ALIAS_FOL,cArqTmp3,"YY_CODGCT+YY_TIPO+YY_CODIGO",,,"Indexando Arquivo de Trabalho")
 		///dbSetIndex(cArqTmp3+ordBagExt())
 
-		oTmpTb3 := FWTemporaryTable():New( ALIAS_FOL )
-		oTmpTb3:SetFields( aDbf3 )
-		oTmpTb3:AddIndex("indice3", {"YY_CODGCT","YY_TIPO","YY_CODIGO"} )
-		oTmpTb3:Create()
-
-		//
+		If lSqlLite
+			cRealTb3 := ALIAS_FOL
+			DBCreate( ALIAS_FOL , aDbf3, 'SQLITE_TMP' ) // SQLLITE_MEM -> Memória
+			DBUseArea( .T., 'SQLITE_TMP', cRealTb3, ALIAS_FOL, .F., .F. )
+			dbcreateindex(cRealTb3+"1", "YY_CODGCT+YY_TIPO+YY_CODIGO")
+		Else
+			oTmpTb3 := FWTemporaryTable():New( ALIAS_FOL )
+			oTmpTb3:SetFields( aDbf3 )
+			oTmpTb3:AddIndex("indice3", {"YY_CODGCT","YY_TIPO","YY_CODIGO"} )
+			oTmpTb3:Create()
+		EndIf
 
 		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob,oSay)}, titulo)
 		u_WaitLog(cPerg, {|oSay| MBrwBKGCTR11()}, "Browse")
 
-		///(ALIAS_FOL)->(Dbclosearea())
-		///FErase(cArqTmp3+GetDBExtension())
-		///FErase(cArqTmp3+OrdBagExt())
-		oTmpTb3:Delete()
+		If lSqlLite
+			DBSqlExec(cRealTb3, 'DROP TABLE ' + cRealTb3 , 'SQLITE_MEM')
+		Else
+			oTmpTb3:Delete()
+		EndIf
 
 	ELSE
 		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob,oSay)}, titulo)
@@ -4960,19 +4968,29 @@ Static Function UpdTmpFol(lJob,cContrato,cEvento,cDesc,cTipo,nValor,_nI)
 	If !lJob
 		aArea3 := GetArea()
 		dbSelectArea(ALIAS_FOL)
-		//If !MsSeek(cContrato+PAD(cTipo,25)+cEvento,.F.)
+		If lSqlLite
+			If !MsSeek(PAD(cContrato,9)+PAD(cTipo,25)+PAD(cEvento,16),.F.)
+				Reclock(ALIAS_FOL,.T.)
+				(ALIAS_FOL)->YY_CODGCT := cContrato
+				(ALIAS_FOL)->YY_CODIGO := STRZERO(VAL(cEvento),4)
+				(ALIAS_FOL)->YY_DESC   := cDesc
+				(ALIAS_FOL)->YY_TIPO   := cTipo
+				cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
+				&cCampo3 := nValor
+			Else
+				Reclock(ALIAS_FOL,.F.)
+				cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
+				&cCampo3 += nValor
+			EndIf
+		Else
 			Reclock(ALIAS_FOL,.T.)
 			(ALIAS_FOL)->YY_CODGCT := cContrato
 			(ALIAS_FOL)->YY_CODIGO := STRZERO(VAL(cEvento),4)
 			(ALIAS_FOL)->YY_DESC   := cDesc
 			(ALIAS_FOL)->YY_TIPO   := cTipo
 			cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
-			&cCampo3 := nValor
-		//Else
-		//	Reclock(ALIAS_FOL,.F.)
-		//	cCampo3  := ALIAS_FOL+"->YY_VAL"+STRZERO(_nI,3)
-		//	&cCampo3 += nValor
-		//EndIf
+			&cCampo3 := nValor		
+		EndIf
 		(ALIAS_FOL)->(Msunlock())
 		RestArea(aArea3)
 	EndIf
@@ -5016,7 +5034,7 @@ Return lRet
 
 User Function fAcrDcr(cEmpC,aLAcrDcr)
 
-	Local cQuery3 		:= ""
+¬	Local cQuery3 		:= ""
 	Local nTotE2  		:= 0
 	Local nACrDcr 		:= 0
 	Local nX	  		:= 0
@@ -5032,7 +5050,7 @@ User Function fAcrDcr(cEmpC,aLAcrDcr)
 	Default cEmpC := ""
 	Default aLAcrDcr := {}
 
-	If Len(aLAcrDcr) = 0
+	If Len(aLAcrDcr) == 0
 
 		cQuery3 := " SELECT E2_VENCREA,E2_VALOR,E2_DESCONT,E2_MULTA,E2_JUROS,E2_ACRESC,E2_DECRESC,E2_VRETPIS,E2_VRETCOF,E2_VRETCSL,E2_VRETINS,E2_VRETIRF,E2_VRETISS,E2_PARCELA"+CRLF
 		If EMPTY(cEmpC)

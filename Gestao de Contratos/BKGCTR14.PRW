@@ -602,10 +602,15 @@ aAdd(aPict1,"")
 
 
 If lSqlLite
+	// SQLITE_SYS: RDD para uso com banco de dados SQLite, com persistência de tabelas, mesmo depois de fechar a conexão (disponível a partir do Protheus 12).
+	// SQLITE_TMP: RDD para uso com banco de dados SQLite, com tabelas em disco, removidas automaticamente ao final da conexão (disponível a partir do Protheus 12).
+	// SQLITE_MEM: RDD para uso com banco de dados SQLite, com tabelas em memória, liberadas automaticamente ao final da conexão (disponível a partir do Protheus 12).
+
 	cRealTb1 := "TRB"
-	DBCreate( "TRB" , aDbf1, 'SQLITE_TMP' ) // SQLLITE_MEM -> Memória
-	DBUseArea( .T., 'SQLITE_TMP', cRealTb1, "TRB", .F., .F. )
+	DBCreate( "TRB" , aDbf1, 'SQLITE_MEM' ) // SQLITE_MEM -> Memória
+	DBUseArea( .T., 'SQLITE_MEM', cRealTb1, "TRB", .F., .F. )
 	dbcreateindex(cRealTb1+"1", "XX_COMPET+XX_LINHA")
+	//dbcreateindex(cRealTb1+"2", "SUBSTR(XX_COMPET,4,4)+SUBSTR(XX_COMPET,1,2)+XX_LINHA")
 Else
 	oTmpTb1 := FWTemporaryTable():New( "TRB" ) 
 	oTmpTb1:SetFields( aDbf1 )
@@ -782,8 +787,8 @@ NEXT
 
 If lSqlLite
 	cRealTbT := ALIAS_TMP
-	DBCreate( ALIAS_TMP , aDbfT, 'SQLITE_TMP' ) // SQLLITE_MEM -> Memória
-	DBUseArea( .T., 'SQLITE_TMP', cRealTbT, ALIAS_TMP, .F., .F. )
+	DBCreate( ALIAS_TMP , aDbfT, 'SQLITE_MEM' ) // SQLLITE_MEM -> Memória
+	DBUseArea( .T., 'SQLITE_MEM', cRealTbT, ALIAS_TMP, .F., .F. )
 	dbcreateindex(cRealTbT+"1", "XX_CODGCT+XX_CODIGO")
 Else
 	oTmpTbT := FWTemporaryTable():New( ALIAS_TMP ) 
@@ -797,7 +802,7 @@ EndIf
 If !lJob
 	If nCompet <> 0
 
-		u_WaitLog(, {|oSay| ProcR14(lJob,oSay) })
+		u_WaitLog(, {|oSay| ProcR14(lJob,oSay) },"Processando a rentabilidade "+cContrato)
 
 		If !lSintetico
 			//u_WaitLog(, {|| MBrwR14() })
@@ -815,7 +820,7 @@ If !lJob
 	EndIf
 Else
 	If nCompet <> 0
-		u_WaitLog(, {|oSay| ProcR14(lJob,oSay) })  //ProcR14(lJob)
+		u_WaitLog(, {|oSay| ProcR14(lJob,oSay) },"Processando a rentabilidade "+cContrato)  //ProcR14(lJob)
 		u_WaitLog(, {|oSay| U_CR14(lJob,oSay) })
 	Else
 		u_MsgLog(cPerg,"Competencia não encontrada : "+STR(nCompet),"W")
@@ -823,7 +828,7 @@ Else
 EndIf
 
 If lSqlLite
-	DBSqlExec(cRealTb1, 'DROP TABLE ' + cRealTb1 , 'SQLITE_TMP')
+	DBSqlExec(cRealTb1, 'DROP TABLE ' + cRealTb1 , 'SQLITE_MEM')
 Else
 	oTmpTb1:Delete()
 EndIf
@@ -834,7 +839,7 @@ If lSintetico .OR. lJob
 EndIf
 
 If lSqlLite
-	DBSqlExec(cRealTbT, 'DROP TABLE ' + cRealTbT , 'SQLITE_TMP')
+	DBSqlExec(cRealTbT, 'DROP TABLE ' + cRealTbT , 'SQLITE_MEM')
 Else
 	oTmpTbT:Delete()
 EndIf
@@ -1071,6 +1076,8 @@ Local cNMeses	:= ""
 Local nNMeses	:= 3
 Local nMesA		:= 0
 Local nAnoA 	:= 0
+Local nValFat   := 0
+Local nValNDCM  := 0
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -1410,13 +1417,21 @@ FOR _nI := 1 TO nPeriodo
 		NEXT _IXFUR
 
         aRentab  := {}
+		nValFat  := QTMP->D2_TOTAL // Valor Faturado
+
+		// NDC Gerada por medição
+		If ALLTRIM(QTMP->CNF_CONTRA) == '368000630'  // NO FUTURO, FAZER QUERY CNB_PEDTIT = '2' PARA PEGAR OS CONTRATOS QUE GERAM TITULO
+			nValNDCM := U_VALNDCM(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1])
+			nValFat  += nValNDCM
+		EndIf
+
         aAdd(aRentab,{"00","CLIENTE: ","S",TRIM(QTMP->A1_NOME)})              
         aAdd(aRentab,{"01","CONTRATO: ","S",TRIM(QTMP->CTT_DESC01)})              
         aAdd(aRentab,{"02","GESTOR BK: ","S",TRIM(QTMP->CN9_XXNRBK)})              
-        aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,QTMP->D2_TOTAL/(nIndTC/100),QTMP->D2_TOTAL)})
+        aAdd(aRentab,{"03","FATURAMENTO OFICIAL","S",IIF(nIndTC>0,nValFat/(nIndTC/100),nValFat)})
 
         aAdd(aRentab,{"03-2","","S",0}) 
-        aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((QTMP->D2_TOTAL*nMImpContr)/100)/(nIndTC/100),(QTMP->D2_TOTAL*nMImpContr)/100)})            
+        aAdd(aRentab,{"04","(-) Impostos e Contribuições","S",IIF(nIndTC>0,((nValFat*nMImpContr)/100)/(nIndTC/100),(nValFat*nMImpContr)/100)})            
 		IF lISSFURNAS
         	aAdd(aRentab,{"05","(-) ISS","S",nISSFURNAS})
         ELSE
@@ -1425,15 +1440,15 @@ FOR _nI := 1 TO nPeriodo
         aAdd(aRentab,{"05-1","(-) ISS Bitributado","S",IIF(nIndTC>0,QTMP->D2_VALCPM/(nIndTC/100),QTMP->D2_VALCPM)})
         aAdd(aRentab,{"05-2","(-) ISS Bitributado Indev.","S",IIF(nIndTC>0,QTMP->E1_XXISSBI/(nIndTC/100),QTMP->E1_XXISSBI)})
 		IF lISSFURNAS
-        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->E1_XXISSBI})              
+        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",((nValFat*nMImpContr)/100)+nISSFURNAS+QTMP->E1_XXISSBI})              
         ELSE
-        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)/(nIndTC/100),((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)})            
+        	aAdd(aRentab,{"06","Total dos Impostos + ISS","S",IIF(nIndTC>0,(((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)/(nIndTC/100),((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)})            
         ENDIF
         aAdd(aRentab,{"06-1","","S",0})
 		IF lISSFURNAS
-        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->E1_XXISSBI))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)) /*+nNDC*/}) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(nValFat-(((nValFat*nMImpContr)/100)+nISSFURNAS+QTMP->E1_XXISSBI))/(nIndTC/100),nValFat-(((nValFat*nMImpContr)/100)+nISSFURNAS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)) /*+nNDC*/}) 
         ELSE
-        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))/(nIndTC/100),QTMP->D2_TOTAL-(((QTMP->D2_TOTAL*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)) /*+nNDC*/ }) 
+        	aAdd(aRentab,{"07","FATURAMENTO LÍQUIDO","S",IIF(nIndTC>0,(nValFat-(((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI))/(nIndTC/100),nValFat-(((nValFat*nMImpContr)/100)+QTMP->D2_VALISS+QTMP->D2_VALCPM+QTMP->E1_XXISSBI)) /*+nNDC*/ }) 
 		ENDIF
         aAdd(aRentab,{"07-1","","S",0})
         aAdd(aRentab,{"08","CUSTO.","S",0})
@@ -1481,7 +1496,7 @@ FOR _nI := 1 TO nPeriodo
 				(ALIAS_TMP)->XX_DESC   := IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])
 
 				//teste
-				//(ALIAS_TMP)->XX_DESC   := aPeriodo[_nI,1]+IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])+TRANSFORM(QTMP->D2_TOTAL,"@E 99999999.99999")
+				//(ALIAS_TMP)->XX_DESC   := aPeriodo[_nI,1]+IIF("|"+aRentab[_nJ,1]+"|" $ "|00|01|02|",aRentab[_nJ,4],aRentab[_nJ,2])+TRANSFORM(nValFat,"@E 99999999.99999")
 
 			ENDIF
 			IF "|"+aRentab[_nJ,1]+"|" $ "|03|03-1|04|05|05-1|05-2|06|07|30-2|30-3|"
@@ -5260,8 +5275,16 @@ If lJob
 EndIf
 cArqTmp := cDirTmp+cArqE+".CSV"
 
+If _cAlias == "TRB"
+	
+	(_cAlias)->(dbcreateindex(cRealTb1+"2", "SUBSTR(XX_COMPET,4,4)+SUBSTR(XX_COMPET,1,2)+XX_LINHA"))
+
+	//(_cAlias)->(dbSetOrder(2))
+EndIf
+
 If !lJob
 	If u_MsgLog(cPerg,aTitulos[1]+": Deseja gerar no formato Excel (.xlsx) ?","Y")
+
 		aAdd(aPlans,{_cAlias,cArqS,"",aTitulos,aCampos,aCabs,/*aImpr*/,aFormula,aFormat, /*aTotal */, /*cQuebra*/, lClose:= .F. , lJob})
 		cArqXls := U_PlanXlsx(aPlans,"",cArqS, lClose:= .F.,)
 		Return Nil
