@@ -65,8 +65,8 @@ EndIf
 //cQuery += " 	SUBSTRING(B1_CONTA,1,1) = '1' "+CRLF
 cQuery += " ORDER BY CT1_CONTA "+CRLF
 
-aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_UREV" ))
-aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_ALIQISS" ))
+aAdd(aTcFields,aSize(FWSX3Util():GetFieldStruct( "B1_UREV" ),4))
+aAdd(aTcFields,aSize(FWSX3Util():GetFieldStruct( "B1_ALIQISS" ),4))
 
 u_RunQuery(cProg,cQuery,cAlias,aTcFields)
 

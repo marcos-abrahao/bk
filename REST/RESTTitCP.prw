@@ -2230,7 +2230,9 @@ Local nQ 		:= 0
 Local nE 		:= 0
 
 // Ajustes de tratamento de retorno
-aadd(aSetFields,FWSX3Util():GetFieldStruct( "Z2_CODEMP" ))
+aadd(aSetFields,aSize(FWSX3Util():GetFieldStruct( "Z2_CODEMP" ),4))
+
+//aadd(aSetFields,{"Z2_CODEMP","C",2,0})
 
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 

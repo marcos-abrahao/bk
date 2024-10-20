@@ -5034,7 +5034,7 @@ Return lRet
 
 User Function fAcrDcr(cEmpC,aLAcrDcr)
 
-¬	Local cQuery3 		:= ""
+	Local cQuery3 		:= ""
 	Local nTotE2  		:= 0
 	Local nACrDcr 		:= 0
 	Local nX	  		:= 0
@@ -5125,7 +5125,7 @@ User Function fAcrDcr(cEmpC,aLAcrDcr)
 
 			nTotE2  += nValTit
 
-			If TMPX2->F1_XXCOMPD <> TMPX2->D1_DTDIGIT //Empty(aReturn[nX,XE2_PARCELA]) // Competência alterada, usar competencia da NF
+			If TMPX2->F1_XXCOMPD <> TMPX2->D1_DTDIGIT .AND. aReturn[nX,XE2_PARCELA] <= '01' // Competência alterada, usar competencia da NF
 				xCompet := TMPX2->F1_XXCOMPD
 			Else
 				xCompet := aReturn[nX,XE2_VENCREA]

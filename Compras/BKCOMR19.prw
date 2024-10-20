@@ -65,7 +65,7 @@ EndIf
 
 cQuery += " ORDER BY B1_COD "+CRLF
 
-aAdd(aTcFields,FWSX3Util():GetFieldStruct( "B1_UREV" ))
+aAdd(aTcFields,aSize(FWSX3Util():GetFieldStruct( "B1_UREV" ),4))
 
 u_RunQuery(cProg,cQuery,cAlias,aTcFields)
 

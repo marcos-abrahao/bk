@@ -334,8 +334,8 @@ Default cMot	:= ""
 Default cMun	:= ""
 
 // Ajustes de tratamento de retorno
-aadd(aSetFields,FWSX3Util():GetFieldStruct( "CNA_XXMUN" ))
-aadd(aSetFields,FWSX3Util():GetFieldStruct( "CNA_XXMOT" ))
+aadd(aSetFields,aSize(FWSX3Util():GetFieldStruct( "CNA_XXMUN" ),4))
+aadd(aSetFields,aSize(FWSX3Util():GetFieldStruct( "CNA_XXMOT" ),4))
 
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
