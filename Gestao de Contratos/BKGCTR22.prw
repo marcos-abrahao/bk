@@ -25,7 +25,6 @@ Private cProg		:= "BKGCTR22"
 Private cVersao		:= "10/09/24 - RExcel"
 Private cDescr		:= "Rentabilidade Contratos (via PowerBk)"
 
-
 Private cContrato   := SPACE(9)
 Private dDataI		:= dDataBase
 Private dDataF		:= dDataBase
@@ -63,6 +62,14 @@ Private nLinAsMedV	:= 0
 Private nLinSinoP	:= 0
 Private nLinSinoV 	:=0
 
+// Variaveis de Calculo Excel
+Private cColsP	:= ""
+Private cColsR	:= ""
+Private cColAP	:= ""
+Private cColAR	:= ""
+Private cColPR 	:= ""
+Private cColsPR	:= ""
+
 u_MsgLog(cProg,"Nova Rentabilidade Contrato está em fase de desenvolvimento, envie Sugestões!!","S")
 
 aAdd( aParam, { 1, "Contrato:" 	, cContrato	, ""    , ""                                       , "CTT", "", 70, .T. })
@@ -75,11 +82,11 @@ EndIf
 
 u_WaitLog(cProg, {|| lRet := PrcPer() },"Definindo período...")
 
-
 If lRet
 	u_WaitLog(cProg, {|| lRet := PrcMatriz() }	,"Inicializando a matriz...")
 	u_WaitLog(cProg, {|| lRet := PrcFat() }		,"Dados de Faturamento...")
 	u_WaitLog(cProg, {|| lRet := PrcFol() }		,"Dados de Folha...")
+	u_WaitLog(cProg, {|| lRet := PrcGastos() }	,"Dados de Despesas...")
 EndIf
 
 If lRet
@@ -201,12 +208,6 @@ Return lRet
 // Cria a Matriz geral do Relatório
 Static Function PrcMatriz
 Local nI 		:= 0
-Local cColsP	:= ""
-Local cColsR	:= ""
-Local cColAP	:= ""
-Local cColAR	:= ""
-Local cColPR 	:= ""
-Local cColsPR	:= ""
 Local cFormula	:= ""
 
 // Criação das fórmulas de soma do previsto e realizado até o mes de ref
@@ -487,6 +488,18 @@ Endif
 
 Return lRet
 
+#DEFINE GG_EMPRESA			1
+#DEFINE GG_CONTRATO			2
+#DEFINE GG_COMPETAM			3
+#DEFINE GG_ORIGEM			4
+#DEFINE GG_D1_COD			5
+#DEFINE GG_B1_DESC			6
+#DEFINE GG_B1_GRUPO			7
+#DEFINE GG_BM_DESC			8
+
+#DEFINE GG_ZI_COD			9
+#DEFINE GG_ZI_DESC			10
+#DEFINE GG_DESPESA			11
 
 // Gastos Gerais
 Static Function PrcGastos
@@ -496,28 +509,37 @@ Local nX 			:= 0
 Local cQuery 		:= ""
 Local nCol 			:= 0
 Local cAnoMes 		:= ""
-Local nMImp			:= 0
+
+Local cOrigem		:= ""
+Local cD1_Cod		:= ""
+Local cB1_Grupo		:= ""
+Local cZI_Cod		:= ""
+Local cDesc			:= ""
+Local nDespesa		:= 0
+Local cChave		:= ""
+Local nChave 		:= 0
+
 Local aReturn       := {}
 Local aBinds        := {}
 Local aSetFields    := {}
 Local nRet          := 0
-Local cFormula 		:= ""
-
-//SELECT CONTRATO,COMPETAM,SUM(VALFAT),SUM(CXN_VLPREV) FROM FATURAMENTO WHERE CONTRATO = 386000609 GROUP BY CONTRATO,COMPETAM ORDER BY CONTRATO,COMPETAM
 
 cQuery := " SELECT " + CRLF
 cQuery += "   EMPRESA" + CRLF
 cQuery += "  ,CONTRATO" + CRLF
 cQuery += "  ,COMPETAM" + CRLF
-cQuery += "  ,SUM(CXN_VLPREV) AS VALPREV" + CRLF
-cQuery += "  ,SUM(F2_VALFAT)  AS VALFAT" + CRLF
-cQuery += "  ,SUM(F2_VALISS+E1_XXISSBI+F2_VLCPM) AS VALISS" + CRLF
-cQuery += "  ,SUM(XX_E5DESC)  AS E5DESC" + CRLF
-cQuery += "  ,SUM(XX_E5MULTA) AS E5MULTA" + CRLF
-cQuery += " FROM PowerBk.dbo.FATURAMENTO" + CRLF
+cQuery += "  ,ORIGEM" + CRLF
+cQuery += "  ,D1_COD" + CRLF
+cQuery += "  ,B1_DESC" + CRLF
+cQuery += "  ,B1_GRUPO" + CRLF
+cQuery += "  ,BM_DESC" + CRLF
+cQuery += "  ,ZI_CDO" + CRLF
+cQuery += "  ,ZI_DESC" + CRLF
+cQuery += "  ,SUM(DESPESA) AS DESPESA" + CRLF
+cQuery += " FROM PowerBk.dbo.GASTOSGERAIS" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
-cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM" + CRLF
-cQuery += " ORDER BY EMPRESA,CONTRATO,COMPETAM" + CRLF
+cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM,ORIGEM,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,ZI_COD,ZI_DESC" + CRLF
+cQuery += " ORDER BY EMPRESA,CONTRATO,COMPETAM,ORIGEM,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,ZI_COD,ZI_DESC" + CRLF
 
 aAdd(aBinds,cContrato)
 
@@ -525,11 +547,14 @@ aAdd(aBinds,cContrato)
 aadd(aSetFields,{"EMPRESA"	,"C",  2,0})
 aadd(aSetFields,{"CONTRATO"	,"C",  9,0})
 aadd(aSetFields,{"COMPETAM"	,"C",  6,0})
-aadd(aSetFields,{"VALPREV"	,"N", 14,2})
-aadd(aSetFields,{"VALFAT"	,"N", 14,2})
-aadd(aSetFields,{"VALISS"	,"N", 14,2})
-aadd(aSetFields,{"E5DESC"	,"N", 14,2})
-aadd(aSetFields,{"E5MULTA"	,"N", 14,2})
+aadd(aSetFields,{"ORIGEM"	,"C",  7,0})
+aadd(aSetFields,{"D1_COD"	,"C", 15,0})
+aadd(aSetFields,{"B1_DESC"	,"C", 60,0})
+aadd(aSetFields,{"B1_GRUPO"	,"C",  4,0})
+aadd(aSetFields,{"BM_DESC"	,"C", 30,0})
+aadd(aSetFields,{"ZI_COD"	,"C",  4,0})
+aadd(aSetFields,{"ZI_DESC"	,"C", 40,0})
+aadd(aSetFields,{"DESPESA"	,"N", 14,2})
 
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
@@ -541,41 +566,39 @@ If nRet < 0
 Else
 
 	For nX := 1 TO LEN(aReturn)
-		cAnoMes := aReturn[nX,FAT_COMPETAM]
-		nCol    := Ascan(aColMes,"P"+cAnoMes)
-		nMImp	:= u_MVNMIMPC(aReturn[nX,FAT_EMPRESA],cAnoMes)
+		cAnoMes 	:= aReturn[nX,GG_COMPETAM]
+		nCol    	:= Ascan(aColMes,"P"+cAnoMes)
+		cOrigem		:= aReturn[nX,GG_ORIGEM]
+		cD1_Cod		:= aReturn[nX,GG_D1_COD]
+		cB1_Grupo	:= aReturn[nX,GG_B1_GRUPO]
+		cZI_Cod		:= aReturn[nX,GG_ZI_COD]
+		cDesc 		:= Iif(Empty(cZI_Cod),cB1_Grupo,aReturn[nX,GG_ZI_DESC])
+		nDespesa	:= aReturn[nX,GG_DESPESA]
+		cChave		:= TRIM(cOrigem+Iif(Empty(cZI_Cod),cD1_Cod,cZI_Cod))
+		If TRIM(cD1_Cod ) == 12 // VT
+
+			cChave := '12'
+		ElseIf TRIM(cD1_Cod ) == 14 // VR/VA
+			cChave := '14'
+		EndIf
+
+		nChave 		:= Ascan(aMatriz,{|x| TRIM(x[2]) == cChave})
+
+		If nChave == 0
+			nChave := IncLin(cChave,cDesc,cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
+		EndIf
 
 		If nCol > 0
 			// Valor Previsto
-			aMatriz[nLinFatB,nCol+nColIni] += aReturn[nX,FAT_VALPREV]
-			// Impostos
-			//cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,-1#!'"  
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFatB#!'"  
-			aMatriz[nLinImp,nCol+nColIni] := cFormula
-
-			// ISS
-			cFormula:= "'=IFERROR(#!1,0#! / #!1,nLinFatB#! * #!0,nLinFatB#!,0)'"  //=+K6/K4*J4
-			aMatriz[nLinIss,nCol+nColIni] := cFormula
-
+			//aMatriz[nChave,nCol+nColIni] += aReturn[nX,GG_xxxx]
 		Else
 			lRet := .F.
 		EndIf
 
 		nCol    := Ascan(aColMes,"R"+cAnoMes)
 		If nCol > 0
-			// Valor Realizado
-			aMatriz[nLinFatB,nCol+nColIni] += aReturn[nX,FAT_VALFAT]
-			// Impostos
-			//cFormula:= "'=-"+cValToChar(nMImp)+"% * "+ cValToChar(aMatriz[nLinFatB,nCol+nColIni])+"'"
-			cFormula:= "'=-"+cValToChar(nMImp)+"% * #!0,nLinFatB#!'"    //+ cValToChar(aMatriz[nLinFatB,nCol+nColIni])+"'"
-			aMatriz[nLinImp,nCol+nColIni] := cFormula
-
-			// ISS
-			aMatriz[nLinIss,nCol+nColIni] -= aReturn[nX,FAT_VALISS]
-
-			// Descontos / Acrescimos
-			aMatriz[nLinDeAc,nCol+nColIni] += aReturn[nX,FAT_ACRES] - aReturn[nX,FAT_DESC]
-
+			// Valor da Despesa
+			aMatriz[nChave,nCol+nColIni] += aReturn[nX,GG_DESPESA]
 		Else
 			lRet := .F.
 		EndIf
@@ -620,7 +643,6 @@ Local aReturn       := {}
 Local aBinds        := {}
 Local aSetFields    := {}
 Local nRet          := 0
-//Local cFormula 		:= ""
 
 cQuery := " SELECT " + CRLF
 cQuery += "   COMPETAM" + CRLF
