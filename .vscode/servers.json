@@ -22,7 +22,7 @@
 		],
 		"username": "admin",
 		"environment": "P12",
-		"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTcyOTQ0NzYyMTowOjE6MQ==.HGgGH6zz5WxGORkf3wCLezV6ggfUysP0/TX6w0PV/3tLXrj7/YAR/TJro0NrbQqO2eubq1rWRQekde2VSE7nauFwh5aRhx+A8G6SdiS33aMpa0kY/vppumDeSaBRo4VYqUSMEa/0tFsd24adajYWxt3lHyaHtNXqBz+CbgxPSOtLiyYJrBD6r9NbcFsHgCk8Q388netxtxuIy3aLoQrljfQEe2RLyx9o5kwPNTnz8URGqNIkJnFops/kTDvc20YbtTtEF/67huhQlxKdBvnUEd2UyaD3t+vR8EXOFcT85MgQJcGmBiEl4Nj/admoQ0OtoYZUxm9JIDq+HkvWu53jiw==",
+		"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTcyOTUxNTc2MTowOjE6MQ==.slWyrramsYRyQJreYzjVCWCuxMmCPPKBiqbxLKKdBL+z9LbaKOqboM48XVhE/3vV+/fwPICfiPnHiE47cYq93QNK/6a4SZTwDfGCJU1b5NGk1mUQQ0fHlOsvipM0j1ybDmKLl+LIQoQSu3G+v/JKrkmxVZmMJ0mMAbAjgu9Oa5EMrGrBZK/54nYoJOxRKfc7ZT/KhJrxISBXio0l2ErNhkx5dlBU2GGCtDOZDIqywDZzw9qjNpep7c6PpN1cvwTBhH0KVgpZtGKDHt6klIHO4YOt5YsfNgyZX2dG+zm4soTweb9pGUPdNuZWM3va4jCGRdzdozipybSfKYy4p2bucQ==",
 		"informations": {
 			"permissions": [],
 			"errorMessage": "",
@@ -47,7 +47,7 @@
 			],
 			"username": "admin",
 			"environment": "P12",
-			"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTcyOTQ0NzYyMTowOjE6MQ==.HGgGH6zz5WxGORkf3wCLezV6ggfUysP0/TX6w0PV/3tLXrj7/YAR/TJro0NrbQqO2eubq1rWRQekde2VSE7nauFwh5aRhx+A8G6SdiS33aMpa0kY/vppumDeSaBRo4VYqUSMEa/0tFsd24adajYWxt3lHyaHtNXqBz+CbgxPSOtLiyYJrBD6r9NbcFsHgCk8Q388netxtxuIy3aLoQrljfQEe2RLyx9o5kwPNTnz8URGqNIkJnFops/kTDvc20YbtTtEF/67huhQlxKdBvnUEd2UyaD3t+vR8EXOFcT85MgQJcGmBiEl4Nj/admoQ0OtoYZUxm9JIDq+HkvWu53jiw==",
+			"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTcyOTUxNTc2MTowOjE6MQ==.slWyrramsYRyQJreYzjVCWCuxMmCPPKBiqbxLKKdBL+z9LbaKOqboM48XVhE/3vV+/fwPICfiPnHiE47cYq93QNK/6a4SZTwDfGCJU1b5NGk1mUQQ0fHlOsvipM0j1ybDmKLl+LIQoQSu3G+v/JKrkmxVZmMJ0mMAbAjgu9Oa5EMrGrBZK/54nYoJOxRKfc7ZT/KhJrxISBXio0l2ErNhkx5dlBU2GGCtDOZDIqywDZzw9qjNpep7c6PpN1cvwTBhH0KVgpZtGKDHt6klIHO4YOt5YsfNgyZX2dG+zm4soTweb9pGUPdNuZWM3va4jCGRdzdozipybSfKYy4p2bucQ==",
 			"informations": {
 				"permissions": [],
 				"errorMessage": "",
@@ -193,7 +193,7 @@
 			"tjhq6jla56bllnnwvnmlz7mntl59o:P12",
 			{
 				"id": "tjhq6jla56bllnnwvnmlz7mntl59o",
-				"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTcyOTQ0NzYyMTowOjE6MQ==.HGgGH6zz5WxGORkf3wCLezV6ggfUysP0/TX6w0PV/3tLXrj7/YAR/TJro0NrbQqO2eubq1rWRQekde2VSE7nauFwh5aRhx+A8G6SdiS33aMpa0kY/vppumDeSaBRo4VYqUSMEa/0tFsd24adajYWxt3lHyaHtNXqBz+CbgxPSOtLiyYJrBD6r9NbcFsHgCk8Q388netxtxuIy3aLoQrljfQEe2RLyx9o5kwPNTnz8URGqNIkJnFops/kTDvc20YbtTtEF/67huhQlxKdBvnUEd2UyaD3t+vR8EXOFcT85MgQJcGmBiEl4Nj/admoQ0OtoYZUxm9JIDq+HkvWu53jiw=="
+				"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTcyOTUxNTc2MTowOjE6MQ==.slWyrramsYRyQJreYzjVCWCuxMmCPPKBiqbxLKKdBL+z9LbaKOqboM48XVhE/3vV+/fwPICfiPnHiE47cYq93QNK/6a4SZTwDfGCJU1b5NGk1mUQQ0fHlOsvipM0j1ybDmKLl+LIQoQSu3G+v/JKrkmxVZmMJ0mMAbAjgu9Oa5EMrGrBZK/54nYoJOxRKfc7ZT/KhJrxISBXio0l2ErNhkx5dlBU2GGCtDOZDIqywDZzw9qjNpep7c6PpN1cvwTBhH0KVgpZtGKDHt6klIHO4YOt5YsfNgyZX2dG+zm4soTweb9pGUPdNuZWM3va4jCGRdzdozipybSfKYy4p2bucQ=="
 			}
 		],
 		[

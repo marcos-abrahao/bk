@@ -70,8 +70,6 @@ Private cColAR	:= ""
 Private cColPR 	:= ""
 Private cColsPR	:= ""
 
-u_MsgLog(cProg,"Nova Rentabilidade Contrato está em fase de desenvolvimento, envie Sugestões!!","S")
-
 aAdd( aParam, { 1, "Contrato:" 	, cContrato	, ""    , ""                                       , "CTT", "", 70, .T. })
 aAdd( aParam, { 1, "Mes ref."   , nMesRef   ,"99"   , "mv_par02 > 0 .AND. mv_par02 <= 12"      , ""   , "", 20, .T. })
 aAdd( aParam, { 1, "Ano ref."   , nAnoRef   ,"9999" , "mv_par03 >= 2010 .AND. mv_par03 <= 2040", ""   , "", 20, .T. })
@@ -92,6 +90,8 @@ EndIf
 If lRet
 	u_WaitLog(cProg, {|| lRet := PrcPlan() }	,"Construindo a planilha...")
 EndIf
+
+u_MsgLog(cProg,"Nova Rentabilidade Contrato está em fase de desenvolvimento, envie Sugestões!!","S")
 
 Return lRet
 
@@ -533,13 +533,14 @@ cQuery += "  ,D1_COD" + CRLF
 cQuery += "  ,B1_DESC" + CRLF
 cQuery += "  ,B1_GRUPO" + CRLF
 cQuery += "  ,BM_DESC" + CRLF
-cQuery += "  ,ZI_CDO" + CRLF
+cQuery += "  ,ZI_COD" + CRLF
 cQuery += "  ,ZI_DESC" + CRLF
 cQuery += "  ,SUM(DESPESA) AS DESPESA" + CRLF
 cQuery += " FROM PowerBk.dbo.GASTOSGERAIS" + CRLF
 cQuery += " WHERE CONTRATO = ? " + CRLF
 cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM,ORIGEM,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,ZI_COD,ZI_DESC" + CRLF
-cQuery += " ORDER BY EMPRESA,CONTRATO,COMPETAM,ORIGEM,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,ZI_COD,ZI_DESC" + CRLF
+cQuery += " ORDER BY ZI_DESC,B1_DESC" + CRLF
+//cQuery += " ORDER BY EMPRESA,CONTRATO,COMPETAM,ORIGEM,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,ZI_COD,ZI_DESC" + CRLF
 
 aAdd(aBinds,cContrato)
 
@@ -572,17 +573,16 @@ Else
 		cD1_Cod		:= aReturn[nX,GG_D1_COD]
 		cB1_Grupo	:= aReturn[nX,GG_B1_GRUPO]
 		cZI_Cod		:= aReturn[nX,GG_ZI_COD]
-		cDesc 		:= Iif(Empty(cZI_Cod),cB1_Grupo,aReturn[nX,GG_ZI_DESC])
+		cDesc 		:= Iif(Empty(cZI_Cod),aReturn[nX,GG_B1_DESC],aReturn[nX,GG_ZI_DESC])
 		nDespesa	:= aReturn[nX,GG_DESPESA]
 		cChave		:= TRIM(cOrigem+Iif(Empty(cZI_Cod),cD1_Cod,cZI_Cod))
-		If TRIM(cD1_Cod ) == 12 // VT
-
+		If TRIM(cD1_Cod ) == '12' // VT
 			cChave := '12'
-		ElseIf TRIM(cD1_Cod ) == 14 // VR/VA
+		ElseIf TRIM(cD1_Cod ) == '14' // VR/VA
 			cChave := '14'
 		EndIf
 
-		nChave 		:= Ascan(aMatriz,{|x| TRIM(x[2]) == cChave})
+		nChave 		:= Ascan(aMatriz,{|x| TRIM(x[1]) == cChave})
 
 		If nChave == 0
 			nChave := IncLin(cChave,cDesc,cColAP,cColAR,cColPR,cColsP,cColsR,cColsPR,0,0)
@@ -592,15 +592,15 @@ Else
 			// Valor Previsto
 			//aMatriz[nChave,nCol+nColIni] += aReturn[nX,GG_xxxx]
 		Else
-			lRet := .F.
+			//lRet := .F.
 		EndIf
 
 		nCol    := Ascan(aColMes,"R"+cAnoMes)
 		If nCol > 0
 			// Valor da Despesa
-			aMatriz[nChave,nCol+nColIni] += aReturn[nX,GG_DESPESA]
+			aMatriz[nChave,nCol+nColIni] -= aReturn[nX,GG_DESPESA]
 		Else
-			lRet := .F.
+			//lRet := .F.
 		EndIf
 	Next
 
@@ -705,20 +705,20 @@ Else
 		nCol    := Ascan(aColMes,"R"+cAnoMes)
 		If nCol > 0
 			// Valor Realizado
-			aMatriz[nLinProv  ,nCol+nColIni] += aReturn[nX,FOL_PROVENTOS]
+			aMatriz[nLinProv  ,nCol+nColIni] -= aReturn[nX,FOL_PROVENTOS]
 			aMatriz[nLinDesc  ,nCol+nColIni] += aReturn[nX,FOL_DESCONTOS]
-			aMatriz[nLinEnc   ,nCol+nColIni] += aReturn[nX,FOL_ENCARGOS]
-			aMatriz[nLinInc   ,nCol+nColIni] += aReturn[nX,FOL_INCIDENCIAS]
-			aMatriz[nLinPLR   ,nCol+nColIni] += aReturn[nX,FOL_PLR]
-			aMatriz[nLinSInc  ,nCol+nColIni] += aReturn[nX,FOL_SEMINC]
-			aMatriz[nLinVTP   ,nCol+nColIni] += aReturn[nX,FOL_VTPROV]
-			aMatriz[nLinVTV   ,nCol+nColIni] += aReturn[nX,FOL_VTVER]
+			aMatriz[nLinEnc   ,nCol+nColIni] -= aReturn[nX,FOL_ENCARGOS]
+			aMatriz[nLinInc   ,nCol+nColIni] -= aReturn[nX,FOL_INCIDENCIAS]
+			aMatriz[nLinPLR   ,nCol+nColIni] -= aReturn[nX,FOL_PLR]
+			aMatriz[nLinSInc  ,nCol+nColIni] -= aReturn[nX,FOL_SEMINC]
+			aMatriz[nLinVTP   ,nCol+nColIni] -= aReturn[nX,FOL_VTPROV]
+			aMatriz[nLinVTV   ,nCol+nColIni] -= aReturn[nX,FOL_VTVER]
 				// VA/VR - está em Despesas
-			aMatriz[nLinVRVAV ,nCol+nColIni] += aReturn[nX,FOL_VRVAV]
+			aMatriz[nLinVRVAV ,nCol+nColIni] -= aReturn[nX,FOL_VRVAV]
 				// ASSMED - está em Despesas
-			aMatriz[nLinAsMedV,nCol+nColIni] += aReturn[nX,FOL_ASSMV]
-			aMatriz[nLinSinoP ,nCol+nColIni] += aReturn[nX,FOL_SINOP]
-			aMatriz[nLinSinoV ,nCol+nColIni] += aReturn[nX,FOL_SINOV]
+			aMatriz[nLinAsMedV,nCol+nColIni] -= aReturn[nX,FOL_ASSMV]
+			aMatriz[nLinSinoP ,nCol+nColIni] -= aReturn[nX,FOL_SINOP]
+			aMatriz[nLinSinoV ,nCol+nColIni] -= aReturn[nX,FOL_SINOV]
 
 		Else
 			lRet := .F.
