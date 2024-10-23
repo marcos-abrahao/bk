@@ -31,7 +31,7 @@ EndIf
 aAdd(aDados,{"","U_BKGCTR29()",		"GESTÃO",		"Despesas por Contrato"})
 
 If __cUserId == '000000'
-	aAdd(aDados,{"","U_BKGCTR22()",		"GESTÃO",		"Nova Rentabilidade dos Contratos"})
+	aAdd(aDados,{"","U_BKMsgLmp()",	"AVISOS",		"Limpeza de registros da tabela SZ0"})
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})
@@ -72,6 +72,7 @@ aAdd(aDados,{"","U_BKGCTR16()",		"GESTÃO",		"Relação de Contratos Vigentes no me
 aAdd(aDados,{"","U_BKGCTR17()",		"GESTÃO",		"Situação dos Contratos"})
 aAdd(aDados,{"","U_BKGCTR18()",		"GESTÃO",		"Informações de Contratos Vigentes e encerrados por ano - Licitação Mod. 2"})
 aAdd(aDados,{"","U_BKGCTR21()",		"GESTÃO",		"Relatório faturamento de reajustes, repactuação e retroativo"})
+aAdd(aDados,{"","U_BKGCTR22()",		"GESTÃO",		"Nova Rentabilidade dos Contratos"})
 aAdd(aDados,{"","U_BKGCTR23()",		"GESTÃO",		"Relatório Dados do Dashboard (antigo) Funcionários e Glosas"})
 aAdd(aDados,{"","U_BKGCTR24()",		"GESTÃO",		"Consulta Planos de Ação (obsoleto)"})
 aAdd(aDados,{"","U_BKGCTR25()",		"GESTÃO",		"Relação de Contratos"})

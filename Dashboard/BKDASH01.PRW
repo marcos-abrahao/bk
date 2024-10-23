@@ -47,6 +47,11 @@ If FWCodEmp() == "01"
 	cBlind1 := ""
 	cBlind2 := ""
 
+	// Domingo
+	If DOW(DATE()) == 7 .AND. SUBSTRING(TIME(),1,2) == '19'
+		aAdd(aDados,{"X","U_BKMsgLmp()","Limpeza de registros da tabela SZ0"})
+	EndIf
+
 	If IsBlind(); 
 			.AND. SUBSTRING(TIME(),1,2) > '05' ;
 			.AND. SUBSTRING(TIME(),1,2) < '22';
@@ -186,7 +191,7 @@ If !Empty(cErro)
 Else
 
 	cMens	:= "Programa "+cProg+" executado com sucesso!"
-	cQry 	+= '/* <a href="javascript:history.back()">Voltar</a> */' + CRLF
+	cQry 	:= '/* <a href="javascript:history.back()">Voltar</a> */' + CRLF + cQry
 	cQry	:= StrTran(cQry, CRLF, "<br>")
 
 	u_GrvAnexo(cProg+".html",cQry,.F.)
@@ -197,3 +202,42 @@ EndIf
 u_LogMemo(cProg+".SQL",cErro+cQry)
 
 Return Nil
+
+// Limpeza da tabela de avisos
+User Function BKMsgLmp()
+Local nCount := 0
+Local cFile	 := ""
+Local cProg  := "BKMSGLMP"
+Local cMens  := ""
+dbSelectArea("SZ0")
+dbGoTop()
+Do While !Eof()
+	If SZ0->Z0_STATUS == "N" .AND. SZ0->Z0_DTFINAL < (DATE() - 3)
+		cFile := u_STmpAnexos()+TRIM(SZ0->Z0_ANEXO)
+		If File(cFile)
+			fErase(cFile)
+		EndIf
+		RecLock("SZ0",.F.)
+		SZ0->(dbDelete())
+		SZ0->(MsUnlock())
+		nCount++
+	EndIf
+	dbSkip()
+EndDo
+cMens := "Registros de avisos excluídos (SZ0): "+ALLTRIM(STR(nCount))
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpAdmin(),cMens,cMens,"F","",DataValida(DATE()+1))
+
+dbSelectArea("SZ0")
+dbCloseArea()
+USE ("SZ0010") ALIAS ("SZ0") EXCLUSIVE NEW VIA "TOPCONN"
+If ! NetErr()
+	//Aciona o Pack e Commit
+	SZ0->(__DBPack())
+	SZ0->(DbCommitAll())
+	dbCloseArea()
+EndIf
+dbSelectArea("SZ0")
+Return Nil
+
+
+
