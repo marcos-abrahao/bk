@@ -18,8 +18,7 @@ Local cErro1 	:= ""
 Local cErro2 	:= ""
 Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
-
-
+Local cProg		:= "BKDSCRO"
 Local cTabCN9   := ""
 Local cTabCNF   := ""
 
@@ -75,8 +74,6 @@ cQuery += "  FROM CRON " + CRLF
 cQuery += " ORDER BY" + CRLF
 cQuery += "    EMPRESA,CONTRATO,CNF_REVISA,CNF_NUMPLA,CNF_PARCEL" + CRLF
 
-u_LogMemo("BKDSCRO.SQL",cQuery)
-
 If !TCIsConnected()
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
@@ -87,18 +84,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.CRONOGRAMAS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSCRO.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSCRO","Final: Cronogramas")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

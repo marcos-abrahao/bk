@@ -18,16 +18,14 @@ Local cErro1 	:= ""
 Local cErro2 	:= ""
 Local nX 		:= 0
 Local aEmpresas := u_BKGrupo(1)
-
-//u_MsgLog("BKDSEMP","Inicio: Empresas")
+Local cProg     := "BKDSEMP"
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.EMPRESAS', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.EMPRESAS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 cQuery := "CREATE TABLE PowerBk.dbo.EMPRESAS " + CRLF
@@ -39,12 +37,11 @@ cQuery += ") " + CRLF
 
 nErro   := TcSqlExec(cQuery)
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
 For nX := 1 To Len(aEmpresas)
-    // Popula elemento
+    // Popula elementos
     cQuery := "INSERT INTO PowerBk.dbo.EMPRESAS " + CRLF
     cQuery += "("         + CRLF
     cQuery += "EMPRESA,"  + CRLF
@@ -58,12 +55,10 @@ For nX := 1 To Len(aEmpresas)
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
-		cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		u_MsgLog(cPerg,cErro2,"E")
+	    cErro2 += TcSqlError()
 	EndIf
 Next nX
 
-u_LogMemo("BKDSEMP.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSEMP","Final: Empresas")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

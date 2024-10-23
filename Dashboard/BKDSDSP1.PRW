@@ -18,7 +18,7 @@ Local cErro1 	:= ""
 Local cErro2 	:= ""
 Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
-
+Local cProg		:= "BKDSDSP1"
 Local cTabSZG   := ""
 
 //u_MsgLog("BKDSDSP1","Inicio: Previsão de despesas 1")
@@ -87,8 +87,6 @@ Next
 cQuery += " ORDER BY" + CRLF
 cQuery += "      EMPRESA,CONTRATO,ZG_DATA,ZG_SEQ" + CRLF
 
-u_LogMemo("BKDSDSP1.SQL",cQuery)
-
 If !TCIsConnected()
   u_MsgLog("BKDSDSP1","Sem conexão com o banco de dados")
   Return( Nil )
@@ -99,18 +97,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.PREVDESP1 "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSDSP1.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSDSP1","Final: Previsão de despesas 1")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

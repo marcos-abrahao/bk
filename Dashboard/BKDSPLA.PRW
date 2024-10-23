@@ -19,7 +19,7 @@ Local cErro1 	:= ""
 Local cErro2 	:= ""
 Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
-
+Local cProg		:= "BKDSPLA"
 Local cJCNACNB:= FWJoinFilial("CNA", "CNB")
 Local cJCNBSB1:= FWJoinFilial("CNB", "SB1")
 
@@ -137,18 +137,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.PLANILHAS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSPLA.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSPLA","Final: Planilhas")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

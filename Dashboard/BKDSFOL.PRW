@@ -16,8 +16,7 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
-
-//u_MsgLog("BKDSFOL","Inicio: Folha")
+Local cProg		:= "BKDSFOL"
 
 // R030EMP -- cadastro de empresas
 // R030FIL -- cadastro de filiais
@@ -251,18 +250,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.FOLHA "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSFOL.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSFOL","Final: Folha")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

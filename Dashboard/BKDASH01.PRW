@@ -169,3 +169,31 @@ EndiF
 
 Return
 
+// Log de erros das queries do dashboard
+User Function QryResult(cProg,cQry,cErro)
+Local cMens := ""
+
+If !Empty(cErro)
+	cErro 	:= "/* Erro na atualização: "+ CRLF + cErro + " */" +  CRLF
+	cErro 	+= '/* <a href="javascript:history.back()">Voltar</a> */' + CRLF
+
+	cMens 	:= "Ocorreram erros na execução do programa "+cProg+CRLF+cErro
+	cErro	:= StrTran(cErro, CRLF, "<br>")
+
+	u_GrvAnexo(cProg+".html",cErro,.F.)
+	u_BKMsgUs(cEmpAnt,cProg,{},u_GrpAdmin(),cMens,cMens,"F",cProg+".html",DataValida(DATE()+1))
+	u_MsgLog(cProg,cMens,"E")
+Else
+
+	cMens	:= "Programa "+cProg+" executado com sucesso!"
+	cQry 	+= '/* <a href="javascript:history.back()">Voltar</a> */' + CRLF
+	cQry	:= StrTran(cQry, CRLF, "<br>")
+
+	u_GrvAnexo(cProg+".html",cQry,.F.)
+	u_BKMsgUs(cEmpAnt,cProg,{},u_GrpAdmin(),cMens,cMens,"F",cProg+".html",DataValida(DATE()+1))
+	u_MsgLog(cProg,cMens,"S")
+EndIf
+
+u_LogMemo(cProg+".SQL",cErro+cQry)
+
+Return Nil

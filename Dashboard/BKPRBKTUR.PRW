@@ -16,16 +16,14 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
-
-//u_MsgLog("BKPRBKTUR","Create BKTURNOVER1")
+Local cProg		:= "BKPRBKTUR"
 
 If TCSPExist( "BKTURNOVER1" )
 	cQueryD := "DROP PROCEDURE BKTURNOVER1"  
 	nErro   := TcSqlExec(cQueryD)
 
 	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		u_MsgLog(cPerg,cErro1,"E")
+		cErro1 := TcSqlError()
 	EndIf
 EndIf
 
@@ -113,11 +111,10 @@ ENDCONTENT
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKPRBKTUR.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return
 
@@ -127,20 +124,17 @@ User Function BKDSBKTUR
 Local cQuery	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
-
-//u_MsgLog(cPerg,"Início: TurnoverBK")
+Local cProg		:= "BKDSBKTUR"
 
 If TCSPExist( "BKTURNOVER1" )
 	cQuery  := "EXEC BKTURNOVER1"  
 	nErro   := TcSqlExec(cQuery)
 
 	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		u_MsgLog(cPerg,cErro1,"E")
+		cErro1 := TcSqlError()
 	EndIf
 EndIf
 
-u_LogMemo("BKDSBKTUR.SQL",cErro1+cQuery)
-//u_MsgLog("BKPRBKTUR","Final: TurnoverBK")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

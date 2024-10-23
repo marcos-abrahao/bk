@@ -16,6 +16,7 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
+Local cProg 	:= "BK040PER"
 
 //u_MsgLog("BK040PER","Inicio: BK040PER")
 
@@ -118,18 +119,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.BK040PER "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BK040PER.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BK040PER","Final: BK040PER")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

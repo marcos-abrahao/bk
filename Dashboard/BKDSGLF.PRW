@@ -21,15 +21,13 @@ Local nE 		:= 0
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
 local cCusBK    := U_MVXCUSBK()
-
+Local cProg		:= "BKDSGLF"
 Local cTabSZ2	:= "SZ2010"
 Local cTabCTT	:= ""
 
 Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
 Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
 Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
-
-//u_MsgLog("BKDSGLF","Inicio: Liquidos de Folha")
 
 For nE := 1 TO Len(aEmpresas)
 
@@ -165,21 +163,18 @@ Endif
 	nErro   := TcSqlExec(cQueryD)
 
 	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		u_MsgLog(cPerg,cErro1,"E")
+		cErro1 := TcSqlError()
 	EndIf
 
 	nErro   := TcSqlExec(cQuery)
 
 	If nErro != 0
-		cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		u_MsgLog(cPerg,cErro2,"E")
+		cErro2 := TcSqlError()
 	EndIf
 
 //End Transaction
 
-u_LogMemo("BKDSGLF.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSGLF","Final: Liquidos de Folha")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return
 

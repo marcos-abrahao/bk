@@ -13,7 +13,6 @@ GASTOS GERAIS
 User Function BKDSGG
 Local cQuery	:= ""
 Local cQueryD	:= ""
-//Local cQueryF	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
@@ -21,7 +20,7 @@ Local aEmpresas := u_BKGrpDsp()
 Local nE 		:= 0
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
-
+Local cProg		:= "BKDSGG"
 Local cTabSD1	:= ""
 Local cTabSB1	:= ""
 Local cTabSE2	:= ""
@@ -894,18 +893,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.GASTOSGERAIS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSGG.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSGG","Final: Gastos Gerais")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

@@ -31,16 +31,14 @@ Local xUsrDepto := ""
 Local xUsrBloq  := ""
 Local xUsrUltLog:= ""
 Local nPosGrp   := 0
-
-//u_MsgLog("BKDSUSR","Inicio: Usuários")
+Local cProg		:= "BKDSUSR"
 
 cQueryD := "IF OBJECT_ID(N'PowerBk.dbo.USUARIOS', N'U') IS NOT NULL"  
 cQueryD += "   DROP TABLE PowerBk.dbo.USUARIOS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 cQuery := "CREATE TABLE PowerBk.dbo.USUARIOS " + CRLF
@@ -60,8 +58,7 @@ cQuery += ") " + CRLF
 
 nErro   := TcSqlExec(cQuery)
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
 For nX := 1 To Len(aUsersF)
@@ -111,13 +108,11 @@ For nX := 1 To Len(aUsersF)
 
 	nErro   := TcSqlExec(cQuery)
 	If nErro != 0
-		cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	    u_MsgLog(cPerg,cErro2,"E")
+	    cErro2 += TcSqlError()
 	EndIf
 Next nX
 
-u_LogMemo("BKDSUSR.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSUSR","Final: Usuários")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return
 

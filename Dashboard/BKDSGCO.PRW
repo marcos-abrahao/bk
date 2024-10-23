@@ -13,7 +13,6 @@ GASTOS CONSORCIOS PARA RATEIO DE CUSTOS COM SÓCIOS
 User Function BKDSGCO
 Local cQuery	:= ""
 Local cQueryD	:= ""
-//Local cQueryF	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
@@ -21,7 +20,7 @@ Local aEmpresas := u_BKGrpDsp()
 Local nE 		:= 1
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
-
+Local cProg		:= "BKDSGCO"
 Local cTabSD1	:= ""
 Local cTabSB1	:= ""
 Local cTabSE2	:= ""
@@ -259,18 +258,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.GASTOSCONSORCIOS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  += "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSGCO.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSGCO","Final: Gastos Gerais")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

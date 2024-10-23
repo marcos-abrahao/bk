@@ -20,14 +20,12 @@ Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
-
+Local cProg		:= "BKDSCFAT"
 Local cTabSF2   := ""
 Local cTabSE1   := ""
 Local cTabSC5   := ""
 Local cTabSA1   := ""
 Local cTabCTT   := ""
-
-//u_MsgLog("BKDSCFAT","Inicio: Canc. Faturamento")
 
 cQuery := "WITH CFATUR AS ("+CRLF
 For nE := 1 TO Len(aEmpresas)
@@ -153,18 +151,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.CANCFATURAMENTO "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSCFAT.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSCFAT","Final: Canc. Faturamento")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

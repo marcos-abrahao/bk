@@ -19,7 +19,9 @@ Local cAlias		:= "TMP"
 
 // Excel
 Local cDescricao	:= "Objetivo deste relatório é demonstrar a situação dos contratos, considerando a data de vigência pelo campo CN9_XXDVIG (informado pelo usuário) "+CRLF+"Solicitado pela Gerência da Gestão em novembro de 2023."
-Local cVersao 		:= "05/12/2023 - Incluído campo 'Dias para finalizar'"+CRLF
+Local cVersao 		:= "05/12/2023 - Wiliam Lisboa: Incluído campo 'Dias para finalizar'"+CRLF+;
+					   "18/10/2024 - Guilherme Moreira: Incluídos campos referentes a revisão "
+Local cSolicit		:= "Fábia Pesaro"
 Local oRExcel		AS Object
 Local oPExcel		AS Object
 
@@ -44,6 +46,7 @@ oRExcel:SetTitulo(cTitulo)
 oRExcel:SetDescr(cDescricao)
 oRExcel:SetVersao(cVersao)
 oRExcel:SetParam(aParam)
+oRExcel:SetSolicit(cSolicit)
 
 // Definição da Planilha 1
 oPExcel:= PExcel():New(cProg,cAlias)
@@ -195,8 +198,9 @@ cQuery += "  CN9_XXNRBK,"+CRLF
 cQuery += "  CN9_XXNGC, "+CRLF
 cQuery += "  CN9_XXEGC, "+CRLF
 cQuery += "  CN9_XXTELS, "+CRLF
-cQuery += "  CN9_LOGDAT,"+CRLF
-cQuery += "  CN9_LOGUSR,"+CRLF
+cQuery += "  CN9_LOGDAT, "+CRLF
+cQuery += "  CN9_REVISA, "+CRLF
+cQuery += "  CN9_LOGUSR, "+CRLF
 cQuery += "  USR_CODIGO AS REVISOR,"+CRLF
 cQuery += "  CN9_CODJUS AS JUSTIF "+CRLF
 

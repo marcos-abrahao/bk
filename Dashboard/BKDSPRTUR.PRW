@@ -19,16 +19,14 @@ Local cQueryD	:= ""
 Local nErro 	:= 0
 Local cErro1 	:= ""
 Local cErro2 	:= ""
-
-//u_MsgLog("BKDSPRTUR","Create BKTURNOVER")
+Local cProg		:= "BKDSPRTUR"
 
 If TCSPExist( "BKTURNOVER" )
 	cQueryD := "DROP PROCEDURE BKTURNOVER"  
 	nErro   := TcSqlExec(cQueryD)
 
 	If nErro != 0
-		cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-		u_MsgLog(cPerg,cErro1,"E")
+		cErro1 := TcSqlError()
 	EndIf
 EndIf
 
@@ -158,11 +156,10 @@ ENDCONTENT
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSPRTUR.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return
 

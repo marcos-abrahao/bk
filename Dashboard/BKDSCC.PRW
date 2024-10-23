@@ -19,6 +19,7 @@ Local cErro2 	:= ""
 Local aEmpresas := u_BKGrupo()
 Local nE 		:= 0
 Local cTabCTT   := ""
+Local cProg		:= "BKDSCC"
 
 //u_MsgLog("BKDSCC","Inicio: Centros de Custo")
  
@@ -54,8 +55,6 @@ cQuery += "  FROM CCUSTOS " + CRLF
 cQuery += " ORDER BY" + CRLF
 cQuery += "    EMPRESA,CCUSTO" + CRLF
 
-u_LogMemo("BKDSCC.SQL",cQuery)
-
 If !TCIsConnected()
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
@@ -66,18 +65,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.CCUSTOS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSCC.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSCC","Final: Centros de Custo")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return

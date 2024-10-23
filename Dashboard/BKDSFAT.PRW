@@ -11,6 +11,8 @@ BK - Atualização da tabela FATURAMENTO do banco de dados PowerBk
 /*/
 
 User Function BKDSFAT
+
+Local cProg 	:= "BKDSFAT"
 Local cQuery	:= ""
 Local cQueryD	:= ""
 Local nErro 	:= 0
@@ -447,20 +449,19 @@ cQueryD += "   DROP TABLE PowerBk.dbo.FATURAMENTO "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSFAT.SQL",cErro1+cQueryD+cErro2+cQuery)
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 // Incluir na tabela FATURAMENTO as NDC geradas por medição - 15/08/2024
+
 BKDSNDC()
 
 Return
@@ -469,9 +470,10 @@ Return
 
 // Incluir na tabela FATURAMENTO as NDC geradas por medição - 15/08/2024
 Static Function BKDSNDC
+Local cProg     := "BKDSNDC"
 Local cQuery	:= ""
 Local nErro 	:= 0
-Local cErro3 	:= ""
+Local cErro3	:= ""
 Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
 Local cEmpresa  := ""
@@ -487,8 +489,6 @@ Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
 Local cTabSE5   := ""
-
-//u_MsgLog("BKDSFAT","Inicio: Faturamento")
 
 cTabSZR := "SZR010"
 
@@ -795,7 +795,6 @@ cQuery += "  VALFAT" + CRLF
 cQuery += " )" + CRLF
 cQuery += " (SELECT * FROM NDC1)" + CRLF
 
-
 If !TCIsConnected() 
   MsgAlert( "Sem conexão com o banco de dados", cPerg )
   Return( Nil )
@@ -804,10 +803,9 @@ Endif
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro3  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro3,"E")
+	cErro3 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSNDC.SQL",cErro3+cQuery)
+u_QryResult(cProg,cQuery,cErro3)
 
 Return

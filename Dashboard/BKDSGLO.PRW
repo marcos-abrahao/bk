@@ -20,7 +20,7 @@ Local aEmpresas := u_BKGrpGct()
 Local nE 		:= 0
 Local cEmpresa  := ""
 Local cNomeEmp  := ""
-
+Local cProg		:= "BKDSGLO"
 Local cTabSZR   := ""
 Local cTabCNR   := ""
 Local cTabSF2   := ""
@@ -31,8 +31,6 @@ Local cTabCTT   := ""
 Local cTabCN9   := ""
 Local cTabCNF   := ""
 Local cTabCNA   := ""
-
-//u_MsgLog("BKDSGLO","Inicio: Glosas")
 
 cTabSZR := "SZR010"
 
@@ -189,18 +187,15 @@ cQueryD += "   DROP TABLE PowerBk.dbo.GLOSAS "+CRLF
 nErro   := TcSqlExec(cQueryD)
 
 If nErro != 0
-	cErro1  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro1,"E")
+	cErro1 := TcSqlError()
 EndIf
 
 nErro   := TcSqlExec(cQuery)
 
 If nErro != 0
-	cErro2  := "/* Erro na atualização: "+ CRLF + TcSqlError() + " */" +  CRLF
-	u_MsgLog(cPerg,cErro2,"E")
+	cErro2 := TcSqlError()
 EndIf
 
-u_LogMemo("BKDSGLO.SQL",cErro1+cQueryD+cErro2+cQuery)
-//u_MsgLog("BKDSGLO","Final: Glosas")
+u_QryResult(cProg,cQueryD+cQuery,cErro1+cErro2)
 
 Return
