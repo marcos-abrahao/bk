@@ -18,6 +18,7 @@ Local cAssunto	:= ""
 Local cEmail	:= ""
 Local cEmailCC  := "" 
 Local cMsg 		:= "" 
+Local cProg		:= "GQREENTR"
 Local cAnexo	:= ""
 Local cSolici   := ""
 //Local cAlmox	:= ""
@@ -133,8 +134,14 @@ DO While !TMPSF1->(EOF())
         	ELSE
    				cEmail += u_EmailAdm()+cAlEmail
         	ENDIF
-	  		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"GQREENTR")
-		  	U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
+	  		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+
+			// Grava o anexo html
+			cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(_X1++,2)+".html"
+
+			u_GrvAnexo(cAnexo,cMsg,.T.)
+			U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
+		  	//U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
 		NEXT
 
 		IF lAtFixo
@@ -144,8 +151,13 @@ DO While !TMPSF1->(EOF())
 			aEmail := {}
 			cEmail := u_EmailAdm()+cAlEmail
 
-  			cMsg    := u_GeraHtmA(aSD1,cAssunto,aCabs,"GQREENTR")
-	  		U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
+  			cMsg    := u_GeraHtmA(aSD1,cAssunto,aCabs,cProg)
+
+			// Grava o anexo html
+			cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(_X1++,2)+".html"
+
+			U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
+	  		//U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
 		ELSE
 	
 	    	cQuery2 := "SELECT D1_ITEM,D1_COD,D1_XXDESCP,D1_UM,D1_QUANT,D1_VUNIT,D1_TOTAL,D1_CC,D1_XXDCC,D1_TP "
@@ -176,8 +188,13 @@ DO While !TMPSF1->(EOF())
 				aEmail   := {}
 				cEmail   := u_EmailAdm()+cAlEmail
 
-  				cMsg     := u_GeraHtmA(aSD1,cAssunto,aCabs,"GQREENTR")
-	  			U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
+  				cMsg     := u_GeraHtmA(aSD1,cAssunto,aCabs,cProg)
+
+				// Grava o anexo html
+				cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(_X1++,2)+".html"
+
+				U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
+	  			//U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.) 
             ENDIF
 		ENDIF
 	ENDIF
@@ -327,6 +344,7 @@ Local cMsg 		:= ""
 Local cAnexo	:= ""
 Local nTOTAL 	:= 0
 Local cAvalC    := ""
+Local cProg		:= "GQREENTR"
 
 nTOTAL:= (IIF(nRadio1=1,25,0)+IIF(nRadio2=1,25,0)+IIF(nRadio3=1,25,0)+IIF(nRadio4=1,25,0)) 
 
@@ -395,12 +413,18 @@ IF nTOTAL <= 50
 	cNome  := ""
 	cNome  := Posicione("SA2",1,Xfilial("SA2")+TMPSF1->F1_FORNECE+TMPSF1->F1_LOJA,"A2_NOME")
 	AADD(aEmail,{TMPSF1->F1_FORNECE,TMPSF1->F1_LOJA,cNome,SA2->A2_CGC,TMPSF1->F1_DOC,TMPSF1->F1_SERIE,DTOC(TMPSF1->F1_EMISSAO),SUBSTR(cMensagem,1,LEN(cMensagem)-1)})
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"GQREENTR")
-	U_SendMail("GQREENTR",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+
+	// Grava o anexo html
+	cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+".html"
+
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
+	//U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
 	TMPSF1->(DbCloseArea())
 ENDIF
 	        
-u_MsgLog("GQREENTR","Avaliação do fornecedor "+TRIM(cNome)+" gravada com sucesso!! - "+@CNFISCAL,"I")
+u_MsgLog(cProg,"Avaliação do fornecedor "+TRIM(cNome)+" gravada com sucesso!! - "+@CNFISCAL,"I")
 
 RETURN lOK
 

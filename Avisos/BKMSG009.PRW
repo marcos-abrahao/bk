@@ -140,7 +140,7 @@ cAssunto += ALLTRIM(STR(LEN(aEmail)))
 
 cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,cRodape)
        	
-U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.F.)
+U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.F.)
 
 // Gravar no SZ0 - Avisos Web
 u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpMCompras(),cAssunto,cAssunto,"F",cPrw+".csv")

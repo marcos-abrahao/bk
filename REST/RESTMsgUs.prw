@@ -356,11 +356,13 @@ thead input {
 <th scope="col">Assunto</th>
 <th scope="col">Data</th>
 <th scope="col">Hora</th>
+<th scope="col">Origem</th>
 </tr>
 </thead>
 <tbody id="mytable1">
 <tr>
   <th scope="col">Carregando Mensagens recebidas...</th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -469,9 +471,10 @@ if (Array.isArray(av1)) {
 	} else {
 		trHTML += '<td>'+canexo+'</td>';
 	}
-	//trHTML += '<td>'+object['MSG']+'</td>';
+
 	trHTML += '<td>'+object['DTENV']+'</td>';
 	trHTML += '<td>'+object['HRENV']+'</td>';
+	trHTML += '<td>'+object['ORIGEM']+'</td>';
 
 	trHTML += '<td>'+object['DTLIDA']+'</td>';
 	trHTML += '<td>'+object['HRLIDA']+'</td>';
@@ -486,7 +489,7 @@ if (Array.isArray(av1)) {
 		//trHTML += '<a href="#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+object['ORIGEM']+'" class="link-primary">'+object['ORIGEM']+'</a>';
 		trHTML += '<button type="button" class="btn btn-outline-success btn-sm" onclick="rotexec(\''+object['ORIGEM']+'\',1)">Atualizar: '+object['ASSUNTO']+' ('+object['ORIGEM']+')</button>';
 	} else {
-		trHTML += 'Somente para aviso fixo';
+		trHTML += object['MSG'];
 	}
 	trHTML += '</td>';
 
@@ -494,10 +497,10 @@ if (Array.isArray(av1)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+av1['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">'+av1['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable1").innerHTML = trHTML;
@@ -539,13 +542,14 @@ tableAV1 = $('#tableAV1').DataTable({
         { data: 'Assunto' },
         { data: 'Data' },
         { data: 'Hora' },
+		{ data: 'Origem' },
         { data: 'DataLida' },
         { data: 'HoraLida' },
     	{ data: 'Anexo' },
 		{ data: 'Recno' },
 		{ data: 'Status' },
 		{ data: 'Tipo' },
-		{ data: 'Origem' }
+		{ data: 'Msg' }
   ],
   "columnDefs": [
 		{
@@ -561,7 +565,7 @@ tableAV1 = $('#tableAV1').DataTable({
             targets: 6, render: DataTable.render.date()
         },
         {
-            targets: [8,9,10,11,12,13,14], visible: false, searchable: false
+            targets: [9,10,11,12,13,14,15], visible: false, searchable: false
         }
   ],
   
@@ -599,7 +603,7 @@ function format(d) {
         //'</dd>' +
 
         '<dl>' +
-        '<dt>' + d.Origem + '</dt>' +
+        '<dt>' + d.Msg + '</dt>' +
         '<dd>' +
         '</dd>' +
         '</dl>'

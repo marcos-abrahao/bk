@@ -77,7 +77,8 @@ EndDo
 
 If Len(aEmail) > 0
 	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
-	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+	u_GrvAnexo(cProg+".html",cMsg,.T.)
+	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cProg+".html"})
 EndIf
 
 QTMP->(dbCloseArea())

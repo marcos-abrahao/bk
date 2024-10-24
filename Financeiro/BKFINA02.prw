@@ -844,7 +844,10 @@ Local aCabs
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 cMsg    := u_GeraHtmA(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw)
 
-U_SendMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,cAnexo,.T.)
+cAnexo := cPrw+DTOS(Date())+STRTRAN(TIME(),":","")+".html"
+u_GrvAnexo(cAnexo,cMsg,.T.)
+
+U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,{cAnexo},.T.)
 
 Return Nil
 

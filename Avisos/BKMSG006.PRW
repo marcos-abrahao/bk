@@ -13,6 +13,7 @@ BK - Aviso de Pedidos de Venda Liberados
 User Function BKMSG006
 
 Local nE 		:= 0
+Local nI 		:= 0
 Local aEmpresas := u_BKGrpDsp()
 Local cQuery	:= ""            
 Local cAssunto	:= "Aviso de lançamentos de despesas: "
@@ -35,6 +36,7 @@ Local cFat 		:= ""
 Local cGestor	:= ""
 Local aSuper	:= {}
 Local nCont 	:= 0
+Local cFile  	:= ""
 
 Private cProg := "BKMSG006" 
 
@@ -229,7 +231,12 @@ Do While !Eof()
 
 	If Len(aEmail) > 0
 		cMsg     := u_GeraHtmA(aEmail,cAssunto + " - "+cGestor,aCabs,cProg)
-		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,.F.)
+		
+		// Grava o anexo html
+		cFile := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(nI++,2)+".html"
+		u_GrvAnexo(cFile,cMsg,.T.)		
+
+		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cFile},.F.)
 	EndIf
 EndDo
 

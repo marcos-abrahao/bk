@@ -129,11 +129,11 @@ Do While !Eof()
 		cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
 		
 		// Grava o anexo html
-		cFile := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(nI++,3)+".html"
+		cFile := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(nI++,2)+".html"
 
 		u_GrvAnexo(cFile,cMsg,.T.)
 
-		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cFile})
+¬		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cFile})
 	EndIf
 EndDo
 

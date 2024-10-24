@@ -102,7 +102,7 @@ QTMP->(dbCloseArea())
 
 If Len(aEmail) > 0
 	cMsg := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
-	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
+	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{},.F.)
 EndIf
 
 // Grava o anexo html
