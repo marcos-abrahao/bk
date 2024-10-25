@@ -97,7 +97,7 @@ cAssunto += ALLTRIM(STR(LEN(aEmail)))
 
 aCabs	:= {"Empresa","N°Pedido","Dt Entrega","Fornecedor","Nome Fornecedor","Solicitante","C.Custo","Descrição C.Custo"}
 
-cMsg	:= u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg)
+cMsg	:= u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg,cEmail,cEmailCC)
 
 cAnexo	:= cProg+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)
@@ -106,7 +106,6 @@ u_GrvAnexo(cAnexo,cMsg,.T.)
 u_BKMsgUs(cEmpAnt,cProg,{},u_GrpMCompras(),cAssunto,cAssunto,"F",cAnexo)
 u_BKMsgUs(cEmpAnt,cProg,{},u_GrpUCompras(),cAssunto,cAssunto,"F",cAnexo)
 
-//U_SendMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.F.)
 U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.F.)
 
 RestArea(aArea)

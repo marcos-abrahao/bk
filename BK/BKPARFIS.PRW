@@ -78,36 +78,39 @@ Static Function OkPar1(aDados)
 //Local oDlg as Object
 Local nI          := 0
 //Local cMask       := "Arquivos Texto" + "(*.TXT)|*.txt|"
-//Local cFile       := ""
+Local cAnexo       := ""
 Local cTabela     := ""
 Local cQuery      := ""
 Local cTexto1     := ""
+Local cProg       := "BKPARFIS"
 
-cTexto += Replicate( "-", 70 ) + CRLF
+cTexto += Replicate( "-", 77 ) + CRLF
 cTexto += " Data / Hora Inicial.: " + DtoC( Date() ) + " / " + Time()  + " - "+cUserName+ CRLF
-cTexto += Replicate( "-", 70 ) + CRLF
+cTexto += Replicate( "-", 77 ) + CRLF
 
 For nI := 1 TO LEN(aDados)
-    If !Empty(aDados[nI,1]) .AND. aDados[nI,4] <> aDados[nI,5]
         
-        cTabela := "SX6"+aDados[nI,2]+"0"
+    cTabela := "SX6"+aDados[nI,2]+"0"
 
-        cQuery := " UPDATE "+cTabela+" SET X6_CONTEUD = '"+DTOS(aDados[nI,5])+"'"+CRLF
-        cQuery += "  WHERE X6_VAR = 'MV_DATAFIS' AND D_E_L_E_T_ = ' ' "+CRLF
-        TcSqlExec(cQuery)
+    cQuery := " UPDATE "+cTabela+" SET X6_CONTEUD = '"+DTOS(aDados[nI,5])+"'"+CRLF
+    cQuery += "  WHERE X6_VAR = 'MV_DATAFIS' AND D_E_L_E_T_ = ' ' "+CRLF
+    TcSqlExec(cQuery)
 
-        cTexto1 := "Empresa: "+aDados[nI,2]+" - "+aDados[nI,3] + ": " 
-        cTexto1 += "MV_DATAFIS alterada de "+DTOC(aDados[nI,4])+" para "+DTOC(aDados[nI,5]) 
-        cTexto  += cTexto1 + CRLF
-
-        u_MsgLog("BKPARFIS",cTexto1)
-
+    cTexto1 := "Empresa: "+aDados[nI,2]+" - "+aDados[nI,3] + ": " 
+    If !Empty(aDados[nI,1]) .AND. aDados[nI,4] <> aDados[nI,5]
+        cTexto1 += "MV_DATAFIS alterada de "+DTOC(aDados[nI,4])+" para "+DTOC(aDados[nI,5])
+    Else
+        cTexto1 += "MV_DATAFIS mantida "+DTOC(aDados[nI,4])
     EndIf
+    cTexto  += cTexto1 + CRLF
+
+    //u_MsgLog(cProg,cTexto1)
+
 Next
 
-cTexto += Replicate( "-", 70 ) + CRLF
+cTexto += Replicate( "-", 77 ) + CRLF
 cTexto += " Data / Hora Final.: " + DtoC( Date() ) + " / " + Time()  + CRLF
-cTexto += Replicate( "-", 70 ) + CRLF
+cTexto += Replicate( "-", 77 ) + CRLF
 
 /*
 Define Font oFont Name "Mono AS" Size 5, 12
@@ -124,9 +127,11 @@ MemoWrite( cFile, cTexto ) ) ) Enable Of oDlg Pixel
 
 Activate MsDialog oDlg Center
 */
+cAnexo := cProg+".html"
+u_GrvAnexo(cAnexo,STRTRAN(cTexto,CRLF,"<br>"),.T.)
 
-//u_BkSnMail("BKPARFIS","Alteração de Data de Fechamento Fiscal","microsiga@bkconsultoria.com.br","",STRTRAN(cTexto,CRLF,"<br>"),)
-u_MsgLog("BKPARFIS",DTOC(dParF),"",cTexto)
+u_BkSnMail(cProg,"Alteração de Data de Fechamento Fiscal",u_GprEmail("",{},{u_GrpFisc()},{}),"",STRTRAN(cTexto,CRLF,"<br>"),{cAnexo},.T.)
+u_MsgLog(cProg,DTOC(dParF),"",cTexto)
 
 Return Nil
 

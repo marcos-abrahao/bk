@@ -33,7 +33,7 @@ If SF2->F2_CLIENTE == '000367' //.AND. SF2->F2_VLCPM > 0
 	cMsg += 'Será necessária a geração de guia de recolhimento do ISS para esta NF na Prefeitura do Rio de Janeiro no valor de R$ '+ ALLTRIM(TRANSFORM(SF2->F2_VLCPM,"@E 999,999,999.99"))+"."+CRLF+CRLF
 	cMsg += 'Atenção: Inclua um Documento Financeiro para pagamento.'
 
-	u_BkSnMail("MTASF2","Nota Fiscal "+SF2->F2_DOC+" emitida para o Ministério Públido do RJ",cEmailTO,cEmailCC,cMsg,)
+	u_BkSnMail("MTASF2","Nota Fiscal "+SF2->F2_DOC+" emitida para o Ministério Públido do RJ",cEmailTO,cEmailCC,cMsg)
 
 EndIf
 */

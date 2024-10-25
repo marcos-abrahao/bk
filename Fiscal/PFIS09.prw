@@ -1047,7 +1047,7 @@ If nHandle > 0
    IF nOP == 1   
 		u_WaitLog("PFIS09", {|| ShellExecute("open", cArqTmp,"","",1)},"O arquivo "+cArqTmp+" será aberto no MsExcel")
    ELSE
-		U_SENDMAIL("PFIS09","Backup PIS COFINS","adilson@rkainformatica.com.br;","","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),cArqTmp,.T.)
+		U_BkSnMail("PFIS09","Backup PIS COFINS",u_EmailAdm(),"","Segue anexo BACKUP PIS COFINS"+DTOC(DATE())+TIME(),{cArqTmp},.T.)
    ENDIF
 Else
    u_MsgLog("PFIS09","Falha na criação do arquivo "+cArqTmp,"E")

@@ -842,7 +842,7 @@ Local cAnexo   := ""
 Local aCabs
 
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
-cMsg    := u_GeraHtmA(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw)
+cMsg    := u_GeraHtmA(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw,cEmail,cEmailCC)
 
 cAnexo := cPrw+DTOS(Date())+STRTRAN(TIME(),":","")+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)

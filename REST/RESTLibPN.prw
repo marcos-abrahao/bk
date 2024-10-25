@@ -502,6 +502,7 @@ Local aCabs   	:= {}
 Local aEmail 	:= {}
 Local cMsg		:= ""
 Local cAssunto	:= ""
+Local cAnexo	:= ""
 
 If acao == "E"
 	cAssunto := "Não liberação (estorno)"
@@ -534,9 +535,11 @@ aEmail 	:= {}
 AADD(aEmail,{"Reprovador:"+UsrFullName(__cUserId)})
 AADD(aEmail,{cMotivo})
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"RESTLIBPN")
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"RESTLIBPN",cEmail,cEmailCC)
+cAnexo := "RESTLIBPN"+alltrim(cDoc)+".html"
+u_GrvAnexo(cAnexo,cMsg,.T.)
 
-U_BkSnMail("RESTLIBPN",cAssunto,cEmail,cEmailCC,cMsg)
+U_BkSnMail("RESTLIBPN",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 Return Nil
 

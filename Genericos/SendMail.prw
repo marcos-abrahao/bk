@@ -119,6 +119,13 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
  
         //Percorre os anexos
         For nAtual := 1 To Len(aAnexos)
+            //Se o arquivo não existir, procura na pasta tmp
+            If !File(aAnexos[nAtual])
+                If !(":" $ aAnexos[nAtual]) .AND. !("/" $ aAnexos[nAtual])
+                    aAnexos[nAtual] := U_STmpDir()+aAnexos[nAtual]
+                EndIf
+            EndIf
+
             //Se o arquivo existir
             If File(aAnexos[nAtual])
 

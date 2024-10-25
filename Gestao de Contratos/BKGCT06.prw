@@ -574,7 +574,7 @@ If lEmail
 	P1BKGCT06()
 	
 	// Envia o Email
-	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
+	u_BkSnMail("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,{_cArqSv},.T.)
 	
 EndIf
 
@@ -883,7 +883,7 @@ If lEmail
 	P1BKGCT06()     
 	
 	// Envia o email
-	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
+	u_BkSnMail("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,{_cArqSv},.T.)
 EndIf
 	
 Return Nil
@@ -928,8 +928,6 @@ aCampos := {}
 aFHtm   := {}
 aFTxt   := {}
 aCabH   := ""
-
-
  
 AADD(aCampos,"QCN9->A1_NOME")
 AADD(aCabs  ,"Cliente")
@@ -1163,7 +1161,7 @@ cAssunto := "Alerta de término de vigencia de contratos - "+FWEmpName(cEmpAnt)
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P1BKGCT06()
 
-U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
+u_BkSnMail("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,{_cArqSv},.T.)
 
 Return Nil
 
@@ -1809,7 +1807,7 @@ IF lEmail
 	P1BKGCT06()
 	
 	// Envia o email
-	U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
+	u_BkSnMail("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,{_cArqSv},.T.)
 ENDIF   
 
 Return Nil
@@ -2253,7 +2251,7 @@ cAssunto := "Aviso de Insumos Operacionais - "+FWEmpName(cEmpAnt)
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P1BKGCT06()
 
-U_SENDMAIL("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,_cArqSv,.T.)
+u_BkSnMail("BKGCT06",cAssunto,cEmailTO,cEmailCC,cMsg,{_cArqSv},.T.)
 
 Return Nil
 
@@ -2603,9 +2601,12 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Contrato","Revisao","Descr. CC","Responsavel","Inicio Vigencia","Fim Vigencia","Data Aviso","Aviso","Status"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V6BKGct06")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V6BKGct06",cEmail,cEmailCC)
 
-	U_SendMail("V6BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+	cAnexo := "V6BKGct06.html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+
+	u_BkSnMail("V6BKGct06",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 ENDIF
 
@@ -2689,9 +2690,12 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Contrato","Revisao","Descr.CC","Responsavel","Vig.Caução","Data Aviso","Aviso"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V7BKGct06")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V7BKGct06",cEmail,cEmailCC)
 
-	U_SendMail("V7BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+	cAnexo := "V7BKGct06.html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)	
+
+	U_BkSnMail("V7BKGct06",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 ENDIF
 
@@ -2783,9 +2787,12 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Contrato","Revisao","Descr.CC","Responsavel","Doc. Seg. Trab","Data","Aviso"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V8BKGct06")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V8BKGct06",cEmail,cEmailCC)
 
-	U_SendMail("V8BKGct06",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+	cAnexo := "V8BKGct06.html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+
+	u_BkSnMail("V8BKGct06",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 ENDIF
 
@@ -2858,9 +2865,13 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Empresa","N° Pedido","C.Custo","Descrição C.Custo","Valor Total","Solicitante","Fornecedor","Nome Fornecedor"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw)
+	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,cEmail,cEmailCC)
 
-	U_SendMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+
+	cAnexo := cPrw+".html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)	
+
+	u_BkSnMail(cPrw,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 ENDIF
 

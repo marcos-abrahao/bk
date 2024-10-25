@@ -994,7 +994,7 @@ IF LEN(aEmail) > 0
 
  	cMsg    := u_GeraHtmA(aEmail,cAssunto+": "+SZP->ZP_NUMERO+" - "+DTOC(DATE())+" "+TIME()+" - Para: "+cNomeQuem,aCabs,"MAILSZP")
 
-	U_SendMail("MAILSZP","Aviso Plano de Ação - "+cAssunto+": "+SZP->ZP_NUMERO+" - Para: "+cNomeQuem,cEmail,cEmailCC,cMsg,cAnexo,.F.)
+	u_BkSnMail("MAILSZP","Aviso Plano de Ação - "+cAssunto+": "+SZP->ZP_NUMERO+" - Para: "+cNomeQuem,cEmail,cEmailCC,cMsg,{cAnexo},.F.)
 
 ENDIF
 
@@ -1092,7 +1092,7 @@ IF LEN(aEmail) > 0
 	cMsg2   := STRTRAN(cMsg2,'<p align=center style="text-align:center"><img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0></p>',"")
     cMsg	+= cMsg2
 
-	U_SendMail("MAILFIMSZP",cAssunto+" - Para:"+cNomeQuem,cEmail,cEmailCC,cMsg,cAnexo,.F.)
+	u_BkSnMail("MAILFIMSZP",cAssunto+" - Para:"+cNomeQuem,cEmail,cEmailCC,cMsg,{cAnexo},.F.)
 
 ENDIF
 

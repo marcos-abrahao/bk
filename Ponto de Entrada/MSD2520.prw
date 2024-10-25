@@ -33,7 +33,7 @@ Local cEmail    := ""
 Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {}
 Local aEmail 	:= {}
-Local aAnexos   := {}
+Local cAnexo    := ""
 Local cMsg		:= ""
 Local cAssunto  := ""
 Local cContra   := ""
@@ -58,7 +58,11 @@ AADD(aEmail,{"Contrato   : "+cContra+" - "+Posicione("CTT",1,xFilial("CTT")+cCon
 AADD(aEmail,{"Competencia: "+SC5->C5_XXCOMPM})
 AADD(aEmail,{"Valor      : "+ALLTRIM(TRANSFORM(nTotal,"@E 99,999,999,999.99"))})
 AADD(aEmail,{"Observações: "+"Anexos serão enviados novamente após nova liberação do pedido"})
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MSD2520")
-U_BkSnMail("MSD2520",cAssunto,cEmail,cEmailCC,cMsg,aAnexos)
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MSD2520",cEmail,cEmailCC)
+
+cAnexo  := {"MSD2520"+alltrim(SD2->D2_DOC)+".html"}
+u_GrvAnexo(cAnexo,cMsg,.T.)
+
+U_BkSnMail("MSD2520",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 Return Nil

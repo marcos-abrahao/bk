@@ -237,7 +237,9 @@ cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM",cRodape)
 //	cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
 //ENDIF
 
-U_SendMail("MT110CFM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+cAnexo := "MT110CFM"+alltrim(cNumSol)+".html"
+u_GrvAnexo(cAnexo,cMsg,.T.)	
+u_BkSnMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 u_MsgLog("MT110CFM",cAssunto+" - Opção: "+cValToChar(nOpcSel)+" - "+cEmail)
 

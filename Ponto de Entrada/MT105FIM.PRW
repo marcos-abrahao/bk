@@ -53,8 +53,11 @@ IF DBSEEK(xFilial("SCP")+cSOLALMOX+"01",.T.)
  		SCP->(dbskip())
 	Enddo
 	
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT105FIM")
-	U_SendMail("MT105FIM",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT105FIM",cEmail,cEmailCC)
+
+	cAnexo := "MT105FIM"+alltrim(cSOLALMOX)+".html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)	
+	u_BkSnMail("MT105FIM",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 ENDIF
 
 IF nOpcap  == 3

@@ -160,9 +160,11 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 	    ENDIF
 
 		//cMsg    := "Solicitação de Liberação divergência com o pedido de compras Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+" Cod.For.:"+SF1->F1_FORNECE+" Loja:"+SF1->F1_LOJA+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
-		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT140SAI")
+		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT140SAI",cEmail,cEmailCC)
 		cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
-		U_SendMail("MT140SAI",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+		cAnexo := "MT140SAI"+alltrim(SF1->F1_DOC)+".html"
+		u_GrvAnexo(cAnexo,cMsg,.T.)	
+		u_BkSnMail("MT140SAI",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
    
    ENDIF
    IF ParamIxb[1] == 5

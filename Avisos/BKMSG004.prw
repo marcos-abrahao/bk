@@ -77,7 +77,7 @@ Do While !Eof()
 	dbSkip()
 EndDo
 
-cMsg   := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+cMsg   := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,cEmail,cEmailCC)
 U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg)
 
 // Grava o anexo html

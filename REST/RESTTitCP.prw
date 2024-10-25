@@ -370,7 +370,7 @@ If lRet
 	AADD(aEmail,{"","","<b>Pendência:</b>","<b>"+cMsFin+"</b>"})
 	If Len(aEmail) > 0
 		cEmail := UsrRetMail((cQrySF1)->F1_XXUSER)+";"+UsrRetMail((cQrySF1)->F1_XXUSERS)+";"+UsrRetMail(__cUserID)
-		cCorpo := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg)
+		cCorpo := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,cEmail,cEmailCC)
 		U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cCorpo)
 	EndIf
 

@@ -3,7 +3,7 @@
 
 // Funcão para gerar texto Html
 
-User Function GeraHtmA(aDet,cTitulo,aCabs,cPrw,cRodape)
+User Function GeraHtmA(aDet,cTitulo,aCabs,cPrw,cRodape,cEmail,cEmailCC)
 Local cMsg := ""
 Local _ni,_nJ
 Local lCorNao := .T.
@@ -11,6 +11,8 @@ Local cPicN   := "@E 99999999.99"
 Local cAlign  := ""
 Default cPrw  := ""
 Default cRodape := ""
+Default cEmail := ""
+Default cEmailCC := ""
 
 cMsg += CabHtml(cTitulo)  
 cMsg += Cab1Html(aCabs)
@@ -48,7 +50,7 @@ For _nJ := 1 TO LEN(aDet)
 	
 Next _nJ
 
-cMsg += FimHtml(cPrw,cRodape)
+cMsg += FimHtml(cPrw,cRodape,cEmail,cEmailCC)
 
 Return cMsg
 
@@ -149,10 +151,12 @@ Return cHtm
 
 
 
-Static Function FimHtml(cPrw,cRodape)
-Local cHtm   := ""
-Local cUser  := ""
-Default cPrw := ""
+Static Function FimHtml(cPrw,cRodape,cEmail,cEmailCC)
+Local cHtm        := ""
+Local cUser       := ""
+Default cPrw      := ""
+Default cEmail    := ""
+Default cEmailCC  := ""
 
 If ValType(cUserName) == "U"
    cUser := "Admin"
@@ -165,6 +169,16 @@ cHtm += '</table>'
 If !EMPTY(cRodape) 
    cHtm += '<br>'
 	cHtm += TRIM(cRodape)
+EndIf
+
+If !EMPTY(cEmail)
+   cHtm += '<br>'
+	cHtm += '<p class="F8A">Para: '+TRIM(cEmail)
+EndIf
+
+If !EMPTY(cEmailCC) 
+   cHtm += '<br>'
+	cHtm += '<p class="F8A">CC: '+TRIM(cEmailCC)
 EndIf
 
 If !EMPTY(cPrw) 

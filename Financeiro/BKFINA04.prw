@@ -329,7 +329,7 @@ Local cEmail2  := u_BKPgto2()
 Local cCC      := u_EmailAdm()
 Local cAssunto := "Pagamentos não Efetuados "+DTOC(DATE())+"-"+TIME()
 Local aCabs    := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
-Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw)
+Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw,cEmail2,cEmail1)
 
 // Grava o anexo html
 u_GrvAnexo(cPrw+".html",cMsg,.T.)

@@ -25,11 +25,12 @@ Local aEmail	:= {}
 //Local aUser     := {}
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni
-Local cPrw		:= "BKMSG009"
-Local aBKGrupo  := {}
+Local cProg		:= "BKMSG009"
+Local aBKGrupo  := u_BKGrupo()
 Local nE		:= 0
 Local mCSV 		:= ""
 Local cAnexo 	:= ""
+Local cAnexo1 	:= ""
 Local cRodape   := ""
 Local aUsers 	:= {}
 Local aGrupos 	:= {u_GrpMCompras(),u_GrpUCompras()}
@@ -38,11 +39,11 @@ Local aDeptos 	:= {}
 lJobV2 := IsBlind()
 
 If FWCodEmp() <> "01"
-	u_MsgLog(cPrw,"Esta Funcao Rodar somente na empresa 01","I")
+	u_MsgLog(cProg,"Esta Funcao Rodar somente na empresa 01","I")
 	Return Nil
 EndIf
 
-u_MsgLog("BKMSG009",cAssunto)
+u_MsgLog(cProg,cAssunto)
 
 cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
 
@@ -63,29 +64,30 @@ Enddo
 
 For nE := 1 To Len(aBKGrupo)
 
-	cQuery := "SELECT C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV"
-	cQuery += " FROM SC1"+aBKGrupo[nE,1]+"0 SC1"
-	cQuery += " LEFT JOIN SB1"+aBKGrupo[nE,1]+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD =C1_PRODUTO"
-	cQuery += " LEFT JOIN CTT"+aBKGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC =CTT_CUSTO"
-	cQuery += " LEFT JOIN SC8"+aBKGrupo[nE,1]+"0 SC8 ON SC8.D_E_L_E_T_='' AND C8_NUM=C1_COTACAO AND C8_ITEMSC=C1_ITEM"
-	cQuery += " WHERE SC1.D_E_L_E_T_=''"  
-	cQuery += " AND C1_RESIDUO='' AND C1_APROV<>'B'"
-	cQuery += " AND C1_QUJE<C1_QUANT "
-	cQuery += " AND C8_NUMSC IS NULL"
-	cQuery += " GROUP BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" 
-	cQuery += " ORDER BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV"
- 
+	cQuery := "SELECT C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_NUM,C1_ITEM,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" + CRLF
+	cQuery += " FROM SC1"+aBKGrupo[nE,1]+"0 SC1" + CRLF
+	cQuery += " LEFT JOIN SB1"+aBKGrupo[nE,1]+"0 SB1 ON SB1.D_E_L_E_T_='' AND B1_COD = C1_PRODUTO" + CRLF
+	cQuery += " LEFT JOIN CTT"+aBKGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C1_CC = CTT_CUSTO" + CRLF
+	cQuery += " LEFT JOIN SC8"+aBKGrupo[nE,1]+"0 SC8 ON SC8.D_E_L_E_T_='' AND C8_NUM= C1_COTACAO AND C8_ITEMSC=C1_ITEM" + CRLF
+	cQuery += " WHERE SC1.D_E_L_E_T_=''"   + CRLF
+	cQuery += " AND C1_RESIDUO='' AND C1_APROV<>'B'" + CRLF
+	cQuery += " AND C1_QUJE < C1_QUANT " + CRLF
+	cQuery += " AND C8_NUMSC IS NULL" + CRLF
+	cQuery += " GROUP BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" + CRLF
+	cQuery += " ORDER BY C1_NUM,C1_ITEM,C1_SOLICIT,C1_EMISSAO,C1_DATPRF,C1_PRODUTO,B1_DESC,C1_UM,C1_QUANT,C1_QUJE,C1_CC,CTT_DESC01,C1_XDTAPRV" + CRLF
 	
 	TCQUERY cQuery NEW ALIAS "QSC1"
 	TCSETFIELD("QSC1","C1_EMISSAO","D",8,0)
 	TCSETFIELD("QSC1","C1_DATPRF","D",8,0)
 	TCSETFIELD("QSC1","C1_XDTAPRV","D",8,0)
 
+	u_LogMemo(cProg+TRIM(aBKGrupo[nE,3])+".SQL",cQuery)
+
 	(_cAlias)->(dbgotop())
 
 	Do While (_cAlias)->(!eof())
 	
- 		IF DATE() - QSC1->C1_EMISSAO > 7 // Alterado de 2 para 7, a pedido da Sra. Michele Moraes em 31/01/2019 
+ 		IF DATE() - QSC1->C1_EMISSAO > 2 // 7 // Alterado de 2 para 7, a pedido da Sra. Michele Moraes em 31/01/2019 
   			AADD(aEmail,{aBKGrupo[nE,3],;
    	   					(_cAlias)->C1_SOLICIT,;
    	   					(_cAlias)->C1_EMISSAO,;
@@ -109,9 +111,10 @@ For nE := 1 To Len(aBKGrupo)
 
 Next
 
+aCabs   := {"Empresa","Solicitante","Emissao","Limite Entrega","Solicitação N°","Item","Cod. Produto","Desc. Produto","Un.","Quant.","Qtd. Entregue","Contrato","Descrição Contrato","Aprov."}
+
 IF LEN(aEmail) > 0
 
-	aCabs   := {"Empresa","Solicitante","Emissao","Limite Entrega","Solicitação N°","Item","Cod. Produto","Desc. Produto","Un.","Quant.","Qtd. Entregue","Contrato","Descrição Contrato","Aprov."}
 	FOR _ni := 1 TO LEN(aCabs)
 		mCSV += aCabs[_ni] + IIF(_ni < LEN(aCabs),";","")
 	NEXT
@@ -123,12 +126,9 @@ IF LEN(aEmail) > 0
 		mCSV += cLinha+cCrLf
 	NEXT
 
+	cAnexo1 := u_GrvAnexo(cProg+".csv",mCSV, .T.)
+
 ENDIF
-
-cAnexo := u_GrvAnexo(cPrw+".csv",mCSV, .T.)
-
-aCabs  := {"Arquivo"}
-aEmail := {}
 
 If LEN(aEmail) > 0
 	cRodape := "Segue arquivo anexo"
@@ -138,13 +138,13 @@ EndIf
 
 cAssunto += ALLTRIM(STR(LEN(aEmail)))
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,cRodape)
-       	
-U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.F.)
+cMsg   := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg,cRodape,cEmail,cEmailCC)
+cAnexo := u_GrvAnexo(cProg+".html",cMsg, .T.)
+U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo1},.F.)
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpMCompras(),cAssunto,cAssunto,"F",cPrw+".csv")
-u_BKMsgUs(cEmpAnt,cPrw,{},u_GrpUCompras(),cAssunto,cAssunto,"F",cPrw+".csv")
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpMCompras(),cAssunto,cAssunto,"F",cAnexo)
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpUCompras(),cAssunto,cAssunto,"F",cAnexo)
 
 RestArea(aArea)
 

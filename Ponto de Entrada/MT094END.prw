@@ -113,23 +113,28 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	u_xxLog(u_SLogDir()+"MT094END.LOG","1-"+cEmail) 
 	       
 	RecLock("SF1",.F.)
+	cAssunto := "("+STR(nOpcao,1)+") "
 	IF nOpcao = 5  //3
-		cAssunto:= "Bloqueada"
+		cAssunto+= "Bloqueada a "
 		SF1->F1_XXLIB  := "B"
 	ELSE
-		cAssunto:= "Liberada"
+		cAssunto+= "Liberada a "
 		SF1->F1_XXLIB  := "L"
 	ENDIF
 	MsUnLock("SF1")
                                                                                                 
-	cAssunto += " a classificação da Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto += "Classificação da Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 
 	aCabs   := {"Nota Fiscal nº.:","Série:"," Cod.For.:"," Loja:","Valor:","Usuário"}
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
 
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END")
 	cEmail  := STRTRAN(cEmail,';;',';')
-	U_SendMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+
+	cAnexo := "MT094END"+ALLTRIM(SF1->F1_DOC)+".html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+
+	u_BkSnMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 	Return Nil
 ENDIF
@@ -370,13 +375,16 @@ u_xxLog(u_SLogDir()+"MT094END.LOG","7-"+cEmail)
 
 aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END")
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END",cEmail,cEmailCC)
 
 cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 
 cEmail  := STRTRAN(cEmail,';;',';')
 
-U_SendMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+cAnexo := "MT094END"+ALLTRIM(cNumPC)+".html"
+u_GrvAnexo(cAnexo,cMsg,.T.)
+
+u_BkSnMail("MT094END",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 Return nil
 

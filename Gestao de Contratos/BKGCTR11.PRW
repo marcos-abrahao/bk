@@ -4016,9 +4016,9 @@ User Function BK2GCTR11(lJob,aAglContr)
 	Private titulo      := "Rentabilidade dos Contratos"
 	Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 	Private aContratos 	:= {}
-	PRIVATE lConsorcio  := .F.
+	Private lConsorcio  := .F.
 	Private cPerg       := "BK2GCTR11"
-
+	Private lSqlLite 	:= .T.
 	PRIVATE dDataInicio := dDatabase
 	PRIVATE dDataI		:= dDatabase
 	PRIVATE dDataFinal  := dDatabase

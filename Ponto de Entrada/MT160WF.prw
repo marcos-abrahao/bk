@@ -206,17 +206,24 @@ FOR IX_ := 1 TO LEN(aPedido)
 	ENDIF
 	
 	aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT160WF")
+	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT160WF",cEmail,cEmailCC)
 	cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
-	
-	U_SendMail("MT160WF",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+
+	cAnexo := "MT160WF"+alltrim(cNumPC)+"a.html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+
+	u_BkSnMail("MT160WF",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 	//Pedido de Compras para Almoxarifado    
 
 	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+" Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
-	cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT160WF")
-	U_SendMail("MT160WF",cAssunto,cAlEmail,cEmailCC,cMsg,"",.T.)
+	cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT160WF",cAlEmail,cEmailCC)
+
+	cAnexo := "MT160WF"+alltrim(cNumPC)+"b.html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+
+	u_BkSnMail("MT160WF",cAssunto,cAlEmail,cEmailCC,cMsg,{cAnexo},.T.)
 	
 NEXT
 

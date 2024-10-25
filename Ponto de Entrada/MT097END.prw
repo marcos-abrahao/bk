@@ -88,8 +88,10 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	aCabs   := {"Nota Fiscal nº.:","Série:"," Cod.For.:"," Loja:","Valor:","Usuário"}
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT097END")
-	U_SendMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT097END",cEmail,cEmailCC)
+	cAnexo := "MT097END"+alltrim(SF1->F1_DOC)+".html"
+	u_GrvAnexo(cAnexo,cMsg,.T.)
+	u_BkSnMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 	Return Nil
 ENDIF
@@ -309,11 +311,14 @@ u_xxLog(u_SLogDir()+"MT097END.LOG","7-"+cEmail)
 
 aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT097END")
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT097END",cEmail,cEmailCC)
 
 cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 
-U_SendMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+cAnexo := "MT097END"+alltrim(SF1->cNumPC)+".html"
+u_GrvAnexo(cAnexo,cMsg,.T.)
+
+u_BkSnMail("MT097END",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 
 Return nil

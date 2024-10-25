@@ -240,9 +240,13 @@ Else
 EndIf
 
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"A103BLOQ")
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"A103BLOQ",cEmail,cEmailCC)
 cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
-U_SendMail("A103BLOQ",cAssunto,cEmail,cEmailCC,cMsg,cAnexo,.T.)
+
+cAnexo := "A103BLOQ.html"
+u_GrvAnexo(cAnexo,cMsg,.T.)
+
+u_BkSnMail("A103BLOQ",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 u_MsgLog("A103BLOQ",cAssunto)
 

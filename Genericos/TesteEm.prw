@@ -41,8 +41,8 @@ u_GrvAnexo(cAnexo,cMsg,.T.)
 @ 200,01 TO 285,450 DIALOG oDlg1 TITLE "Teste de envio de email"
 @ 15,015 SAY "Email: "
 @ 15,046 GET cEmail SIZE 180,10
-@ 30,060 BMPBUTTON TYPE 01 ACTION ( U_SendMail(cPrw,cAssunto,TRIM(cEmail),cCc,cMsg,cAnexo,.T.), u_MsgLog("SendMail","Teste SendMail","I"))
-@ 30,110 BMPBUTTON TYPE 01 ACTION ( U_BkSnMail(cPrw,cAssunto,TRIM(cEmail),cCc,cMsg,{cAnexo},.T.),u_MsgLog("BkSnMail","Teste BkSnMail","I") )
+@ 30,060 BMPBUTTON TYPE 01 ACTION ( u_BkSnMail(cPrw,cAssunto,TRIM(cEmail),cCc,cMsg,{cAnexo},.T.),u_MsgLog("BkSnMail","Teste BkSnMail","I") )
+//@ 30,110 BMPBUTTON TYPE 01 ACTION ( U_SendMail(cPrw,cAssunto,TRIM(cEmail),cCc,cMsg,cAnexo,.T.), u_MsgLog("SendMail","Teste SendMail","I"))
 
 @ 30,160 BMPBUTTON TYPE 02 ACTION Close(Odlg1)
 

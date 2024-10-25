@@ -57,11 +57,13 @@ u_WaitLog("PC5Email", {|| SC5Email(.T.)},"Reenviando e-mail com anexos da compet
 Return Nil
 
 Static Function SC5Email(lReenvio)
+Local cProg     := "MT440GR"
 Local cEmail    := ""
 Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {}
 Local aEmail 	:= {}
 Local aAnexos   := {}
+Local cAnexo    := {}
 Local cMsg		:= ""
 Local cAssunto  := ""
 Local cContra   := ""
@@ -112,8 +114,15 @@ If LEN(aAnexos) == 0
     AADD(aEmail,{"Atenção    : ","não foram anexados arquivos para este contrato/competência","",""})
 EndIf
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT440GR")
-U_BkSnMail("MT440GR",cAssunto,cEmail,cEmailCC,cMsg,aAnexos)
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,cEmail,cEmailCC)
+
+U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,aAnexos,.F.)
+
+cAnexo := cProg+alltrim(cPedido)+".html"
+u_GrvAnexo(cAnexo,cMsg,.T.)
+
+// Gravar no SZ0 - Avisos Web
+u_BKMsgUs(cEmpAnt,cProg,{__cUserId,SUBSTR(EMBARALHA(SC5->C5_USERLGI,1),3,6)},u_GrpFat(),cAssunto,cAssunto,"N",cAnexo)
 
 SC6->(RestArea(aAreaSC6))
 
