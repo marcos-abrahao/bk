@@ -232,7 +232,7 @@ ENDIF
 
 cAssunto:= "Solicitação de Compra nº.:"+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue","Vl Previsto","Tot Previsto"}//"Motivo"}
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM",cRodape)
+cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM","",cRodape)
 //IF 	!EMPTY(_cXXENDEN)
 //	cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
 //ENDIF

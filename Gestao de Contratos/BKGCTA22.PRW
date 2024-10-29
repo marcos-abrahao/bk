@@ -994,7 +994,7 @@ IF LEN(aEmail) > 0
 
  	cMsg    := u_GeraHtmA(aEmail,cAssunto+": "+SZP->ZP_NUMERO+" - "+DTOC(DATE())+" "+TIME()+" - Para: "+cNomeQuem,aCabs,"MAILSZP")
 
-	u_BkSnMail("MAILSZP","Aviso Plano de Ação - "+cAssunto+": "+SZP->ZP_NUMERO+" - Para: "+cNomeQuem,cEmail,cEmailCC,cMsg,{cAnexo},.F.)
+	u_BkSnMail("MAILSZP","Aviso Plano de Ação - "+cAssunto+": "+SZP->ZP_NUMERO+" - Para: "+cNomeQuem,"",cEmail,cEmailCC,cMsg,{cAnexo},.F.)
 
 ENDIF
 

@@ -126,7 +126,7 @@ Do While !Eof()
 			cEmailCC += ALLTRIM(aStaf[nE,2])+";"
 		Next
 
-		cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,cEmail,cEmailCC)
+		cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 		
 		// Grava o anexo html
 		cFile := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(nI++,2)+".html"

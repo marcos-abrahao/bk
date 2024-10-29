@@ -44,7 +44,7 @@ nLin += 25
 @ nLin,070 MSGET oGetChv VAR cChvNfe OF oPanelLeft PICTURE "@!" SIZE 130,10 PIXEL 
 nLin += 25
 
-ACTIVATE MSDIALOG oDlg CENTERED Valid(u_ConsNfe(cChvNfe,cEspecie,SF1->F1_SERIE)) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F.,oDlg:End()}, , @aButtons)
+ACTIVATE MSDIALOG oDlg CENTERED Valid(u_ConsNfe(cChvNfe,cEspecie,SF1->F1_SERIE,"N")) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F.,oDlg:End()}, , @aButtons)
 
 If ( lOk )
 

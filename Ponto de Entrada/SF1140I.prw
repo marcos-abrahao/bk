@@ -529,7 +529,7 @@ If lRet
 
 	// Validação da Chave NFE
 	If !Empty(cEspecie)
-		If !u_ConsNfe(cChvNfe,cEspecie,SF1->F1_SERIE) 
+		If !u_ConsNfe(cChvNfe,cEspecie,SF1->F1_SERIE,SF1->F1_FORMUL) 
 			oGetChv:Setfocus()
 			lRet := .F.
 		EndIf
@@ -539,12 +539,12 @@ EndIf
 Return lRet
 
 
-User Function ConsNfe(cChvNfe,cEspecie,cSerie)
+User Function ConsNfe(cChvNfe,cEspecie,cSerie,cFormul)
 Local lRet := .T.
 Local aAreaSA2 := SA2->(GetArea())
 Local cCNPJ := ""
 
-If !Empty(cEspecie)
+If !Empty(cEspecie) .AND. cFormul <> "S"
 	If ("|"+(ALLTRIM(UPPER(cEspecie))+"|")) $ "|SPED|BPE|CTE|CTEOS|NF3E|NFA|"   // MV_CHVESPE
 		If Empty(cChvNfe)
 			u_MsgLog("SF1140I","Chave da NFe deve ser obrigatoriamente digitada","E")

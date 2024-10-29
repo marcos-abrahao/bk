@@ -36,7 +36,7 @@ User Function BKDANFE(cNota, cSerie, cPasta)
     Private oRetNF
     Private nColAux
 
-    Default cNota   := "000000018"
+    Default cNota   := "000000024"
     Default cSerie  := "2  "
     Default cPasta  := u_LTmpDir()
        
@@ -55,15 +55,15 @@ User Function BKDANFE(cNota, cSerie, cPasta)
         u_zSpedXML(cNota, cSerie, cPasta + cArquivo  + ".xml", .F.)
            
         //Define as perguntas da DANFE
-        Pergunte("NFSIGW",.F.)
         MV_PAR01 := PadR(cNota,  nTamNota)     //Nota Inicial
         MV_PAR02 := PadR(cNota,  nTamNota)     //Nota Final
         MV_PAR03 := PadR(cSerie, nTamSerie)    //Série da Nota
-        MV_PAR04 := 2                          //NF de Saida
+        MV_PAR04 := 1                          //NF de Saida=2
         MV_PAR05 := 1                          //Frente e Verso = Sim
         MV_PAR06 := 2                          //DANFE simplificado = Nao
         MV_PAR07 := dDataDe                    //Data De
         MV_PAR08 := dDataAt                    //Data Até
+        Pergunte("NFSIGW",.T.)
            
         //Cria a Danfe
         oDanfe := FWMSPrinter():New(cArquivo, IMP_PDF, .F., , .T.)

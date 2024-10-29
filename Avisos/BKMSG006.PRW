@@ -230,7 +230,7 @@ Do While !Eof()
 	cEmail += ";"+u_aUsrEmail(aSuper,cEmail)
 
 	If Len(aEmail) > 0
-		cMsg     := u_GeraHtmA(aEmail,cAssunto + " - "+cGestor,aCabs,cProg,cEmail,cEmailCC)
+		cMsg     := u_GeraHtmA(aEmail,cAssunto + " - "+cGestor,aCabs,cProg,"",cEmail,cEmailCC)
 		
 		// Grava o anexo html
 		cFile := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(nI++,2)+".html"

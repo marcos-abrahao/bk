@@ -5,7 +5,7 @@ User Function TesteEm()
 Private cPrw     := "TesteEm"
 Private cAssunto := "Teste"
 Private cEmail   := PAD(u_EmailAdm(),100)
-Private cCC      := ""
+Private cCC      := "marcos.abrahao@bkconsultoria.com.br"
 Private cMsg     := "Teste "+DTOC(DATE())+"-"+TIME() 
 Private cAnexo   := u_STmpDir()+"TesteEm.html"
 
@@ -17,7 +17,7 @@ dbSelectArea("SZ2")
 dbGoBottom()
 dbSkip(-5)
 
-AADD(aDet,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,"Obs"})
+AADD(aDet,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,"Observacoes xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"})
 dbSkip()
 
 AADD(aDet,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,"Observacoes xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"})
@@ -35,7 +35,7 @@ dbSkip()
 cTitulo := "Teste de email "
 aCabs := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs."}
 
-cMsg := u_GeraHtmA(aDet,cTitulo,aCabs,ProcName(1))
+cMsg := u_GeraHtmA(aDet,cTitulo,aCabs,ProcName(1),"Teste rodape",cEmail,cCC)
 u_GrvAnexo(cAnexo,cMsg,.T.)
 
 @ 200,01 TO 285,450 DIALOG oDlg1 TITLE "Teste de envio de email"

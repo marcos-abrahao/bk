@@ -76,7 +76,7 @@ Do While !Eof()
 EndDo
 
 If Len(aEmail) > 0
-	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,cEmail,cEmailCC)
+	cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 	u_GrvAnexo(cProg+".html",cMsg,.T.)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cProg+".html"})
 EndIf

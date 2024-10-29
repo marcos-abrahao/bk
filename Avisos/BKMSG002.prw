@@ -155,7 +155,7 @@ Do While !Eof()
 EndDo
 
 cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
-cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,cEmail,cEmailCC)
+cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 
 If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,,.F.)

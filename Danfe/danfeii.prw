@@ -18,7 +18,8 @@
 #DEFINE MAXITEMP2F 069					// Máximo de produtos para a página 2 em diante quando a página não possui informações complementares
 #DEFINE MAXITEMP3  025					// Máximo de produtos para a pagina 2 em diante (caso utilize a opção de impressao em verso) - Tratamento implementado para atender a legislacao que determina que a segunda pagina de ocupar 50%.
 // DMAF MAXITEMC 035 --> 060
-#DEFINE MAXITEMC   060					// Máxima de caracteres por linha de produtos/serviços
+// DMAF MAXITEMC 060 --> 048
+#DEFINE MAXITEMC   048					// Máxima de caracteres por linha de produtos/serviços
 #DEFINE MAXMENLIN  080					// Máximo de caracteres por linha de dados adicionais
 #DEFINE MAXMSG     013					// Máximo de dados adicionais por página
 // DMAF MAXVALORC 009 --> 012
@@ -1153,7 +1154,7 @@ If nTipo <> 1
 	PRIVATE oFont10N   := TFontEx():New(oDanfe,"Times New Roman",08,08,.T.,.T.,.F.)// 1
 	PRIVATE oFont07N   := TFontEx():New(oDanfe,"Times New Roman",06,06,.T.,.T.,.F.)// 2
 	PRIVATE oFont07    := TFontEx():New(oDanfe,"Times New Roman",06,06,.F.,.T.,.F.)// 3
-	PRIVATE oFont08    := TFontEx():New(oDanfe,"Times New Roman",07,07,.F.,.T.,.F.)// 4
+	PRIVATE oFont08    := TFontEx():New(oDanfe,"Times New Roman",06,06,.F.,.T.,.F.)// 4
 	PRIVATE oFont08N   := TFontEx():New(oDanfe,"Times New Roman",06,06,.T.,.T.,.F.)// 5
 	PRIVATE oFont09N   := TFontEx():New(oDanfe,"Times New Roman",08,08,.T.,.T.,.F.)// 6
 	PRIVATE oFont09    := TFontEx():New(oDanfe,"Times New Roman",08,08,.F.,.T.,.F.)// 7

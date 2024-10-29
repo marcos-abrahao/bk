@@ -228,7 +228,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 		
 		aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
 		  
-		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT120FIM",cEmail,cEmailCC)
+		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT120FIM","",cEmail,cEmailCC)
 
 		cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 
@@ -242,7 +242,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	
 		cAssunto:= "Pedido de Compra nº.: "+alltrim(cNumPC)+"   Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
-		cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT120FIM",cEmail,cEmailCC)
+		cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT120FIM","",cEmail,cEmailCC)
 
 		cAnexo := "MT120FIM"+alltrim(cNumPC)+"b.html"
 		u_GrvAnexo(cAnexo,cMsg,.T.)
