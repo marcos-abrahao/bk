@@ -88,7 +88,7 @@ Next
 
 aCabs   := {}
 IF _lProc 
-	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS","",cEmail,cEmailCC)
 	cAnexo := "M110STTS"+alltrim(cNumSol)+".html"
@@ -113,7 +113,7 @@ ELSE
 	    	ENDIF
 			*/
 	    ENDIF            
-		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+" - "+FWEmpName(cEmpAnt)
 		aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS","",cEmail,cEmailCC)
 

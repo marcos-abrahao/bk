@@ -336,7 +336,7 @@ thead input {
 <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2">
 <div class="container-fluid">
 <span class="navbar-text">
-	Olá! Por esta tela serão enviados os avisos do sistema (novos avisos estão em desenvolvimento).
+	Olá! Por esta tela serão enviados os avisos do sistema.
 </span>
 </div>
 </nav>

@@ -230,7 +230,7 @@ IF !EMPTY(_cXXENDEN)
 	cRodape += "<br><b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"
 ENDIF
 
-cAssunto:= "Solicitação de Compra nº.:"+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+cAssunto:= "Solicitação de Compra nº.: "+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+FWEmpName(cEmpAnt)
 aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue","Vl Previsto","Tot Previsto"}//"Motivo"}
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM","",cRodape)
 //IF 	!EMPTY(_cXXENDEN)

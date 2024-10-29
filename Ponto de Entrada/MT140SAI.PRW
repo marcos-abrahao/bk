@@ -124,7 +124,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 		Enddo
 	
         IF ParamIxb[1] == 5
-	  		cAssunto:= "Cancelamento de Solicitação de Liberação de Nota Fiscal excluida nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	  		cAssunto:= "Cancelamento de Solicitação de Liberação de Nota Fiscal excluida nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+" - "+FWEmpName(cEmpAnt)
 			aCabs   := {}
 			aCabs   := {"Nota Fiscal nº.:","Série:"," Cod.For.:"," Loja:"}
 			aEmail := {}
@@ -135,7 +135,7 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 			SF1->F1_XXLIB  := "B"
 			MsUnLock("SF1")
 
-			cAssunto:= "Solicitação de Liberação de Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    Fornecedor: " +SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"   "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+			cAssunto:= "Solicitação de Liberação de Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    Fornecedor: " +SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME+" - "+FWEmpName(cEmpAnt)
 
 			aEmail := {}
 			AADD(aEmail,{"Solicitante:"+UsrFullName(RetCodUsr())})

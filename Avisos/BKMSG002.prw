@@ -24,7 +24,7 @@ Local cTabCT1   := ""
 
 Local cEmail 	:= ""
 Local cEmailCC  := u_EmailAdm()
-Local cAssunto  := "Aviso de Entidades com Conta Contábil Bloqueada - "+DTOC(DATE())+" "+Time()
+Local cAssunto  := "Aviso de Entidades com Conta Contábil Bloqueada"
 Local aCabs   	:= {"Empresa","Origem","Código","Identificação","Conta Contábil","Descrição"}
 Local aEmail 	:= {}
 Local cMsg		:= ""

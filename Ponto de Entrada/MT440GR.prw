@@ -101,7 +101,7 @@ EndDo
 
 aCabs   := {"","","Medição","Valor"}
 aEmail 	:= {}
-AADD(aEmail,{"Emissão:"    ,TRIM(SC5->C5_NUM),DTOC(SC5->C5_EMISSAO),"",""})
+AADD(aEmail,{"Emissão:"    ,TRIM(SC5->C5_NUM),DTOC(SC5->C5_EMISSAO),""})
 AADD(aEmail,{"Cliente:"    ,SC5->C5_CLIENTE+"-"+SC5->C5_LOJACLI+" - "+cNomeCl,"",""})
 AADD(aEmail,{"Contrato:"   ,cContra+" - Rev. "+cRev+" - "+Posicione("CTT",1,xFilial("CTT")+cContra,"CTT_DESC01"),"",""})
 AADD(aEmail,{"Competencia:",SC5->C5_XXCOMPM+" - Parcela "+cParcel,"",""})

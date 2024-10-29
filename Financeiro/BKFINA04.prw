@@ -327,7 +327,7 @@ Local cPrw     := "BKFINA04"
 Local cEmail1  := u_BKPgto3() 
 Local cEmail2  := u_BKPgto2()
 Local cCC      := u_EmailAdm()
-Local cAssunto := "Pagamentos não Efetuados "+DTOC(DATE())+"-"+TIME()
+Local cAssunto := "Pagamentos não Efetuados"
 Local aCabs    := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 Local cMsg     := u_GeraHtmA(aEmail,cAssunto,aCabs,cPrw,"",cEmail2,cEmail1)
 

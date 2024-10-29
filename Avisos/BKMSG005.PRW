@@ -20,7 +20,7 @@ Local cTabSC6   := ""
 Local cTabSA1   := ""
 
 Local cEmail 	:= ""
-Local cAssunto  := "Pedidos de Venda Liberados - "+DTOC(DATE())+" "+Time()
+Local cAssunto  := "Pedidos de Venda Liberados"
 Local cEmailCC  := u_EmailAdm() 
 Local aCabs   	:= {"Empresa","Pedido","Cliente","Emissao","Contrato","Liberado por","Liberado em","Valor"}
 Local aEmail 	:= {}
@@ -101,7 +101,7 @@ QTMP->(dbCloseArea())
 
 
 If Len(aEmail) > 0
-	cMsg := u_GeraHtmA(aEmail,cAssunto,aCabs,"",cProg,cEmail,cEmailCC)
+	cMsg := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 	U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{},.F.)
 EndIf
 

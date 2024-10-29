@@ -307,7 +307,7 @@ Local cQrySF1	:= GetNextAlias()
 Local cDoc		:= ""
 
 Local cEmail 	:= ""
-Local cAssunto  := "Informações insufIcientes para efetuar pagamento - "+DTOC(DATE())+" "+Time()
+Local cAssunto  := "Informações insufIcientes para efetuar pagamento"
 Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {"Empresa","Série","Documento","Fornecedor","Valor"}
 Local aEmail 	:= {}

@@ -516,7 +516,7 @@ ElseIf acao == "I"
 	cAssunto := "Índice Negativo da Avaliação"
 EndIF
 	
-cAssunto +=" do Documento nº.:"+cDoc+" Série:"+cSerie+" - "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(empresa)
+cAssunto +=" do Documento nº.:"+cDoc+" Série:"+cSerie+" - "+FWEmpName(empresa)
 
 If !Empty(cxUser)
 	cEmail += UsrRetMail(cxUser)+';'

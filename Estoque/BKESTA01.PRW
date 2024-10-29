@@ -172,7 +172,7 @@ IF lAprov
 		
 	ENDIF
                
-	cAssunto:= "Solicitação de Compra Alterada nº.:"+alltrim(cNumSol)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Solicitação de Compra Alterada nº.: "+alltrim(cNumSol)+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
 	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"BKESTA01","",cEmail,cEmailCC)
 	IF 	!EMPTY(_cXXENDEN)

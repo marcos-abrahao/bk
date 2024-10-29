@@ -83,7 +83,7 @@ cXXJUST := ""
 aSC1USER:= {} 
 
 FOR IX_ := 1 TO LEN(aPedido)
-	cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(aPedido[IX_])+" "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.: "+alltrim(aPedido[IX_])+" - "+FWEmpName(cEmpAnt)
 	DbSelectArea("SC7")
 	DbSeek(xFilial("SC7")+aPedido[IX_],.T.)
 	

@@ -17,7 +17,7 @@ Local nE 		:= 0
 Local cTabSA1	:= ""
 
 Local cEmail 	:= ""
-Local cAssunto  := "Aviso de Clientes sem virgula no endereço - "+DTOC(DATE())+" "+Time()
+Local cAssunto  := "Aviso de Clientes sem virgula no endereço"
 Local cEmailCC  := u_EmailAdm() 
 Local aCabs   	:= {"Empresa","Código","Identificação","Endereço","Bairro","Municipio","UF"}
 Local aEmail 	:= {}

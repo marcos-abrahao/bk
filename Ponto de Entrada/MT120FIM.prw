@@ -87,7 +87,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	ENDDO    
 
 	IF !lAprov
-		cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.:"+alltrim(cNumPC)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.: "+alltrim(cNumPC)+" - "+FWEmpName(cEmpAnt)
 		DbSelectArea("SC7")
 		DbSeek(xFilial("SC7")+cNumPC,.T.)
 		cUser := SC7->C7_USER

@@ -163,7 +163,6 @@ ElseIf FWCodEmp() == "19"  // BK SOLUÇÕES TECNOLOGICAS
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK SOL. TECNOLOGICAS</span></b>'
 Endif	
 
-
 BEGINCONTENT VAR cHtml
 <!DOCTYPE html>
 
@@ -285,7 +284,7 @@ BEGINCONTENT VAR cHtml
 	<tbody>
 		<tr>
 			<td>
-				<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; background-size: auto; background-color: #fdf1f1; border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 30px solid transparent; width: 650px; margin: 0 auto;" width="650">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; background-size: auto; background-color: #fdf1f1; border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 30px solid transparent; width: 100%; margin: 0 auto;">
 					<tbody>
 						<tr>
 							<td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #ffffff; padding-bottom: 3px; padding-top: 30px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
@@ -326,14 +325,14 @@ BEGINCONTENT VAR cHtml
 	<tbody>
 		<tr>
 			<td>
-				<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #fdf1f1; border-radius: 0; color: #000000; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 0px solid transparent; width: 650px; margin: 0 auto;" width="650">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #fdf1f1; border-radius: 0; color: #000000; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 0px solid transparent; width: 100%; margin: 0 auto;">
 					<tbody>
 						<tr>
 							<td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 3px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
 								<table border="0" cellpadding="10" cellspacing="0" class="table_block mobile_hide block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
 									<tr>
 										<td class="pad">
-											<table style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; width: 100%; table-layout: fixed; direction: ltr; background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 400; color: #222222; text-align: right; letter-spacing: 0px; word-break: break-all;" width="100%">
+											<table style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; width: 100%; table-layout: fixed; direction: ltr; background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 400; color: #222222; text-align: right; letter-spacing: 0px; word-break: break-all;width: 100%;">
 												<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 16px; line-height: 120%;">
                                        				#CABEC#
 												</thead>
@@ -383,10 +382,10 @@ BEGINCONTENT VAR cHtml
 	<tbody>
 		<tr>
 			<td>
-				<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-repeat: no-repeat; background-color: #fdf1f1; border-radius: 0; color: #000000; background-size: cover; width: 650px; margin: 0 auto;" width="650">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-repeat: no-repeat; background-color: #fdf1f1; border-radius: 0; color: #000000; background-size: cover; width: 100%; margin: 0 auto;">
 					<tbody>
 						<tr>
-							<td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 4px; padding-left: 15px; padding-right: 15px; padding-top: 0px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
+							<td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 4px; padding-left: 15px; padding-right: 15px; padding-top: 0px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px; width: 100%;">
 								<table border="0" cellpadding="0" cellspacing="0" class="paragraph_block block-3" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
 									<tr>
 										<td class="pad" style="padding-bottom:5px;padding-left:25px;padding-right:25px;padding-top:5px;">

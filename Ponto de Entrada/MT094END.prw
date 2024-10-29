@@ -123,7 +123,7 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	ENDIF
 	MsUnLock("SF1")
                                                                                                 
-	cAssunto += "Classificação da Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+"    "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto += "Classificação da Nota Fiscal nº.:"+SF1->F1_DOC+" Série:"+SF1->F1_SERIE+" - "+FWEmpName(cEmpAnt)
 
 	aCabs   := {"Nota Fiscal nº.:","Série:"," Cod.For.:"," Loja:","Valor:","Usuário"}
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
@@ -213,7 +213,7 @@ IF nOpcao == 4 //Era 2
          
        	u_xxLog(u_SLogDir()+"MT094END.LOG","3-"+cEmail)
         
-		cAssunto:= "Pedido de Compra: "+alltrim(nPedido)+" Liberado "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Pedido de Compra: "+alltrim(nPedido)+" Liberado "+" - "+FWEmpName(cEmpAnt)
 		IF __cUserId $ cGerGestao+"/"+cGerCompras+"/"+cMCompras
 			AADD(aEmail,{"Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
 		ELSE
@@ -232,7 +232,7 @@ IF nOpcao == 4 //Era 2
 		NEXT
 		u_xxLog(u_SLogDir()+"MT094END.LOG","4-"+cEmail)
 
-		cAssunto:= "Solicitação de Liberação do Pedido de Compra: "+alltrim(nPedido)+"       "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Solicitação de Liberação do Pedido de Compra: "+alltrim(nPedido)+" - "+FWEmpName(cEmpAnt)
      	AADD(aEmail,{"Aquardando Liberação - Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
        	AADD(aEmail,{"","","","","","","","","","","","","","","",""})
     
@@ -256,7 +256,7 @@ ELSEIF nOpcao == 5 // era3
     ENDIF
 	u_xxLog(u_SLogDir()+"MT094END.LOG","5-"+cEmail)
 
-	cAssunto:= "Pedido de Compra  nº.:"+alltrim(nPedido)+" Bloqueado "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Pedido de Compra  nº.:"+alltrim(nPedido)+" Bloqueado "+" - "+FWEmpName(cEmpAnt)
     AADD(aEmail,{"Bloqueado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
     AADD(aEmail,{"","","","","","","","","","","","","","","",""})
 ELSE
