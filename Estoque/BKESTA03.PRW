@@ -2031,7 +2031,7 @@ Local cDtExtso  := ""
 cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
 If SM0->M0_CODIGO == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 
@@ -2162,7 +2162,7 @@ Local cDtExtso  := ""
 cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
 If SM0->M0_CODIGO == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1
@@ -2337,7 +2337,7 @@ Local cEndEmpres := SM0->M0_ENDENT+"  "+Rtrim(SM0->M0_CIDENT)+"  - "+SM0->M0_EST
 cDtExtso  := Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
 If SM0->M0_CODIGO == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1
@@ -2547,7 +2547,7 @@ Local cINFCOMPL := "s"
 cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
 If SM0->M0_CODIGO == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1

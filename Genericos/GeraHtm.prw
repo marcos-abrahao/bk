@@ -126,10 +126,13 @@ Static Function CabHtml(cTitulo)
 Local cHtml := ""
 Local cLogo:= ""
 
-//cLogo := "http://www.bkconsultoria.com.br/image/logobk.jpg"
+// cLogo := "http://www.bkconsultoria.com.br/image/logobk.jpg"
+// cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+//  https://contato.bkconsultoria.com.br/content/grupo-bk.png
+
 
 If FWCodEmp() == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
    //cLogo += '<b><span style="font-size:22.0pt;color:skyblue">BK CONSULTORIA</span></b>'
 ElseIf FWCodEmp() == "02"  // MMDK
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">MMDK</span></b>'
@@ -169,6 +172,7 @@ BEGINCONTENT VAR cHtml
 <html lang="pt-BR" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
 <title>#TITULO#</title>
+#BKFavIco#
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]-->
 <style>
@@ -410,8 +414,9 @@ BEGINCONTENT VAR cHtml
 </html>
 ENDCONTENT
 
-cHtml := STRTRAN(cHtml,"#TITULO#" ,cTitulo)
-cHtml := STRTRAN(cHtml,"#EMPRESA#",cLogo)
+cHtml := STRTRAN(cHtml,"#TITULO#"  ,cTitulo)
+cHtml := STRTRAN(cHtml,"#BKFavIco#",u_BkFavIco())
+cHtml := STRTRAN(cHtml,"#EMPRESA#" ,cLogo)
 
 /*
 

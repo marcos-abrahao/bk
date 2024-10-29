@@ -557,7 +557,7 @@ Local cIE       := "I.E.: "+ALLTRIM(SM0->M0_INSC)
 Local cSite     := IIF(cEmpAnt == "01","WWW.BKCONSULTORIA.COM.BR","")
 
 If cEmpAnt == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1

@@ -524,7 +524,7 @@ Local nPArray   := 12
 Local cLogo     := ""
 
 If SM0->M0_CODIGO == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1

@@ -30,6 +30,10 @@ User Function BKIpServer()
 Local cRest := "http://10.139.0.30"
 Return cRest
 
+User Function BKLogo()
+Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="width: 125px; padding-left:5px;border-width: 0px;">'
+Return cLogo
+
 
 User Function BKFavIco()
 //<!-- Favicon -->

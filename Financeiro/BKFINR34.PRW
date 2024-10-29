@@ -631,7 +631,7 @@ cIE       := "I.E.: "+ALLTRIM(aSM0Data[5][2])
 cSite     := IIF(cEmpresa == "01","WWW.BKCONSULTORIA.COM.BR","")
 
 If cEmpresa == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1
@@ -641,6 +641,7 @@ If nPag == 1
 	cHtml += '<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' +CRLF
 	cHtml += '<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' +CRLF
 	cHtml += '<title>Contas a Pagar '+DTOS(date())+' '+TIME()+'</title>' +CRLF
+	cHtml += u_BkFavIco()
 	cHtml += '<style type="text/css">'+CRLF
 
 	cHtml += '.tg  {border-collapse:collapse;border-spacing:0;margin:auto;}'+CRLF

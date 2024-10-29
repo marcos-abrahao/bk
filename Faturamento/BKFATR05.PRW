@@ -599,7 +599,7 @@ EndIf
 
 
 If SM0->M0_CODIGO == "01"      // BK
-	cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
+	cLogo := u_BKLogo()
 Endif	
 
 If nPag == 1
@@ -609,6 +609,8 @@ If nPag == 1
 	AADD(aHtml,'<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' )
 	AADD(aHtml,'<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' )
 	AADD(aHtml,'<title>Pedido '+TRIM(SC5->C5_NUM)+' - '+DTOC(date())+' '+TIME()+'</title>' )
+	AADD(aHtml, u_BkFavIco())
+	
 	AADD(aHtml,'<style type="text/css">')
 
 	AADD(aHtml,'.tg  {border-collapse:collapse;border-spacing:0;margin:auto;}')
