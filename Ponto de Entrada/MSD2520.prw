@@ -60,7 +60,7 @@ AADD(aEmail,{"Valor      : "+ALLTRIM(TRANSFORM(nTotal,"@E 99,999,999,999.99"))})
 AADD(aEmail,{"Observações: "+"Anexos serão enviados novamente após nova liberação do pedido"})
 cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MSD2520","",cEmail,cEmailCC)
 
-cAnexo  := {"MSD2520"+alltrim(SD2->D2_DOC)+".html"}
+cAnexo  := "MSD2520"+alltrim(SD2->D2_DOC)+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)
 
 U_BkSnMail("MSD2520",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)

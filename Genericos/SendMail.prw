@@ -67,6 +67,10 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
     Default cCorpo     := ""
     Default aAnexos    := {}
     Default lAviso     := .T.
+
+    IF ValType(aAnexos) <> "A"
+        aAnexos    := {}
+    ENDIF
  
 	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 

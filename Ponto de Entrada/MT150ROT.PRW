@@ -533,6 +533,7 @@ If nPag == 1
 	AADD(aHtml,'<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' )
 	AADD(aHtml,'<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' )
 	AADD(aHtml,'<title>Espelho de Cotação - '+DTOC(date())+' '+TIME()+'</title>' )
+	AADD(aHtml,u_BkFavIco())
 	
 	AADD(aHtml,'<style type="text/css">')
 	AADD(aHtml,'.tg  {border-collapse:collapse;border-spacing:0;}')

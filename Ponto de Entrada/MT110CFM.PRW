@@ -226,16 +226,13 @@ IF !EMPTY(_cXXENDEN)
 	FOR xi := 1 TO _nXXEN
 		_cXXEN += MemoLine(_cXXENDEN,80,xi)+" "
 	NEXT    
-	//AADD(aEmail,{"<b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"})  
-	cRodape += "<br><b>Endereço de Entrega: </b>"+_cXXEN+"</blockquote>"
+
+	cRodape += "<b>Endereço de Entrega: </b>"+_cXXEN
 ENDIF
 
 cAssunto:= "Solicitação de Compra nº.: "+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+FWEmpName(cEmpAnt)
 aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue","Vl Previsto","Tot Previsto"}//"Motivo"}
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM","",cRodape)
-//IF 	!EMPTY(_cXXENDEN)
-//	cMsg    := STRTRAN(cMsg,"><b>Endereço de Entrega:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Endereço de Entrega:')
-//ENDIF
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT110CFM",cEmail,cEmailCC,cRodape)
 
 cAnexo := "MT110CFM"+alltrim(cNumSol)+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)	

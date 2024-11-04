@@ -361,15 +361,15 @@ thead input {
 </thead>
 <tbody id="mytable1">
 <tr>
-  <th scope="col">Carregando Mensagens recebidas...</th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
-  <th scope="col"></th>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col">Carregando Mensagens recebidas...</td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
 </tr>
 </tbody>
 </table>
@@ -497,10 +497,40 @@ if (Array.isArray(av1)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">'+av1['liberacao']+'</th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th scope="row" style="text-align:center;">'+av1['liberacao']+'</th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="9" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th scope="row" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+	trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
+    trHTML += ' <th></th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable1").innerHTML = trHTML;
@@ -773,6 +803,10 @@ Default cStatus	:= "N"  // Não Lida
 Default cAnexo	:= ""
 Default dFinal  := DATE()+5
 
+IF ValType(cAnexo) <> "C"
+	Return lRet
+ENDIF
+
 // Remover diretorio
 SplitPath(cAnexo,,,@cArqDest,@cExt)
 cAnexo := Alltrim(cArqDest+cExt)
@@ -825,13 +859,14 @@ If lConv
 	cTexto := StrIConv(cTexto, "CP1252", "UTF-8")
 EndIf
 
-If !("\" $ cArq)
-	MakeDir(cDir)
-	cRet := cDir+cArq
-	MemoWrite(cRet,cTexto)
-Else
-	cRet := cArq
-	MemoWrite(cRet,cTexto)
-EndIf
+IF ValType(cArq) == "C"
+	If !("\" $ cArq)
+		MakeDir(cDir)
+		cRet := cDir+cArq
+		MemoWrite(cRet,cTexto)
+	Else
+		cRet := cArq
+		MemoWrite(cRet,cTexto)
+	EndIf
+ENDIF
 Return cRet
-
