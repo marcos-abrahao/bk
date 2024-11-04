@@ -1,6 +1,13 @@
 
 
 ==============================================================
+-- 04/11/2024 - Liberação de pgto PJ
+
+SELECT * FROM SZ2010 WHERE Z2_STATUS = 'B' AND Z2_CALC = '202410'
+UPDATE SZ2010 SET Z2_APROV = 'Weverton Amorim', Z2_STATUS = ' ' WHERE Z2_STATUS = 'B' AND Z2_CALC = '202410'
+
+
+==============================================================
 -- 20/10/2024 - Antes de executar o Wizard WIZARDUUID, ative o parâmetro MV_PRJOVER preenchendo o seu conteúdo com '.T.' nos grupos de empresa que deseja utilizar, conforme o exemplo abaixo.
 
 SELECT X6_CONTEUD FROM SX6010 WHERE X6_VAR = 'MV_PRJOVER'

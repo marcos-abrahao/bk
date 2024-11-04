@@ -53,7 +53,7 @@ IF DBSEEK(xFilial("SCP")+cSOLALMOX+"01",.T.)
  		SCP->(dbskip())
 	Enddo
 	
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT105FIM","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT105FIM","",cEmail,cEmailCC)
 
 	cAnexo := "MT105FIM"+alltrim(cSOLALMOX)+".html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)	

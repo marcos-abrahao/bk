@@ -298,7 +298,7 @@ AADD(aEmail,{"Fornecedor: "+SA2->A2_COD+"-"+SA2->A2_LOJA+" - "+SA2->A2_NOME})
 AADD(aEmail,{"Reprovador:"+UsrFullName(RetCodUsr())})
 AADD(aEmail,{"Motivo    :"+cJust})
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT103INC","",cEmail,cEmailCC)
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT103INC","",cEmail,cEmailCC)
 
 u_GrvAnexo(cPrw+".html",cMsg,.T.)
 

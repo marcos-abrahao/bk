@@ -134,7 +134,7 @@ DO While !TMPSF1->(EOF())
         	ELSE
    				cEmail += u_EmailAdm()+cAlEmail
         	ENDIF
-	  		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+	  		cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 
 			// Grava o anexo html
 			cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(_X1++,2)+".html"
@@ -150,7 +150,7 @@ DO While !TMPSF1->(EOF())
 			aEmail := {}
 			cEmail := u_EmailAdm()+cAlEmail
 
-  			cMsg    := u_GeraHtmA(aSD1,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+  			cMsg    := u_GeraHtmB(aSD1,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 
 			// Grava o anexo html
 			cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(_X1++,2)+".html"
@@ -186,7 +186,7 @@ DO While !TMPSF1->(EOF())
 				aEmail   := {}
 				cEmail   := u_EmailAdm()+cAlEmail
 
-  				cMsg     := u_GeraHtmA(aSD1,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+  				cMsg     := u_GeraHtmB(aSD1,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 
 				// Grava o anexo html
 				cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+STRZERO(_X1++,2)+".html"
@@ -410,7 +410,7 @@ IF nTOTAL <= 50
 	cNome  := ""
 	cNome  := Posicione("SA2",1,Xfilial("SA2")+TMPSF1->F1_FORNECE+TMPSF1->F1_LOJA,"A2_NOME")
 	AADD(aEmail,{TMPSF1->F1_FORNECE,TMPSF1->F1_LOJA,cNome,SA2->A2_CGC,TMPSF1->F1_DOC,TMPSF1->F1_SERIE,DTOC(TMPSF1->F1_EMISSAO),SUBSTR(cMensagem,1,LEN(cMensagem)-1)})
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 
 	// Grava o anexo html
 	cAnexo := cProg+DTOS(Date())+STRTRAN(TIME(),":","")+".html"

@@ -138,7 +138,7 @@ EndIf
 
 cAssunto += ALLTRIM(STR(LEN(aEmail)))
 
-cMsg   := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg,cRodape,cEmail,cEmailCC)
+cMsg   := u_GeraHtmB(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cProg,cRodape,cEmail,cEmailCC)
 cAnexo := u_GrvAnexo(cProg+".html",cMsg, .T.)
 U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cAnexo1},.F.)
 

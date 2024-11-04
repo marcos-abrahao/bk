@@ -2602,7 +2602,7 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Contrato","Revisao","Descr. CC","Responsavel","Inicio Vigencia","Fim Vigencia","Data Aviso","Aviso","Status"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V6BKGct06","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V6BKGct06","",cEmail,cEmailCC)
 
 	cAnexo := "V6BKGct06.html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)
@@ -2691,7 +2691,7 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Contrato","Revisao","Descr.CC","Responsavel","Vig.Caução","Data Aviso","Aviso"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V7BKGct06","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V7BKGct06","",cEmail,cEmailCC)
 
 	cAnexo := "V7BKGct06.html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)	
@@ -2788,7 +2788,7 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Contrato","Revisao","Descr.CC","Responsavel","Doc. Seg. Trab","Data","Aviso"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V8BKGct06","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,"V8BKGct06","",cEmail,cEmailCC)
 
 	cAnexo := "V8BKGct06.html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)
@@ -2866,7 +2866,7 @@ IF LEN(aEmail) > 0
 
 	aCabs   := {"Empresa","N° Pedido","C.Custo","Descrição C.Custo","Valor Total","Solicitante","Fornecedor","Nome Fornecedor"}
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,"",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto+" - "+DTOC(DATE())+" "+TIME(),aCabs,cPrw,"",cEmail,cEmailCC)
 
 
 	cAnexo := cPrw+".html"

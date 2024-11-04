@@ -2654,7 +2654,7 @@ ENDIF
 
 cAssunto:= "Solicitação de Compra nº.: "+ALLTRIM(cNumSol)+" "+cOpcSel+" - "+FWEmpName(cEmpAnt)
 aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo","Qtd Entregue","Vl Previsto","Tot Previsto"}//"Motivo"}
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT110CFM",cEmail,cEmailCC,cRodape)
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT110CFM",cEmail,cEmailCC,cRodape)
 
 cAnexo := "MT110CFM"+alltrim(cNumSol)+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)	

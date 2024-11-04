@@ -17,7 +17,7 @@ Default cEmailCC := ""
 cMsg += CabHtml(cPrw,cTitulo)  
 
 cMsg += '<table width="100%" Align="center" border="0" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >' 
-cMsg += '<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 10px; line-height: 120%;">' + CRLF
+cMsg += '<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 10pt; line-height: 120%;">' + CRLF
 For _nI := 1 TO LEN(aCabs)
 
    cAlign  :=	"text-align: left;"
@@ -31,11 +31,11 @@ For _nI := 1 TO LEN(aCabs)
       endif      
    EndIf
 
-	cMsg += '<th style="padding: 5px 2px 5px 2px;font-size:10.0;font-family: Arial;'+cAlign+';"><b>'+ALLTRIM(aCabs[_nI])+'</b></th>' 
+	cMsg += '<th style="padding: 5px 2px 5px 2px;font-family: Arial;'+cAlign+';"><b>'+ALLTRIM(aCabs[_nI])+'</b></th>' 
 Next
 cMsg += '</thead>' 
 
-cMsg += '<tbody style="vertical-align: top; font-size: 10px; line-height: 120%;">'
+cMsg += '<tbody style="vertical-align: top; font-size: 8pt; line-height: 120%;">'
 For _nJ := 1 TO LEN(aDet)
 
     If lCorNao   
@@ -62,7 +62,7 @@ For _nJ := 1 TO LEN(aDet)
             _uValor := ALLTRIM(xCampo)
          endif
             
-         cMsg += '<td style="padding: 5px 2px 5px 2px; white-space: nowrap;'+cAlign+'">'+TRIM(_uValor)+'</td>'
+         cMsg += '<td style="padding: 5px 2px 5px 2px;font-family: Arial; white-space: nowrap;'+cAlign+'">'+TRIM(_uValor)+'</td>'
 	            
       Next _ni
 
@@ -92,35 +92,35 @@ EndIf
 If FWCodEmp() == "01"      // BK
 	cLogo := u_BKLogo()
 ElseIf FWCodEmp() == "02"  // MMDK
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">MMDK</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">MMDK</span></b>'
 ElseIf FWCodEmp() == "04"  // ESA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">ESA</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">ESA</span></b>'
 ElseIf FWCodEmp() == "06"  // BKDAHER SUZANO
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BKDAHER SUZANO</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BKDAHER SUZANO</span></b>'
 ElseIf FWCodEmp() == "07"  // JUSTFOFTWARE
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">JUST</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">JUST</span></b>'
 ElseIf FWCodEmp() == "08"  // BHG CAMPINAS
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BHG CAMPINAS</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BHG CAMPINAS</span></b>'
 ElseIf FWCodEmp() == "09"  // BHG OSASCO
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BHG OSASCO</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BHG OSASCO</span></b>'
 ElseIf FWCodEmp() == "10"  // BKDAHER TABOAO DA SERRA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BKDAHER TABOAO DA SERRA</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BKDAHER TABOAO DA SERRA</span></b>'
 ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BKDAHER LIMEIRA</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BKDAHER LIMEIRA</span></b>'
 ElseIf FWCodEmp() == "12"  // SEGUROS
 	cLogo := '<img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0>'
 ElseIf FWCodEmp() == "14"  // CONSORCIO BALSA NOVA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSÓRCIO BALSA NOVA</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">CONSÓRCIO BALSA NOVA</span></b>'
 ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BHG INTERIOR 3</span></b>'
 ElseIf FWCodEmp() == "16"  // Consorcio Moove
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">CONSÓRCIO MOOVE</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">CONSÓRCIO MOOVE</span></b>'
 ElseIf FWCodEmp() == "17"  // DMAF
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">DMAF</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">DMAF</span></b>'
 ElseIf FWCodEmp() == "18"  // BK VIA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BK VIA</span></b>'
 ElseIf FWCodEmp() == "19"  // BK SOLUÇÕES TECNOLOGICAS
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK SOL. TECNOLOGICAS</span></b>'
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BK SOL. TECNOLOGICAS</span></b>'
 Endif	
 
 cHtm += '<html lang="pt-BR" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">' 
@@ -131,9 +131,9 @@ cHtm += '<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">'
 cHtm += '<title>'+cTitulo+' - '+DTOC(date())+' '+TIME()+'</title>' 
 cHtm += u_BkFavIco()
 cHtm += '<style>' 
-cHtm += '.Normal{font-size:11.0pt;font-family:"Arial";}' 
-cHtm += '.F8A{font-size:8.0;font-family:"Arial"}' 
-cHtm += '.F10A{font-size:10.0;font-family:"Arial"}' 
+//cHtm += '.Normal{font-size:11.0pt;font-family:"Arial";}' 
+//cHtm += '.F8A{font-size:8.0pt;font-family:"Arial"}' 
+//cHtm += '.F10A{font-size:10.0pt;font-family:"Arial"}' 
 cHtm += '</style>' 
 cHtm += '</head>' 
 cHtm += '<body bgcolor=#ffffff lang=PT-BR class="Normal">' 
@@ -143,8 +143,8 @@ cHtm += ' <tr>'
 cHtm += '  <td width=15% class="Normal">' 
 cHtm += '    <p align=center style="text-align:center">'+cLogo+'</p>' 
 cHtm += '  </td>' 
-cHtm += '  <td class="Normal" width=85% style="center" >' 
-cHtm += '    <p align=center style="text-align:center;font-size:18.0"><b>'+cTitulo+'</b></p>' 
+cHtm += '  <td class="Normal" width=85% style="center">' 
+cHtm += '    <p align=center style="text-align:center;font-size:18;"><b>'+cTitulo+'</b></p>' 
 cHtm += '  </td>' 
 cHtm += ' </tr>' 
 
@@ -153,7 +153,7 @@ cHtm += '  <td width=15% class="Normal">'
 cHtm += '    <p align=center style="text-align:center"></p>' 
 cHtm += '  </td>' 
 cHtm += '  <td class="Normal" width=85% style="center" >' 
-cHtm += '    <p align=center style="text-align:center;font-size:14.0"><b>'+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+cUser+'</b></p>' 
+cHtm += '    <p align=center style="text-align:center;font-size:12;"><b>'+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+cUser+'</b></p>' 
 cHtm += '  </td>' 
 cHtm += ' </tr>' 
 cHtm += '</table>' 
@@ -171,26 +171,28 @@ Default cEmailCC  := ""
 
 cHtm += '</table>' 
 
+cHtm += '<br>'
+
 If !EMPTY(cRodape) 
-   cHtm += '<br>'
-	cHtm += TRIM(cRodape)
+	cHtm += '<p style="font-size:8.0pt;font-family: Arial;"><b>'+TRIM(cRodape)+'</b></p>'
 EndIf
 
 If !EMPTY(cEmail)
-   cHtm += '<br>'
-	cHtm += '<p class="F8A">Para: '+TRIM(cEmail)
+	cHtm += '<p style="font-size:8.0pt;font-family: Arial;">Para: '+TRIM(cEmail)+'</p>'
 EndIf
 
 If !EMPTY(cEmailCC) 
-   cHtm += '<br>'
-	cHtm += '<p class="F8A">CC: '+TRIM(cEmailCC)
+	cHtm += '<p style="font-size:8.0pt;font-family: Arial;">CC: '+TRIM(cEmailCC)+'</p>'
 EndIf
 
+/*
 If !EMPTY(cPrw) 
-   cHtm += '<br>'
-	cHtm += '<p class="F8A">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+' - '+cUser+'</p>'
-   cHtm += '<a class="F10A" href="javascript:history.back()">Voltar</a>'
+	cHtm += '<p style="font-size:8.0pt;font-family: Arial;">Origem: '+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+FWEmpName(cEmpAnt)+' - '+cUser+'</p>'
 EndIf
+*/
+
+cHtm += '<br><br>'
+cHtm += '<a style="font-size:10.0pt;font-family: Arial;text-align:center;" href="javascript:history.back()"><b>Voltar</b></a>'
 
 cHtm += '</body>' 
 cHtm += '</html>' 

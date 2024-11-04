@@ -240,7 +240,7 @@ Else
 EndIf
 
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"A103BLOQ","",cEmail,cEmailCC)
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"A103BLOQ","",cEmail,cEmailCC)
 cMsg    := STRTRAN(cMsg,"><b>Histórico:"," colspan=10 ><b>Histórico:")
 
 cAnexo := "A103BLOQ.html"

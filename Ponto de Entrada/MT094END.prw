@@ -128,7 +128,7 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	aCabs   := {"Nota Fiscal nº.:","Série:"," Cod.For.:"," Loja:","Valor:","Usuário"}
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
 
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT094END","",cEmail,cEmailCC)
 	cEmail  := STRTRAN(cEmail,';;',';')
 
 	cAnexo := "MT094END"+ALLTRIM(SF1->F1_DOC)+".html"
@@ -375,7 +375,7 @@ u_xxLog(u_SLogDir()+"MT094END.LOG","7-"+cEmail)
 
 aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT094END","",cEmail,cEmailCC)
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT094END","",cEmail,cEmailCC)
 
 cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 

@@ -31,7 +31,7 @@ Local cRest := "http://10.139.0.30"
 Return cRest
 
 User Function BKLogo()
-Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="width: 125px; padding-left:5px;border-width: 0px;">'
+Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="padding-left:5;border-width: 0;" width="200";>'
 Return cLogo
 
 

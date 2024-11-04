@@ -535,7 +535,7 @@ aEmail 	:= {}
 AADD(aEmail,{"Reprovador:"+UsrFullName(__cUserId)})
 AADD(aEmail,{cMotivo})
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"RESTLIBPN","",cEmail,cEmailCC)
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"RESTLIBPN","",cEmail,cEmailCC)
 cAnexo := "RESTLIBPN"+alltrim(cDoc)+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)
 

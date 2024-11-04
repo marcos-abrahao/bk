@@ -206,7 +206,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 	ENDIF
 	
 	aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"MT160WF","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT160WF","",cEmail,cEmailCC)
 	cMsg    := STRTRAN(cMsg,"><b>Justificativa:"," colspan="+str(len(aCabs))+'><blockquote style="text-align:left;font-size:14.0"><b>Justificativa:')
 
 	cAnexo := "MT160WF"+alltrim(cNumPC)+"a.html"
@@ -218,7 +218,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 
 	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+" Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
-	cMsg    := u_GeraHtmA(aPedAlmx,cAssunto,aCabs,"MT160WF","",cAlEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aPedAlmx,cAssunto,aCabs,"MT160WF","",cAlEmail,cEmailCC)
 
 	cAnexo := "MT160WF"+alltrim(cNumPC)+"b.html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)

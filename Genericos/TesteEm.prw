@@ -37,7 +37,7 @@ dbSkip()
 cTitulo := "Teste de email "
 aCabs := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs."}
 
-cMsgA := u_GeraHtmA(aDet,cTitulo+" A",aCabs,ProcName(1),"Teste rodape",cEmail,cCC)
+cMsgA := u_GeraHtmB(aDet,cTitulo+" A",aCabs,ProcName(1),"Teste rodape",cEmail,cCC)
 u_GrvAnexo(cAnexoA,cMsgA,.T.)
 
 cMsgB := u_GeraHtmB(aDet,cTitulo+" B",aCabs,ProcName(1),"Teste rodape",cEmail,cCC)

@@ -992,7 +992,7 @@ IF LEN(aEmail) > 0
 				"Data Prevista",;
 				"Criado Por"}
 
- 	cMsg    := u_GeraHtmA(aEmail,cAssunto+": "+SZP->ZP_NUMERO+" - "+DTOC(DATE())+" "+TIME()+" - Para: "+cNomeQuem,aCabs,"MAILSZP")
+ 	cMsg    := u_GeraHtmB(aEmail,cAssunto+": "+SZP->ZP_NUMERO+" - "+DTOC(DATE())+" "+TIME()+" - Para: "+cNomeQuem,aCabs,"MAILSZP")
 
 	u_BkSnMail("MAILSZP","Aviso Plano de Ação - "+cAssunto+": "+SZP->ZP_NUMERO+" - Para: "+cNomeQuem,"",cEmail,cEmailCC,cMsg,{cAnexo},.F.)
 
@@ -1054,7 +1054,7 @@ AADD(aEmail,{SZP->ZP_NUMERO,;
 	SZP->ZP_EFICIEN,;
 	SZP->ZP_USER}) 
 	
-cMsg := u_GeraHtmA(aEmail,"Ocorrência FInalizada: "+SZP->ZP_NUMERO+" - "+DTOC(DATE())+" "+TIME()+" - Para: "+cNomeQuem,aCabs,"")
+cMsg := u_GeraHtmB(aEmail,"Ocorrência FInalizada: "+SZP->ZP_NUMERO+" - "+DTOC(DATE())+" "+TIME()+" - Para: "+cNomeQuem,aCabs,"")
 
  
 aEmail := {}
@@ -1088,7 +1088,7 @@ IF LEN(aEmail) > 0
 				"Quanto",;
 				"Resultado"}
 	cMsg2	:= ""
-	cMsg2   := u_GeraHtmA(aEmail,"Plano de Ação",aCabs,"MAILFIMSZP")
+	cMsg2   := u_GeraHtmB(aEmail,"Plano de Ação",aCabs,"MAILFIMSZP")
 	cMsg2   := STRTRAN(cMsg2,u_BKLogo(),"")
     cMsg	+= cMsg2
 

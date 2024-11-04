@@ -90,7 +90,7 @@ aCabs   := {}
 IF _lProc 
 	cAssunto:= "Solicitação de Compra excluída  nº.:"+alltrim(cNumSol)+" - "+FWEmpName(cEmpAnt)
 	aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
-	cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS","",cEmail,cEmailCC)
+	cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"M110STTS","",cEmail,cEmailCC)
 	cAnexo := "M110STTS"+alltrim(cNumSol)+".html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)	
 	u_BkSnMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
@@ -115,7 +115,7 @@ ELSE
 	    ENDIF            
 		cAssunto:= "Solicitação de Compra nº.:"+alltrim(cNumSol)+" - "+FWEmpName(cEmpAnt)
 		aCabs   := {"Cod. SC.","Solicitante","Ítem","Cod.Prod","Desc.Prod.","UM","Quant.","Data Limite Entrega","OBS","Centro de Custo","Descr. Centro de Custo"}//"Motivo"}
-		cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,"M110STTS","",cEmail,cEmailCC)
+		cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"M110STTS","",cEmail,cEmailCC)
 
 		cAnexo := "M110STTS"+alltrim(cNumSol)+".html"
 		u_GrvAnexo(cAnexo,cMsg,.T.)	

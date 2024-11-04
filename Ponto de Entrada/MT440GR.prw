@@ -114,7 +114,7 @@ If LEN(aAnexos) == 0
     AADD(aEmail,{"Atenção    : ","não foram anexados arquivos para este contrato/competência","",""})
 EndIf
 
-cMsg    := u_GeraHtmA(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 
 U_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,aAnexos,.F.)
 
