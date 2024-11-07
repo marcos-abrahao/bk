@@ -17,7 +17,7 @@ Default cEmailCC := ""
 cMsg += CabHtml(cPrw,cTitulo)  
 
 cMsg += '<table width="100%" Align="center" border="0" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >' 
-cMsg += '<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 10pt; line-height: 120%;">' + CRLF
+cMsg += '<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 9pt; line-height: 120%;">' + CRLF
 For _nI := 1 TO LEN(aCabs)
 
    cAlign  :=	"text-align: left;"
@@ -136,24 +136,27 @@ cHtm += '<style>'
 //cHtm += '.F10A{font-size:10.0pt;font-family:"Arial"}' 
 cHtm += '</style>' 
 cHtm += '</head>' 
-cHtm += '<body bgcolor=#ffffff lang=PT-BR class="Normal">' 
+cHtm += '<body bgcolor=#ffffff lang=PT-BR>' 
 
 cHtm += '<table border=0 align="center" cellpadding=0 width="100%" style="center" >' 
 cHtm += ' <tr>' 
-cHtm += '  <td width=15% class="Normal">' 
+cHtm += '  <td width=15%>' 
 cHtm += '    <p align=center style="text-align:center">'+cLogo+'</p>' 
 cHtm += '  </td>' 
-cHtm += '  <td class="Normal" width=85% style="center">' 
-cHtm += '    <p align=center style="text-align:center;font-size:18;"><b>'+cTitulo+'</b></p>' 
+cHtm += '  <td width=85% style="center">' 
+cHtm += '    <p align=center style="text-align:center;font-size:16;"><b></b></p>' 
 cHtm += '  </td>' 
 cHtm += ' </tr>' 
 
 cHtm += ' <tr>' 
-cHtm += '  <td width=15% class="Normal">' 
-cHtm += '    <p align=center style="text-align:center"></p>' 
+cHtm += '  <td colspan="2">' 
+cHtm += '    <p align=center style="text-align:center;font-size:16;"><b>'+cTitulo+'</b></p>' 
 cHtm += '  </td>' 
-cHtm += '  <td class="Normal" width=85% style="center" >' 
-cHtm += '    <p align=center style="text-align:center;font-size:12;"><b>'+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+cUser+'</b></p>' 
+cHtm += ' </tr>' 
+
+cHtm += ' <tr>' 
+cHtm += '  <td colspan="2">' 
+cHtm += '    <p align=center style="text-align:center;font-size:10;"><b>'+TRIM(cPrw)+' '+DTOC(DATE())+' '+TIME()+' - '+cUser+'</b></p>' 
 cHtm += '  </td>' 
 cHtm += ' </tr>' 
 cHtm += '</table>' 

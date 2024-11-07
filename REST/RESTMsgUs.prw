@@ -365,7 +365,7 @@ thead input {
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
-  <td scope="col">Carregando Mensagens recebidas...</td>
+  <td scope="col"><b>Carregando Mensagens recebidas...</b></td>
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
