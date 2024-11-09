@@ -1064,7 +1064,7 @@ BeginContent var cHTML
   padding-right:30px;
 }
 .font-condensed{
-  font-size: 0.7em;
+  font-size: 0.7rem;
 }
 body {
 font-size: 1rem;

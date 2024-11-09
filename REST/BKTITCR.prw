@@ -17,7 +17,7 @@ User Function BKTITCR(lShell)
    
 Local cToken  := u_BKEnCode()
 Local dUtil   := dDatabase
-Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-3650)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
+Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
 
 Default lShell := .T.
 

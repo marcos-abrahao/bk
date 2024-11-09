@@ -236,6 +236,9 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 
 	oPExcel:AddCol("TITULO" ,"(E1_PREFIXO+E1_NUM+E1_PARCELA)","Título","")
 
+	oPExcel:AddCol("CONTRATO","IIF(EMPTY(C5_MDCONTR),E1_MDCONTR,C5_MDCONTR)","Contrato","")
+	oPExcel:GetCol("CONTRATO"):SetHAlign("C")
+
 	oPExcel:AddCol("Cliente","A1_NOME","Cliente","A1_NOME")
 
 	oPExcel:AddCol("VENC","STOD(E1_VENCREA)","Vencto","E1_VENCREA")
@@ -369,7 +372,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
 	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
 	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
-	aListCR[nPos]['CONTRATO']	:= ALLTRIM((cQrySE1)->C5_MDCONTR)
+	aListCR[nPos]['CONTRATO']	:= IIF(!EMPTY((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->E1_MDCONTR))
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 
 	(cQrySE1)->(DBSkip())
@@ -580,6 +583,12 @@ BEGINCONTENT var cHTML
 #BKFavIco#
 
 <style type="text/css">
+
+html *
+{
+   font-size: 12px;
+}
+
 .bk-colors{
  background-color: #9E0000;
  color: white;
@@ -588,14 +597,18 @@ BEGINCONTENT var cHTML
   background-color: #9E0000;
   padding-left:5px;
   padding-right:5px;
+  font-size: 1.2rem;
 }
 .font-condensed{
-  font-size: 1.0em;
+  font-size: 0.8em;
 }
 body {
-font-size: 0.8rem;
 	background-color: #f6f8fa;
-	}
+}
+
+table.dataTable td {
+  font-size: 1em;
+}
 
 td {
 line-height: 1rem;
@@ -653,15 +666,16 @@ thead input {
 <th scope="col">Empresa</th>
 <th scope="col">Tipo</th>
 <th scope="col" width="7%" >Título</th>
+<th scope="col" style="text-align:center;" width="5%" >Contrato</th>
 <th scope="col" width="20%">Cliente</th>
-<th scope="col" width="5%" >Vencto</th>
-<th scope="col" width="5%" >Emissão</th>
-<th scope="col" width="5%" >Pedido</th>
-<th scope="col" width="5%" >Compet</th>
+<th scope="col" style="text-align:center;" width="5%" >Vencto</th>
+<th scope="col" style="text-align:center;" width="5%" >Emissão</th>
+<th scope="col" style="text-align:center;" width="5%" >Pedido</th>
+<th scope="col" style="text-align:center;" width="5%" >Compet</th>
 <th scope="col" style="text-align:right;">Valor</th>
 <th scope="col" style="text-align:right;">Saldo</th>
 <th scope="col" style="text-align:center;">Status</th>
-<th scope="col">Previsão</th>
+<th scope="col" style="text-align:center;">Previsão</th>
 <th scope="col">Operador</th>
 <th scope="col">Histórico</th>
 </tr>
@@ -672,19 +686,40 @@ thead input {
   <td scope="col"><b>Carregando Títulos...</b></td>
   <td scope="col"></td>
   <td scope="col"></td>
+  <td scope="col" style="text-align:center;"></td>
   <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
+  <td scope="col" style="text-align:center;"></td>
   <td scope="col" style="text-align:right;"></td>
   <td scope="col" style="text-align:right;"></td>
   <td scope="col" style="text-align:center;"></td>
-  <td scope="col"></td>
+  <td scope="col" style="text-align:center;"></td>
   <td scope="col"></td>
   <td scope="col"></td>
 </tr>
 </tbody>
+<tfoot>
+  <tr>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col" width="7%" ></th>
+    <th scope="col" style="text-align:center;" width="5%" ></th>
+    <th scope="col" width="20%"></th>
+    <th scope="col" style="text-align:center;" width="5%" ></th>
+    <th scope="col" style="text-align:center;" width="5%" ></th>
+    <th scope="col" style="text-align:center;" width="5%" ></th>
+    <th scope="col" style="text-align:center;" width="5%" >Totais:</th>
+    <th scope="col" style="text-align:right;">Valor</th>
+    <th scope="col" style="text-align:right;">Saldo</th>
+    <th scope="col" style="text-align:center;"></th>
+    <th scope="col" style="text-align:center;"></th>
+    <th scope="col">Operador</th>
+    <th scope="col">Histórico</th>      
+  </tr>
+</tfoot>
 </table>
 </div>
 </div>
@@ -867,22 +902,21 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td>';
 		trHTML += '<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
 	trHTML += '</td>';
-	
+	trHTML += '<td align="center">'+object['CONTRATO']+'</td>';	
 	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
-	trHTML += '<td>'+object['VENC']+'</td>';
-	trHTML += '<td>'+object['EMISSAO']+'</td>';
-	trHTML += '<td>'+object['PEDIDO']+'</td>';
-	trHTML += '<td>'+object['COMPET']+'</td>';
+	trHTML += '<td align="center">'+object['VENC']+'</td>';
+	trHTML += '<td align="center">'+object['EMISSAO']+'</td>';
+	trHTML += '<td align="center">'+object['PEDIDO']+'</td>';
+	trHTML += '<td align="center">'+object['COMPET']+'</td>';
 
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
 	trHTML += '<td>'
-	// Botão para mudança de status
 
-		
+	// Botão para mudança de status
 	trHTML += '<div class="btn-group">'
-		trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+		trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
 		trHTML += cStatus
 		trHTML += '</button>'
 
@@ -895,13 +929,11 @@ if (Array.isArray(titulos)) {
 		
 	trHTML += '</td>'
 
-	trHTML += '<td id=prev'+clin+'>'+object['PREVISAO']+'</td>';
+	trHTML += '<td id=prev'+clin+' align="center">'+object['PREVISAO']+'</td>';
 
 	trHTML += '<td id=oper'+clin+'>'+object['OPER']+'</td>';
 
 	trHTML += '<td id=hist'+clin+'>'+object['HISTM']+'</td>';
-
-	trHTML += '<td>'+object['CONTRATO']+'</td>';
 
 	trHTML += '</tr>';
 
@@ -910,10 +942,10 @@ if (Array.isArray(titulos)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="14" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="15" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="14" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="15" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -947,6 +979,7 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Empresa' },
         { data: 'Tipo' },
         { data: 'Título' },
+        { data: 'Contrato' },		
         { data: 'Cliente' },
         { data: 'Vencto' },
         { data: 'Emissão' },
@@ -957,8 +990,8 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Status' },
         { data: 'Previsão' },
         { data: 'Operador' },
-        { data: 'Histórico' },
-        { data: 'Contrato' }
+        { data: 'Histórico' }
+
   ],
   "order": [[1,'asc']],
 
@@ -980,13 +1013,61 @@ tableSE1 = $('#tableSE1').DataTable({
                     });
             });
     },
+footerCallback: function (row, data, start, end, display) {
+       var api = this.api();
+       // Remove the formatting to get integer data for summation
+       var intVal = function (i) {
+           var x = i;
+           var y = 0;
+           if (typeof x === 'string') {
+             x = x.replaceAll(' ', '');
+             x = x.replaceAll('.', '');
+             x = x.replace(',', '.');
+             y = parseFloat(x)
+           };
+           if (typeof i === 'number'){
+               y = i;
+           };
+           return y;
+       };
+       // Total filtrado
+       total = api
+           .column(10, {filter: 'applied'})
+           .data()
+           .reduce(function (a, b) {
+               return intVal(a) + intVal(b);
+           }, 0);
+ 
+       // Update footer
+       $(api.column(10).footer()).html(
+           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+       );
 
+
+       // Total filtrado
+       total = api
+           .column(11, {filter: 'applied'})
+           .data()
+           .reduce(function (a, b) {
+               return intVal(a) + intVal(b);
+           }, 0);
+ 
+       // Update footer
+       $(api.column(11).footer()).html(
+           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+       );
+
+    },
 	columnDefs: [
     	{
             target: 15,
             visible: false,
             searchable: false
-        }
+        },
+		{
+			target: 4,
+			className: 'text-center'
+    	}
     ]
 
  });
@@ -1221,9 +1302,9 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 //DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-u_MsgLog(,"BROWCR/2")
+//u_MsgLog(,"BROWCR/2")
 //If ::userlib == '000000'
-//	Memowrite(u_STmpDir()+"cr.html",cHtml)
+	Memowrite(u_STmpDir()+"cr.html",cHtml)
 //EndIf
 //u_MsgLog("RESTTITCR",__cUserId)
 
