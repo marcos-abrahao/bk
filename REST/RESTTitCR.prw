@@ -254,7 +254,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
-	oPExcel:AddCol("SALDO","SALDO","Saldo","E1_SALDO")
+	oPExcel:AddCol("SALDO","u_SaldoRec(E1RECNO)","Saldo Liq.","E1_SALDO")
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
@@ -269,6 +269,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Sem Previsao'}			,"FF0000","",,,.T.)	// Vermelho
 	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Aguardando Previsao'}	,"FFA500","",,,.T.)	// Laranja
 	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Previsao Informada'}	,"0000FF","",,,.T.)	// Azul
+	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Recebido'}				,"008000","",,,.T.)	// Verde
 
 	oPExcel:AddCol("HISTM","E1_XXHISTM","Histórico","E1_XXHISTM")
 	oPExcel:GetCol("HISTM"):SetWrap(.T.)
@@ -329,6 +330,7 @@ Local oJsonTmp	 	:= JsonObject():New()
 Local aParams      	As Array
 Local cMsg         	As Character
 Local cNumTit 		:= ""
+Local nSaldo 		:= 0
 
 //u_MsgLog("RESTTITCR",VarInfo("vencini",self:vencini))
 
@@ -357,7 +359,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nPos	:= Len(aListCR)
 	cNumTit	:= (cQrySE1)->(E1_PREFIXO+E1_NUM+E1_PARCELA)
 	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
-
+	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
 	aListCR[nPos]['EMPRESA']	:= (cQrySE1)->EMPRESA
 	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
 	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
@@ -367,7 +369,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['COMPET']		:= TRIM((cQrySE1)->C5_XXCOMPM)
 	aListCR[nPos]['PEDIDO']		:= TRIM((cQrySE1)->E1_PEDIDO)
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
-	aListCR[nPos]['SALDO'] 	    := TRANSFORM((cQrySE1)->SALDO,"@E 999,999,999.99")
+	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
 	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
 	aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
 	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
@@ -673,7 +675,7 @@ thead input {
 <th scope="col" style="text-align:center;" width="5%" >Pedido</th>
 <th scope="col" style="text-align:center;" width="5%" >Compet</th>
 <th scope="col" style="text-align:right;">Valor</th>
-<th scope="col" style="text-align:right;">Saldo</th>
+<th scope="col" style="text-align:right;">Saldo Liq.</th>
 <th scope="col" style="text-align:center;">Status</th>
 <th scope="col" style="text-align:center;">Previsão</th>
 <th scope="col">Operador</th>
@@ -713,11 +715,11 @@ thead input {
     <th scope="col" style="text-align:center;" width="5%" ></th>
     <th scope="col" style="text-align:center;" width="5%" >Totais:</th>
     <th scope="col" style="text-align:right;">Valor</th>
-    <th scope="col" style="text-align:right;">Saldo</th>
+    <th scope="col" style="text-align:right;">Saldo Liq.</th>
     <th scope="col" style="text-align:center;"></th>
     <th scope="col" style="text-align:center;"></th>
-    <th scope="col">Operador</th>
-    <th scope="col">Histórico</th>      
+    <th scope="col"></th>
+    <th scope="col"></th>      
   </tr>
 </tfoot>
 </table>
@@ -891,6 +893,9 @@ if (Array.isArray(titulos)) {
 	} else if (cStatus == '2'){
 	 ccbtn = 'primary';
 	 cStatus = 'Previsao Informada';
+	} else if (cStatus == '3'){
+	 ccbtn = 'success';
+	 cStatus = 'Recebido';
 	}
 
 	trHTML += '<tr>';
@@ -925,6 +930,7 @@ if (Array.isArray(titulos)) {
 		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
 		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
 		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
+		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'3\','+'\''+cbtnids+'\','+'\''+clin+'\')">Recebido</button>';
 		trHTML += '</div>'
 		
 	trHTML += '</td>'
@@ -952,7 +958,7 @@ document.getElementById("mytable").innerHTML = trHTML;
 
 
 tableSE1 = $('#tableSE1').DataTable({
-  "pageLength": 100,
+  "pageLength": 50,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
   "zeroRecords": "Nada encontrado",
@@ -1056,7 +1062,6 @@ footerCallback: function (row, data, start, end, display) {
        $(api.column(11).footer()).html(
            total.toLocaleString('pt-br', {minimumFractionDigits: 2})
        );
-
     },
 	columnDefs: [
     	{
@@ -1213,8 +1218,10 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 			cbtn = 'Sem Previsao';
 		} else if (acao == '1'){
 			cbtn = 'Aguardando Previsao';
+		} else if (acao == '2'){
+			cbtn = 'Previsao Informada';
 		} else {
-			cbtn = 'Previsao Informada ';
+			cbtn = 'Recebido';
 		}
 		document.getElementById(btnids).textContent = cbtn;
 		document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(2,4)

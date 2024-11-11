@@ -559,6 +559,8 @@ ElseIf cE1XXTPPrv == "1"
 	cStatus := "Aguardando Previsao"
 ElseIf cE1XXTPPrv == "2"
 	cStatus := "Previsao Informada"
+ElseIf cE1XXTPPrv == "3"
+	cStatus := "Recebido"
 EndIf
 Return cStatus
 

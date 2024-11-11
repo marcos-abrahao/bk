@@ -127,13 +127,37 @@ If l103Class .OR. Inclui .OR. lAltPgt
 					SE2->E2_FORNECE+SE2->E2_LOJA+SE2->E2_PREFIXO+SE2->E2_NUM .AND. !SE2->(EOF())
 			If Empty(SE2->E2_BAIXA)
 				RecLock("SE2",.F.)
+
+				SE2->E2_XTIPOPG := SF1->F1_XTIPOPG
+
 				If Empty(SE2->E2_PORTADO)
 					SE2->E2_PORTADO  := SF1->F1_XBANCO
 				EndIf
-				SE2->E2_XTIPOPG := SF1->F1_XTIPOPG
-				If SF1->F1_XXP1PA == 'S' .AND. SE2->E2_PARCELA = '01'
+
+				// Parcelamento UNIAO e outros fornecedores com "I" na Natureza (INSS, PIS, COFINS) - Kelly 11/11/24
+				SA2->(dbSeek(xFilial("SA2")+SE2->E2_FORNECE+SE2->E2_LOJA))
+
+				If (SUBSTR(SE2->E2_FORNECE,1,5) == "UNIAO" .OR. ("I" $ SA2->A2_NATUREZ)) .AND. !EMPTY(SE2->E2_PARCELA)
+					SE2->E2_PORTADO  := "001"
+					SE2->E2_XXPGTO   := "L"
+				EndIf
+
+				// Cartão - Kelly 11/11/24
+				If TRIM(SF1->F1_XTIPOPG) == "CARTAO"
+					If Day(SE2->E2_VENCTO) > 10 .AND. Day(SE2->E2_VENCTO) < 20
+					    //os cartões do Itáu são data vencimento 12 e 15
+						SE2->E2_PORTADO  := "341"
+					Else
+						// já os BB são vencimento 28
+						SE2->E2_PORTADO  := "001"
+					EndIf
+					SE2->E2_XXPGTO   := "T"
+				EndIf
+
+				If SF1->F1_XXP1PA == 'S' .AND. SE2->E2_PARCELA == '01'
 					SE2->E2_XTIPOPG := "P.A."
 				EndIf
+
 				SE2->(MsUnLock())
 			Endif
 			SE2->(dbSkip())
