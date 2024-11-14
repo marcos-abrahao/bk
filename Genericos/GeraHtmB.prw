@@ -194,8 +194,9 @@ If !EMPTY(cPrw)
 EndIf
 */
 
-cHtm += '<br><br>'
+cHtm += '<br>'
 cHtm += '<a style="font-size:10.0pt;font-family: Arial;text-align:center;" href="javascript:history.back()"><b>Voltar</b></a>'
+cHtm += '<br>'
 
 cHtm += '</body>' 
 cHtm += '</html>' 

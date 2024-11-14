@@ -216,7 +216,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 
 	//Pedido de Compras para Almoxarifado    
 
-	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+" Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+	cAssunto:= "Pedido de Compra nº.: "+alltrim(aPedido[IX_])+" Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME
 	aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
 	cMsg    := u_GeraHtmB(aPedAlmx,cAssunto,aCabs,"MT160WF","",cAlEmail,cEmailCC)
 

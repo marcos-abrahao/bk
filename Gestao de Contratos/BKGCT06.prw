@@ -45,8 +45,8 @@ cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
 
 If cEmpAnt == "01" .OR. cEmpPar = "01"
 	u_WaitLog("V9BKGct06", {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
-	u_WaitLog("BKMSG008",  {|| u_BKMSG008()} ,"Processando avisos de pedidos de compras não entregues")
-	u_WaitLog("BKMSG009",  {|| u_BKMSG009()} ,"Processando aviso de Solicitação de compras em aberto")
+	//u_WaitLog("BKMSG008",  {|| u_BKMSG008()} ,"Processando avisos de pedidos de compras não entregues")
+	//u_WaitLog("BKMSG009",  {|| u_BKMSG009()} ,"Processando aviso de Solicitação de compras em aberto")
 	// Desabilitado em 22/05/2024 - substituido por BKMSG007
 	//u_WaitLog("V15BKGct06", {|| V15BKGct06()} ,"Processando Aviso de lançamentos em contratos vencidos")
 EndIf

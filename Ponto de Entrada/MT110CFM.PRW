@@ -236,7 +236,7 @@ cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT110CFM",cEmail,cEmailCC,cRodape)
 
 cAnexo := "MT110CFM"+alltrim(cNumSol)+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)	
-u_BkSnMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
+u_BkSnMail("MT110CFM",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 
 u_MsgLog("MT110CFM",cAssunto+" - Opção: "+cValToChar(nOpcSel)+" - "+cEmail)
 

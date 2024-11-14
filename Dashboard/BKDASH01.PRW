@@ -28,14 +28,21 @@ Return aParam
 User Function BKDASH01()
 Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 				  { "ROTINA"   , "C", 15, 0, "Rotina"   ,"@!", .T., "" },;
+				  { "MODULO"   , "C", 10, 0, "Módulo"   ,"@!", .T., "" },;
 				  { "DESCRICAO", "C", 70, 0, "Descrição","@!", .T., "" } }
 
 Local aDados  := {}
 Local nX 	  := 0
 Local aGrpDsp := u_BKGrpDsp()
 Local bProg
-Local cBlind1 := ""
-Local cBlind2 := ""
+
+Local cP1H	  := ""
+Local cP0614  := ""
+Local cP0713  := ""
+Local cP12 	  := ""
+Local cP19	  := ""
+Local cP19D	  := ""
+
 Local lOk     := .F.
 
 Private cTitulo     := "Dashboard PowerBk e Avisos"
@@ -44,107 +51,77 @@ Private cPerg       := "BKDASH01"
 If FWCodEmp() == "01"
 
 	aDados  := {}
-	cBlind1 := ""
-	cBlind2 := ""
 
-	// Domingo
-	If DOW(DATE()) == 7 .AND. SUBSTRING(TIME(),1,2) == '19'
-		aAdd(aDados,{"X","U_BKMsgLmp()","Limpeza de registros da tabela SZ0"})
+
+	If IsBlind() 
+		If SUBSTRING(TIME(),1,2) > '05' ;
+			.AND. SUBSTRING(TIME(),1,2) < '20';
+			.AND. DOW(DATE()) <> 7;
+			.AND. DOW(DATE()) <> 1
+			cP1H := "X"
+		EndIf
+		If cP1H == "X"
+			If SUBSTRING(TIME(),1,2) $ '06/14'
+				cP0614 := "X"
+			EndIf
+
+			If SUBSTRING(TIME(),1,2) $ '07/13'
+				cP0713 := "X"
+			EndIf
+
+			If SUBSTRING(TIME(),1,2) == '19'
+				cP19 := "X"
+			EndIf
+		Else
+			If DOW(DATE()) == 1 .AND. SUBSTRING(TIME(),1,2) == '19'
+				cP19D := "X"
+			EndIf
+		EndIf
 	EndIf
 
-	If IsBlind(); 
-			.AND. SUBSTRING(TIME(),1,2) > '05' ;
-			.AND. SUBSTRING(TIME(),1,2) < '22';
-		 	.AND. DOW(DATE()) <> 7;
-		 	.AND. DOW(DATE()) <> 1
-		cBlind1 := "X"
-	EndIf
+	// Dashboard
+	aAdd(aDados,{cP19	,"U_BKDSPRD()",		"DASHBOARD",	"Atualização da tabela PRODUTOS"})
+	aAdd(aDados,{cP0614	,"U_BKDSDSP1()",	"DASHBOARD",	"Atualização da tabela PREVDESP1"})
+	aAdd(aDados,{cP0614	,"U_BKDSDSP2()",	"DASHBOARD",	"Atualização da tabela PREVDESP2"})
+	aAdd(aDados,{cP19	,"U_BKDSEMP()",		"DASHBOARD",	"Atualização da tabela EMPRESAS"})
+	aAdd(aDados,{cP19	,"U_BKDSCC()",		"DASHBOARD",	"Atualização da tabela CCUSTOS"})
+	aAdd(aDados,{cP0614	,"U_BKDSFOL()",		"DASHBOARD",	"Atualização da tabela FOLHA"})
+	aAdd(aDados,{cP0614	,"U_BKDSFER()",		"DASHBOARD",	"Atualização da tabela FERIAS"})
+	aAdd(aDados,{cP19	,"U_BKDSUSR()",		"DASHBOARD",	"Atualização da tabela USUARIOS"})
+	aAdd(aDados,{cP0614	,"U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
+	aAdd(aDados,{cP0614	,"U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
+	aAdd(aDados,{cP0614	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
+	aAdd(aDados,{cP0614	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
+	aAdd(aDados,{cP0614	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
 
-	// 19h
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) == '19'
-		cBlind2 := "X"
-	EndIf
-	aAdd(aDados,{cBlind2,"U_BKGCTR26(.T.)","Tabelas de Fluxo de Caixa Por Contrato"})
+	aAdd(aDados,{cP0713	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
+	aAdd(aDados,{cP0713	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
+	aAdd(aDados,{cP0713	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
+	aAdd(aDados,{cP0713	,"U_BKDSCTR()",		"DASHBOARD",	"Atualização da tabela CONTRATOS"})
+	aAdd(aDados,{cP0713	,"U_BKDSPLA()",		"DASHBOARD",	"Atualização da tabela PLANILHAS"})
+	aAdd(aDados,{cP0713	,"U_BKDSCRO()",		"DASHBOARD",	"Atualização da tabela CRONOGRAMAS"})
+	aAdd(aDados,{cP0713	,"U_BKDSGG()",		"DASHBOARD",	"Atualização da tabela GASTOSGERAIS"})
+	aAdd(aDados,{cP0713	,"U_BKDSGCO()",     "DASHBOARD",    "Atualização da tabela GASTOSCONSORCIOS"})
+	aAdd(aDados,{cP0713	,"U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
+	aAdd(aDados,{cP0713	,"U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
 
-	// 6h e 14h
-	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '06/14'
-		cBlind2 := "X"
-	EndIf
-	aAdd(aDados,{cBlind2,"U_BKDSDSP1()"  ,"Atualização da tabela PREVDESP1"})
-	aAdd(aDados,{cBlind2,"U_BKDSDSP2()"  ,"Atualização da tabela PREVDESP2"})
-	aAdd(aDados,{cBlind2,"U_BKDSEMP()"   ,"Atualização da tabela EMPRESAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCC()"    ,"Atualização da tabela CCUSTOS"})
-	aAdd(aDados,{cBlind2,"U_BKDSFOL()"   ,"Atualização da tabela FOLHA"})
-	aAdd(aDados,{cBlind2,"U_BKDSFER()"   ,"Atualização da tabela FERIAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSUSR()"   ,"Atualização da tabela USUARIOS"})
-	aAdd(aDados,{cBlind2,"U_BKDSTUR()"   ,"Atualização da tabela FOLHAFIL e FOLHATUR"})
-	aAdd(aDados,{cBlind2,"U_BKDSBKTUR()" ,"Atualização da tabela FOLHAFILBK"})
-	aAdd(aDados,{cBlind2,"U_BKDSBKFAL()" ,"Atualização da tabela FOLHAFAL"})
-	aAdd(aDados,{cBlind2,"U_BK040PER()"  ,"Atualização da tabela BK040PER"})
-	aAdd(aDados,{cBlind2,"U_BKDSSC()"    ,"Atualização da tabela SOLCOMPRAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCFAT()"  ,"Atualização da tabela CANCFATURAMENTO"})
+	aAdd(aDados,{cP19D	,"U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
+	aAdd(aDados,{cP19D	,"U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
+	aAdd(aDados,{cP19D	,"U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
 
-	// 7,11,14 e 17h
-	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '07/11/14/17'
-		cBlind2 := "X"
-	EndIf
-
-	aAdd(aDados,{cBlind2,"U_BKDSGES()"   ,"Atualização da tabela GESTORES"})
-	aAdd(aDados,{cBlind2,"U_BKDSGLO()"   ,"Atualização da tabela GLOSAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCTR()"   ,"Atualização da tabela CONTRATOS"})
-	aAdd(aDados,{cBlind2,"U_BKDSPLA()"   ,"Atualização da tabela PLANILHAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSCRO()"   ,"Atualização da tabela CRONOGRAMAS"})
-	aAdd(aDados,{cBlind2,"U_BKDSGG()"    ,"Atualização da tabela GASTOSGERAIS"})
-	aAdd(aDados,{cBlind2,"U_BKDSGCO()"   ,"Atualização da tabela GASTOSCONSORCIOS"})
-
-	aAdd(aDados,{cBlind1,"U_BKDSFAT()"   ,"Atualização da tabela FATURAMENTO"})
-	aAdd(aDados,{cBlind1,"U_BKDSGER()"   ,"Atualização da tabela GERAL"})
-
-	aAdd(aDados,{"","U_BKDSPRTUR()"      ,"Criação/atualização da Procedure BKTURNOVER"})
-	aAdd(aDados,{"","U_BKPRBKTUR()"      ,"Criação/atualização da Procedure BKTURNOVER1"})
-	aAdd(aDados,{"","U_BKDSPRFAL()"      ,"Criação/atualização da Procedure BKFALTAS"})
-	//aAdd(aDados,{"","U_PRODESPC()"       ,"Atualização da Tabela PRODESPCARGA"})
-	//aAdd(aDados,{"","U_PRODESPI()"       ,"Atualização da Tabela PRODESPINSERIR"})
-	//aAdd(aDados,{"","U_PRODESPA()"       ,"Atualização da Tabela PRODESPATUALIZAR"})
-	//aAdd(aDados,{"","U_PRODESPE()"       ,"Atualização da Tabela PRODESPEXCLUIR"})
+	// Outro programas
+	aAdd(aDados,{cP19D	,"U_BKMsgLmp()",	"OUTROS",		"Limpeza de registros da tabela SZ0"})
 
 	// Avisos
-	aAdd(aDados,{cBlind2,"U_BKMSG001()"   ,"Aviso de documentos pendentes de aprovação"})
-
-	// 11h
-	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '11'
-		cBlind2 := "X"
-	EndIf	
-	aAdd(aDados,{cBlind2,"U_BKMSG002()"   ,"Aviso de entidades com Conta Contábil Bloqueada"})
-	aAdd(aDados,{cBlind2,"U_BKMSG003()"   ,"Aviso de Clientes sem virgula no endereço"})
-
-	// 11h segunda-feira
-	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '11' .AND. DOW(DATE()) == 2
-		cBlind2 := "X"
-	EndIf	
-	aAdd(aDados,{cBlind2,"U_BKMSG004()"   ,"Aviso de Clientes sem Conta Bancária para Depósito"})
-	
-	aAdd(aDados,{cBlind1,"U_BKMSG005()"   ,"Aviso de Pedidos de Venda Liberados"})
-
-	// 12h
-	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '12'
-		cBlind2 := "X"
-	EndIf
-	aAdd(aDados,{cBlind2,"U_BKMSG006()"   ,"Aviso de lançamentos de despesas"})
-
-
-	// 21h
-	cBlind2 := ""
-	If cBlind1 == "X" .AND. SUBSTRING(TIME(),1,2) $ '21'
-		cBlind2 := "X"
-	EndIf
-	aAdd(aDados,{cBlind2,"U_BKMSG007()"   ,"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
-
+	aAdd(aDados,{cP0713	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})
+	aAdd(aDados,{cP19D	,"U_BKMSG002()",	"AVISOS",		"Aviso de entidades com Conta Contábil Bloqueada"})
+	aAdd(aDados,{cP19D	,"U_BKMSG003()",	"AVISOS",		"Aviso de Clientes sem virgula no endereço"})
+	aAdd(aDados,{cP19D	,"U_BKMSG004()",	"AVISOS",		"Aviso de Clientes sem Conta Bancária para Depósito"})
+	aAdd(aDados,{cP1H	,"U_BKMSG005()",	"AVISOS",		"Aviso de Pedidos de Venda Liberados"})
+	aAdd(aDados,{cP12	,"U_BKMSG006()",	"AVISOS",		"Aviso de lançamentos de despesas"})
+	aAdd(aDados,{cP19D	,"U_BKMSG007()",	"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
+	aAdd(aDados,{cP19	,"U_BKMSG008()",	"AVISOS",		"Aviso de Pedidos de compras não entregues"})
+	aAdd(aDados,{cP19	,"U_BKMSG009()",	"AVISOS",		"Aviso de Solicitações de compras em aberto"})
 
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)
@@ -153,7 +130,7 @@ If FWCodEmp() == "01"
 	For nX := 1 To Len(aDados) 
 		If !Empty(aDados[nX,1])
 			bProg := {|oSay| x:= &(aDados[nX,2]) }
-			u_WaitLog(cPerg, bProg, aDados[nX,2]+": "+aDados[nX,3])
+			u_WaitLog(cPerg, bProg, aDados[nX,2]+": "+aDados[nX,4])
 		EndIf
 	Next nX
 
