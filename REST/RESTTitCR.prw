@@ -364,8 +364,10 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
 	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
 	aListCR[nPos]['CLIENTE'] 	:= TRIM((cQrySE1)->A1_NOME)
-	aListCR[nPos]['VENC'] 		:= DTOC(STOD((cQrySE1)->E1_VENCREA))
-	aListCR[nPos]['EMISSAO'] 	:= DTOC(STOD((cQrySE1)->E1_EMISSAO))
+	//aListCR[nPos]['VENC'] 	:= DTOC(STOD((cQrySE1)->E1_VENCREA))
+	aListCR[nPos]['VENC'] 		:= (cQrySE1)->(SUBSTR(E1_VENCREA,1,4)+"-"+SUBSTR(E1_VENCREA,5,2)+"-"+SUBSTR(E1_VENCREA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	//aListCR[nPos]['EMISSAO'] 	:= DTOC(STOD((cQrySE1)->E1_EMISSAO))
+	aListCR[nPos]['EMISSAO'] 	:= (cQrySE1)->(SUBSTR(E1_EMISSAO,1,4)+"-"+SUBSTR(E1_EMISSAO,5,2)+"-"+SUBSTR(E1_EMISSAO,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCR[nPos]['COMPET']		:= TRIM((cQrySE1)->C5_XXCOMPM)
 	aListCR[nPos]['PEDIDO']		:= TRIM((cQrySE1)->E1_PEDIDO)
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
@@ -959,6 +961,7 @@ document.getElementById("mytable").innerHTML = trHTML;
 
 tableSE1 = $('#tableSE1').DataTable({
   "pageLength": 50,
+  "processing": true,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
   "zeroRecords": "Nada encontrado",
@@ -968,6 +971,8 @@ tableSE1 = $('#tableSE1').DataTable({
   "search": "Filtrar:",
   "decimal": ",",
   "thousands": ".",
+  "processing": "Processando...",
+  "loadingRecords": "Processando...",
   "paginate": {
     "first":  "Primeira",
     "last":   "Ultima",
@@ -1072,7 +1077,10 @@ footerCallback: function (row, data, start, end, display) {
 		{
 			target: 4,
 			className: 'text-center'
-    	}
+    	},
+		{
+            targets: [6,7], render: DataTable.render.date()
+        }
     ]
 
  });

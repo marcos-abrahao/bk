@@ -419,7 +419,7 @@ Else
 		Case (cQrySF1)->F1_XXLIB $ "9R "
 			// Aprovar para liberação
 			cQuery := "UPDATE "+cTabSF1
-			If acao == 'E'
+			If acao $ 'RE'
 				cQuery += "  SET F1_XXLIB = 'R',"
 				cMsg := "Reprovada"
 				If !Empty(cMotivo)
@@ -712,7 +712,8 @@ Do While ( cQrySF1 )->( ! Eof() )
 	aAdd( aListWeb , JsonObject():New() )
 	nPos := Len(aListWeb)
 	aListWeb[nPos]['DOC']        := "&nbsp"+ALLTRIM((cQrySF1)->F1_DOC)
-	aListWeb[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
+	//aListWeb[nPos]['DTDIGIT']    := DTOC(STOD((cQrySF1)->F1_DTDIGIT))
+	aListWeb[nPos]['DTDIGIT']    := (cQrySF1)->(SUBSTR(F1_DTDIGIT,1,4)+"-"+SUBSTR(F1_DTDIGIT,5,2)+"-"+SUBSTR(F1_DTDIGIT,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListWeb[nPos]['FORNECEDOR'] := TRIM((cQrySF1)->A2_NOME)
 	aListWeb[nPos]['RESPONSAVEL']:= UsrRetName((cQrySF1)->F1_XXUSER)
 
@@ -722,7 +723,8 @@ Do While ( cQrySF1 )->( ! Eof() )
 		aListWeb[nPos]['APROVADOR']:= UsrRetName((cQrySF1)->F1_XXUAPRV)
 	EndIf
 
-	aListWeb[nPos]['PGTO']  	 := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
+	//aListWeb[nPos]['PGTO']  	 := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
+	aListWeb[nPos]['PGTO']  	 := (cQrySF1)->(SUBSTR(F1_XXPVPGT,1,4)+"-"+SUBSTR(F1_XXPVPGT,5,2)+"-"+SUBSTR(F1_XXPVPGT,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListWeb[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
 	aListWeb[nPos]['LIBEROK']    := cLiberOk
 	aListWeb[nPos]['STATUS']     := cStatus
@@ -1122,10 +1124,10 @@ thead input {
 </thead>
 <tbody id="mytable">
 <tr>
-  <th scope="col">Carregando Pré-notas...</th>
+  <th scope="col"></th>
   <th scope="col" style="text-align:center;"></th>
   <th scope="col"></th>
-  <th scope="col"></th>
+  <th scope="col">Carregando Pré-notas...</th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -1429,6 +1431,9 @@ tableSF1 = $('#tableSF1').DataTable({
     	{
             target: 1,
             className: 'dt-left dt-head-left'
+        },
+        {
+            targets: [2,6], render: DataTable.render.date()
         }
     ],   
 	initComplete: function () {
