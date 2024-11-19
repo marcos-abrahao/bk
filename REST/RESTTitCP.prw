@@ -612,7 +612,8 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['TITULO']     := cNumTit
 	aListCP[nPos]['FORNECEDOR'] := TRIM((cQrySE2)->A2_NOME)
 	aListCP[nPos]['FORMPGT']	:= iIf(!Empty((cQrySE2)->FORMPGT),TRIM((cQrySE2)->FORMPGT),"#CP#")
-	aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
+	//aListCP[nPos]['VENC'] 		:= DTOC(STOD((cQrySE2)->E2_VENCREA))
+	aListCP[nPos]['VENC'] 		:= (cQrySE2)->(SUBSTR(E2_VENCREA,1,4)+"-"+SUBSTR(E2_VENCREA,5,2)+"-"+SUBSTR(E2_VENCREA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
 	aListCP[nPos]['LOTE']		:= TRIM((cQrySE2)->LOTE)
 	aListCP[nPos]['VALOR']      := TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
@@ -1578,6 +1579,9 @@ tableSE2 = $('#tableSE2').DataTable({
         { data: 'Anexos' }
   ],
   "columnDefs": [
+	    {
+            targets: 5, render: DataTable.render.date()
+        },
         {
             target: 14,
             visible: false,

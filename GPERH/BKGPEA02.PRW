@@ -68,7 +68,7 @@ If cPERIODO < '202409'
 	Return
 EndIf
 IF dDatPGTO < DATE()
-	MsgStop("Data do PGTO="+CTOC(dDatPGTO)+" menor que data de hoje. Verifique!", "Atenção")
+	MsgStop("Data do PGTO="+DTOC(dDatPGTO)+" menor que data de hoje. Verifique!", "Atenção")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -76,12 +76,13 @@ EndIf
 aCtrId := {}
 
 IF cPERIODO == cFOLMES
-   _SQL:= "SELECT RA_MAT,RA_NOME,RA_CIC,RA_RG,RA_BCDEPSA,RA_CTDEPSA,RA_CC,RC_VALOR,RC_DATA"
+   _SQL:= "SELECT DISTINCT RA_MAT,RA_NOME,RA_CIC,RA_RG,RA_BCDEPSA,RA_CTDEPSA, BKIntegraRubi.dbo.fnCCSiga(90,2,RA_MAT, 'AC') AS RA_CC,RC_VALOR,RC_DATA,A2_COD,A2_LOJA"
    _SQL+= " FROM " +RETSQLNAME('SRC')+" SRC"
    _SQL+= " INNER JOIN " +RETSQLNAME('SRA')+" SRA ON SRA.D_E_L_E_T_='' AND RA_MAT=RC_MAT AND RA_FILIAL=RC_FILIAL"
    IF cROTE == "ADI"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RC_DATA AND Z2_TIPO IN ('LAS','LAD') AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRC.D_E_L_E_T_='' AND RC_FILIAL ='"+XFILIAL('SRC')+"' AND RC_PERIODO='"+cPERIODO+"' AND RC_SEMANA='"+cSemana+"'"
       _SQL+= " AND RC_PD= '062' "
       cTIPO    := "LAS"
@@ -89,6 +90,7 @@ IF cPERIODO == cFOLMES
    ELSEIF cROTE == "FOL"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RC_DATA AND Z2_TIPO='LPM' AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRC.D_E_L_E_T_='' AND RC_FILIAL ='"+XFILIAL('SRC')+"' AND RC_PERIODO='"+cPERIODO+"' AND RC_SEMANA='"+cSemana+"'"
       _SQL+= " AND RC_PD= '727' "
       cTIPO    := "LPM"
@@ -96,6 +98,7 @@ IF cPERIODO == cFOLMES
    ELSEIF cROTE == "FER"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RC_DATA AND Z2_TIPO='LFE' AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRC.D_E_L_E_T_='' AND RC_FILIAL ='"+XFILIAL('SRC')+"' AND RC_PERIODO='"+cPERIODO+"' AND RC_SEMANA='"+cSemana+"'"
       _SQL+= " AND RC_PD= '432' "
       cTIPO    := "LFE"
@@ -103,18 +106,20 @@ IF cPERIODO == cFOLMES
     ELSEIF cROTE == "RES"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RC_DATA AND Z2_TIPO='LRC' AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRC.D_E_L_E_T_='' AND RC_FILIAL ='"+XFILIAL('SRC')+"' AND RC_PERIODO='"+cPERIODO+"' AND RC_SEMANA='"+cSemana+"'"
       _SQL+= " AND RC_PD= '474' "
       cTIPO    := "LRC"
       cPRODUTO := "11301001"
    ENDIF
 ELSE
-   _SQL:= "SELECT RA_MAT,RA_NOME,RA_CIC,RA_RG,RA_BCDEPSA,RA_CTDEPSA,RA_CC,RD_VALOR AS RC_VALOR,RD_DATPGT AS RC_DATA"
+   _SQL:= "SELECT DISTINCT RA_MAT,RA_NOME,RA_CIC,RA_RG,RA_BCDEPSA,RA_CTDEPSA, BKIntegraRubi.dbo.fnCCSiga(90,2,RA_MAT, 'AC') AS RA_CC,RD_VALOR AS RC_VALOR,RD_DATPGT AS RC_DAT,A2_COD,A2_LOJA"
    _SQL+= " FROM " +RETSQLNAME('SRD')+" SRD"
    _SQL+= " INNER JOIN " +RETSQLNAME('SRA')+" SRA ON SRA.D_E_L_E_T_='' AND RA_MAT=RD_MAT AND RA_FILIAL=RD_FILIAL"
    IF cROTE == "ADI"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RD_DATPGT AND Z2_TIPO IN ('LAS','LAD') AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRD.D_E_L_E_T_='' AND RD_FILIAL ='"+XFILIAL('SRD')+"' AND RD_PERIODO='"+cPERIODO+"' AND RD_SEMANA='"+cSemana+"'"
       _SQL+= " AND RD_PD= '062' "
       cTIPO    := "LAS"
@@ -122,6 +127,7 @@ ELSE
    ELSEIF cROTE == "FOL"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RD_DATPGT AND Z2_TIPO='LPM' AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRD.D_E_L_E_T_='' AND RD_FILIAL ='"+XFILIAL('SRD')+"' AND RD_PERIODO='"+cPERIODO+"' AND RD_SEMANA='"+cSemana+"'"
       _SQL+= " AND RD_PD= '727'"
       cTIPO    := "LPM"
@@ -129,6 +135,7 @@ ELSE
    ELSEIF cROTE == "FER"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RD_DATPGT AND Z2_TIPO='LFE' AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRD.D_E_L_E_T_='' AND RD_FILIAL ='"+XFILIAL('SRD')+"' AND RD_PERIODO='"+cPERIODO+"' AND RD_SEMANA='"+cSemana+"'"
       _SQL+= " AND RD_PD= '432' "
       cTIPO    := "LFE"
@@ -136,6 +143,7 @@ ELSE
     ELSEIF cROTE == "RES"
       _SQL+= " LEFT JOIN " +RETSQLNAME('SZ2')+" SZ2 ON SZ2.D_E_L_E_T_='' AND Z2_CODEMP='01' AND Z2_TIPOPES='PJ'"
       _SQL+= " AND RA_MAT=Z2_PRONT AND Z2_STATUS<>'D' AND Z2_DORIPGT=RD_DATPGT AND Z2_TIPO='LRC' AND Z2_PRONT IS NULL"
+      _SQL+= " LEFT JOIN SA2010 SA1 ON SA1.D_E_L_E_T_='' AND CAST(A2_XXNCAD AS INT)= CAST(RA_MAT AS INT)"
       _SQL+= " WHERE SRD.D_E_L_E_T_='' AND RD_FILIAL ='"+XFILIAL('SRD')+"' AND RD_PERIODO='"+cPERIODO+"' AND RD_SEMANA='"+cSemana+"'"
       _SQL+= " AND RD_PD= '474' "
       cTIPO    := "LRC"
@@ -160,12 +168,14 @@ while QSRDSRC->(!EOF())
       QSRDSRC->RA_RG,;
       QSRDSRC->RC_VALOR,;
       SUBSTR(QSRDSRC->RA_BCDEPSA,1,3),;
-      SUBSTR(QSRDSRC->RA_BCDEPSA,4,4),;
-      STRZERO(VAL(SUBSTR(QSRDSRC->RA_CTDEPSA,1,11)),7),; 
+      STRZERO(VAL(SUBSTR(QSRDSRC->RA_BCDEPSA,4,5)),4),;
+      STRZERO(VAL(SUBSTR(QSRDSRC->RA_CTDEPSA,1,11)),11),; 
       SUBSTR(QSRDSRC->RA_CTDEPSA,12,1),;  
       dDatPGTO,;
       QSRDSRC->RA_CC,;       
       cOBS,;
+      QSRDSRC->A2_COD,;
+      QSRDSRC->A2_LOJA,;      
       QSRDSRC->RC_DATA})
       nTotSel += QSRDSRC->RC_VALOR
 
@@ -195,7 +205,7 @@ oAll:bChange := {|| MudaCell(lAll) , oListId:Refresh()}
 
 oSay := tSay():New(005,100,{||'Total Selecionado: '+ TransForm(nTotSel,"@E 99,999,999.99")},oPanelLeft,,,,,,.T.,,,100,10)
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","RE","Nome","CPF","RG","Valor","Banco","Agencia","Conta","Dg.Cont.","Data PGTO","Centro de Custo",'OBS' SIZE 520,245 OF oPanelLeft PIXEL 
+@ 015, 005 LISTBOX oListId FIELDS HEADER "","RE","Nome","CPF","RG","Valor","Banco","Agencia","Conta","Dg.Cont.","Data PGTO","Centro de Custo",'OBS','Cod.Fornecedor','Loja' SIZE 520,245 OF oPanelLeft PIXEL 
 oListID:SetArray(aCtrId)
 oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
 						 aCtrId[oListId:nAt][2],;
@@ -209,7 +219,9 @@ oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
                    aCtrId[oListId:nAt][10],;   
                    aCtrId[oListId:nAt][11],;
                    aCtrId[oListId:nAt][12],;                                                         
-                   aCtrId[oListId:nAt][13]}}
+                   aCtrId[oListId:nAt][13],;
+                   aCtrId[oListId:nAt][14],;
+                   aCtrId[oListId:nAt][15]}}
 
 oListID:bLDblClick := {|| aCtrId[oListId:nAt][1] := MrkTit(aCtrId[oListId:nAt][1],aCtrId[oListId:nAt][6]), oListID:DrawSelect()}
 
@@ -236,12 +248,12 @@ If ( lOk2 )
             SZ2->Z2_STATUS:= "B"
             SZ2->Z2_DATAEMI:= Date()
             SZ2->Z2_DATAPGT:= dDatPGTO
-            SZ2->Z2_DORIPGT:= aCtrId[_XI,14]
+            SZ2->Z2_DORIPGT:= aCtrId[_XI,16]
             SZ2->Z2_USUARIO:= TRIM(SUBSTR(cUsuario,7,15))
             SZ2->Z2_TITULO:= ""
             SZ2->Z2_CALC:= cPERIODO
             SZ2->Z2_TIPOPES:= "PJ"
-            SZ2->Z2_CC:= aCtrId[_XI,13]
+            SZ2->Z2_CC:= aCtrId[_XI,12]
             SZ2->Z2_OBSTITU := aCtrId[_XI,13]
             SZ2->Z2_PRODUTO:= cPRODUTO 
             SZ2->Z2_E2PRF:= ""
@@ -253,8 +265,8 @@ If ( lOk2 )
             SZ2->Z2_ANEXO:= ""
             SZ2->Z2_CPF:= aCtrId[_XI,4]
             SZ2->Z2_TIPCOL:= 1
-            SZ2->Z2_CODFOR:= ''
-            SZ2->Z2_LOJFOR := ''
+            SZ2->Z2_CODFOR:= aCtrId[_XI,14]
+            SZ2->Z2_LOJFOR := aCtrId[_XI,15]
 				SZ2->(MsUnlock( ))
 	 		ENDIF
 		NEXT

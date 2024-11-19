@@ -1573,12 +1573,11 @@ if (canLib === 1){
 		document.getElementById("btnest").innerHTML = btnE;
 	}
 
-	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] === ' '){
+	if (prenota['F1_XXLIB'] === '9' || prenota['F1_XXLIB'] === 'A' || prenota['F1_XXLIB'] === ' '){
 		document.getElementById("btnest").style.display = "block";
 		let btnE = '<button type="button" class="btn btn-outline-secondary" onclick="libdoc(\''+f1empresa+'\',\''+f1recno+'\',\'#userlib#\',\'R\',\'N\',\''+cbtnac+'\')">Reprovar</button>';
 		document.getElementById("btnest").innerHTML = btnE;
 	}
-
 
 } 
 if (prenota['F1_XXLIB'] === 'T'){

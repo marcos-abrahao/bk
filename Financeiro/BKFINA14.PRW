@@ -1834,11 +1834,11 @@ If nHandle > 0 .OR. nHandle2 > 0
         */
         
 		Bcn341H += SUBSTR(SEE->EE_CODEMP,1,5)    //066 070 conta 
-		Bcn341H += SPACE(1)   //071 071
-		Bcn341H += SUBSTR(SEE->EE_CODEMP,6,1) 		  //072 072 DV CONTA
+		Bcn341H += SPACE(1)   					 //071 071
+		Bcn341H += SUBSTR(SEE->EE_CODEMP,6,1) 	 //072 072 DV CONTA
 
 
-		Bcn341H += PAD(cNomeCom,30) //073 102
+		Bcn341H += PAD(cNomeCom,30) 		  //073 102
 		Bcn341H += PAD("BANCO ITAU S.A.",30)  //103 132
 		Bcn341H += SPACE(10)                  //133 142
 		Bcn341H += "1"                        //143 143
@@ -1891,12 +1891,12 @@ If nHandle > 0 .OR. nHandle2 > 0
 			Bcn341HD += "8"          //072 072 DV CONTA
         ENDIF
         */
-		Bcn341HD += SUBSTR(SEE->EE_CODEMP,1,5)    //066 070 conta 
-		Bcn341HD += SPACE(1)   //071 071
-		Bcn341HD += SUBSTR(SEE->EE_CODEMP,6,1) 		  //072 072 DV CONTA
+		Bcn341HD += SUBSTR(SEE->EE_CODEMP,1,5)               //066 070 conta 
+		Bcn341HD += SPACE(1)                                 //071 071
+		Bcn341HD += SUBSTR(SEE->EE_CODEMP,6,1) 		         //072 072 DV CONTA
 
-		Bcn341HD += PAD(cNomeCom,30) //073 102
-		Bcn341HD += SPACE(40) //103 142 
+		Bcn341HD += PAD(cNomeCom,30)                         //073 102
+		Bcn341HD += SPACE(40)                                //103 142 
 		Bcn341HD += PAD(ACENTO(ALLTRIM(SM0->M0_ENDCOB)),30)  //143 172
 		Bcn341HD += "00000"		                             //173 177
 		Bcn341HD += PAD(ACENTO(ALLTRIM(SM0->M0_COMPENT)),15) //178 192
