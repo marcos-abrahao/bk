@@ -73,8 +73,8 @@ If TRIM(CN9_NUMERO) == cContra .AND. EMPTY(CN9->CN9_REVATU)
     If lRet
         lRet := oModel:CommitData()
     Endif
-else
-    MsgStop("Contrato não encontrado")
+Else
+    u_MsgLog("CN300AUTO","Contrato não encontrado","E")
 EndIf
    
 Return lRet    

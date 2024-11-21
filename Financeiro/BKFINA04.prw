@@ -7,7 +7,7 @@
 BK - Liquidos - Folha BK - Alteração de titulos (antes da baixa)
 @Return
 @author Marcos Bispo Abrahão
-@since 29/09/2009
+@since 29/09/2009 rev 19/11/2024
 @version P12
 /*/
 //-------------------------------------------------------------------
@@ -200,6 +200,7 @@ Local aSaveAreaSE5 := GetArea("SE5")
 Local aRet :={}
 Local lSucess := .T.
 Local cFunName := ""
+Local cTipoDev := "D"
 
 For nI := 1 TO LEN(aTitGer)
     nValor += aTitGer[nI,7]
@@ -220,6 +221,12 @@ ENDIF
 //If MsgBox(cMens, "Titulo: "+cNum, "YESNO")
 
 If u_MsgLog(cPerg,cMens, "Y")
+
+	If u_MsgLog(cPerg,"Devolver ao RH ? (se não, remarca para reintegrar)")
+		cTipoDev := "D"
+	Else
+		cTipoDev := " "
+	EndIf
 
 //  IF TRIM(cTipo) = "PA" 
 //		dbSelectArea("SE5")
@@ -295,7 +302,7 @@ If u_MsgLog(cPerg,cMens, "Y")
 			IF !aCtrId[nI,1]
 				dbGoto(aCtrId[nI,9])
 				RecLock("SZ2",.F.)
-				SZ2->Z2_STATUS := "D"
+				SZ2->Z2_STATUS := cTipoDev
 				SZ2->Z2_OBS    := aCtrId[nI,8]
 				If SUBSTR(SZ2->Z2_TIPOPES,1,3) <> "CLT"
 					lCLT := .F.
@@ -309,7 +316,7 @@ If u_MsgLog(cPerg,cMens, "Y")
 	dbSelectArea("SE2")   
 Endif
 
-If LEN(aEmail) > 0
+If LEN(aEmail) > 0 .AND. cTipoDev == "D"
 	U_Fina04E(aEmail,lCLT)
 EndIf
 

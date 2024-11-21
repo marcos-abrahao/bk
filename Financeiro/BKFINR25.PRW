@@ -866,7 +866,7 @@ cFile := "C:\TEMP\"+cFile+".xlsx"
 If File(cFile)
 	nRet:= FERASE(cFile)
 	If nRet < 0
-		MsgStop("Não será possivel gerar a planilha "+cFile+", feche o arquivo","BKFINR25")
+		u_MsgLog("BKFINR25","Não será possivel gerar a planilha "+cFile+", feche o arquivo","E")
 	EndIf
 EndIf
 oExcel:Gravar("C:\TEMP\",.T.,.T.)

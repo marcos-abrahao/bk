@@ -781,7 +781,7 @@ LOCAL nOPC_ := 0
 LOCAL cFile := ""
 
 IF __CUSERID <> '000000'
-	MSGSTOP("Usuário  Não  Autorizado")
+	u_MsgLog("CORPFIS09","Usuário  Não  Autorizado","E")
 	Return ""
 Endif
 
@@ -795,15 +795,15 @@ Endif
 nOPC_ := mv_par01
 
 IF nOPC_ == 1
-	IF !MsgBox("Esta rotina corrigirá os campos SITTIB,CSTPI,CSTCOFINS,ALIQPIS,ALIQCOF,BASEPIS,BASECOF,VALPIS,VALCOF nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Atenção","YESNO")
+	IF !u_MsgLog(,"Esta rotina corrigirá os campos SITTIB,CSTPI,CSTCOFINS,ALIQPIS,ALIQCOF,BASEPIS,BASECOF,VALPIS,VALCOF nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Y")
 		Return nil
 	ENDIF
 ELSEIF nOPC_ == 2
-	IF !MsgBox("Esta rotina corrigirá o codigo nos campos SITTIB,CSTPI,CSTCOFINS nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Atenção","YESNO")
+	IF !u_MsgLog(,"Esta rotina corrigirá o codigo nos campos SITTIB,CSTPI,CSTCOFINS nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Y")
 		Return nil
 	ENDIF
 ELSEIF nOPC_ == 3
-	IF !MsgBox("Esta rotina corrigirá o calculo nos campos ALIQPIS,ALIQCOF,BASEPIS,BASECOF,VALPIS,VALCOF nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Atenção","YESNO")
+	IF !u_MsgLog(,"Esta rotina corrigirá o calculo nos campos ALIQPIS,ALIQCOF,BASEPIS,BASECOF,VALPIS,VALCOF nas Tabelas do Livro Fiscal. Deseja realmente confinuar?","Y")
 		Return nil
 	ENDIF
 ELSE

@@ -56,7 +56,7 @@ Enddo
 QSE2->(DbCloseArea())
 
 If Empty(aCtrId)
-	MsgStop("Não existem Itens associados", "Atenção")
+	u_MsgLog(cPerg,"Não existem Itens associados", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf

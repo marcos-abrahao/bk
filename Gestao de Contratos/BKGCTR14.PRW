@@ -289,7 +289,7 @@ IF nConsolida == 1
 			dbSelectArea("CN9")
 			dbSetOrder(1)
 			IF !dbSeek(xFilial("CN9") + cConsolida)
-				MSGSTOP("Contrato n° "+cConsolida+" inválido. Verifique!!")
+				u_MsgLog("BKGCTR14","Contrato "+cConsolida+" inválido. Verifique!!","E")
 				RETURN NIL
 			ENDIF
 			cConsolida := SUBSTR(cConsolida,7,3)

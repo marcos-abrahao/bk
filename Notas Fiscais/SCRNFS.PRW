@@ -140,7 +140,7 @@ While lImpresso
 		lOpca := .t.
 		
 		If ! Empty (SF2 -> F2_FIMP)
-			lOpca := MsgBox ("Nota " + SF2 -> F2_DOC + "/" + SF2->F2_SERIE + " ja emitida. Deseja emiti-la novamente ?", "Atencao!!!", "YESNO")
+			lOpca := u_MsgLog(,"Nota " + SF2 -> F2_DOC + "/" + SF2->F2_SERIE + " ja emitida. Deseja emiti-la novamente ?", "Y")
 		EndIf
 		
 		If lOpca == .t.

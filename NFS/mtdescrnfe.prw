@@ -836,7 +836,7 @@ Local yTexto    := ""
 For nX := 1 TO LEN(aLin)
 	If nX > nMaxGets .and. !Empty(aLin[nX])
 		lTxtOk := .F.
-		MSGSTOP("Maximo de linhas permitidas "+ALLTRIM(STR(nMaxGets))+", corrija o texto!!","MTDESCRNFE")
+		u_MsgLog("MTDESCRNFE","Maximo de linhas permitidas "+ALLTRIM(STR(nMaxGets))+", corrija o texto!!","E")
 		Exit
 	EndIf
 Next
@@ -845,7 +845,7 @@ If lTxtOk
 	yTexto := MontaTxt(aLin)
 	If Len(yTexto) > 1000
 		lTxtOk := .F.
-		MSGSTOP("Maximo de 1000 caracteres permitidos foi excedido: "+ALLTRIM(STR(LEN(yTexto)))+", corrija o texto!!","MTDESCRNFE")
+		u_MsgLog("MTDESCRNFE","Maximo de 1000 caracteres permitidos foi excedido: "+ALLTRIM(STR(LEN(yTexto)))+", corrija o texto!!","E")
 	EndIf
 EndIf
 

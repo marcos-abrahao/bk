@@ -22,8 +22,8 @@ cQuery += " WHERE SCP.D_E_L_E_T_='' AND CP_NUM='"+SCP->CP_NUM+"'"
 cQuery += " AND C1_XXQEST=0 AND CP_QUJE<>0"
 
 If TCSQLExec(cQuery) < 0 
-	MsgStop(TCSQLERROR())
-endif
+	u_MsgLog("M185GRV",TCSQLERROR(),"E")
+Endif
 
 U_EMAILSOL(SCP->CP_XXNSCOM,"M185GRV")
 

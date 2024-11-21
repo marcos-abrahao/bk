@@ -63,12 +63,12 @@ cFOLMES := U_MVFOLHA(cROTE)
 cPERIODO := Year2Str(dDatRef)+Month2Str(dDatRef)
 
 If cPERIODO < '202409'
-	MsgStop("Periodo Informado "+cPERIODO+" menor que '202409'  incorreto. Verifique!", "Atenção")
+	u_MsgLog("BKGPEA02","Periodo Informado "+cPERIODO+" menor que '202409'  incorreto. Verifique!", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
 IF dDatPGTO < DATE()
-	MsgStop("Data do PGTO="+DTOC(dDatPGTO)+" menor que data de hoje. Verifique!", "Atenção")
+	u_MsgLog("BKGPEA02","Data do PGTO="+DTOC(dDatPGTO)+" menor que data de hoje. Verifique!", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -184,7 +184,7 @@ ENDDO
 QSRDSRC->(DBCLOSEAREA())
 
 If Empty(aCtrId)
-	MsgStop("Nenhum funcionario nesta seleção ou ja informado no financeiro, verifique os filtros !!", "Atenção")
+	u_MsgLog("BKGPEA02","Nenhum funcionario nesta seleção ou ja informado no financeiro, verifique os filtros !!", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -271,7 +271,7 @@ If ( lOk2 )
 	 		ENDIF
 		NEXT
 	End Transaction
-   MSGINFO("Gerado com Sucesso, aguardando Liberação na Integração!")
+   u_MsgLog("BKGPEA02","Gerado com Sucesso, aguardando Liberação na Integração!","S")
 Endif
 
 RestArea(aAreaIni)

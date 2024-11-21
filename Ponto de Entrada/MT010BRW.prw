@@ -76,10 +76,9 @@ If u_MsgLog('BKMAT010','Deseja incluir este produto em outras empresas?','Y')
 		ELSE
 			IF SUBSTR(cRetorno,1,2) <> "OK"
 				If !EMPTY(cRetorno)
-					MsgStop("Erro ao incluir o produto na empresa "+TRIM(aEmpr[nI,4]), "Atenção")
-					MsgStop(cRetorno, "Atenção")
+					u_MsgLog("BKMAT010","Erro ao incluir o produto na empresa "+TRIM(aEmpr[nI,4])+": "+cRetorno, "E")
 				Else
-					MsgStop("Produto não incluído na empresa "+TRIM(aEmpr[nI,4]), "Atenção")
+					u_MsgLog("BKMAT010","Produto não incluído na empresa "+TRIM(aEmpr[nI,4]), "E")
 				EndIf
 				u_MsgLog("BKMAT010","Erro2 ao incluir o o produto "+SB1->B1_COD+" na empresa "+TRIM(aEmpr[nI,4]))
 			ELSE

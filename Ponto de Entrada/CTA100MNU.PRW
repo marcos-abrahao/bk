@@ -475,7 +475,7 @@ Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA07","Posicione na revisão atual do contrato", "W")
 	Return .F.
 ENDIF
 
@@ -636,7 +636,7 @@ Local aAreaCNF	:= CNF->( GetArea() )
 Local cContRev
 
 IF CN9->CN9_SITUAC = "10"
-	MsgStop("Posicione na revisão atual do contrato", "Atenção")
+	u_MsgLog("BKGCTA09","Posicione na revisão atual do contrato", "W")
 	Return .F.
 ENDIF
 

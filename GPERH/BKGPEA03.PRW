@@ -47,7 +47,7 @@ u_MsgLog(cPerg)
 
 
 IF dDTPGTOF < dDTPGTOI
-	MsgStop("Data do Pagamento até menor a data do Pagamento de. Verifique!", "Atenção")
+	u_MsgLog("BKGPEA03","Data do Pagamento até menor a data do Pagamento de. Verifique!", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -91,7 +91,7 @@ ENDDO
 QSRDSRC->(DBCLOSEAREA())
 
 If Empty(aCtrId)
-	MsgStop("Nenhum funcionario nesta seleção ou ja informado no financeiro, verifique os filtros !!", "Atenção")
+	u_MsgLog("BKGPEA03","Nenhum funcionario nesta seleção ou ja informado no financeiro, verifique os filtros !!", "E")
 	RestArea(aAreaIni)
 	Return
 EndIf
@@ -176,7 +176,7 @@ If ( lOk2 )
 	 		ENDIF
 		NEXT
 	End Transaction
-   MSGINFO("Gerado com Sucesso, aguardando Liberação na Integração!")
+   u_MsgLog("BKGPEA03","Gerado com Sucesso, aguardando Liberação na Integração!","S")
 Endif
 
 RestArea(aAreaIni)

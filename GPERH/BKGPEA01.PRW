@@ -24,7 +24,7 @@ Private cProg := "BKGPEA01"
 Private cCrLf := Chr(13) + Chr(10)
 
 If FWCodEmp() <> "90"
-    MSGINFO("Rotina da empresa 90")
+    u_MsgLog("BKGPEA01","Utilizar somente na empresa 90","E")
     RETURN NIL
 ENDIF
 
@@ -45,7 +45,7 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 
 If nOpcA == 1
 	nOpcA:=0
-	Processa( {|| PBKGPEA01() })
+	u_WaitLog("BKGPEA01", {|| PBKGPEA01() })
 Endif
 
 RETURN NIL
@@ -122,10 +122,10 @@ STATIC FUNCTION PBKGPEA01()
 		ENDIF
 	ENDDO
 
-   ProcRegua(LEN(aSRA))
+   //ProcRegua(LEN(aSRA))
 	IF LEN(aSRA) > 0
         FOR nLinha := 1 to LEN(aSRA)
-            IncProc("Criando Cadastro ...")
+            //IncProc("Criando Cadastro ...")
 
 			aCabec := {{"RA_FILIAL",xFilial("SRA"),nil},;
 						{"RA_MAT",CONVCOL(aSRA[nLinha,1],"CZ",6),nil},;
@@ -198,7 +198,7 @@ STATIC FUNCTION PBKGPEA01()
         NEXT nLinha
     ENDIF
 
-    MSGINFO("Fim do Processamento!!")
+    u_MsgLog("BKGPEA01","Fim do Processamento!!","S")
 RETURN lRet
 
 

@@ -286,7 +286,7 @@ Next
 //AADD(aTitGer,{cPrf,cTitulo,QSZ2->Z2_CTRID,QSZ2->Z2_TIPO,QSZ2->Z2_BANCO,QSZ2->Z2_DATAPGT,TRANSFORM(QSZ2->XX_TOTAL,"@E 999,999,999.99")})
 
 If !lOk
-	MsgStop("Titulo "+cKey1+" já existente, informe o setor de T.I.", "Atenção")
+	//MsgStop("Titulo "+cKey1+" já existente, informe o setor de T.I.", "Atenção")
 	Return
 EndIf
 */

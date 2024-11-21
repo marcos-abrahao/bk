@@ -1162,7 +1162,7 @@ Dim sTit As String
 
  sFileName = u_LTmpDir()+ Replace(sFileName, "xlsm", "xlsx")
  
- MsgBox "Criando o gráfico! " + sFileName
+ //MsgBox "Criando o gráfico! " + sFileName
  
  Set wkb = Workbooks.Open(sFileName)
  
