@@ -30,9 +30,10 @@ Private cTitulo     := "Situação dos Contratos"
 Private cProg    	:= "BKGCTR17"
 Private aParam		:=	{}
 Private aRet		:=	{}
-Private cVigentes	:= "Sim"
+Private cVigentes	:= "Vigentes"
+Private aSituac  	:= {"Vigentes", "Ultima Revisão","Todas Revisões"}
 
-aAdd( aParam ,{ 2, "Somente vigêntes", cVigentes  ,{"Sim", "Não"}	, 60,'.T.'  ,.T.})
+aAdd( aParam ,{ 2, "Filtrar contratos", cVigentes  ,aSituac	, 60,'.T.'  ,.T.})
 
 If !BkGC17()
    Return
@@ -50,7 +51,7 @@ oRExcel:SetSolicit(cSolicit)
 
 // Definição da Planilha 1
 oPExcel:= PExcel():New(cProg,cAlias)
-oPExcel:SetTitulo(IIf(Substr(cVigentes,1,1)=="S","Somente Contratos Vigentes","Todos os Contratos"))
+oPExcel:SetTitulo(cVigentes)
 
 dbSelectArea(cAlias)
 aStruct := dbStruct()
@@ -181,7 +182,11 @@ cQuery += "  CN9_DTOSER,"+CRLF
 cQuery += "  CN9_XXDVIG,"+CRLF
 
 // Data da Ultima Medição para calcular os Meses executados
-cQuery += "  (SELECT MAX(CND_DTINIC) FROM "+cTabCND+" CND WHERE CND_CONTRA = CN9_NUMERO AND CND.D_E_L_E_T_ = '') AS CND_DTINIC,"+CRLF
+If Substr(cVigentes,1,1) == "V" .OR. Substr(cVigentes,1,1) == "U"
+	cQuery += "  (SELECT MAX(CND_DTINIC) FROM "+cTabCND+" CND WHERE CND_CONTRA = CN9_NUMERO AND CND.D_E_L_E_T_ = '') AS CND_DTINIC,"+CRLF
+Else
+	cQuery += "  (SELECT MAX(CND_DTINIC) FROM "+cTabCND+" CND WHERE CND_CONTRA = CN9_NUMERO AND CND_REVISA <= CN9_REVISA AND CND.D_E_L_E_T_ = '') AS CND_DTINIC,"+CRLF
+EndIf
 
 // Ultima Competência
 //cQuery += "  (SELECT TOP 1 MAX(SUBSTRING(CNF_COMPET,4,4)+SUBSTRING(CNF_COMPET,1,2)+'01') FROM "+cTabCNF+" CNF WHERE CNF.CNF_CONTRA = CN9.CN9_NUMERO AND CNF_VLREAL > 0 AND CNF.D_E_L_E_T_ = ' ') AS MAXCOMPET "+ CRLF
@@ -230,11 +235,16 @@ cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '
 cQuery += " LEFT JOIN SYS_USR USR ON CN9_LOGUSR = USR.USR_ID AND USR.D_E_L_E_T_ = ''" + CRLF
 
 cQuery += " WHERE CN9.D_E_L_E_T_=''" + CRLF
-cQuery += "      AND (CN9_REVATU = ' ' OR CN9_SITUAC = '05') " + CRLF
-If Substr(cVigentes,1,1) == "S"
-	cQuery += "      AND CN9_SITUAC = '05'" + CRLF
-	//cQuery += "      AND CN9_XXDVIG >= '"+DTOS(dDataBase)+"'" + CRLF
+
+If Substr(cVigentes,1,1) == "V"
+	cQuery += "      AND CN9_REVATU = ' ' AND CN9_SITUAC = '05'" + CRLF
+ElseIf Substr(cVigentes,1,1) == "U"
+	cQuery += "      AND (CN9_REVATU = ' ' OR CN9_SITUAC = '05') " + CRLF
+//Else
+	//cQuery += "      AND CN9_SITUAC <> '07' AND CN9_SITUAC <> '08') " + CRLF
 EndIf
+
+cQuery += " ORDER BY CN9_NUMERO,CN9_REVISA" + CRLF
 
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "CN9_DTINIC" ))
 aAdd(aTcFields,FWSX3Util():GetFieldStruct( "CN9_DTASSI" ))

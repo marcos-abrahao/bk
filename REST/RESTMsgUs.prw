@@ -261,9 +261,9 @@ Return( lRet )
 
 // /v2
 WSMETHOD GET BROWAV1 QUERYPARAM userlib WSREST RestMsgUs
-Local cHTML		as char
-Local aParams      	As Array
-Local cMsg         	As Character
+Local cHTML		As char
+Local aParams   As Array
+Local cMsg      As Character
 
 u_BkAvPar(::userlib,@aParams,@cMsg)
 

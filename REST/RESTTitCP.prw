@@ -1054,7 +1054,8 @@ return .T.
 
 // /v2
 WSMETHOD GET BROWCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
-
+Local aParams	As Array
+Local cMsg		As Char
 Local cHTML		as char
 Local cDropEmp	as char
 Local aEmpresas := u_BKGrupo()
@@ -1904,6 +1905,7 @@ cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(::userlib)
+	u_BkAvPar(self:userlib,@aParams,@cMsg)
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 EndIf

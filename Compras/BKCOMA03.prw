@@ -42,7 +42,6 @@ Private aCompl   := {"1-Sim","2-Não"}
 
 u_MsgLog("BKCOMA03")
 
-
 /*
 // Codigo removido - codeanalisys 17/11/22
 dbSelectArea("SX5")
@@ -131,13 +130,12 @@ DEFINE SBUTTON FROM nSnd, 253 TYPE 2 ACTION (oDlg01:End(),,nOpcA:=0) ENABLE OF o
 
 ACTIVATE MSDIALOG oDlg01 CENTER Valid(ValidaNF())
 
-
 If nOpcA == 1
 	nOpcA:=0
 	IF SUBSTR(cTipoNF,1,2) == "AS"
-		MsgRun("Gerando os Itens. Aguarde!","",{|| MontaPlaAS()})
+		u_WaitLog(cProg, {|| MontaPlaAS()}, 'Gerando os Itens (AS). Aguarde!')		
 	ELSE
-		MsgRun("Gerando os Itens. Aguarde!","",{|| MontaItemNF()})
+		u_WaitLog(cProg, {|| MontaItemNF()}, 'Gerando os Itens ('+cTipoNF+'). Aguarde!')		
 	ENDIF
 Endif
 
@@ -430,7 +428,6 @@ IF LEN(aItemCC) > 0
 
 	If ( lOk )
 		lOk:=.F.
-		//Processa( {|| IncluiNF(aItemCC)})
 		u_WaitLog(cProg, {|| IncluiNF(aItemCC)}, 'Incluido Pré-Documento de Entrada')
 	Endif
 ENDIF
@@ -561,6 +558,10 @@ aadd(aCabec,{"F1_FORNECE",cForn})
 aadd(aCabec,{"F1_LOJA"   ,cLoja})
 aadd(aCabec,{"F1_ESPECIE",cEspec})
 aadd(aCabec,{"F1_EST",cUF})
+If SUBSTR(cTipoNF,1,2) == "CS"
+	aadd(aCabec,{"F1_COND","000"})
+	aadd(aCabec,{"F1_XXPVPGT",dDataBase})
+EndIf
 
 //Gera num randomico para diferenca de casas decimais
 IF LEN(aItemCC) > 1
@@ -602,7 +603,6 @@ ENDIF
 
 // Inclusao da Pre Nota
 Begin Transaction
-	//IncProc('Incluido Pré-Documento de Entrada')
 	
 	nOpc := 3
  	MSExecAuto({|x,y,z| MATA140(x,y,z)}, aCabec, aItens, nOpc,.T.)   
@@ -1000,7 +1000,6 @@ IF LEN(aItemCC) > 0
 	
 	If ( lOk )
 		lOk:=.F.
-		//Processa( {|| IncluiNF(aItemCC)})
 		u_WaitLog(cProg, {|| IncluiNF(aItemCC)}, 'Incluido Pré-Documento de Entrada')
 	Endif
 ENDIF

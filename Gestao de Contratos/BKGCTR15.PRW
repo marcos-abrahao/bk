@@ -163,14 +163,16 @@ DO WHILE CN9->(!EOF())
 
 	dDataI		:= CTOD("")
 	dDataI		:= QCNF->CNF_DTVENC
-	dDataFinal	:= CTOD("")
+	dDataFinal	:= CN9->CN9_XXDVIG
 	
 	DO WHILE QCNF->(!EOF())
 		nVTOTAL   += QCNF->CNF_VLPREV
 		IF QCNF->CNF_COMPET >= cCompet
 			nSALDOAT  += QCNF->CNF_SALDO
 		ENDIF
-		dDataFinal	:= QCNF->CNF_DTVENC
+		If !Empty(QCNF->CNF_DTVENC)
+			dDataFinal	:= QCNF->CNF_DTVENC
+		EndIf
 		QCNF->(DBSKIP())
 	ENDDO
     

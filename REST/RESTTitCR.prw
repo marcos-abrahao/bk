@@ -373,7 +373,12 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
 	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
 	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
-	aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
+	//aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
+	If !Empty((cQrySE1)->(E1_XXDTPRV))
+		aListCR[nPos]['PREVISAO']	:= (cQrySE1)->(SUBSTR(E1_XXDTPRV,1,4)+"-"+SUBSTR(E1_XXDTPRV,5,2)+"-"+SUBSTR(E1_XXDTPRV,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	Else
+		aListCR[nPos]['PREVISAO']	:= ""
+	EndIf
 	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
 	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
 	aListCR[nPos]['CONTRATO']	:= IIF(!EMPTY((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->E1_MDCONTR))
@@ -561,9 +566,10 @@ return .T.
 
 // /v2
 WSMETHOD GET BROWCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCR
-
-Local cHTML		as char
-Local cDropEmp	as char
+Local aParams	As Array
+Local cMsg		As Char
+Local cHTML		As char
+Local cDropEmp	As char
 Local aEmpresas := u_BKGrpFat()
 Local nE 		:= 0
 
@@ -672,8 +678,8 @@ thead input {
 <th scope="col" width="7%" >Título</th>
 <th scope="col" style="text-align:center;" width="5%" >Contrato</th>
 <th scope="col" width="20%">Cliente</th>
-<th scope="col" style="text-align:center;" width="5%" >Vencto</th>
 <th scope="col" style="text-align:center;" width="5%" >Emissão</th>
+<th scope="col" style="text-align:center;" width="5%" >Vencto</th>
 <th scope="col" style="text-align:center;" width="5%" >Pedido</th>
 <th scope="col" style="text-align:center;" width="5%" >Compet</th>
 <th scope="col" style="text-align:right;">Valor</th>
@@ -911,8 +917,8 @@ if (Array.isArray(titulos)) {
 	trHTML += '</td>';
 	trHTML += '<td align="center">'+object['CONTRATO']+'</td>';	
 	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
-	trHTML += '<td align="center">'+object['VENC']+'</td>';
 	trHTML += '<td align="center">'+object['EMISSAO']+'</td>';
+	trHTML += '<td align="center">'+object['VENC']+'</td>';
 	trHTML += '<td align="center">'+object['PEDIDO']+'</td>';
 	trHTML += '<td align="center">'+object['COMPET']+'</td>';
 
@@ -963,21 +969,21 @@ tableSE1 = $('#tableSE1').DataTable({
   "pageLength": 50,
   "processing": true,
   "language": {
-  "lengthMenu": "Registros por página: _MENU_ ",
-  "zeroRecords": "Nada encontrado",
-  "info": "Página _PAGE_ de _PAGES_",
-  "infoEmpty": "Nenhum registro disponível",
-  "infoFiltered": "(filtrado de _MAX_ registros no total)",
-  "search": "Filtrar:",
-  "decimal": ",",
-  "thousands": ".",
-  "processing": "Processando...",
-  "loadingRecords": "Processando...",
-  "paginate": {
-    "first":  "Primeira",
-    "last":   "Ultima",
-    "next":   "Próxima",
-    "previous": "Anterior"
+	"lengthMenu": "Registros por página: _MENU_ ",
+	"zeroRecords": "Nada encontrado",
+	"info": "Página _PAGE_ de _PAGES_",
+	"infoEmpty": "Nenhum registro disponível",
+	"infoFiltered": "(filtrado de _MAX_ registros no total)",
+	"search": "Filtrar:",
+	"decimal": ",",
+	"thousands": ".",
+	"processing": "Processando...",
+	"loadingRecords": "Processando...",
+	"paginate": {
+		"first":  "Primeira",
+		"last":   "Ultima",
+		"next":   "Próxima",
+		"previous": "Anterior"
     }
    },
   "columns": [
@@ -992,8 +998,8 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Título' },
         { data: 'Contrato' },		
         { data: 'Cliente' },
-        { data: 'Vencto' },
         { data: 'Emissão' },
+        { data: 'Vencto' },
         { data: 'Pedido' },
         { data: 'Compet' },
         { data: 'Valor' },
@@ -1079,7 +1085,7 @@ footerCallback: function (row, data, start, end, display) {
 			className: 'text-center'
     	},
 		{
-            targets: [6,7], render: DataTable.render.date()
+            targets: [6,7,13], render: DataTable.render.date()
         }
     ]
 
@@ -1232,7 +1238,8 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 			cbtn = 'Recebido';
 		}
 		document.getElementById(btnids).textContent = cbtn;
-		document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(2,4)
+		document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(0,4)
+		//document.getElementById('prev'+clin).value = ZYPrev.value
 		document.getElementById('oper'+clin).textContent = '#cUserName#';
 		document.getElementById('hist'+clin).textContent = ZYObs;
    		//var tr = $(this).closest('tr');
@@ -1283,8 +1290,11 @@ cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(::userlib)
+
+	u_BkAvPar(self:userlib,@aParams,@cMsg)
+
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
-	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
+	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)  
 EndIf
 
 cHtml := STRTRAN(cHtml,"#empresa#",::empresa)

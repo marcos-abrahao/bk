@@ -115,8 +115,9 @@ FOR IX_:=1 TO LEN(aCtrId)
 					{"F1_EST"       , "SP", NIL },;
 					{"F1_ESPECIE"   , "", NIL },;
 					{"F1_XXUSER"    , _cUsuario, NIL },;
-					{"F1_XXUSERS"   , _cSuper, NIL }}          
-
+					{"F1_XXUSERS"   , _cSuper, NIL },;          
+					{"F1_COND"		, "000"},;
+					{"F1_XXPVPGT"   , dDataBase}}
            
 		aItem  := {	{"D1_COD"    , _cProd, NIL },;
 					{"D1_QUANT"  , 1, NIL },;

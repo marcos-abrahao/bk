@@ -20,7 +20,7 @@
 BK - Integração Contabilização - Folha Senior/ADP
 @Return
 @author Adilson do Prado / Marcos Bispo Abrahão
-@since 2010 Rev 13/05/2024
+@since 2010 Rev 28/11/2024
 @version P12
 /*/
 
@@ -45,7 +45,6 @@ aRotina := {{"Pesquisar"				,"AxPesqui"		,0, 1},;
             {"Alterar"					,"AxAltera"		,0,	4}}
 
 //	{"Excluir"   ,"AxDeleta"	,0, 5},;
-
 
 mBrowse(6,1,22,75,cString)
 
@@ -367,6 +366,7 @@ FT_FGOTOP() //vai para o topo
 While !FT_FEOF()
  
 	//Capturar dados
+	cBuffer := ""
 	cBuffer := FT_FREADLN()  //lendo a linha
 	//u_xxLog(u_SLogDir()+"BKCTBA04.LOG","1-"+cBuffer)
 
@@ -391,8 +391,9 @@ While !FT_FEOF()
 		cEvento := SUBSTR(cBuffer,nPos,5)
 		nPos += 5
 
-		cEvDescr := SUBSTR(cBuffer,nPos,25)
-		nPos += 25
+		// Evdescr -> Aumentado de 25 para 50 ADP 28/11/2024
+		cEvDescr := SUBSTR(cBuffer,nPos,50)
+		nPos += 50
 
 		cValor := SUBSTR(cBuffer,nPos,12)
 		nValor := VAL(cValor) / 100
@@ -403,6 +404,7 @@ While !FT_FEOF()
 		//nPos += 8
 
 		//aAdd(aLinha,{cEmpresa,cAnoMes,cCC,"",cDebito,"",cCredito,"",cEvento,cEvDescr,nValor,dDataArq,""})
+		//cCC := "000000001"  // Teste
 		aAdd(aLinha,{cEmpresa,cAnoMes,cCC,"",cDebito,"",cCredito,"",cEvento,cEvDescr,nValor,""})
 
     ENDIF
@@ -468,7 +470,7 @@ Return lOk
 Static Function PCTB1I(aLinha)
 Local cTitulo	:= "Relação de Lote Contábil - ADP"
 Local cDescr 	:= "O objetivo deste relatório é a impressão de lote via arquivo TXT fornecido pela ADP."
-Local cVersao	:= "13/05/2024"
+Local cVersao	:= "28/11/2024"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 
@@ -560,6 +562,7 @@ For nI := 1 To Len(aLinha)
 	SZ5->Z5_EVENTO	:= cEvento
 	SZ5->Z5_EVDESCR	:= cEvDescr
 	SZ5->Z5_VALOR	:= nValor
+	SZ5->Z5_ORIGEM	:= "ADP"
 	//SZ5->Z5_DATAARQ	:= dDataArq
 	MsUnlock()
 

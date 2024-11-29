@@ -492,13 +492,14 @@ Return nDias
 
 
 // Saldo a receber do titulo informado pelo recno
+Static lClcMultLj := ( SuperGetMv("MV_JURTIPO",,"") == "L" ) .Or. ( SuperGetMv("MV_LJINTFS", ,.F.) )
 User Function SaldoRec(nRecE1)
 Local nSaldo	 := 0
 Local aArea 	 := GetArea()
 Local aAreaSE1	 := SE1->(GetArea())
 
-// --> Copiado do FINC040
-Local lClcMultLj := ( SuperGetMv("MV_JURTIPO",,"") == "L" ) .Or. ( SuperGetMv("MV_LJINTFS", ,.F.) )
+// --> Copiado do FINC040 -> Movido para static
+//Local lClcMultLj := ( SuperGetMv("MV_JURTIPO",,"") == "L" ) .Or. ( SuperGetMv("MV_LJINTFS", ,.F.) )
 
 Private nAbatim  := 0
 Private nDescFin := 0
@@ -543,7 +544,7 @@ If nRecE1 > 0
 			EndIf
 			fa070Juros(1, nSaldo)
 			
-			If	ExistFunc('FValAcess')
+			If ExistFunc('FValAcess')
 				nValAces := FValAcess(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_CLIENTE,SE1->E1_LOJA, SE1->E1_NATUREZ,!Empty(SE1->E1_BAIXA),,"R",SE1->E1_BAIXA,,SE1->E1_MOEDA)		
 			EndIf
 		Endif
