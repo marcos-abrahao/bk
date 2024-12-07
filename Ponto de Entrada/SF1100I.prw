@@ -53,7 +53,7 @@ If Inclui .AND. !l103Auto
 		u_GetSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 	EndIf
 
-	lAltPgt := U_SelFPgto(.T.,__cUserId $ "000000/000011/000012/000016/000170/000276",@cLibF1) // 170-João Cordeiro 276-Katia Galdino
+	lAltPgt := U_SelFPgto(.T.,__cUserId $ "000000/000016/000170/000197/000276",@cLibF1) // 170-João Cordeiro 276-Katia Galdino 197-Andresa
 
 	If lAltPgt
 		RecLock("SF1",.F.)

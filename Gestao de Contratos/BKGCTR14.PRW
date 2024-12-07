@@ -3162,6 +3162,8 @@ FOR _nI := 1 TO nPeriodo
 				cQuery2 += " LEFT JOIN SA2"+ALLTRIM(aConsorcio[nScan,8])+" SA2 ON D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ''" 
 				cQuery2 += " LEFT JOIN SB1"+ALLTRIM(aConsorcio[nScan,8])+" SB1 ON D1_COD = B1_COD  AND SB1.D_E_L_E_T_ = ''"                                         
 				cQuery2 += " LEFT JOIN CTT"+ALLTRIM(aConsorcio[nScan,8])+" CTT ON D1_FILIAL = CTT_FILIAL AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ''"
+				cQuery2 += " LEFT JOIN "+RETSQLNAME("SBM")+" SBM ON BM_FILIAL = '"+xFilial("SBM")+"' AND B1_GRUPO = BM_GRUPO  AND SBM.D_E_L_E_T_ = '' " +CRLF
+
 				cQuery2 += " WHERE SD1.D_E_L_E_T_ = '' "+CRLF
 				If nCompAtual = 1
 					cQuery2 += " AND SUBSTRING(D1_DTDIGIT,1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF

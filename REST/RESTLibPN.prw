@@ -378,15 +378,24 @@ Else
 		Case (cQrySF1)->F1_STATUS <> " "
 			cMsg:= "não pode ser liberada"
 		Case (cQrySF1)->F1_XXLIB $ "AN" .OR. (lMaster .AND. acao == "L" .AND. (cQrySF1)->F1_XXLIB $ "9R ")
-			// Liberar
 			cQuery := "UPDATE "+cTabSF1
+
 			If acao == 'E'
+				// Estornar
 				cQuery += "  SET F1_XXLIB = 'N',"
 				cMsg := "Restringida"
 				If !Empty(cMotivo)
 					cMotivo := "Motivo da restrição "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
 				EndIf
+			ElseIf acao == 'R'
+				// Reprovar
+				cQuery += "  SET F1_XXLIB = 'R',"
+				cMsg := "Reprovada"
+				If !Empty(cMotivo)
+					cMotivo := "Motivo reprovação "+DtoC(Date())+" "+Time()+" "+cUserName+": "+cMotivo
+				EndIf				
 			Else
+				// Liberar
 				cQuery += "  SET F1_XXLIB = 'L', F1_XXAVALI = '"+cAvali+"', "
 				cMsg := "liberada"
 				If !Empty(cMotivo)

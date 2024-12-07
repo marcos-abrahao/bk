@@ -166,7 +166,7 @@ IF nValor > 0
 		cQuery := "SELECT TOP 1 E1_NUM "
 		cQuery += " FROM "+RETSQLNAME("SE1")+" SE1"
 		cQuery += " WHERE E1_FILIAL = '"+xFilial("SE1")+"'"
-		cQuery += " AND E1_PREFIXO='ND' AND E1_TIPO='NDC'" 
+		cQuery += " AND E1_PREFIXO='ND' AND E1_TIPO='NDC' AND D_E_L_E_T_ = '' " 
 		cQuery += " ORDER BY E1_NUM DESC" 
 	 
 		If SELECT("QSE1") > 0 

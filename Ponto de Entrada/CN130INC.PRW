@@ -110,7 +110,7 @@ If (INCLUI .Or. ALTERA)
 		nDif := ABS(aCols[1,9] - CND_VLPREV)
         //If ABS(aCols[1,9] - CND_VLPREV) <= 10
 		If nDif > 0
-			IF __cUserId $ "000000/000012/000023" .OR. nDif <= 10
+			IF __cUserId $ "000000/000012/000023/000288" .OR. nDif <= 10
 				If u_MsgLog("CN130INC","Deseja ajustar a diferença entre a planilha e o cronograma (R$ "+ALLTRIM(STR(nDif))+")","Y")
 					aCols[1,9] := CND_VLPREV
 					aCols[1,8] := Round(aCols[1][9] / aCols[1][6],8)

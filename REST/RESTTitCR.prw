@@ -721,7 +721,7 @@ thead input {
     <th scope="col" style="text-align:center;" width="5%" ></th>
     <th scope="col" style="text-align:center;" width="5%" ></th>
     <th scope="col" style="text-align:center;" width="5%" ></th>
-    <th scope="col" style="text-align:center;" width="5%" >Totais:</th>
+    <th scope="col" style="text-align:right;" width="5%" >Totais:</th>
     <th scope="col" style="text-align:right;">Valor</th>
     <th scope="col" style="text-align:right;">Saldo Liq.</th>
     <th scope="col" style="text-align:center;"></th>
@@ -907,7 +907,7 @@ if (Array.isArray(titulos)) {
 	}
 
 	trHTML += '<tr>';
-	trHTML += '<td></td>';
+	trHTML += '<td>'+cStatus+'</td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['TIPO']+'</td>';
 
@@ -966,8 +966,11 @@ document.getElementById("mytable").innerHTML = trHTML;
 
 
 tableSE1 = $('#tableSE1').DataTable({
-  "pageLength": 50,
+  "pageLength": 25,
   "processing": true,
+  "scrollX": true,
+  "scrollCollapse": true,
+  "scrollY": "72vh",
   "language": {
 	"lengthMenu": "Registros por página: _MENU_ ",
 	"zeroRecords": "Nada encontrado",
@@ -1083,6 +1086,10 @@ footerCallback: function (row, data, start, end, display) {
 		{
 			target: 4,
 			className: 'text-center'
+    	},
+		{
+			targets: [10,11],
+			className: 'text-right'
     	},
 		{
             targets: [6,7,13], render: DataTable.render.date()

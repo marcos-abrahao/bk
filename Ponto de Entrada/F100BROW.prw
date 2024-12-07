@@ -16,7 +16,7 @@
 User Function F100BROW() 
 //Local aRotY
 
-IF __cUserId $ "000000/000012" // Administrador / Xavier
+IF __cUserId $ "000000/000016" // Administrador / Diego
 	AADD( aRotina, {OemToAnsi("Alt. dados contábeis"), "U_BKFIN100", 0, 4 } )
 ENDIF
 //AADD( aRotina, {OemToAnsi("Impressão Mov. Bancário"), "U_KFINR08", 0, 4 } )

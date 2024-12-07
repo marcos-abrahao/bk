@@ -653,8 +653,8 @@ Return lRet
 // Libera doc de entrada após o horário 
 User Function IsLibDPH(cPrw,cId)
 Local lRet := .T.
-//           Admin/Lau   /Diego /Bruno /Katia
-If !(cId $ "000000/000012/000016/000153/000276")
+//           Admin/Diego /Bruno /Katia /Andresa
+If !(cId $ "000000/000016/000153/000276/000197")
     If SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07'
         u_MsgLog(cPrw,"Não é permitido incluir, classificar ou liberar documentos entre 19h e 7h","E")
         lRet := .F.
@@ -666,8 +666,8 @@ Return lRet
 
 // Libera pedido de venda pela WEB
 User Function IsLibPv(cId)
-//            Admin  /Teste/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa
-Return cId $ "000000/000038/000016/000023/000153/000170/000165/000252/000288/"
+//            Admin  /Teste/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa/Andresa
+Return cId $ "000000/000038/000016/000023/000153/000170/000165/000252/000288/000197/"
 
 
 // É do grupo Fiscal
@@ -709,8 +709,8 @@ Return lRet
 // Retorna se o usuário é Gestor Financeiro 
 User Function IsGesFin(cId)
 Local lRet := .F.
-//        Diego.Oliveira/Katia
-If cId $ "000016/000276"
+//        Diego.Oliveira/Katia/Andresa
+If cId $ "000016/000276/000197/"
     lRet := .T.
 EndIf
 Return lRet
@@ -835,8 +835,8 @@ User Function UsrTeste()
 Return "000038"
 
 User Function GerFin()
-// Diego Oliveira
-Return "000016"
+// Diego Oliveira/ Andresa 
+Return "000016/000197/000276/000000"
 
 // Usuário Gerente Compras
 User Function GerCompras()
@@ -858,8 +858,8 @@ Return "000252"
 // Financeiro
 // Usuários que podem integrar PJ do Rubi pelo Financeiro BKFINA02
 User Function FinUsrPj()
-//      Admin  Diego  Andresa
-Return "000000/000016/000197"
+//      Admin  Diego  Andresa/Katia
+Return "000000/000016/000197/000276"
 
 
 //--------------------------------------
@@ -872,7 +872,7 @@ Return u_aUsrEmail(aUsers,cxEmail)
 
 // Emails faturamento
 User Function EmailFat(cUEmail)
-Local aUsers 	:= {cUEmail,u_GerFin(),u_GerGestao()}
+Local aUsers 	:= {cUEmail,Substr(u_GerFin(),1,6),u_GerGestao()}
 Local aGrupos 	:= {u_GrpFat()} // Grupo Faturamento
 Local aDeptos 	:= {}
 Local cEmail    := ""

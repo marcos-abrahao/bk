@@ -17,7 +17,7 @@
 User Function F580FAUT() 
 Local cFiltro := PARAMIXB[1]
 
-If !__cUserId $ u_GerFin() .AND. !__cUserId $ "000000/000012"
+If !__cUserId $ u_GerFin()
 	cFiltro += " AND E2_TIPO <> 'PA'"
 ENDIF
 

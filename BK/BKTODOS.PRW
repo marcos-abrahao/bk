@@ -131,6 +131,8 @@ Return
 // Criar Tabelas
 User Function TabsBk()
 
+dbSelectArea("SIG")
+
 dbSelectArea("CD2")
 dbSelectArea("CN9")
 dbSelectArea("CNA")

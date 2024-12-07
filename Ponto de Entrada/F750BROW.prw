@@ -358,7 +358,8 @@ If RpcSetEnv( _cEmpresa, _cFilial )
 			{"F1_EST"       , "SP", NIL },;
 			{"F1_ESPECIE"   , "", NIL },;
 			{"F1_XXUSER"    , _cUsuario, NIL },;
-			{"F1_XXUSERS"   , _cSuper, NIL }}          
+			{"F1_XXUSERS"   , _cSuper, NIL },;         
+			{"F1_XXPVPGT"   , dDataBase}}
 
 	//           {"F1_COND"      , "000" } }
 		

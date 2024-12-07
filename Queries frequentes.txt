@@ -3,15 +3,30 @@ SET STATISTICS IO,TIME ON
 -- DESCRIBE TABLE
 EXEC sp_help SZ2010;
 
+==============================================================
 
 -- Renomear a tabela dbo.FWTSFWSCHD_P12 PARA dbo.FWTSFWSCHD_P12RTST
 EXEC sp_rename 'dbo.FWTSFWSCHD_P12', 'FWTSFWSCHD_P12RTST';
 
+==============================================================
 -- Acerto CNF
 SELECT * FROM CNF010 WHERE NOT CNF_COMPET LIKE '%/%'
 UPDATE CNF010 SET CNF_COMPET = '12/2025' WHERE R_E_C_N_O_ = 613029
 
+==============================================================
+-- 06/12/2024 - ACERTO Z5_CC BHG
+SELECT * FROM SZ5150 WHERE Z5_CC LIKE  'Er:%'
+UPDATE SZ5150 SET Z5_CC = '000001010' WHERE Z5_CC LIKE  'Er:%'
 
+
+SELECT * FROM SZ5010 WHERE Z5_CC LIKE  'Er:%'
+
+UPDATE SZ5010 SET Z5_CC = '142000605' WHERE Z5_CC = 'Er:000614'
+UPDATE SZ5010 SET Z5_CC = '142000579' WHERE Z5_CC = 'Er:000613'
+UPDATE SZ5010 SET Z5_CC = '142000513' WHERE Z5_CC = 'Er:000612'
+UPDATE SZ5010 SET Z5_CC = '044000555' WHERE Z5_CC = 'Er:000618'
+
+==============================================================
 --Deletar SZ5 provisão de Ferias e 13
 SELECT * FROM SZ5010 WHERE Z5_ANOMES = '202312' AND (Z5_EVENTO = 'PRVF' OR Z5_EVENTO = 'PRVD' OR Z5_EVENTO = 'AJTF' OR Z5_EVENTO = 'AJTD')
 DELETE FROM SZ5010 WHERE Z5_ANOMES = '202312' AND (Z5_EVENTO = 'PRVF' OR Z5_EVENTO = 'PRVD' OR Z5_EVENTO = 'AJTF' OR Z5_EVENTO = 'AJTD')
