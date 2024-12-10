@@ -1,8 +1,8 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "TOTVS.CH"
 
-/*/{Protheus.doc} BKDSCTR
-BK - Atualização da tabela CONTRATOS do banco de dados PowerBk
+/*/{Protheus.doc} BKDSPRTUR
+BK - Atualização da Procedure BKTURNOVER do banco de dados dataP10 PowerBk
 
 @Return
 @author Marcos Bispo Abrahão
@@ -11,8 +11,6 @@ BK - Atualização da tabela CONTRATOS do banco de dados PowerBk
 /*/
 
 
-
-// Atualização da Procedure BKTURNOVER do banco de dados dataP10
 User Function BKDSPRTUR
 Local cQuery	:= ""
 Local cQueryD	:= ""

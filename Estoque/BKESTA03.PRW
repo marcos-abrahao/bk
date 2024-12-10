@@ -3,7 +3,7 @@
 #include "TopConn.ch"
 
 /*/
-BK -Inclusão Termo Transferencia / Responsabilidade / Recebimento controle de Estoque
+BKESTA03 - BK -Inclusão Termo Transferencia / Responsabilidade / Recebimento controle de Estoque
 
 @author Adilson do Prado
 @since 18/01/2023

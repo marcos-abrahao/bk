@@ -132,6 +132,7 @@ Return
 User Function TabsBk()
 
 dbSelectArea("SIG")
+dbSelectArea("CD5")
 
 dbSelectArea("CD2")
 dbSelectArea("CN9")

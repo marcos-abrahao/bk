@@ -2,6 +2,15 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"type": "totvs_language_web_debug",
+			"request": "launch",
+			"name": "Smart Client Web Debug",
+			"program": "${command:AskForProgramName}",
+			"smartclientUrl": "http://localhost:8085/webapp/",
+			"isMultiSession": true,
+			"enableTableSync": true
+		},
+		{
 			"type": "totvs_language_debug",
 			"request": "launch",
 			"name": "TOTVS Language Debug",
@@ -45,6 +54,6 @@
 			"label": "SIGAFAT"
 		}
 	],
-	"lastProgramExecuted": "SIGAgct",
+	"lastProgramExecuted": "sigacom",
 	"lastProgramArguments": []
 }

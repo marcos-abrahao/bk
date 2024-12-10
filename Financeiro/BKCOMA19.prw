@@ -270,7 +270,7 @@ Local cTexto	:= cTexto1
 Define MsDialog oDlg01 Title "Importação de dados: Excel --> Sol. Compra" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
 nSnd := 35
-@ nSnd,010 Say 'Cole as colunas do excel: Codigo do Produto,,, Quantidade'  Size 240,010 Pixel Of oDlg01
+@ nSnd,010 Say 'Cole as colunas do excel: Codigo do Produto,,,Quantidade'  Size 240,010 Pixel Of oDlg01
 nSnd += nTLin
 oMemo:= tMultiget():New(nSnd,10,{|u|if(Pcount()>0,cTexto :=u,cTexto )},oDlg01,280,100,,,,,,.T.)
 nSnd += nTLin
@@ -296,17 +296,21 @@ Local cDesc 	:= ""
 Local cCod  	:= ""
 Local cQuant	:= ""
 Local nValor 	:= 0
-Local nTamTex	:= 0
 Local cErro 	:= ""
+Local aLItens	:= {}
 
 nTotGeral 	:= 0
 cTexto  	:= FwNoAccent(cTexto) 
-nTamTex 	:= mlCount(cTexto, 200)
-	
-For nI := 1 To nTamTex
-	cLinha := TRIM(memoline(cTexto, 200, nI))
+cTexto		:= Strtran(cTexto,CHR(13),'')
+cTexto 		:= Strtran(cTexto,CHR(10),'|')
+cTexto		:= Strtran(cTexto,CHR(9)," ")
+aLItens		:= StrTokArr(cTexto,"|")
+
+For nI := 1 To Len(aLItens)
+
+	cLinha := aLItens[nI]
 	If !Empty(cLinha)
-		
+	
 		nK     := 0
 		cCod   := ""
 		cDesc  := ""

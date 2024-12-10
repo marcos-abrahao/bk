@@ -7,12 +7,12 @@
 		"authorizationtoken": ""
 	},
 	"connectedServer": {
-		"id": "tjhq6jla56bllnnwvnmlz7mntl59o",
+		"id": "7946go0c889m4ertu4a247l8b34mzo",
 		"type": "totvs_server_protheus",
 		"name": "Vscode",
 		"port": 1240,
 		"address": "10.139.0.30",
-		"buildVersion": "7.00.210324P",
+		"buildVersion": "7.00.240223P",
 		"secure": false,
 		"includes": [
 			"E:\\Protheus12\\BK\\Protheus\\include"
@@ -22,7 +22,7 @@
 		],
 		"username": "admin",
 		"environment": "P12",
-		"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTczMzQ3NjI3MTowOjE6MQ==.WRyGdXbzzLdU+8GKWdmvfxvRakilhzT8PDRKeCqYEfbUAOth0fXQnl/QhfF2UQSnP1KI86EwPODtbdejXlcBa6jP1l3YlfKqO66xY8IDXf3E1rKOI9tbKoFS0gihT5T+/DiT81cSmJWbFzvOvCEDX+zC3WtHIig1FXOJI0wjs+PlTJuzlRh5f5IJEA5rg+naUqU1+TkGoBsTkfHVfBLobDMdHn7IR4/v0TLw/DtyWwT7Wts0uXU2UpleVGD/xkWCDd6dXm97Mz1HVdU/6quMonAD/SO4bzAi++Y2YFz38u+XooZ89du0HI1EKYOLzpv+h3bhWctyckAuiNc701+gVg==",
+		"token": "djM6Nzk0NmdvMGM4ODltNGVydHU0YTI0N2w4YjM0bXpvOjE6MTAuMTM5LjAuMzA6MTI0MDowOjcuMDAuMjQwMjIzUDoz:djE6UDEyOmFkbWluOjR5SnptUFFDL1Zud0pkc3pwckhmZGZaS05IamRqbThLYlBvUzFIeS9Rb0k9|djI6MTczMzc3NDg2NzowOjE6MQ==.D2211iaCDteJzJ7zWYgTlrIsFRSdDmR5Dx8Uz6GBw4cgFrz79SO8OZGB3jeRGO8H+tka7VeXRHnqJj/sAVzpnMzrTWmP7j6D55Vbc+0QsDFLEdawr+PvwztyQp629xp4JsEQflPxa2qZ7Gz7M8vDMRmZi7D22Pp4xfqKmfmS2YUfAGIhlqfMm5q0g8upo8JYQlSFANeUP1ynItNVM4rNBUoh/r8RH/7C+s7L5SyUU4azDYckgi5k2PUgBlRS0kqe6/GLF+6NHyoPau/cOW0ML8iz20/j3Olou7uHHoMO+fkFnBPbSTrKcTT/ZqA90Zu3bNbHGE3WhTV5HeS1ltEWPw==",
 		"informations": {
 			"permissions": [],
 			"errorMessage": "",
@@ -31,30 +31,6 @@
 		}
 	},
 	"configurations": [
-		{
-			"id": "tjhq6jla56bllnnwvnmlz7mntl59o",
-			"type": "totvs_server_protheus",
-			"name": "Vscode",
-			"port": 1240,
-			"address": "10.139.0.30",
-			"buildVersion": "7.00.210324P",
-			"secure": false,
-			"includes": [
-				"E:\\Protheus12\\BK\\Protheus\\include"
-			],
-			"environments": [
-				"P12"
-			],
-			"username": "admin",
-			"environment": "P12",
-			"token": "djM6dGpocTZqbGE1NmJsbG5ud3ZubWx6N21udGw1OW86MToxMC4xMzkuMC4zMDoxMjQwOjA6Ny4wMC4yMTAzMjRQOjM=:djE6UDEyOmFkbWluOnU1c001VUt2VUJVVG9FRVlUdmNIUlRPQnhjVE16c3ZVd2x0R2dIWnRya3M9|djI6MTczMzQ3NjI3MTowOjE6MQ==.WRyGdXbzzLdU+8GKWdmvfxvRakilhzT8PDRKeCqYEfbUAOth0fXQnl/QhfF2UQSnP1KI86EwPODtbdejXlcBa6jP1l3YlfKqO66xY8IDXf3E1rKOI9tbKoFS0gihT5T+/DiT81cSmJWbFzvOvCEDX+zC3WtHIig1FXOJI0wjs+PlTJuzlRh5f5IJEA5rg+naUqU1+TkGoBsTkfHVfBLobDMdHn7IR4/v0TLw/DtyWwT7Wts0uXU2UpleVGD/xkWCDd6dXm97Mz1HVdU/6quMonAD/SO4bzAi++Y2YFz38u+XooZ89du0HI1EKYOLzpv+h3bhWctyckAuiNc701+gVg==",
-			"informations": {
-				"permissions": [],
-				"errorMessage": "",
-				"environmentDetectedType": "totvs_server_protheus",
-				"serverDetectedType": "totvs_server_protheus"
-			}
-		},
 		{
 			"id": "q7py0bai8wlu8rll7lio0f6gnwz2l",
 			"type": "totvs_server_protheus",
@@ -174,6 +150,30 @@
 				"environmentDetectedType": "totvs_server_protheus",
 				"serverDetectedType": "totvs_server_protheus"
 			}
+		},
+		{
+			"id": "7946go0c889m4ertu4a247l8b34mzo",
+			"type": "totvs_server_protheus",
+			"name": "Vscode",
+			"port": 1240,
+			"address": "10.139.0.30",
+			"buildVersion": "7.00.240223P",
+			"secure": false,
+			"includes": [
+				"E:\\Protheus12\\BK\\Protheus\\include"
+			],
+			"environments": [
+				"P12"
+			],
+			"username": "admin",
+			"environment": "P12",
+			"token": "djM6Nzk0NmdvMGM4ODltNGVydHU0YTI0N2w4YjM0bXpvOjE6MTAuMTM5LjAuMzA6MTI0MDowOjcuMDAuMjQwMjIzUDoz:djE6UDEyOmFkbWluOjR5SnptUFFDL1Zud0pkc3pwckhmZGZaS05IamRqbThLYlBvUzFIeS9Rb0k9|djI6MTczMzc3NDg2NzowOjE6MQ==.D2211iaCDteJzJ7zWYgTlrIsFRSdDmR5Dx8Uz6GBw4cgFrz79SO8OZGB3jeRGO8H+tka7VeXRHnqJj/sAVzpnMzrTWmP7j6D55Vbc+0QsDFLEdawr+PvwztyQp629xp4JsEQflPxa2qZ7Gz7M8vDMRmZi7D22Pp4xfqKmfmS2YUfAGIhlqfMm5q0g8upo8JYQlSFANeUP1ynItNVM4rNBUoh/r8RH/7C+s7L5SyUU4azDYckgi5k2PUgBlRS0kqe6/GLF+6NHyoPau/cOW0ML8iz20/j3Olou7uHHoMO+fkFnBPbSTrKcTT/ZqA90Zu3bNbHGE3WhTV5HeS1ltEWPw==",
+			"informations": {
+				"permissions": [],
+				"errorMessage": "",
+				"environmentDetectedType": "totvs_server_protheus",
+				"serverDetectedType": "totvs_server_protheus"
+			}
 		}
 	],
 	"savedTokens": [
@@ -260,7 +260,14 @@
 				"id": "3lqufg40y81m3rlha2ziko64cx5p",
 				"token": "djM6M2xxdWZnNDB5ODFtM3JsaGEyemlrbzY0Y3g1cDoxOjEwLjEzOS4wLjMwOjEyODA6MDo3LjAwLjI0MDIyM1A6Mw==:djE6UDEyOmFkbWluOjBxU2dMazRCSlg4Ly9vazJjZjYyKzhENFNTZit6WG1waU01SXdsaFI3cVk9|djI6MTczMjgyMDAxMTowOjE6MQ==.k5VL0vPaZCc3mJ3hEuxRqz48Itok6UWCYzGLVafd54flQYnKNm7KFlJfsMImyaxtpd36fw/5t5GkS2hRyHAcZEnWYh9ePLxtkhGmCljvnNARPlsKFJzcYjnnMR/Hde4ic/n4frauLcnGMSWu7oHnB0tBxehrl3m6PC68hhD9IM51J1+g2txwWM5ItcR454hioaVbzaz8GolnJ+ivZaQ4h5aTDsKHgsAhUircXNpltLwaiyouSTpOlP3Ez5YFRwwT54hjOdDsh4sfD9XekQoA+xwudTEEpTV1mm3w3sq2dHi3L9xGbO8lDMYeMiklPQZZR8DP5oi5HqiBUWgUsWmpMA=="
 			}
+		],
+		[
+			"7946go0c889m4ertu4a247l8b34mzo:P12",
+			{
+				"id": "7946go0c889m4ertu4a247l8b34mzo",
+				"token": "djM6Nzk0NmdvMGM4ODltNGVydHU0YTI0N2w4YjM0bXpvOjE6MTAuMTM5LjAuMzA6MTI0MDowOjcuMDAuMjQwMjIzUDoz:djE6UDEyOmFkbWluOjR5SnptUFFDL1Zud0pkc3pwckhmZGZaS05IamRqbThLYlBvUzFIeS9Rb0k9|djI6MTczMzc3NDg2NzowOjE6MQ==.D2211iaCDteJzJ7zWYgTlrIsFRSdDmR5Dx8Uz6GBw4cgFrz79SO8OZGB3jeRGO8H+tka7VeXRHnqJj/sAVzpnMzrTWmP7j6D55Vbc+0QsDFLEdawr+PvwztyQp629xp4JsEQflPxa2qZ7Gz7M8vDMRmZi7D22Pp4xfqKmfmS2YUfAGIhlqfMm5q0g8upo8JYQlSFANeUP1ynItNVM4rNBUoh/r8RH/7C+s7L5SyUU4azDYckgi5k2PUgBlRS0kqe6/GLF+6NHyoPau/cOW0ML8iz20/j3Olou7uHHoMO+fkFnBPbSTrKcTT/ZqA90Zu3bNbHGE3WhTV5HeS1ltEWPw=="
+			}
 		]
 	],
-	"lastConnectedServer": "tjhq6jla56bllnnwvnmlz7mntl59o"
+	"lastConnectedServer": "7946go0c889m4ertu4a247l8b34mzo"
 }

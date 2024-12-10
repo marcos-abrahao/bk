@@ -3,6 +3,16 @@ SET STATISTICS IO,TIME ON
 -- DESCRIBE TABLE
 EXEC sp_help SZ2010;
 
+
+
+
+Alteração de chamado
+==============================================================
+SELECT * FROM Chamado where Numero = 1224931
+SELECT * FROM Chamado where Usuario = 'andresa.cunha'
+SELECT * FROM Chamado where Usuario like 'isabela%'
+UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224931
+UPDATE Chamado SET Usuario = 'isabela.silva', NomeSolicitante = 'Isabela Melo Ferreira da Silva' where Numero = 1224932
 ==============================================================
 
 -- Renomear a tabela dbo.FWTSFWSCHD_P12 PARA dbo.FWTSFWSCHD_P12RTST
@@ -11,7 +21,10 @@ EXEC sp_rename 'dbo.FWTSFWSCHD_P12', 'FWTSFWSCHD_P12RTST';
 ==============================================================
 -- Acerto CNF
 SELECT * FROM CNF010 WHERE NOT CNF_COMPET LIKE '%/%'
-UPDATE CNF010 SET CNF_COMPET = '12/2025' WHERE R_E_C_N_O_ = 613029
+UPDATE CNF010 SET CNF_COMPET = '11/2024' WHERE R_E_C_N_O_ = 620160
+
+SELECT C5_XXCOMPM,R_E_C_N_O_ FROM SC5010 WHERE NOT C5_XXCOMPM LIKE '%/%'
+UPDATE SC5010 SET C5_XXCOMPM = '11/2024' WHERE R_E_C_N_O_ = 62778
 
 ==============================================================
 -- 06/12/2024 - ACERTO Z5_CC BHG

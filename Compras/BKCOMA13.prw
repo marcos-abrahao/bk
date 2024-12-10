@@ -398,7 +398,7 @@ TCQUERY cQuery NEW ALIAS "QTMP"
 Return NIL
 
 
-// Valor do IRRF - Via Bacno de dados do Senior
+// Valor do IRRF - Via Banco de dados do Senior
 User Function PIRRFCC(cMesI,cMesF)
 Local cQuery := ""
 If Select("QTMP") > 0

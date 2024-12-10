@@ -55,9 +55,9 @@ Local cValor	:= ""
 Local nValor 	:= 0
 Local cCC1      := ""
 Local cDescCC   := ""
-Local nTamTex	:= 0
 Local cErro 	:= ""
 Local aLinha    := {}
+Local aLItens	:= {}
 Local lErro		:= .F.
 Local yCol		:= {}
 Local xCol		:= {}
@@ -78,11 +78,13 @@ Local nPLocal   := aScan(aHeader,{|x| AllTrim(x[2])=="D1_LOCAL"})
 
 nTotGeral 	:= 0
 cTexto  	:= FwNoAccent(cTexto) 
-nTamTex 	:= mlCount(cTexto, 200)
+cTexto		:= Strtran(cTexto,CHR(13),'')
+cTexto 		:= Strtran(cTexto,CHR(10),'|')
 xCol 		:= aClone(aCols[1])
 
-For nI := 1 To nTamTex
-	cLinha := TRIM(memoline(cTexto, 200, nI))
+aLItens		:= StrTokArr(cTexto,"|")
+For nI := 1 To Len(aLItens)
+	cLinha := aLItens[nI]
 	If !Empty(cLinha)
 		lErro	:= .F.
         cLinha  := STRTRAN(cLinha,CHR(9)," ")
