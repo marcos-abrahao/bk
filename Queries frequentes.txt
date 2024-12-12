@@ -4,15 +4,16 @@ SET STATISTICS IO,TIME ON
 EXEC sp_help SZ2010;
 
 
-
-
 Alteração de chamado
 ==============================================================
-SELECT * FROM Chamado where Numero = 1224931
+SELECT * FROM Chamado where Numero = 1224949
 SELECT * FROM Chamado where Usuario = 'andresa.cunha'
 SELECT * FROM Chamado where Usuario like 'isabela%'
+SELECT * FROM Chamado where Usuario = 'fernando.sampaio'
 UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224931
 UPDATE Chamado SET Usuario = 'isabela.silva', NomeSolicitante = 'Isabela Melo Ferreira da Silva' where Numero = 1224932
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224947
+UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224949
 ==============================================================
 
 -- Renomear a tabela dbo.FWTSFWSCHD_P12 PARA dbo.FWTSFWSCHD_P12RTST
@@ -25,6 +26,9 @@ UPDATE CNF010 SET CNF_COMPET = '11/2024' WHERE R_E_C_N_O_ = 620160
 
 SELECT C5_XXCOMPM,R_E_C_N_O_ FROM SC5010 WHERE NOT C5_XXCOMPM LIKE '%/%'
 UPDATE SC5010 SET C5_XXCOMPM = '11/2024' WHERE R_E_C_N_O_ = 62778
+
+SELECT CND_COMPET,* FROM CND010 WHERE NOT CND_COMPET LIKE '%/%'
+UPDATE CND010 SET CND_COMPET = '09/2024' WHERE CND_COMPET = '092024'
 
 ==============================================================
 -- 06/12/2024 - ACERTO Z5_CC BHG

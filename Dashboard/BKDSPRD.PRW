@@ -58,7 +58,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += " LEFT JOIN "+cTabCT1+" CT1 ON "+CRLF
 	cQuery += "  	CT1_CONTA = B1_CONTA "+CRLF
 	cQuery += "  	AND CT1.D_E_L_E_T_ = '' "+CRLF
-	cQuery += " LEFT JOIN "+cTabSZI+" SZI ON ZI_COD = B1_XXSGRP AND SZI.D_E_L_E_T_ = ' ' "+CRLF
+	cQuery += " LEFT JOIN "+cTabSZI+" SZI ON B1_GRUPO = ZI_GRUPO AND B1_XXSGRP = ZI_COD AND SZI.D_E_L_E_T_ = ' ' "+CRLF
 	cQuery += " LEFT JOIN "+cTabSBM+" SBM ON BM_GRUPO = B1_GRUPO AND SBM.D_E_L_E_T_ = ' ' "+CRLF
 	cQuery += " WHERE SB1.D_E_L_E_T_ = '' "+CRLF
 	cQuery += "     AND SB1.B1_FILIAL = '"+xFilial("SB1")+"' "+CRLF

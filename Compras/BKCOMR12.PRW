@@ -319,7 +319,7 @@ If lSintetico
 	cQuery := "SELECT D1_CC, SUM(D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC) AS D1_TOTAL,B1_XXSGRP,ZI_DESC,B1_GRUPO "
 	cQuery += " FROM "+RETSQLNAME("SD1")+" SD1" 
 	cQuery += " INNER JOIN "+RETSQLNAME("SB1")+" SB1 ON D1_COD = B1_COD    AND SB1.D_E_L_E_T_ = ' ' "                                         
-	cQuery += " LEFT  JOIN "+RETSQLNAME("SZI")+" SZI ON ZI_COD = B1_XXSGRP AND SZI.D_E_L_E_T_ = ' ' "                                         
+	cQuery += " LEFT  JOIN "+RETSQLNAME("SZI")+" SZI ON B1_GRUPO = ZI_GRUPO AND B1_XXSGRP = ZI_COD AND SZI.D_E_L_E_T_ = ' ' "                                         
 	
 	cQuery += " WHERE SD1.D_E_L_E_T_ = ' ' AND SUBSTRING(D1_CONTA,1,1) = '3' "
 	cQuery +=       " AND D1_PEDIDO <> '' "

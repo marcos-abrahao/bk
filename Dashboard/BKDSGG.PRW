@@ -172,7 +172,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ) " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabSZI+" SZI" + CRLF
-	cQuery += "     ON (B1_XXSGRP = ZI_COD " + CRLF
+	cQuery += "     ON (B1_GRUPO = ZI_GRUPO AND B1_XXSGRP = ZI_COD " + CRLF
 	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
 	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -547,7 +547,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ) " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabSZI+" SZI" + CRLF
-	cQuery += "     ON (Z2_TIPO = ZI_COD " + CRLF
+	cQuery += "     ON (Z2_TIPO = ZI_COD AND ZI_GRUPO = '0004' " + CRLF
 	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
 	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -670,7 +670,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  ) " + CRLF
 
 	cQuery += " LEFT JOIN "+cTabSZI+" SZI" + CRLF
-	cQuery += "     ON (Z2_TIPO = ZI_COD " + CRLF
+	cQuery += "     ON (Z2_TIPO = ZI_COD AND ZI_GRUPO = '0004'" + CRLF
 	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
 	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
