@@ -13,6 +13,9 @@ BK - Funcoes com parâmetros embutidos no fonte
 User Function STmpAnexos()
 Return "\http\anexos\"
 
+User Function STmpHttp()
+Return "\http\tmp\"
+
 // Pasta temporaria Server
 User Function STmpDir()
 Return "\tmp\"

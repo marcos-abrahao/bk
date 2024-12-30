@@ -6,7 +6,7 @@
 			"request": "launch",
 			"name": "Smart Client Web Debug",
 			"program": "${command:AskForProgramName}",
-			"smartclientUrl": "http://localhost:8085/webapp/",
+			"smartclientUrl": "http://localhost:8082/webapp/",
 			"isMultiSession": true,
 			"enableTableSync": true
 		},
@@ -54,6 +54,6 @@
 			"label": "SIGAFAT"
 		}
 	],
-	"lastProgramExecuted": "sigacom",
+	"lastProgramExecuted": "SIGAMDI",
 	"lastProgramArguments": []
 }

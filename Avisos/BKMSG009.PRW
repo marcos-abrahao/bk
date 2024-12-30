@@ -81,7 +81,7 @@ For nE := 1 To Len(aBKGrupo)
 	TCSETFIELD("QSC1","C1_DATPRF","D",8,0)
 	TCSETFIELD("QSC1","C1_XDTAPRV","D",8,0)
 
-	u_LogMemo(cProg+TRIM(aBKGrupo[nE,3])+".SQL",cQuery)
+	u_LogMemo(cProg+TRIM(aBKGrupo[nE,1])+".SQL",cQuery)
 
 	(_cAlias)->(dbgotop())
 

@@ -788,7 +788,7 @@ Return "000016"
 User Function GrpFisc()
 Return "000031"
 
-// RH
+// Master RH
 User Function GrpMRH()
 Return "000041"
 

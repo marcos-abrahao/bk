@@ -6,18 +6,45 @@ EXEC sp_help SZ2010;
 
 Alteração de chamado
 ==============================================================
-SELECT * FROM Chamado where Numero = 1224949
-SELECT * FROM Chamado where Usuario = 'andresa.cunha'
-SELECT * FROM Chamado where Usuario like 'isabela%'
-SELECT * FROM Chamado where Usuario = 'fernando.sampaio'
+SELECT * FROM Chamado where Usuario like 'wiliam.l%'
+SELECT * FROM Chamado where Usuario like 'luis.s%'
+SELECT * FROM Chamado where Usuario like 'guilherme%'
 UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224931
 UPDATE Chamado SET Usuario = 'isabela.silva', NomeSolicitante = 'Isabela Melo Ferreira da Silva' where Numero = 1224932
 UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224947
 UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224949
+UPDATE Chamado SET Usuario = 'joao.vitor', NomeSolicitante = 'João Vitor de Almeida' where Numero = 1224955
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224956
+UPDATE Chamado SET Usuario = 'joao.gouvea', NomeSolicitante = 'João Paulo Gouvêa' where Numero = 1224969
+UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 1224970
+UPDATE Chamado SET Usuario = 'luis.souza', NomeSolicitante = 'Luis Fernando Souza' where Numero = 1224971
+UPDATE Chamado SET Usuario = 'guilherme.moreira', NomeSolicitante = 'Guilherme Spolaor Moreira' where Numero = 1224974
+UPDATE Chamado SET Usuario = 'jalielison.alves', NomeSolicitante = 'Jalielison Alves Silva' where Numero = 1224996
+UPDATE Chamado SET Usuario = 'isabela.silva', NomeSolicitante = 'Isabela Melo Ferreira da Silva' where Numero = 1224004
+UPDATE Chamado SET Usuario = 'elber.moura', NomeSolicitante = 'Elber Moura' where Numero = 1224006
+UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224009
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224011
+UPDATE Chamado SET Usuario = 'katia.galdino', NomeSolicitante = 'Katia Galdino' where Numero = 1224015
+UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 1224016
+UPDATE Chamado SET Usuario = 'fabia.pesaro', NomeSolicitante = 'Fabia Pereira Pesaro' where Numero = 1224017
+UPDATE Chamado SET Usuario = 'luis.souza', NomeSolicitante = 'Luis Fernando Souza' where Numero = 1224020
 ==============================================================
 
 -- Renomear a tabela dbo.FWTSFWSCHD_P12 PARA dbo.FWTSFWSCHD_P12RTST
 EXEC sp_rename 'dbo.FWTSFWSCHD_P12', 'FWTSFWSCHD_P12RTST';
+
+==============================================================
+
+-- Acerto medição sem cliente e A1_LOJA
+SELECT CXN_NUMMED,CXN_CLIENT,CNA_CLIENT,CNA_LOJACL,CXN_LJCLI,CXN_CONTRA,CNA_CONTRA,CXN_REVISA,CNA_REVISA,CXN_NUMPLA,CNA_NUMERO
+FROM CXN010 CXN
+LEFT JOIN CNA010 CNA ON CXN_CONTRA = CNA_CONTRA AND CXN_REVISA = CNA_REVISA AND CXN_NUMPLA = CNA_NUMERO AND CNA.D_E_L_E_T_ = ''
+WHERE CXN_NUMMED = '057931' AND CXN.D_E_L_E_T_ = ''
+
+UPDATE CXN010 SET CXN_CLIENT = CNA_CLIENT, CXN_LJCLI = CNA_LOJACL
+FROM CXN010 CXN
+LEFT JOIN CNA010 CNA ON CXN_CONTRA = CNA_CONTRA AND CXN_REVISA = CNA_REVISA AND CXN_NUMPLA = CNA_NUMERO AND CNA.D_E_L_E_T_ = ''
+WHERE CXN_NUMMED = '057931' AND CXN.D_E_L_E_T_ = '' AND CXN_CLIENT = ''
 
 ==============================================================
 -- Acerto CNF

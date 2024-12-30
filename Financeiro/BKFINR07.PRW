@@ -25,7 +25,7 @@ Local aPlans         := {}
 Private cPerg        := "BKFINR07"
 Private fGFrota      := fFrota
 
-Private nData,dDtIni,dDtFim,nPagto,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin,cForn
+Private nData,dDtIni,dDtFim,nPagto,cProduto,cCustoDe,cCustoAte,nUsers,nImpostos,nPaFin,cForn,cGrupo
 Private aPgtos 		 := {}
 
 ValidPerg(cPerg)
@@ -45,6 +45,7 @@ cCustoAte:= MV_PAR08
 nUsers   := MV_PAR09
 nImpostos:= MV_PAR10
 nPaFin	 := MV_PAR11
+cGrupo   := MV_PAR12
 
 fGFrota  := fFrota
 
@@ -75,6 +76,13 @@ AADD(aCabs  ,"Descricao do Produto")
 
 AADD(aCampos,"QSD1->B1_CONTA")
 AADD(aCabs  ,"(Prod) "+GetSX3Cache("B1_CONTA", "X3_TITULO"))
+
+
+AADD(aCampos,"QSD1->BM_GRUPO")
+AADD(aCabs  ,"Grupo")
+
+AADD(aCampos,"QSD1->BM_DESC")
+AADD(aCabs  ,"Descricao Grupo")
 
 AADD(aCampos,"QSD1->ZI_COD")
 AADD(aCabs  ,"Sub Grupo")
@@ -420,6 +428,8 @@ cQuery += " D1_FILIAL, "+CRLF
 cQuery += " D1_COD, "+CRLF
 cQuery += " D1_ITEM, "+CRLF
 cQuery += " B1_DESC, "+CRLF
+cQuery += " BM_GRUPO, "+CRLF
+cQuery += " BM_DESC, "+CRLF
 cQuery += " D1_TOTAL+D1_VALFRE+D1_SEGURO+D1_DESPESA-D1_VALDESC AS D1_TOTAL, "+CRLF
 cQuery += " D1_QUANT, "+CRLF
 cQuery += " D1_CC, "+CRLF
@@ -540,6 +550,7 @@ cQuery += " CONVERT(VARCHAR(6000),CONVERT(Binary(6000),D1_XXHIST)) D1_XXHIST "+C
 cQuery += "FROM "+RETSQLNAME("SD1")+" SD1 "
 cQuery += " LEFT JOIN "+RETSQLNAME("SA2")+" SA2 ON A2_FILIAL = '"+xFilial("SA2")+"' AND D1_FORNECE = A2_COD AND D1_LOJA = A2_LOJA AND SA2.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+" SB1 ON B1_FILIAL = '"+xFilial("SB1")+"' AND D1_COD = B1_COD AND SB1.D_E_L_E_T_ = ' ' "+CRLF
+cQuery += " LEFT JOIN "+RETSQLNAME("SBM")+" SBM ON BM_FILIAL = '"+xFilial("SBM")+"' AND B1_GRUPO = BM_GRUPO AND SBM.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+" CTT ON CTT_FILIAL = '"+xFilial("CTT")+"' AND D1_CC = CTT_CUSTO AND CTT.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SC7")+" SC7 ON D1_FILIAL = C7_FILIAL AND D1_PEDIDO = C7_NUM AND D1_ITEMPC = C7_ITEM AND SC7.D_E_L_E_T_ = ' ' "+CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SZI")+" SZI ON ZI_FILIAL = '"+xFilial("SZI")+"' AND ZI_COD = B1_XXSGRP AND ZI_GRUPO = B1_GRUPO AND SZI.D_E_L_E_T_ = ' ' "+CRLF
@@ -630,7 +641,12 @@ IF !Empty(cForn)
 		ctitulo += " - Fornecedor: "+ALLTRIM(cForn)
 	ENDIF
 EndIf
-
+IF !Empty(cGrupo)
+	cQuery += " AND SB1.B1_GRUPO = '"+ALLTRIM(cGrupo)+"' "+CRLF
+	IF EMPTY(cCustoDe)
+		ctitulo += " - Grupo: "+ALLTRIM(cGrupo)
+	ENDIF
+EndIf
 
 If nPaFin == 1 .AND. EMPTY(cProduto)
 
@@ -641,6 +657,8 @@ If nPaFin == 1 .AND. EMPTY(cProduto)
 	cQuery += " 'PA' 		AS D1_COD,"+CRLF
 	cQuery += " ' ' 		AS D1_ITEM,"+CRLF
 	cQuery += " 'PAGAMENTO ANTECIPADO' AS B1_DESC,"+CRLF
+	cQuery += " ' '         AS BM_GRUPO, "+CRLF
+	cQuery += " ' '         AS BM_DESC, "+CRLF	
 	cQuery += " E2_SALDO 	AS D1_TOTAL,"+CRLF
 	cQuery += " 0 			AS D1_QUANT,"+CRLF
 	cQuery += " E2_CCUSTO 	AS D1_CC,CTT_DESC01,"+CRLF
@@ -1015,6 +1033,7 @@ AADD(aRegistros,{cPerg,"08","Contrato até?"    ,"Contrato até?","Contrato até?",
 AADD(aRegistros,{cPerg,"09","Listar usuários?" ,"Usuários"     ,"Usuários"     ,"mv_ch9","N",01,0,2,"C","","mv_par09","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 AADD(aRegistros,{cPerg,"10","Listar impostos?" ,"Impostos"     ,"Impostos"     ,"mv_cha","N",01,0,2,"C","","mv_par10","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
 AADD(aRegistros,{cPerg,"11","Listar PA (fin)?" ,"Listar PA"    ,"Listar PA"    ,"mv_chb","N",01,0,2,"C","","mv_par11","Sim","Sim","Sim","","","Nao","Nao","Nao","","","","","","","","","","","","","","","","","   "})
+AADD(aRegistros,{cPerg,"12","Filtrar grupo:"   ,"Grupo"        ,"Grupo"        ,"mv_chc","C",04,0,0,"G",'Vazio() .or. ExistCpo("SBM")',"mv_par12","","","","","","","","","","","","","","","","","","","","","","","","","SBM","S","",""})
 
 For i:=1 to Len(aRegistros)
 	If !dbSeek(cPerg+aRegistros[i,2])

@@ -539,7 +539,7 @@ Return nil
 Static Function RelHtml(cHtml) 
 Local aArea     := GetArea()
 Local aAreaSE2  := GetArea("SE2")
-Local cDirTmp   := "\http\tmp\"
+Local cDirTmp   := u_STmpHttp()
 Local cArqHtml  := ""
 Local cUrl 		:= ""
 

@@ -110,11 +110,14 @@ Local cZYObs	:= AllTrim(oJson['zyobs'])
 Local aAreaSZY
 Local cNewAls
 Local cModo
+Local dPrev
 
 Default cMsg	:= ""
 Default cMotivo := ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
+
+dPrev  := STOD(cZyPrev)
 
 cQuery := "SELECT "
 cQuery += "   SE1.E1_TIPO"
@@ -145,6 +148,10 @@ Do Case
 		cQuery += "      ,E1_XXDTPRV = '"+cZyPrev+"'"+CRLF
 		cQuery += "      ,E1_XXOPER  = '"+__cUserId+"'"+CRLF
 		cQuery += "      ,E1_XXHISTM = CONVERT(VARBINARY(MAX),'"+cZYObs+"')"+CRLF
+		If !Empty(dPrev)
+			cQuery += "  ,E1_VENCTO   = '"+cZyPrev+"'"+CRLF
+			cQuery += "  ,E1_VENCREA  = '"+DTOS(DATAVALIDA(dPrev))+"'"+CRLF
+		EndIf
 		cQuery += " FROM "+cTabSE1+" SE1"+CRLF
 		cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno+CRLF
 
@@ -242,6 +249,8 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:AddCol("Cliente","A1_NOME","Cliente","A1_NOME")
 
 	oPExcel:AddCol("VENC","STOD(E1_VENCREA)","Vencto","E1_VENCREA")
+
+	oPExcel:AddCol("VENCORI","STOD(E1_VENCORI)","Vencto Original","E1_VENCORI")
 
 	oPExcel:AddCol("EMISSAO","STOD(E1_EMISSAO)","Emissao","E1_EMISSAO")
 
@@ -382,7 +391,10 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
 	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
 	aListCR[nPos]['CONTRATO']	:= IIF(!EMPTY((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->E1_MDCONTR))
+	aListCR[nPos]['VENCORI']	:= (cQrySE1)->(SUBSTR(E1_VENCORI,1,4)+"-"+SUBSTR(E1_VENCORI,5,2)+"-"+SUBSTR(E1_VENCORI,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
+
+	//u_MsgLog("RESTTITCR-V0",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
 	(cQrySE1)->(DBSkip())
 
@@ -450,6 +462,7 @@ cQuery += "	 ,E1_XXHIST"+CRLF
 cQuery += "	 ,E1_EMISSAO"+CRLF
 cQuery += "	 ,E1_BAIXA"+CRLF
 cQuery += "	 ,E1_VENCREA"+CRLF
+cQuery += "	 ,E1_VENCORI"+CRLF
 cQuery += "	 ,E1_VALOR"+CRLF
 cQuery += "	 ,E1_XXOPER"+CRLF
 cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
@@ -480,7 +493,7 @@ cQuery += "	 	AND SA1.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "WHERE SE1.R_E_C_N_O_ = "+self:e1recno + CRLF
 
-//u_LogMemo("RESTTITCR-E2.SQL",cQuery)
+u_LogMemo("RESTTITCR-E2.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 
@@ -501,6 +514,9 @@ oJsonPN['E1_VENCREA']	:= DTOC(STOD((cQrySE1)->E1_VENCREA))
 oJsonPN['E1_XXOPER']	:= UsrRetName((cQrySE1)->E1_XXOPER)
 oJsonPN['E1_PEDIDO']	:= (cQrySE1)->E1_PEDIDO
 oJsonPN['E1_XXHISTM']	:= (cQrySE1)->E1_XXHISTM
+oJsonPN['E1_VENCORI']	:= DTOC(STOD((cQrySE1)->E1_VENCORI))
+
+u_MsgLog("RESTTITCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
 (cQrySE1)->(dbCloseArea())
 
@@ -573,7 +589,7 @@ Local cDropEmp	As char
 Local aEmpresas := u_BKGrpFat()
 Local nE 		:= 0
 
-//u_MsgLog(,"BROWCR/1")
+u_MsgLog(,"BROWCR/1")
 
 BEGINCONTENT var cHTML
 
@@ -768,6 +784,12 @@ thead input {
              <label for="E1Emissao" class="form-label">Emissão</label>
              <input type="text" class="form-control form-control-sm" id="E1Emissao" value="#E1Emissao#" readonly="">
            </div>
+
+		   <div class="col-md-1">
+             <label for="E1VencOri" class="form-label">Venc. Original1</label>
+             <input type="text" class="form-control form-control-sm" id="E1VencOri" value="#E1VencOri#" readonly="">
+           </div>
+
            <div class="col-md-1">
              <label for="E1VencRea" class="form-label">Vencimento</label>
              <input type="text" class="form-control form-control-sm" id="E1VencRea" value="#E1VencRea#" readonly="">
@@ -949,6 +971,8 @@ if (Array.isArray(titulos)) {
 
 	trHTML += '<td id=hist'+clin+'>'+object['HISTM']+'</td>';
 
+	trHTML += '<td id=vencori'+clin+'>'+object['VENCORI']+'</td>';
+
 	trHTML += '</tr>';
 
 	nlin += 1;
@@ -1010,7 +1034,8 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Status' },
         { data: 'Previsão' },
         { data: 'Operador' },
-        { data: 'Histórico' }
+        { data: 'Histórico' },
+		{ data: 'VencOri' }
 
   ],
   "order": [[1,'asc']],
@@ -1079,7 +1104,7 @@ footerCallback: function (row, data, start, end, display) {
     },
 	columnDefs: [
     	{
-            target: 15,
+            targets: [15,16],
             visible: false,
             searchable: false
         },
@@ -1108,6 +1133,7 @@ function format(d) {
     return (
         '<dl>' +
         '<dt>Contrato:&nbsp;&nbsp;'+d.Contrato+'</dt>' +
+	    '<dt>Vencimento Original:&nbsp;&nbsp;'+d.VencOri+'</dt>' +
         '<dd>' +
         '</dd>' +
         '</dl>'
@@ -1163,6 +1189,7 @@ document.getElementById('E1Num').value = dadosE1['E1_NUM'];
 document.getElementById('E1NomCLI').value = dadosE1['A1_NOME'];
 document.getElementById('E1Emissao').value = dadosE1['E1_EMISSAO'];
 document.getElementById('E1VencRea').value = dadosE1['E1_VENCREA'];
+document.getElementById('E1VencOri').value = dadosE1['E1_VENCORI'];
 document.getElementById('E1Oper').value = dadosE1['E1_XXOPER'];
 document.getElementById('E1HistM').value = dadosE1['E1_XXHISTM'];
 document.getElementById('E1Pedido').value = dadosE1['E1_PEDIDO'];
@@ -1332,18 +1359,22 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 
 //StrIConv( cHtml, "UTF-8", "CP1252")
 //DecodeUtf8(cHtml)
-cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+//cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 //u_MsgLog(,"BROWCR/2")
 //If ::userlib == '000000'
-	Memowrite(u_STmpDir()+"cr.html",cHtml)
+	//Memowrite(u_STmpDir()+"cr.html",cHtml)
 //EndIf
 //u_MsgLog("RESTTITCR",__cUserId)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetHeader("Accept", "UTF-8")
+
 self:setResponse(cHTML)
 self:setStatus(200)
 
+
+//; charset=iso-8859-1
 return .T.
 
 
@@ -1402,6 +1433,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),E1_XXHISTM)) AS E1_XXHISTM "+CRLF
 	cQuery += "	 ,E1_VENCREA"+CRLF
 	cQuery += "	 ,E1_EMISSAO"+CRLF
+	cQuery += "	 ,E1_VENCORI"+CRLF
 	cQuery += "	 ,E1_VALOR"+CRLF
 	cQuery += "	 ,E1_PEDIDO"+CRLF
 	cQuery += "	 ,E1_XXTPPRV"+CRLF
@@ -1450,8 +1482,8 @@ For nE := 1 To Len(aEmpresas)
 	//cQuery += "  AND E1_VENCREA >= '"+xVencIni+"' "+CRLF
 	//cQuery += "  AND E1_VENCREA <= '"+xVencFim+"' "+CRLF
 
-	cQuery += "  AND E1_VENCREA >= ? --"+xVencIni+CRLF
-	cQuery += "  AND E1_VENCREA <= ? --"+xVencFim+CRLF
+	cQuery += "  AND E1_VENCREA >= ? --" + xVencIni + CRLF
+	cQuery += "  AND E1_VENCREA <= ? --" + xVencFim + CRLF
 	aAdd(aBinds,xVencIni)
 	aAdd(aBinds,xVencFim)
 Next
