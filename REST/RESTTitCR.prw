@@ -118,6 +118,7 @@ Default cMotivo := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 dPrev  := STOD(cZyPrev)
+u_MsgLog("fStatus",cZyPrev + " - "+DTOC(dPrev))
 
 cQuery := "SELECT "
 cQuery += "   SE1.E1_TIPO"
@@ -653,6 +654,7 @@ thead input {
 </style>
 </head>
 <body>
+<div id="conteudo-principal">
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Títulos a Receber - #cUserName#</a> 
@@ -882,13 +884,17 @@ thead input {
 
 async function getCRs() {
 	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
+	const headers = new Headers();
+	headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
 		try {
-		let res = await fetch(url);
+		let res = await fetch(url,{	method: 'GET',	headers: headers});
 			return await res.json();
 			} catch (error) {
 		console.log(error);
 			}
 		}
+
 
 
 async function loadTable() {
@@ -1309,16 +1315,32 @@ let newvenci = document.getElementById("DataVencI").value;
 let newvamdi  = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf = document.getElementById("DataVencF").value;
 let newvamdf  = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+let url = '#iprest#/RestTitCR/v2?empresa=#empresa#&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 
-window.open("#iprest#/RestTitCR/v2?empresa=#empresa#&vencini="+newvamdi+"&vencfim="+newvamdf+"&userlib=#userlib#","_self");
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+	try {
+	let res = await fetch(url, { method: 'GET', headers: headers });
+		document.getElementById('conteudo-principal').innerHTML =  await res.json(); // await res.json();
+		} catch (error) {
+	console.log(error);
+	}
 }
 
 </script>
+
+</div>
+
 </body>
 </html>
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
+cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
+//cHtml := STRTRAN(cHtml,"#usrpass#"	 ,Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
+
+
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())

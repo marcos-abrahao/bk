@@ -302,12 +302,12 @@ Private cProg	:= "BKCTB1A"
 
 u_MsgLog(cProg)
 
-DEFINE MSDIALOG oDlg01 FROM  96,9 TO 220,420 TITLE OemToAnsi(cProg+" - "+cTitulo) PIXEL
+DEFINE MSDIALOG oDlg01 FROM 100,10 TO 250,470 TITLE cProg+" - "+cTitulo PIXEL
 
 @ nSnd,010  SAY "Arquivo TXT ADP: " of oDlg01 PIXEL 
-@ nSnd -3,057  MSGET cArq SIZE 80,010 of oDlg01 PIXEL READONLY
-@ nSnd -3,142 BUTTON oButSel PROMPT 'Selecionar' SIZE 40, 12 OF oDlg01 ACTION ( cArq := cGetFile(cTipoArq,"Selecione o arquivo TXT da ADP",,cArq,.T.,GETF_NETWORKDRIVE+GETF_LOCALHARD+GETF_LOCALFLOPPY,.F.,.T.)  ) PIXEL  // "Selecionar" 
+@ nSnd -3,057 MSGET cArq SIZE 150,010 of oDlg01 PIXEL READONLY
 nSnd += nTLin
+@ nSnd -3,057 BUTTON oButSel PROMPT 'Selecionar' SIZE 40, 12 OF oDlg01 ACTION ( cArq := cGetFile(cTipoArq,"Selecione o arquivo TXT da ADP",,cArq,.T.,GETF_NETWORKDRIVE+GETF_LOCALHARD+GETF_LOCALFLOPPY,.F.,.T.)  ) PIXEL  // "Selecionar" 
 nSnd += nTLin
 
 DEFINE SBUTTON FROM nSnd, 125 TYPE 1 ACTION (oDlg01:End(),nOpcA:=1) ENABLE OF oDlg01
@@ -562,7 +562,7 @@ For nI := 1 To Len(aLinha)
 	SZ5->Z5_EVENTO	:= cEvento
 	SZ5->Z5_EVDESCR	:= cEvDescr
 	SZ5->Z5_VALOR	:= nValor
-	SZ5->Z5_ORIGEM	:= "ADP"
+	//SZ5->Z5_ORIGEM	:= "ADP"
 	//SZ5->Z5_DATAARQ	:= dDataArq
 	MsUnlock()
 

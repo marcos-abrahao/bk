@@ -49,7 +49,7 @@ Local cUrl 		:= ""
 Local cHtml     := ""
 
 Aadd(aHeader, "Content-Type: text/html")
-Aadd(aHeader, "Authorization: Basic " + Encode64("web:846250"))
+Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
 
 cHtml:= HttpGet(u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 
@@ -63,6 +63,9 @@ ENDIF
 fErase(cArqHtml)
 
 Memowrite(cArqHtml,cHtml)
+
+u_MsgLog("BKTITCR",u_BkRest())
+
 ShellExecute("open", cUrl, "", "", 1)
 
 Return .T.
