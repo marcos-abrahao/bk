@@ -833,13 +833,18 @@ Return nil
 
 
 User Function Fina02E(aEmail,lCLT,cAssunto)
-Local cPrw     := "BKFINA02"
-Local cEmail1  := u_BKPgto3() // somente cgrupo AC
-Local cEmail2  := u_BKPgto2() //"rh@bkconsultoria.com.br;gestao@bkconsultoria.com.br;financeiro@bkconsultoria.com.br;"
-Local cCC      := ""
+Local cPrw     := "BKFINA02-E"
+Local cEmail   := ""
+Local cEmailCC := EmailAdm()
 Local cMsg     := "" 
 Local cAnexo   := ""
 Local aCabs
+
+If lCLT
+	cEmail := u_BKPgto2()
+Else
+	cEmail := u_BKPgto3() // somente cgrupo AC
+EndIf
 
 aCabs   := {"Pront.","Nome","Valor","Bco","Ag.","Dg.Ag.","Conta","Dg.Conta","Obs.","Titulo","CtrId"}
 cMsg    := u_GeraHtmB(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw,"",cEmail,cEmailCC)
@@ -847,7 +852,7 @@ cMsg    := u_GeraHtmB(aEmail,cAssunto+DTOC(DATE())+"-"+TIME(),aCabs,cPrw,"",cEma
 cAnexo := cPrw+DTOS(Date())+STRTRAN(TIME(),":","")+".html"
 u_GrvAnexo(cAnexo,cMsg,.T.)
 
-U_BkSnMail(cPrw,cAssunto,IIF(lCLT,cEmail2,cEmail1),cCc,cMsg,{cAnexo},.T.)
+U_BkSnMail(cPrw,cAssunto,cEmail,cCc,cMsg,{cAnexo},.T.)
 
 Return Nil
 

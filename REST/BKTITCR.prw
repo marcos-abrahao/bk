@@ -69,4 +69,3 @@ u_MsgLog("BKTITCR",u_BkRest())
 ShellExecute("open", cUrl, "", "", 1)
 
 Return .T.
-

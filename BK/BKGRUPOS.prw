@@ -49,7 +49,7 @@ Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S"
                         {"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""         },;
                         {"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         } }
 
-
+         
 For nE := 1 To Len(aEmpresas)
     If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S"
         aAdd(aReturn,aEmpresas[nE])

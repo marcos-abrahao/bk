@@ -24,7 +24,7 @@ User Function BKGCTR11(lJob)
 	Local dMaxCompet	:= CTOD("")
 
 	Private cRealTb3	:= ""
-	Private lSqlLite 	:= .T.
+	Private lSqlLite 	:= .F.
 	Private titulo      := "Rentabilidade dos Contratos"
 	Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 	Private aContratos 	:= {}
@@ -4018,7 +4018,7 @@ User Function BK2GCTR11(lJob,aAglContr)
 	Private aContratos 	:= {}
 	Private lConsorcio  := .F.
 	Private cPerg       := "BK2GCTR11"
-	Private lSqlLite 	:= .T.
+	Private lSqlLite 	:= .F.
 	PRIVATE dDataInicio := dDatabase
 	PRIVATE dDataI		:= dDatabase
 	PRIVATE dDataFinal  := dDatabase

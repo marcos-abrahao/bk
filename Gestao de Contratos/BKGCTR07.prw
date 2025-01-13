@@ -616,6 +616,19 @@ cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 ON F2_CLIENTE = A1_COD AND F2_L
 cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SD2")+ " SD2 ON D2_DOC = F2_DOC AND D2_SERIE = F2_SERIE AND D2_CLIENTE = F2_CLIENTE AND D2_LOJA = F2_LOJA" + CRLF
 cQuery += "      AND  D2_FILIAL = '"+xFilial("SD2")+"' AND  SD2.D_E_L_E_T_ = ' '" + CRLF
+If cEmpAnt == '17'
+	// Pegar só um item em empresas de faturamento de produtos
+	cQuery += "         AND SD2.R_E_C_N_O_ = (" + CRLF
+	cQuery += "            SELECT " + CRLF
+	cQuery += "                MIN(R_E_C_N_O_) " + CRLF
+	cQuery += "              FROM " + CRLF
+	cQuery += "                "+RETSQLNAME("SD2")+" SD21 " + CRLF
+	cQuery += "              WHERE " + CRLF
+	cQuery += "                SD21.D2_DOC = F2_DOC AND SD21.D2_SERIE = F2_SERIE AND SD21.D2_CLIENTE = F2_CLIENTE AND SD21.D2_LOJA = F2_LOJA" + CRLF
+	cQuery += "                AND SD21.D2_FILIAL = '"+xFilial("SD2")+"' " + CRLF
+	cQuery += "                AND SD21.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "    			)" + CRLF
+EndIf
 cQuery += " LEFT JOIN "+RETSQLNAME("SC5")+ " SC5 ON C5_NOTA = F2_DOC AND C5_SERIE = F2_SERIE " + CRLF
 cQuery += "      AND  C5_FILIAL = F2_FILIAL AND SC5.D_E_L_E_T_ = ' '" + CRLF
 cQuery += " LEFT JOIN "+RETSQLNAME("SB1")+ " SB1 ON D2_COD = B1_COD"+ CRLF

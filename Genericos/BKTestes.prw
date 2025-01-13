@@ -2663,3 +2663,4 @@ u_BkSnMail("M110STTS",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
 u_MsgLog("MT110CFM",cAssunto+" - Opção: "+cValToChar(nOpcSel)+" - "+cEmail)
 
 Return Nil
+

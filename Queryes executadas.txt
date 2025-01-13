@@ -1,5 +1,8 @@
 
 
+SELECT B1_COD,B1_DESC,B1_PICM  FROM SB1170 
+UPDATE SB1170 SET B1_PICM = 18 
+WHERE B1_COD IN ('KTBVPL12150CERF        ','KTBVPL16300CERF        ','KTBVPL16150CERF        ')
 
 ==================================================================
 -- 08/12/2024 - VERIFICAÇÃO DO SXG

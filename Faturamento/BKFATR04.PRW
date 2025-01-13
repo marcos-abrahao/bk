@@ -14,7 +14,7 @@ User Function BKFATR04()
 
 Local nF      := 0
 Local oTmpTb
-Local lSqlLite:= .T.
+Local lSqlLite:= .F.  // Versão 2410 não está funcionando
 
 Private aParam		:=	{}
 Private aRet		:=	{}

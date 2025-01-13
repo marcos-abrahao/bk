@@ -956,6 +956,7 @@ Local cRet := ""
 cRet += u_EmailAdm()
 cRet += "bruno.bueno@bkconsultoria.com.br;"
 cRet += "diego.oliveira@bkconsultoria.com.br;"
+cRet += "ana.campo@bkconsultoria.com.br;"
 Return cRet
 
 // E-mails do grupo qualidade do google

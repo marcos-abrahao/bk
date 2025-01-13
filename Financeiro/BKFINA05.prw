@@ -70,7 +70,9 @@ Local aLinha 	:= {}
 
 Private cArq	:= ""
 Private cProg	:= "BKFINA05"
-Private aAcao := {"1-Incluir","2-Alterar","3-Excluir"}
+Private aAcao	:= {"1-Incluir","2-Alterar","3-Excluir"}
+Private nTotZ2	:= 0
+Private cLote 	:= ""
 
 u_MsgLog(cProg)
 
@@ -99,6 +101,11 @@ If nOpcA == 1
 				EndIf
 				If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
 					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha)}, "Importando dados...")
+					If lValid
+						u_MsgLog(cProg,"Lançamentos importados: "+ALLTRIM(STR(SZ2->Z2_VALOR,14,2))+" lote "+cLote,"S")
+					Else
+						u_MsgLog(cProg,"Lançamentos não importados","E")
+					EndIf
 				EndIf
 			Else
 				If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
@@ -134,6 +141,8 @@ Local cValor 	:= ""
 Local nValor 	:= 0
 Local cCC 		:= ""
 
+cLote := ""
+
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
 
@@ -154,6 +163,9 @@ While !FT_FEOF()
 		nPos += 2
 
 		cTitulo	:= SUBSTR(cBuffer,nPos,9)
+		If Empty(cLote)
+			cLote := cTitulo
+		EndIf
 		nPos += 9
 
 		cPortador := SUBSTR(cBuffer,nPos,3)
@@ -172,7 +184,7 @@ While !FT_FEOF()
 		cHist := SUBSTR(cBuffer,nPos,80)
 		nPos += 80
 
-		cValor := SUBSTR(cBuffer,nPos,12)
+		cValor := SUBSTR(cBuffer,nPos,14)
 		nValor := VAL(cValor) / 100
 		nPos += 14
 
@@ -290,9 +302,11 @@ Local lOk		:= .T.
 Local cCtrId	:= DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
 Local cLote		:= ""
 
+nTotZ2 := 0
+
 dbSelectArea("SZ2")
 
-ASORT(aCtrId,,,{|x,y| x[XTITULO]<y[XTITULO]})
+ASORT(aLinha,,,{|x,y| x[XTITULO]<y[XTITULO]})
 
 For nI := 1 To Len(aLinha)
 
@@ -300,7 +314,8 @@ For nI := 1 To Len(aLinha)
 		cLote := aLinha[nI,XTITULO]
 	EndIf
 	If aLinha[nI,XTITULO] <> cLote
-		cCtrId	:= DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
+		cLote 	:= aLinha[nI,XTITULO]
+		cCtrId	:= cLote // DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
 	EndIf
 
 	RecLock("SZ2",.T.)
@@ -315,13 +330,17 @@ For nI := 1 To Len(aLinha)
 	SZ2->Z2_VALOR	:= aLinha[nI,XVALOR]
 	SZ2->Z2_CC		:= aLinha[nI,XCC]
 	
+	SZ2->Z2_DORIPGT	:= aLinha[nI,XVENCTO]
+
 	SZ2->Z2_CTRID	:= cCtrId
-	SZ2->Z2_PRONT	:= "00000"
-	SZ2->Z2_NOME	:= "ADP"
+	SZ2->Z2_PRONT	:= "000000"
+	SZ2->Z2_NOME	:= "ADP "+aLinha[nI,XTITULO]
 	SZ2->Z2_STATUS	:= " "
 	SZ2->Z2_USUARIO	:= cUserName
 	SZ2->Z2_PRODUTO	:= "21301001"
 	SZ2->Z2_TIPOPES	:= "CLT"
+
+	nTotZ2 += SZ2->Z2_VALOR
 
 	MsUnlock()
 

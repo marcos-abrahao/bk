@@ -369,7 +369,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nPos	:= Len(aListCR)
 	cNumTit	:= (cQrySE1)->(E1_PREFIXO+E1_NUM+E1_PARCELA)
 	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
-	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+	nSaldo := (cQrySE1)->E1_SALDO //u_SaldoRec((cQrySE1)->E1RECNO)
 	aListCR[nPos]['EMPRESA']	:= (cQrySE1)->EMPRESA
 	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
 	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
@@ -590,7 +590,7 @@ Local cDropEmp	As char
 Local aEmpresas := u_BKGrpFat()
 Local nE 		:= 0
 
-u_MsgLog(,"BROWCR/1")
+u_MsgLog(,"V2-BROWCR/1 "+Self:empresa)
 
 BEGINCONTENT var cHTML
 
@@ -660,7 +660,7 @@ thead input {
     <a class="navbar-brand" href="#">Títulos a Receber - #cUserName#</a> 
 
 	<div class="btn-group">
-		<button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+		<button type="button" id="btn-empresa" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 			#NomeEmpresa#
 		</button>
 		<ul class="dropdown-menu dropdown-menu-dark">
@@ -883,7 +883,15 @@ thead input {
 <script>
 
 async function getCRs() {
-	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
+
+let newvenci = document.getElementById("DataVencI").value;
+let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf = document.getElementById("DataVencF").value;
+let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+let newempr  = document.getElementById("btn-empresa").textContent;
+
+let url = '#iprest#/RestTitCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+//	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
 	const headers = new Headers();
 	headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 
@@ -1296,8 +1304,8 @@ let newvenci  = document.getElementById("DataVencI").value;
 let newvamdi  = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf  = document.getElementById("DataVencF").value;
 let newvamdf  = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-
-window.open("#iprest#/RestTitCR/v5?empresa=#empresa#&vencini="+newvamdi+"&vencfim="+newvamdf+"&userlib=#userlib#","_self");
+let newempr  = document.getElementById("btn-empresa").textContent;
+window.open("#iprest#/RestTitCR/v5?empresa="+newempr+"&vencini="+newvamdi+"&vencfim="+newvamdf+"&userlib=#userlib#","_self");
 }
 
 
@@ -1310,18 +1318,27 @@ async function getUrlTmp(url1) {
 		}
 	}
 
+
 async function AltVenc(){
+let newempr  = document.getElementById("btn-empresa").textContent;
+AltEmpr(newempr)
+}
+
+async function AltEmpr(empresa){
 let newvenci = document.getElementById("DataVencI").value;
-let newvamdi  = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf = document.getElementById("DataVencF").value;
-let newvamdf  = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-let url = '#iprest#/RestTitCR/v2?empresa=#empresa#&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+
+let url = '#iprest#/RestTitCR/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+
 
 const headers = new Headers();
 headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 	try {
 	let res = await fetch(url, { method: 'GET', headers: headers });
-		document.getElementById('conteudo-principal').innerHTML =  await res.json(); // await res.json();
+		document.getElementById('conteudo-principal').innerHTML =  await res.text();
+		loadTable();
 		} catch (error) {
 	console.log(error);
 	}
@@ -1353,7 +1370,7 @@ If !Empty(::userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)  
 EndIf
 
-cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
+//cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
 cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
 cHtml := STRTRAN(cHtml,"#datavencI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
@@ -1363,30 +1380,31 @@ cHtml := STRTRAN(cHtml,"#ZYPrev#",STR(YEAR(DATE()),4)+"-"+STRZERO(MONTH(DATE()),
 // --> Seleção de Empresas
 nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
 If nE > 0
-	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,2])
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,1]+'-'+aEmpresas[nE,2])
 Else
-	cHtml := STRTRAN(cHtml,"#NomeEmpresa#","Todas")
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#","Todas "+self:empresa)
 EndIf
 
 cDropEmp := ""
 For nE := 1 To Len(aEmpresas)
-//	<li><a class="dropdown-item" href="#">BK</a></li>
-	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	//cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	cDropEmp += '<li><a class="dropdown-item" href="javascript:AltEmpr('+"'"+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+"'"+')">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
 cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+//cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+cDropEmp +='<li><a class="dropdown-item" href="javascript:AltEmpr('+'Todas'+')">Todas</a></li>'+CRLF
 
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 // <-- Seleção de Empresas
 
 //StrIConv( cHtml, "UTF-8", "CP1252")
 //DecodeUtf8(cHtml)
-//cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 //u_MsgLog(,"BROWCR/2")
-//If ::userlib == '000000'
-	//Memowrite(u_STmpDir()+"cr.html",cHtml)
-//EndIf
+If ::userlib == '000000'
+	Memowrite(u_STmpDir()+"cr.html",cHtml)
+EndIf
 //u_MsgLog("RESTTITCR",__cUserId)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
@@ -1426,7 +1444,7 @@ Else
 	aEmpresas := aGrupoBK
 EndIf
 
-
+u_MsgLog("TmpQuery",xEmpresa+"-"+cValToChar(aEmpresas))
 //cQuery := "WITH RESUMO AS ( " + CRLF
 
 For nE := 1 To Len(aEmpresas)
@@ -1457,6 +1475,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	 ,E1_EMISSAO"+CRLF
 	cQuery += "	 ,E1_VENCORI"+CRLF
 	cQuery += "	 ,E1_VALOR"+CRLF
+	cQuery += "	 ,E1_SALDO"+CRLF
 	cQuery += "	 ,E1_PEDIDO"+CRLF
 	cQuery += "	 ,E1_XXTPPRV"+CRLF
 	cQuery += "	 ,E1_XXDTPRV"+CRLF
