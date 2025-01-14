@@ -35,7 +35,10 @@ UPDATE Chamado SET Usuario = 'guilherme.moreira', NomeSolicitante = 'Guilherme S
 UPDATE Chamado SET Usuario = 'marcelo.soares', NomeSolicitante = 'Marcelo Soares' where Numero = 0125065
 UPDATE Chamado SET Usuario = 'jalielison.alves', NomeSolicitante = 'Jalielison Alves Silva' where Numero = 0125079
 UPDATE Chamado SET Usuario = 'alexandre.teixeira', NomeSolicitante = 'Alexandre Henrique Teixeira' where Numero = 0125090
-
+UPDATE Chamado SET Usuario = 'diego.bezerra', NomeSolicitante = 'Diego Bezerra Oliveira' where Numero = 0125103
+UPDATE Chamado SET Usuario = 'elber.moura', NomeSolicitante = 'Elber Moura' where Numero = 0125107
+UPDATE Chamado SET Usuario = 'julia.moreira', NomeSolicitante = 'Julia Moreira' where Numero = 0125108
+UPDATE Chamado SET Usuario = 'michele.moraes', NomeSolicitante = 'Michele Moraes' where Numero = 0125112
 ==============================================================
 
 -- Renomear a tabela dbo.FWTSFWSCHD_P12 PARA dbo.FWTSFWSCHD_P12RTST

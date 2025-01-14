@@ -9,10 +9,14 @@ BK - LP530BXD - Conta Débito baixas a pagar
 @return Nil
 /*/
 
+
+Static aCodRH := u_BkCodRH()
+
 User Function LP530BXD()
-Local cCta := "21101002"
-Local cTipBk := TRIM(SE2->E2_XXTIPBK)
-Local cTipoPes := ""
+Local cCta      := "21101002"
+Local cTipBk    := TRIM(SE2->E2_XXTIPBK)
+Local cTipoPes  := ""
+Local nCta      := 0
 
 If EMPTY(SE2->E2_XXTIPBK)
     If !EMPTY(SA2->A2_CONTA) 
@@ -21,6 +25,22 @@ If EMPTY(SE2->E2_XXTIPBK)
        cCta := "CTAFORNECEDOR"
     EndIf
 Else
+    nCta := AsCan(aCodRH,{ |x| x[1] == cTipBK })
+    If nCta > 0
+        cCta := aCodRh[nCta,3]
+    EndIf
+    If cTipBk == "LPM" .OR. cTipBk == "COM" // salario a pagar ou Comissão
+        cCta := "21301001"
+        If !EMPTY(SE2->E2_XXCTRID)
+            cTipoPes := RetPesZ2(SE2->E2_XXCTRID)
+        Endif
+        If cTipoPes == "RPA"
+            cCta := "21301012"
+        ElseIf "PJ" $ UPPER(SE2->E2_NUMBCO) .OR. "PAG" $ UPPER(SE2->E2_NUMBCO)
+            cCta := "21101001"
+        EndIf
+    EndIf
+    /*
     Do Case
         Case cTipBk == "LAS" // adto salario
             cCta := "11301001"
@@ -63,6 +83,7 @@ Else
         Case cTipBk == "REE" // Reemb. Desc. Indev.
             cCta := "31201092"
     EndCase
+    */
 EndIf
 Return(cCta)
 
