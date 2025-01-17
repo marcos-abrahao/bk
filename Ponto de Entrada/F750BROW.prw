@@ -15,7 +15,7 @@ Local aRotY
 Local aRotZ
 Local cEmpName := u_BKNEmpr(cEmpAnt,3) //FWEmpName(cEmpAnt)
 aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
-           {OemToAnsi("Integração ADP "+cEmpName),  "U_BKFINA05",  0, 2 },;
+           {OemToAnsi("Importação ADP "+cEmpName),  "U_BKFINA05",  0, 2 },;
            {OemToAnsi("Alterar Liq. "+cEmpName),    "U_BKFINA04(.F.)", 0, 2 },;
            {OemToAnsi("Excluir Liq. "+cEmpName),    "U_BKFINA03",  0, 2 },;
            {OemToAnsi("Consultar Liq. "+cEmpName),  "U_BKFINA04(.T.)", 0, 2 },;

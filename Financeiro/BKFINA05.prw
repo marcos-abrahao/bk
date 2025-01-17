@@ -16,39 +16,9 @@
 #DEFINE XERROS		12
 
 /*/{Protheus.doc} BKFINA05
-BK - Integração Financeira - Folha ADP
-@Return
-@author Marcos Bispo Abrahão
-@since 02/01/2025
-@version P12
-/*/
-
-/*
-User Function BKFINA05()
-Private cString   := "SZ2"
-Private cCadastro := "Integração Financeira - Folha "+FWEmpName(cEmpAnt)
-Private cPrw      := "BKFINA05"
-
-Private aRotina
-private lMsErroAuto := .F.      
-
-u_MsgLog(cPrw)
-
-dbSelectArea("SZ2")
-dbSetOrder(1)
-DbGoTop()
-
-aRotina := {{"Pesquisar"				,"AxPesqui"		,0, 1},;
-			{"Visualizar"				,"AxVisual"		,0, 2},;
-            {"Importar TXT Folha ADP"	,"U_BKFIN5A()"	,0, 3}}
-
-mBrowse(6,1,22,75,cString)
-
-Return
-*/
-
-/*/{Protheus.doc} BKFINA05
 BK - Importar txt lançamentos da Folha ADP
+
+Pasta FTP: \\vmfileserver\G$\ADP\Inbox\processados
 
 @Return
 @author Marcos Bispo Abrahão
@@ -103,6 +73,9 @@ If nOpcA == 1
 					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha)}, "Importando dados...")
 					If lValid
 						u_MsgLog(cProg,"Lançamentos importados: "+ALLTRIM(STR(SZ2->Z2_VALOR,14,2))+" lote "+cLote,"S")
+
+						MoveArq(cArq)
+
 					Else
 						u_MsgLog(cProg,"Lançamentos não importados","E")
 					EndIf
@@ -123,6 +96,26 @@ Endif
 RETURN NIL
 
 
+Static Function MoveArq(cArq)
+Local cDrive, cDir, cNome, cExt
+Local cArqPrc	:= ""
+
+SplitPath( cArq, @cDrive, @cDir, @cNome, @cExt )
+
+If Empty(cDir)
+	cDir := "\"
+EndIf
+cDir += "processados\"
+MakeDir(cDrive+cDir)
+
+cExt :=  ".PRC"
+
+cArqPrc := cDrive+cDir+cNome+cExt
+FRename(cArq,cArqPrc)
+
+u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc,"I")
+
+Return Nil
 
 Static FUNCTION PFIN5I()
 Local cBuffer   := ""
@@ -162,7 +155,7 @@ While !FT_FEOF()
 		cEmpresa := SUBSTR(cBuffer,nPos,2)
 		nPos += 2
 
-		cTitulo	:= SUBSTR(cBuffer,nPos,9)
+		cTitulo	:= "ADP"+SUBSTR(cBuffer,nPos,9)
 		If Empty(cLote)
 			cLote := cTitulo
 		EndIf
@@ -208,6 +201,7 @@ Static Function PFIN5V(aLinha)
 Local nI	:= 0
 Local cErros:= ""
 Local lOk 	:= .T.
+Local aLotes:= {}
 
 CTT->(dbSetOrder(1))
 
@@ -234,7 +228,16 @@ For nI := 1 To Len(aLinha)
 	If !Empty(cErros)
 		lOk := .F.
 	EndIf
+
+	If aScan(aLotes,aLinha[nI,XTITULO]) == 0
+		aAdd(aLotes,aLinha[nI,XTITULO])
+	EndIf
 Next
+
+//Consistir Lotes
+If lOk
+	lOk := VldLote(aLotes)
+EndIf
 
 Return lOk
 
@@ -266,7 +269,7 @@ oPExcel:GetCol("ACAO"):SetTamanho(9)
 oPExcel:AddCol("EMPRESA","u_BKNEmpr(xCampo,3)","Empresa","")
 oPExcel:GetCol("EMPRESA"):SetTamanho(9)
 
-oPExcel:AddColX3("Z2_E2NUM")
+oPExcel:AddColX3("Z2_CTRID")
 oPExcel:AddColX3("Z2_BANCO")
 oPExcel:AddColX3("Z2_TIPO")
 
@@ -310,10 +313,7 @@ ASORT(aLinha,,,{|x,y| x[XTITULO]<y[XTITULO]})
 
 For nI := 1 To Len(aLinha)
 
-	If Empty(cLote)
-		cLote := aLinha[nI,XTITULO]
-	EndIf
-	If aLinha[nI,XTITULO] <> cLote
+	If aLinha[nI,XTITULO] <> cLote .OR. Empty(cLote)
 		cLote 	:= aLinha[nI,XTITULO]
 		cCtrId	:= cLote // DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
 	EndIf
@@ -334,16 +334,67 @@ For nI := 1 To Len(aLinha)
 
 	SZ2->Z2_CTRID	:= cCtrId
 	SZ2->Z2_PRONT	:= "000000"
-	SZ2->Z2_NOME	:= "ADP "+aLinha[nI,XTITULO]
+	SZ2->Z2_NOME	:= "LOTE ADP "+aLinha[nI,XTITULO]
 	SZ2->Z2_STATUS	:= " "
 	SZ2->Z2_USUARIO	:= cUserName
 	SZ2->Z2_PRODUTO	:= "21301001"
 	SZ2->Z2_TIPOPES	:= "CLT"
 
-	nTotZ2 += SZ2->Z2_VALOR
+	nTotZ2 += aLinha[nI,XVALOR]
 
 	MsUnlock()
 
 Next
 
+Return lOk
+
+
+
+Static Function VldLote(aLotes)
+Local cQuery        := ""
+Local aReturn       := {}
+Local aBinds        := {}
+Local aSetFields    := {}
+Local nRet          := 0
+Local nI            := 0
+Local nLotes 		:= 0
+Local lOk 			:= .T.
+Local cLotes 		:= ""
+
+For nI := 1 TO LEN(aLotes)
+
+    If nI > 1
+        cQuery += "UNION ALL "+CRLF
+    EndIf
+    cQuery += "SELECT COUNT(*) AS NLOTES"+CRLF 
+    cQuery += " FROM "+RETSQLNAME("SZ2")+" SZ2 "+CRLF
+    cQuery += " WHERE Z2_CTRID = '"+aLotes[nI]+"' AND D_E_L_E_T_ = ' ' "+CRLF
+
+	cLotes += aLotes[nI]+" "
+Next 
+
+//aadd(aBinds,xFilial("SA1")) // Filial
+//aadd(aBinds,"000281") // Codigo
+//aadd(aBinds,"01") // Loja
+
+// Ajustes de tratamento de retorno
+aadd(aSetFields,{"NLOTES"   ,"N",5,0})
+
+//aadd(aSetFields,{"A1_ULTVIS","D",8,0})
+
+nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+If nRet < 0
+  u_MsgLog("BKFINA05-L",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+Else
+  //Alert(VarInfo("aReturn",aReturn))
+  //MsgInfo("Verifique os valores retornados no console","Ok")
+  If Len(aReturn) > 0
+	nLotes := aReturn[1][1]
+	If nLotes > 0
+		lOk := .F.
+		u_MsgLog("BKFINA05-V","Lote(s) já importado(s): "+cLotes+", verifique o arquivo","E")
+	EndIf
+  EndIf
+Endif
 Return lOk

@@ -789,6 +789,7 @@ cQuery  += " AND SZ2Y.Z2_DATAPGT = SZ2X.Z2_DATAPGT "
 cQuery  += " AND SZ2Y.Z2_VALOR   = SZ2X.Z2_VALOR "
 cQuery  += " AND SZ2Y.Z2_STATUS <> 'D' "
 cQuery  += " AND SZ2Y.Z2_STATUS <> 'I' "
+cQuery  += " AND SZ2Y.Z2_PRONT  <> '000000' " // ADP
 cQuery  += " AND SZ2Y.Z2_TIPOPES=SZ2X.Z2_TIPOPES "
 cQuery  += " AND SZ2Y.R_E_C_N_O_ <> SZ2X.R_E_C_N_O_) AS EXISTE  "
 cQuery  += " FROM "+RETSQLNAME("SZ2")+" SZ2X WHERE SZ2X.D_E_L_E_T_ = '' "
@@ -835,7 +836,7 @@ Return nil
 User Function Fina02E(aEmail,lCLT,cAssunto)
 Local cPrw     := "BKFINA02-E"
 Local cEmail   := ""
-Local cEmailCC := EmailAdm()
+Local cEmailCC := u_EmailAdm()
 Local cMsg     := "" 
 Local cAnexo   := ""
 Local aCabs
