@@ -385,10 +385,12 @@ Begin Sequence
 		IF ALLTRIM(SZ2->Z2_CC) == aFurnas[2]
 			oPrn:Say(0180,0050,"FURNAS LOTE BK",oFont14N)
         ENDIF
-		aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
-  		cDigUser 	:= aLib[1]
-		cLibUser 	:= aLib[2]
-		cDtHoraLib 	:= IIF(!EMPTY(CTOD(aLib[4])),aLib[4],aLib[3])
+		IF SUBSTR(SE2->E2_XXCTRID,1,3) <> "ADP"
+			aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
+			cDigUser 	:= aLib[1]
+			cLibUser 	:= aLib[2]
+			cDtHoraLib 	:= IIF(!EMPTY(CTOD(aLib[4])),aLib[4],aLib[3])
+		ENDIF
     ENDIF
 
     dbSelectArea("SD1")                   // * Itens da N.F. de Compra

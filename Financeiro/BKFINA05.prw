@@ -18,7 +18,7 @@
 /*/{Protheus.doc} BKFINA05
 BK - Importar txt lançamentos da Folha ADP
 
-Pasta FTP: \\vmfileserver\G$\ADP\Inbox\processados
+Pasta FTP: \\vmfileserver\G$\ADP\Inbox
 
 @Return
 @author Marcos Bispo Abrahão
@@ -28,6 +28,167 @@ Pasta FTP: \\vmfileserver\G$\ADP\Inbox\processados
 
 User Function BKFINA05()
 
+Private cProg	:= "BKFINA05"
+Private aAcao	:= {"1-Incluir","2-Alterar","3-Excluir"}
+Private nTotZ2	:= 0
+Private cLote 	:= ""
+
+If !Isblind()
+	// Dialog
+	FINA05DLG()
+Else
+	// Schedule
+	FINA05SCH()
+EndIf
+Return Nil
+
+
+Static Function FINA05SCH()
+Local nI 		:= 0
+Local aFiles	:= Directory("\ADP\Financeiro\*.txt",,,.F.,2)
+Local lValid 	:= .T.
+Local aLinha 	:= {}
+Local cAcao		:= ""
+Local cArq		:= ""
+Local cAnexo 	:= ""
+Local cNum 		:= ""
+Local cMsg		:= ""
+
+// Processar Exclusões primeiro
+For nI := 1 To Len(aFiles)
+	cAcao	:= ""
+	cArq 	:= aFiles[nI,1]
+	cMsg	:= ""
+	cAnexo	:= ""
+	lValid	:= .T.
+
+	lValid  := Ler1L(cArq,@cAcao,@cEmpresa)
+
+	If lValid
+		If cEmpresa == cEmpAnt .AND. cAcao <> '1'
+
+			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
+			If !Empty(aLinha)
+				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao)}, "Validando dados...")
+				If lValid
+					cAnexo := PFIN5E(aLinha,cArq)
+					u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum)}, "Excluindo dados...")
+					If lValid
+						cMsg := "Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote
+						MoveArq(cArq)
+					Else
+						cMsg := "Lançamentos não excluídos"
+					EndIf
+				EndIf
+			Else
+				cAnexo := PFIN5E(aLinha,cArq)
+			EndIf
+		EndIf
+	Else
+		cMsg := "Não foi mpossível abrir o arquivo "
+	EndIf
+
+	If !Empty(cMsg)
+		SndMsg(cArq,cMsg,cAnexo)
+	EndIf
+		
+Next
+
+
+// Processar inclusões
+For nI := 1 To Len(aFiles)
+	cAcao	:= ""
+	cArq 	:= aFiles[nI,1]
+	cMsg	:= ""
+	cAnexo	:= ""
+	lValid	:= .T.
+
+	lValid  := Ler1L(cArq,@cAcao,@cEmpresa)
+
+	If lValid
+		If cEmpresa == cEmpAnt .AND. cAcao == '1'
+
+			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
+			If !Empty(aLinha)
+				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao)}, "Validando dados...")
+				If lValid
+					cAnexo := PFIN5E(aLinha,cArq)
+					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum)}, "Importando dados...")
+					If lValid
+						cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
+						MoveArq(cArq)
+					Else
+						cMsg := "Lançamentos não importados"
+					EndIf
+				EndIf
+			Else
+				cAnexo := PFIN5E(aLinha,cArq)
+			EndIf
+		EndIf
+	Else
+		cMsg := "Não foi mpossível abrir o arquivo"
+	EndIf
+
+	If !Empty(cMsg)
+		SndMsg(cArq,cMsg,cAnexo)
+	EndIf
+
+Next
+
+Return Nil
+
+
+Static Function SndMsg(cArq,cErro,cAnexo)
+Local cEmail	:= ""
+Local cEmailCC	:= u_EmailAdm()
+Local aUsers 	:= {__cUserID}
+Local aGrupos	:= {u_GrpMFin()}
+Local aDeptos	:= {}
+Local cAssunto	:= "Integração ADP "
+Local cMsg 		:= ""
+Local aCabs   	:= {"Empresa","Arquivo","Mensagem"}
+Local aMsg 		:= {cEmpAnt,cArq,cErro}
+
+cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
+
+cMsg := u_GeraHtmB(aMsg,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,iIf(!Empty(cAnexo),{cAnexo},nil),.F.)
+
+Return Nil
+
+
+// Ler a primeira linha para pegar ação e empresa
+Static Function Ler1L(cArq,cAcao,cEmpresa)
+
+Local cBuffer := ""
+Local nPos 	  := 1
+Local lOk 	  := .T.
+
+FT_FUSE(cArq)  //abrir
+FT_FGOTOP() //vai para o topo
+
+If !FT_FEOF()
+ 
+	cBuffer := FT_FREADLN()  //lendo a linha
+
+	If ( !Empty(cBuffer) )
+		nPos := 1
+
+		cAcao	:= SUBSTR(cBuffer,nPos,1)
+		nPos += 1
+
+		cEmpresa := SUBSTR(cBuffer,nPos,2)
+		nPos += 2
+	EndIf
+Else
+	lOk := .F.
+EndIf
+
+Return lOk
+
+
+
+Static Function FINA05DLG()
 Local cTipoArq	:= "Arquivos no formato TXT (*.TXT) | *.TXT | "
 Local cTitulo	:= "Importar arquivo TXT de Lançamentos da Folha ADP"
 Local oDlg01
@@ -37,12 +198,9 @@ Local nSnd		:= 15
 Local nTLin		:= 15
 Local lValid 	:= .T.
 Local aLinha 	:= {}
-
-Private cArq	:= ""
-Private cProg	:= "BKFINA05"
-Private aAcao	:= {"1-Incluir","2-Alterar","3-Excluir"}
-Private nTotZ2	:= 0
-Private cLote 	:= ""
+Local cAcao		:= ""
+Local cArq		:= ""
+Local cNum 		:= ""
 
 u_MsgLog(cProg)
 
@@ -62,27 +220,41 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 If nOpcA == 1
 	nOpcA:=0
 	If File(cArq)
-		u_WaitLog(cProg, {|| aLinha := PFIN5I()}, "Carregando arquivo TXT...")
+		u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
 		If !Empty(aLinha)
-			u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha)}, "Validando dados...")
+			u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao)}, "Validando dados...")
 			If lValid
 				If u_MsgLog(cProg,"Lançamentos validados com sucesso, deseja imprimir o lote?","Y")
-					PFIN5E(aLinha)
+					PFIN5E(aLinha,cArq)
 				EndIf
-				If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
-					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha)}, "Importando dados...")
-					If lValid
-						u_MsgLog(cProg,"Lançamentos importados: "+ALLTRIM(STR(SZ2->Z2_VALOR,14,2))+" lote "+cLote,"S")
+				If cAcao == '1'
+					If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
+						u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum)}, "Importando dados...")
+						If lValid
+							u_MsgLog(cProg,"Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum,"S")
 
-						MoveArq(cArq)
+							MoveArq(cArq)
 
-					Else
-						u_MsgLog(cProg,"Lançamentos não importados","E")
+						Else
+							u_MsgLog(cProg,"Lançamentos não importados","E")
+						EndIf
+					EndIf
+				Else
+					If u_MsgLog(cProg,"Confirma a exclusão dos lançamentos do lote?","Y")
+						u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum)}, "Excluindo dados...")
+						If lValid
+							u_MsgLog(cProg,"Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote,"S")
+
+							MoveArq(cArq)
+
+						Else
+							u_MsgLog(cProg,"Lançamentos não excluídos","E")
+						EndIf
 					EndIf
 				EndIf
 			Else
 				If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
-					PFIN5E(aLinha)
+					PFIN5E(aLinha,cArq)
 				EndIf
 			EndIf
 		Else
@@ -113,16 +285,15 @@ cExt :=  ".PRC"
 cArqPrc := cDrive+cDir+cNome+cExt
 FRename(cArq,cArqPrc)
 
-u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc,"I")
+u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc)
 
 Return Nil
 
-Static FUNCTION PFIN5I()
+Static FUNCTION PFIN5I(cArq,cAcao)
 Local cBuffer   := ""
 Local nPos		:= 0
 Local aLinha	:= {}
 
-Local cAcao		:= ""
 Local cEmpresa	:= ""
 Local cTitulo 	:= ""
 Local cPortador	:= ""
@@ -197,7 +368,7 @@ RETURN aLinha
 
 
 // Validação dos dados
-Static Function PFIN5V(aLinha)
+Static Function PFIN5V(aLinha,cAcao)
 Local nI	:= 0
 Local cErros:= ""
 Local lOk 	:= .T.
@@ -209,7 +380,7 @@ For nI := 1 To Len(aLinha)
 
 	cErros := ""
 
-	If aLinha[nI,XACAO] <> '1' .OR. !(aLinha[nI,XACAO] $ '123')
+	If !(aLinha[nI,XACAO] $ '123')
 		cErros += "Ação não disponível "+IIF(aLinha[nI,XACAO] $ '123',aAcao[VAL(aLinha[nI,XACAO])],TRIM(aLinha[nI,XACAO]))+"; "+CRLF
 	EndIf
 
@@ -236,17 +407,18 @@ Next
 
 //Consistir Lotes
 If lOk
-	lOk := VldLote(aLotes)
+	lOk := VldLote(aLotes,cAcao)
 EndIf
 
 Return lOk
 
 
 
-Static Function PFIN5E(aLinha)
+Static Function PFIN5E(aLinha,cArq)
 Local cTitulo	:= "Relação de Lote Financeiro - ADP"
 Local cDescr 	:= "O objetivo deste relatório é a impressão de lote via arquivo TXT fornecido pela ADP."
 Local cVersao	:= "02/01/2025"
+Local cArqXls   := ""
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 
@@ -292,30 +464,41 @@ oPExcel:GetCol("ERROS"):SetTamanho(200)
 oRExcel:AddPlan(oPExcel)
 
 // Cria arquivo Excel
-oRExcel:Create()
+cArqXls:= oRExcel:Create()
 
-Return Nil
+Return cArqXls
 
 
 
 // Importando Dados para a Tabela SZ2
-Static Function PFIN5Z2(aLinha)
+Static Function PFIN5Z2(aLinha,cNum)
 Local nI		:= 0
 Local lOk		:= .T.
-Local cCtrId	:= DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
+Local cCtrId	:= "" //DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
 Local cLote		:= ""
+Local cTipBK	:= ""
+Local cBanco 	:= ""
+Local dEmissao  := dDataBase
+Local dPgto 	:= dDataBase
+Local cHist 	:= ""
+Local aZ2 		:= {}
 
 nTotZ2 := 0
 
 dbSelectArea("SZ2")
 
-ASORT(aLinha,,,{|x,y| x[XTITULO]<y[XTITULO]})
+//ASORT(aLinha,,,{|x,y| x[XTITULO]<y[XTITULO]})
 
 For nI := 1 To Len(aLinha)
 
-	If aLinha[nI,XTITULO] <> cLote .OR. Empty(cLote)
+	If nI == 1 //aLinha[nI,XTITULO] <> cLote .OR. Empty(cLote)
 		cLote 	:= aLinha[nI,XTITULO]
 		cCtrId	:= cLote // DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
+		cBanco	:= aLinha[nI,XPORTADOR]
+		cTipBK 	:= aLinha[nI,XTIPOPAG]
+		dEmissao:= aLinha[nI,XEMISSAO]
+		dPgto 	:= aLinha[nI,XVENCTO]
+		cHist 	:= aLinha[nI,XHIST]
 	EndIf
 
 	RecLock("SZ2",.T.)
@@ -334,7 +517,7 @@ For nI := 1 To Len(aLinha)
 
 	SZ2->Z2_CTRID	:= cCtrId
 	SZ2->Z2_PRONT	:= "000000"
-	SZ2->Z2_NOME	:= "LOTE ADP "+aLinha[nI,XTITULO]
+	SZ2->Z2_NOME	:= "LOTE "+aLinha[nI,XTITULO]
 	SZ2->Z2_STATUS	:= " "
 	SZ2->Z2_USUARIO	:= cUserName
 	SZ2->Z2_PRODUTO	:= "21301001"
@@ -342,15 +525,90 @@ For nI := 1 To Len(aLinha)
 
 	nTotZ2 += aLinha[nI,XVALOR]
 
-	MsUnlock()
+	SZ2->(MsUnlock())
+	
+	aAdd(aZ2,SZ2->(RecNo()))
 
 Next
+// Gravar SE2
+cNum := GravaSe2(cCtrId,cBanco,cTipBK,dEmissao,dPgto,cHist,nTotZ2,aZ2)
 
 Return lOk
 
 
 
-Static Function VldLote(aLotes)
+// Excluindo Dados das Tabelas SE2 e SZ2
+Static Function PFIN5Z2E(aLinha,cNum)
+Local lOk		:= .T.
+Local cQuery 	:= ""
+
+// Tabela SE2
+cQuery := "SELECT E2_FILIAL, E2_PREFIXO, E2_NUM, E2_PARCELA,E2_TIPO, E2_FORNECE,E2_LOJA "+CRLF
+cQuery += " FROM "+RetSqlName("SE2")+ " SE2 "+CRLF
+cQuery += " WHERE E2_XXCTRID = '"+cLote+ "' AND D_E_L_E_T_ = ''"
+TCQUERY cQuery NEW ALIAS "QSE2"
+
+DbSelectArea("QSE2")
+DbGoTop()
+Do While !EOF()
+
+	cNum := QSE2->E2_NUM
+
+	aVetor:={{"E2_FILIAL"   ,QSE2->E2_FILIAL,Nil},;
+             {"E2_PREFIXO"  ,QSE2->E2_PREFIXO,Nil},;
+             {"E2_NUM"      ,QSE2->E2_NUM,Nil},;
+             {"E2_PARCELA"  ,QSE2->E2_PARCELA,Nil},;
+             {"E2_TIPO"     ,QSE2->E2_TIPO,Nil},;        
+	         {"E2_FORNECE"  ,QSE2->E2_FORNECE,Nil},; 
+	         {"E2_LOJA"     ,QSE2->E2_LOJA,Nil}}
+		             
+	lMsErroAuto := .F.  
+	Begin Transaction 
+		MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
+		IF lMsErroAuto
+			u_LogMsExec("PFIN5Z2E","Problemas na exclusão do titulo "+QSE2->E2_NUM)
+			DisarmTransaction()
+			lOk := .F.
+		EndIf
+	End Transaction
+	DbSelectArea("QSE2")
+	dbSkip()
+EndDo
+
+QSE2->(DbCloseArea())
+
+If lOk
+
+	// Tabela SZ2
+	cQuery := "SELECT R_E_C_N_O_ AS RECNO "+CRLF
+	cQuery += " FROM "+RetSqlName("SZ2")+ " SZ2 "+CRLF
+	cQuery += " WHERE Z2_CTRID = '"+cLote+ "' AND D_E_L_E_T_ = ''"
+	TCQUERY cQuery NEW ALIAS "QSZ2"
+
+	DbSelectArea("QSZ2")
+	DbGoTop()
+	Do While !EOF()
+
+		dbSelectArea("SZ2")
+		dbGoTo(QSZ2->RECNO)
+
+		RecLock("SZ2",.F.)
+		dbDelete()
+		SZ2->(MsUnlock())
+
+		DbSelectArea("QSZ2")
+		dbSkip()
+
+	EndDo
+EndIf
+QSZ2->(DbCloseArea())
+
+Return lOk
+
+
+
+
+Static Function VldLote(aLotes,cAcao)
 Local cQuery        := ""
 Local aReturn       := {}
 Local aBinds        := {}
@@ -391,10 +649,199 @@ Else
   //MsgInfo("Verifique os valores retornados no console","Ok")
   If Len(aReturn) > 0
 	nLotes := aReturn[1][1]
-	If nLotes > 0
-		lOk := .F.
-		u_MsgLog("BKFINA05-V","Lote(s) já importado(s): "+cLotes+", verifique o arquivo","E")
+	If cAcao == '1'
+		If nLotes > 0
+			lOk := .F.
+			u_MsgLog("BKFINA05-V"+cAcao,"Lote(s) já importado(s): "+cLotes+", verifique o arquivo","E")
+		EndIf
+	Else
+		If nLotes <= 0
+			lOk := .F.
+			u_MsgLog("BKFINA05-V"+cAcao,"Lote(s) não encontrados(s): "+cLotes+", verifique o arquivo","E")
+		EndIf
 	EndIf
   EndIf
 Endif
+Return lOk
+
+
+Static Function GravaSe2(cCtrId,cBanco,cTipBk,dEmissao,dPgto,cHist,nValor,aZ2)
+Local cxFilial 
+Local cPrefixo
+Local cNum		:= ""
+Local cParcela
+Local cTipo
+Local cFornece
+Local cLoja
+Local cPortado
+Local cPortadoPA
+Local cKey1
+Local nI      := 0
+Local cNaturez:= "0000000013"
+Local cFornBK := u_cFornBK()
+Local lErroT  := .F.
+
+dbSelectArea("SE2")
+dbSetOrder(1)
+// E2_FILIAL+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA
+dbGoTop()
+
+cxFilial := xFilial("SE2")
+cPrefixo := PAD("LF",LEN(SE2->E2_TIPO))
+cNum	 := PAD(STRZERO(VAL(ProxNum(.T.)),6)+cTipBK,LEN(SE2->E2_NUM))
+cParcela := SPACE(LEN(SE2->E2_PARCELA))
+cTipo    := PAD("DP",LEN(SE2->E2_TIPO))
+cNaturez := PAD(cNaturez,LEN(SE2->E2_NATUREZ))
+cFornece := PAD(cFornBK,LEN(SE2->E2_FORNECE))
+cLoja 	 := PAD("01",LEN(SE2->E2_LOJA))
+cPortado := PAD(cBanco,LEN(SE2->E2_PORTADO))
+cPortadoPA := PAD(cBanco,LEN(SE2->E2_PORTADO))
+
+cTipBk   := PAD(cTipBk,LEN(SE2->E2_XXTIPBK))
+cCtrId   := PAD(cCtrId,LEN(SE2->E2_XXCTRID))
+
+cKey1    := cxFilial+cPrefixo+cNum+cParcela+cTipo+cFornece+cLoja
+//cKey2    := xFilial("SZ2")+SM0->M0_CODIGO+cCtrId+cTipBk+cPortado  //+DTOS(dVencto)
+	
+aVetor :={{"E2_FILIAL"   ,cxFilial,Nil},;
+          {"E2_PREFIXO"  ,cPrefixo,Nil},;
+          {"E2_NUM"      ,cNum,Nil},;
+          {"E2_PARCELA"  ,cParcela,Nil},;
+          {"E2_TIPO"     ,cTipo,Nil},;        
+          {"E2_FORNECE"  ,cFornece,Nil},; 
+          {"E2_LOJA"     ,cLoja,Nil},;      
+          {"E2_NATUREZ"  ,cNaturez,Nil},;
+          {"E2_PORTADO"  ,cPortado,Nil},;
+          {"AUTBANCO"    ,cPortadoPA,NIL},;
+	      {"AUTAGENCIA"  ,""      ,NIL},; 
+	      {"AUTCONTA"    ,""      ,NIL},;
+          {"AUTCHEQUE"   ,""      ,NIL},;
+          {"E2_XXTIPBK"  ,cTipBk,Nil},;
+          {"E2_XXCTRID"  ,cCtrId,Nil},;
+          {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal - ",IIF(cPrefixo="CX","Caixa - ","Despesas de Viagem - "))+u_BKDescRH(cTipBK),NIL},;
+          {"E2_EMISSAO"  ,dEmissao,NIL},;
+          {"E2_VENCTO"   ,dPgto,NIL},;                
+          {"E2_EMIS1"    ,dEmissao,NIL},;              
+          {"E2_VALOR"    ,nValor,Nil},;
+          {"F4_APLIIVA"  ,"2",Nil},;
+          {"E2_MOEDA"    ,1  , Nil},;
+          {"ED_REDCOF"   ,0  , Nil},;
+          {"ED_REDPIS"   ,0  , Nil}}
+   
+lErroT := .F.
+
+Begin Transaction
+
+	lMsErroAuto := .F.   
+	MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
+
+	IF lMsErroAuto
+
+		u_LogMsExec("BKFINA02")
+		DisarmTransaction()
+		lErroT := .T.
+	ENDIF	
+
+END Transaction
+
+If lErroT
+	Return ""
+EndIf
+
+For nI := 1 To Len(aZ2)
+
+	SZ2->(dbGoTo(aZ2[nI]))	
+	RecLock("SZ2",.F.)
+	SZ2->Z2_STATUS := "S"
+	SZ2->Z2_TITULO := cKey1
+	SZ2->Z2_E2Prf  := cPrefixo
+	SZ2->Z2_E2Num  := cNum
+	SZ2->Z2_E2Parc := cParcela
+	SZ2->Z2_E2Tipo := cTipo
+	SZ2->Z2_E2Forn := cFornece
+	SZ2->Z2_E2Loja := cLoja
+	SZ2->(MsUnlock())
+
+Next	
+Return cNum
+
+
+
+
+
+
+Static Function ExcluiSe2(aTitGer,aCtrId)
+Local cKey,cCtrId,aTitErr:= {}
+Local nI,lOk := .T.
+Local aEmail1 := {}
+Local aEmail2 := {}
+
+dbSelectArea("SE2")
+dbSetOrder(1)
+// E2_FILIAL+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA
+
+dbGoTop()
+
+For nI := 1 TO LEN(aTitGer)
+    cKey := aTitGer[nI,2]
+	If aTitGer[nI,1] = "S"
+	    If !MsSeek(cKey)
+	    	lOk := .F.
+			u_MsgLog(,"Titulo "+cKey+" não existe, informe o setor de T.I.", "E")
+	    Else
+		    Processa ( {|| ExcluiBord(cKey)})
+			aVetor:={{"E2_FILIAL"   ,SE2->E2_FILIAL,Nil},;
+		             {"E2_PREFIXO"  ,SE2->E2_PREFIXO,Nil},;
+		             {"E2_NUM"      ,SE2->E2_NUM,Nil},;
+		             {"E2_PARCELA"  ,SE2->E2_PARCELA,Nil},;
+		             {"E2_TIPO"     ,SE2->E2_TIPO,Nil},;        
+		             {"E2_FORNECE"  ,SE2->E2_FORNECE,Nil},; 
+		             {"E2_LOJA"     ,SE2->E2_LOJA,Nil}}
+		             
+			lMsErroAuto := .F.  
+			Begin Transaction 
+				MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
+				IF lMsErroAuto
+					u_LogMsExec("BKFINA03","Problemas na exclusão do titulo "+cKey)
+					AADD(aTitErr,cKey)
+					DisarmTransaction()
+				EndIf
+			End Transaction
+	    Endif	
+	Else    
+	   AADD(aTitErr,cKey)
+	Endif
+Next
+dbSelectArea("SZ2")
+dbSetOrder(2)
+FOR nI := 1 TO LEN(aCtrId)
+	IF aCtrId[nI,1]
+	   cCtrId := aCtrId[nI,2]
+	   //dbGoTop()
+	   dbSeek(xFilial("SZ2")+SM0->M0_CODIGO+cCtrId,.T.)
+	   DO WHILE !EOF() .AND. xFilial("SZ2")+SM0->M0_CODIGO+cCtrId == SZ2->Z2_FILIAL+SZ2->Z2_CODEMP+SZ2->Z2_CTRID
+	      IF SZ2->Z2_STATUS == "S" .AND. ASCAN(aTitErr,cE2Filial+SZ2->Z2_E2PRF+SZ2->Z2_E2NUM+SZ2->Z2_E2PARC+SZ2->Z2_E2TIPO+SZ2->Z2_E2FORN+SZ2->Z2_E2LOJA) = 0
+		     RecLock("SZ2",.F.)
+	      	 SZ2->Z2_STATUS := "D"
+	      	 SZ2->Z2_OBS    := "Titulo excluido: "+DTOC(DATE())+"-"+TIME()
+	    	 IF SUBSTR(SZ2->Z2_TIPOPES,1,3) <> "CLT"
+	    	    AADD(aEmail1,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,SZ2->Z2_OBS,SZ2->Z2_E2PRF+SZ2->Z2_E2NUM,SZ2->Z2_CTRID})
+	    	 ELSE
+                //lCLT := .T.
+	    	    AADD(aEmail2,{SZ2->Z2_PRONT,SZ2->Z2_NOME,SZ2->Z2_VALOR,SZ2->Z2_BANCO,SZ2->Z2_AGENCIA,SZ2->Z2_DIGAGEN,SZ2->Z2_CONTA,SZ2->Z2_DIGCONT,SZ2->Z2_OBS,SZ2->Z2_E2PRF+SZ2->Z2_E2NUM,SZ2->Z2_CTRID})
+	    	 ENDIF
+		     MsUnlock()
+	      ENDIF	 
+		  dbSkip()
+	   ENDDO  
+	ENDIF
+NEXT
+
+If LEN(aEmail1) > 0 // AC
+	U_Fina04E(aEmail1,.F.)
+EndIf	
+If LEN(aEmail2) > 0 // CLT
+	U_Fina04E(aEmail2,.T.)
+EndIf
+
 Return lOk
