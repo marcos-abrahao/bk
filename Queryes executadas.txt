@@ -1,4 +1,19 @@
+==================================================================
 
+
+==================================================================
+-- 23/01/2024 Ajustes CC RPA
+SELECT *
+FROM  webLancamentoIPT.dbo.LancamentoIPT 
+WHERE (AC = 0) AND (adiantamento = 0) AND (integrado = 1) and centroCusto = '008552034'
+and dataLancamento >= '2020-06-01'
+and nomeFunc in ('TIEKO NAGAO','VINICIUS SILVA LEITE','LIRIA TIGUSA MORIYAMA','ROBERT RODRIGUES DE ANDRADE','MARIANA YUKA HORIUCHI','GIULIA GONCALVES CORDEIRO','SIMONE DE CASSIA ROJAS')
+order by dataIntegracao 
+
+UPDATE webLancamentoIPT.dbo.LancamentoIPT SET centroCusto = '008000552' 
+WHERE (AC = 0) AND (adiantamento = 0) AND (integrado = 1) and centroCusto = '008552034'
+and dataLancamento >= '2020-07-01'
+and nomeFunc in ('TIEKO NAGAO','VINICIUS SILVA LEITE','LIRIA TIGUSA MORIYAMA','ROBERT RODRIGUES DE ANDRADE','MARIANA YUKA HORIUCHI','GIULIA GONCALVES CORDEIRO','SIMONE DE CASSIA ROJAS')
 
 ==================================================================
 -- 17/01/2025 - Migração do Contrato 305000554 - REV 031 para o BHG

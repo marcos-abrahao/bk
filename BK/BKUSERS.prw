@@ -293,6 +293,8 @@ Return aUsers
 User Function GprEmail(cEmails,aUsers,aGrupos,aDeptos)
 Local nG        := 0
 Local nE        := 0
+Local nU        := 0
+Local aGTmp     := {}
 Local aGUsers   := {}
 Local aGGrupos  := {}
 Local aGDeptos  := {}
@@ -304,17 +306,26 @@ Default aDeptos := {}
 
 // Agrega Usuarios
 For nG := 1 To Len(aUsers)
-    aGUsers  := u_GrpUsers(aUsers[nG],"","")
+     aGTmp  := u_GrpUsers(aUsers[nG],"","")
+    For nU := 1 To Len(aGTmp)
+        aAdd(aGUsers,aGTmp[nU])
+    Next     
 Next
 
 // Agrega Grupos
 For nG := 1 To Len(aGrupos)
-    aGGrupos  := u_GrpUsers("",aGrupos[nG],"")
+    aGTmp  := u_GrpUsers("",aGrupos[nG],"")
+    For nU := 1 To Len(aGTmp)
+        aAdd(aGGrupos,aGTmp[nU])
+    Next
 Next
 
 // Agrega Deptos
 For nG := 1 To Len(aDeptos)
-    aGDeptos  := u_GrpUsers("","",aDeptos[nG])
+    aGTmp  := u_GrpUsers("","",aDeptos[nG])
+    For nU := 1 To Len(aGTmp)
+        aAdd(aGDeptos,aGTmp[nU])
+    Next
 Next
 
 // Usuarios
@@ -791,6 +802,9 @@ Return "000031"
 // Master RH
 User Function GrpMRH()
 Return "000041"
+
+User Function GrpRHPJ()
+Return "000044"
 
 // Grupo Almoxarifado
 User Function GrpAlmox()

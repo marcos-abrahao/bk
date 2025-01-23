@@ -46,6 +46,7 @@ UPDATE Chamado SET Usuario = 'bruno.bueno', NomeSolicitante = 'Bruno Santiago Bu
 UPDATE Chamado SET Usuario = 'bruno.bueno', NomeSolicitante = 'Bruno Santiago Bueno' where Numero =  0125146
 UPDATE Chamado SET Usuario = 'roberto.celkevicius', NomeSolicitante = 'Roberto Celkevicius' where Numero = 0125157
 UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 0125162
+UPDATE Chamado SET Usuario = 'graziele.silva', NomeSolicitante = 'Graziele Da Silva' where Numero = 0125166
 
 ==============================================================
 

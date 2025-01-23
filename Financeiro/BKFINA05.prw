@@ -83,20 +83,24 @@ For nI := 1 To Len(aFiles)
 					u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum,@cMsgErr)}, "Excluindo dados...")
 					If lValid
 						cMsg := "Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote
-						MoveArq(cArq)
+						MoveArq(cArq,1)
 					Else
 						cMsg := "Lançamentos não excluídos: "+cMsgErr
+						MoveArq(cArq,2)
 					EndIf
 				Else
 					cMsg := cMsgErr
+					MoveArq(cArq,2)
 				EndIf
 			Else
 				cAnexo := PFIN5E(aLinha,cArq)
 				cMsg   := "Arquivo vazio ou problemas com o layout"
+				MoveArq(cArq,2)
 			EndIf
 		EndIf
 	Else
 		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
+		MoveArq(cArq,2)
 	EndIf
 
 	If !Empty(cMsg)
@@ -131,20 +135,24 @@ For nI := 1 To Len(aFiles)
 					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
 					If lValid
 						cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
-						MoveArq(cArq)
+						MoveArq(cArq,1)
 					Else
 						cMsg := "Lançamentos não importados: "+cMsgErr
+						MoveArq(cArq,2)
 					EndIf
 				Else
 					cMsg := cMsgErr					
+					MoveArq(cArq,2)
 				EndIf
 			Else
 				cAnexo := PFIN5E(aLinha,cArq)
 				cMsg   := "Arquivo vazio ou problemas com o layout"
+				MoveArq(cArq,2)
 			EndIf
 		EndIf
 	Else
 		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
+		MoveArq(cArq,2)
 	EndIf
 
 	If !Empty(cMsg)
@@ -163,7 +171,7 @@ Static Function SndMsg(cArq,cErro,cAnexo)
 Local cEmail	:= ""
 Local cEmailCC	:= u_EmailAdm()
 Local aUsers 	:= {__cUserID}
-Local aGrupos	:= {u_GrpMFin()}
+Local aGrupos	:= {u_GrpMFin(),u_GrpRHPJ()}
 Local aDeptos	:= {}
 Local cAssunto	:= "Integração ADP "
 Local cMsg 		:= ""
@@ -225,7 +233,9 @@ Local aLinha 	:= {}
 Local cAcao		:= ""
 Local cArq		:= ""
 Local cNum 		:= ""
+Local cMsg 		:= ""
 Local cMsgErr 	:= ""
+Local cAnexo 	:= ""
 
 u_MsgLog(cProg)
 
@@ -250,50 +260,71 @@ If nOpcA == 1
 			u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 			If lValid
 				If u_MsgLog(cProg,"Lançamentos validados com sucesso, deseja imprimir o lote?","Y")
-					PFIN5E(aLinha,cArq)
+					cAnexo := PFIN5E(aLinha,cArq)
 				EndIf
 				If cAcao == '1'
 					If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
 						u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
 						If lValid
-							u_MsgLog(cProg,"Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum,"S")
 
-							MoveArq(cArq)
+							cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
+							u_MsgLog(cProg,cMsg,"S")
+
+							MoveArq(cArq,1)
 
 						Else
-							u_MsgLog(cProg,"Lançamentos não importados: "+cMsgErr,"E")
+
+							cMsg := "Lançamentos não importados: "+cMsgErr
+							u_MsgLog(cProg,cMsg,"E")
+
+							MoveArq(cArq,2)
 						EndIf
 					EndIf
 				Else
 					If u_MsgLog(cProg,"Confirma a exclusão dos lançamentos do lote?","Y")
 						u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum,@cMsgErr)}, "Excluindo dados...")
 						If lValid
-							u_MsgLog(cProg,"Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote,"S")
 
-							MoveArq(cArq)
+							cMsg := "Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote
+							u_MsgLog(cProg,cMsg,"S")
+
+							MoveArq(cArq,1)
 
 						Else
-							u_MsgLog(cProg,"Lançamentos não excluídos: "+cMsgErr,"E")
+
+							cMsg := "Lançamentos não excluídos: "+cMsgErr
+							u_MsgLog(cProg,cMsg,"E")
+	
+							MoveArq(cArq,2)
+
 						EndIf
 					EndIf
 				EndIf
 			Else
 				If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros? "+cMsgErr,"Y")
-					PFIN5E(aLinha,cArq)
+					cAnexo := PFIN5E(aLinha,cArq)
 				EndIf
+				cMsg := cMsgErr
+				MoveArq(cArq,2)
 			EndIf
 		Else
-			u_MsgLog(cProg,"Lançamentos não importados, verifique o conteudo do arquivo "+cArq,"E")
+			cMsg := "Lançamentos não importados, verifique o conteudo do arquivo "+cArq
+			u_MsgLog(cProg,cMsg,"E")
+			MoveArq(cArq,2)
 		EndIf
 	Else
 		u_MsgLog(cProg,"Arquivo "+TRIM(cArq)+" não encontrado","E")
+	EndIf
+
+	If !Empty(cMsg)
+		SndMsg(cArq,cMsg,cAnexo)
 	EndIf
 Endif
 
 RETURN NIL
 
 
-Static Function MoveArq(cArq)
+Static Function MoveArq(cArq,nOpc)
 Local cDrive, cDir, cNome, cExt
 Local cArqPrc	:= ""
 
@@ -302,10 +333,15 @@ SplitPath( cArq, @cDrive, @cDir, @cNome, @cExt )
 If Empty(cDir)
 	cDir := "\"
 EndIf
-cDir += "processados\"
-MakeDir(cDrive+cDir)
 
-cExt :=  ".PRC"
+If nOpc == 1
+	cDir += "processados\"
+	cExt :=  ".PRC"
+Else
+	cDir += "rejeitados\"
+	cExt :=  ".ERR"
+EndIf
+MakeDir(cDrive+cDir)
 
 cArqPrc := cDrive+cDir+cNome+cExt
 FRename(cArq,cArqPrc)
@@ -351,11 +387,12 @@ While !FT_FEOF()
 		cEmpresa := SUBSTR(cBuffer,nPos,2)
 		nPos += 2
 
-		cTitulo	:= "ADP"+SUBSTR(cBuffer,nPos,9)
+		//cTitulo	:= "ADP"+SUBSTR(cBuffer,nPos,9)
+		cTitulo	:= SUBSTR(cBuffer,nPos,14)
 		If Empty(cLote)
 			cLote := cTitulo
 		EndIf
-		nPos += 9
+		nPos += 14
 
 		cPortador := SUBSTR(cBuffer,nPos,3)
 		nPos += 3
