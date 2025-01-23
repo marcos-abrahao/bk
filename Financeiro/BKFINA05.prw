@@ -29,13 +29,17 @@ Pasta FTP: \\vmfileserver\G$\ADP\Inbox
 User Function BKFINA05()
 
 Private cProg	:= "BKFINA05"
-Private aAcao	:= {"1-Incluir","2-Alterar","3-Excluir"}
+Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
 Private nTotZ2	:= 0
 Private cLote 	:= ""
 
 If !Isblind()
 	// Dialog
-	FINA05DLG()
+	If u_MsgLog(cProg,"Usar integração via tela","Y")
+		FINA05DLG()
+	Else
+		FINA05SCH()
+	EndIf
 Else
 	// Schedule
 	FINA05SCH()
@@ -45,51 +49,61 @@ Return Nil
 
 Static Function FINA05SCH()
 Local nI 		:= 0
-Local aFiles	:= Directory("\ADP\Financeiro\*.txt",,,.F.,2)
+Local cPasta	:= "\ADP\Financeiro\"
+Local aFiles	:= Directory(cPasta+"*.txt",,,.F.,2)
 Local lValid 	:= .T.
 Local aLinha 	:= {}
 Local cAcao		:= ""
+Local cEmpresa  := ""
 Local cArq		:= ""
 Local cAnexo 	:= ""
 Local cNum 		:= ""
 Local cMsg		:= ""
+Local cMsgErr 	:= ""
 
 // Processar Exclusões primeiro
 For nI := 1 To Len(aFiles)
 	cAcao	:= ""
-	cArq 	:= aFiles[nI,1]
+	cArq 	:= cPasta+aFiles[nI,1]
 	cMsg	:= ""
 	cAnexo	:= ""
 	lValid	:= .T.
+	cMsgErr := ""
 
 	lValid  := Ler1L(cArq,@cAcao,@cEmpresa)
 
 	If lValid
-		If cEmpresa == cEmpAnt .AND. cAcao <> '1'
+		If cEmpresa == FWCodEmp() .AND. cAcao <> '1'
 
 			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
 			If !Empty(aLinha)
-				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao)}, "Validando dados...")
+				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 				If lValid
 					cAnexo := PFIN5E(aLinha,cArq)
-					u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum)}, "Excluindo dados...")
+					u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum,@cMsgErr)}, "Excluindo dados...")
 					If lValid
 						cMsg := "Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote
 						MoveArq(cArq)
 					Else
-						cMsg := "Lançamentos não excluídos"
+						cMsg := "Lançamentos não excluídos: "+cMsgErr
 					EndIf
+				Else
+					cMsg := cMsgErr
 				EndIf
 			Else
 				cAnexo := PFIN5E(aLinha,cArq)
+				cMsg   := "Arquivo vazio ou problemas com o layout"
 			EndIf
 		EndIf
 	Else
-		cMsg := "Não foi mpossível abrir o arquivo "
+		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
 	EndIf
 
 	If !Empty(cMsg)
 		SndMsg(cArq,cMsg,cAnexo)
+		If !Isblind()
+			u_MsgLog(cProg,cMsg,"I")
+		EndIf
 	EndIf
 		
 Next
@@ -98,39 +112,46 @@ Next
 // Processar inclusões
 For nI := 1 To Len(aFiles)
 	cAcao	:= ""
-	cArq 	:= aFiles[nI,1]
+	cArq 	:= cPasta+aFiles[nI,1]
 	cMsg	:= ""
 	cAnexo	:= ""
 	lValid	:= .T.
+	cMsgErr := ""
 
 	lValid  := Ler1L(cArq,@cAcao,@cEmpresa)
 
 	If lValid
-		If cEmpresa == cEmpAnt .AND. cAcao == '1'
+		If cEmpresa == FWCodEmp() .AND. cAcao == '1'
 
 			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
 			If !Empty(aLinha)
-				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao)}, "Validando dados...")
+				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 				If lValid
 					cAnexo := PFIN5E(aLinha,cArq)
-					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum)}, "Importando dados...")
+					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
 					If lValid
 						cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
 						MoveArq(cArq)
 					Else
-						cMsg := "Lançamentos não importados"
+						cMsg := "Lançamentos não importados: "+cMsgErr
 					EndIf
+				Else
+					cMsg := cMsgErr					
 				EndIf
 			Else
 				cAnexo := PFIN5E(aLinha,cArq)
+				cMsg   := "Arquivo vazio ou problemas com o layout"
 			EndIf
 		EndIf
 	Else
-		cMsg := "Não foi mpossível abrir o arquivo"
+		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
 	EndIf
 
 	If !Empty(cMsg)
 		SndMsg(cArq,cMsg,cAnexo)
+		If !Isblind()
+			u_MsgLog(cProg,cMsg,"I")
+		EndIf
 	EndIf
 
 Next
@@ -147,7 +168,7 @@ Local aDeptos	:= {}
 Local cAssunto	:= "Integração ADP "
 Local cMsg 		:= ""
 Local aCabs   	:= {"Empresa","Arquivo","Mensagem"}
-Local aMsg 		:= {cEmpAnt,cArq,cErro}
+Local aMsg 		:= {{FWCodEmp(),cArq,cErro}}
 
 cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
 
@@ -162,7 +183,7 @@ Static Function Ler1L(cArq,cAcao,cEmpresa)
 
 Local cBuffer := ""
 Local nPos 	  := 1
-Local lOk 	  := .T.
+Local lOk 	  := .F.
 
 FT_FUSE(cArq)  //abrir
 FT_FGOTOP() //vai para o topo
@@ -179,9 +200,12 @@ If !FT_FEOF()
 
 		cEmpresa := SUBSTR(cBuffer,nPos,2)
 		nPos += 2
+
+		If cAcao $ "123"
+			lOk := .T.
+		EndIf
 	EndIf
-Else
-	lOk := .F.
+
 EndIf
 
 Return lOk
@@ -201,6 +225,7 @@ Local aLinha 	:= {}
 Local cAcao		:= ""
 Local cArq		:= ""
 Local cNum 		:= ""
+Local cMsgErr 	:= ""
 
 u_MsgLog(cProg)
 
@@ -222,38 +247,38 @@ If nOpcA == 1
 	If File(cArq)
 		u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
 		If !Empty(aLinha)
-			u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao)}, "Validando dados...")
+			u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 			If lValid
 				If u_MsgLog(cProg,"Lançamentos validados com sucesso, deseja imprimir o lote?","Y")
 					PFIN5E(aLinha,cArq)
 				EndIf
 				If cAcao == '1'
 					If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
-						u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum)}, "Importando dados...")
+						u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
 						If lValid
 							u_MsgLog(cProg,"Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum,"S")
 
 							MoveArq(cArq)
 
 						Else
-							u_MsgLog(cProg,"Lançamentos não importados","E")
+							u_MsgLog(cProg,"Lançamentos não importados: "+cMsgErr,"E")
 						EndIf
 					EndIf
 				Else
 					If u_MsgLog(cProg,"Confirma a exclusão dos lançamentos do lote?","Y")
-						u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum)}, "Excluindo dados...")
+						u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum,@cMsgErr)}, "Excluindo dados...")
 						If lValid
 							u_MsgLog(cProg,"Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote,"S")
 
 							MoveArq(cArq)
 
 						Else
-							u_MsgLog(cProg,"Lançamentos não excluídos","E")
+							u_MsgLog(cProg,"Lançamentos não excluídos: "+cMsgErr,"E")
 						EndIf
 					EndIf
 				EndIf
 			Else
-				If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
+				If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros? "+cMsgErr,"Y")
 					PFIN5E(aLinha,cArq)
 				EndIf
 			EndIf
@@ -368,7 +393,7 @@ RETURN aLinha
 
 
 // Validação dos dados
-Static Function PFIN5V(aLinha,cAcao)
+Static Function PFIN5V(aLinha,cAcao,cMsgErr)
 Local nI	:= 0
 Local cErros:= ""
 Local lOk 	:= .T.
@@ -384,7 +409,7 @@ For nI := 1 To Len(aLinha)
 		cErros += "Ação não disponível "+IIF(aLinha[nI,XACAO] $ '123',aAcao[VAL(aLinha[nI,XACAO])],TRIM(aLinha[nI,XACAO]))+"; "+CRLF
 	EndIf
 
-	If aLinha[nI,XEMPRESA] <> cEmpAnt
+	If aLinha[nI,XEMPRESA] <> FWCodEmp()
 		cErros += "Empresa não correspondente "+TRIM(aLinha[nI,XEMPRESA])+"; "+CRLF
 	EndIf
 
@@ -407,7 +432,7 @@ Next
 
 //Consistir Lotes
 If lOk
-	lOk := VldLote(aLotes,cAcao)
+	lOk := VldLote(aLotes,cAcao,@cMsgErr)
 EndIf
 
 Return lOk
@@ -471,7 +496,7 @@ Return cArqXls
 
 
 // Importando Dados para a Tabela SZ2
-Static Function PFIN5Z2(aLinha,cNum)
+Static Function PFIN5Z2(aLinha,cNum,cMsgErr)
 Local nI		:= 0
 Local lOk		:= .T.
 Local cCtrId	:= "" //DTOS(date())+SubStr( TIME(), 1, 2 )+SubStr( TIME(), 4, 2 )+SubStr( TIME(), 7, 2 )
@@ -538,7 +563,7 @@ Return lOk
 
 
 // Excluindo Dados das Tabelas SE2 e SZ2
-Static Function PFIN5Z2E(aLinha,cNum)
+Static Function PFIN5Z2E(aLinha,cNum,cMsgErr)
 Local lOk		:= .T.
 Local cQuery 	:= ""
 
@@ -566,7 +591,8 @@ Do While !EOF()
 	Begin Transaction 
 		MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,5) //Exclusão
 		IF lMsErroAuto
-			u_LogMsExec("PFIN5Z2E","Problemas na exclusão do titulo "+QSE2->E2_NUM)
+			cMsgErr := "Problemas na exclusão do titulo "+QSE2->E2_NUM
+			u_LogMsExec("PFIN5Z2E",cMsgErr)
 			DisarmTransaction()
 			lOk := .F.
 		EndIf
@@ -608,7 +634,7 @@ Return lOk
 
 
 
-Static Function VldLote(aLotes,cAcao)
+Static Function VldLote(aLotes,cAcao,cMsgErr)
 Local cQuery        := ""
 Local aReturn       := {}
 Local aBinds        := {}
@@ -643,7 +669,8 @@ aadd(aSetFields,{"NLOTES"   ,"N",5,0})
 nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
 
 If nRet < 0
-  u_MsgLog("BKFINA05-L",tcsqlerror()+" - Falha ao executar a Query: "+cQuery,"E")
+	cMsgErr := tcsqlerror()+" - Falha ao executar a Query: "+cQuery
+	u_MsgLog("BKFINA05-L",cMsgErr,"E")
 Else
   //Alert(VarInfo("aReturn",aReturn))
   //MsgInfo("Verifique os valores retornados no console","Ok")
@@ -652,12 +679,14 @@ Else
 	If cAcao == '1'
 		If nLotes > 0
 			lOk := .F.
-			u_MsgLog("BKFINA05-V"+cAcao,"Lote(s) já importado(s): "+cLotes+", verifique o arquivo","E")
+			cMsgErr := "Lote(s) já importado(s): "+cLotes+", verifique o arquivo"
+			u_MsgLog("BKFINA05-V"+cAcao,cMsgErr,"E")
 		EndIf
 	Else
 		If nLotes <= 0
 			lOk := .F.
-			u_MsgLog("BKFINA05-V"+cAcao,"Lote(s) não encontrados(s): "+cLotes+", verifique o arquivo","E")
+			cMsgErr := "Lote(s) não encontrados(s): "+cLotes+", verifique o arquivo"
+			u_MsgLog("BKFINA05-V"+cAcao,cMsgErr,"E")
 		EndIf
 	EndIf
   EndIf

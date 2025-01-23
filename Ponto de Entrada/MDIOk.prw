@@ -71,6 +71,7 @@ Local lLPN		:= .F.
 Local cToken	:= u_BKEnCode()
 Local cUrl 		:= u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
 Local cLib		:= ""
+Local lWebAgent := .F.
 Local nRemote	:= 0
 Local oDlg
 Local oWebEngine 
@@ -108,8 +109,16 @@ nLeft		:= 0
 */
 
 nRemote := GetRemoteType(@cLib)
+If nRemote <> 1 
+    lWebAgent := .F.
+	u_MsgLog("MDIOK","Confirme se o webagent local está ativo, pois algumas funcionalidades como consulta pedidos e manipulaçao de arquivos estarão limitadas ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+")","W")
+Else
+	u_MsgLog("MDIOK","Webagent ativo ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+")")
+    lWebAgent := .T.
+EndIf
 
-oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,"Avisos do Sistema ("+TRIM(cLib)+")",,,,,,,,, .T.,,,, .F. )
+
+oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,"Avisos do Sistema ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+")",,,,,,,,, .T.,,,, .F. )
 
 oDlg:nClientHeight  := nJanAltu
 oDlg:nClientWidth   := nJanLarg
@@ -147,17 +156,17 @@ If AMIIn(6) .OR. nModulo == 6
 EndIf
 
 nPosBt := 12
-@ 010,nPosBt BUTTON "Titulos a Pagar" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKTitCP(.T.)) WHEN lCP
+@ 05,nPosBt BUTTON "Titulos a Pagar" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKTitCP(.T.)) WHEN lCP
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Titulos a Receber" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKTitCR(.T.)) WHEN lCR
+@ 05,nPosBt BUTTON "Titulos a Receber" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKTitCR(.T.)) WHEN lCR
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Lib. de Pedidos de Venda" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPV(.T.)) WHEN lLPV
+@ 05,nPosBt BUTTON "Lib. de Pedidos de Venda" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKLibPV(.T.)) WHEN lLPV
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Lib. de Docs de Entrada" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
+@ 05,nPosBt BUTTON "Lib. de Docs de Entrada" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Avisos" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (ShellExecute("open", cUrl, "", "", 1))
+@ 05,nPosBt BUTTON "Avisos" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (ShellExecute("open", cUrl, "", "", 1))
 nPosbt += nTamBt + nEsps
-@ 010,nPosBt BUTTON "Entrar no Protheus" SIZE nTamBt, 015 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
+@ 05,nPosBt BUTTON "Entrar no Protheus" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
 //nPosbt += nTamBt + nEsps
 //TButton():New( 010, nPosbt, "GoHome", oPanelUp,{|| oWebEngine:GoHome() },nTamBt,015,,,.F.,.T.,.F.,,.F.,,,.F. )
 

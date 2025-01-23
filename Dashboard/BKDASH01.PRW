@@ -11,21 +11,23 @@ BK - Geração de tabelas para o PowerBI no banco PowerBK - Gestão
 // Chamada do Schedule
 // https://tdn.totvs.com/pages/releaseview.action?pageId=36800166
 
+
+/*
 Static Function Scheddef()
 Local aParam
 Local aOrd     := {}
 
 aParam := {	"P",;		//Tipo R para relatorio P para processo   
 			"PARAMDEF",;// Pergunte do relatorio, caso nao use passar ParamDef            
-			"CN9",;		// Alias            
-			aOrd,;		//Array de ordens   
-			"PowerBk"}
+			"",;		// Alias            
+			aOrd}		//Array de ordens   
+//			"PowerBk"}
 
 Return aParam
+*/
 
 
-
-User Function BKDASH01()
+User Function BKDASH01(aParam)
 Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 				  { "ROTINA"   , "C", 15, 0, "Rotina"   ,"@!", .T., "" },;
 				  { "MODULO"   , "C", 10, 0, "Módulo"   ,"@!", .T., "" },;
@@ -48,10 +50,32 @@ Local lOk     := .F.
 Private cTitulo     := "Dashboard PowerBk e Avisos"
 Private cPerg       := "BKDASH01"
 
+Private cEmpPar  := "01"
+Private cFilPar  := "01"
+
+default aParam := {"01","01"} // caso nao receba nenhum parametro
+
+cEmpPar := aParam[1]
+cFilPar := aParam[2]
+
+If IsBlind()
+	RpcSetType (3)
+	RpcSetEnv(cEmpPar,cFilPar)
+Else
+	aParam := {cEmpAnt,cFilAnt}
+EndIf
+
+// Todas empresas de hora em hora
+
+u_MsgLog(cPerg," Empresa "+FWCodEmp())
+
+u_WaitLog(cPerg,{|oSay| U_BKFINA05() },"Importando txt lançamentos da Folha ADP")
+
+
+// Executar somente se a empresa for a BK
 If FWCodEmp() == "01"
 
 	aDados  := {}
-
 
 	If IsBlind() 
 		If SUBSTRING(TIME(),1,2) > '05' ;
@@ -93,7 +117,6 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP0614	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
 	aAdd(aDados,{cP0614	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
 	aAdd(aDados,{cP0614	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
-
 	aAdd(aDados,{cP0713	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
 	aAdd(aDados,{cP0713	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
 	aAdd(aDados,{cP0713	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
@@ -104,7 +127,6 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP0713	,"U_BKDSGCO()",     "DASHBOARD",    "Atualização da tabela GASTOSCONSORCIOS"})
 	aAdd(aDados,{cP0713	,"U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
 	aAdd(aDados,{cP0713	,"U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
-
 	aAdd(aDados,{cP19D	,"U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
 	aAdd(aDados,{cP19D	,"U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
 	aAdd(aDados,{cP19D	,"U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
@@ -122,6 +144,9 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP19D	,"U_BKMSG007()",	"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
 	aAdd(aDados,{cP19	,"U_BKMSG008()",	"AVISOS",		"Aviso de Pedidos de compras não entregues"})
 	aAdd(aDados,{cP19	,"U_BKMSG009()",	"AVISOS",		"Aviso de Solicitações de compras em aberto"})
+
+	// Financeiro
+	//aAdd(aDados,{cP1H	,"U_BKFINA05()",	"FINANCEIRO",	"Importar txt lançamentos da Folha ADP"})
 
 	If !IsBlind()
 		u_TTMARKB(aCampos, aDados, .F.)
@@ -148,6 +173,7 @@ ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 	EndIf
 
 EndiF
+
 
 Return
 

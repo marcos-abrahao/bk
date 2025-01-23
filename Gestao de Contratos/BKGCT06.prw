@@ -1,9 +1,10 @@
-#INCLUDE "TOPCONN.CH"
 #INCLUDE "PROTHEUS.CH"
-#INCLUDE "RWMAKE.CH"
-#include "TBICONN.CH"
-#include "AP5MAIL.CH"
 #include "TOTVS.CH"
+#INCLUDE "RWMAKE.CH"
+//#include "TBICONN.CH"
+//#include "AP5MAIL.CH"
+#INCLUDE "TOPCONN.CH"
+
 
 /*/{Protheus.doc} BKGCT06
 BK - Avisos automaticos de Repactuação de contratos e Compras
@@ -13,10 +14,26 @@ BK - Avisos automaticos de Repactuação de contratos e Compras
 @version P12
 /*/
 
+
+/*
+Static Function Scheddef()
+Local aParam
+Local aOrd     := {}
+
+
+aParam := {	"P",;		//Tipo R para relatorio P para processo   
+			"PARAMDEF",;// Pergunte do relatorio, caso nao use passar ParamDef            
+			"",;		// Alias            
+			aOrd}		//Array de ordens   
+//			"PowerBk"}
+
+Return aParam
+*/
+
 // Função via Schedule
 User Function BKGCT06(aParam)
 
-Local cFwEmp := ""
+//Local cFwEmp := ""
 
 Public cPrw      := "BKGCT06"
 Public cEmailS   := ""
@@ -36,14 +53,14 @@ cFilPar := aParam[2]
 
 //-- Evita que se consuma licenca
 RpcSetType ( 3 )
+RpcSetEnv(cEmpPar,cFilPar)
+//WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
 
-WFPrepEnv(cEmpPar,cFilPar,"BKGCT06",{"CN9"},"GCT")
+u_MsgLog("BKGCT06","Inicio Processo - "+FWCodEmp())
 
-u_MsgLog("BKGCT06","Inicio Processo - "+cEmpPar+" - "+cFilPar)
+//cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
 
-cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
-
-If cEmpAnt == "01" .OR. cEmpPar = "01"
+If FWCodEmp() == "01" //.OR. cEmpPar = "01"
 	u_WaitLog("V9BKGct06", {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
 	//u_WaitLog("BKMSG008",  {|| u_BKMSG008()} ,"Processando avisos de pedidos de compras não entregues")
 	//u_WaitLog("BKMSG009",  {|| u_BKMSG009()} ,"Processando aviso de Solicitação de compras em aberto")
@@ -74,9 +91,10 @@ If cFWEmp $ "01/02/14"
 ENDIF
 */
 
-u_MsgLog("BKGCT06","Final Processo - "+cEmpPar+" - "+cFilPar)
+u_MsgLog("BKGCT06","Final Processo - "+FWCodEmp())
 
-Reset Environment
+RpcClearEnv()
+//Reset Environment
 
 RETURN
 

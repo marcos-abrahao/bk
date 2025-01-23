@@ -13,7 +13,7 @@
     @see (links_or_references)
     /*/
 
-/*
+
 User Function BKTITCR(lShell)
 
 Local cToken  := u_BKEnCode()
@@ -28,9 +28,9 @@ If lShell
 EndIf
 
 Return cUrl
-*/
 
 
+/*
 User Function BKTITCR(lShell)
 
 Local cToken  := u_BKEnCode()
@@ -69,3 +69,4 @@ u_MsgLog("BKTITCR",u_BkRest())
 ShellExecute("open", cUrl, "", "", 1)
 
 Return .T.
+*/
