@@ -2096,7 +2096,7 @@ DbGoTop()
 dbSeek(xFilial("SE2")+DTOS(dData),.T.)
 Do While !eof() .AND. SE2->E2_VENCREAL == dData 
     IF !EMPTY(SE2->E2_XXCTRID) .AND. SE2->E2_VENCREAL == dData  .AND. SE2->E2_VALOR == SE2->E2_SALDO .AND. ALLTRIM(SE2->E2_XXTIPBK) <> 'MFG' .AND.;
-		  SUBSTR(SE2->E2_XXCTRID,1,3) <> 'ADP' .AND.;
+		  SUBSTR(SE2->E2_XXCTRID,1,3) <> 'ADP' .AND. SUBSTR(SE2->E2_HIST,1,3) <> 'ADP' .AND. ;
 		  IIF(cBcoBor=='001' .AND. (nFurnas == 1 .OR. nFurnas == 2) .AND. nTED == 1, ALLTRIM(SE2->E2_PORTADO) $ cBCOTED, SE2->E2_PORTADO == cBcoBor) 
 		  // Filtro abaixo removido em 09/12/2019, desta forma, serão incluídos os pagamentos a PJ.
 		  //.AND. ( ALLTRIM(SE2->E2_TIPO) <> 'PA' .OR. ( ALLTRIM(SE2->E2_TIPO) == 'PA' .AND. (ALLTRIM(SE2->E2_XXTIPBK) == 'CXA' .OR. ALLTRIM(SE2->E2_XXTIPBK) == 'SOL' .OR. ALLTRIM(SE2->E2_XXTIPBK) == 'HOS')))

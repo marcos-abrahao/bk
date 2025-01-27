@@ -292,12 +292,8 @@ Return aUsers
 /*/
 User Function GprEmail(cEmails,aUsers,aGrupos,aDeptos)
 Local nG        := 0
-Local nE        := 0
 Local nU        := 0
 Local aGTmp     := {}
-Local aGUsers   := {}
-Local aGGrupos  := {}
-Local aGDeptos  := {}
 
 Default cEmails := ""
 Default aUsers  := {}
@@ -306,9 +302,11 @@ Default aDeptos := {}
 
 // Agrega Usuarios
 For nG := 1 To Len(aUsers)
-     aGTmp  := u_GrpUsers(aUsers[nG],"","")
+    aGTmp  := u_GrpUsers(aUsers[nG],"","")
     For nU := 1 To Len(aGTmp)
-        aAdd(aGUsers,aGTmp[nU])
+        If !(ALLTRIM(aGTmp[nU,3])+";" $ cEmails)
+            cEmails += ALLTRIM(aGTmp[nU,3])+";"
+        EndIf
     Next     
 Next
 
@@ -316,7 +314,9 @@ Next
 For nG := 1 To Len(aGrupos)
     aGTmp  := u_GrpUsers("",aGrupos[nG],"")
     For nU := 1 To Len(aGTmp)
-        aAdd(aGGrupos,aGTmp[nU])
+        If !(ALLTRIM(aGTmp[nU,3])+";" $ cEmails)
+            cEmails += ALLTRIM(aGTmp[nU,3])+";"
+        EndIf
     Next
 Next
 
@@ -324,48 +324,10 @@ Next
 For nG := 1 To Len(aDeptos)
     aGTmp  := u_GrpUsers("","",aDeptos[nG])
     For nU := 1 To Len(aGTmp)
-        aAdd(aGDeptos,aGTmp[nU])
+        If !(ALLTRIM(aGTmp[nU,3])+";" $ cEmails)
+            cEmails += ALLTRIM(aGTmp[nU,3])+";"
+        EndIf
     Next
-Next
-
-// Usuarios
-For nE := 1 To Len(aGUsers)
-    If !(ALLTRIM(aGUsers[nE,3])+";" $ cEmails)
-        cEmails += ALLTRIM(aGUsers[nE,3])+";"
-    EndIf
-    If Ascan(aGrupos,aGUsers[nE,4]) == 0
-        aAdd(aGrupos,aGUsers[nE,4])
-    EndIf
-    If Ascan(aDeptos,{|x| TRIM(UPPER(x)) == TRIM(UPPER(aGUsers[nE,6]))}) == 0
-        aAdd(aDeptos,Trim(aGUsers[nE,6]))
-    EndIf
-Next
-
-// Grupos
-For nE := 1 To Len(aGGrupos)
-    If !(ALLTRIM(aGGrupos[nE,3])+";" $ cEmails)
-        cEmails += ALLTRIM(aGGrupos[nE,3])+";"
-    EndIf
-    If Ascan(aUsers,aGGrupos[nE,1]) == 0
-        aAdd(aUsers,aGGrupos[nE,1])
-    EndIf
-    If Ascan(aDeptos,{|x| TRIM(UPPER(x)) == TRIM(UPPER(aGGrupos[nE,6]))}) == 0
-        aAdd(aDeptos,Trim(aGGrupos[nE,6]))
-    EndIf
-Next
-
-
-// Deptos
-For nE := 1 To Len(aGDeptos)
-    If !(ALLTRIM(aGDeptos[nE,3])+";" $ cEmails)
-        cEmails += ALLTRIM(aGDeptos[nE,3])+";"
-    EndIf
-    If Ascan(aUsers,aGDeptos[nE,1]) == 0
-        aAdd(aUsers,aGDeptos[nE,1])
-    EndIf
-    If Ascan(aGrupos,aGDeptos[nE,4]) == 0
-        aAdd(aGrupos,aGDeptos[nE,4])
-    EndIf
 Next
 
 Return cEmails
@@ -386,49 +348,54 @@ Local aBinds        := {}
 Local aSetFields    := {}
 Local nRet          := 0
 
-cQuery := "SELECT " + CRLF
-cQuery += "    USRGRP.USR_ID  AS USRID" + CRLF
-cQuery += "   ,USR.USR_CODIGO AS USRCODIGO" + CRLF
-cQuery += "   ,USR.USR_EMAIL  AS USREMAIL" + CRLF
-cQuery += "   ,USRGRP.USR_GRUPO  AS USRGRUPO" + CRLF
-cQuery += "   ,GRP.GR__NOME   AS GRPNOME" + CRLF
-cQuery += "   ,USR.USR_DEPTO  AS USRDEPTO" + CRLF
-//cQuery += "   ,USR.USR_DATABLQ  AS DATABLQ" + CRLF
+If !Empty(cUser) .OR. !Empty(cGrupo) .OR. !Empty(cDepto)
+    cQuery := "SELECT " + CRLF
+    cQuery += "    USRGRP.USR_ID  AS USRID" + CRLF
+    cQuery += "   ,USR.USR_CODIGO AS USRCODIGO" + CRLF
+    cQuery += "   ,USR.USR_EMAIL  AS USREMAIL" + CRLF
+    cQuery += "   ,USRGRP.USR_GRUPO  AS USRGRUPO" + CRLF
+    cQuery += "   ,GRP.GR__NOME   AS GRPNOME" + CRLF
+    cQuery += "   ,USR.USR_DEPTO  AS USRDEPTO" + CRLF
+    //cQuery += "   ,USR.USR_DATABLQ  AS DATABLQ" + CRLF
 
-cQuery += "  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP" + CRLF
-cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO" + CRLF
-cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR ON USRGRP.USR_ID = USR.USR_ID" + CRLF
-cQuery += "  WHERE GRP.D_E_L_E_T_ = '' " + CRLF
-cQuery += "		AND USRGRP.D_E_L_E_T_ = ''" + CRLF
-cQuery += "		AND USR.D_E_L_E_T_ = ''" + CRLF
-cQuery += "		AND USR.USR_MSBLQD = ' '" + CRLF   // Data de Bloqueio em branco
-If !Empty(cUser)
-    cQuery += "		AND USRGRP.USR_ID = ? " + CRLF
-    aAdd(aBinds,cUser)
+    cQuery += "  FROM [dataP10].[dbo].[SYS_USR_GROUPS] USRGRP" + CRLF
+    cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_GRP_GROUP] GRP ON  GR__ID = USR_GRUPO" + CRLF
+    cQuery += "  LEFT JOIN [dataP10].[dbo].[SYS_USR] USR ON USRGRP.USR_ID = USR.USR_ID" + CRLF
+    cQuery += "  WHERE GRP.D_E_L_E_T_ = '' " + CRLF
+    cQuery += "		AND USRGRP.D_E_L_E_T_ = ''" + CRLF
+    cQuery += "		AND USR.D_E_L_E_T_ = ''" + CRLF
+    cQuery += "		AND USR.USR_MSBLQD = ' '" + CRLF   // Data de Bloqueio em branco
+    If !Empty(cUser)
+        cQuery += "		AND USRGRP.USR_ID = ? " + CRLF
+        aAdd(aBinds,cUser)
+    EndIf
+    If !Empty(cGrupo)
+        cQuery += "		AND USRGRP.USR_GRUPO = ? " + CRLF
+        aAdd(aBinds,cGrupo)
+    EndIf
+    If !Empty(cDepto)
+        cQuery += "		AND UPPER(USR.USR_DEPTO) = ? "+CRLF  //'"+UPPER(cDepto)+"' " + CRLF
+        aAdd(aBinds,UPPER(cDepto))
+    EndIf
+    cQuery += "	ORDER BY USRGRP.USR_ID" + CRLF
+
+    // Ajustes de tratamento de retorno
+    aadd(aSetFields,{"USRID"    ,"C",  6,0})
+    aadd(aSetFields,{"USRCODIGO","C", 25,0})
+    aadd(aSetFields,{"USREMAIL" ,"C",150,0})
+    aadd(aSetFields,{"USRGRUPO" ,"C",  6,0})
+    aadd(aSetFields,{"GRPNOME"  ,"C", 30,0})
+    aadd(aSetFields,{"USRDEPTO" ,"C", 40,0})
+
+    nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
+
+    If nRet < 0
+        u_MsgLog("GrpUsers",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
+    Endif
+
 EndIf
-If !Empty(cGrupo)
-    cQuery += "		AND USRGRP.USR_GRUPO = ? " + CRLF
-    aAdd(aBinds,cGrupo)
-EndIf
-If !Empty(cDepto)
-    cQuery += "		AND UPPER(USR.USR_DEPTO) = ? "+CRLF  //'"+UPPER(cDepto)+"' " + CRLF
-    aAdd(aBinds,UPPER(cDepto))
-EndIf
-cQuery += "	ORDER BY USRGRP.USR_ID" + CRLF
 
-// Ajustes de tratamento de retorno
-aadd(aSetFields,{"USRID"    ,"C",  6,0})
-aadd(aSetFields,{"USRCODIGO","C", 25,0})
-aadd(aSetFields,{"USREMAIL" ,"C",150,0})
-aadd(aSetFields,{"USRGRUPO" ,"C",  6,0})
-aadd(aSetFields,{"GRPNOME"  ,"C", 30,0})
-aadd(aSetFields,{"USRDEPTO" ,"C", 40,0})
-
-nRet := TCSqlToArr(cQuery,@aReturn,aBinds,aSetFields)
-
-If nRet < 0
-    u_MsgLog("GrpUsers",TCSqlError()+" - Falha ao executar a Query: "+cQuery,"E")
-Endif
+u_MsgLog("GrpUsers",cUser+"-"+cGrupo+"-"+cDepto+" : "+cValToChar(aReturn),"W")
 
 Return aReturn
 
@@ -892,7 +859,7 @@ Local aDeptos 	:= {}
 Local cEmail    := ""
 //Local aUsers := {"000170","000242","000016","000023","000249","000273","000306"} // João C/Elaine/Diego O/Fabia/Sabrina/Leandro/Isabela
 
-cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
+cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 
 Return cEMail
 

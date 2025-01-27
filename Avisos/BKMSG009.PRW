@@ -45,7 +45,7 @@ EndIf
 
 u_MsgLog(cProg,cAssunto)
 
-cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
+cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 
 //EMAIL - GRUPO DE COMPRAS
 /*

@@ -28,26 +28,59 @@ Pasta FTP: \\vmfileserver\G$\ADP\Inbox
 
 User Function BKFINA05()
 
+//Local cEmail 	:= LoadEmail()
+Local nE	  := 0
+Local aEmp 	  := u_BkGrupo(4)
+Local lOk 	  := .F.
+Local lAllOk  := .T.
+
 Private cProg	:= "BKFINA05"
 Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
 Private nTotZ2	:= 0
 Private cLote 	:= ""
 
-If !Isblind()
-	// Dialog
-	If u_MsgLog(cProg,"Usar integração via tela","Y")
-		FINA05DLG()
-	Else
-		FINA05SCH()
+If u_MsgLog(cProg,"Executar integração automática (todas empresas)","Y")
+
+	For nE := 1 To Len(aEmp)
+		//u_WaitLog(cProg, {|| u_FINA05S({aEmp[nE,1],"01"}) }, "Processando "+aEmp[nE,2])
+
+		u_WaitLog(cProg, {|| lOk := StartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",.T.,__cUserID})},"Processando empresa "+aEmp[nE,3])
+
+		//lOk := uStartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",.T.})
+
+		If !lOk
+			u_MsgLog(cProg,"Problemas na integração da empresa "+aEmp[nE,2],"E")
+			lAllOk := .F.
+		EndIf
+	Next
+	If lAllOk
+		u_MsgLog(cProg,"Processo finalizado","I")
 	EndIf
+
 Else
-	// Schedule
-	FINA05SCH()
+
+	u_FINA05S({cEmpAnt,cFilAnt,.F.,__cUserID})
+
+	//FINA05DLG()
+
 EndIf
 Return Nil
 
 
-Static Function FINA05SCH()
+Static Function LoadEmail()  // Para testes
+Local cEmail	:= ""
+Local aUsers 	:= {__cUserID}
+Local aGrupos	:= {u_GrpMFin(),u_GrpRHPJ()}
+Local aDeptos	:= {}
+
+cEmail	 := u_GprEmail(cEmail,aUsers,aGrupos,aDeptos)
+
+Return cEmail
+
+
+
+
+User Function FINA05S(aParam)
 Local nI 		:= 0
 Local cPasta	:= "\ADP\Financeiro\"
 Local aFiles	:= Directory(cPasta+"*.txt",,,.F.,2)
@@ -60,6 +93,25 @@ Local cAnexo 	:= ""
 Local cNum 		:= ""
 Local cMsg		:= ""
 Local cMsgErr 	:= ""
+Local lJob 		:= .F.
+Local cUser 	:= ""
+
+Private cProg	:= "FINA05S"
+Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
+Private nTotZ2	:= 0
+Private cLote 	:= ""
+
+default aParam := {"01","01",.T.,"000000"} 
+
+lJob  := aParam[3]
+cUser := aParam[4]
+
+If lJob
+	RpcSetType(3)
+	RpcSetEnv(aParam[1],aParam[2])
+EndIf
+
+u_MsgLog(cProg,cEmpAnt+ " - "+cUser)
 
 // Processar Exclusões primeiro
 For nI := 1 To Len(aFiles)
@@ -75,7 +127,7 @@ For nI := 1 To Len(aFiles)
 	If lValid
 		If cEmpresa == FWCodEmp() .AND. cAcao <> '1'
 
-			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
+			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo "+cArq)
 			If !Empty(aLinha)
 				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 				If lValid
@@ -97,14 +149,15 @@ For nI := 1 To Len(aFiles)
 				cMsg   := "Arquivo vazio ou problemas com o layout"
 				MoveArq(cArq,2)
 			EndIf
+			aFiles[nI,1] := ""
 		EndIf
 	Else
 		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
 		MoveArq(cArq,2)
 	EndIf
-
+	
 	If !Empty(cMsg)
-		SndMsg(cArq,cMsg,cAnexo)
+		SndMsg(cArq,cMsg,cAnexo,cUser)
 		If !Isblind()
 			u_MsgLog(cProg,cMsg,"I")
 		EndIf
@@ -115,62 +168,68 @@ Next
 
 // Processar inclusões
 For nI := 1 To Len(aFiles)
-	cAcao	:= ""
-	cArq 	:= cPasta+aFiles[nI,1]
-	cMsg	:= ""
-	cAnexo	:= ""
-	lValid	:= .T.
-	cMsgErr := ""
+	If !Empty(aFiles[nI,1])
+		cAcao	:= ""
+		cArq 	:= cPasta+aFiles[nI,1]
+		cMsg	:= ""
+		cAnexo	:= ""
+		lValid	:= .T.
+		cMsgErr := ""
 
-	lValid  := Ler1L(cArq,@cAcao,@cEmpresa)
+		lValid  := Ler1L(cArq,@cAcao,@cEmpresa)
 
-	If lValid
-		If cEmpresa == FWCodEmp() .AND. cAcao == '1'
+		If lValid
+			If cEmpresa == FWCodEmp() .AND. cAcao == '1'
 
-			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo TXT...")
-			If !Empty(aLinha)
-				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
-				If lValid
-					cAnexo := PFIN5E(aLinha,cArq)
-					u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
+				u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo "+cArq)
+				If !Empty(aLinha)
+					u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 					If lValid
-						cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
-						MoveArq(cArq,1)
+						cAnexo := PFIN5E(aLinha,cArq)
+						u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
+						If lValid
+							cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
+							MoveArq(cArq,1)
+						Else
+							cMsg := "Lançamentos não importados: "+cMsgErr
+							MoveArq(cArq,2)
+						EndIf
 					Else
-						cMsg := "Lançamentos não importados: "+cMsgErr
+						cMsg := cMsgErr					
 						MoveArq(cArq,2)
 					EndIf
 				Else
-					cMsg := cMsgErr					
+					cAnexo := PFIN5E(aLinha,cArq)
+					cMsg   := "Arquivo vazio ou problemas com o layout"
 					MoveArq(cArq,2)
 				EndIf
-			Else
-				cAnexo := PFIN5E(aLinha,cArq)
-				cMsg   := "Arquivo vazio ou problemas com o layout"
-				MoveArq(cArq,2)
+			EndIf
+		Else
+			cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
+			MoveArq(cArq,2)
+		EndIf
+
+		If !Empty(cMsg)
+			SndMsg(cArq,cMsg,cAnexo,cUser)
+			If !Isblind()
+				u_MsgLog(cProg,cMsg,"I")
 			EndIf
 		EndIf
-	Else
-		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
-		MoveArq(cArq,2)
 	EndIf
-
-	If !Empty(cMsg)
-		SndMsg(cArq,cMsg,cAnexo)
-		If !Isblind()
-			u_MsgLog(cProg,cMsg,"I")
-		EndIf
-	EndIf
-
 Next
 
-Return Nil
+If lJob
+	RpcClearEnv()
+EndIf
+
+Return .T.
 
 
-Static Function SndMsg(cArq,cErro,cAnexo)
+
+Static Function SndMsg(cArq,cErro,cAnexo,cUser)
 Local cEmail	:= ""
 Local cEmailCC	:= u_EmailAdm()
-Local aUsers 	:= {__cUserID}
+Local aUsers 	:= {cUser}
 Local aGrupos	:= {u_GrpMFin(),u_GrpRHPJ()}
 Local aDeptos	:= {}
 Local cAssunto	:= "Integração ADP "
@@ -178,10 +237,11 @@ Local cMsg 		:= ""
 Local aCabs   	:= {"Empresa","Arquivo","Mensagem"}
 Local aMsg 		:= {{FWCodEmp(),cArq,cErro}}
 
-cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
+cEmail	 := u_GprEmail(cEmail,aUsers,aGrupos,aDeptos)
 
 cMsg := u_GeraHtmB(aMsg,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,iIf(!Empty(cAnexo),{cAnexo},nil),.F.)
+u_MsgLog("SNDMSG",cEmail)
 
 Return Nil
 
@@ -317,7 +377,7 @@ If nOpcA == 1
 	EndIf
 
 	If !Empty(cMsg)
-		SndMsg(cArq,cMsg,cAnexo)
+		SndMsg(cArq,cMsg,cAnexo,__cUserID)
 	EndIf
 Endif
 
@@ -481,6 +541,7 @@ Local cTitulo	:= "Relação de Lote Financeiro - ADP"
 Local cDescr 	:= "O objetivo deste relatório é a impressão de lote via arquivo TXT fornecido pela ADP."
 Local cVersao	:= "02/01/2025"
 Local cArqXls   := ""
+Local cProg		:= "PFIN5E"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 
@@ -784,7 +845,8 @@ aVetor :={{"E2_FILIAL"   ,cxFilial,Nil},;
           {"AUTCHEQUE"   ,""      ,NIL},;
           {"E2_XXTIPBK"  ,cTipBk,Nil},;
           {"E2_XXCTRID"  ,cCtrId,Nil},;
-          {"E2_HIST"     ,IIF(cPrefixo="LF","Depto Pessoal - ",IIF(cPrefixo="CX","Caixa - ","Despesas de Viagem - "))+u_BKDescRH(cTipBK),NIL},;
+          {"E2_XXORIG"   ,"ADP",Nil},;
+          {"E2_HIST"     ,"ADP RH - "+TRIM(cHist),NIL},;
           {"E2_EMISSAO"  ,dEmissao,NIL},;
           {"E2_VENCTO"   ,dPgto,NIL},;                
           {"E2_EMIS1"    ,dEmissao,NIL},;              

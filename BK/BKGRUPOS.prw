@@ -19,7 +19,7 @@ Default nOpc    := 2 // Ativas
 nOpc = 1  // Retorna todas empresas
 nOpc = 2  // Empresas Ativas
 nOpc = 3  // Empresas que usam Gestão de Contratos
-nOpc = 4  // Empresas que possuem despesas em contratos
+nOpc = 4  // Empresas que possuem despesas em contratos e RH
 nOpc = 5  // Empresas que efetuam Faturamento
 nOpc = 6  // Empresas em Barueri - SP
 */
@@ -41,7 +41,7 @@ Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S"
                         {"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N",""         },;
                         {"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N",""         },;
                         {"14","BALSA NOVA"      ,"BALSA"        ,"N","N","N","N","N","302000508"},;
-                        {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","N","S","305000554"},;
+                        {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","S","S","305000554"},;
 						{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386000609"},;
 						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         },;
                         {"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623"},;

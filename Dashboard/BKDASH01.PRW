@@ -67,10 +67,7 @@ EndIf
 
 // Todas empresas de hora em hora
 
-u_MsgLog(cPerg," Empresa "+FWCodEmp())
-
-u_WaitLog(cPerg,{|oSay| U_BKFINA05() },"Importando txt lançamentos da Folha ADP")
-
+u_WaitLog(cPerg,{|oSay| U_BKFINA5S() },"Importando txt financeiro ADP - Empresa "+FWCodEmp())
 
 // Executar somente se a empresa for a BK
 If FWCodEmp() == "01"

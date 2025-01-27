@@ -30,7 +30,7 @@ Local aUsers 	:= {}
 Local aGrupos 	:= {u_GrpMCompras(),u_GrpUCompras()}
 Local aDeptos 	:= {}
 
-cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
+cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 lJobV2 := IsBlind()
 
 If FWCodEmp() <> "01"

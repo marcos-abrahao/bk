@@ -42,7 +42,7 @@ If FWCodEmp() <> "01"
 	Return Nil
 EndIf
 
-cEmail	 := u_GprEmail(cEmail,@aUsers,@aGrupos,@aDeptos)
+cEmail	 := u_GprEmail(cEmail,aUsers,aGrupos,aDeptos)
 
 u_MsgLog(cProg,cAssunto)
 

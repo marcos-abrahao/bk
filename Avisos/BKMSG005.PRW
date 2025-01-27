@@ -31,7 +31,7 @@ Local aDeptos 	:= {}
 
 Private cProg := "BKMSG005" 
 
-cEmail := u_GprEmail("",@aUsers,@aGrupos,@aDeptos)
+cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 
 cQuery := "WITH MSG AS ( " + CRLF
 

@@ -277,7 +277,7 @@ IF !Empty(cContrato)
 
 	cxCompet := ""
 	cxParcel := ""
-	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596' // VOA-SE //.AND. ALLTRIM(cContrato) <> "305000554" //criado para atendimento emergencial - 10/02/2023
+	If AllTrim(cContrato) <> '307000496' .AND. AllTrim(cContrato) <> '385000596' .AND. AllTrim(cContrato) <> '305000554' // VOA-SE // PRODESP BHG 24/01/25
 		If !(AllTrim(cCliente) $ cXXCOMPE)
    			cxCompet  := "Competencia: "+cCompet
 		EndIf

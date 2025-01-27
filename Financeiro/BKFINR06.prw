@@ -385,7 +385,7 @@ Begin Sequence
 		IF ALLTRIM(SZ2->Z2_CC) == aFurnas[2]
 			oPrn:Say(0180,0050,"FURNAS LOTE BK",oFont14N)
         ENDIF
-		IF SUBSTR(SE2->E2_XXCTRID,1,3) <> "ADP"
+		IF SUBSTR(SE2->E2_XXCTRID,1,3) <> "ADP" .OR. SUBSTR(SE2->E2_HIST,1,3) <> "ADP" 
 			aLib := U_BLibera("LFRH",SE2->E2_NUM) // Localiza liberação Alcada
 			cDigUser 	:= aLib[1]
 			cLibUser 	:= aLib[2]
