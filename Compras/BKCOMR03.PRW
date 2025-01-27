@@ -114,7 +114,7 @@ cMunic   := PadR(GetMv('MV_MUNIC'),Len(SE2->E2_FORNECE))  + PadR('00',Len(SE2->E
 DBCLEARFILTER() 
 
 // Se o usuario pertence ao grupo Administradores ou Master Financeiro ou Master Diretoria: não filtrar
-IF !u_IsMasFin(__cUserId) .AND. !u_IsMDir(__cUserId)
+IF !u_IsMasFin(__cUserId) .AND. !u_IsFiscal(__cUserId) .AND. !lMDiretoria
 
 	lStaf  := u_IsStaf(__cUserId)
 

@@ -122,7 +122,7 @@ Private aHeader	    := {}
 u_MsgLog("BKCOMC01")
 
 // Se o usuario pertence ao grupo Administradores ou Master Financeiro ou Master Diretoria: não filtrar
-IF !u_IsMasFin(__cUserId) .AND. !u_IsMDir(__cUserId)
+IF !u_IsMasFin(__cUserId) .AND. !u_IsFiscal(__cUserId) .AND. !lMDiretoria
 
 	//cStaf  := SuperGetMV("MV_XXUSERS",.F.,"000013/000027/000061")
 	lStaf  := u_IsStaf(__cUserId)

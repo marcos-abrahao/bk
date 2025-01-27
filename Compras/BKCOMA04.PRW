@@ -51,7 +51,7 @@ ElseIf  SCR->CR_STATUS $ "01"
 	Return NIL
 EndIf
 
-IF !u_IsMasFin(__cUserId) .AND. !lMDiretoria
+IF !u_IsMasFin(__cUserId) .AND. !u_IsFiscal(__cUserId) .AND. !lMDiretoria
 	DbSelectArea("SC7")
 	SC7->(Dbsetorder(1))
 	IF DbSeek(xFilial("SC7")+ALLTRIM(SCR->CR_NUM),.T.)

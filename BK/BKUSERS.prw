@@ -808,7 +808,7 @@ Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpRepac()+"/"+u_GrpFi
 // Master Dir 2
 User Function cGrpMD2()
 //000000/000005/000007/000038
-Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpMLibDc()
+Return u_GrpAdmin()+"/"+u_GrpMFin()+"/"+u_GrpMDir()+"/"+u_GrpMLibDc()+"/"+u_GrpFisc()
 
 // Usuários ----------------------------------------
 
