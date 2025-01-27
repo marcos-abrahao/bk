@@ -137,7 +137,12 @@ Default cTxt  := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cMens := STRTRAN( cMens, CRLF, " ")
-cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
+If Type("cEmpAnt") == "U"
+	cMens := DtoC(Date())+"|"+Time()+"||||||"+cMens+"|"
+Else
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
+EndIf
+
 If !Empty(cTxt)
 	cMens += CRLF+cTxt+CRLF
 EndIf

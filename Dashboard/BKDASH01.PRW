@@ -39,13 +39,14 @@ Local aGrpDsp := u_BKGrpDsp()
 Local bProg
 
 Local cP1H	  := ""
-Local cP0614  := ""
-Local cP0713  := ""
+Local cP0613  := ""
+Local cP0712  := ""
 Local cP12 	  := ""
 Local cP19	  := ""
 Local cP19D	  := ""
 
 Local lOk     := .F.
+Local cUser	  := "000000"
 
 Private cTitulo     := "Dashboard PowerBk e Avisos"
 Private cPerg       := "BKDASH01"
@@ -62,12 +63,15 @@ If IsBlind()
 	RpcSetType (3)
 	RpcSetEnv(cEmpPar,cFilPar)
 Else
-	aParam := {cEmpAnt,cFilAnt}
+	cEmpPar := cEmpAnt
+	cFilPar := cFilAnt
+	cUser	:= __cUserID
+	aParam  := {cEmpAnt,cFilAnt}
 EndIf
 
 // Todas empresas de hora em hora
 
-u_WaitLog(cPerg,{|oSay| U_BKFINA5S() },"Importando txt financeiro ADP - Empresa "+FWCodEmp())
+//u_WaitLog(cPerg,{|oSay| u_FINA05S({cEmpPar,cFilPar,cUser}) },"Importando txt financeiro ADP - Empresa "+FWCodEmp())
 
 // Executar somente se a empresa for a BK
 If FWCodEmp() == "01"
@@ -82,12 +86,12 @@ If FWCodEmp() == "01"
 			cP1H := "X"
 		EndIf
 		If cP1H == "X"
-			If SUBSTRING(TIME(),1,2) $ '06/14'
-				cP0614 := "X"
+			If SUBSTRING(TIME(),1,2) $ '06/13'
+				cP0613 := "X"
 			EndIf
 
-			If SUBSTRING(TIME(),1,2) $ '07/13'
-				cP0713 := "X"
+			If SUBSTRING(TIME(),1,2) $ '07/12'
+				cP0712 := "X"
 			EndIf
 
 			If SUBSTRING(TIME(),1,2) == '19'
@@ -102,28 +106,28 @@ If FWCodEmp() == "01"
 
 	// Dashboard
 	aAdd(aDados,{cP19	,"U_BKDSPRD()",		"DASHBOARD",	"Atualização da tabela PRODUTOS"})
-	aAdd(aDados,{cP0614	,"U_BKDSDSP1()",	"DASHBOARD",	"Atualização da tabela PREVDESP1"})
-	aAdd(aDados,{cP0614	,"U_BKDSDSP2()",	"DASHBOARD",	"Atualização da tabela PREVDESP2"})
+	aAdd(aDados,{cP0613	,"U_BKDSDSP1()",	"DASHBOARD",	"Atualização da tabela PREVDESP1"})
+	aAdd(aDados,{cP0613	,"U_BKDSDSP2()",	"DASHBOARD",	"Atualização da tabela PREVDESP2"})
 	aAdd(aDados,{cP19	,"U_BKDSEMP()",		"DASHBOARD",	"Atualização da tabela EMPRESAS"})
 	aAdd(aDados,{cP19	,"U_BKDSCC()",		"DASHBOARD",	"Atualização da tabela CCUSTOS"})
-	aAdd(aDados,{cP0614	,"U_BKDSFOL()",		"DASHBOARD",	"Atualização da tabela FOLHA"})
-	aAdd(aDados,{cP0614	,"U_BKDSFER()",		"DASHBOARD",	"Atualização da tabela FERIAS"})
+	aAdd(aDados,{cP0613	,"U_BKDSFOL()",		"DASHBOARD",	"Atualização da tabela FOLHA"})
+	aAdd(aDados,{cP0613	,"U_BKDSFER()",		"DASHBOARD",	"Atualização da tabela FERIAS"})
 	aAdd(aDados,{cP19	,"U_BKDSUSR()",		"DASHBOARD",	"Atualização da tabela USUARIOS"})
-	aAdd(aDados,{cP0614	,"U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
-	aAdd(aDados,{cP0614	,"U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
-	aAdd(aDados,{cP0614	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
-	aAdd(aDados,{cP0614	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
-	aAdd(aDados,{cP0614	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
-	aAdd(aDados,{cP0713	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
-	aAdd(aDados,{cP0713	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
-	aAdd(aDados,{cP0713	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
-	aAdd(aDados,{cP0713	,"U_BKDSCTR()",		"DASHBOARD",	"Atualização da tabela CONTRATOS"})
-	aAdd(aDados,{cP0713	,"U_BKDSPLA()",		"DASHBOARD",	"Atualização da tabela PLANILHAS"})
-	aAdd(aDados,{cP0713	,"U_BKDSCRO()",		"DASHBOARD",	"Atualização da tabela CRONOGRAMAS"})
-	aAdd(aDados,{cP0713	,"U_BKDSGG()",		"DASHBOARD",	"Atualização da tabela GASTOSGERAIS"})
-	aAdd(aDados,{cP0713	,"U_BKDSGCO()",     "DASHBOARD",    "Atualização da tabela GASTOSCONSORCIOS"})
-	aAdd(aDados,{cP0713	,"U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
-	aAdd(aDados,{cP0713	,"U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
+	aAdd(aDados,{cP0613	,"U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
+	aAdd(aDados,{cP0613	,"U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
+	aAdd(aDados,{cP0613	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
+	aAdd(aDados,{cP0613	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
+	aAdd(aDados,{cP0613	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
+	aAdd(aDados,{cP0712	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
+	aAdd(aDados,{cP0712	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
+	aAdd(aDados,{cP0712	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
+	aAdd(aDados,{cP0712	,"U_BKDSCTR()",		"DASHBOARD",	"Atualização da tabela CONTRATOS"})
+	aAdd(aDados,{cP0712	,"U_BKDSPLA()",		"DASHBOARD",	"Atualização da tabela PLANILHAS"})
+	aAdd(aDados,{cP0712	,"U_BKDSCRO()",		"DASHBOARD",	"Atualização da tabela CRONOGRAMAS"})
+	aAdd(aDados,{cP0712	,"U_BKDSGG()",		"DASHBOARD",	"Atualização da tabela GASTOSGERAIS"})
+	aAdd(aDados,{cP0712	,"U_BKDSGCO()",     "DASHBOARD",    "Atualização da tabela GASTOSCONSORCIOS"})
+	aAdd(aDados,{cP0712	,"U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
+	aAdd(aDados,{cP0712	,"U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
 	aAdd(aDados,{cP19D	,"U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
 	aAdd(aDados,{cP19D	,"U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
 	aAdd(aDados,{cP19D	,"U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
@@ -132,7 +136,7 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP19D	,"U_BKMsgLmp()",	"OUTROS",		"Limpeza de registros da tabela SZ0"})
 
 	// Avisos
-	aAdd(aDados,{cP0713	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})
+	aAdd(aDados,{cP0712	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})
 	aAdd(aDados,{cP19D	,"U_BKMSG002()",	"AVISOS",		"Aviso de entidades com Conta Contábil Bloqueada"})
 	aAdd(aDados,{cP19D	,"U_BKMSG003()",	"AVISOS",		"Aviso de Clientes sem virgula no endereço"})
 	aAdd(aDados,{cP19D	,"U_BKMSG004()",	"AVISOS",		"Aviso de Clientes sem Conta Bancária para Depósito"})
@@ -171,8 +175,8 @@ ElseIf Ascan(aGrpDsp,{|x| x[1] == cEmpAnt}) > 0
 
 EndiF
 
-
 Return
+
 
 // Log de erros das queries do dashboard
 User Function QryResult(cProg,cQry,cErro)

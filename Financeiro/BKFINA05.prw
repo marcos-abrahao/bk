@@ -44,7 +44,7 @@ If u_MsgLog(cProg,"Executar integração automática (todas empresas)","Y")
 	For nE := 1 To Len(aEmp)
 		//u_WaitLog(cProg, {|| u_FINA05S({aEmp[nE,1],"01"}) }, "Processando "+aEmp[nE,2])
 
-		u_WaitLog(cProg, {|| lOk := StartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",.T.,__cUserID})},"Processando empresa "+aEmp[nE,3])
+		u_WaitLog(cProg, {|| lOk := StartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",__cUserID})},"Processando empresa "+aEmp[nE,3])
 
 		//lOk := uStartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",.T.})
 
@@ -56,12 +56,6 @@ If u_MsgLog(cProg,"Executar integração automática (todas empresas)","Y")
 	If lAllOk
 		u_MsgLog(cProg,"Processo finalizado","I")
 	EndIf
-
-Else
-
-	u_FINA05S({cEmpAnt,cFilAnt,.F.,__cUserID})
-
-	//FINA05DLG()
 
 EndIf
 Return Nil
@@ -93,25 +87,25 @@ Local cAnexo 	:= ""
 Local cNum 		:= ""
 Local cMsg		:= ""
 Local cMsgErr 	:= ""
-Local lJob 		:= .F.
-Local cUser 	:= ""
+Local cUser 	:= "000000"
 
 Private cProg	:= "FINA05S"
 Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
 Private nTotZ2	:= 0
 Private cLote 	:= ""
 
-default aParam := {"01","01",.T.,"000000"} 
+Default aParam := {"01","01","000000"} 
 
-lJob  := aParam[3]
-cUser := aParam[4]
+//u_MsgLog(cProg,ArrTokStr(aParam))
 
-If lJob
-	RpcSetType(3)
-	RpcSetEnv(aParam[1],aParam[2])
+If Len(aParam) > 2
+	cUser := aParam[3]
 EndIf
 
-u_MsgLog(cProg,cEmpAnt+ " - "+cUser)
+RpcSetType(3)
+RpcSetEnv(aParam[1],aParam[2])
+
+u_MsgLog(cProg,cEmpAnt+ " - "+cUser+" - "+ArrTokStr(aParam))
 
 // Processar Exclusões primeiro
 For nI := 1 To Len(aFiles)
@@ -218,9 +212,7 @@ For nI := 1 To Len(aFiles)
 	EndIf
 Next
 
-If lJob
-	RpcClearEnv()
-EndIf
+RpcClearEnv()
 
 Return .T.
 
@@ -275,6 +267,8 @@ If !FT_FEOF()
 	EndIf
 
 EndIf
+
+FT_FUSE()  //fecha o arquivo txt
 
 Return lOk
 
@@ -404,6 +398,10 @@ EndIf
 MakeDir(cDrive+cDir)
 
 cArqPrc := cDrive+cDir+cNome+cExt
+If nOpc == 2 .AND. File(cArqPrc)
+	Ferase(cArqPrc)
+EndIf
+
 FRename(cArq,cArqPrc)
 
 u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc)
