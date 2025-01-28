@@ -30,7 +30,7 @@ If SC5->C5_CONDPAG == "F10"
    _aVencto[1][1] := dVencto
 
 ElseIf SC5->C5_CONDPAG == "F20"
-    // Solicitado por João Cordeiro em 05/11/24
+    // Solicitado por João Cordeiro em 05/11/24 - PRODESP
     // Prodesp 239000635 e 305000554
     // 1. Prazo mínimo de pagamento: Todas as notas fiscais serão pagas no mínimo 30 dias após a data de entrega. 
     // 2. Datas de entrega das notas fiscais e datas de pagamento:
@@ -42,9 +42,9 @@ ElseIf SC5->C5_CONDPAG == "F20"
     If Day(dVencto) >= 6 .AND. Day(dVencto) <= 20
         dVencto := DataValida(LastDay(dVencto) + 21)
     Else
-        //If Date() > dDataBase
-        //    dVencto := DataValida(LastDay(dVencto) + 1)
-        //EndIf
+        If Day(dVencto) >= 21 .AND. Day(dVencto) <= 31
+            dVencto := LastDay(dVencto) + 1
+        EndIf
         dVencto := DataValida(LastDay(dVencto) + 6)
     EndIf
     _aVencto[1][1] := dVencto

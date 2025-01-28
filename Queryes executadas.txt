@@ -1,3 +1,16 @@
+
+==================================================================
+
+==================================================================
+
+
+==================================================================
+
+-- 28/01/2025 - 9:24 Ajuste E2_XXORIG
+SELECT E2_XXCTRID,E2_HIST,E2_XXORIG FROM SE2010 WHERE E2_XXCTRID LIKE '%ADP%' OR E2_HIST LIKE '%ADP%'
+UPDATE SE2010 SET E2_XXORIG = 'ADP' WHERE E2_XXCTRID LIKE '%ADP%' OR E2_HIST LIKE '%ADP%'
+UPDATE SE2150 SET E2_XXORIG = 'ADP' WHERE E2_XXCTRID LIKE '%ADP%' OR E2_HIST LIKE '%ADP%'
+UPDATE SE2180 SET E2_XXORIG = 'ADP' WHERE E2_XXCTRID LIKE '%ADP%' OR E2_HIST LIKE '%ADP%'
 ==================================================================
 -- 24/01/2025 - 9:24 Ajuste histórico ADP 
 

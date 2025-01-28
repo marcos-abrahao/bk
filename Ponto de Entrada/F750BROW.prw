@@ -13,9 +13,10 @@ BK - Ponto de Entrada para criar opções na tela de Funcões Contas a Pagar
 User Function F750BROW() 
 Local aRotY
 Local aRotZ
+Local aRotW
+
 Local cEmpName := u_BKNEmpr(cEmpAnt,3) //FWEmpName(cEmpAnt)
 aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
-           {OemToAnsi("Importação ADP "+cEmpName),  "U_BKFINA05",  0, 2 },;
            {OemToAnsi("Alterar Liq. "+cEmpName),    "U_BKFINA04(.F.)", 0, 2 },;
            {OemToAnsi("Excluir Liq. "+cEmpName),    "U_BKFINA03",  0, 2 },;
            {OemToAnsi("Consultar Liq. "+cEmpName),  "U_BKFINA04(.T.)", 0, 2 },;
@@ -24,6 +25,12 @@ aRotY := { {OemToAnsi("Integração Liq. "+cEmpName), "U_BKFINA02",  0, 2 },;
            {OemToAnsi("Retorno Borderô "+cEmpName), "U_BKBXBNCO",  0, 2 }}
              
 AADD( aRotina, {OemToAnsi("Liquidos "+cEmpName), aRotY, 0, 4 } )
+
+aRotW := { {OemToAnsi("Integração ADP"),   "U_BKFINA05",  0, 2 },;
+           {OemToAnsi("Relação Tit. ADP"), "U_BKFINR38",  0, 2 }}
+
+AADD( aRotina, {OemToAnsi("Integração ADP"), aRotW, 0, 4 } )
+
 AADD( aRotina, {OemToAnsi("Imprimir Titulos"), "U_BKFINR06", 0, 4 } )
 AADD( aRotina, {OemToAnsi("Resumo Diário"), "U_BKFINR34", 0, 4 } )
 
