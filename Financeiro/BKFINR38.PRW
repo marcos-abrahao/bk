@@ -68,6 +68,9 @@ oPExcel:AddCol("NOMEEMP","QSE2->NOMEEMP","Empresa","")
 oPExcel:GetCol("NOMEEMP"):SetTamCol(15)
 oPExcel:GetCol("NOMEEMP"):SetHAlign("C")
 
+oPExcel:AddColX3("E2_XXCTRID")
+oPExcel:GetCol("E2_XXCTRID"):SetHAlign("C")
+
 oPExcel:AddColX3("E2_TIPO")
 oPExcel:GetCol("E2_TIPO"):SetHAlign("C")
 
@@ -82,7 +85,7 @@ oPExcel:GetCol("E2_FORNECE"):SetHAlign("C")
 oPExcel:AddColX3("E2_LOJA")
 oPExcel:GetCol("E2_LOJA"):SetHAlign("C")
 
-oPExcel:AddColX3("A2_NOME")
+//oPExcel:AddColX3("A2_NOME")
 
 oPExcel:AddColX3("E2_EMISSAO")
 oPExcel:AddColX3("E2_VENCREA")
@@ -156,6 +159,7 @@ For nE := 1 To Len(aBKGrupo)
 	cQuery += "	 ,E2_LOJA"+CRLF
 	cQuery += "	 ,E2_HIST"+CRLF
 	cQuery += "	 ,E2_XXTIPBK"+CRLF
+	cQuery += "	 ,E2_XXCTRID"+CRLF
 	cQuery += "	 ,E2_USERLGI"+CRLF 
 	cQuery += "	 ,E2_EMISSAO"+CRLF
 	cQuery += "	 ,E2_BAIXA"+CRLF

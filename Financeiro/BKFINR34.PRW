@@ -101,7 +101,7 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 	oPExcel:AddColX3("E2_PORTADO")
 	oPExcel:GetCol("E2_PORTADO"):SetHAlign("C")
 
-	oPExcel:AddCol("LOTE","QSE2->LOTE","Lote","")
+	oPExcel:AddCol("LOTE","IIF(EMPTY(QSE2->LOTE),QSE2->E2_XXORIG,QSE2->LOTE)","Lote","")
 	oPExcel:GetCol("LOTE"):SetHAlign("C")
 
 	oPExcel:AddCol("HIST","QSE2->HIST","Histórico","")
@@ -181,7 +181,7 @@ ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5
 			oPExcel:AddColX3("E2_PORTADO")
 			oPExcel:GetCol("E2_PORTADO"):SetHAlign("C")
 
-			oPExcel:AddCol("LOTE","QSE2->LOTE","Lote","")
+			oPExcel:AddCol("LOTE","IIF(EMPTY(QSE2->LOTE),QSE2->E2_XXORIG,QSE2->LOTE)","Lote","")
 			oPExcel:GetCol("LOTE"):SetHAlign("C")
 
 			oPExcel:AddColX3("E2_VALOR")
@@ -350,6 +350,7 @@ cQuery += "	 ,E2_NATUREZ"+CRLF
 cQuery += "	 ,E2_HIST"+CRLF
 cQuery += "	 ,E2_XXTIPBK"+CRLF
 cQuery += "	 ,E2_XXCTRID"+CRLF
+cQuery += "	 ,E2_XXORIG"+CRLF
 cQuery += "	 ,E2_USERLGI"+CRLF 
 cQuery += "	 ,E2_BAIXA"+CRLF
 cQuery += "	 ,E2_VENCREA"+CRLF
