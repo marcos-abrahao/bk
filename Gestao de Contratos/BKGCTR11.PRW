@@ -1900,6 +1900,7 @@ DO While !TMPX2->(EOF())
 		(ALIAS_TMP)->(Msunlock())
 	ENDIF
 
+	// PROVENTOS
 	dbSelectArea(ALIAS_TMP)
 	IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'09',.F.)
 		Reclock(ALIAS_TMP,.F.)
@@ -1908,6 +1909,7 @@ DO While !TMPX2->(EOF())
 		(ALIAS_TMP)->(Msunlock())
 	ENDIF
 
+	// ENCARGOS
 	dbSelectArea(ALIAS_TMP)
 	IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'10',.F.)
 		Reclock(ALIAS_TMP,.F.)
@@ -1916,6 +1918,7 @@ DO While !TMPX2->(EOF())
 		(ALIAS_TMP)->(Msunlock())
 	ENDIF
 
+	// (-) Recuperação de VR/VA
 	dbSelectArea(ALIAS_TMP)
 	IF MsSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'15',.F.)
 		Reclock(ALIAS_TMP,.F.)

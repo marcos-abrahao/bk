@@ -122,10 +122,12 @@ For nI := 1 To Len(aFiles)
 		If cEmpresa == FWCodEmp() .AND. cAcao <> '1'
 
 			u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo "+cArq)
+	
+			cAnexo := PFIN5E(aLinha,cArq)
+
 			If !Empty(aLinha)
 				u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 				If lValid
-					cAnexo := PFIN5E(aLinha,cArq)
 					u_WaitLog(cProg, {|| lValid := PFIN5Z2E(aLinha,@cNum,@cMsgErr)}, "Excluindo dados...")
 					If lValid
 						cMsg := "Lançamentos excluídos: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote
@@ -139,15 +141,15 @@ For nI := 1 To Len(aFiles)
 					MoveArq(cArq,2)
 				EndIf
 			Else
-				cAnexo := PFIN5E(aLinha,cArq)
 				cMsg   := "Arquivo vazio ou problemas com o layout"
 				MoveArq(cArq,2)
 			EndIf
 			aFiles[nI,1] := ""
 		EndIf
 	Else
-		cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
-		MoveArq(cArq,2)
+		cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
+		//MoveArq(cArq,2)
+		cAnexo := cArq
 	EndIf
 	
 	If !Empty(cMsg)
@@ -176,10 +178,11 @@ For nI := 1 To Len(aFiles)
 			If cEmpresa == FWCodEmp() .AND. cAcao == '1'
 
 				u_WaitLog(cProg, {|| aLinha := PFIN5I(cArq,@cAcao)}, "Carregando arquivo "+cArq)
+				cAnexo := PFIN5E(aLinha,cArq)
+
 				If !Empty(aLinha)
 					u_WaitLog(cProg, {|| lValid := PFIN5V(aLinha,cAcao,@cMsgErr)}, "Validando dados...")
 					If lValid
-						cAnexo := PFIN5E(aLinha,cArq)
 						u_WaitLog(cProg, {|| lValid := PFIN5Z2(aLinha,@cNum,@cMsgErr)}, "Importando dados...")
 						If lValid
 							cMsg := "Lançamentos importados: "+ALLTRIM(STR(nTotZ2,14,2))+" lote "+cLote+" titulo "+cNum
@@ -193,14 +196,14 @@ For nI := 1 To Len(aFiles)
 						MoveArq(cArq,2)
 					EndIf
 				Else
-					cAnexo := PFIN5E(aLinha,cArq)
 					cMsg   := "Arquivo vazio ou problemas com o layout"
 					MoveArq(cArq,2)
 				EndIf
 			EndIf
 		Else
-			cMsg := "Não foi impossível abrir o arquivo ou conteúdo inválido"
-			MoveArq(cArq,2)
+			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
+			//MoveArq(cArq,2)
+			cAnexo := cArq
 		EndIf
 
 		If !Empty(cMsg)

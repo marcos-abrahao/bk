@@ -10,38 +10,8 @@ MDIOk - P.E. ao abrir o módulo SIGAMDI
 
 User Function MDIOk()
 
-//Local dUtil := dDatabase
-//Local dUltLog := FWUsrUltLog(__cUserId)[1] // Data do Ultimo login  
-//If __cUserId == "000000"
-	u_BkWeb()
-	//ShellExecute("open", u_BkRest()+"/RestMsgUs/v2?userlib="+cToken , "", "", 1)
-//EndIf
-/*
-If nModulo == 5 .OR. nModulo == 69
-   	If u_MsgLog("MDIOk","Deseja abrir a Liberação de Pedidos de Venda web?","Y")
-		u_BKLibPV(.T.)
-	EndIf
+u_BkWeb()
 
-	If nModulo == 5
-    	If u_MsgLog("MDIOk","Deseja abrir os Títulos a Receber web?","Y")
-			u_BKTitCR(.T.)
-		EndIf
-	EndIf
-
-ElseIf nModulo == 6 .OR. nModulo == 2  .OR. nModulo == 9
-	If u_IsFiscal(__cUserId) .OR. u_IsStaf(__cUserId) .OR. u_IsSuperior(__cUserId)
-		If u_MsgLog("MDIOk","Deseja abrir a Liberação de Docs de Entrada Web?","Y")
-			u_BKLibPN(.T.)
-		EndIf
-	EndIf
-EndIf
-
-If nModulo == 6 .AND. (u_InGrupo(__cUserId,"000024") .OR. __cUserId == "000000")
-	If u_MsgLog("MDIOk","Deseja abrir a tela Títulos a Pagar Web?","Y")
-		u_BKTitCP(.T.)
-	EndIf
-EndIf
-*/
 Return .T.
 
 
@@ -181,3 +151,16 @@ oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT
 oDlg:Activate()
 
 Return
+
+// Funçao nova - falta testar
+User Function WebAtivo()
+   Local aInfoWebAgent:= Nil
+
+   aInfoWebAgent := GetWebAgentInfo()
+   If len(aInfoWebAgent) > 0
+		If !Empty(aInfoWebAgent[1])
+			cInfoWebAgent:= 'Versão: ' + aInfoWebAgent[1]+' - Porta: ' + aInfoWebAgent[2]
+		EndIf
+   Endif
+
+Return cInfoWebAgent

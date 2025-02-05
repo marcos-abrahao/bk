@@ -503,7 +503,7 @@ If lRet
 	EndIf
 	If dPrvPgt < dValid 
 		u_MsgLog("SF1140I-ValidFP","Doc : "+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA+" "+SF1->F1_ESPECIE+" "+DTOC(dPrvPgt)+" "+DTOC(dValid)+" Justificativa: "+ALLTRIM(cJsPgt))
-		If u_IsGesFin(__cUserId)
+		If u_IsMasFin(__cUserId)
 			If EMPTY(cJsPgt) .OR. LEN(ALLTRIM(cJsPgt)) < 5
 				cJsPgt := PAD("FINANCEIRO",LEN(cJsPgt))
 			EndIf

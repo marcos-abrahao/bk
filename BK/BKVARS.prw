@@ -129,7 +129,7 @@ User Function MVXENCFU()
 Local nVar := 35.8764
 Return nVar
 
-// Parametro Encargos calculo Rentabilidade dos Contratos
+// Parametro Encargos calculo Rentabilidade dos Contratos - Autonomos IPT
 User Function MVXEIPT()
 Local nVar := 20
 If cEmpAnt == '02'

@@ -470,9 +470,6 @@ EndIf
 Return cRet
 
 
-
-
-
 /*/{Protheus.doc} ArStaf
     Retorna array com os stafs de um usuário
     @type  Function
@@ -679,16 +676,6 @@ If Empty(cId)
 	cId := __cUserID
 EndIf
 If cId $ u_UsrTeste()
-    lRet := .T.
-EndIf
-Return lRet
-
-
-// Retorna se o usuário é Gestor Financeiro 
-User Function IsGesFin(cId)
-Local lRet := .F.
-//        Diego.Oliveira/Katia/Andresa
-If cId $ "000016/000276/000197/"
     lRet := .T.
 EndIf
 Return lRet

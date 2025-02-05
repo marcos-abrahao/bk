@@ -40,7 +40,7 @@ DbGoTop()
 
 aRotina := {{"Pesquisar"				,"AxPesqui"		,0, 1},;
 			{"Visualizar"				,"AxVisual"		,0, 2},;
-            {"Importar TXT Folha ADP"	,"U_BKCTB1A()"	,0, 3},;
+            {"Importar TXT Folha ADP"	,"U_BKCTB1I()"	,0, 3},;
             {"Integrar Lançamentos"		,"U_BKCTB01()"	,0, 3},;
             {"Alterar"					,"AxAltera"		,0,	4}}
 
@@ -296,8 +296,8 @@ Local nSnd		:= 15
 Local nTLin		:= 15
 Local lValid 	:= .T.
 Local aLinha 	:= {}
+Local cArq	:= ""
 
-Private cArq	:= ""
 Private cProg	:= "BKCTB1A"
 
 u_MsgLog(cProg)
@@ -317,19 +317,19 @@ ACTIVATE MSDIALOG oDlg01 CENTER
 
 If nOpcA == 1
 	nOpcA:=0
-	u_WaitLog(cProg, {|| aLinha := PCTB1A()}, "Carregando arquivo TXT...")
+	u_WaitLog(cProg, {|| aLinha := PCTB1A(cArq)}, "Carregando arquivo TXT...")
 	If !Empty(aLinha)
 		u_WaitLog(cProg, {|| lValid := PCTB1V(aLinha)}, "Validando dados...")
 		If lValid
 			If u_MsgLog(cProg,"Lançamentos validados com sucesso, deseja imprimir o lote?","Y")
-				PCTB1I(aLinha)
+				PCTB1I(aLinha,cArq)
 			EndIf
 			If u_MsgLog(cProg,"Confirma a importação dos lançamentos do lote?","Y")
 				u_WaitLog(cProg, {|| lValid := PCTB1P(aLinha)}, "Importando dados...")
 			EndIf
 		Else
 			If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
-				PCTB1I(aLinha)
+				PCTB1I(aLinha,cArq)
 			EndIf
 		EndIf
 	Else
@@ -340,8 +340,162 @@ Endif
 RETURN NIL
 
 
+User Function BKCTB1I()
 
-Static FUNCTION PCTB1A()
+Local nE	  := 0
+Local aEmp 	  := u_BkGrupo(4)
+Local lOk 	  := .F.
+Local lAllOk  := .T.
+
+Private cProg	:= "BKCTB1I"
+Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
+Private nTotZ2	:= 0
+Private cLote 	:= ""
+
+If u_MsgLog(cProg,"Executar importação automática (todas empresas)","Y")
+
+	For nE := 1 To Len(aEmp)
+
+		u_WaitLog(cProg, {|| lOk := StartJob("u_BKCTB1J",GetEnvServer(),.T.,{aEmp[nE,1],"01",__cUserID})},"Processando empresa "+aEmp[nE,3])
+
+		If !lOk
+			u_MsgLog(cProg,"Problemas na importação da empresa "+aEmp[nE,2],"E")
+			lAllOk := .F.
+		EndIf
+	Next
+	If lAllOk
+		u_MsgLog(cProg,"Processo finalizado","I")
+	EndIf
+
+EndIf
+Return Nil
+
+
+
+User Function BKCTB1J(aParam)
+Local nI 		:= 0
+Local cPasta	:= "\ADP\Contabilidade\"
+Local aFiles	:= Directory(cPasta+"*.txt",,,.F.,2)
+Local lValid 	:= .T.
+Local aLinha 	:= {}
+Local cAcao		:= ""
+Local cEmpresa  := ""
+Local cArq		:= ""
+Local cAnexo 	:= ""
+Local cMsg		:= ""
+Local cMsgErr 	:= ""
+Local cUser 	:= "000000"
+
+Private cProg	:= "BKCTB1J"
+Private nTotZ2	:= 0
+Private cLote 	:= ""
+
+Default aParam := {"01","01","000000"} 
+
+If Len(aParam) > 2
+	cUser := aParam[3]
+EndIf
+
+RpcSetType(3)
+RpcSetEnv(aParam[1],aParam[2])
+
+u_MsgLog(cProg,cEmpAnt+ " - "+cUser+" - "+ArrTokStr(aParam))
+
+
+// Processar inclusões
+For nI := 1 To Len(aFiles)
+	If !Empty(aFiles[nI,1])
+		cAcao	:= ""
+		cArq 	:= cPasta+aFiles[nI,1]
+		cMsg	:= ""
+		cAnexo	:= ""
+		lValid	:= .T.
+		cMsgErr := ""
+
+		lValid  := Ler1L(cArq,@cEmpresa)
+
+		If lValid
+			If cEmpresa == FWCodEmp()
+
+				u_WaitLog(cProg, {|| aLinha := PCTB1A(cArq)}, "Carregando arquivo TXT...")
+				If !Empty(aLinha)
+
+
+					u_WaitLog(cProg, {|| lValid := PCTB1V(aLinha)}, "Validando dados...")
+					cAnexo := PCTB1I(aLinha,cArq)
+
+					If lValid
+						
+						u_WaitLog(cProg, {|| lValid := PCTB1P(aLinha)}, "Importando dados...")
+						If lValid
+							cMsg := "Lançamentos importados: "
+							MoveArq(cArq,1)
+						Else
+							cMsg := "Lançamentos não importados: "+cMsgErr
+							MoveArq(cArq,2)
+						EndIf
+
+					Else
+						If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
+							PCTB1I(aLinha,cArq)
+						EndIf
+					EndIf
+				Else
+					u_MsgLog(cProg,"Lançamentos não importados, verifique o conteudo do arquivo "+cArq,"E")
+				EndIf
+
+			EndIf
+		Else
+			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
+			cAnexo := cArq
+			//MoveArq(cArq,2)
+		EndIf
+
+		If !Empty(cMsg)
+			SndMsg(cArq,cMsg,cAnexo,cUser)
+			If !Isblind()
+				u_MsgLog(cProg,cMsg,"I")
+			EndIf
+		EndIf
+	EndIf
+Next
+
+RpcClearEnv()
+
+Return .T.
+
+
+// Ler a primeira linha para pegar ação e empresa
+Static Function Ler1L(cArq,cEmpresa)
+
+Local cBuffer := ""
+Local nPos 	  := 1
+Local lOk 	  := .F.
+
+FT_FUSE(cArq)  //abrir
+FT_FGOTOP() //vai para o topo
+
+If !FT_FEOF()
+ 
+	cBuffer := FT_FREADLN()  //lendo a linha
+
+	If ( !Empty(cBuffer) )
+		nPos := 1
+
+		cEmpresa := SUBSTR(cBuffer,nPos,2)
+		nPos += 2
+
+	EndIf
+
+EndIf
+
+FT_FUSE()  //fecha o arquivo txt
+
+Return lOk
+
+
+
+Static FUNCTION PCTB1A(cArq)
 Local cBuffer   := ""
 Local nPos		:= 0
 Local aLinha	:= {}
@@ -467,10 +621,11 @@ Return lOk
 
 
 
-Static Function PCTB1I(aLinha)
+Static Function PCTB1I(aLinha,cArq)
 Local cTitulo	:= "Relação de Lote Contábil - ADP"
 Local cDescr 	:= "O objetivo deste relatório é a impressão de lote via arquivo TXT fornecido pela ADP."
 Local cVersao	:= "28/11/2024"
+Local cArqXls	:= ""
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 
@@ -518,9 +673,9 @@ oPExcel:GetCol("ERROS"):SetTamanho(200)
 oRExcel:AddPlan(oPExcel)
 
 // Cria arquivo Excel
-oRExcel:Create()
+cArqXls:= oRExcel:Create()
 
-Return Nil
+Return cArqXls
 
 
 
@@ -569,3 +724,35 @@ For nI := 1 To Len(aLinha)
 Next
 
 Return lOk
+
+
+
+Static Function MoveArq(cArq,nOpc)
+Local cDrive, cDir, cNome, cExt
+Local cArqPrc	:= ""
+
+SplitPath( cArq, @cDrive, @cDir, @cNome, @cExt )
+
+If Empty(cDir)
+	cDir := "\"
+EndIf
+
+If nOpc == 1
+	cDir += "processados\"
+	cExt :=  ".PRC"
+Else
+	cDir += "rejeitados\"
+	cExt :=  ".ERR"
+EndIf
+MakeDir(cDrive+cDir)
+
+cArqPrc := cDrive+cDir+cNome+cExt
+If nOpc == 2 .AND. File(cArqPrc)
+	Ferase(cArqPrc)
+EndIf
+
+FRename(cArq,cArqPrc)
+
+u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc)
+
+Return Nil
