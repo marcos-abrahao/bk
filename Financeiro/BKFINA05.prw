@@ -148,8 +148,8 @@ For nI := 1 To Len(aFiles)
 		EndIf
 	Else
 		cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
-		//MoveArq(cArq,2)
-		cAnexo := cArq
+		//cAnexo := 
+		MoveArq(cArq,2)
 	EndIf
 	
 	If !Empty(cMsg)
@@ -202,8 +202,8 @@ For nI := 1 To Len(aFiles)
 			EndIf
 		Else
 			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
-			//MoveArq(cArq,2)
-			cAnexo := cArq
+			//cAnexo := 
+			MoveArq(cArq,2)
 		EndIf
 
 		If !Empty(cMsg)
@@ -362,11 +362,13 @@ If nOpcA == 1
 					cAnexo := PFIN5E(aLinha,cArq)
 				EndIf
 				cMsg := cMsgErr
+				//cAnexo := 
 				MoveArq(cArq,2)
 			EndIf
 		Else
 			cMsg := "Lançamentos não importados, verifique o conteudo do arquivo "+cArq
 			u_MsgLog(cProg,cMsg,"E")
+			//cAnexo := 
 			MoveArq(cArq,2)
 		EndIf
 	Else
@@ -409,7 +411,8 @@ FRename(cArq,cArqPrc)
 
 u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc)
 
-Return Nil
+Return cArqPrc
+
 
 Static FUNCTION PFIN5I(cArq,cAcao)
 Local cBuffer   := ""

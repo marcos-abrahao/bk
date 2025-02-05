@@ -635,6 +635,10 @@ IF cEmpAnt == '14' // Balsa - Solicitado pelo Jalielison em 01/02/2022
 	cDescr += "O serviço desta Nota Fiscal foi prestado na seguinte proporção:|"
 	cDescr += "97,75% pela BK Consultoria e Serviços Ltda 03.022.122/0001-77|"
 	cDescr += "2,25% pela Trairi Comércio de Derivados de Petroleo Ltda 04.811.052/0001-07"
+ELSEIF cEmpAnt == '15' // BHG
+	cDescr += "50% BK CONSULTORIA E SERVICOS LTDA 03.022.122/0001-77|"
+	cDescr += "30% CONSTRUDAHER CONSTRUCOES E SERVICOS LTDA 03.802.330/0001-99|"
+	cDescr += "20% GOCIL SERVICOS GERAIS LTDA 50.844.182/0001-55"
 ELSEIF cEmpAnt == '18' // BK VIA
 	cDescr += "O serviço desta Nota Fiscal foi prestado na seguinte proporção:|"
 	cDescr += "95% pela BK Consultoria e Serviços Ltda 03.022.122/0001-77|"

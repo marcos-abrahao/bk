@@ -420,7 +420,6 @@ For nI := 1 To Len(aFiles)
 				u_WaitLog(cProg, {|| aLinha := PCTB1A(cArq)}, "Carregando arquivo TXT...")
 				If !Empty(aLinha)
 
-
 					u_WaitLog(cProg, {|| lValid := PCTB1V(aLinha)}, "Validando dados...")
 					cAnexo := PCTB1I(aLinha,cArq)
 
@@ -436,19 +435,20 @@ For nI := 1 To Len(aFiles)
 						EndIf
 
 					Else
-						If u_MsgLog(cProg,"Foram encontrados erros, deseja imprimir a relação de erros?","Y")
-							PCTB1I(aLinha,cArq)
-						EndIf
+						cMsg := "Foram encontrados erros, verifique o conteudo do arquivo "+cArq
+						MoveArq(cArq,2)				
 					EndIf
 				Else
-					u_MsgLog(cProg,"Lançamentos não importados, verifique o conteudo do arquivo "+cArq,"E")
+					cMsg := "Lançamentos não importados, verifique o conteudo do arquivo "+cArq
+					//cAnexo := 
+					MoveArq(cArq,2)
 				EndIf
 
 			EndIf
 		Else
-			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
-			cAnexo := cArq
-			//MoveArq(cArq,2)
+			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido "+cArq
+			//cAnexo := 
+			MoveArq(cArq,2)
 		EndIf
 
 		If !Empty(cMsg)
@@ -755,4 +755,4 @@ FRename(cArq,cArqPrc)
 
 u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc)
 
-Return Nil
+Return cArqPrc
