@@ -185,7 +185,7 @@ BEGINCONTENT VAR cQuery
 	GETDATE() AS DATAPRC,
 	WIPT.centroCusto AS CONTRATO,
 	WIPT.competencia AS COMPETAM,
-	SUBSTRING(REPLACE(STR(WIPT.codempresa,2),' ','0'),1,2) + WIPT.centroCusto AS CHAVE,
+	SUBSTRING(REPLACE(STR(WIPT.codempresa,2),' ','0'),1,2) + WIPT.centroCusto + SUBSTRING(WIPT.competencia,1,6) AS CHAVE,
 	CONVERT(DATE,SUBSTRING(WIPT.competencia,1,6)+'01',112) AS COMPETD,
 	WIPT.cod AS REGISTRO,
 	WIPT.nomeFunc AS NOME,

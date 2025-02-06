@@ -342,32 +342,44 @@ RETURN NIL
 
 User Function BKCTB1I()
 
-Local nE	  := 0
-Local aEmp 	  := u_BkGrupo(4)
-Local lOk 	  := .F.
-Local lAllOk  := .T.
+Local nE 		:= 0
+Local nF		:= 0
+Local aEmp		:= u_BkGrupo(4)
+Local lOk		:= .F.
+Local lAllOk	:= .T.
+Local cPasta	:= "\ADP\Contabilidade\"
+Local aFiles	:= Directory(cPasta+"*.txt",,,.F.,2)
+Local cFiles    := ""
 
 Private cProg	:= "BKCTB1I"
-Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
-Private nTotZ2	:= 0
-Private cLote 	:= ""
 
-If u_MsgLog(cProg,"Executar importação automática (todas empresas)","Y")
-
-	For nE := 1 To Len(aEmp)
-
-		u_WaitLog(cProg, {|| lOk := StartJob("u_BKCTB1J",GetEnvServer(),.T.,{aEmp[nE,1],"01",__cUserID})},"Processando empresa "+aEmp[nE,3])
-
-		If !lOk
-			u_MsgLog(cProg,"Problemas na importação da empresa "+aEmp[nE,2],"E")
-			lAllOk := .F.
-		EndIf
+If Len(aFiles) > 0
+	For nF := 1 To Len(aFiles)
+		cFiles += aFiles[nF,1]+"; "
 	Next
-	If lAllOk
-		u_MsgLog(cProg,"Processo finalizado","I")
-	EndIf
 
+	If u_MsgLog(cProg,"Executar importação dos arquivos: "+cFiles,"Y")
+
+		For nE := 1 To Len(aEmp)
+
+			u_WaitLog(cProg, {|| lOk := StartJob("u_BKCTB1J",GetEnvServer(),.T.,{aEmp[nE,1],"01",__cUserID})},"Processando empresa "+aEmp[nE,3])
+
+			// para teste lOk := u_BKCTB1J({cEmpAnt,"01",__cUserID})
+
+			If !lOk
+				u_MsgLog(cProg,"Problemas na importação da empresa "+aEmp[nE,2],"E")
+				lAllOk := .F.
+			EndIf
+		Next
+		If lAllOk
+			u_MsgLog(cProg,"Processo finalizado","S")
+		EndIf
+
+	EndIf
+Else
+	u_MsgLog(cProg,"Não há arquivos para importar","I")
 EndIf
+
 Return Nil
 
 
@@ -383,12 +395,9 @@ Local cEmpresa  := ""
 Local cArq		:= ""
 Local cAnexo 	:= ""
 Local cMsg		:= ""
-Local cMsgErr 	:= ""
 Local cUser 	:= "000000"
 
 Private cProg	:= "BKCTB1J"
-Private nTotZ2	:= 0
-Private cLote 	:= ""
 
 Default aParam := {"01","01","000000"} 
 
@@ -409,9 +418,6 @@ For nI := 1 To Len(aFiles)
 		cArq 	:= cPasta+aFiles[nI,1]
 		cMsg	:= ""
 		cAnexo	:= ""
-		lValid	:= .T.
-		cMsgErr := ""
-
 		lValid  := Ler1L(cArq,@cEmpresa)
 
 		If lValid
@@ -427,10 +433,10 @@ For nI := 1 To Len(aFiles)
 						
 						u_WaitLog(cProg, {|| lValid := PCTB1P(aLinha)}, "Importando dados...")
 						If lValid
-							cMsg := "Lançamentos importados: "
+							cMsg := "Lançamentos importados: "+ALLTRIM(STR(LEN(aLinha),0))
 							MoveArq(cArq,1)
 						Else
-							cMsg := "Lançamentos não importados: "+cMsgErr
+							cMsg := "Lançamentos não importados, verifique o arquivo."
 							MoveArq(cArq,2)
 						EndIf
 
@@ -440,15 +446,13 @@ For nI := 1 To Len(aFiles)
 					EndIf
 				Else
 					cMsg := "Lançamentos não importados, verifique o conteudo do arquivo "+cArq
-					//cAnexo := 
-					MoveArq(cArq,2)
+					cAnexo := MoveArq(cArq,2)
 				EndIf
 
 			EndIf
 		Else
 			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido "+cArq
-			//cAnexo := 
-			MoveArq(cArq,2)
+			cAnexo := MoveArq(cArq,2)
 		EndIf
 
 		If !Empty(cMsg)
@@ -471,25 +475,36 @@ Static Function Ler1L(cArq,cEmpresa)
 Local cBuffer := ""
 Local nPos 	  := 1
 Local lOk 	  := .F.
+Local nHandle := 0
 
-FT_FUSE(cArq)  //abrir
-FT_FGOTOP() //vai para o topo
-
-If !FT_FEOF()
- 
-	cBuffer := FT_FREADLN()  //lendo a linha
-
-	If ( !Empty(cBuffer) )
-		nPos := 1
-
-		cEmpresa := SUBSTR(cBuffer,nPos,2)
-		nPos += 2
-
-	EndIf
-
+nHandle := FT_FUSE(cArq)  //abrir
+If nHandle == -1
+	Sleep(1000 * (Val(cEmpresa)+1))
+	nHandle := FT_FUSE(cArq)
 EndIf
 
-FT_FUSE()  //fecha o arquivo txt
+If nHandle <> -1
+	FT_FUSE(cArq)  //abrir
+	FT_FGOTOP() //vai para o topo
+
+	If !FT_FEOF()
+	
+		cBuffer := FT_FREADLN()  //lendo a linha
+
+		If ( !Empty(cBuffer) )
+			nPos := 1
+
+			cEmpresa := SUBSTR(cBuffer,nPos,2)
+			nPos += 2
+
+			If Val(cEmpresa) > 0 .AND. Val(cEmpresa) < 30
+				lOk := .T.
+			EndIf
+		EndIf
+
+	EndIf
+	FT_FUSE()  //fecha o arquivo txt
+EndIf
 
 Return lOk
 
@@ -756,3 +771,25 @@ FRename(cArq,cArqPrc)
 u_MsgLog(cProg,"Arquivo movido para: "+cArqPrc)
 
 Return cArqPrc
+
+
+
+
+Static Function SndMsg(cArq,cErro,cAnexo,cUser)
+Local cEmail	:= ""
+Local cEmailCC	:= u_EmailAdm()
+Local aUsers 	:= {cUser}
+Local aGrupos	:= {u_GrpFisc()}
+Local aDeptos	:= {}
+Local cAssunto	:= "Integração ADP "
+Local cMsg 		:= ""
+Local aCabs   	:= {"Empresa","Arquivo","Mensagem"}
+Local aMsg 		:= {{FWCodEmp(),cArq,cErro}}
+
+cEmail	 := u_GprEmail(cEmail,aUsers,aGrupos,aDeptos)
+
+cMsg := u_GeraHtmB(aMsg,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
+u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,iIf(!Empty(cAnexo),{cAnexo},nil),.F.)
+u_MsgLog("SNDMSG",cEmail)
+
+Return Nil

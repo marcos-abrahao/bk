@@ -148,8 +148,7 @@ For nI := 1 To Len(aFiles)
 		EndIf
 	Else
 		cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
-		//cAnexo := 
-		MoveArq(cArq,2)
+		cAnexo := MoveArq(cArq,2)
 	EndIf
 	
 	If !Empty(cMsg)
@@ -202,8 +201,7 @@ For nI := 1 To Len(aFiles)
 			EndIf
 		Else
 			cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
-			//cAnexo := 
-			MoveArq(cArq,2)
+			cAnexo := MoveArq(cArq,2)
 		EndIf
 
 		If !Empty(cMsg)
@@ -247,31 +245,40 @@ Static Function Ler1L(cArq,cAcao,cEmpresa)
 Local cBuffer := ""
 Local nPos 	  := 1
 Local lOk 	  := .F.
+Local nHandle := 0
 
-FT_FUSE(cArq)  //abrir
-FT_FGOTOP() //vai para o topo
-
-If !FT_FEOF()
- 
-	cBuffer := FT_FREADLN()  //lendo a linha
-
-	If ( !Empty(cBuffer) )
-		nPos := 1
-
-		cAcao	:= SUBSTR(cBuffer,nPos,1)
-		nPos += 1
-
-		cEmpresa := SUBSTR(cBuffer,nPos,2)
-		nPos += 2
-
-		If cAcao $ "123"
-			lOk := .T.
-		EndIf
-	EndIf
-
+nHandle := FT_FUSE(cArq)  //abrir
+If nHandle == -1
+	Sleep(1000 * (Val(cEmpresa)+1))
+	nHandle := FT_FUSE(cArq)
 EndIf
 
-FT_FUSE()  //fecha o arquivo txt
+If nHandle <> -1
+	FT_FGOTOP() //vai para o topo
+
+	If !FT_FEOF()
+
+	
+		cBuffer := FT_FREADLN()  //lendo a linha
+
+		If ( !Empty(cBuffer) )
+			nPos := 1
+
+			cAcao	:= SUBSTR(cBuffer,nPos,1)
+			nPos += 1
+
+			cEmpresa := SUBSTR(cBuffer,nPos,2)
+			nPos += 2
+
+			If cAcao $ "123"
+				lOk := .T.
+			EndIf
+		EndIf
+
+	EndIf
+
+	FT_FUSE()  //fecha o arquivo txt
+EndIf
 
 Return lOk
 
@@ -362,14 +369,12 @@ If nOpcA == 1
 					cAnexo := PFIN5E(aLinha,cArq)
 				EndIf
 				cMsg := cMsgErr
-				//cAnexo := 
-				MoveArq(cArq,2)
+				cAnexo := MoveArq(cArq,2)
 			EndIf
 		Else
 			cMsg := "Lançamentos não importados, verifique o conteudo do arquivo "+cArq
 			u_MsgLog(cProg,cMsg,"E")
-			//cAnexo := 
-			MoveArq(cArq,2)
+			cAnexo := MoveArq(cArq,2)
 		EndIf
 	Else
 		u_MsgLog(cProg,"Arquivo "+TRIM(cArq)+" não encontrado","E")
