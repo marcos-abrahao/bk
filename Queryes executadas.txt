@@ -1,3 +1,23 @@
+==================================================================
+-- 13/02/2025 Inv. Barcas RIO
+
+CREATE TABLE PowerBk.dbo.INVBARCAS(Produto varchar(23), Local varchar(4), QtdHom float, Vunit float,VInvent float, Descr varchar(60))
+
+DROP TABLE PowerBk.dbo.INVBARCAS
+
+SELECT * FROM PowerBk.dbo.INVBARCAS IB LEFT JOIN PowerBk.dbo.PRODUTOS PD ON PD.B1_COD = IB.Produto  AND PD.EMPRESA = '20' order by Descr
+
+
+EXEC sp_help PRODUTOS
+
+==================================================================
+-- 13/02/2025
+
+SELECT B1_GRUPO,B1_XXSGRP FROM PRODUTOS GROUP BY B1_GRUPO,B1_XXSGRP ORDER BY B1_GRUPO,B1_XXSGRP
+
+SELECT * FROM PRODUTOS 
+WHERE ZI_DESC IS NULL AND EMPRESA <> '20'
+ORDER BY EMPRESA,B1_GRUPO,B1_XXSGRP
 
 ==================================================================
 -- 03/02/25

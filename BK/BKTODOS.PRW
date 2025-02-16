@@ -91,6 +91,7 @@ aAdd(aDados,{"","U_BKCOMR08()",		"COMPRAS",		"Tomada de Preços Compras"})
 aAdd(aDados,{"","U_BKCOMR09()",		"COMPRAS",		"Relatório Gerencial de Compras"})
 aAdd(aDados,{"","U_BKCOMA09()",		"COMPRAS",		"Facilitador Doc Entrada (PJs)"})
 aAdd(aDados,{"","U_BKCOMA12()",		"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
+aAdd(aDados,{"","U_BKCOMI12()",		"COMPRAS",		"Importar inventario Barcas do PowerBK"})
 aAdd(aDados,{"","U_BKCOMA13()",		"COMPRAS",		"Inclusão de Doc de Impostos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de impostos já existentes"})
 aAdd(aDados,{"","U_BKCOMA15()",		"COMPRAS",		"Inclusão de Doc de Sindicatos com Rateio por CC"})
@@ -184,5 +185,20 @@ dbSelectArea("SZM")
 dbSelectArea("SZU")
 dbSelectArea("SZT")
 dbSelectArea("SYP")
+
+// Compras
+dbSelectArea("NNR")
+dbGoTop()
+dbSelectArea("SAJ")
+dbGoTop()
+dbSelectArea("SAK")
+dbGoTop()
+dbSelectArea("SAL")
+dbGoTop()
+dbSelectArea("SY1")
+dbGoTop()
+dbSelectArea("DHL")
+dbGoTop()
+
 
 Return Nil

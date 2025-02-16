@@ -53,6 +53,8 @@ ElseIf cEmpAnt == '16'
 	cCC := '386000609'
 ElseIf cEmpAnt == '18'
 	cCC := '303000623'
+ElseIf cEmpAnt == '20'
+	cCC := '408000644'
 EndIf
 
 Return cCC

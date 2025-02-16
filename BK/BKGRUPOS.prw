@@ -40,7 +40,7 @@ Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S"
                         {"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N",""         },;
                         {"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N",""         },;
                         {"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N",""         },;
-                        {"14","BALSA NOVA"      ,"BALSA"        ,"N","N","N","N","N","302000508"},;
+                        {"14","BALSA NOVA"      ,"BALSA"        ,"S","N","N","N","N","302000508"},;
                         {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","S","S","305000554"},;
 						{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386000609"},;
 						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         },;

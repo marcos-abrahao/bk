@@ -141,8 +141,8 @@ Uso          : Mister Imagem
 
 User Function BKZJTOB7()
 nRepl := 0
-dData := CTOD("30/09/2013")
-cDoc  := "20130930"
+dData := CTOD("31/01/2025")
+cDoc  := "220250131"
 
 // Limpar os valores do documento
 cQuery := " UPDATE "+RetSqlName("SB7")+" SET B7_QUANT = 0 WHERE B7_DOC = '"+cDoc+"' "

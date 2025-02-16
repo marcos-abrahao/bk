@@ -26,10 +26,10 @@ Local nTLin 	:= 15
 Local nSin    	:= 5
 Local cTexto	:= "" 
 
-Define MsDialog oDlg01 Title "Importação de dados: Excel --> Pré-Nota" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
+Define MsDialog oDlg01 Title "CA140Dlg - Importação de dados: Excel --> Pré-Nota" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
 nSnd := 35
-@ nSnd,010 Say 'Cole as colunas do excel: Codigo do Produto,Valor,Centro de Custos'  Size 240,010 Pixel Of oDlg01
+@ nSnd,010 Say 'Cole as colunas do excel: Codigo do Produto, Valor, Centro de Custos e Quantidade'  Size 240,010 Pixel Of oDlg01
 nSnd += nTLin
 oMemo:= tMultiget():New(nSnd,10,{|u|if(Pcount()>0,cTexto :=u,cTexto )},oDlg01,280,100,,,,,,.T.)
 nSnd += nTLin
@@ -53,6 +53,8 @@ Local cDesc 	:= ""
 Local cCod  	:= ""
 Local cValor	:= ""
 Local nValor 	:= 0
+Local cQuant	:= ""
+Local nQuant 	:= 0
 Local cCC1      := ""
 Local cDescCC   := ""
 Local cErro 	:= ""
@@ -96,6 +98,12 @@ For nI := 1 To Len(aLItens)
 		cCod    := PAD(ALLTRIM(aLinha[1]),Len(SB1->B1_COD))
 		cValor  := ALLTRIM(aLinha[2])
         cCC1    := PAD(ALLTRIM(aLinha[3]),Len(SD1->D1_CC))
+		If Len(aLinha) > 3 // Informada a Quantidade, quarto elemento
+			cQuant := ALLTRIM(aLinha[4])
+		Else
+			cQuant := "1"
+		EndIf
+
 		If Len(ALLTRIM(cCC1)) < 9
 			cCC1 := PAD(STRZERO(VAL(ALLTRIM(cCC1)),9),Len(SD1->D1_CC))
 		EndIf
@@ -104,6 +112,15 @@ For nI := 1 To Len(aLItens)
 		cValor  := STRTRAN(cValor,".","")
 		cValor  := STRTRAN(cValor,",",".")
 		nValor  := VAL(cValor)
+
+		// Quant
+		cQuant  := STRTRAN(cQuant,".","")
+		cQuant  := STRTRAN(cQuant,",",".")
+		nQuant  := VAL(cQuant)
+		If nQuant <= 0
+			nQuant := 1
+		EndIf
+
 		cDesc 	:= ""
 		If !EMPTY(cCod)
 			If SB1->(DbSeek(xFilial("SB1")+cCod))
@@ -131,11 +148,11 @@ For nI := 1 To Len(aLItens)
 		EndIf
 
         If !lErro
-		    If nI == 1
+		    If nI == 1 .AND. Len(aCols) <= 1
 				aCols[1,nPCod]		:= cCod
-				aCols[1,nPQuant]	:= 1
+				aCols[1,nPQuant]	:= nQuant
 				aCols[1,nPVUnit]	:= nValor
-				aCols[1,nPTotal]	:= nValor
+				aCols[1,nPTotal]	:= nValor * nQuant
 				aCols[1,nPXXDescP]	:= cDesc
 				aCols[1,nPUM]		:= SB1->B1_UM
 				aCols[1,nPCONTA]	:= SB1->B1_CONTA
@@ -146,9 +163,9 @@ For nI := 1 To Len(aLItens)
 				yCol := aClone(xCol)
 				yCol[nPItem]    := STRZERO(Len(aCols)+1,4)
 				yCol[nPCod]     := cCod
-				yCol[nPQuant]   := 1
+				yCol[nPQuant]   := nQuant
 				yCol[nPVUnit]   := nValor
-				yCol[nPTotal]   := nValor
+				yCol[nPTotal]   := nValor * nQuant
 				yCol[nPXXDescP] := cDesc
 				yCol[nPUM]      := SB1->B1_UM
 				yCol[nPCONTA]   := SB1->B1_CONTA

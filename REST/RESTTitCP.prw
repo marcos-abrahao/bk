@@ -499,7 +499,7 @@ Return (lSuccess)
 WSMETHOD GET HPDFCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 
 Local cHtml		as char
-Local cDirTmp   := u_STmpDir()
+Local cDirTmp   := u_STmpHttp()
 Local cArqHtml  := ""
 Local cUrl 		:= ""
 //Local oFile		AS Object
