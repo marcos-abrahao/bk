@@ -265,6 +265,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
 	oPExcel:AddCol("SALDO","u_SaldoRec(E1RECNO)","Saldo Liq.","E1_SALDO")
+	//oPExcel:AddCol("SALDO","E1_SALDO","Saldo Liq.","E1_SALDO")
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
@@ -369,7 +370,8 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nPos	:= Len(aListCR)
 	cNumTit	:= (cQrySE1)->(E1_PREFIXO+E1_NUM+E1_PARCELA)
 	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
-	nSaldo := (cQrySE1)->E1_SALDO //u_SaldoRec((cQrySE1)->E1RECNO)
+	//nSaldo := (cQrySE1)->E1_SALDO //
+	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
 	aListCR[nPos]['EMPRESA']	:= (cQrySE1)->EMPRESA
 	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
 	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
@@ -598,7 +600,10 @@ BEGINCONTENT var cHTML
 <html lang="pt-BR">
 <head>
 <!-- Required meta tags -->
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+
+<!-- <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Styling CSS -->
@@ -1397,14 +1402,20 @@ cDropEmp +='<li><a class="dropdown-item" href="javascript:AltEmpr('+'Todas'+')">
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 // <-- Seleção de Empresas
 
-//StrIConv( cHtml, "UTF-8", "CP1252")
-//DecodeUtf8(cHtml)
+//cHtml := EncodeUtf8(cHtml)
+
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
+// Caracteres iniciais de um arquivo UTF-8
+cHtml := Chr(239) + Chr(187) + Chr(191) + cHtml
+//cHtml := DecodeUtf8(cHtml)
+
 //u_MsgLog(,"BROWCR/2")
-If ::userlib == '000000'
-	Memowrite(u_STmpDir()+"cr.html",cHtml)
-EndIf
+
+//If ::userlib == '000000'
+//	Memowrite(u_STmpDir()+"cr.html",cHtml)
+//EndIf
+
 //u_MsgLog("RESTTITCR",__cUserId)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")

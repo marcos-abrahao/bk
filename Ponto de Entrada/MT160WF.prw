@@ -181,7 +181,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 		ELSE
 			IF SCR->CR_USER $ cGerCompras
 				AADD(aSC1USER,SC1->C1_USER)
-			ELSEIF SCR->CR_USER $ cGerGestao
+			ELSEIF SCR->CR_USER $ cGerGestao .AND. cEmpAnt <> "20" // Barcas 17/02/25
 				RecLock("SCR",.F.)
 				SCR->(dbDelete())
 				SCR->(MsUnlock())
