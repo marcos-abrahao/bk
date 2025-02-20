@@ -35,6 +35,9 @@ If __cUserId == '000000'
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})
+	aAdd(aDados,{"","U_BKCOMA12()",	"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
+	aAdd(aDados,{"","U_BKCOMI12()",	"COMPRAS",		"Importar inventario Barcas do PowerBK"})
+	aAdd(aDados,{"","U_BKCOMA06()",	"COMPRAS",		"Importar fornecedores Barcas do PowerBK"})
 EndIf
 
 aAdd(aDados,{"","U_BKBATIDAS()",	"GERAL",		"Envio de e-mails via CSV"})
@@ -90,8 +93,6 @@ aAdd(aDados,{"","U_BKCOMR6()",		"COMPRAS",		"Relatório Pedidos de Compra"})
 aAdd(aDados,{"","U_BKCOMR08()",		"COMPRAS",		"Tomada de Preços Compras"})
 aAdd(aDados,{"","U_BKCOMR09()",		"COMPRAS",		"Relatório Gerencial de Compras"})
 aAdd(aDados,{"","U_BKCOMA09()",		"COMPRAS",		"Facilitador Doc Entrada (PJs)"})
-aAdd(aDados,{"","U_BKCOMA12()",		"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
-aAdd(aDados,{"","U_BKCOMI12()",		"COMPRAS",		"Importar inventario Barcas do PowerBK"})
 aAdd(aDados,{"","U_BKCOMA13()",		"COMPRAS",		"Inclusão de Doc de Impostos com Rateio por CC"})
 aAdd(aDados,{"","U_BKCOMA14()",		"COMPRAS",		"Rateio de impostos em titulos de impostos já existentes"})
 aAdd(aDados,{"","U_BKCOMA15()",		"COMPRAS",		"Inclusão de Doc de Sindicatos com Rateio por CC"})

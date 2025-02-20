@@ -244,10 +244,9 @@ Return(cCod)
 
 
 /*/
-Programa     : BKZJTOB7 - Autor: Marcos B. Abrahao - Data: 28/01/2011
-Objetivo     : Atualiza a tabela SB7 atraves da tabela SZJ importada do excel
-Uso          : Mister Imagem
-               Passo 2
+Programa     : BKCOMI12 - Autor: Marcos B. Abrahao - Data: 28/01/2011
+Objetivo     : Atualiza a tabela SB7 atraves da tabela PowerBk.dbo.INVBARCAS
+Uso          : Barcas Rio
 /*/
 
 User Function BKCOMI12()
