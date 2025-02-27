@@ -1,15 +1,95 @@
 
-SELECT * FROM SX3010 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3020 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3120 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3150 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3180 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3190 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3170 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3970 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
-SELECT * FROM SX3980 WHERE X3_CAMPO = 'A1_END' OR X3_CAMPO = 'A1_BAIRRO' ORDER BY X3_CAMPO,X3_ORDEM
+==============================================================
+-- Browse de Fornecedores mostrando picture do A2_CGC incorretamente:
+
+UPDATE SA2010 SET A2_INDRUR = '0' WHERE A2_TIPO = 'F' AND A2_INDRUR = ' '
+
+==============================================================
+-- Alteração de chamados
+
+SELECT * FROM Chamado where Usuario like 'wiliam.l%'
+SELECT * FROM Chamado where Usuario like 'luis.s%'
+SELECT * FROM Chamado where Usuario like 'guilherme%'
+UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224931
+UPDATE Chamado SET Usuario = 'isabela.silva', NomeSolicitante = 'Isabela Melo Ferreira da Silva' where Numero = 1224932
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224947
+UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224949
+UPDATE Chamado SET Usuario = 'joao.vitor', NomeSolicitante = 'João Vitor de Almeida' where Numero = 1224955
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224956
+UPDATE Chamado SET Usuario = 'joao.gouvea', NomeSolicitante = 'João Paulo Gouvêa' where Numero = 1224969
+UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 1224970
+UPDATE Chamado SET Usuario = 'luis.souza', NomeSolicitante = 'Luis Fernando Souza' where Numero = 1224971
+UPDATE Chamado SET Usuario = 'guilherme.moreira', NomeSolicitante = 'Guilherme Spolaor Moreira' where Numero = 1224974
+UPDATE Chamado SET Usuario = 'jalielison.alves', NomeSolicitante = 'Jalielison Alves Silva' where Numero = 1224996
+UPDATE Chamado SET Usuario = 'isabela.silva', NomeSolicitante = 'Isabela Melo Ferreira da Silva' where Numero = 1224004
+UPDATE Chamado SET Usuario = 'elber.moura', NomeSolicitante = 'Elber Moura' where Numero = 1224006
+UPDATE Chamado SET Usuario = 'andresa.cunha', NomeSolicitante = 'Andresa Aparecida da Cunha' where Numero = 1224009
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 1224011
+UPDATE Chamado SET Usuario = 'katia.galdino', NomeSolicitante = 'Katia Galdino' where Numero = 1224015
+UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 1224016
+UPDATE Chamado SET Usuario = 'fabia.pesaro', NomeSolicitante = 'Fabia Pereira Pesaro' where Numero = 1224017
+UPDATE Chamado SET Usuario = 'luis.souza', NomeSolicitante = 'Luis Fernando Souza' where Numero = 1224020
+UPDATE Chamado SET Usuario = 'mara.nascimento', NomeSolicitante = 'Mara Cristina Leite Nascimento' where Numero = 0125027
+UPDATE Chamado SET Usuario = 'elber.moura', NomeSolicitante = 'Elber Moura' where Numero = 0125043
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero = 0125047
+UPDATE Chamado SET Usuario = 'guilherme.moreira', NomeSolicitante = 'Guilherme Spolaor Moreira' where Numero = 0125064
+UPDATE Chamado SET Usuario = 'marcelo.soares', NomeSolicitante = 'Marcelo Soares' where Numero = 0125065
+UPDATE Chamado SET Usuario = 'jalielison.alves', NomeSolicitante = 'Jalielison Alves Silva' where Numero = 0125079
+UPDATE Chamado SET Usuario = 'alexandre.teixeira', NomeSolicitante = 'Alexandre Henrique Teixeira' where Numero = 0125090
+UPDATE Chamado SET Usuario = 'diego.bezerra', NomeSolicitante = 'Diego Bezerra Oliveira' where Numero = 0125103
+UPDATE Chamado SET Usuario = 'elber.moura', NomeSolicitante = 'Elber Moura' where Numero = 0125107
+UPDATE Chamado SET Usuario = 'julia.moreira', NomeSolicitante = 'Julia Moreira' where Numero = 0125108
+UPDATE Chamado SET Usuario = 'michele.moraes', NomeSolicitante = 'Michele Moraes' where Numero = 0125112
+UPDATE Chamado SET Usuario = 'fernando.sampaio', NomeSolicitante = 'Fernando Martins Sampaio' where Numero  = 0125124
+UPDATE Chamado SET Usuario = 'bruno.bueno', NomeSolicitante = 'Bruno Santiago Bueno' where Numero = 0125125
+UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 0125143
+UPDATE Chamado SET Usuario = 'bruno.bueno', NomeSolicitante = 'Bruno Santiago Bueno' where Numero =  0125145
+UPDATE Chamado SET Usuario = 'bruno.bueno', NomeSolicitante = 'Bruno Santiago Bueno' where Numero =  0125146
+UPDATE Chamado SET Usuario = 'roberto.celkevicius', NomeSolicitante = 'Roberto Celkevicius' where Numero = 0125157
+UPDATE Chamado SET Usuario = 'wiliam.lisboa', NomeSolicitante = 'Wiliam Lisboa' where Numero = 0125162
+UPDATE Chamado SET Usuario = 'graziele.silva', NomeSolicitante = 'Graziele Da Silva' where Numero = 0125166
+UPDATE Chamado SET Usuario = 'jalielison.alves', NomeSolicitante = 'Jalielison Alves Silva' where Numero = 0125174
+==============================================================
+
+-- Renomear a tabela dbo.FWTSFWSCHD_P12 PARA dbo.FWTSFWSCHD_P12RTST
+EXEC sp_rename 'dbo.FWTSFWSCHD_P12', 'FWTSFWSCHD_P12RTST';
+
+==================================================================
+-- Remoção de aspas
+
+SELECT B1_DESC FROM SB1200 WHERE  CHARINDEX('"', B1_DESC) > 0;
+
+SELECT name, collation_name
+FROM sys.columns
+WHERE object_id = OBJECT_ID('SB1200');
 
 
+UPDATE SB1200
+SET B1_DESC = REPLACE(B1_DESC, '"', '')
+WHERE CHARINDEX('"', B1_DESC) > 0;
+
+==================================================================
+-- 19/02/2025- Ajustes UPDDISTR 2410
+
+DROP TABLE SAH020
+DROP TABLE SAH040
+DROP TABLE SAH060
+DROP TABLE SAH070
+DROP TABLE SAH080
+DROP TABLE SAH090
+DROP TABLE SAH100
+DROP TABLE SAH110
+DROP TABLE SAH120
+DROP TABLE SAH140
+DROP TABLE SAH150
+DROP TABLE SAH160
+DROP TABLE SAH170
+DROP TABLE SAH180
+DROP TABLE SAH190
+DROP TABLE SAH200
+DROP TABLE SAH900
+DROP TABLE SAH970
+DROP TABLE SAH980
 
 ==================================================================
 -- 19/02/2025 Fornecedores Barcas Rio
@@ -354,6 +434,7 @@ UPDATE SX2160 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
 UPDATE SX2170 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
 UPDATE SX2180 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
 UPDATE SX2190 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
+UPDATE SX2200 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
 UPDATE SX2900 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
 UPDATE SX2970 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'
 UPDATE SX2980 SET X2_ARQUIVO = 'SZ0010' WHERE X2_CHAVE = 'SZ0'

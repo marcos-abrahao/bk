@@ -1133,10 +1133,10 @@ thead input {
 </thead>
 <tbody id="mytable">
 <tr>
-  <th scope="col"></th>
+  <th scope="col" style="text-align:center;"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Pré-notas...</b></th>
   <th scope="col" style="text-align:center;"></th>
   <th scope="col"></th>
-  <th scope="col">Carregando Pré-notas...</th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>

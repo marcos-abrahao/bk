@@ -691,6 +691,7 @@ IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
    AADD(aVetor,{"A2_NOME"    , cNome,Nil})
    AADD(aVetor,{"A2_NREDUZ"  , cNReduz,Nil})
    AADD(aVetor,{"A2_TIPO"    , "F",Nil})
+   AADD(aVetor,{"A2_INDRUR"  , "0",Nil})   
    AADD(aVetor,{"A2_CGC"     , cCPF,Nil})
    AADD(aVetor,{"A2_EST"     , "SP",Nil})
    AADD(aVetor,{"A2_INSCR"   , "ISENTO",Nil})
@@ -698,7 +699,7 @@ IF !SA2->(dbSeek(xFilial("SA2")+cFornece+cLoja,.F.))
    AADD(aVetor,{"A2_COD_MUN" , "50308",Nil})
    AADD(aVetor,{"A2_MUN"     , "SAO PAULO",Nil})
    AADD(aVetor,{"A2_NATUREZ" , "0000000010",Nil})            
-   AADD(aVetor,{"A2_CONTA"   , "21101001",Nil})                
+   AADD(aVetor,{"A2_CONTA"   , "21101001",Nil})  
    
    cReg  := cFornece+"-"+cLoja+"-"+cNome+": "
    nAcao := 3

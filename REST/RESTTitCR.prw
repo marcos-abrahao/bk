@@ -659,6 +659,8 @@ thead input {
 </style>
 </head>
 <body>
+
+	
 <div id="conteudo-principal">
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
   <div class="container-fluid">
@@ -674,7 +676,7 @@ thead input {
 	</div>
 
 	<div class="btn-group">
-		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+		<button type="button" id="btn-excel" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
 	</div>
 
     <form class="d-flex">
@@ -716,7 +718,7 @@ thead input {
 <tbody id="mytable">
 <tr>
   <td scope="col"></td>
-  <td scope="col"><b>Carregando Títulos...</b></td>
+  <td scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Títulos...</b></td>
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col" style="text-align:center;"></td>
@@ -1180,19 +1182,21 @@ loadTable();
 
 
 async function getE1(empresa,e1recno,userlib) {
+
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
 let urlE1 = '#iprest#/RestTitCR/v6?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib;
 	try {
-	let res = await fetch(urlE1);
+	let res = await fetch(urlE1,{method: 'GET',	headers: headers});
 		return await res.json();
 		} catch (error) {
 	console.log(error);
 		}
 	}
 
-async function showE1(empresa,e1recno,userlib,cbtne1) {
 
-//document.getElementById(cbtne1).disabled = true;
-//document.getElementById(cbtne1).innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+async function showE1(empresa,e1recno,userlib,cbtne1) {
 
 let dadosE1 = await getE1(empresa,e1recno,userlib);
 let itens = '';
@@ -1251,7 +1255,7 @@ $('#altStatus').modal('show');
 
 
 async function ChgStatus(empresa,e1recno,userlib,acao,btnids,clin){
-let resposta = ''
+let resposta = '';
 let cbtn = '';
 
 let ZYPrev = document.getElementById("ZYPrev").value;
@@ -1262,10 +1266,71 @@ let dataObject = {	liberacao:'ok',
 					zyobs:ZYObs,
 				 };
 
-let nlin = parseInt(clin,10)
+let nlin = parseInt(clin,10);
 
 $('#altStatus').modal('hide');
 
+try {
+	// Faz a requisição com autenticação básica
+
+    const username = '#usrrest#';
+    const password = '#pswrest#';
+    const iprest = '#iprest#';
+    const userlib = '#userlib#';
+
+    // Codifica as credenciais em Base64
+    const credentials = btoa(`${username}:${password}`);
+
+    // Monta a URL da API
+    const url = `${iprest}/RestTitCR/v3?empresa=${empresa}&e1recno=${e1recno}&userlib=${userlib}&acao=${acao}`;
+
+	const response = await fetch(url, {
+		method: 'PUT',
+		headers: {
+			'Authorization': `Basic ${credentials}`,
+			'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
+		},
+		body: JSON.stringify(dataObject)});
+
+    // Verifica se a resposta é válida
+	if (!response.ok) {
+		let errorDetails = "Erro desconhecido";
+		try {
+			// Tenta obter detalhes do erro da resposta (se for JSON)
+			const errorResponse = await response.json();
+				errorDetails = JSON.stringify(errorResponse);
+			} catch (e) {
+				// Se a resposta não for JSON, usa o texto da resposta
+				errorDetails = await response.text();
+			}
+			throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
+	}
+} catch (error) {
+    console.error("Erro durante a alteração de estatus:", error);
+    alert(`Ocorreu um erro ao alterar o status: ${error.message}`);
+} finally {
+    // this is the data we get after putting our data,
+	//	console.log(data);
+	if (acao == ' '){
+		cbtn = 'A Receber';
+	} else if (acao == '0'){
+		cbtn = 'Sem Previsao';
+	} else if (acao == '1'){
+		cbtn = 'Aguardando Previsao';
+	} else if (acao == '2'){
+		cbtn = 'Previsao Informada';
+	} else {
+		cbtn = 'Recebido';
+	}
+	document.getElementById(btnids).textContent = cbtn;
+	document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(0,4)
+	//document.getElementById('prev'+clin).value = ZYPrev.value
+	document.getElementById('oper'+clin).textContent = '#cUserName#';
+	//document.getElementById('hist'+clin).textContent = ZYObs;
+}
+
+
+/*
 fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
@@ -1302,26 +1367,80 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
  	    //tableSE1.row(nlin).invalidate().draw();
 
 	})
+
+*/
 }
 
-async function Excel(){
-let newvenci  = document.getElementById("DataVencI").value;
-let newvamdi  = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
-let newvencf  = document.getElementById("DataVencF").value;
-let newvamdf  = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-let newempr  = document.getElementById("btn-empresa").textContent;
-window.open("#iprest#/RestTitCR/v5?empresa="+newempr+"&vencini="+newvamdi+"&vencfim="+newvamdf+"&userlib=#userlib#","_self");
+async function Excel() {
+    const btnExcel = document.getElementById("btn-excel");
+    const cbtnh = btnExcel.innerHTML; // Salva o conteúdo original do botão
+
+    try {
+        // Desabilita o botão e exibe o spinner
+        btnExcel.disabled = true;
+        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
+
+        // Obtém os valores dos campos de data e empresa
+        let newvenci = document.getElementById("DataVencI").value;
+        let newvamdi = newvenci.substring(0, 4) + newvenci.substring(5, 7) + newvenci.substring(8, 10);
+        let newvencf = document.getElementById("DataVencF").value;
+        let newvamdf = newvencf.substring(0, 4) + newvencf.substring(5, 7) + newvencf.substring(8, 10);
+        let newempr = document.getElementById("btn-empresa").textContent;
+
+        // Substitua os placeholders pelos valores reais
+        const username = '#usrrest#'; // Substitua pelo valor real
+        const password = '#pswrest#'; // Substitua pelo valor real
+        const iprest = '#iprest#'; // Substitua pelo valor real
+        const userlib = '#userlib#'; // Substitua pelo valor real
+
+        // Codifica as credenciais em Base64
+        const credentials = btoa(`${username}:${password}`);
+
+        // Monta a URL da API
+        const url = `${iprest}/RestTitCR/v5?empresa=${newempr}&vencini=${newvamdi}&vencfim=${newvamdf}&userlib=${userlib}`;
+
+        // Faz a requisição com autenticação básica
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
+            },
+        });
+
+        // Verifica se a resposta é válida
+        if (!response.ok) {
+            let errorDetails = "Erro desconhecido";
+            try {
+                // Tenta obter detalhes do erro da resposta (se for JSON)
+                const errorResponse = await response.json();
+                errorDetails = JSON.stringify(errorResponse);
+            } catch (e) {
+                // Se a resposta não for JSON, usa o texto da resposta
+                errorDetails = await response.text();
+            }
+            throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
+        }
+
+        // Obtém o blob (arquivo) da resposta
+        const blob = await response.blob();
+
+        // Cria um link para download do arquivo
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Contas_a_receber_${newempr}_${newvamdi}_${newvamdf}.xlsx`; // Nome do arquivo personalizado
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Erro durante a execução da função Excel:", error);
+        alert(`Ocorreu um erro ao tentar baixar o arquivo: ${error.message}`);
+    } finally {
+        // Restaura o botão ao estado original
+        btnExcel.disabled = false;
+        btnExcel.innerHTML = cbtnh;
+    }
 }
-
-
-async function getUrlTmp(url1) {
-	try {
-	let res = await fetch(url1);
-		return await res.json();
-		} catch (error) {
-	console.log(error);
-		}
-	}
 
 
 async function AltVenc(){

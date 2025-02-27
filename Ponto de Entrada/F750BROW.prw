@@ -256,6 +256,10 @@ If !("DNF" $ SE2->E2_HIST)
 			cForn := u_cFornBK()
 			cProd := "11301035"
 			cCCus := "000000001"
+		ElseIf SM0->M0_CODIGO == "20"  // BARCAS RIO
+			cForn := u_cFornBK()
+			cProd := "11301036"
+			cCCus := "408000644"
 		Endif	
 	
 		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)
@@ -364,7 +368,7 @@ If RpcSetEnv( _cEmpresa, _cFilial )
 			{"F1_FORNECE"   , _cForn, NIL },;
 			{"F1_LOJA"      , _cLoja, NIL },;
 			{"F1_EST"       , "SP", NIL },;
-			{"F1_ESPECIE"   , "", NIL },;
+			{"F1_ESPECIE"   , "DF", NIL },;
 			{"F1_XXUSER"    , _cUsuario, NIL },;
 			{"F1_XXUSERS"   , _cSuper, NIL },;         
 			{"F1_XXPVPGT"   , dDataBase}}

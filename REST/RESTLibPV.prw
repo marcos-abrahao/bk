@@ -443,7 +443,7 @@ thead input {
 </thead>
 <tbody id="mytable">
 <tr>
-<th scope="col">Carregando Pedidos...</th>
+<th scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Pedidos...</b></th>
 <th scope="col"></th>
 <th scope="col"></th>
 <th scope="col"></th>
