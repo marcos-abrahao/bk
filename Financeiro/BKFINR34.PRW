@@ -568,8 +568,7 @@ Local nPag      := 1
 Local cLogo     := ""
 Local nI        := 0
 Local cPict     := "@E 99,999,999,999.99"
-Local aFilesF1  := {}
-Local aFilesE2  := {}
+Local aFiles	:= {}
 Local cRefFile	:= ""
 Local cFormPgto := ""
 Local cPortado 	:= ""
@@ -912,27 +911,29 @@ DO while QSE2->(!Eof())
 
 
 	// Documentos anexos na Pré-Nota
-	aFilesF1 := u_BKDocs(cEmpresa,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+	aFiles := u_BKDocs(cEmpresa,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 	// Documentos anexos no Contas a Pagar
-	aFilesE2 := u_BKDocs(cEmpresa,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
+	aFiles := u_BKDocs(cEmpresa,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1,aFiles)
 
 	cCanvas := ""
 
-	If Len(aFilesF1) > 0 .OR. Len(aFilesE2) > 0
+	If Len(aFiles) > 0
 
 		cHtml += '  <tr>'+CRLF
 		cHtml += '    <td class="ti-hvalor">Anexos</td>'+CRLF
 		cHtml += '    <td colspan="5" style="text-align:center;">'+CRLF
-		For nI := 1 To Len(aFilesF1)
-			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesF1[nI,2])+'&tpanexo=P" class="link-primary">'+aFilesF1[nI,2]+'</a>&nbsp;'+CRLF
-			If ".PDF" $ UPPER(aFilesF1[nI,2]) // eRRO AQUI
-				aAdd(aPdfs,aFilesF1[nI,2])
+		For nI := 1 To Len(aFiles)
+			//cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a>&nbsp;'+CRLF
+			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a>&nbsp;'+CRLF
+			If ".PDF" $ UPPER(aFiles[nI,2]) // eRRO AQUI
+				aAdd(aPdfs,aFiles[nI,2])
 				cCanvas += "<p>"+cRefFile+"</p>"+CRLF
 				cCanvas += '<canvas id="the-canvas'+ALLTRIM(STR(Len(aPdfs)))+'"></canvas>'+CRLF
 			Else
 				cHtml 	 += cRefFile
 			EndIf
 		Next
+		/*
 		For nI := 1 To Len(aFilesE2)
 			cRefFile := '    <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpresa+'&documento='+Encode64(aFilesE2[nI,2])+'&tpanexo=P" class="link-primary">'+aFilesE2[nI,2]+'</a>&nbsp;'+CRLF
 			If ".PDF" $ UPPER(aFilesE2[nI,2])
@@ -943,6 +944,7 @@ DO while QSE2->(!Eof())
 				cHtml 	 += cRefFile
 			EndIf
 		Next
+		*/
 		cHtml += '    </td>'+CRLF
 		cHtml += '  </tr>'+CRLF
 

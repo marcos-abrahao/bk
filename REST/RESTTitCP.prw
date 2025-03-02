@@ -634,14 +634,16 @@ Do While ( cQrySE2 )->( ! Eof() )
 
 	// Documentos anexos na Pré-Nota
 	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+	/*
 	For nI := 1 To Len(aFiles)
 		aAdd(aAnexos,JsonObject():New())
 		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
 		aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
 	Next
+	*/
 
 	// Documentos anexos no Contas a Pagar
-	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SE2",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
+	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SE2",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1,aFiles)
 	For nI := 1 To Len(aFiles)
 		aAdd(aAnexos,JsonObject():New())
 		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]

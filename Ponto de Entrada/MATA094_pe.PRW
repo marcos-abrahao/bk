@@ -95,9 +95,10 @@ Return (xRet)
 
 
 USER FUNCTION MT094LOK
-
+Local lOk := .F.
 If !IsBlind()
-	U_BKCOMA04()
+	lOk := U_BKCOMA04()
 EndIf
 
-Return
+Return lOk
+

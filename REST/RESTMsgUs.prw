@@ -849,10 +849,11 @@ Next
 Return lRet
 
 // Grava anexo dos avisos
-User Function GrvAnexo(cArq,cTexto,lConv)
-Local cDir  := u_STmpDir()
+User Function GrvAnexo(cArq,cTexto,lConv,cDir)
 Local cRet  := ""
+
 Default lConv := .T.
+Default cDir  := u_STmpDir()
 
 // Converto para UTF-8
 If lConv

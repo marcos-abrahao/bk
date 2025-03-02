@@ -121,6 +121,8 @@ ElseIf FWCodEmp() == "18"  // BK VIA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BK VIA</span></b>'
 ElseIf FWCodEmp() == "19"  // BK SOLUÇÕES TECNOLOGICAS
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BK SOL. TECNOLOGICAS</span></b>'
+ElseIf FWCodEmp() == "20"  // BARCAS RIO
+	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BARCAS RIO</span></b>'
 Endif	
 
 cHtm += '<html lang="pt-BR" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">' 

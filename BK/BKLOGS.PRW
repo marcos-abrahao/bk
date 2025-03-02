@@ -140,7 +140,7 @@ cMens := STRTRAN( cMens, CRLF, " ")
 If Type("cEmpAnt") == "U"
 	cMens := DtoC(Date())+"|"+Time()+"||||||"+cMens+"|"
 Else
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+IIF(!FWIsInCallStack("HISTLOG"),FWGetMnuFile(),"HISTLOG")+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
 EndIf
 
 If !Empty(cTxt)

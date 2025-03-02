@@ -40,7 +40,12 @@ Return "846250"
 
 
 User Function BKLogo()
-Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="padding-left:5;border-width: 0;" width="200";>'
+Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="padding-left:5;border-width: 0;" width="200">'
+Return cLogo
+
+
+User Function BKLogos(cEmp)
+Local cLogo := '<img src="http://10.139.0.30:80/logos/lgmid'+cEmp+'.png style="padding-left:5;border-width: 0;" width="30"">'
 Return cLogo
 
 

@@ -129,20 +129,23 @@ User Function ITEM()
             EndIf
             */
         ElseIf cIdPonto == "MODELPOS"
-            xRet := .T. 
- 
             //Pré validações do Commit
+
+            xRet := .T. 
+
         ElseIf cIdPonto == "FORMCOMMITTTSPRE"
+            //Pós validações do Commit
 
             MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
 
-            //Pós validações do Commit
         ElseIf cIdPonto == "FORMCOMMITTTSPOS"
  
             //Commit das operações (antes da gravação)
         ElseIf cIdPonto == "MODELCOMMITTTS"
- 
-            //Commit das operações (após a gravação)
+           //Commit das operações (após a gravação)
+
+          // MyMCOMMTTS(oObj, cIDPonto, cIDModel, cConteudo)
+
         ElseIf cIdPonto == "MODELCOMMITNTTS"
             //Mostrando mensagens no fim da operação
            
@@ -153,7 +156,7 @@ Return xRet
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} MyFTTSPre
-Função específica que será executada no momento FORM COMMIT TTS PRE
+Função específica que será executada no momento FORMCOMMITTTSPRE
 @param      oObj, cIDPonto, cIDModel, cConteudo
 @return     NIL
 @author     Faturamento
@@ -165,7 +168,7 @@ Static Function MyFTTSPre(oObj, cIDPonto, cIDModel, cConteudo)
 Local oModel    := FwModelActive()
 Local nOper     := oObj:GetOperation()
 
-//ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORM COMMIT TTS PRE'.")
+//ApMsgInfo("Esta é a minha função específica que será executada no momento 'FORMCOMMITTTSPRE'.")
 
 HistLog(oModel, nOper)
 
