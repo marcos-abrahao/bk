@@ -16,6 +16,10 @@ Return "\http\anexos\"
 User Function STmpHttp()
 Return "\http\tmp\"
 
+// Recursos http
+User Function SRecHttp()
+Return "\http\recursos\"
+
 // Pasta temporaria Server
 User Function STmpDir()
 Return "\tmp\"

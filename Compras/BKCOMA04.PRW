@@ -273,8 +273,13 @@ nJanAltu	:= aSize[3]
 nTop		:= 0
 nLeft		:= 0
 
+// Gravar o LoadAnexo, se não existir
+u_LoadAnexo()
+
 // Montagem do HTML
 cHtml := HtmlPC(aCabs,aItens,cTitulo)
+MemoWrite("c:\tmp\libweb.html",cHtml)
+//cUrl := "c:\tmp\libweb.html"
 
 oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,cTitulo,,,,,,,,, .T.,,,, .F. )
 
@@ -304,14 +309,14 @@ oMemo:= tMultiget():New(01,nPosBt,{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oPanelU
 nPosbt += nTamBt + 250 + nEsps 
 
 //nPosBt := (nJanLarg)-((nTamBt*3)+12)
-@ 05,nPosBt BUTTON "Voltar do anexo" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (oWebEngine:goHome())
+//@ 05,nPosBt BUTTON "Voltar do anexo" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (oWebEngine:goHome())
 //oBtn := TBtnBmp2():New( 05,nPosbt,nTamBt,12,'FW_HOME',,,,{||oWebEngine:goHome()},oPanelUp,"Voltar do anexo",,.T. )
+//nPosbt += nTamBt + nEsps 
 
-nPosbt += nTamBt + nEsps 
 //nPosBt := (nJanLarg)-((nTamBt*1)+06)
 @ 05,nPosBt BUTTON "Sair" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (lOk:=.F.,oDlg:End())
-
 nPosbt += nTamBt + nEsps 
+
 //nPosBt := (nJanLarg)-((nTamBt*2)+09)
 @ 05,nPosBt BUTTON "Liberar" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
 
@@ -333,13 +338,16 @@ oDlg:Activate()
 Return lOk
 
 
+
 Static Function HtmlPC(aCabs,aDet,cTitulo)
-Local cHtm := ""
-Local nI,nJ
+Local cHtm 		:= ""
+Local nI		:= 0
+Local nJ		:= 0
+Local cPicN   	:= "@E 99999999.99"
+Local cAlign  	:= ""
+Local aSC8 	  	:= {}
+
 //Local lCorNao := .T.
-Local cPicN   := "@E 99999999.99"
-Local cAlign  := ""
-Local aSC8 	  := {}
 
 cHtm += CabHtml(cPrw,cTitulo)  
 
@@ -414,12 +422,12 @@ EndIf
 
 // Documentos anexos
 
-cHtm += '<table>'
-cHtm += '<table width="100%" Align="center" border="0" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >' 
+cHtm += '<table>'+CRLF
+cHtm += '<table width="100%" Align="center" border="0" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >' +CRLF
 
 cHtm += '<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 9pt; line-height: 120%;">' + CRLF
-cHtm += '	<th style="padding: 5px 2px 5px 2px;font-family: Arial;text-align: center;"><b>Anexos das cotações</b></th>' 
-cHtm += '</thead>' 
+cHtm += '	<th style="padding: 5px 2px 5px 2px;font-family: Arial;text-align: center;"><b>Anexos das cotações</b></th>' +CRLF
+cHtm += '</thead>'  +CRLF
 
 aFiles := {}
 For nJ := 1 To Len(aDet)
@@ -431,19 +439,26 @@ Next
 
 If Len(aFiles) > 0
 	For nI := 1 To Len(aFiles)
-		cHtm += '<tr>'
-		cHtm += '	<td style="text-align:center;">'
-		cHtm += '     <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a></br>'
-		cHtm += '  </td>'
-		cHtm += '</tr>'
+
+		cHtm += '<tr>'+CRLF
+		cHtm += '	<td style="text-align:center;">'+CRLF
+		//cHtm += '     <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
+		//cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],nI)
+
+		cHtm += '     <a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'&titulo'+cTitulo+'" target="_blank" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
+
+		cHtm += '  </td>'+CRLF
+		cHtm += '</tr>'+CRLF
 	Next
 EndIf
 
-cHtm += '</table>'
-cHtm += '<br>'
+cHtm += '</table>'+CRLF
+cHtm += '<br>'+CRLF
 
-cHtm += '</body>' 
-cHtm += '</html>'
+cHtm += u_AnexoHtml()
+
+cHtm += '</body>'+CRLF
+cHtm += '</html>'+CRLF
 
 Return cHtm
 
@@ -468,11 +483,7 @@ cHtm += '<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">'
 //cHtm += '<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' 
 cHtm += '<title>'+cTitulo+' - '+DTOC(date())+' '+TIME()+'</title>' 
 cHtm += u_BkFavIco()
-cHtm += '<style>' 
-//cHtm += '.Normal{font-size:11.0pt;font-family:"Arial";}' 
-//cHtm += '.F8A{font-size:8.0pt;font-family:"Arial"}' 
-//cHtm += '.F10A{font-size:10.0pt;font-family:"Arial"}' 
-cHtm += '</style>' 
+cHtm += u_BKBootStrap()
 cHtm += '</head>' 
 cHtm += '<body bgcolor=#ffffff lang=PT-BR>' 
 
@@ -505,101 +516,3 @@ Return cHtm
 
 
 
-Static Function xLibWeb(cNumPC,cNUser,aCabs,aItens,cXXJUST,nTotal) as logical
-    local aButtons as array
-
-	Local cTitulo	:= "Liberação de Pedido de Compra: "+TRIM(cNumPC)+" - Comprador: "+TRIM(cNUser)+" - Total do Pedido: "+ALLTRIM(TRANSFORM(nTotal,"@E 999,999,999.99"))
-
-    local nTop as numeric
-    local nLeft as numeric
-    local nBottom as numeric
-    local nRight as numeric
-    local jButtons:=JSONObject():New() as json
-    local oDlg as object
-    local oGrp as object
-    local oTWebEngine as object
-    local oFWDefSize as object
-
-    //private cCadastro := cTitulo as character
-
-	// Montagem do HTML
-	cHtml := HtmlPC(aCabs,aItens,cTitulo)
-
-    oFWDefSize:=FWDefSize():New(.F.)
-    oFWDefSize:lLateral:=.F.
-    oFWDefSize:AddObject("ButtonActions",100,30,.T.,.T.)
-	oFWDefSize:AddObject("TWebEngine",100,70,.T.,.T.)
-    oFWDefSize:Process()
-
-    nTop:=oFWDefSize:aWindSize[1]
-    nLeft:=oFWDefSize:aWindSize[2]
-    nBottom:=oFWDefSize:aWindSize[3]
-    nRight:=oFWDefSize:aWindSize[4]
-
-    aButtons:=array(0)
-    aAdd(aButtons,{"Liberar",{||lOk:=.T.,oDlg:End()},OemToAnsi("Liberar"),OemtoAnsi("Liberar")})
-    aAdd(aButtons,{"Sair",{||lOk:=.F.,oDlg:End()},OemToAnsi("Sair"),OemtoAnsi("Sair")})
-	aAdd(aButtons,{"Go Home",{||oTWebEngine:goHome()},OemToAnsi("Go Home"),OemtoAnsi("Go Home")})
-    //aAdd(aButtons,{"Go Back",{||oTWebEngine:goForward()},OemToAnsi("Go Back"),OemtoAnsi("Go Back")})
-    aAdd(aButtons,{"Go Forward",{||oTWebEngine:goHome()},OemToAnsi("Go Forward"),OemtoAnsi("Go Forward")})
-    aAdd(aButtons,{"Reload",{||oTWebEngine:Reload()},OemToAnsi("Reload"),OemtoAnsi("Reload")})
-    aAdd(aButtons,{"Print",{||oTWebEngine:Print()},OemToAnsi("Print"),OemtoAnsi("Print Home")})
-    aAdd(aButtons,{"Print PDF",{||oTWebEngine:PrintPDF()},OemToAnsi("Print PDF"),OemtoAnsi("Print PDF")})
-
-
-    DEFINE MSDIALOG oDlg TITLE cTitulo FROM nTop,nLeft TO nBottom,nRight OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
-
-        nTop:=oFWDefSize:GetDimension("ButtonActions","LININI")
-        nLeft:=oFWDefSize:GetDimension("ButtonActions","COLINI")
-        nBottom:=oFWDefSize:GetDimension("ButtonActions","LINEND")
-        //nRight:=oFWDefSize:GetDimension("ButtonActions","COLEND")
-
-        //nTop-=3
-        nRight+=3
-
-        @ nTop,03 GROUP oGrp TO nBottom+2,nRight PROMPT "" OF oDlg COLOR 0,16777215 PIXEL
-
-        nTop+=1
-        nRight+=5
-
-		//@ nTop,10 SAY 'Justificativa:' OF oGrp SIZE 40,10 PIXEL
-		//oMemo:= tMultiget():New(nTop,50,{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oGrp,265,35,,,,,,.T.) 
-
-        //Botoes (da direita pra a esquerda)
-        @ nTop,(nRight)-((50*1)+06) BUTTON jButtons["1"] PROMPT aButtons[1][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[1][2]) PIXEL
-        @ nTop,(nRight)-((50*2)+09) BUTTON jButtons["2"] PROMPT aButtons[2][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[2][2]) PIXEL
-        @ nTop,(nRight)-((50*3)+12) BUTTON jButtons["3"] PROMPT aButtons[3][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[3][2]) PIXEL
-        @ nTop,(nRight)-((50*4)+15) BUTTON jButtons["4"] PROMPT aButtons[4][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[4][2]) PIXEL
-        @ nTop,(nRight)-((50*5)+18) BUTTON jButtons["5"] PROMPT aButtons[5][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[5][2]) PIXEL
-        @ nTop,(nRight)-((50*6)+21) BUTTON jButtons["6"] PROMPT aButtons[6][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[6][2]) PIXEL
-        @ nTop,(nRight)-((50*7)+24) BUTTON jButtons["7"] PROMPT aButtons[7][1] SIZE 50,10 OF oGrp ACTION Eval(aButtons[7][2]) PIXEL
-
-
-        nTop:=oFWDefSize:GetDimension("TWebEngine","LININI")
-        nLeft:=oFWDefSize:GetDimension("TWebEngine","COLINI")
-        nBottom:=oFWDefSize:GetDimension("TWebEngine","LINEND")
-        nRight:=oFWDefSize:GetDimension("TWebEngine","COLEND")
-
-        //nTop-=5
-        nBottom-=5 //+=1
-        nRight-=5
-
-        oTWebEngine:=TWebEngine():New(oDlg,nTop,nLeft,nRight,nBottom,/*"http://localhost/ConnectiPainelRH"*/)
-		oTWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
-        oTWebEngine:SetAsMain()
-
-        oDlg:lEscClose:=.F.
-
-    ACTIVATE MSDIALOG oDlg CENTERED ON INIT (oTWebEngine:Navigate())
-
-    FWFreeArray(@aButtons)
-
-    FWFreeObj(oGrp)
-    FWFreeObj(oDlg)
-    FWFreeObj(jButtons)
-    FWFreeObj(oTWebEngine)
-    FWFreeObj(oFWDefSize)
-
-    DelClassIntF()
-
-return(lOk)

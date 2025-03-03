@@ -91,7 +91,8 @@ WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento,tpanexo WSREST RestLibPN
 
         // RETORNA O ARQUIVO PARA DOWNLOAD, SE FOR PDF, ABRE NO BROWSE
 
-		cContent := MimeType(SUBSTR(cFName,RAt(".",cFName)+1))
+		//cContent := u_MimeType(SUBSTR(cFName,RAt(".",cFName)+1))
+		cContent := u_MimeFile(cFName)
 
 		u_MsgLog("RESTLIBPN",cFName+" - "+cContent)
 
@@ -101,6 +102,7 @@ WSMETHOD GET DOWNLPN QUERYPARAM empresa,documento,tpanexo WSREST RestLibPN
 		Else
 			Self:SetHeader("Content-Disposition", "attachment; filename="+cName)
 		EndIf
+		Self:SetHeader("Access-Control-Allow-Origin", "*")
 
 		/*
 		If ".PDF" $ UPPER(cFName)
@@ -136,146 +138,6 @@ Return (lSuccess)
 
 
 
-Static Function MimeType(cMime)
-Local cContent 	:= ""
-Local aMimes	:= {}
-lOCAL nMime		:= 0
-
-/*
-'hqx'   => 'application/mac-binhex40',
-    'cpt'   => 'application/mac-compactpro',
-    'csv'   => array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream'),
-    'bin'   => 'application/macbinary',
-    'dms'   => 'application/octet-stream',
-    'lha'   => 'application/octet-stream',
-    'lzh'   => 'application/octet-stream',
-    'exe'   => array('application/octet-stream', 'application/x-msdownload'),
-    'class' => 'application/octet-stream',
-    'psd'   => 'application/x-photoshop',
-    'so'    => 'application/octet-stream',
-    'sea'   => 'application/octet-stream',
-    'dll'   => 'application/octet-stream',
-    'oda'   => 'application/oda',
-    'pdf'   => array('application/pdf', 'application/x-download'),
-    'ai'    => 'application/postscript',
-    'eps'   => 'application/postscript',
-    'ps'    => 'application/postscript',
-    'smi'   => 'application/smil',
-    'smil'  => 'application/smil',
-    'mif'   => 'application/vnd.mif',
-    'xls'   => array('application/excel', 'application/vnd.ms-excel', 'application/msexcel'),
-    'ppt'   => array('application/powerpoint', 'application/vnd.ms-powerpoint'),
-    'wbxml' => 'application/wbxml',
-    'wmlc'  => 'application/wmlc',
-    'dcr'   => 'application/x-director',
-    'dir'   => 'application/x-director',
-    'dxr'   => 'application/x-director',
-    'dvi'   => 'application/x-dvi',
-    'gtar'  => 'application/x-gtar',
-    'gz'    => 'application/x-gzip',
-    'php'   => array('application/x-httpd-php', 'text/x-php'),
-    'php4'  => 'application/x-httpd-php',
-    'php3'  => 'application/x-httpd-php',
-    'phtml' => 'application/x-httpd-php',
-    'phps'  => 'application/x-httpd-php-source',
-    'js'    => 'application/x-javascript',
-    'swf'   => 'application/x-shockwave-flash',
-    'sit'   => 'application/x-stuffit',
-    'tar'   => 'application/x-tar',
-    'tgz'   => array('application/x-tar', 'application/x-gzip-compressed'),
-    'xhtml' => 'application/xhtml+xml',
-    'xht'   => 'application/xhtml+xml',
-    'zip'   => array('application/x-zip', 'application/zip', 'application/x-zip-compressed'),
-    'mid'   => 'audio/midi',
-    'midi'  => 'audio/midi',
-    'mpga'  => 'audio/mpeg',
-    'mp2'   => 'audio/mpeg',
-    'mp3'   => array('audio/mpeg', 'audio/mpg', 'audio/mpeg3', 'audio/mp3'),
-    'aif'   => 'audio/x-aiff',
-    'aiff'  => 'audio/x-aiff',
-    'aifc'  => 'audio/x-aiff',
-    'ram'   => 'audio/x-pn-realaudio',
-    'rm'    => 'audio/x-pn-realaudio',
-    'rpm'   => 'audio/x-pn-realaudio-plugin',
-    'ra'    => 'audio/x-realaudio',
-    'rv'    => 'video/vnd.rn-realvideo',
-    'wav'   => 'audio/x-wav',
-    'bmp'   => 'image/bmp',
-    'gif'   => 'image/gif',
-    'jpeg'  => array('image/jpeg', 'image/pjpeg'),
-    'jpg'   => array('image/jpeg', 'image/pjpeg'),
-    'jpe'   => array('image/jpeg', 'image/pjpeg'),
-    'png'   => 'image/png',
-    'tiff'  => 'image/tiff',
-    'tif'   => 'image/tiff',
-    'css'   => 'text/css',
-    'html'  => 'text/html',
-    'htm'   => 'text/html',
-    'shtml' => 'text/html',
-    'txt'   => 'text/plain',
-    'text'  => 'text/plain',
-    'log'   => array('text/plain', 'text/x-log'),
-    'rtx'   => 'text/richtext',
-    'rtf'   => 'text/rtf',
-    'xml'   => 'text/xml',
-    'xsl'   => 'text/xml',
-    'mpeg'  => 'video/mpeg',
-    'mpg'   => 'video/mpeg',
-    'mpe'   => 'video/mpeg',
-    'qt'    => 'video/quicktime',
-    'mov'   => 'video/quicktime',
-    'avi'   => 'video/x-msvideo',
-    'mp4'   => 'video/mp4',
-    'wmv'   => 'video/x-ms-asf',
-    'movie' => 'video/x-sgi-movie',
-    'doc'   => 'application/msword',
-    'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'word'  => array('application/msword', 'application/octet-stream'),
-    'xl'    => 'application/excel',
-    'eml'   => 'message/rfc822',
-    'json'  => array('application/json', 'text/json'),
-*/
-
-    aAdd(aMimes,{'csv'  , 'text/comma-separated-values' })
-    aAdd(aMimes,{'pdf'  , 'application/pdf' })
-    aAdd(aMimes,{'xls'  , 'application/excel' })
-    aAdd(aMimes,{'ppt'  , 'application/powerpoint' })
-    aAdd(aMimes,{'xhtml', 'application/xhtml+xml' })
-    aAdd(aMimes,{'zip'  , 'application/zip', })
-    aAdd(aMimes,{'bmp'  , 'image/bmp' })
-    aAdd(aMimes,{'gif'  , 'image/gif' })
-    aAdd(aMimes,{'jpeg' , 'image/jpeg' })
-    aAdd(aMimes,{'jpg'  , 'image/jpeg' })
-    aAdd(aMimes,{'jpe'  , 'image/jpeg' })
-    aAdd(aMimes,{'png'  , 'image/png' })
-    aAdd(aMimes,{'tiff' , 'image/tiff' })
-    aAdd(aMimes,{'tif'  , 'image/tiff' })
-    aAdd(aMimes,{'html' , 'text/html' })
-    aAdd(aMimes,{'htm'  , 'text/html' })
-    aAdd(aMimes,{'shtml', 'text/html' })
-    aAdd(aMimes,{'txt'  , 'text/plain' })
-    aAdd(aMimes,{'text' , 'text/plain' })
-    aAdd(aMimes,{'log'  , 'text/plain' })
-    aAdd(aMimes,{'xml'  , 'text/xml' })
-    aAdd(aMimes,{'xsl'  , 'text/xml' })
-    aAdd(aMimes,{'mpeg' , 'video/mpeg' })
-    aAdd(aMimes,{'mpg'  , 'video/mpeg' })
-    aAdd(aMimes,{'mpe'  , 'video/mpeg' })
-    aAdd(aMimes,{'doc'  , 'application/msword' })
-    aAdd(aMimes,{'docx' , 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-    aAdd(aMimes,{'xlsx' , 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    aAdd(aMimes,{'word' , 'application/msword' })
-    aAdd(aMimes,{'xl'   , 'application/excel' })
-    aAdd(aMimes,{'eml'  , 'message/rfc822' })
-    aAdd(aMimes,{'json' , 'text/json' })
-
-nMime := Ascan(aMimes, { |x| x[1] == Lower(cMime)})
-If nMime > 0
-	cContent := aMimes[nMime,2]
-EndIf
-
-Return cContent
 
 // v3
 WSMETHOD PUT LIBDOC QUERYPARAM empresa,prenota,userlib,acao,liberacao WSREST RestLibPN
