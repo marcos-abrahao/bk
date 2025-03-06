@@ -39,6 +39,11 @@ User Function BKPswRest()
 Return "846250"
 
 
+// String a ser colocada em um arquivo HTML para identificar que é um arquivo UTF-8
+User Function BKUtf8()
+Return Chr(239) + Chr(187) + Chr(191)
+
+
 User Function BKLogo()
 Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="padding-left:5;border-width: 0;" width="200">'
 Return cLogo
@@ -127,7 +132,9 @@ ENDCONTENT
 
 Return cHtml
 
-// Empresa,Arquivo e Numero do Botão
+// Botão para abrir anexo via rest
+// Empresa,Arquivo e Numero do Botão para id
+// Exemplo: //cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],nI)
 User Function BtnAnexo(cEmp,cFile,nBt)
 Local cHtm 		as Character
 Local cBtn 		as Character
@@ -141,6 +148,7 @@ Return cHtm
 
 
 
+// Usar com browse externo
 User Function AnexoHtml()
 Local cHtml := ""
 BEGINCONTENT var cHtml
@@ -156,8 +164,8 @@ BEGINCONTENT var cHtml
         	btnanexo.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
 	
 			// Substitua os placeholders pelos valores reais
-			const username = 'web'; // Substitua pelo valor real
-			const password = '846250'; // Substitua pelo valor real
+			const username = '#usrrest#';
+			const password = '#pswrest#';
 	
 			// Codifica as credenciais em Base64
 			const credentials = btoa(`${username}:${password}`);
@@ -209,6 +217,10 @@ BEGINCONTENT var cHtml
 
 </script>
 ENDCONTENT
+
+cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
+cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
+
 Return cHtml
 
 
@@ -360,6 +372,8 @@ EndIf
 Return cContent
 
 
+// Usar com browse interno
+// Exemplo (BKCOMA04): cHtm += '     <a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'&titulo'+cTitulo+'" target="_blank" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
 
 User Function LoadAnexo()
 Local cHtml := ""
@@ -367,112 +381,246 @@ Local cFile := ""
 cFile := u_SRecHttp()+"LoadAnexo.html"
 If !File(cFile)
 	BEGINCONTENT var cHtml
-	<!DOCTYPE html>
-	<html lang="pt-BR">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Abrir anexo</title>
-		<script>
-			function abrirPDF() {
-				try {
-					// Obtém os parâmetros da URL
-					//alert("JavaScript está funcionando!");
-					const urlParams = new URLSearchParams(window.location.search);
-					const empresa = urlParams.get('empresa');
-					const documento = urlParams.get('documento');
-					const tpanexo = urlParams.get('tpanexo');
-					const bkip = urlParams.get('bkip');
-					const username = urlParams.get('username');
-					const password = urlParams.get('password');
-					const titulo = urlParams.get('titulo'); // Captura o parâmetro 'titulo'
+		<!DOCTYPE html>
+		<html lang="pt-BR">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Abrir anexos</title>
+			<style>
+				/* Estilos para o layout */
+				body, html {
+					margin: 0;
+					padding: 0;
+					height: 100%;
+					overflow: hidden; /* Evita barras de rolagem desnecessárias */
+				}
 
-					// Atualiza o conteúdo da tag <h1> com o valor do parâmetro 'titulo'
-					//if (titulo) {
-						document.getElementById("titulo").innerText = titulo;
-					//}
-					// Monta a URL do endpoint REST externo
-					const url = `${bkip}?empresa=${empresa}&documento=${documento}&tpanexo=${tpanexo}`;
+				h3 {
+					margin: 0;
+					padding: 10px;
+					background-color: #f0f0f0; /* Cor de fundo para o título */
+				}
 
-					// Codifica as credenciais em Base64
-					const credentials = btoa(`${username}:${password}`);
+				.main {
+					display: flex;
+					flex-direction: column;
+					height: calc(100% - 40px); /* Altura total menos o espaço do h3 */
+				}
 
-					// Faz a requisição ao endpoint REST externo
-					fetch(url, {
-						method: "GET",
-						headers: {
-							"Authorization": `Basic ${credentials}`,
-						},
-					})
-					.then(response => {
-						console.log("Resposta completa:", response);
-						console.log("Status:", response.status);
-						console.log("Cabeçalhos:", response.headers);
-						if (response.ok) {
-							return response.blob();
-						} else {
-							throw new Error(`Erro ao acessar o PDF: ${response.statusText}`);
-						}
-					})
-					.then(blob => {
-						console.log("Blob recebido:", blob);
-						console.log("Tipo MIME do Blob:", blob.type);
-						console.log("Tamanho do Blob:", blob.size);
+				#pdf-container {
+					flex: 1; /* Ocupa todo o espaço restante */
+					overflow: hidden; /* Evita barras de rolagem no container */
+				}
 
-						if (blob.size === 0) {
-							throw new Error("O Blob está vazio.");
-						}
+				iframe {
+					width: 100%;
+					height: 100%;
+					border: none; /* Remove a borda do iframe */
+				}
+			</style>
+			<script>
+				function abrirPDF() {
+					try {
+						// Obtém os parâmetros da URL
+						const urlParams = new URLSearchParams(window.location.search);
+						const empresa = urlParams.get('empresa');
+						const documento = urlParams.get('documento');
+						const tpanexo = urlParams.get('tpanexo');
+						const bkip = urlParams.get('bkip');
+						const username = urlParams.get('username');
+						const password = urlParams.get('password');
 
-						// Cria uma URL temporária para o Blob
-						const blobUrl = URL.createObjectURL(blob);
+						// Monta a URL do endpoint REST externo
+						const url = `${bkip}?empresa=${empresa}&documento=${documento}&tpanexo=${tpanexo}`;
 
-						// Exibe o PDF na mesma página usando um <iframe>
-						const iframe = document.createElement("iframe");
-						iframe.src = blobUrl;
-						iframe.width = "100%";
-						iframe.height = "600px"; // Ajuste a altura conforme necessário
-						iframe.style.border = "none";
+						// Codifica as credenciais em Base64
+						const credentials = btoa(`${username}:${password}`);
 
-						// Remove qualquer conteúdo anterior e adiciona o iframe à página
-						const container = document.getElementById("pdf-container");
-						container.innerHTML = ""; // Limpa o conteúdo anterior
-						container.appendChild(iframe);
+						// Faz a requisição ao endpoint REST externo
+						fetch(url, {
+							method: "GET",
+							headers: {
+								"Authorization": `Basic ${credentials}`,
+							},
+						})
+						.then(response => {
+							console.log("Resposta completa:", response);
+							console.log("Status:", response.status);
+							console.log("Cabeçalhos:", response.headers);
+							if (response.ok) {
+								return response.blob();
+							} else {
+								throw new Error(`Erro ao acessar o PDF: ${response.statusText}`);
+							}
+						})
+						.then(blob => {
+							console.log("Blob recebido:", blob);
+							console.log("Tipo MIME do Blob:", blob.type);
+							console.log("Tamanho do Blob:", blob.size);
 
-						// Libera a URL temporária após o uso (opcional)
-						// URL.revokeObjectURL(blobUrl); // Comente esta linha se o PDF precisar permanecer acessível
-					})
-					.catch(error => {
+							if (blob.size === 0) {
+								throw new Error("O Blob está vazio.");
+							}
+
+							// Cria uma URL temporária para o Blob
+							const blobUrl = URL.createObjectURL(blob);
+
+							// Exibe o PDF na mesma página usando um <iframe>
+							const iframe = document.createElement("iframe");
+							iframe.src = blobUrl;
+
+							// Remove qualquer conteúdo anterior e adiciona o iframe à página
+							const container = document.getElementById("pdf-container");
+							container.innerHTML = ""; // Limpa o conteúdo anterior
+							container.appendChild(iframe);
+						})
+						.catch(error => {
+							try {
+								console.error("Erro no fetch:", error);
+								console.log("Mensagem de erro:", error.message);
+								console.log("Stack trace:", error.stack);
+							} catch (err) {
+								console.log("Erro ao tentar logar o erro:", err);
+							}
+							alert("Não foi possível abrir o PDF. Verifique o console para mais detalhes.");
+						});
+					} catch (error) {
 						try {
-							console.error("Erro no fetch:", error);
+							console.error("Erro no bloco try:", error);
 							console.log("Mensagem de erro:", error.message);
 							console.log("Stack trace:", error.stack);
 						} catch (err) {
 							console.log("Erro ao tentar logar o erro:", err);
 						}
-						alert("Não foi possível abrir o PDF. Verifique o console para mais detalhes.");
-					});
-				} catch (error) {
-					try {
-						console.error("Erro no bloco try:", error);
-						console.log("Mensagem de erro:", error.message);
-						console.log("Stack trace:", error.stack);
-					} catch (err) {
-						console.log("Erro ao tentar logar o erro:", err);
+						alert("Ocorreu um erro inesperado. Verifique o console para mais detalhes.");
 					}
-					alert("Ocorreu um erro inesperado. Verifique o console para mais detalhes.");
 				}
-			}
 
-			// Executa a função ao carregar a página
-			window.onload = abrirPDF;
-		</script>
-	</head>
-	<body>
-		<h1 id="titulo">Abrindo PDF...</h1>
-		<div id="pdf-container"></div> <!-- Container para exibir o PDF -->
-	</body>
-	</html>
+				// Executa a função ao carregar a página
+				window.onload = abrirPDF;
+			</script>
+		</head>
+		<body>
+			<h3 id="titulo">Segue abaixo o conteúdo do Anexo: (caso não seja exibido, verifique os downloads e/ou habilite popup para este endereço)</h3>
+			<div class="main">
+				<div id="pdf-container"></div> <!-- Container para exibir o PDF -->
+			</div>
+		</body>
+		</html>
 	ENDCONTENT
+
+	cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+	cHtml := u_BKUtf8()+cHtml
 	MemoWrite(cFile,cHtml)
 EndIf
 Return cHtml
+
+
+User Function LoadPAg()
+Local cHtml := ""
+Local cFile := ""
+cFile := u_SRecHttp()+"LoadPAg.html"
+If !File(cFile)
+	BEGINCONTENT var cHtml
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Abrir Conteúdo em Outra Aba e Fechar Atual</title>
+            <script>
+                function abrirConteudoEmNovaAbaEFecharAtual() {
+                    try {
+                        // Obtém os parâmetros da URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const empresa = urlParams.get('empresa');
+                        const vencini = urlParams.get('vencini');
+                        const vencfim = urlParams.get('vencfim');
+                        const userlib = urlParams.get('userlib');
+                        const bkip = urlParams.get('bkip');
+                        const username = urlParams.get('username');
+                        const password = urlParams.get('password');
+
+                        // Monta a URL do endpoint REST externo
+                        const url = `${bkip}?empresa=${empresa}&vencini=${vencini}&vencfim=${vencfim}&userlib=${userlib}`;
+
+                        // Codifica as credenciais em Base64
+                        const credentials = btoa(`${username}:${password}`);
+
+                        // Faz a requisição ao endpoint REST externo
+                        fetch(url, {
+                            method: "GET",
+                            headers: {
+                                "Authorization": `Basic ${credentials}`,
+                            },
+                        })
+                        .then(response => {
+                            console.log("Resposta completa:", response);
+                            console.log("Status:", response.status);
+                            console.log("Cabeçalhos:", response.headers);
+                            if (response.ok) {
+                                return response.text(); // Recebe o conteúdo como texto (HTML)
+                            } else {
+                                throw new Error(`Erro ao acessar o conteúdo: ${response.statusText}`);
+                            }
+                        })
+                        .then(html => {
+                            console.log("Conteúdo HTML recebido:", html);
+
+                            // Abre uma nova aba/janela
+                            const novaAba = window.open("", "_self");
+
+                            // Escreve o conteúdo HTML na nova aba
+                            novaAba.document.open();
+                            novaAba.document.write(html);
+                            novaAba.document.close();
+
+                            // Tenta fechar a aba atual
+                            /*
+                            try {
+                                window.close(); // Fecha a aba atual
+                            } catch (error) {
+                                console.error("Não foi possível fechar a aba atual:", error);
+                                alert("A aba atual não pode ser fechada automaticamente. Feche-a manualmente.");
+                            }
+                            */
+                        })
+                        .catch(error => {
+                            try {
+                                console.error("Erro no fetch:", error);
+                                console.log("Mensagem de erro:", error.message);
+                                console.log("Stack trace:", error.stack);
+                            } catch (err) {
+                                console.log("Erro ao tentar logar o erro:", err);
+                            }
+                            alert("Não foi possível carregar o conteúdo. Verifique o console para mais detalhes.");
+                        });
+                    } catch (error) {
+                        try {
+                            console.error("Erro no bloco try:", error);
+                            console.log("Mensagem de erro:", error.message);
+                            console.log("Stack trace:", error.stack);
+                        } catch (err) {
+                            console.log("Erro ao tentar logar o erro:", err);
+                        }
+                        alert("Ocorreu um erro inesperado. Verifique o console para mais detalhes.");
+                    }
+                }
+
+                // Executa a função ao carregar a página
+                window.onload = abrirConteudoEmNovaAbaEFecharAtual;
+            </script>
+        </head>
+        <body>
+            <h3 id="titulo">Abrindo conteúdo em outra aba e fechando esta...</h3>
+        </body>
+        </html>
+	ENDCONTENT
+
+	cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+	cHtml := u_BKUtf8()+cHtml
+	MemoWrite(cFile,cHtml)
+EndIf
+Return cHtml
+

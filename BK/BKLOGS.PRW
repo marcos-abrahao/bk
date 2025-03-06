@@ -141,7 +141,7 @@ If Type("cEmpAnt") == "U"
 	cMens := DtoC(Date())+"|"+Time()+"||||||"+cMens+"|"
 Else
 	//cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+IIF(!FWIsInCallStack("HISTLOG"),FWGetMnuFile(),"HISTLOG")+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
-	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"||"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
+	cMens := DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+cArqLog+"|"+FunName()+"|"+GetEnvServer()+"-"+cPorta+"|"+cMens+"|" 
 EndIf
 
 If !Empty(cTxt)
@@ -240,7 +240,8 @@ IF __cUserId $ "000000/000038" .OR. IsBlind() //Usuários admin e teste
 		cDir:= u_SLogDir()
 	ENDIF
 	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
-	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+CRLF
+	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+CRLF
+	cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+cProg+"|"+FunName()+"|"+GetEnvServer()+"|"+CRLF
 
 	cMens += cTexto
 	If !("\" $ cProg)

@@ -1461,13 +1461,19 @@ const headers = new Headers();
 headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 	try {
 	let res = await fetch(url, { method: 'GET', headers: headers });
-		document.getElementById('conteudo-principal').innerHTML =  await res.text();
+		//document.getElementById('conteudo-principal').innerHTML =  await res.text();
+		const html = await res.text();
+        const novaAba = window.open("", "_self");
+
+        // Escreve o conteúdo HTML na nova aba
+        novaAba.document.open();
+        novaAba.document.write(html);
+        novaAba.document.close();
 		loadTable();
 		} catch (error) {
 	console.log(error);
 	}
 }
-
 </script>
 
 </div>
@@ -1526,7 +1532,7 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 // Caracteres iniciais de um arquivo UTF-8
-cHtml := Chr(239) + Chr(187) + Chr(191) + cHtml
+cHtml := u_BKUtf8() + cHtml
 //cHtml := DecodeUtf8(cHtml)
 
 //u_MsgLog(,"BROWCR/2")

@@ -12,7 +12,8 @@
     (examples)
     @see (links_or_references)
     /*/
-User Function BKTITCR(lShell)
+
+User Function zBKTITCR(lShell)
 
 Local cToken  := u_BKEnCode()
 //Local oRestClient := FWRest():New(u_BkRest())
@@ -64,15 +65,17 @@ Default lShell := .T.
 AutHtml(cUrl)
 
 Return cUrl
+*/
 
-
-User Function yBKTITCR(lShell)
+User Function BKTITCR(lShell)
 
 Local cToken  := u_BKEnCode()
 Local dUtil   := dDatabase - Day(dDatabase) + 1
-Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
+//Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
+Local cUrl     := u_BKIpServer()+'/recursos/loadpag.html?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken+'&bkip='+u_BKRest()+'/RestTitCR/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
 
 Default lShell := .T.
+
 
 If lShell
     ShellExecute("open",cUrl, "", "", 1)
@@ -81,76 +84,3 @@ EndIf
 
 Return cUrl
 
-
-
-Static Function AutHtml(cUrl)
-
-Local cHTML		As char
-Local cDirTmp   := u_STmpHttp()
-Local cArqHtml  := ""
-Local cUrlTmp   := ""
-
-
-BEGINCONTENT var cHTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inserir HTML Dinâmico</title>
-</head>
-<body>
-    <div id="content"></div>
-
-    <script>
-
-        async function LoadPg() {
-
-        const username = '#usrrest#';
-        const password = '#pswrest#';
-
-
-        let url = '#cUrl#'
-
-
-        const headers = new Headers();
-        headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
-            try {
-            let res = await fetch(url, { method: 'GET', headers: headers });
-                document.getElementById('conteudo-principal').innerHTML =  await res.text();
-                loadTable();
-                } catch (error) {
-            console.log(error);
-            }
-        }
-
-        LoadPg()
-
-    </script>
-
-    </div>
-</body>
-</html>
-ENDCONTENT
-
-cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
-cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
-cHtml := STRTRAN(cHtml,"#cUrl#"	     ,cUrl)
-
-cArqHtml  	:= cDirTmp+"cr"+cEmpAnt+"-"+DTOS(dDataBase)+"-"+__cUserID+".html"
-cUrlTmp		:= u_BkIpServer()+"\tmp\"+"cr"+cEmpAnt+"-"+DTOS(dDataBase)+"-"+__cUserID+".html"
-
-IF !EMPTY(cDirTmp)
-   MakeDir(cDirTmp)
-ENDIF   
-
-fErase(cArqHtml)
-
-Memowrite(cArqHtml,cHtml)
-
-u_MsgLog("BKTITCR",u_BkRest())
-
-ShellExecute("open", cUrlTmp, "", "", 1)
-
-Return cHtml
-*/

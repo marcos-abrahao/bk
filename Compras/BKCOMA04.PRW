@@ -278,7 +278,7 @@ u_LoadAnexo()
 
 // Montagem do HTML
 cHtml := HtmlPC(aCabs,aItens,cTitulo)
-MemoWrite("c:\tmp\libweb.html",cHtml)
+//MemoWrite("c:\tmp\libweb.html",cHtml)
 //cUrl := "c:\tmp\libweb.html"
 
 oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,cTitulo,,,,,,,,, .T.,,,, .F. )
@@ -455,7 +455,7 @@ EndIf
 cHtm += '</table>'+CRLF
 cHtm += '<br>'+CRLF
 
-cHtm += u_AnexoHtml()
+//cHtm += u_AnexoHtml()
 
 cHtm += '</body>'+CRLF
 cHtm += '</html>'+CRLF
