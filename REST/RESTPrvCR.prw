@@ -4,8 +4,8 @@
 #INCLUDE "TBICONN.CH"
 #INCLUDE "FILEIO.CH"
 
-/*/{Protheus.doc} RestTitCR
-    REST Titulos do Contas a Receber
+/*/{Protheus.doc} RestPrvCR
+    REST Previsão do Contas a Receber
 	https://datatables.net/examples/api/row_details.html
     @type  REST
     @author Marcos B. Abrahão
@@ -13,7 +13,7 @@
     @version 12.2310
 /*/
 
-WSRESTFUL RestTitCR DESCRIPTION "Rest Titulos do Contas a Receber"
+WSRESTFUL RestPrvCR DESCRIPTION "Rest Previsão do Contas a Receber"
 
 	WSDATA mensagem     AS STRING
 	WSDATA empresa      AS STRING
@@ -27,35 +27,35 @@ WSRESTFUL RestTitCR DESCRIPTION "Rest Titulos do Contas a Receber"
 
 	WSMETHOD GET LISTCR;
 		DESCRIPTION "Listar Títulos a Receber";
-		WSSYNTAX "/RestTitCR/v0";
-		PATH  "/RestTitCR/v0";
+		WSSYNTAX "/RestPrvCR/v0";
+		PATH  "/RestPrvCR/v0";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 	WSMETHOD GET CONSE1;
 		DESCRIPTION "Retorna dados do Título";
-		WSSYNTAX "/RestTitCR/v6";
-		PATH "/RestTitCR/v6";
+		WSSYNTAX "/RestPrvCR/v6";
+		PATH "/RestPrvCR/v6";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
 	WSMETHOD GET BROWCR;
 		DESCRIPTION "Browse Contas a Receber como página HTML";
-		WSSYNTAX "/RestTitCR/v2";
-		PATH "/RestTitCR/v2";
+		WSSYNTAX "/RestPrvCR/v2";
+		PATH "/RestPrvCR/v2";
 		TTALK "v1";
 		PRODUCES TEXT_HTML
 
 	WSMETHOD GET PLANCR;
 		DESCRIPTION "Retorna planilha excel da tela por meio do método FwFileReader().";
-		WSSYNTAX "/RestTitCR/v5";
-		PATH "/RestTitCR/v5";
+		WSSYNTAX "/RestPrvCR/v5";
+		PATH "/RestPrvCR/v5";
 		TTALK "v1"
 
 	WSMETHOD PUT STATUS;
 		DESCRIPTION "Alterar o status do titulo a Receber" ;
-		WSSYNTAX "/RestTitCR/v3";
-		PATH "/RestTitCR/v3";
+		WSSYNTAX "/RestPrvCR/v3";
+		PATH "/RestPrvCR/v3";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -63,7 +63,7 @@ END WSRESTFUL
 
 
 //v3
-WSMETHOD PUT STATUS QUERYPARAM empresa,e1recno,userlib,acao WSREST RestTitCR 
+WSMETHOD PUT STATUS QUERYPARAM empresa,e1recno,userlib,acao WSREST RestPrvCR 
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -171,7 +171,7 @@ Do Case
 
 		IF EmpOpenFile(cNewAls,"SZY",1,.T.,empresa,@cModo)
 
-			bBlock := ErrorBlock( { |e| u_LogMemo("RESTTITCR.LOG",e:Description) } )
+			bBlock := ErrorBlock( { |e| u_LogMemo("RESTPrvCR.LOG",e:Description) } )
 			BEGIN SEQUENCE
 				RecLock(cNewAls,.T.)
 				(cNewAls)->ZY_FILIAL	:= xFilial("SZY")
@@ -199,7 +199,7 @@ EndCase
 
 cMsg := cNum+" "+cMsg
 
-u_MsgLog("RESTTitCR",cMsg)
+u_MsgLog("RESTPrvCR",cMsg)
 
 (cQrySE1)->(dbCloseArea())
 
@@ -207,10 +207,10 @@ Return lRet
 
 
 // v5
-WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
-	Local cProg 	:= "RestTitCR"
-	Local cTitulo	:= "Contas a Receber WEB"
-	Local cDescr 	:= "Exportação Excel do Contas a Receber Web"
+WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestPrvCR
+	Local cProg 	:= "RestPrvCR"
+	Local cTitulo	:= "Previsão - Contas a Receber WEB"
+	Local cDescr 	:= "Exportação Excel - Previsão do Contas a Receber Web"
 	Local cVersao	:= "15/05/2024"
 	Local oRExcel	AS Object
 	Local oPExcel	AS Object
@@ -332,7 +332,7 @@ Retorna a lista de titulos.
 /*/
 
 // v0
-WSMETHOD GET LISTCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCR
+WSMETHOD GET LISTCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestPrvCR
 Local aListCR 		:= {}
 Local cQrySE1       := GetNextAlias()
 Local cJsonCli      := ''
@@ -343,7 +343,7 @@ Local cMsg         	As Character
 Local cNumTit 		:= ""
 Local nSaldo 		:= 0
 
-//u_MsgLog("RESTTITCR",VarInfo("vencini",self:vencini))
+//u_MsgLog("RESTPrvCR",VarInfo("vencini",self:vencini))
 
 If !u_BkAvPar(::userlib,@aParams,@cMsg)
   oJsonTmp['liberacao'] := cMsg
@@ -397,7 +397,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['VENCORI']	:= (cQrySE1)->(SUBSTR(E1_VENCORI,1,4)+"-"+SUBSTR(E1_VENCORI,5,2)+"-"+SUBSTR(E1_VENCORI,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 
-	//u_MsgLog("RESTTITCR-V0",DTOC(STOD((cQrySE1)->E1_VENCORI)))
+	//u_MsgLog("RESTPrvCR-V0",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
 	(cQrySE1)->(DBSkip())
 
@@ -426,7 +426,7 @@ Return( lRet )
 
 
 // /v6
-WSMETHOD GET CONSE1 QUERYPARAM empresa,e1recno,userlib WSREST RestTitCR
+WSMETHOD GET CONSE1 QUERYPARAM empresa,e1recno,userlib WSREST RestPrvCR
 
 Local oJsonPN	:= JsonObject():New()
 Local cRet		:= ""
@@ -496,7 +496,7 @@ cQuery += "	 	AND SA1.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "WHERE SE1.R_E_C_N_O_ = "+self:e1recno + CRLF
 
-u_LogMemo("RESTTITCR-E2.SQL",cQuery)
+u_LogMemo("RESTPrvCR-E2.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 
@@ -519,7 +519,7 @@ oJsonPN['E1_PEDIDO']	:= (cQrySE1)->E1_PEDIDO
 oJsonPN['E1_XXHISTM']	:= (cQrySE1)->E1_XXHISTM
 oJsonPN['E1_VENCORI']	:= DTOC(STOD((cQrySE1)->E1_VENCORI))
 
-u_MsgLog("RESTTITCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
+u_MsgLog("RESTPrvCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
 (cQrySE1)->(dbCloseArea())
 
@@ -546,7 +546,7 @@ cQuery += " ORDER BY ZY_DATA DESC,ZY_HORA DESC" + CRLF
 
 //u_MsgLog(,"Aqui3")
 
-u_LogMemo("RESTTITCR-E1.SQL",cQuery)
+u_LogMemo("RESTPrvCR-E1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySZY,.T.,.T.)
 
@@ -584,7 +584,7 @@ return .T.
 
 
 // /v2
-WSMETHOD GET BROWCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCR
+WSMETHOD GET BROWCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestPrvCR
 Local aParams	As Array
 Local cMsg		As Char
 Local cHTML		As char
@@ -609,7 +609,7 @@ BEGINCONTENT var cHTML
 <!-- Styling CSS -->
 #BKDTStyle#
  
-<title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
+<title>Previsão do Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
 
 <!-- Favicon -->
 #BKFavIco#
@@ -897,8 +897,8 @@ let newvencf = document.getElementById("DataVencF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
 let newempr  = document.getElementById("btn-empresa").textContent;
 
-let url = '#iprest#/RestTitCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
-//	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
+let url = '#iprest#/RestPrvCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+//	let url = '#iprest#/RestPrvCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
 	const headers = new Headers();
 	headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 
@@ -1186,7 +1186,7 @@ async function getE1(empresa,e1recno,userlib) {
 const headers = new Headers();
 headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 
-let urlE1 = '#iprest#/RestTitCR/v6?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib;
+let urlE1 = '#iprest#/RestPrvCR/v6?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib;
 	try {
 	let res = await fetch(urlE1,{method: 'GET',	headers: headers});
 		return await res.json();
@@ -1282,7 +1282,7 @@ try {
     const credentials = btoa(`${username}:${password}`);
 
     // Monta a URL da API
-    const url = `${iprest}/RestTitCR/v3?empresa=${empresa}&e1recno=${e1recno}&userlib=${userlib}&acao=${acao}`;
+    const url = `${iprest}/RestPrvCR/v3?empresa=${empresa}&e1recno=${e1recno}&userlib=${userlib}&acao=${acao}`;
 
 	const response = await fetch(url, {
 		method: 'PUT',
@@ -1331,7 +1331,7 @@ try {
 
 
 /*
-fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib+'&acao='+acao, {
+fetch('#iprest#/RestPrvCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
 	'Content-Type': 'application/json'
@@ -1397,7 +1397,7 @@ async function Excel() {
         const credentials = btoa(`${username}:${password}`);
 
         // Monta a URL da API
-        const url = `${iprest}/RestTitCR/v5?empresa=${newempr}&vencini=${newvamdi}&vencfim=${newvamdf}&userlib=${userlib}`;
+        const url = `${iprest}/RestPrvCR/v5?empresa=${newempr}&vencini=${newvamdi}&vencfim=${newvamdf}&userlib=${userlib}`;
 
         // Faz a requisição com autenticação básica
         const response = await fetch(url, {
@@ -1454,7 +1454,7 @@ let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substr
 let newvencf = document.getElementById("DataVencF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
 
-let url = '#iprest#/RestTitCR/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+let url = '#iprest#/RestPrvCR/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 
 
 const headers = new Headers();
@@ -1517,11 +1517,11 @@ EndIf
 
 cDropEmp := ""
 For nE := 1 To Len(aEmpresas)
-	//cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	//cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestPrvCR/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 	cDropEmp += '<li><a class="dropdown-item" href="javascript:AltEmpr('+"'"+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+"'"+')">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
 cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-//cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+//cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestPrvCR/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
 cDropEmp +='<li><a class="dropdown-item" href="javascript:AltEmpr('+'Todas'+')">Todas</a></li>'+CRLF
 
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
@@ -1541,7 +1541,7 @@ cHtml := u_BKUtf8() + cHtml
 //	Memowrite(u_STmpDir()+"cr.html",cHtml)
 //EndIf
 
-//u_MsgLog("RESTTITCR",__cUserId)
+//u_MsgLog("RESTPrvCR",__cUserId)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 Self:SetHeader("Accept", "UTF-8")
@@ -1673,9 +1673,9 @@ cQuery += "  FROM RESUMO " + CRLF
 cQuery += " ORDER BY EMPRESA,E1_VENCREA,A1_NOME " + CRLF
 
 
-u_LogMemo("RESTTITCR1.SQL",cQuery)
+u_LogMemo("RESTPrvCR1.SQL",cQuery)
 
-bBlock := ErrorBlock( { |e| u_LogMemo("RESTTITCR1.SQL",e:Description) } )
+bBlock := ErrorBlock( { |e| u_LogMemo("RESTPrvCR1.SQL",e:Description) } )
 BEGIN SEQUENCE
 	//dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 	dbUseArea(.T.,"TOPCONN",TCGenQry2(,,cQuery,aBinds),cQrySE1,.T.,.T.)

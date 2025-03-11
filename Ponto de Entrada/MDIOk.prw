@@ -40,6 +40,7 @@ Local lLPV 		:= .F.
 Local lLPN		:= .F.
 Local cToken	:= u_BKEnCode()
 Local cUrl 		:= u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
+Local cHtml		:= ""
 Local cLib		:= ""
 Local lWebAgent := .F.
 Local nRemote	:= 0
@@ -49,7 +50,17 @@ Local oLayer
 Local oPanelUp
 Local oPanelDown
 
+Local cGetParms  := ""
+Local cHeaderGet := ""
+Local nTimeOut   := 200
+Local aHeader 	 := {} 
+
 Private oWebChannel := TWebChannel():New()
+
+Aadd(aHeader, "Content-Type: text/html; charset=utf8")
+Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
+
+cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 
 // Para teste
 //If __cUserId $ "000000/000038"
@@ -128,6 +139,8 @@ EndIf
 nPosBt := 12
 @ 05,nPosBt BUTTON "Titulos a Pagar" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKTitCP(.T.)) WHEN lCP
 nPosbt += nTamBt + nEsps
+@ 05,nPosBt BUTTON "Previsão a Receber" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKPrvCR(.T.)) WHEN lCR
+nPosbt += nTamBt + nEsps
 @ 05,nPosBt BUTTON "Titulos a Receber" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKTitCR(.T.)) WHEN lCR
 nPosbt += nTamBt + nEsps
 @ 05,nPosBt BUTTON "Lib. de Pedidos de Venda" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKLibPV(.T.)) WHEN lLPV
@@ -146,7 +159,8 @@ nPort := oWebChannel::connect()
 //Cria o componente que irá carregar a url
 oWebEngine := TWebEngine():New(oPanelDown, 100, 100, 100, 100,/*cUrl*/, nPort)
 //oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
-oWebEngine:navigate(cUrl)
+//oWebEngine:navigate(cUrl)
+oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
 oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT
 oDlg:Activate()
 

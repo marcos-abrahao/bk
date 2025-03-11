@@ -330,6 +330,10 @@ thead input {
 	    <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">Atualizar</button>
     </form>
 
+    <form class="d-flex">
+	    <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">Atualizar</button>
+    </form>
+
   </div>
 </nav>
 
@@ -396,17 +400,42 @@ thead input {
 <script>
 
 async function getAv1() {
-	let url = '#iprest#/RestMsgUs/v0?userlib=#userlib#'
-		try {
-		let res = await fetch(url);
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
+    const url = '#iprest#/RestMsgUs/v0?userlib=#userlib#';
+    const headers = new Headers();
+    headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
+    try {
+        let res = await fetch(url, { method: 'GET', headers: headers });
+
+        // Verifique o status da resposta
+        if (!res.ok) {
+            throw new Error(`Erro na requisição: ${res.status} ${res.statusText}`);
+        }
+
+        // Leia a resposta como texto
+        const text = await res.text();
+
+        // Tente analisar o texto como JSON
+        try {
+            return JSON.parse(text);
+        } catch (parseError) {
+            console.error('Resposta não é um JSON válido:', text);
+            throw new Error('Resposta da API não é um JSON válido');
+        }
+    } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+        throw error; // Propague o erro para ser tratado no chamador
+    }
+}
 
 async function loadTable() {
 let av1 = await getAv1();
+// Verifique se av1 é um array
+if (!Array.isArray(av1)) {
+    console.error('Resposta da API não é um array:', av1);
+    return; // Saia da função se não for um array
+}
+
 let trHTML = '';
 let nlin = 0;
 let cbtnid = '';
@@ -486,7 +515,6 @@ if (Array.isArray(av1)) {
 	trHTML += '<td>'+object['TIPO']+'</td>';
 	trHTML += '<td>';
 	if (cStatus == 'F'){
-		//trHTML += '<a href="#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+object['ORIGEM']+'" class="link-primary">'+object['ORIGEM']+'</a>';
 		trHTML += '<button type="button" class="btn btn-outline-success btn-sm" onclick="rotexec(\''+object['ORIGEM']+'\',1)">Atualizar: '+object['ASSUNTO']+' ('+object['ORIGEM']+')</button>';
 	} else {
 		trHTML += object['MSG'];
@@ -693,8 +721,21 @@ body: JSON.stringify(dataObject)})
 })
 }
 
-function rotexec(corigem,canLib) {
-let url = '#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+corigem;
+async function rotexec(corigem,canLib) {
+const username = '#usrrest#'; // Substitua pelo valor real
+const password = '#pswrest#'; // Substitua pelo valor real
+// Codifica as credenciais em Base64
+const credentials = btoa(`${username}:${password}`);
+const url = '#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+corigem;
+
+// Faz a requisição com autenticação básica
+const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
+            },
+        });
 
 $("#titConf").load(url);
 $('#confModal').modal('show');
@@ -723,6 +764,9 @@ cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
+// Caracteres iniciais de um arquivo UTF-8
+cHtml := u_BKUtf8() + cHtml
+
 // Desabilitar para testar o html
 /*
 If __cUserId == '000000'
@@ -732,6 +776,8 @@ EndIf
 u_MsgLog("RESTMsgUs",__cUserId+' - '+::userlib)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetHeader("Accept", "UTF-8")
+
 self:setResponse(cHTML)
 self:setStatus(200)
 

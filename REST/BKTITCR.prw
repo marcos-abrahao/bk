@@ -1,6 +1,6 @@
 #Include "Protheus.ch"
  
-/*/{Protheus.doc} BKLIBCR
+/*/{Protheus.doc} BKTITCR
     Abre Titulos a Receber Web
     @type  Function
     @author user Marcos Abrahão
@@ -12,6 +12,27 @@
     (examples)
     @see (links_or_references)
     /*/
+
+User Function BKTITCR(lShell)
+
+Local cToken  := u_BKEnCode()
+Local dUtil   := dDatabase - Day(dDatabase) + 1
+//Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
+Local cUrl     := u_BKIpServer()+'/recursos/loadcr.html?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-60)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken+'&bkip='+u_BKRest()+'/RestTitCR/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
+
+u_LoadCR()
+
+Default lShell := .T.
+
+
+If lShell
+    ShellExecute("open",cUrl, "", "", 1)
+    Return .T.
+EndIf
+
+Return cUrl
+
+
 
 User Function zBKTITCR(lShell)
 
@@ -53,34 +74,6 @@ ShellExecute("open", cUrl, "", "", 1)
 Return .T.
 
 
-/*
-User Function xBKTITCR(lShell)
-
-Local cToken  := u_BKEnCode()
-Local dUtil   := dDatabase - Day(dDatabase) + 1
-Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
-
-Default lShell := .T.
-
-AutHtml(cUrl)
-
-Return cUrl
-*/
-
-User Function BKTITCR(lShell)
-
-Local cToken  := u_BKEnCode()
-Local dUtil   := dDatabase - Day(dDatabase) + 1
-//Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
-Local cUrl     := u_BKIpServer()+'/recursos/loadpag.html?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken+'&bkip='+u_BKRest()+'/RestTitCR/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
-
-Default lShell := .T.
 
 
-If lShell
-    ShellExecute("open",cUrl, "", "", 1)
-    Return .T.
-EndIf
-
-Return cUrl
 

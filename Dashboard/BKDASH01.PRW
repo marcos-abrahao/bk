@@ -86,7 +86,7 @@ If FWCodEmp() == "01"
 			cP1H := "X"
 		EndIf
 		If cP1H == "X"
-			If SUBSTRING(TIME(),1,2) $ '06/13'
+			If SUBSTRING(TIME(),1,2) $ '06/10/13'
 				cP0613 := "X"
 			EndIf
 
@@ -116,8 +116,8 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP0613	,"U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
 	aAdd(aDados,{cP0613	,"U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
 	aAdd(aDados,{cP0613	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
-	aAdd(aDados,{cP0613	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
-	aAdd(aDados,{cP0613	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
+	aAdd(aDados,{cP0712	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
+	aAdd(aDados,{cP0712	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
 	aAdd(aDados,{cP0712	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
 	aAdd(aDados,{cP0712	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
 	aAdd(aDados,{cP0712	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
