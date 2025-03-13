@@ -53,7 +53,7 @@ For nI := 1 To Len(aGrpBK)
 	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 from SB1"+aGrpBK[nI,1]+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
 	cQuery += " 	AND SUBSTRING(B1_COD,11,1) = ' ' "   // para não estourar a quantidade de casas do INT
 	cQuery += " 	AND PATINDEX('%-%',B1_COD) = 0 "   // Não considerar codigos com -
-	cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,6) AS INT) DESC "
+	cQuery += " ORDER BY CAST(REPLACE(REPLACE(RTRIM(LTRIM(SUBSTRING(B1_COD, 4, 6))), CHAR(160), ''), CHAR(32), '') AS INT) DESC "
 	TCQUERY cQuery NEW ALIAS "QSB1"
 
 	dbSelectArea("QSB1")	
@@ -101,5 +101,3 @@ Next
 RestArea(aArea)
 
 Return(NIL)
-
-

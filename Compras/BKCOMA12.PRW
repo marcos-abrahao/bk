@@ -225,7 +225,8 @@ LOCAL nCod   := 0
 
 cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 from "+RETSQLNAME("SB1")+" WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
 cQuery += " 	AND SUBSTRING(B1_COD,11,1) = ' ' "   // para não estourar a quantidade de casas do INT
-cQuery += " ORDER BY CAST(SUBSTRING(B1_COD,4,6) AS INT) DESC "
+cQuery += " 	AND PATINDEX('%-%',B1_COD) = 0 "   // Não considerar codigos com -
+cQuery += " ORDER BY CAST(REPLACE(REPLACE(RTRIM(LTRIM(SUBSTRING(B1_COD, 4, 6))), CHAR(160), ''), CHAR(32), '') AS INT) DESC "
 TCQUERY cQuery NEW ALIAS "QSB1"
 
 

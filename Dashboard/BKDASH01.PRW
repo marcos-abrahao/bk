@@ -132,8 +132,11 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP19D	,"U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
 	aAdd(aDados,{cP19D	,"U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
 
-	// Outro programas
+	// Outros programas
 	aAdd(aDados,{cP19D	,"U_BKMsgLmp()",	"OUTROS",		"Limpeza de registros da tabela SZ0"})
+	aAdd(aDados,{cP19D	,"U_BKADPEVE()",	"ADP",			"Atualização da tabela EspelhoADP.dbo.EventosProtheus"})
+
+
 
 	// Avisos
 	aAdd(aDados,{cP0712	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})

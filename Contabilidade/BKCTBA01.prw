@@ -619,6 +619,10 @@ For nI := 1 To Len(aLinha)
 		cErros += "Conta crédito igual a conta débito; "
 	EndIf
 
+	If aLinha[nI,XEMPRESA] == "20"
+		aLinha[nI,XCCC] := "408000644"
+	EndIf
+
 	If !Empty(aLinha[nI,XCCC])
 		If !CTT->(dbSeek(xFilial("CTT")+TRIM(aLinha[nI,XCCC])))
 			cErros += "Centro de custo "+TRIM(aLinha[nI,XCCC])+" não cadastrado; "+CRLF
