@@ -62,6 +62,8 @@ Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()
 
 cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 
+//cUrl := u_BkAvUs(.F.)
+
 // Para teste
 //If __cUserId $ "000000/000038"
 //	ShellExecute("open", u_BkRest()+"/RestMsgUs/v2?userlib="+cToken, "", "", 1)
@@ -147,7 +149,7 @@ nPosbt += nTamBt + nEsps
 nPosbt += nTamBt + nEsps
 @ 05,nPosBt BUTTON "Lib. de Docs de Entrada" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN
 nPosbt += nTamBt + nEsps
-@ 05,nPosBt BUTTON "Avisos" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (ShellExecute("open", cUrl, "", "", 1))
+@ 05,nPosBt BUTTON "Avisos" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (u_BKAvUs(.T.))
 nPosbt += nTamBt + nEsps
 @ 05,nPosBt BUTTON "Entrar no Protheus" SIZE nTamBt, 12 PIXEL OF oPanelUp ACTION (lOk:=.T.,oDlg:End())
 //nPosbt += nTamBt + nEsps
@@ -160,6 +162,8 @@ nPort := oWebChannel::connect()
 oWebEngine := TWebEngine():New(oPanelDown, 100, 100, 100, 100,/*cUrl*/, nPort)
 //oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
 //oWebEngine:navigate(cUrl)
+
+// Por texto em variavel de memoria
 oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
 oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT
 oDlg:Activate()

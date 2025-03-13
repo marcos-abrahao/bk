@@ -503,6 +503,11 @@ If nCompAtual <> 1  // Periodo total do(s) contrato(s)
 	dDataI := dDataI - Day(dDataI)
 	dDataI := dDataI - Day(dDataI)+1
 
+
+	// Para Teste
+	//dDataI := CTOD("01/01/2025")
+	//dDataFinal := CTOD("28/02/2025")
+
 	//Determina quantos Meses utilizar no calculo
 	nPeriodo += DateDiffMonth( dDataI , dDataFinal )
 Else
@@ -1078,6 +1083,7 @@ Local nMesA		:= 0
 Local nAnoA 	:= 0
 Local nValFat   := 0
 Local nValNDCM  := 0
+Local lAdp 		:= .F.
 
 LimpaBrw("TRB")
 LimpaBrw(ALIAS_TMP)
@@ -2051,59 +2057,117 @@ FOR _nI := 1 TO nPeriodo
 		EndIf
 		*/
 
-		//*********Folha Pagamento
-
 		nScan	:= 0
 		nScan	:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
-		cQuery2 := " SELECT "+CRLF
-		cQuery2 += "	bk_senior.bk_senior.R046VER.CodEve,"+CRLF
-		cQuery2 += "	COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,"+CRLF
-		cQuery2 += "	SUM(bk_senior.bk_senior.R046VER.ValEve) AS valevent,"+CRLF
-		cQuery2 += "	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
-		cQuery2 += "		WHERE "+CRLF
-		cQuery2 += "  			[BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = "
-		cQuery2 +=   				"'"+IIF(nScan > 0,SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2),cEmpAnt)+"'"+CRLF
-		cQuery2 += "  			AND CodTab = 1 "+CRLF
-		cQuery2 += " 			AND [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve = bk_senior.bk_senior.R046VER.CodEve "+CRLF
-		cQuery2 += " 			AND SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
-		cQuery2 += "  		ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) AS VALASSOD "+CRLF
-		cQuery2 += " FROM bk_senior.bk_senior.R046VER "+CRLF
-		cQuery2 += " INNER JOIN bk_senior.bk_senior.R044cal ON"+CRLF
-		cQuery2 += "		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp" +CRLF
-		cQuery2 += "		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"+CRLF
-		cQuery2 += " INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON"
-		cQuery2 += " 		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp"+CRLF
-		cQuery2 += " 		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad" +CRLF
- 		cQuery2 += " 		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol"+CRLF
- 		cQuery2 += " 		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal"+CRLF
+		If SUBSTR(aPeriodo[_nI,1],4,4) < '2025'
 
- 		//TRATAMENTO ESPECIAL CONTRATO BKDAHER
-		IF nScan > 0 
-			cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' "+CRLF
-			cQuery2 += " 	AND Tipcal In(11)"+CRLF 
-			cQuery2 += " 	AND Sitcal = 'T' "+CRLF
- 			cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
-			If cEmpAnt <> '14' 
-				cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
-			EndIf
-		ELSE
-			cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp = '"+cEmpAnt+"' "+CRLF
-			cQuery2 += " 	AND Tipcal In(11) "+CRLF
-			cQuery2 += " 	AND Sitcal = 'T' "+CRLF
-	 		cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
-			If cEmpAnt <> '14' 
-	 			cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
-			EndIf
- 		ENDIF
+			//*** Folha Pagamento Senior ***
+			lADP := .F.
 
-		cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve"+CRLF
+			cQuery2 := " SELECT "+CRLF
+			cQuery2 += "	bk_senior.bk_senior.R046VER.CodEve,"+CRLF
+			cQuery2 += "	COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,"+CRLF
+			cQuery2 += "	SUM(bk_senior.bk_senior.R046VER.ValEve) AS valevent,"+CRLF
+			cQuery2 += "	MAX('') AS Classificacao,"+CRLF
+			cQuery2 += "	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
+			cQuery2 += "		WHERE "+CRLF
+			cQuery2 += "  			[BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = "
+			cQuery2 +=   				"'"+IIF(nScan > 0,SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2),cEmpAnt)+"'"+CRLF
+			cQuery2 += "  			AND CodTab = 1 "+CRLF
+			cQuery2 += " 			AND [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].CodEve = bk_senior.bk_senior.R046VER.CodEve "+CRLF
+			cQuery2 += " 			AND SUBSTRING(CONVERT(VARCHAR,Validade,112),1,6) <= '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' "+CRLF
+			cQuery2 += "  		ORDER BY [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].Validade DESC) AS VALASSOD "+CRLF
+			cQuery2 += " FROM bk_senior.bk_senior.R046VER "+CRLF
+			cQuery2 += " INNER JOIN bk_senior.bk_senior.R044cal ON"+CRLF
+			cQuery2 += "		bk_senior.bk_senior.R046VER.NumEmp= bk_senior.bk_senior.R044cal.NumEmp" +CRLF
+			cQuery2 += "		AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal"+CRLF
+			cQuery2 += " INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA ON"
+			cQuery2 += " 		bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp"+CRLF
+			cQuery2 += " 		AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad" +CRLF
+			cQuery2 += " 		AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol"+CRLF
+			cQuery2 += " 		AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal"+CRLF
 
-		u_LogTxt("BKGCTR14-FOL.SQL")
+			//TRATAMENTO ESPECIAL CONTRATO BKDAHER
+			IF nScan > 0 
+				cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' "+CRLF
+				cQuery2 += " 	AND Tipcal In(11)"+CRLF 
+				cQuery2 += " 	AND Sitcal = 'T' "+CRLF
+				cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
+				If cEmpAnt <> '14' 
+					cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
+				EndIf
+			ELSE
+				cQuery2 += " WHERE bk_senior.bk_senior.R046VER.NumEmp = '"+cEmpAnt+"' "+CRLF
+				cQuery2 += " 	AND Tipcal In(11) "+CRLF
+				cQuery2 += " 	AND Sitcal = 'T' "+CRLF
+				cQuery2 += " 	AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
+				If cEmpAnt <> '14' 
+					cQuery2 += " 	AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+				EndIf
+			ENDIF
+
+			cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve"+CRLF
+
+			u_LogTxt("BKGCTR14-FOL.SQL")
+		Else
+
+			//*** Folha Pagamento ADP ***
+			lADP := .T.
+
+			cQuery2 := "SELECT "+CRLF
+			cQuery2 += "  FF.Codigo    AS CodEve"+CRLF
+			cQuery2 += " ,FF.Descricao AS DesEve"+CRLF
+			cQuery2 += " ,FF.Classificacao AS Classificacao"+CRLF	
+			cQuery2 += " ,COUNT(FF.Descricao) AS nCont"+CRLF
+			cQuery2 += " ,SUM(FF.Valor) AS valevent"+CRLF
+			cQuery2 += " ,SUM(0) AS Total"+CRLF
+			cQuery2 += " FROM EspelhoADP.dbo.FichaFinanceira FF"+CRLF
+			cQuery2 += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
+			cQuery2 += " WHERE "+CRLF
+			cQuery2 += "  FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+			cQuery2 += "  AND YEAR(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+"' AND MONTH(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
+			cQuery2 += "  AND DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
+			cQuery2 += " GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao"+CRLF
+
+			u_LogTxt("BKGCTR11-ADP.SQL",cQuery2)	
+
+		EndIf
 	
 		TCQUERY cQuery2 NEW ALIAS "TMPX2"
 
 		u_LogTxt("BKGCTR14-FOL.SQL",cQuery2)
+
+		If !lADP
+			cProventos  := U_MVXPROVE()
+			cDescontos  := U_MVXDESCO()
+			cVT_Prov 	:= U_MVXVTPRO()
+			cVT_Verb 	:= U_MVXVTVER()
+			//cVT_Prod   	:= U_MVXVTPRD()
+			cVRVA_Verb  := U_MVXVRVAV()
+			//cVRVA_Prod  := U_MVXVRVAP()
+			cASSM_Verb	:= U_MVXASSMV()
+			cASSM_Prod	:= U_MVXASSMP()
+			cSINO_Verb	:= U_MVXSINOV()
+			cSINO_Prod	:= U_MVXSINOP()
+			cXXPLR	    := U_MVXPLR()
+			cNINC_Verb	:= U_MVXNINCI()
+
+		Else
+			cProventos  := "|10|3122|1602|3165|3166|3177|"
+			cDescontos  := ""
+			cVT_Prov 	:= ""
+			cVT_Verb 	:= ""
+			//cVT_Prod   	:= ""
+			cVRVA_Verb  := ""
+			//cVRVA_Prod  := ""
+			cASSM_Verb	:= ""
+			cASSM_Prod	:= "|5812|"
+			cSINO_Verb	:= ""
+			cSINO_Prod	:= ""
+			cXXPLR	    := ""
+			cNINC_Verb	:= ""
+		EndIf
 
 		nProventos := 0
 		nCusto     := 0
@@ -2113,10 +2177,10 @@ FOR _nI := 1 TO nPeriodo
 		dbGoTop()
 		DO While !TMPX2->(EOF())
 
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cProventos
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cProventos  .OR. TRIM(TMPX2->Classificacao) == "PGTO"
 		    	nProventos += TMPX2->valevent
 			ENDIF
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cDescontos
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cDescontos .OR. TRIM(TMPX2->Classificacao) == "DESC"
 		    	nProventos -= TMPX2->valevent 
 			ENDIF
 			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cXXPLR
@@ -2306,6 +2370,7 @@ FOR _nI := 1 TO nPeriodo
 			dbSelectArea("TMPX2")
 			dbSkip()
 		ENDDO
+
 
    		dbSelectArea(ALIAS_TMP)
    		IF dbSeek(IIF(nConsol>0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))+'09',.F.)
@@ -2567,6 +2632,10 @@ FOR _nI := 1 TO nPeriodo
 
 		// Despesas médicas 12/03/24
 		cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+
+		// Despesas médicas 12/03/24 - "OR" em 11/03/25
+		//cQuery2 += " AND (D1_COD <> '"+U_MVASSMED()+"' OR SUBSTRING(F1_XXCOMPD,1,6) >= '202501')"+CRLF
+
 		/*
 		IF cEmpAnt == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
@@ -2842,6 +2911,10 @@ FOR _nI := 1 TO nPeriodo
 
 			// Despesas médicas 12/03/24
 			cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+
+			// Despesas médicas 12/03/24 - "OR" em 11/03/25
+			//cQuery2 += " AND (D1_COD <> '"+U_MVASSMED()+"' OR SUBSTRING(F1_XXCOMPD,1,6) >= '202501')"+CRLF
+
 			/*
 			IF cEmpAnt == "01" .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 				cQuery2 += " AND D1_FORNECE<>'002918'"
@@ -3176,6 +3249,9 @@ FOR _nI := 1 TO nPeriodo
 
 				// Despesas médicas 12/03/24
 				cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+
+				// Despesas médicas 12/03/24 - "OR" em 11/03/25
+				//cQuery2 += " AND (D1_COD <> '"+U_MVASSMED()+"' OR SUBSTRING(F1_XXCOMPD,1,6) >= '202501')"+CRLF				
 				/*
 				IF cEmpAnt == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas 
 					cQuery2 += " AND D1_FORNECE<>'002918'"

@@ -22,14 +22,20 @@ Local aTitulos2 := {}
 Local aCampos2  := {}
 Local aCabs2    := {}
 
+Local aTitulos3 := {}
+Local aCampos3  := {}
+Local aCabs3    := {}
+
 Private cTitulo := "Planilhas e Cronogramas do Contrato"
 Private cPerg   := "BKGCTR27"
 
 u_WaitLog(cPerg, {|oSay| PrcQuery1() }, ALLTRIM(CN9->CN9_NUMERO)+" - Consultando planilhas...")
 u_WaitLog(cPerg, {|oSay| PrcQuery2() }, ALLTRIM(CN9->CN9_NUMERO)+" - Consultando cronogramas...")
+u_WaitLog(cPerg, {|oSay| PrcQuery3() }, ALLTRIM(CN9->CN9_NUMERO)+" - Consultando dados cadastrais...")
 
 AADD(aTitulos1,"Planilhas do Contrato "+ALLTRIM(CN9->CN9_NUMERO)+": "+Posicione("CTT",1,xFilial("CTT")+CN9->CN9_NUMERO,"CTT_DESC01"))
 AADD(aTitulos2,"Cronogramas do Contrato "+ALLTRIM(CN9->CN9_NUMERO)+": "+Posicione("CTT",1,xFilial("CTT")+CN9->CN9_NUMERO,"CTT_DESC01"))
+AADD(aTitulos3,"Dados Cadastrais do Contrato "+ALLTRIM(CN9->CN9_NUMERO)+": "+Posicione("CTT",1,xFilial("CTT")+CN9->CN9_NUMERO,"CTT_DESC01"))
 
 AADD(aCampos1,"QCNB->CNB_CONTRA")
 AADD(aCabs1  ,"Contrato")
@@ -136,8 +142,74 @@ AADD(aCampos2,"QCNF->CNF_SALDO")
 AADD(aCabs2  ,"Saldo")
 
 
+// Dados Cadastrais
+AADD(aCampos3,"QSA1->CNA_NUMERO")
+AADD(aCabs3  ,"Planilha")
+
+AADD(aCampos3,"QSA1->CNA_XXMOT")
+AADD(aCabs3  ,"Motivo")
+
+AADD(aCampos3,"QSA1->CNA_CLIENT")
+AADD(aCabs3  ,"Cliente")
+
+AADD(aCampos3,"QSA1->CNA_LOJACL")
+AADD(aCabs3  ,"Loja")
+
+AADD(aCampos3,"TRANSFORM(QSA1->A1_CGC,IIF(QSA1->A1_PESSOA=='J','@R 99.999.999/9999-99','@R 999.999.999-99'))")
+AADD(aCabs3  ,"CNPJ/CPF")
+
+AADD(aCampos3,"QSA1->A1_NOME")
+AADD(aCabs3  ,"Nome")
+
+AADD(aCampos3,"QSA1->A1_NREDUZ")
+AADD(aCabs3  ,"Nome Reduzido")
+
+AADD(aCampos3,"QSA1->A1_END")
+AADD(aCabs3  ,"Endereço")
+
+AADD(aCampos3,"QSA1->A1_COMPLEM")
+AADD(aCabs3  ,"Complemento")
+
+AADD(aCampos3,"QSA1->A1_BAIRRO")
+AADD(aCabs3  ,"Bairro")
+
+AADD(aCampos3,"QSA1->A1_COD_MUN")
+AADD(aCabs3  ,"Cod. Mun.")
+
+AADD(aCampos3,"QSA1->A1_MUN")
+AADD(aCabs3  ,"Município")
+
+AADD(aCampos3,"QSA1->A1_EST")
+AADD(aCabs3  ,"UF")
+
+AADD(aCampos3,"QSA1->A1_CEP")
+AADD(aCabs3  ,"CEP")
+
+AADD(aCampos3,"QSA1->A1_EMAIL")
+AADD(aCabs3  ,"E-Mail")
+
+AADD(aCampos3,"QSA1->A1_DDD")
+AADD(aCabs3  ,"DDD")
+
+AADD(aCampos3,"QSA1->A1_TEL")
+AADD(aCabs3  ,"TEL")
+
+AADD(aCampos3,"QSA1->A1_XXCTABC")
+AADD(aCabs3  ,"Conta Bancaria BK")
+
+AADD(aCampos3,"QSA1->A1_ULTCOM")
+AADD(aCabs3  ,"Ultimo Faturamento")
+
+AADD(aCampos3,"QSA1->A1_DTCAD")
+AADD(aCabs3  ,"Data Cadastro")
+
+AADD(aCampos3,"QSA1->A1_HRCAD")
+AADD(aCabs3  ,"Hora Cadastro")
+
+
 AADD(aPlans,{"QCNB","Planilhas","",aTitulos1,aCampos1,aCabs1,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 AADD(aPlans,{"QCNF","Cronogramas","",aTitulos2,aCampos2,aCabs2,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
+AADD(aPlans,{"QSA1","Dados Cadastrais","",aTitulos3,aCampos3,aCabs3,/*aImpr1*/, /* aAlign */,/* aFormat */, /*aTotal */, /*cQuebra*/, lClose:= .T. })
 
 U_PlanXlsx(aPlans,cTitulo,cPerg,.T.)
 
@@ -207,3 +279,31 @@ Return Nil
 
 
 
+
+Static Function PrcQuery3
+Local cQuery
+
+cQuery := "SELECT CNA_CONTRA,CNA_REVISA" + CRLF
+cQuery += "       ,CNA_NUMERO,CNA_CLIENT,CNA_LOJACL,CNA_XXMOT"+ CRLF
+cQuery += "       ,A1_NOME,A1_NREDUZ,A1_CGC,A1_PESSOA,A1_END,A1_BAIRRO,A1_COMPLEM,A1_COD_MUN,A1_MUN,A1_EST,A1_CEP,A1_DDD,A1_EMAIL,A1_TEL,A1_ULTCOM,A1_XXCTABC,A1_DTCAD,A1_HRCAD"+ CRLF
+
+cQuery += " FROM "+RETSQLNAME("CNA")+ " CNA " + CRLF
+
+cQuery += " LEFT JOIN "+RETSQLNAME("SA1")+ " SA1 " + CRLF
+cQuery += "      ON CNA_CLIENT = A1_COD AND CNA_LOJACL = A1_LOJA" + CRLF
+cQuery += " 	 AND SA1.D_E_L_E_T_=''" + CRLF
+
+cQuery += " WHERE CNA.D_E_L_E_T_=''" + CRLF
+cQuery += "      AND CNA_CONTRA = '"+ALLTRIM(CN9->CN9_NUMERO)+"'" + CRLF
+cQuery += "      AND CNA_REVISA = '"+CN9->CN9_REVISA+"'" + CRLF
+
+cQuery += "ORDER BY CNA_CONTRA,CNA_REVISA,CNA_NUMERO" + CRLF
+
+u_LogMemo("BKGCTR27-3.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QSA1"
+
+TCSETFIELD("QSA1","A1_ULTCOM","D",8,0)
+TCSETFIELD("QSA1","A1_DTCAD", "D",8,0)
+
+Return Nil

@@ -400,10 +400,18 @@ thead input {
 <script>
 
 async function getAv1() {
-    const url = '#iprest#/RestMsgUs/v0?userlib=#userlib#';
-    const headers = new Headers();
-    headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
-
+    
+const url = '#iprest#/RestMsgUs/v0?userlib=#userlib#';
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+try {
+let res = await fetch(url,{	method: 'GET',	headers: headers});
+	return await res.json();
+	} catch (error) {
+console.log(error);
+	}
+}
+/*
     try {
         let res = await fetch(url, { method: 'GET', headers: headers });
 
@@ -426,7 +434,7 @@ async function getAv1() {
         console.error('Erro ao buscar dados:', error);
         throw error; // Propague o erro para ser tratado no chamador
     }
-}
+*/
 
 async function loadTable() {
 let av1 = await getAv1();
@@ -722,22 +730,30 @@ body: JSON.stringify(dataObject)})
 }
 
 async function rotexec(corigem,canLib) {
-const username = '#usrrest#'; // Substitua pelo valor real
-const password = '#pswrest#'; // Substitua pelo valor real
-// Codifica as credenciais em Base64
-const credentials = btoa(`${username}:${password}`);
+
 const url = '#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+corigem;
+let html = '';
 
-// Faz a requisição com autenticação básica
-const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Basic ${credentials}`,
-                'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
-            },
-        });
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+	try {
+	let res = await fetch(url, { method: 'GET', headers: headers });
+		//document.getElementById('conteudo-principal').innerHTML =  await res.text();
+		html = await res.text();
+        
+		//const novaAba = window.open("", "_self");
 
-$("#titConf").load(url);
+        // Escreve o conteúdo HTML na nova aba
+        //novaAba.document.open();
+        //novaAba.document.write(html);
+        //novaAba.document.close();
+		} catch (error) {
+	console.log(error);
+	}
+
+
+//$("#titConf").load(url);
+$("#titConf").load(html);
 $('#confModal').modal('show');
 $('#confModal').on('hidden.bs.modal', function () {
 	location.reload();
@@ -750,6 +766,9 @@ $('#confModal').on('hidden.bs.modal', function () {
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
+cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
+
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
 cHtml := STRTRAN(cHtml,"#BKAwesome#" ,u_BKAwesome())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
@@ -776,6 +795,8 @@ EndIf
 u_MsgLog("RESTMsgUs",__cUserId+' - '+::userlib)
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetHeader("X-Frame-Options", "allow-from *")
+
 Self:SetHeader("Accept", "UTF-8")
 
 self:setResponse(cHTML)

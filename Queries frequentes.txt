@@ -4,6 +4,77 @@ SET STATISTICS IO,TIME ON
 EXEC sp_help SZ2010;
 
 
+-- EspelhoAdp
+
+select DPE.CodigoMicrosiga, FF.* from EspelhoADP.dbo.FichaFinanceira FF
+Left Join EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa
+
+SELECT 
+  FF.Codigo    AS CodEve
+ ,FF.Descricao AS DesEve
+ ,FF.Classificacao AS Classificacao
+ ,COUNT(FF.Descricao) AS nCont
+ ,SUM(FF.Valor) AS valevent
+ ,SUM(0) AS Total
+ FROM EspelhoADP.dbo.FichaFinanceira FF
+ LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa
+ WHERE 
+  FF.CC = '389000610'
+  AND YEAR(FF.Referencia) = '2025' AND MONTH(FF.Referencia) = '01'
+  AND DPE.CodigoMicrosiga = '010'
+
+  AND FF.Codigo  = '5812'
+ GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao
+
+
+-- Tabelas FK
+
+SELECT
+	E5_NUMERO,E5_VALOR,
+    SE5.R_E_C_N_O_  AS SE5REC,
+    FK2.R_E_C_N_O_  AS FK2REC,
+    FK7.R_E_C_N_O_  AS FK7REC,
+    FKA.R_E_C_N_O_  AS FKAREC,
+    FKA2.R_E_C_N_O_ AS FKA2REC,
+	FK5.R_E_C_N_O_  AS FK52REC
+FROM
+    SE5160 SE5
+    LEFT JOIN FK2160 FK2 ON (
+        FK2_FILIAL = '01'
+        AND FK2_IDFK2 = E5_IDORIG
+        AND FK2.D_E_L_E_T_ = ' '
+    )
+    LEFT JOIN FK7160 FK7 ON (
+        FK7_FILIAL = '01'
+        AND FK7_IDDOC = FK2_IDDOC
+        AND FK7.D_E_L_E_T_ = ' '
+    )
+    LEFT JOIN FKA160 FKA ON (
+        FKA.FKA_FILIAL = '01'
+        AND FKA.FKA_IDORIG = E5_IDORIG
+        AND FKA.FKA_TABORI = 'FK2'
+        AND FKA.D_E_L_E_T_ = ' '
+    )
+    LEFT JOIN FKA160 FKA2 ON (
+        FKA2.FKA_FILIAL = '01'
+        AND FKA2.FKA_IDPROC = FKA.FKA_IDPROC
+        AND FKA2.FKA_TABORI = 'FK5'
+        AND FKA2.D_E_L_E_T_ = ' '
+    )
+    LEFT JOIN FK5160 FK5 ON (
+        FK5_FILIAL = '01'
+        AND FK5_IDMOV = FKA2.FKA_IDORIG
+        AND FK5.D_E_L_E_T_ = ' '
+    )
+WHERE
+    E5_FILIAL = '01'
+    AND E5_NUMERO = '000000292'
+    AND E5_PREFIXO = '   '
+    AND SE5.D_E_L_E_T_ = ' '
+
+
+
+
 
 
 -- Acerto medição sem cliente e A1_LOJA

@@ -899,17 +899,16 @@ let newempr  = document.getElementById("btn-empresa").textContent;
 
 let url = '#iprest#/RestPrvCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 //	let url = '#iprest#/RestPrvCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
-	const headers = new Headers();
-	headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 
-		try {
-		let res = await fetch(url,{	method: 'GET',	headers: headers});
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
-
+try {
+let res = await fetch(url,{	method: 'GET',	headers: headers});
+	return await res.json();
+	} catch (error) {
+console.log(error);
+	}
+}
 
 
 async function loadTable() {
