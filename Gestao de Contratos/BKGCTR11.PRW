@@ -1609,7 +1609,7 @@ If SUBSTR(aPeriodo[_nI,1],4,4) < '2025'
 	//*** Folha Pagamento Senior ***
 	lADP := .F.
 
-	cQuery2 := "SELECT bk_senior.bk_senior.R046VER.CodEve AS CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,MAX('') AS Classificacao"+CRLF
+	cQuery2 := "SELECT bk_senior.bk_senior.R046VER.CodEve AS CodEve,bk_senior.bk_senior.R008EVC.DesEve,COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,SUM(bk_senior.bk_senior.R046VER.ValEve) as valevent,MAX('') AS Classificacao,MAX('') AS EventoProtheus,"+CRLF
 	cQuery2 += " (SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
 
 	IF nScan > 0
@@ -1660,16 +1660,18 @@ Else
 	cQuery2 += "  FF.Codigo    AS CodEve"+CRLF
 	cQuery2 += " ,FF.Descricao AS DesEve"+CRLF
 	cQuery2 += " ,FF.Classificacao AS Classificacao"+CRLF	
+	cQuery2 += " ,EP.EventoProtheus AS EventoProtheus"+CRLF	
 	cQuery2 += " ,COUNT(FF.Descricao) AS nCont"+CRLF
 	cQuery2 += " ,SUM(FF.Valor) AS valevent"+CRLF
 	cQuery2 += " ,SUM(0) AS Total"+CRLF
 	cQuery2 += " FROM EspelhoADP.dbo.FichaFinanceira FF"+CRLF
 	cQuery2 += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
+	cQuery2 += " LEFT JOIN EspelhoADP.dbo.EventosProtheus EP on EP.Codigo = FF.Codigo"+CRLF
 	cQuery2 += " WHERE "+CRLF
 	cQuery2 += "  FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 	cQuery2 += "  AND YEAR(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+"' AND MONTH(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 	cQuery2 += "  AND DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
-	cQuery2 += " GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao"+CRLF
+	cQuery2 += " GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao,EP.EventoProtheus"+CRLF
 
 	u_LogTxt("BKGCTR11-ADP.SQL",cQuery2)	
 EndIf
@@ -1693,7 +1695,7 @@ If !lADP
 	cNINC_Verb	:= U_MVXNINCI()
 
 Else
-	cProventos  := "|10|3122|1602|3165|3166|3177|"
+	cProventos  := ""
 	cDescontos  := ""
 	cVT_Prov 	:= ""
 	cVT_Verb 	:= ""
@@ -1701,7 +1703,7 @@ Else
 	cVRVA_Verb  := ""
 	//cVRVA_Prod  := ""
 	cASSM_Verb	:= ""
-	cASSM_Prod	:= "|5812|"
+	cASSM_Prod	:= "" //"|5812|"
 	cSINO_Verb	:= ""
 	cSINO_Prod	:= ""
 	cXXPLR	    := ""
@@ -1727,7 +1729,7 @@ DO While !TMPX2->(EOF())
 	//If cCodEve == '2' .or. cCodEve == '270'
 	//	x:=0 
 	//EndIf
-	IF cPCodEve $ cProventos .OR. TRIM(TMPX2->Classificacao) == "PGTO"
+	IF cPCodEve $ cProventos .OR. TRIM(TMPX2->EventoProtheus) == "PROVENTO"
 		nProventos += TMPX2->valevent
 		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"01-Proventos",TMPX2->valevent,_nI)
 		lFolha   := .T.
@@ -1782,7 +1784,7 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cASSM_Prod
+	IF cPCodEve $ cASSM_Prod .OR. TRIM(TMPX2->EventoProtheus) == "ASSMEDICA"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'16',.F.)
 			Reclock(ALIAS_TMP,.F.)

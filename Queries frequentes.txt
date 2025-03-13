@@ -9,22 +9,25 @@ EXEC sp_help SZ2010;
 select DPE.CodigoMicrosiga, FF.* from EspelhoADP.dbo.FichaFinanceira FF
 Left Join EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa
 
+
 SELECT 
   FF.Codigo    AS CodEve
  ,FF.Descricao AS DesEve
  ,FF.Classificacao AS Classificacao
+ ,EP.EventoProtheus AS EventoProtheus
  ,COUNT(FF.Descricao) AS nCont
  ,SUM(FF.Valor) AS valevent
  ,SUM(0) AS Total
  FROM EspelhoADP.dbo.FichaFinanceira FF
  LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa
+  LEFT JOIN EspelhoADP.dbo.EventosProtheus EP on EP.Codigo = FF.Codigo
  WHERE 
   FF.CC = '389000610'
   AND YEAR(FF.Referencia) = '2025' AND MONTH(FF.Referencia) = '01'
   AND DPE.CodigoMicrosiga = '010'
 
-  AND FF.Codigo  = '5812'
- GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao
+  --AND FF.Codigo  = '5812'
+ GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao,EP.EventoProtheus
 
 
 -- Tabelas FK

@@ -2070,6 +2070,7 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += "	COUNT(bk_senior.bk_senior.R046VER.CodEve) AS nCont,"+CRLF
 			cQuery2 += "	SUM(bk_senior.bk_senior.R046VER.ValEve) AS valevent,"+CRLF
 			cQuery2 += "	MAX('') AS Classificacao,"+CRLF
+			cQuery2 += "	MAX('') AS EventoProtheus,"+CRLF
 			cQuery2 += "	(SELECT TOP 1 [Total] FROM [BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT] " +CRLF
 			cQuery2 += "		WHERE "+CRLF
 			cQuery2 += "  			[BKIntegraRubi].[dbo].[EVENTOS_ASS_ODONT].NumEmpr = "
@@ -2119,18 +2120,20 @@ FOR _nI := 1 TO nPeriodo
 			cQuery2 += "  FF.Codigo    AS CodEve"+CRLF
 			cQuery2 += " ,FF.Descricao AS DesEve"+CRLF
 			cQuery2 += " ,FF.Classificacao AS Classificacao"+CRLF	
+			cQuery2 += " ,EP.EventoProtheus AS EventoProtheus"+CRLF	
 			cQuery2 += " ,COUNT(FF.Descricao) AS nCont"+CRLF
 			cQuery2 += " ,SUM(FF.Valor) AS valevent"+CRLF
 			cQuery2 += " ,SUM(0) AS Total"+CRLF
 			cQuery2 += " FROM EspelhoADP.dbo.FichaFinanceira FF"+CRLF
 			cQuery2 += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
+			cQuery2 += " LEFT JOIN EspelhoADP.dbo.EventosProtheus EP on EP.Codigo = FF.Codigo"+CRLF
 			cQuery2 += " WHERE "+CRLF
 			cQuery2 += "  FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 			cQuery2 += "  AND YEAR(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+"' AND MONTH(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
 			cQuery2 += "  AND DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
-			cQuery2 += " GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao"+CRLF
+			cQuery2 += " GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao,EP.EventoProtheus"+CRLF
 
-			u_LogTxt("BKGCTR11-ADP.SQL",cQuery2)	
+			u_LogTxt("BKGCTR14-ADP.SQL",cQuery2)
 
 		EndIf
 	
@@ -2177,7 +2180,7 @@ FOR _nI := 1 TO nPeriodo
 		dbGoTop()
 		DO While !TMPX2->(EOF())
 
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cProventos  .OR. TRIM(TMPX2->Classificacao) == "PGTO"
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cProventos .OR. TRIM(TMPX2->EventoProtheus) == "PROVENTO"
 		    	nProventos += TMPX2->valevent
 			ENDIF
 			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|" $ cDescontos .OR. TRIM(TMPX2->Classificacao) == "DESC"
@@ -2237,7 +2240,7 @@ FOR _nI := 1 TO nPeriodo
 				ENDIF
 			ENDIF
 
-			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cASSM_Prod
+			IF "|"+ALLTRIM(STR(TMPX2->CodEve))+"|"  $ cASSM_Prod .OR. TRIM(TMPX2->EventoProtheus) == "ASSMEDICA"
 				//BUSCA GASTOS GERAIS NA PROJEÇÃO FINANCEIRA - ASSMEDICA
 				cVALGG := 0
 				IF nDespGeral == 1 .AND. nCompras == 0

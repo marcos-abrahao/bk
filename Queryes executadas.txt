@@ -1,5 +1,262 @@
 
 ==============================================================
+==============================================================
+==============================================================
+==============================================================
+--13/03/2025
+
+UPDATE SX3010 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3020 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3120 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3140 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3150 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3160 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3170 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3180 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3190 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3200 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3970 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3980 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+UPDATE SX3900 SET X3_FOLDER = '1' WHERE X3_CAMPO IN ('E5_XXTPMOV','E5_DEBITO','E5_CREDITO','E5_CCC','E5_CCD')
+
+==============================================================
+--13/03/2025 EspelhoADP
+
+--select * from EspelhoADP.dbo.EventosProtheus
+--drop table EspelhoADP.dbo.EventosProtheus
+--UPDATE EspelhoADP.dbo.EventosProtheus SET Provento = 'S' WHERE Codigo = 10
+
+--SELECT * FROM EspelhoADP.dbo.FichaFinanceira
+
+IF OBJECT_ID(N'EspelhoADP.dbo.EventosProtheus', N'U') IS NULL
+BEGIN
+    -- Cria a tabela se ela não existir
+    CREATE TABLE EspelhoADP.dbo.EventosProtheus (
+        Codigo INT PRIMARY KEY,  -- Chave primária para garantir unicidade
+        Descricao VARCHAR(255),
+        Classificacao VARCHAR(255),
+		EventoProtheus VARCHAR(30),
+    );
+END;
+
+-- Insere ou atualiza os dados na tabela de destino
+WITH DadosUnicos AS (
+    SELECT
+        Codigo,
+        Descricao,
+        Classificacao,
+        ROW_NUMBER() OVER (PARTITION BY Codigo ORDER BY (SELECT NULL)) AS RowNum
+    FROM EspelhoADP.dbo.FichaFinanceira
+)
+MERGE EspelhoADP.dbo.EventosProtheus AS destino
+USING (
+    SELECT Codigo, Descricao, Classificacao
+    FROM DadosUnicos
+    WHERE RowNum = 1 -- Filtra apenas um registro por Codigo
+) AS origem
+ON destino.Codigo = origem.Codigo
+WHEN MATCHED THEN
+    UPDATE SET
+        Descricao = origem.Descricao,
+        Classificacao = origem.Classificacao
+WHEN NOT MATCHED THEN
+    INSERT (Codigo, 
+			Descricao, 
+			Classificacao,
+			EventoProtheus
+
+)
+    VALUES (origem.Codigo, 
+			origem.Descricao, 
+			origem.Classificacao,
+			''
+			);
+
+UPDATE EspelhoADP.dbo.EventosProtheus SET EventoProtheus = 'ASSMEDICA' WHERE Codigo = 5812
+UPDATE EspelhoADP.dbo.EventosProtheus SET EventoProtheus = 'PROVENTO' WHERE Codigo IN (10,
+3122,
+1602,
+1801,
+3089,
+591,
+3059,
+3091,
+630,
+2751,
+2880,
+809,
+19,
+842,
+1800,
+3186,
+5531,
+832,
+1600,
+3023,
+502,
+3147,
+1802,
+2882,
+531,
+3062,
+3030,
+882,
+2774,
+3066,
+3202,
+3177,
+2741,
+13,
+30,
+2775,
+3715,
+2881,
+1804,
+3180,
+3057,
+635,
+3195,
+3008,
+11,
+26,
+3136,
+101,
+40,
+3179,
+2732,
+844,
+2742,
+1923,
+2773,
+4782,
+502,
+3181,
+3190,
+881,
+3065,
+3033,
+82,
+3056,
+3102,
+846,
+3718,
+841,
+631,
+106,
+3123,
+102,
+3111,
+113,
+3153,
+855,
+2776,
+3196,
+3214,
+5010,
+9964,
+452,
+597,
+518,
+5031,
+5033,
+3131,
+5021,
+2767,
+5030,
+412,
+411,
+5032,
+1153,
+3215,
+3200,
+9364,
+416,
+3222,
+415,
+5011,
+3040,
+3090,
+5040,
+5041,
+3719,
+5020,
+404)
+
+
+SELECT 
+       [Codigo]
+      ,[Descricao]
+      ,[Classificacao]
+  FROM [EspelhoADP].[dbo].[FichaFinanceira]
+  GROUP BY [Codigo],[Descricao],[Classificacao]
+  ORDER BY [Codigo],[Descricao],[Classificacao]
+
+
+SELECT 
+  FF.Codigo    AS CodEve
+ ,FF.Descricao AS DesEve
+ ,FF.Classificacao AS Classificacao
+ ,EP.EventoProtheus AS EventoProtheus
+ ,COUNT(FF.Descricao) AS nCont
+ ,SUM(FF.Valor) AS valevent
+ ,SUM(0) AS Total
+ FROM EspelhoADP.dbo.FichaFinanceira FF
+ LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa
+  LEFT JOIN EspelhoADP.dbo.EventosProtheus EP on EP.Codigo = FF.Codigo
+ WHERE 
+  FF.CC = '389000610'
+  AND YEAR(FF.Referencia) = '2025' AND MONTH(FF.Referencia) = '01'
+  AND DPE.CodigoMicrosiga = '010'
+
+  --AND FF.Codigo  = '5812'
+ GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao,EP.EventoProtheus
+
+ SELECT * FROM EspelhoADP.dbo.EventosProtheus EP WHERE Codigo = 630
+
+
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (630,'Aviso Prévio Indeniz','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (630,'Aviso Prévio Indeniz','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2880,'13Sal Proporcional','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2882,'Média 13º Salário Proporcional','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (531,'Indenização Art 479','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2774,'Média Férias Indenizadas Proporc.','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2775,'Férias (Aviso Prévio Indenizado)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2881,'13Sal (Aviso Prévio Indenizado)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3180,'Adic Periculosidade (Valor)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (635,'Descanso Indenizado','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (1923,'1/3 Const Férias (Av Prev Inden)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2773,'Média Férias Indenizadas Vencidas','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (502,'DSR (H.E./Adic.Not.) ','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (82,'Ajuda Custo até 50% da remun.','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (631,'Med. Aviso Previo','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3123,'Refeição Mês de Admissão','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3153,'Alimentação Mês Admissão','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2776,'Média Férias (Av Prev Inden)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3214,'Diferença de Médias Complementar','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (9964,'Devolução INSS 13o','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (452,'Med. Aviso Previo - RC','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (597,'1/3 Ad Const Fer db','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (518,'Media 13.Sal (Aviso Prev.Inden)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3131,'Ajuda de Custo Internet (P)','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (5021,'DSR Interm','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (2767,'Férias em dobro','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (412,'1/3 Const Férias Prop Ind - RC','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (411,'1/3 Const Férias Ind - RC','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (1153,'Provisão Empréstimo lei 10820/03','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3215,'Dif Líquido RRA','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3200,'Reembolso Odontológico - Sindeepres','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (9364,'Devolução INSS','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (416,'Média Férias Inden. Proporc. - RC','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3222,'Horas Extras 100% Dobra - Valor','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (415,'Média Férias Inden. Vencidas - RC','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3040,'Art. 477','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3090,'Ad. Embarque Mês Anterior','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (3719,'Devol de Assist Odon.Metlife DIAMON','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (5020,'DSR Interm Rec','PGTO','PROVENTO')
+INSERT INTO EspelhoADP.dbo.EventosProtheus (Codigo, Descricao, Classificacao, EventoProtheus) VALUES (404,'Média 13º Salário Proporcional - RC','PGTO','PROVENTO')
+
+
+==============================================================
 -- Browse de Fornecedores mostrando picture do A2_CGC incorretamente:
 
 UPDATE SA2010 SET A2_INDRUR = '0' WHERE A2_TIPO = 'F' AND A2_INDRUR = ' '
