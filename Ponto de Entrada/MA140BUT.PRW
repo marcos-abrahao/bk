@@ -90,6 +90,7 @@ For nI := 1 To Len(aLItens)
 	If !Empty(cLinha)
 		lErro	:= .F.
         cLinha  := STRTRAN(cLinha,CHR(9)," ")
+	    cLinha  := STRTRAN(cLinha,CHR(160)," ")
         Do While ("  " $ cLinha)
             cLinha := STRTRAN(cLinha,"  "," ")
         EndDo

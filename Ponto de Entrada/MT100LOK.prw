@@ -15,6 +15,7 @@ Local lExecuta  := ParamIxb[1] // Validações do usuário para inclusão ou alteraç
 Local nPosTES   := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_TES"})
 Local nPosPrd   := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_COD"})
 Local nPosCC    := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_CC"})
+//Local nPosXH    := aScan(aHeader, {|x| AllTrim(x[2]) == "D1_XXHIST"})
 
 Local aAreaSF4	:= SF4->(GetArea())
 Local aAreaSB1	:= SB1->(GetArea())
@@ -22,6 +23,11 @@ Local cTESn     := aCols[n][nPosTES]
 Local cProdn    := aCols[n][nPosPrd]
 Local cCC       := aCols[n][nPosCC]
 Local cCCCum    := u_BKCCCum()
+//Local cXHist    := aCols[n][nPosXH]
+
+//If Empty(cXHist)
+//    aCols[n][nPosXH] := ""
+//EndIf
 
 If !Empty(cTESn)
     If SF4->(dbSeek(xFilial("SF4")+cTESn))

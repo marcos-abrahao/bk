@@ -7,7 +7,7 @@ Local aArea1 := GetArea()
 //IF n = 1 .AND. EMPTY(M->D1_COD) // .AND. nOpcx = 1
 IF EMPTY(M->D1_COD) // .AND. nOpcx = 1
    aArea1  := GetArea()
-   dMesAnt := DATE() - DAY(DATE()) - 31
+   dMesAnt := DATE() - 180
    dMesAnt := dMesAnt - DAY(dMesAnt) + 1
    cQuery  := "SELECT TOP 1 D1_COD,B1_MSBLQL " 
    cQuery  += " FROM "+RETSQLNAME("SD1")+" SD1 "

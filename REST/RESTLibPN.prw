@@ -830,6 +830,7 @@ EndIf
 
 // Documentos anexos
 aFiles := u_BKDocs(self:empresa,"SF1",(cQrySF1)->(F1_DOC+F1_SERIE+F1_FORNECE+F1_LOJA),1)
+
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]

@@ -304,6 +304,7 @@ cTexto  	:= FwNoAccent(cTexto)
 cTexto		:= Strtran(cTexto,CHR(13),'')
 cTexto 		:= Strtran(cTexto,CHR(10),'|')
 cTexto		:= Strtran(cTexto,CHR(9)," ")
+cTexto		:= Strtran(cTexto,CHR(160)," ")
 aLItens		:= StrTokArr(cTexto,"|")
 
 For nI := 1 To Len(aLItens)

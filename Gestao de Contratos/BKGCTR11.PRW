@@ -1664,6 +1664,7 @@ Else
 	cQuery2 += " ,COUNT(FF.Descricao) AS nCont"+CRLF
 	cQuery2 += " ,SUM(FF.Valor) AS valevent"+CRLF
 	cQuery2 += " ,SUM(0) AS Total"+CRLF
+	cQuery2 += " ,SUM(0) AS VALASSOD"+CRLF
 	cQuery2 += " FROM EspelhoADP.dbo.FichaFinanceira FF"+CRLF
 	cQuery2 += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
 	cQuery2 += " LEFT JOIN EspelhoADP.dbo.EventosProtheus EP on EP.Codigo = FF.Codigo"+CRLF
@@ -1699,9 +1700,7 @@ Else
 	cDescontos  := ""
 	cVT_Prov 	:= ""
 	cVT_Verb 	:= ""
-	//cVT_Prod   	:= ""
 	cVRVA_Verb  := ""
-	//cVRVA_Prod  := ""
 	cASSM_Verb	:= ""
 	cASSM_Prod	:= "" //"|5812|"
 	cSINO_Verb	:= ""
@@ -1734,18 +1733,18 @@ DO While !TMPX2->(EOF())
 		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"01-Proventos",TMPX2->valevent,_nI)
 		lFolha   := .T.
 	ENDIF
-	IF cPCodEve $ cDescontos .OR. TRIM(TMPX2->Classificacao) == "DESC"
+	IF cPCodEve $ cDescontos .OR. TRIM(TMPX2->EventoProtheus) == "DES_PROVENTO"
 		nProventos -= TMPX2->valevent
 		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"02-Descontos",-TMPX2->valevent,_nI)
 		lFolha   := .T.
 	ENDIF
-	IF cPCodEve $ cXXPLR
+	IF cPCodEve $ cXXPLR .OR. TRIM(TMPX2->EventoProtheus) == "PLR"
 		nXXPLR += TMPX2->valevent
 		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"04-PLR",TMPX2->valevent,_nI)
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cVT_Prov
+	IF cPCodEve $ cVT_Prov .OR. TRIM(TMPX2->EventoProtheus) == "VT"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'12',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1758,7 +1757,7 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve  $ cVT_Verb
+	IF cPCodEve  $ cVT_Verb .OR. TRIM(TMPX2->EventoProtheus) == "DESC_VT"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'13',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1771,7 +1770,21 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cVRVA_Verb
+	// Incluido ADP
+	IF TRIM(TMPX2->EventoProtheus) == "VR_VA"
+		dbSelectArea(ALIAS_TMP)
+		IF MsSeek(cCtrCons+'14',.F.)
+			Reclock(ALIAS_TMP,.F.)
+			cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(_nI,3)
+			&cCampo2 += (TMPX2->valevent)
+			(ALIAS_TMP)->(Msunlock())
+			nCusto += (TMPX2->valevent)
+		ENDIF
+		UpdTmpFol(lJob,cContrato,cCodEve,TMPX2->DesEve,"14-VRVA Prov",-TMPX2->valevent,_nI)
+		lFolha   := .T.
+	ENDIF
+
+	IF cPCodEve $ cVRVA_Verb .OR. TRIM(TMPX2->EventoProtheus) == "DESC_VR_VA"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'15',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1797,7 +1810,7 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cASSM_Verb
+	IF cPCodEve $ cASSM_Verb .OR. TRIM(TMPX2->EventoProtheus) == "DES_ASSMEDICA"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'17',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1810,7 +1823,7 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cSINO_Prod
+	IF cPCodEve $ cSINO_Prod .OR. TRIM(TMPX2->EventoProtheus) == "ODONTO"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'18',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1823,7 +1836,7 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cSINO_Verb
+	IF cPCodEve $ cSINO_Verb .OR. TRIM(TMPX2->EventoProtheus) == "DES_ODONTO"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'19',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -1849,7 +1862,7 @@ DO While !TMPX2->(EOF())
 		lFolha   := .T.
 	ENDIF
 
-	IF cPCodEve $ cNINC_Verb
+	IF cPCodEve $ cNINC_Verb .OR. TRIM(TMPX2->EventoProtheus) == "VERBAS SEM ENCARGOS"
 		dbSelectArea(ALIAS_TMP)
 		IF MsSeek(cCtrCons+'111',.F.)
 			Reclock(ALIAS_TMP,.F.)
@@ -2031,8 +2044,11 @@ cQuery2 += " AND D1_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 
 // Despesas médicas 12/03/24 - "OR" em 11/03/25
-//cQuery2 += " AND (D1_COD <> '"+U_MVASSMED()+"' OR SUBSTRING(F1_XXCOMPD,1,6) >= '202501')"+CRLF
 cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+
+// 13/03/25 - Solicitado por Bruno Bueno - Remover os sindicatos
+cQuery2 += " AND B1_DESC NOT LIKE 'SINDICATO%'"+CRLF
+
 /*
 IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas
 	cQuery2 += " AND D1_FORNECE <> '002918'"+CRLF
@@ -2195,9 +2211,9 @@ IF nScan > 0
 	//cQuery2 += " AND D1_CC = '000000001'"
 
 	// Despesas médicas 12/03/24 - "OR" em 11/03/25
-	//cQuery2 += " AND (D1_COD <> '"+U_MVASSMED()+"' OR SUBSTRING(F1_XXCOMPD,1,6) >= '202501')"+CRLF
 	cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
-
+	// 13/03/25 - Solicitado por Bruno Bueno - Remover os sindicatos
+	cQuery2 += " AND B1_DESC NOT LIKE 'SINDICATO%'"+CRLF
 	/*
 	IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504" // Despesas médicas
 		cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF
@@ -2213,6 +2229,8 @@ IF nScan > 0
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "160"
+		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
+	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "200"
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "180" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
 		// Aqui: 11/06/24 - Estava duplicando na empresa 18 quando emitido na empresa 18
@@ -2398,8 +2416,9 @@ IF nScan > 0
 		cQuery2 += " WHERE SUBSTRING(F1_XXCOMPD,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 		//cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 		// Despesas médicas 12/03/24 - "OR" em 11/03/25
-		//cQuery2 += " AND (D1_COD <> '"+U_MVASSMED()+"' OR SUBSTRING(F1_XXCOMPD,1,6) >= '202501')"+CRLF
 		cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
+		// 13/03/25 - Solicitado por Bruno Bueno - Remover os sindicatos
+		cQuery2 += " AND B1_DESC NOT LIKE 'SINDICATO%'"+CRLF
 		/*
 		IF SM0->M0_CODIGO == "01"  .AND. ALLTRIM(QTMP->CNF_CONTRA)=="313000504"+CRLF // Despesas médicas
 			cQuery2 += " AND D1_FORNECE<>'002918'"+CRLF

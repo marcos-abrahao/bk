@@ -134,9 +134,10 @@ If FWCodEmp() == "01"
 
 	// Outros programas
 	aAdd(aDados,{cP19D	,"U_BKMsgLmp()",	"OUTROS",		"Limpeza de registros da tabela SZ0"})
-	aAdd(aDados,{cP19D	,"U_BKADPEVE()",	"ADP",			"Atualização da tabela EspelhoADP.dbo.EventosProtheus"})
 
 
+	// EspelhoADP
+	aAdd(aDados,{cP19	,"U_BKADPEVE()",	"ADP",			"Atualização da tabela EspelhoADP.dbo.EventosProtheus"})
 
 	// Avisos
 	aAdd(aDados,{cP0712	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})
@@ -148,6 +149,7 @@ If FWCodEmp() == "01"
 	aAdd(aDados,{cP19D	,"U_BKMSG007()",	"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
 	aAdd(aDados,{cP19	,"U_BKMSG008()",	"AVISOS",		"Aviso de Pedidos de compras não entregues"})
 	aAdd(aDados,{cP19	,"U_BKMSG009()",	"AVISOS",		"Aviso de Solicitações de compras em aberto"})
+	aAdd(aDados,{cP19	,"U_BKMSG010()",	"AVISOS",		"Aviso de Novos eventos ADP cadastrados"})
 
 	// Financeiro
 	//aAdd(aDados,{cP1H	,"U_BKFINA05()",	"FINANCEIRO",	"Importar txt lançamentos da Folha ADP"})

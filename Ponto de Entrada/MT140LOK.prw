@@ -1,24 +1,32 @@
 #include "rwmake.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณMT140LOK  บAutor  ณAdilson do Prado    บ Data ณ  04/06/13   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Este ponto de entrada tem o objetivo de validar as         บฑฑ
-ฑฑบinforma็๕es preenchidas no aCols de cada item do pr้-documento de      บฑฑ
-ฑฑบentrada, para usuแrio do grupo Almoxarifado                            บฑฑ
-ฑฑบ                                                                       บฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
-
+/*/{Protheus.doc} SD1140I
+BK - Este ponto de entrada tem o objetivo de validar as
+	 informa็๕es preenchidas no aCols de cada item do pr้-documento de 
+	 entrada, para usuแrio do grupo Almoxarifado 	
+@Return
+@author Adilson do Prado
+@since 04/06/2013
+@version P12
+/*/
  
 User Function xMT140LOK
 Local lRet	 := ParamIXB[1]
 //Local aTotais:= ParamIXB[2]
 //Local aDesp  := ParamIXB[3]
+Local nPosXH := aScan(aHeader,{|x| AllTrim(x[2])=="D1_XXHIST"})
+Local nI := 0
+
+For nI := 1 TO LEN(aCols)
+	// Ajuste 20/03/25 - D1_XXHIST com valor NIL
+	IF Empty(aCols[nI,nPosXH])
+		aCols[nI,nPosXH] := ""
+	ENDIF
+Next
+
+Return lRet
+
+/*
 Local nPosPc := aScan(aHeader,{|x| AllTrim(x[2])=="D1_PEDIDO"})
 Local aUser:={},aGrupo:={}
 Local cAlmox := ""
@@ -48,7 +56,7 @@ IF lAlmox
 ENDIF 
 
 Return lRet
-
+*/
 
 
 

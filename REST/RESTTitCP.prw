@@ -967,13 +967,13 @@ oJsonPN['F1RECNO']		:= STRZERO((cQrySE2)->F1RECNO,7)
 
 // Documentos anexos
 aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
-For nI := 1 To Len(aFiles)
-	aAdd(aAnexos,JsonObject():New())
-	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
-	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
-Next
+//For nI := 1 To Len(aFiles)
+//	aAdd(aAnexos,JsonObject():New())
+//	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+//	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+//Next
 
-aFiles := u_BKDocs(self:empresa,"SE2",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
+aFiles := u_BKDocs(self:empresa,"SE2",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1,aFiles)
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]

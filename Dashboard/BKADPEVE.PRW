@@ -28,6 +28,8 @@ BEGIN
         Descricao VARCHAR(255),
         Classificacao VARCHAR(255),
 		EventoProtheus VARCHAR(30),
+        EventoNovo VARCHAR(1),
+        DataPrc DATETIME,
     );
 END;
 
@@ -55,16 +57,18 @@ WHEN NOT MATCHED THEN
     INSERT (Codigo, 
 			Descricao, 
 			Classificacao,
-			EventoProtheus
+			EventoProtheus,
+            EventoNovo,
+            DataPrc
 
 )
     VALUES (origem.Codigo, 
 			origem.Descricao, 
 			origem.Classificacao,
-			''
+			'',
+            'S',
+            GETDATE()
 			);
-
-
 ENDCONTENT
 
 If !TCIsConnected()

@@ -81,7 +81,7 @@ cRet := oJson:ToJson()
 FreeObj(oJson)
 // CORS
 Self:SetHeader("Access-Control-Allow-Origin", "*")
-
+Self:SetHeader("X-Frame-Options", "allow-from *")
 Self:SetResponse(cRet)
   
 Return lRet
@@ -121,6 +121,7 @@ If u_BkAvPar(::userlib,@aParams,@cMsg)
 EndIf
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
+Self:SetHeader("X-Frame-Options", "allow-from *")
 self:setResponse(cHtml)
 self:setStatus(200)
 
@@ -198,6 +199,9 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
   cRet := oJsonTmp:ToJson()
   FreeObj(oJsonTmp)
   //Retorno do servico
+
+  Self:SetHeader("Access-Control-Allow-Origin", "*")
+  Self:SetHeader("X-Frame-Options", "allow-from *")
   ::SetResponse(cRet)
   Return lRet:= .T.
 EndIf
@@ -253,7 +257,7 @@ FreeObj(oJsonTmp)
 
 // CORS
 Self:SetHeader("Access-Control-Allow-Origin", "*")
-
+Self:SetHeader("X-Frame-Options", "allow-from *")
 Self:SetResponse( cJsonCli ) //-- Seta resposta
 
 Return( lRet )
@@ -496,8 +500,8 @@ if (Array.isArray(av1)) {
 		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="'+ctitbt+'" class="btn '+cbtn+'"><i class="fa fa-envelope"></i></button></div></td>';
 	} 
 
-	canexo  = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
-	canexo1 = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
+	canexo  = '' //'<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
+	canexo1 = '' //'<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
 
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['USRREM']+'</td>';
@@ -709,16 +713,14 @@ $('#tableAV1 tbody').on('click', 'td.dt-control', function () {
 loadTable();
 
 async function lida(z0recno){
-//let resposta = ''
-//let F1MsFin  = document.getElementById("F1MsFin").value;
 let dataObject = { acao:'L', };
 
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+headers.set('Content-Type', 'application/json'); // Define o tipo de conteúdo como JSON
+
 fetch('#iprest#/RestMsgUs/v4?z0recno='+z0recno+'&userlib=#userlib#&acao=L', {
-method: 'PUT',
-headers: {
-'Content-Type': 'application/json'
-},
-body: JSON.stringify(dataObject)})
+method: 'PUT', headers: headers, body: JSON.stringify(dataObject)})
 .then(response=>{
 	console.log(response);
 	return response.json();

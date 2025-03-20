@@ -1,17 +1,12 @@
 #include "rwmake.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³MT140SAI  ºAutor  ³Adilson do Prado    º Data ³  04/06/13   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Este ponto de entrada tem o objetivo de eviar a-mail       º±±
-±±º            para o grupo de compras, quando NF diferente do pedido     º±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
-
+/*/{Protheus.doc} MT140SAI
+BK - Este ponto de entrada tem o objetivo de eviar a-mail para o grupo de compras, quando NF diferente do pedido
+@Return
+@author Adilson do Prado
+@since 04/06/2013
+@version P12
+/*/
 
 USER FUNCTION MT140SAI()
 Local nOrdem := SF1->( IndexOrd() )
@@ -165,7 +160,25 @@ If ParamIxb[1] == 3 .OR. ParamIxb[1] == 4 .OR. ParamIxb[1] == 5 // Inclusão ou A
 		cAnexo := "MT140SAI"+alltrim(SF1->F1_DOC)+".html"
 		u_GrvAnexo(cAnexo,cMsg,.T.)	
 		u_BkSnMail("MT140SAI",cAssunto,cEmail,cEmailCC,cMsg,{cAnexo},.T.)
-   
+   ELSE
+
+		// Ajuste 18/03/25 - D1_HIST com valor NIL
+/*
+   		dbSelectArea("SD1") 
+    	dbSetOrder(1)
+		dbSeek(xFilial('SD1')+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA)
+		DO WHILE !EOF() .AND. xFilial('SD1')+SF1->F1_DOC+SF1->F1_SERIE+SF1->F1_FORNECE+SF1->F1_LOJA == ;
+                          SD1->D1_FILIAL+SD1->D1_DOC+ SD1->D1_SERIE+ SD1->D1_FORNECE+ SD1->D1_LOJA
+			
+			If Empty(SD1->D1_XXHIST)
+				RecLock("SD1",.f.)
+				SD1->D1_XXHIST := " "
+				MsUnlock()
+			EndIf
+
+       		SD1->(dbSkip())
+    	ENDDO
+*/
    ENDIF
    IF ParamIxb[1] == 5
    		SET DELETED ON
