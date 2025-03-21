@@ -10,7 +10,7 @@ BK - Este ponto de entrada tem o objetivo de validar as
 @version P12
 /*/
  
-User Function xMT140LOK
+User Function MT140LOK
 Local lRet	 := ParamIXB[1]
 //Local aTotais:= ParamIXB[2]
 //Local aDesp  := ParamIXB[3]

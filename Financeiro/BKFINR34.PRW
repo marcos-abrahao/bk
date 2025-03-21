@@ -913,7 +913,7 @@ DO while QSE2->(!Eof())
 	// Documentos anexos na Pré-Nota
 	aFiles := u_BKDocs(cEmpresa,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 	// Documentos anexos no Contas a Pagar
-	aFiles := u_BKDocs(cEmpresa,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1,aFiles)
+	aFiles := u_BKDocs(cEmpresa,"SE2",QSE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA),1,aFiles)
 
 	cCanvas := ""
 

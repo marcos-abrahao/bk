@@ -136,11 +136,14 @@ Private lMsErroAuto := .F.
                 {"B1_CONTA"   ,aProd[9]         ,Nil}}                      
 
     */
-    cLoc := SUBSTR(aProd[1],3,2)
+    //cLoc := SUBSTR(aProd[1],3,2)
+    cLoc := SUBSTR(aProd[1],1,2)
+
     cCod := aProd[2]
-    cDesc:= aProd[3]
+    cDesc:= ALLTRIM(UPPER(FwNoAccent(aProd[3])))
     cUn  := UPPER(Alltrim(aProd[4]))
-    cGrp := SUBSTR(aProd[5],6,4)
+    //cGrp := SUBSTR(aProd[5],6,4)
+    cGrp := "0023" //aProd[5]
 
     If Empty(cUn)
         cUn := "PC"
@@ -177,7 +180,6 @@ Private lMsErroAuto := .F.
                     {"B1_GRUPO"   ,cGrp             ,Nil},;                      
                     {"B1_TE"      ,'101'            ,Nil},;                      
                     {"B1_CONTA"   ,'34202055'       ,Nil}}                      
-
 
         lMsErroAuto := .F.    
         Begin Transaction            

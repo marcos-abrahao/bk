@@ -31,7 +31,8 @@ EndIf
 
 If __cUserId == '000000'
 	//aAdd(aDados,{"","U_BKStamp()",	"GERAL",		"Criar campo S_T_A_M_P_"})
-	aAdd(aDados,{"","U_BKMsgLmp()",	"AVISOS",		"Limpeza de registros da tabela SZ0"})
+	aAdd(aDados,{"","U_zVid0020()",	"TESTE",		"Teste Tela FwLayer"})
+    aAdd(aDados,{"","U_BKMsgLmp()",	"AVISOS",		"Limpeza de registros da tabela SZ0"})
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})

@@ -329,25 +329,19 @@ thead input {
 <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav1">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Avisos - #cUserName#</a> 
-
     <form class="d-flex">
 	    <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">Atualizar</button>
     </form>
-
-    <form class="d-flex">
-	    <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">Atualizar</button>
-    </form>
-
   </div>
 </nav>
 
-<nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2">
-<div class="container-fluid">
-<span class="navbar-text">
-	Olá! Por esta tela serão enviados os avisos do sistema.
-</span>
-</div>
-</nav>
+<!-- <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2"> -->
+<!-- <div class="container-fluid"> -->
+<!-- <span class="navbar-text"> -->
+<!-- 	Olá! Por esta tela serão enviados os avisos do sistema. -->
+<!-- </span> -->
+<!-- </div> -->
+<!-- </nav> -->
 
 </header>
 

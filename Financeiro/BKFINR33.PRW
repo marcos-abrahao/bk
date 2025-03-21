@@ -794,7 +794,7 @@ DO while QSE2->(!Eof())
 	// Documentos anexos na Pré-Nota
 	aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
 	// Documentos anexos no Contas a Pagar
-	aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
+	aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA),1)
 
 	If Len(aFilesF1) > 0 .OR. Len(aFilesE2) > 0 
 		cHtml += '  <tr>'+CRLF
@@ -915,21 +915,15 @@ Return(cHtml)
 // Retorna os Anexos do Documento de Entrada
 User Function AnexosCP(aAnexos)
 Local cFile		:= ""
-Local aFilesF1	:= {}
-Local aFilesE2	:= {}
+Local aFiles	:= {}
 Local nI 		:= 0
 
 aAnexos := {}
-aFilesF1 := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
-For nI := 1 To Len(aFilesF1)
-	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'&tpanexo=P","'+aFilesF1[nI,2]+'") '+CRLF
-	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesF1[nI,2])+'")'+CRLF
-	aAdd(aAnexos,cFile)
-Next
-aFilesE2 := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA+E2_PARCELA+E2_TIPO),1)
-For nI := 1 To Len(aFilesE2)
-	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'&tpanexo=P","'+aFilesE2[nI,2]+'") '+CRLF
-	//cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFilesE2[nI,2])+'")'+CRLF
+aFiles := u_BKDocs(cEmpAnt,"SF1",QSE2->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
+aFiles := u_BKDocs(cEmpAnt,"SE2",QSE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA),1,aFiles)
+
+For nI := 1 To Len(aFiles)
+	cFile := '=HYPERLINK("'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P","'+aFiles[nI,2]+'") '+CRLF
 	aAdd(aAnexos,cFile)
 Next
 

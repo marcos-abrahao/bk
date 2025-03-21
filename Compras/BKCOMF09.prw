@@ -26,31 +26,51 @@ If l010Auto
 	Return cCod 
 ENDIF
 
-//If !MsgYesNo("Gerar Proximo numero?",cPerg)
-If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
-	cCod := ""
-	Return cCod 
-EndIf
+If cEmpAnt <> "20"
+	If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
+		cCod := ""
+		Return cCod 
+	EndIf
 
-ValidPerg(cPerg)
-If !Pergunte(cPerg,.T.)
-	cCod := ""
-	Return cCod
-Endif
- 
-cSubPdt  	:= ALLTRIM(mv_par01)
+	ValidPerg(cPerg)
+	If !Pergunte(cPerg,.T.)
+		cCod := ""
+		Return cCod
+	Endif
+	
+	cSubPdt  	:= ALLTRIM(mv_par01)
 
-IF EMPTY(cSubPdt)
-	u_MsgLog(cPerg,"O Grupo de Produto dever ser selecionado!!","W")
-	cCod := ""
-	Return cCod 
-EndIf
+	IF EMPTY(cSubPdt)
+		u_MsgLog(cPerg,"O Grupo de Produto dever ser selecionado!!","W")
+		cCod := ""
+		Return cCod 
+	EndIf
 
-nReg := 0
+	nReg := 0
 
-For nI := 1 To Len(aGrpBK)
+	For nI := 1 To Len(aGrpBK)
 
-	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 from SB1"+aGrpBK[nI,1]+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
+		cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 FROM SB1"+aGrpBK[nI,1]+"0 WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
+		cQuery += " 	AND SUBSTRING(B1_COD,11,1) = ' ' "   // para não estourar a quantidade de casas do INT
+		cQuery += " 	AND PATINDEX('%-%',B1_COD) = 0 "   // Não considerar codigos com -
+		cQuery += " ORDER BY CAST(REPLACE(REPLACE(RTRIM(LTRIM(SUBSTRING(B1_COD, 4, 6))), CHAR(160), ''), CHAR(32), '') AS INT) DESC "
+		TCQUERY cQuery NEW ALIAS "QSB1"
+
+		dbSelectArea("QSB1")	
+		QSB1->(dbGoTop()) 
+		
+		IF VAL(QSB1->B1_COD1) > nCod
+			nCod := VAL(QSB1->B1_COD1)
+		ENDIF
+		
+		QSB1->(Dbclosearea())
+	Next
+
+Else
+	cSubPdt  	:= "215"
+	nReg := 0
+
+	cQuery := " SELECT TOP 1 SUBSTRING(B1_COD,4,6) AS B1_COD1 FROM "+RETSQLNAME("SB1")+" WHERE D_E_L_E_T_='' AND SUBSTRING(B1_COD,1,3)='"+cSubPdt+"' "  
 	cQuery += " 	AND SUBSTRING(B1_COD,11,1) = ' ' "   // para não estourar a quantidade de casas do INT
 	cQuery += " 	AND PATINDEX('%-%',B1_COD) = 0 "   // Não considerar codigos com -
 	cQuery += " ORDER BY CAST(REPLACE(REPLACE(RTRIM(LTRIM(SUBSTRING(B1_COD, 4, 6))), CHAR(160), ''), CHAR(32), '') AS INT) DESC "
@@ -58,13 +78,14 @@ For nI := 1 To Len(aGrpBK)
 
 	dbSelectArea("QSB1")	
 	QSB1->(dbGoTop()) 
-	
-	IF VAL(QSB1->B1_COD1) > nCod
+		
+	IF !QSB1->(EOF())
 		nCod := VAL(QSB1->B1_COD1)
 	ENDIF
-	
+		
 	QSB1->(Dbclosearea())
-Next
+EndIf
+
 
 nCod++
 cCod := cSubPdt+STRZERO(nCod,IIF(nCod>999,4,3))
