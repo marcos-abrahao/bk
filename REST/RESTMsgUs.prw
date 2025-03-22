@@ -328,7 +328,7 @@ thead input {
 <header>
 <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav1">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Avisos - #cUserName#</a> 
+    <a class="navbar-brand" href="#">Avisos - #cUserName#</a>
     <form class="d-flex">
 	    <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">Atualizar</button>
     </form>
@@ -409,30 +409,6 @@ let res = await fetch(url,{	method: 'GET',	headers: headers});
 console.log(error);
 	}
 }
-/*
-    try {
-        let res = await fetch(url, { method: 'GET', headers: headers });
-
-        // Verifique o status da resposta
-        if (!res.ok) {
-            throw new Error(`Erro na requisição: ${res.status} ${res.statusText}`);
-        }
-
-        // Leia a resposta como texto
-        const text = await res.text();
-
-        // Tente analisar o texto como JSON
-        try {
-            return JSON.parse(text);
-        } catch (parseError) {
-            console.error('Resposta não é um JSON válido:', text);
-            throw new Error('Resposta da API não é um JSON válido');
-        }
-    } catch (error) {
-        console.error('Erro ao buscar dados:', error);
-        throw error; // Propague o erro para ser tratado no chamador
-    }
-*/
 
 async function loadTable() {
 let av1 = await getAv1();
@@ -494,8 +470,8 @@ if (Array.isArray(av1)) {
 		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="'+ctitbt+'" class="btn '+cbtn+'"><i class="fa fa-envelope"></i></button></div></td>';
 	} 
 
-	canexo  = '' //'<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
-	canexo1 = '' //'<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
+	canexo  = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
+	canexo1 = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
 
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['USRREM']+'</td>';
@@ -714,7 +690,9 @@ headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 headers.set('Content-Type', 'application/json'); // Define o tipo de conteúdo como JSON
 
 fetch('#iprest#/RestMsgUs/v4?z0recno='+z0recno+'&userlib=#userlib#&acao=L', {
-method: 'PUT', headers: headers, body: JSON.stringify(dataObject)})
+method: 'PUT',
+headers: headers,
+body: JSON.stringify(dataObject)})
 .then(response=>{
 	console.log(response);
 	return response.json();
@@ -746,15 +724,24 @@ headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 		} catch (error) {
 	console.log(error);
 	}
+	$("#titConf").load(html);
+	$('#confModal').modal('show');
+	$('#confModal').on('hidden.bs.modal', function () {
+	location.reload();
+	})
+}
 
+/*
+function rotexec(corigem,canLib) {
+let url = '#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+corigem;
 
-//$("#titConf").load(url);
-$("#titConf").load(html);
+$("#titConf").load(url);
 $('#confModal').modal('show');
 $('#confModal').on('hidden.bs.modal', function () {
 	location.reload();
 	})
 }
+*/
 
 </script>
 </body>
@@ -780,7 +767,7 @@ cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
 // Caracteres iniciais de um arquivo UTF-8
-cHtml := u_BKUtf8() + cHtml
+//cHtml := u_BKUtf8() + cHtml
 
 // Desabilitar para testar o html
 /*

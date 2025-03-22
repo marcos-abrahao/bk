@@ -56,7 +56,7 @@ Local nTotalWidth := 0
 Local nWidth      := 0
 Local nStartX     := 0
 Local nStartY     := 0
-//Local cUrl 		  := u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
+Local cUrl 		  := u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
 Local cGetParms   := ""
 Local cHeaderGet  := ""
 Local nTimeOut    := 200
@@ -188,7 +188,7 @@ nPort := oWebChannel::connect()
 //Cria o componente que irá carregar a url
 oWebEngine := TWebEngine():New(oPanelDown, 0, 0, oPanelDown:nWidth / 2, oPanelDown:nHeight / 2,/*cUrl*/, nPort)
 //oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
-//oWebEngine:navigate(cUrl)
+oWebEngine:navigate(cUrl)
 
 // Por texto em variavel de memoria
 //oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
