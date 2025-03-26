@@ -933,6 +933,7 @@ Local cLiberado  := ""
 Local cProduto   := ""
 Local lFiltPrd   := .F.
 Local nDescRH 	 := 0
+Local cCCE2		 := ""
 
 dbSelectArea("SE2")
 dbSetOrder(1)
@@ -1016,6 +1017,7 @@ While Eval(bCondWhile)
 	cLiberado := ""
 	cProduto  := ""
 	lFiltPrd  := .F.
+	cCCE2	  := ""
 
 	dbSelectArea("SE5")
 
@@ -1345,15 +1347,15 @@ While Eval(bCondWhile)
 			ENDIF
 		ELSE   // PAGAR
     	    aSE5P:= {}
+			cCCE2:= ""
     	
     		IF SE5->E5_TIPODOC == "CH"  .AND. ALLTRIM(SE5->CANC) <> "CANC"
     		
-    		
-    // CHEQUE CANCELADO
-      //	If ALLTRIM(SE5->CANC) == "CANC"
-	//	SE5->( dbSkip() )
-	 //	Loop
-	//ENDIF
+				// CHEQUE CANCELADO
+				//	If ALLTRIM(SE5->CANC) == "CANC"
+				//	  SE5->( dbSkip() )
+				//	  Loop
+				//  ENDIF
     		
 		   		cQuery := ""
 				cQuery += " SELECT * FROM "+RETSQLNAME("SEF")+" SEF "
@@ -1409,6 +1411,7 @@ While Eval(bCondWhile)
 	   						cChave := aSE5P[_IY,4]+aSE5P[_IY,3]+aSE5P[_IY,1]+aSE5P[_IY,2] //SE5->E5_NUMERO+SE5->E5_PREFIXO+SE5->E5_CLIFOR+SE5->E5_LOJA
 	   			    	//ENDIF
 	   				ENDIF
+					cCCE2 := SE2->E2_CCUSTO
 	   			ELSE
 	  				cChave := aSE5P[_IY,4]+aSE5P[_IY,3]+aSE5P[_IY,1]+aSE5P[_IY,2] //SE5->E5_NUMERO+SE5->E5_PREFIXO+SE5->E5_CLIFOR+SE5->E5_LOJA
 	   			ENDIF
@@ -1596,8 +1599,7 @@ While Eval(bCondWhile)
 					cQuery += " GROUP BY Z2_E2NUM,Z2_E2PRF,Z2_CC "				
 	
 	 				TCQUERY cQuery NEW ALIAS "QSZ2"
-	
-						
+							
 					DbSelectArea("QSZ2")
 					QSZ2->(DbGoTop())
 	
@@ -1656,8 +1658,7 @@ While Eval(bCondWhile)
 						(cAliasTmp4)->RECEBIDOS  += nReceber
 						(cAliasTmp4)->PAGOS      += aTot[IX,2]
 						msUnlock()
-	
-	
+		
 						IF TRIM(cCC) <> "000000001"
 	                   		cDESCFIN := "" 
 	                   		cDESCFIN := ALLTRIM(aSitFin[1]) //Total Clientes
@@ -1733,9 +1734,11 @@ While Eval(bCondWhile)
 					ELSE
 						nFin := 3
 					ENDIF
-				    cCC := ""
-				    cDescrCC := ""
-			    	cCC := "000000001"
+					If Empty(cCCE2)
+			    		cCC := "000000001"
+					Else
+						cCC := cCCE2
+					EndIf
 				    cDescrCC := Posicione("CTT",1,xFilial("CTT")+cCC,"CTT_DESC01")
 	
 					dbSelectArea(cAliasTmp4)
@@ -1774,7 +1777,6 @@ While Eval(bCondWhile)
 					
 					IF nUsuario == 1
 
-					
 						// Incluir usuário que fez o movimento bancário - 16/07/15
 						//IF SE5->(FieldPos("E5_USERLGI")) <> 0
 							// Nome do usuário no campo USERLGI/A -> FWLeUserlg("A1_USERLGI", 1)

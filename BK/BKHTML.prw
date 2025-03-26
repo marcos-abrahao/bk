@@ -12,13 +12,20 @@ BK - Funcoes com parâmetros embutidos no fonte
 // Retorna IP e Porta do server REST
 User Function BkIpPort()
 Local cIpPort := "10.139.0.30:8080"
-If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer()) .OR. GetPort(1) = 1240 .OR. GetPort(1) = 1400
+If u_AmbTeste()
 	cIpPort := "10.139.0.30:8081"
 EndIf
 //u_MsgLog(,GetEnvServer()+" - "+STR(GetPort(1))+" - "+cIpPort,"I")
 
 Return cIpPort
 
+
+User Function AmbTeste()
+Local lRet := .F.
+If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer()) .OR. GetPort(1) = 1240 .OR. GetPort(1) = 1400
+	lRet := .T.
+EndIf
+Return lRet
 
 // Retorna endereço do REST BK
 User Function BKRest()

@@ -366,6 +366,7 @@ cQuery += " ,E2_PORTADO"+ CRLF
 cQuery += " ,E2_VENCREA"+ CRLF
 cQuery += " ,E2_VALOR"+ CRLF
 cQuery += " ,E2_SALDO"+ CRLF
+//cQuery += " ,E2_CCUSTO"+ CRLF
 cQuery += " ,R_E_C_N_O_ AS E2RECNO"+ CRLF
 cQuery += " FROM "+RETSQLNAME("SE2")+" SE2" + CRLF
 cQuery += " WHERE SE2.D_E_L_E_T_ = ' ' "+ CRLF
@@ -407,7 +408,7 @@ DO WHILE (cAliasQry)->(!EOF())
 	Reclock(cAliasTrb,.T.)
 	SE2->(dbGoTo((cAliasQry)->E2RECNO))
 	
-	cCCusto	:= ""
+	cCCusto	:= SE2->E2_CCUSTO
 	cJust	:= ""
 	cTitPai := ""
 	lRH		:= .F.
@@ -515,6 +516,7 @@ DO WHILE (cAliasQry)->(!EOF())
 			If Empty(cTitPai) .OR. Empty(cTipoBk)
 				cTipoBk := SB1->B1_XXGRPF
 			EndIf
+			
 			If TRIM(SB1->B1_GRUPO) $ "0008/0009/0010"
 				cDescB1 := TRIM(Posicione("SBM",1,xFilial("SBM")+SB1->B1_GRUPO,"BM_DESC"))
 			Else

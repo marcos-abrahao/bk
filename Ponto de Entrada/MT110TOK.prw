@@ -1,19 +1,12 @@
 #INCLUDE "PROTHEUS.CH"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณ MT110TOK บAutor  ณAdilson do Prado    บ Data ณ  05/04/16   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณ Responsแvel pela valida็ใo da GetDados da                  บฑฑ
-ฑฑบ          ณ Solicita็ใo de Compras 									  บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ BK                                                         บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-*/
+/*/{Protheus.doc} MT110TOK
+BK - Responsแvel pela valida็ใo da GetDados da Solicita็ใo de Compras
+@Return
+@author Adilson do Prado
+@since 05/04/2016
+@version P12
+/*/
 
 User Function  MT110TOK()
 Local nDATPRF  := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DATPRF'})
@@ -44,11 +37,13 @@ IF !lValido
 	Return(lValido) 
 ENDIF
 
-lValido  := BKALTENT()
+If cEmpAnt <> '20'
+	lValido  := BKALTENT()
 
-FOR i :=1 TO LEN(aCols)
-	aCols[i,nEndEnt] := cXXENDEN
-NEXT
+	FOR i :=1 TO LEN(aCols)
+		aCols[i,nEndEnt] := cXXENDEN
+	NEXT
+EndIf
 
 Return(lValido) 
 

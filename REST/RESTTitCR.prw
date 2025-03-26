@@ -342,6 +342,7 @@ Local aParams      	As Array
 Local cMsg         	As Character
 Local cNumTit 		:= ""
 Local nSaldo 		:= 0
+Local nLiquido		:= 0
 
 //u_MsgLog("RESTTITCR",VarInfo("vencini",self:vencini))
 
@@ -360,6 +361,33 @@ EndIf
 // Query para selecionar os Títulos a Receber
 TmpQuery(cQrySE1,self:empresa,self:vencini,self:vencfim)
 
+
+// Campos solicitados no chamado GLPI 1611:
+// 1-Empresa
+// 3-Cliente (Nome)
+// 4-Contrato (numero)
+// 5-Centro de Custos (descrição)
+// 6-Competência
+// Prefixo
+// 2-Titulo
+// 7-Data Pagamento (campo a ser preenchido)
+// 8-Banco Pagamento (campo a ser preenchido)
+// 9-Emissao
+// 10-Venc. Original
+// 11-Ultima Baixa
+// 12-Valor Bruto / Parcela
+// 13-IRRF Retido
+// 14-INSS Retido
+// 15-PIS Retido
+// 16-Cofins Retido
+// 17-CSLL Retido
+// 18-ISS Retido
+// 19-ISS Bitributado
+// 20-Conta Vinculada (valor)
+// 21-Retenção Contratual
+// 22-Valor Líquido
+// 23-Saldo a Receber
+
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
 //-------------------------------------------------------------------
@@ -370,34 +398,48 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nPos	:= Len(aListCR)
 	cNumTit	:= (cQrySE1)->(E1_PREFIXO+E1_NUM+E1_PARCELA)
 	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
-	//nSaldo := (cQrySE1)->E1_SALDO //
-	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+
 	aListCR[nPos]['EMPRESA']	:= (cQrySE1)->EMPRESA
-	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
 	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
 	aListCR[nPos]['CLIENTE'] 	:= TRIM((cQrySE1)->A1_NOME)
-	//aListCR[nPos]['VENC'] 	:= DTOC(STOD((cQrySE1)->E1_VENCREA))
-	aListCR[nPos]['VENC'] 		:= (cQrySE1)->(SUBSTR(E1_VENCREA,1,4)+"-"+SUBSTR(E1_VENCREA,5,2)+"-"+SUBSTR(E1_VENCREA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
-	//aListCR[nPos]['EMISSAO'] 	:= DTOC(STOD((cQrySE1)->E1_EMISSAO))
-	aListCR[nPos]['EMISSAO'] 	:= (cQrySE1)->(SUBSTR(E1_EMISSAO,1,4)+"-"+SUBSTR(E1_EMISSAO,5,2)+"-"+SUBSTR(E1_EMISSAO,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	aListCR[nPos]['CONTRATO']	:= (cQrySE1)->CONTRATO
+	aListCR[nPos]['DESCCC']		:= (cQrySE1)->CTT_CUSTO
 	aListCR[nPos]['COMPET']		:= TRIM((cQrySE1)->C5_XXCOMPM)
-	aListCR[nPos]['PEDIDO']		:= TRIM((cQrySE1)->E1_PEDIDO)
-	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
-	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
-	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
-	//aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
-	If !Empty((cQrySE1)->(E1_XXDTPRV))
-		aListCR[nPos]['PREVISAO']	:= (cQrySE1)->(SUBSTR(E1_XXDTPRV,1,4)+"-"+SUBSTR(E1_XXDTPRV,5,2)+"-"+SUBSTR(E1_XXDTPRV,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+
+	// Falta Data e Pagamento (a ser preeenchida)
+	If !Empty((cQrySE1)->E1_XXTPPRV)
+		aListCR[nPos]['DTPGT'] 		:= (cQrySE1)->(SUBSTR(E1_XXDTPRV,1,4)+"-"+SUBSTR(E1_XXDTPRV,5,2)+"-"+SUBSTR(E1_XXDTPRV,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	Else
-		aListCR[nPos]['PREVISAO']	:= ""
+		aListCR[nPos]['DTPGT'] 		:= ""
 	EndIf
-	aListCR[nPos]['HISTM']		:= StrIConv(ALLTRIM((cQrySE1)->E1_XXHISTM), "CP1252", "UTF-8") 
-	aListCR[nPos]['OPER']		:= (cQrySE1)->(UsrRetName(E1_XXOPER)) //(cQrySE1)->(FwLeUserLg('E1_USERLGA',1))
-	aListCR[nPos]['CONTRATO']	:= IIF(!EMPTY((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->C5_MDCONTR),ALLTRIM((cQrySE1)->E1_MDCONTR))
-	aListCR[nPos]['VENCORI']	:= (cQrySE1)->(SUBSTR(E1_VENCORI,1,4)+"-"+SUBSTR(E1_VENCORI,5,2)+"-"+SUBSTR(E1_VENCORI,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	// Falta Banco de Pagamento (a ser preenchido)
+	aListCR[nPos]['BANCO'] 		:= (cQrySE1)->E1_BCOCLI
+
+	//aListCR[nPos]['VENC'] 		:= (cQrySE1)->(SUBSTR(E1_VENCREA,1,4)+"-"+SUBSTR(E1_VENCREA,5,2)+"-"+SUBSTR(E1_VENCREA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	aListCR[nPos]['EMISSAO'] 	:= (cQrySE1)->(SUBSTR(E1_EMISSAO,1,4)+"-"+SUBSTR(E1_EMISSAO,5,2)+"-"+SUBSTR(E1_EMISSAO,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	aListCR[nPos]['VENCORI'] 	:= (cQrySE1)->(SUBSTR(E1_VENCORI,1,4)+"-"+SUBSTR(E1_VENCORI,5,2)+"-"+SUBSTR(E1_VENCORI,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	aListCR[nPos]['BAIXA'] 		:= (cQrySE1)->(SUBSTR(E1_BAIXA,1,4)+"-"+SUBSTR(E1_BAIXA,5,2)+"-"+SUBSTR(E1_BAIXA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
+	aListCR[nPos]['IRRF']       := TRANSFORM((cQrySE1)->E1_IRRF,"@E 999,999,999.99")
+	aListCR[nPos]['INSS']       := TRANSFORM((cQrySE1)->E1_INSS,"@E 999,999,999.99")
+	aListCR[nPos]['PIS']        := TRANSFORM((cQrySE1)->E1_PIS,"@E 999,999,999.99")
+	aListCR[nPos]['COFINS']     := TRANSFORM((cQrySE1)->E1_COFINS,"@E 999,999,999.99")
+	aListCR[nPos]['CSLL']       := TRANSFORM((cQrySE1)->E1_CSLL,"@E 999,999,999.99")
+	aListCR[nPos]['ISS']        := TRANSFORM(IIF((cQrySE1)->F2_RECISS = '1',(cQrySE1)->E1_ISS,0),"@E 999,999,999.99")
+	aListCR[nPos]['ISSBI']      := TRANSFORM((cQrySE1)->E1_VRETBIS,"@E 999,999,999.99")
+	aListCR[nPos]['CVINC']      := TRANSFORM((cQrySE1)->F2_XXVCVIN,"@E 999,999,999.99")
+	aListCR[nPos]['RETCTR']     := TRANSFORM((cQrySE1)->F2_XXVRETC,"@E 999,999,999.99")
+
+	nLiquido := (cQrySE1)->(E1_VALOR - E1_IRRF - E1_INSS - E1_PIS - E1_COFINS - E1_CSLL - F2_XXVCVIN - F2_XXVFUMD - IIF(F2_RECISS = '1',E1_ISS,0) - E1_VRETBIS - F2_XXVRETC)
+	aListCR[nPos]['LIQUIDO']	:= TRANSFORM(nLiquido,"@E 999,999,999.99")
+	
+	nSaldo := (cQrySE1)->E1_SALDO
+	//nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
+
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 
-	//u_MsgLog("RESTTITCR-V0",DTOC(STOD((cQrySE1)->E1_VENCORI)))
+	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
 
 	(cQrySE1)->(DBSkip())
 
@@ -464,6 +506,7 @@ cQuery += "	 ,E1_XXHIST"+CRLF
 //cQuery += "	 ,E1_USERLGI"+CRLF 
 cQuery += "	 ,E1_EMISSAO"+CRLF
 cQuery += "	 ,E1_BAIXA"+CRLF
+cQuery += "	 ,E1_BCOCLI"+CRLF
 cQuery += "	 ,E1_VENCREA"+CRLF
 cQuery += "	 ,E1_VENCORI"+CRLF
 cQuery += "	 ,E1_VALOR"+CRLF
@@ -609,7 +652,7 @@ BEGINCONTENT var cHTML
 <!-- Styling CSS -->
 #BKDTStyle#
  
-<title>Títulos Contas a Receber #datavencI# a #datavencF# #NomeEmpresa#</title>
+<title>Títulos Contas a Receber #dataI# a #dataF# #NomeEmpresa#</title>
 
 <!-- Favicon -->
 #BKFavIco#
@@ -680,11 +723,11 @@ thead input {
 	</div>
 
     <form class="d-flex">
-	  <label class="sr-only" for="DataVencI"></label>
-	  <input class="form-control me-2" type="date" id="DataVencI" value="#datavencI#" />
-	  <label class="sr-only" for="DataVencF"></label>
-	  <input class="form-control me-2" type="date" id="DataVencF" value="#datavencF#" />
-      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
+	  <label class="sr-only" for="DataI"></label>
+	  <input class="form-control me-2" type="date" id="DataI" value="#dataI#" />
+	  <label class="sr-only" for="DataF"></label>
+	  <input class="form-control me-2" type="date" id="DataF" value="#dataF#" />
+      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltDatas()">Atualizar</button>
     </form>
 
   </div>
@@ -699,20 +742,28 @@ thead input {
 <tr>
 <th scope="col"></th>
 <th scope="col">Empresa</th>
-<th scope="col">Tipo</th>
-<th scope="col" width="7%" >Título</th>
-<th scope="col" style="text-align:center;" width="5%" >Contrato</th>
-<th scope="col" width="20%">Cliente</th>
-<th scope="col" style="text-align:center;" width="5%" >Emissão</th>
-<th scope="col" style="text-align:center;" width="5%" >Vencto</th>
-<th scope="col" style="text-align:center;" width="5%" >Pedido</th>
-<th scope="col" style="text-align:center;" width="5%" >Compet</th>
-<th scope="col" style="text-align:right;">Valor</th>
-<th scope="col" style="text-align:right;">Saldo Liq.</th>
-<th scope="col" style="text-align:center;">Status</th>
-<th scope="col" style="text-align:center;">Previsão</th>
-<th scope="col">Operador</th>
-<th scope="col">Histórico</th>
+<th scope="col">Titulo</th>
+<th scope="col">Cliente</th>
+<th scope="col">Contrato</th>
+<th scope="col">Centro de Custo</th>
+<th scope="col">Compet</th>
+<th scope="col">Pagamento</th>
+<th scope="col">Banco</th>
+<th scope="col">Emissão</th>
+<th scope="col">Venc Ori.</th>
+<th scope="col">Baixa</th>
+<th scope="col">Valor</th>
+<th scope="col">IRRF</th>
+<th scope="col">INSS</th>
+<th scope="col">PIS</th>
+<th scope="col">COFINS</th>
+<th scope="col">CSLL</th>
+<th scope="col">ISS</th>
+<th scope="col">ISS Bitr.</th>
+<th scope="col">Vinculada</th>
+<th scope="col">Retenção Ctr</th>
+<th scope="col">Liquido</th>
+<th scope="col">Saldo</th>
 </tr>
 </thead>
 <tbody id="mytable">
@@ -721,16 +772,24 @@ thead input {
   <td scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Títulos...</b></td>
   <td scope="col"></td>
   <td scope="col"></td>
-  <td scope="col" style="text-align:center;"></td>
   <td scope="col"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:right;"></td>
-  <td scope="col" style="text-align:right;"></td>
-  <td scope="col" style="text-align:center;"></td>
-  <td scope="col" style="text-align:center;"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
+  <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
 </tr>
@@ -751,6 +810,14 @@ thead input {
     <th scope="col" style="text-align:right;">Saldo Liq.</th>
     <th scope="col" style="text-align:center;"></th>
     <th scope="col" style="text-align:center;"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>      
+    <th scope="col"></th>
+    <th scope="col"></th>      
+    <th scope="col"></th>
+    <th scope="col"></th>      
+    <th scope="col"></th>
+    <th scope="col"></th>      
     <th scope="col"></th>
     <th scope="col"></th>      
   </tr>
@@ -891,9 +958,9 @@ thead input {
 
 async function getCRs() {
 
-let newvenci = document.getElementById("DataVencI").value;
+let newvenci = document.getElementById("DataI").value;
 let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
-let newvencf = document.getElementById("DataVencF").value;
+let newvencf = document.getElementById("DataF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
 let newempr  = document.getElementById("btn-empresa").textContent;
 
@@ -952,47 +1019,56 @@ if (Array.isArray(titulos)) {
 	trHTML += '<tr>';
 	trHTML += '<td>'+cStatus+'</td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
-	trHTML += '<td>'+object['TIPO']+'</td>';
 
-	//trHTML += '<td id=titulo'+clin+'>'+object['TITULO']+'</td>';
 	trHTML += '<td>';
 		trHTML += '<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
 	trHTML += '</td>';
-	trHTML += '<td align="center">'+object['CONTRATO']+'</td>';	
+
 	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
-	trHTML += '<td align="center">'+object['EMISSAO']+'</td>';
-	trHTML += '<td align="center">'+object['VENC']+'</td>';
-	trHTML += '<td align="center">'+object['PEDIDO']+'</td>';
+	trHTML += '<td align="center">'+object['CONTRATO']+'</td>';	
+	trHTML += '<td>'+object['DESCCC']+'</td>';	
 	trHTML += '<td align="center">'+object['COMPET']+'</td>';
 
+	trHTML += '<td align="center">'+object['DTPGT']+'</td>';
+	trHTML += '<td align="center">'+object['BANCO']+'</td>';
+
+	trHTML += '<td align="center">'+object['EMISSAO']+'</td>';
+	trHTML += '<td align="center">'+object['VENCORI']+'</td>';
+	trHTML += '<td align="center">'+object['BAIXA']+'</td>';
+
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
+
+	trHTML += '<td align="right">'+object['IRRF']+'</td>';
+	trHTML += '<td align="right">'+object['INSS']+'</td>';
+	trHTML += '<td align="right">'+object['PIS']+'</td>';
+	trHTML += '<td align="right">'+object['COFINS']+'</td>';
+	trHTML += '<td align="right">'+object['CSLL']+'</td>';
+	trHTML += '<td align="right">'+object['ISS']+'</td>';
+	trHTML += '<td align="right">'+object['ISSBI']+'</td>';
+	trHTML += '<td align="right">'+object['CVINC']+'</td>';
+	trHTML += '<td align="right">'+object['RETCTR']+'</td>';
+	trHTML += '<td align="right">'+object['LIQUIDO']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
 	trHTML += '<td>'
 
 	// Botão para mudança de status
-	trHTML += '<div class="btn-group">'
-		trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
-		trHTML += cStatus
-		trHTML += '</button>'
+	//trHTML += '<div class="btn-group">'
+	//	trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	//	trHTML += cStatus
+	//	trHTML += '</button>'
 
-		trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\','+'\''+clin+'\')">A Receber</button>';
-		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
-		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
-		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
-		trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'3\','+'\''+cbtnids+'\','+'\''+clin+'\')">Recebido</button>';
-		trHTML += '</div>'
+	//	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
+	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\','+'\''+clin+'\')">A Receber</button>';
+	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
+	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
+	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
+	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'3\','+'\''+cbtnids+'\','+'\''+clin+'\')">Recebido</button>';
+	//	trHTML += '</div>'
 		
-	trHTML += '</td>'
+	//trHTML += '</td>'
 
-	trHTML += '<td id=prev'+clin+' align="center">'+object['PREVISAO']+'</td>';
 
-	trHTML += '<td id=oper'+clin+'>'+object['OPER']+'</td>';
-
-	trHTML += '<td id=hist'+clin+'>'+object['HISTM']+'</td>';
-
-	trHTML += '<td id=vencori'+clin+'>'+object['VENCORI']+'</td>';
 
 	trHTML += '</tr>';
 
@@ -1001,10 +1077,10 @@ if (Array.isArray(titulos)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="15" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="23" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="15" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="23" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -1042,21 +1118,28 @@ tableSE1 = $('#tableSE1').DataTable({
             defaultContent: ''
         },
         { data: 'Empresa' },
-        { data: 'Tipo' },
         { data: 'Título' },
-        { data: 'Contrato' },		
         { data: 'Cliente' },
-        { data: 'Emissão' },
-        { data: 'Vencto' },
-        { data: 'Pedido' },
+        { data: 'Contrato' },		
+        { data: 'CCusto' },		
         { data: 'Compet' },
+        { data: 'Pagamento' },
+        { data: 'Banco' },
+        { data: 'Emissao' },
+        { data: 'VencOri' },
+        { data: 'Baixa' },
         { data: 'Valor' },
-        { data: 'Saldo' },
-        { data: 'Status' },
-        { data: 'Previsão' },
-        { data: 'Operador' },
-        { data: 'Histórico' },
-		{ data: 'VencOri' }
+        { data: 'IRRF' },
+        { data: 'INSS' },
+        { data: 'PIS' },
+        { data: 'COFINS' },
+        { data: 'ISS' },
+        { data: 'CSLL' },
+        { data: 'ISSBI' },
+        { data: 'Vinculada' },
+        { data: 'Retencao' },
+        { data: 'Liquido' },
+        { data: 'Saldo' }
 
   ],
   "order": [[1,'asc']],
@@ -1381,9 +1464,9 @@ async function Excel() {
         btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
 
         // Obtém os valores dos campos de data e empresa
-        let newvenci = document.getElementById("DataVencI").value;
+        let newvenci = document.getElementById("DataI").value;
         let newvamdi = newvenci.substring(0, 4) + newvenci.substring(5, 7) + newvenci.substring(8, 10);
-        let newvencf = document.getElementById("DataVencF").value;
+        let newvencf = document.getElementById("DataF").value;
         let newvamdf = newvencf.substring(0, 4) + newvencf.substring(5, 7) + newvencf.substring(8, 10);
         let newempr = document.getElementById("btn-empresa").textContent;
 
@@ -1443,15 +1526,15 @@ async function Excel() {
 }
 
 
-async function AltVenc(){
+async function AltDatas(){
 let newempr  = document.getElementById("btn-empresa").textContent;
 AltEmpr(newempr)
 }
 
 async function AltEmpr(empresa){
-let newvenci = document.getElementById("DataVencI").value;
+let newvenci = document.getElementById("DataI").value;
 let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
-let newvencf = document.getElementById("DataVencF").value;
+let newvencf = document.getElementById("DataF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
 
 let url = '#iprest#/RestTitCR/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
@@ -1503,8 +1586,8 @@ EndIf
 //cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
 cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
-cHtml := STRTRAN(cHtml,"#datavencI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
-cHtml := STRTRAN(cHtml,"#datavencF#",SUBSTR(::vencfim,1,4)+"-"+SUBSTR(::vencfim,5,2)+"-"+SUBSTR(::vencfim,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#dataI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#dataF#",SUBSTR(::vencfim,1,4)+"-"+SUBSTR(::vencfim,5,2)+"-"+SUBSTR(::vencfim,7,2))   // Formato: 2023-10-24 input date
 cHtml := STRTRAN(cHtml,"#ZYPrev#",STR(YEAR(DATE()),4)+"-"+STRZERO(MONTH(DATE()),2)+"-"+STRZERO(DAY(DATE()),2))   // Formato: 2023-10-24 input date
 
 // --> Seleção de Empresas
@@ -1565,6 +1648,8 @@ Local cTabSE1		:= ""
 Local cTabSF2		:= ""
 Local cTabSC5		:= ""
 Local cTabSA1		:= ""
+Local cTabCTT		:= ""
+Local cTabSE5		:= ""
 Local cQuery		:= ""
 Local nE			:= 0
 Local cEmpr 		:= ""
@@ -1589,6 +1674,8 @@ For nE := 1 To Len(aEmpresas)
 	cTabSA1 := "SA1"+cEmpr+"0"
 	cTabSF2 := "SF2"+cEmpr+"0"
 	cTabSC5 := "SC5"+cEmpr+"0"
+	cTabCTT := "CTT"+cEmpr+"0"
+	cTabSE5 := "SE5"+cEmpr+"0"
 
 	cEmpresa := cEmpr
 	cNomeEmp := aEmpresas[nE,3]
@@ -1597,6 +1684,7 @@ For nE := 1 To Len(aEmpresas)
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
+	/* Antiga query
 	cQuery += " SELECT "+CRLF
 	cQuery += "	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF
 	cQuery += "	 ,E1_TIPO"+CRLF
@@ -1620,27 +1708,15 @@ For nE := 1 To Len(aEmpresas)
 
 	cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 	cQuery += "	 ,A1_NOME"+CRLF
-	//cQuery += "	 ,A1_PESSOA"+CRLF
-	//cQuery += "	 ,A1_CGC"+CRLF
 	cQuery += "	 ,(CASE WHEN E1_SALDO = E1_VALOR "+CRLF
 	cQuery += "	 		THEN E1_VALOR + E1_ACRESC - E1_DECRESC "+CRLF
 	cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
 
-	//cQuery += "	 ,F2_USERLGI"+CRLF
 	cQuery += "	 ,ISNULL(C5_XXCOMPM,SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4)) AS C5_XXCOMPM"+CRLF
 
 	cQuery += "	 ,SUBSTRING(CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END,1,9) AS C5_MDCONTR " + CRLF
 
 	cQuery += "	 FROM "+cTabSE1+" SE1 "+CRLF
-	/*
-	cQuery += "	 LEFT JOIN "+cTabSF2+" SF2 ON"+CRLF
-	cQuery += "	 	SE1.E1_FILIAL      = SF2.F2_FILIAL "+CRLF
-	cQuery += "	 	AND SE1.E1_NUM     = SF2.F2_DOC "+CRLF
-	cQuery += "	 	AND SE1.E1_PREFIXO = SF2.F2_SERIE "+CRLF
-	cQuery += "	 	AND SE1.E1_CLIENTE = SF2.F2_CLIENTE "+CRLF
-	cQuery += "	 	AND SE1.E1_LOJA    = SF2.F2_LOJA "+CRLF
-	cQuery += "	 	AND SE1.D_E_L_E_T_ = '' "+CRLF
-	*/
 	cQuery += "	 LEFT JOIN "+cTabSA1+" SA1 ON"+CRLF
 	cQuery += "	 	SA1.A1_FILIAL      = '"+xFilial("SA1")+"'"+CRLF
 	cQuery += "	 	AND SE1.E1_CLIENTE = SA1.A1_COD "+CRLF
@@ -1656,11 +1732,102 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "  AND E1_STATUS = 'A' "+CRLF
 	cQuery += "  AND E1_TIPO IN ('BOL','NF','NDC') "+CRLF
 
-	//cQuery += "  AND E1_VENCREA >= '"+xVencIni+"' "+CRLF
-	//cQuery += "  AND E1_VENCREA <= '"+xVencFim+"' "+CRLF
-
 	cQuery += "  AND E1_VENCREA >= ? --" + xVencIni + CRLF
 	cQuery += "  AND E1_VENCREA <= ? --" + xVencFim + CRLF
+	*/
+
+	cQuery += "SELECT DISTINCT "+CRLF
+	cQuery += "	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF
+	cQuery += ",A1_NOME"+CRLF
+	cQuery += ",A1_CGC"+CRLF
+	cQuery += ",A1_PESSOA"+CRLF
+	cQuery += ",E1_BCOCLI"+CRLF
+	cQuery += ",E1_VENCREA"+CRLF
+	cQuery += ",E1_VENCORI"+CRLF
+	cQuery += ",E1_BAIXA"+CRLF
+	cQuery += ",E1_VALOR"+CRLF
+	cQuery += ",E1_SALDO" + CRLF
+	cQuery += ",CASE WHEN E1_TIPO <> 'NDC' THEN C5_XXCOMPM ELSE SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4) END AS C5_XXCOMPM"  + CRLF
+	cQuery += ",E1_PREFIXO"+CRLF
+	cQuery += ",E1_NUM"+CRLF
+	cQuery += ",E1_PARCELA"+CRLF
+	cQuery += ",E1_CLIENTE"+CRLF
+	cQuery += ",E1_LOJA"+CRLF
+	cQuery += ",E1_EMISSAO"+CRLF
+	cQuery += ",E1_VALOR"+CRLF
+	cQuery += ",E1_IRRF"+CRLF
+	cQuery += ",E1_INSS"+CRLF
+	cQuery += ",E1_PIS"+CRLF
+	cQuery += ",E1_COFINS"+CRLF
+	cQuery += ",E1_CSLL"+CRLF
+	cQuery += ",E1_ISS"+CRLF
+	cQuery += ",E1_VRETBIS "+CRLF
+	cQuery += ",E1_XXDTPRV"+CRLF
+	cQuery += ",E1_XXTPPRV"+CRLF
+	cQuery += ",CONVERT(VARCHAR(1000),CONVERT(Binary(1000),E1_XXHISTM)) E1_XXHISTM "+CRLF
+	cQuery += ",SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
+	cQuery += ",F2_RECISS" + CRLF
+	cQuery += ",F2_XXVCVIN" + CRLF
+	cQuery += ",F2_XXVFUMD" + CRLF
+	cQuery += ",F2_XXVRETC" + CRLF
+	cQuery += ",E1_XXISSBI" +CRLF
+	cQuery += ",CASE E1_XXCUSTO WHEN '' THEN CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1
+	cQuery += "     ELSE C5_MDCONTR END ELSE E1_XXCUSTO END AS CONTRATO" + CRLF
+	cQuery += ",CTT_CUSTO" + CRLF
+	cQuery += ",CASE WHEN E1_VALOR<>E1_SALDO THEN 'Baixa Parcial' ELSE '' END AS E1_XXOBX " + CRLF
+	cQuery += ",(SELECT SUM(E5_VALOR) FROM "+cTabSE5+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC = 'DC' AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
+	cQuery += "   AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5DESC "+ CRLF
+	cQuery += ",(SELECT SUM(E5_VALOR) FROM "+cTabSE5+" SE5 WHERE E5_PREFIXO = F2_SERIE AND E5_NUMERO = F2_DOC  AND E5_TIPO = 'NF' AND  E5_CLIFOR = F2_CLIENTE AND E5_LOJA = F2_LOJA AND E5_TIPODOC IN ('MT','JR','CM') AND E5_RECPAG = 'R' AND E5_SITUACA <> 'C' AND E5_DTCANBX = '' " + CRLF
+	cQuery += "   AND SE5.D_E_L_E_T_ = ' ' AND E5_FILIAL = '"+xFilial("SE5")+"') AS XX_E5MULTA "+ CRLF
+	cQuery += " FROM "+cTabSE1+ " SE1 " + CRLF
+	cQuery += " LEFT JOIN "+cTabSF2+ " SF2 ON SF2.D_E_L_E_T_='' AND SE1.E1_NUM=SF2.F2_DUPL " + CRLF
+	cQuery += "      AND SE1.E1_PREFIXO=SF2.F2_PREFIXO AND SE1.E1_CLIENTE=SF2.F2_CLIENTE AND SE1.E1_LOJA=SF2.F2_LOJA" + CRLF
+	cQuery += " LEFT JOIN "+cTabSC5+ " SC5 ON SC5.D_E_L_E_T_='' AND SC5.C5_NUM=SE1.E1_PEDIDO " + CRLF
+	cQuery += " LEFT JOIN "+cTabSA1+ " SA1 ON SA1.D_E_L_E_T_='' AND SA1.A1_COD=SE1.E1_CLIENTE AND SA1.A1_LOJA=SE1.E1_LOJA" + CRLF
+	cQuery += " LEFT JOIN "+cTabCTT+ " CTT ON CTT.D_E_L_E_T_='' AND (CASE E1_XXCUSTO WHEN '' THEN CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END ELSE E1_XXCUSTO END) = CTT.CTT_CUSTO" + CRLF
+
+	cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_TIPO IN('NF','NDC','BOL')" + CRLF
+
+	//IF nEmissao <> 2 .AND. nOpcRel == 1
+	//	cQuery += " AND SE1.E1_SALDO > 0 " + CRLF
+	//ENDIF 
+
+	//IF nEmissao == 1
+	//	cQuery += " AND C5_XXCOMPM='"+cCompet+"'" + CRLF
+	//ELSEIF nEmissao == 2
+	//	cQuery += " AND E1_VENCREA >= '"+DTOS(dDataI)+"' AND E1_VENCREA <= '"+DTOS(dDataF)+"'" + CRLF
+	//ELSEIF nEmissao == 3
+	//	IF !EMPTY(cContrato) 
+	//		cQuery += " AND (C5_MDCONTR='"+ALLTRIM(cContrato)+"' OR  C5_ESPECI1='"+ALLTRIM(cContrato)+"' )" + CRLF
+	//	ELSEIF !EMPTY(cAnoComp) 
+	//		cQuery += " AND SUBSTRING(E1_VENCREA,1,4)="+cAnoComp + CRLF
+	//	ENDIF
+	//ELSEIF nEmissao == 4
+	//	cQuery += " AND E1_EMISSAO>='"+DTOS(dDataI)+"' AND E1_EMISSAO<='"+DTOS(dDataF)+"'" + CRLF
+	//ELSEIF nEmissao == 5
+	//	IF !EMPTY(cNFIni) 
+	//		cQuery += " AND E1_NUM >= '"+ALLTRIM(cNFIni)+"'" + CRLF
+	//	ENDIF
+	//	IF !EMPTY(cNFFim) 
+	//		cQuery += " AND E1_NUM <= '"+ALLTRIM(cNFFim)+"'" + CRLF
+	//	ENDIF
+	//ENDIF 
+
+	//If nOpcRel == 2
+		// Viculadas / Recuperaveis
+	//	cQuery += " AND (F2_XXVCVIN > 0 OR F2_XXVRETC > 0 OR E1_XXISSBI > 0) "
+	//ElseIf nOpcRel == 3
+	//	cQuery += " AND E1_XXISSBI > 0 "
+	//EndIf
+
+	//IF nEmissao == 4
+	//	cQuery += "ORDER BY E1_EMISSAO"
+	//ELSEIF nEmissao == 5
+	//	cQuery += "ORDER BY E1_NUM"
+	//ELSE
+	//	cQuery += "ORDER BY E1_VENCREA,E1_PREFIXO,E1_NUM" + CRLF
+	//ENDIF
+
 	aAdd(aBinds,xVencIni)
 	aAdd(aBinds,xVencFim)
 Next
@@ -1670,8 +1837,7 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  FROM RESUMO " + CRLF
 */
-cQuery += " ORDER BY EMPRESA,E1_VENCREA,A1_NOME " + CRLF
-
+cQuery += " ORDER BY EMPRESA,E1_VENCREA,A1_NOME,E1_PREFIXO,E1_NUM " + CRLF
 
 u_LogMemo("RESTTITCR1.SQL",cQuery)
 

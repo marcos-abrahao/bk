@@ -64,12 +64,11 @@ Local aHeader 	  := {}
 
 Private oWebChannel := TWebChannel():New()
 
-Aadd(aHeader, "Content-Type: text/html; charset=utf8")
-Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
-
-cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
-//cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
-
+If u_AmbTeste()
+    Aadd(aHeader, "Content-Type: text/html; charset=utf8")
+    Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
+    cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
+EndIf
 
 //cUrl := u_BkAvUs(.F.)
 
@@ -150,7 +149,7 @@ EndIf
 
   
 // Calcula a posição dos botões
-nNumButtons := 7
+nNumButtons := 7  //7
 nTotalWidth := (nTamBt * nNumButtons) + (nEsps * (nNumButtons - 1)) // Largura total dos botões + espaçamento
 nWidth := oPanelUp:nWidth / 2
 
@@ -188,12 +187,16 @@ nPort := oWebChannel::connect()
 //Cria o componente que irá carregar a url
 oWebEngine := TWebEngine():New(oPanelDown, 0, 0, oPanelDown:nWidth / 2, oPanelDown:nHeight / 2,/*cUrl*/, nPort)
 //oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
-oWebEngine:navigate(cUrl)
 
-// Por texto em variavel de memoria
-//oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
+If u_AmbTeste()
+    // Por texto em variavel de memoria
+    oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
+Else
+    oWebEngine:navigate(cUrl)
+EndIf
 
-oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT
+
+//oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT
 oDlg:Activate()
 
 Return
@@ -210,8 +213,6 @@ User Function WebAtivo()
    Endif
 
 Return cInfoWebAgent
-
-
 
 
 

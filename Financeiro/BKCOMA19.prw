@@ -86,7 +86,7 @@ Private dDatPrf  := CTOD("")
 Private cXXMTCM  := "1"
 Private cXXJUST  := ""
 Private cXXDCC   := TamSX3("CTT_CUSTO")[1]
-Private cXXENDEN := SC1->C1_XXENDENT
+Private cXXENDEN := SC1->C1_XXENDEN
 
 Private nPosCod
 Private nPosDesc
@@ -114,18 +114,20 @@ DEFINE MSDIALOG oDlgPvt TITLE "Inclusão de Itens Sol. de Compras" FROM 000, 000 
 	@ nLin+2, 010 SAY "Limite Entrega:"  SIZE 50, 7 OF oDlgPvt PIXEL 
 	@ nLin,   060 MSGET dDATPRF PIXEL VALID (dDatPrf > dDataBase) SIZE 50,10 Of oDlgPvt    
 
-
-	@ nLin+2, 120 SAY 'Motivo da Compra' PIXEL SIZE 50,10 Of oDlgPvt
+	@ nLin+2, 120 SAY 'Motivo da Compra:' PIXEL SIZE 50,10 Of oDlgPvt
 	@ nLin,   180 COMBOBOX cXXMTCM  ITEMS aMTCM SIZE 100,010 Pixel Of oDlgPvt  VALID(Pertence("123"))
 
-	@ nLin+2, 290  SAY 'Centro Custo' PIXEL SIZE 50,10 Of oDlgPvt
+	@ nLin+2, 290  SAY 'Centro Custo:' PIXEL SIZE 50,10 Of oDlgPvt
 	@ nLin,   340  MSGET cCC PIXEL SIZE 50,10 Of oDlgPvt  F3 "CTT" VALID(!Empty(cCC) .AND. Ctb105CC() .AND. !EMPTY(cXXDCC:= CTT->CTT_DESC01))  
-	@ nLin,   400  MSGET cXXDCC PIXEL SIZE 100,10 Of oDlgPvt WHEN .F.  
+	@ nLin,   400  MSGET cXXDCC PIXEL SIZE 150,10 Of oDlgPvt WHEN .F.  
 
 	nLin += 15
 
-	@ nLin+2, 010 SAY 'Justificativa' PIXEL SIZE 50,10 Of oDlgPvt
+	@ nLin+2, 010 SAY 'Justificativa:' PIXEL SIZE 50,10 Of oDlgPvt
 	oMemo:= tMultiget():New(nLin,60,{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oDlgPvt,250,20,,,,,,.T.) 
+
+	@ nLin+2, 340  SAY 'Endereço de entrega:' PIXEL SIZE 70,10 Of oDlgPvt
+	@ nLin,   400  MSGET cXXENDEN PIXEL SIZE 150,10 Of oDlgPvt
 
 	nLin += 23
 
@@ -205,6 +207,7 @@ Private lMsErroAuto := .F.
 
 aCab :={{"C1_XXMTCM"	,cXXMTCM	,Nil },;
 		{"C1_XXJUST"	,cXXJUST	,Nil },;
+		{"C1_XXENDEN"	,cXXENDEN	,Nil },;
 		{"C1_SOLICIT"	,cUserName	,Nil }}
 
 DbSelectArea(cAliasTmp)
