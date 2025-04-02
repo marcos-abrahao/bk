@@ -135,7 +135,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 			AADD(aPedAlmx,{SC7->C7_ITEM,SC7->C7_PRODUTO,SC7->C7_DESCRI,SC7->C7_UM,STR(SC7->C7_QUANT,6,2),TRANSFORM(SC7->C7_PRECO,"@E 999,999,999.99"),TRANSFORM(SC7->C7_TOTAL,"@E 999,999,999.99"),SC7->C7_OBS,SC1->C1_CC,SC1->C1_XXDCC,SC1->C1_SOLICIT})
 
 	   		AADD(aEmail,{SC1->C1_SOLICIT,SC1->C1_NUM,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,STR(SC1->C1_QUANT-SC1->C1_XXQEST,6,2),DTOC(SC1->C1_EMISSAO),DTOC(SC1->C1_DATPRF),aMotivo[val(SC1->C1_XXMTCM)],TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99"),TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99"),"<b>Obs: "+SC1->C1_OBS,"<b>Contrato: "+SC1->C1_CC,"<b>Desc.Contr: "+SC1->C1_XXDCC,"<b>Objeto: "+SC1->C1_XXOBJ})
-	   		IF SM0->M0_CODIGO == "01" .AND. SUBSTR(SC1->C1_CC,1,3) = '000'
+	   		IF cEmpAnt == "01" .AND. SUBSTR(SC1->C1_CC,1,3) = '000'
 				lContrato := .F.
 	   		ELSE
 	   			lContrato := .T.
@@ -165,32 +165,33 @@ FOR IX_ := 1 TO LEN(aPedido)
 		SC7->(DbSkip())
 	ENDDO
 	
-	DbSelectArea("SCR")
-	SCR->(DbSetOrder(1))
-	DbSeek(xFilial("SCR")+'PC'+cNumPC,.T.)
-	Do While SCR->(!eof()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(cNumPC)
-		IF lContrato
-			IF SCR->CR_USER $ cGerGestao
-				AADD(aSC1USER,SC1->C1_USER)
-			// 13/07/23 - Remover Trecho para Michele Liberar
-			//ELSEIF SCR->CR_USER $ cGerCompras
-			//	RecLock("SCR",.F.)
-			//	SCR->(dbDelete())
-			//	SCR->(MsUnlock())
+	If cEmpAnt <> "20" // Barcas 01/04/2025
+		DbSelectArea("SCR")
+		SCR->(DbSetOrder(1))
+		DbSeek(xFilial("SCR")+'PC'+cNumPC,.T.)
+		Do While SCR->(!eof()) .AND. ALLTRIM(SCR->CR_NUM) == ALLTRIM(cNumPC)
+			IF lContrato
+				IF SCR->CR_USER $ cGerGestao
+					AADD(aSC1USER,SC1->C1_USER)
+				// 13/07/23 - Remover Trecho para Michele Liberar
+				//ELSEIF SCR->CR_USER $ cGerCompras
+				//	RecLock("SCR",.F.)
+				//	SCR->(dbDelete())
+				//	SCR->(MsUnlock())
+				ENDIF
+			ELSE
+				IF SCR->CR_USER $ cGerCompras
+					AADD(aSC1USER,SC1->C1_USER)
+				ELSEIF SCR->CR_USER $ cGerGestao
+					RecLock("SCR",.F.)
+					SCR->(dbDelete())
+					SCR->(MsUnlock())
+				ENDIF
 			ENDIF
-		ELSE
-			IF SCR->CR_USER $ cGerCompras
-				AADD(aSC1USER,SC1->C1_USER)
-			ELSEIF SCR->CR_USER $ cGerGestao .AND. cEmpAnt <> "20" // Barcas 17/02/25
-				RecLock("SCR",.F.)
-				SCR->(dbDelete())
-				SCR->(MsUnlock())
-			ENDIF
-		ENDIF
 
-	    SCR->(dbskip())
-	Enddo
-
+			SCR->(dbskip())
+		Enddo
+	EndIf
  	//EMAIL SOLICITANTE
  	cEmail := u_EmailAdm()
 	cEmail += u_aUsrEmail(aSC1USER)

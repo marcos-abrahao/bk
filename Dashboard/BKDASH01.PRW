@@ -74,7 +74,7 @@ EndIf
 //u_WaitLog(cPerg,{|oSay| u_FINA05S({cEmpPar,cFilPar,cUser}) },"Importando txt financeiro ADP - Empresa "+FWCodEmp())
 
 // Executar somente se a empresa for a BK
-If FWCodEmp() == "01"
+If FWCodEmp() == "01" .OR. FWCodEmp() == "20"
 
 	aDados  := {}
 
@@ -104,52 +104,57 @@ If FWCodEmp() == "01"
 		EndIf
 	EndIf
 
-	// Dashboard
-	aAdd(aDados,{cP19	,"U_BKDSPRD()",		"DASHBOARD",	"Atualização da tabela PRODUTOS"})
-	aAdd(aDados,{cP0613	,"U_BKDSDSP1()",	"DASHBOARD",	"Atualização da tabela PREVDESP1"})
-	aAdd(aDados,{cP0613	,"U_BKDSDSP2()",	"DASHBOARD",	"Atualização da tabela PREVDESP2"})
-	aAdd(aDados,{cP19	,"U_BKDSEMP()",		"DASHBOARD",	"Atualização da tabela EMPRESAS"})
-	aAdd(aDados,{cP19	,"U_BKDSCC()",		"DASHBOARD",	"Atualização da tabela CCUSTOS"})
-	aAdd(aDados,{cP0613	,"U_BKDSFOL()",		"DASHBOARD",	"Atualização da tabela FOLHA"})
-	aAdd(aDados,{cP0613	,"U_BKDSFER()",		"DASHBOARD",	"Atualização da tabela FERIAS"})
-	aAdd(aDados,{cP19	,"U_BKDSUSR()",		"DASHBOARD",	"Atualização da tabela USUARIOS"})
-	aAdd(aDados,{cP0613	,"U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
-	aAdd(aDados,{cP0613	,"U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
-	aAdd(aDados,{cP0613	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
-	aAdd(aDados,{cP0712	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
-	aAdd(aDados,{cP0712	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
-	aAdd(aDados,{cP0712	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
-	aAdd(aDados,{cP0712	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
-	aAdd(aDados,{cP0712	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
-	aAdd(aDados,{cP0712	,"U_BKDSCTR()",		"DASHBOARD",	"Atualização da tabela CONTRATOS"})
-	aAdd(aDados,{cP0712	,"U_BKDSPLA()",		"DASHBOARD",	"Atualização da tabela PLANILHAS"})
-	aAdd(aDados,{cP0712	,"U_BKDSCRO()",		"DASHBOARD",	"Atualização da tabela CRONOGRAMAS"})
-	aAdd(aDados,{cP0712	,"U_BKDSGG()",		"DASHBOARD",	"Atualização da tabela GASTOSGERAIS"})
-	aAdd(aDados,{cP0712	,"U_BKDSGCO()",     "DASHBOARD",    "Atualização da tabela GASTOSCONSORCIOS"})
-	aAdd(aDados,{cP0712	,"U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
-	aAdd(aDados,{cP0712	,"U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
-	aAdd(aDados,{cP19D	,"U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
-	aAdd(aDados,{cP19D	,"U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
-	aAdd(aDados,{cP19D	,"U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
 
-	// Outros programas
-	aAdd(aDados,{cP19D	,"U_BKMsgLmp()",	"OUTROS",		"Limpeza de registros da tabela SZ0"})
+	If FWCodEmp() == "01" 
+		// Dashboard
+		aAdd(aDados,{cP19	,"U_BKDSPRD()",		"DASHBOARD",	"Atualização da tabela PRODUTOS"})
+		aAdd(aDados,{cP0613	,"U_BKDSDSP1()",	"DASHBOARD",	"Atualização da tabela PREVDESP1"})
+		aAdd(aDados,{cP0613	,"U_BKDSDSP2()",	"DASHBOARD",	"Atualização da tabela PREVDESP2"})
+		aAdd(aDados,{cP19	,"U_BKDSEMP()",		"DASHBOARD",	"Atualização da tabela EMPRESAS"})
+		aAdd(aDados,{cP19	,"U_BKDSCC()",		"DASHBOARD",	"Atualização da tabela CCUSTOS"})
+		aAdd(aDados,{cP0613	,"U_BKDSFOL()",		"DASHBOARD",	"Atualização da tabela FOLHA"})
+		//aAdd(aDados,{cP0613	,"U_BKDSFER()",		"DASHBOARD",	"Atualização da tabela FERIAS"})
+		aAdd(aDados,{cP19	,"U_BKDSUSR()",		"DASHBOARD",	"Atualização da tabela USUARIOS"})
+		aAdd(aDados,{cP0613	,"U_BKDSTUR()",		"DASHBOARD",	"Atualização da tabela FOLHAFIL e FOLHATUR"})
+		//aAdd(aDados,{cP0613	,"U_BKDSBKTUR()",	"DASHBOARD",	"Atualização da tabela FOLHAFILBK"})
+		//aAdd(aDados,{cP0613	,"U_BKDSBKFAL()",	"DASHBOARD",	"Atualização da tabela FOLHAFAL"})
+		aAdd(aDados,{cP0712	,"U_BK040PER()",	"DASHBOARD",	"Atualização da tabela BK040PER"})
+		aAdd(aDados,{cP0712	,"U_BKDSSC()",		"DASHBOARD",	"Atualização da tabela SOLCOMPRAS"})
+		aAdd(aDados,{cP0712	,"U_BKDSCFAT()",	"DASHBOARD",	"Atualização da tabela CANCFATURAMENTO"})
+		aAdd(aDados,{cP0712	,"U_BKDSGES()",		"DASHBOARD",	"Atualização da tabela GESTORES"})
+		aAdd(aDados,{cP0712	,"U_BKDSGLO()",		"DASHBOARD",	"Atualização da tabela GLOSAS"})
+		aAdd(aDados,{cP0712	,"U_BKDSCTR()",		"DASHBOARD",	"Atualização da tabela CONTRATOS"})
+		aAdd(aDados,{cP0712	,"U_BKDSPLA()",		"DASHBOARD",	"Atualização da tabela PLANILHAS"})
+		aAdd(aDados,{cP0712	,"U_BKDSCRO()",		"DASHBOARD",	"Atualização da tabela CRONOGRAMAS"})
+		aAdd(aDados,{cP0712	,"U_BKDSGG()",		"DASHBOARD",	"Atualização da tabela GASTOSGERAIS"})
+		aAdd(aDados,{cP0712	,"U_BKDSGCO()",     "DASHBOARD",    "Atualização da tabela GASTOSCONSORCIOS"})
+		aAdd(aDados,{cP0712	,"U_BKDSFAT()",		"DASHBOARD",	"Atualização da tabela FATURAMENTO"})
+		aAdd(aDados,{cP0712	,"U_BKDSGER()",		"DASHBOARD",	"Atualização da tabela GERAL"})
+		//aAdd(aDados,{cP19D	,"U_BKDSPRTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER"})
+		//aAdd(aDados,{cP19D	,"U_BKPRBKTUR()",	"DASHBOARD",	"Criação/atualização da Procedure BKTURNOVER1"})
+		//aAdd(aDados,{cP19D	,"U_BKDSPRFAL()",	"DASHBOARD",	"Criação/atualização da Procedure BKFALTAS"})
+
+		// Outros programas
+		aAdd(aDados,{cP19D	,"U_BKMsgLmp()",	"OUTROS",		"Limpeza de registros da tabela SZ0"})
 
 
-	// EspelhoADP
-	aAdd(aDados,{cP19	,"U_BKADPEVE()",	"ADP",			"Atualização da tabela EspelhoADP.dbo.EventosProtheus"})
+		// EspelhoADP
+		aAdd(aDados,{cP19	,"U_BKADPEVE()",	"ADP",			"Atualização da tabela EspelhoADP.dbo.EventosProtheus"})
+
+		// Avisos
+		aAdd(aDados,{cP0712	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})
+		aAdd(aDados,{cP19D	,"U_BKMSG002()",	"AVISOS",		"Aviso de entidades com Conta Contábil Bloqueada"})
+		aAdd(aDados,{cP19D	,"U_BKMSG003()",	"AVISOS",		"Aviso de Clientes sem virgula no endereço"})
+		aAdd(aDados,{cP19D	,"U_BKMSG004()",	"AVISOS",		"Aviso de Clientes sem Conta Bancária para Depósito"})
+		aAdd(aDados,{cP1H	,"U_BKMSG005()",	"AVISOS",		"Aviso de Pedidos de Venda Liberados"})
+		aAdd(aDados,{cP12	,"U_BKMSG006()",	"AVISOS",		"Aviso de lançamentos de despesas"})
+		aAdd(aDados,{cP19D	,"U_BKMSG007()",	"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
+		aAdd(aDados,{cP19	,"U_BKMSG010()",	"AVISOS",		"Aviso de Novos eventos ADP cadastrados"})
+	EndIf
 
 	// Avisos
-	aAdd(aDados,{cP0712	,"U_BKMSG001()",	"AVISOS",		"Aviso de documentos pendentes de aprovação"})
-	aAdd(aDados,{cP19D	,"U_BKMSG002()",	"AVISOS",		"Aviso de entidades com Conta Contábil Bloqueada"})
-	aAdd(aDados,{cP19D	,"U_BKMSG003()",	"AVISOS",		"Aviso de Clientes sem virgula no endereço"})
-	aAdd(aDados,{cP19D	,"U_BKMSG004()",	"AVISOS",		"Aviso de Clientes sem Conta Bancária para Depósito"})
-	aAdd(aDados,{cP1H	,"U_BKMSG005()",	"AVISOS",		"Aviso de Pedidos de Venda Liberados"})
-	aAdd(aDados,{cP12	,"U_BKMSG006()",	"AVISOS",		"Aviso de lançamentos de despesas"})
-	aAdd(aDados,{cP19D	,"U_BKMSG007()",	"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
 	aAdd(aDados,{cP19	,"U_BKMSG008()",	"AVISOS",		"Aviso de Pedidos de compras não entregues"})
-	aAdd(aDados,{cP19	,"U_BKMSG009()",	"AVISOS",		"Aviso de Solicitações de compras em aberto"})
-	aAdd(aDados,{cP19	,"U_BKMSG010()",	"AVISOS",		"Aviso de Novos eventos ADP cadastrados"})
+	aAdd(aDados,{cP19	,"U_BKMSG009()",	"AVISOS",		"Aviso de Solicitações de compras em aberto"})		
 
 	// Financeiro
 	//aAdd(aDados,{cP1H	,"U_BKFINA05()",	"FINANCEIRO",	"Importar txt lançamentos da Folha ADP"})

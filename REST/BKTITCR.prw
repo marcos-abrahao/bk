@@ -16,27 +16,6 @@
 User Function BKTITCR(lShell)
 
 Local cToken  := u_BKEnCode()
-Local dUtil   := dDatabase - Day(dDatabase) + 1
-//Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
-Local cUrl     := u_BKIpServer()+'/recursos/loadcr.html?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-60)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken+'&bkip='+u_BKRest()+'/RestTitCR/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
-
-u_LoadCR()
-
-Default lShell := .T.
-
-
-If lShell
-    ShellExecute("open",cUrl, "", "", 1)
-    Return .T.
-EndIf
-
-Return cUrl
-
-
-
-User Function zBKTITCR(lShell)
-
-Local cToken  := u_BKEnCode()
 //Local oRestClient := FWRest():New(u_BkRest())
 Local aHeader := {} //{"tenantId: 99,01"}
 Local dUtil   := dDatabase - Day(dDatabase) + 1
@@ -73,6 +52,27 @@ ShellExecute("open", cUrl, "", "", 1)
 
 Return .T.
 
+
+
+
+User Function yBKTITCR(lShell)
+
+Local cToken  := u_BKEnCode()
+Local dUtil   := dDatabase - Day(dDatabase) + 1
+//Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
+Local cUrl     := u_BKIpServer()+'/recursos/loadcr.html?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-60)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken+'&bkip='+u_BKRest()+'/RestTitCR/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
+
+u_LoadCR()
+
+Default lShell := .T.
+
+
+If lShell
+    ShellExecute("open",cUrl, "", "", 1)
+    Return .T.
+EndIf
+
+Return cUrl
 
 
 User Function LoadCR()

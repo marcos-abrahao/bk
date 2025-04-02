@@ -10,10 +10,11 @@ BK - Array com as empresas do grupo BK
 @version P12
 /*/
 
-User Function BKGrupo(nOpc)
-Local aReturn   := {}
-Local nE        := 0
-Default nOpc    := 2 // Ativas
+User Function BKGrupo(nOpc,lBarcas)
+Local aReturn     := {}
+Local nE          := 0
+Default nOpc      := 2 // Ativas
+Default lBarcas   := .T.
 
 /*
 nOpc = 1  // Retorna todas empresas
@@ -22,41 +23,58 @@ nOpc = 3  // Empresas que usam Gestão de Contratos
 nOpc = 4  // Empresas que possuem despesas em contratos e RH
 nOpc = 5  // Empresas que efetuam Faturamento
 nOpc = 6  // Empresas em Barueri - SP
+nOpc = 7  // CC Consorcio
+nOpc = 8  // Barcas Rio
 */
 // Todas Empresas
-//                                                              Ativa - 4
-//                                                                  GCT - 5
-//                                                                      Desp - 6
-//                                                                          Fat - 7
-//                                                                               Barueri - 8
-//                                                                                  CC Consorcio - 9
-Local aEmpresas	:= {    {"01","BK"              ,"BK"           ,"S","S","S","S","S",""         },;
-                        {"02","MMDK"            ,"MMDK"         ,"S","S","S","S","N",""         },;
-                        {"04","ESA"             ,"ESA"          ,"N","N","N","N","N",""         },;
-                        {"06","BKDAHER SUZANO"  ,"BKDAHER S"    ,"N","N","N","N","N",""         },;
-                        {"07","JUST SOFTWARE"   ,"JUST"         ,"N","N","N","N","N",""         },;
-                        {"08","BHG CAMPINAS"    ,"BHG CAMP"     ,"N","N","N","N","N",""         },;
-                        {"09","BHG OSASCO"      ,"BHG OSAS"     ,"N","N","N","N","N",""         },;
-                        {"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N",""         },;
-                        {"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N",""         },;
-                        {"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N",""         },;
-                        {"14","BALSA NOVA"      ,"BALSA"        ,"S","N","N","N","N","302000508"},;
-                        {"15","BHG INT 3"       ,"BHG"          ,"S","N","S","S","S","305000554"},;
-						{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386000609"},;
-						{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         },;
-                        {"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623"},;
-                        {"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         },;
-                        {"20","BARCAS RIO"      ,"BARCAS R."    ,"S","S","S","S","S","408000644"},;
-                        {"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""         },;
-                        {"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         } }
+//                                                      Ativa - 4
+//                                                          GCT - 5
+//                                                              Desp - 6
+//                                                                  Fat - 7
+//                                                                       Barueri - 8
+//                                                                          CC Consorcio - 9
+//                                                                                       Barcas - 10
 
-         
+Local aEmpresas	:= {}
+
+aAdd(aEmpresas,{"01","BK"              ,"BK"           ,"S","S","S","S","S",""         ,"N"})
+aAdd(aEmpresas,{"02","MMDK"            ,"MMDK"         ,"S","S","S","S","N",""         ,"N"})
+aAdd(aEmpresas,{"04","ESA"             ,"ESA"          ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"06","BKDAHER SUZANO"  ,"BKDAHER S"    ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"07","JUST SOFTWARE"   ,"JUST"         ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"08","BHG CAMPINAS"    ,"BHG CAMP"     ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"09","BHG OSASCO"      ,"BHG OSAS"     ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N",""         ,"N"})
+aAdd(aEmpresas,{"14","BALSA NOVA"      ,"BALSA"        ,"S","N","N","N","N","302000508","N"})
+aAdd(aEmpresas,{"15","BHG INT 3"       ,"BHG"          ,"S","N","S","S","S","305000554","N"})
+aAdd(aEmpresas,{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386000609","N"})
+aAdd(aEmpresas,{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         ,"N"})
+aAdd(aEmpresas,{"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623","N"})
+aAdd(aEmpresas,{"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         ,"N"})
+If lBarcas
+aAdd(aEmpresas,{"20","BARCAS RIO"      ,"BARCAS R."    ,"S","S","S","S","S","408000644","S"})
+EndIf
+aAdd(aEmpresas,{"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         ,"N"})
+
 For nE := 1 To Len(aEmpresas)
     If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S"
-        aAdd(aReturn,aEmpresas[nE])
+       aAdd(aReturn,aEmpresas[nE])
     EndIf
 Next
 Return aReturn
+
+User Function BkEmpr(nOpc)
+Default aRet := {}
+Default nOpc := 2 // Ativas
+If cEmpAnt == "20"
+    aRet := u_BKGrupo(8,.T.)
+Else 
+    aRet := u_BKGrupo(nOpc,.F.)
+EndIf
+Return aRet
 
 
 // Retorna Campo do Array de empresas - Geralmente Nome(2) ou Nome reduzido(3)
@@ -84,3 +102,5 @@ Return u_BKGrupo(5)
 // Empresas em Barueri
 User Function BkBarueri()
 Return u_BKGrupo(6)
+
+

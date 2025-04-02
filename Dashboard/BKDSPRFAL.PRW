@@ -1,5 +1,14 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "TOTVS.CH"
+/*/
+
+
+ROTINA DESATIVADA EM 28/03/2025 - SOLICITADO POR FERNANDO SAMPAIO
+
+
+/*/
+
+
 
 /*/{Protheus.doc} BKDSPRFAL
 BK - Atualização da Procedure BKFALTAS do banco de dados dataP10

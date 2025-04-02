@@ -723,11 +723,19 @@ Return "000005"
 
 // Master Diretoria
 User Function GrpMDir()
-Return "000007"
+Local cRet := "000007"
+If cEmpAnt == "20"
+    cRet := "000052"
+EndIf
+Return cRet
 
 // Master Repac
 User Function GrpRepac()
-Return "000008"
+Local cRet := "000008"
+If cEmpAnt == "20"
+    cRet := "000052"
+EndIf
+Return cRet
 
 // Basic Gestão
 User Function GrpBGct()
@@ -743,11 +751,19 @@ Return "000043"
 
 // Master Compras
 User Function GrpMCompras()
-Return "000015"
+cRet := "000015"
+If cEmpAnt == "20"
+    cRet := "000048"
+EndIf
+Return cRet
 
 // User Compras
 User Function GrpUCompras()
-Return "000016"
+cRet := "000016"
+If cEmpAnt == "20"
+    cRet := "000048"
+EndIf
+Return cRet
 
 // Fiscal
 User Function GrpFisc()
@@ -766,25 +782,46 @@ Return u_GrpUAlm()+'/'+u_GrpUAAlm()+"/"+u_GrpMAlm()
 
 // User Almoxarifado
 User Function GrpUAlm()
-Return "000021"
+cRet := "000021"
+If cEmpAnt == "20"
+    cRet := "000049"
+EndIf
+Return cRet
 
 // Master Almoxarifado
 User Function GrpMAlm()
-Return "000027"
+cRet := "000027"
+If cEmpAnt == "20"
+    cRet := "000049"
+EndIf
+Return cRet
 
 // User Almoxarifado / Ativo Fixo
 User Function GrpUAAlm()
-Return "000032"
+cRet := "000032"
+If cEmpAnt == "20"
+    cRet := "000049"
+EndIf
+Return cRet
 
 
 // User User Controladoria
 User Function GrpUCtrl()
-Return "000037"
+cRet := "000037"
+If cEmpAnt == "20"
+    cRet := "000051" // Gestor de Area Barcas
+EndIf
+Return cRet
 
 
 // User Master Lib Docs
+
 User Function GrpMLibDc()
-Return "000038"
+cRet := "000038"
+If cEmpAnt == "20"
+    cRet := "000050" // Master Libera Docs Barcas
+EndIf
+Return cRet
 
 // Grupos de Grupos (caracter) -----------------------
 
@@ -808,14 +845,20 @@ Return "000016/000197/000276/000000"
 
 // Usuário Gerente Compras
 User Function GerCompras()
-// Michele
-Return "000138"
+Local cRet := "000138"  // Michele
+If cEmpAnt == "20"
+    cRet := "000342" // Teyla
+EndIf
+Return cRet
 
 
 // Usuário Gerente Gestão
 User Function GerGestao()
-// Fabia
-Return "000023"
+Local cRet := "000023"  // Fabia
+If cEmpAnt == "20"
+    cRet := "000341" // Marcio Barbosa 
+EndIf
+Return cRet
 
 
 // Usuário Gerente Gestão Petrobras
@@ -851,12 +894,21 @@ cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 Return cEMail
 
 
-// Email para Grupo do (Fabio (removido),Barbara,Jose Amauri,Bianca,Wendell)
+// Email para Grupo do (Barbara,Jose Amauri,Bianca,Wendell)
 User Function EmEstAlm(cId,lAll,cxEmail)
-Local aUsers := {"000232","000216","000310","000321"}
-Local cEmails:= ""
+Local aUsers  := {}
+Local cEmails := ""
 
 Default cxEmail := "-"
+
+If cEmpAnt == "20"
+              //Marieta  Lorosa  Welington Murilo   Eduardo  Igor     Fabiano
+    aUsers := {"000332","000333","000334","000369","000354","000370","000348"}
+Else
+              //Barbara,Jose Amauri,Bianca,Wendell
+    aUsers := {"000232","000216","000310","000321"}
+EndIf
+
 
 If Ascan(aUsers,cId) > 0 .OR. lAll
 	cEmails := u_aUsrEmail(aUsers,cxEmail)
@@ -867,6 +919,10 @@ Return cEmails
 // Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M, Wiliam Lisboa, Edelcio)
 User Function aUsrGestao()
 Local aUsers := {"000000","000023","000153","000240","000241","000288","000309"}
+If cEmpAnt == "20"
+    //          Admin    Bruno    MM       M Barbs  Jacieno
+    aUsers := {"000000","000153","000240","000341","000340"}
+EndIf
 Return aUsers
 
 // Email para Grupo Master Gestão
@@ -892,6 +948,7 @@ For nI := 1 To Len(aUsers)
 		EndIf
 	EndIf
 Next
+cEmails  := STRTRAN(cEmails,';;',';')
 
 Return cEmails
 

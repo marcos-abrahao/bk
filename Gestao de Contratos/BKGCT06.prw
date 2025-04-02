@@ -60,7 +60,7 @@ u_MsgLog("BKGCT06","Inicio Processo - "+FWCodEmp())
 
 //cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
 
-If FWCodEmp() == "01" //.OR. cEmpPar = "01"
+If FWCodEmp() == "01" .OR. FWCodEmp() == "20"
 	u_WaitLog("V9BKGct06", {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
 	//u_WaitLog("BKMSG008",  {|| u_BKMSG008()} ,"Processando avisos de pedidos de compras não entregues")
 	//u_WaitLog("BKMSG009",  {|| u_BKMSG009()} ,"Processando aviso de Solicitação de compras em aberto")
@@ -2254,7 +2254,13 @@ EndIf
     
 If nHandle > 0
 	fClose(nHandle)
-	lOk := CpyT2S( _cArqs , cPath, .T. )
+
+	If IsBlind()
+		u_MsgLog(cPrw,"Exito ao criar "+_cArqs,"E")
+	Else   
+		lOk := CpyT2S( _cArqs , cPath, .T. )
+	EndIf
+
 Else
 	fClose(nHandle)
     u_MsgLog(cPrw,"Falha na criação do arquivo "+_cArqS,"E")
@@ -2836,7 +2842,7 @@ Local aEmail	:= {}
 Local cPrw		:= "V9BKGct06"
 
 Local cGerGestao := u_GerGestao()
-Local aBKGrupo  := u_BKGrupo()
+Local aBKGrupo  := u_BKEmpr()
 Local nE 		:= 0
 
 u_MsgLog("V9BKGct06",cAssunto)

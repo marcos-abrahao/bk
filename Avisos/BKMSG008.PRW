@@ -24,7 +24,7 @@ Local cAnexo    := ""
 Local aCabs		:= {}
 Local aEmail	:= {}
 Local cProg		:= "BKMSG008"
-Local aBKGrupo	:= u_BKGrupo()
+Local aBKGrupo	:= u_BKEmpr()
 Local nE		:= 0
 Local aUsers 	:= {}
 Local aGrupos 	:= {u_GrpMCompras(),u_GrpUCompras()}
@@ -33,8 +33,8 @@ Local aDeptos 	:= {}
 cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 lJobV2 := IsBlind()
 
-If FWCodEmp() <> "01"
-	u_MsgLog(cProg,"Esta Funcao Rodar somente na empresa 01")
+If FWCodEmp() <> "01" .AND. FWCodEmp() <> "20"
+	u_MsgLog(cProg,"Esta funcao somente rodar na empresa 01 ou 20","I")
 	Return Nil
 EndIf
 
@@ -60,10 +60,10 @@ For nE := 1 To Len(aBKGrupo)
 	cQuery := "SELECT C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
 	cQuery += " FROM SC7"+aBkGrupo[nE,1]+"0 SC7"
 	cQuery += " INNER JOIN SC1"+aBkGrupo[nE,1]+"0 SC1 ON SC1.D_E_L_E_T_='' AND C7_NUMSC = C1_NUM"
-	cQuery += " INNER JOIN SA2"+aBkGrupo[nE,1]+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
-	cQuery += " INNER JOIN CTT"+aBkGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO"
-	cQuery += "  WHERE SC7.D_E_L_E_T_='' AND C7_RESIDUO='' AND C7_QUJE < C7_QUANT"
-	cQuery += "   AND C7_QTDACLA < C7_QUANT"  // Não lista pedidos em pré-nota (02/07/2021)
+	cQuery += " LEFT JOIN SA2"+aBkGrupo[nE,1]+"0 SA2 ON SA2.D_E_L_E_T_='' AND C7_FORNECE = A2_COD"
+	cQuery += " LEFT JOIN CTT"+aBkGrupo[nE,1]+"0 CTT ON CTT.D_E_L_E_T_='' AND C7_CC = CTT_CUSTO"
+	cQuery += "  WHERE SC7.D_E_L_E_T_='' AND C7_RESIDUO='' "   // AND C7_QUJE < C7_QUANT
+	cQuery += "   AND (C7_QUJE+C7_QTDACLA) < C7_QUANT"  // Não lista pedidos em pré-nota (02/07/2021)
 	cQuery += " GROUP BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
 	cQuery += " ORDER BY C7_NUM,C7_DATPRF,C7_FORNECE,A2_NOME,C1_SOLICIT,CTT_CUSTO,CTT_DESC01"
 	

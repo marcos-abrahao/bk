@@ -71,7 +71,9 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
     IF ValType(aAnexos) <> "A"
         aAnexos    := {}
     ENDIF
- 
+
+    cAssunto := StrIConv( cAssunto, "CP1252", "UTF-8")
+
 	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 
 	// Para testes

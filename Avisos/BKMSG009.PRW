@@ -26,7 +26,7 @@ Local aEmail	:= {}
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni
 Local cProg		:= "BKMSG009"
-Local aBKGrupo  := u_BKGrupo()
+Local aBKGrupo  := u_BKEmpr()
 Local nE		:= 0
 Local mCSV 		:= ""
 Local cAnexo 	:= ""
@@ -38,8 +38,8 @@ Local aDeptos 	:= {}
 
 lJobV2 := IsBlind()
 
-If FWCodEmp() <> "01"
-	u_MsgLog(cProg,"Esta Funcao Rodar somente na empresa 01","I")
+If FWCodEmp() <> "01" .AND. FWCodEmp() <> "20"
+	u_MsgLog(cProg,"Esta funcao somente rodar na empresa 01 ou 20","I")
 	Return Nil
 EndIf
 

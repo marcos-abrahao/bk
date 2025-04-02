@@ -1,6 +1,15 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "TOTVS.CH"
 
+/*/
+
+
+ROTINA DESATIVADA EM 28/03/2025 - SOLICITADO POR FERNANDO SAMPAIO
+
+
+/*/
+
+
 /*/{Protheus.doc} BKDSFER
 BK - Atualização da tabela FERIAS do banco de dados PowerBk
 

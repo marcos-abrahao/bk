@@ -27,6 +27,7 @@ Local cNUser	:= ""
 Local cUser 	:= ""
 Local cForPagto := ""
 Local aUser 	:= {}
+Local aSuper	:= {}
 Local cGerGestao  := u_GerGestao()
 Local cGerCompras := u_GerCompras()
 Local nTotPed 	:= 0
@@ -87,7 +88,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	ENDDO    
 
 	IF !lAprov
-		cAssunto:= "Solicitação de Liberação do Pedido de Compra nº.: "+alltrim(cNumPC)+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Solicitação de Liberação do Pedido de Compra "+alltrim(cNumPC)+" - "+FWEmpName(cEmpAnt)
 		DbSelectArea("SC7")
 		DbSeek(xFilial("SC7")+cNumPC,.T.)
 		cUser := SC7->C7_USER
@@ -179,7 +180,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 					PswOrder(1) 
 					PswSeek(SCR->CR_USER) 
 					aUser  := PswRet(1)
-					IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
+					IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 						cEmail += ALLTRIM(aUser[1,14])+';'
 					ENDIF
 				// 13/07/23 - Remover Trecho para Michele Liberar
@@ -193,7 +194,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 					PswOrder(1) 
 					PswSeek(SCR->CR_USER) 
 					aUser  := PswRet(1)
-					IF !EMPTY(aUser[1,14])  .AND. !aUser[1][17]
+					IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 						cEmail += ALLTRIM(aUser[1,14])+';'
 					ENDIF
 				ELSEIF SCR->CR_USER $ cGerGestao .AND. cEmpAnt <> "20" // Barcas 17/02/25
@@ -205,7 +206,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	
 		    SCR->(dbskip())
 		Enddo
-	
+
 		IF !EMPTY(cXXJUST)
 		    cJust := ""
   			nJust := 0
@@ -218,12 +219,19 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 
  		//EMAIL SOLICITANTE
  		FOR _IX := 1 TO LEN(aSC1USER)
-			PswOrder(1) 
-			PswSeek(aSC1USER[_IX,1]) 
-			aUser  := PswRet(1)
-			IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-				cEmail += ALLTRIM(aUser[1,14])+';'
-			ENDIF
+			//PswOrder(1) 
+			//PswSeek(aSC1USER[_IX,1]) 
+			//aUser  := PswRet(1)
+			//IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
+			//	cEmail += ALLTRIM(aUser[1,14])+';'
+			//ENDIF
+
+			cEmail += u_aUsrEmail({aSC1USER[_IX,1]},cEmail)
+			// Barcas 02/04/25
+			If cEmpAnt == "20"
+				aSuper := u_ArSuper(aSC1USER[_IX,1])
+				cEmail += u_aUsrEmail(aSuper,cEmail)
+			EndIf				
  		NEXT
 		
 		aCabs   := {"Solicitante/Cotação","Cod.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licitação/Val.Cotado","Tot.Licitação/Tot.Cotado","OBS/For.Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}

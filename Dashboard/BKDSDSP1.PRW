@@ -1,6 +1,16 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "TOTVS.CH"
 
+
+/*/
+
+
+ROTINA DESATIVADA EM 28/03/2025 - SOLICITADO POR FERNANDO SAMPAIO
+
+
+/*/
+
+
 /*/{Protheus.doc} BKDSDSP1
 BK - Atualização da tabela PREVDESP1 do banco de dados PowerBk
 

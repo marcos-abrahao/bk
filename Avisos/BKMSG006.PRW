@@ -197,8 +197,10 @@ Do While !Eof()
 
 	// Envia o e-mail para os superiores do usuário também
 	aSuper := u_ArSuper(QTMP->USR_ID)
-	aAdd(aSuper,"000023") // Fabia
-	aAdd(aSuper,"000288") // Wiliam Lisboa
+	If cEmpAnt <> "20"
+		aAdd(aSuper,"000023") // Fabia
+		aAdd(aSuper,"000288") // Wiliam Lisboa
+	EndIf
 
 	lDtInf	:= .F.
 	Do While !EOF() .AND. cEmail == QTMP->USR_EMAIL

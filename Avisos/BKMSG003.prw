@@ -22,9 +22,13 @@ Local cEmailCC  := u_EmailAdm()
 Local aCabs   	:= {"Empresa","Código","Identificação","Endereço","Bairro","Municipio","UF"}
 Local aEmail 	:= {}
 Local cMsg		:= ""
-//Local aUsers 	:= {}
+Local aUsers 	:= {}
+Local aGrupos 	:= {u_GrpMLibDc()} // Grupo Master Lib Docs
+Local aDeptos 	:= {}
 
 Private cProg := "BKMSG003"
+
+cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 
 cQuery := "WITH MSG AS ( " + CRLF
 

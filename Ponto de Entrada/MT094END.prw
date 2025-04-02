@@ -55,7 +55,7 @@ Local cMCompras   := ALLTRIM(GetMv("MV_XXUMCOM"))
 
 // Emails colocados manualmente para atender a demanda com urgência / Alterar para grupo posteriormente 25/11/2019 - Marcos - a pedido do Fabio Querino
 // 10/08/20 Removido aprendiz.almoxarifado e ricardo.monaco
-Local cEmLibPed := "joao.vitor@bkconsultoria.com.br;"
+Local cEmLibPed := IIF(cEmpAnt <> "20","joao.vitor@bkconsultoria.com.br;","")
 
 Local nTotPed   := 0
 Local cEmUser   := ""
@@ -75,6 +75,8 @@ EndIf
 
 //MsgInfo(str(nOpcao,3))
 
+// 23/07/15 - Incluir no email o usuário que liberou
+cEmail += u_aUsrEmail({__cUserID},cEmail)
 
 IF ALLTRIM(cTipoDoc) <> "PC"
 
@@ -82,34 +84,8 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 		Return Nil
 	ENDIF
 
-	cEmUSER := ""
-	PswOrder(1) 
-	PswSeek(SF1->F1_XXUSER) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		If !ALLTRIM(aUser[1,14]) $ cEMail
-			cEmUSER += ALLTRIM(aUser[1,14])+';'
-		EndIf
-	ENDIF                                                                                                
+	cEmail  += u_aUsrEmail({SF1->F1_XXUSER,SF1->F1_XXUSERS},cEmail)
 
-	PswSeek(SF1->F1_XXUSERS) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		If !ALLTRIM(aUser[1,14]) $ cEMail
-			cEmUSER += ALLTRIM(aUser[1,14])+';'
-		EndIf
-	ENDIF
-	
-	// 23/07/15 - Incluir no email o usuário que liberou
-	PswSeek(__cUserId) 
-	aUser  := PswRet(1)
-	IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
-		If !ALLTRIM(aUser[1,14]) $ cEMail
-			cEmUSER += ALLTRIM(aUser[1,14])+';'
-		EndIf
-	ENDIF
-	
-	cEmail += cEmUSER
 	u_xxLog(u_SLogDir()+"MT094END.LOG","1-"+cEmail) 
 	       
 	RecLock("SF1",.F.)
@@ -129,7 +105,6 @@ IF ALLTRIM(cTipoDoc) <> "PC"
 	AADD(aEmail,{SF1->F1_DOC,SF1->F1_SERIE,SF1->F1_FORNECE,SF1->F1_LOJA,SF1->F1_VALBRUT,UsrFullName(RetCodUsr())})
 
 	cMsg    := u_GeraHtmB(aEmail,cAssunto,aCabs,"MT094END","",cEmail,cEmailCC)
-	cEmail  := STRTRAN(cEmail,';;',';')
 
 	cAnexo := "MT094END"+ALLTRIM(SF1->F1_DOC)+".html"
 	u_GrvAnexo(cAnexo,cMsg,.T.)
@@ -143,15 +118,6 @@ AADD(aMotivo,"Início de Contrato")
 AADD(aMotivo,"Reposição Programada")
 AADD(aMotivo,"Reposição Eventual")
 
-PswOrder(1) 
-PswSeek(__cUserId) 
-aUser  := PswRet(1)
-IF !EMPTY(aUser)
-	cNUser := aUser[1,2]
-	If !ALLTRIM(aUser[1,14]) $ cEmail
-		cEmail += ALLTRIM(aUser[1,14])+';'
-	EndIf
-ENDIF
 u_xxLog(u_SLogDir()+"MT094END.LOG","2-"+cEmail)
 
 cTPLIBER := ""
@@ -233,7 +199,7 @@ IF nOpcao == 4 //Era 2
 		u_xxLog(u_SLogDir()+"MT094END.LOG","4-"+cEmail)
 
 		cAssunto:= "Solicitação de Liberação do Pedido de Compra: "+alltrim(nPedido)+" - "+FWEmpName(cEmpAnt)
-     	AADD(aEmail,{"Aquardando Liberação - Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
+     	AADD(aEmail,{"Aguardando Liberação - Liberado em "+DTOC(dLiberado)+" por: "+cNUser,"","","","","","","","","","","","","","",IIF(!EMPTY(cOBS),"OBS: "+cOBS,"")})
        	AADD(aEmail,{"","","","","","","","","","","","","","","",""})
     
 	ENDIF

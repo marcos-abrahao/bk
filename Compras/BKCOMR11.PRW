@@ -48,7 +48,6 @@ aAdd( aParam, { 1, "Centro de Custos:" 		, SPACE(TamSx3("C1_CC")[1])	, ""    , "
 aAdd( aParam, { 1, "Grupo de Produtos:"		, SPACE(3)					, "@!"  , "", ""	, "" ,  0  , .F. })
 aAdd( aParam, { 1, "Data Inicial:" 			, CTOD("")					, ""    , "", ""	, "" , 70  , .F. })
 aAdd( aParam, { 1, "Data Final:" 			, CTOD("")					, ""    , "", ""	, "" , 70  , .F. })  
- 
 
 /*  
 aParametros	 	Array of Record	 	Array contendo as perguntas
