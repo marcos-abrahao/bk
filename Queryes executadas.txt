@@ -1,7 +1,18 @@
 
 ==============================================================
 ==============================================================
+
 ==============================================================
+-- 03/04/2025 - aJUSTE AGENCIA E DIGITO SZ2 PJ
+
+SELECT SUBSTRING(RA_BCDEPSA,4,4),SUBSTRING(RA_BCDEPSA,8,1),* FROM SZ2010 
+LEFT JOIN SRA900 ON Z2_PRONT = RA_MAT
+WHERE Z2_CTRID = '20250401151656' AND Z2_AGENCIA = '****'
+
+UPDATE SZ2010 SET Z2_AGENCIA = SUBSTRING(RA_BCDEPSA,4,4),Z2_DIGAGEN = SUBSTRING(RA_BCDEPSA,8,1)
+FROM SZ2010 
+LEFT JOIN SRA900 ON Z2_PRONT = RA_MAT
+WHERE Z2_CTRID = '20250401151656' AND Z2_AGENCIA = '****'
 ==============================================================
 --13/03/2025
 

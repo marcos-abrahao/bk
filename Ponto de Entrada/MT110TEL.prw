@@ -75,10 +75,19 @@ nLin += 15
 nLin += 15
 
 @ nLin,aPosGet[1,1] SAY 'Justificativa' PIXEL SIZE 50,10 Of oNewDialog
-oMemo:= tMultiget():New(nLin,aPosGet[1,2],{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oNewDialog,250,20,,,,,,.T.) 
-            
+oMemo:= tMultiget():New(nLin,aPosGet[1,2],{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oNewDialog,250,20,,,,,,.T.,,,/*bwhen*/,,,,{|| VldJust()}) 
 
 RETURN
+
+
+Static Function VldJust()
+Local lRet := .T.
+If Empty(cXXJUST)
+	u_MsgLog("MT110TEL","Preencha a justificativa","E")
+	lRet := .F.
+EndIf
+Return lRet
+
 
  
 //Manipula as dimensões do cabeçalho da S.C

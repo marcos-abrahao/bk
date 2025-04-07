@@ -49,7 +49,7 @@ PRIVATE aCtrId 	:= {}
 PRIVATE oSay
 PRIVATE aParam := {}
 PRIVATE nTotSel := 0
-PRIVATE cTitulo:= "Geraros dados para NFS PJ90"
+PRIVATE cTitulo:= "Gerar dados para NFS PJ90"
 PRIVATE dDTPGTOI := CTOD("")
 PRIVATE dDTPGTOF := CTOD("")
 

@@ -178,6 +178,9 @@ If (dDatPrf <= dDataBase)
 ElseIf Empty(cCC) .OR. !ValidaCusto(cCC,,,,.T.) 
 	u_MsgLog(cProg,"Centro de Custos não encontrado!","E")
 	lRet := .F.
+ElseIf Empty(cXXJUST)
+	u_MsgLog(cProg,"Justificativa deve ser preeenchida!","E")
+	lRet := .F.
 EndIf
 Return (lRet)
 

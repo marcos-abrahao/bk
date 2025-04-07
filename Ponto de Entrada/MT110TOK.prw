@@ -12,6 +12,7 @@ User Function  MT110TOK()
 Local nDATPRF  := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_DATPRF'})
 Local nEndEnt  := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXENDEN'})
 //Local nCC      := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_CC'})
+//Local nJust    := aScan(aHeader,{|x| AllTrim(x[2]) == 'C1_XXJUST'})
 Local lValido  := .T. 
 LOcal aCols1
 Local i			as Numeric
@@ -33,7 +34,13 @@ IF dDATPRF <= DA110DATA
 ENDIF
 
 IF !lValido
-	MSGSTOP("Data Limite Entrega deve ser maior que a Emissão") 
+	u_MsgLog("MT110TOK","Data Limite Entrega deve ser maior que a Emissão","E")
+	Return(lValido) 
+ENDIF
+
+// 02/04/2025 - Justificativa Obrigatória
+IF Empty(cXXJUST)
+	u_MsgLog("MT110TOK","Justificativa deve ser preenchida","E")
 	Return(lValido) 
 ENDIF
 

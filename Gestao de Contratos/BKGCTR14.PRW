@@ -2726,67 +2726,68 @@ FOR _nI := 1 TO nPeriodo
 
 			nIndDesp := 1
 			cOutros  := 'S'
+			If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha ADP
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
-
-				//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VT
-				cVALGG := 0
-				IF nDespGeral == 1 .AND. nCompras == 0
-					IF !EMPTY(cSeqProj)
-           				dbSelectArea("SZL")
-						SZL->(dbSetOrder(1))
-						IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'12',.F.))
-							cVALGG := SZL->ZL_VALOR
-						ELSE
-							DbSelectArea("SZL")
-							RecLock("SZL",.T.)
-							SZL->ZL_FILIAL 	:= xFilial("SZL")
-							SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
-							SZL->ZL_TIPO	:= '01'
-							SZL->ZL_DATA   	:= dDtProj
-							SZL->ZL_SEQ   	:= cSeqProj
-							SZL->ZL_CODIGO 	:= '12'
-							SZL->ZL_DESC 	:= "VT"
-							SZL->ZL_VALOR  	:= 0
-							SZL->(msUnlock())
-                   		ENDIF
+					//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VT
+					cVALGG := 0
+					IF nDespGeral == 1 .AND. nCompras == 0
+						IF !EMPTY(cSeqProj)
+							dbSelectArea("SZL")
+							SZL->(dbSetOrder(1))
+							IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'12',.F.))
+								cVALGG := SZL->ZL_VALOR
+							ELSE
+								DbSelectArea("SZL")
+								RecLock("SZL",.T.)
+								SZL->ZL_FILIAL 	:= xFilial("SZL")
+								SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
+								SZL->ZL_TIPO	:= '01'
+								SZL->ZL_DATA   	:= dDtProj
+								SZL->ZL_SEQ   	:= cSeqProj
+								SZL->ZL_CODIGO 	:= '12'
+								SZL->ZL_DESC 	:= "VT"
+								SZL->ZL_VALOR  	:= 0
+								SZL->(msUnlock())
+							ENDIF
+						ENDIF
 					ENDIF
-           		ENDIF
 
-				cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-				cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
-		   		
-			ENDIF
+					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+					
+				ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
-				//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VR/VA
-				cVALGG := 0
-				IF nDespGeral == 1 .AND. nCompras == 0
-					IF !EMPTY(cSeqProj)
-           				dbSelectArea("SZL")
-						SZL->(dbSetOrder(1))
-						IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'14',.F.))
-							cVALGG := SZL->ZL_VALOR
-						ELSE
-							DbSelectArea("SZL")
-							RecLock("SZL",.T.)
-							SZL->ZL_FILIAL 	:= xFilial("SZL")
-							SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
-							SZL->ZL_TIPO	:= '01'
-							SZL->ZL_DATA   	:= dDtProj
-							SZL->ZL_SEQ   	:= cSeqProj
-							SZL->ZL_CODIGO 	:= '14'
-							SZL->ZL_DESC 	:= "VR/VA"
-							SZL->ZL_VALOR  	:= 0
-							SZL->(msUnlock())
-                   		ENDIF
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
+					//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VR/VA
+					cVALGG := 0
+					IF nDespGeral == 1 .AND. nCompras == 0
+						IF !EMPTY(cSeqProj)
+							dbSelectArea("SZL")
+							SZL->(dbSetOrder(1))
+							IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'14',.F.))
+								cVALGG := SZL->ZL_VALOR
+							ELSE
+								DbSelectArea("SZL")
+								RecLock("SZL",.T.)
+								SZL->ZL_FILIAL 	:= xFilial("SZL")
+								SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
+								SZL->ZL_TIPO	:= '01'
+								SZL->ZL_DATA   	:= dDtProj
+								SZL->ZL_SEQ   	:= cSeqProj
+								SZL->ZL_CODIGO 	:= '14'
+								SZL->ZL_DESC 	:= "VR/VA"
+								SZL->ZL_VALOR  	:= 0
+								SZL->(msUnlock())
+							ENDIF
+						ENDIF
 					ENDIF
-           		ENDIF
 
-				cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-				cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
-			ENDIF
+				ENDIF
+			EndIf
 
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR. TMPX2->BM_STATUS = '1'; 
 				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)
@@ -2997,67 +2998,68 @@ FOR _nI := 1 TO nPeriodo
 				nIndDesp := IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1) 
 				nAuxVl   := TMPX2->D1_TOTAL/nIndDesp
 
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+				If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha ADP
+					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 
-					//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VT
-					cVALGG := 0
-					IF nDespGeral == 1 .AND. nCompras == 0
-						IF !EMPTY(cSeqProj)
-           					dbSelectArea("SZL")
-							SZL->(dbSetOrder(1))
-							IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'12',.F.))
-								cVALGG := SZL->ZL_VALOR
-							ELSE
-								DbSelectArea("SZL")
-								RecLock("SZL",.T.)
-								SZL->ZL_FILIAL 	:= xFilial("SZL")
-								SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
-								SZL->ZL_TIPO	:= '01'
-								SZL->ZL_DATA   	:= dDtProj
-								SZL->ZL_SEQ   	:= cSeqProj
-								SZL->ZL_CODIGO 	:= '12'
-								SZL->ZL_DESC 	:= "VT"
-								SZL->ZL_VALOR  	:= 0
-								SZL->(msUnlock())
-                   			ENDIF
+						//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VT
+						cVALGG := 0
+						IF nDespGeral == 1 .AND. nCompras == 0
+							IF !EMPTY(cSeqProj)
+								dbSelectArea("SZL")
+								SZL->(dbSetOrder(1))
+								IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'12',.F.))
+									cVALGG := SZL->ZL_VALOR
+								ELSE
+									DbSelectArea("SZL")
+									RecLock("SZL",.T.)
+									SZL->ZL_FILIAL 	:= xFilial("SZL")
+									SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
+									SZL->ZL_TIPO	:= '01'
+									SZL->ZL_DATA   	:= dDtProj
+									SZL->ZL_SEQ   	:= cSeqProj
+									SZL->ZL_CODIGO 	:= '12'
+									SZL->ZL_DESC 	:= "VT"
+									SZL->ZL_VALOR  	:= 0
+									SZL->(msUnlock())
+								ENDIF
+							ENDIF
 						ENDIF
-           			ENDIF
 
-					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+						cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+						cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
-				ENDIF
-	
-				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
-					//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VRVA
-					cVALGG := 0
-					IF nDespGeral == 1 .AND. nCompras == 0
-						IF !EMPTY(cSeqProj)
-           					dbSelectArea("SZL")
-							SZL->(dbSetOrder(1))
-							IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'14',.F.))
-								cVALGG := SZL->ZL_VALOR
-							ELSE
-								DbSelectArea("SZL")
-								RecLock("SZL",.T.)
-								SZL->ZL_FILIAL 	:= xFilial("SZL")
-								SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
-								SZL->ZL_TIPO	:= '01'
-								SZL->ZL_DATA   	:= dDtProj
-								SZL->ZL_SEQ   	:= cSeqProj
-								SZL->ZL_CODIGO 	:= '14'
-								SZL->ZL_DESC 	:= "VR/VA"
-								SZL->ZL_VALOR  	:= 0
-								SZL->(msUnlock())
-                   			ENDIF
+					ENDIF
+		
+					IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
+						//BUSCA GASTOS GERAIS NA PROJE플O FINANCEIRA - VRVA
+						cVALGG := 0
+						IF nDespGeral == 1 .AND. nCompras == 0
+							IF !EMPTY(cSeqProj)
+								dbSelectArea("SZL")
+								SZL->(dbSetOrder(1))
+								IF SZL->(dbSeek(xFilial("SZL")+ALLTRIM(QTMP->CNF_CONTRA)+"01"+DTOS(dDtProj)+cSeqProj+'14',.F.))
+									cVALGG := SZL->ZL_VALOR
+								ELSE
+									DbSelectArea("SZL")
+									RecLock("SZL",.T.)
+									SZL->ZL_FILIAL 	:= xFilial("SZL")
+									SZL->ZL_CONTRAT	:= ALLTRIM(QTMP->CNF_CONTRA)
+									SZL->ZL_TIPO	:= '01'
+									SZL->ZL_DATA   	:= dDtProj
+									SZL->ZL_SEQ   	:= cSeqProj
+									SZL->ZL_CODIGO 	:= '14'
+									SZL->ZL_DESC 	:= "VR/VA"
+									SZL->ZL_VALOR  	:= 0
+									SZL->(msUnlock())
+								ENDIF
+							ENDIF
 						ENDIF
-           			ENDIF
 
-					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+						cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+						cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
-				ENDIF
-
+					ENDIF
+				EndIf
 
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR. TMPX2->BM_STATUS = '1'; 
 				 	.OR. U_RatCtrPrd(ALLTRIM(TMPX2->D1_CC),ALLTRIM(TMPX2->D1_COD),aRatCtrPrd)

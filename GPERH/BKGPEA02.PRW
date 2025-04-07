@@ -32,7 +32,7 @@ PRIVATE aCtrId 	:= {}
 PRIVATE oSay
 PRIVATE aParam := {}
 PRIVATE nTotSel := 0
-PRIVATE cTitulo:= "Gerar os PGTO Selecionados no Financeiro"
+PRIVATE cTitulo:= "Gerar pgtos selecionados no Financeiro"
 PRIVATE cROTE  := ""
 PRIVATE cSemana := ""
 PRIVATE cMatI  := ""
@@ -168,7 +168,7 @@ while QSRDSRC->(!EOF())
       QSRDSRC->RA_RG,;
       QSRDSRC->RC_VALOR,;
       SUBSTR(QSRDSRC->RA_BCDEPSA,1,3),;
-      STRZERO(VAL(SUBSTR(QSRDSRC->RA_BCDEPSA,4,5)),4),;
+      SUBSTR(QSRDSRC->RA_BCDEPSA,4,5),;      // X_AGENCIA + X_DIGAG 
       STRZERO(VAL(SUBSTR(QSRDSRC->RA_CTDEPSA,1,11)),11),; 
       SUBSTR(QSRDSRC->RA_CTDEPSA,12,1),;  
       dDatPGTO,;
@@ -241,8 +241,8 @@ If ( lOk2 )
             SZ2->Z2_VALOR:= aCtrId[_XI,6]
             SZ2->Z2_TIPO:= cTIPO
             SZ2->Z2_BANCO:= aCtrId[_XI,7]
-            SZ2->Z2_AGENCIA:= aCtrId[_XI,8]
-            SZ2->Z2_DIGAGEN:= ""
+            SZ2->Z2_AGENCIA:= SUBSTR(aCtrId[_XI,8],1,4)
+            SZ2->Z2_DIGAGEN:= SUBSTR(aCtrId[_XI,8],5,1)
             SZ2->Z2_CONTA:= aCtrId[_XI,9]
             SZ2->Z2_DIGCONT:= aCtrId[_XI,10]
             SZ2->Z2_STATUS:= "B"

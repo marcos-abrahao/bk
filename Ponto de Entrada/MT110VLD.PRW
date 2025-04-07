@@ -1,20 +1,19 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "RWMAKE.CH"
 
-/*/
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ MT110VLD   ºAutor  ³Adilso do Prado     º Data ³  07/05/13 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºPonto de Entrada: Valida usuário para alteração e Exclusão Solicitação º±±
-±±ºde Compras   														  º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ BK                                                         º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-/*/
+/*/{Protheus.doc} MT110VLD  
+    Ponto de Entrada: Valida usuário para alteração e Exclusão Solicitação de Compras 
+ 
+    @type  Function
+    @author Adilson do Prado
+    @since 07/05/13
+    @version
+    @param 
+    @return 
+    @example
+    (examples)
+    @see (links_or_references)
+    /*/
 
 User Function MT110VLD()
 Local ExpN1     := Paramixb[1]
@@ -30,14 +29,14 @@ EndIf
 
 IF ExpN1== 4
 	IF SC1->C1_USER <> __cUserId  .AND.  SC1->C1_USER <> '' .AND. __cUserId <> "000000" .AND. !lGCOM
-		MSGSTOP('Solicitação não pode ser Alterada por outro usuário')
+		u_MsgLog('MT110VLD','Solicitação não pode ser Alterada por outro usuário',"E")
 		lValido := .F.        
 	EndIf
 ENDIF
 
 IF ExpN1 == 6
 	IF SC1->C1_USER <> __cUserId  .AND.  SC1->C1_USER <> '' .AND. __cUserId <> "000000"
-		MSGSTOP('Solicitação não pode ser Excluida por outro usuário')
+		u_MsgLog('MT110VLD','Solicitação não pode ser Excluida por outro usuário',"E")
 		lValido := .F.        
 	EndIf
 ENDIF
