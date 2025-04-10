@@ -135,7 +135,7 @@ Local cLogo:= ""
 // cLogo := '<img src="http://www.bkconsultoria.com.br/Imagens/logo_header.png" border=0>'
 //  https://contato.bkconsultoria.com.br/content/grupo-bk.png
 
-
+/*
 If FWCodEmp() == "01"      // BK
 	cLogo := u_BKLogo()
    //cLogo += '<b><span style="font-size:22.0pt;color:skyblue">BK CONSULTORIA</span></b>'
@@ -169,7 +169,10 @@ ElseIf FWCodEmp() == "18"  // BK VIA
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b>'
 ElseIf FWCodEmp() == "19"  // BK SOLUÇÕES TECNOLOGICAS
 	cLogo := '<b><span style="font-size:22.0pt;color:skyblue">BK SOL. TECNOLOGICAS</span></b>'
-Endif	
+Endif
+*/
+
+cLogo := u_BkLogos()
 
 BEGINCONTENT VAR cHtml
 <!DOCTYPE html>

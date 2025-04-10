@@ -1243,6 +1243,8 @@ ElseIf FWCodEmp() == "18"  // BK VIA
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b></p>')
 ElseIf FWCodEmp() == "19"  // BK SOL TEC
 	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK SOL TEC</span></b></p>')
+ElseIf FWCodEmp() == "20"  // BARCAS RIO
+	AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogos()+'</p>')
 Endif	
 
 AADD(aHtm,'  </td>')

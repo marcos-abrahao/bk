@@ -2136,6 +2136,10 @@ DO While !TMPX2->(EOF())
 			cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'20',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 			cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 		ENDIF
+	Else
+		If "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+			cOutros := "N"
+		EndIf
 	EndIf
 
 	//IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
@@ -2298,6 +2302,8 @@ IF nScan > 0
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 			ENDIF
+		Else
+			cOutros := "N"
 		EndIf
 
 		//IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP ;

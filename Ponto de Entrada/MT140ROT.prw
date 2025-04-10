@@ -22,6 +22,8 @@ AADD( aRotina, {("Benefícios BK"), "U_BKCOMA03", 0, 3 } )
 AADD( aRotina, {("Dados Pgto BK"), "U_AltFPgto", 0, 4 } )
 AADD( aRotina, {("Validar Token BK"), "U_BKCOMA10", 0, 4 } )
 AADD( aRotina, {("Reavaliar Fornecedor"), "U_RAvalForn", 0, 4 } )
+AADD( aRotina, {("Doc PIS/COF/IRPJ/FGTS/INSS/IRRF"), "U_BKCOMA13", 0, 1 } )
+
 Return Nil
 
 

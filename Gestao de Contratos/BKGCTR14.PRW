@@ -2787,6 +2787,8 @@ FOR _nI := 1 TO nPeriodo
 					cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 				ENDIF
+			Else
+				cOutros := "N"
 			EndIf
 
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR. TMPX2->BM_STATUS = '1'; 
@@ -3059,6 +3061,10 @@ FOR _nI := 1 TO nPeriodo
 						cOutros := Grv14CCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 
 					ENDIF
+				Else
+					If "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+						cOutros := "N"
+					EndIf
 				EndIf
 
 				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCDPR_Prod .OR. TMPX2->BM_STATUS = '1'; 

@@ -523,9 +523,9 @@ Local nPVlNeg   := 11
 Local nPArray   := 12
 Local cLogo     := ""
 
-If SM0->M0_CODIGO == "01"      // BK
-	cLogo := u_BKLogo()
-Endif	
+//If SM0->M0_CODIGO == "01"      // BK
+	cLogo := u_BKLogos()
+//Endif	
 
 If nPag == 1
 	AADD(aHtml,'<html>')

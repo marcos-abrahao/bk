@@ -248,7 +248,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 	
 		//Pedido de Compras para Almoxarifado    
 	
-		cAssunto:= "Pedido de Compra nº.: "+alltrim(cNumPC)+"   Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+SA2->A2_NOME+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
+		cAssunto:= "Pedido de Compra "+alltrim(cNumPC)+" - Fornecedor: "+SA2->A2_COD+"/"+SA2->A2_LOJA+" - "+TRIM(SA2->A2_NOME)+"  "+DTOC(DATE())+"-"+TIME()+" - "+FWEmpName(cEmpAnt)
 		aCabs   := {"Item","Cod. Produto","Descr. Produto","UM","Quant.","Valor Unit.","Total Item","OBS","Centro de Custo","Descr. Centro de Custo","Solicitante"} 
 		cMsg    := u_GeraHtmB(aPedAlmx,cAssunto,aCabs,"MT120FIM","",cEmail,cEmailCC)
 

@@ -45,7 +45,7 @@ EndIf
 
 // Novo Filtro - Aprovação em duas etapas
 
-If u_InGrupo(__cUserId,"000000/000007/000037/000038") // Administradores/Diretoria/Controladoria/Master Libera/
+If u_InGrupo(__cUserId,"000000/000007/000037/000038/000045") // Administradores/Diretoria/Controladoria/Master Libera/Jurídico
 	If lAClas .OR. lRPC
 		If lAdmLib
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"

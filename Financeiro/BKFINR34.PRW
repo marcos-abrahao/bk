@@ -630,9 +630,9 @@ cCnpj     := "CNPJ: "+TRANSFORM(aSM0Data[4][2],"@R 99.999.999/9999-99")
 cIE       := "I.E.: "+ALLTRIM(aSM0Data[5][2])
 cSite     := IIF(cEmpresa == "01","WWW.BKCONSULTORIA.COM.BR","")
 
-If cEmpresa == "01"      // BK
-	cLogo := u_BKLogo()
-Endif	
+//If cEmpresa == "01"      // BK
+	cLogo := u_BKLogos()
+//Endif	
 
 If nPag == 1
 	cHtml += '<html lang="pt-BR">'+CRLF

@@ -556,9 +556,9 @@ Local cCnpj     := "CNPJ: "+TRANSFORM(SM0->M0_CGC,"@R 99.999.999/9999-99")
 Local cIE       := "I.E.: "+ALLTRIM(SM0->M0_INSC)
 Local cSite     := IIF(cEmpAnt == "01","WWW.BKCONSULTORIA.COM.BR","")
 
-If cEmpAnt == "01"      // BK
-	cLogo := u_BKLogo()
-Endif	
+//If cEmpAnt == "01"      // BK
+	cLogo := u_BKLogos()
+//Endif	
 
 If nPag == 1
 	cHtml += '<html lang="pt-BR">'+CRLF

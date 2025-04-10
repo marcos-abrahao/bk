@@ -57,7 +57,8 @@ Return cLogo
 
 
 User Function BKLogos(cEmp)
-Local cLogo := '<img src="http://10.139.0.30:80/logos/lgmid'+cEmp+'.png style="padding-left:5;border-width: 0;" width="30"">'
+Default cEmp := FWCodEmp()
+Local cLogo := '<img src="http://10.139.0.30:80/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
 Return cLogo
 
 

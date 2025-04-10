@@ -72,13 +72,13 @@ For nX := 1 To Len(aPrd)
 	aAdd(aPrdDesc,aPrd[nX]+"-"+cDesc)
 Next
 
-aAdd(aParam, { 1,"Mes ref inicial",nMesI   ,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"      ,""   ,"",20,.T.})
-aAdd(aParam, { 1,"Ano ref inicial",nAnoI   ,"9999","mv_par02 >= 2015 .AND. mv_par02 <= 2040",""   ,"",20,.T.})
-aAdd(aParam, { 1,"Mes ref final"  ,nMesF   ,"99"  ,"mv_par03 > 0 .AND. mv_par03 <= 12"      ,""   ,"",20,.T.})
-aAdd(aParam, { 1,"Ano ref final"  ,nAnoF   ,"9999","mv_par04 >= 2015 .AND. mv_par04 <= 2040",""   ,"",20,.T.})
-aAdd(aParam, { 3,"Produto"        ,1,aPrdDesc,200,"",.T.})
-aAdd(aParam, { 1,"Valor"          ,nValor  ,"@E 999,999,999.99"  ,"mv_par06 > 0"            ,""   ,"",70,.T.})
-aAdd(aParam, {11,"Histórico"      ,cHist   , ""   , ""                                      ,.T.})
+aAdd(aParam, { 1,"Mes ref inicial"		,nMesI   ,"99"  ,"mv_par01 > 0 .AND. mv_par01 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano ref inicial"		,nAnoI   ,"9999","mv_par02 >= 2015 .AND. mv_par02 <= 2040",""   ,"",20,.T.})
+aAdd(aParam, { 1,"Mes ref final"  		,nMesF   ,"99"  ,"mv_par03 > 0 .AND. mv_par03 <= 12"      ,""   ,"",20,.T.})
+aAdd(aParam, { 1,"Ano ref final"  		,nAnoF   ,"9999","mv_par04 >= 2015 .AND. mv_par04 <= 2040",""   ,"",20,.T.})
+aAdd(aParam, { 3,"Produto"        		,1,aPrdDesc,200,"",.T.})
+aAdd(aParam, { 1,"Valor"          		,nValor  ,"@E 999,999,999.99"  ,"mv_par06 > 0"            ,""   ,"",70,.T.})
+aAdd(aParam, {11,"Histórico"      		,cHist   , ""   , ""                                      ,.T.})
 
 Do While .T.
 	If !PrCom13()
@@ -111,7 +111,11 @@ If lRet
 		If nProd < 6
 			u_MsgLog(cProg,"Não houve faturamento neste período","E")
 		Else
-			u_MsgLog(cProg,"Dados de rateio não encontrados, verifique se a situação do cálculao esta como 'T', reprocesse a GPS no sistema Senior e solicite a integração contábil.","E")
+			If SUBSTR(cMesI,1,4) < '2025'
+				u_MsgLog(cProg,"Dados de rateio não encontrados, verifique se a situação do cálculao esta como 'T', reprocesse a GPS no sistema Senior e solicite a integração contábil.","E")
+			Else
+				u_MsgLog(cProg,"Dados de rateio não encontrados, verifique com a TI se o EspelhoADP foi gerado para este periodo.","E")
+			EndIf
 		EndIf
 	Else
 		u_WaitLog(cProg, {|oSay| IncDoc()}, 'Incluindo Documento de Entrada...')
@@ -224,6 +228,7 @@ RETURN lOk
 Static function IncDoc()
 Local aCabec 	:= {}
 Local aLinha    := {}
+Local nLinha 	:= 0
 Local aItens    := {}
 Local nX		:= 0
 Local lRet		:= .T.
@@ -274,6 +279,28 @@ Do WHile !QTMP->(EOF())
 	QTMP->(dbSkip())
 EndDo
 QTMP->(DbCloseArea())
+
+If Select("QTMP1") > 0
+	// Redução do INSS retido do faturamento
+	dbSelectArea("QTMP1")
+	dbGoTop()
+	Do WHile !QTMP1->(EOF())
+		nLinha := aScan(aItens, {|x| TRIM(x[6,2]) == TRIM(QTMP1->CC)})
+		If nLinha > 0 
+			If aItens[nLinha,4,2] > QTMP1->VALCC
+				aItens[nLinha,4,2] -= QTMP1->VALCC
+				aItens[nLinha,5,2] -= QTMP1->VALCC
+				nTotal -= QTMP1->VALCC
+			Else
+				nTotal -= aItens[nLinha,4,2] + 1
+				aItens[nLinha,4,2] := 1
+				aItens[nLinha,5,2] := 1
+			EndIf
+		EndIf
+		QTMP1->(dbSkip())
+	EndDo
+	QTMP1->(DbCloseArea())
+EndIf
 
 IF Len(aItens) > 0
 
@@ -339,8 +366,9 @@ EndIf
 cQuery := "WITH BKGCTR07 AS ("+CRLF
 cQuery += u_QGctR07(cMesI,cMesF)
 cQuery += ")"+CRLF
-cQuery += "SELECT CNE_CONTRA AS CC,SUM(F2_VALFAT) AS VALCC FROM BKGCTR07 GROUP BY CNE_CONTRA"+CRLF
-cQuery += "ORDER BY CNE_CONTRA"+CRLF
+cQuery += "SELECT CNE_CONTRA AS CC,SUM(F2_VALFAT) AS VALCC FROM BKGCTR07"+CRLF
+cQuery += " GROUP BY CNE_CONTRA"+CRLF
+cQuery += " ORDER BY CNE_CONTRA"+CRLF
 
 u_LogMemo("BKCOMA14-FAT.SQL",cQuery)
 
@@ -377,23 +405,53 @@ Return NIL
 // Valor do INSS patronal - Via integração Contábil
 User Function PINSSCC(cMesI,cMesF)
 Local cQuery := ""
+
 If Select("QTMP") > 0
 	QTMP->(DbCloseArea())
 EndIf
+If Select("QTMP1") > 0
+	QTMP1->(DbCloseArea())
+EndIf
 
-cQuery += "SELECT Z5_CC AS CC,SUM(Z5_VALOR) AS VALCC "+CRLF
-cQuery += " FROM "+RetSqlName("SZ5")+" SZ5 "+CRLF
-//cQuery += " LEFT JOIN "+RetSqlName("CTT")+" CTT ON CTT_CUSTO = Z5_CC AND CTT.D_E_L_E_T_ = ''
-cQuery += " WHERE Z5_EVENTO LIKE '%INS-%' "+CRLF
-cQuery += "		AND Z5_ANOMES >= '"+cMesI+"' "+CRLF
-cQuery += "		AND Z5_ANOMES <= '"+cMesF+"' "+CRLF
-cQuery += "		AND SZ5.D_E_L_E_T_ = '' "+CRLF
-cQuery += " GROUP BY Z5_CC"+CRLF
-cQuery += " ORDER BY Z5_CC"+CRLF
+If SUBSTR(cMesI,1,4) >= '2025' // ADP
+	cQuery := "SELECT "+CRLF
+	cQuery += "  CC"+CRLF
+	cQuery += " ,SUM(Valor * 28.8 / 100) AS VALCC "+CRLF
+	cQuery += " FROM EspelhoADP.dbo.FichaFinanceira FF"+CRLF
+	cQuery += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
+	cQuery += " WHERE "+CRLF
+	//cQuery += "  Codigo LIKE '%5561%' "+CRLF
+	cQuery += "  UPPER(Descricao) like '%BASE INSS%' "+CRLF
+	cQuery += "  AND YEAR(FF.Referencia) = '"+SUBSTR(cMesI,1,4)+"' AND MONTH(FF.Referencia) = '"+SUBSTR(cMesI,5,2)+"'"+CRLF
+	cQuery += "  AND DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
+	cQuery += " GROUP BY CC"+CRLF
+	cQuery += " ORDER BY CC"+CRLF
+Else
+	cQuery += "SELECT Z5_CC AS CC,SUM(Z5_VALOR * 28.8 / 100) AS VALCC "+CRLF
+	cQuery += " FROM "+RetSqlName("SZ5")+" SZ5 "+CRLF
+	cQuery += " WHERE Z5_EVENTO LIKE '%INS-%' "+CRLF
+	cQuery += "		AND Z5_ANOMES >= '"+cMesI+"' "+CRLF
+	cQuery += "		AND Z5_ANOMES <= '"+cMesF+"' "+CRLF
+	cQuery += "		AND SZ5.D_E_L_E_T_ = '' "+CRLF
+	cQuery += " GROUP BY Z5_CC"+CRLF
+	cQuery += " ORDER BY Z5_CC"+CRLF
+EndIf
 
 u_LogMemo("BKCOMA14-INSS.SQL",cQuery)
 
 TCQUERY cQuery NEW ALIAS "QTMP"
+
+// INSS retido do Faturamento
+cQuery := "WITH BKGCTR07 AS ("+CRLF
+cQuery += u_QGctR07(cMesI,cMesF)
+cQuery += ")"+CRLF
+cQuery += "SELECT CNE_CONTRA AS CC,SUM(F2_VALINSS) AS VALCC FROM BKGCTR07"+CRLF
+cQuery += " GROUP BY CNE_CONTRA"+CRLF
+cQuery += " ORDER BY CNE_CONTRA"+CRLF
+
+u_LogMemo("BKCOMA14-INSS-FAT.SQL",cQuery)
+
+TCQUERY cQuery NEW ALIAS "QTMP1"
 
 Return NIL
 
@@ -405,59 +463,74 @@ If Select("QTMP") > 0
 	QTMP->(DbCloseArea())
 EndIf
 
-cQuery += " WITH FOLHA AS ( "+CRLF
-cQuery += " SELECT "+CRLF
-cQuery += " SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0'),1,2) COLLATE Latin1_General_BIN AS EMPRESA, "+CRLF
-   cQuery += " (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND  "+CRLF
-			cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508' "+CRLF
-         cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND  "+CRLF
-	        cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554' "+CRLF
-         cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 16 AND  "+CRLF
-	        cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '386000609' "+CRLF
-         cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 18 AND  "+CRLF
-	        cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '303000623' "+CRLF
-	  cQuery += " ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO, "+CRLF
-cQuery += " SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS COMPETAM, "+CRLF
-cQuery += " bk_senior.bk_senior.R046VER.CodEve AS EVENTO, "+CRLF
-cQuery += " UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN AS DESCREVENTO, "+CRLF
-cQuery += " bk_senior.bk_senior.R008EVC.TipEve AS TIPOEVENTO, "+CRLF
-cQuery += " (CASE WHEN bk_senior.bk_senior.R008EVC.TipEve = 3 "+CRLF
-		   cQuery += " THEN bk_senior.bk_senior.R046VER.ValEve  "+CRLF
-      cQuery += " ELSE -bk_senior.bk_senior.R046VER.ValEve END) AS VALOR "+CRLF
-cQuery += " FROM bk_senior.bk_senior.R046VER  "+CRLF
-cQuery += " INNER JOIN bk_senior.bk_senior.R044cal   "+CRLF
-           cQuery += " ON  bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R044cal.NumEmp "+CRLF
-           cQuery += " AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal "+CRLF
-cQuery += " INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA  "+CRLF
-		cQuery += " ON bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp "+CRLF
-		cQuery += " AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad "+CRLF
-		cQuery += " AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol "+CRLF
-		cQuery += " AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal "+CRLF
-cQuery += " INNER JOIN bk_senior.bk_senior.R008EVC  "+CRLF
-		cQuery += " ON bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab "+CRLF
-		cQuery += " AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve "+CRLF
-cQuery += " LEFT JOIN bk_senior.bk_senior.R034FUN  "+CRLF
-	cQuery += " ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R034FUN.numemp "+CRLF
-	cQuery += " AND bk_senior.bk_senior.R046VER.NumCad = bk_senior.bk_senior.R034FUN.numcad "+CRLF
-	cQuery += " AND bk_senior.bk_senior.R046VER.TipCol = bk_senior.bk_senior.R034FUN.tipcol "+CRLF
-cQuery += " LEFT JOIN bk_senior.bk_senior.R024CAR  "+CRLF
-	cQuery += " ON 	bk_senior.bk_senior.R034FUN.codcar = bk_senior.bk_senior.R024CAR.CodCar "+CRLF
-	cQuery += " AND	bk_senior.bk_senior.R024CAR.EstCar = 1 "+CRLF
-cQuery += " WHERE  "+CRLF
-cQuery += " Tipcal IN(11) AND Sitcal = 'T' "+CRLF
-cQuery += " AND bk_senior.bk_senior.R046VER.NumEmp = '"+cEmpAnt+"' "+CRLF
-cQuery += " AND SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN = '"+cMesI+"' "+CRLF
-cQuery += " AND UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN LIKE '%IRRF%' "+CRLF
-cQuery += " --AND (bk_senior.bk_senior.R046VER.CodEve = 304 OR bk_senior.bk_senior.R046VER.CodEve = 308) "+CRLF
-cQuery += " ), FOLHA2 AS ( "+CRLF
-cQuery += " SELECT EMPRESA,CONTRATO,COMPETAM,EVENTO,DESCREVENTO,TIPOEVENTO,SUM(VALOR) AS VALOR FROM FOLHA "+CRLF
-cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM,EVENTO,DESCREVENTO,TIPOEVENTO "+CRLF
-cQuery += " ) "+CRLF
-cQuery += " SELECT CONTRATO AS CC,SUM(VALOR) AS VALCC FROM FOLHA2  "+CRLF
-cQuery += " GROUP BY CONTRATO "+CRLF
-cQuery += " ORDER BY CONTRATO "+CRLF
-cQuery += "  "+CRLF
-cQuery += " --SELECT SUM(VALOR) FROM FOLHA2 "+CRLF
+If SUBSTR(cMesI,1,4) >= '2025'
+
+	cQuery := "SELECT "+CRLF
+	cQuery += "  CC"+CRLF
+	cQuery += " ,SUM(Valor) AS VALCC "+CRLF
+	cQuery += " FROM EspelhoADP.dbo.FichaFinanceira FF"+CRLF
+	cQuery += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
+	cQuery += " WHERE "+CRLF
+	cQuery += "  Descricao LIKE '%IRRF%' "+CRLF
+	cQuery += "  AND YEAR(FF.Referencia) = '"+cMesI+"' AND MONTH(FF.Referencia) = '"+cMesI+"'"+CRLF
+	cQuery += "  AND DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
+	cQuery += " GROUP BY CC"+CRLF
+	cQuery += " ORDER BY CC"+CRLF
+Else
+	cQuery += " WITH FOLHA AS ( "+CRLF
+	cQuery += " SELECT "+CRLF
+	cQuery += " SUBSTRING(REPLACE(STR(bk_senior.bk_senior.R046VER.NumEmp,2),' ','0'),1,2) COLLATE Latin1_General_BIN AS EMPRESA, "+CRLF
+	cQuery += " (CASE WHEN bk_senior.bk_senior.R046VER.NumEmp = 14 AND  "+CRLF
+				cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '302000508' "+CRLF
+			cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 15 AND  "+CRLF
+				cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '305000554' "+CRLF
+			cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 16 AND  "+CRLF
+				cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '386000609' "+CRLF
+			cQuery += " WHEN bk_senior.bk_senior.R046VER.NumEmp = 18 AND  "+CRLF
+				cQuery += " SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,3) IN ('000','Er:') THEN '303000623' "+CRLF
+		cQuery += " ELSE SUBSTRING(BKIntegraRubi.dbo.CUSTOSIGA.ccSiga,1,9) END) COLLATE Latin1_General_BIN AS CONTRATO, "+CRLF
+	cQuery += " SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN AS COMPETAM, "+CRLF
+	cQuery += " bk_senior.bk_senior.R046VER.CodEve AS EVENTO, "+CRLF
+	cQuery += " UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN AS DESCREVENTO, "+CRLF
+	cQuery += " bk_senior.bk_senior.R008EVC.TipEve AS TIPOEVENTO, "+CRLF
+	cQuery += " (CASE WHEN bk_senior.bk_senior.R008EVC.TipEve = 3 "+CRLF
+			cQuery += " THEN bk_senior.bk_senior.R046VER.ValEve  "+CRLF
+		cQuery += " ELSE -bk_senior.bk_senior.R046VER.ValEve END) AS VALOR "+CRLF
+	cQuery += " FROM bk_senior.bk_senior.R046VER  "+CRLF
+	cQuery += " INNER JOIN bk_senior.bk_senior.R044cal   "+CRLF
+			cQuery += " ON  bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R044cal.NumEmp "+CRLF
+			cQuery += " AND bk_senior.bk_senior.R046VER.CodCal= bk_senior.bk_senior.R044cal.Codcal "+CRLF
+	cQuery += " INNER JOIN BKIntegraRubi.dbo.CUSTOSIGA  "+CRLF
+			cQuery += " ON bk_senior.bk_senior.R046VER.NumEmp= BKIntegraRubi.dbo.CUSTOSIGA.NumEmp "+CRLF
+			cQuery += " AND bk_senior.bk_senior.R046VER.NumCad = BKIntegraRubi.dbo.CUSTOSIGA.Numcad "+CRLF
+			cQuery += " AND bk_senior.bk_senior.R046VER.TipCol = BKIntegraRubi.dbo.CUSTOSIGA.TipCol "+CRLF
+			cQuery += " AND bk_senior.bk_senior.R044cal.Codcal = BKIntegraRubi.dbo.CUSTOSIGA.Codcal "+CRLF
+	cQuery += " INNER JOIN bk_senior.bk_senior.R008EVC  "+CRLF
+			cQuery += " ON bk_senior.bk_senior.R046VER.TabEve = bk_senior.bk_senior.R008EVC.CodTab "+CRLF
+			cQuery += " AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve "+CRLF
+	cQuery += " LEFT JOIN bk_senior.bk_senior.R034FUN  "+CRLF
+		cQuery += " ON 	bk_senior.bk_senior.R046VER.NumEmp = bk_senior.bk_senior.R034FUN.numemp "+CRLF
+		cQuery += " AND bk_senior.bk_senior.R046VER.NumCad = bk_senior.bk_senior.R034FUN.numcad "+CRLF
+		cQuery += " AND bk_senior.bk_senior.R046VER.TipCol = bk_senior.bk_senior.R034FUN.tipcol "+CRLF
+	cQuery += " LEFT JOIN bk_senior.bk_senior.R024CAR  "+CRLF
+		cQuery += " ON 	bk_senior.bk_senior.R034FUN.codcar = bk_senior.bk_senior.R024CAR.CodCar "+CRLF
+		cQuery += " AND	bk_senior.bk_senior.R024CAR.EstCar = 1 "+CRLF
+	cQuery += " WHERE  "+CRLF
+	cQuery += " Tipcal IN(11) AND Sitcal = 'T' "+CRLF
+	cQuery += " AND bk_senior.bk_senior.R046VER.NumEmp = '"+cEmpAnt+"' "+CRLF
+	cQuery += " AND SUBSTRING(CONVERT(VARCHAR,PerRef,112),1,6) COLLATE Latin1_General_BIN = '"+cMesI+"' "+CRLF
+	cQuery += " AND UPPER(bk_senior.bk_senior.R008EVC.DesEve) COLLATE Latin1_General_BIN LIKE '%IRRF%' "+CRLF
+	cQuery += " --AND (bk_senior.bk_senior.R046VER.CodEve = 304 OR bk_senior.bk_senior.R046VER.CodEve = 308) "+CRLF
+	cQuery += " ), FOLHA2 AS ( "+CRLF
+	cQuery += " SELECT EMPRESA,CONTRATO,COMPETAM,EVENTO,DESCREVENTO,TIPOEVENTO,SUM(VALOR) AS VALOR FROM FOLHA "+CRLF
+	cQuery += " GROUP BY EMPRESA,CONTRATO,COMPETAM,EVENTO,DESCREVENTO,TIPOEVENTO "+CRLF
+	cQuery += " ) "+CRLF
+	cQuery += " SELECT CONTRATO AS CC,SUM(VALOR) AS VALCC FROM FOLHA2  "+CRLF
+	cQuery += " GROUP BY CONTRATO "+CRLF
+	cQuery += " ORDER BY CONTRATO "+CRLF
+	cQuery += "  "+CRLF
+	cQuery += " --SELECT SUM(VALOR) FROM FOLHA2 "+CRLF
+EndIf
 
 u_LogMemo("BKCOMA13-IRRF.SQL",cQuery)
 

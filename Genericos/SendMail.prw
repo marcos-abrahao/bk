@@ -72,7 +72,8 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
         aAnexos    := {}
     ENDIF
 
-    cAssunto := StrIConv( cAssunto, "CP1252", "UTF-8")
+    //cAssunto := StrIConv( cAssunto, "CP1252", "UTF-8")
+    cAssunto := EncodeUTF8(cAssunto)
 
 	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 

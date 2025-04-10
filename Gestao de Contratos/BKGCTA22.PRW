@@ -1089,7 +1089,7 @@ IF LEN(aEmail) > 0
 				"Resultado"}
 	cMsg2	:= ""
 	cMsg2   := u_GeraHtmB(aEmail,"Plano de Ação",aCabs,"MAILFIMSZP")
-	cMsg2   := STRTRAN(cMsg2,u_BKLogo(),"")
+	cMsg2   := STRTRAN(cMsg2,u_BKLogos(),"")
     cMsg	+= cMsg2
 
 	u_BkSnMail("MAILFIMSZP",cAssunto+" - Para:"+cNomeQuem,cEmail,cEmailCC,cMsg,{cAnexo},.F.)

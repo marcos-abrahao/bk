@@ -146,9 +146,9 @@ If Empty(cConta)
 	cConta := "# Informe a conta no cadastro de clientes #"
 EndIf
 
-If SM0->M0_CODIGO == "01"      // BK
-	cLogo := u_BKLogo()
-Endif	
+//If SM0->M0_CODIGO == "01"      // BK
+	cLogo := u_BKLogos()
+//Endif	
 
 If nPag == 1
 	AADD(aHtml,'<html>')

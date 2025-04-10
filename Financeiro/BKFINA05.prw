@@ -855,6 +855,10 @@ aVetor :={{"E2_FILIAL"   ,cxFilial,Nil},;
           {"E2_XXTIPBK"  ,cTipBk,Nil},;
           {"E2_XXCTRID"  ,cCtrId,Nil},;
           {"E2_XXORIG"   ,"ADP",Nil},;
+          {"E2_XXRHLIB"  ,"ADP",Nil},;
+          {"E2_XXRHUSR"  ,"ADP",Nil},;
+          {"E2_XXRHTDE"  ,dEmissao,Nil},;
+          {"E2_XXRHDTL"  ,dEmissao,Nil},;
           {"E2_HIST"     ,"ADP RH - "+TRIM(cHist),NIL},;
           {"E2_EMISSAO"  ,dEmissao,NIL},;
           {"E2_VENCTO"   ,dPgto,NIL},;                
@@ -864,7 +868,7 @@ aVetor :={{"E2_FILIAL"   ,cxFilial,Nil},;
           {"E2_MOEDA"    ,1  , Nil},;
           {"ED_REDCOF"   ,0  , Nil},;
           {"ED_REDPIS"   ,0  , Nil}}
-   
+
 lErroT := .F.
 
 Begin Transaction
