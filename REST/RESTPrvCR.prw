@@ -264,8 +264,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestPrvCR
 	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
-	oPExcel:AddCol("SALDO","u_SaldoRec(E1RECNO)","Saldo Liq.","E1_SALDO")
-	//oPExcel:AddCol("SALDO","E1_SALDO","Saldo Liq.","E1_SALDO")
+	oPExcel:AddCol("SALDO","SALDO","Saldo Liq.","E1_SALDO")
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
@@ -370,8 +369,13 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nPos	:= Len(aListCR)
 	cNumTit	:= (cQrySE1)->(E1_PREFIXO+E1_NUM+E1_PARCELA)
 	cNumTit := STRTRAN(cNumTit," ","&nbsp;")
-	//nSaldo := (cQrySE1)->E1_SALDO //
-	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+	//If SUBSTR((cQrySE1)->EMPRESA,1,2) <> '01'
+	//	nSaldo := (cQrySE1)->E1_SALDO 
+	//Else
+	//	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+	//EndIf
+	nSaldo := (cQrySE1)->SALDO
+
 	aListCR[nPos]['EMPRESA']	:= (cQrySE1)->EMPRESA
 	aListCR[nPos]['TIPO']     	:= (cQrySE1)->E1_TIPO
 	aListCR[nPos]['TITULO']     := TRIM(cNumTit)
@@ -664,7 +668,7 @@ thead input {
 <div id="conteudo-principal">
 <nav class="navbar navbar-dark bg-mynav fixed-top justify-content-between">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Títulos a Receber - #cUserName#</a> 
+    <a class="navbar-brand" href="#">Previsão - Títulos a Receber - #cUserName#</a> 
 
 	<div class="btn-group">
 		<button type="button" id="btn-empresa" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -718,7 +722,7 @@ thead input {
 <tbody id="mytable">
 <tr>
   <td scope="col"></td>
-  <td scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Títulos...</b></td>
+  <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col" style="text-align:center;"></td>
@@ -912,6 +916,7 @@ console.log(error);
 
 
 async function loadTable() {
+$('#mytable').html('<tr><td colspan="16" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 let titulos = await getCRs();
 let trHTML = '';
 let ccbtn = '';
@@ -955,7 +960,7 @@ if (Array.isArray(titulos)) {
 
 	//trHTML += '<td id=titulo'+clin+'>'+object['TITULO']+'</td>';
 	trHTML += '<td>';
-		trHTML += '<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
+	trHTML += 	'<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
 	trHTML += '</td>';
 	trHTML += '<td align="center">'+object['CONTRATO']+'</td>';	
 	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
@@ -1000,10 +1005,10 @@ if (Array.isArray(titulos)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="15" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="16" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="15" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="16" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -1078,7 +1083,7 @@ tableSE1 = $('#tableSE1').DataTable({
                     });
             });
     },
-footerCallback: function (row, data, start, end, display) {
+	footerCallback: function (row, data, start, end, display) {
        var api = this.api();
        // Remove the formatting to get integer data for summation
        var intVal = function (i) {
@@ -1234,7 +1239,7 @@ if (Array.isArray(dadosE1.DADOSZY)) {
 
 document.getElementById("E1Table").innerHTML = itens;
 
-$("#titE1Modal").text('Título do Contas a Receber - Empresa: '+dadosE1['EMPRESA'] + ' - Usuário: '+dadosE1['USERNAME']);
+$("#titE1Modal").text('Previsão Títulos a Receber - Empresa: '+dadosE1['EMPRESA'] + ' - Usuário: '+dadosE1['USERNAME']);
 $('#E1Modal').modal('show');
 //$('#E1Modal').on('hidden.bs.modal', function () {
 //	location.reload();
@@ -1619,11 +1624,38 @@ For nE := 1 To Len(aEmpresas)
 
 	cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 	cQuery += "	 ,A1_NOME"+CRLF
-	//cQuery += "	 ,A1_PESSOA"+CRLF
-	//cQuery += "	 ,A1_CGC"+CRLF
-	cQuery += "	 ,(CASE WHEN E1_SALDO = E1_VALOR "+CRLF
-	cQuery += "	 		THEN E1_VALOR + E1_ACRESC - E1_DECRESC "+CRLF
-	cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
+	
+	//cQuery += "	 ,(CASE WHEN E1_SALDO = E1_VALOR "+CRLF
+	//cQuery += "	 		THEN E1_VALOR + E1_ACRESC - E1_DECRESC "+CRLF
+	//cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
+
+	cQuery += ",CASE WHEN E1_SALDO > 0 "+CRLF
+	cQuery += "	THEN (E1_SALDO - COALESCE((SELECT SUM(E1_VALOR) "+CRLF
+	cQuery += "			FROM "+cTabSE1+ " AB "+CRLF
+	cQuery += "			WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
+	cQuery += "			AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF
+	cQuery += "			AND AB.E1_PREFIXO 	= SE1.E1_PREFIXO "+CRLF
+	cQuery += "			AND AB.E1_NUM 		= SE1.E1_NUM "+CRLF
+	cQuery += "			AND AB.E1_TITPAI 	= SE1.E1_PREFIXO+SE1.E1_NUM+SE1.E1_PARCELA+SE1.E1_TIPO+SE1.E1_CLIENTE+SE1.E1_LOJA "+CRLF
+	cQuery += "			AND AB.E1_TIPO IN ('AB-','FB-','FC-','FU-','FP-','FM-','IR-','IN-','IS-','PI-','CF-','CS-','FE-','IV-') "+CRLF  // +FormatIN(MVABATIM,'|') --
+	cQuery += "		),0) "+CRLF
+	cQuery += "		- E1_SDDECRE + E1_SDACRES) "+CRLF
+	cQuery += "		- CASE WHEN E1_BAIXA = ' ' THEN (E1_XXVRETC + E1_XXVCVIN) ELSE 0 END"+CRLF
+	cQuery += "	ELSE 0 END  AS SALDO "+CRLF
+
+/*
+	cQuery += ",Coalesce((SELECT SUM(E1_VALOR) "+CRLF
+	cQuery += "			FROM SE1010 AB "+CRLF
+	cQuery += "			WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
+	cQuery += "			AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF
+	cQuery += "			AND AB.E1_PREFIXO 	= SE1.E1_PREFIXO "+CRLF
+	cQuery += "			AND AB.E1_NUM 		= SE1.E1_NUM "+CRLF
+	cQuery += "			AND AB.E1_TITPAI 	= SE1.E1_PREFIXO+SE1.E1_NUM+SE1.E1_PARCELA+SE1.E1_TIPO+SE1.E1_CLIENTE+SE1.E1_LOJA "+CRLF
+	cQuery += "			AND AB.E1_TIPO IN ('AB-','FB-','FC-','FU-','FP-','FM-','IR-','IN-','IS-','PI-','CF-','CS-','FE-','IV-') "+CRLF  // +FormatIN(MVABATIM,'|') --
+	cQuery += "		),0) "+CRLF
+	cQuery += "		- E1_SDDECRE"+CRLF
+	cQuery += "		+ E1_SDACRES ) AS RETIDOS"+CRLF
+*/
 
 	//cQuery += "	 ,F2_USERLGI"+CRLF
 	cQuery += "	 ,ISNULL(C5_XXCOMPM,SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4)) AS C5_XXCOMPM"+CRLF
@@ -1669,8 +1701,7 @@ cQuery += "SELECT " + CRLF
 cQuery += "  * " + CRLF
 cQuery += "  FROM RESUMO " + CRLF
 */
-cQuery += " ORDER BY EMPRESA,E1_VENCREA,A1_NOME " + CRLF
-
+cQuery += " ORDER BY EMPRESA,E1_VENCREA,E1_NUM" + CRLF
 
 u_LogMemo("RESTPrvCR1.SQL",cQuery)
 

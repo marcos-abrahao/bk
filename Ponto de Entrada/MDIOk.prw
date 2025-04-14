@@ -32,7 +32,7 @@ Local nLeft		:= 0
 Local nJanLarg	:= 0
 Local nJanAltu	:= 0
 //Local nPosBt 	:= 0
-Local nTamBt    := 75  // Largura fixa dos botões
+Local nTamBt    := 70  // Largura fixa dos botões
 Local nAltBt    := 15  // Altura fixa dos botões
 Local nEsps     := 10  // Espaçamento entre os botões
 Local lCR 		:= .F.
@@ -54,6 +54,7 @@ Local oPanelDown
 Local nNumButtons := 0
 Local nTotalWidth := 0
 Local nWidth      := 0
+Local nHeight	  := 0
 Local nStartX     := 0
 Local nStartY     := 0
 Local cUrl 		  := u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
@@ -149,9 +150,10 @@ EndIf
 
   
 // Calcula a posição dos botões
-nNumButtons := 6  //7
+nNumButtons := 7  //7
 nTotalWidth := (nTamBt * nNumButtons) + (nEsps * (nNumButtons - 1)) // Largura total dos botões + espaçamento
-nWidth := oPanelUp:nWidth / 2
+nWidth  := oPanelUp:nWidth / 2
+nHeight := oPanelUp:nHeight / 2
 
 // Verifica se a largura total dos botões é maior que a largura do painel
 If nTotalWidth > nWidth
@@ -163,13 +165,14 @@ EndIf
 // Calcula a posição inicial para distribuir os botões uniformemente
 //nStartX := nEsps // Posição X inicial
 nStartX := (nWidth - nTotalWidth) / 2
+nStartY := (nHeight - nAltBt) / 2
 
 @ nStartY, nStartX BUTTON "Titulos a Pagar" SIZE nTamBt,nAltBt PIXEL OF oPanelUp ACTION (u_BKTitCP(.T.)) WHEN lCP
 nStartX += nTamBt + nEsps
 @ nStartY, nStartX BUTTON "Previsão a Receber" SIZE nTamBt,nAltBt PIXEL OF oPanelUp ACTION (u_BKPrvCR(.T.)) WHEN lCR
 nStartX += nTamBt + nEsps
-//@ nStartY, nStartX BUTTON "Titulos a Receber" SIZE nTamBt,nAltBt PIXEL OF oPanelUp ACTION (u_BKTitCR(.T.)) WHEN lCR
-//nStartX += nTamBt + nEsps
+@ nStartY, nStartX BUTTON "Titulos a Receber" SIZE nTamBt,nAltBt PIXEL OF oPanelUp ACTION (u_BKTitCR(.T.)) WHEN lCR
+nStartX += nTamBt + nEsps
 @ nStartY, nStartX BUTTON "Lib. de Pedidos de Venda" SIZE nTamBt,nAltBt PIXEL OF oPanelUp ACTION (u_BKLibPV(.T.)) WHEN lLPV
 nStartX += nTamBt + nEsps
 @ nStartY, nStartX BUTTON "Lib. de Docs de Entrada" SIZE nTamBt,nAltBt PIXEL OF oPanelUp ACTION (u_BKLibPN(.T.)) WHEN lLPN

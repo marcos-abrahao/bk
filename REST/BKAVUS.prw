@@ -22,7 +22,6 @@ u_LoadMsgUs()
 
 Default lShell := .T.
 
-
 If lShell
     ShellExecute("open",cUrl, "", "", 1)
     Return .T.

@@ -264,8 +264,8 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
-	oPExcel:AddCol("SALDO","u_SaldoRec(E1RECNO)","Saldo Liq.","E1_SALDO")
-	//oPExcel:AddCol("SALDO","E1_SALDO","Saldo Liq.","E1_SALDO")
+	//oPExcel:AddCol("SALDO","u_SaldoRec(E1RECNO)","Saldo Liq.","E1_SALDO")
+	oPExcel:AddCol("SALDO","SALDO","Saldo Liq.","E1_SALDO")
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
@@ -433,9 +433,16 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nLiquido := (cQrySE1)->(E1_VALOR - E1_IRRF - E1_INSS - E1_PIS - E1_COFINS - E1_CSLL - F2_XXVCVIN - F2_XXVFUMD - IIF(F2_RECISS = '1',E1_ISS,0) - E1_VRETBIS - F2_XXVRETC)
 	aListCR[nPos]['LIQUIDO']	:= TRANSFORM(nLiquido,"@E 999,999,999.99")
 	
-	nSaldo := (cQrySE1)->E1_SALDO
-	//nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+	//If SUBSTR((cQrySE1)->EMPRESA,1,2) <> '01'
+	//	nSaldo := (cQrySE1)->E1_SALDO 
+	//Else
+	//	nSaldo := u_SaldoRec((cQrySE1)->E1RECNO)
+	//EndIf
+	nSaldo := (cQrySE1)->SALDO 
+
 	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
+	aListCR[nPos]['RETIDOS']    := TRANSFORM((cQrySE1)->RETIDOS,"@E 999,999,999.99")
+	aListCR[nPos]['RETENCOES']  := TRANSFORM((cQrySE1)->RETENCOES,"@E 999,999,999.99")
 
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 
@@ -463,6 +470,8 @@ FreeObj(oJsonTmp)
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 
 Self:SetResponse( cJsonCli ) //-- Seta resposta
+
+u_MsgLog("LISTCR-V0",cJsonCli)
 
 Return( lRet )
 
@@ -744,38 +753,22 @@ thead input {
 <th scope="col">Empresa</th>
 <th scope="col">Titulo</th>
 <th scope="col">Cliente</th>
-<th scope="col">Contrato</th>
-<th scope="col">Centro de Custo</th>
-<th scope="col">Compet</th>
-<th scope="col">Pagamento</th>
-<th scope="col">Banco</th>
-<th scope="col">Emissão</th>
-<th scope="col">Venc Ori.</th>
-<th scope="col">Baixa</th>
-<th scope="col">Valor</th>
-<th scope="col">IRRF</th>
-<th scope="col">INSS</th>
-<th scope="col">PIS</th>
-<th scope="col">COFINS</th>
-<th scope="col">CSLL</th>
-<th scope="col">ISS</th>
-<th scope="col">ISS Bitr.</th>
-<th scope="col">Vinculada</th>
-<th scope="col">Retenção Ctr</th>
-<th scope="col">Liquido</th>
-<th scope="col">Saldo</th>
+<th scope="col" style="text-align:center;">Contrato</th>
+<th scope="col" style="text-align:center;">Compet</th>
+<th scope="col" style="text-align:center;">Pagamento</th>
+<th scope="col" style="text-align:center;">Banco</th>
+<th scope="col" style="text-align:center;">Emissão</th>
+<th scope="col" style="text-align:center;">Venc Ori.</th>
+<th scope="col" style="text-align:center;">Baixa</th>
+<th scope="col" style="text-align:right;">Valor</th>
+<th scope="col" style="text-align:right;">Retidos</th>
+<th scope="col" style="text-align:right;">Ret Ct + Vinc.</th>
+<th scope="col" style="text-align:right;">Liquido</th>
+<th scope="col" style="text-align:right;">Saldo</th>
 </tr>
 </thead>
 <tbody id="mytable">
 <tr>
-  <td scope="col"></td>
-  <td scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Títulos...</b></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
-  <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
@@ -799,27 +792,19 @@ thead input {
     <th scope="col"></th>
     <th scope="col"></th>
     <th scope="col"></th>
-    <th scope="col" width="7%" ></th>
-    <th scope="col" style="text-align:center;" width="5%" ></th>
-    <th scope="col" width="20%"></th>
-    <th scope="col" style="text-align:center;" width="5%" ></th>
-    <th scope="col" style="text-align:center;" width="5%" ></th>
-    <th scope="col" style="text-align:center;" width="5%" ></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>      
     <th scope="col" style="text-align:right;" width="5%" >Totais:</th>
     <th scope="col" style="text-align:right;">Valor</th>
+    <th scope="col" style="text-align:right;">Retidos</th>
+    <th scope="col" style="text-align:right;">Ret Ct + Vinc.</th>
+    <th scope="col" style="text-align:right;">Líquido</th>
     <th scope="col" style="text-align:right;">Saldo Liq.</th>
-    <th scope="col" style="text-align:center;"></th>
-    <th scope="col" style="text-align:center;"></th>
-    <th scope="col"></th>
-    <th scope="col"></th>      
-    <th scope="col"></th>
-    <th scope="col"></th>      
-    <th scope="col"></th>
-    <th scope="col"></th>      
-    <th scope="col"></th>
-    <th scope="col"></th>      
-    <th scope="col"></th>
-    <th scope="col"></th>      
   </tr>
 </tfoot>
 </table>
@@ -966,20 +951,51 @@ let newempr  = document.getElementById("btn-empresa").textContent;
 
 let url = '#iprest#/RestTitCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 //	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
-	const headers = new Headers();
-	headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+headers.set("Access-Control-Allow-Origin", "*");
 
-		try {
-		let res = await fetch(url,{	method: 'GET',	headers: headers});
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
+try {
+	let res = await fetch(url,{	method: 'GET',	headers: headers});
+	return await res.json();
+	} catch (error) {
+	console.log(error);
+}
 
+  try {
+       let res = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+        mode: 'cors' // Adiciona o modo CORS explicitamente
+    });
+        
+    if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+    }
+        
+    return await res.json();
+} catch (error) {
+    console.error('Erro na requisição:', error);
+    return {
+        error: true,
+        message: 'Falha ao carregar dados: ' + error.message
+    };
+}
+}
 
+var tableSE1;
 
 async function loadTable() {
+
+$('#mytable').html('<tr><td colspan="16" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
+// Destrua a tabela existente se já foi inicializada
+/*
+if ($.fn.DataTable.isDataTable('#tableSE1')) {
+    tableSE1.destroy();
+    $('#tableSE1').empty();
+}
+*/
+
 let titulos = await getCRs();
 let trHTML = '';
 let ccbtn = '';
@@ -1017,16 +1033,16 @@ if (Array.isArray(titulos)) {
 	}
 
 	trHTML += '<tr>';
-	trHTML += '<td>'+cStatus+'</td>';
+	trHTML += '<td></td>';
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 
 	trHTML += '<td>';
-		trHTML += '<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
+	trHTML += 	'<button type="button" id='+cbtne1+' class="btn btn-outline-'+ccbtn+' btn-sm" onclick="showE1(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\','+'\''+cbtne1+'\')">'+object['TITULO']+'</button>';	
 	trHTML += '</td>';
 
 	trHTML += '<td id=cliente'+clin+'>'+object['CLIENTE']+'</td>';
 	trHTML += '<td align="center">'+object['CONTRATO']+'</td>';	
-	trHTML += '<td>'+object['DESCCC']+'</td>';	
+	//trHTML += '<td>'+object['DESCCC']+'</td>';	
 	trHTML += '<td align="center">'+object['COMPET']+'</td>';
 
 	trHTML += '<td align="center">'+object['DTPGT']+'</td>';
@@ -1038,19 +1054,22 @@ if (Array.isArray(titulos)) {
 
 	trHTML += '<td align="right">'+object['VALOR']+'</td>';
 
-	trHTML += '<td align="right">'+object['IRRF']+'</td>';
-	trHTML += '<td align="right">'+object['INSS']+'</td>';
-	trHTML += '<td align="right">'+object['PIS']+'</td>';
-	trHTML += '<td align="right">'+object['COFINS']+'</td>';
-	trHTML += '<td align="right">'+object['CSLL']+'</td>';
-	trHTML += '<td align="right">'+object['ISS']+'</td>';
-	trHTML += '<td align="right">'+object['ISSBI']+'</td>';
-	trHTML += '<td align="right">'+object['CVINC']+'</td>';
-	trHTML += '<td align="right">'+object['RETCTR']+'</td>';
+	//trHTML += '<td align="right">'+object['IRRF']+'</td>';
+	//trHTML += '<td align="right">'+object['INSS']+'</td>';
+	//trHTML += '<td align="right">'+object['PIS']+'</td>';
+	//trHTML += '<td align="right">'+object['COFINS']+'</td>';
+	//trHTML += '<td align="right">'+object['CSLL']+'</td>';
+	//trHTML += '<td align="right">'+object['ISS']+'</td>';
+	//trHTML += '<td align="right">'+object['ISSBI']+'</td>';
+	//trHTML += '<td align="right">'+object['CVINC']+'</td>';
+	//trHTML += '<td align="right">'+object['RETCTR']+'</td>';
+
+	trHTML += '<td align="right">'+object['RETIDOS']+'</td>';
+	trHTML += '<td align="right">'+object['RETENCOES']+'</td>';
 	trHTML += '<td align="right">'+object['LIQUIDO']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
 
-	trHTML += '<td>'
+	//trHTML += '<td>'
 
 	// Botão para mudança de status
 	//trHTML += '<div class="btn-group">'
@@ -1068,19 +1087,17 @@ if (Array.isArray(titulos)) {
 		
 	//trHTML += '</td>'
 
-
-
 	trHTML += '</tr>';
 
 	nlin += 1;
 
 	});
 } else {
+    //trHTML += '<tr>';
+    //trHTML += ' <th scope="row" colspan="16" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    //trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="23" style="text-align:center;">'+titulos['liberacao']+'</th>';
-    trHTML += '</tr>';   
-    trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="23" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="16" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -1121,7 +1138,6 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'Título' },
         { data: 'Cliente' },
         { data: 'Contrato' },		
-        { data: 'CCusto' },		
         { data: 'Compet' },
         { data: 'Pagamento' },
         { data: 'Banco' },
@@ -1129,18 +1145,10 @@ tableSE1 = $('#tableSE1').DataTable({
         { data: 'VencOri' },
         { data: 'Baixa' },
         { data: 'Valor' },
-        { data: 'IRRF' },
-        { data: 'INSS' },
-        { data: 'PIS' },
-        { data: 'COFINS' },
-        { data: 'ISS' },
-        { data: 'CSLL' },
-        { data: 'ISSBI' },
-        { data: 'Vinculada' },
-        { data: 'Retencao' },
+        { data: 'Retidos' },
+        { data: 'Retencoes' },
         { data: 'Liquido' },
         { data: 'Saldo' }
-
   ],
   "order": [[1,'asc']],
 
@@ -1162,7 +1170,7 @@ tableSE1 = $('#tableSE1').DataTable({
                     });
             });
     },
-footerCallback: function (row, data, start, end, display) {
+	footerCallback: function (row, data, start, end, display) {
        var api = this.api();
        // Remove the formatting to get integer data for summation
        var intVal = function (i) {
@@ -1181,20 +1189,6 @@ footerCallback: function (row, data, start, end, display) {
        };
        // Total filtrado
        total = api
-           .column(10, {filter: 'applied'})
-           .data()
-           .reduce(function (a, b) {
-               return intVal(a) + intVal(b);
-           }, 0);
- 
-       // Update footer
-       $(api.column(10).footer()).html(
-           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
-       );
-
-
-       // Total filtrado
-       total = api
            .column(11, {filter: 'applied'})
            .data()
            .reduce(function (a, b) {
@@ -1205,23 +1199,66 @@ footerCallback: function (row, data, start, end, display) {
        $(api.column(11).footer()).html(
            total.toLocaleString('pt-br', {minimumFractionDigits: 2})
        );
+
+       // Total filtrado
+       total = api
+           .column(12, {filter: 'applied'})
+           .data()
+           .reduce(function (a, b) {
+               return intVal(a) + intVal(b);
+           }, 0);
+ 
+       // Update footer
+       $(api.column(12).footer()).html(
+           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+       );
+
+       // Total filtrado
+       total = api
+           .column(13, {filter: 'applied'})
+           .data()
+           .reduce(function (a, b) {
+               return intVal(a) + intVal(b);
+           }, 0);
+ 
+       // Update footer
+       $(api.column(13).footer()).html(
+           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+       );
+
+       // Total filtrado
+       total = api
+           .column(14, {filter: 'applied'})
+           .data()
+           .reduce(function (a, b) {
+               return intVal(a) + intVal(b);
+           }, 0);
+ 
+       // Update footer
+       $(api.column(14).footer()).html(
+           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+       );
+
+       // Total filtrado
+       total = api
+           .column(15, {filter: 'applied'})
+           .data()
+           .reduce(function (a, b) {
+               return intVal(a) + intVal(b);
+           }, 0);
+ 
+       // Update footer
+       $(api.column(15).footer()).html(
+           total.toLocaleString('pt-br', {minimumFractionDigits: 2})
+       );
     },
 	columnDefs: [
-    	{
-            targets: [15,16],
-            visible: false,
-            searchable: false
-        },
 		{
-			target: 4,
+			targets: [4,5,7],
 			className: 'text-center'
     	},
 		{
-			targets: [10,11],
-			className: 'text-right'
-    	},
-		{
-            targets: [6,7,13], render: DataTable.render.date()
+            targets: [6,8,9,10], render: DataTable.render.date()
         }
     ]
 
@@ -1461,7 +1498,7 @@ async function Excel() {
     try {
         // Desabilita o botão e exibe o spinner
         btnExcel.disabled = true;
-        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
+        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true">Processando...</span>';
 
         // Obtém os valores dos campos de data e empresa
         let newvenci = document.getElementById("DataI").value;
@@ -1684,58 +1721,6 @@ For nE := 1 To Len(aEmpresas)
 		cQuery += "UNION ALL "+CRLF
 	EndIf
 
-	/* Antiga query
-	cQuery += " SELECT "+CRLF
-	cQuery += "	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF
-	cQuery += "	 ,E1_TIPO"+CRLF
-	cQuery += "	 ,E1_PREFIXO"+CRLF
-	cQuery += "	 ,E1_NUM"+CRLF
-	cQuery += "	 ,E1_PARCELA"+CRLF
-	cQuery += "	 ,E1_CLIENTE"+CRLF
-	cQuery += "	 ,E1_LOJA"+CRLF
-	cQuery += "	 ,E1_XXHIST"+CRLF
-	cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),E1_XXHISTM)) AS E1_XXHISTM "+CRLF
-	cQuery += "	 ,E1_VENCREA"+CRLF
-	cQuery += "	 ,E1_EMISSAO"+CRLF
-	cQuery += "	 ,E1_VENCORI"+CRLF
-	cQuery += "	 ,E1_VALOR"+CRLF
-	cQuery += "	 ,E1_SALDO"+CRLF
-	cQuery += "	 ,E1_PEDIDO"+CRLF
-	cQuery += "	 ,E1_XXTPPRV"+CRLF
-	cQuery += "	 ,E1_XXDTPRV"+CRLF
-	cQuery += "	 ,E1_XXOPER"+CRLF
-	cQuery += "	 ,SUBSTRING(CASE E1_MDCONTR WHEN '' THEN E1_XXCUSTO ELSE E1_MDCONTR END,1,9) AS E1_MDCONTR " + CRLF
-
-	cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
-	cQuery += "	 ,A1_NOME"+CRLF
-	cQuery += "	 ,(CASE WHEN E1_SALDO = E1_VALOR "+CRLF
-	cQuery += "	 		THEN E1_VALOR + E1_ACRESC - E1_DECRESC "+CRLF
-	cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
-
-	cQuery += "	 ,ISNULL(C5_XXCOMPM,SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4)) AS C5_XXCOMPM"+CRLF
-
-	cQuery += "	 ,SUBSTRING(CASE C5_MDCONTR WHEN '' THEN C5_ESPECI1 ELSE C5_MDCONTR END,1,9) AS C5_MDCONTR " + CRLF
-
-	cQuery += "	 FROM "+cTabSE1+" SE1 "+CRLF
-	cQuery += "	 LEFT JOIN "+cTabSA1+" SA1 ON"+CRLF
-	cQuery += "	 	SA1.A1_FILIAL      = '"+xFilial("SA1")+"'"+CRLF
-	cQuery += "	 	AND SE1.E1_CLIENTE = SA1.A1_COD "+CRLF
-	cQuery += "	 	AND SE1.E1_LOJA    = SA1.A1_LOJA "+CRLF
-	cQuery += "	 	AND SA1.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "	 LEFT JOIN "+cTabSC5+" SC5 ON"+CRLF
-	cQuery += "	 	SC5.C5_NUM         = SE1.E1_PEDIDO "+CRLF
-	cQuery += "	 	AND SC5.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "	 WHERE SE1.D_E_L_E_T_ = '' "+ CRLF
-	cQuery += "  AND E1_FILIAL = '"+xFilial("SE1")+"' "+CRLF
-	cQuery += "  AND E1_STATUS = 'A' "+CRLF
-	cQuery += "  AND E1_TIPO IN ('BOL','NF','NDC') "+CRLF
-
-	cQuery += "  AND E1_VENCREA >= ? --" + xVencIni + CRLF
-	cQuery += "  AND E1_VENCREA <= ? --" + xVencFim + CRLF
-	*/
-
 	cQuery += "SELECT DISTINCT "+CRLF
 	cQuery += "	  '"+cEmpresa+"-"+cNomeEmp+"' AS EMPRESA"+CRLF
 	cQuery += ",A1_NOME"+CRLF
@@ -1747,6 +1732,33 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += ",E1_BAIXA"+CRLF
 	cQuery += ",E1_VALOR"+CRLF
 	cQuery += ",E1_SALDO" + CRLF
+
+	cQuery += ",CASE WHEN E1_SALDO > 0 "+CRLF
+	cQuery += "	THEN (E1_SALDO - COALESCE((SELECT SUM(E1_VALOR) "+CRLF
+	cQuery += "			FROM "+cTabSE1+ " AB "+CRLF
+	cQuery += "			WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
+	cQuery += "			AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF
+	cQuery += "			AND AB.E1_PREFIXO 	= SE1.E1_PREFIXO "+CRLF
+	cQuery += "			AND AB.E1_NUM 		= SE1.E1_NUM "+CRLF
+	cQuery += "			AND AB.E1_TITPAI 	= SE1.E1_PREFIXO+SE1.E1_NUM+SE1.E1_PARCELA+SE1.E1_TIPO+SE1.E1_CLIENTE+SE1.E1_LOJA "+CRLF
+	cQuery += "			AND AB.E1_TIPO IN ('AB-','FB-','FC-','FU-','FP-','FM-','IR-','IN-','IS-','PI-','CF-','CS-','FE-','IV-') "+CRLF  // +FormatIN(MVABATIM,'|') --
+	cQuery += "		),0) "+CRLF
+	cQuery += "		- E1_SDDECRE + E1_SDACRES) "+CRLF
+	cQuery += "		- CASE WHEN E1_BAIXA = ' ' THEN (E1_XXVRETC + E1_XXVCVIN) ELSE 0 END"+CRLF
+	cQuery += "	ELSE 0 END  AS SALDO "+CRLF
+
+	cQuery += ",COALESCE((SELECT SUM(E1_VALOR) "+CRLF
+	cQuery += "			FROM "+cTabSE1+ " AB "+CRLF
+	cQuery += "			WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
+	cQuery += "			AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF
+	cQuery += "			AND AB.E1_PREFIXO 	= SE1.E1_PREFIXO "+CRLF
+	cQuery += "			AND AB.E1_NUM 		= SE1.E1_NUM "+CRLF
+	cQuery += "			AND AB.E1_TITPAI 	= SE1.E1_PREFIXO+SE1.E1_NUM+SE1.E1_PARCELA+SE1.E1_TIPO+SE1.E1_CLIENTE+SE1.E1_LOJA "+CRLF
+	cQuery += "			AND AB.E1_TIPO IN ('AB-','FB-','FC-','FU-','FP-','FM-','IR-','IN-','IS-','PI-','CF-','CS-','FE-','IV-') "+CRLF  // +FormatIN(MVABATIM,'|') --
+	cQuery += "		),0) AS RETIDOS"+CRLF
+
+	cQuery += ", E1_XXVRETC + E1_XXVCVIN AS RETENCOES"+CRLF
+
 	cQuery += ",CASE WHEN E1_TIPO <> 'NDC' THEN C5_XXCOMPM ELSE SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4) END AS C5_XXCOMPM"  + CRLF
 	cQuery += ",E1_PREFIXO"+CRLF
 	cQuery += ",E1_NUM"+CRLF
@@ -1788,45 +1800,8 @@ For nE := 1 To Len(aEmpresas)
 
 	cQuery += " WHERE SE1.D_E_L_E_T_='' AND SE1.E1_TIPO IN('NF','NDC','BOL')" + CRLF
 
-	//IF nEmissao <> 2 .AND. nOpcRel == 1
-	//	cQuery += " AND SE1.E1_SALDO > 0 " + CRLF
-	//ENDIF 
-
-	//IF nEmissao == 1
-	//	cQuery += " AND C5_XXCOMPM='"+cCompet+"'" + CRLF
-	//ELSEIF nEmissao == 2
-	//	cQuery += " AND E1_VENCREA >= '"+DTOS(dDataI)+"' AND E1_VENCREA <= '"+DTOS(dDataF)+"'" + CRLF
-	//ELSEIF nEmissao == 3
-	//	IF !EMPTY(cContrato) 
-	//		cQuery += " AND (C5_MDCONTR='"+ALLTRIM(cContrato)+"' OR  C5_ESPECI1='"+ALLTRIM(cContrato)+"' )" + CRLF
-	//	ELSEIF !EMPTY(cAnoComp) 
-	//		cQuery += " AND SUBSTRING(E1_VENCREA,1,4)="+cAnoComp + CRLF
-	//	ENDIF
-	//ELSEIF nEmissao == 4
-	//	cQuery += " AND E1_EMISSAO>='"+DTOS(dDataI)+"' AND E1_EMISSAO<='"+DTOS(dDataF)+"'" + CRLF
-	//ELSEIF nEmissao == 5
-	//	IF !EMPTY(cNFIni) 
-	//		cQuery += " AND E1_NUM >= '"+ALLTRIM(cNFIni)+"'" + CRLF
-	//	ENDIF
-	//	IF !EMPTY(cNFFim) 
-	//		cQuery += " AND E1_NUM <= '"+ALLTRIM(cNFFim)+"'" + CRLF
-	//	ENDIF
-	//ENDIF 
-
-	//If nOpcRel == 2
-		// Viculadas / Recuperaveis
-	//	cQuery += " AND (F2_XXVCVIN > 0 OR F2_XXVRETC > 0 OR E1_XXISSBI > 0) "
-	//ElseIf nOpcRel == 3
-	//	cQuery += " AND E1_XXISSBI > 0 "
-	//EndIf
-
-	//IF nEmissao == 4
-	//	cQuery += "ORDER BY E1_EMISSAO"
-	//ELSEIF nEmissao == 5
-	//	cQuery += "ORDER BY E1_NUM"
-	//ELSE
-	//	cQuery += "ORDER BY E1_VENCREA,E1_PREFIXO,E1_NUM" + CRLF
-	//ENDIF
+	cQuery += "  AND E1_VENCREA >= ? --" + xVencIni + CRLF
+	cQuery += "  AND E1_VENCREA <= ? --" + xVencFim + CRLF
 
 	aAdd(aBinds,xVencIni)
 	aAdd(aBinds,xVencFim)

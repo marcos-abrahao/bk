@@ -43,12 +43,16 @@ IF !EMPTY(cDirTmp)
 ENDIF   
 
 fErase(cArqHtml)
+If !Empty(cHtml)
+    Memowrite(cArqHtml,cHtml)
 
-Memowrite(cArqHtml,cHtml)
+    u_MsgLog("BKTITCR",u_BkRest())
 
-u_MsgLog("BKTITCR",u_BkRest())
+    ShellExecute("open", cUrl, "", "", 1)
+Else
+    u_MsgLog("BKTITCR","Erro ao acessar o ambiente REST, contate o suporte.","E")
+EndIf
 
-ShellExecute("open", cUrl, "", "", 1)
 
 Return .T.
 

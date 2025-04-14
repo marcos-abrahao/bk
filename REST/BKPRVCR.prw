@@ -44,11 +44,15 @@ ENDIF
 
 fErase(cArqHtml)
 
-Memowrite(cArqHtml,cHtml)
+If !Empty(cHtml)
+    Memowrite(cArqHtml,cHtml)
 
-u_MsgLog("BKTITCR",u_BkRest())
+    u_MsgLog("BKTITCR",u_BkRest())
 
-ShellExecute("open", cUrl, "", "", 1)
+    ShellExecute("open", cUrl, "", "", 1)
+Else
+    u_MsgLog("BKPRVCR","Erro ao acessar o ambiente REST, contate o suporte.","E")
+EndIf
 
 Return .T.
 
