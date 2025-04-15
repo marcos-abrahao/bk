@@ -477,9 +477,19 @@ cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),E1_XXHISTM)) AS E1_XXHIST
 cQuery += "	 ,A1_NOME"+CRLF
 cQuery += "	 ,A1_PESSOA"+CRLF
 cQuery += "	 ,A1_CGC"+CRLF
-cQuery += "	 ,(CASE WHEN E1_SALDO = E1_VALOR "+CRLF
-cQuery += "	 		THEN E1_VALOR + E1_ACRESC - E1_DECRESC"+CRLF
-cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
+cQuery += "  ,CASE WHEN E1_SALDO > 0 "+CRLF
+cQuery += "	  THEN (E1_SALDO - COALESCE((SELECT SUM(E1_VALOR) "+CRLF
+cQuery += "			FROM "+cTabSE1+ " AB "+CRLF
+cQuery += "			WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
+cQuery += "			AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF
+cQuery += "			AND AB.E1_PREFIXO 	= SE1.E1_PREFIXO "+CRLF
+cQuery += "			AND AB.E1_NUM 		= SE1.E1_NUM "+CRLF
+cQuery += "			AND AB.E1_TITPAI 	= SE1.E1_PREFIXO+SE1.E1_NUM+SE1.E1_PARCELA+SE1.E1_TIPO+SE1.E1_CLIENTE+SE1.E1_LOJA "+CRLF
+cQuery += "			AND AB.E1_TIPO IN ('AB-','FB-','FC-','FU-','FP-','FM-','IR-','IN-','IS-','PI-','CF-','CS-','FE-','IV-') "+CRLF  // +FormatIN(MVABATIM,'|') --
+cQuery += "		),0) "+CRLF
+cQuery += "		- E1_SDDECRE + E1_SDACRES) "+CRLF
+cQuery += "		- CASE WHEN E1_BAIXA = ' ' THEN (E1_XXVRETC + E1_XXVCVIN) ELSE 0 END"+CRLF
+cQuery += "	  ELSE 0 END  AS SALDO "+CRLF
 
 cQuery += "	 FROM "+cTabSE1+" SE1 "+CRLF
 
@@ -500,7 +510,7 @@ cQuery += "	 	AND SA1.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "WHERE SE1.R_E_C_N_O_ = "+self:e1recno + CRLF
 
-u_LogMemo("RESTPrvCR-E2.SQL",cQuery)
+u_LogMemo("RESTPrvCR-E1-2.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 
@@ -1191,7 +1201,7 @@ const headers = new Headers();
 headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 
 let urlE1 = '#iprest#/RestPrvCR/v6?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib;
-	try {
+try {
 	let res = await fetch(urlE1,{method: 'GET',	headers: headers});
 		return await res.json();
 		} catch (error) {
@@ -1644,7 +1654,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += "	ELSE 0 END  AS SALDO "+CRLF
 
 /*
-	cQuery += ",Coalesce((SELECT SUM(E1_VALOR) "+CRLF
+	cQuery += ",COALESCE((SELECT SUM(E1_VALOR) "+CRLF
 	cQuery += "			FROM SE1010 AB "+CRLF
 	cQuery += "			WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
 	cQuery += "			AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF

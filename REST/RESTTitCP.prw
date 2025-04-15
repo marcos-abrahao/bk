@@ -224,9 +224,8 @@ Default cMotivo := ""
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
 cQuery := "SELECT "
-cQuery += "  SE2.E2_NUM,"
-cQuery += "  SE2.D_E_L_E_T_ AS E2DELET,"
-cQuery += "  SE2.E2_NUM "
+cQuery += "  SE2.E2_NUM"
+cQuery += "  ,SE2.D_E_L_E_T_ AS E2DELET"
 cQuery += " FROM "+cTabSE2+" SE2 "
 cQuery += " WHERE SE2.R_E_C_N_O_ = "+e2recno
 
@@ -256,7 +255,7 @@ EndCase
 
 cMsg := cNum+" Banco -"+cMsg+" - "+e2recno
 
-u_MsgLog("RESTTitCP",cMsg)
+u_MsgLog("RESTTitCP-V4",cMsg)
 
 (cQrySE2)->(dbCloseArea())
 
@@ -1802,11 +1801,17 @@ async function ChgBanco(empresa,e2recno,userlib,banco,btnidp){
 let resposta = ''
 let dataObject = {	liberacao:'ok' };
 let cbtn = '';
-	
+const username = '#usrrest#';
+const password = '#pswrest#';
+
+// Codifica as credenciais em Base64
+const credentials = btoa(`${username}:${password}`);
+
 fetch('#iprest#/RestTitCP/v4?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&banco='+banco, {
 	method: 'PUT',
 	headers: {
-	'Content-Type': 'application/json'
+		'Authorization': `Basic ${credentials}`,
+		'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
 	},
 	body: JSON.stringify(dataObject)})
 	.then(response=>{
@@ -1824,11 +1829,17 @@ async function ChgStatus(empresa,e2recno,userlib,acao,btnids){
 let resposta = ''
 let dataObject = {	liberacao:'ok' };
 let cbtn = '';
-	
+const username = '#usrrest#';
+const password = '#pswrest#';
+
+// Codifica as credenciais em Base64
+const credentials = btoa(`${username}:${password}`);
+
 fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
-	'Content-Type': 'application/json'
+		'Authorization': `Basic ${credentials}`,
+		'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
 	},
 	body: JSON.stringify(dataObject)})
 	.then(response=>{
@@ -1901,6 +1912,8 @@ window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencini="+newvamdi+'&vencfi
 </html>
 ENDCONTENT
 
+cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
+cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())

@@ -59,6 +59,13 @@ WSRESTFUL RestTitCR DESCRIPTION "Rest Titulos do Contas a Receber"
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
+	WSMETHOD PUT BANCO;
+		DESCRIPTION "Alterar o banco do titulo a receber" ;
+		WSSYNTAX "/RestTitCR/v4";
+		PATH "/RestTitCR/v4";
+		TTALK "v1";
+		PRODUCES APPLICATION_JSON
+
 END WSRESTFUL
 
 
@@ -204,6 +211,90 @@ u_MsgLog("RESTTitCR",cMsg)
 (cQrySE1)->(dbCloseArea())
 
 Return lRet
+
+//v4
+WSMETHOD PUT BANCO QUERYPARAM empresa,e1recno,userlib,banco WSREST RestTitCR 
+
+Local cJson			:= Self:GetContent()   
+Local lRet			:= .T.
+Local oJson			As Object
+Local aParams		As Array
+Local cMsg			As Char
+
+::setContentType('application/json')
+
+oJson := JsonObject():New()
+oJson:FromJSON(cJson)
+
+If u_BkAvPar(::userlib,@aParams,@cMsg)
+
+	lRet := fBanco(::empresa,::e1recno,::banco,@cMsg)
+
+EndIf
+
+oJson['liberacao'] := StrIConv(cMsg, "CP1252", "UTF-8")
+
+cRet := oJson:ToJson()
+
+FreeObj(oJson)
+// CORS
+Self:SetHeader("Access-Control-Allow-Origin", "*")
+
+Self:SetResponse(cRet)
+  
+Return lRet
+
+
+Static Function fBanco(empresa,e1recno,banco,cMsg)
+Local lRet 		:= .F.
+Local cQuery	:= ""
+Local cTabSE1	:= "SE1"+empresa+"0"
+Local cQrySE1	:= GetNextAlias()
+Local cNum		:= ""
+
+Default cMsg	:= ""
+Default cMotivo := ""
+
+Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
+
+cQuery := "SELECT "
+cQuery += "  SE1.E1_NUM"
+cQuery += "  ,SE1.D_E_L_E_T_ AS E1DELET"
+cQuery += " FROM "+cTabSE1+" SE1 "
+cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno
+
+dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
+
+cNum := (cQrySE1)->E1_NUM
+Do Case
+	Case (cQrySE1)->(Eof()) 
+		cMsg:= "não encontrado"
+	Case (cQrySE1)->E1DELET = '*'
+		cMsg:= "foi excluído"
+	OtherWise 
+		// Alterar o Status
+		cMsg 	:= banco
+		cQuery := "UPDATE "+cTabSE1+CRLF
+		cQuery += "  SET E1_BCOCLI = '"+banco+"',"+CRLF
+		cQuery += "      E1_XXOPER = '"+__cUserId+"'"+CRLF
+		cQuery += " FROM "+cTabSE1+" SE1"+CRLF
+		cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno+CRLF
+		//u_LogMemo("RESTTitCP.SQL",cQuery)
+		If TCSQLExec(cQuery) < 0
+			cMsg := "Erro: "+TCSQLERROR()
+		Else
+			lRet := .T.
+		EndIf
+EndCase
+
+cMsg := cNum+" Banco -"+cMsg+" - "+e1recno
+
+u_MsgLog("RESTTitCR-V4",cMsg)
+
+(cQrySE1)->(dbCloseArea())
+
+Return lRet
+
 
 
 // v5
@@ -548,7 +639,7 @@ cQuery += "	 	AND SA1.D_E_L_E_T_ = ''"+CRLF
 
 cQuery += "WHERE SE1.R_E_C_N_O_ = "+self:e1recno + CRLF
 
-u_LogMemo("RESTTITCR-E2.SQL",cQuery)
+u_LogMemo("RESTTITCR-E1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE1,.T.,.T.)
 
@@ -570,6 +661,18 @@ oJsonPN['E1_XXOPER']	:= UsrRetName((cQrySE1)->E1_XXOPER)
 oJsonPN['E1_PEDIDO']	:= (cQrySE1)->E1_PEDIDO
 oJsonPN['E1_XXHISTM']	:= (cQrySE1)->E1_XXHISTM
 oJsonPN['E1_VENCORI']	:= DTOC(STOD((cQrySE1)->E1_VENCORI))
+
+oJsonPN['BAIXA'] 		:= (cQrySE1)->(SUBSTR(E1_BAIXA,1,4)+"-"+SUBSTR(E1_BAIXA,5,2)+"-"+SUBSTR(E1_BAIXA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+oJsonPN['VALOR']        := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
+oJsonPN['IRRF']         := TRANSFORM((cQrySE1)->E1_IRRF,"@E 999,999,999.99")
+oJsonPN['INSS']         := TRANSFORM((cQrySE1)->E1_INSS,"@E 999,999,999.99")
+oJsonPN['PIS']          := TRANSFORM((cQrySE1)->E1_PIS,"@E 999,999,999.99")
+oJsonPN['COFINS']       := TRANSFORM((cQrySE1)->E1_COFINS,"@E 999,999,999.99")
+oJsonPN['CSLL']         := TRANSFORM((cQrySE1)->E1_CSLL,"@E 999,999,999.99")
+oJsonPN['ISS']          := TRANSFORM(IIF((cQrySE1)->F2_RECISS = '1',(cQrySE1)->E1_ISS,0),"@E 999,999,999.99")
+oJsonPN['ISSBI']        := TRANSFORM((cQrySE1)->E1_VRETBIS,"@E 999,999,999.99")
+oJsonPN['CVINC']        := TRANSFORM((cQrySE1)->F2_XXVCVIN,"@E 999,999,999.99")
+oJsonPN['RETCTR']       := TRANSFORM((cQrySE1)->F2_XXVRETC,"@E 999,999,999.99")
 
 u_MsgLog("RESTTITCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
@@ -1014,6 +1117,7 @@ if (Array.isArray(titulos)) {
 
 	cbtne1  = 'btne1'+nlin;
 	cbtnids = 'btnac'+nlin;
+	cbtnidp = 'btnpor'+nlin;
 
 	if (cStatus == ' '){
 	 ccbtn = 'dark';
@@ -1046,7 +1150,22 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td align="center">'+object['COMPET']+'</td>';
 
 	trHTML += '<td align="center">'+object['DTPGT']+'</td>';
-	trHTML += '<td align="center">'+object['BANCO']+'</td>';
+
+	//trHTML += '<td align="center">'+object['BANCO']+'</td>';
+
+	trHTML += '<td>'
+	trHTML += '<div class="btn-group">'
+	trHTML += '<button type="button" title="Portador" id="'+cbtnidp+'" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
+	trHTML += object['BANCO']
+	trHTML += '</button>'
+
+	trHTML += '<div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenu2">'
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\')">341-Itau</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\')">001-BB</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'104\','+'\''+cbtnidp+'\')">104-CEF</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'   \','+'\''+cbtnidp+'\')">   </button>';
+	trHTML += '</div>'
+	trHTML += '</td>'
 
 	trHTML += '<td align="center">'+object['EMISSAO']+'</td>';
 	trHTML += '<td align="center">'+object['VENCORI']+'</td>';
@@ -1448,13 +1567,23 @@ try {
 	document.getElementById('oper'+clin).textContent = '#cUserName#';
 	//document.getElementById('hist'+clin).textContent = ZYObs;
 }
+}
 
+async function ChgBanco(empresa,e1recno,userlib,banco,btnidp){
+let resposta = ''
+let dataObject = {	liberacao:'ok' };
+let cbtn = '';
+const username = '#usrrest#';
+const password = '#pswrest#';
 
-/*
-fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib+'&acao='+acao, {
+// Codifica as credenciais em Base64
+const credentials = btoa(`${username}:${password}`);
+
+fetch('#iprest#/RestTitCR/v4?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+userlib+'&banco='+banco, {
 	method: 'PUT',
 	headers: {
-	'Content-Type': 'application/json'
+		'Authorization': `Basic ${credentials}`,
+		'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
 	},
 	body: JSON.stringify(dataObject)})
 	.then(response=>{
@@ -1464,32 +1593,10 @@ fetch('#iprest#/RestTitCR/v3?empresa='+empresa+'&e1recno='+e1recno+'&userlib='+u
 	.then(data=> {
 		// this is the data we get after putting our data,
 		console.log(data);
-		if (acao == ' '){
-			cbtn = 'A Receber';
-		} else if (acao == '0'){
-			cbtn = 'Sem Previsao';
-		} else if (acao == '1'){
-			cbtn = 'Aguardando Previsao';
-		} else if (acao == '2'){
-			cbtn = 'Previsao Informada';
-		} else {
-			cbtn = 'Recebido';
-		}
-		document.getElementById(btnids).textContent = cbtn;
-		document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(0,4)
-		//document.getElementById('prev'+clin).value = ZYPrev.value
-		document.getElementById('oper'+clin).textContent = '#cUserName#';
-		document.getElementById('hist'+clin).textContent = ZYObs;
-   		//var tr = $(this).closest('tr');
-    	//var row = tableSE1.row(tr);
- 
-		//tableSE1.row(nlin).data().Histórico = ZYObs
- 	    //tableSE1.row(nlin).invalidate().draw();
-
+		document.getElementById(btnidp).textContent = banco;
 	})
-
-*/
 }
+
 
 async function Excel() {
     const btnExcel = document.getElementById("btn-excel");
