@@ -189,6 +189,7 @@ Do While ( cQrySC5 )->( ! Eof() )
 	aListSales[nPos]['COMPET']    := "&nbsp"+TRIM((cQrySC5)->C5_XXCOMPM)
 	aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
 	aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
+	aListSales[nPos]['XXMUN']     := TRIM((cQrySC5)->CNA_XXMUN)
 	(cQrySC5)->(DBSkip())
 
 	If Len(aListSales) >= self:pageSize
@@ -225,20 +226,27 @@ Local cWhereSA1     := "%AND SA1.A1_FILIAL = '"+xFilial('SA1')+"'%"
 
 BeginSQL Alias cQrySC5
     SELECT  SC5.C5_FILIAL,SC5.C5_NUM,SC5.C5_CLIENTE,SC5.C5_LOJACLI,
-            SC5.C5_EMISSAO,SC5.C5_LIBEROK,C5_MDCONTR,C5_XXCOMPM,
+            SC5.C5_EMISSAO,
+			SC5.C5_LIBEROK,
+			CASE SC5.C5_MDCONTR WHEN '' THEN SC5.C5_ESPECI1 ELSE SC5.C5_MDCONTR END AS C5_MDCONTR,
+			SC5.C5_XXCOMPM,
             (SELECT SUM(C6_VALOR) FROM %Table:SC6% SC6 
                 WHERE SC6.%NotDel% AND SC6.C6_FILIAL = SC5.C5_FILIAL AND SC6.C6_NUM = SC5.C5_NUM)
                 AS C6_TOTAL,
-            SA1.A1_NOME
+            SA1.A1_NOME,CNA.CNA_XXMUN
             
     FROM %Table:SC5% SC5
-            INNER JOIN %Table:SA1% SA1 
+            LEFT JOIN %Table:SA1% SA1 
                 ON SC5.C5_CLIENTE = SA1.A1_COD AND SC5.C5_LOJACLI = SA1.A1_LOJA
                 %exp:cWhereSA1%
                 AND SA1.%NotDel%
+			LEFT JOIN %Table:CNA% CNA 
+                ON SC5.C5_MDCONTR = CNA.CNA_CONTRA AND SC5.C5_MDPLANI = CNA.CNA_NUMERO AND SC5.C5_XXREV = CNA.CNA_REVISA
+                AND CNA_FILIAL = SC5.C5_FILIAL
+                AND CNA.%NotDel%
 
     WHERE   SC5.%NotDel%
-            AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
+			AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
             %exp:cWhereSC5%
     ORDER BY C5_LIBEROK,SC5.C5_NUM DESC 
     
@@ -294,6 +302,8 @@ WSMETHOD GET PLANPV QUERYPARAM empresa WSREST RestLibPV
 
 	oPExcel:AddCol("CONTRATO","C5_MDCONTR","Contrato","C5_MDCONTR")
 	oPExcel:GetCol("CONTRATO"):SetHAlign("C")
+
+	oPExcel:AddCol("XXMUN","CNA_XXMUN","Planilha","CNA_XXMUN")
 
 	oPExcel:AddCol("COMPET","C5_XXCOMPM","Competência","C5_XXCOMPM")
 	oPExcel:GetCol("COMPET"):SetHAlign("C")
@@ -437,13 +447,15 @@ thead input {
 <th scope="col">Cliente</th>
 <th scope="col">Contrato</th>
 <th scope="col">Competência</th>
+<th scope="col">Planilha</th>
 <th scope="col">Total</th>
 <th scope="col">Ação</th>
 </tr>
 </thead>
 <tbody id="mytable">
 <tr>
-<th scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Pedidos...</b></th>
+<th scope="col"></th>
+<th scope="col"></th>
 <th scope="col"></th>
 <th scope="col"></th>
 <th scope="col"></th>
@@ -501,6 +513,7 @@ async function getPeds() {
 		}
 
 async function loadTable() {
+$('#mytable').html('<tr><td colspan="8" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 let pedidos = await getPeds();
 let trHTML = '';
 if (Array.isArray(pedidos)) {
@@ -512,6 +525,7 @@ if (Array.isArray(pedidos)) {
     trHTML += '<td>'+object['CLIENTE']+'</td>';
     trHTML += '<td>'+object['CONTRATO']+'</td>';
     trHTML += '<td align="center">'+object['COMPET']+'</td>';
+    trHTML += '<td>'+object['XXMUN']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
     if (cLiberOk == 'S'){
       	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPed(\''+object['PEDIDO']+'\',2)">Liberado</button></td>';
@@ -522,10 +536,10 @@ if (Array.isArray(pedidos)) {
     });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="7" style="text-align:center;">'+pedidos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+pedidos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="7" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
@@ -534,6 +548,7 @@ tableSC5 = $('#tableSC5').DataTable({
  "pageLength": 100,
  "order": [],
  "language": {
+ "emptyTable": "Nenhum pedido disponível para liberar",
  "lengthMenu": "Registros por página: _MENU_ ",
  "zeroRecords": "Nada encontrado",
  "info": "Página _PAGE_ de _PAGES_",
@@ -552,7 +567,7 @@ tableSC5 = $('#tableSC5').DataTable({
 	columnDefs: [
     	{
             targets: [0,1,3],
-            className: 'dt-left dt-head-left'
+            className: 'text-center'
         }
     ],   
 
@@ -703,7 +718,7 @@ Static Function fLibPed(cNumPed)
 Return lOk
 
 
-
+/*
 Static Function PrePareContexto(cCodEmpresa , cCodFilial)
 
 	RESET ENVIRONMENT
@@ -712,3 +727,4 @@ Static Function PrePareContexto(cCodEmpresa , cCodFilial)
 
 Return .T.
 
+*/

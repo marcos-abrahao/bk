@@ -1168,7 +1168,7 @@ thead input {
 <tbody id="mytable">
 <tr>
   <th scope="col"></th>
-  <th scope="col"style="text-align:center;"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Carregando Títulos...</th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -1218,11 +1218,11 @@ thead input {
            </div>
            <div class="col-md-1">
              <label for="SE2Emissao" class="form-label">Emissão</label>
-             <input type="text" class="form-control form-control-sm" id="SE2Emissao" value="#SE2Emissao#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="SE2Emissao" value="#SE2Emissao#" readonly="">
            </div>
            <div class="col-md-1">
              <label for="SE2VencRea" class="form-label">Vencimento</label>
-             <input type="text" class="form-control form-control-sm" id="SE2VencRea" value="#SE2VencRea#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="SE2VencRea" value="#SE2VencRea#" readonly="">
            </div>
 
            <div class="col-md-2">
@@ -1316,11 +1316,11 @@ thead input {
            </div>
            <div class="col-md-1">
              <label for="E2Emissao" class="form-label">Emissão</label>
-             <input type="text" class="form-control form-control-sm" id="E2Emissao" value="#E2Emissao#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="E2Emissao" value="#E2Emissao#" readonly="">
            </div>
            <div class="col-md-1">
              <label for="E2VencRea" class="form-label">Vencimento</label>
-             <input type="text" class="form-control form-control-sm" id="E2VencRea" value="#E2VencRea#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="E2VencRea" value="#E2VencRea#" readonly="">
            </div>
 
            <div class="col-md-2">
@@ -1409,6 +1409,7 @@ async function getCPs() {
 
 
 async function loadTable() {
+$('#mytable').html('<tr><td colspan="14" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
@@ -1531,10 +1532,10 @@ if (Array.isArray(titulos)) {
 	});
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="13" style="text-align:center;">'+titulos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="14" style="text-align:center;">'+titulos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="13" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="14" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;

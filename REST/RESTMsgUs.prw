@@ -367,7 +367,7 @@ thead input {
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
-  <td scope="col"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Mensagens recebidas...</b></td>
+  <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
   <td scope="col"></td>
@@ -412,11 +412,13 @@ console.log(error);
 
 async function loadTable() {
 let av1 = await getAv1();
+$('#mytable').html('<tr><td colspan="9" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
+
 // Verifique se av1 é um array
-if (!Array.isArray(av1)) {
-    console.error('Resposta da API não é um array:', av1);
-    return; // Saia da função se não for um array
-}
+//if (!Array.isArray(av1)) {
+//    console.error('Resposta da API não é um array:', av1);
+//    return; // Saia da função se não for um array
+//}
 
 let trHTML = '';
 let nlin = 0;

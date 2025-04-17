@@ -1586,12 +1586,18 @@ Local aX3Stru	:= {}
 
 If !Empty(cSX3)
 	aX3Stru	:= FWSX3Util():GetFieldStruct( cSX3 )
-	If Empty(cDescr)
-		oCExcel:SetTitulo(GetSX3Cache( cSX3 , "X3_TITULO"))
+	If Empty(aX3Stru)
+		oCExcel:SetTipo("C")
+		oCExcel:SetTamanho(10)
+		u_MsgLog("REXCEL-ADDCOL",cSX3+" não encontrado no SX3")
+	Else
+		If Empty(cDescr)
+			oCExcel:SetTitulo(GetSX3Cache( cSX3 , "X3_TITULO"))
+		EndIf
+		oCExcel:SetTipo(aX3Stru[2])
+		oCExcel:SetTamanho(aX3Stru[3])
+		oCExcel:SetDecimal(aX3Stru[4])
 	EndIf
-	oCExcel:SetTipo(aX3Stru[2])
-	oCExcel:SetTamanho(aX3Stru[3])
-	oCExcel:SetDecimal(aX3Stru[4])
 EndIf
 If !Empty(cDescr)
 	oCExcel:SetTitulo(cDescr)

@@ -997,7 +997,7 @@ thead input {
 </thead>
 <tbody id="mytable">
 <tr>
-  <th scope="col" style="text-align:center;"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><b>Carregando Pré-notas...</b></th>
+  <th scope="col" style="text-align:center;"></th>
   <th scope="col" style="text-align:center;"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -1038,15 +1038,15 @@ thead input {
            </div>
            <div class="col-md-1">
              <label for="SF1Emissao" class="form-label">Emissão</label>
-             <input type="text" class="form-control form-control-sm" id="SF1Emissao" value="#SF1Emissao#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="SF1Emissao" value="#SF1Emissao#" readonly="">
            </div>
            <div class="col-md-1">
              <label for="SF1DtDigit" class="form-label">Entrada</label>
-             <input type="text" class="form-control form-control-sm" id="SF1DtDigit" value="#SF1DtDigit#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="SF1DtDigit" value="#SF1DtDigit#" readonly="">
            </div>
            <div class="col-md-1">
              <label for="SF1XXPvPgt" class="form-label">Pagamento</label>
-             <input type="text" class="form-control form-control-sm" id="SF1XXPvPgt" value="#SF1XXPvPgt#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="SF1XXPvPgt" value="#SF1XXPvPgt#" readonly="">
            </div>
            <div class="col-md-2">
              <label for="SF1Especie" class="form-label">Espécie</label>
@@ -1216,6 +1216,7 @@ async function getPNs() {
 		}
 
 async function loadTable() {
+$('#mytable').html('<tr><td colspan="9" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 let prenotas = await getPNs();
 let trHTML = '';
 let nlin = 0;

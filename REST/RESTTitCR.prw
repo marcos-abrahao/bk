@@ -302,7 +302,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	Local cProg 	:= "RestTitCR"
 	Local cTitulo	:= "Contas a Receber WEB"
 	Local cDescr 	:= "Exportação Excel do Contas a Receber Web"
-	Local cVersao	:= "15/05/2024"
+	Local cVersao	:= "16/04/2025"
 	Local oRExcel	AS Object
 	Local oPExcel	AS Object
 
@@ -335,7 +335,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 
 	oPExcel:AddCol("TITULO" ,"(E1_PREFIXO+E1_NUM+E1_PARCELA)","Título","")
 
-	oPExcel:AddCol("CONTRATO","IIF(EMPTY(C5_MDCONTR),E1_MDCONTR,C5_MDCONTR)","Contrato","")
+	oPExcel:AddCol("CONTRATO","CONTRATO","Contrato","")
 	oPExcel:GetCol("CONTRATO"):SetHAlign("C")
 
 	oPExcel:AddCol("Cliente","A1_NOME","Cliente","A1_NOME")
@@ -346,17 +346,59 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 
 	oPExcel:AddCol("EMISSAO","STOD(E1_EMISSAO)","Emissao","E1_EMISSAO")
 
-	oPExcel:AddCol("PEDIDO","E1_PEDIDO","Pedido","E1_PEDIDO")
-	oPExcel:GetCol("PEDIDO"):SetHAlign("C")
+	oPExcel:AddCol("EMISSAO","STOD(E1_BAIXA)","Baixa","E1_BAIXA")
+
+	oPExcel:AddCol("BANCO","E1_BCOCLI","Banco","E1_BCOCLI")
+	oPExcel:GetCol("BANCO"):SetHAlign("C")
 
 	oPExcel:AddCol("COMPET","C5_XXCOMPM","Competência","C5_XXCOMPM")
 	oPExcel:GetCol("COMPET"):SetHAlign("C")
 
 	oPExcel:AddCol("VALOR","E1_VALOR","Valor","E1_VALOR")
+	oPExcel:GetCol("VALOR"):SetDecimal(2)
 	oPExcel:GetCol("VALOR"):SetTotal(.T.)
 
-	//oPExcel:AddCol("SALDO","u_SaldoRec(E1RECNO)","Saldo Liq.","E1_SALDO")
-	oPExcel:AddCol("SALDO","SALDO","Saldo Liq.","E1_SALDO")
+	oPExcel:AddCol("IRRF","E1_IRRF","IRRF","E1_IRRF")
+	oPExcel:GetCol("IRRF"):SetDecimal(2)
+	oPExcel:GetCol("IRRF"):SetTotal(.T.)
+
+	oPExcel:AddCol("INSS","E1_INSS","INSS","E1_INSS")
+	oPExcel:GetCol("INSS"):SetDecimal(2)
+	oPExcel:GetCol("INSS"):SetTotal(.T.)
+
+	oPExcel:AddCol("PIS","E1_PIS","PIS","E1_PIS")
+	oPExcel:GetCol("PIS"):SetDecimal(2)
+	oPExcel:GetCol("PIS"):SetTotal(.T.)
+
+	oPExcel:AddCol("COFINS","E1_COFINS","COFINS","E1_COFINS")
+	oPExcel:GetCol("COFINS"):SetDecimal(2)
+	oPExcel:GetCol("COFINS"):SetTotal(.T.)
+
+	oPExcel:AddCol("CSLL","E1_CSLL","CSLL","E1_CSLL")
+	oPExcel:GetCol("CSLL"):SetDecimal(2)
+	oPExcel:GetCol("CSLL"):SetTotal(.T.)
+
+	oPExcel:AddCol("ISS","E1_ISS","ISS","E1_ISS")
+	oPExcel:GetCol("ISS"):SetDecimal(2)
+	oPExcel:GetCol("ISS"):SetTotal(.T.)
+
+	oPExcel:AddCol("ISSBI","E1_XXISSBI","ISS BI","E1_XXISSBI")
+	oPExcel:GetCol("ISSBI"):SetDecimal(2)
+	oPExcel:GetCol("ISSBI"):SetTotal(.T.)
+
+	oPExcel:AddCol("XXVCVIN","F2_XXVCVIN","vinculada","F2_XXVCVIN")
+	oPExcel:GetCol("XXVCVIN"):SetDecimal(2)
+	oPExcel:GetCol("XXVCVIN"):SetTotal(.T.)
+
+	oPExcel:AddCol("XXVRETC","F2_XXVRETC","Retençao Ctr.","F2_XXVRETC")
+	oPExcel:GetCol("XXVRETC"):SetDecimal(2)
+	oPExcel:GetCol("XXVRETC"):SetTotal(.T.)
+
+	oPExcel:AddCol("LIQUIDO","E1_VALOR - E1_IRRF - E1_INSS - E1_PIS - E1_COFINS - E1_CSLL - F2_XXVCVIN - F2_XXVFUMD - IIF(F2_RECISS = '1',E1_ISS,0) - E1_VRETBIS - F2_XXVRETC","Líquido","E1_VALOR")
+	oPExcel:GetCol("LIQUIDO"):SetDecimal(2)
+	oPExcel:GetCol("LIQUIDO"):SetTotal(.T.)
+
+	oPExcel:AddCol("SALDO","SALDO","Saldo","E1_SALDO")
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
@@ -364,17 +406,6 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 
 	oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
 
-	oPExcel:AddCol("STATUS","u_DE1XXTPPrv(E1_XXTPPRV)","Status","")
-	oPExcel:GetCol("STATUS"):SetHAlign("C")
-	oPExcel:GetCol("STATUS"):SetTamCol(18)
-	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'A Receber'}			,"000000","",,,.T.)	// Preto
-	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Sem Previsao'}			,"FF0000","",,,.T.)	// Vermelho
-	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Aguardando Previsao'}	,"FFA500","",,,.T.)	// Laranja
-	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Previsao Informada'}	,"0000FF","",,,.T.)	// Azul
-	oPExcel:GetCol("STATUS"):AddCor({|x| TRIM(x) == 'Recebido'}				,"008000","",,,.T.)	// Verde
-
-	oPExcel:AddCol("HISTM","E1_XXHISTM","Histórico","E1_XXHISTM")
-	oPExcel:GetCol("HISTM"):SetWrap(.T.)
 
 	// Adiciona a planilha
 	oRExcel:AddPlan(oPExcel)
@@ -562,7 +593,7 @@ Self:SetHeader("Access-Control-Allow-Origin", "*")
 
 Self:SetResponse( cJsonCli ) //-- Seta resposta
 
-u_MsgLog("LISTCR-V0",cJsonCli)
+//u_MsgLog("LISTCR-V0",cJsonCli)
 
 Return( lRet )
 
@@ -575,7 +606,7 @@ Local cRet		:= ""
 Local cQuery	:= ""
 Local cTabSE1	:= "SE1"+self:empresa+"0"
 Local cTabSA1	:= "SA1"+self:empresa+"0"
-//Local cTabSF2	:= "SF2"+self:empresa+"0"
+Local cTabSF2	:= "SF2"+self:empresa+"0"
 Local cTabSZY	:= "SZY"+self:empresa+"0"
 Local cQrySE1	:= GetNextAlias()
 Local cQrySZY	:= GetNextAlias()
@@ -584,6 +615,7 @@ Local aParams	As Array
 Local cMsg		As Character
 Local nI 		:= 0
 Local aItens 	As Array
+Local nLiquido  := 0
 
 // Chave ZY
 Local cTipo		:= ""
@@ -611,18 +643,44 @@ cQuery += "	 ,E1_VENCREA"+CRLF
 cQuery += "	 ,E1_VENCORI"+CRLF
 cQuery += "	 ,E1_VALOR"+CRLF
 cQuery += "	 ,E1_XXOPER"+CRLF
+
+cQuery += "  ,E1_IRRF"+CRLF
+cQuery += "  ,E1_INSS"+CRLF
+cQuery += "  ,E1_PIS"+CRLF
+cQuery += "  ,E1_COFINS"+CRLF
+cQuery += "  ,E1_CSLL"+CRLF
+cQuery += "  ,E1_ISS"+CRLF
+cQuery += "  ,E1_VRETBIS "+CRLF
+cQuery += "  ,E1_XXDTPRV"+CRLF
+cQuery += "  ,E1_XXTPPRV"+CRLF
+cQuery += "  ,CONVERT(VARCHAR(1000),CONVERT(Binary(1000),E1_XXHISTM)) E1_XXHISTM "+CRLF
+cQuery += "  ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
+cQuery += "  ,F2_RECISS" + CRLF
+cQuery += "  ,F2_XXVCVIN" + CRLF
+cQuery += "  ,F2_XXVFUMD" + CRLF
+cQuery += "  ,F2_XXVRETC" + CRLF
+cQuery += "  ,E1_XXISSBI" +CRLF
 cQuery += "	 ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),E1_XXHISTM)) AS E1_XXHISTM "+CRLF
 cQuery += "	 ,A1_NOME"+CRLF
 cQuery += "	 ,A1_PESSOA"+CRLF
 cQuery += "	 ,A1_CGC"+CRLF
-cQuery += "	 ,(CASE WHEN E1_SALDO = E1_VALOR "+CRLF
-cQuery += "	 		THEN E1_VALOR + E1_ACRESC - E1_DECRESC"+CRLF
-cQuery += "	 		ELSE E1_SALDO END) AS SALDO"+CRLF
+cQuery += "  ,CASE WHEN E1_SALDO > 0 "+CRLF
+cQuery += "	  THEN (E1_SALDO - COALESCE((SELECT SUM(E1_VALOR) "+CRLF
+cQuery += "	  		FROM "+cTabSE1+ " AB "+CRLF
+cQuery += "	  		WHERE AB.D_E_L_E_T_ <> '*' "+CRLF
+cQuery += "	  		AND AB.E1_FILIAL 	= SE1.E1_FILIAL "+CRLF
+cQuery += "	  		AND AB.E1_PREFIXO 	= SE1.E1_PREFIXO "+CRLF
+cQuery += "	  		AND AB.E1_NUM 		= SE1.E1_NUM "+CRLF
+cQuery += "	  		AND AB.E1_TITPAI 	= SE1.E1_PREFIXO+SE1.E1_NUM+SE1.E1_PARCELA+SE1.E1_TIPO+SE1.E1_CLIENTE+SE1.E1_LOJA "+CRLF
+cQuery += "	  		AND AB.E1_TIPO IN ('AB-','FB-','FC-','FU-','FP-','FM-','IR-','IN-','IS-','PI-','CF-','CS-','FE-','IV-') "+CRLF  // +FormatIN(MVABATIM,'|') --
+cQuery += "	  	),0) "+CRLF
+cQuery += "	  	- E1_SDDECRE + E1_SDACRES) "+CRLF
+cQuery += "	  	- CASE WHEN E1_BAIXA = ' ' THEN (E1_XXVRETC + E1_XXVCVIN) ELSE 0 END"+CRLF
+cQuery += "	  ELSE 0 END  AS SALDO "+CRLF
 
 cQuery += "	 FROM "+cTabSE1+" SE1 "+CRLF
 
-/*
 cQuery += "	 LEFT JOIN "+cTabSF2+" SF2 ON"+CRLF
 cQuery += "	 	SE1.E1_FILIAL      = SF2.F2_FILIAL"+CRLF
 cQuery += "	 	AND SE1.E1_NUM     = SF2.F2_DOC "+CRLF
@@ -630,7 +688,7 @@ cQuery += "	 	AND SE1.E1_PREFIXO = SF2.F2_SERIE"+CRLF
 cQuery += "	 	AND SE1.E1_CLIENTE = SF2.F2_CLIENTE"+CRLF
 cQuery += "	 	AND SE1.E1_LOJA    = SF2.F2_LOJA"+CRLF
 cQuery += "	 	AND SE1.D_E_L_E_T_ = ''"+CRLF
-*/
+
 cQuery += "	 LEFT JOIN "+cTabSA1+" SA1 ON"+CRLF
 cQuery += "	 	SA1.A1_FILIAL      = '  '"+CRLF
 cQuery += "	 	AND SE1.E1_CLIENTE = SA1.A1_COD"+CRLF
@@ -662,7 +720,7 @@ oJsonPN['E1_PEDIDO']	:= (cQrySE1)->E1_PEDIDO
 oJsonPN['E1_XXHISTM']	:= (cQrySE1)->E1_XXHISTM
 oJsonPN['E1_VENCORI']	:= DTOC(STOD((cQrySE1)->E1_VENCORI))
 
-oJsonPN['BAIXA'] 		:= (cQrySE1)->(SUBSTR(E1_BAIXA,1,4)+"-"+SUBSTR(E1_BAIXA,5,2)+"-"+SUBSTR(E1_BAIXA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+oJsonPN['E1_BAIXA'] 	:= DTOC(STOD((cQrySE1)->E1_BAIXA))
 oJsonPN['VALOR']        := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
 oJsonPN['IRRF']         := TRANSFORM((cQrySE1)->E1_IRRF,"@E 999,999,999.99")
 oJsonPN['INSS']         := TRANSFORM((cQrySE1)->E1_INSS,"@E 999,999,999.99")
@@ -673,6 +731,10 @@ oJsonPN['ISS']          := TRANSFORM(IIF((cQrySE1)->F2_RECISS = '1',(cQrySE1)->E
 oJsonPN['ISSBI']        := TRANSFORM((cQrySE1)->E1_VRETBIS,"@E 999,999,999.99")
 oJsonPN['CVINC']        := TRANSFORM((cQrySE1)->F2_XXVCVIN,"@E 999,999,999.99")
 oJsonPN['RETCTR']       := TRANSFORM((cQrySE1)->F2_XXVRETC,"@E 999,999,999.99")
+
+nLiquido := (cQrySE1)->(E1_VALOR - E1_IRRF - E1_INSS - E1_PIS - E1_COFINS - E1_CSLL - F2_XXVCVIN - F2_XXVFUMD - IIF(F2_RECISS = '1',E1_ISS,0) - E1_VRETBIS - F2_XXVRETC)
+oJsonPN['LIQUIDO'] 		:= TRANSFORM(nLiquido,"@E 999,999,999.99")
+oJsonPN['SALDO']        := TRANSFORM((cQrySE1)->SALDO,"@E 999,999,999.99")
 
 u_MsgLog("RESTTITCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
@@ -940,23 +1002,28 @@ thead input {
              <label for="E1Num" class="form-label">Título</label>
              <input type="text" class="form-control form-control-sm" id="E1Num" value="#E1Num#" readonly="">
            </div>
-           <div class="col-md-2">
+           <div class="col-md-4">
              <label for="E1NomCLI" class="form-label">Cliente</label>
              <input type="text" class="form-control form-control-sm" id="E1NomCLI" value="#E1NomCLI#" readonly="">
            </div>
            <div class="col-md-1">
              <label for="E1Emissao" class="form-label">Emissão</label>
-             <input type="text" class="form-control form-control-sm" id="E1Emissao" value="#E1Emissao#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="E1Emissao" value="#E1Emissao#" readonly="">
            </div>
 
 		   <div class="col-md-1">
-             <label for="E1VencOri" class="form-label">Venc. Original1</label>
-             <input type="text" class="form-control form-control-sm" id="E1VencOri" value="#E1VencOri#" readonly="">
+             <label for="E1VencOri" class="form-label">Venc. Original</label>
+             <input type="text" class="form-control form-control-sm text-center" id="E1VencOri" value="#E1VencOri#" readonly="">
            </div>
 
            <div class="col-md-1">
              <label for="E1VencRea" class="form-label">Vencimento</label>
-             <input type="text" class="form-control form-control-sm" id="E1VencRea" value="#E1VencRea#" readonly="">
+             <input type="text" class="form-control form-control-sm text-center" id="E1VencRea" value="#E1VencRea#" readonly="">
+           </div>
+
+           <div class="col-md-1">
+             <label for="E1Baixa" class="form-label">Baixa</label>
+             <input type="text" class="form-control form-control-sm text-center" id="E1Baixa" value="#E1Baixa#" readonly="">
            </div>
 
            <div class="col-md-2">
@@ -968,6 +1035,61 @@ thead input {
              <label for="E1Pedido" class="form-label">Pedido</label>
              <input type="text" class="form-control form-control-sm" id="E1Pedido" value="#E1Pedido#" readonly="">
            </div>
+
+           <div class="col-md-1">
+             <label for="E1IRRF" class="form-label">IRRF</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1IRRF" value="#E1IRRF#" readonly="">
+           </div>
+
+           <div class="col-md-1">
+             <label for="E1INSS" class="form-label">INSS</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1INSS" value="#E1INSS#" readonly="">
+           </div>
+
+          <div class="col-md-1">
+             <label for="E1PIS" class="form-label">PIS</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1PIS" value="#E1PIS#" readonly="">
+          </div>
+
+         <div class="col-md-1">
+             <label for="E1COFINS" class="form-label">COFINS</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1COFINS" value="#E1COFINS#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1CSLL" class="form-label">CSLL</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1CSLL" value="#E1CSLL#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1ISS" class="form-label">ISS</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1ISS" value="#E1ISS#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1ISSBI" class="form-label">ISS BI</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1ISSBI" value="#E1ISSBI#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1CVINC" class="form-label">Vinculada</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1CVINC" value="#E1CVINC#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1RETCTR" class="form-label">Ret Ctr.</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1RETCTR" value="#E1RETCTR#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1LIQUIDO" class="form-label">Líquido</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1LIQUIDO" value="#E1LIQUIDO#" readonly="">
+         </div>
+
+         <div class="col-md-1">
+             <label for="E1SALDO" class="form-label">Saldo</label>
+             <input type="text" class="form-control form-control-sm text-end" id="E1SALDO" value="#E1SALDO#" readonly="">
+         </div>
 
            <div class="col-md-8">
              <label for="E1HistM" class="form-label">Histórico CR</label>
@@ -1091,6 +1213,7 @@ var tableSE1;
 async function loadTable() {
 
 $('#mytable').html('<tr><td colspan="16" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
+
 // Destrua a tabela existente se já foi inicializada
 /*
 if ($.fn.DataTable.isDataTable('#tableSE1')) {
@@ -1452,9 +1575,22 @@ document.getElementById('E1NomCLI').value = dadosE1['A1_NOME'];
 document.getElementById('E1Emissao').value = dadosE1['E1_EMISSAO'];
 document.getElementById('E1VencRea').value = dadosE1['E1_VENCREA'];
 document.getElementById('E1VencOri').value = dadosE1['E1_VENCORI'];
+document.getElementById('E1Baixa').value = dadosE1['E1_BAIXA'];
 document.getElementById('E1Oper').value = dadosE1['E1_XXOPER'];
 document.getElementById('E1HistM').value = dadosE1['E1_XXHISTM'];
 document.getElementById('E1Pedido').value = dadosE1['E1_PEDIDO'];
+
+document.getElementById('E1IRRF').value = dadosE1['IRRF'];
+document.getElementById('E1INSS').value = dadosE1['INSS'];
+document.getElementById('E1PIS').value = dadosE1['PIS'];
+document.getElementById('E1COFINS').value = dadosE1['COFINS'];
+document.getElementById('E1CSLL').value = dadosE1['CSLL'];
+document.getElementById('E1ISS').value = dadosE1['ISS'];
+document.getElementById('E1ISSBI').value = dadosE1['ISSBI'];
+document.getElementById('E1CVINC').value = dadosE1['CVINC'];
+document.getElementById('E1RETCTR').value = dadosE1['RETCTR'];
+document.getElementById('E1LIQUIDO').value = dadosE1['LIQUIDO'];
+document.getElementById('E1SALDO').value = dadosE1['SALDO'];
 
 if (Array.isArray(dadosE1.DADOSZY)) {
    dadosE1.DADOSZY.forEach(object => {
@@ -1605,7 +1741,7 @@ async function Excel() {
     try {
         // Desabilita o botão e exibe o spinner
         btnExcel.disabled = true;
-        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true">Processando...</span>';
+        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
 
         // Obtém os valores dos campos de data e empresa
         let newvenci = document.getElementById("DataI").value;
@@ -1867,6 +2003,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += ", E1_XXVRETC + E1_XXVCVIN AS RETENCOES"+CRLF
 
 	cQuery += ",CASE WHEN E1_TIPO <> 'NDC' THEN C5_XXCOMPM ELSE SUBSTRING(E1_XXCOMPE,5,2)+'/'+SUBSTRING(E1_XXCOMPE,1,4) END AS C5_XXCOMPM"  + CRLF
+	cQuery += ",E1_TIPO"+CRLF
 	cQuery += ",E1_PREFIXO"+CRLF
 	cQuery += ",E1_NUM"+CRLF
 	cQuery += ",E1_PARCELA"+CRLF
@@ -1883,6 +2020,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += ",E1_VRETBIS "+CRLF
 	cQuery += ",E1_XXDTPRV"+CRLF
 	cQuery += ",E1_XXTPPRV"+CRLF
+	cQuery += ",E1_XXOPER"+CRLF
 	cQuery += ",CONVERT(VARCHAR(1000),CONVERT(Binary(1000),E1_XXHISTM)) E1_XXHISTM "+CRLF
 	cQuery += ",SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
 	cQuery += ",F2_RECISS" + CRLF

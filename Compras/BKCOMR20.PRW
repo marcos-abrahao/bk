@@ -11,13 +11,13 @@ BK - Relatório Solicitações de Compra em Aberto
 /*/
 
 User Function BKCOMR20()
-Local cDescr 	:= "O objetivo deste relatório é listar as solicitações de compras com preço final"
+Local cDescr 	:= "O objetivo deste relatório é listar as solicitações de compras com preço do pedido"
 Local cVersao	:= "15/04/2025 - Versão inicial"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 Local cAlias    := "QTMP"
 
-Private cTitulo   := "Solicitações de Compras com preço final"
+Private cTitulo   := "Solicitações de Compras com preço do pedido"
 Private aParam  := {}
 Private aRet    := {}
 Private cSCIni  := SPACE(TamSX3("C1_NUM")[1])
@@ -55,6 +55,8 @@ oPExcel:SetTitulo("")
 
 oPExcel:AddColX3("C1_NUM")
 
+oPExcel:AddColX3("C1_EMISSAO")
+
 oPExcel:AddCol("USUARIO","UsrRetName(QTMP->C1_USER)","Solicitante","")
 oPExcel:GetCol("USUARIO"):SetTamCol(20)
 
@@ -74,6 +76,8 @@ oPExcel:AddColX3("C7_PRECO")
 oPExcel:AddCol("TOTAL","'=##C1_QUANT##*##C7_PRECO##'","Total","")
 oPExcel:GetCol("TOTAL"):SetTipo("FN")
 oPExcel:GetCol("TOTAL"):SetTotal(.T.)
+
+oPExcel:AddColX3("C7_NUM")
 
 oPExcel:AddColX3("C1_DATPRF")
 oPExcel:GetCol("C1_DATPRF"):SetTitulo("Dt.Prevista")
@@ -130,6 +134,7 @@ cQuery += " 	,C1_XXLCVAL" + CRLF
 //cQuery += " 	,C1_OBS" + CRLF
 //cQuery += " 	,C1_XDTAPRV" + CRLF
 cQuery += " 	,C1_XXENDEN" + CRLF
+cQuery += " 	,C7_NUM" + CRLF
 cQuery += " 	,ISNULL(C7_PRECO,C1_XXLCVAL) AS C7_PRECO" + CRLF
 
 cQuery += " FROM "+RETSQLNAME("SC1")+" SC1" + CRLF
@@ -153,5 +158,3 @@ TCSETFIELD("QTMP","C1_DATPRF","D",8,0)
 TCSETFIELD("QTMP","C1_XDTAPRV","D",8,0)
 
 Return
-
-
