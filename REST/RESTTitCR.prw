@@ -70,7 +70,7 @@ END WSRESTFUL
 
 
 //v3
-WSMETHOD PUT STATUS QUERYPARAM empresa,e1recno,userlib,acao WSREST RestTitCR 
+WSMETHOD PUT STATUS QUERYPARAM empresa,e1recno,userlib,banco WSREST RestTitCR 
 
 Local cJson			:= Self:GetContent()   
 Local lRet			:= .T.
@@ -85,7 +85,7 @@ oJson:FromJSON(cJson)
 
 If u_BkAvPar(::userlib,@aParams,@cMsg)
 
-	lRet := fStatus(::empresa,::e1recno,::acao,@cMsg,oJson)
+	lRet := fStatus(::empresa,::e1recno,::banco,@cMsg,oJson)
 
 EndIf
 
@@ -103,7 +103,7 @@ Return lRet
 
 
 
-Static Function fStatus(empresa,e1recno,acao,cMsg,oJson)
+Static Function fStatus(empresa,e1recno,banco,cMsg,oJson)
 Local lRet 		:= .F.
 Local cQuery	:= ""
 Local cTabSE1	:= "SE1"+empresa+"0"
@@ -112,7 +112,7 @@ Local cNum		:= ""
 Local cTipo		:= ""
 
 // Dados para gravar
-Local cZyPrev	:= STRTRAN(AllTrim(oJson['zyprev']),"-","")
+Local cZyDtRec	:= STRTRAN(AllTrim(oJson['zyDtRec']),"-","")
 Local cZYObs	:= AllTrim(oJson['zyobs'])
 Local aAreaSZY
 Local cNewAls
@@ -124,15 +124,14 @@ Default cMotivo := ""
 
 Set(_SET_DATEFORMAT, 'dd/mm/yyyy')
 
-dPrev  := STOD(cZyPrev)
-u_MsgLog("fStatus",cZyPrev + " - "+DTOC(dPrev))
+dPrev  := STOD(cZyDtRec)
+u_MsgLog("fStatus",cZyDtRec + " - "+DTOC(dPrev))
 
 cQuery := "SELECT "
 cQuery += "   SE1.E1_TIPO"
 cQuery += "  ,SE1.E1_PREFIXO"
 cQuery += "  ,SE1.E1_NUM"
 cQuery += "  ,SE1.E1_PARCELA"
-cQuery += "  ,SE1.E1_XXTPPRV"
 cQuery += "  ,SE1.D_E_L_E_T_ AS E1DELET"
 cQuery += " FROM "+cTabSE1+" SE1 "
 cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno
@@ -150,16 +149,12 @@ Do Case
 		cMsg:= "foi excluído"
 	OtherWise 
 		// Alterar o Status
-		cMsg   := acao
+		cMsg   := banco
 		cQuery := "UPDATE "+cTabSE1+CRLF
-		cQuery += "  SET  E1_XXTPPRV = '"+SUBSTR(acao,1,1)+"'"+CRLF
-		cQuery += "      ,E1_XXDTPRV = '"+cZyPrev+"'"+CRLF
+		cQuery += "  SET  E1_BCOCLI = '"+banco+"'"+CRLF
+		cQuery += "      ,E1_XXDTREC = '"+cZyDtRec+"'"+CRLF
 		cQuery += "      ,E1_XXOPER  = '"+__cUserId+"'"+CRLF
 		cQuery += "      ,E1_XXHISTM = CONVERT(VARBINARY(MAX),'"+cZYObs+"')"+CRLF
-		If !Empty(dPrev)
-			cQuery += "  ,E1_VENCTO   = '"+cZyPrev+"'"+CRLF
-			cQuery += "  ,E1_VENCREA  = '"+DTOS(DATAVALIDA(dPrev))+"'"+CRLF
-		EndIf
 		cQuery += " FROM "+cTabSE1+" SE1"+CRLF
 		cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno+CRLF
 
@@ -189,9 +184,9 @@ Do Case
 				(cNewAls)->ZY_DATA		:= DATE()
 				(cNewAls)->ZY_HORA		:= SUBSTR(TIME(),1,5)
 				(cNewAls)->ZY_OBS		:= cZYObs
-				(cNewAls)->ZY_STATUS	:= SUBSTR(acao,1,1)
+				(cNewAls)->ZY_BANCO		:= banco
 				(cNewAls)->ZY_OPER		:= __cUserId
-				(cNewAls)->ZY_DTPREV	:= STOD(cZyPrev)
+				(cNewAls)->ZY_DTREC		:= STOD(cZyDtRec)
 				(cNewAls)->(MsUnlock())
 				(cNewAls)->(dbCloseArea())
 			RECOVER
@@ -402,7 +397,7 @@ WSMETHOD GET PLANCR QUERYPARAM empresa,vencini,vencfim WSREST RestTitCR
 	oPExcel:GetCol("SALDO"):SetDecimal(2)
 	oPExcel:GetCol("SALDO"):SetTotal(.T.)
 
-	oPExcel:AddCol("PREVISAO","STOD(E1_XXDTPRV)","Previsão","E1_XXDTPRV")
+	oPExcel:AddCol("RECEBIMENTO","STOD(E1_XXDTREC)","Recebimento","E1_XXDTREC")
 
 	oPExcel:AddCol("OPER","UsrRetName(E1_XXOPER)","Operador","")
 
@@ -529,10 +524,10 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['COMPET']		:= TRIM((cQrySE1)->C5_XXCOMPM)
 
 	// Falta Data e Pagamento (a ser preeenchida)
-	If !Empty((cQrySE1)->E1_XXTPPRV)
-		aListCR[nPos]['DTPGT'] 		:= (cQrySE1)->(SUBSTR(E1_XXDTPRV,1,4)+"-"+SUBSTR(E1_XXDTPRV,5,2)+"-"+SUBSTR(E1_XXDTPRV,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	If !Empty((cQrySE1)->E1_XXDTREC)
+		aListCR[nPos]['DTREC'] 		:= (cQrySE1)->(SUBSTR(E1_XXDTREC,1,4)+"-"+SUBSTR(E1_XXDTREC,5,2)+"-"+SUBSTR(E1_XXDTREC,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	Else
-		aListCR[nPos]['DTPGT'] 		:= ""
+		aListCR[nPos]['DTREC'] 		:= ""
 	EndIf
 	// Falta Banco de Pagamento (a ser preenchido)
 	aListCR[nPos]['BANCO'] 		:= (cQrySE1)->E1_BCOCLI
@@ -651,7 +646,7 @@ cQuery += "  ,E1_COFINS"+CRLF
 cQuery += "  ,E1_CSLL"+CRLF
 cQuery += "  ,E1_ISS"+CRLF
 cQuery += "  ,E1_VRETBIS "+CRLF
-cQuery += "  ,E1_XXDTPRV"+CRLF
+cQuery += "  ,E1_XXDTREC"+CRLF
 cQuery += "  ,E1_XXTPPRV"+CRLF
 cQuery += "  ,CONVERT(VARCHAR(1000),CONVERT(Binary(1000),E1_XXHISTM)) E1_XXHISTM "+CRLF
 cQuery += "  ,SE1.R_E_C_N_O_ AS E1RECNO"+CRLF
@@ -1147,8 +1142,8 @@ thead input {
        </div>
       <div class="modal-body">
 
-        <label for="ZYPrev" class="form-label">Previsão de Recebimento:</label>
-		<input class="form-control me-2" type="date" id="ZYPrev" value="#ZYPrev#" />
+        <label for="ZYDtRec" class="form-label">Informar Recebimento:</label>
+		<input class="form-control me-2" type="date" id="ZYDtRec" value="#ZYDtRec#" />
 
         <label for="ZYObs" class="form-label">Histórico:</label>
 	    <textarea class="form-control form-control-sm" id="ZYObs" rows="4" value="#ZYObs#"></textarea>
@@ -1272,9 +1267,9 @@ if (Array.isArray(titulos)) {
 	//trHTML += '<td>'+object['DESCCC']+'</td>';	
 	trHTML += '<td align="center">'+object['COMPET']+'</td>';
 
-	trHTML += '<td align="center">'+object['DTPGT']+'</td>';
+	trHTML += '<td id=dtrec'+clin+' align="center">'+object['DTREC']+'</td>';
 
-	//trHTML += '<td align="center">'+object['BANCO']+'</td>';
+	// Botão para mudança de Banco
 
 	trHTML += '<td>'
 	trHTML += '<div class="btn-group">'
@@ -1283,10 +1278,10 @@ if (Array.isArray(titulos)) {
 	trHTML += '</button>'
 
 	trHTML += '<div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenu2">'
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\')">341-Itau</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\')">001-BB</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'104\','+'\''+cbtnidp+'\')">104-CEF</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="ChgBanco(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'   \','+'\''+cbtnidp+'\')">   </button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\','+'\''+clin+'\')">341-Itau</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\','+'\''+clin+'\')">001-BB</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'104\','+'\''+cbtnidp+'\','+'\''+clin+'\')">104-CEF</button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'   \','+'\''+cbtnidp+'\','+'\''+clin+'\')">   </button>';
 	trHTML += '</div>'
 	trHTML += '</td>'
 
@@ -1310,24 +1305,6 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td align="right">'+object['RETENCOES']+'</td>';
 	trHTML += '<td align="right">'+object['LIQUIDO']+'</td>';
 	trHTML += '<td align="right">'+object['SALDO']+'</td>';
-
-	//trHTML += '<td>'
-
-	// Botão para mudança de status
-	//trHTML += '<div class="btn-group">'
-	//	trHTML += '<button type="button" id="'+cbtnids+'" class="btn btn-outline-'+ccbtn+' btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">'
-	//	trHTML += cStatus
-	//	trHTML += '</button>'
-
-	//	trHTML += '<div class="dropdown-menu" aria-labelledby="dropdownMenu2">'
-	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\' \','+'\''+cbtnids+'\','+'\''+clin+'\')">A Receber</button>';
-	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'0\','+'\''+cbtnids+'\','+'\''+clin+'\')">Sem Previsao</button>';
-	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'1\','+'\''+cbtnids+'\','+'\''+clin+'\')">Aguardando Previsao</button>';
-	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'2\','+'\''+cbtnids+'\','+'\''+clin+'\')">Previsao Informada</button>';
-	//	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'3\','+'\''+cbtnids+'\','+'\''+clin+'\')">Recebido</button>';
-	//	trHTML += '</div>'
-		
-	//trHTML += '</td>'
 
 	trHTML += '</tr>';
 
@@ -1618,8 +1595,8 @@ $('#E1Modal').modal('show');
 }
 
 
-async function AltStatus(empresa,e1recno,userlib,acao,btnids,clin){
-let btnAlt = '<button type="button" class="btn btn-outline-success" onclick="ChgStatus(\''+empresa+'\',\''+e1recno+'\',\'#userlib#\',\''+acao+'\','+'\''+btnids+'\','+'\''+clin+'\')">Salvar</button>';
+async function AltStatus(empresa,e1recno,userlib,banco,btnids,clin){
+let btnAlt = '<button type="button" class="btn btn-outline-success" onclick="ChgStatus(\''+empresa+'\',\''+e1recno+'\',\'#userlib#\',\''+banco+'\','+'\''+btnids+'\','+'\''+clin+'\')">Salvar</button>';
 document.getElementById("btnAlt").innerHTML = btnAlt;
 document.getElementById("AltTitulo").textContent = "Título "+document.getElementById("btne1"+clin).textContent + ' - '+document.getElementById("cliente"+clin).textContent;
 //document.getElementById("AltTitulo").textContent = ' - '+document.getElementById("cliente"+clin).textContent;
@@ -1629,15 +1606,13 @@ $('#altStatus').modal('show');
 }
 
 
-async function ChgStatus(empresa,e1recno,userlib,acao,btnids,clin){
+async function ChgStatus(empresa,e1recno,userlib,banco,btnids,clin){
 let resposta = '';
-let cbtn = '';
-
-let ZYPrev = document.getElementById("ZYPrev").value;
+let ZYDtRec = document.getElementById("ZYDtRec").value;
 let ZYObs  = document.getElementById("ZYObs").value;
 
 let dataObject = {	liberacao:'ok',
-					zyprev:ZYPrev,
+					zyDtRec:ZYDtRec,
 					zyobs:ZYObs,
 				 };
 
@@ -1657,7 +1632,7 @@ try {
     const credentials = btoa(`${username}:${password}`);
 
     // Monta a URL da API
-    const url = `${iprest}/RestTitCR/v3?empresa=${empresa}&e1recno=${e1recno}&userlib=${userlib}&acao=${acao}`;
+    const url = `${iprest}/RestTitCR/v3?empresa=${empresa}&e1recno=${e1recno}&userlib=${userlib}&banco=${banco}`;
 
 	const response = await fetch(url, {
 		method: 'PUT',
@@ -1686,21 +1661,10 @@ try {
 } finally {
     // this is the data we get after putting our data,
 	//	console.log(data);
-	if (acao == ' '){
-		cbtn = 'A Receber';
-	} else if (acao == '0'){
-		cbtn = 'Sem Previsao';
-	} else if (acao == '1'){
-		cbtn = 'Aguardando Previsao';
-	} else if (acao == '2'){
-		cbtn = 'Previsao Informada';
-	} else {
-		cbtn = 'Recebido';
-	}
-	document.getElementById(btnids).textContent = cbtn;
-	document.getElementById('prev'+clin).textContent = ZYPrev.substring(8,10)+'/'+ZYPrev.substring(5,7)+'/'+ZYPrev.substring(0,4)
-	//document.getElementById('prev'+clin).value = ZYPrev.value
-	document.getElementById('oper'+clin).textContent = '#cUserName#';
+	document.getElementById(btnids).textContent = banco;
+	document.getElementById('dtrec'+clin).textContent = ZYDtRec.substring(8,10)+'/'+ZYDtRec.substring(5,7)+'/'+ZYDtRec.substring(0,4)
+	//document.getElementById('prev'+clin).value = ZYDtRec.value
+	//document.getElementById('oper'+clin).textContent = '#cUserName#';
 	//document.getElementById('hist'+clin).textContent = ZYObs;
 }
 }
@@ -1868,7 +1832,7 @@ cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
 cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
 cHtml := STRTRAN(cHtml,"#dataI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
 cHtml := STRTRAN(cHtml,"#dataF#",SUBSTR(::vencfim,1,4)+"-"+SUBSTR(::vencfim,5,2)+"-"+SUBSTR(::vencfim,7,2))   // Formato: 2023-10-24 input date
-cHtml := STRTRAN(cHtml,"#ZYPrev#",STR(YEAR(DATE()),4)+"-"+STRZERO(MONTH(DATE()),2)+"-"+STRZERO(DAY(DATE()),2))   // Formato: 2023-10-24 input date
+cHtml := STRTRAN(cHtml,"#ZYDtRec#",STR(YEAR(DATE()),4)+"-"+STRZERO(MONTH(DATE()),2)+"-"+STRZERO(DAY(DATE()),2))   // Formato: 2023-10-24 input date
 
 // --> Seleção de Empresas
 nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
@@ -2018,7 +1982,7 @@ For nE := 1 To Len(aEmpresas)
 	cQuery += ",E1_CSLL"+CRLF
 	cQuery += ",E1_ISS"+CRLF
 	cQuery += ",E1_VRETBIS "+CRLF
-	cQuery += ",E1_XXDTPRV"+CRLF
+	cQuery += ",E1_XXDTREC"+CRLF
 	cQuery += ",E1_XXTPPRV"+CRLF
 	cQuery += ",E1_XXOPER"+CRLF
 	cQuery += ",CONVERT(VARCHAR(1000),CONVERT(Binary(1000),E1_XXHISTM)) E1_XXHISTM "+CRLF
