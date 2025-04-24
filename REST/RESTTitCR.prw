@@ -152,7 +152,11 @@ Do Case
 		cMsg   := banco
 		cQuery := "UPDATE "+cTabSE1+CRLF
 		cQuery += "  SET  E1_BCOCLI = '"+banco+"'"+CRLF
-		cQuery += "      ,E1_XXDTREC = '"+cZyDtRec+"'"+CRLF
+		If !Empty(banco)
+			cQuery += "      ,E1_XXDTREC = '"+cZyDtRec+"'"+CRLF
+		Else
+			cQuery += "      ,E1_XXDTREC = ''"+CRLF
+		EndIf
 		cQuery += "      ,E1_XXOPER  = '"+__cUserId+"'"+CRLF
 		cQuery += "      ,E1_XXHISTM = CONVERT(VARBINARY(MAX),'"+cZYObs+"')"+CRLF
 		cQuery += " FROM "+cTabSE1+" SE1"+CRLF
@@ -525,9 +529,9 @@ Do While ( cQrySE1 )->( ! Eof() )
 
 	// Falta Data e Pagamento (a ser preeenchida)
 	If !Empty((cQrySE1)->E1_XXDTREC)
-		aListCR[nPos]['DTREC'] 		:= (cQrySE1)->(SUBSTR(E1_XXDTREC,1,4)+"-"+SUBSTR(E1_XXDTREC,5,2)+"-"+SUBSTR(E1_XXDTREC,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+		aListCR[nPos]['DTREC'] 	:= (cQrySE1)->(SUBSTR(E1_XXDTREC,1,4)+"-"+SUBSTR(E1_XXDTREC,5,2)+"-"+SUBSTR(E1_XXDTREC,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	Else
-		aListCR[nPos]['DTREC'] 		:= ""
+		aListCR[nPos]['DTREC'] 	:= ""
 	EndIf
 	// Falta Banco de Pagamento (a ser preenchido)
 	aListCR[nPos]['BANCO'] 		:= (cQrySE1)->E1_BCOCLI
@@ -535,7 +539,11 @@ Do While ( cQrySE1 )->( ! Eof() )
 	//aListCR[nPos]['VENC'] 		:= (cQrySE1)->(SUBSTR(E1_VENCREA,1,4)+"-"+SUBSTR(E1_VENCREA,5,2)+"-"+SUBSTR(E1_VENCREA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCR[nPos]['EMISSAO'] 	:= (cQrySE1)->(SUBSTR(E1_EMISSAO,1,4)+"-"+SUBSTR(E1_EMISSAO,5,2)+"-"+SUBSTR(E1_EMISSAO,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCR[nPos]['VENCORI'] 	:= (cQrySE1)->(SUBSTR(E1_VENCORI,1,4)+"-"+SUBSTR(E1_VENCORI,5,2)+"-"+SUBSTR(E1_VENCORI,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
-	aListCR[nPos]['BAIXA'] 		:= (cQrySE1)->(SUBSTR(E1_BAIXA,1,4)+"-"+SUBSTR(E1_BAIXA,5,2)+"-"+SUBSTR(E1_BAIXA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	If !Empty((cQrySE1)->E1_BAIXA)
+		aListCR[nPos]['BAIXA'] 	:= (cQrySE1)->(SUBSTR(E1_BAIXA,1,4)+"-"+SUBSTR(E1_BAIXA,5,2)+"-"+SUBSTR(E1_BAIXA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	Else
+		aListCR[nPos]['BAIXA'] 	:= ""
+	EndIf
 	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
 	aListCR[nPos]['IRRF']       := TRANSFORM((cQrySE1)->E1_IRRF,"@E 999,999,999.99")
 	aListCR[nPos]['INSS']       := TRANSFORM((cQrySE1)->E1_INSS,"@E 999,999,999.99")
@@ -738,9 +746,9 @@ u_MsgLog("RESTTITCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 cQuery := "SELECT " + CRLF
 cQuery += "	  ZY_DATA"+CRLF
 cQuery += "	 ,ZY_HORA"+CRLF
-cQuery += "	 ,ZY_STATUS"+CRLF
+cQuery += "	 ,ZY_BANCO"+CRLF
 cQuery += "	 ,ZY_OPER"+CRLF
-cQuery += "	 ,ZY_DTPREV"+CRLF
+cQuery += "	 ,ZY_DTREC"+CRLF
 cQuery += "  ,CONVERT(VARCHAR(800),CONVERT(Binary(800),ZY_OBS)) AS ZY_OBS "+CRLF
 cQuery += "	 ,USR_CODIGO"+CRLF
 
@@ -774,9 +782,9 @@ Do While (cQrySZY)->(!EOF())
 
 	aItens[nI]["ZY_DATA"]	:= DTOC(STOD((cQrySZY)->ZY_DATA))
 	aItens[nI]["ZY_HORA"]	:= (cQrySZY)->ZY_HORA
-	aItens[nI]["ZY_STATUS"]	:= u_DE1XXTPPrv((cQrySZY)->ZY_STATUS)
+	aItens[nI]["ZY_BANCO"]	:= (cQrySZY)->ZY_BANCO
 	aItens[nI]["ZY_OPER"]	:= (cQrySZY)->USR_CODIGO
-	aItens[nI]["ZY_DTPREV"]	:= DTOC(STOD((cQrySZY)->ZY_DTPREV))
+	aItens[nI]["ZY_DTREC"]	:= DTOC(STOD((cQrySZY)->ZY_DTREC))
 	aItens[nI]["ZY_OBS"]	:= StrIConv(TRIM((cQrySZY)->ZY_OBS), "CP1252", "UTF-8")
 
 	dbSkip()
@@ -1098,9 +1106,9 @@ thead input {
 						<tr>
 							<th scope="col">Data</th>
 							<th scope="col">Hora</th>
-							<th scope="col">Status</th>
+							<th scope="col">Banco</th>
 							<th scope="col">Operador</th>
-							<th scope="col">Previsão</th>
+							<th scope="col">Recebimento</th>
 							<th scope="col">Observações</th>
 						</tr>
 					</thead>
@@ -1222,7 +1230,6 @@ let trHTML = '';
 let ccbtn = '';
 let anexos = '';
 let cbtne1  = '';
-let cbtnids = '';
 let nlin = 0;
 let clin = '';
 
@@ -1234,7 +1241,6 @@ if (Array.isArray(titulos)) {
 	clin = nlin.toString()
 
 	cbtne1  = 'btne1'+nlin;
-	cbtnids = 'btnac'+nlin;
 	cbtnidp = 'btnpor'+nlin;
 
 	if (cStatus == ' '){
@@ -1281,7 +1287,7 @@ if (Array.isArray(titulos)) {
 	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'341\','+'\''+cbtnidp+'\','+'\''+clin+'\')">341-Itau</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'001\','+'\''+cbtnidp+'\','+'\''+clin+'\')">001-BB</button>';
 	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'104\','+'\''+cbtnidp+'\','+'\''+clin+'\')">104-CEF</button>';
-	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'   \','+'\''+cbtnidp+'\','+'\''+clin+'\')">   </button>';
+	trHTML += '<button class="dropdown-item" type="button" onclick="AltStatus(\''+cEmpresa+'\',\''+object['E1RECNO']+'\',\'#userlib#\',\'   \','+'\''+cbtnidp+'\','+'\''+clin+'\')">Remover</button>';
 	trHTML += '</div>'
 	trHTML += '</td>'
 
@@ -1575,9 +1581,9 @@ if (Array.isArray(dadosE1.DADOSZY)) {
 	itens += '<tr>';
 	itens += '<td>'+object['ZY_DATA']+'</td>';	
 	itens += '<td>'+object['ZY_HORA']+'</td>';
-	itens += '<td>'+object['ZY_STATUS']+'</td>';
+	itens += '<td>'+object['ZY_BANCO']+'</td>';
 	itens += '<td>'+object['ZY_OPER']+'</td>';
-	itens += '<td>'+object['ZY_DTPREV']+'</td>';
+	itens += '<td>'+object['ZY_DTREC']+'</td>';
 	itens += '<td>'+object['ZY_OBS']+'</td>';
 
 	itens += '</tr>';
@@ -1601,7 +1607,9 @@ document.getElementById("btnAlt").innerHTML = btnAlt;
 document.getElementById("AltTitulo").textContent = "Título "+document.getElementById("btne1"+clin).textContent + ' - '+document.getElementById("cliente"+clin).textContent;
 //document.getElementById("AltTitulo").textContent = ' - '+document.getElementById("cliente"+clin).textContent;
 document.getElementById("ZYObs").value = '';
-
+if (banco.trim() === '') {
+    document.getElementById("ZYDtRec").value = '';
+}
 $('#altStatus').modal('show');
 }
 
@@ -1662,7 +1670,11 @@ try {
     // this is the data we get after putting our data,
 	//	console.log(data);
 	document.getElementById(btnids).textContent = banco;
-	document.getElementById('dtrec'+clin).textContent = ZYDtRec.substring(8,10)+'/'+ZYDtRec.substring(5,7)+'/'+ZYDtRec.substring(0,4)
+	if (banco.trim() === '') {
+    	document.getElementById('dtrec'+clin).textContent = '';
+	} else {
+		document.getElementById('dtrec'+clin).textContent = ZYDtRec.substring(8,10)+'/'+ZYDtRec.substring(5,7)+'/'+ZYDtRec.substring(0,4)
+	}
 	//document.getElementById('prev'+clin).value = ZYDtRec.value
 	//document.getElementById('oper'+clin).textContent = '#cUserName#';
 	//document.getElementById('hist'+clin).textContent = ZYObs;

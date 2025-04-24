@@ -22,13 +22,15 @@ For _nI := 1 TO LEN(aCabs)
 
    cAlign  :=	"text-align: left;"
    If Len(aDet) > 0
-      xCampo := aDet[1,_ni]
- 			            
-      if VALTYPE(xCampo) == "D" // Trata campos data
-         cAlign := 'text-align: center;'
-      elseif VALTYPE(xCampo) == "N" // Trata campos numericos
-         cAlign := 'text-align: right;'
-      endif      
+      If _ni <= LEN(aDet[1])
+         xCampo := aDet[1,_ni]
+                        
+         If VALTYPE(xCampo) == "D" // Trata campos data
+            cAlign := 'text-align: center;'
+         ElseIf VALTYPE(xCampo) == "N" // Trata campos numericos
+            cAlign := 'text-align: right;'
+         Endif      
+      EndIf
    EndIf
 
 	cMsg += '<th style="padding: 5px 2px 5px 2px;font-family: Arial;'+cAlign+';"><b>'+ALLTRIM(aCabs[_nI])+'</b></th>' 

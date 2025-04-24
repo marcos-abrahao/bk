@@ -18,9 +18,15 @@ IF !lF050Auto
 	    	u_MsgLog("FA050UPD","Este titulo foi gerado pelos Liquidos BK, utilize a rotina adequada", "W")
 	    	lRet := .F.
 	    ELSE
-	    	IF u_AvisoLog("FA050UPD","Atencao","Este titulo foi gerado pelos Liquidos BK. Excluir Titulo?",{"Sim","Nao"} ) <> 1
-	    		lRet := .F.
-	    	ENDIF
+			IF _Opc == 5
+	    		IF u_AvisoLog("FA050UPD","Atencao","Este titulo foi gerado pelos Liquidos BK. Excluir Titulo?",{"Sim","Nao"} ) <> 1
+	    			lRet := .F.
+	    		ENDIF
+			ELSEIF _Opc == 4
+	    		IF u_AvisoLog("FA050UPD","Atencao","Este titulo foi gerado pelos Liquidos BK. Deseja alterar este Titulo?",{"Sim","Nao"} ) <> 1
+	    			lRet := .F.
+	    		ENDIF
+			ENDIF
 	    ENDIF
 	ENDIF
 ENDIF
