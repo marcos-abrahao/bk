@@ -112,22 +112,24 @@ DEFINE MSDIALOG oDlgPvt TITLE "Inclusão de Itens Sol. de Compras" FROM 000, 000 
 	@ 000, 003  GROUP oGrpBc  TO 047, (nJanLarg/2)-003  PROMPT "Dados da Solicitação de Compras:"  OF oDlgPvt PIXEL
 
 	@ nLin+2, 010 SAY "Limite Entrega:"  SIZE 50, 7 OF oDlgPvt PIXEL 
-	@ nLin,   060 MSGET dDATPRF PIXEL VALID (dDatPrf > dDataBase) SIZE 50,10 Of oDlgPvt    
-
+	@ nLin,   060 MSGET dDATPRF PIXEL VALID (dDatPrf > dDataBase) SIZE 50,10 Of oDlgPvt HASBUTTON
+ 
 	@ nLin+2, 120 SAY 'Motivo da Compra:' PIXEL SIZE 50,10 Of oDlgPvt
 	@ nLin,   180 COMBOBOX cXXMTCM  ITEMS aMTCM SIZE 100,010 Pixel Of oDlgPvt  VALID(Pertence("123"))
 
 	@ nLin+2, 290  SAY 'Centro Custo:' PIXEL SIZE 50,10 Of oDlgPvt
 	@ nLin,   340  MSGET cCC PIXEL SIZE 50,10 Of oDlgPvt  F3 "CTT" VALID(!Empty(cCC) .AND. Ctb105CC() .AND. !EMPTY(cXXDCC:= CTT->CTT_DESC01))  
-	@ nLin,   400  MSGET cXXDCC PIXEL SIZE 150,10 Of oDlgPvt WHEN .F.  
+	@ nLin,   415  MSGET cXXDCC PIXEL SIZE 150,10 Of oDlgPvt WHEN .F.  
 
 	nLin += 15
 
 	@ nLin+2, 010 SAY 'Justificativa:' PIXEL SIZE 50,10 Of oDlgPvt
 	oMemo:= tMultiget():New(nLin,60,{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oDlgPvt,250,20,,,,,,.T.) 
 
-	@ nLin+2, 340  SAY 'Endereço de entrega:' PIXEL SIZE 70,10 Of oDlgPvt
-	@ nLin,   400  MSGET cXXENDEN PIXEL SIZE 150,10 Of oDlgPvt
+	//@ nLin+2, 340  SAY 'Endereço de entrega:' PIXEL SIZE 70,10 Of oDlgPvt
+	oTButton1 := TButton():New( nLin+2, 340, "Endereço de entrega",oDlgPvt,{||cXXENDEN := u_SelEndEnt(cCC)}, 65,11,,,.F.,.T.,.F.,,.F.,,,.F. ) 
+
+	@ nLin,   415  MSGET cXXENDEN PICT "@!" PIXEL SIZE 200,10 Of oDlgPvt
 
 	nLin += 23
 

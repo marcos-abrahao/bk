@@ -2236,10 +2236,11 @@ IF nScan > 0
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "160"
 		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
-	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "200"
-		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
 	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "180" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
 		// Aqui: 11/06/24 - Estava duplicando na empresa 18 quando emitido na empresa 18
+		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
+	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "200" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
+		// Aqui: 24/04/25 - Estava duplicando na empresa 20 quando emitido na empresa 20
 		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
 	ELSE
 		cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF

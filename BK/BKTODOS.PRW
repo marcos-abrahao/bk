@@ -36,6 +36,7 @@ If __cUserId == '000000'
 	aAdd(aDados,{"","u_ExBKCode()",	"TESTES",		"Teste da rotina de codificação web"})
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})
+	aAdd(aDados,{"","u_SelEndEnt()","GERAL",		"Teste Seleção End Entrega"})
 	aAdd(aDados,{"","U_BKCOMA12()",	"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
 	aAdd(aDados,{"","U_BKCOMI12()",	"COMPRAS",		"Importar inventario Barcas do PowerBK"})
 	aAdd(aDados,{"","U_BKCOMA06()",	"COMPRAS",		"Importar fornecedores Barcas do PowerBK"})

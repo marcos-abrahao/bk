@@ -333,7 +333,7 @@ Do While SC8->(!eof()) .AND. xFilial("SC8") == cFilSx8 .AND. SC8->C8_NUM == cNum
 	EndIf	
 
 	If EMPTY(aCotacao[nPEndEnt])
-		aCotacao[nPEndEnt] := ALLTRIM(SC1->C1_XXENDENT)
+		aCotacao[nPEndEnt] := ALLTRIM(SC1->C1_XXENDEN)
 	EndIf
 
 	If !aCotacao[nPUrgente] .AND. SC7->C7_XXURGEN == "S"

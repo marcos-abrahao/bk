@@ -35,15 +35,25 @@ ENDIF
 
 IF !lValido
 	u_MsgLog("MT110TOK","Data Limite Entrega deve ser maior que a Emissão","E")
-	Return(lValido) 
+	Return(.F.) 
 ENDIF
 
 // 02/04/2025 - Justificativa Obrigatória
 IF Empty(cXXJUST)
 	u_MsgLog("MT110TOK","Justificativa deve ser preenchida","E")
-	Return(lValido) 
+	Return(.F.) 
 ENDIF
 
+IF Empty(cXXENDEN)
+	u_MsgLog("MT110TOK","Endereço de entrega não preenchido","E")
+	Return(.F.) 
+ELSE
+	FOR i :=1 TO LEN(aCols)
+		aCols[i,nEndEnt] := cXXENDEN
+	NEXT
+ENDIF
+
+/*
 If cEmpAnt <> '20'
 	lValido  := BKALTENT()
 
@@ -51,13 +61,13 @@ If cEmpAnt <> '20'
 		aCols[i,nEndEnt] := cXXENDEN
 	NEXT
 EndIf
-
+*/
 Return(lValido) 
 
 
 
 // Alteração do Endereço de Entrega - Marcos - BK 31/01/17
-
+// Removida em 25/04/2025
 Static Function BKALTENT()
 Local aArea := Getarea()             
 
