@@ -48,7 +48,7 @@ aAdd(aEmpresas,{"10","BKDAHER TABOAO"  ,"BKDAHER T"    ,"N","N","N","N","N",""  
 aAdd(aEmpresas,{"11","BKDAHER LIMEIRA" ,"BKDAHER L"    ,"N","N","N","N","N",""         ,"N"})
 aAdd(aEmpresas,{"12","BK CORRETORA"    ,"CORRETORA"    ,"S","N","N","S","N",""         ,"N"})
 aAdd(aEmpresas,{"14","BALSA NOVA"      ,"BALSA"        ,"S","N","N","N","N","302000508","N"})
-aAdd(aEmpresas,{"15","BHG INT 3"       ,"BHG"          ,"S","N","S","S","S","305000554","N"})
+aAdd(aEmpresas,{"15","BHG INT 3"       ,"BHG"          ,"S","S","S","S","S","305000554","N"})
 aAdd(aEmpresas,{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386000609","N"})
 aAdd(aEmpresas,{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         ,"N"})
 aAdd(aEmpresas,{"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623","N"})
@@ -60,10 +60,11 @@ aAdd(aEmpresas,{"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""  
 aAdd(aEmpresas,{"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         ,"N"})
 
 For nE := 1 To Len(aEmpresas)
-    If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S"
+    If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S" .OR. (nOpc == 7 .AND. !EMPTY(aEmpresas[nE,nOpc+2]))
        aAdd(aReturn,aEmpresas[nE])
     EndIf
 Next
+
 Return aReturn
 
 User Function BkEmpr(nOpc)
@@ -103,4 +104,26 @@ Return u_BKGrupo(5)
 User Function BkBarueri()
 Return u_BKGrupo(6)
 
+// Empresas em Barueri
+User Function BkConsorcio()
+Return u_BKGrupo(7)
 
+User Function BKEmpCons(cCC)
+Local cEmpBK  := ""
+Local nEmp    := 0
+Local aBkCons := u_BkConsorcio()
+nEmp := aScan(aBkCons,{ |x| x[9] == TRIM(cCC)})
+If nEmp > 0
+    cEmpBK := aBkCons[nEmp,1]
+EndIf
+Return cEmpBK
+
+User Function BKEmpCC(cEmp)
+Local cCC  := ""
+Local nEmp    := 0
+Local aBkCons := u_BkConsorcio()
+nEmp := aScan(aBkCons,{ |x| x[1] == TRIM(cEmp)})
+If nEmp > 0
+    cCC := aBkCons[nEmp,9]
+EndIf
+Return cCC

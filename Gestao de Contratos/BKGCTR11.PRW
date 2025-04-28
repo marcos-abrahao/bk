@@ -708,6 +708,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 	Local nValFat   := 0
 	Local nValNDCM  := 0
 	Local lADP		:= .F.
+	Local cEmpCons	:= ""
 
 	LimpaBrw ("TRB")
 	LimpaBrw (ALIAS_TMP)
@@ -1357,7 +1358,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 		IF nScan > 0
 			cQuery1 += " AND Z2_CODEMP='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"+CRLF 
-			cQuery1 += " AND Z2_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
+			//cQuery1 += " AND Z2_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')" +CRLF
 		ELSE
 			cQuery1 += " AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"+CRLF
 			cQuery1 += " AND Z2_CC='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
@@ -1544,7 +1545,7 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 IF nScan > 0
 	cQuery1 += " AND Z2_CODEMP='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"
-	cQuery1 += " AND Z2_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
+	//cQuery1 += " AND Z2_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
 ELSE
 	cQuery1 += " AND Z2_CODEMP='"+SM0->M0_CODIGO+"'"
 	cQuery1 += " AND Z2_CC='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
@@ -1604,6 +1605,8 @@ u_MsgLogAdm("BKGCTR11","Query Folha "+aPeriodo[_nI,1])
 nScan:= 0
 nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
+cEmpCons := u_BKEmpCons(QTMP->CNF_CONTRA)
+
 If SUBSTR(aPeriodo[_nI,1],4,4) < '2025'
 
 	//*** Folha Pagamento Senior ***
@@ -1632,7 +1635,7 @@ If SUBSTR(aPeriodo[_nI,1],4,4) < '2025'
 	cQuery2 += " AND bk_senior.bk_senior.R046VER.CodEve = bk_senior.bk_senior.R008EVC.CodEve" +CRLF
 
 	//TRATAMENTO ESPECIAL CONTRATO BKDAHER
-
+	/*
 	IF nScan > 0
 		cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
 		cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
@@ -1646,6 +1649,15 @@ If SUBSTR(aPeriodo[_nI,1],4,4) < '2025'
 			cQuery2 += " AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 		EndIf
 	ENDIF
+	*/
+
+	If Empty(cEmpCons)
+		cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
+		cQuery2 += "  AND FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+	Else
+		cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
+	EndIf
+	cQuery2 += " AND PerRef ='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"01'"+CRLF
 
 	cQuery2 += " GROUP BY bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
 	cQuery2 += " ORDER BY bk_senior.bk_senior.R046VER.CodEve,bk_senior.bk_senior.R008EVC.DesEve"+CRLF
@@ -1669,9 +1681,13 @@ Else
 	cQuery2 += " LEFT JOIN EspelhoADP.dbo.DeParaEmpresa DPE on DPE.CodigoADP = FF.CodigoEmpresa"+CRLF
 	cQuery2 += " LEFT JOIN EspelhoADP.dbo.EventosProtheus EP on EP.Codigo = FF.Codigo"+CRLF
 	cQuery2 += " WHERE "+CRLF
-	cQuery2 += "  FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+	If Empty(cEmpCons)
+		cQuery2 += "  DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
+		cQuery2 += "  AND FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+	Else
+		cQuery2 += "  DPE.CodigoMicrosiga = '"+cEmpCons+"0'"+CRLF
+	EndIf
 	cQuery2 += "  AND YEAR(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+"' AND MONTH(FF.Referencia) = '"+SUBSTR(aPeriodo[_nI,1],1,2)+"'"+CRLF
-	cQuery2 += "  AND DPE.CodigoMicrosiga = '"+cEmpAnt+"0'"+CRLF
 	cQuery2 += " GROUP BY FF.Codigo,FF.Descricao,FF.Classificacao,EP.EventoProtheus"+CRLF
 
 	u_LogTxt("BKGCTR11-ADP.SQL",cQuery2)	
@@ -1950,9 +1966,9 @@ nScan:= aScan(aConsorcio,{|x| x[1]==ALLTRIM(QTMP->CNF_CONTRA) })
 
 IF nScan > 0
 	cQuery2 += " AND codEmpresa='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"'"
-	cQuery2 += " AND centroCusto IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
+	//cQuery2 += " AND centroCusto IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"
 ELSE
-	cQuery2 += " AND codEmpresa='"+SM0->M0_CODIGO+"'"
+	cQuery2 += " AND codEmpresa='"+cEmpAnt+"'"
 	cQuery2 += " AND centroCusto='"+ALLTRIM(QTMP->CNF_CONTRA)+"'"
 ENDIF
 
@@ -2059,6 +2075,7 @@ ENDIF
 */
 // 12105 - Alugueis 06/07/2021
 // 19/11/2021 - Contas alteradas de 113 para 121
+/*
 If nScan > 0
 	// 13/10/2024 - Bruno Bueno - retirar passivo
 	cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' " +CRLF
@@ -2068,6 +2085,13 @@ If nScan > 0
 Else
 	cQuery2 += " AND (SUBSTRING(B1_CONTA,1,1) = '3' OR B1_CONTA IN ('"+cCusBK+"') OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126') )" +CRLF
 EndIf
+*/
+
+cQuery2 += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
+cQuery2 += "      	OR B1_CONTA IN ('"+cCusBK+"') " + CRLF
+cQuery2 += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') " + CRLF
+cQuery2 += "      	OR SUBSTRING(B1_CONTA,1,3) IN ('124','126')) " + CRLF  // Ativo Imobilizado
+
 cQuery2 += " GROUP BY D1_FILIAL,D1_SERIE,D1_DOC,D1_FORNECE,D1_LOJA,D1_COD,B1_DESC,B1_GRUPO,BM_DESC,BM_STATUS,D1_CC,F1_XXCOMPD,D1_DTDIGIT"+CRLF
 
 cQuery2 += " UNION ALL"+CRLF
@@ -2079,12 +2103,18 @@ cQuery2 += " AND D3_CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 
 // 19/11/2021 - Contas alteradas de 113 para 121
 //cQuery2 += IIF(nScan > 0," AND SUBSTRING(D3_CONTA,1,3) <> '113' "," AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA in ('29104004') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105'))") +CRLF
+/*
 If nScan > 0
 	cQuery2 +=  " AND SUBSTRING(D3_CONTA,1,3) <> '113' " +CRLF
 	cQuery2 +=  " AND (SUBSTRING(D3_CONTA,1,3) <> '121' OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 Else
 	cQuery2 += " AND (SUBSTRING(D3_CONTA,1,1) = '3' OR D3_CONTA IN ('"+cCusBK+"') OR SUBSTRING(D3_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 EndIf
+*/
+cQuery2 += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
+cQuery2 += "      	OR B1_CONTA IN ('"+cCusBK+"') " + CRLF
+cQuery2 += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') " + CRLF
+cQuery2 += "      	OR SUBSTRING(B1_CONTA,1,3) IN ('124','126')) " + CRLF  // Ativo Imobilizado
 
 cQuery2 += " GROUP BY  D3_FILIAL,D3_COD,B1_DESC,B1_GRUPO,BM_DESC,BM_STATUS,D3_CC"+CRLF
 
@@ -2102,6 +2132,7 @@ cLastE2 := "-"
 aAcrDcr := {}
 
 u_MsgLogAdm("BKGCTR11","Percorre gastos gerais "+aPeriodo[_nI,1])
+
 DO While !TMPX2->(EOF())
 
 	//---> Inicio: Buscar Acrescimos e Decrescimos Financeiros da NFE
@@ -2121,7 +2152,7 @@ DO While !TMPX2->(EOF())
 	nIndDesp := 1
 	cOutros  := 'S'
 
-	If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha ADP
+	If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha Senior
 		IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod
 			cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'12',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 			cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
@@ -2136,7 +2167,7 @@ DO While !TMPX2->(EOF())
 			cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'20',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 			cOutros := GravaCCD1(ALIAS_TMP,nConsol,TMPX2->D1_CC,'08',_nI,TMPX2->D1_TOTAL,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 		ENDIF
-	Else
+	Else // Considerar da Folha ADP
 		If "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
 			cOutros := "N"
 		EndIf
@@ -2214,7 +2245,6 @@ IF nScan > 0
 	cQuery2 += " LEFT JOIN "+RETSQLNAME("SBM")+" SBM ON BM_FILIAL = '"+xFilial("SBM")+"' AND B1_GRUPO = BM_GRUPO  AND SBM.D_E_L_E_T_ = '' " +CRLF
 	cQuery2 += " WHERE SUBSTRING(F1_XXCOMPD,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
 	//cQuery2 += " WHERE SUBSTRING(D1_DTDIGIT,1,6) = '"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR(aPeriodo[_nI,1],1,2)+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
-	//cQuery2 += " AND D1_CC = '000000001'"
 
 	// Despesas médicas 12/03/24 - "OR" em 11/03/25
 	cQuery2 += " AND D1_COD <> '"+U_MVASSMED()+"'"+CRLF
@@ -2229,26 +2259,20 @@ IF nScan > 0
 	ENDIF
 	*/
 
-	IF ALLTRIM(aConsorcio[nScan,2]) == "140" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
-		// Aqui: 11/06/24 - Estava duplicando na empresa 14 quando emitido na empresa 14
+	If cEmpCons == cEmpAnt
 		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
-	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "150"
-		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
-	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "160"
-		//cQuery2 += " AND D1_CC BETWEEN '000000000' AND '999999999'" +CRLF
-	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "180" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
-		// Aqui: 11/06/24 - Estava duplicando na empresa 18 quando emitido na empresa 18
-		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
-	ELSEIF ALLTRIM(aConsorcio[nScan,2]) == "200" .AND. SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2) == cEmpAnt
-		// Aqui: 24/04/25 - Estava duplicando na empresa 20 quando emitido na empresa 20
-		cQuery2 += " AND D1_CC <> '"+QTMP->CNF_CONTRA+"'" +CRLF
-	ELSE
-		cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
+	//ELSE
+	//	cQuery2 += " AND D1_CC IN ('"+ALLTRIM(aConsorcio[nScan,3])+"','"+ALLTRIM(aConsorcio[nScan,4])+"','"+ALLTRIM(aConsorcio[nScan,7])+"')"+CRLF
 	ENDIF
 
-	cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' " +CRLF
+	cQuery2 += "      AND (SUBSTRING(B1_CONTA,1,1) = '3'" + CRLF
+	cQuery2 += "      	OR B1_CONTA IN ('"+cCusBK+"') " + CRLF
+	cQuery2 += "      	OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') " + CRLF
+	cQuery2 += "      	OR SUBSTRING(B1_CONTA,1,3) IN ('124','126')) " + CRLF  // Ativo Imobilizado
+
+	//cQuery2 += " AND SUBSTRING(B1_CONTA,1,1) <> '2' AND SUBSTRING(B1_CONTA,1,3) <> '113' " +CRLF
 	// 19/11/2021 - Contas alteradas de 113 para 121
-	cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
+	//cQuery2 += " AND (SUBSTRING(B1_CONTA,1,3) <> '121' OR SUBSTRING(B1_CONTA,1,5) IN ('12201','12105') OR SUBSTRING(B1_CONTA,1,3) IN ('124','126'))" +CRLF
 
 	cQuery2 += " AND D1_FILIAL = '"+xFilial("SD1")+"'"+CRLF
 	//cQuery2 += " GROUP BY  D1_FILIAL,D1_COD,B1_DESC,B1_GRUPO,D1_CC"+CRLF
@@ -2288,7 +2312,7 @@ IF nScan > 0
 		nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
 		nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
-		If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha ADP
+		If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha Senior
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
@@ -2303,8 +2327,10 @@ IF nScan > 0
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
 				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
 			ENDIF
-		Else
-			cOutros := "N"
+		Else // Considerar da Folha ADP
+			If "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+				cOutros := "N"
+			EndIf
 		EndIf
 
 		//IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP ;
@@ -2377,7 +2403,6 @@ IF nScan > 0
 	cQuery2 += " AND E5_FILIAL = '"+xFilial("SE5")+"'"+CRLF
 
 	u_LogTxt("BKGCTR11-E5-1.SQL",cQuery2)
-
 
 	u_MsgLogAdm("BKGCTR11","Percorre movimento bancario consorcios "+aPeriodo[_nI,1])
 
@@ -2480,20 +2505,26 @@ IF nScan > 0
 			nIndDesp:= IIF(ALLTRIM(TMPX2->D1_CC) == ALLTRIM(aConsorcio[nScan,4]),VAL(aConsorcio[nScan,5]),1)
 			nAuxVl  := TMPX2->D1_TOTAL/nIndDesp
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
-			ENDIF
+			If SUBSTR(aPeriodo[_nI,1],4,4) < '2025' // Considerar da Folha Senior
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVT_Prod
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'12',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+				ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cVRVA_Prod
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
-			ENDIF
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'14',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+				ENDIF
 
-			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|"  $ cCCRE_Prod
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
-				cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
-			ENDIF
+				IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'20',_nI,nAuxVl,aAcrDcr,cOutros,"N",.T.,"",.F.,nIndDesp)
+					cOutros := GravaCCD1(ALIAS_TMP,nConsol,QTMP->CNF_CONTRA,'08',_nI,nAuxVl,aAcrDcr,cOutros,cOutros,.T.,"",.F.,nIndDesp)
+				ENDIF
+			Else // Considerar da Folha ADP
+				If "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVT_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cVRVA_Prod .OR. "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCCRE_Prod
+					cOutros := "N"
+				EndIf
+			EndIf
 
 			//IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. "|"+ALLTRIM(TMPX2->B1_GRUPO)+"|" $ cCDPR_GRUP;
 			IF "|"+ALLTRIM(TMPX2->D1_COD)+"|" $ cCDPR_Prod .OR. TMPX2->BM_STATUS = '1'; 

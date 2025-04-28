@@ -263,7 +263,7 @@ Return Nil
 User Function LogTxt(cArqLog,cTxt,aBinds)
 Local nPosFim 	:= 0
 Local nHandle 	:= 0
-Local cDir    	:= u_SLogDir() //u_LTmpDir()
+Local cDir    	:= u_LTmpDir()
 Local cFile   	:= ""
 Local cTexto  	:= ""
 Local nI 		:= 0
@@ -271,7 +271,7 @@ Local nI 		:= 0
 Default cTxt  	:= ""
 Default aBinds	:= {}
 
-If __cUserId == "000000" .OR. IsBlind()
+If __cUserId == "000000" //.OR. IsBlind()
 
 	cTexto := "--"+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
 	
