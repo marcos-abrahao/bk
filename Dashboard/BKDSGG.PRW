@@ -41,6 +41,7 @@ Local cDescExm  := Posicione("SB1",1,xFilial("SB1")+U_MVXCEXMP(),"B1_DESC")
 Local cDescDCH 	:= Posicione("SB1",1,xFilial("SB1")+U_MVXCDCH(),"B1_DESC")
 Local cDescCBK	:= Posicione("SB1",1,xFilial("SB1")+cCusBK,"B1_DESC")
 Local cCCEmp	:= ""
+Local cProdEx   := u_MVXVTARP()
 
 cQuery := "WITH DESPESAS AS ("+CRLF
 
@@ -599,7 +600,7 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "  GETDATE() AS DATAPRC,"+CRLF
 
 	If Empty(cCCEmp)
-		cQuery += "  SUBSTRING(E1_XXCUSTO,1,3) AS CONTRATO, " + CRLF
+		cQuery += "  SUBSTRING(E1_XXCUSTO,1,9) AS CONTRATO, " + CRLF
 	Else
 		cQuery += "  '"+cCCEmp+"' AS CONTRATO,"+CRLF	
 	EndIf
@@ -742,7 +743,9 @@ cQuery += "    ) AS PREVDESC"+CRLF
 
 cQuery += "	INTO PowerBk.dbo.GASTOSGERAIS"+CRLF
 cQuery += "	FROM DESPESAS"+CRLF
-cQuery += "	WHERE SUBSTRING(DESPESAS.CONTRATO,1,3) <> '000'
+cQuery += "	WHERE SUBSTRING(DESPESAS.CONTRATO,1,3) <> '000'"+CRLF
+cQuery += "	  AND 1 = (CASE WHEN DESPESAS.ORIGEM = 'SD1' AND SUBSTRING(COMPETAM,1,4) >= '2025' AND D1_COD IN ("+cProdEx+") THEN 0 ELSE 1 END)"+CRLF
+
 cQuery += " ORDER BY" + CRLF
 cQuery += "      EMPRESA,CONTRATO,COMPETAM,D1_SERIE,D1_DOC" + CRLF
 

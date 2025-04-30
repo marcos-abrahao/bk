@@ -2115,7 +2115,7 @@ FOR _nI := 1 TO nPeriodo
 
 			If Empty(cEmpCons)
 				cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+cEmpAnt+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
-				cQuery2 += "  AND FF.CC = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
+				cQuery2 += "  AND BKIntegraRubi.dbo.CUSTOSIGA.ccSiga = '"+ALLTRIM(QTMP->CNF_CONTRA)+"'"+CRLF
 			Else
 				cQuery2 += " Where bk_senior.bk_senior.R046VER.NumEmp='"+SUBSTR(ALLTRIM(aConsorcio[nScan,2]),1,2)+"' and Tipcal In(11) And Sitcal = 'T' "+CRLF
 			EndIf

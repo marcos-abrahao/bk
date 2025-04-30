@@ -237,9 +237,14 @@ User Function MVXVTPRD()
 Local cVar := "|31201046|"
 Return cVar
 
-// COD Produto de VR/VA calculo Rentabilidade  
+// Cod Produto de VR/VA calculo Rentabilidade  
 User Function MVXVRVAP()
 Local cVar := "|31201045|31201047|"
+Return cVar
+
+// Cod Produto de VT VR/VA calculo Rentabilidade  
+User Function MVXVTARP()
+Local cVar := "'31201046','31201045','31201047'"
 Return cVar
 
 // Codigo contrato e empresa Consorcio calculo Rentabilidade

@@ -358,6 +358,8 @@ IF DbSeek(cKey,.F.)
 			cRConta   := PAD("99998",LEN(cConta))
 		ElseIf SUBSTR(cContra,7,3) == '629'
 			cRConta   := PAD("99997",LEN(cConta))
+		ElseIf SUBSTR(cContra,7,3) == '636' // 405000636 TBG
+			cRConta   := PAD("99995",LEN(cConta))
 		Else
 			cRConta   := PAD("99999",LEN(cConta))
 		EndIf
