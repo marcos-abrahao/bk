@@ -27,8 +27,6 @@ If !u_IsMDir(__cUserID)
 	Return Nil
 EndIf
 
-
-
 If __cUserId == '000000'
 	//aAdd(aDados,{"","U_BKStamp()",	"GERAL",		"Criar campo S_T_A_M_P_"})
 	aAdd(aDados,{"","U_zVid0020()",	"TESTE",		"Teste Tela FwLayer"})
@@ -37,9 +35,13 @@ If __cUserId == '000000'
 	aAdd(aDados,{"","u_TabsBk()",	"GERAL",		"Criação de tabelas especificas - empresa nova"})
 	aAdd(aDados,{"","u_BKDANFE()",	"GERAL",		"Teste de Danfe"})
 	aAdd(aDados,{"","u_SelEndEnt()","GERAL",		"Teste Seleção End Entrega"})
-	aAdd(aDados,{"","U_BKCOMA12()",	"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
-	aAdd(aDados,{"","U_BKCOMI12()",	"COMPRAS",		"Importar inventario Barcas do PowerBK"})
-	aAdd(aDados,{"","U_BKCOMA06()",	"COMPRAS",		"Importar fornecedores Barcas do PowerBK"})
+	aAdd(aDados,{"","U_BKESTA05()",	"ESTOQUE",		"Importar saldo inicial"})
+	aAdd(aDados,{"","U_BKESTA06()",	"ESTOQUE",		"Importar saldo por endereçamento"})
+	aAdd(aDados,{"","U_BKESTA07()",	"ESTOQUE",		"Importar movimentos de estoque"})
+	aAdd(aDados,{"","U_BKESTA08()",	"ESTOQUE",		"Importar cadastro de endereçamento de estoque"})
+	//aAdd(aDados,{"","U_BKCOMA12()",	"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
+	//aAdd(aDados,{"","U_BKCOMI12()",	"COMPRAS",		"Importar inventario Barcas do PowerBK"})
+	//aAdd(aDados,{"","U_BKCOMA06()",	"COMPRAS",		"Importar fornecedores Barcas do PowerBK"})
 EndIf
 
 aAdd(aDados,{"","U_BKGCTR29()",		"GESTÃO",		"Despesas por Contrato"})

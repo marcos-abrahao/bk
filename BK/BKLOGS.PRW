@@ -211,15 +211,16 @@ Return Nil
 
 
 // Mensagens e log de erros na execução de MSExecAuto
-User Function LogMsExec(cProg,cMens)
+User Function LogMsExec(cProg,cMens,cAlerta)
 Local cArqErr := AllTrim(cProg)+".err"
 Local cErrLog := ""
+Default cAlerta := "E"
 
 Default cProg := FunName()
 Default cMens := "Problemas na execução do MSExecAuto:"
 
 cErrLog := MostraErro(u_SLogDir(),cArqErr)
-u_MsgLog(cProg,cMens,"E",cErrLog)
+u_MsgLog(cProg,cMens,cAlerta,cErrLog)
 
 Return cErrLog
 
