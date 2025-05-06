@@ -60,7 +60,7 @@ u_MsgLog("BKGCT06","Inicio Processo - "+FWCodEmp())
 
 //cFWEmp := cEmpPar //cEmpAnt //SUBSTR(FWCodEmp(),1,2)
 
-If FWCodEmp() == "01" .OR. FWCodEmp() == "20"
+If FWCodEmp() == "01" .OR. FWCodEmp() == "20" // Barcas
 	u_WaitLog("V9BKGct06", {|| V9BKGct06()}  ,"Processando avisos de pedidos de compras aguardando aprovação")
 	//u_WaitLog("BKMSG008",  {|| u_BKMSG008()} ,"Processando avisos de pedidos de compras não entregues")
 	//u_WaitLog("BKMSG009",  {|| u_BKMSG009()} ,"Processando aviso de Solicitação de compras em aberto")

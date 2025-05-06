@@ -26,7 +26,7 @@ If l010Auto
 	Return cCod 
 ENDIF
 
-If cEmpAnt <> "20"
+If cEmpAnt <> "20" // Barcas
 	If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
 		cCod := ""
 		Return cCod 

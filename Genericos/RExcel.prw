@@ -89,9 +89,8 @@ EndIf
 oPExcel:AddColX3("B1_COD")
 oPExcel:AddColX3("B1_DESC")
 oPExcel:AddColX3("B1_CONTA")
-oPExcel:AddColX3("CT1_DESC01")
+oPExcel:AddColX3("CT1_DESC01","Descr. Conta Contábil")
 oPExcel:AddCol("RENTAB","RENTAB","Rentabilidade","")
-
 oPExcel:AddCol("USUARIO","Capital(TMP->(FWLeUserlg('B1_USERLGA',1)))","Usuário","")
 oPExcel:GetCol("USUARIO"):SetTamCol(30)
 
@@ -1519,7 +1518,7 @@ CLASS PExcel
 	METHOD SetTitulo(cTitulo)
 
 	METHOD AddCol(cName,cCampo,cDescr,cSx3)
-	METHOD AddColX3(cCampo)
+	METHOD AddColX3(cCampo,cDescr)
 
 	METHOD GetCol(cName)
 
@@ -1615,11 +1614,14 @@ Return
 
 
 // Adiciona nova coluna, usando os padrões do SX3
-METHOD AddColX3(cCampo) CLASS PExcel
+METHOD AddColX3(cCampo,cDescr) CLASS PExcel
 Local oCExcel	:= CExcel():New("",cCampo)
 Local aX3Stru	:= FWSX3Util():GetFieldStruct( cCampo )
-
-oCExcel:SetTitulo(GetSX3Cache( cCampo , "X3_TITULO"))
+Default cDescr := ""
+If Empty(cDescr) // Se cDescr em branco, usar Descr do X3
+	cDescr := GetSX3Cache( cCampo , "X3_TITULO")
+EndIf
+oCExcel:SetTitulo(cDescr)
 oCExcel:SetTipo(aX3Stru[2])
 oCExcel:SetTamanho(aX3Stru[3])
 oCExcel:SetDecimal(aX3Stru[4])

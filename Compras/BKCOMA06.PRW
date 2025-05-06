@@ -29,7 +29,7 @@ Local aSA2      := {}
 Local cCodMun   := ""
 Local nRepl     := 0
 
-If cEmpAnt <> '20'
+If cEmpAnt <> '20' // Barcas
     u_MsgLog(cPerg,"Somente para empresa 20","E")
     Return
 EndIf

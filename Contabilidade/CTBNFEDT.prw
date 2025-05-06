@@ -8,7 +8,7 @@
 
 User Function CTBNFEDT
 Local lRet:= .F.
-If cEmpAnt == "20"
+If cEmpAnt == "20" // Barcas
     lRet:= .T.
 EndIf
 Return lRet

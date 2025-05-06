@@ -619,7 +619,7 @@ For nI := 1 To Len(aLinha)
 		cErros += "Conta crédito igual a conta débito; "
 	EndIf
 
-	If aLinha[nI,XEMPRESA] == "20"
+	If aLinha[nI,XEMPRESA] == "20" // Barcas
 		aLinha[nI,XCCC] := "408000644"
 	EndIf
 

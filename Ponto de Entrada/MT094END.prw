@@ -55,7 +55,7 @@ Local cMCompras   := ALLTRIM(GetMv("MV_XXUMCOM"))
 
 // Emails colocados manualmente para atender a demanda com urgência / Alterar para grupo posteriormente 25/11/2019 - Marcos - a pedido do Fabio Querino
 // 10/08/20 Removido aprendiz.almoxarifado e ricardo.monaco
-Local cEmLibPed := IIF(cEmpAnt <> "20","joao.vitor@bkconsultoria.com.br;","")
+Local cEmLibPed := IIF(cEmpAnt <> "20","joao.vitor@bkconsultoria.com.br;","") // Barcas
 
 Local nTotPed   := 0
 Local cEmUser   := ""

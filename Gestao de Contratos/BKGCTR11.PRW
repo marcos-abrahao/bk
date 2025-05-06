@@ -1354,7 +1354,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 		//Calcula LF Avulso SZ2 - CLT
 
-		u_MsgLogAdm("BKGCTR11","Query SZ2 "+aPeriodo[_nI,1])
+		u_MsgLogAdm("BKGCTR11","Query SZ2 CLT "+aPeriodo[_nI,1])
 
 		cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"+CRLF
 		cQuery1 += " WHERE  D_E_L_E_T_='' AND Z2_TIPO IN ('EXM','VT','VR','VA','DCH','SOL','HOS','REE','CXA')"+CRLF  //REMOVIDO MULTA FGTS POR ENTENDER QUE ESTA EM INCIDENCIAS - TIPO = MFG
@@ -1540,11 +1540,11 @@ Static Function ProcBKGCTR11(lJob,oSay)
 ENDDO
 TMPX2->(dbCloseArea())
 
-u_MsgLogAdm("BKGCTR11","Query SZ2 2 "+aPeriodo[_nI,1])
+u_MsgLogAdm("BKGCTR11","Query SZ2 AC "+aPeriodo[_nI,1])
 
 //Calcula LF Avulso SZ2 - AC e CLA CUSTO BK - produto 29104004 - Data emissão apartir de 01/01/2015
 cQuery1 := "SELECT Z2_CODEMP,Z2_CC,Z2_VALOR,Z2_TIPO,Z2_CC FROM "+RETSQLNAME("SZ2")+" SZ2"
-cQuery1 += " WHERE  D_E_L_E_T_=''  AND Z2_DATAPGT>='20150101' "
+cQuery1 += " WHERE  D_E_L_E_T_=''  AND Z2_DATAPGT >= '20150101' "
 cQuery1 += " AND Z2_TIPOPES IN ('AC','CLA') AND Z2_STATUS='S'"
 
 nScan:= 0
@@ -1562,7 +1562,7 @@ cQuery1 += " AND SUBSTRING(Z2_DATAPGT,1,6)='"+SUBSTR(aPeriodo[_nI,1],4,4)+SUBSTR
 
 TCQUERY cQuery1 NEW ALIAS "TMPX2"
 
-u_MsgLogAdm("BKGCTR11","Percorre SZ2 2 "+aPeriodo[_nI,1])
+u_MsgLogAdm("BKGCTR11","Percorre SZ2 AC "+aPeriodo[_nI,1])
 dbSelectArea("TMPX2")
 dbGoTop()
 DO While !TMPX2->(EOF())
@@ -5651,6 +5651,8 @@ If nOpc == 2
 	cQuery += " ,ZI_COD " + CRLF
 	cQuery += " ,ZI_DESC " + CRLF
 	cQuery += " ,E2ACDECIT " + CRLF
+	cQuery += " ,CT1_CONTA " + CRLF
+	cQuery += " ,CT1_DESC01 " + CRLF
 EndIf
 cQuery += " FROM PowerBk.dbo.GASTOSGERAIS " + CRLF
 cQuery += " WHERE CONTRATO = '"+cContrato+"'" + CRLF
@@ -5665,7 +5667,7 @@ Return cQuery
 
 User Function GCT11GG(cContrato)
 Local cDescr 	:= "O objetivo deste relatório detalhar os lançamentos considerados na rentabilidade."
-Local cVersao	:= "30/04/2025"
+Local cVersao	:= "30/04/2025 - Versão inicial"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 Local aParam 	:= {}
@@ -5673,6 +5675,9 @@ Local cArqXls	:= ""
 Local cQuery2	:= ""
 Local cAlias	:= "QTMP"
 Local cTitulo	:= "Despesas rentabilidade contrato "+cContrato+" - "+Posicione("CTT",1,xFilial("CTT")+cContrato,"CTT_DESC01")
+
+
+cVersao	+= "06/05/2025 - Inclusão de Contas Contabeis e Descrição"
 
 cQuery2 := QryGastos(cContrato,2)
 u_LogTxt("BKGCTR11-PWGGE.SQL",cQuery2)
@@ -5718,6 +5723,9 @@ oPExcel:AddColX3("B1_GRUPO")
 oPExcel:AddColX3("BM_DESC")
 oPExcel:AddColX3("ZI_COD")
 oPExcel:AddColX3("ZI_DESC")
+
+oPExcel:AddColX3("CT1_CONTA","Conta Contábil")
+oPExcel:AddColX3("CT1_DESC01","Descr Conta Contábil")
 
 oPExcel:AddCol("DESPESA","DESPESA","Despesa Líquida","E2_VALOR")
 oPExcel:GetCol("DESPESA"):SetTotal(.T.)

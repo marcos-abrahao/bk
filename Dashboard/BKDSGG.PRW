@@ -24,6 +24,7 @@ Local cProg		:= "BKDSGG"
 Local cTabSD1	:= ""
 Local cTabSB1	:= ""
 Local cTabSE2	:= ""
+Local cTabSED	:= ""
 Local cTabSA2	:= ""
 Local cTabSF1	:= ""
 Local cTabCTT	:= ""
@@ -54,6 +55,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabSD1 := "SD1"+cEmpresa+"0"
 	cTabSB1 := "SB1"+cEmpresa+"0"
 	cTabSE2 := "SE2"+cEmpresa+"0"
+	cTabSED := "SED"+cEmpresa+"0"
 	cTabSA2 := "SA2"+cEmpresa+"0"
 	cTabSF1 := "SF1"+cEmpresa+"0"
 	cTabCT1 := "CT1"+cEmpresa+"0"
@@ -61,6 +63,12 @@ For nE := 1 TO Len(aEmpresas)
 	cTabSE5 := "SE5"+cEmpresa+"0"
 	cTabSE1 := "SE1"+cEmpresa+"0"
 	cTabSA1 := "SA1"+cEmpresa+"0"
+
+	If cEmpresa == '20' // Barcas
+		cTabSZI	:= "SZI200"
+	Else
+		cTabSZI	:= "SZI010"
+	EndIf
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -96,7 +104,7 @@ For nE := 1 TO Len(aEmpresas)
 	//cQuery += "     SUBSTRING(E2_VENCREA,1,6)  AS CHAVE, " + CRLF
 	cQuery += "  (CASE WHEN F1_XXCOMPD <> D1_DTDIGIT AND E2_PARCELA <= '01' THEN SUBSTRING(F1_XXCOMPD,1,6) ELSE SUBSTRING(E2_VENCREA,1,6) END) AS CHAVE,"+CRLF
 
-	cQuery += "     'SD1' AS ORIGEM, " + CRLF
+	cQuery += "  'SD1' AS ORIGEM, " + CRLF
 
  	cQuery += "  D1_FILIAL,"+CRLF
  	cQuery += "  D1_SERIE,"+CRLF
@@ -112,6 +120,8 @@ For nE := 1 TO Len(aEmpresas)
  	cQuery += "  BM_DESC,"+CRLF
  	cQuery += "  ZI_COD,"+CRLF
  	cQuery += "  ZI_DESC,"+CRLF
+ 	cQuery += "  CT1_CONTA,"+CRLF
+ 	cQuery += "  CT1_DESC01,"+CRLF
  	cQuery += "  F1_VALBRUT,"+CRLF
  	cQuery += "  F1_XXUSER,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.NOME FROM PowerBk.dbo.USUARIOS USUARIOS WHERE F1_XXUSER = USUARIOS.CODIGO) AS F1RESPON,"+CRLF
@@ -168,6 +178,12 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "     ON (B1_GRUPO = ZI_GRUPO AND B1_XXSGRP = ZI_COD " + CRLF
 	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
 	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCT1+" CT1" + CRLF
+	cQuery += "     ON (CT1_CONTA = B1_CONTA"+ CRLF
+	cQuery += " 	   AND CT1_FILIAL = '  '" + CRLF
+	cQuery += "        AND CT1.D_E_L_E_T_=''" + CRLF
 	cQuery += "  ) " + CRLF
 
  	cQuery += " INNER JOIN "+cTabSE2+" SE2" + CRLF
@@ -283,7 +299,9 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "     '0003'     AS B1_GRUPO, " + CRLF
   	cQuery += "     'FINANCEIRO' AS BM_DESC, " + CRLF
  	cQuery += "     'MBC'      AS ZI_COD,"+CRLF
- 	cQuery += "     'MOVIMENTO BANCARIO' AS ZI_DESC,"+CRLF	
+ 	cQuery += "     'MOVIMENTO BANCARIO' AS ZI_DESC,"+CRLF
+	cQuery += "  	CT1_CONTA,"+CRLF
+ 	cQuery += "  	CT1_DESC01,"+CRLF	
   	cQuery += "     E5_VALOR * (CASE WHEN E5_RECPAG = 'R' THEN -1 ELSE 1 END) AS F1_VALBRUT, " + CRLF
 	cQuery += "     ' '        AS F1_XXUSER, " + CRLF
 	cQuery += "     ' '        AS F1RESPON, " + CRLF
@@ -423,6 +441,8 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "  'FOLHA'     AS BM_DESC, " + CRLF
  	cQuery += "  ZI_COD,"+CRLF
  	cQuery += "  ZI_DESC,"+CRLF
+ 	cQuery += "  ZI_CONTA    AS CT1_CONTA,"+CRLF
+ 	cQuery += "  CT1_DESC01,"+CRLF
 	cQuery += "  Z2_VALOR    AS F1_VALBRUT,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, "+CRLF
 	cQuery += "  UPPER(Z2_USUARIO)  AS F1_RESPON,"+CRLF
@@ -462,7 +482,6 @@ For nE := 1 TO Len(aEmpresas)
 	Else
 		cQuery += "  '"+cCCEmp+"' "+CRLF	
 	EndIf
-
 	cQuery += " 		AND CTT_FILIAL = '01'" + CRLF
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
@@ -478,6 +497,12 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "     ON (Z2_TIPO = ZI_COD AND ZI_GRUPO = '0004' " + CRLF
 	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
 	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
+	cQuery += "  ) " + CRLF
+
+	cQuery += "LEFT JOIN "+cTabCT1+" CT1" + CRLF
+	cQuery += "     ON (CT1_CONTA = ZI_CONTA"+ CRLF
+	cQuery += " 	   AND CT1_FILIAL = '  '" + CRLF
+	cQuery += "        AND CT1.D_E_L_E_T_=''" + CRLF
 	cQuery += "  ) " + CRLF
 
 	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
@@ -529,6 +554,8 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "  'FOLHA'     AS BM_DESC, " + CRLF
  	cQuery += "  ZI_COD,"+CRLF
  	cQuery += "  ZI_DESC,"+CRLF
+ 	cQuery += "  CT1_CONTA,"+CRLF
+ 	cQuery += "  CT1_DESC01,"+CRLF
 	cQuery += "  Z2_VALOR    AS F1_VALBRUT,"+CRLF
 	cQuery += "  (SELECT TOP 1 USUARIOS.CODIGO FROM PowerBk.dbo.USUARIOS USUARIOS WHERE UPPER(Z2_USUARIO) = USUARIOS.NOME OR UPPER(Z2_USUARIO) = USUARIOS.USUARIO) AS F1_XXUSER, "+CRLF
 	cQuery += "  UPPER(Z2_USUARIO)  AS F1_RESPON,"+CRLF
@@ -584,11 +611,18 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND ZI_FILIAL = '"+xFilial("SZI")+"' "  + CRLF
 	cQuery += "         AND SZI.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
-	
+
+	cQuery += "LEFT JOIN "+cTabCT1+" CT1" + CRLF
+	cQuery += "     ON (CT1_CONTA = ZI_CONTA"+ CRLF
+	cQuery += " 	   AND CT1_FILIAL = '  '" + CRLF
+	cQuery += "        AND CT1.D_E_L_E_T_=''" + CRLF
+	cQuery += "  ) " + CRLF
+
 	cQuery += "WHERE Z2_FILIAL = '  ' " + CRLF
 	cQuery += "      AND SZ2.D_E_L_E_T_ = '' " + CRLF
 	cQuery += "      AND SZ2.Z2_CODEMP = '"+cEmpresa+"'" + CRLF
 	cQuery += "      AND SZ2.Z2_TIPOPES IN ('AC','CLA') " + CRLF
+	cQuery += "      AND Z2_DATAPGT >= '20150101' " + CRLF
 	cQuery += "      AND SZ2.Z2_STATUS = 'S' " + CRLF
 
 	// NDC
@@ -634,6 +668,8 @@ For nE := 1 TO Len(aEmpresas)
   	cQuery += "     'FINANCEIRO' AS BM_DESC, " + CRLF
  	cQuery += "     'NDC'      AS ZI_COD,"+CRLF
  	cQuery += "     'NOTA DEBITO AO CLIENTE'  AS ZI_DESC,"+CRLF	
+	cQuery += "     CT1_CONTA,"+CRLF
+ 	cQuery += "     CT1_DESC01,"+CRLF
   	cQuery += "     E1_VALOR * -1 AS F1_VALBRUT, " + CRLF
 	cQuery += "     E1_XXOPER  AS F1_XXUSER, " + CRLF
 	cQuery += "     ' '        AS F1RESPON, " + CRLF
@@ -677,9 +713,8 @@ For nE := 1 TO Len(aEmpresas)
 
 	cQuery += "LEFT JOIN "+cTabCTT+" CTT" + CRLF
 	cQuery += "     ON ( CTT_CUSTO = "+ CRLF
-
 	If Empty(cCCEmp)
-		cQuery += "  SUBSTRING(E1_XXCUSTO,1,3)  " + CRLF
+		cQuery += "  SUBSTRING(E1_XXCUSTO,1,9)  " + CRLF
 	Else
 		cQuery += "  '"+cCCEmp+"' "+CRLF	
 	EndIf
@@ -687,9 +722,16 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "         AND CTT.D_E_L_E_T_ = ''" + CRLF
 	cQuery += "  ) " + CRLF
 
+	cQuery += "LEFT JOIN "+cTabSED+" SED" + CRLF
+	cQuery += "     ON ( "+ CRLF
+	cQuery += "        ED_CODIGO = E1_NATUREZ" + CRLF
+	cQuery += " 	   AND ED_FILIAL = '01'" + CRLF
+	cQuery += "        AND SED.D_E_L_E_T_=''" + CRLF
+	cQuery += "  ) " + CRLF
+
 	cQuery += "LEFT JOIN "+cTabCT1+" CT1" + CRLF
 	cQuery += "     ON ( "+ CRLF
-	cQuery += "        CT1_CONTA = A1_CONTA" + CRLF
+	cQuery += "        CT1_CONTA = ED_CONTA" + CRLF
 	cQuery += " 	   AND CT1_FILIAL = '  '" + CRLF
 	cQuery += "        AND CT1.D_E_L_E_T_=''" + CRLF
 	cQuery += "  ) " + CRLF

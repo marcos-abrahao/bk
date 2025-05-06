@@ -21,7 +21,7 @@ Local nOpcSel   := Paramixb[2]  // Contém a opção selecionada: 1 = Aprovar; 2 = 
 Local aOpcSel   := {"Aprovada","Rejeitada","Bloqueada"}
 Local cOpcSel   := ""
 Local cAssunto	:= ""
-Local cEmail	:= u_EmailAdm()+IIF(cEmpAnt<>"20","wiliam.lisboa@bkconsultoria.com.br;","")
+Local cEmail	:= u_EmailAdm()+IIF(cEmpAnt<>"20","wiliam.lisboa@bkconsultoria.com.br;","") // Barcas
 Local cEmailCC  := ""
 Local cMsg 		:= ""
 Local cRodape	:= ""

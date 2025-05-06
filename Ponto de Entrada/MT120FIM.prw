@@ -228,7 +228,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 
 			cEmail += u_aUsrEmail({aSC1USER[_IX,1]},cEmail)
 			// Barcas 02/04/25
-			If cEmpAnt == "20"
+			If cEmpAnt == "20" // Barcas
 				aSuper := u_ArSuper(aSC1USER[_IX,1])
 				cEmail += u_aUsrEmail(aSuper,cEmail)
 			EndIf				

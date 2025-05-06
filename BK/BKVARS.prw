@@ -57,7 +57,7 @@ ElseIf cEmpAnt == '16'
 	cCC := '386000609'
 ElseIf cEmpAnt == '18'
 	cCC := '303000623'
-ElseIf cEmpAnt == '20'
+ElseIf cEmpAnt == '20' // Barcas
 	cCC := '408000644'
 EndIf
 
@@ -281,7 +281,7 @@ ElseIf cEmpAnt == '16'
     cVar := "386000609;160;000000001;386000609;1;50;386000609;010"
 ElseIf cEmpAnt == '18'
     cVar := "303000623;180;000000001;303000623;1;0 ;303000623;010"
-ElseIf cEmpAnt == '20'
+ElseIf cEmpAnt == '20' // Barcas
     cVar := "408000644;200;000000001;408000644;1;0 ;408000644;010"
 EndIf
 aVar := StrTokArr(cVar,"/")
@@ -440,7 +440,7 @@ aAdd(aDescrRH,{"ADF" ,"ADIC DE FUNCAO",					"21301001",,	"LF"})
 aAdd(aDescrRH,{"COM" ,"COMISSAO",						"21301001",,	"LF"})
 aAdd(aDescrRH,{"CXA" ,"PREST. CONTAS",					"11301002",,	"CX"})
 aAdd(aDescrRH,{"DCH" ,"DIARIA DE CAMPO",				"21301001",,	"LF"})
-aAdd(aDescrRH,{"DIN" ,"DESCONTO INDEVIDO",				""		  ,,	"LF"})
+aAdd(aDescrRH,{"DIN" ,"DESCONTO INDEVIDO",				"21301001",,	"LF"})
 aAdd(aDescrRH,{"DSA" ,"DIF SALARIO",					"21301001",,	"LF"})
 aAdd(aDescrRH,{"EXM" ,"EXAME MEDICO",					"34202090",,	"LF"})
 aAdd(aDescrRH,{"GRA" ,"GRATIFICACAO",					"21301001",,	"LF"})

@@ -54,7 +54,7 @@ ELSE
 ENDIF
 
 /*
-If cEmpAnt <> '20'
+If cEmpAnt <> '20' // Barcas
 	lValido  := BKALTENT()
 
 	FOR i :=1 TO LEN(aCols)

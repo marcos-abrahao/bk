@@ -189,7 +189,7 @@ If ( lOk )
 			cQuery  += " AND SZ2.D_E_L_E_T_ <> '*'  AND Z2_VALOR > 0 "
 			//cQuery  += "AND Z2_TIPO NOT IN ('SOL ','PCT ','RMB ','NDB ') "  // PARA TESTES
 			// 04/02/20 - Não integrar PJ/AC caso o usuário não seja o Laudecir,Diego ou Xavier (Andresa Provisória)
-			IF !(__cUserId $ MV_XXUSRPJ)  // Laudecir, Xavier e Admin
+			IF !(__cUserId $ MV_XXUSRPJ)  // Diego e Andresa //Laudecir, Xavier e Admin
 				cQuery  += "AND Z2_TIPOPES NOT IN ('PJ','AC') "
 			ENDIF
 			cQuery  += " GROUP BY Z2_FILIAL,Z2_CTRID,Z2_TIPO,Z2_BANCO,Z2_CODFOR,Z2_LOJFOR,Z2_TIPOPES,Z2_DATAPGT "
@@ -468,7 +468,7 @@ For nI := 1 TO LEN(aTitGer)
 		IF SA6->(DbSeek(xFilial("SA6")+cPortado,.T.))
 			cPortadoPA := cPortado
 		ELSE
-			cPortadoPA := "001" 
+			cPortadoPA := IIF(cEmpAnt <> '20','001','237') // Barcas
 		ENDIF
 	//ENDIF 
 

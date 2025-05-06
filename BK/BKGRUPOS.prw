@@ -70,7 +70,7 @@ Return aReturn
 User Function BkEmpr(nOpc)
 Default aRet := {}
 Default nOpc := 2 // Ativas
-If cEmpAnt == "20"
+If cEmpAnt == "20" // Barcas
     aRet := u_BKGrupo(8,.T.)
 Else 
     aRet := u_BKGrupo(nOpc,.F.)

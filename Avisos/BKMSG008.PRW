@@ -33,7 +33,7 @@ Local aDeptos 	:= {}
 cEmail := u_GprEmail("",aUsers,aGrupos,aDeptos)
 lJobV2 := IsBlind()
 
-If FWCodEmp() <> "01" .AND. FWCodEmp() <> "20"
+If FWCodEmp() <> "01" .AND. FWCodEmp() <> "20" // Barcas
 	u_MsgLog(cProg,"Esta funcao somente rodar na empresa 01 ou 20","I")
 	Return Nil
 EndIf

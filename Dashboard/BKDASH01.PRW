@@ -74,7 +74,7 @@ EndIf
 //u_WaitLog(cPerg,{|oSay| u_FINA05S({cEmpPar,cFilPar,cUser}) },"Importando txt financeiro ADP - Empresa "+FWCodEmp())
 
 // Executar somente se a empresa for a BK
-If FWCodEmp() == "01" .OR. FWCodEmp() == "20"
+If FWCodEmp() == "01" .OR. FWCodEmp() == "20" // Barcas
 
 	aDados  := {}
 

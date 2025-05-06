@@ -26,10 +26,8 @@ Public cXXDCC	 := Space(TamSX3("C1_XXDCC")[1])
 Public cXXJUST	 := Space(TamSX3("C1_XXJUST")[1]) 
 Public cXXENDEN  := Space(TamSX3("C1_XXENDEN")[1])
 
-If cEmpAnt == '20'
-
-
-EndIf
+//If cEmpAnt == '20' // Barcas
+//EndIf
 
 IF TYPE("lCopia") == "U"
 	lCopia  := .F.

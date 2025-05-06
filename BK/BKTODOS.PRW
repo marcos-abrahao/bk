@@ -39,17 +39,19 @@ If __cUserId == '000000'
 	aAdd(aDados,{"","U_BKESTA06()",	"ESTOQUE",		"Importar saldo por endereçamento"})
 	aAdd(aDados,{"","U_BKESTA07()",	"ESTOQUE",		"Importar movimentos de estoque"})
 	aAdd(aDados,{"","U_BKESTA08()",	"ESTOQUE",		"Importar cadastro de endereçamento de estoque"})
+	aAdd(aDados,{"","U_BKESTA09()",	"ESTOQUE",		"Importar Inventário (SB7)"})
 	//aAdd(aDados,{"","U_BKCOMA12()",	"COMPRAS",		"Importar planilha excel em CSV para inclusão de produtos"})
 	//aAdd(aDados,{"","U_BKCOMI12()",	"COMPRAS",		"Importar inventario Barcas do PowerBK"})
 	//aAdd(aDados,{"","U_BKCOMA06()",	"COMPRAS",		"Importar fornecedores Barcas do PowerBK"})
+    aAdd(aDados,{"","U_BKBATIDAS()",	"GERAL",		"Envio de e-mails via CSV"})
+    aAdd(aDados,{"","U_TESTEPOUI()",	"GERAL",		"Teste desenvolvimento PO-UI"})
+
 EndIf
 
 aAdd(aDados,{"","U_BKGCTR29()",		"GESTÃO",		"Despesas por Contrato"})
-aAdd(aDados,{"","U_BKBATIDAS()",	"GERAL",		"Envio de e-mails via CSV"})
 aAdd(aDados,{"","U_LISTUSR()",		"GERAL",		"Relação de usuários com E-Mail"})
 aAdd(aDados,{"","U_LISTSUP()",		"GERAL",		"Relação de usuários e superiores"})
 aAdd(aDados,{"","U_LISTRH()",		"GERAL",		"Relação de Tipos do RH"})
-aAdd(aDados,{"","U_TESTEPOUI()",	"GERAL",		"Teste desenvolvimento PO-UI"})
 
 aAdd(aDados,{"","U_BKMSG001()",		"AVISOS",		"Aviso de Documentos pendentes de aprovação"})
 aAdd(aDados,{"","U_BKMSG002()",     "AVISOS",		"Aviso de entidades com Conta Contábil Bloqueada"})
