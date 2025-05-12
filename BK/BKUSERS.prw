@@ -395,7 +395,7 @@ If !Empty(cUser) .OR. !Empty(cGrupo) .OR. !Empty(cDepto)
 
 EndIf
 
-u_MsgLog("GrpUsers",cUser+"-"+cGrupo+"-"+cDepto+" : "+cValToChar(aReturn))
+//u_MsgLog("GrpUsers",cUser+"-"+cGrupo+"-"+cDepto+" : "+cValToChar(aReturn))
 
 Return aReturn
 

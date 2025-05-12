@@ -19,7 +19,7 @@ Local nI      As Numeric
 
 Default aParam := {}
 
-cEnCode   := __cUserId+";"+DTOS(DATE())+";"+TIME()+";"
+cEnCode   := __cUserId+";"+DTOS(DATE())+";"+TIME()+";"+cEmpAnt+";"
 For nI := 1 To Len(aParam)
     cEnCode += aParam[nI]+";"
 Next
@@ -55,6 +55,9 @@ Local cMensagem As Character
 Local cEnCode   As Character
 Local aDeCode   As Array
 Local nI        As Numeric
+Local aParams   := {}
+Local cMsg      := ""
+Local xEmpr     := ""
 
 __cUserId := "000000"
 
@@ -66,21 +69,29 @@ For nI := 1 To Len(aDecode)
     cMensagem += CRLF + "Saida["+Str(nI)+"]: [" + aDeCode[nI]+ "]"
 Next
 
-u_MsgLog(,"Exemplo BKEnCode "+cMensagem,"S")
+u_MsgLog("ExBKCode","Exemplo BKEnCode "+cMensagem,"S")
+
+u_BKAvPar(cEncode,@aParams,@cMsg,@xEmpr)
+
+u_MsgLog("ExBKCode","Token Avaliado: "+cEncode+" Resultado: "+cMsg+" Empresa: "+xEmpr,"S")
 
 Return
 
 
 
-User Function BKAvPar(cToken,aParams,cMsg)
+User Function BKAvPar(cToken,aParams,cMsg,xEmpr)
 Local lRet As Logical
+Default xEmpr := ""
 lRet := .F.
 
 If !Empty(cToken)
   
 	aParams := u_BKDeCode(cToken)
-    If !Len(aParams) < 3
+    u_MsgLog("BKAVPAR","Parametros: "+ArrTokStr(aParams),";")
+
+    If Len(aParams) > 3
     	__cUserId := aParams[1]
+        xEmpr     := aParams[4]
     	cUserName := UsrRetName(__cUserId)
 		If !Empty(cUserName)
 			If STOD(aParams[2]) == DATE()
@@ -98,5 +109,6 @@ If !Empty(cToken)
 Else
 	cMsg := "Token não informado"
 EndIf
+u_MsgLog("BKAVPAR","Resultado: "+cMsg+" User: "+__cUserId+" Empr:"+xEmpr)
 Return lRet
 

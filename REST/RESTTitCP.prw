@@ -388,7 +388,7 @@ u_MsgLog("RESTTitCP",cMsg)
 Return lRet
 
 // v5
-WSMETHOD GET PLANCP QUERYPARAM empresa,vencini,vencfim WSREST RestTitCP
+WSMETHOD GET PLANCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 	Local cProg 	:= "RestTitCP"
 	Local cTitulo	:= "Contas a Pagar WEB"
 	Local cDescr 	:= "Exportação Excel do C.Pagar Web"
@@ -401,13 +401,18 @@ WSMETHOD GET PLANCP QUERYPARAM empresa,vencini,vencfim WSREST RestTitCP
 	Local cFName 	:= ""
     Local oFile  	AS Object
 
+	Local aParams   As Array
+	Local cMsg      As Character
+	Local xEmpr     As Character
+
 	Local cQrySE2	:= GetNextAlias()
 
 	u_MsgLog(cProg,cTitulo+" "+self:vencini+" "+self:vencfim)
 
-	// Query para selecionar os Títulos a Pagar
-	TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)
+	u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
 
+	// Query para selecionar os Títulos a Pagar
+	TmpQuery(cQrySE2,xEmpr,self:empresa,self:vencini,self:vencfim)
 
 	// Definição do Arq Excel
 	oRExcel := RExcel():New(cProg)
@@ -510,13 +515,18 @@ Local oJsonTmp	:= JsonObject():New()
 Local cRet 		:= ""
 Local aRet 		:= {}
 
+Local aParams   As Array
+Local cMsg      As Character
+Local xEmpr     As Character
+
 Private nQuebra := 1
 
 //u_MsgLog("RESTTITCP",VarInfo("vencini",self:vencini))
+u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
 
 If Val(SUBSTR(self:empresa,1,2)) > 0
 	// Query para selecionar os Títulos a Pagar
-	TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)
+	TmpQuery(cQrySE2,xEmpr,self:empresa,self:vencini,self:vencfim)
 
 	cHtml := u_BKFINH34(1,.T.,SUBSTR(self:empresa,1,2),"01")
 
@@ -573,6 +583,7 @@ Local lRet 			:= .T.
 Local oJsonTmp	 	:= JsonObject():New()
 Local aParams      	As Array
 Local cMsg         	As Character
+Local xEmpr       	As Character
 Local cNumTit 		:= ""
 Local cFormaPgto	:= ""
 Local aFiles 		:= {}
@@ -581,7 +592,7 @@ Local nI 			:= 0
 
 //u_MsgLog("RESTTITCP",VarInfo("vencini",self:vencini))
 
-If !u_BkAvPar(::userlib,@aParams,@cMsg)
+If !u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
   oJsonTmp['liberacao'] := cMsg
   cRet := oJsonTmp:ToJson()
   FreeObj(oJsonTmp)
@@ -590,11 +601,8 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
   Return lRet:= .T.
 EndIf
 
-// Usuários que podem executar alguma ação
-//lPerm := u_InGrupo(__cUserId,"000000/")
-
 // Query para selecionar os Títulos a Pagar
-TmpQuery(cQrySE2,self:empresa,self:vencini,self:vencfim)
+TmpQuery(cQrySE2,xEmpr,self:empresa,self:vencini,self:vencfim)
 
 //-------------------------------------------------------------------
 // Alimenta array de Pré-notas
@@ -1056,11 +1064,16 @@ return .T.
 // /v2
 WSMETHOD GET BROWCP QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCP
 Local aParams	As Array
-Local cMsg		As Char
-Local cHTML		as char
-Local cDropEmp	as char
-Local aEmpresas := u_BKGrupo()
+Local cMsg		As Character
+Local xEmpr		As Character
+Local cHTML		As Character
+Local cDropEmp	As Character
+Local aEmpresas As Array
 Local nE 		:= 0
+
+u_BkAvPar(self:userlib,@aParams,@cMsg,@xEmpr)
+
+aEmpresas := u_BKGrupo(2,xEmpr)
 
 BEGINCONTENT var cHTML
 
@@ -1582,6 +1595,8 @@ tableSE2 = $('#tableSE2').DataTable({
         { data: 'Anexos' }
   ],
   "columnDefs": [
+		{  width: "100px", targets: 1 },
+		{  width: "10%", targets: 2 },
 	    {
             targets: 5, render: DataTable.render.date()
         },
@@ -1920,11 +1935,8 @@ cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
-If !Empty(::userlib)
-	u_BkAvPar(self:userlib,@aParams,@cMsg)
-	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
-	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
-EndIf
+cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
+cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 
 cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
@@ -1948,8 +1960,12 @@ For nE := 1 To Len(aEmpresas)
 //	<li><a class="dropdown-item" href="#">BK</a></li>
 	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
-cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+/*
+If Len(aEmpresas) > 1 // Isto estoura o tamanho da query em bytes
+	cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
+	cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+EndIf
+*/
 
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 // <-- Seleção de Empresas
@@ -1974,7 +1990,7 @@ return .T.
 
 
 // Montagem da Query
-Static Function TmpQuery(cQrySE2,xEmpresa,xVencIni,xVencFim)
+Static Function TmpQuery(cQrySE2,xEmpr,xEmpresa,xVencIni,xVencFim)
 
 Local aEmpresas		:= {}
 Local aGrupoBK 		:= {}
@@ -1991,7 +2007,8 @@ Local cQuery		:= ""
 Local nE			:= 0
 Local cEmpr 		:= ""
 
-aGrupoBK := u_BKGrupo()
+aGrupoBK := u_BKGrupo(2,xEmpr)
+
 nE := aScan(aGrupoBK,{|x| x[1] == SUBSTR(xEmpresa,1,2) })
 If nE > 0
 	aEmpresas := {aGrupoBK[nE]}

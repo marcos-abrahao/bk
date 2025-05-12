@@ -10,7 +10,20 @@ BK - Array com as empresas do grupo BK
 @version P12
 /*/
 
-User Function BKGrupo(nOpc,lBarcas)
+User Function BkGrupo(nOpc,xEmpr)
+Local aRet := {}
+Default nOpc  := 2 // Ativas
+Default xEmpr := cEmpAnt
+
+If xEmpr == "20" // Barcas
+    aRet := u_BkEmpr(8)
+Else 
+    aRet := u_BkEmpr(nOpc)
+EndIf
+Return aRet
+
+
+User Function BkEmpr(nOpc)
 Local aReturn     := {}
 Local nE          := 0
 Default nOpc      := 2 // Ativas
@@ -53,9 +66,7 @@ aAdd(aEmpresas,{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386
 aAdd(aEmpresas,{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         ,"N"})
 aAdd(aEmpresas,{"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623","N"})
 aAdd(aEmpresas,{"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         ,"N"})
-If lBarcas
 aAdd(aEmpresas,{"20","BARCAS RIO"      ,"BARCAS R."    ,"S","S","S","S","S","408000644","S"})
-EndIf
 aAdd(aEmpresas,{"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""         ,"N"})
 aAdd(aEmpresas,{"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         ,"N"})
 
@@ -67,15 +78,6 @@ Next
 
 Return aReturn
 
-User Function BkEmpr(nOpc)
-Default aRet := {}
-Default nOpc := 2 // Ativas
-If cEmpAnt == "20" // Barcas
-    aRet := u_BKGrupo(8,.T.)
-Else 
-    aRet := u_BKGrupo(nOpc,.F.)
-EndIf
-Return aRet
 
 
 // Retorna Campo do Array de empresas - Geralmente Nome(2) ou Nome reduzido(3)
@@ -89,24 +91,29 @@ EndIf
 Return cNEmp
 
 // Empresas que utilizam Gestão de Contratos
-User Function BKGrpGct()
-Return u_BKGrupo(3)
+User Function BKGrpGct(xEmpr)
+Default xEmpr := cEmpAnt
+Return u_BKGrupo(3,xEmpr)
 
 // Empresas que utilizam possuem despesas em contratos
-User Function BKGrpDsp()
-Return u_BKGrupo(4)
+User Function BKGrpDsp(xEmpr)
+Default xEmpr := cEmpAnt
+Return u_BKGrupo(4,xEmpr)
 
 // Empresas que utilizam possuem faturamento
-User Function BKGrpFat()
-Return u_BKGrupo(5)
+User Function BKGrpFat(xEmpr)
+Default xEmpr := cEmpAnt
+Return u_BKGrupo(5,xEmpr)
 
 // Empresas em Barueri
-User Function BkBarueri()
-Return u_BKGrupo(6)
+User Function BkBarueri(xEmpr)
+Default xEmpr := cEmpAnt
+Return u_BKGrupo(6,xEmpr)
 
 // Empresas em Barueri
-User Function BkConsorcio()
-Return u_BKGrupo(7)
+User Function BkConsorcio(xEmpr)
+Default xEmpr := cEmpAnt
+Return u_BKGrupo(7,xEmpr)
 
 User Function BKEmpCons(cCC)
 Local cEmpBK  := ""

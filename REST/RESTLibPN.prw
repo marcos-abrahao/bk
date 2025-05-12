@@ -466,7 +466,7 @@ Retorna a lista de prenotas.
 // v0
 WSMETHOD GET LISTPN QUERYPARAM userlib WSREST RestLibPN
 Local aEmpresas		:= {}
-Local aListWeb 	:= {}
+Local aListWeb		:= {}
 Local cQrySF1       := GetNextAlias()
 Local cJsonCli      := ''
 //Local cWhereSF1   := ""
@@ -493,13 +493,13 @@ Local cStatus		:= ""
 Local lFiscal		:= .F.
 Local lMaster		:= .F.
 Local lSuper		:= .F.
+Local xEmpr 		:= ""
 
-aEmpresas := u_BKGrupo()
 //-------------------------------------------------------------------
 // Query para selecionar Pré-notas
 //-------------------------------------------------------------------
 
-If !u_BkAvPar(::userlib,@aParams,@cMsg)
+If !u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
   oJsonSales['liberacao'] := cMsg
 
   cRet := oJsonSales:ToJson()
@@ -509,9 +509,11 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
   //Retorno do servico
   ::SetResponse(cRet)
 
-  Return lRet:= .t.
+  Return lRet:= .F.
 
 EndIf
+
+aEmpresas := u_BKGrupo(2,xEmpr)
 
 cFilSF1 := U_M103FILB()
 
@@ -703,6 +705,7 @@ Local nI		:= 0
 Local aEmpresas	As Array
 Local aParams	As Array
 Local cMsg		As Character
+Local xEmpr		:= ""
 Local cHist		:= ""
 Local aParcelas := {}
 Local cParcelas := ""
@@ -716,8 +719,8 @@ Local cPedidos  := ""
 Local dUltPag   := DATE()
 Local lLibera	:= .F.
 
+u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
 aEmpresas := u_BKGrupo()
-u_BkAvPar(::userlib,@aParams,@cMsg)
 
 lLibera := u_InGrupo(__cUserId,"000000/000005/000007/000031/000038")
 
@@ -908,6 +911,7 @@ return .T.
 WSMETHOD GET BROWPN QUERYPARAM userlib WSREST RestLibPN
 Local aParams	As Array
 Local cMsg		As Char
+Local xEmpr		As Char
 Local cHTML 	AS Char
 
 BeginContent var cHTML
@@ -984,7 +988,7 @@ thead input {
 <table width="100%" id="tableSF1" class="table table-sm table-hover">
 <thead>
 <tr>
-<th scope="col" width="8%">Empresa</th>
+<th scope="col" width="10%">Empresa</th>
 <th scope="col" width="10%" style="text-align:center;">Pré-nota</th>
 <th scope="col">Entrada</th>
 <th scope="col">Fornecedor</th>
@@ -1267,10 +1271,10 @@ if (Array.isArray(prenotas)) {
     ccanl = '2';
   }
 
-cbtnid = 'btnac'+nlin;
-trHTML += '<td align="center"><button type="button" id="'+cbtnid+'" class="btn '+cbtn+' btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\','+ccanl+','+'\''+cbtnid+'\')">'+cStatus+'</button></td>';
+	cbtnid = 'btnac'+nlin;
+	trHTML += '<td align="center"><button type="button" id="'+cbtnid+'" class="btn '+cbtn+' btn-sm" onclick="showPN(\''+object['F1EMPRESA']+'\',\''+object['F1RECNO']+'\',\'#userlib#\','+ccanl+','+'\''+cbtnid+'\')">'+cStatus+'</button></td>';
 
-trHTML += '</tr>';
+	trHTML += '</tr>';
    });
 } else {
     trHTML += '<tr>';
@@ -1302,6 +1306,7 @@ tableSF1 = $('#tableSF1').DataTable({
    },
 
 	columnDefs: [
+		{  width: "9%", targets: 0 },
     	{
             target: 1,
             className: 'dt-left dt-head-left'
@@ -1625,7 +1630,7 @@ cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(self:userlib)
-	u_BkAvPar(self:userlib,@aParams,@cMsg)
+	u_BkAvPar(self:userlib,@aParams,@cMsg,@xEmpr)
 	//u_MsgLog("RESTLIBPN",self:userlib)
 	cHtml := STRTRAN(cHtml,"#userlib#",self:userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)

@@ -2844,7 +2844,7 @@ Local aEmail	:= {}
 Local cPrw		:= "V9BKGct06"
 
 Local cGerGestao := u_GerGestao()
-Local aBKGrupo  := u_BKEmpr()
+Local aBKGrupo  := u_BKGrupo()
 Local nE 		:= 0
 
 u_MsgLog("V9BKGct06",cAssunto)

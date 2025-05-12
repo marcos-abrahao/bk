@@ -61,9 +61,14 @@ Local cUrl 		  := u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
 Local cGetParms   := ""
 Local cHeaderGet  := ""
 Local nTimeOut    := 200
-Local aHeader 	  := {} 
+Local aHeader 	  := {}
+Local lBarcas	  := .F.
 
 Private oWebChannel := TWebChannel():New()
+
+If cEmpAnt == "20" // Barcas
+	lBarcas := .T.
+EndIf
 
 If u_AmbTeste()
     Aadd(aHeader, "Content-Type: text/html; charset=utf8")
@@ -109,8 +114,7 @@ Else
     lWebAgent := .T.
 EndIf
 
-
-oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,"Avisos do Sistema ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+")",,,,,,,,, .T.,,,, .F. )
+oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,"Avisos do Sistema ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+") - "+cEmpAnt,,,,,,,,, .T.,,,, .F. )
 
 //oDlg:nClientHeight  := nJanAltu
 //oDlg:nClientWidth   := nJanLarg
@@ -132,8 +136,10 @@ oPanelUp := oLayer:getWinPanel('Col1','WinTop')
 oPanelDown := oLayer:getWinPanel('Col1','WinGrid')
 
 If AMIIn(5, 69) .OR. Modulo == 5 .OR. nModulo == 69
-	lLPV := .T.
-	lCR := .T.
+	If !lBarcas
+		lLPV := .T.
+		lCR  := .T.
+	EndIf
 EndIf
 
 If AMIIn(2,6,9) .OR. Modulo == 2 .OR. nModulo == 6 .OR. Modulo == 9

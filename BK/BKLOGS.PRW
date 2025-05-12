@@ -238,7 +238,6 @@ Local cDir  := u_LTmpDir()
 Local cMens := ""
 IF __cUserId $ "000000/000038" .OR. IsBlind() //Usuários admin e teste
 	If IsBlind()
-		cDir:= u_SLogDir()
 	ENDIF
 	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+FunName()+"|"+CRLF
 	//cMens := "-- "+DtoC(Date())+"|"+Time()+"|"+cEmpAnt+"|"+__cUserId+"-"+cUserName+"|"+cValToChar(nModulo)+"|"+FWGetMnuFile()+"|"+FunName()+"|"+GetEnvServer()+"|"+CRLF

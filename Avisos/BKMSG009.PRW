@@ -26,7 +26,7 @@ Local aEmail	:= {}
 Local cCrLf   	:= Chr(13) + Chr(10)
 Local _ni
 Local cProg		:= "BKMSG009"
-Local aBKGrupo  := u_BKEmpr()
+Local aBKGrupo  := u_BKGrupo()
 Local nE		:= 0
 Local mCSV 		:= ""
 Local cAnexo 	:= ""

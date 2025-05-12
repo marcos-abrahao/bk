@@ -60,6 +60,7 @@ Do While (cAlias)->(!eof())
 	AADD(aEmail,{	STR((cAlias)->Codigo,6,0),;
    	   				(cAlias)->Descricao,;
    	   				(cAlias)->EventoProtheus,;
+              (cAlias)->Classificacao,;
    	   				(cAlias)->DataPrc})
 
 	(cAlias)->(dbskip())
@@ -72,7 +73,7 @@ If Len(aEmail) > 0
 
   cAssunto += ALLTRIM(STR(LEN(aEmail)))
 
-  aCabs	:= {"Codigo","Descricao","Evento Protheus","Data Processamento"}
+  aCabs	:= {"Codigo","Descricao","Evento Protheus","Classificação","Data Processamento"}
 
   cMsg	:= u_GeraHtmB(aEmail,cAssunto,aCabs,cProg,"",cEmail,cEmailCC)
 

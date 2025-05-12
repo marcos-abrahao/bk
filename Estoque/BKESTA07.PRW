@@ -60,7 +60,7 @@ Static Function PBKESTA07(oSay)
 	Local cLocaliz 	:= ""
 	Local lErro 	:= .F.
 	Local nTamPrd	:= 15
-	Local lCab 		:= .T.
+	Local lCab 		:= .F.
 	Local aErros	:= {}
 
 	nTamPrd := TamSX3('B1_COD')[1]
@@ -144,9 +144,9 @@ Static Function PBKESTA07(oSay)
 						AADD(aItens ,{dData,cProd,cLocEst,cLocaliz,nQuant,nValor,cCC,cObs,cCC+DTOS(dData)})
 
 					ELSE
-						If !lCab .OR. nLinha > 4
+						If !lCab //.OR. nLinha > 4
 							u_MsgLog(cProg,"Linha= "+ALLTRIM(STR(nLinha))+" nao lida, produto não encontrado: "+ALLTRIM(cProd),"E")
-							lErro := .T.
+							//lErro := .T.
 							aAdd(aErros,{nLinha,cProd,"Produto não encontrado"})
 						EndIf
 					ENDIF
@@ -191,22 +191,31 @@ Static Function GravSD3(oSay,aItens,aErros)
 Local lOk := .T.
 Local nI  := 1
 Local nL  := 0
-Local aIt2 := {}
+//Local aIt2 := {}
 Local cChave := ""
+Local cChave1:= ""
 ASORT(aItens,,,{|x,y| x[9]<y[9]})
 Do While nI <= Len(aItens)
 	//dData,cProd,cLocEst,cLocaliz,nQuant,nValor,cCC,cObs,nLinha})
-	cChave := aItens[nI,9]
-	aIt2 := {}
+	//cChave := aItens[nI,9]
+	cChave1 := aItens[nI,9]
+	cChave := aItens[nI,2]+" "+DTOC(aItens[nI,1])
 	nL := nI
-	Do While nI <= Len(aItens) .AND. cChave == aItens[nI,9]
-		aAdd(aIt2,aItens[nI])
-		nI++
-	EndDo
-	lOk := MyMata241(nL,aIt2)
+
+	//aIt2 := {}
+	//Do While nI <= Len(aItens) .AND. cChave == aItens[nI,9]
+	//	aAdd(aIt2,aItens[nI])
+	//	nI++
+	//EndDo
+	//lOk := MyMata241(nL,aIt2)
+
+	lOk := MyMata241(nL,{aItens[nI]})
+
 	If !lOk
-		aAdd(aErros,{nL,cChave,"Não foi possível gravar o movimento"})
+		//aAdd(aErros,{nL,cChave,"Não foi possível gravar o movimento"})
+		aAdd(aErros,{nL,cChave,"Não foi possível gravar o movimento "+cChave1})
 	EndIf
+	nI++
 EndDo
 
 Return lOK
@@ -218,6 +227,7 @@ Local aCab1		:= {}       // Array para o cabeçalho do movimento
 Local aItem		:= {}       // Array para os itens do movimento
 Local aTotItem	:= {}    	// Array para agrupar todos os itens
 Local lRet		:= .T.
+//Local cCodigoTM := "101"
 Local cCodigoTM := "501"
 Local nJ  		:= 0
 

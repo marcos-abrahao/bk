@@ -152,6 +152,7 @@ Local oJsonSales 	:= JsonObject():New()
 
 Local aParams      	As Array
 Local cMsg         	As Character
+Local xEmpr			As Character
 
 //Default self:page 	:= 1
 //Default self:pageSize := 500
@@ -160,7 +161,7 @@ Local cMsg         	As Character
 // Query para selecionar pedidos
 //-------------------------------------------------------------------
 
-If !u_BkAvPar(::userlib,@aParams,@cMsg)
+If !u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
 	oJsonSales['liberacao'] := cMsg
 	cRet := oJsonSales:ToJson()
 	FreeObj(oJsonSales)

@@ -16,6 +16,7 @@ Local cToken    := SPACE(100)
 Local aButtons 	:= {}
 Local aParams   := {SF1->F1_DOC}
 Local cMsg      := ""
+Local xEmpr     := ""
 Local oGetTk
 Local oOk
 Local oNo
@@ -45,9 +46,9 @@ nLin += 25
 ACTIVATE MSDIALOG oDlg CENTERED Valid(!Empty(cToken)) ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F.,oDlg:End()}, , @aButtons)
 
 If lOk
-    lOk := u_BKAvPar(cToken,aParams,cMsg)
+    lOk := u_BKAvPar(cToken,aParams,cMsg,xEmpr)
     If lOk
-        If aParams[4] == SF1->F1_DOC
+        If aParams[5] == SF1->F1_DOC
             lOk := .F.
             If SF1->F1_XXLIB == "T" .OR. SF1->F1_XXLIB == " "
                 RecLock("SF1",.F.)

@@ -339,12 +339,13 @@ Local lRet 			:= .T.
 Local oJsonTmp	 	:= JsonObject():New()
 Local aParams      	As Array
 Local cMsg         	As Character
+Local xEmpr         As Character
 Local cNumTit 		:= ""
 Local nSaldo 		:= 0
 
 //u_MsgLog("RESTPrvCR",VarInfo("vencini",self:vencini))
 
-If !u_BkAvPar(::userlib,@aParams,@cMsg)
+If !u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
   oJsonTmp['liberacao'] := cMsg
   cRet := oJsonTmp:ToJson()
   FreeObj(oJsonTmp)

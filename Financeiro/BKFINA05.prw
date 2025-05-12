@@ -32,32 +32,41 @@ User Function BKFINA05()
 Local nE	  := 0
 Local aEmp 	  := u_BkGrupo(4)
 Local lOk 	  := .F.
-Local lAllOk  := .T.
+Local cPasta  := "\ADP\Financeiro\"
+Local aFiles  := Directory(cPasta+"*.txt",,,.F.,2)
 
 Private cProg	:= "BKFINA05"
 Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
 Private nTotZ2	:= 0
 Private cLote 	:= ""
 
-If u_MsgLog(cProg,"Executar integração automática (todas empresas)","Y")
+If IsBlind() .OR. u_MsgLog(cProg,"Executar integração automática (todas empresas)","Y")
 
-	For nE := 1 To Len(aEmp)
-		//u_WaitLog(cProg, {|| u_FINA05S({aEmp[nE,1],"01"}) }, "Processando "+aEmp[nE,2])
+	If Len(aFiles) > 0
 
-		u_WaitLog(cProg, {|| lOk := StartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",__cUserID})},"Processando empresa "+aEmp[nE,3])
+		For nE := 1 To Len(aEmp)
 
-		//lOk := uStartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",.T.})
+			u_WaitLog(cProg, {|| lOk := StartJob("u_FINA05S",GetEnvServer(),.T.,{aEmp[nE,1],"01",__cUserID})},"Processando empresa "+aEmp[nE,3])
 
-		If !lOk
-			u_MsgLog(cProg,"Problemas na integração da empresa "+aEmp[nE,2],"E")
-			lAllOk := .F.
-		EndIf
-	Next
-	If lAllOk
-		u_MsgLog(cProg,"Processo finalizado","I")
+			If !lOk
+				u_MsgLog(cProg,"Problemas na integração da empresa "+aEmp[nE,2],"E")
+				lAllOk := .F.
+			Else
+				u_MsgLog(cProg,"Empresa "+aEmp[nE,3]+ ": processo executado com sucesso","I")
+			EndIf
+		Next
+
+	Else
+		u_MsgLog(cProg,"Nenhum arquivo a processar","I")
 	EndIf
-
+Else
+	If __cUserID = "000000" .AND. !IsBlind()
+		If u_MsgLog(cProg,"Executar integração manual (esta empresa)","N")
+			FINA05DLG()
+		Endif
+	EndIf
 EndIf
+
 Return Nil
 
 
@@ -88,6 +97,7 @@ Local cNum 		:= ""
 Local cMsg		:= ""
 Local cMsgErr 	:= ""
 Local cUser 	:= "000000"
+Local lOk		:= .T.
 
 Private cProg	:= "FINA05S"
 Private aAcao	:= {"1-Incluir","2-Excluir","3-Excluir"}
@@ -105,7 +115,7 @@ EndIf
 RpcSetType(3)
 RpcSetEnv(aParam[1],aParam[2])
 
-u_MsgLog(cProg,cEmpAnt+ " - "+cUser+" - "+ArrTokStr(aParam))
+//u_MsgLog(cProg,cEmpAnt+ " - "+cUser+" - "+ArrTokStr(aParam))
 
 // Processar Exclusões primeiro
 For nI := 1 To Len(aFiles)
@@ -134,28 +144,32 @@ For nI := 1 To Len(aFiles)
 						MoveArq(cArq,1)
 					Else
 						cMsg := "Lançamentos não excluídos: "+cMsgErr
+						lOk := .F.
 						MoveArq(cArq,2)
 					EndIf
 				Else
 					cMsg := cMsgErr
+					lOk := .F.
 					MoveArq(cArq,2)
 				EndIf
 			Else
 				cMsg   := "Arquivo vazio ou problemas com o layout"
+				lOk := .F.
 				MoveArq(cArq,2)
 			EndIf
 			aFiles[nI,1] := ""
 		EndIf
 	Else
 		cMsg := "Não foi possível abrir o arquivo ou conteúdo inválido"
+		lOk := .F.
 		cAnexo := MoveArq(cArq,2)
 	EndIf
 	
 	If !Empty(cMsg)
 		SndMsg(cArq,cMsg,cAnexo,cUser)
-		If !Isblind()
+		//If !Isblind()
 			u_MsgLog(cProg,cMsg,"I")
-		EndIf
+		//EndIf
 	EndIf
 		
 Next
@@ -206,9 +220,9 @@ For nI := 1 To Len(aFiles)
 
 		If !Empty(cMsg)
 			SndMsg(cArq,cMsg,cAnexo,cUser)
-			If !Isblind()
-				u_MsgLog(cProg,cMsg,"I")
-			EndIf
+			//If !Isblind()
+				u_MsgLog(cProg,cArq+": "+cMsg,"I")
+			//EndIf
 		EndIf
 	EndIf
 Next
@@ -258,7 +272,6 @@ If nHandle <> -1
 
 	If !FT_FEOF()
 
-	
 		cBuffer := FT_FREADLN()  //lendo a linha
 
 		If ( !Empty(cBuffer) )
@@ -702,6 +715,8 @@ Do While !EOF()
 			u_LogMsExec("PFIN5Z2E",cMsgErr)
 			DisarmTransaction()
 			lOk := .F.
+		Else
+			u_MsgLog("BKFINA05","Titulo excluído "+QSE2->E2_NUM+" "+cLote)
 		EndIf
 	End Transaction
 	DbSelectArea("QSE2")
@@ -877,10 +892,11 @@ Begin Transaction
 	MSExecAuto({|x,y,z| Fina050(x,y,z)},aVetor,,3) //Inclusao
 
 	IF lMsErroAuto
-
 		u_LogMsExec("BKFINA02")
 		DisarmTransaction()
 		lErroT := .T.
+	Else
+		u_MsgLog("BKFINA05","Titulo incluído "+cNum+" "+cCtrId)
 	ENDIF	
 
 END Transaction
