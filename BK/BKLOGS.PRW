@@ -162,7 +162,7 @@ EndIf
 nHandle := fOpen(cArqLog,2)
 
 If fError() <> 0
-	If !IsBlind()
+	If !IsBlind() 
 		FWAlertError("LOG ERROR: "+fError(),"Nao foi possivel abrir o arquivo "+cArqLog)
 	EndIf
 	Return(.f.)

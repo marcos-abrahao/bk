@@ -109,6 +109,6 @@ If !Empty(cToken)
 Else
 	cMsg := "Token não informado"
 EndIf
-u_MsgLog("BKAVPAR","Resultado: "+cMsg+" User: "+__cUserId+" Empr:"+xEmpr)
+//u_MsgLog("BKAVPAR","Resultado: "+cMsg+" User: "+__cUserId+" Empr:"+xEmpr)
 Return lRet
 

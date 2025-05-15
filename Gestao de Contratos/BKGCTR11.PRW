@@ -114,9 +114,9 @@ User Function BKGCTR11(lJob)
 	ENDIF
 
 	nPowerBK := MV_PAR09
-	If nPowerBK == 1
-		u_MsgLog("BKGCTR11","Opção para uso do banco de dados PowerBK em homologação!!","W")
-	EndIf
+	//If nPowerBK == 1
+	//	u_MsgLog("BKGCTR11","Opção para uso do banco de dados PowerBK em homologação!!","W")
+	//EndIf
 
 	aXMIMPC	:= {}
 	aXMIMPC	:= StrTokArr(U_MVXMIMPC(),"|") //%Media de Impostos e Contribuicoes calculo Rentabilidade dos Contratos
@@ -1063,8 +1063,8 @@ Static Function ProcBKGCTR11(lJob,oSay)
 			AADD(aRentab,{"07-1","","S",0})
 			AADD(aRentab,{"08","CUSTO","S",0})
 			AADD(aRentab,{"09","PROVENTOS","S",0})
-			AADD(aRentab,{"10","ENCARGOS","S",0})
-			AADD(aRentab,{"11","INCIDENCIAS","S",0})
+			AADD(aRentab,{"10","ENCARGOS "+u_PicPer(nEncargos,5,2)+"%","S",0})
+			AADD(aRentab,{"11","INCIDENCIAS "+u_PicPer(nIncidenci,5,2)+"%","S",0})
 			AADD(aRentab,{"110","PLR","S",0})
 			AADD(aRentab,{"111","VERBAS SEM ENCARGOS/INCIDENCIAS","S",0})
 			AADD(aRentab,{"12","VT","S",0})
@@ -1087,7 +1087,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 			nNDC := U_VALNDCE(ALLTRIM(QTMP->CNF_CONTRA),aPeriodo[_nI,1],_nI,@aNDC)
 			aAdd(aRentab,{"30-3","NDC","S",-nNDC})
 
-			AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO","S",0})
+			AADD(aRentab,{"YYYYYYYYY","TAXA DE ADMINISTRAÇÃO "+IIF(nTaxaAdm > 0,u_PicPer(nTaxaAdm,5,2)+"%",""),"S",0})
 			AADD(aRentab,{"YYYYYYYYZ","","S",0})
 			AADD(aRentab,{"ZZZZZZYYY","RESULTADO PARCIAL","S",0})
 			AADD(aRentab,{"ZZZZZZZYY","% RES. PARCIAL","S",0})
@@ -5656,7 +5656,9 @@ If nOpc == 2
 EndIf
 cQuery += " FROM PowerBk.dbo.GASTOSGERAIS " + CRLF
 cQuery += " WHERE CONTRATO = '"+cContrato+"'" + CRLF
-cQuery += "   AND ORIGEM IN ('SD1','SE5')" + CRLF
+If nOpc == 1  // Provisorio enquanto não se adequa os registros SZ2
+	cQuery += "   AND ORIGEM IN ('SD1','SE5')" + CRLF
+EndIf
 If nOpc == 2
 	cQuery += " ORDER BY COMPETAM,A2_NOME" + CRLF
 EndIf
@@ -5760,7 +5762,7 @@ Do Case
 		cRet := "Movimento Bancário"
 	Case TRIM(cOrigem) == "SZ2-AC"
 		cRet := "Integração AC"
-	Case TRIM(cOrigem) == "SZ2-AC"
+	Case TRIM(cOrigem) == "SZ2-CLT"
 		cRet := "Integração CLT"
 	OtherWise
 		cRet := "Indefinido"

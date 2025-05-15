@@ -875,7 +875,7 @@ If Len(aItens) > 0
 
 	For nI := 1 To Len(aItens)
 			If !Empty(aItens[nI,7])
-				cAlqCPM	:= +" / "+PicPer(aItens[nI,7],5,2)+'%'
+				cAlqCPM	:= +" / "+u_PicPer(aItens[nI,7],5,2)+'%'
 			Else
 				cAlqCPM	:= ""
 			EndIf
@@ -884,7 +884,7 @@ If Len(aItens) > 0
 			AADD(aHtml,'    <td class="tg-sc">'+aItens[nI,1]+'</td>')
 			AADD(aHtml,'    <td class="tg-sc" colspan="2">'+aItens[nI,2]+'</td>')
 			AADD(aHtml,'    <td class="tg-rdv">'+aItens[nI,5]+'</td>')
-			AADD(aHtml,'    <td class="tg-sc">'+PicPer(aItens[nI,4],5,2)+'%'+cAlqCPM+'</td>')
+			AADD(aHtml,'    <td class="tg-sc">'+u_PicPer(aItens[nI,4],5,2)+'%'+cAlqCPM+'</td>')
 			AADD(aHtml,'    <td class="tg-ndr">'+aItens[nI,3]+'</td>')
 			AADD(aHtml,'    <td class="tg-valor">R$ '+ALLTRIM(TRANSFORM(aItens[nI,6],cPict))+'</td>')
 			AADD(aHtml,'  </tr>')
@@ -1012,13 +1012,7 @@ RestArea(aAreaAtu)
 Return(aHtml)
 
 
-// Retorna o Percentual em caracteres sem .00 no final
-Static Function PicPer(nAliq,nT,nD)
-Local cAliq := ALLTRIM(STR(nAliq,nT,nD))
-If ("."+Replicate("0",nD)) $ cAliq
-	cAliq := STRTRAN(cAliq,"."+Replicate("0",nD),"")
-EndIf
-Return cAliq
+
 
 
 /*

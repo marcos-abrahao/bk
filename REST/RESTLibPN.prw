@@ -481,6 +481,7 @@ Local oJsonSales 	:= JsonObject():New()
 
 Local aParams      	As Array
 Local cMsg         	As Character
+Local xEmpr 		:= ""
 Local nE			:= 0
 Local cEmpresa		:= ""
 Local cNomeEmp		:= 0
@@ -493,7 +494,7 @@ Local cStatus		:= ""
 Local lFiscal		:= .F.
 Local lMaster		:= .F.
 Local lSuper		:= .F.
-Local xEmpr 		:= ""
+
 
 //-------------------------------------------------------------------
 // Query para selecionar Pré-notas

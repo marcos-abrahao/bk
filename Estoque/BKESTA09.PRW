@@ -62,6 +62,7 @@ Static Function PBKESTA09(oSay)
 	Local nTamPrd	:= 15
 	Local lCab 		:= .T.
 	Local aErros	:= {}
+	Local cLote 	:= ""
 
 	nTamLoc := TamSX3('NNR_CODIGO')[1]
 	nTamPrd := TamSX3('B1_COD')[1]
@@ -127,7 +128,14 @@ Static Function PBKESTA09(oSay)
 							cLocaliz  := ALLTRIM(STR(oExcel:CellRead(nLinha,6)))
 						ENDIF
 
-						AADD(aItens ,{cProd,cTipo,cLocEst,dData,nQuant,cLocaliz,cDoc})
+						cLote := ""
+						IF ValType(oExcel:CellRead(nLinha,7)) == "C"
+							cLote  := ALLTRIM(oExcel:CellRead(nLinha,7))
+						ELSEIF ValType(oExcel:CellRead(nLinha,7)) == "N"
+							cLote  := ALLTRIM(STR(oExcel:CellRead(nLinha,7)))
+						ENDIF
+
+						AADD(aItens ,{cProd,cTipo,cLocEst,dData,nQuant,cLocaliz,cDoc,cLote})
 
 					ELSE
 						If !lCab .OR. nLinha > 4
@@ -160,7 +168,7 @@ Static Function PBKESTA09(oSay)
 		EndIf
 		If Len(aErros) > 0
 			IF u_MsgLog(cProg,"Deseja visualizar os erros encontrados", "Y")
-				u_WaitLog(cProg,{ |oSay| u_ErrosE05(aErros)},"Gerando planilha de erros...")
+				u_WaitLog(cProg,{ |oSay| u_ErrosE09(aErros)},"Gerando planilha de erros...")
 			EndIf
 		Else
 			u_MsgLog(cProg,"Processo concluído com sucesso","W")
@@ -177,7 +185,7 @@ Static Function GravEnd(oSay,aItens,aErros)
 Local lOk := .T.
 Local nI  := 0
 For nI := 1 To Len(aItens)
-	lOk := MyMata270(nI,aItens[nI,1],aItens[nI,2],aItens[nI,3],aItens[nI,4],aItens[nI,5],aItens[nI,6],aItens[nI,7])
+	lOk := MyMata270(nI,aItens[nI,1],aItens[nI,2],aItens[nI,3],aItens[nI,4],aItens[nI,5],aItens[nI,6],aItens[nI,7],aItens[nI,8])
 	If !lOk
 		aAdd(aErros,{nI,aItens[nI,1],"Erro ao gravar no local "+aItens[nI,3]})
 	EndIf
@@ -185,7 +193,7 @@ Next
 
 Return lOK
 
-Static Function MyMata270(nLinha,cProd,cTipo,cLocEst,dData,nQuant,cLocaliz,cDoc)
+Static Function MyMata270(nLinha,cProd,cTipo,cLocEst,dData,nQuant,cLocaliz,cDoc,cLote)
 LOCAL aAuto		:= {}
 Local nOpc		:= 0
 Local lOk		:= .T.
@@ -218,9 +226,13 @@ Aadd(aAuto, {"B7_QUANT" 	, nQuant , NIL})
 Aadd(aAuto, {"B7_DATA" 		, dData, NIL})
 //Aadd(aAuto, {"B7_DTVALID" 	, Stod("20170613") , NIL})
 Aadd(aAuto, {"B7_COD" 		, cProd , NIL})
-//Aadd(aAuto, {"B7_LOTECTL" 	, Pad("LOTE0001" , Len(SB7->B7_LOTECTL)) , NIL})
-//Aadd(aAuto, {"B7_NUMLOTE" 	, Pad("000001" , Len(SB7->B7_NUMLOTE)) , NIL})
-Aadd(aAuto, {"B7_LOCALIZ" 	, Pad(cLocaliz, Len(SB7->B7_LOCALIZ)) , NIL})
+If ALLTRIM(cLote) <> '0' .AND. !Empty(cLote)
+	Aadd(aAuto, {"B7_LOTECTL" 	, Pad(cLote , Len(SB7->B7_LOTECTL)) , NIL})
+EndIf
+//Aadd(aAuto, {"B7_NUMLOTE" 	, Pad(cLote, Len(SB7->B7_NUMLOTE)) , NIL})
+If ALLTRIM(cLocaliz) <> '0' .AND. !Empty(cLocaliz)
+	Aadd(aAuto, {"B7_LOCALIZ" 	, Pad(cLocaliz, Len(SB7->B7_LOCALIZ)) , NIL})
+EndIf
 //Aadd(aAuto, {"B7_NUMSERI" 	, Pad("" , Len(SB7->B7_NUMSERI)) , NIL})
 Aadd(aAuto, {"B7_ORIGEM" 	, "MATA270" , NIL})
 Aadd(aAuto, {"B7_STATUS" 	, "1" , NIL})
@@ -239,4 +251,45 @@ Begin Transaction
 End Transaction
 
 Return lOk
+
+
+
+
+User Function ErrosE09(aErros)
+Local cTitulo	:= "Erros - importação de dados"
+Local cDescr 	:= ""
+Local cVersao	:= "02/05/2025"
+Local cArqXls	:= ""
+Local oRExcel	AS Object
+Local oPExcel	AS Object
+
+// Definição do Arq Excel
+oRExcel := RExcel():New(cProg)
+oRExcel:SetTitulo(cTitulo)
+oRExcel:SetVersao(cVersao)
+oRExcel:SetDescr(cDescr)
+oRExcel:SetParam({})
+
+// Definição da Planilha 1
+oPExcel:= PExcel():New(cProg,aErros)
+oPExcel:SetTitulo("Arquivo: "+cArq)
+
+// Colunas da Planilha 1
+oPExcel:AddCol("LINHA","STRZERO(xCampo,6)","Linha","")
+//oPExcel:GetCol("LINHA"):SetDecimal(0)
+oPExcel:GetCol("LINHA"):SetHAlign("C")
+
+oPExcel:AddColX3("B1_COD")
+
+oPExcel:AddCol("ERRO","","Erros","")
+oPExcel:GetCol("ERRO"):SetTamanho(200)
+
+// Adiciona a planilha 1
+oRExcel:AddPlan(oPExcel)
+
+// Cria arquivo Excel
+cArqXls:= oRExcel:Create()
+
+Return cArqXls
+
 

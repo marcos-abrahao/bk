@@ -349,7 +349,7 @@ AADD(aHtml,' </tr>')
 
 AADD(aHtml,' <tr>')
 AADD(aHtml,'    <td class="tg-hsr" colspan="4">Valor Total</td>')
-AADD(aHtml,'    <td class="tg-hsc" colspan="4">IRRF '+PicPer(nPRetIrf,5,2)+'%'+'</td>')
+AADD(aHtml,'    <td class="tg-hsc" colspan="4">IRRF '+u_PicPer(nPRetIrf,5,2)+'%'+'</td>')
 AADD(aHtml,'    <td class="tg-hsc" colspan="4">Valor Líquido</td>')
 AADD(aHtml,' </tr>')
 
@@ -388,7 +388,7 @@ ADIANTE, A TRANSCRIÇÃO DA RAZÃO AO VETO PELA PRESIDÊNCIA:</p>
 <br>
 ENDCONTENT
 
-cPag2 := STRTRAN(cPag2,"#PERCIRF#",PicPer(nPRetIrf,5,2))
+cPag2 := STRTRAN(cPag2,"#PERCIRF#",u_PicPer(nPRetIrf,5,2))
 
 AADD(aHtml,'  <tr>')
 AADD(aHtml,'  	<td colspan="12" class="tg-pag2">'+cPag2+'</td>')
@@ -436,12 +436,3 @@ AADD(aHtml,'</html>')
 
 Return(aHtml)
 
-
-
-// Retorna o Percentual em caracteres sem .00 no final
-Static Function PicPer(nAliq,nT,nD)
-Local cAliq := ALLTRIM(STR(nAliq,nT,nD))
-If ("."+Replicate("0",nD)) $ cAliq
-	cAliq := STRTRAN(cAliq,"."+Replicate("0",nD),"")
-EndIf
-Return cAliq

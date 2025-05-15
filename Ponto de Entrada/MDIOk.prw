@@ -214,13 +214,18 @@ Return
 User Function WebAtivo()
 Local aInfoWebAgent := Nil
 Local cInfoWebAgent := ""
+Local lRet 			:= .F.
 
 aInfoWebAgent := GetWebAgentInfo()
 If len(aInfoWebAgent) > 0
     If !Empty(aInfoWebAgent[1])
 		cInfoWebAgent:= 'Versão: ' + aInfoWebAgent[1]+' - Porta: ' + aInfoWebAgent[2]
+		lRet := .T.
 	EndIf
 Endif
+If !lRet
+	u_MsgLog("WebAtivo","Algumas funções estão indisponíveis quando o webagent local não está ativo.","W")
+EndIf
 
-Return cInfoWebAgent
+Return lRet
 

@@ -23,6 +23,16 @@ EndIf
 Return aRet
 
 
+User Function IsBarcas(cEmp)
+Local lRet := .F.
+Default cEmp := cEmpAnt
+If cEmp == "20"
+    lRet := .T.
+EndIF
+Return lRet
+
+
+
 User Function BkEmpr(nOpc)
 Local aReturn     := {}
 Local nE          := 0
@@ -67,8 +77,8 @@ aAdd(aEmpresas,{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""  
 aAdd(aEmpresas,{"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623","N"})
 aAdd(aEmpresas,{"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         ,"N"})
 aAdd(aEmpresas,{"20","BARCAS RIO"      ,"BARCAS R."    ,"S","S","S","S","S","408000644","S"})
-aAdd(aEmpresas,{"97","CMOG"            ,"CMOG"         ,"X","N","N","N","N",""         ,"N"})
-aAdd(aEmpresas,{"98","TERO"            ,"TERO"         ,"X","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"97","CMOG"            ,"CMOG"         ,"S","N","N","N","N",""         ,"N"})
+aAdd(aEmpresas,{"98","TERO"            ,"TERO"         ,"S","N","N","N","N",""         ,"N"})
 
 For nE := 1 To Len(aEmpresas)
     If nOpc == 1 .OR. aEmpresas[nE,nOpc+2] == "S" .OR. (nOpc == 7 .AND. !EMPTY(aEmpresas[nE,nOpc+2]))

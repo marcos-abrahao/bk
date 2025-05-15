@@ -438,7 +438,7 @@ IF SF2->F2_VALIRRF > 0 .AND. cRetCli <> "3"
       nPIrrf := GETMV("MV_ALIQIRF")
    ENDIF
    ++nQTDIMP
-   cImpost += "IRRF: "+PicPer(nPIrrf,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALIRRF,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "IRRF: "+u_PicPer(nPIrrf,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALIRRF,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -447,7 +447,7 @@ ENDIF
 IF SF2->F2_VALPIS > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALPIS
    ++nQTDIMP
-   cImpost += "PIS: "+PicPer(nPPis,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "PIS: "+u_PicPer(nPPis,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALPIS,"@E 999,999.99"))+CRLF //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -456,7 +456,7 @@ ENDIF
 IF SF2->F2_VALCOFI > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALCOFI
    ++nQTDIMP
-   cImpost += "COFINS: "+PicPer(nPCofins,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99"))+CRLF  //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "COFINS: "+u_PicPer(nPCofins,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCOFI,"@E 999,999.99"))+CRLF  //IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -465,7 +465,7 @@ ENDIF
 IF SF2->F2_VALCSLL > 0 .AND. cRetCli <> "3"
    nTOTIMP += SF2->F2_VALCSLL
    ++nQTDIMP
-   cImpost += "CSLL: "+PicPer(nPCsll,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += "CSLL: "+u_PicPer(nPCsll,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALCSLL,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -475,7 +475,7 @@ IF !cCliente $ cXXNOISS .AND. !STRZERO(VAL(SUBSTR(cCliente,1,3)),6) $ cXXNOISS
 	IF SF2->F2_VALISS > 0  .AND. SF2->F2_RECISS = "1"
    		nTOTIMP += SF2->F2_VALISS
   	 	++nQTDIMP
-  	 	cImpost += "ISS: "+PicPer(nPIss,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALISS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+  	 	cImpost += "ISS: "+u_PicPer(nPIss,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALISS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
   	 	lImp := !lImp
   	 	IF nQTDIMP==3
    			nQTDIMP := 0
@@ -493,7 +493,7 @@ IF SF2->F2_VALINSS > 0
    ELSE
       cImpost += "INSS: "
    ENDIF
-   cImpost += PicPer(nPInss,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALINSS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
+   cImpost += u_PicPer(nPInss,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_VALINSS,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))//+IIF(lImp,"|",SPACE(10))
    lImp := !lImp
    IF nQTDIMP==3
    		nQTDIMP := 0
@@ -511,7 +511,7 @@ IF SA1->A1_XXFUMDI == "S" .OR. SF2->F2_XXVFUMD > 0
 	ENDIF
 	nTOTIMP += SF2->F2_XXVFUMD
 	++nQTDIMP
-	cImpost += "FUMDIP: "+PicPer(SF2->F2_XXAFUMD,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVFUMD,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))
+	cImpost += "FUMDIP: "+u_PicPer(SF2->F2_XXAFUMD,5,2)+"% R$"+ALLTRIM(TRANSFORM(SF2->F2_XXVFUMD,"@E 999,999.99"))+CRLF //+IIF(nQTDIMP==3,"|",SPACE(4))
  	lImp := !lImp
  	IF nQTDIMP==3
 		nQTDIMP := 0
@@ -599,7 +599,7 @@ IF !EMPTY(SF2->F2_XXVRETC)
 	IF SUBSTR(cDescr,LEN(cDescr),1) <> "|"
 		cDescr += "|"
 	ENDIF
-	cDescr += "Retenção Contratual ("+PicPer(SF2->F2_XXRETC,5,2)+"%): R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVRETC,"@E 999,999,999.99"))+"|"
+	cDescr += "Retenção Contratual ("+u_PicPer(SF2->F2_XXRETC,5,2)+"%): R$ "+ALLTRIM(TRANSFORM(SF2->F2_XXVRETC,"@E 999,999,999.99"))+"|"
 ENDIF
 
 IF nINSSME > 0
@@ -613,13 +613,13 @@ IF nINSSME > 0
 	nBINSS 	 := SF2->F2_BASEINS //SF2->F2_VALBRUT - nREDINSS
 	nVALINSS := SF2->F2_VALINSS //nBINSS * (nPInss/100)
 	If ALLTRIM(cContrato) == '386000609'  // Moove
-		cDescr1 += "FORNECIMENTO DE MATERIAIS "+PicPer(nINSSMAT,5,2)+"% = R$ "+ALLTRIM(TRANSFORM(nREDINSS,"@E 999,999,999.99"))+" FORNECIMENTO DE MAO DE OBRA "+PicPer(nINSSME,5,2)+"% = R$ "+ALLTRIM(TRANSFORM(nBINSS,"@E 999,999,999.99"))+CRLF
+		cDescr1 += "FORNECIMENTO DE MATERIAIS "+u_PicPer(nINSSMAT,5,2)+"% = R$ "+ALLTRIM(TRANSFORM(nREDINSS,"@E 999,999,999.99"))+" FORNECIMENTO DE MAO DE OBRA "+u_PicPer(nINSSME,5,2)+"% = R$ "+ALLTRIM(TRANSFORM(nBINSS,"@E 999,999,999.99"))+CRLF
 	ElseIf ALLTRIM(cContrato) == '408000644' // Barcas
 	    cDescr1 += "Base INSS MO 25% = "+ALLTRIM(TRANSFORM(nBINSS,"@E 999,999,999.99"))
 	Else
 		cDescr1 += "VALOR DA NOTA FISCAL R$ "+ALLTRIM(TRANSFORM(SF2->F2_VALBRUT,"@E 999,999,999.99"))+CRLF
-		cDescr1 += "(-) "+PicPer(nINSSME,5,2)+"% REDUÇÃO DO INSS POR FORNECIMENTO DE MATERIAIS R$ "+ALLTRIM(TRANSFORM(nREDINSS,"@E 999,999,999.99"))+CRLF
-		cDescr1 += "BASE DE CALCULO DE INSS R$ "+ALLTRIM(TRANSFORM(nBINSS,"@E 999,999,999.99"))+" x "+PicPer(nPInss,5,2)+"% A SER RETIDO R$ "+ALLTRIM(TRANSFORM(nVALINSS,"@E 999,999,999.99"))+CRLF
+		cDescr1 += "(-) "+u_PicPer(nINSSME,5,2)+"% REDUÇÃO DO INSS POR FORNECIMENTO DE MATERIAIS R$ "+ALLTRIM(TRANSFORM(nREDINSS,"@E 999,999,999.99"))+CRLF
+		cDescr1 += "BASE DE CALCULO DE INSS R$ "+ALLTRIM(TRANSFORM(nBINSS,"@E 999,999,999.99"))+" x "+u_PicPer(nPInss,5,2)+"% A SER RETIDO R$ "+ALLTRIM(TRANSFORM(nVALINSS,"@E 999,999,999.99"))+CRLF
 	EndIf
 
 	cDescr  += TextoNF(cDescr1,nMaxTLin)
@@ -711,13 +711,7 @@ RestArea(aAreaAtu)
 return cDescr
 
 
-// Retorna o Percentual em caracteres sem .00 no final
-Static Function PicPer(nAliq,nT,nD)
-Local cAliq := ALLTRIM(STR(nAliq,nT,nD))
-If ("."+Replicate("0",nD)) $ cAliq
-	cAliq := STRTRAN(cAliq,"."+Replicate("0",nD),"")
-EndIf
-Return cAliq
+
 
 Static Function Acento( cTexto )
 Local cAcentos:= "Ç ç Ä À Â Ã Å à á ã ä å É È Ê Ë è é ê ë Ì Í Î Ï Ò Ó Ô Õ Ö ò ó ô õ ö Ù Ú Û Ü ù ú û ü Ñ ñ , ; "

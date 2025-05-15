@@ -191,10 +191,11 @@ Local lRet 			:= .T.
 Local oJsonTmp	 	:= JsonObject():New()
 Local aParams      	As Array
 Local cMsg         	As Character
+Local xEmpr 		As Character
 
 //u_MsgLog("RESTMsgUs",VarInfo("vencini",self:vencini))
 
-If !u_BkAvPar(::userlib,@aParams,@cMsg)
+If !u_BkAvPar(::userlib,@aParams,@cMsg,@xEmpr)
   oJsonTmp['liberacao'] := cMsg
   cRet := oJsonTmp:ToJson()
   FreeObj(oJsonTmp)
@@ -207,7 +208,7 @@ If !u_BkAvPar(::userlib,@aParams,@cMsg)
 EndIf
 
 // Query para selecionar os avisos
-TmpQuery(cQrySZ0)
+TmpQuery(cQrySZ0,xEmpr)
 
 //-------------------------------------------------------------------
 // Alimenta array do Datatables
@@ -791,11 +792,11 @@ return .T.
 
 
 // Montagem da Query
-Static Function TmpQuery(cQrySZ0)
-
+Static Function TmpQuery(cQrySZ0,xEmpr)
 Local cTabSZ0		:= "SZ0010"
 Local cQuery		:= ""
 Local cGrupos		:= u_cUserGrps(__cUserID)
+
 //cQuery := "WITH RESUMO AS ( " + CRLF
 
 cQuery += " SELECT "+CRLF
@@ -825,6 +826,10 @@ cQuery += "  LEFT JOIN SYS_USR USRD ON Z0_USERD = USRD.USR_ID AND USRD.D_E_L_E_T
 cQuery += "  LEFT JOIN SYS_GRP_GROUP GRP ON GR__ID = Z0_GRUPOD" + CRLF
 
 cQuery += "	 WHERE SZ0.D_E_L_E_T_ = '' "+ CRLF
+If u_IsBarcas(xEmpr)
+	cQuery += "	 AND (Z0_EMPRESA = '"+xEmpr+"') "+ CRLF
+EndIf
+
 cQuery += "	 AND (Z0_DTFINAL >= '"+DTOS(DATE())+"' OR Z0_STATUS = 'F') "+CRLF
 // Se o usuario for o destinatario ou o rementente ou se o destinatario for branco -> todos
 cQuery += "  AND (Z0_USERD = '"+__cUserId+"' OR Z0_USERO = '"+__cUserId+"' OR Z0_USERD = 'TODOS'"
@@ -833,7 +838,6 @@ If !Empty(cGrupos)
 Else
 	cQuery += ")"
 EndIf
-
 cQuery += " ORDER BY Z0_DTENV DESC,Z0_HRENV DESC" + CRLF
 
 //u_LogMemo("RESTMsgUs1.SQL",cQuery)
