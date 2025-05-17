@@ -35,7 +35,7 @@ Local aCampos := {{ "MARCA"    , "C", 02, 0, "Marca"    ,"@!", .F., "" },;
 
 Local aDados  := {}
 Local nX 	  := 0
-Local aGrpDsp := u_BKGrpDsp()
+Local aGrpDsp := {}
 Local bProg
 
 Local cP1H	  := ""
@@ -60,6 +60,7 @@ cEmpPar := aParam[1]
 cFilPar := aParam[2]
 
 If IsBlind()
+	aGrpDsp := u_BKGrpDsp(cEmpPar)
 	RpcSetType (3)
 	RpcSetEnv(cEmpPar,cFilPar)
 Else
@@ -67,6 +68,7 @@ Else
 	cFilPar := cFilAnt
 	cUser	:= __cUserID
 	aParam  := {cEmpAnt,cFilAnt}
+	aGrpDsp := u_BKGrpDsp(cEmpAnt)
 EndIf
 
 // Todas empresas de hora em hora

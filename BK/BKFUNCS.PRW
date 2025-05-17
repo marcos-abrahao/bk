@@ -18,3 +18,30 @@ If ("."+Replicate("0",nD)) $ cAliq
 EndIf
 Return cAliq
 
+
+// Gerar tmp e abre a url gerada no navegador
+User Function TmpHtml(cHtml,cId,lOpen)
+Local cDirTmp   := u_STmpHttp()
+Local cNomeTmp  := ""
+Local cUrl      := ""
+Local cArqHtml	:= ""
+Default lOpen 	:= .T.
+
+cNomeTmp    := DTOS(dDataBase)+"-"+STRZERO(randomize(1,99999),5)+"-"+cId+".html"
+cArqHtml  	:= cDirTmp+cNomeTmp
+cUrl 		:= u_BkIpServer()+"\tmp\"+cNomeTmp
+
+IF !EMPTY(cDirTmp)
+   MakeDir(cDirTmp)
+ENDIF 
+fErase(cArqHtml)
+
+MemoWrite(cArqHtml,cHtml)
+
+If lOpen
+	ShellExecute("open",cUrl, "", "", 1)
+EndIf
+
+Return cArqHtml
+
+

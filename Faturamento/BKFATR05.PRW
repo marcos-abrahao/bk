@@ -100,16 +100,17 @@ Return Nil
 User Function BKFATR05(aPeds) 
 Local aArea     := GetArea()
 Local aAreaSC5  := GetArea("SC5")
-Local nHandle   := 0
+//Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := u_LTmpDir()
-Local cArqHtml  := ""
+//Local cDirTmp   := u_LTmpDir()
+//Local cArqHtml  := ""
 Local aHtml     := {}
 Local _nI       := 0
 Local _nJ       := 0
 Local cPed		:= ""
+Local cHtml		:= ""
 
-
+/*
 If ValType(aPeds) <> "A"
 	cArqHtml  := cDirTmp+"PED"+ALLTRIM(SC5->C5_NUM)+".HTML"
 Else
@@ -123,13 +124,15 @@ ENDIF
 fErase(cArqHtml)
 nHandle := MsfCreate(cArqHtml,0)
 If nHandle > 0
+*/
 	If ValType(aPeds) == "A"
 		For _nJ := 1 TO LEN(aPeds)
 			cPed := aPeds[_nJ]
 			If SC5->(dbSeek(xFilial("SC5")+cPed))
 				u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedidos: "+SC5->C5_NUM)
 				For _nI := 1 TO LEN(aHtml)
-					fWrite(nHandle, aHtml[_nI] + cCrLf )
+					//fWrite(nHandle, aHtml[_nI] + cCrLf )
+					cHtml += aHtml[_nI] + cCrLf 
 				Next
 			EndIf
 		Next
@@ -137,13 +140,20 @@ If nHandle > 0
 		u_WaitLog(, {|oSay| aHtml := PedHtml() }, "BKFATR05 - Consultando pedido "+SC5->C5_NUM)
 		//u_WaitLog(, {|oSay| _nI:= 1 }, "BKFATR05 - Gravando arquivo html "+SC5->C5_NUM)
 		For _nI := 1 TO LEN(aHtml)
-			fWrite(nHandle, aHtml[_nI] + cCrLf )
+			//fWrite(nHandle, aHtml[_nI] + cCrLf )
+			cHtml += aHtml[_nI] + cCrLf
 		Next
 	EndIf
-	fClose(nHandle)
+	//fClose(nHandle)
 	//u_WaitLog(, {|oSay| _nI:= 1 }, "BKFATR05 - Abrindo arquivo html "+SC5->C5_NUM)
-	ShellExecute("open", cArqHtml, "", "", 1)
+	//ShellExecute("open", cArqHtml, "", "", 1)
+//EndIf
+If !Empty(cHtml)
+	u_TmpHtml(cHtml,"BKFATR05",.T.)
+Else
+	u_MsgLog("BKFATR05",)
 EndIf
+
 SC5->(RestArea(aAreaSC5))
 RestArea(aArea)
 Return

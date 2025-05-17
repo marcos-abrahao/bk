@@ -12,32 +12,12 @@ Termo de retirada de material - Barcas Rio
 
 User Function BKESTR10
 Local cHtml     := ""
-Local cDirTmp   := u_STmpHttp()   //u_LTmpDir()
-Local cNomeTmp  := ""
-Local cUrl      := ""
 Local aAreaSCP  := GetArea("SCP")
-
-Private cProg:= "BKESTR10"
-
-//If !u_WebAtivo()
-//    Return Nil
-//EndIf
-
-//cArqHtml  := cDirTmp+"TR"+ALLTRIM(SCP->CP_NUM)+".HTML"
-cNomeTmp    := DTOS(dDataBase)+"-"+STRZERO(randomize(1,99999),5)+"-tr.html"
-cArqHtml  	:= cDirTmp+cNomeTmp
-cUrl 		:= u_BkIpServer()+"\tmp\"+cNomeTmp
-
-IF !EMPTY(cDirTmp)
-   MakeDir(cDirTmp)
-ENDIF 
-fErase(cArqHtml)
+Private cProg   := "BKESTR10"
 
 cHtml := HtmlR10(SCP->CP_NUM)
 
-MemoWrite(cArqHtml,cHtml)
-
-ShellExecute("open",cUrl, "", "", 1)
+u_TmpHtml(cHtml,cProg,.T.)
 
 SCP->(RestArea(aAreaSCP))
 

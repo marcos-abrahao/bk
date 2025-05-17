@@ -32,6 +32,9 @@ Local cLoja := ""
 Local cQryA2 := ""
 
 Private aSize   := MsAdvSize(,.F.,400)
+Private aObjects:= { { 450, 450, .T., .T. } }
+Private aInfo   := { aSize[ 1 ], aSize[ 2 ], aSize[ 3 ], aSize[ 4 ], 5, 5 }
+Private aPosObj := MsObjSize( aInfo, aObjects, .T. )
 Private aCtrId 	:= {}
 Private oSay
 Private aParam := {}
@@ -217,6 +220,12 @@ EndIf
 oOk := LoadBitmap( GetResources(), "LBTIK" )
 oNo := LoadBitmap( GetResources(), "LBNO" )
 
+
+
+	_oGetDbSint := MsGetDb():New(, 2, "AllwaysTrue()", "AllwaysTrue()",,,,,,"AllwaysTrue()","TRB")
+
+
+
 //DEFINE MSDIALOG oDlg02 TITLE cTitulo2 FROM 000,000 TO 650,1050 PIXEL 
 Define MsDialog oDlg02 Title cTitulo2 From aSize[7], 0 To aSize[6],aSize[5] Of oMainWnd Pixel
 @ 000,000 MSPANEL oPanelLeft OF oDlg02 SIZE 1050,500
@@ -230,7 +239,10 @@ oAll:bChange := {|| MudaCell(lAll) , oListId:Refresh()}
 
 oSay := tSay():New(005,100,{||'Total Selecionado: '+ TransForm(nTotSel,"@E 99,999,999.99")},oPanelLeft,,,,,,.T.,,,100,10)
 
-@ 015, 005 LISTBOX oListId FIELDS HEADER "","RE","Nome","CPF","RG","Valor","Banco","Agencia","Conta","Dg.Cont.","Data PGTO","Centro de Custo",'Cod.Fornecedor','Loja','Empresa','OBS' SIZE 520,245 OF oPanelLeft PIXEL 
+//aPosObj[1,1],aPosObj[1,2],aPosObj[1,3],aPosObj[1,4]
+//@ 015, 005 LISTBOX oListId FIELDS HEADER "","RE","Nome","CPF","RG","Valor","Banco","Agencia","Conta","Dg.Cont.","Data PGTO","Centro de Custo",'Cod.Fornecedor','Loja','Empresa','OBS' SIZE 520,245 OF oPanelLeft PIXEL 
+
+@ aPosObj[1,1]+15, aPosObj[1,2] LISTBOX oListId FIELDS HEADER "","RE","Nome","CPF","RG","Valor","Banco","Agencia","Conta","Dg.Cont.","Data PGTO","Centro de Custo",'Cod.Fornecedor','Loja','Empresa','OBS' SIZE aPosObj[1,3],aPosObj[1,4] OF oPanelLeft PIXEL 
 oListID:SetArray(aCtrId)
 oListID:bLine := {|| {If(aCtrId[oListId:nAt][1],oOk,oNo),;
 						 aCtrId[oListId:nAt][2],;

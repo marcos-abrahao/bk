@@ -55,8 +55,8 @@ EndIf
 
 If nFormato == 1 .OR. nFormato == 2
 	// Completo Web
-	u_WaitLog("BKFINR34", {|oSay| cHtml := U_BKFINH34(nFormato,.F.,cEmpAnt,cFilAnt) }, "Listando os Títulos a Pagar")	
-	u_WaitLog("BKFINR34", {|oSay| RelHtml(cHtml) }, "Gerando html")	
+	u_WaitLog(cProg, {|oSay| cHtml := U_BKFINH34(nFormato,.F.,cEmpAnt,cFilAnt) }, "Listando os Títulos a Pagar")	
+	u_WaitLog(cProg, {|oSay| TmpHtml(cHtml,cProg,.T.) }, "Gerando html")	
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
 
@@ -534,31 +534,6 @@ Dbselectarea("QSE2")
 QSE2->(Dbgotop())
 
 Return nil
-
-
-
-Static Function RelHtml(cHtml) 
-Local aArea     := GetArea()
-Local aAreaSE2  := GetArea("SE2")
-Local cDirTmp   := u_STmpHttp()
-Local cArqHtml  := ""
-Local cUrl 		:= ""
-
-cArqHtml  	:= cDirTmp+"cp"+cEmpAnt+"-"+DTOS(dDataBase)+"-"+__cUserID+".html"
-cUrl 		:= u_BkIpServer()+"\tmp\"+"cp"+cEmpAnt+"-"+DTOS(dDataBase)+"-"+__cUserID+".html"
-
-IF !EMPTY(cDirTmp)
-   MakeDir(cDirTmp)
-ENDIF   
-
-fErase(cArqHtml)
-
-Memowrite(cArqHtml,cHtml)
-ShellExecute("open", cUrl, "", "", 1)
-
-SE2->(RestArea(aAreaSE2))
-RestArea(aArea)
-Return
 
 
 User Function BKFINH34(nFormato,lWeb,cEmpresa,cFil)

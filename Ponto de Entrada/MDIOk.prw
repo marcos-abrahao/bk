@@ -43,7 +43,7 @@ Local cToken	:= u_BKEnCode()
 //Local cUrl 		:= u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
 Local cHtml		:= ""
 Local cLib		:= ""
-Local lWebAgent := .F.
+//Local lWebAgent := .F.
 Local nRemote	:= 0
 Local oDlg
 Local oWebEngine 
@@ -106,6 +106,7 @@ nLeft		:= 0
 */
 
 nRemote := GetRemoteType(@cLib)
+/*
 If nRemote <> 1 
     lWebAgent := .F.
 	u_MsgLog("MDIOK","Confirme se o webagent local está ativo, pois algumas funcionalidades como consulta pedidos e manipulaçao de arquivos estarão limitadas ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+")","W")
@@ -113,7 +114,7 @@ Else
 	u_MsgLog("MDIOK","Webagent ativo ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+")")
     lWebAgent := .T.
 EndIf
-
+*/
 oDlg := MsDialog():New( nTop, nLeft, nJanAltu, nJanLarg,"Avisos do Sistema ("+TRIM(cLib)+" Remote: "+STR(nRemote,1,0)+") - "+cEmpAnt,,,,,,,,, .T.,,,, .F. )
 
 //oDlg:nClientHeight  := nJanAltu

@@ -10,15 +10,16 @@ BK - Array com as empresas do grupo BK
 @version P12
 /*/
 
-User Function BkGrupo(nOpc,xEmpr)
+User Function BkGrupo(nOpc,xEmpr,lBarcas)
 Local aRet := {}
-Default nOpc  := 2 // Ativas
-Default xEmpr := cEmpAnt
+Default nOpc   := 2 // Ativas
+Default xEmpr  := cEmpAnt
+Default lBarcas:= .T.
 
 If xEmpr == "20" // Barcas
-    aRet := u_BkEmpr(8)
+    aRet := u_BkEmpr(8,.T.)
 Else 
-    aRet := u_BkEmpr(nOpc)
+    aRet := u_BkEmpr(nOpc,lBarcas)
 EndIf
 Return aRet
 
@@ -33,7 +34,7 @@ Return lRet
 
 
 
-User Function BkEmpr(nOpc)
+User Function BkEmpr(nOpc,lBarcas)
 Local aReturn     := {}
 Local nE          := 0
 Default nOpc      := 2 // Ativas
@@ -76,7 +77,9 @@ aAdd(aEmpresas,{"16","MOOVE-SP"        ,"MOOVE"        ,"S","N","S","N","N","386
 aAdd(aEmpresas,{"17","DMAF"            ,"DMAF"         ,"S","N","N","S","N",""         ,"N"})
 aAdd(aEmpresas,{"18","BK VIA"          ,"BK VIA"       ,"S","S","S","S","S","303000623","N"})
 aAdd(aEmpresas,{"19","BK SOL. TEC."    ,"BK S.TEC."    ,"S","N","N","S","S",""         ,"N"})
+If lBarcas
 aAdd(aEmpresas,{"20","BARCAS RIO"      ,"BARCAS R."    ,"S","S","S","S","S","408000644","S"})
+EndIf
 aAdd(aEmpresas,{"97","CMOG"            ,"CMOG"         ,"S","N","N","N","N",""         ,"N"})
 aAdd(aEmpresas,{"98","TERO"            ,"TERO"         ,"S","N","N","N","N",""         ,"N"})
 

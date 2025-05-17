@@ -17,42 +17,24 @@ User Function BKTITCR(lShell)
 
 Local cToken  := u_BKEnCode()
 //Local oRestClient := FWRest():New(u_BkRest())
-Local aHeader := {} //{"tenantId: 99,01"}
-Local dUtil   := dDatabase - Day(dDatabase) + 1
-
+Local aHeader    := {} //{"tenantId: 99,01"}
+Local dUtil      := dDatabase - Day(dDatabase) + 1
 Local cGetParms  := ""
 Local cHeaderGet := ""
 Local nTimeOut   := 200
-Local cNomeTmp   := ""
-
-Local cDirTmp   := u_STmpHttp()
-Local cArqHtml  := ""
-Local cUrl 		:= ""
-Local cHtml     := ""
+Local cHtml      := ""
+Default lShell   := .T.
 
 Aadd(aHeader, "Content-Type: text/html; charset=utf8")
 Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
 
-cHtml       := HttpGet(u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
-cNomeTmp    := DTOS(dDataBase)+"-"+STRZERO(randomize(1,99999),5)+"-cr.html"
-cArqHtml  	:= cDirTmp+cNomeTmp
-cUrl 		:= u_BkIpServer()+"\tmp\"+cNomeTmp
+cHtml := HttpGet(u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 
-IF !EMPTY(cDirTmp)
-   MakeDir(cDirTmp)
-ENDIF   
-
-fErase(cArqHtml)
 If !Empty(cHtml)
-    Memowrite(cArqHtml,cHtml)
-
-    u_MsgLog("BKTITCR",u_BkRest())
-
-    ShellExecute("open", cUrl, "", "", 1)
+    u_TmpHtml(cHtml,"BKTITCR",lShell)
 Else
     u_MsgLog("BKTITCR","Erro ao acessar o ambiente REST, contate o suporte.","E")
 EndIf
-
 
 Return .T.
 
@@ -65,11 +47,9 @@ Local cToken  := u_BKEnCode()
 Local dUtil   := dDatabase - Day(dDatabase) + 1
 //Local cUrl    := u_BkRest()+'/RestTitCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken
 Local cUrl     := u_BKIpServer()+'/recursos/loadcr.html?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-60)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken+'&bkip='+u_BKRest()+'/RestTitCR/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
-
-u_LoadCR()
-
 Default lShell := .T.
 
+u_LoadCR()
 
 If lShell
     ShellExecute("open",cUrl, "", "", 1)

@@ -23,33 +23,15 @@ Local dUtil   := dDatabase - Day(dDatabase) + 1
 Local cGetParms  := ""
 Local cHeaderGet := ""
 Local nTimeOut   := 200
-Local cNomeTmp   := ""
-
-Local cDirTmp   := u_STmpHttp()
-Local cArqHtml  := ""
-Local cUrl 		:= ""
-Local cHtml     := ""
+Local cHtml      := ""
 
 Aadd(aHeader, "Content-Type: text/html; charset=utf8")
 Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
 
-cHtml       := HttpGet(u_BkRest()+'/RestPrvCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
-cNomeTmp    := DTOS(dDataBase)+"-"+STRZERO(randomize(1,99999),5)+"-pcr.html"
-cArqHtml  	:= cDirTmp+cNomeTmp
-cUrl 		:= u_BkIpServer()+"\tmp\"+cNomeTmp
-
-IF !EMPTY(cDirTmp)
-   MakeDir(cDirTmp)
-ENDIF   
-
-fErase(cArqHtml)
+cHtml := HttpGet(u_BkRest()+'/RestPrvCR/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil-90)+'&vencfim='+DTOS(dUtil+365)+'&userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 
 If !Empty(cHtml)
-    Memowrite(cArqHtml,cHtml)
-
-    u_MsgLog("BKTITCR",u_BkRest())
-
-    ShellExecute("open", cUrl, "", "", 1)
+    u_TmpHtml(cHtml,"BKPRVCR",.T.)
 Else
     u_MsgLog("BKPRVCR","Erro ao acessar o ambiente REST, contate o suporte.","E")
 EndIf
