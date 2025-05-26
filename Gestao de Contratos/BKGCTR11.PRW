@@ -2445,7 +2445,11 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 					cPrd  	:= ""
 					cPrdT 	:= ""
+<<<<<<< HEAD
 					cCtrCons:= IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
+=======
+					cCtrCons:= IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA)
+>>>>>>> 193822ea77fda8c71dd80f9cb973f050a0791010
 					nYMes 	:= ASCAN(aAnoMes,{|x| x == TMPX2->COMPETAM})
 					If nYMes > 0
 						If TRIM(TMPX2->ORIGEM) == "SD1" .OR. TRIM(TMPX2->ORIGEM) == "SE5"
