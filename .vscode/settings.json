@@ -1,5 +1,8 @@
 {
     "totvsLanguageServer.welcomePage": false,
     "totvsLanguageServer.editor.linter.includes": "E:\\Protheus12\\BK\\Protheus\\include",
-    "totvsLanguageServer.askCompileResult": false
+    "totvsLanguageServer.askCompileResult": false,
+    "terminal.integrated.env.windows": {
+    "GIT_CONFIG_GLOBAL": "E:\\Protheus12\\BK\\git config user.name "marcos-abrahao"advpl\\.gitconfig"
+  }
 }

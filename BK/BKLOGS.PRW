@@ -263,7 +263,7 @@ Return Nil
 User Function LogTxt(cArqLog,cTxt,aBinds)
 Local nPosFim 	:= 0
 Local nHandle 	:= 0
-Local cDir    	:= u_LTmpDir()
+Local cDir    	:= u_STmpDir()
 Local cFile   	:= ""
 Local cTexto  	:= ""
 Local nI 		:= 0
