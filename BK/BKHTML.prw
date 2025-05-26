@@ -11,9 +11,9 @@ BK - Funcoes com parâmetros embutidos no fonte
 
 // Retorna IP e Porta do server REST
 User Function BkIpPort()
-Local cIpPort := "10.139.0.30:8080"
+Local cIpPort := "srv-vmsiga:8080"
 If u_AmbTeste()
-	cIpPort := "10.139.0.30:8081"
+	cIpPort := "srv-vmsiga:8081"
 EndIf
 //u_MsgLog(,GetEnvServer()+" - "+STR(GetPort(1))+" - "+cIpPort,"I")
 
@@ -35,7 +35,7 @@ Return cRest
 
 // Retorna endereço do Servidor BK
 User Function BKIpServer()
-Local cRest := "http://10.139.0.30"
+Local cRest := "http://srv-vmsiga"
 Return cRest
 
 // Usuário para consumo de API REST
@@ -58,13 +58,13 @@ Return cLogo
 
 User Function BKLogos(cEmp)
 Default cEmp := FWCodEmp()
-Local cLogo := '<img src="http://10.139.0.30:80/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
+Local cLogo := '<img src="http://srv-vmsiga:80/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
 Return cLogo
 
 
 User Function BKFavIco()
 //<!-- Favicon -->
-Local cRest := '<link rel="shortcut icon" href="http://10.139.0.30:80/favicon.ico">'
+Local cRest := '<link rel="shortcut icon" href="http://srv-vmsiga:80/favicon.ico">'
 Return cRest
 
 User Function BKDTStyle()

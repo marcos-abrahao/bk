@@ -252,7 +252,7 @@ BEGINCONTENT var cHtml
 
             <div class="header">
                 <!-- ##logo## -->
-                <img src="http://10.139.0.30:80/logos/lgmid##empant##.png" class="logo" alt="Logo">
+                <img src="http://srv-vmsiga:80/logos/lgmid##empant##.png" class="logo" alt="Logo">
                 <div class="header-info">
                     Termo de Retirada/BKESTR10<br>
                     Hora: <span id="current-time"></span><br>
