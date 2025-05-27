@@ -2421,7 +2421,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 					TMPX2->(dbCloseArea())
 				ENDIF
 
-			ELSEIF nPowerBK == 1
+			ELSEIF nPowerBK == 1   // Tabelas do Power BK
 
 				If !IsBlind()
 					oSay:SetText("Gastos gerais PowerBk")
