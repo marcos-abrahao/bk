@@ -2445,11 +2445,7 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 					cPrd  	:= ""
 					cPrdT 	:= ""
-<<<<<<< HEAD
 					cCtrCons:= IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA))
-=======
-					cCtrCons:= IIF(nConsol > 0,"999999999",ALLTRIM(QTMP->CNF_CONTRA)
->>>>>>> 193822ea77fda8c71dd80f9cb973f050a0791010
 					nYMes 	:= ASCAN(aAnoMes,{|x| x == TMPX2->COMPETAM})
 					If nYMes > 0
 						If TRIM(TMPX2->ORIGEM) == "SD1" .OR. TRIM(TMPX2->ORIGEM) == "SE5"
@@ -2515,12 +2511,12 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 						ElseIf TRIM(TMPX2->ORIGEM) == "SZ2-CLT"
 
-							IF ALLTRIM(TMPX2->Z2_TIPO) == 'VT'
+							IF ALLTRIM(TMPX2->ZI_COD) == 'VT'
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+'12',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 								// GRAVA VALOR NO CUSTO
@@ -2528,17 +2524,17 @@ Static Function ProcBKGCTR11(lJob,oSay)
 								IF MsSeek(cCtrCons+'08',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 
-							ELSEIF ALLTRIM(TMPX2->Z2_TIPO)  $ 'VR/VA'
+							ELSEIF ALLTRIM(TMPX2->ZI_COD)  $ 'VR/VA'
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+'14',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 								// GRAVA VALOR NO CUSTO
@@ -2546,11 +2542,11 @@ Static Function ProcBKGCTR11(lJob,oSay)
 								IF MsSeek(cCtrCons+'08',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 
-							ELSEIF ALLTRIM(TMPX2->Z2_TIPO)  == 'EXM'
+							ELSEIF ALLTRIM(TMPX2->ZI_COD)  == 'EXM'
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+"W"+cExm_Prod,.F.)
@@ -2568,18 +2564,18 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 								ENDIF
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-								&cCampo2 += TMPX2->Z2_VALOR
+								&cCampo2 += TMPX2->DESPESA
 								(ALIAS_TMP)->(Msunlock())
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+'30',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 							/*
-							ELSEIF ALLTRIM(TMPX2->Z2_TIPO)  == 'MFG'
+							ELSEIF ALLTRIM(TMPX2->ZI_COD)  == 'MFG'
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+"W"+cMFG_Prod,.F.)
@@ -2598,18 +2594,18 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 								ENDIF
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-								&cCampo2 += TMPX2->Z2_VALOR
+								&cCampo2 += TMPX2->DESPESA
 								(ALIAS_TMP)->(Msunlock())
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+'30',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 							*/
-							ELSEIF ALLTRIM(TMPX2->Z2_TIPO)  == 'DCH'
+							ELSEIF ALLTRIM(TMPX2->ZI_COD)  == 'DCH'
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+"W"+cDCH_Prod,.F.)
@@ -2626,18 +2622,18 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 								ENDIF
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-								&cCampo2 += TMPX2->Z2_VALOR
+								&cCampo2 += TMPX2->DESPESA
 								(ALIAS_TMP)->(Msunlock())
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+'30',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 
-							ELSEIF ALLTRIM(TMPX2->Z2_TIPO) $ 'SOL/HOS/REE/CXA' // Despesas de Viagens 04/04/2022
+							ELSEIF ALLTRIM(TMPX2->ZI_COD) $ 'SOL/HOS/REE/CXA' // Despesas de Viagens 04/04/2022
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+"W"+cDViagens,.F.)
@@ -2654,14 +2650,14 @@ Static Function ProcBKGCTR11(lJob,oSay)
 
 								ENDIF
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-								&cCampo2 += TMPX2->Z2_VALOR
+								&cCampo2 += TMPX2->DESPESA
 								(ALIAS_TMP)->(Msunlock())
 
 								dbSelectArea(ALIAS_TMP)
 								IF MsSeek(cCtrCons+'30',.F.)
 									Reclock(ALIAS_TMP,.F.)
 									cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-									&cCampo2 += TMPX2->Z2_VALOR
+									&cCampo2 += TMPX2->DESPESA
 									(ALIAS_TMP)->(Msunlock())
 								ENDIF
 
@@ -2681,14 +2677,14 @@ Static Function ProcBKGCTR11(lJob,oSay)
 								EndIf
 							ENDIF
 							cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-							&cCampo2 += TMPX2->Z2_VALOR
+							&cCampo2 += TMPX2->DESPESA
 							(ALIAS_TMP)->(Msunlock())
 
 							dbSelectArea(ALIAS_TMP)
 							IF MsSeek(cCtrCons+'30',.F.)
 								Reclock(ALIAS_TMP,.F.)
 								cCampo2  := ALIAS_TMP+"->XX_VAL"+STRZERO(nYMes,3)
-								&cCampo2 += TMPX2->Z2_VALOR
+								&cCampo2 += TMPX2->DESPESA
 								(ALIAS_TMP)->(Msunlock())
 							ENDIF
 						EndIf
@@ -5547,6 +5543,9 @@ Static Function QryGastos(cContrato,nOpc)
 	cQuery += " ,D1TOTAL " + CRLF
 	cQuery += " ,DESPESA " + CRLF
 	cQuery += " ,COMPETAM " + CRLF
+	cQuery += " ,ZI_COD " + CRLF
+	cQuery += " ,ZI_DESC " + CRLF
+
 	If nOpc == 2
 		cQuery += " ,D1_SERIE " + CRLF
 		cQuery += " ,D1_DOC " + CRLF
@@ -5560,17 +5559,15 @@ Static Function QryGastos(cContrato,nOpc)
 		cQuery += " ,E2_PARCELA " + CRLF
 		cQuery += " ,A2_NOME " + CRLF
 		cQuery += " ,F1RESPON " + CRLF
-		cQuery += " ,ZI_COD " + CRLF
-		cQuery += " ,ZI_DESC " + CRLF
 		cQuery += " ,E2ACDECIT " + CRLF
 		cQuery += " ,CT1_CONTA " + CRLF
 		cQuery += " ,CT1_DESC01 " + CRLF
 	EndIf
 	cQuery += " FROM PowerBk.dbo.GASTOSGERAIS " + CRLF
 	cQuery += " WHERE CONTRATO = '"+cContrato+"'" + CRLF
-	If nOpc == 1  // Provisorio enquanto não se adequa os registros SZ2
-		cQuery += "   AND ORIGEM IN ('SD1','SE5')" + CRLF
-	EndIf
+	//If nOpc == 1  // Provisorio enquanto não se adequa os registros SZ2
+	//	cQuery += "   AND ORIGEM IN ('SD1','SE5')" + CRLF
+	//EndIf
 	If nOpc == 2
 		cQuery += " ORDER BY COMPETAM,A2_NOME" + CRLF
 	EndIf
