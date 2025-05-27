@@ -9,7 +9,7 @@ BK - Evitar virgunas e pontos nos nomes de arquivos da base de conhecimento
 /*/
 
 User Function FT340CHG()
-Local cName  := AllTrim(ParamIXB[1])   //Nome do Arquivo
+Local cName  := Lower(AllTrim(ParamIXB[1]))   //Nome do Arquivo
 Local cName1 := ""
 Local cChar  := ""
 Local lPonto := .F.
