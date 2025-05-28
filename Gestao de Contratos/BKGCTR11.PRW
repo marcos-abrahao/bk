@@ -293,6 +293,26 @@ User Function BKGCTR11(lJob)
 
 		QTMP1->(Dbclosearea())
 
+		If !EMPTY(cContrato)
+			cQuery := "SELECT MAX(COMPETAM) AS MAXCOMPET"
+			cQuery += " FROM PowerBk.dbo.GASTOSGERAIS " + CRLF
+			cQuery += " WHERE CONTRATO = '"+cContrato+"'" + CRLF
+			TCQUERY cQuery NEW ALIAS "QTMP1"
+			dbSelectArea("QTMP1")
+			dbGoTop()
+			If !EOF()
+				dMaxCompet  := STOD(QTMP1->MAXCOMPET+"01")
+				If dMaxCompet > dDataFinal
+					If (dMaxCompet - dDataFinal ) > 90
+						dMaxCompet := dDataFinal + 90
+					EndIf
+					dDataFinal := LastDay(dMaxCompet)
+				EndIf
+			EndIf
+			QTMP1->(Dbclosearea())
+		EndIf
+
+
 		IF EMPTY(DTOS(dDataI)) .OR. EMPTY(DTOS(dDataFinal))
 			u_MsgLog("BKGCTR11","Contrato não encontrado!!","E")
 			RETURN NIL
@@ -480,7 +500,7 @@ User Function BKGCTR11(lJob)
 			oTmpTb3:Create()
 		EndIf
 
-		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob,oSay)}, titulo)
+		u_WaitLog(cPerg, {|oSay| ProcBKGCTR11(lJob,oSay)},IIf(!Empty(cContrato),TRIM(cContrato)+": ","")+DTOC(dDataI)+" a "+DTOC(dDataFinal))
 		u_WaitLog(cPerg, {|oSay| MBrwBKGCTR11()}, "Browse")
 
 		If lSqlLite

@@ -72,7 +72,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
         aAnexos    := {}
     ENDIF
 
-    cCC += "harthur.andrade@bkconsultoria.com.br;"
+    //cCC += "harthur.andrade@bkconsultoria.com.br;"
 
     //cAssunto := StrIConv( cAssunto, "CP1252", "UTF-8")
     cAssunto := EncodeUTF8(cAssunto)
@@ -240,7 +240,7 @@ Default lAviso     := .T.
 
 Private lResult  := .T.
 
-cCC += "harthur.andrade@bkconsultoria.com.br;"
+//cCC += "harthur.andrade@bkconsultoria.com.br;"
 
 u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 
