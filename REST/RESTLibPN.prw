@@ -599,7 +599,7 @@ Do While ( cQrySF1 )->( ! Eof() )
 
 	//aListWeb[nPos]['PGTO']  	 := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
 	aListWeb[nPos]['PGTO']  	 := (cQrySF1)->(SUBSTR(F1_XXPVPGT,1,4)+"-"+SUBSTR(F1_XXPVPGT,5,2)+"-"+SUBSTR(F1_XXPVPGT,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
-	aListWeb[nPos]['TOTAL']      := TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
+	aListWeb[nPos]['TOTAL']      := ALLTRIM(STR((cQrySF1)->D1_TOTAL,14,2)) //TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
 	aListWeb[nPos]['LIBEROK']    := cLiberOk
 	aListWeb[nPos]['STATUS']     := cStatus
 	aListWeb[nPos]['F1EMPRESA']  := (cQrySF1)->F1EMPRESA
@@ -1313,8 +1313,12 @@ tableSF1 = $('#tableSF1').DataTable({
             className: 'dt-left dt-head-left'
         },
         {
-            targets: [2,6], render: DataTable.render.date()
-        }
+            targets: [2,6], render: DataTable.render.datetime('DD/MM/YYYY')
+        },
+		{
+            targets: [7], // Colunas "Valor"
+            render: DataTable.render.number('.', ',', 2) // Formato: 1.000,50
+        },
     ],   
 	initComplete: function () {
         this.api()

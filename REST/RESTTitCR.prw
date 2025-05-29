@@ -544,19 +544,19 @@ Do While ( cQrySE1 )->( ! Eof() )
 	Else
 		aListCR[nPos]['BAIXA'] 	:= ""
 	EndIf
-	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
-	aListCR[nPos]['IRRF']       := TRANSFORM((cQrySE1)->E1_IRRF,"@E 999,999,999.99")
-	aListCR[nPos]['INSS']       := TRANSFORM((cQrySE1)->E1_INSS,"@E 999,999,999.99")
-	aListCR[nPos]['PIS']        := TRANSFORM((cQrySE1)->E1_PIS,"@E 999,999,999.99")
-	aListCR[nPos]['COFINS']     := TRANSFORM((cQrySE1)->E1_COFINS,"@E 999,999,999.99")
-	aListCR[nPos]['CSLL']       := TRANSFORM((cQrySE1)->E1_CSLL,"@E 999,999,999.99")
-	aListCR[nPos]['ISS']        := TRANSFORM(IIF((cQrySE1)->F2_RECISS = '1',(cQrySE1)->E1_ISS,0),"@E 999,999,999.99")
-	aListCR[nPos]['ISSBI']      := TRANSFORM((cQrySE1)->E1_VRETBIS,"@E 999,999,999.99")
-	aListCR[nPos]['CVINC']      := TRANSFORM((cQrySE1)->F2_XXVCVIN,"@E 999,999,999.99")
-	aListCR[nPos]['RETCTR']     := TRANSFORM((cQrySE1)->F2_XXVRETC,"@E 999,999,999.99")
+	aListCR[nPos]['VALOR']      := ALLTRIM(STR((cQrySE1)->E1_VALOR,14,2))
+	aListCR[nPos]['IRRF']       := ALLTRIM(STR((cQrySE1)->E1_IRRF,14,2))
+	aListCR[nPos]['INSS']       := ALLTRIM(STR((cQrySE1)->E1_INSS,14,2))
+	aListCR[nPos]['PIS']        := ALLTRIM(STR((cQrySE1)->E1_PIS,14,2))
+	aListCR[nPos]['COFINS']     := ALLTRIM(STR((cQrySE1)->E1_COFINS,14,2))
+	aListCR[nPos]['CSLL']       := ALLTRIM(STR((cQrySE1)->E1_CSLL,14,2))
+	aListCR[nPos]['ISS']        := ALLTRIM(STR(IIF((cQrySE1)->F2_RECISS = '1',(cQrySE1)->E1_ISS,0),14,2))
+	aListCR[nPos]['ISSBI']      := ALLTRIM(STR((cQrySE1)->E1_VRETBIS,14,2))
+	aListCR[nPos]['CVINC']      := ALLTRIM(STR((cQrySE1)->F2_XXVCVIN,14,2))
+	aListCR[nPos]['RETCTR']     := ALLTRIM(STR((cQrySE1)->F2_XXVRETC,14,2))
 
 	nLiquido := (cQrySE1)->(E1_VALOR - E1_IRRF - E1_INSS - E1_PIS - E1_COFINS - E1_CSLL - F2_XXVCVIN - F2_XXVFUMD - IIF(F2_RECISS = '1',E1_ISS,0) - E1_VRETBIS - F2_XXVRETC)
-	aListCR[nPos]['LIQUIDO']	:= TRANSFORM(nLiquido,"@E 999,999,999.99")
+	aListCR[nPos]['LIQUIDO']	:= ALLTRIM(STR(nLiquido,14,2))
 	
 	//If SUBSTR((cQrySE1)->EMPRESA,1,2) <> '01'
 	//	nSaldo := (cQrySE1)->E1_SALDO 
@@ -565,7 +565,7 @@ Do While ( cQrySE1 )->( ! Eof() )
 	//EndIf
 	nSaldo := (cQrySE1)->SALDO 
 
-	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
+	aListCR[nPos]['SALDO'] 	    := ALLTRIM(STR(nSaldo,14,2))
 	aListCR[nPos]['RETIDOS']    := TRANSFORM((cQrySE1)->RETIDOS,"@E 999,999,999.99")
 	aListCR[nPos]['RETENCOES']  := TRANSFORM((cQrySE1)->RETENCOES,"@E 999,999,999.99")
 
@@ -737,7 +737,9 @@ oJsonPN['RETCTR']       := TRANSFORM((cQrySE1)->F2_XXVRETC,"@E 999,999,999.99")
 
 nLiquido := (cQrySE1)->(E1_VALOR - E1_IRRF - E1_INSS - E1_PIS - E1_COFINS - E1_CSLL - F2_XXVCVIN - F2_XXVFUMD - IIF(F2_RECISS = '1',E1_ISS,0) - E1_VRETBIS - F2_XXVRETC)
 oJsonPN['LIQUIDO'] 		:= TRANSFORM(nLiquido,"@E 999,999,999.99")
-oJsonPN['SALDO']        := TRANSFORM((cQrySE1)->SALDO,"@E 999,999,999.99")
+
+nSaldo := (cQrySE1)->SALDO
+oJsonPN['SALDO']        := TRANSFORM(nSaldo,"@E 999,999,999.99")
 
 u_MsgLog("RESTTITCR",DTOC(STOD((cQrySE1)->E1_VENCORI)))
 
@@ -821,6 +823,7 @@ BEGINCONTENT var cHTML
 <head>
 <!-- Required meta tags -->
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<meta http-equiv="Content-Language" content="pt-BR"> <!-- Força o idioma -->
 
 <!-- <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> -->
 
@@ -1341,8 +1344,6 @@ tableSE1 = $('#tableSE1').DataTable({
 	"infoEmpty": "Nenhum registro disponível",
 	"infoFiltered": "(filtrado de _MAX_ registros no total)",
 	"search": "Filtrar:",
-	"decimal": ",",
-	"thousands": ".",
 	"processing": "Processando...",
 	"loadingRecords": "Processando...",
 	"paginate": {
@@ -1479,11 +1480,16 @@ tableSE1 = $('#tableSE1').DataTable({
     },
 	columnDefs: [
 		{
-			targets: [4,5,7],
-			className: 'text-center'
+			targets: [5,7],
+			className: 'text-center',
     	},
 		{
-            targets: [6,8,9,10], render: DataTable.render.date()
+			targets: [11,12,13,14,15],
+			className: 'text-right',
+			render: DataTable.render.number('.', ',', 2) // Formato: 1.000,50
+    	},
+		{
+            targets: [6,8,9,10], render: DataTable.render.datetime('DD/MM/YYYY')
         }
     ]
 

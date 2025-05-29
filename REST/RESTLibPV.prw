@@ -188,7 +188,7 @@ Do While ( cQrySC5 )->( ! Eof() )
 	aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
 	aListSales[nPos]['CONTRATO']  := "&nbsp"+ALLTRIM((cQrySC5)->C5_MDCONTR)
 	aListSales[nPos]['COMPET']    := "&nbsp"+TRIM((cQrySC5)->C5_XXCOMPM)
-	aListSales[nPos]['TOTAL']     := TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
+	aListSales[nPos]['TOTAL']     := ALLTRIM(STR((cQrySC5)->C6_TOTAL,14,2)) //TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
 	aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
 	aListSales[nPos]['XXMUN']     := TRIM((cQrySC5)->CNA_XXMUN)
 	(cQrySC5)->(DBSkip())
@@ -569,6 +569,10 @@ tableSC5 = $('#tableSC5').DataTable({
     	{
             targets: [0,1,3],
             className: 'text-center'
+        },
+		{
+            targets: [6], // Colunas "Valor"
+            render: DataTable.render.number('.', ',', 2) // Formato: 1.000,50
         }
     ],   
 

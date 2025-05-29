@@ -387,8 +387,8 @@ Do While ( cQrySE1 )->( ! Eof() )
 	aListCR[nPos]['EMISSAO'] 	:= (cQrySE1)->(SUBSTR(E1_EMISSAO,1,4)+"-"+SUBSTR(E1_EMISSAO,5,2)+"-"+SUBSTR(E1_EMISSAO,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCR[nPos]['COMPET']		:= TRIM((cQrySE1)->C5_XXCOMPM)
 	aListCR[nPos]['PEDIDO']		:= TRIM((cQrySE1)->E1_PEDIDO)
-	aListCR[nPos]['VALOR']      := TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
-	aListCR[nPos]['SALDO'] 	    := TRANSFORM(nSaldo,"@E 999,999,999.99")
+	aListCR[nPos]['VALOR']      := ALLTRIM(STR((cQrySE1)->E1_VALOR,14,2)) //TRANSFORM((cQrySE1)->E1_VALOR,"@E 999,999,999.99")
+	aListCR[nPos]['SALDO'] 	    := ALLTRIM(STR(nSaldo,14,2)) //TRANSFORM(nSaldo,"@E 999,999,999.99")
 	aListCR[nPos]['STATUS']		:= (cQrySE1)->(E1_XXTPPRV)
 	//aListCR[nPos]['PREVISAO']	:= DTOC(STOD((cQrySE1)->(E1_XXDTPRV)))
 	If !Empty((cQrySE1)->(E1_XXDTPRV))
@@ -1133,8 +1133,6 @@ tableSE1 = $('#tableSE1').DataTable({
 	"infoEmpty": "Nenhum registro disponível",
 	"infoFiltered": "(filtrado de _MAX_ registros no total)",
 	"search": "Filtrar:",
-	"decimal": ",",
-	"thousands": ".",
 	"processing": "Processando...",
 	"loadingRecords": "Processando...",
 	"paginate": {
@@ -1245,10 +1243,11 @@ tableSE1 = $('#tableSE1').DataTable({
     	},
 		{
 			targets: [10,11],
-			className: 'text-right'
+			className: 'text-right',
+			render: DataTable.render.number('.', ',', 2) // Formato: 1.000,50
     	},
 		{
-            targets: [6,7,13], render: DataTable.render.date()
+            targets: [6,7,13], render: DataTable.render.datetime('DD/MM/YYYY')
         }
     ]
 

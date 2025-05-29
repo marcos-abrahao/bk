@@ -605,7 +605,7 @@ tableAV1 = $('#tableAV1').DataTable({
 			targets: 5, width: '50%'
 		},
         {
-            targets: 6, render: DataTable.render.date()
+            targets: 6, render: DataTable.render.datetime('DD/MM/YYYY')
         },
         {
             targets: [9,10,11,12,13,14,15], visible: false, searchable: false

@@ -623,8 +623,8 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aListCP[nPos]['VENC'] 		:= (cQrySE2)->(SUBSTR(E2_VENCREA,1,4)+"-"+SUBSTR(E2_VENCREA,5,2)+"-"+SUBSTR(E2_VENCREA,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
 	aListCP[nPos]['PORTADO']	:= TRIM((cQrySE2)->E2_PORTADO)
 	aListCP[nPos]['LOTE']		:= TRIM((cQrySE2)->LOTE)
-	aListCP[nPos]['VALOR']      := TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
-	aListCP[nPos]['SALDO'] 	    := TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
+	aListCP[nPos]['VALOR']      := ALLTRIM(STR((cQrySE2)->E2_VALOR,14,2)) //TRANSFORM((cQrySE2)->E2_VALOR,"@E 999,999,999.99")
+	aListCP[nPos]['SALDO'] 	    := ALLTRIM(STR((cQrySE2)->SALDO,14,2)) //TRANSFORM((cQrySE2)->SALDO,"@E 999,999,999.99")
 
 	aListCP[nPos]['XSTATUS']	:= (cQrySE2)->(E2_XXPGTO)
 	aListCP[nPos]['STATUS']		:= u_DE2XXPgto((cQrySE2)->(E2_XXPGTO))
@@ -1536,7 +1536,7 @@ if (Array.isArray(titulos)) {
 	anexos = '';
 	if (Array.isArray(object['F1_ANEXOS'])) {
 		object['F1_ANEXOS'].forEach(object => {
-		anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a>&nbsp;&nbsp;';
+		anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary" target="_blank">'+object['F1_ANEXO']+'</a>&nbsp;&nbsp;';
 	})
 	}
 	trHTML += '<td>'+anexos+'</td>';
@@ -1598,7 +1598,12 @@ tableSE2 = $('#tableSE2').DataTable({
 		{  width: "100px", targets: 1 },
 		{  width: "10%", targets: 2 },
 	    {
-            targets: 5, render: DataTable.render.date()
+            targets: 5,
+    		render: DataTable.render.datetime('DD/MM/YYYY')
+        },
+		{
+            targets: [8, 9], // Colunas "Valor" e "Saldo" (ajuste os índices conforme necessário)
+            render: DataTable.render.number('.', ',', 2) // Formato: 1.000,50
         },
         {
             target: 14,
