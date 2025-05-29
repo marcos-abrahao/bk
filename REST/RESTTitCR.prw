@@ -566,8 +566,8 @@ Do While ( cQrySE1 )->( ! Eof() )
 	nSaldo := (cQrySE1)->SALDO 
 
 	aListCR[nPos]['SALDO'] 	    := ALLTRIM(STR(nSaldo,14,2))
-	aListCR[nPos]['RETIDOS']    := TRANSFORM((cQrySE1)->RETIDOS,"@E 999,999,999.99")
-	aListCR[nPos]['RETENCOES']  := TRANSFORM((cQrySE1)->RETENCOES,"@E 999,999,999.99")
+	aListCR[nPos]['RETIDOS']    := ALLTRIM(STR((cQrySE1)->RETIDOS,14,2))
+	aListCR[nPos]['RETENCOES']  := ALLTRIM(STR((cQrySE1)->RETENCOES,14,2))
 
 	aListCR[nPos]['E1RECNO']	:= STRZERO((cQrySE1)->E1RECNO,7)
 

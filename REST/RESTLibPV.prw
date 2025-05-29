@@ -141,9 +141,9 @@ Retorna a lista de pedidos.
 /*/
 
 
-WSMETHOD GET LISTPV QUERYPARAM userlib, page, pageSize WSREST RestLibPV
+WSMETHOD GET LISTPV QUERYPARAM userlib WSREST RestLibPV
 
-Local aListSales := {}
+Local aListPV := {}
 Local cQrySC5       := ''
 Local cJsonCli      := ''
 Local lRet 			:= .T.
@@ -153,9 +153,6 @@ Local oJsonSales 	:= JsonObject():New()
 Local aParams      	As Array
 Local cMsg         	As Character
 Local xEmpr			As Character
-
-//Default self:page 	:= 1
-//Default self:pageSize := 500
 
 //-------------------------------------------------------------------
 // Query para selecionar pedidos
@@ -177,31 +174,24 @@ cQrySC5 := TmpQuery()
 // Alimenta array de pedidos
 //-------------------------------------------------------------------
 Do While ( cQrySC5 )->( ! Eof() )
-
 	nCount++
-
-	aAdd( aListSales , JsonObject():New() )
-	nPos := Len(aListSales)
-	aListSales[nPos]['CPEDIDO']   := "&nbsp"+ALLTRIM((cQrySC5)->C5_NUM)
-	aListSales[nPos]['PEDIDO']    := ALLTRIM((cQrySC5)->C5_NUM)
-	aListSales[nPos]['EMISSAO']   := "&nbsp"+DTOC(STOD((cQrySC5)->C5_EMISSAO))
-	aListSales[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
-	aListSales[nPos]['CONTRATO']  := "&nbsp"+ALLTRIM((cQrySC5)->C5_MDCONTR)
-	aListSales[nPos]['COMPET']    := "&nbsp"+TRIM((cQrySC5)->C5_XXCOMPM)
-	aListSales[nPos]['TOTAL']     := ALLTRIM(STR((cQrySC5)->C6_TOTAL,14,2)) //TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
-	aListSales[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
-	aListSales[nPos]['XXMUN']     := TRIM((cQrySC5)->CNA_XXMUN)
+	aAdd( aListPV , JsonObject():New() )
+	nPos := Len(aListPV)
+	aListPV[nPos]['CPEDIDO']   := "&nbsp"+ALLTRIM((cQrySC5)->C5_NUM)
+	aListPV[nPos]['PEDIDO']    := ALLTRIM((cQrySC5)->C5_NUM)
+	aListPV[nPos]['EMISSAO']   := "&nbsp"+DTOC(STOD((cQrySC5)->C5_EMISSAO))
+	aListPV[nPos]['CLIENTE']   := TRIM((cQrySC5)->A1_NOME)
+	aListPV[nPos]['CONTRATO']  := "&nbsp"+ALLTRIM((cQrySC5)->C5_MDCONTR)
+	aListPV[nPos]['COMPET']    := "&nbsp"+TRIM((cQrySC5)->C5_XXCOMPM)
+	aListPV[nPos]['TOTAL']     := ALLTRIM(STR((cQrySC5)->C6_TOTAL,14,2)) //TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
+	aListPV[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
+	aListPV[nPos]['XXMUN']     := TRIM((cQrySC5)->CNA_XXMUN)
 	(cQrySC5)->(DBSkip())
-
-	If Len(aListSales) >= self:pageSize
-		Exit
-	EndIf
-
 EndDo
 
 ( cQrySC5 )->( DBCloseArea() )
 
-oJsonSales := aListSales
+oJsonSales := aListPV
 
 //-------------------------------------------------------------------
 // Serializa objeto Json
@@ -546,25 +536,26 @@ if (Array.isArray(pedidos)) {
 document.getElementById("mytable").innerHTML = trHTML;
 
 tableSC5 = $('#tableSC5').DataTable({
- "pageLength": 100,
- "order": [],
- "language": {
- "emptyTable": "Nenhum pedido disponível para liberar",
- "lengthMenu": "Registros por página: _MENU_ ",
- "zeroRecords": "Nada encontrado",
- "info": "Página _PAGE_ de _PAGES_",
- "infoEmpty": "Nenhum registro disponível",
- "infoFiltered": "(filtrado de _MAX_ registros no total)",
- "search": "Filtrar:",
- "decimal": ",",
- "thousands": ".",
- "paginate": {
-   "first":  "Primeira",
-   "last":   "Ultima",
-   "next":   "Próxima",
-   "previous": "Anterior"
-   },
-
+	"pageLength": 100,
+	"order": [],
+	"language": {
+		"emptyTable": "Nenhum pedido disponível para liberar",
+		"lengthMenu": "Registros por página: _MENU_ ",
+		"zeroRecords": "Nada encontrado",
+		"info": "Página _PAGE_ de _PAGES_",
+		"infoEmpty": "Nenhum registro disponível",
+		"infoFiltered": "(filtrado de _MAX_ registros no total)",
+		"search": "Filtrar:",
+		"decimal": ",",
+		"thousands": ".",
+		"paginate": {
+			"first":  "Primeira",
+			"last":   "Ultima",
+			"next":   "Próxima",
+			"previous": "Anterior"
+		}
+	},
+ 
 	columnDefs: [
     	{
             targets: [0,1,3],
@@ -576,7 +567,6 @@ tableSC5 = $('#tableSC5').DataTable({
         }
     ],   
 
-  },
   	initComplete: function () {
         this.api()
             .columns()

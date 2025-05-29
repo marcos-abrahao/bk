@@ -77,15 +77,23 @@ Local cHtml := ""
 //    <link href="https://cdn.datatables.net/plug-ins/2.1.4/integration/font-awesome/dataTables.fontAwesome.css rel="stylesheet">
 
 BEGINCONTENT var cHTML
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/2.3.1/css/dataTables.bootstrap5.min.css" rel="stylesheet" integrity="sha384-5hBbs6yhVjtqKk08rsxdk9xO80wJES15HnXHglWBQoj3cus3WT+qDJRpvs5rRP2c" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/buttons/3.2.3/css/buttons.bootstrap5.min.css" rel="stylesheet" integrity="sha384-DJhypeLg79qWALC844KORuTtaJcH45J+36wNgzj4d1Kv1vt2PtRuV2eVmdkVmf/U" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/datetime/1.5.5/css/dataTables.dateTime.min.css" rel="stylesheet" integrity="sha384-YerHysLtHRSApTDI4rm8VWFCYYmfBxaFWwYtysBUoNAtgL4Kbf04QSepZbpz5wji" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/fixedcolumns/5.0.4/css/fixedColumns.bootstrap5.min.css" rel="stylesheet" integrity="sha384-StUfKBL80ZWBFxSXA89vIUJ85yyOsUA5Gi6oLYEPaJd8WPvS1D9jIqLQDLWAO6jc" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/fixedheader/4.0.2/css/fixedHeader.bootstrap5.min.css" rel="stylesheet" integrity="sha384-OpjrOKWHgAo4SFhzmU3mBpqt+bXpISGTDqlG7KNsjknJnp72nQdpiQaPKzi1NkjR" crossorigin="anonymous">
+
+
+ENDCONTENT
+/* Old Select
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.1.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/buttons/3.1.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/datetime/1.5.3/css/dataTables.dateTime.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/fixedcolumns/5.0.1/css/fixedColumns.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.min.css" rel="stylesheet">
-ENDCONTENT
-/* Select
-<link href="https://cdn.datatables.net/select/2.0.5/css/select.bootstrap5.css" rel="stylesheet">
 */
 
 Return cHtml
@@ -105,10 +113,13 @@ User Function BKAwesome()
 Local cHtml := ""
 //https://cdnjs.com/libraries/font-awesome -->
 BEGINCONTENT var cHTML
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" type="text/css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" type="text/css" />
 ENDCONTENT
 Return cHtml
 
+/* Old
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" type="text/css" />
+*/
 
 User Function BKDTScript()
 Local cHtml := ""
@@ -117,7 +128,47 @@ Local cHtml := ""
 //<!-- Styling: Bootstrap 5 -->
 //<!-- Packages: Jquery3, Bootstrap5, DataTables -->
 //<!-- Extensions: Buttons, DateTime, FixedColumns, FixedHeader -->
+
+/* 29-05-2025
+Step 1. Choose styling
+- Bootstrap 5
+
+Step 2. Select packages
+- jQuery
+- Moment
+- Bootstrap 5
+
+DataTables core
+-DataTables
+
+Extensions
+- Buttons
+- DateTime
+- FixedColumns
+-FixedHeader
+
+CDN
+- Minify
+*/
+ 
+
+
 BEGINCONTENT var cHTML
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" integrity="sha384-VCGDSwGwLWkVOK5vAWSaY38KZ4oKJ0whHjpJQhjqrMlWadpf2dUVKLgOLBdEaLvZ" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.3.1/js/dataTables.min.js" integrity="sha384-LiV1KhVIIiAY/+IrQtQib29gCaonfR5MgtWzPCTBVtEVJ7uYd0u8jFmf4xka4WVy" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.3.1/js/dataTables.bootstrap5.min.js" integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.3/js/dataTables.buttons.min.js" integrity="sha384-zlMvVlfnPFKXDpBlp4qbwVDBLGTxbedBY2ZetEqwXrfWm+DHPvVJ1ZX7xQIBn4bU" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.3/js/buttons.bootstrap5.min.js" integrity="sha384-BdedgzbgcQH1hGtNWLD56fSa7LYUCzyRMuDzgr5+9etd1/W7eT0kHDrsADMmx60k" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.5.5/js/dataTables.dateTime.min.js" integrity="sha384-1a4pxt2oxato6x8A+75Oxr1nWUJWtjgWPom0n9VFGK/JD5+u9+3oKSAzW6k0/iMb" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/dataTables.fixedColumns.min.js" integrity="sha384-pTT0DCmQdJKH1Vz2e0adpu+1Tp4tiIYm+vF6e+b+YAywojOEf3TR2WyIGdICT5Gy" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/fixedheader/4.0.2/js/dataTables.fixedHeader.min.js" integrity="sha384-lPZltuOfggvHaMDQ/WOuU/YgMR8sK1jIoYiLD9CoLk8SOut6TcXa9PW751NOdVpW" crossorigin="anonymous"></script>
+
+ENDCONTENT
+
+/* Old Select
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.1.4/js/dataTables.min.js"></script>
@@ -130,12 +181,6 @@ BEGINCONTENT var cHTML
 
 <!-- Formatação de Data -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-
-ENDCONTENT
-
-/* Select
-<script src="https://cdn.datatables.net/select/2.0.5/js/dataTables.select.js"></script>
-<script src="https://cdn.datatables.net/select/2.0.5/js/select.bootstrap5.js"></script>
 */
 
 Return cHtml
