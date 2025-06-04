@@ -56,7 +56,7 @@ EndIf
 If nFormato == 1 .OR. nFormato == 2
 	// Completo Web
 	u_WaitLog(cProg, {|oSay| cHtml := U_BKFINH34(nFormato,.F.,cEmpAnt,cFilAnt) }, "Listando os Títulos a Pagar")	
-	u_WaitLog(cProg, {|oSay| TmpHtml(cHtml,cProg,.T.) }, "Gerando html")	
+	u_WaitLog(cProg, {|oSay| u_TmpHtml(cHtml,cProg,.T.) }, "Gerando html")	
 
 ElseIf nFormato == 3 .OR. nFormato == 4 .OR. nFormato == 5 
 

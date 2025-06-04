@@ -829,7 +829,7 @@ Local cPortadoPA
 Local cKey1
 Local nI      := 0
 Local cNaturez:= "0000000013"
-Local cFornBK := u_cFornBK()
+Local cFornBK := u_ForFolBK()
 Local lErroT  := .F.
 
 dbSelectArea("SE2")

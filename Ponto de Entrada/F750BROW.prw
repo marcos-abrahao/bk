@@ -191,9 +191,10 @@ EndIf
 If !("DNF" $ SE2->E2_HIST)
 
     If u_MsgLog("BKFINA18",'Confirma a inclusão de DNF para este título na Empresa BK?',"Y")
-    
+
+		cForn := u_cFornBK()
+
 		If SM0->M0_CODIGO == "01"      // BK
-			cForn := u_cFornBK()
 			cProd := U_MVXCUSBK()
 			cCCus := "000000001"
 		ElseIf SM0->M0_CODIGO == "02"  // MMDK
@@ -241,30 +242,25 @@ If !("DNF" $ SE2->E2_HIST)
 			cProd := "11301031"
 			cCCus := "305000554"
 		ElseIf SM0->M0_CODIGO == "16"  // CONSORCIO MOOVE
-			cForn := u_cFornBK()
 			cProd := "11301032"
 			cCCus := "386000609"
 		ElseIf SM0->M0_CODIGO == "17"  // DMAF
-			cForn := u_cFornBK()
 			cProd := "11301033"
 			cCCus := "000000001"
 		ElseIf SM0->M0_CODIGO == "18"  // BK VIA
-			cForn := u_cFornBK()
 			cProd := "11301034"
 			cCCus := "303000623"
 		ElseIf SM0->M0_CODIGO == "19"  // BK SOLUCOES TECNOLOGICAS
-			cForn := u_cFornBK()
 			cProd := "11301035"
 			cCCus := "000000001"
 		ElseIf SM0->M0_CODIGO == "20"  // BARCAS RIO
-			cForn := u_cFornBK()
 			cProd := "11301036"
 			cCCus := "408000644"
 		Endif	
-	
-		cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)
-		cProd := SuperGetMV("MV_XXFORBK",.F.,cProd)
-		cCCus := SuperGetMV("MV_XXCCUBK",.F.,cCCus)
+		
+		//cForn := SuperGetMV("MV_XXPRDBK",.F.,cForn)
+		//cProd := SuperGetMV("MV_XXFORBK",.F.,cProd)
+		//cCCus := SuperGetMV("MV_XXCCUBK",.F.,cCCus)
 	
 		cHist := "Aporte: "+TRIM(SM0->M0_NOME)+" "+TRIM(SE2->E2_PREFIXO)+" "+TRIM(SE2->E2_NUM)+" - R$ "+ALLTRIM(STR(SE2->E2_VALOR,15,2))
 		aParametros := {"01","01",cHist,cForn,cLoja,cProd,cCCus,SE2->E2_VALOR,SE2->E2_VENCREA,cUsuario,cSuper}

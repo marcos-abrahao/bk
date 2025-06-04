@@ -20,6 +20,11 @@ EndIf
 Return cIpPort
 
 
+User Function BkSrvWeb()
+Local cIpPort := "http://10.150.0.25:80"
+Return cIpPort
+
+
 User Function AmbTeste()
 Local lRet := .F.
 If "TST" $ UPPER(GetEnvServer()) .OR. "TESTE" $ UPPER(GetEnvServer()) .OR. GetPort(1) = 1240 .OR. GetPort(1) = 1400
@@ -58,13 +63,13 @@ Return cLogo
 
 User Function BKLogos(cEmp)
 Default cEmp := FWCodEmp()
-Local cLogo := '<img src="http://10.150.0.25:80/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
+Local cLogo := '<img src="'+u_BkSrvWeb()+'/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
 Return cLogo
 
 
 User Function BKFavIco()
 //<!-- Favicon -->
-Local cRest := '<link rel="shortcut icon" href="http://10.150.0.25:80/favicon.ico">'
+Local cRest := '<link rel="shortcut icon" href="'+u_BkSrvWeb()+'/favicon.ico">'
 Return cRest
 
 User Function BKDTStyle()

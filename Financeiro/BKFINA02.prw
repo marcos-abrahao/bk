@@ -333,9 +333,9 @@ Local cKey1,cKey2
 Local nI      := 0
 //Local lOk     := .T.
 Local cNatBK  := "0000000013"
-Local cFornBK := u_cFornBK()
+Local cFornBK := u_ForFolBK()
 Local cLojaBK := "01"
-Local cFornAC := "000071"
+Local cFornAC := u_ForAcBK()
 Local cLojaAC := "01"
 Local lErroT  := .F.
 

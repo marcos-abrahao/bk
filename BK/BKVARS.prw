@@ -545,8 +545,22 @@ Return Nil
 User Function IsFornBK(cForn)
 Return (cForn == u_cFornBK())
 
+// Fornecedor própria BK
 User Function cFornBK()
 Return "000084"
+
+// Fornecedor AC BK
+User Function ForAcBK()
+Return "000071"
+
+// Fornecedor Folha BK - Integração 
+User Function ForFolBK(cEmp)
+Local cForn := u_cFornBK()
+Default cEmp := cEmpAnt
+If cEmp == "20"  // BARCAS RIO
+	cForn := "FOLHA "
+Endif
+Return cForn
 
 
 

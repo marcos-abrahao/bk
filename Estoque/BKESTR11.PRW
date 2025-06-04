@@ -1,31 +1,31 @@
 #Include "Protheus.ch"
  
 //-------------------------------------------------------------------
-/*{Protheus.doc} BKESTR10
-Termo de retirada de material - Barcas Rio 
+/*{Protheus.doc} BKESTR11
+Termo de retirada de material - Barcas Rio - Via movimentação multipla
 (Base: MATR107)
 
 @author Marcos Bispo Abrahao
-@since 12/05/2025
+@since 31/05/2025
 @version P12.00
 */
 
-User Function BKESTR10
+User Function BKESTR11
 Local cHtml     := ""
-Local aAreaSCP  := GetArea("SCP")
-Private cProg   := "BKESTR10"
+Local aAreaSD3  := GetArea("SS3")
+Private cProg   := "BKESTR11"
 
-cHtml := HtmlR10(SCP->CP_NUM)
+cHtml := HtmlR11(SD3->D3_DOC)
 
 u_TmpHtml(cHtml,cProg,.T.)
 
-SCP->(RestArea(aAreaSCP))
+SD3->(RestArea(aAreaSD3))
 
 Return Nil
 
 
 
-Static Function HtmlR10(cNumCP)
+Static Function HtmlR11(cDocD3)
 Local cHtml := ""
 BEGINCONTENT var cHtml
 
@@ -254,7 +254,7 @@ BEGINCONTENT var cHtml
                 <!-- ##logo## -->
                 <img src="##bksrvweb##/logos/lgmid##empant##.png" class="logo" alt="Logo">
                 <div class="header-info">
-                    Termo de Retirada/BKESTR10<br>
+                    Termo de Retirada/BKESTR11<br>
                     Hora: <span id="current-time"></span><br>
                     Empresa: ##empresa##
                 </div>
@@ -273,11 +273,11 @@ BEGINCONTENT var cHtml
                 </div>
                 
                 <div class="info-linha">
-                    <span class="info-label">Número da Solicitação:</span>
+                    <span class="info-label">Documento:</span>
                     <span class="info-valor" id="numero-solicitacao-texto">##solicitacao##</span>
                 </div>
                 <div class="info-linha">
-                    <span class="info-label">Tipo de Armazenamento:</span>
+                    <span class="info-label">Tipo de manutenção:</span>
                     <span class="info-valor" id="tipo-armazenamento-texto">##tipoarmaz##</span>
                 </div>
                 
@@ -458,13 +458,13 @@ cHtml := STRTRAN(cHtml,"##cidade##",ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cF
 cHtml := STRTRAN(cHtml,"##bksrvweb##",u_BkSrvWeb())
 cHtml := STRTRAN(cHtml,"##empant##",cEmpAnt)
 
-cHtml := STRTRAN(cHtml,"##dataemissao##",DTOC(SCP->CP_EMISSAO))
-cHtml := STRTRAN(cHtml,"##solicitante##",SCP->CP_SOLICIT)
-cHtml := STRTRAN(cHtml,"##solicitacao##",SCP->CP_NUM)
+cHtml := STRTRAN(cHtml,"##dataemissao##",DTOC(SD3->D3_EMISSAO))
+cHtml := STRTRAN(cHtml,"##solicitante##",SD3->D3_USUARIO)
+cHtml := STRTRAN(cHtml,"##solicitacao##",SD3->D3_DOC)
 cHtml := STRTRAN(cHtml,"##tipoarmaz##","XXX")
-cHtml := STRTRAN(cHtml,"##centrodecustos##",SCP->CP_CC)
+cHtml := STRTRAN(cHtml,"##centrodecustos##",SD3->D3_CC)
 
-cHtml := STRTRAN(cHtml,"##tabela-itens##",TabItens(cNumCP))
+cHtml := STRTRAN(cHtml,"##tabela-itens##",TabItens(cDocD3))
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 cHtml := u_BKUtf8()+cHtml
@@ -473,11 +473,11 @@ Return cHtml
 
 
 
-Static Function TabItens(cNumCP)
+Static Function TabItens(cDocD3)
 Local cTab   := ""
 Local cCab   := ""
-Local nTamQ  := TamSX3("CP_QUJE")[1]
-Local nDecQ  := TamSX3("CP_QUJE")[2]
+Local nTamQ  := TamSX3("D3_QUANT")[1]
+Local nDecQ  := TamSX3("D3_QUANT")[2]
 Local nItem  := 1
 Local nPag   := 1
 Local nTamPg := 13
@@ -486,7 +486,7 @@ Local nItens := 0
 cTab += '<table class="avoid-break">' + CRLF
 cCab += "<thead>" + CRLF
 cCab += "<tr>" + CRLF
-cCab += "<th>Item SA</th>" + CRLF
+cCab += "<th>Item</th>" + CRLF
 cCab += "<th>Cod. Prod.</th>" + CRLF
 cCab += "<th>Produto</th>" + CRLF
 cCab += "<th>U.M.</th>" + CRLF
@@ -497,10 +497,10 @@ cCab += "</thead>" + CRLF
 cCab += "<tbody>" + CRLF
 cTab += cCab
 
-dbSelectArea("SCP")
-dbSetOrder(1)
-dbSeek(xFilial("SCP")+cNumCP,.T.)
-Do While cNumCP == SCP->CP_NUM .AND. !EOF()
+dbSelectArea("SD3")
+dbSetOrder(2)
+dbSeek(xFilial("SD3")+cDocD3,.T.)
+Do While cDocD3 == SD3->D3_DOC .AND. !EOF()
     dbSkip()
     nItens++
 EndDo
@@ -508,24 +508,24 @@ If nItens > (nTamPg + 3)
     nTamPg := + 3
 EndIf
 
-dbSelectArea("SCP")
-dbSetOrder(1)
-dbSeek(xFilial("SCP")+cNumCP,.T.)
-Do While cNumCP == SCP->CP_NUM .AND. !EOF()
+dbSelectArea("SD3")
+dbSetOrder(2)
+dbSeek(xFilial("SD3")+cDocD3,.T.)
+Do While cDocD3 == SD3->D3_DOC .AND. !EOF()
     cTab += "<tr>" + CRLF
-    cTab += "<td>" + AllTrim(SCP->CP_ITEM) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SCP->CP_PRODUTO) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SCP->CP_DESCRI) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SCP->CP_UM) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(STR(SCP->CP_QUJE,nTamQ,nDecQ)) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SCP->CP_LOCAL) +"</td>" + CRLF
+    cTab += "<td>" + AllTrim(SD3->D3_ITEM) +"</td>" + CRLF
+    cTab += "<td>" + AllTrim(SD3->D3_COD) +"</td>" + CRLF
+    cTab += "<td>" + AllTrim(TRIM(Posicione("SB1",1,xFilial("SB1")+SD3->D3_COD,"B1_DESC"))) +"</td>" + CRLF
+    cTab += "<td>" + AllTrim(SD3->D3_UM) +"</td>" + CRLF
+    cTab += "<td>" + AllTrim(STR(SD3->D3_QUANT,nTamQ,nDecQ)) +"</td>" + CRLF
+    cTab += "<td>" + AllTrim(SD3->D3_LOCAL) +"</td>" + CRLF
     cTab += "</tr>" + CRLF
     dbSkip()
     nItem++
     If nPag > 1
         nTamPg := 20
     EndIf
-    If !SCP->(Eof()) .AND. nItem > nTamPg
+    If !SD3->(Eof()) .AND. nItem > nTamPg
         nItem := 1
         nPag++
         cTab += "</tbody>" + CRLF
