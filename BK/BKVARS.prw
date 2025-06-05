@@ -554,14 +554,9 @@ User Function ForAcBK()
 Return "000071"
 
 // Fornecedor Folha BK - Integração 
-User Function ForFolBK(cEmp)
-Local cForn := u_cFornBK()
-Default cEmp := cEmpAnt
-If cEmp == "20"  // BARCAS RIO
-	cForn := "FOLHA "
-Endif
+User Function ForFolBK()
+Local cForn := "FOLHA "
 Return cForn
-
 
 
 // Enum E2_XXPGTO - usado no RESTITCP

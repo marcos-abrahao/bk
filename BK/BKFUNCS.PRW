@@ -40,6 +40,14 @@ MemoWrite(cArqHtml,cHtml)
 
 If lOpen
 	ShellExecute("open",cUrl, "", "", 1)
+
+	If !u_WebAtivo()
+		u_AvisoLog(cId,"Atenção:",;
+					"A url foi aberta em um popup."+CRLF+;
+					"Verifique se o seu navegador está bloqueando popups para este endereço.",;
+					{"Ok"}, 1, /*cText*/,/*nRotAutDefault*/,/*cBitmap*/,/*lEdit*/, 4000 /*nTimer*/, 1 /*nOpcPadrao */ )
+	EndIf
+
 EndIf
 
 Return cArqHtml

@@ -22,44 +22,31 @@ Return Nil
 
 User Function BKFINR24() 
 Local aArea     := GetArea()
-Local nHandle   := 0
 Local cCrLf     := Chr(13) + Chr(10)
-Local cDirTmp   := u_LTmpDir()
-Local cArqHtml  := cDirTmp+"NDC"+ALLTRIM(SE1->E1_NUM)+".HTML"
 Local aHtml     := {}
-Local _nI       := 0
+Local nI        := 0
+Local cHtml 	:= ""
 Private cProg   := "BKFINR24"
 
-
 IF SE1->E1_TIPO <> "NDC"
- 	u_MsgLog(cProg,"Titulo selecionado não é Tipo NDC!","W")
+ 	u_MsgLog(cProg,"Titulo selecionado não é Tipo NDC!","E")
 	RETURN NIL
 ENDIF
 u_MsgLog(cProg)
 
-IF !EMPTY(cDirTmp)
-   MakeDir(cDirTmp)
-ENDIF   
-
-fErase(cArqHtml)
-
-nHandle := MsfCreate(cArqHtml,0)
-   
-If nHandle > 0
-
-	aHtml := NdcHtml()   
-      
-	FOR _nI := 1 TO LEN(aHtml)
-		fWrite(nHandle, aHtml[_nI] + cCrLf )
-	NEXT
-      
-	fClose(nHandle)
-
-	ShellExecute("open", cArqHtml, "", "", 1)
-
-EndIf
+aHtml := NdcHtml()   
 
 RestArea(aArea)
+
+If Len(aHtml) > 0
+      
+	FOR nI := 1 TO LEN(aHtml)
+		cHtml += aHtml[nI] + cCrLf
+	NEXT
+      
+	u_TmpHtml(cHtml,cProg,.T.)
+
+EndIf
 
 Return
 
