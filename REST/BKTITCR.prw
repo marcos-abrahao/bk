@@ -165,8 +165,3 @@ If !File(cFile)
 	MemoWrite(cFile,cHtml)
 EndIf
 Return cHtml
-
-
-
-
-

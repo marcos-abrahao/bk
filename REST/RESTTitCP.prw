@@ -641,20 +641,13 @@ Do While ( cQrySE2 )->( ! Eof() )
 
 	// Documentos anexos na Pré-Nota
 	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
-	/*
-	For nI := 1 To Len(aFiles)
-		aAdd(aAnexos,JsonObject():New())
-		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
-		aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
-	Next
-	*/
-
 	// Documentos anexos no Contas a Pagar
 	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SE2",(cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA),1,aFiles)
 	For nI := 1 To Len(aFiles)
 		aAdd(aAnexos,JsonObject():New())
 		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
 		aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+		aAnexos[nI]["F1_MIME"]		:= u_MimeFile(aFiles[nI,2])
 	Next
 
 	aListCP[nPos]['F1_ANEXOS']	:= aAnexos
@@ -974,17 +967,12 @@ oJsonPN['F1RECNO']		:= STRZERO((cQrySE2)->F1RECNO,7)
 
 // Documentos anexos
 aFiles := u_BKDocs(self:empresa,"SF1",(cQrySE2)->(E2_NUM+E2_PREFIXO+E2_FORNECE+E2_LOJA),1)
-//For nI := 1 To Len(aFiles)
-//	aAdd(aAnexos,JsonObject():New())
-//	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
-//	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
-//Next
-
 aFiles := u_BKDocs(self:empresa,"SE2",(cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA),1,aFiles)
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
 	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
 	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+	aAnexos[nI]["F1_MIME"]		:= u_MimeFile(aFiles[nI,2])
 Next
 
 oJsonPN['F1_ANEXOS']	:= aAnexos
@@ -1086,6 +1074,7 @@ BEGINCONTENT var cHTML
 
 <!-- Styling CSS -->
 #BKDTStyle#
+#BKAwesome#
 
 <title>Títulos Contas a Pagar #datavencI# #datavencF# #NomeEmpresa#</title>
 
@@ -1132,7 +1121,7 @@ thead input {
     <a class="navbar-brand" href="#">Títulos a Pagar - #cUserName#</a> 
 
 	<div class="btn-group">
-		<button type="button" title="Seleção de empresa" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+		<button type="button" id="btn-empresa" title="Seleção de empresa" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 			#NomeEmpresa#
 		</button>
 		<ul class="dropdown-menu dropdown-menu-dark">
@@ -1141,15 +1130,15 @@ thead input {
 	</div>
 
 	<div class="btn-group">
-		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+		<button type="button" id="btn-excel" title="Gerar planilha excel" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
 		<span class="navbar-text">&nbsp;&nbsp;&nbsp;</span> 
-		<button type="button" class="btn btn-dark" aria-label="PDF" onclick="HtmlPdf()">PDF</button>
+		<button type="button" id="btn-pdf" title="Gerar arquivo PDF" class="btn btn-dark" aria-label="PDF" onclick="HtmlPdf()">PDF</button>
 	</div>
 
     <form class="d-flex">
 	  <input class="form-control me-2" type="date" id="DataVencI" value="#datavencI#" />
 	  <input class="form-control me-2" type="date" id="DataVencF" value="#datavencF#" />
-      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
+      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltDatas()">Atualizar</button>
     </form>
 
   </div>
@@ -1410,15 +1399,49 @@ thead input {
 
 <script>
 
+
+
 async function getCPs() {
-	let url = '#iprest#/RestTitCP/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
-		try {
-		let res = await fetch(url);
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
+
+let newvenci = document.getElementById("DataVencI").value;
+let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+let newvencf = document.getElementById("DataVencF").value;
+let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+let newempr  = document.getElementById("btn-empresa").textContent;
+
+let url = '#iprest#/RestTitCP/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+headers.set("Access-Control-Allow-Origin", "*");
+
+try {
+	let res = await fetch(url,{	method: 'GET',	headers: headers});
+	return await res.json();
+	} catch (error) {
+	console.log(error);
+}
+
+  try {
+       let res = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+        mode: 'cors' // Adiciona o modo CORS explicitamente
+    });
+        
+    if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+    }
+        
+    return await res.json();
+} catch (error) {
+    console.error('Erro na requisição:', error);
+    return {
+        error: true,
+        message: 'Falha ao carregar dados: ' + error.message
+    };
+}
+}
 
 
 async function loadTable() {
@@ -1426,6 +1449,8 @@ $('#mytable').html('<tr><td colspan="14" style="text-align: center;"><div class=
 let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
+let nbta = 0;
+let cbta = '';
 let ccbtn = 'light';
 let cbtnidp = '';
 let cbtnids = '';
@@ -1534,11 +1559,23 @@ if (Array.isArray(titulos)) {
 	trHTML += '<td>'+object['OPER']+'</td>';
 
 	anexos = '';
-	if (Array.isArray(object['F1_ANEXOS'])) {
-		object['F1_ANEXOS'].forEach(object => {
-		anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+cEmpresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary" target="_blank">'+object['F1_ANEXO']+'</a>&nbsp;&nbsp;';
-	})
+
+	if (Array.isArray(object['F1_ANEXOS']) && object['F1_ANEXOS'].length > 0) {
+		object['F1_ANEXOS'].forEach(anexo => {
+			nbta += 1;
+			const cbta = 'btnAnx' + nbta;
+			
+			// Versão segura com template literals e escape adequado
+			anexos += `<button type="button" class="btn btn-link" id="${cbta}" 
+					onclick="Anexo('${cEmpresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
+					<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
+		});
+	} else {
+		anexos = 'Nenhum anexo disponível'; // Mensagem padrão quando não há anexos
 	}
+
+
+
 	trHTML += '<td>'+anexos+'</td>';
 
 	trHTML += '</tr>';
@@ -1559,6 +1596,7 @@ tableSE2 = $('#tableSE2').DataTable({
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
   "zeroRecords": "Nada encontrado",
+  "emptyTable": "Nenhum registro disponível",
   "info": "Página _PAGE_ de _PAGES_",
   "infoEmpty": "Nenhum registro disponível",
   "infoFiltered": "(filtrado de _MAX_ registros no total)",
@@ -1668,14 +1706,18 @@ $('#tableSE2 tbody').on('click', 'td.dt-control', function () {
 loadTable();
 
 async function getZ2(empresa,e2recno,userlib) {
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
 let urlZ2 = '#iprest#/RestTitCP/v1?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
-	try {
-	let res = await fetch(urlZ2);
+try {
+	let res = await fetch(urlZ2,{method: 'GET',	headers: headers});
 		return await res.json();
-		} catch (error) {
+	} catch (error) {
 	console.log(error);
-		}
 	}
+}
+
 
 async function showZ2(empresa,e2recno,userlib,cbtnz2) {
 
@@ -1725,14 +1767,17 @@ $('#Z2Modal').on('hidden.bs.modal', function () {
 }
 
 async function getE2(empresa,e2recno,userlib) {
-let urlE2 = '#iprest#/RestTitCP/v6?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
-	try {
-	let res = await fetch(urlE2);
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
+let urlE1 = '#iprest#/RestTitCP/v6?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+userlib;
+try {
+	let res = await fetch(urlE1,{method: 'GET',	headers: headers});
 		return await res.json();
-		} catch (error) {
+	} catch (error) {
 	console.log(error);
-		}
 	}
+}
 
 async function showE2(empresa,e2recno,userlib,cbtnz2) {
 
@@ -1746,6 +1791,7 @@ let foot = '';
 let anexos = '';
 let f1recno = dadosE2['F1RECNO'];
 let btnM = '';
+let nbta = 0;
 
 document.getElementById('E2Prefixo').value = dadosE2['E2_PREFIXO'];
 document.getElementById('E2Num').value = dadosE2['E2_NUM'];
@@ -1770,11 +1816,29 @@ if (Array.isArray(dadosE2.DADOSD1)) {
   })
 }
 
+/*
 if (Array.isArray(dadosE2.F1_ANEXOS)) {
 	dadosE2.F1_ANEXOS.forEach(object => {
 	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+empresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
   })
 }
+*/
+
+if (Array.isArray(dadosE2.F1_ANEXOS) && dadosE2.F1_ANEXOS.length > 0) {
+	dadosE2.F1_ANEXOS.forEach(anexo => {
+		nbta += 1;
+		const cbta = 'btnAnx' + nbta;
+		
+		// Versão segura com template literals e escape adequado
+		anexos += `<button type="button" class="btn btn-link" id="${cbta}" 
+				onclick="Anexo('${empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
+				<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
+	});
+} else {
+	anexos = 'Nenhum anexo disponível'; // Mensagem padrão quando não há anexos
+}
+
+
 document.getElementById("anexosE2").innerHTML = anexos;
 
 document.getElementById("E2Table").innerHTML = itens;
@@ -1889,15 +1953,76 @@ fetch('#iprest#/RestTitCP/v3?empresa='+empresa+'&e2recno='+e2recno+'&userlib='+u
 	})
 }
 
-async function Excel(){
-let newvenci = document.getElementById("DataVencI").value;
-let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
-let newvencf = document.getElementById("DataVencF").value;
-let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+async function Excel() {
+    const btnExcel = document.getElementById("btn-excel");
+    const cbtnh = btnExcel.innerHTML; // Salva o conteúdo original do botão
 
-window.open("#iprest#/RestTitCP/v5?empresa=#empresa#&vencini="+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#',"_self");
+    try {
+        // Desabilita o botão e exibe o spinner
+        btnExcel.disabled = true;
+        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
+
+        // Obtém os valores dos campos de data e empresa
+        let newvenci = document.getElementById("DataVencI").value;
+        let newvamdi = newvenci.substring(0, 4) + newvenci.substring(5, 7) + newvenci.substring(8, 10);
+        let newvencf = document.getElementById("DataVencF").value;
+        let newvamdf = newvencf.substring(0, 4) + newvencf.substring(5, 7) + newvencf.substring(8, 10);
+        let newempr = document.getElementById("btn-empresa").textContent;
+
+        // Substitua os placeholders pelos valores reais
+        const username = '#usrrest#'; // Substitua pelo valor real
+        const password = '#pswrest#'; // Substitua pelo valor real
+        const iprest = '#iprest#'; // Substitua pelo valor real
+        const userlib = '#userlib#'; // Substitua pelo valor real
+
+        // Codifica as credenciais em Base64
+        const credentials = btoa(`${username}:${password}`);
+
+        // Monta a URL da API
+        const url = `${iprest}/RestTitCP/v5?empresa=${newempr}&vencini=${newvamdi}&vencfim=${newvamdf}&userlib=${userlib}`;
+
+        // Faz a requisição com autenticação básica
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
+            },
+        });
+
+        // Verifica se a resposta é válida
+        if (!response.ok) {
+            let errorDetails = "Erro desconhecido";
+            try {
+                // Tenta obter detalhes do erro da resposta (se for JSON)
+                const errorResponse = await response.json();
+                errorDetails = JSON.stringify(errorResponse);
+            } catch (e) {
+                // Se a resposta não for JSON, usa o texto da resposta
+                errorDetails = await response.text();
+            }
+            throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
+        }
+
+        // Obtém o blob (arquivo) da resposta
+        const blob = await response.blob();
+
+        // Cria um link para download do arquivo
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Contas_a_pagar_${newempr}_${newvamdi}_${newvamdf}.xlsx`; // Nome do arquivo personalizado
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Erro durante a execução da função Excel:", error);
+        alert(`Ocorreu um erro ao tentar baixar o arquivo: ${error.message}`);
+    } finally {
+        // Restaura o botão ao estado original
+        btnExcel.disabled = false;
+        btnExcel.innerHTML = cbtnh;
+    }
 }
-
 
 async function getUrlTmp(url1) {
 	try {
@@ -1913,37 +2038,134 @@ let newvenci = document.getElementById("DataVencI").value;
 let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf = document.getElementById("DataVencF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-let url1 = '#iprest#/RestTitCP/v7?empresa=#empresa#&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#';
+let newempr = document.getElementById("btn-empresa").textContent;
+let url1 = '#iprest#/RestTitCP/v7?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#';
 let urlT = await getUrlTmp(url1);
 let curlT = urlT[0].URLTMP;
 window.open(curlT,"_self");
-
 }
 
-async function AltVenc(){
+async function HtmlPdf() {
+    const btnPDF = document.getElementById("btn-pdf");
+    const cbtnh = btnPDF.innerHTML; // Salva o conteúdo original do botão
+
+    try {
+        // Desabilita o botão e exibe o spinner
+        btnPDF.disabled = true;
+        btnPDF.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
+
+        // Obtém os valores dos campos de data e empresa
+        let newvenci = document.getElementById("DataVencI").value;
+        let newvamdi = newvenci.substring(0, 4) + newvenci.substring(5, 7) + newvenci.substring(8, 10);
+        let newvencf = document.getElementById("DataVencF").value;
+        let newvamdf = newvencf.substring(0, 4) + newvencf.substring(5, 7) + newvencf.substring(8, 10);
+        let newempr = document.getElementById("btn-empresa").textContent;
+
+        // Substitua os placeholders pelos valores reais
+        const username = '#usrrest#'; // Substitua pelo valor real
+        const password = '#pswrest#'; // Substitua pelo valor real
+        const iprest = '#iprest#'; // Substitua pelo valor real
+        const userlib = '#userlib#'; // Substitua pelo valor real
+
+        // Codifica as credenciais em Base64
+        const credentials = btoa(`${username}:${password}`);
+
+        // Monta a URL da API
+        const url = `${iprest}/RestTitCP/v7?empresa=${newempr}&vencini=${newvamdi}&vencfim=${newvamdf}&userlib=${userlib}`;
+
+        // Faz a requisição com autenticação básica
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
+            },
+        });
+
+        // Verifica se a resposta é válida
+        if (!response.ok) {
+            let errorDetails = "Erro desconhecido";
+            try {
+                // Tenta obter detalhes do erro da resposta (se for JSON)
+                const errorResponse = await response.json();
+                errorDetails = JSON.stringify(errorResponse);
+            } catch (e) {
+                // Se a resposta não for JSON, usa o texto da resposta
+                errorDetails = await response.text();
+            }
+            throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
+        }
+
+        // Obtém o blob (arquivo) da resposta
+        const blob = await response.blob();
+
+        // Cria um link para download do arquivo
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Contas_a_pagar_${newempr}_${newvamdi}_${newvamdf}.pdf`; // Nome do arquivo personalizado
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Erro durante a execução da função PDF:", error);
+        alert(`Ocorreu um erro ao tentar baixar o arquivo: ${error.message}`);
+    } finally {
+        // Restaura o botão ao estado original
+        btnPDF.disabled = false;
+        btnPDF.innerHTML = cbtnh;
+    }
+}
+
+async function AltDatas(){
+let newempr  = document.getElementById("btn-empresa").textContent;
+AltEmpr(newempr)
+}
+
+async function AltEmpr(empresa){
 let newvenci = document.getElementById("DataVencI").value;
 let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf = document.getElementById("DataVencF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-window.open("#iprest#/RestTitCP/v2?empresa=#empresa#&vencini="+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#',"_self");
+
+let url = '#iprest#/RestTitCP/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+	try {
+	let res = await fetch(url, { method: 'GET', headers: headers });
+		//document.getElementById('conteudo-principal').innerHTML =  await res.text();
+		const html = await res.text();
+        const novaAba = window.open("", "_self");
+
+        // Escreve o conteúdo HTML na nova aba
+        novaAba.document.open();
+        novaAba.document.write(html);
+        novaAba.document.close();
+		//loadTable();
+		} catch (error) {
+	console.log(error);
+	}
 }
+
+#AnexoHtml#
 
 </script>
 </body>
 </html>
 ENDCONTENT
 
+cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml())
 cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
 cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
+cHtml := STRTRAN(cHtml,"#BKAwesome#" ,u_BKAwesome())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 
-cHtml := STRTRAN(cHtml,"#empresa#",::empresa)
 cHtml := STRTRAN(cHtml,"#vencini#",::vencini)
 cHtml := STRTRAN(cHtml,"#vencfim#",::vencfim)
 cHtml := STRTRAN(cHtml,"#datavencI#",SUBSTR(::vencini,1,4)+"-"+SUBSTR(::vencini,5,2)+"-"+SUBSTR(::vencini,7,2))   // Formato: 2023-10-24 input date
@@ -1955,20 +2177,20 @@ IntegEmp(@aEmpresas)
 // --> Seleção de Empresas
 nE := aScan(aEmpresas,{|x| x[1] == SUBSTR(self:empresa,1,2) })
 If nE > 0
-	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,2])
+	cHtml := STRTRAN(cHtml,"#NomeEmpresa#",aEmpresas[nE,1]+'-'+aEmpresas[nE,2])
 Else
 	cHtml := STRTRAN(cHtml,"#NomeEmpresa#","Todas")
 EndIf
 
 cDropEmp := ""
 For nE := 1 To Len(aEmpresas)
-//	<li><a class="dropdown-item" href="#">BK</a></li>
-	cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	//cDropEmp += '<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa='+aEmpresas[nE,1]+'&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
+	cDropEmp += '<li><a class="dropdown-item" href="javascript:AltEmpr('+"'"+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+"'"+')">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
 /*
 If Len(aEmpresas) > 1 // Isto estoura o tamanho da query em bytes
 	cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-	cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCP/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
+	cDropEmp +='<li><a class="dropdown-item" href="javascript:AltEmpr('+'Todas'+')">Todas</a></li>'+CRLF
 EndIf
 */
 
@@ -1978,6 +2200,9 @@ cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)
 //StrIConv( cHtml, "UTF-8", "CP1252")
 //DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
+
+// Caracteres iniciais de um arquivo UTF-8
+cHtml := u_BKUtf8() + cHtml
 
 // Desabilitar para testar o html
 /*
@@ -2204,7 +2429,6 @@ cQuery += " ORDER BY EMPRESA,E2_VENCREA,E2_PORTADO,FORMPGT,E2_FORNECE" + CRLF
 
 cQuery := STRTRAN(cQuery,CHR(9)," ")
 cQuery := STRTRAN(cQuery,"  "," ")
-//u_LogMemo("RESTTITCP1.SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TCGenQry(,,cQuery),cQrySE2,.T.,.T.)
 

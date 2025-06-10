@@ -471,11 +471,7 @@ If Len(aFiles) > 0
 
 		cHtm += '<tr>'+CRLF
 		cHtm += '	<td style="text-align:center;">'+CRLF
-		//cHtm += '     <a href="'+u_BkRest()+'/RestLibPN/v4?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
-		//cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],nI)
-
 		cHtm += '     <a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'&titulo'+cTitulo+'" target="_blank" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
-
 		cHtm += '  </td>'+CRLF
 		cHtm += '</tr>'+CRLF
 	Next

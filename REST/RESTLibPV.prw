@@ -539,9 +539,9 @@ tableSC5 = $('#tableSC5').DataTable({
 	"pageLength": 100,
 	"order": [],
 	"language": {
-		"emptyTable": "Nenhum pedido disponível para liberar",
 		"lengthMenu": "Registros por página: _MENU_ ",
 		"zeroRecords": "Nada encontrado",
+  		"emptyTable": "Nenhum registro disponível",		
 		"info": "Página _PAGE_ de _PAGES_",
 		"infoEmpty": "Nenhum registro disponível",
 		"infoFiltered": "(filtrado de _MAX_ registros no total)",

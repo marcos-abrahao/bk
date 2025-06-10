@@ -12,7 +12,17 @@ BK - Ponto de Entrada para imprimir termo de retirada de materiais
 User Function MTA185MNU()
 
 If Type( "aRotina" ) == "A"
-    Aadd( aRotina, { 'Termo Barcas Rio', 'U_BKESTR10', 0, 6, 0, Nil } )
+    Aadd( aRotina, { 'Termo Barcas Rio', 'U_BKESTR10',  0, 6, 0, Nil } )
+    //AAdd( aRotina, { 'Anexar Documentos', 'U_BKDocSCP', 0, 4, 0, Nil } )
 EndIf
 
 Return Nil
+
+
+/*
+User Function BKDocSCP()
+
+MsDocument('SCP', SCP->(recno()), 4)
+
+Return Nil
+*/

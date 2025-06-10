@@ -282,7 +282,7 @@ Begin Sequence
 	dbSetOrder(1)
 	dbSeek(xFilial("SA2")+SE2->E2_FORNECE+SE2->E2_LOJA)
 	cDadosBanc := ""
-	//If !Empty(SA2->A2_BANCO) .AND. SA2->A2_COD <> "000084"
+	//If !Empty(SA2->A2_BANCO) .AND. SA2->A2_COD <> cFornBK() .AND. SA2->A2_COD <> u_ForFolBK()
     //   cDadosBanc := "Bco: "+ALLTRIM(SA2->A2_BANCO)+" Ag: "+ALLTRIM(SA2->A2_AGENCIA)+" C/C: "+ALLTRIM(SA2->A2_NUMCON)
  	//EndIf
  	

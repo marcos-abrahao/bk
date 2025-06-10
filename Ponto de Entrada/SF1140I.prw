@@ -62,7 +62,7 @@ If Empty(SF1->F1_XXCOMPD)
 EndIf
 
 If !l140Auto
-	U_SelFPgto(.T.,.F.,@cLibF1)
+	U_SelFPgto(.T.,u_SemAnexo(__cUserId),@cLibF1)
 	If u_IsAvalPN(__cUserID)
 		If u_MsgLog("SF1140I","Deseja avaliar este fornecedor?","Y")
 			u_AvalForn(.F.)
@@ -183,7 +183,7 @@ If U_SelFPgto(lAlt,.T.,@cLibF1)
 	MsUnLock("SF1")
 
 	If nTipoPg == 1 
-		If SF1->F1_FORNECE <> u_cFornBK()
+		If SF1->F1_FORNECE <> u_cFornBK() .AND. SF1->F1_FORNECE <> u_ForFolBK()
 			PutSa2(SF1->F1_FORNECE,SF1->F1_LOJA)
 		EndIf
 	ElseIf nTipoPg == 7

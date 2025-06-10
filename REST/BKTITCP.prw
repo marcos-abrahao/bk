@@ -9,6 +9,34 @@ BKTITCP - Abrir tela REST - Titulos a Pagar
 /*/
 
 User Function BKTITCP(lShell)
+
+Local cToken  := u_BKEnCode()
+//Local oRestClient := FWRest():New(u_BkRest())
+Local aHeader    := {} //{"tenantId: 99,01"}
+Local dUtil      := dDatabase + 1
+Local cGetParms  := ""
+Local cHeaderGet := ""
+Local nTimeOut   := 200
+Local cHtml      := ""
+Default lShell   := .T.
+
+Aadd(aHeader, "Content-Type: text/html; charset=utf8")
+Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
+
+cHtml := HttpGet(u_BkRest()+'/RestTitCP/v2?empresa='+cEmpAnt+'&vencini='+DTOS(dUtil)+'&vencfim='+DTOS(dUtil)+'&userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
+
+If !Empty(cHtml)
+    u_TmpHtml(cHtml,"BKTITCP",lShell)
+Else
+    u_MsgLog("BKTITCP","Erro ao acessar o ambiente REST, contate o suporte.","E")
+EndIf
+
+Return .T.
+
+
+
+
+User Function xBKTITCP(lShell)
 Local dUtil   := dDataBase + 1
 Local cToken  := u_BKEnCode()
 Local cUrl 	  := ""

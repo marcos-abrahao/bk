@@ -278,7 +278,6 @@ Do Case
 		cQuery += "      E1_XXOPER = '"+__cUserId+"'"+CRLF
 		cQuery += " FROM "+cTabSE1+" SE1"+CRLF
 		cQuery += " WHERE SE1.R_E_C_N_O_ = "+e1recno+CRLF
-		//u_LogMemo("RESTTitCP.SQL",cQuery)
 		If TCSQLExec(cQuery) < 0
 			cMsg := "Erro: "+TCSQLERROR()
 		Else
@@ -808,13 +807,15 @@ return .T.
 // /v2
 WSMETHOD GET BROWCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestTitCR
 Local aParams	As Array
-Local cMsg		As Char
-Local cHTML		As char
-Local cDropEmp	As char
-Local aEmpresas := u_BKGrpFat()
+Local cMsg		As Character
+Local xEmpr		As Character
+Local cHTML		As Character
+Local cDropEmp	As Character
+Local aEmpresas As Array
 Local nE 		:= 0
 
-u_MsgLog(,"V2-BROWCR/1 "+Self:empresa)
+u_BkAvPar(self:userlib,@aParams,@cMsg,@xEmpr)
+aEmpresas := u_BKGrupo(5,xEmpr)
 
 BEGINCONTENT var cHTML
 
@@ -1340,6 +1341,7 @@ tableSE1 = $('#tableSE1').DataTable({
   "language": {
 	"lengthMenu": "Registros por página: _MENU_ ",
 	"zeroRecords": "Nada encontrado",
+	"emptyTable": "Nenhum registro disponível na tabela",
 	"info": "Página _PAGE_ de _PAGES_",
 	"infoEmpty": "Nenhum registro disponível",
 	"infoFiltered": "(filtrado de _MAX_ registros no total)",
@@ -1403,9 +1405,9 @@ tableSE1 = $('#tableSE1').DataTable({
            var x = i;
            var y = 0;
            if (typeof x === 'string') {
-             x = x.replaceAll(' ', '');
-             x = x.replaceAll('.', '');
-             x = x.replace(',', '.');
+             //x = x.replaceAll(' ', '');
+             //x = x.replaceAll('.', '');
+             //x = x.replace(',', '.');
              y = parseFloat(x)
            };
            if (typeof i === 'number'){
@@ -1838,9 +1840,6 @@ cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(::userlib)
-
-	u_BkAvPar(self:userlib,@aParams,@cMsg)
-
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)  
 EndIf
@@ -1866,7 +1865,6 @@ For nE := 1 To Len(aEmpresas)
 	cDropEmp += '<li><a class="dropdown-item" href="javascript:AltEmpr('+"'"+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+"'"+')">'+aEmpresas[nE,1]+'-'+aEmpresas[nE,2]+'</a></li>'+CRLF
 Next
 cDropEmp +='<li><hr class="dropdown-divider"></li>'+CRLF
-//cDropEmp +='<li><a class="dropdown-item" href="'+u_BkRest()+'/RestTitCR/v2?empresa=Todas&vencini='+self:vencini+'&vencfim='+self:vencfim+'&userlib='+self:userlib+'">Todas</a></li>'+CRLF
 cDropEmp +='<li><a class="dropdown-item" href="javascript:AltEmpr('+'Todas'+')">Todas</a></li>'+CRLF
 
 cHtml := STRTRAN(cHtml,"#DropEmpresas#",cDropEmp)

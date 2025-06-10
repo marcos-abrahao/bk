@@ -635,13 +635,15 @@ return .T.
 // /v2
 WSMETHOD GET BROWCR QUERYPARAM empresa,vencini,vencfim,userlib WSREST RestPrvCR
 Local aParams	As Array
-Local cMsg		As Char
-Local cHTML		As char
-Local cDropEmp	As char
-Local aEmpresas := u_BKGrpFat()
+Local cMsg		As Character
+Local xEmpr		As Character
+Local cHTML		As Character
+Local cDropEmp	As Character
+Local aEmpresas As Array
 Local nE 		:= 0
 
-u_MsgLog(,"V2-BROWCR/1 "+Self:empresa)
+u_BkAvPar(self:userlib,@aParams,@cMsg,@xEmpr)
+aEmpresas := u_BKGrupo(5,xEmpr)
 
 BEGINCONTENT var cHTML
 
@@ -1129,6 +1131,7 @@ tableSE1 = $('#tableSE1').DataTable({
   "language": {
 	"lengthMenu": "Registros por página: _MENU_ ",
 	"zeroRecords": "Nada encontrado",
+	"emptyTable": "Nenhum registro disponível",
 	"info": "Página _PAGE_ de _PAGES_",
 	"infoEmpty": "Nenhum registro disponível",
 	"infoFiltered": "(filtrado de _MAX_ registros no total)",
@@ -1194,9 +1197,9 @@ tableSE1 = $('#tableSE1').DataTable({
            var x = i;
            var y = 0;
            if (typeof x === 'string') {
-             x = x.replaceAll(' ', '');
-             x = x.replaceAll('.', '');
-             x = x.replace(',', '.');
+             //x = x.replaceAll(' ', '');
+             //x = x.replaceAll(',', '');
+             //x = x.replace('.', ',');
              y = parseFloat(x)
            };
            if (typeof i === 'number'){
@@ -1299,10 +1302,10 @@ let urlE1 = '#iprest#/RestPrvCR/v6?empresa='+empresa+'&e1recno='+e1recno+'&userl
 try {
 	let res = await fetch(urlE1,{method: 'GET',	headers: headers});
 		return await res.json();
-		} catch (error) {
+	} catch (error) {
 	console.log(error);
-		}
 	}
+}
 
 
 async function showE1(empresa,e1recno,userlib,cbtne1) {
@@ -1615,9 +1618,6 @@ cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
 
 If !Empty(::userlib)
-
-	u_BkAvPar(self:userlib,@aParams,@cMsg)
-
 	cHtml := STRTRAN(cHtml,"#userlib#",::userlib)
 	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)  
 EndIf

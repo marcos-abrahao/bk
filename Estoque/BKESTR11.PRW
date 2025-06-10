@@ -277,7 +277,7 @@ BEGINCONTENT var cHtml
                     <span class="info-valor" id="numero-solicitacao-texto">##solicitacao##</span>
                 </div>
                 <div class="info-linha">
-                    <span class="info-label">Tipo de manutenção:</span>
+                    <span class="info-label">Tipo de requisição:</span>
                     <span class="info-valor" id="tipo-armazenamento-texto">##tipoarmaz##</span>
                 </div>
                 
@@ -287,7 +287,7 @@ BEGINCONTENT var cHtml
                 </div>
                 <div class="info-linha">
                     <span class="info-label">Ordem de Serviço:</span>
-                    <span class="info-valor" id="ordem-servico-texto"></span>
+                    <span class="info-valor" id="ordem-servico-texto">##oshelm##</span>
                 </div>
             </div>
 
@@ -343,12 +343,12 @@ BEGINCONTENT var cHtml
     function updateTermo() {
         const nome = document.getElementById('nome-responsavel').value;
         const cpf = document.getElementById('cpf-number').value;
-        const ordemsvr = document.getElementById('ordem-servico').value;
+        //const ordemsvr = document.getElementById('ordem-servico').value;
 
         // Atualiza campos com valores ou deixa vazio para preenchimento manual
         document.getElementById('responsavel-texto').textContent = nome || '';
         document.getElementById('cpf-texto').textContent = cpf || '';
-        document.getElementById('ordem-servico-texto').textContent = ordemsvr || '';
+        //document.getElementById('ordem-servico-texto').textContent = ordemsvr || '';
        
     }
     
@@ -461,7 +461,14 @@ cHtml := STRTRAN(cHtml,"##empant##",cEmpAnt)
 cHtml := STRTRAN(cHtml,"##dataemissao##",DTOC(SD3->D3_EMISSAO))
 cHtml := STRTRAN(cHtml,"##solicitante##",SD3->D3_USUARIO)
 cHtml := STRTRAN(cHtml,"##solicitacao##",SD3->D3_DOC)
-cHtml := STRTRAN(cHtml,"##tipoarmaz##","XXX")
+If u_IsBarcas(cEmpAnt)
+    cHtml := STRTRAN(cHtml,"##tipoarmaz##",X3COMBO('D3_XTRQSC',SD3->D3_XTRQSC))
+    cHtml := STRTRAN(cHtml,"##oshelm##",SD3->D3_XOSHELM)
+Else
+    cHtml := STRTRAN(cHtml,"##tipoarmaz##","")
+    cHtml := STRTRAN(cHtml,"##oshelm##","")
+EndIf
+
 cHtml := STRTRAN(cHtml,"##centrodecustos##",SD3->D3_CC)
 
 cHtml := STRTRAN(cHtml,"##tabela-itens##",TabItens(cDocD3))

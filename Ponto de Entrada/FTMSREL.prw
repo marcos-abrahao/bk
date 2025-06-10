@@ -32,5 +32,12 @@ bMostra := { || SZE->ZE_CONTRAT + SZE->ZE_COMPET }
 aFields := {'ZE_CONTRAT','ZE_COMPET'}                                
 // funcoes do sistema para identificar o registro
 AAdd( aRet, { cTabela, aChave, bMostra, aFields } )
- 
+
+
+// SD3
+AAdd( aRet, { "SD3", { "D3_DOC" }, { || SD3->D3_DOC },{"D3_DOC"} })
+
+// SCP
+AAdd( aRet, { "SCP", { "CP_NUM" }, { || SD3->CP_NUM },{"CP_NUM"} })
+
 Return aRet

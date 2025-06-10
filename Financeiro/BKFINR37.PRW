@@ -304,6 +304,7 @@ For nE := 1 To Len(aBKGrupo)
 	cQuery +=  "  AND E2_FILIAL = '"+xFilial("SE2")+"' "+CRLF
 	cQuery +=  "  AND E2_TIPO = 'PA' "+CRLF
 	cQuery +=  "  AND E2_FORNECE <> '"+u_cFornBK()+"' "+CRLF  // Filtrar saques
+	cQuery +=  "  AND E2_FORNECE <> '"+u_ForFolBK()+"' "+CRLF  // Filtrar saques
 	cQuery +=  "  AND E2_XXTIPBK = ' ' "+CRLF  // Filtrar integração LF
 	If dDtIni == dDtFim
 		cQuery +=  "  AND E2_VENCREA = '"+DTOS(dDtIni)+"' "+CRLF

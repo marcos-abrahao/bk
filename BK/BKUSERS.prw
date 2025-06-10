@@ -628,8 +628,8 @@ Return lRet
 // Libera doc de entrada após o horário 
 User Function IsLibDPH(cPrw,cId)
 Local lRet := .T.
-//           Admin/Diego /Bruno /Katia /Andresa
-If !(cId $ "000000/000016/000153/000276/000197")
+//           Admin/Diego /Bruno /Katia /Andresa/Evelyn
+If !(cId $ "000000/000016/000153/000276/000197/000307")
     If SUBSTR(TIME(),1,2) > '19' .OR. SUBSTR(TIME(),1,2) < '07'
         u_MsgLog(cPrw,"Não é permitido incluir, classificar ou liberar documentos entre 19h e 7h","E")
         lRet := .F.
@@ -643,6 +643,15 @@ Return lRet
 User Function IsLibPv(cId)
 //            Admin  /Teste/Diego O/Fabia/Bruno/João Cordeiro/Nelson/Marcelo Cavallari/Wiliam Lisboa/Andresa
 Return cId $ "000000/000038/000016/000023/000153/000170/000165/000252/000288/000197/"
+
+
+// Permitido Incluir pré-nota sem anexo
+User Function SemAnexo(cUser)
+ // 170-João Cordeiro 276-Katia Galdino 197-Andresa 307-Evelyn
+Local lRet := (cUser $ "000000/000016/000170/000197/000276/000307") // 170-João Cordeiro 276-Katia Galdino 197-Andresa 307-Evelyn
+Return lRet
+
+
 
 
 // É do grupo Fiscal

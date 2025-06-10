@@ -190,90 +190,68 @@ ENDCONTENT
 
 Return cHtml
 
-// Botão para abrir anexo via rest
-// Empresa,Arquivo e Numero do Botão para id
-// Exemplo: //cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],nI)
-User Function BtnAnexo(cEmp,cFile,nBt)
-Local cHtm 		as Character
-Local cBtn 		as Character
-Local cLinkBtn 	as Character
-
-cBtn := "btn"+ALLTRIM(STR(nBt,0))
-cLinkBtn = "Anexo('"+u_BkRest()+"/RestLibPN/v4?empresa="+cEmp+"&documento="+Encode64(cFile)+"&tpanexo=P',"+"'"+cFile+"','"+u_MimeFile(cFile)+"','"+cBtn+"')"
-cHtm := '<button type="button" class="btn btn-link" id="'+cBtn+'" onclick="'+cLinkBtn+'">'+cFile+"</button>"+CRLF
-
-Return cHtm
-
-
 
 // Usar com browse externo
 User Function AnexoHtml()
 Local cHtml := ""
+
 BEGINCONTENT var cHtml
-<script>
-	async function Anexo(url,cLink,mime,btna) {
-		const btnanexo = document.getElementById(btna);
-		const cbtnh = btnanexo.innerHTML; // Salva o conteúdo original do botão
-	
-		try {
+async function Anexo(cEmp,cEncFile,cMime,btnA) {
+	const btnanexo = document.getElementById(btnA);
+	const cbtnh = btnanexo.innerHTML; // Salva o conteúdo original do botão
+	const url = '#iprest#/RestLibPN/v4?empresa='+cEmp+'&documento='+cEncFile+'&tpanexo=P'
+	try {
+		// Desabilita o botão e exibe o spinner
+		btnanexo.disabled = true;
+       	btnanexo.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
 
-			// Desabilita o botão e exibe o spinner
-			btnanexo.disabled = true;
-        	btnanexo.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
-	
-			// Substitua os placeholders pelos valores reais
-			const username = '#usrrest#';
-			const password = '#pswrest#';
-	
-			// Codifica as credenciais em Base64
-			const credentials = btoa(`${username}:${password}`);
-	
+		// Substitua os placeholders pelos valores reais
+		const username = '#usrrest#';
+		const password = '#pswrest#';
 
-			// Faz a requisição com autenticação básica
-			const response = await fetch(url, {
-				method: 'GET',
-				headers: {
-					'Authorization': `Basic ${credentials}`,
-					'Content-Type': `${mime}`, // Adiciona o tipo de conteúdo, se necessário
-				},
-			});
-	
-			// Verifica se a resposta é válida
-			if (!response.ok) {
-				let errorDetails = "Erro desconhecido";
-				try {
-					// Tenta obter detalhes do erro da resposta (se for JSON)
-					const errorResponse = await response.json();
-					errorDetails = JSON.stringify(errorResponse);
-				} catch (e) {
-					// Se a resposta não for JSON, usa o texto da resposta
-					errorDetails = await response.text();
-				}
-				throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
+		// Codifica as credenciais em Base64
+		const credentials = btoa(`${username}:${password}`);
+
+		// Faz a requisição com autenticação básica
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Basic ${credentials}`,
+				'Content-Type': `${cMime}`, // Adiciona o tipo de conteúdo, se necessário
+			},
+		});
+
+		// Verifica se a resposta é válida
+		if (!response.ok) {
+			let errorDetails = "Erro desconhecido";
+			try {
+				// Tenta obter detalhes do erro da resposta (se for JSON)
+				const errorResponse = await response.json();
+				errorDetails = JSON.stringify(errorResponse);
+			} catch (e) {
+				// Se a resposta não for JSON, usa o texto da resposta
+				errorDetails = await response.text();
 			}
-	
-       		// Obtém o blob (arquivo) da resposta
-	   		const blob = await response.blob();
-
-			// Cria uma URL temporária para o blob
-			const blobUrl = URL.createObjectURL(blob);
-
-			// Abre o arquivo em uma nova aba/janela
-			window.open(blobUrl, '_blank');
-
-			// Libera a URL temporária após o uso
-			URL.revokeObjectURL(blobUrl);
-		} catch (error) {
-			console.error("Erro durante a execução da função Anexo:", error);
-			alert(`Ocorreu um erro ao tentar abrir o arquivo: ${error.message}`);
-		} finally {
-			// Restaura o botão ao estado original
-			btnanexo.disabled = false;
-			btnanexo.innerHTML = cbtnh;
+			throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
 		}
-	}
 
-</script>
+      	// Obtém o blob (arquivo) da resposta
+   		const blob = await response.blob();
+		// Cria uma URL temporária para o blob
+		const blobUrl = URL.createObjectURL(blob);
+		// Abre o arquivo em uma nova aba/janela
+		window.open(blobUrl, '_blank');
+		// Libera a URL temporária após o uso
+		URL.revokeObjectURL(blobUrl);
+	} catch (error) {
+		console.error("Erro durante a execução da função Anexo:", error);
+		alert(`Ocorreu um erro ao tentar abrir o arquivo: ${error.message}`);
+	} finally {
+		// Restaura o botão ao estado original
+		btnanexo.disabled = false;
+		btnanexo.innerHTML = cbtnh;
+	}
+}
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())

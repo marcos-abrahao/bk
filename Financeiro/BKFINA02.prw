@@ -17,10 +17,10 @@ Tratamento do campo campo Z2_STATUS pelos sistemas:
 
     Gerar PA (pagamento antecipado) quanto Z2_TIPOPES = PJ,AC ou CLA
         Quando Z2_TIPOPES = PJ, utilizar fornecedor Z2_CODFOR / Z2_LOJFOR
-        Quando Z2_TIPOPES = AC, utilizar fornecedor 000071
-        Quando Z2_TIPOPES = CLA, utilizar fornecedor 000071
-        Quando Z2_TIPOPES = CLT, utilizar fornecedor 000084
- ****       Quando Z2_TIPOPES = AUT, utilizar Autonomo 000084
+        Quando Z2_TIPOPES = AC, utilizar fornecedor ForAcBK()
+        Quando Z2_TIPOPES = CLA, utilizar fornecedor ForAcBK()
+        Quando Z2_TIPOPES = CLT, utilizar fornecedor cFornBK()
+ ****       Quando Z2_TIPOPES = AUT, utilizar Autonomo cFornBK()
 
 @Return
 @author Marcos Bispo Abrahão
