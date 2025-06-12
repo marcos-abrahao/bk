@@ -914,8 +914,8 @@ If cEmpAnt == "20" // Barcas
               //Marieta  Lorosa  Welington Murilo   Eduardo  Igor     Fabiano
     aUsers := {"000332","000333","000334","000369","000354","000370","000348"}
 Else
-              //Barbara,Jose Amauri,Bianca,Wendell
-    aUsers := {"000232","000216","000310","000321"}
+              //Barbara,Jose Amauri,Bianca,Wendell,Estefani
+    aUsers := {"000232","000216","000310","000321","000400"}
 EndIf
 
 
@@ -925,9 +925,9 @@ EndIf
 
 Return cEmails
 
-// Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Marcio M, Wiliam Lisboa, Edelcio)
+// Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Wiliam Lisboa, Edelcio)
 User Function aUsrGestao()
-Local aUsers := {"000000","000023","000153","000240","000241","000288","000309"}
+Local aUsers := {"000000","000023","000153","000241","000288","000309"}
 If cEmpAnt == "20" // Barcas
     //          Admin    Bruno    MM       M Barbs  Jacieno
     aUsers := {"000000","000153","000240","000341","000340"}
