@@ -191,6 +191,7 @@ ENDCONTENT
 Return cHtml
 
 
+
 // Usar com browse externo
 User Function AnexoHtml()
 Local cHtml := ""
@@ -407,6 +408,20 @@ EndIf
 
 Return cContent
 
+
+// Botão para abrir anexo via rest
+// Empresa,Arquivo e Numero do Botão para id
+// Exemplo: //cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],nI)
+User Function BtnAnexo(cEmp,cFile,nBt)
+Local cHtm 		as Character
+Local cBtn 		as Character
+Local cLinkBtn 	as Character
+
+cBtn := "btn"+ALLTRIM(STR(nBt,0))
+cLinkBtn = "Anexo('"+u_BkRest()+"/RestLibPN/v4?empresa="+cEmp+"&documento="+Encode64(cFile)+"&tpanexo=P',"+"'"+cFile+"','"+u_MimeFile(cFile)+"','"+cBtn+"')"
+cHtm := '<button type="button" class="btn btn-link" id="'+cBtn+'" onclick="'+cLinkBtn+'">'+cFile+"</button>"+CRLF
+
+Return cHtm
 
 // Usar com browse interno
 // Exemplo (BKCOMA04): cHtm += '     <a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'&titulo'+cTitulo+'" target="_blank" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
