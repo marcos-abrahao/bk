@@ -1068,6 +1068,9 @@ cFiltro 			:= oApurEFD:GetWhrSFT(cTipoMov,.T.,.T.)
 cFiltro				:= '%'+ cFiltro + '%'		
 cOrdem				:= '%'+ cOrdem + '%'
 
+//u_MsgLog('xFISR101',"SFT: " + cFiltro,"I")
+//SFT: % SFT.FT_FILIAL= '01' AND SFT.FT_TIPOMOV = 'E' AND SFT.FT_ENTRADA>= '20250401' AND SFT.FT_ENTRADA<= '20250430' AND ( (SF4.F4_ATUATF <> 'S' AND (((SFT.FT_BASEPIS > 0  OR  SFT.FT_BASEPS3 > 0) OR SFT.FT_CSTPIS IN ('70','71','72','73','74','98','99'))  OR  						    ((SFT.FT_BASECOF > 0  OR  SFT.FT_BASECF3 > 0) OR SFT.FT_CSTCOF IN ('70','71','72','73','74','98','99')))) OR  (SF4.F4_ATUATF   = 'S' AND ((SFT.FT_CSTCOF IN ('70','71','72','73','74','98','99')) OR  						    (SFT.FT_CSTPIS IN ('70','71','72','73','74','98','99')))) )  AND %
+
 cSlctSFT			:= SUBSTR(cSlctSFT,1,LEN(cSlctSFT)-1)+",SFT.FT_TES,SFT.FT_PRODUTO,SFT.FT_EMISSAO,SFT.FT_CLIEFOR,SFT.FT_LOJA,SFT.FT_VRETPIS,SFT.FT_VRETCOF%"
 
 BeginSql Alias cAliasSFT    	

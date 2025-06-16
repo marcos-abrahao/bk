@@ -13,7 +13,7 @@ BK - Ponto de Entrada para envio Solicitação de Compra aos compradores
 User Function M110STTS()
 Local cNumSol	:= Paramixb[1]
 Local cAssunto	:= ""
-Local cEmail	:= u_EmailAdm()+IIF(cEmpAnt<>"20","wiliam.lisboa@bkconsultoria.com.br;","") // Barcas
+Local cEmail	:= u_EmailAdm()+IIF(!u_IsBarcas(),"wiliam.lisboa@bkconsultoria.com.br;","") // Barcas
 Local cEmailCC  := ""
 Local cMsg 		:= "" 
 Local cAnexo	:= ""

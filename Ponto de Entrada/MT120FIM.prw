@@ -197,7 +197,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 					IF !EMPTY(aUser[1,14]) .AND. !aUser[1][17]
 						cEmail += ALLTRIM(aUser[1,14])+';'
 					ENDIF
-				ELSEIF SCR->CR_USER $ cGerGestao .AND. cEmpAnt <> "20" // Barcas 17/02/25
+				ELSEIF SCR->CR_USER $ cGerGestao .AND. !u_IsBarcas() // Barcas 17/02/25
 					RecLock("SCR",.F.)
 					SCR->(dbDelete())
 					SCR->(MsUnlock())
@@ -228,7 +228,7 @@ IF (nOpcao == 3 .OR. nOpcao == 4) .AND. nOpcA == 1
 
 			cEmail += u_aUsrEmail({aSC1USER[_IX,1]},cEmail)
 			// Barcas 02/04/25
-			If cEmpAnt == "20" // Barcas
+			If u_IsBarcas() // Barcas
 				aSuper := u_ArSuper(aSC1USER[_IX,1])
 				cEmail += u_aUsrEmail(aSuper,cEmail)
 			EndIf				

@@ -66,9 +66,7 @@ Local lBarcas	  := .F.
 
 Private oWebChannel := TWebChannel():New()
 
-If cEmpAnt == "20" // Barcas
-	lBarcas := .T.
-EndIf
+lBarcas := u_IsBarcas()
 
 If u_AmbTeste()
     Aadd(aHeader, "Content-Type: text/html; charset=utf8")
@@ -144,7 +142,7 @@ If AMIIn(5, 69) .OR. Modulo == 5 .OR. nModulo == 69
 EndIf
 
 If AMIIn(2,6,9) .OR. Modulo == 2 .OR. nModulo == 6 .OR. Modulo == 9
-	If u_IsFiscal(__cUserId) .OR. u_IsStaf(__cUserId) .OR. u_IsSuperior(__cUserId)
+	If u_IsSuperior(__cUserId) .OR. u_IsFiscal(__cUserId) .OR. u_IsStaf(__cUserId) .OR. u_IsMLibDc(__cUserId)
 		lLPN := .T.
 	EndIf
 EndIf

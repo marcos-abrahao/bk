@@ -165,7 +165,7 @@ FOR IX_ := 1 TO LEN(aPedido)
 		SC7->(DbSkip())
 	ENDDO
 	
-	If cEmpAnt <> "20" // Barcas 01/04/2025
+	If !u_IsBarcas() // Barcas 01/04/2025
 		DbSelectArea("SCR")
 		SCR->(DbSetOrder(1))
 		DbSeek(xFilial("SCR")+'PC'+cNumPC,.T.)

@@ -12,7 +12,7 @@ BK - Ponto de entrada para filtrar UserId e Superior
 
 User Function M103FILB()
 Local laClas		:= .F.
-Local lAdmLib		:= .F.
+Local lFiltLib		:= .F.
 Local lRPC 			:= IsBlind()
 Local lStaf 		:= .F.
 
@@ -37,7 +37,7 @@ If !lRPC
 	lAClas := u_MsgLog("M103FILB","Filtrar os Docs a Classificar?","Y")
 	If lAClas
 		If FWIsAdmin(__cUserId)
-			lAdmLib := u_MsgLog("M103FILB","Filtrar os Doc a liberar?","Y")
+			lFiltLib := u_MsgLog("M103FILB","Filtrar os Doc a liberar?","Y")
 		EndIf
 	EndIf
 Else
@@ -49,7 +49,7 @@ EndIf
 cAux := "000000/000007/000037/000038"+IIF(!lRPC,"/000045","")
 If u_InGrupo(__cUserId,cAux) // Administradores/Diretoria/Controladoria/Master Libera/Jurídico
 	If lAClas .OR. lRPC
-		If lAdmLib
+		If lFiltLib
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
 		Else
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB <> 'L')"
@@ -115,7 +115,7 @@ If lRPC .AND. Empty(cFiltro1)
 	cFiltro1 := "(F1_STATUS IN (' ','B'))"
 EndIf
 
-u_MsgLog("M103FILB1","Staf:"+iif(lStaf,"S","N")+" - Class:"+IIF(lAClas,"S","N")+" - Filtra a liberar:"+IIF(lAdmLib,"S","N")+" - "+cFiltro1)
+u_MsgLog("M103FILB1","Staf:"+iif(lStaf,"S","N")+" - Class:"+IIF(lAClas,"S","N")+" - Filtra a liberar:"+IIF(lFiltLib,"S","N")+" - "+cFiltro1)
 
 Return cFiltro1
 

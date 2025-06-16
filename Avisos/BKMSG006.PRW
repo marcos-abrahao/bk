@@ -197,7 +197,7 @@ Do While !Eof()
 
 	// Envia o e-mail para os superiores do usuário também
 	aSuper := u_ArSuper(QTMP->USR_ID)
-	If cEmpAnt <> "20" // Barcas
+	If !u_IsBarcas() // Barcas
 		aAdd(aSuper,"000023") // Fabia
 		aAdd(aSuper,"000288") // Wiliam Lisboa
 	EndIf

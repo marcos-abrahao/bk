@@ -26,7 +26,7 @@ Local nQNT     := 0
 Local cXXNSCOM := ""
 Local cXXISCOM := ""
 
-If cEmpAnt <> "20" // Barcas não usar isso
+If !u_IsBarcas() // Barcas não usar isso
 	cPROSC1  := aCols[n,nPRODUTO]
 	nQNT     := aCols[n,nQUANT]
 	cXXNSCOM := aCols[n,nXXNSCOM]
