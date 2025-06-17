@@ -1445,7 +1445,9 @@ try {
 
 
 async function loadTable() {
+
 $('#mytable').html('<tr><td colspan="14" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
+
 let titulos = await getCPs();
 let trHTML = '';
 let nlin = 0;
@@ -1456,6 +1458,35 @@ let cbtnidp = '';
 let cbtnids = '';
 let cbtnz2 = '';
 let anexos = '';
+
+const tableElement = $('#tableSE2');
+        
+if ($.fn.DataTable.isDataTable(tableElement)) {
+    tableElement.DataTable().destroy();
+}
+
+//Aqui
+        if (!$('#tableSE2 thead').length) {
+            $('#tableSE2').prepend('<thead><tr></tr></thead>');
+        }
+
+        // 5. Configurar cabeçalhos com inputs
+        const headers = ["", "Empresa", "Título", "Fornecedor", "Forma Pgto", "Vencto", 
+                       "Portador", "Lote", "Valor", "Saldo", "Status", "Histórico", 
+                       "Dados Pgto", "Operador", "Anexos"];
+
+        $('#tableSE2 thead tr').empty();
+        headers.forEach(header => {
+            $('#tableSE2 thead tr').append(`
+                <th>
+                    <input type="text" 
+                           placeholder="${header}" 
+                           class="form-control form-control-sm header-input"
+                           aria-label="Filtrar ${header}"/>
+                </th>
+            `);
+        });
+
 
 if (Array.isArray(titulos)) {
 	titulos.forEach(object => {
@@ -1574,8 +1605,6 @@ if (Array.isArray(titulos)) {
 		anexos = 'Nenhum anexo disponível'; // Mensagem padrão quando não há anexos
 	}
 
-
-
 	trHTML += '<td>'+anexos+'</td>';
 
 	trHTML += '</tr>';
@@ -1590,8 +1619,12 @@ if (Array.isArray(titulos)) {
 }
 document.getElementById("mytable").innerHTML = trHTML;
 
+if ($.fn.DataTable.isDataTable('#tableSE2')) {
+        $('#tableSE2').DataTable().destroy();
+    }
 
 tableSE2 = $('#tableSE2').DataTable({
+  "retrieve": true,
   "pageLength": 100,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
@@ -1651,9 +1684,7 @@ tableSE2 = $('#tableSE2').DataTable({
   ],
   "order": [[1,'asc']],
    initComplete: function () {
-        this.api()
-            .columns()
-            .every(function () {
+        this.api().columns().every(function () {
                 var column = this;
                 var title = column.header().textContent;
  
@@ -1761,8 +1792,8 @@ document.getElementById("z2Foot").innerHTML = foot;
 
 $("#titZ2Modal").text('Integração RH - Empresa: '+dadosE2['EMPRESA'] + ' - Usuário: '+dadosE2['USERNAME']);
 $('#Z2Modal').modal('show');
-$('#Z2Modal').on('hidden.bs.modal', function () {
-	location.reload();
+$('#Z2Modal').on('hidden.bs.modal', async function () {
+	AltDatas();
 	})
 }
 
@@ -1850,8 +1881,8 @@ document.getElementById("btnMsFin").innerHTML = btnM;
 
 $("#titE2Modal").text('Título do Contas a Pagar - Empresa: '+dadosE2['EMPRESA'] + ' - Usuário: '+dadosE2['USERNAME']);
 $('#E2Modal').modal('show');
-$('#E2Modal').on('hidden.bs.modal', function () {
-	location.reload();
+$('#E2Modal').on('hidden.bs.modal', async function () {
+	AltDatas();
 	})
 }
 
@@ -2120,17 +2151,17 @@ async function AltDatas(){
 let newempr  = document.getElementById("btn-empresa").textContent;
 AltEmpr(newempr)
 }
-
+/*
 async function AltEmpr(empresa){
-let newvenci = document.getElementById("DataVencI").value;
-let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
-let newvencf = document.getElementById("DataVencF").value;
-let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
+	let newvenci = document.getElementById("DataVencI").value;
+	let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
+	let newvencf = document.getElementById("DataVencF").value;
+	let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
 
-let url = '#iprest#/RestTitCP/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
+	let url = '#iprest#/RestTitCP/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 
-const headers = new Headers();
-headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+	const headers = new Headers();
+	headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 	try {
 	let res = await fetch(url, { method: 'GET', headers: headers });
 		//document.getElementById('conteudo-principal').innerHTML =  await res.text();
@@ -2146,6 +2177,20 @@ headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 	console.log(error);
 	}
 }
+*/
+
+async function AltEmpr(empresa) {
+    try {
+	
+        // Atualizar a tabela com os novos dados
+        await loadTable();
+        
+    } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        $('#mytable').html('<tr><td colspan="14" style="text-align: center; color: red;">Erro ao carregar dados</td></tr>');
+    }
+}
+
 
 #AnexoHtml#
 

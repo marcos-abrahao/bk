@@ -27,7 +27,7 @@ If l010Auto
 ENDIF
 
 If !u_IsBarcas()// Barcas
-	If !u_MsgLog(cPerg,"Gerar proximo código de produto?","Y")
+	If !u_MsgLog(cPerg,"Gerar próximo código de produto?","Y")
 		cCod := ""
 		Return cCod 
 	EndIf

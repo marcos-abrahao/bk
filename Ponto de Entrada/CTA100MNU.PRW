@@ -622,15 +622,9 @@ Return Nil
 User Function BKGCTA09()
 Local _sAlias	:= Alias()
 Local oDlg01,aButtons := {},lOk := .F.
-Local nSnd  := 0,nTLin := 12
-Local nSin  := 0
-
-Local aStatus := {"1-Manifestado o Interesse",;
-                  "2-Aguardando Posicionamento Diretoria",;
-                  "3-Aguardando Posicionamento do Cliente",;
-                  "4-Recebido confirmação do Cliente",;
-                  "5-Contrato Prorrogado"}
-
+Local nSnd  	:= 0,nTLin := 12
+Local nSin  	:= 0
+Local aStatus 	:= u_StProrrog()
 Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
 Local cContRev
@@ -705,7 +699,7 @@ If ( lOk )
 	   CN9->CN9_XXPROB == cPROB .AND.;
 	   CN9->CN9_XXPROA == cPROA .AND.;
 	   CN9->CN9_XXSPRO == xSPRO
-		u_MsgLog(,"Não houve alterações","W")
+	   u_MsgLog(,"Não houve alterações","W")
 	ELSE
 		RecLock("CN9",.F.)
 		CN9->CN9_XXDVIG := dDVIG

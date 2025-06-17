@@ -62,8 +62,53 @@ Return cLogo
 
 
 User Function BKLogos(cEmp)
+Local cLink  := ""
+Local cLogo  := ""
 Default cEmp := FWCodEmp()
-Local cLogo := '<img src="'+u_BkSrvWeb()+'/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
+
+If FWCodEmp() == "01"      // BK
+	cLink:= "https://drive.google.com/thumbnail?id=1oIDeUVCuwhFL9ISYdnkVeyPb-FXf5UHt"
+ElseIf FWCodEmp() == "02"  // HF
+	cLink:= "https://drive.google.com/thumbnail?id=1W4TKkyJcyiE42C1OgPrRvx8uU3V-98UH"
+ElseIf FWCodEmp() == "04"  // ESA
+	cLink:= "https://drive.google.com/thumbnail?id=1pzg8pXA-yPYAy90GutUbZrHqcgd-HkTj"
+ElseIf FWCodEmp() == "06"  // BKDAHER SUZANO
+	cLink:= "https://drive.google.com/thumbnail?id=1euoWrvOrFB7MZcrbPTSUL8dLQNDohThs"
+ElseIf FWCodEmp() == "07"  // JUSTSOFTWARE
+	cLink:= "https://drive.google.com/thumbnail?id=1S4D0M1y3UNJ7F50cse9QM88XUcus3G0O"
+ElseIf FWCodEmp() == "08"  // BHG CAMPINAS
+	cLink:= "https://drive.google.com/thumbnail?id=1PG3T7b6pQ4L7I0ogmziECzWNy7hJg7YW"
+ElseIf FWCodEmp() == "09"  // BHG OSASCO
+	cLink:= "https://drive.google.com/thumbnail?id=1HuOLWvapR9T33NuLU0Hx5FmQBJGPBTTU"
+ElseIf FWCodEmp() == "10"  // BKDAHER TABOAO DA SERRA
+	cLink:= "https://drive.google.com/thumbnail?id=1G8nQRJDWZJJqhtc1Be24WVmAcSq_cNsv"
+ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
+	cLink:= "https://drive.google.com/thumbnail?id=1e_3x4qXRrJTNiOo4bXGO3zPVnE3aMqE8"
+ElseIf FWCodEmp() == "12"  // BK CORRETORA
+	cLink:= "https://drive.google.com/thumbnail?id=11TCN27XesHba62Hkz6U1foXzWD1NPH0N"
+ElseIf FWCodEmp() == "14"  // CONSORCIO NOVA BALSA
+	cLink:= "https://drive.google.com/thumbnail?id=1hLWfAPyjOy2Lmyca7ERm3zMyCmP4B61o"
+ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
+	cLink:= "https://drive.google.com/thumbnail?id=1n35iuPHcoA8PP7sPOzc3apW3lb4nR2LW"
+ElseIf FWCodEmp() == "16"  // MOOVE
+	cLink:= "https://drive.google.com/thumbnail?id=1SOjCnmC3k1MztSB0vuot6109CjRMv9Eu"
+ElseIf FWCodEmp() == "17"  // DMAF
+	cLink:= "https://drive.google.com/thumbnail?id=1qQ3RxxDMwBxjJDGOYDJdeyZVCt1fvwru"
+ElseIf FWCodEmp() == "18"  // BK VIA
+	cLink:= "https://drive.google.com/thumbnail?id=1RfjrHRA64hKUGPuiVd5nWF2N53Su82LQ"
+ElseIf FWCodEmp() == "19"  // BK SOL TEC
+	cLink:= "https://drive.google.com/thumbnail?id=1SD0noro-C8rybd6tTC8RIbkFii3WJ1HY"
+ElseIf FWCodEmp() == "20"  // BARCAS RIO
+	cLink:= "https://drive.google.com/thumbnail?id=1IvZEQcmon3jn4ji6w0WRKvq9FAruuoll"
+ElseIf FWCodEmp() == "97"  // CMOG
+	cLink:= "https://drive.google.com/thumbnail?id=1CzmRwLfPFWqJ6kL5y6ibrIpaD-4TXl8m"
+ElseIf FWCodEmp() == "98"  // TERO
+	cLink:= "https://drive.google.com/thumbnail?id=1h7kQXhFEAMeAT8xn7qlgIKU7z1JEX9QJ"
+Endif	
+
+//Local cLogo := '<img src="'+u_BkSrvWeb()+'/logos/lgmid'+cEmp+'.png" style="padding-left:5px; border-width:0; width:300px; height:100px; object-fit:contain;">'
+cLogo := '<img src="'+cLink+'" style="padding-left:5px; border-width:0; width:150px; object-fit:contain;">'
+
 Return cLogo
 
 

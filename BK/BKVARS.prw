@@ -622,3 +622,14 @@ EndIf
 SD1->(RestArea(aAreaSD1))
 
 Return lRet
+
+
+// Enum status de prorrogação de Contratos (BKGCT06)
+User Function StProrrog()
+Local aStatus := {"1-Manifestado o Interesse na continuidade",;
+                  "2-Aguardando Posicionamento Diretoria",;
+                  "3-Aguardando Posicionamento do Cliente",;
+                  "4-Recebido confirmação do Cliente",;
+                  "5-Contrato Prorrogado",;
+                  "6-Manifestado o encerramento"}
+Return aStatus

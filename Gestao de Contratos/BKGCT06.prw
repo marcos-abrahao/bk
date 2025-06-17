@@ -617,7 +617,7 @@ Local cTxt    := ""
 Local lCorNao := .T.
 Local nPrxMes1,nPrxMes2,nPrxMes3,nPrxMes4
 Local nPrxAno1,nPrxAno2,nPrxAno3,nPrxAno4
-
+Local aStatus := u_StProrrog()
 Local nDiasVig:= 0
 Local lEmail  := .F.
 
@@ -648,12 +648,14 @@ aCabH := {"mês atual","próximo mês","60 dias","90 dias","até 45 dias (RH)"}
 // Valor
 // Vigencia
 
- 
-AADD(aCampos,"QCN9->A1_NREDUZ")
-AADD(aCabs  ,"Cliente")
+AADD(aCampos,"QCN9->CN9_NUMERO")
+AADD(aCabs  ,"Contrato")
 
 AADD(aCampos,"QCN9->CTT_DESC01")
 AADD(aCabs  ,"Contrato")
+
+AADD(aCampos,"QCN9->A1_NREDUZ")
+AADD(aCabs  ,"Cliente")
 
 AADD(aCampos,"U_CN9OBJ(QCN9->CN9_CODOBJ)")
 AADD(aCabs  ,"Objeto")
@@ -763,8 +765,9 @@ Do While (_cAlias)->(!eof())
          
          cMsg := ""
        
-         cMsg += '<td width="15%" class="F10A">'+TRIM(QCN9->A1_NREDUZ)+'</td>'
+         cMsg += '<td width="10%" class="F10A">'+TRIM(QCN9->CN9_NUMERO)+'</td>'
          cMsg += '<td width="23%" class="F10A">'+TRIM(QCN9->CTT_DESC01)+'</td>'
+         cMsg += '<td width="15%" class="F10A">'+TRIM(QCN9->A1_NREDUZ)+'</td>'
          cMsg += '<td width="40%" class="F10A">'+TRIM(U_CN9OBJ(QCN9->CN9_CODOBJ))+'</td>'
          cMsg += '<td width="15%" class="F10A" align="right">'+TRANSFORM(QCN9->CN9_VLATU,"@E 999,999,999.99")+'&nbsp;&nbsp;</td>'
          cMsg += '<td width="7%" class="F10A" nowrap>'+TRIM(cVigencia)+'</td>'
@@ -1055,8 +1058,6 @@ Do While (_cAlias)->(!eof())
             
          lCorNao := !lCorNao
 	     
-	     
-	     
 	     cTxt := "" 
 	      For _ni :=1 to LEN(aCampos)
 	
@@ -1211,6 +1212,7 @@ AADD(aHtm,'<body bgcolor=#ffffff lang=PT-BR class="Normal">')
 AADD(aHtm,'<table border=0 align="center" cellpadding=0 width="100%" style="center" >')
 AADD(aHtm,'  <tr>')
 AADD(aHtm,'  <td width=15% class="Normal">')
+/*
 If FWCodEmp() == "01"      // BK
 	AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogo()+'</p>')
 ElseIf FWCodEmp() == "02"  // HF
@@ -1246,7 +1248,9 @@ ElseIf FWCodEmp() == "19"  // BK SOL TEC
 ElseIf FWCodEmp() == "20"  // BARCAS RIO
 	AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogos()+'</p>')
 Endif	
+*/
 
+AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogos()+'</p>')
 AADD(aHtm,'  </td>')
 AADD(aHtm,'  <td class="Normal" width=85% style="center" >')
 //AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt">'+cTitulo+'</span></b></p>')
