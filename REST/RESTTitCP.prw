@@ -1430,8 +1430,8 @@ let newvenci = document.getElementById("DataVencI").value;
 let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf = document.getElementById("DataVencF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-let newempr  = document.getElementById("btn-empresa").textContent;
-
+let empresaTexto  = document.getElementById("btn-empresa").textContent;
+const newempr = empresaTexto.split(' - ')[0]; 
 let url = '#iprest#/RestTitCP/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 
 const headers = new Headers();
@@ -2199,9 +2199,9 @@ async function AltEmpr(empresa){
 }
 */
 
-async function AltEmpr(empresa) {
+async function AltEmpr(empresaTexto) {
     try {
-	
+		document.getElementById("btn-empresa").textContent = empresaTexto;
         // Atualizar a tabela com os novos dados
         await loadTable();
         
