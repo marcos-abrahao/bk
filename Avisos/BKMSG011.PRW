@@ -2,47 +2,44 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} BKMSG011
-BK - Aviso de lançamentos em contratos vencidos
+BK - Aviso de termino de vigência de contratos
 
 @Return
 @author Marcos Bispo Abrahão
-@since 21/05/24
-@version P12.1.2310
+@since 18/06/25
+@version P12.1.2410
 /*/
 
 User Function BKMSG011
 
 Local nE 		:= 0
-Local aEmpresas := u_BKGrpDsp()
+Local aEmpresas := u_BKGrpGct()
 Local cQuery	:= ""            
-Local cAssunto	:= "Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias: "
-Local cEmail	:= ""
+Local cAssunto	:= "Aviso de termino de vigencia de contratos - Excel"
+Local cEmail	:= u_EmMGestao()
 Local cEmailCC	:= u_EmailAdm()
 Local cMsg		:= "Segue planilha anexa."
 Local cArqXls   := ""
-Local cTabSZ2	:= "SZ2010"
 Local cTabCN9   := ""
-Local cTabSE2   := ""
-Local cTabSD1   := ""
-Local cTabSF1   := ""
-Local cTabSB1   := ""
+Local cTabSA1   := ""
 Local cTabCTT   := ""
-Local dData		:= dDataBase - 60 // Solicitado pela Fábia em 17/02/23
-Local cCCCons	:= ""
-Local cFat 		:= ""
-Local nCont		:= 0
-Local aUsers 	:= {}
-Local aGrupos	:= {u_GrpRepac()}
-Local aDeptos	:= {}
+
+//Local aUsers 	:= {}
+//Local aGrupos	:= {u_GrpRepac()}
+//Local aDeptos	:= {}
 
 Private cProg := "BKMSG011" 
+
+If IsBlind() .AND. DOW(DATE()) <> 2
+	Return Nil
+EndIf
 
 If FWCodEmp() <> "01"
 	u_MsgLog(cPrw,"Executar somente na empresa 01","E")
 	Return Nil
 EndIf
 
-cEmail	 := u_GprEmail(cEmail,aUsers,aGrupos,aDeptos)
+//cEmail	 := u_GprEmail(cEmail,aUsers,aGrupos,aDeptos)
 
 u_MsgLog(cProg,cAssunto)
 
@@ -52,18 +49,9 @@ For nE := 1 TO Len(aEmpresas)
 
 	cEmpresa := aEmpresas[nE,1]
 	cNomeEmp := aEmpresas[nE,2]
-	cCCCons  := aEmpresas[nE,9]
-	cFat     := aEmpresas[nE,7]
-	If cFat == "S"
-		cTabCN9 := "CN9"+cEmpresa+"0"
-	Else
-		cTabCN9 := "CN9010"
-	EndIf
-	cTabSE2 := "SE2"+cEmpresa+"0"
-	cTabSD1 := "SD1"+cEmpresa+"0"
-	cTabSF1 := "SF1"+cEmpresa+"0"
-	cTabSB1 := "SB1"+cEmpresa+"0"
-	cTabCTT := "CTT"+cEmpresa+"0"
+	cTabCN9  := "CN9"+cEmpresa+"0"
+	cTabSA1  := "SA1"+cEmpresa+"0"
+	cTabCTT  := "CTT"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -72,146 +60,63 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "SELECT "+CRLF
 	cQuery += "    '"+cEmpresa+"' AS EMPRESA"+CRLF
 	cQuery += "    ,'"+cNomeEmp+"' AS NOMEEMP"+CRLF
-	cQuery += "    ,E2_VENCREA "+CRLF
-	cQuery += "    ,E2_EMIS1 "+CRLF
-	cQuery += "    ,E2_PREFIXO "+CRLF
-	cQuery += "    ,E2_NUM "+CRLF
-	cQuery += "    ,E2_PARCELA "+CRLF
-	If !Empty(cCCCons)
-		cQuery += "    ,'"+cCCCons+"' AS D1_CC "+CRLF
-	Else
-		cQuery += "    ,ISNULL(Z2_CC, D1_CC) AS D1_CC "+CRLF
-	EndIf
-	cQuery += "    ,CTT_DESC01 "+CRLF
-	cQuery += "    ,ISNULL(D1_COD, 'RH') AS D1_COD "+CRLF
-	cQuery += "    ,ISNULL(Z2_NOME, B1_DESC) AS B1_DESC "+CRLF
-	cQuery += "    ,ISNULL(D1_TOTAL, Z2_VALOR) AS D1_TOTAL "+CRLF
 
-	cQuery += "    ,(SELECT SUM(D1_TOTAL) FROM "+cTabSD1+" SD1 "+CRLF
-	cQuery += "       WHERE D1_DOC = E2_NUM "+CRLF
-	cQuery += "    		AND D1_SERIE = E2_PREFIXO "+CRLF
-	cQuery += "    		AND D1_FORNECE = E2_FORNECE "+CRLF
-	cQuery += "    		AND D1_LOJA = E2_LOJA "+CRLF
-	cQuery += "    		AND D1_FILIAL = '"+xFilial("SD1")+"' AND SD1.D_E_L_E_T_ = '' ) AS D1TOTAL"+CRLF
+	cQuery += "    ,CN9_NUMERO" + CRLF
+	cQuery += "    ,CN9_REVISA" + CRLF
+	cQuery += "    ,CN9_DTINIC" + CRLF
+	cQuery += "    ,CN9_XXDVIG" + CRLF
+	cQuery += "    ,CN9_SITUAC" + CRLF
+	cQuery += "    ,CTT_DESC01" + CRLF
+	cQuery += "    ,CN9_XCLIEN" + CRLF
+	cQuery += "    ,CN9_XLOJA" + CRLF
+	cQuery += "    ,A1_NOME" + CRLF
+	cQuery += "    ,CN9_XXPROA" + CRLF
+	cQuery += "    ,CN9_XXSPRO" + CRLF
+	cQuery += "    ,CN9_XXNRBK" + CRLF
+	cQuery += "    ,CN9.R_E_C_N_O_ AS XXRECNO" + CRLF
+	cQuery += "    ,DATEDIFF(DAY, GETDATE(), CONVERT(DATE, CN9_XXDVIG, 112)) AS DIASVIG" + CRLF
+	cQuery += " FROM "+cTabCN9+" CN9"
 
-	cQuery += "    ,Z2_VALOR "+CRLF
-	cQuery += "    ,Z2_USUARIO "+CRLF
-	cQuery += "    ,E2_VALOR "+CRLF
-	cQuery += "    ,F1_XXUSER "+CRLF
-	cQuery += "    ,CN9_XXDVIG "+CRLF
-	cQuery += "    ,CN9_GESTC "+CRLF
-	cQuery += "    ,USR1.USR_EMAIL"+CRLF
-	cQuery += "    ,USR1.USR_ID"+CRLF
-	cQuery += "    ,USR1.USR_CODIGO AS GESTOR"+CRLF
-	cQuery += "    ,USR2.USR_CODIGO"+CRLF
+	cQuery += " LEFT JOIN "+cTabCTT+ " CTT ON CTT_CUSTO = CN9_NUMERO" + CRLF
+	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '" + CRLF
+	cQuery += " LEFT JOIN "+cTabSA1+ " SA1 ON A1_COD = CN9_XCLIEN AND A1_LOJA = CN9_XLOJA" + CRLF
+	cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
 
-	cQuery += "  FROM "+CRLF
-	cQuery += "    "+cTabSE2+" SE2 "+CRLF
+	cQuery += " WHERE "
+	cQuery += "   CN9_SITUAC IN ('02','05') " + CRLF
+	cQuery += "   AND CN9_FILIAL = '"+xFilial("CN9")+"' " + CRLF
+	cQuery += "   AND CN9.D_E_L_E_T_ = ' '" + CRLF
+	cQuery += "   AND ISDATE(CN9_XXDVIG) = 1 " + CRLF
+	cQuery += "   AND CONVERT(DATE, CN9_XXDVIG, 112) BETWEEN CONVERT(DATE, GETDATE()) AND DATEADD(DAY, 120, CONVERT(DATE, GETDATE()))" + CRLF
 
-	cQuery += "    LEFT JOIN "+cTabSZ2+" SZ2 "+CRLF
-	cQuery += "    	ON Z2_CODEMP = '"+cEmpresa+"' "+CRLF
-	cQuery += "    	AND Z2_E2PRF = E2_PREFIXO "+CRLF
-	cQuery += "    	AND Z2_E2NUM = E2_NUM "+CRLF
-	cQuery += "    	AND Z2_E2PARC = E2_PARCELA "+CRLF
-	cQuery += "    	AND Z2_E2TIPO = E2_TIPO "+CRLF
-	cQuery += "    	AND Z2_E2FORN = E2_FORNECE "+CRLF
-	cQuery += "    	AND Z2_E2LOJA = E2_LOJA "+CRLF
-	cQuery += "    	AND SZ2.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "    LEFT JOIN "+cTabSD1+" SD1 "+CRLF
-	cQuery += "    	ON  D1_DOC = E2_NUM "+CRLF
-	cQuery += "    	AND D1_SERIE = E2_PREFIXO "+CRLF
-	cQuery += "    	AND D1_FORNECE = E2_FORNECE "+CRLF
-	cQuery += "    	AND D1_LOJA = E2_LOJA "+CRLF
-	cQuery += "    	AND D1_FILIAL = '"+xFilial("SD1")+"' AND SD1.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "    LEFT JOIN "+cTabSF1+" SF1 "+CRLF
-	cQuery += "    	ON  F1_DOC = D1_DOC "+CRLF
-	cQuery += "    	AND F1_SERIE = D1_SERIE "+CRLF
-	cQuery += "    	AND F1_FORNECE = D1_FORNECE "+CRLF
-	cQuery += "    	AND F1_LOJA = D1_LOJA "+CRLF
-	cQuery += "    	AND F1_FILIAL = D1_FILIAL AND SF1.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "    LEFT JOIN "+cTabSB1+" SB1 "+CRLF
-	cQuery += "    	ON  B1_COD = D1_COD "+CRLF
-	cQuery += "    	AND B1_FILIAL = '"+xFilial("SB1")+"' AND SB1.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "    LEFT JOIN "+cTabCTT+" CTT "+CRLF
-	If !Empty(cCCCons)
-		cQuery += "    	ON  CTT_CUSTO = '"+cCCCons+"' "+CRLF
-	Else
-		cQuery += "    	ON  CTT_CUSTO = ISNULL(D1_CC, Z2_CC) "+CRLF
-	EndIf
-	cQuery += "    	AND CTT_FILIAL = '"+xFilial("CTT")+"' AND CTT.D_E_L_E_T_ = '' "+CRLF
-
-	cQuery += "    LEFT JOIN "+cTabCN9+" CN9 "+CRLF
-	cQuery += "     ON  CN9.D_E_L_E_T_ = ''"+CRLF
-	cQuery += "     AND CN9_FILIAL = '"+xFilial("CN9")+"'"+CRLF
-	cQuery += "     AND CN9_REVATU = ' '"+CRLF
-	If !Empty(cCCCons)
-		cQuery += "     AND CN9_NUMERO = '"+cCCCons+"' "+CRLF
-	Else
-		cQuery += "     AND CN9_NUMERO = ISNULL(Z2_CC, D1_CC) "+CRLF
-	EndIf
-
-	cQuery += "    LEFT JOIN SYS_USR USR1 ON CN9_GESTC = USR1.USR_ID AND USR1.D_E_L_E_T_ = ''" + CRLF
-	cQuery += "    LEFT JOIN SYS_USR USR2 ON F1_XXUSER = USR2.USR_ID AND USR2.D_E_L_E_T_ = ''" + CRLF
-
-	cQuery += "  WHERE "+CRLF
-	cQuery += "    E2_FILIAL = '"+xFilial("SE2")+"' AND SE2.D_E_L_E_T_ = ''"+CRLF
-	cQuery += "    AND E2_VENCREA >= '"+DTOS(dDataBase)+"' "+CRLF
-	//cQuery += "    AND E2_PREFIXO <> 'LF' "+CRLF // Não incluir Lançamentos de Folha
-	// 21/08/23 - Remover UNIAO - Bruno Bueno
-	cQuery += "    AND SUBSTRING(E2_FORNECE,1,5) <> 'UNIAO' "+CRLF
-	If Empty(cCCCons)
-		cQuery += " AND SUBSTRING(ISNULL(Z2_CC, D1_CC),1,3) <> '000'"+CRLF
-	EndI
-	cQuery += "    AND CN9_XXDVIG <= '"+DTOS(dData)+"' "+CRLF
 Next
-cQuery += ") "+CRLF
-cQuery += "SELECT "+CRLF
-cQuery += "  *"+CRLF
-cQuery += " ,ISNULL(Z2_VALOR,((D1_TOTAL / D1TOTAL) * 100 * (E2_VALOR / 100))) AS DESPESA "+CRLF
-cQuery += "FROM "+CRLF
-cQuery += "  AVISO "+CRLF
-cQuery += "ORDER BY "+CRLF
-cQuery += "  USR_EMAIL,EMPRESA,D1_CC,E2_EMIS1,E2_NUM"+CRLF
+cQuery += ")" + CRLF
+cQuery += "SELECT * FROM AVISO" + CRLF
+cQuery += " ORDER BY CONVERT(DATE, CN9_XXDVIG, 112) ASC" + CRLF
 
 u_LogMemo(cProg+".SQL",cQuery)
 
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
-tcSetField("QTMP","E2_EMIS1","D",8,0)
-tcSetField("QTMP","E2_VENCREA","D",8,0)
-tcSetField("QTMP","CN9_XXDVIG","D",8,0)
-tcSetField("QTMP","DESPESA","N",12,2)
-
-dbSelectArea("QTMP")
-dbGoTop()
-Do While !Eof()
-	nCont++
-	dbSkip()
-EndDo
-dbGoTop()
-
-cAssunto += ALLTRIM(STR(nCont))
+TCSETFIELD("QTMP","CN9_DTINIC","D",8,0)
+TCSETFIELD("QTMP","CN9_XXDVIG","D",8,0)
 
 cArqXls := Excel(cAssunto,"QTMP")
 
 QTMP->(dbCloseArea())
 
-If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
+//If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
 	u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls},.F.)
-EndIf
+//EndIf
 
 // Gravar no SZ0 - Avisos Web
-u_BKMsgUs(cEmpAnt,cProg,{},u_GrpRepac(),"Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"Lançamentos em Contratos vencidos a mais de 60 dias: "+ALLTRIM(STR(nCont)),"F",cArqXls)
+u_BKMsgUs(cEmpAnt,cProg,{},u_GrpRepac(),cAssunto,cAssunto,"F",cArqXls)
 
 Return
 
 
 Static Function Excel(cTitulo,cAlias)
-Local cDescr 	:= "O objetivo deste relatório é verificar lançamentos em contratos encerrados."
-Local cVersao	:= "21/05/2024"
+Local cDescr 	:= cTitulo
+Local cVersao	:= "18/06/2025"
 Local oRExcel	AS Object
 Local oPExcel	AS Object
 Local aParam 	:= {}
@@ -231,32 +136,22 @@ oPExcel:SetTitulo("")
 
 // Colunas da Planilha 1
 
-
+oPExcel:AddCol("DIASVIG","DIASVIG","Dias de Vigência","")
+oPExcel:GetCol("DIASVIG"):SetDecimal(1)
 oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
 oPExcel:AddCol("NOMEEMP","NOMEEMP","Empresa","")
-
-oPExcel:AddColX3("E2_VENCREA")
-oPExcel:AddColX3("E2_EMIS1")
-oPExcel:AddColX3("E2_PREFIXO")
-oPExcel:AddColX3("E2_NUM")
-oPExcel:AddColX3("E2_PARCELA")
-oPExcel:AddColX3("D1_CC")
-oPExcel:GetCol("D1_CC"):SetHAlign("C")
+oPExcel:AddColX3("CN9_NUMERO")
+oPExcel:GetCol("CN9_NUMERO"):SetHAlign("C")
+oPExcel:AddColX3("CN9_REVISA")
+oPExcel:GetCol("CN9_REVISA"):SetHAlign("C")
 oPExcel:AddColX3("CTT_DESC01")
+oPExcel:AddColX3("CN9_XXNRBK")
+oPExcel:AddColX3("CN9_DTINIC")
 oPExcel:AddColX3("CN9_XXDVIG")
-oPExcel:GetCol("CN9_XXDVIG"):AddCor({|x| !Empty(x)}	,"FF0000","",,,.T.)	// Vermelho
-
-oPExcel:AddColX3("D1_COD")
-oPExcel:AddColX3("B1_DESC")
-
-oPExcel:AddCol("DESPESA","DESPESA","Despesa Rateada","E2_VALOR")
-oPExcel:GetCol("DESPESA"):SetTotal(.T.)
-oPExcel:GetCol("DESPESA"):SetDecimal(2)
-
-oPExcel:AddColX3("D1_TOTAL")
-
-oPExcel:AddCol("USUARIO","UsrRetName(QTMP->F1_XXUSER)","Lançado por","")
-oPExcel:GetCol("USUARIO"):SetTamCol(30)
+oPExcel:AddColX3("CN9_XXPROA")
+//oPExcel:AddColX3("CN9_XXSPRO")
+oPExcel:AddCol("CN9_XXSPRO","u_cProrrog(QTMP->CN9_XXSPRO)","Status","")
+//oPExcel:GetCol("CN9_XXSPRO"):SetTamCol(30)
 
 // Adiciona a planilha 1
 oRExcel:AddPlan(oPExcel)

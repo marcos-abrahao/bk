@@ -75,9 +75,10 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
     //cCC += "harthur.andrade@bkconsultoria.com.br;"
 
     //cAssunto := StrIConv( cAssunto, "CP1252", "UTF-8")
-    If cAssunto <> EncodeUTF8(cAssunto)
-        cAssunto := EncodeUTF8(cAssunto)
-    EndIf
+    //If cAssunto <> EncodeUTF8(cAssunto)
+    //    cAssunto := EncodeUTF8(cAssunto)
+    //EndIf
+    cAssunto := noAcento( cAssunto)
 
 	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 

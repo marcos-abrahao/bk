@@ -63,6 +63,7 @@ aAdd(aDados,{"","U_BKMSG007()",		"AVISOS",		"Aviso de lançamentos de despesas em
 aAdd(aDados,{"","U_BKMSG008()",		"AVISOS",		"Aviso de Pedidos de compras não entregues"})
 aAdd(aDados,{"","U_BKMSG009()",		"AVISOS",		"Aviso de Solicitações de compras em aberto"})
 aAdd(aDados,{"","U_BKMSG010()",	    "AVISOS",		"Aviso de Novos eventos ADP cadastrados"})
+aAdd(aDados,{"","U_BKMSG011()",	    "AVISOS",		"Aviso de termino de vigencia de contratos - Excel"})
 
 aAdd(aDados,{"","U_BKGCT06()",		"GESTÃO",		"Avisos automaticos de Repactuação de contratos e Compras"})
 aAdd(aDados,{"","U_BKGCTA01()",		"GESTÃO",		"Cadastro Codigos de Glosa Bonificação - BK"})

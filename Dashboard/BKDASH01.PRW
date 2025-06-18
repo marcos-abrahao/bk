@@ -152,6 +152,8 @@ If FWCodEmp() == "01" .OR. FWCodEmp() == "20" // Barcas
 		aAdd(aDados,{cP12	,"U_BKMSG006()",	"AVISOS",		"Aviso de lançamentos de despesas"})
 		aAdd(aDados,{cP19D	,"U_BKMSG007()",	"AVISOS",		"Aviso de lançamentos de despesas em contratos vencidos a mais de 60 dias"})
 		aAdd(aDados,{cP19	,"U_BKMSG010()",	"AVISOS",		"Aviso de Novos eventos ADP cadastrados"})
+		aAdd(aDados,{cP19	,"U_BKMSG011()",	"AVISOS",		"Aviso de termino de vigencia de contratos - Excel"})
+		
 	EndIf
 
 	// Avisos
