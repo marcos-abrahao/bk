@@ -668,7 +668,7 @@ AADD(aCabs  ,"Vigencia")
 AADD(aCampos,"cStatus")
 AADD(aCabs  ,"Status")
 
-cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_XXDVIG,CN9_SITUAC,CTT_DESC01,CN9_XCLIEN,CN9_XLOJA,A1_NREDUZ,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
+cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_XXDVIG,CN9_SITUAC,CTT_DESC01,CN9_XCLIEN,CN9_XLOJA,A1_NREDUZ,CN9_CODOBJ,CN9_VLATU,CN9_XXSPRO,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
 
 cQuery += " LEFT JOIN "+RETSQLNAME("CTT")+ " CTT ON CTT_CUSTO = CN9_NUMERO"
@@ -763,7 +763,7 @@ Do While (_cAlias)->(!eof())
          lEmail := .T.
 
          cVigencia := "De: "+DTOC(dVigI)+" Até: "+DTOC(dVigF)
-		 cStatus   := u_cProrrog(CN9->CN9_XXSPRO)
+		 cStatus   := u_cProrrog(QCN9->CN9_XXSPRO)
          
          cMsg := ""
        
@@ -980,7 +980,7 @@ AADD(aCabs  ,"Andamento")
 AADD(aCampos,"cStatus")
 AADD(aCabs  ,"Status")
 
-cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,"
+cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,CN9_XXSPRO,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
 
@@ -1039,7 +1039,7 @@ Do While (_cAlias)->(!eof())
          Else   
             cMsg += '<tr bgcolor="#dfdfdf">'
          EndIf   
-		 cStatus  := u_cProrrog(CN9->CN9_XXSPRO)
+		 cStatus  := u_cProrrog(QCN9->CN9_XXSPRO)
 
          cMsg += '<td width="30%" class="F10A">'+TRIM(QCN9->A1_NOME)+'</td>'
          cMsg += '<td width="10%" class="F10A">'+TRIM(QCN9->CN9_NUMERO)+'</td>'
