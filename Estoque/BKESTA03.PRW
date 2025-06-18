@@ -2030,10 +2030,7 @@ Local cDtExtso  := ""
 
 cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
-//If SM0->M0_CODIGO == "01"      // BK
-	cLogo := u_BKLogos()
-//Endif	
-
+cLogo := u_BKLogos()
 
 If nPag == 1
 	AADD(aHtml,'<html lang="pt-BR">')
@@ -2161,9 +2158,7 @@ Local cDtExtso  := ""
 
 cDtExtso  := cMUNIC+", "+Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
-//If SM0->M0_CODIGO == "01"      // BK
-	cLogo := u_BKLogos()
-//Endif	
+cLogo := u_BKLogos()
 
 If nPag == 1
 	AADD(aHtml,'<html lang="pt-BR">')
@@ -2336,9 +2331,7 @@ Local cEndEmpres := SM0->M0_ENDENT+"  "+Rtrim(SM0->M0_CIDENT)+"  - "+SM0->M0_EST
 
 cDtExtso  := Day2Str(dEMISSAO)+" de "+MesExtenso(Month(dEMISSAO))+" de "+Year2Str(dEMISSAO)+"."
 
-//If SM0->M0_CODIGO == "01"      // BK
-	cLogo := u_BKLogos()
-//Endif	
+cLogo := u_BKLogos()
 
 If nPag == 1
 	AADD(aHtml,'<html lang="pt-BR">')

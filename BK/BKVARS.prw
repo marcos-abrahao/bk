@@ -625,7 +625,7 @@ Return lRet
 
 
 // Enum status de prorrogação de Contratos (BKGCT06)
-User Function StProrrog()
+User Function aProrrog()
 Local aStatus := {"1-Manifestado o Interesse na continuidade",;
                   "2-Aguardando Posicionamento Diretoria",;
                   "3-Aguardando Posicionamento do Cliente",;
@@ -633,3 +633,13 @@ Local aStatus := {"1-Manifestado o Interesse na continuidade",;
                   "5-Contrato Prorrogado",;
                   "6-Manifestado o encerramento"}
 Return aStatus
+
+
+// Descrição status de prorrogação de Contratos (BKGCT06)
+User Function cProrrog(nSt)
+Local cRet := "X-Status prorrogação não definida"
+Local aStatus := u_aProrrog()
+If nSt > 0 .AND. nSt < Len(aStatus)
+	cRet := aStatus[nSt]
+EndIf
+Return cRet

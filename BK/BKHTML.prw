@@ -56,11 +56,6 @@ User Function BKUtf8()
 Return Chr(239) + Chr(187) + Chr(191)
 
 
-User Function BKLogo()
-Local cLogo := '<img src="https://contato.bkconsultoria.com.br/content/grupo-bk.png" style="padding-left:5;border-width: 0;" width="200">'
-Return cLogo
-
-
 User Function BKLogos(cEmp)
 Local cLink  := ""
 Local cLogo  := ""

@@ -21,7 +21,7 @@ Local cTabSA2   := ""
 
 Local cEmail 	:= ""
 Local cIdSup	:= ""
-Local cAssunto  := "Aviso de Documentos pendentes de aprovação"
+Local cAssunto  := "Aviso de Documentos pendentes de aprovacao"
 Local cEmailCC  := ""
 Local cEmailMs  := u_EmailAdm()+"glaciana.oliveira@bkconsultoria.com.br;" 
 Local aCabs   	:= {"Empresa","Documento","Fornecedor","Digitação","Pagamento","Responsável","Departamento"}

@@ -18,7 +18,7 @@ Local oPanelLeft
 Local aButtons := {}
 */
 Local Ix_		:= 0
-Local _IX		:= 0
+lOCAL nC1		:= 0
 Local lOk      	:= .F.
 Local nTotal 	:= 0
 Local cNUser	:= ""
@@ -27,6 +27,7 @@ Local cNumPC	:= ""
 Local cForPagto := ""
 Local aCabs 	:= {"Solic./Cotação","Num.","Item","Cod Prod.","Descrição Produto","UM","Quant","Emissao","Limite Entrega","Motivo/Status Cotação","Val.Licit./Cotado","Tot.Licit./Cotado","OBS/Forma de Pgto","Contrato/Forn.","Descrição Contrato/Nome Forn.","Detalhes"}
 Local aItens	:= {}
+Local aSC1 		:= {}
 Local aMotivo	:= {}
 Local lMDiretoria := .F.
 Local cXXJUST 	:= ""
@@ -93,6 +94,7 @@ EndIf
 lPedido := .F.   
 
 aItens:= {}
+aSc1  := {}
 Do While SC7->(!eof()) .AND. cNumPC == SC7->C7_NUM
 	cUser := SC7->C7_USER
 	lPedido := .T.
@@ -103,11 +105,13 @@ Do While SC7->(!eof()) .AND. cNumPC == SC7->C7_NUM
    		//AADD(aItens,{SC1->C1_SOLICIT,SC1->C1_NUM,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_EMISSAO,SC1->C1_DATPRF,aMotivo[val(SC1->C1_XXMTCM)],TRANSFORM(SC1->C1_XXLCVAL,"@E 999,999,999.99"),TRANSFORM(SC1->C1_XXLCTOT,"@E 999,999,999.99"),"Obs: "+TRIM(SC1->C1_OBS),"Contrato: "+SC1->C1_CC,"Desc.Contr: "+SC1->C1_XXDCC,"Objeto: "+SC1->C1_XXOBJ})
    		AADD(aItens,{SC1->C1_SOLICIT,SC1->C1_NUM,SC1->C1_ITEM,SC1->C1_PRODUTO,SC1->C1_DESCRI,SC1->C1_UM,SC1->C1_QUANT-SC1->C1_XXQEST,SC1->C1_EMISSAO,SC1->C1_DATPRF,aMotivo[val(SC1->C1_XXMTCM)],SC1->C1_XXLCVAL,SC1->C1_XXLCTOT,"Obs: "+TRIM(SC1->C1_OBS),"Contrato: "+SC1->C1_CC,"Desc.Contr: "+SC1->C1_XXDCC,"Objeto: "+SC1->C1_XXOBJ})
 		cXXJUST += IIF(SC1->C1_XXJUST $ cXXJUST,"",SC1->C1_XXJUST) 
+		aAdd(aSC1,SC1->(RECNO()))
+
    		aITx_ := {}
 		DbSelectArea("SC8")
 		SC8->(DbSetOrder(1))
 		SC8->(DbSeek(xFilial("SC8")+SC7->C7_NUMCOT,.T.))
-	    Do While SC8->(!eof()) .AND. SC8->C8_NUM==SC7->C7_NUMCOT 
+	    Do While SC8->(!eof()) .AND. SC8->C8_NUM == SC7->C7_NUMCOT 
 	    	IF SC8->C8_NUMSC==SC1->C1_NUM .AND. SC8->C8_ITEMSC == SC1->C1_ITEM
 	    	    cForPagto := TRIM("For.Pgto: "+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_COND,SC8->C8_COND)+" - "+Posicione("SE4",1,xFilial("SE4")+IIF(SC8->C8_NUMPED==SC7->C7_NUM .AND. SC8->C8_ITEMPED ==SC7->C7_ITEM ,SC7->C7_COND,SC8->C8_COND),"E4_DESCRI"))
 	   		    AADD(aITx_,{"",;
@@ -234,24 +238,22 @@ oMemo:= tMultiget():New(180,040,{|u|if(Pcount()>0,cXXJUST:=u,cXXJUST)},oPanelLef
 ACTIVATE MSDIALOG oDlg CENTERED ON INIT EnchoiceBar(oDlg,{|| lOk:=.T., oDlg:End()},{|| lOk:=.F., oDlg:End()}, , aButtons)
 */
 
-IF ( lOk ) .AND. lLib
-	IF !EMPTY(cXXJUST)
-	    cSC1NUM := ""
-        FOR _IX:= 1 TO LEN(aItens)
-        	IF cSC1NUM <> aItens[_IX,2]
-    			DbSelectArea("SC1")
-				SC1->(DbSetOrder(1))
-				SC1->(DbSeek(xFilial("SC1")+aItens[_IX,2],.T.))
-				Do While SC1->(!eof()) .AND. SC1->C1_NUM == aItens[_IX,2]
-					Reclock("SC1",.F.)
-        			SC1->C1_XXJUST := cXXJUST
-		   			SC1->(Msunlock())
-        			SC1->(DbSkip())
-				ENDDO
-				cSC1NUM := aItens[_IX,2]
-			ENDIF
-        NEXT
-   	ENDIF
+If !u_IsBarcas()
+	IF ( lOk ) .AND. lLib
+		IF !EMPTY(cXXJUST)
+			FOR nC1:= 1 TO LEN(aSC1)
+				If aSC1[nC1] > 0
+					SC1->(DbGoTo(aSC1[nC1]))
+					IF ALLTRIM(cXXJUST) <> ALLTRIM(SC1->C1_XXJUST)
+						DbSelectArea("SC1")
+						Reclock("SC1",.F.)
+						SC1->C1_XXJUST := ALLTRIM(cXXJUST)
+						SC1->(Msunlock())
+					ENDIF
+				ENDIF
+			NEXT
+		ENDIF
+	EndIf
 EndIf
 
 SC7->(RestArea(aAreaSC7))

@@ -89,43 +89,7 @@ Else
    cUser := cUserName
 EndIf
 
-//cLogo := "http://www.bkconsultoria.com.br/image/logobk.jpg"
-
-If FWCodEmp() == "01"      // BK
-	cLogo := u_BKLogo()
-ElseIf FWCodEmp() == "02"  // MMDK
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">MMDK</span></b>'
-ElseIf FWCodEmp() == "04"  // ESA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">ESA</span></b>'
-ElseIf FWCodEmp() == "06"  // BKDAHER SUZANO
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BKDAHER SUZANO</span></b>'
-ElseIf FWCodEmp() == "07"  // JUSTFOFTWARE
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">JUST</span></b>'
-ElseIf FWCodEmp() == "08"  // BHG CAMPINAS
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BHG CAMPINAS</span></b>'
-ElseIf FWCodEmp() == "09"  // BHG OSASCO
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BHG OSASCO</span></b>'
-ElseIf FWCodEmp() == "10"  // BKDAHER TABOAO DA SERRA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BKDAHER TABOAO DA SERRA</span></b>'
-ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BKDAHER LIMEIRA</span></b>'
-ElseIf FWCodEmp() == "12"  // SEGUROS
-	cLogo := '<img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0>'
-ElseIf FWCodEmp() == "14"  // CONSORCIO BALSA NOVA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">CONSÓRCIO BALSA NOVA</span></b>'
-ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BHG INTERIOR 3</span></b>'
-ElseIf FWCodEmp() == "16"  // Consorcio Moove
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">CONSÓRCIO MOOVE</span></b>'
-ElseIf FWCodEmp() == "17"  // DMAF
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">DMAF</span></b>'
-ElseIf FWCodEmp() == "18"  // BK VIA
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BK VIA</span></b>'
-ElseIf FWCodEmp() == "19"  // BK SOLUÇÕES TECNOLOGICAS
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BK SOL. TECNOLOGICAS</span></b>'
-ElseIf FWCodEmp() == "20"  // BARCAS RIO
-	cLogo := '<b><span style="font-size:22.0pt;color:skyblue;">BARCAS RIO</span></b>'
-Endif	
+cLogo := u_BKLogos()
 
 cHtm += '<html lang="pt-BR" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">' 
 

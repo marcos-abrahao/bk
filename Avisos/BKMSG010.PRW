@@ -3,12 +3,12 @@
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} BKMSG010
-BK - Aviso de Pedidos de compras não entregues
+BK - Aviso de Eventos novos ADP
 
 @Return
 @author Marcos Bispo Abrahão
-@since 
-@version P12.1.2310
+@since 01/03/2025
+@version P12.1.2410
 /*/
 
 User Function BKMSG010

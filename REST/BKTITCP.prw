@@ -20,15 +20,14 @@ Local nTimeOut   := 200
 Local cHtml      := ""
 Default lShell   := .T.
 
-If Select("SX2")==0
-	If DOW(dUtil) == 7
-		dUtil++
-	EndIf
-	If DOW(dUtil) == 1
-		dUtil++
-	EndIf
-Else
-	dUtil := DATAVALIDA(dDataBase+1)
+If DOW(dUtil) == 7
+	dUtil++
+EndIf
+If DOW(dUtil) == 1
+	dUtil++
+EndIf
+If Select("SX2") <> 0
+	dUtil := DATAVALIDA(dUtil)
 EndIf
 
 Aadd(aHeader, "Content-Type: text/html; charset=utf8")

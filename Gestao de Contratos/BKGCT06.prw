@@ -617,13 +617,12 @@ Local cTxt    := ""
 Local lCorNao := .T.
 Local nPrxMes1,nPrxMes2,nPrxMes3,nPrxMes4
 Local nPrxAno1,nPrxAno2,nPrxAno3,nPrxAno4
-Local aStatus := u_StProrrog()
 Local nDiasVig:= 0
 Local lEmail  := .F.
 
 Private cEmailTO := ""
 Private cEmailCC := ""
-
+Private cStatus  := ""
 Public cVigencia := ""
 
 u_MsgLog("VigBKGCT06","Aviso de termino de vigência de contratos")
@@ -666,6 +665,8 @@ AADD(aCabs  ,"Valor")
 AADD(aCampos,"cVigencia")
 AADD(aCabs  ,"Vigencia")
 
+AADD(aCampos,"cStatus")
+AADD(aCabs  ,"Status")
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_XXDVIG,CN9_SITUAC,CTT_DESC01,CN9_XCLIEN,CN9_XLOJA,A1_NREDUZ,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
 cQuery += " FROM "+RETSQLNAME("CN9")+" CN9"
@@ -762,15 +763,17 @@ Do While (_cAlias)->(!eof())
          lEmail := .T.
 
          cVigencia := "De: "+DTOC(dVigI)+" Até: "+DTOC(dVigF)
+		 cStatus   := u_cProrrog(CN9->CN9_XXSPRO)
          
          cMsg := ""
        
-         cMsg += '<td width="10%" class="F10A">'+TRIM(QCN9->CN9_NUMERO)+'</td>'
+         cMsg += '<td width="7%" class="F10A">'+TRIM(QCN9->CN9_NUMERO)+'</td>'
          cMsg += '<td width="23%" class="F10A">'+TRIM(QCN9->CTT_DESC01)+'</td>'
          cMsg += '<td width="15%" class="F10A">'+TRIM(QCN9->A1_NREDUZ)+'</td>'
-         cMsg += '<td width="40%" class="F10A">'+TRIM(U_CN9OBJ(QCN9->CN9_CODOBJ))+'</td>'
+         cMsg += '<td width="36%" class="F10A">'+TRIM(U_CN9OBJ(QCN9->CN9_CODOBJ))+'</td>'
          cMsg += '<td width="15%" class="F10A" align="right">'+TRANSFORM(QCN9->CN9_VLATU,"@E 999,999,999.99")+'&nbsp;&nbsp;</td>'
          cMsg += '<td width="7%" class="F10A" nowrap>'+TRIM(cVigencia)+'</td>'
+         cMsg += '<td width="7%" class="F10A" nowrap>'+TRIM(cStatus)+'</td>'
          cMsg += '</tr>'
 	     
 	     cTxt := "" 
@@ -896,7 +899,7 @@ QCN9->(Dbclosearea())
 
 //------------------
 
-cAssunto := "Aviso de termino de vigência de contratos - "+FWEmpName(cEmpAnt)
+cAssunto := "Aviso de termino de vigencia de contratos - "+FWEmpName(cEmpAnt)
 
 If lEmail
 
@@ -923,7 +926,6 @@ Local _ni
 Local cPicN     := "@E 99999999.99999"
 Local cDirTmp,_cArqS,_cArqSv
 Local lOk       := .F.
-
 Local cQuery
 Local lEnvV2
 Local _cAlias := "QCN9"
@@ -937,6 +939,7 @@ Local lFirst  := .T.
 
 Private cEmailTO := ""
 Private cEmailCC := ""
+Private cStatus  := ""
 
 Public cVigencia := ""
 Public nDiasVig  := 0
@@ -973,6 +976,9 @@ AADD(aCabs  ,"Dias")
 
 AADD(aCampos,"QCN9->CN9_XXPROA")
 AADD(aCabs  ,"Andamento")
+
+AADD(aCampos,"cStatus")
+AADD(aCabs  ,"Status")
 
 cQuery := " SELECT CN9_NUMERO,CN9_REVISA,CN9_DTINIC,CN9_SITUAC,CTT_DESC01,CN9_XXNRBK,CN9_XXDVIG,CN9_XXPROA,"
 cQuery += " CN9_XCLIEN,CN9_XLOJA,A1_NOME,CN9_CODOBJ,CN9_VLATU,CN9.R_E_C_N_O_ AS XXRECNO "
@@ -1033,7 +1039,8 @@ Do While (_cAlias)->(!eof())
          Else   
             cMsg += '<tr bgcolor="#dfdfdf">'
          EndIf   
-       
+		 cStatus  := u_cProrrog(CN9->CN9_XXSPRO)
+
          cMsg += '<td width="30%" class="F10A">'+TRIM(QCN9->A1_NOME)+'</td>'
          cMsg += '<td width="10%" class="F10A">'+TRIM(QCN9->CN9_NUMERO)+'</td>'
          cMsg += '<td width="05%" class="F10A">'+TRIM(QCN9->CN9_REVISA)+'</td>'
@@ -1041,6 +1048,7 @@ Do While (_cAlias)->(!eof())
          cMsg += '<td width="15%" class="F10A">'+TRIM(QCN9->CN9_XXNRBK)+'</td>'
          cMsg += '<td width="05%" class="F10A" nowrap>'+TRIM(cVigencia)+'</td>'
          cMsg += '<td width="05%" class="F10A" align="right">'+STR(nDiasVig,4)+'&nbsp;&nbsp;</td>'
+         cMsg += '<td width="7%" class="F10A" nowrap>'+TRIM(cStatus)+'</td>'
          cMsg += '</tr>'
 
          If !EMPTY(QCN9->CN9_XXPROA)
@@ -1052,7 +1060,7 @@ Do While (_cAlias)->(!eof())
             cMsg += '<td width="30%" class="F10A"> </td>'
             cMsg += '<td width="10%" class="F10A"> </td>'
             cMsg += '<td width="5%" class="F10A"> </td>'
-            cMsg += '<td colspan="4" class="F10A"> <font color="blue">'+ALLTRIM(QCN9->CN9_XXPROA)+'</font></td>'
+            cMsg += '<td colspan="5" class="F10A"> <font color="blue">'+ALLTRIM(QCN9->CN9_XXPROA)+'</font></td>'
             cMsg += '</tr>'
          EndIf
             
@@ -1073,7 +1081,7 @@ Do While (_cAlias)->(!eof())
 	            _uValor := '="'+ALLTRIM(xCampo)+'"'
 	         endif
 	            
-	         cTxt += _uValor + IIF(_ni < LEN(aCampos),";","")
+	         cTxt += _uValor + ";"  //IIF(_ni < LEN(aCampos),";","")
 	            
 	      Next _ni
 	         
@@ -1175,7 +1183,7 @@ QCN9->(Dbclosearea())
 
 //------------------
 
-cAssunto := "Alerta de término de vigencia de contratos - "+FWEmpName(cEmpAnt)
+cAssunto := "Alerta de termino de vigencia de contratos - "+FWEmpName(cEmpAnt)
   
 // -- Carrega as variaveis cEmailTO e cEmailCC
 P1BKGCT06()
@@ -1212,44 +1220,6 @@ AADD(aHtm,'<body bgcolor=#ffffff lang=PT-BR class="Normal">')
 AADD(aHtm,'<table border=0 align="center" cellpadding=0 width="100%" style="center" >')
 AADD(aHtm,'  <tr>')
 AADD(aHtm,'  <td width=15% class="Normal">')
-/*
-If FWCodEmp() == "01"      // BK
-	AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogo()+'</p>')
-ElseIf FWCodEmp() == "02"  // HF
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">MMDK</span></b></p>')
-ElseIf FWCodEmp() == "04"  // ESA
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">ESA</span></b></p>')
-ElseIf FWCodEmp() == "06"  // BKDAHER SUZANO
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BKDAHER SUZANO</span></b></p>')
-ElseIf FWCodEmp() == "07"  // JUSTSOFTWARE
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">JUST</span></b></p>')
-ElseIf FWCodEmp() == "08"  // BHG CAMPINAS
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BHG CAMPINAS</span></b></p>')
-ElseIf FWCodEmp() == "09"  // BHG OSASCO
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BHG OSASCO</span></b></p>')
-ElseIf FWCodEmp() == "10"  // BKDAHER TABOAO DA SERRA
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BKDAHER TABOAO DA SERRA</span></b></p>')
-ElseIf FWCodEmp() == "11"  // BKDAHER LIMEIRA
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BKDAHER LIMEIRA</span></b></p>')
-ElseIf FWCodEmp() == "12"  // BK CORRETORA
-	AADD(aHtm,'    <p align=center style="text-align:center"><img src="http://www.bkseguros.com.br/wp-content/uploads/2017/04/bk-consultoria-seguros-logo.png" border=0></p>')
-ElseIf FWCodEmp() == "14"  // CONSORCIO NOVA BALSA
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">CONSORCIO NOVA BALSA</span></b></p>')
-ElseIf FWCodEmp() == "15"  // BHG INTERIOR 3
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BHG INTERIOR 3</span></b></p>')
-ElseIf FWCodEmp() == "16"  // MOOVE
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">MOOVE</span></b></p>')
-ElseIf FWCodEmp() == "17"  // DMAF
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">DMAF</span></b></p>')
-ElseIf FWCodEmp() == "18"  // BK VIA
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK VIA</span></b></p>')
-ElseIf FWCodEmp() == "19"  // BK SOL TEC
-	AADD(aHtm,'    <p align=center style="text-align:center"><b><span style="font-size:22.0pt;color:skyblue">BK SOL TEC</span></b></p>')
-ElseIf FWCodEmp() == "20"  // BARCAS RIO
-	AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogos()+'</p>')
-Endif	
-*/
-
 AADD(aHtm,'    <p align=center style="text-align:center">'+u_BKLogos()+'</p>')
 AADD(aHtm,'  </td>')
 AADD(aHtm,'  <td class="Normal" width=85% style="center" >')
@@ -1281,11 +1251,13 @@ Static Function CabV()
 Local aHtm := {}
 AADD(aHtm,'<table width="100%" Align="center" border="1" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >')
 AADD(aHtm,'  <tr bgcolor="#dfdfdf">')
-AADD(aHtm,'    <td width="15%" class="F10A"><b>Cliente</b></td>')
+AADD(aHtm,'    <td width="15%" class="F10A"><b>C.C.</b></td>')
 AADD(aHtm,'    <td width="23%" class="F10A"><b>Contrato</b></td>')
+AADD(aHtm,'    <td width="15%" class="F10A"><b>Cliente</b></td>')
 AADD(aHtm,'    <td width="40%" class="F10A"><b>Objeto</b></td>')
 AADD(aHtm,'    <td width="15%" class="F10A"><b>Valor</b></td>')
 AADD(aHtm,'    <td width="7%" class="F10A"><b>Vigencia</b></td>')
+AADD(aHtm,'    <td width="7%" class="F10A"><b>Status</b></td>')
 AADD(aHtm,'  </tr>')
 Return aHtm
 
@@ -1301,9 +1273,9 @@ AADD(aHtm,'    <td width="30%" class="F10A"><b>Descr. CC</b></td>')
 AADD(aHtm,'    <td width="15%" class="F10A"><b>Responsavel</b></td>')
 AADD(aHtm,'    <td width="05%" class="F10A"><b>Vigencia</b></td>')
 AADD(aHtm,'    <td width="05%" class="F10A" align="right" ><b>Dias</b></td>')
+AADD(aHtm,'    <td width="7%" class="F10A"><b>Status</b></td>')
 AADD(aHtm,'  </tr>')
 Return aHtm
-
 
 
 Static Function FimHtml(cPrw)
@@ -1790,7 +1762,8 @@ If nHandle > 0
 	            _uValor := '="'+ALLTRIM(xCampo)+'"'
 	         endif
 	            
-	         fWrite(nHandle, _uValor + IIF(_ni < LEN(aCampos),";",""))
+	         //fWrite(nHandle, _uValor + IIF(_ni < LEN(aCampos),";",""))
+	         fWrite(nHandle, _uValor + ";")
 	            
 	      Next _ni
 	         

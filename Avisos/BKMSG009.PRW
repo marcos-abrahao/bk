@@ -16,7 +16,7 @@ User Function BKMSG009
 Local cQuery            
 Local _cAlias 	:= "QSC1"
 Local aArea     := GetArea()
-Local cAssunto	:= "Solicitações de compras em aberto: "
+Local cAssunto	:= "Solicitacoes de compras em aberto: "
 Local cEmail	:= ""
 Local cEmailCC	:= u_EmailAdm()
 Local cMsg    	:= ""

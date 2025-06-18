@@ -16,7 +16,7 @@ User Function BKMSG008
 Local cQuery            
 Local cAlias 	:= "QSC7"
 Local aArea     := GetArea()
-Local cAssunto	:= "Pedidos de compras não entregues: "
+Local cAssunto	:= "Pedidos de compras nao entregues: "
 Local cEmail	:= ""
 Local cEmailCC	:= u_EmailAdm()
 Local cMsg    	:= ""

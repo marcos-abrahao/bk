@@ -624,7 +624,7 @@ Local _sAlias	:= Alias()
 Local oDlg01,aButtons := {},lOk := .F.
 Local nSnd  	:= 0,nTLin := 12
 Local nSin  	:= 0
-Local aStatus 	:= u_StProrrog()
+Local aStatus 	:= u_aProrrog()
 Local aAreaAtu	:= GetArea()
 Local aAreaCNF	:= CNF->( GetArea() )
 Local cContRev
@@ -662,8 +662,6 @@ nSPRO   := CN9->CN9_XXSPRO
 ////////////
 //MONTA TELA PRORROGAÇÃO
 ////////////
-
-
   
 Define MsDialog oDlg01 Title "Informações - Prorrogação" From 000,000 To 260+(nSin*nTLin),600 Of oDlg01 Pixel
 
