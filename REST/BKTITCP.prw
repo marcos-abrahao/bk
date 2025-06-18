@@ -20,6 +20,17 @@ Local nTimeOut   := 200
 Local cHtml      := ""
 Default lShell   := .T.
 
+If Select("SX2")==0
+	If DOW(dUtil) == 7
+		dUtil++
+	EndIf
+	If DOW(dUtil) == 1
+		dUtil++
+	EndIf
+Else
+	dUtil := DATAVALIDA(dDataBase+1)
+EndIf
+
 Aadd(aHeader, "Content-Type: text/html; charset=utf8")
 Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
 

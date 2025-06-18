@@ -1221,14 +1221,6 @@ async function loadTable() {
 
 $('#mytable').html('<tr><td colspan="16" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 
-// Destrua a tabela existente se já foi inicializada
-/*
-if ($.fn.DataTable.isDataTable('#tableSE1')) {
-    tableSE1.destroy();
-    $('#tableSE1').empty();
-}
-*/
-
 let titulos = await getCRs();
 let trHTML = '';
 let ccbtn = '';

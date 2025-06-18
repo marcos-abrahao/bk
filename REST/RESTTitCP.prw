@@ -1107,12 +1107,35 @@ table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>t
     padding-right: 3px;
 }
 
-thead input {
-	width: 100%;
-	font-weight: bold;
-	background-color: #F3F3F3
+thead input::placeholder {
+    font-weight: bold !important;
+    color: #6c757d !important;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem !important; /* Tamanho reduzido */
+    opacity: 1 !important; /* Garante visibilidade total */
 }
 
+/* Borda destacada para os inputs do cabeçalho */
+thead input {
+    border: 2px solid #9E0000 !important; /* Cor do seu header (.bk-colors) */
+    border-radius: 4px !important; /* Cantos arredondados */
+    padding: 4px !important; /* Espaçamento interno */
+    box-shadow: 0 0 2px rgba(158, 0, 0, 0.3) !important; /* Sombra sutil (opcional) */
+}
+
+/* Efeito hover para os inputs do cabeçalho */
+thead input:hover {
+    background-color: #FFF2F2 !important; /* Vermelho claro de fundo */
+    border-color: #9E0000 !important; /* Borda vermelha mais intensa */
+    transition: all 0.3s ease; /* Suaviza a transição */
+}
+
+/* Opcional: Efeito ao focar (quando clicado) */
+thead input:focus {
+    background-color: #FFE5E5 !important;
+    box-shadow: 0 0 0 2px rgba(158, 0, 0, 0.2) !important;
+}
 </style>
 </head>
 <body>
@@ -1157,11 +1180,11 @@ thead input {
 <th scope="col">Fornecedor</th>
 <th scope="col">Forma Pgto</th>
 <th scope="col">Vencto</th>
-<th scope="col" style="text-align:center;">Portador</th>
-<th scope="col" style="text-align:center;">Lote</th>
-<th scope="col" style="text-align:center;">Valor</th>
-<th scope="col" style="text-align:center;">Saldo</th>
-<th scope="col" style="text-align:center;">Status</th>
+<th scope="col">Portador</th>
+<th scope="col">Lote</th>
+<th scope="col">Valor</th>
+<th scope="col">Saldo</th>
+<th scope="col">Status</th>
 <th scope="col">Histórico</th>
 <th scope="col">Dados Pgto</th>
 <th scope="col">Operador</th>
@@ -1176,10 +1199,10 @@ thead input {
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
-  <th scope="col" style="text-align:center;"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
+  <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
   <th scope="col"></th>
@@ -1459,33 +1482,31 @@ let cbtnids = '';
 let cbtnz2 = '';
 let anexos = '';
 
-const tableElement = $('#tableSE2');
+//const tableElement = $('#tableSE2');
         
-if ($.fn.DataTable.isDataTable(tableElement)) {
-    tableElement.DataTable().destroy();
+// Destrói a tabela se já existir (preservando o thead original)
+if ($.fn.DataTable.isDataTable('#tableSE2')) {
+    $('#tableSE2').DataTable().destroy();
+    // Restaura o thead original (com os textos das colunas)
+    $('#tableSE2 thead').html(`
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Empresa</th>
+            <th scope="col">Título</th>
+            <th scope="col">Fornecedor</th>
+            <th scope="col">Forma Pgto</th>
+            <th scope="col">Vencto</th>
+            <th scope="col">Portador</th>
+            <th scope="col">Lote</th>
+            <th scope="col">Valor</th>
+            <th scope="col">Saldo</th>
+            <th scope="col">Status</th>
+            <th scope="col">Histórico</th>
+            <th scope="col">Dados Pgto</th>
+            <th scope="col">Operador</th>
+        </tr>
+    `);
 }
-
-//Aqui
-        if (!$('#tableSE2 thead').length) {
-            $('#tableSE2').prepend('<thead><tr></tr></thead>');
-        }
-
-        // 5. Configurar cabeçalhos com inputs
-        const headers = ["", "Empresa", "Título", "Fornecedor", "Forma Pgto", "Vencto", 
-                       "Portador", "Lote", "Valor", "Saldo", "Status", "Histórico", 
-                       "Dados Pgto", "Operador", "Anexos"];
-
-        $('#tableSE2 thead tr').empty();
-        headers.forEach(header => {
-            $('#tableSE2 thead tr').append(`
-                <th>
-                    <input type="text" 
-                           placeholder="${header}" 
-                           class="form-control form-control-sm header-input"
-                           aria-label="Filtrar ${header}"/>
-                </th>
-            `);
-        });
 
 
 if (Array.isArray(titulos)) {
@@ -1689,8 +1710,7 @@ tableSE2 = $('#tableSE2').DataTable({
                 var title = column.header().textContent;
  
                 // Create input element and add event listener
-                //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
-				$('<input type="text" placeholder="' + title + '" />')
+				$('<input type="text" placeholder="' + title + '" class="form-control form-control-sm" />')
 				    .appendTo($(column.header()).empty())
                     .on('keyup change clear', function () {
                         if (column.search() !== this.value) {
