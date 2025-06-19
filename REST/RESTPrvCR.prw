@@ -702,11 +702,29 @@ table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>t
     padding-right: 3px;
 }
 
-thead input {
-	width: 100%;
-	font-weight: bold;
-	background-color: #F3F3F3
+thead input::placeholder {
+    font-weight: bold !important;
+    color: #6c757d !important;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem !important; /* Tamanho reduzido */
+    opacity: 1 !important; /* Garante visibilidade total */
 }
+/* Borda destacada para os inputs do cabeçalho */
+thead input {
+    border: 2px solid #9E0000 !important; /* Cor do seu header (.bk-colors) */
+    border-radius: 4px !important; /* Cantos arredondados */
+    padding: 4px !important; /* Espaçamento interno */
+    box-shadow: 0 0 2px rgba(158, 0, 0, 0.3) !important; /* Sombra sutil (opcional) */
+}
+
+/* Efeito hover para os inputs do cabeçalho */
+thead input:hover {
+    background-color: #FFF2F2 !important; /* Vermelho claro de fundo */
+    border-color: #9E0000 !important; /* Borda vermelha mais intensa */
+    transition: all 0.3s ease; /* Suaviza a transição */
+}
+
 </style>
 </head>
 <body>
@@ -735,7 +753,7 @@ thead input {
 	  <input class="form-control me-2" type="date" id="DataVencI" value="#datavencI#" />
 	  <label class="sr-only" for="DataVencF"></label>
 	  <input class="form-control me-2" type="date" id="DataVencF" value="#datavencF#" />
-      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltVenc()">Atualizar</button>
+      <button type="button" class="btn btn-dark" aria-label="Atualizar" onclick="AltDatas()">Atualizar</button>
     </form>
 
   </div>
@@ -751,17 +769,17 @@ thead input {
 <th scope="col"></th>
 <th scope="col">Empresa</th>
 <th scope="col">Tipo</th>
-<th scope="col" width="7%" >Título</th>
-<th scope="col" style="text-align:center;" width="5%" >Contrato</th>
-<th scope="col" width="20%">Cliente</th>
-<th scope="col" style="text-align:center;" width="5%" >Emissão</th>
-<th scope="col" style="text-align:center;" width="5%" >Vencto</th>
-<th scope="col" style="text-align:center;" width="5%" >Pedido</th>
-<th scope="col" style="text-align:center;" width="5%" >Compet</th>
-<th scope="col" style="text-align:right;">Valor</th>
-<th scope="col" style="text-align:right;">Saldo Liq.</th>
-<th scope="col" style="text-align:center;">Status</th>
-<th scope="col" style="text-align:center;">Previsão</th>
+<th scope="col">Título</th>
+<th scope="col">Contrato</th>
+<th scope="col">Cliente</th>
+<th scope="col">Emissão</th>
+<th scope="col">Vencto</th>
+<th scope="col">Pedido</th>
+<th scope="col">Compet</th>
+<th scope="col">Valor</th>
+<th scope="col">Saldo Liq.</th>
+<th scope="col">Status</th>
+<th scope="col">Previsão</th>
 <th scope="col">Operador</th>
 <th scope="col">Histórico</th>
 </tr>
@@ -1007,7 +1025,8 @@ let newvenci = document.getElementById("DataVencI").value;
 let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
 let newvencf = document.getElementById("DataVencF").value;
 let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-let newempr  = document.getElementById("btn-empresa").textContent;
+let empresaTexto  = document.getElementById("btn-empresa").textContent;
+const newempr = empresaTexto.split(' - ')[0]; 
 
 let url = '#iprest#/RestPrvCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
 //	let url = '#iprest#/RestPrvCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
@@ -1033,6 +1052,32 @@ let cbtne1  = '';
 let cbtnids = '';
 let nlin = 0;
 let clin = '';
+
+// Destrói a tabela se já existir (preservando o thead original)
+if ($.fn.DataTable.isDataTable('#tableSE1')) {
+    $('#tableSE1').DataTable().destroy();
+    // Restaura o thead original (com os textos das colunas)
+    $('#tableSE1 thead').html(`
+	<tr>
+	<th scope="col"></th>
+	<th scope="col">Empresa</th>
+	<th scope="col">Tipo</th>
+	<th scope="col">Título</th>
+	<th scope="col">Contrato</th>
+	<th scope="col">Cliente</th>
+	<th scope="col">Emissão</th>
+	<th scope="col">Vencto</th>
+	<th scope="col">Pedido</th>
+	<th scope="col">Compet</th>
+	<th scope="col">Valor</th>
+	<th scope="col">Saldo Liq.</th>
+	<th scope="col">Status</th>
+	<th scope="col">Previsão</th>
+	<th scope="col">Operador</th>
+	<th scope="col">Histórico</th>
+	</tr>
+    `);
+}
 
 if (Array.isArray(titulos)) {
 	titulos.forEach(object => {
@@ -1123,6 +1168,7 @@ document.getElementById("mytable").innerHTML = trHTML;
 
 
 tableSE1 = $('#tableSE1').DataTable({
+  "retrieve": true,
   "pageLength": 25,
   "processing": true,
   "scrollX": true,
@@ -1173,15 +1219,13 @@ tableSE1 = $('#tableSE1').DataTable({
   "order": [[1,'asc']],
 
 	initComplete: function () {
-        this.api()
-            .columns()
-            .every(function () {
+        this.api().columns().every(function () {
                 var column = this;
                 var title = column.header().textContent;
  
                 // Create input element and add event listener
                 //('<input class="form-control form-control-sm" style="width:100%;min-width:70px;" type="text" placeholder="' + 
-				$('<input type="text" placeholder="' + title + '" />')
+				$('<input type="text" placeholder="' + title + '" class="form-control form-control-sm" />')
 				    .appendTo($(column.header()).empty())
                     .on('keyup change clear', function () {
                         if (column.search() !== this.value) {
@@ -1568,37 +1612,23 @@ async function Excel() {
 }
 
 
-async function AltVenc(){
+async function AltDatas(){
 let newempr  = document.getElementById("btn-empresa").textContent;
 AltEmpr(newempr)
 }
 
-async function AltEmpr(empresa){
-let newvenci = document.getElementById("DataVencI").value;
-let newvamdi = newvenci.substring(0, 4)+newvenci.substring(5, 7)+newvenci.substring(8, 10)
-let newvencf = document.getElementById("DataVencF").value;
-let newvamdf = newvencf.substring(0, 4)+newvencf.substring(5, 7)+newvencf.substring(8, 10)
-
-let url = '#iprest#/RestPrvCR/v2?empresa='+empresa+'&vencini='+newvamdi+'&vencfim='+newvamdf+'&userlib=#userlib#'
-
-
-const headers = new Headers();
-headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
-	try {
-	let res = await fetch(url, { method: 'GET', headers: headers });
-		//document.getElementById('conteudo-principal').innerHTML =  await res.text();
-		const html = await res.text();
-        const novaAba = window.open("", "_self");
-
-        // Escreve o conteúdo HTML na nova aba
-        novaAba.document.open();
-        novaAba.document.write(html);
-        novaAba.document.close();
-		//loadTable();
-		} catch (error) {
-	console.log(error);
-	}
+async function AltEmpr(empresaTexto) {
+    try {
+		document.getElementById("btn-empresa").textContent = empresaTexto;
+        // Atualizar a tabela com os novos dados
+        await loadTable();
+        
+    } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        $('#mytable').html('<tr><td colspan="16" style="text-align: center; color: red;">Erro ao carregar dados</td></tr>');
+    }
 }
+
 </script>
 
 </div>
