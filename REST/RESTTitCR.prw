@@ -1209,27 +1209,20 @@ let url = '#iprest#/RestTitCR/v0?empresa='+newempr+'&vencini='+newvamdi+'&vencfi
 //	let url = '#iprest#/RestTitCR/v0?empresa=#empresa#&vencini=#vencini#&vencfim=#vencfim#&userlib=#userlib#'
 const headers = new Headers();
 headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
-headers.set("Access-Control-Allow-Origin", "*");
+//headers.set("Access-Control-Allow-Origin", "*");
 
 try {
-	let res = await fetch(url,{	method: 'GET',	headers: headers});
-	return await res.json();
-	} catch (error) {
-	console.log(error);
-}
-
-  try {
-       let res = await fetch(url, {
-        method: 'GET',
-        headers: headers,
-        mode: 'cors' // Adiciona o modo CORS explicitamente
-    });
-        
-    if (!res.ok) {
+     let res = await fetch(url, {
+      method: 'GET',
+      headers: headers,
+      mode: 'cors' // Adiciona o modo CORS explicitamente
+     });
+      
+     if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
-    }
+     }
         
-    return await res.json();
+     return await res.json();
 } catch (error) {
     console.error('Erro na requisição:', error);
     return {
