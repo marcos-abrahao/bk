@@ -124,7 +124,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
-nomeprog := "BKGCTR09/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKGCTR09/"+TRIM(cUserName)
 
 AADD(aTitulos,nomeprog+" - "+titulo)
 

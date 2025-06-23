@@ -94,7 +94,7 @@ oTmpTb:SetFields( aStruct1 )
 oTmpTb:AddIndex("indice1", {"TIPO","EMPRESA","BANCO","AGENCIA","CONTA"} )
 oTmpTb:Create()
 
-AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+" em "+DTOC(dDtSld))
+AADD(aTitulos1,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+" em "+DTOC(dDtSld))
 
 u_WaitLog(, {|| BKFin15Emp()})
 

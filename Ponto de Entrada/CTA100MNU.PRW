@@ -372,7 +372,7 @@ If ( lOk )
 		SZ7->Z7_REVISAO:= CN9->CN9_REVISA
 		SZ7->Z7_DATA   := DATE()
 		SZ7->Z7_HORA   := TIME()
-		SZ7->Z7_USUARIO:= SUBSTR(cUsuario,7,15)
+		SZ7->Z7_USUARIO:= TRIM(cUserName)
 		
 	    SZ7->Z7_XXDVIG := dDVIG
 	    SZ7->Z7_XXDAPR := dDAPR
@@ -543,7 +543,7 @@ If ( lOk )
 		SZC->ZC_REVISAO:= CN9->CN9_REVISA
 		SZC->ZC_DATA   := DATE()
 		SZC->ZC_HORA   := TIME()
-		SZC->ZC_USUARIO:= SUBSTR(cUsuario,7,15)
+		SZC->ZC_USUARIO:= TRIM(cUserName)
 		
 	    SZC->ZC_XXREOBS:= cREOB
 	    SZC->ZC_XXREOBA:= cREOA
@@ -714,7 +714,7 @@ If ( lOk )
 		SZD->ZD_REVISAO:= CN9->CN9_REVISA
 		SZD->ZD_DATA   := DATE()
 		SZD->ZD_HORA   := TIME()
-		SZD->ZD_USUARIO:= SUBSTR(cUsuario,7,15)
+		SZD->ZD_USUARIO:= TRIM(cUserName)
 		
 	    SZD->ZD_XXPROBS:= cPROB
 	    SZD->ZD_XXPROBA:= cPROA
@@ -1047,7 +1047,7 @@ If ( lOk )
 		SZG->ZG_REVISAO	:= CN9->CN9_REVISA
 		SZG->ZG_DATA   	:= dDVigPrFin
 		SZG->ZG_SEQ    	:= cNewSeq  // AQUI ///
-		SZG->ZG_USUARIO	:= SUBSTR(cUsuario,7,15)
+		SZG->ZG_USUARIO	:= TRIM(cUserName)
 		SZG->ZG_FATURAD	:= nTotFat
 		SZG->ZG_CLT		:= nTotCLT
 		SZG->ZG_ENCSOC	:= nEncSoc
@@ -1502,7 +1502,7 @@ If ( lOk )
 		SZH->ZH_REVISA := CN9->CN9_REVISA
 		SZH->ZH_DATA   := DATE()
 		SZH->ZH_HORA   := TIME()
-		SZH->ZH_USUARIO:= SUBSTR(cUsuario,7,15)
+		SZH->ZH_USUARIO:= TRIM(cUserName)
 
 		SZH->ZH_XXUNID := CN9->CN9_XXUNID
 		SZH->ZH_XXUNIH := CN9->CN9_XXUNIH
@@ -1801,7 +1801,7 @@ If ( lOk )
 		SZ4->Z4_CONTRAT	:= CN9->CN9_NUMERO
 		SZ4->Z4_DATA    := DATE()
 		SZ4->Z4_HORA    := TIME()
-		SZ4->Z4_USER	:= SUBSTR(cUsuario,7,15)
+		SZ4->Z4_USER	:= TRIM(cUserName)
 		
 		SZ4->Z4_DAAT 	:= CN9->CN9_XXDAAT
 		SZ4->Z4_TPAT 	:= CN9->CN9_XXTPAT   
@@ -1946,7 +1946,7 @@ If ( lOk )
 		SZN->ZN_CONTRAT	:= CN9->CN9_NUMERO
 		SZN->ZN_DATA    := DATE()
 		SZN->ZN_HORA    := TIME()
-		SZN->ZN_USUARIO := SUBSTR(cUsuario,7,15)
+		SZN->ZN_USUARIO := TRIM(cUserName)
 		SZN->ZN_XXDVST  := CN9->CN9_XXDVST
 		SZN->ZN_XXHVST 	:= CN9->CN9_XXHVST   
 	

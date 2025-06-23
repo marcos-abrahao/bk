@@ -15,14 +15,15 @@ User Function BKMSG011
 Local nE 		:= 0
 Local aEmpresas := u_BKGrpGct()
 Local cQuery	:= ""            
-Local cAssunto	:= "Aviso de termino de vigencia de contratos - Excel"
+Local cAssunto	:= "Aviso de termino de vigencia de contratos em até 150 dias - Excel"
 Local cEmail	:= u_EmMGestao()
 Local cEmailCC	:= u_EmailAdm()
-Local cMsg		:= "Segue planilha anexa."
+Local cMsg		:= "Aviso de termino de vigencia de contratos em até 150 dias. Segue planilha anexa."
 Local cArqXls   := ""
 Local cTabCN9   := ""
 Local cTabSA1   := ""
 Local cTabCTT   := ""
+Local cTabSZD   := ""
 
 //Local aUsers 	:= {}
 //Local aGrupos	:= {u_GrpRepac()}
@@ -30,7 +31,7 @@ Local cTabCTT   := ""
 
 Private cProg := "BKMSG011" 
 
-If IsBlind() .AND. DOW(DATE()) <> 2
+If IsBlind() .AND. (DOW(DATE()) <> 2 .OR. DOW(DATE()) <> 5)
 	Return Nil
 EndIf
 
@@ -52,6 +53,7 @@ For nE := 1 TO Len(aEmpresas)
 	cTabCN9  := "CN9"+cEmpresa+"0"
 	cTabSA1  := "SA1"+cEmpresa+"0"
 	cTabCTT  := "CTT"+cEmpresa+"0"
+	cTabSZD  := "SZD"+cEmpresa+"0"
 
 	If nE > 1
 		cQuery += "UNION ALL "+CRLF
@@ -73,21 +75,35 @@ For nE := 1 TO Len(aEmpresas)
 	cQuery += "    ,CN9_XXPROA" + CRLF
 	cQuery += "    ,CN9_XXSPRO" + CRLF
 	cQuery += "    ,CN9_XXNRBK" + CRLF
+	cQuery += "    ,CN9_XPRZMA" + CRLF
 	cQuery += "    ,CN9.R_E_C_N_O_ AS XXRECNO" + CRLF
 	cQuery += "    ,DATEDIFF(DAY, GETDATE(), CONVERT(DATE, CN9_XXDVIG, 112)) AS DIASVIG" + CRLF
+	cQuery += "    ,ZD_DATA" + CRLF
+	cQuery += "    ,ZD_HORA" + CRLF
+	cQuery += "    ,ZD_USUARIO" + CRLF
+	cQuery += "    ,ZD_XXPROBS" + CRLF
 	cQuery += " FROM "+cTabCN9+" CN9"
 
 	cQuery += " LEFT JOIN "+cTabCTT+ " CTT ON CTT_CUSTO = CN9_NUMERO" + CRLF
 	cQuery += "      AND  CTT_FILIAL = '"+xFilial("CTT")+"' AND  CTT.D_E_L_E_T_ = ' '" + CRLF
+
 	cQuery += " LEFT JOIN "+cTabSA1+ " SA1 ON A1_COD = CN9_XCLIEN AND A1_LOJA = CN9_XLOJA" + CRLF
 	cQuery += "      AND  A1_FILIAL = '"+xFilial("SA1")+"' AND  SA1.D_E_L_E_T_ = ' '" + CRLF
 
+	cQuery += " LEFT JOIN "+cTabSZD+ " SZD " + CRLF
+	cQuery += "      ON  SZD.ZD_CONTRAT = CN9_NUMERO AND SZD.ZD_REVISAO = CN9_REVISA AND SZD.D_E_L_E_T_ = ' ' " + CRLF
+	cQuery += "      AND SZD.ZD_DATA+SZD.ZD_HORA = "+CRLF
+	cQuery += "          (SELECT MAX(SZDS.ZD_DATA+SZDS.ZD_HORA) "+CRLF
+	cQuery += "          FROM "+cTabSZD+ " SZDS "+CRLF
+	cQuery += "          WHERE SZDS.ZD_CONTRAT = CN9_NUMERO AND SZDS.ZD_REVISAO = CN9_REVISA AND SZDS.D_E_L_E_T_ = ' ' AND SZDS.ZD_FILIAL = '"+xFilial("SZD")+"')" + CRLF
+	cQuery += "      AND SZD.D_E_L_E_T_ = ' ' AND SZD.ZD_FILIAL = '"+xFilial("SZD")+"'" + CRLF
+
 	cQuery += " WHERE "
-	cQuery += "   CN9_SITUAC IN ('02','05') " + CRLF
+	cQuery += "   CN9_SITUAC IN ('02','05','09') " + CRLF
 	cQuery += "   AND CN9_FILIAL = '"+xFilial("CN9")+"' " + CRLF
 	cQuery += "   AND CN9.D_E_L_E_T_ = ' '" + CRLF
 	cQuery += "   AND ISDATE(CN9_XXDVIG) = 1 " + CRLF
-	cQuery += "   AND CONVERT(DATE, CN9_XXDVIG, 112) BETWEEN CONVERT(DATE, GETDATE()) AND DATEADD(DAY, 120, CONVERT(DATE, GETDATE()))" + CRLF
+	cQuery += "   AND CONVERT(DATE, CN9_XXDVIG, 112) BETWEEN CONVERT(DATE, GETDATE()) AND DATEADD(DAY, 150, CONVERT(DATE, GETDATE()))" + CRLF
 
 Next
 cQuery += ")" + CRLF
@@ -99,14 +115,13 @@ u_LogMemo(cProg+".SQL",cQuery)
 dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"QTMP",.T.,.T.)
 TCSETFIELD("QTMP","CN9_DTINIC","D",8,0)
 TCSETFIELD("QTMP","CN9_XXDVIG","D",8,0)
+TCSETFIELD("QTMP","ZD_DATA","D",8,0)
 
 cArqXls := Excel(cAssunto,"QTMP")
 
 QTMP->(dbCloseArea())
 
-//If SUBSTR(TIME(),1,2) > '18' .OR. SUBSTR(TIME(),1,2) < '08'
-	u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls},.F.)
-//EndIf
+u_BkSnMail(cProg,cAssunto,cEmail,cEmailCC,cMsg,{cArqXls},.F.)
 
 // Gravar no SZ0 - Avisos Web
 u_BKMsgUs(cEmpAnt,cProg,{},u_GrpRepac(),cAssunto,cAssunto,"F",cArqXls)
@@ -137,7 +152,8 @@ oPExcel:SetTitulo("")
 // Colunas da Planilha 1
 
 oPExcel:AddCol("DIASVIG","DIASVIG","Dias de Vigência","")
-oPExcel:GetCol("DIASVIG"):SetDecimal(1)
+oPExcel:GetCol("DIASVIG"):SetFormat("#,##0")
+oPExcel:GetCol("DIASVIG"):SetHAlign("C")
 oPExcel:AddCol("EMPRESA","EMPRESA","Empresa","")
 oPExcel:AddCol("NOMEEMP","NOMEEMP","Empresa","")
 oPExcel:AddColX3("CN9_NUMERO")
@@ -149,9 +165,16 @@ oPExcel:AddColX3("CN9_XXNRBK")
 oPExcel:AddColX3("CN9_DTINIC")
 oPExcel:AddColX3("CN9_XXDVIG")
 oPExcel:AddColX3("CN9_XXPROA")
-//oPExcel:AddColX3("CN9_XXSPRO")
+oPExcel:AddColX3("CN9_XPRZMA")
+oPExcel:GetCol("CN9_XPRZMA"):SetFormat("#,##0")
+oPExcel:GetCol("CN9_XPRZMA"):SetHAlign("C")
 oPExcel:AddCol("CN9_XXSPRO","u_cProrrog(QTMP->CN9_XXSPRO)","Status","")
 //oPExcel:GetCol("CN9_XXSPRO"):SetTamCol(30)
+
+oPExcel:AddColX3("ZD_DATA")
+oPExcel:AddColX3("ZD_HORA")
+oPExcel:AddColX3("ZD_USUARIO")
+oPExcel:AddColX3("ZD_XXPROBS")
 
 // Adiciona a planilha 1
 oRExcel:AddPlan(oPExcel)

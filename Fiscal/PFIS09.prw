@@ -113,7 +113,7 @@ oTmpTb:AddIndex("indice1", {"XX_LINHA"} )
 oTmpTb:Create()
 
 
-nomeprog := "PFIS09/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "PFIS09/"+TRIM(cUserName)
 
 aCabs   := {}
 aCampos := {}

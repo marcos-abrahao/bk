@@ -102,7 +102,7 @@ oTmpTb := FWTemporaryTable():New(cAliasTrb)
 oTmpTb:SetFields( aStruct )
 oTmpTb:Create()
 
-AADD(aTitulos,cPerg+"/"+TRIM(SUBSTR(cUsuario,7,15)+" - "+cTitulo))
+AADD(aTitulos,cPerg+"/"+TRIM(cUserName)+" - "+cTitulo)
 
 If U_PrcBKR24()
 	Processa ( {|| MBrwBKR24()})

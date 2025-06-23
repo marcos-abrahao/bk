@@ -119,7 +119,7 @@ aCampos := {}
 aTotal  := {}
 aTitulos:= {}
 
-nomeprog := "BKCOMR9/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKCOMR9/"+TRIM(cUserName)
 
 aAdd(aTitulos,nomeprog+" - "+titulo)
  
@@ -611,7 +611,7 @@ ENDIF
 
 Titulo   := TRIM(Titulo)
 
-nomeprog := "BKCOMR9/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKCOMR9/"+TRIM(cUserName)
    
 Dbselectarea("TRB")
 Dbgotop()

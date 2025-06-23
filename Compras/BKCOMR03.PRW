@@ -137,7 +137,7 @@ ENDIF
 
 
 titulo   := "Protocolo NE de "+dtoc(dDataI)+" ate "+dtoc(dDataF)
-nomeprog := "BKCOMR03/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKCOMR03/"+TRIM(cUserName)
 
 cQuery := ""
 cQuery := "SELECT F1_FILIAL,F1_DOC,F1_SERIE,F1_EMISSAO,F1_DTDIGIT,F1_TIPO,F1_FORNECE,F1_LOJA,F1_VALBRUT,F1_VALICM,F1_BASEIPI,F1_VALIPI,F1_ESPECIE "

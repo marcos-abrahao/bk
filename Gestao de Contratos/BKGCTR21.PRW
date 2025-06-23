@@ -71,9 +71,6 @@ aCampos := {}
 aTitulos:= {}
 aPlans  := {}
    
-//nomeprog := "BKGCTR21/"+TRIM(SUBSTR(cUsuario,7,15))
-//AADD(aTitulos,nomeprog+" - "+cTitulo)
-
 AADD(aCampos,"QTMP->XX_CLIENTE")
 AADD(aCabs  ,"Cliente")
 

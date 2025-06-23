@@ -626,12 +626,13 @@ Return lRet
 
 // Enum status de prorrogação de Contratos (BKGCT06)
 User Function aProrrog()
-Local aStatus := {"1-Manifestado o Interesse na continuidade",;
+Local aStatus := {"1-Manifestado o Interesse, aguardando cliente",;
                   "2-Aguardando Posicionamento Diretoria",;
-                  "3-Aguardando Posicionamento do Cliente",;
+                  "3-Não se aplica",;
                   "4-Recebido confirmação do Cliente",;
                   "5-Contrato Prorrogado",;
-                  "6-Manifestado o encerramento"}
+                  "6-Manifestado o encerramento",;
+                  "7-Não permite mais prorrogação"}
 Return aStatus
 
 

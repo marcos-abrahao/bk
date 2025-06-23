@@ -69,7 +69,7 @@ If FWCodEmp() == "01" .OR. FWCodEmp() == "20" // Barcas
 EndIf
 
 IF DOW(dDataEnv) = 3 .OR. DOW(dDataEnv) = 5
-	u_WaitLog("VigBKGCT06",{|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
+	//u_WaitLog("VigBKGCT06",{|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
 	u_WaitLog("Vg2BKGct06",{|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
 
 	// Habilitado em 05/12/23
@@ -600,7 +600,7 @@ Return Nil
 
 
 //=============================================
-//  "Aviso de termino de vigência de contratos"
+//  "Aviso de termino de vigência de contratos" - Substituída pela BKMSG011
 
 Static Function VigBKGct06()
 Local cPath     := u_STmpDir()

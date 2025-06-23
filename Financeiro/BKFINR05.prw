@@ -73,12 +73,8 @@ If nExcel = 2
 	Endif
 	
 	nTipo := If(aReturn[4]==1,15,18)
-	            
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Processamento. RPTSTATUS monta janela com a regua de processamento. ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	
-	nomeprog := "BKFINR05/"+TRIM(SUBSTR(cUsuario,7,15))
+	nomeprog := "BKFINR05/"+TRIM(cUserName)
 	
 	u_waitLog(, {|| ProcQuery() })
 	RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
@@ -92,7 +88,7 @@ Else
 	aTitulos:= {}
     aPlans  := {}
     
-	nomeprog := "BKFINR05/"+TRIM(SUBSTR(cUsuario,7,15))
+	nomeprog := "BKFINR05/"+TRIM(cUserName)
 	AADD(aTitulos,nomeprog+" - "+titulo)
 
 	AADD(aCampos,"QSE2->Z2_BANCO")

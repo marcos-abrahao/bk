@@ -288,7 +288,7 @@ If ( lOk2 )
             SZ2->Z2_DATAEMI:= Date()
             SZ2->Z2_DATAPGT:= dDatPGTO
             SZ2->Z2_DORIPGT:= aCtrId[_XI,16]
-            SZ2->Z2_USUARIO:= TRIM(SUBSTR(cUsuario,7,15))
+            SZ2->Z2_USUARIO:= cUserName
             SZ2->Z2_TITULO := ""
             SZ2->Z2_CALC   := cPERIODO
             SZ2->Z2_TIPOPES:= "PJ"

@@ -77,7 +77,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
 
-nomeprog := "BKBXBNCO/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKBXBNCO/"+TRIM(cUserName)
 
 AADD(aCampos,"TRB->XX_MAT")
 AADD(aCabs  ,"Matricula")
@@ -561,7 +561,7 @@ ENDIF
 
 Titulo   := TRIM(Titulo)
 
-nomeprog := "BKBXBNCO/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKBXBNCO/"+TRIM(cUserName)
    
 
 SetRegua(LEN(aCtrId))

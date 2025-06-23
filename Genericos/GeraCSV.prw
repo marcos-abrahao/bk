@@ -19,7 +19,7 @@ Generico - Gera planilha excel no formato .CSV
 //	aCampos := {}
 //	aTitulos:= {}
    
-//	nomeprog := "BKFINR05/"+TRIM(SUBSTR(cUsuario,7,15))
+//	nomeprog := "BKFINR05/"+TRIM(cUserName)
 //	AADD(aTitulos,nomeprog+" - "+titulo)
 
 //	AADD(aCampos,"QSE2->Z2_BANCO")

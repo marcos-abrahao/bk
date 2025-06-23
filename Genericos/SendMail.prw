@@ -72,13 +72,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
         aAnexos    := {}
     ENDIF
 
-    //cCC += "harthur.andrade@bkconsultoria.com.br;"
-
-    //cAssunto := StrIConv( cAssunto, "CP1252", "UTF-8")
-    //If cAssunto <> EncodeUTF8(cAssunto)
-    //    cAssunto := EncodeUTF8(cAssunto)
-    //EndIf
-    cAssunto := noAcento( cAssunto)
+    cAssunto := noAcento(cAssunto)
 
 	u_xxLog(cArqLog,cPrw+"- Assunto: "+ALLTRIM(cAssunto)+" - Para: "+cPara+" - CC: "+cCC)
 
@@ -223,8 +217,7 @@ User Function BkSnMail(cPrw, cAssunto, cPara, cCc, cCorpo, aAnexos, lAviso)
 Return lRet
 
 
-
-
+/*
 USER FUNCTION SendMail(cPrw,cAssunto,cPara,cCc,cMsg,cAnexo,lAviso)
 Local lResulConn := .F.
 Local lResulSend := .F.
@@ -330,10 +323,8 @@ Endif
 
 DISCONNECT SMTP SERVER
 
-/*
-IF lResulSend
-	u_MsgLog(cPrw,"E-mail enviado com sucesso: " +TRIM(cAssunto),"S")
-ENDIF
-*/
+u_MsgLog(cPrw,"E-mail enviado com sucesso: " +TRIM(cAssunto),"S")
 
 RETURN lResulSend
+*/
+

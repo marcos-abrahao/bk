@@ -147,7 +147,7 @@ If nAplic == 1
 	AADD(aCamposB2,{"EH_VALOR"   ,,"Valor Aplic.","@E 9,999,999,999.99"})
 EndIf
 
-AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Saldos bancários"))
+AADD(aTitulos1,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Saldos bancários"))
 
 AADD(aStruct1,{"A6_OK","C",2,0})
 AADD(aCampos1,cAliasTmp1+"->A6_OK")
@@ -192,7 +192,7 @@ If nAplic == 1
 	AADD(aCabs1  ,"Saldo das aplicações")
 
 
-	AADD(aTitulos6,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Aplicações"))
+	AADD(aTitulos6,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Aplicações"))
 	
 	AADD(aStruct6,{"EH_NUMERO","C",GetSx3Cache("EH_NUMERO", "X3_TAMANHO"),0})
 	AADD(aCampos6,cAliasTmp6+"->EH_NUMERO")
@@ -584,7 +584,7 @@ aResumo[12] := 0
 
 // Temporário Sintético - Natureza Financeira
 
-AADD(aTitulos2,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Natureza Financeira"))
+AADD(aTitulos2,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Sintético - Natureza Financeira"))
 
 // Conta Financeira
 AADD(aStruct2,{"CTFIN","C",10,0})
@@ -623,7 +623,7 @@ dbSetOrder(1)
 
 // Temporário Sintético - Centro de Custo
 
-AADD(aTitulos4,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Centro de Custo"))
+AADD(aTitulos4,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Sintético - Centro de Custo"))
 
 // Centro de Custo
 AADD(aStruct4,{"CC","C",09,0})
@@ -656,7 +656,7 @@ dbSetOrder(1)
 
 // Temporário Sintético - Desc Financeiro
 
-AADD(aTitulos5,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Financeiro"))
+AADD(aTitulos5,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Sintético - Financeiro"))
 
 
 // Descricao Financeiro
@@ -690,7 +690,7 @@ dbSetOrder(1)
 // Temporário Analítico
 // ----------------------------------------------------------------------------------
 
-AADD(aTitulos3,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Analitico"))
+AADD(aTitulos3,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Analitico"))
 
 /*
 // Conta Natureza

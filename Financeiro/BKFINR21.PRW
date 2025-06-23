@@ -60,7 +60,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
   
-nomeprog := "BKFINR21/"+TRIM(SUBSTR(cUsuario,7,15))
+nomeprog := "BKFINR21/"+TRIM(cUserName)
 AADD(aTitulos,nomeprog+" - "+cTitulo)
 
 AADD(aCampos,"QSZO->ZO_DATA")

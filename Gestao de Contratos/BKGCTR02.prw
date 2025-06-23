@@ -218,7 +218,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 	aCampos1 := {}
 	aTitulos := {}
 
-	AADD(aTitulos,cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo1)
+	AADD(aTitulos,cProg+"/"+TRIM(cUserName)+" - "+cTitulo1)
 
 	AADD(aCampos1,"TMPC->XX_EMPRESA")
 	AADD(aCabs1  ,"Empresa")

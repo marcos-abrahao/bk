@@ -400,7 +400,7 @@ aCabs   := {}
 aCampos := {}
 aTitulos:= {}
    
-AADD(aTitulos,"BKFINR17/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo)
+AADD(aTitulos,"BKFINR17/"+TRIM(cUserName)+" - "+cTitulo)
 
 AADD(aCampos,"QTMP->A1_NOME")
 AADD(aCabs  ,"Cliente")

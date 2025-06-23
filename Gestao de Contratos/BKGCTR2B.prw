@@ -200,7 +200,7 @@ lUserSave	 	Array of Record	 	Indica se salva nome do usuario no arquivo
 	u_WaitLog(, {|oSay| ProcQuery("14") }, "Empresa 14 - Consultando o banco de dados...")
 	u_WaitLog(, {|oSay| ProcQuery("18") }, "Empresa 18 - Consultando o banco de dados...")
 
-	AADD(aTitulos,cProg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo1)
+	AADD(aTitulos,cProg+"/"+TRIM(cUserName)+" - "+cTitulo1)
 
 	If cTpRel == "C"
 		// CSV

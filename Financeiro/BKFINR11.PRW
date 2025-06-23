@@ -172,7 +172,7 @@ Static Function KFin02ExpSld()
 Local nI	:= 0
 Local aSx3	:= {}
 
-AADD(aTitulos1,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+TRIM(cTitulo))
+AADD(aTitulos1,cNomePrg+"/"+TRIM(cUserName)+" - "+TRIM(cTitulo))
 
 // Data
 AADD(aStruct1,{"A6_DATA","D",8,0})
@@ -627,7 +627,7 @@ aResumo[12] := 0
 // Temporário Sintético
 // ----------------------------------------------------------------------------------
 
-AADD(aTitulos2,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético"))
+AADD(aTitulos2,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Sintético"))
 
 
 // Data do Movimento
@@ -669,7 +669,7 @@ oTmpTb2:Create()
 // Temporário Sintético - Centro de Custo
 // ----------------------------------------------------------------------------------
 
-AADD(aTitulos4,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Centro de Custo"))
+AADD(aTitulos4,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Sintético - Centro de Custo"))
 
 // Centro de Custo
 AADD(aStruct4,{"CC","C",09,0})
@@ -706,7 +706,7 @@ oTmpTb4:Create()
 // Temporário Sintético - Desc Financeiro
 // ----------------------------------------------------------------------------------
 
-AADD(aTitulos5,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Sintético - Financeiro"))
+AADD(aTitulos5,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Sintético - Financeiro"))
 
 
 // Descricao Financeiro
@@ -738,7 +738,7 @@ oTmpTb5:Create()
 // Temporário Analítico
 // ----------------------------------------------------------------------------------
 
-AADD(aTitulos3,cNomePrg+"/"+TRIM(SUBSTR(cUsuario,7,15))+" - "+cTitulo+OemToAnsi(" - Analitico"))
+AADD(aTitulos3,cNomePrg+"/"+TRIM(cUserName)+" - "+cTitulo+OemToAnsi(" - Analitico"))
 
 // Data
 //AADD(aStruct3,{"XX_DATA","D",8,0})

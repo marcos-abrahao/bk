@@ -931,9 +931,9 @@ EndIf
 
 Return cEmails
 
-// Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Wiliam Lisboa, Edelcio)
+// Grupo Master Gestão (Adm, Fabia, Bruno, Fernando Sampaio, Wiliam Lisboa, Edelcio, Guilherme)
 User Function aUsrGestao()
-Local aUsers := {"000000","000023","000153","000241","000288","000309"}
+Local aUsers := {"000000","000023","000153","000241","000288","000309","000192"}
 If u_IsBarcas() // Barcas
     //          Admin    Bruno    MM       M Barbs  Jacieno
     aUsers := {"000000","000153","000240","000341","000340"}
