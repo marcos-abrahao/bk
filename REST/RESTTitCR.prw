@@ -1380,7 +1380,7 @@ tableSE1 = $('#tableSE1').DataTable({
   "processing": true,
   "scrollX": true,
   "scrollCollapse": true,
-  "scrollY": "72vh",
+  "scrollY": "calc(100vh - 220px)",
   "language": {
 	"lengthMenu": "Registros por página: _MENU_ ",
 	"zeroRecords": "Nada encontrado",

@@ -72,7 +72,7 @@ Local aParams      As Array
 Local cMsg         As Char
 
 /*
-	//Seta job para nao consumir licensas
+	//Seta job para nao consumir licenças
 	RpcSetType(3)
 	RpcClearEnv()
 	// Seta job para empresa filial desejada
@@ -380,12 +380,14 @@ BEGINCONTENT var cHTML
 <!-- Styling CSS -->
 #BKDTStyle#
 
-<title>Liberação de Pedidos</title>
+<title>Liberação de Pedidos de Vendas</title>
 
 <!-- Favicon -->
 #BKFavIco#
 
 <style type="text/css">
+
+
 .bg-mynav {
   background-color: #9E0000;
   padding-left:30px;
