@@ -13,6 +13,33 @@
     @see (links_or_references)
     /*/
 
+
+
+User Function BKLIBPV(lShell)
+
+Local cToken  := u_BKEnCode()
+//Local oRestClient := FWRest():New(u_BkRest())
+Local aHeader := {} //{"tenantId: 99,01"}
+
+Local cGetParms  := ""
+Local cHeaderGet := ""
+Local nTimeOut   := 200
+Local cHtml      := ""
+
+Aadd(aHeader, "Content-Type: text/html; charset=utf8")
+Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
+
+cHtml := HttpGet(u_BkRest()+'/RestLibPV/v2?userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
+
+If !Empty(cHtml)
+    u_TmpHtml(cHtml,"BKLIBPV",.T.)
+Else
+    u_MsgLog("BKPRVCR","Erro ao acessar o ambiente REST, contate o suporte.","E")
+EndIf
+
+Return .T.
+
+/*
 User Function BKLIBPV(lShell)
 Local cToken  := u_BKEnCode()
 Local cUrl    := ""
@@ -30,3 +57,4 @@ Else
 EndIf
 
 Return cUrl
+*/

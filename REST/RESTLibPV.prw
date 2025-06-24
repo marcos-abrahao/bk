@@ -23,9 +23,9 @@ WSRESTFUL RestLibPV DESCRIPTION "Rest Liberação de Pedido de Venda"
 	WSDATA pageSize     AS INTEGER OPTIONAL
 
 	WSMETHOD GET LISTPV;
-		DESCRIPTION "Listar pedido de venda em aberto";
-		WSSYNTAX "/RestLibPV";
-		PATH  "/RestLibPV";
+		DESCRIPTION "Listar pedidos de venda em aberto";
+		WSSYNTAX "/RestLibPV/v0";
+		PATH  "/RestLibPV/v0";
 		TTALK "v1";
 		PRODUCES APPLICATION_JSON
 
@@ -140,7 +140,7 @@ Retorna a lista de pedidos.
 @return cResponse , caracter, JSON contendo a lista de pedidos
 /*/
 
-
+// v0
 WSMETHOD GET LISTPV QUERYPARAM userlib WSREST RestLibPV
 
 Local aListPV := {}
@@ -186,6 +186,8 @@ Do While ( cQrySC5 )->( ! Eof() )
 	aListPV[nPos]['TOTAL']     := ALLTRIM(STR((cQrySC5)->C6_TOTAL,14,2)) //TRANSFORM((cQrySC5)->C6_TOTAL,"@E 999,999,999.99")
 	aListPV[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
 	aListPV[nPos]['XXMUN']     := TRIM((cQrySC5)->CNA_XXMUN)
+	aListPV[nPos]['MEDICAO']   := TRIM((cQrySC5)->C5_MDNUMED)
+	aListPV[nPos]['USUARIO']   := TRIM((cQrySC5)->CND_USUAR)
 	(cQrySC5)->(DBSkip())
 EndDo
 
@@ -224,7 +226,10 @@ BeginSQL Alias cQrySC5
             (SELECT SUM(C6_VALOR) FROM %Table:SC6% SC6 
                 WHERE SC6.%NotDel% AND SC6.C6_FILIAL = SC5.C5_FILIAL AND SC6.C6_NUM = SC5.C5_NUM)
                 AS C6_TOTAL,
-            SA1.A1_NOME,CNA.CNA_XXMUN
+            SA1.A1_NOME,
+			CNA.CNA_XXMUN,
+			SC5.C5_MDNUMED,
+			CND.CND_USUAR
             
     FROM %Table:SC5% SC5
             LEFT JOIN %Table:SA1% SA1 
@@ -233,8 +238,12 @@ BeginSQL Alias cQrySC5
                 AND SA1.%NotDel%
 			LEFT JOIN %Table:CNA% CNA 
                 ON SC5.C5_MDCONTR = CNA.CNA_CONTRA AND SC5.C5_MDPLANI = CNA.CNA_NUMERO AND SC5.C5_XXREV = CNA.CNA_REVISA
-                AND CNA_FILIAL = SC5.C5_FILIAL
+                AND CNA.CNA_FILIAL = SC5.C5_FILIAL
                 AND CNA.%NotDel%
+			LEFT JOIN %Table:CND% CND
+                ON SC5.C5_MDNUMED = CND.CND_NUMMED
+                AND CND.CND_FILIAL = SC5.C5_FILIAL
+                AND CND.%NotDel%
 
     WHERE   SC5.%NotDel%
 			AND SC5.C5_NOTA = '' AND SC5.C5_BLQ = ''
@@ -242,9 +251,6 @@ BeginSQL Alias cQrySC5
     ORDER BY C5_LIBEROK,SC5.C5_NUM DESC 
     
 EndSQL
-
-//Syntax abaixo somente para o SQL 2012 em diante
-//ORDER BY SC5.C5_NUM OFFSET %exp:nStart% ROWS FETCH NEXT %exp:nTamPag% ROWS ONLY
 
 Return (cQrySC5)
 
@@ -348,7 +354,7 @@ Return (lSuccess)
 
 
 // v1
-WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV   // V1
+WSMETHOD GET CONSPV QUERYPARAM pedido WSRECEIVE pedido WSREST RestLibPV
 
 Local cHTML as char
 Local cPed  as char
@@ -362,7 +368,7 @@ self:setStatus(200)
 
 return .T.
 
-
+//v2
 WSMETHOD GET BROWPV QUERYPARAM userlib WSRECEIVE userlib WSREST RestLibPV
 
 local cHTML as char
@@ -387,17 +393,32 @@ BEGINCONTENT var cHTML
 
 <style type="text/css">
 
-
-.bg-mynav {
-  background-color: #9E0000;
-  padding-left:30px;
-  padding-right:30px;
+html *
+{
+   font-size: 12px;
 }
 
+.bk-colors{
+ background-color: #9E0000;
+ color: white;
+}
+.bg-mynav {
+  background-color: #9E0000;
+  padding-left:5px;
+  padding-right:5px;
+  font-size: 1.2rem;
+}
+.font-condensed{
+  font-size: 0.8em;
+}
 body {
-font-size: 1rem;
 	background-color: #f6f8fa;
-	}
+}
+
+table.dataTable td {
+  font-size: 1em;
+}
+
 td {
 line-height: 1rem;
 	vertical-align: middle;
@@ -406,11 +427,39 @@ line-height: 1rem;
 table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>thead>tr th.dt-orderable-desc,table.dataTable.table-sm>thead>tr th.dt-ordering-asc,table.dataTable.table-sm>thead>tr th.dt-ordering-desc,table.dataTable.table-sm>thead>tr td.dt-orderable-asc,table.dataTable.table-sm>thead>tr td.dt-orderable-desc,table.dataTable.table-sm>thead>tr td.dt-ordering-asc,table.dataTable.table-sm>thead>tr td.dt-ordering-desc {
     padding-right: 3px;
 }
-	
+
+table.dataTable thead th {
+  position: relative;
+}
+
+thead input::placeholder {
+    font-weight: bold !important;
+    color: #6c757d !important;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem !important; /* Tamanho reduzido */
+    opacity: 1 !important; /* Garante visibilidade total */
+}
+/* Borda destacada para os inputs do cabeçalho */
 thead input {
-	width: 100%;
-	font-weight: bold;
-	background-color: #F3F3F3
+    width: 100% !important; /* Ocupa toda a largura da célula */
+    border: 2px solid #9E0000 !important; /* Cor do seu header (.bk-colors) */
+    border-radius: 4px !important; /* Cantos arredondados */
+    padding: 4px !important; /* Espaçamento interno */
+    box-shadow: 0 0 2px rgba(158, 0, 0, 0.3) !important; /* Sombra sutil (opcional) */
+}
+
+/* Efeito hover para os inputs do cabeçalho */
+thead input:hover {
+    background-color: #FFF2F2 !important; /* Vermelho claro de fundo */
+    border-color: #9E0000 !important; /* Borda vermelha mais intensa */
+    transition: all 0.3s ease; /* Suaviza a transição */
+}
+
+/* Opcional: Efeito ao focar (quando clicado) */
+thead input:focus {
+    background-color: #FFE5E5 !important;
+    box-shadow: 0 0 0 2px rgba(158, 0, 0, 0.2) !important;
 }
 </style>
 </head>
@@ -419,11 +468,11 @@ thead input {
 	<a class="navbar-brand" href="#">BK - Liberação de Pedidos de Vendas - #cUserName#</a>
 
 	<div class="btn-group">
-		<button type="button" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
+		<button type="button" id="btn-excel" class="btn btn-dark" aria-label="Excel" onclick="Excel()">Excel</button>
 	</div>
 
     <button type="button" 
-        class="btn btn-dark" aria-label="Atualizar" onclick="window.location.reload();">
+        class="btn btn-dark" aria-label="Atualizar" onclick="Atualiza();">
         Atualizar
     </button>
 </nav>
@@ -441,6 +490,8 @@ thead input {
 <th scope="col">Contrato</th>
 <th scope="col">Competência</th>
 <th scope="col">Planilha</th>
+<th scope="col">Medição</th>
+<th scope="col">Emissor</th>
 <th scope="col">Total</th>
 <th scope="col">Ação</th>
 </tr>
@@ -448,6 +499,8 @@ thead input {
 <tbody id="mytable">
 <tr>
 <th scope="col"></th>
+<th scope="col"></th>
+<th scope="col widht=30%></th>
 <th scope="col"></th>
 <th scope="col"></th>
 <th scope="col"></th>
@@ -461,7 +514,7 @@ thead input {
 </div>
 </div>
 <!-- Modal -->
-<div id="meuModal" class="modal fade" role="dialog">
+<div id="C5Modal" class="modal fade" role="dialog">
    <div class="modal-dialog modal-xl">
      <!-- Conteúdo do modal-->
      <div class="modal-content">
@@ -496,19 +549,61 @@ thead input {
 
 <script>
 async function getPeds() {
-	let url = '#iprest#/RestLibPV/?userlib='+'#userlib#';
-		try {
-		let res = await fetch(url);
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
+
+let url = '#iprest#/RestLibPV/v0?userlib=#userlib#';
+
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+headers.set("Access-Control-Allow-Origin", "*");
+
+try {
+     let res = await fetch(url, {
+      method: 'GET',
+      headers: headers,
+      mode: 'cors' // Adiciona o modo CORS explicitamente
+     });
+      
+     if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+     }
+        
+     return await res.json();
+} catch (error) {
+    console.error('Erro na requisição:', error);
+    return {
+        error: true,
+        message: 'Falha ao carregar dados: ' + error.message
+    };
+}
+
+}
 
 async function loadTable() {
-$('#mytable').html('<tr><td colspan="8" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
+$('#mytable').html('<tr><td colspan="10" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 let pedidos = await getPeds();
 let trHTML = '';
+
+// Destrói a tabela se já existir (preservando o thead original)
+if ($.fn.DataTable.isDataTable('#tableSC5')) {
+    $('#tableSC5').DataTable().destroy();
+    // Restaura o thead original (com os textos das colunas)
+    $('#tableSC5 thead').html(`
+	<tr>
+	<th scope="col">Pedido</th>
+	<th scope="col">Emissão</th>
+	<th scope="col">Cliente</th>
+	<th scope="col">Contrato</th>
+	<th scope="col">Competência</th>
+	<th scope="col">Planilha</th>
+	<th scope="col">Medição</th>
+	<th scope="col">Emissor</th>
+	<th scope="col">Total</th>
+	<th scope="col">Ação</th>
+	</tr>
+    `);
+}
+
+
 if (Array.isArray(pedidos)) {
     pedidos.forEach(object => {
     let cLiberOk = object['LIBEROK']
@@ -517,27 +612,32 @@ if (Array.isArray(pedidos)) {
     trHTML += '<td>'+object['EMISSAO']+'</td>';
     trHTML += '<td>'+object['CLIENTE']+'</td>';
     trHTML += '<td>'+object['CONTRATO']+'</td>';
-    trHTML += '<td align="center">'+object['COMPET']+'</td>';
+    trHTML += '<td>'+object['COMPET']+'</td>';
     trHTML += '<td>'+object['XXMUN']+'</td>';
+    trHTML += '<td>'+object['MEDICAO']+'</td>';
+	trHTML += '<td>'+object['USUARIO']+'</td>';
     trHTML += '<td align="right">'+object['TOTAL']+'</td>';
-    if (cLiberOk == 'S'){
-      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-warning btn-sm" onclick="showPed(\''+object['PEDIDO']+'\',2)">Liberado</button></td>';
-   	} else {
-      	trHTML += '<td align="right"><button type="button" class="btn btn-outline-success btn-sm" onclick="showPed(\''+object['PEDIDO']+'\',1)">Liberar</button></td>';
-    }
+ 	if (cLiberOk == 'S') {
+  		trHTML += `<td><button type="button" class="btn btn-outline-warning btn-sm" 
+             onclick="showPedWithSpinner('${object['PEDIDO']}', 2, this)">Liberado</button></td>`;
+	} else {
+  		trHTML += `<td><button type="button" class="btn btn-outline-success btn-sm" 
+             onclick="showPedWithSpinner('${object['PEDIDO']}', 1, this)">Liberar</button></td>`;
+	}
    	trHTML += '</tr>';
     });
 } else {
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">'+pedidos['liberacao']+'</th>';
+    trHTML += ' <th scope="row" colspan="10" style="text-align:center;">'+pedidos['liberacao']+'</th>';
     trHTML += '</tr>';   
     trHTML += '<tr>';
-    trHTML += ' <th scope="row" colspan="8" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
+    trHTML += ' <th scope="row" colspan="10" style="text-align:center;">Faça login novamente no sistema Protheus</th>';
     trHTML += '</tr>';   
 }
 document.getElementById("mytable").innerHTML = trHTML;
 
 tableSC5 = $('#tableSC5').DataTable({
+	"retrieve": true,
 	"pageLength": 100,
 	"order": [],
 	"language": {
@@ -557,14 +657,29 @@ tableSC5 = $('#tableSC5').DataTable({
 			"previous": "Anterior"
 		}
 	},
- 
+    "columns": [
+        { data: 'Pedido' },
+        { data: 'Emissão' },
+        { data: 'Cliente' },
+        { data: 'Contrato' },		
+        { data: 'Compet' },
+        { data: 'Planilha' },
+        { data: 'Medição' },
+        { data: 'Emissao' },
+        { data: 'Emissor' },
+        { data: 'Ação' }
+    ],
 	columnDefs: [
     	{
-            targets: [0,1,3],
+            targets: [0,1,3,4,5,6],
             className: 'text-center'
         },
 		{
-            targets: [6], // Colunas "Valor"
+            targets: [2],
+            width: '30%'
+        },
+		{
+            targets: [8], // Colunas "Valor"
             render: DataTable.render.number('.', ',', 2) // Formato: 1.000,50
         }
     ],   
@@ -593,7 +708,7 @@ tableSC5 = $('#tableSC5').DataTable({
 
 loadTable();
 
-
+/*
 function showPed(idPed,canLib) {
 let url = '#iprest#/RestLibPV/v1?pedido='+idPed;
 
@@ -604,22 +719,68 @@ if (canLib === 1){
 	document.getElementById("btnlib").innerHTML = btn;
 }
 
-$('#meuModal').modal('show');
-$('#meuModal').on('hidden.bs.modal', function () {
+$('#C5Modal').modal('show');
+$('#C5Modal').on('hidden.bs.modal', function () {
 	location.reload();
 	})
 }
+*/
 
-async function libPed(id,userlib,btnlp){
+function showPedWithSpinner(idPed, canLib, buttonElement) {
+  const btn = buttonElement;
+  const originalText = btn.innerHTML;
+  
+  // Mostra spinner no botão da tabela
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Carregando...';
+  btn.disabled = true;
+  
+  showPed(idPed, canLib);
+  
+  // Restaura o botão quando o modal abre ou em caso de erro
+  $('#C5Modal').one('shown.bs.modal hidden.bs.modal', function() {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  });
+}
+
+
+// função showPed com callback
+function showPed(idPed, canLib) {
+  const auth = 'Basic ' + btoa('web' + ':' + '846250');
+  
+  $.ajax({
+    url: `#iprest#/RestLibPV/v1?pedido=${idPed}`,
+    headers: { 'Authorization': auth },
+    success: (data) => {
+      $("#conteudo").html(data);
+      if (canLib === 1) {
+        $("#btnlib").html(`<button class="btn btn-success" 
+                         onclick="libPed('${idPed}','#userlib#')">
+                         Liberar</button>`);
+      } else {
+        $("#btnlib").empty(); // Remove o botão se canLib não for 1
+	  }
+      $('#C5Modal').modal('show');
+    },
+    error: () => {
+      $("#conteudo").html('<div class="alert alert-danger">Falha ao carregar o pedido</div>');
+      $('#C5Modal').modal('show');
+	  $("#btnlib").empty();
+    }
+  });
+}
+
+async function xlibPed(id,userlib){
 let dataObject = {liberacao:'ok'};
 let resposta = ''
-
+const auth = 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#');
 document.getElementById("btnlp").innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
 
 fetch('#iprest#/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 	method: 'PUT',
 	headers: {
-	'Content-Type': 'application/json'
+	'Content-Type': 'application/json',
+	'Authorization': auth
 	},
 	body: JSON.stringify(dataObject)})
 	.then(response=>{
@@ -634,15 +795,130 @@ fetch('#iprest#/RestLibPV/v3?pedido='+id+'&userlib='+userlib, {
 	  $("#titConf").text(data.liberacao);
 	  $('#confModal').modal('show');
 	  $('#confModal').on('hidden.bs.modal', function () {
-	  $('#meuModal').modal('toggle');
+	  $('#C5Modal').modal('toggle');
 	  })
 	})
 }
 
-function Excel(){
 
-window.open("#iprest#/RestLibPV/v5?empresa=#empresa#","_self");
+async function libPed(id, userlib) {
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  
+  try {
+    // Mostra spinner no botão do modal
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Liberando...';
+    btn.disabled = true;
+    
+    const dataObject = { liberacao: 'ok' };
+    const credentials = btoa('#usrrest#' + ':' + '#pswrest#');
+    
+    const response = await fetch(`#iprest#/RestLibPV/v3?pedido=${id}&userlib=${userlib}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dataObject)
+    });
 
+    if (!response.ok) throw new Error('Erro na requisição');
+    
+    const data = await response.json();
+    
+    // Fecha o modal e recarrega a tabela
+    $('#C5Modal').modal('hide');
+    Atualiza(); // Chama a função que recarrega a tabela
+    
+    // Mostra mensagem de sucesso
+    $("#titConf").text(data.liberacao);
+    $('#confModal').modal('show');
+    
+  } catch (error) {
+    console.error("Erro:", error);
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    alert("Ocorreu um erro durante a liberação");
+  }
+}
+
+
+async function Excel(){
+
+    const btnExcel = document.getElementById("btn-excel");
+    const cbtnh = btnExcel.innerHTML; // Salva o conteúdo original do botão
+	const newempr = '#empresa#';
+
+    try {
+        // Desabilita o botão e exibe o spinner
+        btnExcel.disabled = true;
+        btnExcel.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processando...';
+
+        // Substitua os placeholders pelos valores reais
+        const username = '#usrrest#'; // Substitua pelo valor real
+        const password = '#pswrest#'; // Substitua pelo valor real
+        const iprest = '#iprest#'; // Substitua pelo valor real
+        const userlib = '#userlib#'; // Substitua pelo valor real
+		const newempr = '#empresa#';
+
+        // Codifica as credenciais em Base64
+        const credentials = btoa(`${username}:${password}`);
+
+        // Monta a URL da API
+        const url = `${iprest}/RestLibPV/v5?empresa=${newempr}`;
+
+        // Faz a requisição com autenticação básica
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/json', // Adiciona o tipo de conteúdo, se necessário
+            },
+        });
+
+        // Verifica se a resposta é válida
+        if (!response.ok) {
+            let errorDetails = "Erro desconhecido";
+            try {
+                // Tenta obter detalhes do erro da resposta (se for JSON)
+                const errorResponse = await response.json();
+                errorDetails = JSON.stringify(errorResponse);
+            } catch (e) {
+                // Se a resposta não for JSON, usa o texto da resposta
+                errorDetails = await response.text();
+            }
+            throw new Error(`Erro ao baixar o arquivo: ${response.statusText}. Detalhes: ${errorDetails}`);
+        }
+
+        // Obtém o blob (arquivo) da resposta
+        const blob = await response.blob();
+
+        // Cria um link para download do arquivo
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Pedidos_de_Venda_${newempr}.xlsx`; // Nome do arquivo personalizado
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Erro durante a execução da função Excel:", error);
+        alert(`Ocorreu um erro ao tentar baixar o arquivo: ${error.message}`);
+    } finally {
+        // Restaura o botão ao estado original
+        btnExcel.disabled = false;
+        btnExcel.innerHTML = cbtnh;
+    }
+}
+
+async function Atualiza() {
+    try {
+        // Atualizar a tabela com os novos dados
+        await loadTable();
+        
+    } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        $('#mytable').html('<tr><td colspan="10" style="text-align: center; color: red;">Erro ao carregar dados</td></tr>');
+    }
 }
 
 </script>
@@ -652,6 +928,10 @@ window.open("#iprest#/RestLibPV/v5?empresa=#empresa#","_self");
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
+cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
+cHtml := STRTRAN(cHtml,"#empresa#"	 ,'01')
+
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
@@ -663,11 +943,7 @@ iF !Empty(::userlib)
 EndIf
 
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
-
-// Desabilitar para testar o html
-//If __cUserId == '000000'
-//	Memowrite(u_STmpDir()+"pv.html",cHtml)
-//EndIf
+cHtml := u_BKUtf8() + cHtml
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)
@@ -714,14 +990,3 @@ Static Function fLibPed(cNumPed)
 
 Return lOk
 
-
-/*
-Static Function PrePareContexto(cCodEmpresa , cCodFilial)
-
-	RESET ENVIRONMENT
-	RPCSetType(3)
-	PREPARE ENVIRONMENT EMPRESA cCodEmpresa FILIAL cCodFilial TABLES "SC5" MODULO "FAT"
-
-Return .T.
-
-*/

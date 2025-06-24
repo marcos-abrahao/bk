@@ -702,6 +702,10 @@ table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>t
     padding-right: 3px;
 }
 
+table.dataTable thead th {
+  position: relative;
+}
+
 thead input::placeholder {
     font-weight: bold !important;
     color: #6c757d !important;
@@ -712,6 +716,7 @@ thead input::placeholder {
 }
 /* Borda destacada para os inputs do cabeçalho */
 thead input {
+	width: 100% !important; /* Ocupa toda a largura da célula */
     border: 2px solid #9E0000 !important; /* Cor do seu header (.bk-colors) */
     border-radius: 4px !important; /* Cantos arredondados */
     padding: 4px !important; /* Espaçamento interno */
@@ -725,6 +730,11 @@ thead input:hover {
     transition: all 0.3s ease; /* Suaviza a transição */
 }
 
+/* Opcional: Efeito ao focar (quando clicado) */
+thead input:focus {
+    background-color: #FFE5E5 !important;
+    box-shadow: 0 0 0 2px rgba(158, 0, 0, 0.2) !important;
+}
 </style>
 </head>
 <body>
