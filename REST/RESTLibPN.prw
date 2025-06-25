@@ -838,8 +838,9 @@ aFiles := u_BKDocs(self:empresa,"SE2",(cQrySF1)->(F1_SERIE+F1_DOC+"  NF"+F1_FORN
 
 For nI := 1 To Len(aFiles)
 	aAdd(aAnexos,JsonObject():New())
-	aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+	aAnexos[nI]["F1_ANEXO"]		:= StrIConv( aFiles[nI,2], "CP1252", "UTF-8")
 	aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
+	aAnexos[nI]["F1_MIME"]		:= u_MimeFile(aFiles[nI,2])
 Next
 
 oJsonPN['F1_ANEXOS']	:= aAnexos
@@ -915,6 +916,8 @@ Local cMsg		As Char
 Local xEmpr		As Char
 Local cHTML 	AS Char
 
+u_BkAvPar(self:userlib,@aParams,@cMsg,@xEmpr)
+
 BeginContent var cHTML
 
 <!doctype html>
@@ -959,10 +962,38 @@ table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>t
     padding-right: 3px;
 }
 
+table.dataTable thead th {
+  position: relative;
+}
+
+thead input::placeholder {
+    font-weight: bold !important;
+    color: #6c757d !important;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem !important; /* Tamanho reduzido */
+    opacity: 1 !important; /* Garante visibilidade total */
+}
+/* Borda destacada para os inputs do cabeçalho */
 thead input {
-	width: 100%;
-	font-weight: bold;
-	background-color: #F3F3F3
+	width: 100% !important; /* Ocupa toda a largura da célula */
+    border: 2px solid #9E0000 !important; /* Cor do seu header (.bk-colors) */
+    border-radius: 4px !important; /* Cantos arredondados */
+    padding: 4px !important; /* Espaçamento interno */
+    box-shadow: 0 0 2px rgba(158, 0, 0, 0.3) !important; /* Sombra sutil (opcional) */
+}
+
+/* Efeito hover para os inputs do cabeçalho */
+thead input:hover {
+    background-color: #FFF2F2 !important; /* Vermelho claro de fundo */
+    border-color: #9E0000 !important; /* Borda vermelha mais intensa */
+    transition: all 0.3s ease; /* Suaviza a transição */
+}
+
+/* Opcional: Efeito ao focar (quando clicado) */
+thead input:focus {
+    background-color: #FFE5E5 !important;
+    box-shadow: 0 0 0 2px rgba(158, 0, 0, 0.2) !important;
 }
 
 </style>
@@ -1024,9 +1055,9 @@ thead input {
        <!-- Cabeçalho do modal -->
        <div class="modal-header bk-colors">
          <h4 id="titLib" class="modal-title">Título do modal</h4>
-         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                 <span aria-hidden="true">&times;</span>
-         </button>
+         <!-- <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"> -->
+         <!--         <span aria-hidden="true">&times;</span> -->
+         <!-- </button> -->
        </div>
        <!-- Corpo do modal -->
        <div class="modal-body">
@@ -1211,14 +1242,31 @@ thead input {
 <script>
 
 async function getPNs() {
-	let url = '#iprest#/RestLibPN/v0?userlib='+'#userlib#';
-		try {
-		let res = await fetch(url);
-			return await res.json();
-			} catch (error) {
-		console.log(error);
-			}
-		}
+let url = '#iprest#/RestLibPN/v0?userlib=#userlib#';
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
+try {
+     let res = await fetch(url, {
+      method: 'GET',
+      headers: headers,
+      mode: 'cors' // Adiciona o modo CORS explicitamente
+     });
+      
+     if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+     }
+        
+     return await res.json();
+} catch (error) {
+    console.error('Erro na requisição:', error);
+    return {
+        error: true,
+        message: 'Falha ao carregar dados: ' + error.message
+    };
+}
+}
+
 
 async function loadTable() {
 $('#mytable').html('<tr><td colspan="9" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
@@ -1228,6 +1276,26 @@ let nlin = 0;
 let cbtn = '';
 let ccanl = '';
 let cbtnid = ''
+
+// Destrói a tabela se já existir (preservando o thead original)
+if ($.fn.DataTable.isDataTable('#tableSE1')) {
+    $('#tableSE1').DataTable().destroy();
+    // Restaura o thead original (com os textos das colunas)
+    $('#tableSE1 thead').html(`
+	<tr>
+	<th scope="col" width="10%">Empresa</th>
+	<th scope="col" width="10%" style="text-align:center;">Pré-nota</th>
+	<th scope="col">Entrada</th>
+	<th scope="col">Fornecedor</th>
+	<th scope="col">Responsável</th>
+	<th scope="col">Aprovador</th>
+	<th scope="col">Vencimento</th>
+	<th scope="col" style="text-align:center;">Total</th>
+	<th scope="col" style="text-align:center;">Ação</th>
+	</tr>
+    `);
+}
+
 
 if (Array.isArray(prenotas)) {
    prenotas.forEach(object => {
@@ -1288,6 +1356,7 @@ if (Array.isArray(prenotas)) {
 document.getElementById("mytable").innerHTML = trHTML;
 
 tableSF1 = $('#tableSF1').DataTable({
+  "retrieve": true,
   "pageLength": 100,
   "language": {
   "lengthMenu": "Registros por página: _MENU_ ",
@@ -1340,23 +1409,23 @@ tableSF1 = $('#tableSF1').DataTable({
             });
     }
 
-
  });
 
 }
 
 loadTable();
 
-
 async function getPN(f1empresa,f1recno,userlib) {
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 let url = '#iprest#/RestLibPN/v1?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib;
 	try {
-	let res = await fetch(url);
+	let res = await fetch(url,{method: 'GET',	headers: headers});
 		return await res.json();
 		} catch (error) {
 	console.log(error);
-		}
 	}
+}
 
 
 let cbtnh = ''
@@ -1376,7 +1445,7 @@ let iCheck = '';
 let cClick = 'libdoc';
 let cbtn = '';
 let ccanl = '';
-
+let nbta = 0;
 
 document.getElementById('SF1Doc').value = prenota['F1_DOC'];
 document.getElementById('SF1Serie').value = prenota['F1_SERIE'];
@@ -1495,11 +1564,25 @@ if (Array.isArray(prenota.D1_ITENS)) {
   })
 }
 
-if (Array.isArray(prenota.F1_ANEXOS)) {
-	prenota.F1_ANEXOS.forEach(object => {
-	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
-  })
+//if (Array.isArray(prenota.F1_ANEXOS)) {
+//	prenota.F1_ANEXOS.forEach(object => {
+//	anexos += '<a href="#iprest#/RestLibPN/v4?empresa='+f1empresa+'&documento='+object['F1_ENCODE']+'&tpanexo=P" class="link-primary">'+object['F1_ANEXO']+'</a></br>';
+//  })
+
+if (Array.isArray(prenota.F1_ANEXOS) && prenota.F1_ANEXOS.length > 0) {
+	prenota.F1_ANEXOS.forEach(anexo => {
+		nbta += 1;
+		const cbta = 'btnAnx' + nbta;
+			
+		// Versão segura com template literals e escape adequado
+		anexos += `<button type="button" class="btn btn-link" id="${cbta}" 
+				onclick="Anexo('${f1empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
+				<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
+	});
+} else {
+	anexos = 'Nenhum anexo disponível'; // Mensagem padrão quando não há anexos
 }
+
 document.getElementById("anexos").innerHTML = anexos;
 
 document.getElementById("d1Table").innerHTML = itens;
@@ -1565,9 +1648,15 @@ let dataObject = {	liberacao:'ok',
 					avaliar:avaliar, 
 				 };
 
+// Codifica as credenciais em Base64
+const username = '#usrrest#';
+const password = '#pswrest#';
+const credentials = btoa(`${username}:${password}`);
+
 fetch('#iprest#/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='+userlib+'&acao='+acao, {
 	method: 'PUT',
 	headers: {
+	'Authorization': `Basic ${credentials}`,
 	'Content-Type': 'application/json'
 	},
 	body: JSON.stringify(dataObject)})
@@ -1597,14 +1686,18 @@ fetch('#iprest#/RestLibPN/v3?empresa='+f1empresa+'&prenota='+f1recno+'&userlib='
 
 
 async function getToken(cDoc) {
+const headers = new Headers();
+headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
+
 let url = '#iprest#/RestLibPN/v5?userlib='+'#userlib#'+'&documento='+cDoc;
 	try {
-	let res = await fetch(url);
+	let res = await fetch(url,{method: 'GET',	headers: headers});
 		return await res.json();
 		} catch (error) {
 	console.log(error);
+		}
 	}
-}
+
 
 
 async function token(nOrigem){
@@ -1624,33 +1717,29 @@ document.getElementById("txtToken").value = TokenRet['TOKEN'];
 $('#confToken').modal('show');
 }
 
+#AnexoHtml#
+
 </script>
 
 </body>
 </html>
 EndContent
 
+cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml())
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
+cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
+cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
 cHtml := STRTRAN(cHtml,"#BKDTStyle#" ,u_BKDTStyle())
 cHtml := STRTRAN(cHtml,"#BKDTScript#",u_BKDTScript())
 cHtml := STRTRAN(cHtml,"#BKFavIco#"  ,u_BkFavIco())
+cHtml := STRTRAN(cHtml,"#userlib#",self:userlib)
+cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
 
-If !Empty(self:userlib)
-	u_BkAvPar(self:userlib,@aParams,@cMsg,@xEmpr)
-	//u_MsgLog("RESTLIBPN",self:userlib)
-	cHtml := STRTRAN(cHtml,"#userlib#",self:userlib)
-	cHtml := STRTRAN(cHtml,"#cUserName#",cUserName)
-	//u_MsgLog("RESTLIBPN",cUserName)
-EndIf
 
-//StrIConv( cHtml, "UTF-8", "CP1252")
-//DecodeUtf8(cHtml)
 cHtml := StrIConv( cHtml, "CP1252", "UTF-8")
 
-// Desabilitar para testar o html
-//If __cUserId == '000000'
-//	Memowrite(u_TmpDir()+"pn.html",cHtml)
-//EndIf
+// Caracteres iniciais de um arquivo UTF-8
+cHtml := u_BKUtf8() + cHtml
 
 Self:SetHeader("Access-Control-Allow-Origin", "*")
 self:setResponse(cHTML)

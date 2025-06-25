@@ -187,7 +187,7 @@ Do While ( cQrySC5 )->( ! Eof() )
 	aListPV[nPos]['LIBEROK']   := TRIM((cQrySC5)->C5_LIBEROK)
 	aListPV[nPos]['XXMUN']     := TRIM((cQrySC5)->CNA_XXMUN)
 	aListPV[nPos]['MEDICAO']   := TRIM((cQrySC5)->C5_MDNUMED)
-	aListPV[nPos]['USUARIO']   := TRIM((cQrySC5)->CND_USUAR)
+	aListPV[nPos]['USUARIO']   := TRIM(IIF(!EMPTY((cQrySC5)->CND_USUAR),(cQrySC5)->CND_USUAR,(cQrySC5)->(FWLeUserlg('C5_USERLGI',1))))
 	(cQrySC5)->(DBSkip())
 EndDo
 
@@ -229,6 +229,7 @@ BeginSQL Alias cQrySC5
             SA1.A1_NOME,
 			CNA.CNA_XXMUN,
 			SC5.C5_MDNUMED,
+      SC5.C5_USERLGI,
 			CND.CND_USUAR
             
     FROM %Table:SC5% SC5

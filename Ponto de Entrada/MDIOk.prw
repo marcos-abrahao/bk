@@ -39,9 +39,8 @@ Local lCR 		:= .F.
 Local lCP 		:= .F.
 Local lLPV 		:= .F.
 Local lLPN		:= .F.
-Local cToken	:= u_BKEnCode()
-//Local cUrl 		:= u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
-Local cHtml		:= ""
+//Local cToken	:= u_BKEnCode()
+//Local cHtml		:= ""
 Local cLib		:= ""
 //Local lWebAgent := .F.
 Local nRemote	:= 0
@@ -57,24 +56,24 @@ Local nWidth      := 0
 Local nHeight	  := 0
 Local nStartX     := 0
 Local nStartY     := 0
-Local cUrl 		  := u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
-Local cGetParms   := ""
-Local cHeaderGet  := ""
-Local nTimeOut    := 200
-Local aHeader 	  := {}
+Local cUrl 		  := ""   //u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
+//Local cGetParms   := ""
+//Local cHeaderGet  := ""
+//Local nTimeOut    := 200
+//Local aHeader 	  := {}
 Local lBarcas	  := .F.
 
 Private oWebChannel := TWebChannel():New()
 
 lBarcas := u_IsBarcas()
 
-If u_AmbTeste()
-    Aadd(aHeader, "Content-Type: text/html; charset=utf8")
-    Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
-    cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
-EndIf
+//If u_AmbTeste()
+//    Aadd(aHeader, "Content-Type: text/html; charset=utf8")
+//    Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
+//    cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
+//EndIf
 
-//cUrl := u_BkAvUs(.F.)
+cUrl := u_BkAvUs(.F.)
 
 // Para teste
 //If __cUserId $ "000000/000038"
@@ -196,12 +195,12 @@ nPort := oWebChannel::connect()
 oWebEngine := TWebEngine():New(oPanelDown, 0, 0, oPanelDown:nWidth / 2, oPanelDown:nHeight / 2,/*cUrl*/, nPort)
 //oWebEngine:bLoadFinished := {|self, url| /*conout("Fim do carregamento da pagina " + url)*/ }
 
-If u_AmbTeste()
+//If u_AmbTeste()
     // Por texto em variavel de memoria
-    oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
-Else
+//    oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
+//Else
     oWebEngine:navigate(cUrl)
-EndIf
+//EndIf
 
 
 //oWebEngine:Align := CONTROL_ALIGN_ALLCLIENT

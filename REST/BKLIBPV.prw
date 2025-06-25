@@ -13,8 +13,6 @@
     @see (links_or_references)
     /*/
 
-
-
 User Function BKLIBPV(lShell)
 
 Local cToken  := u_BKEnCode()

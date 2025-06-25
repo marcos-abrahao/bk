@@ -14,17 +14,25 @@
     /*/
 
 User Function BKAVUS(lShell)
-
 Local cToken  := u_BKEnCode()
-Local cUrl    := u_BKIpServer()+'/recursos/loadmsgus.html?userlib='+cToken+'&bkip='+u_BKRest()+'/RestMsgUs/v2&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
+//Local oRestClient := FWRest():New(u_BkRest())
+Local aHeader := {} //{"tenantId: 99,01"}
 
-u_LoadMsgUs()
+Local cGetParms  := ""
+Local cHeaderGet := ""
+Local nTimeOut   := 200
+Local cHtml      := ""
+Local cUrl       := ""
 
-Default lShell := .T.
+Aadd(aHeader, "Content-Type: text/html; charset=utf8")
+Aadd(aHeader, "Authorization: Basic " + Encode64(u_BkUsrRest()+":"+u_BkPswRest()))
 
-If lShell
-    ShellExecute("open",cUrl, "", "", 1)
-    Return .T.
+cHtml := HttpGet(u_BkRest()+'/RestMsgUs/v2?userlib='+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
+
+If !Empty(cHtml)
+    cUrl := u_TmpHtml(cHtml,"BKAVUS",lShell)
+Else
+    u_MsgLog("BKAVUS","Erro ao acessar o ambiente REST, contate o suporte.","E")
 EndIf
 
 Return cUrl

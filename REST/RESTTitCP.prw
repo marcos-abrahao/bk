@@ -645,7 +645,7 @@ Do While ( cQrySE2 )->( ! Eof() )
 	aFiles := u_BKDocs(SUBSTR((cQrySE2)->EMPRESA,1,2),"SE2",(cQrySE2)->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO+E2_FORNECE+E2_LOJA),1,aFiles)
 	For nI := 1 To Len(aFiles)
 		aAdd(aAnexos,JsonObject():New())
-		aAnexos[nI]["F1_ANEXO"]		:= aFiles[nI,2]
+		aAnexos[nI]["F1_ANEXO"]		:= StrIConv( aFiles[nI,2], "CP1252", "UTF-8")
 		aAnexos[nI]["F1_ENCODE"]	:= Encode64(aFiles[nI,2])
 		aAnexos[nI]["F1_MIME"]		:= u_MimeFile(aFiles[nI,2])
 	Next
@@ -1107,6 +1107,10 @@ table.dataTable.table-sm>thead>tr th.dt-orderable-asc,table.dataTable.table-sm>t
     padding-right: 3px;
 }
 
+table.dataTable thead th {
+  position: relative;
+}
+
 thead input::placeholder {
     font-weight: bold !important;
     color: #6c757d !important;
@@ -1118,6 +1122,7 @@ thead input::placeholder {
 
 /* Borda destacada para os inputs do cabeçalho */
 thead input {
+	width: 100% !important; /* Ocupa toda a largura da célula */
     border: 2px solid #9E0000 !important; /* Cor do seu header (.bk-colors) */
     border-radius: 4px !important; /* Cantos arredondados */
     padding: 4px !important; /* Espaçamento interno */

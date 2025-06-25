@@ -12,7 +12,7 @@ Termo de retirada de material - Barcas Rio - Via movimentação multipla
 
 User Function BKESTR11
 Local cHtml     := ""
-Local aAreaSD3  := GetArea("SS3")
+Local aAreaSD3  := GetArea("SD3")
 Private cProg   := "BKESTR11"
 
 cHtml := HtmlR11(SD3->D3_DOC)
@@ -194,7 +194,7 @@ BEGINCONTENT var cHtml
    }
    .signature-box {
        text-align: center;
-       width: 23%;
+       width: 28%;
        min-width: 150px;
    }
    .signature-line {
@@ -232,15 +232,10 @@ BEGINCONTENT var cHtml
             </div>
             
             <div class="form-group">
-                <label for="cpf-number">Número do CPF:</label>
+                <label for="cpf-number">Número do Documento (Matricula Func, CPF ou RG):</label>
                 <input type="text" id="cpf-number" placeholder="Digite o número do CPF">
             </div>
             
-            <div class="form-group">
-                <label for="ordem-servico">Ordem de Serviço:</label>
-                <input type="text" id="ordem-servico" placeholder="Digite o numero da ordem de serviço do Helm">
-            </div>
-
         </div>
 
         <div class="btn-container">
@@ -292,7 +287,7 @@ BEGINCONTENT var cHtml
             </div>
 
             <div class="declaracao">
-                <p>Eu, <span id="responsavel-texto" class="campo-preenchimento"></span>, portador do CPF de número <span id="cpf-texto" class="campo-cpf"></span>, confirmo o recebimento dos itens discriminados abaixo na presente data e em condições adequadas para utilização.</p>
+                <p>Eu, <span id="responsavel-texto" class="campo-preenchimento"></span>, portador do documento de número <span id="cpf-texto" class="campo-cpf"></span>, confirmo o recebimento dos itens discriminados abaixo na presente data e em condições adequadas para utilização.</p>
             </div>
 
             ##tabela-itens##
@@ -309,10 +304,6 @@ BEGINCONTENT var cHtml
                 <div class="signature-box">
                     <div class="signature-line"></div>
                     <div style="margin-top: 5px;">Gestor</div>
-                </div>
-                <div class="signature-box">
-                    <div class="signature-line"></div>
-                    <div style="margin-top: 5px;">Usuário</div>
                 </div>
                 <div class="signature-box">
                     <div class="signature-line"></div>
@@ -454,7 +445,8 @@ BEGINCONTENT var cHtml
 ENDCONTENT
 
 cHtml := STRTRAN(cHtml,"##empresa##",ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_NOME"} )[1,2]))
-cHtml := STRTRAN(cHtml,"##cidade##",ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_CIDENT"} )[1,2]))
+//cHtml := STRTRAN(cHtml,"##cidade##",ALLTRIM(FWSM0Util():GetSM0Data( cEmpAnt , cFilAnt , {"M0_CIDENT"} )[1,2]))
+cHtml := STRTRAN(cHtml,"##cidade##","Rio de Janeiro")
 cHtml := STRTRAN(cHtml,"##bksrvweb##",u_BkSrvWeb())
 cHtml := STRTRAN(cHtml,"##empant##",cEmpAnt)
 
@@ -491,17 +483,17 @@ Local nTamPg := 13
 Local nItens := 0
 
 cTab += '<table class="avoid-break">' + CRLF
-cCab += "<thead>" + CRLF
-cCab += "<tr>" + CRLF
-cCab += "<th>Item</th>" + CRLF
-cCab += "<th>Cod. Prod.</th>" + CRLF
-cCab += "<th>Produto</th>" + CRLF
-cCab += "<th>U.M.</th>" + CRLF
-cCab += "<th>Quant.</th>" + CRLF
-cCab += "<th>Local</th>" + CRLF
-cCab += "</tr>" + CRLF
-cCab += "</thead>" + CRLF
-cCab += "<tbody>" + CRLF
+cCab += '<thead>' + CRLF
+cCab += '<tr>' + CRLF
+//cCab += "<th>Item</th>" + CRLF
+cCab += '<th>Cod. Prod.</th>' + CRLF
+cCab += '<th>Descrição do Produto</th>' + CRLF
+cCab += '<th align="center">U.M.</th>' + CRLF
+cCab += '<th>Quant.</th>' + CRLF
+cCab += '<th  align="center">Local</th>' + CRLF
+cCab += '</tr>' + CRLF
+cCab += '</thead>' + CRLF
+cCab += '<tbody>' + CRLF
 cTab += cCab
 
 dbSelectArea("SD3")
@@ -520,13 +512,13 @@ dbSetOrder(2)
 dbSeek(xFilial("SD3")+cDocD3,.T.)
 Do While cDocD3 == SD3->D3_DOC .AND. !EOF()
     cTab += "<tr>" + CRLF
-    cTab += "<td>" + AllTrim(SD3->D3_ITEM) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SD3->D3_COD) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(TRIM(Posicione("SB1",1,xFilial("SB1")+SD3->D3_COD,"B1_DESC"))) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SD3->D3_UM) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(STR(SD3->D3_QUANT,nTamQ,nDecQ)) +"</td>" + CRLF
-    cTab += "<td>" + AllTrim(SD3->D3_LOCAL) +"</td>" + CRLF
-    cTab += "</tr>" + CRLF
+    //cTab += '<td>' + AllTrim(SD3->D3_ITEM) +'</td>' + CRLF
+    cTab += '<td>' + AllTrim(SD3->D3_COD) +'</td>' + CRLF
+    cTab += '<td>' + AllTrim(TRIM(Posicione("SB1",1,xFilial("SB1")+SD3->D3_COD,"B1_DESC"))) +'</td>' + CRLF
+    cTab += '<td align="center">' + AllTrim(SD3->D3_UM) +'</td>' + CRLF
+    cTab += '<td align="right">' + AllTrim(STR(SD3->D3_QUANT,nTamQ,nDecQ)) +'</td>' + CRLF
+    cTab += '<td align="center">' + AllTrim(SD3->D3_LOCAL) +'</td>' + CRLF
+    cTab += '</tr>' + CRLF
     dbSkip()
     nItem++
     If nPag > 1

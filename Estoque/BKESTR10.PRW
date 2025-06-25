@@ -232,7 +232,7 @@ BEGINCONTENT var cHtml
             </div>
             
             <div class="form-group">
-                <label for="cpf-number">Número do CPF:</label>
+                <label for="cpf-number">Número do Documento (Matricula Func, CPF ou RG):</label>
                 <input type="text" id="cpf-number" placeholder="Digite o número do CPF">
             </div>
             
