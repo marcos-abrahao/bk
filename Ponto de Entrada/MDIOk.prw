@@ -73,8 +73,9 @@ lBarcas := u_IsBarcas()
 //    cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 //EndIf
 
-//cUrl := u_BkAvUs(.F.)
-cHtml:= u_BkAvUs(.F.)
+cHtml := ""
+cUrl := u_BkAvUs(.F.)
+//cHtml:= u_BkAvUs(.F.)
 
 // Para teste
 //If __cUserId $ "000000/000038"
@@ -198,9 +199,9 @@ oWebEngine := TWebEngine():New(oPanelDown, 0, 0, oPanelDown:nWidth / 2, oPanelDo
 
 //If u_AmbTeste()
     // Por texto em variavel de memoria
-   oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
+   //oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
 //Else
-    //oWebEngine:navigate(cUrl)
+    oWebEngine:navigate(cUrl)
 //EndIf
 
 

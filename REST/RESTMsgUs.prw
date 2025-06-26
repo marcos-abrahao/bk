@@ -410,6 +410,7 @@ $('#mytable').html('<tr><td colspan="9" style="text-align: center;"><div class="
 // Verifique se av1 é um array
 if (!Array.isArray(av1)) {
     console.error('Resposta da API não é um array:', av1);
+	alert("Resposta da API não é um array");
     return; // Saia da função se não for um array
 }
 

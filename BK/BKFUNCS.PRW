@@ -50,6 +50,6 @@ If lOpen
 
 EndIf
 
-Return cArqHtml
+Return cUrl
 
 

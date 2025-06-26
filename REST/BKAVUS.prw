@@ -35,7 +35,7 @@ Else
     u_MsgLog("BKAVUS","Erro ao acessar o ambiente REST, contate o suporte.","E")
 EndIf
 
-Return cHtml
+Return cUrl
 
 
 
