@@ -40,7 +40,7 @@ Local lCP 		:= .F.
 Local lLPV 		:= .F.
 Local lLPN		:= .F.
 //Local cToken	:= u_BKEnCode()
-//Local cHtml		:= ""
+Local cHtml		:= ""
 Local cLib		:= ""
 //Local lWebAgent := .F.
 Local nRemote	:= 0
@@ -56,7 +56,7 @@ Local nWidth      := 0
 Local nHeight	  := 0
 Local nStartX     := 0
 Local nStartY     := 0
-Local cUrl 		  := ""   //u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
+//Local cUrl 		  := ""   //u_BkRest()+"/RestMsgUs/v2?userlib="+cToken
 //Local cGetParms   := ""
 //Local cHeaderGet  := ""
 //Local nTimeOut    := 200
@@ -73,7 +73,8 @@ lBarcas := u_IsBarcas()
 //    cHtml       := HttpGet(u_BkRest()+"/RestMsgUs/v2?userlib="+cToken,cGetParms, nTimeOut, aHeader, @cHeaderGet)
 //EndIf
 
-cUrl := u_BkAvUs(.F.)
+//cUrl := u_BkAvUs(.F.)
+cHtml:= u_BkAvUs(.F.)
 
 // Para teste
 //If __cUserId $ "000000/000038"
@@ -197,9 +198,9 @@ oWebEngine := TWebEngine():New(oPanelDown, 0, 0, oPanelDown:nWidth / 2, oPanelDo
 
 //If u_AmbTeste()
     // Por texto em variavel de memoria
-//    oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
+   oWebEngine:setHtml(cHtml, u_BkIpServer()+"/tmp/")
 //Else
-    oWebEngine:navigate(cUrl)
+    //oWebEngine:navigate(cUrl)
 //EndIf
 
 

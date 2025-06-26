@@ -460,7 +460,7 @@ Local cLinkBtn 	as Character
 
 cBtn := "btn"+ALLTRIM(STR(nBt,0))
 cLinkBtn = "Anexo('"+u_BkRest()+"/RestLibPN/v4?empresa="+cEmp+"&documento="+Encode64(cFile)+"&tpanexo=P',"+"'"+cFile+"','"+u_MimeFile(cFile)+"','"+cBtn+"')"
-cHtm := '<button type="button" class="btn btn-link" id="'+cBtn+'" onclick="'+cLinkBtn+'">'+cFile+"</button>"+CRLF
+cHtm := '<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="'+cBtn+'" onclick="'+cLinkBtn+'">'+cFile+"</button>"+CRLF
 
 Return cHtm
 

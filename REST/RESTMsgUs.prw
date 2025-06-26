@@ -336,14 +336,6 @@ thead input {
   </div>
 </nav>
 
-<!-- <nav class="navbar navbar-dark bg-mynav navbar-static-top justify-content-between id=nav2"> -->
-<!-- <div class="container-fluid"> -->
-<!-- <span class="navbar-text"> -->
-<!-- 	Olá! Por esta tela serão enviados os avisos do sistema. -->
-<!-- </span> -->
-<!-- </div> -->
-<!-- </nav> -->
-
 </header>
 
 <div class="container-fluid">
@@ -404,7 +396,7 @@ const url = '#iprest#/RestMsgUs/v0?userlib=#userlib#';
 const headers = new Headers();
 headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 try {
-let res = await fetch(url,{	method: 'GET',	headers: headers});
+let res = await fetch(url,{	method: 'GET',	headers: headers, mode: 'cors' });
 	return await res.json();
 	} catch (error) {
 console.log(error);
@@ -416,10 +408,10 @@ let av1 = await getAv1();
 $('#mytable').html('<tr><td colspan="9" style="text-align: center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>')
 
 // Verifique se av1 é um array
-//if (!Array.isArray(av1)) {
-//    console.error('Resposta da API não é um array:', av1);
-//    return; // Saia da função se não for um array
-//}
+if (!Array.isArray(av1)) {
+    console.error('Resposta da API não é um array:', av1);
+    return; // Saia da função se não for um array
+}
 
 let trHTML = '';
 let nlin = 0;

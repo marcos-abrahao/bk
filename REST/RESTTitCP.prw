@@ -1623,7 +1623,7 @@ if (Array.isArray(titulos)) {
 			const cbta = 'btnAnx' + nbta;
 			
 			// Versão segura com template literals e escape adequado
-			anexos += `<button type="button" class="btn btn-link" id="${cbta}" 
+			anexos += `<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="${cbta}" 
 					onclick="Anexo('${cEmpresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
 					<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
 		});
@@ -1886,7 +1886,7 @@ if (Array.isArray(dadosE2.F1_ANEXOS) && dadosE2.F1_ANEXOS.length > 0) {
 		const cbta = 'btnAnx' + nbta;
 		
 		// Versão segura com template literals e escape adequado
-		anexos += `<button type="button" class="btn btn-link" id="${cbta}" 
+		anexos += `<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="${cbta}" 
 				onclick="Anexo('${empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
 				<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
 	});
