@@ -150,6 +150,7 @@ Local cHtml := ""
 
 BEGINCONTENT var cHTML
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
 ENDCONTENT
 
 Return cHtml
@@ -234,14 +235,18 @@ Return cHtml
 
 
 // Usar com browse externo
-User Function AnexoHtml()
+User Function AnexoHtml(lScript)
 Local cHtml := ""
+Default lScript := .F.
+
+// cTpAnexo = "P"  // Pasta Doc
+// cTpAnexo = "A"  // Pasta Tmp Server
 
 BEGINCONTENT var cHtml
-async function Anexo(cEmp,cEncFile,cMime,btnA) {
+async function AnexoBk(cEmp,cEncFile,cMime,btnA,cTpAnexo) {
 	const btnanexo = document.getElementById(btnA);
 	const cbtnh = btnanexo.innerHTML; // Salva o conteúdo original do botão
-	const url = '#iprest#/RestLibPN/v4?empresa='+cEmp+'&documento='+cEncFile+'&tpanexo=P'
+	const url = '#iprest#/RestLibPN/v4?empresa='+cEmp+'&documento='+cEncFile+'&tpanexo='+cTpAnexo
 	try {
 		// Desabilita o botão e exibe o spinner
 		btnanexo.disabled = true;
@@ -295,10 +300,13 @@ async function Anexo(cEmp,cEncFile,cMime,btnA) {
 	}
 }
 ENDCONTENT
-
+cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
 cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
 cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
-
+If lScript
+	// Se estiver fora de um script
+	cHtml:= '<script>'+CRLF+cHtml+CRLF+'</script>'+CRLF
+EndIf
 Return cHtml
 
 
@@ -453,14 +461,37 @@ Return cContent
 // Botão para abrir anexo via rest
 // Empresa,Arquivo e Numero do Botão para id
 // Exemplo: //cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],nI)
-User Function BtnAnexo(cEmp,cFile,nBt)
+User Function BtnAnexo(cEmp,cFile,cTpAnexo)
 Local cHtm 		as Character
-Local cBtn 		as Character
-Local cLinkBtn 	as Character
+//Local cBtn 		as Character
+//Local cLinkBtn 	as Character
+Default cTpAnexo := "P"
 
-cBtn := "btn"+ALLTRIM(STR(nBt,0))
-cLinkBtn = "Anexo('"+u_BkRest()+"/RestLibPN/v4?empresa="+cEmp+"&documento="+Encode64(cFile)+"&tpanexo=P',"+"'"+cFile+"','"+u_MimeFile(cFile)+"','"+cBtn+"')"
-cHtm := '<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="'+cBtn+'" onclick="'+cLinkBtn+'">'+cFile+"</button>"+CRLF
+//cBtn := "btnAnx"+ALLTRIM(STR(nBt,0))
+//cLinkBtn := "Anexo('"+u_BkRest()+"/RestLibPN/v4?empresa="+cEmp+"&documento="+Encode64(cFile)+"&tpanexo=P',"+"'"+cFile+"','"+u_MimeFile(cFile)+"','"+cBtn+"','P')"
+//cLinkBtn := u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(cFile)+'&tpanexo='+cTpAnexo+'&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()
+//cHtm := '<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="'+cBtn+'" onclick="'+cLinkBtn+'">'+cFile+"</button>"+CRLF
+cHtm := '<a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmp+'&documento='+Encode64(cFile)+'&tpanexo='+cTpAnexo+'&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'" target="_blank" class="link-primary"><i class="bi bi-paperclip">'+cFile+'</a></br>'+CRLF
+
+//cHtm := '<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="'+cbtn+'"'+;
+//					' onclick="parent.AnexoBk('+"'"+cEmp+"','"+Encode64(cFile)+"','"+u_MimeFile(cFile)+"','"+cBtn+"','"+cTpAnexo+"')"+'">'+;
+//					'<i class="bi bi-paperclip"></i>'+cFile+'</button>'
+
+//<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="btnAn1" onclick=" anexo('01','qvbuty5qrey="," application="" pdf','btnan1','p')"=""><i class="bi bi-paperclip"></i>APTO.PDF</button>
+
+/*
+<form action="http://10.150.0.25/recursos/loadanexo.html" method="get" target="_blank">
+  <input type="hidden" name="empresa" value="01">
+  <input type="hidden" name="documento" value="QVBUTy5QREY=">
+  <input type="hidden" name="tpanexo" value="P">
+  <input type="hidden" name="bkip" value="http://10.150.0.25:8081/rest/RestLibPN/v4">
+  <input type="hidden" name="username" value="web">
+  <input type="hidden" name="password" value="846250">
+  
+  <button type="submit" class="link-primary">APTO.PDF</button>
+</form>
+*/
+
 
 Return cHtm
 

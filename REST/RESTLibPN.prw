@@ -597,8 +597,12 @@ Do While ( cQrySF1 )->( ! Eof() )
 		aListWeb[nPos]['APROVADOR']:= UsrRetName((cQrySF1)->F1_XXUAPRV)
 	EndIf
 
-	//aListWeb[nPos]['PGTO']  	 := DTOC(STOD((cQrySF1)->F1_XXPVPGT))
-	aListWeb[nPos]['PGTO']  	 := (cQrySF1)->(SUBSTR(F1_XXPVPGT,1,4)+"-"+SUBSTR(F1_XXPVPGT,5,2)+"-"+SUBSTR(F1_XXPVPGT,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	If !Empty((cQrySF1)->F1_XXPVPGT)
+		aListWeb[nPos]['PGTO'] 	 := (cQrySF1)->(SUBSTR(F1_XXPVPGT,1,4)+"-"+SUBSTR(F1_XXPVPGT,5,2)+"-"+SUBSTR(F1_XXPVPGT,7,2))+" 12:00:00"  // Se não colocar 12:00 ele mostra a data anterior
+	Else
+		aListWeb[nPos]['PGTO']   := ""
+	EndIf
+
 	aListWeb[nPos]['TOTAL']      := ALLTRIM(STR((cQrySF1)->D1_TOTAL,14,2)) //TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
 	aListWeb[nPos]['LIBEROK']    := cLiberOk
 	aListWeb[nPos]['STATUS']     := cStatus
@@ -860,7 +864,7 @@ Do While (cQrySF1)->(!EOF())
 	aItens[nI]["D1_COD"]	:= TRIM((cQrySF1)->D1_COD)
 	aItens[nI]["B1_DESC"]	:= StrIConv(TRIM((cQrySF1)->B1_DESC), "CP1252", "UTF-8") 
 	aItens[nI]["D1_QUANT"]	:= TRANSFORM((cQrySF1)->D1_QUANT,"@E 99999999.99")
-	aItens[nI]["D1_VUNIT"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.9999")
+	aItens[nI]["D1_VUNIT"]	:= TRANSFORM((cQrySF1)->D1_VUNIT,"@E 999,999,999.9999")
 	aItens[nI]["D1_TOTAL"]	:= TRANSFORM((cQrySF1)->D1_TOTAL,"@E 999,999,999.99")
 	aItens[nI]["D1_GERAL"]	:= TRANSFORM((cQrySF1)->D1_GERAL,"@E 999,999,999.99")
 	aItens[nI]["D1_CC"]		:= (cQrySF1)->D1_CC
@@ -1576,7 +1580,7 @@ if (Array.isArray(prenota.F1_ANEXOS) && prenota.F1_ANEXOS.length > 0) {
 			
 		// Versão segura com template literals e escape adequado
 		anexos += `<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="${cbta}" 
-				onclick="Anexo('${f1empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
+				onclick="AnexoBk('${f1empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}', 'P')">
 				<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
 	});
 } else {
@@ -1725,7 +1729,7 @@ $('#confToken').modal('show');
 </html>
 EndContent
 
-cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml())
+cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml(.F.))
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
 cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
 cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())

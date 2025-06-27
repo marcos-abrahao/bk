@@ -278,7 +278,7 @@ BEGINCONTENT var cHtml
                 
                 <div class="info-linha">
                     <span class="info-label">Centro de Custos:</span>
-                    <span class="info-valor" id="centro-custo-texto">##centrodecustos##</span>
+                    <span class="info-valor" id="centro-custo-texto">##centrodecustos## - ##descricaocc##</span>
                 </div>
                 <div class="info-linha">
                     <span class="info-label">Ordem de Serviço:</span>
@@ -462,6 +462,7 @@ Else
 EndIf
 
 cHtml := STRTRAN(cHtml,"##centrodecustos##",SD3->D3_CC)
+cHtml := STRTRAN(cHtml,"##descricaocc##",TRIM(Posicione("CTT",1,xFilial("CTT")+SD3->D3_CC,"CTT_DESC01")))
 
 cHtml := STRTRAN(cHtml,"##tabela-itens##",TabItens(cDocD3))
 

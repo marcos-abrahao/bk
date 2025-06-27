@@ -70,7 +70,7 @@ EndIf
 
 IF DOW(dDataEnv) = 3 .OR. DOW(dDataEnv) = 5
 	//u_WaitLog("VigBKGCT06",{|| VigBKGCT06()} ,"Processando avisos de termino de vigencia 1")
-	u_WaitLog("Vg2BKGct06",{|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
+	//u_WaitLog("Vg2BKGct06",{|| Vg2BKGct06()} ,"Processando avisos de termino de vigencia 2")
 
 	// Habilitado em 05/12/23
 	u_WaitLog("V5BKGct06", {|| V5BKGct06()}  ,"Processando avisos de Insumos Operacionais")
@@ -189,10 +189,12 @@ IF VALTYPE(cRel) == "N"
 ENDIF                        
 IF SUBSTR(cRel,1,2) = "01"
    u_WaitLog("REPBKGCT06", {|| REPBKGCT06() } )
-ELSEIF SUBSTR(cRel,1,2) = "02"   
-   u_WaitLog("VigBKGct06", {|| VigBKGct06() } )
+ELSEIF SUBSTR(cRel,1,2) = "02"
+   u_MsgLog("VigBKGct06","Programa desabilitado em 27/06/2025","W")
+   //u_WaitLog("VigBKGct06", {|| VigBKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "03"   
-   u_WaitLog("Vg2BKGct06", {|| Vg2BKGct06() } )
+   u_MsgLog("Vg2BKGct06","Programa desabilitado em 27/06/2025","W")
+   //u_WaitLog("Vg2BKGct06", {|| Vg2BKGct06() } )
 ELSEIF SUBSTR(cRel,1,2) = "04"   
    u_WaitLog("RepBK06b", {|| RepBK06b() } )
 ELSEIF SUBSTR(cRel,1,2) = "05"   

@@ -389,7 +389,7 @@ For nI := 1 TO LEN(aCabs)
       endif      
    EndIf
 
-	cHtm += '<th style="padding: 5px 2px 5px 2px;font-family: Arial;'+cAlign+';"><b>'+ALLTRIM(aCabs[nI])+'</b></th>' 
+	cHtm += '<th style="padding: 5px 2px 5px 2px;font-family: Arial;'+cAlign+'"><b>'+ALLTRIM(aCabs[nI])+'</b></th>' 
 Next
 cHtm += '</thead>' 
 
@@ -445,7 +445,7 @@ EndIf
 
 // Documentos anexos
 
-cHtm += '<table>'+CRLF
+//cHtm += '<table>'+CRLF
 cHtm += '<table width="100%" Align="center" border="0" cellspacing="0" cellpadding="0" bordercolor="#CCCCCC" >' +CRLF
 
 cHtm += '<thead style="vertical-align: top; background-color: #9E0000; color: #FFFFFF; font-size: 9pt; line-height: 120%;">' + CRLF
@@ -473,7 +473,8 @@ If Len(aFiles) > 0
 
 		cHtm += '<tr>'+CRLF
 		cHtm += '	<td style="text-align:center;">'+CRLF
-		cHtm += '     <a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'&titulo'+cTitulo+'" target="_blank" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
+		cHtm += u_BtnAnexo(cEmpAnt,aFiles[nI,2],"P")
+		//cHtm += '     <a href="'+u_BKIpServer()+'/recursos/loadanexo.html?empresa='+cEmpAnt+'&documento='+Encode64(aFiles[nI,2])+'&tpanexo=P&bkip='+u_BKRest()+'/RestLibPN/v4&username='+u_BKUsrRest()+'&password='+u_BKPswRest()+'&titulo'+cTitulo+'" target="_blank" class="link-primary">'+aFiles[nI,2]+'</a></br>'+CRLF
 		cHtm += '  </td>'+CRLF
 		cHtm += '</tr>'+CRLF
 	Next
@@ -482,7 +483,7 @@ EndIf
 cHtm += '</table>'+CRLF
 cHtm += '<br>'+CRLF
 
-//cHtm += u_AnexoHtml()
+
 
 cHtm += '</body>'+CRLF
 cHtm += '</html>'+CRLF
@@ -503,14 +504,21 @@ EndIf
 
 cLogo := u_BkLogos(FWCodEmp())
 
-cHtm += '<html lang="pt-BR" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">' 
 
-cHtm += '<head>' 
-cHtm += '<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">' 
+BEGINCONTENT var cHtm
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<!-- Required meta tags -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ENDCONTENT
+
 //cHtm += '<link rel=Edit-Time-Data href="./HistD_arquivos/editdata.mso">' 
 cHtm += '<title>'+cTitulo+' - '+DTOC(date())+' '+TIME()+'</title>' 
 cHtm += u_BkFavIco()
 cHtm += u_BKBootStrap()
+//cHtm += u_AnexoHtml(.T.)
 cHtm += '</head>' 
 cHtm += '<body bgcolor=#ffffff lang=PT-BR>' 
 

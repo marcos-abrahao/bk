@@ -46,8 +46,8 @@ EndIf
 
 // Novo Filtro - Aprovação em duas etapas
 
-cAux := "000000/000007/000037/000038"+IIF(!lRPC,"/000045","")
-If u_InGrupo(__cUserId,cAux) // Administradores/Diretoria/Controladoria/Master Libera/Jurídico
+cAux := "000000/000007/000037/000038/000050"+IIF(!lRPC,"/000045","")
+If u_InGrupo(__cUserId,cAux) // Administradores/Diretoria/Controladoria/Master Libera/Master Libera Barcas/Jurídico
 	If lAClas .OR. lRPC
 		If lFiltLib
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"

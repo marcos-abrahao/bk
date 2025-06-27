@@ -232,6 +232,8 @@ Do While ( cQrySZ0 )->( ! Eof() )
 	aListAV1[nPos]['HRLIDA'] 	:= TRIM((cQrySZ0)->Z0_HRLIDA)
 	aListAV1[nPos]['ANEXO'] 	:= TRIM((cQrySZ0)->Z0_ANEXO)
 	aListAV1[nPos]['ENCODE'] 	:= Encode64(TRIM((cQrySZ0)->Z0_ANEXO))
+	aListAV1[nPos]["MIME"]		:= u_MimeFile(TRIM((cQrySZ0)->Z0_ANEXO))
+
 
 	aListAV1[nPos]['Z0RECNO']	:= STRZERO((cQrySZ0)->Z0RECNO,7)
 	aListAV1[nPos]['TIPO']		:= IIF(TRIM((cQrySZ0)->Z0_USERO) == TRIM(__cUserID),"R","D")
@@ -419,13 +421,15 @@ let nlin = 0;
 let cbtnid = '';
 let anexos = '';
 let cStatus = '';
-let z0recno = ''
-let cTipo = ''
-let cbtn = ''
-let ctitbt = ''
-let canexo = ''
-let canexo1 = ''
-let crotina = ''
+let z0recno = '';
+let cTipo = '';
+let cbtn = '';
+let ctitbt = '';
+let canexo = '';
+let canexo1 = '';
+let crotina = '';
+let nbta = 0;
+let cbta = '';
 
 if (Array.isArray(av1)) {
 	av1.forEach(object => {
@@ -466,8 +470,16 @@ if (Array.isArray(av1)) {
 		trHTML += '<td><div id="'+cbtnid+'"><button type="button" title="'+ctitbt+'" class="btn '+cbtn+'"><i class="fa fa-envelope"></i></button></div></td>';
 	} 
 
-	canexo  = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
-	canexo1 = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
+	nbta += 1;
+	cbta = 'btnAnx' + nbta;
+
+	//canexo  = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+'</a>';
+	//canexo1 = '<a href="#iprest#/RestLibPN/v4?empresa='+object['EMPRESA']+'&documento='+object['ENCODE']+'&tpanexo=A" class="link-primary">'+object['ASSUNTO']+' ('+object['ANEXO']+')</a>';
+
+	canexo = `<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="${cbta}" 
+					onclick="AnexoBk('${object['EMPRESA']}', '${object['ENCODE']}', '${object['MIME']}', '${cbta}', 'A')">
+					<i class="bi bi-paperclip"></i>${object['ASSUNTO']}</button> `;
+	canexo1 = canexo;
 
 	trHTML += '<td>'+object['EMPRESA']+'</td>';
 	trHTML += '<td>'+object['USRREM']+'</td>';
@@ -728,23 +740,14 @@ headers.set('Authorization', 'Basic ' + btoa('#usrrest#' + ':' + '#pswrest#'));
 	})
 }
 
-/*
-function rotexec(corigem,canLib) {
-let url = '#iprest#/RestMsgUs/v5?userlib=#userlib#&acao='+corigem;
-
-$("#titConf").load(url);
-$('#confModal').modal('show');
-$('#confModal').on('hidden.bs.modal', function () {
-	location.reload();
-	})
-}
-*/
+#AnexoHtml#
 
 </script>
 </body>
 </html>
 ENDCONTENT
 
+cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml(.F.))
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
 cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
 cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())

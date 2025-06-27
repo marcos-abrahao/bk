@@ -1624,7 +1624,7 @@ if (Array.isArray(titulos)) {
 			
 			// Versão segura com template literals e escape adequado
 			anexos += `<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="${cbta}" 
-					onclick="Anexo('${cEmpresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
+					onclick="AnexoBk('${cEmpresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}', 'P')">
 					<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
 		});
 	} else {
@@ -1887,7 +1887,7 @@ if (Array.isArray(dadosE2.F1_ANEXOS) && dadosE2.F1_ANEXOS.length > 0) {
 		
 		// Versão segura com template literals e escape adequado
 		anexos += `<button type="button" class="btn btn-link" style="font-size: 0.9rem;" id="${cbta}" 
-				onclick="Anexo('${empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}')">
+				onclick="AnexoBk('${empresa}', '${anexo['F1_ENCODE']}', '${anexo['F1_MIME']}', '${cbta}','P')">
 				<i class="bi bi-paperclip"></i>${anexo['F1_ANEXO']}</button> `;
 	});
 } else {
@@ -2224,7 +2224,7 @@ async function AltEmpr(empresaTexto) {
 </html>
 ENDCONTENT
 
-cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml())
+cHtml := STRTRAN(cHtml,"#AnexoHtml#" ,u_AnexoHtml(.F.))
 cHtml := STRTRAN(cHtml,"#usrrest#"	 ,u_BkUsrRest())
 cHtml := STRTRAN(cHtml,"#pswrest#"	 ,u_BkPswRest())
 cHtml := STRTRAN(cHtml,"#iprest#"	 ,u_BkRest())
