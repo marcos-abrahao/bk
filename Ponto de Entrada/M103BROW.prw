@@ -15,13 +15,14 @@ Local laClas		:= .F.
 Local lFiltLib		:= .F.
 Local lRPC 			:= IsBlind()
 Local lStaf 		:= .F.
+Local lMaster		:= .F.
 
 // Variaveis novo filtro
 Local cFiltro1 		:= ""
 Local lGrupo   		:= .F.
 Local cSubs	 		:= ""
 Local cAndOr		:= ""
-Local cAux 			:= ""
+Local cMaster		:= "000000/000007/000037/000038/000050"+IIF(!lRPC,"/000045","")
 
 If FWIsInCallStack("GERADOCE")
 	Return cFiltro1
@@ -30,13 +31,14 @@ EndIf
 Dbselectarea("SF1")
 DBCLEARFILTER() 
 
-lStaf  := u_IsStaf(__cUserId)
-	
+lStaf   := u_IsStaf(__cUserId)
+lMaster := u_InGrupo(__cUserId,cMaster)
+
 If !lRPC
 	//lAClas := MsgBox("Filtrar os Docs a Classificar/Aprovar", "M103FILB", "YESNO")
 	lAClas := u_MsgLog("M103FILB","Filtrar os Docs a Classificar?","Y")
 	If lAClas
-		If FWIsAdmin(__cUserId)
+		If lMaster  //FWIsAdmin(__cUserId)
 			lFiltLib := u_MsgLog("M103FILB","Filtrar os Doc a liberar?","Y")
 		EndIf
 	EndIf
@@ -46,8 +48,7 @@ EndIf
 
 // Novo Filtro - Aprovação em duas etapas
 
-cAux := "000000/000007/000037/000038/000050"+IIF(!lRPC,"/000045","")
-If u_InGrupo(__cUserId,cAux) // Administradores/Diretoria/Controladoria/Master Libera/Master Libera Barcas/Jurídico
+If lMaster // Administradores/Diretoria/Controladoria/Master Libera/Master Libera Barcas/Jurídico
 	If lAClas .OR. lRPC
 		If lFiltLib
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
