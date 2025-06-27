@@ -50,7 +50,7 @@ EndIf
 
 If lMaster // Administradores/Diretoria/Controladoria/Master Libera/Master Libera Barcas/Jurídico
 	If lAClas .OR. lRPC
-		If lFiltLib
+		If lFiltLib .OR. lRPC
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
 		Else
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB <> 'L')"
