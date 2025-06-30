@@ -22,6 +22,7 @@ Local cFiltro1 		:= ""
 Local lGrupo   		:= .F.
 Local cSubs	 		:= ""
 Local cAndOr		:= ""
+						// Administradores/Diretoria/Controladoria/Master Libera/Master Libera Barcas/Jurídico
 Local cMaster		:= "000000/000007/000037/000038/000050"+IIF(!lRPC,"/000045","")
 
 If FWIsInCallStack("GERADOCE")
@@ -48,12 +49,12 @@ EndIf
 
 // Novo Filtro - Aprovação em duas etapas
 
-If lMaster // Administradores/Diretoria/Controladoria/Master Libera/Master Libera Barcas/Jurídico
+If lMaster
 	If lAClas .OR. lRPC
-		If lFiltLib .OR. lRPC
+		If lFiltLib //.OR. lRPC
 			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB IN ('B','E','L'))"
 		Else
-			cFiltro1 := "(F1_STATUS IN (' ','B') AND F1_XXLIB <> 'L')"
+			cFiltro1 := "(F1_STATUS IN (' ','B'))"   //  AND F1_XXLIB <> 'L'
 		EndIf
 	EndIf
 	lGrupo   := .T.
